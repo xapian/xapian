@@ -1,3 +1,15 @@
+Mon Sep 16 10:22:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/matchspy.cc: Fix get_description() to work on a
+	  ValueCountMatchSpy with NULL internals - fixes matchspy5 testcase
+	  with remote backends when configured with --enable-log.
+	* api/matchspy.cc: Add assertions that internal is non-NULL before
+	  using it.
+	* include/xapian/matchspy.h: If internal is NULL, make
+	  ValueCountMatchSpy::get_total() return 0 rather than dereferencing
+	  NULL.
+
 Mon Sep 02 09:39:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

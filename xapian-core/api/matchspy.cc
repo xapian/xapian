@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -296,6 +296,7 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
 
 void
 ValueCountMatchSpy::operator()(const Document &doc, weight) {
+    Assert(internal.get());
     ++(internal->total);
     string val(doc.get_value(internal->slot));
     if (!val.empty()) ++(internal->values[val]);
@@ -304,6 +305,7 @@ ValueCountMatchSpy::operator()(const Document &doc, weight) {
 TermIterator
 ValueCountMatchSpy::values_begin() const
 {
+    Assert(internal.get());
     AutoPtr<ValueCountTermList> termlist(new ValueCountTermList(internal.get()));
     return Xapian::TermIterator(termlist.release());
 }
@@ -311,6 +313,7 @@ ValueCountMatchSpy::values_begin() const
 TermIterator
 ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 {
+    Assert(internal.get());
     AutoPtr<StringAndFreqTermList> termlist(new StringAndFreqTermList);
     get_most_frequent_items(termlist->values, internal->values, maxvalues);
     termlist->init();
@@ -319,6 +322,7 @@ ValueCountMatchSpy::top_values_begin(size_t maxvalues) const
 
 MatchSpy *
 ValueCountMatchSpy::clone() const {
+    Assert(internal.get());
     return new ValueCountMatchSpy(internal->slot);
 }
 
@@ -329,6 +333,7 @@ ValueCountMatchSpy::name() const {
 
 string
 ValueCountMatchSpy::serialise() const {
+    Assert(internal.get());
     string result;
     result += encode_length(internal->slot);
     return result;
@@ -351,6 +356,7 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
 string
 ValueCountMatchSpy::serialise_results() const {
     LOGCALL(REMOTE, string, "ValueCountMatchSpy::serialise_results", NO_ARGS);
+    Assert(internal.get());
     string result;
     result += encode_length(internal->total);
     result += encode_length(internal->values.size());
@@ -366,6 +372,7 @@ ValueCountMatchSpy::serialise_results() const {
 void
 ValueCountMatchSpy::merge_results(const string & s) {
     LOGCALL_VOID(REMOTE, "ValueCountMatchSpy::merge_results", s);
+    Assert(internal.get());
     const char * p = s.data();
     const char * end = p + s.size();
 
@@ -386,6 +393,14 @@ ValueCountMatchSpy::merge_results(const string & s) {
 
 string
 ValueCountMatchSpy::get_description() const {
-    return "Xapian::ValueCountMatchSpy(" + str(internal->total) +
-	    " docs seen, looking in " + str(internal->values.size()) + " slots)";
+    string d = "ValueCountMatchSpy(";
+    if (internal.get()) {
+	d += str(internal->total);
+	d += " docs seen, looking in ";
+	d += str(internal->values.size());
+	d += " slots)";
+    } else {
+	d += ")";
+    }
+    return d;
 }
