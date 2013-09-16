@@ -2,7 +2,7 @@
 #ifndef XAPIAN_INCLUDED_BYTESTREAM_H
 #define XAPIAN_INCLUDED_BYTESTREAM_H
 
-#include "xapian.h"
+#include <xapian.h>
 
 #include "lucene_term.h"
 

@@ -4,6 +4,7 @@
 
 //xapian.h must be included, in order to use Xapian namespace
 #include <xapian.h>
+
 #include <fstream>
 
 class LuceneStatTable {
