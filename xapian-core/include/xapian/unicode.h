@@ -132,6 +132,10 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
     /** Get the current Unicode character value pointed to by the iterator.
      *
+     *  If an invalid UTF-8 sequence is encountered, then the byte values
+     *  comprising it are returned until valid UTF-8 or the end of the input is
+     *  reached.
+     *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
     unsigned operator*() const XAPIAN_PURE_FUNCTION;

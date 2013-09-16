@@ -1,3 +1,8 @@
+Mon Sep 16 11:47:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Document how Utf8Iterator handles invalid
+	  UTF-8.
+
 Mon Sep 16 11:19:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add test coverage for explicit synonym of
