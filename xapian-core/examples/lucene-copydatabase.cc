@@ -2,13 +2,14 @@
 #include <config.h>
 #include <xapian.h>
 
+#include "safesysstat.h"
+
 #include <dirent.h>
 #include <iostream>
 #include <cstdlib>
 #include <fstream>
 #include <cstring>
 #include <errno.h>
-#include <sys/stat.h>
 #include <sys/types.h>
 
 using namespace std;

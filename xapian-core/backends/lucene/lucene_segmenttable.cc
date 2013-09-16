@@ -16,7 +16,7 @@ LuceneSegmentTable::LuceneSegmentTable(const string &db_dir_)
         stream_reader(db_dir)
 {
     LOGCALL_CTOR(DB, "LuceneSegmentTable", db_dir);
-    file_name = "";
+    file_name = string();
 }
 
 bool 

@@ -20,7 +20,7 @@
  */ 
 ByteStreamReader::ByteStreamReader(const string & db_dir_)
         : db_dir(db_dir_),
-        file_name("")
+        file_name(string())
 {
 #ifdef LUCENE_BLOCK_IO
     handle = -1;

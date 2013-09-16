@@ -14,7 +14,7 @@ LuceneTiiTable::LuceneTiiTable(const string & db_dir_)
         stream_reader(db_dir)
 {
     LOGCALL_CTOR(DB, "LuceneTiiTable", db_dir);
-    file_name = "";
+    file_name = string();
 }
 
 bool

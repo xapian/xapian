@@ -17,7 +17,7 @@ using Xapian::Internal::intrusive_ptr;
 LuceneSegdb::LuceneSegdb(const string & db_dir_,
             intrusive_ptr<LuceneSegmentPart> seg_part_)
         : db_dir(db_dir_),
-        prefix(""),
+        prefix(string()),
         index_reader(db_dir),
         frq_table(db_dir),
         fdtx_table(db_dir),

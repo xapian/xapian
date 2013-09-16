@@ -27,7 +27,7 @@ LuceneStatTable::LuceneStatTable(const string & db_dir_)
         return ;
     }
 
-    string line = "";
+    string line = string();
     while (getline(fin, line)) {
         std::size_t found = line.find_first_of("=");
         if (found == std::string::npos) {
