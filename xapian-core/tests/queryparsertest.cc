@@ -2247,6 +2247,7 @@ static const test test_synonym_op_queries[] = {
     { "+~search terms", "((Zsearch@1 SYNONYM find@1) AND_MAYBE Zterm@2)" },
     { "-~search terms", "(Zterm@2 AND_NOT (Zsearch@1 SYNONYM find@1))" },
     { "~search terms", "((Zsearch@1 SYNONYM find@1) OR Zterm@2)" },
+    { "~foo:search", "(ZXFOOsearch@1 SYNONYM prefixated@1)" },
     // FIXME: should look for multi-term synonym...
     { "~\"search terms\"", "(search@1 PHRASE 2 terms@2)" },
     { NULL, NULL }
@@ -2263,6 +2264,7 @@ static bool test_qp_synonym3()
     db.add_synonym("Zsearch", "Zlocate");
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
+    db.add_synonym("ZXFOOsearch", "prefixated");
 
     db.commit();
 
@@ -2270,6 +2272,7 @@ static bool test_qp_synonym3()
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.set_database(db);
+    qp.add_prefix("foo", "XFOO");
 
     for (const test *p = test_synonym_op_queries; p->query; ++p) {
 	string expect = "Query(";

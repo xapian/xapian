@@ -1,3 +1,8 @@
+Mon Sep 16 11:19:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add test coverage for explicit synonym of
+	  a term with a prefix (e.g. ~foo:search).
+
 Fri Sep 06 07:11:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/valueiterator.cc,tests/api_backend.cc: Don't segfault is
