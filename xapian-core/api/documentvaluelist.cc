@@ -1,7 +1,7 @@
 /** @file documentvaluelist.cc
  * @brief Iteration over values in a document.
  */
-/* Copyright (C) 2008,2009,2011 Olly Betts
+/* Copyright (C) 2008,2009,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include "backends/document.h"
 #include "omassert.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 #include "xapian/error.h"
 
@@ -80,7 +81,7 @@ DocumentValueList::get_description() const
 	desc += "slot=";
 	desc += str(get_valueno());
 	desc += ", value=\"";
-	desc += get_value();
+	description_append(desc, get_value());
 	desc += "\")";
     } else {
 	desc += "atend)";

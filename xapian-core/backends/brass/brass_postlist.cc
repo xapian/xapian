@@ -1,7 +1,7 @@
 /* brass_postlist.cc: Postlists in a brass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@
 #include "noreturn.h"
 #include "pack.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 using Xapian::Internal::intrusive_ptr;
 
@@ -974,7 +975,11 @@ BrassPostList::jump_to(Xapian::docid desired_did)
 string
 BrassPostList::get_description() const
 {
-    return term + ":" + str(number_of_entries);
+    string desc;
+    description_append(desc, term);
+    desc += ":";
+    desc += str(number_of_entries);
+    return desc;
 }
 
 // Returns the last did to allow in this chunk.

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2011,2013 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@
 #include "maptermlist.h"
 #include "net/serialise.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 #include <xapian/error.h>
 #include <xapian/types.h>
@@ -261,11 +262,13 @@ string
 OmDocumentTerm::get_description() const
 {
     string description;
-
-    description = "OmDocumentTerm(" + tname +
-	    ", wdf = " + str(wdf) +
-	    ", positions[" + str(positions.size()) + "]" +
-	    ")";
+    description = "OmDocumentTerm(";
+    description_append(description, tname);
+    description += ", wdf = ";
+    description += str(wdf);
+    description += ", positions[";
+    description += str(positions.size());
+    description += "])";
     return description;
 }
 

@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -176,5 +176,17 @@ DEFINE_TESTCASE(xor3, backend) {
     TEST_EQUAL(*mset[2], 2);
     TEST_EQUAL(*mset[3], 3);
 
+    return true;
+}
+
+/// Check encoding of non-UTF8 terms in query descriptions.
+DEFINE_TESTCASE(nonutf8termdesc1, !backend) {
+    TEST_EQUAL(Xapian::Query("\xc0\x80\xf5\x80\x80\x80\xfe\xff").get_description(),
+	       "Query(\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff)");
+    TEST_EQUAL(Xapian::Query(string("\x00\x1f", 2)).get_description(),
+	       "Query(\\x00\\x1f)");
+    // Check that backslashes are encoded so output isn't ambiguous.
+    TEST_EQUAL(Xapian::Query("back\\slash").get_description(),
+	       "Query(back\\x5cslash)");
     return true;
 }

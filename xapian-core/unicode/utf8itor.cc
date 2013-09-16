@@ -1,6 +1,6 @@
 /* utf8itor.cc: iterate over a utf8 string.
  *
- * Copyright (C) 2006,2007,2010 Olly Betts
+ * Copyright (C) 2006,2007,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ Utf8Iterator::Utf8Iterator(const char *p_)
     assign(p_, strlen(p_));
 }
 
-void
+bool
 Utf8Iterator::calculate_sequence_length() const
 {
     // Handle invalid UTF-8, overlong sequences, and truncated sequences as
@@ -82,36 +82,53 @@ Utf8Iterator::calculate_sequence_length() const
     //
     // (0xc0 and 0xc1 would start 2 byte sequences for characters which are
     // representable in a single byte, and we should not decode these.)
-    if (ch < 0xc2) return;
+    if (ch < 0xc2) return (ch < 0x80);
 
     if (ch < 0xe0) {
 	if (p + 1 == end || // Not enough bytes
 	    bad_cont(p[1])) // Invalid
-	    return;
+	    return false;
 	seqlen = 2;
-	return;
+	return true;
     }
     if (ch < 0xf0) {
 	if (end - p < 3 || // Not enough bytes
 	    bad_cont(p[1]) || bad_cont(p[2]) || // Invalid
 	    (p[0] == 0xe0 && p[1] < 0xa0)) // Overlong encoding
-	    return;
+	    return false;
 	seqlen = 3;
-	return;
+	return true;
     }
     if (ch >= 0xf5 || // Code value above Unicode
 	end - p < 4 || // Not enough bytes
 	bad_cont(p[1]) || bad_cont(p[2]) || bad_cont(p[3]) || // Invalid
 	(p[0] == 0xf0 && p[1] < 0x90) || // Overlong encoding
 	(p[0] == 0xf4 && p[1] >= 0x90)) // Code value above Unicode
-	return;
+	return false;
     seqlen = 4;
-    return;
+    return true;
 }
 
 unsigned Utf8Iterator::operator*() const {
     if (p == NULL) return unsigned(-1);
     if (seqlen == 0) calculate_sequence_length();
+    unsigned char ch = *p;
+    if (seqlen == 1) return ch;
+    if (seqlen == 2) return ((ch & 0x1f) << 6) | (p[1] & 0x3f);
+    if (seqlen == 3)
+	return ((ch & 0x0f) << 12) | ((p[1] & 0x3f) << 6) | (p[2] & 0x3f);
+    return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) |
+	    ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
+}
+
+unsigned
+Utf8Iterator::strict_deref() const
+{
+    if (p == NULL) return unsigned(-1);
+    if (seqlen == 0) {
+	if (!calculate_sequence_length())
+	    return unsigned(*p) | 0x80000000;
+    }
     unsigned char ch = *p;
     if (seqlen == 1) return ch;
     if (seqlen == 2) return ((ch & 0x1f) << 6) | (p[1] & 0x3f);

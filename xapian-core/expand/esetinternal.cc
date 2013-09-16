@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010,2011 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@
 #include "ortermlist.h"
 #include "str.h"
 #include "api/termlist.h"
+#include "unicode/description_append.h"
 
 #include "autoptr.h"
 #include <set>
@@ -49,7 +50,7 @@ Internal::ExpandTerm::get_description() const
     string desc("ExpandTerm(");
     desc += str(wt);
     desc += ", ";
-    desc += term;
+    description_append(desc, term);
     desc += ')';
     return desc;
 }

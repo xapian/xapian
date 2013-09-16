@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@
 #include "safeunistd.h"
 #include "net/length.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 #include "autoptr.h"
 #include <cstdio> // For rename().
@@ -103,7 +104,10 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 string
 DatabaseMaster::get_description() const
 {
-    return "DatabaseMaster(" + path + ")";
+    string desc = "DatabaseMaster(";
+    description_append(desc, path);
+    desc += ")";
+    return desc;
 }
 
 /// Internal implementation of DatabaseReplica

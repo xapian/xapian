@@ -1387,16 +1387,16 @@ static bool test_qp_value_range1()
 
 static const test test_value_range2_queries[] = {
     { "a..b", "0 * VALUE_RANGE 3 a b" },
-    { "1..12", "0 * VALUE_RANGE 2 \240 \256" },
+    { "1..12", "0 * VALUE_RANGE 2 \\xa0 \\xae" },
     { "20070201..20070228", "0 * VALUE_RANGE 1 20070201 20070228" },
-    { "$10..20", "0 * VALUE_RANGE 4 \255 \261" },
-    { "$10..$20", "0 * VALUE_RANGE 4 \255 \261" },
+    { "$10..20", "0 * VALUE_RANGE 4 \\xad \\xb1" },
+    { "$10..$20", "0 * VALUE_RANGE 4 \\xad \\xb1" },
     // Feature test for single-ended ranges (ticket#480):
-    { "$..20", "0 * VALUE_LE 4 \261" },
+    { "$..20", "0 * VALUE_LE 4 \\xb1" },
     { "..$20", "0 * VALUE_LE 3 $20" }, // FIXME: probably should parse as $..20
-    { "$10..", "0 * VALUE_GE 4 \255" },
-    { "12..42kg", "0 * VALUE_RANGE 5 \256 \265@" },
-    { "12kg..42kg", "0 * VALUE_RANGE 5 \256 \265@" },
+    { "$10..", "0 * VALUE_GE 4 \\xad" },
+    { "12..42kg", "0 * VALUE_RANGE 5 \\xae \\xb5@" },
+    { "12kg..42kg", "0 * VALUE_RANGE 5 \\xae \\xb5@" },
     { "12kg..42", "0 * VALUE_RANGE 3 12kg 42" },
     { "10..$20", "" }, // start > end
     { "1999-03-12..2020-12-30", "0 * VALUE_RANGE 1 19990312 20201230" },
@@ -1408,7 +1408,7 @@ static const test test_value_range2_queries[] = {
     { "12/03/99..12/04/01", "0 * VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "0 * VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello@1 FILTER VALUE_RANGE 3 test:a test:b)" },
-    { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \240 \256 AND (VALUE_RANGE 5 \256 \265@ OR VALUE_RANGE 5 \251 \252))" },
+    { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \\xa0 \\xae AND (VALUE_RANGE 5 \\xae \\xb5@ OR VALUE_RANGE 5 \\xa9 \\xaa))" },
     // Check that a VRP which fails to match doesn't remove a prefix or suffix.
     // 1.0.13/1.1.1 and earlier got this wrong in some cases.
     { "$12a..13", "0 * VALUE_RANGE 3 $12a 13" },

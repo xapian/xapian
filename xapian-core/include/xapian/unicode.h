@@ -40,7 +40,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     const unsigned char *end;
     mutable unsigned seqlen;
 
-    void calculate_sequence_length() const;
+    bool calculate_sequence_length() const;
 
     unsigned get_char() const;
 
@@ -139,6 +139,18 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
     unsigned operator*() const XAPIAN_PURE_FUNCTION;
+
+    /** @private @internal Get the current Unicode character
+     *  value pointed to by the iterator.
+     *
+     *  If an invalid UTF-8 sequence is encountered, then the byte values
+     *  comprising it are returned with the top bit set (so the caller can
+     *  differentiate these from the same values arising from valid UTF-8)
+     *  until valid UTF-8 or the end of the input is reached.
+     *
+     *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
+     */
+    unsigned strict_deref() const XAPIAN_PURE_FUNCTION;
 
     /** Move forward to the next Unicode character.
      *

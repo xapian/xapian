@@ -1,7 +1,7 @@
 /** @file error.cc
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008,2011 Olly Betts
+/* Copyright (C) 2007,2008,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@
 #include <cstring> // For strerror().
 
 #include "str.h"
+#include "unicode/description_append.h"
 
 using namespace std;
 
@@ -111,13 +112,13 @@ Xapian::Error::get_description() const
     desc += msg;
     if (!context.empty()) {
 	desc += " (context: ";
-	desc += context;
+	description_append(desc, context);
 	desc += ')';
     }
     const char *e = get_error_string();
     if (e) {
 	desc += " (";
-	desc += e;
+	description_append(desc, e);
 	desc += ')';
     }
     return desc;

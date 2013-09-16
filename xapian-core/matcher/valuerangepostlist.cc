@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright 2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -27,6 +27,7 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 using namespace std;
 
@@ -185,9 +186,9 @@ ValueRangePostList::get_description() const
     string desc = "ValueRangePostList(";
     desc += str(slot);
     desc += ", ";
-    desc += begin;
+    description_append(desc, begin);
     desc += ", ";
-    desc += end;
+    description_append(desc, end);
     desc += ")";
     return desc;
 }

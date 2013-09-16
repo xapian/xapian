@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -47,6 +47,7 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 #include <algorithm>
 #include <functional>
@@ -508,9 +509,12 @@ namespace Internal {
 string
 QueryTerm::get_description() const
 {
-    string desc = term;
-    if (term.empty())
+    string desc;
+    if (term.empty()) {
 	desc = "<alldocuments>";
+    } else {
+	description_append(desc, term);
+    }
     if (wqf != 1) {
 	desc += '#';
 	desc += str(wqf);
@@ -654,9 +658,9 @@ QueryValueRange::get_description() const
     string desc = "VALUE_RANGE ";
     desc += str(slot);
     desc += ' ';
-    desc += begin;
+    description_append(desc, begin);
     desc += ' ';
-    desc += end;
+    description_append(desc, end);
     return desc;
 }
 
@@ -695,7 +699,7 @@ QueryValueLE::get_description() const
     string desc = "VALUE_LE ";
     desc += str(slot);
     desc += ' ';
-    desc += limit;
+    description_append(desc, limit);
     return desc;
 }
 
@@ -732,7 +736,7 @@ QueryValueGE::get_description() const
     string desc = "VALUE_GE ";
     desc += str(slot);
     desc += ' ';
-    desc += limit;
+    description_append(desc, limit);
     return desc;
 }
 

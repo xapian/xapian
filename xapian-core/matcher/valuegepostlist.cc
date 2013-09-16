@@ -1,7 +1,7 @@
 /** @file valuegepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2011 Olly Betts
+/* Copyright 2007,2008,2011,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -26,6 +26,7 @@
 
 #include "omassert.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 using namespace std;
 
@@ -80,7 +81,7 @@ ValueGePostList::get_description() const
     string desc = "ValueGePostList(";
     desc += str(slot);
     desc += ", ";
-    desc += begin;
+    description_append(desc, begin);
     desc += ")";
     return desc;
 }
