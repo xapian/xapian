@@ -1,3 +1,8 @@
+Mon Sep 16 12:00:41 GMT 2013  Olly Betts <olly@survex.com>
+
+	* perl/t/parser.t: Update for xapian-core change to always return
+	  UTF-8 object descriptions.  (see #620)
+
 Mon Jul 15 12:10:18 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* csharp/Makefile.am,java/Makefile.am: Update for DPHWeight.

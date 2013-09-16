@@ -105,12 +105,12 @@ $qp->add_valuerangeprocessor( $vrp3 );
 $qp->add_boolean_prefix("test", "XTEST");
 foreach $pair (
     [ 'a..b', '0 * VALUE_RANGE 3 a b' ],
-    [ '1..12', "0 * VALUE_RANGE 2 \xa0 \xae" ],
+    [ '1..12', "0 * VALUE_RANGE 2 \\xa0 \\xae" ],
     [ '20070201..20070228', '0 * VALUE_RANGE 1 20070201 20070228' ],
-    [ '$10..20', "0 * VALUE_RANGE 4 \xad \xb1" ],
-    [ '$10..$20', "0 * VALUE_RANGE 4 \xad \xb1" ],
-    [ '12..42kg', "0 * VALUE_RANGE 5 \xae \xb5\@" ],
-    [ '12kg..42kg', "0 * VALUE_RANGE 5 \xae \xb5\@" ],
+    [ '$10..20', "0 * VALUE_RANGE 4 \\xad \\xb1" ],
+    [ '$10..$20', "0 * VALUE_RANGE 4 \\xad \\xb1" ],
+    [ '12..42kg', "0 * VALUE_RANGE 5 \\xae \\xb5\@" ],
+    [ '12kg..42kg', "0 * VALUE_RANGE 5 \\xae \\xb5\@" ],
     [ '12kg..42', '0 * VALUE_RANGE 3 12kg 42' ],
     [ '10..$20', '' ],
     [ '1999-03-12..2020-12-30', '0 * VALUE_RANGE 1 19990312 20201230' ],
