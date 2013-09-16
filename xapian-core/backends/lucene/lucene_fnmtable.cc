@@ -11,11 +11,11 @@ using namespace std;
 
 FnmBitsInfo::FnmBitsInfo()
         : has_indexed_field(false),
-        has_term_vector(false),
-        has_norm(false),
-        has_payload(false),
-        has_freq_pos(false),
-        has_position(false)
+          has_term_vector(false),
+          has_norm(false),
+          has_payload(false),
+          has_freq_pos(false),
+          has_position(false)
 {
 }
 

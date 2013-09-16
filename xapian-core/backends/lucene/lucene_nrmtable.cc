@@ -10,14 +10,14 @@ using namespace std;
 
 LuceneNrmTable::LuceneNrmTable(const string & db_dir_)
         : db_dir(db_dir_),
-        file_name(""),
-        nrm_version(0),
+          file_name(string()),
+          nrm_version(0),
 #ifdef LOAD_WHOLE_NORM
-        norms(NULL),
+          norms(NULL),
 #else
-        reader(db_dir_),
+          reader(db_dir_),
 #endif
-        seg_size(0)
+          seg_size(0)
 {
 }
 

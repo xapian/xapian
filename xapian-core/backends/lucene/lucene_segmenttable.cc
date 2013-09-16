@@ -13,7 +13,7 @@ using Xapian::Internal::intrusive_ptr;
 
 LuceneSegmentTable::LuceneSegmentTable(const string &db_dir_)
         : db_dir(db_dir_),
-        stream_reader(db_dir)
+          stream_reader(db_dir)
 {
     LOGCALL_CTOR(DB, "LuceneSegmentTable", db_dir);
     file_name = string();

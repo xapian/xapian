@@ -14,8 +14,8 @@ using namespace std;
 
 LuceneTermIndex::LuceneTermIndex(const string & db_dir_)
         : tii_table(db_dir_),
-        fnm_table(db_dir_),
-        tis_table(db_dir_)
+          fnm_table(db_dir_),
+          tis_table(db_dir_)
 {
 }
 

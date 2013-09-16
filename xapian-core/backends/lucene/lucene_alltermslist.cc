@@ -15,9 +15,9 @@ using namespace Xapian;
 LuceneAllTermsList::LuceneAllTermsList(intrusive_ptr<const LuceneDatabase> this_db_,
             const string & prefix_)
         : this_db(this_db_),
-        seg_idx(0),
-        is_at_end(true),
-        prefix(prefix_)
+          seg_idx(0),
+          is_at_end(true),
+          prefix(prefix_)
 {
     seg_db = this_db->get_segdb(seg_idx);
     if (intrusive_ptr<LuceneSegdb>(NULL) != seg_db) {

@@ -16,13 +16,13 @@ using namespace std;
 
 LuceneTisTable::LuceneTisTable(const string & db_dir_)
         : db_dir(db_dir_),
-        stream_reader(db_dir_),
-        ti_version(0),
-        term_count(0),
-        index_interval(0),
-        skip_interval(0),
-        max_skip_levels(0),
-        counter(0)
+          stream_reader(db_dir_),
+          ti_version(0),
+          term_count(0),
+          index_interval(0),
+          skip_interval(0),
+          max_skip_levels(0),
+          counter(0)
 {
 }
 

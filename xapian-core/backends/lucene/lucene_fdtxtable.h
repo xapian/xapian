@@ -10,6 +10,7 @@ class LuceneFdtxTable {
     friend class LuceneSegdb;
 
     string db_dir;
+
     /* File name for .fdx */
     string fdx_filename;
 

@@ -13,8 +13,8 @@ using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 LuceneFrqTable::LuceneFrqTable(const string & db_dir_)
-        :db_dir(db_dir_),
-        stream_reader(db_dir_)
+        : db_dir(db_dir_),
+          stream_reader(db_dir_)
 {
 }
 

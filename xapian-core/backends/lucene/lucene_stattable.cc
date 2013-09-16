@@ -13,7 +13,7 @@ using namespace std;
 
 LuceneStatTable::LuceneStatTable(const string & db_dir_)
         : wdf_upper_bound(0),
-        db_dir(db_dir_)
+          db_dir(db_dir_)
 {
     LOGCALL_CTOR(DB, "LuceneStatTable", db_dir);
     string file_path = db_dir + "/" + "stat.xapian";

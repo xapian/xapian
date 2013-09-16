@@ -9,8 +9,8 @@ LuceneDocument::LuceneDocument(intrusive_ptr<const Xapian::Database::Internal> d
             Xapian::docid did_,
             intrusive_ptr<const LuceneSegdb> seg_db_)
         : Xapian::Document::Internal(db_, did_),
-        seg_db(seg_db_),
-        has_read(false)
+          seg_db(seg_db_),
+          has_read(false)
 {
     LOGCALL_CTOR(DB, "LuceneDocument", did_);
 }

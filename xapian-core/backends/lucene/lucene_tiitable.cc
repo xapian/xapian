@@ -11,7 +11,7 @@ using namespace std;
 
 LuceneTiiTable::LuceneTiiTable(const string & db_dir_)
         : db_dir(db_dir_),
-        stream_reader(db_dir)
+          stream_reader(db_dir)
 {
     LOGCALL_CTOR(DB, "LuceneTiiTable", db_dir);
     file_name = string();

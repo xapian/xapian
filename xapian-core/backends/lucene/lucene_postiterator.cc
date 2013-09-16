@@ -11,9 +11,9 @@ LucenePostIterator::LucenePostIterator(intrusive_ptr<const LuceneDatabase> this_
             intrusive_ptr<const LuceneSegdb> seg_db_,
             const LuceneTermInfo & ti_, unsigned int seg_idx_)
         : this_db(this_db_),
-        seg_db(seg_db_),
-        ti(ti_),
-        seg_idx(seg_idx_)
+          seg_db(seg_db_),
+          ti(ti_),
+          seg_idx(seg_idx_)
 {
     intrusive_ptr<LucenePostList> postlist(seg_db->open_postlist_directly(ti));
     pl = postlist;

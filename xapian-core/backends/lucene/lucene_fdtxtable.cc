@@ -17,8 +17,8 @@ using Xapian::Internal::intrusive_ptr;
 
 LuceneFdtxTable::LuceneFdtxTable(const string & db_dir_)
         : db_dir(db_dir_),
-        fdx_reader(db_dir),
-        fdt_reader(db_dir)
+          fdx_reader(db_dir),
+          fdt_reader(db_dir)
 {
     LOGCALL_CTOR(DB, "LuceneFdtxTable", NO_ARGS);
 }
@@ -107,9 +107,9 @@ LuceneFdtxTable::get_record(Xapian::docid did, map<int, string> & string_map,
         string_map.insert(pair<int, string>(field_num, record));
     }
 
-    int_map.size();
-    long_map.size();
-    float_map.size();
-    double_map.size();
+    (void)int_map;
+    (void)long_map;
+    (void)float_map;
+    (void)double_map;
 }
 
