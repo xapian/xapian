@@ -1,3 +1,10 @@
+Mon Sep 16 10:48:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/testsuite.cc,tests/harness/testsuite.h: If
+	  -v/--verbose is specified more than once, show the diagnostic output
+	  for passing tests as well as failing/skipped ones.
+
 Mon Sep 16 10:22:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
