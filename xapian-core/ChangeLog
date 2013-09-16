@@ -1,3 +1,8 @@
+Mon Sep 16 10:59:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_serialise.cc: Fix up bad application of recent backport to
+	  this file.
+
 Mon Sep 16 10:48:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
