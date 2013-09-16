@@ -1,3 +1,7 @@
+Mon Sep 16 11:21:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* runfilter.h: Remove trailing space added in recent commit.
+
 Mon Sep 16 02:04:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* diritor.h,runfilter.cc,runfilter.h: Pass error message string and
