@@ -1,3 +1,10 @@
+Mon Sep 16 11:28:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/queryparsertest.cc: Fix previous change to compile.
+	* tests/queryparsertest.cc: Change qp_scale1 to time 5 repetitions of
+	  the large query to help average out variations.
+
 Mon Sep 16 10:59:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_serialise.cc: Fix up bad application of recent backport to
