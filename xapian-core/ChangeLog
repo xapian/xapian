@@ -1,3 +1,13 @@
+Mon Sep 16 11:50:28 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* api/valueiterator.cc,tests/api_backend.cc: Don't segfault is
+	  skip_to() or check() are called on a ValueIterator which is already
+	  at_end().
+	* api/positioniterator.cc,api/postingiterator.cc,api/termiterator.cc,
+	  tests/api_backend.cc: Don't segfault if skip_to() is called on an
+	  iterator which is already at_end().  Reported by David Bremner.
+
 Mon Sep 16 11:28:17 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

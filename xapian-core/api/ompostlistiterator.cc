@@ -86,7 +86,7 @@ void
 Xapian::PostingIterator::skip_to(Xapian::docid did)
 {
     LOGCALL_VOID(API, "Xapian::PostingIterator::skip_to", did);
-    Assert(internal.get());
+    if (!internal.get()) return;
     Assert(!internal->at_end());
     PostList *p = internal->skip_to(did, 0);
     if (p) internal = p; // handle prune

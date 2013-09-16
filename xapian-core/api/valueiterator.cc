@@ -1,7 +1,7 @@
 /** @file valueiterator.cc
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ void
 ValueIterator::skip_to(Xapian::docid docid_or_slot)
 {
     LOGCALL_VOID(API, "ValueIterator::skip_to", docid_or_slot);
-    Assert(internal.get());
+    if (!internal.get()) return;
     internal->skip_to(docid_or_slot);
     if (internal->at_end()) internal = NULL;
 }
@@ -107,7 +107,7 @@ bool
 ValueIterator::check(Xapian::docid did)
 {
     LOGCALL(API, bool, "ValueIterator::check", did);
-    Assert(internal.get());
+    if (!internal.get()) return true;
     if (!internal->check(did)) return false;
     if (internal->at_end()) internal = NULL;
     return true;
