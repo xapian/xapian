@@ -2,10 +2,10 @@
 #ifndef XAPIAN_INCLUDED_LUCENE_TERMINDEX_H
 #define XAPIAN_INCLUDED_LUCENE_TERMINDEX_H
 
-#include "lucene_tiitable.h"
-#include "lucene_fnmtable.h"
-#include "lucene_tistable.h"
 #include "bytestream.h"
+#include "lucene_fnmtable.h"
+#include "lucene_tiitable.h"
+#include "lucene_tistable.h"
 
 class LuceneTermIndex {
     LuceneTiiTable tii_table;

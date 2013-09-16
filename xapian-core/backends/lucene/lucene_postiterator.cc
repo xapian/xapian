@@ -1,8 +1,9 @@
 
 #include <config.h>
+
 #include "debuglog.h"
 #include "lucene_postiterator.h"
-#include <common/omassert.h>
+#include "omassert.h"
 
 using Xapian::Internal::intrusive_ptr;
 

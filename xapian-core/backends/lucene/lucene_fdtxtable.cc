@@ -1,15 +1,16 @@
 
 #include <config.h>
+
+#include <xapian/intrusive_ptr.h>
+
 #include "debuglog.h"
 #include "lucene_fdtxtable.h"
 #include "lucene_segdb.h"
 #include "internaltypes.h"
-#include "xapian/intrusive_ptr.h"
-
-#include <iostream>
 
 //this line is for debug
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;

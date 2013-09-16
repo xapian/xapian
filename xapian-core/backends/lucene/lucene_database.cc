@@ -1,23 +1,24 @@
 
 #include <config.h>
-#include "debuglog.h"
 
+#include "lucene_database.h"
+
+#include <xapian/error.h>
+#include <xapian/valueiterator.h>
+
+#include "backends/multi/multi_postlist.h"
+#include "debuglog.h"
 #include "lucene_database.h"
 #include "lucene_segdb.h"
 #include "lucene_document.h"
 #include "lucene_nrmlist.h"
 #include "lucene_alltermslist.h"
-
-#include <xapian/error.h>
-#include <xapian/valueiterator.h>
-#include <common/omassert.h>
-#include "backends/multi/multi_postlist.h"
-
-#include <sys/types.h>
+#include "omassert.h"
 
 #include <algorithm>
-#include <string>
 #include <iostream>
+#include <string>
+#include <sys/types.h>
 
 using namespace std;
 using namespace Xapian;

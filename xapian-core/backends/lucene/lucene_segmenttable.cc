@@ -1,11 +1,13 @@
 
 #include <config.h>
-#include "debuglog.h"
-#include "common/omassert.h"
-#include <iostream>
-#include <sstream>
 
 #include "lucene_segmenttable.h"
+
+#include "debuglog.h"
+#include "omassert.h"
+
+#include <iostream>
+#include <sstream>
 
 using Xapian::Internal::intrusive_ptr;
 

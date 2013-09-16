@@ -3,6 +3,7 @@
 #define XAPIAN_INCLUDED_LUCENEPOSTITERATOR_H
 
 #include <xapian.h>
+
 #include "api/postlist.h"
 #include "lucene_term.h"
 #include "lucene_segdb.h"

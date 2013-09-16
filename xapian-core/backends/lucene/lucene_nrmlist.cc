@@ -1,5 +1,6 @@
 
 #include <config.h>
+
 #include "debuglog.h"
 #include "lucene_nrmlist.h"
 

@@ -1,11 +1,15 @@
 
 #include <config.h>
-#include "debuglog.h"
+
+#include "lucene_segdb.h"
+
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
-#include <omassert.h>
+
+#include "debuglog.h"
+#include "omassert.h"
+
 #include <sys/types.h>
-#include "lucene_segdb.h"
 
 using namespace Xapian;
 using Xapian::Internal::intrusive_ptr;

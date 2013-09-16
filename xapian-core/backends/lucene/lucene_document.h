@@ -2,12 +2,11 @@
 #ifndef XAPIAN_INCLUDED_LUCENE_DOCUMENT_H
 #define XAPIAN_INCLUDED_LUCENE_DOCUMENT_H
 
-#include "xapian/intrusive_ptr.h"
+#include <xapian/intrusive_ptr.h>
+
 #include "backends/document.h"
 #include "lucene_segdb.h"
 
-/**
- */
 class LuceneDocument : public Xapian::Document::Internal {
     friend class LuceneDatabase;
     Xapian::Internal::intrusive_ptr<const LuceneSegdb> seg_db;

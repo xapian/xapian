@@ -1,14 +1,15 @@
 #ifndef OM_HGUARD_LUCENE_SEGMENT_DATABASE_H
 #define OM_HGUARD_LUCENE_SEGMENT_DATABASE_H
 
+#include <xapian/intrusive_ptr.h>
+
 #include "backends/valuestats.h"
 #include "internaltypes.h"
-#include "xapian/intrusive_ptr.h"
-#include "noreturn.h"
 #include "lucene_termindex.h"
 #include "lucene_frqtable.h"
 #include "lucene_fdtxtable.h"
 #include "lucene_nrmtable.h"
+#include "noreturn.h"
 
 using namespace std;
 

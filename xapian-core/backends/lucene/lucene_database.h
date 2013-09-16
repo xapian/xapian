@@ -2,13 +2,11 @@
 #define OM_HGUARD_LUCENE_DATABASE_H
 
 #include "backends/database.h"
-#include "internaltypes.h"
-
 #include "backends/valuestats.h"
+#include "internaltypes.h"
 #include "lucene_segmentgentable.h"
 #include "lucene_segmenttable.h"
 #include "lucene_stattable.h"
-
 #include "noreturn.h"
 
 #include <map>
@@ -128,11 +126,11 @@ class LuceneDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_collection_freq(const string &tname) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
-    std::string get_value_lower_bound(Xapian::valueno slot) const;
-    std::string get_value_upper_bound(Xapian::valueno slot) const;
+    string get_value_lower_bound(Xapian::valueno slot) const;
+    string get_value_upper_bound(Xapian::valueno slot) const;
     //Xapian::termcount get_doclength_lower_bound() const;
     //Xapian::termcount get_doclength_upper_bound() const;
-    Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
+    Xapian::termcount get_wdf_upper_bound(const string & term) const;
     bool term_exists(const string & tname) const;
     bool has_positions() const;
 

@@ -3,9 +3,10 @@
 #define XAPIAN_INCLUDE_LUCENE_NRMLIST_H
 
 #include <xapian.h>
-#include <common/omassert.h>
-#include "lucene_database.h"
+
 #include "backends/valuelist.h"
+#include "lucene_database.h"
+#include "omassert.h"
 
 /** you can treat ValueIterator::Internal as a interface, you just
  * need to return a LuceneNrmList object to ValueIterator, then the

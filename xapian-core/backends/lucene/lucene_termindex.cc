@@ -1,15 +1,14 @@
 
 //must include this file to use LOGCALL()
 #include <config.h>
-#include "debuglog.h"
+
 #include "lucene_termindex.h"
 
-#include <iostream>
+#include "debuglog.h"
 
-/**
- * below include is for debug
- */
+//below include is for debug
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 

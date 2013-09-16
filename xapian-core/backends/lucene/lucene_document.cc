@@ -1,5 +1,6 @@
 
 #include <config.h>
+
 #include "lucene_document.h"
 
 using Xapian::Internal::intrusive_ptr;

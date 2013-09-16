@@ -268,6 +268,7 @@ try {
 #else
             string data = doc.get_data(); /* Original method */
 #endif
+            cout << "------------------------------ doc(drink and follow) ------" << endl;
             cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";
         }
     }

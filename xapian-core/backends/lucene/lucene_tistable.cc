@@ -1,8 +1,11 @@
 
 #include <config.h>
-#include "debuglog.h"
-#include <iostream>
+
 #include "lucene_tistable.h"
+
+#include "debuglog.h"
+
+#include <iostream>
 
 /**
  * below include is for debug

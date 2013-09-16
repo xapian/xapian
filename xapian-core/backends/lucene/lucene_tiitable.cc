@@ -1,7 +1,10 @@
 
 #include <config.h>
-#include "debuglog.h"
+
 #include "lucene_tiitable.h"
+
+#include "debuglog.h"
+
 #include <iostream>
 
 using namespace std;

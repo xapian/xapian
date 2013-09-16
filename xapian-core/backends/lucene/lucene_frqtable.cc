@@ -1,9 +1,12 @@
 
 #include <config.h>
-#include "debuglog.h"
-#include <common/omassert.h>
+
 #include "lucene_frqtable.h"
+
+#include "debuglog.h"
 #include "lucene_segdb.h"
+#include "omassert.h"
+
 #include <iostream>
 
 using namespace std;

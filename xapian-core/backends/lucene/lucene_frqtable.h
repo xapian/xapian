@@ -3,10 +3,12 @@
 #define XAPIAN_INCLUDED_LUCENE_FRQTABLE_H
 
 //#include <xapian/database.h>
-#include "internaltypes.h"
-#include "xapian/intrusive_ptr.h"
-#include "bytestream.h"
+
+#include <xapian/intrusive_ptr.h>
+
 #include "api/leafpostlist.h"
+#include "bytestream.h"
+#include "internaltypes.h"
 #include "lucene_database.h"
 
 #include <vector>

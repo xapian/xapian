@@ -1,5 +1,8 @@
 
+#include <config.h>
+
 #include "lucene_term.h"
+
 #include <iostream>
 
 using namespace std;

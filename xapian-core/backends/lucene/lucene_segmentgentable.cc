@@ -1,11 +1,13 @@
 
-#include "debuglog.h"
-#include <iostream>
+#include <config.h>
 
 #include "lucene_segmentgentable.h"
 
+#include "debuglog.h"
+
 //test
 #include <cstdlib>
+#include <iostream>
 
 LuceneSegmentGenTable::LuceneSegmentGenTable(const string & db_dir_)
         : db_dir(db_dir_),

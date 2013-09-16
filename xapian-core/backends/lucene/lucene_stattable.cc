@@ -1,10 +1,13 @@
 
 #include <config.h>
-#include "debuglog.h"
+
 #include "lucene_stattable.h"
 
+#include "debuglog.h"
+
+#include "safeerrno.h"
+
 #include <sstream>
-#include <errno.h>
 
 using namespace std;
 

@@ -3,8 +3,9 @@
 #define XAPIAN_INCLUDED_LUCENE_FNMTABLE_H
 
 #include "bytestream.h"
-#include <vector>
+
 #include <map>
+#include <vector>
 
 /** The low-order bit is one for indexed fields, and zero for non-indexed fields.
  * The second lowest-order bit is one for fields that have term vectors stored,
