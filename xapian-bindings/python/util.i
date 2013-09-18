@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,11 @@
 
 /* Wrap get_description() methods as str(). */
 %rename(__str__) get_description;
+
+%#if PY_VERSION_HEX >= 0x03000000
+/* So iterator objects match the Python3 iterator API. */
+%rename(__next__) next;
+%#endif
 
 /* Hide "unsafe" C++ iterator methods. */
 %rename(_allterms_begin) Xapian::Database::allterms_begin;

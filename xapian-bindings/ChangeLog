@@ -1,3 +1,8 @@
+Wed Sep 18 00:36:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/util.i: Rename next() to __next__() for Python 3 as iterators
+	  need to have a __next__() method there.  (see #346)
+
 Mon Sep 16 12:00:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* perl/t/parser.t: Update for xapian-core change to always return
