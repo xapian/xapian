@@ -290,6 +290,26 @@ namespace Xapian {
 static int
 XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 {
+%#if PY_VERSION_HEX >= 0x03000000
+    if (PyUnicode_Check(*obj)) {
+	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(*obj), PyUnicode_GET_SIZE(*obj), "ignore");
+	if (strobj == NULL) return SWIG_ERROR;
+	char *p;
+	Py_ssize_t len;
+	PyBytes_AsStringAndSize(strobj, &p, &len);
+	if (val) *val = new std::string(p, len);
+	Py_DECREF(strobj);
+	return SWIG_OK;
+    } else if (PyBytes_Check(*obj)) {
+	char *p;
+	Py_ssize_t len;
+	PyBytes_AsStringAndSize(*obj, &p, &len);
+	if (val) *val = new std::string(p, len);
+	return SWIG_OK;
+    } else {
+	return SWIG_AsPtr_std_string(*obj, val);
+    }
+%#else
     if (PyUnicode_Check(*obj)) {
 	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(*obj), PyUnicode_GET_SIZE(*obj), "ignore");
 	if (strobj == NULL) return SWIG_ERROR;
@@ -299,6 +319,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     } else {
 	return SWIG_AsPtr_std_string(*obj, val);
     }
+%#endif
 }
 }
 
@@ -329,9 +350,19 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
 %typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
+%#if PY_VERSION_HEX >= 0x03000000
+    if (PyUnicode_Check($input)) {
+	$1 = 1;
+    } else if (PyBytes_Check($input)) {
+	$1 = 1;
+    } else {
+	int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
+	$1 = SWIG_CheckState(res);
+    }
+%#else
     int res = XapianSWIG_anystring_as_ptr(&($input), (std::string**)(0));
     $1 = SWIG_CheckState(res);
-
+%#endif
 }
 
 /* This typemap is only currently needed for returning a value from the
