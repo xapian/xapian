@@ -346,6 +346,11 @@ if test no != "$with_python" ; then
 	AC_SUBST(PYTHON_SO)
 	AC_MSG_RESULT([$PYTHON_SO])
 
+	AC_MSG_CHECKING([for name of cached compiled script])
+	PYTHON_CCACHE=`$PYTHON -c 'import imp;print(hasattr(imp, "get_tag") and "__pycache__/__init__.%s" % imp.get_tag()) or "__init__"'`
+	AC_SUBST(PYTHON_CCACHE)
+	AC_MSG_RESULT([$PYTHON_CCACHE.pyc])
+
 	dnl C++11 has thread_local
 	dnl GCC and some others have __thread
 	dnl MSVC and some others have __declspec(thread)

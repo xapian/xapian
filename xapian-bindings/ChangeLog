@@ -1,3 +1,8 @@
+Wed Sep 18 10:56:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Handle the PEP 3147 names which
+	  .pyc and .pyo files use in newer Python 3 versions.  (see #346)
+
 Wed Sep 18 00:36:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/util.i: Rename next() to __next__() for Python 3 as iterators
