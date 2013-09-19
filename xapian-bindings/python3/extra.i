@@ -104,12 +104,12 @@ class MSetIter(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self._iter == self._end:
             raise StopIteration
         else:
             r = MSetItem(self._iter, self._mset)
-            self._iter.next()
+            next(self._iter)
             return r
 
 # Modify the MSet to allow access to the python iterators, and have other
@@ -178,12 +178,12 @@ class ESetIter(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self._iter == self._end:
             raise StopIteration
         else:
             r = ESetItem(self._iter)
-            self._iter.next()
+            next(self._iter)
             return r
 
 # Modify the ESet to allow access to the python iterators, and have other
@@ -359,9 +359,9 @@ class TermIter(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if not self._moved:
-            self._iter.next()
+            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -864,9 +864,9 @@ class PostingIter(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if not self._moved:
-            self._iter.next()
+            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -929,12 +929,12 @@ class PositionIter(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = self.iter.get_termpos()
-            self.iter.next()
+            next(self.iter)
             return r
 
 # Modify Database to add a "positionlist()" method.
@@ -980,12 +980,12 @@ class ValueIter(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
-            self.iter.next()
+            next(self.iter)
             return r
 
 # Modify Document to add a "values()" method.
@@ -1033,7 +1033,7 @@ class ValueStreamIter(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if not self.moved:
             self.iter.next()
             self.moved = True
@@ -1107,7 +1107,7 @@ class LatLongCoordsIter(object):
     def __ne__(self, other):
         return not self.equals(other)
 
-    def next(self):
+    def __next__(self):
         if self.iter.equals(self.end):
             raise StopIteration
         else:

@@ -1,0 +1,17 @@
+/.*.sw?
+/*.lo
+/Makefile.in
+/Makefile
+/.deps
+/.libs
+/*.pyc
+/_xapian.la
+/xapian
+/modern
+/except.i
+/doccomments.i
+/db_test_get_uuid1
+/db_test_get_uuid2
+/dbs_replication
+/db_test_value_mods
+/__pycache__

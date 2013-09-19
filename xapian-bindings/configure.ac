@@ -226,9 +226,14 @@ if test x$USE_MAINTAINER_MODE = xyes; then
 fi
 
 AC_ARG_WITH(python,
-  AC_HELP_STRING([--with-python], [enable Python bindings]),
+  AC_HELP_STRING([--with-python], [enable Python 2 bindings]),
   [],
   [with_python=])
+
+AC_ARG_WITH(python3,
+  AC_HELP_STRING([--with-python3], [enable Python 3 bindings]),
+  [],
+  [with_python3=])
 
 AC_ARG_WITH(php,
   AC_HELP_STRING([--with-php], [enable PHP bindings]),
@@ -265,10 +270,11 @@ AC_ARG_WITH(lua,
   [],
   [with_lua=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python$with_python3$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
+  test -z "$with_python3" && with_python3=no
   test -z "$with_php" && with_php=no
   test -z "$with_tcl" && with_tcl=no
   test -z "$with_csharp" && with_csharp=no
@@ -291,7 +297,14 @@ if test no != "$with_python" ; then
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[4-9]*|2.[12][0-9][0-9]*|[3-9].*])
+    [2.[4-9]*|2.[12][0-9][0-9]*])
+      ;;
+    [[3-9].*])
+      AC_MSG_RESULT([$version (too new - use --with-python3 for Python 3 support)])
+      if test yes = "$with_python" ; then
+	AC_MSG_ERROR([Use --with-python3 for Python 3 support ($python is $version)])
+      fi
+      PYTHON=
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
@@ -346,11 +359,6 @@ if test no != "$with_python" ; then
 	AC_SUBST(PYTHON_SO)
 	AC_MSG_RESULT([$PYTHON_SO])
 
-	AC_MSG_CHECKING([for name of cached compiled script])
-	PYTHON_CCACHE=`$PYTHON -c 'import imp;print(hasattr(imp, "get_tag") and "__pycache__/__init__.%s" % imp.get_tag()) or "__init__"'`
-	AC_SUBST(PYTHON_CCACHE)
-	AC_MSG_RESULT([$PYTHON_CCACHE.pyc])
-
 	dnl C++11 has thread_local
 	dnl GCC and some others have __thread
 	dnl MSVC and some others have __declspec(thread)
@@ -373,6 +381,88 @@ if test no != "$with_python" ; then
       else
 	AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])
 	if test yes = "$with_python" ; then
+	  AC_MSG_ERROR([Python.h not found])
+	fi
+      fi
+    fi
+  fi
+fi
+
+if test no != "$with_python3" ; then
+  dnl See comment for AC_PATH_PROGS(SWIG, ...).
+  AC_PATH_PROGS(PYTHON3, ["${PYTHON3-python3}"], [])
+  AC_ARG_VAR(PYTHON3, [Python 3 interpreter])
+  if test -n "$PYTHON3" ; then
+    dnl Require Python 3.2 or newer, as that's the oldest version we can
+    dnl easily test with.  If anyone's keen to support older versions, please
+    dnl test and send in any patches needed to get it to work.
+    AC_MSG_CHECKING([$PYTHON3 version])
+    version=`$PYTHON3 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
+    case $version in
+    [3.[2-9]*|3.[12][0-9][0-9]*|[4-9].*])
+      ;;
+    *)
+      AC_MSG_RESULT([$version (too old)])
+      if test yes = "$with_python3" ; then
+	AC_MSG_ERROR([Only Python 3.2 or newer is supported ($python3 is $version)])
+      fi
+      PYTHON3=
+      ;;
+    esac
+    AC_MSG_RESULT([$version])
+    if test -n "$PYTHON3" ; then
+      if $PYTHON3 -c 'import distutils.sysconfig' 2>/dev/null ; then
+	PYTHON3_INC=`$PYTHON3 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
+	AC_SUBST(PYTHON3_INC)
+      else
+	if test yes = "$with_python3" ; then
+	  AC_MSG_ERROR([Couldn't import Python module distutils.sysconfig - you probably need to install a python3-dev or python3-devel package])
+	else
+	  AC_MSG_WARN([Couldn't import Python module distutils.sysconfig - you probably don't have a python3-dev or python3-devel package installed])
+	  PYTHON3=
+	fi
+      fi
+    fi
+    if test -n "$PYTHON3" ; then
+      dnl Check that Python.h is there, which is a good way to check that
+      dnl the appropriate python3-dev package has been installed.
+      AC_MSG_CHECKING([for $PYTHON3_INC/Python.h])
+      if test -f "$PYTHON3_INC/Python.h" ; then
+	AC_MSG_RESULT(yes)
+	AC_MSG_CHECKING([for directory to install python bindings in])
+	if test -z "$PYTHON3_LIB" ; then
+	  PYTHON3_LIB=`$PYTHON3 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
+	fi
+	AC_MSG_RESULT([$PYTHON3_LIB])
+	AC_ARG_VAR(PYTHON3_LIB, [Directory to install python3 bindings in])
+
+	AC_MSG_CHECKING([for python3 libraries to link against])
+	case $host_os in
+	mingw* | pw32*)
+	  PYTHON3_LIBS=`$PYTHON3 -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
+	cygwin*)
+	  PYTHON3_LIBS=`$PYTHON3 -c 'import os,sys;print("-L"+os.path.join(sys.path[[3]],"config")+" -lpython"+sys.version[[:3]])'` ;;
+	*)
+	  PYTHON3_LIBS= ;;
+	esac
+	AC_SUBST(PYTHON3_LIBS)
+	AC_MSG_RESULT([$PYTHON3_LIBS])
+
+	AC_MSG_CHECKING([for python3 module extension])
+	dnl Usually ".so", but for example, Mac OS X uses ".dylib".
+	PYTHON3_SO=`$PYTHON3 -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
+	AC_SUBST(PYTHON3_SO)
+	AC_MSG_RESULT([$PYTHON3_SO])
+
+	AC_MSG_CHECKING([for tag for cached compiled scripts])
+	PYTHON3_CACHE_TAG=`$PYTHON3 -c 'import imp;print(imp.get_tag())'`
+	AC_SUBST(PYTHON3_CACHE_TAG)
+	AC_MSG_RESULT([$PYTHON3_CACHE_TAG])
+
+	BINDINGS="$BINDINGS python3"
+      else
+	AC_MSG_RESULT([no (install python3-dev or python3-devel package or similar)])
+	if test yes = "$with_python3" ; then
 	  AC_MSG_ERROR([Python.h not found])
 	fi
       fi
@@ -1112,6 +1202,28 @@ fi
 
 AC_SUBST(BINDINGS)
 
+case $BINDINGS in
+*python*) dnl Matches python and/or python3
+  dnl C++11 has thread_local
+  dnl GCC and some others have __thread
+  dnl MSVC and some others have __declspec(thread)
+  AC_MSG_CHECKING([for thread-local storage qualifier])
+  AC_ARG_VAR([THREAD_LOCAL], [thread-local storage qualifier])
+  if test -z "$THREAD_LOCAL" ; then
+    for t in thread_local __thread '__declspec(thread)' ; do
+      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[static $t void * p;]])],
+			[THREAD_LOCAL=$t; break])
+    done
+  fi
+  if test -z "$THREAD_LOCAL" ; then
+    AC_MSG_RESULT([unknown, disabling thread-local support])
+  else
+    AC_MSG_RESULT([$THREAD_LOCAL])
+    AC_DEFINE_UNQUOTED([THREAD_LOCAL], [$THREAD_LOCAL], [Thread local storage qualifier (undefined if no TLS)])
+  fi
+  ;;
+esac
+
 dnl Set flags to control warnings (enable more, or disable annoying ones)
 dnl and other compiler specific flags.
 SWIG_CXXFLAGS=
@@ -1198,6 +1310,7 @@ AC_CONFIG_FILES([Makefile
  doxygen_xml.conf
  xapian-version.h
  python/Makefile
+ python3/Makefile
  php/Makefile
  java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl

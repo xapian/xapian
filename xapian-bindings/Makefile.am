@@ -14,7 +14,7 @@ EXTRA_DIST = fake_dbfactory.i xapian-head.i xapian-headers.i generic/except.i \
     HACKING
 
 SUBDIRS = . @BINDINGS@
-DIST_SUBDIRS = python php java ruby tcl8 csharp perl lua
+DIST_SUBDIRS = python python3 php java ruby tcl8 csharp perl lua
 
 if MAINTAINER_MODE
 BUILT_SOURCES = generic/except.i

@@ -7,7 +7,7 @@ TESTS = smoketest.py pythontest.py
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
 	srcdir='$(srcdir)' ;\
-	PYTHON='$(PYTHON)' ;\
+	PYTHON='$(PYTHON3)' ;\
 	export abs_builddir ;\
 	export srcdir ;\
 	export PYTHON ;
@@ -28,16 +28,15 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
-	replicationtest.py \
 	$(TESTS) $(BUILT_SOURCES)
 
-pkgpylibdir = @PYTHON_LIB@/xapian
+pkgpylibdir = @PYTHON3_LIB@/xapian
 
 # Install as _DATA rather than _SCRIPTS because we don't want to make these
 # executable (they don't have a #! line).
 pkgpylib_DATA = xapian/__init__.py \
-		xapian/__init__.pyc \
-		xapian/__init__.pyo
+		xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
+		xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo
 
 pkgpylib_LTLIBRARIES = _xapian.la
 
@@ -50,13 +49,13 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON_SO)
+	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON3_SO)
 
-AM_CPPFLAGS = -I$(PYTHON_INC)
+AM_CPPFLAGS = -I$(PYTHON3_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
+_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON3_SO)" $(NO_UNDEFINED)
 _xapian_la_SOURCES = modern/xapian_wrap.cc
-_xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
+_xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON3_LIBS)
 
 # In a distribution, xapian.py is in $(srcdir)/modern, and python will always
 # generate the .pyc and .pyo files in the same directory as the .py file.
@@ -73,24 +72,26 @@ xapian/__init__.py: modern/xapian.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo.
-xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -c "import xapian"
+xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -c "import _xapian"
+	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -c "import xapian"
 
-xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -O -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -O -c "import xapian"
+xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -O -c "import _xapian"
+	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -O -c "import xapian"
 
-xapian/_xapian$(PYTHON_SO): _xapian.la
+xapian/_xapian$(PYTHON3_SO): _xapian.la
 	-test -d xapian || mkdir xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
 ## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
+	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON3_SO) xapian
 	rm -f libtoolconfig.tmp
 
 CLEANFILES = \
-    xapian/_xapian$(PYTHON_SO) \
-    xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
+    xapian/_xapian$(PYTHON3_SO) \
+    xapian/__init__.py \
+    xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
+    xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo \
     $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any
@@ -109,8 +110,12 @@ doccomments.i:
 	: > doccomments.i
 else
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/index.xml
-	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
+	$(PYTHON3) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
+
+# Update the Python 3 versions from the Python 2 ones.
+2to3:
+	for a in pythontest replicationtest smoketest testsuite ; do cp ../python/$${a}.py $${a}.py ; 2to3 -w --no-diffs $${a}.py ; done
 
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o

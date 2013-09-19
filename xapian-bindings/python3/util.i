@@ -30,6 +30,9 @@
 /* Wrap get_description() methods as str(). */
 %rename(__str__) get_description;
 
+/* So iterator objects match the Python3 iterator API. */
+%rename(__next__) next;
+
 /* Hide "unsafe" C++ iterator methods. */
 %rename(_allterms_begin) Xapian::Database::allterms_begin;
 %rename(_allterms_end) Xapian::Database::allterms_end;
@@ -80,14 +83,7 @@
 %{
 namespace Xapian {
     Query *get_py_query(PyObject *obj) {
-#if PY_VERSION_HEX < 0x02050000
-	// In Python 2.4 (and presumably earlier), PyObject_GetAttrString()
-	// takes a char* parameter which causes a warning with GCC >= 4.2.
-	// This is fixed in Python 2.5.
-	PyObject * mythis = PyObject_GetAttrString(obj, (char *)"this");
-#else
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
-#endif
 	if (!mythis)
 	    return 0;
 
@@ -165,7 +161,7 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 
 	PyList_SET_ITEM(retval, idx++, t);
 
-	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
+	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
 	if (str == 0) {
 	    Py_DECREF(retval);
 	    return NULL;
@@ -284,9 +280,18 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (PyUnicode_Check(*obj)) {
 	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(*obj), PyUnicode_GET_SIZE(*obj), "ignore");
 	if (strobj == NULL) return SWIG_ERROR;
-	int res = SWIG_AsPtr_std_string(strobj, val);
+	char *p;
+	Py_ssize_t len;
+	PyBytes_AsStringAndSize(strobj, &p, &len);
+	if (val) *val = new std::string(p, len);
 	Py_DECREF(strobj);
-	return res;
+	return SWIG_OK;
+    } else if (PyBytes_Check(*obj)) {
+	char *p;
+	Py_ssize_t len;
+	PyBytes_AsStringAndSize(*obj, &p, &len);
+	if (val) *val = new std::string(p, len);
+	return SWIG_OK;
     } else {
 	return SWIG_AsPtr_std_string(*obj, val);
     }
@@ -320,8 +325,14 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
 %typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
-    int res = XapianSWIG_anystring_as_ptr(&($input), (std::string**)(0));
-    $1 = SWIG_CheckState(res);
+    if (PyUnicode_Check($input)) {
+	$1 = 1;
+    } else if (PyBytes_Check($input)) {
+	$1 = 1;
+    } else {
+	int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
+	$1 = SWIG_CheckState(res);
+    }
 }
 
 /* This typemap is only currently needed for returning a value from the
@@ -420,7 +431,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     PyTuple_SET_ITEM(newresult, 0, $result);
     $result = newresult;
 
-    str = PyString_FromStringAndSize($1->data(), $1->size());
+    str = PyBytes_FromStringAndSize($1->data(), $1->size());
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
@@ -428,7 +439,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     }
     PyTuple_SET_ITEM($result, 1, str);
 
-    str = PyString_FromStringAndSize($2->data(), $2->size());
+    str = PyBytes_FromStringAndSize($2->data(), $2->size());
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
@@ -445,7 +456,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     }
 
     for (size_t i = 0; i != num_tags; ++i) {
-	PyObject * str = PyString_FromStringAndSize(tags[i].data(), tags[i].size());
+	PyObject * str = PyBytes_FromStringAndSize(tags[i].data(), tags[i].size());
 	if (str == 0) {
 	    Py_DECREF(result);
 	    return NULL;

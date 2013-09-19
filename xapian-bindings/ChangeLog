@@ -1,3 +1,12 @@
+Thu Sep 19 06:52:11 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,python/,python3/.gitignore,
+	  python3/Makefile.am,python3/docs/examples/,python3/docs/index.html,
+	  python3/: Split python3 bindings into a separate subdirectory, to
+	  make it simpler to handle differences between python2 and python3.
+	  This also makes it easier to test both, as a tree can now be
+	  configured for both at once.
+
 Wed Sep 18 12:58:51 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Further updates for PEP 3147.
