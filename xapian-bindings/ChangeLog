@@ -1,3 +1,7 @@
+Wed Sep 18 12:58:51 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Further updates for PEP 3147.
+
 Wed Sep 18 12:50:00 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/util.i: Fix std::string input typemaps for Python 3.

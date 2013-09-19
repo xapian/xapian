@@ -74,12 +74,12 @@ xapian/__init__.py: modern/xapian.py
 	mv xapian/__init__.pyT xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
-# we don't generate a broken __init__.pyc or __init__.pyo.
-xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
+# we don't generate a broken .pyc or .pyo.
+xapian/@PYTHON_CCACHE@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
 	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -c "import _xapian"
 	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -c "import xapian"
 
-xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
+xapian/@PYTHON_CCACHE@.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
 	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -O -c "import _xapian"
 	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -O -c "import xapian"
 
@@ -92,7 +92,7 @@ xapian/_xapian$(PYTHON_SO): _xapian.la
 
 CLEANFILES = \
     xapian/_xapian$(PYTHON_SO) \
-    xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
+    xapian/__init__.py xapian/@PYTHON_CCACHE@.pyc xapian/@PYTHON_CCACHE@.pyo \
     $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any
