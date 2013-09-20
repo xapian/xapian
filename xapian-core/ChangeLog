@@ -1,3 +1,9 @@
+Fri Sep 20 09:09:11 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/queryparsertest.cc: Add test coverage for explicit synonym of
+	  a term with a prefix (e.g. ~foo:search).
+
 Mon Sep 16 11:50:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
