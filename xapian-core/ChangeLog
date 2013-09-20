@@ -1,3 +1,9 @@
+Fri Sep 20 09:21:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/unicode.h: Document how Utf8Iterator handles invalid
+	  UTF-8.
+
 Fri Sep 20 09:09:11 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
