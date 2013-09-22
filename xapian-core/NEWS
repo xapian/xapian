@@ -1,3 +1,144 @@
+ 17481       olly Fri Sep 20 09:21:37 GMT 2013  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.16 (2013-09-22):
+
+API:
+
+* PositionIterator,PostingIterator,TermIterator,ValueIterator: Don't segfault
+  if skip_to() or check() is called on an iterator which is already at_end().
+  Reported by David Bremner.
+
+* ValueCountMatchSpy: get_description() on a default-constructed
+  ValueCountMatchSpy object no longer fails when xapian-core is built with
+  --enable-log.
+
+* ValueCountMatchSpy: get_total() on a default-constructed ValueCountMatchSpy
+  object now returns 0 rather than segfaulting.
+
+testsuite:
+
+* If -v/--verbose is specified more than once to a test program, show the
+  diagnostic output for passing tests as well as failing/skipped ones.
+
+* queryparsertest: Change qp_scale1 to time 5 repetitions of the large query to
+  help average out variations.
+
+* queryparsertest: Add test coverage for explicit synonym of a term with a
+  prefix (e.g. ~foo:search).
+
+* apitest: Remove code from registry* testcases which tries to test the
+  consequences of throwing an exception from a destructor - it's complex to
+  ensure we don't leak memory while doing this (it seems GCC doesn't release
+  the object in this case, but clang does), and it's generally frowned upon,
+  plus C++11 makes destructors noexcept by default.
+
+* Fix "make check" to actually removed cached databases first, as is
+  intended.
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* XO_LIB_XAPIAN now handles the user specifying a relative path in
+  XAPIAN_CONFIG, e.g.: "./configure XAPIAN_CONFIG=../xapian-core/xapian-config"
+
+* Adjust XO_LIB_XAPIAN to strip _gitNNN suffix from snapshot versions.
+
+* configure: Handle git snapshot naming when calculating REVISION.
+
+documentation:
+
+* Document how Utf8Iterator handles invalid UTF-8 in API documentation.
+
+* docs/remote_protocol.rst: Correct error in documentation of REPLY_DOCDATA
+  message.
+
+* docs/overview.rst: Correct documentation for how to specify "prog" remote
+  databases in stub files.
+
+* Direct users to git in preference to SVN - we'll be switching entirely in
+  the near future.
+
+tools:
+
+* xapian-chert-update: Fix -b to work rather than always segfaulting (reported
+  in http://bugs.debian.org/716484).
+
+* xapian-chert-update: The documented alias --blocksize for -b has never
+  actually been supported, so just drop mentions of it from --help and the man
+  page.
+
+* xapian-check: Fix chert database check that first docid in each doclength
+  chunk is more than the last docid in the previous chunk - previously this
+  didn't actually work.
+
+* xapian-check: Fix database check not to falsely report "position table: Junk
+  after position data" whenever there are 7 unused bits (7 is OK, *more* than 7
+  isn't).
+
+examples:
+
+
+portability:
+
+* configure: clang doesn't support -Wstrict-null-sentinel or -Wlogical-op, so
+  don't pass it these options.
+
+* Fix failure when built with -D_GLIBCXX_DEBUG - we were modifying the top()
+  element of a heap before calling pop(), such that the heap comparison
+  operation (which is called when -D_GLIBCXX_DEBUG is on to verify the heap is
+  valid) would read off the end of the data.  In a normal build, this issue
+  would likely never manifest.
+
+* configure: When generating ABI compatibility checks in xapian/version.h, pass
+  $CXXFLAGS and $CPPFLAGS to $CXXCPP as they could contain options which affect
+  the ABI (such as -fabi-version for GCC).  (Fixes #622)
+
+* Microsoft GUIDs in binary form have reversed byte order in the first three
+  components compared to standard UUIDs, so the same database would report a
+  different UUID on Windows to on other platforms.  We now swap the bytes to
+  match the standard order.  With this fix, the UUIDs of existing databases
+  will appear to change on Windows (except in rare "palindronic" cases).
+
+* Fix a couple of issues to get Xapian to build and work on AIX.
+
+* common/safeuuid.h: Remove bogus take-address-of from uuid handling code for
+  NetBSD and OpenBSD.
+
+* common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free with std.
+
+* Fix 'unused label' warning when chert backend is disabled.
+
+* xapian.h: Add check for Wt headers being included before us and defining
+  'slots' as a macro - if they are, give a clear error advising how to work
+  around this (previously compilation would fail with a confusing error).
+
+packaging:
+
+
+debug code:
+
+* Fix assertion failure for when an OrPostList decays to an AndPostList - the
+  ordering of the subqueries by estimated termfreq may not be the same as it
+  was when the OrPostList was constructed, as the subqueries may themselves
+  have decayed.  Reported by Michel Pelletier.
+
 Xapian-core 1.2.15 (2013-04-16):
 
 API:
