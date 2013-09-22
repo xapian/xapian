@@ -145,9 +145,6 @@ class ExpandWeight {
     bool use_exact_termfreq;
 
   public:
-    /// An ExpandStats object to accumulate statistics.
-    ExpandStats stats;
-
     /** Constructor.
      *
      *  @param db_ The database.
@@ -190,6 +187,9 @@ class ExpandWeight {
     virtual double get_weight() const = 0;
 
   protected:
+    /// An ExpandStats object to accumulate statistics.
+    ExpandStats stats;
+
     /// Return the average length of the databse.
     double get_avlen() const { return avlen; }
 

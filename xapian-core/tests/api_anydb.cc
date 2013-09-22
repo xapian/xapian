@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <string>
 
+#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 #include "backendmanager_local.h"
 #include "testsuite.h"

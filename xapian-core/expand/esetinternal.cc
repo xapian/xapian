@@ -174,7 +174,6 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 
 	/* Set up the ExpandWeight by clearing the existing statistics and
 	   collecting statistics for the new term. */
-	eweight.stats.clear_stats();
 	eweight.collect_stats(tree.get(), term);
 
 	double wt = eweight.get_weight();
