@@ -1,3 +1,11 @@
+Mon Sep 23 12:27:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/realtime.h,net/remoteconnection.cc,net/tcpclient.cc: Add
+	  RealTime::to_timeval() helper function to break a time interval
+	  as a double into a struct timeval.  This uses modf() which gives
+	  more compact and faster code than using fmod() as we previously
+	  did.
+
 Mon Sep 23 08:20:03 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/realtime.h,configure.ac: Use clock_gettime() to implement

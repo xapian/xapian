@@ -26,6 +26,7 @@
 #include "tcpclient.h"
 #include <xapian/error.h>
 
+#include "realtime.h"
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysselect.h"
@@ -129,9 +130,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	do {
 	    // FIXME: Reduce the timeout if we retry on EINTR.
 	    struct timeval tv;
-	    tv.tv_sec = long(timeout_connect);
-	    tv.tv_usec = long(std::fmod(timeout_connect, 1.0) * 1e6);
-
+	    RealTime::to_timeval(timeout_connect, &tv);
 	    retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
 	} while (retval < 0 && errno == EINTR);
 

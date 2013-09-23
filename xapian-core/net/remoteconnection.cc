@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -165,9 +165,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    FD_SET(fdin, &fdset);
 
 	    struct timeval tv;
-	    tv.tv_sec = long(time_diff);
-	    tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
-
+	    RealTime::to_timeval(time_diff, &tv);
 	    int select_result = select(fdin + 1, &fdset, 0, &fdset, &tv);
 	    if (select_result > 0) break;
 
@@ -296,9 +294,7 @@ RemoteConnection::send_message(char type, const string &message,
 	}
 
 	struct timeval tv;
-	tv.tv_sec = long(time_diff);
-	tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
-
+	RealTime::to_timeval(time_diff, &tv);
 	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
 
 	if (select_result < 0) {
@@ -431,9 +427,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	}
 
 	struct timeval tv;
-	tv.tv_sec = long(time_diff);
-	tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
-
+	RealTime::to_timeval(time_diff, &tv);
 	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
 
 	if (select_result < 0) {

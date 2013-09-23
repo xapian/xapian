@@ -87,6 +87,13 @@ inline double end_time(double timeout) {
     return (timeout == 0.0 ? timeout : timeout + now());
 }
 
+/// Fill in struct timeval from number of seconds in a double.
+inline void to_timeval(double t, struct timeval *tv) {
+    double secs;
+    tv->tv_usec = long(std::modf(t, &secs) * 1e6);
+    tv->tv_sec = long(secs);
+}
+
 /// Sleep until the time represented by this object.
 inline void sleep(double t) {
 #ifndef __WIN32__
@@ -96,8 +103,7 @@ inline void sleep(double t) {
 	delta = t - RealTime::now();
 	if (delta <= 0.0)
 	    return;
-	tv.tv_sec = long(delta);
-	tv.tv_usec = long(std::fmod(delta, 1.0) * 1e6);
+	to_timeval(delta, &tv);
     } while (select(0, NULL, NULL, NULL, &tv) < 0 && errno == EINTR);
 #else
     double delta = t - RealTime::now();
