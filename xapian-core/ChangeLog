@@ -1,3 +1,9 @@
+Mon Sep 23 12:58:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/realtime.h,configure.ac,matcher/multimatch.cc: Implement
+	  RealTime::sleep() using nanosleep() where it's available, since
+	  it has a simpler API and a finer granularity than select().
+
 Mon Sep 23 12:27:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/realtime.h,net/remoteconnection.cc,net/tcpclient.cc: Add

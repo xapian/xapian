@@ -34,6 +34,7 @@
 #include "localsubmatch.h"
 #include "omassert.h"
 #include "api/omenquireinternal.h"
+#include "realtime.h"
 
 #include "api/emptypostlist.h"
 #include "branchpostlist.h"
@@ -89,9 +90,7 @@ class TimeOut {
 		struct itimerspec interval;
 		interval.it_interval.tv_sec = 0;
 		interval.it_interval.tv_nsec = 0;
-		double seconds;
-		interval.it_value.tv_nsec = long(modf(limit, &seconds) * 1e9);
-		interval.it_value.tv_sec = time_t(seconds);
+		RealTime::to_timespec(limit, &interval.it_value);
 		if (usual(timer_settime(timerid, 0, &interval, NULL) == 0)) {
 		    // Timeout successfully set.
 		    return;

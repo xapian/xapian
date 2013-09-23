@@ -409,7 +409,7 @@ AC_TRY_COMPILE([#include <typeinfo>],
     AC_MSG_RESULT(no))
 
 dnl Check for time functions.
-AC_CHECK_FUNCS([clock_gettime gettimeofday ftime])
+AC_CHECK_FUNCS([clock_gettime nanosleep gettimeofday ftime])
 
 dnl For _ftime64() on mingw we need to tell it we're happy to require
 dnl MSVCRT 0x0601, which isn't too onerous a requirement it seems.

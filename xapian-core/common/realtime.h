@@ -87,16 +87,35 @@ inline double end_time(double timeout) {
     return (timeout == 0.0 ? timeout : timeout + now());
 }
 
+#if defined HAVE_NANOSLEEP || defined HAVE_TIMER_SETTIME
+/// Fill in struct timespec from number of seconds in a double.
+inline void to_timespec(double t, struct timespec *ts) {
+    double secs;
+    ts->tv_nsec = long(std::modf(t, &secs) * 1e9);
+    ts->tv_sec = long(secs);
+}
+#endif
+
+#ifndef __WIN32__
 /// Fill in struct timeval from number of seconds in a double.
 inline void to_timeval(double t, struct timeval *tv) {
     double secs;
     tv->tv_usec = long(std::modf(t, &secs) * 1e6);
     tv->tv_sec = long(secs);
 }
+#endif
 
 /// Sleep until the time represented by this object.
 inline void sleep(double t) {
 #ifndef __WIN32__
+# ifdef HAVE_NANOSLEEP
+    double delta = t - RealTime::now();
+    if (delta <= 0.0)
+	return;
+    struct timespec ts;
+    to_timespec(delta, &ts);
+    while (nanosleep(&ts, &ts) < 0 && errno == EINTR) { }
+# else
     double delta;
     struct timeval tv;
     do {
@@ -105,6 +124,7 @@ inline void sleep(double t) {
 	    return;
 	to_timeval(delta, &tv);
     } while (select(0, NULL, NULL, NULL, &tv) < 0 && errno == EINTR);
+# endif
 #else
     double delta = t - RealTime::now();
     if (delta <= 0.0)
