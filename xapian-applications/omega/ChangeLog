@@ -1,3 +1,11 @@
+Mon Sep 23 06:26:03 GMT 2013  Olly Betts <olly@survex.com>
+
+	* diritor.cc,diritor.h,omindex.cc: If we get ENOTDIR trying to index a
+	  file, skip it quietly (unless in verbose mode) as we already do if
+	  we get ENOENT, since ENOTDIR is what we get if the file and the
+	  directory it was in got removed between us getting the filename and
+	  trying to open it.
+
 Mon Sep 16 11:21:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* runfilter.h: Remove trailing space added in recent commit.

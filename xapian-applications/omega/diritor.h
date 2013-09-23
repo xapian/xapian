@@ -1,6 +1,6 @@
 /* diritor.h: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010,2011,2012 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -233,7 +233,7 @@ class DirectoryIterator {
 	if (try_noatime()) flags |= NOATIME;
 	fd = load_file_fd(path, out, flags);
 	if (fd < 0) {
-	    if (errno == ENOENT) throw FileNotFound();
+	    if (errno == ENOENT || errno == ENOTDIR) throw FileNotFound();
 	    throw ReadError("load_file failed");
 	}
 	return out;

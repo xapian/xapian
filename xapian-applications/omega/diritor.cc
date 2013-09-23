@@ -1,6 +1,6 @@
 /* diritor.cc: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010,2011,2012 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,7 +77,7 @@ DirectoryIterator::call_stat()
     }
 #endif
     if (retval == -1) {
-	if (errno == ENOENT)
+	if (errno == ENOENT || errno == ENOTDIR)
 	    throw FileNotFound();
 	// Commit changes to files processed so far.
 	throw CommitAndExit("Can't stat", path, errno);
@@ -101,7 +101,7 @@ DirectoryIterator::start(const std::string & path_)
     path_len = path.length();
     dir = opendir(path.c_str());
     if (dir == NULL) {
-	if (errno == ENOENT)
+	if (errno == ENOENT || errno == ENOTDIR)
 	    throw FileNotFound();
 	// Commit changes to files processed so far.
 	throw CommitAndExit("Can't open directory", path, errno);
@@ -151,7 +151,8 @@ DirectoryIterator::get_magic_mimetype()
     if (!res) {
 	const char * err = magic_error(magic_cookie);
 	if (rare(err)) {
-	    if (magic_errno(magic_cookie) == ENOENT)
+	    int eno = magic_errno(magic_cookie);
+	    if (eno == ENOENT || eno == ENOTDIR)
 		throw FileNotFound();
 	    string m("Failed to use magic on file: ");
 	    m += err;
