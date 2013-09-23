@@ -1086,8 +1086,7 @@ ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 		  double k, const ExpandDecider * edecider, double min_wt) const
 {
-    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset",
-            maxitems | rset | k | flags | edecider | min_wt);
+    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | k | flags | edecider | min_wt);
     try {
         set_expansion_scheme("trad", k);
         RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));

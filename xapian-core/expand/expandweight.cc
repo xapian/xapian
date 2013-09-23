@@ -51,7 +51,6 @@ ExpandWeight::collect_stats(TermList * merger, const std::string & term)
     LOGVALUE(EXPAND, rtermfreq);
     LOGVALUE(EXPAND, dbsize);
     LOGVALUE(EXPAND, stats.dbsize);
-
     if (stats.dbsize == dbsize) {
 	// Either we're expanding from just one database, or we got stats from
 	// all the sub-databases (because at least one relevant document from
