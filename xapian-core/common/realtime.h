@@ -44,8 +44,17 @@ namespace RealTime {
 /// Return the current time.
 inline double now() {
 #ifndef __WIN32__
-    // POSIX.1-2008 stopped specifying ftime(), so prefer gettimeofday().
-# ifdef HAVE_GETTIMEOFDAY
+    // We prefer clock_gettime() over gettimeofday() over ftime().  This order
+    // favours functions which can return the time with a higher precision.
+    //
+    // Also, POSIX.1-2008 stopped specifying ftime(), and marked gettimeofday()
+    // as obsolete, recommending clock_gettime() instead.
+# if defined HAVE_CLOCK_GETTIME
+    struct timespec ts;
+    if (usual(clock_gettime(CLOCK_REALTIME, &ts) == 0))
+	return ts.tv_sec + (ts.tv_nsec * 1e-9);
+    return double(std::time(NULL));
+# elif defined HAVE_GETTIMEOFDAY
     struct timeval tv;
     if (usual(gettimeofday(&tv, NULL) == 0))
 	return tv.tv_sec + (tv.tv_usec * 1e-6);

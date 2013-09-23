@@ -1,3 +1,8 @@
+Mon Sep 23 08:20:03 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/realtime.h,configure.ac: Use clock_gettime() to implement
+	  RealTime::now() where it's available.
+
 Mon Sep 16 11:53:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/,backends/brass/brass_postlist.cc,
