@@ -1,3 +1,7 @@
+Tue Sep 24 10:00:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* .gitignore: Update for switch from gzip to xz.
+
 Tue Sep 24 09:55:17 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,xapian-bindings.spec.in: Compress source tarballs with

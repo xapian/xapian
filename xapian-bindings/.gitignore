@@ -21,6 +21,6 @@
 /autom4te*.cache
 /depcomp
 /missing
-/xapian-bindings-*.tar.gz
+/xapian-bindings-*.tar.xz
 /xapian-bindings.spec
 /xapian-version.h
