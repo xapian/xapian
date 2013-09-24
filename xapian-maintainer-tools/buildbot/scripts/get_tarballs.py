@@ -13,7 +13,7 @@ archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
 # FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
 
-tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
+tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.xz">')
 archivedir_re = re.compile('([a-zA-Z0-9_\.-]+)$')
 basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+git[0-9]+$')
 basename2_re = re.compile('(win32msvc)_v[0-9.]+-[0-9]+-g[0-9a-f]+$')
@@ -84,7 +84,7 @@ clear_build_dir(builddir)
 
 links = get_archive_links(tarball_root, archive_names)
 for link in links:
-    fname = get_archive(tarball_root + link + '.tar.gz', builddir)
+    fname = get_archive(tarball_root + link + '.tar.xz', builddir)
     print "Unpacking %s" % fname
     unpack_tarball(fname, builddir)
     m = archivedir_re.match(link)

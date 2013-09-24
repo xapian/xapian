@@ -15,7 +15,7 @@ from buildbot.steps.source import Source
 
 import re
 
-tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
+tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.xz">')
 
 def parsehtml(html, archives):
     max_revision = 0
@@ -168,7 +168,7 @@ class Tar(Source):
         cmdargs = ['curl', '-s']
         for link in links:
             cmdargs.append('-O')
-            cmdargs.append(self.rooturl + link + '.tar.gz')
+            cmdargs.append(self.rooturl + link + '.tar.xz')
 
         cmd = RemoteShellCommand('build', command=(cmdargs))
         self.startCommand(cmd)
