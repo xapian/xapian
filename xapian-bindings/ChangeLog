@@ -1,3 +1,8 @@
+Tue Sep 24 09:55:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,xapian-bindings.spec.in: Compress source tarballs with
+	  xz instead of gzip.
+
 Thu Sep 19 06:52:11 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,python/,python3/.gitignore,
