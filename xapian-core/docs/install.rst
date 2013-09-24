@@ -45,9 +45,15 @@ Unpacking
 Use the usual tools to unpack the archives. For example, on a Linux
 system::
 
-     tar zxvf xapian-core-<versionnumber>.tar.gz
-     tar zxvf xapian-omega-<versionnumber>.tar.gz
-     tar zxvf xapian-bindings-<versionnumber>.tar.gz
+     tar xf xapian-core-<versionnumber>.tar.xz
+     tar xf xapian-omega-<versionnumber>.tar.xz
+     tar xf xapian-bindings-<versionnumber>.tar.xz
+
+If tar on your system doesn't support xz decompression, you can instead use::
+
+     xz -dc xapian-core-<versionnumber>.tar.xz|tar xf -
+     xz -dc xapian-omega-<versionnumber>.tar.xz|tar xf -
+     xz -dc xapian-bindings-<versionnumber>.tar.xz|tar xf -
 
 These commands should unpack the archives into separate subdirectories
 (``xapian-core-<versionnumber>``, ``xapian-omega-<versionnumber>`` and
