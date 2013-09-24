@@ -1,3 +1,8 @@
+Tue Sep 24 10:01:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* .gitignore,configure.ac,xapian-omega.spec.in: Compress source
+	  tarballs with xz instead of gzip.
+
 Mon Sep 23 06:26:03 GMT 2013  Olly Betts <olly@survex.com>
 
 	* diritor.cc,diritor.h,omindex.cc: If we get ENOTDIR trying to index a
