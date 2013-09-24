@@ -1,3 +1,8 @@
+Tue Sep 24 09:59:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* .gitignore,xapian-core.spec.in: Update two references to .tar.gz
+	  files.
+
 Tue Sep 24 09:54:42 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/install.rst: Fix typo (bogus extra 'and');
