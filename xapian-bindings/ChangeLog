@@ -1,3 +1,8 @@
+Wed Sep 25 02:50:39 GMT 2013  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Reenable the FieldProcessor subclass test for PHP
+	  5.4, as this one does work.
+
 Tue Sep 24 10:00:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* .gitignore: Update for switch from gzip to xz.

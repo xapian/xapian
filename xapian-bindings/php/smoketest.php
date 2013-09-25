@@ -254,16 +254,12 @@ class testfieldprocessor extends XapianFieldProcessor {
     }
 }
 
-if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
-    print "Skipping known failure subclassing Xapian classes in PHP under PHP 5.4+\n";
-} else {
-    $tfp = new testfieldprocessor();
-    $qp->add_prefix('spam', $tfp);
-    $query = $qp->parse_query('spam:ignored');
-    if ($query->get_description() !== 'Query(spam)') {
-	print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
-	exit(1);
-    }
+$tfp = new testfieldprocessor();
+$qp->add_prefix('spam', $tfp);
+$query = $qp->parse_query('spam:ignored');
+if ($query->get_description() !== 'Query(spam)') {
+    print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
+    exit(1);
 }
 
 # Test setting and getting metadata
