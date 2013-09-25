@@ -1840,6 +1840,7 @@ static const test test_fieldproc1_queries[] = {
     { "title:all", "<alldocuments>" },
     { "host:Xapian.org", "0 * Hxapian.org" },
     { "host:*", "0 * <alldocuments>" },
+    { "host:\"Space Station.Example.Org\"", "0 * Hspace station.example.org" },
     { NULL, NULL }
 };
 

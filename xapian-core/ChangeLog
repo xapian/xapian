@@ -1,3 +1,8 @@
+Wed Sep 25 02:21:29 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add testcase for FieldProcessor on boolean
+	  prefix with quoted contents.
+
 Wed Sep 25 02:16:55 GMT 2013  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix comment typo.
