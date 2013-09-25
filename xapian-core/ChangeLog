@@ -1,3 +1,7 @@
+Wed Sep 25 02:16:55 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix comment typo.
+
 Wed Sep 25 02:13:20 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/: Split QueryVector into a template SmallVector class and then
