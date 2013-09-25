@@ -73,7 +73,6 @@ Weight::Internal::get_termfreq(const string & term) const
 
     map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
     Assert(tfreq != termfreqs.end());
-
     return tfreq->second.termfreq;
 }
 

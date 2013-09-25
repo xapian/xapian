@@ -19,8 +19,9 @@ LuceneSegmentTable::LuceneSegmentTable(const string &db_dir_)
     file_name = string();
 }
 
-bool 
-LuceneSegmentTable::open() {
+bool
+LuceneSegmentTable::open()
+{
     LOGCALL(DB, bool, "LuceneSegmentTable::open", NO_ARGS);
 
     stream_reader.open_stream();
@@ -60,12 +61,14 @@ LuceneSegmentTable::open() {
     return true;
 }
 
-int LuceneSegmentTable::get_seg_count() {
+int LuceneSegmentTable::get_seg_count()
+{
     return seg_count;
 }
 
 Xapian::doccount
-LuceneSegmentTable::get_doccount() const {
+LuceneSegmentTable::get_doccount() const
+{
     LOGCALL(DB, Xapian::doccount, "LuceneSegmentTable::get_doccount", NO_ARGS);
     Xapian::doccount count = 0;
     for (int i = 0; i < seg_count; ++i) {
@@ -76,13 +79,15 @@ LuceneSegmentTable::get_doccount() const {
 }
 
 Xapian::doccount
-LuceneSegmentTable::get_doccount(int segment) const {
+LuceneSegmentTable::get_doccount(int segment) const
+{
     LOGCALL(DB, Xapian::doccount, "LuceneSegmentTable::get_doccount", segment);
     Xapian::doccount count = segments[segment]->seg_size;
     RETURN(count);
 }
 
-bool LuceneSegmentTable::set_filename(long long file_suffix) {
+bool LuceneSegmentTable::set_filename(long long file_suffix)
+{
     ostringstream ss;
     ss << file_suffix;
     string suffix = ss.str();
@@ -93,12 +98,15 @@ bool LuceneSegmentTable::set_filename(long long file_suffix) {
     return true;
 }
 
-string LuceneSegmentTable::get_seg_name(int part_num) {
+string
+LuceneSegmentTable::get_seg_name(int part_num)
+{
     return segments[part_num]->seg_name;
 }
 
 Xapian::docid
-LuceneSegmentTable::get_didbase(int seg_idx) const {
+LuceneSegmentTable::get_didbase(int seg_idx) const
+{
     Assert(seg_idx < seg_count);
 
     Xapian::docid base = 0;
@@ -111,8 +119,8 @@ LuceneSegmentTable::get_didbase(int seg_idx) const {
 
 Xapian::docid
 LuceneSegmentTable::get_didbase_and_segidx(Xapian::docid ext_did,
-    unsigned int & seg_idx) const {
-
+    unsigned int & seg_idx) const
+{
     Xapian::docid base = 0;
     int size = 0;
     int i = 0;
@@ -131,17 +139,20 @@ LuceneSegmentTable::get_didbase_and_segidx(Xapian::docid ext_did,
 }
 
 string
-LuceneSegmentPart::get_seg_name() const {
+LuceneSegmentPart::get_seg_name() const
+{
     return seg_name;
 }
 
 int
-LuceneSegmentPart::get_seg_size() const {
+LuceneSegmentPart::get_seg_size() const
+{
     return seg_size;
 }
 
 //It's for debug below
-void LuceneSegmentTable::debug_get_table() {
+void LuceneSegmentTable::debug_get_table()
+{
     cout << "segments->Format(" << format << "),Version(" << version << "),NameCounter("
         << name_counter << "),SegCount(" << seg_count << "), <";
     for (int i = 0; i < seg_count; ++i) {

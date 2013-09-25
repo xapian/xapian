@@ -1,10 +1,14 @@
 
 #include <config.h>
-#include "debuglog.h"
+
 #include "lucene_nrmtable.h"
-#include <omassert.h>
+
+#include "debuglog.h"
 #include "io_utils.h"
+#include "omassert.h"
 #include "posixy_wrapper.h"
+
+#include "safeerrno.h"
 
 using namespace std;
 
@@ -21,14 +25,16 @@ LuceneNrmTable::LuceneNrmTable(const string & db_dir_)
 {
 }
 
-LuceneNrmTable::~LuceneNrmTable() {
+LuceneNrmTable::~LuceneNrmTable()
+{
 #ifdef LOAD_WHOLE_NORM
     delete norms;
 #endif
 }
 
 void
-LuceneNrmTable::set_filename(const string & prefix) {
+LuceneNrmTable::set_filename(const string & prefix)
+{
     file_name = prefix + ".nrm";
 #ifdef LOAD_WHOLE_NORM
 #else
@@ -37,14 +43,15 @@ LuceneNrmTable::set_filename(const string & prefix) {
 }
 
 void
-LuceneNrmTable::open() {
+LuceneNrmTable::open()
+{
     LOGCALL(DB, void, "LuceneNrmTable::open", NO_ARGS);
 
 #ifdef LOAD_WHOLE_NORM
     string file_path = db_dir + file_name;
     int fd = posixy_open(file_path.c_str(), O_RDONLY);
     if (-1 == fd) {
-        throw Xapian::DatabaseError("Couldn't open norm file");
+        throw Xapian::DatabaseError("Couldn't open norm file", errno);
     }
 
     int end = lseek(fd, 0, SEEK_END);
@@ -52,6 +59,7 @@ LuceneNrmTable::open() {
     norms = new char[end];
     io_read(fd, norms, end, end);
 
+    //Lucene3.6.2 has 'N''R''M' in the front of this file
     char c = norms[0];
     Assert(c == 'N');
 
@@ -83,7 +91,8 @@ LuceneNrmTable::open() {
 }
 
 float
-LuceneNrmTable::get_norm(Xapian::docid did, int field_num) const {
+LuceneNrmTable::get_norm(Xapian::docid did, int field_num) const
+{
     LOGCALL(DB, float, "LuceneNrmTable::get_norm", did | field_num);
 
     (void)did;
@@ -101,19 +110,22 @@ LuceneNrmTable::get_norm(Xapian::docid did, int field_num) const {
 }
 
 void
-LuceneNrmTable::set_seg_size(int seg_size_) {
+LuceneNrmTable::set_seg_size(int seg_size_)
+{
     seg_size = seg_size_;
 }
 
 int
-LuceneNrmTable::get_seg_size() const {
+LuceneNrmTable::get_seg_size() const
+{
     LOGCALL(DB, int, "LuceneNrmTable::get_seg_size", NO_ARGS);
 
     RETURN(seg_size);
 }
 
 float
-LuceneNrmTable::decode_norm(char b) const {
+LuceneNrmTable::decode_norm(char b) const
+{
     //Use union to convert int to float
     union {
         int i;

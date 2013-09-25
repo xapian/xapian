@@ -37,8 +37,6 @@
 
 #include <algorithm>
 #include <string>
-#include "debuglog.h"
-#include <iostream>
 
 using namespace std;
 
@@ -48,7 +46,6 @@ namespace Xapian {
 
 Document::Document(Document::Internal *internal_) : internal(internal_)
 {
-    LOGLINE(DB, "Document::Document, doc = " << (int)internal_);
 }
 
 Document::Document() : internal(new Xapian::Document::Internal)
@@ -218,35 +215,35 @@ Document::unserialise(const std::string &s)
 
 std::string
 Document::get_data_string(const std::string & field) {
-    LOGCALL(API, std::string, "Just for Lucene, Document::get_data_string", field);
+    LOGCALL(API, std::string, "Document::get_data_string", field);
 
     RETURN(internal->get_data_string(field));
 }
 
 int
 Document::get_data_int(const std::string & field) {
-    LOGCALL(API, int, "Just for Lucene, Document::get_data_int", field);
+    LOGCALL(API, int, "Document::get_data_int", field);
 
     RETURN(internal->get_data_int(field));
 }
 
 long
 Document::get_data_long(const std::string & field) {
-    LOGCALL(API, long, "Just for Lucene, Document::get_data_long", field);
+    LOGCALL(API, long, "Document::get_data_long", field);
 
     RETURN(internal->get_data_long(field));
 }
 
 float
 Document::get_data_float(const std::string & field) {
-    LOGCALL(API, float, "Just for Lucene, Document::get_data_float", field);
+    LOGCALL(API, float, "Document::get_data_float", field);
 
     RETURN(internal->get_data_float(field));
 }
 
 double
 Document::get_data_double(const std::string & field) {
-    LOGCALL(API, double, "Just for Lucene, Document::get_data_float", field);
+    LOGCALL(API, double, "Document::get_data_float", field);
 
     RETURN(internal->get_data_double(field));
 }
@@ -324,12 +321,8 @@ string
 Xapian::Document::Internal::get_data() const
 {
     LOGCALL(DB, string, "Xapian::Document::Internal::get_data", NO_ARGS);
-    if (data_here) {
-        return data;
-    }
-    if (!database.get()) {
-        return string();
-    }
+    if (data_here) return data;
+    if (!database.get()) return string();
     return do_get_data();
 }
 
@@ -551,7 +544,7 @@ Xapian::Document::Internal::~Internal()
 //Below is just for Lucene
 std::string
 Xapian::Document::Internal::get_data_string(const std::string & field) {
-    LOGCALL(DB, std::string, "Document::Internal::get_data_string, just for Lucene", field);
+    LOGCALL(DB, std::string, "Document::Internal::get_data_string", field);
 
     (void)field;
     Assert(false);
@@ -561,7 +554,7 @@ Xapian::Document::Internal::get_data_string(const std::string & field) {
 
 int
 Xapian::Document::Internal::get_data_int(const std::string & field) {
-    LOGCALL(DB, int, "Document::Internal::get_data_int, just for Lucene", field);
+    LOGCALL(DB, int, "Document::Internal::get_data_int", field);
 
     (void)field;
     Assert(false);
@@ -571,7 +564,7 @@ Xapian::Document::Internal::get_data_int(const std::string & field) {
 
 long
 Xapian::Document::Internal::get_data_long(const std::string & field) {
-    LOGCALL(DB, long, "Document::Internal::get_data_long, just for Lucene", field);
+    LOGCALL(DB, long, "Document::Internal::get_data_long", field);
 
     (void)field;
     Assert(false);
@@ -581,7 +574,7 @@ Xapian::Document::Internal::get_data_long(const std::string & field) {
 
 float
 Xapian::Document::Internal::get_data_float(const std::string & field) {
-    LOGCALL(DB, float, "Document::Internal::get_data_float, just for Lucene", field);
+    LOGCALL(DB, float, "Document::Internal::get_data_float", field);
 
     (void)field;
     Assert(false);
@@ -591,7 +584,7 @@ Xapian::Document::Internal::get_data_float(const std::string & field) {
 
 double
 Xapian::Document::Internal::get_data_double(const std::string & field) {
-    LOGCALL(DB, double, "Document::Internal::get_data_double, just for Lucene", field);
+    LOGCALL(DB, double, "Document::Internal::get_data_double", field);
 
     (void)field;
     Assert(false);

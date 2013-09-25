@@ -47,11 +47,7 @@ class QueryTerm : public Query::Internal {
     QueryTerm(const std::string & term_,
 	      Xapian::termcount wqf_,
 	      Xapian::termpos pos_)
-	: term(term_), wqf(wqf_), pos(pos_)
-    {
-        LOGLINE(API, "QueryTerm::QueryTerm, term=" << term << ", wqf=" << wqf <<
-                    ", pos=" << pos);
-    }
+	: term(term_), wqf(wqf_), pos(pos_) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 

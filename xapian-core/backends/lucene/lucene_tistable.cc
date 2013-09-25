@@ -7,9 +7,7 @@
 
 #include <iostream>
 
-/**
- * below include is for debug
- */
+//below include is for debug
 #include <cstdlib>
 
 using namespace std;
@@ -27,8 +25,9 @@ LuceneTisTable::LuceneTisTable(const string & db_dir_)
 }
 
 bool
-LuceneTisTable::set_filename(const string & prefix) {
-    /* Has fixed file name suffix '.tis' */
+LuceneTisTable::set_filename(const string & prefix)
+{
+    //Has fixed file name suffix '.tis'
     file_name = prefix + ".tis";
     stream_reader.set_filename(file_name);
 
@@ -36,14 +35,16 @@ LuceneTisTable::set_filename(const string & prefix) {
 }
 
 bool
-LuceneTisTable::set_field_name(vector<string> field_name_) {
+LuceneTisTable::set_field_name(vector<string> field_name_)
+{
     field_name = field_name_;
 
     return true;
 }
 
 bool
-LuceneTisTable::open() {
+LuceneTisTable::open()
+{
     LOGCALL(DB, bool, "LuceneTisTable::open", NO_ARGS);
 
     stream_reader.open_stream();
@@ -59,29 +60,27 @@ LuceneTisTable::open() {
 
 bool
 LuceneTisTable::scan_to(const LuceneTerm & target, LuceneTermInfo & result,
-            const LuceneTermIndice & prev) const {
-    //LOGCALL(API, bool, "LuceneTisTable::scan_to", target.suffix);
+            const LuceneTermIndice & prev) const
+{
     LuceneTermInfo c;
     LuceneTermInfo p = prev.terminfo;
     stream_reader.seek_to(prev.index_delta);
 
-    /** freq_delta in for loop is offset based on p_freq_delta, it's not absolute
-     * data
-     */
+    //freq_delta in for loop is offset based on p_freq_delta, it's not absolute
+    //data
     int p_freq_delta = prev.terminfo.freq_delta;
 
     for (int i = 0; i < index_interval; ++i) {
         stream_reader.read_terminfo(c, skip_interval);
 
-        /** c.freq_delta is offset based on p_freq_delta, it's the file offset int
-         * .frq
-         */
+        //c.freq_delta is offset based on p_freq_delta, it's the file offset int
+        //frq
         c.freq_delta += p_freq_delta;
         p_freq_delta = c.freq_delta;
 
         LuceneTerm & t = c.term;
         //FIXME this code looks bad
-        /* has prefix, concat it */
+        //has prefix, concat it
         if (0 != t.prefix_length) {
             string prefix = p.term.suffix.substr(0, t.prefix_length);
             t.suffix = prefix + t.suffix;
@@ -132,10 +131,10 @@ LuceneTisTable::get_current_ti() const
     return pti;
 }
 
-/** below is for debug
- */
+//below is for debug
 void
-LuceneTisTable::debug_get_table() {
+LuceneTisTable::debug_get_table()
+{
     cout << "tis-->TIVersion[" << ti_version << "],TermCount[" << 
         term_count << "],SkipInterval[" << skip_interval << "],MaxSkipInterval[" <<
         max_skip_levels << "]" << endl;

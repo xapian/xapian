@@ -15,33 +15,36 @@
 
 using namespace std;
 
-/**
- * LuceneFrqTable is similar to ChertPostListTable in Xapian
- * The .frq file contains the lists of documents which contain each term,
- * along with the frequency of the term in that document
+/** LuceneFrqTable is similar to ChertPostListTable in Xapian
+ *  The .frq file contains the lists of documents which contain each term,
+ *  along with the frequency of the term in that document
  *
- * FreqFile (.frq) --> <TermFreqs, SkipData> TermCount
- * TermFreqs --> <TermFreq> DocFreq
- * TermFreq --> DocDelta[, Freq?]
- * SkipData --> <<SkipLevelLength, SkipLevel> NumSkipLevels-1, SkipLevel> <SkipDatum>
- * SkipLevel --> <SkipDatum> DocFreq/(SkipInterval^(Level + 1))
- * SkipDatum --> DocSkip,PayloadLength?,FreqSkip,ProxSkip,SkipChildLevelPointer?
- * DocDelta,Freq,DocSkip,PayloadLength,FreqSkip,ProxSkip --> VInt
- * SkipChildLevelPointer --> VLong
+ *  FreqFile (.frq) --> <TermFreqs, SkipData> TermCount
+ *  TermFreqs --> <TermFreq> DocFreq
+ *  TermFreq --> DocDelta[, Freq?]
+ *  SkipData --> <<SkipLevelLength, SkipLevel> NumSkipLevels-1, SkipLevel> <SkipDatum>
+ *  SkipLevel --> <SkipDatum> DocFreq/(SkipInterval^(Level + 1))
+ *  SkipDatum --> DocSkip,PayloadLength?,FreqSkip,ProxSkip,SkipChildLevelPointer?
+ *  DocDelta,Freq,DocSkip,PayloadLength,FreqSkip,ProxSkip --> VInt
+ *  SkipChildLevelPointer --> VLong
  *
- * details on http://lucene.apache.org/core/3_6_2/fileformats.html#Frequencies
+ *  details on http://lucene.apache.org/core/3_6_2/fileformats.html#Frequencies
  */
 class LuceneFrqTable {
-    /* Database directory */
+    /** Database directory
+     */
     string db_dir;
 
-    /* .frq file name */
+    /** File name for .frq
+     */
     string file_name;
 
-    /* File reader for .frq */
+    /** File reader for .frq
+     */
     ByteStreamReader stream_reader;
 
-    //This is for a specific term
+    /** This is for a particular term
+     */
     int doc_freq;
 
   public:
@@ -54,16 +57,21 @@ class LuceneFrqTable {
     string get_dbdir() const;
 };
 
+/** Lucene database has multiple segment database, each segment database
+ *  has one postlist, which is LucenePostList here
+ */
 class LucenePostList : public Xapian::Internal::intrusive_base {
 
-    /* Term name for this postlist */
+    /** Term name for this postlist
+     */
     string term;
 
-    /* Term's field number */
+    /** Term's field number
+     */
     int field_num;
 
     /** This is equal to ChertPostList::number_of_entries. In other words, It
-     * means how many documents in this postlist
+     *  means how many documents in this postlist
      */
     int doc_freq;
 
@@ -73,22 +81,26 @@ class LucenePostList : public Xapian::Internal::intrusive_base {
     string file_name;
     ByteStreamReader docfreq_reader;
 
-    /* Docid of document which is visiting now */
+    /** Current visiting document's id
+     */
     Xapian::docid did;
 
-    /* wdf of document which is visiting now */
+    /** Current visting document's wdf
+     */
     Xapian::termcount wdf;
 
-    /* Counter of visited documents */
+    /** Counter for visited documents, also means how many documents are visited
+     */
     int c;
 
     /** Vector index for LuceneDatabase->seg_dbs, used to find segment. 
-     * Segments are sequencely push_back to LuceneDatabase::seg_dbs, using seg_idx
-     * to find related segment object in LuceneDatabase::seg_dbs
+     *  Segments are sequencely push_back to LuceneDatabase::seg_dbs, using seg_idx
+     *  to find related segment object in LuceneDatabase::seg_dbs
      */
     unsigned int seg_idx;
 
-    /* Reached the end of postlist */
+    /** If reached the end of postlist
+     */
     bool is_at_end;
 
   public:
@@ -98,28 +110,31 @@ class LucenePostList : public Xapian::Internal::intrusive_base {
 
     ~LucenePostList();
 
-    /* termfreq here means how many document contains the term */
+    /** Termfreq here means how many document contains the term
+     */
     Xapian::doccount get_termfreq() const;
 
-    /* virtual function realize begin */
+    /* Virtual function realization begin */
+
     Xapian::docid get_docid() const;
 
-    /**TODO, doclength is not exists in Lucene, How to get it?
-     * In Chert, get_doclength() seems return wdf, see the return type,
-     * Xapian::termcount, maybe it's not doclength, it's termcount
+    /** doclength is not exists in Lucene, How to get it?
+     *  In Chert, get_doclength() seems return wdf, see the return type,
+     *  Xapian::termcount, maybe it's not doclength, it's termcount
      */
     Xapian::termcount get_doclength() const;
 
-    /* If reached to the end of the postlist */
+    /** If reached to the end of the postlist
+     */
     bool at_end() const;
 
-    /** Visite next document in the PostList, @param is not used yet
-     **/
+    /** Visite next document in the postlist
+     */
     PostList * next(double);
 
-    /** Skip to a specified document in the PostList, @param 2 is not used yet
-     * TODO, skip list is not used yet, so when the length of postlist is big,
-     * performance issues may appear
+    /** Skip to a specified document in the PostList
+     *  TODO, skip list is not realized yet, so when the length of postlist is big,
+     *  performance issues may appear
      */
     PostList * skip_to(Xapian::docid, double);
 
@@ -131,35 +146,34 @@ class LucenePostList : public Xapian::Internal::intrusive_base {
     void set_seg_idx(int idx);
     unsigned int get_seg_idx() const;
 
-    /* below is for debug */
+    /** below is for debug
+     */
     void debug_postlist() const;
 
     int get_field_num() const;
 };
 
-/**
- * Be composed of lots of postlists, one postlist per segment.
- * All postlits are stored in vector pls
- * To make interface compatible, this class extends from LeafPostList
+/** Lucene database has multiple segment database, LuceneMultiPostList is
+ *  composed of lots of postlists, one postlist per segment database.
+ *  All postlits are stored in vector pls.
+ *  To make interface compatible, this class extends from LeafPostList
  */
 class LuceneMultiPostList : public LeafPostList {
-    /**
-     * Pointed to database
+    /** Pointed to database
      */
     Xapian::Internal::intrusive_ptr<const LuceneDatabase> this_db;
 
-    /**
-     * one postList per segment
+    /** One postList per segment
      */
     vector<LucenePostList *> pls;
 
-    /**
-     * Current docid which be visited, calculate from sub LucenePostList
-     * It is in segment docid, not external docid
+    /** Current docid which is visiting, calculate from sub LucenePostList.
+     *  It is in segment docid, not external docid
      */
     Xapian::docid c_did;
 
-    /* vector index for current postList */
+    /** Vector index for current postList
+     */
     unsigned int pls_index;
 
   public:
@@ -167,39 +181,40 @@ class LuceneMultiPostList : public LeafPostList {
         const vector<LucenePostList *> &, const string &);
 
     /* virtual function realize begin */
+
     Xapian::doccount get_termfreq() const;
 
-    /**
-     * Return virtual did, not real did, virtual did is a docid
-     * which contains segment index infomation
+    /** Return virtual did, not real did, virtual did is a docid
+     *  which contains segment index infomation
      */
     Xapian::docid get_docid() const;
 
-    /** Find norm value in .nrm. Using class variable term to find field,
-     * then find norm in .nrm
+    /** Find norm value in .nrm. Using in class variable term to find field,
+     *  then find norm in .nrm
      */
     Xapian::termcount get_doclength() const;
 
-    /* If visit to the end of PostList */
+    /** If reaches to the end of postlist
+     */
     bool at_end() const;
 
-    /* Visit the next doc in postlist */
+    /** Visit the next doc in postlist
+     */
     PostList * next(double);
 
-    /* Hasn't used yet */
     PostList * skip_to(Xapian::docid, double);
     std::string get_description() const;
 
-    /**
-     * Check if ext_id exists in PostList
-     * @a valid is set to true if exists
-     * @a valid is set to false if not exists
+    /** Check if ext_id exists in PostList
+     *  @a valid is set to true if exists
+     *  @a valid is set to false if not exists
      */
     //PostList * check(Xapian::docid ext_did, double w_min, bool & valid);
 
     /* virtual function realize end*/
 
-    /* Called by LeafPostList::get_weight() */
+    /** Called by LeafPostList::get_weight()
+     */
     Xapian::termcount get_wdf() const;
 
 };

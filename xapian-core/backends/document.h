@@ -31,7 +31,6 @@
 #include "api/documentterm.h"
 #include <map>
 #include <string>
-#include <iostream>
 
 using namespace std;
 
@@ -86,10 +85,7 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	virtual void do_get_all_values(map<Xapian::valueno, string> & values_) const {
 	    values_.clear();
 	}
-	virtual string do_get_data() const { 
-        cout << "Document::do_get_data()" << endl;
-        return string();
-    }
+	virtual string do_get_data() const { return string(); }
 
     public:
 	/** Get value by value number.

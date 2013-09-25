@@ -38,7 +38,7 @@ copy_files(const char * src, const char * dest)
     //make destination directory if it is not exists, just available for Linux
     while (end && '\0' != *begin) {
         end = strchr(begin, '/');
-        string dir = "";
+        string dir;
         if (NULL == end) {
             dir = string(dest);
         } else {

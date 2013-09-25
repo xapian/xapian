@@ -40,7 +40,7 @@ LuceneDocument::get_data_string(const string & field) {
     map<int, string>::const_iterator it = string_map.begin();
     it = string_map.find(field_num);
     if (it == string_map.end()) {
-        RETURN("");
+        RETURN(string());
     }
 
     RETURN(it->second);
@@ -58,7 +58,7 @@ LuceneDocument::get_data_int(const string & field) {
     int field_num = seg_db->get_fieldnum(field);
     map<int, int>::const_iterator it = int_map.begin();
     it = int_map.find(field_num);
-    //FIXME It's suitable to return 0 when no found
+    //FIXME it's not suitable to return 0 when has no found
     if (it == int_map.end()) {
         RETURN(0);
     }

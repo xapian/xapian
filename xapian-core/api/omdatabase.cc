@@ -511,7 +511,7 @@ string
 Database::get_description() const
 {
 #ifdef XAPIAN_HAS_LUCENE_BACKEND
-    string desc = "";
+    string desc;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
     desc += (*i)->get_description();
@@ -772,7 +772,7 @@ Database::get_uuid() const
 void
 Database::get_fieldinfo(set<string> & field_set) const
 {
-    LOGCALL(API, void, "Database::get_fieldinfo", field_set.size());
+    LOGCALL(API, void, "Database::get_fieldinfo", field_set);
 
     for (size_t i = 0; i < internal.size(); ++i) {
         internal[i]->get_fieldinfo(field_set);

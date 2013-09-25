@@ -18,12 +18,14 @@ LuceneFrqTable::LuceneFrqTable(const string & db_dir_)
 {
 }
 
-LuceneFrqTable::~LuceneFrqTable() {
+LuceneFrqTable::~LuceneFrqTable()
+{
     LOGCALL_DTOR(DB, "LuceneFrqTable");
 }
 
 bool
-LuceneFrqTable::set_filename(const string & prefix) {
+LuceneFrqTable::set_filename(const string & prefix)
+{
     file_name = prefix + ".frq";
     stream_reader.set_filename(file_name);
 
@@ -31,12 +33,14 @@ LuceneFrqTable::set_filename(const string & prefix) {
 }
 
 string
-LuceneFrqTable::get_filename() const {
+LuceneFrqTable::get_filename() const
+{
     return file_name;
 }
 
 string
-LuceneFrqTable::get_dbdir() const {
+LuceneFrqTable::get_dbdir() const
+{
     return db_dir;
 }
 
@@ -63,10 +67,6 @@ LucenePostList::LucenePostList(const string & term_, int field_num_,
     term = term_;
     
     docfreq_reader.seek_to(freq_delta);
-
-    /* debug
-    debug_postlist();
-    */
 }
 
 LucenePostList::~LucenePostList()
@@ -74,34 +74,38 @@ LucenePostList::~LucenePostList()
 }
 
 Xapian::doccount
-LucenePostList::get_termfreq() const {
+LucenePostList::get_termfreq() const
+{
     LOGCALL(API, Xapian::doccount, "LucenePostList::get_termfreq", file_name);
 
     RETURN(doc_freq);
 }
 
 Xapian::docid
-LucenePostList::get_docid() const {
-    //LOGCALL(API, Xapian::docid, "LucenePostList::get_docid", did);
+LucenePostList::get_docid() const
+{
     return did;
 }
 
 Xapian::termcount
-LucenePostList::get_doclength() const {
-    LOGCALL(API, Xapian::termcount, "(not realized)LucenePostList::get_doclength", NO_ARGS);
+LucenePostList::get_doclength() const
+{
+    LOGCALL(API, Xapian::termcount, "LucenePostList::get_doclength", NO_ARGS);
     Assert(false);
 
     RETURN(Xapian::termcount(0));
 }
 
 bool
-LucenePostList::at_end() const {
+LucenePostList::at_end() const
+{
     return is_at_end;
 }
 
 PostList *
-LucenePostList::next(double data) {
-    LOGCALL(API, PostList *, "LucenePostList::next", file_name | data );
+LucenePostList::next(double data)
+{
+    LOGCALL(API, PostList *, "LucenePostList::next", data);
     (void)data;
 
     if (c >= doc_freq) {
@@ -117,19 +121,17 @@ LucenePostList::next(double data) {
     wdf = freq;
     ++c;
 
-    //LOGLINE(API, "LucenePostList::next did=" << did << ", wdf=" << wdf <<
-                //", doc_delta=" << doc_delta);
-
     return NULL;
 }
 
-//TODO using skip list
+//TODO Skip list is not realized, so performance of this method is not good,
+//espacially when postlist is longer
 PostList *
-LucenePostList::skip_to(Xapian::docid desire_did,
-            double data) {
+LucenePostList::skip_to(Xapian::docid desire_did, double data)
+{
     LOGCALL(API, PostList *, "LucenePostList::skip_to", desire_did| data);
 
-    //just a simple realization, not using skiplist
+    //just a simple realization, skiplist is not used
     while (true) {
         next(data);
         if (at_end()) {
@@ -147,29 +149,35 @@ LucenePostList::skip_to(Xapian::docid desire_did,
 }
 
 std::string
-LucenePostList::get_description() const {
-    LOGCALL(API, std::string, "(not realized)LucenePostList::get_description", NO_ARGS);
+LucenePostList::get_description() const
+{
+    LOGCALL(API, std::string, "LucenePostList::get_description", NO_ARGS);
+    Assert(false);
 
     RETURN(std::string());
 }
 
 Xapian::termcount
-LucenePostList::get_wdf() const {
+LucenePostList::get_wdf() const
+{
     return wdf;
 }
 
 void
-LucenePostList::set_seg_idx(int idx) {
+LucenePostList::set_seg_idx(int idx)
+{
     seg_idx = idx;
 }
 
 unsigned int
-LucenePostList::get_seg_idx() const {
+LucenePostList::get_seg_idx() const
+{
     return seg_idx;
 }
 
 int
-LucenePostList::get_field_num() const {
+LucenePostList::get_field_num() const
+{
     return field_num;
 }
 
@@ -186,7 +194,8 @@ LuceneMultiPostList::LuceneMultiPostList(intrusive_ptr<const LuceneDatabase> thi
 }
 
 Xapian::doccount
-LuceneMultiPostList::get_termfreq() const {
+LuceneMultiPostList::get_termfreq() const
+{
     LOGCALL(API, Xapian::doccount, "LuceneMultiPostList::get_termfreq", pls.size());
 
     vector<LucenePostList *>::const_iterator i;
@@ -199,7 +208,8 @@ LuceneMultiPostList::get_termfreq() const {
 }
 
 Xapian::docid
-LuceneMultiPostList::get_docid() const {
+LuceneMultiPostList::get_docid() const
+{
     LOGCALL(API, Xapian::docid, "LuceneMultiPostList::get_docid", term |
                 pls_index | (unsigned int)this);
 
@@ -218,10 +228,8 @@ LuceneMultiPostList::get_docid() const {
 }
 
 Xapian::termcount
-LuceneMultiPostList::get_doclength() const {
-    //LOGCALL(API, Xapian::termcount, "(not realized) LuceneMultiPostList::get_doclength",
-    //            term | c_did);
-
+LuceneMultiPostList::get_doclength() const
+{
     //Field number
     int field = pls[pls_index]->get_field_num();
     //Segment number
@@ -231,14 +239,11 @@ LuceneMultiPostList::get_doclength() const {
     Xapian::termcount dl = seg_db->get_doclength(c_did, field);
 
     return dl;
-    //RETURN(dl);
 }
 
 PostList *
-LuceneMultiPostList::next(double data) {
-    LOGCALL(API, PostList *, "LuceneMultiPostList::next", term
-                | pls_index | pls.size() | data | (unsigned int)this);
-
+LuceneMultiPostList::next(double data)
+{
     if (pls_index >= pls.size()) {
         return NULL;
     }
@@ -252,32 +257,31 @@ LuceneMultiPostList::next(double data) {
         }
     }
 
-    RETURN(NULL);
+    return NULL;
 }
 
 bool
-LuceneMultiPostList::at_end() const {
-    //LOGCALL(API, bool, "LuceneMultiPostList::at_end", NO_ARGS);
-
+LuceneMultiPostList::at_end() const
+{
     if (pls_index >= pls.size()) {
         return true;
-        //RETURN(true);
     }
 
     return false;
-    //RETURN(false);
 }
 
 string
-LuceneMultiPostList::get_description() const {
+LuceneMultiPostList::get_description() const
+{
     return string();
 }
 
 PostList *
-LuceneMultiPostList::skip_to(Xapian::docid ext_did, double data) {
+LuceneMultiPostList::skip_to(Xapian::docid ext_did, double data)
+{
     LOGCALL(API, PostList *, "LuceneMultiPostList::skip_to", ext_did | data);
 
-    /* FIXME, if next() is not called before, get_docid() will get a unknown result */
+    //FIXME, if next() is not called before, get_docid() will get a unknown result
     //No need to find in postlist
     Xapian::docid c_ext_did = get_docid();
     if (ext_did <= c_ext_did || at_end())
@@ -303,10 +307,9 @@ LuceneMultiPostList::skip_to(Xapian::docid ext_did, double data) {
                 ", seg_idx=" << seg_idx);
 
     pls[pls_index]->skip_to(seg_did, data);
-    //Skip to the first doc which after pls[pls_index]
+    //Skip to the first doc in pls[++pls_index]
     if (pls[pls_index]->at_end()) {
         pls_index++;
-        //Skip to the first doc after pls[pls_index]
         for (; pls_index < pls.size(); pls_index++) {
             pls[pls_index]->skip_to(0, data);
             if (! pls[pls_index]->at_end()) {
@@ -347,20 +350,17 @@ LuceneMultiPostList::check(Xapian::docid ext_did, double w_min,
 */
 
 Xapian::termcount
-LuceneMultiPostList::get_wdf() const {
-    //LOGCALL(API, Xapian::termcount, "LuceneMultiPostList::get_wdf", NO_ARGS);
-
+LuceneMultiPostList::get_wdf() const
+{
     LucenePostList * postlist = pls[pls_index];
 
     return postlist->get_wdf();
-    //RETURN(postlist->get_wdf());
 }
 
-/**
- * below is for debug
- */
+//below is for debug
 void
-LucenePostList::debug_postlist() const {
+LucenePostList::debug_postlist() const
+{
     //SkipDelta is only stored if DocFreq is not smaller than SkipInterval
     cout << "ftetll:" << docfreq_reader.get_ftell() << 
         " freq_delta:" << freq_delta <<

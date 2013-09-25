@@ -6,7 +6,6 @@
 #include "debuglog.h"
 
 //test
-#include <cstdlib>
 #include <iostream>
 
 LuceneSegmentGenTable::LuceneSegmentGenTable(const string & db_dir_)
@@ -18,8 +17,8 @@ LuceneSegmentGenTable::LuceneSegmentGenTable(const string & db_dir_)
 }
 
 bool 
-LuceneSegmentGenTable::open() {
-
+LuceneSegmentGenTable::open()
+{
     stream_reader.open_stream();
 
     stream_reader.read_int32(version);
@@ -30,22 +29,26 @@ LuceneSegmentGenTable::open() {
 }
 
 int
-LuceneSegmentGenTable::get_version() {
+LuceneSegmentGenTable::get_version()
+{
     return version;
 }
 
 long long
-LuceneSegmentGenTable::get_generationA() {
+LuceneSegmentGenTable::get_generationA()
+{
     return generationA;
 }
 
 long long
-LuceneSegmentGenTable::get_generationB() {
+LuceneSegmentGenTable::get_generationB()
+{
     return generationB;
 }
 
-//It's for debug below
-void LuceneSegmentGenTable::debug_get_table() {
+//Just for debug
+void LuceneSegmentGenTable::debug_get_table()
+{
     cout << "LuceneSegmentGenTable::debgu_get_table" << endl;
     cout << "segments.gen-->version(" << version << "), generationA(" 
         << generationA << "),generationB(" << generationB << ")";

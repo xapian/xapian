@@ -98,9 +98,7 @@ LuceneFnmTable::get_field_num(const string & fn) const {
     return it->second;
 }
 
-/**
- * below is for debug
- */
+//below is for debug
 void LuceneFnmTable::debug_get_table() {
     cout << "fnm-->FNMVersion[" << fnm_version << "],fieldsCount[" <<
         fields_count << "],fields<" << endl;

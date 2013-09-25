@@ -34,8 +34,6 @@ LuceneDatabase::LuceneDatabase(const string &lucene_dir)
     LOGCALL_CTOR(DB, "LuceneDatabase", lucene_dir);
 
     create_and_open_tables();
-
-    return;
 }
 
 LuceneDatabase::~LuceneDatabase()
@@ -50,7 +48,6 @@ LuceneDatabase::get_segdb(unsigned int index) const {
     return seg_dbs[index];
 }
 
-/** Return the sum of doc count in all segments */
 Xapian::doccount
 LuceneDatabase::get_doccount() const
 {
@@ -68,9 +65,6 @@ LuceneDatabase::get_doccount(int segment) const {
     RETURN(count);
 }
 
-/**
- * TODO lastdocid doesn't exists in Lucene
- */
 Xapian::docid
 LuceneDatabase::get_lastdocid() const
 {
@@ -80,12 +74,6 @@ LuceneDatabase::get_lastdocid() const
     RETURN(Xapian::docid(0));
 }
 
-/**
- * TODO there's no total_length(doc length) in lucene, this length is stored in 
- * postlist.DB(with key '\0') in xapian, so... should I caculate this data by using 
- * copydatabase tool and store it in somewhere
-*/
-//TODO
 totlen_t
 LuceneDatabase::get_total_length() const
 {
@@ -101,7 +89,7 @@ LuceneDatabase::get_avlength() const
     LOGCALL(DB, Xapian::doclength, "(not realized)LuceneDatabase::get_avlength", NO_ARGS);
     Assert(false);
 
-    RETURN(0);
+    RETURN(0.0);
 }
 
 Xapian::termcount
@@ -117,7 +105,7 @@ LuceneDatabase::get_doclength(Xapian::docid did) const
 Xapian::doccount
 LuceneDatabase::get_termfreq(const string & term) const
 {
-    LOGCALL(DB, Xapian::doccount, "(not realized) LuceneDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "LuceneDatabase::get_termfreq", term);
     Assert(!term.empty());
 
     LuceneTerm lterm;
@@ -131,7 +119,6 @@ LuceneDatabase::get_termfreq(const string & term) const
     RETURN(doc_freq);
 }
 
-//TODO
 Xapian::termcount
 LuceneDatabase::get_collection_freq(const string & term) const
 {
@@ -142,7 +129,6 @@ LuceneDatabase::get_collection_freq(const string & term) const
     RETURN(0);
 }
 
-//TODO
 Xapian::doccount
 LuceneDatabase::get_value_freq(Xapian::valueno slot) const
 {
@@ -175,7 +161,6 @@ LuceneDatabase::get_value_upper_bound(Xapian::valueno slot) const
     RETURN(std::string());
 }
 
-//TODO
 /*
 Xapian::termcount
 LuceneDatabase::get_doclength_lower_bound() const
@@ -186,7 +171,6 @@ LuceneDatabase::get_doclength_lower_bound() const
 }
 */
 
-//TODO
 /*
 Xapian::termcount
 LuceneDatabase::get_doclength_upper_bound() const
@@ -206,7 +190,6 @@ LuceneDatabase::get_wdf_upper_bound(const string & term) const
     RETURN(stat_table.get_wdf_upper_bound());
 }
 
-//TODO
 bool
 LuceneDatabase::term_exists(const string & term) const
 {
@@ -217,7 +200,6 @@ LuceneDatabase::term_exists(const string & term) const
     RETURN(false);
 }
 
-//TODO
 bool
 LuceneDatabase::has_positions() const
 {
@@ -249,7 +231,6 @@ LuceneDatabase::open_post_list(const string & term) const
     RETURN(new LuceneMultiPostList(ptrtothis, pls, term));
 }
 
-//TODO
 ValueList *
 LuceneDatabase::open_value_list(Xapian::valueno slot) const
 {
@@ -260,7 +241,6 @@ LuceneDatabase::open_value_list(Xapian::valueno slot) const
     RETURN(NULL);
 }
 
-//TODO
 TermList *
 LuceneDatabase::open_term_list(Xapian::docid did) const
 {
@@ -279,7 +259,6 @@ LuceneDatabase::open_allterms(const string & prefix) const
     RETURN(new LuceneAllTermsList(intrusive_ptr<const LuceneDatabase>(this), prefix));
 }
 
-//TODO
 PositionList *
 LuceneDatabase::open_position_list(Xapian::docid did, const string & term) const
 {
@@ -291,12 +270,13 @@ LuceneDatabase::open_position_list(Xapian::docid did, const string & term) const
     RETURN(NULL);
 }
 
-//TODO
 Xapian::Document::Internal *
 LuceneDatabase::open_document(Xapian::docid ext_did, bool lazy) const
 {
     LOGCALL(DB, Xapian::Document::Internal *, "LuceneDatabase::open_document",
                 ext_did | lazy);
+
+    (void)lazy;
 
     intrusive_ptr<const Database::Internal> ptrtothis(this);
     unsigned int seg_idx = 0;
@@ -305,12 +285,9 @@ LuceneDatabase::open_document(Xapian::docid ext_did, bool lazy) const
 
     Assert(seg_idx < segment_table.get_seg_count());
 
-    //just avoid -Werror=unused-parameter
-    lazy = lazy;
     RETURN(new LuceneDocument(ptrtothis, seg_did, seg_dbs[seg_idx]));
 }
 
-//TODO
 TermList *
 LuceneDatabase::open_spelling_termlist(const string & word) const
 {
@@ -322,7 +299,6 @@ LuceneDatabase::open_spelling_termlist(const string & word) const
     RETURN(NULL);
 }
 
-//TODO
 TermList *
 LuceneDatabase::open_spelling_wordlist() const
 {
@@ -333,7 +309,6 @@ LuceneDatabase::open_spelling_wordlist() const
     RETURN(NULL);
 }
 
-//TODO
 Xapian::doccount
 LuceneDatabase::get_spelling_frequency(const string & word) const
 {
@@ -345,7 +320,6 @@ LuceneDatabase::get_spelling_frequency(const string & word) const
     RETURN(Xapian::doccount(0));
 }
 
-//TODO
 TermList *
 LuceneDatabase::open_synonym_termlist(const string & term) const
 {
@@ -357,7 +331,6 @@ LuceneDatabase::open_synonym_termlist(const string & term) const
     RETURN(NULL);
 }
 
-//TODO
 TermList *
 LuceneDatabase::open_synonym_keylist(const string & prefix) const
 {
@@ -369,7 +342,6 @@ LuceneDatabase::open_synonym_keylist(const string & prefix) const
     return 0;
 }
 
-//TODO
 string
 LuceneDatabase::get_metadata(const string & key) const
 {
@@ -379,7 +351,6 @@ LuceneDatabase::get_metadata(const string & key) const
     RETURN(string());
 }
 
-//TODO
 TermList *
 LuceneDatabase::open_metadata_keylist(const std::string &prefix) const
 {
@@ -391,7 +362,6 @@ LuceneDatabase::open_metadata_keylist(const std::string &prefix) const
     RETURN(NULL);
 }
 
-//TODO
 string
 LuceneDatabase::get_revision_info() const
 {
@@ -402,7 +372,6 @@ LuceneDatabase::get_revision_info() const
     RETURN(string());
 }
 
-//TODO
 string
 LuceneDatabase::get_uuid() const
 {
@@ -412,7 +381,6 @@ LuceneDatabase::get_uuid() const
     RETURN(string());
 }
 
-//TODO
 bool
 LuceneDatabase::reopen()
 {
@@ -422,21 +390,18 @@ LuceneDatabase::reopen()
     RETURN(false);
 }
 
-//TODO
 void
 LuceneDatabase::close()
 {
     LOGCALL_VOID(DB, "(not realized)LuceneDatabase::close", NO_ARGS);
 }
 
-//TODO
 void
 LuceneDatabase::cancel()
 {
     LOGCALL_VOID(DB, "(not realized)LuceneDatabase::cancel", NO_ARGS);
 }
 
-//TODO
 void 
 LuceneDatabase::write_changesets_to_fd(int fd, 
             const string &revision,
@@ -445,13 +410,14 @@ LuceneDatabase::write_changesets_to_fd(int fd,
 {
     LOGCALL_VOID(DB, "(not realized)LuceneDatabase::write_changesets_to_fd",
                 fd | revision | need_whole_db | info);
-    fd = fd;
-    revision.data();
-    need_whole_db = need_whole_db;
-    info = info;
+
+    Assert(false);
+    (void)fd;
+    (void)revision;
+    (void)need_whole_db;
+    (void)info;
 }
 
-//Support multiple segments
 void
 LuceneDatabase::create_and_open_tables()
 {
@@ -522,8 +488,9 @@ LuceneDatabase::get_fieldinfo(set<string> & field_set) const {
 
 ValueList *
 LuceneDatabase::open_norm_lists() const {
-    LOGCALL(DB, ValueList *, "no used", NO_ARGS);
+    LOGCALL(DB, ValueList *, "(not realized)LuceneDatabase::open_norm_lists", NO_ARGS);
 
+    Assert(false);
     //Deletion is executed where doing ValueIterator destruction
     //return new LuceneNrmList(intrusive_ptr<const LuceneDatabase>(this));
     return NULL;

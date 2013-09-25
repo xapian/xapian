@@ -7,7 +7,6 @@
 #include "lucene_term.h"
 
 #include <string>
-#include <string.h>
 #include <map>
 
 #define LUCENE_BLOCK_IO
@@ -15,27 +14,35 @@
 using namespace std;
 
 class ByteStreamReader {
-    /* Database directory */
+    /** Database directory.
+     */
     string db_dir;
 
-    /* File name for reading */
+    /** File name for reading.
+     */
     string file_name;
 
-    /* File Handler */
+    /** File handler.
+     */
 #ifdef LUCENE_BLOCK_IO
-    /* used for open */
+    /** Used for open.
+     */
     int handle;
 
-    /* read by block */
+    /** Read by block, it points to block data.
+     */
     char * block;
 
-    /* io block size, 8192(8K) Bytes */
+    /** Io block size, 256 bytes per read.
+     */
     static const unsigned int block_size = 256;
 
-    /* cursor for block io buffer */
+    /** Cursor for block io buffer.
+     */
     mutable unsigned int cursor;
 #else
-    /* used for fopen */
+    /** Used for fopen
+     */
     FILE * handle;
 #endif
 
@@ -51,81 +58,77 @@ class ByteStreamReader {
 
     bool set_filename(const string & file_name);
 
-    /* Open file for reading */
+    /** Open file for reading.
+     */
     bool open_stream();
 
-    /* Built-in type, using reference is more efficient? Maybe they have 
-     * no obvious difference */
+    /** Built-in type(like int), using reference is more efficient? Maybe they have 
+     *  no obvious difference.
+     */
 
-    /* Read one Byte */
+    /** Read one byte
+     */
     char read_byte() const;
     bool read_byte(char &) const;
 
-    /* Read 4 Bytes */
+    /** Read four bytes
+     */
     int read_int32() const;
     bool read_int32(int &) const;
     bool read_uint32(unsigned int &) const;
 
-    //TODO how to express int64 
-    /**
-     * Using long long for int64, just available in linux i386, is it works
-     * on other platform?
+    //TODO how to express int64.
+    /** Using long long for int64, just available in linux i386, is it works
+     *  on other platform?
      **/
     long long read_int64() const;
     bool read_int64(long long &) const;
     bool read_uint64(unsigned long long &) const;
 
-    /**
-     * Prefix 'v' means it's variable-length.
-     * Details about VInt, see http://lucene.apache.org/core/3_6_2/fileformats.html
+    /** Prefix 'v' means it's variable-length.
+     *  Details about VInt, see http://lucene.apache.org/core/3_6_2/fileformats.html
      **/
     int read_vint32() const;
     void read_vint32(int &) const;
 
     void read_vint64(long long &) const;
 
-    /**
-     * String --> VInt, chars.
-     * Details about string, see http://lucene.apache.org/core/3_6_2/fileformats.html
+    /** String --> VInt, chars.
+     *  Details about string, see http://lucene.apache.org/core/3_6_2/fileformats.html
      */
     //copy return
     string read_string() const;
     //reference read
     bool read_string(string &) const;
 
-    /**
-     * Map --> Count, <String, String>^Count. Map just stores string
+    /** Map --> Count, <String, String>^Count. Map just stores string.
      */
     bool read_ssmap(map<string, string> &) const;
 
-    /* Read LuceneTerm from file */
+    /** Read LuceneTerm from file.
+     */
     bool read_term(LuceneTerm &) const;
 
-    /**
-     * Read LuceneTermInf
-     * Probably bug exists here, pay attention. FIXME 
+    /** Read LuceneTermInfo.
      **/
     bool read_terminfo(LuceneTermInfo &, const unsigned int &) const;
 
-    /**
-     * Read doc delta and docfreq together
-     * 1. Read Vint32 first, if the most right bit is 1, then the freq=1
-     * 2. If the most right bit is 0, the freq = the next vint32
-     * 3. Doc delta = the first Vint32 >> 1;
-     * More details on http://lucene.apache.org/core/3_6_2/fileformats.html#Frequencies
+    /** Read doc delta and docfreq together.
+     *  1. Read Vint32 first, if the most right bit is 1, then the freq=1.
+     *  2. If the most right bit is 0, the freq = the next vint32.
+     *  3. Doc delta = the first Vint32 >> 1.
+     *  More details on http://lucene.apache.org/core/3_6_2/fileformats.html#Frequencies
      */
     bool read_did_and_freq(int &, int &) const;
 
-    /**
-     * Seek to some position in this file.
-     * After doing seek, block will be reload when using block io
-     * FIXME parameter is long, so just support <4G file
+    /** Seek to some position in this file.
+     *  After doing seek, block will be reload when using block io.
+     *  FIXME parameter is long, so just support <4G file
      */
     void seek_to(long) const;
 
-    /**
-     * Below is just for debug
-     **/
+    /** Below is just for debug.
+     */
     long get_ftell() const;
 };
 

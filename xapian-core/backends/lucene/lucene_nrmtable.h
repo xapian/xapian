@@ -3,40 +3,49 @@
 #define XAPIAN_INCLUDED_LUCENE_NRMTABLE_H
 
 #include "bytestream.h"
+
 #include <string>
 
+//If load the whole .nrm file into memory
 #define LOAD_WHOLE_NORM 1
 
 using namespace std;
 
 /** A separate norm file is created when the norm values of an existing
- * segment are modified. When field N is modified, a separate norm file
+ *  segment are modified. When field N is modified, a separate norm file
  * .sN is created, to maintain the norm values for that field.
  *
- * TODO, just single .nrm file is supported now, no separate files
+ *  TODO, just single .nrm file is supported now, no separate files
  */
 class LuceneNrmTable {
 
-    /* Lucene database directory */
+    /** Lucene database directory
+     */
     string db_dir;
 
-    /* .nrm file name */
+    /** .nrm file name
+     */
     string file_name;
 
-    /* version number */
+    /** Version number
+     */
     int nrm_version;
 
 #ifdef LOAD_WHOLE_NORM
+    /** Points to a byte array, which stores the whole norm file data.
+     */
     char * norms;
 #else
     /** File reader.
-     * Actually, this reader is not just for stream reading, random seek
-     * is used too
+     *  Actually, this reader is not just for stream reading, random seek
+     *  is used too.
      */
     ByteStreamReader reader;
 #endif
 
-    /* Documents count */
+    /** Documents count. How many documents in database, it is used to calculate
+     *  norm value's index in data array
+     */
     int seg_size;
 
   public:
@@ -44,13 +53,16 @@ class LuceneNrmTable {
 
     ~LuceneNrmTable();
 
-    /* set file name */
+    /** set file name
+     */
     void set_filename(const string & prefix);
 
-    /* Open .nrm file */
+    /** Open .nrm file
+     */
     void open();
 
-    /* Read Norm value from file */
+    /** Read norm value from file
+     */
     float get_norm(Xapian::docid did, int field_num) const;
 
     void set_seg_size(int seg_size);
@@ -58,14 +70,14 @@ class LuceneNrmTable {
     int get_seg_size() const;
 
     /** Static function for decodeNorm. This function should be moved
-     * to a util class, not necessary now
+     *  to a util class, not necessary now.
      *
-     * These are converted to an IEEE single float value as follows:
-     * If the byte is zero, use a zero float.
-     * Otherwise, set the sign bit of the float to zero;
-     * add 48 to the exponent and use this as the float's exponent;
-     * map the mantissa to the high-order 3 bits of the float's mantissa; and
-     * set the low-order 21 bits of the float's mantissa to zero.
+     *  These are converted to an IEEE single float value as follows:
+     *  If the byte is zero, use a zero float.
+     *  Otherwise, set the sign bit of the float to zero;
+     *  add 48 to the exponent and use this as the float's exponent;
+     *  map the mantissa to the high-order 3 bits of the float's mantissa; and
+     *  set the low-order 21 bits of the float's mantissa to zero.
      */
     float decode_norm(char b) const;
 };

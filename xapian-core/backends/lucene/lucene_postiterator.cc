@@ -33,7 +33,6 @@ LucenePostIterator::get_docid() const
     LOGCALL(DB, Xapian::docid, "LucenePostIterator::get_docid", NO_ARGS);
     
     RETURN(this_db->get_ext_docid(pl->get_docid(), seg_idx));
-    //RETURN(pl->get_docid());
 }
 
 
@@ -78,7 +77,7 @@ double
 LucenePostIterator::get_maxweight() const
 {
     Assert(false);
-    return 0;
+    return 0.0;
 }
 
 Xapian::termcount
@@ -92,14 +91,14 @@ double
 LucenePostIterator::get_weight() const
 {
     Assert(false);
-    return 0;
+    return 0.0;
 }
 
 double
 LucenePostIterator::recalc_maxweight()
 {
     Assert(false);
-    return 0;
+    return 0.0;
 }
 
 Xapian::PostingIterator::Internal *

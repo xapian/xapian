@@ -41,17 +41,18 @@ const Query Query::MatchNothing;
 Query::Query(const string & term, Xapian::termcount wqf, Xapian::termpos pos)
     : internal(new Xapian::Internal::QueryTerm(term, wqf, pos))
 {
-    LOGCALL_CTOR(QUERYPARSER, "Query", term | wqf | pos);
+    LOGCALL_CTOR(API, "Query", term | wqf | pos);
 }
 
 Query::Query(Xapian::PostingSource * source)
     : internal(new Xapian::Internal::QueryPostingSource(source))
 {
-    LOGCALL_CTOR(QUERYPARSER, "Query", source);
+    LOGCALL_CTOR(API, "Query", source);
 }
 
-Query::Query(double factor, const Xapian::Query & subquery) {
-    LOGCALL_CTOR(QUERYPARSER, "Query", factor | subquery);
+Query::Query(double factor, const Xapian::Query & subquery)
+{
+    LOGCALL_CTOR(API, "Query", factor | subquery);
 
     if (!subquery.empty())
 	internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
@@ -59,7 +60,7 @@ Query::Query(double factor, const Xapian::Query & subquery) {
 
 Query::Query(op op_, const Xapian::Query & subquery, double factor)
 {
-    LOGCALL_CTOR(QUERYPARSER, "Query", op_ | subquery | factor);
+    LOGCALL_CTOR(API, "Query", op_ | subquery | factor);
 
     if (rare(op_ != OP_SCALE_WEIGHT))
 	throw Xapian::InvalidArgumentError("op must be OP_SCALE_WEIGHT");
@@ -71,7 +72,7 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 
 Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 {
-    LOGCALL_CTOR(QUERYPARSER, "Query", op_ | slot | limit);
+    LOGCALL_CTOR(API, "Query", op_ | slot | limit);
 
     if (op_ == OP_VALUE_GE) {
 	if (limit.empty())
@@ -88,7 +89,7 @@ Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
 Query::Query(op op_, Xapian::valueno slot,
 	     const std::string & begin, const std::string & end)
 {
-    LOGCALL_CTOR(QUERYPARSER, "Query", op_ | slot | begin | end);
+    LOGCALL_CTOR(API, "Query", op_ | slot | begin | end);
 
     if (rare(op_ != OP_VALUE_RANGE))
 	throw Xapian::InvalidArgumentError("op must be OP_VALUE_RANGE");

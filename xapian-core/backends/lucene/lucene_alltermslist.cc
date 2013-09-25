@@ -54,7 +54,7 @@ LuceneAllTermsList::at_end() const
 Xapian::PostingIterator
 LuceneAllTermsList::postlist_begin() const
 {
-    LOGCALL(API, PostList, "LuceneAllTermsList::postlist_begin", NO_ARGS);
+    LOGCALL(DB, PostList, "LuceneAllTermsList::postlist_begin", NO_ARGS);
     LucenePostIterator * pl = new LucenePostIterator(this_db, seg_db, ti, seg_idx);
 
     return PostingIterator(pl);
@@ -63,7 +63,7 @@ LuceneAllTermsList::postlist_begin() const
 string
 LuceneAllTermsList::get_termname() const
 {
-    LOGCALL(API, string, "LuceneAllTermsList::get_termname", NO_ARGS);
+    LOGCALL(DB, string, "LuceneAllTermsList::get_termname", NO_ARGS);
     RETURN(ti.get_term().get_suffix());
 }
 
@@ -71,14 +71,14 @@ Xapian::doccount
 LuceneAllTermsList::get_termfreq() const
 {
     Assert(false);
-    return 0;
+    return Xapian::doccount(0);
 }
 
 Xapian::termcount
 LuceneAllTermsList::get_collection_freq() const
 {
     Assert(false);
-    return 0;
+    return Xapian::termcount(0);
 }
 
 TermList *

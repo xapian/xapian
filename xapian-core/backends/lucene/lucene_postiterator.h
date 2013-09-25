@@ -8,19 +8,23 @@
 #include "lucene_term.h"
 #include "lucene_segdb.h"
 
-//typedef Xapian::PostingIterator::Internal PostList;
-
+/** This class is used for visiting all datas in a particular postlist
+ */
 class LucenePostIterator: public PostList {
-    /* used for caculted external docid */
+    /** Some datas used for calculating is stored in this_db
+     */
     Xapian::Internal::intrusive_ptr<const LuceneDatabase> this_db;
 
     Xapian::Internal::intrusive_ptr<const LuceneSegdb> seg_db;
 
     Xapian::Internal::intrusive_ptr<LucenePostList> pl;
 
+    /** Current term's information
+     */
     LuceneTermInfo ti;
 
-    /* used for caculted external docid */
+    /* For calculating external docid
+     */
     unsigned int seg_idx;
 
   public:
@@ -36,31 +40,40 @@ class LucenePostIterator: public PostList {
 
     bool at_end() const;
 
-    /* no used */
+    /** No used
+     */
     Xapian::doccount get_termfreq_min() const;
 
-    /* no used */
+    /** No used
+     */
     Xapian::doccount get_termfreq_max() const;
 
-    /* no used */
+    /** No used
+     */
     Xapian::doccount get_termfreq_est() const;
 
-    /* no used */
+    /** No used
+     */
     double get_maxweight() const;
 
-    /* no used */
+    /** No used
+     */
     Xapian::termcount get_doclength() const;
 
-    /* no used */
+    /** No used
+     */
     double get_weight() const;
 
-    /* no used */
+    /** No used
+     */
     double recalc_maxweight();
 
-    /* no used */
+    /** No used
+     */
     Xapian::PostingIterator::Internal * skip_to(Xapian::docid, double);
 
-    /* no used */
+    /** No used
+     */
     std::string get_description() const;
 };
 

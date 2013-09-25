@@ -846,7 +846,6 @@ Enquire::Internal::get_description() const
 void
 Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
 {
-    LOGCALL_VOID(API, "Enquire::Internal::request_doc", item.did);
     try {
 	unsigned int multiplier = db.internal.size();
 
@@ -863,7 +862,6 @@ Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
 Document
 Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 {
-    LOGCALL(API, Document, "Enquire::Internal::read_doc", item.did);
     try {
 	unsigned int multiplier = db.internal.size();
 

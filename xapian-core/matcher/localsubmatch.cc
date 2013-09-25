@@ -93,7 +93,6 @@ LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
 	// There's a term-independent weight contribution, so we combine the
 	// postlist tree with an ExtraWeightPostList which adds in this
 	// contribution.
-    LOGLINE(MATCH, "LocalSubMatch::get_postlist_and_term_info maxwxtra != 0");
 	pl = new ExtraWeightPostList(pl, extra_wt.release(), matcher);
     }
 

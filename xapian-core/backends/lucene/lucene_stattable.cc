@@ -19,6 +19,7 @@ LuceneStatTable::LuceneStatTable(const string & db_dir_)
     string file_path = db_dir + "/" + "stat.xapian";
 
     fin.open(file_path.c_str());
+
     //When doing lucene-copydatabase, file stat.xapian is not exist, should not
     //throw error exception.
     //If not doing lucene-copydatabase, throws exception when get_wdf_upper_bound(),
@@ -37,7 +38,7 @@ LuceneStatTable::LuceneStatTable(const string & db_dir_)
         string key = line.substr(0, found - 0);
         string value = line.substr(found + 1);
 
-        //Only one line, so just check it
+        //Only one line, so just check wdf_upper_bound
         if (key != "wdf_upper_bound") {
             throw Xapian::DatabaseCreateError("LuceneStatTable error format");
         }

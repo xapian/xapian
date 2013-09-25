@@ -7,11 +7,18 @@
 class LuceneSegmentPart;
 
 class LuceneSegmentGenTable {
+    /** Database directory
+     */
     string db_dir;
+
+    /** File name for segment.gen
+     */
     string file_name;
+
+    /** File reader
+     */
     ByteStreamReader stream_reader;
 
-    //segment_gen 's data
     int version;
     long long generationA;
     long long generationB;
@@ -24,7 +31,8 @@ class LuceneSegmentGenTable {
     long long get_generationA();
     long long get_generationB();
 
-    //for debug
+    /** Just for debug
+     */
     void debug_get_table();
 };
 

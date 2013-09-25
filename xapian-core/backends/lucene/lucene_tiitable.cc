@@ -18,49 +18,54 @@ LuceneTiiTable::LuceneTiiTable(const string & db_dir_)
 }
 
 bool
-LuceneTiiTable::set_filename(const string & prefix) {
-    /* Has fixed suffix name '.tii' */
+LuceneTiiTable::set_filename(const string & prefix)
+{
+    //Has fixed suffix name '.tii'
     file_name = prefix + ".tii";
     stream_reader.set_filename(file_name);
 
     return true;
 }
 
-/** TermInfoIndex (.tii)--> TIVersion, IndexTermCount, IndexInterval, SkipInterval, MaxSkipLevels, TermIndices
- * TIVersion --> UInt32
- * IndexTermCount --> UInt64
- * IndexInterval --> UInt32
- * SkipInterval --> UInt32
- * TermIndices --> <TermInfo, IndexDelta> IndexTermCount
- * IndexDelta --> VLong
+/** File format:
+ *  TermInfoIndex (.tii)--> TIVersion, IndexTermCount, IndexInterval,
+ *    SkipInterval, MaxSkipLevels, TermIndices
  *
- * More details on http://lucene.apache.org/core/3_6_2/fileformats.html#tii
+ *  TIVersion --> UInt32
+ *  IndexTermCount --> UInt64
+ *  IndexInterval --> UInt32
+ *  SkipInterval --> UInt32
+ *  TermIndices --> <TermInfo, IndexDelta> IndexTermCount
+ *  IndexDelta --> VLong
+ *
+ *  More details on http://lucene.apache.org/core/3_6_2/fileformats.html#tii
  */
 bool
-LuceneTiiTable::open() {
+LuceneTiiTable::open()
+{
     LOGCALL(DB, bool, "LuceneTiiTable::open", NO_ARGS);
 
     stream_reader.open_stream();
 
-    /* Just a version number */
+    //Just a version number
     stream_reader.read_uint32(ti_version);
 
-    /* How many terms in .tii file */
+    //How many terms in .tii file
     stream_reader.read_uint64(index_term_count);
     stream_reader.read_uint32(index_interval);
 
     /** SkipInterval is the fraction of TermDocs stored in skip tables. It is 
-     * used to accelerate TermDocs.skipTo(int). Larger values result in smaller
-     * indexes, greater acceleration, but fewer accelerable cases, while smaller
-     * values result in bigger indexes, less acceleration (in case of a small
-     * value for MaxSkipLevels) and more accelerable cases.
+     *  used to accelerate TermDocs.skipTo(int). Larger values result in smaller
+     *  indexes, greater acceleration, but fewer accelerable cases, while smaller
+     *  values result in bigger indexes, less acceleration (in case of a small
+     *  value for MaxSkipLevels) and more accelerable cases.
      */
     stream_reader.read_uint32(skip_interval);
 
     /** MaxSkipLevels is the max. number of skip levels stored for each term in
-     * the .frq file. A low value results in smaller indexes but less acceleration,
-     * a larger value results in slighly larger indexes but greater acceleration.
-     * See format of .frq file for more information about skip levels.
+     *  the .frq file. A low value results in smaller indexes but less acceleration,
+     *  a larger value results in slighly larger indexes but greater acceleration.
+     *  See format of .frq file for more information about skip levels.
      */
     stream_reader.read_uint32(max_skip_levels);
 
@@ -72,18 +77,18 @@ LuceneTiiTable::open() {
     for (unsigned long long i = 0; i < index_term_count; ++i) {
         stream_reader.read_terminfo(indice.terminfo, skip_interval);
         stream_reader.read_vint64(indice.index_delta);
-        /* Caculate indice.index_delta, index_delta is not absolute data */
+        //Caculate indice.index_delta, index_delta is not absolute data
         indice.index_delta += p_index_delta;
 
-        /* So do freq_delta, it's not absolute data */
+        //So do freq_delta, it's not absolute data
         indice.terminfo.freq_delta += p_freq_delta;
 
         /** Change prefix string to unprefix string, in order to binary search in memery.
-         * So here, term.suffix means the whole string, not suffix
-         * */
+         *  So here, term.suffix means the whole string, not suffix
+         */
         LuceneTerm & c_term = indice.terminfo.term;
         int pl = c_term.prefix_length;
-        /* Has prefix, concate string */
+        //Has prefix, concate string
         if (pl >= 0) {
             string & prev_string = p_term.suffix;
             string prefix = prev_string.substr(0, pl);
@@ -100,16 +105,18 @@ LuceneTiiTable::open() {
 }
 
 bool
-LuceneTiiTable::set_field_name(vector<string> field_name_) {
+LuceneTiiTable::set_field_name(vector<string> field_name_)
+{
     field_name = field_name_;
 
     return true;
 }
 
-/* The whole list in .tii is read in memery, so do binary search */
+//The whole list in .tii is read in memery, so do binary search
 int
-LuceneTiiTable::get_index_offset(const LuceneTerm & term) const {
-    LOGCALL(API, int, "LuceneTiiTable::get_index_offset", term.suffix);
+LuceneTiiTable::get_index_offset(const LuceneTerm & term) const
+{
+    LOGCALL(API, int, "LuceneTiiTable::get_index_offset", term);
 
     //Binary search
     int lo = 0;
@@ -132,13 +139,15 @@ LuceneTiiTable::get_index_offset(const LuceneTerm & term) const {
 }
 
 const LuceneTermIndice &
-LuceneTiiTable::get_term_indice(int idx) const {
+LuceneTiiTable::get_term_indice(int idx) const
+{
     return term_indices[idx];
 }
 
 //below for debug
 void
-LuceneTiiTable::debug_table() {
+LuceneTiiTable::debug_table()
+{
     cout << file_name << ".tii table-->" << "TIVersion(" << ti_version << "),IndexTermCount:(" <<
         index_term_count << "),IndexInterval:(" << index_interval << 
         "),SkipInterval(" << skip_interval << "),MaxSkipLevels(" <<

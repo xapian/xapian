@@ -65,7 +65,6 @@ class RSet;
 class Weight::Internal {
   public:
     /** Total length of all documents in the collection. */
-    //TODO这个数据在lucene中是不存在的
     totlen_t total_length;
 
     /** Number of documents in the collection. */

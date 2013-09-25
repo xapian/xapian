@@ -356,9 +356,7 @@ Database::Database(const string &path)
 #endif
 
 #ifdef XAPIAN_HAS_LUCENE_BACKEND
-    //another strategy, split LuceneDatabase to multi segdb, treat on 
-    //segdb as a single Database
-    LOGLINE(DB, "---------open Lucene db path:" << path);
+    LOGLINE(DB, "open Lucene database path=" << path);
     //TODO is it suitable for detect Lucene using segments.gen?
     if (file_exists(path + "/segments.gen")) {
         internal.push_back(new LuceneDatabase(path));
@@ -376,7 +374,6 @@ Database::Database(const string &path)
 
 	throw DatabaseOpeningError("Couldn't detect type of database");
     }
-    LOGLINE(DB, "---------stub_file:" << stub_file);
 
     open_stub(*this, stub_file);
 }
