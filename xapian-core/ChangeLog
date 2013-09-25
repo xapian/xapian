@@ -1,3 +1,9 @@
+Wed Sep 25 02:13:20 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/: Split QueryVector into a template SmallVector class and then
+	  'typedef SmallVector<Query> QueryVector;', as it would be good to
+	  use the same approach for Database internals.
+
 Tue Sep 24 09:59:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* .gitignore,xapian-core.spec.in: Update two references to .tar.gz

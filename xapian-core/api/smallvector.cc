@@ -1,7 +1,7 @@
-/** @file queryvector.h
- * @brief Append only vector of Query objects
+/** @file smallvector.cc
+ * @brief Append only vector of Xapian PIMPL objects
  */
-/* Copyright (C) 2013 Olly Betts
+/* Copyright (C) 2012,2013 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -22,14 +22,27 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef XAPIAN_INCLUDED_QUERYVECTOR_H
-#define XAPIAN_INCLUDED_QUERYVECTOR_H
+
+#include <config.h>
 
 #include "api/smallvector.h"
-#include "xapian/query.h"
 
-namespace Xapian {
-typedef SmallVector<Query> QueryVector;
+#include <algorithm>
+
+void
+Xapian::SmallVector_::do_reserve(size_t n)
+{
+    void ** blk = new void* [n];
+    if (c > sizeof(p) / sizeof(*p)) {
+	std::copy(static_cast<void **>(p[0]),
+		  static_cast<void **>(p[1]),
+		  blk);
+	p[1] = blk +
+	    (static_cast<void**>(p[1]) - static_cast<void**>(p[0]));
+	delete [] static_cast<void**>(p[0]);
+    } else {
+	std::copy(p, p + c, blk);
+	p[1] = blk + c;
+    }
+    p[0] = blk;
 }
-
-#endif // XAPIAN_INCLUDED_QUERYVECTOR_H
