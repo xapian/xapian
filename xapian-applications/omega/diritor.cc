@@ -67,15 +67,15 @@ DirectoryIterator::call_stat()
 {
     build_path();
     int retval;
+    if (fd >= 0) {
+	retval = fstat(fd, &statbuf);
 #ifdef HAVE_LSTAT
-    if (follow_symlinks) {
-#endif
-	retval = stat(path.c_str(), &statbuf);
-#ifdef HAVE_LSTAT
-    } else {
+    } else if (!follow_symlinks) {
 	retval = lstat(path.c_str(), &statbuf);
-    }
 #endif
+    } else {
+	retval = stat(path.c_str(), &statbuf);
+    }
     if (retval == -1) {
 	if (errno == ENOENT || errno == ENOTDIR)
 	    throw FileNotFound();

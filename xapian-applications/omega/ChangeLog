@@ -1,3 +1,9 @@
+Thu Sep 26 05:41:10 GMT 2013  Olly Betts <olly@survex.com>
+
+	* diritor.cc: If we've already opened the file (as we often will have
+	  if using a modern libmagic with magic_descriptor() available), then
+	  use fstat() on that fd rather than stat()/lstat() on the pathname.
+
 Thu Sep 26 05:32:46 GMT 2013  Olly Betts <olly@survex.com>
 
 	* diritor.cc: If we get EACCES trying to read a directory or stat
