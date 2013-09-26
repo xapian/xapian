@@ -514,7 +514,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     TEST_EQUAL(mset.size(), 2);
     // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
     mset_expect_order(mset, 2, 4);
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), (8 * log(6 / 2)));
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 * log(6.0 / 2));
 
     //Test for OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
@@ -540,7 +540,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), (1 + log(8))); // idfn=1 and so wt=tfn=1+log(tf)
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 1 + log(8.0)); // idfn=1 and so wt=tfn=1+log(tf)
     TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1.0);         // idfn=1 and wt=tfn=1+log(tf)=1+log(1)=1
 
     // Check for "snn"
@@ -577,8 +577,8 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log((6 - 2) / 2));
-    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log((6 - 2) / 2));
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8 * log((6.0 - 2) / 2));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 1 * log((6.0 - 2) / 2));
 
     return true;
 }

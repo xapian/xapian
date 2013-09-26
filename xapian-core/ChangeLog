@@ -1,3 +1,8 @@
+Thu Sep 26 04:11:49 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_weight.cc: Don't pass integer arguments to log() to avoid
+	  ambiguity errors with some compilers.  (fixes #627)
+
 Thu Sep 26 02:02:24 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/,backends/chert/,backends/dbcheck.cc: Fix database
