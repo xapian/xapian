@@ -1,3 +1,9 @@
+Thu Sep 26 05:32:46 GMT 2013  Olly Betts <olly@survex.com>
+
+	* diritor.cc: If we get EACCES trying to read a directory or stat
+	  a file, don't handle it by committing changes and exiting - instead
+	  skip the file (like we used to before r17461).
+
 Tue Sep 24 10:01:17 GMT 2013  Olly Betts <olly@survex.com>
 
 	* .gitignore,configure.ac,xapian-omega.spec.in: Compress source

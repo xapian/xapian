@@ -79,6 +79,8 @@ DirectoryIterator::call_stat()
     if (retval == -1) {
 	if (errno == ENOENT || errno == ENOTDIR)
 	    throw FileNotFound();
+	if (errno == EACCES)
+	    throw string(strerror(errno));
 	// Commit changes to files processed so far.
 	throw CommitAndExit("Can't stat", path, errno);
     }
@@ -103,6 +105,8 @@ DirectoryIterator::start(const std::string & path_)
     if (dir == NULL) {
 	if (errno == ENOENT || errno == ENOTDIR)
 	    throw FileNotFound();
+	if (errno == EACCES)
+	    throw string(strerror(errno));
 	// Commit changes to files processed so far.
 	throw CommitAndExit("Can't open directory", path, errno);
     }
