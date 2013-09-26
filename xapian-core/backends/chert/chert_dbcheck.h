@@ -1,7 +1,7 @@
 /** @file chert_dbcheck.h
  * @brief Check a chert table.
  */
-/* Copyright (C) 2008,2009,2012 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,15 @@
 
 #include "xapian/types.h"
 
+#include "chert_types.h"
+
 #include <cstring> // For size_t.
 #include <iosfwd>
 #include <string>
 #include <vector>
 
-size_t check_chert_table(const char * tablename, std::string table, int opts,
+size_t check_chert_table(const char * tablename, std::string table,
+			 chert_revision_number_t * rev_ptr, int opts,
 			 std::vector<Xapian::termcount> & doclens,
 			 Xapian::docid db_last_docid, std::ostream & out);
 

@@ -56,18 +56,23 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_brass_table(const char * tablename, string filename, int opts,
+check_brass_table(const char * tablename, string filename,
+		  brass_revision_number_t * rev_ptr, int opts,
 		  vector<Xapian::termcount> & doclens,
 		  Xapian::docid db_last_docid, ostream & out)
 {
     filename += '.';
 
     // Check the btree structure.
-    BrassTableCheck::check(tablename, filename, opts, out);
+    BrassTableCheck::check(tablename, filename, rev_ptr, opts, out);
 
     // Now check the brass structures inside the btree.
     BrassTable table(tablename, filename, true);
-    table.open();
+    if (rev_ptr) {
+	table.open(*rev_ptr);
+    } else {
+	table.open();
+    }
     AutoPtr<BrassCursor> cursor(table.cursor_get());
 
     size_t errors = 0;

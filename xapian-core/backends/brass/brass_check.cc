@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2009,2011,2012 Olly Betts
+ * Copyright 2002,2004,2005,2008,2009,2011,2012,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -209,11 +209,16 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 }
 
 void
-BrassTableCheck::check(const char * tablename, const string & path, int opts,
+BrassTableCheck::check(const char * tablename, const string & path,
+		       brass_revision_number_t * rev_ptr, int opts,
 		       ostream &out)
 {
     BrassTableCheck B(tablename, path, false, out);
-    B.open(); // throws exception if open fails
+    // open() throws an exception if it fails
+    if (rev_ptr)
+	B.open(*rev_ptr);
+    else
+	B.open();
     Brass::Cursor * C = B.C;
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {

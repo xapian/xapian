@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,10 +27,14 @@
 #include "xapian/error.h"
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
+#include "brass/brass_database.h"
 #include "brass/brass_dbcheck.h"
+#include "brass/brass_types.h"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
+#include "chert/chert_database.h"
 #include "chert/chert_dbcheck.h"
+#include "chert/chert_types.h"
 #include "chert/chert_version.h"
 #endif
 
@@ -92,10 +96,16 @@ Database::check(const string & path, int opts, std::ostream &out)
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
 	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+	chert_revision_number_t rev;
+	chert_revision_number_t * rev_ptr = NULL;
 	try {
 	    Xapian::Database db = Xapian::Chert::open(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
+	    ChertDatabase * chert_db =
+		static_cast<ChertDatabase*>(db.internal[0].get());
+	    rev = chert_db->get_revision_number();
+	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
 	    out << "Database couldn't be opened for reading: "
@@ -131,7 +141,7 @@ Database::check(const string & path, int opts, std::ostream &out)
 		    continue;
 		}
 	    }
-	    errors += check_chert_table(*t, table, opts, doclens,
+	    errors += check_chert_table(*t, table, rev_ptr, opts, doclens,
 					db_last_docid, out);
 	}
 
@@ -155,10 +165,16 @@ Database::check(const string & path, int opts, std::ostream &out)
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
 	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+	brass_revision_number_t rev;
+	brass_revision_number_t * rev_ptr = NULL;
 	try {
 	    Xapian::Database db = Xapian::Brass::open(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
+	    BrassDatabase * brass_db =
+		static_cast<BrassDatabase*>(db.internal[0].get());
+	    rev = brass_db->get_revision_number();
+	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
 	    out << "Database couldn't be opened for reading: "
@@ -191,7 +207,7 @@ Database::check(const string & path, int opts, std::ostream &out)
 		    continue;
 		}
 	    }
-	    errors += check_brass_table(*t, table, opts, doclens,
+	    errors += check_brass_table(*t, table, rev_ptr, opts, doclens,
 					db_last_docid, out);
 	}
 #endif
@@ -235,7 +251,7 @@ Database::check(const string & path, int opts, std::ostream &out)
 #else
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_brass_table(tablename.c_str(), filename, opts,
+	    errors = check_brass_table(tablename.c_str(), filename, NULL, opts,
 				       doclens, db_last_docid, out);
 #endif
 	} else if (file_exists(dir + "iamflint")) {
@@ -247,7 +263,7 @@ Database::check(const string & path, int opts, std::ostream &out)
 #else
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_chert_table(tablename.c_str(), filename, opts,
+	    errors = check_chert_table(tablename.c_str(), filename, NULL, opts,
 				       doclens, db_last_docid, out);
 #endif
 	}

@@ -1,3 +1,11 @@
+Thu Sep 26 02:02:24 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/chert/,backends/dbcheck.cc: Fix database
+	  consistency checking to always open all the tables at the same
+	  revision, which could lead to false errors being reported after
+	  a commit interrupted by the process being killed or the machine
+	  crashing.  Reported by Joey Hess in http://bugs.debian.org/724610
+
 Wed Sep 25 02:21:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add testcase for FieldProcessor on boolean

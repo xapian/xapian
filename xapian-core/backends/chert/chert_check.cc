@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2011,2012 Olly Betts
+ * Copyright 2002,2004,2005,2008,2011,2012,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -230,14 +230,19 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 }
 
 void
-ChertTableCheck::check(const char * tablename, const string & path, int opts,
+ChertTableCheck::check(const char * tablename, const string & path,
+		       chert_revision_number_t * rev_ptr, int opts,
 		       ostream &out)
 {
     string faked_base;
 
     ChertTableCheck B(tablename, path, false, out);
     try {
-	B.open(); // throws exception if open fails
+	// open() throws an exception if it fails
+	if (rev_ptr)
+	    B.open(*rev_ptr);
+	else
+	    B.open();
     } catch (const Xapian::DatabaseOpeningError &) {
 	if ((opts & Xapian::DBCHECK_FIX) == 0 ||
 	    file_size(path + "baseA") > 0 ||
@@ -269,29 +274,48 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	    B.failure("Failed to seek to start of table");
 	}
 	// Scan for root block.
+	bool found = false;
 	uint4 root = 0;
 	uint4 revision = 0;
 	uint4 level = 0;
-	uint4 blk_no = 0;
-	while (io_read(fd, (char*)buf, blocksize, 0) == blocksize) {
+	for (uint4 blk_no = 0;
+	     io_read(fd, (char*)buf, blocksize, 0) == blocksize;
+	     ++blk_no) {
 	    uint4 rev = REVISION(buf);
-	    // FIXME: this isn't smart enough - it will happily pick a new
-	    // revision which was partly written but never committed.  Also
-	    // there's nothing to ensure that it picks the same revision of
-	    // each table.
-	    if (rev > revision ||
-		(rev == revision && uint4(GET_LEVEL(buf)) > level)) {
-		root = blk_no;
-		revision = rev;
-		level = GET_LEVEL(buf);
-		out << "Root guess -> blk " << root << " rev "<<revision << " level " << level << endl;
+	    if (rev_ptr) {
+		// We have a specified revision to look for, but we still need
+		// to scan to find the block with the highest level in that
+		// revision.
+		//
+		// Note: We could have more than one root block with the same
+		// revision if one is written but not committed and then
+		// another is written and committed.  We go for the lowest
+		// block number, which will probably pick the right one with
+		// the current freespace reallocation strategy.
+		if (rev != *rev_ptr)
+		    continue;
+	    } else {
+		// FIXME: this isn't smart enough - it will happily pick a new
+		// revision which was partly written but never committed.  Also
+		// there's nothing to ensure that it picks the same revision of
+		// each table.  And it suffers from the issue of multiple roots
+		// mentioned above.
+		if (rev < revision)
+		    continue;
 	    }
-	    ++blk_no;
+	    uint4 blk_level = GET_LEVEL(buf);
+	    if (blk_level <= level)
+		continue;
+	    found = true;
+	    root = blk_no;
+	    revision = rev;
+	    level = blk_level;
+	    out << "Root guess -> blk " << root << " rev " << revision << " level " << level << endl;
 	}
 	::close(fd);
 
 	// Check that we actually found a candidate root block.
-	if (revision == 0)
+	if (!found)
 	    throw;
 
 	ChertTable_base fake_base;
@@ -306,7 +330,7 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	fake_base.write_to_file(faked_base, 'A', string(), -1, NULL);
 
 	// And retry the open.
-	B.open();
+	B.open(revision);
     }
 
     Cursor * C = B.C;

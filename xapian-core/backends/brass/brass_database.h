@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -155,13 +155,6 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 */
 	void open_tables(brass_revision_number_t revision);
 
-	/** Get an object holding the revision number which the tables are
-	 *  opened at.
-	 *
-	 *  @return the current revision number.
-	 */
-	brass_revision_number_t get_revision_number() const;
-
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
 	 *
@@ -252,6 +245,13 @@ class BrassDatabase : public Xapian::Database::Internal {
 	BrassCursor * get_postlist_cursor() const {
 	    return postlist_table.cursor_get();
 	}
+
+	/** Get an object holding the revision number which the tables are
+	 *  opened at.
+	 *
+	 *  @return the current revision number.
+	 */
+	brass_revision_number_t get_revision_number() const;
 
 	/** Virtual methods of Database::Internal. */
 	//@{
