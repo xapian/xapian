@@ -145,6 +145,26 @@ class XapianSWIG_Python_Thread_Allow {
 
 %include util.i
 
+// get_description() should return 'str' via the default typemap.
+%typemap(out) std::string get_description() = std::string;
+%typemap(out) std::string __str__() = std::string;
+
+// All other std::string returns should map to 'bytes'.
+%typemap(out) std::string %{
+    $result = PyBytes_FromStringAndSize($1.data(), $1.size());
+%}
+%typemap(directorin) std::string, const std::string & %{
+    $input = PyBytes_FromStringAndSize($1_name.data(), $1_name.size());
+%}
+
+// And const char * too.
+%typemap(out) const char * %{
+    $result = PyBytes_FromString($1);
+%}
+%typemap(directorin) const char * %{
+    $input = PyBytes_FromString($1_name);
+%}
+
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
 %typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {

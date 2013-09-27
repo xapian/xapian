@@ -1,3 +1,10 @@
+Fri Sep 27 04:23:54 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/docs/examples/simplesearch.py,python3/python.i,
+	  python3/pythontest.py,python3/smoketest.py: All methods returning
+	  std::string now return 'bytes' in Python, except for
+	  get_description()/__str__().  (see #346)
+
 Wed Sep 25 02:50:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Reenable the FieldProcessor subclass test for PHP

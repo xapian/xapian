@@ -100,9 +100,9 @@ def test_mset_iter():
     expect(items[2].docid, 4)
     expect(items[2].rank, 2)
     expect(items[2].percent, 86)
-    expect(items[2].collapse_key, '')
+    expect(items[2].collapse_key, b'')
     expect(items[2].collapse_count, 0)
-    expect(items[2].document.get_data(), 'was it warm? three')
+    expect(items[2].document.get_data(), b'was it warm? three')
 
     # Test coverage for mset.items
     mset_items = mset.items
@@ -238,7 +238,7 @@ def test_matchingterms_iter():
         expect(mterms, mterms2)
 
     mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
-    expect(mterms, ['it', 'two', 'warm', 'was'])
+    expect(mterms, [b'it', b'two', b'warm', b'was'])
 
 def test_queryterms_iter():
     """Test Query term iterator.
@@ -249,7 +249,7 @@ def test_queryterms_iter():
 
     # Make a list of the term names
     terms = [term for term in query]
-    expect(terms, ['it', 'two', 'warm', 'was'])
+    expect(terms, [b'it', b'two', b'warm', b'was'])
 
 def test_queryparser_stoplist_iter():
     """Test QueryParser stoplist iterator.
@@ -278,17 +278,17 @@ def test_queryparser_stoplist_iter():
     expect([term for term in queryparser.stoplist()], [])
     query = queryparser.parse_query('to be or not to be is the questions')
 
-    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
+    expect([term for term in queryparser.stoplist()], [b'to', b'not', b'to'])
     expect(str(query),
            'Query((be@2 OR or@3 OR be@6 OR is@7 OR the@8 OR questions@9))')
 
     # Check behaviour with a stoplist and a stemmer
     queryparser.set_stemmer(stemmer)
     queryparser.set_stemming_strategy(queryparser.STEM_SOME)
-    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to']) # Shouldn't have changed since previous query.
+    expect([term for term in queryparser.stoplist()], [b'to', b'not', b'to']) # Shouldn't have changed since previous query.
     query = queryparser.parse_query('to be or not to be is the questions')
 
-    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
+    expect([term for term in queryparser.stoplist()], [b'to', b'not', b'to'])
     expect(str(query),
            'Query((Zbe@2 OR Zor@3 OR Zbe@6 OR Zis@7 OR Zthe@8 OR Zquestion@9))')
 
@@ -304,9 +304,9 @@ def test_queryparser_unstem_iter():
     expect([term for term in queryparser.unstemlist('questions')], [])
     query = queryparser.parse_query('to question questions')
 
-    expect([term for term in queryparser.unstemlist('to')], ['to'])
-    expect([term for term in queryparser.unstemlist('question')], ['question'])
-    expect([term for term in queryparser.unstemlist('questions')], ['questions'])
+    expect([term for term in queryparser.unstemlist('to')], [b'to'])
+    expect([term for term in queryparser.unstemlist('question')], [b'question'])
+    expect([term for term in queryparser.unstemlist('questions')], [b'questions'])
     expect(str(query),
            'Query((to@1 OR question@2 OR questions@3))')
 
@@ -319,8 +319,8 @@ def test_queryparser_unstem_iter():
     expect([term for term in queryparser.unstemlist('Zquestions')], [])
     query = queryparser.parse_query('to question questions')
 
-    expect([term for term in queryparser.unstemlist('Zto')], ['to'])
-    expect([term for term in queryparser.unstemlist('Zquestion')], ['question', 'questions'])
+    expect([term for term in queryparser.unstemlist('Zto')], [b'to'])
+    expect([term for term in queryparser.unstemlist('Zquestion')], [b'question', b'questions'])
     expect([term for term in queryparser.unstemlist('Zquestions')], [])
     expect(str(query),
            'Query((Zto@1 OR Zquestion@2 OR Zquestion@3))')
@@ -382,7 +382,7 @@ def test_termlist_iter():
         freqs.append(termitem.termfreq)
         positers.append([pos for pos in termitem.positer])
 
-    expect(terms, ['it', 'two', 'warm', 'was'])
+    expect(terms, [b'it', b'two', b'warm', b'was'])
     expect(wdfs, [1, 2, 1, 1])
     expect(freqs, [5, 3, 4, 4])
     expect(positers, [[2], [], [3], [1]])
@@ -393,27 +393,27 @@ def test_termlist_iter():
     # skip to an item before the first item.
     termitem = tliter.skip_to('a')
     expect((termitem.term, termitem.wdf, termitem.termfreq,
-            [pos for pos in termitem.positer]), ('it', 1, 5, [2]))
+            [pos for pos in termitem.positer]), (b'it', 1, 5, [2]))
 
     # skip forwards to an item.
     termitem = tliter.skip_to('two')
     expect((termitem.term, termitem.wdf, termitem.termfreq,
-            [pos for pos in termitem.positer]), ('two', 2, 3, []))
+            [pos for pos in termitem.positer]), (b'two', 2, 3, []))
 
     # skip to same place (should return same item)
     termitem = tliter.skip_to('two')
     expect((termitem.term, termitem.wdf, termitem.termfreq,
-            [pos for pos in termitem.positer]), ('two', 2, 3, []))
+            [pos for pos in termitem.positer]), (b'two', 2, 3, []))
 
     # next() after a skip_to(), should return next item.
     termitem = next(tliter)
     expect((termitem.term, termitem.wdf, termitem.termfreq,
-            [pos for pos in termitem.positer]), ('warm', 1, 4, [3]))
+            [pos for pos in termitem.positer]), (b'warm', 1, 4, [3]))
 
     # skip to same place (should return same item)
     termitem = tliter.skip_to('warm')
     expect((termitem.term, termitem.wdf, termitem.termfreq,
-            [pos for pos in termitem.positer]), ('warm', 1, 4, [3]))
+            [pos for pos in termitem.positer]), (b'warm', 1, 4, [3]))
 
     # skip backwards (should return same item)
     termitem = tliter.skip_to('a')
@@ -469,7 +469,7 @@ def test_dbdocument_iter():
         freqs.append(termitem.termfreq)
         positers.append([pos for pos in termitem.positer])
 
-    expect(terms, ['it', 'two', 'warm', 'was'])
+    expect(terms, [b'it', b'two', b'warm', b'was'])
     expect(wdfs, [1, 2, 1, 1])
     expect(freqs, [5, 3, 4, 4])
     expect(positers, [[2], [], [3], [1]])
@@ -522,7 +522,7 @@ def test_newdocument_iter():
                          getattr, termitem, 'termfreq')
         positers.append([pos for pos in termitem.positer])
 
-    expect(terms, ['it', 'two', 'warm', 'was'])
+    expect(terms, [b'it', b'two', b'warm', b'was'])
     expect(wdfs, [1, 2, 1, 1])
     expect(positers, [[2], [], [3], [1]])
 
@@ -642,12 +642,12 @@ def test_valuestream_iter():
 
     # Check basic iteration
     expect([(item.docid, item.value) for item in db.valuestream(0)],
-           [(3, '\xa4'), (4, '\xa2'), (5, '\xa4')])
+           [(3, b'\xa4'), (4, b'\xa2'), (5, b'\xa4')])
     expect([(item.docid, item.value) for item in db.valuestream(1)], [])
     expect([(item.docid, item.value) for item in db.valuestream(5)],
-           [(5, "five")])
+           [(5, b"five")])
     expect([(item.docid, item.value) for item in db.valuestream(9)],
-           [(5, "nine")])
+           [(5, b"nine")])
 
     # Test skip_to() on iterator with no values, and behaviours when called
     # after already returning StopIteration.
@@ -665,39 +665,39 @@ def test_valuestream_iter():
     # advance.
     i = db.valuestream(0)
     item = i.skip_to(4)
-    expect((item.docid, item.value), (4, '\xa2'))
+    expect((item.docid, item.value), (4, b'\xa2'))
     item = i.skip_to(4)
-    expect((item.docid, item.value), (4, '\xa2'))
+    expect((item.docid, item.value), (4, b'\xa2'))
     item = i.skip_to(1)
-    expect((item.docid, item.value), (4, '\xa2'))
+    expect((item.docid, item.value), (4, b'\xa2'))
     item = i.skip_to(5)
-    expect((item.docid, item.value), (5, '\xa4'))
+    expect((item.docid, item.value), (5, b'\xa4'))
     expect_exception(StopIteration, "", i.skip_to, 6)
 
     # Test that alternating skip_to() and next() works.
     i = db.valuestream(0)
     item = next(i)
-    expect((item.docid, item.value), (3, '\xa4'))
+    expect((item.docid, item.value), (3, b'\xa4'))
     item = i.skip_to(4)
-    expect((item.docid, item.value), (4, '\xa2'))
+    expect((item.docid, item.value), (4, b'\xa2'))
     item = next(i)
-    expect((item.docid, item.value), (5, '\xa4'))
+    expect((item.docid, item.value), (5, b'\xa4'))
     expect_exception(StopIteration, "", i.skip_to, 6)
 
     # Test that next works correctly after skip_to() called with an earlier
     # item.
     i = db.valuestream(0)
     item = i.skip_to(4)
-    expect((item.docid, item.value), (4, '\xa2'))
+    expect((item.docid, item.value), (4, b'\xa2'))
     item = i.skip_to(1)
-    expect((item.docid, item.value), (4, '\xa2'))
+    expect((item.docid, item.value), (4, b'\xa2'))
     item = next(i)
-    expect((item.docid, item.value), (5, '\xa4'))
+    expect((item.docid, item.value), (5, b'\xa4'))
 
     # Test that next works correctly after skipping to last item
     i = db.valuestream(0)
     item = i.skip_to(5)
-    expect((item.docid, item.value), (5, '\xa4'))
+    expect((item.docid, item.value), (5, b'\xa4'))
     expect_exception(StopIteration, "", i.__next__)
 
 def test_position_iter():
@@ -725,9 +725,9 @@ def test_value_iter():
     expect(items[0].num, 0)
     expect(items[0].value, xapian.sortable_serialise(2))
     expect(items[1].num, 5)
-    expect(items[1].value, 'five')
+    expect(items[1].value, b'five')
     expect(items[2].num, 9)
-    expect(items[2].value, 'nine')
+    expect(items[2].value, b'nine')
 
 def test_synonyms_iter():
     """Test iterators over list of synonyms in a database.
@@ -740,11 +740,11 @@ def test_synonyms_iter():
     db.add_synonym('hello', 'howdy')
 
     expect([item for item in db.synonyms('foo')], [])
-    expect([item for item in db.synonyms('hello')], ['hi', 'howdy'])
-    expect([item for item in db.synonym_keys()], ['hello'])
+    expect([item for item in db.synonyms('hello')], [b'hi', b'howdy'])
+    expect([item for item in db.synonym_keys()], [b'hello'])
     expect([item for item in db.synonym_keys('foo')], [])
-    expect([item for item in db.synonym_keys('he')], ['hello'])
-    expect([item for item in db.synonym_keys('hello')], ['hello'])
+    expect([item for item in db.synonym_keys('he')], [b'hello'])
+    expect([item for item in db.synonym_keys('hello')], [b'hello'])
 
     dbr=xapian.Database(dbpath)
     expect([item for item in dbr.synonyms('foo')], [])
@@ -757,19 +757,19 @@ def test_synonyms_iter():
     db.commit()
 
     expect([item for item in db.synonyms('foo')], [])
-    expect([item for item in db.synonyms('hello')], ['hi', 'howdy'])
-    expect([item for item in db.synonym_keys()], ['hello'])
+    expect([item for item in db.synonyms('hello')], [b'hi', b'howdy'])
+    expect([item for item in db.synonym_keys()], [b'hello'])
     expect([item for item in db.synonym_keys('foo')], [])
-    expect([item for item in db.synonym_keys('he')], ['hello'])
-    expect([item for item in db.synonym_keys('hello')], ['hello'])
+    expect([item for item in db.synonym_keys('he')], [b'hello'])
+    expect([item for item in db.synonym_keys('hello')], [b'hello'])
 
     dbr=xapian.Database(dbpath)
     expect([item for item in dbr.synonyms('foo')] , [])
-    expect([item for item in dbr.synonyms('hello')], ['hi', 'howdy'])
-    expect([item for item in dbr.synonym_keys()], ['hello'])
+    expect([item for item in dbr.synonyms('hello')], [b'hi', b'howdy'])
+    expect([item for item in dbr.synonym_keys()], [b'hello'])
     expect([item for item in dbr.synonym_keys('foo')], [])
-    expect([item for item in dbr.synonym_keys('he')], ['hello'])
-    expect([item for item in dbr.synonym_keys('hello')], ['hello'])
+    expect([item for item in dbr.synonym_keys('he')], [b'hello'])
+    expect([item for item in dbr.synonym_keys('hello')], [b'hello'])
 
     db.close()
     dbr.close()
@@ -792,11 +792,11 @@ def test_metadata_keys_iter():
     db.set_metadata('type', 'greeting')
 
     expect([item for item in db.metadata_keys()],
-           ['author', 'item1', 'item2', 'type'])
+           [b'author', b'item1', b'item2', b'type'])
     expect([item for item in db.metadata_keys('foo')], [])
-    expect([item for item in db.metadata_keys('item')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('it')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('type')], ['type'])
+    expect([item for item in db.metadata_keys('item')], [b'item1', b'item2'])
+    expect([item for item in db.metadata_keys('it')], [b'item1', b'item2'])
+    expect([item for item in db.metadata_keys('type')], [b'type'])
 
     dbr=xapian.Database(dbpath)
     expect([item for item in dbr.metadata_keys()], [])
@@ -807,19 +807,19 @@ def test_metadata_keys_iter():
 
     db.commit()
     expect([item for item in db.metadata_keys()],
-           ['author', 'item1', 'item2', 'type'])
+           [b'author', b'item1', b'item2', b'type'])
     expect([item for item in db.metadata_keys('foo')], [])
-    expect([item for item in db.metadata_keys('item')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('it')], ['item1', 'item2'])
-    expect([item for item in db.metadata_keys('type')], ['type'])
+    expect([item for item in db.metadata_keys('item')], [b'item1', b'item2'])
+    expect([item for item in db.metadata_keys('it')], [b'item1', b'item2'])
+    expect([item for item in db.metadata_keys('type')], [b'type'])
 
     dbr=xapian.Database(dbpath)
     expect([item for item in dbr.metadata_keys()],
-           ['author', 'item1', 'item2', 'type'])
+           [b'author', b'item1', b'item2', b'type'])
     expect([item for item in dbr.metadata_keys('foo')], [])
-    expect([item for item in dbr.metadata_keys('item')], ['item1', 'item2'])
-    expect([item for item in dbr.metadata_keys('it')], ['item1', 'item2'])
-    expect([item for item in dbr.metadata_keys('type')], ['type'])
+    expect([item for item in dbr.metadata_keys('item')], [b'item1', b'item2'])
+    expect([item for item in dbr.metadata_keys('it')], [b'item1', b'item2'])
+    expect([item for item in dbr.metadata_keys('type')], [b'type'])
 
     db.close()
     dbr.close()
@@ -834,16 +834,16 @@ def test_spell():
 
     db.add_spelling('hello')
     db.add_spelling('mell', 2)
-    expect(db.get_spelling_suggestion('hell'), 'mell')
-    expect([(item.term, item.termfreq) for item in db.spellings()], [('hello', 1), ('mell', 2)])
+    expect(db.get_spelling_suggestion('hell'), b'mell')
+    expect([(item.term, item.termfreq) for item in db.spellings()], [(b'hello', 1), (b'mell', 2)])
     dbr=xapian.Database(dbpath)
-    expect(dbr.get_spelling_suggestion('hell'), '')
+    expect(dbr.get_spelling_suggestion('hell'), b'')
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [])
     db.commit()
     dbr=xapian.Database(dbpath)
-    expect(db.get_spelling_suggestion('hell'), 'mell')
-    expect(dbr.get_spelling_suggestion('hell'), 'mell')
-    expect([(item.term, item.termfreq) for item in dbr.spellings()], [('hello', 1), ('mell', 2)])
+    expect(db.get_spelling_suggestion('hell'), b'mell')
+    expect(dbr.get_spelling_suggestion('hell'), b'mell')
+    expect([(item.term, item.termfreq) for item in dbr.spellings()], [(b'hello', 1), (b'mell', 2)])
 
     db.close()
     dbr.close()
@@ -1094,14 +1094,14 @@ def test_value_stats():
         db.add_document(doc)
 
     expect(db.get_value_freq(0), 0)
-    expect(db.get_value_lower_bound(0), "")
-    expect(db.get_value_upper_bound(0), "")
+    expect(db.get_value_lower_bound(0), b"")
+    expect(db.get_value_upper_bound(0), b"")
     expect(db.get_value_freq(1), 10)
     expect(db.get_value_lower_bound(1), xapian.sortable_serialise(0))
     expect(db.get_value_upper_bound(1), xapian.sortable_serialise(9))
     expect(db.get_value_freq(2), 0)
-    expect(db.get_value_lower_bound(2), "")
-    expect(db.get_value_upper_bound(2), "")
+    expect(db.get_value_lower_bound(2), b"")
+    expect(db.get_value_upper_bound(2), b"")
 
     db.close()
     shutil.rmtree(dbpath)
@@ -1180,7 +1180,7 @@ def test_value_mods():
     # Add a value to all the documents
     for num in range(1, doccount):
         doc=xapian.Document()
-        val = 'val%d' % num
+        val = ('val%d' % num).encode('utf-8')
         doc.add_value(1, val)
         db.add_document(doc)
         vals[num] = val
@@ -1190,7 +1190,7 @@ def test_value_mods():
     # Modify one of the values (this is a regression test which failed with the
     # initial implementation of streaming values).
     doc = xapian.Document()
-    val = 'newval0'
+    val = b'newval0'
     doc.add_value(1, val)
     db.replace_document(2, doc)
     vals[2] = val
@@ -1203,9 +1203,9 @@ def test_value_mods():
         doc = xapian.Document()
 
         if count % 5 == 0:
-            val = ''
+            val = b''
         else:
-            val = 'newval%d' % count
+            val = ('newval%d' % count).encode('utf-8')
             doc.add_value(1, val)
         db.replace_document(docid, doc)
         vals[docid] = val
@@ -1221,7 +1221,7 @@ def test_value_mods():
     for key in keys:
         doc = xapian.Document()
         db.replace_document(key, doc)
-        vals[key] = ''
+        vals[key] = b''
     check_vals(db, vals)
     db.commit()
     check_vals(db, vals)
@@ -1236,7 +1236,7 @@ def test_serialise_document():
     """
     doc = xapian.Document()
     doc.add_term('foo', 2)
-    doc.add_value(1, 'bar')
+    doc.add_value(1, b'bar')
     doc.set_data('baz')
     s = doc.serialise()
     doc2 = xapian.Document.unserialise(s)
@@ -1247,7 +1247,7 @@ def test_serialise_document():
     expect([(item.num, item.value) for item in list(doc.values())],
            [(item.num, item.value) for item in list(doc2.values())])
     expect(doc.get_data(), doc2.get_data())
-    expect(doc.get_data(), 'baz')
+    expect(doc.get_data(), b'baz')
 
     db = setup_database()
     doc = db.get_document(1)
@@ -1260,7 +1260,7 @@ def test_serialise_document():
     expect([(item.num, item.value) for item in list(doc.values())],
            [(item.num, item.value) for item in list(doc2.values())])
     expect(doc.get_data(), doc2.get_data())
-    expect(doc.get_data(), 'is it cold?')
+    expect(doc.get_data(), b'is it cold?')
 
 def test_serialise_query():
     """Test serialisation of queries.
@@ -1276,7 +1276,7 @@ def test_serialise_query():
     expect(str(q), str(q2))
     expect(str(q), 'Query(hello)')
 
-    q = xapian.Query(xapian.Query.OP_OR, ('hello', 'world'))
+    q = xapian.Query(xapian.Query.OP_OR, ('hello', b'world'))
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
     expect(str(q), 'Query((hello OR world))')
@@ -1295,7 +1295,7 @@ def test_preserve_query_parser_stopper():
         return queryparser
     queryparser = make_qp()
     query = queryparser.parse_query('to be')
-    expect([term for term in queryparser.stoplist()], ['to'])
+    expect([term for term in queryparser.stoplist()], [b'to'])
 
 def test_preserve_term_generator_stopper():
     """Test preservation of stopper set on term generator.
@@ -1316,7 +1316,7 @@ def test_preserve_term_generator_stopper():
     doc = termgen.get_document()
     terms = [term.term for term in doc.termlist()]
     terms.sort()
-    expect(terms, ['Zbe', 'be', 'to'])
+    expect(terms, [b'Zbe', b'be', b'to'])
 
 def test_preserve_enquire_sorter():
     """Test preservation of sorter set on enquire.
@@ -1462,12 +1462,12 @@ def test_compactor():
 
         db3 = xapian.Database(db3path)
         expect([(item.term, item.termfreq) for item in db3.allterms()],
-               [('Hello', 2), ('Hello1', 1), ('Hello2', 1)])
-        expect(db3.get_document(1).get_value(0), 'Val1')
-        expect(db3.get_document(2).get_value(0), 'Val2')
-        expect(db3.get_metadata('key'), '1')
-        expect(db3.get_metadata('key1'), '1')
-        expect(db3.get_metadata('key2'), '2')
+               [(b'Hello', 2), (b'Hello1', 1), (b'Hello2', 1)])
+        expect(db3.get_document(1).get_value(0), b'Val1')
+        expect(db3.get_document(2).get_value(0), b'Val2')
+        expect(db3.get_metadata('key'), b'1')
+        expect(db3.get_metadata('key1'), b'1')
+        expect(db3.get_metadata('key2'), b'2')
 
         context("testing a custom compactor which merges duplicate metadata")
         class MyCompactor(xapian.Compactor):
@@ -1477,12 +1477,12 @@ def test_compactor():
 
             def set_status(self, table, status):
                 if len(status) == 0:
-                    self.log.append('Starting %s' % table)
+                    self.log.append('Starting %s' % table.decode('utf-8'))
                 else:
-                    self.log.append('%s: %s' % (table, status))
+                    self.log.append('%s: %s' % (table.decode('utf-8'), status.decode('utf-8')))
 
             def resolve_duplicate_metadata(self, key, vals):
-                return ','.join(vals)
+                return b','.join(vals)
 
         c = MyCompactor()
         c.add_source(db1path)
@@ -1495,10 +1495,10 @@ def test_compactor():
 
         db3 = xapian.Database(db3path)
         expect([(item.term, item.termfreq) for item in db3.allterms()],
-               [('Hello', 2), ('Hello1', 1), ('Hello2', 1)])
-        expect(db3.get_metadata('key'), '1,2')
-        expect(db3.get_metadata('key1'), '1')
-        expect(db3.get_metadata('key2'), '2')
+               [(b'Hello', 2), (b'Hello1', 1), (b'Hello2', 1)])
+        expect(db3.get_metadata('key'), b'1,2')
+        expect(db3.get_metadata('key1'), b'1')
+        expect(db3.get_metadata('key2'), b'2')
 
     finally:
         if db1 is not None:

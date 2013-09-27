@@ -58,7 +58,7 @@ try:
     print "Results 1-%i:" % matches.size()
 
     for m in matches:
-        print "%i: %i%% docid=%i [%s]" % (m.rank + 1, m.percent, m.docid, m.document.get_data())
+        print "%i: %i%% docid=%i [%s]" % (m.rank + 1, m.percent, m.docid, m.document.get_data().decode('utf-8'))
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)
