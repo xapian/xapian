@@ -1035,7 +1035,7 @@ class ValueStreamIter(object):
 
     def __next__(self):
         if not self.moved:
-            self.iter.next()
+            self.iter.__next__()
             self.moved = True
 
         if self.iter==self.end:
