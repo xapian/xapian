@@ -1,3 +1,9 @@
+Fri Sep 27 11:19:50 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* api/omenquire.cc,api/omenquireinternal.h,expand/,
+	  include/xapian/enquire.h,tests/api_anydb.cc: Add support for the Bo1
+	  query expansion scheme.
+
 Thu Sep 26 04:11:49 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_weight.cc: Don't pass integer arguments to log() to avoid
