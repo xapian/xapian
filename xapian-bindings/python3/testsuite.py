@@ -415,7 +415,3 @@ expect_exception = _runner.expect_exception
 runtests = _runner.runtests
 
 __all__ = ('TestFail', 'context', 'expect', 'expect_query', 'expect_exception', 'runtests')
-
-def next(iterator):
-    return iterator.__next__()
-__all__ = __all__ + ('next',)
