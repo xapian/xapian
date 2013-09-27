@@ -355,7 +355,7 @@ def test_allterms_iter():
     prefix_terms = []
     prefix_freqs = []
     for i in range(len(terms)):
-        if terms[i][0] == 't':
+        if terms[i].startswith(b't'):
             prefix_terms.append(terms[i])
             prefix_freqs.append(freqs[i])
     i = 0
