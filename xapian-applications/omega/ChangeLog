@@ -1,3 +1,7 @@
+Fri Sep 27 00:27:47 GMT 2013  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Handle ENOENT, ENOTDIR and EACCES from readdir().
+
 Thu Sep 26 05:41:10 GMT 2013  Olly Betts <olly@survex.com>
 
 	* diritor.cc: If we've already opened the file (as we often will have

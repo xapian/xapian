@@ -115,6 +115,13 @@ DirectoryIterator::start(const std::string & path_)
 void
 DirectoryIterator::next_failed() const
 {
+    // The Linux getdents() syscall (which readdir uses internally) is
+    // documented as being able to return ENOENT and ENOTDIR.  Also,
+    // EACCES has been observed here on CIFS mounts.
+    if (errno == ENOENT || errno == ENOTDIR)
+	throw FileNotFound();
+    if (errno == EACCES)
+	throw string(strerror(errno));
     throw CommitAndExit("Can't read next entry from directory", path, errno);
 }
 
