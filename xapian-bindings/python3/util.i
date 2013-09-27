@@ -275,10 +275,10 @@ namespace Xapian {
 /* Utility function which works like SWIG_AsPtr_std_string, but
  * converts unicode strings to UTF-8 simple strings first. */
 static int
-XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
+XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 {
-    if (PyUnicode_Check(*obj)) {
-	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(*obj), PyUnicode_GET_SIZE(*obj), "ignore");
+    if (PyUnicode_Check(obj)) {
+	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), "ignore");
 	if (strobj == NULL) return SWIG_ERROR;
 	char *p;
 	Py_ssize_t len;
@@ -286,14 +286,14 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 	if (val) *val = new std::string(p, len);
 	Py_DECREF(strobj);
 	return SWIG_OK;
-    } else if (PyBytes_Check(*obj)) {
+    } else if (PyBytes_Check(obj)) {
 	char *p;
 	Py_ssize_t len;
-	PyBytes_AsStringAndSize(*obj, &p, &len);
+	PyBytes_AsStringAndSize(obj, &p, &len);
 	if (val) *val = new std::string(p, len);
 	return SWIG_OK;
     } else {
-	return SWIG_AsPtr_std_string(*obj, val);
+	return SWIG_AsPtr_std_string(obj, val);
     }
 }
 }
@@ -303,7 +303,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
  */
 %typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string &(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
-    res = XapianSWIG_anystring_as_ptr(&($input), &ptr);
+    res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res)) {
 	%argument_fail(res, "$type", $symname, $argnum);
     }
@@ -314,7 +314,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 }
 %typemap(in, fragment="XapianSWIG_anystring_as_ptr") std::string {
     std::string *ptr = (std::string *)0;
-    int res = XapianSWIG_anystring_as_ptr(&($input), &ptr);
+    int res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
 	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }
@@ -345,7 +345,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     {
 	PyObject * tmp = $input;
 	Py_INCREF(tmp);
-	swig_ores = XapianSWIG_anystring_as_ptr(&tmp, &swig_optr);
+	swig_ores = XapianSWIG_anystring_as_ptr(tmp, &swig_optr);
 	Py_DECREF(tmp);
     }
     if (!SWIG_IsOK(swig_ores) || !swig_optr) {
@@ -409,7 +409,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 %typemap(in) std::string &begin (std::string temp),
              std::string &end (std::string temp) {
     std::string *ptr = (std::string *)0;
-    int res = SWIG_AsPtr_std_string($input, &ptr);
+    int res = XapianSWIG_anystring_as_ptr($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
 	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }

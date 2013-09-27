@@ -358,7 +358,7 @@ def test_all():
     vrp = xapian.NumberValueRangeProcessor(0, b'$', True)
     a = '$10'
     b = '20'
-    slot, a, b = vrp(a.encode('utf-8'), b.encode('utf-8'))
+    slot, a, b = vrp(a, b.encode('utf-8'))
     expect(slot, 0)
     expect(xapian.sortable_unserialise(a), 10)
     expect(xapian.sortable_unserialise(b), 20)
