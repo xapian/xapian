@@ -1082,20 +1082,6 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
     }
 }
 
-ESet
-Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
-		  double k, const ExpandDecider * edecider, double min_wt) const
-{
-    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | k | flags | edecider | min_wt);
-    try {
-	set_expansion_scheme("trad", k);
-	RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
-}
-
 TermIterator
 Enquire::get_matching_terms_begin(const MSetIterator &it) const
 {

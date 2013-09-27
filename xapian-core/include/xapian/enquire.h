@@ -1101,11 +1101,14 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
 	XAPIAN_DEPRECATED(ESet get_eset(Xapian::termcount maxitems,
-			  const RSet & omrset,
+			  const RSet & rset,
 			  int flags,
 			  double k,
-			  const Xapian::ExpandDecider * edecider,
-			  double min_wt) const);
+			  const Xapian::ExpandDecider * edecider = NULL,
+			  double min_wt = 0.0) const) {
+	    set_expansion_scheme("trad", k);
+	    return get_eset(maxitems, rset, flags, edecider, min_wt);
+	}
 
 	/** Get terms which match a given document, by document id.
 	 *
