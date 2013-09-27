@@ -269,6 +269,18 @@ END
       # /swig -r12724 svn://svn.tartarus.org/swig/trunk/
       if [ -n "$url" ] ; then
 	case $path in
+	/swig)
+	  if [ -d swig/.git/svn ] ; then
+	    # Old git-svn checkout - move it aside rather than
+	    # deleting in case there are local changes.
+	    echo 'Moving old git-svn checkout of swig to swig.git-svn.old'
+	    echo 'If you have not modified it locally, you can safely delete'
+	    echo 'this now'
+	    mv swig swig.git-svn.old
+	  fi
+	  swig_origin_url=git://github.com/swig/swig.git
+	  handle_git_external swig b0b8d4c87e0077baccf770441768f5ad3b15dcd3 "$swig_origin_url"
+	  ;;
 	/*)
 	  path=`echo "$path"|sed 's,^/,,'`
 	  handle_svn_external "$path" "$revopt" "$url"
@@ -289,8 +301,7 @@ END
 	swig_origin_url=git://github.com/ ;;
     esac
     swig_origin_url=${swig_origin_url}swig/swig.git
-    # Equivalent to r13340 in the old SWIG SVN tree:
-    handle_git_external swig 7b58300cbdc98fa52c42572cffd3f31f10728864 "$swig_origin_url"
+    handle_git_external swig b0b8d4c87e0077baccf770441768f5ad3b15dcd3 "$swig_origin_url"
 
     # Equivalent to r17084 in the Xapian SVN tree:
     handle_git_external xapian-applications/omega/.common.git d81afb542ab398da2a7d71c677190b7725b8b622 .
