@@ -1,3 +1,10 @@
+Fri Sep 27 23:14:33 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/pythontest.py,python3/pythontest.py: Fix testcases which
+	  check that non-random-access iterators which have moved on give
+	  an exception if you try to use the old value - previously these
+	  didn't actually test all the old values, only the last one.
+
 Fri Sep 27 07:53:45 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/smoketest.py,python3/util.i: smoketest.py now passes.
