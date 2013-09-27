@@ -1,3 +1,7 @@
+Fri Sep 27 23:36:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/extra.i: Correct comments for next() changes in Python3.
+
 Fri Sep 27 23:28:47 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/testsuite.py: Remove unnecessary next() helper from

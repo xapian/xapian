@@ -352,8 +352,8 @@ class TermIter(object):
         # _moved is True if we've moved onto the next item.  This is needed so
         # that the iterator doesn't have to move on until just before next() is
         # called: since the iterator starts by pointing at a valid item, we
-        # can't just call self._iter.next() unconditionally at the start of our
-        # next() method.
+        # can't just call next(self._iter) unconditionally at the start of our
+        # __next__() method.
         self._moved = True
 
     def __iter__(self):
@@ -857,8 +857,8 @@ class PostingIter(object):
         # _moved is True if we've moved onto the next item.  This is needed so
         # that the iterator doesn't have to move on until just before next() is
         # called: since the iterator starts by pointing at a valid item, we
-        # can't just call self._iter.next() unconditionally at the start of our
-        # next() method.
+        # can't just call next(self._iter) unconditionally at the start of our
+        # __next__() method.
         self._moved = True
 
     def __iter__(self):
