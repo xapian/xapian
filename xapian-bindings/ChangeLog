@@ -1,3 +1,7 @@
+Fri Sep 27 23:28:20 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/extra.i: Fix LatLongCoordsIter.__next__().
+
 Fri Sep 27 23:14:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/pythontest.py,python3/pythontest.py: Fix testcases which

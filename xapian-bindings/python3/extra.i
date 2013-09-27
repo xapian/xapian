@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional python code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -1112,7 +1112,7 @@ class LatLongCoordsIter(object):
             raise StopIteration
         else:
             r = self.iter.get_coord()
-            self.iter.next()
+            self.iter.__next__()
             return r
 
 # Modify LatLongCoords to make it iterable.
