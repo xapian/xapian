@@ -1,3 +1,13 @@
+Sat Sep 28 06:25:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/version.cc,include/xapian.h: Reimplement version functions to
+	  use a single function in libxapian which returns a pointer to a
+	  static const struct containing the version information, with inline
+	  wrappers in the API header which call this.  This means we only need
+	  one relocation instead of 4.
+	* tests/api_none.cc: New testcase version1 to provide coverage for the
+	  version API functions.
+
 Fri Sep 27 22:53:15 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,include/xapian/enquire.h,tests/api_anydb.cc: Fix

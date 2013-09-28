@@ -97,6 +97,17 @@
 /// The Xapian namespace contains public interfaces for the Xapian library.
 namespace Xapian {
 
+namespace Internal {
+struct vinfo {
+    int major, minor, revision;
+    char str[8];
+};
+
+XAPIAN_VISIBILITY_DEFAULT
+const struct vinfo * XAPIAN_NOTHROW(get_vinfo_()) XAPIAN_CONST_FUNCTION;
+
+}
+
 // Functions returning library version:
 
 /** Report the version string of the library which the program is linked with.
@@ -104,32 +115,36 @@ namespace Xapian {
  * This may be different to the version compiled against (given by
  * XAPIAN_VERSION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-const char * XAPIAN_NOTHROW(version_string()) XAPIAN_CONST_FUNCTION;
+inline const char * version_string() {
+    return Internal::get_vinfo_()->str;
+}
 
 /** Report the major version of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-int XAPIAN_NOTHROW(major_version()) XAPIAN_CONST_FUNCTION;
+inline int major_version() {
+    return Internal::get_vinfo_()->major;
+}
 
 /** Report the minor version of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-int XAPIAN_NOTHROW(minor_version()) XAPIAN_CONST_FUNCTION;
+inline int minor_version() {
+    return Internal::get_vinfo_()->minor;
+}
 
 /** Report the revision of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_REVISION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-int XAPIAN_NOTHROW(revision()) XAPIAN_CONST_FUNCTION;
+inline int revision() {
+    return Internal::get_vinfo_()->revision;
+}
 
 }
 
