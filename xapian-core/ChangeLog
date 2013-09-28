@@ -1,3 +1,8 @@
+Sat Sep 28 09:27:51 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian.h: Hide struct vinfo and get_vinfo_() from SWIG and
+	  doxygen.
+
 Sat Sep 28 06:25:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/version.cc,include/xapian.h: Reimplement version functions to

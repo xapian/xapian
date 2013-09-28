@@ -97,16 +97,21 @@
 /// The Xapian namespace contains public interfaces for the Xapian library.
 namespace Xapian {
 
+#ifndef SWIG
 namespace Internal {
+
+/** @internal */
 struct vinfo {
     int major, minor, revision;
     char str[8];
 };
 
+/** @internal */
 XAPIAN_VISIBILITY_DEFAULT
 const struct vinfo * XAPIAN_NOTHROW(get_vinfo_()) XAPIAN_CONST_FUNCTION;
 
 }
+#endif
 
 // Functions returning library version:
 
