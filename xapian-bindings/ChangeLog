@@ -1,3 +1,7 @@
+Sat Sep 28 00:02:21 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/pythontest.py: Fix test_postingsource testcase.
+
 Fri Sep 27 23:37:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/pythontest.py: Fix test_allterms_iter testcase.

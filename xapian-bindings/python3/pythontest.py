@@ -1011,7 +1011,7 @@ def test_postingsource():
         def get_termfreq_min(self): return 0
         def get_termfreq_est(self): return int(self.max / 2)
         def get_termfreq_max(self): return self.max
-        def next(self, minweight):
+        def __next__(self, minweight):
             self.current += 2
         def at_end(self): return self.current > self.max
         def get_docid(self): return self.current
