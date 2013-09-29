@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,15 +22,28 @@
 
 #include <config.h>
 
+#include <xapian.h>
+
 #include "xapian-check-brass.h"
 #include "xapian-check-chert.h"
 #include "xapian-check-flint.h"
 
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+#include "backends/brass/brass_database.h"
+#include "backends/brass/brass_types.h"
+#endif
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+#include "backends/chert/chert_database.h"
+#include "backends/chert/chert_types.h"
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+#include "backends/flint/flint_database.h"
+#include "backends/flint/flint_types.h"
+#endif
+
 #include "chert_check.h" // For OPT_SHORT_TREE, etc.
 #include "stringutils.h"
 #include "utils.h"
-
-#include <xapian.h>
 
 #include <stdexcept>
 #include <iostream>
@@ -131,10 +144,16 @@ main(int argc, char **argv)
 	    throw "Flint database support isn't enabled";
 #else
 	    // Check a whole flint database directory.
+	    flint_revision_number_t rev;
+	    flint_revision_number_t * rev_ptr = NULL;
 	    try {
 		Xapian::Database db = Xapian::Flint::open(dir);
 		Xapian::docid db_last_docid = db.get_lastdocid();
 		reserve_doclens(doclens, db_last_docid);
+		FlintDatabase * flint_db =
+		    static_cast<FlintDatabase*>(db.internal[0].get());
+		rev = flint_db->postlist_table.get_open_revision_number();
+		rev_ptr = &rev;
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -165,7 +184,7 @@ main(int argc, char **argv)
 			continue;
 		    }
 		}
-		errors += check_flint_table(*t, table, opts, doclens);
+		errors += check_flint_table(*t, table, rev_ptr, opts, doclens);
 	    }
 #endif
 	} else if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
@@ -176,9 +195,15 @@ main(int argc, char **argv)
 	    // If we can't read the last docid, set it to its maximum value
 	    // to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+	    chert_revision_number_t rev;
+	    chert_revision_number_t * rev_ptr = NULL;
 	    try {
 		Xapian::Database db = Xapian::Chert::open(dir);
 		db_last_docid = db.get_lastdocid();
+		ChertDatabase * chert_db =
+		    static_cast<ChertDatabase*>(db.internal[0].get());
+		rev = chert_db->postlist_table.get_open_revision_number();
+		rev_ptr = &rev;
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -212,7 +237,7 @@ main(int argc, char **argv)
 			continue;
 		    }
 		}
-		errors += check_chert_table(*t, table, opts, doclens,
+		errors += check_chert_table(*t, table, rev_ptr, opts, doclens,
 					    db_last_docid);
 	    }
 #endif
@@ -224,9 +249,15 @@ main(int argc, char **argv)
 	    // If we can't read the last docid, set it to its maximum value
 	    // to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+	    brass_revision_number_t rev;
+	    brass_revision_number_t * rev_ptr = NULL;
 	    try {
 		Xapian::Database db = Xapian::Brass::open(dir);
 		db_last_docid = db.get_lastdocid();
+		BrassDatabase * brass_db =
+		    static_cast<BrassDatabase*>(db.internal[0].get());
+		rev = brass_db->postlist_table.get_open_revision_number();
+		rev_ptr = &rev;
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
@@ -260,7 +291,7 @@ main(int argc, char **argv)
 			continue;
 		    }
 		}
-		errors += check_brass_table(*t, table, opts, doclens,
+		errors += check_brass_table(*t, table, rev_ptr, opts, doclens,
 					    db_last_docid);
 	    }
 #endif
@@ -300,8 +331,8 @@ main(int argc, char **argv)
 #ifndef XAPIAN_HAS_FLINT_BACKEND
 		throw "Flint database support isn't enabled";
 #else
-		errors = check_flint_table(tablename.c_str(), filename, opts,
-					   doclens);
+		errors = check_flint_table(tablename.c_str(), filename, NULL,
+					   opts, doclens);
 #endif
 	    } else if (file_exists(path + "iambrass")) {
 #ifndef XAPIAN_HAS_BRASS_BACKEND
@@ -309,8 +340,8 @@ main(int argc, char **argv)
 #else
 		// Set the last docid to its maximum value to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-		errors = check_brass_table(tablename.c_str(), filename, opts,
-					   doclens, db_last_docid);
+		errors = check_brass_table(tablename.c_str(), filename, NULL, 
+					   opts, doclens, db_last_docid);
 #endif
 	    } else {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
@@ -318,8 +349,8 @@ main(int argc, char **argv)
 #else
 		// Set the last docid to its maximum value to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-		errors = check_chert_table(tablename.c_str(), filename, opts,
-					   doclens, db_last_docid);
+		errors = check_chert_table(tablename.c_str(), filename, NULL,
+					   opts, doclens, db_last_docid);
 #endif
 	    }
 	}

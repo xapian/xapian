@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -71,6 +71,12 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 */
 	BrassVersion version_file;
 
+	/* Make postlist_table public so that bin/xapian-check.cc can get the
+	 * revision number for the open database without us having to add to
+	 * change the ABI.  On trunk the checking code is in the library, so
+	 * this is a 1.2-only hack.
+	 */
+    public:
 	/** Table storing posting lists.
 	 *
 	 *  Whenever an update is performed, this table is the first to be
@@ -79,6 +85,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 */
 	mutable BrassPostListTable postlist_table;
 
+    private:
 	/** Table storing position lists.
 	 */
 	BrassPositionListTable position_table;
@@ -150,13 +157,6 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  revision is not available.
 	 */
 	void open_tables(brass_revision_number_t revision);
-
-	/** Get an object holding the revision number which the tables are
-	 *  opened at.
-	 *
-	 *  @return the current revision number.
-	 */
-	brass_revision_number_t get_revision_number() const;
 
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
@@ -248,6 +248,13 @@ class BrassDatabase : public Xapian::Database::Internal {
 	BrassCursor * get_postlist_cursor() const {
 	    return postlist_table.cursor_get();
 	}
+
+	/** Get an object holding the revision number which the tables are
+	 *  opened at.
+	 *
+	 *  @return the current revision number.
+	 */
+	brass_revision_number_t get_revision_number() const;
 
 	/** Virtual methods of Database::Internal. */
 	//@{

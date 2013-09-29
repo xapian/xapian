@@ -49,17 +49,22 @@ is_user_metadata_key(const string & key)
 }
 
 size_t
-check_flint_table(const char * tablename, string filename, int opts,
+check_flint_table(const char * tablename, string filename,
+		  flint_revision_number_t * rev_ptr, int opts,
 		  vector<Xapian::termcount> & doclens)
 {
     filename += '.';
 
     // Check the btree structure.
-    BtreeCheck::check(tablename, filename, opts);
+    BtreeCheck::check(tablename, filename, rev_ptr, opts);
 
     // Now check the flint structures inside the btree.
     FlintTable table(tablename, filename, true);
-    table.open();
+    if (rev_ptr) {
+	table.open(*rev_ptr);
+    } else {
+	table.open();
+    }
     AutoPtr<FlintCursor> cursor(table.cursor_get());
 
     size_t errors = 0;

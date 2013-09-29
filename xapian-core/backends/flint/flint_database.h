@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -67,6 +67,13 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 */
 	FlintVersion version_file;
 
+	/* Make postlist_table public so that bin/xapian-check.cc can get the
+	 * revision number for the open database without us having to add to
+	 * change the ABI.  On trunk the checking code is in the library, so
+	 * this is a 1.2-only hack.
+	 */
+    public:
+
 	/** Table storing posting lists.
 	 *
 	 *  Whenever an update is performed, this table is the first to be
@@ -75,6 +82,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 */
 	mutable FlintPostListTable postlist_table;
 
+    private:
 	/** Table storing position lists.
 	 */
 	FlintPositionListTable position_table;
@@ -153,13 +161,6 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  revision is not available.
 	 */
 	void open_tables(flint_revision_number_t revision);
-
-	/** Get an object holding the revision number which the tables are
-	 *  opened at.
-	 *
-	 *  @return the current revision number.
-	 */
-	flint_revision_number_t get_revision_number() const;
 
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
@@ -245,6 +246,13 @@ class FlintDatabase : public Xapian::Database::Internal {
 		       unsigned int block_size = 0u);
 
 	~FlintDatabase();
+
+	/** Get an object holding the revision number which the tables are
+	 *  opened at.
+	 *
+	 *  @return the current revision number.
+	 */
+	flint_revision_number_t get_revision_number() const;
 
 	/** Virtual methods of Database::Internal. */
 	//@{

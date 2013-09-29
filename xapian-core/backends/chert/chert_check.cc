@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008 Olly Betts
+ * Copyright 2002,2004,2005,2008,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -197,11 +197,16 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 }
 
 void
-ChertTableCheck::check(const char * tablename, const string & path, int opts,
+ChertTableCheck::check(const char * tablename, const string & path,
+		       chert_revision_number_t * rev_ptr, int opts,
 		       ostream &out)
 {
     ChertTableCheck B(tablename, path, false, out);
-    B.open(); // throws exception if open fails
+    // open() throws an exception if it fails
+    if (rev_ptr)
+	B.open(*rev_ptr);
+    else
+	B.open();
     Cursor * C = B.C;
 
     if (opts & OPT_SHOW_STATS) {

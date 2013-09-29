@@ -55,18 +55,23 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_chert_table(const char * tablename, string filename, int opts,
+check_chert_table(const char * tablename, string filename,
+		  chert_revision_number_t * rev_ptr, int opts,
 		  vector<Xapian::termcount> & doclens,
 		  Xapian::docid db_last_docid)
 {
     filename += '.';
 
     // Check the btree structure.
-    ChertTableCheck::check(tablename, filename, opts);
+    ChertTableCheck::check(tablename, filename, rev_ptr, opts);
 
     // Now check the chert structures inside the btree.
     ChertTable table(tablename, filename, true);
-    table.open();
+    if (rev_ptr) {
+	table.open(*rev_ptr);
+    } else {
+	table.open();
+    }
     AutoPtr<ChertCursor> cursor(table.cursor_get());
 
     size_t errors = 0;

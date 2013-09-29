@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006,2008 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@
 class ChertTableCheck : public ChertTable {
     public:
 	static void check(const char * tablename, const std::string & path,
+			  chert_revision_number_t * rev_ptr,
 			  int opts, std::ostream &out = std::cout);
     private:
 	ChertTableCheck(const char * tablename_, const std::string &path_,
