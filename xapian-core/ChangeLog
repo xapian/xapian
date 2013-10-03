@@ -1,3 +1,8 @@
+Thu Oct 03 07:35:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_dbcheck.cc,backends/chert/chert_dbcheck.cc: If
+	  the METAINFO key is missing, only report it once per table.
+
 Sat Sep 28 09:27:51 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian.h: Hide struct vinfo and get_vinfo_() from SWIG and
