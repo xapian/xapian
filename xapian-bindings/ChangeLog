@@ -1,3 +1,8 @@
+Thu Oct 03 23:51:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/,python3/: Provide bindings version in
+	  xapian.__version__ as per PEP 396.  (see #346)
+
 Sat Sep 28 00:02:21 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/pythontest.py: Fix test_postingsource testcase.

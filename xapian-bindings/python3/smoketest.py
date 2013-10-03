@@ -54,6 +54,11 @@ def test_all():
     v2 = xapian.version_string().decode('utf-8')
     expect(v2, v, "Unexpected version output")
 
+    # A regexp check would be better, but seems to create a bogus "leak" of -1
+    # objects in Python 3.
+    expect(len(xapian.__version__.split('.')), 3, 'xapian.__version__ not X.Y.Z')
+    expect((xapian.__version__.split('.'))[0], '1', 'xapian.__version__ not "1.Y.Z"')
+
     def access_cvar():
         return xapian.cvar
 

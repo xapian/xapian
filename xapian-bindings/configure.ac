@@ -1309,8 +1309,8 @@ AC_SUBST([AUTOM4TE])
 AC_CONFIG_FILES([Makefile
  doxygen_xml.conf
  xapian-version.h
- python/Makefile
- python3/Makefile
+ python/Makefile python/version.i
+ python3/Makefile python3/version.i
  php/Makefile
  java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl

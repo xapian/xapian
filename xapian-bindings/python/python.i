@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012 Olly Betts
+ * Copyright (C) 2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -134,6 +134,7 @@ class XapianSWIG_Python_Thread_Allow {
 // Use SWIG directors for Python wrappers.
 #define XAPIAN_SWIG_DIRECTORS
 
+%include version.i
 %include ../xapian-head.i
 
 // Doccomments from Doxgyen-generated XML from C++ API docs.
