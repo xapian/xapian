@@ -1,3 +1,9 @@
+Fri Oct 04 04:50:52 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc: Fix
+	  xapian-check to report block numbers correctly for links within the
+	  B-tree.
+
 Thu Oct 03 07:35:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_dbcheck.cc,backends/chert/chert_dbcheck.cc: If
