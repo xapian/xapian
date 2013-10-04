@@ -99,81 +99,6 @@ namespace Xapian {
 }
 %}
 
-%typedef PyObject *LangSpecificListType;
-
-%inline %{
-#define MSET_DID 0
-#define MSET_WT 1
-#define MSET_RANK 2
-#define MSET_PERCENT 3
-#define MSET_DOCUMENT 4
-
-#define ESET_TNAME 0
-#define ESET_WT 1
-%}
-
-%feature("nothread") Xapian::MSet::items;
-%{
-/* The GIL must be held when this is called. */
-PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
-{
-    PyObject *retval = PyList_New(mset->size());
-    if (retval == 0) {
-	return NULL;
-    }
-
-    Py_ssize_t idx = 0;
-    for (Xapian::MSetIterator i = mset->begin(); i != mset->end(); ++i) {
-	PyObject *t = PyTuple_New(4);
-	if (!t) {
-	    Py_DECREF(retval);
-	    return NULL;
-	}
-
-	PyList_SET_ITEM(retval, idx++, t);
-
-	PyTuple_SET_ITEM(t, MSET_DID, PyInt_FromLong(*i));
-	PyTuple_SET_ITEM(t, MSET_WT, PyFloat_FromDouble(i.get_weight()));
-	PyTuple_SET_ITEM(t, MSET_RANK, PyInt_FromLong(i.get_rank()));
-	PyTuple_SET_ITEM(t, MSET_PERCENT, PyInt_FromLong(i.get_percent()));
-    }
-    return retval;
-}
-%}
-
-%feature("nothread") Xapian::ESet::items;
-%{
-/* The GIL must be held when this is called. */
-PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
-{
-    PyObject *retval = PyList_New(eset->size());
-    if (retval == 0) {
-	return NULL;
-    }
-
-    Py_ssize_t idx = 0;
-    for (Xapian::ESetIterator i = eset->begin(); i != eset->end(); ++i) {
-	PyObject *t = PyTuple_New(2);
-	if (!t) {
-	    Py_DECREF(retval);
-	    return NULL;
-	}
-
-	PyList_SET_ITEM(retval, idx++, t);
-
-	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
-	if (str == 0) {
-	    Py_DECREF(retval);
-	    return NULL;
-	}
-
-	PyTuple_SET_ITEM(t, ESET_TNAME, str);
-	PyTuple_SET_ITEM(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
-    }
-    return retval;
-}
-%}
-
 namespace Xapian {
     %extend TermIterator {
 	bool __eq__(const TermIterator &other) {
@@ -236,11 +161,6 @@ namespace Xapian {
     %rename(_ESetIterator) ESetIterator;
 
     %extend MSet {
-	%immutable;
-	// access to the items array
-	PyObject *items;
-	%mutable;
-
 	// for comparison
 	int __cmp__(const MSet &other) {
 	    if (self->get_max_possible() != other.get_max_possible()) {
@@ -260,14 +180,6 @@ namespace Xapian {
 	    }
 	    return 0;
 	}
-    }
-
-    //%apply LangSpecificListType items { PyObject *items }
-
-    %extend ESet {
-	%immutable;
-	PyObject *items;
-	%mutable;
     }
 }
 

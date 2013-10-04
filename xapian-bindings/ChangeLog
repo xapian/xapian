@@ -1,3 +1,11 @@
+Fri Oct 04 00:29:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/pythontest.py,python3/smoketest.py,python3/util.i: Drop the
+	  deprecated 'MSet.items' and 'ESet.items' for Python3 - people are
+	  going to need to make code updates anyway, so keeping existing code
+	  working unchanged isn't a realistic concern.
+	* python3/docs/index.html: Drop discussion of removed features.
+
 Fri Oct 04 00:27:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* README: Document 3.2 as the minimum supported Python3 version, and

@@ -138,58 +138,6 @@ Database.postlist: <b>positer</b>
 </li>
 </ul>
 
-<p>
-In older releases, the pythonic iterators returned lists representing the
-appropriate item when their <code>next()</code> method was called.  These were
-removed in Xapian 1.1.0.
-</p>
-
-<h2>Non-Pythonic Iterators</h2>
-
-<p>
-Before the pythonic iterator wrappers were added, the python bindings provided
-thin wrappers around the C++ iterators.  However, these iterators don't behave
-like most iterators do in Python, so the pythonic iterators were implemented to
-replace them.  The non-pythonic iterators were removed in Xapian 1.3.0 -
-the documentation below is provided to aid migration away from them.
-</p>
-
-<p>
-   All non-pythonic iterators support <code>next()</code> and
-   <code>equals()</code> methods
-   to move through and test iterators (as for all language bindings).
-   MSetIterator and ESetIterator also support <code>prev()</code>.
-   Python-wrapped iterators also support direct comparison, so something like:
-</p>
-
-<pre>
-   m=mset.begin()
-   while m!=mset.end():
-     # do something
-     m.next()
-</pre>
-
-<p>
-   C++ iterators are often dereferenced to get information, eg
-   <code>(*it)</code>. With Python these are all mapped to named methods, as
-   follows:
-</p>
-
-<table title="Iterator deferencing methods">
-<thead><td>Iterator</td><td>Dereferencing method</td></thead>
-<tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
-<tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
-<tr><td>TermIterator</td>	<td><code>get_term()</code></td></tr>
-<tr><td>ValueIterator</td>	<td><code>get_value()</code></td></tr>
-<tr><td>MSetIterator</td>	<td><code>get_docid()</code></td></tr>
-<tr><td>ESetIterator</td>	<td><code>get_term()</code></td></tr>
-</table>
-
-<p>
-   Other methods, such as <code>MSetIterator.get_document()</code>, are
-   available unchanged.
-</p>
-
 <h2>MSet</h2>
 
 <p>

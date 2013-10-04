@@ -104,20 +104,6 @@ def test_mset_iter():
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), b'was it warm? three')
 
-    # Test coverage for mset.items
-    mset_items = mset.items
-    expect(len(mset), len(mset_items), "Expected number of items to be length of mset")
-
-    context("testing mset_items[2]")
-    expect(mset_items[2][xapian.MSET_DID], 4)
-    expect(mset_items[2][xapian.MSET_WT] > 0.0, True)
-    expect(mset_items[2][xapian.MSET_RANK], 2)
-    expect(mset_items[2][xapian.MSET_PERCENT], 86)
-    # MSET_DOCUMENT is documented but not implemented!  FIXME: resolve this -
-    # if it has never worked, we may just want to remove the documentation for
-    # it.
-    #expect(mset_items[2][xapian.MSET_DOCUMENT].get_data(), 'was it warm? three')
-
     # Check iterators for sub-msets against the whole mset.
     for start in range(0, 6):
         for maxitems in range(0, 6):
@@ -1509,21 +1495,6 @@ def test_compactor():
             db3.close()
 
         shutil.rmtree(tmpdir)
-
-def test_leak_mset_items():
-    """Test that items property of MSet doesn't leak
-
-    """
-    db = xapian.inmemory_open()
-    doc = xapian.Document()
-    doc.add_term('drip')
-    db.add_document(doc)
-    enq = xapian.Enquire(db)
-    enq.set_query(xapian.Query('drip'))
-    mset = enq.get_mset(0, 10)
-
-    # Prior to 1.2.4 this next line leaked an object.
-    mset.items
 
 def test_custom_matchspy():
     class MSpy(xapian.MatchSpy):

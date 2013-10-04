@@ -259,16 +259,16 @@ def test_all():
     rset = xapian.RSet()
     rset.add_document(1)
     eset = enquire.get_eset(10, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, testexpanddecider())
-    eset_terms = [term[xapian.ESET_TNAME] for term in eset.items]
+    eset_terms = [item.term for item in eset]
     expect(len(eset_terms), eset.size(), "Unexpected number of terms returned by expand")
     if [t for t in eset_terms if t.startswith(b'a')]:
         raise TestFail("ExpandDecider was not used")
 
     # Check min_wt argument to get_eset() works (new in 1.2.5).
     eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ)
-    expect(eset.items[-1][xapian.ESET_WT] < 1.9, True, "test get_eset() without min_wt")
+    expect([i.weight for i in eset][-1] < 1.9, True, "test get_eset() without min_wt")
     eset = enquire.get_eset(100, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, None, 1.9)
-    expect(eset.items[-1][xapian.ESET_WT] >= 1.9, True, "test get_eset() min_wt")
+    expect([i.weight for i in eset][-1] >= 1.9, True, "test get_eset() min_wt")
 
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()
