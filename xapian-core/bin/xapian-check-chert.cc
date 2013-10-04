@@ -142,6 +142,7 @@ check_chert_table(const char * tablename, string filename,
 	    }
 
 	    if (!have_metainfo_key) {
+		have_metainfo_key = true;
 		cout << "METAINFO key missing from postlist table" << endl;
 		++errors;
 	    }
