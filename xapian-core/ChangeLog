@@ -1,3 +1,9 @@
+Fri Oct 04 04:51:39 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc: Escape
+	  invalid UTF-8 data in keys and tags reported by xapian-check, using
+	  the same code we use to clean up string in object descriptions.
+
 Fri Oct 04 04:50:52 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_check.cc,backends/chert/chert_check.cc: Fix

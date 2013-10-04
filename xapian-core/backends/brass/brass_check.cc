@@ -24,6 +24,7 @@
 #include <config.h>
 
 #include "brass_check.h"
+#include "unicode/description_append.h"
 #include "xapian/database.h" // For Xapian::DBCHECK_*
 
 #include <climits>
@@ -48,14 +49,11 @@ void BrassTableCheck::print_key(const byte * p, int c, int j) const
     string key;
     if (item.key().length() >= 0)
 	item.key().read(&key);
+    string escaped;
+    description_append(escaped, key);
+    out << escaped;
     if (j == 0) {
-	out << key << '/' << item.component_of();
-    } else {
-	for (string::const_iterator i = key.begin(); i != key.end(); ++i) {
-	    // out << (*i < 32 ? '.' : *i);
-	    char ch = *i;
-	    if (ch < 32) out << '/' << unsigned(ch); else out << ch;
-	}
+	out << ' ' << item.component_of();
     }
 }
 
@@ -65,7 +63,9 @@ void BrassTableCheck::print_tag(const byte * p, int c, int j) const
     if (j == 0) {
 	string tag;
 	item.append_chunk(&tag);
-	out << "/" << item.components_of() << tag;
+	string escaped;
+	description_append(escaped, tag);
+	out << '/' << item.components_of() << ' ' << escaped;
     } else {
 	out << "--> [" << item.block_given_by() << ']';
     }
