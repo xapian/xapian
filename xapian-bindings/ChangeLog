@@ -1,3 +1,9 @@
+Fri Oct 04 11:29:24 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,python/: Provide bindings version in xapian.__version__
+	  as per PEP 396.  (see #346)
+
 Fri Oct 04 10:48:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

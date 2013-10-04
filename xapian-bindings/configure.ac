@@ -1149,7 +1149,7 @@ AC_SUBST([AUTOM4TE])
 
 AC_CONFIG_FILES([Makefile
  xapian-version.h
- python/Makefile
+ python/Makefile python/version.i
  php/Makefile
  java/Makefile java/native/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
