@@ -118,8 +118,16 @@ $CCFLAGS =~ s/(?:^|\s+)-Wdeclaration-after-statement(?:\s+|$)/ /;
 # if Perl was built with -Wall.
 $CCFLAGS =~ s/(^|\s+)-Wall(\s+|$)/$1-Wall -Wno-uninitialized$2/;
 
-$CCFLAGS .= ' ' . $var{CPPFLAGS} if exists $var{CPPFLAGS};
-$CCFLAGS .= ' ' . $var{CXXFLAGS} if exists $var{CXXFLAGS};
+if (exists $var{CPPFLAGS}) {
+    $CCFLAGS .= ' ' . $var{CPPFLAGS};
+} elsif (exists $ENV{CPPFLAGS}) {
+    $CCFLAGS .= ' ' . $ENV{CPPFLAGS};
+}
+if (exists $var{CXXFLAGS}) {
+    $CCFLAGS .= ' ' . $var{CXXFLAGS};
+} elsif (exists $ENV{CXXFLAGS}) {
+    $CCFLAGS .= ' ' . $ENV{CXXFLAGS};
+}
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
