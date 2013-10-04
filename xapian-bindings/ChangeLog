@@ -1,3 +1,9 @@
+Fri Oct 04 09:39:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* php/smoketest.php: If running under PHP >= 5.4, skip the tests we
+	  know will fail with a message.
+
 Fri Oct 04 09:38:16 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

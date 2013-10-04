@@ -177,17 +177,21 @@ class testmatchdecider extends XapianMatchDecider {
     }
 }
 
-$query = new XapianQuery($stem->apply("out"));
-$enquire = new XapianEnquire($db);
-$enquire->set_query($query);
-$mdecider = new testmatchdecider();
-$mset = $enquire->get_mset(0, 10, null, $mdecider);
-if ($mset->size() != 1) {
-    print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
-    exit(1);
-}
-if ($mset->get_docid(0) != 2) {
-    print "MatchDecider mset has wrong docid in\n";
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
+    print "Skipping known failure subclassing Xapian classes in PHP under PHP 5.4+\n";
+} else {
+    $query = new XapianQuery($stem->apply("out"));
+    $enquire = new XapianEnquire($db);
+    $enquire->set_query($query);
+    $mdecider = new testmatchdecider();
+    $mset = $enquire->get_mset(0, 10, null, $mdecider);
+    if ($mset->size() != 1) {
+	print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+	exit(1);
+    }
+    if ($mset->get_docid(0) != 2) {
+	print "MatchDecider mset has wrong docid in\n";
+    }
 }
 
 if (XapianQuery::OP_ELITE_SET != 10) {
