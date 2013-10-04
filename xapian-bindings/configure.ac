@@ -103,7 +103,7 @@ COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1
 AC_SUBST(COMPAT_VERSION)
 
 dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
-VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_svn[0-9]*$//'`]
+VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_\(svn\|git\)[0-9]*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
 
 dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
@@ -943,6 +943,8 @@ if test no != "$with_perl" ; then
       case $PACKAGE_VERSION in
       *_svn*)
 	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
+      *_git*)
+	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
       *)
 	PERL_XAPIAN_VERSION=$PACKAGE_VERSION.0 ;;
       esac

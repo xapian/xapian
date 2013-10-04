@@ -1,3 +1,8 @@
+Fri Oct 04 10:22:21 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Handle git snapshot naming.
+
 Fri Oct 04 09:56:04 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
