@@ -1,3 +1,9 @@
+Fri Oct 04 06:27:39 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,docs/install.rst: Compress source tarballs with xz
+	  instead of gzip.
+
 Sun Sep 29 16:44:46 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
