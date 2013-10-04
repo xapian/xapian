@@ -1,3 +1,10 @@
+Fri Oct 04 09:56:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* perl/t/symbol-test/Makefile.PL: Pass $CPPFLAGS and $CXXFLAGS from
+	  the environment through to the sub-build, fixing symbol-test.t
+	  failure when built with CPPFLAGS=-D_GLIBCXX_DEBUG.
+
 Fri Oct 04 09:39:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
