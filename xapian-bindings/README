@@ -43,10 +43,14 @@ Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 PHP		Requires PHP >= 5.3 (older versions are no longer supported by
 		the PHP developers).
 
-Python		Requires Python 2.5 or later.  If you still need support for
-		Python 2.3 or 2.4, use Xapian 1.2.x.  Python 3 support is under
-		development, but not yet fully functional - see ticket#346
-		for details: http://trac.xapian.org/ticket/346
+Python 2.x	Requires Python 2.5 or later.  If you still need support for
+		Python 2.3 or 2.4, use Xapian 1.2.x.
+
+Python 3.x	Requires Python 3.2 or later (test results and patches for 3.1
+		are most welcome).  Python 3 support is now mostly functional,
+		but still marked as "experimental" as details of the wrappers
+		may change.  Progress is being tracked in ticket#346:
+		http://trac.xapian.org/ticket/346
 
 Ruby		Requires Ruby 1.8 or later.  With Ruby 1.9.0, the testsuite
 		fails due to a bug in the test/unit module, but applications

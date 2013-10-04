@@ -1,3 +1,8 @@
+Fri Oct 04 00:27:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* README: Document 3.2 as the minimum supported Python3 version, and
+	  update the status to "mostly functional".
+
 Thu Oct 03 23:51:26 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/,python3/: Provide bindings version in
