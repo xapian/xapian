@@ -1,7 +1,7 @@
 Fri Oct 04 10:48:41 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* python/pythontest.py,python3/pythontest.py: Fix testcases which
+	* python/pythontest2.py,python/pythontest3.py: Fix testcases which
 	  check that non-random-access iterators which have moved on give
 	  an exception if you try to use the old value - previously these
 	  didn't actually test all the old values, only the last one.
