@@ -1,3 +1,9 @@
+Fri Oct 04 06:30:42 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* .gitignore,xapian-core.spec.in: Update two references to .tar.gz
+	  files.
+
 Fri Oct 04 06:29:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
