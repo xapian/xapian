@@ -1,3 +1,8 @@
+Fri Oct 04 09:38:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,generic/generic.mk: SVN -> git.
+
 Tue Apr 16 23:42:09 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.15.
