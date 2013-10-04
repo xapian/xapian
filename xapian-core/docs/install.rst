@@ -57,7 +57,7 @@ If tar on your system doesn't support xz decompression, you can instead use::
 
 These commands should unpack the archives into separate subdirectories
 (``xapian-core-<versionnumber>``, ``xapian-omega-<versionnumber>`` and
-``xapian-bindings-<versionnumber>`` and ).
+``xapian-bindings-<versionnumber>``).
 
 Configuring and building the Xapian library
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

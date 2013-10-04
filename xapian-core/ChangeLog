@@ -1,3 +1,8 @@
+Fri Oct 04 06:29:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/install.rst: Fix typo (bogus extra 'and');
+
 Fri Oct 04 06:27:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
