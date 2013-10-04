@@ -1,3 +1,10 @@
+Fri Oct 04 08:58:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
+	  backends/flint/flint_check.cc: Fix xapian-check to report block
+	  numbers correctly for links within the B-tree.
+
 Fri Oct 04 06:55:01 GMT 2013  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check-chert.cc,bin/xapian-check-brass.cc,

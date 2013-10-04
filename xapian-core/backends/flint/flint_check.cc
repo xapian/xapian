@@ -66,13 +66,12 @@ void BtreeCheck::print_key(const byte * p, int c, int j) const
 void BtreeCheck::print_tag(const byte * p, int c, int j) const
 {
     Item_ item(p, c);
-    string tag;
-    item.append_chunk(&tag);
     if (j == 0) {
+	string tag;
+	item.append_chunk(&tag);
 	out << "/" << item.components_of() << tag;
     } else {
-	out << "--> [" << getint4(reinterpret_cast<const byte*>(tag.data()), 0)
-	    << ']';
+	out << "--> [" << item.block_given_by() << ']';
     }
 }
 
