@@ -1682,7 +1682,7 @@ Term::as_positional_cjk_term(Terms * terms) const
 %destructor PARTIAL_TERM {delete $$;}
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
-// add_bool_prefix().  It's added to the query using an OP_FILTER operator,
+// add_boolean_prefix().  It's added to the query using an OP_FILTER operator,
 // (or OP_AND_NOT if it's negated) e.g. site:xapian.org or -site:xapian.org
 %destructor BOOLEAN_FILTER {delete $$;}
 
