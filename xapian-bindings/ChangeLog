@@ -1,3 +1,9 @@
+Fri Oct 04 10:33:21 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix stripping of _git suffix from snapshot versions
+	  not to relying of sed having support for \| as it doesn't on OS X.
+
 Fri Oct 04 10:22:21 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
