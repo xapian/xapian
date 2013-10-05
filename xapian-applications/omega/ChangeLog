@@ -1,3 +1,8 @@
+Sat Oct 05 06:37:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* datematchdecider.h: Fix filename in comment at top of file.
+
 Sat Oct 05 06:35:19 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
