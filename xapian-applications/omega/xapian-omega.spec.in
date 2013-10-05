@@ -14,7 +14,7 @@ URL: http://xapian.org/
 Requires: xapian-core-libs >= %{version}, webserver
 BuildRequires: xapian-core-devel = %{version}
 BuildRequires: autoconf automake libtool
-Source0: http://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
+Source0: http://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.xz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description

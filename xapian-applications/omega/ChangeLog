@@ -1,3 +1,9 @@
+Sat Oct 05 06:44:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,xapian-omega.spec.in: Compress source tarballs with xz
+	  instead of gzip.
+
 Sat Oct 05 06:40:57 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
