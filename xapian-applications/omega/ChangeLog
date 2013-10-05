@@ -1,3 +1,10 @@
+Sat Oct 05 06:35:19 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Fix off-by-one when finding documents to delete which
+	  would sometimes cause omindex to fail to delete documents from the
+	  database when they weren't refound during an index update.
+
 Sat Oct 05 06:28:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

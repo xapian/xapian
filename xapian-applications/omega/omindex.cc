@@ -1527,7 +1527,7 @@ main(int argc, char **argv)
 	    }
 	    Xapian::PostingIterator alldocs = db.postlist_begin(string());
 	    Xapian::docid did = *alldocs;
-	    do {
+	    while (did < updated.size()) {
 		if (!updated[did]) {
 		    alldocs.skip_to(did);
 		    if (alldocs == db.postlist_end(string()))
@@ -1541,7 +1541,8 @@ main(int argc, char **argv)
 		    if (--old_docs_not_seen == 0)
 			break;
 		}
-	    } while (++did < updated.size());
+		++did;
+	    }
 	}
 	db.commit();
 	exitcode = 0;
