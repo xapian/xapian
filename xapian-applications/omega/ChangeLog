@@ -1,3 +1,8 @@
+Sat Oct 05 06:46:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* weight.cc: Use "" not <> to include local header weight.h.
+
 Sat Oct 05 06:44:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
