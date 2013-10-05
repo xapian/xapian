@@ -74,7 +74,7 @@ class DirectoryIterator {
 
   public:
 
-    DirectoryIterator(bool follow_symlinks_)
+    explicit DirectoryIterator(bool follow_symlinks_)
 	: dir(NULL), follow_symlinks(follow_symlinks_) { }
 
     ~DirectoryIterator() {

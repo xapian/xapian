@@ -1,3 +1,8 @@
+Sat Oct 05 06:40:57 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* diritor.h: Mark DirectoryIterator ctor as 'explicit'.
+
 Sat Oct 05 06:37:08 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
