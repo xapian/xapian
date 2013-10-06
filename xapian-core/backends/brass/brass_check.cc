@@ -185,7 +185,7 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 
 	if (j == 1 && c > DIR_START)
 	    if (Item(q, DIR_START).key() < Item(p, c).key())
-		failure("Key < left dividing key in root block");
+		failure("Leaf key < left dividing key in level above");
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */

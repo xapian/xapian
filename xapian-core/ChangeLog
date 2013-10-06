@@ -1,3 +1,9 @@
+Fri Oct 04 19:46:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc: Correct
+	  failure message which talks above the root block when it's actually
+	  testing a leaf key.
+
 Fri Oct 04 04:51:39 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_check.cc,backends/chert/chert_check.cc: Escape
