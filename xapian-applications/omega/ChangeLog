@@ -1,3 +1,9 @@
+Sun Oct 06 08:01:59 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc,docs/overview.rst: Ignore 'adm', 'cur', and 'ico' by
+	  default.
+
 Sat Oct 05 06:46:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

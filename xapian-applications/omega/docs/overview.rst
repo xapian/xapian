@@ -296,15 +296,18 @@ string, but to be useful there either needs to be a filter set for that type
 By default, files with the following extensions are marked as 'ignore'::
 
    - a
+   - adm
    - bin
    - com
    - css
+   - cur
    - dat
    - db
    - dll
    - dylib
    - exe
    - fon
+   - ico
    - jar
    - js
    - lib
