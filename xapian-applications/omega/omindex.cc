@@ -557,7 +557,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		// the shared strings.
 		string cmd = "unzip -p";
 		append_filename_argument(cmd, file);
-		cmd += " xl/sharedStrings.xml ; unzip -p";
+		cmd += " xl/styles.xml xl/workbook.xml xl/sharedStrings.xml ; unzip -p";
 		append_filename_argument(cmd, file);
 		cmd += " xl/worksheets/sheet\\*.xml";
 		try {

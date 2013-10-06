@@ -1,3 +1,11 @@
+Sun Oct 06 08:13:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* xlsxparse.cc: Handle pre-defined numfmtid codes for dates.
+	* omindex.cc,xlsxparse.cc,xlsxparse.h: Fix detection of cells with a
+	  date format to work with xlsx files other than my first example.
+	* omindex.cc,xlsxparse.cc,xlsxparse.h: Decode dates for xlsx files.
+
 Sun Oct 06 08:01:59 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
