@@ -1,3 +1,11 @@
+Sun Oct 06 08:17:57 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Sync compiler warning flag machinery against
+	  xapian-core.  The changes are special handling for clang, passing
+	  -fshow-column where supported, and handling for new warning flags
+	  in GCC 4.6 and 4.7.
+
 Sun Oct 06 08:13:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
