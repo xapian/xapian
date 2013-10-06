@@ -919,7 +919,7 @@ if test no != "$with_ruby" ; then
   if test -n "$RUBY" ; then
     AC_PATH_PROGS(RUBY, ["$RUBY"], [])
   else
-    AC_PATH_PROGS(RUBY, [ruby1.8 ruby], [])
+    AC_PATH_PROGS(RUBY, [ruby], [])
   fi
   AC_ARG_VAR(RUBY, [Ruby interpreter])
   if test -n "$RUBY" ; then
