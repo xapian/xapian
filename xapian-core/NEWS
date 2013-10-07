@@ -1,6 +1,6 @@
- 17481       olly Fri Sep 20 09:21:37 GMT 2013  Olly Betts <olly@survex.com>
+ 17556       olly Mon Oct 07 01:07:00 GMT 2013  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.16 (2013-09-22):
+Xapian-core 1.2.16 (2013-10-07):
 
 API:
 
@@ -55,12 +55,18 @@ inmemory backend:
 
 build system:
 
+* Compress source tarballs with xz instead of gzip.
+
 * XO_LIB_XAPIAN now handles the user specifying a relative path in
   XAPIAN_CONFIG, e.g.: "./configure XAPIAN_CONFIG=../xapian-core/xapian-config"
 
 * Adjust XO_LIB_XAPIAN to strip _gitNNN suffix from snapshot versions.
 
 * configure: Handle git snapshot naming when calculating REVISION.
+
+* configure: Enable -fshow-column for GCC - things like vim's quickfix mode
+  will then jump to the appropriate column for a compiler error or warning, not
+  just the appropriate line.
 
 documentation:
 
@@ -84,13 +90,24 @@ tools:
   actually been supported, so just drop mentions of it from --help and the man
   page.
 
-* xapian-check: Fix chert database check that first docid in each doclength
-  chunk is more than the last docid in the previous chunk - previously this
-  didn't actually work.
+* xapian-check:
 
-* xapian-check: Fix database check not to falsely report "position table: Junk
-  after position data" whenever there are 7 unused bits (7 is OK, *more* than 7
-  isn't).
+  + Fix chert database check that first docid in each doclength chunk is more
+    than the last docid in the previous chunk - previously this didn't actually
+    work.
+
+  + Fix database check not to falsely report "position table: Junk after
+    position data" whenever there are 7 unused bits (7 is OK, *more* than 7
+    isn't).
+
+  + Fix to report block numbers correctly for links within the B-tree.
+
+  + If the METAINFO key is missing, only report it once per table.
+
+  + Fix database consistency checking to always open all the tables at the same
+    revision - not doing this could lead to false errors being reported after a
+    commit interrupted by the process being killed or the machine crashing.
+    Reported by Joey Hess in http://bugs.debian.org/724610
 
 examples:
 
