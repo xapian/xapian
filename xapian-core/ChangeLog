@@ -1,3 +1,10 @@
+Mon Oct 07 01:07:00 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Enable -fshow-column for GCC - things like vim's
+	  quickfix mode will then jump to the appropriate column for a
+	  compiler error or warning, not just the appropriate line.
+
 Fri Oct 04 08:58:04 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
