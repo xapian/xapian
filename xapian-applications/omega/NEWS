@@ -1,3 +1,43 @@
+ 17553       olly Sun Oct 06 08:17:57 GMT 2013  Olly Betts <olly@survex.com>
+
+Omega 1.2.16 (2013-10-08):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Fix off-by-one when finding documents to delete which would sometimes cause
+    omindex to fail to delete documents from the database when they weren't
+    refound during an index update.
+
+  + Decode dates in xlsx files.
+
+  + Ignore extensions 'adm', 'cur', and 'ico' by default.
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+* Compress source tarballs with xz instead of gzip.
+
+* configure: Sync compiler warning flag machinery against xapian-core.  The
+  changes are special handling for clang, passing -fshow-column where
+  supported, and handling for new warning flags in GCC 4.6 and 4.7.
+
+portability:
+
+packaging:
+
 Omega 1.2.15 (2013-04-16):
 
 omega:
