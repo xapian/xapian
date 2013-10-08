@@ -1,3 +1,47 @@
+ 17544       olly Fri Oct 04 11:29:24 GMT 2013  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.16 (2013-10-08):
+
+Documentation:
+
+General:
+
+* Compress source tarballs with xz instead of gzip.
+
+* configure: Handle git snapshot naming.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+* symboltest.t: Pass $CPPFLAGS and $CXXFLAGS from the environment through to
+  the sub-build, fixing failure when built with CPPFLAGS=-D_GLIBCXX_DEBUG.
+
+PHP:
+
+* smoketest.php: If running under PHP >= 5.4, skip the tests we know will fail
+  with a message explaining this.
+
+Python:
+
+* Provide bindings version in xapian.__version__ as per PEP 396.  (see #346)
+
+* pythontest.py: Fix testcase checking we get an exception from using
+  non-random-access iterators after then have advanced - previously these
+  didn't actually test as fully as intended.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.15 (2013-04-16):
 
 General:
