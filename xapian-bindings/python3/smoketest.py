@@ -51,7 +51,7 @@ def test_all():
     v = "%d.%d.%d" % (xapian.major_version(),
                       xapian.minor_version(),
                       xapian.revision())
-    v2 = xapian.version_string().decode('utf-8')
+    v2 = xapian.version_string()
     expect(v2, v, "Unexpected version output")
 
     # A regexp check would be better, but seems to create a bogus "leak" of -1

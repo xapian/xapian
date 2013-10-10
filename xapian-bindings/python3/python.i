@@ -166,6 +166,11 @@ class XapianSWIG_Python_Thread_Allow {
     $input = PyBytes_FromString($1_name);
 %}
 
+// Make xapian.version_string() return a Unicode string.
+%typemap(out) const char * version_string %{
+    $result = PyUnicode_FromString($1);
+%}
+
 // Parameters where passing Unicode makes no sense.
 %typemap(typecheck) const std::string & serialised %{
     $1 = PyBytes_Check($input) ? 1 : 0;
