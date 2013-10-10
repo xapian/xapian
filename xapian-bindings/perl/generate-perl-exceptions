@@ -1,6 +1,6 @@
 # generate-perl-exceptions: generate error handling code for Perl bindings
 my $copyright = <<'END';
- Copyright (C) 2003,2004,2006,2007,2008,2011,2012 Olly Betts
+ Copyright (C) 2003,2004,2006,2007,2008,2011,2012,2013 Olly Betts
  Copyright (C) 2007 Lemur Consulting Ltd
  Copyright (C) 2007 Richard Boulton
 
@@ -65,9 +65,18 @@ for (reverse @allclasses) {
     my ($class, $parent, $comment) = split /\t/, $_, 3;
     print FD <<"EOF";
     } catch (const Xapian::$class &e) {
-	SV * errsv = get_sv("@", TRUE);
-	sv_setref_pv(errsv, "Search::Xapian::$class", (void *) new Xapian::$class(e));
+	void * p = (void *) new Xapian::$class(e);
+#ifdef croak_sv
+	SV * sv = sv_newmortal();
+	sv_setref_pv(sv, "Search::Xapian::$class", p);
+	croak_sv(sv);
+#elif defined ERRSV
+	sv_setref_pv(ERRSV, "Search::Xapian::$class", p);
 	croak(Nullch);
+#else
+	sv_setref_pv(get_sv("@", TRUE), "Search::Xapian::$class", p);
+	croak(Nullch);
+#endif
 EOF
 }
 

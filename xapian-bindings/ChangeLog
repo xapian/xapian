@@ -1,3 +1,7 @@
+Tue Oct 08 02:29:28 GMT 2013  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Use croak_sv() or ERRSV if defined.
+
 Sun Oct 06 23:48:07 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't prefer ruby1.8 to ruby when looking for a ruby
