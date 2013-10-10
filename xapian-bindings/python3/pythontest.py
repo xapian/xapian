@@ -71,6 +71,13 @@ def setup_database():
     db.add_document(doc)
 
     expect(db.get_doccount(), 5)
+
+    # Test that str is rejected by sortable_unserialise().
+    try:
+        xapian.sortable_unserialise("unicode")
+    except TypeError as e:
+        expect(str(e), 'expected bytes, str found')
+
     return db
 
 def test_exception_base():

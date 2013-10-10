@@ -166,6 +166,18 @@ class XapianSWIG_Python_Thread_Allow {
     $input = PyBytes_FromString($1_name);
 %}
 
+// Parameters where passing Unicode makes no sense.
+%typemap(typecheck) const std::string & serialised %{
+    $1 = PyBytes_Check($input) ? 1 : 0;
+%}
+%typemap(in) const std::string & serialised (std::string bytes) {
+    char * p;
+    Py_ssize_t len;
+    if (PyBytes_AsStringAndSize($input, &p, &len) < 0) SWIG_fail;
+    bytes.assign(p, len);
+    $1 = &bytes;
+}
+
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
 %typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {

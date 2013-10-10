@@ -1,3 +1,8 @@
+Thu Oct 10 23:47:18 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/python.i,python3/pythontest.py: Make unserialise methods and
+	  functions only accept bytes.  (see #346)
+
 Tue Oct 08 02:29:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* perl/generate-perl-exceptions: Use croak_sv() or ERRSV if defined.
