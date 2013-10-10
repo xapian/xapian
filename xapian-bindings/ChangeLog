@@ -1,3 +1,7 @@
+Thu May 14 10:52:53 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/generate-perl-exceptions: Use croak_sv() or ERRSV if defined.
+
 Thu May 14 10:32:12 GMT 2015  Olly Betts <olly@survex.com>
 
 	* lua/generate-lua-exceptions,perl/generate-perl-exceptions,
