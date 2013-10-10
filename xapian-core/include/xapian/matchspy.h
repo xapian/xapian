@@ -135,12 +135,12 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  method in your subclass as shown here:
      *  http://trac.xapian.org/ticket/554#comment:1
      *
-     *  @param s	A string containing the serialised results.
+     *  @param serialised	A string containing the serialised results.
      *  @param context	Registry object to use for unserialisation to permit
      *			MatchSpy subclasses with sub-MatchSpy objects to be
      *			implemented.
      */
-    virtual MatchSpy * unserialise(const std::string & s,
+    virtual MatchSpy * unserialise(const std::string & serialised,
 				   const Registry & context) const;
 
     /** Serialise the results of this match spy.
@@ -161,9 +161,9 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  can use the default implementation which simply throws
      *  Xapian::UnimplementedError.
      *
-     *  @param s	A string containing the serialised results.
+     *  @param serialised	A string containing the serialised results.
      */
-    virtual void merge_results(const std::string & s);
+    virtual void merge_results(const std::string & serialised);
 
     /** Return a string describing this object.
      *
@@ -259,10 +259,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual MatchSpy * clone() const;
     virtual std::string name() const;
     virtual std::string serialise() const;
-    virtual MatchSpy * unserialise(const std::string & s,
+    virtual MatchSpy * unserialise(const std::string & serialised,
 				   const Registry & context) const;
     virtual std::string serialise_results() const;
-    virtual void merge_results(const std::string & s);
+    virtual void merge_results(const std::string & serialised);
     virtual std::string get_description() const;
 };
 

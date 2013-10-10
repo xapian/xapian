@@ -207,7 +207,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     std::string serialise() const;
 
-    static const Query unserialise(const std::string & s,
+    static const Query unserialise(const std::string & serialised,
 				   const Registry & reg = Registry());
 
     std::string get_description() const XAPIAN_PURE_FUNCTION;

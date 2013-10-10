@@ -301,9 +301,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  If you don't want to support the remote backend, you can use the
      *  default implementation which simply throws Xapian::UnimplementedError.
      *
-     *  @param s A serialised instance of this PostingSource subclass.
+     *  @param serialised A serialised instance of this PostingSource subclass.
      */
-    virtual PostingSource * unserialise(const std::string &s) const;
+    virtual PostingSource * unserialise(const std::string &serialised) const;
 
     /** Create object given string serialisation returned by serialise().
      *
@@ -320,9 +320,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  Registry object, so you do not need to implement this method unless you
      *  want to take advantage of the Registry object when unserialising.
      *
-     *  @param s A serialised instance of this PostingSource subclass.
+     *  @param serialised A serialised instance of this PostingSource subclass.
      */
-    virtual PostingSource * unserialise_with_registry(const std::string &s,
+    virtual PostingSource * unserialise_with_registry(const std::string &serialised,
 				      const Registry & registry) const;
 
     /** Set this PostingSource to the start of the list of postings.
@@ -459,7 +459,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
     ValueWeightPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    ValueWeightPostingSource * unserialise(const std::string &s) const;
+    ValueWeightPostingSource * unserialise(const std::string &serialised) const;
     void init(const Database & db_);
 
     std::string get_description() const;
@@ -507,7 +507,7 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
     DecreasingValueWeightPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    DecreasingValueWeightPostingSource * unserialise(const std::string &s) const;
+    DecreasingValueWeightPostingSource * unserialise(const std::string &serialised) const;
     void init(const Xapian::Database & db_);
 
     void next(double min_wt);
@@ -564,7 +564,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
     ValueMapPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    ValueMapPostingSource * unserialise(const std::string &s) const;
+    ValueMapPostingSource * unserialise(const std::string &serialised) const;
     void init(const Database & db_);
 
     std::string get_description() const;
@@ -616,7 +616,7 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
     FixedWeightPostingSource * clone() const;
     std::string name() const;
     std::string serialise() const;
-    FixedWeightPostingSource * unserialise(const std::string &s) const;
+    FixedWeightPostingSource * unserialise(const std::string &serialised) const;
     void init(const Database & db_);
 
     std::string get_description() const;

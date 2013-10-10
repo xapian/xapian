@@ -358,9 +358,9 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
 
     /** Create object given string serialisation returned by serialise().
      *
-     *  @param s A serialised instance of this LatLongMetric subclass.
+     *  @param serialised A serialised instance of this LatLongMetric subclass.
      */
-    virtual LatLongMetric * unserialise(const std::string & s) const = 0;
+    virtual LatLongMetric * unserialise(const std::string & serialised) const = 0;
 };
 
 /** Calculate the great-circle distance between two coordinates on a sphere.
@@ -403,7 +403,7 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     LatLongMetric * clone() const;
     std::string name() const;
     std::string serialise() const;
-    LatLongMetric * unserialise(const std::string & s) const;
+    LatLongMetric * unserialise(const std::string & serialised) const;
 };
 
 /** Posting source which returns a weight based on geospatial distance.
@@ -488,7 +488,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     std::string name() const;
     std::string serialise() const;
     LatLongDistancePostingSource *
-	    unserialise_with_registry(const std::string &s,
+	    unserialise_with_registry(const std::string &serialised,
 				      const Registry & registry) const;
     void init(const Database & db_);
 

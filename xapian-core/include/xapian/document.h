@@ -265,7 +265,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/** Unserialise a document from a string produced by serialise().
 	 */
-	static Document unserialise(const std::string &s);
+	static Document unserialise(const std::string &serialised);
 
 	/// Return a string describing this object.
 	std::string get_description() const;

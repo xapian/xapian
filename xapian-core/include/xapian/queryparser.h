@@ -783,10 +783,10 @@ std::string sortable_serialise(double value) XAPIAN_CONST_FUNCTION;
  *  which represent doubles with the precisions specified by IEEE_754, but
  *  may be a different (nearby) value on other platforms.
  *
- *  @param value	The serialised string to decode.
+ *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double sortable_unserialise(const std::string & value) XAPIAN_CONST_FUNCTION;
+double sortable_unserialise(const std::string & serialised) XAPIAN_CONST_FUNCTION;
 
 }
 

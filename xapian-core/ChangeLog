@@ -1,3 +1,8 @@
+Thu Oct 10 10:36:45 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Methods and functions which take a string to
+	  unserialise now consistently call that parameter "serialised".
+
 Mon Oct 07 04:08:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/zlib-vg.c: Fix two warnings when compiled with clang.
