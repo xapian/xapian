@@ -3,7 +3,7 @@
 # Simple command-line match decider example
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2007,2009 Olly Betts
+# Copyright (C) 2004,2007,2009,2013 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ import xapian
 # the string passed as the second command line argument.
 
 if len(sys.argv) < 4:
-    print >> sys.stderr, "Usage: %s PATH_TO_DATABASE AVOID_VALUE QUERY" % sys.argv[0]
+    print("Usage: %s PATH_TO_DATABASE AVOID_VALUE QUERY" % sys.argv[0], file=sys.stderr)
     sys.exit(1)
 
 class mymatchdecider(xapian.MatchDecider):
@@ -59,7 +59,7 @@ try:
     qp.set_database(database)
     qp.set_stemming_strategy(xapian.QueryParser.STEM_SOME)
     query = qp.parse_query(query_string)
-    print "Parsed query is: %s" % str(query)
+    print("Parsed query is: %s" % str(query))
 
     # Find the top 10 results for the query.
     enquire.set_query(query)
@@ -67,12 +67,12 @@ try:
     matches = enquire.get_mset(0, 10, None, mdecider)
 
     # Display the results.
-    print "%i results found." % matches.get_matches_estimated()
-    print "Results 1-%i:" % matches.size()
+    print("%i results found." % matches.get_matches_estimated())
+    print("Results 1-%i:" % matches.size())
 
     for m in matches:
-        print "%i: %i%% docid=%i [%s]" % (m.rank + 1, m.percent, m.docid, m.document.get_data())
+        print("%i: %i%% docid=%i [%s]" % (m.rank + 1, m.percent, m.docid, m.document.get_data()))
 
-except Exception, e:
-    print >> sys.stderr, "Exception: %s" % str(e)
+except Exception as e:
+    print("Exception: %s" % str(e), file=sys.stderr)
     sys.exit(1)

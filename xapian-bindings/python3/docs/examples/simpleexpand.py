@@ -3,7 +3,7 @@
 # Simple example script demonstrating query expansion.
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2006,2007,2012 Olly Betts
+# Copyright (C) 2004,2006,2007,2012,2013 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ import xapian
 
 # We require at least two command line arguments.
 if len(sys.argv) < 3:
-    print >> sys.stderr, "Usage: %s PATH_TO_DATABASE QUERY [-- [DOCID...]]" % sys.argv[0]
+    print("Usage: %s PATH_TO_DATABASE QUERY [-- [DOCID...]]" % sys.argv[0], file=sys.stderr)
     sys.exit(1)
 
 try:
@@ -63,18 +63,18 @@ try:
     query = qp.parse_query(query_string)
 
     if not query.empty():
-        print "Parsed query is: %s" % str(query)
+        print("Parsed query is: %s" % str(query))
 
         # Find the top 10 results for the query.
         enquire.set_query(query)
         matches = enquire.get_mset(0, 10, reldocs)
 
         # Display the results.
-        print "%i results found." % matches.get_matches_estimated()
-        print "Results 1-%i:" % matches.size()
+        print("%i results found." % matches.get_matches_estimated())
+        print("Results 1-%i:" % matches.size())
 
         for m in matches:
-            print "%i: %i%% docid=%i [%s]" % (m.rank + 1, m.percent, m.docid, m.document.get_data())
+            print("%i: %i%% docid=%i [%s]" % (m.rank + 1, m.percent, m.docid, m.document.get_data()))
 
     # Put the top 5 (at most) docs into the rset if rset is empty
     if reldocs.empty():
@@ -87,12 +87,10 @@ try:
 
     # Get the suggested expand terms
     eterms = enquire.get_eset(10, reldocs)
-    print "%i suggested additional terms" % eterms.size()
-    k = eterms.begin()
-    while k != eterms.end():
-        print "%s: %f" % (k.get_term(), k.get_weight())
-        k.next()
+    print("%i suggested additional terms" % eterms.size())
+    for k in eterms:
+        print("%s: %f" % (k.term, k.weight))
 
 except Exception, e:
-    print >> sys.stderr, "Exception: %s" % str(e)
+    print("Exception: %s" % str(e), file=sys.stderr)
     sys.exit(1)

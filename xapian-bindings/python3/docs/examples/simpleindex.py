@@ -3,7 +3,7 @@
 # Index each paragraph of a text file as a Xapian document.
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2007 Olly Betts
+# Copyright (C) 2004,2007,2013 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,9 +24,8 @@ import sys
 import xapian
 import string
 
-
 if len(sys.argv) != 2:
-    print >> sys.stderr, "Usage: %s PATH_TO_DATABASE" % sys.argv[0]
+    print("Usage: %s PATH_TO_DATABASE" % sys.argv[0], file=sys.stderr)
     sys.exit(1)
 
 try:
@@ -60,6 +59,6 @@ try:
     except StopIteration:
         pass
 
-except Exception, e:
-    print >> sys.stderr, "Exception: %s" % str(e)
+except Exception as e:
+    print("Exception: %s" % str(e), file=sys.stderr)
     sys.exit(1)

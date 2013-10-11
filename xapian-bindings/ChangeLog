@@ -1,3 +1,7 @@
+Fri Oct 11 08:29:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/docs/examples/: Update syntax of examples for Python3.
+
 Fri Oct 11 07:37:59 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simpleexpand.py: Use Pythonic iteration over
