@@ -1,3 +1,8 @@
+Fri Oct 11 07:37:59 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py: Use Pythonic iteration over
+	  the ESet.
+
 Fri Oct 11 05:50:45 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/docs/index.rst: Strip trailing whitespace.
