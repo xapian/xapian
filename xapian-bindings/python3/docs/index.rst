@@ -24,7 +24,7 @@ showing how to use the Python bindings:
 `simpleindex.py <examples/simpleindex.py>`_,
 `simplesearch.py <examples/simplesearch.py>`_,
 `simpleexpand.py <examples/simpleexpand.py>`_.
-There's also 
+There's also
 `simplematchdecider.py <examples/simplematchdecider.py>`_
 which shows how to define a MatchDecider in Python.
 
@@ -198,7 +198,7 @@ follows::
   class mymatchdecider(xapian.MatchDecider):
     def __init__(self):
       xapian.MatchDecider.__init__(self)
-  
+
     def __call__(self, doc):
       return 1
 
