@@ -1,3 +1,9 @@
+Fri Oct 11 10:02:41 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* python/docs/examples/simpleexpand.py: Use Pythonic iteration over
+	  the ESet.
+
 Tue Oct 08 01:03:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
