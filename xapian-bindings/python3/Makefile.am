@@ -28,6 +28,7 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
+	docs/index.rst \
 	$(TESTS) $(BUILT_SOURCES)
 
 pkgpylibdir = @PYTHON3_LIB@/xapian
@@ -150,3 +151,10 @@ dist_exampledata_DATA = \
 
 docdatadir = $(docdir)/python
 dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+BUILT_SOURCES += docs/index.html
+
+.rst.html:
+	$(RST2HTML) --exit-status=warning $< $@
+endif

@@ -1,3 +1,9 @@
+Fri Oct 11 05:14:21 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,python3/Makefile.am,python3/docs/.gitignore,
+	  python3/docs/index.html,python3/docs/index.rst: Overhaul Python3
+	  documentation and convert it to reStructured Text. (see #346)
+
 Thu Oct 10 23:57:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/python.i,python3/smoketest.py: Make xapian.version_string()

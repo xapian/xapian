@@ -160,6 +160,13 @@ test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
 
+if test yes = "$enable_documentation" ; then
+  dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
+  dnl Also look for rst2html.py, which archlinux reportedly installs it as.
+  AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
+fi
+
 if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Check for swig - this does most of the work for the bindings.
   dnl AC_PATH_PROGS only honours an already set SWIG if it's a full
