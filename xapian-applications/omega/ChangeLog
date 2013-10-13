@@ -1,3 +1,9 @@
+Sun Oct 13 23:20:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Group-readable files which are owner-readable but not
+	  world-readable should still get a "readable by owner" term added.
+	  Reported by Emmanuel Garette.
+
 Fri Sep 27 00:27:47 GMT 2013  Olly Betts <olly@survex.com>
 
 	* diritor.cc: Handle ENOENT, ENOTDIR and EACCES from readdir().

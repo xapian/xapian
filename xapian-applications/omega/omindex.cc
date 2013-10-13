@@ -943,7 +943,6 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    const char * group = d.get_group();
 	    if (group) {
 		newdocument.add_boolean_term(string("I#") + group);
-		inc_tag_added = true;
 	    }
 	}
 	const char * owner = d.get_owner();
