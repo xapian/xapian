@@ -1,3 +1,7 @@
+Mon Oct 14 09:59:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* ruby/generate-rdoc-stubs: Skip internal classes.
+
 Fri Oct 11 08:29:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/docs/examples/: Update syntax of examples for Python3.
