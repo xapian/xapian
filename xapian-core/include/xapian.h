@@ -100,13 +100,13 @@ namespace Xapian {
 #ifndef SWIG
 namespace Internal {
 
-/** @internal */
+/** @private @internal */
 struct vinfo {
     int major, minor, revision;
     char str[8];
 };
 
-/** @internal */
+/** @private @internal */
 XAPIAN_VISIBILITY_DEFAULT
 const struct vinfo * XAPIAN_NOTHROW(get_vinfo_()) XAPIAN_CONST_FUNCTION;
 

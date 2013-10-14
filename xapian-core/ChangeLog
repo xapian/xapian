@@ -1,3 +1,8 @@
+Mon Oct 14 09:45:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian.h: Mark vinfo struct and get_vinfo_() function as
+	  @private for doxygen.
+
 Thu Oct 10 10:36:45 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian/: Methods and functions which take a string to
