@@ -245,8 +245,8 @@ typedef enum {
 } category;
 
 namespace Internal {
-    /** @internal Extract the information about a character from the Unicode
-     *  character tables.
+    /** @private @internal Extract the information about a character from the
+     *  Unicode character tables.
      *
      *  Characters outside of the Unicode range (i.e. ch >= 0x110000) are
      *  treated as UNASSIGNED with no case variants.
@@ -254,16 +254,18 @@ namespace Internal {
     XAPIAN_VISIBILITY_DEFAULT
     int get_character_info(unsigned ch) XAPIAN_CONST_FUNCTION;
 
-    /** @internal Extract how to convert the case of a Unicode character from
-     *  its info.
+    /** @private @internal Extract how to convert the case of a Unicode
+     *  character from its info.
      */
     inline int get_case_type(int info) { return ((info & 0xe0) >> 5); }
 
-    /// @internal Extract the category of a Unicode character from its info.
+    /** @private @internal Extract the category of a Unicode character from its
+     *  info.
+     */
     inline category get_category(int info) { return static_cast<category>(info & 0x1f); }
 
-    /** @internal Extract the delta to use for case conversion of a character
-     *  from its info.
+    /** @private @internal Extract the delta to use for case conversion of a
+     *  character from its info.
      */
     inline int get_delta(int info) {
 	/* It's implementation defined if sign extension happens on right shift

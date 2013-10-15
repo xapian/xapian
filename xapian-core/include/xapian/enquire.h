@@ -57,10 +57,10 @@ class Weight;
 class XAPIAN_VISIBILITY_DEFAULT MSet {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
-	/// @internal Constructor for internal use.
+	/// @private @internal Constructor for internal use.
 	explicit MSet(Internal * internal_);
 
 	/// Create an empty Xapian::MSet.
@@ -438,7 +438,7 @@ class ESetIterator;
 class XAPIAN_VISIBILITY_DEFAULT ESet {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Construct an empty ESet
@@ -599,7 +599,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 	/// Class holding details of RSet
 	class Internal;
 
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Copy constructor
@@ -678,7 +678,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void operator=(const Enquire & other);
 
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/** Create a Xapian::Enquire object.
