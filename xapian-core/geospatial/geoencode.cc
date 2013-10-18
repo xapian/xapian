@@ -27,6 +27,7 @@
 #include "geoencode.h"
 
 #include <cmath>
+#include <math.h> // Needed for round().
 
 using namespace std;
 

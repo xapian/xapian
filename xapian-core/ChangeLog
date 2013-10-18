@@ -1,3 +1,7 @@
+Fri Oct 18 11:44:10 GMT 2013  Olly Betts <olly@survex.com>
+
+	* geospatial/geoencode.cc: Include <math.h> for round() (fixes #628).
+
 Tue Oct 15 03:16:04 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h,include/xapian/unicode.h: Mark internal
