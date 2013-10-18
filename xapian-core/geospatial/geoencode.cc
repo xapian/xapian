@@ -27,7 +27,7 @@
 #include "geoencode.h"
 
 #include <cmath>
-#include <math.h> // Needed for round().
+#include <math.h> // Needed for lround().
 
 using namespace std;
 
@@ -85,11 +85,11 @@ GeoEncode::encode(double lat, double lon, string & result)
     }
 
     int lat_16ths, lon_16ths;
-    lat_16ths = round((lat + 90.0) * 57600.0);
+    lat_16ths = lround((lat + 90.0) * 57600.0);
     if (lat_16ths == 0 || lat_16ths == 57600 * 180) {
 	lon_16ths = 0;
     } else {
-	lon_16ths = round(lon * 57600.0);
+	lon_16ths = lround(lon * 57600.0);
 	if (lon_16ths == 57600 * 360) {
 	    lon_16ths = 0;
 	}
@@ -180,8 +180,8 @@ GeoEncode::decode(const char * value, size_t len,
 static void
 calc_latlon_16ths(double lat, double lon, int & lat_16ths, int & lon_16ths)
 {
-    lat_16ths = round((lat + 90.0) * 57600.0);
-    lon_16ths = round(lon * 57600.0);
+    lat_16ths = lround((lat + 90.0) * 57600.0);
+    lon_16ths = lround(lon * 57600.0);
     if (lon_16ths == 57600 * 360) {
 	lon_16ths = 0;
     }

@@ -1,3 +1,9 @@
+Fri Oct 18 11:51:40 GMT 2013  Olly Betts <olly@survex.com>
+
+	* geospatial/geoencode.cc: Use lround() instead of round(), since we
+	  want the result as an int.  GCC 4.4.3 seems to optimise to use
+	  lround() anyway, but other compilers may not.
+
 Fri Oct 18 11:44:10 GMT 2013  Olly Betts <olly@survex.com>
 
 	* geospatial/geoencode.cc: Include <math.h> for round() (fixes #628).
