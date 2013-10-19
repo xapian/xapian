@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,7 +60,15 @@ FlintLock::lock(bool exclusive, string & explanation) {
     Assert(hFile == INVALID_HANDLE_VALUE);
 #ifdef __CYGWIN__
     char fnm[MAX_PATH];
+#if CYGWIN_VERSION_API_MAJOR == 0 && CYGWIN_VERSION_API_MINOR < 181
     cygwin_conv_to_win32_path(filename.c_str(), fnm);
+#else
+    if (cygwin_conv_path(CCP_POSIX_TO_WIN_A|CCP_RELATIVE, filename.c_str(),
+			 fnm, MAX_PATH) < 0) {
+	explanation = string("cygwin_conv_path failed:") + strerror(errno);
+	return UNKNOWN;
+    }
+#endif
 #else
     const char *fnm = filename.c_str();
 #endif
