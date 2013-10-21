@@ -1,3 +1,10 @@
+Mon Oct 21 01:52:12 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "In the lemon parser
+	  generator, change all hashes to unsigned to avoid potential problems
+	  with signed integer overflow."  Generated code is identical, at
+	  least on x86-64 Debian wheezy.
+
 Sat Oct 19 06:38:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Under cygwin, use cygwin_conv_path() if

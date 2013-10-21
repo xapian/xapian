@@ -10,7 +10,7 @@
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
 ** Synced with upstream:
-** http://www.sqlite.org/src/artifact/680980c7935bfa1e
+** http://www.sqlite.org/src/artifact/323e54ac86fb2393
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3434,7 +3434,7 @@ void print_stack_union(
   int maxdtlength;          /* Maximum length of any ".datatype" field. */
   char *stddt;              /* Standardized name for a datatype */
   int i,j;                  /* Loop counters */
-  int hash;                 /* For hashing the name of a type */
+  unsigned hash;            /* For hashing the name of a type */
   const char *name;         /* Name of the parser */
 
   /* Allocate and initialize types[] and allocate stddt[] */
@@ -4302,10 +4302,10 @@ int SetUnion(char *s1, char *s2)
 ** Code for processing tables in the LEMON parser generator.
 */
 
-PRIVATE int strhash(const char *x)
+PRIVATE unsigned strhash(const char *x)
 {
-  int h = 0;
-  while( *x) h = h*13 + *(x++);
+  unsigned h = 0;
+  while( *x ) h = h*13 + *(x++);
   return h;
 }
 
@@ -4377,8 +4377,8 @@ void Strsafe_init(){
 int Strsafe_insert(const char *data)
 {
   x1node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x1a==0 ) return 0;
   ph = strhash(data);
@@ -4432,7 +4432,7 @@ int Strsafe_insert(const char *data)
 ** if no such key. */
 const char *Strsafe_find(const char *key)
 {
-  int h;
+  unsigned h;
   x1node *np;
 
   if( x1a==0 ) return 0;
@@ -4543,8 +4543,8 @@ void Symbol_init(){
 int Symbol_insert(struct symbol *data, const char *key)
 {
   x2node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x2a==0 ) return 0;
   ph = strhash(key);
@@ -4600,7 +4600,7 @@ int Symbol_insert(struct symbol *data, const char *key)
 ** if no such key. */
 struct symbol *Symbol_find(const char *key)
 {
-  int h;
+  unsigned h;
   x2node *np;
 
   if( x2a==0 ) return 0;
@@ -4674,9 +4674,9 @@ PRIVATE int statecmp(struct config *a, struct config *b)
 }
 
 /* Hash a state */
-PRIVATE int statehash(struct config *a)
+PRIVATE unsigned statehash(struct config *a)
 {
-  int h=0;
+  unsigned h=0;
   while( a ){
     h = h*571 + a->rp->index*37 + a->dot;
     a = a->bp;
@@ -4742,8 +4742,8 @@ void State_init(){
 int State_insert(struct state *data, struct config *key)
 {
   x3node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x3a==0 ) return 0;
   ph = statehash(key);
@@ -4799,7 +4799,7 @@ int State_insert(struct state *data, struct config *key)
 ** if no such key. */
 struct state *State_find(struct config *key)
 {
-  int h;
+  unsigned h;
   x3node *np;
 
   if( x3a==0 ) return 0;
@@ -4829,9 +4829,9 @@ struct state **State_arrayof()
 }
 
 /* Hash a configuration */
-PRIVATE int confighash(struct config *a)
+PRIVATE unsigned confighash(struct config *a)
 {
-  int h=0;
+  unsigned h=0;
   h = h*571 + a->rp->index*37 + a->dot;
   return h;
 }
@@ -4884,8 +4884,8 @@ void Configtable_init(){
 int Configtable_insert(struct config *data)
 {
   x4node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x4a==0 ) return 0;
   ph = confighash(data);
