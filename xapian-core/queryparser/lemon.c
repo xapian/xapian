@@ -10,7 +10,7 @@
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
 ** Synced with upstream:
-** http://www.sqlite.org/src/artifact/323e54ac86fb2393
+** http://www.sqlite.org/src/artifact/796930d5fc2036c7
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3501,7 +3501,7 @@ void print_stack_union(
         break;
       }
       hash++;
-      if( hash>=arraysize ) hash = 0;
+      if( hash>=(unsigned)arraysize ) hash = 0;
     }
     if( types[hash]==0 ){
       sp->dtnum = hash + 1;

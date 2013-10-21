@@ -1,3 +1,9 @@
+Mon Oct 21 01:55:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "Fix a harmless
+	  compiler warning in lemon.c."  Generated code is identical, at least
+	  on x86-64 Debian wheezy.
+
 Mon Oct 21 01:52:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Sync change from upstream: "In the lemon parser
