@@ -250,7 +250,7 @@ Xapian::Query * newN(int op_, SV *q_) {
 	    queries.reserve(items);
 
 	    for( int i = 0; i < items; i++ ) {
-		SV **svp = av_fetch(q, i, NULL);
+		SV **svp = av_fetch(q, i, 0);
 		if( svp == NULL )
 		    croak("Unexpected NULL returned by av_fetch()");
 		SV *sv = *svp;
