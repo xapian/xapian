@@ -1,3 +1,9 @@
+Mon Oct 21 22:08:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,configure.ac: Split XAPIAN_LIBS out of XAPIAN_LDFLAGS.
+	  (fixes#626)
+
 Mon Oct 21 20:00:35 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

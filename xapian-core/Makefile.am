@@ -128,6 +128,7 @@ dist_m4data_DATA = m4-macros/xapian.m4
 libxapian_la = libxapian.la
 lib_LTLIBRARIES = libxapian.la
 libxapian_la_SOURCES = $(lib_src)
+libxapian_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_la_LDFLAGS = \
     $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 

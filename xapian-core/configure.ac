@@ -224,7 +224,9 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 XAPIAN_LDFLAGS=
+XAPIAN_LIBS=
 AC_SUBST(XAPIAN_LDFLAGS)
+AC_SUBST(XAPIAN_LIBS)
 
 AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   [
@@ -722,7 +724,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
     AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass, chert and flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
-    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+    XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
   fi
   LIBS=$SAVE_LIBS
 
@@ -743,7 +745,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass, chert and flint (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	if test x != x"$LIBS" ; then
-	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+	  XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
 	fi
       ], [
 	dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
@@ -772,7 +774,7 @@ case $enable_backend_flint$enable_backend_chert$enable_backend_brass in
 esac
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
-REMOTE_LDFLAGS=
+REMOTE_LIBS=
 if test "$enable_backend_remote" = yes ; then
   AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #ifdef __WIN32__
@@ -788,7 +790,7 @@ if test "$enable_backend_remote" = yes ; then
       dnl We need -lws2_32 for gethostbyname(), etc.  Hardcode that knowledge
       dnl here because AC_SEARCH_LIBS fails to link the test program (I think
       dnl because its prototype has the wrong calling convention).
-      REMOTE_LDFLAGS=-lws2_32
+      REMOTE_LIBS=-lws2_32
       ;;
     *djgpp* | *msdos* )
       dnl DJGPP has a dummy implementation of fork which always fails.  If
@@ -814,7 +816,7 @@ if test "$enable_backend_remote" = yes ; then
 	    dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
 	    AC_SEARCH_LIBS(gethostbyaddr, nsl, [], [enable_backend_remote=no])
 	    if test "$enable_backend_remote" = yes ; then
-	      REMOTE_LDFLAGS=$LIBS
+	      REMOTE_LIBS=$LIBS
 	    fi
 	  fi
 	fi
@@ -825,7 +827,7 @@ if test "$enable_backend_remote" = yes ; then
 
   if test "$enable_backend_remote" = yes ; then
     TYPE_SOCKLEN_T
-    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $REMOTE_LDFLAGS"
+    XAPIAN_LIBS="$XAPIAN_LIBS $REMOTE_LIBS"
   fi
 fi
 
@@ -882,7 +884,7 @@ AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
 SAVE_LIBS=$LIBS
-AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LDFLAGS="$LIBS $XAPIAN_LDFLAGS"])
+AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
 LIBS=$SAVE_LIBS
 
 AC_CHECK_FUNCS(fsync)
