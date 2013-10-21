@@ -1,3 +1,8 @@
+Mon Oct 21 22:58:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Simplify test for uuid_unparse_lower().  (see #626)
+
 Mon Oct 21 22:08:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
