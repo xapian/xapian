@@ -156,5 +156,6 @@ if DOCUMENTATION_RULES
 BUILT_SOURCES += docs/index.html
 
 .rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
 endif
