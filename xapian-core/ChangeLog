@@ -1,3 +1,7 @@
+Wed Oct 23 09:50:00 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/win32_uuid.cc: Fix mingw compiler warning.
+
 Wed Oct 23 04:19:05 GMT 2013  jiangwen jiang <jiangwen127@gmail.com>
 
 	* api/omdocument.cc,api/query.cc: Add more LOGCALL annotations.

@@ -59,7 +59,10 @@ int
 uuid_parse(const char * in, uuid_t uu)
 {
     UUID uuid;
-    if (UuidFromString((unsigned char*)in, &uuid) != RPC_S_OK)
+    // UuidFromString() requires a non-const unsigned char * pointer, though it
+    // doesn't modify the passed string.
+    unsigned char * in_ = (unsigned char *)const_cast<char *>(in);
+    if (UuidFromString(in_, &uuid) != RPC_S_OK)
 	return -1;
     uuid.Data1 = htonl(uuid.Data1);
     uuid.Data2 = htons(uuid.Data2);
