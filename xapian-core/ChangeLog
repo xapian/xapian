@@ -1,3 +1,8 @@
+Wed Oct 23 12:39:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/realtime.h: Under __WIN32__, we need safewinsock2.h for
+	  struct timeval.
+
 Wed Oct 23 10:21:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/omassert.h: If the compiler supports C++11, use

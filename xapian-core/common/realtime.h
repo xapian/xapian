@@ -36,6 +36,7 @@
 #else
 # include <sys/types.h>
 # include <sys/timeb.h>
+# include "safewinsock2.h"
 extern void xapian_sleep_milliseconds(unsigned int millisecs);
 #endif
 
