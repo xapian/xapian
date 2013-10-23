@@ -96,14 +96,12 @@ inline void to_timespec(double t, struct timespec *ts) {
 }
 #endif
 
-#ifndef __WIN32__
 /// Fill in struct timeval from number of seconds in a double.
 inline void to_timeval(double t, struct timeval *tv) {
     double secs;
     tv->tv_usec = long(std::modf(t, &secs) * 1e6);
     tv->tv_sec = long(secs);
 }
-#endif
 
 /// Sleep until the time represented by this object.
 inline void sleep(double t) {
