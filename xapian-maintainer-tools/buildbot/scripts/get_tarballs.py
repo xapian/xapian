@@ -1,22 +1,21 @@
 #!/usr/bin/env python
 
-import dircache
 import os
 import re
 import shutil
+import subprocess
 import sys
 import urllib2
-import tarfile
 
 tarball_root = "http://www.oligarchy.co.uk/xapian/trunk/"
 archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
 # FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
 
-tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.xz">')
-archivedir_re = re.compile('([a-zA-Z0-9_\.-]+)$')
-basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+git[0-9]+$')
-basename2_re = re.compile('(win32msvc)_v[0-9.]+-[0-9]+-g[0-9a-f]+$')
+tarlink_re = re.compile(r'<a href="([a-zA-Z0-9_.-]+)\.tar\.xz">')
+archivedir_re = re.compile(r'([a-zA-Z0-9_.-]+)$')
+basename_re = re.compile(r'([a-zA-Z-]+)-[0-9_.-]+git[0-9]+$')
+basename2_re = re.compile(r'(win32msvc)_v[0-9.]+-[0-9]+-g[0-9a-f]+$')
 
 def fail(msg):
     print msg
@@ -55,10 +54,10 @@ def get_archive_links(url, archives):
     max_revision, links = parsehtml(html, archives)
     return links
 
-def unpack_tarball(path, builddir):
-    tf = tarfile.open(path)
-    for member in tf.getmembers():
-        tf.extract(member, path=builddir)
+def unpack_tarball(path, link, builddir):
+    print "tar -C %s -xf %s %s" % (builddir, path, link)
+    if subprocess.call(['tar', '-C', builddir, '-xf', path, link]) != 0:
+        fail("Failed to extract tarball '%s'" % path)
 
 def get_archive(url, builddir):
     print "Getting %s" % url
@@ -86,7 +85,7 @@ links = get_archive_links(tarball_root, archive_names)
 for link in links:
     fname = get_archive(tarball_root + link + '.tar.xz', builddir)
     print "Unpacking %s" % fname
-    unpack_tarball(fname, builddir)
+    unpack_tarball(fname, link, builddir)
     m = archivedir_re.match(link)
     archivedir = os.path.join(builddir, m.group(1))
     m = basename_re.match(link)
