@@ -1,3 +1,8 @@
+Wed Oct 23 10:21:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/omassert.h: If the compiler supports C++11, use
+	  static_assert to implement CompileTimeAssert.
+
 Wed Oct 23 10:02:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/realtime.h,net/tcpclient.cc: Fix mingw build errors.
