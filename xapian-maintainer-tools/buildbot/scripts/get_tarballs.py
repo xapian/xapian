@@ -55,8 +55,12 @@ def get_archive_links(url, archives):
     return links
 
 def unpack_tarball(path, link, builddir):
-    print "tar -C %s -xf %s %s" % (builddir, path, link)
-    if subprocess.call(['tar', '-C', builddir, '-xf', path, link]) != 0:
+    try:
+        xz = subprocess.Popen(['xz', '-dc', path], stdout=subprocess.PIPE)
+    except OSError:
+        xz = subprocess.Popen(['lzma', '-dc', path], stdout=subprocess.PIPE)
+    tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=xz.stdout)
+    if tar.wait() != 0:
         fail("Failed to extract tarball '%s'" % path)
 
 def get_archive(url, builddir):
