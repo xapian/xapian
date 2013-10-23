@@ -1,3 +1,8 @@
+Wed Oct 23 20:00:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/realtime.h: Rework RealTime::to_timeval() under __WIN32__ to
+	  avoid having to pull in safewinsock2.h,
+
 Wed Oct 23 12:39:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/realtime.h: Under __WIN32__, we need safewinsock2.h for

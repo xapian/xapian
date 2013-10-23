@@ -36,7 +36,6 @@
 #else
 # include <sys/types.h>
 # include <sys/timeb.h>
-# include "safewinsock2.h"
 extern void xapian_sleep_milliseconds(unsigned int millisecs);
 #endif
 
@@ -97,12 +96,22 @@ inline void to_timespec(double t, struct timespec *ts) {
 }
 #endif
 
+#ifndef __WIN32__
 /// Fill in struct timeval from number of seconds in a double.
 inline void to_timeval(double t, struct timeval *tv) {
     double secs;
     tv->tv_usec = long(std::modf(t, &secs) * 1e6);
     tv->tv_sec = long(secs);
 }
+#else
+// Use a macro to avoid having to pull in winsock2.h just for struct timeval.
+#define to_timeval(T, TV) to_timeval_((T), (TV)->tv_sec, (TV)->tv_usec)
+inline void to_timeval_(double t, long & tv_sec, long & tv_usec) {
+    double secs;
+    tv_usec = long(std::modf(t, &secs) * 1e6);
+    tv_sec = long(secs);
+}
+#endif
 
 /// Sleep until the time represented by this object.
 inline void sleep(double t) {
