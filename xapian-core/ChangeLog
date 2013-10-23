@@ -1,3 +1,7 @@
+Wed Oct 23 04:19:05 GMT 2013  jiangwen jiang <jiangwen127@gmail.com>
+
+	* api/omdocument.cc,api/query.cc: Add more LOGCALL annotations.
+
 Tue Oct 22 03:09:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Note we now use doxygen 1.8.5 for 1.3.x snapshots and

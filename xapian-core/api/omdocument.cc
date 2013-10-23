@@ -288,6 +288,7 @@ Xapian::Document::Internal::get_value(Xapian::valueno slot) const
 string
 Xapian::Document::Internal::get_data() const
 {
+    LOGCALL(DB, string, "Xapian::Document::Internal::get_data", NO_ARGS);
     if (data_here) return data;
     if (!database.get()) return string();
     return do_get_data();
