@@ -430,6 +430,9 @@ AC_SEARCH_LIBS(timer_create, rt,
     AC_DEFINE(HAVE_TIMER_CREATE, 1,[Define to 1 if you have the 'timer_create' function.])])
 LIBS=$SAVE_LIBS
 
+dnl Used by tests/soaktest/soaktest.cc
+AC_CHECK_FUNCS([srandom random])
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
