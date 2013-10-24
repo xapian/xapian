@@ -8,6 +8,7 @@ import sys
 import urllib2
 
 tarball_root = "http://www.oligarchy.co.uk/xapian/trunk/"
+tarball_uncompressed_root = "http://www.oligarchy.co.uk/dexz/?"
 archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
 # FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
@@ -55,11 +56,13 @@ def get_archive_links(url, archives):
     return links
 
 def unpack_tarball(path, link, builddir):
-    try:
+    if path.endswith('.xz'):
         xz = subprocess.Popen(['xz', '-dc', path], stdout=subprocess.PIPE)
-    except OSError:
-        xz = subprocess.Popen(['lzma', '-dc', path], stdout=subprocess.PIPE)
-    tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=xz.stdout)
+        tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=xz.stdout)
+    else:
+        # Pipe the file in on stdin to avoid having to juggle 'path' being relative
+        # vs. changing directory to builddir to extract.
+        tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=open(path, 'r'))
     if tar.wait() != 0:
         fail("Failed to extract tarball '%s'" % path)
 
@@ -68,7 +71,11 @@ def get_archive(url, builddir):
     fd = urllib2.urlopen(url)
     data = fd.read()
     fd.close()
-    fnames = urllib2.urlparse.urlparse(url)[2].split('/')
+    urlbits = urllib2.urlparse.urlparse(url)
+    path = urlbits[4]
+    if path == '':
+        path = urlbits[2]
+    fnames = path.split('/')
     while len(fnames) > 1 and fnames[-1] == '':
         del fnames[-1]
     fname = fnames[-1]
@@ -85,9 +92,18 @@ def clear_build_dir(dir):
 
 clear_build_dir(builddir)
 
+have_xz = True
+try:
+    xz = subprocess.Popen(['xz', '--help'], stdout=open('/dev/null', 'w'))
+except OSError:
+    have_xz = False
+
 links = get_archive_links(tarball_root, archive_names)
 for link in links:
-    fname = get_archive(tarball_root + link + '.tar.xz', builddir)
+    if have_xz:
+        fname = get_archive(tarball_root + link + '.tar.xz', builddir)
+    else:
+        fname = get_archive(tarball_uncompressed_root + link + '.tar', builddir)
     print "Unpacking %s" % fname
     unpack_tarball(fname, link, builddir)
     m = archivedir_re.match(link)
