@@ -1,3 +1,7 @@
+Thu Oct 24 01:23:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't unset CC as it's used by libtool under mingw.
+
 Thu Oct 24 01:17:07 GMT 2013  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Fix mingw build error.

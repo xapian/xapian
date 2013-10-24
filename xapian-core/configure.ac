@@ -192,16 +192,18 @@ if test no = "$xo_cv_cxx_works" ; then
   fi
 fi
 
+dnl We don't use a C compiler to compile Xapian's code, but on some platforms
+dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
+dnl build auxiliary tools like snowball and lemon.
+AC_PROG_CC
+
 dnl We want a non-cross-compiling C compiler for building lemon with.
 if test -z "$CC_FOR_BUILD" ; then
-  AC_PROG_CC
   if test yes = "$cross_compiling"; then
     CC_FOR_BUILD=cc
   else
     CC_FOR_BUILD="$CC"
   fi
-  dnl Unset CC to make sure we don't accidentally use it.
-  unset CC
 fi
 AC_ARG_VAR(CC_FOR_BUILD, [C compiler command for native compilation (needed to compile build tools during cross-builds)])
 
