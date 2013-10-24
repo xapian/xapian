@@ -1,3 +1,7 @@
+Thu Oct 24 01:17:07 GMT 2013  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Fix mingw build error.
+
 Thu Oct 24 01:00:18 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/omassert.h: Suppress "unused local typedef" warnings from
