@@ -1,3 +1,8 @@
+Thu Oct 24 02:11:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Need cstdlib for free
+	  under mingw.
+
 Thu Oct 24 02:11:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/api_replicate.cc,tests/queryparsertest.cc,
