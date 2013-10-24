@@ -307,8 +307,8 @@ END
     swig_origin_url=${swig_origin_url}swig/swig.git
     handle_git_external swig b0b8d4c87e0077baccf770441768f5ad3b15dcd3 "$swig_origin_url"
 
-    # Equivalent to r17084 in the Xapian SVN tree:
-    handle_git_external xapian-applications/omega/.common.git d81afb542ab398da2a7d71c677190b7725b8b622 .
+    # Equivalent to r17604 in the Xapian SVN tree:
+    handle_git_external xapian-applications/omega/.common.git 82bd9f6fac07bcfa4eaddb805cce8586b0be85e8 .
     ln -sf .common.git/xapian-core/common xapian-applications/omega/common
       
     # Equivalent to r16320 in the Xapian SVN tree:
