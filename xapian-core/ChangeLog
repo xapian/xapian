@@ -1,3 +1,9 @@
+Thu Oct 24 02:11:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/api_replicate.cc,tests/queryparsertest.cc,
+	  tests/termgentest.cc: Probe for _putenv_s() in configure as mingw
+	  doesn't provide it.
+
 Thu Oct 24 01:23:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't unset CC as it's used by libtool under mingw.

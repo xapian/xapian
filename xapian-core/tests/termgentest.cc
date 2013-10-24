@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -844,7 +844,7 @@ static const test_desc tests[] = {
 int main(int argc, char **argv)
 try {
     // FIXME: It would be better to test with and without XAPIAN_CJK_NGRAM set.
-#ifdef __WIN32__
+#ifdef HAVE__PUTENV_S
     _putenv_s("XAPIAN_CJK_NGRAM", "1");
 #elif defined HAVE_SETENV
     setenv("XAPIAN_CJK_NGRAM", "1", 1);

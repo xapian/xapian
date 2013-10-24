@@ -441,8 +441,17 @@ AC_TRY_COMPILE([#include <setjmp.h>],
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
-dnl Used by tests/api_replicate.cc (Solaris < 10 only has putenv()):
-AC_CHECK_FUNCS([setenv])
+
+dnl Used by tests/api_replicate.cc, tests/queryparsertest.cc and
+dnl tests/termgentest.cc.
+dnl
+dnl Solaris < 10 only has putenv().
+dnl
+dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
+dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
+dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
+dnl on __WIN32__ being defined.
+AC_CHECK_FUNCS([setenv _putenv_s])
 
 dnl Check for a more efficient way of closing fds during daemonisation.
 dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
