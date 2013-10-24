@@ -1,3 +1,8 @@
+Thu Oct 24 01:00:18 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/omassert.h: Suppress "unused local typedef" warnings from
+	  GCC 4.8.
+
 Wed Oct 23 20:00:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* common/realtime.h: Rework RealTime::to_timeval() under __WIN32__ to
