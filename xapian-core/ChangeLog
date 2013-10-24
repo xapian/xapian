@@ -1,3 +1,8 @@
+Thu Oct 24 02:34:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* common/safewindows.h: Define WINVER to 0x0500 if not otherwise set,
+	  so we get new interfaces like MEMORYSTATUSEX under mingw.
+
 Thu Oct 24 02:11:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc: Need cstdlib for free
