@@ -1,3 +1,8 @@
+Thu Oct 31 12:52:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/win32_uuid.cc: Fix mingw compiler warning.
+
 Thu Oct 31 12:39:03 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
