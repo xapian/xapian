@@ -1,6 +1,6 @@
- 17544       olly Fri Oct 04 11:29:24 GMT 2013  Olly Betts <olly@survex.com>
+ 17584       olly Mon Oct 21 20:59:58 GMT 2013  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.16 (2013-10-08):
+Xapian-bindings 1.2.16 (2013-10-31):
 
 Documentation:
 
@@ -22,6 +22,9 @@ Lua:
 
 Perl:
 
+* Pass 0 instead of NULL for non-pointer parameter to av_fetch (spotted due to
+  GCC 4.7 warning).
+
 * symboltest.t: Pass $CPPFLAGS and $CXXFLAGS from the environment through to
   the sub-build, fixing failure when built with CPPFLAGS=-D_GLIBCXX_DEBUG.
 
@@ -33,6 +36,8 @@ PHP:
 Python:
 
 * Provide bindings version in xapian.__version__ as per PEP 396.  (see #346)
+
+* python/docs/examples/simpleexpand.py: Use Pythonic iteration over the ESet.
 
 * pythontest.py: Fix testcase checking we get an exception from using
   non-random-access iterators after then have advanced - previously these
