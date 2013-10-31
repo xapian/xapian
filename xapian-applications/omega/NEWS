@@ -1,6 +1,6 @@
- 17553       olly Sun Oct 06 08:17:57 GMT 2013  Olly Betts <olly@survex.com>
+ 17572       olly Sun Oct 13 23:25:11 GMT 2013  Olly Betts <olly@survex.com>
 
-Omega 1.2.16 (2013-10-08):
+Omega 1.2.16 (2013-10-31):
 
 general:
 
@@ -17,6 +17,9 @@ indexers:
   + Decode dates in xlsx files.
 
   + Ignore extensions 'adm', 'cur', and 'ico' by default.
+
+  + Group-readable files which are owner-readable but not world-readable should
+    still get a "readable by owner" term added.  Reported by Emmanuel Garette.
 
 * scriptindex:
 
