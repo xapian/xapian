@@ -1,6 +1,6 @@
- 17556       olly Mon Oct 07 01:07:00 GMT 2013  Olly Betts <olly@survex.com>
+ 17586       olly Mon Oct 21 22:58:50 GMT 2013  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.16 (2013-10-07):
+Xapian-core 1.2.16 (2013-10-31):
 
 API:
 
@@ -56,6 +56,10 @@ inmemory backend:
 build system:
 
 * Compress source tarballs with xz instead of gzip.
+
+* Split XAPIAN_LIBS out of XAPIAN_LDFLAGS so that -l flags for libraries
+  configure detects are needed appear after -L flags specified by the user
+  that may be needed to find such libraries.  (fixes#626)
 
 * XO_LIB_XAPIAN now handles the user specifying a relative path in
   XAPIAN_CONFIG, e.g.: "./configure XAPIAN_CONFIG=../xapian-core/xapian-config"
@@ -116,6 +120,8 @@ portability:
 
 * configure: clang doesn't support -Wstrict-null-sentinel or -Wlogical-op, so
   don't pass it these options.
+
+* tests/zlib-vg.c: Fix two warnings when compiled with clang.
 
 * Fix failure when built with -D_GLIBCXX_DEBUG - we were modifying the top()
   element of a heap before calling pop(), such that the heap comparison
