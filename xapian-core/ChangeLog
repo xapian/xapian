@@ -1,3 +1,11 @@
+Thu Oct 31 12:39:03 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/flint_lock.cc: Under cygwin, use cygwin_conv_path() if
+	  using a new enough cygwin version, rather than the now deprecated
+	  cygwin_conv_to_win32_path().  Reported by "Haroogan" on the
+	  xapian-devel mailing list.
+
 Thu Oct 31 12:30:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
