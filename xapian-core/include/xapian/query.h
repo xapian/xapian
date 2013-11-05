@@ -110,6 +110,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	OP_SYNONYM = 13
     };
 
+    /* type can also be OP_* */
+    enum type {
+	LEAF_TERM = 100,
+	LEAF_POSTING_SOURCE
+    };
+
     /// Default constructor.
     XAPIAN_NOTHROW(Query())
 	: internal(0) { }
@@ -209,6 +215,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     static const Query unserialise(const std::string & serialised,
 				   const Registry & reg = Registry());
+
+    /** Get the type of the top level of the query. */
+    type get_type() const XAPIAN_PURE_FUNCTION;
+
+    /** Get the number of subqueries of the top level query. */
+    size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+
+    /** Read a top level subquery.
+      *
+      * @param n  Return the n-th subquery (starting from 0) - only valid when
+      *		  0 <= n < get_num_subqueries().
+      */
+    const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const XAPIAN_PURE_FUNCTION;
 
@@ -369,6 +388,10 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
     virtual void serialise(std::string & result) const = 0;
 
     static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
+
+    virtual Query::type get_type() const XAPIAN_PURE_FUNCTION = 0;
+    virtual size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+    virtual const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
 
     virtual std::string get_description() const XAPIAN_PURE_FUNCTION = 0;
 

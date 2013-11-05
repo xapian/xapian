@@ -152,6 +152,24 @@ Query::unserialise(const string & s, const Registry & reg)
     return Query(*q);
 }
 
+Xapian::Query::type
+Query::get_type() const
+{
+    return internal->get_type();
+}
+
+size_t
+Query::get_num_subqueries() const
+{
+    return internal->get_num_subqueries();
+}
+
+const Query
+Query::get_subquery(size_t n) const
+{
+    return internal->get_subquery(n);
+}
+
 string
 Query::get_description() const
 {

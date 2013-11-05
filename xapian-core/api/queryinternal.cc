@@ -322,6 +322,18 @@ AndContext::postlist(QueryOptimiser* qopt)
 
 Query::Internal::~Internal() { }
 
+size_t
+Query::Internal::get_num_subqueries() const
+{
+    return 0;
+}
+
+const Query
+Query::Internal::get_subquery(size_t) const
+{
+    throw Xapian::InvalidArgumentError("get_subquery() not meaningful for this Query object");
+}
+
 void
 Query::Internal::gather_terms(void *) const
 {
@@ -506,6 +518,12 @@ Query::Internal::postlist_sub_xor(XorContext& ctx,
 
 namespace Internal {
 
+Query::type
+QueryTerm::get_type() const
+{
+    return Query::LEAF_TERM;
+}
+
 string
 QueryTerm::get_description() const
 {
@@ -546,6 +564,12 @@ QueryPostingSource::~QueryPostingSource()
 	delete source;
 }
 
+Query::type
+QueryPostingSource::get_type() const
+{
+    return Query::LEAF_POSTING_SOURCE;
+}
+
 string
 QueryPostingSource::get_description() const
 {
@@ -560,6 +584,24 @@ QueryScaleWeight::QueryScaleWeight(double factor, const Query & subquery_)
 {
     if (rare(scale_factor < 0.0))
 	throw Xapian::InvalidArgumentError("OP_SCALE_WEIGHT requires factor >= 0");
+}
+
+Query::type
+QueryScaleWeight::get_type() const
+{
+    return static_cast<Query::type>(Query::OP_SCALE_WEIGHT);
+}
+
+size_t
+QueryScaleWeight::get_num_subqueries() const
+{
+    return 1;
+}
+
+const Query
+QueryScaleWeight::get_subquery(size_t) const
+{
+    return subquery;
 }
 
 string
@@ -652,6 +694,12 @@ QueryValueRange::serialise(string & result) const
     result += end;
 }
 
+Query::type
+QueryValueRange::get_type() const
+{
+    return static_cast<Query::type>(Query::OP_VALUE_RANGE);
+}
+
 string
 QueryValueRange::get_description() const
 {
@@ -693,6 +741,12 @@ QueryValueLE::serialise(string & result) const
     result += limit;
 }
 
+Query::type
+QueryValueLE::get_type() const
+{
+    return static_cast<Query::type>(Query::OP_VALUE_LE);
+}
+
 string
 QueryValueLE::get_description() const
 {
@@ -728,6 +782,12 @@ QueryValueGE::serialise(string & result) const
     }
     result += encode_length(limit.size());
     result += limit;
+}
+
+Query::type
+QueryValueGE::get_type() const
+{
+    return static_cast<Query::type>(Query::OP_VALUE_GE);
 }
 
 string
@@ -889,6 +949,12 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
     RETURN(qopt->make_synonym_postlist(pl, factor));
+}
+
+const Query
+QueryBranch::get_subquery(size_t n) const
+{
+    return subqueries[n];
 }
 
 const string
