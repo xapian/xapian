@@ -1,3 +1,7 @@
+Mon Nov 04 19:06:38 GMT 2013  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Add --check-at-least option to quest.
+
 Thu Oct 24 04:38:52 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/soaktest/soaktest.cc: If srandom() and random()
