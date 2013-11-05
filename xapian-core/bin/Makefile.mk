@@ -24,6 +24,20 @@ dist_man_MANS +=\
 endif
 endif
 
+if BUILD_BACKEND_CHERT
+bin_PROGRAMS +=\
+	bin/xapian-chert-update
+
+if !MAINTAINER_NO_DOCS
+dist_man_MANS +=\
+	bin/xapian-chert-update.1
+endif
+endif
+
+bin_xapian_chert_update_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/backends/chert
+bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
+bin_xapian_chert_update_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+
 if BUILD_BACKEND_REMOTE
 bin_PROGRAMS +=\
 	bin/xapian-progsrv\
@@ -64,6 +78,9 @@ bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 if DOCUMENTATION_RULES
 bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-check $(srcdir)/bin/xapian-check.cc bin/xapian-check.1
+
+bin/xapian-chert-update.1: bin/xapian-chert-update$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-chert-update $(srcdir)/bin/xapian-chert-update.cc bin/xapian-chert-update.1
 
 bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1

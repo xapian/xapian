@@ -250,6 +250,7 @@ try {
     Xapian::Enquire enquire(db);
     enquire.set_query(query);
 
+    enquire.set_sort_by_relevance_then_value(0, true);
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
 
     cout << "MSet:" << endl;
