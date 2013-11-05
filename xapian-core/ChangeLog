@@ -1,3 +1,11 @@
+Tue Nov 05 16:28:08 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
+	  include/xapian/query.h,tests/api_query.cc: Having a separate 'type'
+	  enum seems to just make for clumsier code, so merged the LEAF_*
+	  values into the 'op' enum, add LEAF_MATCH_ALL and LEAF_MATCH_NOTHING
+	  and return when appropriate, and add test coverage.
+
 Tue Nov 05 15:20:15 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,

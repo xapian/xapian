@@ -190,3 +190,57 @@ DEFINE_TESTCASE(nonutf8termdesc1, !backend) {
 	       "Query(back\\x5cslash)");
     return true;
 }
+
+/// Test introspection on Query objects.
+DEFINE_TESTCASE(queryintro1, !backend) {
+    TEST_EQUAL(Xapian::Query::MatchAll.get_type(), Xapian::Query::LEAF_MATCH_ALL);
+    TEST_EQUAL(Xapian::Query::MatchAll.get_num_subqueries(), 0);
+    TEST_EQUAL(Xapian::Query::MatchNothing.get_type(), Xapian::Query::LEAF_MATCH_NOTHING);
+    TEST_EQUAL(Xapian::Query::MatchNothing.get_num_subqueries(), 0);
+
+    Xapian::Query q;
+    q = Xapian::Query(q.OP_AND_NOT, Xapian::Query::MatchAll, Xapian::Query("fair"));
+    TEST_EQUAL(q.get_type(), q.OP_AND_NOT);
+    TEST_EQUAL(q.get_num_subqueries(), 2);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_MATCH_ALL);
+    TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
+
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_AND);
+
+    q = Xapian::Query("foo") &~ Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_AND_NOT);
+
+    q = ~Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_AND_NOT);
+
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_OR);
+
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_XOR);
+
+    q = 1.25 * (Xapian::Query("one") | Xapian::Query("two"));
+    TEST_EQUAL(q.get_type(), q.OP_SCALE_WEIGHT);
+    TEST_EQUAL(q.get_num_subqueries(), 1);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.OP_OR);
+
+    q = Xapian::Query("one") / 2.0;
+    TEST_EQUAL(q.get_type(), q.OP_SCALE_WEIGHT);
+    TEST_EQUAL(q.get_num_subqueries(), 1);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
+
+    q = Xapian::Query(q.OP_NEAR, Xapian::Query("a"), Xapian::Query("b"));
+    TEST_EQUAL(q.get_type(), q.OP_NEAR);
+    TEST_EQUAL(q.get_num_subqueries(), 2);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
+    TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
+
+    q = Xapian::Query(q.OP_PHRASE, Xapian::Query("c"), Xapian::Query("d"));
+    TEST_EQUAL(q.get_type(), q.OP_PHRASE);
+    TEST_EQUAL(q.get_num_subqueries(), 2);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
+    TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
+
+    return true;
+}

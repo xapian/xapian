@@ -152,16 +152,18 @@ Query::unserialise(const string & s, const Registry & reg)
     return Query(*q);
 }
 
-Xapian::Query::type
+Xapian::Query::op
 Query::get_type() const
 {
+    if (!internal.get())
+	return Xapian::Query::LEAF_MATCH_NOTHING;
     return internal->get_type();
 }
 
 size_t
 Query::get_num_subqueries() const
 {
-    return internal->get_num_subqueries();
+    return internal.get() ? internal->get_num_subqueries() : 0;
 }
 
 const Query

@@ -518,10 +518,10 @@ Query::Internal::postlist_sub_xor(XorContext& ctx,
 
 namespace Internal {
 
-Query::type
+Query::op
 QueryTerm::get_type() const
 {
-    return Query::LEAF_TERM;
+    return term.empty() ? Query::LEAF_MATCH_ALL : Query::LEAF_TERM;
 }
 
 string
@@ -564,7 +564,7 @@ QueryPostingSource::~QueryPostingSource()
 	delete source;
 }
 
-Query::type
+Query::op
 QueryPostingSource::get_type() const
 {
     return Query::LEAF_POSTING_SOURCE;
@@ -586,10 +586,10 @@ QueryScaleWeight::QueryScaleWeight(double factor, const Query & subquery_)
 	throw Xapian::InvalidArgumentError("OP_SCALE_WEIGHT requires factor >= 0");
 }
 
-Query::type
+Query::op
 QueryScaleWeight::get_type() const
 {
-    return static_cast<Query::type>(Query::OP_SCALE_WEIGHT);
+    return Query::OP_SCALE_WEIGHT;
 }
 
 size_t
@@ -694,10 +694,10 @@ QueryValueRange::serialise(string & result) const
     result += end;
 }
 
-Query::type
+Query::op
 QueryValueRange::get_type() const
 {
-    return static_cast<Query::type>(Query::OP_VALUE_RANGE);
+    return Query::OP_VALUE_RANGE;
 }
 
 string
@@ -741,10 +741,10 @@ QueryValueLE::serialise(string & result) const
     result += limit;
 }
 
-Query::type
+Query::op
 QueryValueLE::get_type() const
 {
-    return static_cast<Query::type>(Query::OP_VALUE_LE);
+    return Query::OP_VALUE_LE;
 }
 
 string
@@ -784,10 +784,10 @@ QueryValueGE::serialise(string & result) const
     result += limit;
 }
 
-Query::type
+Query::op
 QueryValueGE::get_type() const
 {
-    return static_cast<Query::type>(Query::OP_VALUE_GE);
+    return Query::OP_VALUE_GE;
 }
 
 string
@@ -949,6 +949,18 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
     RETURN(qopt->make_synonym_postlist(pl, factor));
+}
+
+Xapian::Query::op
+QueryBranch::get_type() const
+{
+    return get_op();
+}
+
+size_t
+QueryBranch::get_num_subqueries() const
+{
+    return subqueries.size();
 }
 
 const Query

@@ -47,7 +47,7 @@ class QueryTerm : public Query::Internal {
 	      Xapian::termpos pos_)
 	: term(term_), wqf(wqf_), pos(pos_) { }
 
-    Xapian::Query::type get_type() const;
+    Xapian::Query::op get_type() const;
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -74,7 +74,7 @@ class QueryPostingSource : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::type get_type() const;
+    Xapian::Query::op get_type() const;
 
     std::string get_description() const;
 };
@@ -93,7 +93,7 @@ class QueryScaleWeight : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::type get_type() const;
+    Xapian::Query::op get_type() const;
     size_t get_num_subqueries() const;
     const Query get_subquery(size_t n) const;
 
@@ -117,7 +117,7 @@ class QueryValueRange : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::type get_type() const;
+    Xapian::Query::op get_type() const;
 
     std::string get_description() const;
 };
@@ -135,7 +135,7 @@ class QueryValueLE : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::type get_type() const;
+    Xapian::Query::op get_type() const;
 
     std::string get_description() const;
 };
@@ -153,7 +153,7 @@ class QueryValueGE : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::type get_type() const;
+    Xapian::Query::op get_type() const;
 
     std::string get_description() const;
 };
@@ -185,7 +185,7 @@ class QueryBranch : public Query::Internal {
 
     virtual void add_subquery(const Xapian::Query & subquery) = 0;
 
-    Xapian::Query::type get_type() const;
+    Xapian::Query::op get_type() const;
     size_t get_num_subqueries() const;
     const Query get_subquery(size_t n) const;
 

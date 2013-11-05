@@ -107,13 +107,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	OP_ELITE_SET = 10,
 	OP_VALUE_GE = 11,
 	OP_VALUE_LE = 12,
-	OP_SYNONYM = 13
-    };
+	OP_SYNONYM = 13,
 
-    /* type can also be OP_* */
-    enum type {
 	LEAF_TERM = 100,
-	LEAF_POSTING_SOURCE
+	LEAF_POSTING_SOURCE,
+	LEAF_MATCH_ALL,
+	LEAF_MATCH_NOTHING
     };
 
     /// Default constructor.
@@ -217,7 +216,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 				   const Registry & reg = Registry());
 
     /** Get the type of the top level of the query. */
-    type get_type() const XAPIAN_PURE_FUNCTION;
+    op get_type() const XAPIAN_PURE_FUNCTION;
 
     /** Get the number of subqueries of the top level query. */
     size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
@@ -389,7 +388,7 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
 
-    virtual Query::type get_type() const XAPIAN_PURE_FUNCTION = 0;
+    virtual Query::op get_type() const XAPIAN_PURE_FUNCTION = 0;
     virtual size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
     virtual const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
 
