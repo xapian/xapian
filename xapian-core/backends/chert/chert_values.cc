@@ -157,7 +157,8 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
 					    string &chunk) const
 {
     LOGCALL(DB, Xapian::docid, "ChertValueManager::get_chunk_containing_did", slot | did | chunk);
-    AutoPtr<ChertCursor> cursor(postlist_table->cursor_get());
+    if (!cursor.get())
+	cursor.reset(postlist_table->cursor_get());
     if (!cursor.get()) return 0;
 
     bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
