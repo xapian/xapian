@@ -1,2 +1,5 @@
 version=3
-http://xapian.org/download http://oligarchy.co.uk/xapian/([\d.]+)/xapian-core-\1\.tar\.gz
+# For non-development releases:
+# http://xapian.org/download http://oligarchy.co.uk/xapian/([\d.]+)/xapian-core-\1\.tar\.gz
+# For development releases:
+http://oligarchy.co.uk/xapian/([\d.]+)/xapian-core-([\d.]+)\.tar\.gz debian uupdate

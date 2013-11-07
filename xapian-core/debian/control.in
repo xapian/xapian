@@ -12,6 +12,8 @@ Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
 Section: libs
 Priority: optional
+Breaks: libxapian13-1
+Replaces: libxapian13-1
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-tools
 Description: Search engine library

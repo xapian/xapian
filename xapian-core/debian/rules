@@ -21,6 +21,9 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+# For development releases, set DEV_SERIES to the release series (e.g. 1.3)
+DEV_SERIES := 1.3
+
 # Codename we're building packages for.  For backported packages, put the
 # codename (e.g. lenny or jaunty) in debian/codename.  If that file doesn't
 # exist, the default is sid.
@@ -33,6 +36,11 @@
 # to the library by libtool.  (This isn't documented, and is system dependent,
 # so we need to check it doesn't break with future versions of libtool.)
 libxapian_soversion:=$(shell awk -F'[=:]' '($$1 == "LIBRARY_VERSION_INFO") {print $$2 - $$4}' configure.ac)
+
+ifneq ($(DEV_SERIES),)
+libxapian_soversion:=$(DEV_SERIES)-$(libxapian_soversion)
+VERSION_SUFFIX:=-$(DEV_SERIES)
+endif
 
 # For now, we don't support installation of development files for multiple
 # versions concurrently.  Incompatible ABI changes should be rare, so this
@@ -123,10 +131,16 @@ debian/control: debian/rules debian/control.in debian/compat
 	mv debian/control.tmp debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
-	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install
+	rm -f $@.tmp
+	sed 's/@VERSION_SUFFIX@/$(VERSION_SUFFIX)/' \
+	    debian/libxapianVERSION.install > $@.tmp
+	mv $@.tmp $@
 
 debian/libxapian$(libxapian_dev_soversion)-dev.install: debian/rules debian/libxapianVERSION-dev.install
-	cp -f debian/libxapianVERSION-dev.install debian/libxapian$(libxapian_dev_soversion)-dev.install
+	rm -f $@.tmp
+	sed 's/@VERSION_SUFFIX@/$(VERSION_SUFFIX)/' \
+	    debian/libxapianVERSION-dev.install > $@.tmp
+	mv $@.tmp $@
 
 configure: configure-stamp
 configure-stamp: debian/control
@@ -190,7 +204,7 @@ ifdef XAPIAN_BUILD_SSE
 endif
 
 	# Empty dependency_libs to placate luddite release goal.
-	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libxapian.la
+	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libxapian$(VERSION_SUFFIX).la
 
 	# Install the example source code
 	mkdir -p debian/tmp/usr/share/doc/xapian-examples/examples
