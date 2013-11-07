@@ -38,7 +38,7 @@ DEV_SERIES := 1.3
 libxapian_soversion:=$(shell awk -F'[=:]' '($$1 == "LIBRARY_VERSION_INFO") {print $$2 - $$4}' configure.ac)
 
 ifneq ($(DEV_SERIES),)
-libxapian_soversion:=$(DEV_SERIES)-$(libxapian_soversion)
+libxapian_soversion:=-$(DEV_SERIES)-$(libxapian_soversion)
 VERSION_SUFFIX:=-$(DEV_SERIES)
 endif
 
