@@ -1,8 +1,59 @@
-xapian-core (1.2.9-1) unstable; urgency=low
+xapian-core (1.2.15-2) unstable; urgency=low
+
+  * debian/control.in: libxapian22 - "Priority: optional" to
+    match overrides file.
+  * debian/rules: Fix target dependencies so we don't run the testsuite twice.
+  * debian/rules: Mark build-arch and build-indep as phony targets.
+  * debian/copyright: Update to include 2013.
+
+ -- Olly Betts <olly@survex.com>  Tue, 28 May 2013 10:33:34 +0000
+
+xapian-core (1.2.15-1) unstable; urgency=low
+
+  * New upstream release:
+    + Incorporates both the patches we were carrying.
+  * debian/control.in: Standards-Version: 3.9.4 (no changes required).
+  * Fix binary-arch to depend on build-arch and binary-indep to depend on
+    build-indep (previously both depended on build).
+  * Add lintian overrides for hardening-no-fortify-functions false positives.
+
+ -- Olly Betts <olly@survex.com>  Fri, 10 May 2013 10:22:12 +0000
+
+xapian-core (1.2.12-2) unstable; urgency=low
+
+  * New patch fix-db-write-lock.patch which fixes database write locking to
+    work when the lock file is already open in the same process.
+    (Closes: #695542)
+  * New patch replication-above-32GB.patch which fixes database replication to
+    handle files > 32GB.  (Closes: #695643)
+
+ -- Olly Betts <olly@survex.com>  Tue, 11 Dec 2012 04:22:04 +0000
+
+xapian-core (1.2.12-1) unstable; urgency=low
 
   * New upstream release.
+    + Checks if Qt headers have already been included and defined 'slots' as
+      a macro, and if so gives a clear error advising how to work around this
+      (previously compilation would fail with a confusing error).
+      (Closes: #651696)
+  * debian/rules: Calculate the soversion in a simpler way, using awk.
 
- -- Olly Betts <olly@survex.com>  Wed, 21 Mar 2012 10:42:18 +0000
+ -- Olly Betts <olly@survex.com>  Thu, 28 Jun 2012 07:53:22 +0000
+
+xapian-core (1.2.10-2) unstable; urgency=low
+
+  * Enable hardening flags, based on patch from Moritz Muehlenhoff.
+    (Closes: #672836)
+
+ -- Olly Betts <olly@survex.com>  Sun, 20 May 2012 11:45:04 +0000
+
+xapian-core (1.2.10-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/control.in: Standards-Version: 3.9.3 (no changes required).
+  * debian/copyright: Update copyright years.
+
+ -- Olly Betts <olly@survex.com>  Thu, 10 May 2012 03:15:27 +0000
 
 xapian-core (1.2.8-1) unstable; urgency=low
 
