@@ -1,3 +1,9 @@
+Thu Nov 07 15:30:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_positionlist.h,backends/brass/brass_version.cc:
+	  Change positionlist keys to be ordered by term first rather than
+	  docid first, which helps phrase searching significantly.
+
 Wed Nov 06 17:12:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_values.cc,backends/brass/brass_values.h,

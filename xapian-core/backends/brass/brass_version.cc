@@ -40,7 +40,8 @@
 using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define BRASS_VERSION 201103110
+#define BRASS_VERSION 201311060
+// 201311060 1.3.2 Order position table by term first
 // 201103110 1.2.5 Bump for new max changesets dbstats
 // 200912150 1.1.4 Brass debuts.
 
