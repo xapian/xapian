@@ -11,7 +11,7 @@ Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-core
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
 Section: libs
-Priority: important
+Priority: optional
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-tools
 Description: Search engine library

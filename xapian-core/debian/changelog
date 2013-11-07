@@ -1,3 +1,13 @@
+xapian-core (1.2.15-2) unstable; urgency=low
+
+  * debian/control.in: libxapian22 - "Priority: optional" to
+    match overrides file.
+  * debian/rules: Fix target dependencies so we don't run the testsuite twice.
+  * debian/rules: Mark build-arch and build-indep as phony targets.
+  * debian/copyright: Update to include 2013.
+
+ -- Olly Betts <olly@survex.com>  Tue, 28 May 2013 10:33:34 +0000
+
 xapian-core (1.2.15-1) unstable; urgency=low
 
   * New upstream release:

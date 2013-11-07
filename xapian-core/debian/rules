@@ -159,7 +159,7 @@ endif
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
-build-stamp: configure
+build-stamp: configure-stamp
 	dh_testdir
 	$(MAKE) -C build
 ifdef XAPIAN_BUILD_SSE
@@ -171,7 +171,8 @@ endif
 	touch $@
 
 install: DH_OPTIONS=
-install: build \
+install: install-stamp
+install-stamp: build-stamp \
 	 debian/libxapian$(libxapian_soversion).install \
 	 debian/libxapian$(libxapian_dev_soversion)-dev.install
 	dh_testdir
@@ -202,7 +203,7 @@ endif
 
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --fail-missing
-
+	touch $@
 
 binary: binary-arch binary-indep
 binary-indep: DH_OPTIONS=-i
@@ -253,4 +254,4 @@ clean: debian/control
 	rm -f config.sub config.guess
 	dh_clean
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
+.PHONY: maint maintclean configure build build-arch build-indep install binary binary-arch binary-indep clean
