@@ -11,7 +11,7 @@ Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-bindings
 Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-bindings
 
 Package: tclxapian
-Section: libs
+Section: interpreters
 Architecture: any
 Depends: tcl|tclsh, ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-doc

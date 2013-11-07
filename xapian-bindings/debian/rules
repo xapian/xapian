@@ -162,8 +162,10 @@ maintclean: clean
 	rm -f debian/control \
 	      debian/libxapian-ruby1.8.doc-base \
 	      debian/libxapian-ruby1.8.install \
+	      debian/libxapian-ruby1.8.postinst \
 	      debian/libxapian-ruby1.9.1.doc-base \
 	      debian/libxapian-ruby1.9.1.install \
+	      debian/libxapian-ruby1.9.1.postinst \
 	      debian/ruby-xapian.doc-base \
 	      debian/ruby-xapian.install
 
@@ -182,6 +184,12 @@ ifdef XB_RUBY_VERSIONS
 	    < debian/control-ruby-new.in >> debian/control.tmp
 	cp debian/ruby-xapian.doc-base.in debian/ruby-xapian.doc-base
 	cp debian/ruby-xapian.install.in debian/ruby-xapian.install
+	for v in $(RUBY_VERSIONS); do \
+	    sed -e "s/@PACKAGE@/libxapian-ruby$$v/" \
+		-e 's/@TARGET@/ruby-xapian/' \
+		< debian/dummy.postinst.in \
+		> debian/libxapian-ruby$$v.postinst ;\
+	done
 else
 	for v in $(RUBY_VERSIONS); do \
 	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby-old.in ;\
@@ -246,7 +254,7 @@ configure-stamp:
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
-build-stamp: configure
+build-stamp: configure-stamp
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
@@ -270,7 +278,8 @@ build-stamp: configure
 	touch $@
 
 install: DH_OPTIONS=
-install: build
+install: install-stamp
+install-stamp: build-stamp
 	dh_testdir
 	dh_testroot
 	dh_prep
@@ -314,6 +323,7 @@ endif
 
 	# Reads the '*.install' files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing $(DH_INSTALL_EXCLUDE)
+	touch $@
 
 binary: binary-arch binary-indep
 binary-arch: DH_OPTIONS=-a
@@ -366,6 +376,8 @@ binary-indep: build-indep install
 	    mkdir -p "$$d"; \
 	    ln -s ruby-xapian "$$d/libxapian-ruby$$v"; \
 	done
+	dh_fixperms
+	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
@@ -377,4 +389,4 @@ clean:
 	rm -f config.sub config.guess
 	dh_clean
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
+.PHONY: maint maintclean configure build build-arch build-indep install binary binary-arch binary-indep clean

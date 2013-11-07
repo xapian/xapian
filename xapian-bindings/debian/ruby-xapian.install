@@ -1,0 +1,5 @@
+usr/lib/ruby/vendor_ruby/1.8/xapian.rb usr/lib/ruby/vendor_ruby
+usr/lib/ruby/vendor_ruby/1.8/*-*
+usr/lib/ruby/vendor_ruby/1.9.1/*-*
+usr/share/doc/xapian-bindings-ruby1.8/ruby/* usr/share/doc/ruby-xapian
+usr/share/doc/xapian-bindings-ruby1.8/ruby/examples/*.rb usr/share/doc/ruby-xapian/examples
