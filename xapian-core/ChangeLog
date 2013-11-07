@@ -1,3 +1,8 @@
+Thu Nov 07 16:11:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Batch up positionlist changes in memory and write
+	  them out in key order.
+
 Thu Nov 07 15:30:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.h,backends/brass/brass_version.cc:

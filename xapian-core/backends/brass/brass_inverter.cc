@@ -1,7 +1,7 @@
 /** @file brass_inverter.cc
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,71 @@
 #include "brass_inverter.h"
 
 #include "brass_postlist.h"
+#include "brass_positionlist.h"
 
 #include <map>
 #include <string>
 
 using namespace std;
+
+void
+Inverter::set_positionlist(Xapian::docid did,
+			   const string & term,
+			   const string & s)
+{
+    pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
+	.first->second[did] = s;
+}
+
+void
+Inverter::delete_positionlist(Xapian::docid did,
+			      const string & term)
+{
+    set_positionlist(did, term, string());
+}
+
+bool
+Inverter::get_positionlist(Xapian::docid did,
+			   const string & term,
+			   string & s) const
+{
+    map<string, map<Xapian::docid, string> >::const_iterator i;
+    i = pos_changes.find(term);
+    if (i == pos_changes.end())
+	return false;
+    const map<Xapian::docid, string> & m = i->second;
+    map<Xapian::docid, string>::const_iterator j;
+    j = m.find(did);
+    if (j == m.end())
+	return false;
+    s = j->second;
+    return true;
+}
+
+bool
+Inverter::has_positions(const BrassPositionListTable & position_table) const
+{
+    if (pos_changes.empty())
+	return !position_table.empty();
+
+    // FIXME: Can we cheaply keep track of some things to make this more
+    // efficient?  E.g. how many sets and deletes we had in total perhaps.
+    brass_tablesize_t changes = 0;
+    map<string, map<Xapian::docid, string> >::const_iterator i;
+    for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
+	const map<Xapian::docid, string> & m = i->second;
+	map<Xapian::docid, string>::const_iterator j;
+	for (j = m.begin(); j != m.end(); ++j) {
+	    const string & s = j->second;
+	    if (!s.empty())
+		return true;
+	    ++changes;
+	}
+    }
+
+    // We have positions unless all the existing entries are removed.
+    return changes != position_table.get_entry_count();
+}
 
 void
 Inverter::flush_doclengths(BrassPostListTable & table)
@@ -82,4 +142,24 @@ Inverter::flush(BrassPostListTable & table)
 {
     flush_doclengths(table);
     flush_all_post_lists(table);
+}
+
+void
+Inverter::flush_pos_lists(BrassPositionListTable & table)
+{
+    map<string, map<Xapian::docid, string> >::const_iterator i;
+    for (i = pos_changes.begin(); i != pos_changes.end(); ++i) {
+	const string & term = i->first;
+	const map<Xapian::docid, string> & m = i->second;
+	map<Xapian::docid, string>::const_iterator j;
+	for (j = m.begin(); j != m.end(); ++j) {
+	    Xapian::docid did = j->first;
+	    const string & s = j->second;
+	    if (!s.empty())
+		table.set_positionlist(did, term, s);
+	    else
+		table.delete_positionlist(did, term);
+	}
+    }
+    pos_changes.clear();
 }

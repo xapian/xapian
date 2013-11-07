@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -1059,6 +1059,7 @@ BrassWritableDatabase::flush_postlist_changes() const
 {
     stats.write(postlist_table);
     inverter.flush(postlist_table);
+    inverter.flush_pos_lists(position_table);
 
     change_count = 0;
 }
@@ -1122,9 +1123,9 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 
 		PositionIterator pos = term.positionlist_begin();
 		if (pos != term.positionlist_end()) {
-		    position_table.set_positionlist(
-			did, tname,
-			pos, term.positionlist_end(), false);
+		    string s;
+		    position_table.pack(s, pos, term.positionlist_end());
+		    inverter.set_positionlist(did, tname, s);
 		}
 	    }
 	}
@@ -1191,7 +1192,7 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
 	termlist.next();
 	while (!termlist.at_end()) {
 	    string tname = termlist.get_termname();
-	    position_table.delete_positionlist(did, tname);
+	    inverter.delete_positionlist(did, tname);
 
 	    inverter.remove_posting(did, tname, termlist.get_wdf());
 
@@ -1303,7 +1304,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    new_doclen -= old_wdf;
 		    inverter.remove_posting(did, old_tname, old_wdf);
 		    if (pos_modified)
-			position_table.delete_positionlist(did, old_tname);
+			inverter.delete_positionlist(did, old_tname);
 		    termlist.next();
 		} else if (cmp > 0) {
 		    // Term new_tname as been added.
@@ -1316,9 +1317,9 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    if (pos_modified) {
 			PositionIterator pos = term.positionlist_begin();
 			if (pos != term.positionlist_end()) {
-			    position_table.set_positionlist(
-				did, new_tname,
-				pos, term.positionlist_end(), false);
+			    string s;
+			    position_table.pack(s, pos, term.positionlist_end());
+			    inverter.set_positionlist(did, new_tname, s);
 			}
 		    }
 		    ++term;
@@ -1340,11 +1341,22 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    if (pos_modified) {
 			PositionIterator pos = term.positionlist_begin();
 			if (pos != term.positionlist_end()) {
-			    position_table.set_positionlist(did, new_tname, pos,
-							    term.positionlist_end(),
-							    true);
+			    string s;
+			    position_table.pack(s, pos, term.positionlist_end());
+#if 0
+			    // FIXME: This isn't quite right, as there may be a
+			    // new entry pending in inverter, and if so it's
+			    // that one we should compare with (or just
+			    // suppress this shortcut if there is one).
+			    // Check if s is the same as the existing entry.
+			    string old_tag;
+			    if (position_table.get_exact_entry(key, old_tag) &&
+				s == old_tag)
+				skip_next_statement;
+#endif
+			    inverter.set_positionlist(did, new_tname, s);
 			} else {
-			    position_table.delete_positionlist(did, new_tname);
+			    inverter.delete_positionlist(did, new_tname);
 			}
 		    }
 
@@ -1463,6 +1475,12 @@ BrassWritableDatabase::term_exists(const string & tname) const
     RETURN(get_termfreq(tname) != 0);
 }
 
+bool
+BrassWritableDatabase::has_positions() const
+{
+    return inverter.has_positions(position_table);
+}
+
 LeafPostList *
 BrassWritableDatabase::open_post_list(const string& tname) const
 {
@@ -1481,6 +1499,7 @@ BrassWritableDatabase::open_post_list(const string& tname) const
     // Flush any buffered changes for this term's postlist so we can just
     // iterate from the flushed state.
     inverter.flush_post_list(postlist_table, tname);
+    inverter.flush_pos_lists(position_table);
     RETURN(new BrassPostList(ptrtothis, tname, true));
 }
 
@@ -1496,6 +1515,34 @@ BrassWritableDatabase::open_value_list(Xapian::valueno slot) const
 }
 
 TermList *
+BrassWritableDatabase::open_term_list(Xapian::docid did) const
+{
+    LOGCALL(DB, TermList *, "BrassWritableDatabase::open_term_list", did);
+    Assert(did != 0);
+    inverter.flush_pos_lists(position_table);
+    RETURN(BrassDatabase::open_term_list(did));
+}
+
+PositionList *
+BrassWritableDatabase::open_position_list(Xapian::docid did, const string & term) const
+{
+    Assert(did != 0);
+
+    AutoPtr<BrassPositionList> poslist(new BrassPositionList);
+
+    string data;
+    if (inverter.get_positionlist(did, term, data)) {
+	poslist->read_data(data);
+    } else if (!poslist->read_data(&position_table, did, term)) {
+	// As of 1.1.0, we don't check if the did and term exist - we just
+	// return an empty positionlist.  If the user really needs to know,
+	// they can check for themselves.
+    }
+
+    return poslist.release();
+}
+
+TermList *
 BrassWritableDatabase::open_allterms(const string & prefix) const
 {
     LOGCALL(DB, TermList *, "BrassWritableDatabase::open_allterms", NO_ARGS);
@@ -1504,6 +1551,7 @@ BrassWritableDatabase::open_allterms(const string & prefix) const
 	// we need to flush changes for terms with the specified prefix (but
 	// don't commit - there may be a transaction in progress).
 	inverter.flush_post_lists(postlist_table, prefix);
+	inverter.flush_pos_lists(position_table);
 	if (prefix.empty()) {
 	    // We've flushed all the posting list changes, but the document
 	    // length and stats haven't been written, so set change_count to 1.

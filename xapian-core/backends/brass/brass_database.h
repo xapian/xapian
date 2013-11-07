@@ -82,7 +82,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 
 	/** Table storing position lists.
 	 */
-	BrassPositionListTable position_table;
+	mutable BrassPositionListTable position_table;
 
 	/** Table storing term lists.
 	 */
@@ -388,9 +388,12 @@ class BrassWritableDatabase : public BrassDatabase {
 	std::string get_value_lower_bound(Xapian::valueno slot) const;
 	std::string get_value_upper_bound(Xapian::valueno slot) const;
 	bool term_exists(const string & tname) const;
+	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
+	PositionList * open_position_list(Xapian::docid did, const string & term) const;
+	TermList * open_term_list(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;

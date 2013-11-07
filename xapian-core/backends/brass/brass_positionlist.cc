@@ -34,21 +34,16 @@
 using namespace std;
 
 void
-BrassPositionListTable::set_positionlist(Xapian::docid did,
-					 const string & tname,
-					 Xapian::PositionIterator pos,
-					 const Xapian::PositionIterator &pos_end,
-					 bool check_for_update)
+BrassPositionListTable::pack(string & s,
+			     Xapian::PositionIterator pos,
+			     const Xapian::PositionIterator &pos_end)
 {
-    LOGCALL_VOID(DB, "BrassPositionListTable::set_positionlist", did | tname | pos | pos_end | check_for_update);
+    LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | pos | pos_end);
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
     vector<Xapian::termpos> poscopy(pos, pos_end);
 
-    string key = make_key(did, tname);
-
-    string s;
     pack_uint(s, poscopy.back());
 
     if (poscopy.size() > 1) {
@@ -58,13 +53,6 @@ BrassPositionListTable::set_positionlist(Xapian::docid did,
 	wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
 	swap(s, wr.freeze());
     }
-
-    if (check_for_update) {
-	string old_tag;
-	if (get_exact_entry(key, old_tag) && s == old_tag)
-	    return;
-    }
-    add(key, s);
 }
 
 Xapian::termcount
@@ -99,15 +87,13 @@ BrassPositionListTable::positionlist_count(Xapian::docid did,
 ///////////////////////////////////////////////////////////////////////////
 
 bool
-BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
-			     const string & tname)
+BrassPositionList::read_data(const string & data)
 {
-    LOGCALL(DB, bool, "BrassPositionList::read_data", table | did | tname);
+    LOGCALL(DB, bool, "BrassPositionList::read_data", data);
 
     have_started = false;
 
-    string data;
-    if (!table->get_exact_entry(BrassPositionListTable::make_key(did, tname), data)) {
+    if (data.empty()) {
 	// There's no positional information for this term.
 	size = 0;
 	last = 0;
@@ -136,6 +122,16 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     last = pos_last;
     current_pos = pos_first;
     RETURN(true);
+}
+
+bool
+BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
+			     const string & tname)
+{
+    LOGCALL(DB, bool, "BrassPositionList::read_data", table | did | tname);
+    string data;
+    (void)table->get_exact_entry(BrassPositionListTable::make_key(did, tname), data);
+    return read_data(data);
 }
 
 Xapian::termcount
