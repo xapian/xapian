@@ -58,9 +58,7 @@ class BrassPositionListTable : public BrassLazyTable {
      *
      *  @param s The string to append the position list data to.
      */
-    void pack(string & s,
-	      Xapian::PositionIterator pos,
-	      const Xapian::PositionIterator &pos_end);
+    void pack(string & s, const Xapian::PositionIterator & pos);
 
     /** Set the position list for term tname in document did.
      */

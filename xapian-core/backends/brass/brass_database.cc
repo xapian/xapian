@@ -1124,7 +1124,7 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 		PositionIterator pos = term.positionlist_begin();
 		if (pos != term.positionlist_end()) {
 		    string s;
-		    position_table.pack(s, pos, term.positionlist_end());
+		    position_table.pack(s, pos);
 		    inverter.set_positionlist(did, tname, s);
 		}
 	    }
@@ -1318,7 +1318,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 			PositionIterator pos = term.positionlist_begin();
 			if (pos != term.positionlist_end()) {
 			    string s;
-			    position_table.pack(s, pos, term.positionlist_end());
+			    position_table.pack(s, pos);
 			    inverter.set_positionlist(did, new_tname, s);
 			}
 		    }
@@ -1342,7 +1342,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 			PositionIterator pos = term.positionlist_begin();
 			if (pos != term.positionlist_end()) {
 			    string s;
-			    position_table.pack(s, pos, term.positionlist_end());
+			    position_table.pack(s, pos);
 #if 0
 			    // FIXME: This isn't quite right, as there may be a
 			    // new entry pending in inverter, and if so it's

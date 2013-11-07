@@ -1,3 +1,11 @@
+Thu Nov 07 16:14:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,
+	  backends/brass/brass_positionlist.cc,
+	  backends/brass/brass_positionlist.h: There's no need to pass around
+	  an end PositionIterator, and it's actually slightly more efficient
+	  not to.
+
 Thu Nov 07 16:11:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Batch up positionlist changes in memory and write

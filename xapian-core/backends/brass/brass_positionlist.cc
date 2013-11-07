@@ -34,15 +34,12 @@
 using namespace std;
 
 void
-BrassPositionListTable::pack(string & s,
-			     Xapian::PositionIterator pos,
-			     const Xapian::PositionIterator &pos_end)
+BrassPositionListTable::pack(string & s, const Xapian::PositionIterator & pos)
 {
-    LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | pos | pos_end);
-    Assert(pos != pos_end);
-
+    LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | pos);
     // FIXME: avoid the need for this copy!
-    vector<Xapian::termpos> poscopy(pos, pos_end);
+    vector<Xapian::termpos> poscopy(pos, Xapian::PositionIterator());
+    Assert(!poscopy.empty());
 
     pack_uint(s, poscopy.back());
 
