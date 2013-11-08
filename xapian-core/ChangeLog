@@ -1,3 +1,7 @@
+Fri Nov 08 08:57:07 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Bump LIBRARY_VERSION_INFO.
+
 Thu Nov 07 16:14:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,

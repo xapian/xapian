@@ -33,7 +33,7 @@ dnl 0:0:0 1.3.0 Reset as library renamed
 dnl 1:0:0 1.3.0_svn16813 Default stemming strategy now STEM_SOME
 dnl 2:0:1 1.3.1 Added TfIdfWeight, MSetIterator::at_end(), etc
 dnl 3:0:0 1.3.2 Enquire::get_eset() overload -> default parameter
-LIBRARY_VERSION_INFO=2:0:1
+LIBRARY_VERSION_INFO=3:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.3
