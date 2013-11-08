@@ -1120,13 +1120,7 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
 
 		inverter.add_posting(did, tname, wdf);
-
-		PositionIterator pos = term.positionlist_begin();
-		if (pos != term.positionlist_end()) {
-		    string s;
-		    position_table.pack(s, pos);
-		    inverter.set_positionlist(did, tname, s);
-		}
+		inverter.set_positionlist(position_table, did, tname, term);
 	    }
 	}
 	LOGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
@@ -1315,12 +1309,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
 		    if (pos_modified) {
-			PositionIterator pos = term.positionlist_begin();
-			if (pos != term.positionlist_end()) {
-			    string s;
-			    position_table.pack(s, pos);
-			    inverter.set_positionlist(did, new_tname, s);
-			}
+			inverter.set_positionlist(position_table, did, new_tname, term);
 		    }
 		    ++term;
 		} else if (cmp == 0) {
@@ -1339,25 +1328,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    }
 
 		    if (pos_modified) {
-			PositionIterator pos = term.positionlist_begin();
-			if (pos != term.positionlist_end()) {
-			    string s;
-			    position_table.pack(s, pos);
-#if 0
-			    // FIXME: This isn't quite right, as there may be a
-			    // new entry pending in inverter, and if so it's
-			    // that one we should compare with (or just
-			    // suppress this shortcut if there is one).
-			    // Check if s is the same as the existing entry.
-			    string old_tag;
-			    if (position_table.get_exact_entry(key, old_tag) &&
-				s == old_tag)
-				skip_next_statement;
-#endif
-			    inverter.set_positionlist(did, new_tname, s);
-			} else {
-			    inverter.delete_positionlist(did, new_tname);
-			}
+			inverter.set_positionlist(position_table, did, new_tname, term, true);
 		    }
 
 		    ++term;

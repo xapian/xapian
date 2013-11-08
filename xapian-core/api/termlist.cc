@@ -1,7 +1,7 @@
 /** @file termlist.cc
  * @brief Abstract base class for termlists.
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,6 +43,13 @@ TermIterator::Internal::get_collection_freq() const
     // This method isn't currently externally exposed (or used internally).
     Assert(false);
     return 0;
+}
+
+// Default implementation for when the positions aren't in vector<termpos>.
+const std::vector<Xapian::termpos> *
+TermIterator::Internal::get_vector_termpos() const
+{
+    return NULL;
 }
 
 }

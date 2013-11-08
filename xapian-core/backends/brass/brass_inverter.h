@@ -25,6 +25,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "omassert.h"
 #include "str.h"
@@ -32,6 +33,10 @@
 
 class BrassPostListTable;
 class BrassPositionListTable;
+
+namespace Xapian {
+class TermIterator;
+}
 
 /** Magic wdf value used for a deleted posting. */
 const Xapian::termcount DELETED_POSTING = Xapian::termcount(-1);
@@ -112,6 +117,16 @@ class Inverter {
     /// Buffered changes to positional data.
     std::map<std::string, std::map<Xapian::docid, std::string> > pos_changes;
 
+    void store_positions(const BrassPositionListTable & position_table,
+			 Xapian::docid did,
+			 const std::string & tname,
+			 const std::vector<Xapian::termpos> & posvec,
+			 bool modifying);
+
+    void set_positionlist(Xapian::docid did,
+			  const std::string & term,
+			  const std::string & s);
+
   public:
     /// Buffered changes to document lengths.
     std::map<Xapian::docid, Xapian::termcount> doclen_changes;
@@ -154,9 +169,11 @@ class Inverter {
 	}
     }
 
-    void set_positionlist(Xapian::docid did,
-			  const std::string & term,
-			  const std::string & s);
+    void set_positionlist(const BrassPositionListTable & position_table,
+			  Xapian::docid did,
+			  const std::string & tname,
+			  const Xapian::TermIterator & term,
+			  bool modifying = false);
 
     void delete_positionlist(Xapian::docid did,
 			     const std::string & term);

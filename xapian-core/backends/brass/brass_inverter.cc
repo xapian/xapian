@@ -25,10 +25,71 @@
 #include "brass_postlist.h"
 #include "brass_positionlist.h"
 
+#include "api/termlist.h"
+
 #include <map>
 #include <string>
 
 using namespace std;
+
+void
+Inverter::store_positions(const BrassPositionListTable & position_table,
+			  Xapian::docid did,
+			  const string & tname,
+			  const vector<Xapian::termpos> & posvec,
+			  bool modifying)
+{
+    string s;
+    position_table.pack(s, posvec);
+    if (modifying) {
+	map<string, map<Xapian::docid, string> >::iterator i;
+	i = pos_changes.find(tname);
+	if (i != pos_changes.end()) {
+	    map<Xapian::docid, string> & m = i->second;
+	    map<Xapian::docid, string>::iterator j;
+	    j = m.find(did);
+	    if (j != m.end()) {
+		// Update existing entry.
+		swap(j->second, s);
+		return;
+	    }
+	}
+	const string & key = position_table.make_key(did, tname);
+	string old_tag;
+	if (position_table.get_exact_entry(key, old_tag) && s == old_tag) {
+	    // Identical to existing entry on disk.
+	    return;
+	}
+    }
+    set_positionlist(did, tname, s);
+}
+
+void
+Inverter::set_positionlist(const BrassPositionListTable & position_table,
+			   Xapian::docid did,
+			   const string & tname,
+			   const Xapian::TermIterator & term,
+			   bool modifying)
+{
+    const std::vector<Xapian::termpos> * ptr;
+    ptr = term.internal->get_vector_termpos();
+    if (ptr) {
+	if (!ptr->empty()) {
+	    store_positions(position_table, did, tname, *ptr, modifying);
+	    return;
+	}
+    } else {
+	Xapian::PositionIterator pos = term.positionlist_begin();
+	if (pos != term.positionlist_end()) {
+	    vector<Xapian::termpos> posvec(pos, Xapian::PositionIterator());
+	    store_positions(position_table, did, tname, posvec, modifying);
+	    return;
+	}
+    }
+    // If we get here, the new position list was empty.
+    if (modifying)
+	delete_positionlist(did, tname);
+}
 
 void
 Inverter::set_positionlist(Xapian::docid did,

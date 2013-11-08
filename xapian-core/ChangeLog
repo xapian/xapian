@@ -1,3 +1,9 @@
+Fri Nov 08 08:58:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/maptermlist.h,api/termlist.cc,api/termlist.h,backends/brass/:
+	  Avoid two vector copies when storing term positions in most common
+	  cases.
+
 Fri Nov 08 08:57:07 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Bump LIBRARY_VERSION_INFO.

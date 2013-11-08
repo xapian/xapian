@@ -34,20 +34,19 @@
 using namespace std;
 
 void
-BrassPositionListTable::pack(string & s, const Xapian::PositionIterator & pos)
+BrassPositionListTable::pack(string & s,
+			     const vector<Xapian::termpos> & vec) const
 {
-    LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | pos);
-    // FIXME: avoid the need for this copy!
-    vector<Xapian::termpos> poscopy(pos, Xapian::PositionIterator());
-    Assert(!poscopy.empty());
+    LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | vec);
+    Assert(!vec.empty());
 
-    pack_uint(s, poscopy.back());
+    pack_uint(s, vec.back());
 
-    if (poscopy.size() > 1) {
+    if (vec.size() > 1) {
 	BitWriter wr(s);
-	wr.encode(poscopy[0], poscopy.back());
-	wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
-	wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
+	wr.encode(vec[0], vec.back());
+	wr.encode(vec.size() - 2, vec.back() - vec[0]);
+	wr.encode_interpolative(vec, 0, vec.size() - 1);
 	swap(s, wr.freeze());
     }
 }

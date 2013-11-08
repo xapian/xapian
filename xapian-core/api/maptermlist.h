@@ -2,7 +2,7 @@
  * @brief TermList which iterates a std::map.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,6 +68,10 @@ class MapTermList : public TermList {
 	// Get num of docs indexed by term
 	Xapian::doccount get_termfreq() const {
 	    throw Xapian::InvalidOperationError("Can't get term frequency from a document termlist which is not associated with a database.");
+	}
+
+	const std::vector<Xapian::termpos> * get_vector_termpos() const {
+	    return &(it->second.positions);
 	}
 
 	Xapian::PositionIterator positionlist_begin() const {
