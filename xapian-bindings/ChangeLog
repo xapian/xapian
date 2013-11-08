@@ -1,3 +1,8 @@
+Fri Nov 08 10:32:13 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove duplicate check for thread-local storage
+	  qualifier.
+
 Tue Oct 22 05:52:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/Makefile.am: Make sure docs subdirectory exists in builddir
