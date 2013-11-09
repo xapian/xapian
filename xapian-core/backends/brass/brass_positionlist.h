@@ -24,6 +24,7 @@
 
 #include <xapian/types.h>
 
+#include "autoptr.h"
 #include "bitstream.h"
 #include "brass_lazytable.h"
 #include "pack.h"
@@ -90,6 +91,9 @@ class BrassPositionList : public PositionList {
 
     /// Number of entries.
     Xapian::termcount size;
+
+    /// Cursor for locating multiple entries efficiently.
+    AutoPtr<BrassCursor> cursor;
 
     /// Have we started iterating yet?
     bool have_started;

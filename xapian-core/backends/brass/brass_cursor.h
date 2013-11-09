@@ -220,6 +220,16 @@ class BrassCursor {
 	 */
 	bool find_entry(const string &key);
 
+	/** Position the cursor exactly on a key.
+	 *
+	 *  If key is found, the cursor will be set to it, the tag read.  If
+	 *  it is not found, the cursor is left unpositioned.
+	 *
+	 *  @param key	The key to search for.
+	 *  @return true if the key was found.
+	 */
+	bool find_exact(const string &key);
+
 	/// Position the cursor on the highest entry with key < @a key.
 	void find_entry_lt(const string &key) {
 	    if (find_entry(key)) prev();

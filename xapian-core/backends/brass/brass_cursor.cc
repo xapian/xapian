@@ -241,6 +241,31 @@ done:
 }
 
 bool
+BrassCursor::find_exact(const string &key)
+{
+    LOGCALL(DB, bool, "BrassCursor::find_exact", key);
+    is_after_end = false;
+    is_positioned = false;
+    if (rare(key.size() > BRASS_BTREE_MAX_KEY_LEN)) {
+	// There can't be a match
+	RETURN(false);
+    }
+
+    if (B->cursor_version != version) {
+	rebuild();
+    }
+
+    B->form_key(key);
+    if (!B->find(C)) {
+	RETURN(false);
+    }
+    current_key = key;
+    B->read_tag(C, &current_tag, false);
+
+    RETURN(true);
+}
+
+bool
 BrassCursor::find_entry_ge(const string &key)
 {
     LOGCALL(DB, bool, "BrassCursor::find_entry_ge", key);

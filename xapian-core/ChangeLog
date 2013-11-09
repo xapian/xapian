@@ -1,3 +1,10 @@
+Sat Nov 09 08:48:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Use a separate cursor for each position list - now
+	  we're ordering the position B-tree by term first, phrase matching was
+	  causing the cursor to cycle between disparate areas of the B-tree,
+	  and it would have to reread the same blocks over and over.
+
 Fri Nov 08 09:57:52 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/chert/chert_table.cc: Add
