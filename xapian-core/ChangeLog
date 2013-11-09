@@ -1,3 +1,10 @@
+Sat Nov 09 08:51:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc: Check if the block we want is in the
+	  internal cursor for a read-only table too - it isn't needed for
+	  correctness in this case, but it is more efficient not to reload a
+	  block which we already have.
+
 Sat Nov 09 08:48:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Use a separate cursor for each position list - now
