@@ -1,3 +1,8 @@
+Fri Nov 22 01:22:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Minor tweak to structuring of tests
+	  in check_infix().
+
 Sat Nov 09 08:51:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc: Check if the block we want is in the
