@@ -1,3 +1,7 @@
+Sun Nov 24 23:05:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog.
+
 Fri Nov 22 20:18:43 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_databasereplicator.cc,
