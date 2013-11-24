@@ -1,3 +1,10 @@
+Fri Nov 22 20:18:43 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/brass/brass_databasereplicator.h: compression_stream.h
+	  isn't used in brass_databasereplicator.h, so move include to
+	  brass_databasereplicator.cc.
+
 Fri Nov 22 01:22:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Minor tweak to structuring of tests
