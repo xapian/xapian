@@ -2599,7 +2599,7 @@ static const test_desc tests[] = {
 int main(int argc, char **argv)
 try {
     // FIXME: It would be better to test with and without XAPIAN_CJK_NGRAM set.
-#ifdef __WIN32__
+#ifdef HAVE__PUTENV_S
     _putenv_s("XAPIAN_CJK_NGRAM", "1");
 #elif defined HAVE_SETENV
     setenv("XAPIAN_CJK_NGRAM", "1", 1);

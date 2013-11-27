@@ -207,16 +207,18 @@ if test no = "$xo_cv_cxx_works" ; then
   fi
 fi
 
+dnl We don't use a C compiler to compile Xapian's code, but on some platforms
+dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
+dnl build auxiliary tools like snowball and lemon.
+AC_PROG_CC
+
 dnl We want a non-cross-compiling C compiler for building lemon with.
 if test -z "$CC_FOR_BUILD" ; then
-  AC_PROG_CC
   if test yes = "$cross_compiling"; then
     CC_FOR_BUILD=cc
   else
     CC_FOR_BUILD="$CC"
   fi
-  dnl Unset CC to make sure we don't accidentally use it.
-  unset CC
 fi
 AC_ARG_VAR(CC_FOR_BUILD, [C compiler command for native compilation (needed to compile build tools during cross-builds)])
 
@@ -433,6 +435,9 @@ case $host_os in
     ;;
 esac
 
+dnl Used by tests/soaktest/soaktest.cc
+AC_CHECK_FUNCS([srandom random])
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
@@ -444,8 +449,17 @@ AC_TRY_COMPILE([#include <setjmp.h>],
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
-dnl Used by tests/api_replicate.cc (Solaris < 10 only has putenv()):
-AC_CHECK_FUNCS([setenv])
+
+dnl Used by tests/api_replicate.cc, tests/queryparsertest.cc and
+dnl tests/termgentest.cc.
+dnl
+dnl Solaris < 10 only has putenv().
+dnl
+dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
+dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
+dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
+dnl on __WIN32__ being defined.
+AC_CHECK_FUNCS([setenv _putenv_s])
 
 dnl Check for a more efficient way of closing fds during daemonisation.
 dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD

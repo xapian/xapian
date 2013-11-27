@@ -1,3 +1,17 @@
+Wed Nov 27 02:07:45 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac,tests/soaktest/soaktest.cc: If srandom() and random()
+	  aren't available, use srand() and rand() instead.
+	* common/safewindows.h: Define WINVER to 0x0500 if not otherwise set,
+	  so we get new interfaces like MEMORYSTATUSEX under mingw.
+	* tests/harness/backendmanager_remotetcp.cc: Need cstdlib for free
+	  under mingw.
+	* configure.ac,tests/api_replicate.cc,tests/queryparsertest.cc,
+	  tests/termgentest.cc: Probe for _putenv_s() in configure as mingw
+	  doesn't provide it.
+	* configure.ac: Don't unset CC as it's used by libtool under mingw.
+
 Wed Nov 27 01:29:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

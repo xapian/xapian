@@ -1,7 +1,7 @@
 /* api_replicate.cc: tests of replication functionality
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010 Olly Betts
+ * Copyright 2009,2010,2013 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -237,7 +237,7 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
 #if 0 // Dynamic version which we don't currently need.
 static void
 set_max_changesets(int count) {
-#ifdef __WIN32__
+#ifdef HAVE__PUTENV_S
     _putenv_s("XAPIAN_MAX_CHANGESETS", str(count).c_str());
 #elif defined HAVE_SETENV
     setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
@@ -249,7 +249,7 @@ set_max_changesets(int count) {
 }
 #endif
 
-#ifdef __WIN32__
+#ifdef HAVE__PUTENV_S
 # define set_max_changesets(N) _putenv_s("XAPIAN_MAX_CHANGESETS", #N)
 #elif defined HAVE_SETENV
 # define set_max_changesets(N) setenv("XAPIAN_MAX_CHANGESETS", #N, 1)
