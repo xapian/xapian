@@ -1,3 +1,11 @@
+Wed Nov 27 08:05:25 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_table.cc: Check if the block we want is in the
+	  internal cursor for a read-only table too - it isn't needed for
+	  correctness in this case, but it is more efficient not to reload a
+	  block which we already have.
+
 Wed Nov 27 03:08:30 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
