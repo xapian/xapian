@@ -1,3 +1,14 @@
+Wed Nov 27 02:28:06 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_values.cc,backends/brass/brass_values.h,
+	  backends/chert/chert_values.cc,backends/chert/chert_values.h: Reuse
+	  a cursor for reading values from valuestreams rather than creating
+	  a new one each time.  This can dramatically reduce the number of
+	  blocks redundantly reread when sorting by value.  The rereads will
+	  generally get served from VM cache, but there's still an overhead
+	  to that.
+
 Wed Nov 27 02:12:42 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
