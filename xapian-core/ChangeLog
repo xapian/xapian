@@ -1,3 +1,8 @@
+Wed Nov 27 00:38:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/tcpclient.cc: Fix mingw build errors.
+
 Thu Oct 31 12:52:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
