@@ -1,3 +1,9 @@
+Wed Nov 27 03:08:30 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/queryparser.lemony: Minor tweak to structuring of tests
+	  in check_infix().
+
 Wed Nov 27 02:53:52 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

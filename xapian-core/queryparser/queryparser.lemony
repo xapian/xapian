@@ -507,11 +507,14 @@ inline unsigned check_infix(unsigned ch) {
 	// real world cases).
 	return ch;
     }
-    // 0x2019 is Unicode apostrophe and single closing quote.
-    // 0x201b is Unicode single opening quote with the tail rising.
-    if (ch == 0x2019 || ch == 0x201b) return '\'';
-    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
-	return UNICODE_IGNORE;
+    if (ch >= 0x200b) {
+	// 0x2019 is Unicode apostrophe and single closing quote.
+	// 0x201b is Unicode single opening quote with the tail rising.
+	if (ch == 0x2019 || ch == 0x201b)
+	    return '\'';
+	if (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff)
+	    return UNICODE_IGNORE;
+    }
     return 0;
 }
 
