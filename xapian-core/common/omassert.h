@@ -1,7 +1,7 @@
 /** @file omassert.h
  * @brief Various assertion macros.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,8 @@
 # define CompileTimeAssert(COND)\
     do {\
 	typedef int xapian_compile_time_check_[(COND) ? 1 : -1];\
+	xapian_compile_time_check_ xapian_compile_time_check_var_;\
+	(void)xapian_compile_time_check_var_;\
     } while (0)
 #endif
 

@@ -1,3 +1,9 @@
+Wed Nov 27 01:04:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/omassert.h: Suppress "unused local typedef" warnings from
+	  GCC 4.8.
+
 Wed Nov 27 00:58:30 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
