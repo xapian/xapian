@@ -1,3 +1,9 @@
+Wed Nov 27 00:58:30 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/omassert.h: If the compiler supports C++11, use
+	  static_assert to implement CompileTimeAssert.
+
 Wed Nov 27 00:38:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

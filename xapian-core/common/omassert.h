@@ -37,10 +37,15 @@
  *  is used in header files, multiple headers might be included from the same
  *  source file and have CompileTimeAssert() at the same line number.
  */
-#define CompileTimeAssert(COND)\
+#if __cplusplus >= 201103L
+// Under C++11, just use static_assert.
+# define CompileTimeAssert(COND) static_assert(COND, #COND)
+#else
+# define CompileTimeAssert(COND)\
     do {\
 	typedef int xapian_compile_time_check_[(COND) ? 1 : -1];\
     } while (0)
+#endif
 
 #ifndef XAPIAN_ASSERTIONS
 // The configure script should always define XAPIAN_ASSERTIONS if it defines
