@@ -1,3 +1,8 @@
+Wed Nov 27 01:29:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* net/tcpserver.cc: Fix mingw build error.
+
 Wed Nov 27 01:04:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
