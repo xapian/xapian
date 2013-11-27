@@ -1,3 +1,8 @@
+Wed Nov 27 02:12:42 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Add --check-at-least option to quest.
+
 Wed Nov 27 02:07:45 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

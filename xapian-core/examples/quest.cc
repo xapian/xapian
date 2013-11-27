@@ -76,6 +76,7 @@ static void show_usage() {
 "  -d, --db=DIRECTORY                database to search (multiple databases may\n"
 "                                    be specified)\n"
 "  -m, --msize=MSIZE                 maximum number of matches to return\n"
+"  -c, --check-at-least=HOWMANY      minimum number of matches to check\n"
 "  -s, --stemmer=LANG                set the stemming language, the default is\n"
 "                                    'english' (pass 'none' to disable stemming)\n"
 "  -p, --prefix=PFX:TERMPFX          add a prefix\n"
@@ -115,10 +116,11 @@ decode_qp_flag(const char * s)
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:s:p:b:f:hv";
+    const char * opts = "c:d:m:s:p:b:f:hv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
+	{ "check-at-least",	required_argument, 0, 'c' },
 	{ "stemmer",	required_argument, 0, 's' },
 	{ "prefix",	required_argument, 0, 'p' },
 	{ "boolean-prefix",	required_argument, 0, 'b' },
@@ -130,7 +132,8 @@ try {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
-    int msize = 10;
+    Xapian::doccount msize = 10;
+    Xapian::doccount check_at_least = 0;
 
     bool have_database = false;
 
@@ -141,9 +144,28 @@ try {
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
-	    case 'm':
-		msize = atoi(optarg);
+	    case 'm': {
+		char * p;
+		unsigned long v = strtoul(optarg, &p, 10);
+		msize = static_cast<Xapian::doccount>(v);
+		if (*p || v != msize) {
+		    cerr << PROG_NAME": Bad value '" << optarg
+			 << "' passed for msize" << endl;
+		    exit(1);
+		}
 		break;
+	    }
+	    case 'c': {
+		char * p;
+		unsigned long v = strtoul(optarg, &p, 10);
+		check_at_least = static_cast<Xapian::doccount>(v);
+		if (*p || v != check_at_least) {
+		    cerr << PROG_NAME": Bad value '" << optarg
+			 << "' passed for check_at_least " << endl;
+		    exit(1);
+		}
+		break;
+	    }
 	    case 'd':
 		db.add_database(Xapian::Database(optarg));
 		have_database = true;
@@ -228,7 +250,7 @@ try {
     Xapian::Enquire enquire(db);
     enquire.set_query(query);
 
-    Xapian::MSet mset = enquire.get_mset(0, msize);
+    Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
 
     cout << "MSet:" << endl;
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
