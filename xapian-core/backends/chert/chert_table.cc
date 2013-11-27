@@ -205,6 +205,8 @@ ChertTable::read_block(uint4 n, byte * p) const
 	if (bytes_read == m) return;
 	if (bytes_read == -1) {
 	    if (errno == EINTR) continue;
+	    if (errno == EBADF && handle == -2)
+		ChertTable::throw_database_closed();
 	    string message = "Error reading block " + str(n) + ": ";
 	    message += strerror(errno);
 	    throw Xapian::DatabaseError(message);
@@ -222,6 +224,8 @@ ChertTable::read_block(uint4 n, byte * p) const
     }
 #else
     if (lseek(handle, off_t(block_size) * n, SEEK_SET) == -1) {
+	if (errno == EBADF && handle == -2)
+	    ChertTable::throw_database_closed();
 	string message = "Error seeking to block: ";
 	message += strerror(errno);
 	throw Xapian::DatabaseError(message);

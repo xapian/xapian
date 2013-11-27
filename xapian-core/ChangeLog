@@ -1,3 +1,11 @@
+Wed Nov 27 02:53:52 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_table.cc: Add check for the database being
+	  closed in read_block(), which fixes pythontest.py testcase
+	  valuemods.
+
 Wed Nov 27 02:28:06 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
