@@ -1,6 +1,6 @@
- 17584       olly Mon Oct 21 20:59:58 GMT 2013  Olly Betts <olly@survex.com>
+ 17654       olly Thu Nov 28 06:17:41 GMT 2013  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.16 (2013-10-31):
+Xapian-bindings 1.2.16 (2013-11-28):
 
 Documentation:
 
@@ -44,6 +44,8 @@ Python:
   didn't actually test as fully as intended.
 
 Ruby:
+
+* Omit internal classes and methods from the rdocs.
 
 Tcl:
 
