@@ -1,6 +1,6 @@
- 17586       olly Mon Oct 21 22:58:50 GMT 2013  Olly Betts <olly@survex.com>
+ 17651       olly Wed Nov 27 08:17:49 GMT 2013  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.16 (2013-10-31):
+Xapian-core 1.2.16 (2013-11-28):
 
 API:
 
@@ -40,12 +40,43 @@ matcher:
 
 brass backend:
 
+* When moving a cursor on a read-only table, check if the block we want is in
+  the internal cursor.  We already do this for a writable table, as it is
+  necessary for correctness, but it's a cheap check and may avoid asking the
+  OS for a block we actually already have.
+
+* Correctly report the database as closed rather than 'Bad file descriptor'
+  in certain cases.
+
+* Reuse a cursor for reading values from valuestreams rather than creating
+  a new one each time.  This can dramatically reduce the number of blocks
+  redundantly reread when sorting by value.  The rereads will generally get
+  served from VM cache, but there's still an overhead to that.
 
 chert backend:
 
+* When moving a cursor on a read-only table, check if the block we want is in
+  the internal cursor.  We already do this for a writable table, as it is
+  necessary for correctness, but it's a cheap check and may avoid asking the
+  OS for a block we actually already have.
+
+* Correctly report the database as closed rather than 'Bad file descriptor'
+  in certain cases.
+
+* Reuse a cursor for reading values from valuestreams rather than creating
+  a new one each time.  This can dramatically reduce the number of blocks
+  redundantly reread when sorting by value.  The rereads will generally get
+  served from VM cache, but there's still an overhead to that.
 
 flint backend:
 
+* When moving a cursor on a read-only table, check if the block we want is in
+  the internal cursor.  We already do this for a writable table, as it is
+  necessary for correctness, but it's a cheap check and may avoid asking the
+  OS for a block we actually already have.
+
+* Correctly report the database as closed rather than 'Bad file descriptor'
+  in certain cases.
 
 remote backend:
 
@@ -115,11 +146,19 @@ tools:
 
 examples:
 
+* quest: Add --check-at-least option.
 
 portability:
 
 * configure: clang doesn't support -Wstrict-null-sentinel or -Wlogical-op, so
   don't pass it these options.
+
+* Fix build errors and warnings with mingw.
+
+* Suppress "unused local typedef" warnings from GCC 4.8.
+
+* If the compiler supports C++11, use static_assert to implement
+  CompileTimeAssert.
 
 * tests/zlib-vg.c: Fix two warnings when compiled with clang.
 
@@ -143,6 +182,10 @@ portability:
 
 * common/safeuuid.h: Remove bogus take-address-of from uuid handling code for
   NetBSD and OpenBSD.
+
+* Under cygwin, use cygwin_conv_path() if using a new enough cygwin version,
+  rather than the now deprecated cygwin_conv_to_win32_path().  Reported by
+  "Haroogan" on the xapian-devel mailing list.
 
 * common/safeuuid.h: Add missing '#include <cstdlib>' and qualify free with std.
 
