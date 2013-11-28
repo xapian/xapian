@@ -7,7 +7,7 @@ import subprocess
 import sys
 import urllib2
 
-tarball_root = "http://www.oligarchy.co.uk/xapian/trunk/"
+tarball_root = sys.argv[1]
 tarball_uncompressed_root = "http://www.oligarchy.co.uk/dexz/?"
 archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
 # FIXME: need 'win32msvc' if we get a win32 builder again.
