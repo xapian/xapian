@@ -361,20 +361,21 @@ if test yes = "$GXX"; then
       AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef"
       dnl FIXME: Fix the warnings from -Woverloaded-virtual and add it here too.
 
-      dnl The output of g++ --version seems to change with almost every minor
-      dnl release so use the preprocessor macros which should be more robust.
-      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_version=$gxx_major_version.$gxx_minor_version
+      dnl The exact format of g++ --version seems to change with almost every
+      dnl minor release so use the preprocessor macros which should be more
+      dnl robust.
+      AC_MSG_CHECKING([for version of GCC])
+      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -E -|sed '/^#/d;s/ //g'`
+      AC_MSG_RESULT([$gxx_version])
 
       case $gxx_version in
-      [[012]].* | 3.0)
+      [[012]].* | 3.0.*)
 	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
 	;;
-      3.*|4.0) ;;
+      3.*|4.0.*) ;;
       *) dnl GCC >= 4.1
 	case $gxx_version in
-	4.1)
+	4.1.*)
 	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
 	  dnl only enable it for GCC >= 4.1.
 	  dnl
@@ -383,11 +384,11 @@ if test yes = "$GXX"; then
 	  dnl in a static method is the same as a member variable, so only
 	  dnl enable it for GCC >= 4.1.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
-	4.2)
+	4.2.*)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
-	4.[[345]])
+	4.[[345]].*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
@@ -436,7 +437,7 @@ if test yes = "$GXX"; then
       ;;
     *__clang__*)
       dnl Intel's compiler (since __clang__ not substituted):
-      dnl
+
       dnl -w1 stops the avalanche of uninteresting "remark" messages.
       dnl -wd... disables warnings which don't have good code workarounds.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
@@ -448,6 +449,7 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
+
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
       AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
 
