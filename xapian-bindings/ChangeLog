@@ -1,3 +1,8 @@
+Fri Nov 29 08:06:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* README: Note that the SWIG Perl bindings should replace the XS ones
+	  in 1.4.x.
+
 Fri Nov 29 01:09:45 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.2.16.
