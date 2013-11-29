@@ -1,3 +1,7 @@
+Fri Nov 29 04:21:46 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo in previous commit.
+
 Fri Nov 29 03:48:24 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Report GCC version.

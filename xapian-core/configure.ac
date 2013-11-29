@@ -1131,7 +1131,7 @@ case $host_cpu in
       clang|intel)
 	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
 	dnl These options are supported at least as far back as clang 3.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic" ;;
+	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
 	;;
       gcc)
 	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
