@@ -1,3 +1,7 @@
+Fri Nov 29 03:51:24 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sync GCC checks with xapian-core.
+
 Sun Oct 13 23:20:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Group-readable files which are owner-readable but not
