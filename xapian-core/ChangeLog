@@ -1,3 +1,9 @@
+Fri Nov 29 04:23:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: Report GCC version.
+	* configure.ac: Fix typo in previous commit.
+
 Fri Nov 29 01:08:12 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.2.16.
