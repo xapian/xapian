@@ -28,7 +28,6 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
-#include <sys/socket.h>
 
 #include "noreturn.h"
 #include "remoteconnection.h"
@@ -36,6 +35,7 @@
 
 #ifdef __WIN32__
 # include <process.h>    /* _beginthread, _endthread */
+# include "safewinsock2.h"
 #else
 # include <netinet/in_systm.h>
 # include <netinet/in.h>
@@ -44,6 +44,7 @@
 # include <arpa/inet.h>
 # include "safenetdb.h"
 # include <signal.h>
+# include <sys/socket.h>
 # include <sys/wait.h>
 #endif
 

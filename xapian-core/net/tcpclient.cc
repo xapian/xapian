@@ -29,7 +29,6 @@
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysselect.h"
-#include <sys/socket.h>
 #include "socket_utils.h"
 
 #include <cmath>
@@ -38,6 +37,9 @@
 # include "safenetdb.h"
 # include <netinet/in.h>
 # include <netinet/tcp.h>
+# include <sys/socket.h>
+#else
+# include "safewinsock2.h"
 #endif
 
 using namespace std;

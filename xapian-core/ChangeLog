@@ -1,3 +1,8 @@
+Fri Nov 29 20:18:48 GMT 2013  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc,net/tcpserver.cc: Fix not to include <sys/socket.h>
+	  under __WIN32__.
+
 Fri Nov 29 04:23:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
