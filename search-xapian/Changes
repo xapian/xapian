@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.16.0
+1.2.16.0  Fri Nov 29 01:11:04 UTC 2013
 	[Changes contributed by Olly Betts]
 	* t/symbol-test/Makefile.PL: Pass $CPPFLAGS and $CXXFLAGS from the
 	  environment through to the sub-build, fixing symbol-test.t failure
