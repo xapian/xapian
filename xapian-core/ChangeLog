@@ -1,3 +1,7 @@
+Fri Nov 29 03:48:24 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Report GCC version.
+
 Wed Nov 27 04:06:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from brass:
