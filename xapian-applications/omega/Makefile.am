@@ -116,6 +116,7 @@ noinst_HEADERS +=\
 	common/safesyswait.h\
 	common/safeunistd.h\
 	common/safewindows.h\
+	common/safewinsock2.h\
 	common/str.h\
 	common/stringutils.h
 

@@ -1,3 +1,7 @@
+Sat Nov 30 20:36:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Need to ship common/safewinsock2.h now.
+
 Fri Nov 29 04:34:18 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
