@@ -44,7 +44,7 @@ FlintValueTable::unpack_entry(const char ** pos,
 				 Xapian::valueno * this_value_no,
 				 string & this_value)
 {
-    LOGCALL_STATIC_VOID(DB, "FlintValueTable::unpack_entry", pos | (void*)end | this_value_no | this_value);
+    LOGCALL_STATIC_VOID(DB, "FlintValueTable::unpack_entry", pos | (const void*)end | this_value_no | this_value);
     if (!F_unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
 	else throw Xapian::RangeError("Value number in value table is too large");

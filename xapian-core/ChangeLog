@@ -1,3 +1,8 @@
+Sat Nov 30 03:16:44 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_values.cc: Fix -Wcast-qual warning from GCC 4.7
+	  when configured with --enable-log.
+
 Fri Nov 29 20:18:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc,net/tcpserver.cc: Fix not to include <sys/socket.h>
