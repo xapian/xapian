@@ -23,7 +23,6 @@ try:
     git = 'git'
     def bytes_to_unicode(b): return b
 except:
-    raise
     # Python 3
     import urllib.request as u, urllib.parse as uparse
     tarlink_re = re.compile(br'<a href="([a-zA-Z0-9_.-]+)\.tar\.xz">')
