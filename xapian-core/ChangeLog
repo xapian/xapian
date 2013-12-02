@@ -1,3 +1,7 @@
+Mon Dec 02 02:34:43 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Clarify version of MSVCRT which we require for mingw.
+
 Fri Nov 29 04:21:46 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo in previous commit.
