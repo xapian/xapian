@@ -5,7 +5,6 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib2
 
 tarball_root = sys.argv[1]
 tarball_uncompressed_root = "http://www.oligarchy.co.uk/dexz/?"
@@ -13,13 +12,27 @@ archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
 # FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
 
-tarlink_re = re.compile(r'<a href="([a-zA-Z0-9_.-]+)\.tar\.xz">')
 archivedir_re = re.compile(r'([a-zA-Z0-9_.-]+)$')
 basename_re = re.compile(r'([a-zA-Z-]+)-[0-9_.-]+git[0-9]+$')
 basename2_re = re.compile(r'(win32msvc)_v[0-9.]+-[0-9]+-g[0-9a-f]+$')
 
+try:
+    # Python 2
+    import urllib2 as u, urlparse as uparse
+    tarlink_re = re.compile(r'<a href="([a-zA-Z0-9_.-]+)\.tar\.xz">')
+    git = 'git'
+    def bytes_to_unicode(b): return b
+except:
+    raise
+    # Python 3
+    import urllib.request as u, urllib.parse as uparse
+    tarlink_re = re.compile(br'<a href="([a-zA-Z0-9_.-]+)\.tar\.xz">')
+    archive_names = tuple(bytes(x, 'ASCII') for x in archive_names)
+    git = b'git'
+    def bytes_to_unicode(b): return b.decode('ASCII')
+
 def fail(msg):
-    print msg
+    print(msg)
     sys.exit(1)
 
 def parsehtml(html, archives):
@@ -29,18 +42,18 @@ def parsehtml(html, archives):
         for archive in archives:
             if link.startswith(archive):
                 revision = link[len(archive):]
-                gitpos = revision.find('git')
+                gitpos = revision.find(git)
                 if gitpos > 0:
                     revision = int(revision[gitpos + 3:])
                     if revision > max_revision:
                         links = []
                         max_revision = revision
                     if revision == max_revision:
-                        links.append(link)
+                        links.append(bytes_to_unicode(link))
     if max_revision == 0:
         fail("No valid links found")
     elif len(links) == len(archives):
-        print("Parsed html index page: found all archives for revision: %d" % (max_revision, ))
+        print("Parsed html index page: found all archives for revision: %d" % max_revision)
         return (max_revision, links)
     else:
         fail("Latest revision (%d) is not complete: found the following links: %r" % (max_revision, links, ))
@@ -49,7 +62,7 @@ def get_archive_links(url, archives):
     """Get the links to the archive files.
 
     """
-    fd = urllib2.urlopen(url)
+    fd = u.urlopen(url)
     html = fd.read()
     fd.close()
     max_revision, links = parsehtml(html, archives)
@@ -67,11 +80,11 @@ def unpack_tarball(path, link, builddir):
         fail("Failed to extract tarball '%s'" % path)
 
 def get_archive(url, builddir):
-    print "Getting %s" % url
-    fd = urllib2.urlopen(url)
+    print("Getting %s" % url)
+    fd = u.urlopen(url)
     data = fd.read()
     fd.close()
-    urlbits = urllib2.urlparse.urlparse(url)
+    urlbits = uparse.urlparse(url)
     path = urlbits[4]
     if path == '':
         path = urlbits[2]
@@ -104,7 +117,7 @@ for link in links:
         fname = get_archive(tarball_root + link + '.tar.xz', builddir)
     else:
         fname = get_archive(tarball_uncompressed_root + link + '.tar', builddir)
-    print "Unpacking %s" % fname
+    print("Unpacking %s" % fname)
     unpack_tarball(fname, link, builddir)
     m = archivedir_re.match(link)
     archivedir = os.path.join(builddir, m.group(1))
@@ -112,16 +125,16 @@ for link in links:
     if m is None:
         m = basename2_re.match(link)
     basename = os.path.join(builddir, m.group(1))
-    print "Moving contents from %s to %s" % (archivedir, basename)
+    print("Moving contents from %s to %s" % (archivedir, basename))
     os.rename(archivedir, basename)
-    print "Deleting tarball %s" % fname
+    print("Deleting tarball %s" % fname)
     os.remove(fname)
 
 #os.rename(os.path.join(builddir, 'win32msvc'),
 #          os.path.join(builddir, 'xapian-core', 'win32'))
 
 # Get the scripts for building on our windows server, too:
-#fd = urllib2.urlopen('http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
+#fd = u.urlopen('http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
 #data = fd.read()
 #fd.close()
 #fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')
