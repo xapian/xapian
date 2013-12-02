@@ -1,3 +1,8 @@
+Mon Dec 02 22:56:18 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Define __MSVCRT_VERSION__ to 0x0601 on mingw so we get
+	  __ftime64() defined in the headers.
+
 Fri Nov 29 03:51:24 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Sync GCC checks with xapian-core.

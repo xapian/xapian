@@ -55,6 +55,14 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
 
+dnl For _ftime64() on mingw we need to tell it we're happy to require
+dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
+case $host_os in
+  *mingw*)
+    AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
+    ;;
+esac
+
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in
