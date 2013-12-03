@@ -1,6 +1,4 @@
- 17651       olly Wed Nov 27 08:17:49 GMT 2013  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.16 (2013-11-28):
+Xapian-core 1.2.16 (2013-12-04):
 
 API:
 
@@ -34,9 +32,6 @@ testsuite:
 
 * Fix "make check" to actually removed cached databases first, as is
   intended.
-
-matcher:
-
 
 brass backend:
 
@@ -78,12 +73,6 @@ flint backend:
 * Correctly report the database as closed rather than 'Bad file descriptor'
   in certain cases.
 
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * Compress source tarballs with xz instead of gzip.
@@ -102,6 +91,8 @@ build system:
 * configure: Enable -fshow-column for GCC - things like vim's quickfix mode
   will then jump to the appropriate column for a compiler error or warning, not
   just the appropriate line.
+
+* configure: Report GCC version in configure output.
 
 documentation:
 
@@ -195,15 +186,14 @@ portability:
   'slots' as a macro - if they are, give a clear error advising how to work
   around this (previously compilation would fail with a confusing error).
 
-packaging:
-
-
 debug code:
 
 * Fix assertion failure for when an OrPostList decays to an AndPostList - the
   ordering of the subqueries by estimated termfreq may not be the same as it
   was when the OrPostList was constructed, as the subqueries may themselves
   have decayed.  Reported by Michel Pelletier.
+
+* Fix -Wcast-qual warning from GCC 4.7 when configured with --enable-log.
 
 Xapian-core 1.2.15 (2013-04-16):
 
