@@ -1,10 +1,4 @@
- 17572       olly Sun Oct 13 23:25:11 GMT 2013  Olly Betts <olly@survex.com>
-
-Omega 1.2.16 (2013-10-31):
-
-general:
-
-documentation:
+Omega 1.2.16 (2013-12-04):
 
 indexers:
 
@@ -21,14 +15,6 @@ indexers:
   + Group-readable files which are owner-readable but not world-readable should
     still get a "readable by owner" term added.  Reported by Emmanuel Garette.
 
-* scriptindex:
-
-omega:
-
-templates:
-
-testsuite:
-
 build system:
 
 * Compress source tarballs with xz instead of gzip.
@@ -36,10 +22,6 @@ build system:
 * configure: Sync compiler warning flag machinery against xapian-core.  The
   changes are special handling for clang, passing -fshow-column where
   supported, and handling for new warning flags in GCC 4.6 and 4.7.
-
-portability:
-
-packaging:
 
 Omega 1.2.15 (2013-04-16):
 
