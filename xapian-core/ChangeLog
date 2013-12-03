@@ -1,3 +1,8 @@
+Tue Dec 03 23:04:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Clarify version of MSVCRT which we require for mingw.
+
 Sat Nov 30 03:16:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_values.cc: Fix -Wcast-qual warning from GCC 4.7
