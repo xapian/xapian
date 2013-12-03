@@ -1,8 +1,8 @@
- 17654       olly Thu Nov 28 06:17:41 GMT 2013  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.16 (2013-11-28):
+Xapian-bindings 1.2.16 (2013-12-04):
 
 Documentation:
+
+* README: Note that the SWIG Perl bindings should replace the XS ones in 1.4.x.
 
 General:
 
@@ -10,15 +10,10 @@ General:
 
 * configure: Handle git snapshot naming.
 
-Packaging:
-
 Portability:
 
-CSharp:
-
-Java:
-
-Lua:
+* configure: Update list of platforms where we tell libtool not to link in
+  deplibs to match the list used for xapian-core.
 
 Perl:
 
@@ -46,8 +41,6 @@ Python:
 Ruby:
 
 * Omit internal classes and methods from the rdocs.
-
-Tcl:
 
 Xapian-bindings 1.2.15 (2013-04-16):
 
