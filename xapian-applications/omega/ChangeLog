@@ -1,3 +1,9 @@
+Tue Dec 03 07:33:40 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Define __MSVCRT_VERSION__ to 0x0601 on mingw so we get
+	  __ftime64() defined in the headers.
+
 Sat Nov 30 20:36:36 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Need to ship common/safewinsock2.h now.
