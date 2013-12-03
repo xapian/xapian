@@ -1,3 +1,8 @@
+Tue Dec 03 07:42:09 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Sync link_all_deplibs_CXX check with xapian-core.
+
 Fri Nov 29 08:06:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* README: Note that the SWIG Perl bindings should replace the XS ones
