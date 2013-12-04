@@ -96,7 +96,14 @@ build system:
 
 documentation:
 
+* The API documentation shipped with the release is now generated with
+  doxygen 1.8.5 instead of 1.5.9, which is most evident in the different
+  HTML styling newer doxygen uses.
+
 * Document how Utf8Iterator handles invalid UTF-8 in API documentation.
+
+* Improve how descriptions of deprecated features appear in the API
+  documentation.
 
 * docs/remote_protocol.rst: Correct error in documentation of REPLY_DOCDATA
   message.

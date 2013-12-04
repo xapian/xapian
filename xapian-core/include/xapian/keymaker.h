@@ -90,23 +90,26 @@ class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS Sorter : public KeyMaker
  *  so on.
  *
  *  @deprecated This class is deprecated - you should migrate to using
- *  MultiValueKeyMaker instead.  Note that MultiValueSorter::add() becomes
- *  MultiValueKeyMaker::add_value(), but the sense of the direction flag
- *  is reversed (to be consistent with Enquire::set_sort_by_value()), so:
+ *		MultiValueKeyMaker instead.  Note that MultiValueSorter::add() becomes
+ *		MultiValueKeyMaker::add_value(), but the sense of the direction flag
+ *		is reversed (to be consistent with Enquire::set_sort_by_value()).
  *
- *    MultiValueSorter sorter;
- *    // Primary ordering is forwards on value 4.
- *    sorter.add(4);
- *    // Secondary ordering is reverse on value 5.
- *    sorter.add(5, false);
- *
+ *  So:
+ *	<pre>
+ *	MultiValueSorter sorter;
+ *	// Primary ordering is forwards on value 4.
+ *	sorter.add(4);
+ *	// Secondary ordering is reverse on value 5.
+ *	sorter.add(5, false);
+ *	</pre>
  *  becomes:
- *
- *    MultiValueKeyMaker sorter;
- *    // Primary ordering is forwards on value 4.
- *    sorter.add_value(4);
- *    // Secondary ordering is reverse on value 5.
- *    sorter.add_value(5, true);
+ *	<pre>
+ *	MultiValueKeyMaker sorter;
+ *	// Primary ordering is forwards on value 4.
+ *	sorter.add_value(4);
+ *	// Secondary ordering is reverse on value 5.
+ *	sorter.add_value(5, true);
+ *	</pre>
  */
 class XAPIAN_VISIBILITY_DEFAULT XAPIAN_DEPRECATED_CLASS MultiValueSorter : public Sorter {
     std::vector<std::pair<Xapian::valueno, bool> > slots;

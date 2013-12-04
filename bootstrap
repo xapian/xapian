@@ -334,7 +334,8 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.5.9 src.tar.gz 6211b850bdaa2198e35546e4299a27774c957ece
+  lazy_build doxygen 1.8.5 \
+    src.tar.gz 1fc5ceec21122fe5037edee4c308ac94b59ee33e
   lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.6 tar.gz 29d7832b148e2157e03ad0d3620fbb7f5a13bc21
