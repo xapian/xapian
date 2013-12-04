@@ -98,6 +98,9 @@ documentation:
 
 * Document how Utf8Iterator handles invalid UTF-8 in API documentation.
 
+* Improve how descriptions of deprecated features appear in the API
+  documentation.
+
 * docs/remote_protocol.rst: Correct error in documentation of REPLY_DOCDATA
   message.
 
