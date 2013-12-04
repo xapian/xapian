@@ -1,3 +1,9 @@
+Wed Dec 04 05:14:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/Makefile.am: doxygen no longer generates any GIF files, so
+	  stop trying to ship or install them.
+
 Wed Dec 04 02:53:35 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,docs/doxygen_api.conf.in: Use doxygen 1.8.5 to generate
