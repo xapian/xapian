@@ -1,3 +1,8 @@
+Wed Dec 04 02:53:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS,docs/doxygen_api.conf.in: Use doxygen 1.8.5 to generate
+	  docs for releases.
+
 Wed Dec 04 02:22:55 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS,include/xapian/enquire.h,include/xapian/keymaker.h:
