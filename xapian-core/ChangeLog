@@ -1,3 +1,7 @@
+Wed Dec 04 05:44:29 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.16 and ChangeLog.
+
 Mon Dec 02 02:34:43 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Clarify version of MSVCRT which we require for mingw.
