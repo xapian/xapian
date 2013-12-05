@@ -43,17 +43,22 @@ BUILD_DEPS := debhelper (>= 7.0.50~),
 # your own binary packages (just don't distribute them!)
 # PHP_VERSIONS := 5
 
-RUBY_VERSIONS := 1.8 1.9.1
 # Be conservative for now and leave backported versions on old ruby policy.
 ifeq ($(findstring .$(CODENAME)., .lucid.precise.quantal.raring.squeeze.wheezy.), )
+# For new ruby policy:
 XB_RUBY_VERSIONS := XB-Ruby-Versions: $${ruby:Versions}
 XS_RUBY_VERSIONS := XS-Ruby-Versions: all
 rubylibdir := vendorlibdir
 rubyarchdir := vendorarchdir
+# Ruby 2.0 will debut in jessie and was in Ubuntu saucy, which neatly matches
+# the versions on new ruby policy.
+RUBY_VERSIONS := 1.8 1.9.1 2.0
 else
+# For old ruby policy:
 XS_RUBY_VERSIONS := X-Dummy: Remove me once old ruby policy support is dropped
 rubylibdir := rubylibdir
 rubyarchdir := archdir
+RUBY_VERSIONS := 1.8 1.9.1
 endif
 
 # The python versions to build for:
@@ -179,26 +184,26 @@ debian/control: debian/rules debian/control.in
 	for v in $(PHP_VERSIONS); do \
 	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
 	done >> debian/control.tmp
+	# Call the doc-base templates <pkg>.d-b.in, as <pkg>.doc-base.* is
+	# special to dh_installdocs. (#722096)
 ifdef XB_RUBY_VERSIONS
 	sed -e 's/@XB_RUBY_VERSIONS@/$(XB_RUBY_VERSIONS)/g' \
 	    < debian/control-ruby-new.in >> debian/control.tmp
-	cp debian/ruby-xapian.doc-base.in debian/ruby-xapian.doc-base
+	cp debian/ruby-xapian.d-b.in debian/ruby-xapian.doc-base
 	cp debian/ruby-xapian.install.in debian/ruby-xapian.install
 	for v in $(RUBY_VERSIONS); do \
-	    sed -e "s/@PACKAGE@/libxapian-ruby$$v/" \
-		-e 's/@TARGET@/ruby-xapian/' \
-		< debian/dummy.postinst.in \
-		> debian/libxapian-ruby$$v.postinst ;\
+	    test $$v = 2.0 || \
+		sed -e "s/@PACKAGE@/libxapian-ruby$$v/" \
+		    -e 's/@TARGET@/ruby-xapian/' \
+		    < debian/dummy.postinst.in \
+		    > debian/libxapian-ruby$$v.postinst ;\
 	done
 else
 	for v in $(RUBY_VERSIONS); do \
-	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby-old.in ;\
-	done >> debian/control.tmp
-	# Install files to old packages.
-	cp debian/libxapian-ruby1.8.doc-base.in debian/libxapian-ruby1.8.doc-base
-	cp debian/libxapian-ruby1.8.install.in debian/libxapian-ruby1.8.install
-	cp debian/libxapian-ruby1.9.1.doc-base.in debian/libxapian-ruby1.9.1.doc-base
-	cp debian/libxapian-ruby1.9.1.install.in debian/libxapian-ruby1.9.1.install
+	    sed "s/@RUBY_VERSION@/$$v/g" debian/control-ruby-old.in >> debian/control.tmp ;\
+	    cp debian/libxapian-ruby$$v.d-b.in debian/libxapian-ruby$$v.doc-base ;\
+	    cp debian/libxapian-ruby$$v.install.in debian/libxapian-ruby$$v.install ;\
+	done
 endif
 	mv debian/control.tmp debian/control
 
@@ -309,14 +314,21 @@ install-stamp: build-stamp
 	    $(MAKE) -C debian/build/ruby$$v DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 ifdef XB_RUBY_VERSIONS
-	# Only need one xapian.rb for ruby-xapian, and it should be the same
-	# for both, so check that it is, and then throw away the 1.9.1 one.
-	diff debian/tmp/usr/lib/ruby/vendor_ruby/1.8/xapian.rb \
-	     debian/tmp/usr/lib/ruby/vendor_ruby/1.9.1/xapian.rb
-	rm debian/tmp/usr/lib/ruby/vendor_ruby/1.9.1/xapian.rb
-	# The same goes for the docs.  Docs for 1.8 are installed by
+	# We only need one xapian.rb for ruby-xapian, and it should be the same
+	# for all versions, so if present, check that the 1.8 and 2.0 versions
+	# are the same as the 1.9.1, then throw them away.
+	test ! -f debian/tmp/usr/lib/ruby/vendor_ruby/1.8/xapian.rb || \
+	    diff debian/tmp/usr/lib/ruby/vendor_ruby/1.8/xapian.rb \
+		 debian/tmp/usr/lib/ruby/vendor_ruby/1.9.1/xapian.rb
+	test ! -f debian/tmp/usr/lib/ruby/vendor_ruby/2.0/xapian.rb || \
+	    diff debian/tmp/usr/lib/ruby/vendor_ruby/2.0/xapian.rb \
+		 debian/tmp/usr/lib/ruby/vendor_ruby/1.9.1/xapian.rb
+	rm -f debian/tmp/usr/lib/ruby/vendor_ruby/1.8/xapian.rb \
+	      debian/tmp/usr/lib/ruby/vendor_ruby/2.0/xapian.rb
+	# The same goes for the docs.  Docs for 1.9.1 are installed by
 	# ruby-xapian.install.
-	rm -rf debian/tmp/usr/share/doc/xapian-bindings-ruby1.9.1
+	rm -rf debian/tmp/usr/share/doc/xapian-bindings-ruby1.8 \
+	       debian/tmp/usr/share/doc/xapian-bindings-ruby2.0
 endif
 
 	$(MAKE) -C debian/build/tcl DESTDIR=$(CURDIR)/debian/tmp install
