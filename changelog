@@ -8,6 +8,7 @@ xapian-core (1.2.16-1) UNRELEASED; urgency=low
   * debian/control.in: "Standards-Version: 3.9.5" (no changes required).
   * libxapianVERSION.install: Stop using brace expansion, fixing lintian
     warning brace-expansion-in-debhelper-config-file.
+  * debian/rules: Drop workaround for avr32 build timing out.
 
  -- Olly Betts <olly@survex.com>  Thu, 05 Dec 2013 18:54:43 +1300
 

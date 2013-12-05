@@ -59,12 +59,6 @@ ifeq ($(patsubst %-i386,i386,$(DEB_HOST_ARCH)), i386)
     XAPIAN_BUILD_SSE := 1
 endif
 
-ifeq ($(DEB_HOST_ARCH), avr32)
-    # The avr32 buildd is repeatedly failing with "Took too long", so disable
-    # optimisation and the testsuite for now for a faster build.
-    DEB_BUILD_OPTIONS += noopt nocheck
-endif
-
 CFLAGS := `dpkg-buildflags --get CFLAGS`
 CXXFLAGS := `dpkg-buildflags --get CXXFLAGS`
 LDFLAGS := `dpkg-buildflags --get LDFLAGS`
