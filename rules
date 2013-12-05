@@ -111,14 +111,15 @@ configure-stamp:
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
-build-stamp: configure
+build-stamp: configure-stamp
 	dh_testdir
 	$(MAKE) -C debian/build
 	$(MAKE_CHECK) -C debian/build
 	touch $@
 
 install: DH_OPTIONS=
-install: build
+install: install-stamp
+install-stamp: build-stamp
 	dh_testdir
 	dh_testroot
 	dh_prep
@@ -160,6 +161,8 @@ install: build
 	# Reads the *.install files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing
 
+	touch $@
+
 binary: binary-arch binary-indep
 binary-indep: DH_OPTIONS=-i
 binary-indep:
@@ -198,4 +201,4 @@ clean:
 	rm -f config.sub config.guess
 	dh_clean
 
-.PHONY: configure build install binary binary-arch binary-indep clean
+.PHONY: configure build build-arch build-indep install binary binary-arch binary-indep clean

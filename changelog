@@ -1,3 +1,10 @@
+xapian-omega (1.2.15-2) unstable; urgency=low
+
+  * debian/rules: Fix target dependencies so we don't run the testsuite twice.
+  * debian/rules: Mark build-arch and build-indep as phony targets.
+
+ -- Olly Betts <olly@survex.com>  Tue, 28 May 2013 11:05:46 +0000
+
 xapian-omega (1.2.15-1) unstable; urgency=low
 
   * New upstream release.
