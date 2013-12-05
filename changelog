@@ -1,3 +1,9 @@
+xapian-core (1.2.16-2) unstable; urgency=low
+
+  * Fix creation of directory sse2 variant gets installed into.
+
+ -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 10:11:48 +1300
+
 xapian-core (1.2.16-1) unstable; urgency=low
 
   * New upstream release:
