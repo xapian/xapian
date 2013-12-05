@@ -1,5 +1,7 @@
 xapian-omega (1.2.16-1) UNRELEASED; urgency=low
 
+  * debian/watch: Fix to only consider stable releases, and to look for
+    .tar.xz which upstream now uses.
   * debian/control.in: "Standards-Version: 3.9.5" (no changes required).
 
  -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 08:29:45 +1300

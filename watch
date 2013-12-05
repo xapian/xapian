@@ -1,2 +1,2 @@
 version=3
-http://xapian.org/download http://oligarchy.co.uk/xapian/([\d.]+)/xapian-omega-\1\.tar\.gz
+http://xapian.org/download http://oligarchy.co.uk/xapian/(\d+\.\d*[02468]\.[\d.]+)/xapian-omega-\1\.tar\.(?:xz|bz2|gz)
