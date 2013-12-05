@@ -1,8 +1,10 @@
-xapian-bindings (1.2.16-1) UNRELEASED; urgency=low
+xapian-bindings (1.2.16-1) unstable; urgency=low
 
   * New upstream release.
   * Rename ".in" templates for doc-base files so they aren't processed by
     dh_installdocs.  (Closes: #722096)
+  * debian/rules: Update for upcoming changes in Tcl/Tk (based on patch from
+    Sergei Golovan).  (Closes: #724830)
   * Build ruby bindings for ruby2.0 as well.
   * debian/watch: Fix to only consider stable releases, and to look for
     .tar.xz which upstream now uses.

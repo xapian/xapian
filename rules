@@ -137,7 +137,16 @@ BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
 # lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
 # for the current preferred version.
 BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
+ifeq ($(findstring .$(CODENAME)., .lucid.precise.quantal.raring.saucy.trusty.squeeze.wheezy.), )
+# /usr/bin/tclsh-default is going to be dropped.
+TCLSH=/usr/bin/tclsh
+# tclsh8.6 requires us to link to libtclstub.a - upstream doesn't yet do this
+# automatically.
+TCL_MAKE_OPTS = TCL_LIBS=-ltclstub
+else
 TCLSH=/usr/bin/tclsh-default
+TCL_MAKE_OPTS =
+endif
 
 # Build depends for Ruby.
 #
@@ -278,7 +287,7 @@ build-stamp: configure-stamp
 	    $(MAKE) -C debian/build/ruby$$v ; \
 	    $(MAKE_CHECK) -C debian/build/ruby$$v ; \
 	done
-	$(MAKE) -C debian/build/tcl
+	$(MAKE) -C debian/build/tcl $(TCL_MAKE_OPTS)
 	$(MAKE_CHECK) -C debian/build/tcl
 	touch $@
 
