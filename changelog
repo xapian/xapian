@@ -1,4 +1,4 @@
-xapian-core (1.2.16-1) UNRELEASED; urgency=low
+xapian-core (1.2.16-1) unstable; urgency=low
 
   * New upstream release:
     + Fix xapian-chert-update's -b option to work rather than always
@@ -10,7 +10,7 @@ xapian-core (1.2.16-1) UNRELEASED; urgency=low
     warning brace-expansion-in-debhelper-config-file.
   * debian/rules: Drop workaround for avr32 build timing out.
 
- -- Olly Betts <olly@survex.com>  Thu, 05 Dec 2013 18:54:43 +1300
+ -- Olly Betts <olly@survex.com>  Thu, 05 Dec 2013 19:07:44 +1300
 
 xapian-core (1.2.15-2) unstable; urgency=low
 
