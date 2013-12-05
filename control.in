@@ -6,7 +6,7 @@ Build-Depends: @BUILD_DEPS@ debhelper (>= 7), autotools-dev, libpcre3-dev,
     dpkg-dev (>= 1.16.1~),
     libmagic-dev,
     libxapian-dev (>= 1.2.0-2~)
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-applications/omega
 Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-applications/omega

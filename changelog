@@ -1,3 +1,9 @@
+xapian-omega (1.2.16-1) UNRELEASED; urgency=low
+
+  * debian/control.in: "Standards-Version: 3.9.5" (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 08:29:45 +1300
+
 xapian-omega (1.2.15-2) unstable; urgency=low
 
   * debian/rules: Fix target dependencies so we don't run the testsuite twice.
