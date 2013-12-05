@@ -6,12 +6,14 @@ xapian-core (1.2.16-1) unstable; urgency=low
   * debian/watch: Fix to only consider stable releases, and to look for
     .tar.xz which upstream now uses.
   * debian/control.in: "Standards-Version: 3.9.5" (no changes required).
-  * libxapianVERSION.install: Stop using brace expansion, fixing lintian
-    warning brace-expansion-in-debhelper-config-file.
+  * debian/rules,libxapianVERSION.install: Stop using brace expansion, fixing
+    lintian warning brace-expansion-in-debhelper-config-file - instead install
+    the sse2 build (where done) directly into the libxapianNN package
+    directory.
   * debian/rules: Drop workaround for avr32 build timing out.
   * debian/control.in: Packaging now stored in git in debian collab-maint.
 
- -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 07:34:51 +1300
+ -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 07:59:30 +1300
 
 xapian-core (1.2.15-2) unstable; urgency=low
 

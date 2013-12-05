@@ -176,10 +176,11 @@ install-stamp: build-stamp \
 
 	# Install the files into debian/tmp
 	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+
 ifdef XAPIAN_BUILD_SSE
 	$(MAKE) -C build-sse2 DESTDIR=$(CURDIR)/debian/tmp-sse2 install
-	mkdir $(CURDIR)/debian/tmp/usr/lib/sse2
-	mv $(CURDIR)/debian/tmp-sse2/usr/lib/libxapian*.so.* $(CURDIR)/debian/tmp/usr/lib/sse2
+	mkdir $(CURDIR)/debian/libxapian$(libxapian_soversion)/usr/lib/sse2
+	mv $(CURDIR)/debian/tmp-sse2/usr/lib/libxapian*.so.* $(CURDIR)/debian/libxapian$(libxapian_soversion)/usr/lib/sse2
 	rm -rf $(CURDIR)/debian/tmp-sse2
 endif
 
