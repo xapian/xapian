@@ -9,8 +9,9 @@ xapian-core (1.2.16-1) unstable; urgency=low
   * libxapianVERSION.install: Stop using brace expansion, fixing lintian
     warning brace-expansion-in-debhelper-config-file.
   * debian/rules: Drop workaround for avr32 build timing out.
+  * debian/control.in: Packaging now stored in git in debian collab-maint.
 
- -- Olly Betts <olly@survex.com>  Thu, 05 Dec 2013 19:07:44 +1300
+ -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 07:34:51 +1300
 
 xapian-core (1.2.15-2) unstable; urgency=low
 

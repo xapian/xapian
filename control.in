@@ -5,8 +5,8 @@ Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.9.5
 Build-Depends: @BUILD_DEPS@ autotools-dev, zlib1g-dev, uuid-dev
 Homepage: http://xapian.org/
-Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-core
-Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-core
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/xapian-core.git
+Vcs-git: git://anonscm.debian.org/collab-maint/xapian-core.git
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
