@@ -7,8 +7,8 @@ Build-Depends: @BUILD_DEPS@ autotools-dev
 @X_PYTHON_VERSION@
 @XS_RUBY_VERSIONS@
 Homepage: http://xapian.org/
-Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-bindings
-Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-bindings
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/xapian-bindings.git
+Vcs-git: git://anonscm.debian.org/collab-maint/xapian-bindings.git
 
 Package: tclxapian
 Section: interpreters
