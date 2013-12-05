@@ -2,7 +2,7 @@ xapian-core (1.2.16-1) unstable; urgency=low
 
   * New upstream release:
     + Fix xapian-chert-update's -b option to work rather than always
-      segfaulting. (Closes #716484)
+      segfaulting. (Closes: #716484)
   * debian/watch: Fix to only consider stable releases, and to look for
     .tar.xz which upstream now uses.
   * debian/control.in: "Standards-Version: 3.9.5" (no changes required).
