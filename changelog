@@ -1,3 +1,9 @@
+xapian-bindings (1.2.16-1) UNRELEASED; urgency=low
+
+  * debian/control.in: "Standards-Version: 3.9.5" (no changes required).
+
+ -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 09:01:35 +1300
+
 xapian-bindings (1.2.15-4) unstable; urgency=low
 
   * Add missing dh_installdeb so the ruby bindings postinst files actually
