@@ -980,9 +980,10 @@ if test no != "$with_ruby" ; then
 
 	AC_ARG_VAR(RUBY_INC_ARCH, [Directory where ruby/config.h can be found (needed from Ruby 1.9)])
 	if test -z "$RUBY_INC_ARCH" ; then
-	  dnl Ruby 1.9 requires this.
-	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = RbConfig::CONFIG["rubyhdrdir"];if d != nil; print d + "/" + RbConfig::CONFIG["arch"]; end'`]
-	  dnl For earlier versions, just make it the same as RUBY_INC.
+	  dnl Ruby 2.0 and later Ruby 1.9 have rubyarchhdrdir; for early 1.9,
+	  dnl use rubyhdrdir+"/"+arch.
+	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = RbConfig::CONFIG["rubyhdrdir"]; print RbConfig::CONFIG["rubyarchhdrdir"] || (d ? d + "/" + RbConfig::CONFIG["arch"] : "")'`]
+	  dnl Ruby 1.8 has no rubyhdrdir, so set RUBY_INC_ARCH=RUBY_INC.
 	  test x"$RUBY_INC_ARCH" != x || RUBY_INC_ARCH=$RUBY_INC
 	fi
 	AC_SUBST(RUBY_INC_ARCH)
