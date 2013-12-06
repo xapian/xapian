@@ -1,3 +1,10 @@
+xapian-bindings (1.2.16-2) unstable; urgency=low
+
+  * debian/rules: Fix accidentally hard-coded "x86_64-linux-gnu" in path of
+    file to install.
+
+ -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 19:20:24 +1300
+
 xapian-bindings (1.2.16-1) unstable; urgency=low
 
   * New upstream release.

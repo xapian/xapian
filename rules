@@ -202,7 +202,7 @@ ifdef XB_RUBY_VERSIONS
 	cp debian/ruby-xapian.install.in debian/ruby-xapian.install
 	for v in $(RUBY_VERSIONS); do \
 	    if test $$v = 2.0 ; then \
-		echo 'usr/lib/x86_64-linux-gnu/ruby/vendor_ruby/*/_xapian.so' >> debian/ruby-xapian.install ; \
+		echo 'usr/lib/*/ruby/vendor_ruby/*/_xapian.so' >> debian/ruby-xapian.install ; \
 	    else \
 		sed -e "s/@PACKAGE@/libxapian-ruby$$v/" \
 		    -e 's/@TARGET@/ruby-xapian/' \
