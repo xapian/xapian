@@ -5,13 +5,14 @@ xapian-bindings (1.2.16-1) unstable; urgency=low
     dh_installdocs.  (Closes: #722096)
   * debian/rules: Update for upcoming changes in Tcl/Tk (based on patch from
     Sergei Golovan).  (Closes: #724830)
-  * Build ruby bindings for ruby2.0 as well.
+  * Build ruby bindings for ruby2.0 as well - requires passing RUBY_INC_ARCH
+    to configure until upstream updates configure for ruby2.0.
   * debian/watch: Fix to only consider stable releases, and to look for
     .tar.xz which upstream now uses.
   * debian/control.in: "Standards-Version: 3.9.5" (no changes required).
   * debian/control.in: Packaging now stored in git in debian collab-maint.
 
- -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 09:01:35 +1300
+ -- Olly Betts <olly@survex.com>  Fri, 06 Dec 2013 15:18:06 +1300
 
 xapian-bindings (1.2.15-4) unstable; urgency=low
 
