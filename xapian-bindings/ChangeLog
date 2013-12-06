@@ -1,3 +1,9 @@
+Fri Dec 06 05:29:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Link against -ltclstubX.Y for Tcl 8.5 and later
+	  (reported by Sergei Golovan in http://bugs.debian.org/724830).
+	  Also, use a better check for TCL_INC for Tcl 8.5 and later.
+
 Fri Dec 06 03:31:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* README,configure.ac: Tweak configure to work with Ruby 2.0.
