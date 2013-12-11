@@ -1,3 +1,12 @@
+Wed Dec 11 23:40:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/leafpostlist.cc,api/leafpostlist.h,backends/brass/,
+	  matcher/localsubmatch.cc,matcher/localsubmatch.h,
+	  matcher/queryoptimiser.h: Under brass, optimise the turning of a
+	  query into a postlist to copy the cursor blocks for the previous
+	  term's postlist.  This is particularly effective for wildcard
+	  queries which expand to a lot of terms.
+
 Wed Dec 11 22:05:34 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_postlist.h: We don't have a

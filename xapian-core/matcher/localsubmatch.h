@@ -1,7 +1,7 @@
 /** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -100,7 +100,7 @@ class LocalSubMatch : public SubMatch {
 			     Xapian::termcount wqf,
 			     double factor);
 
-    LeafPostList * open_post_list(const std::string& term, double max_part);
+    LeafPostList * open_post_list(LeafPostList ** hint, const std::string& term, double max_part);
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

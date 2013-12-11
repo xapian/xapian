@@ -145,7 +145,16 @@ class BrassCursor {
 	 *  attached to is destroyed.  It's safe to destroy the BrassCursor
 	 *  after the Btree though, you just may not use the BrassCursor.
 	 */
-	BrassCursor(const BrassTable *B);
+	BrassCursor(const BrassTable *B, const Brass::Cursor * C_ = NULL);
+
+	/** Clone a cursor.
+	 *
+	 *  Creates a new cursor, primed with the blocks in the first cursor.
+	 *  The new cursor is initially *unpositioned*.
+	 */
+	BrassCursor * clone() const {
+	    return new BrassCursor(B, C);
+	}
 
 	/** Destroy the BrassCursor */
 	~BrassCursor();

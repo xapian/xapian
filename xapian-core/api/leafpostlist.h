@@ -1,7 +1,7 @@
 /** @file leafpostlist.h
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -87,6 +87,20 @@ class LeafPostList : public PostList {
 	const Xapian::Weight::Internal & stats) const;
 
     Xapian::termcount count_matching_subqs() const;
+
+    /** Open another postlist from the same database.
+     *
+     *  @param term_	The term to open a postlist for.  If term_ is near to
+     *			this postlist's term, then this can be a lot more
+     *			efficient (and if it isn't very near, there's not
+     *			much of a penalty).  Using this method can make a
+     *			wildcard expansion much more memory efficient.
+     *
+     *  @return		The new postlist object, or NULL if not supported
+     *			(in which case the caller should probably the postlist
+     *			via the database instead).
+     */
+    virtual LeafPostList * open_nearby_postlist(const std::string & term_) const;
 };
 
 #endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H

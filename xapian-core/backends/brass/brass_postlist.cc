@@ -684,6 +684,25 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 	  cursor(this_db_->postlist_table.cursor_get())
 {
     LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | keep_reference);
+    init();
+}
+
+BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
+			     const string & term_,
+			     BrassCursor * cursor_)
+	: LeafPostList(term_),
+	  this_db(this_db_),
+	  have_started(false),
+	  is_at_end(false),
+	  cursor(cursor_)
+{
+    LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | cursor_);
+    init();
+}
+
+void
+BrassPostList::init()
+{
     string key = BrassPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
@@ -711,6 +730,17 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 BrassPostList::~BrassPostList()
 {
     LOGCALL_DTOR(DB, "BrassPostList");
+}
+
+LeafPostList *
+BrassPostList::open_nearby_postlist(const std::string & term_) const
+{
+    LOGCALL(DB, LeafPostList *, "BrassPostList::open_nearby_postlist", term_);
+    if (term_.empty())
+	return NULL;
+    if (!this_db.get() || this_db->postlist_table.is_writable())
+	return NULL;
+    return new BrassPostList(this_db, term_, cursor->clone());
 }
 
 Xapian::termcount

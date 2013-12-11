@@ -1,7 +1,7 @@
 /** @file leafpostlist.cc
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -103,4 +103,10 @@ Xapian::termcount
 LeafPostList::count_matching_subqs() const
 {
     return weight ? 1 : 0;
+}
+
+LeafPostList *
+LeafPostList::open_nearby_postlist(const std::string &) const
+{
+    return NULL;
 }

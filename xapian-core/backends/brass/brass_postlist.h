@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -218,6 +218,12 @@ class BrassPostList : public LeafPostList {
 	 */
 	bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
 
+	BrassPostList(Xapian::Internal::intrusive_ptr<const BrassDatabase> this_db_,
+		      const string & term,
+		      BrassCursor * cursor_);
+
+	void init();
+
     public:
 	/// Default constructor.
 	BrassPostList(Xapian::Internal::intrusive_ptr<const BrassDatabase> this_db_,
@@ -226,6 +232,8 @@ class BrassPostList : public LeafPostList {
 
 	/// Destructor.
 	~BrassPostList();
+
+	LeafPostList * open_nearby_postlist(const std::string & term_) const;
 
 	/** Used for looking up doclens.
 	 *

@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -134,9 +134,9 @@ LocalSubMatch::make_wt(const string& term, Xapian::termcount wqf, double factor)
 }
 
 LeafPostList *
-LocalSubMatch::open_post_list(const string& term, double max_part)
+LocalSubMatch::open_post_list(LeafPostList ** hint, const string& term, double max_part)
 {
-    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | max_part);
+    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", hint | term | max_part);
     if (term_info) {
 	Xapian::doccount tf = stats->get_termfreq(term);
 	using namespace Xapian;
@@ -155,5 +155,12 @@ LocalSubMatch::open_post_list(const string& term, double max_part)
 	// is especially efficient if there are no gaps in the docids.
 	RETURN(db->open_post_list(string()));
     }
-    RETURN(db->open_post_list(term));
+
+    LeafPostList * res = NULL;
+    if (*hint)
+	res = (*hint)->open_nearby_postlist(term);
+    if (!res)
+	res = db->open_post_list(term);
+    *hint = res;
+    RETURN(res);
 }

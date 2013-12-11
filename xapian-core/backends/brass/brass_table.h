@@ -373,6 +373,9 @@ class BrassTable {
 	 */
 	bool is_open() const { return handle >= 0; }
 
+	/** Return true if this table is writable. */
+	bool is_writable() const { return writable; }
+
 	/** Flush any outstanding changes to the DB file of the table.
 	 *
 	 *  This must be called before commit, to ensure that the DB file is

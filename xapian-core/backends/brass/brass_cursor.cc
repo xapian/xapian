@@ -1,7 +1,7 @@
 /* brass_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ hex_display_encode(const string & input)
 
 #define DIR_START        11
 
-BrassCursor::BrassCursor(const BrassTable *B_)
+BrassCursor::BrassCursor(const BrassTable *B_, const Brass::Cursor * C_)
 	: is_positioned(false),
 	  is_after_end(false),
 	  tag_status(UNREAD),
@@ -64,8 +64,13 @@ BrassCursor::BrassCursor(const BrassTable *B_)
     C = new Brass::Cursor[level + 1];
 
     for (int j = 0; j < level; j++) {
-        C[j].n = BLK_UNUSED;
 	C[j].p = new byte[B->block_size];
+	if (C_) {
+	    C[j].n = C_[j].n;
+	    memcpy(C[j].p, C_[j].p, B->block_size);
+	} else {
+	    C[j].n = BLK_UNUSED;
+	}
     }
     C[level].n = B->C[level].n;
     C[level].p = B->C[level].p;
