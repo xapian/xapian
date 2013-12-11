@@ -113,9 +113,9 @@ BM25Weight::init(double factor)
 
     LOGVALUE(WTCALC, termweight);
 
-    if (param_b == 0 || param_k1 == 0) {
-	// If either param_b or param_k1 is 0 then the document length doesn't
-	// affect the weight.
+    if (param_k2 == 0 && (param_b == 0 || param_k1 == 0)) {
+	// If k2 is 0, and either param_b or param_k1 is 0 then the document
+	// length doesn't affect the weight.
 	len_factor = 0;
     } else {
 	len_factor = get_average_length();
@@ -214,7 +214,7 @@ BM25Weight::get_maxextra() const
     if (param_k2 == 0.0)
 	RETURN(0.0);
     double num = (2.0 * param_k2 * get_query_length());
-    RETURN(num / (1.0 + max(double(get_doclength_lower_bound()),
+    RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor,
 			    param_min_normlen)));
 }
 

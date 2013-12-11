@@ -1,3 +1,9 @@
+Wed Dec 11 04:46:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* weight/bm25weight.cc: Fix case where (k1 == 0 || b == 0) but k2 != 0.
+	  Reported by "boomboo" on IRC.
+	* tests/api_weight.cc: Add regression test bm25weight5.
+
 Wed Dec 04 05:44:29 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.16 and ChangeLog.
