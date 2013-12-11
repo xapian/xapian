@@ -125,7 +125,6 @@ class BrassPostListTable : public BrassTable {
 /** A postlist in a brass database.
  */
 class BrassPostList : public LeafPostList {
-    protected: // BrassModifiedPostList needs to access these.
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us, and also to give us access
 	 *  to the position_table.
@@ -138,7 +137,6 @@ class BrassPostList : public LeafPostList {
 	/// Whether we've started reading the list yet.
 	bool have_started;
 
-    private:
 	/// True if this is the last chunk.
 	bool is_last_chunk;
 

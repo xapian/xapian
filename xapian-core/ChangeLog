@@ -1,3 +1,9 @@
+Wed Dec 11 22:05:34 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_postlist.h: We don't have a
+	  BrassModifiedPostList class, so we don't need protected members in
+	  BrassPostList for it to use.
+
 Wed Dec 11 04:46:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* weight/bm25weight.cc: Fix case where (k1 == 0 || b == 0) but k2 != 0.
