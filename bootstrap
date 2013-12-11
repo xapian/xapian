@@ -384,8 +384,6 @@ esac
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
 
 intree_swig=no
-# We no longer snapshot xapian-applications/queryserver since it hasn't seen a
-# check-in for ages.
 modules=
 for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-letor ; do
   d=$module
