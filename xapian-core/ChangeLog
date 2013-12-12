@@ -1,3 +1,8 @@
+Thu Dec 12 19:46:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.cc,backends/brass/brass_table.cc: Add
+	  const to a few pointers we only read through.
+
 Thu Dec 12 09:04:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Improve reporting of GCC version.

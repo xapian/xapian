@@ -126,7 +126,7 @@ void BrassTableCheck::failure(const char * msg) const
 void
 BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 {
-    byte * p = C_[j].p;
+    const byte * p = C_[j].p;
     uint4 n = C_[j].n;
     size_t c;
     size_t significant_c = j == 0 ? DIR_START : DIR_START + D2;
@@ -179,7 +179,7 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 
 	block_check(C_, j - 1, opts);
 
-	byte * q = C_[j - 1].p;
+	const byte * q = C_[j - 1].p;
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be
 	 * >= the key of p, c: */
 

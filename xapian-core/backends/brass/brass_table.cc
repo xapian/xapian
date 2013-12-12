@@ -1064,7 +1064,7 @@ BrassTable::add(const string &key, string tag, bool already_compressed)
     size_t first_L = L;                  // - amount for tag1
     bool found = find(C);
     if (!found) {
-	byte * p = C[0].p;
+	const byte * p = C[0].p;
 	size_t n = TOTAL_FREE(p) % (max_item_size + D2);
 	if (n > D2 + cd) {
 	    n -= (D2 + cd);
