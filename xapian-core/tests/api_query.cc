@@ -188,6 +188,9 @@ DEFINE_TESTCASE(nonutf8termdesc1, !backend) {
     // Check that backslashes are encoded so output isn't ambiguous.
     TEST_EQUAL(Xapian::Query("back\\slash").get_description(),
 	       "Query(back\\x5cslash)");
+    // Check that \x7f is escaped.
+    TEST_EQUAL(Xapian::Query("D\x7f_\x7f~").get_description(),
+	       "Query(D\\x7f_\\x7f~)");
     return true;
 }
 

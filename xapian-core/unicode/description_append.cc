@@ -34,7 +34,7 @@ description_append(std::string & desc, const std::string &s)
     desc.reserve(desc.size() + s.size());
     for (Xapian::Utf8Iterator i(s); i != Xapian::Utf8Iterator(); ++i) {
 	unsigned ch = i.strict_deref();
-	if ((ch & 0x80000000) == 0 && ch != '\\' && ch >= ' ') {
+	if ((ch & 0x80000000) == 0 && ch >= ' ' && ch != '\\' && ch != 127) {
 	    Xapian::Unicode::append_utf8(desc, ch);
 	} else {
 	    char buf[8];

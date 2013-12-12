@@ -1,3 +1,8 @@
+Thu Dec 12 09:01:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_query.cc,unicode/description_append.cc: Escape \x7f in
+	  object descriptions.
+
 Wed Dec 11 23:40:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/leafpostlist.cc,api/leafpostlist.h,backends/brass/,
