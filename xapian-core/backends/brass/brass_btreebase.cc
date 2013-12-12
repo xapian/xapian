@@ -1,7 +1,7 @@
 /* brass_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -330,6 +330,7 @@ bool
 BrassTable_base::block_free_at_start(uint4 n) const
 {
     size_t i = n / CHAR_BIT;
+    AssertRel(i,<,bit_map_size);
     int bit = 0x1 << n % CHAR_BIT;
     return (bit_map0[i] & bit) == 0;
 }
@@ -343,6 +344,7 @@ void
 BrassTable_base::free_block(uint4 n)
 {
     uint4 i = n / CHAR_BIT;
+    AssertRel(i,<,bit_map_size);
     int bit = 0x1 << n % CHAR_BIT;
     bit_map[i] &= ~ bit;
 
