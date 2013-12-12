@@ -25,6 +25,7 @@
 
 #include "brass_types.h"
 
+#include <cstring>
 #include <string>
 using std::string;
 
@@ -38,16 +39,8 @@ class Cursor {
         Cursor(const Cursor &);
         Cursor & operator=(const Cursor &);
 
-    public:
-	/// Constructor, to initialise important elements.
-	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false)
-	{}
-
 	/// pointer to a block
 	byte * p;
-
-	/// offset in the block's directory
-	int c;
 
 	/** block number
 	 *
@@ -57,6 +50,69 @@ class Cursor {
 	 * Setting n to BLK_UNUSED is necessary in at least some cases.
 	 */
 	uint4 n;
+
+    public:
+	/// Constructor.
+	Cursor() : p(0), n(BLK_UNUSED), c(-1), rewrite(false) { }
+
+	byte * init(unsigned block_size) {
+	    if (!p)
+		p = new byte[block_size];
+	    set_n(BLK_UNUSED);
+	    return p;
+	}
+
+	void clone(unsigned block_size, const Cursor & o) {
+	    init(block_size);
+	    std::memcpy(p, o.p, block_size);
+	    n = o.n;
+	}
+
+	void link_root(const Cursor & o) {
+	    p = o.p;
+	    n = o.n;
+	}
+
+	void swap(Cursor & o) {
+	    std::swap(p, o.p);
+	    std::swap(n, o.n);
+	    std::swap(c, o.c);
+	    std::swap(rewrite, o.rewrite);
+	}
+
+	void destroy() {
+	    delete [] p;
+	    p = NULL;
+	    n = BLK_UNUSED;
+	}
+
+	/** Get the block number.
+	 *
+	 *  Returns BLK_UNUSED if no block is currently loaded.
+	 */
+	uint4 get_n() const {
+	    return n;
+	}
+
+	void set_n(uint4 n_) {
+	    n = n_;
+	}
+
+	/** Get pointer to block.
+	 *
+	 * Returns NULL if no block is currently loaded.
+	 */
+	const byte * get_p() const {
+	    return p;
+	}
+
+	byte * get_modifiable_p(unsigned block_size) {
+	    (void)block_size;
+	    return p;
+	}
+
+	/// offset in the block's directory
+	int c;
 
 	/// true if the block is not the same as on disk, and so needs rewriting
 	bool rewrite;

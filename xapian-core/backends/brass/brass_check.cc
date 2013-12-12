@@ -126,8 +126,8 @@ void BrassTableCheck::failure(const char * msg) const
 void
 BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 {
-    const byte * p = C_[j].p;
-    uint4 n = C_[j].n;
+    const byte * p = C_[j].get_p();
+    uint4 n = C_[j].get_n();
     size_t c;
     size_t significant_c = j == 0 ? DIR_START : DIR_START + D2;
 	/* the first key in an index block is dummy, remember */
@@ -179,7 +179,7 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 
 	block_check(C_, j - 1, opts);
 
-	const byte * q = C_[j - 1].p;
+	const byte * q = C_[j - 1].get_p();
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be
 	 * >= the key of p, c: */
 
@@ -231,7 +231,7 @@ BrassTableCheck::check(const char * tablename, const string & path,
 	if (B.faked_root_block)
 	    out << "(faked)";
 	else
-	    out << C[B.level].n;
+	    out << C[B.level].get_n();
 	out << endl;
     }
 
@@ -271,6 +271,8 @@ void BrassTableCheck::report_cursor(int N, const Brass::Cursor * C_) const
 {
     out << N << ")\n";
     for (int i = 0; i <= level; i++)
-	out << "p=" << C_[i].p << ", c=" << C_[i].c << ", n=[" << C_[i].n
-	    << "], rewrite=" << C_[i].rewrite << endl;
+	out << "p=" << C_[i].get_p() << ", "
+	       "c=" << C_[i].c << ", "
+	       "n=[" << C_[i].get_n() << "], "
+	       "rewrite=" << C_[i].rewrite << endl;
 }

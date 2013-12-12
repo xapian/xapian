@@ -345,31 +345,31 @@ void
 BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 {
     LOGCALL_VOID(DB, "BrassTable::block_to_cursor", (void*)C_ | j | n);
-    if (n == C_[j].n) return;
-    byte * p = C_[j].p;
+    if (n == C_[j].get_n()) return;
+    byte * p = C_[j].get_modifiable_p(block_size);
     Assert(p);
 
     // FIXME: only needs to be done in write mode
     if (C_[j].rewrite) {
 	Assert(writable);
 	Assert(C == C_);
-	write_block(C_[j].n, p);
+	write_block(C_[j].get_n(), p);
 	C_[j].rewrite = false;
     }
 
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
-    if (n == C[j].n) {
-	if (p != C[j].p)
-	    memcpy(p, C[j].p, block_size);
+    if (n == C[j].get_n()) {
+	if (p != C[j].get_p())
+	    memcpy(p, C[j].get_p(), block_size);
     } else {
 	read_block(n, p);
     }
 
-    C_[j].n = n;
+    C_[j].set_n(n);
     if (j < level) {
 	/* unsigned comparison */
-	if (rare(REVISION(p) > REVISION(C_[j + 1].p))) {
+	if (rare(REVISION(p) > REVISION(C_[j + 1].get_p()))) {
 	    set_overwritten();
 	    return;
 	}
@@ -416,26 +416,25 @@ BrassTable::alter()
     C[0].rewrite = true;
 #else
     int j = 0;
-    byte * p = C[j].p;
     while (true) {
 	if (C[j].rewrite) return; /* all new, so return */
 	C[j].rewrite = true;
 
-	if (REVISION(p) == latest_revision_number + 1) {
-	    Assert(base.block_free_at_start(C[j].n));
+	brass_revision_number_t rev = REVISION(C[j].get_p());
+	if (rev == latest_revision_number + 1) {
+	    Assert(base.block_free_at_start(C[j].get_n()));
 	    return;
 	}
-	Assert(REVISION(p) < latest_revision_number + 1);
-	uint4 n = C[j].n;
+	Assert(rev < latest_revision_number + 1);
+	uint4 n = C[j].get_n();
 	base.free_block(n);
 	n = base.next_free_block();
-	C[j].n = n;
-	SET_REVISION(p, latest_revision_number + 1);
+	C[j].set_n(n);
+	SET_REVISION(C[j].get_modifiable_p(block_size), latest_revision_number + 1);
 
 	if (j == level) return;
 	j++;
-	p = C[j].p;
-	Item_wr(p, C[j].c).set_block_given_by(n);
+	Item_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
     }
 #endif
 }
@@ -491,20 +490,20 @@ BrassTable::find(Brass::Cursor * C_) const
     int c;
     Key key = kt.key();
     for (int j = level; j > 0; --j) {
-	p = C_[j].p;
+	p = C_[j].get_p();
 	c = find_in_block(p, key, false, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in BrassTable:find - code position 1");
-	report_block_full(j, C_[j].n, p);
+	report_block_full(j, C_[j].get_n(), p);
 #endif /* BTREE_DEBUG_FULL */
 	C_[j].c = c;
 	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
     }
-    p = C_[0].p;
+    p = C_[0].get_p();
     c = find_in_block(p, key, true, C_[0].c);
 #ifdef BTREE_DEBUG_FULL
     printf("Block in BrassTable:find - code position 2");
-    report_block_full(0, C_[0].n, p);
+    report_block_full(0, C_[0].get_n(), p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) RETURN(false);
@@ -553,10 +552,9 @@ BrassTable::split_root(uint4 split_n)
 	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large ("STRINGIZE(BTREE_CURSOR_LEVELS)" levels)");
     }
 
-    byte * q = zeroed_new(block_size);
-    C[level].p = q;
+    byte * q = C[level].init(block_size);
     C[level].c = DIR_START;
-    C[level].n = base.next_free_block();
+    C[level].set_n(base.next_free_block());
     C[level].rewrite = true;
     SET_REVISION(q, latest_revision_number + 1);
     SET_LEVEL(q, level);
@@ -593,7 +591,7 @@ BrassTable::enter_key(int j, Key prevkey, Key newkey)
     Assert(prevkey < newkey);
     AssertRel(j,>=,1);
 
-    uint4 blocknumber = C[j - 1].n;
+    uint4 blocknumber = C[j - 1].get_n();
 
     // FIXME update to use Key
     // Keys are truncated here: but don't truncate the count at the end away.
@@ -630,7 +628,7 @@ BrassTable::enter_key(int j, Key prevkey, Key newkey)
     // worthwhile as it trades a small amount of CPU and RAM use for a small
     // saving in disk use.  Other redundant keys will still creep in though.
     if (j > 1) {
-	byte * p = C[j - 1].p;
+	byte * p = C[j - 1].get_modifiable_p(block_size);
 	uint4 n = getint4(newkey.get_address(), newkey_len + K1 + C2);
 	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
 	// FIXME: incredibly icky going from key to item like this...
@@ -638,7 +636,7 @@ BrassTable::enter_key(int j, Key prevkey, Key newkey)
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].p, item.key(), false, 0) + D2;
+    C[j].c = find_in_block(C[j].get_p(), item.key(), false, 0) + D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_item(item, j);
 }
@@ -717,7 +715,7 @@ BrassTable::add_item(Item_wr kt_, int j)
 {
     LOGCALL_VOID(DB, "BrassTable::add_item", Literal("kt_") | j);
     Assert(writable);
-    byte * p = C[j].p;
+    byte * p = C[j].get_modifiable_p(block_size);
     int c = C[j].c;
     uint4 n;
 
@@ -738,8 +736,8 @@ BrassTable::add_item(Item_wr kt_, int j)
 	    m = c;
 	}
 
-	uint4 split_n = C[j].n;
-	C[j].n = base.next_free_block();
+	uint4 split_n = C[j].get_n();
+	C[j].set_n(base.next_free_block());
 
 	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
 	SET_DIR_END(split_p, m);
@@ -769,7 +767,7 @@ BrassTable::add_item(Item_wr kt_, int j)
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(p));
 	    add_item_to_block(p, kt_, c);
-	    n = C[j].n;
+	    n = C[j].get_n();
 	} else {
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(split_p));
@@ -795,7 +793,7 @@ BrassTable::add_item(Item_wr kt_, int j)
 	}
 
 	add_item_to_block(p, kt_, c);
-	n = C[j].n;
+	n = C[j].get_n();
     }
     if (j == 0) {
 	changed_n = n;
@@ -815,7 +813,7 @@ BrassTable::delete_item(int j, bool repeatedly)
 {
     LOGCALL_VOID(DB, "BrassTable::delete_item", j | repeatedly);
     Assert(writable);
-    byte * p = C[j].p;
+    byte * p = C[j].get_modifiable_p(block_size);
     int c = C[j].c;
     int kt_len = Item(p, c).size(); /* size of the item to be deleted */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
@@ -828,9 +826,9 @@ BrassTable::delete_item(int j, bool repeatedly)
     if (!repeatedly) return;
     if (j < level) {
 	if (dir_end == DIR_START) {
-	    base.free_block(C[j].n);
+	    base.free_block(C[j].get_n());
 	    C[j].rewrite = false;
-	    C[j].n = BLK_UNUSED;
+	    C[j].set_n(BLK_UNUSED);
 	    C[j + 1].rewrite = true;  /* *is* necessary */
 	    delete_item(j + 1, true);
 	}
@@ -838,18 +836,16 @@ BrassTable::delete_item(int j, bool repeatedly)
 	Assert(j == level);
 	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
-	    uint4 new_root = Item(p, DIR_START).block_given_by();
-	    delete [] p;
-	    C[level].p = 0;
-	    base.free_block(C[level].n);
+	    uint4 new_root = Item(C[level].get_p(), DIR_START).block_given_by();
+	    base.free_block(C[level].get_n());
+	    C[level].destroy();
 	    C[level].rewrite = false;
-	    C[level].n = BLK_UNUSED;
+	    C[level].set_n(BLK_UNUSED);
 	    level--;
 
 	    block_to_cursor(C, level, new_root);
 
-	    p = C[level].p;
-	    dir_end = DIR_END(p); /* prepare for the loop */
+	    dir_end = DIR_END(C[level].get_p()); /* prepare for the loop */
 	}
     }
 }
@@ -902,7 +898,7 @@ BrassTable::add_kt(bool found)
 	seq_count = SEQ_START_POINT;
 	sequential = false;
 
-	byte * p = C[0].p;
+	byte * p = C[0].get_modifiable_p(block_size);
 	int c = C[0].c;
 	Item item(p, c);
 	int kt_size = kt.size();
@@ -932,7 +928,7 @@ BrassTable::add_kt(bool found)
 	}
     } else {
 	/* addition */
-	if (changed_n == C[0].n && changed_c == C[0].c) {
+	if (changed_n == C[0].get_n() && changed_c == C[0].c) {
 	    if (seq_count < 0) seq_count++;
 	} else {
 	    seq_count = SEQ_START_POINT;
@@ -968,7 +964,7 @@ BrassTable::delete_kt()
     }
     */
     if (found) {
-	components = Item(C[0].p, C[0].c).components_of();
+	components = Item(C[0].get_p(), C[0].c).components_of();
 	alter();
 	delete_item(0, true);
     }
@@ -1064,7 +1060,7 @@ BrassTable::add(const string &key, string tag, bool already_compressed)
     size_t first_L = L;                  // - amount for tag1
     bool found = find(C);
     if (!found) {
-	const byte * p = C[0].p;
+	const byte * p = C[0].get_p();
 	size_t n = TOTAL_FREE(p) % (max_item_size + D2);
 	if (n > D2 + cd) {
 	    n -= (D2 + cd);
@@ -1211,7 +1207,7 @@ bool
 BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) const
 {
     LOGCALL(DB, bool, "BrassTable::read_tag", Literal("C_") | tag | keep_compressed);
-    Item item(C_[0].p, C_[0].c);
+    Item item(C_[0].get_p(), C_[0].c);
 
     /* n components to join */
     int n = item.components_of();
@@ -1228,7 +1224,7 @@ BrassTable::read_tag(Brass::Cursor * C_, string *tag, bool keep_compressed) cons
 	if (!next(C_, 0)) {
 	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
 	}
-	(void)Item(C_[0].p, C_[0].c).append_chunk(tag);
+	(void)Item(C_[0].get_p(), C_[0].c).append_chunk(tag);
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (BrassCursor::get_tag() relies on this).
@@ -1447,7 +1443,7 @@ BrassTable::read_root()
     LOGCALL_VOID(DB, "BrassTable::read_root", NO_ARGS);
     if (faked_root_block) {
 	/* root block for an unmodified database. */
-	byte * p = C[0].p;
+	byte * p = C[0].get_modifiable_p(block_size);
 	Assert(p);
 
 	/* clear block - shouldn't be necessary, but is a bit nicer,
@@ -1470,17 +1466,17 @@ BrassTable::read_root()
 	    /* reading - revision number doesn't matter as long as
 	     * it's not greater than the current one. */
 	    SET_REVISION(p, 0);
-	    C[0].n = 0;
+	    C[0].set_n(0);
 	} else {
 	    /* writing - */
 	    SET_REVISION(p, latest_revision_number + 1);
-	    C[0].n = base.next_free_block();
+	    C[0].set_n(base.next_free_block());
 	}
     } else {
 	/* using a root block stored on disk */
 	block_to_cursor(C, level, root);
 
-	if (REVISION(C[level].p) > revision_number) set_overwritten();
+	if (REVISION(C[level].get_p()) > revision_number) set_overwritten();
 	/* although this is unlikely */
     }
 }
@@ -1526,8 +1522,7 @@ BrassTable::do_open_to_write(bool revision_supplied,
     writable = true;
 
     for (int j = 0; j <= level; j++) {
-	C[j].n = BLK_UNUSED;
-	C[j].p = new byte[block_size];
+	C[j].init(block_size);
     }
     split_p = new byte[block_size];
     read_root();
@@ -1662,8 +1657,7 @@ void BrassTable::close(bool permanent) {
 	return;
     }
     for (int j = level; j >= 0; j--) {
-	delete [] C[j].p;
-	C[j].p = 0;
+	C[j].destroy();
     }
     delete [] split_p;
     split_p = 0;
@@ -1688,7 +1682,7 @@ BrassTable::flush_db()
 
     for (int j = level; j >= 0; j--) {
 	if (C[j].rewrite) {
-	    write_block(C[j].n, C[j].p);
+	    write_block(C[j].get_n(), C[j].get_p());
 	}
     }
 
@@ -1723,7 +1717,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	}
 
 	base.set_revision(revision);
-	base.set_root(C[level].n);
+	base.set_root(C[level].get_n());
 	base.set_level(level);
 	base.set_item_count(item_count);
 	base.set_have_fakeroot(faked_root_block);
@@ -1733,12 +1727,12 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 
 	both_bases = true;
 	latest_revision_number = revision_number = revision;
-	root = C[level].n;
+	root = C[level].get_n();
 
 	Btree_modified = false;
 
 	for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
-	    C[i].n = BLK_UNUSED;
+	    C[i].set_n(BLK_UNUSED);
 	    C[i].c = -1;
 	    C[i].rewrite = false;
 	}
@@ -1894,7 +1888,7 @@ BrassTable::cancel()
     Btree_modified = false;
 
     for (int j = 0; j <= level; j++) {
-	C[j].n = BLK_UNUSED;
+	C[j].set_n(BLK_UNUSED);
 	C[j].rewrite = false;
     }
     read_root();
@@ -1941,8 +1935,7 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
     }
 
     for (int j = 0; j <= level; j++) {
-	C[j].n = BLK_UNUSED;
-	C[j].p = new byte[block_size];
+	C[j].init(block_size);
     }
 
     read_root();
@@ -1999,17 +1992,17 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
     LOGCALL(DB, bool, "BrassTable::prev_for_sequential", Literal("C_") | Literal("/*dummy*/"));
     int c = C_[0].c;
     if (c == DIR_START) {
-	byte * p = C_[0].p;
+	byte * p = C_[0].get_modifiable_p(block_size);
 	Assert(p);
-	uint4 n = C_[0].n;
+	uint4 n = C_[0].get_n();
 	while (true) {
 	    if (n == 0) RETURN(false);
 	    n--;
 	    if (writable) {
-		if (n == C[0].n) {
+		if (n == C[0].get_n()) {
 		    // Block is a leaf block in the built-in cursor
 		    // (potentially in modified form).
-		    memcpy(p, C[0].p, block_size);
+		    C_[0].clone(block_size, C[0]);
 		} else {
 		    // Blocks in the built-in cursor may not have been written
 		    // to disk yet, so we have to check that the block number
@@ -2018,7 +2011,7 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 		    // probably return 0).
 		    int j;
 		    for (j = 1; j <= level; ++j) {
-			if (n == C[j].n) break;
+			if (n == C[j].get_n()) break;
 		    }
 		    if (j <= level) continue;
 
@@ -2038,7 +2031,7 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 	    if (GET_LEVEL(p) == 0) break;
 	}
 	c = DIR_END(p);
-	C_[0].n = n;
+	C_[0].set_n(n);
     }
     c -= D2;
     C_[0].c = c;
@@ -2049,21 +2042,21 @@ bool
 BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
     LOGCALL(DB, bool, "BrassTable::next_for_sequential", Literal("C_") | Literal("/*dummy*/"));
-    byte * p = C_[0].p;
+    byte * p = C_[0].get_modifiable_p(block_size);
     Assert(p);
     int c = C_[0].c;
     c += D2;
     Assert((unsigned)c < block_size);
     if (c == DIR_END(p)) {
-	uint4 n = C_[0].n;
+	uint4 n = C_[0].get_n();
 	while (true) {
 	    n++;
 	    if (n > base.get_last_block()) RETURN(false);
 	    if (writable) {
-		if (n == C[0].n) {
+		if (n == C[0].get_n()) {
 		    // Block is a leaf block in the built-in cursor
 		    // (potentially in modified form).
-		    memcpy(p, C[0].p, block_size);
+		    C_[0].clone(block_size, C[0]);
 		} else {
 		    // Blocks in the built-in cursor may not have been written
 		    // to disk yet, so we have to check that the block number
@@ -2072,7 +2065,7 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 		    // probably return 0).
 		    int j;
 		    for (j = 1; j <= level; ++j) {
-			if (n == C[j].n) break;
+			if (n == C[j].get_n()) break;
 		    }
 		    if (j <= level) continue;
 
@@ -2092,7 +2085,7 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 	    if (GET_LEVEL(p) == 0) break;
 	}
 	c = DIR_START;
-	C_[0].n = n;
+	C_[0].set_n(n);
     }
     C_[0].c = c;
     RETURN(true);
@@ -2102,7 +2095,7 @@ bool
 BrassTable::prev_default(Brass::Cursor * C_, int j) const
 {
     LOGCALL(DB, bool, "BrassTable::prev_default", Literal("C_") | j);
-    byte * p = C_[j].p;
+    const byte * p = C_[j].get_p();
     int c = C_[j].c;
     Assert(c >= DIR_START);
     Assert((unsigned)c < block_size);
@@ -2124,7 +2117,7 @@ bool
 BrassTable::next_default(Brass::Cursor * C_, int j) const
 {
     LOGCALL(DB, bool, "BrassTable::next_default", Literal("C_") | j);
-    byte * p = C_[j].p;
+    const byte * p = C_[j].get_p();
     int c = C_[j].c;
     Assert(c >= DIR_START);
     c += D2;
@@ -2140,7 +2133,7 @@ BrassTable::next_default(Brass::Cursor * C_, int j) const
 	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in BrassTable:next_default");
-	report_block_full(j - 1, C_[j - 1].n, C_[j - 1].p);
+	report_block_full(j - 1, C_[j - 1].get_n(), C_[j - 1].get_p());
 #endif /* BTREE_DEBUG_FULL */
     }
     RETURN(true);

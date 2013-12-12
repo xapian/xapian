@@ -64,16 +64,13 @@ BrassCursor::BrassCursor(const BrassTable *B_, const Brass::Cursor * C_)
     C = new Brass::Cursor[level + 1];
 
     for (int j = 0; j < level; j++) {
-	C[j].p = new byte[B->block_size];
 	if (C_) {
-	    C[j].n = C_[j].n;
-	    memcpy(C[j].p, C_[j].p, B->block_size);
+	    C[j].clone(B->block_size, C_[j]);
 	} else {
-	    C[j].n = BLK_UNUSED;
+	    C[j].init(B->block_size);
 	}
     }
-    C[level].n = B->C[level].n;
-    C[level].p = B->C[level].p;
+    C[level].link_root(B->C[level]);
 }
 
 void
@@ -82,27 +79,25 @@ BrassCursor::rebuild()
     int new_level = B->level;
     if (new_level <= level) {
 	for (int i = 0; i < new_level; i++) {
-	    C[i].n = BLK_UNUSED;
+	    C[i].set_n(BLK_UNUSED);
 	}
 	for (int j = new_level; j < level; ++j) {
-	    delete C[j].p;
+	    C[j].destroy();
 	}
     } else {
 	Cursor * old_C = C;
 	C = new Cursor[new_level + 1];
 	for (int i = 0; i < level; i++) {
-	    C[i].p = old_C[i].p;
-	    C[i].n = BLK_UNUSED;
+	    C[i].swap(old_C[i]);
+	    C[i].set_n(BLK_UNUSED);
 	}
 	delete [] old_C;
 	for (int j = level; j < new_level; j++) {
-	    C[j].p = new byte[B->block_size];
-	    C[j].n = BLK_UNUSED;
+	    C[j].init(B->block_size);
 	}
     }
     level = new_level;
-    C[level].n = B->C[level].n;
-    C[level].p = B->C[level].p;
+    C[level].link_root(B->C[level]);
     version = B->cursor_version;
 }
 
@@ -111,7 +106,7 @@ BrassCursor::~BrassCursor()
     // Use the value of level stored in the cursor rather than the
     // Btree, since the Btree might have been deleted already.
     for (int j = 0; j < level; j++) {
-	delete [] C[j].p;
+	C[j].destroy();
     }
     delete [] C;
 }
@@ -138,7 +133,7 @@ BrassCursor::prev()
 		is_positioned = false;
 		RETURN(false);
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
 		break;
 	    }
 	}
@@ -149,7 +144,7 @@ BrassCursor::prev()
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	if (Item(C[0].p, C[0].c).component_of() == 1) {
+	if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
 	    break;
 	}
     }
@@ -178,7 +173,7 @@ BrassCursor::next()
 		is_positioned = false;
 		break;
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
 		is_positioned = true;
 		break;
 	    }
@@ -226,7 +221,7 @@ BrassCursor::find_entry(const string &key)
 	    C[0].c = DIR_START;
 	    if (! B->prev(C, 0)) goto done;
 	}
-	while (Item(C[0].p, C[0].c).component_of() != 1) {
+	while (Item(C[0].get_p(), C[0].c).component_of() != 1) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
 		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
@@ -302,7 +297,7 @@ BrassCursor::find_entry_ge(const string &key)
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	Assert(Item(C[0].p, C[0].c).component_of() == 1);
+	Assert(Item(C[0].get_p(), C[0].c).component_of() == 1);
 	get_key(&current_key);
     }
     tag_status = UNREAD;
@@ -317,7 +312,7 @@ BrassCursor::get_key(string * key) const
     Assert(B->level <= level);
     Assert(is_positioned);
 
-    (void)Item(C[0].p, C[0].c).key().read(key);
+    (void)Item(C[0].get_p(), C[0].c).key().read(key);
 }
 
 bool
