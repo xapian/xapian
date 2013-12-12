@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1552,6 +1552,9 @@ DEFINE_TESTCASE(chertdatabaseopen1, chert) {
 // set_sort_by_value
 // set_sort_by_value_then_relevance
 // set_sort_by_relevance_then_value
+// Prior to 1.2.17 and 1.3.2, order8 and order9 were swapped, and
+// set_sort_by_relevance_then_value was buggy, so this testcase now serves as
+// a regression test for that bug.
 DEFINE_TESTCASE(sortrel1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_sort_by_value(1, true);
@@ -1564,8 +1567,8 @@ DEFINE_TESTCASE(sortrel1, backend) {
     const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
     const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
     const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
-    const Xapian::docid order8[] = { 7,6,2,9,5,1,8,4,3 };
-    const Xapian::docid order9[] = { 2,6,7,1,5,9,3,4,8 };
+    const Xapian::docid order8[] = { 2,6,7,1,5,9,3,4,8 };
+    const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
 
     Xapian::MSet mset;
     size_t i;

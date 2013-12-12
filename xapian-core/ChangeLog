@@ -1,3 +1,10 @@
+Thu Dec 12 22:25:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* matcher/msetcmp.cc: Fix sense of reverse parameter to
+	  Enquire::set_sort_by_relevance_then_value.  Reported by "boomboo" on
+	  IRC.
+	* tests/api_db.cc: Fix testcase sortrel1.
+
 Thu Dec 12 19:47:46 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Make Brass::Cursor members n and p private.
