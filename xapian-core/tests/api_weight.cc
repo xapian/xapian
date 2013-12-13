@@ -1,7 +1,7 @@
 /** @file api_weight.cc
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,6 +88,27 @@ DEFINE_TESTCASE(bm25weight4, backend) {
     TEST_EQUAL(mset.size(), 5);
     // Expect: neither wdf nor doclen affects weight.
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
+
+    return true;
+}
+
+/// Test non-zero k2 with zero k1.
+// Regression test for bug fixed in 1.2.17 and 1.3.2.
+DEFINE_TESTCASE(bm25weight5, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::BM25Weight(0, 1, 1, 0.5, 0.5));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Expect: wdf has no effect on weight; shorter docs rank higher.
+    mset_expect_order(mset, 3, 5, 1, 4, 2);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[1].get_weight());
+    TEST_REL(mset[1].get_weight(),>,mset[2].get_weight());
+    TEST_REL(mset[2].get_weight(),>,mset[3].get_weight());
+    TEST_REL(mset[3].get_weight(),>,mset[4].get_weight());
 
     return true;
 }
