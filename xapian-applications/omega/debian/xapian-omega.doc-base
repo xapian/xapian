@@ -1,8 +1,0 @@
-Document: xapian-omega-docs
-Title: Xapian Omega Documentation
-Abstract: How to use the Omega search application.
-Section: Web Development
-
-Format: HTML
-Index: /usr/share/doc/xapian-omega/overview.html
-Files: /usr/share/doc/xapian-omega/*.html
