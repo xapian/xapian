@@ -62,15 +62,10 @@ BrassCursor::BrassCursor(const BrassTable *B_, const Brass::Cursor * C_)
 {
     B->cursor_created_since_last_modification = true;
     C = new Brass::Cursor[level + 1];
-
-    for (int j = 0; j < level; j++) {
-	if (C_) {
-	    C[j].clone(B->block_size, C_[j]);
-	} else {
-	    C[j].init(B->block_size);
-	}
+    if (!C_) C_ = B->C;
+    for (int j = 0; j <= level; j++) {
+	C[j].clone(C_[j]);
     }
-    C[level].link_root(B->C[level]);
 }
 
 void
@@ -78,10 +73,7 @@ BrassCursor::rebuild()
 {
     int new_level = B->level;
     if (new_level <= level) {
-	for (int i = 0; i < new_level; i++) {
-	    C[i].set_n(BLK_UNUSED);
-	}
-	for (int j = new_level; j < level; ++j) {
+	for (int j = new_level; j <= level; ++j) {
 	    C[j].destroy();
 	}
     } else {
@@ -89,7 +81,6 @@ BrassCursor::rebuild()
 	C = new Cursor[new_level + 1];
 	for (int i = 0; i < level; i++) {
 	    C[i].swap(old_C[i]);
-	    C[i].set_n(BLK_UNUSED);
 	}
 	delete [] old_C;
 	for (int j = level; j < new_level; j++) {
@@ -97,17 +88,12 @@ BrassCursor::rebuild()
 	}
     }
     level = new_level;
-    C[level].link_root(B->C[level]);
+    C[level].clone(B->C[level]);
     version = B->cursor_version;
 }
 
 BrassCursor::~BrassCursor()
 {
-    // Use the value of level stored in the cursor rather than the
-    // Btree, since the Btree might have been deleted already.
-    for (int j = 0; j < level; j++) {
-	C[j].destroy();
-    }
     delete [] C;
 }
 

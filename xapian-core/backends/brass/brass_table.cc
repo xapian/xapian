@@ -346,27 +346,25 @@ BrassTable::block_to_cursor(Brass::Cursor * C_, int j, uint4 n) const
 {
     LOGCALL_VOID(DB, "BrassTable::block_to_cursor", (void*)C_ | j | n);
     if (n == C_[j].get_n()) return;
-    byte * p = C_[j].get_modifiable_p(block_size);
-    Assert(p);
 
-    // FIXME: only needs to be done in write mode
-    if (C_[j].rewrite) {
-	Assert(writable);
+    if (writable && C_[j].rewrite) {
 	Assert(C == C_);
-	write_block(C_[j].get_n(), p);
+	write_block(C_[j].get_n(), C_[j].get_p());
 	C_[j].rewrite = false;
     }
 
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
+    const byte * p;
     if (n == C[j].get_n()) {
-	if (p != C[j].get_p())
-	    memcpy(p, C[j].get_p(), block_size);
+	p = C_[j].clone(C[j]);
     } else {
-	read_block(n, p);
+	byte * q = C_[j].init(block_size);
+	read_block(n, q);
+	p = q;
+	C_[j].set_n(n);
     }
 
-    C_[j].set_n(n);
     if (j < level) {
 	/* unsigned comparison */
 	if (rare(REVISION(p) > REVISION(C_[j + 1].get_p()))) {
@@ -428,9 +426,9 @@ BrassTable::alter()
 	Assert(rev < latest_revision_number + 1);
 	uint4 n = C[j].get_n();
 	base.free_block(n);
+	SET_REVISION(C[j].get_modifiable_p(block_size), latest_revision_number + 1);
 	n = base.next_free_block();
 	C[j].set_n(n);
-	SET_REVISION(C[j].get_modifiable_p(block_size), latest_revision_number + 1);
 
 	if (j == level) return;
 	j++;
@@ -553,6 +551,7 @@ BrassTable::split_root(uint4 split_n)
     }
 
     byte * q = C[level].init(block_size);
+    memset(q, 0, block_size);
     C[level].c = DIR_START;
     C[level].set_n(base.next_free_block());
     C[level].rewrite = true;
@@ -839,8 +838,6 @@ BrassTable::delete_item(int j, bool repeatedly)
 	    uint4 new_root = Item(C[level].get_p(), DIR_START).block_given_by();
 	    base.free_block(C[level].get_n());
 	    C[level].destroy();
-	    C[level].rewrite = false;
-	    C[level].set_n(BLK_UNUSED);
 	    level--;
 
 	    block_to_cursor(C, level, new_root);
@@ -1443,7 +1440,7 @@ BrassTable::read_root()
     LOGCALL_VOID(DB, "BrassTable::read_root", NO_ARGS);
     if (faked_root_block) {
 	/* root block for an unmodified database. */
-	byte * p = C[0].get_modifiable_p(block_size);
+	byte * p = C[0].init(block_size);
 	Assert(p);
 
 	/* clear block - shouldn't be necessary, but is a bit nicer,
@@ -1732,9 +1729,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	Btree_modified = false;
 
 	for (int i = 0; i < BTREE_CURSOR_LEVELS; ++i) {
-	    C[i].set_n(BLK_UNUSED);
-	    C[i].c = -1;
-	    C[i].rewrite = false;
+	    C[i].init(block_size);
 	}
 
 	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
@@ -1888,7 +1883,7 @@ BrassTable::cancel()
     Btree_modified = false;
 
     for (int j = 0; j <= level; j++) {
-	C[j].set_n(BLK_UNUSED);
+	C[j].init(block_size);
 	C[j].rewrite = false;
     }
     read_root();
@@ -1992,18 +1987,17 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
     LOGCALL(DB, bool, "BrassTable::prev_for_sequential", Literal("C_") | Literal("/*dummy*/"));
     int c = C_[0].c;
     if (c == DIR_START) {
-	byte * p = C_[0].get_modifiable_p(block_size);
-	Assert(p);
 	uint4 n = C_[0].get_n();
+	const byte * p;
 	while (true) {
 	    if (n == 0) RETURN(false);
 	    n--;
-	    if (writable) {
-		if (n == C[0].get_n()) {
-		    // Block is a leaf block in the built-in cursor
-		    // (potentially in modified form).
-		    C_[0].clone(block_size, C[0]);
-		} else {
+	    if (n == C[0].get_n()) {
+		// Block is a leaf block in the built-in cursor (potentially in
+		// modified form if the table is writable).
+		p = C_[0].clone(C[0]);
+	    } else {
+		if (writable) {
 		    // Blocks in the built-in cursor may not have been written
 		    // to disk yet, so we have to check that the block number
 		    // isn't in the built-in cursor or we'll read an
@@ -2014,14 +2008,15 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 			if (n == C[j].get_n()) break;
 		    }
 		    if (j <= level) continue;
-
-		    // Block isn't in the built-in cursor, so the form on disk
-		    // is valid, so read it to check if it's the next level 0
-		    // block.
-		    read_block(n, p);
 		}
-	    } else {
-		read_block(n, p);
+
+		// Block isn't in the built-in cursor, so the form on disk
+		// is valid, so read it to check if it's the next level 0
+		// block.
+		byte * q = C_[0].init(block_size);
+		read_block(n, q);
+		p = q;
+		C_[0].set_n(n);
 	    }
 	    if (writable) AssertEq(revision_number, latest_revision_number);
 	    if (REVISION(p) > revision_number + writable) {
@@ -2031,7 +2026,6 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 	    if (GET_LEVEL(p) == 0) break;
 	}
 	c = DIR_END(p);
-	C_[0].set_n(n);
     }
     c -= D2;
     C_[0].c = c;
@@ -2042,7 +2036,7 @@ bool
 BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 {
     LOGCALL(DB, bool, "BrassTable::next_for_sequential", Literal("C_") | Literal("/*dummy*/"));
-    byte * p = C_[0].get_modifiable_p(block_size);
+    const byte * p = C_[0].get_p();
     Assert(p);
     int c = C_[0].c;
     c += D2;
@@ -2056,7 +2050,7 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 		if (n == C[0].get_n()) {
 		    // Block is a leaf block in the built-in cursor
 		    // (potentially in modified form).
-		    C_[0].clone(block_size, C[0]);
+		    p = C_[0].clone(C[0]);
 		} else {
 		    // Blocks in the built-in cursor may not have been written
 		    // to disk yet, so we have to check that the block number
@@ -2072,10 +2066,14 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 		    // Block isn't in the built-in cursor, so the form on disk
 		    // is valid, so read it to check if it's the next level 0
 		    // block.
-		    read_block(n, p);
+		    byte * q = C_[0].init(block_size);
+		    read_block(n, q);
+		    p = q;
 		}
 	    } else {
-		read_block(n, p);
+		byte * q = C_[0].init(block_size);
+		read_block(n, q);
+		p = q;
 	    }
 	    if (writable) AssertEq(revision_number, latest_revision_number);
 	    if (REVISION(p) > revision_number + writable) {
@@ -2103,6 +2101,7 @@ BrassTable::prev_default(Brass::Cursor * C_, int j) const
     if (c == DIR_START) {
 	if (j == level) RETURN(false);
 	if (!prev_default(C_, j + 1)) RETURN(false);
+	p = C_[j].get_p();
 	c = DIR_END(p);
     }
     c -= D2;
@@ -2126,6 +2125,7 @@ BrassTable::next_default(Brass::Cursor * C_, int j) const
     if (c >= DIR_END(p)) {
 	if (j == level) RETURN(false);
 	if (!next_default(C_, j + 1)) RETURN(false);
+	p = C_[j].get_p();
 	c = DIR_START;
     }
     C_[j].c = c;

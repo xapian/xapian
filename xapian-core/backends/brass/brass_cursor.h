@@ -2,7 +2,7 @@
  * @brief Interface to Btree cursors
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,8 @@
 
 #include "brass_types.h"
 
+#include "omassert.h"
+
 #include <cstring>
 #include <string>
 using std::string;
@@ -39,51 +41,56 @@ class Cursor {
         Cursor(const Cursor &);
         Cursor & operator=(const Cursor &);
 
-	/// pointer to a block
-	byte * p;
-
-	/** block number
-	 *
-	 * n is kept in tandem with p.  The unassigned state is when
-	 * p == 0 and n == BLK_UNUSED.
-	 * 
-	 * Setting n to BLK_UNUSED is necessary in at least some cases.
-	 */
-	uint4 n;
+	/// Pointer to reference counted data.
+	char * data;
 
     public:
 	/// Constructor.
-	Cursor() : p(0), n(BLK_UNUSED), c(-1), rewrite(false) { }
+	Cursor() : data(0), c(-1), rewrite(false) { }
+
+	~Cursor() { destroy(); }
 
 	byte * init(unsigned block_size) {
-	    if (!p)
-		p = new byte[block_size];
+	    if (data && refs() > 1) {
+		--refs();
+		data = NULL;
+	    }
+	    if (!data)
+		data = new char[block_size + 8];
+	    refs() = 1;
 	    set_n(BLK_UNUSED);
-	    return p;
+	    rewrite = false;
+	    c = -1;
+	    return reinterpret_cast<byte*>(data + 8);
 	}
 
-	void clone(unsigned block_size, const Cursor & o) {
-	    init(block_size);
-	    std::memcpy(p, o.p, block_size);
-	    n = o.n;
-	}
-
-	void link_root(const Cursor & o) {
-	    p = o.p;
-	    n = o.n;
+	const byte * clone(const Cursor & o) {
+	    if (data != o.data) {
+		destroy();
+		data = o.data;
+		++refs();
+	    }
+	    return reinterpret_cast<byte*>(data + 8);
 	}
 
 	void swap(Cursor & o) {
-	    std::swap(p, o.p);
-	    std::swap(n, o.n);
+	    std::swap(data, o.data);
 	    std::swap(c, o.c);
 	    std::swap(rewrite, o.rewrite);
 	}
 
 	void destroy() {
-	    delete [] p;
-	    p = NULL;
-	    n = BLK_UNUSED;
+	    if (data) {
+		if (--refs() == 0)
+		    delete [] data;
+		data = NULL;
+		rewrite = false;
+	    }
+	}
+
+	uint4 & refs() const {
+	    Assert(data);
+	    return *reinterpret_cast<uint4*>(data);
 	}
 
 	/** Get the block number.
@@ -91,11 +98,14 @@ class Cursor {
 	 *  Returns BLK_UNUSED if no block is currently loaded.
 	 */
 	uint4 get_n() const {
-	    return n;
+	    Assert(data);
+	    return *reinterpret_cast<uint4*>(data + 4);
 	}
 
-	void set_n(uint4 n_) {
-	    n = n_;
+	void set_n(uint4 n) {
+	    Assert(data);
+	    //Assert(refs() == 1);
+	    *reinterpret_cast<uint4*>(data + 4) = n;
 	}
 
 	/** Get pointer to block.
@@ -103,12 +113,20 @@ class Cursor {
 	 * Returns NULL if no block is currently loaded.
 	 */
 	const byte * get_p() const {
-	    return p;
+	    if (rare(!data)) return NULL;
+	    return reinterpret_cast<byte*>(data + 8);
 	}
 
 	byte * get_modifiable_p(unsigned block_size) {
-	    (void)block_size;
-	    return p;
+	    if (rare(!data)) return NULL;
+	    if (refs() > 1) {
+		char * new_data = new char[block_size + 8];
+		memcpy(new_data, data, block_size + 8);
+		--refs();
+		data = new_data;
+		refs() = 1;
+	    }
+	    return reinterpret_cast<byte*>(data + 8);
 	}
 
 	/// offset in the block's directory
