@@ -296,15 +296,16 @@ END
     # git repo cloned from git.xapian.org or a mirror of it.
 
     # If this tree is checked out from the github mirror, use the same access
-    # method for swig, so we avoid firewall issues.
+    # method for other things checked out from github (e.g. swig) so we avoid
+    # firewall issues.
     origin_url=`git config remote.origin.url`
     case $origin_url in
       *[@/]github.com[:/]*)
-	swig_origin_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
+	github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
       *)
-	swig_origin_url=git://github.com/ ;;
+	github_base_url=git://github.com/ ;;
     esac
-    swig_origin_url=${swig_origin_url}swig/swig.git
+    swig_origin_url=${github_base_url}swig/swig.git
     handle_git_external swig b0b8d4c87e0077baccf770441768f5ad3b15dcd3 "$swig_origin_url"
 
     # Equivalent to r17604 in the Xapian SVN tree:
