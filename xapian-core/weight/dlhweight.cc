@@ -85,7 +85,7 @@ DLHWeight::serialise() const
 }
 
 DLHWeight *
-DLHWeight::unserialise(const string & ) const
+DLHWeight::unserialise(const string &) const
 {
     return new DLHWeight();
 }

@@ -1,3 +1,7 @@
+Sat Dec 14 06:01:33 GMT 2013  Olly Betts <olly@survex.com>
+
+	* weight/dlhweight.cc,weight/dphweight.cc: Whitespace tweak.
+
 Fri Dec 13 21:06:28 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_cursor.cc,backends/brass/brass_cursor.h,

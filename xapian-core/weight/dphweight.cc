@@ -88,7 +88,7 @@ DPHWeight::serialise() const
 }
 
 DPHWeight *
-DPHWeight::unserialise(const string & ) const
+DPHWeight::unserialise(const string &) const
 {
     return new DPHWeight();
 }
