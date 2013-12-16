@@ -1,3 +1,8 @@
+Mon Dec 16 09:34:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Improve reporting of GCC version.
+
 Fri Dec 13 08:45:00 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

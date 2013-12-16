@@ -1051,13 +1051,13 @@ if test yes = "$GXX"; then
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
       dnl robust.
-      AC_MSG_CHECKING([for version of GCC])
+      AC_MSG_CHECKING([for version of $CXX])
       gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -E -|sed '/^#/d;s/ //g'`
-      AC_MSG_RESULT([$gxx_version])
+      AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
       [[012]].* | 3.0.*)
-	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
+	AC_MSG_ERROR([Xapian requires GCC 3.1 or later])
 	;;
       3.*|4.0.*) ;;
       *) dnl GCC >= 4.1
