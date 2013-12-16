@@ -1,3 +1,11 @@
+Mon Dec 16 10:40:12 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/msetcmp.cc: Fix sense of reverse parameter to
+	  Enquire::set_sort_by_relevance_then_value.  Reported by "boomboo" on
+	  IRC.
+	* tests/api_db.cc: Fix testcase sortrel1.
+
 Mon Dec 16 09:34:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
