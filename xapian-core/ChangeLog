@@ -1,3 +1,10 @@
+Wed Dec 18 02:43:47 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.h,backends/chert/chert_version.h:
+	  Comment out unused set_uuid() and set_uuid_string() methods - they
+	  may be useful in future, but we aren't currently using them.  Also
+	  make set_uuid() take a const pointer.
+
 Wed Dec 18 02:40:18 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac,tests/runtest.in: Automatically probe for and
