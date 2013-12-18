@@ -88,6 +88,9 @@ if test -z "$VALGRIND" ; then
     MALLOC_PERTURB_=42
     export MALLOC_PERTURB_
 
+    if test -n "$EATMYDATA" ; then
+	echo "Running test '$@' under eatmydata"
+    fi
     exec $EATMYDATA "$@"
     exit 1
 fi
@@ -111,7 +114,11 @@ export XAPIAN_TESTSUITE_VALGRIND
 
 vg_opts='--log-file=.valgrind.log.%p --leak-resolution=high'
 vg_opts="$vg_opts --suppressions=$srcdir/valgrind.supp"
-echo "Running test '$@' under valgrind"
+if test -n "$EATMYDATA" ; then
+    echo "Running test '$@' under eatmydata and valgrind"
+else
+    echo "Running test '$@' under valgrind"
+fi
 # zlib can produce "uninitialised" output from "initialised" input - the output
 # does decode to the input, so this is presumably just some unused bits in the
 # output, so we use an LD_PRELOAD hack to get valgrind to check the input is

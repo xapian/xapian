@@ -1,3 +1,8 @@
+Wed Dec 18 03:24:22 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Report if a test is being run under eatmydata,
+	  like we do for running under valgrind.
+
 Wed Dec 18 02:43:47 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.h,backends/chert/chert_version.h:
