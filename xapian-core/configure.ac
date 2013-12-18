@@ -592,6 +592,13 @@ if test -n "$VALGRIND" ; then
   AC_DEFINE(HAVE_VALGRIND, 1, [Define if a suitable valgrind is installed])
 fi
 
+dnl If eatmydata is installed, we run the testsuite under it to speed it up.
+dnl If EATMYDATA is set to an empty value, then skip this check and don't use
+dnl eatmydata.
+if test -n "${EATMYDATA-unset}" ; then
+  AC_PATH_PROG(EATMYDATA, eatmydata, [])
+fi
+
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror hstrerror)
