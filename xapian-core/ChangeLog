@@ -1,3 +1,7 @@
+Wed Dec 18 01:21:07 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING: Update website update info.
+
 Sat Dec 14 06:01:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* weight/dlhweight.cc,weight/dphweight.cc: Whitespace tweak.
