@@ -154,8 +154,8 @@ wrapped like so for Python 3:
  * `Xapian::revision()` is wrapped as `xapian.revision()`
 
  * `Xapian::Auto::open_stub()` is wrapped as `xapian.open_stub()`
- * `Xapian::Brass::open()` is wrapped as `xapian.brass_open()`
- * `Xapian::Chert::open()` is wrapped as `xapian.chert_open()`
+ * `Xapian::Brass::open()` is deprecated in C++, so not wrapped for Python 3
+ * `Xapian::Chert::open()` is deprecated in C++, so not wrapped for Python 3
  * `Xapian::InMemory::open()` is wrapped as `xapian.inmemory_open()`
  * `Xapian::Remote::open()` is wrapped as `xapian.remote_open()` (both
    the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to

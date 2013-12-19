@@ -33,6 +33,9 @@ using namespace std;
 // If a backend has been disabled in xapian-core (manually or automatically) we
 // include a stub definition here so the bindings can still be built.
 namespace Xapian {
+%}
+#ifndef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
+%{
 #ifndef XAPIAN_HAS_BRASS_BACKEND
     namespace Brass {
 	static Database open(const string &) {
@@ -55,6 +58,9 @@ namespace Xapian {
     }
 #endif
 
+%}
+#endif
+%{
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     namespace InMemory {
 	static WritableDatabase open() {

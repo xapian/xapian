@@ -192,8 +192,8 @@ wrap these PHP iterators (see <a href="http://trac.xapian.org/ticket/520">ticket
 
 <ul>
 <li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>Xapian::auto_open_stub(<i>file</i>)</code>
-<li> <code>Xapian::Brass::open()</code> is wrapped as <code>Xapian::brass_open()</code>
-<li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian::chert_open()</code>
+<li> <code>Xapian::Brass::open()</code> is wrapped as <code>Xapian::brass_open()</code> (now deprecated)
+<li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian::chert_open()</code> (now deprecated)
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
 <li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>Xapian::remote_open(...)</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to

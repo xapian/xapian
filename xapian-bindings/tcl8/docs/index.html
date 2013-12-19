@@ -44,8 +44,9 @@ between Tcl and Xapian.
    trap for the unwary - these are the WritableDatabase versions of
    <code>Xapian::Brass::open</code> and <code>Xapian::Chert::open</code>.
    You can just use a <code>Xapian::WritableDatabase</code> constructor
-   instead (and set <code>XAPIAN_PREFER_BRASS</code> in the environment to
-   select brass rather than chert).
+   instead (and to specify brass rather than chert, pass
+   <code>$::xapian::DB_BACKEND_BRASS</code> in the flags, or set
+   <code>XAPIAN_PREFER_BRASS</code> in the environment).
 </p>
 
 <p>
@@ -159,8 +160,9 @@ wrapped like so for Tcl:
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
 <li> <code>Xapian::Brass::open()</code> is wrapped as <code>xapian::brass_open</code> (but note that the WritableDatabase version isn't wrapped - see
+the 'Destructors' section above for an explanation - and this function is deprecated anyway).
 <li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian::chert_open</code> (but note that the WritableDatabase version isn't wrapped - see
-the 'Destructors' section above for an explanation).
+the 'Destructors' section above for an explanation - and this function is deprecated anyway).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (both
 the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to

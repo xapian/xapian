@@ -1,3 +1,11 @@
+Thu Dec 19 06:45:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.html,lua/docs/index.html,perl/perl.i,
+	  php/docs/index.html,python/docs/index.html,python3/docs/index.rst,
+	  python3/python.i,ruby/docs/index.html,tcl8/docs/index.html,
+	  xapian-head.i,xapian-headers.i: Update for deprecation of
+	  Xapian::Brass::open() and Xapian::Chert::open().
+
 Thu Dec 19 02:26:03 GMT 2013  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Update for new Xapian::DB_* constants.

@@ -21,6 +21,9 @@
  */
 %}
 
+/* These were deprecated before Python 3 support was released. */
+#define XAPIAN_BINDINGS_SKIP_BRASS_AND_CHERT_FACTORIES
+
 %begin %{
 #include <config.h>
 #include <Python.h>

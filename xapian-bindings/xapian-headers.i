@@ -379,11 +379,18 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 #define XAPIAN_HAS_INMEMORY_BACKEND
 %rename("inmemory_open") Xapian::InMemory::open;
 
+#ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
+%ignore Xapian::Brass::open;
+%ignore Xapian::Chert::open;
+#else
+
 #define XAPIAN_HAS_BRASS_BACKEND
 %rename("brass_open") Xapian::Brass::open;
 
 #define XAPIAN_HAS_CHERT_BACKEND
 %rename("chert_open") Xapian::Chert::open;
+
+#endif
 
 #define XAPIAN_HAS_REMOTE_BACKEND
 %rename("remote_open") Xapian::Remote::open;

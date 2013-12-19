@@ -22,6 +22,9 @@
  */
 %}
 
+/* The XS Search::Xapian never wrapped these, and they're now deprecated. */
+#define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
+
 %include ../xapian-head.i
 
 /* Rename function next() to increment() since the keyword "next" is already
