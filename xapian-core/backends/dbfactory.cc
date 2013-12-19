@@ -418,16 +418,14 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	    open_stub(*this, path, flags);
 	    return;
 	case 0: {
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	    // If only brass is enabled, there's no point checking the
+	    // If only one backend is enabled, there's no point checking the
 	    // environmental variable.
-#ifdef XAPIAN_HAS_CHERT_BACKEND
+#if defined XAPIAN_HAS_BRASS_BACKEND && defined XAPIAN_HAS_CHERT_BACKEND
 	    // If $XAPIAN_PREFER_BRASS is set to a non-empty value, prefer brass
 	    // if there's no existing database.
 	    const char *p = getenv("XAPIAN_PREFER_BRASS");
 	    if (p && *p)
 	       	goto brass;
-#endif
 #endif
 	}
 	// Fall through to first enabled case, so order the remaining cases

@@ -1,3 +1,8 @@
+Thu Dec 19 23:10:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Tweak conditionals around $XAPIAN_PREFER_BRASS
+	  check.
+
 Thu Dec 19 23:09:30 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/dbfactory.cc,docs/deprecation.rst,
