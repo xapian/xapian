@@ -59,8 +59,8 @@ make, you might do this like so::
 API and ABI compatibility
 -------------------------
 
-Releases are given three-part version numbers (e.g. 1.0.2), the three parts
-being termed "major" (1), "minor" (0), and "revision" (2).  Releases with
+Releases are given three-part version numbers (e.g. 1.2.9), the three parts
+being termed "major" (1), "minor" (2), and "revision" (9).  Releases with
 the same major and minor version are termed a "release series".
 
 For Xapian releases 1.0.0 and higher, an even minor version indicates a stable
