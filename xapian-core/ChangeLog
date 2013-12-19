@@ -1,3 +1,12 @@
+Thu Dec 19 08:47:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_version.h,backends/chert/chert_version.h,
+	  backends/flint/flint_version.h: Comment out unused set_uuid() and
+	  set_uuid_string() methods - they may be useful in future, but we
+	  aren't currently using them.  Also make set_uuid() take a const
+	  pointer.
+
 Thu Dec 19 08:41:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
