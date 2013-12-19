@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,6 +132,17 @@
 
 /* Types are needed by most of the other headers. */
 %include <xapian/types.h>
+
+CONSTANT(int, Xapian, DB_CREATE);
+CONSTANT(int, Xapian, DB_CREATE_OR_OPEN);
+CONSTANT(int, Xapian, DB_CREATE_OR_OVERWRITE);
+CONSTANT(int, Xapian, DB_OPEN);
+CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
+CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
+CONSTANT(int, Xapian, DBCHECK_SHOW_BITMAP);
+CONSTANT(int, Xapian, DBCHECK_SHOW_STATS);
+CONSTANT(int, Xapian, DBCHECK_FIX);
+%include <xapian/constants.h>
 
 /* The Error subclasses are handled separately for languages where we wrap
  * them. */
@@ -373,13 +384,4 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
 %ignore Xapian::Database::get_document_lazily_;
 %ignore Xapian::Database::check(const std::string &, int, std::ostream &);
-CONSTANT(int, Xapian, DB_CREATE);
-CONSTANT(int, Xapian, DB_CREATE_OR_OPEN);
-CONSTANT(int, Xapian, DB_CREATE_OR_OVERWRITE);
-CONSTANT(int, Xapian, DB_OPEN);
-CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
-CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
-CONSTANT(int, Xapian, DBCHECK_SHOW_BITMAP);
-CONSTANT(int, Xapian, DBCHECK_SHOW_STATS);
-CONSTANT(int, Xapian, DBCHECK_FIX);
 %include <xapian/database.h>

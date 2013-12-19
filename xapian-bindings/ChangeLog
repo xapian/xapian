@@ -1,3 +1,7 @@
+Wed Dec 18 23:10:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Update for addition of xapian/constants.h.
+
 Fri Dec 06 05:29:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Link against -ltclstubX.Y for Tcl 8.5 and later
