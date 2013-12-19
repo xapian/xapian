@@ -1,3 +1,7 @@
+Thu Dec 19 09:48:04 GMT 2013  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from 1.2.16 and ChangeLog.
+
 Thu Dec 19 06:45:17 GMT 2013  Olly Betts <olly@survex.com>
 
 	* csharp/docs/index.html,lua/docs/index.html,perl/perl.i,

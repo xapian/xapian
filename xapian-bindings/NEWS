@@ -1,3 +1,77 @@
+ 17732       olly Thu Dec 19 06:45:17 GMT 2013  Olly Betts <olly@survex.com>
+
+backported for 1.2.17:
+
+ 17695       olly Fri Dec 06 05:29:53 GMT 2013  Olly Betts <olly@survex.com>
+	* configure.ac: Link against -ltclstubX.Y for Tcl 8.5 and later
+	  (reported by Sergei Golovan in http://bugs.debian.org/724830).
+	  Also, use a better check for TCL_INC for Tcl 8.5 and later.
+
+ 17694       olly Fri Dec 06 03:31:50 GMT 2013  Olly Betts <olly@survex.com>
+	* README,configure.ac: Tweak configure to work with Ruby 2.0.
+
+Xapian-bindings 1.3.2 (2013-12-19):
+
+This release includes all changes from 1.2.16 which are relevant.
+
+Documentation:
+
+* Update for deprecation of Xapian::Brass::open() and Xapian::Chert::open().
+
+General:
+
+* Wrap new C++ API features, and in particular all the new weighting schemes.
+
+* Object descriptions are now always valid UTF-8. (see #620)
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+* Use croak_sv() or ERRSV if defined.
+
+PHP:
+
+Python:
+
+	* python/smoketest.py,python3/smoketest.py: If constants weren't
+	  handled in xapian-headers.i with the CONSTANT() macro, we ended up
+	  with xapian.cvar being created, and an obscure error from
+	  smoketest.py.  Now we report what the variables are in the
+	  testsuite output.
+
+* Python 3 support should now be usable.
+	* README: Document 3.2 as the minimum supported Python3 version, and
+	  update the status to "mostly functional".
+	* python3/pythontest.py,python3/smoketest.py,python3/util.i: Drop the
+	  deprecated 'MSet.items' and 'ESet.items' for Python3 - people are
+	  going to need to make code updates anyway, so keeping existing code
+	  working unchanged isn't a realistic concern.
+	* python3/pythontest.py: Don't run postingsource testcase under
+	  threads for now as it segfaults for unknown reasons.
+	* Makefile.am,configure.ac,python/,python3/.gitignore,
+	  python3/Makefile.am,python3/docs/examples/,python3/docs/index.html,
+	  python3/: Split python3 bindings into a separate subdirectory, to
+	  make it simpler to handle differences between python2 and python3.
+	  This also makes it easier to test both, as a tree can now be
+	  configured for both at once.
+
+Ruby:
+
+* configure: Don't prefer ruby1.8 to ruby when looking for a ruby interpreter -
+  these days it's more likely to ignore ruby 1.9 or 2.0 rather than avoid
+  picking ruby 1.6.
+
+Tcl:
+
 Xapian-bindings 1.3.1 (2013-05-03):
 
 This release includes all changes from 1.2.10-1.2.15 which are relevant.
@@ -214,6 +288,50 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.16 (2013-12-04):
+
+Documentation:
+
+* README: Note that the SWIG Perl bindings should replace the XS ones in 1.4.x.
+
+General:
+
+* Compress source tarballs with xz instead of gzip.
+
+* configure: Handle git snapshot naming.
+
+Portability:
+
+* configure: Update list of platforms where we tell libtool not to link in
+  deplibs to match the list used for xapian-core.
+
+Perl:
+
+* Pass 0 instead of NULL for non-pointer parameter to av_fetch (spotted due to
+  GCC 4.7 warning).
+
+* symboltest.t: Pass $CPPFLAGS and $CXXFLAGS from the environment through to
+  the sub-build, fixing failure when built with CPPFLAGS=-D_GLIBCXX_DEBUG.
+
+PHP:
+
+* smoketest.php: If running under PHP >= 5.4, skip the tests we know will fail
+  with a message explaining this.
+
+Python:
+
+* Provide bindings version in xapian.__version__ as per PEP 396.  (see #346)
+
+* python/docs/examples/simpleexpand.py: Use Pythonic iteration over the ESet.
+
+* pythontest.py: Fix testcase checking we get an exception from using
+  non-random-access iterators after then have advanced - previously these
+  didn't actually test as fully as intended.
+
+Ruby:
+
+* Omit internal classes and methods from the rdocs.
 
 Xapian-bindings 1.2.15 (2013-04-16):
 
