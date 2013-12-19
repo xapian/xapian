@@ -137,6 +137,13 @@ CONSTANT(int, Xapian, DB_CREATE);
 CONSTANT(int, Xapian, DB_CREATE_OR_OPEN);
 CONSTANT(int, Xapian, DB_CREATE_OR_OVERWRITE);
 CONSTANT(int, Xapian, DB_OPEN);
+%ignore Xapian::DB_ACTION_MASK_;
+%ignore Xapian::DB_BACKEND_MASK_;
+%ignore Xapian::DB_READONLY_;
+CONSTANT(int, Xapian, DB_NO_SYNC);
+CONSTANT(int, Xapian, DB_DANGEROUS);
+CONSTANT(int, Xapian, DB_BACKEND_BRASS);
+CONSTANT(int, Xapian, DB_BACKEND_CHERT);
 CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
 CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
 CONSTANT(int, Xapian, DBCHECK_SHOW_BITMAP);
@@ -150,43 +157,6 @@ CONSTANT(int, Xapian, DBCHECK_FIX);
 
 /* ErrorHandler isn't currently wrapped. */
 /* %include <xapian/errorhandler.h> */
-
-#if defined SWIGCSHARP || defined SWIGJAVA
-
-/* xapian/dbfactory.h is currently wrapped via fake class declarations in
- * fake_dbfactory.i for C# and Java. */
-
-#else
-
-#ifndef SWIGPHP
-/* PHP renames this to auto_open_stub() in php/php.i. */
-%rename("open_stub") Xapian::Auto::open_stub;
-#endif
-
-/* SWIG Tcl wrappers don't call destructors for classes returned by factory
- * functions, so we don't wrap them so users are forced to use the
- * WritableDatabase ctor instead. */
-#ifdef SWIGTCL
-%ignore Xapian::Brass::open(const std::string &dir, int action, int block_size = 8192);
-%ignore Xapian::Chert::open(const std::string &dir, int action, int block_size = 8192);
-#endif
-
-#define XAPIAN_HAS_INMEMORY_BACKEND
-%rename("inmemory_open") Xapian::InMemory::open;
-
-#define XAPIAN_HAS_BRASS_BACKEND
-%rename("brass_open") Xapian::Brass::open;
-
-#define XAPIAN_HAS_CHERT_BACKEND
-%rename("chert_open") Xapian::Chert::open;
-
-#define XAPIAN_HAS_REMOTE_BACKEND
-%rename("remote_open") Xapian::Remote::open;
-%rename("remote_open_writable") Xapian::Remote::open_writable;
-
-%include <xapian/dbfactory.h>
-
-#endif
 
 INPUT_ITERATOR_METHODS(Xapian, PositionIterator, Xapian::termpos, get_termpos)
 %include <xapian/positioniterator.h>
@@ -385,3 +355,40 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::Database::get_document_lazily_;
 %ignore Xapian::Database::check(const std::string &, int, std::ostream &);
 %include <xapian/database.h>
+
+#if defined SWIGCSHARP || defined SWIGJAVA
+
+/* xapian/dbfactory.h is currently wrapped via fake class declarations in
+ * fake_dbfactory.i for C# and Java. */
+
+#else
+
+#ifndef SWIGPHP
+/* PHP renames this to auto_open_stub() in php/php.i. */
+%rename("open_stub") Xapian::Auto::open_stub;
+#endif
+
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so we don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead. */
+#ifdef SWIGTCL
+%ignore Xapian::Brass::open(const std::string &dir, int action, int block_size = 8192);
+%ignore Xapian::Chert::open(const std::string &dir, int action, int block_size = 8192);
+#endif
+
+#define XAPIAN_HAS_INMEMORY_BACKEND
+%rename("inmemory_open") Xapian::InMemory::open;
+
+#define XAPIAN_HAS_BRASS_BACKEND
+%rename("brass_open") Xapian::Brass::open;
+
+#define XAPIAN_HAS_CHERT_BACKEND
+%rename("chert_open") Xapian::Chert::open;
+
+#define XAPIAN_HAS_REMOTE_BACKEND
+%rename("remote_open") Xapian::Remote::open;
+%rename("remote_open_writable") Xapian::Remote::open_writable;
+
+%include <xapian/dbfactory.h>
+
+#endif

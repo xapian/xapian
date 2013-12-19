@@ -1,3 +1,7 @@
+Thu Dec 19 02:26:03 GMT 2013  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Update for new Xapian::DB_* constants.
+
 Thu Dec 19 02:17:15 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/docs/index.rst: Wording tweaks.
