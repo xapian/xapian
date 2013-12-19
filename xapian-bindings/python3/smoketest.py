@@ -60,7 +60,9 @@ def test_all():
     expect((xapian.__version__.split('.'))[0], '1', 'xapian.__version__ not "1.Y.Z"')
 
     def access_cvar():
-        return xapian.cvar
+        res = xapian.cvar
+        print "Unhandled constants: ", res
+        return res
 
     # Check that SWIG isn't generating cvar (regression test for ticket#297).
     expect_exception(AttributeError, "'module' object has no attribute 'cvar'",

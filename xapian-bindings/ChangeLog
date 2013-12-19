@@ -1,3 +1,11 @@
+Thu Dec 19 02:15:09 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py,python3/smoketest.py: If constants weren't
+	  handled in xapian-headers.i with the CONSTANT() macro, we ended up
+	  with xapian.cvar being created, and an obscure error from
+	  smoketest.py.  Now we report what the variables are in the
+	  testsuite output.
+
 Wed Dec 18 23:10:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Update for addition of xapian/constants.h.
