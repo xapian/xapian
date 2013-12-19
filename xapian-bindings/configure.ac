@@ -450,14 +450,22 @@ if test no != "$with_tcl" ; then
 
       AC_ARG_VAR([TCL_INC], [Directory to include for Tcl headers])
       if test -z "$TCL_INC" ; then
-	dnl There's no obvious way to get "/usr/include/tcl8.N" directly, so
-	dnl first we find the prefix Tcl is installed under (e.g. "/usr") from
-	dnl the path on TCLSH (or default to /usr if the path doesn't contain
-	dnl "/bin/"), and then we add "/include/tcl" and $tcl_version.
-	tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
-	test -n "$tcl_prefix" || tcl_prefix=/usr
-	TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
-	test -f "$TCL_INC/tcl.h" || TCL_INC=/usr/include
+	dnl ::tcl::pkgconfig was added in Tcl 8.5.
+	[TCL_INC=`echo 'puts [::tcl::pkgconfig get includedir,runtime]'|$TCLSH 2> /dev/null`]
+	if test -z "$TCL_INC" ; then
+	  dnl Prior to Tcl 8.5, there's no good way to get
+	  dnl "/usr/include/tcl8.N" directly - tclConfig.sh contains it, but
+	  dnl there's no reliable way to locate that prior to Tcl 8.5!
+	  dnl
+	  dnl So first we find the prefix Tcl is installed under (e.g. "/usr")
+	  dnl from the path on TCLSH (or default to /usr if the path doesn't
+	  dnl contain "/bin/"), and then we append "/include/tcl" and
+	  dnl $tcl_version.
+	  tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
+	  test -n "$tcl_prefix" || tcl_prefix=/usr
+	  TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
+	  test -f "$TCL_INC/tcl.h" || TCL_INC=/usr/include
+	fi
       fi
 
       dnl Check that the headers are there (the tcl8.N-dev package
@@ -477,25 +485,37 @@ if test no != "$with_tcl" ; then
 	  if test yes = "$with_tcl" ; then
 	    AC_MSG_ERROR([Found tcl.h for version $tcl_hdr_version, not $tcl_version])
 	  fi
+	  TCLSH=
 	fi
       else
 	AC_MSG_RESULT([not found])
 	if test yes = "$with_tcl" ; then
 	  AC_MSG_ERROR([Can't find tcl.h])
 	fi
+	TCLSH=
       fi
 
-      dnl Cygwin needs to link with -ltcl8.5 or similar.
-      TCL_LIBS=
-      case $host_os in
-      cygwin*)
-	AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
-		     [TCL_LIBS="-ltcl$tcl_version"],
-		     [AC_MSG_ERROR([libtcl$tcl_version not found])])
-	;;
-      *)
-	TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
-      esac
+      if test -n "$TCLSH" ; then
+	dnl Cygwin needs to link with -ltcl8.5 or similar.
+	TCL_LIBS=
+	case $host_os in
+	cygwin*)
+	  AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
+		       [TCL_LIBS="-ltcl$tcl_version"],
+		       [AC_MSG_ERROR([libtcl$tcl_version not found])])
+	  ;;
+	*)
+	  dnl ::tcl::pkgconfig was added in Tcl 8.5, but prior to 8.6 it isn't
+	  dnl necessary to link against -ltclstub anyway.
+	  [TCLCONFIG_SH=`echo 'puts [file join [::tcl::pkgconfig get libdir,runtime] tclConfig.sh]'|$TCLSH 2> /dev/null`]
+	  if test -n "$TCLCONFIG_SH" && test -r "$TCLCONFIG_SH" ; then
+	    eval "`grep ^TCL_STUB_LIB_SPEC= $TCLCONFIG_SH`"
+	    TCL_LIBS=$TCL_STUB_LIB_SPEC
+	  fi
+	  TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
+	esac
+      fi
+
       AC_SUBST(TCL_CPPFLAGS)
       AC_SUBST(TCL_LIBS)
     else

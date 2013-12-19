@@ -1,3 +1,10 @@
+Thu Dec 19 09:35:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Link against -ltclstubX.Y for Tcl 8.5 and later
+	  (reported by Sergei Golovan in http://bugs.debian.org/724830).
+	  Also, use a better check for TCL_INC for Tcl 8.5 and later.
+
 Thu Dec 19 09:32:21 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
