@@ -1,3 +1,10 @@
+Thu Dec 19 08:41:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING,configure.ac,tests/runtest.in: Automatically probe for and
+	  hook in eatmydata to the testsuite using the wrapper script it now
+	  includes.
+
 Thu Dec 19 08:22:16 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
