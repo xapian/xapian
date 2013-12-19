@@ -87,8 +87,8 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
 	throw msg;
     }
 
-    // Open NUMBER_OF_SUB_DBS databases and index files to the alternately so a
-    // multi-db combining them contains the documents in the expected order.
+    // Open NUMBER_OF_SUB_DBS databases and index files to them alternately so
+    // a multi-db combining them contains the documents in the expected order.
     Xapian::WritableDatabase dbs[NUMBER_OF_SUB_DBS];
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
 	string subdbdir = dbname;

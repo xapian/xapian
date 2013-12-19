@@ -1,3 +1,8 @@
+Thu Dec 19 09:22:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/backendmanager_multi.cc: Fix comment typo.
+
 Thu Dec 19 09:18:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
