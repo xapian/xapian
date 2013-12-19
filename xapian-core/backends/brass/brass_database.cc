@@ -98,10 +98,10 @@ const int MAX_OPEN_RETRIES = 100;
  * determining the current and next revision numbers, and stores handles
  * to the tables.
  */
-BrassDatabase::BrassDatabase(const string &brass_dir, int action,
+BrassDatabase::BrassDatabase(const string &brass_dir, int flags,
 			     unsigned int block_size)
 	: db_dir(brass_dir),
-	  readonly(action == XAPIAN_DB_READONLY),
+	  readonly(flags == Xapian::DB_READONLY_),
 	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
 	  position_table(db_dir, readonly),
@@ -113,13 +113,14 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	  lock(db_dir),
 	  max_changesets(0)
 {
-    LOGCALL_CTOR(DB, "BrassDatabase", brass_dir | action | block_size);
+    LOGCALL_CTOR(DB, "BrassDatabase", brass_dir | flags | block_size);
 
-    if (action == XAPIAN_DB_READONLY) {
-	open_tables_consistent();
+    if (readonly) {
+	open_tables_consistent(0);
 	return;
     }
 
+    int action = flags & Xapian::DB_ACTION_MASK_;
     if (action != Xapian::DB_OPEN && !database_exists()) {
 
 	// Create the directory for the database, if it doesn't exist
@@ -135,9 +136,9 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	    throw Xapian::DatabaseCreateError("Cannot create directory '" +
 					      db_dir + "'", errno);
 	}
-	get_database_write_lock(true);
+	get_database_write_lock(flags, true);
 
-	create_and_open_tables(block_size);
+	create_and_open_tables(flags, block_size);
 	return;
     }
 
@@ -147,15 +148,15 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 					  "not to overwrite it");
     }
 
-    get_database_write_lock(false);
+    get_database_write_lock(flags, false);
     // if we're overwriting, pretend the db doesn't exist
     if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
-	create_and_open_tables(block_size);
+	create_and_open_tables(flags, block_size);
 	return;
     }
 
     // Get latest consistent version
-    open_tables_consistent();
+    open_tables_consistent(0);
 
     // Check that there are no more recent versions of tables.  If there
     // are, perform recovery by writing a new revision number to all
@@ -164,7 +165,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int action,
 	postlist_table.get_latest_revision_number()) {
 	brass_revision_number_t new_revision = get_next_revision_number();
 
-	set_revision_number(new_revision);
+	set_revision_number(flags, new_revision);
     }
 }
 
@@ -180,21 +181,21 @@ BrassDatabase::database_exists() {
 }
 
 void
-BrassDatabase::create_and_open_tables(unsigned int block_size)
+BrassDatabase::create_and_open_tables(int flags, unsigned int block_size)
 {
-    LOGCALL_VOID(DB, "BrassDatabase::create_and_open_tables", NO_ARGS);
+    LOGCALL_VOID(DB, "BrassDatabase::create_and_open_tables", flags|block_size);
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
-    version_file.create();
-    postlist_table.create_and_open(block_size);
-    position_table.create_and_open(block_size);
-    termlist_table.create_and_open(block_size);
-    synonym_table.create_and_open(block_size);
-    spelling_table.create_and_open(block_size);
-    record_table.create_and_open(block_size);
+    version_file.create(flags);
+    postlist_table.create_and_open(flags, block_size);
+    position_table.create_and_open(flags, block_size);
+    termlist_table.create_and_open(flags, block_size);
+    synonym_table.create_and_open(flags, block_size);
+    spelling_table.create_and_open(flags, block_size);
+    record_table.create_and_open(flags, block_size);
 
     Assert(database_exists());
 
@@ -208,9 +209,9 @@ BrassDatabase::create_and_open_tables(unsigned int block_size)
 }
 
 bool
-BrassDatabase::open_tables_consistent()
+BrassDatabase::open_tables_consistent(int flags)
 {
-    LOGCALL(DB, bool, "BrassDatabase::open_tables_consistent", NO_ARGS);
+    LOGCALL(DB, bool, "BrassDatabase::open_tables_consistent", flags);
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -224,7 +225,7 @@ BrassDatabase::open_tables_consistent()
     // Check the version file unless we're reopening.
     if (cur_rev == 0) version_file.read_and_check();
 
-    record_table.open();
+    record_table.open(flags);
     brass_revision_number_t revision = record_table.get_open_revision_number();
 
     if (cur_rev && cur_rev == revision) {
@@ -235,21 +236,21 @@ BrassDatabase::open_tables_consistent()
 
     // Set the block_size for optional tables as they may not currently exist.
     unsigned int block_size = record_table.get_block_size();
-    position_table.set_block_size(block_size);
-    termlist_table.set_block_size(block_size);
-    synonym_table.set_block_size(block_size);
-    spelling_table.set_block_size(block_size);
+    position_table.set_block_size(flags, block_size);
+    termlist_table.set_block_size(flags, block_size);
+    synonym_table.set_block_size(flags, block_size);
+    spelling_table.set_block_size(flags, block_size);
 
     value_manager.reset();
 
     bool fully_opened = false;
     int tries_left = MAX_OPEN_RETRIES;
     while (!fully_opened && (tries_left--) > 0) {
-	if (spelling_table.open(revision) &&
-	    synonym_table.open(revision) &&
-	    termlist_table.open(revision) &&
-	    position_table.open(revision) &&
-	    postlist_table.open(revision)) {
+	if (spelling_table.open(flags, revision) &&
+	    synonym_table.open(flags, revision) &&
+	    termlist_table.open(flags, revision) &&
+	    position_table.open(flags, revision) &&
+	    postlist_table.open(flags, revision)) {
 	    // Everything now open at the same revision.
 	    fully_opened = true;
 	} else {
@@ -263,7 +264,7 @@ BrassDatabase::open_tables_consistent()
 	    // So, we reopen the record table, and check its revision number,
 	    // if it's changed we try the opening again, otherwise we give up.
 	    //
-	    record_table.open();
+	    record_table.open(flags);
 	    brass_revision_number_t newrevision =
 		    record_table.get_open_revision_number();
 	    if (revision == newrevision) {
@@ -285,26 +286,26 @@ BrassDatabase::open_tables_consistent()
 }
 
 void
-BrassDatabase::open_tables(brass_revision_number_t revision)
+BrassDatabase::open_tables(int flags, brass_revision_number_t revision)
 {
-    LOGCALL_VOID(DB, "BrassDatabase::open_tables", revision);
+    LOGCALL_VOID(DB, "BrassDatabase::open_tables", flags|revision);
     version_file.read_and_check();
-    record_table.open(revision);
+    record_table.open(flags, revision);
 
     // Set the block_size for optional tables as they may not currently exist.
     unsigned int block_size = record_table.get_block_size();
-    position_table.set_block_size(block_size);
-    termlist_table.set_block_size(block_size);
-    synonym_table.set_block_size(block_size);
-    spelling_table.set_block_size(block_size);
+    position_table.set_block_size(flags, block_size);
+    termlist_table.set_block_size(flags, block_size);
+    synonym_table.set_block_size(flags, block_size);
+    spelling_table.set_block_size(flags, block_size);
 
     value_manager.reset();
 
-    spelling_table.open(revision);
-    synonym_table.open(revision);
-    termlist_table.open(revision);
-    position_table.open(revision);
-    postlist_table.open(revision);
+    spelling_table.open(flags, revision);
+    synonym_table.open(flags, revision);
+    termlist_table.open(flags, revision);
+    position_table.open(flags, revision);
+    postlist_table.open(flags, revision);
 }
 
 brass_revision_number_t
@@ -373,9 +374,9 @@ BrassDatabase::get_changeset_revisions(const string & path,
 }
 
 void
-BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
+BrassDatabase::set_revision_number(int flags, brass_revision_number_t new_revision)
 {
-    LOGCALL_VOID(DB, "BrassDatabase::set_revision_number", new_revision);
+    LOGCALL_VOID(DB, "BrassDatabase::set_revision_number", flags|new_revision);
 
     value_manager.merge_changes();
 
@@ -421,11 +422,11 @@ BrassDatabase::set_revision_number(brass_revision_number_t new_revision)
 	    pack_uint(buf, old_revision);
 	    pack_uint(buf, new_revision);
 
-#ifndef DANGEROUS
-	    buf += '\x00'; // Changes can be applied to a live database.
-#else
-	    buf += '\x01';
-#endif
+	    if (flags & Xapian::DB_DANGEROUS) {
+		buf += '\x01'; // Changes can't be applied to a live database.
+	    } else {
+		buf += '\x00'; // Changes can be applied to a live database.
+	    }
 
 	    io_write(changes_fd, buf.data(), buf.size());
 
@@ -491,7 +492,7 @@ BrassDatabase::reopen()
 {
     LOGCALL(DB, bool, "BrassDatabase::reopen", NO_ARGS);
     if (!readonly) return false;
-    return open_tables_consistent();
+    return open_tables_consistent(postlist_table.get_flags());
 }
 
 void
@@ -508,9 +509,13 @@ BrassDatabase::close()
 }
 
 void
-BrassDatabase::get_database_write_lock(bool creating)
+BrassDatabase::get_database_write_lock(int flags, bool creating)
 {
-    LOGCALL_VOID(DB, "BrassDatabase::get_database_write_lock", creating);
+    LOGCALL_VOID(DB, "BrassDatabase::get_database_write_lock", flags|creating);
+    (void)flags;
+    // FIXME: Handle Xapian::DB_DANGEROUS here, perhaps by having readers
+    // get a lock on the revision they're reading, and then requiring the
+    // writer get an exclusive lock in this case.
     string explanation;
     FlintLock::reason why = lock.lock(true, explanation);
     if (why != FlintLock::SUCCESS) {
@@ -697,12 +702,12 @@ BrassDatabase::modifications_failed(brass_revision_number_t old_revision,
 	cancel();
 
 	// Reopen tables with old revision number.
-	open_tables(old_revision);
+	open_tables(postlist_table.get_flags(), old_revision);
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
 	++new_revision;
-	set_revision_number(new_revision);
+	set_revision_number(postlist_table.get_flags(), new_revision);
     } catch (const Xapian::Error &e) {
 	// We can't get the database into a consistent state, so close
 	// it to avoid the risk of database corruption.
@@ -731,7 +736,7 @@ BrassDatabase::apply()
     brass_revision_number_t new_revision = get_next_revision_number();
 
     try {
-	set_revision_number(new_revision);
+	set_revision_number(postlist_table.get_flags(), new_revision);
     } catch (const Xapian::Error &e) {
 	modifications_failed(old_revision, new_revision, e.get_description());
 	throw;
@@ -1023,15 +1028,15 @@ BrassDatabase::throw_termlist_table_close_exception() const
 
 ///////////////////////////////////////////////////////////////////////////
 
-BrassWritableDatabase::BrassWritableDatabase(const string &dir, int action,
+BrassWritableDatabase::BrassWritableDatabase(const string &dir, int flags,
 					       int block_size)
-	: BrassDatabase(dir, action, block_size),
+	: BrassDatabase(dir, flags, block_size),
 	  change_count(0),
 	  flush_threshold(0),
 	  modify_shortcut_document(NULL),
 	  modify_shortcut_docid(0)
 {
-    LOGCALL_CTOR(DB, "BrassWritableDatabase", dir | action | block_size);
+    LOGCALL_CTOR(DB, "BrassWritableDatabase", dir | flags | block_size);
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)

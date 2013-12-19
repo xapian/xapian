@@ -71,9 +71,9 @@ class BrassPostListTable : public BrassTable {
 	      doclen_pl()
 	{ }
 
-	bool open(brass_revision_number_t revno) {
+	bool open(int flags_, brass_revision_number_t revno) {
 	    doclen_pl.reset(0);
-	    return BrassTable::open(revno);
+	    return BrassTable::open(flags_, revno);
 	}
 
 	/// Merge changes for a term.

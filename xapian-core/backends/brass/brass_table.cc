@@ -34,19 +34,6 @@
 #include "str.h"
 #include "stringutils.h" // For STRINGIZE().
 
-// Define to use "dangerous" mode - in this mode we write modified btree
-// blocks back in place.  This is somewhat faster (especially once we're
-// I/O bound) but the database can't be safely searched during indexing
-// and if indexing is terminated uncleanly, the database may be corrupt.
-//
-// Despite the risks, it's useful for speeding up a full rebuild.
-//
-// FIXME: make this mode run-time selectable, and record that it is currently
-// in use somewhere on disk, so readers can check and refuse to open the
-// database.
-//
-// #define DANGEROUS
-
 #include <sys/types.h>
 
 // Trying to include the correct headers with the correct defines set to
@@ -77,6 +64,8 @@ PWRITE_PROTOTYPE
 
 #include <algorithm>  // for std::min()
 #include <string>
+
+#include "xapian/constants.h"
 
 using namespace Brass;
 using namespace std;
@@ -249,7 +238,17 @@ BrassTable::write_block(uint4 n, const byte * p) const
     /* write revision is okay */
     AssertEqParanoid(REVISION(p), latest_revision_number + 1);
 
-    if (both_bases) {
+    if (flags & Xapian::DB_DANGEROUS) {
+	if (number_of_bases) {
+	    // Remove base files to prevent readers opening the database.
+	    // FIXME: This doesn't deal with any existing readers though.
+	    if (number_of_bases == 2)
+		(void)io_unlink(name + "base" + other_base_letter());
+	    (void)io_unlink(name + "base" + base_letter);
+	    number_of_bases = 0;
+	    latest_revision_number = revision_number;
+	}
+    } else if (number_of_bases == 2) {
 	// Delete the old base before modifying the database.
 	//
 	// If the file is on NFS, then io_unlink() may return false even if
@@ -258,7 +257,7 @@ BrassTable::write_block(uint4 n, const byte * p) const
 	// likely explanation is that somebody moved, deleted, or changed a
 	// symlink to the database directory.
 	(void)io_unlink(name + "base" + other_base_letter());
-	both_bases = false;
+	number_of_bases = 1;
 	latest_revision_number = revision_number;
     }
 
@@ -410,9 +409,10 @@ BrassTable::alter()
 {
     LOGCALL_VOID(DB, "BrassTable::alter", NO_ARGS);
     Assert(writable);
-#ifdef DANGEROUS
-    C[0].rewrite = true;
-#else
+    if (flags & Xapian::DB_DANGEROUS) {
+	C[0].rewrite = true;
+	return;
+    }
     int j = 0;
     while (true) {
 	if (C[j].rewrite) return; /* all new, so return */
@@ -434,7 +434,6 @@ BrassTable::alter()
 	j++;
 	Item_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
     }
-#endif
 }
 
 /** find_in_block(p, key, leaf, c) searches for the key in the block at p.
@@ -1012,7 +1011,7 @@ BrassTable::add(const string &key, string tag, bool already_compressed)
     LOGCALL_VOID(DB, "BrassTable::add", key | tag | already_compressed);
     Assert(writable);
 
-    if (handle < 0) create_and_open(block_size);
+    if (handle < 0) create_and_open(flags, block_size);
 
     form_key(key);
 
@@ -1323,7 +1322,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 	BrassTable_base bases[BTREE_BASES];
 	bool base_ok[BTREE_BASES];
 
-	both_bases = true;
+	number_of_bases = 2;
 	bool valid_base = false;
 	{
 	    for (size_t i = 0; i < BTREE_BASES; ++i) {
@@ -1332,7 +1331,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 		if (ok) {
 		    valid_base = true;
 		} else {
-		    both_bases = false;
+		    number_of_bases = 1;
 		}
 	    }
 	}
@@ -1487,9 +1486,9 @@ BrassTable::do_open_to_write(bool revision_supplied,
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
-    int flags = O_RDWR | O_BINARY | O_CLOEXEC;
-    if (create_db) flags |= O_CREAT | O_TRUNC;
-    handle = ::open((name + "DB").c_str(), flags, 0666);
+    int open_flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    if (create_db) open_flags |= O_CREAT | O_TRUNC;
+    handle = ::open((name + "DB").c_str(), open_flags, 0666);
     if (handle < 0) {
 	// lazy doesn't make a lot of sense with create_db anyway, but ENOENT
 	// with O_CREAT means a parent directory doesn't exist.
@@ -1540,7 +1539,7 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  item_count(0),
 	  block_size(0),
 	  latest_revision_number(0),
-	  both_bases(false),
+	  number_of_bases(0),
 	  base_letter('A'),
 	  faked_root_block(true),
 	  sequential(true),
@@ -1587,9 +1586,10 @@ BrassTable::erase()
 }
 
 void
-BrassTable::set_block_size(unsigned int block_size_)
+BrassTable::set_block_size(int flags_, unsigned int block_size_)
 {
-    LOGCALL_VOID(DB, "BrassTable::set_block_size", block_size_);
+    LOGCALL_VOID(DB, "BrassTable::set_block_size", flags_|block_size_);
+    flags = flags_;
     // Block size must in the range 2048..BYTE_PAIR_RANGE, and a power of two.
     if (block_size_ < 2048 || block_size_ > BYTE_PAIR_RANGE ||
 	(block_size_ & (block_size_ - 1)) != 0) {
@@ -1599,27 +1599,30 @@ BrassTable::set_block_size(unsigned int block_size_)
 }
 
 void
-BrassTable::create_and_open(unsigned int block_size_)
+BrassTable::create_and_open(int flags_, unsigned int block_size_)
 {
-    LOGCALL_VOID(DB, "BrassTable::create_and_open", block_size_);
+    LOGCALL_VOID(DB, "BrassTable::create_and_open", flags_|block_size_);
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
     Assert(writable);
     close();
 
-    set_block_size(block_size_);
+    set_block_size(flags_, block_size_);
 
     // FIXME: it would be good to arrange that this works such that there's
     // always a valid table in place if you run create_and_open() on an
     // existing table.
 
-    /* write initial values to files */
-
+    // FIXME: Not creating the base makes more sense, but requires adjustments
+    // in various places, and isn't vital.  To do that, we'd just unlink any
+    // existing baseA here if (flags & Xapian::DB_DANGEROUS) instead of
+    // creating the base file.
+ 
     /* create the base file */
     BrassTable_base base_;
     base_.set_revision(revision_number);
-    base_.set_block_size(block_size);
+    base_.set_block_size(flags_, block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
@@ -1721,7 +1724,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 
 	base_letter = other_base_letter();
 
-	both_bases = true;
+	number_of_bases = 2;
 	latest_revision_number = revision_number = revision;
 	root = C[level].get_n();
 
@@ -1743,11 +1746,13 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	// Do this as late as possible to allow maximum time for writes to
 	// happen, and so the calls to io_sync() are adjacent which may be
 	// more efficient, at least with some Linux kernel versions.
-	if (!io_sync(handle)) {
-	    (void)::close(handle);
-	    handle = -1;
-	    (void)unlink(tmp.c_str());
-	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+	if ((flags & Xapian::DB_NO_SYNC) == 0) {
+	    if (!io_sync(handle)) {
+		(void)::close(handle);
+		handle = -1;
+		(void)unlink(tmp.c_str());
+		throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
+	    }
 	}
 
 	if (posixy_rename(tmp.c_str(), basefile.c_str()) < 0) {
@@ -1863,6 +1868,9 @@ BrassTable::cancel()
 
     // This causes problems: if (!Btree_modified) return;
 
+    if (flags & Xapian::DB_DANGEROUS)
+	throw Xapian::InvalidOperationError("cancel() not supported under Xapian::DB_DANGEROUS");
+
     string err_msg;
     if (!base.read(name, base_letter, writable, err_msg)) {
 	throw Xapian::DatabaseCorruptError(string("Couldn't reread base ") + base_letter);
@@ -1937,11 +1945,13 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
 }
 
 void
-BrassTable::open()
+BrassTable::open(int flags_)
 {
-    LOGCALL_VOID(DB, "BrassTable::open", NO_ARGS);
+    LOGCALL_VOID(DB, "BrassTable::open", flags_);
     LOGLINE(DB, "opening at path " << name);
     close();
+
+    flags = flags_;
 
     if (!writable) {
 	// Any errors are thrown if revision_supplied is false
@@ -1954,11 +1964,13 @@ BrassTable::open()
 }
 
 bool
-BrassTable::open(brass_revision_number_t revision)
+BrassTable::open(int flags_, brass_revision_number_t revision)
 {
-    LOGCALL(DB, bool, "BrassTable::open", revision);
+    LOGCALL(DB, bool, "BrassTable::open", flags_|revision);
     LOGLINE(DB, "opening for particular revision at path " << name);
     close();
+
+    flags = flags_;
 
     if (!writable) {
 	if (do_open_to_read(true, revision)) {

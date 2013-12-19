@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -101,10 +101,10 @@ const int MAX_OPEN_RETRIES = 100;
  * determining the current and next revision numbers, and stores handles
  * to the tables.
  */
-ChertDatabase::ChertDatabase(const string &chert_dir, int action,
+ChertDatabase::ChertDatabase(const string &chert_dir, int flags,
 			     unsigned int block_size)
 	: db_dir(chert_dir),
-	  readonly(action == XAPIAN_DB_READONLY),
+	  readonly(flags == Xapian::DB_READONLY_),
 	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
 	  position_table(db_dir, readonly),
@@ -116,13 +116,14 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	  lock(db_dir),
 	  max_changesets(0)
 {
-    LOGCALL_CTOR(DB, "ChertDatabase", chert_dir | action | block_size);
+    LOGCALL_CTOR(DB, "ChertDatabase", chert_dir | flags | block_size);
 
-    if (action == XAPIAN_DB_READONLY) {
+    if (readonly) {
 	open_tables_consistent();
 	return;
     }
 
+    int action = flags & Xapian::DB_ACTION_MASK_;
     if (action != Xapian::DB_OPEN && !database_exists()) {
 
 	// Create the directory for the database, if it doesn't exist

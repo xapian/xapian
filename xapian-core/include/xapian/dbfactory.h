@@ -32,6 +32,8 @@
 
 #include <string>
 
+#include <xapian/constants.h>
+#include <xapian/database.h>
 #include <xapian/types.h>
 #include <xapian/version.h>
 #include <xapian/visibility.h>
@@ -41,9 +43,6 @@ namespace Xapian {
 #ifdef _MSC_VER
 typedef unsigned useconds_t;
 #endif
-
-class Database;
-class WritableDatabase;
 
 /// Database factory functions which determine the database type automatically.
 namespace Auto {
@@ -102,8 +101,13 @@ namespace Brass {
  *
  * @param dir  pathname of the directory containing the database.
  */
-XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &dir);
+
+inline Database
+open(const std::string &dir)
+{
+    return Database(dir, DB_BACKEND_BRASS);
+}
 
 /** Construct a Database object for update access to a Brass database.
  *
@@ -123,9 +127,13 @@ Database open(const std::string &dir);
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+
+inline WritableDatabase
+open(const std::string &dir, int action, int block_size)
+{
+    return WritableDatabase(dir, action|DB_BACKEND_BRASS, block_size);
+}
 
 }
 #endif
@@ -138,8 +146,13 @@ namespace Chert {
  *
  * @param dir  pathname of the directory containing the database.
  */
-XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &dir);
+
+inline Database
+open(const std::string &dir)
+{
+    return Database(dir, DB_BACKEND_CHERT);
+}
 
 /** Construct a Database object for update access to a Chert database.
  *
@@ -159,9 +172,13 @@ Database open(const std::string &dir);
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+
+inline WritableDatabase
+open(const std::string &dir, int action, int block_size)
+{
+    return WritableDatabase(dir, action|DB_BACKEND_CHERT, block_size);
+}
 
 }
 #endif

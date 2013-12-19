@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -346,7 +346,7 @@ class BrassTable {
 	 *	cannot be opened (but is not corrupt - eg, permission problems,
 	 *	not present, etc).
 	 */
-	void open();
+	void open(int flags_);
 
 	/** Open the btree at a given revision.
 	 *
@@ -365,7 +365,7 @@ class BrassTable {
 	 *	cannot be opened (but is not corrupt - eg, permission problems,
 	 *	not present, etc).
 	 */
-	bool open(brass_revision_number_t revision_);
+	bool open(int flags_, brass_revision_number_t revision_);
 
 	/** Return true if this table is open.
 	 *
@@ -496,11 +496,13 @@ class BrassTable {
 	 *
 	 *  It's only safe to do this before the table is created.
 	 */
-	void set_block_size(unsigned int block_size_);
+	void set_block_size(int flags_, unsigned int block_size_);
 
 	/** Get the block size.
 	 */
 	unsigned int get_block_size() const { return block_size; }
+
+	int get_flags() const { return flags; }
 
 	/** Create a new empty btree structure on disk and open it at the
 	 *  initial revision.
@@ -525,7 +527,7 @@ class BrassTable {
 	 *  @exception Xapian::InvalidArgumentError if the requested blocksize
 	 *	is unsuitable.
 	 */
-	void create_and_open(unsigned int blocksize);
+	void create_and_open(int flags_, unsigned int blocksize);
 
 	void set_full_compaction(bool parity);
 
@@ -653,16 +655,19 @@ class BrassTable {
 	/** block size of the B tree in bytes */
 	unsigned int block_size;
 
+	/** Flags like DB_NO_SYNC and DB_DANGEROUS. */
+	int flags;
+
 	/** Revision number of the other base, or zero if there is only one
 	 *  base file.
 	 */
 	mutable brass_revision_number_t latest_revision_number;
 
-	/** set to true if baseA and baseB both exist as valid bases.
+	/** The number of valid bases.
 	 *
-	 *  The unused base is deleted as soon as a write to the Btree takes
+	 *  The old base is deleted as soon as a write to the Btree takes
 	 *  place. */
-	mutable bool both_bases;
+	mutable int number_of_bases;
 
 	/** the value 'A' or 'B' of the current base */
 	char base_letter;

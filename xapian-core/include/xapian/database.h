@@ -102,7 +102,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 * @param path directory that the database is stored in.
 	 */
-	explicit Database(const std::string &path);
+	explicit Database(const std::string &path, int flags = 0);
 
 	/** @private @internal Create a Database from its internals.
 	 */
@@ -546,7 +546,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	virtual ~WritableDatabase();
 
-	/** Create an empty WritableDatabase.
+	/** Create a WritableDatabase with no subdatabases.
+	 *
+	 *  The created object isn't very useful in this state - it's intended
+	 *  as a placeholder value.
 	 */
 	WritableDatabase();
 
@@ -558,13 +561,26 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  exist (but only the leaf directory, not recursively).
 	 *
 	 * @param path directory that the database is stored in.
-	 * @param action one of:
+	 * @param flags one of:
 	 *  - Xapian::DB_CREATE_OR_OPEN open for read/write; create if no db
-	 *    exists
+	 *    exists (the default if flags isn't specified)
 	 *  - Xapian::DB_CREATE create new database; fail if db exists
 	 *  - Xapian::DB_CREATE_OR_OVERWRITE overwrite existing db; create if
 	 *    none exists
 	 *  - Xapian::DB_OPEN open for read/write; fail if no db exists
+	 *
+	 *  Additionally, the following flags can be combined with action
+	 *  using bitwise-or (| in C++):
+	 *
+	 *   - Xapian::DB_NO_SYNC don't call fsync() or similar
+	 *   - Xapian::DB_DANGEROUS don't be crash-safe, no concurrent readers
+	 *
+	 *  @param block_size If a new database is created, this specifies
+	 *		      the block size (in bytes) for backends which
+	 *		      have such a concept.  For chert and brass, the
+	 *		      block size must be a power of 2 between 2048 and
+	 *		      65536 (inclusive), and the default (also used if
+	 *		      an invalid value is passed) is 8192 bytes.
 	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
@@ -572,7 +588,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  @exception Xapian::DatabaseLockError will be thrown if a lock
 	 *	       couldn't be acquired on the database.
 	 */
-	WritableDatabase(const std::string &path, int action);
+	explicit WritableDatabase(const std::string &path,
+				  int flags = 0,
+				  int block_size = 0);
 
 	/** @private @internal Create an WritableDatabase given its internals.
 	 */

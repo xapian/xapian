@@ -1,3 +1,15 @@
+Thu Dec 19 01:17:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,backends/brass/,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/database.h,
+	  backends/dbcheck.cc,backends/dbfactory.cc,include/xapian/constants.h,
+	  include/xapian/database.h,include/xapian/dbfactory.h: Add flags
+	  which can be bitwise OR-ed into the second argument when opening a
+	  writable datase: DB_NO_SYNC (to disable use of fsync, etc) and
+	  DB_DANGEROUS (to enable in-place updates).  WritableDatabase
+	  can now be constructed from just a filename (defaulting to opening
+	  the database with DB_CREATE_OR_OPEN).
+
 Thu Dec 19 00:11:26 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_multi.cc: Fix comment typo.

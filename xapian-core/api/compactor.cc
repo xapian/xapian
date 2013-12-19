@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -481,7 +481,7 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #endif
     } else if (backend == BRASS) {
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-	BrassVersion(destdir).create();
+	BrassVersion(destdir).create(0);
 #else
 	// Handled above.
 	exit(1);

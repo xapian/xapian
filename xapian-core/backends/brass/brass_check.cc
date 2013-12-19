@@ -215,9 +215,9 @@ BrassTableCheck::check(const char * tablename, const string & path,
     BrassTableCheck B(tablename, path, false, out);
     // open() throws an exception if it fails
     if (rev_ptr)
-	B.open(*rev_ptr);
+	B.open(0, *rev_ptr);
     else
-	B.open();
+	B.open(0);
     Brass::Cursor * C = B.C;
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {

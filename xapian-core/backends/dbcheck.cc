@@ -21,11 +21,8 @@
  */
 
 #include <config.h>
-
 #include "xapian/database.h"
 
-#include "xapian/constants.h"
-#include "xapian/dbfactory.h"
 #include "xapian/error.h"
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
@@ -101,12 +98,11 @@ Database::check(const string & path, int opts, std::ostream &out)
 	chert_revision_number_t rev;
 	chert_revision_number_t * rev_ptr = NULL;
 	try {
-	    Xapian::Database db = Xapian::Chert::open(path);
+	    // Open at the lower level so we can get the revision number.
+	    ChertDatabase db(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
-	    ChertDatabase * chert_db =
-		static_cast<ChertDatabase*>(db.internal[0].get());
-	    rev = chert_db->get_revision_number();
+	    rev = db.get_revision_number();
 	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
@@ -170,12 +166,11 @@ Database::check(const string & path, int opts, std::ostream &out)
 	brass_revision_number_t rev;
 	brass_revision_number_t * rev_ptr = NULL;
 	try {
-	    Xapian::Database db = Xapian::Brass::open(path);
+	    // Open at the lower level so we can get the revision number.
+	    BrassDatabase db(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
-	    BrassDatabase * brass_db =
-		static_cast<BrassDatabase*>(db.internal[0].get());
-	    rev = brass_db->get_revision_number();
+	    rev = db.get_revision_number();
 	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.

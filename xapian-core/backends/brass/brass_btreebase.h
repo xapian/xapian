@@ -2,7 +2,7 @@
  * @brief Btree base file implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004,2007,2008,2009,2011,2012 Olly Betts
+ * Copyright 2002,2004,2007,2008,2009,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include <string>
 
 #include "brass_types.h"
+#include "xapian/constants.h"
 
 class BrassTable_base {
     public:
@@ -62,7 +63,8 @@ class BrassTable_base {
 	void set_revision(uint4 revision_) {
 	    revision = revision_;
 	}
-	void set_block_size(uint4 block_size_) {
+	void set_block_size(int flags, uint4 block_size_) {
+	    no_sync = (flags & Xapian::DB_NO_SYNC);
 	    block_size = block_size_;
 	}
 	void set_root(uint4 root_) {
@@ -146,6 +148,9 @@ class BrassTable_base {
 
 	/** the current state of the bit map of blocks */
 	byte *bit_map;
+
+	/** Suppress calls to io_sync(). */
+	bool no_sync;
 };
 
 #endif /* OM_HGUARD_BRASS_BTREEBASE_H */

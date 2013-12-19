@@ -41,6 +41,8 @@
 
 #include "noreturn.h"
 
+#include "xapian/constants.h"
+
 #include <map>
 
 class ChertTermList;
@@ -234,8 +236,8 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 *                    correct value, when the database is being
 	 *                    created.
 	 */
-	ChertDatabase(const string &db_dir_, int action = XAPIAN_DB_READONLY,
-		       unsigned int block_size = 0u);
+	ChertDatabase(const string &db_dir_, int action = Xapian::DB_READONLY_,
+		      unsigned int block_size = 0u);
 
 	~ChertDatabase();
 

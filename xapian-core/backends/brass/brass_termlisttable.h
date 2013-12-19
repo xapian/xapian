@@ -1,7 +1,7 @@
 /** @file brass_termlisttable.h
  * @brief Subclass of BrassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,8 +76,8 @@ class BrassTermListTable : public BrassLazyTable {
      *  This method isn't virtual, but we never call it such that it needs to
      *  be.
      */
-    void create_and_open(unsigned int blocksize) {
-	BrassTable::create_and_open(blocksize);
+    void create_and_open(int flags_, unsigned int blocksize) {
+	BrassTable::create_and_open(flags_, blocksize);
     }
 };
 

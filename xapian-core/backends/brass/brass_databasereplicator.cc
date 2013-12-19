@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -290,7 +290,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// reliably determine its revision number, so must skip this
 	// check.
 	BrassRecordTable record_table(db_dir, true);
-	record_table.open();
+	record_table.open(0);
 	if (startrev != record_table.get_open_revision_number())
 	    throw NetworkError("Changeset supplied is for wrong revision number");
     }

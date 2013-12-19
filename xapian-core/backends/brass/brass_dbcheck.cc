@@ -69,9 +69,9 @@ check_brass_table(const char * tablename, string filename,
     // Now check the brass structures inside the btree.
     BrassTable table(tablename, filename, true);
     if (rev_ptr) {
-	table.open(*rev_ptr);
+	table.open(0, *rev_ptr);
     } else {
-	table.open();
+	table.open(0);
     }
     AutoPtr<BrassCursor> cursor(table.cursor_get());
 

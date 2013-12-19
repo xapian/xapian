@@ -81,7 +81,8 @@ BrassTable_base::BrassTable_base()
 	  sequential(false),
 	  bit_map_low(0),
 	  bit_map0(0),
-	  bit_map(0)
+	  bit_map(0),
+	  no_sync(0)
 {
 }
 
@@ -100,6 +101,7 @@ BrassTable_base::swap(BrassTable_base &other)
     std::swap(bit_map_low, other.bit_map_low);
     std::swap(bit_map0, other.bit_map0);
     std::swap(bit_map, other.bit_map);
+    std::swap(no_sync, other.no_sync);
 }
 
 BrassTable_base::~BrassTable_base()
@@ -313,12 +315,14 @@ BrassTable_base::write_to_file(const string &filename,
 	if (changes_tail != NULL) {
 	    io_write(changes_fd, changes_tail->data(), changes_tail->size());
 	    // changes_tail is only specified for the final table, so sync.
-	    io_sync(changes_fd);
+	    if (!no_sync)
+		io_sync(changes_fd);
 	}
     }
 
     io_write(h, buf.data(), buf.size());
-    io_sync(h);
+    if (!no_sync)
+	io_sync(h);
 }
 
 /*

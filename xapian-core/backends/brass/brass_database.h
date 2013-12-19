@@ -42,6 +42,8 @@
 
 #include "noreturn.h"
 
+#include "xapian/constants.h"
+
 #include <map>
 
 class BrassTermList;
@@ -127,7 +129,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	/** Create new tables, and open them.
 	 *  Any existing tables will be removed first.
 	 */
-	void create_and_open_tables(unsigned int blocksize);
+	void create_and_open_tables(int flags, unsigned int blocksize);
 
 	/** Open all tables at most recent consistent revision.
 	 *
@@ -137,7 +139,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *  consistent revision available.
 	 */
-	bool open_tables_consistent();
+	bool open_tables_consistent(int flags);
 
 	/** Get a write lock on the database, or throw an
 	 *  Xapian::DatabaseLockError if failure.
@@ -146,14 +148,14 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  created - if false, will throw a DatabaseOpening error if the lock
 	 *  can't be acquired and the database doesn't exist.
 	 */
-	void get_database_write_lock(bool creating);
+	void get_database_write_lock(int flags, bool creating);
 
 	/** Open tables at specified revision number.
 	 *
 	 *  @exception Xapian::InvalidArgumentError is thrown if the specified
 	 *  revision is not available.
 	 */
-	void open_tables(brass_revision_number_t revision);
+	void open_tables(int flags, brass_revision_number_t revision);
 
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
@@ -172,7 +174,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *          get_latest_revision_number()), or undefined behaviour will
 	 *          result.
 	 */
-	void set_revision_number(brass_revision_number_t new_revision);
+	void set_revision_number(int flags, brass_revision_number_t new_revision);
 
 	/** Re-open tables to recover from an overwritten condition,
 	 *  or just get most up-to-date version.
@@ -236,8 +238,8 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *                    correct value, when the database is being
 	 *                    created.
 	 */
-	BrassDatabase(const string &db_dir_, int action = XAPIAN_DB_READONLY,
-		       unsigned int block_size = 0u);
+	BrassDatabase(const string &db_dir_, int flags = Xapian::DB_READONLY_,
+		      unsigned int block_size = 0u);
 
 	~BrassDatabase();
 
@@ -375,7 +377,7 @@ class BrassWritableDatabase : public BrassDatabase {
 	 *
 	 *  @param dir directory holding brass tables
 	 */
-	BrassWritableDatabase(const string &dir, int action, int block_size);
+	BrassWritableDatabase(const string &dir, int flags, int block_size);
 
 	~BrassWritableDatabase();
 

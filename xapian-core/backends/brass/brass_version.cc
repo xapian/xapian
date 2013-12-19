@@ -37,6 +37,8 @@
 
 #include "common/safeuuid.h"
 
+#include "xapian/constants.h"
+
 using namespace std;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
@@ -57,7 +59,7 @@ using namespace std;
 #define VERSIONFILE_SIZE_LITERAL 28
 
 void
-BrassVersion::create()
+BrassVersion::create(int flags)
 {
     char buf[VERSIONFILE_SIZE] = MAGIC_STRING;
     unsigned char *v = reinterpret_cast<unsigned char *>(buf) + MAGIC_LEN;
@@ -84,7 +86,8 @@ BrassVersion::create()
 	throw;
     }
 
-    io_sync(fd);
+    if ((flags & Xapian::DB_NO_SYNC) == 0)
+	io_sync(fd);
     if (close(fd) != 0) {
 	string msg("Failed to create brass version file: ");
 	msg += filename;

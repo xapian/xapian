@@ -1,7 +1,7 @@
 /** @file brass_lazytable.h
  * @brief Subclass of BrassTable for deriving lazy tables from.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,11 +41,11 @@ class BrassLazyTable : public BrassTable {
      *  This method isn't virtual, but we never call it such that it needs to
      *  be.
      */
-    void create_and_open(unsigned int blocksize) {
+    void create_and_open(int flags_, unsigned int blocksize) {
 	// This table is created lazily, so erase it in case we're overwriting
 	// an existing database which has this table.
 	BrassTable::erase();
-	BrassTable::set_block_size(blocksize);
+	BrassTable::set_block_size(flags_, blocksize);
     }
 };
 

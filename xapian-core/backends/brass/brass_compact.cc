@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include "xapian/compactor.h"
+#include "xapian/constants.h"
 #include "xapian/error.h"
 #include "xapian/types.h"
 
@@ -207,7 +208,7 @@ merge_postlists(Xapian::Compactor & compactor,
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
 	BrassTable *in = new BrassTable("postlist", *b, true);
-	in->open();
+	in->open(0);
 	if (in->empty()) {
 	    // Skip empty tables.
 	    delete in;
@@ -482,7 +483,7 @@ merge_spellings(BrassTable * out,
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
 	BrassTable *in = new BrassTable("spelling", *b, true, DONT_COMPRESS, true);
-	in->open();
+	in->open(0);
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of BrassTable in and is
 	    // responsible for deleting it.
@@ -596,7 +597,7 @@ merge_synonyms(BrassTable * out,
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
     for ( ; b != e; ++b) {
 	BrassTable *in = new BrassTable("synonym", *b, true, DONT_COMPRESS, true);
-	in->open();
+	in->open(0);
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of BrassTable in and is
 	    // responsible for deleting it.
@@ -699,7 +700,8 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	    // be.
 	    BrassTable tmptab("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
-	    tmptab.create_and_open(65536);
+	    tmptab.create_and_open(Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC,
+				   65536);
 
 	    merge_postlists(compactor, &tmptab, off.begin() + i,
 			    tmp.begin() + i, tmp.begin() + j, last_docid);
@@ -738,7 +740,7 @@ merge_docid_keyed(const char * tablename,
 	Xapian::docid off = offset[i];
 
 	BrassTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
-	in.open();
+	in.open(0);
 	if (in.empty()) continue;
 
 	BrassCursor cur(&in);
@@ -872,10 +874,10 @@ compact_brass(Xapian::Compactor & compactor,
 
 	BrassTable out(t->name, dest, false, t->compress_strategy, t->lazy);
 	if (!t->lazy) {
-	    out.create_and_open(block_size);
+	    out.create_and_open(Xapian::DB_DANGEROUS, block_size);
 	} else {
 	    out.erase();
-	    out.set_block_size(block_size);
+	    out.set_block_size(Xapian::DB_DANGEROUS, block_size);
 	}
 
 	out.set_full_compaction(compaction != compactor.STANDARD);
