@@ -29,8 +29,8 @@
 
 #include "brass_database.h"
 
-#include <xapian/error.h>
-#include <xapian/valueiterator.h>
+#include "xapian/error.h"
+#include "xapian/valueiterator.h"
 
 #include "backends/contiguousalldocspostlist.h"
 #include "brass_alldocspostlist.h"
