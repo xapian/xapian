@@ -146,7 +146,7 @@ Non-Class Functions
 
 The C++ API contains a few non-class functions (the Database factory
 functions, and some functions reporting version information), which are
-wrapped like so for Python:
+wrapped like so for Python 3:
 
  * `Xapian::version_string()` is wrapped as `xapian.version_string()`
  * `Xapian::major_version()` is wrapped as `xapian.major_version()`
@@ -239,7 +239,7 @@ Apache and mod_python/mod_wsgi
 
 Prior to Xapian 1.3.0, applications which use the xapian module had to be
 run in the main interpreter under mod_python and mod_wsgi.  As of 1.3.0,
-the Xapian no longer uses Python's simplified GIL state API, and so this
+the xapian module no longer uses Python's simplified GIL state API, and so this
 restriction should no longer apply.
 
 Test Suite

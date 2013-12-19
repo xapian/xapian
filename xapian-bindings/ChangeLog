@@ -1,3 +1,7 @@
+Thu Dec 19 02:17:15 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/docs/index.rst: Wording tweaks.
+
 Thu Dec 19 02:15:09 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py,python3/smoketest.py: If constants weren't
