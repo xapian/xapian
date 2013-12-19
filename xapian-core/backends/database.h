@@ -47,7 +47,7 @@ typedef Xapian::PositionIterator::Internal PositionList;
 typedef Xapian::ValueIterator::Internal ValueList;
 
 // Used by brass and chert.
-const int XAPIAN_DB_READONLY = 0;
+const int XAPIAN_DB_READONLY = -1;
 
 namespace Xapian {
 

@@ -29,6 +29,7 @@
 
 #include "brass_database.h"
 
+#include "xapian/constants.h"
 #include "xapian/error.h"
 #include "xapian/valueiterator.h"
 

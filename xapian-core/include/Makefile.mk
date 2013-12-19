@@ -12,6 +12,7 @@ inc_HEADERS =\
 xapianinclude_HEADERS =\
 	include/xapian/attributes.h\
 	include/xapian/compactor.h\
+	include/xapian/constants.h\
 	include/xapian/database.h\
 	include/xapian/dbfactory.h\
 	include/xapian/deprecated.h\

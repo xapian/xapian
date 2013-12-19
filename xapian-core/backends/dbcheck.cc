@@ -23,6 +23,8 @@
 #include <config.h>
 
 #include "xapian/database.h"
+
+#include "xapian/constants.h"
 #include "xapian/dbfactory.h"
 #include "xapian/error.h"
 

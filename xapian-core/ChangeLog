@@ -1,3 +1,13 @@
+Wed Dec 18 22:48:18 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/brass/brass_check.cc,
+	  backends/brass/brass_database.cc,backends/chert/chert_check.cc,
+	  backends/chert/chert_database.cc,backends/database.h,
+	  backends/dbcheck.cc,bin/xapian-tcpsrv.cc,include/Makefile.mk,
+	  include/xapian.h,include/xapian/database.h,net/remoteserver.cc:
+	  Move Xapian::DB_* and Xapian:DBCHECK_* constants into
+	  xapian/constants.h.
+
 Wed Dec 18 22:30:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:

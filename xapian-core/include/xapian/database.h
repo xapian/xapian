@@ -978,54 +978,6 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	std::string get_description() const;
 };
 
-/** Open for read/write; create if no db exists. */
-const int DB_CREATE_OR_OPEN = 1;
-/** Create a new database; fail if db exists. */
-const int DB_CREATE = 2;
-/** Overwrite existing db; create if none exists. */
-const int DB_CREATE_OR_OVERWRITE = 3;
-/** Open for read/write; fail if no db exists. */
-const int DB_OPEN = 4;
-
-/** Show a short-format display of the B-tree contents.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_SHORT_TREE = 1;
-
-/** Show a full display of the B-tree contents.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_FULL_TREE = 2;
-
-/** Show the bitmap for the B-tree.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_SHOW_BITMAP = 4;
-
-/** Show statistics for the B-tree.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_SHOW_STATS = 8;
-
-/** Fix problems.
- *
- *  Currently this is supported for chert, and will:
- *
- *    * regenerate the "iamchert" file if it isn't valid (so if it is lost, you
- *      can just create it empty and then "fix problems").
- *
- *    * regenerate base files (currently the algorithm for finding the root
- *      block may not work if there was a change partly written but not
- *      committed).
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_FIX = 16;
-
 }
 
 #endif /* XAPIAN_INCLUDED_DATABASE_H */

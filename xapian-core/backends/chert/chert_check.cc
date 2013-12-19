@@ -28,7 +28,7 @@
 #include "filetests.h"
 #include "io_utils.h"
 #include "unicode/description_append.h"
-#include "xapian/database.h" // For Xapian::DBCHECK_*
+#include "xapian/constants.h"
 
 #include <climits>
 #include <ostream>

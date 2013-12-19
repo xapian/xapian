@@ -24,6 +24,7 @@
 #include "replication.h"
 
 #include "xapian/intrusive_ptr.h"
+#include "xapian/constants.h"
 #include "xapian/dbfactory.h"
 #include "xapian/error.h"
 #include "xapian/version.h"

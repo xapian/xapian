@@ -49,6 +49,9 @@
 // Function attributes
 #include <xapian/attributes.h>
 
+// Constants
+#include <xapian/constants.h>
+
 // Exceptions
 #include <xapian/error.h>
 #include <xapian/errorhandler.h>

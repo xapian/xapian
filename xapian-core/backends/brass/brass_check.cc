@@ -25,7 +25,7 @@
 
 #include "brass_check.h"
 #include "unicode/description_append.h"
-#include "xapian/database.h" // For Xapian::DBCHECK_*
+#include "xapian/constants.h"
 
 #include <climits>
 #include <ostream>

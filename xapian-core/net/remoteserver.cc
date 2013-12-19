@@ -22,6 +22,7 @@
 #include <config.h>
 #include "remoteserver.h"
 
+#include "xapian/constants.h"
 #include "xapian/database.h"
 #include "xapian/enquire.h"
 #include "xapian/error.h"
