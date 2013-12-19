@@ -1,3 +1,10 @@
+Wed Dec 18 23:52:49 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  tests/api_backend.cc: Fix handling of invalid block sizes - the
+	  size gets fixed as documented, but the uncorrected size was passed
+	  to the base file.  Also, abort() was called on 0.
+
 Wed Dec 18 22:48:18 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/brass/brass_check.cc,
