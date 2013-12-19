@@ -1,3 +1,8 @@
+Thu Dec 19 09:23:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/deprecation.rst: Update example version to a more recent one.
+
 Thu Dec 19 09:22:17 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
