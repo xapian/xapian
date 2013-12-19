@@ -1,3 +1,71 @@
+ 17675       olly Mon Dec 02 22:56:18 GMT 2013  Olly Betts <olly@survex.com>
+
+backported for 1.2.17:
+
+Omega 1.3.2 (2013-12-19):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Report strerror(errno) if we can't read a file.
+
+  + Add support for indexing 'topic' and 'created date' meta-data for
+    OpenDocument format and HTML.
+
+  + Index "topic" for PDF documents.
+
+  + Commit changes and exit, rather than skipping the current file on most
+    unexpected errors reading directories or initialising libmagic - otherwise
+    we can end up deleting a lot of database entries on errors like EHOSTDOWN
+    when indexing network mounts.
+
+  + Add --opendir-sleep=SECS option to allow working around problems with
+    indexing files on Microsoft DFS shares.
+
+  + If we get ENOTDIR trying to index a file, skip it quietly (unless in
+    verbose mode) as we already do if we get ENOENT, since ENOTDIR is what we
+    get if the file and the directory it was in got removed between us getting
+    the filename and trying to open it.
+
+  + Pass error message string and errno value in ReadError exceptions.
+
+  + Handle ENOENT, ENOTDIR and EACCES from readdir().
+
+  + If we've already opened the file (as we often will have if using a modern
+    libmagic with magic_descriptor() available), then use fstat() on that fd
+    rather than stat()/lstat() on the pathname.
+
+* scriptindex:
+
+omega:
+
+* Make the $json and $jsonarray force the text to be valid UTF-8, since
+  otherwise the output isn't valid JSON.
+
+* Check parameters to $set{weighting,bm25 ...} and $set{weighting,trad ...}
+  converted OK.  Based on patch from Aarsh Shah.
+
+* Add support to $set{weighting,...} for bb2, dlh, dph, ifb2, ineb2, inl2, pl2
+  when we're built against a xapian-core which is new enough to have these
+  schemes.
+
+templates:
+
+testsuite:
+
+build system:
+
+* configure: Enable GCC's -Woverloaded-virtual warning.
+
+portability:
+
+packaging:
+
 Omega 1.3.1 (2013-05-03):
 
 This release includes all changes from 1.2.10-1.2.15 which are relevant.
@@ -134,6 +202,31 @@ packaging:
 
 * xapian-omega.spec: We're ABI compatible within a release series so make
   dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.16 (2013-12-04):
+
+indexers:
+
+* omindex:
+
+  + Fix off-by-one when finding documents to delete which would sometimes cause
+    omindex to fail to delete documents from the database when they weren't
+    refound during an index update.
+
+  + Decode dates in xlsx files.
+
+  + Ignore extensions 'adm', 'cur', and 'ico' by default.
+
+  + Group-readable files which are owner-readable but not world-readable should
+    still get a "readable by owner" term added.  Reported by Emmanuel Garette.
+
+build system:
+
+* Compress source tarballs with xz instead of gzip.
+
+* configure: Sync compiler warning flag machinery against xapian-core.  The
+  changes are special handling for clang, passing -fshow-column where
+  supported, and handling for new warning flags in GCC 4.6 and 4.7.
 
 Omega 1.2.15 (2013-04-16):
 
