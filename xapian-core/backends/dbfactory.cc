@@ -274,44 +274,29 @@ open_stub(WritableDatabase &db, const string &file, int flags)
     }
 }
 
-Database
-Auto::open_stub(const string &file)
-{
-    LOGCALL_STATIC(API, Database, "Auto::open_stub", file);
-    Database db;
-    open_stub(db, file);
-    RETURN(db);
-}
-
-WritableDatabase
-Auto::open_stub(const string &file, int flags)
-{
-    LOGCALL_STATIC(API, WritableDatabase, "Auto::open_stub", file | flags);
-    WritableDatabase db;
-    open_stub(db, file, flags);
-    RETURN(db);
-}
-
 Database::Database(const string &path, int flags)
 {
     LOGCALL_CTOR(API, "Database", path|flags);
 
     int type = flags & DB_BACKEND_MASK_;
-    if (type == DB_BACKEND_CHERT) {
+    switch (type) {
+	case DB_BACKEND_CHERT:
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	internal.push_back(new ChertDatabase(path));
-	return;
+	    internal.push_back(new ChertDatabase(path));
+	    return;
 #else
-	throw FeatureUnavailableError("Chert backend disabled");
+	    throw FeatureUnavailableError("Chert backend disabled");
 #endif
-    }
-    if (type == DB_BACKEND_BRASS) {
+	case DB_BACKEND_BRASS:
 #ifdef XAPIAN_HAS_BRASS_BACKEND
-	internal.push_back(new BrassDatabase(path));
-	return;
+	    internal.push_back(new BrassDatabase(path));
+	    return;
 #else
-	throw FeatureUnavailableError("Brass backend disabled");
+	    throw FeatureUnavailableError("Brass backend disabled");
 #endif
+	case DB_BACKEND_STUB:
+	    open_stub(*this, path);
+	    return;
     }
 
     struct stat statbuf;
@@ -428,8 +413,10 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	}
     }
 
-#ifdef HAVE_DISK_BACKEND
     switch (type) {
+	case DB_BACKEND_STUB:
+	    open_stub(*this, path, flags);
+	    return;
 	case 0: {
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	    // If only brass is enabled, there's no point checking the
@@ -448,7 +435,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	case DB_BACKEND_CHERT:
 	    internal.push_back(new ChertWritableDatabase(path, flags, block_size));
-	    break;
+	    return;
 #endif
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	case DB_BACKEND_BRASS:
@@ -456,10 +443,10 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 brass:
 #endif
 	    internal.push_back(new BrassWritableDatabase(path, flags, block_size));
-	    break;
+	    return;
 #endif
     }
-#else
+#ifndef HAVE_DISK_BACKEND
     throw FeatureUnavailableError("No disk-based writable backend is enabled");
 #endif
 }

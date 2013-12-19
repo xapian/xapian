@@ -794,9 +794,10 @@ DEFINE_TESTCASE(emptydb1, backend) {
 // Regression test for bug fixed in 1.3.1 and 1.2.11.
 DEFINE_TESTCASE(stubdb7, !backend) {
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Auto::open_stub("nosuchdirectory"));
+	    Xapian::Database("nosuchdirectory", Xapian::DB_BACKEND_STUB));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Auto::open_stub("nosuchdirectory", Xapian::DB_OPEN));
+	    Xapian::WritableDatabase("nosuchdirectory",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB));
     return true;
 }
 

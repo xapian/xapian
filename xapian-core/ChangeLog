@@ -1,3 +1,10 @@
+Thu Dec 19 23:09:30 GMT 2013  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/dbfactory.cc,docs/deprecation.rst,
+	  docs/overview.rst,include/xapian/constants.h,
+	  include/xapian/dbfactory.h,tests/api_backend.cc,tests/api_db.cc:
+	  Add Xapian::DB_BACKEND_STUB and deprecate Xapian::Auto::open_stub().
+
 Thu Dec 19 06:46:15 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Update example version to a more recent one.

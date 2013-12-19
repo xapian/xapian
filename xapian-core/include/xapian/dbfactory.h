@@ -55,8 +55,13 @@ namespace Auto {
  *
  * @param file  pathname of the stub database file.
  */
-XAPIAN_VISIBILITY_DEFAULT
-Database open_stub(const std::string &file);
+XAPIAN_DEPRECATED(Database open_stub(const std::string &file));
+
+inline Database
+open_stub(const std::string &file)
+{
+    return Database(file, DB_BACKEND_STUB);
+}
 
 /** Construct a WritableDatabase object for a stub database file.
  *
@@ -74,8 +79,13 @@ Database open_stub(const std::string &file);
  *  - Xapian::DB_OPEN			open existing database, failing if none
  *					exists.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_stub(const std::string &file, int action);
+XAPIAN_DEPRECATED(WritableDatabase open_stub(const std::string &file, int action));
+
+inline WritableDatabase
+open_stub(const std::string &file, int action)
+{
+    return WritableDatabase(file, action|DB_BACKEND_STUB);
+}
 
 }
 

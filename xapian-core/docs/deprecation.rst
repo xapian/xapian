@@ -447,9 +447,11 @@ Removed Feature name                        Upgrade suggestion and comments
                                             probably during the 1.3.x development series.  There's so further thoughts at
                                             http://trac.xapian.org/ticket/3#comment:8
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.2   ``Xapian::Brass::open()``           Use the ``Xapian::DB_BACKEND_BRASS`` flag (new in 1.3.2) instead.
+1.3.2   ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2) instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.2   ``Xapian::Chert::open()``           Use the ``Xapian::DB_BACKEND_CHERT`` flag (new in 1.3.2) instead.
+1.3.2   ``Xapian::Brass::open()``           Use the constructor with ``Xapian::DB_BACKEND_BRASS`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.2   ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in 1.3.2) instead.
 ======= =================================== ==================================================================================
 
 

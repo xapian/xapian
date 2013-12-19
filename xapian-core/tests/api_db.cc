@@ -79,7 +79,7 @@ DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
     out.close();
 
     {
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
@@ -106,7 +106,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
     out.close();
 
     {
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
@@ -133,7 +133,7 @@ DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
     out.close();
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB));
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
@@ -152,7 +152,7 @@ DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
     out.close();
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB));
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
@@ -173,7 +173,7 @@ DEFINE_TESTCASE(stubdb5, backend && !inmemory && !remote) {
     out.close();
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB));
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
@@ -192,7 +192,7 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 
     // Read-only tests:
     {
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	TEST_EQUAL(db.get_doccount(), 0);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
@@ -210,14 +210,15 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 
     // Writable tests:
     {
-	Xapian::WritableDatabase db;
-        db = Xapian::Auto::open_stub(dbpath, Xapian::DB_OPEN);
+	Xapian::WritableDatabase db(dbpath,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
 	TEST_EQUAL(db.get_doccount(), 0);
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
     }
     {
-	Xapian::WritableDatabase db(dbpath, Xapian::DB_OPEN);
+	Xapian::WritableDatabase db(dbpath,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
 	TEST_EQUAL(db.get_doccount(), 0);
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);

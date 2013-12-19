@@ -350,7 +350,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	}
 	string stub_path = path;
 	stub_path += "/XAPIANDB";
-	live_db = Auto::open_stub(stub_path, Xapian::DB_OPEN);
+	live_db = WritableDatabase(stub_path,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
 	// FIXME: simplify all this?
 	ifstream stub(stub_path.c_str());
 	string line;

@@ -107,6 +107,15 @@ const int DB_BACKEND_BRASS	 = 0x100;
  */
 const int DB_BACKEND_CHERT	 = 0x200;
 
+/** Open a stub database file.
+ *
+ *  When opening a Database, this flag means to only open it if it's a stub
+ *  database file.  There's rarely a good reason to do this - it's mostly
+ *  provided  as equivalent functionality to Xapian::Auto::open_stub() in
+ *  Xapian 1.2.
+ */
+const int DB_BACKEND_STUB	 = 0x300;
+
 /** @internal Bit mask for backend codes. */
 const int DB_BACKEND_MASK_	 = 0x300;
 

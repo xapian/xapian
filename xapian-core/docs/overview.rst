@@ -156,17 +156,17 @@ object <apidoc/html/classXapian_1_1Database.html>`_. Generally, you can
 just construct the object, passing the pathname to the database. Xapian
 looks at the path and autodetects the database type.
 
-In some cases (with the Remote backend, or if you want more control) you
-need to use a factory function such as ``Xapian::Chert::open()`` - each
-backend type has one or more. The parameters the function takes depend
-on the backend type, and whether we are creating a read-only or a
-writable database.
+With the Remote backend, you need to use the ``Xapian::Remote::open()``
+factory function.  The parameters you need to pass depend on whether
+you're using the TCP or prog variant, and whether you are creating a read-only
+or a writable database.
 
 You can also create a "stub database" file which lists one or more
 databases. These files are recognised by the autodetection in the
 Database constructor (if the pathname is file rather than a directory,
-it's treated as a stub database file) or you can open them explicitly
-using Xapian::Auto::open\_stub(). The stub database format specifies one
+it's treated as a stub database file, or if the pathname is a directory
+containing a file called ``XAPIANDB``) or you can open them explicitly
+using ``Xapian::DB_BACKEND_STUB``. The stub database format specifies one
 database per line. For example::
 
      remote localhost:23876
