@@ -1,3 +1,9 @@
+Wed Dec 18 22:17:15 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  Include only the needed xapian/*.h headers (rather than xapian.h) to
+	  reduce inter-file dependencies within the library.
+
 Wed Dec 18 03:24:22 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Report if a test is being run under eatmydata,

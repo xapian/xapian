@@ -21,7 +21,9 @@
 
 #include <config.h>
 
-#include <xapian/compactor.h>
+#include "xapian/compactor.h"
+#include "xapian/error.h"
+#include "xapian/types.h"
 
 #include <algorithm>
 #include <queue>
@@ -40,7 +42,6 @@
 
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
-#include <xapian.h>
 
 using namespace std;
 
