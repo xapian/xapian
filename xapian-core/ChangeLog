@@ -1,3 +1,8 @@
+Thu Dec 19 23:11:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Simplify database creation in testcase
+	  blocksize1.
+
 Thu Dec 19 23:10:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory.cc: Tweak conditionals around $XAPIAN_PREFER_BRASS

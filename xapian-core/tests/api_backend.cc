@@ -886,18 +886,19 @@ DEFINE_TESTCASE(blocksize1, brass || chert) {
     string db_dir = "." + get_dbtype();
     mkdir(db_dir.c_str(), 0755);
     db_dir += "/db__blocksize1";
-    Xapian::WritableDatabase db;
+    int flags;
+    if (get_dbtype() == "chert") {
+	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT;
+    } else {
+	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_BRASS;
+    }
     static const unsigned bad_sizes[] = {
 	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
     };
     for (size_t i = 0; i < sizeof(bad_sizes) / sizeof(bad_sizes[0]); ++i) {
 	size_t block_size = bad_sizes[i];
 	rm_rf(db_dir);
-	if (get_dbtype() == "chert") {
-	    db = Xapian::Chert::open(db_dir, Xapian::DB_CREATE, block_size);
-	} else {
-	    db = Xapian::Brass::open(db_dir, Xapian::DB_CREATE, block_size);
-	}
+	Xapian::WritableDatabase db(db_dir, flags, block_size);
 	Xapian::Document doc;
 	doc.add_term("XYZ");
 	doc.set_data("foo");
