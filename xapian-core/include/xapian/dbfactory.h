@@ -34,6 +34,7 @@
 
 #include <xapian/constants.h>
 #include <xapian/database.h>
+#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/version.h>
 #include <xapian/visibility.h>
@@ -101,7 +102,7 @@ namespace Brass {
  *
  * @param dir  pathname of the directory containing the database.
  */
-Database open(const std::string &dir);
+XAPIAN_DEPRECATED(Database open(const std::string &dir));
 
 inline Database
 open(const std::string &dir)
@@ -127,7 +128,7 @@ open(const std::string &dir)
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
-WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+XAPIAN_DEPRECATED(WritableDatabase open(const std::string &dir, int action, int block_size = 0));
 
 inline WritableDatabase
 open(const std::string &dir, int action, int block_size)
@@ -146,7 +147,7 @@ namespace Chert {
  *
  * @param dir  pathname of the directory containing the database.
  */
-Database open(const std::string &dir);
+XAPIAN_DEPRECATED(Database open(const std::string &dir));
 
 inline Database
 open(const std::string &dir)
@@ -172,7 +173,7 @@ open(const std::string &dir)
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
-WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+XAPIAN_DEPRECATED(WritableDatabase open(const std::string &dir, int action, int block_size = 0));
 
 inline WritableDatabase
 open(const std::string &dir, int action, int block_size)

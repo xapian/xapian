@@ -1467,25 +1467,33 @@ DEFINE_TESTCASE(chertdatabaseopeningerror1, chert) {
     mkdir(".chert", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/nosuchdirectory"));
+	    Xapian::Database(".chert/nosuchdirectory",
+		Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/nosuchdirectory", Xapian::DB_OPEN));
+	    Xapian::WritableDatabase(".chert/nosuchdirectory",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
 
     mkdir(".chert/emptydirectory", 0700);
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/emptydirectory"));
+	    Xapian::Database(".chert/emptydirectory",
+		Xapian::DB_BACKEND_CHERT));
 
     touch(".chert/somefile");
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/somefile"));
+	    Xapian::Database(".chert/somefile",
+		Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_OPEN));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE_OR_OPEN));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
 #endif
 
     return true;
@@ -1499,49 +1507,53 @@ DEFINE_TESTCASE(chertdatabaseopen1, chert) {
 
     {
 	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_OPEN));
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
 	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
 	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
 	TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE));
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
-	Xapian::Chert::open(dbdir);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_OPEN);
-	Xapian::Chert::open(dbdir);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 #endif
 

@@ -1,3 +1,10 @@
+Thu Dec 19 04:01:31 GMT 2013  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst,include/xapian/dbfactory.h,tests/api_db.cc,
+	  tests/harness/: Deprecate Xapian::Brass::open() and
+	  Xapian::Chert::open() in favour of the new Xapian::DB_BACKEND_BRASS
+	  and Xapian::DB_BACKEND_CHERT flags.
+
 Thu Dec 19 01:17:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,backends/brass/,backends/chert/chert_database.cc,

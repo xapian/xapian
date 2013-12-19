@@ -87,22 +87,30 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     // Open NUMBER_OF_SUB_DBS databases and index files to them alternately so
     // a multi-db combining them contains the documents in the expected order.
     Xapian::WritableDatabase dbs;
+    int flags = Xapian::DB_CREATE_OR_OVERWRITE;
+    if (subtype == "brass") {
+	flags |= Xapian::DB_BACKEND_BRASS;
+    } else if (subtype == "chert") {
+	flags |= Xapian::DB_BACKEND_CHERT;
+    } else {
+	string msg = "Unknown multidb subtype: ";
+	msg += subtype;
+	throw msg;
+    }
+    string dbbase = dbdir;
+    dbbase += '/';
+    dbbase += dbname;
+    dbbase += "___";
+    size_t dbbase_len = dbbase.size();
+    string line = subtype;
+    line += ' ';
+    line += dbname;
+    line += "___";
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
-	string subdbdir = dbname;
-	subdbdir += "___";
-	subdbdir += str(n);
-#if defined XAPIAN_HAS_BRASS_BACKEND
-	if (subtype == "brass") {
-	    dbs.add_database(Xapian::Brass::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE));
-	    out << "brass " << subdbdir << '\n';
-	}
-#endif
-#if defined XAPIAN_HAS_CHERT_BACKEND
-	if (subtype == "chert") {
-	    dbs.add_database(Xapian::Chert::open(dbdir + "/" + subdbdir, Xapian::DB_CREATE_OR_OVERWRITE));
-	    out << "chert " << subdbdir << '\n';
-	}
-#endif
+	dbbase += str(n);
+	dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
+	dbbase.resize(dbbase_len);
+	out << line << n << '\n';
     }
     out.close();
 
