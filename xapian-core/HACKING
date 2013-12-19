@@ -1472,7 +1472,7 @@ This is a (hopefully complete) list of the jobs which need doing:
   date of this release and adding an entry for the next release with an
   estimated release date.
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
+* Update the website: `generate` in the CVS module www.xapian.org contains the
   latest version and the date it was released.
 
 * Run /home/olly/tmp/xapian-website-update/update_website.sh
