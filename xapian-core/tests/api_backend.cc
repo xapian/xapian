@@ -30,6 +30,7 @@
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
+#include "unixcmds.h"
 #include "utils.h"
 
 #include "apitest.h"
@@ -883,5 +884,36 @@ DEFINE_TESTCASE(itorskiptofromend1, backend) {
     v.skip_to(999999);
     v.check(9999999);
 
+    return true;
+}
+
+/// Check handling of invalid block sizes.
+// Regression test for bug fixed in 1.2.17 and 1.3.2 - the size gets fixed
+// but the uncorrected size was passed to the base file.  Also, abort() was
+// called on 0.
+DEFINE_TESTCASE(blocksize1, brass || chert || flint) {
+    string db_dir = "." + get_dbtype();
+    mkdir(db_dir.c_str(), 0755);
+    db_dir += "/db__blocksize1";
+    Xapian::WritableDatabase db;
+    static const unsigned bad_sizes[] = {
+	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
+    };
+    for (size_t i = 0; i < sizeof(bad_sizes) / sizeof(bad_sizes[0]); ++i) {
+	size_t block_size = bad_sizes[i];
+	rm_rf(db_dir);
+	if (get_dbtype() == "chert") {
+	    db = Xapian::Chert::open(db_dir, Xapian::DB_CREATE, block_size);
+	} else if (get_dbtype() == "flint") {
+	    db = Xapian::Flint::open(db_dir, Xapian::DB_CREATE, block_size);
+	} else {
+	    db = Xapian::Brass::open(db_dir, Xapian::DB_CREATE, block_size);
+	}
+	Xapian::Document doc;
+	doc.add_term("XYZ");
+	doc.set_data("foo");
+	db.add_document(doc);
+	db.commit();
+    }
     return true;
 }

@@ -1,3 +1,11 @@
+Thu Dec 19 09:18:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  tests/api_backend.cc: Fix handling of invalid block sizes - the
+	  size gets fixed as documented, but the uncorrected size was passed
+	  to the base file.  Also, abort() was called on 0.
+
 Thu Dec 19 08:50:33 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -1700,7 +1700,6 @@ BrassTable::create_and_open(unsigned int block_size_)
     Assert(writable);
     close();
 
-    if (block_size_ == 0) abort();
     set_block_size(block_size_);
 
     // FIXME: it would be good to arrange that this works such that there's
@@ -1712,7 +1711,7 @@ BrassTable::create_and_open(unsigned int block_size_)
     /* create the base file */
     BrassTable_base base_;
     base_.set_revision(revision_number);
-    base_.set_block_size(block_size_);
+    base_.set_block_size(block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);

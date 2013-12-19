@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -1705,7 +1705,6 @@ FlintTable::create_and_open(unsigned int block_size_)
     Assert(writable);
     close();
 
-    if (block_size_ == 0) abort();
     set_block_size(block_size_);
 
     // FIXME: it would be good to arrange that this works such that there's
@@ -1717,7 +1716,7 @@ FlintTable::create_and_open(unsigned int block_size_)
     /* create the base file */
     FlintTable_base base_;
     base_.set_revision(revision_number);
-    base_.set_block_size(block_size_);
+    base_.set_block_size(block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
