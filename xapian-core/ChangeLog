@@ -1,3 +1,9 @@
+Thu Dec 19 08:50:33 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/runtest.in: Report if a test is being run under eatmydata,
+	  like we do for running under valgrind.
+
 Thu Dec 19 08:47:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
