@@ -1,3 +1,10 @@
+Fri Dec 20 07:04:32 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/overview.rst: Add Abiword as an example use of --filter, based
+	  on patch from Frank J Bruzzaniti (fixes#383).  Update unoconv
+	  example to talk about LibreOffice instead of OpenOffice.
+
 Tue Dec 03 23:13:48 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 1.2.16.

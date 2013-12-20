@@ -335,24 +335,31 @@ you can set different handling for differently cased variants if you need
 to.
 
 You can add support for additional MIME content types (or override existing
-ones) using the ``--filter`` option - for example, if you wanted to handle
-files of MIME type ``application/octet-stream`` by running them through
-``strings -n8``, you can pass the option
-``--filter=application/octet-stream:'strings -n8'``.  The filename of the
-file to be extracted will be appended to this command, separated by a space.
-Commands run via ``--filter`` need to produce UTF-8 text output on stdout.
+ones) using the ``--filter`` option to specify a command to run.  In Omega
+1.2.x, this command needs to produce output on stdout in UTF-8 text format
+(1.3.x also supports commands which produce HTML output).
 
-A more complex example of the use of ``--filter`` makes use of OpenOffice,
+For example, if you'd prefer to use Abiword to extract text from word documents
+(by default, omindex uses antiword), then you can pass the option
+``--filter=application/msword:'abiword --to=txt --to-name=fd://1'`` to
+omindex.  The filename of the file to be extracted will be appended to this
+command, separated by a space.
+
+Another example - if you wanted to handle files of MIME type
+``application/octet-stream`` by running them through ``strings -n8``, you can
+pass the option ``--filter=application/octet-stream:'strings -n8'``.
+
+A more complex example of the use of ``--filter`` makes use of LibreOffice,
 via the unoconv script, to extract text from various formats.  First you
 need to start a listening instance (if you don't, unoconv will start up
-OpenOffice for every file, which is rather inefficient) - the ``&`` just
-tell the shell to run it in the background::
+LibreOffice for every file, which is rather inefficient) - the ``&`` tells
+the shell to run it in the background::
 
   unoconv --listener &
 
 Then run omindex with options such as
 ``--filter=application/msword:'unoconv --stdout -f text'`` (you'll want one
-for each format which you want to extract text from with OpenOffice).
+for each format which you want to extract text from with LibreOffice).
 
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
