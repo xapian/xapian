@@ -1,3 +1,10 @@
+Fri Dec 20 00:22:02 GMT 2013  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.html,lua/docs/index.html,php/docs/index.html,
+	  php/smoketest.php,python/docs/index.html,python3/docs/index.rst,
+	  xapian-headers.i: Update for addition of Xapian::DB_BACKEND_STUB
+	  and deprecationg of Xapian::Auto::open_stub().
+
 Thu Dec 19 09:48:04 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from 1.2.16 and ChangeLog.

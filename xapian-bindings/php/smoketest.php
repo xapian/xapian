@@ -86,9 +86,34 @@ try {
     }
 }
 
+# Check that DB_BACKEND_STUB works as expected.
+try {
+    $db = new XapianDatabase("nosuchdir/nosuchdb", Xapian::DB_BACKEND_STUB);
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+	exit(1);
+    }
+}
+
 # Check that open_stub() writable form is wrapped as expected.
 try {
     $db = Xapian::auto_open_stub("nosuchdir/nosuchdb", Xapian::DB_OPEN);
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+	exit(1);
+    }
+}
+
+# Check that DB_BACKEND_STUB works as expected.
+try {
+    $db = new XapianWritableDatabase("nosuchdir/nosuchdb",
+				     Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
     print "Opened non-existent stub database\n";
     exit(1);
 } catch (Exception $e) {

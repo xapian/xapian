@@ -144,6 +144,7 @@ CONSTANT(int, Xapian, DB_NO_SYNC);
 CONSTANT(int, Xapian, DB_DANGEROUS);
 CONSTANT(int, Xapian, DB_BACKEND_BRASS);
 CONSTANT(int, Xapian, DB_BACKEND_CHERT);
+CONSTANT(int, Xapian, DB_BACKEND_STUB);
 CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
 CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
 CONSTANT(int, Xapian, DBCHECK_SHOW_BITMAP);
@@ -363,10 +364,14 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 
 #else
 
-#ifndef SWIGPHP
-/* PHP renames this to auto_open_stub() in php/php.i. */
-%rename("open_stub") Xapian::Auto::open_stub;
-#endif
+#define XAPIAN_HAS_INMEMORY_BACKEND
+%rename("inmemory_open") Xapian::InMemory::open;
+
+#ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
+%ignore Xapian::Brass::open;
+%ignore Xapian::Chert::open;
+%ignore Xapian::Auto::open_stub;
+#else
 
 /* SWIG Tcl wrappers don't call destructors for classes returned by factory
  * functions, so we don't wrap them so users are forced to use the
@@ -376,19 +381,16 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::Chert::open(const std::string &dir, int action, int block_size = 8192);
 #endif
 
-#define XAPIAN_HAS_INMEMORY_BACKEND
-%rename("inmemory_open") Xapian::InMemory::open;
-
-#ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
-%ignore Xapian::Brass::open;
-%ignore Xapian::Chert::open;
-#else
-
 #define XAPIAN_HAS_BRASS_BACKEND
 %rename("brass_open") Xapian::Brass::open;
 
 #define XAPIAN_HAS_CHERT_BACKEND
 %rename("chert_open") Xapian::Chert::open;
+
+#ifndef SWIGPHP
+/* PHP renames this to auto_open_stub() in php/php.i. */
+%rename("open_stub") Xapian::Auto::open_stub;
+#endif
 
 #endif
 
