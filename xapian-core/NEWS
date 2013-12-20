@@ -1,3 +1,70 @@
+ 17741       olly Thu Dec 19 09:23:01 GMT 2013  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.17 (2013-12-19):
+
+
+API:
+
+* Enquire::set_sort_by_relevance_then_value(): Fix sense of reverse parameter.
+  Reported by "boomboo" on IRC.
+
+* BM25Weight: Fix case where (k1 == 0 || b == 0) but k2 != 0.  Reported by
+  "boomboo" on IRC.
+
+testsuite:
+
+* Automatically probe for and hook in eatmydata to the testsuite using the
+  wrapper script it now includes.
+
+matcher:
+
+
+brass backend:
+
+* Fix handling of invalid block sizes passed to Xapian::Brass::open() - the
+  size gets fixed as documented, but the uncorrected size was passed to the
+  base file (and abort() was called if 0 was passed).
+
+chert backend:
+
+* Fix handling of invalid block sizes passed to Xapian::Chert::open() - the
+  size gets fixed as documented, but the uncorrected size was passed to the
+  base file (and abort() was called if 0 was passed).
+
+flint backend:
+
+* Fix handling of invalid block sizes passed to Xapian::Flint::open() - the
+  size gets fixed as documented, but the uncorrected size was passed to the
+  base file (and abort() was called if 0 was passed).
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* configure: Improve reporting of GCC version.
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.16 (2013-12-04):
 
 API:
