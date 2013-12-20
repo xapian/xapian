@@ -1,3 +1,9 @@
+Fri Dec 20 03:47:56 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_termlisttable.h,include/xapian/constants.h,
+	  tests/api_backend.cc: Add Xapian::DB_NO_TERMLIST flag to allow
+	  creating a database without a termlist (see #181).
+
 Fri Dec 20 03:04:51 GMT 2013  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h,unicode/tclUniData.cc: Update Unicode

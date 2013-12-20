@@ -69,15 +69,19 @@ class BrassTermListTable : public BrassLazyTable {
      */
     void delete_termlist(Xapian::docid did) { del(make_key(did)); }
 
-    /** Non-lazy override of BrassLazyTable::create_and_open().
+    /** Conditionally lazy override of BrassLazyTable::create_and_open().
      *
-     * Don't create lazily, but if the termlist is deleted, work without it.
+     *  Only create lazily if Xapian::DB_NO_TERMLIST is set in flags_.
      *
      *  This method isn't virtual, but we never call it such that it needs to
      *  be.
      */
     void create_and_open(int flags_, unsigned int blocksize) {
-	BrassTable::create_and_open(flags_, blocksize);
+	if (flags_ & Xapian::DB_NO_TERMLIST) {
+	    BrassLazyTable::create_and_open(flags_, block_size);
+	} else {
+	    BrassTable::create_and_open(flags_, blocksize);
+	}
     }
 };
 

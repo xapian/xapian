@@ -27,6 +27,7 @@
 #define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
+#include "filetests.h"
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -905,5 +906,28 @@ DEFINE_TESTCASE(blocksize1, brass || chert) {
 	db.add_document(doc);
 	db.commit();
     }
+    return true;
+}
+
+/// Feature test for Xapian::DB_NO_TERMLIST.
+DEFINE_TESTCASE(notermlist1, brass) {
+    string db_dir = "." + get_dbtype();
+    mkdir(db_dir.c_str(), 0755);
+    db_dir += "/db__notermlist1";
+    int flags = Xapian::DB_CREATE|Xapian::DB_NO_TERMLIST;
+    if (get_dbtype() == "chert") {
+	flags |= Xapian::DB_BACKEND_CHERT;
+    } else {
+	flags |= Xapian::DB_BACKEND_BRASS;
+    }
+    rm_rf(db_dir);
+    Xapian::WritableDatabase db(db_dir, flags);
+    Xapian::Document doc;
+    doc.add_term("hello");
+    doc.add_value(42, "answer");
+    db.add_document(doc);
+    db.commit();
+    TEST(!file_exists(db_dir + "/termlist.DB"));
+    TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
     return true;
 }

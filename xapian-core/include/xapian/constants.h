@@ -83,6 +83,39 @@ const int DB_NO_SYNC		 = 0x04;
  */
 const int DB_DANGEROUS		 = 0x08;
 
+/** When creating a database, don't create a termlist table.
+ *
+ *  For backends which support it (currently brass), this will prevent creation
+ *  of a termlist table.  This saves on the disk space that would be needed to
+ *  store it, and the CPU and I/O needed to update it, but some features either
+ *  inherently need the termlist table, or the current implementation of them
+ *  requires it.
+ *
+ *  The following probably can't be sensibly implemented without it:
+ *
+ *   - Database::termlist_begin()
+ *   - Document::termlist_begin()
+ *   - Document::termlist_count()
+ *   - Enquire::get_eset()
+ *
+ *  And the following currently require it:
+ *
+ *   - Enquire::matching_terms_begin() - we could record this information
+ *     during the match, though it might be hard to do without a speed penalty.
+ *   - WritableDatabase::delete_document() - we could allow this with inexact
+ *     statistics (like how Lucene does).
+ *   - WritableDatabase::replace_document() if the document exists already
+ *     (again, possible with inexact statistics).
+ *   - Currently the list of which values are used in each document is stored
+ *     in the termlist table, so things like iterating the values in a document
+ *     require it (which is probably reasonably since iterating the terms in
+ *     a document requires it).
+ *
+ *  You can also convert an existing database to not have a termlist table
+ *  by simply deleting termlist.*.
+ */
+const int DB_NO_TERMLIST	 = 0x10;
+
 /** Use the brass backend.
  *
  *  When opening a WritableDatabase, this means create a brass database if a
