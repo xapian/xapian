@@ -1,3 +1,7 @@
+Fri Dec 20 03:50:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Update for addition of Xapian::DB_NO_TERMLIST.
+
 Fri Dec 20 00:22:02 GMT 2013  Olly Betts <olly@survex.com>
 
 	* csharp/docs/index.html,lua/docs/index.html,php/docs/index.html,
