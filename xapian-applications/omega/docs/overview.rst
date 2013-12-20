@@ -354,8 +354,8 @@ pass the option ``--filter=application/octet-stream:'strings -n8'``.
 A more complex example of the use of ``--filter`` makes use of LibreOffice,
 via the unoconv script, to extract text from various formats.  First you
 need to start a listening instance (if you don't, unoconv will start up
-LibreOffice for every file, which is rather inefficient) - the ``&`` just
-tell the shell to run it in the background::
+LibreOffice for every file, which is rather inefficient) - the ``&`` tells
+the shell to run it in the background::
 
   unoconv --listener &
 

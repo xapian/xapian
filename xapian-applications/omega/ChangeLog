@@ -1,3 +1,7 @@
+Fri Dec 20 07:07:36 GMT 2013  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Fix minor typo.
+
 Fri Dec 20 04:58:44 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Add Abiword as an example use of --filter, based
