@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -221,6 +221,10 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x1EEF0), Unicode::MATH_SYMBOL);
     // U+1F634 was added in Unicode 6.1.0.
     TEST_EQUAL(Unicode::get_category(0x1F634), Unicode::OTHER_SYMBOL);
+    // U+20BA was added in Unicode 6.2.0.
+    TEST_EQUAL(Unicode::get_category(0x20BA), Unicode::CURRENCY_SYMBOL);
+    // U+061C was added in Unicode 6.3.0.
+    TEST_EQUAL(Unicode::get_category(0x61C), Unicode::FORMAT);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -309,6 +313,10 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     TEST_EQUAL(Unicode::toupper(0x20ba), 0x20ba);
     TEST_EQUAL(Unicode::tolower(0x20ba), 0x20ba);
 
+    // U+061C was added in Unicode 6.3.0:
+    TEST_EQUAL(Unicode::toupper(0x61c), 0x61c);
+    TEST_EQUAL(Unicode::tolower(0x61c), 0x61c);
+
     unsigned u;
     for (u = 0x514; u < 0x524; u += 2) {
 	TEST_EQUAL(Unicode::get_category(u), Unicode::UPPERCASE_LETTER);
@@ -388,6 +396,8 @@ DEFINE_TESTCASE(unicodepredicates1,!backend) {
 	0x5be,
 	// OTHER_SYMBOL (added in Unicode 5.1.0)
 	0x1f093,
+	// FORMAT (added in Unicode 6.3.0)
+	0x61c,
 	// UNASSIGNED
 	0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
 	// PRIVATE_USE

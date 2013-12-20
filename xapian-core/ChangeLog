@@ -1,3 +1,9 @@
+Fri Dec 20 03:04:51 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h,unicode/tclUniData.cc: Update Unicode
+	  character database to 6.3.0.
+	* tests/api_unicode.cc: Add tests for U+061C, added in 6.3.0.
+
 Fri Dec 20 00:20:01 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory.cc: Clear any backend flag passed in before
