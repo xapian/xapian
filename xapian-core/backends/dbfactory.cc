@@ -365,6 +365,8 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
     // Avoid warning if both brass and chert are disabled.
     (void)block_size;
     int type = flags & DB_BACKEND_MASK_;
+    // Clear the backend bits, so we just pass on other flags to open_stub, etc.
+    flags &= ~DB_BACKEND_MASK_;
     if (type == 0) {
 	struct stat statbuf;
 	if (stat(path.c_str(), &statbuf) == -1) {

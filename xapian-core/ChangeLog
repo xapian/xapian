@@ -1,3 +1,10 @@
+Fri Dec 20 00:20:01 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Clear any backend flag passed in before
+	  passing the flags when opening stub databases, fixing test failure
+	  in replicate1 caused by recent change adding
+	  Xapian::DB_BACKEND_STUB.
+
 Thu Dec 19 23:11:32 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Simplify database creation in testcase
