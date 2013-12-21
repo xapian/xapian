@@ -1,3 +1,7 @@
+Sat Dec 21 01:06:19 GMT 2013  Olly Betts <olly@survex.com>
+
+	* python3/smoketest.py: Add parentheses around print arguments.
+
 Fri Dec 20 03:50:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Update for addition of Xapian::DB_NO_TERMLIST.

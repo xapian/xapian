@@ -61,7 +61,7 @@ def test_all():
 
     def access_cvar():
         res = xapian.cvar
-        print "Unhandled constants: ", res
+        print("Unhandled constants: ", res)
         return res
 
     # Check that SWIG isn't generating cvar (regression test for ticket#297).
