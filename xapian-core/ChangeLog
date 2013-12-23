@@ -1,3 +1,9 @@
+Mon Dec 23 04:17:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING: Drop note about needing git-svn if you're using git -
+	  bootstrap now only uses git-svn if your Xapian tree was checked out
+	  using git-svn.
+
 Mon Dec 23 04:16:58 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Note that Tcl is now needed to generate

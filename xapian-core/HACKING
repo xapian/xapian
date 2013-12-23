@@ -331,8 +331,6 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
-If building from git, you'll also need git-svn installed.
-
 If you're doing much development work, you'll probably also want the following
 tools installed:
 
