@@ -1,3 +1,8 @@
+Mon Dec 23 00:30:53 GMT 2013  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_btreebase.cc: Fix comment documenting what's in
+	  the base file (the sequential flag was missing).
+
 Fri Dec 20 03:47:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_termlisttable.h,include/xapian/constants.h,
