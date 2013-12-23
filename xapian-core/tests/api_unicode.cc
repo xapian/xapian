@@ -225,6 +225,9 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x20BA), Unicode::CURRENCY_SYMBOL);
     // U+061C was added in Unicode 6.3.0.
     TEST_EQUAL(Unicode::get_category(0x61C), Unicode::FORMAT);
+    // U+037F is due to become "GREEK CAPITAL LETTER YOT" in Unicode 7.0.0, but
+    // currently should be unassigned.
+    TEST_EQUAL(Unicode::get_category(0x37F), Unicode::UNASSIGNED);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);

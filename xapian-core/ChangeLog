@@ -1,3 +1,8 @@
+Mon Dec 23 04:01:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Add a test that a character due to be added in 
+	  Unicode 7.0.0 is categorised as "unassigned".
+
 Mon Dec 23 03:50:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* unicode/Makefile.mk,unicode/uniParse.tcl: Adjust to not need a
