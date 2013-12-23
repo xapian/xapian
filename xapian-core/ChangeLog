@@ -1,3 +1,8 @@
+Mon Dec 23 04:16:58 GMT 2013  Olly Betts <olly@survex.com>
+
+	* HACKING: Note that Tcl is now needed to generate
+	  unicode/unicode-data.cc.
+
 Mon Dec 23 04:01:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_unicode.cc: Add a test that a character due to be added in 

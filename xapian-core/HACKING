@@ -309,11 +309,12 @@ You will need the following tools installed to build from git:
 * GNU make (or another make which support VPATH for explicit rules)
 * GNU flex (for building doxygen)
 * GNU bison (for building doxygen)
+* Tcl (to generate unicode/unicode-data.cc)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison tcl
 
 If you want to build Omega, you'll also need::
 
