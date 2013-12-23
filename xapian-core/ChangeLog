@@ -1,3 +1,11 @@
+Mon Dec 23 02:20:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/enquire.h: Note that 1.2.17 is required for the
+	  correct sense of the reverse parameter to Enquire methods
+	  set_sort_by_relevance_then_value() and
+	  set_sort_by_relevance_then_key().
+
 Fri Dec 20 06:48:49 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
