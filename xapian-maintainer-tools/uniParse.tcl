@@ -4,12 +4,10 @@
 #	corresponding tclUniData.cc file with compressed character
 #	data tables.  The input to this program should be the latest
 #	UnicodeData file from:
-#	    ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData-Latest.txt
+#	    ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData.txt
 #
 # Copyright (c) 1998-1999 by Scriptics Corporation.
 # All rights reserved.
-# 
-# RCS: @(#) $Id: uniParse.tcl,v 1.4 2001/05/28 04:37:57 hobbs Exp $
 
 
 namespace eval uni {
@@ -32,45 +30,39 @@ namespace eval uni {
 	Cc Cf Co Cs Pc Pd Ps Pe Pi Pf Po Sm Sc Sk So
     };				# Ordered list of character categories, must
 				# match the enumeration in the header file.
-
-    variable titleCount 0;	# Count of the number of title case
-				# characters.  This value is used in the
-				# regular expression code to allocate enough
-				# space for the title case variants.
 }
 
 proc uni::getValue {items index} {
     variable categories
-    variable titleCount
 
     # Extract character info
 
     set category [lindex $items 2]
-    if {[scan [lindex $items 12] %6x toupper] == 1} {
+    if {[scan [lindex $items 12] %x toupper] == 1} {
 	set toupper [expr {$index - $toupper}]
     } else {
-	set toupper {}
+	set toupper 0
     }
-    if {[scan [lindex $items 13] %6x tolower] == 1} {
+    if {[scan [lindex $items 13] %x tolower] == 1} {
 	set tolower [expr {$tolower - $index}]
     } else {
-	set tolower {}
+	set tolower 0
     }
-    if {[scan [lindex $items 14] %6x totitle] == 1} {
+    if {[scan [lindex $items 14] %x totitle] == 1} {
 	set totitle [expr {$index - $totitle}]
+    } elseif {$tolower} {
+	set totitle 0
     } else {
-	set totitle {}
+	set totitle $toupper
     }
 
     set categoryIndex [lsearch -exact $categories $category]
     if {$categoryIndex < 0} {
 	puts "Unexpected character category: $index($category)"
 	set categoryIndex 0
-    } elseif {$category == "Lt"} {
-	incr titleCount
     }
 
-    return "$categoryIndex,$toupper,$tolower,$totitle"
+    return [list $categoryIndex $toupper $tolower $totitle]
 }
 
 proc uni::getGroup {value} {
@@ -87,7 +79,7 @@ proc uni::getGroup {value} {
 proc uni::addPage {info} {
     variable pMap
     variable pages
-    
+
     set pIndex [lsearch -exact $pages $info]
     if {$pIndex == -1} {
 	set pIndex [llength $pages]
@@ -96,29 +88,38 @@ proc uni::addPage {info} {
     lappend pMap $pIndex
     return
 }
-    
+
 proc uni::buildTables {data} {
     variable shift
 
     variable pMap {}
     variable pages {}
-    variable groups {{0,,,}}
+    variable groups {{0 0 0 0}}
+    variable next 0
     set info {}			;# temporary page info
-    
+
     set mask [expr {(1 << $shift) - 1}]
 
-    set next 0
-
     foreach line [split $data \n] {
-	if {$line == ""} {
-	    set line "10FFFF;;Cn;0;ON;;;;;N;;;;;\n"
+	if {$line eq ""} {
+	    if {!($next & $mask)} {
+		# next character is already on page boundary
+		continue
+	    }
+	    # fill remaining page
+	    set line [format %X [expr {($next-1)|$mask}]]
+	    append line ";;Cn;0;ON;;;;;N;;;;;\n"
 	}
 
 	set items [split $line \;]
 
-	scan [lindex $items 0] %6x index
-	set index [format 0x%0.6x $index]
-	
+	scan [lindex $items 0] %x index
+	if {$index > 0x2ffff} then {
+	    # Ignore non-BMP characters, as long as Tcl doesn't support them
+	    #continue
+	}
+	set index [format %d $index]
+
 	set gIndex [getGroup [getValue $items $index]]
 
 	# Since the input table omits unassigned characters, these will
@@ -140,15 +141,11 @@ proc uni::buildTables {data} {
 
 	# Enter all assigned characters up to the current character
 	for {set i $next} {$i <= $index} {incr i} {
-	    # Split character index into offset and page number
-	    set offset [expr {$i & $mask}]
-	    set page [expr {($i >> $shift)}]
-
 	    # Add the group index to the info for the current page
 	    lappend info $gIndex
 
 	    # If this is the last entry in the page, add the page
-	    if {$offset == $mask} {
+	    if {($i & $mask) == $mask} {
 		addPage $info
 		set info {}
 	    }
@@ -164,7 +161,7 @@ proc uni::main {} {
     variable pages
     variable groups
     variable shift
-    variable titleCount
+    variable next
 
     if {$argc != 2} {
 	puts stderr "\nusage: $argv0 <datafile> <outdir>\n"
@@ -176,16 +173,14 @@ proc uni::main {} {
 	puts stderr "datafile name [lindex $argv 0] doesn't match UnicodeData-x.y.z.txt\n"
 	exit 1
     }
-
     set f [open [lindex $argv 0] r]
     set data [read $f]
     close $f
 
     buildTables $data
     puts "X = [llength $pMap]  Y= [llength $pages]  A= [llength $groups]"
-    set size [expr {[llength $pMap] + [llength $pages]*(1<<$shift)}]
+    set size [expr {[llength $pMap] + ([llength $pages]<<$shift)}]
     puts "shift = $shift, space = $size"
-    puts "title case count = $titleCount"
 
     set f [open [file join [lindex $argv 1] tclUniData.cc] w]
     fconfigure $f -translation lf
@@ -205,7 +200,6 @@ proc uni::main {} {
 #include <config.h>
 
 #include <xapian/unicode.h>
-#include \"omassert.h\"
 
 /*
  * A 16-bit Unicode character is split into two parts in order to index
@@ -221,22 +215,29 @@ proc uni::main {} {
  * to the same alternate page number.
  */
 
-static const
-unsigned char pageMap\[\] = {"
-    set line "   "
+static const unsigned char pageMap\[\] = {"
+    set line "    "
     set last [expr {[llength $pMap] - 1}]
     for {set i 0} {$i <= $last} {incr i} {
-	append line " "
+#	if {$i == [expr {0x10000 >> $shift}]} {
+#	    set line [string trimright $line " \t,"]
+#	    puts $f $line
+#	    set lastpage [expr {[lindex $line end] >> $shift}]
+#	    puts stdout "lastpage: $lastpage"
+#	    puts $f "#if TCL_UTF_MAX > 3"
+#	    set line "    ,"
+#	}
 	append line [lindex $pMap $i]
 	if {$i != $last} {
-	    append line ","
+	    append line ", "
 	}
 	if {[string length $line] > 70} {
-	    puts $f $line
-	    set line "   "
+	    puts $f [string trimright $line]
+	    set line "    "
 	}
     }
     puts $f $line
+#    puts $f "#endif /* TCL_UTF_MAX > 3 */"
     puts $f "};
 
 /*
@@ -245,26 +246,30 @@ unsigned char pageMap\[\] = {"
  * set of character attributes.
  */
 
-static const
-unsigned char groupMap\[\] = {"
-    set line "   "
+static const unsigned char groupMap\[\] = {"
+    set line "    "
     set lasti [expr {[llength $pages] - 1}]
     for {set i 0} {$i <= $lasti} {incr i} {
 	set page [lindex $pages $i]
 	set lastj [expr {[llength $page] - 1}]
+#	if {$i == ($lastpage + 1)} {
+#	    puts $f [string trimright $line " \t,"]
+#	    puts $f "#if TCL_UTF_MAX > 3"
+#	    set line "    ,"
+#	}
 	for {set j 0} {$j <= $lastj} {incr j} {
-	    append line " "
 	    append line [lindex $page $j]
 	    if {$j != $lastj || $i != $lasti} {
-		append line ","
+		append line ", "
 	    }
 	    if {[string length $line] > 70} {
-		puts $f $line
-		set line "   "
+		puts $f [string trimright $line]
+		set line "    "
 	    }
 	}
     }
     puts $f $line
+#    puts $f "#endif /* TCL_UTF_MAX > 3 */"
     puts $f "};
 
 /*
@@ -280,40 +285,49 @@ unsigned char groupMap\[\] = {"
  *				 101 = sub delta for upper, sub 1 for title
  *				 110 = sub delta for upper, add delta for lower
  *
- * Bits 8-14	Reserved for future use.
- *
- * Bits 15-31	Case delta: delta for case conversions.  This should be the
+ * Bits 8-31	Case delta: delta for case conversions.  This should be the
  *			    highest field so we can easily sign extend.
  */
 
-static const
-int groups\[\] = {"
-    set line "   "
+static const int groups\[\] = {"
+    set line "    "
     set last [expr {[llength $groups] - 1}]
     for {set i 0} {$i <= $last} {incr i} {
-	foreach {type toupper tolower totitle} [split [lindex $groups $i] ,] {}
-	
+	foreach {type toupper tolower totitle} [lindex $groups $i] {}
+
 	# Compute the case conversion type and delta
 
-	if {$totitle != ""} {
+	if {$totitle} {
 	    if {$totitle == $toupper} {
 		# subtract delta for title or upper
 		set case 4
 		set delta $toupper
-	    } elseif {$toupper != ""} {
+		if {$tolower} {
+		    error "New case conversion type needed: $toupper $tolower $totitle"
+		}
+	    } elseif {$toupper} {
 		# subtract delta for upper, subtract 1 for title
 		set case 5
 		set delta $toupper
+		if {($totitle != 1) || $tolower} {
+		    error "New case conversion type needed: $toupper $tolower $totitle"
+		}
 	    } else {
 		# add delta for lower, add 1 for title
 		set case 3
 		set delta $tolower
+		if {$totitle != -1} {
+		    error "New case conversion type needed: $toupper $tolower $totitle"
+		}
 	    }
-	} elseif {$toupper != ""} {
+	} elseif {$toupper} {
 	    # subtract delta for upper, add delta for lower
 	    set case 6
 	    set delta $toupper
-	} elseif {$tolower != ""} {
+	    if {$tolower != $toupper} {
+		error "New case conversion type needed: $toupper $tolower $totitle"
+	    }
+	} elseif {$tolower} {
 	    # add delta for lower
 	    set case 2
 	    set delta $tolower
@@ -323,28 +337,33 @@ int groups\[\] = {"
 	    set delta 0
 	}
 
-	set val [expr {($delta << 15) | ($case << 5) | $type}]
-
-	append line " "
-	append line [format "%d" $val]
+	if {$delta >= (1 << 23) || $delta < -(1<<23)} {
+	    error "delta $delta out of range"
+	}
+	append line [expr {($delta << 8) | ($case << 5) | $type}]
 	if {$i != $last} {
-	    append line ","
+	    append line ", "
 	}
 	if {[string length $line] > 65} {
-	    puts $f $line
-	    set line "   "
+	    puts $f [string trimright $line]
+	    set line "    "
 	}
     }
     puts $f $line
-    puts $f "};
+    puts -nonewline $f "};
 
 #if 0
+
+#if TCL_UTF_MAX > 3
+#   define UNICODE_OUT_OF_RANGE(ch) (((ch) & 0x1fffff) >= [format 0x%x $next])
+#else
+#   define UNICODE_OUT_OF_RANGE(ch) (((ch) & 0x1f0000) != 0)
+#endif
+
 /*
  * The following constants are used to determine the category of a
  * Unicode character.
  */
-
-#define UNICODE_CATEGORY_MASK 0X1F
 
 enum {
     UNASSIGNED,
@@ -385,9 +404,9 @@ enum {
  * to do sign extension on right shifts.
  */
 
-#define GetCaseType(info) (((info) & 0xE0) >> 5)
-#define GetCategory(info) ((info) & 0x1F)
-#define GetDelta(info) (((info) > 0) ? ((info) >> 15) : (~(~((info)) >> 15)))
+#define GetCaseType(info) (((info) & 0xe0) >> 5)
+#define GetCategory(ch) (GetUniCharInfo(ch) & 0x1f)
+#define GetDelta(info) ((info) >> 8)
 #endif
 
 /** Extract information about a Unicode character.
@@ -398,9 +417,13 @@ enum {
 int
 Xapian::Unicode::Internal::get_character_info(unsigned ch)
 {
-    Assert(ch < 0x110000);
+    if (rare(ch >= 0x110000)) {
+	// Categorise non-Unicode values as UNASSIGNED with no case variants.
+	return Xapian::Unicode::UNASSIGNED;
+    }
     return (groups\[groupMap\[(pageMap\[((int)(ch)) >> OFFSET_BITS\] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))\]\]);
-}"
+}
+"
 
     close $f
 }
