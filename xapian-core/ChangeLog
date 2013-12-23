@@ -1,3 +1,10 @@
+Mon Dec 23 01:04:26 GMT 2013  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Note that 1.2.17 is required for the
+	  correct sense of the reverse parameter to Enquire methods
+	  set_sort_by_relevance_then_value() and
+	  set_sort_by_relevance_then_key().
+
 Mon Dec 23 00:30:53 GMT 2013  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_btreebase.cc: Fix comment documenting what's in
