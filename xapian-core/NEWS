@@ -1,9 +1,149 @@
- 17674       olly Mon Dec 02 02:34:43 GMT 2013  Olly Betts <olly@survex.com>
+ 17764       olly Mon Dec 23 01:04:26 GMT 2013  Olly Betts <olly@survex.com>
 
-Xapian-core 1.3.2 (2013-12-02):
+backported for 1.2.17:
+
+ 17764       olly Mon Dec 23 01:04:26 GMT 2013  Olly Betts <olly@survex.com>
+	* include/xapian/enquire.h: Note that 1.2.17 is required for the
+	  correct sense of the reverse parameter to Enquire methods
+	  set_sort_by_relevance_then_value() and
+	  set_sort_by_relevance_then_key().
+
+ 17733       olly Thu Dec 19 06:46:15 GMT 2013  Olly Betts <olly@survex.com>
+	* docs/deprecation.rst: Update example version to a more recent one.
+
+ 17726       olly Thu Dec 19 00:11:26 GMT 2013  Olly Betts <olly@survex.com>
+	* tests/harness/backendmanager_multi.cc: Fix comment typo.
+
+ 17725       olly Wed Dec 18 23:52:49 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  tests/api_backend.cc: Fix handling of invalid block sizes - the
+	  size gets fixed as documented, but the uncorrected size was passed
+	  to the base file.  Also, abort() was called on 0.
+
+ 17720       olly Wed Dec 18 03:24:22 GMT 2013  Olly Betts <olly@survex.com>
+	* tests/runtest.in: Report if a test is being run under eatmydata,
+	  like we do for running under valgrind.
+
+ 17719       olly Wed Dec 18 02:43:47 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_version.h,backends/chert/chert_version.h:
+	  Comment out unused set_uuid() and set_uuid_string() methods - they
+	  may be useful in future, but we aren't currently using them.  Also
+	  make set_uuid() take a const pointer.
+
+ 17718       olly Wed Dec 18 02:40:18 GMT 2013  Olly Betts <olly@survex.com>
+	* HACKING,configure.ac,tests/runtest.in: Automatically probe for and
+	  hook in eatmydata to the testsuite using the wrapper script it now
+	  includes.
+
+ 17717       olly Wed Dec 18 01:21:07 GMT 2013  Olly Betts <olly@survex.com>
+	* HACKING: Update website update info.
+
+ 17706       olly Thu Dec 12 22:25:04 GMT 2013  Olly Betts <olly@survex.com>
+	* matcher/msetcmp.cc: Fix sense of reverse parameter to
+	  Enquire::set_sort_by_relevance_then_value.  Reported by "boomboo" on
+	  IRC.
+	* tests/api_db.cc: Fix testcase sortrel1.
+
+ 17703       olly Thu Dec 12 09:04:13 GMT 2013  Olly Betts <olly@survex.com>
+	* configure.ac: Improve reporting of GCC version.
+
+ 17696       olly Wed Dec 11 04:46:58 GMT 2013  Olly Betts <olly@survex.com>
+	* weight/bm25weight.cc: Fix case where (k1 == 0 || b == 0) but k2 != 0.
+	  Reported by "boomboo" on IRC.
+	* tests/api_weight.cc: Add regression test bm25weight5.
+
+Xapian-core 1.3.2 (2013-12-23):
 
 This release includes all changes from 1.2.16 which are relevant.
 	* configure.ac: Bump LIBRARY_VERSION_INFO.
+
+ 17761       olly Mon Dec 23 00:30:53 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_btreebase.cc: Fix comment documenting what's in
+	  the base file (the sequential flag was missing).
+
+ 17752       olly Fri Dec 20 03:47:56 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_termlisttable.h,include/xapian/constants.h,
+	  tests/api_backend.cc: Add Xapian::DB_NO_TERMLIST flag to allow
+	  creating a database without a termlist (see #181).
+
+ 17751       olly Fri Dec 20 03:04:51 GMT 2013  Olly Betts <olly@survex.com>
+	* include/xapian/unicode.h,unicode/tclUniData.cc: Update Unicode
+	  character database to 6.3.0.
+	* tests/api_unicode.cc: Add tests for U+061C, added in 6.3.0.
+
+ 17746       olly Thu Dec 19 23:09:30 GMT 2013  Olly Betts <olly@survex.com>
+	* api/replication.cc,backends/dbfactory.cc,docs/deprecation.rst,
+	  docs/overview.rst,include/xapian/constants.h,
+	  include/xapian/dbfactory.h,tests/api_backend.cc,tests/api_db.cc:
+	  Add Xapian::DB_BACKEND_STUB and deprecate Xapian::Auto::open_stub().
+ 17749       olly Fri Dec 20 00:20:01 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/dbfactory.cc: Clear any backend flag passed in before
+	  passing the flags when opening stub databases, fixing test failure
+	  in replicate1 caused by recent change adding
+	  Xapian::DB_BACKEND_STUB.
+
+ 17731       olly Thu Dec 19 04:01:31 GMT 2013  Olly Betts <olly@survex.com>
+	* docs/deprecation.rst,include/xapian/dbfactory.h,tests/api_db.cc,
+	  tests/harness/: Deprecate Xapian::Brass::open() and
+	  Xapian::Chert::open() in favour of the new Xapian::DB_BACKEND_BRASS
+	  and Xapian::DB_BACKEND_CHERT flags.
+
+ 17727       olly Thu Dec 19 01:17:02 GMT 2013  Olly Betts <olly@survex.com>
+	* api/compactor.cc,backends/brass/,backends/chert/chert_database.cc,
+	  backends/chert/chert_database.h,backends/database.h,
+	  backends/dbcheck.cc,backends/dbfactory.cc,include/xapian/constants.h,
+	  include/xapian/database.h,include/xapian/dbfactory.h: Add flags
+	  which can be bitwise OR-ed into the second argument when opening a
+	  writable datase: DB_NO_SYNC (to disable use of fsync, etc) and
+	  DB_DANGEROUS (to enable in-place updates).  WritableDatabase
+	  can now be constructed from just a filename (defaulting to opening
+	  the database with DB_CREATE_OR_OPEN).
+
+ 17723       olly Wed Dec 18 22:48:18 GMT 2013  Olly Betts <olly@survex.com>
+	* api/replication.cc,backends/brass/brass_check.cc,
+	  backends/brass/brass_database.cc,backends/chert/chert_check.cc,
+	  backends/chert/chert_database.cc,backends/database.h,
+	  backends/dbcheck.cc,bin/xapian-tcpsrv.cc,include/Makefile.mk,
+	  include/xapian.h,include/xapian/database.h,net/remoteserver.cc:
+	  Move Xapian::DB_* and Xapian:DBCHECK_* constants into
+	  xapian/constants.h.
+
+ 17722       olly Wed Dec 18 22:30:23 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
+	  Include xapian/*.h with "" not <> inside the library.
+
+ 17721       olly Wed Dec 18 22:17:15 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
+	  Include only the needed xapian/*.h headers (rather than xapian.h) to
+	  reduce inter-file dependencies within the library.
+
+ 17713       olly Fri Dec 13 21:06:28 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_cursor.cc,backends/brass/brass_cursor.h,
+	  backends/brass/brass_table.cc: Reference count blocks in the
+	  btree cursor, so cursors can cheaply share blocks.  This can
+	  significantly reduce the amount of memory used for cursors
+	  for queries which contain a lot of terms (e.g. wildcards which
+	  expand to a lot of terms).
+
+ 17707       olly Thu Dec 12 22:37:22 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_btreebase.cc: Add assertions that we don't read
+	  beyond the end of the freespace bitmap.
+
+ 17705       olly Thu Dec 12 19:47:46 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/: Make Brass::Cursor members n and p private.
+
+ 17701       olly Wed Dec 11 23:40:37 GMT 2013  Olly Betts <olly@survex.com>
+	* api/leafpostlist.cc,api/leafpostlist.h,backends/brass/,
+	  matcher/localsubmatch.cc,matcher/localsubmatch.h,
+	  matcher/queryoptimiser.h: Under brass, optimise the turning of a
+	  query into a postlist to copy the cursor blocks for the previous
+	  term's postlist.  This is particularly effective for wildcard
+	  queries which expand to a lot of terms.
+
+ 17698       olly Wed Dec 11 22:05:34 GMT 2013  Olly Betts <olly@survex.com>
+	* backends/brass/brass_postlist.h: We don't have a
+	  BrassModifiedPostList class, so we don't need protected members in
+	  BrassPostList for it to use.
 
  17631       olly Fri Nov 08 08:58:48 GMT 2013  Olly Betts <olly@survex.com>
 	* api/maptermlist.h,api/termlist.cc,api/termlist.h,backends/brass/:
