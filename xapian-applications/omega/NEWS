@@ -1,8 +1,13 @@
- 17675       olly Mon Dec 02 22:56:18 GMT 2013  Olly Betts <olly@survex.com>
+ 17757       olly Fri Dec 20 07:07:36 GMT 2013  Olly Betts <olly@survex.com>
 
 backported for 1.2.17:
 
-Omega 1.3.2 (2013-12-19):
+ 17754       olly Fri Dec 20 04:58:44 GMT 2013  Olly Betts <olly@survex.com>
+	* docs/overview.rst: Add Abiword as an example use of --filter, based
+	  on patch from Frank J Bruzzaniti (fixes#383).  Update unoconv
+	  example to talk about LibreOffice instead of OpenOffice.
+
+Omega 1.3.2 (2013-12-20):
 
 general:
 
