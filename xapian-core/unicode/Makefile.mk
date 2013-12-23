@@ -9,15 +9,14 @@ EXTRA_DIST +=\
 	unicode/uniParse.tcl
 
 if MAINTAINER_MODE
-unicode/tclUniData.cc: unicode/uniParse.tcl unicode/UnicodeData.txt
-	rm -f unicode/UnicodeData-6.3.0.txt
-	ln -s $(abs_srcdir)/unicode/UnicodeData.txt unicode/UnicodeData-6.3.0.txt
-	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData-6.3.0.txt unicode
+unicode/unicode-data.cc: unicode/uniParse.tcl unicode/UnicodeData.txt
+	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 6.3.0 unicode/unicode-data.cc
 
-BUILT_SOURCES += unicode/tclUniData.cc
+BUILT_SOURCES += unicode/unicode-data.cc
+MAINTAINERCLEANFILES += unicode/unicode-data.cc
 endif
 
 lib_src +=\
 	unicode/description_append.cc\
-	unicode/tclUniData.cc\
+	unicode/unicode-data.cc\
 	unicode/utf8itor.cc

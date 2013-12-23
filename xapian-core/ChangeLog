@@ -1,3 +1,11 @@
+Mon Dec 23 03:50:37 GMT 2013  Olly Betts <olly@survex.com>
+
+	* unicode/Makefile.mk,unicode/uniParse.tcl: Adjust to not need a
+	  symlink.  Give the generated file a new name, since the "tcl" prefix
+	  doesn't make much sense here, and it avoids issues with
+	  transitioning from a file in version control to one which is
+	  generated.
+
 Mon Dec 23 03:32:40 GMT 2013  Olly Betts <olly@survex.com>
 
 	* unicode/: Add the source data file and scripts to generate
