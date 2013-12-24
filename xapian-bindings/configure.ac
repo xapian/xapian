@@ -182,7 +182,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
   dnl Need python in maintainer mode to run doxy2swig.py.
-  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
+  AC_PATH_PROGS(PYTHON, ["${PYTHON-python2 python}"], [])
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
@@ -244,7 +244,7 @@ BINDINGS=
 
 if test no != "$with_python" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
+  AC_PATH_PROGS(PYTHON, ["${PYTHON-python2 python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
     dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last

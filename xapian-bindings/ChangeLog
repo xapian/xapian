@@ -1,3 +1,8 @@
+Tue Dec 24 21:24:42 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check python2 before python when probing for a python
+	  interpreter for the Python 2 bindings.
+
 Tue Dec 24 21:04:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Reject Python 3 when probing for a python interpreter
