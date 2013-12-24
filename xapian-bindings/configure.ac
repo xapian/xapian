@@ -252,7 +252,14 @@ if test no != "$with_python" ; then
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
+    [2.[3-9]*|2.[12][0-9][0-9]*])
+      ;;
+    [[3-9].*])
+      AC_MSG_RESULT([$version (too new - only Python 2 is supported by Xapian 1.2.x)])
+      if test yes = "$with_python" ; then
+	AC_MSG_ERROR([Only Python 2 is supported by Xapian 1.2.x ($python is $version)])
+      fi
+      PYTHON=
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
