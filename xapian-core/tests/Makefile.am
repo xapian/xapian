@@ -167,27 +167,27 @@ collated_apitest_sources = \
 apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
-apitest_LDFLAGS = -no-install $(ldflags)
+apitest_LDFLAGS = @NO_INSTALL@ $(ldflags)
 apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
-stemtest_LDFLAGS = -no-install $(ldflags)
+stemtest_LDFLAGS = @NO_INSTALL@ $(ldflags)
 stemtest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
-internaltest_LDFLAGS = -no-install $(ldflags)
+internaltest_LDFLAGS = @NO_INSTALL@ $(ldflags)
 internaltest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
-queryparsertest_LDFLAGS = -no-install $(ldflags)
+queryparsertest_LDFLAGS = @NO_INSTALL@ $(ldflags)
 queryparsertest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 termgentest_SOURCES = termgentest.cc $(testharness_sources)
-termgentest_LDFLAGS = -no-install $(ldflags)
+termgentest_LDFLAGS = @NO_INSTALL@ $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 unittest_SOURCES = unittest.cc
-unittest_LDFLAGS = -no-install $(ldflags)
+unittest_LDFLAGS = @NO_INSTALL@ $(ldflags)
 
 BUILT_SOURCES =
 

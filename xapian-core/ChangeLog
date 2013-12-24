@@ -1,3 +1,11 @@
+Tue Dec 24 02:15:16 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* tests/Makefile.am,tests/perftest/Makefile.mk: Actually use
+	  @NO_INSTALL@.
+	* configure.ac: Use -no-fast-install on platforms where -no-install
+	  causes libtool to emit a warning.
+
 Mon Dec 23 02:20:37 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
