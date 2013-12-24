@@ -1,3 +1,8 @@
+Tue Dec 24 01:59:05 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use -no-fast-install on platforms where -no-install
+	  causes libtool to emit a warning.
+
 Mon Dec 23 04:17:35 GMT 2013  Olly Betts <olly@survex.com>
 
 	* HACKING: Drop note about needing git-svn if you're using git -

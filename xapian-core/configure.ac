@@ -147,6 +147,18 @@ case $host_os in
     ;;
 esac
 
+case $host in
+  *-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-os2* | *-*-darwin* | *-cegcc*)
+    dnl On these platforms, libtool emits a warning if -no-install is passed,
+    dnl and uses -no-fast-install instead - the least ugly way to avoid that
+    dnl warnings seems to be to duplicate the above list of platforms from
+    dnl libtool and use -no-fast-install on them directly.
+    NO_INSTALL=-no-fast-install ;;
+  *)
+    NO_INSTALL=-no-install ;;
+esac
+AC_SUBST([NO_INSTALL])
+
 dnl For reasons which are beyond me, if autoconf can't find a C++ compiler
 dnl it will set CXX to g++ (which obviously won't work) rather than actually
 dnl telling the user that it couldn't find a C++ compiler and telling them
