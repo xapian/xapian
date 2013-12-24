@@ -1,3 +1,11 @@
+Tue Dec 24 21:21:17 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,python/Makefile.am: Rename the variables
+	  used for the python2 bindings to begin PYTHON2 instead of PYTHON.
+	  Try python2 before python when looking for an interpreter for the
+	  python2 bindings, as some distros now point /usr/bin/python at
+	  Python 3.
+
 Sat Dec 21 01:06:19 GMT 2013  Olly Betts <olly@survex.com>
 
 	* python3/smoketest.py: Add parentheses around print arguments.

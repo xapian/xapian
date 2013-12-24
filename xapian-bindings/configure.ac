@@ -229,7 +229,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   AC_PATH_PROG(DOXYGEN, doxygen, [])
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
   dnl Need python in maintainer mode to run doxy2swig.py.
-  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
+  AC_PATH_PROGS(PYTHON, ["${PYTHON-python2 python python3}"], [])
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
@@ -296,14 +296,20 @@ esac
 BINDINGS=
 
 if test no != "$with_python" ; then
+  dnl For backward compatibility:
+  : ${PYTHON2=$PYTHON}
+  : ${PYTHON2_INC=$PYTHON_INC}
+  : ${PYTHON2_LIB=$PYTHON_LIB}
+  : ${PYTHON2_LIBS=$PYTHON_LIBS}
+  : ${PYTHON2_SO=$PYTHON_SO}
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
-  AC_ARG_VAR(PYTHON, [Python interpreter])
-  if test -n "$PYTHON" ; then
+  AC_PATH_PROGS(PYTHON2, ["${PYTHON2-python2 python}"], [])
+  AC_ARG_VAR(PYTHON2, [Python 2 interpreter])
+  if test -n "$PYTHON2" ; then
     dnl Require Python 2.4 or newer.  Older versions are essentially
     dnl unsupported upstream.
-    AC_MSG_CHECKING([$PYTHON version])
-    version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
+    AC_MSG_CHECKING([$PYTHON2 version])
+    version=`$PYTHON2 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
     [2.[4-9]*|2.[12][0-9][0-9]*])
       ;;
@@ -312,60 +318,60 @@ if test no != "$with_python" ; then
       if test yes = "$with_python" ; then
 	AC_MSG_ERROR([Use --with-python3 for Python 3 support ($python is $version)])
       fi
-      PYTHON=
+      PYTHON2=
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
 	AC_MSG_ERROR([Only Python 2.4 or newer is supported ($python is $version)])
       fi
-      PYTHON=
+      PYTHON2=
       ;;
     esac
     AC_MSG_RESULT([$version])
-    if test -n "$PYTHON" ; then
-      if $PYTHON -c 'import distutils.sysconfig' 2>/dev/null ; then
-	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
-	AC_SUBST(PYTHON_INC)
+    if test -n "$PYTHON2" ; then
+      if $PYTHON2 -c 'import distutils.sysconfig' 2>/dev/null ; then
+	PYTHON2_INC=`$PYTHON2 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
+	AC_SUBST(PYTHON2_INC)
       else
 	if test yes = "$with_python" ; then
 	  AC_MSG_ERROR([Couldn't import Python module distutils.sysconfig - you probably need to install a python-dev or python-devel package])
 	else
 	  AC_MSG_WARN([Couldn't import Python module distutils.sysconfig - you probably don't have a python-dev or python-devel package installed])
-	  PYTHON=
+	  PYTHON2=
 	fi
       fi
     fi
-    if test -n "$PYTHON" ; then
+    if test -n "$PYTHON2" ; then
       dnl Check that Python.h is there, which is a good way to check that
       dnl the appropriate python-dev package has been installed.
-      AC_MSG_CHECKING([for $PYTHON_INC/Python.h])
-      if test -f "$PYTHON_INC/Python.h" ; then
+      AC_MSG_CHECKING([for $PYTHON2_INC/Python.h])
+      if test -f "$PYTHON2_INC/Python.h" ; then
 	AC_MSG_RESULT(yes)
 	AC_MSG_CHECKING([for directory to install python bindings in])
-	if test -z "$PYTHON_LIB" ; then
-	  PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
+	if test -z "$PYTHON2_LIB" ; then
+	  PYTHON2_LIB=`$PYTHON2 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
 	fi
-	AC_MSG_RESULT([$PYTHON_LIB])
-	AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
+	AC_MSG_RESULT([$PYTHON2_LIB])
+	AC_ARG_VAR(PYTHON2_LIB, [Directory to install python bindings in])
 
 	AC_MSG_CHECKING([for python libraries to link against])
 	case $host_os in
 	mingw* | pw32*)
-	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
+	  PYTHON2_LIBS=`$PYTHON2 -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
 	cygwin*)
-	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print("-L"+os.path.join(sys.path[[3]],"config")+" -lpython"+sys.version[[:3]])'` ;;
+	  PYTHON2_LIBS=`$PYTHON2 -c 'import os,sys;print("-L"+os.path.join(sys.path[[3]],"config")+" -lpython"+sys.version[[:3]])'` ;;
 	*)
-	  PYTHON_LIBS= ;;
+	  PYTHON2_LIBS= ;;
 	esac
-	AC_SUBST(PYTHON_LIBS)
-	AC_MSG_RESULT([$PYTHON_LIBS])
+	AC_SUBST(PYTHON2_LIBS)
+	AC_MSG_RESULT([$PYTHON2_LIBS])
 
 	AC_MSG_CHECKING([for python module extension])
 	dnl Usually ".so", but for example, Mac OS X uses ".dylib".
-	PYTHON_SO=`$PYTHON -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
-	AC_SUBST(PYTHON_SO)
-	AC_MSG_RESULT([$PYTHON_SO])
+	PYTHON2_SO=`$PYTHON2 -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
+	AC_SUBST(PYTHON2_SO)
+	AC_MSG_RESULT([$PYTHON2_SO])
 	BINDINGS="$BINDINGS python"
       else
 	AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])

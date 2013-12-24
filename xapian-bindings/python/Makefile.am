@@ -7,7 +7,7 @@ TESTS = smoketest.py pythontest.py
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
 	srcdir='$(srcdir)' ;\
-	PYTHON='$(PYTHON)' ;\
+	PYTHON='$(PYTHON2)' ;\
 	export abs_builddir ;\
 	export srcdir ;\
 	export PYTHON ;
@@ -31,7 +31,7 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	replicationtest.py \
 	$(TESTS) $(BUILT_SOURCES)
 
-pkgpylibdir = @PYTHON_LIB@/xapian
+pkgpylibdir = @PYTHON2_LIB@/xapian
 
 # Install as _DATA rather than _SCRIPTS because we don't want to make these
 # executable (they don't have a #! line).
@@ -50,13 +50,13 @@ install-data-hook:
 # Because we don't install the .la file, "make uninstall" doesn't work and
 # we need to remove the file ourselves.
 uninstall-local:
-	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON_SO)
+	rm -f $(DESTDIR)$(pkgpylibdir)/_xapian$(PYTHON2_SO)
 
-AM_CPPFLAGS = -I$(PYTHON_INC)
+AM_CPPFLAGS = -I$(PYTHON2_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON_SO)" $(NO_UNDEFINED)
+_xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON2_SO)" $(NO_UNDEFINED)
 _xapian_la_SOURCES = modern/xapian_wrap.cc
-_xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
+_xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON2_LIBS)
 
 # In a distribution, xapian.py is in $(srcdir)/modern, and python will always
 # generate the .pyc and .pyo files in the same directory as the .py file.
@@ -73,23 +73,23 @@ xapian/__init__.py: modern/xapian.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo.
-xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -c "import xapian"
+xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON2) -c "import _xapian"
+	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON2) -c "import xapian"
 
-xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON) -O -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON) -O -c "import xapian"
+xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON2) -O -c "import _xapian"
+	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON2) -O -c "import xapian"
 
-xapian/_xapian$(PYTHON_SO): _xapian.la
+xapian/_xapian$(PYTHON2_SO): _xapian.la
 	-test -d xapian || mkdir xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
 ## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON_SO) xapian
+	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON2_SO) xapian
 	rm -f libtoolconfig.tmp
 
 CLEANFILES = \
-    xapian/_xapian$(PYTHON_SO) \
+    xapian/_xapian$(PYTHON2_SO) \
     xapian/__init__.py xapian/__init__.pyc xapian/__init__.pyo \
     $(srcdir)/*.pyc
 
