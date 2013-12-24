@@ -111,7 +111,7 @@ doccomments.i:
 	: > doccomments.i
 else
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../doxygen-xml/index.xml
-	$(PYTHON3) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
+	$(PYTHON) $(srcdir)/doxy2swig.py ../doxygen-xml/index.xml doccomments.i
 endif
 
 # Update the Python 3 versions from the Python 2 ones.
