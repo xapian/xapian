@@ -903,11 +903,23 @@ DEFINE_TESTCASE(blocksize1, brass || chert || flint) {
 	size_t block_size = bad_sizes[i];
 	rm_rf(db_dir);
 	if (get_dbtype() == "chert") {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
 	    db = Xapian::Chert::open(db_dir, Xapian::DB_CREATE, block_size);
+#else
+	    SKIP_TEST("chert backend disabled");
+#endif
 	} else if (get_dbtype() == "flint") {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 	    db = Xapian::Flint::open(db_dir, Xapian::DB_CREATE, block_size);
+#else
+	    SKIP_TEST("flint backend disabled");
+#endif
 	} else {
+#ifdef XAPIAN_HAS_BRASS_BACKEND
 	    db = Xapian::Brass::open(db_dir, Xapian::DB_CREATE, block_size);
+#else
+	    SKIP_TEST("brass backend disabled");
+#endif
 	}
 	Xapian::Document doc;
 	doc.add_term("XYZ");
