@@ -1,3 +1,7 @@
+Wed Dec 25 20:30:49 GMT 2013  Olly Betts <olly@survex.com>
+
+	* configure.ac: Quote $PYTHON, etc in backward compatibility code.
+
 Wed Dec 25 06:29:07 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix some issues with the previous change, so it works

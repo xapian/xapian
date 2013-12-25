@@ -294,11 +294,11 @@ BINDINGS=
 
 if test no != "$with_python" ; then
   dnl For backward compatibility:
-  : ${PYTHON2=$PYTHON}
-  : ${PYTHON2_INC=$PYTHON_INC}
-  : ${PYTHON2_LIB=$PYTHON_LIB}
-  : ${PYTHON2_LIBS=$PYTHON_LIBS}
-  : ${PYTHON2_SO=$PYTHON_SO}
+  : ${PYTHON2="$PYTHON"}
+  : ${PYTHON2_INC="$PYTHON_INC"}
+  : ${PYTHON2_LIB="$PYTHON_LIB"}
+  : ${PYTHON2_LIBS="$PYTHON_LIBS"}
+  : ${PYTHON2_SO="$PYTHON_SO"}
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   if test -n "$PYTHON2" ; then
     AC_PATH_PROGS(PYTHON2, ["$PYTHON2"], [])
