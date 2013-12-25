@@ -228,9 +228,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl docstrings.
   AC_PATH_PROG(DOXYGEN, doxygen, [])
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
-  dnl Need python in maintainer mode to run doxy2swig.py.
-  AC_PATH_PROGS(PYTHON, ["${PYTHON-python2 python python3}"], [])
-  test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
 AC_ARG_WITH(python,
@@ -303,7 +300,11 @@ if test no != "$with_python" ; then
   : ${PYTHON2_LIBS=$PYTHON_LIBS}
   : ${PYTHON2_SO=$PYTHON_SO}
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PYTHON2, ["${PYTHON2-python2 python}"], [])
+  if test -n "$PYTHON2" ; then
+    AC_PATH_PROGS(PYTHON2, ["$PYTHON2"], [])
+  else
+    AC_PATH_PROGS(PYTHON2, [python2 python], [])
+  fi
   AC_ARG_VAR(PYTHON2, [Python 2 interpreter])
   if test -n "$PYTHON2" ; then
     dnl Require Python 2.4 or newer.  Older versions are essentially
@@ -316,14 +317,14 @@ if test no != "$with_python" ; then
     [[3-9].*])
       AC_MSG_RESULT([$version (too new - use --with-python3 for Python 3 support)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Use --with-python3 for Python 3 support ($python is $version)])
+	AC_MSG_ERROR([Use --with-python3 for Python 3 support ($PYTHON2 is $version)])
       fi
       PYTHON2=
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only Python 2.4 or newer is supported ($python is $version)])
+	AC_MSG_ERROR([Only Python 2.4 or newer is supported ($PYTHON2 is $version)])
       fi
       PYTHON2=
       ;;
@@ -348,14 +349,14 @@ if test no != "$with_python" ; then
       AC_MSG_CHECKING([for $PYTHON2_INC/Python.h])
       if test -f "$PYTHON2_INC/Python.h" ; then
 	AC_MSG_RESULT(yes)
-	AC_MSG_CHECKING([for directory to install python bindings in])
+	AC_MSG_CHECKING([for directory to install python2 bindings in])
 	if test -z "$PYTHON2_LIB" ; then
 	  PYTHON2_LIB=`$PYTHON2 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
 	fi
 	AC_MSG_RESULT([$PYTHON2_LIB])
-	AC_ARG_VAR(PYTHON2_LIB, [Directory to install python bindings in])
+	AC_ARG_VAR(PYTHON2_LIB, [Directory to install python2 bindings in])
 
-	AC_MSG_CHECKING([for python libraries to link against])
+	AC_MSG_CHECKING([for python2 libraries to link against])
 	case $host_os in
 	mingw* | pw32*)
 	  PYTHON2_LIBS=`$PYTHON2 -c 'import os,sys;print("-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/")+" -lpython"+sys.version[[:3]].replace(".",""))'` ;;
@@ -367,7 +368,7 @@ if test no != "$with_python" ; then
 	AC_SUBST(PYTHON2_LIBS)
 	AC_MSG_RESULT([$PYTHON2_LIBS])
 
-	AC_MSG_CHECKING([for python module extension])
+	AC_MSG_CHECKING([for python2 module extension])
 	dnl Usually ".so", but for example, Mac OS X uses ".dylib".
 	PYTHON2_SO=`$PYTHON2 -c 'import distutils.sysconfig;print(distutils.sysconfig.get_config_vars("SO")[[0]])'`
 	AC_SUBST(PYTHON2_SO)
@@ -385,7 +386,11 @@ fi
 
 if test no != "$with_python3" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PYTHON3, ["${PYTHON3-python3}"], [])
+  if test -n "$PYTHON3" ; then
+    AC_PATH_PROGS(PYTHON3, ["$PYTHON3"], [])
+  else
+    AC_PATH_PROGS(PYTHON3, [python3 python], [])
+  fi
   AC_ARG_VAR(PYTHON3, [Python 3 interpreter])
   if test -n "$PYTHON3" ; then
     dnl Require Python 3.2 or newer, as that's the oldest version we can
@@ -424,7 +429,7 @@ if test no != "$with_python3" ; then
       AC_MSG_CHECKING([for $PYTHON3_INC/Python.h])
       if test -f "$PYTHON3_INC/Python.h" ; then
 	AC_MSG_RESULT(yes)
-	AC_MSG_CHECKING([for directory to install python bindings in])
+	AC_MSG_CHECKING([for directory to install python3 bindings in])
 	if test -z "$PYTHON3_LIB" ; then
 	  PYTHON3_LIB=`$PYTHON3 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_lib(1).replace(os.sep,"/"))'`
 	fi
@@ -463,6 +468,19 @@ if test no != "$with_python3" ; then
       fi
     fi
   fi
+fi
+
+if test x$USE_MAINTAINER_MODE = xyes; then
+  dnl Need python in maintainer mode to run doxy2swig.py.
+  dnl Either Python 2 or 3 is OK for this.
+  if test -n "$PYTHON2" ; then
+    PYTHON=$PYTHON2
+  elif test -n "$PYTHON3" ; then
+    PYTHON=$PYTHON3
+  else
+    AC_PATH_PROGS(PYTHON, [python2 python python3], [])
+  fi
+  test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
 if test no != "$with_php" ; then
