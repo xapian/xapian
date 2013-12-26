@@ -1,3 +1,10 @@
+Thu Dec 26 01:15:27 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,portability/mkdtemp.cc,portability/mkdtemp.h,tmpdir.cc:
+	  Add header with prototype of mkdtemp() to avoid "no previous
+	  declaration" warning on platforms which don't have mkdtemp() as
+	  standard.
+
 Mon Dec 23 02:25:13 GMT 2013  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
