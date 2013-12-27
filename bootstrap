@@ -513,6 +513,7 @@ fi
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
+revdirs=
 XAPIAN_CONFIG=$here/xapian-core/xapian-config
 for d in $modules ; do
   if [ "$here" = "$srcdir" ] ; then
@@ -549,6 +550,7 @@ for d in $modules ; do
     esac
     cd "$here"
     dirs="$dirs $d"
+    revdirs="$d $revdirs"
   elif [ search-xapian = "$d" ] ; then
     if [ "$here" = "$srcdir" ] ; then
       makefilepl=Makefile.PL
@@ -578,6 +580,7 @@ for d in $modules ; do
       perl "$makefilepl" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${cxx_arg+"$cxx_arg"} \
 	  ${cxxflags_arg+"$cxxflags_arg"} ${cppflags_arg+"$cppflags_arg"}
       dirs="$dirs $d"
+      revdirs="$d $revdirs"
     fi
     cd "$here"
   fi
@@ -592,7 +595,15 @@ targets='all install uninstall install-strip clean distclean mostlyclean maintai
 for target in $targets ; do
   echo
   echo "$target:"
-  for d in $dirs ; do
+  case $target in
+    uninstall|*clean)
+      # When uninstalling or cleaning, process directories in reverse order, so
+      # that we process a directory after any directories which might use it.
+      list=$revdirs ;;
+    *)
+      list=$dirs ;;
+  esac
+  for d in $list ; do
     case $d,$target in
     swig,install*|swig,uninstall)
       # Nothing to do with swig when installing/uninstalling.
