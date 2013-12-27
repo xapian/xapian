@@ -387,6 +387,11 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
     echo "Skipping '$module' due to presence of '$d/.nobootstrap'."
     continue
   fi
+  if [ "$d" = swig ] && [ -f "xapian-bindings/.nobootstrap" ] ; then
+    # No point bootstrapping SWIG if we aren't going to use it.
+    echo "Skipping '$d' due to presence of 'xapian-bindings/.nobootstrap'."
+    continue
+  fi
   echo "Bootstrapping \`$module'"
   [ -f "$d/preautoreconf" ] && "$d/preautoreconf"
 
