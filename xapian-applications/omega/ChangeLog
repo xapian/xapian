@@ -1,3 +1,7 @@
+Sun Dec 29 21:26:03 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Ship common/safewinsock2.h, needed under mingw.
+
 Sun Dec 29 06:22:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,metaxmlparse.cc,myhtmlparse.cc,timegm.cc,
