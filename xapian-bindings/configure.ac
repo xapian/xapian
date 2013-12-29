@@ -22,16 +22,14 @@ dnl setting MACOSX_DEPLOYMENT_TARGET to at least 10.3 seems to be the
 dnl appropriate thing to do.  Most Mac OS X developers will have upgraded
 dnl from 10.1 and 10.2 by now anyhow.
 dnl
-dnl NB we must do this *BEFORE* AC_PROG_LIBTOOL since that is what checks
+dnl NB we must do this *BEFORE* LT_INIT since that is what checks
 dnl MACOSX_DEPLOYMENT_TARGET.
 AC_CANONICAL_HOST
 OVERRIDE_MACOSX_DEPLOYMENT_TARGET=
-NEED_JNILIB_EXT=no
 case $host in
 *86*-darwin8*|*-darwin[[91]]*)
   dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
   dnl OS version, so we don't need to override on these.
-  NEED_JNILIB_EXT=yes
   ;;
 *-darwin*)
   case $MACOSX_DEPLOYMENT_TARGET in
@@ -41,7 +39,6 @@ case $host in
     AC_MSG_WARN([Overriding MACOSX_DEPLOYMENT_TARGET from $MACOSX_DEPLOYMENT_TARGET to 10.3])
     OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
   esac
-  NEED_JNILIB_EXT=yes
   ;;
 esac
 AM_CONDITIONAL(OVERRIDE_MACOSX_DEPLOYMENT_TARGET, test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET")
@@ -49,7 +46,6 @@ AC_SUBST(OVERRIDE_MACOSX_DEPLOYMENT_TARGET)
 if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
   MACOSX_DEPLOYMENT_TARGET=$OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 fi
-AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
@@ -91,6 +87,38 @@ AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
+
+NEED_JNILIB_EXT=no
+NEED_INTREE_DYLD=no
+INTREE_DYLD_PATH=
+case $host_os in
+darwin*)
+  NEED_JNILIB_EXT=yes
+  dnl If we're building against an uninstalled xapian-core, xapian-config
+  dnl --libs will give an error.
+  if $XAPIAN_CONFIG --libs >/dev/null 2>/dev/null ; then
+    :
+  else
+    NEED_INTREE_DYLD=yes
+    dnl $XAPIAN_LIBS may have some options first, so grab the last argument,
+    dnl which should be the .la file.
+    set x $XAPIAN_LIBS
+    as_fn_arith $# - 1
+    shift $as_val
+    INTREE_DYLD_PATH=$1
+    dnl Make sure the path is absolute.
+    case $INTREE_DYLD_PATH in
+      /*) ;;
+      *) INTREE_DYLD_PATH=`pwd`/$INTREE_DYLD_PATH ;;
+    esac
+    dnl Add .libs or equivalent.
+    INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
+    AC_SUBST([INTREE_DYLD_PATH])
+  fi
+  ;;
+esac
+AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
+AM_CONDITIONAL(NEED_INTREE_DYLD, test yes = "$NEED_INTREE_DYLD")
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
 dnl CXXFLAGS for the duration of configure.

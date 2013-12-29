@@ -1,3 +1,13 @@
+Sun Dec 29 22:12:35 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac,generic/generic.mk: Improve workaround which allows
+	  building against an uninstalled xapian-core on OS X - this should
+	  now work with any uninstalled xapian-core (not only in a tree
+	  with the same layout as an SVN or git checkout) and it also won't
+	  try to build against "../xapian-core/.libs" just because it happens
+	  to exist.  (Fixes #322)
+
 Tue Dec 24 21:24:42 GMT 2013  Olly Betts <olly@survex.com>
 
 	* configure.ac: Check python2 before python when probing for a python
