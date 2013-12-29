@@ -1,3 +1,11 @@
+Sun Dec 29 06:22:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,metaxmlparse.cc,myhtmlparse.cc,timegm.cc,
+	  timegm.h: Factor out our portable timegm() replacement.  Fixes
+	  incorrect timezone handling for created timestamps in OpenDocument
+	  documents on platforms without timegm().  Should also fix a build
+	  failure on mingw.
+
 Thu Dec 26 01:15:27 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,portability/mkdtemp.cc,portability/mkdtemp.h,tmpdir.cc:

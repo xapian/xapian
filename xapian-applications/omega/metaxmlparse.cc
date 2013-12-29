@@ -22,6 +22,8 @@
 #include "metaxmlparse.h"
 
 #include <cstdlib>
+#include <time.h>
+#include "timegm.h"
 
 using namespace std;
 
@@ -83,17 +85,7 @@ MetaXmlParser::process_text(const string &text)
 		break;
 	    }
 	    t.tm_isdst = -1;
-#ifdef HAVE_TIMEGM
 	    created = timegm(&t);
-#else
-	    static bool set_tz = false;
-	    if (!set_tz) {
-		setenv("tz", "", 1);
-		tzset();
-		set_tz = true;
-	    }
-	    created = mktime(&t);
-#endif
 	    break;
 	}
 	case NONE:

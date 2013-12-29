@@ -103,7 +103,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
- xlsxparse.h opendocparse.h msxmlparse.h\
+ xlsxparse.h opendocparse.h msxmlparse.h timegm.h\
  portability/mkdtemp.h
 
 # headers maintained in xapian-core
@@ -149,7 +149,7 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
  pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
- opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc
+ opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif

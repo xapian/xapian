@@ -30,7 +30,8 @@
 #include <cctype>
 #include <cstdlib>
 #include <cstring>
-#include <ctime>
+#include <time.h>
+#include "timegm.h"
 
 using namespace std;
 
@@ -108,13 +109,7 @@ parse_datetime(const string & s)
     }
     t.tm_isdst = -1;
 
-    static bool set_tz = false;
-    if (!set_tz) {
-	setenv("TZ", "", 1);
-	tzset();
-	set_tz = true;
-    }
-    return mktime(&t);
+    return timegm(&t);
 }
 
 void
