@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2008,2009,2010,2011 Olly Betts
+.. Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
 .. Copyright (C) 2008,2009 Lemur Consulting Ltd
 
 =====================
@@ -60,7 +60,8 @@ It must always be true that::
 PostingSources must always return documents in increasing document ID order.
 
 After construction, a PostingSource points to a position *before* the first
-document id - so before a docid can be read, the position must be advanced.
+document id - so before a docid can be read, the position must be advanced
+by calling ``next()``, ``skip_to()`` or ``check()``.
 
 The ``get_weight()`` method returns the weight that you want to contribute
 to the current document.  This weight must always be >= 0::
@@ -181,7 +182,9 @@ Examples
 ========
 
 Here is an example of a Python PostingSource which contributes additional
-weight from some external source::
+weight from some external source (note that in Python, you call ``next()``
+on an iterator to get each item, including the first, which is exactly
+the semantics we need to implement here)::
 
     class ExternalWeightPostingSource(xapian.PostingSource):
 	"""

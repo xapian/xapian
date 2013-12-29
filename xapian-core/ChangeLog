@@ -1,3 +1,8 @@
+Sun Dec 29 05:46:14 GMT 2013  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Clarify a couple of points (reported by
+	  "vHanda" on IRC).
+
 Tue Dec 24 02:00:26 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/perftest/Makefile.mk: Actually use
