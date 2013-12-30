@@ -1,3 +1,10 @@
+Mon Dec 30 05:36:50 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_unicode.cc: Add regression test for incorrect results
+	  from Unicode::tolower() for 4 code points (U+01C5, U+01C8, U+01CB,
+	  U+01F2) with Xapian 1.2.16 and earlier.
+
 Mon Dec 30 05:08:23 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

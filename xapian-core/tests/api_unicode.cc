@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -234,6 +234,12 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
     TEST_EQUAL(Unicode::toupper(0x242), 0x241);
     TEST_EQUAL(Unicode::toupper(0x241), 0x241);
     TEST_EQUAL(Unicode::tolower(0x241), 0x242);
+
+    // Regression test for bug fixed in 1.2.17.
+    TEST_EQUAL(Unicode::tolower(0x1c5), 0x1c6);
+    TEST_EQUAL(Unicode::tolower(0x1c8), 0x1c9);
+    TEST_EQUAL(Unicode::tolower(0x1cb), 0x1cc);
+    TEST_EQUAL(Unicode::tolower(0x1f2), 0x1f3);
 
     // Pound currency symbol:
     TEST_EQUAL(Unicode::tolower(0xa3), 0xa3);
