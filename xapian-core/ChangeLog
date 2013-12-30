@@ -1,3 +1,9 @@
+Mon Dec 30 05:38:00 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/postingsource.rst: Clarify a couple of points (reported by
+	  "vHanda" on IRC).
+
 Mon Dec 30 05:36:50 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
