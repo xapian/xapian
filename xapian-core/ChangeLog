@@ -1,3 +1,18 @@
+Mon Dec 30 05:08:23 GMT 2013  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* HACKING: Note that Tcl is now needed to generate
+	  unicode/unicode-data.cc.
+	* tests/api_unicode.cc: Add a tests that additions and changes in
+	  Unicode > 5.2 aren't active.
+	* unicode/Makefile.mk,unicode/uniParse.tcl: Adjust to not need a
+	  symlink.  Give the generated file a new name, since the "tcl" prefix
+	  doesn't make much sense here, and it avoids issues with
+	  transitioning from a file in version control to one which is
+	  generated.
+	* unicode/: Add the source data file and scripts to generate
+	  tclUniData.cc.
+
 Tue Dec 24 22:40:04 GMT 2013  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Fix apitest to build when brass, chert or

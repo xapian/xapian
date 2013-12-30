@@ -165,6 +165,49 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x10FFFF), Unicode::UNASSIGNED);
     // U+1109A was added in Unicode 5.2.0.
     TEST_EQUAL(Unicode::get_category(0x1109a), Unicode::OTHER_LETTER);
+    // U+1F773 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x1F773), Unicode::UNASSIGNED);
+    // U+2B740 was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x2B740), Unicode::UNASSIGNED);
+    // U+2B81D was added in Unicode 6.0.0.
+    TEST_EQUAL(Unicode::get_category(0x2B81D), Unicode::UNASSIGNED);
+    // U+00A7 changed category in Unicode 6.1.0 (was OTHER_SYMBOL).
+    TEST_EQUAL(Unicode::get_category(0xA7), Unicode::OTHER_SYMBOL);
+    // U+00AA changed category in Unicode 6.1.0 (was LOWERCASE_LETTER).
+    TEST_EQUAL(Unicode::get_category(0xAA), Unicode::LOWERCASE_LETTER);
+    // U+00B6 changed category in Unicode 6.1.0 (was OTHER_SYMBOL).
+    TEST_EQUAL(Unicode::get_category(0xB6), Unicode::OTHER_SYMBOL);
+    // U+00BA changed category in Unicode 6.1.0 (was LOWERCASE_LETTER).
+    TEST_EQUAL(Unicode::get_category(0xBA), Unicode::LOWERCASE_LETTER);
+    // U+058F was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x058F), Unicode::UNASSIGNED);
+    // U+0604 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x0604), Unicode::UNASSIGNED);
+    // U+08A0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x08A0), Unicode::UNASSIGNED);
+    // U+08E4 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x08E4), Unicode::UNASSIGNED);
+    // U+0AF0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x0AF0), Unicode::UNASSIGNED);
+    // U+9FCC was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x9FCC), Unicode::UNASSIGNED);
+    // U+A7F9 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0xA7F9), Unicode::UNASSIGNED);
+    // U+110F0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x110F0), Unicode::UNASSIGNED);
+    // U+11100 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x11100), Unicode::UNASSIGNED);
+    // U+1EEF0 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x1EEF0), Unicode::UNASSIGNED);
+    // U+1F634 was added in Unicode 6.1.0.
+    TEST_EQUAL(Unicode::get_category(0x1F634), Unicode::UNASSIGNED);
+    // U+20BA was added in Unicode 6.2.0.
+    TEST_EQUAL(Unicode::get_category(0x20BA), Unicode::UNASSIGNED);
+    // U+061C was added in Unicode 6.3.0.
+    TEST_EQUAL(Unicode::get_category(0x61C), Unicode::UNASSIGNED);
+    // U+037F is due to become "GREEK CAPITAL LETTER YOT" in Unicode 7.0.0, but
+    // currently should be unassigned.
+    TEST_EQUAL(Unicode::get_category(0x37F), Unicode::UNASSIGNED);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
