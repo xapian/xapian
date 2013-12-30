@@ -1,3 +1,9 @@
+Mon Dec 30 05:33:59 GMT 2013  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Add regression test for incorrect results
+	  from Unicode::tolower() for 4 code points (U+01C5, U+01C8, U+01CB,
+	  U+01F2) with Xapian 1.2.16 and earlier.
+
 Sun Dec 29 05:46:14 GMT 2013  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Clarify a couple of points (reported by

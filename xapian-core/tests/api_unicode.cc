@@ -255,6 +255,12 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
     TEST_EQUAL(Unicode::toupper(0x241), 0x241);
     TEST_EQUAL(Unicode::tolower(0x241), 0x242);
 
+    // Regression test for bug fixed in 1.2.17.
+    TEST_EQUAL(Unicode::tolower(0x1c5), 0x1c6);
+    TEST_EQUAL(Unicode::tolower(0x1c8), 0x1c9);
+    TEST_EQUAL(Unicode::tolower(0x1cb), 0x1cc);
+    TEST_EQUAL(Unicode::tolower(0x1f2), 0x1f3);
+
     // Pound currency symbol:
     TEST_EQUAL(Unicode::tolower(0xa3), 0xa3);
     TEST_EQUAL(Unicode::toupper(0xa3), 0xa3);
