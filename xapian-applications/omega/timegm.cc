@@ -47,7 +47,7 @@ timegm(struct tm *tm)
 	tzset();
 	set_tz = true;
     }
-    return mktime(t);
+    return mktime(tm);
 }
 
 #endif
