@@ -1,3 +1,8 @@
+Wed Jan 01 03:53:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/Makefile.am: Fix handling of MAINTAINER_NO_DOCS.
+
 Mon Dec 30 05:38:00 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
