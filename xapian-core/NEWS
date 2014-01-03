@@ -1,20 +1,25 @@
- 17741       olly Thu Dec 19 09:23:01 GMT 2013  Olly Betts <olly@survex.com>
+ 17799       olly Wed Jan 01 03:53:47 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.17 (2013-12-19):
-
+Xapian-core 1.2.17 (2014-01-03):
 
 API:
 
-* Enquire::set_sort_by_relevance_then_value(): Fix sense of reverse parameter.
+* Enquire::set_sort_by_relevance_then_value() and
+  Enquire::set_sort_by_relevance_then_key(): Fix sense of reverse parameter.
   Reported by "boomboo" on IRC.
 
 * BM25Weight: Fix case where (k1 == 0 || b == 0) but k2 != 0.  Reported by
   "boomboo" on IRC.
 
+* Unicode::tolower(): Fix to give correct results for U+01C5, U+01C8, U+01CB,
+  and U+01F2 (previously these were left unchanged).
+
 testsuite:
 
 * Automatically probe for and hook in eatmydata to the testsuite using the
   wrapper script it now includes.
+
+* Fix apitest to build when brass, chert or flint are disabled.
 
 matcher:
 
@@ -47,8 +52,17 @@ build system:
 
 * configure: Improve reporting of GCC version.
 
+* Use -no-fast-install on platforms where -no-install causes libtool to emit a
+  warning.
+
+* docs/Makefile.am: Fix handling of MAINTAINER_NO_DOCS.
+
+* Include UnicodeData.txt and the script to generate the unicode tables from
+  it.
+
 documentation:
 
+* postingsource.rst: Clarify a couple of points (reported by "vHanda" on IRC).
 
 tools:
 
