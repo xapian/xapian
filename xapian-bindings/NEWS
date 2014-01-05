@@ -1,6 +1,6 @@
- 17743       olly Thu Dec 19 09:35:26 GMT 2013  Olly Betts <olly@survex.com>
+ 17792       olly Sun Dec 29 22:12:35 GMT 2013  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.17 (2013-12-20):
+Xapian-bindings 1.2.17 (2014-01-05):
 
 Documentation:
 
@@ -9,6 +9,12 @@ General:
 Packaging:
 
 Portability:
+
+* Improve workaround which allows building against an uninstalled xapian-core
+  on OS X - this should now work with any uninstalled xapian-core (not only in
+  a tree with the same layout as an SVN or git checkout) and it also won't try
+  to build against "../xapian-core/.libs" just because it happens to exist.
+  (Backported from 1.3.1; fixes #322)
 
 CSharp:
 
@@ -21,6 +27,10 @@ Perl:
 PHP:
 
 Python:
+
+* configure: Some distros now point /usr/bin/python at Python 3, so the check
+  for a Python 2 interpreter now checks for 'python2' first, and checks that
+  the version of found interpreter is 2.x.
 
 Ruby:
 
