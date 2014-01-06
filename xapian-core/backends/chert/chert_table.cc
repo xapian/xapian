@@ -202,7 +202,7 @@ ChertTable::read_block(uint4 n, byte * p) const
 	ssize_t bytes_read = pread(handle, reinterpret_cast<char *>(p), m,
 				   offset);
 	// normal case - read succeeded, so return.
-	if (bytes_read == m) return;
+	if (bytes_read == m) break;
 	if (bytes_read == -1) {
 	    if (errno == EINTR) continue;
 	    if (errno == EBADF && handle == -2)
@@ -233,6 +233,13 @@ ChertTable::read_block(uint4 n, byte * p) const
 
     io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
+
+    int dir_end = DIR_END(p);
+    if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
+	string msg("dir_end invalid in block ");
+	msg += str(n);
+	throw Xapian::DatabaseCorruptError(msg);
+    }
 }
 
 /** write_block(n, p) writes block n in the DB file from address p.

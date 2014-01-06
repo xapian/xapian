@@ -1,3 +1,10 @@
+Mon Jan 06 08:09:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
+	  backends/flint/flint_table.cc: Validate dir_end when reading a
+	  block.  (fixes #592)
+
 Fri Jan 03 21:56:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
