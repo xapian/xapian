@@ -1,3 +1,11 @@
+Mon Jan 06 12:10:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/pythontest.py,python3/pythontest.py: When testing
+	  valuestreams, just use the xapian.WritableDatabase constructor
+	  rather than chert_open() - that code dates back to when chert was
+	  the only disk-based backend to support valuestreams, and it wasn't
+	  the default backend.
+
 Wed Jan 01 04:22:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python3/Makefile.am: Fix handling of DOCUMENTATION_RULES.

@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013,2014 Olly Betts
 # Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -1078,7 +1078,7 @@ def test_value_stats():
 
     """
     dbpath = 'db_test_value_stats'
-    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
     for id in range(10):
@@ -1165,7 +1165,7 @@ def test_value_mods():
 
     """
     dbpath = 'db_test_value_mods'
-    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
     random.seed(42)
     doccount = 1000
     vals = {}
