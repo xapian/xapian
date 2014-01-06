@@ -1,3 +1,8 @@
+Mon Jan 06 00:31:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/chert/chert_table.cc:
+	  Validate dir_end when reading a block.  (fixes #592)
+
 Wed Jan 01 01:20:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Fix handling of MAINTAINER_NO_DOCS.
