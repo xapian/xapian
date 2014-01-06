@@ -1,3 +1,7 @@
+Mon Jan 06 11:54:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: Fix xlC warning.
+
 Mon Jan 06 00:31:19 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/chert/chert_table.cc:
