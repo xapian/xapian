@@ -1,3 +1,10 @@
+Wed Jan 08 11:48:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/smallvector.cc,api/smallvector.h: Include cstddef rather than
+	  cstring for std::size_t, as it's a simpler header.  Don't assume
+	  size_t will be available unqualified.  Add SmallVector::size_type
+	  typedef.
+
 Mon Jan 06 11:54:53 GMT 2014  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc: Fix xlC warning.

@@ -1,7 +1,7 @@
 /** @file smallvector.h
  * @brief Append only vector of Xapian PIMPL objects
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2014 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,7 +25,7 @@
 #ifndef XAPIAN_INCLUDED_SMALLVECTOR_H
 #define XAPIAN_INCLUDED_SMALLVECTOR_H
 
-#include <cstring> // For size_t
+#include <cstddef> // For std::size_t
 
 namespace Xapian {
 
@@ -34,10 +34,10 @@ class SmallVector_ {
     SmallVector_() : c(0) { }
 
   protected:
-    size_t c;
+    std::size_t c;
     void * p[2];
 
-    void do_reserve(size_t n);
+    void do_reserve(std::size_t n);
 };
 
 /** Vector of Xapian PIMPL objects.
@@ -54,6 +54,7 @@ class SmallVector_ {
 template<typename T>
 class SmallVector : private SmallVector_ {
   public:
+    typedef std::size_t size_type;
     class const_iterator {
 	void * const * ptr;
 
@@ -70,7 +71,7 @@ class SmallVector : private SmallVector_ {
 	    return T(*static_cast<typename T::Internal*>(*ptr));
 	}
 
-	T operator[](size_t idx) const {
+	T operator[](size_type idx) const {
 	    return T(*static_cast<typename T::Internal*>(ptr[idx]));
 	}
 
@@ -85,7 +86,7 @@ class SmallVector : private SmallVector_ {
     SmallVector() : SmallVector_() { }
 
     // Create an empty SmallVector with n elements reserved.
-    explicit SmallVector(size_t n) : SmallVector_() {
+    explicit SmallVector(size_type n) : SmallVector_() {
 	reserve(n);
     }
 
@@ -105,12 +106,12 @@ class SmallVector : private SmallVector_ {
 			      p + c);
     }
 
-    size_t size() const {
+    size_type size() const {
 	return c > sizeof(p) / sizeof(*p) ?
 	       static_cast<void**>(p[1]) - static_cast<void**>(p[0]) : c;
     }
 
-    size_t capacity() const {
+    size_type capacity() const {
 	return c > sizeof(p) / sizeof(*p) ? c : sizeof(p) / sizeof(*p);
     }
 
@@ -129,7 +130,7 @@ class SmallVector : private SmallVector_ {
 	c = 0;
     }
 
-    void reserve(size_t n) {
+    void reserve(size_type n) {
 	if (n > sizeof(p) / sizeof(*p) && n > c) {
 	    do_reserve(n);
 	    c = n;
@@ -137,7 +138,7 @@ class SmallVector : private SmallVector_ {
     }
 
     void push_back(const T & elt) {
-	size_t cap = capacity();
+	size_type cap = capacity();
 	if (size() == cap) {
 	    cap *= 2;
 	    do_reserve(cap);
@@ -154,7 +155,7 @@ class SmallVector : private SmallVector_ {
 	}
     }
 
-    T operator[](size_t idx) const {
+    T operator[](size_type idx) const {
 	return begin()[idx];
     }
 };
