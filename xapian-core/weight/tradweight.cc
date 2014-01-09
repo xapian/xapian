@@ -28,6 +28,7 @@
 
 #include "xapian/error.h"
 
+#include <algorithm>
 #include <cmath>
 
 using namespace std;

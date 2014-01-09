@@ -1,3 +1,11 @@
+Tue May 19 11:58:01 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/inmemory/inmemory_database.h,weight/tradweight.cc: Fix
+	  compilations issues with Sun's C++ compiler (mostly missing library
+	  headers).
+
 Mon May 18 04:18:37 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Arrange to pass command line option so that xlC

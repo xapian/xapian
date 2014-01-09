@@ -68,6 +68,7 @@
 
 #include <algorithm>
 #include "autoptr.h"
+#include <cstdlib>
 #include <string>
 
 using namespace std;

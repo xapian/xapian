@@ -48,6 +48,7 @@
 #endif
 
 #include <cstdio> // For rename().
+#include <cstdlib>
 
 using namespace std;
 using namespace Xapian;
