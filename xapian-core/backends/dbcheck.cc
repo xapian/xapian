@@ -207,16 +207,16 @@ Database::check(const string & path, int opts, std::ostream *out)
 		*out << *t << ":\n";
 	    if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
 		// Other tables are created lazily, so may not exist.
-		if (out) {
-		    if (!file_exists(table + ".DB")) {
+		if (!file_exists(table + ".DB")) {
+		    if (out) {
 			if (strcmp(*t, "termlist") == 0) {
 			    *out << "Not present.\n";
 			} else {
 			    *out << "Lazily created, and not yet used.\n";
 			}
 			*out << endl;
-			continue;
 		    }
+		    continue;
 		}
 	    }
 	    errors += check_brass_table(*t, table, rev_ptr, opts, doclens,
