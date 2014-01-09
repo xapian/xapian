@@ -1,3 +1,11 @@
+Thu Jan 09 01:50:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: OS X SDK check() macro takes one
+	  argument, so there's no need to protect check() methods with
+	  more than one argument.
+	* include/xapian/valueiterator.h: Protect the one check() method in
+	  our API which does take one argument.
+
 Wed Jan 08 11:48:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/smallvector.cc,api/smallvector.h: Include cstddef rather than

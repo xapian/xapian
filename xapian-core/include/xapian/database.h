@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -499,22 +499,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param opts	Options to use for check
 	 *  @param out	std::ostream to write output to
 	 */
-#ifndef check
 	static size_t check(const std::string & path, int opts,
 			    std::ostream &out);
-#else
-	// The AssertMacros.h header in the OS X SDK currently defines a check
-	// macro.  Apple have deprecated check() in favour of __Check() and
-	// plan to remove check() in a "future release", but for now prevent
-	// expansion of check by adding parentheses in the method prototype:
-	// http://www.opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/AssertMacros.h
-	//
-	// We do this conditionally, as these parentheses trip up SWIG's
-	// parser:
-	// https://github.com/swig/swig/issues/45
-	static size_t (check)(const std::string & path, int opts,
-			      std::ostream &out);
-#endif
 
 	/** Check the integrity of a database or database table.
 	 *
