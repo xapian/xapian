@@ -2,7 +2,7 @@
  * @brief Interface to Btree cursors
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 
 #include "omassert.h"
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 using std::string;
@@ -121,7 +122,7 @@ class Cursor {
 	    if (rare(!data)) return NULL;
 	    if (refs() > 1) {
 		char * new_data = new char[block_size + 8];
-		memcpy(new_data, data, block_size + 8);
+		std::memcpy(new_data, data, block_size + 8);
 		--refs();
 		data = new_data;
 		refs() = 1;

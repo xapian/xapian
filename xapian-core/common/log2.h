@@ -2,6 +2,7 @@
  * @brief Defines a log2() function to find the logarithm to base 2 if not already defined in the library.
  */
 /* Copyright (C) 2013 Aarsh Shah
+ * Copyright (C) 2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +26,10 @@
 # error config.h must be included first in each C++ source file
 #endif
 
-#include <cmath>
-
-#ifndef HAVE_LOG2
+#ifdef HAVE_LOG2
+# include <math.h>
+#else
+# include <cmath>
 inline double log2(double x) { return (std::log(x) / std::log(2.0)); }
 #endif
 

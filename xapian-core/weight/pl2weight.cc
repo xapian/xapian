@@ -2,7 +2,7 @@
  * @brief Xapian::PL2Weight class - the PL2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013 Olly Betts
+ * Copyright (C) 2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,7 +67,7 @@ PL2Weight::init(double)
 
     cl = param_c * get_average_length();
 
-    double base_change(1.0 / log(2));
+    double base_change(1.0 / log(2.0));
     double mean = double(get_collection_freq()) / get_collection_size();
     P1 = mean * base_change + 0.5 * log2(2.0 * M_PI);
     P2 = log2(mean) + base_change;

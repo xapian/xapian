@@ -1,3 +1,13 @@
+Thu Jan 09 11:06:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_cursor.h,backends/brass/brass_database.cc,
+	  backends/chert/chert_database.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/inmemory/inmemory_database.h,common/log2.h,
+	  common/realtime.h,matcher/multimatch.cc,weight/pl2weight.cc,
+	  weight/tradweight.cc: Fix compilations issues with Sun's C++
+	  compiler (mostly missing library headers).
+
 Thu Jan 09 06:00:03 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/dbcheck.cc: Skip absent lazily created tables in the case
