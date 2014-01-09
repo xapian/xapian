@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -355,7 +355,12 @@ STANDARD_IGNORES(Xapian, Database)
 STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
 %ignore Xapian::Database::get_document_lazily_;
-%ignore Xapian::Database::check(const std::string &, int, std::ostream &);
+%ignore Xapian::Database::check(const std::string &, int, std::ostream *);
+%extend Xapian::Database {
+    static size_t check(const std::string &path, int opts = 0) {
+	return Xapian::Database::check(path, opts, opts ? &std::cout : NULL);
+    }
+}
 %include <xapian/database.h>
 
 #if defined SWIGCSHARP || defined SWIGJAVA
