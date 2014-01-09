@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2009,2011,2012,2013 Olly Betts
+ * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -35,12 +35,12 @@ using namespace std;
 
 void BrassTableCheck::print_spaces(int n) const
 {
-    while (n--) out.put(' ');
+    while (n--) out->put(' ');
 }
 
 void BrassTableCheck::print_bytes(int n, const byte * p) const
 {
-    out.write(reinterpret_cast<const char *>(p), n);
+    out->write(reinterpret_cast<const char *>(p), n);
 }
 
 void BrassTableCheck::print_key(const byte * p, int c, int j) const
@@ -51,9 +51,9 @@ void BrassTableCheck::print_key(const byte * p, int c, int j) const
 	item.key().read(&key);
     string escaped;
     description_append(escaped, key);
-    out << escaped;
+    *out << escaped;
     if (j == 0) {
-	out << ' ' << item.component_of();
+	*out << ' ' << item.component_of();
     }
 }
 
@@ -65,9 +65,9 @@ void BrassTableCheck::print_tag(const byte * p, int c, int j) const
 	item.append_chunk(&tag);
 	string escaped;
 	description_append(escaped, tag);
-	out << '/' << item.components_of() << ' ' << escaped;
+	*out << '/' << item.components_of() << ' ' << escaped;
     } else {
-	out << "--> [" << item.block_given_by() << ']';
+	*out << "--> [" << item.block_given_by() << ']';
     }
 }
 
@@ -75,17 +75,17 @@ void BrassTableCheck::report_block_full(int m, int n, const byte * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
-    out << '\n';
+    *out << '\n';
     print_spaces(m);
-    out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
+    *out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
 	 << " items (" << (dir_end - DIR_START)/D2 << ") usage "
 	 << block_usage(p) << "%:\n";
     for (int c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
 	print_key(p, c, j);
-	out << ' ';
+	*out << ' ';
 	print_tag(p, c, j);
-	out << '\n';
+	*out << '\n';
     }
 }
 
@@ -105,17 +105,17 @@ void BrassTableCheck::report_block(int m, int n, const byte * p) const
     int dir_end = DIR_END(p);
     int c;
     print_spaces(m);
-    out << "[" << n << "] *" << REVISION(p) << " ("
-	<< (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
+    *out << "[" << n << "] *" << REVISION(p) << " ("
+	 << (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	if (c == DIR_START + 6) out << "... ";
+	if (c == DIR_START + 6) *out << "... ";
 	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
 
 	print_key(p, c, j);
-	out << ' ';
+	*out << ' ';
     }
-    out << endl;
+    *out << endl;
 }
 
 void BrassTableCheck::failure(const char * msg) const
@@ -210,7 +210,7 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 void
 BrassTableCheck::check(const char * tablename, const string & path,
 		       brass_revision_number_t * rev_ptr, int opts,
-		       ostream &out)
+		       ostream *out)
 {
     BrassTableCheck B(tablename, path, false, out);
     // open() throws an exception if it fails
@@ -221,18 +221,18 @@ BrassTableCheck::check(const char * tablename, const string & path,
     Brass::Cursor * C = B.C;
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {
-	out << "base" << (char)B.base_letter
-	    << " blocksize=" << B.block_size / 1024 << "K"
-	       " items=" << B.item_count
-	    << " lastblock=" << B.base.get_last_block()
-	    << " revision=" << B.revision_number
-	    << " levels=" << B.level
-	    << " root=";
+	*out << "base" << (char)B.base_letter
+	     << " blocksize=" << B.block_size / 1024 << "K"
+		" items="  << B.item_count
+	     << " lastblock=" << B.base.get_last_block()
+	     << " revision=" << B.revision_number
+	     << " levels=" << B.level
+	     << " root=";
 	if (B.faked_root_block)
-	    out << "(faked)";
+	    *out << "(faked)";
 	else
-	    out << C[B.level].get_n();
-	out << endl;
+	    *out << C[B.level].get_n();
+	*out << endl;
     }
 
     int limit = B.base.get_bit_map_size() - 1;
@@ -241,20 +241,21 @@ BrassTableCheck::check(const char * tablename, const string & path,
 
     if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
 	for (int j = 0; j <= limit; j++) {
-	    out << (B.base.block_free_at_start(j) ? '.' : '*');
+	    *out << (B.base.block_free_at_start(j) ? '.' : '*');
 	    if (j > 0) {
 		if ((j + 1) % 100 == 0) {
-		    out << '\n';
+		    *out << '\n';
 		} else if ((j + 1) % 10 == 0) {
-		    out << ' ';
+		    *out << ' ';
 		}
 	    }
 	}
-	out << '\n' << endl;
+	*out << '\n' << endl;
     }
 
     if (B.faked_root_block) {
-	if (opts) out << "void ";
+	if (out && opts)
+	    *out << "void ";
     } else {
 	B.block_check(C, B.level, opts);
 
@@ -264,15 +265,15 @@ BrassTableCheck::check(const char * tablename, const string & path,
 	    B.failure("Unused block(s) marked used in bitmap");
 	}
     }
-    if (opts) out << "B-tree checked okay" << endl;
+    if (opts) *out << "B-tree checked okay" << endl;
 }
 
 void BrassTableCheck::report_cursor(int N, const Brass::Cursor * C_) const
 {
-    out << N << ")\n";
+    *out << N << ")\n";
     for (int i = 0; i <= level; i++)
-	out << "p=" << C_[i].get_p() << ", "
-	       "c=" << C_[i].c << ", "
-	       "n=[" << C_[i].get_n() << "], "
-	       "rewrite=" << C_[i].rewrite << endl;
+	*out << "p=" << C_[i].get_p() << ", "
+		"c=" << C_[i].c << ", "
+		"n=[" << C_[i].get_n() << "], "
+		"rewrite=" << C_[i].rewrite << endl;
 }

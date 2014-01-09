@@ -1,3 +1,13 @@
+Thu Jan 09 02:52:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/chert/,backends/dbcheck.cc,
+	  bin/xapian-check.cc,include/xapian/database.h: Alter
+	  Database::check() to take its "out" parameter as a pointer to
+	  std::ostream instead of a reference, and make passing NULL means "do
+	  not produce output".  Remove the form without the "out" parameter,
+	  which used to mean "send output to stdout" - if you want this, just
+	  pass "&std::cout" in.
+
 Thu Jan 09 01:50:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: OS X SDK check() macro takes one

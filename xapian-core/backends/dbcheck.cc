@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,7 +41,6 @@
 #include "stringutils.h"
 
 #include <stdexcept>
-#include <iostream>
 
 using namespace std;
 
@@ -52,27 +51,30 @@ using namespace std;
 #if defined XAPIAN_HAS_BRASS_BACKEND || defined XAPIAN_HAS_CHERT_BACKEND
 static void
 reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
-		ostream & out)
+		ostream * out)
 {
     if (last_docid >= 0x40000000ul / sizeof(Xapian::termcount)) {
 	// The memory block needed by the vector would be >= 1GB.
-	out << "Cross-checking document lengths between the postlist and "
-	       "termlist tables would use more than 1GB of memory, so "
-	       "skipping that check" << endl;
+	if (out)
+	    *out << "Cross-checking document lengths between the postlist and "
+		    "termlist tables would use more than 1GB of memory, so "
+		    "skipping that check" << endl;
 	return;
     }
     try {
 	doclens.reserve(last_docid + 1);
     } catch (const std::bad_alloc &) {
 	// Failed to allocate the required memory.
-	out << "Couldn't allocate enough memory for cross-checking document "
-	       "lengths between the postlist and termlist tables, so "
-	       "skipping that check" << endl;
+	if (out)
+	    *out << "Couldn't allocate enough memory for cross-checking document "
+		    "lengths between the postlist and termlist tables, so "
+		    "skipping that check" << endl;
     } catch (const std::length_error &) {
 	// There are too many elements for the vector to handle!
-	out << "Couldn't allocate enough elements for cross-checking document "
-	       "lengths between the postlist and termlist tables, so "
-	       "skipping that check" << endl;
+	if (out)
+	    *out << "Couldn't allocate enough elements for cross-checking document "
+		    "lengths between the postlist and termlist tables, so "
+		    "skipping that check" << endl;
     }
 }
 #endif
@@ -80,8 +82,13 @@ reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
 namespace Xapian {
 
 size_t
-Database::check(const string & path, int opts, std::ostream &out)
+Database::check(const string & path, int opts, std::ostream *out)
 {
+    if (!out) {
+	// If we have nowhere to write output, then disable all the options
+	// which only affect what we output.
+	opts &= Xapian::DBCHECK_FIX;
+    }
     vector<Xapian::termcount> doclens;
     size_t errors = 0;
     struct stat sb;
@@ -106,9 +113,10 @@ Database::check(const string & path, int opts, std::ostream &out)
 	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
-	    out << "Database couldn't be opened for reading: "
-		<< e.get_description()
-		<< "\nContinuing check anyway" << endl;
+	    if (out)
+		*out << "Database couldn't be opened for reading: "
+		     << e.get_description()
+		     << "\nContinuing check anyway" << endl;
 	    ++errors;
 	}
 
@@ -126,16 +134,19 @@ Database::check(const string & path, int opts, std::ostream &out)
 	    string table(path);
 	    table += '/';
 	    table += *t;
-	    out << *t << ":\n";
+	    if (out)
+		*out << *t << ":\n";
 	    if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
 		// Other tables are created lazily, so may not exist.
 		if (!file_exists(table + ".DB")) {
-		    if (strcmp(*t, "termlist") == 0) {
-			out << "Not present.\n";
-		    } else {
-			out << "Lazily created, and not yet used.\n";
+		    if (out) {
+			if (strcmp(*t, "termlist") == 0) {
+			    *out << "Not present.\n";
+			} else {
+			    *out << "Lazily created, and not yet used.\n";
+			}
+			*out << endl;
 		    }
-		    out << endl;
 		    continue;
 		}
 	    }
@@ -174,9 +185,10 @@ Database::check(const string & path, int opts, std::ostream &out)
 	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
-	    out << "Database couldn't be opened for reading: "
-		<< e.get_description()
-		<< "\nContinuing check anyway" << endl;
+	    if (out)
+		*out << "Database couldn't be opened for reading: "
+		     << e.get_description()
+		     << "\nContinuing check anyway" << endl;
 	    ++errors;
 	}
 	// This is a brass directory so try to check all the btrees.
@@ -191,17 +203,20 @@ Database::check(const string & path, int opts, std::ostream &out)
 	    string table(path);
 	    table += '/';
 	    table += *t;
-	    out << *t << ":\n";
+	    if (out)
+		*out << *t << ":\n";
 	    if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
 		// Other tables are created lazily, so may not exist.
-		if (!file_exists(table + ".DB")) {
-		    if (strcmp(*t, "termlist") == 0) {
-			out << "Not present.\n";
-		    } else {
-			out << "Lazily created, and not yet used.\n";
+		if (out) {
+		    if (!file_exists(table + ".DB")) {
+			if (strcmp(*t, "termlist") == 0) {
+			    *out << "Not present.\n";
+			} else {
+			    *out << "Lazily created, and not yet used.\n";
+			}
+			*out << endl;
+			continue;
 		    }
-		    out << endl;
-		    continue;
 		}
 	    }
 	    errors += check_brass_table(*t, table, rev_ptr, opts, doclens,
@@ -266,12 +281,6 @@ Database::check(const string & path, int opts, std::ostream &out)
 	}
     }
     return errors;
-}
-
-size_t
-Database::check(const string & path, int opts)
-{
-    return check(path, opts, cout);
 }
 
 }

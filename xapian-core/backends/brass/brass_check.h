@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006,2008,2009,2011,2012,2013 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008,2009,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -35,10 +35,10 @@ class BrassTableCheck : public BrassTable {
     public:
 	static void check(const char * tablename, const std::string & path,
 			  brass_revision_number_t * rev_ptr,
-			  int opts, std::ostream &out);
+			  int opts, std::ostream *out);
     private:
 	BrassTableCheck(const char * tablename_, const std::string &path_,
-		        bool readonly, std::ostream &out_)
+			bool readonly, std::ostream *out_)
 	    : BrassTable(tablename_, path_, readonly), out(out_) { }
 
 	void block_check(Brass::Cursor * C_, int j, int opts);
@@ -53,7 +53,7 @@ class BrassTableCheck : public BrassTable {
 	void print_spaces(int n) const;
 	void print_bytes(int n, const byte * p) const;
 
-	std::ostream &out;
+	std::ostream *out;
 };
 
 #endif /* OM_HGUARD_BRASS_CHECK_H */

@@ -497,21 +497,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  @param path	Path to database or table
 	 *  @param opts	Options to use for check
-	 *  @param out	std::ostream to write output to
+	 *  @param out	std::ostream to write output to (NULL for no output)
 	 */
 	static size_t check(const std::string & path, int opts,
-			    std::ostream &out);
-
-	/** Check the integrity of a database or database table.
-	 *
-	 *  This method is currently experimental, and may change incompatibly
-	 *  or possibly even be removed.  Feedback on how well it works and
-	 *  how it might be improved are welcome.
-	 *
-	 *  @param path	Path to database or table
-	 *  @param opts	Options to use for check
-	 */
-	static size_t check(const std::string & path, int opts);
+			    std::ostream *out);
 };
 
 /** This class provides read/write access to a database.
