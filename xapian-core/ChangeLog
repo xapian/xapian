@@ -1,3 +1,8 @@
+Thu Jan 09 05:30:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Make second and third parameters to
+	  Xapian::Database::check() optional, defaulting to a quiet check.
+
 Thu Jan 09 02:52:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/,backends/chert/,backends/dbcheck.cc,

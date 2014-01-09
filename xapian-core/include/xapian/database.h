@@ -499,8 +499,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @param opts	Options to use for check
 	 *  @param out	std::ostream to write output to (NULL for no output)
 	 */
-	static size_t check(const std::string & path, int opts,
-			    std::ostream *out);
+	static size_t check(const std::string & path, int opts = 0,
+			    std::ostream *out = NULL);
 };
 
 /** This class provides read/write access to a database.
