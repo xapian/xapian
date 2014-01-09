@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -29,7 +29,6 @@
 
 #include <xapian.h>
 
-#include "backendmanager.h" // For XAPIAN_BIN_PATH.
 #include "omassert.h"
 #include "str.h"
 #include "testsuite.h"
@@ -1846,17 +1845,8 @@ DEFINE_TESTCASE(cursordelbug1, brass || chert) {
 
     db.commit();
 
-    string cmd = XAPIAN_BIN_PATH"xapian-check ";
-    cmd += get_named_writable_database_path("cursordelbug1");
-#ifdef __WIN32__
-    cmd += " >nul";
-#else
-    cmd += " >/dev/null";
-#endif
-    if (system(cmd.c_str()) != 0)
-	return false;
-
-    return true;
+    const string & db_path = get_named_writable_database_path("cursordelbug1");
+    return Xapian::Database::check(db_path) == 0;
 }
 
 /** Helper function for modifyvalues1.
