@@ -1,3 +1,7 @@
+Fri Jan 10 10:56:17 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Apply missing functional part of previous change.
+
 Fri Jan 10 10:46:53 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Avoid using grep -e as /usr/bin/grep on Solaris
