@@ -251,6 +251,21 @@ AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   AC_MSG_RESULT([$xo_cv_$2])
   ])
 
+AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
+  [
+  AC_MSG_CHECKING([if $CXX $1 works])
+  XTC_save_CXXFLAGS=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS $1"
+  AC_TRY_COMPILE([], [], [
+    AC_MSG_RESULT([yes])
+    $1
+  ], [
+    AC_MSG_RESULT([no])
+    $2
+  ])
+  CXXFLAGS=$XTC_save_CXXFLAGS
+  ])
+
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
   case $host_os in
@@ -322,7 +337,7 @@ else
       ANSI_CXXFLAGS="-std strict_ansi"
       dnl Check that the compiler recognises these flags to avoid problems
       dnl with other compilers named cxx.
-      AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
+      XAPIAN_TEST_CXXFLAGS([$ANSI_CXXFLAGS], [], [ANSI_CXXFLAGS=]) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
       case `$CXX -V 2>&1` in

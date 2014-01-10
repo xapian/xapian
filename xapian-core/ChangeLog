@@ -1,3 +1,8 @@
+Fri Jan 10 11:16:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add XAPIAN_TEST_CXXFLAGS macro, and use it to check
+	  the flags to cxx actually work.
+
 Fri Jan 10 10:56:17 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Apply missing functional part of previous change.
