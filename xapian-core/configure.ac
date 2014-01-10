@@ -94,6 +94,10 @@ AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
+dnl Libtool doesn't know about -library=stdcxx4 yet, and also it checks for
+dnl -library=stlport4 before we enable it, so trick it into not wanting to add
+dnl -library=Cstd.
+solaris_use_stlport4=yes
 LT_INIT
 
 AM_CXXFLAGS=
@@ -342,14 +346,19 @@ else
       dnl Could be Sun's, SGI's, or something else entirely.
       case `$CXX -V 2>&1` in
       *Sun\ C++*)
-	dnl Select ANSI conforming STL - for more information see:
-	dnl http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
-	dnl and:
-	dnl http://developers.sun.com/sunstudio/documentation/ss12/mr/READMEs/c++_faq.html#Coding12
-	dnl (Looks like -features=tmplife was added around 2000 so just pass
-	dnl it unconditionally)
 	compiler=sun
-	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
+	dnl Select ANSI conforming STL - for more information see:
+	dnl http://www.oracle.com/technetwork/server-storage/solarisstudio/documentation/cplusplus-faq-355066.html#LibComp5
+	dnl -library=stdcxx4 is better, but needs "Solaris 10 update 10 or
+	dnl Solaris 11".
+	for l in stdcxx4 stlport4 Cstd ; do
+	  XAPIAN_TEST_CXXFLAGS([-library=$l], [ANSI_CXXFLAGS=-library=$l; break])
+	done
+	dnl Older versions of this compiler defaulted to a non-standard
+	dnl lifetime for temporary objects, and -features=tmplife is required
+	dnl for standard conforming behaviour (which Xapian code expects).
+	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ANSI_CXXFLAGS="$ANSI_CXXFLAGS -features=tmplife"])
+	;;
       *)
 	case `$CXX -v 2>&1` in
 	MIPSpro*)

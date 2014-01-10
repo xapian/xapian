@@ -1,3 +1,9 @@
+Fri Jan 10 11:22:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Improve handling of Sun's C++ compiler - trick libtool
+	  into not adding -library=Cstd, and prefer -library=stdcxx4 if
+	  supported.
+
 Fri Jan 10 11:16:15 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add XAPIAN_TEST_CXXFLAGS macro, and use it to check
