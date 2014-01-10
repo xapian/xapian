@@ -1,3 +1,7 @@
+Fri Jan 10 03:30:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc: Whitespace tweak.
+
 Thu Jan 09 11:06:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_cursor.h,backends/brass/brass_database.cc,

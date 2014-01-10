@@ -184,7 +184,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    ptr = buf.data();
 	    end = ptr + buf.size();
 	    unsigned int compressed_block_size;
-	    if(!unpack_uint(&ptr, end, &compressed_block_size))
+	    if (!unpack_uint(&ptr, end, &compressed_block_size))
 		throw NetworkError("Invalid v2 changeset");
 	    buf.erase(0, ptr - buf.data());
 
