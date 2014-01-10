@@ -1,3 +1,8 @@
+Fri Jan 10 22:38:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: timer_create() doesn't handle CLOCK_MONOTONIC
+	  on Solaris, so use CLOCK_REALTIME there instead.
+
 Fri Jan 10 11:22:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Improve handling of Sun's C++ compiler - trick libtool

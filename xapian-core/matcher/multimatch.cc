@@ -77,6 +77,14 @@ set_timeout_flag(union sigval sv)
 
 }
 
+#ifdef __sun
+// Solaris defines CLOCK_MONOTONIC, but "man timer_create" doesn't mention it
+// and using it fails.
+const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
+#else
+const clockid_t TIMEOUT_CLOCK = CLOCK_MONOTONIC;
+#endif
+
 class TimeOut {
     struct sigevent sev;
     timer_t timerid;
@@ -90,7 +98,7 @@ class TimeOut {
 	    sev.sigev_notify_attributes = NULL;
 	    sev.sigev_value.sival_ptr =
 		static_cast<void*>(const_cast<bool*>(&expired));
-	    if (usual(timer_create(CLOCK_MONOTONIC, &sev, &timerid) == 0)) {
+	    if (usual(timer_create(TIMEOUT_CLOCK, &sev, &timerid) == 0)) {
 		struct itimerspec interval;
 		interval.it_interval.tv_sec = 0;
 		interval.it_interval.tv_nsec = 0;
