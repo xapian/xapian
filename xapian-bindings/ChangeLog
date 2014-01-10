@@ -1,3 +1,8 @@
+Fri Jan 10 09:00:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Update for xapian-core Database::check() optional
+	  parameter change.
+
 Thu Jan 09 03:34:17 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/pythontest.py,python3/pythontest.py,xapian-head.i,
