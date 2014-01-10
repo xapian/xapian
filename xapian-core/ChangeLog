@@ -1,3 +1,8 @@
+Fri Jan 10 10:46:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Avoid using grep -e as /usr/bin/grep on Solaris
+	  doesn't support it.
+
 Fri Jan 10 03:30:10 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_databasereplicator.cc: Whitespace tweak.
