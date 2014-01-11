@@ -361,7 +361,7 @@ else
 	dnl specified CXXFLAGS=-library=stlport4, then this should put
 	dnl -library=stlport4 in ANSI_CXXFLAGS, since the compiler will give
 	dnl an error when passed -library=stlport4 -library=stdcxx4.
-	for l in stdcxx4 stlport4 Cstd ; do
+	for l in stdcxx4,Crun stlport4,Crun Cstd,Crun ; do
 	  XAPIAN_TEST_CXXFLAGS_([-library=$l], [ANSI_CXXFLAGS=-library=$l; break])
 	done
 	dnl Older versions of this compiler defaulted to a non-standard
