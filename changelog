@@ -1,3 +1,9 @@
+xapian-bindings (1.2.16-3) UNRELEASED; urgency=medium
+
+  * debian/rules: Drop bindings for ruby1.8.  (Closes: #735417)
+
+ -- Olly Betts <olly@survex.com>  Thu, 16 Jan 2014 10:22:24 +1300
+
 xapian-bindings (1.2.16-2) unstable; urgency=low
 
   * debian/rules: Fix accidentally hard-coded "x86_64-linux-gnu" in path of
