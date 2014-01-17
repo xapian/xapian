@@ -1,3 +1,12 @@
+Fri Jan 17 03:50:44 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/brass/brass_table.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/chert/chert_table.cc,common/io_utils.cc,common/io_utils.h:
+	  Add io_read_block() and io_write_block() as wrappers around pread()
+	  and pwrite() (or lseek() plus read() and lseek() plus write()).
+
 Sat Jan 11 06:32:19 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Sun C++ seems to explicitly need Crun now.

@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -213,14 +213,7 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		block_ptr = buf.data();
 	    }
 
-	    // Write the block.
-	    // FIXME - should use pwrite if that's available.
-	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
-		string msg = "Failed to seek to block ";
-		msg += str(block_number);
-		throw DatabaseError(msg, errno);
-	    }
-	    io_write(fd, block_ptr, changeset_blocksize);
+	    io_write_block(fd, block_ptr, changeset_blocksize, block_number);
 
 	    if (compressed_block_size > 0) {
 		buf.erase(0, compressed_block_size);

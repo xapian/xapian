@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -48,18 +48,6 @@
 // #define DANGEROUS
 
 #include <sys/types.h>
-
-// Trying to include the correct headers with the correct defines set to
-// get pread() and pwrite() prototyped on every platform without breaking any
-// other platform is a real can of worms.  So instead we probe for what
-// prototypes (if any) are required in configure and put them into
-// PREAD_PROTOTYPE and PWRITE_PROTOTYPE.
-#if defined HAVE_PREAD && defined PREAD_PROTOTYPE
-PREAD_PROTOTYPE
-#endif
-#if defined HAVE_PWRITE && defined PWRITE_PROTOTYPE
-PWRITE_PROTOTYPE
-#endif
 
 #include <cstdio>    /* for rename */
 #include <cstring>   /* for memmove */
@@ -185,49 +173,15 @@ ChertTable::read_block(uint4 n, byte * p) const
 {
     // Log the value of p, not the contents of the block it points to...
     LOGCALL_VOID(DB, "ChertTable::read_block", n | (void*)p);
+    if (rare(handle == -2))
+	ChertTable::throw_database_closed();
+
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
-#ifdef HAVE_PREAD
-    off_t offset = off_t(block_size) * n;
-    int m = block_size;
-    while (true) {
-	ssize_t bytes_read = pread(handle, reinterpret_cast<char *>(p), m,
-				   offset);
-	// normal case - read succeeded, so return.
-	if (bytes_read == m) break;
-	if (bytes_read == -1) {
-	    if (errno == EINTR) continue;
-	    if (errno == EBADF && handle == -2)
-		ChertTable::throw_database_closed();
-	    string message = "Error reading block " + str(n) + ": ";
-	    message += strerror(errno);
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_read == 0) {
-	    string message = "Error reading block " + str(n) + ": got end of file";
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_read < m) {
-	    /* Read part of the block, which is not an error.  We should
-	     * continue reading the rest of the block.
-	     */
-	    m -= int(bytes_read);
-	    p += bytes_read;
-	    offset += bytes_read;
-	}
-    }
-#else
-    if (lseek(handle, off_t(block_size) * n, SEEK_SET) == -1) {
-	if (errno == EBADF && handle == -2)
-	    ChertTable::throw_database_closed();
-	string message = "Error seeking to block: ";
-	message += strerror(errno);
-	throw Xapian::DatabaseError(message);
-    }
-
-    io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
-#endif
+    io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
 
     int dir_end = DIR_END(p);
     if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
@@ -270,40 +224,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 	latest_revision_number = revision_number;
     }
 
-#ifdef HAVE_PWRITE
-    off_t offset = off_t(block_size) * n;
-    int m = block_size;
-    while (true) {
-	ssize_t bytes_written = pwrite(handle, p, m, offset);
-	if (bytes_written == m) {
-	    // normal case - write succeeded, so return.
-	    return;
-	} else if (bytes_written == -1) {
-	    if (errno == EINTR) continue;
-	    string message = "Error writing block: ";
-	    message += strerror(errno);
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_written == 0) {
-	    string message = "Error writing block: wrote no data";
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_written < m) {
-	    /* Wrote part of the block, which is not an error.  We should
-	     * continue writing the rest of the block.
-	     */
-	    m -= bytes_written;
-	    p += bytes_written;
-	    offset += bytes_written;
-	}
-    }
-#else
-    if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
-	string message = "Error seeking to block: ";
-	message += strerror(errno);
-	throw Xapian::DatabaseError(message);
-    }
-
-    io_write(handle, reinterpret_cast<const char *>(p), block_size);
-#endif
+    io_write_block(handle, reinterpret_cast<const char *>(p), block_size, n);
 }
 
 

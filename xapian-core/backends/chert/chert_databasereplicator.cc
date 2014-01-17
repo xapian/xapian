@@ -2,7 +2,7 @@
  * @brief Support for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012 Olly Betts
+ * Copyright 2009,2010,2011,2012,2014 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -193,14 +193,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    if (buf.size() < changeset_blocksize)
 		throw NetworkError("Incomplete block in changeset");
 
-	    // Write the block.
-	    // FIXME - should use pwrite if that's available.
-	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
-		string msg = "Failed to seek to block ";
-		msg += str(block_number);
-		throw DatabaseError(msg, errno);
-	    }
-	    io_write(fd, buf.data(), changeset_blocksize);
+	    io_write_block(fd, buf.data(), changeset_blocksize, block_number);
 
 	    write_and_clear_changes(changes_fd, buf, changeset_blocksize);
 	}
