@@ -1,0 +1,5 @@
+version=3
+# For stable releases:
+#http://xapian.org/download http://oligarchy.co.uk/xapian/(\d+\.\d*[02468]\.[\d.]+)/xapian-core-\1\.tar\.(?:xz|bz2|gz)
+# For development releases:
+http://xapian.org/download http://oligarchy.co.uk/xapian/(\d+\.\d*[13579]\.[\d.]+)/xapian-core-\1\.tar\.(?:xz|bz2|gz)

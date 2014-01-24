@@ -1,0 +1,5 @@
+/control
+/libxapian-dev.install
+/libxapian[1-9]*[0-9].install
+/libxapian[1-9]*[0-9].postinst
+/libxapian[1-9]*[0-9].postrm
