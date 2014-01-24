@@ -1,0 +1,33 @@
+Source: xapian-omega
+Section: web
+Priority: optional
+Maintainer: Olly Betts <olly@survex.com>
+Build-Depends: @BUILD_DEPS@ debhelper (>= 7), autotools-dev, libpcre3-dev,
+    dpkg-dev (>= 1.16.1~),
+    libmagic-dev,
+    libxapian-dev (>= 1.2.0-2~)
+Standards-Version: 3.9.5
+Homepage: http://xapian.org/
+Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-applications/omega
+Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-applications/omega
+
+Package: xapian-omega
+Section: web
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, ghostscript,
+    catdoc, libwps-tools, catdvi, djvulibre-bin, rpm,
+    perl, libemail-outlook-message-perl, libhtml-parser-perl
+Recommends: apache2|httpd-cgi
+Description: CGI search interface and indexers using Xapian
+ This package contains:
+  - the "omega" CGI application which provides a customisable web interface for
+    searching Xapian databases.
+  - the "omindex" tool for indexing a directory tree of documents into a Xapian
+    database in a form suitable for searching with omega.
+  - the "scriptindex" indexer, which takes a simple text input format
+    representing documents as a set of fields, together with an "index script"
+    file specifying actions to be performed on each field, and indexes the
+    documents into a Xapian database.
+  - some example scripts for converting data from different sources into a form
+    suitable for processing with "scriptindex".
