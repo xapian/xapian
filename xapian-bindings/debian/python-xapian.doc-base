@@ -1,9 +1,0 @@
-Document: xapian-python-docs
-Title: Using Xapian from Python
-Abstract: Documentation on how to use the Xapian search engine library from
- Python.
-Section: Programming/Python
-
-Format: HTML
-Index: /usr/share/doc/python-xapian/index.html
-Files: /usr/share/doc/python-xapian/index.html
