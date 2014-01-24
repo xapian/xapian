@@ -167,6 +167,7 @@ BUILD_DEPS += \
 	libxapian-dev (<< $(XAPIAN_VERSION_CEILING)),
 
 commonconfflags := \
+	XAPIAN_CONFIG=/usr/bin/xapian-config-1.3 \
 	$(confflags) \
 	--prefix=/usr \
 	--sysconfdir=/etc
