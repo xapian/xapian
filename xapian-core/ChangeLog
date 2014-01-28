@@ -1,3 +1,10 @@
+Tue Jan 28 22:10:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* configure.ac: Apply missing functional part of previous change.
+	* configure.ac: Avoid using grep -e as /usr/bin/grep on Solaris
+	  doesn't support it.
+
 Tue Jan 28 08:31:04 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
