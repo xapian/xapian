@@ -1,3 +1,8 @@
+Tue Jan 28 22:48:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Sun C++ seems to explicitly need Crun now.
+
 Tue Jan 28 22:23:07 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
