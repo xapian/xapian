@@ -1,3 +1,8 @@
+Tue Jan 28 22:23:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix checks for Sun C++.
+
 Tue Jan 28 22:16:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

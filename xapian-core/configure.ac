@@ -271,20 +271,25 @@ AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   AC_MSG_RESULT([$xo_cv_$2])
   ])
 
+AC_DEFUN([XAPIAN_TEST_CXXFLAGS_],
+  [
+  XTC_save_CXXFLAGS=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS $1"
+  AC_TRY_COMPILE([], [], [$2], [$3])
+  CXXFLAGS=$XTC_save_CXXFLAGS
+])
+
 AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
   [
   AC_MSG_CHECKING([if $CXX $1 works])
-  XTC_save_CXXFLAGS=$CXXFLAGS
-  CXXFLAGS="$CXXFLAGS $1"
-  AC_TRY_COMPILE([], [], [
+  XAPIAN_TEST_CXXFLAGS_([$1], [
     AC_MSG_RESULT([yes])
-    $1
+    $2
   ], [
     AC_MSG_RESULT([no])
-    $2
+    $3
   ])
-  CXXFLAGS=$XTC_save_CXXFLAGS
-  ])
+])
 
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
@@ -357,7 +362,7 @@ else
       ANSI_CXXFLAGS="-std strict_ansi"
       dnl Check that the compiler recognises these flags to avoid problems
       dnl with other compilers named cxx.
-      XAPIAN_TEST_CXXFLAGS([$ANSI_CXXFLAGS], [], [ANSI_CXXFLAGS=]) ;;
+      XAPIAN_TEST_CXXFLAGS_([$ANSI_CXXFLAGS], [], [ANSI_CXXFLAGS=]) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
       case `$CXX -V 2>&1` in
@@ -367,13 +372,18 @@ else
 	dnl http://www.oracle.com/technetwork/server-storage/solarisstudio/documentation/cplusplus-faq-355066.html#LibComp5
 	dnl -library=stdcxx4 is better, but needs "Solaris 10 update 10 or
 	dnl Solaris 11".
+	dnl
+	dnl If the compiler supports -library=stdcxx4 but the user has
+	dnl specified CXXFLAGS=-library=stlport4, then this should put
+	dnl -library=stlport4 in ANSI_CXXFLAGS, since the compiler will give
+	dnl an error when passed -library=stlport4 -library=stdcxx4.
 	for l in stdcxx4 stlport4 Cstd ; do
-	  XAPIAN_TEST_CXXFLAGS([-library=$l], [ANSI_CXXFLAGS=-library=$l; break])
+	  XAPIAN_TEST_CXXFLAGS_([-library=$l], [ANSI_CXXFLAGS=-library=$l; break])
 	done
 	dnl Older versions of this compiler defaulted to a non-standard
 	dnl lifetime for temporary objects, and -features=tmplife is required
 	dnl for standard conforming behaviour (which Xapian code expects).
-	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ANSI_CXXFLAGS="$ANSI_CXXFLAGS -features=tmplife"])
+	XAPIAN_TEST_CXXFLAGS_([-features=tmplife], [ANSI_CXXFLAGS="$ANSI_CXXFLAGS -features=tmplife"])
 	;;
       *)
 	case `$CXX -v 2>&1` in
