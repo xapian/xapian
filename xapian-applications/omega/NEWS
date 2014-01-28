@@ -1,34 +1,14 @@
- 17784       olly Thu Dec 26 01:21:42 GMT 2013  Olly Betts <olly@survex.com>
-
-Omega 1.2.17 (2014-01-05):
-
-general:
+Omega 1.2.17 (2014-01-29):
 
 documentation:
 
 * docs/overview.html: Add Abiword as an example use of --filter, based on patch
   from Frank J Bruzzaniti (fixes#383).
 
-indexers:
-
-* omindex:
-
-* scriptindex:
-
-omega:
-
-templates:
-
-testsuite:
-
-build system:
-
 portability:
 
 * Fix "no previous declaration" warning on platforms which don't have
   mkdtemp().
-
-packaging:
 
 Omega 1.2.16 (2013-12-04):
 
