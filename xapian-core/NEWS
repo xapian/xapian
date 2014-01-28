@@ -1,6 +1,4 @@
- 17799       olly Wed Jan 01 03:53:47 GMT 2014  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.17 (2014-01-03):
+Xapian-core 1.2.17 (2014-01-29):
 
 API:
 
@@ -21,14 +19,13 @@ testsuite:
 
 * Fix apitest to build when brass, chert or flint are disabled.
 
-matcher:
-
-
 brass backend:
 
 * Fix handling of invalid block sizes passed to Xapian::Brass::open() - the
   size gets fixed as documented, but the uncorrected size was passed to the
   base file (and abort() was called if 0 was passed).
+
+* Validate "dir_end" when reading a block.  (fixes #592)
 
 chert backend:
 
@@ -36,17 +33,15 @@ chert backend:
   size gets fixed as documented, but the uncorrected size was passed to the
   base file (and abort() was called if 0 was passed).
 
+* Validate "dir_end" when reading a block.  (fixes #592)
+
 flint backend:
 
 * Fix handling of invalid block sizes passed to Xapian::Flint::open() - the
   size gets fixed as documented, but the uncorrected size was passed to the
   base file (and abort() was called if 0 was passed).
 
-remote backend:
-
-
-inmemory backend:
-
+* Validate "dir_end" when reading a block.  (fixes #592)
 
 build system:
 
@@ -64,20 +59,23 @@ documentation:
 
 * postingsource.rst: Clarify a couple of points (reported by "vHanda" on IRC).
 
-tools:
-
-
-examples:
-
-
 portability:
 
+* Protect the ValueIterator::check() method against Mac OS X SDK headers
+  which define a check() macro.
 
-packaging:
+* Fix warning from xlC compiler.
 
+* Avoid use of grep -e in configure, as /usr/bin/grep on Solaris doesn't
+  support -e.
 
-debug code:
+* Fix check for flags which might be needed for ANSI mode for compilers called
+  'cxx'.
 
+* configure: Improve handling of Sun's C++ compiler - trick libtool into not
+  adding -library=Cstd, and prefer -library=stdcxx4 if supported.  Explicitly
+  add -library=Crun which seems to be required, even though the documentation
+  suggests otherwise.
 
 Xapian-core 1.2.16 (2013-12-04):
 
