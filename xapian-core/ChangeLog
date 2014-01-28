@@ -1,3 +1,9 @@
+Tue Jan 28 08:31:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/valueiterator.h: Protect the check() method in
+	  our API which takes one argument from OS X SDK's check() macro.
+
 Tue Jan 28 07:15:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
