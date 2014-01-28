@@ -1,12 +1,4 @@
- 17792       olly Sun Dec 29 22:12:35 GMT 2013  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.17 (2014-01-05):
-
-Documentation:
-
-General:
-
-Packaging:
+Xapian-bindings 1.2.17 (2014-01-29):
 
 Portability:
 
@@ -15,16 +7,6 @@ Portability:
   a tree with the same layout as an SVN or git checkout) and it also won't try
   to build against "../xapian-core/.libs" just because it happens to exist.
   (Backported from 1.3.1; fixes #322)
-
-CSharp:
-
-Java:
-
-Lua:
-
-Perl:
-
-PHP:
 
 Python:
 
