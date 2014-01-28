@@ -273,6 +273,14 @@ endofterm:
 	    strategy == TermGenerator::STEM_NONE) {
 	    if (with_positions) {
 		doc.add_posting(prefix + term, ++termpos, wdf_inc);
+		if (prefix.empty() && bigram_fodder.find(term) != bigram_fodder.end()) {
+		    if (!previous_bigramable.empty()) {
+			doc.add_boolean_term("J" + previous_bigramable + " " + term);
+		    }
+		    previous_bigramable = term;
+		} else {
+		    previous_bigramable = string();
+		}
 	    } else {
 		doc.add_term(prefix + term, wdf_inc);
 	    }

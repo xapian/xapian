@@ -832,12 +832,33 @@ static bool test_tg_max_word_length1()
     return true;
 }
 
+static bool test_tg_phrase_bigrams()
+{
+    Xapian::TermGenerator termgen;
+    termgen.set_stemmer(Xapian::Stem("en"));
+    termgen.add_bigrammable_term("hello");
+    termgen.add_bigrammable_term("world");
+    termgen.add_bigrammable_term("mum");
+
+    Xapian::Document doc;
+    termgen.set_document(doc);
+
+    termgen.index_text("Hello everyone, I'd like to tell you about my Hello World program which my mum really wrote.  World's mum mum world hellos hello");
+    termgen.increase_termpos();
+    termgen.index_text("mum is the word, world world world");
+
+    TEST_STRINGS_EQUAL(format_doc_termlist(doc), "Jhello world Jmum mum Jmum world Jworld world Zabout:1 Zeveryon:1 Zhello:4 Zi'd:1 Zis:1 Zlike:1 Zmum:4 Zmy:2 Zprogram:1 Zrealli:1 Ztell:1 Zthe:1 Zto:1 Zwhich:1 Zword:1 Zworld:6 Zwrote:1 Zyou:1 about[8] everyone[2] hello[1,10,23] hellos[22] i'd[3] is[125] like[4] mum[15,19,20,124] my[9,14] program[12] really[16] tell[6] the[126] to[5] which[13] word[127] world[11,21,128,129,130] world's[18] wrote[17] you[7]");
+
+    return true;
+}
+
 /// Test cases for the TermGenerator.
 static const test_desc tests[] = {
     TESTCASE(termgen1),
     TESTCASE(tg_spell1),
     TESTCASE(tg_spell2),
     TESTCASE(tg_max_word_length1),
+    TESTCASE(tg_phrase_bigrams),
     END_OF_TESTCASES
 };
 

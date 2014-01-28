@@ -27,6 +27,8 @@
 #include <xapian/termgenerator.h>
 #include <xapian/stem.h>
 
+#include <set>
+
 namespace Xapian {
 
 class Stopper;
@@ -41,6 +43,8 @@ class TermGenerator::Internal : public Xapian::Internal::intrusive_base {
     TermGenerator::flags flags;
     unsigned max_word_length;
     WritableDatabase db;
+    std::string previous_bigramable;
+    std::set<std::string> bigram_fodder;
 
   public:
     Internal() : strategy(STEM_SOME), stopper(NULL), termpos(0),

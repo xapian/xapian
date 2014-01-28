@@ -212,6 +212,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void set_termpos(Xapian::termcount termpos);
 
+    void add_bigrammable_term(const std::string & term);
+
     /// Return a string describing this object.
     std::string get_description() const;
 };

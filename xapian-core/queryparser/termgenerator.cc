@@ -60,6 +60,7 @@ TermGenerator::set_document(const Xapian::Document & doc)
 {
     internal->doc = doc;
     internal->termpos = 0;
+    internal->previous_bigramable = string();
 }
 
 const Xapian::Document &
@@ -114,6 +115,7 @@ void
 TermGenerator::increase_termpos(Xapian::termcount delta)
 {
     internal->termpos += delta;
+    internal->previous_bigramable = string();
 }
 
 Xapian::termcount
@@ -126,6 +128,13 @@ void
 TermGenerator::set_termpos(Xapian::termcount termpos)
 {
     internal->termpos = termpos;
+    internal->previous_bigramable = string();
+}
+
+void
+TermGenerator::add_bigrammable_term(const string & term)
+{
+    internal->bigram_fodder.insert(term);
 }
 
 string
