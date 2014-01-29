@@ -1,0 +1,53 @@
+# gen-omegascript-vim: generate vim syntax mode for OmegaScript
+#
+# Copyright (C) 2009 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+use strict;
+
+my ($srcdir, $version) = @ARGV;
+
+open Q, "$srcdir/query.cc" or die $!;
+my @noparam = ();
+my @param = ();
+while (<Q>) {
+    next unless /^T\((\w+),\s*(\w+),\s*(\w+)/;
+    push @noparam, $1 if $2 eq '0';
+    push @param, $1 if $3 ne '0';
+}
+close Q;
+
+my $noparam = join(' ', @noparam);
+my $param = join(' ', @param);
+
+open I, "$srcdir/extra/omegascript.vim.in" or die $!;
+mkdir('extra', 0755) unless $srcdir eq '.' || -d 'extra';
+open O, '>', 'extra/omegascript.vim.tmp' or die $!;
+while (<I>) {
+    s/\@([A-Z_]+)\@/var($1)/eg;
+    print O;
+}
+close O;
+close I;
+rename 'extra/omegascript.vim.tmp', 'extra/omegascript.vim';
+
+sub var {
+    my $v = shift;
+    return $version if ($v eq 'VERSION');
+    return $param if ($v eq 'OMEGASCRIPT_PARAM');
+    return $noparam if ($v eq 'OMEGASCRIPT_NO_PARAM');
+    die "Unknown replacement token \@$v\@\n";
+}

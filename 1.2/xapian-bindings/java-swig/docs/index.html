@@ -1,0 +1,96 @@
+<html>
+<head>
+<title>Xapian Java Bindings</title>
+</head>
+<body>
+<pre>
+How to build the bindings:
+==========================
+
+Running "make" and then "make install" will "install" a JNI glue shared library
+into a "built" subdirectory of the java build directory.  The jar file is built
+into the "built" subdirectory too.
+
+You can copy these two files into your java installation, or just use them
+in-place.
+
+How to compile the examples:
+============================
+
+  cd java
+  javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleIndex.java
+  javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleSearch.java
+
+How to run the examples:
+========================
+
+To run the examples, you need to give Java a special system-property named
+"java.library.path".  The value of this property is the path of the directory
+where the libxapian_jni.so (or whatever extension is used on your platform)
+JNI library is located.
+
+ java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
+      org.xapian.examples.SimpleIndex ./test.db index words like java
+
+ java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
+      org.xapian.examples.SimpleSearch ./test.db index words like java
+
+Alternatively, you can avoid needing the -Djava.library.path setting by
+setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
+library in the appropriate directory so your JVM finds it automatically
+(for example, on Mac OS X you can copy it into /Library/Java/Extensions/).
+
+The java bindings have been tested recently with OpenJDK 1.6.0_18, though
+they should work with any java toolchain with suitable JNI support - please
+report success stories or any problems to the development mailing list:
+xapian-devel@lists.xapian.org
+
+Naming of wrapped methods:
+==========================
+
+Methods are renamed to match Java's naming conventions.  So get_mset becomes
+getMSet, etc.  Also get_description is wrapped as toString.
+
+MatchAll and MatchNothing
+=========================
+
+In Xapian 1.3.0 and later, these are wrapped as static constants
+``Query.MatchAll`` and ``Query.MatchNothing``.
+
+If you want to be compatible with earlier versions, you can continue to use
+``new Query("")`` instead of ``Query.MatchAll`` and ``new Query()`` instead of
+``Query.MatchNothing``.
+
+TODO list:
+==========
+
+* Finish updating this document for the move to the SWIG-generated Java
+  bindings.
+
+* Write SimpleExpand.java.
+
+* Fix string passing to be zero-byte clean.
+
+* Check that the missing wrappers in the JNI bindings are now present and
+  add them to SmokeTest:
+
+* Wrap optional parameter "parameter" for Query ctor.
+
+* Wrap new QueryParser API.
+
+* Wrap changes to Enquire sorting API.
+
+* Use Stem::operator() rather than Stem::stem_word().
+
+* Wrap new method ESet::back().
+
+* Wrap the new optional third parameter to Enquire::set_sorting().
+
+* Third (optional) argument to Document::add_posting() isn't wrapped.
+
+* Wrap Xapian::Weight and standard subclasses.
+
+* Allow user derived weight classes to be implemented in Java (less important).
+</pre>
+</body>
+</html>

@@ -1,0 +1,62 @@
+#!/usr/bin/perl -w
+# dbi2omega - dump an SQL database into a form suitable for indexing
+# into a Xapian database using scriptindex.  This script requires the perl DBI
+# interface to be installed (on Debian systems, this is provided by the
+# libdbi-perl package).
+#
+# Copyright (c) 2002,2006 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+use strict;
+use DBI;
+
+$#ARGV >= 1 or die "Syntax: $0 DATABASE TABLE [FIELD...]\n";
+
+my $database = shift @ARGV;
+my $table = shift @ARGV;
+my $fields = join ",", @ARGV;
+my $username = $ENV{'DBUSER'} || $ENV{USER} || $ENV{LOGNAME} || '';
+my $password = $ENV{'DBPASSWORD'} || '';
+# DBI defaults to DBIDRIVER if you specify a datasource of "DBI::$database", so
+# it's an appropriate environment variable to check.
+my $driver = $ENV{'DBIDRIVER'} || 'mysql';
+
+length $fields or $fields = "*";
+
+my $dbh = DBI->connect("DBI:$driver:$database", $username, $password)
+  or die "Couldn't connect to database: " . DBI->errstr;
+
+my $sth = $dbh->prepare("SELECT $fields FROM $table")
+  or die "Couldn't prepare statement: " . $dbh->errstr;
+
+$sth->execute()
+  or die "Couldn't execute statement: " . $sth->errstr;
+
+my $data;
+while (defined($data = $sth->fetchrow_arrayref())) {
+  for my $i (0 .. $sth->{NUM_OF_FIELDS} - 1) {
+    my $v = $$data[$i];
+    if (defined($v)) {
+      $v =~ s/\n/\n=/g;
+      print "${$sth->{NAME_lc}}[$i]=$v\n";
+    }
+  }
+  print "\n";
+}
+$sth->err and die "Couldn't fetch row: " . $sth->errstr;
+
+$dbh->disconnect;

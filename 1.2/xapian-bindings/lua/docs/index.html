@@ -1,0 +1,213 @@
+<html><head><title>Lua bindings for Xapian</title></head>
+<body>
+<h1>Lua bindings for Xapian</h1>
+
+<p>
+These bindings require Lua version 5.1 or later, and have been tested with
+Lua 5.1 and 5.2.
+</p>
+
+<p>
+The Lua bindings for Xapian are packaged in the <code>xapian</code> namespace,
+and largely follow the C++ API, with the following differences and
+additions.
+</p>
+
+<p>
+The <code>examples</code> subdirectory contains examples showing how to use the
+Lua bindings based on the simple examples from <code>xapian-examples</code>:
+<a href="examples/simpleindex.lua">simpleindex.lua</a>,
+<a href="examples/simplesearch.lua">simplesearch.lua</a>,
+<a href="examples/simpleexpand.lua">simpleexpand.lua</a>.
+There's also 
+<a href="examples/simplematchdecider.lua">simplematchdecider.lua</a>
+which shows how to define a MatchDecider in Lua.
+</p>
+
+<h2>Unicode Support</h2>
+
+<p>
+In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+Xapian::TermGenerator classes all assume text is in UTF-8.  A Lua string
+is an arbitrary sequence of values which have at least 8 bits (octets);
+they map directly into the char type of the C compiler. Lua does not
+reserve any value, including NUL. That means that Lua can store a UTF-8
+string without problems.
+</p>
+
+<h2>Method names</h2>
+
+<p>
+Most methods are named the same as in the C++ API - the exceptions are:
+</p>
+
+<ul>
+<li> <code>end</code> is a keyword in Lua, so such methods are renamed to
+<code>_end</code> - e.g. in Lua you'd use <code>mset:_end()</code> to get an
+end iterator for an MSet object called mset.
+<li> The C++ method <code>get_description()</code> is mapped to the
+<code>str</code> function in Lua, so <code>str(x)</code> will return a string
+describing object x.
+</ul>
+
+<h2>Exceptions</h2>
+
+<p>
+Exceptions thrown by Xapian are translated into Lua xapian.Error objects
+and raised as Lua errors, which you can catch by using <code>pcall</code>
+like so:
+
+<pre>
+ok,res = pcall(db.get_document, db, docid)
+if ok then
+  print("Got document data: " .. res:get_data())
+else
+  print("Got exception: " .. tostring(res))
+end
+</pre>
+</p>
+
+<h2>Iterators</h2>
+
+<p>
+   All iterators support <code>next</code> and <code>equals</code> methods
+   to move through and test iterators (as for all language bindings).
+   MSetIterator and ESetIterator also support <code>prev</code>. As "end" is
+   a keyword in Lua, we rename it to "_end" that means the end of the iterator.
+   The following shows an example of iterating the MSet to get the rank,
+   document id, and data for each entry in the MSet:
+</p>
+
+<pre>
+for m in mset:items() do
+    print(m:get_rank() + 1, m:get_docid(), m:get_document():get_data())
+end
+</pre>
+
+<h2>Iterator dereferencing</h2>
+
+<p>
+   C++ iterators are often dereferenced to get information, eg
+   <code>(*it)</code>. With Lua these are all mapped to named methods, as
+   follows:
+</p>
+
+<table title='Iterator deferencing methods'>
+<thead><td>Iterator</td><td>Dereferencing method</td></thead>
+<tr><td>PositionIterator</td>	<td><code>get_termpos</code></td></tr>
+<tr><td>PostingIterator</td>	<td><code>get_docid</code></td></tr>
+<tr><td>TermIterator</td>	<td><code>get_term</code></td></tr>
+<tr><td>ValueIterator</td>	<td><code>get_value</code></td></tr>
+<tr><td>MSetIterator</td>	<td><code>get_docid</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>get_term</code></td></tr>
+</table>
+
+<p>
+   Other methods, such as <code>MSetIterator:get_document</code>, are
+   available under the same names.
+</p>
+
+<h2>MSet</h2>
+
+<p>
+   MSet objects have some additional methods to simplify access (these
+   work using the C++ array dereferencing):
+</p>
+
+<table title="MSet additional methods">
+<thead><td>Method name</td><td>Explanation</td></thead>
+<tr><td><code>get_hit(index)</code></td><td>returns MSetItem at index</td></tr>
+<tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
+<tr><td><code>get_document(index)</code></td><td><code>get_hit(index):get_document()</code></td></tr>
+<tr><td><code>get_docid(index)</code></td><td><code>get_hit(index):get_docid()</code></td></tr>
+</table>
+
+<p>The C++ API contains a few non-class functions (the Database factory
+functions, and some functions reporting version information), which are
+wrapped like so for Lua:
+<ul>
+<ul>
+<li> <code>Xapian::version_string()</code> is wrapped as <code>xapian.version_string()</code>
+<li> <code>Xapian::major_version()</code> is wrapped as <code>xapian.major_version()</code>
+<li> <code>Xapian::minor_version()</code> is wrapped as <code>xapian.minor_version()</code>
+<li> <code>Xapian::revision()</code> is wrapped as <code>xapian.revision()</code>
+</ul>
+<ul>
+<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian.open_stub()</code>
+<li> <code>Xapian::Brass::open()</code> is wrapped as <code>xapian.brass_open()</code>
+<li> <code>Xapian::Chert::open()</code> is wrapped as <code>xapian.chert_open()</code>
+<li> <code>Xapian::Flint::open()</code> is wrapped as <code>xapian.flint_open()</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian.inmemory_open()</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+<li> <code>Xapian::Remote::open_writable()</code> is wrapped as <code>xapian.remote_open_writable()</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+</ul>
+</ul>
+
+<h2>Constants</h2>
+
+<p>
+   For Lua, constants are wrapped as <code>xapian.<i>CONSTANT_NAME</i></code>
+   or <code>xapian.<i>ClassName</i>_<i>CONSTANT_NAME</i></code>.
+   So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
+   <code>xapian.DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
+   available as <code>xapian.Query_OP_OR</code>, and so on.
+</p>
+
+<h2>Query</h2>
+
+<p>
+   In C++ there's a Xapian::Query constructor which takes a query operator and
+   start/end iterators specifying a number of terms or queries, plus an optional
+   parameter. In Lua, it is wrapped to accept Lua tables to give the terms/queries,
+   and you can specify a mixture of terms and queries if you wish.  For example:
+</p>
+
+<pre>
+   subq = xapian.Query(xapian.Query_OP_AND, {"hello", "world"})
+   q = xapian.Query(xapian.Query_OP_AND, {subq, "foo", xapian.Query("bar", 2)})
+</pre>
+
+<h3>MatchAll and MatchNothing</h3>
+
+<p>
+These are wrapped for Lua as
+<code>xapian.Query_MatchAll</code> and
+<code>xapian.Query_MatchNothing</code>.
+</p>
+
+
+<h2>Enquire</h2>
+
+<p>
+   There is an additional method <code>get_matching_terms</code> which takes
+   an MSetIterator and returns a list of terms in the current query which
+   match the document given by that iterator.  You may find this
+   more convenient than using the TermIterator directly.
+</p>
+
+<h2>MatchDecider</h2>
+
+<p>
+Custom MatchDeciders can be created in Lua in the form of lua function; simply 
+function ensures you create a subclass of xapian.MatchDecider, which calls 
+the super-constructor, and overloads the operator method to callback the lua function
+that will do the work. The simplest example (which does nothing
+useful) would be as follows:
+</p>
+
+<pre>
+function mymatchdecider(doc)
+	return 1
+end
+</pre>
+
+
+<address>
+Last updated $Date$
+</address>
+</body>
+</html>

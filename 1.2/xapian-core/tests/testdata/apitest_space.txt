@@ -1,0 +1,1 @@
+space\x20man  new\nline  back\\slash  big\0zero  tab\tby  one\x01one tu\x02tu

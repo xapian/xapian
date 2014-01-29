@@ -1,0 +1,11 @@
+This paragraph is short.
+
+This is the longest paragraph.  It is nice and long.
+
+This is a slightly shorter paragraph.  Just a bit.
+
+This is an even shorter paragraph.
+
+This is the shortest.
+
+This one is long again.  Docids 2-5 are decreasing length.

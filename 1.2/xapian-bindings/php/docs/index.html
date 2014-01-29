@@ -1,0 +1,268 @@
+<html><head><title>PHP bindings for Xapian</title></head>
+<body>
+<h1>PHP bindings for Xapian</h1>
+
+<p>
+The PHP bindings for Xapian are packaged in the <code>xapian</code>
+extension.  The PHP API provided by this extension largely follows Xapian's C++
+API.  This document lists the differences and additions.
+</p>
+
+<p>
+As of Xapian version 1.1.0, these bindings require PHP5 (PHP4 is no longer
+supported).  With PHP 5.4, subclassing Xapian classes in PHP doesn't currently
+work properly (as demonstrated by "make check" failing with a segmentation
+fault).  Apart from this everything seems to work fine with PHP 5.4, and
+all seems well with earlier PHP5 releases.  It isn't yet clear if this is a bug
+in our interface files, the code SWIG generates, or in PHP 5.4.
+</p>
+
+<p>
+PHP strings, arrays, etc., are converted automatically to and from the
+corresponding C++ types in the bindings, so generally you can pass arguments as
+you would expect.  One thing to be aware of though is that SWIG implements
+dispatch functions for overloaded methods based on the types of the parameters,
+ so you can't always pass in a string containing a number (e.g.
+<code>"42"</code>) where a number is expected as you usually can in PHP.
+You need to
+explicitly convert to the type required - e.g. use <code>(int)</code> to
+convert to an integer, <code>(string)</code> to string, <code>(double)</code>
+to a floating point number.
+</p>
+
+<p>
+With version 1.2.6 and later, you can subclass Xapian classes in PHP and
+virtual methods defined in PHP are called from C++ in the way you'd expect.
+</p>
+
+<p>
+PHP has a lot of reserved words of various sorts, which sadly clash with common
+method names.  Because of this <code>empty()</code> methods of various
+container-like classes are wrapped as <code>is_empty()</code> for PHP
+and the <code>clone()</code> method of the <code>XapianWeight</code>
+class and subclasses is wrapped as <code>clone_object()</code>.
+</p>
+
+<p>
+The <code>examples</code> subdirectory contains examples showing how to use the
+PHP bindings based on the simple examples from <code>xapian-examples</code>:
+<a href="examples/simpleindex.php5">simpleindex.php5</a>,
+<a href="examples/simplesearch.php5">simplesearch.php5</a>,
+<a href="examples/simpleexpand.php5">simpleexpand.php5</a>,
+<a href="examples/simplematchdecider.php5">simplematchdecider.php5</a>.
+</p>
+
+Note that these examples are written to work with the command line (CLI)
+version of the PHP interpreter, not through a webserver.  Xapian's PHP
+bindings may of course also be used under CGI, Apache's modphp, ISAPI,
+etc.
+</p>
+
+<h2>Installation</h2>
+
+<p>
+Assuming you have a suitable version of PHP installed, running
+configure will automatically enable the PHP bindings, and
+<code>make install</code> will install the extension shared library in
+the location reported by <code>php-config --extension-dir</code>.
+</p>
+
+<p>
+Check that php.ini has a line like <code>extension_dir =
+"<i>&lt;location reported by php-config --extension-dir&gt;</i>"</code>.
+</p>
+
+<p>
+Then add this line to php.ini: <code>extension = xapian.so</code> (or
+whatever the library is called - not all UNIX systems use <code>.so</code>
+as the extension, and MS Windows uses <code>.dll</code>).
+</p>
+
+<p>
+If you're using PHP as a webserver module (e.g. mod_php with Apache), you
+may need to restart the webserver for this change to take effect.
+</p>
+
+<p>
+Alternatively, you can get scripts which use Xapian to explicitly load it.
+This approach is useful if you don't have root access and so can't make
+changes to php.ini.  The simplest set up is to copy <code>xapian.so</code> into
+the same directory as your PHP script, and then add the following line to the
+start of your PHP scripts which use Xapian: <code>dl('xapian.so');</code>
+</p>
+
+<p>
+You can put <code>xapian.so</code> elsewhere (and it's probably better to)
+but note that <code>dl()</code> requires a <b>relative</b> path so you
+might have to use something insane-looking like:
+<code>dl('../../../../usr/lib/php5/20051025/xapian.so');</code>
+
+<p>
+You also need to add <code>include&nbsp;"xapian.php"</code>
+to your PHP scripts which use Xapian in order to get the PHP class wrappers.
+</p>
+
+<h2>Exceptions</h2>
+
+<p>
+Exceptions thrown by Xapian are translated into PHP Exception objects
+which are thrown into the PHP script.
+</p>
+
+<h2>Object orientation</h2>
+
+<p>
+As of Xapian 0.9.7, the PHP bindings use a PHP object oriented style.
+</p>
+
+<p>
+In order to construct an object, use
+<code>$object = new XapianClassName(...);</code>.  Objects are destroyed
+when they go out of scope - to explicitly destroy an object you can use
+<code>unset($object);</code> or <code>$object = Null;</code>
+</p>
+
+<p>
+You invoke a method on an object using <code>$object-&gt;method_name()</code>.
+</p>
+
+<h2>Unicode Support</h2>
+
+<p>
+In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
+to index strings in a different encoding, use the PHP
+<a href="http://php.net/iconv"><code>iconv
+function</code></a>
+to convert them to UTF-8 before passing them to Xapian, and
+when reading values back from Xapian.
+</p>
+
+<h2>Iterators</h2>
+
+<p>
+   All iterators support <code>next()</code> and <code>equals()</code> methods
+   to move through and test iterators (as for all language bindings).
+   MSetIterator and ESetIterator also support <code>prev()</code>.
+</p>
+
+<p>
+In C++, trying to dereference or advance an iterator which is at its end point
+is undefined behaviour and should be avoided, and currently the PHP wrappers
+around the Xapian iterator classes inherit these semantics.  The plan is to
+wrap these PHP iterators (see <a href="http://trac.xapian.org/ticket/520">ticket#520</a>).
+</p>
+
+<h2>Iterator dereferencing</h2>
+
+<p>
+   C++ iterators are often dereferenced to get information, eg
+   <code>(*it)</code>. With PHP these are all mapped to named methods, as
+   follows:
+</p>
+
+<table title="Iterator deferencing methods">
+<thead><td>Iterator</td><td>Dereferencing method</td></thead>
+<tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
+<tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
+<tr><td>TermIterator</td>	<td><code>get_term()</code></td></tr>
+<tr><td>ValueIterator</td>	<td><code>get_value()</code></td></tr>
+<tr><td>MSetIterator</td>	<td><code>get_docid()</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>get_term()</code></td></tr>
+</table>
+
+<p>
+   Other methods, such as <code>MSetIterator::get_document()</code>, are
+   available unchanged.
+</p>
+   
+<h2>MSet</h2>
+
+<p>
+   MSet objects have some additional methods to simplify access (these
+   work using the C++ array dereferencing):
+</p>
+
+<table title="MSet additional methods">
+<thead><td>Method name</td><td>Explanation</td></thead>
+<tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
+<tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
+<tr><td><code>get_document(index)</code></td><td><code>get_hit(index)-&gt;get_document()</code></td></tr>
+<tr><td><code>get_docid(index)</code></td><td><code>get_hit(index)-&gt;get_docid()</code></td></tr>
+</table>
+
+<h2>Database Factory Functions</h2>
+
+<ul>
+<li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>Xapian::auto_open_stub(<i>file</i>)</code>
+<li> <code>Xapian::Brass::open()</code> is wrapped as <code>Xapian::brass_open()</code>
+<li> <code>Xapian::Chert::open()</code> is wrapped as <code>Xapian::chert_open()</code>
+<li> <code>Xapian::Flint::open()</code> is wrapped as <code>Xapian::flint_open()</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
+<li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>Xapian::remote_open(...)</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+<li> <code>Xapian::Remote::open_writable(...)</code> is wrapped as <code>Xapian::remote_open_writable(...)</code> (both
+the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to
+decide which to call).
+</ul>
+
+<h2>Constants</h2>
+
+<p>
+   Constants are wrapped as <code>const</code> members of the appropriate class.
+   So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
+   <code>Xapian::DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
+   available as <code>XapianQuery::OP_OR</code>, and so on.
+</p>
+
+<h2>Functions</h2>
+
+<p>
+   Non-class functions are wrapped in the natural way, so the C++
+   function <code>Xapian::version_string</code> is wrapped under the same
+   name in PHP.
+</p>
+
+<h2>Query</h2>
+
+<p>
+   In C++ there's a Xapian::Query constructor which takes a query operator and
+   start/end iterators specifying a number of terms or queries, plus an optional
+   parameter.  In PHP, this is wrapped to accept an array listing the terms
+   and/or queries (you can specify a mixture of terms and queries if you wish)
+   For example:
+</p>
+
+<pre>
+   $subq = new XapianQuery(XapianQuery::OP_AND, "hello", "world");
+   $q = new XapianQuery(XapianQuery::OP_AND, array($subq, "foo", new XapianQuery("bar", 2)));
+</pre>
+
+<h3>MatchAll and MatchNothing</h3>
+
+<p>
+In Xapian 1.3.0 and later, these are wrapped as static methods
+<code>XapianQuery::MatchAll()</code> and <code>XapianQuery::MatchNothing()</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>new XapianQuery('')</code> for MatchAll and
+<code>new XapianQuery()</code> for MatchNothing.
+</p>
+
+<h2>Enquire</h2>
+
+<p>
+   There is an additional method <code>get_matching_terms()</code> which takes
+   an MSetIterator and returns a list of terms in the current query which
+   match the document given by that iterator.  You may find this
+   more convenient than using the TermIterator directly.
+</p>
+
+<address>
+Last updated $Date$
+</address>
+</body>
+</html>

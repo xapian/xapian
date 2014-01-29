@@ -1,0 +1,44 @@
+TODO
+====
+
+General
+-------
+
+The "smoketest" is now a bit misnamed as it is rather more than a smoketest in
+most cases, and also the different versions aren't in step as to what is
+tested...
+
+Try to further reduce the compiled size of the glue code and the time it takes
+to compile.  Reworking exception handling made a huge difference!
+
+C#
+--
+
+Sort out names which constants get wrapped as.
+
+Write custom typemaps for constructing a query from list of Query objects
+and/or terms.
+
+Perhaps write custom typemaps for Enquire::get_matching_terms().
+
+Passing string from C++ to C# and back isn't zero byte safe currently.
+
+Ruby
+----
+
+Should we be renaming get_* methods which take parameters?
+
+If a set_XXX method can take more than one parameter, but also has a one
+parameter form, should we overload that form as XXX=?
+
+Should we wrap the extra method Enquire::get_matching_terms()?  It seems
+to rather duplicate the iterator->arrays mapping.
+
+Merge the Xapian C++ documentation with the RDoc.
+One way to do this would be to make a stub Ruby file defining empty methods
+according to the Xapian API with appropriate RDoc comments for the purpose of
+generating RDocs.
+
+Add test for zero byte clean string passing.
+
+Add test of exception handling.

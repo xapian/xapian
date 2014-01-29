@@ -1,0 +1,84 @@
+#!/bin/sh
+# Tag the latest versions of the debian control files.   Automatically
+# works out the version numbers and tag names.
+#
+# Copyright (C) 2004 Richard Boulton
+# Copyright (C) 2006 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+set -e
+
+DEBTAG_BASE="debian-"
+
+if [ x"$1" = x--help ] ; then
+  echo "Usage: $0 [--force] [xapian-core] [xapian-bindings] [xapian-omega]"
+  exit 0
+fi
+
+SVNROOT=`svn info|sed 's/^Repository Root: //p;d'`
+if [ -z "$SVNROOT" ] ; then
+  echo "Not in SVN tree"
+  exit 1
+fi
+SVNBASE=`svn info|sed 's/^URL: //p;d'`
+
+force=
+if [ x"$1" = x--force ] ; then
+  shift
+  force=1
+fi
+
+# Tag the release in SVN.
+for module in ${*:-xapian-core xapian-bindings xapian-omega}
+do
+  MODULE_NAME=$module
+  if [ xapian-omega = "$module" ] ; then
+    MODULE_NAME=xapian-applications/omega
+  fi
+
+  ERRLOG=`mktemp /tmp/svn-tag-debs.XXXXXXXXXX` || exit 1
+
+  VERSION=`svn cat "$SVNBASE/$MODULE_NAME/debian/changelog" 2>> "$ERRLOG" | head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`
+  DEBTAG=${DEBTAG_BASE}${VERSION}
+
+  if [ -z "$VERSION" ] ; then
+    cat "$ERRLOG"
+    rm -f "$ERRLOG"
+    echo "Couldn't get version for module $MODULE_NAME"
+    exit 1
+  fi
+  rm -f "$ERRLOG"
+
+  echo "Tagging $MODULE_NAME as $DEBTAG"
+
+  svn ls "$SVNROOT/tags/$DEBTAG/" >/dev/null 2>&1 || \
+    svn mkdir -m "Tag for $DEBTAG release." \
+      "$SVNROOT/tags/$DEBTAG/"
+
+  if [ -n "$force" ] ; then
+    svn rm -m "Retagging $module for $DEBTAG release." \
+      "$SVNROOT/tags/$DEBTAG/$module/"
+    svn cp -m "Retagging $module for $DEBTAG release." \
+      "$SVNBASE/$MODULE_NAME/debian" \
+      "$SVNROOT/tags/$DEBTAG/$module/"
+  else
+    svn ls "$SVNROOT/tags/$DEBTAG/$module/" >/dev/null 2>&1 || \
+      svn cp -m "Tagging $module for $DEBTAG release." \
+	"$SVNBASE/$MODULE_NAME/debian" \
+	"$SVNROOT/tags/$DEBTAG/$module/"
+  fi
+done

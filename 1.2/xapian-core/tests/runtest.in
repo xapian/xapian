@@ -1,0 +1,134 @@
+#!/bin/sh
+# @configure_input@
+#
+# Wrapper script for running test programs (using libtool, valgrind and
+# eatmydata if required).
+#
+# Copyright (C) 2003,2004,2007,2008,2009,2010,2013 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+if test 0 = "$#"; then
+   echo "syntax: $0 <test program> [<arguments>]"
+   echo "syntax: $0 gdb <test program> [<arguments>]"
+   echo "syntax: $0 <tool> <test program> [<arguments>]"
+   exit 1
+fi
+
+# Set srcdir if it isn't already.
+: ${srcdir="@srcdir@"}
+export srcdir
+
+case $1 in
+  *test|*test@EXEEXT@) ;;
+  *gdb|"*gdb *")
+    # gdb needs special handling (--args)
+    gdb=$1
+    shift
+    : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
+    export top_builddir
+    LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
+    echo "Running test '$@' under $gdb"
+    exec $LIBTOOL --mode=execute $gdb --args "$@" ;;
+  *)
+    # Handles any tool which can just be run as:
+    #   TOOL TOOL-ARGS PROGRAM PROGRAM-ARGS
+    tool=$1
+    shift
+    : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
+    export top_builddir
+    LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
+    echo "Running test '$@' under $tool"
+    exec $LIBTOOL --mode=execute $tool "$@" ;;
+esac
+
+if [ -n "$XAPIAN_TESTSUITE_LD_PRELOAD" ] ; then
+  if [ -n "$LD_PRELOAD" ] ; then
+    LD_PRELOAD=$LD_PRELOAD:$XAPIAN_TESTSUITE_LD_PRELOAD
+  else
+    LD_PRELOAD=$XAPIAN_TESTSUITE_LD_PRELOAD
+  fi
+  export LD_PRELOAD
+fi
+
+# Allow configure probed value for EATMYDATA to be overridden by e.g.
+#   EATMYDATA= ./runtest ./apitest
+test -z "${EATMYDATA+set}" && EATMYDATA="@EATMYDATA@"
+
+# Allow configure probed value for VALGRIND to be overridden by e.g.
+#   VALGRIND= ./runtest ./apitest
+test -z "${VALGRIND+set}" && VALGRIND="@VALGRIND@"
+if test -z "$VALGRIND" ; then
+    # valgrind isn't involved, so just run the test program directly.
+
+    # If we're using glibc, tell it to call abort if malloc heap corruption is
+    # detected.  This incurs a small time penalty, but is probably worth it.
+    # See "man malloc" on a recent Linux distro for details.
+    MALLOC_CHECK_=2
+    export MALLOC_CHECK_
+
+    # If we're using glibc, tell it to fill newly allocated memory (unless
+    # allocated by calloc) with this byte value and overwrite memory released
+    # by free with this value xor 0xff.
+    # http://udrepper.livejournal.com/11429.html
+    # Just some value, y'know?
+    MALLOC_PERTURB_=42
+    export MALLOC_PERTURB_
+
+    if test -n "$EATMYDATA" ; then
+	echo "Running test '$@' under eatmydata"
+    fi
+    exec $EATMYDATA "$@"
+    exit 1
+fi
+
+# Get libtool to run the test program under valgrind.  We have to use
+# libtool --mode=execute because we want to run valgrind on the compiled
+# C++ test program, not on the shell running the shell script wrapper libtool
+# generates.
+: ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
+export top_builddir
+LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
+
+# For GCC 3.4 and newer, force the GNU C++ STL to not pool memory, which gives
+# more accurate memory leak reports with valgrind.
+GLIBCXX_FORCE_NEW=1
+export GLIBCXX_FORCE_NEW
+
+# Tell the testsuite to hook into valgrind.
+XAPIAN_TESTSUITE_VALGRIND=1
+export XAPIAN_TESTSUITE_VALGRIND
+
+vg_opts='--log-file=.valgrind.log.%p --leak-resolution=high'
+vg_opts="$vg_opts --suppressions=$srcdir/valgrind.supp"
+if test -n "$EATMYDATA" ; then
+    echo "Running test '$@' under eatmydata and valgrind"
+else
+    echo "Running test '$@' under valgrind"
+fi
+# zlib can produce "uninitialised" output from "initialised" input - the output
+# does decode to the input, so this is presumably just some unused bits in the
+# output, so weuse an LD_PRELOAD hack to get valgrind to check the input is
+# initialised and then tell it that the output is initialised.
+if [ -f zlib-vg.so ] ; then
+  if [ -n "$LD_PRELOAD" ] ; then
+    LD_PRELOAD=$LD_PRELOAD:./zlib-vg.so
+  else
+    LD_PRELOAD=./zlib-vg.so
+  fi
+  export LD_PRELOAD
+fi
+exec $EATMYDATA $LIBTOOL --mode=execute $VALGRIND $vg_opts "$@"

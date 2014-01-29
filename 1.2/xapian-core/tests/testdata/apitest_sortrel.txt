@@ -1,0 +1,17 @@
+V3 man woman
+
+V3 woman
+
+V3 man woman fish
+
+V2 man woman fish
+
+V2 man woman
+
+V2 woman
+
+V1 woman
+
+V1 man woman fish
+
+V1 man woman

@@ -1,0 +1,1906 @@
+Omega 1.2.17 (2014-01-29):
+
+documentation:
+
+* docs/overview.html: Add Abiword as an example use of --filter, based on patch
+  from Frank J Bruzzaniti (fixes#383).
+
+portability:
+
+* Fix "no previous declaration" warning on platforms which don't have
+  mkdtemp().
+
+Omega 1.2.16 (2013-12-04):
+
+indexers:
+
+* omindex:
+
+  + Fix off-by-one when finding documents to delete which would sometimes cause
+    omindex to fail to delete documents from the database when they weren't
+    refound during an index update.
+
+  + Decode dates in xlsx files.
+
+  + Ignore extensions 'adm', 'cur', and 'ico' by default.
+
+  + Group-readable files which are owner-readable but not world-readable should
+    still get a "readable by owner" term added.  Reported by Emmanuel Garette.
+
+build system:
+
+* Compress source tarballs with xz instead of gzip.
+
+* configure: Sync compiler warning flag machinery against xapian-core.  The
+  changes are special handling for clang, passing -fshow-column where
+  supported, and handling for new warning flags in GCC 4.6 and 4.7.
+
+Omega 1.2.15 (2013-04-16):
+
+omega:
+
+* Don't pointlessly link utf8convert.o into the omega CGI.
+
+Omega 1.2.14 (2013-03-14):
+
+indexers:
+
+* omindex:
+
+  + Correct "max" -> "min" when reserving space for shared strings in .xlsx
+    files.  This just means we now reserve a more appropriate amount of space
+    to start with.
+
+  + Ignore .com files by default.
+
+Omega 1.2.13 (2013-01-09):
+
+indexers:
+
+* omindex:
+
+  + Extracting text using external filters now works for filenames containing a
+    newline character - previously the newline got lost during escaping for the
+    shell.
+
+  + Fix segfault when -F option without a ':' is passed.
+
+  + Skip a file if we get a read error while calculating the MD5 checksum (used
+    for duplicate detection) - previously we used a checksum of the file up to
+    that point.
+
+  + Avoid rereading SVG and Atom files when we calculate their MD5 checksums.
+
+  + Improvement --help output and man page, most notably:
+
+    - Say explicitly that --sample-size accepts the same formats as --max-size.
+
+    - Note default size limit on files to index is unlimited.
+
+  + When generating a sample for a CSV file, limit the size we pre-allocate to
+    the CSV file size if that's smaller than the requested sample size, in case
+    the user sets that limit very high.
+
+omega:
+
+* Fix to decode %-encoded character at the end of the query string.
+
+build system:
+
+* INCLUDES is now deprecated in automake, so use AM_CPPFLAGS instead.
+
+Omega 1.2.12 (2012-06-27):
+
+No changes since 1.2.11 except to bump the version - this release was made to
+fix an incorrect library version information update in xapian-core 1.2.11.
+
+Omega 1.2.11 (2012-06-26):
+
+indexers:
+
+* Change HTML parser's handling of multiple <body> tags and of text outside of
+  <body> to match the behaviour of modern web browsers.  (ticket#599)
+
+* omindex:
+
+  + Add command line option to control the size of the document sample stored.
+    Patch from Mihai Bivol.
+
+  + Rework .xlsx parsing to substitute the shared strings into the positions
+    they are used in, so that the sample actually matches what appears in the
+    spreadsheet, and to index calculated cell contents.
+
+  + Improve handling of headers and footers in OpenDocument documents.
+
+  + pdftotext outputs a formfeed between each page, which messes up our "empty
+    body" check, so trim any trailing formfeeds before this check.
+
+build system:
+
+* Don't explicitly link indirect shared library dependencies on FreeBSD,
+  OpenBSD, and Solaris.
+
+Omega 1.2.10 (2012-05-09):
+
+indexers:
+
+* Add support for CDATA to HTML/XML parser.
+
+* omindex:
+
+  + Add --max-size option, based on patch from ndaley in ticket#587.
+
+  + Add support for atom feed files, patch from Mihai Bivol in ticket#595.
+
+  + If the document with the highest existing docid before the run was updated,
+    we were reporting it as "added", but now we correctly report it as
+    "updated".  (Backported from 1.3.0).
+
+  + Catch and report std::exception explicitly, so failing to allocate memory
+    is no longer reported as "Unknown exception".  (Backported from 1.3.0).
+
+* scriptindex:
+
+portability:
+
+* Fix to build with GCC 4.7 by adding cast to rlim_t to fix error about C++11
+  compatibility (reported by Gaurav Arora).
+
+Omega 1.2.9 (2012-03-08):
+
+documentation:
+
+* docs/overview.html:
+
+  + Document that libmagic is used to determine the MIME type if the extension
+    isn't known.  Partly addresses ticket#569.
+
+  + We now limit time as well as CPU and memory for external filters.
+
+indexers:
+
+* Our HTML parser now ignores sections bracketed by <!--UdmComment--> and
+  <!--/UdmComment-->, like we already do for <!--htdig_noindex-->.
+
+* omindex: Add more extensions to the default ignore list: bin dat db fon jar
+  lnk pyc pyd pyo sqlite sqlite3 sqlite-journal tmp ttf
+
+Omega 1.2.8 (2011-12-13):
+
+documentation:
+
+* scriptindex.cc: Add link to http://xapian.org/docs/omega/scriptindex.html to
+  --help output (and so also to the man page which is generated from this).
+
+* omegascript.html: Add note to discourage use of percentage scores.
+
+indexers:
+
+* omindex:
+
+  + If we don't get any data from an external filter for 5 minutes, give up -
+    it has probably ended up blocked indefinitely.
+
+  + Improve --help output (and man page which is generated from it).  Closes
+    bug#572.
+
+* scriptindex:
+
+  + If no rules are found in the index script, report an error and give up -
+    this is inevitably the result of a mistake, and adding empty documents to
+    the database isn't helpful.
+
+omega:
+
+  + Add new $prettyurl{} command which undoes RFC3986 URL escaping which
+    doesn't affect semantics in practice.  Partly addresses ticket#550.
+
+  + Replace URL decoder with new implementation which handles various corner
+    cases better.  Fixes bug#578.
+
+  + If CGI parameter P has trailing spaces, we now remove them all rather than
+    leaving one.
+
+templates:
+
+* templates/query: HTML escape topterms.
+
+* templates/godmode: HTML escape the contents of document values.
+
+* templates/query: Don't show the percentage score in the default template.
+
+testsuite:
+
+* Add new urlenctest unit test of URL encoding and decoding.
+
+portability:
+
+* configure: Sync changes from xapian-core: Don't pass -Wshadow for GCC < 4.1;
+  don't pass -Wstrict-null-sentinel for GCC 4.0.x; only enable symbol
+  visibility on platforms where it is supported.
+
+packaging:
+
+* xapian-omega.spec: Package outlookmsg2html helper.
+
+Omega 1.2.7 (2011-08-10):
+
+documentation:
+
+* docs/termprefixes.html: Document how to map a user prefix to multiple term
+  prefixes.
+
+* docs/overview.html: Improve documentation of htdig_noindex.
+
+omega:
+
+* Improve $version output from "Xapian - xapian-omega 1.2.7" to "xapian-omega
+  1.2.7".
+
+packaging:
+
+* xapian-omega.spec: We're ABI compatible within a release series so make
+  dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.6 (2011-06-12):
+
+documentation:
+
+* docs/omegascript.html: Correct the documentation of the colours used by
+  $highlight{}.
+
+* docs/overview.html: Add using unoconv as more complex example of using
+  --filter (ticket#324).
+
+templates:
+
+* templates/query:
+
+  + Make search query input type=search.
+
+  + Autofocus the search query input (using HTML autofocus attribute with
+    Javascript fallback for older browsers).  (ticket#544)
+
+portability:
+
+* Fix a compiler warning.
+
+Omega 1.2.5 (2011-04-04):
+
+documentation:
+
+* Add index page which links to all the other documentation pages.
+
+* INSTALL: Copy new Multi-Arch section from xapian-core/INSTALL.  Replace VPATH
+  section with better equivalent from Xapian-core/INSTALL.
+
+* docs/omegascript.html: Minor improvements.
+
+indexers:
+
+* The HTML parser no longer uses an exception to signify it has finished in
+  the normal case as exceptions are typically costly to handle.  In tests,
+  this made omindex ~0.23% faster when indexing a lot of HTML files.
+
+* omindex:
+
+  + Add --ignore-exclusions option, which will index HTML files despite meta
+    robots tags, etc - omindex is often used in environments where such
+    exclusions aren't relevant.
+
+  + Fix to compile with older versions of libmagic which don't have
+    MAGIC_MIME_TYPE (e.g. on Ubuntu hardy).
+
+  + Tell xls2csv to separate fields with spaces rather than commas, and not to
+    quote them.  Fixes indexing of numeric fields, and means we don't need to
+    use our CSV parser to get a sample.
+
+  + Add whitespace between chunks of text extracted from Microsoft Office 2007
+    formats to prevent words in adjacent chunks from being run together.
+
+  + Encode reserved characters in URLs - links to files with names containing
+    '#' and '?' now work.
+
+  + Handle .xlr extension the same way as .xls (later Microsoft Works versions
+    apparently produce such files which are really the same format).
+
+  + Index filename extension with new standard prefix E.
+
+  + Just report the mimetype as unknown instead of saying "unknown Office 2007
+    MIME subtype".
+
+  + Ignore *.css and *.js by default too.
+
+  + Messages reporting skipping files are now more consistent and always report
+    the filename.
+
+  + New --empty-docs option to allow documents we extract no body text from to
+    be indexed (existing behaviour), skipped, or reported and then indexed.
+
+omega:
+
+* Fix double Content-Type header in some error reporting situations (regression
+  introduced in 1.2.4).
+
+* Update $url's URL encoding to follow RFC3986.
+
+* Allow QueryParser flags to be set from OmegaScript (ticket#418).  The
+  FLAG_SPELLING_CORRECTION flag can now be set using
+  $opt{flag_spelling_correction,1} - the old $opt{spelling,true} way to
+  enable this flag still works, but it now deprecated.
+
+templates:
+
+* templates/emptydocs,templates/godmode,templates/opensearch,templates/query,
+  templates/xml: Add missing escaping.  Some of these instances may allow
+  cross-site scripting, so upgrading your templates is recommended, especially
+  if you have any sensitive cookies set on the domain Omega is running on.
+
+* templates/xml:
+
+  + Try $field{caption} (which is what omindex sets) before $field{title} when
+    getting a value for the hit tag's title attribute - this is consistent with
+    how the query template gets the title.
+
+  + Add new 'type' attribute which gives $field{type}.
+
+  + Add 'DBSize' attribute to <result> element.
+
+  + Fix double escaping of matching terms.  This is only likely to affect cases
+    where a matching term contains '&'.
+
+  + Remove support for undocumented HILITECLASS CGI variable.  There's no
+    evidence I can find using Google code search or web search that this has
+    been used anywhere, and it's difficult to handle escaping it properly in
+    the face of all the ways it could reasonably be used.
+
+portability:
+
+* Fix to compile on Microsoft Windows (ticket#350).
+
+Omega 1.2.4 (2010-12-19):
+
+documentation:
+
+* Minor documentation improvements.
+
+indexers:
+
+* Some iconv implementations (such as that on Mac OS X) don't handle many of
+  the commonly seen mis-punctuated charset names (e.g. UTF16, UTF_16).  We now
+  check for this if iconv fails, fix up the charset name, and retry.
+
+* The built-in character encoding converter now handles spaces in charset
+  names.
+
+* Use O_NOATIME if available and either the file is owned by the current euid,
+  or the current euid is 0 (i.e. we're running as root).  This avoids updating
+  the access time of files we index which saves time.  Fixes ticket#222.
+
+* Report get_description() for Xapian exceptions, which provides additional
+  information above get_msg().
+
+* Add boolean terms with add_boolean_term() so they get wdf of 0 and don't
+  contribute to document length.
+
+* omindex:
+
+  + Escape wildcard patterns being passed to unzip - in the unlikely event that
+    one of these matched files in or under the current directory, we might fail
+    to extract all the files we wanted to.
+
+  + Add explicit support for indexing CSV files (better samples than from
+    using '-Mcsv:text/plain').
+
+  + Add support for indexing .msg files from Microsoft Outlook (using the Perl
+    module Email::Outlook::Message.  (ticket#334)
+
+  + Improve --help for --mime-type option.
+
+  + Optionally use libmagic to detect MIME types for files for which we have no
+    extension mapping, which allows us to handle files with a misleading
+    extension, or no extension at all.  (ticket#114)
+
+  + Add new --filter option which allows the user to specify new filters
+    provided they return UTF-8 text on stdout.
+
+  + If a filter command isn't installed, previously we wouldn't try it again
+    for the same file extension - now we won't try it again for the same
+    mime-type.
+
+  + Index the leafname of the file (without any extension) as extra keywords.
+
+  + Extract author from HTML, OpenDocument, and PDF files.  Index it with an A
+    prefix, and add it as a field.
+
+  + Add support for indexing text and metadata from SVG files.
+
+  + Extract metadata from Microsoft Office 2007 file formats.
+
+  + Index text in headers and footers for .odt and .docx files.
+
+  + Use the CSV parser to generate a nicer sample for files of type
+    application/vnd.ms-excel.
+
+  + Add support for indexing Debian and RPM package files (ticket#493).
+
+  + Make the memory limit for filter processes the size of physical memory,
+    which is a little less arbitrary than 7/8 of this value (ticket#424).
+
+  + Under --duplicate=ignore, fix so that old documents which aren't seen get
+    deleted, which wasn't implemented before (to suppress this deletion, pass
+    -p as well).
+
+  + Rename the short option for --version from -v to -V for consistency with
+    scriptindex and many other packages, and to free up -v as the short option
+    for --verbose.  For backward compatibility, "omindex -v" is handled
+    specially and still reports the version.
+
+  + Add --verbose option, and disable the less interesting output unless it is
+    specified.
+
+  + Deprecate "--preserve-nonduplicates" in favour of new long option
+    "--no-delete" which does the same thing, but has a clearer name.
+
+  + The deletion of documents pass at the end of indexing is now more
+    efficient.  We track how many documents in the database we haven't seen so
+    we can stop once we've found them all (a particularly big improvement if
+    there are no documents to delete), and we now use a PostingIterator over
+    all documents which avoids needing to catch an exception for every gap in
+    the used document ids.
+
+  + Quietly ignore files with mimetype set to "ignore".  The initial list of
+    extensions set to ignore is: .a .dll .dylib .exe .lib .o .obj .so
+
+  + Index file owner and read permissions, to allow finding documents with a
+    particular owner, and so searches can be restricted to documents a user is
+    able to read.
+
+  + Add file size as a document value, so you can sort on it and filter by it.
+
+* scriptindex:
+
+  + Fix file descriptor leak if the LOADFILE action is used on something which
+    isn't a file.
+
+omega:
+
+* Make sure we write out HTTP headers when reporting an error early on.
+
+* Extend $field to take an optional DOCID argument, rather than always using
+  the context from $hitlist.
+
+* Add new $emptydocs command which returns a list of documents with doclength
+  zero.
+
+* Add support for size: range filtering.  Currently the end points of the range
+  have to be specified in bytes (e.g. size:102400..204800 for 100-200KB).
+
+templates:
+
+* templates/emptydocs: New template which lists documents with doclength zero.
+
+build system:
+
+* configure: Probe for any options needed to enable large file support.
+  Handling files >= 2GB isn't especially useful, but more importantly this is
+  needed to allow omindex to index files on filing systems with 64 bit inodes
+  on some platforms (e.g. 32-bit Linux).
+
+* Use -no-undefined on platforms which need it to dynamically link such as
+  cygwin (need to do this taken from ticket#282).
+
+portability:
+
+* Fix to compile with Sun C++.
+
+Omega 1.2.3 (2010-08-24):
+
+documentation:
+
+* docs/termprefixes.html: Update "flint and quartz" to "flint and chert" as
+  quartz is no longer supported.  Give exact term length limit for flint and
+  chert.
+
+packaging:
+
+* xapian-omega.spec: Don't run autoreconf - it's no longer required.
+
+Omega 1.2.2 (2010-06-27):
+
+portability:
+
+* Apply getopt portability fixes from xapian-core 1.2.0, fixing build failures
+  on Mac OS X (and probably some other platforms with non-GNU getopt
+  implementations). (ticket#469)
+
+Omega 1.2.1 (2010-06-22):
+
+This release includes all changes from 1.0.21 which are relevant.
+
+Omega 1.2.0 (2010-04-28):
+
+This release includes all changes from 1.0.20 which are relevant.
+
+build system:
+
+* configure: Tell libtool not to link in deplibs on platforms where we know
+  they aren't needed.
+
+* configure: On Linux, extract the library search path from ldconfig which
+  gives us the default entries reliably.
+
+Omega 1.1.5 (2010-04-15):
+
+This release includes all changes from 1.0.19 which are relevant.
+
+Omega 1.1.4 (2010-02-15):
+
+This release includes all changes from 1.0.18 which are relevant.
+
+omega:
+
+* Use the optimised integer to string conversion routines from xapian-core.
+
+Omega 1.1.3 (2009-11-18):
+
+This release includes all changes from 1.0.15-1.0.17 which are relevant.
+
+templates:
+
+* templates/query: If JavaScript is available, convert $field{modtime} to a
+  string on the client-side so that the timezone is correct.  If JavaScript
+  isn't available, fall back to the existing behaviour of using UTC.
+  (ticket#314)
+
+build system:
+
+* configure: Default to looking for xapian-config-1.1 unless XAPIAN_CONFIG is
+  specified.
+
+Omega 1.1.2 (2009-07-23):
+
+This release includes all changes from 1.0.14 which are relevant.
+
+indexers:
+
+* omindex:
+
+  + Handle the "macroenabled" versions of MS Office 2007 files too
+    (ticket#290).
+
+  + Extract pptx notesSlides and comments, if present.  (ticket#290).
+
+Omega 1.1.1 (2009-06-09):
+
+This release includes all changes from 1.0.13 which are relevant.
+
+indexers:
+
+* omindex:
+
+  + Check the last modification time of files before reindexing (ticket#342).
+
+  + Add "--spelling" option to index spelling correction data.
+
+* scriptindex:
+
+  + Add new "spell" action for indexing spelling correction data (ticket#296).
+
+omega:
+
+* Add $suggestion and $opt{spelling} to provide access to spelling correction
+  (ticket#296).
+
+* Add $opt{weighting} to allow the weighting scheme and parameters to be
+  specified (ticket#298).
+
+* If SERVER_PROTOCOL in the environment is set to INCLUDED, then our output is
+  being included in another page (e.g. using SSI) so suppress the output of any
+  HTTP headers.
+
+templates:
+
+* templates/query: Offer any spelling correction QueryParser gives.
+
+build system:
+
+* configure: Sync warning flags used with GCC with xapian-core apart from
+  -Woverloaded-virtual which fires for MyHtmlParser::parse_html().  That
+  probably should be tidied up at some point, but not right now.
+
+Omega 1.1.0 (2009-04-23):
+
+indexers:
+
+* scriptindex:
+
+  + Make deprecated "index=nopos" an error.
+
+omega:
+
+* New OmegaScript command $transform{} which performs regular expression
+  substitutions using the PCRE library (which is now required to build Omega).
+  (ticket#231)
+
+build system:
+
+* The build system is now bootstrapped with newer versions of autoconf and
+  libtool which should produce smaller files and speed up configure and
+  make.
+
+Omega 1.0.23 (2011-01-14):
+
+indexers:
+
+* omindex:
+
+  + Escape wildcard patterns being passed to unzip - in the unlikely event that
+    one of these matched files in or under the current directory, we might fail
+    to extract all the files we wanted to when indexing document formats like
+    OpenDocument which use a zip file container.
+
+  + The parser for OpenDocument metadata wasn't initialising its "state" field.
+    Often you'd be lucky and it would be initialised to zero, but this could
+    have caused misparsing of metadata in some cases.
+
+* scriptindex: Fix file descriptor leak if the LOADFILE action is used on
+  something that isn't a file.
+
+* If fstat() fails when trying to load a file, preserve the errno value from
+  the fstat call to report to the user.
+
+portability:
+
+* configure: Probe for any options needed to enable large file support.
+  Handling files >= 2GB isn't especially useful, but more importantly this is
+  needed to allow omindex to index files on filing systems with 64 bit inodes
+  on some platforms (e.g. 32-bit Linux).
+
+* Add -no-undefined to AM_LDFLAGS on platforms which need it to dynamically
+  link such as cygwin (need to do this taken from ticket#282).
+
+Omega 1.0.22 (2010-10-03):
+
+portability:
+
+* Fix to compile with Sun C++.
+
+Omega 1.0.21 (2010-05-18):
+
+portability:
+
+* Fix build failure in freemem.cc on Microsoft Windows.
+
+Omega 1.0.20 (2010-04-27):
+
+portability:
+
+* Fix build failure on Mac OS X and possibly some other platforms (regression
+  caused by fix for getopt-related warnings on Cygwin in 1.0.19).
+
+Omega 1.0.19 (2010-04-15):
+
+portability:
+
+* Fix getopt-related warning on Cygwin.
+
+Omega 1.0.18 (2010-02-14):
+
+indexers:
+
+* Make the default charset "utf-8" not "UTF-8" as we lower case explicitly
+  specified character sets to compare to see if we need to reparse.  Previously
+  XML documents which explicitly specified their character set as UTF-8 would
+  cause needless restart or the parser.
+
+* omindex:
+
+  + Increase the wdf boost for the document title from 2 to 5, since 2 isn't
+    really enough.
+
+* scriptindex:
+
+  + Don't abort with "Unknown Exception" if indexing is disallowed or we hit
+    </body> for a document which had an overridden character set.  Fixes
+    ticket#410.
+
+Omega 1.0.17 (2009-11-18):
+
+indexers:
+
+* omindex:
+
+  + On Linux, change the memory limit on external filters to use _SC_PHYS_PAGES
+    since _SC_AVPHYS_PAGES excludes pages used by the OS cache and so will
+    often report a really low value.  Fixes Debian bug#548987 and ticket#358.
+
+  + Fix likely crash when reading output from external filter program if read()
+    is interrupted by a signal.
+
+  + Fix potential crash when indexing PostScript files (fixed by using delete[]
+    (not delete) for array allocated by new[]).
+
+testsuite:
+
+* utf8converttest: Charset "8859_1" isn't understood by Solaris libiconv, and
+  isn't a standard charset name, so just test it when using our built-in
+  converter and GNU libc.
+
+portability:
+
+* Fix build failure on Mac OS X 10.6.
+
+* Also check for socketpair() in -lxnet if it isn't found without, which
+  enables resource limits on external filter programs called by omindex on
+  Solaris, and possibly some other platforms.  Fixes ticket#412.
+
+Omega 1.0.16 (2009-09-10):
+
+* omega: Fix cross-site scripting vulnerability in reporting of exceptions
+  (CVE-2009-2947).
+
+Omega 1.0.15 (2009-08-26):
+
+general:
+
+* omegascript.vim: The list of OmegaScript commands in the vim mode was rather
+  out of date, and a few commands were misclassified.  Fix both problems and
+  avoid future recurrences by automatically generating those lists from the
+  command list in query.cc.
+
+documentation:
+
+* omegascript.html: Document that $date uses UTC.  (ticket#314)
+
+templates:
+
+* query: Link to "xapian.org" rather than "www.xapian.org".
+
+* inc/toptermsjs: Use double-quotes rather than single quotes for parameter
+  values on the <script> tag.
+
+portability:
+
+* omindex: Implement correct handling of paths when calling external filter
+  programs on Microsoft Windows.
+
+Omega 1.0.14 (2009-07-21):
+
+indexers:
+
+* omindex: Make sure that output is flushed after every message, not just after
+  some of them.
+
+portability:
+
+* Avoid infinite loop in omindex and scriptindex when reading files under
+  Cygwin with automatic end of line translation enabled.  This same bug can
+  also manifest on Unix platforms if the file is truncated by another process
+  while being read.
+
+Omega 1.0.13 (2009-05-23):
+
+indexers:
+
+* omindex:
+
+  + If the filter program needed for a file format isn't installed, report this
+    explicitly when skipping subsequent files with the extension instead of
+    misleadingly reporting "Unknown extension".
+
+  + Make -s actually work as a short-form for --stemmer (as documented by
+    "omindex --help" and "man omindex").
+
+  + Drop the copyright info from the output of --version as it's perennially
+    out of date and we don't report it for any other Xapian programs.
+
+* scriptindex:
+
+  + Add new "valuenumeric" action to add a document value using
+    Xapian::sortable_serialise() to allow numeric sorting (ticket#260).
+
+build system:
+
+* configure: Enable more GCC warnings - "-Wstrict-null-sentinel" for 4.0+,
+  "-Wlogical-op -Wmissing-declarations" for 4.3+.
+
+Omega 1.0.12 (2009-04-19):
+
+omega:
+
+* $log now retries a partial write, or one interrupted by a system call.
+
+build system:
+
+* configure: Fix iconv parameter type probe not to implicitly cast a string
+  literal to char* - this a warning under GCC currently, but the user could
+  pass -Werror explicitly in CXXFLAGS, and this could be promoted to an error
+  in future GCC versions, and may already be so for some other compilers.
+
+* Overriding CXXFLAGS at make-time (e.g. "make CXXFLAGS=-Os") no longer
+  overrides any flags required for building with Xapian.
+
+* We now actually use the compiler warning flags which configure detects.
+
+Omega 1.0.11 (2009-03-15):
+
+documentation:
+
+* cgiparams.html: Note the technique of using a stub database file to allow a
+  default of searching over multiple databases.
+
+indexers:
+
+* omindex:
+
+  + Add support for indexing Microsoft Office 2007 formats and XPS files
+    (bug#290).
+
+  + Fix the extraction of metadata from OpenDocument formats.
+
+  + Fix "-l" which would previously always cause a segmentation fault if used
+    ("--depth-limit" wasn't affected).
+
+build system:
+
+* configure: The output of g++ --version changed format (again) with GCC 4.3
+  which meant configure got "g++" for the version.  Instead use the (hopefully)
+  more robust technique of using g++ -E to pull out __GNUC__ and
+  __GNUC_MINOR__.
+
+* configure: Turn on _FORTIFY_SOURCE where available (as we do in xapian-core).
+
+portability:
+
+* Fix to compile when RLIMIT_AS isn't available (as on NetBSD and OpenBSD).
+  Instead use RLIMIT_VMEM or RLIMIT_DATA if either is available, else don't try
+  to limit the memory the filter process can use.
+
+Omega 1.0.10 (2008-12-23):
+
+build system:
+
+* This release now uses newer versions of the autotools (autoconf 2.62 ->
+  2.63; automake 1.10.1 -> 1.10.2).  The newer autoconf fixes a regression
+  in autoconf 2.62 (and so Omega 1.0.7) with detecting the endian-ness of some
+  platforms.
+
+Omega 1.0.9 (2008-10-31):
+
+documentation:
+
+* docs/overview.html: Document HTML parsing a bit, including robots
+  meta and htdig_noindex.
+
+omega:
+
+* omega: Catch std::exception and report what its what() method returns.
+
+* omega: Remove undocumented and non-functional support for numeric sorting
+  via CGI parameter SORT=#<slot> (SORT=<slot> works as before).
+
+build system:
+
+* configure: Sync warning flag handling changes from xapian-core to eliminate
+  many warnings from GCC 4.3.
+
+Omega 1.0.8 (2008-09-04):
+
+documentation:
+
+* Fix a few typos and improve wording in a few places.
+
+indexers:
+
+* omindex:
+
+  + If the character encoding is specified using <meta http-equiv=...> in an
+    HTML document then reparse the document if it isn't the encoding we're
+    already using so that any preceding <title> is converted correctly
+    (bug#292).
+
+  + Convert text from meta tag parameters to UTF-8 (bug#293).
+
+  + Handle <meta charset="..."> (new in HTML 5).
+
+  + Fix bug in HTML tag parameter parsing which was probably just a small
+    performance penalty in real world cases, but could perhaps result in
+    parsing bogus extra parameters in carefully contrived situations.
+
+portability:
+
+* Add missing <signal.h>, noted on FreeBSD by Henrik Brix Andersen.
+
+Omega 1.0.7 (2008-07-14):
+
+documentation:
+
+* omegascript.html,scriptindex.html: Fix empty titles.
+
+indexers:
+
+* omindex:
+
+  + When indexing text files, handle UCS-2 and UTF-16 text files with a
+    byte-order mark (BOM), and ignore any UTF-8 "byte-order" mark.
+
+  + The built-in conversion code (used when iconv isn't available) now handles
+    UCS-2/UTF-16 with and without a BOM, and also the explicit BE and LE forms.
+
+omega:
+
+* Overhaul the $highlight colour combinations since some were rather
+  unreadable (Debian bug 484456).
+
+build system:
+
+* configure: Synchronise code for working out warning flags used for builds
+  with that used for xapian-core, which in particular handles different
+  output formats from "gcc --version".
+
+portability:
+
+* configure: Fix header checks to pre-include <sys/types.h> which Mac OS X
+  needs for some other headers to work.
+
+* configure: Fix probing for iconv to work better when iconv isn't found
+  (previously this only worked on Mac OS X with fink).
+
+* Fix compilation error on FreeBSD, introduced in 1.0.5.
+
+* In omega, cast size to unsigned before division to avoid a warning about
+  signed overflow.
+
+packaging:
+
+* xapian-omega.spec: Remove "www." from xapian.org and oligarchy.co.uk URLs.
+
+Omega 1.0.6 (2008-03-17):
+
+documentation:
+
+* docs/omegascript.html: Improve formatting.
+
+indexers:
+
+* omindex:
+
+  + Add support for DjVu files.
+
+  + If we get an error trying to read a directory entry, report it to the user
+    rather than ignoring it.
+
+omega:
+
+* New OmegaScript commands $addfilter, $lower, $upper.
+
+portability:
+
+* Check "defined HAVE_SYSMP" rather than just "HAVE_SYSMP".  This doesn't
+  change behaviour, but fixes a compile warning on platforms other than Linux
+  and IRIX.
+
+Omega 1.0.5 (2007-12-21):
+
+documentation:
+
+* Convert .txt docs to reStructedText which we process to produce HTML.
+
+* Add a note inviting suggestions for additional reliable filter programs.
+
+* overview.html: omindex hasn't generated "W"-prefix terms since 0.9.7, so
+  remove the documentation saying it does.
+
+indexers:
+
+* omindex:
+
+  + If a file's extension isn't found in the mime_map and contains uppercase
+    ASCII characters, check for the lower cased extension (so .PDF and .Pdf
+    behave the same way as .pdf, unless you deliberately add different mappings
+    for them).
+
+  + '-f' is documented by --help as a short option for '--follow', but wasn't
+    previously actually recognised.
+
+  + Limit filter programs to 7/8 of free physical memory on platforms where we
+    know how to determine this statistic (currently at least Linux, FreeBSD,
+    IRIX, HP-UX; probably Solaris and a few others too).  This helps to prevent
+    runaway filters from causing a denial of service (bug#111).
+
+  + Avoid rereading uncompressed AbiWord documents in order to calculate their
+    MD5 checksums.
+
+* scriptindex:
+
+  + Now inserts a ':' between prefix and term, using the same criteria which
+    Xapian::QueryParser does.
+
+  + The 'BOOLEAN' action now ignores an empty input rather than adding just the
+    prefix as a term.
+
+  + The 'UNIQUE' action now issues a warning for empty input but otherwise
+    ignores it.
+
+portability:
+
+* Add explicit includes of C headers needed to build with the latest snapshots
+  of GCC 4.3.
+
+Omega 1.0.4 (2007-10-30):
+
+omega:
+
+* If an OmegaScript template specifies the same field name as both a boolean
+  and a probabilistic term prefix then previous the boolean setting would
+  be ignored (e.g. $setmap{prefix,foo,A}$setmap{boolprefix,foo,H}).  Now this
+  generates an error.  If you set prefixes in your templates, you may wish to
+  check them over before upgrading.
+
+Omega 1.0.3 (2007-09-28):
+
+general:
+
+* Distribution tarballs are now in the POSIX "ustar" format since it saves
+  a few KB and we need to use it for xapian-core anyway.
+
+documentation:
+
+* Expand the output of 'mbox2omega --help' and refer the reader to it from
+  docs/scriptindex.txt.
+
+indexers:
+
+* omindex:
+
+  + Add support for indexing AbiWord documents and TeX DVI files.
+
+  + Impose a 5 minute CPU time limit on filter programs to prevent problems if
+    a filter program goes into an infinite loop on a malformed input.  Partly
+    addresses bug#111.
+
+* scriptindex:
+
+  + Fix line number tracking in dump files.
+
+omega:
+
+* Add $muldiv{A,B,C} which calculates int(A*B/C).
+
+* Fix bug in decimal fraction in $size for files >= 1M in size.
+
+templates:
+
+* query:
+
+  + Set HTML charset to utf-8 since that's what databases now are by default.
+
+  + Restyle to use CSS to draw a "score bar" instead of using images.
+
+  + Rework the layout of each hit.
+
+  + Add popup hints on mouse-over for various items.
+
+  + Tidy up some HTML gremlins.
+
+Omega 1.0.2 (2007-07-05):
+
+documentation:
+
+* scriptindex.txt: Fix typo.
+
+indexers:
+
+* omindex:
+
+  + If --url isn't passed, default to "/", but print a warning noting that this
+    default has been used (at least for now).
+
+  + Report files that aren't indexed because their extensions aren't
+    recognised.
+
+build system:
+
+* Value of XAPIAN_CONFIG supplied to configure is now passed to distcheck,
+  to ensure that it works with uninstalled copies of Xapian.
+
+portability:
+
+* Fix test programs to build with a development snapshot of GCC 4.3.
+
+Omega 1.0.1 (2007-06-11):
+
+documentation:
+
+* overview.txt: As of 1.0.0, we no longer use pstotext for PostScript, but
+  instead use ps2pdf followed by pdftotext (since this works for Unicode).
+
+* scriptindex.txt: Document that you can delete a document by supplying a new
+  document which only contains the unique term.
+
+indexers:
+
+* Fix bug in HTML parser - if the text between two tags consisted entirely of
+  whitespace it would just be ignored which could run words together if
+  the tags didn't produce implicit whitespace.  This bug dates back to at least
+  Omega 0.8.2.
+
+* omindex: Under Linux (and probably some other platforms) struct dirent can
+  tell us the type of a directory entry for some filing systems, so make use of
+  this to avoid calling stat() (or lstat()) unnecessarily - when indexing
+  /usr/share/doc on my Linux box, this saves about 14000 explicit calls to
+  stat() (leaving about 7000).
+
+omega:
+
+* Fix handling of query parsing errors (broken by changes in 1.0.0).
+
+packaging:
+
+* The required automake version has been lowered to 1.8.3, so RPMs can now be
+  built on RHEL 4 and SLES 9.
+
+Omega 1.0.0 (2007-05-17):
+
+general:
+
+* Omega and the indexers now work in UTF-8.  If iconv() is available, omindex
+  will use it to convert documents from other formats, otherwise it has
+  built-in support for UTF-8 and ISO-8859-1; omindex knows how to run the
+  various external filter programs to generate UTF-8 output; scriptindex
+  assumes input is already in UTF-8.
+
+* Change the project name (used to name tarballs, and default installation
+  paths) to "xapian-omega" since that's what the RPMs and Debian packages
+  already use (there's a Rogue-like game called Omega).
+
+documentation:
+
+* docs/overview.txt: Document what each of the OmegaScript templates does.
+
+* docs/quickstart.txt: Assorted minor improvements.
+
+* docs/termprefixes.txt: Document new 'Z' prefix, and that the 'R' and 'W'
+  prefixes are no longer used by Xapian.
+
+* docs/cgiparams.txt: FMT isn't limited to just `a-z' - the actual restriction
+  is that it may not contain `..'.
+
+* docs/scriptindex.txt: Explicitly note that index=nopos is deprecated
+  (scriptindex already emits a warning).
+
+* NEWS: Add note that Omega < 0.8.0 NEWS entries are in the xapian-core NEWS
+  file.
+
+* TODO: Updated.
+
+indexers:
+
+* Updated to use the new Xapian::TermGenerator class.  This means that the
+  indexing strategy has changed.
+
+* "--help" now reports the default stemming language (i.e. "english").
+
+* Implement new sample generating function which normalises all runs of
+  whitespace to a single space, and fixes invalid UTF-8 in the sample.
+
+* omindex:
+
+  + We now index PostScript by converting to PDF with ps2pdf and then indexing
+    that.  This allows us to index PostScript files containing Unicode
+    characters outside of ISO-8859-1, and also means we now get metadata from
+    PostScript files.  The downside is it is quite a bit slower.
+
+  + Add support for indexing MS Works documents using wps2text (part of
+    libwps).
+
+  + Don't index empty files.
+
+* scriptindex:
+
+  + Fix optimisation of "load truncate=N" to actually work!
+
+  + The "truncate" action knows not to chop off a multibyte UTF-8 character.
+
+  + Update short option list for scriptindex to match documented usage (-h, -V
+    and -s were not working).
+
+  + Remove -q and -u options - they no longer do anything and are only accepted
+    for compatibility with really old versions (0.6.1 and earlier for -q; 0.7.5
+    and earlier for -u).
+
+omega:
+
+* Add an alternative implementation of date range filtering which uses a
+  MatchDecider.  This allows everything that the existing implementation does,
+  plus you can support sorting on a choice of dates (e.g. first published or
+  last updated), and filtering works to a resolution of a minute rather than a
+  day.  Set CGI parameter DATEVALUE to enable this, and to specify the value to
+  use.  Since omindex now adds the last modified date as value 0, this will
+  work with omindex.
+
+* Enhance $substr{} to accept a negative length (meaning to count back from the
+  end of the string).
+
+* New CGI parameters to allow finer control of sorting and ranking - SORTAFTER
+  and DOCIDORDER.
+
+* The sorting options are now encoded in $filters so Omega can automatically
+  reset to page 1 if they are changed.
+
+* Add new OmegaScript $weight command which returns the raw document weight -
+  mostly useful for debugging purposes.
+
+* $topterms{} now generates unstemmed terms.
+
+* $prettyterm{TERM} has been updated to fit with changes to the term generation
+  strategy.
+
+* Add 'you' and 'your' as stopwords.
+
+* $filesize{SIZE} enhanced to return a decimal point for K, M, and G (e.g.
+  "2.1K" and "4.0M" rather than "2K" and "4M"); $filesize{0} is now "0 bytes";
+  $filesize{1} is now "1 byte"; $filesize{SIZE} where SIZE is negative is now
+  "".
+
+* Remove $freqs as it has been deprecated for ages.
+
+* Remove support for xB, xDATE1, xDATE2, xDAYSMINUS, and xDEFAULTOP which were
+  deprecated in favour of xFILTER in 0.7.5 (over 3 years ago).
+
+* Remove deprecated aliases for CGI parameters (deprecated in 0.6.3 or 0.6.5,
+  more than 3.5 years ago): RAW_SEARCH (now RAWSEARCH), DATE1 (now START),
+  DATE2 (now END), DAYSMINUS (now SPAN but with slightly different semantics),
+  and MIN_HITS (now MINHITS).
+
+* Remove "bias_weight" and "bias_halflife" CGI parameters since they rely on
+  Enquire::set_bias() which has been removed.
+
+templates:
+
+* The 'query' template no longer uses $topterms by default.
+
+* New 'topterms' template provides a query template with $topterms support.
+
+* Template fragments which aren't intended for direct use have been moved to
+  an "inc" subdirectory.
+
+testsuite:
+
+* md5test: Add tests for MD5 code.
+
+build system:
+
+* `./configure --enable-quiet' already allows you to specify at configure time
+  to pass `--quiet' to libtool.  Now you can override this at make-time by
+  using `make QUIET=' (to turn off `--quiet') or `make QUIET=y' (to turn on
+  `--quiet').
+
+* configure: Disable probes for f77, gcj, and rc completely by preventing
+  the probe code from even appearing in configure - this reduces the size of
+  configure by 29% and should speed it up significantly.
+
+portability:
+
+* Fixed to build with GCC 4.3 snapshot.
+
+* We now make use of the safe*.h portability headers from xapian-core.
+
+* Ensure that the result of snprintf is zero terminated since MSVC's snprintf
+  is broken (by design it seems).
+
+* configure: xapian-config --cxxflags now includes -ptused for SGI's C++
+  compiler, so we don't need to probe for it here.
+
+* configure: Perform a link test for posix_fadvise to fix misdetection on
+  HP-UX.
+
+Omega 0.9.10 (2007-03-04):
+
+documentation:
+
+* docs/omegascript.txt: Rewrite introductory paragraph.  Note that
+  whitespace is significant, and add explicit warning to $setmap.
+
+* docs/termprefixes.txt: Expand section on boolean prefixes, showing
+  how to generate them using scriptindex, and how to allow them to be
+  selected in an HTML form.
+
+indexers:
+
+* omindex: Generate correct MD5 checksums on big-endian platforms.
+
+omega:
+
+* Fix $substr{} with negative start to actually work.
+
+* Fix $substr{} to never cause a C++ exception.
+
+packaging:
+
+* omega.spec.in: Remove "." from the end of the Summary.
+
+Omega 0.9.9 (2006-11-09):
+
+documentation:
+
+* Ship our custom INSTALL file rather than the generic one from autoconf which
+  we've accidentally been shipping instead since 0.9.5.
+
+indexers:
+
+* scriptindex: The "date" action no longer modifies the value it operates on
+  (it was never meant to!)
+
+omega:
+
+* Report an error if $setmap is called with an even number of parameters.
+  An incorrect example in the documentation used to suggest this, so it's
+  particularly useful to catch this case.
+
+packaging:
+
+* RPMs: Prevent binaries getting an rpath for /usr/lib64 on FC6.
+
+Omega 0.9.8 (2006-11-02):
+
+omega:
+
+* $substr where the start is negative and longer than the string (e.g.
+  $substr{abcd,-5,1}) wasn't working as intended.
+
+build system:
+
+* configure: Tell AC_CHECK_HEADERS to suppress its backward compatibility mode,
+  so it only checks headers with the compiler.  This speeds up configure a
+  little, and is what we do elsewhere.
+
+* configure: Warning flags for GCC weren't actually getting used.  Fix this to
+  work and use the same warning flags for GCC and Intel C++ as xapian-core does.
+  Fix all the warnings this uncovered!
+
+* omega,omindex,scriptindex: Remove some old unused code.
+
+portability:
+
+* Ensure that we always pass an unsigned char value to isupper(), toupper(),
+  etc as they are undefined on other values (glibc makes them work for signed
+  char values too, but this is an extension).
+
+* configure: Pass magic options to SGI's C++ compiler to allow linking of
+  templates to work.
+
+* configure: IRIX doesn't allow stdint.h to be included from C++ so we need
+  a smarter configure test than AC_CHECK_HEADERS.
+
+* Fix warnings from SGI's C++ compiler.
+
+Omega 0.9.7 (2006-10-10):
+
+documentation:
+
+* omegascript.txt: Note that (by design) an omegascript template can't
+  contain an infinite loop.
+
+* termprefixes.txt: "$setmap{title,S}" should be "$setmap{prefix,title,S}".
+
+* Use the default paths to the database directories and the omega CGI binary in
+  examples.
+
+* README: Update reference to "CVS" to say "SVN".
+
+indexers:
+
+* Don't get confused by "a<b" in Javascript in a <script> tag.  Fixes bug#91.
+
+* Support htdig's "ignore this bit" comments.
+
+* Don't generate terms with more than 3 trailing symbols ('-', '+', or '#').
+
+* omindex:
+
+  + Add the file last modified time as value #0.
+
+  + Generate an MD5 checksum of each file indexed and store it in value #1
+    to allow duplicates to be collapsed.
+
+  + Store the file's last modified time in the document data as "modtime" so it
+    shows up in search results (and tweak the query template so the display of
+    this information looks nicer).  Don't add "modtime" field if the timestamp
+    is (time_t)-1.
+
+  + Run pdfinfo once and pull out the fields we want using string operations,
+    instead of running it twice filtered through sed.
+
+  + Parse the XML from OpenDocument and OpenOffice using new subclasses of
+    HtmlParser.  Only extract meta.xml once.
+
+  + Add "size" field to document data.
+
+  + Run xls2csv on MS Excel files, run catppt on MS Powerpoint files, and also
+    index MS Word templates (.dot) the same way as .doc files.
+
+  + Don't generate 'W' terms since omega doesn't use them.
+
+  + If a filter program isn't installed, then don't try it again for the same
+    extension (not perfect but an improvement - previously we indexed an empty
+    document!)
+
+  + If popen() fails, treat it as a read error.
+
+* scriptindex:
+
+  + Add new "load" action to allow the contents of an external file to be
+    loaded and parsed.
+
+  + Fix check for whether a record has content in the case where the same field
+    is processed more than once.
+
+omega:
+
+* Add $pack and $unpack OmegaScript commands to allow big endian binary values
+  to be encoded and decoded (for use with omindex's lastmod in value #1).
+
+* omega.conf: Fix code which reads omega.conf to be line based as documented
+  rather than the wacky whitespace based scheme that was actually implemented.
+  Also we now allow "#" comments and blank lines in omega.conf.
+
+* Fix $highlight{} to work with capitalised words (it used to work but
+  regressed in 0.8.2).
+
+* Use '\t' to separate terms in xP since filter terms might contain '.'.  Fixes
+  bug#87.
+
+testsuite:
+
+* Add htmlparsetest which tests the MyHtmlParser class.
+
+build system:
+
+* Makefile.am: Make use of the dist_ prefix to avoid having to list files in
+  EXTRA_DIST as well as in *_SCRIPTS, *_DATA, and man_MANS.
+
+* Makefile.am: Prefer $(sysconfdir) to @sysconfdir@ since the former can be
+  overridden on the "make" command line.
+
+portability:
+
+* xapian-config will now switch Sun's C++ compiler into ANSI C++ compliant
+  mode, so remove all the special case bits of code added for just this one
+  compiler.
+
+* omindex: Fix escaping of filenames to cast characters to "unsigned char" so
+  that isalnum() works correctly everywhere.  Not a security hole as dangerous
+  characters were still being escaped.
+
+* Call pclose() not fclose() on a FILE* obtained from popen().  This bug could
+  cause us to run out of file descriptors on some platforms.
+
+* configure: Check for strftime.
+
+packaging:
+
+* omega.spec.in: Include documentation in the RPM package.
+
+Omega 0.9.6 (2006-05-15):
+
+documentation:
+
+* docs/omegascript.txt: Clarified description of $now.
+
+indexers:
+
+* scriptindex: Fix "index" and "indexnopos" without a prefix to set the weight
+  correctly (bug introduced in 0.9.5).
+
+omega:
+
+* Added new OmegaScript commands $filterterms and $substr.
+
+portability:
+
+* configure: Update snprintf detection to match xapian-core.
+
+* Fix MSVC warnings.
+
+packaging:
+
+* omega.spec.in: Create and package /var/lib/omega/cdb and /var/log/omega.
+
+Omega 0.9.5 (2006-04-08):
+
+documentation:
+
+* README: Add pointer to documentation.
+
+* Added man pages for omindex and scriptindex, generated using help2man.
+
+indexers:
+
+* scriptindex:
+
+  + If we fail to open the index script, die with an error (previously we
+    acted as if an empty file was specified).
+
+  + Warn about a useless "weight" action, even if it's followed by another
+    non-useless action (e.g. "field") - previously we only warned if it
+    was last or followed only by other useless actions.
+
+  + Warn if "unique=<prefix>" is used without a corresponding
+    "boolean=<prefix>" on the same line.
+
+  + Warn that "index=nopos" is deprecated and should be replaced by
+    "indexnopos".
+
+  + Add explanatory text "(note that actions are executed from left to right)"
+    when reporting useless actions.
+
+  + Added new "hash" command to allow hashed terms to be generated from long
+    URLs like omindex does.
+
+* htdig2omega.script,mbox2omega.script: Make use of the new scriptindex "hash"
+  command.
+
+* dbi2omega: Check DBIDRIVER environmental variable to allow a driver other
+  than mysql to be specified without modifying the script.
+
+omega:
+
+* Fix $opt[fieldnames] handling.  Previously it would try to kick in if you
+  didn't set fieldnames but set any alphabetically later option!  The symptom
+  was that $field{} would stop working (bug#72).
+
+portability:
+
+* omindex,omega: Tweaks for MSVC compilation.
+
+Omega 0.9.4 (2006-02-21):
+
+documentation:
+
+* COPYING: Updated FSF address.
+
+Omega 0.9.3 (2006-02-16):
+
+documentation:
+
+* overview.txt: The U prefix (URL term) was grouped with the date searching
+  prefixes, but it makes more sense to group it with the prefixes relating to
+  parts of the URL (H for hostname, P for path, etc).
+
+* overview.txt: Add pointer to documentation of the supported query syntax.
+
+* omegascript.txt: Improve descriptions of $cgi, $collapsed, $value, $version.
+
+* termprefixes.txt: Fix typo.
+
+indexers:
+
+* omindex: add --preserve-nonduplicates / -p option to not delete any documents
+  that aren't updated, in replace duplicates mode (so that multiple runs of
+  omindex on different subsites don't stomp on each other).
+
+* omindex,scriptindex: Add "--stemmer" option to omindex and scriptindex
+  to allow the stemming language to be set.  Fixes bug#11.
+
+* omindex,scriptindex: More consistent --help and --version output.
+
+* omindex: Add support for OpenDocument format mimetypes and extensions out of
+  the box.  Previously you could index them but had to pass a "-m" option for
+  each OpenDocument filename extension you wanted to handle.
+
+* scriptindex: The "-q" option no longer actually controls anything.  Just
+  ignore it for backwards compatibility (and don't document it in --help).
+
+omega:
+
+* If executing an OmegaScript command causes a Xapian exception to be thrown,
+  catch it and copy the error message into error_msg (which is read by the
+  $error command).  This allows such errors to reported in a nicer way.
+
+* Added "SORTREVERSE" CGI parameter which allows the sort order to be reversed
+  when sorting on a value.  Removed "SORTBANDS" CGI parameter since it no
+  longer does anything.
+
+* Added $find{LIST,STRING} to return the subscript of the first occurrence of
+  string STRING in list LIST.
+
+* Added $lookup{CDBFILE,KEY} OmegaScript command to perform a lookup in a CDB
+  file.
+
+* Added new feature which allows you to avoid storing fieldnames in every
+  document.  Instead you just store the field values, one per line, and add
+  something like "$set{fieldnames,$split{caption sample url}}" to the
+  OmegaScript template to specify the fieldnames to use.  This can save a lot
+  of disk space for a large database.
+
+* Add new "$split{}" OmegaScript command which splits a string to give an
+  OmegaScript list.
+
+* Fix $url{} to escape "+" to "%2b".  Also fix encoding of top-bit-set
+  characters on platforms where char is signed by default.
+
+* Speed up $highlight{} - only compare terms which are the same length.
+
+* Reduce memory usage if a lot of documents are marked as relevant.
+
+templates:
+
+* query: Make the page title shorter so there's more chance it will fit on icon
+  bars, etc.
+
+* opensearch: Add missing escaping.
+
+* godmode: If a non-existent docid is specified, report the error and prompt
+  the user to enter another docid.  Fixes bug#60.
+
+portability:
+
+* omega: Fix printf type mismatch on 64 bit platforms.
+
+* omega: Cast time_t to unsigned long to avoid problems on 64bit platforms.
+
+* Use snprintf where available.
+
+* Write top-bit set characters using \xXX notation to avoid warnings from
+  Intel's C++ compiler.
+
+Omega 0.9.2 (2005-07-15):
+
+* omega: Changed $highlight so if OPEN and CLOSE aren't specified, they default
+  to highlighting each word from the query with a different background colour
+  like gmane does (previous default was to use '<strong>' and '</strong>').
+
+* omega: Call QueryParser::set_database() as this is now used to decide what to
+  do for terms like "C#".
+
+* omega: Added the ability to set boolean prefixes for the QueryParser by
+  setting a "boolprefix" map in the omegascript template.
+
+* omega: Added $length{} and $stoplist{} commands to OmegaScript.
+
+* scriptindex: Fix infinite loop if there's no newline at the end of a dumpfile.
+
+* docs/termprefixes.txt: Explain how to use termprefixes with scriptindex and
+  omega, since that's what most people will want to know.
+
+* docs/omegascript.txt: Use standard "S" prefix for title in example for
+  $setmap, rather than "XT".
+
+Omega 0.9.1 (2005-06-06):
+
+* Releases are now created using libtool 1.5.18 and automake 1.9.5.
+
+* Updated RPM packaging.
+
+Omega 0.9.0 (2005-05-13):
+
+* Updated for 0.9.0 API changes.
+
+* omindex/scriptindex: Generate terms like "c#".
+
+* Added mbox2omega script which allows a mail folder to be indexed using
+  scriptindex.  Mostly it's an example as there's no mechanism included to show
+  the full original message.
+
+omega:
+
+* The configuration file is now looked for differently - you can now set
+  the environmental variable OMEGA_CONFIG_FILE.  See docs/overview.txt for
+  details.
+
+* $highlight can now highlight terms like "C#".
+
+* Add new template 'opensearch' to implement basic opensearch feeds of search
+  results.
+
+omindex:
+
+* URL hashing previously depended on sizeof(long) so databases weren't totally
+  portable between platforms.  This is now fixed, but to do so we've had to
+  break compatibility with databases built on platforms with 64 bit longs
+  with URLs > 228 bytes.
+
+* Removed useless "DUPE_duplicate" option.
+
+* Added support for indexing Perl "pod" documentation using pod2text.
+
+* Replaced -l/--no-recurse with -l/--depth-limit which takes an argument
+  allowing recursion to be restriction to any depth, not just 0 or infinity!
+
+* Extend -M/--mime-type to allow an existing mapping to be removed by omitting
+  the type.
+
+* Fixed code so that we get lstat() prototype on Linux systems where we have
+  posix_fadvise().
+
+scriptindex:
+
+* Improved handling of extra blank lines in dump file.
+
+* Strip multiple \r characters from end of line.
+
+* Complain if a dump file doesn't appear to have been = escaped correctly.
+
+* Flush database after each input file to ensure all changes from a file
+  make it in.
+
+documentation:
+
+* docs/omegascript.txt: Clarify $field description slightly.
+
+* docs/cgiparams.txt,docs/omegascript.txt: Fixed 3 references to OmXxxx classes.
+
+* docs/termprefixes.txt: Added a single document covering all aspects of term
+  prefixes.
+
+* docs/omegascript.txt: Moved $collapsed into correct place alphabetically!
+
+* docs/cgiparams.txt,docs/overview.txt: Improved description of how B filters
+  are handled when building the query.
+
+* docs/scriptindex.txt: Note that actions are applied in the specified order.
+
+Omega 0.8.5 (2004-12-23):
+
+* README,INSTALL: Proper installation instructions.
+
+* omega: If an exception is thrown, make sure that the HTTP headers
+  get written so that we don't cause "500 Internal Server Error".
+  This problem was introduced by the change to allow a user specified
+  Content-Type in 0.8.0.  Partly addresses bug#60.
+
+* scriptindex: Fixed "Unknown Exception" when trying to "unhtml" text which
+  contains "</body>" (bug#61).  This bug was introduced in 0.8.4.
+
+* omindex/scriptindex: <h1> - <h6> and </h1> - </h6> now leave a space in the
+  dumped HTML.  This bug was introduced in 0.8.4 - before that any tag left
+  a space in the dumped HTML.
+
+* omindex: Only try to delete removed documents in "replace duplicates" mode
+  (which is the default).
+
+* omindex: Change behaviour of crawler such that it doesn't follow symbolic
+  links any more.  The new "--follow" command line option turns following of
+  symlinks back on.
+
+* dbi2omega: Add a comment to the start of the file detailing what
+  dbi2omega does.
+
+Omega 0.8.4 (2004-12-08):
+
+* omindex,scriptindex: Improved HTML to text conversion - now we strip
+  leading and trailing whitespace and convert all other consecutive groups of
+  whitespace to a single space.  Also the parser now knows that some tags
+  should be regarded as word breaks and some shouldn't (previously all tags
+  were treated as word breaks).
+
+* omindex: Removed bogus extra line from code which was meant to
+  truncate samples, titles, etc at a word boundary, but has never actually
+  worked!
+
+* omindex: Added hooks for indexing the following formats: OpenOffice (requires
+  unzip), MS Word (requires antiword), Wordperfect (requires wpd2text), RTF
+  (requires unrtf).
+
+* omindex: If a filename to be passed to a filter program has a leading "-",
+  protect it from possible interpretation as an option by prepending "./".
+
+* omega: When there's only a boolean query we promote it to be the query.
+  Tweaked so we use boolean weights in this case.
+
+* omega: Use Query::empty() instead of the now deprecated Query::is_empty().
+
+* omega,omindex,scriptindex: Use the new Database/WritableDatabase
+  constructors.
+
+* templates/godmode: Finished off godmode template.
+
+* Compile everything as C++.
+
+* Check snprintf actually works - some older versions don't implement C90
+  snprintf semantics.
+
+* XAPIAN_FLAGS already links with xapianqueryparser so remove
+  -lxapianqueryparser from omega_LDADD as it was causing link errors on cygwin.
+
+Omega 0.8.3 (2004-09-20):
+
+* scriptindex: --version now actually reports the version.  --help now exits
+  with status 0 rather than status 1.
+
+* RPM packaging: Updated.  The most notable change is that the RPM is now
+  called xapian-omega because there's already an omega RPM (in Fedora Core at
+  least) which is a game.  Also htdig2omega and htdig2omega.script are now
+  included in the RPM.
+
+* Install htdig2omega.script in ${prefix}/share/omega/ rather than
+  ${prefix}/share/.
+
+Omega 0.8.2 (2004-09-13):
+
+* omega: $highlight now handles accented characters (bug#9).
+
+* omega: Use new checkatleast parameter to Enquire::get_mset to implement
+  MINHITS.
+
+* omindex: When running with "replace duplicates" mode (the default), detect
+  documents removed since the last indexing run and delete them from the
+  database (bug #34).
+
+* omindex: Use the new WritableDatabase::replace_document(term, doc) method.
+
+* scriptindex: Report index script file name and line number when
+  reporting errors in it.  Added warning for redundant actions,
+  such as "truncate" as the last action in a rule.
+
+* templates/query: Always report if the database is not found - previously we
+  only did so if there was a query.
+
+* templates/query: Fixed missing </center> tag which happened in certain cases.
+
+* docs/omegascript.txt: Added note about that $add{$hit,1} gives
+  the "hit number".
+
+* Now includes htdig2omega and htdig2omega.script which allow you to crawl
+  remote websites with ht://dig, then build a searchable index of them with
+  Xapian and Omega.
+
+* Link with -lxapianqueryparser, not -lomqueryparser.
+
+Omega 0.8.1 (2004-06-30):
+
+* omindex: Renamed hash() to hash_string() to avoid colliding with something
+  on IRIX.
+
+* omega: Changed MORELIKE to pick up to 40 terms, rather than up to 6 (feedback
+  on the mailing list suggests this gives much better results).
+
+* scriptindex: Added explicit catch for std::bad_alloc.
+
+Omega 0.8.0 (2004-04-19):
+
+* scriptindex: Change default to *not* overwriting the database (use
+  --overwrite if you really want to do this); -u is now accepted but ignored.
+
+* scriptindex: Use getopt for option parsing.
+
+* omindex: Added --overwrite option which forces an existing database to be
+  deleted before indexing begins.
+
+* templates/xml: Correct spelling of `relavence' to `relevance'.  NB: if you're
+  parsing the XML output, you'll need to fix this spelling in your parser!
+
+* templates/xml: Now set HTTP header: "Content-Type: application/html".
+
+* templates/xml: Remove unused OmegaScript code:
+  `$set{topterms,$or{$ne{$msize,0},$query}}'.
+
+* indextext.cc,omindex.cc,scriptindex.cc: Updated to use add_term() instead of
+  add_term_nopos().
+
+* omega: Added $httpheader Omegascript to allow arbitrary HTTP headers and
+  alternative Content-Type headers to be specified.
+
+* omega: If the probabilistic query was bad, don't try to run the match.
+
+* omega: Don't crash if there's a date filter but no probabilistic query.
+
+* omindex/scriptindex: Raw terms with a multicharacter prefix are now indexed
+  with a : inserted (e.g. as XFOO:Rterm).  This matches what the query parser
+  does.
+
+* omindex/scriptindex: Don't create R terms for terms which start with a digit.
+
+* omindex: Use O_STREAMING and/or posix_fadvise() when reading files to be
+  indexed (if available).  This helps to keep the Xapian database in cache,
+  and should greatly improve indexing throughput.
+
+* docs/scriptindex.txt: Make more explicit that boolean produces a *single*
+  boolean term.
+
+* docs/cgiparams.txt: Note that START and END should be in the format YYYYMMDD.
+
+For NEWS entries for Omega versions prior to 0.8.0, see the xapian-core NEWS
+file.

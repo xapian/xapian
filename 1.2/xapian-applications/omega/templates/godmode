@@ -1,0 +1,97 @@
+$set{thousand,$.}$set{decimal,.}<html>
+<head>
+<title>Omega:
+$if{$cgi{ID},
+Document #$html{$cgi{ID}},
+$if{$ne{$msize,0},
+Term "$html{$cgi{B}}",
+Choose what to Inspect}}
+</title>
+</head>
+<body bgcolor=white>
+<form METHOD=GET ACTION="$html{$env{SCRIPT_NAME}}">
+
+$if{$cgi{ID},
+$setrelevant{$cgi{ID}}
+<H1>Document #$html{$cgi{ID}}</H1>
+    
+<H2>Terms indexing this document</H2>
+
+<table>
+<tr><th>Frequency</th><th align=left>Term</th></tr>
+$map{$allterms{$cgi{ID}},
+<tr><td align=right>$freq{$_}</td>
+<td><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&B=$url{$_}}">$html{$_}</A></td></tr>}
+</table>
+
+<H2>Document Data</H2>
+
+<pre>$html{$record{$cgi{ID}}}</pre>
+
+<H2>Document Values</H2>
+
+$set{values,$list{$map{$range{0,255},$if{$value{$_,$cgi{ID}},
+<tr><td>$_</td><td>$html{$value{$_,$cgi{ID}}}</td></tr>
+}},}}
+$if{$opt{values},
+<table><tr><th>Value#</th><th>Value</th></tr>
+$opt{values}
+</table>,
+<i>No values</i>
+}
+,
+$if{$ne{$msize,0},
+$if{$not{$msizeexact},
+ $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
+ $if{$and{$eq{$last,$msize},$eq{$topdoc,0}},
+  All $nice{$msize} matches,
+  $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
+}
+<hr>
+<table>
+$hitlist{<TR>
+<td align=right><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</A>&nbsp;</td>
+<TD><B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
+<A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</A></B><BR>
+<small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
+<A HREF="$html{$field{url}}">$prettyurl{$html{$field{url}}}</A><br>
+<hr></TD></TR>}
+</table>
+${suppress next, prev, and page links if there's only one page}
+$if{$ne{$lastpage,1},
+<hr>
+<input type=hidden name=B value="$html{$cgi{B}}">
+<center>
+$def{PREV,$if{$ne{$topdoc,0},<INPUT TYPE=submit NAME="&lt;" VALUE="Previous">}}
+$def{PAGE,<INPUT TYPE=submit NAME="[" VALUE="$1">}
+$def{SPAGE,<INPUT TYPE=submit NAME="[" VALUE="$1" DISABLED=disabled>}
+$def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
+${1-W ... X-(this)-Y ...}
+$set{w,$min{3,$add{$thispage,-1}}}
+$set{x,$max{$add{$opt{w},1},$add{$thispage,-3}}}
+$set{y,$min{$lastpage,$add{$thispage,8}}}
+$PREV
+$map{$range{1,$opt{w}},$PAGE{$_}}
+$if{$ne{$add{$opt{w},1},$opt{x}},...}
+$map{$range{$opt{x},$add{$thispage,-1}},$PAGE{$_}}
+$SPAGE{$thispage}
+$map{$range{$add{$thispage,1},$opt{y}},$PAGE{$_}}
+$if{$ne{$opt{y},$lastpage},...}
+$NEXT
+</center>
+}
+}}
+$if{$or{$error,$and{$not{$cgi{ID}},$eq{$msize,0}}},
+$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form METHOD=GET ACTION="$html{$env{SCRIPT_NAME}}">}
+Inspect document # <INPUT NAME=ID SIZE=10>
+<INPUT TYPE=SUBMIT VALUE="Inspect">
+<hr>
+Inspect term <INPUT NAME=B SIZE=10>
+<INPUT TYPE=SUBMIT VALUE="Inspect">
+}
+$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
+$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
+<hr><div align=right><i><small>$html{$version}</small></i></div>
+</form>
+</body>
+</html>

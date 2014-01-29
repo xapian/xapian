@@ -1,0 +1,343 @@
+Wed May 25 03:32:42 GMT 2011  Charlie Hull <charlie@flax.co.uk>
+
+	* README: add details of patch to api/compactor.cc and diritor.h
+	* win32_backends_brass.mak, win32_backends_flint.mak,
+	  win32_backends_chert.mak: add brass_compact.cc etc.
+	* win32_api.mak: add compactor.cc
+	* win32_bin.mak: remove separate compactors and add
+	  xapian_chert_update.exe
+	* win32_bindings_csharp.mak: add Compactor.cs
+	* config.h.omega.win32: add PKGLIBBINDIR definitions
+	* win32_applications_omega.mak: add svgparse.cc, pkglibbindir.cc
+
+Fri Sep 03 13:35:00 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* README: remove details of some patches that are no longer necessary
+	* config.mak, win32_bindings_python.mak, makebinaries.py, Makefile:
+	add Python 2.7 support
+	* config.mak, win32_bindings_php.mak, makebinaries.py, Makefile:
+	add PHP 5.3 support, improve cleanup behaviour
+
+Wed Jul 14 15:59:00 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* win32_tests.mak: add unittest
+	* README: clarify deps.d and compilation errors behaviour, PCRE
+	requirements
+	* win32_common.mak, win32_backends_brass.cc, win32_matcher.cc:
+	remove omdebug.cc, brass_io.cc, rset.cc, localmatch.cc
+	* win32_matcher.cc: xorpostlist.cc now multixorpostlist.cc, add
+	localsubmatch.cc
+	* win32_tests.cc: add missing api_opvalue.cc, api_opsynonym.cc,
+	api_stem.cc
+	* win32_bindings_python.mak: copy test_xapian_star.py for testing
+	* win32_bindings_csharp.mak: add missing StemImplementation.cs
+	* win32_applications_omega: changed way .objs are listed to match 1.0
+	branch), add missing object files, add PCRE lib
+	* config.mak: add PCRE file locations
+	* win32_languages_mak: use SnowballStemImplementation
+
+Mon May 17 10:37:26 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	Patch from Charlie Hull:
+	* ChangeLog,Makefile,win32_api.mak,
+	  win32_applications_omega.mak,win32_backends.mak,
+	  win32_backends_brass.mak,win32_backends_chert.mak,
+	  win32_backends_flint.mak,win32_backends_inmemory.mak,
+	  win32_backends_multi.mak,win32_backends_quartz.mak,
+	  win32_backends_remote.mak,win32_common.mak,win32_examples.mak,
+	  win32_expand.mak,win32_getopt.mak,win32_languages.mak,
+	  win32_languages_compiler.mak,win32_matcher.mak,win32_net.mak,
+	  win32_queryparser.mak,win32_tests.mak,win32_unicode.mak,
+	  win32_weight.mak: build twice, once to calculate dependencies (#460)
+	* xapdep/xapdep.c: improve checking for redundant strings in dep file
+
+Thu Apr 15 14:31:56 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* win32_testsuite.mak: Patch from Charlie Hull: Tidy up order of
+	  files, and add fdtracker.obj and scalability.obj.
+
+Thu Mar 11 16:11:45 GMT 2010  Richard Boulton <richard@tartarus.org>
+
+	* xapdep/xapdep.mak: Remove duplicate version of contents.
+
+Tue Mar 09 10:58:52 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* xapdep/xapdep.c: Print object file on every line like Makedepend
+	  did, add quotes round dependencies to cope with Windows paths,
+	  remove old rename-in-place function.
+
+Mon Mar 08 06:26:13 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/README: Undouble contents (this file was in the patch twice).
+
+Mon Mar 08 06:11:10 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Fix O(n*n) behaviour we only needs to be O(n).
+
+Mon Mar 08 05:58:30 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Eliminate depbuf - a fixed sized buffer we probably
+	  can't overflow, but don't need to use.
+
+Mon Mar 08 05:54:36 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Eliminate objbuf - a fixed sized buffer we could
+	  overflow.
+
+Mon Mar 08 05:37:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* xapdep/xapdep.c: Remove a potential buffer overflow.
+
+Mon Mar 08 05:31:50 GMT 2010  Olly Betts <olly@survex.com>
+
+	* Makefile,README,config.mak,makedepend/,win32_api.mak,
+	  win32_applications_omega.mak,win32_backends.mak,
+	  win32_backends_chert.mak,win32_backends_flint.mak,
+	  win32_backends_inmemory.mak,win32_backends_multi.mak,
+	  win32_backends_quartz.mak,win32_backends_remote.mak,win32_bin.mak,
+	  win32_common.mak,win32_examples.mak,win32_expand.mak,
+	  win32_getopt.mak,win32_languages_compiler.mak,win32_matcher.mak,
+	  win32_net.mak,win32_perftest.mak,win32_queryparser.mak,
+	  win32_tests.mak,win32_testsuite.mak,win32_unicode.mak,
+	  win32_weight.mak,xapdep/README,xapdep/xapdep.c,xapdep/xapdep.mak:
+	  Apply Charlie's "xapdep" patch (ticket#239).
+
+Wed Mar 03 06:10:51 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Sync documentation of makebinaries.py from branches/1.0..
+	  Note that Python 3.0 is supported.
+
+Wed Mar 03 05:17:14 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: List run-time requirements (ticket#391).
+
+Wed Mar 03 05:11:58 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Don't mention libs internal to building the testsuite.  Links
+	  to xapian.org shouldn't have a ".php" extension now.
+
+Wed Mar 03 04:59:07 GMT 2010  Olly Betts <olly@survex.com>
+
+	* README: Remove mention of PHP4.
+
+Fri Feb 12 04:42:19 GMT 2010  Olly Betts <olly@survex.com>
+
+	* win32_bindings_python.mak: Update for generate-python-exception.in
+	  to generate-python-exceptions renaming (untested).  (ticket#367)
+
+Fri Feb 05 23:21:41 GMT 2010  Charlie Hull <charlie@lemurconsulting.com>
+
+	* win32_tests.mak: Correct $(INTDIR) to $(OUTDIR).  Add new apitest
+	  sources.  (ticket#441)
+
+Wed Feb 03 15:24:40 GMT 2010  Charlie Hull <charlie@flax.co.uk>
+
+	* Makefile,version.h.in,win32_testsuite.mak,config.mak: Add support
+	  for brass backend.
+	* win32_backends.mak: Add support for brass, and also add flint_lock.
+	* win32_backends_chert.mak: Remove references to chert_lock.
+	* win32_backends_flint.mak: Remove references to flint_lock.
+	* win32_tests.mak: Clean up existing test databases.
+	* win32_bin.mak: Update list of source files for xapian-compact and
+	  xapian-check, and add include path and libbrassbtreecheck
+	  library.
+
+Fri Nov 20 11:49:07 GMT 2009  Richard Boulton <richard@tartarus.org>
+
+	* win32_backends_multi.mak,win32_matcher.mak: Patch from Charlie to
+	  add valuestreamdocument.cc and multi_valuelist.cc to build.
+
+Tue Oct 27 16:17:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_applications_omega.mak: Remove dirent.cc, update path to
+	  getopt.cc, add freemem.cc, add mkdtemp.obj to OMINDEX objects,
+	  and rename UTF8TEST_OBJS to UTF8CONVERTTEST_OBJS.
+
+Fri Oct 16 09:04:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+	* config.h.win32,config.h.omega.win32: disable warning about macros
+	  with missing parameters.
+	* win32_tests.mak: add api_sortingold.cc
+	* win32_api.mak: remove sorter.cc, add keymaker.cc
+
+Mon Aug 24 10:40:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+	* Makefile: Remove rules to make generate-exceptions.
+	* win32_api.mak: Remove serialisationcontext.cc, add registry.cc
+
+Tue Aug 04 15:30:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+	* Makefile, win32_bindings_python.mak, config.mak, makebinaries.py:
+	  Add Python 2.6 option.
+
+Sun Aug 02 12:22:52 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_api.mak: Add matchspy files.
+
+Mon Jul 20 13:52:53 GMT 2009  Olly Betts <olly@survex.com>
+
+	* config.mak,win32_bindings_python.mak: Update to include Python 3.0
+	  support, ready for when then bindings support this.  From patch in
+	  ticket #346.
+
+Mon Jul 20 13:43:48 GMT 2009  Olly Betts <olly@survex.com>
+
+	* win32_api.mak: Update for added sources, from patch by Peter Kelm in
+	  ticket#346.
+
+Mon Jul 20 13:38:37 GMT 2009  Olly Betts <olly@survex.com>
+
+	* win32_matcher.mak: Update for removed sources, from patch by Peter
+	  Kelm in ticket#346.
+
+Fri May 08 12:55:32 GMT 2009  Olly Betts <olly@survex.com>
+
+	* config.mak,win32_bindings_python.mak,win32_tests.mak,
+	  win32_testsuite.mak: Update from Peter Kelm to work with SVN trunk
+	  (ticket#366).
+
+Tue May 05 12:42:26 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_matcher.mak: Add synoympostlist.cc to build.
+
+Fri May 01 15:40:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_tests.mak: Add api_replicate.cc and api_serialise.cc, and
+	  cleanup .obj files.
+
+Wed Apr 22 16:21:53 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* makebinaries.py,win32_tests.mak: Add a script and some changes to
+	  the test makefile which got missed out of the previous commit.
+
+Tue Apr 21 10:34:00 GMT 2009  Charlie Hull <charlie@lemurconsulting.com>
+
+	* config.h.omega.win32: Update version numbers
+	* win32_tests.mak: add some new tests and reformat for clarity
+	* Makefile: MAKEALLBINDINGS now depends on COPYMAKFILES
+	* config.h.omega.win32: define 'rare' and 'usual'
+	* makebinaries.py: fix quotes
+	* makedepend.mak, Makefile: CLEAN now also cleans makedepend
+
+Wed Mar 25 12:49:00 GMT 2009  Charlie Hull <charlie@lemurconsulting.com>
+
+	* win32_weight.mak,config.mak,Makefile: add new makefile for
+	  /weight folder
+	* win32_api.mak,win32_matcher.mak,win32_backend_chert.mak,
+	  win32_common.mak: correct file lists
+	* win32_bin.mak,config.mak: remove Quartz bits, add
+	  xapian-replicate and xapian-replicate-server
+
+Thu Mar 19 11:55:00 GMT 2009  Charlie Hull <charlie@lemurconsulting.com>
+
+	* config.mak, win32_bindings_python.mak: add ability to build two
+	  different Python versions, and add example files, and change
+	  BUILDDIST to DIST for consistency with other bindings
+	* setup.py: add example & documentation files for Python
+	* win32_bindings_php.mak,win32_bindings_csharp.mak,
+	  win32_bindings_java-swig.mak,win32_bindings_ruby.mak: add example
+	  & doc files where they exist and DIST build target
+	* win32_bindings_php.mak,win32_bindings_csharp.mak,win32_examples.mak,
+	  win32_bin.mak: add Manifests into .exe or .dll and remove
+	  separate manifest files
+	* Makefile: add MAKEALLBINDINGS target for building all bindings
+	* README: update for the above changes
+	* win32_applications_omega.mak: add new file for omindex
+	* config.h.omega.win32: Update version numbers, undefine rare()
+
+Mon Feb 16 12:02:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_bindings_csharp.mak: Remove doubled file contents.
+
+Mon Dec 22 16:50:55 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* version.rc.csharp,win32_bindings_csharp.mak: Add files missed
+	  from last commit.
+
+Mon Dec 22 16:49:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile,README,config.h.omega.win32,config.mak,genversion.pl,
+	  win32_api.mak,win32_backends.mak,win32_backends_chert.mak,
+	  win32_backends_flint.mak,win32_perftest.mak: Add C# bindings to
+	  build system, and update with new files for replication in
+	  xapian-core.
+
+Thu Dec 11 12:04:11 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_tests.mak: Add support for new test file, api_backend.cc
+
+Thu Nov 06 12:50:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_perftest.mak: Call collate-apitest in the new way.  Add
+	  libtest.lib.
+	* win32_tests.mak: Call collate-apitest in the
+	  new way.  Add api_spelling.cc.  Improve "nmake CLEAN" target.
+	* win32_api.mak: omvalueiterator.cc renamed to valueiterator.cc,
+	  add documentvaluelist.cc.
+	* win32_backends.mak: add dbfactory_remote.cc, valuelist.cc and
+	  slowvaluelist.cc.
+	* win32_backends_remote.mak: rename net_document.cc to
+	  remote-document.cc.
+	* config.mak: Change paths to XAPIAN_APPLICATIONS and
+	  XAPIAN_BINDINGS to be appropriate for a SVN checkout, rather than
+	  for unpacked tarballs.  Add rpcrt4.lib for UUID functions. Remove
+	  libquartz.lib, and add libchert.lib.
+	* win32_common.mak: Add win32_uuid.cc. (Not yet in trunk, but
+	  needed for windows compile - currently requires patch attached to
+	  bug #303.)
+	* config.h.win32: Update version numbers (to 1.1.0, to match
+	  configure.ac). Define 'usual' keyword to identity, since we don't
+	  have this in MSVC.
+
+Mon Sep 08 09:59:17 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* genversion.pl: Update to match new configure.ac (cope with the []'s
+	  which have been added).
+
+Wed Aug 20 09:31:47 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* README: Remove trailing whitespace.
+
+Thu Aug 14 15:42:00 GMT 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* win32_bindings_ruby.mak,config.mak,README,Makefile: Added new
+	  Ruby bindings makefile written by Zsolt Sz. Sztupák.  Update list
+	  of "what works" in README.
+
+Sun Jun 29 06:53:28 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* version.rc.java-swig,version.rc.php,version.rc.python: Change
+	  "Copyright ... Xapian" messages to a note to consult the source
+	  code - Xapian isn't a legal entity, so nothing can be "(C)
+	  Xapian".
+
+Wed Jun 25 13:18:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile: Patch from Charlie to fix some paths for "cd".
+
+Tue Jun 24 16:06:57 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* NEWS: Add note about Java-SWIG makefiles.
+
+Tue Jun 24 16:06:21 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_backends_chert.mak: Add chert_alldocsmodifiedpostlist
+	  source files.
+	* win32_testsuite.mak: Add backendmanager_remote source file.
+
+Thu Jun 05 17:29:16 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_expand.mak: Replace reference to expand.cc and expand.obj
+	  with esetinternal.cc and esetinternal.obj - expand.cc has now
+	  been removed, and esetinternal.cc added.
+
+Thu Jun 05 17:11:14 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* win32_bin.mak: Remove comments about the now removed quartz
+	  utilities, and a reference to them in the CLEAN rule.
+	* README: Remove trailing whitespace.  Clean up list of "what
+	  works".
+
+Thu Jun 05 17:04:26 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* Start of ChangeLog.

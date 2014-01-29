@@ -1,0 +1,5 @@
+SET(prefix "@prefix@")
+SET(exec_prefix "@exec_prefix@")
+SET(XAPIAN_LIBRARIES "@libdir@/libxapian@LIBRARY_VERSION_SUFFIX@@SHLIBEXT@" CACHE FILEPATH "Libraries for Xapian")
+SET(XAPIAN_INCLUDE_DIR "@incdir@" CACHE PATH "Include path for Xapian")
+SET(XAPIAN_FOUND "TRUE")

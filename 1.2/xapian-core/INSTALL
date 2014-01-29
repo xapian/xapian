@@ -1,0 +1,201 @@
+Welcome to Xapian
+=================
+
+Xapian's build system is built using GNU autoconf, automake, and libtool.
+If you've installed other Open Source projects from source, you should
+find yourself in familiar territory.  Building and installing involves
+the following 3 simple steps:
+
+ 1) Run "./configure", possibly with some extra arguments (see below)
+ 2) Run "make" to build Xapian
+ 3) Run "make install" to install Xapian
+
+Prerequisites
+=============
+
+You'll need to have zlib installed (http://www.zlib.net/) before you can build
+Xapian.  The zlib library is very widely used, so you'll probably have it
+installed already if you're using Linux, FreeBSD, or similar, but you may need
+to install a "zlib development" package to get the zlib library headers.
+
+We recommend using zlib 1.2.x as it apparently fixes a memory leak in
+deflateInit2 (which Xapian uses) and decompression is supposed to be about 20%
+faster than with 1.1.x, but it's pretty unlikely you'll have an older version
+installed these days.
+
+Xapian 1.1.0 and higher also requires a library which can generate UUIDs.
+On FreeBSD, NetBSD, and Microsoft Windows, Xapian makes use of built-in UUID
+APIs.  On other platforms, you need to install libuuid which you can find in
+util-linux-ng (http://userweb.kernel.org/~kzak/util-linux-ng/).  On Debian and
+Ubuntu, the package to install is uuid-dev, while on Fedora, it is
+libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
+
+Compilers
+=========
+
+We aim to support compilation with any C++ compiler which conforms to ISO C++,
+or a reasonable approximation to it.
+
+If you're using MS Visual C++, see the Xapian download page for a link to
+a set of suitable makefiles: http://xapian.org/download
+
+If you're using GCC, we currently recommend GCC 4.1 or newer (this is the
+oldest version we regularly test with).
+
+The minimum required GCC version is 3.1 (2.95.2 and earlier don't have
+the <sstream> header; 3.0 adds support for the <limits> header and has
+<streambuf> as well as <streambuf.h>, but widespread adoption of GCC3
+didn't happen until after 3.0, and 3.1 was released on 2002-05-15 so
+we now require this as it eliminates some preprocessor conditionals which we
+aren't able to test regularly as we don't have easy access to such old GCC
+versions).  If you really still need to use an older version of GCC, Xapian
+1.0.x should build with GCC 2.95.3 or GCC 3.0.x.
+
+When using HP's aCC, Xapian must be compiled with -AA ("ANSI mode"), which
+xapian-core's configure automatically detects and passes.  This means your code
+must also be compiled with -AA (and "xapian-config --cxxflags" will include
+"-AA" automatically in this situation).  Compiling with -AP (non-ANSI mode)
+would require adjusting Xapian away from standard ISO C++, and is only required
+if you need to link to Xapian and another library not available in -AA form.
+HP recommend ISVs to supply libraries in -AA form, so this isn't a likely
+scenario.
+
+When building on IRIX with SGI's compiler, Omega has to be built with "-ptused"
+in CXXFLAGS (this is now added automatically by Omega's configure).  You may
+need to do the same when building your own applications.  We don't fully
+understand the issues here yet, but perhaps "-ptused" should be automatically
+set by xapian-config.  Feedback from developers on IRIX is invited.
+
+Multi-Arch
+==========
+
+When using GCC on platforms which support multiple architecture, the simplest
+way to select a non-default architecture is to pass a CXX setting to configure
+which includes the appropriate -m option - e.g. to build for x86 on x86-64
+you would configure with:
+
+./configure CXX='g++ -m32'
+
+Building in a separate directory
+================================
+
+If you wish to perform your build in a separate directory from the source,
+create and change to the build directory, and run the configure script (in
+the source directory) from the build directory, like so:
+
+  mkdir BUILD
+  cd BUILD
+  ../configure
+
+IRIX make doesn't handle this correctly - either build in the source tree or
+use "smake -M" (or better still, just use GNU make if you have it installed!)
+
+Options to give to configure
+============================
+
+--enable-assertions
+	You should use this to build a version of Xapian with many internal
+	consistency checks.  This will run more slowly, but is useful if you
+	suspect a bug in Xapian.
+
+--enable-backend-brass
+--enable-backend-chert
+--enable-backend-flint
+--enable-backend-inmemory
+--enable-backend-remote
+	These options enable (or disable if --disable-backend-XXX is specified)
+	the compiling of each backend (database access methods).  By default,
+	all backends for which the appropriate libraries and OS support are
+	available will be enabled.
+
+_FORTIFY_SOURCE
+---------------
+
+When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
+set to 2.  This enables some compile time and runtime checking of values passed
+to library functions when building with GCC >= 4.1 and glibc >= 2.34 (some
+Linux distros may have backported support to older GCC and/or glibc).  If you
+wish to disable this for any reason, you can just configure like so:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
+
+Or you can set the "fortification level" to 1 instead of 2:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
+
+-Bsymbolic-functions
+--------------------
+
+When compiling with GCC and using a sufficiently new version of ld, configure
+we automatically cause -Wl,-Bsymbolic-functions to be used when linking the
+library.  This causes all references from inside the library to symbols inside
+the library to be resolved when the library is created, rather than when the
+shared library is loaded, which decreases the time taken to load the library,
+reduces its size, and is also likely to make the code run a little faster.
+
+Should you wish to disable this for some reason, you can configure like so
+which disables the probe for -Bsymbolic-functions so it won't ever be used:
+
+./configure xo_cv_symbolic_functions=no
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
+
+-fvisibility
+------------
+
+When compiling with GCC >= 4.0 for platforms which support symbol visibility,
+we automatically pass -fvisibility=hidden to g++ when building the library, and
+mark classes, methods, and functions which need exporting with attributes to
+make them visible.
+
+Should you wish to disable this for some reason, you can configure like so:
+
+./configure --disable-visibility
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
+
+Compiling with STLport
+======================
+
+C++ implementations have improved significantly since we started writing
+Xapian, and these days the STL which comes with your compiler should work well.
+
+But if you wish, you can use STLport instead.  STLport is a freely available
+replacement C++ STL implementation, downloadable from:
+
+http://stlport.sourceforge.net/
+
+To compile with STLport:
+
+ 1) Install STLport, either from a package if your operating system has one,
+    or by downloading the source, and compiling and installing it.
+
+ 2) Tell Xapian to use STLport when you configure in, like so:
+
+    ./configure CXXFLAGS='-I/usr/include/stlport -pthread' LDFLAGS=-lstlport
+
+    Replace /usr/include/stlport with the path to the STLport headers if they
+    are in a different location.
+
+ 3) Compile Xapian as normal, by running make.
+
+ 4) You'll also need to compile code which uses Xapian with STLport, by
+    arranging for the options above to be passed to the compiler when you
+    compile and link that code.
+
+Note that, unless you compile statically, you must make sure that the
+STLport library is on the library path at runtime.  If it isn't by
+default, on Linux you could do this by setting the LD_LIBRARY_PATH environment
+variable to point to the directory containing the STLport library.
+
+Developers
+==========
+
+There are additional scripts and configure options to help people doing
+development work on Xapian itself, and people who are building from git.
+Read HACKING to find out about them.

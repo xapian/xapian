@@ -1,0 +1,60 @@
+#!/bin/sh
+# @configure_input@
+#
+# Wrapper script for running xapian-progsrv and xapian-tcpsrv from test
+# programs (using libtool and valgrind if required).
+#
+# We use this wrapper script so that we can run the remote servers under
+# valgrind if required.  This is needed on x86 when the testsuite is using
+# valgrind and we were told to build the library without SSE instructions.
+# The issue is that valgrind's emulation of excess FP precision isn't exact,
+# which causes test failures.
+#
+# We don't actually need valgrind's checking here, so we use "--tool=none"
+# which is much quicker than using valgrind's default memcheck tool.
+#
+# Copyright (C) 2003,2004,2007,2009,2012 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+if test 0 = "$#"; then
+   echo "syntax: $0 <remote backend server program> <arguments>"
+   exit 1
+fi
+
+# Just run the server if valgrind's imperfect x87 emulation isn't an issue.
+[ "x@FP_EXCESS_PRECISION@" = "xno" ] && exec "$@"
+
+# Set srcdir if it isn't already.
+: ${srcdir="@srcdir@"}
+export srcdir
+
+# We're only run from BackendManager if it's running under valgrind, so if
+# we can't find valgrind, something is wrong.
+test -z "${VALGRIND+set}" && VALGRIND="@VALGRIND@"
+if test -z "$VALGRIND" ; then
+    echo "VALGRIND not set"
+    exit 1
+fi
+
+# Get libtool to run the test program under valgrind.  We have to use
+# libtool --mode=execute because we want to run valgrind on the compiled
+# C++ test program, not on the shell running the shell script wrapper libtool
+# generates.
+LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),@top_builddir@,g'`
+
+vg_opts='-q --tool=none'
+exec $LIBTOOL --mode=execute $VALGRIND $vg_opts "$@"

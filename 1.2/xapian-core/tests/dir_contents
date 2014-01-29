@@ -1,0 +1,6 @@
+<Directory>tests</Directory>
+
+<Description>
+This directory contains various test programs which exercise most parts of
+the Xapian library.
+</Description>

@@ -1,0 +1,150 @@
+#!@PERL@ -w
+# gen_codestructure_doc - generate code_structure.html from dir_contents files
+#
+# Copyright (C) 2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+use strict;
+use POSIX;
+
+if (scalar @ARGV < 2) {
+    die "usage: gen_codestructure_doc <output> <root input> [<input>...]\n";
+}
+
+my $output = shift @ARGV;
+my $version = html_escape("@PACKAGE_STRING@");
+
+my %desc = ();
+my $rootdir = $ARGV[0];
+$rootdir =~ s![^/]+$!!;
+for my $dir_contents (@ARGV) {
+    open DIR_CONTENTS, "<$dir_contents" or die "$dir_contents: $!\n";
+    local $/ = undef;
+    my $xml = <DIR_CONTENTS>;
+    close DIR_CONTENTS;
+
+    my ($xmldir) = ($xml =~ m!<Directory>\s*(\S+)\s*</Directory>!);
+    if (!defined $xmldir) {
+	die "$dir_contents: No valid <Directory> tag found\n";
+    }
+    if ($xmldir eq "ROOT") {
+	$xmldir = "";
+    }
+    my $dir = $dir_contents;
+    unless ($dir =~ s!^\Q$rootdir\E!!) {
+	die "$dir_contents: not under `$rootdir'.\n";
+    }
+    $dir =~ s![^/]+$!!;
+    $dir =~ s!/$!!;
+    if ($dir ne $xmldir) {
+	die "$dir_contents: File is in `$dir', but <Directory> says `$xmldir'\n";
+    }
+    my ($desc) = ($xml =~ m!<Description>\s*(.*?)\s*</Description>!s);
+    if (!defined $desc) {
+	die "$dir_contents: No valid <Description> tag found\n";
+    }
+    $desc{$dir} = $desc;
+}
+
+my $output_tmp = $output . "T";
+open OUTPUT, ">$output_tmp" or die "$output_tmp: $!\n";
+
+print OUTPUT <<EOF;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- automatically generated from $version source code -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Xapian: Code structure</title>
+</head>
+<body bgcolor="white" text="black">
+<h1>Index</h1>
+EOF
+
+my $depth = -1;
+for my $dir (sort keys(%desc)) {
+    my $tmp = $dir;
+    my $d = $tmp =~ s!/!!g;
+    if ($d <= $depth) {
+	print OUTPUT "</ul>\n" x ($depth - $d);
+    } else {
+	print OUTPUT "<ul>\n" x ($d - $depth);
+    }
+    $depth = $d;
+    if ($dir eq "") {
+       	$dir = "ROOT";
+    }
+    my $id = $dir;
+    $id =~ s!_!__!g;
+    $id =~ s!/+!_!g;
+    print OUTPUT "<li><a href=\"#$id\">$dir</a>\n";
+}
+if ($depth >= 0) {
+    print OUTPUT "</ul>\n" x ($depth + 1);
+}
+print OUTPUT "<hr>\n";
+
+print OUTPUT "<h1>Directory structure</h1>\n";
+
+foreach my $dir (sort keys(%desc)) {
+    my $desc = $desc{$dir};
+    my $tmp = $dir;
+    my $d = $tmp =~ s!/!!g;
+    $d += 2;
+    if ($d > 6) {
+       $d = 6;
+    }
+    my $url = "http://trac.xapian.org/browser/tags/@VERSION@/xapian-core/$dir";
+    if ($dir eq "") {
+       	$dir = "ROOT";
+    } else {
+	$url .= "/";
+    }
+    my $id = $dir;
+    $id =~ s!_!__!g;
+    $id =~ s!/+!_!g;
+    print OUTPUT "<div id=\"$id\">\n";
+    print OUTPUT "<h$d><a href=\"$url\">$dir</a></h$d>\n";
+    print OUTPUT "<p>", html_escape($desc), "</p>\n";
+    print OUTPUT "</div>\n\n";
+}
+
+my $date = POSIX::strftime("%Y-%m-%d", gmtime());
+
+print OUTPUT <<EOF;
+<hr>
+<address>
+Generated for $version on $date by gen_codestructure_doc.
+</address>
+</body>
+</html>
+EOF
+
+unless (close OUTPUT) {
+    my $bang = $!;
+    unlink $output_tmp;
+    die "$output_tmp: $bang\n";
+}
+rename $output_tmp, $output or die "$output: $!\n";
+
+sub html_escape {
+  my $s = shift;
+  $s =~ s/&/&amp;/g;
+  $s =~ s/</&lt;/g;
+  $s =~ s/>/&gt;/g;
+  $s =~ s/\n\n/\n\n<p>/g;
+  return $s;
+}
