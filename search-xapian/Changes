@@ -1,5 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.17.0  Wed Jan 29 00:00:00 UTC 2014
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.17.
+
 1.2.16.0  Wed Dec  4 00:00:00 UTC 2013
 	[Changes contributed by Olly Betts]
 	- t/symbol-test/Makefile.PL: Pass $CPPFLAGS and $CXXFLAGS from the
