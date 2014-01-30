@@ -1,2 +1,2 @@
 version=3
-http://xapian.org/download http://oligarchy.co.uk/xapian/(\d+\.\d*[02468]\.[\d.]+)/xapian-bindings-\1\.tar\.(?:xz|bz2|gz)
+opts="pgpsigurlmangle=s/$/.asc/" http://xapian.org/download http://oligarchy.co.uk/xapian/(\d+\.\d*[02468]\.[\d.]+)/xapian-bindings-\1\.tar\.(?:xz|bz2|gz)

@@ -55,8 +55,10 @@ rubyarchdir := vendorarchdir
 ifeq ($(findstring .$(CODENAME)., .saucy.trusty.), )
 # Ruby 1.8 should be gone in jessie.
 RUBY_VERSIONS := 1.9.1 2.0
+RUBY_PROVIDES := libxapian-ruby1.9.1
 else
 RUBY_VERSIONS := 1.8 1.9.1 2.0
+RUBY_PROVIDES := libxapian-ruby1.8, libxapian-ruby1.9.1
 endif
 else
 # For old ruby policy:
@@ -202,18 +204,21 @@ debian/control: debian/rules debian/control.in
 	# special to dh_installdocs. (#722096)
 ifdef XB_RUBY_VERSIONS
 	sed -e 's/@XB_RUBY_VERSIONS@/$(XB_RUBY_VERSIONS)/g' \
+	    -e 's/@RUBY_PROVIDES@/$(RUBY_PROVIDES)/g' \
 	    < debian/control-ruby-new.in >> debian/control.tmp
 	cp debian/ruby-xapian.d-b.in debian/ruby-xapian.doc-base
 	cp debian/ruby-xapian.install.in debian/ruby-xapian.install
 	for v in $(RUBY_VERSIONS); do \
 	    if test $$v = 2.0 ; then \
-		echo 'usr/lib/*/ruby/vendor_ruby/*/_xapian.so' >> debian/ruby-xapian.install ; \
+		echo 'usr/lib/*/ruby/vendor_ruby/*/_xapian.so' >> debian/ruby-xapian.install ;\
 	    else \
 		sed -e "s/@PACKAGE@/libxapian-ruby$$v/" \
 		    -e 's/@TARGET@/ruby-xapian/' \
 		    < debian/dummy.postinst.in \
 		    > debian/libxapian-ruby$$v.postinst ;\
 	    fi ;\
+	    sed -e "s/@RUBY_VERSION@/$$v/g" \
+		< debian/control-ruby-new-oldlib.in >> debian/control.tmp ;\
 	done
 else
 	for v in $(RUBY_VERSIONS); do \
@@ -263,8 +268,7 @@ configure-stamp:
 		--docdir=/usr/share/doc/xapian-bindings-ruby$$v \
 		RUBY=$$RUBY \
 		RUBY_LIB=`$$RUBY -rrbconfig -e 'puts RbConfig::CONFIG["$(rubylibdir)"]'` \
-		RUBY_LIB_ARCH=`$$RUBY -rrbconfig -e 'puts RbConfig::CONFIG["$(rubyarchdir)"]'` \
-		RUBY_INC_ARCH=`$$RUBY -rrbconfig -e 'd = RbConfig::CONFIG["rubyhdrdir"]; print RbConfig::CONFIG["rubyarchhdrdir"] || (d ? d + "/" + RbConfig::CONFIG["arch"] : RbConfig::CONFIG["archdir"])'`; \
+		RUBY_LIB_ARCH=`$$RUBY -rrbconfig -e 'puts RbConfig::CONFIG["$(rubyarchdir)"]'`; \
 	    cd ../../..; \
 	done
 
