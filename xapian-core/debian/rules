@@ -199,7 +199,7 @@ ifdef XAPIAN_BUILD_SSE
 endif
 
 	# Empty dependency_libs to placate luddite release goal.
-	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libxapian.la
+	sed -i 's/^\(dependency_libs=\).*/\1/' $(CURDIR)/debian/tmp/usr/lib/libxapian*.la
 
 	# Install the example source code
 	mkdir -p debian/tmp/usr/share/doc/xapian-examples/examples
