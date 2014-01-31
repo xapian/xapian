@@ -8,7 +8,7 @@ xapian-bindings (1.2.17-1) unstable; urgency=medium
   * debian/watch: Add pgpsigurlmangle setting to automatically verify
     detached GPG signatures on upstream release tarballs.
 
- -- Olly Betts <olly@survex.com>  Fri, 31 Jan 2014 10:09:07 +1300
+ -- Olly Betts <olly@survex.com>  Fri, 31 Jan 2014 14:57:39 +1300
 
 xapian-bindings (1.2.16-2) unstable; urgency=low
 

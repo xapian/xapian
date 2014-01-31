@@ -208,17 +208,20 @@ ifdef XB_RUBY_VERSIONS
 	    < debian/control-ruby-new.in >> debian/control.tmp
 	cp debian/ruby-xapian.d-b.in debian/ruby-xapian.doc-base
 	cp debian/ruby-xapian.install.in debian/ruby-xapian.install
+	t=x ;\
 	for v in $(RUBY_VERSIONS); do \
-	    if test $$v = 2.0 ; then \
-		echo 'usr/lib/*/ruby/vendor_ruby/*/_xapian.so' >> debian/ruby-xapian.install ;\
-	    else \
+	    case $$v$$t in \
+	    1.*) \
 		sed -e "s/@PACKAGE@/libxapian-ruby$$v/" \
 		    -e 's/@TARGET@/ruby-xapian/' \
 		    < debian/dummy.postinst.in \
 		    > debian/libxapian-ruby$$v.postinst ;\
-	    fi ;\
-	    sed -e "s/@RUBY_VERSION@/$$v/g" \
-		< debian/control-ruby-new-oldlib.in >> debian/control.tmp ;\
+		sed -e "s/@RUBY_VERSION@/$$v/g" \
+		    < debian/control-ruby-new-oldlib.in >> debian/control.tmp ;;\
+	    *x) \
+		t= ;\
+		echo 'usr/lib/*/ruby/vendor_ruby/*/_xapian.so' >> debian/ruby-xapian.install ;;\
+	    esac ;\
 	done
 else
 	for v in $(RUBY_VERSIONS); do \
