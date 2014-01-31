@@ -41,7 +41,7 @@ BUILD_DEPS := debhelper (>= 7.0.50~),
 
 # Disabled due to incompatibility of GPL and PHP licence.  Uncomment to build
 # your own binary packages (just don't distribute them!)
-# PHP_VERSIONS := 5
+PHP_VERSIONS := 5
 
 # Be conservative for now and leave backported versions on old ruby policy.
 ifeq ($(findstring .$(CODENAME)., .lucid.precise.quantal.raring.squeeze.wheezy.), )
