@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -1211,7 +1211,6 @@ main(int argc, char **argv)
     mime_map["potm"] = "application/vnd.openxmlformats-officedocument.presentationml.template";
 
     // Some other word processor formats:
-    mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
     mime_map["wpd"] = "application/vnd.wordperfect";
     mime_map["wps"] = "application/vnd.ms-works";
@@ -1219,6 +1218,9 @@ main(int argc, char **argv)
     mime_map["abw"] = "application/x-abiword"; // AbiWord
     mime_map["zabw"] = "application/x-abiword-compressed"; // AbiWord compressed
     mime_map["rtf"] = "text/rtf";
+    // Leave .doc files to libmagic, as they may actually be RTF (AbiWord
+    // actually saves RTF when asked to save as .doc, and Microsoft Word
+    // quietly loads RTF files with a .doc extension), or plain-text.
 
     // Other MS formats:
     mime_map["xls"] = "application/vnd.ms-excel";

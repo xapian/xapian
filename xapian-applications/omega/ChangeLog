@@ -1,3 +1,9 @@
+Wed Feb 12 05:24:23 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Don't assume .doc is
+	  application/msword but let libmagic decide, as .doc may actually be
+	  RTF, and also it's sometimes used for plain-text files.
+
 Tue Dec 31 20:20:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* timegm.cc: Fix typo.
