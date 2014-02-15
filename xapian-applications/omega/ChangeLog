@@ -1,3 +1,7 @@
+Sat Feb 15 00:58:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Wed Feb 12 05:24:23 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Don't assume .doc is
