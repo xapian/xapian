@@ -7,10 +7,10 @@ TESTS = smoketest.py pythontest.py
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
 	srcdir='$(srcdir)' ;\
-	PYTHON='$(PYTHON3)' ;\
+	PYTHON3='$(PYTHON3)' ;\
 	export abs_builddir ;\
 	export srcdir ;\
-	export PYTHON ;
+	export PYTHON3 ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
 # FIXME: replicationtest.py attempts to test performing replication whilst

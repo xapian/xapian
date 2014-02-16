@@ -1,3 +1,9 @@
+Wed Jan 29 04:01:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/Makefile.am,python3/run-python-test: Pass Python 3
+	  interpreter as PYTHON3 not PYTHON, and default to python3 if not
+	  specified.
+
 Fri Jan 10 09:00:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Update for xapian-core Database::check() optional
