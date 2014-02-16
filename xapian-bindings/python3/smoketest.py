@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -99,22 +99,38 @@ def test_all():
     expect_query(xapian.Query(xapian.Query.OP_VALUE_RANGE, 0, b'1', b'4'),
                  "VALUE_RANGE 0 1 4")
 
-    # Check database factory functions are wrapped as expected:
+    # Check database factory functions are wrapped as expected (or not wrapped
+    # in the first cases):
+
+    expect_exception(AttributeError, "'module' object has no attribute 'open_stub'",
+            lambda : xapian.open_stub(b"nosuchdir/nosuchdb"))
+    expect_exception(AttributeError, "'module' object has no attribute 'open_stub'",
+            lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
+
+    expect_exception(AttributeError, "'module' object has no attribute 'brass_open'",
+            lambda : xapian.brass_open(b"nosuchdir/nosuchdb"))
+    expect_exception(AttributeError, "'module' object has no attribute 'brass_open'",
+            lambda : xapian.brass_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
+
+    expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
+            lambda : xapian.chert_open(b"nosuchdir/nosuchdb"))
+    expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
+            lambda : xapian.chert_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
 
     expect_exception(xapian.DatabaseOpeningError, None,
-                     xapian.open_stub, b"nosuchdir/nosuchdb")
+            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB))
     expect_exception(xapian.DatabaseOpeningError, None,
-                     xapian.open_stub, b"nosuchdir/nosuchdb", xapian.DB_OPEN)
+            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB))
 
     expect_exception(xapian.DatabaseOpeningError, None,
-                     xapian.brass_open, b"nosuchdir/nosuchdb")
+            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_BRASS))
     expect_exception(xapian.DatabaseCreateError, None,
-                     xapian.brass_open, b"nosuchdir/nosuchdb", xapian.DB_CREATE)
+            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_BRASS))
 
     expect_exception(xapian.DatabaseOpeningError, None,
-                     xapian.chert_open, b"nosuchdir/nosuchdb")
+            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_CHERT))
     expect_exception(xapian.DatabaseCreateError, None,
-                     xapian.chert_open, b"nosuchdir/nosuchdb", xapian.DB_CREATE)
+            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_CHERT))
 
     expect_exception(xapian.NetworkError, None,
                      xapian.remote_open, b"/bin/false", b"")

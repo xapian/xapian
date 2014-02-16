@@ -1,3 +1,12 @@
+Sun Feb 16 05:51:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/python.i: Update (no longer recognised)
+	  XAPIAN_BINDINGS_SKIP_BRASS_AND_CHERT_FACTORIES to
+	  XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES so deprecated db
+	  factories aren't wrapped.
+	* python3/smoketest.py: Update testcases to test factories which
+	  shouldn't be wrapped aren't, and that the replacements work.
+
 Wed Jan 29 04:01:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python3/Makefile.am,python3/run-python-test: Pass Python 3
