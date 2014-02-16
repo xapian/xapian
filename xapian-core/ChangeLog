@@ -1,3 +1,8 @@
+Sun Feb 16 04:53:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Add some missing shell quoting identified by
+	  shellcheck.
+
 Sun Feb 16 00:53:01 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/quickstart.rst: Split --cxxflags and --libs for portability
