@@ -1,3 +1,8 @@
+Sun Feb 16 00:53:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.rst: Split --cxxflags and --libs for portability
+	  (noted by "Hurricane Tong" on xapian-devel).
+
 Sat Feb 15 04:59:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/glossary.rst: Add definition of "collection frequency".

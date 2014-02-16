@@ -490,8 +490,8 @@ Once you know the compilation flags, compilation is a simple matter of
 invoking the compiler! For our example, we could compile the two
 utilities (quickstartindex and quickstartsearch) with the commands::
 
-    c++ quickstartindex.cc `xapian-config --libs --cxxflags` -o quickstartindex
-    c++ quickstartsearch.cc `xapian-config --libs --cxxflags` -o quickstartsearch
+    c++ `xapian-config --cxxflags` quickstartindex.cc `xapian-config --libs` -o quickstartindex
+    c++ `xapian-config --cxxflags` quickstartsearch.cc `xapian-config --libs` -o quickstartsearch
 
 --------------
 
