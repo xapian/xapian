@@ -1,3 +1,8 @@
+Mon Feb 17 05:02:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* README: Note that C# bindings now need .NET 2 or later (because
+	  that's what SWIG-generated code now requires).
+
 Mon Feb 17 04:16:07 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Add missing "exit(1);" after check that
