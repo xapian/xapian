@@ -241,6 +241,7 @@ if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
     }
     if ($mset->get_docid(0) != 2) {
 	print "MatchDecider mset has wrong docid in\n";
+	exit(1);
     }
 }
 

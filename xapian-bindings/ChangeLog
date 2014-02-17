@@ -1,3 +1,8 @@
+Mon Feb 17 04:16:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add missing "exit(1);" after check that
+	  MatchDecider returns an MSet with the expected docid in.
+
 Sun Feb 16 05:51:00 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python3/python.i: Update (no longer recognised)
