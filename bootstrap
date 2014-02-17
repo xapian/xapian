@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from git to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -283,7 +283,7 @@ END
 	    mv swig swig.git-svn.old
 	  fi
 	  swig_origin_url=git://github.com/swig/swig.git
-	  handle_git_external swig b0b8d4c87e0077baccf770441768f5ad3b15dcd3 "$swig_origin_url"
+	  handle_git_external swig d7f91bc47a98f5b2afa71315e8c7636c3a029be5 "$swig_origin_url"
 	  ;;
 	/*)
 	  path=`echo "$path"|sed 's,^/,,'`
