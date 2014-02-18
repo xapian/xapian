@@ -1,3 +1,7 @@
+Tue Feb 18 02:09:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Avoid '//' in temporary filename (cosmetic only).
+
 Sat Feb 15 00:58:53 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

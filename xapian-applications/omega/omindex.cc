@@ -511,7 +511,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip(file, msg);
 		return;
 	    }
-	    tmpfile += "/tmp.pdf";
+	    tmpfile += "tmp.pdf";
 	    string cmd = "ps2pdf";
 	    append_filename_argument(cmd, file);
 	    append_filename_argument(cmd, tmpfile);
