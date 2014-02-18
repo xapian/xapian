@@ -1,3 +1,8 @@
+Tue Feb 18 01:33:28 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Move comment to in front of the function it
+	  is actually talking about.
+
 Sun Feb 16 04:53:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Add some missing shell quoting identified by
