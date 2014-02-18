@@ -502,7 +502,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    // some Chinese PostScript files I found using Google.  It also has
 	    // the benefit of allowing us to extract meta information from
 	    // PostScript files.
-	    string tmpfile = get_tmpdir();
+	    string tmpfile = get_tmpfile("tmp.pdf");
 	    if (tmpfile.empty()) {
 		// FIXME: should this be fatal?  Or disable indexing postscript?
 		string msg = "Couldn't create temporary directory (";
@@ -511,7 +511,6 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip(file, msg);
 		return;
 	    }
-	    tmpfile += "tmp.pdf";
 	    string cmd = "ps2pdf";
 	    append_filename_argument(cmd, file);
 	    append_filename_argument(cmd, tmpfile);

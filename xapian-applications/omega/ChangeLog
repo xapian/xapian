@@ -1,3 +1,7 @@
+Tue Feb 18 05:04:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc,tmpdir.h: Add get_tmpfile() helper function.
+
 Tue Feb 18 02:09:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Avoid '//' in temporary filename (cosmetic only).
