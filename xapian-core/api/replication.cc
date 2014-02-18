@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -328,8 +328,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  last_live_changeset_time(), conn(NULL)
 {
     LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
-#if ! defined XAPIAN_HAS_CHERT_BACKEND
-    throw FeatureUnavailableError("Replication requires the Chert backend to be enabled");
+#if !defined XAPIAN_HAS_CHERT_BACKEND && !defined XAPIAN_HAS_BRASS_BACKEND
+    throw FeatureUnavailableError("Replication requires at least one of the chert or brass backends to be enabled");
 #else
     if (mkdir(path.c_str(), 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a
