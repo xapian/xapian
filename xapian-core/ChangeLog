@@ -1,3 +1,8 @@
+Wed Feb 19 06:50:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/sorting.rst: Fix incorrect parameter types in Xapian::Weight
+	  subclass example.
+
 Tue Feb 18 23:34:19 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/replication.cc: Fix conditional for enabling replication code
