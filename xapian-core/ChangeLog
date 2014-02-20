@@ -1,3 +1,7 @@
+Thu Feb 20 00:34:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: makeindex is now in Debian package texlive-binaries.
+
 Wed Feb 19 06:50:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/sorting.rst: Fix incorrect parameter types in Xapian::Weight
