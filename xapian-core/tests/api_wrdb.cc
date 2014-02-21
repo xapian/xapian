@@ -29,6 +29,7 @@
 
 #include <xapian.h>
 
+#include "filetests.h"
 #include "omassert.h"
 #include "str.h"
 #include "testsuite.h"
@@ -1510,6 +1511,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 	TEST_EQUAL(dbr.get_doccount(), 0);
 
 	// Xapian::Database has full set of baseA, no baseB
+	TEST(file_exists(path + "/postlist.baseA"));
+	TEST(file_exists(path + "/record.baseA"));
+	TEST(file_exists(path + "/termlist.baseA"));
+	TEST(!file_exists(path + "/postlist.baseB"));
+	TEST(!file_exists(path + "/record.baseB"));
+	TEST(!file_exists(path + "/termlist.baseB"));
 
 	db.add_document(doc);
 	db.commit();
@@ -1517,6 +1524,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 	TEST_EQUAL(dbr.get_doccount(), 1);
 
 	// Xapian::Database has full set of baseB, old baseA
+	TEST(file_exists(path + "/postlist.baseA"));
+	TEST(file_exists(path + "/record.baseA"));
+	TEST(file_exists(path + "/termlist.baseA"));
+	TEST(file_exists(path + "/postlist.baseB"));
+	TEST(file_exists(path + "/record.baseB"));
+	TEST(file_exists(path + "/termlist.baseB"));
 
 	db.add_document(doc);
 	db.commit();
@@ -1524,6 +1537,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 	TEST_EQUAL(dbr.get_doccount(), 2);
 
 	// Xapian::Database has full set of baseA, old baseB
+	TEST(file_exists(path + "/postlist.baseA"));
+	TEST(file_exists(path + "/record.baseA"));
+	TEST(file_exists(path + "/termlist.baseA"));
+	TEST(file_exists(path + "/postlist.baseB"));
+	TEST(file_exists(path + "/record.baseB"));
+	TEST(file_exists(path + "/termlist.baseB"));
 
 	// Simulate a transaction starting, some of the baseB getting removed,
 	// but then the transaction fails.
@@ -1536,6 +1555,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 
     Xapian::WritableDatabase db(path, Xapian::DB_OPEN);
     // Xapian::Database has full set of baseA, some old baseB
+    TEST(file_exists(path + "/postlist.baseA"));
+    TEST(file_exists(path + "/record.baseA"));
+    TEST(file_exists(path + "/termlist.baseA"));
+    TEST(file_exists(path + "/postlist.baseB"));
+    TEST(!file_exists(path + "/record.baseB"));
+    TEST(!file_exists(path + "/termlist.baseB"));
     Xapian::Database dbr = Xapian::Database(path);
 
     db.add_document(doc);
@@ -1544,6 +1569,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
     TEST_EQUAL(dbr.get_doccount(), 3);
 
     // Xapian::Database has full set of baseB, old baseA
+    TEST(file_exists(path + "/postlist.baseA"));
+    TEST(file_exists(path + "/record.baseA"));
+    TEST(file_exists(path + "/termlist.baseA"));
+    TEST(file_exists(path + "/postlist.baseB"));
+    TEST(file_exists(path + "/record.baseB"));
+    TEST(file_exists(path + "/termlist.baseB"));
 
     db.add_document(doc);
     db.commit();

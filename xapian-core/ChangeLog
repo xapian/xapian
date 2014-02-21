@@ -1,3 +1,8 @@
+Fri Feb 21 01:21:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Expand crashrecovery1 to check that the expected
+	  base files exist and ones which shouldn't exist don't.
+
 Thu Feb 20 00:34:47 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: makeindex is now in Debian package texlive-binaries.
