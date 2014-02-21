@@ -1,3 +1,8 @@
+Fri Feb 21 07:26:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix Ruby bindings to build on Windows (and other
+	  platforms where allow_undefined_flag=unsupported. (fixes#634)
+
 Mon Feb 17 05:02:47 GMT 2014  Olly Betts <olly@survex.com>
 
 	* README: Note that C# bindings now need .NET 2 or later (because
