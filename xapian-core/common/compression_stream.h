@@ -2,7 +2,7 @@
  * @brief class wrapper around zlib
  */
 /* Copyright (C) 2012 Dan Colish
- * Copyright (C) 2012,2013 Olly Betts
+ * Copyright (C) 2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ class CompressionStream {
     void lazy_alloc_inflate_zstream() const;
 
     void compress(std::string &);
-    void compress(byte *, int);
+    void compress(const byte *, int);
 };
 
 #endif // XAPIAN_INCLUDED_COMPRESSION_STREAM_H

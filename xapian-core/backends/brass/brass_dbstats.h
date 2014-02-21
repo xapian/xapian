@@ -1,7 +1,7 @@
 /** @file brass_dbstats.h
  * @brief Brass class for database statistics.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2014 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ class BrassDatabaseStats {
     Xapian::termcount wdf_ubound;
 
     /// Oldest changeset removed when max_changesets is set
-    brass_revision_number_t oldest_changeset;
+    mutable brass_revision_number_t oldest_changeset;
 
   public:
     BrassDatabaseStats()
@@ -89,7 +89,9 @@ class BrassDatabaseStats {
 
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
-    void set_oldest_changeset(brass_revision_number_t changeset) { oldest_changeset = changeset; }
+    void set_oldest_changeset(brass_revision_number_t changeset) const {
+	oldest_changeset = changeset;
+    }
 
     void add_document(Xapian::termcount doclen) {
 	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))

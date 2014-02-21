@@ -41,13 +41,13 @@ class BrassTableCheck : public BrassTable {
 			bool readonly, std::ostream *out_)
 	    : BrassTable(tablename_, path_, readonly), out(out_) { }
 
-	void block_check(Brass::Cursor * C_, int j, int opts);
+	void block_check(Brass::Cursor * C_, int j, int opts,
+			 BrassFreeListChecker &flcheck);
 	int block_usage(const byte * p) const;
 	void report_block(int m, int n, const byte * p) const;
 	void report_block_full(int m, int n, const byte * p) const;
 	void report_cursor(int N, const Brass::Cursor *C_) const;
 
-	XAPIAN_NORETURN(void failure(const char * msg) const);
 	void print_key(const byte * p, int c, int j) const;
 	void print_tag(const byte * p, int c, int j) const;
 	void print_spaces(int n) const;

@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -109,6 +109,9 @@
 #define SET_MAX_FREE(b, x)      setint2(b, 5, x)
 #define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
 #define SET_DIR_END(b, x)       setint2(b, 9, x)
+
+/** Freelist blocks have their level set to LEVEL_FREELIST. */
+const int LEVEL_FREELIST = 254;
 
 namespace Brass {
 
@@ -270,6 +273,8 @@ public:
 // FIXME: but we want it to be completely impossible...
 #define BTREE_CURSOR_LEVELS 10
 
+class BrassChanges;
+
 /** Class managing a Btree table in a Brass database.
  *
  *  A table is a store holding a set of key/tag pairs.
@@ -292,6 +297,7 @@ public:
  */
 class BrassTable {
     friend class BrassCursor; /* Should probably fix this. */
+    friend class BrassFreeList;
     private:
 	/// Copying not allowed
         BrassTable(const BrassTable &);
@@ -395,18 +401,8 @@ class BrassTable {
 	 *          be greater than the latest revision number (see
 	 *          get_latest_revision_number()), or an exception will be
 	 *          thrown.
-	 *
-	 *  @param changes_fd  The file descriptor to write changes to.
-	 *	    Defaults to -1, meaning no changes will be written.
 	 */
-	void commit(brass_revision_number_t revision, int changes_fd = -1,
-		    const std::string * changes_tail = NULL);
-
-	/** Append the list of blocks changed to a changeset file.
-	 *
-	 *  @param changes_fd  The file descriptor to write changes to.
-	 */
-	void write_changed_blocks(int changes_fd, bool compressed);
+	void commit(brass_revision_number_t revision);
 
 	/** Cancel any outstanding changes.
 	 *
@@ -600,6 +596,15 @@ class BrassTable {
 		/ block_capacity;
 	}
 
+	/** Set the BrassChanges object to write changed blocks to.
+	 *
+	 *  The BrassChanges object remainsis not owned by the table, so it
+	 *  must not delete it.
+	 */
+	void set_changes(BrassChanges * changes) {
+	    changes_obj = changes;
+	}
+
 	/// Throw an exception indicating that the database is closed.
 	XAPIAN_NORETURN(static void throw_database_closed());
 
@@ -623,7 +628,7 @@ class BrassTable {
 	bool find(Brass::Cursor *) const;
 	int delete_kt();
 	void read_block(uint4 n, byte *p) const;
-	void write_block(uint4 n, const byte *p) const;
+	void write_block(uint4 n, const byte *p, bool appending = false) const;
 	XAPIAN_NORETURN(void set_overwritten() const);
 	void block_to_cursor(Brass::Cursor *C_, int j, uint4 n) const;
 	void alter();
@@ -740,6 +745,12 @@ class BrassTable {
 	/// Version count for tracking when cursors need to rebuild.
 	unsigned long cursor_version;
 
+	/** The BrassChanges object to write block changes to.
+	 *
+	 *  If NULL, no changes will be written.
+	 */
+	BrassChanges * changes_obj;
+
 	/* B-tree navigation functions */
 	bool prev(Brass::Cursor *C_, int j) const {
 	    if (sequential) return prev_for_sequential(C_, j);
@@ -779,7 +790,7 @@ class BrassTable {
 	 *  Z_RLE. */
 	int compress_strategy;
 
-	CompressionStream comp_stream;
+	mutable CompressionStream comp_stream;
 
 	/// If true, don't create the table until it's needed.
 	bool lazy;

@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -380,11 +380,12 @@ DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory) {
     Xapian::QueryParser queryparser;
     queryparser.set_database(database);
     TEST_EXCEPTION(Xapian::DatabaseModifiedError,
-	for (int k = 0; k < 3; ++k) {
+	for (int k = 0; k < 1000; ++k) {
 	    wdb.add_document(doc);
 	    wdb.commit();
 	    (void)queryparser.parse_query("1", queryparser.FLAG_PARTIAL);
 	}
+	SKIP_TEST("didn't manage to trigger DatabaseModifiedError");
     );
 
     return true;

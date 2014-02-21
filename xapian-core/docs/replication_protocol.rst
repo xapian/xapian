@@ -1,5 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
-.. Copyright (C) 2010 Olly Betts
+.. Copyright (C) 2010,2014 Olly Betts
 
 ====================================
 Xapian Database Replication Protocol
@@ -108,7 +108,7 @@ the future):
 
    - If a list of blocks:
 
-     - The blocksize in use.
+     - The blocksize in use (for brass, divided by 2048).
 
      - A list of items:
 

@@ -2,7 +2,7 @@
  * @brief Provides wrappers with POSIXy semantics.
  */
 /* Copyright 2007 Lemur Consulting Ltd
- * Copyright 2007,2012 Olly Betts
+ * Copyright 2007,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,9 +43,14 @@ posixy_open(const char *filename, int flags, int)
 /** Version of rename() which overwrites an existing destination file. */
 int posixy_rename(const char *from, const char *to);
 #else
+# include <cstdio>
+# include "safeunistd.h"
+# include <sys/types.h>
+# include "safesysstat.h"
+# include "safefcntl.h"
 # define posixy_unlink(F) unlink(F)
 # define posixy_open ::open
-# define posixy_rename(F, T) rename(F, T)
+# define posixy_rename(F, T) std::rename(F, T)
 #endif
 
 #endif /* XAPIAN_INCLUDED_POSIXY_WRAPPER_H */

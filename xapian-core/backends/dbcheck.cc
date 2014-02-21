@@ -26,6 +26,7 @@
 #include "xapian/error.h"
 
 #ifdef XAPIAN_HAS_BRASS_BACKEND
+#include "brass/brass_changes.h"
 #include "brass/brass_database.h"
 #include "brass/brass_dbcheck.h"
 #include "brass/brass_types.h"
@@ -191,6 +192,20 @@ Database::check(const string & path, int opts, std::ostream *out)
 		     << "\nContinuing check anyway" << endl;
 	    ++errors;
 	}
+
+	if (rev_ptr) {
+	    for (brass_revision_number_t r = rev; r != 0; --r) {
+		string changes_file = path;
+		changes_file += "/changes";
+		changes_file += str(r);
+		if (file_exists(changes_file))
+		    BrassChanges::check(changes_file);
+	    }
+	} else {
+	    *out << "Not checking changes files because database open failed"
+		 << endl;
+	}
+
 	// This is a brass directory so try to check all the btrees.
 	// Note: it's important to check termlist before postlist so
 	// that we can cross-check the document lengths.

@@ -118,13 +118,24 @@ void BrassTableCheck::report_block(int m, int n, const byte * p) const
     *out << endl;
 }
 
-void BrassTableCheck::failure(const char * msg) const
+XAPIAN_NORETURN(static void failure(const char *msg, uint4 n, int c = 0));
+static void
+failure(const char *msg, uint4 n, int c)
 {
-    throw Xapian::DatabaseError(msg);
+    string e = "Block ";
+    e += str(n);
+    if (c) {
+	e += " item ";
+	e += str((c - DIR_START) / D2);
+    }
+    e += ": ";
+    e += msg;
+    throw Xapian::DatabaseError(e);
 }
 
 void
-BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
+BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts,
+			     BrassFreeListChecker & flcheck)
 {
     const byte * p = C_[j].get_p();
     uint4 n = C_[j].get_n();
@@ -136,16 +147,13 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
     size_t dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
-    if (base.block_free_at_start(n))
-	failure("Block was free at start");
-    if (base.block_free_now(n))
-	failure("Block is free now");
-    base.free_block(n);
+    if (!flcheck.mark_used(n))
+	failure("used more than once in the Btree", n);
 
     if (j != GET_LEVEL(p))
-	failure("Block has wrong level");
+	failure("wrong level", n);
     if (dir_end <= DIR_START || dir_end > block_size)
-	failure("directory end pointer invalid");
+	failure("directory end pointer invalid", n);
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)
 	report_block(3*(level - j), n, p);
@@ -157,27 +165,27 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 	Item item(p, c);
 	int o = item.get_address() - p;
 	if (o > int(block_size))
-	    failure("Item starts outside block");
+	    failure("item starts outside block", n, c);
 	if (o - dir_end < max_free)
-	    failure("Item overlaps directory");
+	    failure("item overlaps directory", n, c);
 
 	int kt_len = item.size();
 	if (o + kt_len > int(block_size))
-	    failure("Item ends outside block");
+	    failure("item ends outside block", n, c);
 	total_free -= kt_len;
 
 	if (c > significant_c && Item(p, c - D2).key() >= item.key())
-	    failure("Items not in sorted order");
+	    failure("not in sorted order", n, c);
     }
     if (total_free != TOTAL_FREE(p))
-	failure("Stored total free space value wrong");
+	failure("stored total free space value wrong", n);
 
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
 	C_[j].c = c;
 	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
 
-	block_check(C_, j - 1, opts);
+	block_check(C_, j - 1, opts, flcheck);
 
 	const byte * q = C_[j - 1].get_p();
 	/* if j == 1, and c > DIR_START, the first key of level j - 1 must be
@@ -185,14 +193,14 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 
 	if (j == 1 && c > DIR_START)
 	    if (Item(q, DIR_START).key() < Item(p, c).key())
-		failure("Leaf key < left dividing key in level above");
+		failure("leaf key < left dividing key in level above", n, c);
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
 	    Item(q, DIR_START + D2).key() < Item(p, c).key())
-	    failure("Key < left dividing key in level above");
+	    failure("key < left dividing key in level above", n, c);
 
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
 	 * D2 < dir_end: */
@@ -200,10 +208,10 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts)
 	if (c + D2 < dir_end &&
 	    (j == 1 || DIR_START + D2 < DIR_END(q)) &&
 	    Item(q, DIR_END(q) - D2).key() >= Item(p, c + D2).key())
-	    failure("Key >= right dividing key in level above");
+	    failure("key >= right dividing key in level above", n, c);
 
 	if (REVISION(q) > REVISION(p))
-	    failure("Child block has greater revision than parent");
+	    failure("block has greater revision than parent", n);
     }
 }
 
@@ -224,7 +232,7 @@ BrassTableCheck::check(const char * tablename, const string & path,
 	*out << "base" << (char)B.base_letter
 	     << " blocksize=" << B.block_size / 1024 << "K"
 		" items="  << B.item_count
-	     << " lastblock=" << B.base.get_last_block()
+	     << " firstunused=" << B.base.get_first_unused_block()
 	     << " revision=" << B.revision_number
 	     << " levels=" << B.level
 	     << " root=";
@@ -235,34 +243,41 @@ BrassTableCheck::check(const char * tablename, const string & path,
 	*out << endl;
     }
 
-    int limit = B.base.get_bit_map_size() - 1;
-
-    limit = limit * CHAR_BIT + CHAR_BIT - 1;
-
-    if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
-	for (int j = 0; j <= limit; j++) {
-	    *out << (B.base.block_free_at_start(j) ? '.' : '*');
-	    if (j > 0) {
-		if ((j + 1) % 100 == 0) {
-		    *out << '\n';
-		} else if ((j + 1) % 10 == 0) {
-		    *out << ' ';
-		}
-	    }
-	}
-	*out << '\n' << endl;
-    }
-
     if (B.faked_root_block) {
 	if (out && opts)
 	    *out << "void ";
     } else {
-	B.block_check(C, B.level, opts);
+	// We walk the Btree marking off the blocks which it uses, then walk
+	// the free list, marking the blocks which aren't used.  Any blocks not
+	// marked have been leaked.
+	BrassFreeListChecker flcheck(B.base);
+	B.block_check(C, B.level, opts, flcheck);
 
-	/* the bit map should now be entirely clear: */
-	B.base.calculate_last_block();
-	if (B.base.get_bit_map_size() != 0) {
-	    B.failure("Unused block(s) marked used in bitmap");
+	if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
+	    *out << "Freelist:";
+	    if (B.base.empty())
+		*out << " empty";
+	}
+	while (!B.base.empty()) {
+	    uint4 n = B.base.walk(&B, true);
+	    if (opts & Xapian::DBCHECK_SHOW_BITMAP)
+		*out << ' ' << n;
+	    if (!flcheck.mark_used(n)) {
+		if (opts & Xapian::DBCHECK_SHOW_BITMAP)
+		    *out << endl;
+		failure("Used block in freelist, or same block in freelist more than once", n);
+	    }
+	}
+	if (opts & Xapian::DBCHECK_SHOW_BITMAP)
+	    *out << endl;
+
+	uint4 first_bad;
+	uint4 count = flcheck.count_set_bits(&first_bad);
+	if (count) {
+	    string e = str(count);
+	    e += " unused block(s) missing from the free list, first is ";
+	    e += str(first_bad);
+	    throw Xapian::DatabaseError(e);
 	}
     }
     if (opts) *out << "B-tree checked okay" << endl;

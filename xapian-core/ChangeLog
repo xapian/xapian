@@ -1,3 +1,10 @@
+Fri Feb 21 01:34:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/dbcheck.cc,common/,
+	  docs/replication_protocol.rst,tests/api_backend.cc,
+	  tests/api_replicate.cc: Keep track of unused blocks in the Btrees
+	  using freelists rather than bitmaps.
+
 Fri Feb 21 01:21:45 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Expand crashrecovery1 to check that the expected

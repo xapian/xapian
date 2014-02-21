@@ -2,7 +2,7 @@
  * @brief Internal definitions for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,8 @@
 // The current version of changeset files.
 // 1  - initial implementation
 // 2  - compressed changesets
-#define CHANGES_VERSION 2u
+// 3  - store (block_size / 2048); more to come probably
+#define CHANGES_VERSION 3u
 
 // Must be big enough to ensure that the start of the changeset (up to the new
 // revision number) will fit in this much space.
