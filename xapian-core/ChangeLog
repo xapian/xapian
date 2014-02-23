@@ -1,3 +1,9 @@
+Sun Feb 23 10:04:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/sorting.rst: Fix incorrect parameter types in Xapian::Weight
+	  subclass example.
+
 Sun Feb 23 09:57:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

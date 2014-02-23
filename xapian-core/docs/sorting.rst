@@ -1,5 +1,5 @@
 
-.. Copyright (C) 2007,2009 Olly Betts
+.. Copyright (C) 2007,2009,2014 Olly Betts
 
 =========================
 Sorting of Search Results
@@ -61,12 +61,12 @@ term scores one point::
 	    return new CoordinateWeight;
 	}
 
-	Xapian::weight get_sumpart(Xapian::termcount, Xapian::doclength) const {
+	Xapian::weight get_sumpart(Xapian::termcount, Xapian::termcount) const {
             return 1;
         }
 	Xapian::weight get_maxpart() const { return 1; }
 
-	Xapian::weight get_sumextra(Xapian::doclength) const { return 0; }
+	Xapian::weight get_sumextra(Xapian::termcount) const { return 0; }
 	Xapian::weight get_maxextra() const { return 0; }
 
 	bool get_sumpart_needs_doclength() const { return false; }
