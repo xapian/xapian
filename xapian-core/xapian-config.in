@@ -1,7 +1,7 @@
 #!/bin/sh
 # @configure_input@
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2009,2010,2012 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2009,2010,2012,2014 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -43,7 +43,7 @@ Options:
 Report bugs to <@PACKAGE_BUGREPORT@>.
 EOF
 
-    exit $1
+    exit "$1"
 }
 
 # This script requires at least one argument.
@@ -110,7 +110,8 @@ set_I_for_uninstalled() {
 extract_dlname() {
     dlname=
     # Need to quote ^ for Solaris /bin/sh.
-    eval `grep '^dlname=' "$1" 2>/dev/null`
+    assignment=`grep '^dlname=' "$1" 2>/dev/null`
+    eval "$assignment"
 }
 
 # Extract dependency_libs recursively from a libtool .la file, converting
@@ -129,7 +130,8 @@ extract_dependency_libs() {
 extract_dependency_libs_() {
     dependency_libs=
     # Need to quote ^ for Solaris /bin/sh.
-    eval `grep '^dependency_libs=' "$1" 2>/dev/null`
+    assignment=`grep '^dependency_libs=' "$1" 2>/dev/null`
+    eval "$assignment"
     dependency_libs=`echo " $dependency_libs "|sed "s/$mws/ /g"`
     while true ; do
 	file=`echo "$dependency_libs"|sed "s,$pat"',\2\3\4.la,'`
@@ -153,7 +155,7 @@ extract_dependency_libs_() {
     done
 }
 
-builddir=`echo $0|sed 's![^/]*$!!'`
+builddir=`echo "$0"|sed 's![^/]*$!!'`
 xo_lib_xapian=no
 static=no
 
