@@ -1,3 +1,7 @@
+Sun Feb 23 22:06:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove unnecessary m4 quoting.
+
 Fri Feb 21 07:26:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix Ruby bindings to build on Windows (and other
