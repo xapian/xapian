@@ -1,3 +1,9 @@
+Sun Feb 23 09:48:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/quickstart.rst: Split --cxxflags and --libs for portability
+	  (noted by "Hurricane Tong" on xapian-devel).
+
 Sun Feb 23 09:46:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
