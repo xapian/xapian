@@ -699,8 +699,11 @@ at least GCC gives a warning).
 Branch Prediction Hints
 =======================
 
-GCC 3.0 and newer and Intel's C++ compiler both provide a mechanism for giving
-the compiler hints to assist branch prediction (using ``__builtin_expect()``).
+For compilers which support ``__builtin_expect()`` (GCC >= 3.0 and some others)
+you can provide manual hints to assist branch prediction.  We've wrapped these
+in macros which evaluate to just their argument for compilers which don't
+support ``__builtin_expect()__``.
+
 Within the xapian-core library code, you can mark the expressions in ``if`` and
 ``while`` statements as ``rare`` (if the condition is rarely true) or ``usual``
 (if the condition is usually true).
