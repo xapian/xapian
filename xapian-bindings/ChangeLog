@@ -1,3 +1,9 @@
+Sun Feb 23 10:31:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* php/smoketest.php: Add missing "exit(1);" after check that
+	  MatchDecider returns an MSet with the expected docid in.
+
 Tue Jan 28 23:48:55 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.17.
