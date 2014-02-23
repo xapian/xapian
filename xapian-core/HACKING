@@ -399,7 +399,7 @@ The documentation tools are:
 * gs (part of Ghostscript)
 * pdflatex (in texlive-latex-base on Debian/Ubuntu)
 * epstopdf (in texlive-extra-utils on Debian/Ubuntu)
-* makeindex (in texlive-base-bin on Debian/Ubuntu)
+* makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 * help2man
 * rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
@@ -412,7 +412,7 @@ for them there.
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-    apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+    apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
 
 Autotools versions
 ------------------
