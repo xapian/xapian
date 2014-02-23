@@ -1,3 +1,9 @@
+Sun Feb 23 10:10:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/api_wrdb.cc: Expand crashrecovery1 to check that the expected
+	  base files exist and ones which shouldn't exist don't.
+
 Sun Feb 23 10:05:28 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
