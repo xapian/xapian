@@ -1,7 +1,7 @@
 /** @file bitstream.h
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2012,2013 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,19 +29,24 @@
 
 namespace Xapian {
 
+/// Create a stream to which non-byte-aligned values can be written.
 class BitWriter {
     std::string buf;
     int n_bits;
     unsigned int acc;
 
   public:
+    /// Construct empty.
     BitWriter() : n_bits(0), acc(0) { }
 
+    /// Construct with the contents of seed already in the stream.
     explicit BitWriter(const std::string & seed)
 	: buf(seed), n_bits(0), acc(0) { }
 
+    /// Encode value, known to be less than outof.
     void encode(size_t value, size_t outof);
 
+    /// Finish encoding and return the encoded data as a std::string.
     std::string & freeze() {
 	if (n_bits) {
 	    buf += char(acc);
@@ -51,9 +56,11 @@ class BitWriter {
 	return buf;
     }
 
+    /// Perform interpolative encoding of pos elements between j and k.
     void encode_interpolative(const std::vector<Xapian::termpos> &pos, int j, int k);
 };
 
+/// Read a stream created by BitWriter.
 class BitReader {
     std::string buf;
     size_t idx;
@@ -107,14 +114,18 @@ class BitReader {
     DIState di_current;
 
   public:
+    // Construct.
     BitReader() { }
 
+    // Construct with the contents of buf_.
     explicit BitReader(const std::string &buf_)
 	: buf(buf_), idx(0), n_bits(0), acc(0) { }
 
+    // Construct with the contents of buf_, skipping some bytes.
     BitReader(const std::string &buf_, size_t skip)
 	: buf(buf_, skip), idx(0), n_bits(0), acc(0) { }
 
+    // Initialise from buf_, optionally skipping some bytes.
     void init(const std::string &buf_, size_t skip = 0) {
 	buf.assign(buf_, skip, std::string::npos);
 	idx = 0;
@@ -124,6 +135,7 @@ class BitReader {
 	di_current.uninit();
     }
 
+    // Decode value, known to be less than outof.
     Xapian::termpos decode(Xapian::termpos outof, bool force = false);
 
     // Check all the data has been read.  Because it'll be zero padded
@@ -134,9 +146,11 @@ class BitReader {
 	return (idx == buf.size() && n_bits <= 7 && acc == 0);
     }
 
+    /// Perform interpolative decoding between elements between j and k.
     void decode_interpolative(int j, int k,
 			      Xapian::termpos pos_j, Xapian::termpos pos_k);
 
+    /// Perform on-demand interpolative decoding.
     Xapian::termpos decode_interpolative_next();
 };
 

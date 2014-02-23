@@ -1,7 +1,7 @@
 /** @file bitstream.cc
  * @brief Classes to encode/decode a bitstream.
  */
-/* Copyright (C) 2004,2005,2006,2008,2013 Olly Betts
+/* Copyright (C) 2004,2005,2006,2008,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,6 +75,32 @@ BitWriter::encode(size_t value, size_t outof)
     size_t bits = highest_order_bit(outof - 1);
     const size_t spare = (1 << bits) - outof;
     if (spare) {
+	/* If we have spare values, we can use one fewer bit to encode some
+	 * values.  We shorten the values in the middle of the range, as
+	 * testing (on positional data) shows this works best.  "Managing
+	 * Gigabytes" suggests reversing this for the lowest level and encoding
+	 * the end values of the range shorter, which is contrary to our
+	 * testing (MG is talking about posting lists, which probably have
+	 * different characteristics).
+	 *
+	 * For example, if outof is 11, the codes emitted are:
+	 *
+	 * value	output
+	 * 0		0000
+	 * 1		0001
+	 * 2		0010
+	 * 3		 011
+	 * 4		 100
+	 * 5		 101
+	 * 6		 110
+	 * 7		 111
+	 * 8		1000
+	 * 9		1001
+	 * 10		1010
+	 *
+	 * Note the LSB comes first in the bitstream, so these codes need to be
+	 * suffix-free to be decoded.
+	 */
 	const size_t mid_start = (outof - spare) / 2;
 	if (value >= mid_start + spare) {
 	    value = (value - (mid_start + spare)) | (1 << (bits - 1));
@@ -106,6 +132,9 @@ BitWriter::encode(size_t value, size_t outof)
 void
 BitWriter::encode_interpolative(const vector<Xapian::termpos> &pos, int j, int k)
 {
+    // "Interpolative code" - for an algorithm description, see "Managing
+    // Gigabytes" - pages 126-127 in the second edition.  You can probably
+    // view those pages in google books.
     while (j + 1 < k) {
 	const size_t mid = (j + k) / 2;
 	// Encode one out of (pos[k] - pos[j] + 1) values
