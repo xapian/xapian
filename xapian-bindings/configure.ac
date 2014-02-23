@@ -935,9 +935,10 @@ if test no != "$with_ruby" ; then
 	AC_SUBST(RUBY_LIB_ARCH)
 
 	RUBY_LIBS=
-	case $host_os in
-	cygwin*) RUBY_LIBS=-lruby ;;
-	esac
+	if test unsupported = "$allow_undefined_flag" ; then
+	  dnl For Microsoft Windows and a few other platforms.
+	  [RUBY_LIBS=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["LIBRUBYARG"]'`]
+	fi
 	AC_SUBST(RUBY_LIBS)
 
 	if test yes = "$enable_documentation" ; then

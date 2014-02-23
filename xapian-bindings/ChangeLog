@@ -1,3 +1,9 @@
+Sun Feb 23 10:36:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Fix Ruby bindings to build on Windows (and other
+	  platforms where allow_undefined_flag=unsupported. (fixes#634)
+
 Sun Feb 23 10:31:40 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
