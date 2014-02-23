@@ -132,8 +132,6 @@ truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
     return total_bytes;
 }
 
-// Replicate from the master to the replica.
-// Returns the number of changsets which were applied.
 static void
 get_changeset(const string & changesetpath,
 	      Xapian::DatabaseMaster & master,
@@ -196,6 +194,8 @@ apply_changeset(const string & changesetpath,
     return count;
 }
 
+// Replicate from the master to the replica.
+// Returns the number of changesets which were applied.
 static int
 replicate(Xapian::DatabaseMaster & master,
 	  Xapian::DatabaseReplica & replica,
