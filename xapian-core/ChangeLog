@@ -1,3 +1,8 @@
+Sun Feb 23 09:46:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/glossary.rst: Add definition of "collection frequency".
+
 Tue Jan 28 23:47:21 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.17.
