@@ -1,3 +1,8 @@
+Sun Feb 23 00:35:17 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Stop trying to explicitly list compilers which support
+	  __builtin_expect (LLVM does too, others may as well).
+
 Fri Feb 21 01:34:59 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/,backends/dbcheck.cc,common/,
