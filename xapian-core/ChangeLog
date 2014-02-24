@@ -1,3 +1,9 @@
+Mon Feb 24 06:33:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_opsynonym.cc: Refactor symonym1 so that the test data is
+	  specified by an array, rather than built up by code, so that the
+	  actual testcases can be more easily seen.
+
 Sun Feb 23 01:22:56 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/bitstream.cc,common/bitstream.h: Add comments to better
