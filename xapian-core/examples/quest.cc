@@ -208,8 +208,8 @@ try {
 		    }
 		    flags |= flag;
 		    optarg = comma;
-		 } while (optarg);
-		 break;
+		} while (optarg);
+		break;
 	    case 'v':
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);

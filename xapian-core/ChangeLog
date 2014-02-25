@@ -1,3 +1,7 @@
+Tue Feb 25 01:56:34 GMT 2014  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Whitespace tweak.
+
 Mon Feb 24 06:33:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_opsynonym.cc: Refactor symonym1 so that the test data is
