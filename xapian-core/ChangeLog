@@ -1,3 +1,7 @@
+Tue Feb 25 02:33:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Add --default-op option.
+
 Tue Feb 25 01:56:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Whitespace tweak.
