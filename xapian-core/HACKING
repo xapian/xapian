@@ -338,13 +338,13 @@ On Mac OS X 10.9.2, if you're using homebrew you'll want the followling:
   * pcre
   * graphviz
 
-You may also need to install MacTex (for texlive, texlive-basic and
-texlive-latex-extra). Xapian-letor can't be supported on Mac OS X 10.9.2 by now
-because it needs libsvm-dev.
+If you wants to build documentation, you may also need to install MacTex (for
+texlive, texlive-basic and texlive-latex-extra). Xapian-letor can't be
+supported on Mac OS X 10.9.2 by now because it needs libsvm-dev.
 
-Since there is only Clang on OS X 10.9.2 and Clang isn't compatible with
-Xapian by now, you could use apple-gcc4.2.1 to build. By using homebrew, you
-can type into terminal:
+Since there is only Clang on OS X 10.9.2 and Clang on OS X 10.9.2 isn't
+compatible with Xapian by now, you could use apple-gcc4.2.1 to build. By using
+homebrew, you can type into terminal:
 
 brew tap homebrew/dupes
 brew install apple-gcc42
