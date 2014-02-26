@@ -8,6 +8,7 @@ noinst_HEADERS +=\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
 	matcher/localsubmatch.h\
+	matcher/maxpostlist.h\
 	matcher/mergepostlist.h\
 	matcher/msetcmp.h\
 	matcher/msetpostlist.h\
@@ -45,6 +46,7 @@ lib_src +=\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
 	matcher/localsubmatch.cc\
+	matcher/maxpostlist.cc\
 	matcher/mergepostlist.cc\
 	matcher/msetcmp.cc\
 	matcher/msetpostlist.cc\

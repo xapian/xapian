@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -223,6 +223,9 @@ Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 	    break;
 	case OP_SYNONYM:
 	    internal = new Xapian::Internal::QuerySynonym(n_subqueries);
+	    break;
+	case OP_MAX:
+	    internal = new Xapian::Internal::QueryMax(n_subqueries);
 	    break;
 	default:
 	    throw InvalidArgumentError("op not valid with a list of subqueries");

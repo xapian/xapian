@@ -1,7 +1,7 @@
 /** @file queryinternal.h
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -172,6 +172,8 @@ class QueryBranch : public Query::Internal {
 		    Xapian::termcount elite_set_size = 0, size_t first = 0) const;
 
     PostList * do_synonym(QueryOptimiser * qopt, double factor) const;
+
+    PostList * do_max(QueryOptimiser * qopt, double factor) const;
 
     const std::string get_description_helper(const char * op,
 					     Xapian::termcount window = 0) const;
@@ -362,6 +364,19 @@ class QuerySynonym : public QueryOrLike {
 
   public:
     QuerySynonym(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
+
+    PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
+
+    std::string get_description() const;
+};
+
+class QueryMax : public QueryOrLike {
+    // FIXME: move all these get_op() definitions out of the header if we end
+    // up keeping them.
+    Xapian::Query::op get_op() const { return Xapian::Query::OP_MAX; }
+
+  public:
+    QueryMax(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 

@@ -1,3 +1,12 @@
+Wed Feb 26 01:33:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
+	  examples/quest.cc,include/xapian/query.h,matcher/Makefile.mk,
+	  matcher/maxpostlist.cc,matcher/maxpostlist.h,
+	  queryparser/queryparser.cc,tests/api_none.cc,tests/api_opsynonym.cc:
+	  Implement new OP_MAX query operator, which returns the maximum
+	  weight of any of its subqueries.  (see #360)
+
 Wed Feb 26 00:48:23 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/localsubmatch.cc,matcher/synonympostlist.cc,

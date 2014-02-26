@@ -33,6 +33,7 @@
 #include "emptypostlist.h"
 #include "matcher/exactphrasepostlist.h"
 #include "matcher/externalpostlist.h"
+#include "matcher/maxpostlist.h"
 #include "matcher/multiandpostlist.h"
 #include "matcher/multixorpostlist.h"
 #include "matcher/orpostlist.h"
@@ -156,6 +157,7 @@ class OrContext : public Context {
     void select_elite_set(size_t set_size, size_t out_of);
 
     PostList * postlist(QueryOptimiser* qopt);
+    PostList * postlist_max(QueryOptimiser* qopt);
 };
 
 void
@@ -215,6 +217,28 @@ OrContext::postlist(QueryOptimiser* qopt)
 	pls.back() = pl;
 	push_heap(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
     }
+}
+
+PostList *
+OrContext::postlist_max(QueryOptimiser* qopt)
+{
+    Assert(!pls.empty());
+
+    if (pls.size() == 1) {
+	PostList * pl = pls[0];
+	pls.clear();
+	return pl;
+    }
+
+    // Sort the postlists so that the postlist with the greatest term frequency
+    // is first.
+    sort(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
+
+    PostList * pl;
+    pl = new MaxPostList(pls.begin(), pls.end(), qopt->matcher, qopt->db_size);
+
+    pls.clear();
+    return pl;
 }
 
 class XorContext : public Context {
@@ -387,6 +411,9 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		case 6: // OP_SYNONYM
 		    result = new Xapian::Internal::QuerySynonym(n_subqs);
 		    break;
+		case 7: // OP_MAX
+		    result = new Xapian::Internal::QueryMax(n_subqs);
+		    break;
 		case 13: // OP_ELITE_SET
 		    result = new Xapian::Internal::QueryEliteSet(n_subqs,
 								 parameter);
@@ -400,7 +427,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 							       parameter);
 		    break;
 		default:
-		    // 7 to 12 are currently unused.
+		    // 8 to 12 are currently unused.
 		    throw SerialisationError("Unknown multi-way branch Query operator");
 	    }
 	    do {
@@ -833,7 +860,8 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
 	MULTIWAY(13),	// OP_ELITE_SET
 	0,		// OP_VALUE_GE
 	0,		// OP_VALUE_LE
-	MULTIWAY(6)	// OP_SYNONYM
+	MULTIWAY(6),	// OP_SYNONYM
+	MULTIWAY(7)	// OP_MAX
     };
     Xapian::Query::op op_ = get_op();
     AssertRel(size_t(op_),<,sizeof(first_byte));
@@ -949,6 +977,25 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
     RETURN(qopt->make_synonym_postlist(pl, factor));
+}
+
+PostList *
+QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
+{
+    LOGCALL(MATCH, PostList *, "QueryBranch::do_max", qopt | factor);
+    OrContext ctx(subqueries.size());
+    do_or_like(ctx, qopt, factor);
+    if (factor == 0.0) {
+	// If we have a factor of 0, we don't care about the weights, so
+	// we're just like a normal OR query.
+	return ctx.postlist(qopt);
+    }
+
+    // We currently assume wqf is 1 for calculating the OP_MAX's weight
+    // since conceptually the OP_MAX is one "virtual" term.  If we were
+    // to combine multiple occurrences of the same OP_MAX expansion into
+    // a single instance with wqf set, we would want to track the wqf.
+    return ctx.postlist_max(qopt);
 }
 
 Xapian::Query::op
@@ -1356,6 +1403,20 @@ QuerySynonym::postlist(QueryOptimiser * qopt, double factor) const
     RETURN(pl);
 }
 
+PostingIterator::Internal *
+QueryMax::postlist(QueryOptimiser * qopt, double factor) const
+{
+    LOGCALL(QUERY, PostingIterator::Internal *, "QueryMax::postlist", qopt | factor);
+    // Save and restore total_subqs so we only add one for the whole
+    // OP_MAX subquery (or none if we're not weighted).
+    Xapian::termcount save_total_subqs = qopt->get_total_subqs();
+    if (factor != 0.0)
+	++save_total_subqs;
+    PostList * pl = do_max(qopt, factor);
+    qopt->set_total_subqs(save_total_subqs);
+    RETURN(pl);
+}
+
 string
 QueryAnd::get_description() const
 {
@@ -1414,6 +1475,12 @@ string
 QuerySynonym::get_description() const
 {
     return get_description_helper(" SYNONYM ");
+}
+
+string
+QueryMax::get_description() const
+{
+    return get_description_helper(" MAX ");
 }
 
 }

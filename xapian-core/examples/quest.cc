@@ -73,6 +73,7 @@ struct qp_op { const char * s; unsigned f; };
 static qp_op op_tab[] = {
     { "and", Xapian::Query::OP_AND },
     { "elite_set", Xapian::Query::OP_ELITE_SET },
+    { "max", Xapian::Query::OP_MAX },
     { "near", Xapian::Query::OP_NEAR },
     { "or", Xapian::Query::OP_OR },
     { "phrase", Xapian::Query::OP_PHRASE },

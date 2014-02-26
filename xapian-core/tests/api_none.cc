@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,6 +102,7 @@ DEFINE_TESTCASE(emptyquery4, !backend) {
     TEST(Xapian::Query(q.OP_PHRASE, &q, &q).empty());
     TEST(Xapian::Query(q.OP_ELITE_SET, &q, &q).empty());
     TEST(Xapian::Query(q.OP_SYNONYM, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_MAX, &q, &q).empty());
     return true;
 }
 
@@ -122,6 +123,7 @@ DEFINE_TESTCASE(singlesubquery1, !backend) {
     singlesubquery1_(OP_PHRASE);
     singlesubquery1_(OP_ELITE_SET);
     singlesubquery1_(OP_SYNONYM);
+    singlesubquery1_(OP_MAX);
     return true;
 }
 
@@ -141,6 +143,7 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
     singlesubquery2_(OP_PHRASE);
     singlesubquery2_(OP_ELITE_SET);
     singlesubquery2_(OP_SYNONYM);
+    singlesubquery2_(OP_MAX);
     return true;
 }
 

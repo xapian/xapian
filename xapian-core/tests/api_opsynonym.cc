@@ -1,5 +1,5 @@
 /** @file api_opsynonym.cc
- * @brief tests of OP_SYNONYM.
+ * @brief tests of OP_SYNONYM and OP_MAX.
  */
 /* Copyright 2009,2011,2014 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
@@ -418,6 +418,51 @@ DEFINE_TESTCASE(synonym4, backend) {
 	}
 	check_msets_contain_same_docs(mset1, mset2);
     }
+
+    return true;
+}
+
+DEFINE_TESTCASE(opmax1, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enq(db);
+    Xapian::Query q1("king");
+    Xapian::Query q2("friedrich");
+    Xapian::Query qmax(Xapian::Query::OP_MAX, q1, q2);
+    enq.set_query(q1);
+    Xapian::MSet mset1 = enq.get_mset(0, db.get_doccount());
+    enq.set_query(q2);
+    Xapian::MSet mset2 = enq.get_mset(0, db.get_doccount());
+    enq.set_query(qmax);
+    Xapian::MSet msetmax = enq.get_mset(0, db.get_doccount());
+
+    // Check that the weights in msetmax are the maximum of the weights in
+    // mset1 and mset2 for each docid.
+    map<Xapian::docid, double> expected_weights;
+    Xapian::MSetIterator i;
+    for (i = mset1.begin(); i != mset1.end(); ++i) {
+	expected_weights[*i] = i.get_weight();
+    }
+    for (i = mset2.begin(); i != mset2.end(); ++i) {
+	map<Xapian::docid, double>::iterator j;
+	j = expected_weights.find(*i);
+	if (j != expected_weights.end()) {
+	    j->second = max(j->second, i.get_weight());
+	} else {
+	    expected_weights[*i] = i.get_weight();
+	}
+    }
+
+    for (i = msetmax.begin(); i != msetmax.end(); ++i) {
+	map<Xapian::docid, double>::iterator j;
+	j = expected_weights.find(*i);
+	TEST(j != expected_weights.end());
+	TEST_EQUAL_DOUBLE(j->second, i.get_weight());
+	expected_weights.erase(j);
+	tout << expected_weights.size() << endl;
+    }
+
+    // Any document in mset1 or mset2 should also be in msetmax.
+    TEST_EQUAL(expected_weights.size(), 0);
 
     return true;
 }
