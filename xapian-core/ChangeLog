@@ -1,3 +1,11 @@
+Wed Feb 26 00:48:23 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.cc,matcher/synonympostlist.cc,
+	  matcher/synonympostlist.h: In SynonymPostList, avoid fetching the
+	  doclength if the weighting scheme doesn't need it and the calculated
+	  wdf for the synonym in <= doclength_lower_bound for the current
+	  subdatabase.  (fixes #360)
+
 Wed Feb 26 00:12:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_changes.cc: Fix compilation without
