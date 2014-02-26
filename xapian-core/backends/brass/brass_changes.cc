@@ -28,6 +28,7 @@
 #include "io_utils.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
+#include "str.h"
 #include "stringutils.h"
 #include "unaligned.h"
 #include "xapian/constants.h"
