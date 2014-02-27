@@ -337,10 +337,19 @@ On Mac OS X 10.9.2, if you're using homebrew you'll want the followling:
   * help2man
   * pcre
   * graphviz
+  * libsvm
 
 If you wants to build documentation, you may also need to install MacTex (for
-texlive, texlive-basic and texlive-latex-extra). Xapian-letor can't be
-supported on Mac OS X 10.9.2 by now because it needs libsvm-dev.
+texlive, texlive-basic and texlive-latex-extra).
+
+If you get the following error when building xapian-leter:
+
+configure: error: libsvm required but libsvm/svm.h not found
+
+You can type the following into terminal and rerun .configure:
+(suppose you are using libsvm 3.17)
+
+ln -s /usr/local/Cellar/libsvm/3.17/include/ /usr/local/include/libsvm
 
 Since there is only Clang on OS X 10.9.2 and Clang on OS X 10.9.2 isn't
 compatible with Xapian by now, you could use apple-gcc4.2.1 to build. By using
