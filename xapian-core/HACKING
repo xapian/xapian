@@ -331,6 +331,26 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
+On Mac OS X 10.9.2, if you're using homebrew you'll want the followling:
+
+  * libmagic
+  * help2man
+  * pcre
+  * graphviz
+  * libsvm
+
+If you wants to build documentation, you may also need to install MacTex (for
+texlive, texlive-basic and texlive-latex-extra).
+
+If you get the following error when building xapian-letor:
+
+configure: error: libsvm required but libsvm/svm.h not found
+
+You can type the following into terminal and rerun .configure:
+(suppose you are using libsvm 3.17)
+
+ln -s /usr/local/Cellar/libsvm/3.17/include/ /usr/local/include/libsvm
+
 If you're doing much development work, you'll probably also want the following
 tools installed:
 
