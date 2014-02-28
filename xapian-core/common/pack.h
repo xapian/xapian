@@ -215,10 +215,11 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
  */
 template<class U>
 inline void
-pack_uint(std::string & s, U value)
+pack_uint(std::string & s, U _value)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
+    unsigned int value = (unsigned int)_value;
 
     while (value >= 128) {
 	s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
