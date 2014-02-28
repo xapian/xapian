@@ -1,3 +1,10 @@
+Fri Feb 28 06:12:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_positionlist.h,
+	  backends/chert/chert_positionlist.h: Remove next_internal() methods
+	  which were declared but not defined or used (left-overs from flint).
+	  Reported by "Hurricane Tong".
+
 Wed Feb 26 01:33:50 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
