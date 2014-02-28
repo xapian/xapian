@@ -215,16 +215,27 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
  */
 template<class U>
 inline void
-pack_uint(std::string & s, U _value)
+pack_uint(std::string & s, U value)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
-    unsigned int value = (unsigned int)_value;
 
     while (value >= 128) {
 	s += static_cast<char>(static_cast<unsigned char>(value) | 0x80);
 	value >>= 7;
     }
+    s += static_cast<char>(value);
+}
+
+/** Append an encoded unsigned integer (bool type) to a string.
+ *
+ *  @param s		The string to append to.
+ *  @param value	The unsigned integer to encode.
+ */
+template<>
+inline void
+pack_uint(std::string & s, bool value)
+{
     s += static_cast<char>(value);
 }
 
