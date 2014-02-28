@@ -20,6 +20,7 @@
  * USA
  */
 
+#include <ostream>
 #include <config.h>
 #include "xapian/database.h"
 
