@@ -154,5 +154,5 @@ sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_source.conf
 
 .rst.html:
-	$(RST2HTML) --exit-status=warning $< $@
+	$(RST2HTML) --math-output=HTML --exit-status=warning $< $@
 endif

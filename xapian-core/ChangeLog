@@ -1,3 +1,8 @@
+Mon Mar 03 22:59:55 GMT 2014  Mayank Chaudhary <mayankchaudhary.iitr@gmail.com>
+
+	* docs/Makefile.am,docs/bm25.rst,docs/intro_ir.rst: Convert equations
+	  in rst docs to use LaTeX via the math role and directive.
+
 Fri Feb 28 06:12:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_positionlist.h,
