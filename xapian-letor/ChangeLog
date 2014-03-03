@@ -1,3 +1,8 @@
+Mon Mar 03 23:30:34 GMT 2014  Mayank Chaudhary <mayankchaudhary.iitr@gmail.com>
+
+	* docs/letor.rst: Convert equations in rst docs to use LaTeX via the
+	  math role and directive.
+
 Wed May 08 11:07:56 GMT 2013  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/Makefile.am: SVN -> git.

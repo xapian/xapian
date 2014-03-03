@@ -71,28 +71,26 @@ Ranking
 
 After we have built a model, its quite straightforward to get a real score for a particular document for the given query. Here we supply the first hand retrieved ranked-list to the Ranking function, which assigns a new score to each document after converting it to the same dimensioned feature vector. This list is re-ranked according to the new scores.
 
-
 Features
 ========
 
 Features play a major role in the learning. In LTR, features are mainly of three types: query dependant, document dependant (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependant (TF-IDF Score, BM25 Score, etc). In total we have incorporated 19 features which are described below. These features are statistically tested in [Nallapati2004]_.
 
-::
-
     Here c(w,D) means that count of term w in Document D. C represents the Collection. 'n' is the total number of terms in query.
-    |.| is size-of function and idf(.) is the inverse-document-frequency.
+    :math:`|.|` is size-of function and idf(.) is the inverse-document-frequency.
 
-    1. $ \sum_{q_i \in Q \cap D} \log{\left( c(q_i,D) \right)} $
 
-    2. $\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\right)} $
+    1. :math:`\sum_{q_i \in Q \cap D} \log{\left( c(q_i,D) \right)}`
 
-    3. $ \sum_{q_i \in Q \cap D} \log{\left(idf(q_i) \right) } $
+    2. :math:`\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\right)}`
 
-    4. $ \sum_{q_i \in Q \cap D} \log{\left( \frac{|C|}{c(q_i,C)} \right)} $
+    3. :math:`\sum_{q_i \in Q \cap D} \log{\left(idf(q_i) \right) }`
 
-    5. $\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}idf(q_i)\right)} $
+    4. :math:`\sum_{q_i \in Q \cap D} \log{\left( \frac{|C|}{c(q_i,C)} \right)}`
 
-    6. $\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\frac{|C|}{c(q_i,C)}\right)} $
+    5. :math:`\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}idf(q_i)\right)}`
+
+    6. :math:`\sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\frac{|C|}{c(q_i,C)}\right)}`
 
 
 All the above 6 features are calculated considering 'title only', 'body only' and 'whole' document. So they make in total 6*3=18 features. The 19th feature is the BM25 score assigned to the document by the Xapian weighting scheme.
