@@ -1,3 +1,9 @@
+Mon Mar 03 23:32:11 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Process RST docs with --math-output=HTML as that
+	  works with rst2html 0.8.x and produces HTML which should work with
+	  more browsers (though looks less nice).
+
 Mon Mar 03 23:30:34 GMT 2014  Mayank Chaudhary <mayankchaudhary.iitr@gmail.com>
 
 	* docs/letor.rst: Convert equations in rst docs to use LaTeX via the
