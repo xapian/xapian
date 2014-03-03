@@ -39,10 +39,26 @@ DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 # >= 7.0.50~ needed for Ruby packaging.
 BUILD_DEPS := debhelper (>= 7.0.50~),
 
-# Disabled due to incompatibility of GPL and PHP licence.  Uncomment to build
-# your own binary packages (just don't distribute them!)
-PHP_VERSIONS := 5
+# PHP is disabled by default due to incompatibility of GPL and PHP licence.
+DEFAULT_LANGUAGES := python ruby tcl
+LANGUAGES := $(shell cat debian/bindings-to-package 2>/dev/null || echo '$(DEFAULT_LANGUAGES)')
 
+ifeq ($(findstring, php, $(LANGUAGES)), )
+PHP_VERSIONS := 5
+# Build depends for PHP.  We need phpN-cli so we can run "make check" on
+# the bindings and to get the phpapi version we need to depend on.
+#
+# Note that we check for /usr/bin/php-configN before trying to build PHP
+# bindings below.
+#
+# Only the first % in the replacement part is substituted, so we need to do
+# this in two goes.
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,)
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
+endif
+
+XS_RUBY_VERSIONS := X-Dummy: Ruby bindings not being packaged
+ifeq ($(findstring, ruby, $(LANGUAGES)), )
 # Be conservative for now and leave backported versions on old ruby policy.
 ifeq ($(findstring .$(CODENAME)., .lucid.precise.quantal.raring.squeeze.wheezy.), )
 # For new ruby policy:
@@ -67,7 +83,16 @@ rubylibdir := rubylibdir
 rubyarchdir := archdir
 RUBY_VERSIONS := 1.8 1.9.1
 endif
+# Build depends for Ruby.
+#
+# Only the first % in the replacement part is substituted, so we need to do
+# this in two goes.
+BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%-dev,)
+BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%,)
+endif
 
+X_PYTHON_VERSION := X-Dummy: Python bindings not being packaged
+ifeq ($(findstring, python, $(LANGUAGES)), )
 # The python versions to build for:
 PYTHON_VERSIONS := $(shell pyversions -r debian/control)
 
@@ -81,6 +106,28 @@ USING_PYCENTRAL := 1
 BUILD_DEPS += python, python-central (>= 0.4.10), python-all-dev,
 XB_PYTHON_VERSION := XB-Python-Version: $${python:Versions}
 X_PYTHON_VERSION := XS-Python-Version: all
+endif
+endif
+
+ifeq ($(findstring, tcl, $(LANGUAGES)), )
+# Build depends for Tcl.  We use Tcl's stubs mechanism, so the built
+# bindings will work with any Tcl version from 8.0.6 upwards, whichever
+# version they were built against.
+#
+# lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
+# for the current preferred version.
+BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
+ifeq ($(findstring .$(CODENAME)., .lucid.precise.quantal.raring.saucy.trusty.squeeze.wheezy.), )
+# /usr/bin/tclsh-default is going to be dropped.
+TCLSH=/usr/bin/tclsh
+# tclsh8.6 requires us to link to libtclstub.a - upstream doesn't yet do this
+# automatically.
+TCL_MAKE_OPTS = TCL_LIBS=-ltclstub
+else
+TCLSH=/usr/bin/tclsh-default
+TCL_MAKE_OPTS =
+endif
+BUILD_TCL := 1
 endif
 
 export DH_OPTIONS
@@ -126,42 +173,6 @@ else
     MAKE_CHECK := make check
 endif
 
-# Build depends for PHP.  We need phpN-cli so we can run "make check" on
-# the bindings and to get the phpapi version we need to depend on.
-#
-# Note that we check for /usr/bin/php-configN before trying to build PHP
-# bindings below.
-#
-# Only the first % in the replacement part is substituted, so we need to do
-# this in two goes.
-BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,)
-BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
-
-# Build depends for Tcl.  We use Tcl's stubs mechanism, so the built
-# bindings will work with any Tcl version from 8.0.6 upwards, whichever
-# version they were built against.
-#
-# lenny/hardy onwards have a "tcl-dev" dummy package which pulls in the package
-# for the current preferred version.
-BUILD_DEPS += tcl-dev,# NB Trailing ',' required here!
-ifeq ($(findstring .$(CODENAME)., .lucid.precise.quantal.raring.saucy.trusty.squeeze.wheezy.), )
-# /usr/bin/tclsh-default is going to be dropped.
-TCLSH=/usr/bin/tclsh
-# tclsh8.6 requires us to link to libtclstub.a - upstream doesn't yet do this
-# automatically.
-TCL_MAKE_OPTS = TCL_LIBS=-ltclstub
-else
-TCLSH=/usr/bin/tclsh-default
-TCL_MAKE_OPTS =
-endif
-
-# Build depends for Ruby.
-#
-# Only the first % in the replacement part is substituted, so we need to do
-# this in two goes.
-BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%-dev,)
-BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%,)
-
 # We need a versioned build dependency on libxapian-dev.
 # NB Trailing ',' required here!
 BUILD_DEPS += \
@@ -195,12 +206,21 @@ debian/control: debian/rules debian/control.in
 	rm -f debian/control.tmp
 	sed -e 's/@BUILD_DEPS@/$(BUILD_DEPS)/g' \
 	    -e 's/@X_PYTHON_VERSION@/$(X_PYTHON_VERSION)/g' \
-	    -e 's/@XB_PYTHON_VERSION@/$(XB_PYTHON_VERSION)/g' \
 	    -e 's/@XS_RUBY_VERSIONS@/$(XS_RUBY_VERSIONS)/g' \
 	    < debian/control.in > debian/control.tmp
+ifeq ($(BUILD_TCL), 1)
+	cat debian/control-tcl.in >> debian/control.tmp
+endif
+ifneq ($(PYTHON_VERSIONS), )
+	sed -e 's/@XB_PYTHON_VERSION@/$(XB_PYTHON_VERSION)/g' \
+	    < debian/control-python.in >> debian/control.tmp
+endif
+ifneq ($(PHP_VERSIONS), )
 	for v in $(PHP_VERSIONS); do \
 	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
 	done >> debian/control.tmp
+endif
+ifneq ($(RUBY_VERSIONS), )
 	# Call the doc-base templates <pkg>.d-b.in, as <pkg>.doc-base.* is
 	# special to dh_installdocs. (#722096)
 ifdef XB_RUBY_VERSIONS
@@ -230,6 +250,7 @@ else
 	    cp debian/libxapian-ruby$$v.d-b.in debian/libxapian-ruby$$v.doc-base ;\
 	    cp debian/libxapian-ruby$$v.install.in debian/libxapian-ruby$$v.install ;\
 	done
+endif
 endif
 	mv debian/control.tmp debian/control
 
@@ -276,9 +297,11 @@ configure-stamp:
 	    cd ../../..; \
 	done
 
+ifeq ($(BUILD_TCL), 1)
 	mkdir -p debian/build/tcl
 	cd debian/build/tcl && ../../../configure $(commonconfflags) \
 	    --with-tcl TCLSH=$(TCLSH) TCL_LIB=/usr/lib/tcltk
+endif
 
 	touch $@
 
@@ -304,8 +327,10 @@ build-stamp: configure-stamp
 	    $(MAKE) -C debian/build/ruby$$v ; \
 	    $(MAKE_CHECK) -C debian/build/ruby$$v ; \
 	done
+ifeq ($(BUILD_TCL), 1)
 	$(MAKE) -C debian/build/tcl $(TCL_MAKE_OPTS)
 	$(MAKE_CHECK) -C debian/build/tcl
+endif
 	touch $@
 
 install: DH_OPTIONS=
@@ -357,7 +382,9 @@ ifdef XB_RUBY_VERSIONS
 	       debian/tmp/usr/share/doc/xapian-bindings-ruby2.0
 endif
 
+ifeq ($(BUILD_TCL), 1)
 	$(MAKE) -C debian/build/tcl DESTDIR=$(CURDIR)/debian/tmp install
+endif
 
 	# Reads the '*.install' files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing $(DH_INSTALL_EXCLUDE)
@@ -378,10 +405,12 @@ binary-arch: build-arch install
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
+ifneq ($(PYTHON_VERSIONS), )
 ifeq ($(USING_PYCENTRAL), 1)
 	DH_PYCENTRAL=include-links dh_pycentral
 else
 	dh_python2
+endif
 endif
 	dh_installdeb
 
