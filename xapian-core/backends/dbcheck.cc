@@ -20,7 +20,6 @@
  * USA
  */
 
-#include <ostream>
 #include <config.h>
 #include "xapian/database.h"
 
@@ -42,6 +41,7 @@
 #include "filetests.h"
 #include "stringutils.h"
 
+#include <ostream>
 #include <stdexcept>
 
 using namespace std;
