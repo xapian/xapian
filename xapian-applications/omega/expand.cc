@@ -1,8 +1,7 @@
 /** @file expand.cc
  * @brief Set the query expansion scheme for Omega
  */
-/* Copyright (C) 2013 Aarsh Shah
- * Based on "weight.cc" by Olly Betts.
+/* Copyright (C) 2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +20,7 @@
 
 #include <config.h>
 
-#include <expand.h>
+#include "expand.h"
 
 #include "stringutils.h"
 
@@ -59,7 +58,7 @@ double_param(const char ** p, double * ptr_val)
 void
 set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 {
-	map<string, string>::const_iterator i = opt.find("expansion");
+    map<string, string>::const_iterator i = opt.find("expansion");
 	if (i == opt.end()) return;
 
 	const string & scheme = i->second;

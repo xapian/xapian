@@ -1,8 +1,7 @@
 /** @file expand.h
  * @brief Set the expansion scheme for Omega
  */
-/* Copyright (C) 2013 Aarsh Shah
- * Based on "weight.h" by Olly Betts
+/* Copyright (C) 2009 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
