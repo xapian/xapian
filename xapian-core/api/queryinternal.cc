@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1401,6 +1401,24 @@ QuerySynonym::postlist(QueryOptimiser * qopt, double factor) const
     PostList * pl = do_synonym(qopt, factor);
     qopt->set_total_subqs(save_total_subqs);
     RETURN(pl);
+}
+
+Query::Internal *
+QuerySynonym::done()
+{
+    // An empty Synonym gives MatchNothing.  Note that add_subquery() drops any
+    // subqueries which are MatchNothing.
+    if (subqueries.empty())
+	return NULL;
+    // Synonym of a single subquery should only be simplified if that subquery
+    // is a term (or MatchAll).  Note that MatchNothing subqueries are dropped,
+    // so we'd never get here with a single MatchNothing subquery.
+    if (subqueries.size() == 1) {
+	Query::op sub_type = subqueries[0].get_type();
+	if (sub_type == Query::LEAF_TERM || sub_type == Query::LEAF_MATCH_ALL)
+	    return subqueries[0].internal.get();
+    }
+    return this;
 }
 
 PostingIterator::Internal *

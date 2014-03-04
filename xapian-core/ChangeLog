@@ -1,3 +1,8 @@
+Tue Mar 04 04:25:11 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,api/queryinternal.h: Only simplify OP_SYNONYM
+	  with a single subquery if that subquery is a term or MatchAll.
+
 Tue Mar 04 04:12:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_none.cc: Test OPs with a single MatchAll subquery.
