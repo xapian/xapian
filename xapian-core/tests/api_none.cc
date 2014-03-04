@@ -147,6 +147,26 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
     return true;
 }
 
+DEFINE_TESTCASE(singlesubquery3, !backend) {
+    // Like the previous test, but using MatchNothing as the subquery.
+#define singlesubquery3_(OP) \
+    TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
+	"Query(<alldocuments>)")
+    Xapian::Query q[1] = { Xapian::Query::MatchAll };
+    singlesubquery3_(OP_AND);
+    singlesubquery3_(OP_OR);
+    singlesubquery3_(OP_AND_NOT);
+    singlesubquery3_(OP_XOR);
+    singlesubquery3_(OP_AND_MAYBE);
+    singlesubquery3_(OP_FILTER);
+    singlesubquery3_(OP_NEAR);
+    singlesubquery3_(OP_PHRASE);
+    singlesubquery3_(OP_ELITE_SET);
+    singlesubquery3_(OP_SYNONYM);
+    singlesubquery3_(OP_MAX);
+    return true;
+}
+
 /// Check we no longer combine wqf for same term at the same position.
 DEFINE_TESTCASE(combinewqfnomore1, !backend) {
     Xapian::Query q(Xapian::Query::OP_OR,

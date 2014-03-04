@@ -1,3 +1,7 @@
+Tue Mar 04 04:12:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_none.cc: Test OPs with a single MatchAll subquery.
+
 Mon Mar 03 22:59:55 GMT 2014  Mayank Chaudhary <mayankchaudhary.iitr@gmail.com>
 
 	* docs/Makefile.am,docs/bm25.rst,docs/intro_ir.rst: Convert equations
