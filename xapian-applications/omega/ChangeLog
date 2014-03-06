@@ -1,3 +1,8 @@
+Thu Mar 06 09:58:24 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* Makefile.am,docs/omegascript.rst,expand.cc,expand.h,omega.cc,
+	  query.cc: Add support for setting the query expansion scheme to use.
+
 Tue Feb 18 05:04:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc,tmpdir.h: Add get_tmpfile() helper function.
