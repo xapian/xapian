@@ -331,6 +331,42 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
+On Mac OS X 10.9.2, if you're using homebrew you'll want the followling:
+
+  * libmagic
+  * help2man
+  * pcre
+  * graphviz
+  * libsvm
+
+If you wants to build documentation, you may also need to install MacTex (for
+texlive, texlive-basic and texlive-latex-extra).
+
+If you get the following error when building xapian-leter:
+
+configure: error: libsvm required but libsvm/svm.h not found
+
+You can type the following into terminal and rerun .configure:
+(suppose you are using libsvm 3.17)
+
+ln -s /usr/local/Cellar/libsvm/3.17/include/ /usr/local/include/libsvm
+
+Since there is only Clang on OS X 10.9.2 and Clang on OS X 10.9.2 isn't
+compatible with Xapian by now, you could use apple-gcc4.2.1 to build. By using
+homebrew, you can type into terminal:
+
+brew tap homebrew/dupes
+brew install apple-gcc42
+
+After installation, You can type ``gcc-4.2 -v`` and ``g++-4.2 -v`` into
+terminal to check the version. The info of gcc version should be:
+
+gcc version 4.2.1 (Apple Inc. build 5666) (dot 3)
+
+When running .configure, you also need to specify compilers by adding arguments
+``CC='gcc-4.2'`` and ``CXX='g++-4.2'`` to use GCC instead of Clang, like
+``.configure CC='gcc-4.2' CXX='g++-4.2'``.
+
 If you're doing much development work, you'll probably also want the following
 tools installed:
 
