@@ -1,7 +1,7 @@
 /** @file expand.cc
  * @brief Set the query expansion scheme for Omega
  */
-/* Copyright (C) 2009,2013 Olly Betts
+/* Copyright (C) 2009,2013,2014 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or modify
@@ -92,4 +92,6 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    throw "No parameters are required for BO1";
 	}
     }
+
+    throw "Unknown $opt{expansion} setting: " + scheme;
 }
