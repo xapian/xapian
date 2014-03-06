@@ -41,6 +41,7 @@
 #include "filetests.h"
 #include "stringutils.h"
 
+#include <ostream>
 #include <stdexcept>
 
 using namespace std;

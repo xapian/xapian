@@ -331,6 +331,13 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
+For texlive, texlive-basic and texlive-latex-extra, you can just install MacTeX
+instead, which includes these three packages.
+
+If you're using homebrew you'll want the followling::
+
+    brew install libmagic pcre
+
 If you're doing much development work, you'll probably also want the following
 tools installed:
 
@@ -424,6 +431,20 @@ For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
     apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+
+On Mac OS X, if you're using homebrew, you'll want the following::
+
+    brew install help2man graphviz
+
+If you installed graphviz by using homebrew but got the following error when
+running the configure script:
+
+    configure: error: dot (part of the graphviz package) is required to build documentation
+
+Suppose you are using graphviz 2.36.0, you can type the following into
+terminal and rerun the configure script::
+
+    ln -s /usr/local/Cellar/graphviz/2.36.0/bin/dot /usr/local/bin/dot
 
 Autotools versions
 ------------------
