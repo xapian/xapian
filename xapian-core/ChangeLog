@@ -1,3 +1,7 @@
+Fri Mar 07 00:17:01 GMT 2014  VcmaX <vcamx3@gmail.com>
+
+	* backends/dbcheck.cc,common/pack.h: Fix warnings with clang 5.0.
+
 Tue Mar 04 04:25:11 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc,api/queryinternal.h: Only simplify OP_SYNONYM
