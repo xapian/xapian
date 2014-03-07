@@ -1,3 +1,7 @@
+Fri Mar 07 00:21:16 GMT 2014  VcmaX <vcamx3@gmail.com>
+
+	* HACKING: Note packages to install from homebrew on Mac OS X.
+
 Fri Mar 07 00:17:01 GMT 2014  VcmaX <vcamx3@gmail.com>
 
 	* backends/dbcheck.cc,common/pack.h: Fix warnings with clang 5.0.
