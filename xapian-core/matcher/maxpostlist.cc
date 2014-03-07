@@ -108,9 +108,9 @@ MaxPostList::get_termfreq_est_using_stats(
 	    Pr_est += Pr_i - Pr_est * Pr_i;
 	}
     }
-    RETURN(TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
+    return TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
 		     Xapian::doccount(Pr_est * stats.rset_size + 0.5),
-		     Xapian::termcount(Pc_est * stats.total_term_count)));
+		     Xapian::termcount(Pc_est * stats.total_term_count));
 }
 
 double
@@ -212,10 +212,10 @@ MaxPostList::next(double w_min)
 
     if (n_kids == 1) {
 	n_kids = 0;
-	RETURN(plist[0]);
+	return plist[0];
     }
 
-    RETURN(NULL);
+    return NULL;
 }
 
 PostList *
@@ -252,10 +252,10 @@ MaxPostList::skip_to(Xapian::docid did_min, double w_min)
 
     if (n_kids == 1) {
 	n_kids = 0;
-	RETURN(plist[0]);
+	return plist[0];
     }
 
-    RETURN(NULL);
+    return NULL;
 }
 
 string

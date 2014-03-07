@@ -1,3 +1,7 @@
+Fri Mar 07 23:17:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/maxpostlist.cc: More fixes for --enable.log.
+
 Fri Mar 07 23:01:45 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/maxpostlist.cc: Fix compilation error with --enable-log on.
