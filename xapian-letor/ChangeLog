@@ -1,3 +1,7 @@
+Fri Mar 07 00:37:25 GMT 2014  VcmaX <vcamx3@gmail.com>
+
+	* HACKING: Note packages to install from homebrew on Mac OS X.
+
 Mon Mar 03 23:32:11 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Process RST docs with --math-output=HTML as that
