@@ -1,3 +1,8 @@
+Fri Mar 07 23:01:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/maxpostlist.cc: Fix compilation error with --enable-log on.
+	  Reported by Anurag Soni.
+
 Fri Mar 07 00:39:11 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Fix typo and RST markup.
