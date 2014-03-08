@@ -11,6 +11,7 @@ LOG_COMPILER = $(LUA)
 
 EXTRA_DIST = lua.i util.i except.i \
 	generate-lua-exceptions \
+	docs/index.rst \
 	$(TESTS) $(BUILT_SOURCES)
 
 lualibdir = @LUA_LIB@
@@ -60,4 +61,12 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.lua
 
 docdatadir = $(docdir)/lua
-dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+BUILT_SOURCES += docs/index.html
+
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif

@@ -9,7 +9,7 @@ AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-EXTRA_DIST = ruby.i extra.i docs/rdocs $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = ruby.i extra.i docs/rdocs docs/index.rst $(TESTS) $(BUILT_SOURCES)
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
@@ -60,7 +60,15 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.rb
 
 docdatadir = $(docdir)/ruby
-dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+BUILT_SOURCES += docs/index.html
+
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
