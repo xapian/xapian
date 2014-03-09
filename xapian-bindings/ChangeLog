@@ -1,3 +1,14 @@
+Sun Mar 09 10:14:38 GMT 2014  Mayank Chaudhary <mayankchaudhary.iitr@gmail.com>
+
+	* csharp/Makefile.am,csharp/docs/index.html,csharp/docs/index.rst,
+	  java/Makefile.am,java/docs/index.html,java/docs/index.rst,
+	  lua/Makefile.am,lua/docs/index.html,lua/docs/index.rst,
+	  php/Makefile.am,php/docs/index.html,php/docs/index.rst,
+	  python/Makefile.am,python/docs/index.html,python/docs/index.rst,
+	  ruby/docs/index.html,ruby/docs/index.rst,tcl8/Makefile.am,
+	  tcl8/docs/index.html,tcl8/docs/index.rst: Convert HTML docs to
+	  reStructured text.
+
 Sun Feb 23 22:06:31 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove unnecessary m4 quoting.

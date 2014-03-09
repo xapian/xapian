@@ -152,7 +152,7 @@ libxapian_jni_la_SOURCES = xapian_wrap.cc
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
 
-EXTRA_DIST = run-java-test SmokeTest.java $(BUILT_SOURCES)
+EXTRA_DIST = run-java-test SmokeTest.java docs/index.rst $(BUILT_SOURCES)
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
@@ -191,4 +191,12 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleIndex.java
 
 docdatadir = $(docdir)/java
-dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+BUILT_SOURCES += docs/index.html
+
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif

@@ -25,6 +25,7 @@ EXTRA_DIST = php.i except.i \
 	generate-php-exceptions \
 	add-php-ref-handling \
 	add-php-type-hints \
+	docs/index.rst \
 	$(TESTS) $(BUILT_SOURCES)
 
 phpextdir = $(PHP_EXTENSION_DIR)
@@ -94,4 +95,12 @@ dist_exampledata_DATA =\
 	docs/examples/simplematchdecider.php5
 
 docdatadir = $(docdir)/php
-dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+BUILT_SOURCES += docs/index.html
+
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif
