@@ -22,11 +22,14 @@
 
 #include <config.h>
 #include <xapian/letor.h>
+
 #include "letor_internal.h"
 #include "ranker.h"
 #include "svmranker.h"
 #include "listmle.h"
-#include "ranklist.h"
+#include "listnet.h"
+
+#include <iostream>
 
 #include <map>
 #include <string>
@@ -35,8 +38,6 @@ using namespace std;
 
 namespace Xapian {
 
-Letor::Letor(const Letor & o) : internal(o.internal) { }
-
 Letor &
 Letor::operator=(const Letor & o)
 {
@@ -44,49 +45,116 @@ Letor::operator=(const Letor & o)
     return *this;
 }
 
-Letor::Letor() : internal(new Letor::Internal) { }
+Letor::Letor(const Letor & o) : internal(o.internal) {}
 
-Letor::~Letor() { }
+Letor::Letor() : internal(new Letor::Internal) {}
 
+Letor::~Letor() {}
 
 void
-Letor::set_database(const Xapian::Database & db) {
+Letor::set_database(const Xapian::Database & db)
+{
     internal->letor_db = db;
 }
 
 void
-Letor::set_query(const Xapian::Query & query) {
+Letor::set_query(const Xapian::Query & query)
+{
     internal->letor_query = query;
 }
 
 map<Xapian::docid, double>
-Letor::letor_score(const Xapian::MSet & mset) {
+Letor::letor_score(const Xapian::MSet & mset)
+{
     return internal->letor_score(mset);
 }
 
 void
-Letor::letor_learn_model() {
+Letor::letor_learn_model()
+{
     internal->letor_learn_model();
 }
 
 void
-Letor::prepare_training_file(const string & query_file, const string & qrel_file, Xapian::doccount msetsize) {
-    internal->prepare_training_file(query_file, qrel_file, msetsize);
+Letor::set_training_file_svm(const string & query_f, const string & qrel_f, Xapian::doccount mset_s)
+{
+    if (ranker_type == RANKER_SVM)
+    {
+        query_file = query_f;
+        qrel_file  = qrel_f;
+        mset_size  = mset_s;
+    }
+    else
+    {
+        cout << "ranker type is not svm" << endl;
+        exit(1);
+    }
 }
 
 void
-Letor::prepare_training_file_listwise(const string & query_file, int num_features) {
-    internal->prepare_training_file_listwise(query_file, num_features);
+Letor::prepare_training_file_svm(const string & query_f, const string & qrel_f, Xapian::doccount mset_s)
+{
+    internal->prepare_training_file_svm(query_f, qrel_f, mset_s);
 }
 
 void
-Letor::create_ranker(int ranker_type) {
-    switch(ranker_type) {
-        case 0: internal->ranker = * new SVMRanker;
-                break;
-        case 1: internal->ranker = * new ListMLE;
-		break;
-        default: ;//cout<<"Please specify proper ranker.";
+Letor::set_training_file_listwise(const string & query_f, int num_f)
+{
+    if (ranker_type == RANKER_LISTMLE || ranker_type == RANKER_LISTNET)
+    {
+        query_file    = query_f;
+        num_features  = num_f;
+    }
+    else
+    {
+        cout << "ranker type is not listmle or listnet" << endl;
+        exit(1);
+    }
+}
+
+void
+Letor::prepare_training_file_listwise(const string & query_f, int num_f) 
+{
+    internal->prepare_training_file_listwise(query_f, num_f);
+}
+
+void
+Letor::prepare_training_file()
+{
+    switch (ranker_type)
+    {
+        case RANKER_SVM:
+            internal->prepare_training_file_svm(query_file, qrel_file, mset_size);
+            break;
+        case RANKER_LISTMLE:
+        case RANKER_LISTNET:
+            internal->prepare_training_file_listwise(query_file, num_features);
+            break;
+        default:
+            cout << "ranker type error";
+            break;
+    }
+}
+
+void
+Letor::create_ranker(int ranker_t)
+{
+    ranker_type = ranker_t;
+
+    switch(ranker_type)
+    {
+        case RANKER_SVM:
+            internal->ranker = new SVMRanker;
+            break;
+        case RANKER_LISTMLE:
+            internal->ranker = new ListMLE;
+            break;
+        case RANKER_LISTNET:
+            internal->ranker = new ListNET;
+            break;
+        default:
+            break;
+            // cout << "Please specify proper ranker.";
     }
 }
 

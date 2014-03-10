@@ -25,18 +25,21 @@
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
-//#include <ranklist.h>
+// #include <ranklist.h>
 
 #include <string>
-#include <map>
+// #include <map>
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Letor {
-  public:
-  
-    
-    
+
+public:
+    static const int RANKER_VOID    = -1;
+    static const int RANKER_SVM     = 0;
+    static const int RANKER_LISTMLE = 1;
+    static const int RANKER_LISTNET = 2;
+
     /// @private @internal Class representing the Letor internals.
     class Internal;
     /// @private @internal Reference counted internals.
@@ -190,13 +193,28 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  msetsize   This is the mset size used for the first retrieval for training queries. It should be selected depending on the qrel file
      *          and database size.
      */
-    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
+    void set_training_file_svm(const std::string & query_f, const std::string & qrel_f, Xapian::doccount mset_s);
+
+    void set_training_file_listwise(const std::string & query_f, int num_f);
     
-    void prepare_training_file_listwise(const std::string & query_file, int num_features);
+    void prepare_training_file();
     
-    void create_ranker(int ranker_type);
+    void create_ranker(int ranker_t);
     
 //    void test(Xapian::RankList rl);
+
+private:
+    int ranker_type;
+    std::string query_file;
+    // for svm
+    std::string qrel_file;
+    Xapian::doccount mset_size;
+    // for listwise
+    int num_features;
+
+
+    void prepare_training_file_svm(const std::string & query_f, const std::string & qrel_f, Xapian::doccount mset_s);
+    void prepare_training_file_listwise(const std::string & query_f, int num_f);
 };
 
 }
