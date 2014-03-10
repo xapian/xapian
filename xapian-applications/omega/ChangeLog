@@ -1,3 +1,8 @@
+Mon Mar 10 06:23:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc,expand.h,omega.cc,query.cc: Fix $set{expand,trad <K>} to
+	  work when built against an older xapian-core.
+
 Mon Mar 10 04:22:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* expand.cc: Only use new query expansion API if built against

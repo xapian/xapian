@@ -29,14 +29,6 @@
 #include "safeerrno.h"
 #include "common/noreturn.h"
 
-#ifndef XAPIAN_AT_LEAST
-#define XAPIAN_AT_LEAST(A,B,C) \
-    (XAPIAN_MAJOR_VERSION > (A) || \
-     (XAPIAN_MAJOR_VERSION == (A) && \
-      (XAPIAN_MINOR_VERSION > (B) || \
-       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))
-#endif
-
 using namespace std;
 
 XAPIAN_NORETURN(static void
@@ -63,6 +55,10 @@ double_param(const char ** p, double * ptr_val)
     *ptr_val = v;
     return true;
 }
+
+#if !XAPIAN_AT_LEAST(1,3,2)
+double expand_param_k = 1.0;
+#endif
 
 void
 set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
@@ -99,6 +95,24 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	}
 	if (C_isspace((unsigned char)*p)) {
 	    throw "No parameters are required for BO1";
+	}
+    }
+#else
+    if (startswith(scheme, "trad")) {
+	const char *p = scheme.c_str() + 4;
+	if (*p == '\0') {
+	    return;
+	}
+	if (C_isspace((unsigned char)*p)) {
+	    double k;
+	    if (!double_param(&p, &k))
+		parameter_error("Parameter k is invalid", scheme);
+	    if (*p)
+		parameter_error("Extra data after first parameter", scheme);
+	    expand_param_k = k;
+	    // Avoid "unused parameter" error.
+	    (void)enq;
+	    return;
 	}
     }
 #endif

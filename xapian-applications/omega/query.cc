@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -24,6 +24,11 @@
  */
 
 #include <config.h>
+
+// If we're building against git after the expand API changed but before the
+// version gets bumped to 1.3.2, we'll get a deprecation warning from
+// get_eset() unless we suppress such warnings here.
+#define XAPIAN_DEPRECATED(D) D
 
 #include <algorithm>
 #include <iostream>
@@ -1994,7 +1999,12 @@ eval(const string &fmt, const vector<string> &param)
 
 		    if (!rset.empty()) {
 			set_expansion_scheme(*enquire, option);
+#if XAPIAN_AT_LEAST(1,3,2)
 			eset = enquire->get_eset(howmany * 2, rset, &decider);
+#else
+			eset = enquire->get_eset(howmany * 2, rset, 0,
+						 expand_param_k, &decider);
+#endif
 		    } else if (mset.size()) {
 			// invent an rset
 			Xapian::RSet tmp;
@@ -2008,7 +2018,12 @@ eval(const string &fmt, const vector<string> &param)
 			}
 
 			set_expansion_scheme(*enquire, option);
+#if XAPIAN_AT_LEAST(1,3,2)
 			eset = enquire->get_eset(howmany * 2, tmp, &decider);
+#else
+			eset = enquire->get_eset(howmany * 2, tmp, 0,
+						 expand_param_k, &decider);
+#endif
 		    }
 
 		    // Don't show more than one word with the same stem.

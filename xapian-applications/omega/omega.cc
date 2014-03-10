@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,11 @@
  */
 
 #include <config.h>
+
+// If we're building against git after the expand API changed but before the
+// version gets bumped to 1.3.2, we'll get a deprecation warning from
+// get_eset() unless we suppress such warnings here.
+#define XAPIAN_DEPRECATED(D) D
 
 #include <cstdio>
 #include <ctime>
@@ -204,7 +209,12 @@ try {
 
 	    OmegaExpandDecider decider(db);
 	    set_expansion_scheme(*enquire, option);
+#if XAPIAN_AT_LEAST(1,3,2)
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
+#else
+	    Xapian::ESet eset(enquire->get_eset(40, tmprset, 0,
+						expand_param_k, &decider));
+#endif
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if (!query_string.empty()) query_string += ' ';
 		query_string += pretty_term(*i);

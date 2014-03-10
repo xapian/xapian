@@ -27,6 +27,18 @@
 #include <string>
 #include <map>
 
+#ifndef XAPIAN_AT_LEAST
+#define XAPIAN_AT_LEAST(A,B,C) \
+    (XAPIAN_MAJOR_VERSION > (A) || \
+     (XAPIAN_MAJOR_VERSION == (A) && \
+      (XAPIAN_MINOR_VERSION > (B) || \
+       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))
+#endif
+
+#if !XAPIAN_AT_LEAST(1,3,2)
+extern double expand_param_k;
+#endif
+
 void set_expansion_scheme(Xapian::Enquire & enq,
 			  const std::map<std::string, std::string> & opt);
 
