@@ -185,6 +185,3 @@ useful) would be as follows:
    function mymatchdecider(doc)
       return 1
    end
-
-*Last updated $Date$*
-

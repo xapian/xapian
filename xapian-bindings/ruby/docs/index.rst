@@ -183,6 +183,3 @@ useful) would be as follows:
       return true
     end
   end
-
-*Last updated $Date: 2006-04-01 16:35:10 +0100 (Sat, 01 Apr 2006)*
-

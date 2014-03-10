@@ -199,6 +199,3 @@ useful) would be as follows:
 		return true;
 	    }
 	}
-
-
-Last updated $Date: 2005-12-12T02:56:23.742308Z $

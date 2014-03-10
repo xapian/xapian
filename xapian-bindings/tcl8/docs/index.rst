@@ -206,5 +206,3 @@ There is an additional method ``get_matching_terms`` which takes
 an MSetIterator and returns a list of terms in the current query which
 match the document given by that iterator.  You may find this
 more convenient than using the TermIterator directly.
-
-*Last updated $Date$*
