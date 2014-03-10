@@ -29,6 +29,14 @@
 #include "safeerrno.h"
 #include "common/noreturn.h"
 
+#ifndef XAPIAN_AT_LEAST
+#define XAPIAN_AT_LEAST(A,B,C) \
+    (XAPIAN_MAJOR_VERSION > (A) || \
+     (XAPIAN_MAJOR_VERSION == (A) && \
+      (XAPIAN_MINOR_VERSION > (B) || \
+       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))
+#endif
+
 using namespace std;
 
 XAPIAN_NORETURN(static void
@@ -65,6 +73,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
     const string & scheme = i->second;
     if (scheme.empty()) return;
 
+#if XAPIAN_AT_LEAST(1,3,2)
     if (startswith(scheme, "trad")) {
 	const char *p = scheme.c_str() + 4;
 	if (*p == '\0') {
@@ -92,6 +101,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    throw "No parameters are required for BO1";
 	}
     }
+#endif
 
     throw "Unknown $opt{expansion} setting: " + scheme;
 }
