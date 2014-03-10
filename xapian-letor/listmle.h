@@ -1,4 +1,4 @@
-/* listmle.h: The abstract ranker file.
+/* listmle.h: The ListMLE file.
  *
  * Copyright (C) 2012 Rishabh Mehrotra
  *
@@ -23,60 +23,54 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranker.h"
 #include "ranklist.h"
+#include "ranker.h"
 //#include "evalmetric.h"
 
-#include <list>
 #include <map>
 #include <vector>
 #include <string>
-#include <iostream>
-#include <fstream>
-#include <math.h>
 
 using namespace std;
-//typedef map<int,double> tuple;
-//typedef vector<tuple> instance;
-//typedef vector<double> scores;
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT ListMLE: public Ranker {
 
-  public:
+public:
+    ListMLE() {};
+    virtual ~ListMLE() {};
+
+    using Ranker::rank;
+    virtual Xapian::RankList rank(const Xapian::RankList rlist);
+
+    using Ranker::set_training_data;
+    virtual void set_training_data(vector<Xapian::RankList> training_data);
+
+    using Ranker::learn_model;
+    virtual void learn_model();
+
+    using Ranker::load_model;
+    virtual void load_model(const std::string & model_file_name);
+
+    using Ranker::save_model;
+    virtual void save_model(const std::string & model_file_name);
+
+    using Ranker::score_doc;
+    virtual double score_doc(Xapian::FeatureVector fv);
+    
+
+private:
     string models;
     vector<double> parameters;
     double tolerance_rate;
     double learning_rate;
-    vector<Xapian::RankList> training_data;
-    //vector<scores> all_tuple_scores;
-    
-  public:
-    ListMLE() {};
 
 
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz listmle.cc , listnet.cc, listmle.cc and so on
-     */
-    Xapian::RankList rank(const Xapian::RankList rlist);
-    
-    void set_training_data(vector<Xapian::RankList> training_data1);
-
-    void learn_model();
-
-    void load_model(const std::string & model_file_name);
-
-    void save_model(const std::string & model_file_name);
-
-    double score_doc(Xapian::FeatureVector fv);
-    
-    //vector<double> listmle_train(vector<instance> & instances, double tolerance_rate, double learning_rate);
-    
     vector<double> listmle_train(vector<RankList> & samples);
 
 };

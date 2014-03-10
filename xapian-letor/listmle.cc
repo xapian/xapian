@@ -19,28 +19,28 @@
  */
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranker.h"
 #include "ranklist.h"
 //#include "evalmetric.h"
 #include "listmle.h"
 
-#include "str.h"
-#include "stringutils.h"
-#include <string.h>
+// #include "str.h"
+// #include "stringutils.h"
 
-#include <list>
-#include <string>
+#include "safeunistd.h"
+
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <map>
 #include <vector>
-#include <math.h>
 
-#define Malloc(type,n) (type *)malloc((n)*sizeof(type))
+#include <cstring>
+#include <cmath>
+
 
 using namespace std;
 using namespace Xapian;
@@ -48,11 +48,11 @@ using namespace Xapian;
 //static char *line = "";
 //static int max_line_len;
 
-int MAXPATHLENTH=200;
+int MAXPATHLENTH_MLE=200;
 
 static string get_cwd() {
-    char temp[MAXPATHLENTH];
-    return ( getcwd(temp, MAXPATHLENTH) ? std::string( temp ) : std::string() );
+    char temp[MAXPATHLENTH_MLE];
+    return ( getcwd(temp, MAXPATHLENTH_MLE) ? std::string( temp ) : std::string() );
 }
 
 inline int max_position( vector<double> & v){

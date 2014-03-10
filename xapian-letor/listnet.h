@@ -23,49 +23,54 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranker.h"
 #include "ranklist.h"
+#include "ranker.h"
 //#include "evalmetric.h"
 
-#include <list>
 #include <map>
 #include <vector>
 #include <string>
-#include <iostream>
-#include <fstream>
-#include <math.h>
 
 using namespace std;
+
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT ListNET: public Ranker {
 
-  public:
+public:
+    ListNET() {};
+    virtual ~ListNET() {};
+
+    using Ranker::rank;
+    virtual Xapian::RankList rank(const Xapian::RankList rlist);
+
+    using Ranker::set_training_data;
+    virtual void set_training_data(vector<Xapian::RankList> training_data);
+
+    using Ranker::learn_model;
+    virtual void learn_model();
+
+    using Ranker::load_model;
+    virtual void load_model(const std::string & model_file_name);
+
+    using Ranker::save_model;
+    virtual void save_model(const std::string & model_file_name);
+
+    using Ranker::score_doc;
+    virtual double score_doc(Xapian::FeatureVector fv);
+    
+
+private:
     string models;
     vector<double> parameters;
-    double tolerance_rate;
+    // double tolerance_rate;
     double learning_rate;
-    vector<Xapian::RankList> training_data;
-    
-  public:
-    ListNET() {};
 
-    Xapian::RankList rank(const Xapian::RankList rlist);
-    
-    void set_training_data(vector<Xapian::RankList> training_data1);
 
-    void learn_model();
-
-    void load_model(const std::string & model_file_name);
-
-    void save_model(const std::string & model_file_name);
-
-    double score_doc(Xapian::FeatureVector fv);
-    
     vector<double> listnet_train(vector<RankList> & samples);
 
 };
