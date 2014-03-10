@@ -23,53 +23,56 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <ranklist.h>
-#include <evalmetric.h>
+#include "ranklist.h"
+// #include <evalmetric.h>
 
 #include <list>
 #include <map>
 #include <vector>
 
-
 using namespace std;
-
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
-
-    std::list<Xapian::RankList> traindata;
+public:
+    vector<Xapian::RankList> training_data;
     std::list<Xapian::RankList> validata;
     std::list<Xapian::RankList> testdata;
 
-    Xapian::EvalMetric trainMetric;
-    Xapian::EvalMetric testMetric;
-  public:
-    Ranker();
+    // Xapian::EvalMetric trainMetric;
+    // Xapian::EvalMetric testMetric;
+
+
+    Ranker() {};
+    virtual ~Ranker() {};
 
     /* Override all the four methods below in the ranker sub-classes files
      * wiz svmranker.cc , listnet.cc, listmle.cc and so on
      */
-    std::vector<double> rank(const Xapian::RankList & rl);
-    
-    void set_training_data(vector<Xapian::RankList> training_data1);
+    // std::vector<double> rank(const Xapian::RankList & rl);
+    virtual Xapian::RankList rank(const Xapian::RankList rlist) = 0;
 
-    void learn_model();
+    virtual void set_training_data(vector<Xapian::RankList> training_data1) = 0;
 
-    void load_model(const std::string & model_file);
+    virtual void learn_model() = 0;
 
-    void save_model();
+    virtual void load_model(const std::string & model_file) = 0;
 
-    /* This method shoudl read the letor format data and transform into the list of 
+    virtual void save_model(const std::string & model_file) = 0;
+
+    virtual double score_doc(Xapian::FeatureVector fv) = 0;
+
+    /* This method should read the letor format data and transform into the list of 
      * Xapian::RankList format
      */
-    std::list<Xapian::RankList> load_data(const std::string & data_file);
 
+    // std::list<Xapian::RankList> load_data(const std::string & data_file);
 };
 
 }
