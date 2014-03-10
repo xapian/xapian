@@ -64,6 +64,14 @@ Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
 		longer supported by the Tcl developers, so it doesn't make
 		sense for us to expend effort to support them).
 
+Languages Supported Elsewhere
+-----------------------------
+
+Erlang		Available from:
+		https://github.com/arcusfelis/xapian-erlang-bindings/#readme
+
+Node.js		Available from:
+		https://github.com/mtibeica/node-xapian#readme
 
 If you're interest in getting other languages supported, see the "Adding
 support for other programming languages" section in the file HACKING.
