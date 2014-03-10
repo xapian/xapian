@@ -23,42 +23,60 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranker.h"
 #include "ranklist.h"
-#include "featurevector.h"
+#include "ranker.h"
 //#include "evalmetric.h"
 
-#include <list>
-#include <map>
+
+// #include <map>
+#include <libsvm/svm.h>
 
 using namespace std;
-
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
-    string model;
-    double weight[];
-  public:
+public:
     SVMRanker() {};
+    ~SVMRanker() {};
 
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
-     */
-    std::list<double> rank(const Xapian::RankList & rl);
+    using Ranker::rank;
+    virtual Xapian::RankList rank(const Xapian::RankList rlist);
 
-    void learn_model();
+    using Ranker::set_training_data;
+    virtual void set_training_data(std::vector<Xapian::RankList> training_data);
 
-    void load_model(const std::string & model_file);
+    using Ranker::learn_model;
+    virtual void learn_model();
 
-    void save_model();
+    using Ranker::load_model;
+    virtual void load_model(const std::string & model_file_name);
 
-    double score(const Xapian::FeatureVector & fv);
+    using Ranker::save_model;
+    virtual void save_model(const std::string & model_file_name);
+
+    using Ranker::score_doc;
+    virtual double score_doc(Xapian::FeatureVector fv);
+
+private:
+    struct svm_parameter param;
+    struct svm_problem prob;
+    struct svm_model *model;
+    struct svm_node *x_space;
+    int cross_validation;
+    // int nr_fold;
+
+    struct svm_node *x;
+
+    int predict_probability;
+    
+
+    void read_problem();
 
 };
 
