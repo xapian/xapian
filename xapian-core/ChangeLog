@@ -11,11 +11,11 @@ Fri Mar 07 00:39:11 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Fix typo and RST markup.
 
-Fri Mar 07 00:21:16 GMT 2014  VcmaX <vcamx3@gmail.com>
+Fri Mar 07 00:21:16 GMT 2014  VcamX <vcamx3@gmail.com>
 
 	* HACKING: Note packages to install from homebrew on Mac OS X.
 
-Fri Mar 07 00:17:01 GMT 2014  VcmaX <vcamx3@gmail.com>
+Fri Mar 07 00:17:01 GMT 2014  VcamX <vcamx3@gmail.com>
 
 	* backends/dbcheck.cc,common/pack.h: Fix warnings with clang 5.0.
 
