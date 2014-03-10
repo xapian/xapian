@@ -22,14 +22,14 @@
 #define FEATURE_MANAGER_H
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <xapian/letor.h>
 #include "letor_features.h"
 #include "featurevector.h"
 #include "ranklist.h"
+
 #include <map>
 #include <string>
 
@@ -37,6 +37,7 @@ using namespace std;
 
 namespace Xapian {
 
+class Features;
 class RankList;//WHY???
 class FeatureVector;//WHY???
 
@@ -50,7 +51,8 @@ public:
     
     std::map<int,double> transform(const Document &doc, double &weight);
 
-    Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid);
+    Xapian::RankList create_rank_list(const Xapian::MSet & mset, std::string & qid);
+    Xapian::RankList create_rank_list_from_training_file(const Xapian::MSet & mset, std::string & qid);
 
     map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
     

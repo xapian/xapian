@@ -39,38 +39,141 @@ FeatureManager::get_label(map<string, map<string, int> > qrel2, const Document &
 
     outerit = qrel2.find(qid);
     if (outerit != qrel2.end()) {
-	innerit = outerit->second.find(id);
-	if (innerit != outerit->second.end()) {
-        label = innerit->second;
-	}
+    	innerit = outerit->second.find(id);
+    	if (innerit != outerit->second.end()) {
+            label = innerit->second;
+    	}
     }
     return label;
 }
 
-Xapian::RankList
-FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid) {
-    Xapian::RankList rlist;
+map<string, map<string,int> >
+FeatureManager::load_relevance(const std::string & qrel_file) {
+    typedef map<string, int> Map1;      //docid and relevance judjement 0/1
+    // typedef map<string, Map1> Map2;     // qid and map1
+    // Map2 qrel1;
 
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+    string inLine;
+    ifstream myfile (qrel_file.c_str(), ifstream::in);
+    string token[4];
+
+    if (myfile.is_open())
+    {
+        while (myfile.good()) {
+            getline(myfile, inLine);        //read a file line by line
+            char * str;
+            char * x1;
+
+            x1 = const_cast<char*>(inLine.c_str());
+            str = strtok(x1, " ,.-");
+            int i = 0;
+            while (str != NULL) {
+                token[i] = str;     //store tokens in a string array
+                ++i;
+                str = strtok(NULL, " ,.-");
+            }
+
+            qrel.insert(make_pair(token[0], Map1()));
+            qrel[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
+        }
+        myfile.close();
+    }
+    return qrel;
+}
+
+// Xapian::RankList
+// FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid)
+// {
+//     Xapian::RankList rlist;
+
+//     // set query id for this rank list
+//     rlist.set_qid(qid); 
+
+//     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i)
+//     {    
+//         Xapian::Document doc = i.get_document();
         
-        Xapian::Document doc = i.get_document();
-        
+//         // Here a weight vector can be created in future for different weights of the document 
+//         // like BM25, LM etc. 
+//         double weight = i.get_weight();
+
+//         map<int, double> fVals = transform(doc, weight);
+//         string did = get_did(doc);
+//         int label = get_label(qrel, doc, qid);
+
+//         if(label != -1) {
+//             Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
+//             rlist.set_qid(qid);
+//             rlist.add_feature_vector(fv);
+//         }
+//     }
+//     std::vector<FeatureVector> normalized_rl = rlist.normalise();
+//     rlist.set_rl(normalized_rl);    //coz i wasn't sure whether the changes will be reflected back from the normalize function.
+//     return rlist;
+// }
+
+Xapian::RankList
+FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid)
+{
+    Xapian::RankList rlist;
+    
+    // set query id for this rank list
+    rlist.set_qid(qid); 
+
+    for (Xapian::MSetIterator mset_it = mset.begin(); mset_it != mset.end(); ++mset_it)
+    {    
+        Xapian::Document doc = mset_it.get_document();
+
         // Here a weight vector can be created in future for different weights of the document 
         // like BM25, LM etc. 
-        double weight = i.get_weight();
+        double weight = mset_it.get_weight();
 
-        map<int,double> fVals = transform(doc, weight);
+        map<int, double> fVals = transform(doc, weight);
         string did = get_did(doc);
+
+        // get relavance from qrel file
+        // int label = get_label(qrel, doc, qid);
+        int label = 0;
+
+        Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
+        rlist.add_feature_vector(fv);
+    }
+    std::vector<FeatureVector> normalized_rl = rlist.normalise();
+    rlist.set_rl(normalized_rl);    //coz i wasn't sure whether the changes will be reflected back from the normalize function.
+    return rlist;
+}
+
+Xapian::RankList
+FeatureManager::create_rank_list_from_training_file(const Xapian::MSet & mset, std::string & qid)
+{
+    Xapian::RankList rlist;
+    
+    // set query id for this rank list
+    rlist.set_qid(qid); 
+
+    for (Xapian::MSetIterator mset_it = mset.begin(); mset_it != mset.end(); ++mset_it)
+    {    
+        Xapian::Document doc = mset_it.get_document();
+
+        // Here a weight vector can be created in future for different weights of the document 
+        // like BM25, LM etc. 
+        double weight = mset_it.get_weight();
+
+        map<int, double> fVals = transform(doc, weight);
+        string did = get_did(doc);
+
+        // get relavance from qrel file
         int label = get_label(qrel, doc, qid);
 
-        if(label!=-1) {
+        if(label != -1)     // -1 means can't find relevance from qrel file
+        {
             Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
-            rlist.set_qid(qid);
+            // rlist.set_qid(qid);
             rlist.add_feature_vector(fv);
         }
     }
     std::vector<FeatureVector> normalized_rl = rlist.normalise();
-    rlist.set_rl(normalized_rl);//coz i wasn't sure whether the changes will be reflected back from the normalize function.
+    rlist.set_rl(normalized_rl);    //coz i wasn't sure whether the changes will be reflected back from the normalize function.
     return rlist;
 }
 
@@ -84,40 +187,6 @@ FeatureManager::create_feature_vector(map<int,double> fvals, int &label, std::st
     return fv;
 }
 
-map<string, map<string,int> >
-FeatureManager::load_relevance(const std::string & qrel_file) {
-    typedef map<string, int> Map1;      //docid and relevance judjement 0/1
-    typedef map<string, Map1> Map2;     // qid and map1
-    Map2 qrel1;
-
-    string inLine;
-    ifstream myfile (qrel_file.c_str(), ifstream::in);
-    string token[4];
-    if (myfile.is_open()) {
-    while (myfile.good()) {
-        getline(myfile, inLine);        //read a file line by line
-        char * str;
-        char * x1;
-        x1 = const_cast<char*>(inLine.c_str());
-        str = strtok(x1, " ,.-");
-        int i = 0;
-        while (str != NULL) {
-        token[i] = str;     //store tokens in a string array
-        ++i;
-        str = strtok(NULL, " ,.-");
-        }
-
-        qrel1.insert(make_pair(token[0], Map1()));
-        qrel1[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
-    }
-    myfile.close();
-    }
-    return qrel1;
-}
-
-
-
-
 std::map<int,double>
 FeatureManager::transform(const Document &doc, double &weight)
 {
@@ -127,37 +196,39 @@ FeatureManager::transform(const Document &doc, double &weight)
 
     double val[20];// = new double[fCount+1];
 
+    // val[0] is unused since relavance is stored as label in feature vector
+
     // storing the feature values from array index 1 to sync it with feature number.
-    val[1]=f.calculate_f1(letor_query,tf,'t');
-    val[2]=f.calculate_f1(letor_query,tf,'b');
-    val[3]=f.calculate_f1(letor_query,tf,'w');
+    val[1]  = f.calculate_f1(letor_query, tf, 't');
+    val[2]  = f.calculate_f1(letor_query, tf, 'b');
+    val[3]  = f.calculate_f1(letor_query, tf, 'w');
+   
+    val[4]  = f.calculate_f2(letor_query, tf, doclen, 't');
+    val[5]  = f.calculate_f2(letor_query, tf, doclen, 'b');
+    val[6]  = f.calculate_f2(letor_query, tf, doclen, 'w');
+   
+    val[7]  = f.calculate_f3(letor_query, idf, 't');
+    val[8]  = f.calculate_f3(letor_query, idf, 'b');
+    val[9]  = f.calculate_f3(letor_query, idf, 'w');
+ 
+    val[10] = f.calculate_f4(letor_query, coll_tf, coll_len, 't');
+    val[11] = f.calculate_f4(letor_query, coll_tf, coll_len, 'b');
+    val[12] = f.calculate_f4(letor_query, coll_tf, coll_len, 'w');
+  
+    val[13] = f.calculate_f5(letor_query, tf, idf, doclen, 't');
+    val[14] = f.calculate_f5(letor_query, tf, idf, doclen, 'b');
+    val[15] = f.calculate_f5(letor_query, tf, idf, doclen, 'w');
+   
+    val[16] = f.calculate_f6(letor_query, tf, doclen, coll_tf, coll_len, 't');
+    val[17] = f.calculate_f6(letor_query, tf, doclen, coll_tf, coll_len, 'b');
+    val[18] = f.calculate_f6(letor_query, tf, doclen, coll_tf, coll_len, 'w');
 
-    val[4]=f.calculate_f2(letor_query,tf,doclen,'t');
-    val[5]=f.calculate_f2(letor_query,tf,doclen,'b');
-    val[6]=f.calculate_f2(letor_query,tf,doclen,'w');
+// this wei ght can be either set on the outside how it is done right now
+// or, bett er, extend Enquiry to support advanced ranking models
+    val[19] = weight;
 
-    val[7]=f.calculate_f3(letor_query,idf,'t');
-    val[8]=f.calculate_f3(letor_query,idf,'b');
-    val[9]=f.calculate_f3(letor_query,idf,'w');
-
-    val[10]=f.calculate_f4(letor_query,coll_tf,coll_len,'t');
-    val[11]=f.calculate_f4(letor_query,coll_tf,coll_len,'b');
-    val[12]=f.calculate_f4(letor_query,coll_tf,coll_len,'w');
-
-    val[13]=f.calculate_f5(letor_query,tf,idf,doclen,'t');
-    val[14]=f.calculate_f5(letor_query,tf,idf,doclen,'b');
-    val[15]=f.calculate_f5(letor_query,tf,idf,doclen,'w');
-
-    val[16]=f.calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'t');
-    val[17]=f.calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'b');
-    val[18]=f.calculate_f6(letor_query,tf,doclen,coll_tf,coll_len,'w');
-
-// this weight can be either set on the outside how it is done right now
-// or, better, extend Enquiry to support advanced ranking models
-    val[19]=weight;
-
-    for(int i=0; i<=fNum;i++)
-        fvals.insert(pair<int,double>(i,val[i]));
+    for(int i=0; i<=fNum; i++)
+        fvals.insert(pair<int, double>(i, val[i]));
 
     return fvals;
 }
