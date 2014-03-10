@@ -23,7 +23,7 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -40,7 +40,7 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT EvalMetric {
 
     /** This should be used for evaluation metrics like NDCG@k, MRR@k etc */
-    int k;
+    // int k;
   public:
     EvalMetric();
 
