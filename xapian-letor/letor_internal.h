@@ -23,34 +23,34 @@
 #define XAPIAN_INCLUDED_LETOR_INTERNAL_H
 
 #include <xapian/letor.h>
-#include "ranker.h"
 
+#include "ranker.h"
+ 
 #include <map>
 
 using namespace std;
 
-
 namespace Xapian {
 
-class Letor::Internal : public Xapian::Internal::intrusive_base {
+class Letor::Internal : public Xapian::Internal::intrusive_base
+{
     friend class Letor;
-    Ranker ranker;
+
+public:
+    Ranker *ranker;
     Database letor_db;
     Query letor_query;
     //vector<Xapian::RankList> samples;
-
-  public:
 
     std::map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
 
     void letor_learn_model();
 
-    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
+    void prepare_training_file_svm(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
     
     void prepare_training_file_listwise(const std::string & query_file, int num_features);
     
     vector<Xapian::RankList> load_list_ranklist(const char *filename);
-
 
 };
 
