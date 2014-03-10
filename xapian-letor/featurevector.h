@@ -23,7 +23,7 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -40,11 +40,11 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
   public:
   
-    double label;
+    double label;       // relavance
     double score;
     std::map<int,double> fvals;
-    int fcount;
-    string did;
+    int fcount;         // the number of features
+    string did;         // document ID
 
     FeatureVector();
 

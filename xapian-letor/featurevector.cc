@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
