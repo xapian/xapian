@@ -6,7 +6,7 @@ Mon Mar 10 02:35:19 GMT 2014  Olly Betts <olly@survex.com>
 
 	* csharp/docs/index.rst,lua/docs/index.rst,php/docs/index.rst,
 	  python/docs/index.rst,ruby/docs/index.rst,tcl8/docs/index.rst:
-	  Remove use of $Date$, as it's not expanded by git, and the "last
+	  Remove use of "$Date" as it's not expanded by git, and the "last
 	  updated" information isn't all that informative anyway - there can
 	  still be stale information even if the file was updated very
 	  recently.
