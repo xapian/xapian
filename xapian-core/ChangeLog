@@ -1,3 +1,8 @@
+Thu Mar 13 06:41:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Add --default-op option.
+
 Thu Mar 13 06:35:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

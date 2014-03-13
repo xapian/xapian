@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,6 +69,21 @@ inline bool operator<(const qp_flag & f1, const qp_flag & f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
+struct qp_op { const char * s; unsigned f; };
+static qp_op op_tab[] = {
+    { "and", Xapian::Query::OP_AND },
+    { "elite_set", Xapian::Query::OP_ELITE_SET },
+    { "near", Xapian::Query::OP_NEAR },
+    { "or", Xapian::Query::OP_OR },
+    { "phrase", Xapian::Query::OP_PHRASE },
+    { "synonym", Xapian::Query::OP_SYNONYM }
+};
+const int n_op_tab = sizeof(op_tab) / sizeof(op_tab[0]);
+
+inline bool operator<(const qp_op & f1, const qp_op & f2) {
+    return strcmp(f1.s, f2.s) < 0;
+}
+
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
@@ -98,6 +113,22 @@ static void show_usage() {
 	pos += len + 2;
     }
     cout << "\n"
+"  -o, --default-op=OP               specify QueryParser default operator\n"
+"                                    (default: or).  Valid operators:";
+    pos = 256;
+    for (const qp_op * i = op_tab; i - op_tab < n_op_tab; ++i) {
+	size_t len = strlen(i->s);
+	if (pos < 256) cout << ',';
+	if (pos + len >= 78) {
+	    cout << "\n"INDENT;
+	    pos = sizeof(INDENT) - 2;
+	} else {
+	    cout << ' ';
+	}
+	cout << i->s;
+	pos += len + 2;
+    }
+    cout << "\n"
 "  -h, --help                        display this help and exit\n"
 "  -v, --version                     output version information and exit\n";
 }
@@ -113,10 +144,21 @@ decode_qp_flag(const char * s)
     return p->f;
 }
 
+static int
+decode_qp_op(const char * s)
+{
+    qp_op f;
+    f.s = s;
+    const qp_op * p = lower_bound(op_tab, op_tab + n_op_tab, f);
+    if (p == op_tab + n_op_tab || f < *p)
+	return -1;
+    return p->f;
+}
+
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "c:d:m:s:p:b:f:hv";
+    const char * opts = "c:d:m:s:p:b:f:o:hv";
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
@@ -125,6 +167,7 @@ try {
 	{ "prefix",	required_argument, 0, 'p' },
 	{ "boolean-prefix",	required_argument, 0, 'b' },
 	{ "flags",	required_argument, 0, 'f' },
+	{ "default-op",	required_argument, 0, 'o' },
 	{ "help",	no_argument, 0, 'h' },
 	{ "version",	no_argument, 0, 'v' },
 	{ NULL,		0, 0, 0}
@@ -210,6 +253,15 @@ try {
 		    optarg = comma;
 		} while (optarg);
 		break;
+	    case 'o': {
+		int op = decode_qp_op(optarg);
+		if (op < 0) {
+		    cerr << "Unknown op '" << optarg << "'" << endl;
+		    exit(1);
+		}
+		parser.set_default_op(static_cast<Xapian::Query::op>(op));
+		break;
+	    }
 	    case 'v':
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
@@ -230,7 +282,6 @@ try {
     }
 
     parser.set_database(db);
-    parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
