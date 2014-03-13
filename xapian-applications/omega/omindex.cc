@@ -101,6 +101,10 @@ static Xapian::doccount old_docs_not_seen;
 static Xapian::docid old_lastdocid;
 static vector<bool> updated;
 
+// The longest string after a '.' to treat as an extension.  If there's a
+// longer entry in the mime_map, we set this to that length instead.
+static size_t max_ext_len = 7;
+
 static void
 mark_as_seen(Xapian::docid did)
 {
@@ -315,8 +319,11 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 {
     string ext;
     const char * dot_ptr = strrchr(d.leafname(), '.');
-    if (dot_ptr)
+    if (dot_ptr) {
 	ext.assign(dot_ptr + 1);
+	if (ext.size() > max_ext_len)
+	    ext.resize(0);
+    }
 
     string mimetype = mimetype_from_ext(mime_map, ext);
     if (mimetype.empty()) {
@@ -892,7 +899,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    indexer.increase_termpos(100);
 	    string leaf = d.leafname();
 	    string::size_type dot = leaf.find_last_of('.');
-	    if (dot != string::npos)
+	    if (dot != string::npos && leaf.size() - dot - 1 <= max_ext_len)
 		leaf.resize(dot);
 	    indexer.index_text(leaf);
 	}
@@ -1618,6 +1625,12 @@ main(int argc, char **argv)
 	indexer.set_stemmer(stemmer);
 
 	runfilter_init();
+
+	// Find the longest extension in the map.
+	map<string,string>::const_iterator mt;
+	for (mt = mime_map.begin(); mt != mime_map.end(); ++mt) {
+	    max_ext_len = max(max_ext_len, mt->first.size());
+	}
 
 	index_directory(root + start_url, baseurl + start_url, depth_limit, mime_map, sample_size);
 	if (delete_removed_documents && old_docs_not_seen) {

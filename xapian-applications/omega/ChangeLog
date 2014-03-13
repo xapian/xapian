@@ -1,3 +1,9 @@
+Thu Mar 13 01:41:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Restrict the length of what we consider to be an
+	  extension, currently to 7 characters or whatever the longest
+	  extension in the mime_map is if it is longer.
+
 Mon Mar 10 06:23:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* expand.cc,expand.h,omega.cc,query.cc: Fix $set{expand,trad <K>} to
