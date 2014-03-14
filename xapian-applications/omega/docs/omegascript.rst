@@ -386,6 +386,14 @@ $set{OPT,VALUE}
           their default values.  Valid scheme names are ``bm25``, ``bool``, and
           ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
 
+        * expansion - (supported in 1.2.18 and later) set the query expansion
+          scheme to use, and (optionally) the parameters to use if the
+          expansion scheme supports them. The syntax is a string consisting of
+          the scheme name followed by any parameters, all separated by
+          whitespace.  Any parameters not specified will use their default
+          values.  The only valid expansion scheme name in 1.2.x is ``trad``.
+          e.g. ``$set{expansion,trad 2.0}``
+
 	Omega 1.2.5 and later support the following options can be set to a
 	non-empty value to enable the corresponding ``QueryParser`` flag.
 	Omega sets ``flag_default`` to ``true`` by default - you can set it to

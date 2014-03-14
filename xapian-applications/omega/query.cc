@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -64,6 +64,7 @@
 #include "unixperm.h"
 #include "values.h"
 #include "weight.h"
+#include "expand.h"
 
 #include <xapian.h>
 
@@ -1918,7 +1919,9 @@ eval(const string &fmt, const vector<string> &param)
 		    OmegaExpandDecider decider(db, &termset);
 
 		    if (!rset.empty()) {
-			eset = enquire->get_eset(howmany * 2, rset, &decider);
+			set_expansion_scheme(*enquire, option);
+			eset = enquire->get_eset(howmany * 2, rset, 0,
+						 expand_param_k, &decider);
 		    } else if (mset.size()) {
 			// invent an rset
 			Xapian::RSet tmp;
@@ -1931,7 +1934,9 @@ eval(const string &fmt, const vector<string> &param)
 			    if (--c == 0) break;
 			}
 
-			eset = enquire->get_eset(howmany * 2, tmp, &decider);
+			set_expansion_scheme(*enquire, option);
+			eset = enquire->get_eset(howmany * 2, tmp, 0,
+						 expand_param_k, &decider);
 		    }
 
 		    // Don't show more than one word with the same stem.
