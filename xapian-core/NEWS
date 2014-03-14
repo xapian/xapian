@@ -1,3 +1,69 @@
+ 17912       olly Fri Mar 14 08:14:46 GMT 2014  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.18 (2014-03-14):
+
+
+API:
+
+
+testsuite:
+
+* apitest: Expand crashrecovery1 to check that the expected base files exist
+  and ones which shouldn't exist don't.
+
+matcher:
+
+* OP_SYNONYM: avoid fetching the doclength if the weighting scheme doesn't
+  need it and the calculated wdf for the synonym is <= doclength_lower_bound
+  for the current subdatabase.  (fixes #360)
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* docs/sorting.rst: Fix incorrect parameter types in Xapian::Weight
+  subclass example.
+
+* docs/glossary.rst: Add definition of "collection frequency".
+
+* HACKING: makeindex is now in Debian package texlive-binaries.
+
+tools:
+
+
+examples:
+
+* quest: Add --default-op option.
+
+portability:
+
+* docs/quickstart.rst: Split --cxxflags and --libs for portability (noted by
+  "Hurricane Tong" on xapian-devel).
+
+* Fix warnings with clang 5.0.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.17 (2014-01-29):
 
 API:
