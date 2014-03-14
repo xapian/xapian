@@ -1,3 +1,39 @@
+ 17914       olly Fri Mar 14 08:30:46 GMT 2014  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.18 (2014-03-14):
+
+Documentation:
+
+* README: Add links to Erlang and Node.js bindings.
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+* php/smoketest.php: Add missing "exit(1);" after reporting failure of check
+  that MatchDecider returns an MSet with the expected docid in.
+
+Python:
+
+Ruby:
+
+* configure: Fix Ruby bindings to build on Windows (and other platforms where
+  allow_undefined_flag=unsupported. (fixes#634)
+
+Tcl:
+
 Xapian-bindings 1.2.17 (2014-01-29):
 
 Portability:
