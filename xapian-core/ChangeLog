@@ -1,3 +1,12 @@
+Fri Mar 14 07:11:29 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/brass/brass_positionlist.h,
+	  backends/chert/chert_positionlist.h,
+	  backends/flint/flint_positionlist.h: Remove next_internal() methods
+	  which were declared but not defined or used (left-overs from flint).
+	  Reported by "Hurricane Tong".
+
 Fri Mar 14 00:40:42 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
