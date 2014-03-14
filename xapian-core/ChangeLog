@@ -1,3 +1,7 @@
+Fri Mar 14 09:53:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: MacTeX seems to be the best option if using homebrew.
+
 Fri Mar 07 23:17:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/maxpostlist.cc: More fixes for --enable.log.

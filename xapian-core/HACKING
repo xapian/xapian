@@ -331,12 +331,15 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
-For texlive, texlive-basic and texlive-latex-extra, you can just install MacTeX
-instead, which includes these three packages.
+Alternatively, you can install MacTeX from http://www.tug.org/mactex/ instead
+of texlive, texlive-basic and texlive-latex-extra.
 
 If you're using homebrew you'll want the following::
 
     brew install libmagic pcre
+
+The homebrew texlive package only supports 32 bit systems, so you'll probably
+want to install MacTeX from http://www.tug.org/mactex/ instead.
 
 If you're doing much development work, you'll probably also want the following
 tools installed:
