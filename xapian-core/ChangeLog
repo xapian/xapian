@@ -1,3 +1,11 @@
+Tue Mar 18 00:04:16 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Fix testcase for empty wildcard followed
+	  by negation to enable FLAG_LOVEHATE so the negation is actually
+	  parsed.  Fortunately the fixed testcase passes.  This testcase will
+	  be fixed on trunk when the delayed wildcard expansion branch gets
+	  merged.
+
 Fri Mar 14 11:47:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
