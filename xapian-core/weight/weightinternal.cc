@@ -107,9 +107,9 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     for (d = items.begin(); d != items.end(); ++d) {
 	Xapian::docid did = *d;
 	Assert(did);
-	// The query is likely to far fewer terms than the documents, and we
-	// can skip the document's termlist, so look for each query term in the
-	// document.
+	// The query is likely to contain far fewer terms than the documents,
+	// and we can skip the document's termlist, so look for each query term
+	// in the document.
 	AutoPtr<TermList> tl(subdb.open_term_list(did));
 	for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
 	    const string & term = t->first;

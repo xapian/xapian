@@ -1,3 +1,7 @@
+Wed Mar 19 02:42:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Fix comment typo.
+
 Fri Mar 14 09:53:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: MacTeX seems to be the best option if using homebrew.
