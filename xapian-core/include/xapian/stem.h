@@ -80,6 +80,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - danish (da)
      *  - dutch (nl)
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
+     *  - earlyenglish - Early English (e.g. Shakespeare, Dickens) stemmer
      *  - english_lovins (lovins) - Lovin's stemmer
      *  - english_porter (porter) - Porter's stemmer as described in
      *			his 1980 paper
