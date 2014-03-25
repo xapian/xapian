@@ -1,3 +1,11 @@
+Tue Mar 25 05:52:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/pythontest3.py: There's no longer a
+	  need to use chert_open() explicitly - chert is the default backend
+	  now, and both chert and brass support the required functionality
+	  for the tests which do this, so this just needlessly causes the
+	  tests to fail if chert is disabled in xapian-core.
+
 Fri Mar 14 11:56:49 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
