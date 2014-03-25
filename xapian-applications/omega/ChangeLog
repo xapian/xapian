@@ -1,3 +1,7 @@
+Tue Mar 25 08:54:28 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc: Fix warning when built with GCC 4.7.2 using -Os.
+
 Thu Mar 13 01:41:49 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Restrict the length of what we consider to be an
