@@ -1,3 +1,7 @@
+Tue Mar 25 08:56:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc: Fix mis-indentation of two lines.
+
 Tue Mar 25 08:54:28 GMT 2014  Olly Betts <olly@survex.com>
 
 	* expand.cc: Fix warning when built with GCC 4.7.2 using -Os.

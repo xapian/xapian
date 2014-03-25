@@ -80,8 +80,8 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    double k;
 	    if (!double_param(&p, &k))
 		parameter_error("Parameter k is invalid", scheme);
-		if (*p)
-		    parameter_error("Extra data after first parameter", scheme);
+	    if (*p)
+		parameter_error("Extra data after first parameter", scheme);
 	    enq.set_expansion_scheme("trad", k);
 	    return;
 	}
