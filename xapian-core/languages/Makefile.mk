@@ -14,6 +14,7 @@ snowball_algorithms =\
 	languages/danish.sbl\
 	languages/dutch.sbl\
 	languages/english.sbl\
+	languages/earlyenglish.sbl\
 	languages/finnish.sbl\
 	languages/french.sbl\
 	languages/german2.sbl\
