@@ -67,6 +67,9 @@ Stem::Stem(const std::string &language) : internal(0) {
 	    case DUTCH:
 		internal = new InternalStemDutch;
 		return;
+	    case EARLYENGLISH:
+		internal = new InternalStemEarlyenglish;
+		return;
 	    case ENGLISH:
 		internal = new InternalStemEnglish;
 		return;
