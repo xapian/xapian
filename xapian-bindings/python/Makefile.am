@@ -119,6 +119,7 @@ endif
 
 stamp = modern/xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: $(stamp)
 	$(make_many_locked)
