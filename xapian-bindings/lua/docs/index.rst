@@ -104,17 +104,17 @@ MSet
 MSet objects have some additional methods to simplify access (these
 work using the C++ array dereferencing):
 
-+----------------------------------+----------------------------------------+
-| Method name                      |            Explanation                 |
-+==================================+========================================+
-| ``get_hit(index)``               |  returns MSetItem at index             |
-+----------------------------------+----------------------------------------+
-|``get_documentPercentage(index)`` | ``convert_to_percent(get_hit(index))`` |
-+----------------------------------+----------------------------------------+
-| ``get_document(index)``          | ``get_hit(index):get_document()``      |
-+----------------------------------+----------------------------------------+
-| ``get_docid(index)``             | ``get_hit(index):get_docid()``         |
-+----------------------------------+----------------------------------------+
++-----------------------------------+----------------------------------------+
+| Method name                       |            Explanation                 |
++===================================+========================================+
+| ``get_hit(index)``                |  returns MSetItem at index             |
++-----------------------------------+----------------------------------------+
+| ``get_documentPercentage(index)`` | ``convert_to_percent(get_hit(index))`` |
++-----------------------------------+----------------------------------------+
+| ``get_document(index)``           | ``get_hit(index):get_document()``      |
++-----------------------------------+----------------------------------------+
+| ``get_docid(index)``              | ``get_hit(index):get_docid()``         |
++-----------------------------------+----------------------------------------+
 
 The C++ API contains a few non-class functions (the Database factory
 functions, and some functions reporting version information), which are

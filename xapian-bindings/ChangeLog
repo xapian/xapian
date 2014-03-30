@@ -1,3 +1,7 @@
+Sun Mar 30 22:04:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.rst: RST source formatting tweak.
+
 Thu Mar 27 23:02:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* lua/smoketest.lua: Whitespace tweak.
