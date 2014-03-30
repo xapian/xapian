@@ -86,8 +86,11 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Set the database to index spelling data to.
     void set_database(const Xapian::WritableDatabase &db);
 
+    /// For backward comptibility with Xapian 1.2
+    typedef int flags;
+
     /// Flags to OR together and pass to TermGenerator::set_flags().
-    enum flags {
+    enum {
 	/// Index data required for spelling correction.
 	FLAG_SPELLING = 128 // Value matches QueryParser flag.
     };
