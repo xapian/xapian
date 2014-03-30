@@ -44,6 +44,8 @@ class MyExpandDecider extends ExpandDecider {
 
 public class SmokeTest {
     public static void main(String[] args) throws Exception {
+	TermGenerator termGenerator = new TermGenerator();
+	termGenerator.setFlags(TermGenerator.FLAG_SPELLING);
 	try {
 	    Stem stem = new Stem("english");
 	    if (!stem.toString().equals("Xapian::Stem(english)")) {

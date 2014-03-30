@@ -1,3 +1,8 @@
+Sun Mar 30 22:57:50 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
+
+	* java/SmokeTest.java: Add testcase that FLAG_SPELLING is now wrapped
+	  in a usable way.  (see #616)
+
 Sun Mar 30 22:06:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* lua/docs/index.rst: Note that constants can now be accessed using
