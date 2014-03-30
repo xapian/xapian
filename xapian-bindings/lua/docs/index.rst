@@ -142,6 +142,9 @@ So ``Xapian::DB_CREATE_OR_OPEN`` is available as
 ``xapian.DB_CREATE_OR_OPEN``, ``Xapian::Query::OP_OR`` is
 available as ``xapian.Query_OP_OR``, and so on.
 
+As of 1.3.2, you can also use the form ``xapian.ClassName.CONSTANT_NAME``, e.g.
+``xapian.Query.OP_OR``.
+
 Query
 #####
 
@@ -158,10 +161,11 @@ and you can specify a mixture of terms and queries if you wish.  For example:
 MatchAll and MatchNothing
 #########################
 
-These are wrapped for Lua as
-``xapian.Query_MatchAll`` and
+These are wrapped for Lua as ``xapian.Query_MatchAll`` and
 ``xapian.Query_MatchNothing``.
 
+As of 1.3.2, you can also use the forms ``xapian.Query.MatchAll`` and
+``xapian.Query.MatchNothing``.
 
 Enquire
 #######

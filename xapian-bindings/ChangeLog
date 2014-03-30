@@ -1,3 +1,8 @@
+Sun Mar 30 22:06:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.rst: Note that constants can now be accessed using
+	  CLASS.CONSTANT as well as CLASS_CONSTANT.
+
 Sun Mar 30 22:04:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* lua/docs/index.rst: RST source formatting tweak.
