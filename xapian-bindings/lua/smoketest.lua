@@ -163,7 +163,7 @@ function run_tests()
   end
 
   eset = enq:get_eset(10, rset, testexpanddecider)
-  expect (eset:size(), 3)
+  expect(eset:size(), 3)
 
   eterms={}
   for term in eset:terms() do
