@@ -1,3 +1,9 @@
+Sun Mar 30 22:54:22 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
+
+	* include/xapian/termgenerator.h: Make TermGenerator flags an
+	  anonymous enum, and typedef TermGenerator::flags to int for backward
+	  compatibility with existing user code which uses it.  (fixes #616)
+
 Thu Mar 27 05:45:14 GMT 2014  Liu Chi <liuchi09@gmail.com>
 
 	* include/xapian/stem.h,languages/Makefile.mk,
