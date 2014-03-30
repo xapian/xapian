@@ -1,3 +1,9 @@
+Thu Mar 27 23:00:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Change expect() parameter order to the more
+	  natural (got, expected), which most of the calls already used,
+	  and fix up the few calls which passed (expected, got).
+
 Thu Mar 27 10:45:27 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python3/Makefile.am: Pass
