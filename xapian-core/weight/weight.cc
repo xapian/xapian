@@ -69,12 +69,8 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
     if (stats_needed & WDF_MAX)
 	wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
-    if (stats_needed & TERMFREQ)
-	termfreq_ = stats.get_termfreq(term);
-    if (stats_needed & RELTERMFREQ)
-	reltermfreq_ = stats.get_reltermfreq(term);
-    if (stats_needed & COLLECTION_FREQ)
-	collectionfreq_ = stats.get_collection_freq(term);
+    if (stats_needed & (TERMFREQ | RELTERMFREQ | COLLECTION_FREQ))
+	stats.get_stats(term, termfreq_, reltermfreq_, collectionfreq_);
     query_length_ = query_length;
     wqf_ = wqf;
     init(factor);

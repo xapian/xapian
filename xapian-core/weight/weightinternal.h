@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,7 @@
 
 #include "backends/database.h"
 #include "internaltypes.h"
+#include "omassert.h"
 
 #include <map>
 #include <string>
@@ -106,23 +107,42 @@ class Weight::Internal {
     void accumulate_stats(const Xapian::Database::Internal &sub_db,
 			  const Xapian::RSet &rset);
 
-    /** Get the term-frequency of the given term.
+    /** Get the frequencies for the given term.
      *
-     *  This is "n_t", the number of documents in the collection indexed by
+     *  termfreq is "n_t", the number of documents in the collection indexed by
      *  the given term.
-     */
-    Xapian::doccount get_termfreq(const std::string & term) const;
-
-    /** Get the relevant term-frequency for the given term.
      *
-     *  This is "r_t", the number of relevant documents in the collection
-     *  indexed by the given term.
+     *  reltermfreq is "r_t", the number of relevant documents in the
+     *  collection indexed by the given term.
+     *
+     *  collfreq is the total number of occurrences of the term in all
+     *  documents.
      */
-    Xapian::doccount get_reltermfreq(const std::string & term) const;
+    void get_stats(const std::string & term,
+		   Xapian::doccount & termfreq,
+		   Xapian::doccount & reltermfreq,
+		   Xapian::termcount & collfreq) const {
+	// We pass an empty std::string for term when calculating the extra
+	// weight.
+	if (term.empty()) {
+	    termfreq = reltermfreq = collfreq = 0;
+	    return;
+	}
 
-    /** Get the collectionfrequency for the given term.
-     */
-    Xapian::termcount get_collection_freq(const std::string & term) const;
+	map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
+	Assert(tfreq != termfreqs.end());
+	termfreq = tfreq->second.termfreq;
+	reltermfreq = tfreq->second.reltermfreq;
+	collfreq = tfreq->second.collfreq;
+    }
+
+    // Get just the termfreq.
+    void get_stats(const std::string & term,
+		   Xapian::doccount & termfreq) const {
+	Xapian::doccount dummy1;
+	Xapian::termcount dummy2;
+	get_stats(term, termfreq, dummy1, dummy2);
+    }
 
     Xapian::doclength get_average_length() const {
 	if (rare(collection_size == 0)) return 0;

@@ -140,7 +140,7 @@ LocalSubMatch::open_post_list(LeafPostList ** hint, const string& term, double m
     LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", hint | term | max_part);
     Xapian::doccount tf = 0;
     if (term_info) {
-	tf = stats->get_termfreq(term);
+	stats->get_stats(term, tf);
 	using namespace Xapian;
 	// Find existing entry for term, or else make a new one.
 	map<string, MSet::Internal::TermFreqAndWeight>::iterator i;

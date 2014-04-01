@@ -65,27 +65,6 @@ Weight::Internal::operator +=(const Weight::Internal & inc)
     return *this;
 }
 
-Xapian::doccount
-Weight::Internal::get_termfreq(const string & term) const
-{
-    // We pass an empty std::string for term when calculating the extra weight.
-    if (term.empty()) return 0;
-
-    map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
-    Assert(tfreq != termfreqs.end());
-    return tfreq->second.termfreq;
-}
-
-Xapian::termcount Weight::Internal::get_collection_freq(const string & term) const
-{
-    // We pass an empty std::string for term when calculating the extra weight.
-    if (term.empty()) return 0;
-
-    map<string, TermFreqs>::const_iterator cfreq = termfreqs.find(term);
-    Assert(cfreq != termfreqs.end());
-    return cfreq->second.collfreq;
-}
-
 void
 Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 				   const Xapian::RSet &rset)
@@ -122,17 +101,6 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 		++t->second.reltermfreq;
 	}
     }
-}
-
-Xapian::doccount
-Weight::Internal::get_reltermfreq(const string & term) const
-{
-    // We pass an empty string for term when calculating the extra weight.
-    if (term.empty()) return 0;
-
-    map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
-    Assert(tfreq != termfreqs.end());
-    return tfreq->second.reltermfreq;
 }
 
 string

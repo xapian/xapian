@@ -1,3 +1,12 @@
+Tue Apr 01 22:41:16 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.cc,weight/weight.cc,weight/weightinternal.cc,
+	  weight/weightinternal.h: Replace Weight::Internal methods to get
+	  termfreq, reltermfreq and colltermfreq with a single inlined
+	  get_stats() method, which only needs to search the map once.
+	  Shaves ~1.6% off the time to do a wildcard query with a lot of
+	  terms.
+
 Tue Apr 01 22:11:52 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/localsubmatch.cc: Don't refetch the termfreq if we already
