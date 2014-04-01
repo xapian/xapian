@@ -1,3 +1,8 @@
+Tue Apr 01 22:11:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.cc: Don't refetch the termfreq if we already
+	  have it.
+
 Sun Mar 30 22:54:22 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
 
 	* include/xapian/termgenerator.h: Make TermGenerator flags an

@@ -138,8 +138,9 @@ LeafPostList *
 LocalSubMatch::open_post_list(LeafPostList ** hint, const string& term, double max_part)
 {
     LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", hint | term | max_part);
+    Xapian::doccount tf = 0;
     if (term_info) {
-	Xapian::doccount tf = stats->get_termfreq(term);
+	tf = stats->get_termfreq(term);
 	using namespace Xapian;
 	// Find existing entry for term, or else make a new one.
 	map<string, MSet::Internal::TermFreqAndWeight>::iterator i;
@@ -148,13 +149,15 @@ LocalSubMatch::open_post_list(LeafPostList ** hint, const string& term, double m
 	i->second.termweight += max_part;
     }
 
-    if (!term.empty() &&
-	max_part == 0.0 &&
-	db->get_termfreq(term) == db->get_doccount()) {
-	// If we're not going to use the wdf and the term indexes all
-	// documents, we can replace it with the MatchAll postlist, which
-	// is especially efficient if there are no gaps in the docids.
-	RETURN(db->open_post_list(string()));
+    if (!term.empty() && max_part == 0.0) {
+	if (tf == 0)
+	    tf = db->get_termfreq(term);
+	if (tf == db->get_doccount()) {
+	    // If we're not going to use the wdf and the term indexes all
+	    // documents, we can replace it with the MatchAll postlist, which
+	    // is especially efficient if there are no gaps in the docids.
+	    RETURN(db->open_post_list(string()));
+	}
     }
 
     LeafPostList * res = NULL;
