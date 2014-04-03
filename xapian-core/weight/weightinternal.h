@@ -81,6 +81,12 @@ class Weight::Internal {
     /** Number of terms in the collection. */
     Xapian::termcount total_term_count;
 
+    /** Has max_part been set for any term?
+     *
+     *  If not, we can avoid having to serialise max_part.
+     */
+    bool have_max_part;
+
     /** Database to get the bounds on doclength and wdf from. */
     Xapian::Database db;
 
@@ -90,7 +96,7 @@ class Weight::Internal {
 
     Internal()
 	: total_length(0), collection_size(0), rset_size(0),
-	  total_term_count(0) { }
+	  total_term_count(0), have_max_part(false) { }
 
     /** Add in the supplied statistics from a sub-database.
      *
@@ -173,6 +179,7 @@ class Weight::Internal {
 
     /// Set max_part for a term.
     Xapian::doccount set_max_part(const std::string & term, double max_part) {
+	have_max_part = true;
 	Assert(!term.empty());
 	map<string, TermFreqs>::iterator i = termfreqs.find(term);
 	Assert(i != termfreqs.end());

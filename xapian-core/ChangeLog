@@ -1,3 +1,9 @@
+Thu Apr 03 23:40:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* net/serialise.cc,weight/weightinternal.h: Make Weight::Internal
+	  track if any max_part values are set, so we don't need to
+	  serialise them when they've not been set.
+
 Thu Apr 03 05:50:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* weight/weightinternal.cc: Enhance
