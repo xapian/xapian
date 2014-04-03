@@ -1,3 +1,9 @@
+Thu Apr 03 04:40:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,net/remoteserver.cc,
+	  net/serialise.cc,net/serialise.h: Avoid returning
+	  Xapian::Weight::Internal by value from unserialise_stats().
+
 Tue Apr 01 22:41:16 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/localsubmatch.cc,weight/weight.cc,weight/weightinternal.cc,

@@ -495,7 +495,8 @@ RemoteServer::msg_query(const string &message_in)
     check_at_least = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
-    Xapian::Weight::Internal total_stats(unserialise_stats(message));
+    Xapian::Weight::Internal total_stats;
+    unserialise_stats(message, total_stats);
     total_stats.set_bounds_from_db(*db);
 
     Xapian::MSet mset;

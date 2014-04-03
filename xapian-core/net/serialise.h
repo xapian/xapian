@@ -1,7 +1,7 @@
 /** @file serialise.h
  * @brief functions to convert classes to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,11 +72,11 @@ std::string serialise_stats(const Xapian::Weight::Internal &stats);
 
 /** Unserialise a serialised stats object.
  *
- *  @param s	The string to unserialise.
+ *  @param s		The string to unserialise.
  *
- *  @return	The unserialised stats object.
+ *  @param stats	The stats object to unserialise to.
  */
-Xapian::Weight::Internal unserialise_stats(const std::string &s);
+void unserialise_stats(const std::string &s, Xapian::Weight::Internal &stats);
 
 /** Serialise a Xapian::MSet object.
  *

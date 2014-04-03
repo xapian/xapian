@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -620,7 +620,7 @@ RemoteDatabase::get_remote_stats(bool nowait, Xapian::Weight::Internal &out)
 
     string message;
     get_message(message, REPLY_STATS);
-    out = unserialise_stats(message);
+    unserialise_stats(message, out);
 
     return true;
 }

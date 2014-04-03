@@ -1,7 +1,7 @@
 /** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -114,13 +114,11 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     return result;
 }
 
-Xapian::Weight::Internal
-unserialise_stats(const string &s)
+void
+unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
 {
     const char * p = s.data();
     const char * p_end = p + s.size();
-
-    Xapian::Weight::Internal stat;
 
     stat.total_length = decode_length(&p, p_end, false);
     stat.collection_size = decode_length(&p, p_end, false);
@@ -145,8 +143,6 @@ unserialise_stats(const string &s)
 						  reltermfreq,
 						  collfreq)));
     }
-
-    return stat;
 }
 
 string
