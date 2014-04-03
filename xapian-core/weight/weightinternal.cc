@@ -43,6 +43,8 @@ TermFreqs::get_description() const {
     desc += str(reltermfreq);
     desc += ", collfreq=";
     desc += str(collfreq);
+    desc += ", max_part=";
+    desc += str(max_part);
     desc += ")";
     return desc;
 }

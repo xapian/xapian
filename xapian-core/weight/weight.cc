@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Xapian::Weight base class
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2014 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 #include "weightinternal.h"
 
+#include "omassert.h"
 #include "debuglog.h"
 
 #include "xapian/error.h"
@@ -69,8 +70,12 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
     if (stats_needed & WDF_MAX)
 	wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
-    if (stats_needed & (TERMFREQ | RELTERMFREQ | COLLECTION_FREQ))
-	stats.get_stats(term, termfreq_, reltermfreq_, collectionfreq_);
+    if (stats_needed & (TERMFREQ | RELTERMFREQ | COLLECTION_FREQ)) {
+	bool ok = stats.get_stats(term,
+				  termfreq_, reltermfreq_, collectionfreq_);
+	(void)ok;
+	Assert(ok);
+    }
     query_length_ = query_length;
     wqf_ = wqf;
     init(factor);

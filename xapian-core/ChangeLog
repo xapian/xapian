@@ -1,3 +1,12 @@
+Thu Apr 03 05:46:44 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omenquireinternal.h,common/submatch.h,matcher/,
+	  net/remoteserver.cc,net/serialise.cc,weight/weight.cc,
+	  weight/weightinternal.cc,weight/weightinternal.h: Eliminate the
+	  map<string, TermFreqAndWeight> in MSet::Internal, and instead just
+	  preserve the Weight::Internal object there as that holds all the
+	  information we need.
+
 Thu Apr 03 04:40:09 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,net/remoteserver.cc,

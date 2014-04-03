@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -36,6 +36,8 @@
 #include <cmath>
 #include <map>
 #include <set>
+
+#include "weight/weightinternal.h"
 
 using namespace std;
 
@@ -225,25 +227,8 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	/// Xapian::Enquire reference, for getting documents.
 	Xapian::Internal::intrusive_ptr<const Enquire::Internal> enquire;
 
-	/** A structure containing the term frequency and weight for a
-	 *  given query term.
-	 */
-	struct TermFreqAndWeight {
-	    TermFreqAndWeight() { }
-	    explicit TermFreqAndWeight(Xapian::doccount tf)
-		: termfreq(tf), termweight(0.0) { }
-	    TermFreqAndWeight(Xapian::doccount tf, double wt)
-		: termfreq(tf), termweight(wt) { }
-	    Xapian::doccount termfreq;
-	    double termweight;
-	};
-
-	/** The term frequencies and weights returned by the match process.
-	 *
-	 *  This map contains information for each term which was in
-	 *  the query.
-	 */
-	map<string, TermFreqAndWeight> termfreqandwts;
+	/** Provides the term frequency and weight for each term in the query. */
+	Xapian::Weight::Internal * stats;
 
 	/// A list of items comprising the (selected part of the) MSet.
 	vector<Xapian::Internal::MSetItem> items;
@@ -269,6 +254,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
 	Internal()
 		: percent_factor(0),
+		  stats(NULL),
 		  firstitem(0),
 		  matches_lower_bound(0),
 		  matches_estimated(0),
@@ -290,10 +276,9 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	     double max_possible_,
 	     double max_attained_,
 	     vector<Xapian::Internal::MSetItem> &items_,
-	     const map<string, TermFreqAndWeight> &termfreqandwts_,
 	     double percent_factor_)
 		: percent_factor(percent_factor_),
-		  termfreqandwts(termfreqandwts_),
+		  stats(NULL),
 		  firstitem(firstitem_),
 		  matches_lower_bound(matches_lower_bound_),
 		  matches_estimated(matches_estimated_),
@@ -305,6 +290,8 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 		  max_attained(max_attained_) {
 	    std::swap(items, items_);
 	}
+
+	~Internal() { delete stats; }
 
 	/// get a document by index in MSet, via the cache.
 	Xapian::Document get_doc_by_index(Xapian::doccount index) const;

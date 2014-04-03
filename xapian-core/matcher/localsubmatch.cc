@@ -55,7 +55,7 @@ void
 LocalSubMatch::start_match(Xapian::doccount first,
 			   Xapian::doccount maxitems,
 			   Xapian::doccount check_at_least,
-			   const Xapian::Weight::Internal & total_stats)
+			   Xapian::Weight::Internal & total_stats)
 {
     LOGCALL_VOID(MATCH, "LocalSubMatch::start_match", first | maxitems | check_at_least | total_stats);
     (void)first;
@@ -66,20 +66,16 @@ LocalSubMatch::start_match(Xapian::doccount first,
 }
 
 PostList *
-LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
-	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts,
-	Xapian::termcount * total_subqs_ptr)
+LocalSubMatch::get_postlist(MultiMatch * matcher,
+			    Xapian::termcount * total_subqs_ptr)
 {
-    LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist_and_term_info", matcher | termfreqandwts | total_subqs_ptr);
-    (void)matcher;
-    term_info = termfreqandwts;
+    LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr);
 
-    // Build the postlist tree for the query.  This calls
-    // LocalSubMatch::open_post_list() for each term in the query,
-    // which builds term_info as a side effect.
     if (query.empty())
 	return new EmptyPostList; // MatchNothing
 
+    // Build the postlist tree for the query.  This calls
+    // LocalSubMatch::open_post_list() for each term in the query.
     PostList * pl;
     {
 	QueryOptimiser opt(*db, *this, matcher);
@@ -138,21 +134,10 @@ LeafPostList *
 LocalSubMatch::open_post_list(LeafPostList ** hint, const string& term, double max_part)
 {
     LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", hint | term | max_part);
-    Xapian::doccount tf = 0;
-    if (term_info) {
-	stats->get_stats(term, tf);
-	using namespace Xapian;
-	// Find existing entry for term, or else make a new one.
-	map<string, MSet::Internal::TermFreqAndWeight>::iterator i;
-	i = term_info->insert(
-		make_pair(term, MSet::Internal::TermFreqAndWeight(tf))).first;
-	i->second.termweight += max_part;
-    }
 
-    if (!term.empty() && max_part == 0.0) {
-	if (tf == 0)
-	    tf = db->get_termfreq(term);
-	if (tf == db->get_doccount()) {
+    if (!term.empty()) {
+	Xapian::doccount tf = stats->set_max_part(term, max_part);
+	if (max_part == 0.0 && tf == db->get_doccount()) {
 	    // If we're not going to use the wdf and the term indexes all
 	    // documents, we can replace it with the MatchAll postlist, which
 	    // is especially efficient if there are no gaps in the docids.
