@@ -1,3 +1,8 @@
+Thu Apr 03 05:50:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/weightinternal.cc: Enhance
+	  Weight::Internal::get_description() to report TermFreqs.
+
 Thu Apr 03 05:46:44 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,api/omenquireinternal.h,common/submatch.h,matcher/,

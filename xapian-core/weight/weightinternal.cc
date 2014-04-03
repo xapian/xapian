@@ -116,7 +116,16 @@ Weight::Internal::get_description() const
     desc += str(rset_size);
     desc += ", total_term_count=";
     desc += str(total_term_count);
-    desc += ')';
+    desc += ", termfreqs={";
+    map<string, TermFreqs>::const_iterator i;
+    for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
+	if (i != termfreqs.begin())
+	    desc += ", ";
+	desc += i->first;
+	desc += " => ";
+	desc += i->second.get_description();
+    }
+    desc += "})";
     return desc;
 }
 
