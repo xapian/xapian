@@ -1,3 +1,8 @@
+Thu May 14 11:47:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am: Perl tests are ordering-dependent, so
+	  use .NOTPARALLEL to avoid problems during parallel builds.
+
 Thu May 14 11:28:19 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,perl/t/collapse.t: Add test coverage for
