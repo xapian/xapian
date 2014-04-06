@@ -2,6 +2,10 @@
 
 include ../generic/generic.mk
 
+# Disable parallel build for this make invocation; some tests depend
+# on previous ones having set up their database for them.
+.NOTPARALLEL:
+
 ## Test programs to be run
 TESTS = \
 	t/01use.t \

@@ -1,3 +1,42 @@
+Sun Apr 06 20:11:51 GMT 2014  James Aylett <james@tartarus.org>
+
+	* ChangeLog,perl/Makefile.am:
+
+
+Index: perl/Makefile.am
+===================================================================
+--- perl/Makefile.am	(revision 17939)
++++ perl/Makefile.am	(working copy)
+@@ -2,6 +2,10 @@
+ 
+ include ../generic/generic.mk
+ 
++# Disable parallel build for this make invocation; some tests depend
++# on previous ones having set up their database for them.
++.NOTPARALLEL:
++
+ ## Test programs to be run
+ TESTS = \
+ 	t/01use.t \
+Index: ChangeLog
+===================================================================
+--- ChangeLog	(revision 17939)
++++ ChangeLog	(working copy)
+@@ -1,3 +1,8 @@
++Sun Apr 06 19:40:12 GMT 2014  James Aylett <james@tartarus.org>
++
++       * perl/Makefile.am: Perl tests are ordering-dependent, so
++         use .NOTPARALLEL to avoid problems during parallel builds.
++
+ Sun Mar 30 22:57:50 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
+ 
+ 	* java/SmokeTest.java: Add testcase that FLAG_SPELLING is now wrapped
+
+Sun Apr 06 19:40:12 GMT 2014  James Aylett <james@tartarus.org>
+
+       * perl/Makefile.am: Perl tests are ordering-dependent, so
+         use .NOTPARALLEL to avoid problems during parallel builds.
+
 Sun Mar 30 22:57:50 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
 
 	* java/SmokeTest.java: Add testcase that FLAG_SPELLING is now wrapped
