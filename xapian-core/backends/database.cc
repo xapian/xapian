@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -89,7 +89,9 @@ Database::Internal::get_wdf_upper_bound(const string & term) const
 {
     // Not a very tight bound in general, but this is only a fall-back for
     // backends which don't store these stats.
-    return get_collection_freq(term);
+    Xapian::termcount cf;
+    get_freqs(term, NULL, &cf);
+    return cf;
 }
 
 // Discard any exceptions - we're called from the destructors of derived

@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -79,8 +79,11 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     map<string, TermFreqs>::iterator t;
     for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
 	const string & term = t->first;
-	t->second.termfreq += subdb.get_termfreq(term);
-	t->second.collfreq += subdb.get_collection_freq(term);
+	Xapian::doccount sub_tf;
+	Xapian::termcount sub_cf;
+	subdb.get_freqs(term, &sub_tf, &sub_cf);
+	t->second.termfreq += sub_tf;
+	t->second.collfreq += sub_cf;
     }
 
     const set<Xapian::docid> & items(rset.internal->get_items());

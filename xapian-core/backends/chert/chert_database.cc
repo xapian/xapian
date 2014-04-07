@@ -782,20 +782,14 @@ ChertDatabase::get_doclength(Xapian::docid did) const
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
-Xapian::doccount
-ChertDatabase::get_termfreq(const string & term) const
+void
+ChertDatabase::get_freqs(const string & term,
+			 Xapian::doccount * termfreq_ptr,
+			 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
-    RETURN(postlist_table.get_termfreq(term));
-}
-
-Xapian::termcount
-ChertDatabase::get_collection_freq(const string & term) const
-{
-    LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_collection_freq", term);
-    Assert(!term.empty());
-    RETURN(postlist_table.get_collection_freq(term));
+    postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
 
 Xapian::doccount
@@ -834,7 +828,9 @@ ChertDatabase::get_doclength_upper_bound() const
 Xapian::termcount
 ChertDatabase::get_wdf_upper_bound(const string & term) const
 {
-    return min(get_collection_freq(term), stats.get_wdf_upper_bound());
+    Xapian::termcount cf;
+    get_freqs(term, NULL, &cf);
+    return min(cf, stats.get_wdf_upper_bound());
 }
 
 bool
@@ -1481,28 +1477,22 @@ ChertWritableDatabase::get_doclength(Xapian::docid did) const
     RETURN(ChertDatabase::get_doclength(did));
 }
 
-Xapian::doccount
-ChertWritableDatabase::get_termfreq(const string & tname) const
+void
+ChertWritableDatabase::get_freqs(const string & term,
+				 Xapian::doccount * termfreq_ptr,
+				 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_termfreq", tname);
-    Xapian::doccount termfreq = ChertDatabase::get_termfreq(tname);
+    LOGCALL(DB, void, "ChertWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    Assert(!term.empty());
+    ChertDatabase::get_freqs(term, termfreq_ptr, collfreq_ptr);
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
-    i = freq_deltas.find(tname);
-    if (i != freq_deltas.end()) termfreq += i->second.first;
-    RETURN(termfreq);
-}
-
-Xapian::termcount
-ChertWritableDatabase::get_collection_freq(const string & tname) const
-{
-    LOGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_collection_freq", tname);
-    Xapian::termcount collfreq = ChertDatabase::get_collection_freq(tname);
-
-    map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
-    i = freq_deltas.find(tname);
-    if (i != freq_deltas.end()) collfreq += i->second.second;
-
-    RETURN(collfreq);
+    i = freq_deltas.find(term);
+    if (i != freq_deltas.end()) {
+	if (termfreq_ptr)
+	    *termfreq_ptr += i->second.first;
+	if (collfreq_ptr)
+	    *collfreq_ptr += i->second.second;
+    }
 }
 
 Xapian::doccount
@@ -1539,7 +1529,9 @@ bool
 ChertWritableDatabase::term_exists(const string & tname) const
 {
     LOGCALL(DB, bool, "ChertWritableDatabase::term_exists", tname);
-    RETURN(get_termfreq(tname) != 0);
+    Xapian::doccount tf;
+    get_freqs(tname, &tf, NULL);
+    RETURN(tf != 0);
 }
 
 LeafPostList *

@@ -1,7 +1,7 @@
 /** @file brass_inverter.h
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010,2013 Olly Betts
+/* Copyright (C) 2009,2010,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -231,20 +231,17 @@ class Inverter {
     /// Flush position changes.
     void flush_pos_lists(BrassPositionListTable & table);
 
-    Xapian::termcount_diff get_tfdelta(const std::string & term) const {
+    bool get_deltas(const std::string & term,
+		    Xapian::termcount_diff & tf_delta,
+		    Xapian::termcount_diff & cf_delta) const {
 	std::map<std::string, PostingChanges>::const_iterator i;
 	i = postlist_changes.find(term);
-	if (i == postlist_changes.end())
-	    return 0;
-	return i->second.get_tfdelta();
-    }
-
-    Xapian::termcount_diff get_cfdelta(const std::string & term) const {
-	std::map<std::string, PostingChanges>::const_iterator i;
-	i = postlist_changes.find(term);
-	if (i == postlist_changes.end())
-	    return 0;
-	return i->second.get_cfdelta();
+	if (i == postlist_changes.end()) {
+	    return false;
+	}
+	tf_delta = i->second.get_tfdelta();
+	cf_delta = i->second.get_cfdelta();
+	return true;
     }
 };
 

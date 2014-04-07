@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -558,6 +558,14 @@ void
 RemoteServer::msg_termfreq(const string &term)
 {
     send_message(REPLY_TERMFREQ, encode_length(db->get_termfreq(term)));
+}
+
+void
+RemoteServer::msg_freqs(const string &term)
+{
+    string msg = encode_length(db->get_termfreq(term));
+    msg += encode_length(db->get_collection_freq(term));
+    send_message(REPLY_FREQS, msg);
 }
 
 void

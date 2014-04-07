@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -260,8 +260,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 	totlen_t get_total_length() const;
 	Xapian::doclength get_avlength() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;
-	Xapian::doccount get_termfreq(const string & tname) const;
-	Xapian::termcount get_collection_freq(const string & tname) const;
+	void get_freqs(const string & term,
+		       Xapian::doccount * termfreq_ptr,
+		       Xapian::termcount * collfreq_ptr) const;
 	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 	std::string get_value_lower_bound(Xapian::valueno slot) const;
 	std::string get_value_upper_bound(Xapian::valueno slot) const;
@@ -427,8 +428,9 @@ class ChertWritableDatabase : public ChertDatabase {
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::termcount get_doclength(Xapian::docid did) const;
-	Xapian::doccount get_termfreq(const string & tname) const;
-	Xapian::termcount get_collection_freq(const string & tname) const;
+	void get_freqs(const string & term,
+		       Xapian::doccount * termfreq_ptr,
+		       Xapian::termcount * collfreq_ptr) const;
 	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 	std::string get_value_lower_bound(Xapian::valueno slot) const;
 	std::string get_value_upper_bound(Xapian::valueno slot) const;

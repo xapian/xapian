@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -316,7 +316,9 @@ Database::get_termfreq(const string & tname) const
     Xapian::doccount tf = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	tf += (*i)->get_termfreq(tname);
+	Xapian::doccount sub_tf;
+	(*i)->get_freqs(tname, &sub_tf, NULL);
+	tf += sub_tf;
     }
     RETURN(tf);
 }
@@ -330,7 +332,9 @@ Database::get_collection_freq(const string & tname) const
     Xapian::termcount cf = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	cf += (*i)->get_collection_freq(tname);
+	Xapian::termcount sub_cf;
+	(*i)->get_freqs(tname, NULL, &sub_cf);
+	cf += sub_cf;
     }
     RETURN(cf);
 }

@@ -1,3 +1,16 @@
+Mon Apr 07 05:45:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/brass/,backends/chert/,
+	  backends/database.cc,backends/database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
+	  common/remoteprotocol.h,matcher/const_database_wrapper.cc,
+	  matcher/const_database_wrapper.h,net/remoteserver.cc,
+	  net/remoteserver.h,weight/weightinternal.cc: Fetch termfreq and
+	  collection frequency in a single call - shaves ~0.3% off a test
+	  search.
+
 Thu Apr 03 23:40:45 GMT 2014  Olly Betts <olly@survex.com>
 
 	* net/serialise.cc,weight/weightinternal.h: Make Weight::Internal

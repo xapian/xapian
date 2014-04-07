@@ -743,20 +743,14 @@ BrassDatabase::get_doclength(Xapian::docid did) const
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
-Xapian::doccount
-BrassDatabase::get_termfreq(const string & term) const
+void
+BrassDatabase::get_freqs(const string & term,
+			 Xapian::doccount * termfreq_ptr,
+			 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
-    RETURN(postlist_table.get_termfreq(term));
-}
-
-Xapian::termcount
-BrassDatabase::get_collection_freq(const string & term) const
-{
-    LOGCALL(DB, Xapian::termcount, "BrassDatabase::get_collection_freq", term);
-    Assert(!term.empty());
-    RETURN(postlist_table.get_collection_freq(term));
+    postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
 
 Xapian::doccount
@@ -795,7 +789,9 @@ BrassDatabase::get_doclength_upper_bound() const
 Xapian::termcount
 BrassDatabase::get_wdf_upper_bound(const string & term) const
 {
-    return min(get_collection_freq(term), stats.get_wdf_upper_bound());
+    Xapian::termcount cf;
+    get_freqs(term, NULL, &cf);
+    return min(cf, stats.get_wdf_upper_bound());
 }
 
 bool
@@ -1344,18 +1340,21 @@ BrassWritableDatabase::get_doclength(Xapian::docid did) const
     RETURN(BrassDatabase::get_doclength(did));
 }
 
-Xapian::doccount
-BrassWritableDatabase::get_termfreq(const string & term) const
+void
+BrassWritableDatabase::get_freqs(const string & term,
+				 Xapian::doccount * termfreq_ptr,
+				 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_termfreq", term);
-    RETURN(BrassDatabase::get_termfreq(term) + inverter.get_tfdelta(term));
-}
-
-Xapian::termcount
-BrassWritableDatabase::get_collection_freq(const string & term) const
-{
-    LOGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_collection_freq", term);
-    RETURN(BrassDatabase::get_collection_freq(term) + inverter.get_cfdelta(term));
+    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    Assert(!term.empty());
+    BrassDatabase::get_freqs(term, termfreq_ptr, collfreq_ptr);
+    Xapian::termcount_diff tf_delta, cf_delta;
+    if (inverter.get_deltas(term, tf_delta, cf_delta)) {
+	if (termfreq_ptr)
+	    *termfreq_ptr += tf_delta;
+	if (collfreq_ptr)
+	    *collfreq_ptr += cf_delta;
+    }
 }
 
 Xapian::doccount
@@ -1392,7 +1391,9 @@ bool
 BrassWritableDatabase::term_exists(const string & tname) const
 {
     LOGCALL(DB, bool, "BrassWritableDatabase::term_exists", tname);
-    RETURN(get_termfreq(tname) != 0);
+    Xapian::doccount tf;
+    get_freqs(tname, &tf, NULL);
+    RETURN(tf != 0);
 }
 
 bool

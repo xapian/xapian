@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -217,10 +217,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Check if term exists.
     bool term_exists(const string & tname) const;
 
-    /// Find frequency of term.
-    Xapian::doccount get_termfreq(const string & tname) const;
-
-    Xapian::termcount get_collection_freq(const string & tname) const;
+    void get_freqs(const string & term,
+		   Xapian::doccount * termfreq_ptr,
+		   Xapian::termcount * collfreq_ptr) const;
 
     /// Read the value statistics for a value from a remote database.
     void read_value_stats(Xapian::valueno slot) const;
