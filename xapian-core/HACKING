@@ -495,6 +495,52 @@ The windows build process is maintained in the xapian-maintainer-tools
 directory in the Xapian git repository.  See the win32msvc/README file in that
 directory for details of how to build from git.
 
+Using a Vagrant-driven Ubuntu virtual machine
+---------------------------------------------
+
+Note: Vagrant support is experimental. Please report bugs in the
+normal fashion, to http://trac.xapian.org/newticket, or ask for help
+on the #xapian IRC channel on Freenode.
+
+If you have Vagrant (http://www.vagrantup.com/, tested on version
+1.5.2) and VirtualBox (https://www.virtualbox.org/, tested on version
+4.3.10) installed, `vagrant up` will make a virtual machine suitable
+for developing Xapian:
+
+ * Ubuntu 13.04 with all packages needed to build Xapian and its
+   documentation
+
+ * eatmydata (to speed up test runs) and valgrind (for debugging
+   memory allocations) both also installed
+
+ * source code from this checkout in /vagrant; edit it on your host
+   operating system and changes are reflected in the VM. The source
+   tree is bootstrapped automatically (ensuring that the right
+   versions of the build tools are available on the VM)
+
+ * build tree in /home/vagrant/build, configured to install into
+   /home/vagrant/install, with maintainer mode and documentation
+   both enabled
+
+Setting up can take a long time, as it downloads a minimal base box
+and then installs all the required packages; once this is done you
+don't have to wait so long if you need to reprovision the VM. (Once
+Ubuntu 14.04 is released the plan is to build our own base box with
+these packages already installed, which should make the process much
+faster.)
+
+`vagrant ssh` will log you into the VM, and you can type `cd build &&
+make` to build Xapian. `make check` will run the tests.
+
+(As noted above, in maintainer mode most changes that require
+reconfiguration will happen automatically. If you need to do it by
+hand you can either run the configure command yourself, or you can run
+`vagrant provision`, which also checks for any system package
+updates.)
+
+The VM has a single 64 bit virtual processor, with 384M of memory; it
+takes about 8G of disk space once up and running.
+
 Use of C++ Features
 ===================
 
