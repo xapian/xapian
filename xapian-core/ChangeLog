@@ -1,3 +1,8 @@
+Tue Apr 08 04:20:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* bin/xapian-delve.cc: Add -A <prefix> option to list all terms with
+	  a particular prefix.
+
 Mon Apr 07 05:45:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/brass/,backends/chert/,
