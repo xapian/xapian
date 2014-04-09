@@ -1,3 +1,11 @@
+Wed Apr 09 22:16:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/documentterm.h,api/omdocument.cc: Don't store the termname in
+	  OmDocumentTerm - we were only using it in get_description() output
+	  and an exception message.  Speeds up indexing etext.txt using
+	  simpleindex by 0.4%, and should reduce memory usage a bit too.
+	  (Change inspired by comments from Vishesh Handa on xapian-devel).
+
 Wed Apr 09 05:17:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_btreebase.cc,backends/brass/brass_table.cc:
