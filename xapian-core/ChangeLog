@@ -1,3 +1,8 @@
+Wed Apr 09 05:17:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_table.cc:
+	  Remove comment references to using bitmaps for freespace tracking.
+
 Tue Apr 08 04:20:00 GMT 2014  Olly Betts <olly@survex.com>
 
 	* bin/xapian-delve.cc: Add -A <prefix> option to list all terms with

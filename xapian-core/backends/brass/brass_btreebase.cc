@@ -124,10 +124,7 @@ do { \
 } while(0)
 
 /* How much of the base file to read at the first go (in bytes).
- * This must be big enough that the base file without bitmap
- * will fit in to this size with no problem.  Other than that
- * it's fairly arbitrary, but shouldn't be big enough to cause
- * serious memory problems!
+ * This must be big enough that we can read the whole base file.
  */
 #define REASONABLE_BASE_SIZE 1024
 

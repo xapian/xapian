@@ -93,11 +93,11 @@ static inline byte *zeroed_new(size_t size)
 }
 
 /* A B-tree comprises (a) a base file, containing essential information (Block
-   size, number of the B-tree root block etc), (b) a bitmap, the Nth bit of the
-   bitmap being set if the Nth block of the B-tree file is in use, and (c) a
-   file DB containing the B-tree proper. The DB file is divided into a sequence
-   of equal sized blocks, numbered 0, 1, 2 ... some of which are free, some in
-   use. Those in use are arranged in a tree.
+   size, number of the B-tree root block etc), (b) a file DB containing the
+   B-tree proper. The DB file is divided into a sequence of equal sized blocks,
+   numbered 0, 1, 2 ... some of which are free, some in use. Those in use are
+   arranged in a tree.  Lists of currently unused blocks are stored in a
+   freelist which is itself stored in unused blocks.
 
    Each block, b, has a structure like this:
 
@@ -143,11 +143,7 @@ static inline byte *zeroed_new(size_t size)
  *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
 
-/* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
-   if the nth block is free, otherwise 1. bit_map0 is the initial state of
-   bitmap at the start of the current transaction.
-
-   Note use of the limits.h values:
+/* Note use of the limits.h values:
    UCHAR_MAX = 255, an unsigned with all bits set, and
    CHAR_BIT = 8, the number of bits per byte
 
@@ -1378,7 +1374,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 
 	/* basep now points to the most recent base block */
 
-	/* Avoid copying the bitmap etc. - swap contents with the base
+	/* Avoid copying the base for efficiency - swap contents with the base
 	 * object in the vector, since it'll be destroyed anyway soon.
 	 */
 	base.swap(*basep);
