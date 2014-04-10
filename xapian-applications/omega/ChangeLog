@@ -1,3 +1,8 @@
+Thu Apr 10 03:29:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Work around libmagic returning a MIME content-type of
+	  "Composite Document File V2 Document, No summary info".
+
 Tue Mar 25 08:56:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* expand.cc: Fix mis-indentation of two lines.

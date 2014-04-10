@@ -1,6 +1,6 @@
 /* diritor.cc: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,12 +172,56 @@ DirectoryIterator::get_magic_mimetype()
 	return string();
     }
 
+    // Sometimes libmagic returns this string instead of a mime-type for some
+    // Microsoft documents, so pick a suitable MIME content-type based on the
+    // extension.
+#define COMPOSITE_DOC "Composite Document File V2 Document, No summary info"
+    if (strncmp(res, COMPOSITE_DOC, sizeof(COMPOSITE_DOC) - 1) == 0) {
+	// Default to something self-explanatory.
+	res = "application/x-compound-document-file";
+	const char * leaf = leafname();
+	const char * ext = strrchr(leaf, '.');
+	if (ext && strlen(ext) == 3) {
+	    char e[3];
+	    for (int i = 0; i != 3; ++i) {
+		if (ext[i] <= 'Z' && ext[i] >= 'A')
+		    e[i] = ext[i] + ('a' - 'A');
+		else
+		    e[i] = ext[i];
+	    }
+	    switch (e[0]) {
+		case 'd':
+		    if (e[1] == 'o')
+			res = "applications/msword";
+		    break;
+		case 'm':
+		    if (e[1] == 's' && e[2] == 'g')
+			res = "application/vnd.ms-outlook";
+		    break;
+		case 'p':
+		    if (e[1] == 'p' || e[1] == 'o')
+			res = "application/vnd.ms-powerpoint";
+		    else if (e[1] == 'u' && e[2] == 'b')
+			res = "application/x-mspublisher";
+		    break;
+		case 'x':
+		    if (e[1] == 'l')
+			res = "application/vnd.ms-excel";
+		    break;
+		case 'w':
+		    if (e[1] == 'p' && e[2] != 'd')
+			res = "application/vnd.ms-works";
+		    break;
+	    }
+	}
+    } else {
 #ifndef MAGIC_MIME_TYPE
-    // Discard any encoding returned.
-    char * spc = strchr(res, ' ');
-    if (spc)
-	*spc = '\0';
+	// Discard any encoding returned.
+	char * spc = strchr(res, ' ');
+	if (spc)
+	    *spc = '\0';
 #endif
+    }
 
     return res;
 }
