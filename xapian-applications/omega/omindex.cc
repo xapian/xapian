@@ -1235,6 +1235,11 @@ main(int argc, char **argv)
     mime_map["xlr"] = "application/vnd.ms-excel"; // Later Microsoft Works produced XL format but with a different extension.
     mime_map["ppt"] = "application/vnd.ms-powerpoint";
     mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
+    // Adobe PageMaker apparently uses .pub for an unrelated format, but
+    // libmagic seems to misidentify MS .pub as application/msword, so we
+    // can't just leave it to libmagic.  We don't handle Adobe PageMaker
+    // files yet, so this isn't a big issue currently.
+    mime_map["pub"] = "application/x-mspublisher";
     mime_map["msg"] = "application/vnd.ms-outlook"; // Outlook .msg email
 
     // Perl:
@@ -1310,6 +1315,7 @@ main(int argc, char **argv)
     // --nopict option doesn't work, but hopefully it'll get fixed.
     commands["text/rtf"] = Filter("unrtf --nopict --html 2>/dev/null", "text/html");
     commands["text/x-rst"] = Filter("rst2html", "text/html");
+    commands["application/x-mspublisher"] = Filter("pub2xhtml", "text/html");
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but

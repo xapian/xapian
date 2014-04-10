@@ -215,6 +215,7 @@ other filters too - see below):
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
 * MS Outlook message (.msg) if perl with Email::Outlook::Message and
   HTML::Parser modules is available
+* MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw) if gzip is available
 * Rich Text Format documents (.rtf) if unrtf is available
@@ -294,6 +295,7 @@ string, but to be useful there either needs to be a filter set for that type
    - application/x-abiword-compressed
    - application/x-debian-package
    - application/x-dvi
+   - application/x-mspublisher
    - application/x-redhat-package-manager
    - image/svg+xml
    - image/vnd.djvu
