@@ -1,3 +1,12 @@
+Fri Apr 11 07:40:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/documentterm.h,api/omdocument.cc: Don't store the termname in
+	  OmDocumentTerm - we were only using it in get_description() output
+	  and an exception message.  Speeds up indexing etext.txt using
+	  simpleindex by 0.4%, and should reduce memory usage a bit too.
+	  (Change inspired by comments from Vishesh Handa on xapian-devel).
+
 Tue Mar 18 00:04:16 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Fix testcase for empty wildcard followed

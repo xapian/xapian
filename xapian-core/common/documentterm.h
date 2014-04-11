@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007 Olly Betts
+ * Copyright 2003,2007,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,18 +37,13 @@ class OmDocumentTerm {
     public:
     /** Make a new term.
      *
-     *  @param tname_ The name of the new term.
      *  @param wdf_   Initial wdf.
      */
-    OmDocumentTerm(const string & tname_, Xapian::termcount wdf_)
-	: tname(tname_), wdf(wdf_)
+    explicit OmDocumentTerm(Xapian::termcount wdf_)
+	: wdf(wdf_)
     {
-	LOGCALL_VOID(DB, "OmDocumentTerm::OmDocumentTerm", tname_ | wdf_);
+	LOGCALL_CTOR(DB, "OmDocumentTerm", wdf_);
     }
-
-    /** The name of this term.
-     */
-    string tname;
 
     /** Within document frequency of the term.
      *  This is the number of occurrences of the term in the document.
