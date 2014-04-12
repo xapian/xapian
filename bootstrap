@@ -215,7 +215,7 @@ handle_git_external() {
     url=$3
     if [ ! -d "$path" ] ; then
       git clone --no-checkout -- "$url" "$path"
-    elif git reflog "$rev" -- 2>/dev/null ; then
+    elif git -C "$path" reflog "$rev" -- 2>/dev/null ; then
       : # Already have that revision locally
     else
       (cd "$path" && git fetch)
