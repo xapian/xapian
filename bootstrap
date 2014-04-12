@@ -204,7 +204,9 @@ handle_svn_external() {
     if [ ! -d "$path" ] ; then
       git svn init "$url" "$path"/
     fi
-    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
+    git -C "$path" svn fetch "$revopt"
+    hash=`git -C "$path" svn log "$revopt" --oneline --show-commit|awk '{print $3}'`
+    git -C "$path" reset --hard "$hash"
   fi
 }
 
@@ -218,9 +220,9 @@ handle_git_external() {
     elif git -C "$path" reflog "$rev" -- 2>/dev/null ; then
       : # Already have that revision locally
     else
-      (cd "$path" && git fetch)
+      git -C "$path" fetch
     fi
-    (cd "$path" && git checkout "$rev")
+    git -C "$path" checkout "$rev"
   fi
 }
 
