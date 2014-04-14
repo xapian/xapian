@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -338,8 +338,8 @@ main(int argc, char **argv) try {
 	    try {
 		db.add_database(Database(*i));
 	    } catch (const Error &e) {
-		cout << "Error opening database `" << *i << "': ";
-		cout << e.get_description() << endl;
+		cerr << "Error opening database `" << *i << "': ";
+		cerr << e.get_description() << endl;
 		return 1;
 	    }
 	}
@@ -427,13 +427,13 @@ main(int argc, char **argv) try {
 			}
 			cout << endl;
 		    } catch (const Error &e) {
-			cout << "Error: " << e.get_description() << endl;
+			cerr << "Error: " << e.get_description() << endl;
 		    }
 		}
 	    }
 	}
     }
 } catch (const Error &e) {
-    cout << "\nError: " << e.get_description() << endl;
+    cerr << "\nError: " << e.get_description() << endl;
     return 1;
 }
