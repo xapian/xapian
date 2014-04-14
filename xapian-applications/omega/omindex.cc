@@ -426,10 +426,11 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    MyHtmlParser p;
 		    p.ignore_metarobots();
 		    try {
-			// No point going looking for charset overrides as
-			// unrtf doesn't produce them.  (FIXME: not just unrtf
-			// now).
-			p.parse_html(dump, "iso-8859-1", true);
+			p.parse_html(dump, "iso-8859-1", false);
+		    } catch (const string & newcharset) {
+			p.reset();
+			p.ignore_metarobots();
+			p.parse_html(dump, newcharset, true);
 		    } catch (ReadError) {
 			skip_cmd_failed(file, cmd);
 			return;
@@ -736,30 +737,6 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    }
 
 	    generate_sample_from_csv(dump, sample, sample_size);
-	} else if (mimetype == "application/vnd.ms-outlook") {
-	    string cmd = get_pkglibbindir() + "/outlookmsg2html";
-	    append_filename_argument(cmd, file);
-	    MyHtmlParser p;
-	    p.ignore_metarobots();
-	    try {
-		dump = stdout_to_string(cmd);
-		// FIXME: what should the default charset be?
-		p.parse_html(dump, "iso-8859-1", false);
-	    } catch (const string & newcharset) {
-		p.reset();
-		p.ignore_metarobots();
-		p.parse_html(dump, newcharset, true);
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
-	    }
-	    dump = p.dump;
-	    title = p.title;
-	    keywords = p.keywords;
-	    topic = p.topic;
-	    sample = p.sample;
-	    author = p.author;
-	    created = p.created;
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
 	    const string & text = d.file_to_string();
@@ -1316,6 +1293,8 @@ main(int argc, char **argv)
     commands["text/rtf"] = Filter("unrtf --nopict --html 2>/dev/null", "text/html");
     commands["text/x-rst"] = Filter("rst2html", "text/html");
     commands["application/x-mspublisher"] = Filter("pub2xhtml", "text/html");
+    commands["application/vnd.ms-outlook"] =
+	Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html");
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but
