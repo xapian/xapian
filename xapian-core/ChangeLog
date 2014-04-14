@@ -1,3 +1,9 @@
+Mon Apr 14 07:16:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/delve.cc: Add -A <prefix> option to list all terms with a
+	  particular prefix.
+
 Sat Apr 12 11:30:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Really backport change which was claimed as backported in 1.2.15,
