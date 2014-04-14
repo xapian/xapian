@@ -1,3 +1,9 @@
+Mon Apr 14 10:28:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am,docs/omegascript.rst,expand.cc,expand.h,omega.cc,
+	  query.cc: Add support for setting the query expansion scheme to use.
+
 Mon Apr 14 09:38:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
