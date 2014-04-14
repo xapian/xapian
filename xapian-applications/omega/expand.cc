@@ -73,7 +73,8 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    return;
 	}
 	if (C_isspace((unsigned char)*p)) {
-	    double k;
+	    // Initialise k just to silence compiler warning.
+	    double k = 0.0;
 	    if (!double_param(&p, &k))
 		parameter_error("Parameter k is invalid", scheme);
 	    if (*p)
