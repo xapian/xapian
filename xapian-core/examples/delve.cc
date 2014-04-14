@@ -334,7 +334,7 @@ main(int argc, char **argv) try {
     Database db;
     {
 	vector<string>::const_iterator i;
-	for (i = dbs.begin(); i != dbs.end(); i++) {
+	for (i = dbs.begin(); i != dbs.end(); ++i) {
 	    try {
 		db.add_database(Database(*i));
 	    } catch (const Error &e) {
@@ -383,7 +383,7 @@ main(int argc, char **argv) try {
     }
 
     vector<string>::const_iterator i;
-    for (i = terms.begin(); i != terms.end(); i++) {
+    for (i = terms.begin(); i != terms.end(); ++i) {
 	string term = stemmer(*i);
 	PostingIterator p = db.postlist_begin(term);
 	PostingIterator pend = db.postlist_end(term);
@@ -404,13 +404,13 @@ main(int argc, char **argv) try {
 		}
 		if (showvalues) show_values(db, *p, ' ');
 		if (showdocdata) show_docdata(db, *p, ' ');
-		p++;
+		++p;
 	    }
 	    cout << endl;
 	} else {
 	    // Display position lists
 	    vector<docid>::const_iterator j;
-	    for (j = recnos.begin(); j != recnos.end(); j++) {
+	    for (j = recnos.begin(); j != recnos.end(); ++j) {
 		p.skip_to(*j);
 		if (p == pend || *p != *j) {
 		    cout << "term `" << term <<

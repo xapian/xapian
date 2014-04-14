@@ -1,3 +1,8 @@
+Mon Apr 14 07:22:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/delve.cc: Prefer ++i to i++.
+
 Mon Apr 14 07:20:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
