@@ -1,3 +1,7 @@
+Thu Apr 17 05:06:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/autoptr.h: Under C++11, use unique_ptr for AutoPtr.
+
 Wed Apr 09 22:16:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/documentterm.h,api/omdocument.cc: Don't store the termname in
