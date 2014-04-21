@@ -8,11 +8,11 @@ in the bindings, so generally it should just work as expected.
 
 The ``examples`` subdirectory contains examples showing how to use the
 Python bindings based on the simple examples from ``xapian-examples``:
-`simpleindex.py <examples/simpleindex.py>`_,
-`simplesearch.py <examples/simplesearch.py>`_,
-`simpleexpand.py <examples/simpleexpand.py>`_,
+:ref:`simpleindex`,
+:ref:`simplesearch`,
+:ref:`simpleexpand`,
 There's also
-`simplematchdecider.py <examples/simplematchdecider.py>`_,
+:ref:`simplematchdecider`,
 which shows how to define a MatchDecider in Python.
 
 

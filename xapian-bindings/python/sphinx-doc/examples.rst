@@ -1,6 +1,8 @@
 Examples
 ********
 
+.. _simplesearch:
+
 simplesearch.py
 ==============
 
@@ -50,6 +52,8 @@ simplesearch.py
         print >> sys.stderr, "Exception: %s" % str(e)
         sys.exit(1)
 
+
+.. _simpleindex:
 
 simpleindex.py
 ==============
@@ -103,7 +107,7 @@ simpleindex.py
 
 
 
-
+.. _simpleexpand:
 
 simpleexpand.py
 ===============
@@ -187,8 +191,11 @@ simpleexpand.py
         sys.exit(1)
 
 
-simplematchdecider
-==================
+.. _simplematchdecider:
+
+
+simplematchdecider.py
+=====================
 
 ::
 
