@@ -4,16 +4,9 @@ xapian Package
 :mod:`xapian` Package
 ---------------------
 
-.. automodule:: xapian.__init__
+.. automodule:: xapian
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`conf` Module
-------------------
-
-.. automodule:: xapian.conf
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
