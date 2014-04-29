@@ -161,7 +161,7 @@ foreach my $tag (@ARGV) {
 	close CMD or die $!;
 	if (!$changed) {
 	    chdir $old_cwd or die $!;
-	    # No changes.
+	    $ENV{'VERBOSE'} and print "No changes\n";
 	    next;
 	}
     }
