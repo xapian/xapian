@@ -1,3 +1,8 @@
+Tue Apr 29 04:26:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc: Drop code supporting Microsoft Windows 9x
+	  which reached EOL in 2006.
+
 Thu Apr 17 05:06:21 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/autoptr.h: Under C++11, use unique_ptr for AutoPtr.
