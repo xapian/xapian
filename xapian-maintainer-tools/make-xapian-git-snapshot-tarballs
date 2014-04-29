@@ -326,7 +326,7 @@ foreach my $tag (@ARGV) {
 	return if $_ eq 'config.h.in~';
 	return if $_ eq 'NEWS.SKELETON';
 	return if $f eq 'README';
-	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\.[gx]z$/;
+	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\..z$/;
 	++$unused_files{$f};
 	print "Unused during make: $f\n";
     }
@@ -386,7 +386,7 @@ foreach my $tag (@ARGV) {
 	if (-d "$d/old") {
 	    # Delete snapshots more than a week old, but leave at least one.
 	    my $num_of_days_to_keep = 7;
-	    my @o = glob "$d/old/*.tar.[gx]z";
+	    my @o = glob "$d/old/*.tar.?z";
 	    my $n = scalar @o;
 	    @o = grep {-M $_ > $num_of_days_to_keep} @o;
 	    $n -= scalar @o;
@@ -397,12 +397,12 @@ foreach my $tag (@ARGV) {
 	    print HTACCESS "IndexOptions NameWidth=*\n";
 	    close HTACCESS or die $!;
 	}
-	for (glob "$d/*.tar.[gx]z") {
+	for (glob "$d/*.tar.?z") {
 	    my ($leaf) = m!([^/]*)$!;
 	    rename $_, "$d/old/$leaf";
 	}
     }
-    for (glob("*/*.tar.[gx]z"), glob("xapian-applications/*/*.tar.[gx]z"), glob("*.tar.[gx]z")) {
+    for (glob("*/*.tar.?z"), glob("xapian-applications/*/*.tar.?z"), glob("*.tar.?z")) {
 	print LOG "Moving '$_' to '$d'\n";
 	system("mv", $_, $d);
 	if ($?) {
@@ -411,7 +411,7 @@ foreach my $tag (@ARGV) {
 	    print LOG "OK\n";
 	}
     }
-    for (glob("search-xapian/*.tar.[gx]z")) {
+    for (glob("search-xapian/*.tar.?z")) {
 	print LOG2 "Moving '$_' to '$d'\n";
 	system("mv", $_, $d);
 	if ($?) {
