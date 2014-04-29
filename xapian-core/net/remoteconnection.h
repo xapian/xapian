@@ -100,14 +100,14 @@ class RemoteConnection {
 
     /** The file descriptor used for reading.
      *
-     *  If this is -1, the connection is unidirection and write-only.
+     *  If this is -1, the connection is unidirectional and write-only.
      *  If both fdin and fdout are -1, then the connection has been closed.
      */
     int fdin;
 
     /** The file descriptor used for writing.
      *
-     *  If this is -1, the connection is unidirection and read-only.
+     *  If this is -1, the connection is unidirectional and read-only.
      *  If both fdin and fdout are -1, then the connection has been closed.
      *  It is valid for fdout to be the same as fdin.
      */
