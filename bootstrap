@@ -237,7 +237,11 @@ case $srcdir in
     cd "$srcdir" ;;
 esac
 
-if [ -d ".git" ] ; then
+# Commit hash to pass to handle_git_external for swig.
+swig_git_commit_hash=618868ce3dbbde24bff185afea0c019d031cf857
+swig_origin_url=git://github.com/swig/swig.git
+
+if [ -d .git ] ; then
   for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
     if test -d "$emptydir" ; then
       :
@@ -266,9 +270,6 @@ END
     mv .git/info/exclude~ .git/info/exclude
   fi
 
-  # Commit hash to pass to handle_git_external for swig.
-  swig_git_commit_hash=7f8c1e192dbb39a4b3173eea18787f0a74aa3dcb
-
   if git config --get svn-remote.svn.url >/dev/null ; then
     # git repo checked out with git-svn from svn.xapian.org.
 
@@ -279,16 +280,8 @@ END
       if [ -n "$url" ] ; then
 	case $path in
 	/swig)
-	  if [ -d swig/.git/svn ] ; then
-	    # Old git-svn checkout - move it aside rather than
-	    # deleting in case there are local changes.
-	    echo 'Moving old git-svn checkout of swig to swig.git-svn.old'
-	    echo 'If you have not modified it locally, you can safely delete'
-	    echo 'this now'
-	    mv swig swig.git-svn.old
-	  fi
-	  swig_origin_url=git://github.com/swig/swig.git
-	  handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
+	  # Should no longer be present, but skip in case we're used with
+	  # an older tree or a different branch.
 	  ;;
 	/*)
 	  path=`echo "$path"|sed 's,^/,,'`
@@ -297,6 +290,16 @@ END
 	esac
       fi
     done
+
+    if [ -d swig/.git/svn ] ; then
+      # Old git-svn checkout - move it aside rather than
+      # deleting in case there are local changes.
+      echo 'Moving old git-svn checkout of swig to swig.git-svn.old'
+      echo 'If you have not modified it locally, you can safely delete'
+      echo 'this now'
+      mv swig swig.git-svn.old
+    fi
+    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
   else
     # git repo cloned from git.xapian.org or a mirror of it.
 
@@ -321,6 +324,16 @@ END
     handle_git_external xapian-letor/.common.git dbd42ffed2d76a79d505242b32a357246ab63348 .
     ln -sf .common.git/xapian-core/common xapian-letor/common
   fi
+elif [ -d .svn ] ; then
+  if [ -d swig/.svn ] ; then
+    # Old svn checkout - move it aside rather than
+    # deleting in case there are local changes.
+    echo 'Moving old svn checkout of swig to swig.svn.old'
+    echo 'If you have not modified it locally, you can safely delete'
+    echo 'this now'
+    mv swig swig.svn.old
+  fi
+  handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 fi
 
 # Prefer http downloads as they are more likely to work through firewalls.
