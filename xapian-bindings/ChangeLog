@@ -1,3 +1,9 @@
+Wed Apr 30 03:45:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Don't report Python version twice if it's too new or
+	  too old.
+
 Tue Mar 25 05:52:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/pythontest2.py,python/pythontest3.py: There's no longer a

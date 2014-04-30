@@ -281,6 +281,7 @@ if test no != "$with_python" ; then
     version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
     [2.[3-9]*|2.[12][0-9][0-9]*])
+      AC_MSG_RESULT([$version])
       ;;
     [[3-9].*])
       AC_MSG_RESULT([$version (too new - only Python 2 is supported by Xapian 1.2.x)])
@@ -297,7 +298,6 @@ if test no != "$with_python" ; then
       PYTHON=
       ;;
     esac
-    AC_MSG_RESULT([$version])
     if test -n "$PYTHON" ; then
       if $PYTHON -c 'import distutils.sysconfig' 2>/dev/null ; then
 	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
