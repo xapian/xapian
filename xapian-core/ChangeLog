@@ -1,3 +1,8 @@
+Wed Apr 30 00:31:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Explicitly '#include <algorithm>' for std::max(),
+	  fixing build with VS2013.  (fixes#641)
+
 Tue Apr 29 04:28:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/append_filename_arg.h,net/remoteconnection.h: Comment tweaks.
