@@ -4,7 +4,7 @@
 -- basic functionality successfully.
 --
 -- Copyright (C) 2011 Xiaona Han
--- Copyright (C) 2011 Olly Betts
+-- Copyright (C) 2011,2014 Olly Betts
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -22,31 +22,31 @@
 -- USA
 
 ---
--- m: expected value
--- n: obtained value
+-- got: obtained value
+-- exp: expected value
 -- msg: failure message (a string)
-function expect(m, n, msg)
+function expect(got, exp, msg)
   msg = msg and msg..': ' or ''
-  if type(m) == "table" then
-    assert('table' == type(n), msg..'not a table')
-    assert(#m == #n, msg..'got: '..tostring(#n)..' want: '..tostring(#m))
-    for i = 1, #m do
-      expect(m[i], n[i])
+  if type(exp) == "table" then
+    assert('table' == type(got), msg..'not a table')
+    assert(#exp == #got, msg..'got: '..tostring(#got)..' want: '..tostring(#exp))
+    for i = 1, #exp do
+      expect(got[i], exp[i])
     end
   else
-    assert(m == n, msg..'got: '..(tostring(n) or '???')..' want: '..(tostring(m) or '???'))
+    assert(exp == got, msg..'got: '..(tostring(got) or '???')..' want: '..(tostring(exp) or '???'))
   end
 end
 
 function run_tests()
   local xap = require 'xapian'
   -- Check that require sets global "xapian":
-  expect(true, nil ~= xapian, 'global xapian is nil')
-  expect('table', type(xapian), 'global xapian is not a table')
+  expect(nil ~= xapian, true, 'global xapian is nil')
+  expect(type(xapian), 'table', 'global xapian is not a table')
   -- Check that require returns the module table (SWIG 2.0.4 returned 'xapian'):
-  expect(true, nil ~= xap, "require 'xapian' returned nil")
-  expect('table', type(xap), "require 'xapian' didn't return a table")
-  expect(xap, xapian, "require 'xapian' return value not the same as global xapian")
+  expect(nil ~= xap, true, "require 'xapian' returned nil")
+  expect(type(xap), 'table', "require 'xapian' didn't return a table")
+  expect(xapian, xap, "require 'xapian' return value not the same as global xapian")
 
   stem = xapian.Stem("english")
   doc = xapian.Document()
@@ -76,10 +76,10 @@ function run_tests()
 
   -- Test stem
   expect(tostring(stem), "Xapian::Stem(english)")
-  expect("is", stem("is"), 'stem noop "is" fails')
-  expect("go", stem("going"), 'stem noop "go" fails')
-  expect("want", stem("wanted"), 'stem(english) "wanted" -> "want" fails')
-  expect("refer", stem("reference"), 'stem(english) "reference" -> "refer" fails')
+  expect(stem("is"), "is", 'stem noop "is" fails')
+  expect(stem("going"), "go", 'stem noop "go" fails')
+  expect(stem("wanted"), "want", 'stem(english) "wanted" -> "want" fails')
+  expect(stem("reference"), "refer", 'stem(english) "reference" -> "refer" fails')
 
   -- Test document
   expect(doc:termlist_count(), 5)

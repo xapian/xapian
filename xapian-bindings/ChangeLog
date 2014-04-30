@@ -1,3 +1,10 @@
+Wed Apr 30 03:47:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* lua/smoketest.lua: Change expect() parameter order to the more
+	  natural (got, expected), which most of the calls already used,
+	  and fix up the few calls which passed (expected, got).
+
 Wed Apr 30 03:45:38 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
