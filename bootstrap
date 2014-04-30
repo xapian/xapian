@@ -365,9 +365,9 @@ else
   # 2.69 is fussy about the m4 version
   # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.13.1 \
-    tar.xz cf0c93328ccc40412b2a6a2d96075b41e2182659 \
-    tar.gz 1778a1ab4ec2587aeceaf43b43536f11393cc59e
+  lazy_build automake 1.14.1 \
+    tar.xz 2ced676f6b792a95c5919243f81790b1172c7f5b \
+    tar.gz 0bb1714b78d70cab9907d2013082978a28f48a46
   lazy_build libtool 2.4.2 \
     tar.xz 4671f3323f2fbc712a70afce57602ce906a82a15 \
     tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
