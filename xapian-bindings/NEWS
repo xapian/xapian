@@ -1,6 +1,6 @@
- 17914       olly Fri Mar 14 08:30:46 GMT 2014  Olly Betts <olly@survex.com>
+ 17972       olly Wed Apr 30 03:48:07 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.18 (2014-03-14):
+Xapian-bindings 1.2.18 (2014-04-30):
 
 Documentation:
 
@@ -18,6 +18,10 @@ Java:
 
 Lua:
 
+* lua/smoketest.lua: Change expect() parameter order to the more natural (got,
+  expected), which most of the calls already used, and fix up the few calls
+  which passed (expected, got).
+
 Perl:
 
 PHP:
@@ -26,6 +30,13 @@ PHP:
   that MatchDecider returns an MSet with the expected docid in.
 
 Python:
+
+* python/pythontest.py: There's no longer a need to use chert_open() explicitly
+  - chert is the default backend now, and both chert and brass support the
+  required functionality for the tests which do this, so this just needlessly
+  causes the tests to fail if chert is disabled in xapian-core.
+
+* configure: Don't report Python version twice if it's too new or too old.
 
 Ruby:
 
