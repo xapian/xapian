@@ -1,14 +1,13 @@
 Mon Apr 14 10:28:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* Makefile.am,docs/omegascript.rst,expand.cc,expand.h,omega.cc,
-	  query.cc: Add support for setting the query expansion scheme to use.
+	* diritor.cc: Work around libmagic returning a MIME content-type of
+	  "Composite Document File V2 Document, No summary info".
 
 Mon Apr 14 09:38:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
-	* Makefile.am,docs/omegascript.rst,expand.cc,expand.h,omega.cc,
-	  query.cc: Add support for setting the query expansion scheme to use.
+	* expand.cc: Fix warning when built with GCC 4.7.2 using -Os.
 
 Fri Mar 14 12:12:59 GMT 2014  Olly Betts <olly@survex.com>
 
