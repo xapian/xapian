@@ -1,3 +1,34 @@
+ 17957       olly Mon Apr 14 10:28:51 GMT 2014  Olly Betts <olly@survex.com>
+
+Omega 1.2.18 (2014-04-30):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex: Work around libmagic returning a MIME content-type of "Composite
+  Document File V2 Document, No summary info".
+
+* scriptindex:
+
+omega:
+
+* Add support for setting the query expansion scheme to use.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+* Fix warning when built with GCC 4.7.2 using -Os.
+
+packaging:
+
 Omega 1.2.17 (2014-01-29):
 
 documentation:
