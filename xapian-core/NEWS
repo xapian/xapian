@@ -1,15 +1,23 @@
- 17912       olly Fri Mar 14 08:14:46 GMT 2014  Olly Betts <olly@survex.com>
+ 17969       olly Wed Apr 30 03:38:44 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.18 (2014-03-14):
-
+Xapian-core 1.2.18 (2014-04-30):
 
 API:
 
+* Document: Don't store the termname in OmDocumentTerm - we were only using it
+  in get_description() output and an exception message.  Speeds up indexing
+  etext.txt using simpleindex by 0.4%, and should reduce memory usage a bit
+  too.  (Change inspired by comments from Vishesh Handa on xapian-devel).
 
 testsuite:
 
 * apitest: Expand crashrecovery1 to check that the expected base files exist
   and ones which shouldn't exist don't.
+
+* queryparsertest: Fix testcase for empty wildcard followed by negation to
+  enable FLAG_LOVEHATE so the negation is actually parsed.  Fortunately the
+  fixed testcase passes.  This testcase will be fixed on trunk when the delayed
+  wildcard expansion branch gets merged.
 
 matcher:
 
@@ -49,9 +57,21 @@ tools:
 
 examples:
 
+* delve:
+
+  + Add -A <prefix> option to list all terms with a particular prefix.
+
+  + Send errors to stderr not stdout.
+
+  + If -v is specified more than once, show even more info in some cases.
+    (NEWS file claimed this was backported in 1.2.15, but it actually wasn't).
+
 * quest: Add --default-op option.
 
 portability:
+
+* Explicitly '#include <algorithm>' for std::max(), fixing build with VS2013.
+  Reported by "boomboo".  (fixes#641)
 
 * docs/quickstart.rst: Split --cxxflags and --libs for portability (noted by
   "Hurricane Tong" on xapian-devel).
