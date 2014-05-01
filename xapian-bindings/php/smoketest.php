@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -243,6 +243,47 @@ if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
 	print "MatchDecider mset has wrong docid in\n";
 	exit(1);
     }
+}
+
+class testexpanddecider extends XapianExpandDecider {
+    function apply($term) {
+	return ($term[0] !== 'a');
+    }
+}
+
+$enquire = new XapianEnquire($db);
+$rset = new XapianRSet();
+$rset->add_document(1);
+$eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, new testexpanddecider());
+$end = $eset->end();
+for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+    $t = $i->get_term();
+    if ($t[0] === 'a') {
+	print "XapianExpandDecider was not used\n";
+	exit(1);
+    }
+}
+
+# Check min_wt argument to get_eset() works (new in 1.2.5).
+$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ);
+$min_wt = 0;
+$end = $eset->end();
+for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+    $min_wt = $i->get_weight();
+}
+if ($min_wt >= 1.9) {
+    print "ESet min weight too high for testcase\n";
+    exit(1);
+}
+$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, NULL, 1.9);
+$min_wt = 0;
+$end = $eset->end();
+for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+    $min_wt = $i->get_weight();
+}
+if ($min_wt < 1.9) {
+    print "ESet min_wt threshold not applied\n";
+    exit(1);
 }
 
 if (XapianQuery::OP_ELITE_SET != 10) {

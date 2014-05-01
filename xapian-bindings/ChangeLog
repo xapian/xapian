@@ -1,3 +1,8 @@
+Thu May 01 00:28:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add tests of get_eset() with an ExpandDecider and
+	  with a min weight threshold.
+
 Sun Apr 06 19:40:12 GMT 2014  James Aylett <james@tartarus.org>
 
        * perl/Makefile.am: Perl tests are ordering-dependent, so
