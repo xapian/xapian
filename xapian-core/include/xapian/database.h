@@ -66,26 +66,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/// @private @internal Reference counted internals.
 	std::vector<Xapian::Internal::intrusive_ptr<Internal> > internal;
 
-	/** @private @internal Get a document from the database, but doesn't
-	 *  need to check if it exists.
-	 *
-	 *  This method returns a Xapian::Document object which provides the
-	 *  information about a document.  If the document doesn't exist,
-	 *  either a NULL pointer may be returned, or the returned object will
-	 *  throw DocNotFoundError when you try to access it.
-	 *
-	 *  The caller should delete the returned object when it has finished
-	 *  with it.
-	 *
-	 *  The returned value is cast to void* to avoid needing to include
-	 *  xapian/document.h from here.
-	 *
-	 *  @param did   The document id of the document to retrieve.
-	 *
-	 *  @return      Pointer to Document::Internal object cast to void*.
-	 */
-	void * get_document_lazily_(Xapian::docid did) const;
-
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
 	 *

@@ -1,7 +1,7 @@
 /** @file valuestreamdocument.cc
  * @brief A document which gets its values from a ValueStreamManager.
  */
-/* Copyright (C) 2009,2011 Olly Betts
+/* Copyright (C) 2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,8 +56,7 @@ ValueStreamDocument::do_get_value(Xapian::valueno slot) const
 {
 #ifdef XAPIAN_ASSERTIONS_PARANOID
     if (!doc) {
-	void * d = db.get_document_lazily_(did);
-	doc = static_cast<Xapian::Document::Internal*>(d);
+	doc = database->open_document((did - 1) / db.internal.size() + 1, true);
     }
 #endif
 
@@ -98,8 +97,7 @@ void
 ValueStreamDocument::do_get_all_values(map<Xapian::valueno, string> & v) const
 {
     if (!doc) {
-	void * d = db.get_document_lazily_(did);
-	doc = static_cast<Xapian::Document::Internal*>(d);
+	doc = database->open_document((did - 1) / db.internal.size() + 1, true);
     }
     return doc->do_get_all_values(v);
 }
@@ -108,8 +106,7 @@ string
 ValueStreamDocument::do_get_data() const
 {
     if (!doc) {
-	void * d = db.get_document_lazily_(did);
-	doc = static_cast<Xapian::Document::Internal*>(d);
+	doc = database->open_document((did - 1) / db.internal.size() + 1, true);
     }
     return doc->do_get_data();
 }

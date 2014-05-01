@@ -1,3 +1,9 @@
+Thu May 01 13:25:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,include/xapian/database.h,
+	  matcher/valuestreamdocument.cc: Eliminate
+	  Database::get_document_lazily_() completely.
+
 Thu May 01 11:48:00 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/database.cc,backends/slowvaluelist.cc,
