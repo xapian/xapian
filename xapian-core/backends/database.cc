@@ -223,7 +223,7 @@ Database::Internal::replace_document(const string & unique_term,
 ValueList *
 Database::Internal::open_value_list(Xapian::valueno slot) const
 {
-    return new SlowValueList(Xapian::Database(const_cast<Database::Internal*>(this)), slot);
+    return new SlowValueList(this, slot);
 }
 
 TermList *

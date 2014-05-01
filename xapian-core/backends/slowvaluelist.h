@@ -1,7 +1,7 @@
 /** @file slowvaluelist.h
  * @brief Slow implementation for backends which don't streamed values.
  */
-/* Copyright (C) 2007,2008,2011 Olly Betts
+/* Copyright (C) 2007,2008,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@
 
 #include "valuelist.h"
 
-#include "xapian/database.h"
+#include "database.h"
 
 /** Slow implementation for backends which don't streamed values.
  *
@@ -36,8 +36,8 @@ class SlowValueList : public ValueList {
     /// Don't allow copying.
     SlowValueList(const SlowValueList &);
 
-    /// The database.
-    Xapian::Database db;
+    /// The subdatabase.
+    Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db;
 
     /// The last docid in the database, or 0 if we're at_end.
     Xapian::docid last_docid;
@@ -52,8 +52,8 @@ class SlowValueList : public ValueList {
     Xapian::docid current_did;
 
   public:
-    SlowValueList(const Xapian::Database &db_, Xapian::valueno slot_)
-	: db(db_), last_docid(db.get_lastdocid()), slot(slot_), current_did(0)
+    SlowValueList(const Xapian::Database::Internal * db_, Xapian::valueno slot_)
+	: db(db_), last_docid(db_->get_lastdocid()), slot(slot_), current_did(0)
     { }
 
     Xapian::docid get_docid() const;
