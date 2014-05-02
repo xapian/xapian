@@ -1,3 +1,12 @@
+Fri May 02 05:53:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/database.cc,backends/slowvaluelist.cc,
+	  backends/slowvaluelist.h: Don't wrap the subdatabase object in a
+	  Xapian::Database for SlowValueList, which mean we can just call
+	  open_document(did, true) on it instead of having to use
+	  Xapian::Database::get_document_lazily_().
+
 Wed Apr 30 05:35:28 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog.
