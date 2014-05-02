@@ -1,3 +1,9 @@
+Fri May 02 06:10:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/valuestreamdocument.cc: Use open_document(did, true) instead
+	  of Database::get_document_lazily_().
+
 Fri May 02 05:53:21 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
