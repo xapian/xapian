@@ -1,3 +1,10 @@
+Fri May 02 02:36:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/valuestreamdocument.cc,matcher/valuestreamdocument.h: Put
+	  the docid in the sub-database into the ValueStreamDocument object as
+	  that's what Xapian::Document::get_docid() is documented to return.
+	  (fixes#636, reported by Jeff Rand).
+
 Thu May 01 13:25:35 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,include/xapian/database.h,
