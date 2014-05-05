@@ -104,15 +104,14 @@ Database::check(const string & path, int opts, std::ostream *out)
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
 	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	chert_revision_number_t rev;
-	chert_revision_number_t * rev_ptr = NULL;
+	chert_revision_number_t rev = 0;
+	chert_revision_number_t * rev_ptr = &rev;
 	try {
 	    // Open at the lower level so we can get the revision number.
 	    ChertDatabase db(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
 	    rev = db.get_revision_number();
-	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
 	    if (out)
@@ -125,8 +124,10 @@ Database::check(const string & path, int opts, std::ostream *out)
 	size_t pre_table_check_errors = errors;
 
 	// This is a chert directory so try to check all the btrees.
-	// Note: it's important to check termlist before postlist so
-	// that we can cross-check the document lengths.
+	// Note: it's important to check "termlist" before "postlist" so
+	// that we can cross-check the document lengths; also we check
+	// "record" first as that's the last committed, so has the most
+	// reliable rootblock revision in DBCHECK_FIX mode.
 	const char * tables[] = {
 	    "record", "termlist", "postlist", "position",
 	    "spelling", "synonym"
@@ -176,15 +177,14 @@ Database::check(const string & path, int opts, std::ostream *out)
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
 	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	brass_revision_number_t rev;
-	brass_revision_number_t * rev_ptr = NULL;
+	brass_revision_number_t rev = 0;
+	brass_revision_number_t * rev_ptr = &rev;
 	try {
 	    // Open at the lower level so we can get the revision number.
 	    BrassDatabase db(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
 	    rev = db.get_revision_number();
-	    rev_ptr = &rev;
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
 	    if (out)
@@ -194,7 +194,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    ++errors;
 	}
 
-	if (rev_ptr) {
+	if (rev) {
 	    for (brass_revision_number_t r = rev; r != 0; --r) {
 		string changes_file = path;
 		changes_file += "/changes";

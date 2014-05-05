@@ -1,3 +1,12 @@
+Mon May 05 05:37:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc,backends/chert/chert_dbcheck.cc,
+	  backends/dbcheck.cc: Improve DBCHECK_FIX - if fixing a whole
+	  database, we now take the revision from the first table we
+	  successfully look at, which should be correct in most cases,
+	  and is definitely better than trying to determine the revision
+	  of each broken table independently.
+
 Fri May 02 02:36:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/valuestreamdocument.cc,matcher/valuestreamdocument.h: Put

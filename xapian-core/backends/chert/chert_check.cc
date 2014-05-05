@@ -237,11 +237,20 @@ ChertTableCheck::check(const char * tablename, const string & path,
 
     ChertTableCheck B(tablename, path, false, out);
     try {
-	// open() throws an exception if it fails
-	if (rev_ptr)
-	    B.open(*rev_ptr);
-	else
+	if (rev_ptr && *rev_ptr) {
+	    // On failure, fake exception to be caught below.
+	    if (!B.open(*rev_ptr)) {
+		string msg = "Failed to open ";
+		msg += tablename;
+		msg += " table at revision ";
+		msg += str(*rev_ptr);
+		throw Xapian::DatabaseOpeningError(msg);
+	    }
+	} else {
+	    // open() throws an exception if it fails.
 	    B.open();
+	    *rev_ptr = B.get_open_revision_number();
+	}
     } catch (const Xapian::DatabaseOpeningError &) {
 	if ((opts & Xapian::DBCHECK_FIX) == 0 ||
 	    file_size(path + "baseA") > 0 ||
@@ -280,11 +289,12 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	uint4 root = 0;
 	uint4 revision = 0;
 	uint4 level = 0;
-	for (uint4 blk_no = 0;
+	uint4 blk_no;
+	for (blk_no = 0;
 	     io_read(fd, (char*)buf, blocksize, 0) == blocksize;
 	     ++blk_no) {
 	    uint4 rev = REVISION(buf);
-	    if (rev_ptr) {
+	    if (rev_ptr && *rev_ptr) {
 		// We have a specified revision to look for, but we still need
 		// to scan to find the block with the highest level in that
 		// revision.
@@ -298,10 +308,8 @@ ChertTableCheck::check(const char * tablename, const string & path,
 		    continue;
 	    } else {
 		// FIXME: this isn't smart enough - it will happily pick a new
-		// revision which was partly written but never committed.  Also
-		// there's nothing to ensure that it picks the same revision of
-		// each table.  And it suffers from the issue of multiple roots
-		// mentioned above.
+		// revision which was partly written but never committed.  And
+		// it suffers from the issue of multiple roots mentioned above.
 		if (rev < revision)
 		    continue;
 	    }
@@ -329,12 +337,29 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	fake_base.set_level(level);
 	fake_base.set_item_count(0); // Will get filled in later.
 	fake_base.set_sequential(false); // Will get filled in later.
+	if (blk_no) {
+	    // Mark the last block as in use so that if assertions are enabled,
+	    // we don't get a failure in ChertTable::read_block() when we try
+	    // to read blocks.  We clear the bitmap before we regenerate it
+	    // below, so the last block will still end up correctly marked.
+	    fake_base.mark_block(blk_no - 1);
+	}
 	faked_base = path;
 	faked_base += "baseA";
 	fake_base.write_to_file(faked_base, 'A', string(), -1, NULL);
 
 	// And retry the open.
-	B.open(revision);
+	if (!B.open(revision)) {
+	    string msg = "Root guess of blk ";
+	    msg += str(root);
+	    msg += " rev ";
+	    msg += str(revision);
+	    msg += " didn't work";
+	    throw Xapian::DatabaseOpeningError(msg);
+	}
+
+	if (rev_ptr && !*rev_ptr)
+	    *rev_ptr = revision;
     }
 
     Cursor * C = B.C;
@@ -355,7 +380,9 @@ ChertTableCheck::check(const char * tablename, const string & path,
     }
 
     if (opts & Xapian::DBCHECK_FIX) {
-	// Clear the bitmap in case we're regenerating an existing base file.
+	// Clear the bitmap before we start.  If we're regenerating it, it'll
+	// likely have some bits set already, and if we're starting from a
+	// fake, the last block will have been marked as in use above.
 	B.base.clear_bit_map();
     }
 
