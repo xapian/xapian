@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007 Olly Betts
+ * Copyright 2002,2003,2004,2007,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -117,7 +117,6 @@ template <class T>
 inline void RefCntPtr<T>::operator=(T *dest_) {
     // copy the new dest in before we delete the old to avoid a small
     // window in which dest points to a deleted object
-    // FIXME: if pointer assignment isn't atomic, we ought to use locking...
     T *old_dest = dest;
     dest = dest_;
     // Increment the new before we decrement the old so that if dest == dest_
@@ -137,7 +136,6 @@ inline RefCntPtr<T>::~RefCntPtr()
     if (dest && --dest->ref_count == 0) {
 	// zero before we delete to avoid a small window in which dest points
 	// to a deleted object
-	// FIXME: if pointer assignment isn't atomic, we ought to use locking...
 	T * condemned = dest;
 	dest = 0;
 	delete condemned;

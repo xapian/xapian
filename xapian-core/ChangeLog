@@ -1,3 +1,10 @@
+Mon May 05 10:34:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/base.h: Remove old, old comments talking about atomic
+	  assignment and locking - since 0.5.0 we've adopted a "user locks"
+	  policy.  This code has already been replaced on trunk, so this is
+	  a 1.2 branch only change.  Reported by Jean-Francois Dockes.
+
 Fri May 02 06:24:24 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
