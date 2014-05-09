@@ -182,7 +182,7 @@ END
 
     case $ext in
     tar.xz)
-      xz -dc "$tarball"| tar xf - ;;
+      ${XZ-xz} -dc "$tarball"| tar xf - ;;
     tar.bz2)
       bzip2 -dc "$tarball"| tar xf - ;;
     *)
