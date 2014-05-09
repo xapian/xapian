@@ -1,3 +1,7 @@
+Fri May 09 01:56:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using doxygen 1.8.7 to bootstrap tarballs.
+
 Mon May 05 05:37:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_check.cc,backends/chert/chert_dbcheck.cc,
