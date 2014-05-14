@@ -1,5 +1,5 @@
 #!/bin/sh
-# bootstrap a xapian source tree obtained from SVN to produce a tree like
+# bootstrap a xapian source tree obtained from git to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
 # Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
@@ -82,8 +82,23 @@ lazy_build() {
       fi
     fi
     if [ "$xz_ok" = 0 ] ; then
-      ext=$5
-      checksum=$6
+      shift 2
+      ext=$3
+      checksum=$4
+    fi
+  fi
+  if [ "$ext" = "tar.bz2" ] ; then
+    if [ -z "$bz2_ok" ] ; then
+      if bzip2 --version > /dev/null 2>&1 ; then
+	bz2_ok=1
+      else
+	bz2_ok=0
+      fi
+    fi
+    if [ "$bz2_ok" = 0 ] ; then
+      shift 2
+      ext=$3
+      checksum=$4
     fi
   fi
   tarball=$basename.$ext
@@ -167,7 +182,7 @@ END
 
     case $ext in
     tar.xz)
-      xz -dc "$tarball"| tar xf - ;;
+      ${XZ-xz} -dc "$tarball"| tar xf - ;;
     tar.bz2)
       bzip2 -dc "$tarball"| tar xf - ;;
     *)
@@ -204,7 +219,7 @@ handle_svn_external() {
     if [ ! -d "$path" ] ; then
       git svn init "$url" "$path"/
     fi
-    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
+    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --oneline --show-commit|awk '{print $3}'`)
   fi
 }
 
@@ -215,7 +230,7 @@ handle_git_external() {
     url=$3
     if [ ! -d "$path" ] ; then
       git clone --no-checkout -- "$url" "$path"
-    elif git reflog "$rev" -- 2>/dev/null ; then
+    elif (cd "$path" && git reflog "$rev" -- 2>/dev/null) ; then
       : # Already have that revision locally
     else
       (cd "$path" && git fetch)
@@ -336,10 +351,15 @@ else
   # The last field is the SHA1 checksum of the tarball.
   lazy_build doxygen 1.8.5 \
     src.tar.gz 1fc5ceec21122fe5037edee4c308ac94b59ee33e
-  lazy_build autoconf 2.68 tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4
+  lazy_build autoconf 2.68 \
+    tar.xz 63a3b495400c1c053f2f6b62efb7a5c0ad4156c9 \
+    tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4 \
+    tar.gz 843f7dfcc6addf129dc2c8b12f7d72d371478f42
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.6 tar.gz 29d7832b148e2157e03ad0d3620fbb7f5a13bc21
-  lazy_build libtool 2.4 tar.gz 149e9d7a993b643d13149a94d07bbca1085e601c
+  lazy_build libtool 2.4.2 \
+    tar.xz 4671f3323f2fbc712a70afce57602ce906a82a15 \
+    tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
       lazy_build file 5.10 tar.gz 72fd435e78955ee122b7b3d323ff2f92e6263e89
@@ -545,7 +565,7 @@ for d in $modules ; do
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}
       ;;
     xapian-applications/omega)
-      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CXXFLAGS="-I$srcdir/INST/include -L$srcdir/INST/lib" ${1+"$@"}
+      cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking XAPIAN_CONFIG="$XAPIAN_CONFIG" CPPFLAGS="-I$srcdir/INST/include" LDFLAGS="-L$srcdir/INST/lib" ${1+"$@"}
       ;;
     *)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" XAPIAN_CONFIG="$XAPIAN_CONFIG" ${1+"$@"}
