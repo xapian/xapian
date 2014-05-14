@@ -1,3 +1,7 @@
+Wed May 14 11:02:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Now bootstrapping with libtool 2.4.2 instead of 2.4.
+
 Mon May 05 10:34:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/base.h: Remove old, old comments talking about atomic

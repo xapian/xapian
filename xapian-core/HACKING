@@ -441,7 +441,7 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.4 is used to generate snapshots and releases.
+* libtool 2.4.2 is used to generate snapshots and releases.
 
   libtool 2.2.8 is the current hard minimum requirement.
 
