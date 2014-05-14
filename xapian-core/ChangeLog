@@ -1,3 +1,8 @@
+Wed May 14 03:18:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc: Only serialise parameter where it is actually
+	  used.
+
 Fri May 09 01:56:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Now using doxygen 1.8.7 to bootstrap tarballs.

@@ -386,7 +386,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    }
 	    unsigned char code = (ch >> 3) & 0x0f;
 	    Xapian::termcount parameter = 0;
-	    if (code >= 5)
+	    if (code >= 13)
 		parameter = decode_length(p, end, false);
 	    Xapian::Internal::QueryBranch * result;
 	    switch (code) {
@@ -873,7 +873,7 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
 	result += ch;
 	if (subqueries.size() >= 9)
 	    result += encode_length(subqueries.size() - 9);
-	if (ch >= MULTIWAY(5))
+	if (ch >= MULTIWAY(13))
 	    result += encode_length(parameter);
     } else {
 	result += ch;
