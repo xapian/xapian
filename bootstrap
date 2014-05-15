@@ -239,6 +239,19 @@ handle_git_external() {
   fi
 }
 
+update_config() {
+  from=$1
+  to=$2
+  ts_from=`perl -ne '/^timestamp=(\W?)([-\d]+)$1/ and do {$_=$2;y/-//d;print;exit}' "$from"`
+  ts_to=`perl -ne '/^timestamp=(\W?)([-\d]+)$1/ and do {$_=$2;y/-//d;print;exit}' "$to"`
+  if [ "$ts_from" -gt "$ts_to" ] ; then
+     echo "Updating $to ($ts_to) with $from ($ts_from)"
+     # rm first in case the existing file is a symlink.
+     rm -f "$to"
+     cp "$from" "$to"
+  fi
+}
+
 curdir=`pwd`
 
 # cd to srcdir if we aren't already there.
@@ -473,6 +486,11 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-
   if [ -n "$autoreconf_rc" ] ; then
     exit $autoreconf_rc
   fi
+  for f in config.guess config.sub ; do
+    if [ -f "$d/$f" ] ; then
+      update_config "config/$f" "$d/$f"
+    fi
+  done
   modules="$modules $module"
 done
 
