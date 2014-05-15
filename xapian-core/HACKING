@@ -466,7 +466,7 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.13.1 is used to generate snapshots and releases.
+* automake 1.14.1 is used to generate snapshots and releases.
 
   automake 1.12.2 is a hard minimum requirement.  This version fixes a
   security issue (CVE-2012-3386) in the generated `make distcheck` rules.
