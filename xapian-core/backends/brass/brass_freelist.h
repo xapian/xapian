@@ -122,6 +122,7 @@ class BrassFreeList {
 	std::swap(fl, o.fl);
 	std::swap(fl_end, o.fl_end);
 	std::swap(flw, o.flw);
+	std::swap(flw_appending, o.flw_appending);
 	std::swap(p, o.p);
 	std::swap(pw, o.pw);
     }

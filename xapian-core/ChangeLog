@@ -1,3 +1,8 @@
+Fri May 16 04:35:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.h: Fix BrassFreeList::swap() to also
+	  swap the flw_appending members.
+
 Thu May 15 12:51:15 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Add checking config/config.* are up to date to the 
