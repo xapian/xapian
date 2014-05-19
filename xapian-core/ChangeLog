@@ -1,3 +1,13 @@
+Mon May 19 00:08:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc,tests/api_backend.cc: When we start
+	  to write a new freelist block, set the revision on the old one we
+	  write out correctly, and don't "-1" out the next block pointer
+	  before we write out the block in this case.  New regression testcase
+	  newfreelistblock1.
+	* backends/brass/brass_freelist.cc: Add assertions that the freelist
+	  block has a next pointer when fl_end is a different block to fl.
+
 Fri May 16 04:35:21 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_freelist.h: Fix BrassFreeList::swap() to also

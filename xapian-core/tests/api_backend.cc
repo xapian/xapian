@@ -932,3 +932,25 @@ DEFINE_TESTCASE(notermlist1, brass) {
     TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
     return true;
 }
+
+/// Regression test for bug starting a new brass freelist block.
+DEFINE_TESTCASE(newfreelistblock1, writable) {
+    Xapian::Document doc;
+    doc.add_term("foo");
+    for (int i = 100; i < 120; ++i) {
+	doc.add_term(str(i));
+    }
+
+    Xapian::WritableDatabase wdb(get_writable_database());
+    for (int j = 0; j < 50; ++j) {
+	wdb.add_document(doc);
+    }
+    wdb.commit();
+
+    for (int k = 0; k < 1000; ++k) {
+	wdb.add_document(doc);
+	wdb.commit();
+    }
+
+    return true;
+}
