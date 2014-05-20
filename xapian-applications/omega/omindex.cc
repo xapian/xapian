@@ -1290,8 +1290,10 @@ main(int argc, char **argv)
     // (as it is in CP1250).
     commands["image/vnd.djvu"] = Filter("djvutxt");
     // The --text option unhelpfully converts all non-ASCII characters to "?"
-    // so we use --html instead, which produces HTML entities.  Currently the
-    // --nopict option doesn't work, but hopefully it'll get fixed.
+    // so we use --html instead, which produces HTML entities.  The --nopict
+    // option suppresses exporting picture files as pictNNNN.wmf in the current
+    // directory.  Note that this option was ignored in some older versions,
+    // but it was fixed in unrtf 0.20.4.
     commands["text/rtf"] = Filter("unrtf --nopict --html 2>/dev/null", "text/html");
     commands["text/x-rst"] = Filter("rst2html", "text/html");
     commands["application/x-mspublisher"] = Filter("pub2xhtml", "text/html");

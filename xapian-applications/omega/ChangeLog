@@ -1,3 +1,8 @@
+Tue May 20 23:27:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Update comment about unrtf --nopict to note the unrtf
+	  version where this was fixed to work again.
+
 Tue May 20 23:26:19 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Report the size limit in the message when we skip a file
