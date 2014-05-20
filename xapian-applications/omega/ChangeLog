@@ -1,3 +1,8 @@
+Tue May 20 23:26:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Report the size limit in the message when we skip a file
+	  which exceeds it.
+
 Mon Apr 14 10:42:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Filtering via text/html now handles HTML documents which
