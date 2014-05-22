@@ -140,7 +140,8 @@ LocalSubMatch::open_post_list(const string& term,
     LeafPostList * pl = NULL;
     if (!term.empty()) {
 	Xapian::doccount tf = stats->set_max_part(term, max_part);
-	if (max_part == 0.0 && tf == db->get_doccount()) {
+	bool needs_wdf = weighted && wt_factory->get_sumpart_needs_wdf_();
+	if (!needs_wdf && tf == db->get_doccount()) {
 	    // If we're not going to use the wdf and the term indexes all
 	    // documents, we can replace it with the MatchAll postlist, which
 	    // is especially efficient if there are no gaps in the docids.
