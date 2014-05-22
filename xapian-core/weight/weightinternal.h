@@ -178,13 +178,12 @@ class Weight::Internal {
     }
 
     /// Set max_part for a term.
-    Xapian::doccount set_max_part(const std::string & term, double max_part) {
+    void set_max_part(const std::string & term, double max_part) {
 	have_max_part = true;
 	Assert(!term.empty());
 	map<string, TermFreqs>::iterator i = termfreqs.find(term);
 	Assert(i != termfreqs.end());
 	i->second.max_part += max_part;
-	return i->second.termfreq;
     }
 
     Xapian::doclength get_average_length() const {

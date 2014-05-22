@@ -131,21 +131,23 @@ LocalSubMatch::open_post_list(const string& term,
 
     bool weighted = (factor != 0.0 && !term.empty());
     AutoPtr<Xapian::Weight> wt(weighted ? wt_factory->clone() : NULL);
-    double max_part = 0.0;
     if (weighted) {
 	wt->init_(*stats, qlen, term, wqf, factor);
-	max_part = wt->get_maxpart();
+	stats->set_max_part(term, wt->get_maxpart());
     }
 
     LeafPostList * pl = NULL;
     if (!term.empty()) {
-	Xapian::doccount tf = stats->set_max_part(term, max_part);
-	bool needs_wdf = weighted && wt_factory->get_sumpart_needs_wdf_();
-	if (!needs_wdf && tf == db->get_doccount()) {
-	    // If we're not going to use the wdf and the term indexes all
-	    // documents, we can replace it with the MatchAll postlist, which
-	    // is especially efficient if there are no gaps in the docids.
-	    pl = db->open_post_list(string());
+	if (!weighted || !wt_factory->get_sumpart_needs_wdf_()) {
+	    Xapian::doccount sub_tf;
+	    db->get_freqs(term, &sub_tf, NULL);
+	    if (sub_tf == db->get_doccount()) {
+		// If we're not going to use the wdf and the term indexes all
+		// documents, we can replace it with the MatchAll postlist,
+		// which is especially efficient if there are no gaps in the
+		// docids.
+		pl = db->open_post_list(string());
+	    }
 	}
     }
 
