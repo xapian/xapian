@@ -2,7 +2,7 @@
  * @brief Tests of percentage calculations.
  */
 /* Copyright (C) 2008,2009 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -307,5 +307,50 @@ DEFINE_TESTCASE(topercent7, generated) {
     Xapian::MSet m = enq.get_mset(0, 10);
     TEST(!m.empty());
     TEST_REL(m[0].get_percent(),>,60);
+    return true;
+}
+
+class ZWeight : public Xapian::Weight {
+  public:
+    ZWeight() { }
+
+    void init(double) { }
+
+    Weight * clone() const {
+	return new ZWeight();
+    }
+
+    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
+	return 0.0;
+    }
+
+    double get_maxpart() const {
+	return 0.0;
+    }
+
+    double get_sumextra(Xapian::termcount doclen) const {
+	return 1.0 / doclen;
+    }
+
+    double get_maxextra() const {
+	return 1.0;
+    }
+};
+
+/// Regression test for bug introduced in 1.3.1 and fixed in 1.3.2.
+DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    // "this" indexes all documents, so will get replaced with MatchAll
+    // internally.
+    const char * terms[] = { "this", "spoken", "blank" };
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, terms, terms + 3));
+    ZWeight wt;
+    enquire.set_weighting_scheme(wt);
+    Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+    // No documents match all 3 terms, so the score shouldn't be 100%.
+    TEST(mset[0].get_percent() != 100);
+    // Make sure the percentage score isn't 0 or 1 though.
+    TEST_REL(mset[0].get_percent(), >, 1);
     return true;
 }

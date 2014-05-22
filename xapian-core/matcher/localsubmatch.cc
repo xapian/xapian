@@ -144,7 +144,7 @@ LocalSubMatch::open_post_list(const string& term,
 	    // If we're not going to use the wdf and the term indexes all
 	    // documents, we can replace it with the MatchAll postlist, which
 	    // is especially efficient if there are no gaps in the docids.
-	    RETURN(db->open_post_list(string()));
+	    pl = db->open_post_list(string());
 	}
     }
 

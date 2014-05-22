@@ -1,3 +1,10 @@
+Thu May 22 05:52:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.cc,tests/api_percentages.cc: When we optimise
+	  a postlist for a term which matches all documents to use MatchAll,
+	  we still need to set a weight object on it to get percentages
+	  calculated correctly.
+
 Thu May 22 04:08:35 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc,matcher/localsubmatch.cc,
