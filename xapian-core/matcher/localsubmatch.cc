@@ -121,20 +121,23 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
     RETURN(res.release());
 }
 
-Xapian::Weight *
-LocalSubMatch::make_wt(const string& term, Xapian::termcount wqf, double factor)
-{
-    LOGCALL(MATCH, Xapian::Weight *, "LocalSubMatch::make_wt", term | wqf | factor);
-    AutoPtr<Xapian::Weight> wt(wt_factory->clone());
-    wt->init_(*stats, qlen, term, wqf, factor);
-    return wt.release();
-}
-
 LeafPostList *
-LocalSubMatch::open_post_list(LeafPostList ** hint, const string& term, double max_part)
+LocalSubMatch::open_post_list(const string& term,
+			      Xapian::termcount wqf,
+			      double factor,
+			      LeafPostList ** hint)
 {
-    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", hint | term | max_part);
+    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | hint);
 
+    bool weighted = (factor != 0.0 && !term.empty());
+    AutoPtr<Xapian::Weight> wt(weighted ? wt_factory->clone() : NULL);
+    double max_part = 0.0;
+    if (weighted) {
+	wt->init_(*stats, qlen, term, wqf, factor);
+	max_part = wt->get_maxpart();
+    }
+
+    LeafPostList * pl = NULL;
     if (!term.empty()) {
 	Xapian::doccount tf = stats->set_max_part(term, max_part);
 	if (max_part == 0.0 && tf == db->get_doccount()) {
@@ -145,11 +148,15 @@ LocalSubMatch::open_post_list(LeafPostList ** hint, const string& term, double m
 	}
     }
 
-    LeafPostList * res = NULL;
-    if (*hint)
-	res = (*hint)->open_nearby_postlist(term);
-    if (!res)
-	res = db->open_post_list(term);
-    *hint = res;
-    RETURN(res);
+    if (!pl) {
+	if (*hint)
+	    pl = (*hint)->open_nearby_postlist(term);
+	if (!pl)
+	    pl = db->open_post_list(term);
+	*hint = pl;
+    }
+
+    if (weighted)
+	pl->set_termweight(wt.release());
+    return pl;
 }

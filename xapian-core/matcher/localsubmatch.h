@@ -90,11 +90,10 @@ class LocalSubMatch : public SubMatch {
     PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 				     double factor);
 
-    Xapian::Weight * make_wt(const std::string & term,
-			     Xapian::termcount wqf,
-			     double factor);
-
-    LeafPostList * open_post_list(LeafPostList ** hint, const std::string& term, double max_part);
+    LeafPostList * open_post_list(const std::string& term,
+				  Xapian::termcount wqf,
+				  double factor,
+				  LeafPostList ** hint);
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

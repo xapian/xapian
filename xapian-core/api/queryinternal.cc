@@ -645,21 +645,9 @@ PostingIterator::Internal *
 QueryTerm::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryTerm::postlist", qopt | factor);
-    bool weighted = false;
-    if (factor != 0.0) {
+    if (factor != 0.0)
 	qopt->inc_total_subqs();
-	if (!term.empty())
-	    weighted = true;
-    }
-
-    AutoPtr<Xapian::Weight> wt(weighted ? qopt->make_wt(term, wqf, factor) : 0);
-
-    AutoPtr<LeafPostList> pl(
-	qopt->open_post_list(term, weighted ? wt->get_maxpart() : 0.0));
-
-    if (weighted)
-	pl->set_termweight(wt.release());
-    RETURN(pl.release());
+    RETURN(qopt->open_post_list(term, wqf, factor));
 }
 
 PostingIterator::Internal *
