@@ -1456,6 +1456,9 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Email Fabrice Colin and Tim Brody so they can check RPM packaging.
 
+* Check if `config/config.guess` and `config/config.sub` need updating to
+  more recent versions from http://git.savannah.gnu.org/gitweb/?p=config.git
+
 * Check the revision currently specified in the svn:externals property of
   xapian-applications/omega.  Unless there's a good reason, we should release
   xapian-core and omega with synchronised versions of the shared files.
