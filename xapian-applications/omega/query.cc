@@ -578,12 +578,6 @@ p_nottag(unsigned int c)
     return !isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '-';
 }
 
-inline static bool
-p_plusminus(unsigned int c)
-{
-    return c == '+' || c == '-';
-}
-
 // FIXME: shares algorithm with indextext.cc!
 static string
 html_highlight(const string &s, const string &list,
