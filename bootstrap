@@ -331,8 +331,9 @@ END
 
     # If this tree is checked out from the github mirror, use the same access
     # method for other things checked out from github (e.g. swig) so we avoid
-    # firewall issues.
-    origin_url=`git config remote.origin.url`
+    # firewall issues.  If there's no default remote, the git config command
+    # will exit with status 1, so ignore that failure.
+    origin_url=`git config remote.origin.url||:`
     case $origin_url in
       *[@/]github.com[:/]*)
 	github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
