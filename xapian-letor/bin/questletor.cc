@@ -48,7 +48,7 @@ typedef std::pair<Xapian::docid, double> docid_to_score;
 
 struct MyTestCompare {
     bool operator()(const docid_to_score& firstPair, const docid_to_score& secondPair) const {
-        return firstPair.second < secondPair.second;
+        return firstPair.second > secondPair.second;
     }
 };
 
@@ -244,8 +244,8 @@ try {
     }
 
     int rank = 1;
-    for (set<docid_to_score, MyTestCompare>::iterator it = s.end();
-        it != s.begin(); it--)
+    for (set<docid_to_score, MyTestCompare>::iterator it = s.begin();
+        it != s.end(); it--)
     {
         cout << "Item: " << rank << "\t" << it->second << "\n";
 
