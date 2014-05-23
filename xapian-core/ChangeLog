@@ -1,3 +1,7 @@
+Fri May 23 11:59:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc: Pass std::string by const reference.
+
 Thu May 22 06:31:12 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/localsubmatch.cc: Fix the check for a term which matches all
