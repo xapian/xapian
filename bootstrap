@@ -89,7 +89,9 @@ lazy_build() {
   fi
   if [ "$ext" = "tar.bz2" ] ; then
     if [ -z "$bz2_ok" ] ; then
-      if bzip2 --version > /dev/null 2>&1 ; then
+      # bzip2 --version doesn't exit with code 0 in upstream version (though
+      # Debian at least patch this bug), so use --help to check it.
+      if bzip2 --help > /dev/null 2>&1 ; then
 	bz2_ok=1
       else
 	bz2_ok=0
