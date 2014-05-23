@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2006 Olly Betts
+ * Copyright 2002,2003,2006,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -129,7 +129,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 }
 
 static void
-parse_date(string date, int *y, int *m, int *d)
+parse_date(const string & date, int *y, int *m, int *d)
 {
     // FIXME: for now only support YYYYMMDD (e.g. 20011119)
     // and don't error check

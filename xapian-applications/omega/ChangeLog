@@ -1,3 +1,7 @@
+Fri May 23 12:05:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* date.cc,scriptindex.cc: Pass std::string by const reference.
+
 Fri May 23 09:05:25 GMT 2014  Olly Betts <olly@survex.com>
 
 	* query.cc: Removed unused inline function.
