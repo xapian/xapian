@@ -1,3 +1,9 @@
+Fri May 23 13:38:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc: Report the size limit in the message when we skip a file
+	  which exceeds it.
+
 Wed Apr 30 05:44:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

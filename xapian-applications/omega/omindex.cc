@@ -86,6 +86,7 @@ static bool follow_symlinks = false;
 static bool ignore_exclusions = false;
 static bool spelling = false;
 static off_t  max_size = 0;
+static std::string pretty_max_size;
 static bool verbose = false;
 static enum {
     EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
@@ -335,7 +336,8 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     }
 
     if (max_size > 0 && d.get_size() > max_size) {
-	skip(file, "Larger than size limit", SKIP_VERBOSE_ONLY);
+	skip(file, "Larger than size limit of " + pretty_max_size,
+	     SKIP_VERBOSE_ONLY);
 	return;
     }
 
@@ -1411,6 +1413,23 @@ main(int argc, char **argv)
 	    off_t size = parse_size(optarg);
 	    if (size >= 0) {
 		max_size = size;
+		const char * suffix;
+		// Set lsb to the lowest set bit in max_size.
+		off_t lsb = max_size & -max_size;
+		if (lsb >= off_t(1L << 30)) {
+		    size >>= 30;
+		    suffix = "GB";
+		} else if (lsb >= off_t(1L << 20)) {
+		    size >>= 20;
+		    suffix = "MB";
+		} else if (lsb >= off_t(1L << 10)) {
+		    size >>= 10;
+		    suffix = "KB";
+		} else {
+		    suffix = "B";
+		}
+		pretty_max_size = str(size);
+		pretty_max_size += suffix;
 		break;
 	    }
 	    cerr << PROG_NAME": bad max size '" << optarg << "'" << endl;
