@@ -1,3 +1,8 @@
+Fri May 23 13:00:30 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/matchspy.cc: Pass std::string by const reference.
+
 Wed May 14 11:02:07 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Now bootstrapping with libtool 2.4.2 instead of 2.4.

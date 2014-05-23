@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -152,7 +152,7 @@ class StringAndFrequency {
     Xapian::doccount frequency;
   public:
     /// Construct a StringAndFrequency object.
-    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
+    StringAndFrequency(const std::string & str_, Xapian::doccount frequency_)
 	    : str(str_), frequency(frequency_) {}
 
     /// Return the string.
