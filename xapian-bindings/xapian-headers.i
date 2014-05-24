@@ -304,6 +304,21 @@ SUBCLASSABLE(Xapian, ExpandDecider)
 SUBCLASSABLE(Xapian, KeyMaker)
 %include <xapian/keymaker.h>
 
+%extend Xapian::SimpleStopper {
+  void load_from_file(const std::string &file) {
+    ifstream inFile (file);
+    istream_iterator<string> in_iter(inFile) ;
+    istream_iterator<string> eof;
+  
+    vector<string> store(in_iter, eof);
+
+    for (auto word: store) {
+       add(word);
+    }
+  }
+
+}
+
 SUBCLASSABLE(Xapian, FieldProcessor)
 SUBCLASSABLE(Xapian, Stopper)
 SUBCLASSABLE(Xapian, ValueRangeProcessor)
