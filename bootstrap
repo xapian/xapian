@@ -199,6 +199,11 @@ END
 	    qtools/qglobal.h > qtools/qglobal.hT
 	mv qtools/qglobal.hT qtools/qglobal.h
     fi
+    if [ -d "../../patches/$package" ] ; then
+      for p in "../../patches/$package/"* ; do
+	patch -p1 < "$p"
+      done
+    fi
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
     else
