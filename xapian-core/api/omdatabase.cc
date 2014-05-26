@@ -911,7 +911,7 @@ WritableDatabase::replace_document(const std::string & unique_term,
     size_t i = sub_db(retval, n_dbs);
     internal[i]->replace_document(sub_docid(retval, n_dbs), document);
 
-    // Delete any other occurences of unique_term.
+    // Delete any other occurrences of unique_term.
     while (++postit != postlist_end(unique_term)) {
 	Xapian::docid did = *postit;
 	i = sub_db(did, n_dbs);

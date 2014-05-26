@@ -1,3 +1,9 @@
+Mon May 26 05:52:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/brass/brass_postlist.h,
+	  backends/chert/chert_postlist.h,backends/database.h: Fix comment
+	  typos.
+
 Fri May 23 11:59:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc: Pass std::string by const reference.

@@ -106,7 +106,7 @@ class BrassPostListTable : public BrassTable {
 	 *  @param term		The term to get frequencies for
 	 *  @param termfreq_ptr	Point to return number of docs indexed by @a
 	 *			term (or NULL not to return)
-	 *  @param collfreq_ptr	Point to return number of occurences of @a
+	 *  @param collfreq_ptr	Point to return number of occurrences of @a
 	 *			term in the database (or NULL not to return)
 	 */
 	void get_freqs(const std::string & term,
