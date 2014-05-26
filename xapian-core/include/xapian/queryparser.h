@@ -35,6 +35,7 @@
 
 #include <set>
 #include <string>
+#include <fstream>
 
 namespace Xapian {
 
