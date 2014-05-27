@@ -180,10 +180,13 @@ Snipper::Internal::generate_snippet(const string & text,
 	const RMTermInfo & term_info = rm_term_data[term];
 	double irrelevant_prob = (double)term_info.coll_occurrence / rm_coll_size;
 	double relevant_prob = 0;
-	for (size_t i = 0; i < term_info.indexed_docs_freq.size(); ++i) {
-	    rm_docid c_docid = term_info.indexed_docs_freq[i].docid;
+	vector<TermDocInfo>::const_iterator i;
+	for (i = term_info.indexed_docs_freq.begin();
+	     i != term_info.indexed_docs_freq.end();
+	     ++i) {
+	    rm_docid c_docid = i->docid;
 	    // Occurrence of term in document.
-	    Xapian::doccount doc_freq = term_info.indexed_docs_freq[i].freq;
+	    Xapian::doccount doc_freq = i->freq;
 
 	    // Document info.
 	    const RMDocumentInfo & rm_doc_info = rm_documents[c_docid];

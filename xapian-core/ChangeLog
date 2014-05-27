@@ -1,3 +1,7 @@
+Tue May 27 03:06:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc: Use an iterator instead of subscripting.
+
 Tue May 27 03:03:33 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc,api/snipperinternal.h,include/xapian/snipper.h: Use
