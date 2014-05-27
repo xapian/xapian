@@ -2,6 +2,7 @@
  * @brief Generate snippets from text relevant to MSet.
  */
 /* Copyright (C) 2012 Mihai Bivol
+ * Copyright (C) 2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,8 +54,7 @@ Snipper::~Snipper()
 void
 Snipper::set_mset(const MSet & mset, unsigned int rm_docno)
 {
-    internal->rm_docno = rm_docno;
-    internal->calculate_rm(mset);
+    internal->calculate_rm(mset, rm_docno);
 }
 
 string
@@ -101,7 +101,6 @@ Snipper::rm_collection_size()
 
 // Init constants.
 const double Snipper::Internal::default_smoothing_coef = .5;
-const unsigned int Snipper::Internal::default_rm_docno = 10;
 const unsigned int Snipper::Internal::default_window_size = 25;
 
 bool
@@ -111,7 +110,7 @@ Snipper::Internal::is_stemmed(const string & term)
 }
 
 void
-Snipper::Internal::calculate_rm(const MSet & mset)
+Snipper::Internal::calculate_rm(const MSet & mset, unsigned int rm_docno)
 {
     rm_docid current_id = 0;
 

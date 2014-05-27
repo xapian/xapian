@@ -2,6 +2,7 @@
  * @brief Internals
  */
 /* Copyright (C) 2012 Mihai Bivol
+ * Copyright (C) 2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,7 +40,6 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	bool is_stemmed(const std::string & term);
 
 	static const double default_smoothing_coef;
-	static const unsigned int default_rm_docno;
 	static const unsigned int default_window_size;
 
 	/// Copy not allowed
@@ -123,20 +123,20 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	/** Size of the window that returns the relevant snippet */
 	unsigned int window_size;
 
-	/** Relevance model document number */
-	unsigned int rm_docno;
-
 	Internal() : rm_coll_size(0),
 		     rm_total_weight(0),
 		     smoothing_coef(default_smoothing_coef),
-		     window_size(default_window_size),
-		     rm_docno(default_rm_docno) { }
+		     window_size(default_window_size) { }
 
 	/** Return snippet generated from text using the precalculated relevance model */
 	std::string generate_snippet(const std::string & text);
 
-	/** Calculate relevance model based on a MSet */
-	void calculate_rm(const MSet & mset);
+	/** Calculate relevance model based on a MSet.
+	 *
+	 *  @param mset		The MSet to base the model on
+	 *  @param rm_docno	How many documents to use from @a mset
+	 */
+	void calculate_rm(const MSet & mset, unsigned int rm_docno);
 };
 
 }

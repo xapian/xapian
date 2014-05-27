@@ -1,3 +1,9 @@
+Tue May 27 02:33:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,api/snipperinternal.h: Just pass rm_docno through to
+	  Snipper::Internal::calculate_rm() as a parameter rather than storing
+	  it in a member variable.
+
 Tue May 27 02:25:41 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc: Use clear() method to empty a container.
