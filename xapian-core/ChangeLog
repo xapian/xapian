@@ -1,3 +1,8 @@
+Tue May 27 02:13:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Hook up new Snipper API tests to actually be
+	  used.
+
 Tue May 27 02:09:49 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
 
 	* tests/api_snipper.cc: Add Snipper API tests.
