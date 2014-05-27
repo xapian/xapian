@@ -48,11 +48,35 @@ snowball_headers =\
 	languages/compiler/syswords.h\
 	languages/compiler/syswords2.h
 
-EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
+EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources) $(snowball_stopwords_preprocessed)\
 	languages/sbl-dispatch.h\
 	languages/dir_contents\
 	languages/Makefile\
 	languages/allsnowballheaders.h
+
+snowball_stopwords =\
+	languages/stopwords/arabic/stop.txt\
+	languages/stopwords/danish/stop.txt\
+	languages/stopwords/dutch/stop.txt\
+	languages/stopwords/english/stop.txt\
+	languages/stopwords/finnish/stop.txt\
+	languages/stopwords/french/stop.txt\
+	languages/stopwords/german/stop.txt\
+	languages/stopwords/hungarian/stop.txt\
+	languages/stopwords/italian/stop.txt\
+	languages/stopwords/norwegian/stop.txt\
+	languages/stopwords/portuguese/stop.txt\
+	languages/stopwords/russian/stop.txt\
+	languages/stopwords/spanish/stop.txt\
+	languages/stopwords/swedish/stop.txt
+
+snowball_stopwords_preprocessed =\ 
+	$(snowball_stopwords:.txt=.list)
+	
+.txt.list: 
+	sed 's/[$$'\t' ]*|.*//;/^[$$'\t' ]*$$/d' < $<  > $@
+
+BUILT_SOURCES += $(snowball_stopwords_preprocessed)
 
 if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
