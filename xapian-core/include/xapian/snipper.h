@@ -25,6 +25,7 @@
 
 #include <string>
 #include <xapian/intrusive_ptr.h>
+#include <xapian/types.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -61,7 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
      *			model (default: 10).
      */
     void set_mset(const MSet & mset,
-		  unsigned int rm_docno = 10);
+		  Xapian::doccount rm_docno = 10);
 
     /** Generate snippet from given text.
      *
@@ -72,17 +73,17 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
      * @return	    Text of the snippet relevant to the model from input.
      */
     std::string generate_snippet(const std::string & text,
-				 unsigned int window_size = 25,
+				 Xapian::termcount window_size = 25,
 				 double coef = 0.5);
 
     /** Return number of documents in the relevance model */
-    int rm_doccount();
+    Xapian::doccount rm_doccount();
 
     /** Return number of distinct terms in the relevance model */
-    int rm_termcount();
+    Xapian::termcount rm_termcount();
 
     /** Return the collection size of the relevance model */
-    int rm_collection_size();
+    Xapian::termcount rm_collection_size();
 };
 
 }

@@ -71,19 +71,19 @@ Snipper::set_stemmer(const Stem & stemmer)
     internal->stemmer = stemmer;
 }
 
-int
+Xapian::doccount
 Snipper::rm_doccount()
 {
     return internal->rm_documents.size();
 }
 
-int
+Xapian::termcount
 Snipper::rm_termcount()
 {
     return internal->rm_term_data.size();
 }
 
-int
+Xapian::termcount
 Snipper::rm_collection_size()
 {
     return internal->rm_coll_size;
@@ -96,7 +96,7 @@ Snipper::Internal::is_stemmed(const string & term)
 }
 
 void
-Snipper::Internal::calculate_rm(const MSet & mset, unsigned int rm_docno)
+Snipper::Internal::calculate_rm(const MSet & mset, Xapian::doccount rm_docno)
 {
     rm_docid current_id = 0;
 
@@ -106,14 +106,14 @@ Snipper::Internal::calculate_rm(const MSet & mset, unsigned int rm_docno)
     rm_documents.clear();
     rm_term_data.clear();
 
-    unsigned int current_doc = 0;
+    Xapian::doccount current_doc = 0;
     // Index document and term data.
     for (MSetIterator ms_it = mset.begin(); ms_it != mset.end(); ++ms_it) {
 	if (++current_doc > rm_docno)
 	    break;
 	rm_total_weight += ms_it.get_weight();
 	const Document & doc = ms_it.get_document();
-	int doc_size = 0;
+	Xapian::termcount doc_size = 0;
 	for (TermIterator term_it = doc.termlist_begin(); term_it != doc.termlist_end(); ++term_it) {
 	    if (is_stemmed(*term_it)) {
 		// Increase current document size.
@@ -137,7 +137,7 @@ Snipper::Internal::calculate_rm(const MSet & mset, unsigned int rm_docno)
 
 string
 Snipper::Internal::generate_snippet(const string & text,
-				    unsigned int window_size,
+				    Xapian::termcount window_size,
 				    double smoothing_coef)
 {
     Document text_doc;
@@ -180,10 +180,10 @@ Snipper::Internal::generate_snippet(const string & text,
 	const RMTermInfo & term_info = rm_term_data[term];
 	double irrelevant_prob = (double)term_info.coll_occurrence / rm_coll_size;
 	double relevant_prob = 0;
-	for (unsigned int i = 0; i < term_info.indexed_docs_freq.size(); ++i) {
+	for (size_t i = 0; i < term_info.indexed_docs_freq.size(); ++i) {
 	    rm_docid c_docid = term_info.indexed_docs_freq[i].docid;
 	    // Occurrence of term in document.
-	    int doc_freq = term_info.indexed_docs_freq[i].freq;
+	    Xapian::doccount doc_freq = term_info.indexed_docs_freq[i].freq;
 
 	    // Document info.
 	    const RMDocumentInfo & rm_doc_info = rm_documents[c_docid];
@@ -208,13 +208,13 @@ Snipper::Internal::generate_snippet(const string & text,
     double max_sum = 0;
     vector<double> docterms_relevance;
 
-    for (unsigned int i = 0; i < docterms.size(); ++i) {
+    for (size_t i = 0; i < docterms.size(); ++i) {
 	string term = "Z" + stemmer(docterms[i].term);
 	docterms_relevance.push_back(term_score[term]);
     }
 
     // Remove interrupts.
-    for (unsigned int i = 0; i < docterms.size(); ++i) {
+    for (size_t i = 0; i < docterms.size(); ++i) {
 	double prev_score = i > 0 ? docterms_relevance[i - 1] : 0;
 	double next_score = i < (docterms.size() - 1) ? docterms_relevance[i + 1] : 0;
 	if (docterms_relevance[i] < prev_score &&
@@ -229,7 +229,7 @@ Snipper::Internal::generate_snippet(const string & text,
     }
     max_sum = sum;
 
-    for (unsigned int i = snippet_end; i < docterms.size(); ++i) {
+    for (size_t i = snippet_end; i < docterms.size(); ++i) {
 	double score = docterms_relevance[i];
 	sum += score;
 

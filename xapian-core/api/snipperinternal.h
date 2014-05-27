@@ -67,9 +67,9 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	    /** Relevance model document id.*/
 	    rm_docid docid;
 	    /** Frequency of term in document */
-	    int	 freq;
+	    Xapian::termcount freq;
 
-	    TermDocInfo(rm_docid docid_, int freq_) :
+	    TermDocInfo(rm_docid docid_, Xapian::termcount freq_) :
 		docid(docid_),
 		freq(freq_) { }
 	};
@@ -87,9 +87,9 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	/** Holds information about a term and its position in a document */
 	struct TermPositionInfo {
 	    std::string term;
-	    int position;
+	    Xapian::termpos position;
 
-	    TermPositionInfo(std::string term_, int position_) :
+	    TermPositionInfo(std::string term_, Xapian::termpos position_) :
 		term(term_),
 		position(position_) { }
 
@@ -109,7 +109,7 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	std::map<std::string, RMTermInfo> rm_term_data;
 
 	/** Relevance model collection size */
-	int rm_coll_size;
+	Xapian::doccount rm_coll_size;
 
 	/** Relevance model total document weight */
 	double rm_total_weight;
@@ -127,7 +127,7 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	 *  @param mset		The MSet to base the model on
 	 *  @param rm_docno	How many documents to use from @a mset
 	 */
-	void calculate_rm(const MSet & mset, unsigned int rm_docno);
+	void calculate_rm(const MSet & mset, Xapian::doccount rm_docno);
 };
 
 }

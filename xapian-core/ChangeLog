@@ -1,3 +1,8 @@
+Tue May 27 03:03:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,api/snipperinternal.h,include/xapian/snipper.h: Use
+	  appropriate named types rather than "int" or "unsigned int".
+
 Tue May 27 03:02:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipperinternal.h: Remove constants which are no longer used.
