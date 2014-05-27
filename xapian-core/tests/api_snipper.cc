@@ -46,7 +46,7 @@ DEFINE_TESTCASE(snipper1, backend) {
 
     Xapian::Snipper snipper;
     snipper.set_mset(mymset, 4);
-    TEST_EQUAL(snipper.rm_doccount(), 4);
+    TEST(snipper.get_description().find("rm_doccount=4,") != string::npos);
     return true;
 }
 
@@ -66,11 +66,11 @@ DEFINE_TESTCASE(snipper2, backend) {
     Xapian::Snipper snipper;
     snipper.set_mset(mymset1);
     // Should add to relevance model 6 documents.
-    TEST_EQUAL(snipper.rm_doccount(), 6);
+    TEST(snipper.get_description().find("rm_doccount=6,") != string::npos);
 
     snipper.set_mset(mymset2);
     // Should add to relevance model 2 documents.
-    TEST_EQUAL(snipper.rm_doccount(), 2);
+    TEST(snipper.get_description().find("rm_doccount=2,") != string::npos);
     return true;
 }
 

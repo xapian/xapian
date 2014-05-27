@@ -24,6 +24,7 @@
 #define XAPIAN_INCLUDED_SNIPPER_H
 
 #include <string>
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -76,14 +77,8 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
 				 Xapian::termcount window_size = 25,
 				 double coef = 0.5);
 
-    /** Return number of documents in the relevance model */
-    Xapian::doccount rm_doccount();
-
-    /** Return number of distinct terms in the relevance model */
-    Xapian::termcount rm_termcount();
-
-    /** Return the collection size of the relevance model */
-    Xapian::termcount rm_collection_size();
+    /// Return a string describing this object.
+    std::string get_description() const XAPIAN_PURE_FUNCTION;
 };
 
 }

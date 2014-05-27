@@ -1,3 +1,10 @@
+Tue May 27 03:36:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,include/xapian/snipper.h,tests/api_snipper.cc: Remove
+	  getters for obtaining info about the relevance model, and instead
+	  add a get_description() method which includes all such info in the
+	  returned description.
+
 Tue May 27 03:06:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc: Use an iterator instead of subscripting.

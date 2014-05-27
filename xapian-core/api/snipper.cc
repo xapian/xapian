@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 
+#include "str.h"
+
 using namespace std;
 
 namespace Xapian {
@@ -69,24 +71,6 @@ void
 Snipper::set_stemmer(const Stem & stemmer)
 {
     internal->stemmer = stemmer;
-}
-
-Xapian::doccount
-Snipper::rm_doccount()
-{
-    return internal->rm_documents.size();
-}
-
-Xapian::termcount
-Snipper::rm_termcount()
-{
-    return internal->rm_term_data.size();
-}
-
-Xapian::termcount
-Snipper::rm_collection_size()
-{
-    return internal->rm_coll_size;
 }
 
 bool
@@ -290,6 +274,18 @@ Snipper::Internal::generate_snippet(const string & text,
     snippet += "...";
 
     return snippet;
+}
+
+string
+Snipper::get_description() const
+{
+    string desc = "Snipper(rm_doccount=";
+    desc += str(internal->rm_documents.size());
+    desc += ", rm_termcount=";
+    desc += str(internal->rm_term_data.size());
+    desc += ", rm_collection_size=";
+    desc += str(internal->rm_coll_size);
+    return desc;
 }
 
 }
