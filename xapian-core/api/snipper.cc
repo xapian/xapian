@@ -19,6 +19,8 @@
  * USA
  */
 
+#include <config.h>
+
 #include "xapian/snipper.h"
 #include "snipperinternal.h"
 

@@ -1,3 +1,7 @@
+Tue May 27 02:04:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc: Add missing #include <config.h>.
+
 Tue May 27 02:00:32 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
 
 	* api/Makefile.mk,api/snipper.cc,api/snipperinternal.h,
