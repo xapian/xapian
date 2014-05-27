@@ -2,6 +2,7 @@
  * @brief Generate snippets from text relevant to MSet.
  */
 /* Copyright (C) 2012 Mihai Bivol
+ * Copyright (C) 2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,31 +63,17 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
     void set_mset(const MSet & mset,
 		  unsigned int rm_docno = 10);
 
-    /**
-     * Set the window size used by generate_snippet method.
-     *
-     * Before this method is called, the default 25 value is used.
-     *
-     * @param window_size   Size of the window
-     */
-    void set_window_size(unsigned int window_size);
-
-    /**
-     * Set the smoothing coefficient used by generate_snippet method.
-     *
-     * Before this method is called, the default .5 value is used.
-     *
-     * @param coef	Smoothing coefficient.
-     */
-    void set_smoothing_coef(double coef);
-
     /** Generate snippet from given text.
      *
-     * @param text  The text from which to generate the snippet
+     * @param text	    The text from which to generate the snippet
+     * @param window_size   Size of the window (default: 25)
+     * @param coef	    Smoothing coefficient (default: 0.5)
      *
      * @return	    Text of the snippet relevant to the model from input.
      */
-    std::string generate_snippet(const std::string & text);
+    std::string generate_snippet(const std::string & text,
+				 unsigned int window_size = 25,
+				 double coef = 0.5);
 
     /** Return number of documents in the relevance model */
     int rm_doccount();

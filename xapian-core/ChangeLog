@@ -1,3 +1,9 @@
+Tue May 27 02:48:44 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,api/snipperinternal.h,include/xapian/snipper.h:
+	  Rework Snipper methods set_smoothing_coef() and set_window_size() as
+	  optional parameters of generate_snippet().
+
 Tue May 27 02:33:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc,api/snipperinternal.h: Just pass rm_docno through to

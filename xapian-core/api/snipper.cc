@@ -58,27 +58,17 @@ Snipper::set_mset(const MSet & mset, unsigned int rm_docno)
 }
 
 string
-Snipper::generate_snippet(const string & text)
+Snipper::generate_snippet(const string & text,
+			  unsigned int window_size,
+			  double smoothing_coef)
 {
-    return internal->generate_snippet(text);
+    return internal->generate_snippet(text, window_size, smoothing_coef);
 }
 
 void
 Snipper::set_stemmer(const Stem & stemmer)
 {
     internal->stemmer = stemmer;
-}
-
-void
-Snipper::set_smoothing_coef(double coef)
-{
-    internal->smoothing_coef = coef;
-}
-
-void
-Snipper::set_window_size(unsigned int window_size)
-{
-    internal->window_size = window_size;
 }
 
 int
@@ -98,10 +88,6 @@ Snipper::rm_collection_size()
 {
     return internal->rm_coll_size;
 }
-
-// Init constants.
-const double Snipper::Internal::default_smoothing_coef = .5;
-const unsigned int Snipper::Internal::default_window_size = 25;
 
 bool
 Snipper::Internal::is_stemmed(const string & term)
@@ -150,7 +136,9 @@ Snipper::Internal::calculate_rm(const MSet & mset, unsigned int rm_docno)
 }
 
 string
-Snipper::Internal::generate_snippet(const string & text)
+Snipper::Internal::generate_snippet(const string & text,
+				    unsigned int window_size,
+				    double smoothing_coef)
 {
     Document text_doc;
     TermGenerator term_gen;
