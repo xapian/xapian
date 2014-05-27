@@ -906,6 +906,7 @@ CMD_set,
 CMD_setmap,
 CMD_setrelevant,
 CMD_slice,
+CMD_snippet,
 CMD_split,
 CMD_stoplist,
 CMD_sub,
@@ -1029,6 +1030,7 @@ T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,     0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
+T(snippet,	   1, 1, N, 0), // generate snippet from text
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
@@ -1881,6 +1883,13 @@ eval(const string &fmt, const vector<string> &param)
 		    i = j + 1;
 		}
 	        break;
+	    }
+	    case CMD_snippet: {
+		Xapian::Snipper snipper;
+		snipper.set_mset(mset);
+		snipper.set_stemmer(Xapian::Stem(option["stemmer"]));
+		value = snipper.generate_snippet(args[0]);
+		break;
 	    }
 	    case CMD_split: {
 		string split;
