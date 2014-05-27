@@ -118,8 +118,8 @@ Snipper::Internal::calculate_rm(const MSet & mset)
     // Initialize global relevance model info.
     rm_total_weight = 0;
     rm_coll_size = 0;
-    rm_documents.erase(rm_documents.begin(), rm_documents.end());
-    rm_term_data.erase(rm_term_data.begin(), rm_term_data.end());
+    rm_documents.clear();
+    rm_term_data.clear();
 
     unsigned int current_doc = 0;
     // Index document and term data.

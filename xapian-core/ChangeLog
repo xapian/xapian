@@ -1,3 +1,7 @@
+Tue May 27 02:25:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc: Use clear() method to empty a container.
+
 Tue May 27 02:22:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_snipper.cc: Drop unused <algorithm>.
