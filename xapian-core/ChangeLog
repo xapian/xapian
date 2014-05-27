@@ -1,3 +1,9 @@
+Tue May 27 04:03:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,include/xapian/snipper.h,
+	  tests/generate-api_generated: Add missing assignment operator to
+	  Xapian::Snipper class.
+
 Tue May 27 03:43:03 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/snipper.h: Add missing doxygen comments.

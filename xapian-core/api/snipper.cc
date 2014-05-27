@@ -49,6 +49,13 @@ Snipper::Snipper(const Snipper & other) : internal(other.internal)
 {
 }
 
+Snipper &
+Snipper::operator=(const Snipper & other)
+{
+    internal = other.internal;
+    return *this;
+}
+
 Snipper::~Snipper()
 {
 }

@@ -52,6 +52,9 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
     /// Copy constructor.
     Snipper(const Snipper & other);
 
+    /// Assignment.
+    Snipper & operator=(const Snipper & other);
+
     /// Destructor.
     ~Snipper();
 
