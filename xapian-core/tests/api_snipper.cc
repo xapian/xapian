@@ -22,7 +22,6 @@
 
 #include "api_snipper.h"
 
-#include <algorithm>
 #include <string>
 
 #include <xapian.h>
