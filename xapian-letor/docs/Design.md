@@ -30,133 +30,133 @@ feature.h feature.cc
 		FEATURE_17,
 		FEATURE_18,
 		FEATURE_19
-	} FeatureBase
+	} FeatureBase;
 
 ### Private Attribures
 
-1. const vector<Feature::FeatureBase> features_
+	1. const vector<Feature::FeatureBase> features
 
-	The list of features used to represent a feature vector.
+		The list of features used to represent a feature vector.
 	
-2. const FeatureManager & feature_manager_
+	2. const FeatureManager & feature_manager
 
-	The feature manager that uses this Feature.
+		The feature manager that uses this Feature.
 
-3. map<String, long int> query_term_frequency_doc_
+	3. map<String, long int> query_term_frequency_doc
 
-	The term frequency of the query in a docuemnt.
+		The term frequency of the query in a docuemnt.
 
-4. map<String, long int> query_term_frequency_db_
+	4. map<String, long int> query_term_frequency_db
 
-	The term frequency of the query in db. Get from get_term_freq_query_db in *FeatureManager*.
+		The term frequency of the query in db. Get from get_term_freq_query_db in FeatureManager.
 
 ### Private APIs
 
-1. Feature(FeatureManager feature_manager, vector<Feature::FeatureBase> features)
+	1. Feature(FeatureManager feature_manager_, vector<Feature::FeatureBase> features_)
 
-	The constructor.
+		The constructor.
 
-3. double GetFeature(Feature::FeatureBase featurer_base, Xapian::Document doc)
+	3. double get_feature(Feature::FeatureBase featurer_base_, Xapian::Document doc_)
 
-	Return the feature value. Will call responding calculation function based on *FeatureBase*.
+		Return the feature value. Will call responding calculation function based on FeatureBase.
 
-3. double feature_1(Xapian::Query q, Xapian::Document doc)
+	3. double feature_1(Xapian::Query query_, Xapian::Document doc_)
 
-	Calculate feature 1.
+		Calculate feature 1.
 	
-4. double feature_2(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 2.
+	4. double feature_2(Xapian::Query query_, Xapian::Document doc_)
 	
-5. double feature_3(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 3.
+		Calculate feature 2.
+		
+	5. double feature_3(Xapian::Query query_, Xapian::Document doc_)
 	
-6. double feature_4(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 4.
+		Calculate feature 3.
+		
+	6. double feature_4(Xapian::Query query_, Xapian::Document doc_)
 	
-7. double feature_5(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 5.
+		Calculate feature 4.
+		
+	7. double feature_5(Xapian::Query query_, Xapian::Document doc_)
 	
-8. double feature_6(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 6.
+		Calculate feature 5.
+		
+	8. double feature_6(Xapian::Query query_, Xapian::Document doc_)
 	
-9. double feature_7(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 7.
+		Calculate feature 6.
+		
+	9. double feature_7(Xapian::Query query_, Xapian::Document doc_)
 	
-10. double feature_8(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 8.
+		Calculate feature 7.
+		
+	10. double feature_8(Xapian::Query query_, Xapian::Document doc_)
 	
-11. double feature_9(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 9.
+		Calculate feature 8.
+		
+	11. double feature_9(Xapian::Query query_, Xapian::Document doc_)
 	
-12. double feature_10(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 10.
+		Calculate feature 9.
+		
+	12. double feature_10(Xapian::Query query_, Xapian::Document doc_)
 	
-13. double feature_11(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 11.
+		Calculate feature 10.
+		
+	13. double feature_11(Xapian::Query query_, Xapian::Document doc_)
 	
-14. double feature_11(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 11.
+		Calculate feature 11.
+		
+	14. double feature_11(Xapian::Query query_, Xapian::Document doc_)
 	
-15. double feature_12(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 12.
+		Calculate feature 11.
+		
+	15. double feature_12(Xapian::Query query_, Xapian::Document doc_)
 	
-16. double feature_13(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 13.
+		Calculate feature 12.
+		
+	16. double feature_13(Xapian::Query query_, Xapian::Document doc_)
 	
-17. double feature_14(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 14.
+		Calculate feature 13.
+		
+	17. double feature_14(Xapian::Query query_, Xapian::Document doc_)
 	
-18. double feature_15(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 15.
+		Calculate feature 14.
+		
+	18. double feature_15(Xapian::Query query_, Xapian::Document doc_)
 	
-19. double feature_16(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 16.
+		Calculate feature 15.
+		
+	19. double feature_16(Xapian::Query query_, Xapian::Document doc_)
 	
-20. double feature_17(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 17.
+		Calculate feature 16.
+		
+	20. double feature_17(Xapian::Query query_, Xapian::Document doc_)
 	
-21. double feature_18(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 18.
+		Calculate feature 17.
+		
+	21. double feature_18(Xapian::Query query_, Xapian::Document doc_)
 	
-22. double feature_19(Xapian::Query q, Xapian::Document doc)
-
-	Calculate feature 19.
+		Calculate feature 18.
+		
+	22. double feature_19(Xapian::Query query_, Xapian::Document doc_)
+	
+		Calculate feature 19.
 
 ### Public APIs
 
-1. static void Create(FeatureManager feature_manager, vector<Feature::FeatureBase> features)
+	1. static void create(FeatureManager feature_manager_, vector<Feature::FeatureBase> features_)
 
-	Create information of features to be used in the future.
+		Create information of features to be used in the future.
 
-2. void UpdateContext(Xapian::Query query, Xapian::MSet mset)
+	2. void update_context(Xapian::Query query_, Xapian::MSet mset_)
 
-	Set the query and MSet. Must call before calling *generate_feature_vector*. Update *term_freq_query_db*.
+		Set the query and MSet. Must call before calling generate_feature_vector. Update term_freq_query_db.
 
-3. Xapian::FeatureVector GenerateFeatureVector(Xapian:Document doc)
+	3. Xapian::FeatureVector generate_feature_vector(Xapian:Document doc_)
 
-	Return feature vector for current document based on the query.
+		Return feature vector for current document based on the query.
 
-4. int GetFeaturesNum()
+	4. int get_features_num()
 
-	Return the size of *feature_list*.
+		Return the size of feature_list.
 
 *****
 
@@ -171,48 +171,52 @@ feature_vector.h feature_vector.cc
 
 ### Private Attributes
 
-1. const Feature & feature_
+1. const Feature & feature
 
-2. const double score_
+2. const double score
 
-3. const double label_
+3. const double label
 
-4. const Xapian::docid docid_
+4. const Xapian::docid docid
 
-5. const vector\<double> feature_values_
+5. const vector<double> feature_values
 
 
 ### Private APIs
 
-1. FeatureVector(Feature feature, vector\<double> features, score, label)
+	1. FeatureVector(Feature feature_, vector<double> features_, score_, label_)
 
-	The constructor.
+		The constructor.
 
 ### Public APIs
 
-1. double label()
+	1. double get_label()
 
-	Return the label.
+		Return the label.
 	
-2. double score()
+	2. double get_score()
 
-	Return the score.
+		Return the score.
 	
-3. int GetFeatureNum()
+	3. int GetFeatureNum()
 
-	Return the number of features used to represent the document.
+		Return the number of features used to represent the document.
 	
-4. Xapian::docid docid()
+	4. Xapian::docid docid()
 
-	Return the document id.
+		Return the document id.
 	
-5. double GetFeatureValue(int i)
+	5. double get_feature_value(int i)
 
-	Return the value of the *ith* feature.
+		Return the value of the *ith* feature.
 	
-8. static FeatureVector Create(Feature feature, vector\<double> features, score, label)
+	6. Xapian::MSet::letor_item transform_letor_item()
+	
+		Transform into Xapian::MSet::letor_item.
+	
+	7. static FeatureVector create(Feature feature_, vector<double> features_, float score_, float label_)
 
-	Create a FeatureVector based on a vector of feature values for a document.
+		Create a FeatureVector based on a vector of feature values for a document.
 
 *****
 
@@ -225,54 +229,58 @@ feature_manager.h feature_manager.cc
 
 ### Private Attributes
 
-1. Xapian::Database & database_
+1. Xapian::Database & database
 
-2. Feature feature_
+2. Feature feature
 
-3. Xapian::Query query_
+3. Xapian::Query query
 
-4. Xapian::MSet mset_
+4. Xapian::MSet mset
 
 ### Private APIs
 
-1. FeatureManager(Xapian::Database database, vector\<Feature::FeatureBase> feature_base)
+	1. FeatureManager(Xapian::Database database_, vector<Feature::FeatureBase> feature_base_)
+	
+	2. vector<Xapian::MSet::letor_item> generate_letor_info()
+	
+		Will be called by update_mset()
 
 ### Public APIs
 
-1. static FeatureManager(Xapian::Database database, vector\<Feature::FeatureBase> features)
+	1. static FeatureManager(Xapian::Database database_, vector<Feature::FeatureBase> features_)
 
-	Create new feature manager.	
+		Create new feature manager.	
 
-2. int GetFeaturesNum()
+	2. int get_features_num()
 
-	Return the number of features used to represent the document.
+		Return the number of features used to represent the document.
 
-3. Xapian::Database database()
+	3. Xapian::Database get_database()
 
-	Return the database.
+		Return the database.
 	
-4. Feature feature()
+	4. Feature get_feature()
 
-	Return the feature.
+		Return the feature.
 	
-6. Xapian::Query query()
+	6. Xapian::Query get_query()
 
-	Return the query.
+		Return the query.
 	
-7. Xapian::MSet mset()
+	7. Xapian::MSet get_mset()
 
-	Return the mset.
+		Return the mset.
 
-5. void UpdateState(Xapian::Query query, Xapian::MSet mset)
+	5. void update_state(Xapian::Query query_, Xapian::MSet mset_)
 
-	Update the internal query and mset.
+		Update the internal query and mset.
 		
-8. map<String, long int> GetQueryTermFrequencyInDatabase()
+	8. map<String, long int> get_query_term_frequency_database()
 
-	The term frequency of the query in database.
+		The term frequency of the query in database.
 
-9. void UpdateMSet(Xapian::MSet mset)
+	9. void update_mset()
 
-	Update additional information to mset.
+		Update additional information to mset.
 	
 	
