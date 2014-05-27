@@ -1,3 +1,7 @@
+Tue May 27 04:12:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Document $snippet.
+
 Tue May 27 04:07:43 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
 
 	* query.cc,templates/query: Add Omega Snipper integration.
