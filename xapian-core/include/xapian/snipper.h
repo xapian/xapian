@@ -40,7 +40,6 @@ class Stem;
  */
 class XAPIAN_VISIBILITY_DEFAULT Snipper {
   public:
-
     /// Class representing snipper internals.
     class Internal;
 
@@ -84,4 +83,3 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
 }
 
 #endif /* XAPIAN_INCLUDED_SNIPPER_H */
-

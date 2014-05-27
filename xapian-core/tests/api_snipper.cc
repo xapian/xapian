@@ -73,4 +73,3 @@ DEFINE_TESTCASE(snipper2, backend) {
     TEST(snipper.get_description().find("rm_doccount=2,") != string::npos);
     return true;
 }
-
