@@ -72,7 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
     void set_window_size(unsigned int window_size);
 
     /**
-     * Set the smootihg coefficient used by generate_snippet method.
+     * Set the smoothing coefficient used by generate_snippet method.
      *
      * Before this method is called, the default .5 value is used.
      *

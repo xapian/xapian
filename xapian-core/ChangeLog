@@ -1,3 +1,8 @@
+Tue May 27 02:14:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,api/snipperinternal.h,include/xapian/snipper.h: Fix
+	  typos in comments and variable names in new snipper code.
+
 Tue May 27 02:13:09 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Hook up new Snipper API tests to actually be

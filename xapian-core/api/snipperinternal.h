@@ -81,13 +81,13 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	struct RMTermInfo {
 	    /** Documents that index the term in relevance model */
 	    std::vector<TermDocInfo> indexed_docs_freq;
-	    /** Occurance in collection */
-	    int coll_occurence;
+	    /** Occurrence in collection */
+	    int coll_occurrence;
 
-	    RMTermInfo() : coll_occurence(0) { }
+	    RMTermInfo() : coll_occurrence(0) { }
 	};
 
-	/** Holds information about a term and it's position in a document */
+	/** Holds information about a term and its position in a document */
 	struct TermPositionInfo {
 	    std::string term;
 	    int position;

@@ -136,7 +136,7 @@ Snipper::Internal::calculate_rm(const MSet & mset)
 
 		// Update term information.
 		RMTermInfo & term_info = rm_term_data[*term_it];
-		term_info.coll_occurence += term_it.get_wdf();
+		term_info.coll_occurrence += term_it.get_wdf();
 
 		// Add new document that indexes the term.
 		TermDocInfo td_data(current_id, term_it.get_wdf());
@@ -180,7 +180,7 @@ Snipper::Internal::generate_snippet(const string & text)
     // Relevance model for each term.
     map<string, double> term_score;
 
-    // Smootihg coefficient for relevance probability.
+    // Smoothing coefficient for relevance probability.
     double alpha = smoothing_coef;
 
     // Init docterms score.
@@ -193,7 +193,7 @@ Snipper::Internal::generate_snippet(const string & text)
 	const string & term = it->first;
 
 	const RMTermInfo & term_info = rm_term_data[term];
-	double irrelevant_prob = (double)term_info.coll_occurence / rm_coll_size;
+	double irrelevant_prob = (double)term_info.coll_occurrence / rm_coll_size;
 	double relevant_prob = 0;
 	for (unsigned int i = 0; i < term_info.indexed_docs_freq.size(); i++) {
 	    rm_docid c_docid = term_info.indexed_docs_freq[i].docid;
