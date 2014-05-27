@@ -1,3 +1,7 @@
+Tue May 27 02:20:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc: Avoid unnecessary substr operations.
+
 Tue May 27 02:17:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc: Prefer ++i to i++ in loops.

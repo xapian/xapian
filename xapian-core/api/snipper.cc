@@ -276,7 +276,7 @@ Snipper::Internal::generate_snippet(const string & text)
 	    new_pos = text.length() - 1;
 	}
 
-	string sentence = text.substr(last_pos, new_pos - last_pos + 1);
+	string sentence(text, last_pos, new_pos - last_pos + 1);
 	Document sent_doc;
 	term_gen.set_document(sent_doc);
 	term_gen.index_text(sentence);
@@ -297,7 +297,7 @@ Snipper::Internal::generate_snippet(const string & text)
 	last_pos = new_pos + 1;
     } while (true);
 
-    snippet = snippet.substr(0, snippet_size);
+    snippet.resize(snippet_size);
 
     ret_value = snippet + "...";
 
