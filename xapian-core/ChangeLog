@@ -1,3 +1,9 @@
+Tue May 27 02:00:32 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
+
+	* api/Makefile.mk,api/snipper.cc,api/snipperinternal.h,
+	  include/xapian.h,include/xapian/snipper.h: Add Xapian::Snipper
+	  class.
+
 Mon May 26 05:52:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/brass/brass_postlist.h,
