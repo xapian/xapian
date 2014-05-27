@@ -1,3 +1,7 @@
+Tue May 27 03:43:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/snipper.h: Add missing doxygen comments.
+
 Tue May 27 03:41:08 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/snipper.h,tests/api_snipper.cc: Whitespace tweaks.

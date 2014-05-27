@@ -43,12 +43,16 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
     /// Class representing snipper internals.
     class Internal;
 
+    /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
+    /// Default constructor.
     Snipper();
 
+    /// Copy constructor.
     Snipper(const Snipper & other);
 
+    /// Destructor.
     ~Snipper();
 
     /** Set the stemmer for the Snipper object. */
@@ -68,13 +72,13 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
      *
      * @param text	    The text from which to generate the snippet
      * @param window_size   Size of the window (default: 25)
-     * @param coef	    Smoothing coefficient (default: 0.5)
+     * @param smoothing	    Smoothing coefficient (default: 0.5)
      *
      * @return	    Text of the snippet relevant to the model from input.
      */
     std::string generate_snippet(const std::string & text,
 				 Xapian::termcount window_size = 25,
-				 double coef = 0.5);
+				 double smoothing = 0.5);
 
     /// Return a string describing this object.
     std::string get_description() const XAPIAN_PURE_FUNCTION;
