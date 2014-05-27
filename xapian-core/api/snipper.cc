@@ -287,12 +287,7 @@ Snipper::Internal::generate_snippet(const string & text)
 		continue;
 	    }
 
-	    PositionIterator pit_begin = it.positionlist_begin();
-	    PositionIterator pit_end = it.positionlist_end();
-
-	    for (PositionIterator pit = pit_begin; pit != pit_end; pit++) {
-		sent_size++;
-	    }
+	    sent_size += it.positionlist_count();
 	}
 
 	current_size += sent_size;

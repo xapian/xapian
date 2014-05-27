@@ -1,3 +1,7 @@
+Tue May 27 02:16:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc: Use TermIterator::positionlist_count().
+
 Tue May 27 02:14:52 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc,api/snipperinternal.h,include/xapian/snipper.h: Fix
