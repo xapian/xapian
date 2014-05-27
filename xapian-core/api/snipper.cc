@@ -123,13 +123,13 @@ Snipper::Internal::calculate_rm(const MSet & mset)
 
     unsigned int current_doc = 0;
     // Index document and term data.
-    for (MSetIterator ms_it = mset.begin(); ms_it != mset.end(); ms_it++) {
+    for (MSetIterator ms_it = mset.begin(); ms_it != mset.end(); ++ms_it) {
 	if (++current_doc > rm_docno)
 	    break;
 	rm_total_weight += ms_it.get_weight();
 	const Document & doc = ms_it.get_document();
 	int doc_size = 0;
-	for (TermIterator term_it = doc.termlist_begin(); term_it != doc.termlist_end(); term_it++) {
+	for (TermIterator term_it = doc.termlist_begin(); term_it != doc.termlist_end(); ++term_it) {
 	    if (is_stemmed(*term_it)) {
 		// Increase current document size.
 		doc_size += term_it.get_wdf();
@@ -166,11 +166,11 @@ Snipper::Internal::generate_snippet(const string & text)
 
     // Document terms.
     vector<TermPositionInfo> docterms;
-    for (TermIterator it = snippet_doc.termlist_begin(); it != snippet_doc.termlist_end(); it++) {
+    for (TermIterator it = snippet_doc.termlist_begin(); it != snippet_doc.termlist_end(); ++it) {
 	if (is_stemmed(*it))
 	    continue;
 
-	for (PositionIterator pit = it.positionlist_begin(); pit != it.positionlist_end(); pit++) {
+	for (PositionIterator pit = it.positionlist_begin(); pit != it.positionlist_end(); ++pit) {
 	    docterms.push_back(TermPositionInfo(*it, *pit));
 	}
     }
@@ -184,18 +184,18 @@ Snipper::Internal::generate_snippet(const string & text)
     double alpha = smoothing_coef;
 
     // Init docterms score.
-    for (vector<TermPositionInfo>::iterator it = docterms.begin(); it < docterms.end(); it++) {
+    for (vector<TermPositionInfo>::iterator it = docterms.begin(); it < docterms.end(); ++it) {
 	string term = "Z" + stemmer(it->term);
 	term_score[term] = 0;
     }
 
-    for (map<string, double>::iterator it = term_score.begin(); it != term_score.end(); it++) {
+    for (map<string, double>::iterator it = term_score.begin(); it != term_score.end(); ++it) {
 	const string & term = it->first;
 
 	const RMTermInfo & term_info = rm_term_data[term];
 	double irrelevant_prob = (double)term_info.coll_occurrence / rm_coll_size;
 	double relevant_prob = 0;
-	for (unsigned int i = 0; i < term_info.indexed_docs_freq.size(); i++) {
+	for (unsigned int i = 0; i < term_info.indexed_docs_freq.size(); ++i) {
 	    rm_docid c_docid = term_info.indexed_docs_freq[i].docid;
 	    // Occurrence of term in document.
 	    int doc_freq = term_info.indexed_docs_freq[i].freq;
@@ -223,13 +223,13 @@ Snipper::Internal::generate_snippet(const string & text)
     double max_sum = 0;
     vector<double> docterms_relevance;
 
-    for (unsigned int i = 0; i < docterms.size(); i++) {
+    for (unsigned int i = 0; i < docterms.size(); ++i) {
 	string term = "Z" + stemmer(docterms[i].term);
 	docterms_relevance.push_back(term_score[term]);
     }
 
     // Remove interrupts.
-    for (unsigned int i = 0; i < docterms.size(); i++) {
+    for (unsigned int i = 0; i < docterms.size(); ++i) {
 	double prev_score = i > 0 ? docterms_relevance[i - 1] : 0;
 	double next_score = i < (docterms.size() - 1) ? docterms_relevance[i + 1] : 0;
 	if (docterms_relevance[i] < prev_score &&
@@ -238,13 +238,13 @@ Snipper::Internal::generate_snippet(const string & text)
 	}
     }
 
-    for (unsigned int i = snippet_begin; i < snippet_end; i++) {
+    for (unsigned int i = snippet_begin; i < snippet_end; ++i) {
 	double score = docterms_relevance[i];
 	sum += score;
     }
     max_sum = sum;
 
-    for (unsigned int i = snippet_end; i < docterms.size(); i++) {
+    for (unsigned int i = snippet_end; i < docterms.size(); ++i) {
 	double score = docterms_relevance[i];
 	sum += score;
 
@@ -282,7 +282,7 @@ Snipper::Internal::generate_snippet(const string & text)
 	term_gen.index_text(sentence);
 
 	int sent_size = 0;
-	for (TermIterator it = sent_doc.termlist_begin(); it != sent_doc.termlist_end(); it++) {
+	for (TermIterator it = sent_doc.termlist_begin(); it != sent_doc.termlist_end(); ++it) {
 	    if (is_stemmed(*it)) {
 		continue;
 	    }
