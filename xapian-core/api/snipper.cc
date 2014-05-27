@@ -153,8 +153,6 @@ Snipper::Internal::calculate_rm(const MSet & mset)
 string
 Snipper::Internal::generate_snippet(const string & text)
 {
-    string ret_value;
-
     Document text_doc;
     TermGenerator term_gen;
 
@@ -299,9 +297,9 @@ Snipper::Internal::generate_snippet(const string & text)
 
     snippet.resize(snippet_size);
 
-    ret_value = snippet + "...";
+    snippet += "...";
 
-    return ret_value;
+    return snippet;
 }
 
 }

@@ -1,3 +1,7 @@
+Tue May 27 02:21:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc: Eliminate ret_value variable.
+
 Tue May 27 02:20:25 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc: Avoid unnecessary substr operations.
