@@ -39,9 +39,6 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	/** Checks if a term is marked as stemmed. */
 	bool is_stemmed(const std::string & term);
 
-	static const double default_smoothing_coef;
-	static const unsigned int default_window_size;
-
 	/// Copy not allowed
 	Internal(const Internal &);
 	/// Assignment not allowed
