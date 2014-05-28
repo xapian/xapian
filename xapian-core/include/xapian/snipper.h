@@ -23,6 +23,10 @@
 #ifndef XAPIAN_INCLUDED_SNIPPER_H
 #define XAPIAN_INCLUDED_SNIPPER_H
 
+#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/snipper.h> directly; include <xapian.h> instead."
+#endif
+
 #include <string>
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>

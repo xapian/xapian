@@ -1,3 +1,8 @@
+Wed May 28 12:52:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/snipper.h: Add the standard guards to prevent user
+	  code from including this header directly.
+
 Tue May 27 04:19:12 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/Makefile.mk: Ship include/xapian/snipper.h in tarball.
