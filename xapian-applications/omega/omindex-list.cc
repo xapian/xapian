@@ -113,7 +113,6 @@ try {
 		start += CONST_STRLEN("\nurl=");
 	    }
 	    url.assign(data, start, data.find('\n', start) - start);
-	    cerr << "info: Resolved unique term '" << term << "' to URL '" << url << "'" << endl;
 	}
 	cout << url << endl;
     }
