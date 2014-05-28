@@ -9,7 +9,7 @@ Welcome to Xapian Python Bindings's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    getting_started
    examples

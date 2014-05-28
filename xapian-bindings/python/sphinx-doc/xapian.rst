@@ -189,7 +189,7 @@ Exceptions
 
 
 :exc:`FeatureUnavailableError`
-----------------------------
+------------------------------
 
 .. autoexception:: FeatureUnavailableError
     :members:
@@ -197,4 +197,4 @@ Exceptions
     :show-inheritance:
 
 
-b
+
