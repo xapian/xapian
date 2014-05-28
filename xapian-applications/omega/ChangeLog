@@ -1,3 +1,8 @@
+Wed May 28 05:15:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex-list.cc: New tool to list URLs of all the
+	  documents in a database (or list of databases) indexed by omindex.
+
 Tue May 27 04:12:07 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Document $snippet.
