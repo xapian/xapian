@@ -1354,6 +1354,7 @@ AC_CONFIG_FILES([Makefile
  perl/Makefile perl/util.i
  lua/Makefile
  xapian-bindings.spec
+ python/sphinx-doc/conf.py
  ])
 AC_OUTPUT
 
