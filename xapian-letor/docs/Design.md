@@ -32,7 +32,7 @@ feature.h feature.cc
 		FEATURE_19
 	} FeatureBase;
 
-### Private Attribures
+### Private Attributes
 
 	1. const vector<Feature::FeatureBase> features
 
@@ -152,15 +152,19 @@ feature.h feature.cc
 
 	3. Xapian::FeatureVector generate_feature_vector(Xapian:Document doc_)
 
+		*May be discarded*. Return feature vector for current document based on the query.
+		
+	4. vector<double> generate_feature_vector(Xapian:Document doc_)
+
 		Return feature vector for current document based on the query.
 
-	4. int get_features_num()
+	5. int get_features_num()
 
 		Return the size of feature_list.
 
 *****
 
-FeatureVector
+FeatureVector (may not be used)
 -------------
 
 The representation of feature vector for documents.
@@ -198,11 +202,11 @@ feature_vector.h feature_vector.cc
 
 		Return the score.
 	
-	3. int GetFeatureNum()
+	3. int get_feature_num()
 
 		Return the number of features used to represent the document.
 	
-	4. Xapian::docid docid()
+	4. Xapian::docid get_docid()
 
 		Return the document id.
 	
@@ -279,8 +283,124 @@ feature_manager.h feature_manager.cc
 
 		The term frequency of the query in database.
 
-	9. void update_mset()
+	9. void update_mset(Xapian::MSet mset_, vector<Xapian::MSet::letor_item> & letor_items_)
 
 		Update additional information to mset.
 	
+*****
+
+Letor
+-----
+
+### Public Attributes
+
+1. Xapian::Letor::Internal internal
+
+### Private APIs
+
+	1. Letor(Ranker & ranker_, vector<Feature::FeatureBase> & features_)
 	
+		The constructor.
+
+### Public APIs
+
+	1. void train(std::string training_data_file_, std::string model_file_)
+	
+		Call internal->train(training_data_file_, model_file_).
+		
+	2. void load_model_file(std::string model_file_)
+	
+		Called before using update_mset. Call internal->load_model_filed(model_file_).
+	
+	3. void update_mset(Xapian::MSet & mset_)
+	
+		Call internal->update_mset(mset_).
+		
+	4. static create(Ranker & ranker_, vector<Feature::FeatureBase> & features_)
+	
+		Create a letor instance.
+		
+*****
+
+Letor::Internal
+-----
+
+### Public Attributes
+
+1. Ranker ranker
+
+2. vector<Feautre::FeatureBase> features
+
+3. FeatureManager feature_manager
+
+### Public APIs
+
+	1. void set_database(Xapian::Database & database_)
+	
+		Set database. Also create the feature_manager.
+	
+	2. void set_query(Xapian::Query & query_)
+	
+		Set query. Also update the query in feature_manager.
+		
+	3. void train(std::string training_data_file_, std::string model_file_)
+	
+		For training. Call ranker's corresponding functions.
+		
+	4. void load_model_file(std::string model_file_)
+	
+		Load model file for scoring. Called before using update_mset. Call ranker's corresponding functions.
+
+	5. void update_mset(Xapian::MSet & mset_)
+	
+		Generate feature vector for each document by using FeatureManager.
+		Call calc_score in ranker to calculate score for each document in mset_.
+		Generate vector<Xapian::MSet::letor_item>.
+		Call update_mset in feature_manager.
+
+*****
+
+Ranker (need to reivsed)
+------
+
+### Private Attributes
+
+1. int feature_num
+
+2. std::string training_data_file
+
+### Private APIs
+
+	1. Ranker()
+	
+		The constructor.
+
+### Public APIs
+
+	0. void set_feature_num(int feature_num_)
+	
+		Set the number of features.
+	
+	1. void load_training_data(const std::string & training_data_file_)
+	
+		Load training data.
+		
+	2. void train()
+	
+		Train.
+		
+	3. void save_model(const std::string & model_file_)
+	
+		Save model file.
+
+	4. void load_model(const std::string & model_file_)
+	
+		Load model file.
+
+	5. double calc_score(const vector<double> & feature_vector_)
+	
+		Calculate score based on feature vector.
+		
+	6. static Ranker create()
+	
+		Create a ranker.
