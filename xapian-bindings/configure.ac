@@ -1355,6 +1355,7 @@ AC_CONFIG_FILES([Makefile
  lua/Makefile
  xapian-bindings.spec
  python/docs/conf.py
+ python3/docs/conf.py
  ])
 AC_OUTPUT
 
