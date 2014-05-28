@@ -29,7 +29,7 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	testsuite.py \
 	test_xapian_star.py \
 	replicationtest.py \
-	docs/index.rst \
+	build-sphinx-doc \
 	$(TESTS) $(BUILT_SOURCES)
 
 pkgpylibdir = @PYTHON2_LIB@/xapian
@@ -137,20 +137,16 @@ CLEANFILES += modern/xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
-exampledatadir = $(docdir)/python/examples
-dist_exampledata_DATA = \
-	docs/examples/simpleindex.py \
-	docs/examples/simpleexpand.py \
-	docs/examples/simplematchdecider.py \
-	docs/examples/simplesearch.py
+
 
 docdatadir = $(docdir)/python
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
-BUILT_SOURCES += docs/index.html
+docdata_DATA = build-sphinx-doc
+BUILT_SOURCES += build-sphinx-doc
 
-.rst.html:
-	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
-	$(RST2HTML) --exit-status=warning $< $@
+build-sphinx-doc:
+	cd docs/; sphinx-build -b html -d _build/doctrees .  _build/html
+	@echo  
+	@echo "Build finished. The HTML pages are in _build/html."
 endif

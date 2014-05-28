@@ -1,5 +1,5 @@
-Python bindings for Xapian
-**************************
+Introduction
+************
 
 The Python bindings for Xapian are packaged in the ``xapian`` module,
 and largely follow the C++ API, with the following differences and
