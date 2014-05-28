@@ -423,8 +423,10 @@ The documentation tools are:
 * makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 * help2man
 * rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
+* sphinx-doc (in python-sphinx on Debian/Ubuntu, or as sphinx via pip install)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
+
 
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
 path (as specified by the environmental variable PATH), since doxygen will look
@@ -433,7 +435,7 @@ for them there.
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-    apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+    apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils python-sphinx pngcrush 
 
 On Mac OS X, if you're using homebrew, you'll want the following::
 
