@@ -97,7 +97,7 @@ una            |  a
 ma             |  but
 ed             |  and
 se             |  if
-perché         |  why, because
+perchÃ©         |  why, because
 anche          |  also
 come           |  how
 dov            |  where (as dov')
@@ -106,7 +106,7 @@ che            |  who, that
 chi            |  who
 cui            |  whom
 non            |  not
-più            |  more
+piÃ¹            |  more
 quale          |  who, that
 quanto         |  how much
 quanti         |
@@ -144,9 +144,9 @@ hanno
 abbia
 abbiate
 abbiano
-avrò
+avrÃ²
 avrai
-avrà
+avrÃ 
 avremo
 avrete
 avranno
@@ -181,15 +181,15 @@ avute
                | forms of essere, to be (not including the infinitive):
 sono
 sei
-è
+Ã¨
 siamo
 siete
 sia
 siate
 siano
-sarò
+sarÃ²
 sarai
-sarà
+sarÃ 
 saremo
 sarete
 saranno
@@ -225,9 +225,9 @@ fanno
 faccia
 facciate
 facciano
-farò
+farÃ²
 farai
-farà
+farÃ 
 faremo
 farete
 faranno
@@ -264,9 +264,9 @@ stanno
 stia
 stiate
 stiano
-starò
+starÃ²
 starai
-starà
+starÃ 
 staremo
 starete
 staranno

@@ -30,7 +30,7 @@ al             |  a + el
   | es         from SER
 lo             |  him
 como           |  how
-más            |  more
+mÃ¡s            |  more
 pero           |  pero
 sus            |  su plural
 le             |  to him, her
@@ -39,26 +39,26 @@ o              |  or
   | fue        from SER
 este           |  this
   | ha         from HABER
-sí             |  himself etc
+sÃ­             |  himself etc
 porque         |  because
 esta           |  this
   | son        from SER
 entre          |  between
-  | está     from ESTAR
+  | estÃ¡     from ESTAR
 cuando         |  when
 muy            |  very
 sin            |  without
 sobre          |  on
   | ser        from SER
   | tiene      from TENER
-también        |  also
+tambiÃ©n        |  also
 me             |  me
 hasta          |  until
 hay            |  there is/are
 donde          |  where
   | han        from HABER
 quien          |  whom, that
-  | están      from ESTAR
+  | estÃ¡n      from ESTAR
   | estado     from ESTAR
 desde          |  from
 todo           |  all
@@ -74,21 +74,21 @@ otros          |  other
   | fueron     from SER
 ese            |  that
 eso            |  that
-  | había      from HABER
+  | habÃ­a      from HABER
 ante           |  before
 ellos          |  they
 e              |  and (variant of y)
 esto           |  this
-mí             |  me
+mÃ­             |  me
 antes          |  before
 algunos        |  some
-qué            |  what?
+quÃ©            |  what?
 unos           |  a
 yo             |  I
 otro           |  other
 otras          |  other
 otra           |  other
-él             |  he
+Ã©l             |  he
 tanto          |  so much, many
 esa            |  that
 estos          |  these
@@ -113,7 +113,7 @@ nosotros       |  we
 
 mi             |  me
 mis            |  mi plural
-tú             |  thou
+tÃº             |  thou
 te             |  thee
 ti             |  thee
 tu             |  thy
@@ -123,10 +123,10 @@ nosotras       |  we
 vosotros       |  you
 vosotras       |  you
 os             |  you
-mío            |  mine
-mía            |
-míos           |
-mías           |
+mÃ­o            |  mine
+mÃ­a            |
+mÃ­os           |
+mÃ­as           |
 tuyo           |  thine
 tuya           |
 tuyos          |
@@ -148,30 +148,30 @@ esas           |  those
 
                | forms of estar, to be (not including the infinitive):
 estoy
-estás
-está
+estÃ¡s
+estÃ¡
 estamos
-estáis
-están
-esté
-estés
+estÃ¡is
+estÃ¡n
+estÃ©
+estÃ©s
 estemos
-estéis
-estén
-estaré
-estarás
-estará
+estÃ©is
+estÃ©n
+estarÃ©
+estarÃ¡s
+estarÃ¡
 estaremos
-estaréis
-estarán
-estaría
-estarías
-estaríamos
-estaríais
-estarían
+estarÃ©is
+estarÃ¡n
+estarÃ­a
+estarÃ­as
+estarÃ­amos
+estarÃ­ais
+estarÃ­an
 estaba
 estabas
-estábamos
+estÃ¡bamos
 estabais
 estaban
 estuve
@@ -182,12 +182,12 @@ estuvisteis
 estuvieron
 estuviera
 estuvieras
-estuviéramos
+estuviÃ©ramos
 estuvierais
 estuvieran
 estuviese
 estuvieses
-estuviésemos
+estuviÃ©semos
 estuvieseis
 estuviesen
 estando
@@ -202,29 +202,29 @@ he
 has
 ha
 hemos
-habéis
+habÃ©is
 han
 haya
 hayas
 hayamos
-hayáis
+hayÃ¡is
 hayan
-habré
-habrás
-habrá
+habrÃ©
+habrÃ¡s
+habrÃ¡
 habremos
-habréis
-habrán
-habría
-habrías
-habríamos
-habríais
-habrían
-había
-habías
-habíamos
-habíais
-habían
+habrÃ©is
+habrÃ¡n
+habrÃ­a
+habrÃ­as
+habrÃ­amos
+habrÃ­ais
+habrÃ­an
+habÃ­a
+habÃ­as
+habÃ­amos
+habÃ­ais
+habÃ­an
 hube
 hubiste
 hubo
@@ -233,12 +233,12 @@ hubisteis
 hubieron
 hubiera
 hubieras
-hubiéramos
+hubiÃ©ramos
 hubierais
 hubieran
 hubiese
 hubieses
-hubiésemos
+hubiÃ©semos
 hubieseis
 hubiesen
 habiendo
@@ -257,22 +257,22 @@ son
 sea
 seas
 seamos
-seáis
+seÃ¡is
 sean
-seré
-serás
-será
+serÃ©
+serÃ¡s
+serÃ¡
 seremos
-seréis
-serán
-sería
-serías
-seríamos
-seríais
-serían
+serÃ©is
+serÃ¡n
+serÃ­a
+serÃ­as
+serÃ­amos
+serÃ­ais
+serÃ­an
 era
 eras
-éramos
+Ã©ramos
 erais
 eran
 fui
@@ -283,12 +283,12 @@ fuisteis
 fueron
 fuera
 fueras
-fuéramos
+fuÃ©ramos
 fuerais
 fueran
 fuese
 fueses
-fuésemos
+fuÃ©semos
 fueseis
 fuesen
 siendo
@@ -300,29 +300,29 @@ tengo
 tienes
 tiene
 tenemos
-tenéis
+tenÃ©is
 tienen
 tenga
 tengas
 tengamos
-tengáis
+tengÃ¡is
 tengan
-tendré
-tendrás
-tendrá
+tendrÃ©
+tendrÃ¡s
+tendrÃ¡
 tendremos
-tendréis
-tendrán
-tendría
-tendrías
-tendríamos
-tendríais
-tendrían
-tenía
-tenías
-teníamos
-teníais
-tenían
+tendrÃ©is
+tendrÃ¡n
+tendrÃ­a
+tendrÃ­as
+tendrÃ­amos
+tendrÃ­ais
+tendrÃ­an
+tenÃ­a
+tenÃ­as
+tenÃ­amos
+tenÃ­ais
+tenÃ­an
 tuve
 tuviste
 tuvo
@@ -331,12 +331,12 @@ tuvisteis
 tuvieron
 tuviera
 tuvieras
-tuviéramos
+tuviÃ©ramos
 tuvierais
 tuvieran
 tuviese
 tuvieses
-tuviésemos
+tuviÃ©semos
 tuvieseis
 tuviesen
 teniendo

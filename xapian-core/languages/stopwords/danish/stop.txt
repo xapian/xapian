@@ -16,7 +16,7 @@ den          | it (pers. pronoun)/that (dem. pronoun)
 til          | to/at/for/until/against/by/of/into, more
 er           | present tense of "to be"
 som          | who, as
-på           | on/upon/in/on/at/to/after/of/with/for, on
+pÃ¥           | on/upon/in/on/at/to/after/of/with/for, on
 de           | they
 med          | with/by/in, along
 han          | he
@@ -59,8 +59,8 @@ vil          | will (verb)
 blev         | past tense of "to stay/to remain/to get/to become"
 kunne        | could
 ind          | in
-når          | when
-være         | present tense of "to be"
+nÃ¥r          | when
+vÃ¦re         | present tense of "to be"
 dog          | however/yet/after all
 noget        | something
 ville        | would
@@ -73,7 +73,7 @@ denne        | this
 end          | than
 dette        | this
 mit          | my/mine
-også         | also
+ogsÃ¥         | also
 under        | under/beneath/below/during, below/underneath
 have         | have
 dig          | you
@@ -96,7 +96,7 @@ mange        | many
 ad           | by/through
 bliver       | present tense of "to be/to become"
 hendes       | her/hers
-været        | be
+vÃ¦ret        | be
 thi          | for (conj)
 jer          | you
-sådan        | such, like this/like that
+sÃ¥dan        | such, like this/like that
