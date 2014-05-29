@@ -146,7 +146,7 @@ docdata_DATA = build-sphinx-doc
 BUILT_SOURCES += build-sphinx-doc
 
 build-sphinx-doc:
-	export PYTHONPATH=$$PWD:$$PYTHONPATH;cd docs/; sphinx-build -b html -d _build/doctrees .  _build/html
+	cd docs && PYTHONPATH=..:$$PYTHONPATH sphinx-build -b html -d _build/doctrees .  _build/html
 	@echo  
 	@echo "Build finished. The HTML pages are in _build/html."
 endif
