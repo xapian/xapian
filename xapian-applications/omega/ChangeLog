@@ -1,3 +1,8 @@
+Thu May 29 03:36:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add optional LENGTH parameter to
+	  $snippet.
+
 Thu May 29 02:41:08 GMT 2014  Olly Betts <olly@survex.com>
 
 	* diritor.cc: libmagic can return a second string starting "Composite

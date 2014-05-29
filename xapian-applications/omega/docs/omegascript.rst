@@ -496,9 +496,10 @@ $slice{LIST,POSITIONS}
 	 "$slice{LIST,$range{1,3}}" = "b	c	d"
 	 "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
 
-$snippet{TEXT}
+$snippet{TEXT[,LENGTH]}
 	Generate a context-sensitive snippet from ``TEXT`` using the
-	Xapian::Snipper class.
+	Xapian::Snipper class.  The snippet will be at most ``LENGTH`` bytes
+	long (default: 200).
 
 $split{STRING}
 
