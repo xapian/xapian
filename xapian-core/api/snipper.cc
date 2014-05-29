@@ -68,10 +68,11 @@ Snipper::set_mset(const MSet & mset, unsigned int rm_docno)
 
 string
 Snipper::generate_snippet(const string & text,
+			  size_t length,
 			  unsigned int window_size,
-			  double smoothing_coef)
+			  double smoothing)
 {
-    return internal->generate_snippet(text, window_size, smoothing_coef);
+    return internal->generate_snippet(text, length, window_size, smoothing);
 }
 
 void
@@ -128,8 +129,9 @@ Snipper::Internal::calculate_rm(const MSet & mset, Xapian::doccount rm_docno)
 
 string
 Snipper::Internal::generate_snippet(const string & text,
+				    size_t length,
 				    Xapian::termcount window_size,
-				    double smoothing_coef)
+				    double smoothing)
 {
     Document text_doc;
     TermGenerator term_gen;
@@ -157,7 +159,7 @@ Snipper::Internal::generate_snippet(const string & text,
     map<string, double> term_score;
 
     // Smoothing coefficient for relevance probability.
-    double alpha = smoothing_coef;
+    double alpha = smoothing;
 
     // Init docterms score.
     for (vector<TermPositionInfo>::iterator it = docterms.begin(); it < docterms.end(); ++it) {
@@ -241,11 +243,9 @@ Snipper::Internal::generate_snippet(const string & text,
 
     // Retrieve actual snippet.
     string snippet;
-    // Snippet size in bytes.
-    unsigned int snippet_size = 200;
 
     unsigned int current_size = 0;
-    do {
+    while (snippet.size() < length) {
 	if (last_pos == text.length()) {
 	    break;
 	}
@@ -274,11 +274,12 @@ Snipper::Internal::generate_snippet(const string & text,
 	    snippet += sentence;
 
 	last_pos = new_pos + 1;
-    } while (true);
+    }
 
-    snippet.resize(snippet_size);
-
-    snippet += "...";
+    if (snippet.size() >= length) {
+	snippet.resize(length - 3);
+	snippet += "...";
+    }
 
     return snippet;
 }

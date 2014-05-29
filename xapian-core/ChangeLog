@@ -1,3 +1,9 @@
+Thu May 29 03:31:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,api/snipperinternal.h,include/xapian/snipper.h: Allow
+	  the user to specify how long a snippet they want.  Only add "..." if
+	  the sample was actually truncated.
+
 Wed May 28 12:52:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/snipper.h: Add the standard guards to prevent user

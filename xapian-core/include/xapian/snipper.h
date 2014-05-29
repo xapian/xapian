@@ -78,12 +78,15 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
     /** Generate snippet from given text.
      *
      * @param text	    The text from which to generate the snippet
+     * @param length	    Maximum length of the result in bytes
+     *			    (default: 200)
      * @param window_size   Size of the window (default: 25)
      * @param smoothing	    Smoothing coefficient (default: 0.5)
      *
      * @return	    Text of the snippet relevant to the model from input.
      */
     std::string generate_snippet(const std::string & text,
+				 size_t length = 200,
 				 Xapian::termcount window_size = 25,
 				 double smoothing = 0.5);
 
