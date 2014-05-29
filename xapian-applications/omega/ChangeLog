@@ -1,3 +1,10 @@
+Thu May 29 02:41:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.cc: libmagic can return a second string starting "Composite
+	  Document File V2 Document" for the mime-type, so just look for that
+	  prefix.  And newer libmagic returns "application/CDFV2-corrupt" in
+	  these cases, so handle that too.
+
 Wed May 28 05:22:12 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex-list.cc: Remove debug output.

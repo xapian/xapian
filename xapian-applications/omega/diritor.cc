@@ -174,9 +174,12 @@ DirectoryIterator::get_magic_mimetype()
 
     // Sometimes libmagic returns this string instead of a mime-type for some
     // Microsoft documents, so pick a suitable MIME content-type based on the
-    // extension.
-#define COMPOSITE_DOC "Composite Document File V2 Document, No summary info"
-    if (strncmp(res, COMPOSITE_DOC, sizeof(COMPOSITE_DOC) - 1) == 0) {
+    // extension.  Newer versions seem to return "application/CDFV2-corrupt"
+    // instead for this case (on Debian, file 5.11 gives the former and file
+    // 5.18 the latter).
+#define COMPOSITE_DOC "Composite Document File V2 Document"
+    if (strncmp(res, COMPOSITE_DOC, sizeof(COMPOSITE_DOC) - 1) == 0 ||
+	strcmp(res, "application/CDFV2-corrupt") == 0) {
 	// Default to something self-explanatory.
 	res = "application/x-compound-document-file";
 	const char * leaf = leafname();
