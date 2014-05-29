@@ -427,7 +427,6 @@ The documentation tools are:
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
 
-
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
 path (as specified by the environmental variable PATH), since doxygen will look
 for them there.
