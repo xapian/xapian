@@ -1,3 +1,7 @@
+Thu May 29 03:38:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Put ``...`` around Xapian C++ class names.
+
 Thu May 29 03:36:55 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,query.cc: Add optional LENGTH parameter to
