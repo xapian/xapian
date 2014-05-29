@@ -1,3 +1,8 @@
+Thu May 29 12:13:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Replace a link to the outdated autotools "goat book" with a
+	  link to the "Portable Shell" chapter of the autoconf manual.
+
 Thu May 29 03:31:10 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc,api/snipperinternal.h,include/xapian/snipper.h: Allow
