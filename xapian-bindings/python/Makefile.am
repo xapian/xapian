@@ -29,7 +29,7 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	testsuite.py \
 	test_xapian_star.py \
 	replicationtest.py \
-	build-sphinx-doc \
+	docs/conf.py \
 	$(TESTS) $(BUILT_SOURCES)
 
 pkgpylibdir = @PYTHON2_LIB@/xapian
@@ -137,16 +137,29 @@ CLEANFILES += modern/xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
+exampledatadir = $(docdir)/python/examples
+dist_exampledata_DATA = \
+	docs/examples/simpleindex.py \
+	docs/examples/simpleexpand.py \
+	docs/examples/simplematchdecider.py \
+	docs/examples/simplesearch.py
 
+sphinxdocs = docs/html/index.html
 
-docdatadir = $(docdir)/python
+install-data-local: $(sphinxdocs)
+	$(mkinstalldirs) $(DESTDIR)$(docdir)/python
+	cp -R -p docs/html $(DESTDIR)$(docdir)/python
 
 if DOCUMENTATION_RULES
-docdata_DATA = build-sphinx-doc
-BUILT_SOURCES += build-sphinx-doc
+all-local: $(sphinxdocs)
 
-build-sphinx-doc:
-	cd docs && PYTHONPATH=..:$$PYTHONPATH sphinx-build -b html -d _build/doctrees .  _build/html
+dist-hook: $(sphinxdocs)
+	test -d $(distdir) || mkdir $(distdir)
+	test -d $(distdir)/docs || mkdir $(distdir)/docs
+	cp -R -p docs/html $(distdir)/docs
+
+$(sphinxdocs): xapian/__init__.py docs/conf.py $(srcdir)/docs/*.rst $(dist_exam)
+	cd docs && PYTHONPATH=..:$$PYTHONPATH sphinx-build -b html -d doctrees -
 	@echo  
-	@echo "Build finished. The HTML pages are in _build/html."
+	@echo "Build finished. The HTML pages are in docs/html."
 endif
