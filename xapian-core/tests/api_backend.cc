@@ -895,13 +895,13 @@ DEFINE_TESTCASE(blocksize1, brass || chert || flint) {
     string db_dir = "." + get_dbtype();
     mkdir(db_dir.c_str(), 0755);
     db_dir += "/db__blocksize1";
-    Xapian::WritableDatabase db;
     static const unsigned bad_sizes[] = {
 	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
     };
     for (size_t i = 0; i < sizeof(bad_sizes) / sizeof(bad_sizes[0]); ++i) {
 	size_t block_size = bad_sizes[i];
 	rm_rf(db_dir);
+	Xapian::WritableDatabase db;
 	if (get_dbtype() == "chert") {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	    db = Xapian::Chert::open(db_dir, Xapian::DB_CREATE, block_size);

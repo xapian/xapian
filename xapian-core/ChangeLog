@@ -1,3 +1,10 @@
+Thu May 29 11:22:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Ensure the test WritableDatabase object gets
+	  destroyed before we delete its directory, so the testcase works on
+	  __WIN32__ (on trunk we already do this).  (Fixes #643, reported by
+	  Chris Olds)
+
 Fri May 23 13:34:47 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
