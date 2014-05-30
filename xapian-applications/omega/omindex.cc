@@ -1542,36 +1542,6 @@ main(int argc, char **argv)
     if (!endswith(baseurl, '/')) {
 	baseurl += '/';
     }
-
-    if (optind >= argc || optind + 2 < argc) {
-	cerr << PROG_NAME": you must specify a directory to index.\n"
-"Do this either as a single directory (corresponding to the base URL)\n"
-"or two directories - the first corresponding to the base URL and the second\n"
-"a subdirectory of that to index." << endl;
-	return 1;
-    }
-    root = argv[optind];
-    if (!endswith(root, '/')) {
-	root += '/';
-    }
-    string start_url;
-    if (optind + 2 == argc) {
-	start_url = argv[optind + 1];
-	if (startswith(start_url, '/')) {
-	    // Make relative to root.
-	    if (!startswith(start_url, root)) {
-		cerr << PROG_NAME": '" << argv[optind + 1] << "' "
-		    "is not a subdirectory of '" << argv[optind] << "'."
-		     << endl;
-		return 1;
-	    }
-	    start_url.erase(0, root.size());
-	}
-	if (!endswith(start_url, '/')) {
-	    start_url += '/';
-	}
-    }
-
     string::size_type j;
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://") {
@@ -1585,7 +1555,8 @@ main(int argc, char **argv)
 	} else {
 	    // Path:
 	    string::size_type path_len = baseurl.size() - k;
-	    // Subtract one to lose the trailing /, unless it's the initial / too.
+	    // Subtract one to lose the trailing /, unless it's the initial /
+	    // too.
 	    if (path_len > 1) --path_len;
 	    site_term = "P" + baseurl.substr(k, path_len);
 	    // Host:
@@ -1600,6 +1571,37 @@ main(int argc, char **argv)
 	// Subtract one to lose the trailing /, unless it's the initial / too.
 	if (path_len > 1) --path_len;
 	site_term = "P" + baseurl.substr(0, path_len);
+    }
+
+    if (optind >= argc || optind + 2 < argc) {
+	cerr << PROG_NAME": you must specify a directory to index.\n"
+"Do this either as a single directory (corresponding to the base URL)\n"
+"or two directories - the first corresponding to the base URL and the second\n"
+"a subdirectory of that to index." << endl;
+	return 1;
+    }
+
+    root = argv[optind];
+    if (!endswith(root, '/')) {
+	root += '/';
+    }
+    if (optind + 2 == argc) {
+	string start_url = argv[optind + 1];
+	if (startswith(start_url, '/')) {
+	    // Make relative to root.
+	    if (!startswith(start_url, root)) {
+		cerr << PROG_NAME": '" << argv[optind + 1] << "' "
+		    "is not a subdirectory of '" << argv[optind] << "'."
+		     << endl;
+		return 1;
+	    }
+	    start_url.erase(0, root.size());
+	}
+	if (!endswith(start_url, '/')) {
+	    start_url += '/';
+	}
+	root += start_url;
+	url_encode_path(baseurl, start_url);
     }
 
     int exitcode = 1;
@@ -1638,7 +1640,7 @@ main(int argc, char **argv)
 	    max_ext_len = max(max_ext_len, mt->first.size());
 	}
 
-	index_directory(root + start_url, baseurl + start_url, depth_limit, mime_map, sample_size);
+	index_directory(root, baseurl, depth_limit, mime_map, sample_size);
 	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;

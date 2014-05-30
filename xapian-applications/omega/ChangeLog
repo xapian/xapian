@@ -1,3 +1,8 @@
+Fri May 30 05:38:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc,urlencode.cc,urlencode.h: URL encode starting URL
+	  properly.
+
 Thu May 29 03:38:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Put ``...`` around Xapian C++ class names.
