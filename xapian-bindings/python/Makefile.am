@@ -29,7 +29,6 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	testsuite.py \
 	test_xapian_star.py \
 	replicationtest.py \
-	docs/conf.py \
 	$(TESTS) $(BUILT_SOURCES)
 
 pkgpylibdir = @PYTHON2_LIB@/xapian
