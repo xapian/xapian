@@ -20,6 +20,7 @@ RSTDOCS = \
 	collapsing.rst \
 	deprecation.rst \
 	facets.rst \
+	geospatial.rst \
 	glossary.rst \
 	index.rst \
 	install.rst \
