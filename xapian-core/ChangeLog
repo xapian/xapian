@@ -1,3 +1,7 @@
+Mon Jun 02 11:40:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: Ship collate-sbl script.
+
 Thu May 29 12:13:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Replace a link to the outdated autotools "goat book" with a

@@ -49,6 +49,7 @@ snowball_headers =\
 	languages/compiler/syswords2.h
 
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
+	languages/collate-sbl\
 	languages/sbl-dispatch.h\
 	languages/dir_contents\
 	languages/Makefile\
