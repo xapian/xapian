@@ -1,3 +1,7 @@
+Mon Jun 02 11:56:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Thu May 29 11:22:25 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Ensure the test WritableDatabase object gets

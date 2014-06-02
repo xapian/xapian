@@ -1,13 +1,21 @@
- 17969       olly Wed Apr 30 03:38:44 GMT 2014  Olly Betts <olly@survex.com>
+ 18050       olly Thu May 29 11:22:25 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.18 (2014-04-30):
+Xapian-core 1.2.18 (2014-06-02):
 
 API:
+
+* Document: Fix get_docid() to return the docid for the sub-database (as it
+  is explicitly documented to) for Document objects passed to functors like
+  KeyMaker during the match.  (fixes#636, reported by Jeff Rand).
 
 * Document: Don't store the termname in OmDocumentTerm - we were only using it
   in get_description() output and an exception message.  Speeds up indexing
   etext.txt using simpleindex by 0.4%, and should reduce memory usage a bit
   too.  (Change inspired by comments from Vishesh Handa on xapian-devel).
+
+* Database: Iterating the values in a particular slot is now a bit more
+  efficient for inmemory and remote backends (but still slow compared to
+  flint, chert and brass).
 
 testsuite:
 
@@ -42,6 +50,8 @@ inmemory backend:
 
 build system:
 
+* Releases are now bootstrapped with libtool 2.4.2 instead of 2.4, and with
+  config.guess and config.sub updated to the latest versions.
 
 documentation:
 
@@ -51,6 +61,9 @@ documentation:
 * docs/glossary.rst: Add definition of "collection frequency".
 
 * HACKING: makeindex is now in Debian package texlive-binaries.
+
+* include/xapian/base.h: Remove very out of date comments talking about atomic
+  assignment and locking - since 0.5.0 we've adopted a "user locks" policy.
 
 tools:
 
@@ -71,7 +84,10 @@ examples:
 portability:
 
 * Explicitly '#include <algorithm>' for std::max(), fixing build with VS2013.
-  Reported by "boomboo".  (fixes#641)
+  (Fixes#641, reported by "boomboo").
+
+* Fix testcase blocksize1 not to try to delete an open database, which isn't
+  possible under Windows.  (Fixes #643, reported by Chris Olds)
 
 * docs/quickstart.rst: Split --cxxflags and --libs for portability (noted by
   "Hurricane Tong" on xapian-devel).
