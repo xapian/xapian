@@ -1,3 +1,8 @@
+Tue Jun 03 01:49:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.cc: In fallback for CDF files, compare the extension
+	  *without* leading dot.
+
 Fri May 30 05:38:01 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc,urlencode.cc,urlencode.h: URL encode starting URL
