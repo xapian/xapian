@@ -1,3 +1,8 @@
+Tue Jun 03 22:59:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/localsubmatch.cc: Use RETURN() instead of return in methods
+	  with LOGCALL annotations.
+
 Mon Jun 02 13:15:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Actually ship, process and install geospatial.rst.

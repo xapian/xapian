@@ -72,7 +72,7 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
     LOGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", matcher | total_subqs_ptr);
 
     if (query.empty())
-	return new EmptyPostList; // MatchNothing
+	RETURN(new EmptyPostList); // MatchNothing
 
     // Build the postlist tree for the query.  This calls
     // LocalSubMatch::open_post_list() for each term in the query.
@@ -161,5 +161,5 @@ LocalSubMatch::open_post_list(const string& term,
 
     if (weighted)
 	pl->set_termweight(wt.release());
-    return pl;
+    RETURN(pl);
 }
