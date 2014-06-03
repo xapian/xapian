@@ -195,7 +195,7 @@ DirectoryIterator::get_magic_mimetype()
 	    switch (e[0]) {
 		case 'd':
 		    if (e[1] == 'o')
-			res = "applications/msword";
+			res = "application/msword";
 		    break;
 		case 'm':
 		    if (e[1] == 's' && e[2] == 'g')
