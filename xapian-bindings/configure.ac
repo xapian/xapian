@@ -485,8 +485,8 @@ fi
 
 dnl If we're building documentation for either python version,
 dnl we need sphinx-build
-case $enable_documentation$with_python$with_python3 in
-yes*yes*)
+case $enable_documentation$BINDINGS in 
+yes*python*)
   AC_PATH_PROG(SPHINX_BUILD, sphinx-build, [])
   test -z "$SPHINX_BUILD" && AC_MSG_ERROR([sphinx-build is required to build python documentation])
   ;;
