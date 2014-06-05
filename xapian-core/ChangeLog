@@ -1,3 +1,8 @@
+Thu Jun 05 03:42:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,tests/api_backend.cc: Fix
+	  Database::get_wdf_upper_bound("") not to fail with an assertion.
+
 Tue Jun 03 22:59:10 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/localsubmatch.cc: Use RETURN() instead of return in methods

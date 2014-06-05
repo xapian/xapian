@@ -105,6 +105,10 @@ DEFINE_TESTCASE(dbstats1, backend) {
 
     TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
 
+    // This failed with an assertion during development between 1.3.1 and
+    // 1.3.2.
+    TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
+
     return true;
 }
 
