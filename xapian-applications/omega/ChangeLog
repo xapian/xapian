@@ -1,3 +1,8 @@
+Fri Jun 06 05:50:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Add handling for longer form of timestamps in LO
+	  HTML export.
+
 Tue Jun 03 02:29:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* diritor.cc: Fix "applications/msword" to "application/msword" in the
