@@ -13,6 +13,12 @@ AM_TESTS_ENVIRONMENT = \
 	export PYTHON3 ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
+RST_DOCS = \
+	docs/examples.rst \
+	docs/index.rst \
+	docs/introduction.rst \
+	docs/xapian.rst
+
 # FIXME: replicationtest.py attempts to test performing replication whilst
 # modifications are in progress.  However, it sometimes fails due to a race
 # condition in it.  It also contains hard-coded paths to the replication
@@ -28,7 +34,7 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
-	$(TESTS) $(BUILT_SOURCES)
+	$(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
 
 pkgpylibdir = @PYTHON3_LIB@/xapian
 
