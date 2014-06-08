@@ -74,7 +74,12 @@ InL2Weight::init(double factor_)
 
     double idf_max = log2((N + 1) / (termfrequency + 0.5));
 
-    upper_bound = get_wqf() * maximum_wdfn_product_L * idf_max;
+    /* Calculate constant values to be used in get_sumpart() upfront. */
+    idf = idf_max;
+    wqf_product_idf = get_wqf() * idf;
+    c_product_avlen = param_c * get_average_length();
+
+    upper_bound = wqf_product_idf * maximum_wdfn_product_L;
 }
 
 string
@@ -105,16 +110,12 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
-    double N(get_collection_size());
-    double termfrequency(get_termfreq());
 
-    wdfn *= log2(1 + (param_c * get_average_length()) / len);
+    wdfn *= log2(1 + c_product_avlen / len);
 
     double wdfn_product_L = (1 / (1 + (1 / wdfn)));
 
-    double idf = log2((N + 1) / (termfrequency + 0.5));
-
-    return (get_wqf() * wdfn_product_L * idf * factor);
+    return (wqf_product_idf * wdfn_product_L * factor);
 }
 
 double
