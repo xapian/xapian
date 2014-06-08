@@ -639,7 +639,6 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     double factor;
 
     /// The constant values which are used on every call to get_sumpart().
-    double idf;
     double wqf_product_idf;
     double c_product_avlen;
 

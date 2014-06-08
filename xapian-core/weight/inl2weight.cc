@@ -75,8 +75,7 @@ InL2Weight::init(double factor_)
     double idf_max = log2((N + 1) / (termfrequency + 0.5));
 
     /* Calculate constant values to be used in get_sumpart() upfront. */
-    idf = idf_max;
-    wqf_product_idf = get_wqf() * idf;
+    wqf_product_idf = get_wqf() * idf_max;
     c_product_avlen = param_c * get_average_length();
 
     upper_bound = wqf_product_idf * maximum_wdfn_product_L;
