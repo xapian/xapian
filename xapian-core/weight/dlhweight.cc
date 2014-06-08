@@ -40,7 +40,6 @@ DLHWeight::init(double factor_)
 
     double wdf_lower(1.0);
     double wdf_upper(get_wdf_upper_bound());
-    double len_lower(get_doclength_lower_bound());
     double len_upper(get_doclength_upper_bound());
 
     double min_wdf_to_len = wdf_lower / len_upper;
@@ -57,17 +56,29 @@ DLHWeight::init(double factor_)
 
     lower_bound = get_wqf() * min_weight;
 
+    // Calculate constant values to be used in get_sumpart().
+    log_constant = get_average_length() * N / F;
+
     // Calculate the upper bound.
     if (wdf_upper == 0) {
 	upper_bound = 0.0;
 	return;
     }
 
-    double max_weight = (wdf_upper * log2((wdf_upper * get_average_length() /
-			len_lower) * (N / F)) + (len_upper - wdf_lower) *
+    // Calculate values for the upper bound.
+    double max_product;
+    double max_product_1 = len_upper / 4.0;
+    double max_product_2 = wdf_upper * (1.0 - wdf_lower / len_upper);
+
+    if (max_product_1 > max_product_2)
+	max_product = max_product_2;
+    else
+	max_product = max_product_1;
+
+    double max_weight = (wdf_upper * log2(log_constant) +
+			(len_upper - wdf_lower) *
 			log2(1.0 - min_wdf_to_len) +
-			0.5 * log2(2.0 * M_PI * wdf_upper *
-			(1.0 - min_wdf_to_len))) / (wdf_lower + 0.5);
+			0.5 * log2(2.0 * M_PI * max_product)) / (wdf_lower + 0.5);
 
     upper_bound = (get_wqf() * max_weight) - lower_bound;
 }
@@ -97,10 +108,7 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double wdf_to_len = double(wdf) / len;
 
-    double N(get_collection_size());
-    double F(get_collection_freq());
-
-    double wt = (wdf * log2((wdf * get_average_length() / len) * (N / F)) +
+    double wt = (wdf * log2(wdf_to_len * log_constant) +
 		(len - wdf) * log2(1.0 - wdf_to_len) +
 		0.5 * log2(2.0 * M_PI * wdf * (1.0 - wdf_to_len))) /
 		(wdf + 0.5);
