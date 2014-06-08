@@ -44,10 +44,8 @@ DPHWeight::init(double factor_)
     double wdf_upper(get_wdf_upper_bound());
 
     double len_upper(get_doclength_upper_bound());
-    double len_lower(get_doclength_lower_bound());
 
     double min_wdf_to_len = wdf_lower / len_upper;
-    double max_normalization = pow((1.0 - min_wdf_to_len), 2) / (wdf_lower + 1.0);
     double min_normalization = pow(1.0 / len_upper, 2) / (wdf_upper + 1.0);
 
     /* Cacluate lower bound on the weight in order to deal with negative
@@ -66,11 +64,23 @@ DPHWeight::init(double factor_)
         return;
     }
 
-    double max_weight = max_normalization *
-                        (wdf_upper *
-                        log2((wdf_upper * get_average_length() / len_lower) *
-                        (N / F)) +
-                        (0.5 * log2(2 * M_PI * wdf_upper * (1 - min_wdf_to_len))));
+    /* Calculate constant value to be used in get_sumpart() . */
+    log_constant = get_average_length() * N / F;
+
+    /* Calculations to decide the values to be used for calculating upper bound . */
+    double max_product;
+    double max_product_1 = wdf_upper * (1.0 - min_wdf_to_len);
+    double max_product_2 = len_upper / 4.0;
+    if (max_product_1 > max_product_2)
+        max_product = max_product_1;
+    else
+	max_product = max_product_2;
+
+    double max_wdf_product_normalization = (2.0 * max_product) / (wdf_lower + 1.0);
+
+    double max_weight = max_wdf_product_normalization *
+                        (log2(log_constant) +
+                        (0.5 * log2(2 * M_PI * max_product)));
 
     upper_bound = (get_wqf() * max_weight) - lower_bound;
 }
@@ -98,16 +108,13 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
 
-    double F(get_collection_freq());
-    double N(get_collection_size());
     double wdf_to_len = double(wdf) / len;
 
     double normalization = pow((1 - wdf_to_len), 2) / (wdf + 1);
 
     double wt = normalization *
 		(wdf *
-		log2((wdf * get_average_length() / len) *
-		(N / F)) +
+		log2((wdf_to_len * log_constant)) +
 		(0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
 
     // Subtract the lower bound from the actual weight to avoid negative weights.
