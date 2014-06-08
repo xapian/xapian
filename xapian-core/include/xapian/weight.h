@@ -706,6 +706,10 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     /// The factor to multiply with the weight.
     double factor;
 
+    /// The constant values which are used for calculations in get_sumpart().
+    double wqf_product_idf;
+    double c_product_avlen;
+
     IfB2Weight * clone() const;
 
     void init(double factor);
