@@ -37,7 +37,6 @@ IneB2Weight::IneB2Weight(double c) : param_c(c) {
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
     need_stat(COLLECTION_SIZE);
     need_stat(WDF);
     need_stat(WDF_MAX);
@@ -62,11 +61,6 @@ IneB2Weight::init(double factor_)
 	upper_bound = 0.0;
 	return;
     }
-
-    double wdfn_lower(1.0);
-
-    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_upper_bound());
 
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
