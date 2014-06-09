@@ -95,6 +95,11 @@ parse_datetime(const string & s)
 	// "20070903;200000000000" == 2007-09-03T00:02:00
 	// "20070831;5100000000000" == 2007-08-31T00:51:00
 	unsigned long v = strtoul(p, &q, 10);
+	if (v == 0) {
+	    // LibreOffice sometimes exports "0;0".  A date of "0" is
+	    // clearly invalid.
+	    return time_t(-1);
+	}
 	p = q;
 	t.tm_mday = v % 100;
 	v /= 100;

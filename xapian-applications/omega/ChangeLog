@@ -1,3 +1,8 @@
+Mon Jun 09 01:23:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: LibreOffice can export a timestamp of "0;0" - treat
+	  this as invalid rather than as "year 0".
+
 Fri Jun 06 05:50:21 GMT 2014  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: Add handling for longer form of timestamps in LO
