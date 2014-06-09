@@ -6,9 +6,10 @@
 #include <cstdlib>
 #include <fstream>
 
-#include <map>
+#include <vector>
 
 using namespace Xapian;
+using std::vector;
 
 FeatureManager::FeatureManager(const Xapian::Database & database_,
 vector<Feature::FeatureBase> features_) {
@@ -69,7 +70,7 @@ FeatureManager::update_database_details() {
     }
 }
 
-vector<long int> &
+std::vector<long int> &
 FeatureManager::get_database_details() {
     return database_details;
 }
@@ -90,8 +91,8 @@ FeatureManager::update_query_term_frequency_database() {
     }
 }
 
-vector<long int> &
-FeatureManager::get_query_term_frequency_database() {
+std::vector<long int> &
+FeatureManager::get_q_term_freq_db() {
     return query_term_frequency_database;
 }
 
@@ -112,13 +113,13 @@ FeatureManager::update_query_inverse_doc_frequency_database() {
 }
 
 vector<double> &
-FeatureManager::get_query_inverse_doc_frequency_database() {
+FeatureManager::get_q_inv_doc_freq_db() {
     return query_inverse_doc_frequency_database;
 }
 
 
 vector<long int>
-FeatureManager::get_query_term_frequency_doc(Xapian::Document doc_) {
+FeatureManager::get_q_term_freq_doc(Xapian::Document doc_) {
     vector<long int> term_freq;
     term_freq.reserve(query_term_length);
 

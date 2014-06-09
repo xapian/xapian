@@ -9,10 +9,10 @@
 
 #include "feature.h"
 
-#include <map>
+#include <vector>
 #include <string>
 
-using namespace std;
+using std::vector;
 
 namespace Xapian {
 
@@ -30,7 +30,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
     vector<double> query_inverse_doc_frequency_database;
     vector<long int> database_details(3);
 
-    FeatureManager(Xapian::Database database_, vector<Feature::FeatureBase>
+    FeatureManager(const Xapian::Database database_, vector<Feature::FeatureBase>
     feature_base_);
 
     vector<Xapian::MSet::letor_item> generate_letor_info();
@@ -56,13 +56,13 @@ public:
 
     vector<long int> & get_database_details();
 
-    vector<long int> & get_query_term_frequency_database();
+    vector<long int> & get_q_term_freq_db();
 
-    vector<long int> & get_query_inverse_doc_frequency_database();
+    vector<long int> & get_q_inv_doc_freq_db();
 
     vector<long int> & get_database_details();
 
-    vector<long int> get_query_term_frequency_doc(Xapain::Document doc_);
+    vector<long int> get_q_term_freq_doc(Xapain::Document doc_);
 
     vector<long int> get_doc_details(Xapian::Docuement doc_);
 
