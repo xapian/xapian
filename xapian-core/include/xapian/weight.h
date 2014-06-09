@@ -778,6 +778,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     /// Constant values used in get_sumpart().
     double wqf_product_idf;
     double c_product_avlen;
+    double B_constant;
 
     IneB2Weight * clone() const;
 

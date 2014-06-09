@@ -86,6 +86,7 @@ IneB2Weight::init(double factor_)
     /* Calulcate constant values used in get_sumpart(). */
     wqf_product_idf = get_wqf() * idf_max;
     c_product_avlen = param_c * get_average_length();
+    B_constant = (F + 1.0) / termfreq;
 
     upper_bound = max_wdfn_product_B * idf_max * get_wqf();
 }
@@ -118,11 +119,10 @@ IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
-    double termfreq(get_termfreq());
 
     wdfn *= log2(1 + c_product_avlen / len);
 
-    double wdfn_product_B = (get_collection_freq() + 1.0) / (termfreq + (termfreq / wdfn));
+    double wdfn_product_B = B_constant / (1.0 + 1.0 / wdfn);
 
     return (wdfn_product_B * wqf_product_idf * factor);
 }
