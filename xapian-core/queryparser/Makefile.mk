@@ -8,7 +8,10 @@ noinst_HEADERS +=\
 	queryparser/cjk-tokenizer.h\
 	queryparser/queryparser_internal.h\
 	queryparser/queryparser_token.h\
-	queryparser/termgenerator_internal.h
+	queryparser/termgenerator_internal.h\
+	queryparser/arabic-normalizer.h\
+	queryparser/arabic-normalizer-constants.h
+	
 
 lemon_built_sources =\
 	queryparser/queryparser_internal.cc\
@@ -62,4 +65,5 @@ lib_src +=\
 	queryparser/queryparser.cc\
 	queryparser/queryparser_internal.cc\
 	queryparser/termgenerator.cc\
-	queryparser/termgenerator_internal.cc
+	queryparser/termgenerator_internal.cc\
+	queryparser/arabic-normalizer.cc
