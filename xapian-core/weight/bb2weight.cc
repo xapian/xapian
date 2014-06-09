@@ -31,10 +31,10 @@ using namespace std;
 
 namespace Xapian {
 
-static double stirling_value(double x, double y)
+static double stirling_value(double x, double y, double stirling_constant)
 {
     double difference = x - y;
-    return ((y + 0.5) * log2(x / y)) + (difference * log2(x));
+    return ((y + 0.5) * (stirling_constant - log2(y)) + (difference * stirling_constant));
 }
 
 BB2Weight::BB2Weight(double c) : param_c(c)
@@ -83,14 +83,19 @@ BB2Weight::init(double factor_)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
-    double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
+    /* Calclate constant values to be used in get_sumpart(). */
+    c_product_avlen = param_c * get_average_length();
+    B_constant = (F + 1.0) / get_termfreq();
+    wt = - log2(N - 1.0) - (1 / base_change);
+    stirling_constant_1 = log2(N + F - 1.0);
+    stirling_constant_2 = log2(F);
 
-    double weight_max = - log2(N - 1.0) - (1 / base_change);
+    double B_max = B_constant /  (wdfn_lower + 1.0);
 
-    double stirling_max = stirling_value(N + F - 1.0, N + F - wdfn_lower - 2.0) -
-			  stirling_value(F, F - wdfn_upper);
+    double stirling_max = stirling_value(N + F - 1.0, N + F - wdfn_lower - 2.0, stirling_constant_1) -
+			  stirling_value(F, F - wdfn_upper, stirling_constant_2);
 
-    double final_weight_max = B_max * (weight_max + stirling_max);
+    double final_weight_max = B_max * (wt + stirling_max);
 
     upper_bound = get_wqf() * final_weight_max;
 }
@@ -123,19 +128,16 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
 
-    double base_change = log(2.0);
     double wdfn(wdf);
-    wdfn *= log2(1 + (param_c * get_average_length()) / len);
+    wdfn *= log2(1 + c_product_avlen / len);
 
     double F(get_collection_freq());
     double N(get_collection_size());
 
-    double B = (F + 1.0) / (get_termfreq() * (wdfn + 1.0));
+    double B = B_constant / (wdfn + 1.0);
 
-    double wt = - log2(N - 1.0) - (1 / base_change);
-
-    double stirling = stirling_value(N + F - 1.0, N + F - wdfn - 2.0) -
-		      stirling_value(F, F - wdfn);
+    double stirling = stirling_value(N + F - 1.0, N + F - wdfn - 2.0, stirling_constant_1) -
+		      stirling_value(F, F - wdfn, stirling_constant_2);
 
     double final_weight = B * (wt + stirling);
 
