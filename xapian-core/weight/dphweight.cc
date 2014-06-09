@@ -64,10 +64,10 @@ DPHWeight::init(double factor_)
         return;
     }
 
-    /* Calculate constant value to be used in get_sumpart() . */
+    /* Calculate constant value to be used in get_sumpart(). */
     log_constant = get_average_length() * N / F;
 
-    /* Calculations to decide the values to be used for calculating upper bound . */
+    /* Calculations to decide the values to be used for calculating upper bound. */
     double max_product;
     double max_product_1 = wdf_upper * (1.0 - min_wdf_to_len);
     double max_product_2 = len_upper / 4.0;
@@ -114,7 +114,7 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double wt = normalization *
 		(wdf *
-		log2((wdf_to_len * log_constant)) +
+		log2(wdf_to_len * log_constant) +
 		(0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
 
     // Subtract the lower bound from the actual weight to avoid negative weights.
