@@ -1,12 +1,15 @@
 
 #include "feature.h"
 
+#include <vector>
+
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
 using namespace Xapian;
+using std::vector;
 
 Feature::Feature(const Feature & feature_manager_,
 vector<Feature::FeatureBase> features_) {
@@ -17,14 +20,12 @@ vector<Feature::FeatureBase> features_) {
 double
 Feature::feature_1(Xapian::Document doc_) {
     double value = 0;
-    vector<long int> & query_term_frequency_database = 
-        feature_manager.get_query_term_frequency_database();
-    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator it = query_term_frequency_database.begin();
-            it != query_term_frequency_database.end(); ++term_it, ++it) {
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_term_freq_doc.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_doc.end();
+            ++term_it, ++tf_it) {
         if ((*term_it)[0] == "S" || (*term_it)[1] == "S")
-            value += log10(1 + *it);
-        else
-            value += 0;
+            value += log10(1 + *tf_it);
     }
     return value;
 }
@@ -32,14 +33,12 @@ Feature::feature_1(Xapian::Document doc_) {
 double
 Feature::feature_2(Xapian::Document doc_) {
     doubel value = 0;
-    vector<long int> & query_term_frequency_database = 
-        feature_manager.get_query_term_frequency_database();
-    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator it = query_term_frequency_database.begin();
-            it != query_term_frequency_database.end(); ++term_it, ++it) {
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_term_freq_doc.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_doc.end();
+            ++term_it, ++tf_it) {
         if ((*term_it)[0] != "S" && (*term_it)[1] != "S")
-            value += log10(1 + *it);
-        else
-            value += 0;
+            value += log10(1 + *tf_it);
     }
     return value;
 }
@@ -47,26 +46,25 @@ Feature::feature_2(Xapian::Document doc_) {
 double
 Feature::feature_3(Xapian::Document doc_) {
     double value = 0;
-    vector<long int> & query_term_frequency_database = 
-        feature_manager.get_query_term_frequency_database();
-    for (vector<long int>::iterator it = query_term_frequency_database.begin();
-            it != query_term_frequency_database.end(); ++it)
-        value += log10(1 + *it);
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    for (vector<long int>::iterator tf_it = q_term_freq_doc.begin();
+            tf_it != q_term_freq_doc.end();
+            ++tf_it) {
+        value += log10(1 + *tf_it);
+    }
     return value;
 }
 
 double
 Feature::feature_4(Xapian::Document doc_) {
     double value = 0;
-    vector<long int> & query_term_frequency_database = 
-        feature_manager.get_query_term_frequency_database();
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
     vector<long int> doc_details = feature_manager.get_doc_details(doc_);
-    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator it = query_term_frequency_database.begin();
-            it != query_term_frequency_database.end(); ++term_it, ++it) {
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_term_freq_doc.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_doc.end();
+            ++term_it, ++tf_it) {
         if ((*term_it)[0] == "S" || (*term_it)[1] == "S")
-            value += log10(1 + (double)(*it) / (1 + (double)doc_details[0]));
-        else
-            value += 0;
+            value += log10(1 + (double)(*tf_it) / (double)(1 + doc_details[0]));
     }
     return value;
 }
@@ -74,35 +72,222 @@ Feature::feature_4(Xapian::Document doc_) {
 double
 Feature::feature_5(Xapian::Document doc_) {
     double value = 0;
-    vector<long int> & query_term_frequency_database = 
-        feature_manager.get_query_term_frequency_database();
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
     vector<long int> doc_details = feature_manager.get_doc_details(doc_);
-    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator it = query_term_frequency_database.begin();
-            it != query_term_frequency_database.end(); ++term_it, ++it) {
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_term_freq_doc.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_doc.end();
+            ++term_it, ++tf_it) {
         if ((*term_it)[0] != "S" && (*term_it)[1] != "S")
-            value += log10(1 + (double)(*it) / (1 + (double)doc_details[1]));
-        else
-            value += 0;
-    }
+            value += log10(1 + (double)(*tf_it) / (double)(1 + doc_details[1]));
+   }
     return value;
  }
 
 double
 Feature::feature_6(Xapian::Document doc_) {
     double value = 0;
-    vector<long int> & query_term_frequency_database = 
-        feature_manager.get_query_term_frequency_database();
-    for (vector<long int>::iterator it = query_term_frequency_database.begin();
-            it != query_term_frequency_database.end(); ++it)
-        value += log10(1 + (double)(*it) / (1 + (double)doc_details[2]));
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    vector<long int> doc_details = feature_manager.get_doc_details(doc_);
+    for (vector<long int>::iterator tf_it = q_term_freq_doc.begin();
+            tf_it != q_term_freq_doc.end();
+            ++tf_it) {
+        value += log10(1 + (double)(*tf_it) / (1 + (double)doc_details[2]));
+    }
     return value;
 }
 
-
-
+double
+Feature::feature_7(Xapian::Document doc_) {
+    double value = 0;
+    vector<long int> & q_inv_doc_freq_db = feature_manager.get_inv_doc_freq_db();
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_inv_doc_freq_db.begin();
+            term_it != query.get_terms_end() && tf_it != q_inv_doc_freq_db.end();
+            ++term_it, ++tf_it) {
+        if ((*term_it)[0] == "S" || (*term_it)[1] == "S")
+            value += log10(1 + *tf_it);
+    }
+    return value;
+}
 
 double
-Feature::get_feature(FeatureBase feature_base_, Xapian::Document doc_) {
+Feature::feature_8(Xapian::Document doc_) {
+    doubel value = 0;
+    vector<long int> & q_inv_doc_freq_db = feature_manager.get_inv_doc_freq_db();
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_inv_doc_freq_db.begin();
+            term_it != query.get_terms_end() && tf_it != q_inv_doc_freq_db.end();
+            ++term_it, ++tf_it) {
+       if ((*term_it)[0] != "S" && (*term_it)[1] != "S")
+            value += log10(1 + *tf_it);
+    }
+    return value;
+}
+
+double
+Feature::feature_9(Xapian::Document doc_) {
+    doubel value = 0;
+    vector<long int> & q_inv_doc_freq_db = feature_manager.get_inv_doc_freq_db();
+    for (vector<long int>::iterator tf_it = q_inv_doc_freq_db.begin();
+            tf_it != q_inv_doc_freq_db.end();
+            ++tf_it) {
+        value += log10(1 + *tf_it);
+    }
+    return value;
+}
+
+double
+Feature::feature_10(Xapian::Document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_db = feature_manager.get_q_term_freq_db();
+    vector<long int> & database_details = feature_manager.get_database_datails();
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_term_freq_db.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_db.end();
+            ++term_it, ++tf_it) {
+        if ((*term_it)[0] == "S" || (*term_it)[1] == "S")
+            value += log10 / (1 + (double)doc_details[0] / (double)(1 + *tf_it));
+    }
+    return value;
+}
+
+double
+Feature::feature_11(Xapian::Document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_db = feature_manager.get_q_term_freq_db();
+    vector<long int> & database_details = feature_manager.get_database_datails();
+    for (Xapian::TermIterator term_it = query.get_terms_begin(), vector<long int>::iterator tf_it = q_term_freq_db.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_db.end();
+            ++term_it, ++tf_it) {
+        if ((*term_it)[0] != "S" && (*term_it)[1] != "S")
+            value += log10 / (1 + (double)doc_details[1] / (double)(1 + *tf_it));
+    }
+    return value;
+ }
+
+double
+Feature::feature_12(Xapian::Document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_db = feature_manager.get_q_term_freq_db();
+    vector<long int> & database_details = feature_manager.get_database_datails();
+    for (vector<long int>::iterator tf_it = q_term_freq_db.begin();
+            tf_it != q_term_freq_db.end();
+            ++tf_it) {
+        value += log10 / (1 + (double)doc_details[2] / (double)(1 + *tf_it));
+    }
+    return value;
+}
+
+double
+feature::feature_13(xapian::document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    vector<long int> & q_inv_doc_freq_db = feature_manager.get_inv_doc_freq_db();
+    vector<long int> doc_details = feature_manager.get_doc_details(doc_);
+
+    for (Xapian::termiterator term_it = query.get_terms_begin(),
+            vector<long int>::iterator tf_it = q_term_freq_db.begin(),
+            vector<long int>::iterator idf_it = q_inv_freq_db.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_db.end() && idf_it != q_inv_freq_db.end();
+            ++term_it, ++tf_it, ++idf_it) {
+        if ((*term_it)[0] == "s" || (*term_it)[1] == "s")
+            value += log10(1 + ((double)((*tf_it)*(*idf_it)) / (double)(1 + doc_details[0])));
+    }
+    return value;
+}
+
+double
+feature::feature_14(xapian::document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    vector<long int> & q_inv_doc_freq_db = feature_manager.get_inv_doc_freq_db();
+    vector<long int> doc_details = feature_manager.get_doc_details(doc_);
+
+    for (Xapian::TermIterator term_it = query.get_terms_begin(),
+            vector<long int>::iterator tf_it = q_term_freq_db.begin(),
+            vector<long int>::iterator idf_it = q_inv_freq_db.begin();
+            term_it != query.get_terms_end() && tf_it != q_term_freq_db.end() && idf_it != q_inv_freq_db.end();
+            ++term_it, ++tf_it, ++idf_it) {
+        if ((*term_it)[0] != "s" && (*term_it)[1] != "s")
+            value += log10(1 + ((double)((*tf_it)*(*idf_it)) / (double)(1 + doc_details[1])));
+    }
+    return value;
+ }
+
+double
+feature::feature_15(xapian::document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    vector<long int> & q_inv_doc_freq_db = feature_manager.get_inv_doc_freq_db();
+    vector<long int> doc_details = feature_manager.get_doc_details(doc_);
+
+    for (vector<long int>::iterator tf_it = q_term_freq_db.begin(),
+            vector<long int>::iterator idf_it = q_inv_freq_db.begin();
+            tf_it != q_term_freq_db.end() && idf_it != q_inv_freq_db.end();
+            ++tf_it, ++idf_it) {
+        value += log10(1 + ((double)((*tf_it)*(*idf_it)) / (double)(1 + doc_details[2])));
+    }
+    return value;
+}
+
+double
+feature::feature_16(xapian::document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_db = feature_manager.get_q_term_freq_db();
+    vector<long int> & database_details = feature_manager.get_database_datails();
+    vector<long int> q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    vector<long int> doc_details = feature_manager.get_doc_details(doc_);
+
+    for (Xapian::TermIterator term_it = query.get_terms_begin(),
+            vector<long int>::iterator db_tf_it = q_term_freq_db.begin(),
+            vector<long int>::iterator doc_tf_it = q_term_freq_doc.begin();
+            term_it != query.get_terms_end() && db_tf_it != q_term_freq_db.end() && doc_tf_it != q_term_freq_doc.end();
+            ++term_it, ++doc_tf_it, ++db_tf_it) {
+        if ((*term_it)[0] == "s" || (*term_it)[1] == "s")
+            value += log10(1 + ((double)(*doc_tf_it) * (double)database_details[0] / (double)(1 + (double)doc_details[0] * (double)(*db_tf_it))));
+    }
+
+    return value;
+}
+
+double
+feature::feature_17(xapian::document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_db = feature_manager.get_q_term_freq_db();
+    vector<long int> & database_details = feature_manager.get_database_datails();
+    vector<long int> q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    vector<long int> doc_details = feature_manager.get_doc_details(doc_);
+
+    for (Xapian::TermIterator term_it = query.get_terms_begin(),
+            vector<long int>::iterator db_tf_it = q_term_freq_db.begin(),
+            vector<long int>::iterator doc_tf_it = q_term_freq_doc.begin();
+            term_it != query.get_terms_end() && db_tf_it != q_term_freq_db.end() && doc_tf_it != q_term_freq_doc.end();
+            ++term_it, ++doc_tf_it, ++db_tf_it) {
+        if ((*term_it)[0] != "s" && (*term_it)[1] != "s")
+            value += log10(1 + ((double)(*doc_tf_it) * (double)database_details[1] / (double)(1 + (double)doc_details[1] * (double)(*db_tf_it))));
+    }
+    
+    return value;
+ }
+
+double
+feature::feature_18(xapian::document doc_) {
+    double value = 0;
+    vector<long int> & q_term_freq_db = feature_manager.get_q_term_freq_db();
+    vector<long int> & database_details = feature_manager.get_database_datails();
+    vector<long int> q_term_freq_doc = feature_manager.get_q_term_freq_doc(doc_);
+    vector<long int> doc_details = feature_manager.get_doc_details(doc_);
+
+    for (vector<long int>::iterator db_tf_it = q_term_freq_db.begin(),
+            vector<long int>::iterator doc_tf_it = q_term_freq_doc.begin();
+            db_tf_it != q_term_freq_db.end() && doc_tf_it != q_term_freq_doc.end();
+            ++doc_tf_it, ++db_tf_it) {
+        value += log10(1 + ((double)(*doc_tf_it) * (double)database_details[2] / (double)(1 + (double)doc_details[2] * (double)(*db_tf_it))));
+    }
+
+    return value;
+}
+
+double
+Feature::get_feature(FeatureBase feature_base_, Xapian::MSetIterator mset_it_) {
+    Xapian::Document doc_ = mset_it_.get_document();
     
     switch (feature_base_) {
         case FeatureBase::FEATURE_1:
@@ -160,33 +345,28 @@ Feature::get_feature(FeatureBase feature_base_, Xapian::Document doc_) {
             return feature_18(doc_);
             break;
         case FeatureBase::FEATURE_19:
-            return feature_19(doc_);
+            return mset_it_.get_weight();
             break;
     }
 }
 
-void
-Feature::create(const FeatureManager feature_manager_,
-vector<Feature::FeatureBase features_) {
+Feature
+Feature::create(const FeatureManager feature_manager_, vector<Feature::FeatureBase features_) {
     return Feature(feature_manager_, features_);
 }
 
-void
-Feature::update_context(Xapian::Query query_, Xapian::MSet mset_) {
-    query = query_;
-}
-
 vector<double>
-Feature::generate_feature_vector(Xapian::Document doc_) {
-    vector<double> feature_vector;
-    feature_vector.reserve(get_features_num());
+Feature::generate_feature_vector(Xapian::MSetIterator met_it_) {
+    vector<double> feature_vector(get_features_num());
+    
     for (int i=0; i<get_features_num(); i++) {
-        feature_vector[i] = get_feature(features[i]);
+        feature_vector[i] = get_feature(features[i], mset_it_);
     }
+
     return feature_vector;
 }
 
 int
 Feature::get_features_num() {
-    return features_.size();
+    return features.size();
 }
