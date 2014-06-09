@@ -74,7 +74,7 @@ snowball_stopwords_preprocessed =\
 	$(snowball_stopwords:.txt=.list)
 	
 .txt.list: 
-	sed 's/[$$'\t' ]*|.*//;/^[$$'\t' ]*$$/d' < $<  > $@
+	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $<  > $@
 
 BUILT_SOURCES += $(snowball_stopwords_preprocessed)
 
