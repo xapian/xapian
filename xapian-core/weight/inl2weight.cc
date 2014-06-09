@@ -39,7 +39,6 @@ InL2Weight::InL2Weight(double c)
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
     need_stat(COLLECTION_SIZE);
     need_stat(WDF);
     need_stat(WDF_MAX);
