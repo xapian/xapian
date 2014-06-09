@@ -2,129 +2,195 @@
 #define XAPIAN_INCLUDED_ARABICNORMALIZERCONSTANTS_H
 
 #include <cstring>
-#include <unordered_map>
+#include <map>
 
 // Specific punctuation marks
-#define ARABIC_COMMA "\u060C"
-#define ARABIC_SEMICOLON "\u061B"
-#define ARABIC_QUESTION "\u061F"
+#define ARABIC_COMMA 0x060C
+#define ARABIC_SEMICOLON 0x061B
+#define ARABIC_QUESTION 0x061F
 
 // Hamza forms
-#define ARABIC_HAMZA "\u0621"
-#define ARABIC_ALEF_MADDA "\u0622"
-#define ARABIC_ALEF_HAMZA_ABOVE "\u0623"
-#define ARABIC_WAW_HAMZA "\u0624"
-#define ARABIC_ALEF_HAMZA_BELOW "\u0625"
-#define ARABIC_YEH_HAMZA "\u0626"
+#define ARABIC_HAMZA 0x0621
+#define ARABIC_ALEF_MADDA 0x0622
+#define ARABIC_ALEF_HAMZA_ABOVE 0x0623
+#define ARABIC_WAW_HAMZA 0x0624
+#define ARABIC_ALEF_HAMZA_BELOW 0x0625
+#define ARABIC_YEH_HAMZA 0x0626
 
 // Letters
-#define ARABIC_ALEF "\u0627"
-#define ARABIC_BEH "\u0628"
-#define ARABIC_TEH_MARBUTA "\u0629"
-#define ARABIC_TEH "\u062a"
-#define ARABIC_THEH "\u062b"
-#define ARABIC_JEEM "\u062c"
-#define ARABIC_HAH "\u062d"
-#define ARABIC_KHAH "\u062e"
-#define ARABIC_DAL "\u062f"
-#define ARABIC_THAL "\u0630"
-#define ARABIC_REH "\u0631"
-#define ARABIC_ZAIN "\u0632"
-#define ARABIC_SEEN "\u0633"
-#define ARABIC_SHEEN "\u0634"
-#define ARABIC_SAD "\u0635"
-#define ARABIC_DAD "\u0636"
-#define ARABIC_TAH "\u0637"
-#define ARABIC_ZAH "\u0638"
-#define ARABIC_AIN "\u0639"
-#define ARABIC_GHAIN "\u063a"
-#define ARABIC_TATWEEL "\u0640"
-#define ARABIC_FEH "\u0641"
-#define ARABIC_QAF "\u0642"
-#define ARABIC_KAF "\u0643"
-#define ARABIC_LAM "\u0644"
-#define ARABIC_MEEM "\u0645"
-#define ARABIC_NOON "\u0646"
-#define ARABIC_HEH "\u0647"
-#define ARABIC_WAW "\u0648"
-#define ARABIC_ALEF_MAKSURA "\u0649"
-#define ARABIC_YEH "\u064a"
-#define ARABIC_MADDA_ABOVE "\u0653"
-#define ARABIC_HAMZA_ABOVE "\u0654"
-#define ARABIC_HAMZA_BELOW "\u0655"
+#define ARABIC_ALEF 0x0627
+#define ARABIC_BEH 0x0628
+#define ARABIC_TEH_MARBUTA 0x0629
+#define ARABIC_TEH 0x062a
+#define ARABIC_THEH 0x062b
+#define ARABIC_JEEM 0x062c
+#define ARABIC_HAH 0x062d
+#define ARABIC_KHAH 0x062e
+#define ARABIC_DAL 0x062f
+#define ARABIC_THAL 0x0630
+#define ARABIC_REH 0x0631
+#define ARABIC_ZAIN 0x0632
+#define ARABIC_SEEN 0x0633
+#define ARABIC_SHEEN 0x0634
+#define ARABIC_SAD 0x0635
+#define ARABIC_DAD 0x0636
+#define ARABIC_TAH 0x0637
+#define ARABIC_ZAH 0x0638
+#define ARABIC_AIN 0x0639
+#define ARABIC_GHAIN 0x063a
+#define ARABIC_TATWEEL 0x0640
+#define ARABIC_FEH 0x0641
+#define ARABIC_QAF 0x0642
+#define ARABIC_KAF 0x0643
+#define ARABIC_LAM 0x0644
+#define ARABIC_MEEM 0x0645
+#define ARABIC_NOON 0x0646
+#define ARABIC_HEH 0x0647
+#define ARABIC_WAW 0x0648
+#define ARABIC_ALEF_MAKSURA 0x0649
+#define ARABIC_YEH 0x064a
+#define ARABIC_MADDA_ABOVE 0x0653
+#define ARABIC_HAMZA_ABOVE 0x0654
+#define ARABIC_HAMZA_BELOW 0x0655
 
 // Hindu–Arabic numerals
-#define ARABIC_ZERO "\u0660"
-#define ARABIC_ONE "\u0661"
-#define ARABIC_TWO "\u0662"
-#define ARABIC_THREE "\u0663"
-#define ARABIC_FOUR "\u0664"
-#define ARABIC_FIVE "\u0665"
-#define ARABIC_SIX "\u0666"
-#define ARABIC_SEVEN "\u0667"
-#define ARABIC_EIGHT "\u0668"
-#define ARABIC_NINE "\u0669"
-#define ARABIC_PERCENT "\u066a"
-#define ARABIC_DECIMAL "\u066b"
-#define ARABIC_THOUSANDS "\u066c"
+#define ARABIC_ZERO 0x0660
+#define ARABIC_ONE 0x0661
+#define ARABIC_TWO 0x0662
+#define ARABIC_THREE 0x0663
+#define ARABIC_FOUR 0x0664
+#define ARABIC_FIVE 0x0665
+#define ARABIC_SIX 0x0666
+#define ARABIC_SEVEN 0x0667
+#define ARABIC_EIGHT 0x0668
+#define ARABIC_NINE 0x0669
+#define ARABIC_PERCENT 0x066a
+#define ARABIC_DECIMAL 0x066b
+#define ARABIC_THOUSANDS 0x066c
 
-#define ARABIC_STAR "\u066d"
-#define ARABIC_MINI_ALEF "\u0670"
-#define ARABIC_ALEF_WASLA "\u0671"
-#define ARABIC_FULL_STOP "\u06d4"
-#define ARABIC_BYTE_ORDER_MARK "\ufeff"
+#define ARABIC_STAR 0x066d
+#define ARABIC_MINI_ALEF 0x0670
+#define ARABIC_ALEF_WASLA 0x0671
+#define ARABIC_FULL_STOP 0x06d4
+#define ARABIC_BYTE_ORDER_MARK 0xfeff
 
 // Diacritics
-#define ARABIC_FATHATAN "\u064b"
-#define ARABIC_DAMMATAN "\u064c"
-#define ARABIC_KASRATAN "\u064d"
-#define ARABIC_FATHA "\u064e"
-#define ARABIC_DAMMA "\u064f"
-#define ARABIC_KASRA "\u0650"
-#define ARABIC_SHADDA "\u0651"
-#define ARABIC_SUKUN "\u0652"
+#define ARABIC_FATHATAN 0x064b
+#define ARABIC_DAMMATAN 0x064c
+#define ARABIC_KASRATAN 0x064d
+#define ARABIC_FATHA 0x064e
+#define ARABIC_DAMMA 0x064f
+#define ARABIC_KASRA 0x0650
+#define ARABIC_SHADDA 0x0651
+#define ARABIC_SUKUN 0x0652
 
 // Small Letters
-#define ARABIC_SMALL_ALEF u"\u0670"
-#define ARABIC_SMALL_WAW u"\u06E5"
-#define ARABIC_SMALL_YEH u"\u06E6"
+#define ARABIC_SMALL_ALEF 0x0670
+#define ARABIC_SMALL_WAW 0x06E5
+#define ARABIC_SMALL_YEH 0x06E6
 
 // Ligatures
-#define ARABIC_LAM_ALEF "\ufefb"
-#define ARABIC_LAM_ALEF_HAMZA_ABOVE "\ufef7"
-#define ARABIC_LAM_ALEF_HAMZA_BELOW "\ufef9"
-#define ARABIC_LAM_ALEF_MADDA_ABOVE "\ufef5"
-#define ARABIC_simple_LAM_ALEF "\u0644\u0627"
-#define ARABIC_simple_LAM_ALEF_HAMZA_ABOVE "\u0644\u0623"
-#define ARABIC_simple_LAM_ALEF_HAMZA_BELOW "\u0644\u0625"
-#define ARABIC_simple_LAM_ALEF_MADDA_ABOVE "\u0644\u0622"
+#define ARABIC_LAM_ALEF 0xfefb
+#define ARABIC_LAM_ALEF_HAMZA_ABOVE 0xfef7
+#define ARABIC_LAM_ALEF_HAMZA_BELOW 0xfef9
+#define ARABIC_LAM_ALEF_MADDA_ABOVE 0xfef5
+
 
 // groups
-#define ARABIC_LETTERS ARABIC_ALEF ARABIC_BEH ARABIC_TEH ARABIC_TEH_MARBUTA   \
-					   ARABIC_THEH ARABIC_JEEM ARABIC_HAH ARABIC_KHAH ARABIC_DAL \
-					   ARABIC_THAL ARABIC_REH ARABIC_ZAIN ARABIC_SEEN ARABIC_SHEEN \
-					   ARABIC_SAD ARABIC_DAD ARABIC_TAH	ARABIC_ZAH ARABIC_AIN \
-					   ARABIC_GHAIN  ARABIC_FEH ARABIC_QAF ARABIC_KAF ARABIC_LAM \
-					   ARABIC_MEEM ARABIC_NOON ARABIC_HEH ARABIC_WAW ARABIC_YEH \
-					   ARABIC_HAMZA ARABIC_ALEF_MADDA ARABIC_ALEF_HAMZA_ABOVE \
-					   ARABIC_WAW_HAMZA ARABIC_ALEF_HAMZA_BELOW ARABIC_YEH_HAMZA
+static const unsigned ARABIC_LETTERS[] = {
+		ARABIC_ALEF,
+		ARABIC_BEH,
+		ARABIC_TEH,
+		ARABIC_TEH_MARBUTA,
+		ARABIC_THEH,
+		ARABIC_JEEM,
+		ARABIC_HAH,
+		ARABIC_KHAH,
+		ARABIC_DAL,
+		ARABIC_THAL,
+		ARABIC_REH,
+		ARABIC_ZAIN,
+		ARABIC_SEEN,
+		ARABIC_SHEEN,
+		ARABIC_SAD,
+		ARABIC_DAD,
+		ARABIC_TAH,
+		ARABIC_ZAH,
+		ARABIC_AIN,
+		ARABIC_GHAIN,
+		ARABIC_FEH,
+		ARABIC_QAF,
+		ARABIC_KAF,
+		ARABIC_LAM,
+		ARABIC_MEEM,
+		ARABIC_NOON,
+		ARABIC_HEH,
+		ARABIC_WAW,
+		ARABIC_YEH,
+		ARABIC_HAMZA,
+		ARABIC_ALEF_MADDA,
+		ARABIC_ALEF_HAMZA_ABOVE,
+		ARABIC_WAW_HAMZA,
+		ARABIC_ALEF_HAMZA_BELOW,
+		ARABIC_YEH_HAMZA
+};
 
-#define ARABIC_TASHKEEL ARABIC_FATHATAN ARABIC_DAMMATAN ARABIC_KASRATAN \
-						ARABIC_FATHA ARABIC_DAMMA  ARABIC_KASRA ARABIC_SUKUN \
-						ARABIC_SHADDA
-#define ARABIC_LIGUATURES ARABIC_LAM_ALEF ARABIC_LAM_ALEF_HAMZA_ABOVE \
-				   ARABIC_LAM_ALEF_HAMZA_BELOW  ARABIC_LAM_ALEF_MADDA_ABOVE
-#define ARABIC_HAMZAT ARABIC_HAMZA ARABIC_WAW_HAMZA ARABIC_YEH_HAMZA ARABIC_HAMZA_ABOVE \
-               ARABIC_HAMZA_BELOW ARABIC_ALEF_HAMZA_BELOW ARABIC_ALEF_HAMZA_ABOVE
-#define ARABIC_ALEFAT ARABIC_ALEF ARABIC_ALEF_MADDA ARABIC_SMALL_ALEF  \
-			   ARABIC_ALEF_WASLA ARABIC_ALEF_MAKSURA \
+static const unsigned ARABIC_TASHKEEL[] = {
+		ARABIC_FATHATAN,
+		ARABIC_DAMMATAN,
+		ARABIC_KASRATAN,
+		ARABIC_FATHA,
+		ARABIC_DAMMA,
+		ARABIC_KASRA,
+		ARABIC_SUKUN,
+		ARABIC_SHADDA,
+};
 
-#define ARABIC_YAHLIKE ARABIC_YEH ARABIC_YEH_HAMZA ARABIC_ALEF_MAKSURA ARABIC_SMALL_YEH
-#define ARABIC_TEHLIKE TEH, TEH_MARBUTA
-#define ARABIC_WAWLIKE ARABIC_WAW ARABIC_WAW_HAMZA ARABIC_SMALL_WAW
+static const unsigned ARABIC_LIGUATURES[] = {
+		ARABIC_LAM_ALEF,
+		ARABIC_LAM_ALEF_HAMZA_ABOVE,
+		ARABIC_LAM_ALEF_HAMZA_BELOW,
+		ARABIC_LAM_ALEF_MADDA_ABOVE
+};
+
+static const unsigned ARABIC_HAMZAT[] = {
+		ARABIC_HAMZA,
+		ARABIC_WAW_HAMZA,
+		ARABIC_YEH_HAMZA,
+		ARABIC_HAMZA_ABOVE,
+		ARABIC_HAMZA_BELOW,
+		ARABIC_ALEF_HAMZA_BELOW,
+		ARABIC_ALEF_HAMZA_ABOVE
+};
+
+static const unsigned ARABIC_ALEFAT[] = {
+		ARABIC_ALEF,
+		ARABIC_ALEF_MADDA,
+		ARABIC_SMALL_ALEF,
+		ARABIC_ALEF_WASLA,
+		ARABIC_ALEF_MAKSURA
+};
+
+static const unsigned ARABIC_YAHLIKE[] = {
+		ARABIC_YEH,
+		ARABIC_YEH_HAMZA,
+		ARABIC_ALEF_MAKSURA,
+		ARABIC_SMALL_YEH
+};
+
+static const unsigned ARABIC_TEHLIKE[] = {
+		ARABIC_TEH,
+		ARABIC_TEH_MARBUTA
+};
+
+static const unsigned ARABIC_WAWLIKE[] = {
+		ARABIC_WAW,
+		ARABIC_WAW_HAMZA,
+		ARABIC_SMALL_WAW
+};
 
 // orders
-const char* ARABIC_ALPHABETIC_ORDER[28] = {
+static const unsigned ARABIC_ALPHABETIC_ORDER[28] = {
 										/*1 */	  ARABIC_ALEF,
 										/*2 */	  ARABIC_BEH,
 										/*3 */    ARABIC_TEH,
@@ -155,135 +221,126 @@ const char* ARABIC_ALPHABETIC_ORDER[28] = {
 										/*28 */	  ARABIC_YEH
 	};
 
-struct eqstr
-	{
-	  bool operator()(const char* s1, const char* s2) const
-	  {
-	    return strcmp(s1, s2) == 0;
-	  }
-	};
+std::pair<unsigned, unsigned> shaping_map_data[] = {
+	std::make_pair(0xfe83,  0x0623),
+	std::make_pair(0xfe87, 0x0625),
+	std::make_pair(0xfe8b, 0x0626),
+	std::make_pair(0xfe8f, 0x0628),
+	std::make_pair(0xfe93, 0x0629),
+	std::make_pair(0xfe97, 0x062a),
+	std::make_pair(0xfe9b, 0x062b),
+	std::make_pair(0xfe9f, 0x062c),
+	std::make_pair(0xfea3, 0x062d),
+	std::make_pair(0xfea7, 0x062e),
+	std::make_pair(0xfeab, 0x0630),
+	std::make_pair(0xfeaf, 0x0632),
+	std::make_pair(0xfeb3, 0x0633),
+	std::make_pair(0xfeb7, 0x0634),
+	std::make_pair(0xfebb, 0x0635),
+	std::make_pair(0xfebf, 0x0636),
+	std::make_pair(0xfec3, 0x0637),
+	std::make_pair(0xfec7, 0x0638),
+	std::make_pair(0xfecb, 0x0639),
+	std::make_pair(0xfecf, 0x063a),
+	std::make_pair(0xfed3, 0x0641),
+	std::make_pair(0xfed7, 0x0642),
+	std::make_pair(0xfedb, 0x0643),
+	std::make_pair(0xfedf, 0x0644),
+	std::make_pair(0xfee3, 0x0645),
+	std::make_pair(0xfee7, 0x0646),
+	std::make_pair(0xfeeb, 0x0647),
+	std::make_pair(0xfeef, 0x0649),
+	std::make_pair(0xfef3, 0x064a),
+	std::make_pair(0xfe80, 0x0621),
+	std::make_pair(0xfe84, 0x0623),
+	std::make_pair(0xfe88, 0x0625),
+	std::make_pair(0xfe8c, 0x0626),
+	std::make_pair(0xfe90, 0x0628),
+	std::make_pair(0xfe94, 0x0629),
+	std::make_pair(0xfe98, 0x062a),
+	std::make_pair(0xfe9c, 0x062b),
+	std::make_pair(0xfea0, 0x062c),
+	std::make_pair(0xfea4, 0x062d),
+	std::make_pair(0xfea8, 0x062e),
+	std::make_pair(0xfeac, 0x0630),
+	std::make_pair(0xfeb0, 0x0632),
+	std::make_pair(0xfeb4, 0x0633),
+	std::make_pair(0xfeb8, 0x0634),
+	std::make_pair(0xfebc, 0x0635),
+	std::make_pair(0xfec0, 0x0636),
+	std::make_pair(0xfec4, 0x0637),
+	std::make_pair(0xfec8, 0x0638),
+	std::make_pair(0xfecc, 0x0639),
+	std::make_pair(0xfed0, 0x063a),
+	std::make_pair(0xfed4, 0x0641),
+	std::make_pair(0xfed8, 0x0642),
+	std::make_pair(0xfedc, 0x0643),
+	std::make_pair(0xfee0, 0x0644),
+	std::make_pair(0xfee4, 0x0645),
+	std::make_pair(0xfee8, 0x0646),
+	std::make_pair(0xfeec, 0x0647),
+	std::make_pair(0xfef0, 0x0649),
+	std::make_pair(0xfef4, 0x064a),
+	std::make_pair(0xfe81, 0x0622),
+	std::make_pair(0xfe85, 0x0624),
+	std::make_pair(0xfe89, 0x0626),
+	std::make_pair(0xfe8d, 0x0627),
+	std::make_pair(0xfe91, 0x0628),
+	std::make_pair(0xfe95, 0x062a),
+	std::make_pair(0xfe99, 0x062b),
+	std::make_pair(0xfe9d, 0x062c),
+	std::make_pair(0xfea1, 0x062d),
+	std::make_pair(0xfea5, 0x062e),
+	std::make_pair(0xfea9, 0x062f),
+	std::make_pair(0xfead, 0x0631),
+	std::make_pair(0xfeb1, 0x0633),
+	std::make_pair(0xfeb5, 0x0634),
+	std::make_pair(0xfeb9, 0x0635),
+	std::make_pair(0xfebd, 0x0636),
+	std::make_pair(0xfec1, 0x0637),
+	std::make_pair(0xfec5, 0x0638),
+	std::make_pair(0xfec9, 0x0639),
+	std::make_pair(0xfecd, 0x063a),
+	std::make_pair(0xfed1, 0x0641),
+	std::make_pair(0xfed5, 0x0642),
+	std::make_pair(0xfed9, 0x0643),
+	std::make_pair(0xfedd, 0x0644),
+	std::make_pair(0xfee1, 0x0645),
+	std::make_pair(0xfee5, 0x0646),
+	std::make_pair(0xfee9, 0x0647),
+	std::make_pair(0xfeed, 0x0648),
+	std::make_pair(0xfef1, 0x064a),
+	std::make_pair(0xfe82, 0x0622),
+	std::make_pair(0xfe86, 0x0624),
+	std::make_pair(0xfe8a, 0x0626),
+	std::make_pair(0xfe8e, 0x0627),
+	std::make_pair(0xfe92, 0x0628),
+	std::make_pair(0xfe96, 0x062a),
+	std::make_pair(0xfe9a, 0x062b),
+	std::make_pair(0xfe9e, 0x062c),
+	std::make_pair(0xfea2, 0x062d),
+	std::make_pair(0xfea6, 0x062e),
+	std::make_pair(0xfeaa, 0x062f),
+	std::make_pair(0xfeae, 0x0631),
+	std::make_pair(0xfeb2, 0x0633),
+	std::make_pair(0xfeb6, 0x0634),
+	std::make_pair(0xfeba, 0x0635),
+	std::make_pair(0xfebe, 0x0636),
+	std::make_pair(0xfec2, 0x0637),
+	std::make_pair(0xfec6, 0x0638),
+	std::make_pair(0xfeca, 0x0639),
+	std::make_pair(0xfece, 0x063a),
+	std::make_pair(0xfed2, 0x0641),
+	std::make_pair(0xfed6, 0x0642),
+	std::make_pair(0xfeda, 0x0643),
+	std::make_pair(0xfede, 0x0644),
+	std::make_pair(0xfee2, 0x0645),
+	std::make_pair(0xfee6, 0x0646),
+	std::make_pair(0xfeea, 0x0647),
+	std::make_pair(0xfeee, 0x0648),
+	std::make_pair(0xfef2, 0x064a)
+};
 
-std::unordered_map<const char*, const char*, hash<const char*>, eqstr > ARABIC_SHAPING_MAP;
-
-ARABIC_SHAPING_MAP["\ufe83"] = "\u0623";
-ARABIC_SHAPING_MAP["\ufe87"] = "\u0625";
-ARABIC_SHAPING_MAP["\ufe8b"] = "\u0626";
-ARABIC_SHAPING_MAP["\ufe8f"] = "\u0628";
-ARABIC_SHAPING_MAP["\ufe93"] = "\u0629";
-ARABIC_SHAPING_MAP["\ufe97"] = "\u062a";
-ARABIC_SHAPING_MAP["\ufe9b"] = "\u062b";
-ARABIC_SHAPING_MAP["\ufe9f"] = "\u062c";
-ARABIC_SHAPING_MAP["\ufea3"] = "\u062d";
-ARABIC_SHAPING_MAP["\ufea7"] = "\u062e";
-ARABIC_SHAPING_MAP["\ufeab"] = "\u0630";
-ARABIC_SHAPING_MAP["\ufeaf"] = "\u0632";
-ARABIC_SHAPING_MAP["\ufeb3"] = "\u0633";
-ARABIC_SHAPING_MAP["\ufeb7"] = "\u0634";
-ARABIC_SHAPING_MAP["\ufebb"] = "\u0635";
-ARABIC_SHAPING_MAP["\ufebf"] = "\u0636";
-ARABIC_SHAPING_MAP["\u0640"] = "\u0640";
-ARABIC_SHAPING_MAP["\ufec3"] = "\u0637";
-ARABIC_SHAPING_MAP["\ufec7"] = "\u0638";
-ARABIC_SHAPING_MAP["\ufecb"] = "\u0639";
-ARABIC_SHAPING_MAP["\ufecf"] = "\u063a";
-ARABIC_SHAPING_MAP["\ufed3"] = "\u0641";
-ARABIC_SHAPING_MAP["\ufed7"] = "\u0642";
-ARABIC_SHAPING_MAP["\ufedb"] = "\u0643";
-ARABIC_SHAPING_MAP["\ufedf"] = "\u0644";
-ARABIC_SHAPING_MAP["\ufee3"] = "\u0645";
-ARABIC_SHAPING_MAP["\ufee7"] = "\u0646";
-ARABIC_SHAPING_MAP["\ufeeb"] = "\u0647";
-ARABIC_SHAPING_MAP["\ufeef"] = "\u0649";
-ARABIC_SHAPING_MAP["\ufef3"] = "\u064a";
-ARABIC_SHAPING_MAP["\ufe80"] = "\u0621";
-ARABIC_SHAPING_MAP["\ufe84"] = "\u0623";
-ARABIC_SHAPING_MAP["\ufe88"] = "\u0625";
-ARABIC_SHAPING_MAP["\ufe8c"] = "\u0626";
-ARABIC_SHAPING_MAP["\ufe90"] = "\u0628";
-ARABIC_SHAPING_MAP["\ufe94"] = "\u0629";
-ARABIC_SHAPING_MAP["\ufe98"] = "\u062a";
-ARABIC_SHAPING_MAP["\ufe9c"] = "\u062b";
-ARABIC_SHAPING_MAP["\ufea0"] = "\u062c";
-ARABIC_SHAPING_MAP["\ufea4"] = "\u062d";
-ARABIC_SHAPING_MAP["\ufea8"] = "\u062e";
-ARABIC_SHAPING_MAP["\ufeac"] = "\u0630";
-ARABIC_SHAPING_MAP["\ufeb0"] = "\u0632";
-ARABIC_SHAPING_MAP["\ufeb4"] = "\u0633";
-ARABIC_SHAPING_MAP["\ufeb8"] = "\u0634";
-ARABIC_SHAPING_MAP["\ufebc"] = "\u0635";
-ARABIC_SHAPING_MAP["\ufec0"] = "\u0636";
-ARABIC_SHAPING_MAP["\ufec4"] = "\u0637";
-ARABIC_SHAPING_MAP["\ufec8"] = "\u0638";
-ARABIC_SHAPING_MAP["\ufecc"] = "\u0639";
-ARABIC_SHAPING_MAP["\ufed0"] = "\u063a";
-ARABIC_SHAPING_MAP["\ufed4"] = "\u0641";
-ARABIC_SHAPING_MAP["\ufed8"] = "\u0642";
-ARABIC_SHAPING_MAP["\ufedc"] = "\u0643";
-ARABIC_SHAPING_MAP["\ufee0"] = "\u0644";
-ARABIC_SHAPING_MAP["\ufee4"] = "\u0645";
-ARABIC_SHAPING_MAP["\ufee8"] = "\u0646";
-ARABIC_SHAPING_MAP["\ufeec"] = "\u0647";
-ARABIC_SHAPING_MAP["\ufef0"] = "\u0649";
-ARABIC_SHAPING_MAP["\ufef4"] = "\u064a";
-ARABIC_SHAPING_MAP["\ufe81"] = "\u0622";
-ARABIC_SHAPING_MAP["\ufe85"] = "\u0624";
-ARABIC_SHAPING_MAP["\ufe89"] = "\u0626";
-ARABIC_SHAPING_MAP["\ufe8d"] = "\u0627";
-ARABIC_SHAPING_MAP["\ufe91"] = "\u0628";
-ARABIC_SHAPING_MAP["\ufe95"] = "\u062a";
-ARABIC_SHAPING_MAP["\ufe99"] = "\u062b";
-ARABIC_SHAPING_MAP["\ufe9d"] = "\u062c";
-ARABIC_SHAPING_MAP["\ufea1"] = "\u062d";
-ARABIC_SHAPING_MAP["\ufea5"] = "\u062e";
-ARABIC_SHAPING_MAP["\ufea9"] = "\u062f";
-ARABIC_SHAPING_MAP["\ufead"] = "\u0631";
-ARABIC_SHAPING_MAP["\ufeb1"] = "\u0633";
-ARABIC_SHAPING_MAP["\ufeb5"] = "\u0634";
-ARABIC_SHAPING_MAP["\ufeb9"] = "\u0635";
-ARABIC_SHAPING_MAP["\ufebd"] = "\u0636";
-ARABIC_SHAPING_MAP["\ufec1"] = "\u0637";
-ARABIC_SHAPING_MAP["\ufec5"] = "\u0638";
-ARABIC_SHAPING_MAP["\ufec9"] = "\u0639";
-ARABIC_SHAPING_MAP["\ufecd"] = "\u063a";
-ARABIC_SHAPING_MAP["\ufed1"] = "\u0641";
-ARABIC_SHAPING_MAP["\ufed5"] = "\u0642";
-ARABIC_SHAPING_MAP["\ufed9"] = "\u0643";
-ARABIC_SHAPING_MAP["\ufedd"] = "\u0644";
-ARABIC_SHAPING_MAP["\ufee1"] = "\u0645";
-ARABIC_SHAPING_MAP["\ufee5"] = "\u0646";
-ARABIC_SHAPING_MAP["\ufee9"] = "\u0647";
-ARABIC_SHAPING_MAP["\ufeed"] = "\u0648";
-ARABIC_SHAPING_MAP["\ufef1"] = "\u064a";
-ARABIC_SHAPING_MAP["\ufe82"] = "\u0622";
-ARABIC_SHAPING_MAP["\ufe86"] = "\u0624";
-ARABIC_SHAPING_MAP["\ufe8a"] = "\u0626";
-ARABIC_SHAPING_MAP["\ufe8e"] = "\u0627";
-ARABIC_SHAPING_MAP["\ufe92"] = "\u0628";
-ARABIC_SHAPING_MAP["\ufe96"] = "\u062a";
-ARABIC_SHAPING_MAP["\ufe9a"] = "\u062b";
-ARABIC_SHAPING_MAP["\ufe9e"] = "\u062c";
-ARABIC_SHAPING_MAP["\ufea2"] = "\u062d";
-ARABIC_SHAPING_MAP["\ufea6"] = "\u062e";
-ARABIC_SHAPING_MAP["\ufeaa"] = "\u062f";
-ARABIC_SHAPING_MAP["\ufeae"] = "\u0631";
-ARABIC_SHAPING_MAP["\ufeb2"] = "\u0633";
-ARABIC_SHAPING_MAP["\ufeb6"] = "\u0634";
-ARABIC_SHAPING_MAP["\ufeba"] = "\u0635";
-ARABIC_SHAPING_MAP["\ufebe"] = "\u0636";
-ARABIC_SHAPING_MAP["\ufec2"] = "\u0637";
-ARABIC_SHAPING_MAP["\ufec6"] = "\u0638";
-ARABIC_SHAPING_MAP["\ufeca"] = "\u0639";
-ARABIC_SHAPING_MAP["\ufece"] = "\u063a";
-ARABIC_SHAPING_MAP["\ufed2"] = "\u0641";
-ARABIC_SHAPING_MAP["\ufed6"] = "\u0642";
-ARABIC_SHAPING_MAP["\ufeda"] = "\u0643";
-ARABIC_SHAPING_MAP["\ufede"] = "\u0644";
-ARABIC_SHAPING_MAP["\ufee2"] = "\u0645";
-ARABIC_SHAPING_MAP["\ufee6"] = "\u0646";
-ARABIC_SHAPING_MAP["\ufeea"] = "\u0647";
-ARABIC_SHAPING_MAP["\ufeee"] = "\u0648";
-ARABIC_SHAPING_MAP["\ufef2"] = "\u064a";
-
-
+std::map<unsigned, unsigned> ARABIC_SHAPING_MAP(shaping_map_data, shaping_map_data + sizeof shaping_map_data / sizeof shaping_map_data[0]);
 
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZERCONSTANTS_H

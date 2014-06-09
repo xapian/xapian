@@ -1,27 +1,27 @@
 #include "arabic-normalizer-constants.h"
 #include "arabic-normalizer.h"
 
+#include "xapian.h"
 
-// TODO asserts,
+#include <algorithm>
+#include <vector>
 
-std::string ArabicNormalizer::normalize(std::string word) {
-	std::string new_word;
-	std::string liguatures = ARABIC_LIGUATURES;
-	std::string tashkeel = ARABIC_TASHKEEL;
-	std::string alefat = ARABIC_ALEFAT;
-	std::string hamzat = ARABIC_HAMZAT;
+using namespace std;
 
-	unsigned c = ARABIC_COMMA;
-
-	for(int i=0; i< word.len(), ++i) { // TODO order them by proba of happening
-		c=word.at(i);
+unsigned* ArabicNormalizer::normalize(const unsigned* word) {
+	std::vector<unsigned> new_word;
+	unsigned c;
+	int word_size = sizeof(word)/sizeof(unsigned);
+	for(int i=0; i< word_size; ++i) { // TODO order them by proba of happening
+		c=word[i];
 		// normalize LAM ALEF forms
-		if ( liguatures.find(c) != std::string::npos ) {
-			new_word += ARABIC_simple_LAM_ALEF;
+		if ( find(ARABIC_LIGUATURES, ARABIC_LIGUATURES + (sizeof(ARABIC_LIGUATURES)/sizeof(unsigned)), c) != ARABIC_LIGUATURES + sizeof(ARABIC_LIGUATURES)/sizeof(unsigned)) {
+			new_word.push_back(ARABIC_LAM);
+			new_word.push_back(ARABIC_ALEF);
 		}
 		// normalize shaped letters
 		else if  (ARABIC_SHAPING_MAP.find(c)!= ARABIC_SHAPING_MAP.end()) {  // TODO dont repeat the find operation
-			new_word += ARABIC_SHAPING_MAP.find(c)->second;
+			new_word.push_back(ARABIC_SHAPING_MAP.find(c)->second);
 		}
 		// strip the tatweel or kasheeda
 		else if (c == ARABIC_TATWEEL ) {
@@ -32,24 +32,26 @@ std::string ArabicNormalizer::normalize(std::string word) {
 			// ignore it
 		}
 		// strip diacritics
-		else if (tashkeel.find(c) != std::string::npos  && this->normalize_diacritics ) {
+		else if ( (find(ARABIC_TASHKEEL, ARABIC_TASHKEEL + (sizeof(ARABIC_TASHKEEL)/sizeof(unsigned)), c) != ARABIC_TASHKEEL + sizeof(ARABIC_TASHKEEL)/sizeof(unsigned))  && this->normalize_diacritics ) {
 			// ignore it
 		}
 		else if (c ==  ARABIC_TEH_MARBUTA && this->normalize_similar_spellings) {
-			new_word+=ARABIC_HEH;
+			new_word.push_back(ARABIC_HEH);
 		}
 		else if (c ==  ARABIC_ALEF_MAKSURA && this->normalize_similar_spellings){
-			new_word+ = ARABIC_YEH;
+			new_word.push_back(ARABIC_YEH);
 		}
-		else if (alefat.find(c) != std::string::npos) {
-			new_word+= ARABIC_ALEF_HAMZA_ABOVE
+		else if ( find(ARABIC_ALEFAT, ARABIC_ALEFAT + (sizeof(ARABIC_ALEFAT)/sizeof(unsigned)) , c) !=  ARABIC_ALEFAT + (sizeof(ARABIC_ALEFAT)/sizeof(unsigned))) {
+			new_word.push_back(ARABIC_ALEF_HAMZA_ABOVE);
 		}
-		else if (hamzat.find(c) != std::string::npos) {
-			new_word+= ARABIC_ALEF
+		else if ( find(ARABIC_HAMZAT, ARABIC_HAMZAT + (sizeof(ARABIC_HAMZAT)/sizeof(unsigned)) , c)  != ARABIC_HAMZAT + (sizeof(ARABIC_HAMZAT)/sizeof(unsigned))) {
+			new_word.push_back(ARABIC_ALEF);
 		}
 		// nothing to do
 		else {
-			new_word+=c;
-		}
-	}
+			new_word.push_back(c);
+		};
+	};
+
+	return &new_word[0];
 }

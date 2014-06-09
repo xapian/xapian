@@ -28,12 +28,11 @@
 class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
 
   private:
-	bool shaping;
-	bool diacritics;
-	bool hamza;
-	bool similar_spellings;
-	bool extra_symbols;
-
+	bool normalize_shaping;
+	bool normalize_diacritics;
+	bool normalize_hamza;
+	bool normalize_similar_spellings;
+	bool normalize_extra_symbols;
 
 
   public:
@@ -46,17 +45,18 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
 		this->normalize_extra_symbols = 1;
 	};
 
-	ArabicNormalizer (bool normalize_shaping, bool normalize_diacritics, bool normalize_hamza, bool normalize_similar_spellings, bool extra_symbols) {
-		this->normalize_shaping = normalize_shaping;
-		this->normalize_diacritics = normalize_diacritics;
-		this->normalize_hamza = normalize_hamza;
-		this->normalize_similar_spellings = normalize_similar_spellings;
+	ArabicNormalizer (bool shaping, bool diacritics, bool hamza, bool similar_spellings, bool extra_symbols) {
+		this->normalize_shaping = shaping;
+		this->normalize_diacritics = diacritics;
+		this->normalize_hamza = hamza;
+		this->normalize_similar_spellings = similar_spellings;
 		this->normalize_extra_symbols = extra_symbols;
   };
 
 
-	std::string normalize(std::string word);
-}
+	unsigned* normalize(const unsigned* word);
+
+};
 
 
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZER_Hأ‬
