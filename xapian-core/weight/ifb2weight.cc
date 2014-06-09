@@ -39,7 +39,6 @@ IfB2Weight::IfB2Weight(double c)
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
     need_stat(COLLECTION_SIZE);
     need_stat(COLLECTION_FREQ);
     need_stat(WDF);
@@ -75,9 +74,10 @@ IfB2Weight::init(double factor_)
 
     double idf_max = log2((N + 1.0) / (F + 0.5));
 
-    /* Calculate constant values to be used in get_sumpart() . */
+    /* Calculate constant values to be used in get_sumpart(). */
     wqf_product_idf = get_wqf() * idf_max;
     c_product_avlen = param_c * get_average_length();
+    B_constant = (F + 1.0) / get_termfreq();
 
     upper_bound = wqf_product_idf * max_wdfn_product_B;
 }
@@ -112,9 +112,7 @@ IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     double wdfn(wdf);
     wdfn *= log2(1 + c_product_avlen / len);
 
-    double F(get_collection_freq());
-
-    double wdfn_product_B = (F + 1.0) / (get_termfreq() * (1.0 + (1.0 / wdfn)));
+    double wdfn_product_B = B_constant / (1.0 + (1.0 / wdfn));
 
     return (wqf_product_idf * wdfn_product_B * factor);
 }

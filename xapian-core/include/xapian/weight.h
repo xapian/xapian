@@ -709,6 +709,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     /// The constant values which are used for calculations in get_sumpart().
     double wqf_product_idf;
     double c_product_avlen;
+    double B_constant;
 
     IfB2Weight * clone() const;
 
