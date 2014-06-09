@@ -843,6 +843,13 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     /// The factor to multiply with the weight.
     double factor;
 
+    /// The constant values to be used in get_sumpart().
+    double c_product_avlen;
+    double B_constant;
+    double wt;
+    double stirling_constant_1;
+    double stirling_constant_2;
+
     BB2Weight * clone() const;
 
     void init(double factor);
