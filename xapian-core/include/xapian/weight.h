@@ -784,6 +784,11 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     /// The factor to multiply with the weight.
     double factor;
 
+    /// Constant values used in get_sumpart().
+    double wqf_product_idf;
+    double c_product_avlen;
+    double B_constant;
+
     IneB2Weight * clone() const;
 
     void init(double factor);
