@@ -22,6 +22,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -68,13 +69,9 @@ DPHWeight::init(double factor_)
     log_constant = get_average_length() * N / F;
 
     /* Calculations to decide the values to be used for calculating upper bound. */
-    double max_product;
     double max_product_1 = wdf_upper * (1.0 - min_wdf_to_len);
     double max_product_2 = len_upper / 4.0;
-    if (max_product_1 > max_product_2)
-        max_product = max_product_2;
-    else
-	max_product = max_product_1;
+    double max_product = min(max_product_1, max_product_2);
 
     double max_wdf_product_normalization = (2.0 * max_product) / (wdf_lower + 1.0);
 
