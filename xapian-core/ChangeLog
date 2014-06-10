@@ -1,3 +1,8 @@
+Tue Jun 10 05:09:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Add --weight option to allow the weighting scheme
+	  to be specified.
+
 Thu Jun 05 03:42:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,tests/api_backend.cc: Fix
