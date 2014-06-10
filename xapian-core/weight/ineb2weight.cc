@@ -44,7 +44,7 @@ IneB2Weight::IneB2Weight(double c) : param_c(c) {
     need_stat(WQF);
     need_stat(COLLECTION_FREQ);
     need_stat(TERMFREQ);
-    }
+}
 
 IneB2Weight *
 IneB2Weight::clone() const
