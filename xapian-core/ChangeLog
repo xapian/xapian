@@ -1,3 +1,8 @@
+Tue Jun 10 05:34:52 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/inl2weight.cc: Optimized
+	  upper bound and weighting formula in InL2Weight.
+
 Tue Jun 10 05:09:08 GMT 2014  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Add --weight option to allow the weighting scheme
