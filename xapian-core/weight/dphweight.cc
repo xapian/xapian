@@ -69,10 +69,22 @@ DPHWeight::init(double factor_)
     log_constant = get_average_length() * N / F;
 
     /* Calculations to decide the values to be used for calculating upper bound. */
+    /* The upper bound of the term appearing in the second log is obtained by taking
+       the mimimum and maximum wdf value in the formula as shown. */
     double max_product_1 = wdf_upper * (1.0 - min_wdf_to_len);
+    /* A second upper bound of the term can be obtained by plugging in the upper bound of
+       the length and differentiating the term w.r.t wdf which gives a value
+       of (length upper bound / 4.0).*/
     double max_product_2 = len_upper / 4.0;
+    /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
 
+    /* wdf * normalization = wdf * (1.0 - wdf / len) * (1.0 - wdf / len) / (wdf + 1.0)
+                           = wdf * (1.0 - 2.0 * wdf / len + wdf^2 / len^2) / (wdf + 1.0)
+                           < wdf * (1.0 - 2.0 * wdf / len + 1.0) / (wdf + 1.0)
+                           < 2 * wdf * (1.0 - wdf / len) / (wdf + 1.0)
+                           < 2 * max_product / (wdf + 1.0)
+                           < 2 * max_product / (wdf_lower + 1.0). */
     double max_wdf_product_normalization = (2.0 * max_product) / (wdf_lower + 1.0);
 
     double max_weight = max_wdf_product_normalization *
