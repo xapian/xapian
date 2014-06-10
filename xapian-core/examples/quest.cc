@@ -85,6 +85,40 @@ inline bool operator<(const qp_op & f1, const qp_op & f2) {
     return strcmp(f1.s, f2.s) < 0;
 }
 
+enum {
+    WEIGHT_BB2,
+    WEIGHT_BOOL,
+    WEIGHT_BM25,
+    WEIGHT_DLH,
+    WEIGHT_DPH,
+    WEIGHT_IFB2,
+    WEIGHT_INEB2,
+    WEIGHT_INL2,
+    WEIGHT_PL2,
+    WEIGHT_TFIDF,
+    WEIGHT_TRAD
+};
+
+struct wt { const char * s; int f; };
+static wt wt_tab[] = {
+    { "bb2",	WEIGHT_BB2 },
+    { "bool",	WEIGHT_BOOL },
+    { "bm25",	WEIGHT_BM25 },
+    { "dlh",	WEIGHT_DLH },
+    { "dph",	WEIGHT_DPH },
+    { "ifb2",	WEIGHT_IFB2 },
+    { "ineb2",	WEIGHT_INEB2 },
+    { "inl2",	WEIGHT_INL2 },
+    { "pl2",	WEIGHT_PL2 },
+    { "tfidf",	WEIGHT_TFIDF },
+    { "trad",	WEIGHT_TRAD }
+};
+const int n_wt_tab = sizeof(wt_tab) / sizeof(wt_tab[0]);
+
+inline bool operator<(const wt & f1, const wt & f2) {
+    return strcmp(f1.s, f2.s) < 0;
+}
+
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
@@ -130,12 +164,22 @@ static void show_usage() {
 	pos += len + 2;
     }
     cout << "\n"
-"  -w, --weight=SCHEME               specify weighting scheme to use.  Valid\n"
-"                                    schemes: bb2weight, boolweight,\n"
-/*--------------------------------------------> */
-INDENT"bm25weight, dlhweight, dphweight,\n"
-INDENT"ifb2weight, ineb2weight, inl2weight,\n"
-INDENT"pl2weight, tfidfweight, tradweight\n"
+"  -w, --weight=SCHEME               specify weighting scheme to use\n"
+"                                    (default: bm25).  Valid schemes:";
+    pos = 256;
+    for (const wt * i = wt_tab; i - wt_tab < n_wt_tab; ++i) {
+	size_t len = strlen(i->s);
+	if (pos < 256) cout << ',';
+	if (pos + len >= 78) {
+	    cout << "\n"INDENT;
+	    pos = sizeof(INDENT) - 2;
+	} else {
+	    cout << ' ';
+	}
+	cout << i->s;
+	pos += len + 2;
+    }
+    cout << "\n"
 "  -h, --help                        display this help and exit\n"
 "  -v, --version                     output version information and exit\n";
 }
@@ -158,6 +202,17 @@ decode_qp_op(const char * s)
     f.s = s;
     const qp_op * p = lower_bound(op_tab, op_tab + n_op_tab, f);
     if (p == op_tab + n_op_tab || f < *p)
+	return -1;
+    return p->f;
+}
+
+static int
+decode_wt(const char * s)
+{
+    wt f;
+    f.s = s;
+    const wt * p = lower_bound(wt_tab, wt_tab + n_wt_tab, f);
+    if (p == wt_tab + n_wt_tab || f < *p)
 	return -1;
     return p->f;
 }
@@ -191,7 +246,7 @@ try {
     Xapian::Database db;
     Xapian::QueryParser parser;
     unsigned flags = parser.FLAG_DEFAULT|parser.FLAG_SPELLING_CORRECTION;
-    const char * weight = NULL;
+    int weight = -1;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -271,9 +326,14 @@ try {
 		parser.set_default_op(static_cast<Xapian::Query::op>(op));
 		break;
 	    }
-	    case 'w':
-		weight = optarg;
+	    case 'w': {
+		weight = decode_wt(optarg);
+		if (weight < 0) {
+		    cerr << "Unknown weighting scheme '" << optarg << "'" << endl;
+		    exit(1);
+		}
 		break;
+	    }
 	    case 'v':
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
@@ -313,33 +373,40 @@ try {
     Xapian::Enquire enquire(db);
     enquire.set_query(query);
 
-    if (weight) {
-	if (strcmp(weight, "bb2weight") == 0) {
+    switch (weight) {
+	case WEIGHT_BB2:
 	    enquire.set_weighting_scheme(Xapian::BB2Weight());
-	} else if (strcmp(weight, "boolweight") == 0) {
+	    break;
+	case WEIGHT_BOOL:
 	    enquire.set_weighting_scheme(Xapian::BoolWeight());
-	} else if (strcmp(weight, "bm25weight") == 0) {
+	    break;
+	case WEIGHT_BM25:
 	    enquire.set_weighting_scheme(Xapian::BM25Weight());
-	} else if (strcmp(weight, "dlhweight") == 0) {
+	    break;
+	case WEIGHT_DLH:
 	    enquire.set_weighting_scheme(Xapian::DLHWeight());
-	} else if (strcmp(weight, "dphweight") == 0) {
+	    break;
+	case WEIGHT_DPH:
 	    enquire.set_weighting_scheme(Xapian::DPHWeight());
-	} else if (strcmp(weight, "ifb2weight") == 0) {
+	    break;
+	case WEIGHT_IFB2:
 	    enquire.set_weighting_scheme(Xapian::IfB2Weight());
-	} else if (strcmp(weight, "ineb2weight") == 0) {
+	    break;
+	case WEIGHT_INEB2:
 	    enquire.set_weighting_scheme(Xapian::IneB2Weight());
-	} else if (strcmp(weight, "inl2weight") == 0) {
+	    break;
+	case WEIGHT_INL2:
 	    enquire.set_weighting_scheme(Xapian::InL2Weight());
-	} else if (strcmp(weight, "pl2weight") == 0) {
+	    break;
+	case WEIGHT_PL2:
 	    enquire.set_weighting_scheme(Xapian::PL2Weight());
-	} else if (strcmp(weight, "tfidfweight") == 0) {
+	    break;
+	case WEIGHT_TFIDF:
 	    enquire.set_weighting_scheme(Xapian::TfIdfWeight());
-	} else if (strcmp(weight, "tradweight") == 0) {
+	    break;
+	case WEIGHT_TRAD:
 	    enquire.set_weighting_scheme(Xapian::TradWeight());
-	} else {
-	    cerr << "Unknown weighting scheme '" << weight << "'" << endl;
-	    exit(1);
-	}
+	    break;
     }
 
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);

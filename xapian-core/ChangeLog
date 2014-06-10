@@ -1,3 +1,8 @@
+Tue Jun 10 09:58:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Rework the weight name lookup to use a table like
+	  the other lookups.  Change the weight names not to include "weight".
+
 Tue Jun 10 08:15:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h,weight/ifb2weight.cc: Optimized
