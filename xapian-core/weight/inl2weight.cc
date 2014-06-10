@@ -39,7 +39,6 @@ InL2Weight::InL2Weight(double c)
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
     need_stat(COLLECTION_SIZE);
     need_stat(WDF);
     need_stat(WDF_MAX);
@@ -64,21 +63,24 @@ InL2Weight::init(double factor_)
 	return;
     }
 
-    double wdfn_lower(1.0);
     double termfrequency(get_termfreq());
     double N(get_collection_size());
-
-    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_upper_bound());
 
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
-    double L_max = 1 / (wdfn_lower + 1);
+    // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
+    // To maximize the product, we need to minimize the denominator and so we use wdfn_upper in (1 / wdfn).
+    double maximum_wdfn_product_L = (1 / (1 + (1 / wdfn_upper)));
 
+    // This term is constant for all documents.
     double idf_max = log2((N + 1) / (termfrequency + 0.5));
 
-    upper_bound = get_wqf() * wdfn_upper * L_max * idf_max;
+    /* Calculate constant values to be used in get_sumpart() upfront. */
+    wqf_product_idf = get_wqf() * idf_max;
+    c_product_avlen = param_c * get_average_length();
+
+    upper_bound = wqf_product_idf * maximum_wdfn_product_L;
 }
 
 string
@@ -109,16 +111,13 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
-    double N(get_collection_size());
-    double termfrequency(get_termfreq());
 
-    wdfn *= log2(1 + (param_c * get_average_length()) / len);
+    wdfn *= log2(1 + c_product_avlen / len);
 
-    double L = 1 / (wdfn + 1);
+    // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
+    double wdfn_product_L = (1 / (1 + (1 / wdfn)));
 
-    double idf = log2((N + 1) / (termfrequency + 0.5));
-
-    return (get_wqf() * wdfn * L * idf * factor);
+    return (wqf_product_idf * wdfn_product_L * factor);
 }
 
 double
