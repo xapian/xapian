@@ -1,7 +1,7 @@
 /** @file ineb2weight.cc
  * @brief Xapian::IneB2Weight class - the IneB2 weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013 Aarsh Shah
+/* Copyright (C) 2013,2014 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,6 @@ IneB2Weight::IneB2Weight(double c) : param_c(c) {
     need_stat(AVERAGE_LENGTH);
     need_stat(DOC_LENGTH);
     need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
     need_stat(COLLECTION_SIZE);
     need_stat(WDF);
     need_stat(WDF_MAX);
@@ -63,25 +62,27 @@ IneB2Weight::init(double factor_)
 	return;
     }
 
-    double wdfn_lower(1.0);
-
-    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_upper_bound());
-
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
     double N(get_collection_size());
     double F(get_collection_freq());
+    double termfreq(get_termfreq());
 
-    double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
+    double max_wdfn_product_B = (F + 1.0) / (termfreq + (termfreq / wdfn_upper));
+
     double mean = F / N;
 
     double expected_max = N * (1.0 - exp( - mean));
 
     double idf_max = log2((N + 1.0) / (expected_max + 0.5));
 
-    upper_bound = wdfn_upper * idf_max * get_wqf() * B_max;
+    /* Calculate constant values used in get_sumpart(). */
+    wqf_product_idf = get_wqf() * idf_max;
+    c_product_avlen = param_c * get_average_length();
+    B_constant = (F + 1.0) / termfreq;
+
+    upper_bound = max_wdfn_product_B * idf_max * get_wqf();
 }
 
 string
@@ -113,19 +114,11 @@ IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
 
-    wdfn *= log2(1 + (param_c * get_average_length()) / len);
+    wdfn *= log2(1 + c_product_avlen / len);
 
-    double N(get_collection_size());
-    double F(get_collection_freq());
+    double wdfn_product_B = B_constant / (1.0 + 1.0 / wdfn);
 
-    double B = (F + 1.0) / (get_termfreq() * (wdfn + 1.0));
-    double mean = F / N;
-
-    double expected = N * (1.0 - exp( - mean));
-
-    double idf = log2((N + 1.0) / (expected + 0.5));
-
-    return (wdfn * idf * get_wqf() * B * factor);
+    return (wdfn_product_B * wqf_product_idf * factor);
 }
 
 double
