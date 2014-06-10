@@ -22,6 +22,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -66,14 +67,9 @@ DLHWeight::init(double factor_)
     }
 
     // Calculate values for the upper bound.
-    double max_product;
     double max_product_1 = len_upper / 4.0;
-    double max_product_2 = wdf_upper * (1.0 - wdf_lower / len_upper);
-
-    if (max_product_1 > max_product_2)
-	max_product = max_product_2;
-    else
-	max_product = max_product_1;
+    double max_product_2 = wdf_upper * (1.0 - min_wdf_to_len);
+    double max_product = min(max_product_1, max_product_2);
 
     double max_weight = (wdf_upper * log2(log_constant) +
 			(len_upper - wdf_lower) *
