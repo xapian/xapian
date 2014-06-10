@@ -64,21 +64,17 @@ InL2Weight::init(double factor_)
 	return;
     }
 
-    double wdfn_lower(1.0);
     double termfrequency(get_termfreq());
     double N(get_collection_size());
-
-    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_upper_bound());
 
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
-    double L_max = 1 / (wdfn_lower + 1);
+    double maximum_wdfn_product_L = (1 / (1 + (1 / wdfn_upper)));
 
     double idf_max = log2((N + 1) / (termfrequency + 0.5));
 
-    upper_bound = get_wqf() * wdfn_upper * L_max * idf_max;
+    upper_bound = get_wqf() * maximum_wdfn_product_L * idf_max;
 }
 
 string
@@ -114,11 +110,11 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     wdfn *= log2(1 + (param_c * get_average_length()) / len);
 
-    double L = 1 / (wdfn + 1);
+    double wdfn_product_L = (1 / (1 + (1 / wdfn)));
 
     double idf = log2((N + 1) / (termfrequency + 0.5));
 
-    return (get_wqf() * wdfn * L * idf * factor);
+    return (get_wqf() * wdfn_product_L * idf * factor);
 }
 
 double
