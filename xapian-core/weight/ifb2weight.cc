@@ -70,8 +70,13 @@ IfB2Weight::init(double factor_)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
+    // wdfn * B = wdfn * (F + 1.0) / (get_termfreq() * (wdfn + 1.0)).
+    // By cancelling out wdfn, we get (F + 1.0) / (get_termfreq() * (1.0 + 1.0 / wdfn)).
+    // In order to maximize the product, we need to minimize the denominator, and so we use wdfn_upper.
+
     double max_wdfn_product_B = (F + 1.0) / (get_termfreq() * (1.0 + (1.0 / wdfn_upper)));
 
+    // This term is constant for all documents.
     double idf_max = log2((N + 1.0) / (F + 0.5));
 
     /* Calculate constant values to be used in get_sumpart(). */
