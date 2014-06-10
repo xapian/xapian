@@ -69,8 +69,11 @@ InL2Weight::init(double factor_)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
+    // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
+    // To maximize the product, we need to minimize the denominator and so we use wdfn_upper in (1 / wdfn).
     double maximum_wdfn_product_L = (1 / (1 + (1 / wdfn_upper)));
 
+    // This term is constant for all documents.
     double idf_max = log2((N + 1) / (termfrequency + 0.5));
 
     /* Calculate constant values to be used in get_sumpart() upfront. */
@@ -111,6 +114,7 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     wdfn *= log2(1 + c_product_avlen / len);
 
+    // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
     double wdfn_product_L = (1 / (1 + (1 / wdfn)));
 
     return (wqf_product_idf * wdfn_product_L * factor);
