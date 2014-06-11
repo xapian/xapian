@@ -252,6 +252,8 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
 	double max_attained;
 
+    vector<Xpaian::MSet::letor_item> letor_items;
+
 	Internal()
 		: percent_factor(0),
 		  stats(NULL),
