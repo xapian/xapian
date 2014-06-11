@@ -37,47 +37,46 @@
  */
 class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
   private:
-	bool normalize_shaping;
-	bool normalize_punctuation;
-	bool normalize_diacritics;
-	bool normalize_hamza;
-	bool normalize_similar_spellings;
-	bool normalize_extra_symbols;
+    bool normalize_shaping;
+    bool normalize_punctuation;
+    bool normalize_diacritics;
+    bool normalize_hamza;
+    bool normalize_similar_spellings;
+    bool normalize_extra_symbols;
 
   public:
-	/** @brief Constructor with no parameters, use it for all normalization types.
-	 */
-	ArabicNormalizer () {
-		this->normalize_shaping = 1;
-		this->normalize_punctuation = 1;
-		this->normalize_diacritics = 1;
-		this->normalize_hamza = 1;
-		this->normalize_similar_spellings = 1;
-		this->normalize_extra_symbols = 1;
-	}
+    /** @brief Constructor with no parameters, use it for all normalization types.
+     */
+    ArabicNormalizer () {
+        normalize_shaping = 1;
+        normalize_punctuation = 1;
+        normalize_diacritics = 1;
+        normalize_hamza = 1;
+        normalize_similar_spellings = 1;
+        normalize_extra_symbols = 1;
+    }
 
-	/** @brief Constructor with parameters, use it to specify what you want to be normalized and what not.
-	 *
-	 *  Parameters:
-	 *  @param shaping allow the normalization of shaping, fixing Lam-Alef issue and strip Tatweel
-	 *  @param punctuation allow stripping Arabic-specific punctuation marks
-	 *  @param diacritics allow stripping diacritics or vocalization marks
-	 *  @param hamza allow normalization of all Hamza forms to "Alef with Hamza above"
-	 *  @param similar_spellings allow normalization of similar spelled letters, like: Teh marbouta and Heh, Alef maqsoura and Yah
-	 *  @param extra_symbols allow elimination of letters that can't be written using a keyboard
-	 *
-	 */
-	ArabicNormalizer (bool shaping, bool punctuation, bool diacritics, bool hamza, bool similar_spellings, bool extra_symbols) {
-		this->normalize_shaping = shaping;
-		this->normalize_punctuation = punctuation;
-		this->normalize_diacritics = diacritics;
-		this->normalize_hamza = hamza;
-		this->normalize_similar_spellings = similar_spellings;
-		this->normalize_extra_symbols = extra_symbols;
-  }
+    /** @brief Constructor with parameters, use it to specify what you want to be normalized and what not.
+     *
+     *  Parameters:
+     *  @param shaping allow the normalization of shaping, fixing Lam-Alef issue and strip Tatweel
+     *  @param punctuation allow stripping Arabic-specific punctuation marks
+     *  @param diacritics allow stripping diacritics or vocalization marks
+     *  @param hamza allow normalization of all Hamza forms to "Alef with Hamza above"
+     *  @param similar_spellings allow normalization of similar spelled letters, like: Teh marbouta and Heh, Alef maqsoura and Yah
+     *  @param extra_symbols allow elimination of letters that can't be written using a keyboard
+     *
+     */
+    ArabicNormalizer (bool shaping, bool punctuation, bool diacritics, bool hamza, bool similar_spellings, bool extra_symbols) {
+        normalize_shaping = shaping;
+        normalize_punctuation = punctuation;
+        normalize_diacritics = diacritics;
+        normalize_hamza = hamza;
+        normalize_similar_spellings = similar_spellings;
+        normalize_extra_symbols = extra_symbols;
+    }
 
-	std::string normalize(const std::string word);
-
+    std::string normalize(const std::string word);
 };
 
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZER_Hأ‬
