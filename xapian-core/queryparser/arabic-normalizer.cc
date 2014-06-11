@@ -46,11 +46,11 @@ std::string ArabicNormalizer::normalize(const std::string word) {
         }
         // normalize Alef forms
         else if (normalize_similar_spellings && find(ARABIC_ALEFAT, ARABIC_ALEFAT + (sizeof(ARABIC_ALEFAT)/sizeof(unsigned)) , ch) !=  ARABIC_ALEFAT + (sizeof(ARABIC_ALEFAT)/sizeof(unsigned))) {
-            Xapian::Unicode::append_utf8(new_word, ARABIC_ALEF_HAMZA_ABOVE);
+            Xapian::Unicode::append_utf8(new_word, ARABIC_ALEF);
         }
         // normalize Hamza forms
         else if (normalize_hamza && find(ARABIC_HAMZAT, ARABIC_HAMZAT + (sizeof(ARABIC_HAMZAT)/sizeof(unsigned)) , ch)  != ARABIC_HAMZAT + (sizeof(ARABIC_HAMZAT)/sizeof(unsigned))) {
-            Xapian::Unicode::append_utf8(new_word, ARABIC_ALEF);
+            Xapian::Unicode::append_utf8(new_word, ARABIC_HAMZA );
         }
         // nothing to do
         else {
@@ -59,4 +59,3 @@ std::string ArabicNormalizer::normalize(const std::string word) {
     }
     return new_word;
 }
-
