@@ -85,7 +85,7 @@ BB2Weight::init(double factor_)
 
     /* Calclate constant values to be used in get_sumpart(). */
     c_product_avlen = param_c * get_average_length();
-    B_constant = (F + 1.0) / get_termfreq();
+    B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
     wt = - log2(N - 1.0) - (1 / base_change);
     stirling_constant_1 = log2(N + F - 1.0);
     stirling_constant_2 = log2(F);
@@ -97,7 +97,7 @@ BB2Weight::init(double factor_)
 
     double final_weight_max = B_max * (wt + stirling_max);
 
-    upper_bound = get_wqf() * final_weight_max;
+    upper_bound = get_wqf() * final_weight_max * factor;
 }
 
 string
@@ -141,13 +141,13 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double final_weight = B * (wt + stirling);
 
-    return (get_wqf() * final_weight * factor);
+    return final_weight;
 }
 
 double
 BB2Weight::get_maxpart() const
 {
-    return upper_bound * factor;
+    return upper_bound;
 }
 
 double
