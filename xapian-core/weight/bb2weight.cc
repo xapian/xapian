@@ -93,7 +93,7 @@ BB2Weight::init(double factor_)
     double B_max = B_constant /  (wdfn_lower + 1.0);
 
     double stirling_max = stirling_value(N + F - 1.0, N + F - wdfn_lower - 2.0, stirling_constant_1) -
-			  stirling_value(F, F - wdfn_upper, stirling_constant_2);
+			  stirling_value(F, F - wdfn_lower, stirling_constant_2);
 
     double final_weight_max = B_max * (wt + stirling_max);
 
