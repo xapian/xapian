@@ -1,7 +1,7 @@
 /** @file dphweight.cc
  * @brief Xapian::DPHWeight class - The DPH weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013 Aarsh Shah
+/* Copyright (C) 2013, 2014 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,12 +69,12 @@ DPHWeight::init(double factor_)
     log_constant = get_average_length() * N / F;
 
     /* Calculations to decide the values to be used for calculating upper bound. */
-    /* The upper bound of the term appearing in the second log is obtained by taking
-       the mimimum and maximum wdf value in the formula as shown. */
+    /* The upper bound of the term appearing in the second log is obtained
+       by taking the mimimum and maximum wdf value in the formula as shown. */
     double max_product_1 = wdf_upper * (1.0 - min_wdf_to_len);
-    /* A second upper bound of the term can be obtained by plugging in the upper bound of
-       the length and differentiating the term w.r.t wdf which gives a value
-       of (length upper bound / 4.0).*/
+    /* A second upper bound of the term can be obtained by plugging in the
+       upper bound of the length and differentiating the term w.r.t wdf which
+       gives a value of (length upper bound / 4.0).*/
     double max_product_2 = len_upper / 4.0;
     /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
