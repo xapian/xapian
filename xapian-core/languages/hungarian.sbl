@@ -29,17 +29,17 @@ groupings ( v )
 
 stringescapes {}
 
-/* special characters (in ISO Latin I) */
+/* special characters (in Unicode) */
 
 stringdef a'  hex 'E1'  //a-acute
 stringdef e'  hex 'E9'  //e-acute
 stringdef i'  hex 'ED'  //i-acute
 stringdef o'  hex 'F3'  //o-acute
 stringdef o"  hex 'F6'  //o-umlaut
-stringdef oq  hex 'F5'  //o-double acute
+stringdef oq  hex '151' //o-double acute
 stringdef u'  hex 'FA'  //u-acute
 stringdef u"  hex 'FC'  //u-umlaut
-stringdef uq  hex 'FB'  //u-double acute
+stringdef uq  hex '171' //u-double acute
 
 define v 'aeiou{a'}{e'}{i'}{o'}{o"}{oq}{u'}{u"}{uq}'
 
