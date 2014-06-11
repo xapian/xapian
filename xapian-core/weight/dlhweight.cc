@@ -1,7 +1,7 @@
 /** @file dlhweight.cc
  * @brief Xapian::DLHWeight class - The DLH weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013,2014 Aarsh Shah
+/* Copyright (C) 2013, 2014 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -67,12 +67,12 @@ DLHWeight::init(double factor_)
     }
 
     // Calculate values for the upper bound.
-    /* An upper bound of the term used in the third log can be obtained by plugging in the upper bound of
-       the length and differentiating the term w.r.t wdf which gives a value
-       of (length upper bound / 4.0). */
+    /* An upper bound of the term used in the third log can be obtained by
+       plugging in the upper bound of the length and differentiating the term
+       w.r.t wdf which gives a value of (length upper bound / 4.0). */
     double max_product_1 = len_upper / 4.0;
-    /* An upper bound can also be  obtained by taking
-       the mimimum and maximum wdf value in the formula as shown. */
+    /* An upper bound can also be  obtained by taking the mimimum and maximum
+       wdf value in the formula as shown. */
     double max_product_2 = wdf_upper * (1.0 - min_wdf_to_len);
     /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
