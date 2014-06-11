@@ -11,14 +11,6 @@
 using namespace Xapian;
 using std::vector;
 
-FeatureManager::FeatureManager(const Xapian::Database & database_,
-vector<Feature::FeatureBase> features_) {
-    database = database_;
-    update_database_details();
-
-    feature = Feature.create(*this, features_);
-}
-
 Xapian::Database &
 FeatureManager::get_database() {
     return database;
@@ -29,7 +21,7 @@ FeatureManager::get_query() {
     return query;
 }
 
-Xapian::MSet
+Xapian::MSet &
 FeatureManager::get_mset() {
     return mset;
 }
@@ -42,6 +34,14 @@ FeatureManager::get_feature() {
 int
 FeatureManager::get_features_num() {
     return feature.get_features_num();
+}
+
+void
+FeatureManager::update_context(const Xapian::Database & database_, const vector<Feature::FeatureBase> features_) {
+    database = database_;
+    update_database_details();
+
+    feature.update(*this, features_);
 }
 
 void
@@ -159,7 +159,7 @@ FeatureManager::get_doc_details(Xapian::Document doc_) {
 }
 
 void
-FeatureManager::update_state(Xapian::Query query_, Xapian::MSet mset_) {
+FeatureManager::update_state(const Xapian::Query & query_, const Xapian::MSet & mset_) {
     query = query_;
     query_term_length = query.get_length();
     update_query_term_frequency_database();
@@ -169,5 +169,6 @@ FeatureManager::update_state(Xapian::Query query_, Xapian::MSet mset_) {
 }
 
 void 
-FeatureManager::update_mset(vector<Xapian::MSet::letor_item> & letor_items_) {
+FeatureManager::update_mset(const vector<Xapian::MSet::letor_item> & letor_items_) {
+    mset.update_letor_information(letor_items_);
 }

@@ -11,12 +11,6 @@
 using namespace Xapian;
 using std::vector;
 
-Feature::Feature(const Feature & feature_manager_,
-vector<Feature::FeatureBase> features_) {
-    feature_manager = feature_manager_;
-    features = features_;
-}
-
 double
 Feature::feature_1(Xapian::Document doc_) {
     double value = 0;
@@ -286,7 +280,7 @@ feature::feature_18(xapian::document doc_) {
 }
 
 double
-Feature::get_feature(FeatureBase feature_base_, Xapian::MSetIterator mset_it_) {
+Feature::get_feature(const FeatureBase & feature_base_, const Xapian::MSetIterator & mset_it_) {
     Xapian::Document doc_ = mset_it_.get_document();
     
     switch (feature_base_) {
@@ -350,13 +344,14 @@ Feature::get_feature(FeatureBase feature_base_, Xapian::MSetIterator mset_it_) {
     }
 }
 
-Feature
-Feature::create(const FeatureManager feature_manager_, vector<Feature::FeatureBase features_) {
-    return Feature(feature_manager_, features_);
+void
+Feature::update(const Feature & feature_manager_, const vector<Feature::FeatureBase> & features_) {
+    feature_manager = feature_manager_;
+    features = features_;
 }
 
 vector<double>
-Feature::generate_feature_vector(Xapian::MSetIterator met_it_) {
+Feature::generate_feature_vector(const Xapian::MSetIterator & met_it_) {
     vector<double> feature_vector(get_features_num());
     
     for (int i=0; i<get_features_num(); i++) {

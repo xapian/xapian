@@ -15,10 +15,8 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     const FeatureManaget & feature_manager;
     vector<Feature::FeatureBase> features;
 
-    Feature(const FeatureManager & feature_manager_, vector<Feature::FeatureBase>
-    features_);
 
-    double get_feature(Feature::FeatureBase feature_base_, Xapian::MSetIterator mset_it_);
+    double get_feature(const Feature::FeatureBase & feature_base_, const Xapian::MSetIterator & mset_it_);
 
     double feature_1(Xapian::Document doc_);
     double feature_2(Xapian::Document doc_);
@@ -62,11 +60,9 @@ public:
         FEATURE_19
     } FeatureBase;
 
-    static Feature create(FeatureManager feature_manager_, vector<Feature::FeatureBase> features_);
+    void update(const FeatureManager & feature_manager_, const vector<Feature::FeatureBase> & features_);
 
-    void update_context(Xapian::Query query_);
-
-    vector<double> generate_feature_vector(Xapian::MSetIterator mset_it_);
+    vector<double> generate_feature_vector(const Xapian::MSetIterator & mset_it_);
 
     int get_features_num();
 }

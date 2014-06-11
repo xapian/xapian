@@ -22,16 +22,13 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
     Xapian::Database & database;
     Feature feature;
-    Xapian::Query query;
-    Xapian::MSet mset;
+    Xapian::Query & query;
+    Xapian::MSet & mset;
 
     int query_term_length;
     vector<long int> query_term_frequency_database;
     vector<double> query_inverse_doc_frequency_database;
     vector<long int> database_details(3);
-
-    FeatureManager(const Xapian::Database database_, vector<Feature::FeatureBase>
-    feature_base_);
 
     vector<Xapian::MSet::letor_item> generate_letor_info();
 
@@ -41,14 +38,11 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
 public:
 
-    static FeatureManager create(Xapian::Database database_,
-    vector<Feature::FeatureBase> features_);
-
     Xapian::Database & get_database();
 
     Xapian::Query & get_query();
 
-    Xapian::MSet get_mset();
+    Xapian::MSet & get_mset();
 
     Feature & get_feature();
 
@@ -62,14 +56,15 @@ public:
 
     vector<long int> & get_database_details();
 
-    vector<long int> get_q_term_freq_doc(Xapain::Document doc_);
+    vector<long int> get_q_term_freq_doc(const Xapain::Document doc_);
 
-    vector<long int> get_doc_details(Xapian::Docuement doc_);
+    vector<long int> get_doc_details(const Xapian::Docuement doc_);
 
-    void update_state(Xapian::Query query_, Xapian::MSet mset_);
+    void update_context(const Xapian::Database database_, const vector<Feature::FeatureBase> features_);
 
-    void update_mset(Xapian::MSet mset_, vector<Xapian::MSet::letor_item> &
-    letor_items_);
+    void update_state(const Xapian::Query query_, const Xapian::MSet mset_);
+
+    void update_mset(const vector<Xapian::MSet::letor_item> & letor_items_);
 }
 
 #endif // FEATURE_MANAGER_H
