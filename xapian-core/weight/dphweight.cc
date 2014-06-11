@@ -91,7 +91,7 @@ DPHWeight::init(double factor_)
                         (log2(log_constant) +
                         (0.5 * log2(2 * M_PI * max_product)));
 
-    upper_bound = (get_wqf() * max_weight) - lower_bound;
+    upper_bound = factor * ((get_wqf() * max_weight) - lower_bound);
 }
 
 string
@@ -133,7 +133,7 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 double
 DPHWeight::get_maxpart() const
 {
-    return upper_bound * factor;
+    return upper_bound;
 }
 
 double
