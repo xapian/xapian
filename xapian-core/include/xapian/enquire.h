@@ -60,6 +60,17 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
+    struct letor_item {
+        Xapian::doccount idx;
+        vector<double> feature_vector;
+        double score;
+        double label;
+
+        bool operator < (const letor_item & iterm_) const {
+            return score > item_.score;
+        }
+    }
+
 	/// @private @internal Constructor for internal use.
 	explicit MSet(Internal * internal_);
 
@@ -233,6 +244,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
 	/** Iterator pointing to the last element of this MSet */
 	MSetIterator back() const;
+
+    /** Update additional information from letor module */
+    void update_letor_information(const vector<Xapian::MSet::letor_item> & letor_items_);
 
 	/** This returns the document at position i in this MSet object.
 	 *
