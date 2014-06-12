@@ -82,7 +82,7 @@ DLHWeight::init(double factor_)
 			log2(1.0 - min_wdf_to_len) +
 			0.5 * log2(2.0 * M_PI * max_product)) / (wdf_lower + 0.5);
 
-    upper_bound = (get_wqf() * max_weight) - lower_bound;
+    upper_bound = ((get_wqf() * max_weight) - lower_bound) * factor;
 }
 
 string
@@ -121,7 +121,7 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 double
 DLHWeight::get_maxpart() const
 {
-    return upper_bound * factor;
+    return upper_bound;
 }
 
 double
