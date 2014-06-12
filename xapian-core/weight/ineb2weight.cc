@@ -52,10 +52,8 @@ IneB2Weight::clone() const
 }
 
 void
-IneB2Weight::init(double factor_)
+IneB2Weight::init(double factor)
 {
-    factor = factor_;
-
     double wdfn_upper(get_wdf_upper_bound());
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
