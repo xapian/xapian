@@ -60,10 +60,8 @@ BB2Weight::clone() const
 }
 
 void
-BB2Weight::init(double factor_)
+BB2Weight::init(double factor)
 {
-    factor = factor_;
-
     double wdfn_upper(get_wdf_upper_bound());
 
     if (wdfn_upper == 0) {
