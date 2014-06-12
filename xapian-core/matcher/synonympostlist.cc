@@ -26,6 +26,7 @@
 
 #include "branchpostlist.h"
 #include "debuglog.h"
+#include "omassert.h"
 
 SynonymPostList::~SynonymPostList()
 {
@@ -83,7 +84,9 @@ SynonymPostList::get_weight() const
 	    doclen = get_doclength();
 	    if (wdf > doclen) wdf = doclen;
 	}
-	RETURN(wt->get_sumpart(wdf, doclen));
+	double sumpart = wt->get_sumpart(wdf, doclen);
+	AssertRel(sumpart, <=, wt->get_maxpart());
+	RETURN(sumpart);
     }
     RETURN(wt->get_sumpart(0, want_doclength ? get_doclength() : 0));
 }
