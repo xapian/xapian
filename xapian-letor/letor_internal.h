@@ -26,9 +26,10 @@
 
 #include "ranker.h"
  
-#include <map>
+#include <string>
 
-using namespace std;
+using namespace Xapian;
+using std::string;
 
 namespace Xapian {
 
@@ -36,23 +37,15 @@ class Letor::Internal : public Xapian::Internal::intrusive_base
 {
     friend class Letor;
 
+    Ranker & ranker;
+    FeatureManager feature_manager;
+
 public:
-    Ranker *ranker;
-    Database letor_db;
-    Query letor_query;
-    //vector<Xapian::RankList> samples;
+    void load_model_file(string model_file_);
 
-    std::map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
-
-    void letor_learn_model();
-
-    void prepare_training_file_svm(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
-    
-    void prepare_training_file_listwise(const std::string & query_file, int num_features);
-    
-    vector<Xapian::RankList> load_list_ranklist(const char *filename);
-
+    void update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
 };
+    void train(string training_data_file_, string model_file_);
 
 }
 
