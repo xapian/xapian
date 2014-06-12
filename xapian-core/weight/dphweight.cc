@@ -79,15 +79,9 @@ DPHWeight::init(double factor_)
     /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
 
-    /* wdf * normalization = wdf * (1.0 - wdf / len) * (1.0 - wdf / len) / (wdf + 1.0)
-                           = wdf * (1.0 - 2.0 * wdf / len + wdf^2 / len^2) / (wdf + 1.0)
-                           < wdf * (1.0 - 2.0 * wdf / len + 1.0) / (wdf + 1.0)
-                           < 2 * wdf * (1.0 - wdf / len) / (wdf + 1.0)
-                           < 2 * max_product / (wdf + 1.0)
-                           < 2 * max_product / (wdf_lower + 1.0). */
-    double max_wdf_product_normalization = (2.0 * max_product) / (wdf_lower + 1.0);
+    double max_normalization = pow((1.0 - min_wdf_to_len), 2) / (wdf_lower + 1.0);
 
-    double max_weight = max_wdf_product_normalization *
+    double max_weight = wdf_upper * max_normalization *
                         (log2(log_constant) +
                         (0.5 * log2(2 * M_PI * max_product)));
 
