@@ -59,3 +59,14 @@ std::string ArabicNormalizer::normalize(const std::string word) {
     }
     return new_word;
 }
+
+std::string ArabicNormalizer::arabize(int romanization_system, const std::string word) {
+    std::string new_word;
+    for(unsigned i=0; i < word.length(); ++i){
+        if (BUCKWALTER_TO_ARABIC.find(word[i]) != BUCKWALTER_TO_ARABIC.end()) {
+            Xapian::Unicode::append_utf8(new_word, BUCKWALTER_TO_ARABIC[word[i]]);
+        }
+    }
+    return new_word;
+}
+

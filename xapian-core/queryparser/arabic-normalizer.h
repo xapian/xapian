@@ -28,12 +28,8 @@
 
 /** @brief Arabic Normalizer, a  class to normalize Arabic text
  * its role is:
- * - keep the letters unshaped, separate Lam-Alef and eliminate Tatweel
- * - strip Arabic-specific punctuation marks
- * - strip diacritics or vocalization marks
- * - normalize all Hamza forms to "Alef with Hamza above"
- * - normalize similar spelled letters, like: Teh marbouta and Heh, Alef maqsoura and Yah
- * - eliminate letters that can't be written using a keyboard
+ * - normalize Arabic text
+ * - converted Arabic romanized texts back to Arabic (arabization)
  */
 class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
   private:
@@ -76,7 +72,25 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
         normalize_extra_symbols = extra_symbols;
     }
 
+    /** @brief The method for normalization
+     * It will do this processing:
+     * - keep the letters unshaped, separate Lam-Alef and eliminate Tatweel
+     * - strip Arabic-specific punctuation marks
+     * - strip diacritics or vocalization marks
+     * - normalize all Hamza forms to "Alef with Hamza above"
+     * - normalize similar spelled letters, like: Teh marbouta and Heh, Alef maqsoura and Yah
+     * - eliminate letters that can't be written using a keyboard
+     *
+     * Each parameters of ArabicNormalizer Class Initializer enable/disable one or more of those actions.
+     */
     std::string normalize(const std::string word);
+
+    /** @brief The method for converting Arabic romanized words back to Arabic
+     *
+     * @param romanization_system the used system of romanization: 0 for auto, 1 for Buckwalter.
+     */
+    std::string arabize(int romanization_system, const std::string word);
+    std::string arabize(const std::string word) { return arabize(0, word); };
 };
 
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZER_Hأ‬
