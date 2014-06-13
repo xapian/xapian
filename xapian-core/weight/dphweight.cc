@@ -49,7 +49,7 @@ DPHWeight::init(double factor_)
     double min_wdf_to_len = wdf_lower / len_upper;
     double min_normalization = pow(1.0 / len_upper, 2) / (wdf_upper + 1.0);
 
-    /* Cacluate lower bound on the weight in order to deal with negative
+    /* Calculate lower bound on the weight in order to deal with negative
      * weights. */
     double min_weight = min_normalization *
                         (wdf_lower *
@@ -59,7 +59,7 @@ DPHWeight::init(double factor_)
 
     lower_bound = get_wqf() * min_weight;
 
-    // Calcuate the upper bound on the weight.
+    // Calculate the upper bound on the weight.
     if (wdf_upper == 0) {
         upper_bound = 0.0;
         return;
@@ -70,7 +70,7 @@ DPHWeight::init(double factor_)
 
     /* Calculations to decide the values to be used for calculating upper bound. */
     /* The upper bound of the term appearing in the second log is obtained
-       by taking the mimimum and maximum wdf value in the formula as shown. */
+       by taking the minimum and maximum wdf value in the formula as shown. */
     double max_product_1 = wdf_upper * (1.0 - min_wdf_to_len);
     /* A second upper bound of the term can be obtained by plugging in the
        upper bound of the length and differentiating the term w.r.t wdf which

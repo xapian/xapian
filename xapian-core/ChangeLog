@@ -1,3 +1,7 @@
+Fri Jun 13 07:52:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/dphweight.cc: Fix some comment typos.
+
 Fri Jun 13 07:47:32 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* include/xapian/weight.h,weight/dphweight.cc: Optimized DPH code.
