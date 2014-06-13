@@ -1,7 +1,7 @@
 /** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@
 #include "serialise-double.h"
 #include "weight/weightinternal.h"
 
+#include "autoptr.h"
 #include <string>
 #include <cstring>
 
@@ -99,6 +100,7 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     result += encode_length(stats.collection_size);
     result += encode_length(stats.rset_size);
     result += encode_length(stats.total_term_count);
+    result += encode_length(stats.have_max_part);
 
     result += encode_length(stats.termfreqs.size());
     map<string, TermFreqs>::const_iterator i;
@@ -109,23 +111,24 @@ serialise_stats(const Xapian::Weight::Internal &stats)
 	if (stats.rset_size != 0)
 	    result += encode_length(i->second.reltermfreq);
 	result += encode_length(i->second.collfreq);
+	if (stats.have_max_part)
+	    result += serialise_double(i->second.max_part);
     }
 
     return result;
 }
 
-Xapian::Weight::Internal
-unserialise_stats(const string &s)
+void
+unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
 {
     const char * p = s.data();
     const char * p_end = p + s.size();
-
-    Xapian::Weight::Internal stat;
 
     stat.total_length = decode_length(&p, p_end, false);
     stat.collection_size = decode_length(&p, p_end, false);
     stat.rset_size = decode_length(&p, p_end, false);
     stat.total_term_count = decode_length(&p, p_end, false);
+    stat.have_max_part = decode_length(&p, p_end, false);
 
     size_t n = decode_length(&p, p_end, false);
     while (n--) {
@@ -140,13 +143,15 @@ unserialise_stats(const string &s)
 	    reltermfreq = decode_length(&p, p_end, false);
 	}
 	Xapian::termcount collfreq(decode_length(&p, p_end, false));
+	double max_part = 0.0;
+	if (stat.have_max_part)
+	    max_part = unserialise_double(&p, p_end);
 	stat.termfreqs.insert(make_pair(term,
 					TermFreqs(termfreq,
 						  reltermfreq,
-						  collfreq)));
+						  collfreq,
+						  max_part)));
     }
-
-    return stat;
 }
 
 string
@@ -175,16 +180,8 @@ serialise_mset(const Xapian::MSet &mset)
 	result += encode_length(i.get_collapse_count());
     }
 
-    const map<string, Xapian::MSet::Internal::TermFreqAndWeight> &termfreqandwts
-	= mset.internal->termfreqandwts;
-
-    map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator j;
-    for (j = termfreqandwts.begin(); j != termfreqandwts.end(); ++j) {
-	result += encode_length(j->first.size());
-	result += j->first;
-	result += encode_length(j->second.termfreq);
-	result += serialise_double(j->second.termweight);
-    }
+    if (mset.internal->stats)
+	result += serialise_stats(*(mset.internal->stats));
 
     return result;
 }
@@ -216,18 +213,13 @@ unserialise_mset(const char * p, const char * p_end)
 	items.push_back(Xapian::Internal::MSetItem(wt, did, key, collapse_cnt));
     }
 
-    map<string, Xapian::MSet::Internal::TermFreqAndWeight> terminfo;
-    while (p != p_end) {
-	Xapian::MSet::Internal::TermFreqAndWeight tfaw;
-	size_t len = decode_length(&p, p_end, true);
-	string term(p, len);
-	p += len;
-	tfaw.termfreq = decode_length(&p, p_end, false);
-	tfaw.termweight = unserialise_double(&p, p_end);
-	terminfo.insert(make_pair(term, tfaw));
+    AutoPtr<Xapian::Weight::Internal> stats;
+    if (p != p_end) {
+	stats.reset(new Xapian::Weight::Internal());
+	unserialise_stats(string(p, p_end - p), *(stats.get()));
     }
 
-    return Xapian::MSet(new Xapian::MSet::Internal(
+    Xapian::MSet mset(new Xapian::MSet::Internal(
 				       firstitem,
 				       matches_upper_bound,
 				       matches_lower_bound,
@@ -236,7 +228,9 @@ unserialise_mset(const char * p, const char * p_end)
 				       uncollapsed_lower_bound,
 				       uncollapsed_estimated,
 				       max_possible, max_attained,
-				       items, terminfo, percent_factor));
+				       items, percent_factor));
+    mset.internal->stats = stats.release();
+    return mset;
 }
 
 string

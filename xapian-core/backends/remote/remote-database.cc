@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -402,30 +402,36 @@ RemoteDatabase::term_exists(const string & tname) const
     return (type == REPLY_TERMEXISTS);
 }
 
-Xapian::doccount
-RemoteDatabase::get_termfreq(const string & tname) const
+void
+RemoteDatabase::get_freqs(const string & term,
+			  Xapian::doccount * termfreq_ptr,
+			  Xapian::termcount * collfreq_ptr) const
 {
-    Assert(!tname.empty());
-    send_message(MSG_TERMFREQ, tname);
+    Assert(!term.empty());
     string message;
-    get_message(message, REPLY_TERMFREQ);
-    const char * p = message.data();
-    const char * p_end = p + message.size();
-    return decode_length(&p, p_end, false);
+    const char * p;
+    const char * p_end;
+    if (termfreq_ptr) {
+	if (collfreq_ptr) {
+	    send_message(MSG_FREQS, term);
+	    get_message(message, REPLY_FREQS);
+	} else {
+	    send_message(MSG_TERMFREQ, term);
+	    get_message(message, REPLY_TERMFREQ);
+	}
+	p = message.data();
+	p_end = p + message.size();
+	*termfreq_ptr = decode_length(&p, p_end, false);
+    } else if (collfreq_ptr) {
+	send_message(MSG_COLLFREQ, term);
+	get_message(message, REPLY_COLLFREQ);
+	p = message.data();
+	p_end = p + message.size();
+    }
+    if (collfreq_ptr) {
+	*collfreq_ptr = decode_length(&p, p_end, false);
+    }
 }
-
-Xapian::termcount
-RemoteDatabase::get_collection_freq(const string & tname) const
-{
-    Assert(!tname.empty());
-    send_message(MSG_COLLFREQ, tname);
-    string message;
-    get_message(message, REPLY_COLLFREQ);
-    const char * p = message.data();
-    const char * p_end = p + message.size();
-    return decode_length(&p, p_end, false);
-}
-
 
 void
 RemoteDatabase::read_value_stats(Xapian::valueno slot) const
@@ -620,7 +626,7 @@ RemoteDatabase::get_remote_stats(bool nowait, Xapian::Weight::Internal &out)
 
     string message;
     get_message(message, REPLY_STATS);
-    out = unserialise_stats(message);
+    unserialise_stats(message, out);
 
     return true;
 }

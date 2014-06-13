@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,28 +29,33 @@
 
 #include "backends/database.h"
 #include "internaltypes.h"
+#include "omassert.h"
 
 #include <map>
 #include <string>
 
-/// A pair holding a termfreq and reltermfreq.
+/// The frequencies for a term.
 struct TermFreqs {
     Xapian::doccount termfreq;
     Xapian::doccount reltermfreq;
     Xapian::termcount collfreq;
+    double max_part;
 
-    TermFreqs() : termfreq(0), reltermfreq(0), collfreq(0) {}
+    TermFreqs() : termfreq(0), reltermfreq(0), collfreq(0), max_part(0.0) {}
     TermFreqs(Xapian::doccount termfreq_,
 	      Xapian::doccount reltermfreq_,
-	      Xapian::termcount collfreq_)
+	      Xapian::termcount collfreq_,
+	      double max_part_ = 0.0)
 	: termfreq(termfreq_),
 	  reltermfreq(reltermfreq_),
-	  collfreq(collfreq_) {}
+	  collfreq(collfreq_),
+	  max_part(max_part_) {}
 
     void operator +=(const TermFreqs & other) {
 	termfreq += other.termfreq;
 	reltermfreq += other.reltermfreq;
 	collfreq += other.collfreq;
+	max_part += other.max_part;
     }
 
     /// Return a std::string describing this object.
@@ -76,6 +81,12 @@ class Weight::Internal {
     /** Number of terms in the collection. */
     Xapian::termcount total_term_count;
 
+    /** Has max_part been set for any term?
+     *
+     *  If not, we can avoid having to serialise max_part.
+     */
+    bool have_max_part;
+
     /** Database to get the bounds on doclength and wdf from. */
     Xapian::Database db;
 
@@ -85,7 +96,7 @@ class Weight::Internal {
 
     Internal()
 	: total_length(0), collection_size(0), rset_size(0),
-	  total_term_count(0) { }
+	  total_term_count(0), have_max_part(false) { }
 
     /** Add in the supplied statistics from a sub-database.
      *
@@ -106,23 +117,74 @@ class Weight::Internal {
     void accumulate_stats(const Xapian::Database::Internal &sub_db,
 			  const Xapian::RSet &rset);
 
-    /** Get the term-frequency of the given term.
+    /** Get the frequencies for the given term.
      *
-     *  This is "n_t", the number of documents in the collection indexed by
+     *  termfreq is "n_t", the number of documents in the collection indexed by
      *  the given term.
-     */
-    Xapian::doccount get_termfreq(const std::string & term) const;
-
-    /** Get the relevant term-frequency for the given term.
      *
-     *  This is "r_t", the number of relevant documents in the collection
-     *  indexed by the given term.
+     *  reltermfreq is "r_t", the number of relevant documents in the
+     *  collection indexed by the given term.
+     *
+     *  collfreq is the total number of occurrences of the term in all
+     *  documents.
      */
-    Xapian::doccount get_reltermfreq(const std::string & term) const;
+    bool get_stats(const std::string & term,
+		   Xapian::doccount & termfreq,
+		   Xapian::doccount & reltermfreq,
+		   Xapian::termcount & collfreq) const {
+	// We pass an empty std::string for term when calculating the extra
+	// weight.
+	if (term.empty()) {
+	    termfreq = collection_size;
+	    collfreq = collection_size;
+	    reltermfreq = rset_size;
+	    return true;
+	}
 
-    /** Get the collectionfrequency for the given term.
-     */
-    Xapian::termcount get_collection_freq(const std::string & term) const;
+	map<string, TermFreqs>::const_iterator i = termfreqs.find(term);
+	if (i == termfreqs.end()) {
+	    termfreq = reltermfreq = collfreq = 0;
+	    return false;
+	}
+
+	termfreq = i->second.termfreq;
+	reltermfreq = i->second.reltermfreq;
+	collfreq = i->second.collfreq;
+	return true;
+    }
+
+    /// Get just the termfreq.
+    bool get_stats(const std::string & term,
+		   Xapian::doccount & termfreq) const {
+	Xapian::doccount dummy1;
+	Xapian::termcount dummy2;
+	return get_stats(term, termfreq, dummy1, dummy2);
+    }
+
+    /// Get the termweight.
+    bool get_termweight(const std::string & term, double & termweight) {
+	termweight = 0.0;
+	if (term.empty()) {
+	    return false;
+	}
+
+	map<string, TermFreqs>::const_iterator i = termfreqs.find(term);
+	if (i == termfreqs.end()) {
+	    return false;
+	}
+
+	termweight = i->second.max_part;
+	return true;
+    }
+
+    /// Set max_part for a term.
+    void set_max_part(const std::string & term, double max_part) {
+	have_max_part = true;
+	Assert(!term.empty());
+	map<string, TermFreqs>::iterator i = termfreqs.find(term);
+	Assert(i != termfreqs.end());
+	i->second.max_part += max_part;
+    }
 
     Xapian::doclength get_average_length() const {
 	if (rare(collection_size == 0)) return 0;

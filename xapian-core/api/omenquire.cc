@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -222,11 +222,11 @@ Xapian::doccount
 MSet::get_termfreq(const string &tname) const
 {
     LOGCALL(API, Xapian::doccount, "Xapian::MSet::get_termfreq", tname);
-    map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
-    i = internal->termfreqandwts.find(tname);
-    if (i != internal->termfreqandwts.end()) {
-	RETURN(i->second.termfreq);
+    if (usual(internal->stats)) {
+	Xapian::doccount termfreq;
+	if (internal->stats->get_stats(tname, termfreq))
+	    RETURN(termfreq);
     }
     if (internal->enquire.get() == 0) {
 	throw InvalidOperationError("Can't get termfreq from an MSet which is not derived from a query.");
@@ -238,14 +238,17 @@ double
 MSet::get_termweight(const string &tname) const
 {
     LOGCALL(API, double, "Xapian::MSet::get_termweight", tname);
-    map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
-    i = internal->termfreqandwts.find(tname);
-    if (i == internal->termfreqandwts.end()) {
-	throw InvalidArgumentError("Term weight of '" + tname +
-				     "' not available.");
+    if (!internal->stats) {
+	throw InvalidOperationError("Can't get termweight from an MSet which is not derived from a query.");
     }
-    RETURN(i->second.termweight);
+    double termweight;
+    if (!internal->stats->get_termweight(tname, termweight)) {
+	string msg = tname;
+	msg += ": termweight not available";
+	throw InvalidArgumentError(msg);
+    }
+    RETURN(termweight);
 }
 
 Xapian::doccount
@@ -686,18 +689,18 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	check_at_least = max(check_at_least, maxitems);
     }
 
-    Xapian::Weight::Internal stats;
+    AutoPtr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
     ::MultiMatch match(db, query, qlen, rset,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
-		       time_limit, errorhandler, stats, weight, spies,
+		       time_limit, errorhandler, *(stats.get()), weight, spies,
 		       (sorter != NULL),
 		       (mdecider != NULL));
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
-		   stats, mdecider, sorter);
+		   *(stats.get()), mdecider, sorter);
     if (first_orig != first && retval.internal.get()) {
 	retval.internal->firstitem = first_orig;
     }
@@ -709,6 +712,10 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // to pass it into the matcher, which gets messy particularly in the
     // networked case.
     retval.internal->enquire = this;
+
+    if (!retval.internal->stats) {
+	retval.internal->stats = stats.release();
+    }
 
     return retval;
 }

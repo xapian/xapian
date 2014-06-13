@@ -112,7 +112,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int flags,
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
 	  lock(db_dir),
-	  max_changesets(0)
+	  changes(db_dir)
 {
     LOGCALL_CTOR(DB, "BrassDatabase", brass_dir | flags | block_size);
 
@@ -283,6 +283,18 @@ BrassDatabase::open_tables_consistent(int flags)
     }
 
     stats.read(postlist_table);
+
+    if (!readonly) {
+	changes.set_oldest_changeset(stats.get_oldest_changeset());
+	BrassChanges * p;
+	p = changes.start(revision, revision + 1, flags);
+	postlist_table.set_changes(p);
+	position_table.set_changes(p);
+	termlist_table.set_changes(p);
+	synonym_table.set_changes(p);
+	spelling_table.set_changes(p);
+	record_table.set_changes(p);
+    }
     return true;
 }
 
@@ -336,8 +348,8 @@ BrassDatabase::get_changeset_revisions(const string & path,
 				       brass_revision_number_t * startrev,
 				       brass_revision_number_t * endrev) const
 {
-    FD changes_fd(posixy_open(path.c_str(), O_RDONLY | O_CLOEXEC));
-    if (changes_fd < 0) {
+    FD fd(posixy_open(path.c_str(), O_RDONLY | O_CLOEXEC));
+    if (fd < 0) {
 	string message = string("Couldn't open changeset ")
 		+ path + " to read";
 	throw Xapian::DatabaseError(message, errno);
@@ -345,7 +357,7 @@ BrassDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + io_read(changes_fd, buf,
+    const char *end = buf + io_read(fd, buf,
 				    REASONABLE_CHANGESET_SIZE, 0);
     if (strncmp(start, CHANGES_MAGIC_STRING,
 		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
@@ -388,104 +400,13 @@ BrassDatabase::set_revision_number(int flags, brass_revision_number_t new_revisi
     spelling_table.flush_db();
     record_table.flush_db();
 
-    int changes_fd = -1;
-    string changes_name;
-    
-    // always check max_changesets for modification since last revision
-    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
-    if (p) {
-	max_changesets = atoi(p);
-    } else {
-	max_changesets = 0;
-    }
- 
-    if (max_changesets > 0) {
-	brass_revision_number_t old_revision = get_revision_number();
-	if (old_revision) {
-	    // Don't generate a changeset for the first revision.
-	    changes_name = db_dir + "/changes" + str(old_revision);
-	    changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
-	    if (changes_fd < 0) {
-		string message = string("Couldn't open changeset ")
-			+ changes_name + " to write";
-		throw Xapian::DatabaseError(message, errno);
-	    }
-	}
-    }
-
-    try {
-	FD closefd(changes_fd);
-	if (changes_fd >= 0) {
-	    string buf;
-	    brass_revision_number_t old_revision = get_revision_number();
-	    buf += CHANGES_MAGIC_STRING;
-	    pack_uint(buf, CHANGES_VERSION);
-	    pack_uint(buf, old_revision);
-	    pack_uint(buf, new_revision);
-
-	    if (flags & Xapian::DB_DANGEROUS) {
-		buf += '\x01'; // Changes can't be applied to a live database.
-	    } else {
-		buf += '\x00'; // Changes can be applied to a live database.
-	    }
-
-	    io_write(changes_fd, buf.data(), buf.size());
-
-	    // Write the changes to the blocks in the tables.  Do the postlist
-	    // table last, so that ends up cached the most, if the cache
-	    // available is limited.  Do the position table just before that
-	    // as having that cached will also improve search performance.
-	    bool compressed = CHANGES_VERSION != 1;
-
-	    //FIXME:dc: this is the wrong place to define the compression
-	    termlist_table.write_changed_blocks(changes_fd, compressed);
-	    synonym_table.write_changed_blocks(changes_fd, compressed);
-	    spelling_table.write_changed_blocks(changes_fd, compressed);
-	    record_table.write_changed_blocks(changes_fd, compressed);
-	    position_table.write_changed_blocks(changes_fd, compressed);
-	    postlist_table.write_changed_blocks(changes_fd, compressed);
-	}
-
-	postlist_table.commit(new_revision, changes_fd);
-	position_table.commit(new_revision, changes_fd);
-	termlist_table.commit(new_revision, changes_fd);
-	synonym_table.commit(new_revision, changes_fd);
-	spelling_table.commit(new_revision, changes_fd);
-
-	string changes_tail; // Data to be appended to the changes file
-	if (changes_fd >= 0) {
-	    changes_tail += '\0';
-	    pack_uint(changes_tail, new_revision);
-	}
-	record_table.commit(new_revision, changes_fd, &changes_tail);
-
-    } catch (...) {
-	// Remove the changeset, if there was one.
-	if (changes_fd >= 0) {
-	    (void)io_unlink(changes_name);
-	}
-
-	throw;
-    }
-    
-    // Only remove the oldest_changeset if we successfully write a new changeset and
-    // we have a revision number greater than max_changesets
-    if (changes_fd >= 0 && max_changesets < new_revision) {
-	// use the oldest changeset we know about to begin deleting to the stop_changeset
-	// if nothing went wrong only one file should be deleted, otherwise
-	// attempts will be made to clean up more
-	brass_revision_number_t oldest_changeset = stats.get_oldest_changeset();
-	brass_revision_number_t stop_changeset = new_revision - max_changesets;
-	while (oldest_changeset < stop_changeset) {
-	    if (io_unlink(db_dir + "/changes" + str(oldest_changeset))) {
-		LOGLINE(DB, "Removed changeset " << oldest_changeset);
-	    } else {
-		LOGLINE(DB, "Skipping changeset " << oldest_changeset << 
-			", likely removed before");
-	    }
-	    stats.set_oldest_changeset(oldest_changeset++);
-	}
-    }
+    postlist_table.commit(new_revision);
+    position_table.commit(new_revision);
+    termlist_table.commit(new_revision);
+    synonym_table.commit(new_revision);
+    spelling_table.commit(new_revision);
+    record_table.commit(new_revision);
+    changes.commit(new_revision, flags);
 }
 
 bool
@@ -697,18 +618,19 @@ BrassDatabase::modifications_failed(brass_revision_number_t old_revision,
 				    const std::string & msg)
 {
     // Modifications failed.  Wipe all the modifications from memory.
+    int flags = postlist_table.get_flags();
     try {
 	// Discard any buffered changes and reinitialised cached values
 	// from the table.
 	cancel();
 
 	// Reopen tables with old revision number.
-	open_tables(postlist_table.get_flags(), old_revision);
+	open_tables(flags, old_revision);
 
 	// Increase revision numbers to new revision number plus one,
 	// writing increased numbers to all tables.
 	++new_revision;
-	set_revision_number(postlist_table.get_flags(), new_revision);
+	set_revision_number(flags, new_revision);
     } catch (const Xapian::Error &e) {
 	// We can't get the database into a consistent state, so close
 	// it to avoid the risk of database corruption.
@@ -717,6 +639,15 @@ BrassDatabase::modifications_failed(brass_revision_number_t old_revision,
 				    "), and cannot set consistent table "
 				    "revision numbers: " + e.get_msg());
     }
+
+    BrassChanges * p;
+    p = changes.start(old_revision, new_revision, flags);
+    postlist_table.set_changes(p);
+    position_table.set_changes(p);
+    termlist_table.set_changes(p);
+    synonym_table.set_changes(p);
+    spelling_table.set_changes(p);
+    record_table.set_changes(p);
 }
 
 void
@@ -736,8 +667,9 @@ BrassDatabase::apply()
     brass_revision_number_t old_revision = get_revision_number();
     brass_revision_number_t new_revision = get_next_revision_number();
 
+    int flags = postlist_table.get_flags();
     try {
-	set_revision_number(postlist_table.get_flags(), new_revision);
+	set_revision_number(flags, new_revision);
     } catch (const Xapian::Error &e) {
 	modifications_failed(old_revision, new_revision, e.get_description());
 	throw;
@@ -745,6 +677,15 @@ BrassDatabase::apply()
 	modifications_failed(old_revision, new_revision, "Unknown error");
 	throw;
     }
+
+    BrassChanges * p;
+    p = changes.start(new_revision, new_revision + 1, flags);
+    postlist_table.set_changes(p);
+    position_table.set_changes(p);
+    termlist_table.set_changes(p);
+    synonym_table.set_changes(p);
+    spelling_table.set_changes(p);
+    record_table.set_changes(p);
 }
 
 void
@@ -802,20 +743,14 @@ BrassDatabase::get_doclength(Xapian::docid did) const
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
-Xapian::doccount
-BrassDatabase::get_termfreq(const string & term) const
+void
+BrassDatabase::get_freqs(const string & term,
+			 Xapian::doccount * termfreq_ptr,
+			 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_termfreq", term);
+    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
-    RETURN(postlist_table.get_termfreq(term));
-}
-
-Xapian::termcount
-BrassDatabase::get_collection_freq(const string & term) const
-{
-    LOGCALL(DB, Xapian::termcount, "BrassDatabase::get_collection_freq", term);
-    Assert(!term.empty());
-    RETURN(postlist_table.get_collection_freq(term));
+    postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
 
 Xapian::doccount
@@ -854,7 +789,9 @@ BrassDatabase::get_doclength_upper_bound() const
 Xapian::termcount
 BrassDatabase::get_wdf_upper_bound(const string & term) const
 {
-    return min(get_collection_freq(term), stats.get_wdf_upper_bound());
+    Xapian::termcount cf;
+    get_freqs(term, NULL, &cf);
+    return min(cf, stats.get_wdf_upper_bound());
 }
 
 bool
@@ -1064,6 +1001,7 @@ BrassWritableDatabase::commit()
 void
 BrassWritableDatabase::flush_postlist_changes() const
 {
+    stats.set_oldest_changeset(changes.get_oldest_changeset());
     stats.write(postlist_table);
     inverter.flush(postlist_table);
     inverter.flush_pos_lists(position_table);
@@ -1402,18 +1340,21 @@ BrassWritableDatabase::get_doclength(Xapian::docid did) const
     RETURN(BrassDatabase::get_doclength(did));
 }
 
-Xapian::doccount
-BrassWritableDatabase::get_termfreq(const string & term) const
+void
+BrassWritableDatabase::get_freqs(const string & term,
+				 Xapian::doccount * termfreq_ptr,
+				 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_termfreq", term);
-    RETURN(BrassDatabase::get_termfreq(term) + inverter.get_tfdelta(term));
-}
-
-Xapian::termcount
-BrassWritableDatabase::get_collection_freq(const string & term) const
-{
-    LOGCALL(DB, Xapian::termcount, "BrassWritableDatabase::get_collection_freq", term);
-    RETURN(BrassDatabase::get_collection_freq(term) + inverter.get_cfdelta(term));
+    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    Assert(!term.empty());
+    BrassDatabase::get_freqs(term, termfreq_ptr, collfreq_ptr);
+    Xapian::termcount_diff tf_delta, cf_delta;
+    if (inverter.get_deltas(term, tf_delta, cf_delta)) {
+	if (termfreq_ptr)
+	    *termfreq_ptr += tf_delta;
+	if (collfreq_ptr)
+	    *collfreq_ptr += cf_delta;
+    }
 }
 
 Xapian::doccount
@@ -1450,7 +1391,9 @@ bool
 BrassWritableDatabase::term_exists(const string & tname) const
 {
     LOGCALL(DB, bool, "BrassWritableDatabase::term_exists", tname);
-    RETURN(get_termfreq(tname) != 0);
+    Xapian::doccount tf;
+    get_freqs(tname, &tf, NULL);
+    RETURN(tf != 0);
 }
 
 bool

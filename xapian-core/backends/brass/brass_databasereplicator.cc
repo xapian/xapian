@@ -44,14 +44,65 @@
 #include "str.h"
 #include "stringutils.h"
 
+#include <algorithm>
 #include <cstdio> // For rename().
 
 using namespace std;
 using namespace Xapian;
 
+const char * tablenames =
+	"position\0"
+	"postlist\0"
+	"record\0\0\0"
+	"spelling\0"
+	"synonym\0\0"
+	"termlist";
+
+const char * dbnames =
+	"/position.DB\0"
+	"/postlist.DB\0"
+	"/record.DB\0\0\0"
+	"/spelling.DB\0"
+	"/synonym.DB\0\0"
+	"/termlist.DB";
+
+const char * tmpnames =
+	"/position.tmp\0"
+	"/postlist.tmp\0"
+	"/record.tmp\0\0\0"
+	"/spelling.tmp\0"
+	"/synonym.tmp\0\0"
+	"/termlist.tmp";
+
 BrassDatabaseReplicator::BrassDatabaseReplicator(const string & db_dir_)
     : db_dir(db_dir_)
 {
+    std::fill_n(fds, sizeof(fds) / sizeof(fds[0]), -1);
+}
+
+void
+BrassDatabaseReplicator::commit() const
+{
+    for (size_t i = 0; i != N_TABLES_; ++i) {
+	int fd = fds[i];
+	if (fd >= 0) {
+	    io_sync(fd);
+#if 0 // FIXME: close or keep open?
+	    close(fd);
+	    fds[i] = -1;
+#endif
+	}
+    }
+}
+
+BrassDatabaseReplicator::~BrassDatabaseReplicator()
+{
+    for (size_t i = 0; i != N_TABLES_; ++i) {
+	int fd = fds[i];
+	if (fd >= 0) {
+	    close(fd);
+	}
+    }
 }
 
 bool
@@ -79,24 +130,20 @@ BrassDatabaseReplicator::check_revision_at_least(const string & rev,
 }
 
 void
-BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
+BrassDatabaseReplicator::process_changeset_chunk_base(table_id table,
+						      unsigned v,
 						      string & buf,
 						      RemoteConnection & conn,
 						      double end_time) const
 {
+    // Get the letter
+    char letter = 'A' + v;
+    if (letter != 'A' && letter != 'B')
+	throw NetworkError("Invalid base file letter in changeset");
+
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
-    // Get the letter
-    char letter = ptr[0];
-    if (letter != 'A' && letter != 'B')
-	throw NetworkError("Invalid base file letter in changeset");
-    ++ptr;
-
-
-    // Get the base size
-    if (ptr == end)
-	throw NetworkError("Unexpected end of changeset (5)");
     string::size_type base_size;
     if (!unpack_uint(&ptr, end, &base_size))
 	throw NetworkError("Invalid base file size in changeset");
@@ -109,12 +156,16 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	throw NetworkError("Unexpected end of changeset (6)");
 
     // Write base_size bytes from start of buf to base file for tablename
-    string tmp_path = db_dir + "/" + tablename + "tmp";
-    string base_path = db_dir + "/" + tablename + ".base" + letter;
-    int fd = posixy_open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+    string tmp_base = db_dir;
+    tmp_base += (tmpnames + table * 14);
+    string base_path = tmp_base;
+    base_path.resize(base_path.size() - 3);
+    base_path += "base";
+    base_path += letter;
+    int fd = posixy_open(tmp_base.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (fd == -1) {
 	string msg = "Failed to open ";
-	msg += tmp_path;
+	msg += tmp_base;
 	throw DatabaseError(msg, errno);
     }
     {
@@ -123,16 +174,16 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	io_write(fd, buf.data(), base_size);
 	io_sync(fd);
     }
-    if (posixy_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
+    if (posixy_rename(tmp_base.c_str(), base_path.c_str()) < 0) {
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then
 	// the retried operation fails.  So we need to check if the source
 	// file still exists, which we do by calling unlink(), since we want
 	// to remove the temporary file anyway.
 	int saved_errno = errno;
-	if (unlink(tmp_path.c_str()) == 0 || errno != ENOENT) {
+	if (unlink(tmp_base.c_str()) == 0 || errno != ENOENT) {
 	    string msg("Couldn't update base file ");
-	    msg += tablename;
+	    msg += tablenames + table * 9;
 	    msg += ".base";
 	    msg += letter;
 	    throw DatabaseError(msg, saved_errno);
@@ -143,7 +194,8 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 }
 
 void
-BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename,
+BrassDatabaseReplicator::process_changeset_chunk_blocks(table_id table,
+							unsigned v,
 							string & buf,
 							RemoteConnection & conn,
 							double end_time) const
@@ -151,79 +203,33 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
-    unsigned int changeset_blocksize;
-    if (!unpack_uint(&ptr, end, &changeset_blocksize))
+    unsigned int changeset_blocksize = 2048 << v;
+    if (changeset_blocksize > 65536 ||
+	(changeset_blocksize & (changeset_blocksize - 1))) {
 	throw NetworkError("Invalid blocksize in changeset");
+    }
+    uint4 block_number;
+    if (!unpack_uint(&ptr, end, &block_number))
+	throw NetworkError("Invalid block number in changeset");
+
     buf.erase(0, ptr - buf.data());
 
-    string db_path = db_dir + "/" + tablename + ".DB";
-    int fd = posixy_open(db_path.c_str(), O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
+    int fd = fds[table];
     if (fd == -1) {
-	string msg = "Failed to open ";
-	msg += db_path;
-	throw DatabaseError(msg, errno);
-    }
-    {
-	FD closer(fd);
-	unsigned char *out = new unsigned char[changeset_blocksize];
-	CompressionStream comp_stream = CompressionStream(Z_DEFAULT_STRATEGY);
-
-	while (true) {
-	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
-	    ptr = buf.data();
-	    end = ptr + buf.size();
-	    uint4 block_number;
-	    if (!unpack_uint(&ptr, end, &block_number))
-		throw NetworkError("Invalid block number in changeset");
-	    buf.erase(0, ptr - buf.data());
-	    if (block_number == 0)
-		break;
-	    --block_number;
-
-	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
-	    ptr = buf.data();
-	    end = ptr + buf.size();
-	    unsigned int compressed_block_size;
-	    if (!unpack_uint(&ptr, end, &compressed_block_size))
-		throw NetworkError("Invalid v2 changeset");
-	    buf.erase(0, ptr - buf.data());
-
-	    const char * block_ptr;
-	    if (compressed_block_size > 0) {
-
-		conn.get_message_chunk(buf, changeset_blocksize, end_time);
-		comp_stream.lazy_alloc_inflate_zstream();
-		comp_stream.inflate_zstream->next_in = (Bytef*)const_cast<char *>(buf.data());
-		comp_stream.inflate_zstream->avail_in = compressed_block_size;
-		comp_stream.inflate_zstream->next_out = out;
-		comp_stream.inflate_zstream->avail_out = changeset_blocksize;
-		comp_stream.zerr = inflate(comp_stream.inflate_zstream, Z_FINISH);
-		if (comp_stream.zerr != Z_STREAM_END)
-		    throw Xapian::NetworkError("Bad compressed replication changeset");
-
-		unsigned got = comp_stream.inflate_zstream->next_out - out;
-		if (got != changeset_blocksize) {
-		    throw NetworkError("Incomplete block in changeset");
-		}
-		block_ptr = reinterpret_cast<const char *>(out);
-	    } else {
-		conn.get_message_chunk(buf, changeset_blocksize, end_time);
-		if (buf.size() < changeset_blocksize)
-		    throw NetworkError("Incomplete block in changeset");
-		block_ptr = buf.data();
-	    }
-
-	    io_write_block(fd, block_ptr, changeset_blocksize, block_number);
-
-	    if (compressed_block_size > 0) {
-		buf.erase(0, compressed_block_size);
-	    } else {
-		buf.erase(0, changeset_blocksize);
-	    }
+	string db_path = db_dir;
+	db_path += dbnames + (table * 13);
+	fd = posixy_open(db_path.c_str(), O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
+	if (fd == -1) {
+	    string msg = "Failed to open ";
+	    msg += db_path;
+	    throw DatabaseError(msg, errno);
 	}
-	io_sync(fd);
-	delete [] out;
+	fds[table] = fd;
     }
+
+    conn.get_message_chunk(buf, changeset_blocksize, end_time);
+    io_write_block(fd, buf.data(), changeset_blocksize, block_number);
+    buf.erase(0, changeset_blocksize);
 }
 
 string
@@ -250,16 +256,16 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     // changeset.
 
     conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+    const char *ptr = buf.data();
+    const char *end = ptr + buf.size();
     // Check the magic string.
     if (!startswith(buf, CHANGES_MAGIC_STRING)) {
 	throw NetworkError("Invalid ChangeSet magic string");
     }
-    buf.erase(0, 12);
-    const char *ptr = buf.data();
-    const char *end = ptr + buf.size();
-    unsigned int changes_version;
-    if (!unpack_uint(&ptr, end, &changes_version))
+    ptr += CONST_STRLEN(CHANGES_MAGIC_STRING);
+    if (ptr == end)
 	throw NetworkError("Couldn't read a valid version number from changeset");
+    unsigned int changes_version = *ptr++;
     if (changes_version != CHANGES_VERSION)
 	throw NetworkError("Unsupported changeset version");
 
@@ -288,7 +294,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	    throw NetworkError("Changeset supplied is for wrong revision number");
     }
 
-    unsigned char changes_type = ptr[0];
+    unsigned char changes_type = *ptr++;
     if (changes_type != 0) {
 	throw NetworkError("Unsupported changeset type: " + str(changes_type));
 	// FIXME - support changes of type 1, produced when DANGEROUS mode is
@@ -296,58 +302,48 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     }
 
     // Clear the bits of the buffer which have been read.
-    buf.erase(0, ptr + 1 - buf.data());
+    buf.erase(0, ptr - buf.data());
 
     // Read the items from the changeset.
     while (true) {
 	conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
 	ptr = buf.data();
 	end = ptr + buf.size();
+	if (ptr == end)
+	    throw NetworkError("Unexpected end of changeset (3)");
 
 	// Read the type of the next chunk of data
-	if (ptr == end)
-	    throw NetworkError("Unexpected end of changeset (2)");
-	unsigned char chunk_type = ptr[0];
-	++ptr;
-	if (chunk_type == 0)
+	unsigned char chunk_type = *ptr++;
+	if (chunk_type == 0xff)
 	    break;
-
+	size_t table_code = (chunk_type & 0x07);
+	if (table_code >= N_TABLES_)
+	    throw NetworkError("Bad table code in changeset file");
+	table_id table = static_cast<table_id>(table_code);
 	// Get the tablename.
-	string tablename;
-	if (!unpack_string(&ptr, end, tablename))
-	    throw NetworkError("Unexpected end of changeset (3)");
-	if (tablename.empty())
-	    throw NetworkError("Missing tablename in changeset");
-	if (tablename.find_first_not_of("abcdefghijklmnopqrstuvwxyz") !=
-	    tablename.npos)
-	    throw NetworkError("Invalid character in tablename in changeset");
+	string tablename(tablenames + (table_code * 9));
+	unsigned char v = (chunk_type >> 3) & 0x0f;
 
 	// Process the chunk
 	if (ptr == end)
 	    throw NetworkError("Unexpected end of changeset (4)");
 	buf.erase(0, ptr - buf.data());
 
-	switch (chunk_type) {
-	    case 1:
-		process_changeset_chunk_base(tablename, buf, conn, end_time);
-		break;
-	    case 2:
-		process_changeset_chunk_blocks(tablename, buf, conn, end_time);
-		break;
-	    default:
-		throw NetworkError("Unrecognised item type in changeset");
+	if (chunk_type & 0x80) {
+	    process_changeset_chunk_base(table, v, buf, conn, end_time);
+	} else {
+	    process_changeset_chunk_blocks(table, v, buf, conn, end_time);
 	}
     }
-    brass_revision_number_t reqrev;
-    if (!unpack_uint(&ptr, end, &reqrev))
-	throw NetworkError("Couldn't read a valid required revision from changeset");
-    if (reqrev < endrev)
-	throw NetworkError("Required revision in changeset is earlier than end revision");
+
     if (ptr != end)
 	throw NetworkError("Junk found at end of changeset");
 
     buf.resize(0);
-    pack_uint(buf, reqrev);
+    pack_uint(buf, endrev);
+
+    commit();
+
     RETURN(buf);
 }
 

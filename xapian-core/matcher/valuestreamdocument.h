@@ -1,7 +1,7 @@
 /** @file valuestreamdocument.h
  * @brief A document which gets its values from a ValueStreamManager.
  */
-/* Copyright (C) 2009,2011 Olly Betts
+/* Copyright (C) 2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include "backends/document.h"
 #include "backends/valuelist.h"
+#include "omassert.h"
 #include "xapian/types.h"
 
 #include <map>
@@ -52,7 +53,10 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     ~ValueStreamDocument();
 
     void set_document(Xapian::docid did_) {
-	did = did_;
+	// did needs to be the document id in the sub-database.
+	size_t multiplier = db.internal.size();
+	did = (did_ - 1) / multiplier + 1;
+	AssertEq(current, (did_ - 1) % multiplier);
 	delete doc;
 	doc = NULL;
     }

@@ -40,7 +40,7 @@ append_filename_argument(std::string & cmd, const std::string & arg) {
 	if (*i == '/') {
 	    // Convert Unix path separators to backslashes.  C library
 	    // functions understand "/" in paths, but we are going to
-	    // call commands like "deltree" or "rd" which don't.
+	    // call commands like "xcopy" or "rd" which don't.
 	    cmd += '\\';
 	} else if (*i < 32 || std::strchr("<>\"|*?", *i)) {
 	    // Check for illegal characters in filename.

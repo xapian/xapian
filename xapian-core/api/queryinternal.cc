@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@
 #include "emptypostlist.h"
 #include "matcher/exactphrasepostlist.h"
 #include "matcher/externalpostlist.h"
+#include "matcher/maxpostlist.h"
 #include "matcher/multiandpostlist.h"
 #include "matcher/multixorpostlist.h"
 #include "matcher/orpostlist.h"
@@ -156,6 +157,7 @@ class OrContext : public Context {
     void select_elite_set(size_t set_size, size_t out_of);
 
     PostList * postlist(QueryOptimiser* qopt);
+    PostList * postlist_max(QueryOptimiser* qopt);
 };
 
 void
@@ -215,6 +217,28 @@ OrContext::postlist(QueryOptimiser* qopt)
 	pls.back() = pl;
 	push_heap(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
     }
+}
+
+PostList *
+OrContext::postlist_max(QueryOptimiser* qopt)
+{
+    Assert(!pls.empty());
+
+    if (pls.size() == 1) {
+	PostList * pl = pls[0];
+	pls.clear();
+	return pl;
+    }
+
+    // Sort the postlists so that the postlist with the greatest term frequency
+    // is first.
+    sort(pls.begin(), pls.end(), ComparePostListTermFreqAscending());
+
+    PostList * pl;
+    pl = new MaxPostList(pls.begin(), pls.end(), qopt->matcher, qopt->db_size);
+
+    pls.clear();
+    return pl;
 }
 
 class XorContext : public Context {
@@ -362,7 +386,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    }
 	    unsigned char code = (ch >> 3) & 0x0f;
 	    Xapian::termcount parameter = 0;
-	    if (code >= 5)
+	    if (code >= 13)
 		parameter = decode_length(p, end, false);
 	    Xapian::Internal::QueryBranch * result;
 	    switch (code) {
@@ -387,6 +411,9 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		case 6: // OP_SYNONYM
 		    result = new Xapian::Internal::QuerySynonym(n_subqs);
 		    break;
+		case 7: // OP_MAX
+		    result = new Xapian::Internal::QueryMax(n_subqs);
+		    break;
 		case 13: // OP_ELITE_SET
 		    result = new Xapian::Internal::QueryEliteSet(n_subqs,
 								 parameter);
@@ -400,7 +427,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 							       parameter);
 		    break;
 		default:
-		    // 7 to 12 are currently unused.
+		    // 8 to 12 are currently unused.
 		    throw SerialisationError("Unknown multi-way branch Query operator");
 	    }
 	    do {
@@ -618,21 +645,9 @@ PostingIterator::Internal *
 QueryTerm::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryTerm::postlist", qopt | factor);
-    bool weighted = false;
-    if (factor != 0.0) {
+    if (factor != 0.0)
 	qopt->inc_total_subqs();
-	if (!term.empty())
-	    weighted = true;
-    }
-
-    AutoPtr<Xapian::Weight> wt(weighted ? qopt->make_wt(term, wqf, factor) : 0);
-
-    AutoPtr<LeafPostList> pl(
-	qopt->open_post_list(term, weighted ? wt->get_maxpart() : 0.0));
-
-    if (weighted)
-	pl->set_termweight(wt.release());
-    RETURN(pl.release());
+    RETURN(qopt->open_post_list(term, wqf, factor));
 }
 
 PostingIterator::Internal *
@@ -833,7 +848,8 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
 	MULTIWAY(13),	// OP_ELITE_SET
 	0,		// OP_VALUE_GE
 	0,		// OP_VALUE_LE
-	MULTIWAY(6)	// OP_SYNONYM
+	MULTIWAY(6),	// OP_SYNONYM
+	MULTIWAY(7)	// OP_MAX
     };
     Xapian::Query::op op_ = get_op();
     AssertRel(size_t(op_),<,sizeof(first_byte));
@@ -845,7 +861,7 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
 	result += ch;
 	if (subqueries.size() >= 9)
 	    result += encode_length(subqueries.size() - 9);
-	if (ch >= MULTIWAY(5))
+	if (ch >= MULTIWAY(13))
 	    result += encode_length(parameter);
     } else {
 	result += ch;
@@ -949,6 +965,25 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
     // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
     // SynonymPostList, which supplies the weights.
     RETURN(qopt->make_synonym_postlist(pl, factor));
+}
+
+PostList *
+QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
+{
+    LOGCALL(MATCH, PostList *, "QueryBranch::do_max", qopt | factor);
+    OrContext ctx(subqueries.size());
+    do_or_like(ctx, qopt, factor);
+    if (factor == 0.0) {
+	// If we have a factor of 0, we don't care about the weights, so
+	// we're just like a normal OR query.
+	return ctx.postlist(qopt);
+    }
+
+    // We currently assume wqf is 1 for calculating the OP_MAX's weight
+    // since conceptually the OP_MAX is one "virtual" term.  If we were
+    // to combine multiple occurrences of the same OP_MAX expansion into
+    // a single instance with wqf set, we would want to track the wqf.
+    return ctx.postlist_max(qopt);
 }
 
 Xapian::Query::op
@@ -1356,6 +1391,38 @@ QuerySynonym::postlist(QueryOptimiser * qopt, double factor) const
     RETURN(pl);
 }
 
+Query::Internal *
+QuerySynonym::done()
+{
+    // An empty Synonym gives MatchNothing.  Note that add_subquery() drops any
+    // subqueries which are MatchNothing.
+    if (subqueries.empty())
+	return NULL;
+    // Synonym of a single subquery should only be simplified if that subquery
+    // is a term (or MatchAll).  Note that MatchNothing subqueries are dropped,
+    // so we'd never get here with a single MatchNothing subquery.
+    if (subqueries.size() == 1) {
+	Query::op sub_type = subqueries[0].get_type();
+	if (sub_type == Query::LEAF_TERM || sub_type == Query::LEAF_MATCH_ALL)
+	    return subqueries[0].internal.get();
+    }
+    return this;
+}
+
+PostingIterator::Internal *
+QueryMax::postlist(QueryOptimiser * qopt, double factor) const
+{
+    LOGCALL(QUERY, PostingIterator::Internal *, "QueryMax::postlist", qopt | factor);
+    // Save and restore total_subqs so we only add one for the whole
+    // OP_MAX subquery (or none if we're not weighted).
+    Xapian::termcount save_total_subqs = qopt->get_total_subqs();
+    if (factor != 0.0)
+	++save_total_subqs;
+    PostList * pl = do_max(qopt, factor);
+    qopt->set_total_subqs(save_total_subqs);
+    RETURN(pl);
+}
+
 string
 QueryAnd::get_description() const
 {
@@ -1414,6 +1481,12 @@ string
 QuerySynonym::get_description() const
 {
     return get_description_helper(" SYNONYM ");
+}
+
+string
+QueryMax::get_description() const
+{
+    return get_description_helper(" MAX ");
 }
 
 }

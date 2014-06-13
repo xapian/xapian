@@ -331,6 +331,16 @@ On Mac OS X, if you're using macports you'll want the following:
   * texlive-basic (for makeindex in configure)
   * texlive-latex-extra (latex style)
 
+Alternatively, you can install MacTeX from http://www.tug.org/mactex/ instead
+of texlive, texlive-basic and texlive-latex-extra.
+
+If you're using homebrew you'll want the following::
+
+    brew install libmagic pcre
+
+The homebrew texlive package only supports 32 bit systems, so you'll probably
+want to install MacTeX from http://www.tug.org/mactex/ instead.
+
 If you're doing much development work, you'll probably also want the following
 tools installed:
 
@@ -403,14 +413,14 @@ documentation), but you can configure and build.
 
 The documentation tools are:
 
-* doxygen (v1.8.5 is used for 1.3.x snapshots and releases; 1.7.6.1 fails to
+* doxygen (v1.8.7 is used for 1.3.x snapshots and releases; 1.7.6.1 fails to
   process trunk after PL2Weight was added).
 * dot (part of Graphviz.  Doxygen's DOT_MULTI_TARGETS option apparently needs
   ">1.8.10")
 * gs (part of Ghostscript)
 * pdflatex (in texlive-latex-base on Debian/Ubuntu)
 * epstopdf (in texlive-extra-utils on Debian/Ubuntu)
-* makeindex (in texlive-base-bin on Debian/Ubuntu)
+* makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 * help2man
 * rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
@@ -423,7 +433,21 @@ for them there.
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-    apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+    apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+
+On Mac OS X, if you're using homebrew, you'll want the following::
+
+    brew install help2man graphviz
+
+If you installed graphviz by using homebrew but got the following error when
+running the configure script::
+
+    configure: error: dot (part of the graphviz package) is required to build documentation
+
+Suppose you are using graphviz 2.36.0, you can type the following into
+terminal and rerun the configure script::
+
+    ln -s /usr/local/Cellar/graphviz/2.36.0/bin/dot /usr/local/bin/dot
 
 Autotools versions
 ------------------
@@ -442,7 +466,7 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.13.1 is used to generate snapshots and releases.
+* automake 1.14.1 is used to generate snapshots and releases.
 
   automake 1.12.2 is a hard minimum requirement.  This version fixes a
   security issue (CVE-2012-3386) in the generated `make distcheck` rules.
@@ -470,6 +494,52 @@ Building from git on Windows with MSVC
 The windows build process is maintained in the xapian-maintainer-tools
 directory in the Xapian git repository.  See the win32msvc/README file in that
 directory for details of how to build from git.
+
+Using a Vagrant-driven Ubuntu virtual machine
+---------------------------------------------
+
+Note: Vagrant support is experimental. Please report bugs in the
+normal fashion, to http://trac.xapian.org/newticket, or ask for help
+on the #xapian IRC channel on Freenode.
+
+If you have Vagrant (http://www.vagrantup.com/, tested on version
+1.5.2) and VirtualBox (https://www.virtualbox.org/, tested on version
+4.3.10) installed, `vagrant up` will make a virtual machine suitable
+for developing Xapian:
+
+ * Ubuntu 13.04 with all packages needed to build Xapian and its
+   documentation
+
+ * eatmydata (to speed up test runs) and valgrind (for debugging
+   memory allocations) both also installed
+
+ * source code from this checkout in /vagrant; edit it on your host
+   operating system and changes are reflected in the VM. The source
+   tree is bootstrapped automatically (ensuring that the right
+   versions of the build tools are available on the VM)
+
+ * build tree in /home/vagrant/build, configured to install into
+   /home/vagrant/install, with maintainer mode and documentation
+   both enabled
+
+Setting up can take a long time, as it downloads a minimal base box
+and then installs all the required packages; once this is done you
+don't have to wait so long if you need to reprovision the VM. (Once
+Ubuntu 14.04 is released the plan is to build our own base box with
+these packages already installed, which should make the process much
+faster.)
+
+`vagrant ssh` will log you into the VM, and you can type `cd build &&
+make` to build Xapian. `make check` will run the tests.
+
+(As noted above, in maintainer mode most changes that require
+reconfiguration will happen automatically. If you need to do it by
+hand you can either run the configure command yourself, or you can run
+`vagrant provision`, which also checks for any system package
+updates.)
+
+The VM has a single 64 bit virtual processor, with 384M of memory; it
+takes about 8G of disk space once up and running.
 
 Use of C++ Features
 ===================
@@ -719,8 +789,11 @@ at least GCC gives a warning).
 Branch Prediction Hints
 =======================
 
-GCC 3.0 and newer and Intel's C++ compiler both provide a mechanism for giving
-the compiler hints to assist branch prediction (using ``__builtin_expect()``).
+For compilers which support ``__builtin_expect()`` (GCC >= 3.0 and some others)
+you can provide manual hints to assist branch prediction.  We've wrapped these
+in macros which evaluate to just their argument for compilers which don't
+support ``__builtin_expect()__``.
+
 Within the xapian-core library code, you can mark the expressions in ``if`` and
 ``while`` statements as ``rare`` (if the condition is rarely true) or ``usual``
 (if the condition is usually true).
@@ -817,9 +890,10 @@ Here's an incomplete list of things to avoid:
   Note that versions of these (GNU versions in particular) support switches
   which aren't portable - notably, "test -r" isn't portable; neither is
   "cp -a".  And note that "mkdir -p" isn't portable - the semantics vary.
-  See the "Goat Book" for more details and other useful tips:
+  The autoconf manual has some useful information about writing portable
+  shell code (most of it not specific to autoconf)::
 
-    http://sources.redhat.com/autobook/
+    http://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
 
 * Don't use "include" - it's not present in BSD make (at least some versions
   have ".include" instead, but that doesn't really seem to help...)  Automake
@@ -1487,6 +1561,9 @@ How to make a release
 This is a (hopefully complete) list of the jobs which need doing:
 
 * Email Fabrice Colin and Tim Brody so they can check RPM packaging.
+
+* Check if `config/config.guess` and `config/config.sub` need updating to
+  more recent versions from http://git.savannah.gnu.org/gitweb/?p=config.git
 
 * Check the revision currently specified in the svn:externals property of
   xapian-applications/omega.  Unless there's a good reason, we should release

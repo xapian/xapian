@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -495,11 +495,13 @@ RemoteServer::msg_query(const string &message_in)
     check_at_least = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
-    Xapian::Weight::Internal total_stats(unserialise_stats(message));
-    total_stats.set_bounds_from_db(*db);
+    AutoPtr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
+    unserialise_stats(message, *(total_stats.get()));
+    total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, *(total_stats.get()), 0, 0);
+    mset.internal->stats = total_stats.release();
 
     message.resize(0);
     vector<Xapian::MatchSpy *>::const_iterator i;
@@ -556,6 +558,14 @@ void
 RemoteServer::msg_termfreq(const string &term)
 {
     send_message(REPLY_TERMFREQ, encode_length(db->get_termfreq(term)));
+}
+
+void
+RemoteServer::msg_freqs(const string &term)
+{
+    string msg = encode_length(db->get_termfreq(term));
+    msg += encode_length(db->get_collection_freq(term));
+    send_message(REPLY_FREQS, msg);
 }
 
 void

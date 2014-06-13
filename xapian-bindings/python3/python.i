@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013 Olly Betts
+ * Copyright (C) 2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 %}
 
 /* These were deprecated before Python 3 support was released. */
-#define XAPIAN_BINDINGS_SKIP_BRASS_AND_CHERT_FACTORIES
+#define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 
 %begin %{
 #include <config.h>

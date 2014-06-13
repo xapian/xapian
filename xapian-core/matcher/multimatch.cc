@@ -376,7 +376,7 @@ void
 MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
 		     Xapian::MSet & mset,
-		     const Xapian::Weight::Internal & stats,
+		     Xapian::Weight::Internal & stats,
 		     const Xapian::MatchDecider *mdecider,
 		     const Xapian::KeyMaker *sorter)
 {
@@ -426,10 +426,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Get postlists and term info
     vector<PostList *> postlists;
-    map<string, Xapian::MSet::Internal::TermFreqAndWeight> termfreqandwts;
-    map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts_ptr;
-    termfreqandwts_ptr = &termfreqandwts;
-
     Xapian::termcount total_subqs = 0;
     // Keep a count of matches which we know exist, but we won't see.  This
     // occurs when a submatch is remote, and returns a lower bound on the
@@ -439,11 +435,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     for (size_t i = 0; i != leaves.size(); ++i) {
 	PostList *pl;
 	try {
-	    pl = leaves[i]->get_postlist_and_term_info(this,
-						       termfreqandwts_ptr,
-						       &total_subqs);
-	    if (termfreqandwts_ptr && !termfreqandwts.empty())
-		termfreqandwts_ptr = NULL;
+	    pl = leaves[i]->get_postlist(this, &total_subqs);
 	    if (is_remote[i]) {
 		if (pl->get_termfreq_min() > first + maxitems) {
 		    LOGLINE(MATCH, "Found " <<
@@ -457,7 +449,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	} catch (Xapian::Error & e) {
 	    if (!errorhandler) throw;
 	    LOGLINE(EXCEPTION, "Calling error handler for "
-			       "get_term_info() on a SubMatch.");
+			       "get_postlist() on a SubMatch.");
 	    (*errorhandler)(e);
 	    // FIXME: check if *ALL* the remote servers have failed!
 	    // Continue match without this sub-match.
@@ -481,15 +473,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");
-
-#ifdef XAPIAN_DEBUG_LOG
-    {
-	map<string, Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator tfwi;
-	for (tfwi = termfreqandwts.begin(); tfwi != termfreqandwts.end(); ++tfwi) {
-	    LOGLINE(MATCH, "termfreqandwts[" << tfwi->first << "] = " << tfwi->second.termfreq << ", " << tfwi->second.termweight);
-	}
-    }
-#endif
 
     // Empty result set
     Xapian::doccount docs_matched = 0;
@@ -550,7 +533,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   uncollapsed_lower_bound,
 					   matches_estimated,
 					   max_possible, greatest_wt, items,
-					   termfreqandwts,
 					   0));
 	return;
     }
@@ -1174,6 +1156,5 @@ new_greatest_weight:
 				       uncollapsed_lower_bound,
 				       uncollapsed_estimated,
 				       max_possible, greatest_wt, items,
-				       termfreqandwts,
 				       percent_scale * 100.0));
 }

@@ -1,7 +1,7 @@
 /** @file queryoptimiser.h
  * @brief Details passed around while building PostList tree from Query tree
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -69,14 +69,10 @@ class QueryOptimiser {
 
     void set_total_subqs(Xapian::termcount n) { total_subqs = n; }
 
-    Xapian::Weight * make_wt(const std::string & term,
-			     Xapian::termcount wqf,
-			     double factor) {
-	return localsubmatch.make_wt(term, wqf, factor);
-    }
-
-    LeafPostList * open_post_list(const std::string& term, double max_part) {
-	return localsubmatch.open_post_list(&hint, term, max_part);
+    LeafPostList * open_post_list(const std::string& term,
+				  Xapian::termcount wqf,
+				  double factor) {
+	return localsubmatch.open_post_list(term, wqf, factor, &hint);
     }
 
     PostList * make_synonym_postlist(PostList * pl, double factor) {

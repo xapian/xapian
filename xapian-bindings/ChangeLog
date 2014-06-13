@@ -1,3 +1,111 @@
+Thu May 01 00:28:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add tests of get_eset() with an ExpandDecider and
+	  with a min weight threshold.
+
+Sun Apr 06 19:40:12 GMT 2014  James Aylett <james@tartarus.org>
+
+       * perl/Makefile.am: Perl tests are ordering-dependent, so
+         use .NOTPARALLEL to avoid problems during parallel builds.
+
+Sun Mar 30 22:57:50 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
+
+	* java/SmokeTest.java: Add testcase that FLAG_SPELLING is now wrapped
+	  in a usable way.  (see #616)
+
+Sun Mar 30 22:06:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.rst: Note that constants can now be accessed using
+	  CLASS.CONSTANT as well as CLASS_CONSTANT.
+
+Sun Mar 30 22:04:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* lua/docs/index.rst: RST source formatting tweak.
+
+Thu Mar 27 23:02:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Whitespace tweak.
+
+Thu Mar 27 23:00:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* lua/smoketest.lua: Change expect() parameter order to the more
+	  natural (got, expected), which most of the calls already used,
+	  and fix up the few calls which passed (expected, got).
+
+Thu Mar 27 10:45:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Pass
+	  -DSWIG_PYTHON_LEGACY_BOOL to SWIG to revert strict bool typemap to
+	  the more Pythonic older typemap.
+
+Thu Mar 27 07:21:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't report Python version twice if it's too new or
+	  too old.
+
+Mon Mar 10 11:17:12 GMT 2014  Olly Betts <olly@survex.com>
+
+	* README: Add links to Erlang and Node.js bindings.
+
+Mon Mar 10 02:35:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/docs/index.rst,lua/docs/index.rst,php/docs/index.rst,
+	  python/docs/index.rst,ruby/docs/index.rst,tcl8/docs/index.rst:
+	  Remove use of "$Date" as it's not expanded by git, and the "last
+	  updated" information isn't all that informative anyway - there can
+	  still be stale information even if the file was updated very
+	  recently.
+
+Mon Mar 10 02:27:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am: Fix to build Ruby docs from reStructured text,
+	  which I somehow failed to apply from Mayank's patch.
+
+Sun Mar 09 10:14:38 GMT 2014  Mayank Chaudhary <mayankchaudhary.iitr@gmail.com>
+
+	* csharp/Makefile.am,csharp/docs/index.html,csharp/docs/index.rst,
+	  java/Makefile.am,java/docs/index.html,java/docs/index.rst,
+	  lua/Makefile.am,lua/docs/index.html,lua/docs/index.rst,
+	  php/Makefile.am,php/docs/index.html,php/docs/index.rst,
+	  python/Makefile.am,python/docs/index.html,python/docs/index.rst,
+	  ruby/docs/index.html,ruby/docs/index.rst,tcl8/Makefile.am,
+	  tcl8/docs/index.html,tcl8/docs/index.rst: Convert HTML docs to
+	  reStructured text.
+
+Sun Feb 23 22:06:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove unnecessary m4 quoting.
+
+Fri Feb 21 07:26:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix Ruby bindings to build on Windows (and other
+	  platforms where allow_undefined_flag=unsupported. (fixes#634)
+
+Mon Feb 17 05:02:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* README: Note that C# bindings now need .NET 2 or later (because
+	  that's what SWIG-generated code now requires).
+
+Mon Feb 17 04:16:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add missing "exit(1);" after check that
+	  MatchDecider returns an MSet with the expected docid in.
+
+Sun Feb 16 05:51:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/python.i: Update (no longer recognised)
+	  XAPIAN_BINDINGS_SKIP_BRASS_AND_CHERT_FACTORIES to
+	  XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES so deprecated db
+	  factories aren't wrapped.
+	* python3/smoketest.py: Update testcases to test factories which
+	  shouldn't be wrapped aren't, and that the replacements work.
+
+Wed Jan 29 04:01:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/Makefile.am,python3/run-python-test: Pass Python 3
+	  interpreter as PYTHON3 not PYTHON, and default to python3 if not
+	  specified.
+
 Fri Jan 10 09:00:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Update for xapian-core Database::check() optional

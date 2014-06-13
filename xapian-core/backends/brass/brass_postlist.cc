@@ -1,7 +1,7 @@
 /* brass_postlist.cc: Postlists in a brass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,30 +34,23 @@
 
 using Xapian::Internal::intrusive_ptr;
 
-Xapian::doccount
-BrassPostListTable::get_termfreq(const string & term) const
+void
+BrassPostListTable::get_freqs(const string & term,
+			      Xapian::doccount * termfreq_ptr,
+			      Xapian::termcount * collfreq_ptr) const
 {
     string key = make_key(term);
     string tag;
-    if (!get_exact_entry(key, tag)) return 0;
-
-    Xapian::doccount termfreq;
-    const char * p = tag.data();
-    BrassPostList::read_number_of_entries(&p, p + tag.size(), &termfreq, NULL);
-    return termfreq;
-}
-
-Xapian::termcount
-BrassPostListTable::get_collection_freq(const string & term) const
-{
-    string key = make_key(term);
-    string tag;
-    if (!get_exact_entry(key, tag)) return 0;
-
-    Xapian::termcount collfreq;
-    const char * p = tag.data();
-    BrassPostList::read_number_of_entries(&p, p + tag.size(), NULL, &collfreq);
-    return collfreq;
+    if (!get_exact_entry(key, tag)) {
+	if (termfreq_ptr)
+	    *termfreq_ptr = 0;
+	if (collfreq_ptr)
+	    *collfreq_ptr = 0;
+    } else {
+	const char * p = tag.data();
+	BrassPostList::read_number_of_entries(&p, p + tag.size(),
+					      termfreq_ptr, collfreq_ptr);
+    }
 }
 
 Xapian::termcount

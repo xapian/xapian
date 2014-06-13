@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,7 @@ static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE...\n\n"
 "Options:\n"
 "  -a                    show all terms in the database\n"
+"  -A <prefix>           show all terms in the database with given prefix\n"
 "  -r <recno>            for term list(s)\n"
 "  -t <term>             for posting list(s)\n"
 "  -t <term> -r <recno>  for position list(s)\n"
@@ -173,13 +174,16 @@ show_docdata(Database &db,
 }
 
 static void
-show_termlist(const Database &db, Xapian::docid did)
+show_termlist(const Database &db, Xapian::docid did,
+	      const char * all_pfx = NULL)
 {
     TermIterator t, tend;
-    if (did == 0) {
-	t = db.allterms_begin();
-	tend = db.allterms_end();
+    if (all_pfx) {
+	t = db.allterms_begin(all_pfx);
+	tend = db.allterms_end(all_pfx);
 	cout << "All terms in database";
+	if (all_pfx[0])
+	    cout << " with prefix \"" << all_pfx << "\"";
     } else {
 	t = db.termlist_begin(did);
 	tend = db.termlist_end(did);
@@ -241,7 +245,7 @@ main(int argc, char **argv) try {
 	}
     }
 
-    bool all_terms = false;
+    const char * all_terms = NULL;
     vector<docid> recnos;
     vector<string> terms;
     vector<string> dbs;
@@ -250,10 +254,13 @@ main(int argc, char **argv) try {
     bool slot_set = false;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "ar:t:s:1vV::dz")) != -1) {
+    while ((c = gnu_getopt(argc, argv, "aA:r:t:s:1vV::dz")) != -1) {
 	switch (c) {
 	    case 'a':
-		all_terms = true;
+		all_terms = "";
+		break;
+	    case 'A':
+		all_terms = optarg;
 		break;
 	    case 'r': {
 		char * end;
@@ -344,7 +351,7 @@ main(int argc, char **argv) try {
     }
 
     if (all_terms) {
-	show_termlist(db, 0);
+	show_termlist(db, 0, all_terms);
     }
 
     if (!recnos.empty()) {

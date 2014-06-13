@@ -74,11 +74,19 @@ size_t io_read(int fd, char * p, size_t n, size_t min);
 /** Write n bytes from block pointed to by p to file descriptor fd. */
 void io_write(int fd, const char * p, size_t n);
 
+inline void io_write(int fd, const unsigned char * p, size_t n) {
+    io_write(fd, reinterpret_cast<const char *>(p), n);
+}
+
 /// Read block b size n bytes into buffer p from file descriptor fd.
 void io_read_block(int fd, char * p, size_t n, off_t b);
 
 /// Write block b size n bytes from buffer p to file descriptor fd.
 void io_write_block(int fd, const char * p, size_t n, off_t b);
+
+inline void io_write_block(int fd, const unsigned char * p, size_t n, off_t b) {
+    io_write_block(fd, reinterpret_cast<const char *>(p), n, b);
+}
 
 /** Delete a file.
  *

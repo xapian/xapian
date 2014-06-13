@@ -74,8 +74,12 @@ check_chert_table(const char * tablename, string filename,
 
     // Now check the chert structures inside the btree.
     ChertTable table(tablename, filename, true);
-    if (rev_ptr) {
-	table.open(*rev_ptr);
+    if (rev_ptr && *rev_ptr) {
+	if (!table.open(*rev_ptr)) {
+	    if (out)
+		*out << "Failed to reopen table after it checked OK" << endl;
+	    return 1;
+	}
     } else {
 	table.open();
     }

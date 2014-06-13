@@ -1,3 +1,141 @@
+Mon Jun 09 01:23:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: LibreOffice can export a timestamp of "0;0" - treat
+	  this as invalid rather than as "year 0".
+
+Fri Jun 06 05:50:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Add handling for longer form of timestamps in LO
+	  HTML export.
+
+Tue Jun 03 02:29:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Fix "applications/msword" to "application/msword" in the
+	  fallback code for CDF files.
+
+Fri May 30 05:38:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc,urlencode.cc,urlencode.h: URL encode starting URL
+	  properly.
+
+Thu May 29 03:38:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Put ``...`` around Xapian C++ class names.
+
+Thu May 29 03:36:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst,query.cc: Add optional LENGTH parameter to
+	  $snippet.
+
+Thu May 29 02:41:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.cc: libmagic can return a second string starting "Composite
+	  Document File V2 Document" for the mime-type, so just look for that
+	  prefix.  And newer libmagic returns "application/CDFV2-corrupt" in
+	  these cases, so handle that too.
+
+Wed May 28 05:22:12 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex-list.cc: Remove debug output.
+
+Wed May 28 05:15:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex-list.cc: New tool to list URLs of all the
+	  documents in a database (or list of databases) indexed by omindex.
+
+Tue May 27 04:12:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Document $snippet.
+
+Tue May 27 04:07:43 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
+
+	* query.cc,templates/query: Add Omega Snipper integration.
+
+Fri May 23 12:05:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* date.cc,scriptindex.cc: Pass std::string by const reference.
+
+Fri May 23 09:05:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* query.cc: Removed unused inline function.
+
+Tue May 20 23:27:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Update comment about unrtf --nopict to note the unrtf
+	  version where this was fixed to work again.
+
+Tue May 20 23:26:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Report the size limit in the message when we skip a file
+	  which exceeds it.
+
+Mon Apr 14 10:42:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Filtering via text/html now handles HTML documents which
+	  specify a charset.  "application/vnd.ms-outlook" is now handled by
+	  filtering via text/html rather than as a hard-coded special case.
+
+Thu Apr 10 03:47:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Add support for indexing Microsoft
+	  Publisher files using pub2xhtml.
+
+Thu Apr 10 03:29:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.cc: Work around libmagic returning a MIME content-type of
+	  "Composite Document File V2 Document, No summary info".
+
+Tue Mar 25 08:56:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc: Fix mis-indentation of two lines.
+
+Tue Mar 25 08:54:28 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc: Fix warning when built with GCC 4.7.2 using -Os.
+
+Thu Mar 13 01:41:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Restrict the length of what we consider to be an
+	  extension, currently to 7 characters or whatever the longest
+	  extension in the mime_map is if it is longer.
+
+Mon Mar 10 06:23:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc,expand.h,omega.cc,query.cc: Fix $set{expand,trad <K>} to
+	  work when built against an older xapian-core.
+
+Mon Mar 10 04:22:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc: Only use new query expansion API if built against
+	  xapian-core >= 1.3.2.
+
+Thu Mar 06 10:25:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* expand.cc: Throw an error if $opt{expansion} is invalid.
+
+Thu Mar 06 09:58:24 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* Makefile.am,docs/omegascript.rst,expand.cc,expand.h,omega.cc,
+	  query.cc: Add support for setting the query expansion scheme to use.
+
+Tue Feb 18 05:04:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc,tmpdir.h: Add get_tmpfile() helper function.
+
+Tue Feb 18 02:09:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Avoid '//' in temporary filename (cosmetic only).
+
+Sat Feb 15 00:58:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Wed Feb 12 05:24:23 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Don't assume .doc is
+	  application/msword but let libmagic decide, as .doc may actually be
+	  RTF, and also it's sometimes used for plain-text files.
+
 Tue Dec 31 20:20:05 GMT 2013  Olly Betts <olly@survex.com>
 
 	* timegm.cc: Fix typo.

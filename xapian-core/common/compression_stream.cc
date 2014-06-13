@@ -1,7 +1,7 @@
 /** @file compression_stream.cc
  * @brief class wrapper around zlib
  */
-/* Copyright (C) 2007,2009,2012,2013 Olly Betts
+/* Copyright (C) 2007,2009,2012,2013,2014 Olly Betts
  * Copyright (C) 2009 Richard Boulton
  * Copyright (C) 2012 Dan Colish
  *
@@ -76,7 +76,7 @@ CompressionStream::compress(string & buf) {
 
 
 void
-CompressionStream::compress(byte * buf, int size) {
+CompressionStream::compress(const byte * buf, int size) {
     if (!out || out_len < unsigned(size - 1)) {
 	delete [] out;
 	out = NULL;
@@ -84,7 +84,7 @@ CompressionStream::compress(byte * buf, int size) {
 	out = new unsigned char[out_len];
     }
     deflate_zstream->avail_in = (uInt)size;
-    deflate_zstream->next_in = (Bytef *)(buf);
+    deflate_zstream->next_in = (Bytef *)const_cast<byte *>(buf);
     deflate_zstream->next_out = out;
     deflate_zstream->avail_out = (uInt)(size - 1);
     zerr = deflate(deflate_zstream, Z_FINISH);

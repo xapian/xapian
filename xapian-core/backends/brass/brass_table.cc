@@ -41,6 +41,7 @@
 #include <climits>   /* for CHAR_BIT */
 
 #include "brass_btreebase.h"
+#include "brass_changes.h"
 #include "brass_cursor.h"
 
 #include "debuglog.h"
@@ -92,11 +93,11 @@ static inline byte *zeroed_new(size_t size)
 }
 
 /* A B-tree comprises (a) a base file, containing essential information (Block
-   size, number of the B-tree root block etc), (b) a bitmap, the Nth bit of the
-   bitmap being set if the Nth block of the B-tree file is in use, and (c) a
-   file DB containing the B-tree proper. The DB file is divided into a sequence
-   of equal sized blocks, numbered 0, 1, 2 ... some of which are free, some in
-   use. Those in use are arranged in a tree.
+   size, number of the B-tree root block etc), (b) a file DB containing the
+   B-tree proper. The DB file is divided into a sequence of equal sized blocks,
+   numbered 0, 1, 2 ... some of which are free, some in use. Those in use are
+   arranged in a tree.  Lists of currently unused blocks are stored in a
+   freelist which is itself stored in unused blocks.
 
    Each block, b, has a structure like this:
 
@@ -110,7 +111,8 @@ static inline byte *zeroed_new(size_t size)
    L = GET_LEVEL(b) is the level of the block, which is the number of levels
                     towards the root of the B-tree structure. So leaf blocks
                     have level 0 and the one root block has the highest level
-                    equal to the number of levels in the B-tree.
+		    equal to the number of levels in the B-tree.  For blocks
+		    storing the freelist, the level is set to 254.
    M = MAX_FREE(b)  is the size of the gap between the end of the directory and
                     the first item of data. (It is not necessarily the maximum
                     size among the bits of space that are free, but I can't
@@ -141,11 +143,7 @@ static inline byte *zeroed_new(size_t size)
  *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
 
-/* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
-   if the nth block is free, otherwise 1. bit_map0 is the initial state of
-   bitmap at the start of the current transaction.
-
-   Note use of the limits.h values:
+/* Note use of the limits.h values:
    UCHAR_MAX = 255, an unsigned with all bits set, and
    CHAR_BIT = 8, the number of bits per byte
 
@@ -163,43 +161,51 @@ BrassTable::read_block(uint4 n, byte * p) const
     LOGCALL_VOID(DB, "BrassTable::read_block", n | (void*)p);
     if (rare(handle == -2))
 	BrassTable::throw_database_closed();
-
-    /* Use the base bit_map_size not the bitmap's size, because
-     * the latter is uninitialised in readonly mode.
-     */
-    Assert(n / CHAR_BIT < base.get_bit_map_size());
+    AssertRel(n,<,base.get_first_unused_block());
 
     io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
 
-    int dir_end = DIR_END(p);
-    if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
-	string msg("dir_end invalid in block ");
-	msg += str(n);
-	throw Xapian::DatabaseCorruptError(msg);
+    if (GET_LEVEL(p) != LEVEL_FREELIST) {
+	int dir_end = DIR_END(p);
+	if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
+	    string msg("dir_end invalid in block ");
+	    msg += str(n);
+	    throw Xapian::DatabaseCorruptError(msg);
+	}
     }
 }
 
-/** write_block(n, p) writes block n in the DB file from address p.
- *  When writing we check to see if the DB file has already been
- *  modified. If not (so this is the first write) the old base is
- *  deleted. This prevents the possibility of it being opened
- *  subsequently as an invalid base.
+/** write_block(n, p, appending) writes block n in the DB file from address p.
+ *
+ *  If appending is false (the default if not specified), then we check to see
+ *  if the DB file has already been modified. If not (so this is the first
+ *  write) the old base is deleted. This prevents the possibility of it being
+ *  opened subsequently as an invalid base.
  */
 void
-BrassTable::write_block(uint4 n, const byte * p) const
+BrassTable::write_block(uint4 n, const byte * p, bool appending) const
 {
-    LOGCALL_VOID(DB, "BrassTable::write_block", n | p);
+    LOGCALL_VOID(DB, "BrassTable::write_block", n | p | appending);
     Assert(writable);
     /* Check that n is in range. */
-    Assert(n / CHAR_BIT < base.get_bit_map_size());
+    AssertRel(n,<,base.get_first_unused_block());
 
-    /* don't write to non-free */;
-    AssertParanoid(base.block_free_at_start(n));
+    /* don't write to non-free */
+    // FIXME: We can no longer check this easily.
+    // AssertParanoid(base.block_free_at_start(n));
 
     /* write revision is okay */
     AssertEqParanoid(REVISION(p), latest_revision_number + 1);
 
-    if (flags & Xapian::DB_DANGEROUS) {
+    if (appending) {
+	// In the case of the freelist, new entries can safely be written into
+	// the space at the end of the latest freelist block, as that's unused
+	// by previous revisions.  It is also safe to write into a block which
+	// wasn't used in the previous revision.
+	//
+	// It's only when we start a new freelist block that we need to delete
+	// any base files.
+    } else if (flags & Xapian::DB_DANGEROUS) {
 	if (number_of_bases) {
 	    // Remove base files to prevent readers opening the database.
 	    // FIXME: This doesn't deal with any existing readers though.
@@ -220,11 +226,54 @@ BrassTable::write_block(uint4 n, const byte * p) const
 	(void)io_unlink(name + "base" + other_base_letter());
 	number_of_bases = 1;
 	latest_revision_number = revision_number;
+    } // FIXME: replicate removal of old bases?
+
+    io_write_block(handle, p, block_size, n);
+
+    if (!changes_obj) return;
+
+    unsigned char v;
+    // FIXME: track table_id in this class?
+    if (strcmp(tablename, "position") == 0) {
+	v = 0;
+    } else if (strcmp(tablename, "postlist") == 0) {
+	v = 1;
+    } else if (strcmp(tablename, "record") == 0) {
+	v = 2;
+    } else if (strcmp(tablename, "spelling") == 0) {
+	v = 3;
+    } else if (strcmp(tablename, "synonym") == 0) {
+	v = 4;
+    } else if (strcmp(tablename, "termlist") == 0) {
+	v = 5;
+    } else {
+	return; // FIXME
     }
 
-    io_write_block(handle, reinterpret_cast<const char *>(p), block_size, n);
-}
+    if (block_size == 2048) {
+	v |= 0 << 3;
+    } else if (block_size == 4096) {
+	v |= 1 << 3;
+    } else if (block_size == 8192) {
+	v |= 2 << 3;
+    } else if (block_size == 16384) {
+	v |= 3 << 3;
+    } else if (block_size == 32768) {
+	v |= 4 << 3;
+    } else if (block_size == 65536) {
+	v |= 5 << 3;
+    } else {
+	return; // FIXME
+    }
 
+    string buf;
+    buf += char(v);
+    // Write the block number to the file
+    pack_uint(buf, n);
+
+    changes_obj->write_block(buf);
+    changes_obj->write_block(reinterpret_cast<const char *>(p), block_size);
+}
 
 /* A note on cursors:
 
@@ -348,14 +397,13 @@ BrassTable::alter()
 
 	brass_revision_number_t rev = REVISION(C[j].get_p());
 	if (rev == latest_revision_number + 1) {
-	    Assert(base.block_free_at_start(C[j].get_n()));
 	    return;
 	}
 	Assert(rev < latest_revision_number + 1);
 	uint4 n = C[j].get_n();
-	base.free_block(n);
+	base.mark_block_unused(this, n);
 	SET_REVISION(C[j].get_modifiable_p(block_size), latest_revision_number + 1);
-	n = base.next_free_block();
+	n = base.get_block(this);
 	C[j].set_n(n);
 
 	if (j == level) return;
@@ -480,7 +528,7 @@ BrassTable::split_root(uint4 split_n)
     byte * q = C[level].init(block_size);
     memset(q, 0, block_size);
     C[level].c = DIR_START;
-    C[level].set_n(base.next_free_block());
+    C[level].set_n(base.get_block(this));
     C[level].rewrite = true;
     SET_REVISION(q, latest_revision_number + 1);
     SET_LEVEL(q, level);
@@ -663,7 +711,7 @@ BrassTable::add_item(Item_wr kt_, int j)
 	}
 
 	uint4 split_n = C[j].get_n();
-	C[j].set_n(base.next_free_block());
+	C[j].set_n(base.get_block(this));
 
 	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
 	SET_DIR_END(split_p, m);
@@ -752,7 +800,7 @@ BrassTable::delete_item(int j, bool repeatedly)
     if (!repeatedly) return;
     if (j < level) {
 	if (dir_end == DIR_START) {
-	    base.free_block(C[j].get_n());
+	    base.mark_block_unused(this, C[j].get_n());
 	    C[j].rewrite = false;
 	    C[j].set_n(BLK_UNUSED);
 	    C[j + 1].rewrite = true;  /* *is* necessary */
@@ -763,7 +811,7 @@ BrassTable::delete_item(int j, bool repeatedly)
 	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
 	    uint4 new_root = Item(C[level].get_p(), DIR_START).block_given_by();
-	    base.free_block(C[level].get_n());
+	    base.mark_block_unused(this, C[level].get_n());
 	    C[level].destroy();
 	    level--;
 
@@ -1254,7 +1302,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 	bool valid_base = false;
 	{
 	    for (size_t i = 0; i < BTREE_BASES; ++i) {
-		bool ok = bases[i].read(name, basenames[i], writable, err_msg);
+		bool ok = bases[i].read(name, basenames[i], err_msg);
 		base_ok[i] = ok;
 		if (ok) {
 		    valid_base = true;
@@ -1271,7 +1319,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 	    }
 	    string message = "Error opening table '";
 	    message += name;
-	    message += "':\n";
+	    message += "DB':\n";
 	    message += err_msg;
 	    throw Xapian::DatabaseOpeningError(message);
 	}
@@ -1326,7 +1374,7 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 
 	/* basep now points to the most recent base block */
 
-	/* Avoid copying the bitmap etc. - swap contents with the base
+	/* Avoid copying the base for efficiency - swap contents with the base
 	 * object in the vector, since it'll be destroyed anyway soon.
 	 */
 	base.swap(*basep);
@@ -1335,7 +1383,6 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 	block_size =       base.get_block_size();
 	root =             base.get_root();
 	level =            base.get_level();
-	//bit_map_size =     basep->get_bit_map_size();
 	item_count =       base.get_item_count();
 	faked_root_block = base.get_have_fakeroot();
 	sequential =       base.get_sequential();
@@ -1394,7 +1441,7 @@ BrassTable::read_root()
 	} else {
 	    /* writing - */
 	    SET_REVISION(p, latest_revision_number + 1);
-	    C[0].set_n(base.next_free_block());
+	    C[0].set_n(base.get_block(this));
 	}
     } else {
 	/* using a root block stored on disk */
@@ -1487,6 +1534,7 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  writable(!readonly_),
 	  cursor_created_since_last_modification(false),
 	  cursor_version(0),
+	  changes_obj(NULL),
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
 	  comp_stream(compress_strategy_),
@@ -1553,7 +1601,7 @@ BrassTable::create_and_open(int flags_, unsigned int block_size_)
     base_.set_block_size(flags_, block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
-    base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
+    base_.write_to_file(name + "baseA", 'A', tablename, changes_obj);
 
     /* remove the alternative base file, if any */
     (void)io_unlink(name + "baseB");
@@ -1619,10 +1667,9 @@ BrassTable::flush_db()
 }
 
 void
-BrassTable::commit(brass_revision_number_t revision, int changes_fd,
-		   const string * changes_tail)
+BrassTable::commit(brass_revision_number_t revision)
 {
-    LOGCALL_VOID(DB, "BrassTable::commit", revision | changes_fd | changes_tail);
+    LOGCALL_VOID(DB, "BrassTable::commit", revision);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1638,11 +1685,6 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
     }
 
     try {
-	if (faked_root_block) {
-	    /* We will use a dummy bitmap. */
-	    base.clear_bit_map();
-	}
-
 	base.set_revision(revision);
 	base.set_root(C[level].get_n());
 	base.set_level(level);
@@ -1653,7 +1695,6 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	base_letter = other_base_letter();
 
 	number_of_bases = 2;
-	latest_revision_number = revision_number = revision;
 	root = C[level].get_n();
 
 	Btree_modified = false;
@@ -1662,6 +1703,11 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	    C[i].init(block_size);
 	}
 
+	// Write the freelist into "<table>.DB" first.
+	base.commit(this);
+
+	latest_revision_number = revision_number = revision;
+
 	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
 	// that a reader can't try to read a partially written base file.
 	string tmp = name;
@@ -1669,7 +1715,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	string basefile = name;
 	basefile += "base";
 	basefile += char(base_letter);
-	base.write_to_file(tmp, base_letter, tablename, changes_fd, changes_tail);
+	base.write_to_file(tmp, base_letter, tablename, changes_obj);
 
 	// Do this as late as possible to allow maximum time for writes to
 	// happen, and so the calls to io_sync() are adjacent which may be
@@ -1698,7 +1744,6 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 		throw Xapian::DatabaseError(msg);
 	    }
 	}
-	base.commit();
 
 	read_root();
 
@@ -1709,75 +1754,6 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	BrassTable::close();
 	throw;
     }
-}
-
-void
-BrassTable::write_changed_blocks(int changes_fd, bool compressed)
-{
-    LOGCALL_VOID(DB, "BrassTable::write_changed_blocks", changes_fd | compressed);
-    Assert(changes_fd >= 0);
-    if (handle < 0) return;
-    if (faked_root_block) return;
-
-    string buf;
-    pack_uint(buf, 2u); // Indicate the item is a list of blocks
-    pack_string(buf, tablename);
-    pack_uint(buf, block_size);
-
-    // Write the table name and block size to the file
-    io_write(changes_fd, buf.data(), buf.size());
-
-    // Compare the old and new bitmaps to find blocks which have changed, and
-    // write them to the file descriptor.
-    uint4 n = 0;
-    byte * p = new byte[block_size];
-    try {
-	base.calculate_last_block();
-	while (base.find_changed_block(&n)) {
-	    buf.resize(0);
-	    pack_uint(buf, n + 1);
-	    // Write the block number to the file
-	    io_write(changes_fd, buf.data(), buf.size());
-
-	    // Read block n.
-	    read_block(n, p);
-
-	    // Write block n to the file.
-	    if (compressed) {
-		comp_stream.lazy_alloc_deflate_zstream();
-		comp_stream.compress(p, block_size);
-		if (comp_stream.zerr == Z_STREAM_END) {
-		    buf.resize(0);
-		    pack_uint(buf, comp_stream.deflate_zstream->total_out);
-		    io_write(changes_fd, buf.data(), buf.size());
-		    io_write(changes_fd, reinterpret_cast<const char *>(comp_stream.out),
-			     comp_stream.deflate_zstream->total_out);
-		} else {
-		    // The deflate failed, try to write data uncompressed
-		    buf.resize(0);
-		    pack_uint(buf, 0u);
-		    io_write(changes_fd, buf.data(), buf.size());
-		    io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
-		}
-	    }
-	    else {
-		buf.resize(0);
-		pack_uint(buf, 0u);
-		io_write(changes_fd, buf.data(), buf.size());
-		io_write(changes_fd, reinterpret_cast<const char *>(p), block_size);
-	    }
-	    ++n;
-	}
-	delete[] p;
-	p = 0;
-    } catch (...) {
-	delete[] p;
-	throw;
-    }
-    buf.resize(0);
-    pack_uint(buf, 0u);
-    // Write 0 for end of blocks
-    io_write(changes_fd, buf.data(), buf.size());
 }
 
 void
@@ -1800,7 +1776,7 @@ BrassTable::cancel()
 	throw Xapian::InvalidOperationError("cancel() not supported under Xapian::DB_DANGEROUS");
 
     string err_msg;
-    if (!base.read(name, base_letter, writable, err_msg)) {
+    if (!base.read(name, base_letter, err_msg)) {
 	throw Xapian::DatabaseCorruptError(string("Couldn't reread base ") + base_letter);
     }
 
@@ -1808,7 +1784,6 @@ BrassTable::cancel()
     block_size =       base.get_block_size();
     root =             base.get_root();
     level =            base.get_level();
-    //bit_map_size =     basep->get_bit_map_size();
     item_count =       base.get_item_count();
     faked_root_block = base.get_have_fakeroot();
     sequential =       base.get_sequential();
@@ -1984,7 +1959,7 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 	uint4 n = C_[0].get_n();
 	while (true) {
 	    n++;
-	    if (n > base.get_last_block()) RETURN(false);
+	    if (n >= base.get_first_unused_block()) RETURN(false);
 	    if (writable) {
 		if (n == C[0].get_n()) {
 		    // Block is a leaf block in the built-in cursor

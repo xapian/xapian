@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -43,8 +43,8 @@
 #include "expand/ortermlist.h"
 #include "noreturn.h"
 
+#include <algorithm>
 #include <cstdlib> // For abs().
-
 #include <cstring>
 #include <vector>
 
@@ -316,7 +316,9 @@ Database::get_termfreq(const string & tname) const
     Xapian::doccount tf = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	tf += (*i)->get_termfreq(tname);
+	Xapian::doccount sub_tf;
+	(*i)->get_freqs(tname, &sub_tf, NULL);
+	tf += sub_tf;
     }
     RETURN(tf);
 }
@@ -330,7 +332,9 @@ Database::get_collection_freq(const string & tname) const
     Xapian::termcount cf = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	cf += (*i)->get_collection_freq(tname);
+	Xapian::termcount sub_cf;
+	(*i)->get_freqs(tname, NULL, &sub_cf);
+	cf += sub_cf;
     }
     RETURN(cf);
 }
@@ -415,6 +419,7 @@ Xapian::termcount
 Database::get_wdf_upper_bound(const string & term) const
 {
     LOGCALL(API, Xapian::termcount, "Database::get_wdf_upper_bound", term);
+    if (term.empty()) RETURN(0);
 
     Xapian::termcount full_ub = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
@@ -466,21 +471,6 @@ Database::get_document(Xapian::docid did) const
 
     // Open non-lazily so we throw DocNotFoundError if the doc doesn't exist.
     RETURN(Document(internal[n]->open_document(m, false)));
-}
-
-void *
-Database::get_document_lazily_(Xapian::docid did) const
-{
-    LOGCALL(DB, void *, "Database::get_document_lazily_", did);
-    if (did == 0)
-	docid_zero_invalid();
-
-    unsigned int multiplier = internal.size();
-    Assert(multiplier != 0);
-    Xapian::doccount n = (did - 1) % multiplier; // which actual database
-    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
-    RETURN(static_cast<void*>(internal[n]->open_document(m, true)));
 }
 
 bool
@@ -922,7 +912,7 @@ WritableDatabase::replace_document(const std::string & unique_term,
     size_t i = sub_db(retval, n_dbs);
     internal[i]->replace_document(sub_docid(retval, n_dbs), document);
 
-    // Delete any other occurences of unique_term.
+    // Delete any other occurrences of unique_term.
     while (++postit != postlist_end(unique_term)) {
 	Xapian::docid did = *postit;
 	i = sub_db(did, n_dbs);

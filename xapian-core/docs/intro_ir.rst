@@ -1,33 +1,3 @@
-.. |->| unicode:: U+2192 .. right arrow
-.. |ft| replace:: ``f``\ :sub:`t`
-.. |qt| replace:: ``q``\ :sub:`t`
-.. |Ld| replace:: ``L``\ :sub:`d`
-.. |D0| replace:: ``D``\ :sub:`0`
-.. |D1| replace:: ``D``\ :sub:`1`
-.. |D2| replace:: ``D``\ :sub:`2`
-.. |D3| replace:: ``D``\ :sub:`3`
-.. |Di| replace:: ``D``\ :sub:`i`
-.. |Dj| replace:: ``D``\ :sub:`j`
-.. |DK| replace:: ``D``\ :sub:`K`
-.. |t0| replace:: ``t``\ :sub:`0`
-.. |t1| replace:: ``t``\ :sub:`1`
-.. |t2| replace:: ``t``\ :sub:`2`
-.. |t3| replace:: ``t``\ :sub:`3`
-.. |ti| replace:: ``t``\ :sub:`i`
-.. |tj| replace:: ``t``\ :sub:`j`
-.. |tK| replace:: ``t``\ :sub:`K`
-.. |tQ| replace:: ``t``\ :sub:`Q`
-.. |k3| replace:: ``k``\ :sub:`3`
-.. |Ri| replace:: ``R``\ :sub:`i`
-.. |w1| replace:: ``w``\ :sub:`1`
-.. |w2| replace:: ``w``\ :sub:`2`
-.. |w3| replace:: ``w``\ :sub:`3`
-.. |w9| replace:: ``w``\ :sub:`9`
-.. |w38| replace:: ``w``\ :sub:`38`
-.. |w97| replace:: ``w``\ :sub:`97`
-.. |w221| replace:: ``w``\ :sub:`221`
-.. |wm| replace:: ``w``\ :sub:`m`
-
 Theoretical Background
 ======================
 
@@ -57,12 +27,12 @@ that occur in the tunes.
 If, in an IR system, a document, D, is described by a term, t, t is said
 to *index* D, and we can write,
 
-    ``t`` |->| ``D``
+    :math:`t\to D`
 
-In fact an IR system consists of a set of documents, |D1|, |D2|, |D3| ...,
-a set of terms |t1|, |t2|, |t3| ..., and set of relationships,
+In fact an IR system consists of a set of documents, :math:`D_1`, :math:`D_2`, :math:`D_3` ...,
+a set of terms :math:`t_1`, :math:`t_2`, :math:`t_3` ..., and set of relationships,
 
-    |ti| |->| |Dj|
+    :math:`t_i\to D_j`
 
 i.e. instances of terms indexing documents. A single instance of a
 particular term indexing a particular document is called a *posting*.
@@ -145,15 +115,15 @@ Boolean retrieval
 A Boolean construct of terms retrieves a corresponding set of documents.
 So, if:
 
-    |    |t1| indexes documents  1 2 3 5 8
-    |    |t2| indexes documents  2 3 6
+    |    :math:`t_1` indexes documents  1 2 3 5 8
+    |    :math:`t_1` indexes documents  2 3 6
 
 then
 
-    |    |t1| ``AND`` |t2|      retrieves  2 3
-    |    |t1| ``OR`` |t2|       retrieves  1 2 3 5 6 8
-    |    |t1| ``AND_NOT`` |t2|  retrieves  1 5 8
-    |    |t2| ``AND_NOT`` |t1|  retrieves  6
+    |    :math:`t_1` ``AND`` :math:`t_2`      retrieves  2 3
+    |    :math:`t_1` ``OR`` :math:`t_2`       retrieves  1 2 3 5 6 8
+    |    :math:`t_1` ``AND_NOT`` :math:`t_2`  retrieves  1 5 8
+    |    :math:`t_2` ``AND_NOT`` :math:`t_1`  retrieves  6
 
 The posting list of a term is a set of documents. IR becomes a matter of
 constructing other sets by doing unions, intersections and differences
@@ -225,22 +195,8 @@ non-relevant. Suppose the IR system is able to give us back K documents,
 among which r are relevant. *Precision* and *recall* are defined as
 being,
 
-.. raw:: html
-
-    <blockquote>
-    <table border=0><tr valign=center>
-    <td><tt>precision =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <u>r</u><br>K</center></tt>
-    </td>
-    <td><tt>,&nbsp;&nbsp;&nbsp;recall =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <u>r</u><br>R</center></tt>
-    </td>
-    </tr></table>
-    </blockquote>
+.. math::
+   \text{precision = }\frac{r}{K}\text{ , recall = }\frac{r}{R}
 
 
 Precision is the density of relevant documents among those retrieved.
@@ -267,7 +223,7 @@ queries, and for each query, a complete set of relevance assessments, is
 called a *test collection*. With a test collection you can test out
 different IR ideas, and see how well one performs against another. The
 controversial part of establishing any test collection is the procedure
-employed for determining the sets |Ri|, of relevance
+employed for determining the sets :math:`R_i`, of relevance
 assessments. Subjectivity of judgement comes in here, and people will
 differ about whether a particular document is relevant to a particular
 query. Even so, the averaging across queries reduces the errors that may
@@ -287,8 +243,8 @@ model comes from. You may want to skim through this section if you're
 not too interested.
 
 Suppose we have an IR system with a total of N documents. And suppose
-*Q* is a query in this IR system, made up of terms |t1|,
-|t2| ... |tQ|. There is a set, *R*, of documents
+*Q* is a query in this IR system, made up of terms :math:`t_1`,
+:math:`t_2` ... :math:`t_Q`. There is a set, *R*, of documents
 relevant to the query.
 
 In 1976, Stephen Robertson derived a formula which gives an ideal
@@ -296,23 +252,8 @@ numeric weight to a term t of Q. Just how this weight gets used we will
 see below, but essentially a high weight means an important term and a
 low weight means an unimportant term. The formula is,
 
-.. raw:: html
-
-   <blockquote>
-   <table border=0><tr valign=center>
-   <td><tt>w(t) = log&nbsp;</tt></td>
-   <td>
-   <font size="+2">(</font>
-   </td>
-   <td>
-   <tt><center>
-   <u>p (1 - q)</u><br>(1 - p) q</center></tt>
-   </td>
-   <td>
-   <font size="+2">)</font>
-   </td>
-   </tr></table>
-   </blockquote>
+.. math::
+    w(t) =\log\:\:\frac{p(1-q)}{(1-p)q}
 
 (The base of the logarithm doesn't matter, but we can suppose it is e.)
 p is the probability that t indexes a relevant document, and q the
@@ -321,11 +262,12 @@ is the probability that t does not index a relevant document, and 1 - q
 the probability that t does not index a non-relevant document. More
 mathematically,
 
-        p = P(t |->| D | D in R)
-        q = P(t |->| D | D not in R)
+.. math::
+        p = P(t \to D | D in R)
+        q = P(t \to D | D not in R)
 
-        1 - p = P(t not |->| D | D in R)
-        1 - q = P(t not |->| D | D not in R)
+        1 - p = P(t not \to D | D in R)
+        1 - q = P(t not \to D | D not in R)
 
 Suppose that t indexes n of the N documents in the IR system. As before,
 we suppose also that there are R documents in *R*, and that there are r
@@ -338,80 +280,22 @@ The total number of non-relevant documents is N - R, and the number of
 those indexed by t is n - r, so we can estimate q as (n - r)/(N - R).
 This gives us the estimates,
 
-.. raw:: html
-
-    <blockquote>
-    <table border=0><tr valign=center>
-    <td><tt>&nbsp;&nbsp;&nbsp;&nbsp;p =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <u>r</u><br>R</center></tt>
-    </td>
-    <td><tt>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 - q =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <u>N - R - n + r</u><br>N - R</center></tt>
-    </td>
-    </tr></table>
-    <table border=0><tr valign=center>
-    <td><tt>1 - p =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <u>R - r</u><br>R</center></tt>
-    </td>
-    <td><tt>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;q =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <u>n - r</u><br>N - R</center></tt>
-    </td>
-    </tr></table>
-    </blockquote>
+.. math::
+     p =\:\frac{r}{R}\:\:,\:\:1-q =\:\frac{N-R-n+r}{N-R}
+.. math::
+     1-p=\:\frac{R-r}{R}\:\:,\:\:q=\:\frac{n-r}{N-R}
 
 and so substituting in the formula for w(t) we get the estimate,
 
-.. raw:: html
-
-   <blockquote>
-   <table border=0><tr valign=center>
-   <td>
-   <tt>w(t) = log&nbsp;</tt>
-   </td>
-   <td>
-   <font size="+2">(</font>
-   </td>
-   <td>
-   <tt><center>
-   <u>r (N - R - n + r)</u><br>(R - r)(n - r)</center></tt>
-   </td>
-   <td>
-   <font size="+2">)</font>
-   </td>
-   </tr></table>
-   </blockquote>
+.. math::
+     w(t) = \log\:\:\frac{r(N - R - n + r)}{(R - r)(n - r)}
 
 Unfortunately, this formula is subject to violent behaviour when, say, n
 = r (infinity) or r = 0 (minus infinity), and so Robertson suggests the
 modified form
 
-.. raw:: html
-
-    <blockquote>
-    <table border=0><tr valign=center>
-    <td>
-    <tt>w(t) = log&nbsp;</tt>
-    </td>
-    <td>
-    <font size="+2">(</font>
-    </td>
-    <td>
-    <tt><center>
-    <u>(r + &frac12;) (N - R - n + r + &frac12;)</u><br>(R - r + &frac12;) (n - r + &frac12;)</center></tt>
-    </td>
-    <td>
-    <font size="+2">)</font>
-    </td>
-    </tr></table>
-    </blockquote>
+.. math::
+     w(t) = \log\:\:\frac{(r+\frac{1}{2})(N-R-n+r+\frac{1}{2})}{(R-r+\frac{1}{2})(n-r+\frac{1}{2})}
 
 with the reassurance that this has "some theoretical justification".
 This is the form of the term weighting formula used in Xapian's
@@ -438,23 +322,8 @@ set of documents which have been judged as relevant.
 Suppose we have no documents marked as relevant. Then R = r = 0, and
 w(t) becomes,
 
-.. raw:: html
-
-    <blockquote>
-    <table border=0><tr valign=center>
-    <td><tt>log&nbsp;</tt></td>
-    <td>
-    <font size="+2">(</font>
-    </td>
-    <td>
-    <tt><center>
-    <u>N - n + &frac12;</u><br>n + &frac12;</center></tt>
-    </td>
-    <td>
-    <font size="+2">)</font>
-    </td>
-    </tr></table>
-    </blockquote>
+.. math::
+    \log\:\frac{N-n+\frac{1}{2}}{n+\frac{1}{2}}
 
 This is approximately log((N - n)/n). Or log(N/n), since n is usually
 small compared with N. This is called inverse logarithmic weighting, and
@@ -476,19 +345,19 @@ wdp, wdf, ndl and wqf
 Before we see how the weights are used there are a few more ideas to
 introduce.
 
-As mentioned before, a term t is said to index a document D, or t |->| D.
+As mentioned before, a term t is said to index a document D, or :math:`t\to D`.
 We have emphasised that D may not be a piece of text in machine-readable
 form, and that, even when it is, t may not actually occur in the text of
 D. Nevertheless, it will often be the case that D is made up of a list
 of words,
 
-            ``D =`` |w1|, |w2|, |w3| ... |wm|
+:math:`D = w_1, w_2, w_3` ... :math:`w_m`
 
 and that many, if not all, of the terms which index D derive from these
 words (for example, the terms are often lower-cased and stemmed forms of
 these words).
 
-If a term derives from words |w9|, |w38|, |w97| and |w221| in the indexing
+If a term derives from words :math:`w_9, w_38, w_97` and :math:`w_221` in the indexing
 process, we can say that the term "occurs" in D at positions 9, 38, 97 and
 221, and so for each term a document may have a vector of positional
 information. These are the *within-document positions* of t, or the *wdp*
@@ -504,7 +373,7 @@ document text.
 
 There are various ways in which we might measure the length of a
 document, but the easiest is to suppose it is made up of m words,
-|w1| to |wm|, and to define its length as m.
+:math:`w_1` to :math:`w_m`, and to define its length as m.
 
 The *normalised document length*, or *ndl*, is then m divided by the
 average length of the documents in the IR system. So the average length
@@ -528,60 +397,58 @@ Using the weights. The *MSet*
 Now to pull everything together. From the probabilistic term weights we
 can assign a weight to any document, d, as follows,
 
-.. raw:: html
+.. math::
+     W(d) = \sum_{t\to d,t \in Q}\:\frac{(k + 1) f_t}{k.L_d + f_t}\:w(t)
 
-    <blockquote>
-    <table border=0><tr valign=center>
-    <td><tt>W(d) =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <font size="+4">&Sigma;</font><br><small>t &rarr; d, t in <i>Q</i></small></tt>
-    </td>
-    <td><tt><center>
-    <u>(k + 1) f</u><sub>t</sub><br>k.L<sub>d</sub> + f<sub>t</sub>
-    </center></tt></td>
-    <td><tt>&nbsp;w(t)</tt></td>
-    </tr></table>
-    </blockquote>
-
-The sum extends over the terms of *Q* which index d. |ft| is
-the wdf of t in d, |Ld| is the ndl of d, and k is some suitably
+The sum extends over the terms of *Q* which index d. :math:`f_t` is
+the wdf of t in d, :math:`L_d` is the ndl of d, and k is some suitably
 chosen constant.
 
-The factor ``k+1`` is actually redundant, but helps with the interpretation
+The factor :math:`k+1` is actually redundant, but helps with the interpretation
 of the equation. In Xapian, this weighting scheme is implemented by the
 `Xapian::TradWeight class <apidoc/html/classXapian_1_1TradWeight.html>`_
-and the factor ``(k+1)`` is ignored.
+and the factor :math:`(k+1)` is ignored.
 
-If ``k`` is set to zero the factor before ``w(t)`` is 1, and the wdfs are
-ignored. As ``k`` tends to infinity, the factor becomes
-|ft| ``/`` |Ld|, and the wdfs take on their greatest
+If :math:`k` is set to zero the factor before :math:`w(t)` is 1, and the wdfs are
+ignored. As k tends to infinity, the factor becomes
+:math:`f_t`/:math:`L_d`, and the wdfs take on their greatest
 importance. Intermediate values scale the wdf contribution between these
-extremes. The best ``k`` actually depends on the characteristics of the IR
+extremes. The best :math:`k` actually depends on the characteristics of the IR
 system as a whole, and unfortunately no rule can be given for choosing
-it. By default, Xapian sets ``k`` to 1 which should give reasonable results
-for most systems. ``W(d)`` is merely tweaked a bit by the wdf values, and
-users observe a simple pattern of retrieval. It is possible to tune ``k`` to
+it. By default, Xapian sets :math:`k` to 1 which should give reasonable results
+for most systems. :math:`W(d)` is merely tweaked a bit by the wdf values, and
+users observe a simple pattern of retrieval. It is possible to tune :math:`k` to
 provide optimal results for a specific system.
 
-Any ``d`` in the IR system has a value ``W(d)``, but, if no term of the query
-indexes ``d``, ``W(d)`` will be zero. In practice only documents for which
-``W(d)>0`` will be of interest, and these are the documents indexed by at least
+Any :math:`d` in the IR system has a value :math:`W(d)`, but, if no term of the query
+indexes :math:`d`, :math:`W(d)` will be zero. In practice only documents for which
+:math:`W(d)>0` will be of interest, and these are the documents indexed by at least
 one term of *Q*. If we now take these documents and arrange them by
-decreasing ``W(d)`` value, we get a ranked list called the *match set*, or
+decreasing :math:`W(d)` value, we get a ranked list called the *match set*, or
 *MSet*, of document and weight pairs:
 
-    | ``item 0:``   |D0|, W(|D0|)
-    | ``item 1:``   |D1|, W(|D1|)
-    | ``item 2:``   |D2|, W(|D2|)
-    | ...
-    | ``item K:``   |DK|, W(|DK|)
+.. math::
+     item 0:\:D_0, W(D_0)
 
-where W(|Dj|) >= W(|Di|) if j > i.
+.. math::
+     item 1:\:D_1, W(D_1)
 
-And according to the probabilistic model, the documents |D0|, |D1|, |D2| ...
-are ranked by decreasing order of probability of relevance. So |D0| has highest
-probability of being relevant, then |D1| and so on.
+.. math::
+     item 2:\:D_2, W(D_2)
+
+.. math::
+     \text{. \\
+           . \\
+           . }
+
+.. math::
+    item K:\:D_K, W(D_K)
+
+where :math:`W(D_j) \ge W(D_i)` if j > i.
+
+And according to the probabilistic model, the documents :math:`D_0, D_1, D_2 ...`
+are ranked by decreasing order of probability of relevance. So :math:`D_0` has highest
+probability of being relevant, then :math:`D_1` and so on.
 
 Xapian creates the MSet from the posting lists of the terms of the
 query. This is the central operation of any IR system, and will be
@@ -598,36 +465,19 @@ documents found in the match process.
 A modification of this weighting scheme can be employed that takes into
 account the query itself:
 
-.. raw:: html
+.. math::
+     W(d) = \sum_{t \to d,\:t \in Q}\frac{(k_3+1)q_t}{(k_3L'+q_t)}\:\:\frac{(k+1)f_t}{(kL_d+f_t)}\:w(t)
 
-    <blockquote>
-    <table border=0><tr valign=center>
-    <td><tt>W(d) =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <font size="+4">&Sigma;</font><br><small>t &rarr; d, t in <i>Q</i></small></center></tt>
-    </td>
-    <td><tt><center>
-    <u>(k<sub>3</sub> + 1) q</u><sub>t</sub><br>k<sub>3</sub>L' + q<sub>t</sub>
-    </center></tt></td>
-    <td><tt>&nbsp;</tt></td>
-    <td><tt><center>
-    <u>(k + 1) f</u><sub>t</sub><br>kL<sub>d</sub> + f<sub>t</sub>
-    </center></tt></td>
-    <td><tt>&nbsp;w(t)</tt></td>
-    </tr></table>
-    </blockquote>
-
-where |qt| is the wqf of t in *Q*, ``L'`` is the nql, or normalised
-query length, and |k3| is a further constant. In computing W(d)
+where :math:`q_t` is the wqf of t in *Q*, :math:`L'` is the nql, or normalised
+query length, and :math:`k_3` is a further constant. In computing :math:`W(d)`
 across the document space, this extra factor may be viewed as just a
-modification to the basic term weights, ``w(t)``. Like ``k`` and |k3|,
-we will need to make an inspired guess for ``L'``. In fact the choices for
-|k3| and ``L'`` will depend on the broader context of the use of
+modification to the basic term weights, :math:`w(t)`. Like :math:`k` and :math:`k_3`,
+we will need to make an inspired guess for :math:`L'`. In fact the choices for
+:math:`k_3` and :math:`L'` will depend on the broader context of the use of
 this formula, and more advice will be given as occasion arises.
 
 Xapian's default weighting scheme is a generalised form of this
-weighting scheme modification, known as `BM25 <bm25.html>`_. In BM25, ``L'``
+weighting scheme modification, known as `BM25 <bm25.html>`_. In BM25, :math:`L'`
 is always set to 1.
 
 Using the weights: the *ESet*
@@ -643,57 +493,55 @@ this list of terms is mainly used for query expansion, it is called the
 *expand set* or *ESet*.
 
 The term expansion weighting formula is as follows,
-::
 
-        W(t) = r w(t)
+        :math:`W(t) = r\:w(t)`
 
 in other words we multiply the term weight by the number of relevant
 documents that have been indexed by the term.
 
 The ESet then has this form,
 
-    | ``item 0:``   |t0|, W(|t0|)
-    | ``item 1:``   |t1|, W(|t1|)
-    | ``item 2:``   |t2|, W(|t2|)
-    | ...
-    | ``item K:``   |tK|, W(|tK|)
+.. math::
+     item 0:\:t_0, W(t_0)
 
-where W(|tj|) >= W(|ti|) if j > i.
+.. math::
+     item 1:\:t_1, W(t_1)
+
+.. math::
+     item 2:\:t_2, W(t_2)
+
+.. math::
+     \text{. \\
+           . \\
+           . }
+
+.. math::
+    item K:\:t_K, W(t_K)
+
+where :math:`W(t_j) \ge W(t_i)` if j > i.
 
 Since the main function of the ESet is to find new terms to be added to
 *Q*, we usually omit from it terms already in *Q*.
 
-The ``W(t)`` weight is applicable to any term in the IR system, but has a
+The :math:`W(t)` weight is applicable to any term in the IR system, but has a
 value zero when t does not index a relevant document. The ESet is
 therefore confined to be a ranking of the best K terms which index
 relevant documents.
 
-This simple form of ``W(t)`` is traditional in the probabilistic model, but
+This simple form of :math:`W(t)` is traditional in the probabilistic model, but
 seems less than optimal because it does not take into account wdf
 information. One can if fact try to generalise it to:
 
-.. raw:: html
+.. math::
+    W(t) = \sum_{t \to d,d \in R}\:\frac{(k+1)f_t}{kL+f_t}w(t)
 
-    <blockquote>
-    <table border=0><tr valign=center>
-    <td><tt>W(t) =&nbsp;</tt></td>
-    <td>
-    <tt><center>
-    <font size="+4">&Sigma;</font><br><small>t &rarr; d, d in <i>R</i></small></tt>
-    </td>
-    <td><tt><center>
-    <u>(k + 1) f</u><sub>t</sub><br>kL + f<sub>t</sub>
-    </center></tt></td>
-    <td><tt>&nbsp;w(t)</tt></td>
-    </tr></table>
-    </blockquote>
 
-``k`` is again a constant, but it does not need to have the same value as
-the ``k`` used in the probabilistic term weights above. In Xapian, ``k``
+:math:`k` is again a constant, but it does not need to have the same value as
+the :math:`k` used in the probabilistic term weights above. In Xapian, :math:`k`
 defaults to 1.0 for ESet generation.
 
-This reduces to ``W(t) = r w(t)`` when ``k=0``. Certainly this form can be
-recommended in the very common case where ``r=1``, that is, we have a
+This reduces to :math:`W(t) = r\:w(t)` when :math:`k=0`. Certainly this form can be
+recommended in the very common case where :math:`r=1`, that is, we have a
 single document marked relevant.
 
 The progress of a query

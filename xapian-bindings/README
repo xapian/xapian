@@ -21,7 +21,8 @@ Supported Languages
 Bindings for the following languages should be fully functional and ready
 for real world use:
 
-C#		Tested with Mono C# 2.10.8.1 and 2.6.7 recently.
+C#		Tested with Mono C# 3.0.6.0 and 2.10.8.1 recently.  Requires
+		.NET 2 or later (because that's what SWIG supports).
 
 Java		Java bindings are generated with SWIG, as of Xapian 1.3.0.
 		Recently tested with OpenJDK 1.7.0_03, 1.6.0_27, and 1.6.0_18.
@@ -63,6 +64,14 @@ Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
 		longer supported by the Tcl developers, so it doesn't make
 		sense for us to expend effort to support them).
 
+Languages Supported Elsewhere
+-----------------------------
+
+Erlang		Available from:
+		https://github.com/arcusfelis/xapian-erlang-bindings/#readme
+
+Node.js		Available from:
+		https://github.com/mtibeica/node-xapian#readme
 
 If you're interest in getting other languages supported, see the "Adding
 support for other programming languages" section in the file HACKING.

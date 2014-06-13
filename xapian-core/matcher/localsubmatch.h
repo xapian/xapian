@@ -1,7 +1,7 @@
 /** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@ class LocalSubMatch : public SubMatch {
     LocalSubMatch(const LocalSubMatch &);
 
     /// The statistics for the collection.
-    const Xapian::Weight::Internal * stats;
+    Xapian::Weight::Internal * stats;
 
     /// The original query before any rearrangement.
     Xapian::Query query;
@@ -59,10 +59,6 @@ class LocalSubMatch : public SubMatch {
     /// Weight object (used as a factory by calling create on it).
     const Xapian::Weight * wt_factory;
 
-    /// The termfreqs and weights of terms used in orig_query, or NULL.
-    std::map<std::string,
-	     Xapian::MSet::Internal::TermFreqAndWeight> * term_info;
-
   public:
     /// Constructor.
     LocalSubMatch(const Xapian::Database::Internal *db_,
@@ -71,7 +67,7 @@ class LocalSubMatch : public SubMatch {
 		  const Xapian::RSet & rset_,
 		  const Xapian::Weight *wt_factory_)
 	: stats(NULL), query(query_), qlen(qlen_), db(db_), rset(rset_),
-	  wt_factory(wt_factory_), term_info(NULL)
+	  wt_factory(wt_factory_)
     {
 	LOGCALL_CTOR(MATCH, "LocalSubMatch", db_ | query_ | qlen_ | rset_ | wt_factory_);
     }
@@ -83,24 +79,21 @@ class LocalSubMatch : public SubMatch {
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     const Xapian::Weight::Internal & total_stats);
+		     Xapian::Weight::Internal & total_stats);
 
-    /// Get PostList and term info.
-    PostList * get_postlist_and_term_info(MultiMatch *matcher,
-	std::map<std::string,
-		 Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts,
-	Xapian::termcount * total_subqs_ptr);
+    /// Get PostList.
+    PostList * get_postlist(MultiMatch *matcher,
+			    Xapian::termcount * total_subqs_ptr);
 
     /** Convert a postlist into a synonym postlist.
      */
     PostList * make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 				     double factor);
 
-    Xapian::Weight * make_wt(const std::string & term,
-			     Xapian::termcount wqf,
-			     double factor);
-
-    LeafPostList * open_post_list(LeafPostList ** hint, const std::string& term, double max_part);
+    LeafPostList * open_post_list(const std::string& term,
+				  Xapian::termcount wqf,
+				  double factor,
+				  LeafPostList ** hint);
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALSUBMATCH_H */

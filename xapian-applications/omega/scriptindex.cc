@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -115,10 +115,11 @@ private:
     string string_arg;
 public:
     Action(type action_) : action(action_), num_arg(0) { }
-    Action(type action_, string arg) : action(action_), string_arg(arg) {
+    Action(type action_, const string & arg)
+	: action(action_), string_arg(arg) {
 	num_arg = atoi(string_arg.c_str());
     }
-    Action(type action_, string arg, int num)
+    Action(type action_, const string & arg, int num)
 	: action(action_), num_arg(num), string_arg(arg) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }

@@ -1,332 +1,129 @@
- 17764       olly Mon Dec 23 01:04:26 GMT 2013  Olly Betts <olly@survex.com>
+ 17826       olly Fri Jan 17 03:50:44 GMT 2014  Olly Betts <olly@survex.com>
 
-backported for 1.2.17:
+Xapian-core 1.3.2 (2014-01-29):
 
- 17764       olly Mon Dec 23 01:04:26 GMT 2013  Olly Betts <olly@survex.com>
-	* include/xapian/enquire.h: Note that 1.2.17 is required for the
-	  correct sense of the reverse parameter to Enquire methods
-	  set_sort_by_relevance_then_value() and
-	  set_sort_by_relevance_then_key().
-
- 17733       olly Thu Dec 19 06:46:15 GMT 2013  Olly Betts <olly@survex.com>
-	* docs/deprecation.rst: Update example version to a more recent one.
-
- 17726       olly Thu Dec 19 00:11:26 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/harness/backendmanager_multi.cc: Fix comment typo.
-
- 17725       olly Wed Dec 18 23:52:49 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_table.cc,backends/chert/chert_table.cc,
-	  tests/api_backend.cc: Fix handling of invalid block sizes - the
-	  size gets fixed as documented, but the uncorrected size was passed
-	  to the base file.  Also, abort() was called on 0.
-
- 17720       olly Wed Dec 18 03:24:22 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/runtest.in: Report if a test is being run under eatmydata,
-	  like we do for running under valgrind.
-
- 17719       olly Wed Dec 18 02:43:47 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_version.h,backends/chert/chert_version.h:
-	  Comment out unused set_uuid() and set_uuid_string() methods - they
-	  may be useful in future, but we aren't currently using them.  Also
-	  make set_uuid() take a const pointer.
-
- 17718       olly Wed Dec 18 02:40:18 GMT 2013  Olly Betts <olly@survex.com>
-	* HACKING,configure.ac,tests/runtest.in: Automatically probe for and
-	  hook in eatmydata to the testsuite using the wrapper script it now
-	  includes.
-
- 17717       olly Wed Dec 18 01:21:07 GMT 2013  Olly Betts <olly@survex.com>
-	* HACKING: Update website update info.
-
- 17706       olly Thu Dec 12 22:25:04 GMT 2013  Olly Betts <olly@survex.com>
-	* matcher/msetcmp.cc: Fix sense of reverse parameter to
-	  Enquire::set_sort_by_relevance_then_value.  Reported by "boomboo" on
-	  IRC.
-	* tests/api_db.cc: Fix testcase sortrel1.
-
- 17703       olly Thu Dec 12 09:04:13 GMT 2013  Olly Betts <olly@survex.com>
-	* configure.ac: Improve reporting of GCC version.
-
- 17696       olly Wed Dec 11 04:46:58 GMT 2013  Olly Betts <olly@survex.com>
-	* weight/bm25weight.cc: Fix case where (k1 == 0 || b == 0) but k2 != 0.
-	  Reported by "boomboo" on IRC.
-	* tests/api_weight.cc: Add regression test bm25weight5.
-
-Xapian-core 1.3.2 (2013-12-23):
-
-This release includes all changes from 1.2.16 which are relevant.
-	* configure.ac: Bump LIBRARY_VERSION_INFO.
-
- 17761       olly Mon Dec 23 00:30:53 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_btreebase.cc: Fix comment documenting what's in
-	  the base file (the sequential flag was missing).
-
- 17752       olly Fri Dec 20 03:47:56 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_termlisttable.h,include/xapian/constants.h,
-	  tests/api_backend.cc: Add Xapian::DB_NO_TERMLIST flag to allow
-	  creating a database without a termlist (see #181).
-
- 17751       olly Fri Dec 20 03:04:51 GMT 2013  Olly Betts <olly@survex.com>
-	* include/xapian/unicode.h,unicode/tclUniData.cc: Update Unicode
-	  character database to 6.3.0.
-	* tests/api_unicode.cc: Add tests for U+061C, added in 6.3.0.
-
- 17746       olly Thu Dec 19 23:09:30 GMT 2013  Olly Betts <olly@survex.com>
-	* api/replication.cc,backends/dbfactory.cc,docs/deprecation.rst,
-	  docs/overview.rst,include/xapian/constants.h,
-	  include/xapian/dbfactory.h,tests/api_backend.cc,tests/api_db.cc:
-	  Add Xapian::DB_BACKEND_STUB and deprecate Xapian::Auto::open_stub().
- 17749       olly Fri Dec 20 00:20:01 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/dbfactory.cc: Clear any backend flag passed in before
-	  passing the flags when opening stub databases, fixing test failure
-	  in replicate1 caused by recent change adding
-	  Xapian::DB_BACKEND_STUB.
-
- 17731       olly Thu Dec 19 04:01:31 GMT 2013  Olly Betts <olly@survex.com>
-	* docs/deprecation.rst,include/xapian/dbfactory.h,tests/api_db.cc,
-	  tests/harness/: Deprecate Xapian::Brass::open() and
-	  Xapian::Chert::open() in favour of the new Xapian::DB_BACKEND_BRASS
-	  and Xapian::DB_BACKEND_CHERT flags.
-
- 17727       olly Thu Dec 19 01:17:02 GMT 2013  Olly Betts <olly@survex.com>
-	* api/compactor.cc,backends/brass/,backends/chert/chert_database.cc,
-	  backends/chert/chert_database.h,backends/database.h,
-	  backends/dbcheck.cc,backends/dbfactory.cc,include/xapian/constants.h,
-	  include/xapian/database.h,include/xapian/dbfactory.h: Add flags
-	  which can be bitwise OR-ed into the second argument when opening a
-	  writable datase: DB_NO_SYNC (to disable use of fsync, etc) and
-	  DB_DANGEROUS (to enable in-place updates).  WritableDatabase
-	  can now be constructed from just a filename (defaulting to opening
-	  the database with DB_CREATE_OR_OPEN).
-
- 17723       olly Wed Dec 18 22:48:18 GMT 2013  Olly Betts <olly@survex.com>
-	* api/replication.cc,backends/brass/brass_check.cc,
-	  backends/brass/brass_database.cc,backends/chert/chert_check.cc,
-	  backends/chert/chert_database.cc,backends/database.h,
-	  backends/dbcheck.cc,bin/xapian-tcpsrv.cc,include/Makefile.mk,
-	  include/xapian.h,include/xapian/database.h,net/remoteserver.cc:
-	  Move Xapian::DB_* and Xapian:DBCHECK_* constants into
-	  xapian/constants.h.
-
- 17722       olly Wed Dec 18 22:30:23 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
-	  Include xapian/*.h with "" not <> inside the library.
-
- 17721       olly Wed Dec 18 22:17:15 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_compact.cc,backends/chert/chert_compact.cc:
-	  Include only the needed xapian/*.h headers (rather than xapian.h) to
-	  reduce inter-file dependencies within the library.
-
- 17713       olly Fri Dec 13 21:06:28 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_cursor.cc,backends/brass/brass_cursor.h,
-	  backends/brass/brass_table.cc: Reference count blocks in the
-	  btree cursor, so cursors can cheaply share blocks.  This can
-	  significantly reduce the amount of memory used for cursors
-	  for queries which contain a lot of terms (e.g. wildcards which
-	  expand to a lot of terms).
-
- 17707       olly Thu Dec 12 22:37:22 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_btreebase.cc: Add assertions that we don't read
-	  beyond the end of the freespace bitmap.
-
- 17705       olly Thu Dec 12 19:47:46 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/: Make Brass::Cursor members n and p private.
-
- 17701       olly Wed Dec 11 23:40:37 GMT 2013  Olly Betts <olly@survex.com>
-	* api/leafpostlist.cc,api/leafpostlist.h,backends/brass/,
-	  matcher/localsubmatch.cc,matcher/localsubmatch.h,
-	  matcher/queryoptimiser.h: Under brass, optimise the turning of a
-	  query into a postlist to copy the cursor blocks for the previous
-	  term's postlist.  This is particularly effective for wildcard
-	  queries which expand to a lot of terms.
-
- 17698       olly Wed Dec 11 22:05:34 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_postlist.h: We don't have a
-	  BrassModifiedPostList class, so we don't need protected members in
-	  BrassPostList for it to use.
-
- 17631       olly Fri Nov 08 08:58:48 GMT 2013  Olly Betts <olly@survex.com>
-	* api/maptermlist.h,api/termlist.cc,api/termlist.h,backends/brass/:
-	  Avoid two vector copies when storing term positions in most common
-	  cases.
-
- 17588       olly Tue Oct 22 03:09:48 GMT 2013  Olly Betts <olly@survex.com>
-	* HACKING: Note we now use doxygen 1.8.5 for 1.3.x snapshots and
-	  releases.
-
- 17573       olly Mon Oct 14 09:45:13 GMT 2013  Olly Betts <olly@survex.com>
-	* include/xapian.h: Mark vinfo struct and get_vinfo_() function as
-	  @private for doxygen.
-
- 17577       olly Fri Oct 18 11:51:40 GMT 2013  Olly Betts <olly@survex.com>
-	* geospatial/geoencode.cc: Use lround() instead of round(), since we
-	  want the result as an int.  GCC 4.4.3 seems to optimise to use
-	  lround() anyway, but other compilers may not.
- 17576       olly Fri Oct 18 11:44:10 GMT 2013  Olly Betts <olly@survex.com>
-	* geospatial/geoencode.cc: Include <math.h> for round() (fixes #628).
-
- 17561       olly Thu Oct 10 10:36:45 GMT 2013  Olly Betts <olly@survex.com>
-	* include/xapian/: Methods and functions which take a string to
-	  unserialise now consistently call that parameter "serialised".
-
- 17554       olly Fri Oct 04 19:46:16 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_check.cc,backends/chert/chert_check.cc: Correct
-	  failure message which talks above the root block when it's actually
-	  testing a leaf key.
-
- 17518       olly Sat Sep 28 09:27:51 GMT 2013  Olly Betts <olly@survex.com>
-	* include/xapian.h: Hide struct vinfo and get_vinfo_() from SWIG and
-	  doxygen.
- 17517       olly Sat Sep 28 06:25:44 GMT 2013  Olly Betts <olly@survex.com>
-	* api/version.cc,include/xapian.h: Reimplement version functions to
-	  use a single function in libxapian which returns a pointer to a
-	  static const struct containing the version information, with inline
-	  wrappers in the API header which call this.  This means we only need
-	  one relocation instead of 4.
-	* tests/api_none.cc: New testcase version1 to provide coverage for the
-	  version API functions.
-
- 17486       olly Mon Sep 23 12:58:23 GMT 2013  Olly Betts <olly@survex.com>
-	* common/realtime.h,configure.ac,matcher/multimatch.cc: Implement
-	  RealTime::sleep() using nanosleep() where it's available, since
-	  it has a simpler API and a finer granularity than select().
-
- 17484       olly Mon Sep 23 08:20:03 GMT 2013  Olly Betts <olly@survex.com>
-	* common/realtime.h,configure.ac: Use clock_gettime() to implement
-	  RealTime::now() where it's available.
+This release includes all changes from 1.2.16 and 1.2.17 which are relevant.
 
 API:
 
- 17408       olly Wed Jul 10 07:38:15 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
-	* expand/expandweight.h: Track collection_freq and totlen restricted
-	  to the RSet in preparation for supporting DfR query expansion
-	  schemes.
+* Update Unicode character database to Unicode 6.3.0.
 
- 17308       olly Tue Jun 11 00:37:01 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
-	* api/leafpostlist.cc,matcher/,net/serialise.cc,weight/weight.cc,
-	  weight/weightinternal.cc,weight/weightinternal.h: Make collection
-	  frequency available to Xapian::Weight subclasses.  Extracted from
-	  Gaurav Arora's LM branch.
+* Fix all get_description() methods to always return UTF-8 text.  (fixes #620)
 
- 17381       olly Tue Jul 02 23:44:48 GMT 2013  Olly Betts <olly@survex.com>
-	* api/omdatabase.cc: Add support for WritableDatabase with multiple
-	  subdatabases.
+* Database::check():
 
- 17400       olly Fri Jul 05 06:19:55 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/dbfactory.cc: Allow open a stub database containing
-	  multiple subdatabases as a WritableDatabase.
+  + Alter to take its "out" parameter as a pointer to std::ostream instead of a
+    reference, and make passing NULL means "do not produce output", and make
+    the second and third parameters optional, defaulting to a quiet check.
 
-      implementation of DfR weighting schemes BB2, DLH, DPH, IfB2, IneB2, InL2,
-	  PL2.
+  + Escape invalid UTF-8 data in keys and tags reported by xapian-check, using
+    the same code we use to clean up strings returned by get_description()
+    methods.
 
-	  include/xapian/enquire.h,tests/api_anydb.cc: Add support for the Bo1
-	  query expansion scheme.
+  + Correct failure message which talks above the root block when it's actually
+    testing a leaf key.
 
- 17509       olly Fri Sep 27 22:53:15 GMT 2013  Olly Betts <olly@survex.com>
-	* api/omenquire.cc,include/xapian/enquire.h,tests/api_anydb.cc: Fix
-	  backwards compatibility get_eset() wrapper to allow for the optional
-	  parameters which were supported before.  Also, just inline it from
-	  the API header.
+* Methods and functions which take a string to unserialise now consistently
+  call that parameter "serialised".
 
- 17264       olly Mon May 06 11:10:25 GMT 2013  Olly Betts <olly@survex.com>
-	* api/omenquire.cc,configure.ac,include/xapian/enquire.h: Merge two
-	  Enquire::get_eset() overloaded forms into one with a default value
-	  for parameter min_wt.
+* Weight: Make collection frequency available to subclasses.  Patch from
+  Gaurav Arora's Language Modelling branch.
 
- 17425       olly Sat Jul 13 07:29:25 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
-	* include/xapian/weight.h,tests/api_weight.cc,
-	  tests/generate-api_generated,weight/: Fix new weighting schemes to
-	  work with OP_SCALE_WEIGHT.
+* WritableDatabase: Add support for multiple subdatabases, and support opening
+  a stub database containing multiple subdatabases as a WritableDatabase.
 
+* WritableDatabase can now be constructed from just a pathname (defaulting to
+  opening the database with DB_CREATE_OR_OPEN).
 
- 17430       olly Sun Jul 14 07:39:37 GMT 2013  Olly Betts <olly@survex.com>
-	* include/xapian/weight.h,weight/pl2weight.cc: Optimise PL2Weight to
-	  only calculate 2 logs per call to get_sumpart() instead of 4 by
-	  precalculating three document-independent values in init().
+* WritableDatabase: Add flags which can be bitwise OR-ed into the second
+  argument when constructing:
 
- 17378       olly Tue Jul 02 05:00:30 GMT 2013  Olly Betts <olly@survex.com>
-	* api/omenquire.cc,api/omenquireinternal.h,
-	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
-	  common/remoteprotocol.h,configure.ac,docs/remote_protocol.rst,
-	  include/xapian/enquire.h,matcher/multimatch.cc,matcher/multimatch.h,
-	  net/remoteserver.cc,tests/api_postingsource.cc: Add
-	  Enquire::set_time_limit() method which sets a timelimit after which
-	  check_at_least will be disabled.
+  + Xapian::DB_NO_SYNC: to disable use of fsync, etc
 
- 17380       olly Tue Jul 02 23:40:08 GMT 2013  Olly Betts <olly@survex.com>
-	* api/omdatabase.cc,tests/api_none.cc: Trying to perform operations on
-	  a database with no subdatabases now throws InvalidOperationError not
-	  DocNotFoundError.
+  + Xapian::DB_DANGEROUS: to enable in-place updates
 
- 17371       olly Thu Jun 27 02:36:02 GMT 2013  Olly Betts <olly@survex.com>
-	* weight/weightinternal.h: Initialise total_term_count to zero.
-	  Fixes failure of qp_flag_wildcard3 under valgrind in buildbot.
+  + Xapian::DB_BACKEND_BRASS: if creating, create a brass database
 
- 17473       olly Mon Sep 16 11:53:28 GMT 2013  Olly Betts <olly@survex.com>
-	* api/,backends/brass/brass_postlist.cc,
-	  backends/remote/net_postlist.cc,backends/slowvaluelist.cc,
-	  expand/esetinternal.cc,include/xapian/unicode.h,
-	  matcher/valuegepostlist.cc,matcher/valuerangepostlist.cc,
-	  tests/api_query.cc,tests/queryparsertest.cc,unicode/: Fix all
-	  get_description() methods to always return UTF-8 text.  (fixes #620)
+  + Xapian::DB_BACKEND_CHERT: if creating, create a chert database
 
- 17618       olly Tue Nov 05 16:28:08 GMT 2013  Olly Betts <olly@survex.com>
-	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
-	  include/xapian/query.h,tests/api_query.cc: Having a separate 'type'
-	  enum seems to just make for clumsier code, so merged the LEAF_*
-	  values into the 'op' enum, add LEAF_MATCH_ALL and LEAF_MATCH_NOTHING
-	  and return when appropriate, and add test coverage.
- 17617       olly Tue Nov 05 15:20:15 GMT 2013  Olly Betts <olly@survex.com>
-	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
-	  include/xapian/query.h: Add methods to allow introspection on
-	  Query objects - currently you can read the type/operator, how many
-	  subqueries there are, and get a particular subquery.  For a
-	  query which is a term, Query::get_terms_begin() allows you to
-	  get read the term.  (see #159)
+  + Xapian::DB_NO_TERMLIST: create a database without a termlist (see #181)
+
+* Database: Add optional flags argument to constructor - the following can be
+  bitwise OR-ed into it:
+
+  + Xapian::DB_BACKEND_BRASS (only open a brass database)
+
+  + Xapian::DB_BACKEND_CHERT (only open a chert database)
+
+  + Xapian::DB_BACKEND_STUB (only open a stub database)
+
+* Xapian::Auto::open_stub(), Xapian::Brass::open() and Xapian::Chert::open()
+  are now deprecated in favour of these new flags.
+
+* Add implementations of a number of DfR weighting schemes (BB2, DLH, DPH,
+  IfB2, IneB2, InL2, PL2).  Patches from Aarsh Shah.
+
+* Add support for the Bo1 query expansion scheme.  Patch from Aarsh Shah.
+
+* Add Enquire::set_time_limit() method which sets a timelimit after which
+  check_at_least will be disabled.
+
+* Database: Trying to perform operations on a database with no subdatabases now
+  throws InvalidOperationError not DocNotFoundError.
+
+* Query: Add methods to allow introspection on Query objects - currently you
+  can read the leaf type/operator, how many subqueries there are, and get a
+  particular subquery.  For a query which is a term, Query::get_terms_begin()
+  allows you to get the term.  (see #159)
+
+* Avoid two vector copies when storing term positions in most common cases.
+
+* Reimplement version functions to use a single function in libxapian which
+  returns a pointer to a static const struct containing the version
+  information, with inline wrappers in the API header which call this.  This
+  means we only need one relocation instead of 4, reducing library load time a
+  little.
 
 testsuite:
 
- 17379       olly Tue Jul 02 13:22:31 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
-	* tests/api_weight.cc: Extend checkstatsweight1 to check that
-	  Weight::get_collection_freq() returns the same number as
-	  Database::get_collection_freq().
+* Extend checkstatsweight1 to check that Weight::get_collection_freq() returns
+  the same number as Database::get_collection_freq().
 
- 17497       olly Wed Sep 25 02:21:29 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/queryparsertest.cc: Add testcase for FieldProcessor on boolean
-	  prefix with quoted contents.
+* queryparsertest: Add testcase for FieldProcessor on boolean prefix with
+  quoted contents.
 
- 17399       olly Thu Jul 04 06:29:56 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/harness/backendmanager.cc,tests/harness/index_utils.cc,
-	  tests/harness/index_utils.h: Simplify the FileIndexer class.
- 17398       olly Thu Jul 04 06:09:06 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/harness/backendmanager_multi.cc,tests/harness/index_utils.cc,
-	  tests/harness/index_utils.h: Make use of the new writable
-	  multidatabase feature to simplify the multi-database handling in the
-	  test harness.
+* Make use of the new writable multidatabase feature to simplify the
+  multi-database handling in the test harness.
 
- 17359       olly Wed Jun 26 03:08:08 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/api_scalability.cc: Change querypairwise1_helper to repeat the
-	  query build 100 times, as with a fast modern machine we were
-	  sometimes trying to so many subqueries that we would run out of
-	  stack.
+* Change querypairwise1_helper to repeat the query build 100 times, as with a
+  fast modern machine we were sometimes trying with so many subqueries that we
+  would run out of stack.
+
+* apitest: Use Xapian::Database::check() in cursordelbug1.  (partly addresses
+  #238)
 
 matcher:
 
-
 brass backend:
 
- 17634       olly Sat Nov 09 08:48:02 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/: Use a separate cursor for each position list - now
-	  we're ordering the position B-tree by term first, phrase matching was
-	  causing the cursor to cycle between disparate areas of the B-tree,
-	  and it would have to reread the same blocks over and over.
- 17628       olly Thu Nov 07 16:11:27 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/: Batch up positionlist changes in memory and write
-	  them out in key order.
- 17627       olly Thu Nov 07 15:30:48 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_positionlist.h,backends/brass/brass_version.cc:
-	  Change positionlist keys to be ordered by term first rather than
-	  docid first, which helps phrase searching significantly.
+* Change positionlist keys to be ordered by term first rather than docid first,
+  which helps phrase searching significantly.  For more efficient indexing,
+  positionlist changes are now batched up in memory and written out in key
+  order.
+
+* Use a separate cursor for each position list - now we're ordering the
+  position B-tree by term first, phrase matching would cause a single cursor
+  to cycle between disparate areas of the B-tree and reread the same blocks
+  repeatedly.
+
+* Reference count blocks in the btree cursor, so cursors can cheaply share
+  blocks.  This can significantly reduce the amount of memory used by cursors
+  for queries which contain a lot of terms (e.g. wildcards which expand to a
+  lot of terms).
+
+* Under brass, optimise the turning of a query into a postlist to reuse the
+  cursor blocks which are the same as the previous term's postlist.  This is
+  particularly effective for a wildcard query which expands to a lot of terms.
 
 chert backend:
 
@@ -336,9 +133,8 @@ flint backend:
 
 remote backend:
 
- 17309       olly Tue Jun 11 00:40:37 GMT 2013  Olly Betts <olly@survex.com>
-	* common/remoteprotocol.h,docs/remote_protocol.rst: Bump
-	  remote protocol version to 38.0.
+* Bump remote protocol version to 38.0, due to extra statistics being tracked
+  for weighting.
 
 inmemory backend:
 
@@ -348,52 +144,46 @@ build system:
 
 documentation:
 
- 17318       olly Thu Jun 13 13:28:43 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/harness/utestsuite.cc: Add missing GPL boilerplate and
-	  copyright statements to a few source files.
+* HACKING: Note we now use doxygen 1.8.5 for 1.3.x snapshots and releases.
+
+* HACKING: Drop note about needing git-svn if you're using git - bootstrap now
+  only uses git-svn if your Xapian tree was checked out using git-svn.
 
 tools:
-
- 17526       olly Fri Oct 04 04:51:39 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_check.cc,backends/chert/chert_check.cc: Escape
-	  invalid UTF-8 data in keys and tags reported by xapian-check, using
-	  the same code we use to clean up string in object descriptions.
 
 examples:
 
 
 portability:
 
- 17426       olly Sat Jul 13 11:24:20 GMT 2013  Aarsh Shah <aarshkshah1992@gmail.com>
-	* weight/tfidfweight.cc: Explicitly cast argument of log() to double,
-	  as xlC doesn't manage to chose an overloaded form to call otherwise.
+* Don't pass an integer argument to log(), to avoid ambiguity errors with xlC
+  and Sun's C++ compiler.  (fixes #627)
 
- 17500       olly Thu Sep 26 04:11:49 GMT 2013  Olly Betts <olly@survex.com>
-	* tests/api_weight.cc: Don't pass integer arguments to log() to avoid
-	  ambiguity errors with some compilers.  (fixes #627)
+* Fix compilations issues with Sun's C++ compiler (mostly missing library
+  headers).
+
+* Implement RealTime::now() using clock_gettime() where it's available, since
+  it can provide nanosecond resolution.
+
+* Implement RealTime::sleep() using nanosleep() where it's available, since it
+  has a simpler API and a finer resolution than select().
+
+* Use lround() instead of round() in geospatial code, since we want the result
+  as an int.  GCC 4.4.3 seems to optimise to use lround() anyway, but other
+  compilers may not.
+
+* Include <math.h> for lround()/round(). (fixes #628)
 
 packaging:
 
 
 debug code:
 
- 17340       olly Sat Jun 22 09:13:13 GMT 2013  Olly Betts <olly@survex.com>
-	* matcher/localsubmatch.cc: Fix assertion failure when built with
-	  --enable-assertions.  The behaviour when built without assertions
-	  happened to be correct.
+* Fix assertion failure when built with --enable-assertions.  The behaviour
+  when built without assertions happened to be correct.
 
- 17591       olly Wed Oct 23 04:19:05 GMT 2013  jiangwen jiang <jiangwen127@gmail.com>
-	* api/omdocument.cc,api/query.cc: Add more LOGCALL annotations.
-
- 17341       olly Sat Jun 22 11:21:22 GMT 2013  Olly Betts <olly@survex.com>
-	* common/bitstream.cc: Fix assertion in BitReader::decode().
- 17320       olly Thu Jun 13 13:58:14 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/chert/chert_positionlist.cc: Remove 'Assert(rd);' since rd
-	  is no longer a pointer.
- 17313       olly Thu Jun 13 08:30:26 GMT 2013  Olly Betts <olly@survex.com>
-	* backends/brass/brass_positionlist.cc: Remove 'Assert(rd);' since rd
-	  is no longer a pointer.
-
+* Fix assertion in BitReader::decode(), and remove 'Assert(rd);' in two places
+  where rd is no longer a pointer.
 
 Xapian-core 1.3.1 (2013-05-03):
 
@@ -741,6 +531,85 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.17 (2014-01-29):
+
+API:
+
+* Enquire::set_sort_by_relevance_then_value() and
+  Enquire::set_sort_by_relevance_then_key(): Fix sense of reverse parameter.
+  Reported by "boomboo" on IRC.
+
+* BM25Weight: Fix case where (k1 == 0 || b == 0) but k2 != 0.  Reported by
+  "boomboo" on IRC.
+
+* Unicode::tolower(): Fix to give correct results for U+01C5, U+01C8, U+01CB,
+  and U+01F2 (previously these were left unchanged).
+
+testsuite:
+
+* Automatically probe for and hook in eatmydata to the testsuite using the
+  wrapper script it now includes.
+
+* Fix apitest to build when brass, chert or flint are disabled.
+
+brass backend:
+
+* Fix handling of invalid block sizes passed to Xapian::Brass::open() - the
+  size gets fixed as documented, but the uncorrected size was passed to the
+  base file (and abort() was called if 0 was passed).
+
+* Validate "dir_end" when reading a block.  (fixes #592)
+
+chert backend:
+
+* Fix handling of invalid block sizes passed to Xapian::Chert::open() - the
+  size gets fixed as documented, but the uncorrected size was passed to the
+  base file (and abort() was called if 0 was passed).
+
+* Validate "dir_end" when reading a block.  (fixes #592)
+
+flint backend:
+
+* Fix handling of invalid block sizes passed to Xapian::Flint::open() - the
+  size gets fixed as documented, but the uncorrected size was passed to the
+  base file (and abort() was called if 0 was passed).
+
+* Validate "dir_end" when reading a block.  (fixes #592)
+
+build system:
+
+* configure: Improve reporting of GCC version.
+
+* Use -no-fast-install on platforms where -no-install causes libtool to emit a
+  warning.
+
+* docs/Makefile.am: Fix handling of MAINTAINER_NO_DOCS.
+
+* Include UnicodeData.txt and the script to generate the unicode tables from
+  it.
+
+documentation:
+
+* postingsource.rst: Clarify a couple of points (reported by "vHanda" on IRC).
+
+portability:
+
+* Protect the ValueIterator::check() method against Mac OS X SDK headers
+  which define a check() macro.
+
+* Fix warning from xlC compiler.
+
+* Avoid use of grep -e in configure, as /usr/bin/grep on Solaris doesn't
+  support -e.
+
+* Fix check for flags which might be needed for ANSI mode for compilers called
+  'cxx'.
+
+* configure: Improve handling of Sun's C++ compiler - trick libtool into not
+  adding -library=Cstd, and prefer -library=stdcxx4 if supported.  Explicitly
+  add -library=Crun which seems to be required, even though the documentation
+  suggests otherwise.
 
 Xapian-core 1.2.16 (2013-12-04):
 

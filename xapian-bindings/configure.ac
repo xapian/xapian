@@ -313,6 +313,7 @@ if test no != "$with_python" ; then
     version=`$PYTHON2 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
     [2.[4-9]*|2.[12][0-9][0-9]*])
+      AC_MSG_RESULT([$version])
       ;;
     [[3-9].*])
       AC_MSG_RESULT([$version (too new - use --with-python3 for Python 3 support)])
@@ -329,7 +330,6 @@ if test no != "$with_python" ; then
       PYTHON2=
       ;;
     esac
-    AC_MSG_RESULT([$version])
     if test -n "$PYTHON2" ; then
       if $PYTHON2 -c 'import distutils.sysconfig' 2>/dev/null ; then
 	PYTHON2_INC=`$PYTHON2 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
@@ -400,6 +400,7 @@ if test no != "$with_python3" ; then
     version=`$PYTHON3 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
     [3.[2-9]*|3.[12][0-9][0-9]*|[4-9].*])
+      AC_MSG_RESULT([$version])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
@@ -409,7 +410,6 @@ if test no != "$with_python3" ; then
       PYTHON3=
       ;;
     esac
-    AC_MSG_RESULT([$version])
     if test -n "$PYTHON3" ; then
       if $PYTHON3 -c 'import distutils.sysconfig' 2>/dev/null ; then
 	PYTHON3_INC=`$PYTHON3 -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
@@ -966,7 +966,7 @@ if test no != "$with_ruby" ; then
     dnl RUBY_VERSION works with 1.6.  Once we've checked we have at least 1.8
     dnl we can safely use RbConfig below (RbConfig requires Ruby 1.8; Config
     dnl gives a deprecation warning with Ruby 1.9.3).
-    [version=`$RUBY -e 'print RUBY_VERSION' 2>/dev/null`]
+    version=`$RUBY -e 'print RUBY_VERSION' 2>/dev/null`
     case $version in
     [1.[89]*]) ;; # Ruby 1.8, 1.9
     [1.[1-9][0-9]*]) ;; # Ruby 1.10+
@@ -1045,9 +1045,10 @@ if test no != "$with_ruby" ; then
 	AC_SUBST(RUBY_LIB_ARCH)
 
 	RUBY_LIBS=
-	case $host_os in
-	cygwin*) RUBY_LIBS=-lruby ;;
-	esac
+	if test unsupported = "$allow_undefined_flag" ; then
+	  dnl For Microsoft Windows and a few other platforms.
+	  [RUBY_LIBS=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["LIBRUBYARG"]'`]
+	fi
 	AC_SUBST(RUBY_LIBS)
 
 	if test yes = "$enable_documentation" ; then

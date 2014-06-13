@@ -29,6 +29,7 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	testsuite.py \
 	test_xapian_star.py \
 	replicationtest.py \
+	docs/index.rst \
 	$(TESTS) $(BUILT_SOURCES)
 
 pkgpylibdir = @PYTHON2_LIB@/xapian
@@ -118,6 +119,7 @@ endif
 
 stamp = modern/xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: $(stamp)
 	$(make_many_locked)
@@ -144,4 +146,12 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.py
 
 docdatadir = $(docdir)/python
-dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+BUILT_SOURCES += docs/index.html
+
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif

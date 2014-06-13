@@ -2,7 +2,7 @@
  * @brief class for performing a match
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2009,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009,2011,2013,2014 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -131,7 +131,7 @@ class MultiMatch
 		      Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      Xapian::MSet & mset,
-		      const Xapian::Weight::Internal & stats,
+		      Xapian::Weight::Internal & stats,
 		      const Xapian::MatchDecider * mdecider,
 		      const Xapian::KeyMaker * sorter);
 

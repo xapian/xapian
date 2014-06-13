@@ -201,7 +201,10 @@ other filters too - see below):
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
-* MS Word documents (.doc, .dot) if antiword is available
+* MS Word documents (.dot) if antiword is available (.doc files are left to
+  libmagic, as they may actually be RTF (AbiWord saves RTF when asked to save
+  as .doc, and Microsoft Word quietly loads RTF files with a .doc extension),
+  or plain-text).
 * MS Excel documents (.xls, .xlb, .xlt, .xlr) if xls2csv is available (comes
   with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
@@ -212,6 +215,7 @@ other filters too - see below):
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
 * MS Outlook message (.msg) if perl with Email::Outlook::Message and
   HTML::Parser modules is available
+* MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
 * AbiWord documents (.abw)
 * Compressed AbiWord documents (.zabw) if gzip is available
 * Rich Text Format documents (.rtf) if unrtf is available
@@ -227,9 +231,10 @@ other filters too - see below):
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
-instance::
+instance, if your press releases are PostScript files with extension
+``.posts`` you can tell omindex this like so::
 
-$ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mime-type doc:application/postscript
+$ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mime-type posts:application/postscript
 
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
 a file of that type (everything after the last '.').  The ``type`` can be any
@@ -290,6 +295,7 @@ string, but to be useful there either needs to be a filter set for that type
    - application/x-abiword-compressed
    - application/x-debian-package
    - application/x-dvi
+   - application/x-mspublisher
    - application/x-redhat-package-manager
    - image/svg+xml
    - image/vnd.djvu
@@ -327,7 +333,11 @@ By default, files with the following extensions are marked as 'ignore'::
    - ttf
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
-for example to not index .doc files, use: ``--mime-type=doc:``
+for example if you have ``.dot`` files which are inputs for the graphviz
+tool ``dot``, then you may wish to remove the default mapping for ``.dot``
+files and let libmagic be used to determine their type, which you can do
+using: ``--mime-type=dot:`` (if you want to *ignore* all ``.dot`` files,
+instead use ``--mime-type=dot:ignore``).
 
 The lookup of extensions in the MIME mappings is case sensitive, but if an
 extension isn't found and includes upper case ASCII letters, they're converted

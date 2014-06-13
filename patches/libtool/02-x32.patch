@@ -1,0 +1,30 @@
+Index: libtool-2.4.2/libltdl/m4/libtool.m4
+===================================================================
+--- libtool-2.4.2.orig/libltdl/m4/libtool.m4	2012-11-23 15:22:26.000000000 -0800
++++ libtool-2.4.2/libltdl/m4/libtool.m4	2012-11-23 15:25:16.000000000 -0800
+@@ -1324,7 +1324,14 @@
+ 	    LD="${LD-ld} -m elf_i386_fbsd"
+ 	    ;;
+ 	  x86_64-*linux*)
+-	    LD="${LD-ld} -m elf_i386"
++	    case `/usr/bin/file conftest.o` in
++	      *x86-64*)
++		LD="${LD-ld} -m elf32_x86_64"
++		;;
++	      *)
++		LD="${LD-ld} -m elf_i386"
++		;;
++	    esac
+ 	    ;;
+ 	  ppc64-*linux*|powerpc64-*linux*)
+ 	    LD="${LD-ld} -m elf32ppclinux"
+@@ -1688,7 +1695,8 @@
+     ;;
+   *)
+     lt_cv_sys_max_cmd_len=`(getconf ARG_MAX) 2> /dev/null`
+-    if test -n "$lt_cv_sys_max_cmd_len"; then
++    if test -n "$lt_cv_sys_max_cmd_len" && \
++	test undefined != "$lt_cv_sys_max_cmd_len"; then
+       lt_cv_sys_max_cmd_len=`expr $lt_cv_sys_max_cmd_len \/ 4`
+       lt_cv_sys_max_cmd_len=`expr $lt_cv_sys_max_cmd_len \* 3`
+     else

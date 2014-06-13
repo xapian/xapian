@@ -1,8 +1,8 @@
 #!/bin/sh
-# bootstrap a xapian source tree obtained from SVN to produce a tree like
+# bootstrap a xapian source tree obtained from git to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -82,8 +82,25 @@ lazy_build() {
       fi
     fi
     if [ "$xz_ok" = 0 ] ; then
-      ext=$5
-      checksum=$6
+      shift 2
+      ext=$3
+      checksum=$4
+    fi
+  fi
+  if [ "$ext" = "tar.bz2" ] ; then
+    if [ -z "$bz2_ok" ] ; then
+      # bzip2 --version doesn't exit with code 0 in upstream version (though
+      # Debian at least patch this bug), so use --help to check it.
+      if bzip2 --help > /dev/null 2>&1 ; then
+	bz2_ok=1
+      else
+	bz2_ok=0
+      fi
+    fi
+    if [ "$bz2_ok" = 0 ] ; then
+      shift 2
+      ext=$3
+      checksum=$4
     fi
   fi
   tarball=$basename.$ext
@@ -167,7 +184,7 @@ END
 
     case $ext in
     tar.xz)
-      xz -dc "$tarball"| tar xf - ;;
+      ${XZ-xz} -dc "$tarball"| tar xf - ;;
     tar.bz2)
       bzip2 -dc "$tarball"| tar xf - ;;
     *)
@@ -181,6 +198,11 @@ END
 	sed 's!^[	 ]*#[	 ]*error.*Mac *OS *X is unsupported!// &!' \
 	    qtools/qglobal.h > qtools/qglobal.hT
 	mv qtools/qglobal.hT qtools/qglobal.h
+    fi
+    if [ -d "../../patches/$package" ] ; then
+      for p in "../../patches/$package/"* ; do
+	patch -p1 < "$p"
+      done
     fi
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
@@ -204,7 +226,7 @@ handle_svn_external() {
     if [ ! -d "$path" ] ; then
       git svn init "$url" "$path"/
     fi
-    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --show-commit|perl -e '<>;<>=~/\| ([0-9a-f]+)/ ; print $1'`)
+    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --oneline --show-commit|awk '{print $3}'`)
   fi
 }
 
@@ -215,12 +237,25 @@ handle_git_external() {
     url=$3
     if [ ! -d "$path" ] ; then
       git clone --no-checkout -- "$url" "$path"
-    elif git reflog "$rev" -- 2>/dev/null ; then
+    elif (cd "$path" && git reflog "$rev" -- 2>/dev/null) ; then
       : # Already have that revision locally
     else
       (cd "$path" && git fetch)
     fi
     (cd "$path" && git checkout "$rev")
+  fi
+}
+
+update_config() {
+  from=$1
+  to=$2
+  ts_from=`perl -ne '/^timestamp=(\W?)([-\d]+)$1/ and do {$_=$2;y/-//d;print;exit}' "$from"`
+  ts_to=`perl -ne '/^timestamp=(\W?)([-\d]+)$1/ and do {$_=$2;y/-//d;print;exit}' "$to"`
+  if [ "$ts_from" -gt "$ts_to" ] ; then
+     echo "Updating $to ($ts_to) with $from ($ts_from)"
+     # rm first in case the existing file is a symlink.
+     rm -f "$to"
+     cp "$from" "$to"
   fi
 }
 
@@ -235,7 +270,11 @@ case $srcdir in
     cd "$srcdir" ;;
 esac
 
-if [ -d ".git" ] ; then
+# Commit hash to pass to handle_git_external for swig.
+swig_git_commit_hash=618868ce3dbbde24bff185afea0c019d031cf857
+swig_origin_url=git://github.com/swig/swig.git
+
+if [ -d .git ] ; then
   for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
     if test -d "$emptydir" ; then
       :
@@ -274,16 +313,8 @@ END
       if [ -n "$url" ] ; then
 	case $path in
 	/swig)
-	  if [ -d swig/.git/svn ] ; then
-	    # Old git-svn checkout - move it aside rather than
-	    # deleting in case there are local changes.
-	    echo 'Moving old git-svn checkout of swig to swig.git-svn.old'
-	    echo 'If you have not modified it locally, you can safely delete'
-	    echo 'this now'
-	    mv swig swig.git-svn.old
-	  fi
-	  swig_origin_url=git://github.com/swig/swig.git
-	  handle_git_external swig b0b8d4c87e0077baccf770441768f5ad3b15dcd3 "$swig_origin_url"
+	  # Should no longer be present, but skip in case we're used with
+	  # an older tree or a different branch.
 	  ;;
 	/*)
 	  path=`echo "$path"|sed 's,^/,,'`
@@ -292,13 +323,24 @@ END
 	esac
       fi
     done
+
+    if [ -d swig/.git/svn ] ; then
+      # Old git-svn checkout - move it aside rather than
+      # deleting in case there are local changes.
+      echo 'Moving old git-svn checkout of swig to swig.git-svn.old'
+      echo 'If you have not modified it locally, you can safely delete'
+      echo 'this now'
+      mv swig swig.git-svn.old
+    fi
+    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
   else
     # git repo cloned from git.xapian.org or a mirror of it.
 
     # If this tree is checked out from the github mirror, use the same access
     # method for other things checked out from github (e.g. swig) so we avoid
-    # firewall issues.
-    origin_url=`git config remote.origin.url`
+    # firewall issues.  If there's no default remote, the git config command
+    # will exit with status 1, so ignore that failure.
+    origin_url=`git config remote.origin.url||:`
     case $origin_url in
       *[@/]github.com[:/]*)
 	github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
@@ -306,7 +348,7 @@ END
 	github_base_url=git://github.com/ ;;
     esac
     swig_origin_url=${github_base_url}swig/swig.git
-    handle_git_external swig b0b8d4c87e0077baccf770441768f5ad3b15dcd3 "$swig_origin_url"
+    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 
     # Equivalent to r17604 in the Xapian SVN tree:
     handle_git_external xapian-applications/omega/.common.git 55ab15617e24de7b094ea21c44f2541898d2d782 .
@@ -316,6 +358,16 @@ END
     handle_git_external xapian-letor/.common.git dbd42ffed2d76a79d505242b32a357246ab63348 .
     ln -sf .common.git/xapian-core/common xapian-letor/common
   fi
+elif [ -d .svn ] ; then
+  if [ -d swig/.svn ] ; then
+    # Old svn checkout - move it aside rather than
+    # deleting in case there are local changes.
+    echo 'Moving old svn checkout of swig to swig.svn.old'
+    echo 'If you have not modified it locally, you can safely delete'
+    echo 'this now'
+    mv swig swig.svn.old
+  fi
+  handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 fi
 
 # Prefer http downloads as they are more likely to work through firewalls.
@@ -340,18 +392,18 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.8.5 \
-    src.tar.gz 1fc5ceec21122fe5037edee4c308ac94b59ee33e
+  lazy_build doxygen 1.8.7 \
+    src.tar.gz 3728f183f390f96b4ec39d02782a7c2d91f7bfca
   lazy_build autoconf 2.68 \
-    tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4 \
     tar.xz 63a3b495400c1c053f2f6b62efb7a5c0ad4156c9 \
+    tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4 \
     tar.gz 843f7dfcc6addf129dc2c8b12f7d72d371478f42
   # 2.69 is fussy about the m4 version
   # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.13.1 \
-    tar.xz cf0c93328ccc40412b2a6a2d96075b41e2182659 \
-    tar.gz 1778a1ab4ec2587aeceaf43b43536f11393cc59e
+  lazy_build automake 1.14.1 \
+    tar.xz 2ced676f6b792a95c5919243f81790b1172c7f5b \
+    tar.gz 0bb1714b78d70cab9907d2013082978a28f48a46
   lazy_build libtool 2.4.2 \
     tar.xz 4671f3323f2fbc712a70afce57602ce906a82a15 \
     tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
@@ -442,6 +494,11 @@ for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-
   if [ -n "$autoreconf_rc" ] ; then
     exit $autoreconf_rc
   fi
+  for f in config.guess config.sub ; do
+    if [ -f "$d/$f" ] ; then
+      update_config "config/$f" "$d/$f"
+    fi
+  done
   modules="$modules $module"
 done
 

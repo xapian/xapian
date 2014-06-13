@@ -3,7 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2013 Aarsh Shah
+ * Copyright (C) 2013,2014 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -638,6 +638,10 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     /// The factor to multiply with the weight.
     double factor;
 
+    /// The constant values which are used on every call to get_sumpart().
+    double wqf_product_idf;
+    double c_product_avlen;
+
     InL2Weight * clone() const;
 
     void init(double factor);
@@ -705,6 +709,11 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
 
     /// The factor to multiply with the weight.
     double factor;
+
+    /// The constant values which are used for calculations in get_sumpart().
+    double wqf_product_idf;
+    double c_product_avlen;
+    double B_constant;
 
     IfB2Weight * clone() const;
 
@@ -774,6 +783,11 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
 
     /// The factor to multiply with the weight.
     double factor;
+
+    /// Constant values used in get_sumpart().
+    double wqf_product_idf;
+    double c_product_avlen;
+    double B_constant;
 
     IneB2Weight * clone() const;
 

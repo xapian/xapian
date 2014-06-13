@@ -1,7 +1,7 @@
 /* @file urlencode.h
  * @brief URL encoding as described by RFC3986.
  */
-/* Copyright (C) 2011 Olly Betts
+/* Copyright (C) 2011,2014 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,18 +28,34 @@
 #include <cstring>
 #include <string>
 
-void url_encode(std::string & res, const char * p, size_t len);
+void url_encode_(std::string & res,
+		 const char * p, size_t len,
+		 const char * safe);
 
 inline void
 url_encode(std::string & res, const std::string &str)
 {
-    url_encode(res, str.data(), str.size());
+    url_encode_(res, str.data(), str.size(), "-._~");
 }
 
 inline void
 url_encode(std::string & res, const char * p)
 {
-    url_encode(res, p, std::strlen(p));
+    url_encode_(res, p, std::strlen(p), "-._~");
+}
+
+/// Append a path, url encoding the segments, but not the '/' between them.
+inline void
+url_encode_path(std::string & res, const std::string &str)
+{
+    url_encode_(res, str.data(), str.size(), "/-._~");
+}
+
+/// Append a path, url encoding the segments, but not the '/' between them.
+inline void
+url_encode_path(std::string & res, const char * p)
+{
+    url_encode_(res, p, std::strlen(p), "/-._~");
 }
 
 #endif // OMEGA_INCLUDED_URLENCODE_H

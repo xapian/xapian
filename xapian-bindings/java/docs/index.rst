@@ -1,11 +1,8 @@
-<html>
-<head>
-<title>Xapian Java Bindings</title>
-</head>
-<body>
-<pre>
+Xapian Java Bindings
+********************
+
 How to build the bindings:
-==========================
+##########################
 
 Running "make" and then "make install" will "install" a JNI glue shared library
 into a "built" subdirectory of the java build directory.  The jar file is built
@@ -15,19 +12,23 @@ You can copy these two files into your java installation, or just use them
 in-place.
 
 How to compile the examples:
-============================
+############################
+
+::
 
   cd java
   javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleIndex.java
   javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleSearch.java
 
 How to run the examples:
-========================
+########################
 
 To run the examples, you need to give Java a special system-property named
 "java.library.path".  The value of this property is the path of the directory
 where the libxapian_jni.so (or whatever extension is used on your platform)
 JNI library is located.
+
+::
 
  java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
       org.xapian.examples.SimpleIndex ./test.db index words like java
@@ -46,13 +47,13 @@ report success stories or any problems to the development mailing list:
 xapian-devel@lists.xapian.org
 
 Naming of wrapped methods:
-==========================
+##########################
 
 Methods are renamed to match Java's naming conventions.  So get_mset becomes
 getMSet, etc.  Also get_description is wrapped as toString.
 
 MatchAll and MatchNothing
-=========================
+#########################
 
 In Xapian 1.3.0 and later, these are wrapped as static constants
 ``Query.MatchAll`` and ``Query.MatchNothing``.
@@ -62,7 +63,7 @@ If you want to be compatible with earlier versions, you can continue to use
 ``Query.MatchNothing``.
 
 TODO list:
-==========
+##########
 
 * Finish updating this document for the move to the SWIG-generated Java
   bindings.
@@ -91,6 +92,3 @@ TODO list:
 * Wrap Xapian::Weight and standard subclasses.
 
 * Allow user derived weight classes to be implemented in Java (less important).
-</pre>
-</body>
-</html>

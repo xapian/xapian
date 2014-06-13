@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,6 +102,7 @@ DEFINE_TESTCASE(emptyquery4, !backend) {
     TEST(Xapian::Query(q.OP_PHRASE, &q, &q).empty());
     TEST(Xapian::Query(q.OP_ELITE_SET, &q, &q).empty());
     TEST(Xapian::Query(q.OP_SYNONYM, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_MAX, &q, &q).empty());
     return true;
 }
 
@@ -122,6 +123,7 @@ DEFINE_TESTCASE(singlesubquery1, !backend) {
     singlesubquery1_(OP_PHRASE);
     singlesubquery1_(OP_ELITE_SET);
     singlesubquery1_(OP_SYNONYM);
+    singlesubquery1_(OP_MAX);
     return true;
 }
 
@@ -141,6 +143,27 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
     singlesubquery2_(OP_PHRASE);
     singlesubquery2_(OP_ELITE_SET);
     singlesubquery2_(OP_SYNONYM);
+    singlesubquery2_(OP_MAX);
+    return true;
+}
+
+DEFINE_TESTCASE(singlesubquery3, !backend) {
+    // Like the previous test, but using MatchNothing as the subquery.
+#define singlesubquery3_(OP) \
+    TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
+	"Query(<alldocuments>)")
+    Xapian::Query q[1] = { Xapian::Query::MatchAll };
+    singlesubquery3_(OP_AND);
+    singlesubquery3_(OP_OR);
+    singlesubquery3_(OP_AND_NOT);
+    singlesubquery3_(OP_XOR);
+    singlesubquery3_(OP_AND_MAYBE);
+    singlesubquery3_(OP_FILTER);
+    singlesubquery3_(OP_NEAR);
+    singlesubquery3_(OP_PHRASE);
+    singlesubquery3_(OP_ELITE_SET);
+    singlesubquery3_(OP_SYNONYM);
+    singlesubquery3_(OP_MAX);
     return true;
 }
 

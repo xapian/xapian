@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011 Olly Betts
+ * Copyright 2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,15 +25,32 @@
 
 #include "backends/databasereplicator.h"
 
+enum table_id {
+    POSITION,
+    POSTLIST,
+    RECORD,
+    SPELLING,
+    SYNONYM,
+    TERMLIST,
+    N_TABLES_
+};
+
 class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
     private:
 	/** Path of database.
 	 */
 	std::string db_dir;
 
+	/** File descriptors for writing to each table.
+	 *
+	 *  The corresponding entry is -1 if that table is not yet opened.
+	 */
+	mutable int fds[N_TABLES_];
+
 	/** Process a chunk which holds a base block.
 	 */
-	void process_changeset_chunk_base(const std::string & tablename,
+	void process_changeset_chunk_base(table_id table,
+					  unsigned v,
 					  std::string & buf,
 					  RemoteConnection & conn,
 					  double end_time) const;
@@ -41,13 +58,18 @@ class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	/** Process a chunk which holds a list of changed blocks in the
 	 *  database.
 	 */
-	void process_changeset_chunk_blocks(const std::string & tablename,
+	void process_changeset_chunk_blocks(table_id table,
+					    unsigned v,
 					    std::string & buf,
 					    RemoteConnection & conn,
 					    double end_time) const;
 
+	void commit() const;
+
     public:
 	BrassDatabaseReplicator(const std::string & db_dir_);
+
+	~BrassDatabaseReplicator();
 
 	/** Virtual methods of DatabaseReplicator. */
 	//@{

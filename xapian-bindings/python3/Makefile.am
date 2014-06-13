@@ -7,10 +7,10 @@ TESTS = smoketest.py pythontest.py
 AM_TESTS_ENVIRONMENT = \
 	abs_builddir='$(abs_builddir)' ;\
 	srcdir='$(srcdir)' ;\
-	PYTHON='$(PYTHON3)' ;\
+	PYTHON3='$(PYTHON3)' ;\
 	export abs_builddir ;\
 	export srcdir ;\
-	export PYTHON ;
+	export PYTHON3 ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
 # FIXME: replicationtest.py attempts to test performing replication whilst
@@ -124,6 +124,7 @@ endif
 
 stamp = modern/xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: $(stamp)
 	$(make_many_locked)

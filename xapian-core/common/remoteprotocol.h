@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -86,6 +86,7 @@ enum message_type {
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
     MSG_METADATAKEYLIST,	// Iterator for metadata keys
+    MSG_FREQS,			// Get termfreq and collfreq
     MSG_MAX
 };
 
@@ -112,6 +113,7 @@ enum reply_type {
     REPLY_RESULTS,		// Results (MSet)
     REPLY_METADATA,		// Metadata
     REPLY_METADATAKEYLIST,	// Iterator for metadata keys
+    REPLY_FREQS,		// Get termfreq and collfreq
     REPLY_MAX
 };
 

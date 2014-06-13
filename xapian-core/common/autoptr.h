@@ -1,7 +1,7 @@
 /** @file autoptr.h
- * @brief Wrapper around standard <autoptr> header.
+ * @brief Wrapper around standard unique_ptr or autoptr template.
  */
-/* Copyright (C) 2009,2011 Olly Betts
+/* Copyright (C) 2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,11 +23,14 @@
 // GCC 2.95 (it was added when that was the current GCC release).
 //
 // We no longer support building Xapian with such old versions of GCC, but
-// we're probably going to want to switch to unique_ptr (new in C++0x) in
-// the future, so it's probably best not to switch to using auto_ptr directly
-// as we'll want a transitional period where unique_ptr is used where
-// available, falling back to auto_ptr.
+// we'd like to switch to unique_ptr (new in C++11) so we've kept the AutoPtr
+// wrapper to (ab/re)use for this transition.
 #ifndef AutoPtr
 # include <memory>
-# define AutoPtr std::auto_ptr
+# if __cplusplus >= 201103L
+// Under C++11, use unique_ptr
+#  define AutoPtr std::unique_ptr
+# else
+#  define AutoPtr std::auto_ptr
+# endif
 #endif

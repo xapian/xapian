@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007,2008,2009,2011,2013 Olly Betts
+ * Copyright 2003,2004,2006,2007,2008,2009,2011,2013,2014 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -249,11 +249,8 @@ OmDocumentTerm::remove_position(Xapian::termpos tpos)
     vector<Xapian::termpos>::iterator i;
     i = lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
-	throw Xapian::InvalidArgumentError("Position '" + str(tpos) +
-				     "' not found in list of positions that '" +
-				     tname +
-				     "' occurs at,"
-				     " when removing position from list");
+	throw Xapian::InvalidArgumentError("Position " + str(tpos) +
+				     " not in list, can't remove");
     }
     positions.erase(i);
 }
@@ -262,9 +259,7 @@ string
 OmDocumentTerm::get_description() const
 {
     string description;
-    description = "OmDocumentTerm(";
-    description_append(description, tname);
-    description += ", wdf = ";
+    description = "OmDocumentTerm(wdf = ";
     description += str(wdf);
     description += ", positions[";
     description += str(positions.size());
@@ -355,7 +350,7 @@ Xapian::Document::Internal::add_posting(const string & tname, Xapian::termpos tp
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end()) {
-	OmDocumentTerm newterm(tname, wdfinc);
+	OmDocumentTerm newterm(wdfinc);
 	newterm.add_position(tpos);
 	terms.insert(make_pair(tname, newterm));
     } else {
@@ -372,7 +367,7 @@ Xapian::Document::Internal::add_term(const string & tname, Xapian::termcount wdf
     map<string, OmDocumentTerm>::iterator i;
     i = terms.find(tname);
     if (i == terms.end()) {
-	OmDocumentTerm newterm(tname, wdfinc);
+	OmDocumentTerm newterm(wdfinc);
 	terms.insert(make_pair(tname, newterm));
     } else {
 	if (wdfinc) i->second.inc_wdf(wdfinc);
@@ -444,7 +439,7 @@ Xapian::Document::Internal::need_terms() const
 	Xapian::TermIterator tend(NULL);
 	for ( ; t != tend; ++t) {
 	    Xapian::PositionIterator p = t.positionlist_begin();
-	    OmDocumentTerm term(*t, t.get_wdf());
+	    OmDocumentTerm term(t.get_wdf());
 	    for ( ; p != t.positionlist_end(); ++p) {
 		term.add_position(*p);
 	    }

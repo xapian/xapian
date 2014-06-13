@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -90,15 +90,25 @@ parse_datetime(const string & s)
 	}
     } else {
 	// As produced by LibreOffice HTML export.
-	// E.g. "20130117;09105500"
+	// E.g.
+	// "20130117;09105500" == 2013-01-17T09:10:55
+	// "20070903;200000000000" == 2007-09-03T00:02:00
+	// "20070831;5100000000000" == 2007-08-31T00:51:00
 	unsigned long v = strtoul(p, &q, 10);
+	if (v == 0) {
+	    // LibreOffice sometimes exports "0;0".  A date of "0" is
+	    // clearly invalid.
+	    return time_t(-1);
+	}
 	p = q;
 	t.tm_mday = v % 100;
 	v /= 100;
 	t.tm_mon = v % 100 - 1;
 	t.tm_year = v / 100 - 1900;
 	if (*p == ';') {
-	    v = strtoul(p + 1, NULL, 10) / 100;
+	    ++p;
+	    v = strtoul(p, &q, 10);
+	    v /= (q - p > 10) ? 1000000000 : 100;
 	    t.tm_sec = v % 100;
 	    v /= 100;
 	    t.tm_min = v % 100;

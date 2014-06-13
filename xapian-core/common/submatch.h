@@ -1,7 +1,7 @@
 /** @file submatch.h
  *  @brief base class for sub-matchers
  */
-/* Copyright (C) 2006,2007,2009,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,14 +70,11 @@ class SubMatch : public Xapian::Internal::intrusive_base {
     virtual void start_match(Xapian::doccount first,
 			     Xapian::doccount maxitems,
 			     Xapian::doccount check_at_least,
-			     const Xapian::Weight::Internal & total_stats) = 0;
+			     Xapian::Weight::Internal & total_stats) = 0;
 
-    /// Get PostList and term info.
-    virtual PostList * get_postlist_and_term_info(MultiMatch *matcher,
-	std::map<std::string,
-		 Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts,
-	Xapian::termcount * total_subqs_ptr)
-	= 0;
+    /// Get PostList.
+    virtual PostList * get_postlist(MultiMatch *matcher,
+				    Xapian::termcount * total_subqs_ptr) = 0;
 };
 
 #endif /* XAPIAN_INCLUDED_SUBMATCH_H */

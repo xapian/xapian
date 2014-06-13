@@ -374,7 +374,7 @@ $set{OPT,VALUE}
 	* thousand - the thousands separator ("," by default - localised query
 	  templates may want to set this to ".", " ", or "").
 	* stemmer - which stemming language to use ("english" by default, other
-	  values are as understood by Xapian::Stem, so "none" means no
+	  values are as understood by ``Xapian::Stem``, so "none" means no
 	  stemming).
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
@@ -402,6 +402,14 @@ $set{OPT,VALUE}
           ``inl2`` (in Omega >= 1.3.2), ``pl2`` (in Omega >= 1.3.2),
           ``tfidf`` (in Omega >= 1.3.1), and ``trad``.  e.g.
           ``$set{weighting,bm25 1 0.8}``
+
+        * expansion - set the query expansion scheme to use, and (optionally)
+          the parameters to use if the expansion scheme supports them. The syntax
+          is a string consisting of the scheme name followed by any parameters,
+          all separated by whitespace.  Any parameters not specified will use
+          their default values.  Valid expansion schemes names are
+          ``trad`` and ``bo1``.  e.g.
+          ``$set{expansion,trad 2.0}``
 
 	Omega 1.2.5 and later support the following options can be set to a
 	non-empty value to enable the corresponding ``QueryParser`` flag.
@@ -487,6 +495,11 @@ $slice{LIST,POSITIONS}
 	 "$slice{LIST,1	3}" = "b	d"
 	 "$slice{LIST,$range{1,3}}" = "b	c	d"
 	 "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
+
+$snippet{TEXT[,LENGTH]}
+	Generate a context-sensitive snippet from ``TEXT`` using the
+	``Xapian::Snipper`` class.  The snippet will be at most ``LENGTH``
+	bytes long (default: 200).
 
 $split{STRING}
 
