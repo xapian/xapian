@@ -343,4 +343,58 @@ std::pair<unsigned, unsigned> shaping_map_data[] = {
 
 std::map<unsigned, unsigned> ARABIC_SHAPING_MAP(shaping_map_data, shaping_map_data + sizeof shaping_map_data / sizeof shaping_map_data[0]);
 
+
+// Buckwalter Romanization  letters mapping
+std::pair<char, unsigned> buckwalter_to_unicode_map_data[] = {
+    std::make_pair('\'',  0x0621), // hamza-on-the-line
+    std::make_pair('|',  0x0622), // madda
+    std::make_pair('>',  0x0623), // hamza-on-'alif
+    std::make_pair('&',  0x0624), // hamza-on-waaw
+    std::make_pair('<',  0x0625), // hamza-under-'alif
+    std::make_pair('}',  0x0626), // hamza-on-yaa'
+    std::make_pair('A',  0x0627), // bare 'alif
+    std::make_pair('b',  0x0628), // baa'
+    std::make_pair('p',  0x0629), // taa' marbuuTa
+    std::make_pair('t',  0x062A), // taa'
+    std::make_pair('v',  0x062B), // thaa'
+    std::make_pair('j',  0x062C), // jiim
+    std::make_pair('H',  0x062D), // Haa'
+    std::make_pair('x',  0x062E), // khaa'
+    std::make_pair('d',  0x062F), // daal
+    std::make_pair('*',  0x0630), // dhaal
+    std::make_pair('r',  0x0631), // raa'
+    std::make_pair('z',  0x0632), // zaay
+    std::make_pair('s',  0x0633), // siin
+    std::make_pair('$',  0x0634), // shiin
+    std::make_pair('S',  0x0635), // Saad
+    std::make_pair('D',  0x0636), // Daad
+    std::make_pair('T',  0x0637), // Taa'
+    std::make_pair('Z',  0x0638), // Zaa' (DHaa')
+    std::make_pair('E',  0x0639), // cayn
+    std::make_pair('g',  0x063A), // ghayn
+    std::make_pair('_',  0x0640), // taTwiil
+    std::make_pair('f',  0x0641), // faa'
+    std::make_pair('q',  0x0642), // qaaf
+    std::make_pair('k',  0x0643), // kaaf
+    std::make_pair('l',  0x0644), // laam
+    std::make_pair('m',  0x0645), // miim
+    std::make_pair('n',  0x0646), // nuun
+    std::make_pair('h',  0x0647), // haa'
+    std::make_pair('w',  0x0648), // waaw
+    std::make_pair('Y',  0x0649), // 'alif maqSuura
+    std::make_pair('y',  0x064A), // yaa'
+    std::make_pair('F',  0x064B), // fatHatayn
+    std::make_pair('N',  0x064C), // Dammatayn
+    std::make_pair('K',  0x064D), // kasratayn
+    std::make_pair('a',  0x064E), // fatHa
+    std::make_pair('u',  0x064F), // Damma
+    std::make_pair('i',  0x0650), // kasra
+    std::make_pair('~',  0x0651), // shaddah
+    std::make_pair('o',  0x0652), // sukuun
+    std::make_pair('`',  0x0670), // dagger 'alif
+    std::make_pair('{',  0x0671), // waSla
+};
+
+std::map<char, unsigned> BUCKWALTER_TO_ARABIC(buckwalter_to_unicode_map_data, buckwalter_to_unicode_map_data + sizeof buckwalter_to_unicode_map_data / sizeof buckwalter_to_unicode_map_data[0]);
+
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZERCONSTANTS_H
