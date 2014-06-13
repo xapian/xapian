@@ -6,6 +6,8 @@
 /.dirstamp
 /snowball
 /allsnowballheaders.h
+/arabic.cc
+/arabic.h
 /armenian.cc
 /armenian.h
 /basque.cc
