@@ -1,3 +1,8 @@
+Fri Jun 13 01:39:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Fix ordering of "bm25" and "bool" in allegedly
+	  sorted list, so that --weight bm25 and --weight bool work.
+
 Thu Jun 12 13:49:19 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/extraweightpostlist.h: Add an assertion that get_sumextra()

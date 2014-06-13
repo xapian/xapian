@@ -87,8 +87,8 @@ inline bool operator<(const qp_op & f1, const qp_op & f2) {
 
 enum {
     WEIGHT_BB2,
-    WEIGHT_BOOL,
     WEIGHT_BM25,
+    WEIGHT_BOOL,
     WEIGHT_DLH,
     WEIGHT_DPH,
     WEIGHT_IFB2,
@@ -102,8 +102,8 @@ enum {
 struct wt { const char * s; int f; };
 static wt wt_tab[] = {
     { "bb2",	WEIGHT_BB2 },
-    { "bool",	WEIGHT_BOOL },
     { "bm25",	WEIGHT_BM25 },
+    { "bool",	WEIGHT_BOOL },
     { "dlh",	WEIGHT_DLH },
     { "dph",	WEIGHT_DPH },
     { "ifb2",	WEIGHT_IFB2 },
