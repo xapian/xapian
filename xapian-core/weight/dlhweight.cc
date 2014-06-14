@@ -35,10 +35,8 @@ DLHWeight::clone() const
 }
 
 void
-DLHWeight::init(double factor_)
+DLHWeight::init(double factor)
 {
-    factor = factor_;
-
     double wdf_lower(1.0);
     double wdf_upper(get_wdf_upper_bound());
     double len_upper(get_doclength_upper_bound());
@@ -55,10 +53,11 @@ DLHWeight::init(double factor_)
 			0.5 * log2(2.0 * M_PI * wdf_lower)) /
 			(wdf_upper + 0.5);
 
-    lower_bound = get_wqf() * min_weight;
+    lower_bound = get_wqf() * min_weight * factor;
 
     // Calculate constant values to be used in get_sumpart().
     log_constant = get_average_length() * N / F;
+    wqf_product_factor = get_wqf() * factor;
 
     // Calculate the upper bound.
     if (wdf_upper == 0) {
@@ -77,12 +76,13 @@ DLHWeight::init(double factor_)
     /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
 
-    double max_weight = (wdf_upper * log2(log_constant) +
+    double max_weight = factor *
+			((wdf_upper * log2(log_constant) +
 			(len_upper - wdf_lower) *
 			log2(1.0 - min_wdf_to_len) +
-			0.5 * log2(2.0 * M_PI * max_product)) / (wdf_lower + 0.5);
+			0.5 * log2(2.0 * M_PI * max_product)) / (wdf_lower + 0.5));
 
-    upper_bound = ((get_wqf() * max_weight) - lower_bound) * factor;
+    upper_bound = ((get_wqf() * max_weight) - lower_bound);
 }
 
 string
@@ -115,7 +115,7 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 		0.5 * log2(2.0 * M_PI * wdf * (1.0 - wdf_to_len))) /
 		(wdf + 0.5);
 
-    return ((get_wqf() * wt) - lower_bound) * factor;
+    return ((wqf_product_factor * wt) - lower_bound);
 }
 
 double
