@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2003,2004,2007,2009,2011 Olly Betts
+ * Copyright 2003,2004,2007,2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #define OM_HGUARD_EXTRAWEIGHTPOSTLIST_H
 
 #include "multimatch.h"
+#include "omassert.h"
 
 namespace Xapian {
     class Weight;
@@ -52,7 +53,9 @@ class ExtraWeightPostList : public PostList {
 	Xapian::docid  get_docid() const { return pl->get_docid(); }
 
 	double get_weight() const {
-	    return pl->get_weight() + wt->get_sumextra(pl->get_doclength());
+	    double sumextra = wt->get_sumextra(pl->get_doclength());
+	    AssertRel(sumextra, <=, max_weight);
+	    return pl->get_weight() + sumextra;
 	}
 
 	double get_maxweight() const {

@@ -168,12 +168,15 @@ END
   fi
 
   if [ -f "$stamp" ] ; then
-    find_stdout=`find "$stamp" -newer "$tarball" -print`
+    # FIXME: This fails to rebuild if an existing patch is simply dropped, but
+    # that's not likely to happen without the upstream tarball changing to a
+    # newer version.  Perhaps we should have a patch "series" file.
+    find_stdout=`find "$tarball" ../patches/"$package"/* -newer "$stamp" -print 2> /dev/null||true`
   else
-    find_stdout=
+    find_stdout=force
   fi
 
-  if [ -z "$find_stdout" ] ; then
+  if [ -n "$find_stdout" ] ; then
     # Verify the tarball's checksum before building it.
     check_sha1sum "$checksum" "$tarball"
 

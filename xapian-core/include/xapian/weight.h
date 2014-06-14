@@ -1053,6 +1053,9 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     /// The factor with which to multiply the weight.
     double factor;
 
+    /// The constant value used in get_sumpart() .
+    double log_constant;
+
     DPHWeight * clone() const;
 
     void init(double factor);
