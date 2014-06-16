@@ -79,10 +79,10 @@ DLHWeight::init(double factor)
     double max_product = min(max_product_1, max_product_2);
 
     double max_weight = factor *
-			((wdf_upper * log2(log_constant) +
-			(len_upper - wdf_lower) *
-			log2(1.0 - min_wdf_to_len) +
-			0.5 * log2(2.0 * M_PI * max_product)) / (wdf_lower + 0.5));
+                        ((wdf_upper * log2(log_constant)) / (wdf_upper + 0.5) +
+                        (len_upper - wdf_lower) * log2(1.0 - min_wdf_to_len)
+                        / (wdf_lower + 0.5) +
+                        0.5 * log2(2.0 * M_PI * max_product) / (wdf_lower + 0.5));
 
     upper_bound = ((get_wqf() * max_weight) - lower_bound);
 }
