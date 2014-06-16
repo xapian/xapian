@@ -1,3 +1,8 @@
+Mon Jun 16 04:20:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Improve the descriptions of the
+	  stem_strategy values.  (Reported by "oilap" on #xapian)
+
 Fri Jun 13 07:52:53 GMT 2014  Olly Betts <olly@survex.com>
 
 	* weight/dphweight.cc: Fix some comment typos.
