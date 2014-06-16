@@ -36,10 +36,8 @@ DPHWeight::clone() const
 }
 
 void
-DPHWeight::init(double factor_)
+DPHWeight::init(double factor)
 {
-    factor = factor_;
-
     double F(get_collection_freq());
     double N(get_collection_size());
     double wdf_lower(1.0);
@@ -58,7 +56,7 @@ DPHWeight::init(double factor_)
 			(N / F)) +
 			(0.5 * log2(2.0 * M_PI * wdf_lower / len_upper)));
 
-    lower_bound = get_wqf() * min_weight;
+    lower_bound = factor * get_wqf() * min_weight;
 
     // Calculate the upper bound on the weight.
     if (wdf_upper == 0) {
@@ -68,6 +66,7 @@ DPHWeight::init(double factor_)
 
     /* Calculate constant value to be used in get_sumpart(). */
     log_constant = get_average_length() * N / F;
+    wqf_product_factor = get_wqf() * factor;
 
     /* Calculations to decide the values to be used for calculating upper bound. */
     /* The upper bound of the term appearing in the second log is obtained
@@ -105,7 +104,7 @@ DPHWeight::init(double factor_)
 			(log2(log_constant) +
 			(0.5 * log2(2 * M_PI * max_product)));
 
-    upper_bound = factor * ((get_wqf() * max_weight) - lower_bound);
+    upper_bound = ((wqf_product_factor * max_weight) - lower_bound);
 }
 
 string
@@ -141,7 +140,7 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 		(0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
 
     // Subtract the lower bound from the actual weight to avoid negative weights.
-    return ((get_wqf() * wt) - lower_bound) * factor;
+    return ((wqf_product_factor * wt) - lower_bound);
 }
 
 double
