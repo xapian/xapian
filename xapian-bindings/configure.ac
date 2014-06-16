@@ -1353,8 +1353,8 @@ AC_SUBST([AUTOM4TE])
 AC_CONFIG_FILES([Makefile
  doxygen_xml.conf
  xapian-version.h
- python/Makefile python/version.i
- python3/Makefile python3/version.i
+ python/Makefile python/docs/conf.py python/version.i
+ python3/Makefile python3/docs/conf.py python3/version.i
  php/Makefile
  java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
@@ -1363,8 +1363,6 @@ AC_CONFIG_FILES([Makefile
  perl/Makefile perl/util.i
  lua/Makefile
  xapian-bindings.spec
- python/docs/conf.py
- python3/docs/conf.py
  ])
 AC_OUTPUT
 

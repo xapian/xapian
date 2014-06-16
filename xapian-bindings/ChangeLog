@@ -1,3 +1,8 @@
+Mon Jun 16 13:01:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: List the python-related files in AC_CONFIG_FILES
+	  together.
+
 Mon Jun 16 13:01:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/docs/examples.rst,python/docs/index.rst,
