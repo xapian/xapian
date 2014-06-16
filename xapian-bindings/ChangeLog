@@ -17,8 +17,8 @@ Thu May 01 00:28:43 GMT 2014  Olly Betts <olly@survex.com>
 
 Sun Apr 06 19:40:12 GMT 2014  James Aylett <james@tartarus.org>
 
-       * perl/Makefile.am: Perl tests are ordering-dependent, so
-         use .NOTPARALLEL to avoid problems during parallel builds.
+	* perl/Makefile.am: Perl tests are ordering-dependent, so
+	  use .NOTPARALLEL to avoid problems during parallel builds.
 
 Sun Mar 30 22:57:50 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
 
