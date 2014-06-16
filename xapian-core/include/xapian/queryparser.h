@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -521,16 +521,15 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  @param strategy	The strategy to use - possible values are:
      *   - STEM_NONE:	Don't perform any stemming.  (default in Xapian <=
      *			1.3.0)
-     *   - STEM_SOME:	Search for stemmed forms of terms except for those
-     *			which start with a capital letter, or are followed by
-     *			certain characters (currently: (/\@<>=*[{" ), or are
-     *			used with operators which need positional information.
+     *   - STEM_SOME:	Stem all terms except for those which start with a
+     *			capital letter, or are followed by certain characters
+     *			(currently: <code>(/\@<>=*[{"</code> ), or are used
+     *			with operators which need positional information.
      *			Stemmed terms are prefixed with 'Z'.  (default in
      *			Xapian >= 1.3.1)
-     *   - STEM_ALL:	Search for stemmed forms of all words (note: no 'Z'
-     *			prefix is added).
-     *   - STEM_ALL_Z:	Search for stemmed forms of all words (note: 'Z'
-     *			prefix is added).  (new in Xapian 1.2.11 and 1.3.1)
+     *   - STEM_ALL:	Stem all terms (note: no 'Z' prefix is added).
+     *   - STEM_ALL_Z:	Stem all terms (note: 'Z' prefix is added).  (new in
+     *			Xapian 1.2.11 and 1.3.1)
      */
     void set_stemming_strategy(stem_strategy strategy);
 
