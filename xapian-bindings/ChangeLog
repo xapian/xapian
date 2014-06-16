@@ -1,3 +1,9 @@
+Mon Jun 16 12:54:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Remove echo statements from
+	  rules which report the rule ran successfully - we don't have these
+	  in other rules.
+
 Mon Jun 16 12:38:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python3/docs/index.rst,python3/docs/introduction.rst,

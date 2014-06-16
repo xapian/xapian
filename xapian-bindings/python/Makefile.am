@@ -166,6 +166,4 @@ dist-hook: $(sphinxdocs)
 
 $(sphinxdocs): xapian/__init__.py docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 	PYTHONPATH=..:$$PYTHONPATH $(PYTHON2) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
-	@echo  
-	@echo "Build finished. The HTML pages are in docs/html."
 endif
