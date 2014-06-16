@@ -1,3 +1,10 @@
+Mon Jun 16 05:35:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac,docs/Makefile.am,docs/doxygen_api.conf.in:
+	  Don't build, ship or install PDF versions of the API docs by
+	  default, but provide an easy way for people to build it for
+	  themselves if they want it.
+
 Mon Jun 16 04:20:40 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Improve the descriptions of the
