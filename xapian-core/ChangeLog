@@ -1,3 +1,7 @@
+Mon Jun 16 13:02:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Need python3-sphinx to generate docs for python3.
+
 Mon Jun 16 12:37:13 GMT 2014  Assem Chelli <assem.ch@gmail.com>
 
 	* HACKING: Note sphinx-doc now needed (for Python bindings API docs).

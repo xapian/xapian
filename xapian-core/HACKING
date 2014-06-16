@@ -412,12 +412,13 @@ The documentation tools are:
 * rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
-* sphinx-doc (in python-sphinx on Debian/Ubuntu, or as sphinx via pip install)
+* sphinx-doc (in python-sphinx and python3-sphinx on Debian/Ubuntu, or as
+  sphinx via pip install)
 
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-    apt-get install doxygen graphviz help2man python-docutils pngcrush python-sphinx
+    apt-get install doxygen graphviz help2man python-docutils pngcrush python-sphinx python3-sphinx
 
 On Mac OS X, if you're using homebrew, you'll want the following::
 
