@@ -1,3 +1,7 @@
+Mon Jun 16 14:13:18 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight/dphweight.cc: Improved upper bound for DPH.
+
 Mon Jun 16 13:58:24 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* include/xapian/weight.h,weight/ifb2weight.cc,weight/ineb2weight.cc,
