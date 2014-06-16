@@ -483,6 +483,15 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
+dnl If we're building documentation for either python version,
+dnl we need sphinx-build
+case $enable_documentation$BINDINGS in 
+yes*python*)
+  AC_PATH_PROG(SPHINX_BUILD, sphinx-build, [])
+  test -z "$SPHINX_BUILD" && AC_MSG_ERROR([sphinx-build is required to build python documentation])
+  ;;
+esac
+
 if test no != "$with_php" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   AC_PATH_PROGS(PHP_CONFIG, ["${PHP_CONFIG-php-config}"], [])
@@ -1354,6 +1363,8 @@ AC_CONFIG_FILES([Makefile
  perl/Makefile perl/util.i
  lua/Makefile
  xapian-bindings.spec
+ python/docs/conf.py
+ python3/docs/conf.py
  ])
 AC_OUTPUT
 

@@ -13,6 +13,12 @@ AM_TESTS_ENVIRONMENT = \
 	export PYTHON3 ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
+RST_DOCS = \
+	docs/examples.rst \
+	docs/index.rst \
+	docs/introduction.rst \
+	docs/xapian.rst
+
 # FIXME: replicationtest.py attempts to test performing replication whilst
 # modifications are in progress.  However, it sometimes fails due to a race
 # condition in it.  It also contains hard-coded paths to the replication
@@ -28,8 +34,7 @@ EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
-	docs/index.rst \
-	$(TESTS) $(BUILT_SOURCES)
+	$(TESTS) $(BUILT_SOURCES) $(RST_DOCS)
 
 pkgpylibdir = @PYTHON3_LIB@/xapian
 
@@ -150,13 +155,22 @@ dist_exampledata_DATA = \
 	docs/examples/simplematchdecider.py \
 	docs/examples/simplesearch.py
 
-docdatadir = $(docdir)/python
+sphinxdocs = docs/html/index.html
+
+install-data-local: $(sphinxdocs)
+	$(mkinstalldirs) $(DESTDIR)$(docdir)/python
+	cp -R -p docs/html $(DESTDIR)$(docdir)/python
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
-BUILT_SOURCES += docs/index.html
+all-local: $(sphinxdocs)
 
-.rst.html:
-	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
-	$(RST2HTML) --exit-status=warning $< $@
+dist-hook: $(sphinxdocs)
+	test -d $(distdir) || mkdir $(distdir)
+	test -d $(distdir)/docs || mkdir $(distdir)/docs
+	cp -R -p docs/html $(distdir)/docs
+
+$(sphinxdocs): xapian/__init__.py docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
+	PYTHONPATH=..:$$PYTHONPATH $(PYTHON3) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
+	@echo  
+	@echo "Build finished. The HTML pages are in docs/html."
 endif
