@@ -81,7 +81,7 @@ BB2Weight::init(double factor)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
-    /* Calclate constant values to be used in get_sumpart(). */
+    /* Calculate constant values to be used in get_sumpart(). */
     c_product_avlen = param_c * get_average_length();
     B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
     wt = - log2(N - 1.0) - (1 / base_change);
