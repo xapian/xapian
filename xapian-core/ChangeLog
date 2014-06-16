@@ -1,3 +1,7 @@
+Mon Jun 16 13:53:05 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/dlhweight.cc: DLH optimization.
+
 Mon Jun 16 13:02:24 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Need python3-sphinx to generate docs for python3.
