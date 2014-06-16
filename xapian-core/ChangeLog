@@ -1,3 +1,37 @@
+Mon Jun 16 14:13:18 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight/dphweight.cc: Improved upper bound for DPH.
+
+Mon Jun 16 13:58:24 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/ifb2weight.cc,weight/ineb2weight.cc,
+	  weight/inl2weight.cc: Include 'factor' in the constants we calculate
+	  in init_().
+
+Mon Jun 16 13:53:05 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/dlhweight.cc: DLH optimization.
+
+Mon Jun 16 13:02:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Need python3-sphinx to generate docs for python3.
+
+Mon Jun 16 12:37:13 GMT 2014  Assem Chelli <assem.ch@gmail.com>
+
+	* HACKING: Note sphinx-doc now needed (for Python bindings API docs).
+
+Mon Jun 16 05:35:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac,docs/Makefile.am,docs/doxygen_api.conf.in:
+	  Don't build, ship or install PDF versions of the API docs by
+	  default, but provide an easy way for people to build it for
+	  themselves if they want it.
+
+Mon Jun 16 04:20:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Improve the descriptions of the
+	  stem_strategy values.  (Reported by "oilap" on #xapian)
+
 Fri Jun 13 07:52:53 GMT 2014  Olly Betts <olly@survex.com>
 
 	* weight/dphweight.cc: Fix some comment typos.

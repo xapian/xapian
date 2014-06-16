@@ -1,3 +1,32 @@
+Mon Jun 16 13:01:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: List the python-related files in AC_CONFIG_FILES
+	  together.
+
+Mon Jun 16 13:01:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/docs/examples.rst,python/docs/index.rst,
+	  python/docs/xapian.rst,python3/docs/examples.rst,
+	  python3/docs/index.rst,python3/docs/xapian.rst: Whitespace tweaks.
+
+Mon Jun 16 12:54:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Remove echo statements from
+	  rules which report the rule ran successfully - we don't have these
+	  in other rules.
+
+Mon Jun 16 12:38:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/docs/index.rst,python3/docs/introduction.rst,
+	  python3/docs/introduction3.rst: Resolve inconsistencies in what we
+	  think the introduction for Python 3 is called, fixing a build error
+	  in the sphinx docs.
+
+Mon Jun 16 12:33:39 GMT 2014  Assem Chelli <assem.ch@gmail.com>
+
+	* configure.ac,python/Makefile.am,python/docs/,python3/Makefile.am,
+	  python3/docs/: Generate Python API docs with Sphinx.  (Fixes #138)
+
 Thu May 01 00:28:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Add tests of get_eset() with an ExpandDecider and
@@ -5,8 +34,8 @@ Thu May 01 00:28:43 GMT 2014  Olly Betts <olly@survex.com>
 
 Sun Apr 06 19:40:12 GMT 2014  James Aylett <james@tartarus.org>
 
-       * perl/Makefile.am: Perl tests are ordering-dependent, so
-         use .NOTPARALLEL to avoid problems during parallel builds.
+	* perl/Makefile.am: Perl tests are ordering-dependent, so
+	  use .NOTPARALLEL to avoid problems during parallel builds.
 
 Sun Mar 30 22:57:50 GMT 2014  Anish Kanchan <anishgkanchan@gmail.com>
 

@@ -168,9 +168,6 @@ END
   fi
 
   if [ -f "$stamp" ] ; then
-    # FIXME: This fails to rebuild if an existing patch is simply dropped, but
-    # that's not likely to happen without the upstream tarball changing to a
-    # newer version.  Perhaps we should have a patch "series" file.
     find_stdout=`find "$tarball" ../patches/"$package"/* -newer "$stamp" -print 2> /dev/null||true`
   else
     find_stdout=force
@@ -195,6 +192,21 @@ END
     esac
 
     cd "$basename"
+
+    if [ ! -f "../../patches/$package/series" ] ; then
+      cat <<END >&2
+No patch series file 'patches/$package/series' - if there are no patches,
+this should just be an empty file.
+END
+      exit 1
+    fi
+    echo "Applying patches from $package/series"
+    sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "../../patches/$package/series" | \
+	while read p ; do
+      echo "Applying patch $package/$p"
+      patch -p1 < "../../patches/$package/$p"
+    done
+
     # Fix doxygen/Qt stupid and pointless enumerating of Mac OS X releases
     # which stops it building on each new OS X release.
     if [ -f qtools/qglobal.h ] ; then
@@ -202,11 +214,7 @@ END
 	    qtools/qglobal.h > qtools/qglobal.hT
 	mv qtools/qglobal.hT qtools/qglobal.h
     fi
-    if [ -d "../../patches/$package" ] ; then
-      for p in "../../patches/$package/"* ; do
-	patch -p1 < "$p"
-      done
-    fi
+
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
     else
@@ -671,10 +679,38 @@ recheck:
 Makefile: $srcdir/configure
 	$cmd
 
-$srcdir/configure: $srcdir/bootstrap
+$srcdir/configure: \\
+END_OF_CONFIGURE
+
+# We want to rerun bootstrap if a series file changes (patch added or removed)
+# or an existing patch changes.  Since we always have an series file (even if
+# it is empty), this also handles us adding the first patch for something.
+patches=
+for d in patches/* ; do
+  series=$d/series
+  echo "    $series"'\\\\'
+  sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" |\
+      while read p ; do
+    patch=$d/$p
+    echo "    $patch"'\\\\'
+    patches="$patches $patch"
+  done
+done >> configure.tmp
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
+    $srcdir/bootstrap
 	$srcdir/bootstrap
 
 .PHONY: $targets recheck
+
+# Dummy dependencies to allow for patches to be deleted.
+END_OF_CONFIGURE
+
+for p in $patches ; do
+  echo "$p:"
+done >> configure.tmp
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
 EOF
 mv -f Makefile.tmp Makefile
 trap - EXIT
