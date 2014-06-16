@@ -1,3 +1,10 @@
+Mon Jun 16 12:38:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/docs/index.rst,python3/docs/introduction.rst,
+	  python3/docs/introduction3.rst: Resolve inconsistencies in what we
+	  think the introduction for Python 3 is called, fixing a build error
+	  in the sphinx docs.
+
 Mon Jun 16 12:33:39 GMT 2014  Assem Chelli <assem.ch@gmail.com>
 
 	* configure.ac,python/Makefile.am,python/docs/,python3/Makefile.am,
