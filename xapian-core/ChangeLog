@@ -1,3 +1,9 @@
+Mon Jun 16 13:58:24 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/ifb2weight.cc,weight/ineb2weight.cc,
+	  weight/inl2weight.cc: Include 'factor' in the constants we calculate
+	  in init_().
+
 Mon Jun 16 13:53:05 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* include/xapian/weight.h,weight/dlhweight.cc: DLH optimization.

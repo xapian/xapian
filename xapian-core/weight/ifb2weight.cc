@@ -54,10 +54,8 @@ IfB2Weight::clone() const
 }
 
 void
-IfB2Weight::init(double factor_)
+IfB2Weight::init(double factor)
 {
-    factor = factor_;
-
     double wdfn_upper(get_wdf_upper_bound());
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
@@ -74,16 +72,16 @@ IfB2Weight::init(double factor_)
     double idf_max = log2((N + 1.0) / (F + 0.5));
 
     /* Calculate constant values to be used in get_sumpart(). */
-    wqf_product_idf = get_wqf() * idf_max;
+    wqf_product_idf = get_wqf() * idf_max * factor;
     c_product_avlen = param_c * get_average_length();
     B_constant = (F + 1.0) / get_termfreq();
 
     // wdfn * B = wdfn * (F + 1.0) / (get_termfreq() * (wdfn + 1.0)).
     // By cancelling out wdfn, we get (F + 1.0) / (get_termfreq() * (1.0 + 1.0 / wdfn)).
     // In order to maximize the product, we need to minimize the denominator, and so we use wdfn_upper.
-    double max_wdfn_product_B = B_constant / (1.0 + (1.0 / wdfn_upper));
+    double max_wdfn_product_B = wdfn_upper * B_constant / (wdfn_upper + 1.0);
 
-    upper_bound = wqf_product_idf * max_wdfn_product_B;
+    upper_bound = wqf_product_idf * max_wdfn_product_B * factor;
 }
 
 string
@@ -116,15 +114,15 @@ IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     double wdfn(wdf);
     wdfn *= log2(1 + c_product_avlen / len);
 
-    double wdfn_product_B = B_constant / (1.0 + (1.0 / wdfn));
+    double wdfn_product_B = wdfn * B_constant / (wdfn + 1.0);
 
-    return (wqf_product_idf * wdfn_product_B * factor);
+    return (wqf_product_idf * wdfn_product_B);
 }
 
 double
 IfB2Weight::get_maxpart() const
 {
-    return upper_bound * factor;
+    return upper_bound;
 }
 
 double

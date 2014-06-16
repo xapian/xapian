@@ -53,10 +53,8 @@ InL2Weight::clone() const
 }
 
 void
-InL2Weight::init(double factor_)
+InL2Weight::init(double factor)
 {
-    factor = factor_;
-
     double wdfn_upper(get_wdf_upper_bound());
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
@@ -71,16 +69,16 @@ InL2Weight::init(double factor_)
 
     // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
     // To maximize the product, we need to minimize the denominator and so we use wdfn_upper in (1 / wdfn).
-    double maximum_wdfn_product_L = (1 / (1 + (1 / wdfn_upper)));
+    double maximum_wdfn_product_L = wdfn_upper / (wdfn_upper + 1.0);
 
     // This term is constant for all documents.
     double idf_max = log2((N + 1) / (termfrequency + 0.5));
 
     /* Calculate constant values to be used in get_sumpart() upfront. */
-    wqf_product_idf = get_wqf() * idf_max;
+    wqf_product_idf = get_wqf() * idf_max * factor;
     c_product_avlen = param_c * get_average_length();
 
-    upper_bound = wqf_product_idf * maximum_wdfn_product_L;
+    upper_bound = wqf_product_idf * maximum_wdfn_product_L * factor;
 }
 
 string
@@ -114,16 +112,15 @@ InL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     wdfn *= log2(1 + c_product_avlen / len);
 
-    // wdfn * L = wdfn / (wdfn + 1) = 1 / (1 + 1 / wdfn).
-    double wdfn_product_L = (1 / (1 + (1 / wdfn)));
+    double wdfn_product_L = wdfn / (wdfn + 1.0);
 
-    return (wqf_product_idf * wdfn_product_L * factor);
+    return (wqf_product_idf * wdfn_product_L);
 }
 
 double
 InL2Weight::get_maxpart() const
 {
-    return upper_bound * factor;
+    return upper_bound;
 }
 
 double
