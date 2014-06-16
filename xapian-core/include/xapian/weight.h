@@ -635,9 +635,6 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     /// The upper bound on the weight a term can give to a document.
     double upper_bound;
 
-    /// The factor to multiply with the weight.
-    double factor;
-
     /// The constant values which are used on every call to get_sumpart().
     double wqf_product_idf;
     double c_product_avlen;
@@ -706,9 +703,6 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
 
     /// The upper bound on the weight.
     double upper_bound;
-
-    /// The factor to multiply with the weight.
-    double factor;
 
     /// The constant values which are used for calculations in get_sumpart().
     double wqf_product_idf;
@@ -780,9 +774,6 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
 
     /// The upper bound of the weight.
     double upper_bound;
-
-    /// The factor to multiply with the weight.
-    double factor;
 
     /// Constant values used in get_sumpart().
     double wqf_product_idf;
