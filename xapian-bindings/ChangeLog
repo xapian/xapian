@@ -1,3 +1,9 @@
+Mon Jun 16 13:01:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/docs/examples.rst,python/docs/index.rst,
+	  python/docs/xapian.rst,python3/docs/examples.rst,
+	  python3/docs/index.rst,python3/docs/xapian.rst: Whitespace tweaks.
+
 Mon Jun 16 12:54:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python3/Makefile.am: Remove echo statements from
