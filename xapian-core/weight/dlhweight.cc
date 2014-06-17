@@ -72,7 +72,7 @@ DLHWeight::init(double factor)
        maximum value. */
     double wdf_var = min(wdf_upper, len_upper / 2.0);
     double max_product_1 = wdf_var * (1.0 - wdf_var / len_upper);
-    /* An upper bound can also be  obtained by taking the mimimum and maximum
+    /* An upper bound can also be obtained by taking the minimum and maximum
        wdf value in the formula as shown. */
     double max_product_2 = wdf_upper * (1.0 - min_wdf_to_len);
     /* Take the minimum of the two upper bounds. */

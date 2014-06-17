@@ -1,3 +1,7 @@
+Tue Jun 17 11:48:12 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/dlhweight.cc: Fix comment typo.
+
 Tue Jun 17 11:46:40 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* weight/dlhweight.cc: Improve the upper bound on DLH ~3-4 times.
