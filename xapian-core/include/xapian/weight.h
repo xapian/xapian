@@ -1051,11 +1051,9 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     /// The lower bound on the weight.
     double lower_bound;
 
-    /// The factor with which to multiply the weight.
-    double factor;
-
     /// The constant value used in get_sumpart() .
     double log_constant;
+    double wqf_product_factor;
 
     DPHWeight * clone() const;
 

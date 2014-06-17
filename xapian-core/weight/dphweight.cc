@@ -36,10 +36,8 @@ DPHWeight::clone() const
 }
 
 void
-DPHWeight::init(double factor_)
+DPHWeight::init(double factor)
 {
-    factor = factor_;
-
     double F(get_collection_freq());
     double N(get_collection_size());
     double wdf_lower(1.0);
@@ -58,7 +56,7 @@ DPHWeight::init(double factor_)
 			(N / F)) +
 			(0.5 * log2(2.0 * M_PI * wdf_lower / len_upper)));
 
-    lower_bound = get_wqf() * min_weight;
+    lower_bound = factor * get_wqf() * min_weight;
 
     // Calculate the upper bound on the weight.
     if (wdf_upper == 0) {
@@ -68,15 +66,17 @@ DPHWeight::init(double factor_)
 
     /* Calculate constant value to be used in get_sumpart(). */
     log_constant = get_average_length() * N / F;
+    wqf_product_factor = get_wqf() * factor;
 
     /* Calculations to decide the values to be used for calculating upper bound. */
     /* The upper bound of the term appearing in the second log is obtained
        by taking the minimum and maximum wdf value in the formula as shown. */
     double max_product_1 = wdf_upper * (1.0 - min_wdf_to_len);
     /* A second upper bound of the term can be obtained by plugging in the
-       upper bound of the length and differentiating the term w.r.t wdf which
-       gives a value of (length upper bound / 4.0).*/
-    double max_product_2 = len_upper / 4.0;
+       upper bound of the length and differentiating the term w.r.t wdf
+       to find the value of wdf at which function attains maximum value. */
+    double wdf_var = min(wdf_upper, len_upper / 2.0);
+    double max_product_2 = wdf_var * (1.0 - wdf_var / len_upper) ;
     /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
 
@@ -105,7 +105,7 @@ DPHWeight::init(double factor_)
 			(log2(log_constant) +
 			(0.5 * log2(2 * M_PI * max_product)));
 
-    upper_bound = factor * ((get_wqf() * max_weight) - lower_bound);
+    upper_bound = ((wqf_product_factor * max_weight) - lower_bound);
 }
 
 string
@@ -141,7 +141,7 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 		(0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
 
     // Subtract the lower bound from the actual weight to avoid negative weights.
-    return ((get_wqf() * wt) - lower_bound) * factor;
+    return ((wqf_product_factor * wt) - lower_bound);
 }
 
 double

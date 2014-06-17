@@ -1,3 +1,10 @@
+Tue Jun 17 11:32:22 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/dphweight.cc: Combine factor into
+	  constants calculated in init().  Improve get_maxpart() a little
+	  in the (common) case where the wdf upper bound is less than half
+	  the document length upper bound.
+
 Tue Jun 17 03:42:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_unicode.cc,unicode/UnicodeData-README.txt,
