@@ -1,3 +1,8 @@
+Tue Jun 17 03:42:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc,unicode/UnicodeData-README.txt,
+	  unicode/UnicodeData.txt: Update to Unicode 7.0.0.
+
 Mon Jun 16 14:13:18 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* weight/dphweight.cc: Improved upper bound for DPH.

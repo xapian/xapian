@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -225,9 +225,8 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x20BA), Unicode::CURRENCY_SYMBOL);
     // U+061C was added in Unicode 6.3.0.
     TEST_EQUAL(Unicode::get_category(0x61C), Unicode::FORMAT);
-    // U+037F is due to become "GREEK CAPITAL LETTER YOT" in Unicode 7.0.0, but
-    // currently should be unassigned.
-    TEST_EQUAL(Unicode::get_category(0x37F), Unicode::UNASSIGNED);
+    // U+037F "GREEK CAPITAL LETTER YOT" was added in Unicode 7.0.0.
+    TEST_EQUAL(Unicode::get_category(0x37F), Unicode::UPPERCASE_LETTER);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
