@@ -1,3 +1,8 @@
+Tue Jun 17 13:36:40 GMT 2014  Assem Chelli <assem.ch@gmail.com>
+
+	* include/xapian/queryparser.h: Add the example of initializing
+	  SimpleStopper using a file as a doccomment.
+
 Tue Jun 17 13:30:09 GMT 2014  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk: Remove trailing whitespace (some of which
