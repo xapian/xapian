@@ -1,3 +1,9 @@
+Tue Jun 17 03:58:23 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: Replace a link to the outdated autotools "goat book" with a
+	  link to the "Portable Shell" chapter of the autoconf manual.
+
 Mon Jun 02 11:56:41 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

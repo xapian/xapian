@@ -800,9 +800,10 @@ Here's an incomplete list of things to avoid:
   Note that versions of these (GNU versions in particular) support switches
   which aren't portable - notably, "test -r" isn't portable; neither is
   "cp -a".  And note that "mkdir -p" isn't portable - the semantics vary.
-  See the "Goat Book" for more details and other useful tips:
+  The autoconf manual has some useful information about writing portable
+  shell code (most of it not specific to autoconf)::
 
-    http://sources.redhat.com/autobook/
+    http://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
 
 * Don't use "include" - it's not present in BSD make (at least some versions
   have ".include" instead, but that doesn't really seem to help...)  Automake
