@@ -63,11 +63,26 @@ std::string ArabicNormalizer::normalize(const std::string word) {
 
 std::string ArabicNormalizer::arabize(int romanization_system, const std::string word) {
     std::string new_word;
-    for(unsigned i=0; i < word.length(); ++i){
-        if (BUCKWALTER_TO_ARABIC.find(word[i]) != BUCKWALTER_TO_ARABIC.end()) {
-            Xapian::Unicode::append_utf8(new_word, BUCKWALTER_TO_ARABIC[word[i]]);
+    std::map<unsigned, unsigned> mapping;
+    Xapian::Utf8Iterator i(word);
+
+    if (romanization_system == 0) romanization_system = guess_romanization_system(word);
+    switch (romanization_system){
+        case 1: mapping = BUCKWALTER_TO_ARABIC; break;
+        case 2: mapping = ISO233_TO_ARABIC; break;
+        default: mapping = BUCKWALTER_TO_ARABIC; break;
+    }
+
+    for(; i != Xapian::Utf8Iterator(); ++i) {
+        unsigned ch = *i;
+        if (mapping.find(ch) != mapping.end()) {
+            Xapian::Unicode::append_utf8(new_word, mapping[ch]);
         }
     }
     return new_word;
+}
+
+int ArabicNormalizer::guess_romanization_system(const std::string word) {
+    return 0;
 }
 

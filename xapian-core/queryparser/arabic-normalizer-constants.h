@@ -345,7 +345,7 @@ std::map<unsigned, unsigned> ARABIC_SHAPING_MAP(shaping_map_data, shaping_map_da
 
 
 // Buckwalter Romanization Mapping
-std::pair<char, unsigned> buckwalter_to_unicode_map_data[] = {
+std::pair<unsigned, unsigned> buckwalter_to_unicode_map_data[] = {
     std::make_pair('\'',  ARABIC_HAMZA),
     std::make_pair('|',  ARABIC_ALEF_MADDA),
     std::make_pair('>',  ARABIC_ALEF_HAMZA_ABOVE),
@@ -395,6 +395,60 @@ std::pair<char, unsigned> buckwalter_to_unicode_map_data[] = {
     std::make_pair('{',  ARABIC_ALEF_WASLA),
 };
 
-std::map<char, unsigned> BUCKWALTER_TO_ARABIC(buckwalter_to_unicode_map_data, buckwalter_to_unicode_map_data + sizeof buckwalter_to_unicode_map_data / sizeof buckwalter_to_unicode_map_data[0]);
+std::map<unsigned, unsigned> BUCKWALTER_TO_ARABIC(buckwalter_to_unicode_map_data, buckwalter_to_unicode_map_data + sizeof buckwalter_to_unicode_map_data / sizeof buckwalter_to_unicode_map_data[0]);
+
+// ISO233-2 romanisation letter mapping
+std::pair<unsigned, unsigned> iso233_to_unicode_map_data[] = {
+    std::make_pair( 0x02CC,  ARABIC_HAMZA), // ˌ
+    std::make_pair('|',  ARABIC_ALEF_MADDA),
+    std::make_pair( 0x02C8,  ARABIC_ALEF_HAMZA_ABOVE), // ˈ
+    std::make_pair('<',  ARABIC_ALEF_HAMZA_BELOW),
+    std::make_pair( 0x02BE,  ARABIC_ALEF), // ʾ
+    std::make_pair('b',  ARABIC_BEH),
+    std::make_pair( 0x1E97,  ARABIC_TEH_MARBUTA), // ẗ
+    std::make_pair('t',  ARABIC_TEH),
+    std::make_pair( 0x1E6F,  ARABIC_THEH), // ṯ
+    std::make_pair( 0x01E7,  ARABIC_JEEM), // ǧ
+    std::make_pair( 0x1E25,  ARABIC_HAH), // ḥ
+    std::make_pair( 0x1E96,  ARABIC_KHAH), // ẖ
+    std::make_pair('d',  ARABIC_DAL),
+    std::make_pair( 0x1E0F,  ARABIC_THAL), // ḏ
+    std::make_pair('r',  ARABIC_REH),
+    std::make_pair('z',  ARABIC_ZAIN),
+    std::make_pair('s',  ARABIC_SEEN),
+    std::make_pair( 0x0161,  ARABIC_SHEEN), // š
+    std::make_pair( 0x1E63,  ARABIC_SAD), // ṣ
+    std::make_pair( 0x1E0D,  ARABIC_DAD), // ḍ
+    std::make_pair( 0x1E6D,  ARABIC_TAH), // ṭ
+    std::make_pair( 0x1E93,  ARABIC_ZAH), // ẓ
+    std::make_pair( 0x02BF,  ARABIC_AIN), // ʿ
+    std::make_pair( 0x0121,  ARABIC_GHAIN), // ġ
+    std::make_pair('_',  ARABIC_TATWEEL),
+    std::make_pair('f',  ARABIC_FEH),
+    std::make_pair('q',  ARABIC_QAF),
+    std::make_pair('k',  ARABIC_KAF),
+    std::make_pair('l',  ARABIC_LAM),
+    std::make_pair('m',  ARABIC_MEEM),
+    std::make_pair('n',  ARABIC_NOON),
+    std::make_pair('h',  ARABIC_HEH),
+    std::make_pair('w',  ARABIC_WAW),
+    std::make_pair( 0x1EF3,  ARABIC_ALEF_MAKSURA), // ỳ
+    std::make_pair('y',  ARABIC_YEH),
+    std::make_pair( 0x00E1,  ARABIC_FATHATAN), // á
+    std::make_pair( 0x00FA,  ARABIC_DAMMATAN), // ú
+    std::make_pair( 0x00ED,  ARABIC_KASRATAN), // í
+    std::make_pair('a',  ARABIC_FATHA),
+    std::make_pair('u',  ARABIC_DAMMA),
+    std::make_pair('i',  ARABIC_KASRA),
+    std::make_pair('~',  ARABIC_SHADDA),
+    std::make_pair( 0x00B0,  ARABIC_SUKUN), // °
+    std::make_pair('`',  ARABIC_MINI_ALEF),
+    std::make_pair('{',  ARABIC_ALEF_WASLA),
+    // extended here
+    std::make_pair('^',  ARABIC_MADDA_ABOVE),
+    std::make_pair('#',  ARABIC_HAMZA_ABOVE)
+};
+
+std::map<unsigned, unsigned> ISO233_TO_ARABIC(iso233_to_unicode_map_data, iso233_to_unicode_map_data + sizeof iso233_to_unicode_map_data / sizeof buckwalter_to_unicode_map_data[0]);
 
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZERCONSTANTS_H

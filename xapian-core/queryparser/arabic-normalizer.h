@@ -91,6 +91,9 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
      */
     std::string arabize(int romanization_system, const std::string word);
     std::string arabize(const std::string word) { return arabize(0, word); };
+
+    /// Guess what romanization system a word is written with.
+    int guess_romanization_system(const std::string word);
 };
 
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZER_Hأ‬
