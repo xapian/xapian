@@ -1,3 +1,10 @@
+Tue Jun 17 06:48:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/leafpostlist.cc,matcher/synonympostlist.cc: Add assertions that
+	  get_sumpart() returns a weight contribution which is <= the upper
+	  bound which get_maxpart() returns.
+
 Tue Jun 17 05:32:00 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
