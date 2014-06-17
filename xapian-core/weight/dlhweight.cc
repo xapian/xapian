@@ -68,8 +68,10 @@ DLHWeight::init(double factor)
     // Calculate values for the upper bound.
     /* An upper bound of the term used in the third log can be obtained by
        plugging in the upper bound of the length and differentiating the term
-       w.r.t wdf which gives a value of (length upper bound / 4.0). */
-    double max_product_1 = len_upper / 4.0;
+       w.r.t wdf which gives the value of wdf at which the function attains
+       maximum value. */
+    double wdf_var = min(wdf_upper, len_upper / 2.0);
+    double max_product_1 = wdf_var * (1.0 - wdf_var / len_upper);
     /* An upper bound can also be  obtained by taking the mimimum and maximum
        wdf value in the formula as shown. */
     double max_product_2 = wdf_upper * (1.0 - min_wdf_to_len);
@@ -77,10 +79,10 @@ DLHWeight::init(double factor)
     double max_product = min(max_product_1, max_product_2);
 
     double max_weight = factor *
-			((wdf_upper * log2(log_constant) +
-			(len_upper - wdf_lower) *
-			log2(1.0 - min_wdf_to_len) +
-			0.5 * log2(2.0 * M_PI * max_product)) / (wdf_lower + 0.5));
+                        ((wdf_upper * log2(log_constant)) / (wdf_upper + 0.5) +
+                        (len_upper - wdf_lower) * log2(1.0 - min_wdf_to_len)
+                        / (wdf_lower + 0.5) +
+                        0.5 * log2(2.0 * M_PI * max_product) / (wdf_lower + 0.5));
 
     upper_bound = ((get_wqf() * max_weight) - lower_bound);
 }
