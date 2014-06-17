@@ -1,3 +1,7 @@
+Tue Jun 17 13:24:59 GMT 2014  Assem Chelli <assem.ch@gmail.com>
+
+	* languages/: Add stopwords lists from Snowball plus an Arabic one.
+
 Tue Jun 17 11:48:12 GMT 2014  Olly Betts <olly@survex.com>
 
 	* weight/dlhweight.cc: Fix comment typo.
