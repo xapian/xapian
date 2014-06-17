@@ -1,3 +1,9 @@
+Tue Jun 17 05:29:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Rework the weight name lookup to use a table like
+	  the other lookups.  Change the weight names not to include "weight".
+
 Tue Jun 17 05:28:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
