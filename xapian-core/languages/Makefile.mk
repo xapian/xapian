@@ -71,10 +71,10 @@ snowball_stopwords =\
 	languages/stopwords/spanish/stop.txt\
 	languages/stopwords/swedish/stop.txt
 
-snowball_stopwords_preprocessed =\ 
+snowball_stopwords_preprocessed =\
 	$(snowball_stopwords:.txt=.list)
-	
-.txt.list: 
+
+.txt.list:
 	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $<  > $@
 
 BUILT_SOURCES += $(snowball_stopwords_preprocessed)

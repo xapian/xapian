@@ -1,3 +1,9 @@
+Tue Jun 17 13:30:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: Remove trailing whitespace (some of which
+	  breaks the parsing to get the lists of source files to pass to
+	  doxygen).
+
 Tue Jun 17 13:24:59 GMT 2014  Assem Chelli <assem.ch@gmail.com>
 
 	* languages/: Add stopwords lists from Snowball plus an Arabic one.
