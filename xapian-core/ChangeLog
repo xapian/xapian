@@ -1,3 +1,7 @@
+Tue Jun 17 11:46:40 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight/dlhweight.cc: Improve the upper bound on DLH ~3-4 times.
+
 Tue Jun 17 11:32:22 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
 
 	* include/xapian/weight.h,weight/dphweight.cc: Combine factor into
