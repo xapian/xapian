@@ -1,3 +1,9 @@
+Tue Jun 17 05:28:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Add --weight option to allow the weighting scheme
+	  to be specified.
+
 Tue Jun 17 03:58:23 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
