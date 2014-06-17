@@ -85,31 +85,15 @@ inline bool operator<(const qp_op & f1, const qp_op & f2) {
 }
 
 enum {
-    WEIGHT_BB2,
-    WEIGHT_BOOL,
     WEIGHT_BM25,
-    WEIGHT_DLH,
-    WEIGHT_DPH,
-    WEIGHT_IFB2,
-    WEIGHT_INEB2,
-    WEIGHT_INL2,
-    WEIGHT_PL2,
-    WEIGHT_TFIDF,
+    WEIGHT_BOOL,
     WEIGHT_TRAD
 };
 
 struct wt { const char * s; int f; };
 static wt wt_tab[] = {
-    { "bb2",	WEIGHT_BB2 },
-    { "bool",	WEIGHT_BOOL },
     { "bm25",	WEIGHT_BM25 },
-    { "dlh",	WEIGHT_DLH },
-    { "dph",	WEIGHT_DPH },
-    { "ifb2",	WEIGHT_IFB2 },
-    { "ineb2",	WEIGHT_INEB2 },
-    { "inl2",	WEIGHT_INL2 },
-    { "pl2",	WEIGHT_PL2 },
-    { "tfidf",	WEIGHT_TFIDF },
+    { "bool",	WEIGHT_BOOL },
     { "trad",	WEIGHT_TRAD }
 };
 const int n_wt_tab = sizeof(wt_tab) / sizeof(wt_tab[0]);

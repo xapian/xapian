@@ -1,3 +1,9 @@
+Tue Jun 17 05:32:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* examples/quest.cc: Fix ordering of "bm25" and "bool" in allegedly
+	  sorted list, so that --weight bm25 and --weight bool work.
+
 Tue Jun 17 05:29:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
