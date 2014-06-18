@@ -33,9 +33,17 @@
 #include "api/leafpostlist.h"
 #include "omassert.h"
 
+#include "debuglog.h"
+
 #include "autoptr.h"
 #include <map>
 #include <string>
+#include <vector>
+
+#define SEPERATOR ((unsigned)-1)
+#define DOCLEN_CHUNK_MIN_CONTIGUOUS_LENGTH 5
+#define DOCLEN_CHUNK_MIN_GOOD_BYTES_RATIO 0.8
+#define MAX_ENTRIES_IN_CHUNK 2000
 
 using namespace std;
 
@@ -46,6 +54,138 @@ namespace Brass {
     class PostlistChunkReader;
     class PostlistChunkWriter;
 }
+
+
+class FixedWidthChunk
+{
+private:
+	vector<unsigned> src;
+	bool buildVector( const map<Xapian::docid,Xapian::termcount>& postlist );
+public:
+	FixedWidthChunk( const map<Xapian::docid,Xapian::termcount>& postlist );
+	bool encode( string& chunk ) const;
+};
+
+class FixedWidthChunkReader
+{
+private:
+
+	const char* ori_pos;
+	const char* pos;
+	const char* pos_of_block;
+	const char* end;
+	Xapian::docid cur_did;
+	Xapian::termcount cur_length;
+	bool is_at_end;
+	bool is_in_block;
+	unsigned len_info;
+	unsigned bytes_info;
+	Xapian::docid did_before_block;
+	Xapian::docid first_did_in_chunk;
+
+
+public:
+	FixedWidthChunkReader( const char* pos_, const char* end_, Xapian::docid first_did_in_chunk_ )
+		: ori_pos(pos_), pos(pos_), pos_of_block(NULL), end(end_), cur_did(0), cur_length(0),
+		is_at_end(false),is_in_block(false),len_info(0),bytes_info(0),
+		did_before_block(0),first_did_in_chunk(first_did_in_chunk_)
+	{
+		LOGCALL_CTOR(DB, "FixedWidthChunkReader", first_did_in_chunk_ );
+		if ( pos == end )
+		{
+			is_at_end = true;
+			LOGLINE(DB, "empty chunk" ); 
+			return;
+		}
+		cur_did = first_did_in_chunk_;
+		next();
+		LOGVALUE(DB, is_at_end );
+		LOGVALUE(DB, cur_did );
+		LOGVALUE(DB, cur_length );
+	};
+
+	bool jump_to( Xapian::docid desired_did );
+	bool next();
+
+	Xapian::docid get_docid()
+	{
+		return cur_did;
+	}
+	Xapian::termcount get_doclength()
+	{
+		return cur_length;
+	}
+	bool at_end()
+	{
+		return is_at_end;
+	}
+};
+
+class DoclenChunkWriter
+{
+private:
+
+	const string& chunk_from;
+	const map<Xapian::docid,Xapian::termcount> changes;
+	BrassPostListTable* postlist_table;
+	bool is_first_chunk;
+	bool is_last_chunk;
+	Xapian::docid first_did_in_chunk;
+	map<Xapian::docid,Xapian::termcount> new_doclen;
+
+	bool get_new_doclen( );
+public:
+	DoclenChunkWriter( const string& chunk_from_, 
+		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start,
+		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end,
+		BrassPostListTable* postlist_table_,
+		bool is_first_chunk_, Xapian::docid first_did_in_chunk_ )
+		: chunk_from(chunk_from_), changes(changes_start,changes_end), 
+		postlist_table(postlist_table_), is_first_chunk(is_first_chunk_),
+		first_did_in_chunk(first_did_in_chunk_)
+	{
+		LOGCALL_CTOR(DB, "DoclenChunkWriter", is_first_chunk_ | first_did_in_chunk_ );
+		is_last_chunk = true;
+	}
+	bool merge_doclen_changes( );
+};
+
+class DoclenChunkReader
+{
+private:
+	const string& chunk;
+	AutoPtr<FixedWidthChunkReader> p_fwcr;
+public:
+	DoclenChunkReader( const string& chunk_, bool is_first_chunk, Xapian::docid first_did_in_chunk );
+	~DoclenChunkReader()
+	{
+		LOGCALL_DTOR(DB, "DoclenChunkReader");
+	}
+	Xapian::termcount get_doclen( Xapian::docid desired_did )
+	{
+		if( p_fwcr->jump_to(desired_did) )
+		{
+			return p_fwcr->get_doclength();
+		}
+		return -1;
+	}
+	Xapian::termcount get_doclen()
+	{
+		return p_fwcr->get_doclength();
+	}
+	Xapian::docid get_docid()
+	{
+		return p_fwcr->get_docid();
+	}
+	bool next()
+	{
+		return p_fwcr->next();
+	}
+	bool at_end()
+	{
+		return p_fwcr->at_end();
+	}
+};
 
 class BrassPostList;
 
@@ -166,6 +306,10 @@ class BrassPostList : public LeafPostList {
 
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
+
+	AutoPtr<DoclenChunkReader> p_doclen_chunk_reader;
+	bool is_doclen_list;
+	bool is_first_chunk;
 
 	/// Copying is not allowed.
 	BrassPostList(const BrassPostList &);
