@@ -1,3 +1,67 @@
+Tue Jun 17 13:36:40 GMT 2014  Assem Chelli <assem.ch@gmail.com>
+
+	* include/xapian/queryparser.h: Add the example of initializing
+	  SimpleStopper using a file as a doccomment.
+
+Tue Jun 17 13:30:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: Remove trailing whitespace (some of which
+	  breaks the parsing to get the lists of source files to pass to
+	  doxygen).
+
+Tue Jun 17 13:24:59 GMT 2014  Assem Chelli <assem.ch@gmail.com>
+
+	* languages/: Add stopwords lists from Snowball plus an Arabic one.
+
+Tue Jun 17 11:48:12 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/dlhweight.cc: Fix comment typo.
+
+Tue Jun 17 11:46:40 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight/dlhweight.cc: Improve the upper bound on DLH ~3-4 times.
+
+Tue Jun 17 11:32:22 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/dphweight.cc: Combine factor into
+	  constants calculated in init().  Improve get_maxpart() a little
+	  in the (common) case where the wdf upper bound is less than half
+	  the document length upper bound.
+
+Tue Jun 17 03:42:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc,unicode/UnicodeData-README.txt,
+	  unicode/UnicodeData.txt: Update to Unicode 7.0.0.
+
+Mon Jun 16 14:13:18 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* weight/dphweight.cc: Improved upper bound for DPH.
+
+Mon Jun 16 13:58:24 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/ifb2weight.cc,weight/ineb2weight.cc,
+	  weight/inl2weight.cc: Include 'factor' in the constants we calculate
+	  in init_().
+
+Mon Jun 16 13:53:05 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/dlhweight.cc: DLH optimization.
+
+Mon Jun 16 13:02:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Need python3-sphinx to generate docs for python3.
+
+Mon Jun 16 12:37:13 GMT 2014  Assem Chelli <assem.ch@gmail.com>
+
+	* HACKING: Note sphinx-doc now needed (for Python bindings API docs).
+
+Mon Jun 16 05:35:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac,docs/Makefile.am,docs/doxygen_api.conf.in:
+	  Don't build, ship or install PDF versions of the API docs by
+	  default, but provide an easy way for people to build it for
+	  themselves if they want it.
+
 Mon Jun 16 04:20:40 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Improve the descriptions of the

@@ -561,13 +561,6 @@ if test x"$enable_documentation" = xyes ; then
   DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
   AC_SUBST(DOXYGEN_DOT_PATH)
 
-  dnl FIXME: pdflatex is needed to make some more of the documentation but
-  dnl doxygen expects it to be on PATH.
-
-  dnl Check for makeindex. (Needed to make some more of the documentation)
-  AC_PATH_PROG(MAKEINDEX, makeindex, [])
-  test -z "$MAKEINDEX" && AC_MSG_ERROR([makeindex is required to build documentation])
-
   dnl Check for doxygen. (Needed to make some more of the documentation)
   AC_PATH_PROG(DOXYGEN, doxygen, [])
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
