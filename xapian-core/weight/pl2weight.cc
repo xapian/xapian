@@ -107,11 +107,10 @@ PL2Weight::init(double)
     // expression is increasing in terms of wdfn and so, we plug in
     // wdfn_upper in the second term too.
     // If that is not the case, we plug in wdfn_lower in the second term.
-
-    double derivative1 = (wdfn_upper * (1.5 - 0.693147 * P1) +
+    double derivative1 = (wdfn_upper * (1.5 - log(2.0) * P1) +
                          wdfn_upper * wdfn_upper + 0.5 * wdfn_upper * log(wdfn_upper) + 0.5);
 
-    double derivative2 = -0.693147 * P1 + 2 * wdfn_upper + 0.5 * log(wdfn_upper) + 2.0;
+    double derivative2 = -log(2.0) * P1 + 2 * wdfn_upper + 0.5 * log(wdfn_upper) + 2.0;
 
     double term1 = (wdfn_upper + 0.5) * log2(wdfn_upper) / (wdfn_upper + 1.0);
 
