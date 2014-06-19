@@ -1512,7 +1512,7 @@ main(int argc, char **argv)
 	    start_url += '/';
 	}
 	root += start_url;
-	url_encode_path(baseurl, start_url);
+	url_encode_path_lite(baseurl, start_url);
     }
 
     int exitcode = 1;

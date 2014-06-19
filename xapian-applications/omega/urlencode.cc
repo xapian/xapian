@@ -49,3 +49,16 @@ url_encode_(string & res, const char * p, size_t len, const char * safe)
 	}
     }
 }
+
+void
+url_encode_path_lite(string & res, const char * p, size_t len)
+{
+    for (size_t i = 0; i != len; ++i) {
+	unsigned char ch = p[i];
+	if (ch < ' ' || strchr("#%:?", ch)) {
+	    url_encode_(res, p, len, "/-._~");
+	    return;
+	}
+    }
+    res.append(p, len);
+}

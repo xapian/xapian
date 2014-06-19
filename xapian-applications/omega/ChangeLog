@@ -1,3 +1,10 @@
+Thu Jun 19 13:11:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc,urlencode.cc,urlencode.h: To improve compatibility with
+	  existing databases in cases which are OK in practice, only URL
+	  encode the starting URL if it contains a character <= 31 or at least
+	  one of '#', '%', ':' or '?'.
+
 Thu Jun 19 08:44:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

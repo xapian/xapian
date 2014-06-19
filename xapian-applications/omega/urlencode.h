@@ -58,4 +58,24 @@ url_encode_path(std::string & res, const char * p)
     url_encode_(res, p, std::strlen(p), "/-._~");
 }
 
+/** Like url_encode_path(), but only encode when we have to.
+ *
+ *  Prior to 1.2.18 we failed to URL encode start_url - as of 1.3.2, we encode
+ *  it fully, but for the 1.2 branch we don't want to change things in cases
+ *  which currently work OK as that would cause all the documents to get
+ *  reindexed after upgrading.
+ *
+ *  So we check if the string contains any of the characters which would really
+ *  cause a problem, and only do the encoding if it does.  Such cases would not
+ *  have worked prior to 1.2.18.
+ */
+void url_encode_path_lite(std::string & res, const char * p,
+			  size_t len);
+
+inline void
+url_encode_path_lite(std::string & res, const std::string & str)
+{
+    url_encode_path_lite(res, str.data(), str.size());
+}
+
 #endif // OMEGA_INCLUDED_URLENCODE_H
