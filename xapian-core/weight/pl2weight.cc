@@ -85,19 +85,23 @@ PL2Weight::init(double)
     double term2;
 
     // P = ((wdfn + 0.5) * log2(wdfn) + P1 - (P2 * wdfn)) / (wdfn + 1.0).
-    // We break the term into three parts with (wdfn + 1.0) as the denominator in each.
-    // The maximum of the first term, i.e (wdfn + 0.5) * log2(wdfn) / (wdfn + 1.0),
-    // will happen at wdfn_upper as it is an increasing function.
+    // We break the term into three parts with (wdfn + 1.0) as the denominator
+    // in each term.
+    // The maximum of the first term, i.e (wdfn + 0.5) * log2(wdfn) /
+    // (wdfn + 1.0), will happen at wdfn_upper as it is an increasing function.
     // This can be verified by differentiating it and observing that
     // the differentiation always has a positive value.
-    // The third term, i.e -P2 * wdfn / (wdfn + 1.0), needs to minimized as it is negative.
-    // The third term will be minimum at wdfn_lower as it is an increasing function.
-    // In order to determine the nature of the second term, i.e P1 / (wdfn + 1.0)
-    // in colloboration with the first term, we differentiate the expression of the first
-    // and the second terms i.e (P1 + (wdfn  + 0.5) * log2(wdfn)) / (wdfn + 1.0).
+    // The third term, i.e -P2 * wdfn / (wdfn + 1.0), needs to be minimized as it
+    // is negative.
+    // The third term will be minimum at wdfn_lower as it is an increasing
+    // function.
+    // In order to determine the nature of the second term, i.e P1 /
+    // (wdfn + 1.0) in colloboration with the first term, we differentiate the
+    // expression of the first and the second terms i.e (P1 + (wdfn  + 0.5) *
+    // log2(wdfn)) / (wdfn + 1.0).
     // The numerator of the differentiation can be negative.
-    // So, we again differentiate the numerator and check the value of the second
-    // and the first differentiation at wdfn_upper.
+    // So, we again differentiate the numerator and check the value of the
+    // second and the first differentiation at wdfn_upper.
     // The second differentiation is an increasing function.
     // If both the differentiations are positive, it means that the entire
     // expression is increasing in terms of wdfn and so, we plug in
