@@ -151,7 +151,7 @@ DirectoryIterator::get_magic_mimetype()
 	res = "application/x-compound-document-file";
 	const char * leaf = leafname();
 	const char * ext = strrchr(leaf, '.');
-	if (ext && strlen(ext) == 3) {
+	if (ext && strlen(++ext) == 3) {
 	    char e[3];
 	    for (int i = 0; i != 3; ++i) {
 		if (ext[i] <= 'Z' && ext[i] >= 'A')
