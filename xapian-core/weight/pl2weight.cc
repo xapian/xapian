@@ -82,9 +82,24 @@ PL2Weight::init(double)
     lower_bound = get_wqf() * P_min / (wdfn_upper + 1.0);
 
     // Calculate the upper bound on the weight.
-    double P_max =
-	P1 + (wdfn_upper + 0.5) * log2(wdfn_upper) - P2 * wdfn_upper;
-    upper_bound = get_wqf() * P_max / (wdfn_lower + 1.0);
+    double term2;
+    double derivative1 = (wdfn_upper * (1.5 - 0.693147 * P1) +
+                         wdfn_upper * wdfn_upper + 0.5 * wdfn_upper * log(wdfn_upper) + 0.5);
+
+    double derivative2 = -0.693147 * P1 + 2 * wdfn_upper + 0.5 * log(wdfn_upper) + 2.0;
+
+    double term1 = (wdfn_upper + 0.5) * log2(wdfn_upper) / (wdfn_upper + 1.0);
+
+    if (derivative2 > 0 && derivative1 > 0)
+	term2 = P1 / (wdfn_upper + 1.0);
+    else
+	term2 = P1 / (wdfn_lower + 1.0);
+
+    double term3 = P2 * wdfn_lower / (wdfn_lower + 1.0);
+
+    double P_max = term1 + term2 - term3;
+
+    upper_bound = get_wqf() * P_max;
 
     upper_bound -= lower_bound;
 }
