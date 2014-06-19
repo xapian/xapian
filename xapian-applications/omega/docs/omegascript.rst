@@ -362,7 +362,7 @@ $set{OPT,VALUE}
 	* thousand - the thousands separator ("," by default - localised query
 	  templates may want to set this to ".", " ", or "").
 	* stemmer - which stemming language to use ("english" by default, other
-	  values are as understood by Xapian::Stem, so "none" means no
+	  values are as understood by ``Xapian::Stem``, so "none" means no
 	  stemming).
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.

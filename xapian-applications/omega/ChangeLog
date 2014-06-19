@@ -1,3 +1,8 @@
+Thu Jun 19 08:27:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/omegascript.rst: Put ``...`` around Xapian C++ class names.
+
 Thu Jun 19 08:10:17 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
