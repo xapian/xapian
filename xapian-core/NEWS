@@ -1,6 +1,6 @@
- 18050       olly Thu May 29 11:22:25 GMT 2014  Olly Betts <olly@survex.com>
+ 18099       olly Tue Jun 17 11:21:16 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.18 (2014-06-02):
+Xapian-core 1.2.18 (2014-06-19):
 
 API:
 
@@ -55,12 +55,20 @@ build system:
 
 documentation:
 
+* Improve the descriptions of the stem_strategy values in the API docs.
+  (Reported by "oilap" on #xapian)
+
 * docs/sorting.rst: Fix incorrect parameter types in Xapian::Weight
   subclass example.
 
 * docs/glossary.rst: Add definition of "collection frequency".
 
-* HACKING: makeindex is now in Debian package texlive-binaries.
+* HACKING:
+
+  + makeindex is now in Debian package texlive-binaries.
+
+  + Replace a link to the outdated autotools "goat book" with a link to the
+    "Portable Shell" chapter of the autoconf manual.
 
 * include/xapian/base.h: Remove very out of date comments talking about atomic
   assignment and locking - since 0.5.0 we've adopted a "user locks" policy.
@@ -79,7 +87,11 @@ examples:
   + If -v is specified more than once, show even more info in some cases.
     (NEWS file claimed this was backported in 1.2.15, but it actually wasn't).
 
-* quest: Add --default-op option.
+* quest:
+
+  + Add --default-op option.
+
+  + Add --weight option to allow the weighting scheme to be specified.
 
 portability:
 
@@ -99,6 +111,7 @@ packaging:
 
 debug code:
 
+* Add assertions that weighting scheme upper bounds aren't exceeded.
 
 Xapian-core 1.2.17 (2014-01-29):
 
