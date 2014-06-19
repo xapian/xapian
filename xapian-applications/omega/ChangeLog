@@ -1,3 +1,9 @@
+Thu Jun 19 08:44:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* omindex.cc,urlencode.cc,urlencode.h: URL encode starting URL
+	  properly.
+
 Thu Jun 19 08:27:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
