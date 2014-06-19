@@ -1,3 +1,11 @@
+Thu Jun 19 07:02:12 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* diritor.cc: libmagic can return a second string starting "Composite
+	  Document File V2 Document" for the mime-type, so just look for that
+	  prefix.  And newer libmagic returns "application/CDFV2-corrupt" in
+	  these cases, so handle that too.
+
 Fri May 23 13:43:33 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
