@@ -1,6 +1,6 @@
- 17957       olly Mon Apr 14 10:28:51 GMT 2014  Olly Betts <olly@survex.com>
+ 18115       olly Thu Jun 19 13:11:43 GMT 2014  Olly Betts <olly@survex.com>
 
-Omega 1.2.18 (2014-04-30):
+Omega 1.2.18 (2014-06-19):
 
 general:
 
@@ -8,8 +8,20 @@ documentation:
 
 indexers:
 
-* omindex: Work around libmagic returning a MIME content-type of "Composite
-  Document File V2 Document, No summary info".
+* omindex:
+
+  + Work around libmagic returning a MIME content-type of "Composite Document
+    File V2 Document[...]" or "application/CDFV2-corrupt" by returning a more
+    suitable filetype based on looking at the file's extension.
+
+  + When we skip a file because it exceeds the configured size limit, include
+    that size limit in the message.
+
+  + The starting URL wasn't previously URL encoded.  In 1.3.2, this will be
+    fixed by URL encoding it as we do for the rest of the path, for the 1.2
+    branch we only URL encode it if it contains a character <= 31 or at least
+    one of '#', '%', ':' or '?'.  This avoids a one-off reindex of every
+    document in the database in cases which work OK in practice.
 
 * scriptindex:
 
@@ -26,6 +38,8 @@ build system:
 portability:
 
 * Fix warning when built with GCC 4.7.2 using -Os.
+
+* Removed unused inline function, fixing compiler warning.
 
 packaging:
 

@@ -1,3 +1,7 @@
+Thu Jun 19 13:56:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Thu Jun 19 13:11:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc,urlencode.cc,urlencode.h: To improve compatibility with
