@@ -1,7 +1,7 @@
 /** @file pl2weight.cc
  * @brief Xapian::PL2Weight class - the PL2 weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013 Aarsh Shah
+/* Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
