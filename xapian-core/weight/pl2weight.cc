@@ -78,7 +78,7 @@ PL2Weight::init(double)
 
     // Calculate the lower bound on the weight.
     double P_min =
-	P1 + (wdfn_lower + 0.5) * log2(wdfn_lower) - P2 * wdfn_lower;
+	P1 + (wdfn_lower + 0.5) * log2(wdfn_lower) - P2 * wdfn_upper;
     lower_bound = get_wqf() * P_min / (wdfn_upper + 1.0);
 
     // Calculate the upper bound on the weight.
