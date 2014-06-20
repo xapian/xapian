@@ -666,32 +666,24 @@ void BrassPostList::read_number_of_entries(const char ** posptr,
 }
 
 
-FixedWidthChunk::FixedWidthChunk( const map<Xapian::docid,Xapian::termcount>& postlist )
+FixedWidthChunk::FixedWidthChunk( map<Xapian::docid,Xapian::termcount>::const_iterator pl_start_, 
+								 map<Xapian::docid,Xapian::termcount>::const_iterator pl_end_ )
+								 : pl_start(pl_start_), pl_end(pl_end_)
 {
-	LOGCALL_CTOR(DB, "FixedWidthChunk", postlist.size() );
-	buildVector( postlist );
+	buildVector();
 }
 
-bool FixedWidthChunk::buildVector( const map<Xapian::docid,Xapian::termcount>& postlist )
+bool FixedWidthChunk::buildVector( )
 {
-	LOGCALL(DB, bool, "FixedWidthChunk::buildVector", postlist.size() );
-	if ( postlist.empty() )
+	if ( pl_start == pl_end )
 	{
 		LOGLINE( DB, "Desired postlist is empty!" );
-		RETURN(false);
+		return false;
 	}
-	map<Xapian::docid,Xapian::termcount>::const_iterator it = postlist.begin(), start_pos;
-	/*while ( it->second == SEPERATOR )
-	{
-		++it;
-		if ( it==postlist.end() )
-		{
-			return false;
-		}
-	}*/
+	map<Xapian::docid,Xapian::termcount>::const_iterator it = pl_start, start_pos;
 	Xapian::docid docid_before_start_pos = it->first;
 
-	while ( it!=postlist.end() )
+	while ( it!=pl_end )
 	{
 		unsigned length_contiguous = 1;
 		Xapian::docid last_docid = it->first, cur_docid = 0;
@@ -701,17 +693,7 @@ bool FixedWidthChunk::buildVector( const map<Xapian::docid,Xapian::termcount>& p
 
 		start_pos = it;
 		it++;
-
-		/*while ( it->second == SEPERATOR )
-		{
-			++it;
-			if ( it==postlist.end() )
-			{
-				break;
-			}
-		}*/
-
-		while ( it!=postlist.end() )
+		while ( it!=pl_end )
 		{
 			cur_docid = it->first;
 			unsigned cur_bytes = get_max_bytes(it->second);
@@ -731,14 +713,6 @@ bool FixedWidthChunk::buildVector( const map<Xapian::docid,Xapian::termcount>& p
 			length_contiguous++;
 			last_docid = cur_docid;
 			it++;
-			/*while ( it->second == SEPERATOR )
-			{
-				++it;
-				if ( it==postlist.end() )
-				{
-					break;
-				}
-			}*/
 		}
 
 		if ( length_contiguous > DOCLEN_CHUNK_MIN_CONTIGUOUS_LENGTH )
@@ -753,14 +727,6 @@ bool FixedWidthChunk::buildVector( const map<Xapian::docid,Xapian::termcount>& p
 				src.push_back(start_pos->second);
 				docid_before_start_pos = start_pos->first;
 				start_pos++;
-				/*while ( start_pos->second == SEPERATOR )
-				{
-					++start_pos;
-					if ( start_pos==postlist.end() )
-					{
-						break;
-					}
-				}*/
 			}
 		}
 		else
@@ -771,19 +737,11 @@ bool FixedWidthChunk::buildVector( const map<Xapian::docid,Xapian::termcount>& p
 				src.push_back(start_pos->second);
 				docid_before_start_pos = start_pos->first;
 				start_pos++;
-				/*while ( start_pos->second == SEPERATOR )
-				{
-					++start_pos;
-					if ( start_pos==postlist.end() )
-					{
-						break;
-					}
-				}*/
 			}
 		}
 
 	}
-	RETURN(true);
+	return true;
 }
 
 bool FixedWidthChunk::encode( string& chunk ) const
@@ -969,8 +927,8 @@ bool DoclenChunkWriter::get_new_doclen( )
 	if ( pos == end )
 	{
 		LOGLINE( DB, "empty chunk!" );
-		map<Xapian::docid,Xapian::termcount>::const_iterator it = changes.begin();
-		for ( ; it!=changes.end() ; ++it )
+		map<Xapian::docid,Xapian::termcount>::const_iterator it = changes_start;
+		for ( ; it!=changes_end ; ++it )
 		{
 			if ( it->second != SEPERATOR )
 			{
@@ -996,8 +954,8 @@ bool DoclenChunkWriter::get_new_doclen( )
 			{
 				cur_did += inc_did;
 				unpack_uint( &pos, end, &doc_len );
-				//new_doclen.insert( new_doclen.end(), make_pair(cur_did,doc_len) );
-				new_doclen[cur_did] = doc_len;
+				new_doclen.insert( new_doclen.end(), make_pair<Xapian::docid,Xapian::termcount>(cur_did,doc_len) );
+				//new_doclen[cur_did] = doc_len;
 				continue;
 			}
 			else
@@ -1010,8 +968,8 @@ bool DoclenChunkWriter::get_new_doclen( )
 				while ( len-- )
 				{
 					unpack_uint_in_bytes( &pos, bytes, &doc_len );
-					//new_doclen.insert( new_doclen.end(), make_pair(cur_did,doc_len) );
-					new_doclen[cur_did] = doc_len;
+					new_doclen.insert( new_doclen.end(), make_pair<Xapian::docid,Xapian::termcount>(cur_did,doc_len) );
+					//new_doclen[cur_did] = doc_len;
 					cur_did++;
 				}
 				cur_did--;
@@ -1020,12 +978,11 @@ bool DoclenChunkWriter::get_new_doclen( )
 		}
 
 		LOGVALUE( DB, new_doclen.size() );
-		LOGVALUE( DB, changes.size() );
 
-		map<Xapian::docid,Xapian::termcount>::const_iterator chg_it = changes.begin();
+		map<Xapian::docid,Xapian::termcount>::const_iterator chg_it = changes_start;
 		map<Xapian::docid,Xapian::termcount>::iterator ori_it = new_doclen.begin();
 
-		while ( chg_it != changes.end() )
+		while ( chg_it != changes_end )
 		{
 			while ( chg_it->first > ori_it->first )
 			{
@@ -1039,7 +996,7 @@ bool DoclenChunkWriter::get_new_doclen( )
 			{
 				new_doclen.insert( ori_it, *chg_it );
 				++chg_it;
-				while ( chg_it != changes.end() )
+				while ( chg_it != changes_end )
 				{
 					new_doclen.insert( ori_it, *chg_it );
 					++chg_it;
@@ -1083,7 +1040,7 @@ bool DoclenChunkWriter::merge_doclen_changes( )
 	if ( new_doclen.size() <= MAX_ENTRIES_IN_CHUNK )
 	{
 		string cur_chunk;
-		FixedWidthChunk fwc( new_doclen );
+		FixedWidthChunk fwc( new_doclen.begin(), new_doclen.end() );
 		end_pos = new_doclen.end();
 		end_pos--;
 		string head_of_chunk = make_start_of_chunk( is_last_chunk,start_pos->first,end_pos->first );
@@ -1108,57 +1065,52 @@ bool DoclenChunkWriter::merge_doclen_changes( )
 	}
 	else
 	{
-		vector< map<Xapian::docid,Xapian::termcount> > doc_len_list;
 		int count = 0;
-		while ( end_pos!=new_doclen.end() )
+		bool is_done = false;
+		while ( !is_done )
 		{
 			end_pos++;
-			count++;
-			if ( count == MAX_ENTRIES_IN_CHUNK )
+			if ( end_pos==new_doclen.end() )
 			{
-				doc_len_list.push_back( map<Xapian::docid,Xapian::termcount>(start_pos,end_pos) );
+				is_done = true;
+			}
+			count++;
+			if ( is_done || count == MAX_ENTRIES_IN_CHUNK )
+			{
+				string cur_chunk, cur_key;
+				map<Xapian::docid,Xapian::termcount>::const_iterator it = end_pos;
+				it--;
+				if ( end_pos==new_doclen.end() && is_last_chunk )
+				{
+					cur_chunk = make_start_of_chunk( true, 
+						start_pos->first, it->first );
+				}
+				else
+				{
+					cur_chunk = make_start_of_chunk( false, 
+						start_pos->first, it->first );
+				}
+
+				FixedWidthChunk fwc( start_pos, end_pos );
+				fwc.encode( cur_chunk );
+
+				if ( start_pos==new_doclen.begin() && is_first_chunk ) 
+				{
+					string head_of_first_chunk =
+						make_start_of_first_chunk( 0, 0, start_pos->first );
+					cur_chunk = head_of_first_chunk+cur_chunk;
+					cur_key = postlist_table->make_key( string() );
+				}
+				else
+				{
+					cur_key = postlist_table->make_key( string(), start_pos->first );
+				}
+
+				postlist_table->add(cur_key,cur_chunk);
+
 				count = 0;
 				start_pos = end_pos;
 			}
-		}
-		if ( start_pos != end_pos )
-		{
-			doc_len_list.push_back( map<Xapian::docid,Xapian::termcount>(start_pos,end_pos) );
-		}
-
-		for ( int i=0 ; i<(int)doc_len_list.size() ; ++i )
-		{
-			string cur_chunk, cur_key;
-			map<Xapian::docid,Xapian::termcount>::iterator it = doc_len_list[i].end();
-			it--;
-			if ( i==(int)doc_len_list.size()-1 && is_last_chunk )
-			{
-				cur_chunk = make_start_of_chunk( true, 
-					doc_len_list[i].begin()->first, it->first );
-			}
-			else
-			{
-				cur_chunk = make_start_of_chunk( false, 
-					doc_len_list[i].begin()->first, it->first );
-			}
-
-			FixedWidthChunk fwc( doc_len_list[i] );
-			fwc.encode( cur_chunk );
-
-			if ( i==0 && is_first_chunk ) 
-			{
-				string head_of_first_chunk =
-					make_start_of_first_chunk( 0, 0, doc_len_list[i].begin()->first );
-				cur_chunk = head_of_first_chunk+cur_chunk;
-				cur_key = postlist_table->make_key( string() );
-			}
-			else
-			{
-				cur_key = postlist_table->make_key( string(), doc_len_list[i].begin()->first );
-			}
-
-			postlist_table->add(cur_key,cur_chunk);
-
 		}
 	}			
 	return true;
