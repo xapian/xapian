@@ -1,3 +1,8 @@
+Fri Jun 20 14:37:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Don't compile in unixperm.cc - it isn't currently used,
+	  and it fails to build with mingw.  (fixes #635)
+
 Mon Jun 09 01:23:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: LibreOffice can export a timestamp of "0;0" - treat
