@@ -1,3 +1,9 @@
+Fri Jun 20 23:25:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleindex.py: Eliminate needless differences
+	  with the python3 version - drop a duplicate blank line, and prefer
+	  "line = line.strip()" to "line = string.strip(line)".
+
 Fri Jun 20 12:51:35 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python3/docs/examples/simpleexpand.py,
