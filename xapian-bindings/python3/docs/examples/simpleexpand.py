@@ -3,7 +3,7 @@
 # Simple example script demonstrating query expansion.
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2006,2007,2012,2013 Olly Betts
+# Copyright (C) 2004,2006,2007,2012,2013,2014 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ try:
 
     # Create an RSet with the listed docids in.
     reldocs = xapian.RSet()
-    for index in xrange(index, len(sys.argv)):
+    for index in range(index, len(sys.argv)):
         reldocs.add_document(int(sys.argv[index]))
 
     # Parse the query string to produce a Xapian::Query object.
@@ -91,6 +91,6 @@ try:
     for k in eterms:
         print("%s: %f" % (k.term, k.weight))
 
-except Exception, e:
+except Exception as e:
     print("Exception: %s" % str(e), file=sys.stderr)
     sys.exit(1)

@@ -1,3 +1,9 @@
+Fri Jun 20 12:51:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/docs/examples/simpleexpand.py,
+	  python3/docs/examples/simpleindex.py: Fix Python3 examples to
+	  actually work.  (see #346)
+
 Mon Jun 16 13:01:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: List the python-related files in AC_CONFIG_FILES
