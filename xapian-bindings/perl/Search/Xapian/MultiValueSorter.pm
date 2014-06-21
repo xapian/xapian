@@ -29,7 +29,7 @@ Construct and add the values listed.
 
 =item add <value> [<forward>]
 
-Add another value to sort on.  By default, values sort fowards, unless forward
+Add another value to sort on.  By default, values sort forwards, unless forward
 is specified and is false.
 
 =back

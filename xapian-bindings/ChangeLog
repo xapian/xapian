@@ -10,6 +10,11 @@ Fri Jun 20 12:51:35 GMT 2014  Olly Betts <olly@survex.com>
 	  python3/docs/examples/simpleindex.py: Fix Python3 examples to
 	  actually work.  (see #346)
 
+Fri Jun 20 06:14:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Search/Xapian/MultiValueSorter.pm: Fix documentation comment
+	  typo ("foward" -> "forward").
+
 Mon Jun 16 13:01:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: List the python-related files in AC_CONFIG_FILES
