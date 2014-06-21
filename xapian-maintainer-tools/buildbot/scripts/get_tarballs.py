@@ -116,7 +116,7 @@ for try_xz in ['xz', 'lzma']:
 
 links = get_archive_links(tarball_root, archive_names)
 for link in links:
-    if xz not None:
+    if xz is not None:
         fname = get_archive(tarball_root + link + '.tar.xz', builddir)
     else:
         fname = get_archive(tarball_uncompressed_root + link + '.tar', builddir)
