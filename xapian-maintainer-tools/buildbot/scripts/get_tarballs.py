@@ -108,7 +108,7 @@ xz = None
 for try_xz in ['xz', 'lzma']:
     try:
         xz_proc = subprocess.Popen([try_xz, '--help'], stdout=open('/dev/null', 'w'))
-        if xz_proc.wait() != 0:
+        if xz_proc.wait() == 0:
             xz = try_xz
             break
     except OSError:
