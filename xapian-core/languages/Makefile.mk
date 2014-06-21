@@ -75,7 +75,11 @@ snowball_stopwords_preprocessed =\
 	$(snowball_stopwords:.txt=.list)
 
 .txt.list:
-	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $<  > $@
+if VPATH_BUILD
+# $(@D) is a GNU make-ism; if it isn't supported, we run sed instead.
+	$(MKDIR_P) "`[ -n '$(@D)' ] && echo '$(@D)'||echo '$@'|sed 's!/[^/]*$$!!'`"
+endif
+	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< > $@
 
 BUILT_SOURCES += $(snowball_stopwords_preprocessed)
 
