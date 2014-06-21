@@ -1,3 +1,7 @@
+Sat Jun 21 01:29:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Xapian/RSet.pm: Fix duplicate "1;" at end of module.
+
 Sat Jun 21 01:27:55 GMT 2014  Olly Betts <olly@survex.com>
 
 	* perl/Xapian/,perl/docs/examples/,perl/generate-perl-exceptions,
