@@ -1,3 +1,9 @@
+Sat Jun 21 01:27:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Xapian/,perl/docs/examples/,perl/generate-perl-exceptions,
+	  perl/perl.i,perl/t/databasemodified.t,perl/t/search.t,
+	  perl/t/writabledatabase.t,perl/util.i.in: Whitespace clean-up.
+
 Sat Jun 21 01:00:59 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING,README,perl/Makefile.am,perl/Search/Xapian/,perl/Xapian/,

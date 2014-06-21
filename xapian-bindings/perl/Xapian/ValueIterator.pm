@@ -1,6 +1,6 @@
 package Xapian::ValueIterator;
 
-=head1 NAME 
+=head1 NAME
 
 Xapian::ValueIterator - Iterate over value slots in a document.
 
@@ -15,7 +15,7 @@ This class also overloads C<eq>, C<ne>, C<==>, C<!=>, and C<"">
 
 =over 4
 
-=item new 
+=item new
 
 Constructor. Defaults to a uninitialized iterator.
 
@@ -36,7 +36,7 @@ the C<""> operator.
 
 =item get_description
 
-Returns a string describing this object. 
+Returns a string describing this object.
 
 =item equal <valueiterator>
 

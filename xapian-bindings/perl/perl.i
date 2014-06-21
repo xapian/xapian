@@ -215,12 +215,12 @@ sub new {
       $query = Xapianc::new_Query( @_ );
     } elsif( $op == 9 ) { # FIXME: OP_SCALE_WEIGHT
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
+	Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
       }
       $query = Xapianc::new_Query( @_ );
     } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
+	Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
       }
       $query = Xapianc::new_Query( @_ );
     } else {
@@ -239,15 +239,15 @@ sub new {
 	SV  **tv;
 	if (!SvROK($input))
 	    croak("Argument $argnum is not a reference.");
-        if (SvTYPE(SvRV($input)) != SVt_PVAV)
+	if (SvTYPE(SvRV($input)) != SVt_PVAV)
 	    croak("Argument $argnum is not an array.");
-        tempav = (AV*)SvRV($input);
+	tempav = (AV*)SvRV($input);
 	len = av_len(tempav);
 	$1 = (SV **) malloc((len+2)*sizeof(SV *));
 	for (i = 0; i <= len; i++) {
 	    tv = av_fetch(tempav, i, 0);
 	    $1[i] = *tv;
-        }
+	}
 	$1[i] = NULL;
 };
 
@@ -279,24 +279,24 @@ class XapianSWIGQueryItor {
     }
 
     Xapian::Query operator*() const {
-        SV **svp = av_fetch(array, i, 0);
-        if( svp == NULL )
-            croak("Unexpected NULL returned by av_fetch()");
-        SV *sv = *svp;
+	SV **svp = av_fetch(array, i, 0);
+	if( svp == NULL )
+	    croak("Unexpected NULL returned by av_fetch()");
+	SV *sv = *svp;
 
-        if ( sv_isa(sv, "Xapian::Query")) {
-            Xapian::Query *q;
-            SWIG_ConvertPtr(sv, (void **)&q, SWIGTYPE_p_Xapian__Query, 0);
-            return *q;
-        }
+	if ( sv_isa(sv, "Xapian::Query")) {
+	    Xapian::Query *q;
+	    SWIG_ConvertPtr(sv, (void **)&q, SWIGTYPE_p_Xapian__Query, 0);
+	    return *q;
+	}
 
-        if ( SvOK(sv) ) {
-            STRLEN len;
-            const char * ptr = SvPV(sv, len);
-            return Xapian::Query(string(ptr, len));
-        }
+	if ( SvOK(sv) ) {
+	    STRLEN len;
+	    const char * ptr = SvPV(sv, len);
+	    return Xapian::Query(string(ptr, len));
+	}
 
-        croak( "USAGE: Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
+	croak( "USAGE: Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
@@ -442,12 +442,12 @@ sub new {
 
 %inline %{
 Xapian::WritableDatabase * new3_WritableDatabase() {
-        try {
+	try {
 	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
+	}
+	catch (const Xapian::Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
 }
 %}
 

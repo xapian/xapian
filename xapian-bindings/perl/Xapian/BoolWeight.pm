@@ -10,7 +10,7 @@ Boolean Weighting scheme. All documents get a weight of 0.
 
 =head1 METHODS
 
-=over 4 
+=over 4
 
 =item new
 

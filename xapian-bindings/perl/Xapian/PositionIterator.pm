@@ -1,6 +1,6 @@
 package Xapian::PositionIterator;
 
-=head1 NAME 
+=head1 NAME
 
 Xapian::PositionIterator - Iterate over sets of positions.
 
@@ -15,7 +15,7 @@ This class also overloads C<eq>, C<ne>, C<==>, C<!=>, C<"">
 
 =over 4
 
-=item new 
+=item new
 
 Constructor. Defaults to an uninitialized iterator.
 

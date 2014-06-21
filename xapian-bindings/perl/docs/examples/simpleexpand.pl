@@ -52,7 +52,7 @@ eval {
     # Create an RSet with the listed docids in.
     my $reldocs = Xapian::RSet->new();
     foreach my $did (@ARGV[$sep_index + 1 .. $#ARGV]) {
-        $reldocs->add_document($did);
+	$reldocs->add_document($did);
     }
 
     # Parse the query string to produce a Xapian::Query object.
@@ -67,11 +67,11 @@ eval {
     if (!$query->empty()) {
 	print "Parsed query is: $query\n";
 
-        # Find the top 10 results for the query.
+	# Find the top 10 results for the query.
 	$enquire->set_query($query);
 	$mset = $enquire->get_mset(0, 10, $reldocs);
 
-        # Display the results.
+	# Display the results.
 	printf "%i results found.\n", $mset->get_matches_estimated();
 	printf "Results 1-%i:\n", $mset->size();
 
@@ -85,9 +85,9 @@ eval {
 	my $last = $mset->size() - 1;
 	if ($last > 4) {
 	   $last = 4;
-	} 
+	}
 	foreach my $m (($mset->items())[0..$last]) {
-            $reldocs->add_document($m->get_docid());
+	    $reldocs->add_document($m->get_docid());
 	}
     }
 
@@ -95,7 +95,7 @@ eval {
     my $eset = $enquire->get_eset(10, $reldocs);
     printf "%i suggested additional terms\n", $eset->size();
     for my $k ($eset->items()) {
-        printf "%s: %f\n", $k->get_termname(), $k->get_weight();
+	printf "%s: %f\n", $k->get_termname(), $k->get_weight();
     }
 };
 if ($@) {

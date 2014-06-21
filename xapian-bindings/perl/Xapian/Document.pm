@@ -64,19 +64,19 @@ Removes a term and all postings associated with it.
 
 Remove all terms from the document.
 
-=item termlist_count 
+=item termlist_count
 
 Returns number of different terms in the document.
 
 =item termlist_begin
 
 Iterator for the terms in this document. Returns a
-L<Xapian::TermIterator>. 
+L<Xapian::TermIterator>.
 
 =item termlist_end
 
 Equivalent end iterator for termlist_begin().  Returns a
-L<Xapian::TermIterator>. 
+L<Xapian::TermIterator>.
 
 =item values_count
 

@@ -135,7 +135,7 @@ eval {
     print "Results 1-$msize:\n";
 
     foreach my $m ($mset->items()) {
-        printf "#%u: Score %u%%: %s\n",
+	printf "#%u: Score %u%%: %s\n",
 	      $m->get_rank() + 1,
 	      $m->get_percent(),
 	      $m->get_document()->get_data();

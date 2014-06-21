@@ -39,7 +39,7 @@ for my $num (1..1000) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-} 
+}
 
 for my $num (qw(three four five)) {
   my $doc = Xapian::Document->new();
