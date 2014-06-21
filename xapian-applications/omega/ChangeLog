@@ -1,3 +1,9 @@
+Sat Jun 21 00:50:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* Makefile.am: Don't compile in unixperm.cc - it isn't currently used,
+	  and it fails to build with mingw.  (fixes #635)
+
 Thu Jun 19 13:56:02 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
