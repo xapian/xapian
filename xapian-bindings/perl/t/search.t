@@ -41,7 +41,7 @@ is( $query->get_description, "Xapian::Query(help)", "query parsed correctly" );
 # tests 15-41
 $subqueries[1] = Search::Xapian::Query->new( 'help' );
 foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE,
-                OP_AND_NOT, OP_XOR, OP_AND_MAYBE, OP_FILTER, OP_ELITE_SET) {
+		OP_AND_NOT, OP_XOR, OP_AND_MAYBE, OP_FILTER, OP_ELITE_SET) {
   ok( $query = Search::Xapian::Query->new( $op, @subqueries ), "$Search::Xapian::OP_NAMES[$op] works with 2 objects" );
   ok( $query = Search::Xapian::Query->new( $op, $subqueries[0], 'test'), "$Search::Xapian::OP_NAMES[$op] works with an object and a term" );
   ok( $query = Search::Xapian::Query->new( $op, 'test', 'help'), "$Search::Xapian::OP_NAMES[$op] works with 2 terms" );

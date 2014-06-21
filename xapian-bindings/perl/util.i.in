@@ -208,12 +208,12 @@ sub new {
       $query = Search::Xapianc::new_Query( @_ );
     } elsif( $op == 9 ) { # FIXME: OP_SCALE_WEIGHT
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
+	Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
       }
       $query = Search::Xapianc::new_Query( @_ );
     } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
+	Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
       }
       $query = Search::Xapianc::new_Query( @_ );
     } else {
@@ -232,15 +232,15 @@ sub new {
 	SV  **tv;
 	if (!SvROK($input))
 	    croak("Argument $argnum is not a reference.");
-        if (SvTYPE(SvRV($input)) != SVt_PVAV)
+	if (SvTYPE(SvRV($input)) != SVt_PVAV)
 	    croak("Argument $argnum is not an array.");
-        tempav = (AV*)SvRV($input);
+	tempav = (AV*)SvRV($input);
 	len = av_len(tempav);
 	$1 = (SV **) malloc((len+2)*sizeof(SV *));
 	for (i = 0; i <= len; i++) {
 	    tv = av_fetch(tempav, i, 0);
 	    $1[i] = *tv;
-        }
+	}
 	$1[i] = NULL;
 };
 
@@ -276,10 +276,10 @@ Xapian::Query * newN(int op_, SV *q_) {
 		    croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
 		}
 	    }
-            ret = new Xapian::Query(op, queries.begin(), queries.end());
-        } catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
+	    ret = new Xapian::Query(op, queries.begin(), queries.end());
+	} catch (const Xapian::Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
 	return ret;
 }
 %}
@@ -392,12 +392,12 @@ sub new {
 
 %inline %{
 Xapian::WritableDatabase * new3_WritableDatabase() {
-        try {
+	try {
 	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
+	}
+	catch (const Xapian::Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
 }
 %}
 
@@ -420,33 +420,33 @@ sub dl_load_flags { 0x01 }
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = (
-                    'ops' => [ qw(
-                                  OP_AND
-                                  OP_OR
-                                  OP_AND_NOT
-                                  OP_XOR
-                                  OP_AND_MAYBE
-                                  OP_FILTER
-                                  OP_NEAR
-                                  OP_PHRASE
+		    'ops' => [ qw(
+				  OP_AND
+				  OP_OR
+				  OP_AND_NOT
+				  OP_XOR
+				  OP_AND_MAYBE
+				  OP_FILTER
+				  OP_NEAR
+				  OP_PHRASE
 				  OP_VALUE_RANGE
 				  OP_SCALE_WEIGHT
-                                  OP_ELITE_SET
+				  OP_ELITE_SET
 				  OP_VALUE_GE
 				  OP_VALUE_LE
-                                 ) ],
-                    'db' => [ qw(
-                                 DB_OPEN
-                                 DB_CREATE
-                                 DB_CREATE_OR_OPEN
-                                 DB_CREATE_OR_OVERWRITE
-                                 ) ],
-                    'enq_order' => [ qw(
+				 ) ],
+		    'db' => [ qw(
+				 DB_OPEN
+				 DB_CREATE
+				 DB_CREATE_OR_OPEN
+				 DB_CREATE_OR_OVERWRITE
+				 ) ],
+		    'enq_order' => [ qw(
 				 ENQ_DESCENDING
 				 ENQ_ASCENDING
 				 ENQ_DONT_CARE
 				   ) ],
-                    'qpflags' => [ qw(
+		    'qpflags' => [ qw(
 				 FLAG_BOOLEAN
 				 FLAG_PHRASE
 				 FLAG_LOVEHATE
@@ -459,13 +459,13 @@ our %EXPORT_TAGS = (
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
 				 FLAG_DEFAULT
-                                 ) ],
-                    'qpstem' => [ qw(
+				 ) ],
+		    'qpstem' => [ qw(
 				 STEM_NONE
 				 STEM_SOME
 				 STEM_ALL
-                                 ) ]
-                   );
+				 ) ]
+		   );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
 			   @{ $EXPORT_TAGS{'db'} },
 			   @{ $EXPORT_TAGS{'qpflags'} },
@@ -522,12 +522,12 @@ sub items {
 
 use overload '++' => sub { $_[0]->increment() },
 	     '--' => sub { $_[0]->prev() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -551,12 +551,12 @@ sub FETCHSIZE {
 package Search::Xapian::ESetIterator;
 use overload '++' => sub { $_[0]->increment() },
 	     '--' => sub { $_[0]->prev() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -588,12 +588,12 @@ sub FETCHSIZE {
 package Search::Xapian::MSetIterator;
 use overload '++' => sub { $_[0]->increment() },
 	     '--' => sub { $_[0]->prev() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -607,14 +607,14 @@ our @ISA = qw(Search::Xapian::MSet);
 
 package Search::Xapian::PositionIterator;
 use overload '++' => sub { $_[0]->increment() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             '""' => sub { $_[0]->get_description() },
-             '0+' => sub { $_[0]->get_termpos() },
-             'fallback' => 1;
+	     '""' => sub { $_[0]->get_description() },
+	     '0+' => sub { $_[0]->get_termpos() },
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -651,12 +651,12 @@ sub set_stopper {
 
 package Search::Xapian::TermIterator;
 use overload '++' => sub { $_[0]->increment() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -668,12 +668,12 @@ sub clone() {
 
 package Search::Xapian::ValueIterator;
 use overload '++' => sub { $_[0]->increment() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;

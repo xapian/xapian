@@ -1,3 +1,10 @@
+Thu May 14 11:17:54 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/Search/Xapian/,perl/docs/examples/,
+	  perl/generate-perl-exceptions,perl/t/databasemodified.t,
+	  perl/t/search.t,perl/t/writabledatabase.t,perl/util.i.in: Whitespace
+	  clean-up.
+
 Thu May 14 10:57:31 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/generate-perl-exceptions: Remove superfluous ';' after closing

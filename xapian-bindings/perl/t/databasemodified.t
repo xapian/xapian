@@ -54,7 +54,7 @@ for my $num (1..1000) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-} 
+}
 $write->flush();
 $read->reopen();
 
@@ -72,7 +72,7 @@ for my $num (qw(three four five)) {
 }
 $write->flush();
 eval {
-    my $mset = $enq->get_mset(0, 10);    
+    my $mset = $enq->get_mset(0, 10);
 };
 ok($@);
 ok(ref($@), "Search::Xapian::DatabaseModifiedError", "correct class for exception");
