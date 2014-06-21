@@ -1,3 +1,9 @@
+Sat Jun 21 00:39:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/queryparser.h: Add the example of initializing
+	  SimpleStopper using a file as a doccomment.
+
 Thu Jun 19 13:35:25 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
