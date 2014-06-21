@@ -15,7 +15,7 @@ our @ISA = qw(DynaLoader);
 sub CLONE_SKIP { 1 }
 
 use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub new() {
   my $class = shift;

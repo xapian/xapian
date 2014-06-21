@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 ESet *
 new1()
     CODE:
-        RETVAL = new ESet();
+	RETVAL = new ESet();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ESet *
 new2(other)
     ESet *	other
     CODE:
-        RETVAL = new ESet(*other);
+	RETVAL = new ESet(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 
 termcount
@@ -32,30 +32,30 @@ ESet::empty()
 ESetIterator *
 ESet::begin()
     CODE:
-        RETVAL = new ESetIterator(THIS->begin());
+	RETVAL = new ESetIterator(THIS->begin());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ESetIterator *
 ESet::end()
     CODE:
-        RETVAL = new ESetIterator(THIS->end());
+	RETVAL = new ESetIterator(THIS->end());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ESetIterator *
 ESet::back()
     CODE:
-        RETVAL = new ESetIterator(THIS->back());
+	RETVAL = new ESetIterator(THIS->back());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ESetIterator *
 ESet::FETCH(doccount i)
     CODE:
-        RETVAL = new ESetIterator((*THIS)[i]);
+	RETVAL = new ESetIterator((*THIS)[i]);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 ESet::get_description()

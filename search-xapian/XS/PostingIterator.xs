@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 PostingIterator *
 new1()
     CODE:
-        RETVAL = new PostingIterator();
+	RETVAL = new PostingIterator();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 PostingIterator *
 new2(other)
     PostingIterator *	other
     CODE:
-        RETVAL = new PostingIterator(*other);
+	RETVAL = new PostingIterator(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 PostingIterator::DESTROY()
@@ -23,44 +23,44 @@ PostingIterator::DESTROY()
 void
 PostingIterator::inc()
     CODE:
-        ++(*THIS);
+	++(*THIS);
 
 bool
 PostingIterator::equal1(that)
     PostingIterator *	that
     CODE:
-        RETVAL = ((*THIS) == (*that));
+	RETVAL = ((*THIS) == (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 PostingIterator::nequal1(that)
     PostingIterator *	that
     CODE:
-        RETVAL = ((*THIS) != (*that));
+	RETVAL = ((*THIS) != (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 docid
 PostingIterator::get_docid()
     CODE:
-        RETVAL = THIS->operator*();
+	RETVAL = THIS->operator*();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 doclength
 PostingIterator::get_doclength()
     CODE:
-        RETVAL = THIS->get_doclength();
+	RETVAL = THIS->get_doclength();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 termcount
 PostingIterator::get_wdf()
     CODE:
-        RETVAL = THIS->get_wdf();
+	RETVAL = THIS->get_wdf();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 PostingIterator::get_description()
@@ -68,16 +68,16 @@ PostingIterator::get_description()
 PositionIterator *
 PostingIterator::positionlist_begin()
     CODE:
-        RETVAL = new PositionIterator(THIS->positionlist_begin());
+	RETVAL = new PositionIterator(THIS->positionlist_begin());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 PositionIterator *
 PostingIterator::positionlist_end()
     CODE:
-        RETVAL = new PositionIterator(THIS->positionlist_end());
+	RETVAL = new PositionIterator(THIS->positionlist_end());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 PostingIterator::skip_to(docid pos)

@@ -16,14 +16,14 @@ our @ISA = qw(DynaLoader);
 sub CLONE_SKIP { 1 }
 
 use overload '++' => sub { $_[0]->inc() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             '""' => sub { $_[0]->get_description() },
-             '0+' => sub { $_[0]->get_termpos() },
-             'fallback' => 1;
+	     '""' => sub { $_[0]->get_description() },
+	     '0+' => sub { $_[0]->get_termpos() },
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -75,7 +75,7 @@ sub new() {
 
 __END__
 
-=head1 NAME 
+=head1 NAME
 
 Search::Xapian::PositionIterator - Iterate over sets of positions.
 
@@ -90,7 +90,7 @@ This class also overloads C<eq>, C<ne>, C<==>, C<!=>, C<"">
 
 =over 4
 
-=item new 
+=item new
 
 Constructor. Defaults to an uninitialized iterator.
 

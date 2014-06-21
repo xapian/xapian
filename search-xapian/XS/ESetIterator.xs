@@ -5,48 +5,48 @@ PROTOTYPES: ENABLE
 ESetIterator *
 new1()
     CODE:
-        RETVAL = new ESetIterator();
+	RETVAL = new ESetIterator();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ESetIterator *
 new2(other)
     ESetIterator *	other
     CODE:
-        RETVAL = new ESetIterator(* other);
+	RETVAL = new ESetIterator(* other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 ESetIterator::inc()
     CODE:
-        ++(*THIS);
+	++(*THIS);
 
 void
 ESetIterator::dec()
     CODE:
-        --(*THIS);
+	--(*THIS);
 
 bool
 ESetIterator::equal(ESetIterator * that)
     CODE:
-        RETVAL = ((*THIS) == (*that));
+	RETVAL = ((*THIS) == (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 ESetIterator::nequal(ESetIterator * that)
     CODE:
-        RETVAL = ((*THIS) != (*that));
+	RETVAL = ((*THIS) != (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 ESetIterator::get_termname()
     CODE:
-        RETVAL = THIS->operator*();
+	RETVAL = THIS->operator*();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 weight
 ESetIterator::get_weight()

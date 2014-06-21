@@ -7,41 +7,41 @@ new1(file, opts)
     string	file
     int		opts
     CODE:
-        try {
+	try {
 	    RETVAL = new WritableDatabase(file, opts);
 	} catch (...) {
 	    handle_exception();
-        }
+	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 WritableDatabase *
 new2(database)
     WritableDatabase *	database
     CODE:
-        RETVAL = new WritableDatabase(*database);
+	RETVAL = new WritableDatabase(*database);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 WritableDatabase *
 new3()
     CODE:
-        try {
+	try {
 	    RETVAL = new WritableDatabase(InMemory::open());
 	} catch (...) {
 	    handle_exception();
-        }
+	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 WritableDatabase::flush()
    CODE:
 	try {
-            THIS->flush();
+	    THIS->flush();
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 
 void
@@ -56,79 +56,79 @@ WritableDatabase::begin_transaction(flushed = NO_INIT)
 	    }
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 void
 WritableDatabase::commit_transaction()
     CODE:
 	try {
-            THIS->commit_transaction();
+	    THIS->commit_transaction();
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 void
 WritableDatabase::cancel_transaction()
     CODE:
 	try {
-            THIS->cancel_transaction();
+	    THIS->cancel_transaction();
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 docid
 WritableDatabase::add_document(document)
     Document *	document
     CODE:
-        try {
+	try {
 	    RETVAL = THIS->add_document(*document);
 	} catch (...) {
 	    handle_exception();
-        }
+	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 WritableDatabase::delete_document(did)
     docid	did
     CODE:
-        try {
+	try {
 	    THIS->delete_document(did);
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 void
 WritableDatabase::delete_document_by_term(unique_term)
     string	unique_term
     CODE:
-        try {
+	try {
 	    THIS->delete_document(unique_term);
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 void
 WritableDatabase::replace_document(did, document)
     docid	did
     Document *	document
     CODE:
-        try {
+	try {
 	    THIS->replace_document(did, *document);
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 void
 WritableDatabase::replace_document_by_term(unique_term, document)
     string	unique_term
     Document *	document
     CODE:
-        try {
+	try {
 	    THIS->replace_document(unique_term, *document);
 	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 void
 WritableDatabase::set_metadata(string key, string value)

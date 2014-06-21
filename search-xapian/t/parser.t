@@ -1,5 +1,5 @@
 # Before `make install' is performed this script should be runnable with
-# 	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
+#	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
 # `make test'. After `make install' it should work as `perl test.pl'
 
 #########################

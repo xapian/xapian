@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 Document *
 new1()
     CODE:
-        RETVAL = new Document();
+	RETVAL = new Document();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 Document *
 new2(other)
     Document * other
     CODE:
-        RETVAL = new Document(*other);
+	RETVAL = new Document(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 Document::get_value(valueno valno)
@@ -66,7 +66,7 @@ void
 Document::set_data(data)
     string	data
     CODE:
-        THIS->set_data(data);
+	THIS->set_data(data);
 
 void
 Document::add_posting(tname, tpos, wdfinc = NO_INIT)
@@ -116,24 +116,24 @@ Document::remove_posting(tname, tpos, wdfdec = NO_INIT)
     termcount	wdfdec
     CODE:
 	try {
-            if (items == 4) { /* items includes the hidden this pointer */
-                THIS->remove_posting(tname, tpos, wdfdec);
-            } else {
-                THIS->remove_posting(tname, tpos);
-            }
-        } catch (...) {
+	    if (items == 4) { /* items includes the hidden this pointer */
+		THIS->remove_posting(tname, tpos, wdfdec);
+	    } else {
+		THIS->remove_posting(tname, tpos);
+	    }
+	} catch (...) {
 	    handle_exception();
-        }
+	}
 
 void
 Document::remove_term(tname)
     string	tname
     CODE:
 	try {
-            THIS->remove_term(tname);  
-        } catch (...) {
-            handle_exception();
-        }
+	    THIS->remove_term(tname);
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Document::clear_terms()
@@ -147,7 +147,7 @@ Document::termlist_count()
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Document::termlist_begin()
@@ -158,14 +158,14 @@ Document::termlist_begin()
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Document::termlist_end()
     CODE:
-        RETVAL = new TermIterator(THIS->termlist_end());
+	RETVAL = new TermIterator(THIS->termlist_end());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 termcount
 Document::values_count()
@@ -176,7 +176,7 @@ Document::values_count()
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ValueIterator *
 Document::values_begin()
@@ -187,14 +187,14 @@ Document::values_begin()
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ValueIterator *
 Document::values_end()
     CODE:
-        RETVAL = new ValueIterator(THIS->values_end());
+	RETVAL = new ValueIterator(THIS->values_end());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 docid
 Document::get_docid()

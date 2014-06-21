@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 Query *
 new0()
     CODE:
-        RETVAL = new Query();
+	RETVAL = new Query();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 Query *
 new1(term)
     string	term
     CODE:
-        RETVAL = new Query(term);
+	RETVAL = new Query(term);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 Query *
 new1weight(term, wqf, pos)
@@ -30,9 +30,9 @@ new1weight(term, wqf, pos)
 Query *
 new3scale(int op, Query * query, double factor)
     CODE:
-        RETVAL = new Query( (Query::op) op, *query, factor );
+	RETVAL = new Query( (Query::op) op, *query, factor );
     OUTPUT:
-        RETVAL
+	RETVAL
 
 Query *
 new3range(op, valno, limit)
@@ -40,9 +40,9 @@ new3range(op, valno, limit)
     valueno	valno
     string	limit
     CODE:
-        RETVAL = new Query( (Query::op) op, valno, limit );
+	RETVAL = new Query( (Query::op) op, valno, limit );
     OUTPUT:
-        RETVAL
+	RETVAL
 
 Query *
 new4range(op, valno, start, end)
@@ -51,9 +51,9 @@ new4range(op, valno, start, end)
     string	start
     string	end
     CODE:
-        RETVAL = new Query( (Query::op) op, valno, start, end );
+	RETVAL = new Query( (Query::op) op, valno, start, end );
     OUTPUT:
-        RETVAL
+	RETVAL
 
 Query *
 newN(int op_, ...)
@@ -75,12 +75,12 @@ newN(int op_, ...)
 		    croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
 		}
 	    }
-            RETVAL = new Query(op, queries.begin(), queries.end());
+	    RETVAL = new Query(op, queries.begin(), queries.end());
 	} catch (...) {
 	    handle_exception();
-        }
+	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 termcount
 Query::get_length()
@@ -88,16 +88,16 @@ Query::get_length()
 TermIterator *
 Query::get_terms_begin()
     CODE:
-        RETVAL = new TermIterator(THIS->get_terms_begin());
+	RETVAL = new TermIterator(THIS->get_terms_begin());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Query::get_terms_end()
     CODE:
-        RETVAL = new TermIterator(THIS->get_terms_end());
+	RETVAL = new TermIterator(THIS->get_terms_end());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 Query::empty()

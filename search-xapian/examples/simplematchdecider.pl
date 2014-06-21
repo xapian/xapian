@@ -74,7 +74,7 @@ eval {
     printf "Results 1-%i:\n", $mset->size();
 
     foreach my $m ($mset->items()) {
-        printf "%i: %i%% docid=%i [%s]\n", $m->get_rank() + 1, $m->get_percent(), $m->get_docid(), $m->get_document()->get_data();
+	printf "%i: %i%% docid=%i [%s]\n", $m->get_rank() + 1, $m->get_percent(), $m->get_docid(), $m->get_document()->get_data();
     }
 };
 if ($@) {

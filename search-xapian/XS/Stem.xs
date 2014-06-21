@@ -12,14 +12,14 @@ Stem::new(language)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 Stem::stem_word(string word)
     CODE:
-        RETVAL = (*THIS)(word);
+	RETVAL = (*THIS)(word);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 Stem::get_description()

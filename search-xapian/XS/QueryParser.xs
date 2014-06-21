@@ -1,4 +1,4 @@
-MODULE = Search::Xapian 		PACKAGE = Search::Xapian::QueryParser
+MODULE = Search::Xapian			PACKAGE = Search::Xapian::QueryParser
 
 PROTOTYPES: ENABLE
 

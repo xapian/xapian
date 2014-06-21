@@ -47,33 +47,33 @@ sub dl_load_flags { 0x01 }
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = (
-                    'ops' => [ qw(
-                                  OP_AND
-                                  OP_OR
-                                  OP_AND_NOT
-                                  OP_XOR
-                                  OP_AND_MAYBE
-                                  OP_FILTER
-                                  OP_NEAR
-                                  OP_PHRASE
+		    'ops' => [ qw(
+				  OP_AND
+				  OP_OR
+				  OP_AND_NOT
+				  OP_XOR
+				  OP_AND_MAYBE
+				  OP_FILTER
+				  OP_NEAR
+				  OP_PHRASE
 				  OP_VALUE_RANGE
 				  OP_SCALE_WEIGHT
-                                  OP_ELITE_SET
+				  OP_ELITE_SET
 				  OP_VALUE_GE
 				  OP_VALUE_LE
-                                 ) ],
-                    'db' => [ qw(
-                                 DB_OPEN
-                                 DB_CREATE
-                                 DB_CREATE_OR_OPEN
-                                 DB_CREATE_OR_OVERWRITE
-                                 ) ],
-                    'enq_order' => [ qw(
+				 ) ],
+		    'db' => [ qw(
+				 DB_OPEN
+				 DB_CREATE
+				 DB_CREATE_OR_OPEN
+				 DB_CREATE_OR_OVERWRITE
+				 ) ],
+		    'enq_order' => [ qw(
 				 ENQ_DESCENDING
 				 ENQ_ASCENDING
 				 ENQ_DONT_CARE
 				   ) ],
-                    'qpflags' => [ qw(
+		    'qpflags' => [ qw(
 				 FLAG_BOOLEAN
 				 FLAG_PHRASE
 				 FLAG_LOVEHATE
@@ -86,13 +86,13 @@ our %EXPORT_TAGS = (
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
 				 FLAG_DEFAULT
-                                 ) ],
-                    'qpstem' => [ qw(
+				 ) ],
+		    'qpstem' => [ qw(
 				 STEM_NONE
 				 STEM_SOME
 				 STEM_ALL
-                                 ) ]
-                   );
+				 ) ]
+		   );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
 			   @{ $EXPORT_TAGS{'db'} },
 			   @{ $EXPORT_TAGS{'qpflags'} },
@@ -236,7 +236,7 @@ Like OP_AND, but only weight using the left query.
 =item OP_NEAR
 
 Match if the words are near each other. The window should be specified, as
-a parameter to C<Search::Xapian::Query::Query>, but it defaults to the 
+a parameter to C<Search::Xapian::Query::Query>, but it defaults to the
 number of terms in the list.
 
 =item OP_PHRASE

@@ -11,7 +11,7 @@ new1()
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 BM25Weight *
 new2(k1, k2, k3, b, min_normlen)

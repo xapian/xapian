@@ -44,7 +44,7 @@ TermIterator *		O_TERM_I
 PostingIterator		O_POSTING_I
 PostingIterator *	O_POSTING_I
 PositionIterator	O_POSITION_I
-PositionIterator *  	O_POSITION_I
+PositionIterator *	O_POSITION_I
 ValueIterator		O_VALUE_I
 ValueIterator *		O_VALUE_I
 
@@ -139,7 +139,7 @@ O_QUERY
 		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Query\\\" object\" );
 		XSRETURN_UNDEF;
 	}
-       
+
 O_QUERYPARSER
 	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::QueryParser\") )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
@@ -179,7 +179,6 @@ O_DATABASE
 		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Database\\\" object\" );
 		XSRETURN_UNDEF;
 	}
-       
 
 O_WDATABASE
 	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::WritableDatabase\") )
@@ -188,7 +187,7 @@ O_WDATABASE
 		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::WritableDatabase\\\" object\" );
 		XSRETURN_UNDEF;
 	}
-       
+
 O_TERM_I
 	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::TermIterator\") )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));

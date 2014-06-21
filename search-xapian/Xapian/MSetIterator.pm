@@ -16,12 +16,12 @@ sub CLONE_SKIP { 1 }
 
 use overload '++' => sub { $_[0]->inc() },
 	     '--' => sub { $_[0]->dec() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;

@@ -8,17 +8,17 @@ StringValueRangeProcessor::new(valno, str = NO_INIT,  prefix = true)
     string str
     bool prefix
     CODE:
-        switch (items) { /* items includes the hidden this pointer */
-        case 2:
-            RETVAL = new StringValueRangeProcessor(valno);
-            break;
-        case 3:
-        case 4:
-            RETVAL = new StringValueRangeProcessor(valno, str, prefix);
-            break;
-        default:
-            croak("Bad parameter count for new");
-        }
+	switch (items) { /* items includes the hidden this pointer */
+	case 2:
+	    RETVAL = new StringValueRangeProcessor(valno);
+	    break;
+	case 3:
+	case 4:
+	    RETVAL = new StringValueRangeProcessor(valno, str, prefix);
+	    break;
+	default:
+	    croak("Bad parameter count for new");
+	}
     OUTPUT:
 	RETVAL
 

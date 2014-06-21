@@ -5,41 +5,41 @@ PROTOTYPES: ENABLE
 MSet *
 new1()
     CODE:
-        RETVAL = new MSet();
+	RETVAL = new MSet();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 MSet *
 new2(other)
     MSet *	other
     CODE:
-        RETVAL = new MSet(*other);
+	RETVAL = new MSet(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 MSet::fetch1(begin, end)
     MSetIterator *	begin
     MSetIterator *	end
     CODE:
-        THIS->fetch(*begin, *end);
+	THIS->fetch(*begin, *end);
 
 void
 MSet::fetch2(item)
     MSetIterator *	item
     CODE:
-        THIS->fetch(*item);
+	THIS->fetch(*item);
 
 void
 MSet::fetch3()
     CODE:
-        THIS->fetch();
+	THIS->fetch();
 
 percent
 MSet::convert_to_percent1(wt)
     weight	wt
     CODE:
-        RETVAL = THIS->convert_to_percent(wt);
+	RETVAL = THIS->convert_to_percent(wt);
     OUTPUT:
 	RETVAL
 
@@ -47,7 +47,7 @@ percent
 MSet::convert_to_percent2(it)
     MSetIterator *	it
     CODE:
-        RETVAL = THIS->convert_to_percent(*it);
+	RETVAL = THIS->convert_to_percent(*it);
     OUTPUT:
 	RETVAL
 
@@ -55,17 +55,17 @@ doccount
 MSet::get_termfreq(tname)
     string	tname
     CODE:
-        RETVAL = THIS->get_termfreq(tname);
+	RETVAL = THIS->get_termfreq(tname);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 weight
 MSet::get_termweight(tname)
     string	tname
     CODE:
-        RETVAL = THIS->get_termweight(tname);
+	RETVAL = THIS->get_termweight(tname);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 doccount
 MSet::get_firstitem()
@@ -95,30 +95,30 @@ MSet::empty()
 
 void
 MSet::swap(other)
-        MSet *    other
+	MSet *    other
     CODE:
-        THIS->swap(*other);
+	THIS->swap(*other);
 
 MSetIterator *
 MSet::begin()
     CODE:
-        RETVAL = new MSetIterator(THIS->begin());
+	RETVAL = new MSetIterator(THIS->begin());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 MSetIterator *
 MSet::end()
     CODE:
-        RETVAL = new MSetIterator(THIS->end());
+	RETVAL = new MSetIterator(THIS->end());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 MSetIterator *
 MSet::back()
     CODE:
-        RETVAL = new MSetIterator(THIS->back());
+	RETVAL = new MSetIterator(THIS->back());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 MSetIterator *
 MSet::FETCH(doccount i)
@@ -126,9 +126,9 @@ MSet::FETCH(doccount i)
     ALIAS:
 	Search::Xapian::MSet::get_msetiterator = 1
     CODE:
-        RETVAL = new MSetIterator((*THIS)[i]);
+	RETVAL = new MSetIterator((*THIS)[i]);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 MSet::get_description()

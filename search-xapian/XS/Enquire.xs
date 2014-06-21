@@ -1,4 +1,4 @@
-MODULE = Search::Xapian         PACKAGE = Search::Xapian::Enquire
+MODULE = Search::Xapian	 PACKAGE = Search::Xapian::Enquire
 
 PROTOTYPES: ENABLE
 
@@ -58,7 +58,7 @@ Enquire::set_collapse_key(collapse_key)
 
 void
 Enquire::set_docid_order(order)
-    int         order
+    int	 order
     CODE:
 	try {
 	    THIS->set_docid_order(static_cast<Enquire::docid_order>(order));
@@ -237,7 +237,7 @@ ESet *
 Enquire::get_eset(maxitems, rset, func = NO_INIT)
     doccount    maxitems
     RSet *      rset
-    SV *        func
+    SV *	func
     CODE:
 	try {
 	    ESet eset;
@@ -258,7 +258,7 @@ Enquire::get_eset(maxitems, rset, func = NO_INIT)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_begin1(docid did)
@@ -269,11 +269,11 @@ Enquire::get_matching_terms_begin1(docid did)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_begin2(it)
-    MSetIterator *        it
+    MSetIterator *	it
     CODE:
 	try {
 	    RETVAL = new TermIterator(THIS->get_matching_terms_begin(* it));
@@ -281,7 +281,7 @@ Enquire::get_matching_terms_begin2(it)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_end1(docid did)
@@ -292,7 +292,7 @@ Enquire::get_matching_terms_end1(docid did)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_end2(it)
@@ -304,7 +304,7 @@ Enquire::get_matching_terms_end2(it)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 Enquire::set_weighting_scheme(weight_)

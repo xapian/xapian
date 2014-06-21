@@ -44,7 +44,7 @@ BM25 Weighting scheme. This is the default weighting scheme.
 
 =head1 METHODS
 
-=over 4 
+=over 4
 
 =item new
 

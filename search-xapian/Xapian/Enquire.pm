@@ -99,7 +99,7 @@ Search::Xapian::Enquire - Make queries against a database
 
 =head1 DESCRIPTION
 
-This class provides an interface to the information retrieval system for the 
+This class provides an interface to the information retrieval system for the
 purpose of searching.
 
 =head1 METHODS
@@ -122,16 +122,16 @@ constructor, together with any other passed arguments.
 
 Takes the start element, and maximum number of elements (and optionally
 the minimum number of matches to check), and returns an array tied to
-L<Search::Xapian::MSet::Tied>. 
+L<Search::Xapian::MSet::Tied>.
 
 =item get_matching_terms_begin
 
 Returns a L<Search::Xapian::TermIterator>, pointing to the start
 of the stream.
 
-=item get_matching_terms_end 
+=item get_matching_terms_end
 
-Returns a L<Search::Xapian::TermIterator>, pointing to the end 
+Returns a L<Search::Xapian::TermIterator>, pointing to the end
 of the stream.
 
 =item set_collapse_key <collapse_key>
