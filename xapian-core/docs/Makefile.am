@@ -55,9 +55,7 @@ EXTRA_DIST = doxygen_api.conf.in doxygen_source.conf.in \
 
 # Other files which should be distributed
 dist-hook: doxygen_api_docs
-	test -d $(distdir) || mkdir $(distdir)
-	test -d $(distdir)/apidoc || mkdir $(distdir)/apidoc
-	test -d $(distdir)/apidoc/html || mkdir $(distdir)/apidoc/html
+	$(MKDIR_P) '$(distdir)/apidoc/html'
 	test "`echo $(srcdir)/apidoc/html/*.png`" = "$(srcdir)/apidoc/html/*.png" || \
 	  cp -p $(srcdir)/apidoc/html/*.png $(distdir)/apidoc/html
 	test "`echo apidoc/html/*.png`" = "apidoc/html/*.png" || \
