@@ -9,7 +9,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 BEGIN { plan tests => 4 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 
 ok(1); # If we made it this far, we're ok.
 
@@ -26,10 +26,10 @@ if (opendir( DB_DIR, $db_dir )) {
   closedir( DB_DIR );
 }
 
-is( $Search::Xapian::DB_NAMES[Search::Xapian::DB_CREATE], "DB_CREATE" );
+is( $Xapian::DB_NAMES[Xapian::DB_CREATE], "DB_CREATE" );
 
 my $database;
-ok( $database = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE ) );
-ok( $database = Search::Xapian::WritableDatabase->new() );
+ok( $database = Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE ) );
+ok( $database = Xapian::WritableDatabase->new() );
 
 1;

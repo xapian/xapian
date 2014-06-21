@@ -24,7 +24,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Search::Xapian (':all');
+use Xapian (':all');
 
 # We require at least two command line arguments.
 if (scalar @ARGV < 2) {
@@ -34,10 +34,10 @@ if (scalar @ARGV < 2) {
 
 eval {
     # Open the database for searching.
-    my $database = Search::Xapian::Database->new(shift @ARGV);
+    my $database = Xapian::Database->new(shift @ARGV);
 
     # Start an enquire session.
-    my $enquire = Search::Xapian::Enquire->new($database);
+    my $enquire = Xapian::Enquire->new($database);
 
     # Combine command line arguments up to "--" with spaces between
     # them, so that simple queries don't have to be quoted at the shell
@@ -50,14 +50,14 @@ eval {
     my $query_string = join ' ', @ARGV[0 .. $sep_index - 1];
 
     # Create an RSet with the listed docids in.
-    my $reldocs = Search::Xapian::RSet->new();
+    my $reldocs = Xapian::RSet->new();
     foreach my $did (@ARGV[$sep_index + 1 .. $#ARGV]) {
         $reldocs->add_document($did);
     }
 
     # Parse the query string to produce a Xapian::Query object.
-    my $qp = Search::Xapian::QueryParser->new();
-    my $stemmer = Search::Xapian::Stem->new("english");
+    my $qp = Xapian::QueryParser->new();
+    my $stemmer = Xapian::Stem->new("english");
     $qp->set_stemmer($stemmer);
     $qp->set_database($database);
     $qp->set_stemming_strategy(STEM_SOME);

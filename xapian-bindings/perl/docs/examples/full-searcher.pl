@@ -23,7 +23,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Search::Xapian (':all');
+use Xapian (':all');
 
 # Constants denoting what we're using the number value slots for.
 my $SLOT_DATE = 0;
@@ -48,10 +48,10 @@ if (scalar @ARGV < 3) {
 
 eval {
     # Open the database(s) for searching.
-    my $database = Search::Xapian::Database->new(shift @ARGV);
+    my $database = Xapian::Database->new(shift @ARGV);
     while (scalar @ARGV && $ARGV[0] ne '--') {
 	# Xapian can transparently search several databases together.
-	my $extra_db = Search::Xapian::Database->new(shift @ARGV);
+	my $extra_db = Xapian::Database->new(shift @ARGV);
 	$database->add_database($extra_db);
     }
     shift @ARGV;
@@ -77,7 +77,7 @@ eval {
     }
 
     # Start an enquire session.
-    my $enquire = Search::Xapian::Enquire->new($database);
+    my $enquire = Xapian::Enquire->new($database);
 
     # Combine the remaining command line arguments with a space between each.
     # This means that simple queries without shell metacharacters in don't
@@ -85,9 +85,9 @@ eval {
     my $query_string = join ' ', @ARGV;
 
     # Set up the QueryParser how we want.
-    my $qp = Search::Xapian::QueryParser->new();
+    my $qp = Xapian::QueryParser->new();
     $qp->set_database($database);
-    $qp->set_stemmer(Search::Xapian::Stem->new("english"));
+    $qp->set_stemmer(Xapian::Stem->new("english"));
     $qp->set_stemming_strategy(STEM_SOME);
 
     # Prefixes for free-text fields.
@@ -100,7 +100,7 @@ eval {
 
     # Second argument of 1 means "prefer mm/dd/yyyy".
     # Third argument means that two digit years < 20 are 20xx; >= 29 are 19xx.
-    my $vrpdate = new Search::Xapian::DateValueRangeProcessor($SLOT_DATE, 1,
+    my $vrpdate = new Xapian::DateValueRangeProcessor($SLOT_DATE, 1,
 							      1920);
     $qp->add_valuerangeprocessor($vrpdate);
 

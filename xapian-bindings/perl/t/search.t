@@ -11,7 +11,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 BEGIN { plan tests => 122 };
-use Search::Xapian qw(:ops);
+use Xapian qw(:ops);
 
 # FIXME: these tests pass in the XS version.
 my $disable_fixme = 1;
@@ -25,38 +25,38 @@ my $disable_fixme = 1;
 # creating a test database in the directory testdb.
 
 my $db;
-ok( $db = Search::Xapian::Database->new( 'testdb' ), "test db opened ok" );
+ok( $db = Xapian::Database->new( 'testdb' ), "test db opened ok" );
 
 my $enq;
 ok( $enq = $db->enquire(), "db enquirable" );
 
 my @subqueries;
 my $query;
-ok( $subqueries[0] = Search::Xapian::Query->new( 'test' ), "one-term queries ok" );
+ok( $subqueries[0] = Xapian::Query->new( 'test' ), "one-term queries ok" );
 is( $subqueries[0]->get_description, "Query(test)", "query parsed correctly" );
 
 # tests 5-14
 foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE) {
-  ok( $query = Search::Xapian::Query->new( $op, @subqueries ), "$Search::Xapian::OP_NAMES[$op] works with 1 object" );
-  ok( $query = Search::Xapian::Query->new( $op, 'help' ), "$Search::Xapian::OP_NAMES[$op] works with 1 term" );
+  ok( $query = Xapian::Query->new( $op, @subqueries ), "$Xapian::OP_NAMES[$op] works with 1 object" );
+  ok( $query = Xapian::Query->new( $op, 'help' ), "$Xapian::OP_NAMES[$op] works with 1 term" );
 }
 is( $query->get_description, "Query(help)", "query parsed correctly" );
 
 # tests 15-41
-$subqueries[1] = Search::Xapian::Query->new( 'help' );
+$subqueries[1] = Xapian::Query->new( 'help' );
 foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE,
                 OP_AND_NOT, OP_XOR, OP_AND_MAYBE, OP_FILTER, OP_ELITE_SET) {
-  ok( $query = Search::Xapian::Query->new( $op, @subqueries ), "$Search::Xapian::OP_NAMES[$op] works with 2 objects" );
-  ok( $query = Search::Xapian::Query->new( $op, $subqueries[0], 'test'), "$Search::Xapian::OP_NAMES[$op] works with an object and a term" );
-  ok( $query = Search::Xapian::Query->new( $op, 'test', 'help'), "$Search::Xapian::OP_NAMES[$op] works with 2 terms" );
+  ok( $query = Xapian::Query->new( $op, @subqueries ), "$Xapian::OP_NAMES[$op] works with 2 objects" );
+  ok( $query = Xapian::Query->new( $op, $subqueries[0], 'test'), "$Xapian::OP_NAMES[$op] works with an object and a term" );
+  ok( $query = Xapian::Query->new( $op, 'test', 'help'), "$Xapian::OP_NAMES[$op] works with 2 terms" );
 }
 is( $query->get_description, "Query((test ELITE_SET 10 help))", "query parsed correctly" );
 
 # tests 42-...
-$subqueries[2] = Search::Xapian::Query->new( 'one' );
+$subqueries[2] = Xapian::Query->new( 'one' );
 foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE ) {
-  ok( $query = Search::Xapian::Query->new( $op, @subqueries ), "$Search::Xapian::OP_NAMES[$op] works with 3 objects" );
-  ok( $query = Search::Xapian::Query->new( $op, 'test', 'help', 'one' ), "$Search::Xapian::OP_NAMES[$op] works with 3 terms" );
+  ok( $query = Xapian::Query->new( $op, @subqueries ), "$Xapian::OP_NAMES[$op] works with 3 objects" );
+  ok( $query = Xapian::Query->new( $op, 'test', 'help', 'one' ), "$Xapian::OP_NAMES[$op] works with 3 terms" );
 }
 is( $query->get_description, "Query((test PHRASE 3 help PHRASE 3 one))", "query parsed correctly" );
 
@@ -64,7 +64,7 @@ ok( $enq = $db->enquire( $query ), "db queries return ok"  );
 ok( $enq = $db->enquire( OP_OR, 'test', 'help' ), "in-line db queries return ok" );
 is( $db->get_spelling_suggestion( 'tost' ), 'test', "spelling suggestion ok" );
 
-ok( $query = Search::Xapian::Query->new(OP_SCALE_WEIGHT, $query, 3.14), "OP_SCALE_WEIGHT understood" );
+ok( $query = Xapian::Query->new(OP_SCALE_WEIGHT, $query, 3.14), "OP_SCALE_WEIGHT understood" );
 
 my $matches;
 ok( $matches = $enq->get_mset( 0, 10 ), "match set returned ok" );
@@ -96,7 +96,7 @@ for (1 .. $matches->size()) { $match++; }
 is( $match, $matches->end(), "match set returns correct endpoint");
 
 my $rset;
-ok( $rset = Search::Xapian::RSet->new(), "relevance set created ok" );
+ok( $rset = Xapian::RSet->new(), "relevance set created ok" );
 $rset->add_document( 1 );
 ok( $rset->contains( 1 ), "document added to relevance set successfully" );
 ok( !$rset->contains( 2 ), "relevance set correctly fails to match document it does not contain" );
@@ -145,7 +145,7 @@ is( $disable_fixme ?0: $eset->size(), 0, "expanded terms decider filtered" );
 
 # try an empty mset - this was giving begin != end
 my ($noquery, $nomatches);
-ok( $noquery = Search::Xapian::Query->new( OP_AND_NOT, 'test', 'test' ), "matchless query returns ok" );
+ok( $noquery = Xapian::Query->new( OP_AND_NOT, 'test', 'test' ), "matchless query returns ok" );
 $enq->set_query( $noquery );
 ok( $nomatches = $enq->get_mset( 0, 10 ), "matchless query returns match set ok" );
 is( $nomatches->size(), 0, "matchless query's match set has zero size" );
@@ -162,13 +162,13 @@ ok( $match eq $matches->back() );
 ok( $match->get_collapse_count() == 0 );
 
 my $bm25;
-ok( $bm25 = Search::Xapian::BM25Weight->new() );
+ok( $bm25 = Xapian::BM25Weight->new() );
 
 my $boolweight;
-ok( $boolweight = Search::Xapian::BoolWeight->new() );
+ok( $boolweight = Xapian::BoolWeight->new() );
 
 my $tradweight;
-ok( $tradweight = Search::Xapian::TradWeight->new() );
+ok( $tradweight = Xapian::TradWeight->new() );
 
 my $alltermit = $db->allterms_begin();
 ok( $alltermit != $db->allterms_end() );
@@ -192,7 +192,7 @@ ok( $alltermit->get_termname() eq 'two' );
 ok( ++$alltermit == $db->allterms_end('t') );
 
 # Check that non-string scalars get coerced.
-my $numberquery = Search::Xapian::Query->new( OP_OR, (12, "34", .5) );
+my $numberquery = Xapian::Query->new( OP_OR, (12, "34", .5) );
 is( $numberquery->get_description(), "Query((12 OR 34 OR 0.5))" );
 
 1;

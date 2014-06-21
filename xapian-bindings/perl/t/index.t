@@ -11,7 +11,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 BEGIN { plan tests => 117 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 
 # FIXME: these tests pass in the XS version.
 my $disable_fixme = 1;
@@ -24,15 +24,15 @@ my $disable_fixme = 1;
 foreach my $backend ("inmemory", "auto") {
   my $database;
   if ($backend eq "inmemory") {
-    ok( $database = Search::Xapian::WritableDatabase->new() );
+    ok( $database = Xapian::WritableDatabase->new() );
   } else {
-    ok( $database = Search::Xapian::WritableDatabase->new( 'testdb', Search::Xapian::DB_CREATE_OR_OVERWRITE ) );
+    ok( $database = Xapian::WritableDatabase->new( 'testdb', Xapian::DB_CREATE_OR_OVERWRITE ) );
   }
 
   ok( $database->get_description() );
 
   my $stemmer;
-  ok( $stemmer = Search::Xapian::Stem->new( 'english' ) );
+  ok( $stemmer = Xapian::Stem->new( 'english' ) );
   ok( $stemmer->get_description() );
 
   my %docs;
@@ -46,7 +46,7 @@ foreach my $backend ("inmemory", "auto") {
 
   my $docid;
   for my $num (qw( one two three )) {
-    ok( $docs{$num} = Search::Xapian::Document->new() );
+    ok( $docs{$num} = Xapian::Document->new() );
     ok( $docs{$num}->get_description() );
 
     $docs{$num}->set_data( "$term $num" );
@@ -133,11 +133,11 @@ foreach my $backend ("inmemory", "auto") {
 # Check that trying to create an invalid stemmer gives an exception, not an
 # abort.
 eval {
-  my $badstem = Search::Xapian::Stem->new( 'gibberish' );
+  my $badstem = Xapian::Stem->new( 'gibberish' );
 };
 ok($@);
-ok(ref($@), "Search::Xapian::InvalidArgumentError");
-ok($@->isa('Search::Xapian::Error'));
+ok(ref($@), "Xapian::InvalidArgumentError");
+ok($@->isa('Xapian::Error'));
 ok($@->get_msg, "Language code gibberish unknown");
 ok( $disable_fixme || "$@" =~ /^Exception: Language code gibberish unknown(?: at \S+ line \d+\.)?$/ );
 

@@ -24,7 +24,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Search::Xapian (':all');
+use Xapian (':all');
 
 # We require at least two command line arguments.
 if (scalar @ARGV < 2) {
@@ -34,10 +34,10 @@ if (scalar @ARGV < 2) {
 
 eval {
     # Open the database for searching.
-    my $database = Search::Xapian::Database->new(shift @ARGV);
+    my $database = Xapian::Database->new(shift @ARGV);
 
     # Start an enquire session.
-    my $enquire = Search::Xapian::Enquire->new($database);
+    my $enquire = Xapian::Enquire->new($database);
 
     # Combine the rest of the command line arguments with spaces between
     # them, so that simple queries don't have to be quoted at the shell
@@ -45,8 +45,8 @@ eval {
     my $query_string = join ' ', @ARGV;
 
     # Parse the query string to produce a Xapian::Query object.
-    my $qp = Search::Xapian::QueryParser->new();
-    my $stemmer = Search::Xapian::Stem->new("english");
+    my $qp = Xapian::QueryParser->new();
+    my $stemmer = Xapian::Stem->new("english");
     $qp->set_stemmer($stemmer);
     $qp->set_database($database);
     $qp->set_stemming_strategy(STEM_SOME);

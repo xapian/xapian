@@ -13,7 +13,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 61 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
 #########################
@@ -25,12 +25,12 @@ ok(1); # If we made it this far, we're ok.
 my $db_dir = 'testdb';
 
 my $database;
-ok( $database = Search::Xapian::Database->new( $db_dir ) );
+ok( $database = Xapian::Database->new( $db_dir ) );
 
-my $qp = new Search::Xapian::QueryParser( $database );
-$qp = new Search::Xapian::QueryParser();
+my $qp = new Xapian::QueryParser( $database );
+$qp = new Xapian::QueryParser();
 
-$qp->set_stemmer( Search::Xapian::Stem->new('english') );
+$qp->set_stemmer( Xapian::Stem->new('english') );
 $qp->set_stemming_strategy( STEM_ALL );
 $qp->set_default_op( OP_AND );
 
@@ -47,7 +47,7 @@ ok( my $enq = $database->enquire( $query ) );
 {
   my @stopwords = qw(a the in on and);
   my $stopper;
-  ok( $stopper = new Search::Xapian::SimpleStopper(@stopwords) );
+  ok( $stopper = new Xapian::SimpleStopper(@stopwords) );
   foreach (@stopwords) {
     ok( $stopper->stop_word($_) );
   }
@@ -58,9 +58,9 @@ ok( my $enq = $database->enquire( $query ) );
 }
 ok( $qp->parse_query("one two many") );
 
-$qp = new Search::Xapian::QueryParser();
+$qp = new Xapian::QueryParser();
 my $vrp;
-ok( $vrp = new Search::Xapian::StringValueRangeProcessor(1) );
+ok( $vrp = new Xapian::StringValueRangeProcessor(1) );
 $qp->add_valuerangeprocessor($vrp);
 $qp->add_boolean_prefix("test", "XTEST");
 
@@ -85,15 +85,15 @@ foreach $pair (
     ok( $query->get_description(), "Query($res)" );
 }
 
-$qp = new Search::Xapian::QueryParser();
+$qp = new Xapian::QueryParser();
 
-my $vrp1 = new Search::Xapian::DateValueRangeProcessor(1);
-my $vrp2 = new Search::Xapian::NumberValueRangeProcessor(2);
-my $vrp3 = new Search::Xapian::StringValueRangeProcessor(3);
-my $vrp4 = new Search::Xapian::NumberValueRangeProcessor(4, '$');
-my $vrp5 = new Search::Xapian::NumberValueRangeProcessor(5, 'kg', 0);
-my $vrp6 = new Search::Xapian::StringValueRangeProcessor(6, 'country:');
-my $vrp7 = new Search::Xapian::StringValueRangeProcessor(7, ':name', 0);
+my $vrp1 = new Xapian::DateValueRangeProcessor(1);
+my $vrp2 = new Xapian::NumberValueRangeProcessor(2);
+my $vrp3 = new Xapian::StringValueRangeProcessor(3);
+my $vrp4 = new Xapian::NumberValueRangeProcessor(4, '$');
+my $vrp5 = new Xapian::NumberValueRangeProcessor(5, 'kg', 0);
+my $vrp6 = new Xapian::StringValueRangeProcessor(6, 'country:');
+my $vrp7 = new Xapian::StringValueRangeProcessor(7, ':name', 0);
 $qp->add_valuerangeprocessor( $vrp1 );
 $qp->add_valuerangeprocessor( $vrp2 );
 $qp->add_valuerangeprocessor( $vrp4 );
@@ -127,10 +127,10 @@ foreach $pair (
     ok( $query->get_description(), "Query($res)" );
 }
 
-$qp = new Search::Xapian::QueryParser();
+$qp = new Xapian::QueryParser();
 
 {
-  my $vrpdate = new Search::Xapian::DateValueRangeProcessor(1, 1, 1960);
+  my $vrpdate = new Xapian::DateValueRangeProcessor(1, 1, 1960);
   $qp->add_valuerangeprocessor( $vrpdate );
 }
 
@@ -144,16 +144,16 @@ foreach $pair (
     ok( $query->get_description(), "Query($res)" );
 }
 
-# Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
+# Regression test for Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
 # we tried to catch const char * not Xapian::Error, so std::terminate got
 # called.
-$qp = Search::Xapian::QueryParser->new;
+$qp = Xapian::QueryParser->new;
 eval {
     $qp->parse_query('other* AND', FLAG_BOOLEAN|FLAG_WILDCARD);
 };
 ok($@);
-ok(ref($@), "Search::Xapian::QueryParserError", "correct class for exception");
-ok($@->isa('Search::Xapian::Error'));
+ok(ref($@), "Xapian::QueryParserError", "correct class for exception");
+ok($@->isa('Xapian::Error'));
 ok($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
 ok( $disable_fixme || $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\.)?$/ );
 

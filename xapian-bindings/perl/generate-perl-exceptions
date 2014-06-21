@@ -68,13 +68,13 @@ for (reverse @allclasses) {
 	void * p = (void *) new Xapian::$class(e);
 #ifdef croak_sv
 	SV * sv = sv_newmortal();
-	sv_setref_pv(sv, "Search::Xapian::$class", p);
+	sv_setref_pv(sv, "Xapian::$class", p);
 	croak_sv(sv);
 #elif defined ERRSV
-	sv_setref_pv(ERRSV, "Search::Xapian::$class", p);
+	sv_setref_pv(ERRSV, "Xapian::$class", p);
 	croak(Nullch);
 #else
-	sv_setref_pv(get_sv("@", TRUE), "Search::Xapian::$class", p);
+	sv_setref_pv(get_sv("@", TRUE), "Xapian::$class", p);
 	croak(Nullch);
 #endif
 EOF

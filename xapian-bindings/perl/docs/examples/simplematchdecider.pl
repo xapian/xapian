@@ -24,7 +24,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Search::Xapian (':all');
+use Xapian (':all');
 
 # This example runs a query like simplesearch does, but uses a MatchDecider
 # (mymatchdecider) to discard any document for which value 0 is equal to
@@ -44,10 +44,10 @@ sub mymatchdecider {
 
 eval {
     # Open the database for searching.
-    my $database = Search::Xapian::Database->new(shift @ARGV);
+    my $database = Xapian::Database->new(shift @ARGV);
 
     # Start an enquire session.
-    my $enquire = Search::Xapian::Enquire->new($database);
+    my $enquire = Xapian::Enquire->new($database);
 
     $avoid_value = shift @ARGV;
 
@@ -57,8 +57,8 @@ eval {
     my $query_string = join ' ', @ARGV;
 
     # Parse the query string to produce a Xapian::Query object.
-    my $qp = Search::Xapian::QueryParser->new();
-    my $stemmer = Search::Xapian::Stem->new("english");
+    my $qp = Xapian::QueryParser->new();
+    my $stemmer = Xapian::Stem->new("english");
     $qp->set_stemmer($stemmer);
     $qp->set_database($database);
     $qp->set_stemming_strategy(STEM_SOME);

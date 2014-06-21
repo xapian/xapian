@@ -233,8 +233,8 @@ make install DESTDIR=%{buildroot}
 %if 0%{?!_without_perl:1}
 %files perl
 %defattr(-, root, root)
-%{perl_arch}/auto/Search/Xapian/Xapian.so
-%{perl_lib}/Search/Xapian.pm
-%{perl_lib}/Search/Xapian
+%{perl_arch}/auto/Xapian/Xapian.so
+%{perl_lib}/Xapian.pm
+%{perl_lib}/Xapian
 %doc %{_datadir}/doc/%{name}/perl
 %endif
