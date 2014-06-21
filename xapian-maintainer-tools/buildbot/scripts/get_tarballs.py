@@ -119,6 +119,8 @@ for try_xz in ['xz', 'lzma']:
     except OSError:
         pass
 
+tar = 'tar'
+
 links = get_archive_links(tarball_root, archive_names)
 for link in links:
     if xz is not None:
