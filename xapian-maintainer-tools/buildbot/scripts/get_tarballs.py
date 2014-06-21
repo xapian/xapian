@@ -69,13 +69,13 @@ def get_archive_links(url, archives):
 
 def unpack_tarball(path, link, builddir):
     if path.endswith('.xz'):
-        xz = subprocess.Popen(['xz', '-dc', path], stdout=subprocess.PIPE)
-        tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=xz.stdout)
+        xz_proc = subprocess.Popen([xz, '-dc', path], stdout=subprocess.PIPE)
+        tar_proc = subprocess.Popen([tar, 'xf', '-', link], cwd=builddir, stdin=xz_proc.stdout)
     else:
         # Pipe the file in on stdin to avoid having to juggle 'path' being relative
         # vs. changing directory to builddir to extract.
-        tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=open(path, 'r'))
-    if tar.wait() != 0:
+        tar_proc = subprocess.Popen([tar, 'xf', '-', link], cwd=builddir, stdin=open(path, 'r'))
+    if tar_proc.wait() != 0:
         fail("Failed to extract tarball '%s'" % path)
 
 def get_archive(url, builddir):
@@ -104,15 +104,19 @@ def clear_build_dir(dir):
 
 clear_build_dir(builddir)
 
-have_xz = True
-try:
-    xz = subprocess.Popen(['xz', '--help'], stdout=open('/dev/null', 'w'))
-except OSError:
-    have_xz = False
+xz = None
+for try_xz in ['xz', 'lzma']:
+    try:
+        xz_proc = subprocess.Popen([try_xz, '--help'], stdout=open('/dev/null', 'w'))
+        if xz_proc.wait() != 0:
+            xz = try_xz
+            break
+    except OSError:
+        pass
 
 links = get_archive_links(tarball_root, archive_names)
 for link in links:
-    if have_xz:
+    if xz not None:
         fname = get_archive(tarball_root + link + '.tar.xz', builddir)
     else:
         fname = get_archive(tarball_uncompressed_root + link + '.tar', builddir)
