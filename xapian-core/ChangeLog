@@ -1,3 +1,8 @@
+Sat Jun 21 03:45:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Use $(MKDIR_P) instead of test -d || mkdir 3
+	  times.
+
 Sat Jun 21 03:44:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk: Generate the directories for the minimised
