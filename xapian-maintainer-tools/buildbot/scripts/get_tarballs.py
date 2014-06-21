@@ -22,6 +22,7 @@ try:
     tarlink_re = re.compile(r'<a href="([a-zA-Z0-9_.-]+)\.tar\.xz">')
     git = 'git'
     def bytes_to_unicode(b): return b
+    print("Handling as Python 2")
 except:
     # Python 3
     import urllib.request as u, urllib.parse as uparse
@@ -29,6 +30,7 @@ except:
     archive_names = tuple(bytes(x, 'ASCII') for x in archive_names)
     git = b'git'
     def bytes_to_unicode(b): return b.decode('ASCII')
+    print("Handling as Python 3")
 
 def fail(msg):
     print(msg)
@@ -61,6 +63,7 @@ def get_archive_links(url, archives):
     """Get the links to the archive files.
 
     """
+    print("Getting links from '%s'" % url)
     fd = u.urlopen(url)
     html = fd.read()
     fd.close()
@@ -79,7 +82,7 @@ def unpack_tarball(path, link, builddir):
         fail("Failed to extract tarball '%s'" % path)
 
 def get_archive(url, builddir):
-    print("Getting %s" % url)
+    print("Fetching '%s'" % url)
     fd = u.urlopen(url)
     data = fd.read()
     fd.close()
@@ -97,6 +100,7 @@ def get_archive(url, builddir):
     return os.path.join(builddir, fname)
 
 def clear_build_dir(dir):
+    print("Clearing build directory '%s'" % dir)
     if os.path.exists(dir):
         shutil.rmtree(dir)
     os.mkdir(dir)
@@ -106,8 +110,9 @@ clear_build_dir(builddir)
 
 xz = None
 for try_xz in ['xz', 'lzma']:
+    print("Trying '%s' as xz unpacker" % try_xz)
     try:
-        xz_proc = subprocess.Popen([try_xz, '--help'], stdout=open('/dev/null', 'w'))
+        xz_proc = subprocess.Popen([try_xz, '--help'], stdin=open('/dev/null', 'r'))
         if xz_proc.wait() == 0:
             xz = try_xz
             break
