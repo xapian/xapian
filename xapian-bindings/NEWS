@@ -1,20 +1,8 @@
- 17972       olly Wed Apr 30 03:48:07 GMT 2014  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.18 (2014-04-30):
+Xapian-bindings 1.2.18 (2014-06-22):
 
 Documentation:
 
 * README: Add links to Erlang and Node.js bindings.
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
 
 Lua:
 
@@ -22,12 +10,11 @@ Lua:
   expected), which most of the calls already used, and fix up the few calls
   which passed (expected, got).
 
-Perl:
-
 PHP:
 
 * php/smoketest.php: Add missing "exit(1);" after reporting failure of check
-  that MatchDecider returns an MSet with the expected docid in.
+  that MatchDecider returns an MSet with the expected docid in.  Luckily this
+  wasn't masking a test failure.
 
 Python:
 
@@ -36,14 +23,13 @@ Python:
   required functionality for the tests which do this, so this just needlessly
   causes the tests to fail if chert is disabled in xapian-core.
 
-* configure: Don't report Python version twice if it's too new or too old.
+* configure: If the Python version is too new or too old, only report it once
+  not twice.
 
 Ruby:
 
 * configure: Fix Ruby bindings to build on Windows (and other platforms where
-  allow_undefined_flag=unsupported. (fixes#634)
-
-Tcl:
+  allow_undefined_flag=unsupported. (fixes#634, reported by Alexis Denis)
 
 Xapian-bindings 1.2.17 (2014-01-29):
 
