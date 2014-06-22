@@ -1,10 +1,4 @@
- 18115       olly Thu Jun 19 13:11:43 GMT 2014  Olly Betts <olly@survex.com>
-
-Omega 1.2.18 (2014-06-19):
-
-general:
-
-documentation:
+Omega 1.2.18 (2014-06-22):
 
 indexers:
 
@@ -14,34 +8,27 @@ indexers:
     File V2 Document[...]" or "application/CDFV2-corrupt" by returning a more
     suitable filetype based on looking at the file's extension.
 
-  + When we skip a file because it exceeds the configured size limit, include
-    that size limit in the message.
-
   + The starting URL wasn't previously URL encoded.  In 1.3.2, this will be
     fixed by URL encoding it as we do for the rest of the path, for the 1.2
     branch we only URL encode it if it contains a character <= 31 or at least
     one of '#', '%', ':' or '?'.  This avoids a one-off reindex of every
     document in the database in cases which work OK in practice.
 
-* scriptindex:
+  + When we skip a file because it exceeds the configured size limit, include
+    that size limit in the message.
 
 omega:
 
 * Add support for setting the query expansion scheme to use.
 
-templates:
-
-testsuite:
-
-build system:
-
 portability:
+
+* Don't compile in unixperm.cc - it isn't currently used, and it fails to build
+  with mingw.  (fixes #635, reported by Alexis Denis)
 
 * Fix warning when built with GCC 4.7.2 using -Os.
 
 * Removed unused inline function, fixing compiler warning.
-
-packaging:
 
 Omega 1.2.17 (2014-01-29):
 
