@@ -1,4 +1,4 @@
-Search::Xapian version 1.2.17.0
+Search::Xapian version 1.2.18.0
 ===============================
 
 This is Search::Xapian, a Perl XS interface to the Xapian C++ search library.
@@ -54,6 +54,9 @@ Most of the classes have POD documentation, which you can view using perldoc or
 man (e.g. perldoc Search::Xapian::Database).  The Perl API closely follows the
 C++ API in most places, so the documentation for Xapian itself is generally
 applicable: <http://xapian.org/docs/>
+
+The "Getting Started with Xapian" guide is a worthwhile read, especially if
+you are new to Xapian: <http://getting-started-with-xapian.readthedocs.org/>
 
 COPYRIGHT AND LICENCE
 
