@@ -1,3 +1,7 @@
+Sun Jun 22 13:32:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Fri Jun 20 14:37:04 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Don't compile in unixperm.cc - it isn't currently used,
