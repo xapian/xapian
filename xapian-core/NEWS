@@ -1,6 +1,4 @@
- 18099       olly Tue Jun 17 11:21:16 GMT 2014  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.18 (2014-06-19):
+Xapian-core 1.2.18 (2014-06-22):
 
 API:
 
@@ -24,8 +22,7 @@ testsuite:
 
 * queryparsertest: Fix testcase for empty wildcard followed by negation to
   enable FLAG_LOVEHATE so the negation is actually parsed.  Fortunately the
-  fixed testcase passes.  This testcase will be fixed on trunk when the delayed
-  wildcard expansion branch gets merged.
+  fixed testcase passes.
 
 matcher:
 
@@ -33,27 +30,15 @@ matcher:
   need it and the calculated wdf for the synonym is <= doclength_lower_bound
   for the current subdatabase.  (fixes #360)
 
-brass backend:
-
-
-chert backend:
-
-
-flint backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * Releases are now bootstrapped with libtool 2.4.2 instead of 2.4, and with
   config.guess and config.sub updated to the latest versions.
 
 documentation:
+
+* Add an example of initializing SimpleStopper using a file listing stopwords.
+  (Patch from Assem Chelli)
 
 * Improve the descriptions of the stem_strategy values in the API docs.
   (Reported by "oilap" on #xapian)
@@ -72,9 +57,7 @@ documentation:
 
 * include/xapian/base.h: Remove very out of date comments talking about atomic
   assignment and locking - since 0.5.0 we've adopted a "user locks" policy.
-
-tools:
-
+  (Reported by Jean-Francois Dockes)
 
 examples:
 
@@ -105,9 +88,6 @@ portability:
   "Hurricane Tong" on xapian-devel).
 
 * Fix warnings with clang 5.0.
-
-packaging:
-
 
 debug code:
 
