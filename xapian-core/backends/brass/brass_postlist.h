@@ -380,8 +380,14 @@ class BrassPostList : public LeafPostList {
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
 
+	/// To read doclen chunk, when is_doclen_list is true.
 	AutoPtr<DoclenChunkReader> p_doclen_chunk_reader;
+
+	/// True when this postlist is to store documents length.
 	bool is_doclen_list;
+
+	/// True when current chunk is first chunk.
+	/// This variable is valid only when this chunk is for doc length.
 	bool is_first_chunk;
 
 	/// Copying is not allowed.

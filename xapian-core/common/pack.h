@@ -459,6 +459,8 @@ pack_brass_postlist_key(const std::string &term, Xapian::docid did)
     return pack_chert_postlist_key(term, did);
 }
 
+
+// pack an integer within desired number of bytes
 template<class U>
 inline 
 	bool pack_uint_in_bytes( U n, int n_bytes, std::string& chunk )
@@ -471,6 +473,7 @@ inline
 	return true;
 }
 
+// unpack an integer within desired number of bytes
 template<class U>
 inline
 	bool unpack_uint_in_bytes( const char** pos, int n_bytes, U* result )
