@@ -1,12 +1,134 @@
- 17826       olly Fri Jan 17 03:50:44 GMT 2014  Olly Betts <olly@survex.com>
+ 18128       olly Sat Jun 21 03:45:19 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-core 1.3.2 (2014-01-29):
+backport fodder:
 
-This release includes all changes from 1.2.16 and 1.2.17 which are relevant.
+backported for 1.2.19:
+
+Xapian-core 1.3.2 (2014-06-22):
+
+	* languages/: Add stopwords lists from Snowball plus an Arabic one.
+
+	* HACKING: Need python3-sphinx to generate docs for python3.
+	* HACKING: Note sphinx-doc now needed (for Python bindings API docs).
+
+	* HACKING,configure.ac,docs/Makefile.am,docs/doxygen_api.conf.in:
+	  Don't build, ship or install PDF versions of the API docs by
+	  default, but provide an easy way for people to build it for
+	  themselves if they want it.
+
+	* docs/Makefile.am: Actually ship, process and install geospatial.rst.
+
+	* languages/hungarian.sbl: Fix incorrect Unicode codepoints for
+	  o-double-acute and u-double-acute in Hungarian Snowball stemmer.
+	  Reported by Tom Lane to snowball-discuss.
+
+	* HACKING: Now using doxygen 1.8.7 to bootstrap tarballs.
+
+	* HACKING: Now using automake 1.14.1 to bootstrap snapshots and
+	  1.3.x releases.
+
+	* api/queryinternal.cc: Only serialise parameter where it is actually
+	  used.
+
+	* backends/chert/chert_check.cc,backends/chert/chert_dbcheck.cc,
+	  backends/dbcheck.cc: Improve DBCHECK_FIX - if fixing a whole
+	  database, we now take the revision from the first table we
+	  successfully look at, which should be correct in most cases,
+	  and is definitely better than trying to determine the revision
+	  of each broken table independently.
+
+	* tests/harness/unixcmds.cc: Drop code supporting Microsoft Windows 9x
+	  which reached EOL in 2006.
+
+	* common/autoptr.h: Under C++11, use unique_ptr for AutoPtr.
+
+	* HACKING: MacTeX seems to be the best option if using homebrew.
+
+	* backends/remote/remote-database.cc,net/remoteserver.cc,
+	  net/serialise.cc,net/serialise.h: Avoid returning
+	  Xapian::Weight::Internal by value from unserialise_stats().
+
+	* matcher/localsubmatch.cc,weight/weight.cc,weight/weightinternal.cc,
+	  weight/weightinternal.h: Replace Weight::Internal methods to get
+	  termfreq, reltermfreq and colltermfreq with a single inlined
+	  get_stats() method, which only needs to search the map once.
+	  Shaves ~1.6% off the time to do a wildcard query with a lot of
+	  terms.
+
+ 17934       olly Tue Apr 01 22:11:52 GMT 2014  Olly Betts <olly@survex.com>
+	* matcher/localsubmatch.cc: Don't refetch the termfreq if we already
+	  have it.
+
+	* include/xapian/termgenerator.h: Make TermGenerator flags an
+	  anonymous enum, and typedef TermGenerator::flags to int for backward
+	  compatibility with existing user code which uses it.  (fixes #616)
+
+	* include/xapian/stem.h,languages/Makefile.mk,
+	  languages/earlyenglish.sbl,languages/stem.cc,tests/api_stem.cc:
+	  Add an early english stemmer.
+
+	* api/omdatabase.cc,backends/brass/,backends/chert/,
+	  backends/database.cc,backends/database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
+	  common/remoteprotocol.h,matcher/const_database_wrapper.cc,
+	  matcher/const_database_wrapper.h,net/remoteserver.cc,
+	  net/remoteserver.h,weight/weightinternal.cc: Fetch termfreq and
+	  collection frequency in a single call - shaves ~0.3% off a test
+	  search.
+
+	* net/serialise.cc,weight/weightinternal.h: Make Weight::Internal
+	  track if any max_part values are set, so we don't need to
+	  serialise them when they've not been set.
+
+	* weight/weightinternal.cc: Enhance
+	  Weight::Internal::get_description() to report TermFreqs.
+
+	* api/omenquire.cc,api/omenquireinternal.h,common/submatch.h,matcher/,
+	  net/remoteserver.cc,net/serialise.cc,weight/weight.cc,
+	  weight/weightinternal.cc,weight/weightinternal.h: Eliminate the
+	  map<string, TermFreqAndWeight> in MSet::Internal, and instead just
+	  preserve the Weight::Internal object there as that holds all the
+	  information we need.
+
+	* api/queryinternal.cc,api/queryinternal.h: Only simplify OP_SYNONYM
+	  with a single subquery if that subquery is a term or MatchAll.
+
+	* tests/api_none.cc: Test OPs with a single MatchAll subquery.
+
+	* docs/Makefile.am,docs/bm25.rst,docs/intro_ir.rst: Convert equations
+	  in rst docs to use LaTeX via the math role and directive.
+
+	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
+	  examples/quest.cc,include/xapian/query.h,matcher/Makefile.mk,
+	  matcher/maxpostlist.cc,matcher/maxpostlist.h,
+	  queryparser/queryparser.cc,tests/api_none.cc,tests/api_opsynonym.cc:
+	  Implement new OP_MAX query operator, which returns the maximum
+	  weight of any of its subqueries.  (see #360)
+
+	* tests/api_opsynonym.cc: Refactor symonym1 so that the test data is
+	  specified by an array, rather than built up by code, so that the
+	  actual testcases can be more easily seen.
+
+	* common/bitstream.cc,common/bitstream.h: Add comments to better
+	  document BitReader and BitWriter. (fixes#252)
+
+	* backends/brass/,backends/dbcheck.cc,common/,
+	  docs/replication_protocol.rst,tests/api_backend.cc,
+	  tests/api_replicate.cc: Keep track of unused blocks in the Btrees
+	  using freelists rather than bitmaps.
+
+	* api/replication.cc: Fix conditional for enabling replication code
+	  - if chert is disabled but brass isn't, we should still enable it.
+
+This release includes all changes from 1.2.16-1.2.18 which are relevant.
 
 API:
 
-* Update Unicode character database to Unicode 6.3.0.
+* Update Unicode character database to Unicode 7.0.0.
+
+* New Xapian::Snipper class.  (mostly fixes #211)
 
 * Fix all get_description() methods to always return UTF-8 text.  (fixes #620)
 
@@ -103,6 +225,19 @@ testsuite:
   #238)
 
 matcher:
+
+	* matcher/localsubmatch.cc: If a term matches all documents and its
+	  weight doesn't depend on its wdf, we can optimise it to MatchAll
+	  (the previous requirement that maxpart == 0 was unnecessarily
+	  strict).
+
+	* matcher/localsubmatch.cc: Fix the check for a term which matches all
+	  documents to use the sub-db termfreq, not the combined db termfreq.
+
+	* matcher/localsubmatch.cc,tests/api_percentages.cc: When we optimise
+	  a postlist for a term which matches all documents to use MatchAll,
+	  we still need to set a weight object on it to get percentages
+	  calculated correctly.
 
 brass backend:
 
@@ -531,6 +666,101 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.18 (2014-06-22):
+
+API:
+
+* Document: Fix get_docid() to return the docid for the sub-database (as it
+  is explicitly documented to) for Document objects passed to functors like
+  KeyMaker during the match.  (fixes#636, reported by Jeff Rand).
+
+* Document: Don't store the termname in OmDocumentTerm - we were only using it
+  in get_description() output and an exception message.  Speeds up indexing
+  etext.txt using simpleindex by 0.4%, and should reduce memory usage a bit
+  too.  (Change inspired by comments from Vishesh Handa on xapian-devel).
+
+* Database: Iterating the values in a particular slot is now a bit more
+  efficient for inmemory and remote backends (but still slow compared to
+  flint, chert and brass).
+
+testsuite:
+
+* apitest: Expand crashrecovery1 to check that the expected base files exist
+  and ones which shouldn't exist don't.
+
+* queryparsertest: Fix testcase for empty wildcard followed by negation to
+  enable FLAG_LOVEHATE so the negation is actually parsed.  Fortunately the
+  fixed testcase passes.
+
+matcher:
+
+* OP_SYNONYM: avoid fetching the doclength if the weighting scheme doesn't
+  need it and the calculated wdf for the synonym is <= doclength_lower_bound
+  for the current subdatabase.  (fixes #360)
+
+build system:
+
+* Releases are now bootstrapped with libtool 2.4.2 instead of 2.4, and with
+  config.guess and config.sub updated to the latest versions.
+
+documentation:
+
+* Add an example of initializing SimpleStopper using a file listing stopwords.
+  (Patch from Assem Chelli)
+
+* Improve the descriptions of the stem_strategy values in the API docs.
+  (Reported by "oilap" on #xapian)
+
+* docs/sorting.rst: Fix incorrect parameter types in Xapian::Weight
+  subclass example.
+
+* docs/glossary.rst: Add definition of "collection frequency".
+
+* HACKING:
+
+  + makeindex is now in Debian package texlive-binaries.
+
+  + Replace a link to the outdated autotools "goat book" with a link to the
+    "Portable Shell" chapter of the autoconf manual.
+
+* include/xapian/base.h: Remove very out of date comments talking about atomic
+  assignment and locking - since 0.5.0 we've adopted a "user locks" policy.
+  (Reported by Jean-Francois Dockes)
+
+examples:
+
+* delve:
+
+  + Add -A <prefix> option to list all terms with a particular prefix.
+
+  + Send errors to stderr not stdout.
+
+  + If -v is specified more than once, show even more info in some cases.
+    (NEWS file claimed this was backported in 1.2.15, but it actually wasn't).
+
+* quest:
+
+  + Add --default-op option.
+
+  + Add --weight option to allow the weighting scheme to be specified.
+
+portability:
+
+* Explicitly '#include <algorithm>' for std::max(), fixing build with VS2013.
+  (Fixes#641, reported by "boomboo").
+
+* Fix testcase blocksize1 not to try to delete an open database, which isn't
+  possible under Windows.  (Fixes #643, reported by Chris Olds)
+
+* docs/quickstart.rst: Split --cxxflags and --libs for portability (noted by
+  "Hurricane Tong" on xapian-devel).
+
+* Fix warnings with clang 5.0.
+
+debug code:
+
+* Add assertions that weighting scheme upper bounds aren't exceeded.
 
 Xapian-core 1.2.17 (2014-01-29):
 
