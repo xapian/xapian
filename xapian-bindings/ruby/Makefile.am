@@ -60,6 +60,7 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.rb
 
 docdatadir = $(docdir)/ruby
+docdata_DATA = docs/index.html
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
@@ -95,7 +96,6 @@ docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
 	cd docs && $(RDOC) --op rdocs xapian.rb
 
-docdata_DATA = docs/index.html
 BUILT_SOURCES += docs/index.html
 
 .rst.html:

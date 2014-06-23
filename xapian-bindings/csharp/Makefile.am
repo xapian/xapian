@@ -163,9 +163,9 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleExpand.cs
 
 docdatadir = $(docdir)/csharp
+docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
 BUILT_SOURCES += docs/index.html
 
 .rst.html:

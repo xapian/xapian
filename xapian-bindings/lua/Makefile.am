@@ -61,9 +61,9 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.lua
 
 docdatadir = $(docdir)/lua
+docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
 BUILT_SOURCES += docs/index.html
 
 .rst.html:

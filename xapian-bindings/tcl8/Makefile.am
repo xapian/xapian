@@ -66,9 +66,9 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.tcl
 
 docdatadir = $(docdir)/tcl8
+docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
 BUILT_SOURCES += docs/index.html
 
 .rst.html:
