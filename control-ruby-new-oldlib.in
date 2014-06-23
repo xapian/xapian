@@ -1,9 +1,0 @@
-
-Package: libxapian-ruby@RUBY_VERSION@
-Section: oldlibs
-Priority: extra
-Architecture: all
-depends: ${misc:Depends}, ruby-xapian
-Description: Transitional package for ruby-xapian
- This is a transitional package to ease upgrades to the ruby-xapian package.
- It can be safely removed.
