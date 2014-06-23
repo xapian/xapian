@@ -115,7 +115,7 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 noinst_DATA = built/xapian_jni.jar
 
 built/xapian_jni.jar: $(XAPIAN_SWIG_JAVA_CLASS)
-	-test -d built || mkdir built
+	$(MKDIR_P) built
 	$(JAR) -cf built/xapian_jni.jar org/xapian/*.class
 ##$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
@@ -197,6 +197,6 @@ docdata_DATA = docs/index.html
 BUILT_SOURCES += docs/index.html
 
 .rst.html:
-	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
 endif

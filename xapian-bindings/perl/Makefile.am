@@ -151,7 +151,7 @@ except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 
 BUILT_SOURCES += docs/index.html
 docs/index.html: Xapian.pm
-	test -d docs || mkdir docs
+	$(MKDIR_P) docs
 	pod2html Xapian.pm > docs/index.html
 	rm -f pod2htm?.tmp
 

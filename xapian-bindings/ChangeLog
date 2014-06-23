@@ -1,3 +1,9 @@
+Mon Jun 23 00:56:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,perl/Makefile.am,
+	  php/Makefile.am,python/Makefile.am,python3/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Use $(MKDIR_P).
+
 Mon Jun 23 00:55:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Use AS_MKDIR_P instead of test -d || mkdir.

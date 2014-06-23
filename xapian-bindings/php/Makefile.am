@@ -71,7 +71,7 @@ RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: $(stamp)
 	$(make_many_locked)
 $(stamp): except.i add-php-type-hints
-	-test -d php5 || mkdir php5
+	$(MKDIR_P) php5
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
@@ -101,6 +101,6 @@ docdata_DATA = docs/index.html
 BUILT_SOURCES += docs/index.html
 
 .rst.html:
-	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
 endif
