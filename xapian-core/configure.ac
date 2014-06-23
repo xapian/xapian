@@ -572,7 +572,7 @@ if test x"$enable_documentation" = xyes ; then
   dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
-  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation (try package python-docutils)])
 
   dnl Check for pngcrush, which we optionally use to reduce the size of the
   dnl PNG files which doxygen generates.  We can get by without it, so don't
