@@ -31,9 +31,8 @@ using namespace std;
 
 namespace Xapian {
 
-static double stirling_value(double x, double y, double stirling_constant)
+static double stirling_value(double difference, double y, double stirling_constant)
 {
-    double difference = x - y;
     return ((y + 0.5) * (stirling_constant - log2(y)) + (difference * stirling_constant));
 }
 
@@ -154,8 +153,8 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double B = B_constant / (wdfn + 1.0);
 
-    double stirling = stirling_value(N + F - 1.0, N + F - wdfn - 2.0, stirling_constant_1) -
-		      stirling_value(F, F - wdfn, stirling_constant_2);
+    double stirling = stirling_value(wdfn + 1.0, N + F - wdfn - 2.0, stirling_constant_1) -
+		      stirling_value(wdfn, F - wdfn, stirling_constant_2);
 
     double final_weight = B * (wt + stirling);
 
