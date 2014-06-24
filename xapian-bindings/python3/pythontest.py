@@ -1025,6 +1025,7 @@ def test_postingsource():
         def mkquery():
             source = OddPostingSource(10)
             return xapian.Query(xapian.Query.OP_OR, xapian.Query(source))
+
         # Check that it's kept when the query goes out of scope.
         def submkenq():
             query = mkquery()
