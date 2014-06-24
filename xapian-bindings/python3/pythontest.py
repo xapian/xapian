@@ -1024,8 +1024,7 @@ def test_postingsource():
         # First - check that it's kept when the source goes out of scope.
         def mkquery():
             source = OddPostingSource(10)
-            return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
-
+            return xapian.Query(xapian.Query.OP_OR, xapian.Query(source))
         # Check that it's kept when the query goes out of scope.
         def submkenq():
             query = mkquery()
@@ -1607,9 +1606,6 @@ if have_threads:
     # This testcase seems to just block when run in a thread, so just remove
     # it before running tests in a thread.
     del test_import_star
-
-    # FIXME: This testcase seg faults under threads.
-    del test_postingsource
 
     t = threading.Thread(name='test runner', target=run)
     t.start()
