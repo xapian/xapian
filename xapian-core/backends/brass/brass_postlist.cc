@@ -247,23 +247,6 @@ read_start_of_chunk(const char ** posptr,
     RETURN(last_did_in_chunk);
 }
 
-static inline
-	unsigned get_max_bytes( unsigned n )
-{
-	if ( n== 0 )
-	{
-		return 1;
-	}
-	unsigned l=0;
-	while ( n )
-	{
-		l++;
-		n >>= 8;
-	}
-	return l;
-}
-
-
 /** PostlistChunkReader is essentially an iterator wrapper
  *  around a postlist chunk.  It simply iterates through the
  *  entries in a postlist.
@@ -665,522 +648,6 @@ void BrassPostList::read_number_of_entries(const char ** posptr,
 	report_read_error(*posptr);
 }
 
-
-FixedWidthChunk::FixedWidthChunk( const map<Xapian::docid,Xapian::termcount>& postlist )
-{
-	LOGCALL_CTOR(DB, "FixedWidthChunk", postlist.size() );
-	buildVector( postlist );
-}
-
-bool FixedWidthChunk::buildVector( const map<Xapian::docid,Xapian::termcount>& postlist )
-{
-	LOGCALL(DB, bool, "FixedWidthChunk::buildVector", postlist.size() );
-	if ( postlist.empty() )
-	{
-		LOGLINE( DB, "Desired postlist is empty!" );
-		RETURN(false);
-	}
-	map<Xapian::docid,Xapian::termcount>::const_iterator it = postlist.begin(), start_pos;
-	/*while ( it->second == SEPERATOR )
-	{
-		++it;
-		if ( it==postlist.end() )
-		{
-			return false;
-		}
-	}*/
-	Xapian::docid docid_before_start_pos = it->first;
-
-	while ( it!=postlist.end() )
-	{
-		unsigned length_contiguous = 1;
-		Xapian::docid last_docid = it->first, cur_docid = 0;
-		unsigned max_bytes = get_max_bytes(it->second);
-		unsigned used_bytes = 0;
-		unsigned good_bytes = 0;
-
-		start_pos = it;
-		it++;
-
-		/*while ( it->second == SEPERATOR )
-		{
-			++it;
-			if ( it==postlist.end() )
-			{
-				break;
-			}
-		}*/
-
-		while ( it!=postlist.end() )
-		{
-			cur_docid = it->first;
-			unsigned cur_bytes = get_max_bytes(it->second);
-			if ( cur_docid != last_docid+1 || cur_bytes>max_bytes )
-			{
-				break;
-			}
-			used_bytes += max_bytes;
-			good_bytes += cur_bytes;
-			if ( (double)good_bytes/used_bytes < DOCLEN_CHUNK_MIN_GOOD_BYTES_RATIO )
-			{
-				used_bytes = 0;
-				good_bytes = 0;
-				break;
-			}
-
-			length_contiguous++;
-			last_docid = cur_docid;
-			it++;
-			/*while ( it->second == SEPERATOR )
-			{
-				++it;
-				if ( it==postlist.end() )
-				{
-					break;
-				}
-			}*/
-		}
-
-		if ( length_contiguous > DOCLEN_CHUNK_MIN_CONTIGUOUS_LENGTH )
-		{
-			src.push_back(SEPERATOR);
-			src.push_back(start_pos->first-docid_before_start_pos);	
-			src.push_back(length_contiguous);
-			src.push_back(max_bytes);
-
-			while ( start_pos!=it )
-			{
-				src.push_back(start_pos->second);
-				docid_before_start_pos = start_pos->first;
-				start_pos++;
-				/*while ( start_pos->second == SEPERATOR )
-				{
-					++start_pos;
-					if ( start_pos==postlist.end() )
-					{
-						break;
-					}
-				}*/
-			}
-		}
-		else
-		{
-			while ( start_pos!=it )
-			{
-				src.push_back(start_pos->first-docid_before_start_pos);
-				src.push_back(start_pos->second);
-				docid_before_start_pos = start_pos->first;
-				start_pos++;
-				/*while ( start_pos->second == SEPERATOR )
-				{
-					++start_pos;
-					if ( start_pos==postlist.end() )
-					{
-						break;
-					}
-				}*/
-			}
-		}
-
-	}
-	RETURN(true);
-}
-
-bool FixedWidthChunk::encode( string& chunk ) const
-{
-	LOGCALL(DB, bool, "FixedWidthChunk::encode", chunk.size() );
-	
-	int i=0;
-	
-	while ( i<(int)src.size() )
-	{
-		if ( src[i] != SEPERATOR )
-		{
-			pack_uint( chunk, src[i] );
-			pack_uint( chunk, src[i+1] );
-			i += 2;
-		}
-		else
-		{
-			pack_uint( chunk, src[i] );
-			pack_uint( chunk, src[i+1] );
-			unsigned len = src[i+2];
-			unsigned bytes = src[i+3];
-			pack_uint_in_bytes( len, 2, chunk );
-			pack_uint_in_bytes( bytes, 1, chunk );
-			for ( unsigned j=0 ; j<len ; ++j )
-			{
-				pack_uint_in_bytes( src[i+4+j], bytes, chunk );
-			}
-			i += 4+len;
-		}
-
-	}
-	RETURN(true);
-}
-
-bool FixedWidthChunkReader::next()
-{
-	LOGCALL(DB, bool, "FixedWidthChunkReader::next", NO_ARGS );
-	if ( is_at_end )
-	{
-		RETURN(false);
-	}
-	if ( pos == end )
-	{
-		is_at_end = true;
-		RETURN(false);
-	}
-	if ( is_in_block && len_info )
-	{
-		cur_did++;
-		len_info--;
-		if ( len_info == 0 )
-		{
-			is_in_block = false;
-		}
-		unpack_uint_in_bytes( &pos, bytes_info, &cur_length );
-		RETURN(true);
-	}
-	Xapian::docid incre_did = 0;
-
-	pos_of_block = pos;
-
-	unpack_uint( &pos, end, &incre_did );
-	if ( incre_did != SEPERATOR )
-	{
-		is_in_block = false;
-		cur_did += incre_did;
-		unpack_uint( &pos, end, &cur_length );
-		RETURN(true);
-	}
-
-	is_in_block = true;
-	unpack_uint( &pos, end, &incre_did );
-	unpack_uint_in_bytes( &pos, 2, &len_info );
-	unpack_uint_in_bytes( &pos, 1, &bytes_info );
-	did_before_block = cur_did;
-	cur_did += incre_did;
-	unpack_uint_in_bytes( &pos, bytes_info, &cur_length );
-	len_info--;
-	if ( len_info == 0 )
-	{
-		is_in_block = false;
-	}
-	RETURN(true);
-}
-
-bool FixedWidthChunkReader::jump_to( Xapian::docid desired_did )
-{
-
-	LOGCALL(DB, bool, "FixedWidthChunkReader::jump_to", desired_did);
-
-	if ( cur_did==desired_did )
-	{
-		RETURN(true);
-	}
-	if ( is_in_block )
-	{
-		if ( did_before_block >= desired_did )
-		{
-			pos = ori_pos;
-			cur_did = first_did_in_chunk;
-		}
-		else
-		{
-			pos = pos_of_block;
-			cur_did = did_before_block;
-		}
-	}
-	else if ( cur_did > desired_did )
-	{
-		pos = ori_pos;
-		cur_did = first_did_in_chunk;
-	}
-
-	Xapian::docid incre_did = 0;
-	while ( pos!=end )
-	{
-		pos_of_block = pos;
-		unpack_uint( &pos, end, &incre_did );
-		if ( incre_did != SEPERATOR )
-		{
-			is_in_block = false;
-			cur_did += incre_did;
-			unpack_uint( &pos, end, &cur_length );
-			if ( cur_did == desired_did )
-			{
-				RETURN(true);
-			}
-			if ( cur_did > desired_did )
-			{
-				RETURN(false);
-			}
-			continue;
-		}
-		else
-		{
-			is_in_block = true;
-			unpack_uint( &pos, end, &incre_did );
-			unpack_uint_in_bytes( &pos, 2, &len_info );
-			unpack_uint_in_bytes( &pos, 1, &bytes_info );
-			did_before_block = cur_did;
-			cur_did += incre_did;
-			if ( desired_did < cur_did )
-			{
-				unpack_uint_in_bytes( &pos, bytes_info, &cur_length );
-				len_info--;
-				RETURN(false);
-			}
-			if ( desired_did <= cur_did+len_info-1 )
-			{
-				pos += bytes_info*(desired_did-cur_did);
-				unpack_uint_in_bytes( &pos, bytes_info, &cur_length );
-				len_info -= (desired_did-cur_did+1);
-				if ( len_info == 0 )
-				{
-					is_in_block = false;
-				}
-				cur_did = desired_did;
-				RETURN(true);
-			}
-			pos += bytes_info*len_info;
-			cur_did += len_info-1;
-			is_in_block = false;
-		}
-
-	}
-	RETURN(false);
-}
-
-
-bool DoclenChunkWriter::get_new_doclen( )
-{
-	LOGCALL(DB, bool, "DoclenChunkWriter::get_new_doclen", NO_ARGS);
-	const char* pos = chunk_from.data();
-	const char* end = pos+chunk_from.size();
-
-	if ( is_first_chunk )
-	{
-		read_start_of_first_chunk( &pos, end, NULL, NULL );
-	}
-	read_start_of_chunk( &pos, end, 0, &is_last_chunk ); 
-
-	if ( pos == end )
-	{
-		LOGLINE( DB, "empty chunk!" );
-		map<Xapian::docid,Xapian::termcount>::const_iterator it = changes.begin();
-		for ( ; it!=changes.end() ; ++it )
-		{
-			if ( it->second != SEPERATOR )
-			{
-				new_doclen.insert( new_doclen.end(), *it );
-			}
-			
-		}
-		if( new_doclen.empty() )
-		{
-			LOGLINE( DB, "new_doclen is empty! " );
-			RETURN(false);
-		}
-	}
-	else
-	{
-		Xapian::docid cur_did = 0, inc_did = 0;
-		Xapian::termcount doc_len = 0;
-		cur_did = first_did_in_chunk;
-		while ( pos!=end )
-		{
-			unpack_uint( &pos, end, &inc_did );
-			if ( inc_did != SEPERATOR )
-			{
-				cur_did += inc_did;
-				unpack_uint( &pos, end, &doc_len );
-				//new_doclen.insert( new_doclen.end(), make_pair(cur_did,doc_len) );
-				new_doclen[cur_did] = doc_len;
-				continue;
-			}
-			else
-			{
-				unpack_uint( &pos, end, &inc_did );
-				unsigned len=0, bytes=0;
-				unpack_uint_in_bytes( &pos, 2, &len );
-				unpack_uint_in_bytes( &pos, 1, &bytes );
-				cur_did += inc_did;
-				while ( len-- )
-				{
-					unpack_uint_in_bytes( &pos, bytes, &doc_len );
-					//new_doclen.insert( new_doclen.end(), make_pair(cur_did,doc_len) );
-					new_doclen[cur_did] = doc_len;
-					cur_did++;
-				}
-				cur_did--;
-			}
-
-		}
-
-		LOGVALUE( DB, new_doclen.size() );
-		LOGVALUE( DB, changes.size() );
-
-		map<Xapian::docid,Xapian::termcount>::const_iterator chg_it = changes.begin();
-		map<Xapian::docid,Xapian::termcount>::iterator ori_it = new_doclen.begin();
-
-		while ( chg_it != changes.end() )
-		{
-			while ( chg_it->first > ori_it->first )
-			{
-				++ori_it;
-				if ( ori_it == new_doclen.end() )
-				{
-					break;
-				}
-			}
-			if ( ori_it == new_doclen.end() )
-			{
-				new_doclen.insert( ori_it, *chg_it );
-				++chg_it;
-				while ( chg_it != changes.end() )
-				{
-					new_doclen.insert( ori_it, *chg_it );
-					++chg_it;
-				}
-				break;
-			}
-			if ( ori_it->first == chg_it->first )
-			{
-				if ( chg_it->second != SEPERATOR )
-				{
-					ori_it->second = chg_it->second;
-				}
-				else
-				{
-					//ori_it = new_doclen.erase( ori_it );
-					new_doclen.erase( ori_it++ );
-				}
-			}
-			else
-			{
-				new_doclen.insert( ori_it, *chg_it );
-			}
-			++chg_it;
-		}
-
-	}
-	LOGVALUE( DB, new_doclen.size() );
-	RETURN(true);
-}
-
-bool DoclenChunkWriter::merge_doclen_changes( )
-{
-	get_new_doclen( );
-
-	map<Xapian::docid,Xapian::termcount>::const_iterator start_pos, end_pos;
-	start_pos = end_pos = new_doclen.begin();
-	if ( new_doclen.size() == 0 )
-	{
-		return true;
-	}
-	if ( new_doclen.size() <= MAX_ENTRIES_IN_CHUNK )
-	{
-		string cur_chunk;
-		FixedWidthChunk fwc( new_doclen );
-		end_pos = new_doclen.end();
-		end_pos--;
-		string head_of_chunk = make_start_of_chunk( is_last_chunk,start_pos->first,end_pos->first );
-		cur_chunk = head_of_chunk+cur_chunk;
-		fwc.encode( cur_chunk );
-		if ( is_first_chunk )
-		{
-			string head_of_first_chunk = 
-				make_start_of_first_chunk( 0, 0, start_pos->first );
-			cur_chunk = head_of_first_chunk+cur_chunk;
-		}
-		string cur_key;
-		if ( !is_first_chunk )
-		{
-			cur_key = BrassPostListTable::make_key( string(), start_pos->first );
-		}
-		else
-		{
-			cur_key = BrassPostListTable::make_key( string() );
-		}
-		postlist_table->add(cur_key,cur_chunk);
-	}
-	else
-	{
-		vector< map<Xapian::docid,Xapian::termcount> > doc_len_list;
-		int count = 0;
-		while ( end_pos!=new_doclen.end() )
-		{
-			end_pos++;
-			count++;
-			if ( count == MAX_ENTRIES_IN_CHUNK )
-			{
-				doc_len_list.push_back( map<Xapian::docid,Xapian::termcount>(start_pos,end_pos) );
-				count = 0;
-				start_pos = end_pos;
-			}
-		}
-		if ( start_pos != end_pos )
-		{
-			doc_len_list.push_back( map<Xapian::docid,Xapian::termcount>(start_pos,end_pos) );
-		}
-
-		for ( int i=0 ; i<(int)doc_len_list.size() ; ++i )
-		{
-			string cur_chunk, cur_key;
-			map<Xapian::docid,Xapian::termcount>::iterator it = doc_len_list[i].end();
-			it--;
-			if ( i==(int)doc_len_list.size()-1 && is_last_chunk )
-			{
-				cur_chunk = make_start_of_chunk( true, 
-					doc_len_list[i].begin()->first, it->first );
-			}
-			else
-			{
-				cur_chunk = make_start_of_chunk( false, 
-					doc_len_list[i].begin()->first, it->first );
-			}
-
-			FixedWidthChunk fwc( doc_len_list[i] );
-			fwc.encode( cur_chunk );
-
-			if ( i==0 && is_first_chunk ) 
-			{
-				string head_of_first_chunk =
-					make_start_of_first_chunk( 0, 0, doc_len_list[i].begin()->first );
-				cur_chunk = head_of_first_chunk+cur_chunk;
-				cur_key = postlist_table->make_key( string() );
-			}
-			else
-			{
-				cur_key = postlist_table->make_key( string(), doc_len_list[i].begin()->first );
-			}
-
-			postlist_table->add(cur_key,cur_chunk);
-
-		}
-	}			
-	return true;
-}
-
-DoclenChunkReader::DoclenChunkReader( const string& chunk_, bool is_first_chunk, 
-									 Xapian::docid first_did_in_chunk )
-	: chunk(chunk_), p_fwcr(0)
-{
-	LOGCALL_CTOR(DB, "DoclenChunkReader", chunk_.size() | is_first_chunk | first_did_in_chunk );
-	const char* pos = chunk.data();
-	const char* end = pos+chunk.size();
-	if ( is_first_chunk )
-	{
-		read_start_of_first_chunk( &pos, end, NULL, NULL );
-	}
-	bool is_last_chunk;
-	read_start_of_chunk( &pos, end, 0, &is_last_chunk );
-	LOGVALUE(DB,is_last_chunk);
-	p_fwcr.reset( new FixedWidthChunkReader(pos,end,first_did_in_chunk) );
-}
-
 /** The format of a postlist is:
  *
  *  Split into chunks.  Key for first chunk is the termname (encoded as
@@ -1207,12 +674,9 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
 	  is_at_end(false),
-	  cursor(this_db_->postlist_table.cursor_get()),
-	  p_doclen_chunk_reader(0),
-	  is_doclen_list(term_.empty()?true:false)
+	  cursor(this_db_->postlist_table.cursor_get())
 {
-	LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | keep_reference);
-	LOGVALUE( DB, is_doclen_list );
+    LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | keep_reference);
     init();
 }
 
@@ -1223,63 +687,42 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 	  this_db(this_db_),
 	  have_started(false),
 	  is_at_end(false),
-	  cursor(cursor_),
-	  p_doclen_chunk_reader(0),
-	  is_doclen_list(term_.empty()?true:false)
+	  cursor(cursor_)
 {
-	LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | cursor_);
-	LOGVALUE( DB, is_doclen_list );
+    LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | cursor_);
     init();
 }
 
 void
 BrassPostList::init()
 {
-	string key = BrassPostListTable::make_key(term);
-	int found = cursor->find_entry(key);
-	if (!found) {
-		LOGLINE(DB, "postlist for term not found");
-		number_of_entries = 0;
-		is_at_end = true;
-		pos = 0;
-		end = 0;
-		first_did_in_chunk = 0;
-		last_did_in_chunk = 0;
-		return;
-	}
-	cursor->read_tag();
-	pos = cursor->current_tag.data();
-	end = pos + cursor->current_tag.size();
+    string key = BrassPostListTable::make_key(term);
+    int found = cursor->find_entry(key);
+    if (!found) {
+	LOGLINE(DB, "postlist for term not found");
+	number_of_entries = 0;
+	is_at_end = true;
+	pos = 0;
+	end = 0;
+	first_did_in_chunk = 0;
+	last_did_in_chunk = 0;
+	return;
+    }
+    cursor->read_tag();
+    pos = cursor->current_tag.data();
+    end = pos + cursor->current_tag.size();
 
-	is_first_chunk = true;
-
-	did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
-	first_did_in_chunk = did;
-	last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
-	if(!is_doclen_list)
-	{
-		read_wdf(&pos, end, &wdf);
-		p_doclen_chunk_reader.reset(0);
-	}
-	if ( is_doclen_list )
-	{
-		LOGLINE( DB, "This brass_postlist is for doclen info." );
-		p_doclen_chunk_reader.reset( new DoclenChunkReader(cursor->current_tag,true,first_did_in_chunk) );
-		did = p_doclen_chunk_reader->get_docid();
-		wdf = p_doclen_chunk_reader->get_doclen();
-		is_at_end = p_doclen_chunk_reader->at_end();
-		LOGVALUE(DB, did );
-		LOGVALUE(DB, wdf );
-		LOGVALUE(DB, is_at_end );
-	}
-
-	LOGLINE(DB, "Initial docid " << did);
+    did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
+    first_did_in_chunk = did;
+    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
+					    &is_last_chunk);
+    read_wdf(&pos, end, &wdf);
+    LOGLINE(DB, "Initial docid " << did);
 }
 
 BrassPostList::~BrassPostList()
 {
     LOGCALL_DTOR(DB, "BrassPostList");
-	LOGVALUE(DB, is_doclen_list );
 }
 
 LeafPostList *
@@ -1306,22 +749,6 @@ bool
 BrassPostList::next_in_chunk()
 {
     LOGCALL(DB, bool, "BrassPostList::next_in_chunk", NO_ARGS);
-	if ( is_doclen_list )
-	{
-		LOGLINE(DB, "next_in_chunk() for doclen list " );
-		if ( p_doclen_chunk_reader->next() )
-		{
-			did = p_doclen_chunk_reader->get_docid();
-			wdf = p_doclen_chunk_reader->get_doclen();
-			is_at_end = p_doclen_chunk_reader->at_end();
-			LOGVALUE(DB, did );
-			LOGVALUE(DB, wdf );
-			LOGVALUE(DB, is_at_end );
-			RETURN(true);
-		}
-		is_at_end = p_doclen_chunk_reader->at_end();
-		RETURN(false);
-	}
     if (pos == end) RETURN(false);
 
     read_did_increase(&pos, end, &did);
@@ -1338,65 +765,47 @@ BrassPostList::next_in_chunk()
 void
 BrassPostList::next_chunk()
 {
-	LOGCALL_VOID(DB, "BrassPostList::next_chunk", NO_ARGS);
-	if (is_last_chunk) {
-		is_at_end = true;
-		return;
-	}
+    LOGCALL_VOID(DB, "BrassPostList::next_chunk", NO_ARGS);
+    if (is_last_chunk) {
+	is_at_end = true;
+	return;
+    }
 
-	cursor->next();
-	if (cursor->after_end()) {
-		is_at_end = true;
-		throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
-			term + "'");
-	}
-	const char * keypos = cursor->current_key.data();
-	const char * keyend = keypos + cursor->current_key.size();
-	// Check we're still in same postlist
-	if (!check_tname_in_key_lite(&keypos, keyend, term)) {
-		is_at_end = true;
-		throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
-			term + "'");
-	}
+    cursor->next();
+    if (cursor->after_end()) {
+	is_at_end = true;
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
+				     term + "'");
+    }
+    const char * keypos = cursor->current_key.data();
+    const char * keyend = keypos + cursor->current_key.size();
+    // Check we're still in same postlist
+    if (!check_tname_in_key_lite(&keypos, keyend, term)) {
+	is_at_end = true;
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
+				     term + "'");
+    }
 
-	is_first_chunk = false;
+    Xapian::docid newdid;
+    if (!unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
+	report_read_error(keypos);
+    }
+    if (newdid <= did) {
+	throw Xapian::DatabaseCorruptError("Document ID in new chunk of postlist (" +
+		str(newdid) +
+		") is not greater than final document ID in previous chunk (" +
+		str(did) + ")");
+    }
+    did = newdid;
 
-	Xapian::docid newdid;
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
-		report_read_error(keypos);
-	}
-	if (newdid <= did) {
-		throw Xapian::DatabaseCorruptError("Document ID in new chunk of postlist (" +
-			str(newdid) +
-			") is not greater than final document ID in previous chunk (" +
-			str(did) + ")");
-	}
-	did = newdid;
+    cursor->read_tag();
+    pos = cursor->current_tag.data();
+    end = pos + cursor->current_tag.size();
 
-	cursor->read_tag();
-	pos = cursor->current_tag.data();
-	end = pos + cursor->current_tag.size();
-
-	first_did_in_chunk = did;
-	last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
-		&is_last_chunk);
-	if ( !is_doclen_list )
-	{
-		read_wdf(&pos, end, &wdf);
-	}
-	if ( is_doclen_list )
-	{
-		LOGLINE(DB, "next_chunk() for doclen list" );
-		LOGLINE(DB, "build new doclen_chunk_reader " ); 
-		p_doclen_chunk_reader.reset( new DoclenChunkReader(cursor->current_tag,is_first_chunk,first_did_in_chunk) );
-		did = p_doclen_chunk_reader->get_docid();
-		wdf = p_doclen_chunk_reader->get_doclen();
-		is_at_end = p_doclen_chunk_reader->at_end();
-		LOGVALUE(DB, did );
-		LOGVALUE(DB, wdf );
-		LOGVALUE(DB, is_at_end );
-	}
-
+    first_did_in_chunk = did;
+    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
+					    &is_last_chunk);
+    read_wdf(&pos, end, &wdf);
 }
 
 PositionList *
@@ -1466,8 +875,6 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
     }
     is_at_end = false;
 
-	is_first_chunk = keypos==keyend;
-
     cursor->read_tag();
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
@@ -1489,28 +896,9 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
     }
 
     first_did_in_chunk = did;
-    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
-	if ( !is_doclen_list )
-	{
-		read_wdf(&pos, end, &wdf);
-	}
-	if ( is_doclen_list )
-	{
-		/*if ( p_doclen_chunk_reader )
-		{
-			LOGLINE(DB, "delete current doclen_chunk_reader " ); 			
-			delete p_doclen_chunk_reader;
-		}*/
-		LOGLINE(DB, "build new doclen_chunk_reader " ); 
-		p_doclen_chunk_reader.reset( new DoclenChunkReader(cursor->current_tag,is_first_chunk,first_did_in_chunk) );
-		did = p_doclen_chunk_reader->get_docid();
-		wdf = p_doclen_chunk_reader->get_doclen();
-		is_at_end = p_doclen_chunk_reader->at_end();
-		LOGVALUE(DB, did );
-		LOGVALUE(DB, wdf );
-		LOGVALUE(DB, is_at_end );
-	}
-    
+    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
+					    &is_last_chunk);
+    read_wdf(&pos, end, &wdf);
 
     // Possible, since desired_did might be after end of this chunk and before
     // the next.
@@ -1548,12 +936,6 @@ BrassPostList::skip_to(Xapian::docid desired_did, double w_min)
 {
     LOGCALL(DB, PostList *, "BrassPostList::skip_to", desired_did | w_min);
     (void)w_min; // no warning
-	if ( is_doclen_list )
-	{
-		LOGLINE( DB, "skip_to isn't designed for doclen list!" );
-		jump_to(desired_did);
-		RETURN(NULL);
-	}
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
     have_started = true;
@@ -1587,45 +969,30 @@ BrassPostList::skip_to(Xapian::docid desired_did, double w_min)
 bool
 BrassPostList::jump_to(Xapian::docid desired_did)
 {
-	LOGCALL(DB, bool, "BrassPostList::jump_to", desired_did);
-	// We've started now - if we hadn't already, we're already positioned
-	// at start so there's no need to actually do anything.
-	have_started = true;
+    LOGCALL(DB, bool, "BrassPostList::jump_to", desired_did);
+    // We've started now - if we hadn't already, we're already positioned
+    // at start so there's no need to actually do anything.
+    have_started = true;
 
-	// If the list is empty, give up right away.
-	if (pos == 0) RETURN(false);
+    // If the list is empty, give up right away.
+    if (pos == 0) RETURN(false);
 
-	// Move to correct chunk, or reload the current chunk to go backwards in it
-	// (FIXME: perhaps handle the latter case more elegantly, though it won't
-	// happen during sequential access which is most common).
-	if (is_at_end || !current_chunk_contains(desired_did) || desired_did < did) {
-		// Clear is_at_end flag since we can rewind.
-		is_at_end = false;
+    // Move to correct chunk, or reload the current chunk to go backwards in it
+    // (FIXME: perhaps handle the latter case more elegantly, though it won't
+    // happen during sequential access which is most common).
+    if (is_at_end || !current_chunk_contains(desired_did) || desired_did < did) {
+	// Clear is_at_end flag since we can rewind.
+	is_at_end = false;
 
-		LOGLINE( DB, "get exact chunk for jump_to " );
-		move_to_chunk_containing(desired_did);
-		// Might be at_end now, so we need to check before trying to move
-		// forward in chunk.
-		if (is_at_end) RETURN(false);
-	}
+	move_to_chunk_containing(desired_did);
+	// Might be at_end now, so we need to check before trying to move
+	// forward in chunk.
+	if (is_at_end) RETURN(false);
+    }
 
-	// Move to correct position in chunk.
-	wdf = p_doclen_chunk_reader->get_doclen(desired_did);
-	is_at_end = p_doclen_chunk_reader->at_end();
-	if ( wdf == (Xapian::termcount)-1 )
-	{
-		LOGLINE( DB, "No doc with desired_id! " );
-		wdf = p_doclen_chunk_reader->get_doclen();
-		did = p_doclen_chunk_reader->get_docid();
-		LOGVALUE(DB,wdf);
-		LOGVALUE(DB,did);
-		RETURN(false);
-	}
-	did = p_doclen_chunk_reader->get_docid();
-	LOGVALUE(DB,did);
-	LOGVALUE(DB,wdf);
-	LOGVALUE(DB,is_at_end);
-	RETURN(true);
+    // Move to correct position in chunk.
+    if (!move_forward_in_chunk_to_at_least(desired_did)) RETURN(false);
+    RETURN(desired_did == did);
 }
 
 string
@@ -1645,14 +1012,6 @@ BrassPostListTable::get_chunk(const string &tname,
 	  PostlistChunkReader ** from, PostlistChunkWriter **to)
 {
     LOGCALL(DB, Xapian::docid, "BrassPostListTable::get_chunk", tname | did | adding | from | to);
-
-	if ( tname.empty() )
-	{
-		*from = NULL;
-		*to = NULL;
-		RETURN(Xapian::docid(-1));
-	}
-
     // Get chunk containing entry
     string key = make_key(tname, did);
 
@@ -1732,97 +1091,72 @@ BrassPostListTable::get_chunk(const string &tname,
 }
 
 void
-	BrassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens)
+BrassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens)
 {
-	LOGCALL_VOID(DB, "BrassPostListTable::merge_doclen_changes", doclens);
+    LOGCALL_VOID(DB, "BrassPostListTable::merge_doclen_changes", doclens);
 
-	// The cursor in the doclen_pl will no longer be valid, so reset it.
-	doclen_pl.reset(0);
+    // The cursor in the doclen_pl will no longer be valid, so reset it.
+    doclen_pl.reset(0);
 
-	LOGVALUE(DB, doclens.size());
-	if (doclens.empty()) return;
+    LOGVALUE(DB, doclens.size());
+    if (doclens.empty()) return;
 
-	// Ensure there's a first chunk.
-	string current_key = make_key(string());
+    // Ensure there's a first chunk.
+    string current_key = make_key(string());
+    if (!key_exists(current_key)) {
+	LOGLINE(DB, "Adding dummy first chunk");
+	string newtag = make_start_of_first_chunk(0, 0, 0);
+	newtag += make_start_of_chunk(true, 0, 0);
+	add(current_key, newtag);
+    }
 
-	if (!key_exists(current_key)) {
-		LOGLINE(DB, "Adding dummy first chunk");
-		string newtag = make_start_of_first_chunk(0, 0, 0);
-		newtag += make_start_of_chunk(true, 0, 0);
-		add(current_key, newtag);
+    map<Xapian::docid, Xapian::termcount>::const_iterator j;
+    j = doclens.begin();
+    Assert(j != doclens.end()); // This case is caught above.
+
+    Xapian::docid max_did;
+    PostlistChunkReader *from;
+    PostlistChunkWriter *to;
+    max_did = get_chunk(string(), j->first, true, &from, &to);
+    LOGVALUE(DB, max_did);
+    for ( ; j != doclens.end(); ++j) {
+	Xapian::docid did = j->first;
+
+next_doclen_chunk:
+	LOGLINE(DB, "Updating doclens, did=" << did);
+	if (from) while (!from->is_at_end()) {
+	    Xapian::docid copy_did = from->get_docid();
+	    if (copy_did >= did) {
+		if (copy_did == did) from->next();
+		break;
+	    }
+	    to->append(this, copy_did, from->get_wdf());
+	    from->next();
+	}
+	if ((!from || from->is_at_end()) && did > max_did) {
+	    delete from;
+	    to->flush(this);
+	    delete to;
+	    max_did = get_chunk(string(), did, false, &from, &to);
+	    goto next_doclen_chunk;
 	}
 
-	map<Xapian::docid, Xapian::termcount>::const_iterator it, pre_it;
-	pre_it = it = doclens.begin();
-	Assert(it != doclens.end());
-
-	LOGVALUE(DB, doclens.size() );
-	while ( it!=doclens.end() )
-	{
-		string key = make_key(string(), it->first);
-
-		AutoPtr<BrassCursor> cursor(cursor_get());
-
-		(void)cursor->find_entry(key);
-		Assert(!cursor->after_end());
-
-		const char * keypos = cursor->current_key.data();
-		const char * keyend = keypos + cursor->current_key.size();
-
-		check_tname_in_key(&keypos, keyend, string());
-
-		bool is_first_chunk = (keypos == keyend);
-		LOGVALUE(DB, is_first_chunk);
-
-		cursor->read_tag();
-		string ori_key(cursor->current_key);
-		string desired_chunk(cursor->current_tag);
-
-		const char * pos = cursor->current_tag.data();
-		const char * end = pos + cursor->current_tag.size();
-		Xapian::docid first_did_in_chunk;
-		if (is_first_chunk) {
-			first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
-		} else {
-			if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
-				report_read_error(keypos);
-			}
-		}
-
-		bool is_last_chunk;
-		read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
-		LOGVALUE(DB,is_last_chunk);
-		LOGVALUE(DB,first_did_in_chunk);
-
-
-		Xapian::docid first_did_in_next_chunk = 0;
-		if ( is_last_chunk )
-		{
-			it = doclens.end();
-		}
-		else
-		{
-			cursor->next();
-			Assert(!cursor->after_end());
-			const char * kpos = cursor->current_key.data();
-			const char * kend = kpos + cursor->current_key.size();
-			Assert(check_tname_in_key(&kpos, kend, string()));
-			unpack_uint_preserving_sort(&kpos, kend, &first_did_in_next_chunk);
-			Assert(first_did_in_next_chunk);
-		}
-		LOGVALUE(DB,first_did_in_next_chunk);
-		while( it!=doclens.end() && it->first < first_did_in_next_chunk )
-		{
-			++it;
-		}
-
-		del(ori_key);
-		DoclenChunkWriter writer(desired_chunk, pre_it, it, this, is_first_chunk,first_did_in_chunk);
-		writer.merge_doclen_changes();
-		pre_it = it;
+	Xapian::termcount new_doclen = j->second;
+	if (new_doclen != static_cast<Xapian::termcount>(-1)) {
+	    to->append(this, did, new_doclen);
 	}
+    }
+
+    if (from) {
+	while (!from->is_at_end()) {
+	    to->append(this, from->get_docid(), from->get_wdf());
+	    from->next();
+	}
+	delete from;
+    }
+    to->flush(this);
+    delete to;
 }
-
 
 void
 BrassPostListTable::merge_changes(const string &term,

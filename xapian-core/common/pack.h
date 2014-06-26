@@ -459,38 +459,4 @@ pack_brass_postlist_key(const std::string &term, Xapian::docid did)
     return pack_chert_postlist_key(term, did);
 }
 
-template<class U>
-inline 
-	bool pack_uint_in_bytes( U n, int n_bytes, std::string& chunk )
-{
-	while ( n_bytes-- )
-	{
-		chunk += static_cast<char>(n&0xff);
-		n >>= 8;
-	}
-	return true;
-}
-
-template<class U>
-inline
-	bool unpack_uint_in_bytes( const char** pos, int n_bytes, U* result )
-{
-	int inc = n_bytes;
-	while ( inc-- )
-	{
-		(*pos)++;
-	}
-	const char* ptr = (*pos)-1;
-	U r = 0;
-	while ( n_bytes-- )
-	{
-		r <<= 8;
-		r |= (*ptr)&0xff;
-		ptr--;
-	}
-	*result = r;
-	return true;
-}
-
-
 #endif // XAPIAN_INCLUDED_PACK_H
