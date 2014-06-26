@@ -83,61 +83,79 @@ namespace Brass {
  * -1 1 5 2 7 5 6 15 257 */
 
 
-//This class is used to encode a map<did,len> to a chunk.
-//It doesn't deal with the header of the chunk.
-class FixedWidthChunk
-{
-private:
+/* This class is used to encode a map<did,len> to a chunk.
+ * It doesn't deal with the header of the chunk. */
+class FixedWidthChunk {
+
+	///
 	map<Xapian::docid,Xapian::termcount>::const_iterator pl_start, pl_end;
+
+	///
 	vector<unsigned> src;
+
+	///
 	bool buildVector( );
+
 public:
+
+	///
 	FixedWidthChunk( map<Xapian::docid,Xapian::termcount>::const_iterator pl_start_, 
 		map<Xapian::docid,Xapian::termcount>::const_iterator pl_end_);
 
-	//The encoded map will be appended to @chunk.
+	///The encoded map will be appended to @chunk.
 	bool encode( string& chunk ) const;
 };
 
-//This class is used to read fixed width format doclen chunk.
-//It doesn't deal with the header of the chunk.
-class FixedWidthChunkReader
-{
-private:
+/* This class is used to read fixed width format doclen chunk.
+ * It doesn't deal with the header of the chunk. */
+class FixedWidthChunkReader {
 
+	///
 	const char* ori_pos;
+
+	///
 	const char* pos;
+
+	///
 	const char* pos_of_block;
+
+	///
 	const char* end;
+
+	///
 	Xapian::docid cur_did;
+
+	///
 	Xapian::termcount cur_length;
+
+	///
 	bool is_at_end;
 
 	//indicating whether we are in a continuous block.
 	bool is_in_block;
 
-	//If we are in a continuous block,
-	//the following two variables is the basic info for this continuous block.
+	/* If we are in a continuous block,
+	 * the following two variables is the basic info for this continuous block. */
 	unsigned len_info;
 	unsigned bytes_info;
 
+	///
 	Xapian::docid did_before_block;
 	
-	//first doc id in this chunk
+	///first doc id in this chunk
 	Xapian::docid first_did_in_chunk;
 
 
-public:
-	//@pos_ : a pointer to the end of the header of the chunk.
-	//@end_ : a pointer to the end of the chunk.
+	public:
+	/* @pos_ : a pointer to the end of the header of the chunk.
+	 * @end_ : a pointer to the end of the chunk. */
 	FixedWidthChunkReader( const char* pos_, const char* end_, Xapian::docid first_did_in_chunk_ )
 		: ori_pos(pos_), pos(pos_), pos_of_block(NULL), end(end_), cur_did(0), cur_length(0),
 		is_at_end(false),is_in_block(false),len_info(0),bytes_info(0),
 		did_before_block(0),first_did_in_chunk(first_did_in_chunk_)
 	{
 		LOGCALL_CTOR(DB, "FixedWidthChunkReader", first_did_in_chunk_ );
-		if ( pos == end )
-		{
+		if (pos == end) {
 			is_at_end = true;
 			LOGLINE(DB, "empty chunk" ); 
 			return;
@@ -149,49 +167,50 @@ public:
 		LOGVALUE(DB, cur_length );
 	};
 
-	// jump to desired did, 
-	// if it fails, it will arrive at the exact did just after @desired_did
+	/* jump to desired did, 
+	 * if it fails, it will arrive at the exact did just after @desired_did */
 	bool jump_to( Xapian::docid desired_did );
 
-	// move to next did in the chunk. 
-	// If no more did, set is_at_end=true.
+	/* move to next did in the chunk. 
+	 * If no more did, set is_at_end=true. */
 	bool next();
 
-	// return current docid
-	Xapian::docid get_docid()
-	{
+	/// return current docid
+	Xapian::docid get_docid() const {
 		return cur_did;
 	}
 
-	// return length of doc with current doc id
-	Xapian::termcount get_doclength()
-	{
+	/// return length of doc with current doc id
+	Xapian::termcount get_doclength() const {
 		return cur_length;
 	}
 
-	// return is_at_end
-	bool at_end()
-	{
+	/// return is_at_end
+	bool at_end() const {
 		return is_at_end;
 	}
 };
 
 
-//This class is used to update fixed width doclen chunk.
-class DoclenChunkWriter
-{
-private:
+///This class is used to update fixed width doclen chunk.
+class DoclenChunkWriter {
 
-	//the original chunk
+	///the original chunk
 	const string& chunk_from;
 
-	//the changes of doc length
+	///the changes of doc length
 	map<Xapian::docid,Xapian::termcount>::const_iterator changes_start, changes_end;
 
+	///
 	BrassPostListTable* postlist_table;
 
+	///
 	bool is_first_chunk;
+
+	///
 	bool is_last_chunk;
+
+	///
 	Xapian::docid first_did_in_chunk;
 
 	//new map of doc length
@@ -199,10 +218,11 @@ private:
 
 	//merge old map and new map
 	bool get_new_doclen( );
-public:
 
-	//@chunk_from_ : original chunk
-	//@changes_start_  @changes_end_ : iterator of map of changes
+	public:
+
+	/* @chunk_from_ : original chunk
+	 * @changes_start_  @changes_end_ : iterator of map of changes */
 	DoclenChunkWriter( const string& chunk_from_, 
 		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start_,
 		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end_,
@@ -216,46 +236,56 @@ public:
 		is_last_chunk = true;
 	}
 
-	//it will build and insert new chunk,
-	//make sure old chunk is deleted before call this function.
+	/* it will build and insert new chunk,
+	 * make sure old chunk is deleted before call this function.*/
 	bool merge_doclen_changes( );
 };
 
-//This class is just a wrapper of FixedWidthChunkReader,
-//This class just deals with the header of the chunk. 
-class DoclenChunkReader
-{
-private:
+/* This class is just a wrapper of FixedWidthChunkReader,
+ * This class just deals with the header of the chunk. */
+class DoclenChunkReader {
+
+	///
 	const string& chunk;
+
+	///
 	AutoPtr<FixedWidthChunkReader> p_fwcr;
-public:
+
+	public:
+
+	///
 	DoclenChunkReader( const string& chunk_, bool is_first_chunk, Xapian::docid first_did_in_chunk );
-	~DoclenChunkReader()
-	{
+
+	///
+	~DoclenChunkReader() {
 		LOGCALL_DTOR(DB, "DoclenChunkReader");
 	}
-	Xapian::termcount get_doclen( Xapian::docid desired_did )
-	{
-		if( p_fwcr->jump_to(desired_did) )
-		{
+
+	///
+	Xapian::termcount get_doclen( Xapian::docid desired_did ) {
+		if (p_fwcr->jump_to(desired_did)) {
 			return p_fwcr->get_doclength();
 		}
 		return -1;
 	}
-	Xapian::termcount get_doclen()
-	{
+
+	///
+	Xapian::termcount get_doclen() {
 		return p_fwcr->get_doclength();
 	}
-	Xapian::docid get_docid()
-	{
+
+	///
+	Xapian::docid get_docid() {
 		return p_fwcr->get_docid();
 	}
-	bool next()
-	{
+
+	///
+	bool next() {
 		return p_fwcr->next();
 	}
-	bool at_end()
-	{
+
+	///
+	bool at_end() {
 		return p_fwcr->at_end();
 	}
 };
