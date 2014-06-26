@@ -83,6 +83,8 @@ BB2Weight::init(double factor)
     /* Calculate constant values to be used in get_sumpart(). */
     c_product_avlen = param_c * get_average_length();
     B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
+    // This weighting scheme causes an error if N = 1 as that will cause
+    // N - 1.0 to be equal to zero which is used inside a logarithm.
     wt = - log2(N - 1.0) - (1 / base_change);
     stirling_constant_1 = log2(N + F - 1.0);
     stirling_constant_2 = log2(F);
@@ -95,7 +97,7 @@ BB2Weight::init(double factor)
     double y_max = N + F - wdfn_lower - 2.0;
     double y_min = F - wdfn_upper;
     // If the terms result in a negative value, make them positive as negative
-    // values can not be used in log.
+    // values can not be used in a logrithm.
     if (y_min < 0)
 	y_min = F;
     if (y_max < 0)
@@ -153,6 +155,9 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 
     double B = B_constant / (wdfn + 1.0);
 
+    // This weighting scheme will cause an error if for any value of wdfn,
+    // N + F - wdfn - 2.0 is equal to or less than zero as it is used inside
+    // a logarithm in the stirling_value function.
     double stirling = stirling_value(wdfn + 1.0, N + F - wdfn - 2.0, stirling_constant_1) -
 		      stirling_value(wdfn, F - wdfn, stirling_constant_2);
 
