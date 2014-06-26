@@ -1880,33 +1880,6 @@ DEFINE_TESTCASE(cursordelbug1, brass || chert) {
     return Xapian::Database::check(db_path) == 0;
 }
 
-/*A test for brass_dbcheck.cc modified for fixed width brass doclen chunk.
- *It just use the database for cursordelbug1*/
-DEFINE_TESTCASE(fixedwidthdoclenchunk, brass )
-{
-	static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
-	static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
-
-	Xapian::WritableDatabase db;
-	db = get_named_writable_database("cursordelbug1", string());
-
-	for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
-		Xapian::Document doc;
-		doc.add_term("XC" + str(terms[i]));
-		doc.add_term("XTabc");
-		doc.add_term("XAdef");
-		doc.add_term("XRghi");
-		doc.add_term("XYabc");
-		size_t c = copies[i];
-		while (c--) db.add_document(doc);
-	}
-
-	db.commit();
-
-	const string & db_path = get_named_writable_database_path("cursordelbug1");
-	return Xapian::Database::check(db_path) == 0;
-}
-
 /** Helper function for modifyvalues1.
  *
  * Check that the values stored in the database match */

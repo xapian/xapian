@@ -215,100 +215,15 @@ check_brass_table(const char * tablename, string filename,
 		}
 		lastdid += did;
 		bool bad = false;
-		
-		
-		bool is_in_block = false;
-		unsigned len_info = 0;
-		unsigned bytes_info = 0;
-
 		while (true) {
-
-			Xapian::termcount doclen = 0;
-			if ( is_in_block && len_info )
-			{
-				did++;
-				len_info--;
-				if ( len_info == 0 )
-				{
-					is_in_block = false;
-				}
-				if( !unpack_uint_in_bytes( &pos, bytes_info, &doclen ) )
-				{
-					if (out)
-						*out << "Failed to unpack doclen" << endl;
-					++errors;
-					bad = true;
-					break;
-				}
-			}
-			else
-			{
-				Xapian::docid incre_did = 0;
-				if( !unpack_uint( &pos, end, &incre_did ) )
-				{
-					if (out)
-						*out << "Failed to unpack docid increase" << endl;
-					++errors;
-					bad = true;
-					break;
-				}
-				if ( incre_did != (Xapian::docid)-1 )
-				{
-					is_in_block = false;
-					did += incre_did;
-					if( !unpack_uint_in_bytes( &pos, bytes_info, &doclen ) )
-					{
-						if (out)
-							*out << "Failed to unpack doclen" << endl;
-						++errors;
-						bad = true;
-						break;
-					}
-				}
-				else
-				{
-					is_in_block = true;
-					if( !unpack_uint( &pos, end, &incre_did ) )
-					{
-						if (out)
-							*out << "Failed to unpack docid increase" << endl;
-						++errors;
-						bad = true;
-						break;
-					}
-					if( !unpack_uint_in_bytes( &pos, 2, &len_info ) )
-					{
-						if (out)
-							*out << "Failed to unpack length info of fixed width doclen chunk" << endl;
-						++errors;
-						bad = true;
-						break;
-					}
-					if( !unpack_uint_in_bytes( &pos, 1, &bytes_info ) )
-					{
-						if (out)
-							*out << "Failed to unpack bytes info of fixed width doclen chunk" << endl;
-						++errors;
-						bad = true;
-						break;
-					}
-					did += incre_did;
-					if( !unpack_uint_in_bytes( &pos, bytes_info, &doclen ) )
-					{
-						if (out)
-							*out << "Failed to unpack doclen" << endl;
-						++errors;
-						bad = true;
-						break;
-					}
-					len_info--;
-					if ( len_info == 0 )
-					{
-						is_in_block = false;
-					}
-				}
-
-			}
+		    Xapian::termcount doclen;
+		    if (!unpack_uint(&pos, end, &doclen)) {
+			if (out)
+			    *out << "Failed to unpack doclen" << endl;
+			++errors;
+			bad = true;
+			break;
+		    }
 
 		    if (did > db_last_docid) {
 			if (out)
@@ -337,6 +252,16 @@ check_brass_table(const char * tablename, string filename,
 
 		    if (pos == end) break;
 
+		    Xapian::docid inc;
+		    if (!unpack_uint(&pos, end, &inc)) {
+			if (out)
+			    *out << "Failed to unpack docid increase" << endl;
+			++errors;
+			bad = true;
+			break;
+		    }
+		    ++inc;
+		    did += inc;
 		    if (did > lastdid) {
 			if (out)
 			    *out << "docid " << did << " > last docid "
