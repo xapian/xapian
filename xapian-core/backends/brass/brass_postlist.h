@@ -59,12 +59,10 @@ namespace Brass {
 class FixedWidthChunk
 {
 private:
-	map<Xapian::docid,Xapian::termcount>::const_iterator pl_start, pl_end;
 	vector<unsigned> src;
-	bool buildVector( );
+	bool buildVector( const map<Xapian::docid,Xapian::termcount>& postlist );
 public:
-	FixedWidthChunk( map<Xapian::docid,Xapian::termcount>::const_iterator pl_start_, 
-		map<Xapian::docid,Xapian::termcount>::const_iterator pl_end_);
+	FixedWidthChunk( const map<Xapian::docid,Xapian::termcount>& postlist );
 	bool encode( string& chunk ) const;
 };
 
@@ -128,7 +126,7 @@ class DoclenChunkWriter
 private:
 
 	const string& chunk_from;
-	map<Xapian::docid,Xapian::termcount>::const_iterator changes_start, changes_end;
+	const map<Xapian::docid,Xapian::termcount> changes;
 	BrassPostListTable* postlist_table;
 	bool is_first_chunk;
 	bool is_last_chunk;
@@ -138,11 +136,11 @@ private:
 	bool get_new_doclen( );
 public:
 	DoclenChunkWriter( const string& chunk_from_, 
-		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start_,
-		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end_,
+		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start,
+		map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end,
 		BrassPostListTable* postlist_table_,
 		bool is_first_chunk_, Xapian::docid first_did_in_chunk_ )
-		: chunk_from(chunk_from_), changes_start(changes_start_), changes_end(changes_end_), 
+		: chunk_from(chunk_from_), changes(changes_start,changes_end), 
 		postlist_table(postlist_table_), is_first_chunk(is_first_chunk_),
 		first_did_in_chunk(first_did_in_chunk_)
 	{
