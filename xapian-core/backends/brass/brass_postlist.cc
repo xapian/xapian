@@ -1471,6 +1471,11 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
 	}
 	if ( is_doclen_list )
 	{
+		/*if ( p_doclen_chunk_reader )
+		{
+			LOGLINE(DB, "delete current doclen_chunk_reader " ); 			
+			delete p_doclen_chunk_reader;
+		}*/
 		LOGLINE(DB, "build new doclen_chunk_reader " ); 
 		p_doclen_chunk_reader.reset( new DoclenChunkReader(cursor->current_tag,is_first_chunk,first_did_in_chunk) );
 		did = p_doclen_chunk_reader->get_docid();
@@ -1520,8 +1525,6 @@ BrassPostList::skip_to(Xapian::docid desired_did, double w_min)
     (void)w_min; // no warning
 	if ( is_doclen_list )
 	{
-		// If current chunk is doc length chunk, 
-		// you should call jump_to rather than skip_to. 
 		LOGLINE( DB, "skip_to isn't designed for doclen list!" );
 		jump_to(desired_did);
 		RETURN(NULL);
@@ -1620,7 +1623,6 @@ BrassPostListTable::get_chunk(const string &tname,
 
 	if ( tname.empty() )
 	{
-		// When current chunk is for doc length, this function shouldn't be called.
 		*from = NULL;
 		*to = NULL;
 		RETURN(Xapian::docid(-1));
@@ -1748,8 +1750,6 @@ void
 		LOGVALUE(DB, is_first_chunk);
 
 		cursor->read_tag();
-
-		//Store current key and chunk, as they will be deleted later.
 		string ori_key(cursor->current_key);
 		string desired_chunk(cursor->current_tag);
 
@@ -1777,7 +1777,6 @@ void
 		}
 		else
 		{
-			//If this chunk isn't last chunk, get first doc id in next chunk.
 			cursor->next();
 			Assert(!cursor->after_end());
 			const char * kpos = cursor->current_key.data();
@@ -1787,15 +1786,11 @@ void
 			Assert(first_did_in_next_chunk);
 		}
 		LOGVALUE(DB,first_did_in_next_chunk);
-
-		// All changes among first doc id in this chunk and first doc id in next chunk 
-		// should be applied to this chunk.
 		while( it!=doclens.end() && it->first < first_did_in_next_chunk )
 		{
 			++it;
 		}
 
-		// Delete current chunk to insert new chunk later.
 		del(ori_key);
 		DoclenChunkWriter writer(desired_chunk, pre_it, it, this, is_first_chunk,first_did_in_chunk);
 		writer.merge_doclen_changes();
