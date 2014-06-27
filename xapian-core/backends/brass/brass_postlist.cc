@@ -247,10 +247,13 @@ read_start_of_chunk(const char ** posptr,
     RETURN(last_did_in_chunk);
 }
 
+
+/// Calculate the number of bytes we need to encode an integer
 static inline
 unsigned get_max_bytes( unsigned n )
 {
 	if (n== 0) {
+		///we need at least one byte
 		return 1;
 	}
 	unsigned l=0;
@@ -663,15 +666,19 @@ void BrassPostList::read_number_of_entries(const char ** posptr,
 	report_read_error(*posptr);
 }
 
-
+/* @pos_ : a pointer to the end of the header of the chunk.
+ * @end_ : a pointer to the end of the chunk.
+ * @first_did_in_chunk_ : first doc id in this chunk */
 FixedWidthChunk::FixedWidthChunk( map<Xapian::docid,Xapian::termcount>::const_iterator pl_start_, 
 								 map<Xapian::docid,Xapian::termcount>::const_iterator pl_end_ )
 								 : pl_start(pl_start_), pl_end(pl_end_)
 {
+	//generate information for encoding immediately
 	buildVector();
 }
 
-//To apply fixed width format, we first build a vector based on map<did,len>
+/* To apply fixed width format, we first build a vector based on map<did,len>,
+ * this vector @src stores the information to be encoded. */
 bool 
 FixedWidthChunk::buildVector( )
 {
@@ -680,9 +687,17 @@ FixedWidthChunk::buildVector( )
 		LOGLINE( DB, "Desired postlist is empty!" );
 		return false;
 	}
+
+	/* we use @it to go through the map, 
+	 * if we aren't in continuous block, we will encode doc id and doc length normally
+	 * but if we are, we do some special operations, 
+	 * and apply fixed width format. 
+	 * @start_pos : it tracks the start of the continuous block we are in currently. 
+	 * @docid_before_start_pos : doc id before current continuous block */
 	map<Xapian::docid,Xapian::termcount>::const_iterator it = pl_start, start_pos;
 	Xapian::docid docid_before_start_pos = it->first;
 
+	//go throuth the whole map
 	while (it! = pl_end )
 	{
 		unsigned length_contiguous = 1;
@@ -707,13 +722,24 @@ FixedWidthChunk::buildVector( )
 		while (it != pl_end)
 		{
 			cur_docid = it->first;
+
+			//number of bytes to encode current doc length
 			unsigned cur_bytes = get_max_bytes(it->second);
 			if (cur_docid != last_docid+1 || cur_bytes > max_bytes) {
+				/* if current id isn't continuous with last id,
+				 * or the number of bytes we need to store this doc length 
+				 * is bigger than the max bytes needed in this continuous block,
+				 * we don't encode current doc id into current block. */
 				break;
 			}
+
+			/* used_bytes is all bytes to be used,
+			 * but only @cur_bytes isn't wasted. */
 			used_bytes += max_bytes;
 			good_bytes += cur_bytes;
 			if ((double)good_bytes/used_bytes < DOCLEN_CHUNK_MIN_GOOD_BYTES_RATIO) {
+				/* the ratio is too small, which means too much space is wasted,
+				 * so we will start a new block. */
 				used_bytes = 0;
 				good_bytes = 0;
 				break;
@@ -725,9 +751,18 @@ FixedWidthChunk::buildVector( )
 		}
 
 		if (length_contiguous > DOCLEN_CHUNK_MIN_CONTIGUOUS_LENGTH) {
+			//this block is long enough, fixed width format will be used.
+
+			//an indicator indicating the start of fixed width format chunk
 			src.push_back(SEPERATOR);
+
+			//the delta of doc id
 			src.push_back(start_pos->first-docid_before_start_pos);	
+
+			//the length of the block
 			src.push_back(length_contiguous);
+
+			//number of bytes to encode each doc length in this block
 			src.push_back(max_bytes);
 
 			while (start_pos != it) {
@@ -736,9 +771,13 @@ FixedWidthChunk::buildVector( )
 				start_pos++;
 			}
 		} else {
+			//this block isn't long enough, we encode it normally.
 			while (start_pos != it)
 			{
+				//the delta of doc id
 				src.push_back(start_pos->first-docid_before_start_pos);
+
+				//the doc length
 				src.push_back(start_pos->second);
 				docid_before_start_pos = start_pos->first;
 				start_pos++;
@@ -761,14 +800,17 @@ FixedWidthChunk::encode( string& chunk ) const
 	{
 		if (src[i] != SEPERATOR)
 		{
+			//normal encoding
 			pack_uint( chunk, src[i] );
 			pack_uint( chunk, src[i+1] );
 			i += 2;
 		} else {
+			//fixed width format
 			pack_uint( chunk, src[i] );
 			pack_uint( chunk, src[i+1] );
 			unsigned len = src[i+2];
 			unsigned bytes = src[i+3];
+			//we pack following values in fixed number of bytes
 			pack_uint_in_bytes( len, 2, chunk );
 			pack_uint_in_bytes( bytes, 1, chunk );
 			for (unsigned j=0 ; j<len ; ++j) {
@@ -781,6 +823,8 @@ FixedWidthChunk::encode( string& chunk ) const
 	RETURN(true);
 }
 
+/* move to next did in the chunk. 
+ * If no more did, set is_at_end=true. */
 bool 
 FixedWidthChunkReader::next()
 {
@@ -789,39 +833,64 @@ FixedWidthChunkReader::next()
 		RETURN(false);
 	}
 	if (pos == end) {
+		//have run out the chunk
 		is_at_end = true;
 		RETURN(false);
 	}
 	if (is_in_block && len_info) {
+		//we are in a continuous block and there are some entries haven't been read in this block
+
+		//the delta of doc id in continuous block is always 1
 		cur_did++;
+
+		//number of entries decreases
 		len_info--;
 		if (len_info == 0) {
+			//all entries in this chunk have been read, so we aren't in a continuous block now
 			is_in_block = false;
 		}
+		//get doc length
 		unpack_uint_in_bytes( &pos, bytes_info, &cur_length );
 		RETURN(true);
 	}
+
+	//we aren't in a continuous block
 	Xapian::docid incre_did = 0;
 
+	//store the start of a continuous block
 	pos_of_block = pos;
 
+	//get the increment of doc id
 	unpack_uint( &pos, end, &incre_did );
 	if (incre_did != SEPERATOR)	{
+		//we are still in normal format
 		is_in_block = false;
 		cur_did += incre_did;
 		unpack_uint( &pos, end, &cur_length );
 		RETURN(true);
 	}
 
+	//we will go into fixed width format
+
+	//we are in a continuous block now
 	is_in_block = true;
 	unpack_uint( &pos, end, &incre_did );
+
+	//get basic info of the continuous block
 	unpack_uint_in_bytes( &pos, 2, &len_info );
 	unpack_uint_in_bytes( &pos, 1, &bytes_info );
+
+	//store the doc id before this block
 	did_before_block = cur_did;
+
+	//get first doc id in this block
 	cur_did += incre_did;
+
+	//get first doc length in this block
 	unpack_uint_in_bytes( &pos, bytes_info, &cur_length );
 	len_info--;
 	if (len_info == 0) {
+		// if there is no other entries, we have run out the block
 		is_in_block = false;
 	}
 	RETURN(true);
