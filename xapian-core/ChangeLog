@@ -1,3 +1,8 @@
+Sat Jun 28 10:48:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/stopwords/finnish/stop.txt,
+	  languages/stopwords/norwegian/stop.txt: Remove duplicate entries.
+
 Sat Jun 28 10:38:56 GMT 2014  Olly Betts <olly@survex.com>
 
 	* languages/stopwords/russian/stop.txt: Convert from KOI8-R to UTF-8.

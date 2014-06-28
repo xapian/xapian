@@ -83,7 +83,6 @@ yli     | over, across
 | other
 
 kun    | when
-niin   | so
 nyt    | now
 itse   | self
 
