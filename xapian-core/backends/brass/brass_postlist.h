@@ -90,12 +90,7 @@ class FixedWidthChunk {
 	///They are the start and the end of the postlist to be encoded.
 	map<Xapian::docid,Xapian::termcount>::const_iterator pl_start, pl_end;
 
-	vector<unsigned> src;
-
-	///generate what is to be encoded into desired chunk, store the information in @src.
-	bool buildVector( );
-
-public:
+	public:
 
 	/* Default constructor
 	 * @pl_start_: start of desired postlist
@@ -103,8 +98,9 @@ public:
 	FixedWidthChunk(map<Xapian::docid,Xapian::termcount>::const_iterator pl_start_, 
 		map<Xapian::docid,Xapian::termcount>::const_iterator pl_end_);
 
-	///The encoded map will be appended to @chunk.
-	bool encode(string& chunk) const;
+	///encode a post list
+	bool encode(string& desired_chunk);
+
 };
 
 /* This class is used to read fixed width format doclen chunk.
@@ -176,9 +172,9 @@ class FixedWidthChunkReader {
 		 * doc id of first entry is @first_did_in_chunk_, 
 		 * as we always have a delta of 0 for first entry.*/
 		next();
-		LOGVALUE(DB, is_at_end );
-		LOGVALUE(DB, cur_did );
-		LOGVALUE(DB, cur_length );
+		LOGVALUE(DB, is_at_end);
+		LOGVALUE(DB, cur_did);
+		LOGVALUE(DB, cur_length);
 	};
 
 	/* jump to desired did, 
@@ -282,7 +278,7 @@ class DoclenChunkReader {
 
 	/* return doc length of @desired_did,
 	 * if @desired_did doesn't exist, return -1 */
-	Xapian::termcount get_doclen( Xapian::docid desired_did ) {
+	Xapian::termcount get_doclen(Xapian::docid desired_did) {
 		if (p_fwcr->jump_to(desired_did)) {
 			return p_fwcr->get_doclength();
 		}
