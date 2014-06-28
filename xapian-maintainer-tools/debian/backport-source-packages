@@ -33,7 +33,7 @@ UBUNTU_CODENAMES='saucy raring quantal precise oneiric lucid'
 V_OPT=
 case $1 in
 -v)
-  V_OPT="$1 $2"
+  V_OPT="$1$2"
   shift
   shift
   ;;
