@@ -1,3 +1,9 @@
+Sat Jun 28 11:00:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: Sort the stop.list files (since loading a
+	  sorted list is likely to be more efficient) and remove any duplicate
+	  entries.
+
 Sat Jun 28 10:48:03 GMT 2014  Olly Betts <olly@survex.com>
 
 	* languages/stopwords/finnish/stop.txt,

@@ -79,7 +79,7 @@ if VPATH_BUILD
 # $(@D) is a GNU make-ism; if it isn't supported, we run sed instead.
 	$(MKDIR_P) "`[ -n '$(@D)' ] && echo '$(@D)'||echo '$@'|sed 's!/[^/]*$$!!'`"
 endif
-	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< > $@
+	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< |sort|uniq > $@
 
 BUILT_SOURCES += $(snowball_stopwords_preprocessed)
 
