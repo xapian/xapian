@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+import os
 import sys
 import xapian
 
@@ -343,6 +344,19 @@ def test_all():
     expect(stop('b'), True)
     expect_query(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
                  "(Zfoo@1 AND Zbar@2)")
+
+    # Test SimpleStopper initialised from a file.
+    try:
+        srcdir = os.envion['srcdir']
+    except AttributeError:
+        srcdir = '.'
+    stop = xapian.SimpleStopper(srcdir + '/../shortstop.list')
+    expect(stop('a'), True)
+    expect(stop('am'), False)
+    expect(stop('an'), True)
+    expect(stop('the'), True)
+
+    expect_exception(xapian.InvalidArgumentError, None, xapian.SimpleStopper, 'nosuchfile')
 
     # Test TermGenerator
     termgen = xapian.TermGenerator()

@@ -1,3 +1,10 @@
+Sat Jun 28 09:34:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian-headers.i: Provide a SimpleStopper constructor
+	  which provides the ability to initialise from a stopword list in a
+	  file.  Based on patch from Assem Chelli.
+	* python/smoketest.py: Add testcoverage for this new wrapping.
+
 Mon Jun 23 02:49:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,php/Makefile.am,
