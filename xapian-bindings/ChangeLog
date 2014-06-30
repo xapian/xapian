@@ -1,3 +1,7 @@
+Mon Jun 30 04:11:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Fix typo in SimpleStopper with file testcase.
+
 Mon Jun 30 02:18:04 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/pythontest.py,python3/pythontest.py: Add a comment to explain

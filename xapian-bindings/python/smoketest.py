@@ -347,8 +347,8 @@ def test_all():
 
     # Test SimpleStopper initialised from a file.
     try:
-        srcdir = os.envion['srcdir']
-    except AttributeError:
+        srcdir = os.environ['srcdir']
+    except KeyError:
         srcdir = '.'
     stop = xapian.SimpleStopper(srcdir + '/../shortstop.list')
     expect(stop('a'), True)
