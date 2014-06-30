@@ -1,3 +1,9 @@
+Mon Jun 30 02:18:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/pythontest.py,python3/pythontest.py: Add a comment to explain
+	  why the PostingSource is in a list in the "postingsource" testcase,
+	  and add a term to the list to make it a less artificial test.
+
 Sat Jun 28 11:15:47 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Makefile.am,shortstop.list: Add and distribute new data file
