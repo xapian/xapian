@@ -93,7 +93,7 @@ string ArabicNormalizer::normalize(const string& word) {
     return new_word;
 }
 
-string ArabicNormalizer::arabize(int romanization_system, const string& word) {
+string ArabicNormalizer::arabize(const string& word, int romanization_system) {
     string new_word;
     const character_map *mapping;
     int mapping_length = 0;

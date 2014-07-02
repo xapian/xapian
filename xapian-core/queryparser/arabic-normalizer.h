@@ -1,5 +1,5 @@
 /** @file arabic-normalizer.h
- * @brief normalizing the Arabic text by fix shaping, eliminate unwanted symbols
+ * @brief normalizing the Arabic text by fix shaping, eliminate unwanted symbols.
  */
 /* Copyright (C) 2014 Assem Chelli
  *
@@ -26,7 +26,7 @@
 
 #include <string>
 
-/** @brief Arabic Normalizer, a  class to normalize Arabic text
+/** Arabic Normalizer, a  class to normalize Arabic text.
  * its role is:
  * - normalize Arabic text
  * - converted Arabic romanized texts back to Arabic (arabization)
@@ -41,18 +41,18 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
     bool normalize_extra_symbols;
 
   public:
-    /** @brief Constructor with no parameters, use it for all normalization types.
+    /** Constructor with no parameters, use it for all normalization types.
      */
-    ArabicNormalizer () {
-        normalize_shaping = 1;
-        normalize_punctuation = 1;
-        normalize_diacritics = 1;
-        normalize_hamza = 1;
-        normalize_similar_spellings = 1;
-        normalize_extra_symbols = 1;
+    ArabicNormalizer() {
+        normalize_shaping = true;
+        normalize_punctuation = true;
+        normalize_diacritics = true;
+        normalize_hamza = true;
+        normalize_similar_spellings = true;
+        normalize_extra_symbols = true;
     }
 
-    /** @brief Constructor with parameters, use it to specify what you want to be normalized and what not.
+    /** Constructor with parameters, use it to specify what you want to be normalized and what not.
      *
      *  Parameters:
      *  @param shaping allow the normalization of shaping, fixing Lam-Alef issue and strip Tatweel
@@ -63,7 +63,7 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
      *  @param extra_symbols allow elimination of letters that can't be written using a keyboard
      *
      */
-    ArabicNormalizer (bool shaping, bool punctuation, bool diacritics, bool hamza, bool similar_spellings, bool extra_symbols) {
+    ArabicNormalizer(bool shaping, bool punctuation, bool diacritics, bool hamza, bool similar_spellings, bool extra_symbols) {
         normalize_shaping = shaping;
         normalize_punctuation = punctuation;
         normalize_diacritics = diacritics;
@@ -72,7 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
         normalize_extra_symbols = extra_symbols;
     }
 
-    /** @brief The method for normalization
+    /** The method for normalization.
      * It will do this processing:
      * - keep the letters unshaped, separate Lam-Alef and eliminate Tatweel
      * - strip Arabic-specific punctuation marks
@@ -85,15 +85,14 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
      */
     std::string normalize(const std::string& word);
 
-    /** @brief The method for converting Arabic romanized words back to Arabic
+    /** The method for converting Arabic romanized words back to Arabic.
      *
      * @param romanization_system the used system of romanization: 0 for auto, 1 for Buckwalter.
      */
-    std::string arabize(int romanization_system, const std::string& word);
-    std::string arabize(const std::string& word) { return arabize(0, word); };
+    std::string arabize(const std::string& word, int romanization_system = 0);
 
     /// Guess what romanization system a word is written with.
     int guess_romanization_system(const std::string& word);
 };
 
-#endif // XAPIAN_INCLUDED_ARABICNORMALIZER_Hأ‬
+#endif // XAPIAN_INCLUDED_ARABICNORMALIZER_H‬
