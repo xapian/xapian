@@ -30,6 +30,8 @@
 #include <vector>
 
 #define LENGTH(array) sizeof(array) / sizeof(array[0])
+#define ENDOF(array) array + LENGTH(array)
+#define FIND(array, ch) find(array, ENDOF(array), ch) != ENDOF(array)
 
 using namespace std;
 
@@ -40,26 +42,27 @@ static unsigned get_value(unsigned  key, const character_map *map_, int map_leng
     return 0;
 }
 
-std::string ArabicNormalizer::normalize(const std::string word) {
-    std::string new_word;
+string ArabicNormalizer::normalize(const string word) {
+    string new_word;
     Xapian::Utf8Iterator i(word);
-    for(; i != Xapian::Utf8Iterator(); ++i) { // TODO order them by proba of happening
+    // FIXME order them by proba of happening
+    for (; i != Xapian::Utf8Iterator(); ++i) {
         unsigned ch = *i, subst_ch = 0;
         // convert letters to their unshaped form
-        if ( normalize_shaping && 0 != ( subst_ch = get_value(ch, ARABIC_SHAPING_MAP, LENGTH(ARABIC_SHAPING_MAP) )) ) {  // TODO don't repeat the find operation
+        if (normalize_shaping && 0 != (subst_ch = get_value(ch, ARABIC_SHAPING_MAP, LENGTH(ARABIC_SHAPING_MAP)))) {
             ch = subst_ch;
         }
         // normalize LAM ALEF forms
-        if (normalize_shaping && find(ARABIC_LIGUATURES, ARABIC_LIGUATURES + LENGTH(ARABIC_LIGUATURES), ch) != ARABIC_LIGUATURES + LENGTH(ARABIC_LIGUATURES)) {
+        if (normalize_shaping && FIND(ARABIC_LIGUATURES, ch)) {
             Xapian::Unicode::append_utf8(new_word, ARABIC_LAM);
             Xapian::Unicode::append_utf8(new_word, ARABIC_ALEF);
         }
         // strip diacritics
-        else if (normalize_diacritics && (find(ARABIC_TASHKEEL, ARABIC_TASHKEEL + LENGTH(ARABIC_TASHKEEL), ch) != ARABIC_TASHKEEL + LENGTH(ARABIC_TASHKEEL))  && normalize_diacritics ) {
+        else if (normalize_diacritics && FIND(ARABIC_TASHKEEL, ch)) {
             // ignore it
         }
         // strip the tatweel or kasheeda
-        else if (normalize_shaping && ch == ARABIC_TATWEEL ) {
+        else if (normalize_shaping && ch == ARABIC_TATWEEL) {
             // ignore it
         }
         // strip arabic-specific punctuation
@@ -67,20 +70,20 @@ std::string ArabicNormalizer::normalize(const std::string word) {
             // ignore it
         }
         // convert TEH_MERBUTA to HEH
-        else if (normalize_similar_spellings && ch ==  ARABIC_TEH_MARBUTA ) {
+        else if (normalize_similar_spellings && ch ==  ARABIC_TEH_MARBUTA) {
             Xapian::Unicode::append_utf8(new_word, ARABIC_HEH);
         }
         // convert ALEF_MAKSURA to YEH
-        else if (normalize_similar_spellings && ch ==  ARABIC_ALEF_MAKSURA){
+        else if (normalize_similar_spellings && ch ==  ARABIC_ALEF_MAKSURA) {
             Xapian::Unicode::append_utf8(new_word, ARABIC_YEH);
         }
         // normalize Alef forms
-        else if (normalize_similar_spellings && find(ARABIC_ALEFAT, ARABIC_ALEFAT + (sizeof(ARABIC_ALEFAT)/sizeof(unsigned)) , ch) !=  ARABIC_ALEFAT + (sizeof(ARABIC_ALEFAT)/sizeof(unsigned))) {
+        else if (normalize_similar_spellings && FIND(ARABIC_ALEFAT, ch)) {
             Xapian::Unicode::append_utf8(new_word, ARABIC_ALEF);
         }
         // normalize Hamza forms
-        else if (normalize_hamza && find(ARABIC_HAMZAT, ARABIC_HAMZAT + (sizeof(ARABIC_HAMZAT)/sizeof(unsigned)) , ch)  != ARABIC_HAMZAT + (sizeof(ARABIC_HAMZAT)/sizeof(unsigned))) {
-            Xapian::Unicode::append_utf8(new_word, ARABIC_HAMZA );
+        else if (normalize_hamza && FIND(ARABIC_HAMZAT, ch)) {
+            Xapian::Unicode::append_utf8(new_word, ARABIC_HAMZA);
         }
         // nothing to do
         else {
@@ -90,8 +93,8 @@ std::string ArabicNormalizer::normalize(const std::string word) {
     return new_word;
 }
 
-std::string ArabicNormalizer::arabize(int romanization_system, const std::string word) {
-    std::string new_word;
+string ArabicNormalizer::arabize(int romanization_system, const string word) {
+    string new_word;
     const character_map *mapping;
     int mapping_length = 0;
     Xapian::Utf8Iterator i(word);
@@ -103,7 +106,7 @@ std::string ArabicNormalizer::arabize(int romanization_system, const std::string
         default: mapping = BUCKWALTER_TO_ARABIC; mapping_length = LENGTH(BUCKWALTER_TO_ARABIC); break;
     }
 
-    for(; i != Xapian::Utf8Iterator(); ++i) {
+    for (; i != Xapian::Utf8Iterator(); ++i) {
         unsigned ch = *i, subst_ch = 0;
         subst_ch = get_value(ch, mapping, mapping_length);
         if ( subst_ch != 0 ) {
@@ -113,7 +116,7 @@ std::string ArabicNormalizer::arabize(int romanization_system, const std::string
     return new_word;
 }
 
-int ArabicNormalizer::guess_romanization_system(const std::string word) {
+int ArabicNormalizer::guess_romanization_system(const string word) {
     return 0 && LENGTH(word); // TODO to be implemented
 }
 
