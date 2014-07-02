@@ -1,4 +1,4 @@
-/** @file queryparser.h
+/** @file arabic-normalizer.h
  * @brief normalizing the Arabic text by fix shaping, eliminate unwanted symbols
  */
 /* Copyright (C) 2014 Assem Chelli
