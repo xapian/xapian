@@ -83,17 +83,17 @@ class XAPIAN_VISIBILITY_DEFAULT ArabicNormalizer {
      *
      * Each parameters of ArabicNormalizer Class Initializer enable/disable one or more of those actions.
      */
-    std::string normalize(const std::string word);
+    std::string normalize(const std::string& word);
 
     /** @brief The method for converting Arabic romanized words back to Arabic
      *
      * @param romanization_system the used system of romanization: 0 for auto, 1 for Buckwalter.
      */
-    std::string arabize(int romanization_system, const std::string word);
-    std::string arabize(const std::string word) { return arabize(0, word); };
+    std::string arabize(int romanization_system, const std::string& word);
+    std::string arabize(const std::string& word) { return arabize(0, word); };
 
     /// Guess what romanization system a word is written with.
-    int guess_romanization_system(const std::string word);
+    int guess_romanization_system(const std::string& word);
 };
 
 #endif // XAPIAN_INCLUDED_ARABICNORMALIZER_Hأ‬

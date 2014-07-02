@@ -42,7 +42,7 @@ static unsigned get_value(unsigned  key, const character_map *map_, int map_leng
     return 0;
 }
 
-string ArabicNormalizer::normalize(const string word) {
+string ArabicNormalizer::normalize(const string& word) {
     string new_word;
     Xapian::Utf8Iterator i(word);
     // FIXME order them by proba of happening
@@ -93,7 +93,7 @@ string ArabicNormalizer::normalize(const string word) {
     return new_word;
 }
 
-string ArabicNormalizer::arabize(int romanization_system, const string word) {
+string ArabicNormalizer::arabize(int romanization_system, const string& word) {
     string new_word;
     const character_map *mapping;
     int mapping_length = 0;
@@ -116,7 +116,7 @@ string ArabicNormalizer::arabize(int romanization_system, const string word) {
     return new_word;
 }
 
-int ArabicNormalizer::guess_romanization_system(const string word) {
+int ArabicNormalizer::guess_romanization_system(const string& word) {
     return 0 && LENGTH(word); // TODO to be implemented
 }
 
