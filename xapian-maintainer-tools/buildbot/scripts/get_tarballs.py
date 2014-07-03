@@ -127,7 +127,7 @@ for link in links:
         fname = get_archive(tarball_root + link + '.tar.xz', builddir)
     else:
         fname = get_archive(tarball_uncompressed_root + link + '.tar', builddir)
-    print("Unpacking %s" % fname)
+    print("Unpacking %s which has size %d" % (fname, os.stat(fname).st_size))
     unpack_tarball(fname, link, builddir)
     m = archivedir_re.match(link)
     archivedir = os.path.join(builddir, m.group(1))
