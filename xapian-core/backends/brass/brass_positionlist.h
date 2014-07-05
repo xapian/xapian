@@ -80,8 +80,8 @@ class BrassPositionListTable : public BrassLazyTable {
 
 /** A position list in a brass database. */
 class BrassPositionList : public PositionList {
-    /// Interpolative decoder.
-    BitReader rd;
+    
+    AutoPtr<VSDecoder> p_vsd;
 
     /// Current entry.
     Xapian::termpos current_pos;
@@ -106,11 +106,12 @@ class BrassPositionList : public PositionList {
 
   public:
     /// Default constructor.
-    BrassPositionList() { }
+    BrassPositionList() : p_vsd(0)
+    { }
 
     /// Construct and initialise with data.
     BrassPositionList(const BrassTable * table, Xapian::docid did,
-		      const string & tname) {
+                      const string & tname) : p_vsd(0) {
 	(void)read_data(table, did, tname);
     }
 

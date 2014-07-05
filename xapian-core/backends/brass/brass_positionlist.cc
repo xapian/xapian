@@ -42,13 +42,8 @@ BrassPositionListTable::pack(string & s,
 
     pack_uint(s, vec.back());
 
-    if (vec.size() > 1) {
-	BitWriter wr(s);
-	wr.encode(vec[0], vec.back());
-	wr.encode(vec.size() - 2, vec.back() - vec[0]);
-	wr.encode_interpolative(vec, 0, vec.size() - 1);
-	swap(s, wr.freeze());
-    }
+	VSEncoder vse( s );
+	vse.encode( vec );
 }
 
 Xapian::termcount
@@ -62,21 +57,8 @@ BrassPositionListTable::positionlist_count(Xapian::docid did,
 	RETURN(0);
     }
 
-    const char * pos = data.data();
-    const char * end = pos + data.size();
-    Xapian::termpos pos_last;
-    if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
-    }
-    if (pos == end) {
-	// Special case for single entry position list.
-	RETURN(1);
-    }
-
-    // Skip the header we just read.
-    BitReader rd(data, pos - data.data());
-    Xapian::termpos pos_first = rd.decode(pos_last);
-    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
+    VSDecoder vsd(data);
+    Xapian::termpos pos_size = vsd.get_n_entry();
     RETURN(pos_size);
 }
 
@@ -96,26 +78,12 @@ BrassPositionList::read_data(const string & data)
 	current_pos = 1;
 	RETURN(false);
     }
-
-    const char * pos = data.data();
-    const char * end = pos + data.size();
-    Xapian::termpos pos_last;
-    if (!unpack_uint(&pos, end, &pos_last)) {
-	throw Xapian::DatabaseCorruptError("Position list data corrupt");
-    }
-    if (pos == end) {
-	// Special case for single entry position list.
-	size = 1;
-	current_pos = last = pos_last;
-	RETURN(true);
-    }
-    // Skip the header we just read.
-    rd.init(data, pos - data.data());
-    Xapian::termpos pos_first = rd.decode(pos_last);
-    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    
+    p_vsd.reset(new VSDecoder(data));
+    Xapian::termpos pos_first = p_vsd->get_first_entry();
+    Xapian::termpos pos_size = p_vsd->get_n_entry();
     size = pos_size;
-    last = pos_last;
+    last = p_vsd->get_last_entry();
     current_pos = pos_first;
     RETURN(true);
 }
@@ -163,7 +131,7 @@ BrassPositionList::next()
 	current_pos = 1;
 	return;
     }
-    current_pos = rd.decode_interpolative_next();
+    current_pos = p_vsd->get_next_entry();
 }
 
 void
@@ -186,7 +154,7 @@ BrassPositionList::skip_to(Xapian::termpos termpos)
 	    current_pos = 1;
 	    return;
 	}
-	current_pos = rd.decode_interpolative_next();
+        current_pos = p_vsd->get_next_entry();
     }
 }
 
