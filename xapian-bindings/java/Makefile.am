@@ -73,6 +73,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Remote.java\
 	org/xapian/RSet.java\
 	org/xapian/SimpleStopper.java\
+	org/xapian/Snipper.java\
 	org/xapian/Stem.java\
 	org/xapian/StemImplementation.java\
 	org/xapian/Stopper.java\
