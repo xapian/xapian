@@ -40,8 +40,8 @@ BrassPositionListTable::pack(string & s,
     LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | vec);
     Assert(!vec.empty());
 
-	VSEncoder vse( s );
-	vse.encode( vec );
+	VSEncoder vse(s);
+	vse.encode(vec);
 }
 
 Xapian::termcount

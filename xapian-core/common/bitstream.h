@@ -32,192 +32,136 @@
 
 using std::string;
 
-inline int log2(unsigned val, bool up = true );
+inline int log2(unsigned val, bool up = true);
 
 namespace Xapian {
+
+class Encoder{
+    std::string& buf;
+    unsigned char& acc;
+    int& bits;
+    inline bool check_acc();
+  
+  public:
+    Encoder(std::string& buf_, unsigned char& acc_, int& bits_)
+		: buf(buf_), acc(acc_), bits(bits_) { }
+        virtual void encode(unsigned int n) = 0;
+        virtual ~Encoder() { }
+};
     
     
-    class Encoder
-    {
-    protected:
+class UnaryEncoder : public Encoder{
+  public:
+    UnaryEncoder(std::string& buf_, unsigned char& acc_, int& bits_)
+		: Encoder(buf_, acc_, bits_) { }
+    void encode( unsigned int n );
+};
+    
+class GammaEncoder : public Encoder {
+  public:
+    GammaEncoder(std::string& buf_, unsigned char& acc_, int& bits_)
+        : Encoder(buf_, acc_, bits_) { }
+    void encode(unsigned int n);
+};
+    
+class OrdinaryEncoder : public Encoder {
+    const unsigned int num_of_bits;
+    static const unsigned int mask_low_n_bits[9];
+  public:
+    OrdinaryEncoder(std::string& buf_, unsigned char& acc_, int& bits_, int num_of_bits_)
+		: Encoder(buf_, acc_, bits_), num_of_bits(num_of_bits_) { }
+    void encode( unsigned int n );
+};
+    
+class VSEncoder {
+    int bits;
+    unsigned char acc;
+    string& chunk;
+    string buf;
+    unsigned int get_optimal_split(const std::vector<unsigned int>& L, std::vector<unsigned int>& S);
+    void encode(const std::vector<unsigned int>& L, int i, int j);
         
-        std::string& buf;
-        unsigned char& acc;
-        int& bits;
-        
-        inline bool check_acc();
-        
-    public:
-        Encoder( std::string& buf_, unsigned char& acc_, int& bits_ )
-		: buf(buf_), acc(acc_), bits(bits_)
-        {
-            
-        }
-        virtual void encode( unsigned int n ) = 0;
-        virtual ~Encoder()
-        {
-            
-        }
-        
-    };
-    
-    
-    class UnaryEncoder : public Encoder
-    {
-    public:
-        UnaryEncoder( std::string& buf_, unsigned char& acc_, int& bits_ )
-		: Encoder( buf_, acc_, bits_ )
-        {
-            
-        }
-        void encode( unsigned int n );
-        
-    };
-    
-    class GammaEncoder : public Encoder
-    {
-    public:
-        GammaEncoder( std::string& buf_, unsigned char& acc_, int& bits_ )
-		: Encoder( buf_, acc_, bits_ )
-        {
-            
-        }
-        void encode( unsigned int n );
-    };
-    
-    class OrdinaryEncoder : public Encoder
-    {
-    private:
-        const unsigned int num_of_bits;
-        static const unsigned int mask_low_n_bits[9];
-    public:
-        OrdinaryEncoder( std::string& buf_, unsigned char& acc_, int& bits_, int num_of_bits_ )
-		: Encoder( buf_, acc_, bits_ ), num_of_bits( num_of_bits_ )
-        {
-            
-        }
-        void encode( unsigned int n );
-    };
-    
-    class VSEncoder
-    {
-    private:
-        int bits;
-        unsigned char acc;
-        string& chunk;
-        string buf;
-        unsigned int get_optimal_split( const std::vector<unsigned int>& L, std::vector<unsigned int>& S );
-        void encode( const std::vector<unsigned int>& L, int i, int j );
-        
-    public:
-        VSEncoder(std::string& chunk_);
-        void encode( const std::vector<unsigned int>& L );
-    };
+  public:
+    VSEncoder(std::string& chunk_);
+    void encode(const std::vector<unsigned int>& L);
+};
  
-    class Decoder
-    {
-    protected:
-        const char*& pos;
-        const char* end;
-        unsigned char& acc;
-        int& acc_bits;
-        int& p_bit;
-        static unsigned int mask[8];
-        static unsigned int get_bit_value(unsigned int n, int i);
-    public:
-        virtual unsigned int decode() = 0;
-        Decoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_)
-		: pos(pos_), end(end_), acc( acc_ ), acc_bits(acc_bits_), p_bit(p_bit_)
-        {
-            
+class Decoder {
+  protected:
+    const char*& pos;
+    const char* end;
+    unsigned char& acc;
+    int& acc_bits;
+    int& p_bit;
+    static unsigned int mask[8];
+    static unsigned int get_bit_value(unsigned int n, int i);
+  public:
+    virtual unsigned int decode() = 0;
+    Decoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_)
+		: pos(pos_), end(end_), acc(acc_), acc_bits(acc_bits_), p_bit(p_bit_) { }
+    virtual ~Decoder(){ }
+};
+    
+class UnaryDecoder : public Decoder {
+  public:
+    unsigned int decode();
+    UnaryDecoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_)
+        : Decoder(pos_, end_, acc_, acc_bits_, p_bit_){ }
+};
+    
+class GammaDecoder : public Decoder {
+    UnaryDecoder* p_ud;
+  public:
+    unsigned int decode();
+    GammaDecoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_)
+    : Decoder(pos_, end_, acc_, acc_bits_, p_bit_){
+        p_ud = new UnaryDecoder(pos_, end_, acc_, acc_bits_, p_bit_);
+    }
+    ~GammaDecoder(){
+        if (p_ud != NULL) {
+            delete p_ud;
+            p_ud = NULL;
         }
-        virtual ~Decoder()
-        {
-            
-        }
-    };
+    }
+};
+    
+class OrdinaryDecoder : public Decoder {
+    int width;
+    static const unsigned char mask_nbits[8][9];
+  public:
+    unsigned int decode();
+    OrdinaryDecoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_, int width_)
+    : Decoder(pos_, end_, acc_, acc_bits_, p_bit_), width(width_) { }
+    void setWidth( int width_ ) {
+        width = width_;
+    }
+};
     
     
-    
-    class UnaryDecoder : public Decoder
-    {
-    public:
-        unsigned int decode();
-        UnaryDecoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_)
-		: Decoder(pos_, end_, acc_, acc_bits_, p_bit_)
-        {
-            
-        }
-    };
-    
-    
-    class GammaDecoder : public Decoder
-    {
-    private:
-        UnaryDecoder* p_ud;
-    public:
-        unsigned int decode();
-        GammaDecoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_)
-		: Decoder(pos_, end_, acc_, acc_bits_, p_bit_)
-        {
-            p_ud = new UnaryDecoder(pos_, end_, acc_, acc_bits_, p_bit_);
-        }
-        ~GammaDecoder()
-        {
-            if ( p_ud != NULL )
-            {
-                delete p_ud;
-                p_ud = NULL;
-            }
-        }
-        
-    };
-    
-    class OrdinaryDecoder : public Decoder
-    {
-    private:
-        int width;
-        static const unsigned char mask_nbits[8][9];
-    public:
-        unsigned int decode();
-        OrdinaryDecoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_, int width_)
-		: Decoder(pos_, end_, acc_, acc_bits_, p_bit_), width(width_)
-        {
-            
-        }
-        void setWidth( int width_ )
-        {
-            width = width_;
-        }
-    };
-    
-    
-    class VSDecoder
-    {
-    private:
-        std::string buf;
-        unsigned char acc;
-        int acc_bits;
-        int p_bit;//the bit pointed by p_bit hasn't be handled.
-        const char* pos;
-        const char* end;
-        unsigned int cur_num_width;
-        unsigned int cur_remaining_nums;
-        UnaryDecoder* p_ud;
-        GammaDecoder* p_gd;
-        OrdinaryDecoder* p_od;
-        unsigned int bias;
-        unsigned int n_entry;
-        unsigned int last_entry;
-        unsigned int next();
-    public:
-        VSDecoder( const std::string& buf_ );
-        unsigned int get_next_entry();
-        unsigned int get_first_entry();
-        unsigned int get_n_entry();
-        unsigned int get_last_entry();
-        ~VSDecoder();
-    };
+class VSDecoder {
+    std::string buf;
+    unsigned char acc;
+    int acc_bits;
+    int p_bit;//the bit pointed by p_bit hasn't be handled.
+    const char* pos;
+    const char* end;
+    unsigned int cur_num_width;
+    unsigned int cur_remaining_nums;
+    UnaryDecoder* p_ud;
+    GammaDecoder* p_gd;
+    OrdinaryDecoder* p_od;
+    unsigned int bias;
+    unsigned int n_entry;
+    unsigned int last_entry;
+    unsigned int next();
+  public:
+    VSDecoder(const std::string& buf_);
+    unsigned int get_next_entry();
+    unsigned int get_first_entry();
+    unsigned int get_n_entry();
+    unsigned int get_last_entry();
+    ~VSDecoder();
+};
 
 /// Create a stream to which non-byte-aligned values can be written.
 class BitWriter {
