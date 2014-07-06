@@ -40,8 +40,6 @@ BrassPositionListTable::pack(string & s,
     LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | vec);
     Assert(!vec.empty());
 
-    pack_uint(s, vec.back());
-
 	VSEncoder vse( s );
 	vse.encode( vec );
 }
