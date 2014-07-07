@@ -350,15 +350,21 @@ Feature::update(const Feature & feature_manager_, const vector<Feature::FeatureB
     features = features_;
 }
 
-vector<double>
+FeatureVector
 Feature::generate_feature_vector(const Xapian::MSetIterator & met_it_) {
-    vector<double> feature_vector(get_features_num());
-    
-    for (int i=0; i<get_features_num(); i++) {
-        feature_vector[i] = get_feature(features[i], mset_it_);
-    }
+    FeatureVector fvector;
 
-    return feature_vector;
+    Xapian::Document doc = mset_it_.get_document();
+
+    fvector.set_did( doc.get_did() );
+
+    vector<double> feature_values(get_features_num());
+    for (int i=0; i<get_features_num(); i++) {
+        feature_values[i] = get_feature(features[i], mset_it_);
+    }
+    fvector.set_feature_values( feature_values );
+
+    return fvector;
 }
 
 int

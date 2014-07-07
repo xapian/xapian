@@ -62,9 +62,9 @@ public:
 
     void update(const FeatureManager & feature_manager_, const vector<Feature::FeatureBase> & features_);
 
-    vector<double> generate_feature_vector(const Xapian::MSetIterator & mset_it_);
+    FeatureVector generate_feature_vector(const Xapian::MSetIterator & mset_it_);
 
     int get_features_num();
-}
+};
 
 #endif /* FEATURES_H */
