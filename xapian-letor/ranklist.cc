@@ -10,127 +10,125 @@
 #include <vector>
 #include <algorithm>
 
-using namespace std;
 using namespace Xapian;
 
-//Ranklist(const Xapian::MSet & mset,const Xapian::Database & db,const Xapian::Query & query)
-RankList::RankList()
-{
-    /*map<Xapian::docid,double> letor_mset;
-
-    map<string,long int> coll_len;
-    coll_len=collection_length(letor_db);
-
-    map<string,long int> coll_tf;
-    coll_tf=collection_termfreq(letor_db,letor_query);
-
-    map<string,double> idf;
-    idf=inverse_doc_freq(letor_db,letor_query);
-
-    int first=1;                //used as a flag in QueryLevelNorm module
-
-  //the above list will be mapped to an integer with its feature id.
-
-	
+using std::string;
+using std::vector;
 
 
-    map< int, list<double> >::iterator norm_outer;
-    list<double>::iterator norm_inner;
+RankList::RankList() : feature_num(-1) {}
 
 
-    List2 doc_ids;
+RankList::~RankList() {}
 
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
-	Xapian::Document doc = i.get_document();
-	
-	FeatureVector fv;
-	fv.set_database(letor_db);
-	fv.set_query(letor_query);
-	std::map<int,double> fvals=fv.transform(doc);
-	
-	add_feature_vector(fv);
-	
-	if (first==1) {
-	    for (int j=1;j<20;j++) {
-		List1 l;
-		l.push_back(fvals[j]);
-		norm.insert(pair <int , list<double> > (j,l));
-	    }
-	    first=0;
-	} else {
-	    norm_outer=norm.begin();
-	    int k=1;
-	    for (;norm_outer!=norm.end();norm_outer++) {
-		norm_outer->second.push_back(fvals[k]);
-		k++;
-	    }
-	}
-	
-	}
-	norm = normalise(norm,norm_outer,norm_inner);
-	*/
+
+void
+RankList::set_qid(string qid_) {
+	qid = qid_;
 }
 
-std::vector<FeatureVector>
+
+void
+RankList::set_feature_vector_list(vector<FeatureVector> feature_vector_list_) {
+	vector<FeatureVector>::iterator fv_list_it = feature_vector_list_.begin();
+	feature_num = *(fv_list_it).size();
+	for (; fv_list_it != feature_vector_list_.end(); ++fv_list_it) {
+		if (feature_num != *(fv_list_it).size()) {
+			printf("Feature num is not compatible.\n");
+			return 1;
+		}
+	}
+
+	feature_vector_list = feature_vector_list_;
+}
+
+
+void
+RankList::add_feature_vector(FeatureVector fvector_) {
+	if (feature_num == -1) {
+		feature_num = fvector_.size();
+	}
+	else
+		if (feature_num != fvector_.size()) {
+			printf("Feature num is not compatible.\n");
+			return 1;
+		}
+
+	feature_vector_list.push_back(fvector_);
+}
+
+
+string
+RankList::get_qid() {
+	return qid;
+}
+
+
+int
+RankList::get_num() {
+	return feature_vector_list.size();
+}
+
+
+int
+RankList::get_feature_num() {
+	return feature_num < 0 ? 0 : feature_num;
+}
+
+
+vector<FeatureVector> &
+RankList::get_feature_vector_list() {
+	return feature_vector_list;
+}
+
+
+string
+RankList::get_label_feature_values_text() {
+	vector<FeatureVector>::iterator fv_list_it = feature_vector_list.begin();
+	string txt = (*fv_list_it).get_label_feature_values_text();
+	++fv_list_it;
+	
+	for (; fv_list_it != feature_vector_list.end(); ++fv_list_it) {
+		txt.append("\n" + (*fv_list_it).get_label_feature_values_text());
+	}
+	return txt;
+}
+
+
+/*
+void
 RankList::normalise() {
 
-    std::vector<FeatureVector> local_rl = this->rl;
-    
-    // find the max value for each feature gpr all the FeatureVectors in the RankList rl.
-    int num_features = 19;
-    double temp = 0.0;
-    double max[num_features];
-    
-    for(int i=0; i<19; ++i)
-	max[i] = 0.0;
-    
-    int num_fv = local_rl.size();
-    for(int i=0; i < num_fv; ++i) {
-	for(int j=0; j<19; ++j) {
-	    if(max[j] < local_rl[i].fvals.find(j)->second)
-		max[j] = local_rl[i].fvals.find(j)->second;
+	vector<FeatureVector>::iterator fv_list_it = feature_vector_list.begin();
+	int feature_num = (*fv_list_it).size();
+
+	for (; fv_list_it != feature_vector_list.end(); ++fv_list_it) {
+		if ((*fv_list_it).size() != feature_num) {
+			cout << "The number of features used for RankList don't matched.\n";
+			exit(1);
+		}
 	}
-    }
-    
-    /* We have the maximum value of each feature overall.
-       Now we need to normalize each feature value of a featureVector by dividing it by the corresponding max of the feature value
-    */
-    
-    for(int i=0; i < num_fv; ++i) {
-	for(int j=0; j<19; ++j) {
-	    temp = local_rl[i].fvals.find(j)->second;
-	    temp /= max[j];
-	    local_rl[i].fvals.insert(pair<int,double>(j,temp));
-	    temp = 0.9;
+
+	double feature_max_value[feature_num];
+	memset(feature_max_value, 0, sizeof(double)*feature_num);
+
+	// look for the max value for each feature
+	for (fv_list_it = feature_vector_list.begin();
+			fv_list_it != feature_vector_list.end(); ++fv_list_it) {
+		for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {
+			if ((*fv_list_it)[feature_idx] > feature_max_value[feature_idx])
+				feature_max_value[feature_idx] = (*fv_list_it)[feature_idx];
+		}
 	}
-    }
-    
-    return local_rl;
-}
 
-void
-RankList::add_feature_vector(const Xapian::FeatureVector fv) {
-    this->rl.push_back(fv);
-}
+	for (fv_list_it = feature_vector_list.begin();
+			fv_list_it != feature_vector_list.end(); ++fv_list_it) {
+		for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {
+			if (feature_max_value[feature_idx] != 0)
+				(*fv_list_it)[feature_idx] /= feature_max_value[feature_idx];
+		}
+	}
 
-void
-RankList::set_qid(std::string qid1) {
-    this->qid=qid1;
+	normalized = true;
 }
-
-void
-RankList::set_rl(std::vector<FeatureVector> local_rl) {
-    this->rl=local_rl;
-}
-
-std::vector<FeatureVector> 
-RankList::get_data() {
-    return this->rl;
-}
-
-std::vector<FeatureVector>
-RankList::sort_by_score() {
-    std::vector<FeatureVector> local_rl = this->rl;
-    sort(local_rl.begin(), local_rl.end(), FeatureVector::before);
-    return local_rl;
-}
+*/
