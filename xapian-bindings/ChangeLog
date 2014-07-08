@@ -1,3 +1,9 @@
+Tue Jul 08 13:33:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,php/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Fix "make dist" when
+	  DOCUMENTATION_RULES is off but generated index.html files exist.
+
 Mon Jun 30 04:11:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: Fix typo in SimpleStopper with file testcase.

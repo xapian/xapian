@@ -191,11 +191,9 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleIndex.java
 
 docdatadir = $(docdir)/java
-docdata_DATA = docs/index.html
+dist_docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
-BUILT_SOURCES += docs/index.html
-
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
