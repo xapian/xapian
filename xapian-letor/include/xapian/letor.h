@@ -49,20 +49,57 @@ public:
     /// Assignment.
     Letor & operator=(const Letor & o);
 
-    //Default constructor.
+    /// Default constructor.
     Letor();
 
     /// Destructor.
     ~Letor();
 
     /// Specify the database to use for retrieval. This database will be used directly by the methods of Xapian::Letor::Internal
-    void update_context(const Xapian::Database & database_, Ranker & ranker_, vector<Xapian::Feature::FeatureBase> features_);
+    void update_context(const Xapian::Database & database_, vector<Xapian::Feature::FeatureBase> features_, Ranker & ranker_, const Normalizer & normalizer_);
 
+
+    // Load training data from file, including query file and qrel file, and create typical Letor training data.
+    //
+    // The format for query file:
+    //      <qid> <query>
+    //
+    // For example,
+    //      2010001 'landslide malaysia'
+    //      2010002 'search engine'
+    //      2010003 'Monuments of India'
+    //      2010004 'Indian food'
+    //
+    // The format for qrel file:
+    //      <qid> <iter> <did> <label>
+    //
+    // For example,
+    //      2010003 Q0 19243417 1
+    //      2010003 Q0 3256433 1
+    //      2010003 Q0 275014 1
+    //      2010003 Q0 298021 0
+    //      2010003 Q0 1456811 0
+    //
+    // The format for Letor training data:
+    //      <label> qid:<qid> 1:<1st feature value> 2:<2nd feature value> .. n:<nth feature value>
+    //
+    // For example,
+    //      0 qid:10032 1:0.130742 2:0.000000 3:0.333333 4:0.000000 ... 18:0.750000 19:1.000000
+    //      1 qid:10032 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000 19:0.023400
+    //
+    void prepare_training_file(const string query_file_, const string qrel_file_, Xapian::doccount mset_size);
+
+
+    // Train the model.
+    void train(string training_data_file_, string model_file_);
+
+
+    // Load model file.
     void load_model_file(string model_file_);
 
-    void update_mset(const Xapian::Query & query_, const Xapian::MSet mset_);
 
-    void train(string training_data_file_, string model_file_);
+    // Update Xapian::MSet.
+    void update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
 };
 
 }

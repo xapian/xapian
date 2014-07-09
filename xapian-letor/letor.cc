@@ -48,12 +48,15 @@ Letor::operator=(const Letor & o)
     return *this;
 }
 
+
 Letor::Letor(const Letor & o) : internal(o.internal) {}
+
 
 Letor::Letor() : internal(new Letor::Internal) {}
 
+
 Letor::~Letor() {
-    if (internal != NULL)
+    if (internal != NULL) {
         delete(internal);
         internal = NULL;
     }
@@ -61,25 +64,34 @@ Letor::~Letor() {
         internal = NULL;
 }
 
+
 void
-Letor::update_context(const Xapian::Database & database_, const Ranker & ranker_, const vector<Xapian::Feature::FeatureBase & features_) {
-    internal->ranker = ranker_;
+Letor::update_context(const Xapian::Database & database_, const vector<Xapian::Feature::FeatureBase & features_, const Ranker & ranker_, const Normalizer & normalizer_) {
     internal->feature_manager.update_context(database_, features_);
+    internal->feature_manager.set_normalizer(normalizer_);
+    internal->ranker = ranker_;
 }
+
+
+void
+Letor::Internal::prepare_training_file(const string query_file_, const string qrel_file_, Xapian::doccount mset_size) {
+    internal->prepare_training_file(query_file_, qrel_file_, mset_size);
+}
+
 
 void
 Letor::load_model_file(string model_file_) {
     internal->load_model_file(model_file_);
 }
 
+
 void
 Letor::update_mset(const Xapian::Query & query_, const Xapian::MSet mset_) {
     internal->update_mset(query_, mset_);
 }
 
+
 void
 Letor::train(string training_data_file_, string model_file_) {
     internal->train(training_data_file_, model_file_);
-}
-
 }
