@@ -350,15 +350,24 @@ Feature::update(const Feature & feature_manager_, const vector<Feature::FeatureB
     features = features_;
 }
 
+
+string
+Feature::get_did(const Document & doc) {
+    string data = doc.get_data();
+    string temp_id = data.substr(data.find("url=", 0), (data.find("sample=", 0) - data.find("url=", 0)));
+    return temp_id.substr(temp_id.rfind('/') + 1, (temp_id.rfind('.') - temp_id.rfind('/') - 1));  //to parse the actual document name associated with the documents if any
+}
+
+
 FeatureVector
 Feature::generate_feature_vector(const Xapian::MSetIterator & met_it_) {
     FeatureVector fvector;
 
-    Xapian::Document doc = mset_it_.get_document();
+    Xapian::Document doc = mset_it_->get_document();
 
-    fvector.set_did( doc.get_did() );
+    fvector.set_did( get_did(doc) );
 
-    vector<double> feature_values(get_features_num());
+    vector<double> feature_values( get_features_num() );
     for (int i=0; i<get_features_num(); i++) {
         feature_values[i] = get_feature(features[i], mset_it_);
     }

@@ -15,7 +15,6 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     const FeatureManaget & feature_manager;
     vector<Feature::FeatureBase> features;
 
-
     double get_feature(const Feature::FeatureBase & feature_base_, const Xapian::MSetIterator & mset_it_);
 
     double feature_1(Xapian::Document doc_);
@@ -36,6 +35,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     double feature_16(Xapian::Document doc_);
     double feature_17(Xapian::Document doc_);
     double feature_18(Xapian::Document doc_);
+
 
 public:
     class enum {
@@ -62,6 +62,10 @@ public:
 
     void update(const FeatureManager & feature_manager_, const vector<Feature::FeatureBase> & features_);
 
+    // Get document id
+    string get_did(const Document & doc);
+
+    // Generate FeatureVector without score and label
     FeatureVector generate_feature_vector(const Xapian::MSetIterator & mset_it_);
 
     int get_features_num();
