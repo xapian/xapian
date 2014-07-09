@@ -30,22 +30,41 @@
 
 using namespace Xapian;
 using std::string;
+using std::vector;
 
 namespace Xapian {
 
-class Letor::Internal : public Xapian::Internal::intrusive_base
-{
+class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
 
     Ranker & ranker;
     FeatureManager feature_manager;
 
+
+    // ======================= Used for training =========================
+
+    // Write the training data to file in text format. The file's name is "train.txt".
+    static void write_to_txt(vector<Xapian::RankList> list_rlist);
+
+    // Wrtie the training data to file in binary format. The file's name is "train.bin".
+    static void write_to_bin(vector<Xapian::RankList> list_rlist);
+
+    // Read the training data in text format.
+    static vector<Xapian::RankList> read_from_txt(vector<Xapian::RankList> list_rlist);
+
+    // Read the training data in binary format.
+    static vector<Xapian::RankList> read_from_bin(vector<Xapian::RankList> list_rlist);
+
+
 public:
+    void prepare_training_file(const string query_file_, const string qrel_file_, Xapian::doccount mset_size);
+
+    void train(string training_data_file_, string model_file_);
+
     void load_model_file(string model_file_);
 
     void update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
 };
-    void train(string training_data_file_, string model_file_);
 
 }
 
