@@ -51,6 +51,11 @@ static const unsigned char flstab[256] = {
     8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
 };
 
+const unsigned char Xapian::UnaryEncoder::mask_1s[8] = {
+    0x1, 0x3, 0x7, 0xf, 0x1f, 0x3f, 0x7f, 0xff
+};
+
+// a mask to get the i-th bit to j-th bit of an 8-bit variable
 const unsigned char Xapian::OrdinaryDecoder::mask_nbits[8][9] = {
     {0, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff},
     {0, 0x40, 0x60, 0x70, 0x78, 0x7c, 0x7e, 0x7f, 0},
@@ -62,6 +67,7 @@ const unsigned char Xapian::OrdinaryDecoder::mask_nbits[8][9] = {
     {0, 0x1, 0, 0, 0, 0, 0, 0, 0}
 };
 
+// a mask to retrive low bits of an 8-bit variable
 const unsigned int Xapian::OrdinaryEncoder::mask_low_n_bits[9] = {
 	0,0x1,0x3,0x7,0xf,0x1f,0x3f,0x7f,0xff
 };
@@ -89,10 +95,12 @@ inline int log2(unsigned val, bool up) {
 	return result;
 }
 
+// return the number of bits to encode @n by Unary Encoder
 unsigned int get_Unary_encode_length(unsigned int n) {
 	return n;
 }
 
+// return the number of bits to encode @n by Gamma Encoder
 unsigned int get_Gamma_encode_length(unsigned int n){
 	return 2*log2(n,false)+1;
 }
@@ -100,6 +108,8 @@ unsigned int get_Gamma_encode_length(unsigned int n){
 namespace Xapian {
     
 inline bool Encoder::check_acc() {
+    
+    // If acc has 8 bits, append it to string chunk and set bits to 0.
     if ( bits == 8 ) {
         buf += acc;
         acc = 0;
@@ -108,19 +118,48 @@ inline bool Encoder::check_acc() {
     }
     return false;
 }
+
     
+// encode @n using Unary Encoder
 void UnaryEncoder::encode(unsigned int n) {
-    for (int i = 0 ; i < (int)n-1 ; ++i) {
+    int num_of_1s = n-1;
+    if (n == 1) {
         acc <<= 1;
-        acc |= 1;
         bits++;
         check_acc();
+        return;
     }
+    if (bits + num_of_1s <= 8) {
+        acc <<= num_of_1s;
+        bits += num_of_1s;
+        acc |= mask_1s[num_of_1s-1];
+        check_acc();
+        acc <<= 1;
+        bits++;
+        check_acc();
+        return;
+    }
+    
+    acc <<= 8-bits;
+    acc |= mask_1s[7-bits];
+    buf += acc;
+    num_of_1s -= 8-bits;
+    acc = 0;
+    bits = 0;
+    while (num_of_1s > 8) {
+        buf += (char)0xff;
+        num_of_1s -= 8;
+    }
+    
+    acc |= mask_1s[num_of_1s-1];
+    bits = num_of_1s;
+    check_acc();
+    
     acc = acc << 1;
     bits++;
     check_acc();
 }
-    
+
 void GammaEncoder::encode(unsigned int n) {
     int n_bin_bits = log2(n,false)+1;
     UnaryEncoder u(buf, acc, bits);

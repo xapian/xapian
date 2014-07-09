@@ -47,6 +47,8 @@ namespace Xapian {
  *        it is often the case that in the end there are data less than 8 bit, that data is stored in @acc 
  * @bits : the number of valid bits in @acc */
 class Encoder{
+  
+  protected:
     std::string& buf;
     unsigned char& acc;
     int& bits;
@@ -70,6 +72,10 @@ class Encoder{
  * Therefore, the length of the encoding of an integer x is |Unary(x)| = x. 
  * As an example, if x = 5 we have UN(5) = 11110. */
 class UnaryEncoder : public Encoder{
+    
+    // mask to get 1 of n bits
+    static const unsigned char mask_1s[8];
+    
   public:
     UnaryEncoder(std::string& buf_, unsigned char& acc_, int& bits_)
 		: Encoder(buf_, acc_, bits_) { }
@@ -175,6 +181,7 @@ class Decoder {
 
 // decode a number encoded by Unary Encoder
 class UnaryDecoder : public Decoder {
+    
   public:
     unsigned int decode();
     UnaryDecoder(const char*& pos_, const char* end_, unsigned char& acc_, int& acc_bits_, int& p_bit_)
