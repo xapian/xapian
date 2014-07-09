@@ -1,3 +1,8 @@
+Wed Jul 09 01:14:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Fix "make dist" to include
+	  the sphinx-generated docs when DOCUMENTATION_RULES=0.
+
 Tue Jul 08 13:33:01 GMT 2014  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,php/Makefile.am,

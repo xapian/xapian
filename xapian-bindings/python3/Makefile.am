@@ -157,16 +157,16 @@ dist_exampledata_DATA = \
 
 sphinxdocs = docs/html/index.html
 
-install-data-local: $(sphinxdocs)
+dist-hook:
+	$(MKDIR_P) '$(distdir)/docs'
+	cp -R -p docs/html $(distdir)/docs
+
+install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/python
 	cp -R -p docs/html $(DESTDIR)$(docdir)/python
 
 if DOCUMENTATION_RULES
 all-local: $(sphinxdocs)
-
-dist-hook: $(sphinxdocs)
-	$(MKDIR_P) '$(distdir)/docs'
-	cp -R -p docs/html $(distdir)/docs
 
 $(sphinxdocs): xapian/__init__.py docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 	PYTHONPATH=..:$$PYTHONPATH $(PYTHON3) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
