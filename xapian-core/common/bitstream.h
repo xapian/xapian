@@ -55,6 +55,9 @@ class Encoder{
     
     // check if @acc has 8 bits, if so, append @acc to @buf and zero @bits
     inline bool check_acc();
+    
+    // a mask to retrive low bits of an variable
+    static const unsigned int mask_low_n_bits[33];
   
   public:
     Encoder(std::string& buf_, unsigned char& acc_, int& bits_)
@@ -101,8 +104,6 @@ class OrdinaryEncoder : public Encoder {
     // number of bits to be used to encode an integer.
     const unsigned int num_of_bits;
     
-    // a mask to retrive low bits of an 8-bit variable
-    static const unsigned int mask_low_n_bits[9];
   public:
     OrdinaryEncoder(std::string& buf_, unsigned char& acc_, int& bits_, int num_of_bits_)
 		: Encoder(buf_, acc_, bits_), num_of_bits(num_of_bits_) { }
