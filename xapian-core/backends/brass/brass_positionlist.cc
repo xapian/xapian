@@ -39,8 +39,7 @@ BrassPositionListTable::pack(string & s,
 {
     LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | vec);
     Assert(!vec.empty());
-
-    // pack using vsencoding
+    
 	VSEncoder vse(s);
 	vse.encode(vec);
 }
