@@ -157,3 +157,13 @@ FeatureVector::get_score_feature_values_text() {
     txt.append( get_feature_values_text() );
     return txt;
 }
+
+Xapian::MSet::letor_item
+FeatureVector::create_letor_item(Xapian::doccount idx) {
+    Xapian::MSet::letor_item l_item;
+    l_item.feature_vector = fvals;
+    l_item.score = score;
+    l_item.label = label;
+    l_item.idx   = index;
+    return l_item;
+}

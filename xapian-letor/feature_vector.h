@@ -109,6 +109,9 @@ public:
     //    <score> 1:<1st feature value> 2:<2nd feature value> .. n:<nth feature value>
     //
     string get_score_feature_values_text();
+
+    // Create letor item
+    Xapian::MSet::letor_item create_letor_item(Xapian::doccount idx);
 };
 
 }

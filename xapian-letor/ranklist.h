@@ -74,6 +74,9 @@ public:
 
     // Get text output for this RankList
     string get_label_feature_values_text();
+
+    // Create letor items
+    vector<Xapian::MSet::letor_item> create_letor_items();
 };
 
 }

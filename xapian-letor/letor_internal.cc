@@ -134,7 +134,19 @@ Letor::Internal::load_model_file(string model_file_) {
 void
 Letor::Internal::update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_) {
     feature_manager.update_state(query_, mset_);
-    // TO DO
+
+    // Create RankList and normalize it
+    Xapian::RankList   orig_rlist = feature_manager.create_ranklist(mset_);
+    Xapian::RankList        rlist = feature_manager.normalize(orig_rlist);
+
+    // Ranker ranks the RankList
+    Xapian::RankList ranked_rlist = ranker->rank(rlist);
+
+    // Create letor_item for each doc in MSet
+    vector<Xapian::MSet::letor_item> letor_items = ranked_rlist.create_letor_items();
+
+    // Update MSet
+    feature_manager.update_mset(letor_items);
 }
 
 

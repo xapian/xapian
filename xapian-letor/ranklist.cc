@@ -95,6 +95,19 @@ RankList::get_label_feature_values_text() {
 }
 
 
+vector<Xapian::MSet::letor_item>
+RankList::create_letor_items() {
+	vector<Xapian::MSet::letor_item> letor_items;
+	vector<FeatureVector>::iterator fvectors_it = feature_vector_list.begin();
+	Xapian::doccount rank = 0;
+	for (; fvectors_it != feature_vector_list.end(); ++fvectors_it) {
+		++rank;
+		Xapian::MSet::letor_item l_item = fvectors_it->create_letor_item(rank);
+		letor_items.push_back(l_item);
+	}
+	return letor_items;
+}
+
 /*
 void
 RankList::normalise() {
