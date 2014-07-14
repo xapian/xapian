@@ -1,7 +1,7 @@
-/** @file letor_internal.cc
- * @brief Internals of Xapian::Letor class
- */
-/* Copyright (C) 2011 Parth Gupta
+/* letor_internal.cc: The internal class of Xapian::Letor class
+ *
+ * Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2014 Jiarong Wei
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as

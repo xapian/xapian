@@ -38,6 +38,7 @@ DefaultNormalizer::normalize(RankList rlist_) {
 		}
 	}
 
+	// perform the normalization
 	for (vector<FeatureVector>::iterator fv_list_it = feature_vector_list.begin();
 			fv_list_it != feature_vector_list.end(); ++fv_list_it) {
 		for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {

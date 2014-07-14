@@ -1,6 +1,7 @@
-/* featurevector.h: The file responsible for transforming the document into the feature space.
+/* feature_vector.h: FeatureVector is the feature-based representation of documents.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Jiarong Wei
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +22,6 @@
 #ifndef FEATURE_VECTOR_H
 #define FEATURE_VECTOR_H
 
-
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -41,7 +41,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     double label;                   // the tagged relavance label
     double score;                   // the calculated score
     vector<double> fvals;           // feature values
-    Xapian::doccount index;           // the original index in MSet
+    Xapian::doccount index;         // the original index in MSet
 
 public:
     FeatureVector();

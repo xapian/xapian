@@ -1,7 +1,7 @@
-
-/* featurevector.cc: The file responsible for transforming the document into the feature space.
+/* feature_vector.cc: FeatureVector is the feature-based representation of documents.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Jiarong Wei
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,8 +18,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
-
 
 #include <config.h>
 

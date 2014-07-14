@@ -1,7 +1,8 @@
-/** @file letor.h
- *  @brief weighting scheme based on Learning to Rank. Note: letor.h is not a part of official stable Xapian API.
- */
-/* Copyright (C) 2011 Parth Gupta
+/* letor.h: Letor provides weighting scheme based on Learning to Rank. Note: letor.h is
+ * not a part of official stable Xapian API.
+ *
+ * Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2014 Jiarong Wei
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
