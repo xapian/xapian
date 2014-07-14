@@ -367,6 +367,8 @@ Feature::generate_feature_vector(const Xapian::MSetIterator & met_it_) {
 
     fvector.set_did( get_did(doc) );
 
+    fvector.set_index( mset_it_->get_rank() );
+
     vector<double> feature_values( get_features_num() );
     for (int i=0; i<get_features_num(); i++) {
         feature_values[i] = get_feature(features[i], mset_it_);

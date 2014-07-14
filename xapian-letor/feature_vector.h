@@ -41,7 +41,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     double label;                   // the tagged relavance label
     double score;                   // the calculated score
     vector<double> fvals;           // feature values
-    double normalization_factor;    // the normalization factor
+    Xapian::doccount index;           // the original index in MSet
 
 public:
     FeatureVector();
@@ -58,6 +58,9 @@ public:
 
     // Set the label
     void set_label(double label_);
+
+    // Set the original index in MSet
+    void set_index(Xapian::doccount index_);
     
     // Set feature values
     void set_feature_values(vector<double> feature_values_);
@@ -70,6 +73,9 @@ public:
     
     // Get the label
     double get_label();
+
+    // Get the original index in MSet
+    Xapian::doccount get_index();
     
     // Get the number of features
     int get_feature_num();

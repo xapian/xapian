@@ -71,6 +71,11 @@ FeatureVector::set_label(double label_) {
 }
 
 void
+FeatureVector::set_index(Xapian::doccount index_) {
+    index = index_;
+}
+
+void
 FeatureVector::set_feature_values(vector<double> feature_values_) {
     feature_values = feature_values_;
 }
@@ -88,6 +93,11 @@ FeatureVector::get_score() {
 double
 FeatureVector::get_label() {
     return label;
+}
+
+Xapian::doccount
+FeatureVector::get_index() {
+    return index;
 }
 
 int
