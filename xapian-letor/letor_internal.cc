@@ -36,12 +36,11 @@
 #include "safeerrno.h"
 #include "safeunistd.h"
 
-#include <vector>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <map>
+#include <vector>
 
 #include <cstdio>
 #include <cstdlib>
@@ -50,16 +49,10 @@
 
 #include <libsvm/svm.h>
 
-#define Malloc(type, n) (type *)malloc((n) * sizeof(type))
 
-using namespace std;
+using std::cout;
+using std::endl;
 
-using namespace Xapian;
-
-//static char *line = NULL;
-//static int max_line_len;
-
-int MAXPATHLEN = 200;
 
 //Stop-words
 static const char * sw[] = {
@@ -73,11 +66,6 @@ static const char * sw[] = {
     "that", "the", "this", "to",
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
-
-static string get_cwd() {
-    char temp[MAXPATHLEN];
-    return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string());
-}
 
 
 static void
@@ -215,7 +203,7 @@ Letor::Internal::prepare_training_file(const string query_file_, const string qr
             qq = temp;
         }
 
-        cout << "Processing Query: " << qq << "\n";
+        cout << "Processing Query: " << qq << endl;
 
         Xapian::Query query = parser.parse_query(qq,
                                         parser.FLAG_DEFAULT|
