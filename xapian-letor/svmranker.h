@@ -1,6 +1,7 @@
-/* svmranker.h: The svmranker file.
+/* svmranker.h: The ranker using SVM.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Jiarong Wei
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,54 +22,29 @@
 #ifndef SVMRANKER_H
 #define SVMRANKER_H
 
-
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranklist.h"
 #include "ranker.h"
-//#include "evalmetric.h"
+#include "ranklist.h"
+#include "feature_vector.h"
 
-
-// #include <map>
 #include <libsvm/svm.h>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
-public:
-    SVMRanker() {};
-    ~SVMRanker() {};
-
-    using Ranker::rank;
-    virtual Xapian::RankList rank(const Xapian::RankList rlist);
-
-    using Ranker::set_training_data;
-    virtual void set_training_data(std::vector<Xapian::RankList> training_data);
-
-    using Ranker::learn_model;
-    virtual void learn_model();
-
-    using Ranker::load_model;
-    virtual void load_model(const std::string & model_file_name);
-
-    using Ranker::save_model;
-    virtual void save_model(const std::string & model_file_name);
-
-    using Ranker::score_doc;
-    virtual double score_doc(Xapian::FeatureVector fv);
-
-private:
     struct svm_parameter param;
     struct svm_problem prob;
     struct svm_model *model;
     struct svm_node *x_space;
-    int cross_validation;
+    // int cross_validation;
     // int nr_fold;
 
     struct svm_node *x;
@@ -77,6 +53,24 @@ private:
     
 
     void read_problem();
+
+public:
+
+    SVMRanker() {};
+    
+    virtual ~SVMRanker() {};
+
+    virtual void set_training_data(vector<RankList> training_data_);
+
+    virtual void learn_model();
+
+    virtual void save_model(const string model_file_);
+
+    virtual void load_model(const string model_file_);
+
+    virtual double score_doc(const FeatureVector & fvector);
+
+    virtual RankList rank(const RankList & rlist);
 
 };
 

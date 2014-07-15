@@ -1,6 +1,7 @@
-/* ranker.h: The abstract ranker file.
+/* svmranker.cc: The ranker using SVM.
  *
  * Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2014 Jiarong Wei
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +24,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "feature_vector.h"
 #include "ranklist.h"
-//#include "evalmetric.h"
 #include "svmranker.h"
 
 #include "safeunistd.h"
@@ -39,52 +40,15 @@
 
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
-using namespace std;
-using namespace Xapian;
+using std::string;
+using std::vector;
+using std::cout;
+using std::cerr;
+using std::endl;
 
+using Xapian::FeatureVector;
+using Xapian::RankList;
 
-int MAXPATHLENTH_SVM = 200;
-
-static string get_cwd() {
-    char temp[MAXPATHLENTH_SVM];
-    return ( getcwd(temp, MAXPATHLENTH_SVM) ? std::string( temp ) : std::string() );
-}
-
-inline int max_position( vector<double> & v){
-    int max = 0;
-    for (unsigned int i = 1; i < v.size(); i++){
-        if( v[i] > v[max])
-            max = i;
-    }
-
-    return max;
-}
-
-Xapian::RankList // returns a SORTED ranklist (sorted by the score of each document)
-SVMRanker::rank(Xapian::RankList rlist)
-{
-    Xapian::RankList rl_out;
-    std::vector<FeatureVector> local_rl = rlist.get_data();
-    int num_fv = local_rl.size();
-    double temp = 0.0;
-
-    for(int i=0; i<num_fv; ++i) {
-        FeatureVector fv_temp = local_rl[i];
-        temp = score_doc(fv_temp);
-        fv_temp.set_score(temp);
-        rl_out.add_feature_vector(fv_temp);
-    }
-    local_rl = rl_out.sort_by_score();
-    rl_out.set_rl(local_rl);
-    
-    return rl_out;
-}
-
-void
-SVMRanker::set_training_data(vector<Xapian::RankList> training_data1)
-{
-    this->training_data = training_data1;
-}
 
 void
 SVMRanker::read_problem() {
@@ -93,22 +57,19 @@ SVMRanker::read_problem() {
     // problem length
     prob.l = 0;
     for (training_data_it = training_data.begin();
-        training_data_it != training_data.end(); ++training_data_it)
-    {
-        prob.l += training_data_it->get_data().size();
+            training_data_it != training_data.end(); ++training_data_it) {
+        prob.l += training_data_it->get_feature_vector_list().size();
     }
 
     // elements
     int elements = 0;
     for (training_data_it = training_data.begin();
-        training_data_it != training_data.end(); ++training_data_it)
-    {
-        vector<FeatureVector> feature_vectors = training_data_it->get_data();
-        vector<FeatureVector>::iterator feature_vectors_it;
-        for (feature_vectors_it = feature_vectors.begin();
-            feature_vectors_it != feature_vectors.end(); ++feature_vectors_it)
-        {
-            elements += feature_vectors_it->get_fvals().size();
+            training_data_it != training_data.end(); ++training_data_it) {
+        vector<FeatureVector> feature_vectors = training_data_it->get_feature_vector_list();
+
+        for (vector<FeatureVector>::iterator feature_vectors_it = feature_vectors.begin();
+                feature_vectors_it != feature_vectors.end(); ++feature_vectors_it) {
+            elements += feature_vectors_it->get_feature_values().size();
         }
     }
 
@@ -122,24 +83,19 @@ SVMRanker::read_problem() {
     int j = 0;
 
     for (training_data_it = training_data.begin();
-        training_data_it != training_data.end(); ++training_data_it)
-    {
+            training_data_it != training_data.end(); ++training_data_it) {
+
         prob.x[i] = &x_space[j];
 
-        vector<FeatureVector> feature_vectors = training_data_it->get_data();
-        vector<FeatureVector>::iterator feature_vectors_it;
+        vector<FeatureVector> feature_vectors = training_data_it->get_feature_vector_list();
 
-        for (feature_vectors_it = feature_vectors.begin();
-            feature_vectors_it != feature_vectors.end(); ++feature_vectors_it)
-        {
-            map<int, double>feature_vector = feature_vectors_it->get_fvals();
-            map<int, double>::iterator fv_it;
+        for (vector<FeatureVector>::iterator feature_vectors_it = feature_vectors.begin();
+                feature_vectors_it != feature_vectors.end(); ++feature_vectors_it) {
 
-            for (fv_it = feature_vector.begin();
-                fv_it != feature_vector.end(); ++fv_it)
-            {
-                x_space[j].index = fv_it->first;
-                x_space[j].value = fv_it->second;
+            for (int idx = 1; idx <= feature_vectors_it->get_feature_num(); ++idx) {
+
+                x_space[j].index = idx;
+                x_space[j].value = feature_vectors_it->get_feature_value_of(idx);
 
                 if (max_index < x_space[j].index)
                     max_index = x_space[j].index;
@@ -154,23 +110,28 @@ SVMRanker::read_problem() {
     if (param.gamma == 0 && max_index > 0)
         param.gamma = 1.0 / max_index;
 
-    if (param.kernel_type == PRECOMPUTED)
-    {
-        for (i = 0; i < prob.l; ++i)
-        {
-            if (prob.x[i][0].index != 0)
-            {
-                fprintf(stderr, "Wrong input format: first column must be 0:sample_serial_number\n");
+    if (param.kernel_type == PRECOMPUTED) {
+        for (i = 0; i < prob.l; ++i) {
+
+            if (prob.x[i][0].index != 0) {
+                cerr << "Wrong input format: first column must be 0:sample_serial_number" << endl;
                 exit(1);
             }
-            if ((int)prob.x[i][0].value <= 0 || (int)prob.x[i][0].value > max_index)
-            {
-                fprintf(stderr, "Wrong input format: sample_serial_number out of range\n");
+
+            if ((int)prob.x[i][0].value <= 0 || (int)prob.x[i][0].value > max_index) {
+                cerr << "Wrong input format: sample_serial_number out of range" << endl;
                 exit(1);
             }
         }   
     }
 }
+
+
+void
+SVMRanker::set_training_data(vector<RankList> training_data_) {
+    this->training_data = training_data_;
+}
+
 
 void
 SVMRanker::learn_model() {
@@ -181,7 +142,7 @@ SVMRanker::learn_model() {
     param.svm_type = s_type;
     param.kernel_type = k_type;
     param.degree = 3;
-    param.gamma = 0;	// 1/num_features
+    param.gamma = 0;
     param.coef0 = 0;
     param.nu = 0.5;
     param.cache_size = 100;
@@ -195,52 +156,59 @@ SVMRanker::learn_model() {
     param.weight = NULL;
     cross_validation = 0;
 
-    printf("Learning the model..");
 
-    string model_file_name;
-    const char *error_msg;
-    model_file_name = get_cwd().append("/model.txt");
+    cout << "Learning the model..";
 
     read_problem();
-    error_msg = svm_check_parameter(&prob, &param);
+
+    const char *error_msg = svm_check_parameter(&prob, &param);
     if (error_msg) {
-	   fprintf(stderr, "svm_check_parameter failed: %s\n", error_msg);
+	   cerr << "svm_check_parameter failed: " << error_msg << endl;
 	   exit(1);
     }
 
     model = svm_train(&prob, &param);
-    SVMRanker::save_model(model_file_name);
 }
 
-void 
-SVMRanker::load_model(const std::string & model_file_name) {
-    model = svm_load_model(model_file_name.c_str());
-}
 
 void
-SVMRanker::save_model(const string & model_file_name) {
-    if (svm_save_model(model_file_name.c_str(), model)) {
-       fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
+SVMRanker::load_model(const string model_file_) {
+    model = svm_load_model(model_file_.c_str());
+}
+
+
+void
+SVMRanker::save_model(const string model_file_) {
+    if (svm_save_model(model_file_.c_str(), model)) {
+       cerr << "Can't save model to file " << model_file_.c_str() << endl;
        exit(1);
     }
 }
 
+
 double
-SVMRanker::score_doc(FeatureVector fv) {
+SVMRanker::score_doc(const FeatureVector & fvector) {
     predict_probability = 0;
 
-    string model_file_name;
-    model_file_name = get_cwd().append("/model.txt");
+    // string model_file_name;
+    // model_file_name = get_cwd().append("/model.txt");
+    // model = svm_load_model(model_file_name.c_str());
 
-    model = svm_load_model(model_file_name.c_str());
+    if (model == NULL) {
+        cerr << "Please load the model first!" << endl;
+        exit(1);
+    }
 
     int svm_type = svm_get_svm_type(model);
     int nr_class = svm_get_nr_class(model);
 
     if (predict_probability) {
         if (svm_type == NU_SVR || svm_type == EPSILON_SVR) {
-            printf("Prob. model for test data: target value = predicted value + z,\nz: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma=%g\n" , svm_get_svr_probability(model));
-        } else {
+            cout << "Prob. model for test data: target value = predicted value + z,"
+                << endl << "z: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma="
+                << svm_get_svr_probability(model) << endl;
+        }
+        else {
             // int *labels = (int *) malloc(nr_class * sizeof(int));
             int *labels = (int *)Malloc(int, nr_class);
             svm_get_labels(model, labels);
@@ -248,21 +216,36 @@ SVMRanker::score_doc(FeatureVector fv) {
         }
     }
 
-    map<int, double>feature_vector = fv.get_fvals();
-    map<int, double>::iterator fv_it;
-    int i = 0;
+    // x = (struct svm_node *)malloc(fvector.size() * sizeof(struct svm_node));
+    x = Malloc(struct svm_node, fvector.size());
 
-    // x = (struct svm_node *)malloc(feature_vector.size() * sizeof(struct svm_node));
-    x = Malloc(struct svm_node, feature_vector.size());
-
-    for (fv_it = feature_vector.begin();
-        fv_it != feature_vector.end(); ++fv_it)
-    {
-        x[i].index = fv_it->first;
-        x[i].value = fv_it->second;
+    for (int idx = 1; idx <= fvector.get_feature_num(); ++idx) {
+        x[i].index = idx;
+        x[i].value = fvector.get_feature_value_of(idx);
         ++i;
     }
 
     return svm_predict(model, x);  //this is the score for a particular document
 }
 
+
+RankList
+SVMRanker::calc(const RankList & rlist) {
+    vector<FeatureVector> fvector_list = rlist.get_feature_vector_list();
+    for (vector<FeatureVector>::iterator fvector_it = fvector_list.begin();
+            fvector_it != fvector_list.end(); ++fvector_it) {
+        fvector_it->set_score( score_doc((*fvector_it)) );
+    }
+    rlist.set_feature_vector_list(fvector_list);
+    return rlist;
+}
+
+
+RankList 
+SVMRanker::rank(const RankList & rlist) {
+    RankList rlist_out = calc(rlist);
+
+    // TO DO
+
+    return rlist_out
+}
