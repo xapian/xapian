@@ -120,6 +120,10 @@ public:
     // Create RankList from MSet without query id.
     Xapian::RankList create_ranklist(const Xapian::MSet & mset_);
 
+
+    // Create RankList from MSet based on current state of FeatureManager.
+    Xapian::RankList create_ranklist();
+
     
     // Normalize RankList.
     Xapian::RankList normalize(const Xapian::RankList * rlist_);

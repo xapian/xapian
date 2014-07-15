@@ -232,6 +232,12 @@ FeatureManager::create_ranklist(const Xapian::MSet & mset_) {
 
 
 RankList
+FeatureManager::create_ranklist() {
+    return create_ranklist(mset);
+}
+
+
+RankList
 FeatureManager::normalize(const RankList & rlist_) {
     return normalizer.normalize(rlist_);
 }
