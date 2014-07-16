@@ -68,6 +68,68 @@ namespace Brass {
     class PostlistChunkWriter;
 }
 
+
+class SkipList
+{
+private:
+	vector<unsigned> src;
+	void genDiffVector();
+	int encodeLength( unsigned n );
+	void addLevel ( int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel );
+    int cal_level(unsigned size);
+    void buildSkipList( int level );
+    map<Xapian::docid,Xapian::termcount>:: const_iterator start, end;
+public:
+	SkipList( map<Xapian::docid,Xapian::termcount>:: const_iterator start_,
+             map<Xapian::docid,Xapian::termcount>:: const_iterator end_ );
+	void encode( string& chunk ) const;
+};
+
+class SkipListReader {
+    const char* ori_pos;
+	const char* pos;
+	const char* end;
+    bool at_end;
+    Xapian::docid did;
+    Xapian::docid first_did;
+    Xapian::termcount wdf;
+public:
+    bool jump_to(Xapian::docid desired_did);
+    Xapian::docid get_did() const {
+        return did;
+    }
+    Xapian::termcount get_wdf() const {
+        return wdf;
+    }
+    bool is_at_end() const {
+        return at_end;
+    }
+    bool next();
+	SkipListReader(const char* pos_, const char* end_, Xapian::docid first_did_);
+};
+
+class SkipListWriter
+{
+private:
+    string& chunk_from;
+    Xapian::docid first_did;
+    bool is_first_chunk;
+    BrassPostListTable* postlist_table;
+    bool is_last_chunk;
+    bool get_new_postlist();
+    map<Xapian::docid,Xapian::termcount> new_postlist;
+    map<Xapian::docid,Xapian::termcount>::const_iterator changes_start, changes_end;
+    Xapian::termcount num_of_entries;
+    Xapian::termcount coll_fre;
+public:
+	SkipListWriter(string& chunk_from_, bool is_first_chunk_, Xapian::docid first_did_, BrassPostListTable* postlist_table_,
+                   map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start_,
+                   map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end_);
+	bool merge_postlist_changes();
+};
+
+
+
 /* The Format Of Fixed Width Doclen Chunk
  *
  * In normal format of postlist chunk for doc length,

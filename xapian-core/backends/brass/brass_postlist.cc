@@ -30,6 +30,7 @@
 #include "noreturn.h"
 #include "pack.h"
 #include "str.h"
+#include <queue>
 #include "unicode/description_append.h"
 
 using Xapian::Internal::intrusive_ptr;
@@ -1202,6 +1203,465 @@ DoclenChunkReader::DoclenChunkReader(const string& chunk_, bool is_first_chunk,
 	p_fwcr.reset(new FixedWidthChunkReader(pos,end,first_did_in_chunk));
 }
 
+inline bool
+read_increase( const char** p, const char* end, Xapian::docid* incre_did, Xapian::termcount* wdf )
+{
+	unsigned tmp;
+	if ( incre_did == NULL )
+	{
+		incre_did = &tmp;
+	}
+	if ( wdf == NULL )
+	{
+		wdf = &tmp;
+	}
+	unpack_uint( p, end, incre_did );
+	unpack_uint( p, end, wdf );
+	return true;
+}
+
+int SkipList::cal_level( unsigned size )
+{
+	return (int)(log10(size)/0.6);
+}
+
+void SkipList::genDiffVector()
+{
+	map<Xapian::docid,Xapian::termcount>::const_iterator it = start, pre_it = start;
+	for ( ; it!=end ; ++it )
+	{
+		src.push_back(it->first-pre_it->first);
+		src.push_back(it->second);
+		pre_it = it;
+	}
+}
+
+int SkipList::encodeLength( unsigned n )
+{
+	int len = 0;
+	while ( n >= 128 )
+	{
+		len++;
+		n >>= 7;
+	}
+	len++;
+	return len;
+}
+
+void SkipList::addLevel ( int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel )
+{
+	int size = pe-ps;
+	int pinfo1 = ps;
+	int pinfo2 = ps+3+size/2;
+    
+	if ( pinfo2%2 == pinfo1%2 )
+	{
+		pinfo2--;
+	}
+    
+	int value1 = 0, value2 = 0;
+	for ( int i = ps ; i<=pinfo2-5 ; i+=2 )
+	{
+		value1 += src[i];
+	}
+	for ( int i = pinfo2-3 ; i<= pe-2 ; i+=2 )
+	{
+		value2 += src[i];
+	}
+    
+	src.insert(src.begin()+pinfo1,0);
+	src.insert(src.begin()+pinfo1,0);
+	src.insert(src.begin()+pinfo1,SEPERATOR);
+    
+	src.insert(src.begin()+pinfo2,0);
+	src.insert(src.begin()+pinfo2,0);
+	src.insert(src.begin()+pinfo2,SEPERATOR);
+    
+	pe += 6;
+	src[pinfo2+2]=value2;
+	int offset2 = 0;
+	for ( int i = pinfo2+3 ; i<pe-2 ; ++i )
+	{
+		offset2 += encodeLength(src[i]);
+	}
+	src[pinfo2+1] = offset2;
+    
+	src[pinfo1+2]=value1;
+	int offset1 = 0;
+	for ( int i = pinfo1+3 ; i<pinfo2-2 ; ++i )
+	{
+		offset1 += encodeLength(src[i]);
+	}
+	src[pinfo1+1]=offset1;
+    
+	int longer = 0;
+	for ( int i = 0 ; i<3 ; ++i )
+	{
+		longer += encodeLength(src[pinfo1+i]);
+		longer += encodeLength(src[pinfo2+i]);
+	}
+    
+	int updateCount = 0;
+	unsigned offset = 0;
+	for( int i = ps-3 ; i>=0 ; i-- )
+	{
+		offset += encodeLength(src[i]);
+		if ( src[i]==SEPERATOR && src[i+1]>=offset )
+		{
+			if ( updateCount >= curLevel )
+			{
+				break;
+			}
+			int tmp = src[i+1];
+			src[i+1] += longer;
+			longer += encodeLength(src[i+1])-encodeLength(tmp);
+			updateCount++;
+		}
+	}
+    
+	pinfo1_ = pinfo1;
+	pinfo2_ = pinfo2;
+    
+    
+}
+
+void SkipList::buildSkipList( int level )
+{
+	if ( level == 0 )
+	{
+		return;
+	}
+	int curLevel = 0;
+	queue<int> positions;
+	positions.push(0);
+	positions.push((int)src.size());
+	while ( curLevel < level )
+	{
+		int n = (int)pow(2,curLevel);
+		for ( int i = 0 ; i<n ; ++i )
+		{
+			int ps=0, pe=0, pinfo1=0, pinfo2=0;
+			ps = positions.front();
+			positions.pop();
+			pe = positions.front();
+			positions.pop();
+			addLevel(ps,pe,pinfo1,pinfo2,curLevel);
+			positions.push(pinfo2+3);
+			positions.push(pe);
+			positions.push(pinfo1+3);
+			positions.push(pinfo2);
+            
+		}
+		for ( int i = (int)positions.size()-1 ; i>=0 ; --i )
+		{
+			int tmp = positions.front();
+			tmp += i/4*6;
+			positions.pop();
+			positions.push(tmp);
+		}
+		curLevel++;
+	}
+    
+}
+
+
+SkipList::SkipList(map<Xapian::docid,Xapian::termcount>:: const_iterator start_,
+                   map<Xapian::docid,Xapian::termcount>:: const_iterator end_)
+: start(start_), end(end_)
+{
+	genDiffVector();
+    int s = 0;
+    map<Xapian::docid,Xapian::termcount>:: const_iterator it1(start_), it2(end_);
+    for (; it1!=it2; ++s) {};
+    buildSkipList(s);
+}
+
+void SkipList::encode( string& chunk ) const
+{
+	for ( int i = 0 ; i<(int)src.size() ; ++i )
+	{
+		pack_uint( chunk,src[i] );
+	}
+    
+}
+
+SkipListReader::SkipListReader(const char* pos_, const char* end_, Xapian::docid first_did_)
+: ori_pos(pos_), pos(pos_), end(end_), first_did(first_did_) {
+    if (pos != end){
+        at_end = false;
+        did = first_did;
+        next();
+    } else {
+        at_end = true;
+        did = -1;
+        wdf = -1;
+    }
+}
+
+bool SkipListReader::jump_to(Xapian::docid desired_did) {
+    if (did == desired_did) {
+        return true;
+    }
+    if (did > desired_did) {
+        pos = ori_pos;
+        did = first_did;
+        next();
+    }
+    while (pos != end) {
+        if (did > desired_did) {
+            return false;
+        }
+        if (did == desired_did) {
+            return true;
+        }
+        Xapian::termcount incre_did = 0;
+        unpack_uint(&pos, end, &incre_did);
+        if (incre_did == SEPERATOR) {
+            unsigned p_offset = 0;
+            unsigned d_offset = 0;
+            read_increase(&pos, end, &p_offset, &d_offset);
+            if (desired_did >= did+d_offset) {
+                pos += p_offset;
+                did += d_offset;
+                read_increase(&pos, end, NULL, &wdf);
+            } else {
+                
+            }
+        } else {
+            did += incre_did;
+            unpack_uint(&pos, end, &wdf);
+        }
+    }
+    return true;
+    
+    
+    
+}
+
+bool SkipListReader::next() {
+    if (at_end) {
+        return false;
+    }
+    Xapian::termcount incre_did = 0;
+    unpack_uint(&pos, end, &incre_did);
+    while (incre_did == SEPERATOR) {
+        read_increase(&pos, end, NULL, NULL);
+        if (pos == end) {
+            at_end = true;
+            return true;
+        }
+        unpack_uint(&pos, end, &incre_did);
+    }
+    did += incre_did;
+    unpack_uint(&pos, end, &wdf);
+    return true;
+}
+
+SkipListWriter::SkipListWriter(string& chunk_from_, bool is_first_chunk_, Xapian::docid first_did_,
+                               BrassPostListTable* postlist_table_,
+                               map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start_,
+                               map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end_)
+: chunk_from(chunk_from_), first_did(first_did_), is_first_chunk(is_first_chunk_), postlist_table(postlist_table_),
+    changes_start(changes_start_), changes_end(changes_end_)
+{
+    
+}
+
+bool
+SkipListWriter::get_new_postlist()
+{
+    LOGCALL(DB, bool, "SkipListWriter::get_new_doclen", NO_ARGS);
+	const char* pos = chunk_from.data();
+    const char* end = pos+chunk_from.size();
+    
+	//deal with the header of the chunk
+	if (is_first_chunk) {
+		read_start_of_first_chunk(&pos, end, &num_of_entries, &coll_fre);
+	}
+	read_start_of_chunk(&pos, end, first_did, &is_last_chunk);
+    
+	if (pos == end) {
+		//original chunk is empty, we just do some deleting according to changes
+		LOGLINE( DB, "empty chunk!" );
+		map<Xapian::docid,Xapian::termcount>::const_iterator it = changes_start;
+		for (; it!=changes_end ; ++it) {
+			//the doc length is -1, which means we should delete this doc id
+			if (it->second != SEPERATOR) {
+				new_postlist.insert(new_postlist.end(), *it);
+			}
+		}
+		if (new_postlist.empty()) {
+			LOGLINE(DB, "new_postlist is empty! ");
+			RETURN(false);
+		}
+	} else {
+		//read old map of <docid,length> from original chunk
+        Xapian::docid cur_did = 0, incre_did = 0;
+        Xapian::termcount wdf = 0;
+        cur_did = first_did;
+        while ( pos != end )
+        {
+            unpack_uint( &pos, end, &incre_did );
+            while ( incre_did == SEPERATOR )
+            {
+                read_increase( &pos, end, NULL, NULL );
+                unpack_uint( &pos, end, &incre_did );
+            }
+            unpack_uint( &pos, end, &wdf );
+            cur_did += incre_did;
+            new_postlist.insert(new_postlist.end(), make_pair<Xapian::docid,Xapian::termcount>(cur_did, wdf));
+        }
+
+        
+		LOGVALUE(DB, new_postlist.size());
+        
+		/* merge old map with changes, get new map of <docid,length>
+		 * we can do this job in a more easy way,
+		 * for example, new_doclen[chg_it->first]=chg_it->second,
+		 * but it will cost more time.
+		 * the following code takes the advantages of a fact
+		 * that all elements in a map is in order.
+		 * so we can merge these changes in a more efficient way. */
+		map<Xapian::docid,Xapian::termcount>::const_iterator chg_it = changes_start;
+		map<Xapian::docid,Xapian::termcount>::iterator ori_it = new_postlist.begin();
+        
+		while (chg_it != changes_end)
+		{
+			while (chg_it->first > ori_it->first)
+			{
+				++ori_it;
+				if (ori_it == new_postlist.end()){
+					break;
+				}
+			}
+			if (ori_it == new_postlist.end()) {
+				new_postlist.insert(ori_it, *chg_it);
+				++chg_it;
+				while (chg_it != changes_end)
+				{
+					new_postlist.insert(ori_it, *chg_it);
+					++chg_it;
+				}
+				break;
+			}
+			if (ori_it->first == chg_it->first)	{
+				if (chg_it->second != SEPERATOR) {
+					ori_it->second = chg_it->second;
+				} else {
+					new_postlist.erase(ori_it++);
+				}
+			} else {
+				new_postlist.insert(ori_it, *chg_it);
+			}
+			++chg_it;
+		}
+        
+	}
+	LOGVALUE(DB, new_postlist.size());
+	RETURN(true);
+}
+
+bool SkipListWriter::merge_postlist_changes()
+{
+	//get new map of <docid,length>
+	get_new_postlist();
+    
+	//build new chunk from new postlist map.
+	map<Xapian::docid,Xapian::termcount>::const_iterator start_pos, end_pos;
+	start_pos = end_pos = new_postlist.begin();
+	if (new_postlist.size() == 0) {
+		return true;
+	}
+    
+    
+	//If the number of entries in new postlist map is less than a certain value,
+	//one chunk is enough.
+	//Otherwise we need to split it into many chunks.
+	if (new_postlist.size() <= MAX_ENTRIES_IN_CHUNK) {
+		//only one chunk
+		
+		string cur_chunk;
+		SkipList sl(new_postlist.begin(), new_postlist.end());
+        
+		//make the standard header of the chunk
+		end_pos = new_postlist.end();
+		end_pos--;
+		string head_of_chunk = make_start_of_chunk(is_last_chunk,start_pos->first,end_pos->first);
+		cur_chunk = head_of_chunk+cur_chunk;
+        
+		//encode new map<doc id, doc length>
+		sl.encode(cur_chunk);
+        
+		if (is_first_chunk) {
+			//make the header for first chunk
+			string head_of_first_chunk =
+            make_start_of_first_chunk(num_of_entries, coll_fre, start_pos->first);
+			cur_chunk = head_of_first_chunk+cur_chunk;
+		}
+        
+		//make key for this chunk
+		string cur_key;
+		if (!is_first_chunk) {
+			cur_key = BrassPostListTable::make_key(string(), start_pos->first);
+		} else {
+			cur_key = BrassPostListTable::make_key(string());
+		}
+        
+		//insert this chunk
+		postlist_table->add(cur_key,cur_chunk);
+	} else {
+		//we need more than one chunk
+        
+		//track the number of entries in current chunk
+		int count = 0;
+        
+		bool is_done = false;
+		while (!is_done)
+		{
+			end_pos++;
+			if (end_pos==new_postlist.end()) {
+				is_done = true;
+			}
+			count++;
+			if (is_done || count == MAX_ENTRIES_IN_CHUNK) {
+				//current chunk is full, or no more entry.
+				string cur_chunk, cur_key;
+                
+				//make standard header for this chunk
+				map<Xapian::docid,Xapian::termcount>::const_iterator it = end_pos;
+				it--;
+				if (end_pos==new_postlist.end() && is_last_chunk) {
+					//this chunk is last chunk
+					cur_chunk = make_start_of_chunk(true, start_pos->first, it->first);
+				} else {
+					cur_chunk = make_start_of_chunk(false,start_pos->first, it->first);
+				}
+                
+				SkipList sl(start_pos, end_pos);
+				sl.encode(cur_chunk);
+                
+				if (start_pos==new_postlist.begin() && is_first_chunk) {
+					//this chunk is first chunk
+					//make header for first chunk
+					string head_of_first_chunk = make_start_of_first_chunk(num_of_entries, coll_fre, start_pos->first);
+					cur_chunk = head_of_first_chunk+cur_chunk;
+					cur_key = postlist_table->make_key(string());
+				} else {
+					cur_key = postlist_table->make_key(string(), start_pos->first);
+				}
+                
+				//insert current chunk
+				postlist_table->add(cur_key,cur_chunk);
+                
+				count = 0;
+				start_pos = end_pos;
+			}
+		}
+	}			
+	return true;
+
+}
+
 /** The format of a postlist is:
  *
  *  Split into chunks.  Key for first chunk is the termname (encoded as
@@ -1899,51 +2359,78 @@ BrassPostListTable::merge_changes(const string &term,
 	    add(current_key, tag);
 	}
     }
-    map<Xapian::docid, Xapian::termcount>::const_iterator j;
-    j = changes.pl_changes.begin();
-    Assert(j != changes.pl_changes.end()); // This case is caught above.
-
-    Xapian::docid max_did;
-    PostlistChunkReader *from;
-    PostlistChunkWriter *to;
-    max_did = get_chunk(term, j->first, false, &from, &to);
-    for ( ; j != changes.pl_changes.end(); ++j) {
-	Xapian::docid did = j->first;
-
-next_chunk:
-	LOGLINE(DB, "Updating term=" << term << ", did=" << did);
-	if (from) while (!from->is_at_end()) {
-	    Xapian::docid copy_did = from->get_docid();
-	    if (copy_did >= did) {
-		if (copy_did == did) {
-		    from->next();
+    
+    
+    map<Xapian::docid, Xapian::termcount>::const_iterator it, pre_it;
+	pre_it = it = changes.pl_changes.begin();
+	Assert(it != changes.pl_changes.end());
+    
+	LOGVALUE(DB, changes.pl_changes.size());
+	while (it!=changes.pl_changes.end())
+	{
+		string key = make_key(string(), it->first);
+        
+		AutoPtr<BrassCursor> cursor(cursor_get());
+        
+		(void)cursor->find_entry(key);
+		Assert(!cursor->after_end());
+        
+		const char * keypos = cursor->current_key.data();
+		const char * keyend = keypos + cursor->current_key.size();
+        
+		check_tname_in_key(&keypos, keyend, string());
+        
+		bool is_first_chunk = (keypos == keyend);
+		LOGVALUE(DB, is_first_chunk);
+        
+		cursor->read_tag();
+        
+		//Store current key and chunk, as they will be deleted later.
+		string ori_key(cursor->current_key);
+		string desired_chunk(cursor->current_tag);
+        
+		const char * pos = cursor->current_tag.data();
+		const char * end = pos + cursor->current_tag.size();
+		Xapian::docid first_did_in_chunk;
+		if (is_first_chunk) {
+			first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
+		} else {
+			if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
+				report_read_error(keypos);
+			}
 		}
-		break;
-	    }
-	    to->append(this, copy_did, from->get_wdf());
-	    from->next();
+        
+		bool is_last_chunk;
+		read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
+		LOGVALUE(DB,is_last_chunk);
+		LOGVALUE(DB,first_did_in_chunk);
+        
+        
+		Xapian::docid first_did_in_next_chunk = 0;
+		if (is_last_chunk) {
+			it = changes.pl_changes.end();
+		} else {
+			//If this chunk isn't last chunk, get first doc id in next chunk.
+			cursor->next();
+			Assert(!cursor->after_end());
+			const char * kpos = cursor->current_key.data();
+			const char * kend = kpos + cursor->current_key.size();
+			Assert(check_tname_in_key(&kpos, kend, string()));
+			unpack_uint_preserving_sort(&kpos, kend, &first_did_in_next_chunk);
+			Assert(first_did_in_next_chunk);
+		}
+		LOGVALUE(DB,first_did_in_next_chunk);
+        
+		// All changes among first doc id in this chunk and first doc id in next chunk
+		// should be applied to this chunk.
+		while (it!=changes.pl_changes.end() && it->first < first_did_in_next_chunk) 	{
+			++it;
+		}
+        
+		// Delete current chunk to insert new chunk later.
+		del(ori_key);
+		SkipListWriter writer(desired_chunk, is_first_chunk, first_did_in_chunk, this, pre_it, it);
+		writer.merge_postlist_changes();
+		pre_it = it;
 	}
-	if ((!from || from->is_at_end()) && did > max_did) {
-	    delete from;
-	    to->flush(this);
-	    delete to;
-	    max_did = get_chunk(term, did, false, &from, &to);
-	    goto next_chunk;
-	}
-
-	Xapian::termcount new_wdf = j->second;
-	if (new_wdf != Xapian::termcount(-1)) {
-	    to->append(this, did, new_wdf);
-	}
-    }
-
-    if (from) {
-	while (!from->is_at_end()) {
-	    to->append(this, from->get_docid(), from->get_wdf());
-	    from->next();
-	}
-	delete from;
-    }
-    to->flush(this);
-    delete to;
 }
