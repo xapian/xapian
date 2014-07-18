@@ -399,7 +399,7 @@ class BrassPostList : public LeafPostList {
 	/// True if this is the last chunk.
 	bool is_last_chunk;
 
-	/// Whether we've run off the end of the list yet.
+    /// Whether we've run off current chunk.
 	bool is_at_end;
 
 	/// Cursor pointing to current chunk of postlist.
@@ -542,7 +542,7 @@ class BrassPostList : public LeafPostList {
 	PostList * skip_to(Xapian::docid desired_did, double w_min);
 
 	/// Return true if and only if we're off the end of the list.
-	bool at_end() const { return is_at_end; }
+	bool at_end() const { return is_at_end&&is_last_chunk; }
 
 	/// Get a description of the document.
 	std::string get_description() const;
