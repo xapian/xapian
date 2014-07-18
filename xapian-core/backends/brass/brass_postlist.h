@@ -95,7 +95,7 @@ class SkipListReader {
     Xapian::termcount wdf;
 public:
     bool jump_to(Xapian::docid desired_did);
-    Xapian::docid get_did() const {
+    Xapian::docid get_docid() const {
         return did;
     }
     Xapian::termcount get_wdf() const {
@@ -403,11 +403,6 @@ class BrassPostListTable : public BrassTable {
 	/// Merge document length changes.
 	void merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens);
 
-	Xapian::docid get_chunk(const string &tname,
-		Xapian::docid did, bool adding,
-		Brass::PostlistChunkReader ** from,
-		Brass::PostlistChunkWriter **to);
-
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {
 	    return pack_brass_postlist_key(term, did);
@@ -462,6 +457,7 @@ class BrassPostList : public LeafPostList {
 	bool is_last_chunk;
 
 	/// Whether we've run off the end of the list yet.
+    /// Whether we've run off current chunk.
 	bool is_at_end;
 
 	/// Cursor pointing to current chunk of postlist.
@@ -487,6 +483,8 @@ class BrassPostList : public LeafPostList {
 
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
+    
+    AutoPtr<SkipListReader> p_skip_list_reader;
 
 	/// To read doclen chunk, when is_doclen_list is true.
 	AutoPtr<DoclenChunkReader> p_doclen_chunk_reader;
@@ -604,7 +602,7 @@ class BrassPostList : public LeafPostList {
 	PostList * skip_to(Xapian::docid desired_did, double w_min);
 
 	/// Return true if and only if we're off the end of the list.
-	bool at_end() const { return is_at_end; }
+	bool at_end() const { return is_at_end&&is_last_chunk; }
 
 	/// Get a description of the document.
 	std::string get_description() const;

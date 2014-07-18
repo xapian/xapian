@@ -79,63 +79,6 @@ BrassPostListTable::document_exists(Xapian::docid did,
     return (doclen_pl->jump_to(did));
 }
 
-// How big should chunks in the posting list be?  (They
-// will grow slightly bigger than this, but not more than a
-// few bytes extra) - FIXME: tune this value to try to
-// maximise how well blocks are used.  Or performance.
-// Or indexing speed.  Or something...
-const unsigned int CHUNKSIZE = 2000;
-
-/** PostlistChunkWriter is a wrapper which acts roughly as an
- *  output iterator on a postlist chunk, taking care of the
- *  messy details.  It's intended to be used with deletion and
- *  replacing of entries, not for adding to the end, when it's
- *  not really needed.
- */
-class Brass::PostlistChunkWriter {
-    public:
-	PostlistChunkWriter(const string &orig_key_,
-			    bool is_first_chunk_,
-			    const string &tname_,
-			    bool is_last_chunk_);
-
-	/// Append an entry to this chunk.
-	void append(BrassTable * table, Xapian::docid did,
-		    Xapian::termcount wdf);
-
-	/// Append a block of raw entries to this chunk.
-	void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
-			const string & s) {
-	    Assert(!started);
-	    first_did = first_did_;
-	    current_did = current_did_;
-	    if (!s.empty()) {
-		chunk.append(s);
-		started = true;
-	    }
-	}
-
-	/** Flush the chunk to the buffered table.  Note: this may write it
-	 *  with a different key to the original one, if for example the first
-	 *  entry has changed.
-	 */
-	void flush(BrassTable *table);
-
-    private:
-	string orig_key;
-	string tname;
-	bool is_first_chunk;
-	bool is_last_chunk;
-	bool started;
-
-	Xapian::docid first_did;
-	Xapian::docid current_did;
-
-	string chunk;
-};
-
-using Brass::PostlistChunkWriter;
-
 // Static functions
 
 /// Report an error when reading the posting list.
@@ -208,22 +151,6 @@ read_start_of_first_chunk(const char ** posptr,
     RETURN(did);
 }
 
-static inline void
-read_did_increase(const char ** posptr, const char * end,
-		  Xapian::docid * did_ptr)
-{
-    Xapian::docid did_increase;
-    if (!unpack_uint(posptr, end, &did_increase)) report_read_error(*posptr);
-    *did_ptr += did_increase + 1;
-}
-
-/// Read the wdf for an entry.
-static inline void
-read_wdf(const char ** posptr, const char * end, Xapian::termcount * wdf_ptr)
-{
-    if (!unpack_uint(posptr, end, wdf_ptr)) report_read_error(*posptr);
-}
-
 /// Read the start of a chunk.
 static Xapian::docid
 read_start_of_chunk(const char ** posptr,
@@ -266,101 +193,6 @@ unsigned get_max_bytes(unsigned n)
 }
 
 
-/** PostlistChunkReader is essentially an iterator wrapper
- *  around a postlist chunk.  It simply iterates through the
- *  entries in a postlist.
- */
-class Brass::PostlistChunkReader {
-    string data;
-
-    const char *pos;
-    const char *end;
-
-    bool at_end;
-
-    Xapian::docid did;
-    Xapian::termcount wdf;
-
-  public:
-    /** Initialise the postlist chunk reader.
-     *
-     *  @param first_did  First document id in this chunk.
-     *  @param data       The tag string with the header removed.
-     */
-    PostlistChunkReader(Xapian::docid first_did, const string & data_)
-	: data(data_), pos(data.data()), end(pos + data.length()), at_end(data.empty()), did(first_did)
-    {
-	if (!at_end) read_wdf(&pos, end, &wdf);
-    }
-
-    Xapian::docid get_docid() const {
-	return did;
-    }
-    Xapian::termcount get_wdf() const {
-	return wdf;
-    }
-
-    bool is_at_end() const {
-	return at_end;
-    }
-
-    /** Advance to the next entry.  Set at_end if we run off the end.
-     */
-    void next();
-};
-
-using Brass::PostlistChunkReader;
-
-void
-PostlistChunkReader::next()
-{
-    if (pos == end) {
-	at_end = true;
-    } else {
-	read_did_increase(&pos, end, &did);
-	read_wdf(&pos, end, &wdf);
-    }
-}
-
-PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
-					 bool is_first_chunk_,
-					 const string &tname_,
-					 bool is_last_chunk_)
-	: orig_key(orig_key_),
-	  tname(tname_), is_first_chunk(is_first_chunk_),
-	  is_last_chunk(is_last_chunk_),
-	  started(false)
-{
-    LOGCALL_CTOR(DB, "PostlistChunkWriter", orig_key_ | is_first_chunk_ | tname_ | is_last_chunk_);
-}
-
-void
-PostlistChunkWriter::append(BrassTable * table, Xapian::docid did,
-			    Xapian::termcount wdf)
-{
-    if (!started) {
-	started = true;
-	first_did = did;
-    } else {
-	Assert(did > current_did);
-	// Start a new chunk if this one has grown to the threshold.
-	if (chunk.size() >= CHUNKSIZE) {
-	    bool save_is_last_chunk = is_last_chunk;
-	    is_last_chunk = false;
-	    flush(table);
-	    is_last_chunk = save_is_last_chunk;
-	    is_first_chunk = false;
-	    first_did = did;
-	    chunk.resize(0);
-	    orig_key = BrassPostListTable::make_key(tname, first_did);
-	} else {
-	    pack_uint(chunk, did - current_did - 1);
-	}
-    }
-    current_did = did;
-    pack_uint(chunk, wdf);
-}
-
 /** Make the data to go at the start of the very first chunk.
  */
 static inline string
@@ -389,268 +221,6 @@ make_start_of_chunk(bool new_is_last_chunk,
     return chunk;
 }
 
-static void
-write_start_of_chunk(string & chunk,
-		     unsigned int start_of_chunk_header,
-		     unsigned int end_of_chunk_header,
-		     bool is_last_chunk,
-		     Xapian::docid first_did_in_chunk,
-		     Xapian::docid last_did_in_chunk)
-{
-    Assert((size_t)(end_of_chunk_header - start_of_chunk_header) <= chunk.size());
-
-    chunk.replace(start_of_chunk_header,
-		  end_of_chunk_header - start_of_chunk_header,
-		  make_start_of_chunk(is_last_chunk, first_did_in_chunk,
-				      last_did_in_chunk));
-}
-
-void
-PostlistChunkWriter::flush(BrassTable *table)
-{
-    LOGCALL_VOID(DB, "PostlistChunkWriter::flush", table);
-
-    /* This is one of the more messy parts involved with updating posting
-     * list chunks.
-     *
-     * Depending on circumstances, we may have to delete an entire chunk
-     * or file it under a different key, as well as possibly modifying both
-     * the previous and next chunk of the postlist.
-     */
-
-    if (!started) {
-	/* This chunk is now empty so disappears entirely.
-	 *
-	 * If this was the last chunk, then the previous chunk
-	 * must have its "is_last_chunk" flag updated.
-	 *
-	 * If this was the first chunk, then the next chunk must
-	 * be transformed into the first chunk.  Messy!
-	 */
-	LOGLINE(DB, "PostlistChunkWriter::flush(): deleting chunk");
-	Assert(!orig_key.empty());
-	if (is_first_chunk) {
-	    LOGLINE(DB, "PostlistChunkWriter::flush(): deleting first chunk");
-	    if (is_last_chunk) {
-		/* This is the first and the last chunk, ie the only
-		 * chunk, so just delete the tag.
-		 */
-		table->del(orig_key);
-		return;
-	    }
-
-	    /* This is the messiest case.  The first chunk is to
-	     * be removed, and there is at least one chunk after
-	     * it.  Need to rewrite the next chunk as the first
-	     * chunk.
-	     */
-	    AutoPtr<BrassCursor> cursor(table->cursor_get());
-
-	    if (!cursor->find_entry(orig_key)) {
-		throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
-	    }
-
-	    // FIXME: Currently the doclen list has a special first chunk too,
-	    // which reduces special casing here.  The downside is a slightly
-	    // larger than necessary first chunk and needless fiddling if the
-	    // first chunk is deleted.  But really we should look at
-	    // redesigning the whole postlist format with an eye to making it
-	    // easier to update!
-
-	    // Extract existing counts from the first chunk so we can reinsert
-	    // them into the block we're renaming.
-	    Xapian::doccount num_ent;
-	    Xapian::termcount coll_freq;
-	    {
-		cursor->read_tag();
-		const char *tagpos = cursor->current_tag.data();
-		const char *tagend = tagpos + cursor->current_tag.size();
-
-		(void)read_start_of_first_chunk(&tagpos, tagend,
-						&num_ent, &coll_freq);
-	    }
-
-	    // Seek to the next chunk.
-	    cursor->next();
-	    if (cursor->after_end()) {
-		throw Xapian::DatabaseCorruptError("Expected another key but found none");
-	    }
-	    const char *kpos = cursor->current_key.data();
-	    const char *kend = kpos + cursor->current_key.size();
-	    if (!check_tname_in_key(&kpos, kend, tname)) {
-		throw Xapian::DatabaseCorruptError("Expected another key with the same term name but found a different one");
-	    }
-
-	    // Read the new first docid
-	    Xapian::docid new_first_did;
-	    if (!unpack_uint_preserving_sort(&kpos, kend, &new_first_did)) {
-		report_read_error(kpos);
-	    }
-
-	    cursor->read_tag();
-	    const char *tagpos = cursor->current_tag.data();
-	    const char *tagend = tagpos + cursor->current_tag.size();
-
-	    // Read the chunk header
-	    bool new_is_last_chunk;
-	    Xapian::docid new_last_did_in_chunk =
-		read_start_of_chunk(&tagpos, tagend, new_first_did,
-				    &new_is_last_chunk);
-
-	    string chunk_data(tagpos, tagend);
-
-	    // First remove the renamed tag
-	    table->del(cursor->current_key);
-
-	    // And now write it as the first chunk
-	    string tag;
-	    tag = make_start_of_first_chunk(num_ent, coll_freq, new_first_did);
-	    tag += make_start_of_chunk(new_is_last_chunk,
-					      new_first_did,
-					      new_last_did_in_chunk);
-	    tag += chunk_data;
-	    table->add(orig_key, tag);
-	    return;
-	}
-
-	LOGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary chunk");
-	/* This isn't the first chunk.  Check whether we're the last chunk. */
-
-	// Delete this chunk
-	table->del(orig_key);
-
-	if (is_last_chunk) {
-	    LOGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
-	    // Update the previous chunk's is_last_chunk flag.
-	    AutoPtr<BrassCursor> cursor(table->cursor_get());
-
-	    /* Should not find the key we just deleted, but should
-	     * find the previous chunk. */
-	    if (cursor->find_entry(orig_key)) {
-		throw Xapian::DatabaseCorruptError("Brass key not deleted as we expected");
-	    }
-	    // Make sure this is a chunk with the right term attached.
-	    const char * keypos = cursor->current_key.data();
-	    const char * keyend = keypos + cursor->current_key.size();
-	    if (!check_tname_in_key(&keypos, keyend, tname)) {
-		throw Xapian::DatabaseCorruptError("Couldn't find chunk before delete chunk");
-	    }
-
-	    bool is_prev_first_chunk = (keypos == keyend);
-
-	    // Now update the last_chunk
-	    cursor->read_tag();
-	    string tag = cursor->current_tag;
-
-	    const char *tagpos = tag.data();
-	    const char *tagend = tagpos + tag.size();
-
-	    // Skip first chunk header
-	    Xapian::docid first_did_in_chunk;
-	    if (is_prev_first_chunk) {
-		first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
-							       0, 0);
-	    } else {
-		if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk))
-		    report_read_error(keypos);
-	    }
-	    bool wrong_is_last_chunk;
-	    string::size_type start_of_chunk_header = tagpos - tag.data();
-	    Xapian::docid last_did_in_chunk =
-		read_start_of_chunk(&tagpos, tagend, first_did_in_chunk,
-				    &wrong_is_last_chunk);
-	    string::size_type end_of_chunk_header = tagpos - tag.data();
-
-	    // write new is_last flag
-	    write_start_of_chunk(tag,
-				 start_of_chunk_header,
-				 end_of_chunk_header,
-				 true, // is_last_chunk
-				 first_did_in_chunk,
-				 last_did_in_chunk);
-	    table->add(cursor->current_key, tag);
-	}
-    } else {
-	LOGLINE(DB, "PostlistChunkWriter::flush(): updating chunk which still has items in it");
-	/* The chunk still has some items in it.  Two major subcases:
-	 * a) This is the first chunk.
-	 * b) This isn't the first chunk.
-	 *
-	 * The subcases just affect the chunk header.
-	 */
-	string tag;
-
-	/* First write the header, which depends on whether this is the
-	 * first chunk.
-	 */
-	if (is_first_chunk) {
-	    /* The first chunk.  This is the relatively easy case,
-	     * and we just have to write this one back to disk.
-	     */
-	    LOGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
-	    string key = BrassPostListTable::make_key(tname);
-	    bool ok = table->get_exact_entry(key, tag);
-	    (void)ok;
-	    Assert(ok);
-	    Assert(!tag.empty());
-
-	    Xapian::doccount num_ent;
-	    Xapian::termcount coll_freq;
-	    {
-		const char * tagpos = tag.data();
-		const char * tagend = tagpos + tag.size();
-		(void)read_start_of_first_chunk(&tagpos, tagend,
-						&num_ent, &coll_freq);
-	    }
-
-	    tag = make_start_of_first_chunk(num_ent, coll_freq, first_did);
-
-	    tag += make_start_of_chunk(is_last_chunk, first_did, current_did);
-	    tag += chunk;
-	    table->add(key, tag);
-	    return;
-	}
-
-	LOGLINE(DB, "PostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
-	/* Not the first chunk.
-	 *
-	 * This has the easy sub-sub-case:
-	 *   The first entry in the chunk hasn't changed
-	 * ...and the hard sub-sub-case:
-	 *   The first entry in the chunk has changed.  This is
-	 *   harder because the key for the chunk changes, so
-	 *   we've got to do a switch.
-	 */
-
-	// First find out the initial docid
-	const char *keypos = orig_key.data();
-	const char *keyend = keypos + orig_key.size();
-	if (!check_tname_in_key(&keypos, keyend, tname)) {
-	    throw Xapian::DatabaseCorruptError("Have invalid key writing to postlist");
-	}
-	Xapian::docid initial_did;
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
-	    report_read_error(keypos);
-	}
-	string new_key;
-	if (initial_did != first_did) {
-	    /* The fiddlier case:
-	     * Create a new tag with the correct key, and replace
-	     * the old one.
-	     */
-	    new_key = BrassPostListTable::make_key(tname, first_did);
-	    table->del(orig_key);
-	} else {
-	    new_key = orig_key;
-	}
-
-	// ...and write the start of this chunk.
-	tag = make_start_of_chunk(is_last_chunk, first_did, current_did);
-
-	tag += chunk;
-	table->add(new_key, tag);
-    }
-}
 
 /** Read the number of entries in the posting list.
  *  This must only be called when *posptr is pointing to the start of
@@ -1689,6 +1259,7 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 	  have_started(false),
 	  is_at_end(false),
 	  cursor(this_db_->postlist_table.cursor_get()),
+      p_skip_list_reader(0),
 	  p_doclen_chunk_reader(0),
 	  is_doclen_list(term_.empty()?true:false)
 {
@@ -1705,6 +1276,7 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 	  have_started(false),
 	  is_at_end(false),
 	  cursor(cursor_),
+      p_skip_list_reader(0),
 	  p_doclen_chunk_reader(0),
 	  is_doclen_list(term_.empty()?true:false)
 {
@@ -1738,7 +1310,10 @@ BrassPostList::init()
 	first_did_in_chunk = did;
 	last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
 	if (!is_doclen_list) {
-		read_wdf(&pos, end, &wdf);
+		p_skip_list_reader.reset(new SkipListReader(pos, end, first_did_in_chunk));
+        did = p_skip_list_reader->get_docid();
+        wdf = p_skip_list_reader->get_wdf();
+        is_at_end = p_skip_list_reader->is_at_end();
 		p_doclen_chunk_reader.reset(0);
 	}
 	if (is_doclen_list)	{
@@ -1750,6 +1325,7 @@ BrassPostList::init()
 		LOGVALUE(DB, did);
 		LOGVALUE(DB, wdf);
 		LOGVALUE(DB, is_at_end);
+        p_skip_list_reader.reset(0);
 	}
 
 	LOGLINE(DB, "Initial docid " << did);
@@ -1799,17 +1375,28 @@ BrassPostList::next_in_chunk()
 		is_at_end = p_doclen_chunk_reader->at_end();
 		RETURN(false);
 	}
-    if (pos == end) RETURN(false);
+    
+    if (p_skip_list_reader->next()) {
+        did = p_skip_list_reader->get_docid();
+        wdf = p_skip_list_reader->get_wdf();
+        is_at_end = p_skip_list_reader->is_at_end();
+        RETURN(true);
+    }
+    
+    is_at_end = p_skip_list_reader->is_at_end();
+    RETURN(false);
+    
+    /*if (pos == end) RETURN(false);*/
 
-    read_did_increase(&pos, end, &did);
-    read_wdf(&pos, end, &wdf);
+    /*read_did_increase(&pos, end, &did);
+    read_wdf(&pos, end, &wdf);*/
 
     // Either not at last doc in chunk, or pos == end, but not both.
-    Assert(did <= last_did_in_chunk);
+    /*Assert(did <= last_did_in_chunk);
     Assert(did < last_did_in_chunk || pos == end);
     Assert(pos != end || did == last_did_in_chunk);
 
-    RETURN(true);
+    RETURN(true);*/
 }
 
 void
@@ -1858,7 +1445,10 @@ BrassPostList::next_chunk()
 	last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 		&is_last_chunk);
 	if (!is_doclen_list) {
-		read_wdf(&pos, end, &wdf);
+		p_skip_list_reader.reset(new SkipListReader(pos,end,first_did_in_chunk));
+        did = p_skip_list_reader->get_docid();
+        wdf = p_skip_list_reader->get_wdf();
+        is_at_end = p_skip_list_reader->is_at_end();
 	}
 	if (is_doclen_list) {
 		LOGLINE(DB, "next_chunk() for doclen list");
@@ -1966,7 +1556,11 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
 	if (!is_doclen_list) {
-		read_wdf(&pos, end, &wdf);
+		//read_wdf(&pos, end, &wdf);
+        p_skip_list_reader.reset(new SkipListReader(pos,end,first_did_in_chunk));
+        did = p_skip_list_reader->get_docid();
+        wdf = p_skip_list_reader->get_wdf();
+        is_at_end = p_skip_list_reader->is_at_end();
 	}
 	if (is_doclen_list) {
 		LOGLINE(DB, "build new doclen_chunk_reader " ); 
@@ -1989,7 +1583,12 @@ bool
 BrassPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 {
     LOGCALL(DB, bool, "BrassPostList::move_forward_in_chunk_to_at_least", desired_did);
-    if (did >= desired_did)
+    bool rtval = p_skip_list_reader->jump_to(desired_did);
+    did = p_skip_list_reader->get_docid();
+    wdf = p_skip_list_reader->get_wdf();
+    is_at_end = p_skip_list_reader->is_at_end();
+    RETURN(rtval);
+    /*if (did >= desired_did)
 	RETURN(true);
 
     if (desired_did <= last_did_in_chunk) {
@@ -2008,7 +1607,7 @@ BrassPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
     }
 
     pos = end;
-    RETURN(false);
+    RETURN(false);*/
 }
 
 PostList *
@@ -2106,98 +1705,6 @@ BrassPostList::get_description() const
     return desc;
 }
 
-// Returns the last did to allow in this chunk.
-Xapian::docid
-BrassPostListTable::get_chunk(const string &tname,
-	  Xapian::docid did, bool adding,
-	  PostlistChunkReader ** from, PostlistChunkWriter **to)
-{
-    LOGCALL(DB, Xapian::docid, "BrassPostListTable::get_chunk", tname | did | adding | from | to);
-
-	if (tname.empty()) {
-		// When current chunk is for doc length, this function shouldn't be called.
-		*from = NULL;
-		*to = NULL;
-		RETURN(Xapian::docid(-1));
-	}
-
-    // Get chunk containing entry
-    string key = make_key(tname, did);
-
-    // Find the right chunk
-    AutoPtr<BrassCursor> cursor(cursor_get());
-
-    (void)cursor->find_entry(key);
-    Assert(!cursor->after_end());
-
-    const char * keypos = cursor->current_key.data();
-    const char * keyend = keypos + cursor->current_key.size();
-
-    if (!check_tname_in_key(&keypos, keyend, tname)) {
-	// Postlist for this termname doesn't exist.
-	//
-	// NB "adding" will only be true if we are adding, but it may sometimes
-	// be false in some cases where we are actually adding.
-	if (!adding)
-	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
-
-	*from = NULL;
-	*to = new PostlistChunkWriter(string(), true, tname, true);
-	RETURN(Xapian::docid(-1));
-    }
-
-    // See if we're appending - if so we can shortcut by just copying
-    // the data part of the chunk wholesale.
-    bool is_first_chunk = (keypos == keyend);
-    LOGVALUE(DB, is_first_chunk);
-
-    cursor->read_tag();
-    const char * pos = cursor->current_tag.data();
-    const char * end = pos + cursor->current_tag.size();
-    Xapian::docid first_did_in_chunk;
-    if (is_first_chunk) {
-	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
-    } else {
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
-	    report_read_error(keypos);
-	}
-    }
-
-    bool is_last_chunk;
-    Xapian::docid last_did_in_chunk;
-    last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
-    *to = new PostlistChunkWriter(cursor->current_key, is_first_chunk, tname,
-				  is_last_chunk);
-    if (did > last_did_in_chunk) {
-	// This is the shortcut.  Not very pretty, but I'll leave refactoring
-	// until I've a clearer picture of everything which needs to be done.
-	// (FIXME)
-	*from = NULL;
-	(*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
-			  string(pos, end));
-    } else {
-	*from = new PostlistChunkReader(first_did_in_chunk, string(pos, end));
-    }
-    if (is_last_chunk) RETURN(Xapian::docid(-1));
-
-    // Find first did of next tag.
-    cursor->next();
-    if (cursor->after_end()) {
-	throw Xapian::DatabaseCorruptError("Expected another key but found none");
-    }
-    const char *kpos = cursor->current_key.data();
-    const char *kend = kpos + cursor->current_key.size();
-    if (!check_tname_in_key(&kpos, kend, tname)) {
-	throw Xapian::DatabaseCorruptError("Expected another key with the same term name but found a different one");
-    }
-
-    // Read the new first docid
-    Xapian::docid first_did_of_next_chunk;
-    if (!unpack_uint_preserving_sort(&kpos, kend, &first_did_of_next_chunk)) {
-	report_read_error(kpos);
-    }
-    RETURN(first_did_of_next_chunk - 1);
-}
 
 void
 BrassPostListTable::merge_doclen_changes(const map<Xapian::docid, Xapian::termcount> & doclens)
