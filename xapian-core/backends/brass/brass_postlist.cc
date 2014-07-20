@@ -32,6 +32,7 @@
 #include "str.h"
 #include <queue>
 #include "unicode/description_append.h"
+#include "math.h"
 
 using Xapian::Internal::intrusive_ptr;
 
@@ -942,8 +943,10 @@ SkipList::SkipList(map<Xapian::docid,Xapian::termcount>:: const_iterator start_,
 	genDiffVector();
     int s = 0;
     map<Xapian::docid,Xapian::termcount>:: const_iterator it1(start_), it2(end_);
-    for (; it1!=it2; ++s) {};
-    buildSkipList(s);
+    for (; it1!=it2; ++it1) {
+        ++s;
+    };
+    buildSkipList(cal_level(s));
 }
 
 void SkipList::encode( string& chunk ) const
@@ -1009,6 +1012,10 @@ bool SkipListReader::jump_to(Xapian::docid desired_did) {
 }
 
 bool SkipListReader::next() {
+    if (pos == end) {
+        at_end = true;
+        return false;
+    }
     if (at_end) {
         return false;
     }
@@ -1131,7 +1138,7 @@ SkipListWriter::get_new_postlist()
 	RETURN(true);
 }
 
-bool SkipListWriter::merge_postlist_changes()
+bool SkipListWriter::merge_postlist_changes(const string& term)
 {
 	//get new map of <docid,length>
 	get_new_postlist();
@@ -1172,9 +1179,9 @@ bool SkipListWriter::merge_postlist_changes()
 		//make key for this chunk
 		string cur_key;
 		if (!is_first_chunk) {
-			cur_key = BrassPostListTable::make_key(string(), start_pos->first);
+			cur_key = BrassPostListTable::make_key(term, start_pos->first);
 		} else {
-			cur_key = BrassPostListTable::make_key(string());
+			cur_key = BrassPostListTable::make_key(term);
 		}
         
 		//insert this chunk
@@ -1215,9 +1222,9 @@ bool SkipListWriter::merge_postlist_changes()
 					//make header for first chunk
 					string head_of_first_chunk = make_start_of_first_chunk(num_of_entries, coll_fre, start_pos->first);
 					cur_chunk = head_of_first_chunk+cur_chunk;
-					cur_key = postlist_table->make_key(string());
+					cur_key = postlist_table->make_key(term);
 				} else {
-					cur_key = postlist_table->make_key(string(), start_pos->first);
+					cur_key = postlist_table->make_key(term, start_pos->first);
 				}
                 
 				//insert current chunk
@@ -1875,7 +1882,7 @@ BrassPostListTable::merge_changes(const string &term,
 	LOGVALUE(DB, changes.pl_changes.size());
 	while (it!=changes.pl_changes.end())
 	{
-		string key = make_key(string(), it->first);
+		string key = make_key(term, it->first);
         
 		AutoPtr<BrassCursor> cursor(cursor_get());
         
@@ -1937,7 +1944,7 @@ BrassPostListTable::merge_changes(const string &term,
 		// Delete current chunk to insert new chunk later.
 		del(ori_key);
 		SkipListWriter writer(desired_chunk, is_first_chunk, first_did_in_chunk, this, pre_it, it);
-		writer.merge_postlist_changes();
+		writer.merge_postlist_changes(term);
 		pre_it = it;
 	}
 }

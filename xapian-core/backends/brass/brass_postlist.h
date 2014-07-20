@@ -125,7 +125,7 @@ public:
 	SkipListWriter(string& chunk_from_, bool is_first_chunk_, Xapian::docid first_did_, BrassPostListTable* postlist_table_,
                    map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start_,
                    map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end_);
-	bool merge_postlist_changes();
+	bool merge_postlist_changes(const string& term);
 };
 
 
