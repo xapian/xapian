@@ -1,3 +1,7 @@
+Mon Jul 21 23:50:00 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
+
+	* java/Makefile.am,xapian-headers.i: Add Snipper in xapian bindings.
+
 Wed Jul 09 01:14:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python3/Makefile.am: Fix "make dist" to include

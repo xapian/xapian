@@ -376,6 +376,9 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
     }
 }
 
+STANDARD_IGNORES(Xapian, Snipper)
+%include <xapian/snipper.h>
+
 #if defined SWIGCSHARP || defined SWIGJAVA
 
 /* xapian/dbfactory.h is currently wrapped via fake class declarations in
