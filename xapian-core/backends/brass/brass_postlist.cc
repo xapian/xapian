@@ -1586,37 +1586,6 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
     if (desired_did > last_did_in_chunk) next_chunk();
 }
 
-bool
-BrassPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
-{
-    LOGCALL(DB, bool, "BrassPostList::move_forward_in_chunk_to_at_least", desired_did);
-    bool rtval = p_skip_list_reader->jump_to(desired_did);
-    did = p_skip_list_reader->get_docid();
-    wdf = p_skip_list_reader->get_wdf();
-    is_at_end = p_skip_list_reader->is_at_end();
-    RETURN(rtval);
-    /*if (did >= desired_did)
-	RETURN(true);
-
-    if (desired_did <= last_did_in_chunk) {
-	while (pos != end) {
-	    read_did_increase(&pos, end, &did);
-	    if (did >= desired_did) {
-		read_wdf(&pos, end, &wdf);
-		RETURN(true);
-	    }
-	    // It's faster to just skip over the wdf than to decode it.
-	    read_wdf(&pos, end, NULL);
-	}
-
-	// If we hit the end of the chunk then last_did_in_chunk must be wrong.
-	Assert(false);
-    }
-
-    pos = end;
-    RETURN(false);*/
-}
-
 PostList *
 BrassPostList::skip_to(Xapian::docid desired_did, double w_min)
 {
@@ -1643,11 +1612,12 @@ BrassPostList::skip_to(Xapian::docid desired_did, double w_min)
 	// forward in chunk.
 	if (is_at_end) RETURN(NULL);
     }
-
-    // Move to correct position in chunk
-    bool have_document = move_forward_in_chunk_to_at_least(desired_did);
-    (void)have_document;
-    Assert(have_document);
+    
+    p_skip_list_reader->jump_to(desired_did);
+    did = p_skip_list_reader->get_docid();
+    wdf = p_skip_list_reader->get_wdf();
+    is_at_end = p_skip_list_reader->is_at_end();
+    
 
     if (is_at_end) {
 	LOGLINE(DB, "Skipped to end");

@@ -536,17 +536,6 @@ class BrassPostList : public LeafPostList {
 	 */
 	void move_to_chunk_containing(Xapian::docid desired_did);
 
-	/** Scan forward in the current chunk for the specified document ID.
-	 *
-	 *  This is particularly efficient if the desired document ID is
-	 *  greater than the last in the chunk - it then skips straight
-	 *  to the end.
-	 *
-	 *  @return true if we moved to a valid document,
-	 *	    false if we reached the end of the chunk.
-	 */
-	bool move_forward_in_chunk_to_at_least(Xapian::docid desired_did);
-
 	BrassPostList(Xapian::Internal::intrusive_ptr<const BrassDatabase> this_db_,
 		      const string & term,
 		      BrassCursor * cursor_);
