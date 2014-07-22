@@ -1,3 +1,8 @@
+Tue Jul 22 01:04:29 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Add add-php-ref-handling script as a dependency of
+	  the stamp file, so we regenerate if this script changes.
+
 Tue Jul 22 01:02:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,php/Makefile.am: Remove unnecessary explicit
