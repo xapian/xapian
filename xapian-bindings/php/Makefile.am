@@ -70,7 +70,7 @@ RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: $(stamp)
 	$(make_many_locked)
-$(stamp): except.i add-php-type-hints
+$(stamp): add-php-type-hints
 	$(MKDIR_P) php5
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
