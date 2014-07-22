@@ -1,3 +1,7 @@
+Tue Jul 22 01:01:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Update for Snipper wrapping.
+
 Mon Jul 21 23:50:00 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
 
 	* java/Makefile.am,xapian-headers.i: Add Snipper in xapian bindings.

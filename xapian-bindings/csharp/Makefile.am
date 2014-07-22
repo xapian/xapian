@@ -59,6 +59,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/SWIGTYPE_p_std__string.cs \
 	generated-csharp/Registry.cs \
 	generated-csharp/SimpleStopper.cs \
+	generated-csharp/Snipper.cs \
 	generated-csharp/Stem.cs \
 	generated-csharp/StemImplementation.cs \
 	generated-csharp/Stopper.cs \
