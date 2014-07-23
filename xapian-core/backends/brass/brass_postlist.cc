@@ -1112,10 +1112,12 @@ SkipListWriter::get_new_postlist()
 				}
 			}
 			if (ori_it == new_postlist.end()) {
-				new_postlist.insert(ori_it, *chg_it);
-				++chg_it;
 				while (chg_it != changes_end)
 				{
+                    if (chg_it->second == SEPERATOR) {
+                        ++chg_it;
+                        continue;
+                    }
 					new_postlist.insert(ori_it, *chg_it);
 					++chg_it;
 				}
@@ -1127,9 +1129,9 @@ SkipListWriter::get_new_postlist()
 				} else {
 					new_postlist.erase(ori_it++);
 				}
-			} else {
-				new_postlist.insert(ori_it, *chg_it);
-			}
+			} else if (chg_it->second != SEPERATOR) {
+                new_postlist.insert(ori_it, *chg_it);
+            }
 			++chg_it;
 		}
         
@@ -1862,7 +1864,7 @@ BrassPostListTable::merge_changes(const string &term,
 		const char * keypos = cursor->current_key.data();
 		const char * keyend = keypos + cursor->current_key.size();
         
-		check_tname_in_key(&keypos, keyend, string());
+		check_tname_in_key(&keypos, keyend, term);
         
 		bool is_first_chunk = (keypos == keyend);
 		LOGVALUE(DB, is_first_chunk);
