@@ -1056,10 +1056,12 @@ DoclenChunkWriter::get_new_doclen( )
 				}
 			}
 			if (ori_it == new_doclen.end()) {
-				new_doclen.insert(ori_it, *chg_it);
-				++chg_it;
 				while (chg_it != changes_end)
 				{
+                    if (chg_it->second == SEPERATOR) {
+                        ++chg_it;
+                        continue;
+                    }
 					new_doclen.insert(ori_it, *chg_it);
 					++chg_it;
 				}
@@ -1071,9 +1073,9 @@ DoclenChunkWriter::get_new_doclen( )
 				} else {
 					new_doclen.erase(ori_it++);
 				}
-			} else {
-				new_doclen.insert(ori_it, *chg_it);
-			}
+			} else if (chg_it->second != SEPERATOR) {
+                new_doclen.insert(ori_it, *chg_it);
+            }
 			++chg_it;
 		}
 
