@@ -1,126 +1,22 @@
- 18128       olly Sat Jun 21 03:45:19 GMT 2014  Olly Betts <olly@survex.com>
+ 18163       olly Fri Jul 11 10:44:48 GMT 2014  Olly Betts <olly@survex.com>
 
 backport fodder:
 
+ 18163       olly Fri Jul 11 10:44:48 GMT 2014  Olly Betts <olly@survex.com>
+	* weight/bm25weight.cc: Improve BM25 upper bound in the case when our
+	  wdf upper bound > our document length lower bound.  Thanks to
+	  Craig Macdonald for pointing out this trick.
+
+ 18162       olly Thu Jul 10 13:29:50 GMT 2014  Olly Betts <olly@survex.com>
+	* weight/bm25weight.cc: Pre-multiply termweight by (param_k1 + 1).
+
 backported for 1.2.19:
 
-Xapian-core 1.3.2 (2014-06-22):
+Xapian-core 1.3.2 (2014-07-24):
 
 	* languages/: Add stopwords lists from Snowball plus an Arabic one.
 
-	* HACKING: Need python3-sphinx to generate docs for python3.
-	* HACKING: Note sphinx-doc now needed (for Python bindings API docs).
-
-	* HACKING,configure.ac,docs/Makefile.am,docs/doxygen_api.conf.in:
-	  Don't build, ship or install PDF versions of the API docs by
-	  default, but provide an easy way for people to build it for
-	  themselves if they want it.
-
-	* docs/Makefile.am: Actually ship, process and install geospatial.rst.
-
-	* languages/hungarian.sbl: Fix incorrect Unicode codepoints for
-	  o-double-acute and u-double-acute in Hungarian Snowball stemmer.
-	  Reported by Tom Lane to snowball-discuss.
-
-	* HACKING: Now using doxygen 1.8.7 to bootstrap tarballs.
-
-	* HACKING: Now using automake 1.14.1 to bootstrap snapshots and
-	  1.3.x releases.
-
-	* api/queryinternal.cc: Only serialise parameter where it is actually
-	  used.
-
-	* backends/chert/chert_check.cc,backends/chert/chert_dbcheck.cc,
-	  backends/dbcheck.cc: Improve DBCHECK_FIX - if fixing a whole
-	  database, we now take the revision from the first table we
-	  successfully look at, which should be correct in most cases,
-	  and is definitely better than trying to determine the revision
-	  of each broken table independently.
-
-	* tests/harness/unixcmds.cc: Drop code supporting Microsoft Windows 9x
-	  which reached EOL in 2006.
-
-	* common/autoptr.h: Under C++11, use unique_ptr for AutoPtr.
-
-	* HACKING: MacTeX seems to be the best option if using homebrew.
-
-	* backends/remote/remote-database.cc,net/remoteserver.cc,
-	  net/serialise.cc,net/serialise.h: Avoid returning
-	  Xapian::Weight::Internal by value from unserialise_stats().
-
-	* matcher/localsubmatch.cc,weight/weight.cc,weight/weightinternal.cc,
-	  weight/weightinternal.h: Replace Weight::Internal methods to get
-	  termfreq, reltermfreq and colltermfreq with a single inlined
-	  get_stats() method, which only needs to search the map once.
-	  Shaves ~1.6% off the time to do a wildcard query with a lot of
-	  terms.
-
- 17934       olly Tue Apr 01 22:11:52 GMT 2014  Olly Betts <olly@survex.com>
-	* matcher/localsubmatch.cc: Don't refetch the termfreq if we already
-	  have it.
-
-	* include/xapian/termgenerator.h: Make TermGenerator flags an
-	  anonymous enum, and typedef TermGenerator::flags to int for backward
-	  compatibility with existing user code which uses it.  (fixes #616)
-
-	* include/xapian/stem.h,languages/Makefile.mk,
-	  languages/earlyenglish.sbl,languages/stem.cc,tests/api_stem.cc:
-	  Add an early english stemmer.
-
-	* api/omdatabase.cc,backends/brass/,backends/chert/,
-	  backends/database.cc,backends/database.h,
-	  backends/inmemory/inmemory_database.cc,
-	  backends/inmemory/inmemory_database.h,
-	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
-	  common/remoteprotocol.h,matcher/const_database_wrapper.cc,
-	  matcher/const_database_wrapper.h,net/remoteserver.cc,
-	  net/remoteserver.h,weight/weightinternal.cc: Fetch termfreq and
-	  collection frequency in a single call - shaves ~0.3% off a test
-	  search.
-
-	* net/serialise.cc,weight/weightinternal.h: Make Weight::Internal
-	  track if any max_part values are set, so we don't need to
-	  serialise them when they've not been set.
-
-	* weight/weightinternal.cc: Enhance
-	  Weight::Internal::get_description() to report TermFreqs.
-
-	* api/omenquire.cc,api/omenquireinternal.h,common/submatch.h,matcher/,
-	  net/remoteserver.cc,net/serialise.cc,weight/weight.cc,
-	  weight/weightinternal.cc,weight/weightinternal.h: Eliminate the
-	  map<string, TermFreqAndWeight> in MSet::Internal, and instead just
-	  preserve the Weight::Internal object there as that holds all the
-	  information we need.
-
-	* api/queryinternal.cc,api/queryinternal.h: Only simplify OP_SYNONYM
-	  with a single subquery if that subquery is a term or MatchAll.
-
-	* tests/api_none.cc: Test OPs with a single MatchAll subquery.
-
-	* docs/Makefile.am,docs/bm25.rst,docs/intro_ir.rst: Convert equations
-	  in rst docs to use LaTeX via the math role and directive.
-
-	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
-	  examples/quest.cc,include/xapian/query.h,matcher/Makefile.mk,
-	  matcher/maxpostlist.cc,matcher/maxpostlist.h,
-	  queryparser/queryparser.cc,tests/api_none.cc,tests/api_opsynonym.cc:
-	  Implement new OP_MAX query operator, which returns the maximum
-	  weight of any of its subqueries.  (see #360)
-
-	* tests/api_opsynonym.cc: Refactor symonym1 so that the test data is
-	  specified by an array, rather than built up by code, so that the
-	  actual testcases can be more easily seen.
-
-	* common/bitstream.cc,common/bitstream.h: Add comments to better
-	  document BitReader and BitWriter. (fixes#252)
-
-	* backends/brass/,backends/dbcheck.cc,common/,
-	  docs/replication_protocol.rst,tests/api_backend.cc,
-	  tests/api_replicate.cc: Keep track of unused blocks in the Btrees
-	  using freelists rather than bitmaps.
-
-	* api/replication.cc: Fix conditional for enabling replication code
-	  - if chert is disabled but brass isn't, we should still enable it.
+---
 
 This release includes all changes from 1.2.16-1.2.18 which are relevant.
 
@@ -135,7 +31,7 @@ API:
 * Database::check():
 
   + Alter to take its "out" parameter as a pointer to std::ostream instead of a
-    reference, and make passing NULL means "do not produce output", and make
+    reference, and make passing NULL mean "do not produce output", and make
     the second and third parameters optional, defaulting to a quiet check.
 
   + Escape invalid UTF-8 data in keys and tags reported by xapian-check, using
@@ -193,10 +89,16 @@ API:
 * Database: Trying to perform operations on a database with no subdatabases now
   throws InvalidOperationError not DocNotFoundError.
 
+* Query: Implement new OP_MAX query operator, which returns the maximum weight
+  of any of its subqueries.  (see #360)
+
 * Query: Add methods to allow introspection on Query objects - currently you
   can read the leaf type/operator, how many subqueries there are, and get a
   particular subquery.  For a query which is a term, Query::get_terms_begin()
   allows you to get the term.  (see #159)
+
+* Query: Only simplify OP_SYNONYM with a single subquery if that subquery is a
+  term or MatchAll.
 
 * Avoid two vector copies when storing term positions in most common cases.
 
@@ -205,6 +107,14 @@ API:
   information, with inline wrappers in the API header which call this.  This
   means we only need one relocation instead of 4, reducing library load time a
   little.
+
+* Make TermGenerator flags an anonymous enum, and typedef TermGenerator::flags
+  to int for backward compatibility with existing user code which uses it.
+
+* Stem: Fix incorrect Unicode codepoints for o-double-acute and u-double-acute
+  in the Hungarian Snowball stemmer.  Reported by Tom Lane to snowball-discuss.
+
+* Stem: Add an early english stemmer.
 
 testsuite:
 
@@ -224,20 +134,23 @@ testsuite:
 * apitest: Use Xapian::Database::check() in cursordelbug1.  (partly addresses
   #238)
 
+* apitest: Test Query ops with a single MatchAll subquery.
+
 matcher:
 
-	* matcher/localsubmatch.cc: If a term matches all documents and its
-	  weight doesn't depend on its wdf, we can optimise it to MatchAll
-	  (the previous requirement that maxpart == 0 was unnecessarily
-	  strict).
+* Streamline collation of statistics for use by weighting schemes - tests show
+  a 2% or so increase in speed in some cases.
 
-	* matcher/localsubmatch.cc: Fix the check for a term which matches all
-	  documents to use the sub-db termfreq, not the combined db termfreq.
+* If a term matches all documents and its weight doesn't depend on its wdf, we
+  can optimise it to MatchAll (the previous requirement that maxpart == 0 was
+  unnecessarily strict).
 
-	* matcher/localsubmatch.cc,tests/api_percentages.cc: When we optimise
-	  a postlist for a term which matches all documents to use MatchAll,
-	  we still need to set a weight object on it to get percentages
-	  calculated correctly.
+* Fix the check for a term which matches all documents to use the sub-db
+  termfreq, not the combined db termfreq.
+
+* When we optimise a postlist for a term which matches all documents to use
+  MatchAll, we still need to set a weight object on it to get percentages
+  calculated correctly.
 
 brass backend:
 
@@ -260,29 +173,53 @@ brass backend:
   cursor blocks which are the same as the previous term's postlist.  This is
   particularly effective for a wildcard query which expands to a lot of terms.
 
+* Keep track of unused blocks in the Btrees using freelists rather than
+  bitmaps.
+
 chert backend:
 
-
-flint backend:
-
+* Improve DBCHECK_FIX - if fixing a whole database, we now take the revision
+  from the first table we successfully look at, which should be correct in most
+  cases, and is definitely better than trying to determine the revision of each
+  broken table independently.
 
 remote backend:
 
 * Bump remote protocol version to 38.0, due to extra statistics being tracked
   for weighting.
 
+* Make Weight::Internal track if any max_part values are set, so we don't need
+  to serialise them when they've not been set.
+
 inmemory backend:
 
 
 build system:
 
+* Fix conditional for enabling replication code - if chert is disabled but
+  brass isn't, we should still enable it.
+
+* configure: Add hint for which package to install for rst2html
 
 documentation:
 
-* HACKING: Note we now use doxygen 1.8.5 for 1.3.x snapshots and releases.
+* Don't build, ship or install PDF versions of the API docs by default, but
+  provide an easy way for people to build it for themselves if they want it.
+
+* Convert equations in rst docs to use LaTeX via the math role and directive.
+
+* Actually ship, process and install geospatial.rst.
+
+* HACKING: Note we now use doxygen 1.8.7 for 1.3.x snapshots and releases.
+
+* HACKING: Now using automake 1.14.1 to bootstrap snapshots and 1.3.x releases.
 
 * HACKING: Drop note about needing git-svn if you're using git - bootstrap now
   only uses git-svn if your Xapian tree was checked out using git-svn.
+
+* HACKING: Need sphinx-doc to generate API docs for Python and Python 3 bindings.
+
+* HACKING: Note that MacTeX seems to be the best option if using homebrew.
 
 tools:
 
@@ -308,6 +245,10 @@ portability:
   compilers may not.
 
 * Include <math.h> for lround()/round(). (fixes #628)
+
+* Drop code supporting Microsoft Windows 9x which reached EOL in 2006.
+
+* Under C++11, use unique_ptr for AutoPtr.
 
 packaging:
 
