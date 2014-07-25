@@ -775,43 +775,38 @@ DoclenChunkReader::DoclenChunkReader(const string& chunk_, bool is_first_chunk,
 }
 
 inline bool
-read_increase( const char** p, const char* end, Xapian::docid* incre_did, Xapian::termcount* wdf )
-{
+read_increase(const char** p, const char* end, Xapian::docid* incre_did, Xapian::termcount* wdf) {
 	unsigned tmp;
-	if ( incre_did == NULL )
-	{
+	if (incre_did == NULL) {
 		incre_did = &tmp;
 	}
-	if ( wdf == NULL )
-	{
+	if (wdf == NULL) {
 		wdf = &tmp;
 	}
-	unpack_uint( p, end, incre_did );
-	unpack_uint( p, end, wdf );
+	unpack_uint(p, end, incre_did);
+	unpack_uint(p, end, wdf);
 	return true;
 }
 
-int SkipList::cal_level( unsigned size )
-{
+int
+SkipList::cal_level(unsigned size) {
 	return (int)(log10(size)/0.6);
 }
 
-void SkipList::genDiffVector()
-{
+void
+SkipList::genDiffVector() {
 	map<Xapian::docid,Xapian::termcount>::const_iterator it = start, pre_it = start;
-	for ( ; it!=end ; ++it )
-	{
+	for (; it!=end ; ++it) {
 		src.push_back(it->first-pre_it->first);
 		src.push_back(it->second);
 		pre_it = it;
 	}
 }
 
-int SkipList::encodeLength( unsigned n )
-{
+int
+SkipList::encodeLength(unsigned n) {
 	int len = 0;
-	while ( n >= 128 )
-	{
+	while (n >= 128) {
 		len++;
 		n >>= 7;
 	}
@@ -819,24 +814,21 @@ int SkipList::encodeLength( unsigned n )
 	return len;
 }
 
-void SkipList::addLevel ( int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel )
-{
+void
+SkipList::addLevel (int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel) {
 	int size = pe-ps;
 	int pinfo1 = ps;
 	int pinfo2 = ps+3+size/2;
     
-	if ( pinfo2%2 == pinfo1%2 )
-	{
+	if (pinfo2%2 == pinfo1%2) {
 		pinfo2--;
 	}
     
 	int value1 = 0, value2 = 0;
-	for ( int i = ps ; i<=pinfo2-5 ; i+=2 )
-	{
+	for (int i = ps ; i<=pinfo2-5 ; i+=2) {
 		value1 += src[i];
 	}
-	for ( int i = pinfo2-3 ; i<= pe-2 ; i+=2 )
-	{
+	for (int i = pinfo2-3 ; i<= pe-2 ; i+=2) {
 		value2 += src[i];
 	}
     
@@ -851,36 +843,30 @@ void SkipList::addLevel ( int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLe
 	pe += 6;
 	src[pinfo2+2]=value2;
 	int offset2 = 0;
-	for ( int i = pinfo2+3 ; i<pe-2 ; ++i )
-	{
+	for (int i = pinfo2+3 ; i<pe-2 ; ++i){
 		offset2 += encodeLength(src[i]);
 	}
 	src[pinfo2+1] = offset2;
     
-	src[pinfo1+2]=value1;
+	src[pinfo1+2] = value1;
 	int offset1 = 0;
-	for ( int i = pinfo1+3 ; i<pinfo2-2 ; ++i )
-	{
+	for (int i = pinfo1+3 ; i<pinfo2-2 ; ++i) {
 		offset1 += encodeLength(src[i]);
 	}
 	src[pinfo1+1]=offset1;
     
 	int longer = 0;
-	for ( int i = 0 ; i<3 ; ++i )
-	{
+	for (int i = 0 ; i<3 ; ++i) {
 		longer += encodeLength(src[pinfo1+i]);
 		longer += encodeLength(src[pinfo2+i]);
 	}
     
 	int updateCount = 0;
 	unsigned offset = 0;
-	for( int i = ps-3 ; i>=0 ; i-- )
-	{
+	for (int i = ps-3 ; i>=0 ; --i) {
 		offset += encodeLength(src[i]);
-		if ( src[i]==SEPERATOR && src[i+1]>=offset )
-		{
-			if ( updateCount >= curLevel )
-			{
+		if (src[i]==SEPERATOR && src[i+1]>=offset) {
+			if (updateCount >= curLevel) {
 				break;
 			}
 			int tmp = src[i+1];
@@ -896,21 +882,18 @@ void SkipList::addLevel ( int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLe
     
 }
 
-void SkipList::buildSkipList( int level )
-{
-	if ( level == 0 )
-	{
+void
+SkipList::buildSkipList(int level) {
+	if (level == 0) {
 		return;
 	}
 	int curLevel = 0;
 	queue<int> positions;
 	positions.push(0);
 	positions.push((int)src.size());
-	while ( curLevel < level )
-	{
+	while (curLevel < level) {
 		int n = (int)pow(2,curLevel);
-		for ( int i = 0 ; i<n ; ++i )
-		{
+		for (int i = 0 ; i<n ; ++i) {
 			int ps=0, pe=0, pinfo1=0, pinfo2=0;
 			ps = positions.front();
 			positions.pop();
@@ -923,8 +906,7 @@ void SkipList::buildSkipList( int level )
 			positions.push(pinfo2);
             
 		}
-		for ( int i = (int)positions.size()-1 ; i>=0 ; --i )
-		{
+		for (int i = (int)positions.size()-1 ; i>=0 ; --i) {
 			int tmp = positions.front();
 			tmp += i/4*6;
 			positions.pop();
@@ -949,18 +931,18 @@ SkipList::SkipList(map<Xapian::docid,Xapian::termcount>:: const_iterator start_,
     buildSkipList(cal_level(s));
 }
 
-void SkipList::encode( string& chunk ) const
-{
-	for ( int i = 0 ; i<(int)src.size() ; ++i )
-	{
-		pack_uint( chunk,src[i] );
+void
+SkipList::encode( string& chunk ) const {
+	for (int i = 0 ; i<(int)src.size() ; ++i) {
+		pack_uint(chunk,src[i]);
 	}
     
 }
 
 SkipListReader::SkipListReader(const char* pos_, const char* end_, Xapian::docid first_did_)
 : ori_pos(pos_), pos(pos_), end(end_), first_did(first_did_) {
-    if (pos != end){
+    LOGCALL_CTOR(DB, "SkipListReader", first_did_);
+    if (pos != end) {
         at_end = false;
         did = first_did;
         next();
@@ -971,9 +953,11 @@ SkipListReader::SkipListReader(const char* pos_, const char* end_, Xapian::docid
     }
 }
 
-bool SkipListReader::jump_to(Xapian::docid desired_did) {
+bool
+SkipListReader::jump_to(Xapian::docid desired_did) {
+    LOGCALL(DB, bool, "SkipListReader::jump_to", desired_did);
     if (did == desired_did) {
-        return true;
+        RETURN(true);
     }
     if (did > desired_did) {
         pos = ori_pos;
@@ -982,10 +966,10 @@ bool SkipListReader::jump_to(Xapian::docid desired_did) {
     }
     while (pos != end) {
         if (did > desired_did) {
-            return false;
+            RETURN(false);
         }
         if (did == desired_did) {
-            return true;
+            RETURN(true);
         }
         Xapian::termcount incre_did = 0;
         unpack_uint(&pos, end, &incre_did);
@@ -997,27 +981,27 @@ bool SkipListReader::jump_to(Xapian::docid desired_did) {
                 pos += p_offset;
                 did += d_offset;
                 read_increase(&pos, end, NULL, &wdf);
-            } else {
-                
             }
         } else {
             did += incre_did;
             unpack_uint(&pos, end, &wdf);
         }
     }
-    return true;
+    RETURN(true);
     
     
     
 }
 
-bool SkipListReader::next() {
+bool
+SkipListReader::next() {
+    LOGCALL(DB, bool, "SkipListReader::next", NO_ARGS);
     if (pos == end) {
         at_end = true;
-        return false;
+        RETURN(false);
     }
     if (at_end) {
-        return false;
+        RETURN(false);
     }
     Xapian::termcount incre_did = 0;
     unpack_uint(&pos, end, &incre_did);
@@ -1025,13 +1009,13 @@ bool SkipListReader::next() {
         read_increase(&pos, end, NULL, NULL);
         if (pos == end) {
             at_end = true;
-            return true;
+            RETURN(true);
         }
         unpack_uint(&pos, end, &incre_did);
     }
     did += incre_did;
     unpack_uint(&pos, end, &wdf);
-    return true;
+    RETURN(true);
 }
 
 SkipListWriter::SkipListWriter(string& chunk_from_, bool is_first_chunk_, Xapian::docid first_did_,
@@ -1041,6 +1025,7 @@ SkipListWriter::SkipListWriter(string& chunk_from_, bool is_first_chunk_, Xapian
 : chunk_from(chunk_from_), first_did(first_did_), is_first_chunk(is_first_chunk_), postlist_table(postlist_table_),
     changes_start(changes_start_), changes_end(changes_end_)
 {
+    LOGCALL_CTOR(DB, "SkipListWriter", is_first_chunk_ | first_did_ );
     
 }
 
@@ -1062,7 +1047,7 @@ SkipListWriter::get_new_postlist()
 		LOGLINE( DB, "empty chunk!" );
 		map<Xapian::docid,Xapian::termcount>::const_iterator it = changes_start;
 		for (; it!=changes_end ; ++it) {
-			//the doc length is -1, which means we should delete this doc id
+			//the wdf is -1, which means we should delete this doc id
 			if (it->second != SEPERATOR) {
 				new_postlist.insert(new_postlist.end(), *it);
 			}
@@ -1072,7 +1057,7 @@ SkipListWriter::get_new_postlist()
 			RETURN(false);
 		}
 	} else {
-		//read old map of <docid,length> from original chunk
+		//read old map of <docid,wdf> from original chunk
         Xapian::docid cur_did = 0, incre_did = 0;
         Xapian::termcount wdf = 0;
         cur_did = first_did;
@@ -1092,7 +1077,7 @@ SkipListWriter::get_new_postlist()
         
 		LOGVALUE(DB, new_postlist.size());
         
-		/* merge old map with changes, get new map of <docid,length>
+		/* merge old map with changes, get new map of <docid,wdf>
 		 * we can do this job in a more easy way,
 		 * for example, new_doclen[chg_it->first]=chg_it->second,
 		 * but it will cost more time.
@@ -1140,8 +1125,10 @@ SkipListWriter::get_new_postlist()
 	RETURN(true);
 }
 
-bool SkipListWriter::merge_postlist_changes(const string& term)
+bool
+SkipListWriter::merge_postlist_changes(const string& term)
 {
+    LOGCALL(DB, bool, "SkipListWriter::merge_postlist_changes", NO_ARGS);
 	//get new map of <docid,length>
 	get_new_postlist();
     
@@ -1149,7 +1136,7 @@ bool SkipListWriter::merge_postlist_changes(const string& term)
 	map<Xapian::docid,Xapian::termcount>::const_iterator start_pos, end_pos;
 	start_pos = end_pos = new_postlist.begin();
 	if (new_postlist.size() == 0) {
-		return true;
+		RETURN(true);
 	}
     
     
@@ -1237,7 +1224,7 @@ bool SkipListWriter::merge_postlist_changes(const string& term)
 			}
 		}
 	}			
-	return true;
+	RETURN(true);
 
 }
 

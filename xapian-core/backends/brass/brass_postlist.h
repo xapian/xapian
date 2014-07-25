@@ -63,26 +63,21 @@ using namespace std;
 class BrassCursor;
 class BrassDatabase;
 
-namespace Brass {
-    class PostlistChunkReader;
-    class PostlistChunkWriter;
-}
 
-
-class SkipList
-{
-private:
+class SkipList {
+    
 	vector<unsigned> src;
 	void genDiffVector();
-	int encodeLength( unsigned n );
-	void addLevel ( int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel );
+	int encodeLength(unsigned n);
+	void addLevel (int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel);
     int cal_level(unsigned size);
-    void buildSkipList( int level );
+    void buildSkipList(int level);
     map<Xapian::docid,Xapian::termcount>:: const_iterator start, end;
-public:
-	SkipList( map<Xapian::docid,Xapian::termcount>:: const_iterator start_,
-             map<Xapian::docid,Xapian::termcount>:: const_iterator end_ );
-	void encode( string& chunk ) const;
+
+  public:
+	SkipList(map<Xapian::docid,Xapian::termcount>:: const_iterator start_,
+             map<Xapian::docid,Xapian::termcount>:: const_iterator end_);
+	void encode(string& chunk) const;
 };
 
 class SkipListReader {
@@ -93,7 +88,8 @@ class SkipListReader {
     Xapian::docid did;
     Xapian::docid first_did;
     Xapian::termcount wdf;
-public:
+  
+  public:
     bool jump_to(Xapian::docid desired_did);
     Xapian::docid get_docid() const {
         return did;
@@ -108,9 +104,8 @@ public:
 	SkipListReader(const char* pos_, const char* end_, Xapian::docid first_did_);
 };
 
-class SkipListWriter
-{
-private:
+class SkipListWriter {
+    
     string& chunk_from;
     Xapian::docid first_did;
     bool is_first_chunk;
@@ -121,7 +116,8 @@ private:
     map<Xapian::docid,Xapian::termcount>::const_iterator changes_start, changes_end;
     Xapian::termcount num_of_entries;
     Xapian::termcount coll_fre;
-public:
+
+  public:
 	SkipListWriter(string& chunk_from_, bool is_first_chunk_, Xapian::docid first_did_, BrassPostListTable* postlist_table_,
                    map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start_,
                    map<Xapian::docid,Xapian::termcount>::const_iterator& changes_end_);
