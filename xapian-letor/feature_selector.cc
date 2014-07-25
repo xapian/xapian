@@ -81,6 +81,12 @@ FeatureSelector::kde_pdf(double x, struct density_function f) {
 
 
 double
+FeatureSelector::d_kl(double p, double q) {
+	return p * log2(p/q);
+}
+
+
+double
 FeatureSelector::d_kl_for_js(struct density_function P, struct density_function Q, int steps) {
 	double s = 0;
 	double h = 1 / steps;
@@ -109,23 +115,24 @@ FeatureSelector::d_kl_for_js(struct density_function P, struct density_function 
 
 
 double
-FeatureSelector::d_kl(double p, double q) {
-	return p * log2(p/q);
-}
-
-
-double
-FeatureSelector::d_kl(struct density_function P, struct density_function Q, int steps) {
+FeatureSelector::d_js(struct density_function P, struct density_function Q, int steps) {
 	return 0.5 * d_kl_for_js(P, Q, steps) + 0.5 * d_kl_for_js(Q, P);
 }
 
 
-vector<int>
-FeatureSelector::select(vector<int> features, int k, int r, vector<FeatureVector> training_data, vector<FeatureVector> validation_data) {
-	vector<double> weights;
-	map<double, vector<FeatureVector>> relevance_training_data;
+double
+FeatureSelector::d_js(double p, double q) {
+	double m = 0.5*(p+q);
+	return 0.5*d_kl(p, m) + 0.5*d_kl(q, m);
+}
 
-	// Separate FeatureVector by relevance level
+
+vector<double>
+FeatureSelector::compute(vector<int> features, vector<FeatureVector> training_data, vector<FeatureVector> validation_data) {
+	vector<double> weights;
+	map<double, vector<FeatureVector>> relevance_training_data, relevance_validation_data;	// map from relevance level to feature vectors
+
+	// Separate FeatureVector by relevance level for training data
 	for (vector<FeatureVector>::iterator fvector_it = training_data.begin();
 			fvector_it != training_data.end(); ++fvector_it) {
 
@@ -135,29 +142,111 @@ FeatureSelector::select(vector<int> features, int k, int r, vector<FeatureVector
 		}
 		else {
 			vector<FeatureVector> fvectors;
+			fvectors.push_back( fvector_it->get_feature_value_of(i) );
 			relevance_training_data[relevance] = fvectors;
 		}
 	}
 
-	// Generate probability density functions
-	for (int i = 1; i <= features.size(); ++i) {
-		struct density_function pdf;
+	// Separate FeatureVector by relevance level for validation data
+	for (vector<FeatureVector>::iterator fvector_it = validation_data.begin();
+			fvector_it != validation_data.end(); ++fvector_it) {
 
-		vector<double> x_train;
-		for (vector<FeatureVector>::iterator fvector_it = training_data.begin();
-				fvector_it != training_data.end(); ++fvector_it) {
-
-			x_train.push_back( fvector_it->get_feature_value_of(i) );
+		double relevance = fvector_it->get_label();
+		if (relevance_validation_data.find(relevance) != relevance_validation_data.end()) {
+			relevance_validation_data[relevance].push_back( fvector_it->get_feature_value_of(i) );
 		}
-
-		pdf.m = training_data.size();
-		// pdf.h = 
-		pdf.x_train = x_train;
-
-		pdfs.push_back(pdf);
+		else {
+			vector<FeatureVector> fvectors;
+			fvectors.push_back( fvector_it->get_feature_value_of(i) );
+			relevance_validation_data[relevance] = fvectors;
+		}
 	}
 
-	// 
+	// Calculate score for each feature
+	for (int i = 1; i <= features.size(); ++i) {
+		vector<struct density_function> pdfs;
+		vector<double> rels;
+
+		// Generate probability density functions for each relevance level
+		for (relevance_training_data::iterator it = relevance_training_data.begin();
+				it != relevance_training_data.end(); ++it) {
+
+			vector<double> x_train = FeatureVector::extract(training_data, it->first, i);
+
+			struct density_function pdf;
+			pdf.m = training_data.size();
+			pdf.h = 1.06 * std(x_train) * pow(pdf.m, -0.2); 
+			pdf.x_train = x_train;
+
+			pdfs.push_back(pdf);
+			rels.push_back(it->first);
+		}
+
+		// Calculate weight of feature
+		double temp_w = 0;
+
+		// Calculate feature importance
+		// TO DO
+
+		// Calculate discrimination
+		for (vector<FeatureVector>::iterator it = validation_data.begin();
+				it != validation_data.end(); ++it) {
+
+			double x = it->get_feature_value_of(i);		// Get the value of ith feature
+
+			vector<double> pdf_vals;
+			for (int i = 0; i<rels.size(); ++i) {
+				pdf_vals.push_back( kde_pdf(x, pdfs[i]) );
+			}
+
+			for (int i = 0; i<rels.size(); ++i)
+				for (int j = i+1; j<rels.size(); ++j) {
+					temp_w += (rels[j] - rels[i]) * d_kl(pdf_vals[j], pdf_vals[i]);
+				}
+		}
+
+		weights.push_back(temp_w);
+	}
+
+	return weights;
+}
 
 
+vector<int>
+FeatureSelector::fetch(vector<double> weights, int k) {
+	struct data {
+		double val;
+		int idx;
+	};
+
+	struct comp {
+		bool operator() (struct data i, struct data j) {
+			return i.val > j.val;
+		}
+	} comp_obj;
+
+	vector<struct data> sorted_data;
+	for (vector<double>::iterator it = weights.begin(), int i = 0;
+			it != weights.end(); ++it, ++i) {
+		struct data ele;
+		ele.val = *it;
+		ele.idx = i;
+		sorted_data.push_back(ele);
+	}
+	sort(sorted_data.begin(), sorted_data.end(), comp_obj);
+
+	vector<int> f_idx;
+	for (vector<struct data>::iterator it = sorted_data.begin();
+			it != sorted_data.end(); ++it) {
+		f_idx.push_back(it->idx);
+	}
+
+	return f_idx;
+}
+
+
+vector<int>
+FeatureSelector::select(vector<int> features, int k, vector<FeatureVector> training_data, vector<FeatureVector> validation_data) {
+	vector<double> weights = compute(features, training_data, validation_data);
+	return fetch(weights, k);
 }

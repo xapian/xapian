@@ -77,7 +77,17 @@ public:
     // Jensen-Shannon divergence
     double d_js(struct density_function P, struct density_function Q, int steps);
 
-    vector<int> select(vector<int> features, int k, int r, vector<FeatureVector> training_data, vector<FeatureVector> validation_data);
+    // Jensen-Shannon divergence
+    double d_js(double p, double q);
+
+    // Compute weights for features
+    vector<double> compute(vector<int> features, vector<FeatureVector> training_data, vector<FeatureVector> validation_data);
+
+    // Fetch top k features
+    vector<int> fetch(vector<double> weights, int k);
+
+    // Select top k features
+    vector<int> select(vector<int> features, int k, vector<FeatureVector> training_data, vector<FeatureVector> validation_data);
 };
 
 }
