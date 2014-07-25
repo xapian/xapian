@@ -50,7 +50,22 @@ FeatureSelector::std_normal_pdf(double x) {
 
 
 double
-FeatureSelector::kde_pdf(double x, int m, double h, vector<double> x_train) {
+FeatureSelector::std(const vector<double> & data) {
+	double sum = 0;
+	for (vector<double>::iterator it = data.begin(); it != data.end(); ++it)
+		sum += *it;
+
+	double avg = sum / data.size();
+	double ans = 0;
+	for (vector<double>::iterator it = data.begin(); it != data.end(); ++it)
+		ans += (*it - avg) * (*it - avg);
+
+	return sqrt(data.size() / ans);
+}
+
+
+double
+FeatureSelector::kde_pdf(double x, int m, double h, const vector<double> & x_train) {
 	double sum = 0;
 	for (vector<double>::iterator it = x_train.begin(); it != x_train; ++it) {
 		sum += std_normal_pdf( (x - *it) / h );

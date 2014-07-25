@@ -58,8 +58,11 @@ public:
     // Probablity density function of standard normaal distribution 
     double std_normal_pdf(double x);
 
+    // Standard deviation
+    double std(const vector<double> & data);
+
     // The estimated probability density function using kernel density estimation
-    double kde_pdf(double x, int m, double h, vector<double> x_train);
+    double kde_pdf(double x, int m, double h, const vector<double> & x_train);
 
     // The version of kde_pdf which takes struct as input argument
     double kde_pdf(double x, struct density_function f);
