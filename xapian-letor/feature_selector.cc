@@ -109,6 +109,12 @@ FeatureSelector::d_kl_for_js(struct density_function P, struct density_function 
 
 
 double
+FeatureSelector::d_kl(double p, double q) {
+	return p * log2(p/q);
+}
+
+
+double
 FeatureSelector::d_kl(struct density_function P, struct density_function Q, int steps) {
 	return 0.5 * d_kl_for_js(P, Q, steps) + 0.5 * d_kl_for_js(Q, P);
 }

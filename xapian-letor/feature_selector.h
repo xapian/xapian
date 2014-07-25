@@ -67,6 +67,9 @@ public:
     // The version of kde_pdf which takes struct as input argument
     double kde_pdf(double x, struct density_function f);
 
+    // KL divergence
+    double d_kl(double p, double q);
+
     // KL divergence for Jensen-Shannon divergence
     // 
     double d_kl_for_js(struct density_function P, struct density_function Q, int steps);
