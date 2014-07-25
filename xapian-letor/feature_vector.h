@@ -112,6 +112,9 @@ public:
 
     // Create letor item
     Xapian::MSet::letor_item create_letor_item(Xapian::doccount idx);
+
+    // Restore FeatureVector from file
+    vector<FeatureVector> read_from_file(string file);
 };
 
 }

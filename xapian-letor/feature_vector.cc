@@ -165,3 +165,64 @@ FeatureVector::create_letor_item(Xapian::doccount idx) {
     l_item.idx   = index;
     return l_item;
 }
+
+vector<FeatureVector>
+FeatureVector::read_from_file(string file) {
+    ifstream data_file;
+    data_file.open(file.c_str());
+
+    if (data_file.is_open()) {
+        vector<FeatureVector> fvectors;
+        string line;
+        int num_feature = -1;
+
+        while (getline(data_file, line)) {
+            if (line.find("qid") != string::npos) {
+                if (line.find("#") != string::npos) {
+                    line = line.substr(0, line.find("#"));
+                }
+
+                line = StringHelper.trim(line);
+                vector<string> s_vector = StringHelper.split(line);
+
+                if (s_vector.size() > 2) {
+                    FeatureVector fvector;
+                    vector<double> fvals;
+
+                    fvector.set_label = StringHelper.to_double(s_vector[0]);
+                    // int qid = StringHelper.to_int(s_vector[1].substr(4, s_vector[1].size()-4));
+
+                    for (int i = 2; i < s_vector.size(); ++i) {
+                        int found = s_vector[i].find(":");
+                        if (found != string::npos) {
+                            // int f_idx = StringHelper.to_int(0, found);
+                            double f_val = StringHelper.to_double(found+1, f_s_vector[i].size()-found-1);
+                            fvals.push_back(f_val);
+                        }
+                        else {
+                            cout << "The file is broken!" << endl;
+                            exit(1);
+                        }
+                    }
+
+                    if (num_feature == -1) {
+                        num_feature = fvals.size();
+                    }
+                    else if (num_feature != fvals.size()) {
+                        cout << "The number of features is not compatible!" << endl;
+                        exit(1);
+                    }
+
+                    fvector.set_feature_values(fvals);
+
+                    fvectors.push_back(fvector);
+                }
+            }
+        }
+        return fvectors;
+    }
+    else {
+        cerr << "Can't open file " << file << endl;
+        exit(1);
+    }
+}
