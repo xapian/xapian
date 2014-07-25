@@ -226,3 +226,17 @@ FeatureVector::read_from_file(string file) {
         exit(1);
     }
 }
+
+static vector<double>
+FeatureVector::extract(const vector<FeatureVector> & fvectors, double relevance, int f_idx) {
+    vector<double> fvals;
+    for (vector<FeatureVector>::iterator it = fvectors.begin(); it != fvectors.end(); ++it) {
+        if (relevance == it->get_label()) {
+            if (f_idx < 1 || f_idx > it->get_feature_num()) {
+                cout << "The feature doesn't exist!" << endl;
+                exit(1);
+            }
+            fvals.push_back( it->get_feature_value_of(f_idx) );
+        }
+    }
+}

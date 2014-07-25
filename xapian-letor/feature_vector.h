@@ -115,6 +115,9 @@ public:
 
     // Restore FeatureVector from file
     vector<FeatureVector> read_from_file(string file);
+
+    // Extract certain feature
+    static vector<double> extract(const vector<FeatureVector> & fvectors, double relevance, int f_idx);
 };
 
 }
