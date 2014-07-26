@@ -671,7 +671,7 @@ DoclenChunkWriter::merge_doclen_changes( )
 	//If the number of entries in new doclen map is less than a certain value,
 	//one chunk is enough.
 	//Otherwise we need to split it into many chunks.
-	if (new_doclen.size() <= MAX_ENTRIES_IN_CHUNK) {
+	if (new_doclen.size() <= MAX_ENTRIES_OF_DOCLEN_CHUNK) {
 		//only one chunk
 		
 		string cur_chunk;
@@ -717,7 +717,7 @@ DoclenChunkWriter::merge_doclen_changes( )
 				is_done = true;
 			}
 			count++;
-			if (is_done || count == MAX_ENTRIES_IN_CHUNK) {
+			if (is_done || count == MAX_ENTRIES_OF_DOCLEN_CHUNK) {
 				//current chunk is full, or no more entry. 
 				string cur_chunk, cur_key;
 
@@ -1143,7 +1143,7 @@ SkipListWriter::merge_postlist_changes(const string& term)
 	//If the number of entries in new postlist map is less than a certain value,
 	//one chunk is enough.
 	//Otherwise we need to split it into many chunks.
-	if (new_postlist.size() <= MAX_ENTRIES_IN_CHUNK) {
+	if (new_postlist.size() <= MAX_ENTRIES_OF_SKIPLIST_CHUNK) {
 		//only one chunk
 		
 		string cur_chunk;
@@ -1189,7 +1189,7 @@ SkipListWriter::merge_postlist_changes(const string& term)
 				is_done = true;
 			}
 			count++;
-			if (is_done || count == MAX_ENTRIES_IN_CHUNK) {
+			if (is_done || count == MAX_ENTRIES_OF_SKIPLIST_CHUNK) {
 				//current chunk is full, or no more entry.
 				string cur_chunk, cur_key;
                 
