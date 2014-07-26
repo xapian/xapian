@@ -81,10 +81,8 @@ class BrassPositionListTable : public BrassLazyTable {
 /** A position list in a brass database. */
 class BrassPositionList : public PositionList {
     
-    /* We use an algorithm named vsencoding to encode the position list 
-     * when the position list is used for storing document length.
-     * This pointer is used to read the encoded chunk, 
-     * it's valid only when current position list is for document length. */
+    /* We use an algorithm named vsencoding to encode the position list.
+     * This pointer is used to decode a chunk made by vsencoding.*/
     AutoPtr<VSDecoder> p_vsd;
 
     /// Current entry.
