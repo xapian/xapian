@@ -203,8 +203,9 @@ Database::check(const string & path, int opts, std::ostream *out)
 		    BrassChanges::check(changes_file);
 	    }
 	} else {
-	    *out << "Not checking changes files because database open failed"
-		 << endl;
+	    if (out)
+		*out << "Not checking changes files because database open failed"
+		     << endl;
 	}
 
 	// This is a brass directory so try to check all the btrees.

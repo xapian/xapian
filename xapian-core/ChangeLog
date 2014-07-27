@@ -1,3 +1,9 @@
+Sun Jul 27 01:56:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: Don't try to write output when no output stream
+	  is specified in the case where the database open fails and so we
+	  can't check changes files.
+
 Thu Jul 24 21:12:23 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
