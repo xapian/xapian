@@ -774,6 +774,8 @@ DoclenChunkReader::DoclenChunkReader(const string& chunk_, bool is_first_chunk,
 	p_fwcr.reset(new FixedWidthChunkReader(pos,end,first_did_in_chunk));
 }
 
+
+// read the delta of document id and corresponding wdf
 inline bool
 read_increase(const char** p, const char* end, Xapian::docid* incre_did, Xapian::termcount* wdf) {
 	unsigned tmp;
@@ -788,11 +790,15 @@ read_increase(const char** p, const char* end, Xapian::docid* incre_did, Xapian:
 	return true;
 }
 
+
+/// get a proper level of the "tree" for a postlist depending on its size @size
 int
 SkipList::cal_level(unsigned size) {
 	return (int)(log10(size)/0.6);
 }
 
+
+/// get deltas of document ids
 void
 SkipList::genDiffVector() {
 	map<Xapian::docid,Xapian::termcount>::const_iterator it = start, pre_it = start;
@@ -803,6 +809,8 @@ SkipList::genDiffVector() {
 	}
 }
 
+
+/// how many bytes to encode a number @n using method pack_uint in pack.h ?
 int
 SkipList::encodeLength(unsigned n) {
 	int len = 0;
@@ -814,16 +822,39 @@ SkipList::encodeLength(unsigned n) {
 	return len;
 }
 
+
+/* skip-list format is something like a binary search tree,
+ * this function increase the level of the "tree",
+ * which means adding several skip-info segments. 
+ * @ps: _IN_ the start position of @src
+ * @pe: _IN_OUT_ the end position of @src
+ * the target of this function is [ps, pe),
+ * this function will insert two skip-info segments, 
+ * the first one is inserted at the beginning of the target segment,
+ * the second one is inserted at the half of the target segment,
+ * @pinfo1_: _OUT_ the position of the first skip-info segment
+ * @pinfo2_: _OUT_ the position of the second skip-info segment
+ * @curLevel: _IN_ current depth of the "tree" */
 void
 SkipList::addLevel (int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel) {
+    
+    /// length of the target segment
 	int size = pe-ps;
+    
+    /// position of first skip-info segment
 	int pinfo1 = ps;
+    
+    /* position of second skip-info segment, 
+     * as the first skip-info segment will cost 3 places (-1,p_offset,d_offset), extra 3 is added */
 	int pinfo2 = ps+3+size/2;
     
+    /// handle special cases
 	if (pinfo2%2 == pinfo1%2) {
 		pinfo2--;
 	}
     
+    /* @value1: d_offset of the first skip-info segment
+     * @value2: d_offset of the second skip-info segment */
 	int value1 = 0, value2 = 0;
 	for (int i = ps ; i<=pinfo2-5 ; i+=2) {
 		value1 += src[i];
@@ -832,6 +863,7 @@ SkipList::addLevel (int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel) {
 		value2 += src[i];
 	}
     
+    /// insert two skip-info segments
 	src.insert(src.begin()+pinfo1,0);
 	src.insert(src.begin()+pinfo1,0);
 	src.insert(src.begin()+pinfo1,SEPERATOR);
@@ -840,27 +872,41 @@ SkipList::addLevel (int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel) {
 	src.insert(src.begin()+pinfo2,0);
 	src.insert(src.begin()+pinfo2,SEPERATOR);
     
+    /// as two skip-info segments are inserted, the end position of the target segment increases by 6
 	pe += 6;
+    
+    /// set d_offset of the second skip-info segment
 	src[pinfo2+2]=value2;
+    
+    /// calculate the p_offset of the second skip-info segment
 	int offset2 = 0;
 	for (int i = pinfo2+3 ; i<pe-2 ; ++i){
 		offset2 += encodeLength(src[i]);
 	}
+    
+    /// set the p_offset of the second skip-info segment
 	src[pinfo2+1] = offset2;
     
-	src[pinfo1+2] = value1;
+    /// set the d_offset of the first skip-info segment
+    src[pinfo1+2] = value1;
+    
+    /// calculate the p_offset of the first skip-info segment
 	int offset1 = 0;
 	for (int i = pinfo1+3 ; i<pinfo2-2 ; ++i) {
 		offset1 += encodeLength(src[i]);
 	}
+    
+    /// set the p_offset of the second skip-info segment
 	src[pinfo1+1]=offset1;
     
+    /// the encoding length of the target segment will increase as we insert two skip-info segments
 	int longer = 0;
 	for (int i = 0 ; i<3 ; ++i) {
 		longer += encodeLength(src[pinfo1+i]);
 		longer += encodeLength(src[pinfo2+i]);
 	}
     
+    /// update previous offset
 	int updateCount = 0;
 	unsigned offset = 0;
 	for (int i = ps-3 ; i>=0 ; --i) {
@@ -876,23 +922,36 @@ SkipList::addLevel (int ps, int &pe, int& pinfo1_, int& pinfo2_, int curLevel) {
 		}
 	}
     
+    /// output the start position of two skip-info segments
 	pinfo1_ = pinfo1;
 	pinfo2_ = pinfo2;
     
     
 }
 
+/// bulid a skip list with @level levels.
 void
 SkipList::buildSkipList(int level) {
 	if (level == 0) {
 		return;
 	}
+    
+    /// finished levels
 	int curLevel = 0;
+    
+    /* we build skip list by segments, for each segments we add two skip-info segments
+     * each pair of two adjacent numbres in the queue represents a segment to be handled */
 	queue<int> positions;
 	positions.push(0);
 	positions.push((int)src.size());
+    
+    /// start looping
 	while (curLevel < level) {
+        
+        /// the number of segments for current level
 		int n = (int)pow(2,curLevel);
+        
+        /// deal with each segments
 		for (int i = 0 ; i<n ; ++i) {
 			int ps=0, pe=0, pinfo1=0, pinfo2=0;
 			ps = positions.front();
@@ -906,31 +965,44 @@ SkipList::buildSkipList(int level) {
 			positions.push(pinfo2);
             
 		}
+        
+        /// as segments will influence each other, we need to do something to make up for the influence
 		for (int i = (int)positions.size()-1 ; i>=0 ; --i) {
 			int tmp = positions.front();
 			tmp += i/4*6;
 			positions.pop();
 			positions.push(tmp);
 		}
+        
 		curLevel++;
 	}
     
 }
 
 
+/* @start_ : the start of the postlist
+ * @end_ : the end of the postlist */
 SkipList::SkipList(map<Xapian::docid,Xapian::termcount>:: const_iterator start_,
                    map<Xapian::docid,Xapian::termcount>:: const_iterator end_)
 : start(start_), end(end_)
 {
+    /// get deltas of document ids
 	genDiffVector();
+    
+    /// calculate the size of this part of the postlist
     int s = 0;
     map<Xapian::docid,Xapian::termcount>:: const_iterator it1(start_), it2(end_);
     for (; it1!=it2; ++it1) {
         ++s;
     };
+    
+    /// bulid skip list
     buildSkipList(cal_level(s));
 }
 
+
+/* encode the postlist to a string chunk,
+ * the chunk is appended to @chunk. */
 void
 SkipList::encode( string& chunk ) const {
 	for (int i = 0 ; i<(int)src.size() ; ++i) {
@@ -939,45 +1011,67 @@ SkipList::encode( string& chunk ) const {
     
 }
 
+
+/* default constructor
+ * @pos_: pointer to the start of skip-list chunk
+ * @end_: pointer to the end of skip-list chunk
+ * @first_did_: first document id in the chunk */
 SkipListReader::SkipListReader(const char* pos_, const char* end_, Xapian::docid first_did_)
 : ori_pos(pos_), pos(pos_), end(end_), first_did(first_did_) {
     LOGCALL_CTOR(DB, "SkipListReader", first_did_);
     if (pos != end) {
+        /// the chunk isn't empty
+        
         at_end = false;
         did = first_did;
+        
+        /// read the first entry in the chunk
         next();
     } else {
+        /// the chunk is empty
+        
         at_end = true;
         did = -1;
         wdf = -1;
     }
 }
 
+
+/* jump to desired doc id,
+ * if fails, it will arrive at the exact did just after @desired_did
+ * @return: true if @desired_did exists. */
 bool
 SkipListReader::jump_to(Xapian::docid desired_did) {
     LOGCALL(DB, bool, "SkipListReader::jump_to", desired_did);
     if (did == desired_did) {
+        /// we are already at desired document
         RETURN(true);
     }
     if (did > desired_did) {
+        /// in this case we have to go bakc to the start position
         pos = ori_pos;
         did = first_did;
         next();
     }
     while (pos != end) {
         if (did > desired_did) {
+            /// desired document doesn't exit
             RETURN(false);
         }
         if (did == desired_did) {
+            /// arrive at the desired document
             RETURN(true);
         }
         Xapian::termcount incre_did = 0;
         unpack_uint(&pos, end, &incre_did);
         if (incre_did == SEPERATOR) {
+            /// we meet a skip-info segment
             unsigned p_offset = 0;
             unsigned d_offset = 0;
             read_increase(&pos, end, &p_offset, &d_offset);
             if (desired_did >= did+d_offset) {
+                /* desired doc id is beyond the range of this skip-info, 
+                 * so we skip according to the skip-info segment */
                 pos += p_offset;
                 did += d_offset;
                 read_increase(&pos, end, NULL, &wdf);
@@ -993,6 +1087,9 @@ SkipListReader::jump_to(Xapian::docid desired_did) {
     
 }
 
+
+/* go to the next document id
+ * @return: false if we have run off the chunk. */
 bool
 SkipListReader::next() {
     LOGCALL(DB, bool, "SkipListReader::next", NO_ARGS);
@@ -1006,6 +1103,7 @@ SkipListReader::next() {
     Xapian::termcount incre_did = 0;
     unpack_uint(&pos, end, &incre_did);
     while (incre_did == SEPERATOR) {
+        /// skip the skip-info segments
         read_increase(&pos, end, NULL, NULL);
         if (pos == end) {
             at_end = true;
@@ -1018,6 +1116,14 @@ SkipListReader::next() {
     RETURN(true);
 }
 
+
+/* default constructor
+ * @chunk_from_: original chunk
+ * @is_first_chunk_: if original chunk is the first chunk
+ * @first_did_: first document id in original chunk
+ * @postlist_table_: current postlist table
+ * @changes_start_: the start of changes
+ * @changes_end_: the end of changes */
 SkipListWriter::SkipListWriter(string& chunk_from_, bool is_first_chunk_, Xapian::docid first_did_,
                                BrassPostListTable* postlist_table_,
                                map<Xapian::docid,Xapian::termcount>::const_iterator& changes_start_,
@@ -1036,7 +1142,7 @@ SkipListWriter::get_new_postlist()
 	const char* pos = chunk_from.data();
     const char* end = pos+chunk_from.size();
     
-	//deal with the header of the chunk
+	/// deal with the header of the chunk
 	if (is_first_chunk) {
 		read_start_of_first_chunk(&pos, end, &num_of_entries, &coll_fre);
 	}
@@ -1079,7 +1185,7 @@ SkipListWriter::get_new_postlist()
         
 		/* merge old map with changes, get new map of <docid,wdf>
 		 * we can do this job in a more easy way,
-		 * for example, new_doclen[chg_it->first]=chg_it->second,
+		 * for example, new_postlist[chg_it->first]=chg_it->second,
 		 * but it will cost more time.
 		 * the following code takes the advantages of a fact
 		 * that all elements in a map is in order.
@@ -1129,10 +1235,11 @@ bool
 SkipListWriter::merge_postlist_changes(const string& term)
 {
     LOGCALL(DB, bool, "SkipListWriter::merge_postlist_changes", NO_ARGS);
-	//get new map of <docid,length>
+	/// get new map of <docid,wdf>
 	get_new_postlist();
     
-	//build new chunk from new postlist map.
+	/// build new chunk from new postlist map.
+    
 	map<Xapian::docid,Xapian::termcount>::const_iterator start_pos, end_pos;
 	start_pos = end_pos = new_postlist.begin();
 	if (new_postlist.size() == 0) {
@@ -1155,7 +1262,7 @@ SkipListWriter::merge_postlist_changes(const string& term)
 		string head_of_chunk = make_start_of_chunk(is_last_chunk,start_pos->first,end_pos->first);
 		cur_chunk = head_of_chunk+cur_chunk;
         
-		//encode new map<doc id, doc length>
+		//encode new map<docid, wdf>
 		sl.encode(cur_chunk);
         
 		if (is_first_chunk) {
@@ -1234,18 +1341,10 @@ SkipListWriter::merge_postlist_changes(const string& term)
  *  length : name).  Key for subsequent chunks is the same, followed by the
  *  document ID of the first document in the chunk (encoded as length of
  *  representation in first byte, and then docid).
- *
- *  A chunk (except for the first chunk) contains:
- *
- *  1)  bool - true if this is the last chunk.
- *  2)  difference between final docid in chunk and first docid.
- *  3)  wdf for the first item.
- *  4)  increment in docid to next item, followed by wdf for the item.
- *  5)  (4) repeatedly.
- *
- *  The first chunk begins with the number of entries, the collection
- *  frequency, then the docid of the first document, then has the header of a
- *  standard chunk.
+ *  
+ *  there are two kinds of postlist, 
+ *  one is for document length, another is normal postlist storing wdf.
+ *  doc length postlist adopts fixed-width format while normal postlist adopts skip-list format.
  */
 BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 			     const string & term_,
@@ -1311,8 +1410,7 @@ BrassPostList::init()
         wdf = p_skip_list_reader->get_wdf();
         is_at_end = p_skip_list_reader->is_at_end();
 		p_doclen_chunk_reader.reset(0);
-	}
-	if (is_doclen_list)	{
+	} else {
 		LOGLINE(DB, "This brass_postlist is for doclen info.");
 		p_doclen_chunk_reader.reset(new DoclenChunkReader(cursor->current_tag,true,first_did_in_chunk));
 		did = p_doclen_chunk_reader->get_docid();
@@ -1381,18 +1479,6 @@ BrassPostList::next_in_chunk()
     
     is_at_end = p_skip_list_reader->is_at_end();
     RETURN(false);
-    
-    /*if (pos == end) RETURN(false);*/
-
-    /*read_did_increase(&pos, end, &did);
-    read_wdf(&pos, end, &wdf);*/
-
-    // Either not at last doc in chunk, or pos == end, but not both.
-    /*Assert(did <= last_did_in_chunk);
-    Assert(did < last_did_in_chunk || pos == end);
-    Assert(pos != end || did == last_did_in_chunk);
-
-    RETURN(true);*/
 }
 
 void
@@ -1445,8 +1531,7 @@ BrassPostList::next_chunk()
         did = p_skip_list_reader->get_docid();
         wdf = p_skip_list_reader->get_wdf();
         is_at_end = p_skip_list_reader->is_at_end();
-	}
-	if (is_doclen_list) {
+	} else {
 		LOGLINE(DB, "next_chunk() for doclen list");
 		LOGLINE(DB, "build new doclen_chunk_reader"); 
 		p_doclen_chunk_reader.reset(new DoclenChunkReader(cursor->current_tag,is_first_chunk,first_did_in_chunk));
@@ -1557,8 +1642,7 @@ BrassPostList::move_to_chunk_containing(Xapian::docid desired_did)
         did = p_skip_list_reader->get_docid();
         wdf = p_skip_list_reader->get_wdf();
         is_at_end = p_skip_list_reader->is_at_end();
-	}
-	if (is_doclen_list) {
+	} else {
 		LOGLINE(DB, "build new doclen_chunk_reader " ); 
 		p_doclen_chunk_reader.reset(new DoclenChunkReader(cursor->current_tag,is_first_chunk,first_did_in_chunk));
 		did = p_doclen_chunk_reader->get_docid();
