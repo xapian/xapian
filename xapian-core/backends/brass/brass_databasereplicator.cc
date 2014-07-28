@@ -50,12 +50,12 @@ using namespace std;
 using namespace Xapian;
 
 static const char * dbnames =
-	"/position."BRASS_TABLE_EXTENSION"\0"
 	"/postlist."BRASS_TABLE_EXTENSION"\0"
 	"/record."BRASS_TABLE_EXTENSION"\0\0\0"
+	"/termlist."BRASS_TABLE_EXTENSION"\0"
+	"/position."BRASS_TABLE_EXTENSION"\0"
 	"/spelling."BRASS_TABLE_EXTENSION"\0"
-	"/synonym."BRASS_TABLE_EXTENSION"\0\0"
-	"/termlist."BRASS_TABLE_EXTENSION;
+	"/synonym."BRASS_TABLE_EXTENSION;
 
 BrassDatabaseReplicator::BrassDatabaseReplicator(const string & db_dir_)
     : db_dir(db_dir_)
@@ -66,7 +66,7 @@ BrassDatabaseReplicator::BrassDatabaseReplicator(const string & db_dir_)
 void
 BrassDatabaseReplicator::commit() const
 {
-    for (size_t i = 0; i != N_TABLES_; ++i) {
+    for (size_t i = 0; i != Brass::MAX_; ++i) {
 	int fd = fds[i];
 	if (fd >= 0) {
 	    io_sync(fd);
@@ -80,7 +80,7 @@ BrassDatabaseReplicator::commit() const
 
 BrassDatabaseReplicator::~BrassDatabaseReplicator()
 {
-    for (size_t i = 0; i != N_TABLES_; ++i) {
+    for (size_t i = 0; i != Brass::MAX_; ++i) {
 	int fd = fds[i];
 	if (fd >= 0) {
 	    close(fd);
@@ -167,7 +167,7 @@ BrassDatabaseReplicator::process_changeset_chunk_version(string & buf,
 }
 
 void
-BrassDatabaseReplicator::process_changeset_chunk_blocks(table_id table,
+BrassDatabaseReplicator::process_changeset_chunk_blocks(Brass::table_type table,
 							unsigned v,
 							string & buf,
 							RemoteConnection & conn,
@@ -293,7 +293,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// 11111111 - last chunk
 	// 11111110 - version file
 	// 00BBBTTT - table block:
-	//   Block size = (2048<<BBB) BBB=0..5; Table TTT=0..(N_TABLES-1)
+	//   Block size = (2048<<BBB) BBB=0..5; Table TTT=0..(Brass::MAX_-1)
 	unsigned char chunk_type = *ptr++;
 	if (chunk_type == 0xff)
 	    break;
@@ -304,9 +304,9 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	    continue;
 	}
 	size_t table_code = (chunk_type & 0x07);
-	if (table_code >= N_TABLES_)
+	if (table_code >= Brass::MAX_)
 	    throw NetworkError("Bad table code in changeset file");
-	table_id table = static_cast<table_id>(table_code);
+	Brass::table_type table = static_cast<Brass::table_type>(table_code);
 	unsigned char v = (chunk_type >> 3) & 0x0f;
 
 	// Process the chunk

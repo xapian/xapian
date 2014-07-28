@@ -1,3 +1,10 @@
+Mon Jul 28 06:35:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc,
+	  backends/brass/brass_databasereplicator.h,
+	  backends/brass/brass_table.cc: Replace enum table_id with enum
+	  Brass::table_type.
+
 Mon Jul 28 04:28:12 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Note the freelist implementation fixed #40.

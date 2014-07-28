@@ -225,19 +225,19 @@ BrassTable::write_block(uint4 n, const byte * p, bool appending) const
     if (!changes_obj) return;
 
     unsigned char v;
-    // FIXME: track table_id in this class?
+    // FIXME: track table_type in this class?
     if (strcmp(tablename, "position") == 0) {
-	v = 0;
+	v = int(Brass::POSITION);
     } else if (strcmp(tablename, "postlist") == 0) {
-	v = 1;
+	v = int(Brass::POSTLIST);
     } else if (strcmp(tablename, "record") == 0) {
-	v = 2;
+	v = int(Brass::RECORD);
     } else if (strcmp(tablename, "spelling") == 0) {
-	v = 3;
+	v = int(Brass::SPELLING);
     } else if (strcmp(tablename, "synonym") == 0) {
-	v = 4;
+	v = int(Brass::SYNONYM);
     } else if (strcmp(tablename, "termlist") == 0) {
-	v = 5;
+	v = int(Brass::TERMLIST);
     } else {
 	return; // FIXME
     }
