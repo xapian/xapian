@@ -1,3 +1,8 @@
+Mon Jul 28 03:22:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_databasereplicator.cc: Remove variable which is
+	  set but never used.
+
 Sun Jul 27 01:56:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/dbcheck.cc: Don't try to write output when no output stream

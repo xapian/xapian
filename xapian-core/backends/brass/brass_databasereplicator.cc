@@ -320,8 +320,6 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	if (table_code >= N_TABLES_)
 	    throw NetworkError("Bad table code in changeset file");
 	table_id table = static_cast<table_id>(table_code);
-	// Get the tablename.
-	string tablename(tablenames + (table_code * 9));
 	unsigned char v = (chunk_type >> 3) & 0x0f;
 
 	// Process the chunk
