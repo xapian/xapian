@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_CHANGES_H
 #define XAPIAN_INCLUDED_BRASS_CHANGES_H
 
-#include "brass_types.h"
+#include "brass_defs.h"
 #include <string>
 
 class BrassChanges {

@@ -24,10 +24,13 @@
 #include <config.h>
 
 #include "brass_check.h"
+#include "brass_version.h"
 #include "unicode/description_append.h"
 #include "xapian/constants.h"
 
+#include "autoptr.h"
 #include <climits>
+#include <cstring>
 #include <ostream>
 
 using namespace Brass;
@@ -215,51 +218,72 @@ BrassTableCheck::block_check(Brass::Cursor * C_, int j, int opts,
     }
 }
 
-void
+BrassTableCheck *
 BrassTableCheck::check(const char * tablename, const string & path,
-		       brass_revision_number_t * rev_ptr, int opts,
+		       const BrassVersion & version_file, int opts,
 		       ostream *out)
 {
-    BrassTableCheck B(tablename, path, false, out);
-    // open() throws an exception if it fails
-    if (rev_ptr)
-	B.open(0, *rev_ptr);
-    else
-	B.open(0);
-    Brass::Cursor * C = B.C;
+    string filename(path);
+    filename += '/';
+    filename += tablename;
+    filename += '.';
+
+    AutoPtr<BrassTableCheck> B(
+	    new BrassTableCheck(tablename, filename, false, out));
+
+    Brass::table_type tab_type;
+    if (strcmp(tablename, "postlist") == 0) {
+	tab_type = Brass::POSTLIST;
+    } else if (strcmp(tablename, "record") == 0) {
+	tab_type = Brass::RECORD;
+    } else if (strcmp(tablename, "termlist") == 0) {
+	tab_type = Brass::TERMLIST;
+    } else if (strcmp(tablename, "position") == 0) {
+	tab_type = Brass::POSITION;
+    } else if (strcmp(tablename, "spelling") == 0) {
+	tab_type = Brass::SPELLING;
+    } else if (strcmp(tablename, "synonym") == 0) {
+	tab_type = Brass::SYNONYM;
+    } else {
+	string e = "Unknown table: ";
+	e += tablename;
+	throw Xapian::DatabaseError(e);
+    }
+
+    B->open(0, version_file.get_root(tab_type), version_file.get_revision());
+    Brass::Cursor * C = B->C;
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {
-	*out << "base" << (char)B.base_letter
-	     << " blocksize=" << B.block_size / 1024 << "K"
-		" items="  << B.item_count
-	     << " firstunused=" << B.base.get_first_unused_block()
-	     << " revision=" << B.revision_number
-	     << " levels=" << B.level
+	*out << "blocksize=" << B->block_size / 1024 << "K"
+		" items="  << B->item_count
+	     << " firstunused=" << B->free_list.get_first_unused_block()
+	     << " revision=" << B->revision_number
+	     << " levels=" << B->level
 	     << " root=";
-	if (B.faked_root_block)
+	if (B->faked_root_block)
 	    *out << "(faked)";
 	else
-	    *out << C[B.level].get_n();
+	    *out << C[B->level].get_n();
 	*out << endl;
     }
 
-    if (B.faked_root_block) {
+    if (B->faked_root_block) {
 	if (out && opts)
 	    *out << "void ";
     } else {
 	// We walk the Btree marking off the blocks which it uses, then walk
 	// the free list, marking the blocks which aren't used.  Any blocks not
 	// marked have been leaked.
-	BrassFreeListChecker flcheck(B.base);
-	B.block_check(C, B.level, opts, flcheck);
+	BrassFreeListChecker flcheck(B->free_list);
+	B->block_check(C, B->level, opts, flcheck);
 
 	if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
 	    *out << "Freelist:";
-	    if (B.base.empty())
+	    if (B->free_list.empty())
 		*out << " empty";
 	}
-	while (!B.base.empty()) {
-	    uint4 n = B.base.walk(&B, true);
+	while (!B->free_list.empty()) {
+	    uint4 n = B->free_list.walk(B.get(), B->block_size, true);
 	    if (opts & Xapian::DBCHECK_SHOW_BITMAP)
 		*out << ' ' << n;
 	    if (!flcheck.mark_used(n)) {
@@ -281,6 +305,7 @@ BrassTableCheck::check(const char * tablename, const string & path,
 	}
     }
     if (opts) *out << "B-tree checked okay" << endl;
+    return B.release();
 }
 
 void BrassTableCheck::report_cursor(int N, const Brass::Cursor * C_) const

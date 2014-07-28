@@ -479,13 +479,6 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 	// Handled above.
 	exit(1);
 #endif
-    } else if (backend == BRASS) {
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	BrassVersion(destdir).create(0);
-#else
-	// Handled above.
-	exit(1);
-#endif
     }
 
     if (compact_to_stub) {

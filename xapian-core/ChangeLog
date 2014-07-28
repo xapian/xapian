@@ -1,3 +1,9 @@
+Mon Jul 28 04:26:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,backends/brass/,backends/dbcheck.cc,
+	  tests/api_wrdb.cc: Eliminate the base files, and instead store the
+	  root block and freelist pointers in the "iambrass" file.
+
 Mon Jul 28 03:22:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_databasereplicator.cc: Remove variable which is

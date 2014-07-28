@@ -37,6 +37,7 @@
 
 #include <xapian.h>
 
+#include "filetests.h"
 #include "autoptr.h"
 #include <ostream>
 #include <vector>
@@ -56,24 +57,38 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_brass_table(const char * tablename, string filename,
-		  brass_revision_number_t * rev_ptr, int opts,
+check_brass_table(const char * tablename, const string &db_dir,
+		  const BrassVersion & version_file, int opts,
 		  vector<Xapian::termcount> & doclens,
 		  Xapian::docid db_last_docid, ostream * out)
 {
-    filename += '.';
+    if (out)
+	*out << tablename << ":\n";
+    if (strcmp(tablename, "record") != 0 && strcmp(tablename, "postlist") != 0) {
+	// Other filenames are created lazily, so may not exist.
+	string filename(db_dir);
+	filename += '/';
+	filename += tablename;
+	filename += "."BRASS_TABLE_EXTENSION;
+	if (!file_exists(filename)) {
+	    if (out) {
+		if (strcmp(tablename, "termlist") == 0) {
+		    *out << "Not present.\n";
+		} else {
+		    *out << "Lazily created, and not yet used.\n";
+		}
+		*out << endl;
+	    }
+	    return 0;
+	}
+    }
 
     // Check the btree structure.
-    BrassTableCheck::check(tablename, filename, rev_ptr, opts, out);
+    AutoPtr<BrassTable> table(
+	    BrassTableCheck::check(tablename, db_dir, version_file, opts, out));
 
     // Now check the brass structures inside the btree.
-    BrassTable table(tablename, filename, true);
-    if (rev_ptr) {
-	table.open(0, *rev_ptr);
-    } else {
-	table.open(0);
-    }
-    AutoPtr<BrassCursor> cursor(table.cursor_get());
+    AutoPtr<BrassCursor> cursor(table->cursor_get());
 
     size_t errors = 0;
 

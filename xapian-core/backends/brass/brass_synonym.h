@@ -1,7 +1,7 @@
 /** @file brass_synonym.h
  * @brief Synonym data for a brass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,11 @@
 
 #include <set>
 #include <string>
+
+namespace Brass {
+    class RootInfo;
+}
+using Brass::RootInfo;
 
 class BrassSynonymTable : public BrassLazyTable {
     /// The last term which was updated.
@@ -100,9 +105,9 @@ class BrassSynonymTable : public BrassLazyTable {
 	BrassTable::flush_db();
     }
 
-    void cancel() {
+    void cancel(const RootInfo & root_info, brass_revision_number_t rev) {
 	discard_changes();
-	BrassTable::cancel();
+	BrassTable::cancel(root_info, rev);
     }
 
     // @}

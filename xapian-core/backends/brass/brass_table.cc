@@ -40,9 +40,11 @@
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 
-#include "brass_btreebase.h"
+#include "brass_freelist.h"
 #include "brass_changes.h"
 #include "brass_cursor.h"
+#include "brass_defs.h"
+#include "brass_version.h"
 
 #include "debuglog.h"
 #include "filetests.h"
@@ -92,12 +94,15 @@ static inline byte *zeroed_new(size_t size)
     return temp;
 }
 
-/* A B-tree comprises (a) a base file, containing essential information (Block
-   size, number of the B-tree root block etc), (b) a file DB containing the
-   B-tree proper. The DB file is divided into a sequence of equal sized blocks,
-   numbered 0, 1, 2 ... some of which are free, some in use. Those in use are
-   arranged in a tree.  Lists of currently unused blocks are stored in a
-   freelist which is itself stored in unused blocks.
+/* A B-tree consists of a file with extension BRASS_TABLE_EXTENSION divided
+   into a sequence of equal sized blocks, numbered 0, 1, 2 ... some of which
+   are free, some in use. Those in use are arranged in a tree.  Lists of
+   currently unused blocks are stored in a freelist which is itself stored in
+   unused blocks.
+
+   Some "root info" is needed to locate a particular revision of the B-tree
+   - this is stored in the "version file" (we store this data for all tables
+   at a particular revision together).
 
    Each block, b, has a structure like this:
 
@@ -161,7 +166,7 @@ BrassTable::read_block(uint4 n, byte * p) const
     LOGCALL_VOID(DB, "BrassTable::read_block", n | (void*)p);
     if (rare(handle == -2))
 	BrassTable::throw_database_closed();
-    AssertRel(n,<,base.get_first_unused_block());
+    AssertRel(n,<,free_list.get_first_unused_block());
 
     io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
 
@@ -177,10 +182,13 @@ BrassTable::read_block(uint4 n, byte * p) const
 
 /** write_block(n, p, appending) writes block n in the DB file from address p.
  *
- *  If appending is false (the default if not specified), then we check to see
- *  if the DB file has already been modified. If not (so this is the first
- *  write) the old base is deleted. This prevents the possibility of it being
- *  opened subsequently as an invalid base.
+ *  If appending is true (not specified it defaults to false), then this
+ *  indicates that we've added data to a block in space which was previously
+ *  unused, and are writing the block back in place - we use this to add
+ *  free list entries (the information about where the freelist data for a
+ *  revision begins and ends is stored in the "iambrass" file).  We don't
+ *  currently use this flag for much, but it signifies that we don't risk
+ *  invalidating any existing revisions, which may be useful information.
  */
 void
 BrassTable::write_block(uint4 n, const byte * p, bool appending) const
@@ -188,14 +196,14 @@ BrassTable::write_block(uint4 n, const byte * p, bool appending) const
     LOGCALL_VOID(DB, "BrassTable::write_block", n | p | appending);
     Assert(writable);
     /* Check that n is in range. */
-    AssertRel(n,<,base.get_first_unused_block());
+    AssertRel(n,<,free_list.get_first_unused_block());
 
     /* don't write to non-free */
     // FIXME: We can no longer check this easily.
-    // AssertParanoid(base.block_free_at_start(n));
+    // AssertParanoid(free_list.block_free_at_start(block_size, n));
 
     /* write revision is okay */
-    AssertEqParanoid(REVISION(p), latest_revision_number + 1);
+    AssertEqParanoid(REVISION(p), revision_number + 1);
 
     if (appending) {
 	// In the case of the freelist, new entries can safely be written into
@@ -203,30 +211,14 @@ BrassTable::write_block(uint4 n, const byte * p, bool appending) const
 	// by previous revisions.  It is also safe to write into a block which
 	// wasn't used in the previous revision.
 	//
-	// It's only when we start a new freelist block that we need to delete
-	// any base files.
+	// It's only when we start a new freelist block that we need to worry
+	// about invalidating old revisions.
     } else if (flags & Xapian::DB_DANGEROUS) {
-	if (number_of_bases) {
-	    // Remove base files to prevent readers opening the database.
-	    // FIXME: This doesn't deal with any existing readers though.
-	    if (number_of_bases == 2)
-		(void)io_unlink(name + "base" + other_base_letter());
-	    (void)io_unlink(name + "base" + base_letter);
-	    number_of_bases = 0;
-	    latest_revision_number = revision_number;
-	}
-    } else if (number_of_bases == 2) {
-	// Delete the old base before modifying the database.
-	//
-	// If the file is on NFS, then io_unlink() may return false even if
-	// the file was removed, so on balance throwing an exception in this
-	// case is unhelpful, since we wanted the file gone anyway!  The
-	// likely explanation is that somebody moved, deleted, or changed a
-	// symlink to the database directory.
-	(void)io_unlink(name + "base" + other_base_letter());
-	number_of_bases = 1;
-	latest_revision_number = revision_number;
-    } // FIXME: replicate removal of old bases?
+	// FIXME: We should somehow flag this to prevent readers opening the
+	// database.  Removing "iambrass" or setting a flag in it doesn't deal
+	// with any existing readers though.  Perhaps we want to have readers
+	// read lock and try to take an exclusive lock here?
+    }
 
     io_write_block(handle, p, block_size, n);
 
@@ -396,14 +388,14 @@ BrassTable::alter()
 	C[j].rewrite = true;
 
 	brass_revision_number_t rev = REVISION(C[j].get_p());
-	if (rev == latest_revision_number + 1) {
+	if (rev == revision_number + 1) {
 	    return;
 	}
-	Assert(rev < latest_revision_number + 1);
+	Assert(rev < revision_number + 1);
 	uint4 n = C[j].get_n();
-	base.mark_block_unused(this, n);
-	SET_REVISION(C[j].get_modifiable_p(block_size), latest_revision_number + 1);
-	n = base.get_block(this);
+	free_list.mark_block_unused(this, block_size, n);
+	SET_REVISION(C[j].get_modifiable_p(block_size), revision_number + 1);
+	n = free_list.get_block(this, block_size);
 	C[j].set_n(n);
 
 	if (j == level) return;
@@ -528,9 +520,9 @@ BrassTable::split_root(uint4 split_n)
     byte * q = C[level].init(block_size);
     memset(q, 0, block_size);
     C[level].c = DIR_START;
-    C[level].set_n(base.get_block(this));
+    C[level].set_n(free_list.get_block(this, block_size));
     C[level].rewrite = true;
-    SET_REVISION(q, latest_revision_number + 1);
+    SET_REVISION(q, revision_number + 1);
     SET_LEVEL(q, level);
     SET_DIR_END(q, DIR_START);
     compact(q);   /* to reset TOTAL_FREE, MAX_FREE */
@@ -711,7 +703,7 @@ BrassTable::add_item(Item_wr kt_, int j)
 	}
 
 	uint4 split_n = C[j].get_n();
-	C[j].set_n(base.get_block(this));
+	C[j].set_n(free_list.get_block(this, block_size));
 
 	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
 	SET_DIR_END(split_p, m);
@@ -800,7 +792,7 @@ BrassTable::delete_item(int j, bool repeatedly)
     if (!repeatedly) return;
     if (j < level) {
 	if (dir_end == DIR_START) {
-	    base.mark_block_unused(this, C[j].get_n());
+	    free_list.mark_block_unused(this, block_size, C[j].get_n());
 	    C[j].rewrite = false;
 	    C[j].set_n(BLK_UNUSED);
 	    C[j + 1].rewrite = true;  /* *is* necessary */
@@ -811,7 +803,7 @@ BrassTable::delete_item(int j, bool repeatedly)
 	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
 	    uint4 new_root = Item(C[level].get_p(), DIR_START).block_given_by();
-	    base.mark_block_unused(this, C[level].get_n());
+	    free_list.mark_block_unused(this, block_size, C[level].get_n());
 	    C[level].destroy();
 	    level--;
 
@@ -1284,116 +1276,31 @@ BrassCursor * BrassTable::cursor_get() const {
 
 /************ B-tree opening and closing ************/
 
-bool
-BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_)
+void
+BrassTable::basic_open(const RootInfo * root_info, brass_revision_number_t rev)
 {
-    LOGCALL(DB, bool, "BrassTable::basic_open", revision_supplied | revision_);
-    int ch = 'X'; /* will be 'A' or 'B' */
-
-    {
-	const size_t BTREE_BASES = 2;
-	string err_msg;
-	static const char basenames[BTREE_BASES] = { 'A', 'B' };
-
-	BrassTable_base bases[BTREE_BASES];
-	bool base_ok[BTREE_BASES];
-
-	number_of_bases = 2;
-	bool valid_base = false;
-	{
-	    for (size_t i = 0; i < BTREE_BASES; ++i) {
-		bool ok = bases[i].read(name, basenames[i], err_msg);
-		base_ok[i] = ok;
-		if (ok) {
-		    valid_base = true;
-		} else {
-		    number_of_bases = 1;
-		}
-	    }
-	}
-
-	if (!valid_base) {
-	    if (handle >= 0) {
-		::close(handle);
-		handle = -1;
-	    }
-	    string message = "Error opening table '";
-	    message += name;
-	    message += "DB':\n";
-	    message += err_msg;
-	    throw Xapian::DatabaseOpeningError(message);
-	}
-
-	if (revision_supplied) {
-	    bool found_revision = false;
-	    for (size_t i = 0; i < BTREE_BASES; ++i) {
-		if (base_ok[i] && bases[i].get_revision() == revision_) {
-		    ch = basenames[i];
-		    found_revision = true;
-		    break;
-		}
-	    }
-	    if (!found_revision) {
-		/* Couldn't open the revision that was asked for.
-		 * This shouldn't throw an exception, but should just return
-		 * false to upper levels.
-		 */
-		RETURN(false);
-	    }
+    LOGCALL_VOID(DB, "BrassTable::basic_open", root_info|rev);
+    revision_number = rev;
+    if (root_info) {
+	root =		   root_info->get_root();
+	level =		   root_info->get_level();
+	item_count =	   root_info->get_num_entries();
+	faked_root_block = root_info->get_root_is_fake();
+	sequential =	   root_info->get_sequential_mode();
+	const string & fl_serialised = root_info->get_free_list();
+	if (!fl_serialised.empty()) {
+	    if (!free_list.unpack(root_info->get_free_list()))
+		throw Xapian::DatabaseCorruptError("Bad freelist metadata");
 	} else {
-	    brass_revision_number_t highest_revision = 0;
-	    for (size_t i = 0; i < BTREE_BASES; ++i) {
-		if (base_ok[i] && bases[i].get_revision() >= highest_revision) {
-		    ch = basenames[i];
-		    highest_revision = bases[i].get_revision();
-		}
-	    }
+	    free_list.reset();
 	}
-
-	BrassTable_base *basep = 0;
-	BrassTable_base *other_base = 0;
-
-	for (size_t i = 0; i < BTREE_BASES; ++i) {
-	    LOGLINE(DB, "Checking (ch == " << ch << ") against "
-		    "basenames[" << i << "] == " << basenames[i]);
-	    LOGLINE(DB, "bases[" << i << "].get_revision() == " <<
-		    bases[i].get_revision());
-	    LOGLINE(DB, "base_ok[" << i << "] == " << base_ok[i]);
-	    if (ch == basenames[i]) {
-		basep = &bases[i];
-
-		// FIXME: assuming only two bases for other_base
-		size_t otherbase_num = 1-i;
-		if (base_ok[otherbase_num]) {
-		    other_base = &bases[otherbase_num];
-		}
-		break;
-	    }
-	}
-	Assert(basep);
-
-	/* basep now points to the most recent base block */
-
-	/* Avoid copying the base for efficiency - swap contents with the base
-	 * object in the vector, since it'll be destroyed anyway soon.
-	 */
-	base.swap(*basep);
-
-	revision_number =  base.get_revision();
-	block_size =       base.get_block_size();
-	root =             base.get_root();
-	level =            base.get_level();
-	item_count =       base.get_item_count();
-	faked_root_block = base.get_have_fakeroot();
-	sequential =       base.get_sequential();
-
-	if (other_base != 0) {
-	    latest_revision_number = other_base->get_revision();
-	    if (revision_number > latest_revision_number)
-		latest_revision_number = revision_number;
-	} else {
-	    latest_revision_number = revision_number;
-	}
+    } else {
+	root =		   0;
+	level =		   0;
+	item_count =	   0;
+	faked_root_block = true;
+	sequential =	   true;
+	free_list.reset();
     }
 
     /* kt holds constructed items as well as keys */
@@ -1401,11 +1308,11 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 
     set_max_item_size(BLOCK_CAPACITY);
 
-    base_letter = ch;
+    for (int j = 0; j <= level; j++) {
+	C[j].init(block_size);
+    }
 
-    /* ready to open the main file */
-
-    RETURN(true);
+    read_root();
 }
 
 void
@@ -1440,8 +1347,8 @@ BrassTable::read_root()
 	    C[0].set_n(0);
 	} else {
 	    /* writing - */
-	    SET_REVISION(p, latest_revision_number + 1);
-	    C[0].set_n(base.get_block(this));
+	    SET_REVISION(p, revision_number + 1);
+	    C[0].set_n(free_list.get_block(this, block_size));
 	}
     } else {
 	/* using a root block stored on disk */
@@ -1452,59 +1359,42 @@ BrassTable::read_root()
     }
 }
 
-bool
-BrassTable::do_open_to_write(bool revision_supplied,
-			     brass_revision_number_t revision_,
-			     bool create_db)
+void
+BrassTable::do_open_to_write(const RootInfo * root_info,
+			     brass_revision_number_t rev)
 {
-    LOGCALL(DB, bool, "BrassTable::do_open_to_write", revision_supplied | revision_ | create_db);
+    LOGCALL_VOID(DB, "BrassTable::do_open_to_write", root_info|rev);
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
     int open_flags = O_RDWR | O_BINARY | O_CLOEXEC;
-    if (create_db) open_flags |= O_CREAT | O_TRUNC;
-    handle = ::open((name + "DB").c_str(), open_flags, 0666);
+    if (root_info == NULL) open_flags |= O_CREAT | O_TRUNC;
+    handle = ::open((name + BRASS_TABLE_EXTENSION).c_str(), open_flags, 0666);
     if (handle < 0) {
-	// lazy doesn't make a lot of sense with create_db anyway, but ENOENT
-	// with O_CREAT means a parent directory doesn't exist.
-	if (lazy && !create_db && errno == ENOENT) {
-	    revision_number = revision_;
-	    RETURN(true);
+	// lazy doesn't make a lot of sense when we're creating a DB (which
+	// is the case when root_info==NULL), but ENOENT with O_CREAT means a
+	// parent directory doesn't exist.
+	if (lazy && root_info && errno == ENOENT) {
+	    revision_number = rev;
+	    return;
 	}
-	string message(create_db ? "Couldn't create " : "Couldn't open ");
+	string message(!root_info ? "Couldn't create " : "Couldn't open ");
 	message += name;
 	message += "DB read/write: ";
 	message += strerror(errno);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
-    if (!basic_open(revision_supplied, revision_)) {
-	::close(handle);
-	handle = -1;
-	if (!revision_supplied) {
-	    throw Xapian::DatabaseOpeningError("Failed to open for writing");
-	}
-	/* When the revision is supplied, it's not an exceptional
-	 * case when open failed, so we just return false here.
-	 */
-	RETURN(false);
-    }
-
     writable = true;
+    basic_open(root_info, rev);
 
-    for (int j = 0; j <= level; j++) {
-	C[j].init(block_size);
-    }
     split_p = new byte[block_size];
-    read_root();
 
     buffer = zeroed_new(block_size);
 
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
-
-    RETURN(true);
 }
 
 BrassTable::BrassTable(const char * tablename_, const string & path_,
@@ -1513,9 +1403,6 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  revision_number(0),
 	  item_count(0),
 	  block_size(0),
-	  latest_revision_number(0),
-	  number_of_bases(0),
-	  base_letter('A'),
 	  faked_root_block(true),
 	  sequential(true),
 	  handle(-1),
@@ -1523,7 +1410,7 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 	  root(0),
 	  kt(0),
 	  buffer(0),
-	  base(),
+	  free_list(),
 	  name(path_),
 	  seq_count(0),
 	  changed_n(0),
@@ -1546,8 +1433,7 @@ BrassTable::BrassTable(const char * tablename_, const string & path_,
 bool
 BrassTable::exists() const {
     LOGCALL(DB, bool, "BrassTable::exists", NO_ARGS);
-    return (file_exists(name + "DB") &&
-	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
+    return file_exists(name + BRASS_TABLE_EXTENSION);
 }
 
 void
@@ -1556,22 +1442,7 @@ BrassTable::erase()
     LOGCALL_VOID(DB, "BrassTable::erase", NO_ARGS);
     close();
 
-    (void)io_unlink(name + "baseA");
-    (void)io_unlink(name + "baseB");
-    (void)io_unlink(name + "DB");
-}
-
-void
-BrassTable::set_block_size(int flags_, unsigned int block_size_)
-{
-    LOGCALL_VOID(DB, "BrassTable::set_block_size", flags_|block_size_);
-    flags = flags_;
-    // Block size must in the range 2048..BYTE_PAIR_RANGE, and a power of two.
-    if (block_size_ < 2048 || block_size_ > BYTE_PAIR_RANGE ||
-	(block_size_ & (block_size_ - 1)) != 0) {
-	block_size_ = BRASS_DEFAULT_BLOCK_SIZE;
-    }
-    block_size = block_size_;
+    (void)io_unlink(name + BRASS_TABLE_EXTENSION);
 }
 
 void
@@ -1584,30 +1455,19 @@ BrassTable::create_and_open(int flags_, unsigned int block_size_)
     Assert(writable);
     close();
 
-    set_block_size(flags_, block_size_);
+    Assert(block_size_ >= 2048);
+    Assert(block_size_ <= BYTE_PAIR_RANGE);
+    // Must be a power of two.
+    Assert((block_size_ & (block_size_ - 1)) == 0);
+
+    flags = flags_;
+    block_size = block_size_;
 
     // FIXME: it would be good to arrange that this works such that there's
     // always a valid table in place if you run create_and_open() on an
     // existing table.
 
-    // FIXME: Not creating the base makes more sense, but requires adjustments
-    // in various places, and isn't vital.  To do that, we'd just unlink any
-    // existing baseA here if (flags & Xapian::DB_DANGEROUS) instead of
-    // creating the base file.
- 
-    /* create the base file */
-    BrassTable_base base_;
-    base_.set_revision(revision_number);
-    base_.set_block_size(flags_, block_size);
-    base_.set_have_fakeroot(true);
-    base_.set_sequential(true);
-    base_.write_to_file(name + "baseA", 'A', tablename, changes_obj);
-
-    /* remove the alternative base file, if any */
-    (void)io_unlink(name + "baseB");
-
-    // Any errors are thrown if revision_supplied is false.
-    (void)do_open_to_write(false, 0, true);
+    do_open_to_write();
 }
 
 BrassTable::~BrassTable() {
@@ -1667,9 +1527,9 @@ BrassTable::flush_db()
 }
 
 void
-BrassTable::commit(brass_revision_number_t revision)
+BrassTable::commit(brass_revision_number_t revision, RootInfo * root_info)
 {
-    LOGCALL_VOID(DB, "BrassTable::commit", revision);
+    LOGCALL_VOID(DB, "BrassTable::commit", revision|root_info);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1680,22 +1540,25 @@ BrassTable::commit(brass_revision_number_t revision)
 	if (handle == -2) {
 	    BrassTable::throw_database_closed();
 	}
-	latest_revision_number = revision_number = revision;
+	revision_number = revision;
+	root_info->set_blocksize(block_size);
+	root_info->set_level(0);
+	root_info->set_num_entries(0);
+	root_info->set_root_is_fake(true);
+	root_info->set_sequential_mode(true);
+	root_info->set_root(0);
 	return;
     }
 
     try {
-	base.set_revision(revision);
-	base.set_root(C[level].get_n());
-	base.set_level(level);
-	base.set_item_count(item_count);
-	base.set_have_fakeroot(faked_root_block);
-	base.set_sequential(sequential);
-
-	base_letter = other_base_letter();
-
-	number_of_bases = 2;
 	root = C[level].get_n();
+
+	root_info->set_blocksize(block_size);
+	root_info->set_level(level);
+	root_info->set_num_entries(item_count);
+	root_info->set_root_is_fake(faked_root_block);
+	root_info->set_sequential_mode(sequential);
+	root_info->set_root(root);
 
 	Btree_modified = false;
 
@@ -1703,47 +1566,15 @@ BrassTable::commit(brass_revision_number_t revision)
 	    C[i].init(block_size);
 	}
 
-	// Write the freelist into "<table>.DB" first.
-	base.commit(this);
+	free_list.set_revision(revision);
+	free_list.commit(this, block_size);
 
-	latest_revision_number = revision_number = revision;
+	// Save the freelist details into the root_info.
+	string serialised;
+	free_list.pack(serialised);
+	root_info->set_free_list(serialised);
 
-	// Save to "<table>.tmp" and then rename to "<table>.base<letter>" so
-	// that a reader can't try to read a partially written base file.
-	string tmp = name;
-	tmp += "tmp";
-	string basefile = name;
-	basefile += "base";
-	basefile += char(base_letter);
-	base.write_to_file(tmp, base_letter, tablename, changes_obj);
-
-	// Do this as late as possible to allow maximum time for writes to
-	// happen, and so the calls to io_sync() are adjacent which may be
-	// more efficient, at least with some Linux kernel versions.
-	if ((flags & Xapian::DB_NO_SYNC) == 0) {
-	    if (!io_sync(handle)) {
-		(void)::close(handle);
-		handle = -1;
-		(void)unlink(tmp.c_str());
-		throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
-	    }
-	}
-
-	if (posixy_rename(tmp.c_str(), basefile.c_str()) < 0) {
-	    // With NFS, rename() failing may just mean that the server crashed
-	    // after successfully renaming, but before reporting this, and then
-	    // the retried operation fails.  So we need to check if the source
-	    // file still exists, which we do by calling unlink(), since we want
-	    // to remove the temporary file anyway.
-	    int saved_errno = errno;
-	    if (unlink(tmp.c_str()) == 0 || errno != ENOENT) {
-		string msg("Couldn't update base file ");
-		msg += basefile;
-		msg += ": ";
-		msg += strerror(saved_errno);
-		throw Xapian::DatabaseError(msg);
-	    }
-	}
+	revision_number = revision;
 
 	read_root();
 
@@ -1757,16 +1588,15 @@ BrassTable::commit(brass_revision_number_t revision)
 }
 
 void
-BrassTable::cancel()
+BrassTable::cancel(const RootInfo & root_info, brass_revision_number_t rev)
 {
-    LOGCALL_VOID(DB, "BrassTable::cancel", NO_ARGS);
+    LOGCALL_VOID(DB, "BrassTable::cancel", root_info|rev);
     Assert(writable);
 
     if (handle < 0) {
 	if (handle == -2) {
 	    BrassTable::throw_database_closed();
 	}
-	latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 	return;
     }
 
@@ -1775,20 +1605,13 @@ BrassTable::cancel()
     if (flags & Xapian::DB_DANGEROUS)
 	throw Xapian::InvalidOperationError("cancel() not supported under Xapian::DB_DANGEROUS");
 
-    string err_msg;
-    if (!base.read(name, base_letter, err_msg)) {
-	throw Xapian::DatabaseCorruptError(string("Couldn't reread base ") + base_letter);
-    }
-
-    revision_number =  base.get_revision();
-    block_size =       base.get_block_size();
-    root =             base.get_root();
-    level =            base.get_level();
-    item_count =       base.get_item_count();
-    faked_root_block = base.get_have_fakeroot();
-    sequential =       base.get_sequential();
-
-    latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
+    set_blocksize(root_info.get_blocksize());
+    revision_number = rev;
+    root =             root_info.get_root();
+    level =            root_info.get_level();
+    item_count =       root_info.get_num_entries();
+    faked_root_block = root_info.get_root_is_fake();
+    sequential =       root_info.get_sequential_mode();
 
     Btree_modified = false;
 
@@ -1805,19 +1628,20 @@ BrassTable::cancel()
 
 /************ B-tree reading ************/
 
-bool
-BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revision_)
+void
+BrassTable::do_open_to_read(const RootInfo * root_info,
+			    brass_revision_number_t rev)
 {
-    LOGCALL(DB, bool, "BrassTable::do_open_to_read", revision_supplied | revision_);
+    LOGCALL(DB, bool, "BrassTable::do_open_to_read", root_info|rev);
     if (handle == -2) {
 	BrassTable::throw_database_closed();
     }
-    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
+    handle = ::open((name + BRASS_TABLE_EXTENSION).c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!
-	    revision_number = revision_;
-	    RETURN(true);
+	    revision_number = rev;
+	    return;
 	}
 	string message("Couldn't open ");
 	message += name;
@@ -1826,73 +1650,28 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
 	throw Xapian::DatabaseOpeningError(message);
     }
 
-    if (!basic_open(revision_supplied, revision_)) {
-	::close(handle);
-	handle = -1;
-	if (revision_supplied) {
-	    // The requested revision was not available.
-	    // This could be because the database was modified underneath us, or
-	    // because a base file is missing.  Return false, and work out what
-	    // the problem was at a higher level.
-	    RETURN(false);
-	}
-	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
-    }
-
-    for (int j = 0; j <= level; j++) {
-	C[j].init(block_size);
-    }
+    basic_open(root_info, rev);
 
     read_root();
-    RETURN(true);
 }
 
 void
-BrassTable::open(int flags_)
+BrassTable::open(int flags_, const RootInfo & root_info,
+		 brass_revision_number_t rev)
 {
-    LOGCALL_VOID(DB, "BrassTable::open", flags_);
-    LOGLINE(DB, "opening at path " << name);
+    LOGCALL_VOID(DB, "BrassTable::open", flags_|root_info|rev);
     close();
 
     flags = flags_;
+    set_blocksize(root_info.get_blocksize());
+    root = root_info.get_root();
 
     if (!writable) {
-	// Any errors are thrown if revision_supplied is false
-	(void)do_open_to_read(false, 0);
+	do_open_to_read(&root_info, rev);
 	return;
     }
 
-    // Any errors are thrown if revision_supplied is false.
-    (void)do_open_to_write(false, 0);
-}
-
-bool
-BrassTable::open(int flags_, brass_revision_number_t revision)
-{
-    LOGCALL(DB, bool, "BrassTable::open", flags_|revision);
-    LOGLINE(DB, "opening for particular revision at path " << name);
-    close();
-
-    flags = flags_;
-
-    if (!writable) {
-	if (do_open_to_read(true, revision)) {
-	    AssertEq(revision_number, revision);
-	    RETURN(true);
-	} else {
-	    close();
-	    RETURN(false);
-	}
-    }
-
-    if (!do_open_to_write(true, revision)) {
-	// Can't open at the requested revision.
-	close();
-	RETURN(false);
-    }
-
-    AssertEq(revision_number, revision);
-    RETURN(true);
+    do_open_to_write(&root_info, rev);
 }
 
 bool
@@ -1932,7 +1711,6 @@ BrassTable::prev_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 		p = q;
 		C_[0].set_n(n);
 	    }
-	    if (writable) AssertEq(revision_number, latest_revision_number);
 	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
 		RETURN(false);
@@ -1959,7 +1737,7 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 	uint4 n = C_[0].get_n();
 	while (true) {
 	    n++;
-	    if (n >= base.get_first_unused_block()) RETURN(false);
+	    if (n >= free_list.get_first_unused_block()) RETURN(false);
 	    if (writable) {
 		if (n == C[0].get_n()) {
 		    // Block is a leaf block in the built-in cursor
@@ -1989,7 +1767,6 @@ BrassTable::next_for_sequential(Brass::Cursor * C_, int /*dummy*/) const
 		read_block(n, q);
 		p = q;
 	    }
-	    if (writable) AssertEq(revision_number, latest_revision_number);
 	    if (REVISION(p) > revision_number + writable) {
 		set_overwritten();
 		RETURN(false);

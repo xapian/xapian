@@ -47,13 +47,11 @@ class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	 */
 	mutable int fds[N_TABLES_];
 
-	/** Process a chunk which holds a base block.
+	/** Process a chunk which holds a version file.
 	 */
-	void process_changeset_chunk_base(table_id table,
-					  unsigned v,
-					  std::string & buf,
-					  RemoteConnection & conn,
-					  double end_time) const;
+	void process_changeset_chunk_version(std::string & buf,
+					     RemoteConnection & conn,
+					     double end_time) const;
 
 	/** Process a chunk which holds a list of changed blocks in the
 	 *  database.
