@@ -174,7 +174,7 @@ brass backend:
   particularly effective for a wildcard query which expands to a lot of terms.
 
 * Keep track of unused blocks in the Btrees using freelists rather than
-  bitmaps.
+  bitmaps.  (fixes #40)
 
 chert backend:
 

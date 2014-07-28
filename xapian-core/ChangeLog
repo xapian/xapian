@@ -1,3 +1,7 @@
+Mon Jul 28 04:28:12 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Note the freelist implementation fixed #40.
+
 Mon Jul 28 04:26:07 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,backends/brass/,backends/dbcheck.cc,
