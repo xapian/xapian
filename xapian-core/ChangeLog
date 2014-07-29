@@ -1,3 +1,10 @@
+Tue Jul 29 07:20:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.cc: Remove assertion that table sizes
+	  are all the same, and redundant assertion that the unserialised
+	  blocksize is >= 2048.  Fixes set-but-not-used warning in
+	  non-assertion build.
+
 Mon Jul 28 06:35:45 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_databasereplicator.cc,

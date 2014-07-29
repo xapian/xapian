@@ -116,22 +116,10 @@ BrassVersion::read()
     if (!unpack_uint(&p, end, &rev))
 	throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
 
-    unsigned bs = 0;
     for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
 	if (!root[table_no].unserialise(&p, end)) {
 	    throw Xapian::DatabaseCorruptError("Rev file root_info missing");
 	}
-
-	if (table_no == 0) {
-	    bs = root[table_no].get_blocksize();
-	    AssertRel(bs,>=,2048);
-	} else {
-	    // FIXME: Probably different tables in the same database should be
-	    // allowed to have different blocksizes, but currently it shouldn't
-	    // happen.
-	    AssertEq(bs, root[table_no].get_blocksize());
-	}
-
 	old_root[table_no] = root[table_no];
     }
 
