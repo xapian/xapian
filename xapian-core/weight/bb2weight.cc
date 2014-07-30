@@ -1,7 +1,7 @@
 /** @file bb2weight.cc
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013 Aarsh Shah
+/* Copyright (C) 2013, 2014 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,10 +31,9 @@ using namespace std;
 
 namespace Xapian {
 
-static double stirling_value(double x, double y)
+static double stirling_value(double difference, double y, double stirling_constant)
 {
-    double difference = x - y;
-    return ((y + 0.5) * log2(x / y)) + (difference * log2(x));
+    return ((y + 0.5) * (stirling_constant - log2(y)) + (difference * stirling_constant));
 }
 
 BB2Weight::BB2Weight(double c) : param_c(c)
@@ -60,10 +59,8 @@ BB2Weight::clone() const
 }
 
 void
-BB2Weight::init(double factor_)
+BB2Weight::init(double factor)
 {
-    factor = factor_;
-
     double wdfn_upper(get_wdf_upper_bound());
 
     if (wdfn_upper == 0) {
@@ -83,16 +80,43 @@ BB2Weight::init(double factor_)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
-    double B_max = (F + 1.0) / (get_termfreq() * (wdfn_lower + 1.0));
+    /* Calculate constant values to be used in get_sumpart(). */
+    c_product_avlen = param_c * get_average_length();
+    B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
+    // This weighting scheme causes an error if N = 1 as that will cause
+    // N - 1.0 to be equal to zero which is used inside a logarithm.
+    wt = - log2(N - 1.0) - (1 / base_change);
+    stirling_constant_1 = log2(N + F - 1.0);
+    stirling_constant_2 = log2(F);
 
-    double weight_max = - log2(N - 1.0) - (1 / base_change);
+    double B_max = B_constant / (wdfn_lower + 1.0);
 
-    double stirling_max = stirling_value(N + F - 1.0, N + F - wdfn_lower - 2.0) -
-			  stirling_value(F, F - wdfn_upper);
+    // Maximize the stirling value to be used in the upper bound.
+    // Calculate the individual terms keeping the maximization of stirling value
+    // in mind.
+    double y_max = N + F - wdfn_lower - 2.0;
+    double y_min = F - wdfn_upper;
+    // If the terms result in a negative value, make them positive as negative
+    // values can not be used in a logrithm.
+    if (y_min < 0)
+	y_min = F;
+    if (y_max < 0)
+	y_max = N + F;
 
-    double final_weight_max = B_max * (weight_max + stirling_max);
+    double stirling_max_term1 = ((y_max + 0.5) *
+                                (stirling_constant_1 - log2(y_max)) +
+                                ((wdfn_upper + 1.0) * stirling_constant_1));
 
-    upper_bound = get_wqf() * final_weight_max;
+    double stirling_min_term2 = ((y_min + 0.5) *
+                                (stirling_constant_2 - log2(y_min)) +
+                                ((wdfn_lower) * stirling_constant_2));
+
+
+    double stirling_max = stirling_max_term1 - stirling_min_term2;
+
+    double final_weight_max = B_max * (wt + stirling_max);
+
+    upper_bound = get_wqf() * final_weight_max * factor;
 }
 
 string
@@ -123,29 +147,29 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
 
-    double base_change = log(2.0);
     double wdfn(wdf);
-    wdfn *= log2(1 + (param_c * get_average_length()) / len);
+    wdfn *= log2(1 + c_product_avlen / len);
 
     double F(get_collection_freq());
     double N(get_collection_size());
 
-    double B = (F + 1.0) / (get_termfreq() * (wdfn + 1.0));
+    double B = B_constant / (wdfn + 1.0);
 
-    double wt = - log2(N - 1.0) - (1 / base_change);
-
-    double stirling = stirling_value(N + F - 1.0, N + F - wdfn - 2.0) -
-		      stirling_value(F, F - wdfn);
+    // This weighting scheme will cause an error if for any value of wdfn,
+    // N + F - wdfn - 2.0 is equal to or less than zero as it is used inside
+    // a logarithm in the stirling_value function.
+    double stirling = stirling_value(wdfn + 1.0, N + F - wdfn - 2.0, stirling_constant_1) -
+		      stirling_value(wdfn, F - wdfn, stirling_constant_2);
 
     double final_weight = B * (wt + stirling);
 
-    return (get_wqf() * final_weight * factor);
+    return final_weight;
 }
 
 double
 BB2Weight::get_maxpart() const
 {
-    return upper_bound * factor;
+    return upper_bound;
 }
 
 double
