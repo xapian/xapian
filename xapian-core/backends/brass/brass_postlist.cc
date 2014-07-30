@@ -1342,9 +1342,20 @@ SkipListWriter::merge_postlist_changes(const string& term)
  *  document ID of the first document in the chunk (encoded as length of
  *  representation in first byte, and then docid).
  *  
- *  there are two kinds of postlist, 
- *  one is for document length, another is normal postlist storing wdf.
- *  doc length postlist adopts fixed-width format while normal postlist adopts skip-list format.
+ *  There are two kinds of postlist:
+ *  One is for storing document length, its termname is always a null string "",
+ *  another is normal postlist storing wdf, it has normal termname.
+ *  Document length postlist adopts fixed-width format while normal postlist adopts skip-list format.
+ *  
+ *  A chunk (except for the first chunk) contains:
+ *
+ *  1)  bool - true if this is the last chunk.
+ *  2)  difference between final docid in chunk and first docid.
+ *  3)  data of fixed-width format or skip-list format
+ *
+ *  The first chunk begins with the number of entries, the collection
+ *  frequency, then the docid of the first document, then has the header of a
+ *  standard chunk.
  */
 BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 			     const string & term_,

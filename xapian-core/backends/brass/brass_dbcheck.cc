@@ -617,37 +617,61 @@ check_brass_table(const char * tablename, string filename,
 	    }
 	    lastdid += did;
 	    bool bad = false;
+        
+        // Read the data of skip-list format
 	    while (true) {
-		Xapian::termcount wdf;
-		if (!unpack_uint(&pos, end, &wdf)) {
-		    if (out)
-			*out << "Failed to unpack wdf" << endl;
-		    ++errors;
-		    bad = true;
-		    break;
-		}
-		++tf;
-		cf += wdf;
-
-		if (pos == end) break;
-
-		Xapian::docid inc;
-		if (!unpack_uint(&pos, end, &inc)) {
-		    if (out)
-			*out << "Failed to unpack docid increase" << endl;
-		    ++errors;
-		    bad = true;
-		    break;
-		}
-		++inc;
-		did += inc;
-		if (did > lastdid) {
-		    if (out)
-			*out << "docid " << did << " > last docid " << lastdid
-			     << endl;
-		    ++errors;
-		}
+            Xapian::docid inc = 0;
+            if (!unpack_uint(&pos, end, &inc)) {
+                if (out)
+                    *out << "Failed to unpack docid increase" << endl;
+                ++errors;
+                bad = true;
+                break;
+            }
+            while (inc == (unsigned)-1) {
+                if (!unpack_uint(&pos, end, &inc)) {
+                    if (out)
+                        *out << "Failed to unpack skip info" << endl;
+                    ++errors;
+                    bad = true;
+                    break;
+                }
+                if (!unpack_uint(&pos, end, &inc)) {
+                    if (out)
+                        *out << "Failed to unpack skip info" << endl;
+                    ++errors;
+                    bad = true;
+                    break;
+                }
+                if (!unpack_uint(&pos, end, &inc)) {
+                    if (out)
+                        *out << "Failed to unpack docid increase" << endl;
+                    ++errors;
+                    bad = true;
+                    break;
+                }
+            }
+            did += inc;
+            if (did > lastdid) {
+                if (out)
+                    *out << "docid " << did << " > last docid " << lastdid
+                    << endl;
+                ++errors;
+            }
+            Xapian::termcount wdf;
+            if (!unpack_uint(&pos, end, &wdf)) {
+                if (out)
+                    *out << "Failed to unpack wdf" << endl;
+                ++errors;
+                bad = true;
+                break;
+            }
+            ++tf;
+            cf += wdf;
+            
+            if (pos == end) break;
 	    }
+        
 	    if (bad) {
 		continue;
 	    }
