@@ -24,12 +24,14 @@
 #ifndef OM_HGUARD_BRASS_TABLE_H
 #define OM_HGUARD_BRASS_TABLE_H
 
+#include <xapian/constants.h>
 #include <xapian/error.h>
 
-#include "brass_types.h"
-#include "brass_btreebase.h"
+#include "brass_freelist.h"
 #include "brass_cursor.h"
+#include "brass_defs.h"
 
+#include "io_utils.h"
 #include "noreturn.h"
 #include "omassert.h"
 #include "str.h"
@@ -114,6 +116,8 @@
 const int LEVEL_FREELIST = 254;
 
 namespace Brass {
+
+class RootInfo;
 
 class Key {
     const byte *p;
@@ -268,6 +272,8 @@ public:
 
 }
 
+using Brass::RootInfo;
+
 // Allow for BTREE_CURSOR_LEVELS levels in the B-tree.
 // With 10, overflow is practically impossible
 // FIXME: but we want it to be completely impossible...
@@ -344,7 +350,10 @@ class BrassTable {
 	 */
 	bool exists() const;
 
-	/** Open the btree at the latest revision.
+	/** Open the btree.
+	 *
+	 *  @param flags_	flags for opening
+	 *  @param root_info	root block info
 	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table
 	 *	is in a corrupt state.
@@ -352,26 +361,8 @@ class BrassTable {
 	 *	cannot be opened (but is not corrupt - eg, permission problems,
 	 *	not present, etc).
 	 */
-	void open(int flags_);
-
-	/** Open the btree at a given revision.
-	 *
-	 *  Like Btree::open, but try to open at the given revision number
-	 *  and fail if that isn't possible.
-	 *
-	 *  @param revision_      - revision number to open.
-	 *
-	 *  @return true if table is successfully opened at desired revision;
-	 *          false if table cannot be opened at desired revision (but
-	 *          table is otherwise consistent).
-	 *
-	 *  @exception Xapian::DatabaseCorruptError will be thrown if the table
-	 *	is in a corrupt state.
-	 *  @exception Xapian::DatabaseOpeningError will be thrown if the table
-	 *	cannot be opened (but is not corrupt - eg, permission problems,
-	 *	not present, etc).
-	 */
-	bool open(int flags_, brass_revision_number_t revision_);
+	void open(int flags_, const RootInfo & root_info,
+		  brass_revision_number_t rev);
 
 	/** Return true if this table is open.
 	 *
@@ -398,18 +389,24 @@ class BrassTable {
 	 *  committed to the Btree - they will be discarded.
 	 *
 	 *  @param new_revision  The new revision number to store.  This must
-	 *          be greater than the latest revision number (see
-	 *          get_latest_revision_number()), or an exception will be
-	 *          thrown.
+	 *          be greater than the current revision number.  FIXME: If
+	 *          we support rewinding to a previous revision, maybe this
+	 *          needs to be greater than any previously used revision.
+	 *
+	 *  @param root_info  Information about the root is returned in this.
 	 */
-	void commit(brass_revision_number_t revision);
+	void commit(brass_revision_number_t revision, RootInfo * root_info);
+
+	bool sync() {
+	    return (flags & Xapian::DB_NO_SYNC) || io_sync(handle);
+	}
 
 	/** Cancel any outstanding changes.
 	 *
 	 *  This will discard any modifications which haven't been committed
 	 *  by calling commit().
 	 */
-	void cancel();
+	void cancel(const RootInfo & root_info, brass_revision_number_t rev);
 
 	/** Read an entry from the table, if and only if it is exactly that
 	 *  being asked for.
@@ -488,15 +485,11 @@ class BrassTable {
 	/// Erase this table from disk.
 	void erase();
 
-	/** Set the block size.
-	 *
-	 *  It's only safe to do this before the table is created.
-	 */
-	void set_block_size(int flags_, unsigned int block_size_);
+	void set_blocksize(unsigned blocksize_) {
+	    block_size = blocksize_;
+	}
 
-	/** Get the block size.
-	 */
-	unsigned int get_block_size() const { return block_size; }
+	void set_flags(int flags_) { flags = flags_; }
 
 	int get_flags() const { return flags; }
 
@@ -512,9 +505,9 @@ class BrassTable {
 	 *
 	 *  Example:
 	 *
-	 *    Btree btree("X-");
-	 *    btree.create_and_open(8192);
-	 *    // Files will be X-DB, X-baseA (and X-baseB).
+	 *    // File will be "X." + BRASS_TABLE_EXTENSION (i.e. "X.brass")
+	 *    Btree btree("X.");
+	 *    btree.create_and_open(0, 8192);
 	 *
 	 *  @param blocksize     - Size of blocks to use.
 	 *
@@ -526,20 +519,6 @@ class BrassTable {
 	void create_and_open(int flags_, unsigned int blocksize);
 
 	void set_full_compaction(bool parity);
-
-	/** Get the latest revision number stored in this table.
-	 *
-	 *  This gives the higher of the revision numbers held in the base
-	 *  files of the B-tree, or just the revision number if there's only
-	 *  one base file.
-	 *
-	 *  It is possible that there are other, older, revisions of this
-	 *  table available, and indeed that the revision currently open
-	 *  is one of these older revisions.
-	 */
-	brass_revision_number_t get_latest_revision_number() const {
-	    return latest_revision_number;
-	}
 
 	/** Get the revision number at which this table
 	 *  is currently open.
@@ -610,20 +589,15 @@ class BrassTable {
 
     protected:
 
-	/** Perform the opening operation to read.
-	 *
-	 *  Return true iff the open succeeded.
-	 */
-	bool do_open_to_read(bool revision_supplied, brass_revision_number_t revision_);
+	/** Perform the opening operation to read. */
+	void do_open_to_read(const RootInfo * root_info,
+			     brass_revision_number_t rev);
 
-	/** Perform the opening operation to write.
-	 *
-	 *  Return true iff the open succeeded.
-	 */
-	bool do_open_to_write(bool revision_supplied,
-			      brass_revision_number_t revision_,
-			      bool create_db = false);
-	bool basic_open(bool revision_supplied, brass_revision_number_t revision);
+	/** Perform the opening operation to write. */
+	void do_open_to_write(const RootInfo * root_info = NULL,
+			      brass_revision_number_t rev = 0);
+	void basic_open(const RootInfo * root_info,
+			brass_revision_number_t rev);
 
 	bool find(Brass::Cursor *) const;
 	int delete_kt();
@@ -643,13 +617,8 @@ class BrassTable {
 	void split_root(uint4 split_n);
 	void form_key(const std::string & key) const;
 
-	char other_base_letter() const {
-	   return (base_letter == 'A') ? 'B' : 'A';
-	}
-
 	/// The name of the table (used when writing changesets).
 	const char * tablename;
-
 
 	/** revision number of the opened B-tree. */
 	brass_revision_number_t revision_number;
@@ -662,20 +631,6 @@ class BrassTable {
 
 	/** Flags like DB_NO_SYNC and DB_DANGEROUS. */
 	int flags;
-
-	/** Revision number of the other base, or zero if there is only one
-	 *  base file.
-	 */
-	mutable brass_revision_number_t latest_revision_number;
-
-	/** The number of valid bases.
-	 *
-	 *  The old base is deleted as soon as a write to the Btree takes
-	 *  place. */
-	mutable int number_of_bases;
-
-	/** the value 'A' or 'B' of the current base */
-	char base_letter;
 
 	/** true if the root block is faked (not written to disk).
 	 * false otherwise.  This is true when the btree hasn't been
@@ -709,8 +664,8 @@ class BrassTable {
 	/// buffer of size block_size for reforming blocks
 	byte * buffer;
 
-	/// For writing back as file baseA or baseB.
-	BrassTable_base base;
+	/// List of free blocks.
+	BrassFreeList free_list;
 
 	/// The path name of the B tree.
 	std::string name;

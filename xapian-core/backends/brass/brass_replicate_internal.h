@@ -29,8 +29,9 @@
 // The current version of changeset files.
 // 1  - initial implementation
 // 2  - compressed changesets
-// 3  - store (block_size / 2048); more to come probably
-#define CHANGES_VERSION 3u
+// 3  - store (block_size / 2048)
+// 4  - reworked for switch from base files to version file
+#define CHANGES_VERSION 4u
 
 // Must be big enough to ensure that the start of the changeset (up to the new
 // revision number) will fit in this much space.

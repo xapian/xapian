@@ -1,7 +1,7 @@
 /** @file bm25weight.cc
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -110,6 +110,7 @@ BM25Weight::init(double factor)
 	termweight *= (param_k3 + 1) * wqf_double / (param_k3 + wqf_double);
     }
 #endif
+    termweight *= (param_k1 + 1);
 
     LOGVALUE(WTCALC, termweight);
 
@@ -168,26 +169,33 @@ BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     double wdf_double(wdf);
     double denom = param_k1 * (normlen * param_b + (1 - param_b)) + wdf_double;
     AssertRel(denom,>,0);
-    RETURN(termweight * (param_k1 + 1) * (wdf_double / denom));
+    RETURN(termweight * (wdf_double / denom));
 }
 
 double
 BM25Weight::get_maxpart() const
 {
     LOGCALL(WTCALC, double, "BM25Weight::get_maxpart", NO_ARGS);
-    double wdf_max(get_wdf_upper_bound());
-    double denom = wdf_max;
+    double denom = param_k1;
     if (param_k1 != 0.0) {
 	if (param_b != 0.0) {
+	    // "Upper-bound Approximations for Dynamic Pruning" Craig
+	    // Macdonald, Nicola Tonellotto and Iadh Ounis. ACM Transactions on
+	    // Information Systems. 29(4), 2011 shows that evaluating at
+	    // doclen=wdf_max is a good bound.
+	    //
+	    // However, we can do better if doclen_min > wdf_max since then a
+	    // better bound can be found by simply evaluating at
+	    // doclen=doclen_min and wdf=wdf_max.
 	    Xapian::doclength normlen_lb =
-		 max(get_doclength_lower_bound() * len_factor, param_min_normlen);
-	    denom += param_k1 * (normlen_lb * param_b + (1 - param_b));
-	} else {
-	    denom += param_k1;
+		 max(max(get_wdf_upper_bound(), get_doclength_lower_bound()) * len_factor, param_min_normlen);
+	    denom *= (normlen_lb * param_b + (1 - param_b));
 	}
     }
+    double wdf_max(get_wdf_upper_bound());
+    denom += wdf_max;
     AssertRel(denom,>,0);
-    RETURN(termweight * (param_k1 + 1) * (wdf_max / denom));
+    RETURN(termweight * (wdf_max / denom));
 }
 
 /* The BM25 formula gives:

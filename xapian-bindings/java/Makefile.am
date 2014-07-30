@@ -73,6 +73,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Remote.java\
 	org/xapian/RSet.java\
 	org/xapian/SimpleStopper.java\
+	org/xapian/Snipper.java\
 	org/xapian/Stem.java\
 	org/xapian/StemImplementation.java\
 	org/xapian/Stopper.java\
@@ -115,7 +116,7 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 noinst_DATA = built/xapian_jni.jar
 
 built/xapian_jni.jar: $(XAPIAN_SWIG_JAVA_CLASS)
-	-test -d built || mkdir built
+	$(MKDIR_P) built
 	$(JAR) -cf built/xapian_jni.jar org/xapian/*.class
 ##$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
@@ -191,12 +192,10 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleIndex.java
 
 docdatadir = $(docdir)/java
+dist_docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
-BUILT_SOURCES += docs/index.html
-
 .rst.html:
-	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
 endif

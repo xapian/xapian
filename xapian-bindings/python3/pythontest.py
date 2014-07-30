@@ -1024,7 +1024,10 @@ def test_postingsource():
         # First - check that it's kept when the source goes out of scope.
         def mkquery():
             source = OddPostingSource(10)
-            return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
+            # The posting source is inside a list to check that case is
+            # correctly handled.
+            return xapian.Query(xapian.Query.OP_OR,
+                    ["terM wHich wilL NoT maTch", xapian.Query(source)])
 
         # Check that it's kept when the query goes out of scope.
         def submkenq():

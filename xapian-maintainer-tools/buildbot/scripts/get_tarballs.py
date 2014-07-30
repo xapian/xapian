@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 tarball_root = sys.argv[1]
-tarball_uncompressed_root = "http://www.oligarchy.co.uk/dexz/?"
+tarball_uncompressed_root = "http://oligarchy.co.uk/dexz/?"
 archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega')
 # FIXME: need 'win32msvc' if we get a win32 builder again.
 builddir = 'build'
@@ -22,6 +22,7 @@ try:
     tarlink_re = re.compile(r'<a href="([a-zA-Z0-9_.-]+)\.tar\.xz">')
     git = 'git'
     def bytes_to_unicode(b): return b
+    print("Handling as Python 2")
 except:
     # Python 3
     import urllib.request as u, urllib.parse as uparse
@@ -29,6 +30,7 @@ except:
     archive_names = tuple(bytes(x, 'ASCII') for x in archive_names)
     git = b'git'
     def bytes_to_unicode(b): return b.decode('ASCII')
+    print("Handling as Python 3")
 
 def fail(msg):
     print(msg)
@@ -61,6 +63,7 @@ def get_archive_links(url, archives):
     """Get the links to the archive files.
 
     """
+    print("Getting links from '%s'" % url)
     fd = u.urlopen(url)
     html = fd.read()
     fd.close()
@@ -69,17 +72,17 @@ def get_archive_links(url, archives):
 
 def unpack_tarball(path, link, builddir):
     if path.endswith('.xz'):
-        xz = subprocess.Popen(['xz', '-dc', path], stdout=subprocess.PIPE)
-        tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=xz.stdout)
+        xz_proc = subprocess.Popen([xz, '-dc', path], stdout=subprocess.PIPE)
+        tar_proc = subprocess.Popen([tar, 'xf', '-', link], cwd=builddir, stdin=xz_proc.stdout)
     else:
         # Pipe the file in on stdin to avoid having to juggle 'path' being relative
         # vs. changing directory to builddir to extract.
-        tar = subprocess.Popen(['tar', 'xf', '-', link], cwd=builddir, stdin=open(path, 'r'))
-    if tar.wait() != 0:
+        tar_proc = subprocess.Popen([tar, 'xf', '-', link], cwd=builddir, stdin=open(path, 'r'))
+    if tar_proc.wait() != 0:
         fail("Failed to extract tarball '%s'" % path)
 
 def get_archive(url, builddir):
-    print("Getting %s" % url)
+    print("Fetching '%s'" % url)
     fd = u.urlopen(url)
     data = fd.read()
     fd.close()
@@ -97,6 +100,7 @@ def get_archive(url, builddir):
     return os.path.join(builddir, fname)
 
 def clear_build_dir(dir):
+    print("Clearing build directory '%s'" % dir)
     if os.path.exists(dir):
         shutil.rmtree(dir)
     os.mkdir(dir)
@@ -104,19 +108,26 @@ def clear_build_dir(dir):
 
 clear_build_dir(builddir)
 
-have_xz = True
-try:
-    xz = subprocess.Popen(['xz', '--help'], stdout=open('/dev/null', 'w'))
-except OSError:
-    have_xz = False
+xz = None
+for try_xz in ['xz', 'lzma']:
+    print("Trying '%s' as xz unpacker" % try_xz)
+    try:
+        xz_proc = subprocess.Popen([try_xz, '--help'], stdin=open('/dev/null', 'r'))
+        if xz_proc.wait() == 0:
+            xz = try_xz
+            break
+    except OSError:
+        pass
+
+tar = 'tar'
 
 links = get_archive_links(tarball_root, archive_names)
 for link in links:
-    if have_xz:
+    if xz is not None:
         fname = get_archive(tarball_root + link + '.tar.xz', builddir)
     else:
         fname = get_archive(tarball_uncompressed_root + link + '.tar', builddir)
-    print("Unpacking %s" % fname)
+    print("Unpacking %s which has size %d" % (fname, os.stat(fname).st_size))
     unpack_tarball(fname, link, builddir)
     m = archivedir_re.match(link)
     archivedir = os.path.join(builddir, m.group(1))

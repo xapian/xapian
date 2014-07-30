@@ -29,7 +29,7 @@
 #include "brass/brass_changes.h"
 #include "brass/brass_database.h"
 #include "brass/brass_dbcheck.h"
-#include "brass/brass_types.h"
+#include "brass/brass_version.h"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 #include "chert/chert_database.h"
@@ -177,14 +177,11 @@ Database::check(const string & path, int opts, std::ostream *out)
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
 	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	brass_revision_number_t rev = 0;
-	brass_revision_number_t * rev_ptr = &rev;
 	try {
 	    // Open at the lower level so we can get the revision number.
 	    BrassDatabase db(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
-	    rev = db.get_revision_number();
 	} catch (const Xapian::Error & e) {
 	    // Ignore so we can check a database too broken to open.
 	    if (out)
@@ -194,17 +191,14 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    ++errors;
 	}
 
-	if (rev) {
-	    for (brass_revision_number_t r = rev; r != 0; --r) {
-		string changes_file = path;
-		changes_file += "/changes";
-		changes_file += str(r);
-		if (file_exists(changes_file))
-		    BrassChanges::check(changes_file);
-	    }
-	} else {
-	    *out << "Not checking changes files because database open failed"
-		 << endl;
+	BrassVersion version_file(path);
+	version_file.read();
+	for (brass_revision_number_t r = version_file.get_revision(); r != 0; --r) {
+	    string changes_file = path;
+	    changes_file += "/changes";
+	    changes_file += str(r);
+	    if (file_exists(changes_file))
+		BrassChanges::check(changes_file);
 	}
 
 	// This is a brass directory so try to check all the btrees.
@@ -216,26 +210,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	};
 	for (const char **t = tables;
 	     t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-	    string table(path);
-	    table += '/';
-	    table += *t;
-	    if (out)
-		*out << *t << ":\n";
-	    if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
-		// Other tables are created lazily, so may not exist.
-		if (!file_exists(table + ".DB")) {
-		    if (out) {
-			if (strcmp(*t, "termlist") == 0) {
-			    *out << "Not present.\n";
-			} else {
-			    *out << "Lazily created, and not yet used.\n";
-			}
-			*out << endl;
-		    }
-		    continue;
-		}
-	    }
-	    errors += check_brass_table(*t, table, rev_ptr, opts, doclens,
+	    errors += check_brass_table(*t, path, version_file, opts, doclens,
 					db_last_docid, out);
 	}
 #endif
@@ -277,9 +252,12 @@ Database::check(const string & path, int opts, std::ostream *out)
 #ifndef XAPIAN_HAS_BRASS_BACKEND
 	    throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
 #else
+	    BrassVersion version_file(dir);
+	    version_file.read();
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_brass_table(tablename.c_str(), filename, NULL, opts,
+	    errors = check_brass_table(tablename.c_str(), filename,
+				       version_file, opts,
 				       doclens, db_last_docid, out);
 #endif
 	} else if (file_exists(dir + "iamflint")) {

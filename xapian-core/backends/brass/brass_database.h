@@ -38,7 +38,7 @@
 #include "brass_values.h"
 #include "brass_version.h"
 #include "../flint_lock.h"
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "backends/valuestats.h"
 
 #include "noreturn.h"
@@ -103,12 +103,6 @@ class BrassDatabase : public Xapian::Database::Internal {
 	mutable BrassSpellingTable spelling_table;
 
 	/** Table storing records.
-	 *
-	 *  Whenever an update is performed, this table is the last to be
-	 *  updated: therefore, its most recent revision number is the most
-	 *  recent consistent revision available.  If this table's most
-	 *  recent revision number is not available for all tables, there
-	 *  is no consistent revision available, and the database is corrupt.
 	 */
 	BrassRecordTable record_table;
 
@@ -131,15 +125,15 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 */
 	void create_and_open_tables(int flags, unsigned int blocksize);
 
-	/** Open all tables at most recent consistent revision.
+	/** Open all tables at most recent revision.
 	 *
-	 *  @return	true if the tables were reopened; false if we could
-	 *		tell they were alreayd open at the latest revision.
+	 *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
+	 *  found with the database's format.
 	 *
-	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
-	 *  consistent revision available.
+	 *  @return false if the tables were already open at the most recent
+	 *  revision.
 	 */
-	bool open_tables_consistent(int flags);
+	bool open_tables(int flags);
 
 	/** Get a write lock on the database, or throw an
 	 *  Xapian::DatabaseLockError if failure.
@@ -170,9 +164,9 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  becomes the specified revision number.
 	 *
 	 *  @param new_revision The new revision number to store.  This must
-	 *          be greater than the latest revision number (see
-	 *          get_latest_revision_number()), or undefined behaviour will
-	 *          result.
+	 *          be greater than the current revision number.  FIXME: If
+	 *          we support rewinding to a previous revision, maybe this
+	 *          needs to be greater than any previously used revision.
 	 */
 	void set_revision_number(int flags, brass_revision_number_t new_revision);
 
@@ -190,8 +184,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  @param msg is a string description of the exception that was
 	 *  raised when the modifications failed.
 	 */
-	void modifications_failed(brass_revision_number_t old_revision,
-				  brass_revision_number_t new_revision,
+	void modifications_failed(brass_revision_number_t new_revision,
 				  const std::string & msg);
 
 	/** Apply any outstanding changes to the tables.
@@ -221,8 +214,8 @@ class BrassDatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a brass database.
 	 *
-	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
-	 *             consistent revision available.
+	 *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
+	 *	       found with the database's format.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't
 	 *             be opened.

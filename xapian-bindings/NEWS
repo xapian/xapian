@@ -1,26 +1,31 @@
- 17732       olly Thu Dec 19 06:45:17 GMT 2013  Olly Betts <olly@survex.com>
+ 18126       olly Sat Jun 21 01:29:37 GMT 2014  Olly Betts <olly@survex.com>
 
-backported for 1.2.17:
+backported to 1.2.19
 
- 17695       olly Fri Dec 06 05:29:53 GMT 2013  Olly Betts <olly@survex.com>
-	* configure.ac: Link against -ltclstubX.Y for Tcl 8.5 and later
-	  (reported by Sergei Golovan in http://bugs.debian.org/724830).
-	  Also, use a better check for TCL_INC for Tcl 8.5 and later.
+Xapian-bindings 1.3.2 (2014-06-21):
 
- 17694       olly Fri Dec 06 03:31:50 GMT 2013  Olly Betts <olly@survex.com>
-	* README,configure.ac: Tweak configure to work with Ruby 2.0.
+*** Updated to use latest SWIG.
 
-Xapian-bindings 1.3.2 (2013-12-19):
-
-This release includes all changes from 1.2.16 which are relevant.
+This release includes all changes from 1.2.16-1.2.18 which are relevant.
 
 Documentation:
 
+* Convert HTML docs to reStructured text.  (Patch from Mayank Chaudhary)
+
 * Update for deprecation of Xapian::Brass::open() and Xapian::Chert::open().
+
+* Remove SVN "$Date" placeholders as they aren't expanded by git, and the "last
+  updated" information isn't all that informative anyway - there can still be
+  stale information even if the file was updated very recently.
 
 General:
 
-* Wrap new C++ API features, and in particular all the new weighting schemes.
+* Wrap new C++ API features, and in particular all the new weighting schemes
+  and the changes to opening databases.
+
+* Wrap Xapian::Database::check() for the bindings ignoring the std::ostream*
+  argument which the C++ API takes.  If opts != 0, then output is sent to
+  stdout, otherwise no output is produced.
 
 * Object descriptions are now always valid UTF-8. (see #620)
 
@@ -30,39 +35,57 @@ Portability:
 
 CSharp:
 
+* README: Note that C# bindings now need .NET 2 or later (because that's what
+  SWIG-generated code now requires).
+
 Java:
+
+* Add testcase that FLAG_SPELLING is now wrapped in a usable way.  (see #616)
 
 Lua:
 
+* Document that constants can now be accessed using CLASS.CONSTANT as well as
+  CLASS_CONSTANT.
+
 Perl:
+
+* Move the new SWIG-based Perl bindings into a 'Xapian' module, to smooth the
+  overlap with the hand-coded XS 'Search::Xapian' module.
+
+* Perl tests are ordering-dependent, so use .NOTPARALLEL to avoid problems
+  during parallel builds.
 
 * Use croak_sv() or ERRSV if defined.
 
 PHP:
 
-Python:
+* smoketest.php: Add tests of get_eset() with an ExpandDecider and with a min
+  weight threshold.
 
-	* python/smoketest.py,python3/smoketest.py: If constants weren't
-	  handled in xapian-headers.i with the CONSTANT() macro, we ended up
-	  with xapian.cvar being created, and an obscure error from
-	  smoketest.py.  Now we report what the variables are in the
-	  testsuite output.
+Python2:
 
-* Python 3 support should now be usable.
-	* README: Document 3.2 as the minimum supported Python3 version, and
-	  update the status to "mostly functional".
-	* python3/pythontest.py,python3/smoketest.py,python3/util.i: Drop the
-	  deprecated 'MSet.items' and 'ESet.items' for Python3 - people are
-	  going to need to make code updates anyway, so keeping existing code
-	  working unchanged isn't a realistic concern.
-	* python3/pythontest.py: Don't run postingsource testcase under
-	  threads for now as it segfaults for unknown reasons.
-	* Makefile.am,configure.ac,python/,python3/.gitignore,
-	  python3/Makefile.am,python3/docs/examples/,python3/docs/index.html,
-	  python3/: Split python3 bindings into a separate subdirectory, to
-	  make it simpler to handle differences between python2 and python3.
-	  This also makes it easier to test both, as a tree can now be
-	  configured for both at once.
+* The python testsuite already tested if any constants weren't marked with
+  the CONSTANT macro in xapian-headers.i, but the resulting error didn't
+  clearly point to the actual problem.  Now we report the names of any
+  such constants.
+
+* In the testsuite, use the xapian.WritableDatabase constructor rather than
+  chert_open() - that code dates back to when chert was the only disk-based
+  backend to support valuestreams, but flint was the default backend.
+
+* Generate Python API docs with Sphinx.  (Fixes #138, patch from Assem Chelli)
+
+Python3:
+
+* Python 3 support has been split off into its own subdirectory, and should now
+  be usable.  3.2 is the minimum supported version currently.  Existing code
+  will need updating for Python 3, and the wrapped API is necessarily different
+  in how Unicode is handled, so we've dropped deprecated features (such as
+  'MSet.items' and 'ESet.items' from the Python 3 bindings).  (see #346)
+
+* Fix Python3 examples to actually work.  (see #346)
+
+* Generate Python API docs with Sphinx.  (Fixes #138, patch from Assem Chelli)
 
 Ruby:
 
@@ -288,6 +311,66 @@ Tcl:
 * The XapianQuery constructor which takes an array of subqueries is now
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
+
+Xapian-bindings 1.2.18 (2014-06-22):
+
+Documentation:
+
+* README: Add links to Erlang and Node.js bindings.
+
+Lua:
+
+* lua/smoketest.lua: Change expect() parameter order to the more natural (got,
+  expected), which most of the calls already used, and fix up the few calls
+  which passed (expected, got).
+
+PHP:
+
+* php/smoketest.php: Add missing "exit(1);" after reporting failure of check
+  that MatchDecider returns an MSet with the expected docid in.  Luckily this
+  wasn't masking a test failure.
+
+Python:
+
+* python/pythontest.py: There's no longer a need to use chert_open() explicitly
+  - chert is the default backend now, and both chert and brass support the
+  required functionality for the tests which do this, so this just needlessly
+  causes the tests to fail if chert is disabled in xapian-core.
+
+* configure: If the Python version is too new or too old, only report it once
+  not twice.
+
+Ruby:
+
+* configure: Fix Ruby bindings to build on Windows (and other platforms where
+  allow_undefined_flag=unsupported. (fixes#634, reported by Alexis Denis)
+
+Xapian-bindings 1.2.17 (2014-01-29):
+
+Portability:
+
+* Improve workaround which allows building against an uninstalled xapian-core
+  on OS X - this should now work with any uninstalled xapian-core (not only in
+  a tree with the same layout as an SVN or git checkout) and it also won't try
+  to build against "../xapian-core/.libs" just because it happens to exist.
+  (Backported from 1.3.1; fixes #322)
+
+Python:
+
+* configure: Some distros now point /usr/bin/python at Python 3, so the check
+  for a Python 2 interpreter now checks for 'python2' first, and checks that
+  the version of found interpreter is 2.x.
+
+Ruby:
+
+* Tweak configure to work with Ruby 2.0.
+
+Tcl:
+
+* Link against -ltclstubX.Y for Tcl 8.5 and later (reported by Sergei Golovan
+  in http://bugs.debian.org/724830).
+
+* Use a better check for TCL_INC for Tcl 8.5 and later.
 
 Xapian-bindings 1.2.16 (2013-12-04):
 

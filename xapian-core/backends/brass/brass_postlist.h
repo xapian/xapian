@@ -45,7 +45,10 @@ class BrassDatabase;
 namespace Brass {
     class PostlistChunkReader;
     class PostlistChunkWriter;
+    class RootInfo;
 }
+
+using Brass::RootInfo;
 
 class BrassPostList;
 
@@ -71,9 +74,10 @@ class BrassPostListTable : public BrassTable {
 	      doclen_pl()
 	{ }
 
-	bool open(int flags_, brass_revision_number_t revno) {
+	void open(int flags_, const RootInfo & root_info,
+		  brass_revision_number_t rev) {
 	    doclen_pl.reset(0);
-	    return BrassTable::open(flags_, revno);
+	    BrassTable::open(flags_, root_info, rev);
 	}
 
 	/// Merge changes for a term.

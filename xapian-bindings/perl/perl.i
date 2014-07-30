@@ -22,7 +22,7 @@
  */
 %}
 
-/* The XS Search::Xapian never wrapped these, and they're now deprecated. */
+/* The XS Xapian never wrapped these, and they're now deprecated. */
 #define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 
 %include ../xapian-head.i
@@ -72,12 +72,12 @@ sub get_mset {
   my $nargs = scalar(@_);
   if( $nargs == 4 ) {
     my $type = ref( $_[2] );
-    if ( $type eq 'Search::Xapian::RSet' ) {
+    if ( $type eq 'Xapian::RSet' ) {
       # get_mset(first, max, rset)
       splice @_, 2, 0, (0); # insert checkatleast
     }
   }
-  return Search::Xapianc::Enquire_get_mset( @_ );
+  return Xapianc::Enquire_get_mset( @_ );
 }
 %}
 
@@ -86,9 +86,9 @@ sub get_mset {
 sub set_query {
   my $self = shift;
   my $query = shift;
-  if( ref( $query ) ne 'Search::Xapian::Query' ) {
-    $query = Search::Xapian::Query->new( $query, @_ );
-    Search::Xapianc::Enquire_set_query( $self, $query );
+  if( ref( $query ) ne 'Xapian::Query' ) {
+    $query = Xapian::Query->new( $query, @_ );
+    Xapianc::Enquire_set_query( $self, $query );
     return;
   }
   my $nargs = scalar(@_);
@@ -97,7 +97,7 @@ sub set_query {
     Carp::carp( "USAGE: \$enquire->set_query(\$query) or \$enquire->set_query(\$query, \$length)" );
     exit;
   }
-  Search::Xapianc::Enquire_set_query( $self, $query, @_ );
+  Xapianc::Enquire_set_query( $self, $query, @_ );
 }
 %}
 
@@ -107,7 +107,7 @@ sub set_sort_by_key {
     my $self = $_[0];
     my $sorter = $_[1];
     $self{_sorter} = $sorter;
-    Search::Xapianc::Enquire_set_sort_by_key( @_ );
+    Xapianc::Enquire_set_sort_by_key( @_ );
 }
 %}
 
@@ -117,7 +117,7 @@ sub set_sort_by_key_then_relevance {
     my $self = $_[0];
     my $sorter = $_[1];
     $self{_sorter} = $sorter;
-    Search::Xapianc::Enquire_set_sort_by_key_then_relevance( @_ );
+    Xapianc::Enquire_set_sort_by_key_then_relevance( @_ );
 }
 %}
 
@@ -127,7 +127,7 @@ sub set_sort_by_relevance_then_key {
     my $self = $_[0];
     my $sorter = $_[1];
     $self{_sorter} = $sorter;
-    Search::Xapianc::Enquire_set_sort_by_relevance_then_key( @_ );
+    Xapianc::Enquire_set_sort_by_relevance_then_key( @_ );
 }
 %}
 
@@ -201,7 +201,7 @@ sub new {
   my $query;
 
   if( @_ <= 1 ) {
-    $query = Search::Xapianc::new_Query(@_);
+    $query = Xapianc::new_Query(@_);
   } else {
     use Carp;
     my $op = $_[0];
@@ -212,20 +212,20 @@ sub new {
       if( @_ != 4 ) {
 	Carp::croak( "USAGE: $class->new(OP_VALUE_RANGE, VALNO, START, END)" );
       }
-      $query = Search::Xapianc::new_Query( @_ );
+      $query = Xapianc::new_Query( @_ );
     } elsif( $op == 9 ) { # FIXME: OP_SCALE_WEIGHT
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
+	Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
       }
-      $query = Search::Xapianc::new_Query( @_ );
+      $query = Xapianc::new_Query( @_ );
     } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
+	Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
       }
-      $query = Search::Xapianc::new_Query( @_ );
+      $query = Xapianc::new_Query( @_ );
     } else {
       shift @_;
-      $query = Search::Xapian::newN( $op, \@_ );
+      $query = Xapian::newN( $op, \@_ );
     }
   }
   return $query;
@@ -239,15 +239,15 @@ sub new {
 	SV  **tv;
 	if (!SvROK($input))
 	    croak("Argument $argnum is not a reference.");
-        if (SvTYPE(SvRV($input)) != SVt_PVAV)
+	if (SvTYPE(SvRV($input)) != SVt_PVAV)
 	    croak("Argument $argnum is not an array.");
-        tempav = (AV*)SvRV($input);
+	tempav = (AV*)SvRV($input);
 	len = av_len(tempav);
 	$1 = (SV **) malloc((len+2)*sizeof(SV *));
 	for (i = 0; i <= len; i++) {
 	    tv = av_fetch(tempav, i, 0);
 	    $1[i] = *tv;
-        }
+	}
 	$1[i] = NULL;
 };
 
@@ -279,24 +279,24 @@ class XapianSWIGQueryItor {
     }
 
     Xapian::Query operator*() const {
-        SV **svp = av_fetch(array, i, 0);
-        if( svp == NULL )
-            croak("Unexpected NULL returned by av_fetch()");
-        SV *sv = *svp;
+	SV **svp = av_fetch(array, i, 0);
+	if( svp == NULL )
+	    croak("Unexpected NULL returned by av_fetch()");
+	SV *sv = *svp;
 
-        if ( sv_isa(sv, "Search::Xapian::Query")) {
-            Xapian::Query *q;
-            SWIG_ConvertPtr(sv, (void **)&q, SWIGTYPE_p_Xapian__Query, 0);
-            return *q;
-        }
+	if ( sv_isa(sv, "Xapian::Query")) {
+	    Xapian::Query *q;
+	    SWIG_ConvertPtr(sv, (void **)&q, SWIGTYPE_p_Xapian__Query, 0);
+	    return *q;
+	}
 
-        if ( SvOK(sv) ) {
-            STRLEN len;
-            const char * ptr = SvPV(sv, len);
-            return Xapian::Query(string(ptr, len));
-        }
+	if ( SvOK(sv) ) {
+	    STRLEN len;
+	    const char * ptr = SvPV(sv, len);
+	    return Xapian::Query(string(ptr, len));
+	}
 
-        croak( "USAGE: Search::Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
+	croak( "USAGE: Xapian::Query->new(OP, @TERMS_OR_QUERY_OBJECTS)" );
     }
 
     bool operator==(const XapianSWIGQueryItor & o) {
@@ -339,7 +339,7 @@ Xapian::Query * newN(int op_, SV *q_) {
 %{
 sub new {
   my $class = shift;
-  my $qp = Search::Xapianc::new_QueryParser();
+  my $qp = Xapianc::new_QueryParser();
 
   bless $qp, $class;
   $qp->set_database(@_) if scalar(@_) == 1;
@@ -353,7 +353,7 @@ sub new {
 sub set_stopper {
     my ($self, $stopper) = @_;
     $self{_stopper} = $stopper;
-    Search::Xapianc::QueryParser_set_stopper( @_ );
+    Xapianc::QueryParser_set_stopper( @_ );
 }
 %}
 
@@ -362,7 +362,7 @@ sub set_stopper {
 sub add_valuerangeprocessor {
     my ($self, $vrproc) = @_;
     push @{$self{_vrproc}}, $vrproc;
-    Search::Xapianc::QueryParser_add_valuerangeprocessor( @_ );
+    Xapianc::QueryParser_add_valuerangeprocessor( @_ );
 }
 %}
 
@@ -371,7 +371,7 @@ sub add_valuerangeprocessor {
 %{
 sub new {
     my $class = shift;
-    my $stopper = Search::Xapianc::new_SimpleStopper();
+    my $stopper = Xapianc::new_SimpleStopper();
 
     bless $stopper, $class;
     foreach (@_) {
@@ -432,9 +432,9 @@ sub new {
   my $pkg = shift;
   my $self;
   if( scalar(@_) == 0 ) {
-    $self = Search::Xapianc::new3_WritableDatabase(@_);
+    $self = Xapianc::new3_WritableDatabase(@_);
   } else {
-    $self = Search::Xapianc::new_WritableDatabase(@_);
+    $self = Xapianc::new_WritableDatabase(@_);
   }
   bless $self, $pkg if defined($self);
 }
@@ -442,12 +442,12 @@ sub new {
 
 %inline %{
 Xapian::WritableDatabase * new3_WritableDatabase() {
-        try {
+	try {
 	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
-        }
-        catch (const Xapian::Error &error) {
-            croak( "Exception: %s", error.get_msg().c_str() );
-        }
+	}
+	catch (const Xapian::Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
 }
 %}
 

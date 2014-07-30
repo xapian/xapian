@@ -22,7 +22,7 @@ use_ok("SymbolTest");
 eval { SymbolTest::throw_from_libxapian() };
 like( $@, qr/DatabaseOpeningError caught in SymbolTest/, 'Correct exception caught');
 
-use Search::Xapian qw( :all );
+use Xapian qw( :all );
 
 eval { SymbolTest::throw_from_libxapian() };
 like( $@, qr/DatabaseOpeningError caught in SymbolTest/, 'Correct exception caught');

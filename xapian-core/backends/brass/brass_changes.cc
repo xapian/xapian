@@ -220,46 +220,48 @@ BrassChanges::check(const string & changes_file)
 		throw Xapian::DatabaseError("Changes file - junk at end");
 	    break;
 	}
+	if (v == 0xfe) {
+	    // Version file.
+	    brass_revision_number_t version_rev;
+	    if (!unpack_uint(&p, end, &version_rev))
+		throw Xapian::DatabaseError("Changes file - bad version file revision");
+	    if (rev != version_rev)
+		throw Xapian::DatabaseError("Version file revision != changes file new revision");
+	    size_t len;
+	    if (!unpack_uint(&p, end, &len))
+		throw Xapian::DatabaseError("Changes file - bad version file length");
+	    if (len <= size_t(end - p)) {
+		p += len;
+	    } else {
+		if (lseek(fd, len - (end - p), SEEK_CUR) == off_t(-1))
+		    throw Xapian::DatabaseError("Changes file - version file data truncated");
+		p = end = buf;
+		n = 0;
+	    }
+	    continue;
+	}
 	unsigned table = (v & 0x7);
-	bool base = (v & 0x80);
-	v = (v >> 3) & 0x0f;
+	v >>= 3;
 	if (table > 5)
 	    throw Xapian::DatabaseError("Changes file - bad table code");
-	if (base) {
-	    // Base file.
-	    if (v > 1)
-		throw Xapian::DatabaseError("Changes file - bad base letter");
-	    size_t base_len;
-	    if (!unpack_uint(&p, end, &base_len))
-		throw Xapian::DatabaseError("Changes file - bad base length");
-	    if (base_len <= size_t(end - p)) {
-		p += base_len;
-	    } else {
-		if (lseek(fd, base_len - (end - p), SEEK_CUR) == off_t(-1))
-		    throw Xapian::DatabaseError("Changes file - base file data truncated");
-		p = end = buf;
-		n = 0;
-	    }
+	// Changed block.
+	if (v > 5)
+	    throw Xapian::DatabaseError("Changes file - bad block size");
+	unsigned block_size = 2048 << v;
+	uint4 block_number;
+	if (!unpack_uint(&p, end, &block_number))
+	    throw Xapian::DatabaseError("Changes file - bad block number");
+	uint4 block_rev = getint4(reinterpret_cast<const unsigned char *>(p), 0);
+	(void)block_rev; // FIXME: Sanity check value.
+	unsigned level = (unsigned char)p[4];
+	(void)level; // FIXME: Sanity check value.
+	if (block_size <= unsigned(end - p)) {
+	    p += block_size;
 	} else {
-	    // Changed block.
-	    if (v > 5)
-		throw Xapian::DatabaseError("Changes file - bad block size");
-	    unsigned block_size = 2048 << v;
-	    uint4 block_number;
-	    if (!unpack_uint(&p, end, &block_number))
-		throw Xapian::DatabaseError("Changes file - bad block number");
-	    uint4 block_rev = getint4(reinterpret_cast<const unsigned char *>(p), 0);
-	    (void)block_rev; // FIXME: Sanity check value.
-	    unsigned level = (unsigned char)p[4];
-	    (void)level; // FIXME: Sanity check value.
-	    if (block_size <= unsigned(end - p)) {
-		p += block_size;
-	    } else {
-		if (lseek(fd, block_size - (end - p), SEEK_CUR) == off_t(-1))
-		    throw Xapian::DatabaseError("Changes file - block data truncated");
-		p = end = buf;
-		n = 0;
-	    }
+	    if (lseek(fd, block_size - (end - p), SEEK_CUR) == off_t(-1))
+		throw Xapian::DatabaseError("Changes file - block data truncated");
+	    p = end = buf;
+	    n = 0;
 	}
     }
 }

@@ -24,15 +24,15 @@
 
 #include "xapian/types.h"
 
-#include "brass_types.h"
-
 #include <cstring> // For size_t.
 #include <iosfwd>
 #include <string>
 #include <vector>
 
-size_t check_brass_table(const char * tablename, std::string table,
-			 brass_revision_number_t * rev_ptr, int opts,
+class BrassVersion;
+
+size_t check_brass_table(const char * tablename, const std::string &db_dir,
+			 const BrassVersion & version_file, int opts,
 			 std::vector<Xapian::termcount> & doclens,
 			 Xapian::docid db_last_docid, std::ostream * out);
 

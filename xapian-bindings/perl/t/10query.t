@@ -10,34 +10,34 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 BEGIN { plan tests => 10 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 use Config;
 
 ok(1); # If we made it this far, we're ok.
 
 #########################
 
-my $query = Search::Xapian::Query->new(
+my $query = Xapian::Query->new(
 	OP_AND,
-	Search::Xapian::Query->new( "foo" ),
+	Xapian::Query->new( "foo" ),
 	"bar"
 );
 ok(defined $query, "AND query created");
 is($query->get_description, 'Query((foo AND bar))', "AND query contains foo part");
 
-$query = Search::Xapian::Query::MatchAll;
+$query = Xapian::Query::MatchAll;
 is($query->get_description, 'Query(<alldocuments>)');
-$query = Search::Xapian::Query->new("");
+$query = Xapian::Query->new("");
 is($query->get_description, 'Query(<alldocuments>)');
-$query = Search::Xapian::Query::MatchNothing;
+$query = Xapian::Query::MatchNothing;
 is($query->get_description, 'Query()');
-$query = Search::Xapian::Query->new();
+$query = Xapian::Query->new();
 is($query->get_description, 'Query()');
 
 eval {
-    Search::Xapian::Query->new("hello", 1, 2, 3, 4);
+    Xapian::Query->new("hello", 1, 2, 3, 4);
 };
 ok(defined $@, "Bad query ctor threw exception");
-like($@, qr!^USAGE: Search::Xapian::Query->new\('term'\) or Search::Xapian::Query->new\(OP, <args>\) at \S+/10query\.t line \d+\.?$!);
+like($@, qr!^USAGE: Xapian::Query->new\('term'\) or Xapian::Query->new\(OP, <args>\) at \S+/10query\.t line \d+\.?$!);
 
 ok(1);

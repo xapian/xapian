@@ -56,7 +56,7 @@ BrassFreeList::write_block(BrassTable * B, uint4 n, byte * ptr)
 }
 
 uint4
-BrassFreeList::get_block(BrassTable *B)
+BrassFreeList::get_block(BrassTable *B, uint4 block_size)
 {
     if (fl == fl_end) {
 	return first_unused_block++;
@@ -66,7 +66,7 @@ BrassFreeList::get_block(BrassTable *B)
 	if (p == 0) {
 	    p = new byte[block_size];
 	} else {
-	    mark_block_unused(B, fl.n);
+	    mark_block_unused(B, block_size, fl.n);
 	    fl.n = getint4(p, fl.c);
 	    // Allow for mini-header at start of freelist block.
 	    fl.c = C_BASE;
@@ -77,7 +77,7 @@ BrassFreeList::get_block(BrassTable *B)
 	// next pointer.
 	Assert(fl.n == fl_end.n || getint4(p, block_size - 4) != -1);
 
-	return get_block(B);
+	return get_block(B, block_size);
     }
 
     // Either the freelist end is in this block, or this freelist block has a
@@ -93,7 +93,7 @@ BrassFreeList::get_block(BrassTable *B)
 }
 
 uint4
-BrassFreeList::walk(BrassTable *B, bool inclusive)
+BrassFreeList::walk(BrassTable *B, uint4 block_size, bool inclusive)
 {
     if (fl == fl_end) {
 	// It's expected that the caller checks !empty() first.
@@ -116,7 +116,7 @@ BrassFreeList::walk(BrassTable *B, bool inclusive)
 
 	if (inclusive)
 	    return fl.n;
-	return walk(B, inclusive);
+	return walk(B, block_size, inclusive);
     }
 
     // Either the freelist end is in this block, or this freelist block has a
@@ -130,7 +130,7 @@ BrassFreeList::walk(BrassTable *B, bool inclusive)
 }
 
 void
-BrassFreeList::mark_block_unused(BrassTable * B, uint4 blk)
+BrassFreeList::mark_block_unused(BrassTable * B, uint4 block_size, uint4 blk)
 {
     if (!pw) {
 	pw = new byte[block_size];
@@ -140,7 +140,7 @@ BrassFreeList::mark_block_unused(BrassTable * B, uint4 blk)
 	}
     }
     if (flw.c == 0) {
-	uint4 n = get_block(B);
+	uint4 n = get_block(B, block_size);
 	flw.n = n;
 	flw.c = C_BASE;
 	if (fl.c == 0) {
@@ -151,7 +151,7 @@ BrassFreeList::mark_block_unused(BrassTable * B, uint4 blk)
     } else if (flw.c == block_size - 4) {
 	// blk is free *after* the current revision gets released, so we can't
 	// just use blk as the next block in the freelist chain.
-	uint4 n = get_block(B);
+	uint4 n = get_block(B, block_size);
 	setint4(pw, flw.c, n);
 	SET_REVISION(pw, revision + 1);
 	write_block(B, flw.n, pw);
@@ -170,7 +170,7 @@ BrassFreeList::mark_block_unused(BrassTable * B, uint4 blk)
 }
 
 void
-BrassFreeList::commit(BrassTable * B)
+BrassFreeList::commit(BrassTable * B, uint4 block_size)
 {
     if (pw && flw.c != 0) {
 	memset(pw + flw.c, 255, block_size - flw.c - 4);

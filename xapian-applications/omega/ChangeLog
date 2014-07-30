@@ -1,3 +1,16 @@
+Thu Jul 24 21:27:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Sun Jun 22 13:32:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Fri Jun 20 14:37:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Don't compile in unixperm.cc - it isn't currently used,
+	  and it fails to build with mingw.  (fixes #635)
+
 Mon Jun 09 01:23:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: LibreOffice can export a timestamp of "0;0" - treat
@@ -12,6 +25,11 @@ Tue Jun 03 02:29:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* diritor.cc: Fix "applications/msword" to "application/msword" in the
 	  fallback code for CDF files.
+
+Tue Jun 03 01:49:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.cc: In fallback for CDF files, compare the extension
+	  *without* leading dot.
 
 Fri May 30 05:38:01 GMT 2014  Olly Betts <olly@survex.com>
 

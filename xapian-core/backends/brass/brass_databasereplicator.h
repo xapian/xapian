@@ -24,16 +24,7 @@
 #define XAPIAN_INCLUDED_BRASS_DATABASEREPLICATOR_H
 
 #include "backends/databasereplicator.h"
-
-enum table_id {
-    POSITION,
-    POSTLIST,
-    RECORD,
-    SPELLING,
-    SYNONYM,
-    TERMLIST,
-    N_TABLES_
-};
+#include "brass_defs.h"
 
 class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
     private:
@@ -45,20 +36,18 @@ class BrassDatabaseReplicator : public Xapian::DatabaseReplicator {
 	 *
 	 *  The corresponding entry is -1 if that table is not yet opened.
 	 */
-	mutable int fds[N_TABLES_];
+	mutable int fds[Brass::MAX_];
 
-	/** Process a chunk which holds a base block.
+	/** Process a chunk which holds a version file.
 	 */
-	void process_changeset_chunk_base(table_id table,
-					  unsigned v,
-					  std::string & buf,
-					  RemoteConnection & conn,
-					  double end_time) const;
+	void process_changeset_chunk_version(std::string & buf,
+					     RemoteConnection & conn,
+					     double end_time) const;
 
 	/** Process a chunk which holds a list of changed blocks in the
 	 *  database.
 	 */
-	void process_changeset_chunk_blocks(table_id table,
+	void process_changeset_chunk_blocks(Brass::table_type table,
 					    unsigned v,
 					    std::string & buf,
 					    RemoteConnection & conn,

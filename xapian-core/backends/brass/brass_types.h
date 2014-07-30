@@ -23,37 +23,11 @@
 #ifndef OM_HGUARD_BRASS_TYPES_H
 #define OM_HGUARD_BRASS_TYPES_H
 
-#include "internaltypes.h"
-
-typedef unsigned int brass_blocksize_t;
-
-/** A type used to store a revision number for a table.
- *
- *  A table's revision number increases monotonically, incrementing by
- *  one each time a modification is applied to the table.
- *
- *  FIXME: ensure that this is of a suitable minimum size - 32 bits is
- *  satisfactory in most cases, but in extreme cases could cause the revision
- *  number to roll over after a few years.  It would be better to use 64 bits
- *  (and / or to ensure that rolling over causes no problem).
- */
-typedef unsigned int brass_revision_number_t;
-
-/** A type used to store the number of entries in a table.
- *
- *  Again, this must be of suitable minimum size.
- */
-typedef unsigned long long brass_tablesize_t;
+#include "brass_defs.h"
 
 /** An integer type for storing the length of a document - ie, the sum of the
  *  wdfs of the terms in the document.
  */
 typedef unsigned int brass_doclen_t;
-
-/** The default block size to use in a B-tree table.
- *  If this is changed, be sure to update the API documentation
- *  correspondingly.
- */
-#define BRASS_DEFAULT_BLOCK_SIZE 8192
 
 #endif /* OM_HGUARD_BRASS_TYPES_H */

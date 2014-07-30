@@ -1,7 +1,7 @@
 /** @file brass_version.cc
  * @brief BrassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,127 +21,254 @@
 
 #include <config.h>
 
-#include "safeerrno.h"
-
-#include <xapian/error.h>
-
 #include "brass_version.h"
+
+#include "debuglog.h"
+#include "fd.h"
 #include "io_utils.h"
 #include "omassert.h"
+#include "pack.h"
 #include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE() and CONST_STRLEN().
-#include "str.h"
 
-#include <cstring> // For memcmp() and memcpy().
+#include <cstring> // For memcmp().
 #include <string>
+#include "safeerrno.h"
+#include <sys/types.h>
+#include "safesysstat.h"
+#include "safefcntl.h"
+#include "stringutils.h"
 
 #include "common/safeuuid.h"
 
 #include "xapian/constants.h"
+#include "xapian/error.h"
 
 using namespace std;
 
-// YYYYMMDDX where X allows multiple format revisions in a day
-#define BRASS_VERSION 201311060
-// 201311060 1.3.2 Order position table by term first
-// 201103110 1.2.5 Bump for new max changesets dbstats
-// 200912150 1.1.4 Brass debuts.
+/// Brass format version (date of change):
+#define BRASS_FORMAT_VERSION DATE_TO_VERSION(2014,7,28)
+// 2014,7,28  1.3.2 Order position table by term first; merge base files into revision file
 
-#define MAGIC_STRING "IAmBrass"
+/// Convert date <-> version number.  Dates up to 2190-03-02 fit in 2 bytes.
+#define DATE_TO_VERSION(Y,M,D) (((((Y)-2014)*12+((M)-1))*31)+(D)-1)
+#define VERSION_TO_YEAR(V) ((V) / 31 / 12 + 2014)
+#define VERSION_TO_MONTH(V) ((V) / 31 % 12 + 1)
+#define VERSION_TO_DAY(V) ((V) % 31 + 1)
 
-#define MAGIC_LEN CONST_STRLEN(MAGIC_STRING)
-// 4 for the version number; 16 for the UUID.
-#define VERSIONFILE_SIZE (MAGIC_LEN + 4 + 16)
+#define BRASS_VERSION_MAGIC_LEN 14
+#define BRASS_VERSION_MAGIC_AND_VERSION_LEN 16
 
-// Literal version of VERSIONFILE_SIZE, used for error message.  This needs
-// to be updated by hand should VERSIONFILE_SIZE change, but that rarely
-// happens so this isn't an onerous requirement.
-#define VERSIONFILE_SIZE_LITERAL 28
-
-void
-BrassVersion::create(int flags)
-{
-    char buf[VERSIONFILE_SIZE] = MAGIC_STRING;
-    unsigned char *v = reinterpret_cast<unsigned char *>(buf) + MAGIC_LEN;
-    v[0] = static_cast<unsigned char>(BRASS_VERSION & 0xff);
-    v[1] = static_cast<unsigned char>((BRASS_VERSION >> 8) & 0xff);
-    v[2] = static_cast<unsigned char>((BRASS_VERSION >> 16) & 0xff);
-    v[3] = static_cast<unsigned char>((BRASS_VERSION >> 24) & 0xff);
-
-    uuid_generate(uuid);
-    memcpy(buf + MAGIC_LEN + 4, (void*)uuid, 16);
-
-    int fd = ::open(filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
-
-    if (fd < 0) {
-	string msg("Failed to create brass version file: ");
-	msg += filename;
-	throw Xapian::DatabaseOpeningError(msg, errno);
-    }
-
-    try {
-	io_write(fd, buf, VERSIONFILE_SIZE);
-    } catch (...) {
-	(void)close(fd);
-	throw;
-    }
-
-    if ((flags & Xapian::DB_NO_SYNC) == 0)
-	io_sync(fd);
-    if (close(fd) != 0) {
-	string msg("Failed to create brass version file: ");
-	msg += filename;
-	throw Xapian::DatabaseOpeningError(msg, errno);
-    }
-}
+static const char BRASS_VERSION_MAGIC[BRASS_VERSION_MAGIC_AND_VERSION_LEN] = {
+    '\x0f', '\x0d', 'X', 'a', 'p', 'i', 'a', 'n', ' ', 'B', 'r', 'a', 's', 's',
+    char((BRASS_FORMAT_VERSION >> 8) & 0xff), char(BRASS_FORMAT_VERSION & 0xff)
+};
 
 void
-BrassVersion::read_and_check()
+BrassVersion::read()
 {
-    int fd = ::open(filename.c_str(), O_RDONLY|O_BINARY|O_CLOEXEC);
-
-    if (fd < 0) {
+    LOGCALL_VOID(DB, "BrassVersion::read", NO_ARGS);
+    string filename = db_dir;
+    filename += "/iambrass";
+    int fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
+    if (rare(fd_in < 0)) {
 	string msg = filename;
-	msg += ": Failed to open brass version file for reading";
+	msg += ": Failed to open brass revision file for reading";
 	throw Xapian::DatabaseOpeningError(msg, errno);
     }
 
-    // Try to read an extra byte so we know if the file is too long.
-    char buf[VERSIONFILE_SIZE + 1];
-    size_t size;
-    try {
-	size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
-    } catch (...) {
-	(void)close(fd);
-	throw;
-    }
-    (void)close(fd);
+    FD close_fd(fd_in);
 
-    if (size != VERSIONFILE_SIZE) {
-	CompileTimeAssert(VERSIONFILE_SIZE == VERSIONFILE_SIZE_LITERAL);
-	string msg = filename;
-	msg += ": Brass version file should be "
-	       STRINGIZE(VERSIONFILE_SIZE_LITERAL)" bytes, actually ";
-	msg += str(size);
-	throw Xapian::DatabaseCorruptError(msg);
-    }
+    char buf[256];
 
-    if (memcmp(buf, MAGIC_STRING, MAGIC_LEN) != 0) {
-	string msg = filename;
-	msg += ": Brass version file doesn't contain the right magic string";
-	throw Xapian::DatabaseCorruptError(msg);
-    }
+    const char * p = buf;
+    const char * end = p + io_read(fd_in, buf, sizeof(buf), 33);
 
-    const unsigned char *v;
-    v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
-    unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
-    if (version != BRASS_VERSION) {
+    if (memcmp(buf, BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_LEN) != 0)
+	throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
+
+    unsigned version;
+    version = static_cast<unsigned char>(buf[BRASS_VERSION_MAGIC_LEN]);
+    version <<= 8;
+    version |= static_cast<unsigned char>(buf[BRASS_VERSION_MAGIC_LEN + 1]);
+    if (version != BRASS_FORMAT_VERSION) {
+	char datebuf[9];
 	string msg = filename;
-	msg += ": Brass version file is version ";
-	msg += str(version);
-	msg += " but I only understand "STRINGIZE(BRASS_VERSION);
+	msg += ": Database is format version ";
+	sprintf(datebuf, "%04d%02d%02d",
+		VERSION_TO_YEAR(version),
+		VERSION_TO_MONTH(version),
+		VERSION_TO_DAY(version));
+	msg += datebuf;
+	msg += " but I only understand ";
+	sprintf(datebuf, "%04d%02d%02d",
+		VERSION_TO_YEAR(BRASS_FORMAT_VERSION),
+		VERSION_TO_MONTH(BRASS_FORMAT_VERSION),
+		VERSION_TO_DAY(BRASS_FORMAT_VERSION));
+	msg += datebuf;
 	throw Xapian::DatabaseVersionError(msg);
     }
 
-    memcpy((void*)uuid, buf + MAGIC_LEN + 4, 16);
+    p += BRASS_VERSION_MAGIC_AND_VERSION_LEN;
+    memcpy((void*)uuid, p, 16);
+    p += 16;
+
+    if (!unpack_uint(&p, end, &rev))
+	throw Xapian::DatabaseCorruptError("Rev file failed to decode revision");
+
+    for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
+	if (!root[table_no].unserialise(&p, end)) {
+	    throw Xapian::DatabaseCorruptError("Rev file root_info missing");
+	}
+	old_root[table_no] = root[table_no];
+    }
+
+    if (p != end)
+	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
+}
+
+void
+BrassVersion::cancel()
+{
+    LOGCALL_VOID(DB, "BrassVersion::cancel", NO_ARGS);
+    for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
+	root[table_no] = old_root[table_no];
+    }
+}
+
+const string
+BrassVersion::write(brass_revision_number_t new_rev)
+{
+    LOGCALL(DB, const string, "BrassVersion::write", new_rev);
+
+    string s(BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_AND_VERSION_LEN);
+    s.append((const char *)uuid, 16);
+
+    pack_uint(s, new_rev);
+
+    for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
+	root[table_no].serialise(s);
+    }
+
+    string tmpfile = db_dir;
+    tmpfile += "/v.tmp";
+
+    fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
+    if (rare(fd < 0))
+	throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
+					   errno);
+
+    try {
+	io_write(fd, s.data(), s.size());
+    } catch (...) {
+	(void)close(fd);
+	throw;
+    }
+
+    if (changes) {
+	string changes_buf;
+	changes_buf += '\xfe';
+	pack_uint(changes_buf, new_rev);
+	pack_uint(changes_buf, s.size());
+	changes->write_block(changes_buf);
+	changes->write_block(s);
+    }
+
+    RETURN(tmpfile);
+}
+
+bool
+BrassVersion::sync(const string & tmpfile,
+		   brass_revision_number_t new_rev, int flags)
+{
+    Assert(new_rev > rev || rev == 0);
+
+    string filename = db_dir;
+    filename += "/iambrass";
+
+    if ((flags & Xapian::DB_NO_SYNC) == 0 && !io_sync(fd)) {
+	int save_errno = errno;
+	(void)close(fd);
+	errno = save_errno;
+	return false;
+    }
+
+    if (close(fd) != 0)
+	return false;
+
+    if (posixy_rename(tmpfile.c_str(), filename.c_str()) < 0) {
+	// Over NFS, rename() can sometimes report failure when the operation
+	// succeeded, so in this case we try to unlink the source to check if
+	// the rename really failed.
+	int save_errno = errno;
+	if (unlink(tmpfile.c_str()) == 0 || errno != ENOENT) {
+	    errno = save_errno;
+	    return false;
+	}
+    }
+
+    for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
+	old_root[table_no] = root[table_no];
+    }
+
+    rev = new_rev;
+    return true;
+}
+
+void
+BrassVersion::create(unsigned blocksize, int flags)
+{
+    AssertRel(blocksize,>=,2048);
+    uuid_generate(uuid);
+    for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
+	root[table_no].init(blocksize);
+    }
+    sync(write(rev), rev, flags);
+}
+
+namespace Brass {
+
+void
+RootInfo::init(unsigned blocksize_)
+{
+    AssertRel(blocksize_,>=,2048);
+    root = 0;
+    level = 0;
+    num_entries = 0;
+    root_is_fake = true;
+    sequential_mode = true;
+    blocksize = blocksize_;
+    fl_serialised.resize(0);
+}
+
+void
+RootInfo::serialise(string &s) const
+{
+    pack_uint(s, root);
+    unsigned val = level << 2;
+    if (sequential_mode) val |= 0x02;
+    if (root_is_fake) val |= 0x01;
+    pack_uint(s, val);
+    pack_uint(s, num_entries);
+    pack_uint(s, blocksize >> 11);
+    pack_string(s, fl_serialised);
+}
+
+bool
+RootInfo::unserialise(const char ** p, const char * end)
+{
+    unsigned val;
+    if (!unpack_uint(p, end, &root) ||
+	!unpack_uint(p, end, &val) ||
+	!unpack_uint(p, end, &num_entries) ||
+	!unpack_uint(p, end, &blocksize) ||
+	!unpack_string(p, end, fl_serialised)) return false;
+    level = val >> 2;
+    sequential_mode = val & 0x02;
+    root_is_fake = val & 0x01;
+    blocksize <<= 11;
+    AssertRel(blocksize,>=,2048);
+    return true;
+}
+
 }

@@ -2,6 +2,7 @@
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
  * Copyright 2004,2006,2011,2012,2013,2014 Olly Betts
+ * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -304,6 +305,18 @@ SUBCLASSABLE(Xapian, ExpandDecider)
 SUBCLASSABLE(Xapian, KeyMaker)
 %include <xapian/keymaker.h>
 
+%extend Xapian::SimpleStopper {
+    /** Load stop words from a text file (one word per line). */
+    SimpleStopper(const std::string &file) {
+	ifstream in_file(file.c_str());
+	if (!in_file.is_open())
+	    throw Xapian::InvalidArgumentError("Stopword file not found: " + file);
+	istream_iterator<std::string> in_iter(in_file);
+	istream_iterator<std::string> eof;
+	return new Xapian::SimpleStopper(in_iter, eof);
+    }
+}
+
 SUBCLASSABLE(Xapian, FieldProcessor)
 SUBCLASSABLE(Xapian, Stopper)
 SUBCLASSABLE(Xapian, ValueRangeProcessor)
@@ -362,6 +375,9 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 	return Xapian::Database::check(path, opts, opts ? &std::cout : NULL);
     }
 }
+
+STANDARD_IGNORES(Xapian, Snipper)
+%include <xapian/snipper.h>
 
 #if defined SWIGCSHARP || defined SWIGJAVA
 

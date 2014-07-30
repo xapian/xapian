@@ -165,7 +165,7 @@ if test yes = "$enable_documentation" ; then
   dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
-  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation (try package python-docutils)])
 fi
 
 if test x$USE_MAINTAINER_MODE = xyes; then
@@ -488,7 +488,7 @@ dnl we need sphinx-build
 case $enable_documentation$BINDINGS in
 yes*python*)
   AC_PATH_PROG(SPHINX_BUILD, sphinx-build, [])
-  test -z "$SPHINX_BUILD" && AC_MSG_ERROR([sphinx-build is required to build python documentation])
+  test -z "$SPHINX_BUILD" && AC_MSG_ERROR([sphinx-build is required to build python documentation (try packages python-sphinx and python3-sphinx)])
   ;;
 esac
 
@@ -1017,7 +1017,7 @@ if test no != "$with_ruby" ; then
 
 	  dnl In a VPATH build, the ruby subdirectory won't exist the first
 	  dnl time.
-	  test -d ruby || mkdir ruby
+	  AS_MKDIR_P([ruby])
 
 	  dnl Newer Ruby has ruby/io.h - older has rubyio.h.  Ruby doesn't
 	  dnl seem to provide any way to generate code which works with

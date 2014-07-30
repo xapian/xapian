@@ -75,8 +75,6 @@ class BrassFreeList {
   protected:
     uint4 revision;
 
-    uint4 block_size;
-
     uint4 first_unused_block;
 
     BrassFLCursor fl, fl_end, flw;
@@ -91,45 +89,38 @@ class BrassFreeList {
     byte * pw;
 
   public:
-    BrassFreeList()
-	: revision(0), block_size(0), first_unused_block(0),
-	  flw_appending(false), p(0), pw(0) { }
+    BrassFreeList() {
+	revision = 0;
+	first_unused_block = 0;
+	flw_appending = false;
+	p = pw = NULL;
+    }
+
+    void reset() {
+	revision = 0;
+	first_unused_block = 0;
+	flw_appending = false;
+    }
 
     ~BrassFreeList() { delete [] p; delete [] pw; }
 
     bool empty() const { return fl == fl_end; }
 
-    uint4 get_block(BrassTable * B);
+    uint4 get_block(BrassTable * B, uint4 block_size);
 
-    uint4 walk(BrassTable *B, bool inclusive);
+    uint4 walk(BrassTable *B, uint4 block_size, bool inclusive);
 
-    void mark_block_unused(BrassTable * B, uint4 n);
+    void mark_block_unused(BrassTable * B, uint4 block_size, uint4 n);
 
     uint4 get_revision() const { return revision; }
     void set_revision(uint4 revision_) { revision = revision_; }
 
-    uint4 get_block_size() const { return block_size; }
-    void set_block_size(uint4 block_size_) { block_size = block_size_; }
-
     uint4 get_first_unused_block() const { return first_unused_block; }
 
-    void commit(BrassTable * B);
-
-    void swap(BrassFreeList &o) {
-	std::swap(revision, o.revision);
-	std::swap(block_size, o.block_size);
-	std::swap(first_unused_block, o.first_unused_block);
-	std::swap(fl, o.fl);
-	std::swap(fl_end, o.fl_end);
-	std::swap(flw, o.flw);
-	std::swap(flw_appending, o.flw_appending);
-	std::swap(p, o.p);
-	std::swap(pw, o.pw);
-    }
+    void commit(BrassTable * B, uint4 block_size);
 
     void pack(std::string & buf) {
 	pack_uint(buf, revision);
-	pack_uint(buf, block_size / 2048);
 	pack_uint(buf, first_unused_block);
 	fl.pack(buf);
 	flw.pack(buf);
@@ -137,15 +128,19 @@ class BrassFreeList {
 
     bool unpack(const char ** pstart, const char * end) {
 	bool r = unpack_uint(pstart, end, &revision) &&
-		 unpack_uint(pstart, end, &block_size) &&
 		 unpack_uint(pstart, end, &first_unused_block) &&
 		 fl.unpack(pstart, end) &&
 		 flw.unpack(pstart, end);
 	if (r) {
 	    fl_end = flw;
-	    block_size *= 2048;
 	}
 	return r;
+    }
+
+    bool unpack(const std::string & s) {
+	const char * ptr = s.data();
+	const char * end = ptr + s.size();
+	return unpack(&ptr, end) && ptr == end;
     }
 };
 

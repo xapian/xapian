@@ -25,7 +25,7 @@
 
 /* Perl code */
 %perlcode %{
-package Search::Xapian;
+package Xapian;
 
 our $VERSION = "@PERL_XAPIAN_VERSION@";
 
@@ -38,37 +38,37 @@ sub dl_load_flags { 0x01 }
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
 
-# This allows declaration use Search::Xapian ':all';
+# This allows declaration use Xapian ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = (
-                    'ops' => [ qw(
-                                  OP_AND
-                                  OP_OR
-                                  OP_AND_NOT
-                                  OP_XOR
-                                  OP_AND_MAYBE
-                                  OP_FILTER
-                                  OP_NEAR
-                                  OP_PHRASE
+		    'ops' => [ qw(
+				  OP_AND
+				  OP_OR
+				  OP_AND_NOT
+				  OP_XOR
+				  OP_AND_MAYBE
+				  OP_FILTER
+				  OP_NEAR
+				  OP_PHRASE
 				  OP_VALUE_RANGE
 				  OP_SCALE_WEIGHT
-                                  OP_ELITE_SET
+				  OP_ELITE_SET
 				  OP_VALUE_GE
 				  OP_VALUE_LE
-                                 ) ],
-                    'db' => [ qw(
-                                 DB_OPEN
-                                 DB_CREATE
-                                 DB_CREATE_OR_OPEN
-                                 DB_CREATE_OR_OVERWRITE
-                                 ) ],
-                    'enq_order' => [ qw(
+				 ) ],
+		    'db' => [ qw(
+				 DB_OPEN
+				 DB_CREATE
+				 DB_CREATE_OR_OPEN
+				 DB_CREATE_OR_OVERWRITE
+				 ) ],
+		    'enq_order' => [ qw(
 				 ENQ_DESCENDING
 				 ENQ_ASCENDING
 				 ENQ_DONT_CARE
 				   ) ],
-                    'qpflags' => [ qw(
+		    'qpflags' => [ qw(
 				 FLAG_BOOLEAN
 				 FLAG_PHRASE
 				 FLAG_LOVEHATE
@@ -81,13 +81,13 @@ our %EXPORT_TAGS = (
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
 				 FLAG_DEFAULT
-                                 ) ],
-                    'qpstem' => [ qw(
+				 ) ],
+		    'qpstem' => [ qw(
 				 STEM_NONE
 				 STEM_SOME
 				 STEM_ALL
-                                 ) ]
-                   );
+				 ) ]
+		   );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
 			   @{ $EXPORT_TAGS{'db'} },
 			   @{ $EXPORT_TAGS{'qpflags'} },
@@ -118,38 +118,38 @@ foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
   $STEM_NAMES[eval $_] = $_;
 }
 
-package Search::Xapian::Database;
+package Xapian::Database;
 sub enquire {
   my $self = shift;
-  my $enquire = Search::Xapian::Enquire->new( $self );
+  my $enquire = Xapian::Enquire->new( $self );
   if( @_ ) {
     $enquire->set_query( @_ );
   }
   return $enquire;
 }
 
-package Search::Xapian::Enquire;
+package Xapian::Enquire;
 sub matches {
   my $self = shift;
   return $self->get_mset(@_)->items();
 }
 
-package Search::Xapian::ESet;
+package Xapian::ESet;
 sub items {
   my $self = shift;
   my @array;
-  tie( @array, 'Search::Xapian::ESet', $self );
+  tie( @array, 'Xapian::ESet', $self );
   return @array;
 }
 
 use overload '++' => sub { $_[0]->increment() },
 	     '--' => sub { $_[0]->prev() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -170,15 +170,15 @@ sub FETCHSIZE {
     return $self->size();
 }
 
-package Search::Xapian::ESetIterator;
+package Xapian::ESetIterator;
 use overload '++' => sub { $_[0]->increment() },
 	     '--' => sub { $_[0]->prev() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -188,11 +188,11 @@ sub clone() {
   return $copy;
 }
 
-package Search::Xapian::MSet;
+package Xapian::MSet;
 sub items {
   my $self = shift;
   my @array;
-  tie( @array, 'Search::Xapian::MSet::Tied', $self );
+  tie( @array, 'Xapian::MSet::Tied', $self );
   return @array;
 }
 
@@ -207,15 +207,15 @@ sub FETCHSIZE {
     return $self->size();
 }
 
-package Search::Xapian::MSetIterator;
+package Xapian::MSetIterator;
 use overload '++' => sub { $_[0]->increment() },
 	     '--' => sub { $_[0]->prev() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -224,19 +224,19 @@ sub clone() {
   return $self;
 }
 
-package Search::Xapian::MSet::Tied;
-our @ISA = qw(Search::Xapian::MSet);
+package Xapian::MSet::Tied;
+our @ISA = qw(Xapian::MSet);
 
-package Search::Xapian::PositionIterator;
+package Xapian::PositionIterator;
 use overload '++' => sub { $_[0]->increment() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             '""' => sub { $_[0]->get_description() },
-             '0+' => sub { $_[0]->get_termpos() },
-             'fallback' => 1;
+	     '""' => sub { $_[0]->get_description() },
+	     '0+' => sub { $_[0]->get_termpos() },
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -248,8 +248,8 @@ sub clone() {
 
 sub equal() {
   my ($self, $other) = @_;
-  if( UNIVERSAL::isa($other, 'Search::Xapian::PositionIterator') ) {
-    Search::Xapianc::PositionIterator_equal1($self, $other);
+  if( UNIVERSAL::isa($other, 'Xapian::PositionIterator') ) {
+    Xapianc::PositionIterator_equal1($self, $other);
   } else {
     ($self+0) == ($other+0);
   }
@@ -257,21 +257,21 @@ sub equal() {
 
 sub nequal() {
   my ($self, $other) = @_;
-  if( UNIVERSAL::isa($other, 'Search::Xapian::PositionIterator') ) {
-    Search::Xapianc::PositionIterator_nequal1($self, $other);
+  if( UNIVERSAL::isa($other, 'Xapian::PositionIterator') ) {
+    Xapianc::PositionIterator_nequal1($self, $other);
   } else {
     ($self+0) != ($other+0);
   }
 }
 
-package Search::Xapian::PostingIterator;
+package Xapian::PostingIterator;
 use overload '++' => sub { $_[0]->increment() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -281,21 +281,21 @@ sub clone() {
   return $copy;
 }
 
-package Search::Xapian::TermGenerator;
+package Xapian::TermGenerator;
 sub set_stopper {
     my ($self, $stopper) = @_;
     $self{_stopper} = $stopper;
     set_stopper1( @_ );
 }
 
-package Search::Xapian::TermIterator;
+package Xapian::TermIterator;
 use overload '++' => sub { $_[0]->increment() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -305,14 +305,14 @@ sub clone() {
   return $copy;
 }
 
-package Search::Xapian::ValueIterator;
+package Xapian::ValueIterator;
 use overload '++' => sub { $_[0]->increment() },
-             '='  => sub { $_[0]->clone() },
+	     '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -323,105 +323,105 @@ sub clone() {
 }
 
 # Adding CLONE_SKIP functions
-package Search::Xapian::LogicError;
+package Xapian::LogicError;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::PositionIterator;
+package Xapian::PositionIterator;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::PostingIterator;
+package Xapian::PostingIterator;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::TermIterator;
+package Xapian::TermIterator;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ValueIterator;
+package Xapian::ValueIterator;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Document;
+package Xapian::Document;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::PostingSource;
+package Xapian::PostingSource;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ValuePostingSource;
+package Xapian::ValuePostingSource;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ValueWeightPostingSource;
+package Xapian::ValueWeightPostingSource;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ValueMapPostingSource;
+package Xapian::ValueMapPostingSource;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::FixedWeightPostingSource;
+package Xapian::FixedWeightPostingSource;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::MSet;
+package Xapian::MSet;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::MSetIterator;
+package Xapian::MSetIterator;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ESet;
+package Xapian::ESet;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ESetIterator;
+package Xapian::ESetIterator;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::RSet;
+package Xapian::RSet;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::MatchDecider;
+package Xapian::MatchDecider;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Enquire;
+package Xapian::Enquire;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Weight;
+package Xapian::Weight;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::BoolWeight;
+package Xapian::BoolWeight;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::BM25Weight;
+package Xapian::BM25Weight;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::TradWeight;
+package Xapian::TradWeight;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Database;
+package Xapian::Database;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::WritableDatabase;
+package Xapian::WritableDatabase;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Query;
-sub MatchAll { Search::Xapianc::new_Query('') }
-sub MatchNothing { Search::Xapianc::new_Query() }
+package Xapian::Query;
+sub MatchAll { Xapianc::new_Query('') }
+sub MatchNothing { Xapianc::new_Query() }
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Stopper;
+package Xapian::Stopper;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::SimpleStopper;
+package Xapian::SimpleStopper;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ValueRangeProcessor;
+package Xapian::ValueRangeProcessor;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::StringValueRangeProcessor;
+package Xapian::StringValueRangeProcessor;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::DateValueRangeProcessor;
+package Xapian::DateValueRangeProcessor;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::NumberValueRangeProcessor;
+package Xapian::NumberValueRangeProcessor;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::FieldProcessor;
+package Xapian::FieldProcessor;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::QueryParser;
+package Xapian::QueryParser;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Stem;
+package Xapian::Stem;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::TermGenerator;
+package Xapian::TermGenerator;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::Sorter;
+package Xapian::Sorter;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::MultiValueSorter;
+package Xapian::MultiValueSorter;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ReplicationInfo;
+package Xapian::ReplicationInfo;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::DatabaseMaster;
+package Xapian::DatabaseMaster;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::DatabaseReplica;
+package Xapian::DatabaseReplica;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::ValueSetMatchDecider;
+package Xapian::ValueSetMatchDecider;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::SerialisationContext;
+package Xapian::SerialisationContext;
 sub CLONE_SKIP { 1 }
-package Search::Xapian::MSet::Tied;
+package Xapian::MSet::Tied;
 sub CLONE_SKIP { 1 }
 
-# Pod document of Search::Xapian
+# Pod document of Xapian
 =head1 NAME
 
-Search::Xapian - Perl frontend to the Xapian C++ search library.
+Xapian - Perl frontend to the Xapian C++ search library.
 
 =head1 SYNOPSIS
 
-  use Search::Xapian;
+  use Xapian;
 
-  my $db = Search::Xapian::Database->new( '[DATABASE DIR]' );
+  my $db = Xapian::Database->new( '[DATABASE DIR]' );
   my $enq = $db->enquire( '[QUERY TERM]' );
 
   printf "Running query '%s'\n", $enq->get_query()->get_description();
@@ -446,9 +446,9 @@ can read the Xapian C++ API documentation at
 L<http://xapian.org/docs/apidoc/html/annotated.html> for details of
 these.  Alternatively, take a look at the code in the examples and tests.
 
-If you want to use Search::Xapian and the threads module together, make
-sure you're using Search::Xapian >= 1.0.4.0 and Perl >= 5.8.7.  As of 1.0.4.0,
-Search::Xapian uses CLONE_SKIP to make sure that the perl wrapper objects
+If you want to use Xapian and the threads module together, make
+sure you're using Xapian >= 1.0.4.0 and Perl >= 5.8.7.  As of 1.0.4.0,
+Xapian uses CLONE_SKIP to make sure that the perl wrapper objects
 aren't copied to new threads - without this the underlying C++ objects can get
 destroyed more than once.
 
@@ -514,7 +514,7 @@ Like OP_AND, but only weight using the left query.
 =item OP_NEAR
 
 Match if the words are near each other. The window should be specified, as
-a parameter to C<Search::Xapian::Query::Query>, but it defaults to the
+a parameter to C<Xapian::Query::Query>, but it defaults to the
 number of terms in the list.
 
 =item OP_PHRASE
@@ -648,8 +648,8 @@ Xapian 1.0.9 this would return 0.
 Returns the revision of the Xapian C++ library being used.  E.g. for
 Xapian 1.0.9 this would return 9.  In a stable release series, Xapian libraries
 with the same minor and major versions are usually ABI compatible, so this
-often won't match the third component of $Search::Xapian::VERSION (which is the
-version of the Search::Xapian wrappers).
+often won't match the third component of $Xapian::VERSION (which is the
+version of the Xapian wrappers).
 
 =back
 
@@ -734,22 +734,22 @@ NOT use the CPAN bug tracker or mail any of the authors individually.
 
 =head1 SEE ALSO
 
-L<Search::Xapian::BM25Weight>,
-L<Search::Xapian::BoolWeight>,
-L<Search::Xapian::Database>,
-L<Search::Xapian::Document>,
-L<Search::Xapian::Enquire>,
-L<Search::Xapian::MultiValueSorter>,
-L<Search::Xapian::PositionIterator>,
-L<Search::Xapian::PostingIterator>,
-L<Search::Xapian::QueryParser>,
-L<Search::Xapian::Stem>,
-L<Search::Xapian::TermGenerator>,
-L<Search::Xapian::TermIterator>,
-L<Search::Xapian::TradWeight>,
-L<Search::Xapian::ValueIterator>,
-L<Search::Xapian::Weight>,
-L<Search::Xapian::WritableDatabase>,
+L<Xapian::BM25Weight>,
+L<Xapian::BoolWeight>,
+L<Xapian::Database>,
+L<Xapian::Document>,
+L<Xapian::Enquire>,
+L<Xapian::MultiValueSorter>,
+L<Xapian::PositionIterator>,
+L<Xapian::PostingIterator>,
+L<Xapian::QueryParser>,
+L<Xapian::Stem>,
+L<Xapian::TermGenerator>,
+L<Xapian::TermIterator>,
+L<Xapian::TradWeight>,
+L<Xapian::ValueIterator>,
+L<Xapian::Weight>,
+L<Xapian::WritableDatabase>,
 and
 L<http://xapian.org/>.
 

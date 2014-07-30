@@ -31,11 +31,14 @@
 #include <iosfwd>
 #include <string>
 
+class BrassVersion;
+
 class BrassTableCheck : public BrassTable {
     public:
-	static void check(const char * tablename, const std::string & path,
-			  brass_revision_number_t * rev_ptr,
-			  int opts, std::ostream *out);
+	static BrassTableCheck * check(
+		const char * tablename, const std::string & path,
+		const BrassVersion & version_file,
+		int opts, std::ostream *out);
     private:
 	BrassTableCheck(const char * tablename_, const std::string &path_,
 			bool readonly, std::ostream *out_)

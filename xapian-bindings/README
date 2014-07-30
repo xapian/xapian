@@ -36,10 +36,10 @@ Lua		Requires Lua 5.1 or later; tested with 5.1 and 5.2.  Currently
 Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 		by Olly Betts are available from CPAN (module Search::Xapian).
 		SWIG-based Perl bindings were implemented by Kosei Moriyama in
-		GSoC 2009, and made their debut in the 1.2.4 release.  The
-		intention is that these will replace the XS bindings once we
-		are satisfied they are stable.  The bindings here probably need
-		Perl 5.8 or later.
+		GSoC 2009, and made their debut in the 1.2.4 release.  These
+		are in module Xapian).  The intention is that these will
+		replace the XS bindings once we are satisfied they are stable.
+		The bindings here probably need Perl 5.8 or later.
 
 PHP		Requires PHP >= 5.3 (older versions are no longer supported by
 		the PHP developers).

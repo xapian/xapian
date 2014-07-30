@@ -1,3 +1,120 @@
+Tue Jul 22 01:04:29 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Add add-php-ref-handling script as a dependency of
+	  the stamp file, so we regenerate if this script changes.
+
+Tue Jul 22 01:02:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,php/Makefile.am: Remove unnecessary explicit
+	  dependencies on except.i, as swig-depcomp finds this automatically.
+
+Tue Jul 22 01:02:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Fix to generate dependencies for stamp file
+	  correctly.
+
+Tue Jul 22 01:01:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Update for Snipper wrapping.
+
+Mon Jul 21 23:50:00 GMT 2014  Mihai Bivol <mm.bivol@gmail.com>
+
+	* java/Makefile.am,xapian-headers.i: Add Snipper in xapian bindings.
+
+Wed Jul 09 01:14:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Fix "make dist" to include
+	  the sphinx-generated docs when DOCUMENTATION_RULES=0.
+
+Tue Jul 08 13:33:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,php/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Fix "make dist" when
+	  DOCUMENTATION_RULES is off but generated index.html files exist.
+
+Mon Jun 30 04:11:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Fix typo in SimpleStopper with file testcase.
+
+Mon Jun 30 02:18:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/pythontest.py,python3/pythontest.py: Add a comment to explain
+	  why the PostingSource is in a list in the "postingsource" testcase,
+	  and add a term to the list to make it a less artificial test.
+
+Sat Jun 28 11:15:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am,shortstop.list: Add and distribute new data file
+	  'shortstop.list', needed for new SimpleStopper ctor testcase. 
+
+Sat Jun 28 09:34:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian-headers.i: Provide a SimpleStopper constructor
+	  which provides the ability to initialise from a stopword list in a
+	  file.  Based on patch from Assem Chelli.
+	* python/smoketest.py: Add testcoverage for this new wrapping.
+
+Mon Jun 23 02:49:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,php/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Don't guard installation of
+	  index.html generated from RST by "if DOCUMENTATION_RULES".
+
+Mon Jun 23 02:23:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add hints for which package to install for rst2html
+	  and sphinx-build (the latter is particularly useful, as there are at
+	  least 3 different open source projects using the name "sphinx").
+
+Mon Jun 23 00:56:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,perl/Makefile.am,
+	  php/Makefile.am,python/Makefile.am,python3/Makefile.am,
+	  ruby/Makefile.am,tcl8/Makefile.am: Use $(MKDIR_P).
+
+Mon Jun 23 00:55:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use AS_MKDIR_P instead of test -d || mkdir.
+
+Sun Jun 22 13:47:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Sat Jun 21 01:29:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Xapian/RSet.pm: Fix duplicate "1;" at end of module.
+
+Sat Jun 21 01:27:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Xapian/,perl/docs/examples/,perl/generate-perl-exceptions,
+	  perl/perl.i,perl/t/databasemodified.t,perl/t/search.t,
+	  perl/t/writabledatabase.t,perl/util.i.in: Whitespace clean-up.
+
+Sat Jun 21 01:00:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING,README,perl/Makefile.am,perl/Search/Xapian/,perl/Xapian/,
+	  perl/docs/examples/,perl/generate-perl-exceptions,perl/perl.i,
+	  perl/t/,perl/util.i.in,xapian-bindings.spec.in: Move the new
+	  SWIG-based Perl bindings into a 'Xapian' module, to smooth the
+	  overlap with the hand-coded XS 'Search::Xapian' module.
+
+Fri Jun 20 23:25:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleindex.py: Eliminate needless differences
+	  with the python3 version - drop a duplicate blank line, and prefer
+	  "line = line.strip()" to "line = string.strip(line)".
+
+Fri Jun 20 12:51:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/docs/examples/simpleexpand.py,
+	  python3/docs/examples/simpleindex.py: Fix Python3 examples to
+	  actually work.  (see #346)
+
+Fri Jun 20 06:14:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Search/Xapian/MultiValueSorter.pm: Fix documentation comment
+	  typo ("foward" -> "forward").
+
 Mon Jun 16 13:01:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: List the python-related files in AC_CONFIG_FILES

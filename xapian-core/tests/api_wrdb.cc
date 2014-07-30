@@ -1497,7 +1497,10 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, brass || chert) {
+DEFINE_TESTCASE(crashrecovery1, chert) {
+    // Brass has a single version file per revision, rather than multiple base
+    // files, so it simply can't get into the situations we are testing
+    // recovery from.
     const string & dbtype = get_dbtype();
     string path = ".";
     path += dbtype;

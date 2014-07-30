@@ -6,7 +6,6 @@ if BUILD_BACKEND_BRASS
 noinst_HEADERS +=\
 	backends/brass/brass_alldocspostlist.h\
 	backends/brass/brass_alltermslist.h\
-	backends/brass/brass_btreebase.h\
 	backends/brass/brass_changes.h\
 	backends/brass/brass_check.h\
 	backends/brass/brass_compact.h\
@@ -15,6 +14,7 @@ noinst_HEADERS +=\
 	backends/brass/brass_databasereplicator.h\
 	backends/brass/brass_dbcheck.h\
 	backends/brass/brass_dbstats.h\
+	backends/brass/brass_defs.h\
 	backends/brass/brass_document.h\
 	backends/brass/brass_freelist.h\
 	backends/brass/brass_inverter.h\
@@ -38,7 +38,6 @@ noinst_HEADERS +=\
 lib_src +=\
 	backends/brass/brass_alldocspostlist.cc\
 	backends/brass/brass_alltermslist.cc\
-	backends/brass/brass_btreebase.cc\
 	backends/brass/brass_changes.cc\
 	backends/brass/brass_check.cc\
 	backends/brass/brass_compact.cc\
