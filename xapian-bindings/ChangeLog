@@ -1,3 +1,9 @@
+Wed Jul 30 04:03:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,php/Makefile.am: Restore explicit dependencies of
+	  except.i - they are needed so that except.i gets generated before
+	  the automatically generated dependency information is available.
+
 Tue Jul 22 01:04:29 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Add add-php-ref-handling script as a dependency of

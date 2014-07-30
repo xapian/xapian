@@ -160,7 +160,7 @@ RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 xapian_wrap.cc Xapian.pm: $(stamp)
 	$(make_many_locked)
-$(stamp):
+$(stamp): except.i
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -perl -module Xapian -proxy -const \
