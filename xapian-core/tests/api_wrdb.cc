@@ -1880,12 +1880,14 @@ DEFINE_TESTCASE(cursordelbug1, brass || chert) {
     return Xapian::Database::check(db_path) == 0;
 }
 
-/*A test for brass_dbcheck.cc modified for fixed width brass doclen chunk.
- *It just use the database for cursordelbug1*/
-DEFINE_TESTCASE(fixedwidthdoclenchunk, brass )
+/* A test for brass database checking
+ * after fixed-width format and skip-list format are applied.
+ * It just use the database for cursordelbug1
+ **/
+DEFINE_TESTCASE(newformatpostlist, brass )
 {
 	static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
-	static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
+	static const int copies[] = { 74, 116, 199, 21, 45, 3000, 4000 };
 
 	Xapian::WritableDatabase db;
 	db = get_named_writable_database("cursordelbug1", string());
