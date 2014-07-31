@@ -366,3 +366,45 @@ int
 Feature::get_features_num() {
     return features.size();
 }
+
+static bool
+Feature::is_valid(const vector<feature_t> & features) {
+    if (features.size() == 0)
+        return false;
+    for (vector<feature_t>::iterator it = features.begin(); it != features.end(); ++it) {
+        if (*it < 1 || *it > MAX_FEATURE_NUM) {
+            return false;
+        }
+    }
+    return true;
+}
+
+vector<feature_t>
+Feature::read_from_file(string file) {
+    ifstream feature_file;
+    string line;
+    vector<feature_t> features;
+
+    feature_file.open(file.c_str());
+    if (feature_file.is_open()) {
+        while (getline(feature_file, line)) {
+            istringstream iss(line);
+            feature_t feature_idx;
+            iss >> feature_idx;
+            features.push_back(feature_idx);
+        }
+    }
+    else {
+        cerr << "Can't open file " << file << "!\n";
+        exit(1);
+    }
+
+    feature_file.close();
+
+    if (Feature::is_valid(features))
+        return features;
+    else {
+        cerr << "Features are not valid!\n";
+        exit(1);
+    }
+}
