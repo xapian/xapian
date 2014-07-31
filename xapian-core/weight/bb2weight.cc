@@ -1,7 +1,7 @@
 /** @file bb2weight.cc
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013, 2014 Aarsh Shah
+/* Copyright (C) 2013,2014 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -104,13 +104,12 @@ BB2Weight::init(double factor)
 	y_max = N + F;
 
     double stirling_max_term1 = ((y_max + 0.5) *
-                                (stirling_constant_1 - log2(y_max)) +
-                                ((wdfn_upper + 1.0) * stirling_constant_1));
+				(stirling_constant_1 - log2(y_max)) +
+				((wdfn_upper + 1.0) * stirling_constant_1));
 
     double stirling_min_term2 = ((y_min + 0.5) *
-                                (stirling_constant_2 - log2(y_min)) +
-                                ((wdfn_lower) * stirling_constant_2));
-
+				(stirling_constant_2 - log2(y_min)) +
+				((wdfn_lower) * stirling_constant_2));
 
     double stirling_max = stirling_max_term1 - stirling_min_term2;
 
