@@ -13,9 +13,9 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT Feature {
     
     const FeatureManaget & feature_manager;
-    vector<Feature::FeatureBase> features;
+    vector<feature_t> features;
 
-    double get_feature(const Feature::FeatureBase & feature_base_, const Xapian::MSetIterator & mset_it_);
+    double get_feature(const feature_t feature_base_, const Xapian::MSetIterator & mset_it_);
 
     double feature_1(Xapian::Document doc_);
     double feature_2(Xapian::Document doc_);
@@ -38,29 +38,32 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
 
 public:
-    class enum {
-        FEATURE_1,
-        FEATURE_2,
-        FEATURE_3,
-        FEATURE_4,
-        FEATURE_5,
-        FEATURE_6,
-        FEATURE_7,
-        FEATURE_8,
-        FEATURE_9,
-        FEATURE_10,
-        FEATURE_11,
-        FEATURE_12,
-        FEATURE_13,
-        FEATURE_14,
-        FEATURE_15,
-        FEATURE_16,
-        FEATURE_17,
-        FEATURE_18,
-        FEATURE_19
-    } FeatureBase;
+    typedef unsigned int feature_t;
 
-    void update(const FeatureManager & feature_manager_, const vector<Feature::FeatureBase> & features_);
+    // Total feature number. The index starts from 1.
+    static const int MAX_FEATURE_TYPES = 19;
+    //
+    // Feature 1:
+    // Feature 2:
+    // Feature 3:
+    // Feature 4:
+    // Feature 5:
+    // Feature 6:
+    // Feature 7:
+    // Feature 8:
+    // Feature 9:
+    // Feature 10:
+    // Feature 11:
+    // Feature 12:
+    // Feature 13:
+    // Feature 14:
+    // Feature 15:
+    // Feature 16:
+    // Feature 17:
+    // Feature 18:
+    // Feature 19:
+
+    void update(const FeatureManager & feature_manager_, const vector<feature_t> & features_);
 
     // Get document id
     string get_did(const Document & doc);
@@ -69,6 +72,12 @@ public:
     FeatureVector generate_feature_vector(const Xapian::MSetIterator & mset_it_);
 
     int get_features_num();
+
+    // Check if features are valid
+    static bool is_valid(const vector<feature_t> & features);
+
+    // Restore Feature from file
+    vector<feature_t> read_from_file(string file);
 };
 
 #endif /* FEATURES_H */

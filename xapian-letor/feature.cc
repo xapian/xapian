@@ -8,8 +8,8 @@
 #include <cstdlib>
 #include <cstring>
 
-using namespace Xapian;
 using std::vector;
+using std::cerr;
 
 double
 Feature::feature_1(Xapian::Document doc_) {
@@ -280,72 +280,56 @@ feature::feature_18(xapian::document doc_) {
 }
 
 double
-Feature::get_feature(const FeatureBase & feature_base_, const Xapian::MSetIterator & mset_it_) {
+Feature::get_feature(const feature_t feature_base_, const Xapian::MSetIterator & mset_it_) {
     Xapian::Document doc_ = mset_it_.get_document();
     
     switch (feature_base_) {
-        case FeatureBase::FEATURE_1:
+        case 1:
             return feature_1(doc_);
-            break;
-        case FeatureBase::FEATURE_2:
+        case 2:
             return feature_2(doc_);
-            break;
-        case FeatureBase::FEATURE_3:
+        case 3:
             return feature_3(doc_);
-            break;
-        case FeatureBase::FEATURE_4:
+        case 4:
             return feature_4(doc_);
-            break;
-        case FeatureBase::FEATURE_5:
+        case 5:
             return feature_5(doc_);
-            break;
-        case FeatureBase::FEATURE_6:
+        case 6:
             return feature_6(doc_);
-            break;
-        case FeatureBase::FEATURE_7:
+        case 7:
             return feature_7(doc_);
-            break;
-        case FeatureBase::FEATURE_8:
+        case 8:
             return feature_8(doc_);
-            break;
-        case FeatureBase::FEATURE_9:
+        case 9:
             return feature_9(doc_);
-            break;
-        case FeatureBase::FEATURE_10:
+        case 10:
             return feature_10(doc_);
-            break;
-        case FeatureBase::FEATURE_11:
+        case 11:
             return feature_11(doc_);
-            break;
-        case FeatureBase::FEATURE_12:
+        case 12:
             return feature_12(doc_);
-            break;
-        case FeatureBase::FEATURE_13:
+        case 13:
             return feature_13(doc_);
-            break;
-        case FeatureBase::FEATURE_14:
+        case 14:
             return feature_14(doc_);
-            break;
-        case FeatureBase::FEATURE_15:
+        case 15:
             return feature_15(doc_);
-            break;
-        case FeatureBase::FEATURE_16:
+        case 16:
             return feature_16(doc_);
-            break;
-        case FeatureBase::FEATURE_17:
+        case 17:
             return feature_17(doc_);
-            break;
-        case FeatureBase::FEATURE_18:
+        case 18:
             return feature_18(doc_);
-            break;
-        case FeatureBase::FEATURE_19:
+        case 19:
             return mset_it_.get_weight();
-            break;
+        default:
+            cerr << "Feature type error!\n";
+            exit(1);
     }
 }
 
 void
-Feature::update(const Feature & feature_manager_, const vector<Feature::FeatureBase> & features_) {
+Feature::update(const Feature & feature_manager_, const vector<feature_t> & features_) {
     feature_manager = feature_manager_;
     features = features_;
 }
