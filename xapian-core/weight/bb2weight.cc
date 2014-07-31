@@ -91,13 +91,13 @@ BB2Weight::init(double factor)
 
     double B_max = B_constant / (wdfn_lower + 1.0);
 
-    // Maximize the stirling value to be used in the upper bound.
-    // Calculate the individual terms keeping the maximization of stirling value
+    // Maximize the Stirling value to be used in the upper bound.
+    // Calculate the individual terms keeping the maximization of Stirling value
     // in mind.
     double y_max = N + F - wdfn_lower - 2.0;
     double y_min = F - wdfn_upper;
     // If the terms result in a negative value, make them positive as negative
-    // values can not be used in a logrithm.
+    // values can not be used in a logarithm.
     if (y_min < 0)
 	y_min = F;
     if (y_max < 0)
