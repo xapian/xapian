@@ -65,7 +65,7 @@ FeatureManager::set_normalizer(const Xapian::Normalizer & normalizer_) {
 
 
 void
-FeatureManager::update_context(const Xapian::Database & database_, const vector<Feature::FeatureBase> features_) {
+FeatureManager::update_context(const Xapian::Database & database_, const vector<Feature::feature_t> features_) {
     database = database_;
     update_database_details();
 

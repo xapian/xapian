@@ -75,7 +75,7 @@ public:
     
     void set_normalizer(const Xapian::Normalizer & normalizer_);
 
-    void update_context(const Xapian::Database database_, const vector<Feature::FeatureBase> features_);
+    void update_context(const Xapian::Database database_, const vector<Feature::feature_t> features_);
 
     void update_state(const Xapian::Query query_, const Xapian::MSet mset_);
 
