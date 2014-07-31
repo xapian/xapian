@@ -1,3 +1,8 @@
+Wed Jul 30 05:43:59 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/bb2weight.cc: Optimise BB2Weight and
+	  fix incorrect upper bound in some cases.
+
 Tue Jul 29 07:20:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc: Remove assertion that table sizes
