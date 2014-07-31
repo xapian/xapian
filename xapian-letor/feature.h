@@ -41,7 +41,7 @@ public:
     typedef unsigned int feature_t;
 
     // Total feature number. The index starts from 1.
-    static const int MAX_FEATURE_TYPES = 19;
+    static const int MAX_FEATURE_NUM = 19;
     //
     // Feature 1:
     // Feature 2:
