@@ -2,6 +2,7 @@
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah
+ * Copyright (C) 2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -113,9 +114,7 @@ BB2Weight::init(double factor)
 
     double stirling_max = stirling_max_term1 - stirling_min_term2;
 
-    double final_weight_max = B_max * (wt + stirling_max);
-
-    upper_bound = get_wqf() * final_weight_max * factor;
+    upper_bound = B_max * (wt + stirling_max);
 }
 
 string

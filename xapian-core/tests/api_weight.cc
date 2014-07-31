@@ -373,6 +373,19 @@ DEFINE_TESTCASE(bb2weight3, backend) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
 
+    // Test with OP_SCALE_WEIGHT and a small factor (regression test, as we
+    // were applying the factor to the upper bound twice).
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 1.0/1024));
+    enquire.set_weighting_scheme(Xapian::BB2Weight(2.0));
+
+    Xapian::MSet mset3;
+    mset3 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset3.size(), 5);
+
+    for (int i = 0; i < 5; ++i) {
+	TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset3[i].get_weight() * 1024);
+    }
+
     return true;
 }
 
