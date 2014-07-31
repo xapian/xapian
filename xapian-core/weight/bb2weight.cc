@@ -69,52 +69,45 @@ BB2Weight::init(double factor)
 	return;
     }
 
-    double base_change = log(2.0);
+    c_product_avlen = param_c * get_average_length();
     double wdfn_lower(1.0);
+    wdfn_lower *= log2(1 + c_product_avlen / get_doclength_upper_bound());
+    wdfn_upper *= log2(1 + c_product_avlen / get_doclength_lower_bound());
 
     double F(get_collection_freq());
-    double N(get_collection_size());
 
-    wdfn_lower *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_upper_bound());
+    // Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
+    // stirling_value().
+    if (rare(wdfn_lower >= F - 1))
+	wdfn_upper = F - 1;
+    if (rare(wdfn_upper >= F - 1))
+	wdfn_upper = F - 1;
 
-    wdfn_upper *= log2(1 + (param_c * get_average_length()) /
-		    get_doclength_lower_bound());
-
-    /* Calculate constant values to be used in get_sumpart(). */
-    c_product_avlen = param_c * get_average_length();
     B_constant = get_wqf() * factor * (F + 1.0) / get_termfreq();
-    // This weighting scheme causes an error if N = 1 as that will cause
-    // N - 1.0 to be equal to zero which is used inside a logarithm.
-    wt = - log2(N - 1.0) - (1 / base_change);
+
+    // Clamp N to at least 2 to avoid ill-defined log calculations in
+    // stirling_value().
+    double N = rare(get_collection_size() <= 2) ? 2.0 : double(get_collection_size());
+
+    wt = -1.0 / log(2.0) - log2(N - 1.0);
     stirling_constant_1 = log2(N + F - 1.0);
     stirling_constant_2 = log2(F);
-
-    double B_max = B_constant / (wdfn_lower + 1.0);
 
     // Maximize the Stirling value to be used in the upper bound.
     // Calculate the individual terms keeping the maximization of Stirling value
     // in mind.
-    double y_max = N + F - wdfn_lower - 2.0;
     double y_min = F - wdfn_upper;
-    // If the terms result in a negative value, make them positive as negative
-    // values can not be used in a logarithm.
-    if (y_min < 0)
-	y_min = F;
-    if (y_max < 0)
-	y_max = N + F;
+    double y_max = N + F - wdfn_lower - 2.0;
 
-    double stirling_max_term1 = ((y_max + 0.5) *
-				(stirling_constant_1 - log2(y_max)) +
-				((wdfn_upper + 1.0) * stirling_constant_1));
+    double stirling_max = stirling_value(wdfn_upper + 1.0, y_max,
+					 stirling_constant_1) -
+			  stirling_value(wdfn_lower, y_min,
+					 stirling_constant_2);
 
-    double stirling_min_term2 = ((y_min + 0.5) *
-				(stirling_constant_2 - log2(y_min)) +
-				((wdfn_lower) * stirling_constant_2));
-
-    double stirling_max = stirling_max_term1 - stirling_min_term2;
-
+    double B_max = B_constant / (wdfn_lower + 1.0);
     upper_bound = B_max * (wt + stirling_max);
+    if (rare(upper_bound < 0.0))
+	upper_bound = 0.0;
 }
 
 string
@@ -145,22 +138,30 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
     if (wdf == 0) return 0.0;
 
-    double wdfn(wdf);
-    wdfn *= log2(1 + c_product_avlen / len);
+    double wdfn = wdf * log2(1 + c_product_avlen / len);
 
     double F(get_collection_freq());
-    double N(get_collection_size());
+
+    // Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
+    // stirling_value().
+    if (rare(wdfn >= F - 1))
+	wdfn = F - 1;
+
+    // Clamp N to at least 2 to avoid ill-defined log calculations in
+    // stirling_value().
+    Xapian::doccount N_less_2 = get_collection_size() - 2;
+    if (rare(N_less_2) < 0)
+	N_less_2 = 0;
+
+    double y2 = F - wdfn;
+    double y1 = N_less_2 + y2;
+    double stirling = stirling_value(wdfn + 1.0, y1, stirling_constant_1) -
+		      stirling_value(wdfn, y2, stirling_constant_2);
 
     double B = B_constant / (wdfn + 1.0);
-
-    // This weighting scheme will cause an error if for any value of wdfn,
-    // N + F - wdfn - 2.0 is equal to or less than zero as it is used inside
-    // a logarithm in the stirling_value function.
-    double stirling = stirling_value(wdfn + 1.0, N + F - wdfn - 2.0, stirling_constant_1) -
-		      stirling_value(wdfn, F - wdfn, stirling_constant_2);
-
     double final_weight = B * (wt + stirling);
-
+    if (rare(final_weight < 0.0))
+	final_weight = 0.0;
     return final_weight;
 }
 

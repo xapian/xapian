@@ -389,6 +389,24 @@ DEFINE_TESTCASE(bb2weight3, backend) {
     return true;
 }
 
+// Regression test: we used to calculate log2(0) when there was only one doc.
+DEFINE_TESTCASE(bb2weight4, backend) {
+    Xapian::Database db = get_database("apitest_onedoc");
+    Xapian::Enquire enquire(db);
+    Xapian::Query query("word");
+
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::BB2Weight());
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 1);
+    // Zero weight is a bit bogus, but what we currently give.
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0);
+
+    return true;
+}
+
 // Feature test.
 DEFINE_TESTCASE(dlhweight1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
