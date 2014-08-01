@@ -1,4 +1,4 @@
-/* ranker.h: The abstract ranker file.
+/* ranker.h: The abstract ranker.
  *
  * Copyright (C) 2012 Parth Gupta
  * Copyright (C) 2014 Jiarong Wei
@@ -44,41 +44,55 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     vector<RankList> training_data;
 
 public:
-    int MAXPATHLENTH_SVM = 200;
+    // Normalizer flag type
+    typedef unsigned int normalizer_t;
 
 
-    Ranker() {};
+    // The flag for different kinds of normalizers
+    static const DEFAULT_NORMALIZER = 0;
 
-    virtual ~Ranker() {};
 
-    // Override all the 6 methods below in the ranker sub-classes files
+    // Override all the 7 methods below in the ranker sub=classes files
 
-    //------------------------- For training -----------------------------------
+    //========================= For training ================================
+
 
     // Set training data
     virtual void set_training_data(vector<RankList> training_data_) = 0;
 
+
     // The training process
     virtual void learn_model() = 0;
+
 
     // Save model to file
     virtual void save_model(const string model_file_) = 0;
 
-    //------------------------- For prediction ----------------------------------
+
+    //========================= For prediction ==============================
+
 
     // Load model from file
     virtual void load_model(const string model_file_) = 0;
 
+
     // Calculate score for a FeatureVector
     virtual double score_doc(const FeatureVector & fv) = 0;
+
 
     // returns a ranklist (scores added)
     virtual RankList calc(const RankList & rlist) = 0;
 
+
     // returns a SORTED ranklist (sorted by the score of document)
     virtual RankList rank(const RankList & rlist) = 0;
 
-    //------------------------- Helper functions ---------------------------------
+
+    //========================= Helper functions ============================
+
+
+    static const int MAXPATHLENTH_SVM = 200;
+
 
     // Get current working directory
     static string get_cwd() {
