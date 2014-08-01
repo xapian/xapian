@@ -38,9 +38,10 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
 
 public:
+    // The feature type. The index starts from 1.
     typedef unsigned int feature_t;
 
-    // Total feature number. The index starts from 1.
+    // Total feature number.
     static const int MAX_FEATURE_NUM = 19;
     //
     // Feature 1:
@@ -75,6 +76,7 @@ public:
     // Generate FeatureVector without score and label
     FeatureVector generate_feature_vector(const Xapian::MSetIterator & mset_it_);
 
+    // Return the number of features used
     int get_features_num();
 
     // Check if features are valid
