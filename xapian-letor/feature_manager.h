@@ -37,6 +37,7 @@
 #include <string>
 
 using std::vector;
+using std::string;
 
 namespace Xapian {
 
@@ -44,105 +45,165 @@ class Feature;
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
-    Feature feature;
+public:
+    // Map for docid and relevance judgement 0/1
+    typedef map<string, int> did_rel_map;
+
+
+    // Map for qid and docid_relevance_map
+    typedef map<string, did_relevance_map> qid_did_rel_map;
+
 
     Xapian::Database & database;
+    Xapian::Feature & feature;
     Xapian::Query & query;
     Xapian::MSet & mset;
-    Xapian::Normlizer & normalizer;
+
+    Xapian::Normlizer * normalizer;
+
 
     int query_term_length;
     vector<long int> query_term_frequency_database;
     vector<double> query_inverse_doc_frequency_database;
     vector<long int> database_details(3);
 
-    vector<Xapian::MSet::letor_item> generate_letor_info();
 
+    // Called by Letor::Internal when the database is updated
     void update_database_details();
+
+
+    // Called by Letor::Internal when the query is updated
     void update_query_term_frequency_database();
+
+
+    // Called by Letor::Internal when the query is updated
     void update_query_inverse_doc_frequency_database();
 
 
-    qid_did_relevance_map qrel;
-
-public:
-
-    typedef map<string, int> did_rel_map;                    // docid and relevance judjement 0/1
-    typedef map<string, did_relevance_map> qid_did_rel_map;  // qid and docid_relevance_map
+    // ========================== General setters ===========================
 
 
-    // ========================== General setters ========================================
-    
+    // Set Normalizer.
     void set_normalizer(const Xapian::Normalizer & normalizer_);
 
-    void update_context(const Xapian::Database database_, const vector<Feature::feature_t> features_);
 
-    void update_state(const Xapian::Query query_, const Xapian::MSet mset_);
+    // Set Database.
+    void set_database(const Xapian::Database & database_);
 
-    void update_mset(const vector<Xapian::MSet::letor_item> & letor_items_);
 
-    // ============================= General getters ===================================
+    // Set Feature.
+    void set_feature(const Xapian::Feature & feature_);
 
+
+    // Set Query.
+    void set_query(const Xapian::Query & query_);
+
+
+    // Set MSet.
+    void set_mset(const Xapian::MSet & mset_);
+
+
+    // ====================== General getters ===============================
+
+
+    // Get Database reference.
     Xapian::Database & get_database();
 
+
+    // Get Query reference.
     Xapian::Query & get_query();
 
+
+    // Get MSet reference.
     Xapian::MSet & get_mset();
 
-    Feature & get_feature();
 
+    // Get Feature reference.
+    Xapian::Feature & get_feature();
+
+
+    // Get the number of features used.
     int get_features_num();
 
 
-    // =================== Used for generating feature-related information ======================
+    // ========== Used for generating feature-related information ===========
 
-    // This method return three kinds of information: total length of title,
-    // total length of body, total length of content of documents in database.
+
+    // Get three kinds of information of database: total length of title,
+    // total length of body, total length of content of documents (including
+    // title and body).
     vector<long int> & get_database_details();
 
+
+    // Get term frequency of query in database.
     vector<long int> & get_q_term_freq_db();
 
+
+    // Get inverse document frequency of query in database.
     vector<long int> & get_q_inv_doc_freq_db();
 
-    vector<long int> get_doc_details(const Xapian::Docuement doc_);
 
-    vector<long int> get_q_term_freq_doc(const Xapain::Document doc_);
+    // Get three kinds of information of the document: length of title,
+    // length of body, length of total content of the document (including
+    // title and body).
+    vector<long int> get_doc_details(const Xapian::Docuement & doc_);
 
 
-    // Create FeatureVector from MSetIterator.
-    Xapian::FeatureVector create_feature_vector(const Xapian::MSetIterator & mset_it_);
+    // Get query term frequency in the document
+    vector<long int> get_q_term_freq_doc(const Xapain::Document & doc_);
+
+
+    // ===================== Used for generating RankList ===================
 
 
     // Create RankList from MSet with query id.
-    Xapian::RankList create_ranklist(const string qid_, const Xapian::MSet & mset_);
+    Xapian::RankList create_ranklist(const string qid_);
 
 
     // Create RankList from MSet without query id.
-    Xapian::RankList create_ranklist(const Xapian::MSet & mset_);
-
-
-    // Create RankList from MSet based on current state of FeatureManager.
     Xapian::RankList create_ranklist();
 
+
+    // Create normalized RankList from MSet with query id.
+    Xapian::RankList create_normalized_ranklist(const string qid_);
+
+
+    // Create normalized RankList from MSet without query id.
+    Xapian::RankList create_normalized_ranklist();
+
     
-    // Normalize RankList.
+    // Use normalizer to normalize RankList.
     Xapian::RankList normalize(const Xapian::RankList * rlist_);
 
 
+    // ============= Used for generating RankList for training ==============
+
+
     // Load query relevance information from file
-    void train_load_qrel(const std::string qrel_file_);
+    void train_load_qrel(const string qrel_file_);
 
     
     // Get the label for the document corresponding to query id in qrel.
-    void train_get_label_qrel(const Document &doc, std::string qid);
+    void train_get_label_qrel(const Document & doc_, const string qid_);
 
 
-    // Creatue FeatureVector for training.
+    // Create FeatureVector from MSetIterator for training.
     Xapian::FeatureVector train_create_feature_vector(const Xapian::MSetIterator & mset_it_);
 
 
-    // Create RankList for training.
-    Xapian::RankList train_create_ranklist(const Xapian::MSet & mset, std::string qid);
+    // Create RankList from MSet for training.
+    Xapian::RankList train_create_ranklist(const string qid_);
+
+
+    // Create normalized RankList from MSet for training.
+    Xapian::RankList train_create_normalized_ranklist(const string qid_);
+
+
+    // ============================= Update MSet ============================
+
+
+    // Attach letor information to MSet.
+    void update_mset(const vector<Xapian::MSet::letor_item> & letor_items_);
 };
 
 }

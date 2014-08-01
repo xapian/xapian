@@ -31,26 +31,32 @@
 
 using namespace Xapian;
 using std::vector;
+using std::string;
+
 
 Xapian::Database &
 FeatureManager::get_database() {
     return database;
 }
 
+
 Xapian::Query &
 FeatureManager::get_query() {
     return query;
 }
+
 
 Xapian::MSet &
 FeatureManager::get_mset() {
     return mset;
 }
 
-Feature &
+
+Xapian::Feature &
 FeatureManager::get_feature() {
     return feature;
 }
+
 
 int
 FeatureManager::get_features_num() {
@@ -59,18 +65,22 @@ FeatureManager::get_features_num() {
 
 
 void
-FeatureManager::set_normalizer(const Xapian::Normalizer & normalizer_) {
+FeatureManager::set_normalizer(const Xapian::Normalizer * normalizer_) {
     normalizer = normalizer_;
 }
 
 
 void
-FeatureManager::update_context(const Xapian::Database & database_, const vector<Feature::feature_t> features_) {
+FeatureManager::set_database(const Xapian::Database & database_) {
     database = database_;
-    update_database_details();
-
-    feature.update(*this, features_);
 }
+
+
+void
+FeatureManager::set_feature(const Xapian::Feature & feature_) {
+    feature = feature_;
+}
+
 
 void
 FeatureManager::update_database_details() {
@@ -98,10 +108,12 @@ FeatureManager::update_database_details() {
     }
 }
 
-std::vector<long int> &
+
+vector<long int> &
 FeatureManager::get_database_details() {
     return database_details;
 }
+
 
 void
 FeatureManager::update_query_term_frequency_database() {
@@ -119,10 +131,12 @@ FeatureManager::update_query_term_frequency_database() {
     }
 }
 
-std::vector<long int> &
+
+vector<long int> &
 FeatureManager::get_q_term_freq_db() {
     return query_term_frequency_database;
 }
+
 
 void
 FeatureManager::update_query_inverse_doc_frequency_database() {
@@ -140,6 +154,7 @@ FeatureManager::update_query_inverse_doc_frequency_database() {
     }
 }
 
+
 vector<double> &
 FeatureManager::get_q_inv_doc_freq_db() {
     return query_inverse_doc_frequency_database;
@@ -147,7 +162,7 @@ FeatureManager::get_q_inv_doc_freq_db() {
 
 
 vector<long int>
-FeatureManager::get_q_term_freq_doc(Xapian::Document doc_) {
+FeatureManager::get_q_term_freq_doc(const Xapian::Document & doc_) {
     vector<long int> term_freq;
     term_freq.reserve(query_term_length);
 
@@ -167,7 +182,7 @@ FeatureManager::get_q_term_freq_doc(Xapian::Document doc_) {
 
 
 vector<long int>
-FeatureManager::get_doc_details(Xapian::Document doc_) {
+FeatureManager::get_doc_details(const Xapian::Document & doc_) {
     vector<long int> d_details(3);
 
     long int title_length = 0;
@@ -189,12 +204,13 @@ FeatureManager::get_doc_details(Xapian::Document doc_) {
 
 
 void
-FeatureManager::update_state(const Xapian::Query & query_, const Xapian::MSet & mset_) {
+FeatureManager::set_query(const Xapian::Query & query_) {
     query = query_;
-    query_term_length = query.get_length();
-    update_query_term_frequency_database();
-    update_query_inverse_doc_frequency_database();
+}
 
+
+void
+FeatureManager::set_mset(const Xapian::MSet & mset_) {
     mset = mset_;
 }
 
@@ -205,20 +221,13 @@ FeatureManager::update_mset(const vector<Xapian::MSet::letor_item> & letor_items
 }
 
 
-FeatureVector
-FeatureManager::create_feature_vector(const Xapian::MSetIterator & mset_it_) {
-    return feature.generate_feature_vector(mset_it_);
-}
-
-
 RankList
-FeatureManager::create_ranklist(const string qid_, const Xapian::MSet & mset_) {
+FeatureManager::create_ranklist() {
     RankList rlist;
-    rlist.set_qid(qid_);
 
-    for (Xapian::MSetIterator mset_it = mset_.begin();
-            mset_it != mset_.end(); ++mset_it) {
-        rlist.add_feature_vector( create_feature_vector(mset_it) );
+    for (Xapian::MSetIterator mset_it = mset.begin();
+            mset_it != mset.end(); ++mset_it) {
+        rlist.add_feature_vector( feature.generate_feature_vector(mset_it) );
     }
 
     return rlist;
@@ -226,29 +235,41 @@ FeatureManager::create_ranklist(const string qid_, const Xapian::MSet & mset_) {
 
 
 RankList
-FeatureManager::create_ranklist(const Xapian::MSet & mset_) {
-    return create_rank_list("", mset_);
+FeatureManager::create_ranklist(const string qid_) {
+    RankList rlist = create_ranklist();
+    rlist.set_qid(qid_);
+    return rlist;
 }
 
 
 RankList
-FeatureManager::create_ranklist() {
-    return create_ranklist(mset);
+FeatureManager::create_normalized_ranklist() {
+    return normalize( create_ranklist() );
+}
+
+
+RankList
+FeatureManager::create_normalized_ranklist(const string qid_) {
+    return normalize( create_ranklist(qid_) );
 }
 
 
 RankList
 FeatureManager::normalize(const RankList & rlist_) {
-    return normalizer.normalize(rlist_);
+    if (normalizer)
+        return normalizer->normalize(rlist_);
+    else
+        return rlist_;
 }
 
 
 void
-FeatureManager::train_load_qrel(const std::string qrel_file_) {
+FeatureManager::train_load_qrel(const string qrel_file_) {
+    qid_did_relevance_map qrel;
     qrel.clear();
 
     string inLine;
-    ifstream myfile (qrel_file_.c_str(), ifstream::in);
+    ifstream myfile (qrel_file_);
     string token[4];
 
     if (myfile.is_open())
@@ -276,14 +297,14 @@ FeatureManager::train_load_qrel(const std::string qrel_file_) {
 
 
 void
-FeatureManager::train_get_label_qrel(const Xapian::MSetIterator & mset_it_, std::string qid) {
+FeatureManager::train_get_label_qrel(const Xapian::MSetIterator & mset_it_, const string qid_) {
     int label = -1;
     string id = get_did( mset_it_->get_document() );
 
     FeatureManager::qid_did_rel_map::iterator outerit;
     FeatureManager::did_rel_map::iterator innerit;
 
-    outerit = qrel.find(qid);
+    outerit = qrel.find(qid_);
     if (outerit != qrel.end()) {
         innerit = outerit->second.find(id);
         if (innerit != outerit->second.end()) {
@@ -295,29 +316,31 @@ FeatureManager::train_get_label_qrel(const Xapian::MSetIterator & mset_it_, std:
 
 
 FeatureVector
-FeatureManager::train_create_feature_vector(const Xapian::MSetIterator & mset_it_, const string qid) {
-    FeatureVector fvector = create_feature_vector(mset_it_);
-    fvector.set_label( train_get_label_qrel(mset_it, qid) );
+FeatureManager::train_create_feature_vector(const Xapian::MSetIterator & mset_it_, const string qid_) {
+    FeatureVector fvector = feature.generate_feature_vector(mset_it_);
+    fvector.set_label( train_get_label_qrel(mset_it_, qid_) );
     return fvector;
 }
 
 
 Xapian::RankList
-FeatureManager::train_create_ranklist(const Xapian::MSet & mset, std::string qid) {
+FeatureManager::train_create_ranklist(const string qid_) {
     Xapian::RankList rlist;
 
-    rlist.set_qid(qid);
+    rlist.set_qid(qid_);
 
     for (Xapian::MSetIterator mset_it = mset.begin(); mset_it != mset.end(); ++mset_it) {
-        Xapan::FeatureVector fvector = train_create_feature_vector(mset_it, qid);
+        Xapan::FeatureVector fvector = train_create_feature_vector(mset_it, qid_);
 
         if (fvector.get_label() != -1)      // -1 means can't find relevance from qrel file
             rlist.add_feature_vector(fv);
     }
 
-    if (normalizer != NULL) {
-        rlsit = normalize(rlist);
-    }
-
     return rlist;
+}
+
+
+Xapian::RankList
+FeatureManager::train_create_normalized_ranklist(const string qid_) {
+    return normalize( train_create_ranklist(qid_) );
 }
