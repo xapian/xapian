@@ -33,6 +33,7 @@
 
 #include "safeerrno.h"
 
+#include "backends/flint_lock.h"
 #include "brass_defs.h"
 #include "brass_table.h"
 #include "brass_compact.h"
@@ -834,6 +835,13 @@ compact_brass(Xapian::Compactor & compactor,
 	version_file[i].read();
     }
 
+    FlintLock lock(destdir);
+    string explanation;
+    FlintLock::reason why = lock.lock(true, explanation);
+    if (why != FlintLock::SUCCESS) {
+	lock.throw_databaselockerror(why, destdir, explanation);
+    }
+
     BrassVersion version_file_out(destdir);
     version_file_out.create(block_size, 0);
 
@@ -996,4 +1004,5 @@ compact_brass(Xapian::Compactor & compactor,
     } catch (...) {
 	(void)unlink(tmpfile.c_str());
     }
+    lock.release();
 }

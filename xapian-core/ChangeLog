@@ -1,3 +1,9 @@
+Fri Aug 01 02:49:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc: Lock the target database while
+	  we're compacting to it, which has the side effect of creating the
+	  'flintlock' file there.
+
 Fri Aug 01 02:35:35 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/visibility.h: Add link to GCC Visibility wiki page.
