@@ -118,8 +118,6 @@ try {
         exit(1);
     }
 
-    vector<int> features = Feature::read_from_file(string(argv[optind]));
-
     if (!have_database) {
         cout << "No database specified, so not running the training process." << endl;
         exit(1);
@@ -129,6 +127,8 @@ try {
     string query_file       = string(argv[optind+1]);
     string qrel_file        = string(argv[optind+2]);
     string train_file       = string(argv[optind+3]);
+
+    vector<int> features = Feature::read_from_file(features_file);
 
     Xapian::Letor ltr;
     Xapian::Ranker * ranker = Ranker::generate(ranker_flag);
