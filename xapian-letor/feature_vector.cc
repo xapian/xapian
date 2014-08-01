@@ -47,8 +47,6 @@
 using std::string;
 using std::vector;
 
-using namespace Xapian;
-
 FeatureVector::FeatureVector() {}
 
 FeatureVector::FeatureVector(const FeatureVector & o) {}
@@ -111,8 +109,8 @@ FeatureVector::get_feature_values() {
 double
 FeatureVector::get_feature_value_of(int idx) {
     if (idx < 1 || idx > get_feature_num()) {
-        printf("Feature index out of range.\n");
-        return 1;
+        cerr << "Feature index out of range.\n";
+        exit(1);
     }
     return feature_values[idx-1];
 }
@@ -169,7 +167,7 @@ FeatureVector::create_letor_item(Xapian::doccount idx) {
 vector<FeatureVector>
 FeatureVector::read_from_file(string file) {
     ifstream data_file;
-    data_file.open(file.c_str());
+    data_file.open(file);
 
     if (data_file.is_open()) {
         vector<FeatureVector> fvectors;
@@ -200,7 +198,7 @@ FeatureVector::read_from_file(string file) {
                             fvals.push_back(f_val);
                         }
                         else {
-                            cout << "The file is broken!" << endl;
+                            cerr << "The file is broken!\n";
                             exit(1);
                         }
                     }
@@ -209,7 +207,7 @@ FeatureVector::read_from_file(string file) {
                         num_feature = fvals.size();
                     }
                     else if (num_feature != fvals.size()) {
-                        cout << "The number of features is not compatible!" << endl;
+                        cout << "The number of features is not compatible!\n";
                         exit(1);
                     }
 
@@ -222,7 +220,7 @@ FeatureVector::read_from_file(string file) {
         return fvectors;
     }
     else {
-        cerr << "Can't open file " << file << endl;
+        cerr << "Can't open file " << file << '\n';
         exit(1);
     }
 }
@@ -233,7 +231,7 @@ FeatureVector::extract(const vector<FeatureVector> & fvectors, double relevance,
     for (vector<FeatureVector>::iterator it = fvectors.begin(); it != fvectors.end(); ++it) {
         if (relevance == it->get_label()) {
             if (f_idx < 1 || f_idx > it->get_feature_num()) {
-                cout << "The feature doesn't exist!" << endl;
+                cerr << "The feature doesn't exist!\n";
                 exit(1);
             }
             fvals.push_back( it->get_feature_value_of(f_idx) );
