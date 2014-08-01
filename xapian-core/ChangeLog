@@ -1,3 +1,7 @@
+Fri Aug 01 02:35:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/visibility.h: Add link to GCC Visibility wiki page.
+
 Thu Jul 31 02:54:40 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_weight.cc,weight/bb2weight.cc: Avoid calculating logs of 0
