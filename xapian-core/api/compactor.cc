@@ -300,7 +300,28 @@ Compactor::Internal::add_source(const string & srcdir)
     if (first_source.empty())
 	first_source = srcdir;
 
-    Xapian::Database db(srcdir);
+    if (backend == BRASS && used_ranges.size() == 1 &&
+	used_ranges[0].first == 1 &&
+	used_ranges[0].second == Xapian::docid(-1)) {
+	throw Xapian::InvalidArgumentError("Only one old-format brass DB allowed as input");
+    }
+
+    Xapian::Database db;
+    try {
+	db = Xapian::Database(srcdir);
+    } catch (const Xapian::DatabaseError & e) {
+	if (backend != BRASS || !sources.empty() ||
+	    e.get_msg() != "Couldn't read enough (EOF)")
+	    throw;
+
+	last_docid = Xapian::docid(-1);
+	renumber = false;
+	offset.push_back(0);
+	used_ranges.push_back(make_pair(1, Xapian::docid(-1)));
+	sources.push_back(string(srcdir) + '/');
+	return;
+    }
+
     Xapian::docid first = 0, last = 0;
 
     // "Empty" databases might have spelling or synonym data so can't
