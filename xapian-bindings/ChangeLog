@@ -1,3 +1,11 @@
+Fri Aug 01 06:34:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable automake option 'subdir-objects' as (a) this
+	  avoids a warning with newer automake and (b) it better to put the
+	  objects alongside the source in this case anyway (less cluttered,
+	  and the objects and generated sources will both get cleaned up
+	  if the directory is removed).
+
 Wed Jul 30 04:03:09 GMT 2014  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,php/Makefile.am: Restore explicit dependencies of

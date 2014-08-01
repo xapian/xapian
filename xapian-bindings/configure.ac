@@ -8,7 +8,7 @@ AC_INIT([xapian-bindings], [1.3.1], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
-AM_INIT_AUTOMAKE([1.12.2 parallel-tests -Wportability tar-ustar no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.12.2 parallel-tests -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 AC_CONFIG_SRCDIR([xapian-headers.i])
 
 AC_CONFIG_HEADERS([config.h])
