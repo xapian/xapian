@@ -56,7 +56,7 @@ public:
     void set_qid(string qid_);
     
     // Set feature vectors for documents in MSet corresponding to this RankList
-    void set_feature_vector_list(vector<FeatureVector> feature_vector_list_);
+    void set_feature_vector_list(const vector<FeatureVector> & feature_vector_list_);
     
     // Add a new feature vector
     void add_feature_vector(FeatureVector fvector_);
