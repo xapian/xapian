@@ -12,10 +12,10 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Feature {
     
-    const FeatureManaget & feature_manager;
+    FeatureManaget & feature_manager;
     vector<feature_t> features;
 
-    double get_feature(const feature_t feature_base_, const Xapian::MSetIterator & mset_it_);
+    double get_feature(const feature_t & feature_base_, const Xapian::MSetIterator & mset_it_);
 
     double feature_1(Xapian::Document doc_);
     double feature_2(Xapian::Document doc_);
@@ -63,7 +63,11 @@ public:
     // Feature 18:
     // Feature 19:
 
-    void update(const FeatureManager & feature_manager_, const vector<feature_t> & features_);
+    // Set FeatureManager to use this Feature
+    void set_featuremanager(const FeatureManager & feature_manager_);
+
+    // Set features to be used
+    void set_features(const vector<feature_t> & features_);
 
     // Get document id
     string get_did(const Document & doc);

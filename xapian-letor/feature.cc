@@ -280,7 +280,7 @@ feature::feature_18(xapian::document doc_) {
 }
 
 double
-Feature::get_feature(const feature_t feature_base_, const Xapian::MSetIterator & mset_it_) {
+Feature::get_feature(const feature_t & feature_base_, const Xapian::MSetIterator & mset_it_) {
     Xapian::Document doc_ = mset_it_.get_document();
     
     switch (feature_base_) {
@@ -328,9 +328,15 @@ Feature::get_feature(const feature_t feature_base_, const Xapian::MSetIterator &
     }
 }
 
+
 void
-Feature::update(const Feature & feature_manager_, const vector<feature_t> & features_) {
+Feature::set_featuremanager(const Feature & feature_manager_) {
     feature_manager = feature_manager_;
+}
+
+
+void
+Feature::set_features(const vector<feature_t> & features_)
     features = features_;
 }
 
