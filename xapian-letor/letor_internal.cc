@@ -51,8 +51,7 @@
 
 
 using std::cout;
-using std::endl;
-
+using std::vector;
 
 //Stop-words
 static const char * sw[] = {
@@ -69,8 +68,8 @@ static const char * sw[] = {
 
 
 static void
-Letor::Internal::write_to_txt(std::vector<Xapian::RankList> list_rlist) {
-    ofstream train_file("train.txt");
+Letor::Internal::write_to_txt(vector<Xapian::RankList> list_rlist, const string output_file) {
+    ofstream train_file(output_file);
     vector<Xapian::RankList>::iterator list_rlist_it = list_rlist.begin();
     for (; list_rlist_it != list_rlist.end(); ++list_rlist_it) {
         train_file << list_rlist_it->get_label_feature_values_text();
@@ -80,18 +79,30 @@ Letor::Internal::write_to_txt(std::vector<Xapian::RankList> list_rlist) {
 
 
 static void
-Letor::Internal::write_to_bin(std::vector<Xapian::RankList> list_rlist) {
-    fstream train_file("train.bin", ios::in | ios::out | ios::binary);
+Letor::Internal::write_to_txt(vector<Xapian::RankList> list_rlist) {
+    write_to_txt(list_rlist, "train.txt");
+}
+
+
+static void
+Letor::Internal::write_to_bin(vector<Xapian::RankList> list_rlist, const string output_file) {
+    fstream train_file(output_file, ios::out | ios::binary);
     long int size = sizeof(list_rlist);
-    train_file.write ((char*) &size, sizeof(size));
-    train_file.write ((char*) &list_rlist, sizeof(list_rlist));
+    train_file.write((char*) &size, sizeof(size));
+    train_file.write((char*) &list_rlist, sizeof(list_rlist));
     train_file.close();
+}
+
+
+static void
+Letor::Internal::write_to_bin(vector<Xapian::RankList> list_rlist) {
+    write_to_bin(list_rlist, "train.bin");
 }
 
 
 static vector<Xapian::RankList>
 Letor::Internal::read_from_bin(const string training_data_file_) {
-    fstream training_data(training_data_file_, ios::in | ios::out | ios::binary);
+    fstream training_data(training_data_file_, ios::in | ios::binary);
 
     vector<Xapian::RankList> samples;
     training_data.read((char*) &samples, size);
@@ -114,18 +125,44 @@ Letor::Internal::read_from_txt(const string training_data_file_) {
 
 
 void
+Letor::Internal::init() {
+    feature_manager.set_database(database);
+    feature_manager.set_feature(feature);
+    feature_manager.set_query(query);
+    feature_manager.set_mset(mset);
+}
+
+
+void
+Letor::Internal::set_database(const Xapian::Database & database_) {
+    database = database_;
+    feature_manager.update_database_details();
+}
+
+
+void
+Letor::Internal::set_features(const vector<Xapian::Feature::feature_t> & features) {
+    feature.set_features(features);
+}
+
+
+void
 Letor::Internal::load_model_file(string model_file_) {
     ranker->load_model(model_file_);
 }
 
 
-void
+Xapian::MSet
 Letor::Internal::update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_) {
-    feature_manager.update_state(query_, mset_);
+    query = query_;
+    query_term_length = query.get_length();
+    feature_manager.update_query_term_frequency_database();
+    feature_manager.update_query_inverse_doc_frequency_database();
+
+    mset = mset_;
 
     // Create RankList and normalize it
-    Xapian::RankList   orig_rlist = feature_manager.create_ranklist();
-    Xapian::RankList        rlist = feature_manager.normalize(orig_rlist);
+    Xapian::RankList rlist = feature_manager.create_normalized_ranklist();
 
     // Ranker calculates scores for docs in RankList
     Xapian::RankList scored_rlist = ranker->calc(rlist);
@@ -134,7 +171,9 @@ Letor::Internal::update_mset(const Xapian::Query & query_, const Xapian::MSet & 
     vector<Xapian::MSet::letor_item> letor_items = scored_rlist.create_letor_items();
 
     // Update MSet
-    feature_manager.update_mset(letor_items);
+    mset.update_letor_information(letor_items);
+
+    return mset;
 }
 
 
@@ -153,7 +192,7 @@ Letor::Internal::train(const string training_data_file_, const string model_file
 
 
 void
-Letor::Internal::prepare_training_file(const string query_file_, const string qrel_file_, Xapian::doccount mset_size) {
+Letor::Internal::prepare_training_file(const string query_file, const string qrel_file, const string output_file, Xapian::doccount mset_size) {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
@@ -168,20 +207,20 @@ Letor::Internal::prepare_training_file(const string query_file_, const string qr
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-
+    // Load from qrel file
     FeatureManager::qid_docid_relevance_map qrel = feature_manager.train_load_qrel(qrel_file_);
 
     vector<Xapian::RankList> list_rlist;
 
     string line;
     ifstream queries;
-    queries.open(query_file_.c_str(), ios::in);
+    queries.open(query_file);
 
-    while (!queries.eof()) {        //reading all the queries line by line from the query file
+    // Load all the queries line by line from query file
+    while (!queries.eof()) {
 
         getline(queries, line);
-        if (line.empty())
-            break;
+        if (line.empty()) break;
 
         string qid = line.substr(0, (int)line.find(" "));
         string query_txt = line.substr((int)line.find("'")+1, (line.length() - ((int)line.find("'") + 2)));
@@ -193,8 +232,8 @@ Letor::Internal::prepare_training_file(const string query_file_, const string qr
         {
             string t;
             iss >> t;
-            if (t.empty())
-            break;
+            if (t.empty()) break;
+
             string temp;
             temp.append(title);
             temp.append(t);
@@ -206,7 +245,7 @@ Letor::Internal::prepare_training_file(const string query_file_, const string qr
         cout << "Processing Query: " << qq << endl;
 
         Xapian::Query query = parser.parse_query(qq,
-                                        parser.FLAG_DEFAULT|
+                                        parser.FLAG_DEFAULT |
                                         parser.FLAG_SPELLING_CORRECTION);
 
         Xapian::Enquire enquire(letor_db);
@@ -214,15 +253,17 @@ Letor::Internal::prepare_training_file(const string query_file_, const string qr
 
         Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-        feature_manager.update_state(query, mset);
+        feature_manager.set_query(query);
+        feature_manager.set_mset(mset);
 
-        Xapian::RankList rl = feature_manager.train_create_ranklist(mset, qid);
+        Xapian::RankList rl = feature_manager.train_create_normalized_ranklist(qid);
+
         list_rlist.push_back(rl);
     }
 
     queries.close();
 
     // Output the training data
-    write_to_txt(list_rlist);
-    write_to_bin(list_rlist);
+    // write_to_txt(list_rlist);
+    write_to_bin(list_rlist, output_file);
 }

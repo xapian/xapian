@@ -37,33 +37,70 @@ namespace Xapian {
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
 
-    Ranker & ranker;
+
+    Xapian::Database database;
+    Xapian::Feature feature;
+    Ranker * ranker;
+    Normalizer * normalizer;
     FeatureManager feature_manager;
+    Xapian::MSet mset;
+    Xapian::Query query;
 
 
     // ======================= Used for training =========================
 
+
+    // Write the training data to file in text format.
+    static void write_to_txt(vector<Xapian::RankList> list_rlist, const string output_file);
+
+
     // Write the training data to file in text format. The file's name is "train.txt".
     static void write_to_txt(vector<Xapian::RankList> list_rlist);
+
+
+    // Wrtie the training data to file in binary format.
+    static void write_to_bin(vector<Xapian::RankList> list_rlist, const string output_file);
+
 
     // Wrtie the training data to file in binary format. The file's name is "train.bin".
     static void write_to_bin(vector<Xapian::RankList> list_rlist);
 
+
     // Read the training data in text format.
     static vector<Xapian::RankList> read_from_txt(vector<Xapian::RankList> list_rlist);
+
 
     // Read the training data in binary format.
     static vector<Xapian::RankList> read_from_bin(vector<Xapian::RankList> list_rlist);
 
 
 public:
-    void prepare_training_file(const string query_file_, const string qrel_file_, Xapian::doccount mset_size);
+    // Connect all parts (since we use reference).
+    void init();
 
+
+    // Set the database.
+    void set_database(const Xapian::Database & database_);
+
+
+    // Set the feature.
+    void set_features(const vector<Xapian::Feature::feature_t> & features);
+
+
+    // Generate training data from query file and qrel file and store into file.
+    void prepare_training_file(const string query_file_, const string qrel_file_, const string output_file, Xapian::doccount mset_size);
+
+
+    // Use training data to train the model.
     void train(string training_data_file_, string model_file_);
 
+
+    // Load model from file. Call ranker's corresponding functions.
     void load_model_file(string model_file_);
 
-    void update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
+
+    // Attach letor information to MSet.
+    Xapian::MSet update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
 };
 
 }
