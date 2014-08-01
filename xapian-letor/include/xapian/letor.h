@@ -40,27 +40,45 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     Xapian::Internal::intrusive_ptr<Internal> * internal;
 
 public:
-    /// @private @internal Class representing the Letor internals.
+    // @private @internal Class representing the Letor internals.
     class Internal;
-    /// @private @internal Reference counted internals.
+    // @private @internal Reference counted internals.
 
-    /// Copy constructor.
+
+    // Copy constructor.
     Letor(const Letor & o);
 
-    /// Assignment.
+
+    // Assignment.
     Letor & operator=(const Letor & o);
 
-    /// Default constructor.
+
+    // Default constructor.
     Letor();
 
-    /// Destructor.
+
+    // Destructor.
     ~Letor();
 
+
     /// Specify the database to use for retrieval. This database will be used directly by the methods of Xapian::Letor::Internal
-    void update_context(const Xapian::Database & database_, vector<Xapian::Feature::FeatureBase> features_, Ranker & ranker_, const Normalizer & normalizer_);
+    void set_database(const Xapian::Database & database_);
+
+
+    // Set features used.
+    void set_features(const vector<Xapian::Feature::feature_t> & features_);
+
+
+    // Set ranker based on ranker flag.
+    void set_ranker(const Ranker::ranker_t ranker_flag);
+
+
+    // Set normalizer based on normalizer flag.
+    void set_normalizer(const Normalizer::normalizer_t normalizer_flag);
 
 
     // Load training data from file, including query file and qrel file, and create typical Letor training data.
+    // Call internal->prepare_training_file.
     //
     // The format for query file:
     //      <qid> <query>
@@ -88,19 +106,19 @@ public:
     //      0 qid:10032 1:0.130742 2:0.000000 3:0.333333 4:0.000000 ... 18:0.750000 19:1.000000
     //      1 qid:10032 1:0.593640 2:1.000000 3:0.000000 4:0.000000 ... 18:0.500000 19:0.023400
     //
-    void prepare_training_file(const string query_file_, const string qrel_file_, Xapian::doccount mset_size);
+    void prepare_training_file(const string query_file, const string qrel_file, const string output_file, Xapian::doccount mset_size);
 
 
-    // Train the model.
+    // Use training data to train the model. Call internal->train.
     void train(string training_data_file_, string model_file_);
 
 
-    // Load model file.
+    // Load model from file. Call internal->load_model_file.
     void load_model_file(string model_file_);
 
 
-    // Update Xapian::MSet.
-    void update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
+    // Attach letor information to MSet. Call internal->update_mset.
+    Xapian::MSet update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
 };
 
 }
