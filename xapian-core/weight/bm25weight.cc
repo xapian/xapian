@@ -176,17 +176,24 @@ Xapian::weight
 BM25Weight::get_maxpart() const
 {
     LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_maxpart", NO_ARGS);
-    double wdf_max(get_wdf_upper_bound());
-    double denom = wdf_max;
+    double denom = param_k1;
     if (param_k1 != 0.0) {
 	if (param_b != 0.0) {
+	    // "Upper-bound Approximations for Dynamic Pruning" Craig
+	    // Macdonald, Nicola Tonellotto and Iadh Ounis. ACM Transactions on
+	    // Information Systems. 29(4), 2011 shows that evaluating at
+	    // doclen=wdf_max is a good bound.
+	    //
+	    // However, we can do better if doclen_min > wdf_max since then a
+	    // better bound can be found by simply evaluating at
+	    // doclen=doclen_min and wdf=wdf_max.
 	    Xapian::doclength normlen_lb =
-		 max(get_doclength_lower_bound() * len_factor, param_min_normlen);
-	    denom += param_k1 * (normlen_lb * param_b + (1 - param_b));
-	} else {
-	    denom += param_k1;
+		 max(max(get_wdf_upper_bound(), get_doclength_lower_bound()) * len_factor, param_min_normlen);
+	    denom *= (normlen_lb * param_b + (1 - param_b));
 	}
     }
+    double wdf_max(get_wdf_upper_bound());
+    denom += wdf_max;
     AssertRel(denom,>,0);
     RETURN(termweight * (wdf_max / denom));
 }
