@@ -832,47 +832,22 @@ check_brass_table(const char * tablename, string filename,
 
 	    cursor->read_tag();
 
-	    const string & data = cursor->current_tag;
-	    pos = data.data();
-	    end = pos + data.size();
-
-	    Xapian::termpos pos_last;
-	    if (!unpack_uint(&pos, end, &pos_last)) {
-		if (out)
-		    *out << tablename << " table: Position list data corrupt"
-			 << endl;
-		++errors;
-		continue;
-	    }
-	    if (pos == end) {
-		// Special case for single entry position list.
-	    } else {
-		// Skip the header we just read.
-		BitReader rd(data, pos - data.data());
-		Xapian::termpos pos_first = rd.decode(pos_last);
-		Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-		rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
-		Xapian::termpos p = rd.decode_interpolative_next();
-		bool ok = true;
-		while (p != pos_last) {
-		    Xapian::termpos pos_prev = p;
-		    p = rd.decode_interpolative_next();
-		    if (p <= pos_prev) {
-			if (out)
-			    *out << tablename << " table: Positions not "
+        VSDecoder vd(cursor->current_tag);
+        Xapian::termpos pos_last = vd.get_last_entry();
+        Xapian::termcount number_of_entries = vd.get_n_entry();
+        Xapian::termpos p = vd.get_first_entry();
+        Xapian::termpos pos_prev = 0;
+        while (p != pos_last) {
+            if (p <= pos_prev) {
+                if (out)
+                    *out << tablename << " table: Positions not "
 				    "strictly monotonically increasing" << endl;
-			++errors;
-			ok = false;
-			break;
+                ++errors;
+                break;
 		    }
-		}
-		if (ok && !rd.check_all_gone()) {
-		    if (out)
-			*out << tablename << " table: Junk after position data"
-			     << endl;
-		    ++errors ;
-		}
-	    }
+            pos_prev = p;
+            p = vd.get_next_entry();
+        }
 	}
     } else {
 	if (out)

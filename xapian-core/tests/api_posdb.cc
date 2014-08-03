@@ -469,7 +469,8 @@ DEFINE_TESTCASE(phrase2, positional) {
     return true;
 }
 
-/// Test getting position lists from databases
+/* Test getting position lists from databases
+ * and the behavior of checking position list in dabase check */
 DEFINE_TESTCASE(poslist1, positional) {
     Xapian::Database mydb(get_database("apitest_poslist"));
 
@@ -504,7 +505,8 @@ DEFINE_TESTCASE(poslist1, positional) {
     pli++;
     TEST(pli == mydb.positionlist_end(2, term));
 
-    return true;
+    const string & db_path = get_database_path("apitest_poslist");
+	return Xapian::Database::check(db_path) == 0;
 }
 
 DEFINE_TESTCASE(poslist2, positional && writable) {
