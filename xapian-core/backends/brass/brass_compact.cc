@@ -847,6 +847,8 @@ compact_brass(Xapian::Compactor & compactor,
     BrassVersion version_file_out(destdir);
     version_file_out.create(block_size, 0);
 
+    vector<BrassTable *> tabs;
+    tabs.reserve(tables_end - tables);
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -909,17 +911,19 @@ compact_brass(Xapian::Compactor & compactor,
 	    continue;
 	}
 
-	BrassTable out(t->name, dest, false, t->compress_strategy, t->lazy);
+	BrassTable * out =
+	    new BrassTable(t->name, dest, false, t->compress_strategy, t->lazy);
+	tabs.push_back(out);
 	if (!t->lazy) {
-	    out.create_and_open(FLAGS, block_size);
+	    out->create_and_open(FLAGS, block_size);
 	} else {
-	    out.erase();
-	    out.set_flags(FLAGS);
-	    out.set_blocksize(block_size);
+	    out->erase();
+	    out->set_flags(FLAGS);
+	    out->set_blocksize(block_size);
 	}
 
-	out.set_full_compaction(compaction != compactor.STANDARD);
-	if (compaction == compactor.FULLER) out.set_max_item_size(1);
+	out->set_full_compaction(compaction != compactor.STANDARD);
+	if (compaction == compactor.FULLER) out->set_max_item_size(1);
 
 	vector<RootInfo> root;
 	root.reserve(version_file.size());
@@ -933,33 +937,33 @@ compact_brass(Xapian::Compactor & compactor,
 	switch (t->type) {
 	    case Brass::POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(compactor, &out, destdir, last_docid,
+		    multimerge_postlists(compactor, out, destdir, last_docid,
 					 inputs, root, rev, offset);
 		} else {
-		    merge_postlists(compactor, &out, offset.begin(),
+		    merge_postlists(compactor, out, offset.begin(),
 				    root.begin(), rev.begin(),
 				    inputs.begin(), inputs.end(),
 				    last_docid);
 		}
 		break;
 	    case Brass::SPELLING:
-		merge_spellings(&out, root.begin(), rev.begin(),
+		merge_spellings(out, root.begin(), rev.begin(),
 				inputs.begin(), inputs.end());
 		break;
 	    case Brass::SYNONYM:
-		merge_synonyms(&out, root.begin(), rev.begin(),
+		merge_synonyms(out, root.begin(), rev.begin(),
 			       inputs.begin(), inputs.end());
 		break;
 	    default:
 		// Position, Record, Termlist
-		merge_docid_keyed(t->name, &out, inputs, root, rev, offset, t->lazy);
+		merge_docid_keyed(t->name, out, inputs, root, rev, offset, t->lazy);
 		break;
 	}
 
 	// Commit as revision 1.
-	out.flush_db();
-	out.commit(1, version_file_out.root_to_set(t->type));
-	out.sync();
+	out->flush_db();
+	out->commit(1, version_file_out.root_to_set(t->type));
+	out->sync();
 
 	off_t out_size = 0;
 	if (!bad_stat) {
@@ -999,7 +1003,16 @@ compact_brass(Xapian::Compactor & compactor,
 	    compactor.set_status(t->name, status);
 	}
     }
+
+    string tmpfile = version_file_out.write(1, FLAGS);
+    for (unsigned j = 0; j != tabs.size(); ++j) {
+	tabs[j]->sync();
+    }
     // Commit with revision 1.
-    version_file_out.sync(version_file_out.write(1, FLAGS), 1, FLAGS);
+    version_file_out.sync(tmpfile, 1, FLAGS);
+    for (unsigned j = 0; j != tabs.size(); ++j) {
+	delete tabs[j];
+    }
+
     lock.release();
 }
