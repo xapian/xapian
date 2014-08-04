@@ -1,3 +1,9 @@
+Mon Aug 04 05:42:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/brass/brass_version.cc:
+	  Clean up temporary file in BrassVersion::sync() in all failure
+	  cases.
+
 Mon Aug 04 05:21:02 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/: In DB_DANGEROUS mode, update the version file

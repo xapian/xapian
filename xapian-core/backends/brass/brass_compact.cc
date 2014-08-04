@@ -999,12 +999,7 @@ compact_brass(Xapian::Compactor & compactor,
 	    compactor.set_status(t->name, status);
 	}
     }
-    const string & tmpfile = version_file_out.write(1, FLAGS);
-    try {
-	// Commit with revision 1.
-	version_file_out.sync(tmpfile, 1, FLAGS);
-    } catch (...) {
-	(void)unlink(tmpfile.c_str());
-    }
+    // Commit with revision 1.
+    version_file_out.sync(version_file_out.write(1, FLAGS), 1, FLAGS);
     lock.release();
 }

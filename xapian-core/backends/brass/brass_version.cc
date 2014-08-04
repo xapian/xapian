@@ -178,6 +178,8 @@ BrassVersion::write(brass_revision_number_t new_rev, int flags)
 	changes->write_block(s);
     }
 
+    if (flags & Xapian::DB_DANGEROUS)
+	tmpfile = string();
     RETURN(tmpfile);
 }
 
@@ -190,14 +192,22 @@ BrassVersion::sync(const string & tmpfile,
     if ((flags & Xapian::DB_NO_SYNC) == 0 && !io_sync(fd)) {
 	int save_errno = errno;
 	(void)close(fd);
+	if (!tmpfile.empty())
+	    (void)unlink(tmpfile.c_str());
 	errno = save_errno;
 	return false;
     }
 
-    if (close(fd) != 0)
+    if (close(fd) != 0) {
+	if (!tmpfile.empty()) {
+	    int save_errno = errno;
+	    (void)unlink(tmpfile.c_str());
+	    errno = save_errno;
+	}
 	return false;
+    }
 
-    if ((flags & Xapian::DB_DANGEROUS) == 0) {
+    if (!tmpfile.empty()) {
 	string filename = db_dir;
 	filename += "/iambrass";
 
