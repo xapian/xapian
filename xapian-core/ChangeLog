@@ -1,3 +1,7 @@
+Mon Aug 04 05:58:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc: Whitespace tweak.
+
 Mon Aug 04 05:57:27 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc: When compacting, sync all the

@@ -599,7 +599,7 @@ merge_spellings(BrassTable * out,
 static void
 merge_synonyms(BrassTable * out,
 	       vector<RootInfo>::const_iterator root,
-		vector<brass_revision_number_t>::const_iterator rev,
+	       vector<brass_revision_number_t>::const_iterator rev,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e)
 {
