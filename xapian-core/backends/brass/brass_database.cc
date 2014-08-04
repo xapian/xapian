@@ -330,7 +330,7 @@ BrassDatabase::set_revision_number(int flags, brass_revision_number_t new_revisi
     spelling_table.commit(new_revision, version_file.root_to_set(Brass::SPELLING));
     record_table.commit(new_revision, version_file.root_to_set(Brass::RECORD));
 
-    const string & tmpfile = version_file.write(new_revision);
+    const string & tmpfile = version_file.write(new_revision, flags);
     if (!postlist_table.sync() ||
 	!position_table.sync() ||
 	!termlist_table.sync() ||

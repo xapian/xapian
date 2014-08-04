@@ -828,6 +828,8 @@ compact_brass(Xapian::Compactor & compactor,
     const table_list * tables_end = tables +
 	(sizeof(tables) / sizeof(tables[0]));
 
+    const int FLAGS = Xapian::DB_DANGEROUS;
+
     vector<BrassVersion> version_file;
     version_file.reserve(sources.size());
     for (size_t i = 0; i != sources.size(); ++i) {
@@ -909,10 +911,10 @@ compact_brass(Xapian::Compactor & compactor,
 
 	BrassTable out(t->name, dest, false, t->compress_strategy, t->lazy);
 	if (!t->lazy) {
-	    out.create_and_open(Xapian::DB_DANGEROUS, block_size);
+	    out.create_and_open(FLAGS, block_size);
 	} else {
 	    out.erase();
-	    out.set_flags(Xapian::DB_DANGEROUS);
+	    out.set_flags(FLAGS);
 	    out.set_blocksize(block_size);
 	}
 
@@ -997,10 +999,10 @@ compact_brass(Xapian::Compactor & compactor,
 	    compactor.set_status(t->name, status);
 	}
     }
-    const string & tmpfile = version_file_out.write(1);
+    const string & tmpfile = version_file_out.write(1, FLAGS);
     try {
 	// Commit with revision 1.
-	version_file_out.sync(tmpfile, 1, 0);
+	version_file_out.sync(tmpfile, 1, FLAGS);
     } catch (...) {
 	(void)unlink(tmpfile.c_str());
     }

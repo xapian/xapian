@@ -1,3 +1,8 @@
+Mon Aug 04 05:21:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: In DB_DANGEROUS mode, update the version file
+	  in-place.
+
 Fri Aug 01 02:49:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc: Lock the target database while
