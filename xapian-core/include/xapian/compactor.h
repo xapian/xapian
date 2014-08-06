@@ -85,11 +85,12 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
 
     /** Set the compaction level.
      *
-     *  @param compaction Available values are: - Xapian::Compactor::STANDARD -
-     *  Don't split items unnecessarily.  - Xapian::Compactor::FULL     - Split
-     *  items whenever it saves space (the default).  -
-     *  Xapian::Compactor::FULLER   - Allow oversize items to save more space
-     *  (not recommended if you ever plan to update the compacted database).
+     *  @param compaction Available values are:
+     *  - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
+     *  - Xapian::Compactor::FULL     - Split items whenever it saves space
+     *    (the default).
+     *  - Xapian::Compactor::FULLER   - Allow oversize items to save more space
+     *    (not recommended if you ever plan to update the compacted database).
      */
     void set_compaction_level(compaction_level compaction);
 

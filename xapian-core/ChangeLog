@@ -1,3 +1,7 @@
+Wed Aug 06 10:49:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/compactor.h: Fix formatting of doxygen comment.
+
 Wed Aug 06 10:49:20 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/constants.h: Whitespace tweak.
