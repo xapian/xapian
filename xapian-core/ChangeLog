@@ -1,3 +1,10 @@
+Wed Aug 06 10:08:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.cc,common/io_utils.h,
+	  include/xapian/constants.h: Add DB_FULL_SYNC flag - if this is set
+	  for a database, we use the Mac OS X F_FULL_SYNC instead of
+	  fdatasync()/fsync()/etc on the version file when committing.
+
 Mon Aug 04 05:58:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_compact.cc: Whitespace tweak.
