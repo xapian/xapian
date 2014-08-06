@@ -1,3 +1,7 @@
+Wed Aug 06 10:49:20 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/constants.h: Whitespace tweak.
+
 Wed Aug 06 10:08:09 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc,common/io_utils.h,
