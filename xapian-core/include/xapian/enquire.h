@@ -32,6 +32,7 @@
 
 #include "xapian/deprecated.h"
 #include <string>
+#include <vector>
 
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
@@ -62,14 +63,14 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     struct letor_item {
         Xapian::doccount idx;
-        vector<double> feature_vector;
+        std::vector<double> feature_vector;
         double score;
         double label;
 
-        bool operator < (const letor_item & iterm_) const {
+        bool operator < (const letor_item & item_) const {
             return score > item_.score;
         }
-    }
+    };
 
 	/// @private @internal Constructor for internal use.
 	explicit MSet(Internal * internal_);
@@ -246,7 +247,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	MSetIterator back() const;
 
     /** Update additional information from letor module */
-    void update_letor_information(const vector<Xapian::MSet::letor_item> & letor_items_);
+    void update_letor_information(const std::vector<Xapian::MSet::letor_item> & letor_items_);
 
 	/** This returns the document at position i in this MSet object.
 	 *
