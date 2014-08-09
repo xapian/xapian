@@ -8,9 +8,10 @@
 using std::string;
 using std::vector;
 using std::size_t;
+using std::istringstream;
 
 
-static string
+string
 StringHelper::ltrim(string & s) {
 	size_t found = s.find_first_not_of(" \t\b");
 	if (found != string::npos) {
@@ -22,7 +23,7 @@ StringHelper::ltrim(string & s) {
 }
 
 
-static string
+string
 StringHelper::rtrim(string & s) {
 	size_t found = s.find_last_not_of(" \t\b");
 	if (found != string::npos) {
@@ -34,18 +35,19 @@ StringHelper::rtrim(string & s) {
 }
 
 
-static string
+string
 StringHelper::trim(string & s) {
-	return ltrim(rtrim(s));
+	string ss = rtrim(s);
+	return ltrim(ss);
 }
 
 
-static vector<string>
+vector<string>
 StringHelper::split(string & s) {
 	vector<string> s_vector;
 	string temp;
 
-	stringstream ss(s);
+	istringstream ss(s);
 	while (ss >> temp) {
 		s_vector.push_back(temp);
 	}
@@ -53,18 +55,18 @@ StringHelper::split(string & s) {
 }
 
 
-static int
+int
 StringHelper::to_int(string & s) {
-	stringstream ss(s);
+	istringstream ss(s);
 	int x;
 	ss >> x;
 	return x;
 }
 
 
-static double
+double
 StringHelper::to_double(string & s) {
-	stringstream ss(s);
+	istringstream ss(s);
 	double x;
 	ss >> x;
 	return x;
