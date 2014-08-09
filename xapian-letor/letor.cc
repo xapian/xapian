@@ -27,23 +27,23 @@
 #include "letor_internal.h"
 #include "ranker.h"
 #include "svmranker.h"
-#include "listmle.h"
-#include "listnet.h"
+#include "normalizer.h"
+#include "default_normalizer.h"
 
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 #include <string>
-#include <vcetor>
+#include <vector>
 
-using namespace Xapian;
 using std::string;
 using std::vector;
 
+namespace Xapian {
 
 Letor &
-Letor::operator=(const Letor & o)
-{
+Letor::operator=(const Letor & o) {
     internal = o.internal;
     return *this;
 }
@@ -57,18 +57,11 @@ Letor::Letor() : internal(new Letor::Internal) {
 }
 
 
-Letor::~Letor() {
-    if (internal != NULL) {
-        delete(internal);
-        internal = NULL;
-    }
-    else
-        internal = NULL;
-}
+Letor::~Letor() {}
 
 
 void
-Letor::set_database(const Xapian::Database & database_) {
+Letor::set_database(Xapian::Database & database_) {
     internal->set_database(database_);
 }
 
@@ -83,9 +76,9 @@ void
 Letor::set_ranker(const Ranker::ranker_t ranker_flag) {
     switch (ranker_flag) {
         case Ranker::SVM_RANKER:
-            return new SVMRanker();
+            internal->ranker = new Xapian::SVMRanker();
         default:
-            cerr << "Ranker flag error!\n";
+            printf("Ranker flag error!\n");
             exit(1);
     }
 }
@@ -95,9 +88,9 @@ void
 Letor::set_normalizer(const Normalizer::normalizer_t normalizer_flag) {
     switch (normalizer_flag) {
         case Normalizer::DEFAULT_NORMALIZER:
-            return new DefaultNormalizer();
+            internal->normalizer = new Xapian::DefaultNormalizer();
         default:
-            cerr << "Normalizer flag error!\n";
+            printf("Normalizer flag error!\n");
             exit(1);
     }
 }
@@ -110,18 +103,20 @@ Letor::prepare_training_file(const string query_file, const string qrel_file, co
 
 
 void
-Letor::load_model_file(string model_file_) {
+Letor::load_model_file(const string model_file_) {
     internal->load_model_file(model_file_);
 }
 
 
-Xapian::MSet
-Letor::update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_) {
-    return internal->update_mset(query_, mset_);
+void
+Letor::update_mset(Xapian::Query & query_, Xapian::MSet & mset_) {
+    internal->update_mset(query_, mset_);
 }
 
 
 void
-Letor::train(string training_data_file_, string model_file_) {
+Letor::train(const string training_data_file_, const string model_file_) {
     internal->train(training_data_file_, model_file_);
+}
+
 }

@@ -27,6 +27,10 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "feature.h"
+#include "ranker.h"
+#include "normalizer.h"
+
 #include <string>
 #include <vector>
 
@@ -37,12 +41,12 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Letor {
 
-    Xapian::Internal::intrusive_ptr<Internal> * internal;
-
 public:
     // @private @internal Class representing the Letor internals.
     class Internal;
     // @private @internal Reference counted internals.
+
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
 
     // Copy constructor.
@@ -62,7 +66,7 @@ public:
 
 
     /// Specify the database to use for retrieval. This database will be used directly by the methods of Xapian::Letor::Internal
-    void set_database(const Xapian::Database & database_);
+    void set_database(Xapian::Database & database_);
 
 
     // Set features used.
@@ -110,15 +114,15 @@ public:
 
 
     // Use training data to train the model. Call internal->train.
-    void train(string training_data_file_, string model_file_);
+    void train(const string training_data_file_, const string model_file_);
 
 
     // Load model from file. Call internal->load_model_file.
-    void load_model_file(string model_file_);
+    void load_model_file(const string model_file_);
 
 
     // Attach letor information to MSet. Call internal->update_mset.
-    Xapian::MSet update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
+    void update_mset(Xapian::Query & query_, Xapian::MSet & mset_);
 };
 
 }
