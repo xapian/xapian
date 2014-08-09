@@ -24,21 +24,19 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <feature_vector.h>
+#include "ranklist.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
 
+#include <cstdlib>
 
 using std::string;
 using std::vector;
 using std::cerr;
-using std::endl;
 
-using Xapian::RankList;
-using Xapian::FeatureVector;
-
+namespace Xapian {
 
 RankList::RankList() : feature_num(-1) {}
 
@@ -53,12 +51,12 @@ RankList::set_qid(string qid_) {
 
 
 void
-RankList::set_feature_vector_list(const vector<FeatureVector> & feature_vector_list_) {
+RankList::set_feature_vector_list(vector<FeatureVector> & feature_vector_list_) {
 	vector<FeatureVector>::iterator fv_list_it = feature_vector_list_.begin();
-	feature_num = *(fv_list_it).size();
+	feature_num = fv_list_it->get_feature_num();
 	for (; fv_list_it != feature_vector_list_.end(); ++fv_list_it) {
-		if (feature_num != *(fv_list_it).size()) {
-			cerr << "Feature num is not compatible." << endl;
+		if (feature_num != fv_list_it->get_feature_num()) {
+			cerr << "Feature num is not compatible." << '\n';
 			exit(1);
 		}
 	}
@@ -70,11 +68,11 @@ RankList::set_feature_vector_list(const vector<FeatureVector> & feature_vector_l
 void
 RankList::add_feature_vector(FeatureVector fvector_) {
 	if (feature_num == -1) {
-		feature_num = fvector_.size();
+		feature_num = fvector_.get_feature_num();
 	}
 	else
-		if (feature_num != fvector_.size()) {
-			cerr << "Feature num is not compatible." << endl;
+		if (feature_num != fvector_.get_feature_num()) {
+			cerr << "Feature num is not compatible." << '\n';
 			exit(1);
 		}
 
@@ -126,10 +124,13 @@ RankList::create_letor_items() {
 	Xapian::doccount rank = 0;
 	for (; fvectors_it != feature_vector_list.end(); ++fvectors_it) {
 		++rank;
-		Xapian::MSet::letor_item l_item = fvectors_it->create_letor_item(rank);
+		fvectors_it->set_index(rank);
+		Xapian::MSet::letor_item l_item = fvectors_it->create_letor_item();
 		letor_items.push_back(l_item);
 	}
 	return letor_items;
+}
+
 }
 
 /*
