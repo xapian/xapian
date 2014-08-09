@@ -31,6 +31,7 @@
 #include "ranklist.h"
 #include "feature_vector.h"
 
+#include <unistd.h>
 #include <string>
 #include <vector>
 
@@ -41,15 +42,18 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
-    vector<RankList> training_data;
+protected:
+    vector<Xapian::RankList> training_data;
 
 public:
-    // Normalizer flag type
-    typedef unsigned int normalizer_t;
+    // Ranker flag type
+    typedef unsigned int ranker_t;
 
 
-    // The flag for different kinds of normalizers
-    static const DEFAULT_NORMALIZER = 0;
+    // The flag for different kinds of rankers
+    static const int SVM_RANKER = 0;
+
+    virtual ~Ranker();
 
 
     // Override all the 7 methods below in the ranker sub=classes files
@@ -58,7 +62,7 @@ public:
 
 
     // Set training data
-    virtual void set_training_data(vector<RankList> training_data_) = 0;
+    virtual void set_training_data(vector<Xapian::RankList> training_data_) = 0;
 
 
     // The training process
@@ -77,15 +81,15 @@ public:
 
 
     // Calculate score for a FeatureVector
-    virtual double score_doc(const FeatureVector & fv) = 0;
+    virtual double score_doc(FeatureVector & fv) = 0;
 
 
-    // returns a ranklist (scores added)
-    virtual RankList calc(const RankList & rlist) = 0;
+    // returns a Xapian::RankList (scores added)
+    virtual Xapian::RankList calc(Xapian::RankList & rlist) = 0;
 
 
-    // returns a SORTED ranklist (sorted by the score of document)
-    virtual RankList rank(const RankList & rlist) = 0;
+    // returns a SORTED Xapian::RankList (sorted by the score of document)
+    virtual Xapian::RankList rank(Xapian::RankList & rlist) = 0;
 
 
     //========================= Helper functions ============================
