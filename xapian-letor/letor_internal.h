@@ -24,27 +24,40 @@
 
 #include <xapian/letor.h>
 
+#include "feature.h"
+#include "feature_manager.h"
 #include "ranker.h"
- 
-#include <string>
+#include "normalizer.h"
 
-using namespace Xapian;
+#include <string>
+#include <vector>
+
 using std::string;
 using std::vector;
 
 namespace Xapian {
 
+class Feature;
+class FeatureManager;
+class Ranker;
+class Normalizer;
+
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
 
+    Xapian::Database * database;                // Stored as reference
+    Xapian::Ranker * ranker;
+    Xapian::Normalizer * normalizer;
 
-    Xapian::Database database;
     Xapian::Feature feature;
-    Ranker * ranker;
-    Normalizer * normalizer;
-    FeatureManager feature_manager;
-    Xapian::MSet mset;
-    Xapian::Query query;
+    Xapian::FeatureManager feature_manager;
+
+public:
+
+    Internal();
+
+
+    ~Internal();
 
 
     // ======================= Used for training =========================
@@ -67,20 +80,19 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 
 
     // Read the training data in text format.
-    static vector<Xapian::RankList> read_from_txt(vector<Xapian::RankList> list_rlist);
+    static vector<Xapian::RankList> read_from_txt(const string training_data_file_);
 
 
     // Read the training data in binary format.
-    static vector<Xapian::RankList> read_from_bin(vector<Xapian::RankList> list_rlist);
+    static vector<Xapian::RankList> read_from_bin(const string training_data_file_);
 
 
-public:
     // Connect all parts (since we use reference).
     void init();
 
 
     // Set the database.
-    void set_database(const Xapian::Database & database_);
+    void set_database(Xapian::Database & database_);
 
 
     // Set the feature.
@@ -92,15 +104,15 @@ public:
 
 
     // Use training data to train the model.
-    void train(string training_data_file_, string model_file_);
+    void train(const string training_data_file_, const string model_file_);
 
 
     // Load model from file. Call ranker's corresponding functions.
-    void load_model_file(string model_file_);
+    void load_model_file(const string model_file_);
 
 
     // Attach letor information to MSet.
-    Xapian::MSet update_mset(const Xapian::Query & query_, const Xapian::MSet & mset_);
+    void update_mset(Xapian::Query & query_, Xapian::MSet & mset_);
 };
 
 }
