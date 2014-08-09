@@ -21,6 +21,7 @@
 #ifndef FEATURE_SELECTOR_H
 #define FEATURE_SELECTOR_H
 
+
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -28,7 +29,7 @@
 
 #include "feature.h"
 #include "feature_vector.h"
-#include "rank_list.h"
+#include "ranklist.h"
 #include "normalizer.h"
 
 #include <vector>
@@ -48,6 +49,18 @@ public:
         vector<double> x_train;
     };
 
+    struct sort_struct {
+        double val;
+        Feature::feature_t idx;
+    };
+    typedef struct sort_struct sort_ele;
+
+    struct comp {
+        bool operator() (sort_ele i, sort_ele j) {
+            return i.val > j.val;
+        }
+    } comp_obj;
+
     FeatureSelector();
 
     ~FeatureSelector();
@@ -59,10 +72,10 @@ public:
     double std_normal_pdf(double x);
 
     // Standard deviation
-    double std(const vector<double> & data);
+    double std(vector<double> & data);
 
     // The estimated probability density function using kernel density estimation
-    double kde_pdf(double x, int m, double h, const vector<double> & x_train);
+    double kde_pdf(double x, int m, double h, vector<double> & x_train);
 
     // The version of kde_pdf which takes struct as input argument
     double kde_pdf(double x, struct density_function f);
