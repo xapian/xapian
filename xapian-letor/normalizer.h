@@ -41,11 +41,14 @@ public:
 
 
     // The flag for different kinds of normalizers
-    static const DEFAULT_NORMALIZER = 0;
+    static const int DEFAULT_NORMALIZER = 0;
+
+
+    virtual ~Normalizer();
 
     
     // The abstract function for normalizing
-    static virtual RankList normalize(RankList rlist_) = 0;
+    virtual RankList normalize(RankList rlist_) = 0;
 };
 
 }
