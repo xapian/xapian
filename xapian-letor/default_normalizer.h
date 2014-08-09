@@ -27,7 +27,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featurevector.h"
+#include "normalizer.h"
+#include "ranklist.h"
 
 #include <string>
 #include <vector>
@@ -39,12 +40,15 @@ namespace Xapian {
 
 class RankList;
 
-class XAPIAN_VISIBILITY_DEFAULT DefaultNormalizer {
+class XAPIAN_VISIBILITY_DEFAULT DefaultNormalizer : public Normalizer {
 
 public:
+
+	virtual ~DefaultNormalizer();
     
-    static RankList normalize(RankList rlist_);
+    RankList normalize(RankList rlist_);
 };
 
 }
+
 #endif /* DEFAULT_NORMALIZER_H */

@@ -23,17 +23,22 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featurevector.h"
+#include "default_normalizer.h"
 
 #include <string>
 #include <vector>
 
-using namespace Xapian;
+#include <cstring>
+
 using std::string;
 using std::vector;
 
+namespace Xapian {
 
-static RankList
+DefaultNormalizer::~DefaultNormalizer() {}
+
+
+RankList
 DefaultNormalizer::normalize(RankList rlist_) {
 	RankList rlist;
 
@@ -49,22 +54,28 @@ DefaultNormalizer::normalize(RankList rlist_) {
 	// look for the max value for each feature
 	for (vector<FeatureVector>::iterator fv_list_it = feature_vector_list.begin();
 			fv_list_it != feature_vector_list.end(); ++fv_list_it) {
-		for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {
-			if ((*fv_list_it)[feature_idx] > feature_max_value[feature_idx])
-				feature_max_value[feature_idx] = (*fv_list_it)[feature_idx];
+		for (int feature_idx = 1; feature_idx <= feature_num; ++feature_idx) {
+			if (fv_list_it->get_feature_value_of(feature_idx) > feature_max_value[feature_idx])
+				feature_max_value[feature_idx] = fv_list_it->get_feature_value_of(feature_idx);
 		}
 	}
 
 	// perform the normalization
 	for (vector<FeatureVector>::iterator fv_list_it = feature_vector_list.begin();
 			fv_list_it != feature_vector_list.end(); ++fv_list_it) {
+		vector<double> f_values;
 		for (int feature_idx = 0; feature_idx < feature_num; ++feature_idx) {
 			if (feature_max_value[feature_idx] != 0)
-				(*fv_list_it)[feature_idx] /= feature_max_value[feature_idx];
+				f_values.push_back( fv_list_it->get_feature_value_of(feature_idx) / feature_max_value[feature_idx] );
+			else
+				f_values.push_back(0);
 		}
+		fv_list_it->set_feature_values(f_values);
 	}
 
-	rlist.set_feature_vector_list(feature_vector_list)
+	rlist.set_feature_vector_list(feature_vector_list);
 
 	return rlist;
+}
+
 }
