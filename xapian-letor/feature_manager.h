@@ -23,6 +23,7 @@
 #ifndef FEATURE_MANAGER_H
 #define FEATURE_MANAGER_H
 
+
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -30,14 +31,16 @@
 
 #include "feature.h"
 #include "feature_vector.h"
-#include "rank_list.h"
+#include "ranklist.h"
 #include "normalizer.h"
 
 #include <vector>
 #include <string>
+#include <map>
 
 using std::vector;
 using std::string;
+using std::map;
 
 namespace Xapian {
 
@@ -51,21 +54,26 @@ public:
 
 
     // Map for qid and docid_relevance_map
-    typedef map<string, did_relevance_map> qid_did_rel_map;
+    typedef map<string, did_rel_map> qid_did_rel_map;
 
 
-    Xapian::Database & database;
-    Xapian::Feature & feature;
-    Xapian::Query & query;
-    Xapian::MSet & mset;
+    Xapian::Database * database;
+    Xapian::Feature * feature;
+    Xapian::Query * query;
+    Xapian::MSet * mset;
 
-    Xapian::Normlizer * normalizer;
+    Xapian::Normalizer * normalizer;
 
 
     int query_term_length;
     vector<long int> query_term_frequency_database;
     vector<double> query_inverse_doc_frequency_database;
-    vector<long int> database_details(3);
+    vector<long int> database_details;
+
+    qid_did_rel_map qrel;
+
+
+    FeatureManager();
 
 
     // Called by Letor::Internal when the database is updated
@@ -84,42 +92,42 @@ public:
 
 
     // Set Normalizer.
-    void set_normalizer(const Xapian::Normalizer & normalizer_);
+    void set_normalizer(Xapian::Normalizer * normalizer_);
 
 
     // Set Database.
-    void set_database(const Xapian::Database & database_);
+    void set_database(Xapian::Database & database_);
 
 
     // Set Feature.
-    void set_feature(const Xapian::Feature & feature_);
+    void set_feature(Xapian::Feature & feature_);
 
 
     // Set Query.
-    void set_query(const Xapian::Query & query_);
+    void set_query(Xapian::Query & query_);
 
 
     // Set MSet.
-    void set_mset(const Xapian::MSet & mset_);
+    void set_mset(Xapian::MSet & mset_);
 
 
     // ====================== General getters ===============================
 
 
     // Get Database reference.
-    Xapian::Database & get_database();
+    Xapian::Database * get_database();
 
 
     // Get Query reference.
-    Xapian::Query & get_query();
+    Xapian::Query * get_query();
 
 
     // Get MSet reference.
-    Xapian::MSet & get_mset();
+    Xapian::MSet * get_mset();
 
 
     // Get Feature reference.
-    Xapian::Feature & get_feature();
+    Xapian::Feature * get_feature();
 
 
     // Get the number of features used.
@@ -132,25 +140,25 @@ public:
     // Get three kinds of information of database: total length of title,
     // total length of body, total length of content of documents (including
     // title and body).
-    vector<long int> & get_database_details();
+    vector<long int> get_database_details();
 
 
     // Get term frequency of query in database.
-    vector<long int> & get_q_term_freq_db();
+    vector<long int> get_q_term_freq_db();
 
 
     // Get inverse document frequency of query in database.
-    vector<long int> & get_q_inv_doc_freq_db();
+    vector<double> get_q_inv_doc_freq_db();
 
 
     // Get three kinds of information of the document: length of title,
     // length of body, length of total content of the document (including
     // title and body).
-    vector<long int> get_doc_details(const Xapian::Docuement & doc_);
+    vector<long int> get_doc_details(const Xapian::Document & doc_);
 
 
     // Get query term frequency in the document
-    vector<long int> get_q_term_freq_doc(const Xapain::Document & doc_);
+    vector<long int> get_q_term_freq_doc(const Xapian::Document & doc_);
 
 
     // ===================== Used for generating RankList ===================
@@ -173,7 +181,7 @@ public:
 
     
     // Use normalizer to normalize RankList.
-    Xapian::RankList normalize(const Xapian::RankList * rlist_);
+    Xapian::RankList normalize(Xapian::RankList & rlist_);
 
 
     // ============= Used for generating RankList for training ==============
@@ -184,11 +192,10 @@ public:
 
     
     // Get the label for the document corresponding to query id in qrel.
-    void train_get_label_qrel(const Document & doc_, const string qid_);
-
+    int train_get_label_qrel(const Xapian::MSetIterator & mset_it_, const string qid_);
 
     // Create FeatureVector from MSetIterator for training.
-    Xapian::FeatureVector train_create_feature_vector(const Xapian::MSetIterator & mset_it_);
+    Xapian::FeatureVector train_create_feature_vector(const Xapian::MSetIterator & mset_it_, const string qid_);
 
 
     // Create RankList from MSet for training.
