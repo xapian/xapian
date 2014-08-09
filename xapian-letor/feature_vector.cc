@@ -26,7 +26,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featurevector.h"
+#include "feature_vector.h"
+#include "stringhelper.h"
  
 #include <vector>
 
@@ -46,10 +47,10 @@
 
 using std::string;
 using std::vector;
+using std::cerr;
+using std::ifstream;
 
-FeatureVector::FeatureVector() {}
-
-FeatureVector::FeatureVector(const FeatureVector & o) {}
+namespace Xapian {
 
 void
 FeatureVector::set_did(string did_) {
@@ -117,7 +118,7 @@ FeatureVector::get_feature_value_of(int idx) {
 
 vector<double>
 FeatureVector::get_label_feature_values() {
-    vector<doubel> new_vector;
+    vector<double> new_vector;
     new_vector.push_back(label);
     new_vector.insert(new_vector.end(), feature_values.begin(), feature_values.end());
     return new_vector;
@@ -125,7 +126,7 @@ FeatureVector::get_label_feature_values() {
 
 vector<double>
 FeatureVector::get_score_feature_values() {
-    vector<doubel> new_vector;
+    vector<double> new_vector;
     new_vector.push_back(score);
     new_vector.insert(new_vector.end(), feature_values.begin(), feature_values.end());
     return new_vector;
@@ -133,7 +134,7 @@ FeatureVector::get_score_feature_values() {
 
 string
 FeatureVector::get_feature_values_text() {
-    string txt = "1:" + str(feature_values[0])
+    string txt = "1:" + str(feature_values[0]);
     for (int idx = 2; idx < get_feature_num(); ++idx) {
         txt.append(" " + str(idx) + ":" + str(feature_values[idx]));
     }
@@ -155,9 +156,9 @@ FeatureVector::get_score_feature_values_text() {
 }
 
 Xapian::MSet::letor_item
-FeatureVector::create_letor_item(Xapian::doccount idx) {
+FeatureVector::create_letor_item() {
     Xapian::MSet::letor_item l_item;
-    l_item.feature_vector = fvals;
+    l_item.feature_vector = feature_values;
     l_item.score = score;
     l_item.label = label;
     l_item.idx   = index;
@@ -167,7 +168,7 @@ FeatureVector::create_letor_item(Xapian::doccount idx) {
 vector<FeatureVector>
 FeatureVector::read_from_file(string file) {
     ifstream data_file;
-    data_file.open(file);
+    data_file.open(file.c_str());
 
     if (data_file.is_open()) {
         vector<FeatureVector> fvectors;
@@ -180,21 +181,22 @@ FeatureVector::read_from_file(string file) {
                     line = line.substr(0, line.find("#"));
                 }
 
-                line = StringHelper.trim(line);
-                vector<string> s_vector = StringHelper.split(line);
+                line = StringHelper::trim(line);
+                vector<string> s_vector = StringHelper::split(line);
 
                 if (s_vector.size() > 2) {
                     FeatureVector fvector;
                     vector<double> fvals;
 
-                    fvector.set_label = StringHelper.to_double(s_vector[0]);
-                    // int qid = StringHelper.to_int(s_vector[1].substr(4, s_vector[1].size()-4));
+                    fvector.set_label( StringHelper::to_double(s_vector[0]) );
+                    // int qid = StringHelper::to_int(s_vector[1].substr(4, s_vector[1].size()-4));
 
-                    for (int i = 2; i < s_vector.size(); ++i) {
-                        int found = s_vector[i].find(":");
+                    for (unsigned int i = 2; i < s_vector.size(); ++i) {
+                        std::size_t found = s_vector[i].find(":");
                         if (found != string::npos) {
-                            // int f_idx = StringHelper.to_int(0, found);
-                            double f_val = StringHelper.to_double(found+1, f_s_vector[i].size()-found-1);
+                            // int f_idx = StringHelper::to_int(0, found);
+                            string val_str = s_vector[i].substr(found+1, s_vector[i].size()-found-1);
+                            double f_val = StringHelper::to_double( val_str );
                             fvals.push_back(f_val);
                         }
                         else {
@@ -203,11 +205,11 @@ FeatureVector::read_from_file(string file) {
                         }
                     }
 
-                    if (num_feature == -1) {
+                    if (num_feature <= -1) {
                         num_feature = fvals.size();
                     }
-                    else if (num_feature != fvals.size()) {
-                        cout << "The number of features is not compatible!\n";
+                    else if ((unsigned int)num_feature != fvals.size()) {
+                        cerr << "The number of features is not compatible!\n";
                         exit(1);
                     }
 
@@ -225,8 +227,8 @@ FeatureVector::read_from_file(string file) {
     }
 }
 
-static vector<double>
-FeatureVector::extract(const vector<FeatureVector> & fvectors, double relevance, int f_idx) {
+vector<double>
+FeatureVector::extract(vector<FeatureVector> & fvectors, double relevance, int f_idx) {
     vector<double> fvals;
     for (vector<FeatureVector>::iterator it = fvectors.begin(); it != fvectors.end(); ++it) {
         if (relevance == it->get_label()) {
@@ -237,4 +239,7 @@ FeatureVector::extract(const vector<FeatureVector> & fvectors, double relevance,
             fvals.push_back( it->get_feature_value_of(f_idx) );
         }
     }
+    return fvals;
+}
+
 }

@@ -40,7 +40,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     string did;                     // the document ID
     double label;                   // the tagged relavance label
     double score;                   // the calculated score
-    vector<double> fvals;           // feature values
+    vector<double> feature_values;  // feature values
     Xapian::doccount index;         // the original index in MSet
 
 public:
@@ -111,14 +111,15 @@ public:
     string get_score_feature_values_text();
 
     // Create letor item
-    Xapian::MSet::letor_item create_letor_item(Xapian::doccount idx);
+    Xapian::MSet::letor_item create_letor_item();
 
     // Restore FeatureVector from file
     vector<FeatureVector> read_from_file(string file);
 
     // Extract certain feature values from FeatureVectors based on relevance level and feature index
-    static vector<double> extract(const vector<FeatureVector> & fvectors, double relevance, int f_idx);
+    static vector<double> extract(vector<FeatureVector> & fvectors, double relevance, int f_idx);
 };
 
 }
+
 #endif /* FEATURE_VECTOR_H */
