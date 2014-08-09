@@ -22,6 +22,7 @@
 #ifndef SVMRANKER_H
 #define SVMRANKER_H
 
+
 #include <xapian.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -56,9 +57,9 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
 
 public:
 
-    SVMRanker() {};
+    SVMRanker();
     
-    virtual ~SVMRanker() {};
+    virtual ~SVMRanker();
 
     virtual void set_training_data(vector<RankList> training_data_);
 
@@ -68,11 +69,14 @@ public:
 
     virtual void load_model(const string model_file_);
 
-    virtual double score_doc(const FeatureVector & fvector);
+    virtual double score_doc(FeatureVector & fvector);
 
-    virtual RankList rank(const RankList & rlist);
+    virtual RankList calc(RankList & rlist);
+
+    virtual RankList rank(RankList & rlist);
 
 };
 
 }
+
 #endif /* SVMRANKER_H */

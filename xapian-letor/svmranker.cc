@@ -37,6 +37,7 @@
 #include <vector>
 
 #include <cstring>
+#include <cstdlib>
 
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 
@@ -44,10 +45,13 @@ using std::string;
 using std::vector;
 using std::cout;
 using std::cerr;
-using std::endl;
 
-using Xapian::FeatureVector;
-using Xapian::RankList;
+namespace Xapian {
+
+SVMRanker::SVMRanker() {}
+
+
+SVMRanker::~SVMRanker() {}
 
 
 void
@@ -114,12 +118,12 @@ SVMRanker::read_problem() {
         for (i = 0; i < prob.l; ++i) {
 
             if (prob.x[i][0].index != 0) {
-                cerr << "Wrong input format: first column must be 0:sample_serial_number" << endl;
+                cerr << "Wrong input format: first column must be 0:sample_serial_number" << '\n';
                 exit(1);
             }
 
             if ((int)prob.x[i][0].value <= 0 || (int)prob.x[i][0].value > max_index) {
-                cerr << "Wrong input format: sample_serial_number out of range" << endl;
+                cerr << "Wrong input format: sample_serial_number out of range" << '\n';
                 exit(1);
             }
         }   
@@ -154,7 +158,7 @@ SVMRanker::learn_model() {
     param.nr_weight = 0;
     param.weight_label = NULL;
     param.weight = NULL;
-    cross_validation = 0;
+    // cross_validation = 0;
 
 
     cout << "Learning the model..";
@@ -163,7 +167,7 @@ SVMRanker::learn_model() {
 
     const char *error_msg = svm_check_parameter(&prob, &param);
     if (error_msg) {
-	   cerr << "svm_check_parameter failed: " << error_msg << endl;
+	   cerr << "svm_check_parameter failed: " << error_msg << '\n';
 	   exit(1);
     }
 
@@ -180,14 +184,14 @@ SVMRanker::load_model(const string model_file_) {
 void
 SVMRanker::save_model(const string model_file_) {
     if (svm_save_model(model_file_.c_str(), model)) {
-       cerr << "Can't save model to file " << model_file_.c_str() << endl;
+       cerr << "Can't save model to file " << model_file_.c_str() << '\n';
        exit(1);
     }
 }
 
 
 double
-SVMRanker::score_doc(const FeatureVector & fvector) {
+SVMRanker::score_doc(FeatureVector & fvector) {
     predict_probability = 0;
 
     // string model_file_name;
@@ -195,7 +199,7 @@ SVMRanker::score_doc(const FeatureVector & fvector) {
     // model = svm_load_model(model_file_name.c_str());
 
     if (model == NULL) {
-        cerr << "Please load the model first!" << endl;
+        cerr << "Please load the model first!" << '\n';
         exit(1);
     }
 
@@ -205,8 +209,8 @@ SVMRanker::score_doc(const FeatureVector & fvector) {
     if (predict_probability) {
         if (svm_type == NU_SVR || svm_type == EPSILON_SVR) {
             cout << "Prob. model for test data: target value = predicted value + z,"
-                << endl << "z: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma="
-                << svm_get_svr_probability(model) << endl;
+                << '\n' << "z: Laplace distribution e^(-|z|/sigma)/(2sigma),sigma="
+                << svm_get_svr_probability(model) << '\n';
         }
         else {
             // int *labels = (int *) malloc(nr_class * sizeof(int));
@@ -217,8 +221,10 @@ SVMRanker::score_doc(const FeatureVector & fvector) {
     }
 
     // x = (struct svm_node *)malloc(fvector.size() * sizeof(struct svm_node));
-    x = Malloc(struct svm_node, fvector.size());
+    int feature_num = fvector.get_feature_num();
+    x = Malloc(struct svm_node, feature_num);
 
+    int i = 0;
     for (int idx = 1; idx <= fvector.get_feature_num(); ++idx) {
         x[i].index = idx;
         x[i].value = fvector.get_feature_value_of(idx);
@@ -229,8 +235,8 @@ SVMRanker::score_doc(const FeatureVector & fvector) {
 }
 
 
-RankList
-SVMRanker::calc(const RankList & rlist) {
+Xapian::RankList
+SVMRanker::calc(Xapian::RankList & rlist) {
     vector<FeatureVector> fvector_list = rlist.get_feature_vector_list();
     for (vector<FeatureVector>::iterator fvector_it = fvector_list.begin();
             fvector_it != fvector_list.end(); ++fvector_it) {
@@ -242,10 +248,12 @@ SVMRanker::calc(const RankList & rlist) {
 
 
 RankList 
-SVMRanker::rank(const RankList & rlist) {
+SVMRanker::rank(RankList & rlist) {
     RankList rlist_out = calc(rlist);
 
     // TO DO
 
-    return rlist_out
+    return rlist_out;
+}
+
 }
