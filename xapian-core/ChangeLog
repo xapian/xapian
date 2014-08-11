@@ -1,3 +1,11 @@
+Mon Aug 11 05:55:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: Rename XAPIAN_TEST_CXXFLAGS_ to XAPIAN_TEST_CXXFLAGS
+	  (since the latter is never used) and make it take a variable to
+	  add the flags to.  Also, fix it to restore CXXFLAGS correctly if
+	  the success case contains "break".
+
 Sat Aug 02 09:43:04 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

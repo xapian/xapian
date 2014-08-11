@@ -273,25 +273,19 @@ AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   AC_MSG_RESULT([$xo_cv_$2])
   ])
 
-AC_DEFUN([XAPIAN_TEST_CXXFLAGS_],
+dnl Test if the compiler works with $1 added to CXXFLAGS; if it does, add $1 to
+dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
+AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
   [
   XTC_save_CXXFLAGS=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $1"
-  AC_TRY_COMPILE([], [], [$2], [$3])
-  CXXFLAGS=$XTC_save_CXXFLAGS
-])
-
-AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
-  [
-  AC_MSG_CHECKING([if $CXX $1 works])
-  XAPIAN_TEST_CXXFLAGS_([$1], [
-    AC_MSG_RESULT([yes])
-    $2
-  ], [
-    AC_MSG_RESULT([no])
-    $3
+  AC_TRY_COMPILE([], [],
+		 [$2="$2 $1"
+		  CXXFLAGS=$XTC_save_CXXFLAGS
+		  $3],
+		 [CXXFLAGS=$XTC_save_CXXFLAGS
+		  $4])
   ])
-])
 
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
@@ -360,11 +354,12 @@ else
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
-      dnl If this proves to be a problem, try '-std ansi -D__USE_STD_IOSTREAM'
-      ANSI_CXXFLAGS="-std strict_ansi"
+      dnl If this proves to be a problem, we could instead try
+      dnl '-std ansi -D__USE_STD_IOSTREAM'.
+      dnl
       dnl Check that the compiler recognises these flags to avoid problems
       dnl with other compilers named cxx.
-      XAPIAN_TEST_CXXFLAGS_([$ANSI_CXXFLAGS], [], [ANSI_CXXFLAGS=]) ;;
+      XAPIAN_TEST_CXXFLAGS([-std strict_ansi], [ANSI_CXXFLAGS]) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
       case `$CXX -V 2>&1` in
@@ -380,12 +375,12 @@ else
 	dnl -library=stlport4 in ANSI_CXXFLAGS, since the compiler will give
 	dnl an error when passed -library=stlport4 -library=stdcxx4.
 	for l in stdcxx4,Crun stlport4,Crun Cstd,Crun ; do
-	  XAPIAN_TEST_CXXFLAGS_([-library=$l], [ANSI_CXXFLAGS=-library=$l; break])
+	  XAPIAN_TEST_CXXFLAGS([-library=$l], [ANSI_CXXFLAGS], [break])
 	done
 	dnl Older versions of this compiler defaulted to a non-standard
 	dnl lifetime for temporary objects, and -features=tmplife is required
 	dnl for standard conforming behaviour (which Xapian code expects).
-	XAPIAN_TEST_CXXFLAGS_([-features=tmplife], [ANSI_CXXFLAGS="$ANSI_CXXFLAGS -features=tmplife"])
+	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ANSI_CXXFLAGS])
 	;;
       *)
 	case `$CXX -v 2>&1` in
