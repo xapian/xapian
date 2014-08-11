@@ -112,7 +112,7 @@ public:
     Xapian::MSet::letor_item create_letor_item();
 
     // Restore FeatureVector from file
-    vector<FeatureVector> read_from_file(string file);
+    static vector<FeatureVector> read_from_file(string file);
 
     // Extract certain feature values from FeatureVectors based on relevance level and feature index
     static vector<double> extract(vector<FeatureVector> & fvectors, double relevance, int f_idx);
