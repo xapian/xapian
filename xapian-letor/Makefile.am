@@ -67,27 +67,29 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h\
 	letor_internal.h\
-	featurevector.h\
-	featuremanager.h\
-	letor_features.h\
+	feature.h\
+	feature_vector.h\
+	feature_manager.h\
 	ranklist.h\
 	ranker.h\
-	evalmetric.h\
-	listmle.h\
-	listnet.h\
-	svmranker.h
+	svmranker.h\
+    normalizer.h\
+    default_normalizer.h\
+    stringhelper.h\
+    feature_selector.h
+
 
 lib_src +=\
 	letor.cc\
 	letor_internal.cc\
-	featurevector.cc\
-	featuremanager.cc\
-	letor_features.cc\
+	feature.cc\
+	feature_vector.cc\
+	feature_manager.cc\
 	ranklist.cc\
-	evalmetric.cc\
-	listmle.cc\
-	listnet.cc\
-	svmranker.h
+	svmranker.cc\
+    default_normalizer.cc\
+    stringhelper.cc\
+    feature_selector.cc
 
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
