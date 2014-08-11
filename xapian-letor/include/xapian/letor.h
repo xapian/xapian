@@ -28,8 +28,13 @@
 #include <xapian/visibility.h>
 
 #include "feature.h"
+#include "feature_vector.h"
+#include "feature_manager.h"
 #include "ranker.h"
+#include "svmranker.h"
 #include "normalizer.h"
+#include "default_normalizer.h"
+#include "feature_selector.h"
 
 #include <string>
 #include <vector>
