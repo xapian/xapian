@@ -39,8 +39,10 @@
 #include "gnu_getopt.h"
 
 using std::cout;
+using std::cerr;
 using std::string;
 using std::vector;
+using std::istringstream;
 
 #define PROG_NAME "letor-request"
 #define PROG_DESC "Xapian command line search tool for letor"
@@ -78,7 +80,7 @@ show_usage() {
 }
 
 
-string
+static string
 parse_query(string query_str) {
     istringstream iss(query_str);
     string title = "title:";
@@ -121,23 +123,23 @@ try {
 
     // Default arguments
     int msize = 10;
-    int ranker_flag = 0;
-    int normalizer_flag = 0;
+    Xapian::Ranker::ranker_t ranker_flag = Xapian::Ranker::SVM_RANKER;
+    Xapian::Normalizer::normalizer_t normalizer_flag = Xapian::Normalizer::DEFAULT_NORMALIZER;
     bool have_database = false;
 
-    Xapian::Database db;
+    Xapian::Database database;
     Xapian::QueryParser parser;
     parser.add_prefix("title", "S");
     parser.add_prefix("subject", "S");
 
-    int c;
+    char c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
         switch (c) {
             case 'm':
                 msize = atoi(optarg);
                 break;
             case 'd':
-                db.add_database(Xapian::Database(optarg));
+                database.add_database(Xapian::Database(optarg));
                 have_database = true;
                 break;
             case 'r':
@@ -157,20 +159,21 @@ try {
                 }
                 break;
             case 'b':
-            case 'p':
-                const char * colon = strchr(optarg, ':');
-                if (colon == NULL) {
-                    cerr << argv[0] << ": need ':' when setting prefix" << '\n';
-                    exit(1);
-                }
-                
-                string prefix(optarg, colon - optarg);
-                string termprefix(colon + 1);
-                if (c == 'b') {
-                    parser.add_boolean_prefix(prefix, termprefix);
-                }
-                else {
-                    parser.add_prefix(prefix, termprefix);
+            case 'p': {
+                    const char * colon = strchr(optarg, ':');
+                    if (colon == NULL) {
+                        cerr << argv[0] << ": need ':' when setting prefix" << '\n';
+                        exit(1);
+                    }
+
+                    string prefix(optarg, colon - optarg);
+                    string termprefix(colon + 1);
+                    if (c == 'b') {
+                        parser.add_boolean_prefix(prefix, termprefix);
+                    }
+                    else {
+                        parser.add_prefix(prefix, termprefix);
+                    }
                 }
                 break;
             case 'v':
@@ -202,7 +205,7 @@ try {
     string query_str        = parse_query(argv[optind+2]);
 
     // Parse query
-    parser.set_database(db);
+    parser.set_database(database);
     parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -222,31 +225,32 @@ try {
     cout << "Parsed Query: " << query.get_description() << '\n';
 
     // Fetch MSet
-    Xapian::Enquire enquire(db);
+    Xapian::Enquire enquire(database);
     enquire.set_query(query);
 
     Xapian::MSet mset = enquire.get_mset(0, msize);
 
     // Update MSet
-    vector<int> features = Feature::read_from_file(features_file);
+    vector<Xapian::Feature::feature_t> features = Xapian::Feature::read_from_file(features_file);
 
     Xapian::Letor ltr;
-    Xapian::Ranker * ranker = Ranker::generate(ranker_flag);
-    Xapian::Normalizer * normalizer = Normalizer::generate(normalizer_flag);
-
-    ltr.update_context(database, features, *ranker, *normalizer);
+    ltr.set_database(database);
+    ltr.set_features(features);
+    ltr.set_ranker(ranker_flag);
+    ltr.set_normalizer(normalizer_flag);
     
     ltr.load_model_file(model_file);
 
-    Xapian::MSet updated_mset = ltr.update_mset(query, mset);
+    ltr.update_mset(query, mset);
 
     // Output the updated MSet
-    for (Xapian::MSetIterator mset_it = updated_mset.begin(), rank = 0;
-            mset_it != updated_mset.end(); ++mset_it, ++rank) {
-        Xapian::Document doc = mset_it->get_document();
+    Xapian::MSetIterator mset_it = mset.begin();
+    int rank = 0;
+    for (; mset_it != mset.end(); ++mset_it, ++rank) {
+        Xapian::Document doc = mset_it.get_document();
 
-        cout << "Rank: " << rank << '\n'
-        cout << doc->get_data() << "\n\n";
+        cout << "Rank: " << rank << '\n';
+        cout << doc.get_data() << "\n\n";
     }
 
     return 0;
