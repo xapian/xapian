@@ -61,9 +61,9 @@ public:
         }
     } comp_obj;
 
-    FeatureSelector();
+    FeatureSelector() {}
 
-    ~FeatureSelector();
+    ~FeatureSelector() {}
 
     // Probablity density function of normaal distribution 
     double normal_pdf(double x, double m, double s);
