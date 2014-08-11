@@ -44,7 +44,10 @@ public:
     static const int DEFAULT_NORMALIZER = 0;
 
 
-    virtual ~Normalizer();
+    Normalizer() {}
+
+
+    virtual ~Normalizer() {}
 
     
     // The abstract function for normalizing

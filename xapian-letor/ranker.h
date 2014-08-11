@@ -53,7 +53,9 @@ public:
     // The flag for different kinds of rankers
     static const int SVM_RANKER = 0;
 
-    virtual ~Ranker();
+    Ranker() {}
+
+    virtual ~Ranker() {}
 
 
     // Override all the 7 methods below in the ranker sub=classes files
