@@ -374,8 +374,11 @@ else
 	dnl specified CXXFLAGS=-library=stlport4, then this should put
 	dnl -library=stlport4 in ANSI_CXXFLAGS, since the compiler will give
 	dnl an error when passed -library=stlport4 -library=stdcxx4.
-	for l in stdcxx4,Crun stlport4,Crun Cstd,Crun ; do
-	  XAPIAN_TEST_CXXFLAGS([-library=$l], [ANSI_CXXFLAGS], [break])
+	for l in stdcxx4 stlport4 Cstd ; do
+	  dnl We avoid -library-$l,Crun as libtool looks for
+	  dnl " -library=stlport4 " (with the spaces either side).
+	  f="-library=$l -library=Crun"
+	  XAPIAN_TEST_CXXFLAGS([$f], [ANSI_CXXFLAGS], [break])
 	done
 	dnl Older versions of this compiler defaulted to a non-standard
 	dnl lifetime for temporary objects, and -features=tmplife is required

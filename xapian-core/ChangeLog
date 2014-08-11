@@ -1,3 +1,10 @@
+Mon Aug 11 05:59:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* configure.ac: For Sun's C++ compiler, pass -library=Crun separately
+	  since libtool looks for " -library=stlport4 " (with the spaces).
+	  (fixes#650)
+
 Mon Aug 11 05:55:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
