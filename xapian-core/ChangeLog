@@ -1,3 +1,9 @@
+Mon Aug 11 05:30:20 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: For Sun's C++ compiler, pass -library=Crun separately
+	  since libtool looks for " -library=stlport4 " (with the spaces).
+	  (fixes#650)
+
 Mon Aug 11 03:00:15 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Rename XAPIAN_TEST_CXXFLAGS_ to XAPIAN_TEST_CXXFLAGS
