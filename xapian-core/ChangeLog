@@ -1,3 +1,10 @@
+Mon Aug 11 03:00:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Rename XAPIAN_TEST_CXXFLAGS_ to XAPIAN_TEST_CXXFLAGS
+	  (since the latter is never used) and make it take a variable to
+	  add the flags to.  Also, fix it to restore CXXFLAGS correctly if
+	  the success case contains "break".
+
 Wed Aug 06 10:49:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/compactor.h: Fix formatting of doxygen comment.
