@@ -75,7 +75,7 @@ main(int argc, char **argv) {
                 k = atoi(optarg);
                 break;
             case 'v':
-                cout << PROG_NAME" - "PACKAGE_STRING << endl;
+                cout << PROG_NAME" - "PACKAGE_STRING << '\n';
                 exit(0);
             case 'h':
                 cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -93,22 +93,20 @@ main(int argc, char **argv) {
         exit(1);
     }
 
-    vector<int> features = Feature::read_from_file();
-
     string features_file        = string(argv[optind]);
     string training_data_file   = string(argv[optind+1]);
     string validation_data_file = string(argv[optind+2]);
 
-    vector<int> features = Feature::read_from_file(features_file);
-    vector<FeatureVector> training_data = FeatureVector::read_from_file(training_data_file);
-    vector<FeatureVector> validation_data = FeatureVector::read_from_file(validation_data_file);
+    vector<Xapian::Feature::feature_t> features = Xapian::Feature::read_from_file(features_file);
+    vector<Xapian::FeatureVector> training_data = Xapian::FeatureVector::read_from_file(training_data_file);
+    vector<Xapian::FeatureVector> validation_data = Xapian::FeatureVector::read_from_file(validation_data_file);
 
-    FeautureSelector fs;
-    vector<int> selected_features = fs.select(features, k, training_data, validation_data);
+    Xapian::FeatureSelector fs;
+    vector<Xapian::Feature::feature_t> selected_features = fs.select(features, k, training_data, validation_data);
 
-    cout << "Selected features:" << endl;
-    for (vector<int>::iterator it = selected_features.begin(); it != selected_features.end(); ++it) {
-        cout << "   " << *it << endl;
+    cout << "Selected features:" << '\n';
+    for (vector<Xapian::Feature::feature_t>::iterator it = selected_features.begin(); it != selected_features.end(); ++it) {
+        cout << "   " << *it << '\n';
     }
 
     return 0;
