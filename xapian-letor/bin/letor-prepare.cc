@@ -23,9 +23,6 @@
 
 #include <xapian.h>
 #include <xapian/letor.h>
-#include <xapian/ranker.h>
-#include <xapian/normalizer.h>
-#include <xapian/feature.h>
 
 #include <iostream>
 #include <fstream>
@@ -75,7 +72,7 @@ try {
         { NULL,             0,                 0, 0   }
     };
 
-    Xapian::Database db;
+    Xapian::Database database;
     bool have_database = false;
 
     // Default arguments
@@ -87,7 +84,7 @@ try {
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
         switch (c) {
             case 'd':
-                db.add_database(Xapian::Database(optarg));
+                database.add_database(Xapian::Database(optarg));
                 have_database = true;
                 break;
             case 's':
@@ -126,15 +123,15 @@ try {
     string features_file    = string(argv[optind]);
     string query_file       = string(argv[optind+1]);
     string qrel_file        = string(argv[optind+2]);
-    string train_file       = string(argv[optind+3]);
+    string output_file      = string(argv[optind+3]);
 
-    vector<int> features = Feature::read_from_file(features_file);
+    vector<Xapian::Feature::feature_t> features = Xapian::Feature::read_from_file(features_file);
 
     Xapian::Letor ltr;
-    Xapian::Ranker * ranker = Ranker::generate(ranker_flag);
-    Xapian::Normalizer * normalizer = Normalizer::generate(normalizer_flag);
-
-    ltr.update_context(database, features, *ranker, *normalizer);
+    ltr.set_database(database);
+    ltr.set_features(features);
+    ltr.set_ranker(ranker_flag);
+    ltr.set_normalizer(normalizer_flag);
 
     ltr.prepare_training_file(query_file, qrel_file, output_file, size);
 
