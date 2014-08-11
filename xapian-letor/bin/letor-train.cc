@@ -23,9 +23,6 @@
 
 #include <xapian.h>
 #include <xapian/letor.h>
-#include <xapian/ranker.h>
-#include <xapian/normalizer.h>
-#include <xapian/feature.h>
 
 #include <iostream>
 #include <fstream>
@@ -52,7 +49,6 @@ show_usage() {
 PROG_DESC"\n\n"
 "Options:\n"
 "  -d, --db=DIRECTORY       database used to be the context (multiple databases may be specified)\n"
-"  -s, --size=SIZE          maximum number of matches to return (Default: 100)\n"
 "  -r, --ranker=FLAG        set the ranker to be used (Default: 0)\n"
 "       0 -- SVM ranker\n"
 "  -n, --normalizer=FLAG    set the normalizer to be used (Default: 0)\n"
@@ -67,7 +63,6 @@ try {
     const char * opts = "d:s:r:n:h:v";
     static const struct option long_opts[] = {
         { "db",             required_argument, 0, 'd' },
-        { "size",           required_argument, 0, 's' },
         { "ranker",         required_argument, 0, 'r' },
         { "normalizer",     required_argument, 0, 'n' },
         { "help",           no_argument,       0, 'h' },
@@ -75,23 +70,19 @@ try {
         { NULL,             0,                 0, 0   }
     };
 
-    Xapian::Database db;
+    Xapian::Database database;
     bool have_database = false;
 
     // Default arguments
     int ranker_flag = 0;
     int normalizer_flag = 0;
-    int size = 100;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
         switch (c) {
             case 'd':
-                db.add_database(Xapian::Database(optarg));
+                database.add_database(Xapian::Database(optarg));
                 have_database = true;
-                break;
-            case 's':
-                size = atoi(optarg);
                 break;
             case 'r':
                 ranker_flag = atoi(optarg);
@@ -127,10 +118,9 @@ try {
     string model_file           = string(argv[optind+1]);
 
     Xapian::Letor ltr;
-    Xapian::Ranker * ranker = Ranker::generate(ranker_flag);
-    Xapian::Normalizer * normalizer = Normalizer::generate(normalizer_flag);
-
-    ltr.update_context(database, features, *ranker, *normalizer);
+    ltr.set_database(database);
+    ltr.set_ranker(ranker_flag);
+    ltr.set_normalizer(normalizer_flag);
 
     ltr.train(training_data_file, model_file);
 
