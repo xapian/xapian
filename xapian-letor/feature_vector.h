@@ -44,11 +44,9 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     Xapian::doccount index;         // the original index in MSet
 
 public:
-    FeatureVector();
+    FeatureVector() {}
     
-    FeatureVector(const FeatureVector & o);
-    
-    virtual ~FeatureVector() {};
+    virtual ~FeatureVector() {}
 
     // Set document id
     void set_did(string did_);

@@ -98,7 +98,7 @@ public:
     static bool is_valid(const vector<Xapian::Feature::feature_t> & features);
 
     // Restore Feature from file
-    vector<Xapian::Feature::feature_t> read_from_file(string file);
+    static vector<Xapian::Feature::feature_t> read_from_file(string file);
 };
 
 }
