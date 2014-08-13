@@ -65,6 +65,8 @@ my $count = Devel::Leak::NoteSV($handle);
     my $qp2 = new Search::Xapian::QueryParser();
     my $vrp2 = Search::Xapian::StringValueRangeProcessor->new(1, 'test:', 1);
     $qp2->add_valuerangeprocessor($vrp2);
+    $qp2->set_stopper(Search::Xapian::SimpleStopper->new(qw(a an the)));
+    $qp2->set_stopper(Search::Xapian::SimpleStopper->new(qw(a the)));
 }
 ok( $count == Devel::Leak::CheckSV($handle) );
 
