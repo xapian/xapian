@@ -1649,6 +1649,9 @@ ChertTable::create_and_open(unsigned int block_size_)
     base_.set_block_size(block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
+    // Doing a full sync here would be overly paranoid, as an empty table
+    // contains no precious data and xapian-check can recreate lost base
+    // files.
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
 
     /* remove the alternative base file, if any */

@@ -1,7 +1,7 @@
 /* chert_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2014 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -320,7 +320,11 @@ ChertTable_base::write_to_file(const string &filename,
     }
 
     io_write(h, buf.data(), buf.size());
-    io_sync(h);
+    // Only full sync the base file for the final table written on each commit.
+    if (changes_tail != NULL)
+	io_full_sync(h);
+    else
+	io_sync(h);
 }
 
 /*

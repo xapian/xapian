@@ -1,3 +1,8 @@
+Wed Aug 13 23:55:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc:
+	  Only full sync the final base file written.
+
 Mon Aug 11 05:30:20 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: For Sun's C++ compiler, pass -library=Crun separately
