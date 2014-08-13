@@ -34,6 +34,23 @@ sub new() {
   return $qp;
 }
 
+my %subrefs;
+
+use Data::Dumper;
+sub add_valuerangeprocessor {
+  my ($self, $vrp) = @_;
+  push @{$subrefs{$$self}}, $vrp; # keep a reference
+  $self->add_valuerangeprocessor0($vrp);
+}
+
+sub set_stopper {
+  my ($self, $stopper) = @_;
+  push @{$subrefs{$$self}}, $stopper; # keep a reference
+  $self->set_stopper0($stopper);
+}
+
+sub _delete_subrefs { delete $subrefs{${$_[0]}} }
+
 1;
 
 __END__

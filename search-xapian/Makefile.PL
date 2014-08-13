@@ -140,6 +140,7 @@ push @writemakefile_args, (
        AUTHOR     => 'Alex Bowley <xapian-discuss@lists.xapian.org>') : ()),
 #       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     $libsvar		=> $libs, # e.g., '-lm'
+    'BUILD_REQUIRES'	=> { 'Devel::Leak' => 0 },
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'CC'		=> $CC,
     'CCFLAGS'		=> $CCFLAGS,

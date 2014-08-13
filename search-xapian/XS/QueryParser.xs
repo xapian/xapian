@@ -22,12 +22,9 @@ QueryParser::set_stemming_strategy(strategy)
 	THIS->set_stemming_strategy(static_cast<QueryParser::stem_strategy>(strategy));
 
 void
-QueryParser::set_stopper(stopper)
+QueryParser::set_stopper0(stopper)
     Stopper * stopper
     CODE:
-	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
-	// a SEGV!
-	SvREFCNT_inc(ST(1));
 	THIS->set_stopper(stopper);
 
 void
@@ -116,12 +113,23 @@ string
 QueryParser::get_description()
 
 void
-QueryParser::add_valuerangeprocessor(ValueRangeProcessor * vrproc)
+QueryParser::add_valuerangeprocessor0(ValueRangeProcessor * vrproc)
     CODE:
-	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
-	// a SEGV!
-	SvREFCNT_inc(ST(1));
 	THIS->add_valuerangeprocessor(vrproc);
 
 void
 QueryParser::DESTROY()
+    CODE:
+       {
+          dSP;
+          ENTER;
+          SAVETMPS;
+          PUSHMARK( sp);
+          XPUSHs( ST(0) );
+          PUTBACK;
+          perl_call_method("_delete_subrefs", G_DISCARD);
+          SPAGAIN; 
+          FREETMPS; 
+          LEAVE;
+       }
+       delete THIS;
