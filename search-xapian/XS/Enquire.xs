@@ -130,14 +130,11 @@ Enquire::set_sort_by_relevance_then_value(sort_key, ascending = NO_INIT)
 	}
 
 void
-Enquire::set_sort_by_key(sorter, ascending = NO_INIT)
+Enquire::set_sort_by_key0(sorter, ascending = NO_INIT)
     MultiValueSorter * sorter
     bool	ascending
     CODE:
 	try {
-	    // FIXME: no corresponding SvREFCNT_dec(), but a leak seems better
-	    // than a SEGV!
-	    SvREFCNT_inc(ST(1));
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_key(sorter, ascending);
 	    } else {
@@ -148,14 +145,11 @@ Enquire::set_sort_by_key(sorter, ascending = NO_INIT)
 	}
 
 void
-Enquire::set_sort_by_key_then_relevance(sorter, ascending = NO_INIT)
+Enquire::set_sort_by_key_then_relevance0(sorter, ascending = NO_INIT)
     MultiValueSorter * sorter
     bool	ascending
     CODE:
 	try {
-	    // FIXME: no corresponding SvREFCNT_dec(), but a leak seems better
-	    // than a SEGV!
-	    SvREFCNT_inc(ST(1));
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_key_then_relevance(sorter, ascending);
 	    } else {
@@ -166,14 +160,11 @@ Enquire::set_sort_by_key_then_relevance(sorter, ascending = NO_INIT)
 	}
 
 void
-Enquire::set_sort_by_relevance_then_key(sorter, ascending = NO_INIT)
+Enquire::set_sort_by_relevance_then_key0(sorter, ascending = NO_INIT)
     MultiValueSorter * sorter
     bool	ascending
     CODE:
 	try {
-	    // FIXME: no corresponding SvREFCNT_dec(), but a leak seems better
-	    // than a SEGV!
-	    SvREFCNT_inc(ST(1));
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_relevance_then_key(sorter, ascending);
 	    } else {
@@ -321,3 +312,17 @@ Enquire::get_description()
 
 void
 Enquire::DESTROY()
+    CODE:
+       {
+          dSP;
+          ENTER;
+          SAVETMPS;
+          PUSHMARK( sp);
+          XPUSHs( ST(0) );
+          PUTBACK;
+          perl_call_method("_delete_subrefs", G_DISCARD);
+          SPAGAIN; 
+          FREETMPS; 
+          LEAVE;
+       }
+       delete THIS;

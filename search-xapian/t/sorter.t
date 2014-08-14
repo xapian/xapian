@@ -6,7 +6,8 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 39 };
+use Devel::Leak;
+BEGIN { plan tests => 40 };
 use Search::Xapian qw(:all);
 
 #########################
@@ -98,5 +99,13 @@ $enquire->set_query(Search::Xapian::Query->new("foo"));
     my @matches = $enquire->matches(0, 10);
     mset_expect_order(@matches, (1, 2, 3, 4, 5));
 }
+
+my $handle;
+my $count = Devel::Leak::NoteSV($handle);
+{
+    my $enq = Search::Xapian::Enquire->new($db);
+    $enq->set_sort_by_key(Search::Xapian::MultiValueSorter->new(3, 1, 4));
+}
+ok( $count == Devel::Leak::CheckSV($handle) );
 
 1;

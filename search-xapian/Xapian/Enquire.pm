@@ -89,6 +89,27 @@ sub get_matching_terms_end {
   exit;
 }
 
+my %sorters;
+
+sub set_sort_by_key {
+  $sorters{${$_[0]}} = $_[1];
+  &set_sort_by_key0;
+}
+
+sub set_sort_by_key_then_relevance {
+  $sorters{${$_[0]}} = $_[1];
+  &set_sort_by_key_then_relevance0;
+}
+
+sub set_sort_by_relevance_then_key {
+  $sorters{${$_[0]}} = $_[1];
+  &set_sort_by_relevance_then_key0;
+}
+
+sub _delete_subrefs {
+  delete $sorters{${$_[0]}};
+}
+
 1;
 
 __END__
