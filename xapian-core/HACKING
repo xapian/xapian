@@ -1641,9 +1641,6 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Announce the new version on xapian-discuss
 
-* Update the freshcode entry at:
-  http://freecode.com/projects/xapian/releases/new
-
 * Have a nice cup of tea!
 
 How to make Debian packages for a new release
