@@ -135,6 +135,7 @@ Letor::Internal::read_from_txt(const string training_data_file_) {
 void
 Letor::Internal::init() {
     feature_manager.set_feature(feature);
+    feature.set_featuremanager(feature_manager);
 }
 
 
@@ -186,7 +187,9 @@ Letor::Internal::update_mset(Xapian::Query & query_, Xapian::MSet & mset_) {
 void
 Letor::Internal::train(const string training_data_file_, const string model_file_) {
     // Set training data for ranker
-    std::vector<Xapian::RankList> samples = read_from_bin(training_data_file_);
+    // std::vector<Xapian::RankList> samples = read_from_bin(training_data_file_);
+    std::vector<Xapian::RankList> samples = read_from_txt(training_data_file_);
+
     ranker->set_training_data(samples);
 
     // Learn the model
@@ -247,7 +250,7 @@ Letor::Internal::prepare_training_file(const string query_file, const string qre
             qq = temp;
         }
 
-        std::cout << "Processing Query: " << qq << '\n';
+        std::cout << "Processing Query: qid=" << qid << " query=" << qq << '\n';
 
         Xapian::Query query = parser.parse_query(qq,
                                         parser.FLAG_DEFAULT |
