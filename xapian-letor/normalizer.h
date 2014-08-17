@@ -41,7 +41,7 @@ public:
 
 
     // The flag for different kinds of normalizers
-    static const int DEFAULT_NORMALIZER = 0;
+    static const normalizer_t DEFAULT_NORMALIZER = 0;
 
 
     Normalizer() {}
