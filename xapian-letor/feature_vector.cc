@@ -135,8 +135,8 @@ FeatureVector::get_score_feature_values() {
 string
 FeatureVector::get_feature_values_text() {
     string txt = "1:" + str(feature_values[0]);
-    for (int idx = 2; idx < get_feature_num(); ++idx) {
-        txt.append(" " + str(idx) + ":" + str(feature_values[idx]));
+    for (int idx = 1; idx < get_feature_num(); ++idx) {
+        txt.append(" " + str(idx+1) + ":" + str(feature_values[idx]));
     }
     return txt;
 }
