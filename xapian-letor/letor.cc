@@ -77,6 +77,7 @@ Letor::set_ranker(const Ranker::ranker_t ranker_flag) {
     switch (ranker_flag) {
         case Ranker::SVM_RANKER:
             internal->ranker = new Xapian::SVMRanker();
+            break;
         default:
             printf("Ranker flag error!\n");
             exit(1);
@@ -88,7 +89,8 @@ void
 Letor::set_normalizer(const Normalizer::normalizer_t normalizer_flag) {
     switch (normalizer_flag) {
         case Normalizer::DEFAULT_NORMALIZER:
-            internal->normalizer = new Xapian::DefaultNormalizer();
+            internal->set_normalizer(new Xapian::DefaultNormalizer());
+            break;
         default:
             printf("Normalizer flag error!\n");
             exit(1);
