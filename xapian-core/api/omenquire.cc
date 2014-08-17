@@ -380,9 +380,10 @@ MSet::update_letor_information(const vector<Xapian::MSet::letor_item> & letor_it
     // replace items with new items based on letor's score info
     std::vector<Xapian::Internal::MSetItem> new_items;
     new_items.reserve(internal->items.size());
+
     for (std::vector<Xapian::MSet::letor_item>::iterator it = internal->letor_items.begin();
         it != internal->letor_items.end(); ++it) {
-        new_items.push_back(internal->items[it->idx]);
+        new_items.push_back(internal->items[it->idx - 1]);
     }
     std::swap(internal->items, new_items);
 }
