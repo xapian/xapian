@@ -107,10 +107,12 @@ Letor::Internal::write_to_bin(std::vector<Xapian::RankList> list_rlist) {
 std::vector<Xapian::RankList>
 Letor::Internal::read_from_bin(const string training_data_file_) {
     std::ifstream training_data(training_data_file_.c_str(), std::ios::in | std::ios::binary);
-
+    long int size = 0;
     std::vector<Xapian::RankList> samples;
-    // training_data.read((char*) &samples, size);
-    // training_data.close();
+
+    training_data.read((char*) &size, sizeof(size));
+    training_data.read((char*) &samples, size);
+    training_data.close();
 
     return samples;
 }
@@ -118,11 +120,13 @@ Letor::Internal::read_from_bin(const string training_data_file_) {
 
 std::vector<Xapian::RankList>
 Letor::Internal::read_from_txt(const string training_data_file_) {
-    std::ifstream training_data(training_data_file_.c_str());
-
     std::vector<Xapian::RankList> samples;
+    std::vector<Xapian::FeatureVector> fvectors = Xapian::FeatureVector::read_from_file(training_data_file_);
+    Xapian::RankList rlist;
 
-    // TO DO
+    // Just use one RankList to keep all training data
+    rlist.set_feature_vector_list(fvectors);
+    samples.push_back(rlist);
 
     return samples;
 }
@@ -265,8 +269,9 @@ Letor::Internal::prepare_training_file(const string query_file, const string qre
     queries.close();
 
     // Output the training data
-    // write_to_txt(list_rlist);
-    write_to_bin(list_rlist, output_file);
+    write_to_txt(list_rlist, output_file);
+
+    write_to_bin(list_rlist);
 }
 
 }
