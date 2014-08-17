@@ -76,8 +76,8 @@ try {
     bool have_database = false;
 
     // Default arguments
-    int ranker_flag = 0;
-    int normalizer_flag = 0;
+    Xapian::Ranker::ranker_t ranker_flag = Xapian::Ranker::SVM_RANKER;
+    Xapian::Normalizer::normalizer_t normalizer_flag = Xapian::Normalizer::DEFAULT_NORMALIZER;
     int size = 100;
 
     int c;
@@ -97,7 +97,7 @@ try {
                 normalizer_flag = atoi(optarg);
                 break;
             case 'v':
-                cout << PROG_NAME" - "PACKAGE_STRING << endl;
+                cout << PROG_NAME" - "PACKAGE_STRING"\n";
                 exit(0);
             case 'h':
                 cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -116,7 +116,7 @@ try {
     }
 
     if (!have_database) {
-        cout << "No database specified, so not running the training process." << endl;
+        cout << "No database specified, so not running the training process.\n";
         exit(1);
     }
 
