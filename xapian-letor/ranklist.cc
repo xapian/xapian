@@ -107,11 +107,11 @@ RankList::get_feature_vector_list() {
 string
 RankList::get_label_feature_values_text() {
 	vector<FeatureVector>::iterator fv_list_it = feature_vector_list.begin();
-	string txt = (*fv_list_it).get_label_feature_values_text();
+	string txt = fv_list_it->get_label_feature_values_did_text(qid);
 	++fv_list_it;
 	
 	for (; fv_list_it != feature_vector_list.end(); ++fv_list_it) {
-		txt.append("\n" + (*fv_list_it).get_label_feature_values_text());
+		txt.append("\n" + fv_list_it->get_label_feature_values_did_text(qid));
 	}
 	return txt;
 }
