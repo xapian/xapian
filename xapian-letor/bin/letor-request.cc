@@ -222,7 +222,7 @@ try {
     if (!correction.empty())
         cout << "Did you mean: " << correction << "\n\n";
 
-    cout << "Parsed Query: " << query.get_description() << '\n';
+    cout << "Parsed Query: " << query.get_description() << "\n\n";
 
     // Fetch MSet
     Xapian::Enquire enquire(database);
