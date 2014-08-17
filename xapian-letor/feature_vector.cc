@@ -142,9 +142,21 @@ FeatureVector::get_feature_values_text() {
 }
 
 string
-FeatureVector::get_label_feature_values_text() {
-    string txt = str(label) + " ";
+FeatureVector::get_feature_values_did_text() {
+    return get_feature_values_text() + " #docid:" + did;
+}
+
+string
+FeatureVector::get_label_feature_values_text(string qid) {
+    string txt = str(label) + " qid:" + qid + ' ';
     txt.append( get_feature_values_text() );
+    return txt;
+}
+
+string
+FeatureVector::get_label_feature_values_did_text(string qid) {
+    string txt = str(label) + " qid:" + qid + ' ';
+    txt.append( get_feature_values_did_text() );
     return txt;
 }
 

@@ -96,11 +96,17 @@ public:
     //
     string get_feature_values_text();
 
-    // Get the text output for label and feature values
+    // Get the text output for feature values with docid
+    string get_feature_values_did_text();
+
+    // Get the text output for label and feature values with query id
     // The format:
-    //    <label> 1:<1st feature value> 2:<2nd feature value> .. n:<nth feature value>
+    //    <label> qid:<query id> 1:<1st feature value> 2:<2nd feature value> .. n:<nth feature value>
     //
-    string get_label_feature_values_text();
+    string get_label_feature_values_text(string qid);
+
+    // Get the text output for label and feature values with query id and docuement id
+    string get_label_feature_values_did_text(string qid);
 
     // Get the text output for score and feature values
     // The format:
