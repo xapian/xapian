@@ -230,7 +230,6 @@ try {
 
     Xapian::MSet mset = enquire.get_mset(0, msize);
 
-    // Update MSet
     vector<Xapian::Feature::feature_t> features = Xapian::Feature::read_from_file(features_file);
 
     Xapian::Letor ltr;
@@ -241,11 +240,24 @@ try {
     
     ltr.load_model_file(model_file);
 
+    // Output the original MSet
+    cout << "The original MSet:\n";
+    Xapian::MSetIterator mset_it = mset.begin();
+    int rank = 0;
+    for (; mset_it != mset.end(); ++mset_it, ++rank) {
+        Xapian::Document doc = mset_it.get_document();
+
+        cout << "Rank: " << rank << '\n';
+        cout << doc.get_data() << "\n\n";
+    }
+
+    // Update MSet
     ltr.update_mset(query, mset);
 
     // Output the updated MSet
-    Xapian::MSetIterator mset_it = mset.begin();
-    int rank = 0;
+    cout << "\n\nThe updated MSet:\n";
+    mset_it = mset.begin();
+    rank = 0;
     for (; mset_it != mset.end(); ++mset_it, ++rank) {
         Xapian::Document doc = mset_it.get_document();
 
