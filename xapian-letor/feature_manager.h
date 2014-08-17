@@ -76,6 +76,9 @@ public:
     FeatureManager();
 
 
+    virtual ~FeatureManager();
+
+
     // Called by Letor::Internal when the database is updated
     void update_database_details();
 

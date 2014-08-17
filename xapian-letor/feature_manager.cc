@@ -35,7 +35,14 @@ using std::ifstream;
 
 namespace Xapian {
 
-FeatureManager::FeatureManager() : database_details(3) {}
+FeatureManager::FeatureManager() : normalizer(NULL), database_details(3) {}
+
+
+FeatureManager::~FeatureManager() {
+    if (normalizer != NULL) {
+        delete normalizer;
+    }
+}
 
 
 Xapian::Database *
