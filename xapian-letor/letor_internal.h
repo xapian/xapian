@@ -27,7 +27,6 @@
 #include "feature.h"
 #include "feature_manager.h"
 #include "ranker.h"
-#include "normalizer.h"
 
 #include <string>
 #include <vector>
@@ -40,14 +39,12 @@ namespace Xapian {
 class Feature;
 class FeatureManager;
 class Ranker;
-class Normalizer;
 
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
 
     Xapian::Database * database;                // Stored as reference
     Xapian::Ranker * ranker;
-    Xapian::Normalizer * normalizer;
 
     Xapian::Feature feature;
     Xapian::FeatureManager feature_manager;
@@ -97,6 +94,10 @@ public:
 
     // Set the feature.
     void set_features(const vector<Xapian::Feature::feature_t> & features);
+
+
+    // Set Normalizer.
+    void set_normalizer(Xapian::Normalizer * normalizer_);
 
 
     // Generate training data from query file and qrel file and store into file.

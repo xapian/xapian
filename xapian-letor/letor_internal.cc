@@ -68,9 +68,6 @@ Letor::Internal::~Internal() {
     if (ranker != NULL) {
         delete ranker;
     }
-    if (normalizer != NULL) {
-        delete normalizer;
-    }
 }
 
 
@@ -148,6 +145,12 @@ Letor::Internal::set_database(Xapian::Database & database_) {
 void
 Letor::Internal::set_features(const std::vector<Xapian::Feature::feature_t> & features) {
     feature.set_features(features);
+}
+
+
+void
+Letor::Internal::set_normalizer(Xapian::Normalizer * normalizer_) {
+    feature_manager.set_normalizer(normalizer_);
 }
 
 
