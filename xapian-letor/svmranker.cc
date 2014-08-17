@@ -73,7 +73,7 @@ SVMRanker::read_problem() {
 
         for (vector<FeatureVector>::iterator feature_vectors_it = feature_vectors.begin();
                 feature_vectors_it != feature_vectors.end(); ++feature_vectors_it) {
-            elements += feature_vectors_it->get_feature_values().size();
+            elements += feature_vectors_it->get_feature_values().size() + 1;
         }
     }
 
@@ -89,12 +89,12 @@ SVMRanker::read_problem() {
     for (training_data_it = training_data.begin();
             training_data_it != training_data.end(); ++training_data_it) {
 
-        prob.x[i] = &x_space[j];
-
         vector<FeatureVector> feature_vectors = training_data_it->get_feature_vector_list();
 
         for (vector<FeatureVector>::iterator feature_vectors_it = feature_vectors.begin();
                 feature_vectors_it != feature_vectors.end(); ++feature_vectors_it) {
+
+            prob.x[i] = &x_space[j];
 
             for (int idx = 1; idx <= feature_vectors_it->get_feature_num(); ++idx) {
 
@@ -106,9 +106,11 @@ SVMRanker::read_problem() {
 
                 ++j;
             }
-        }
 
-        ++i;
+            x_space[j++].index = -1;
+
+            ++i;
+        }
     }
 
     if (param.gamma == 0 && max_index > 0)
@@ -126,7 +128,7 @@ SVMRanker::read_problem() {
                 cerr << "Wrong input format: sample_serial_number out of range" << '\n';
                 exit(1);
             }
-        }   
+        }
     }
 }
 
