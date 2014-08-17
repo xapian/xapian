@@ -50,8 +50,6 @@ PROG_DESC"\n\n"
 "Options:\n"
 "  -d, --db=DIRECTORY       database used to be the context (multiple databases may be specified)\n"
 "  -s, --size=SIZE          maximum number of matches to return (Default: 100)\n"
-"  -r, --ranker=FLAG        set the ranker to be used (Default: 0)\n"
-"       0 -- SVM ranker\n"
 "  -n, --normalizer=FLAG    set the normalizer to be used (Default: 0)\n"
 "       0 -- Default normalizer\n"
 "  -h, --help               display this help and exit\n"
@@ -65,7 +63,6 @@ try {
     static const struct option long_opts[] = {
         { "db",             required_argument, 0, 'd' },
         { "size",           required_argument, 0, 's' },
-        { "ranker",         required_argument, 0, 'r' },
         { "normalizer",     required_argument, 0, 'n' },
         { "help",           no_argument,       0, 'h' },
         { "version",        no_argument,       0, 'v' },
@@ -76,7 +73,6 @@ try {
     bool have_database = false;
 
     // Default arguments
-    Xapian::Ranker::ranker_t ranker_flag = Xapian::Ranker::SVM_RANKER;
     Xapian::Normalizer::normalizer_t normalizer_flag = Xapian::Normalizer::DEFAULT_NORMALIZER;
     int size = 100;
 
@@ -89,9 +85,6 @@ try {
                 break;
             case 's':
                 size = atoi(optarg);
-                break;
-            case 'r':
-                ranker_flag = atoi(optarg);
                 break;
             case 'n':
                 normalizer_flag = atoi(optarg);
@@ -130,7 +123,6 @@ try {
     Xapian::Letor ltr;
     ltr.set_database(database);
     ltr.set_features(features);
-    ltr.set_ranker(ranker_flag);
     ltr.set_normalizer(normalizer_flag);
 
     ltr.prepare_training_file(query_file, qrel_file, output_file, size);
