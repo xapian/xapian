@@ -51,7 +51,7 @@ public:
 
 
     // The flag for different kinds of rankers
-    static const int SVM_RANKER = 0;
+    static const ranker_t SVM_RANKER = 0;
 
     Ranker() {}
 
@@ -64,7 +64,7 @@ public:
 
 
     // Set training data
-    virtual void set_training_data(vector<Xapian::RankList> training_data_) = 0;
+    virtual void set_training_data(vector<Xapian::RankList> & training_data_) = 0;
 
 
     // The training process
