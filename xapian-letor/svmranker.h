@@ -61,7 +61,7 @@ public:
     
     virtual ~SVMRanker();
 
-    virtual void set_training_data(vector<RankList> training_data_);
+    virtual void set_training_data(vector<RankList> & training_data_);
 
     virtual void learn_model();
 

@@ -24,9 +24,9 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "svmranker.h"
 #include "feature_vector.h"
 #include "ranklist.h"
-#include "svmranker.h"
 
 #include "safeunistd.h"
 
@@ -134,8 +134,8 @@ SVMRanker::read_problem() {
 
 
 void
-SVMRanker::set_training_data(vector<RankList> training_data_) {
-    this->training_data = training_data_;
+SVMRanker::set_training_data(vector<Xapian::RankList> & training_data_) {
+    training_data = training_data_;
 }
 
 
@@ -163,7 +163,7 @@ SVMRanker::learn_model() {
     // cross_validation = 0;
 
 
-    cout << "Learning the model..";
+    cout << "Learning the model..\n";
 
     read_problem();
 
