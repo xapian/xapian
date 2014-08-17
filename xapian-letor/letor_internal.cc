@@ -61,7 +61,7 @@ static const char * sw[] = {
 namespace Xapian {
 
 
-Letor::Internal::Internal() {}
+Letor::Internal::Internal() : ranker(NULL) {}
 
 
 Letor::Internal::~Internal() {
