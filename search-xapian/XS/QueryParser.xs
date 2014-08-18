@@ -5,7 +5,7 @@ PROTOTYPES: ENABLE
 QueryParser *
 new0()
     CODE:
-	RETVAL = new QueryParser();
+	RETVAL = XAPIAN_PERL_NEW(QueryParser, ());
     OUTPUT:
 	RETVAL
 
@@ -22,9 +22,11 @@ QueryParser::set_stemming_strategy(strategy)
 	THIS->set_stemming_strategy(static_cast<QueryParser::stem_strategy>(strategy));
 
 void
-QueryParser::set_stopper0(stopper)
+QueryParser::set_stopper(stopper)
     Stopper * stopper
     CODE:
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(QueryParser, THIS, stopper, ST(1));
 	THIS->set_stopper(stopper);
 
 void
@@ -113,23 +115,13 @@ string
 QueryParser::get_description()
 
 void
-QueryParser::add_valuerangeprocessor0(ValueRangeProcessor * vrproc)
+QueryParser::add_valuerangeprocessor(ValueRangeProcessor * vrproc)
     CODE:
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(QueryParser, THIS, vrp, ST(1));
 	THIS->add_valuerangeprocessor(vrproc);
 
 void
 QueryParser::DESTROY()
     CODE:
-       {
-          dSP;
-          ENTER;
-          SAVETMPS;
-          PUSHMARK( sp);
-          XPUSHs( ST(0) );
-          PUTBACK;
-          perl_call_method("_delete_subrefs", G_DISCARD);
-          SPAGAIN; 
-          FREETMPS; 
-          LEAVE;
-       }
-       delete THIS;
+	XAPIAN_PERL_DESTROY(QueryParser, THIS);

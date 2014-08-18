@@ -34,27 +34,6 @@ sub new() {
   return $qp;
 }
 
-my %vrps;
-
-sub add_valuerangeprocessor {
-  my ($self, $vrp) = @_;
-  push @{$vrps{$$self}}, $vrp; # keep a reference
-  $self->add_valuerangeprocessor0($vrp);
-}
-
-my %stoppers;
-
-sub set_stopper {
-  my ($self, $stopper) = @_;
-  $stoppers{$$self} = $stopper; # keep a reference
-  $self->set_stopper0($stopper);
-}
-
-sub _delete_subrefs {
-  delete $vrps{${$_[0]}};
-  delete $stoppers{${$_[0]}};
-}
-
 1;
 
 __END__

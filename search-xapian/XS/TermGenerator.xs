@@ -5,7 +5,7 @@ PROTOTYPES: ENABLE
 TermGenerator *
 new0()
     CODE:
-	RETVAL = new TermGenerator();
+	RETVAL = XAPIAN_PERL_NEW(TermGenerator, ());
     OUTPUT:
 	RETVAL
 
@@ -16,9 +16,11 @@ TermGenerator::set_stemmer(stemmer)
 	THIS->set_stemmer(*stemmer);
 
 void
-TermGenerator::set_stopper0(stopper)
+TermGenerator::set_stopper(stopper)
     Stopper * stopper
     CODE:
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(TermGenerator, THIS, stopper, ST(1));
 	THIS->set_stopper(stopper);
 
 void
@@ -74,16 +76,4 @@ TermGenerator::get_description()
 void
 TermGenerator::DESTROY()
     CODE:
-       {
-          dSP;
-          ENTER;
-          SAVETMPS;
-          PUSHMARK( sp);
-          XPUSHs( ST(0) );
-          PUTBACK;
-          perl_call_method("_delete_subrefs", G_DISCARD);
-          SPAGAIN; 
-          FREETMPS; 
-          LEAVE;
-       }
-       delete THIS;
+	XAPIAN_PERL_DESTROY(TermGenerator, THIS);

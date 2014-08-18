@@ -33,18 +33,6 @@ sub new() {
   return $tg;
 }
 
-my %stoppers;
-
-sub set_stopper {
-  my ($self, $stopper) = @_;
-  $stoppers{$$self} = $stopper; # keep a reference
-  $self->set_stopper0($stopper);
-}
-
-sub _delete_subrefs {
-  delete $stoppers{${$_[0]}};
-}
-
 1;
 
 __END__

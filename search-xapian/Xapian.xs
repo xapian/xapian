@@ -23,6 +23,78 @@ extern "C" {
 using namespace std;
 using namespace Xapian;
 
+// For some classes, we want extra slots to keep references to set objects in.
+
+struct Enquire_perl {
+    Enquire real_obj;
+    SV * sorter;
+
+    Enquire_perl(const Xapian::Database & db) : real_obj(db), sorter(NULL) { }
+
+    void ref_sorter(SV * sv) {
+	SvREFCNT_inc(sv);
+	swap(sv, sorter);
+	SvREFCNT_dec(sv);
+    }
+
+    ~Enquire_perl() {
+	SvREFCNT_dec(sorter);
+	sorter = NULL;
+    }
+};
+
+struct QueryParser_perl {
+    QueryParser real_obj;
+    SV * stopper;
+    vector<SV *> vrps;
+
+    QueryParser_perl() : real_obj(), stopper(NULL) { }
+
+    void ref_stopper(SV * sv) {
+	SvREFCNT_inc(sv);
+	swap(sv, stopper);
+	SvREFCNT_dec(sv);
+    }
+
+    void ref_vrp(SV * sv) {
+	SvREFCNT_inc(sv);
+	vrps.push_back(sv);
+    }
+
+    ~QueryParser_perl() {
+	SvREFCNT_dec(stopper);
+	stopper = NULL;
+	vector<SV *>::const_iterator i;
+	for (i = vrps.begin(); i != vrps.end(); ++i) {
+	    SvREFCNT_dec(*i);
+	}
+	vrps.clear();
+    }
+};
+
+struct TermGenerator_perl {
+    TermGenerator real_obj;
+    SV * stopper;
+
+    TermGenerator_perl() : real_obj(), stopper(NULL) { }
+
+    void ref_stopper(SV * sv) {
+	SvREFCNT_inc(sv);
+	swap(sv, stopper);
+	SvREFCNT_dec(sv);
+    }
+
+    ~TermGenerator_perl() {
+	SvREFCNT_dec(stopper);
+	stopper = NULL;
+    }
+};
+
+#define XAPIAN_PERL_NEW(CLASS, PARAMS) (&((new CLASS##_perl PARAMS)->real_obj))
+#define XAPIAN_PERL_CAST(CLASS, OBJ) ((CLASS##_perl*)(void*)(OBJ))
+#define XAPIAN_PERL_REF(CLASS, OBJ, MEMB, SV) XAPIAN_PERL_CAST(CLASS, OBJ)->ref_##MEMB(SV)
+#define XAPIAN_PERL_DESTROY(CLASS, OBJ) delete XAPIAN_PERL_CAST(CLASS, OBJ)
+
 extern void handle_exception(void);
 
 /* PerlStopper class
