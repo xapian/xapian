@@ -1,3 +1,8 @@
+Tue Aug 19 14:25:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.h: Don't sync handles for tables which
+	  aren't open.  Reported by Austin Clements.
+
 Fri Aug 15 13:13:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: freecode no longer accepts updates, so drop that item from

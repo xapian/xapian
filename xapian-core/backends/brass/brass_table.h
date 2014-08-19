@@ -398,7 +398,9 @@ class BrassTable {
 	void commit(brass_revision_number_t revision, RootInfo * root_info);
 
 	bool sync() {
-	    return (flags & Xapian::DB_NO_SYNC) || io_sync(handle);
+	    return (flags & Xapian::DB_NO_SYNC) ||
+		   handle < 0 ||
+		   io_sync(handle);
 	}
 
 	/** Cancel any outstanding changes.
