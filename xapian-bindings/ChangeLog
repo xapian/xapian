@@ -1,3 +1,7 @@
+Thu Aug 21 08:53:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Add DB_FULL_SYNC as a constant to wrap.
+
 Tue Aug 05 12:46:08 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
