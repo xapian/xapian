@@ -206,7 +206,7 @@ incorporates one of the feature selection algorithms based on the [paper]_.
 The selection algorithm selects a subset of features from the pool of all
 features, which can increase performance.
 
-.. [] Parth Gupta, Paolo Rosso, Expected Divergence based Feature Selection for Learning to Rank.
+.. [paper] Parth Gupta, Paolo Rosso, Expected Divergence based Feature Selection for Learning to Rank.
 
 
 How to Use
@@ -316,6 +316,16 @@ example in letor-select::
 
     Xapian::FeatureSelector fs;
     vector<Xapian::Feature::feature_t> selected_features = fs.select(features, k, training_data, validation_data);
+
+Here is a sample output of letor-select::
+
+    Selected features:
+       10
+       19
+       18
+
+which means feature 10, feature 19 and feature 18 are the selected features
+given features-file, training data and validation data.
 
 
 Default Implementation
