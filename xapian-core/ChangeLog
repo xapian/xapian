@@ -1,3 +1,8 @@
+Thu Aug 21 12:29:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/weight.cc: Add missing parameter to debug logging for
+	  Weight::init_().
+
 Tue Aug 19 14:25:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.h: Don't sync handles for tables which
