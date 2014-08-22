@@ -370,6 +370,24 @@ MSet::get_description() const
     return "Xapian::MSet(" + internal->get_description() + ")";
 }
 
+void
+MSet::update_letor_information(const vector<Xapian::MSet::letor_item> & letor_items_) {
+    internal->letor_items = letor_items_;
+
+    // sort by items' score
+    sort(internal->letor_items.begin(), internal->letor_items.end());
+
+    // replace items with new items based on letor's score info
+    std::vector<Xapian::Internal::MSetItem> new_items;
+    new_items.reserve(internal->items.size());
+
+    for (std::vector<Xapian::MSet::letor_item>::iterator it = internal->letor_items.begin();
+        it != internal->letor_items.end(); ++it) {
+        new_items.push_back(internal->items[it->idx - 1]);
+    }
+    std::swap(internal->items, new_items);
+}
+
 int
 MSet::Internal::convert_to_percent_internal(double wt) const
 {

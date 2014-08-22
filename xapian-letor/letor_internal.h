@@ -1,7 +1,7 @@
-/** @file letor_internal.h
- * @brief Internals of Xapian::Letor class
- */
-/* Copyright (C) 2011 Parth Gupta
+/* letor_internal.h: The internal class of Xapian::Letor class
+ *
+ * Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2014 Jiarong Wei
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,47 +24,96 @@
 
 #include <xapian/letor.h>
 
-#include <map>
+#include "feature.h"
+#include "feature_manager.h"
+#include "ranker.h"
 
-using namespace std;
+#include <string>
+#include <vector>
+
+using std::string;
+using std::vector;
 
 namespace Xapian {
 
+class Feature;
+class FeatureManager;
+class Ranker;
+
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
-    Database letor_db;
-    Query letor_query;
 
-  public:
+    Xapian::Database * database;                // Stored as reference
+    Xapian::Ranker * ranker;
 
-    map<string, long int> termfreq(const Xapian::Document & doc, const Xapian::Query & query);
+    Xapian::Feature feature;
+    Xapian::FeatureManager feature_manager;
 
-    map<string, double> inverse_doc_freq(const Xapian::Database & db, const Xapian::Query & query);
+public:
 
-    map<string, long int> doc_length(const Xapian::Database & db, const Xapian::Document & doc);
+    Internal();
 
-    map<string, long int> collection_length(const Xapian::Database & db);
 
-    map<string, long int> collection_termfreq(const Xapian::Database & db, const Xapian::Query & query);
+    ~Internal();
 
-    double calculate_f1(const Xapian::Query & query, map<string, long int> & tf, char ch);
 
-    double calculate_f2(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_length, char ch);
+    // ======================= Used for training =========================
 
-    double calculate_f3(const Xapian::Query & query, map<string, double> & idf, char ch);
 
-    double calculate_f4(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & coll_len, char ch);
+    // Write the training data to file in text format.
+    static void write_to_txt(vector<Xapian::RankList> list_rlist, const string output_file);
 
-    double calculate_f5(const Xapian::Query & query, map<string, long int> & tf, map<string, double> & idf, map<string, long int> & doc_length, char ch);
 
-    double calculate_f6(const Xapian::Query & query, map<string, long int> & tf, map<string, long int> & doc_length, map<string, long int> & coll_tf, map<string, long int> & coll_length, char ch);
+    // Write the training data to file in text format. The file's name is "train.txt".
+    static void write_to_txt(vector<Xapian::RankList> list_rlist);
 
-    map<Xapian::docid, double> letor_score(const Xapian::MSet & mset);
 
-    void letor_learn_model(int svm_type, int kernel_type);
+    // Wrtie the training data to file in binary format.
+    static void write_to_bin(vector<Xapian::RankList> list_rlist, const string output_file);
 
-    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
 
+    // Wrtie the training data to file in binary format. The file's name is "train.bin".
+    static void write_to_bin(vector<Xapian::RankList> list_rlist);
+
+
+    // Read the training data in text format.
+    static vector<Xapian::RankList> read_from_txt(const string training_data_file_);
+
+
+    // Read the training data in binary format.
+    static vector<Xapian::RankList> read_from_bin(const string training_data_file_);
+
+
+    // Connect all parts (since we use reference).
+    void init();
+
+
+    // Set the database.
+    void set_database(Xapian::Database & database_);
+
+
+    // Set the feature.
+    void set_features(const vector<Xapian::Feature::feature_t> & features);
+
+
+    // Set Normalizer.
+    void set_normalizer(Xapian::Normalizer * normalizer_);
+
+
+    // Generate training data from query file and qrel file and store into file.
+    void prepare_training_file(const string query_file_, const string qrel_file_, const string output_file, Xapian::doccount mset_size);
+
+
+    // Use training data to train the model.
+    void train(const string training_data_file_, const string model_file_);
+
+
+    // Load model from file. Call ranker's corresponding functions.
+    void load_model_file(const string model_file_);
+
+
+    // Attach letor information to MSet.
+    void update_mset(Xapian::Query & query_, Xapian::MSet & mset_);
 };
 
 }

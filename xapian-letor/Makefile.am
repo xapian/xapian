@@ -13,7 +13,7 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I../$(top_srcdir)/xapian-core/include
 
 # Order is relevant: when building, tests must be after ".".
 SUBDIRS = . docs # tests
@@ -66,10 +66,30 @@ noinst_HEADERS +=\
 	common/safeunistd.h\
 	common/str.h\
 	common/stringutils.h\
-	letor_internal.h
+	letor_internal.h\
+	feature.h\
+	feature_vector.h\
+	feature_manager.h\
+	ranklist.h\
+	ranker.h\
+	svmranker.h\
+    normalizer.h\
+    default_normalizer.h\
+    stringhelper.h\
+    feature_selector.h
+
 
 lib_src +=\
 	letor.cc\
-	letor_internal.cc
+	letor_internal.cc\
+	feature.cc\
+	feature_vector.cc\
+	feature_manager.cc\
+	ranklist.cc\
+	svmranker.cc\
+    default_normalizer.cc\
+    stringhelper.cc\
+    feature_selector.cc
+
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
