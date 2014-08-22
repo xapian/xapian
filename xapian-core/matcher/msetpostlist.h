@@ -73,6 +73,8 @@ class MSetPostList : public PostList {
     /// Not implemented for MSetPostList.
     Xapian::termcount get_doclength() const;
 
+    Xapian::termcount get_unique_terms() const;
+
     double recalc_maxweight();
 
     PostList *next(double w_min);

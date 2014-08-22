@@ -161,6 +161,17 @@ MultiAndPostList::get_doclength() const
     return doclength;
 }
 
+Xapian::termcount
+MultiAndPostList::get_unique_terms() const
+{
+    Assert(did);
+    Xapian::termcount unique_terms = plist[0]->get_unique_terms();
+    for (size_t i = 1; i < n_kids; ++i) {
+	AssertEq(unique_terms, plist[i]->get_unique_terms());
+    }
+    return unique_terms;
+}
+
 double
 MultiAndPostList::get_weight() const
 {

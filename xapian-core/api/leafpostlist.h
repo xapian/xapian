@@ -45,14 +45,15 @@ class LeafPostList : public PostList {
   protected:
     const Xapian::Weight * weight;
 
-    bool need_doclength;
+    bool need_doclength, need_unique_terms;
 
     /// The term name for this postlist (empty for an alldocs postlist).
     std::string term;
 
     /// Only constructable as a base class for derived classes.
     LeafPostList(const std::string & term_)
-	: weight(0), need_doclength(false), term(term_) { }
+	: weight(0), need_doclength(false), need_unique_terms(false),
+	  term(term_) { }
 
   public:
     ~LeafPostList();

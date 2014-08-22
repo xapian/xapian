@@ -47,7 +47,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	DOC_LENGTH_MIN = 512,
 	DOC_LENGTH_MAX = 1024,
 	WDF_MAX = 2048,
-	COLLECTION_FREQ = 4096
+	COLLECTION_FREQ = 4096,
+	UNIQUE_TERMS = 8192
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -186,9 +187,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  @param wdf    The within document frequency of the term in the document.
      *  @param doclen The document's length (unnormalised).
+     *  @param uniqterms	Number of unique terms in the document (used
+     *				for absolute smoothing).
      */
     virtual double get_sumpart(Xapian::termcount wdf,
-			       Xapian::termcount doclen) const = 0;
+			       Xapian::termcount doclen,
+			       Xapian::termcount uniqterms) const = 0;
 
     /** Return an upper bound on what get_sumpart() can return for any document.
      *
@@ -203,8 +207,10 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  in the calculations:
      *
      *  @param doclen The document's length (unnormalised).
+     *  @param uniqterms The number of unique terms in the document.
      */
-    virtual double get_sumextra(Xapian::termcount doclen) const = 0;
+    virtual double get_sumextra(Xapian::termcount doclen,
+				Xapian::termcount uniqterms) const = 0;
 
     /** Return an upper bound on what get_sumextra() can return for any
      *  document.
@@ -266,6 +272,16 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     bool get_sumpart_needs_wdf_() const {
 	return stats_needed & WDF;
+    }
+
+    /** @private @internal Return true if the number of unique terms is needed.
+     *
+     *  If this method returns true, then the number of unique terms will be
+     *  fetched and passed to @a get_sumpart().  Otherwise 0 may be passed for
+     *  the number of unique terms.
+     */
+    bool get_sumpart_needs_uniqueterms_() const {
+	return stats_needed & UNIQUE_TERMS;
     }
 
   protected:
@@ -349,10 +365,12 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     BoolWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -441,10 +459,12 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     TfIdfWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -544,10 +564,12 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     BM25Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -603,10 +625,12 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     TradWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqueterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -674,10 +698,12 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     InL2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -745,10 +771,12 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     IfB2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -814,10 +842,12 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     IneB2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -888,10 +918,12 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     BB2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -946,10 +978,12 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     DLHWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -1022,10 +1056,12 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     PL2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -1083,10 +1119,11 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     DPHWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
     double get_maxextra() const;
 };
 

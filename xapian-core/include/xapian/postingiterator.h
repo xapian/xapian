@@ -76,6 +76,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     /// Return the length of the document at the current position.
     Xapian::termcount get_doclength() const;
 
+    /// Return the number of unique terms in the current document.
+    Xapian::termcount get_unique_terms() const;
+
 #if 0 // FIXME: TermIterator supports this, so PostingIterator really ought to.
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;

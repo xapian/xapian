@@ -1,3 +1,19 @@
+Fri Aug 22 09:09:52 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+
+	* api/,backends/brass/,backends/chert/,
+	  backends/contiguousalldocspostlist.cc,
+	  backends/contiguousalldocspostlist.h,backends/database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h,
+	  backends/remote/,common/remoteprotocol.h,docs/sorting.rst,
+	  include/xapian/database.h,include/xapian/postingiterator.h,
+	  include/xapian/weight.h,matcher/,net/remoteserver.cc,
+	  net/remoteserver.h,tests/,weight/: Provide the number of distinct
+	  terms in the document to weighting schemes.  The current
+	  implementation for the disk-based backends is a bit inefficient as
+	  it has to look at the termlist table entry for the document.
+
 Thu Aug 21 12:29:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* weight/weight.cc: Add missing parameter to debug logging for

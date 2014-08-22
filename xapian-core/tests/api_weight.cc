@@ -656,13 +656,14 @@ class CheckInitWeight : public Xapian::Weight {
 	return new CheckInitWeight(zero_inits, non_zero_inits);
     }
 
-    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
+    double get_sumpart(Xapian::termcount, Xapian::termcount,
+		       Xapian::termcount) const {
 	return 1.0;
     }
 
     double get_maxpart() const { return 1.0; }
 
-    double get_sumextra(Xapian::termcount doclen) const {
+    double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const {
 	return 1.0 / doclen;
     }
 
@@ -721,6 +722,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
+	need_stat(UNIQUE_TERMS);
     }
 
     void init(double factor_) {
@@ -731,7 +733,8 @@ class CheckStatsWeight : public Xapian::Weight {
 	return new CheckStatsWeight(db, term, sum, sum_squares);
     }
 
-    double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen) const {
+    double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
+		       Xapian::termcount uniqueterms) const {
 	TEST_EQUAL(get_collection_size(), db.get_doccount());
 	TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term));
 	TEST_EQUAL(get_rset_size(), 0);
@@ -742,6 +745,8 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_EQUAL(get_wqf(), 1);
 	TEST_REL(doclen,>=,len_lower);
 	TEST_REL(doclen,<=,len_upper);
+	TEST_REL(uniqueterms,>=,1);
+	TEST_REL(uniqueterms,<=,doclen);
 	TEST_REL(wdf,<=,wdf_upper);
 	sum += wdf;
 	sum_squares += wdf * wdf;
@@ -757,7 +762,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	return 1.0;
     }
 
-    double get_sumextra(Xapian::termcount doclen) const {
+    double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const {
 	return 1.0 / doclen;
     }
 

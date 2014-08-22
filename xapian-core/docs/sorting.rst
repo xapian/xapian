@@ -61,12 +61,12 @@ term scores one point::
 	    return new CoordinateWeight;
 	}
 
-	double get_sumpart(Xapian::termcount, Xapian::termcount) const {
+	double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
             return 1;
         }
 	double get_maxpart() const { return 1; }
 
-	double get_sumextra(Xapian::termcount) const { return 0; }
+	double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
 	double get_maxextra() const { return 0; }
 
 	bool get_sumpart_needs_doclength() const { return false; }

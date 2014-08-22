@@ -53,7 +53,11 @@ class ExtraWeightPostList : public PostList {
 	Xapian::docid  get_docid() const { return pl->get_docid(); }
 
 	double get_weight() const {
-	    double sumextra = wt->get_sumextra(pl->get_doclength());
+	    /* Second parameter of get_sumextra is number of unique terms in doc, which has been put
+	     * to maintain consistency with get_sumpart, As of now none of weighting scheme is using
+	     * it. Current 0 is being passed, change it to pl->get_unique_terms() in case you
+	     * need access uniq_terms. */
+	    double sumextra = wt->get_sumextra(pl->get_doclength(), 0);
 	    AssertRel(sumextra, <=, max_weight);
 	    return pl->get_weight() + sumextra;
 	}
@@ -97,6 +101,10 @@ class ExtraWeightPostList : public PostList {
 	 */
 	virtual Xapian::termcount get_doclength() const {
 	    return pl->get_doclength();
+	}
+
+	virtual Xapian::termcount get_unique_terms() const {
+	    return pl->get_unique_terms();
 	}
 
 	ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_,

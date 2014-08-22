@@ -87,6 +87,7 @@ enum message_type {
     MSG_SHUTDOWN,		// Shutdown
     MSG_METADATAKEYLIST,	// Iterator for metadata keys
     MSG_FREQS,			// Get termfreq and collfreq
+    MSG_UNIQUETERMS,		// Get number of unique terms in doc
     MSG_MAX
 };
 
@@ -114,6 +115,7 @@ enum reply_type {
     REPLY_METADATA,		// Metadata
     REPLY_METADATAKEYLIST,	// Iterator for metadata keys
     REPLY_FREQS,		// Get termfreq and collfreq
+    REPLY_UNIQUETERMS,		// Get number of unique terms in doc
     REPLY_MAX
 };
 

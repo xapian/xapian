@@ -331,6 +331,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/// Get the length of a document.
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 
+	/// Get the number of unique terms in document.
+	Xapian::termcount get_unique_terms(Xapian::docid did) const;
+
 	/** Send a "keep-alive" to remote databases to stop them timing out.
 	 *
 	 *  Has no effect on non-remote databases.

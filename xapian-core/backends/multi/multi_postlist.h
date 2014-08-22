@@ -53,6 +53,7 @@ class MultiPostList : public PostList {
 
 	Xapian::docid  get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document
+	Xapian::termcount get_unique_terms() const; // Get number of unique term in current document
         Xapian::termcount get_wdf() const;	    // Within Document Frequency
 	PositionList * open_position_list() const;
 	PostList *next(double w_min);          // Moves to next docid

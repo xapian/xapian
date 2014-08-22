@@ -745,6 +745,15 @@ BrassPostList::get_doclength() const
     RETURN(this_db->get_doclength(did));
 }
 
+Xapian::termcount
+BrassPostList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "BrassPostList::get_unique_terms", NO_ARGS);
+    Assert(have_started);
+    Assert(this_db.get());
+    RETURN(this_db->get_unique_terms(did));
+}
+
 bool
 BrassPostList::next_in_chunk()
 {
