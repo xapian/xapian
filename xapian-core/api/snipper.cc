@@ -61,6 +61,12 @@ Snipper::~Snipper()
 }
 
 void
+Snipper::set_query(std::string queryterm)
+{
+    internal->set_query(queryterm);
+}
+
+void
 Snipper::set_mset(const MSet & mset, unsigned int rm_docno)
 {
     internal->calculate_rm(mset, rm_docno);
@@ -86,6 +92,13 @@ Snipper::Internal::is_stemmed(const string & term)
 {
     return (term.length() > 0 && term[0] == 'Z');
 }
+
+void
+Snipper::Internal::set_query(std::string query)
+{
+    queryterms = query;
+}
+
 
 void
 Snipper::Internal::calculate_rm(const MSet & mset, Xapian::doccount rm_docno)
@@ -293,6 +306,12 @@ Snipper::get_description() const
     desc += str(internal->rm_term_data.size());
     desc += ", rm_collection_size=";
     desc += str(internal->rm_coll_size);
+    const std::string empty = "";
+    if(empty.compare(internal->queryterms) != 0){
+        desc += ", query=";
+        desc += str(internal->queryterms);
+    }
+    desc += ")";
     return desc;
 }
 

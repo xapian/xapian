@@ -65,6 +65,11 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
     /** Set the stemmer for the Snipper object. */
     void set_stemmer(const Xapian::Stem & stemmer);
 
+    /** Set the query terms for the generation of the Snippet
+     *  @param querytem The query terms for the current query.
+     */
+    void set_query(std::string queryterm);
+
     /**
      * Set the MSet and calculate the relevance model according to it.
      *

@@ -45,8 +45,10 @@ DEFINE_TESTCASE(snipper1, backend) {
     TEST_MSET_SIZE(mymset, 6);
 
     Xapian::Snipper snipper;
+    snipper.set_query("this");
     snipper.set_mset(mymset, 4);
     TEST(snipper.get_description().find("rm_doccount=4,") != string::npos);
+    TEST(snipper.get_description().find("query=this)") != string::npos);
     return true;
 }
 
@@ -73,3 +75,22 @@ DEFINE_TESTCASE(snipper2, backend) {
     TEST(snipper.get_description().find("rm_doccount=2,") != string::npos);
     return true;
 }
+
+
+/* tests that the number of indexed documents is the size of the one set and check if query was not set in snipper,
+ *  it doesn't come in description */
+DEFINE_TESTCASE(snipper3, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    // MSet size should be 6.
+    TEST_MSET_SIZE(mymset, 6);
+
+    Xapian::Snipper snipper;
+    snipper.set_mset(mymset, 4);
+    TEST(snipper.get_description().find("rm_doccount=4,") != string::npos);
+    TEST(snipper.get_description().find("query=)") == string::npos);
+    return true;
+}
+

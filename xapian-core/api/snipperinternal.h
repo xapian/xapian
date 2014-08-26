@@ -47,6 +47,7 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
     public:
 	typedef int rm_docid;
 
+
 	/** Holds information about a document in the relevance model.*/
 	struct RMDocumentInfo {
 	    /** ID in the relevance model */
@@ -114,8 +115,17 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	/** Relevance model total document weight */
 	double rm_total_weight;
 
+    /** To store query terms to be  used for cosine measure of query component in snippet. **/
+    std::string  queryterms;
+
 	Internal() : rm_coll_size(0),
-		     rm_total_weight(0) { }
+		     rm_total_weight(0),
+             queryterms("") { }
+
+    /** Set the query terms for the generation of the Snippet
+     *  @param querytem The query terms for the current query.
+     */
+    void set_query(std::string queryterm);
 
 	/** Return snippet generated from text using the precalculated relevance model */
 	std::string generate_snippet(const std::string & text,
