@@ -76,9 +76,10 @@ string
 Snipper::generate_snippet(const string & text,
 			  size_t length,
 			  unsigned int window_size,
-			  double smoothing)
+			  double smoothing,
+			  double query_contribution)
 {
-    return internal->generate_snippet(text, length, window_size, smoothing);
+    return internal->generate_snippet(text, length, window_size, smoothing, query_contribution);
 }
 
 void
@@ -144,7 +145,8 @@ string
 Snipper::Internal::generate_snippet(const string & text,
 				    size_t length,
 				    Xapian::termcount window_size,
-				    double smoothing)
+				    double smoothing,
+				    double query_contribution)
 {
     Document text_doc;
     TermGenerator term_gen;
@@ -215,6 +217,7 @@ Snipper::Internal::generate_snippet(const string & text,
     unsigned int snippet_end = window_size < docterms.size() ? window_size : docterms.size();
     double sum = 0;
     double max_sum = 0;
+    double max_qcontrib = 0;
     vector<double> docterms_relevance;
 
     for (size_t i = 0; i < docterms.size(); ++i) {
@@ -237,6 +240,7 @@ Snipper::Internal::generate_snippet(const string & text,
 	sum += score;
     }
     max_sum = sum;
+    max_qcontrib  =  1;
 
     for (size_t i = snippet_end; i < docterms.size(); ++i) {
 	double score = docterms_relevance[i];
@@ -245,8 +249,9 @@ Snipper::Internal::generate_snippet(const string & text,
 	double head_score = docterms_relevance[i - window_size];
 	sum -= head_score;
 
-	if (sum > max_sum) {
+	if ((sum + query_contribution*1) > (max_sum + query_contribution*max_qcontrib)) {
 	    max_sum = sum;
+	    max_qcontrib  = 1;
 	    snippet_begin = i - window_size + 1;
 	    snippet_end = i + 1;
 	}

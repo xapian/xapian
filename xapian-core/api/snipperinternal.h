@@ -131,7 +131,8 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	std::string generate_snippet(const std::string & text,
 				     size_t length,
 				     unsigned int window_size,
-				     double smoothing);
+				     double smoothing,
+				     double query_contribution);
 
 	/** Calculate relevance model based on a MSet.
 	 *

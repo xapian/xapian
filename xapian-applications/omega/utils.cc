@@ -28,6 +28,7 @@
 #include <cstdlib>
 
 #include <string>
+#include <sstream>
 
 using namespace std;
 
@@ -54,6 +55,16 @@ string_to_int(const string &s)
 {
     return atoi(s.c_str());
 }
+
+double 
+string_to_double(const string &s)
+{
+    std::istringstream i(s);
+    double x;
+    if (!(i >> x))
+        return 0;
+    return x;
+} 
 
 string
 double_to_string(double val)

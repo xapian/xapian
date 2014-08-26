@@ -87,14 +87,16 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
      *			    (default: 200)
      * @param window_size   Size of the window (default: 25)
      * @param smoothing	    Smoothing coefficient (default: 0.5)
+     * @param query_contribution    Query contribution coefficient (default: 0.5)
      *
      * @return	    Text of the snippet relevant to the model from input.
      */
     std::string generate_snippet(const std::string & text,
 				 size_t length = 200,
 				 Xapian::termcount window_size = 25,
-				 double smoothing = 0.5);
-
+				 double smoothing = 0.5,
+				 double query_contribution = 0.5);
+    
     /// Return a string describing this object.
     std::string get_description() const XAPIAN_PURE_FUNCTION;
 };

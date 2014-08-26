@@ -28,6 +28,9 @@ std::string date_to_string(int year, int month, int day);
 /** Converts a double to a string. */
 std::string double_to_string(double value);
 
+/** Converts a string to a double. */
+double string_to_double(const std::string & s);
+
 /** Converts a string to an int. */
 int string_to_int(const std::string & s);
 
