@@ -108,17 +108,18 @@ Snipper::Internal::set_query(std::string query)
 	const Document & snippet_doc = term_gen.get_document();
 
 	// Document terms.
-	vector<TermPositionInfo> qterms;
 	for (TermIterator it = snippet_doc.termlist_begin(); it != snippet_doc.termlist_end(); ++it) {
 	if (is_stemmed(*it))
 		continue;
 	//Positional information
 	for (PositionIterator pit = it.positionlist_begin(); pit != it.positionlist_end(); ++pit) {
-		queryterms.push_back(TermPositionInfo(*it, *pit));
+		if (queryterms.find(*it) != queryterms.end()) {
+			queryterms[*it]++;
+		} else {
+			queryterms[*it] = 1;
+		}
 	}
 	}
-	sort(qterms.begin(), qterms.end());
-	queryterms = qterms;
 	querystring = query;
 }
 
