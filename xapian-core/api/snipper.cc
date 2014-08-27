@@ -21,6 +21,7 @@
  */
 
 #include <config.h>
+#include <iostream>
 
 #include "xapian/snipper.h"
 #include "snipperinternal.h"
@@ -34,6 +35,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <math.h> 
 
 #include "str.h"
 
@@ -120,6 +122,9 @@ Snipper::Internal::set_query(std::string query)
 		}
 	}
 	}
+	for (std::map<std::string,unsigned int>::iterator queryit = queryterms.begin(); queryit!= queryterms.end(); ++queryit) {
+		query_square_sum += (queryit->second)*(queryit->second);
+	}
 	querystring = query;
 }
 
@@ -130,8 +135,8 @@ Snipper::Internal::calculate_rm(const MSet & mset, Xapian::doccount rm_docno)
     rm_docid current_id = 0;
 
     // Initialize global relevance model info.
-    rm_total_weight = 0;
-    rm_coll_size = 0;
+    rm_total_weight = 0.1;
+    rm_coll_size = 1;
     rm_documents.clear();
     rm_term_data.clear();
 
@@ -257,27 +262,48 @@ Snipper::Internal::generate_snippet(const string & text,
 	    docterms_relevance[i] = (prev_score + next_score) / 2;
 	}
     }
-
+	std::map<std::string,unsigned int> sentence_frequency;
     for (unsigned int i = snippet_begin; i < snippet_end; ++i) {
 	double score = docterms_relevance[i];
+	if(sentence_frequency.find(docterms[i].term) != sentence_frequency.end()) {
+		sentence_frequency[docterms[i].term]++;
+	} else {
+		sentence_frequency[docterms[i].term] = 1;
+	}
 	sum += score;
     }
     max_sum = sum;
-    max_qcontrib  =  calculate_cosine_similarity(docterms,snippet_begin,snippet_end);
+    max_qcontrib  =  calculate_cosine_similarity(sentence_frequency);
+	//cout<<"primary sum "<<sum<<endl;
 
     for (size_t i = snippet_end; i < docterms.size(); ++i) {
 	double score = docterms_relevance[i];
+	if(sentence_frequency.find(docterms[i].term) != sentence_frequency.end()) {
+		sentence_frequency[docterms[i].term]++;
+	} else {
+		sentence_frequency[docterms[i].term] = 1;
+	}
 	sum += score;
-
+	//cout<<"initial sum "<<sum<<" score "<<score<<endl;
 	double head_score = docterms_relevance[i - window_size];
+	if(sentence_frequency.find(docterms[i-window_size].term) != sentence_frequency.end()) {
+		sentence_frequency[docterms[i-window_size].term]--;
+		if(sentence_frequency[docterms[i-window_size].term] == 0) {
+			sentence_frequency.erase(sentence_frequency.find(docterms[i-window_size].term));
+		}
+	}
 	sum -= head_score;
+	//cout<<"nowsum "<<sum<<" now headscore"<<head_score<<endl;
 
-	double qcontrib_score = calculate_cosine_similarity(docterms,i-window_size,i);
-	if ((sum + query_contribution*qcontrib_score) > (max_sum + query_contribution*max_qcontrib)) {
+	double qcontrib_score = calculate_cosine_similarity(sentence_frequency);
+	if ((((1-query_contribution)*sum) + (query_contribution*qcontrib_score)) > (((1-query_contribution)*max_sum) + (query_contribution*max_qcontrib))) {
 	    max_sum = sum;
 	    max_qcontrib  = 1;
 	    snippet_begin = i - window_size + 1;
 	    snippet_end = i + 1;
+	} else {
+		//cout<<"first term"<<(((1-query_contribution)*sum) + (query_contribution*qcontrib_score))<<" second term "<<(((1-query_contribution)*max_sum) + (query_contribution*max_qcontrib))<<endl;
+		//cout<<" sum "<<sum<<" max_sum "<<max_sum<<" max_qcont "<<max_qcontrib<<endl;
 	}
     }
 
@@ -327,10 +353,20 @@ Snipper::Internal::generate_snippet(const string & text,
 }
 
 double
-Snipper::Internal::calculate_cosine_similarity(vector<TermPositionInfo>,unsigned int sentence_start,unsigned int sentence_end)
+Snipper::Internal::calculate_cosine_similarity(std::map<std::string,unsigned int> sentence_frequency)
 {
+	double numerator = 0.0;
+	double denominator1 = 0.0;
+	
+	for (std::map<std::string,unsigned int>::iterator it = sentence_frequency.begin(); it!=sentence_frequency.end(); ++it) {
+		if(queryterms.find(it->first) != queryterms.end()) {
+			numerator += (queryterms[it->first])*(it->second);
+		}
+		denominator1 += (it->second)*(it->second);
+	}
+	double denominator = sqrt(denominator1 + query_square_sum);
 	//Dummy or fake implementation currently.
-	return (0.9*(sentence_start + sentence_end)/(sentence_start*sentence_end));	
+	return numerator/denominator;	
 }
 
 string
