@@ -97,7 +97,29 @@ Snipper::Internal::is_stemmed(const string & term)
 void
 Snipper::Internal::set_query(std::string query)
 {
-    queryterms = query;
+	/*Indexing the query terms using same logic as done with document string.*/
+	Document text_doc;
+	TermGenerator term_gen;
+	
+	term_gen.set_document(text_doc);
+	term_gen.set_stemmer(stemmer);
+	term_gen.index_text(query);
+
+	const Document & snippet_doc = term_gen.get_document();
+
+	// Document terms.
+	vector<TermPositionInfo> qterms;
+	for (TermIterator it = snippet_doc.termlist_begin(); it != snippet_doc.termlist_end(); ++it) {
+	if (is_stemmed(*it))
+		continue;
+	//Positional information
+	for (PositionIterator pit = it.positionlist_begin(); pit != it.positionlist_end(); ++pit) {
+		queryterms.push_back(TermPositionInfo(*it, *pit));
+	}
+	}
+	sort(qterms.begin(), qterms.end());
+	queryterms = qterms;
+	querystring = query;
 }
 
 
@@ -240,7 +262,7 @@ Snipper::Internal::generate_snippet(const string & text,
 	sum += score;
     }
     max_sum = sum;
-    max_qcontrib  =  1;
+    max_qcontrib  =  calculate_cosine_similarity(docterms,snippet_begin,snippet_end);
 
     for (size_t i = snippet_end; i < docterms.size(); ++i) {
 	double score = docterms_relevance[i];
@@ -249,7 +271,8 @@ Snipper::Internal::generate_snippet(const string & text,
 	double head_score = docterms_relevance[i - window_size];
 	sum -= head_score;
 
-	if ((sum + query_contribution*1) > (max_sum + query_contribution*max_qcontrib)) {
+	double qcontrib_score = calculate_cosine_similarity(docterms,i-window_size,i);
+	if ((sum + query_contribution*qcontrib_score) > (max_sum + query_contribution*max_qcontrib)) {
 	    max_sum = sum;
 	    max_qcontrib  = 1;
 	    snippet_begin = i - window_size + 1;
@@ -302,6 +325,13 @@ Snipper::Internal::generate_snippet(const string & text,
     return snippet;
 }
 
+double
+Snipper::Internal::calculate_cosine_similarity(vector<TermPositionInfo>,unsigned int sentence_start,unsigned int sentence_end)
+{
+	//Dummy or fake implementation currently.
+	return (0.9*(sentence_start + sentence_end)/(sentence_start*sentence_end));	
+}
+
 string
 Snipper::get_description() const
 {
@@ -312,9 +342,9 @@ Snipper::get_description() const
     desc += ", rm_collection_size=";
     desc += str(internal->rm_coll_size);
     const std::string empty = "";
-    if(empty.compare(internal->queryterms) != 0){
+    if(empty.compare(internal->querystring) != 0){
         desc += ", query=";
-        desc += str(internal->queryterms);
+        desc += str(internal->querystring);
     }
     desc += ")";
     return desc;

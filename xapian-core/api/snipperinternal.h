@@ -116,11 +116,12 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	double rm_total_weight;
 
     /** To store query terms to be  used for cosine measure of query component in snippet. **/
-    std::string  queryterms;
+    std::vector<TermPositionInfo>  queryterms;
+    std::string  querystring;
 
 	Internal() : rm_coll_size(0),
 		     rm_total_weight(0),
-             queryterms("") { }
+		     querystring(""){ }
 
     /** Set the query terms for the generation of the Snippet
      *  @param querytem The query terms for the current query.
@@ -140,6 +141,18 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 	 *  @param rm_docno	How many documents to use from @a mset
 	 */
 	void calculate_rm(const MSet & mset, Xapian::doccount rm_docno);
+
+	/** Calculate and return cosine similarity for two strings.
+	 *
+	 *  @param docterms		Terms of the doc in vector, to extract sentence.
+	 *  @param sentence_start Index to start current sentence from.
+	 *  @param sentence_end Index to end current sentence at.
+	 * 
+	 *  Second sentence will be taken from queryterms, which is available to the snipper internal class
+	 */
+
+	double calculate_cosine_similarity(std::vector<TermPositionInfo> docterms,unsigned int sentence_start,unsigned int sentence_end);
+
 };
 
 }
