@@ -1890,8 +1890,7 @@ eval(const string &fmt, const vector<string> &param)
 		snipper.set_mset(mset);
 		snipper.set_stemmer(Xapian::Stem(option["stemmer"]));
 		size_t len = (args.size() == 1) ? 200 : string_to_int(args[1]);
-		//double qweight = (args.size() == 2) ? 0.5 : atof(args[2].c_str()); 
-		double qweight = (args.size() == 3) ? 1 : 0.9; 
+		double qweight = (args.size() < 3) ? 0.9 : atof(args[2].c_str()); 
 		value = snipper.generate_snippet(args[0], len,len,0.5,qweight);
 		break;
 	    }
