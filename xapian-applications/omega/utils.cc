@@ -28,7 +28,6 @@
 #include <cstdlib>
 
 #include <string>
-#include <sstream>
 
 using namespace std;
 
@@ -59,11 +58,7 @@ string_to_int(const string &s)
 double 
 string_to_double(const string &s)
 {
-    std::istringstream i(s);
-    double x;
-    if (!(i >> x))
-        return 0;
-    return x;
+    return strtod(s.c_str(), NULL);
 } 
 
 string
