@@ -1,8 +1,8 @@
- 18126       olly Sat Jun 21 01:29:37 GMT 2014  Olly Betts <olly@survex.com>
+ 18185       olly Fri Aug 01 06:34:31 GMT 2014  Olly Betts <olly@survex.com>
 
 backported to 1.2.19
 
-Xapian-bindings 1.3.2 (2014-06-21):
+Xapian-bindings 1.3.2 (2014-08-05):
 
 *** Updated to use latest SWIG.
 
@@ -20,14 +20,17 @@ Documentation:
 
 General:
 
-* Wrap new C++ API features, and in particular all the new weighting schemes
-  and the changes to opening databases.
+* Wrap new C++ API features, and in particular all the new weighting schemes,
+  the changes to opening databases, and Xapian::Snipper.
 
 * Wrap Xapian::Database::check() for the bindings ignoring the std::ostream*
   argument which the C++ API takes.  If opts != 0, then output is sent to
   stdout, otherwise no output is produced.
 
 * Object descriptions are now always valid UTF-8. (see #620)
+
+* Provide a SimpleStopper constructor which provides the ability to initialise
+  from a stopword list in a file.  Based on patch from Assem Chelli.
 
 Packaging:
 
@@ -81,9 +84,7 @@ Python3:
   be usable.  3.2 is the minimum supported version currently.  Existing code
   will need updating for Python 3, and the wrapped API is necessarily different
   in how Unicode is handled, so we've dropped deprecated features (such as
-  'MSet.items' and 'ESet.items' from the Python 3 bindings).  (see #346)
-
-* Fix Python3 examples to actually work.  (see #346)
+  'MSet.items' and 'ESet.items') from the Python 3 bindings.  (see #346)
 
 * Generate Python API docs with Sphinx.  (Fixes #138, patch from Assem Chelli)
 

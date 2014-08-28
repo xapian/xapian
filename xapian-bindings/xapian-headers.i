@@ -142,6 +142,7 @@ CONSTANT(int, Xapian, DB_OPEN);
 %ignore Xapian::DB_BACKEND_MASK_;
 %ignore Xapian::DB_READONLY_;
 CONSTANT(int, Xapian, DB_NO_SYNC);
+CONSTANT(int, Xapian, DB_FULL_SYNC);
 CONSTANT(int, Xapian, DB_DANGEROUS);
 CONSTANT(int, Xapian, DB_NO_TERMLIST);
 CONSTANT(int, Xapian, DB_BACKEND_BRASS);

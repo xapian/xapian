@@ -118,7 +118,7 @@ class BrassVersion {
 
     void cancel();
 
-    const std::string write(brass_revision_number_t new_rev);
+    const std::string write(brass_revision_number_t new_rev, int flags);
 
     bool sync(const std::string & tmpfile,
 	      brass_revision_number_t new_rev, int flags);

@@ -108,7 +108,8 @@ IfB2Weight::unserialise(const string & s) const
 }
 
 double
-IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
+IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
+			Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
     double wdfn(wdf);
@@ -126,7 +127,7 @@ IfB2Weight::get_maxpart() const
 }
 
 double
-IfB2Weight::get_sumextra(Xapian::termcount) const
+IfB2Weight::get_sumextra(Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }

@@ -223,6 +223,14 @@ MergePostList::get_doclength() const
 }
 
 Xapian::termcount
+MergePostList::get_unique_terms() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_unique_terms", NO_ARGS);
+    Assert(current != -1);
+    return plists[current]->get_unique_terms();
+}
+
+Xapian::termcount
 MergePostList::count_matching_subqs() const
 {
     LOGCALL(MATCH, Xapian::termcount, "MergePostList::count_matching_subqs", NO_ARGS);

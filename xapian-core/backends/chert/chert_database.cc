@@ -782,6 +782,17 @@ ChertDatabase::get_doclength(Xapian::docid did) const
     RETURN(postlist_table.get_doclength(did, ptrtothis));
 }
 
+Xapian::termcount
+ChertDatabase::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_unique_terms", did);
+    Assert(did != 0);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
+    ChertTermList termlist(ptrtothis, did);
+    // The "approximate" size should be exact in this case.
+    RETURN(termlist.get_approx_size());
+}
+
 void
 ChertDatabase::get_freqs(const string & term,
 			 Xapian::doccount * termfreq_ptr,

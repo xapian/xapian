@@ -184,6 +184,7 @@ RemoteServer::run()
 		0, // MSG_GETMSET - used during a conversation.
 		0, // MSG_SHUTDOWN - handled by get_message().
 		&RemoteServer::msg_openmetadatakeylist,
+		&RemoteServer::msg_uniqueterms,
 	    };
 
 	    string message;
@@ -595,6 +596,15 @@ RemoteServer::msg_doclength(const string &message)
     const char *p_end = p + message.size();
     Xapian::docid did = decode_length(&p, p_end, false);
     send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
+}
+
+void
+RemoteServer::msg_uniqueterms(const string &message)
+{
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::docid did = decode_length(&p, p_end, false);
+    send_message(REPLY_UNIQUETERMS, encode_length(db->get_unique_terms(did)));
 }
 
 void

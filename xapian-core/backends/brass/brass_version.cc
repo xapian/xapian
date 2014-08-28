@@ -137,9 +137,9 @@ BrassVersion::cancel()
 }
 
 const string
-BrassVersion::write(brass_revision_number_t new_rev)
+BrassVersion::write(brass_revision_number_t new_rev, int flags)
 {
-    LOGCALL(DB, const string, "BrassVersion::write", new_rev);
+    LOGCALL(DB, const string, "BrassVersion::write", new_rev|flags);
 
     string s(BRASS_VERSION_MAGIC, BRASS_VERSION_MAGIC_AND_VERSION_LEN);
     s.append((const char *)uuid, 16);
@@ -151,7 +151,11 @@ BrassVersion::write(brass_revision_number_t new_rev)
     }
 
     string tmpfile = db_dir;
-    tmpfile += "/v.tmp";
+    // In dangerous mode, just write the new version file in place.
+    if (flags & Xapian::DB_DANGEROUS)
+	tmpfile += "/iambrass";
+    else
+	tmpfile += "/v.tmp";
 
     fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
     if (rare(fd < 0))
@@ -174,6 +178,8 @@ BrassVersion::write(brass_revision_number_t new_rev)
 	changes->write_block(s);
     }
 
+    if (flags & Xapian::DB_DANGEROUS)
+	tmpfile = string();
     RETURN(tmpfile);
 }
 
@@ -183,27 +189,40 @@ BrassVersion::sync(const string & tmpfile,
 {
     Assert(new_rev > rev || rev == 0);
 
-    string filename = db_dir;
-    filename += "/iambrass";
-
-    if ((flags & Xapian::DB_NO_SYNC) == 0 && !io_sync(fd)) {
+    if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+	((flags & Xapian::DB_FULL_SYNC) ?
+	  !io_full_sync(fd) :
+	  !io_sync(fd))) {
 	int save_errno = errno;
 	(void)close(fd);
+	if (!tmpfile.empty())
+	    (void)unlink(tmpfile.c_str());
 	errno = save_errno;
 	return false;
     }
 
-    if (close(fd) != 0)
-	return false;
-
-    if (posixy_rename(tmpfile.c_str(), filename.c_str()) < 0) {
-	// Over NFS, rename() can sometimes report failure when the operation
-	// succeeded, so in this case we try to unlink the source to check if
-	// the rename really failed.
-	int save_errno = errno;
-	if (unlink(tmpfile.c_str()) == 0 || errno != ENOENT) {
+    if (close(fd) != 0) {
+	if (!tmpfile.empty()) {
+	    int save_errno = errno;
+	    (void)unlink(tmpfile.c_str());
 	    errno = save_errno;
-	    return false;
+	}
+	return false;
+    }
+
+    if (!tmpfile.empty()) {
+	string filename = db_dir;
+	filename += "/iambrass";
+
+	if (posixy_rename(tmpfile.c_str(), filename.c_str()) < 0) {
+	    // Over NFS, rename() can sometimes report failure when the
+	    // operation succeeded, so in this case we try to unlink the source
+	    // to check if the rename really failed.
+	    int save_errno = errno;
+	    if (unlink(tmpfile.c_str()) == 0 || errno != ENOENT) {
+		errno = save_errno;
+		return false;
+	    }
 	}
     }
 
@@ -223,7 +242,7 @@ BrassVersion::create(unsigned blocksize, int flags)
     for (unsigned table_no = 0; table_no < Brass::MAX_; ++table_no) {
 	root[table_no].init(blocksize);
     }
-    sync(write(rev), rev, flags);
+    sync(write(rev, flags), rev, flags);
 }
 
 namespace Brass {

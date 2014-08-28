@@ -154,6 +154,7 @@ class InMemoryPostList : public LeafPostList {
 
 	Xapian::docid       get_docid() const;     // Gets current docid
 	Xapian::termcount   get_doclength() const; // Length of current document
+	Xapian::termcount   get_unique_terms() const; // number of terms in current document
 	Xapian::termcount   get_wdf() const;	   // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
@@ -183,6 +184,7 @@ class InMemoryAllDocsPostList : public LeafPostList {
 
 	Xapian::docid       get_docid() const;     // Gets current docid
 	Xapian::termcount   get_doclength() const; // Length of current document
+	Xapian::termcount   get_unique_terms() const; // number of terms in current document
 	Xapian::termcount   get_wdf() const;       // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
@@ -319,6 +321,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     totlen_t get_total_length() const;
     Xapian::doclength get_avlength() const;
     Xapian::termcount get_doclength(Xapian::docid did) const;
+    Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
     void get_freqs(const string & term,
 		   Xapian::doccount * termfreq_ptr,

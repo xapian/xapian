@@ -82,7 +82,8 @@ TfIdfWeight::unserialise(const string & s) const
 }
 
 double
-TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount) const
+TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount,
+			 Xapian::termcount) const
 {
     Xapian::doccount termfreq = 1;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
@@ -106,7 +107,7 @@ TfIdfWeight::get_maxpart() const
 
 // There is no extra per document component in the TfIdfWeighting scheme.
 double
-TfIdfWeight::get_sumextra(Xapian::termcount) const
+TfIdfWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }

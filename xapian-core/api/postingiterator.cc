@@ -122,6 +122,14 @@ PostingIterator::get_doclength() const
     RETURN(internal->get_doclength());
 }
 
+Xapian::termcount
+PostingIterator::get_unique_terms() const
+{
+    LOGCALL(API, Xapian::termcount, "PostingIterator::get_unique_terms", NO_ARGS);
+    Assert(internal);
+    RETURN(internal->get_unique_terms());
+}
+
 #if 0 // FIXME: TermIterator supports this, so PostingIterator really ought to.
 Xapian::termcount
 PostingIterator::positionlist_count() const

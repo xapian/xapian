@@ -373,6 +373,37 @@ DEFINE_TESTCASE(bb2weight3, backend) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
 
+    // Test with OP_SCALE_WEIGHT and a small factor (regression test, as we
+    // were applying the factor to the upper bound twice).
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 1.0/1024));
+    enquire.set_weighting_scheme(Xapian::BB2Weight(2.0));
+
+    Xapian::MSet mset3;
+    mset3 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset3.size(), 5);
+
+    for (int i = 0; i < 5; ++i) {
+	TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset3[i].get_weight() * 1024);
+    }
+
+    return true;
+}
+
+// Regression test: we used to calculate log2(0) when there was only one doc.
+DEFINE_TESTCASE(bb2weight4, backend) {
+    Xapian::Database db = get_database("apitest_onedoc");
+    Xapian::Enquire enquire(db);
+    Xapian::Query query("word");
+
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::BB2Weight());
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 1);
+    // Zero weight is a bit bogus, but what we currently give.
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0);
+
     return true;
 }
 
@@ -625,13 +656,14 @@ class CheckInitWeight : public Xapian::Weight {
 	return new CheckInitWeight(zero_inits, non_zero_inits);
     }
 
-    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
+    double get_sumpart(Xapian::termcount, Xapian::termcount,
+		       Xapian::termcount) const {
 	return 1.0;
     }
 
     double get_maxpart() const { return 1.0; }
 
-    double get_sumextra(Xapian::termcount doclen) const {
+    double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const {
 	return 1.0 / doclen;
     }
 
@@ -690,6 +722,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
+	need_stat(UNIQUE_TERMS);
     }
 
     void init(double factor_) {
@@ -700,7 +733,8 @@ class CheckStatsWeight : public Xapian::Weight {
 	return new CheckStatsWeight(db, term, sum, sum_squares);
     }
 
-    double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen) const {
+    double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
+		       Xapian::termcount uniqueterms) const {
 	TEST_EQUAL(get_collection_size(), db.get_doccount());
 	TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term));
 	TEST_EQUAL(get_rset_size(), 0);
@@ -711,6 +745,8 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_EQUAL(get_wqf(), 1);
 	TEST_REL(doclen,>=,len_lower);
 	TEST_REL(doclen,<=,len_upper);
+	TEST_REL(uniqueterms,>=,1);
+	TEST_REL(uniqueterms,<=,doclen);
 	TEST_REL(wdf,<=,wdf_upper);
 	sum += wdf;
 	sum_squares += wdf * wdf;
@@ -726,7 +762,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	return 1.0;
     }
 
-    double get_sumextra(Xapian::termcount doclen) const {
+    double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const {
 	return 1.0 / doclen;
     }
 

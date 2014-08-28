@@ -330,7 +330,7 @@ BrassDatabase::set_revision_number(int flags, brass_revision_number_t new_revisi
     spelling_table.commit(new_revision, version_file.root_to_set(Brass::SPELLING));
     record_table.commit(new_revision, version_file.root_to_set(Brass::RECORD));
 
-    const string & tmpfile = version_file.write(new_revision);
+    const string & tmpfile = version_file.write(new_revision, flags);
     if (!postlist_table.sync() ||
 	!position_table.sync() ||
 	!termlist_table.sync() ||
@@ -690,6 +690,17 @@ BrassDatabase::get_doclength(Xapian::docid did) const
     Assert(did != 0);
     intrusive_ptr<const BrassDatabase> ptrtothis(this);
     RETURN(postlist_table.get_doclength(did, ptrtothis));
+}
+
+Xapian::termcount
+BrassDatabase::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "BrassDatabase::get_unique_terms", did);
+    Assert(did != 0);
+    intrusive_ptr<const BrassDatabase> ptrtothis(this);
+    BrassTermList termlist(ptrtothis, did);
+    // The "approximate" size should be exact in this case.
+    RETURN(termlist.get_approx_size());
 }
 
 void

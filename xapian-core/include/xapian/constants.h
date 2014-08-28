@@ -1,7 +1,7 @@
 /** @file constants.h
  * @brief Constants in the Xapian namespace
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,6 +63,23 @@ const int DB_ACTION_MASK_	 = 0x03;
  */
 const int DB_NO_SYNC		 = 0x04;
 
+/** Try to ensure changes are really written to disk.
+ *
+ *  Generally fsync() and similar functions only ensure that data has been sent
+ *  to the drive.  Modern drives have large write-back caches for performance,
+ *  and a power failure could still lose data which is in the write-back cache
+ *  waiting to be written.
+ *
+ *  Some platforms provide a way to ensure data has actually been written and
+ *  setting DB_FULL_SYNC will attempt to do so where possible.  The downside is
+ *  that committing changes takes longer, and other I/O to the same disk may be
+ *  delayed too.
+ *
+ *  Currently only Mac OS X is supported, and only on some filing system types
+ *  - if not supported, Xapian will use fsync() or similar instead.
+ */
+const int DB_FULL_SYNC		 = 0x08;
+
 /** Update the database in-place.
  *
  *  Xapian's disk-based backends use block-based storage, with copy-on-write
@@ -81,7 +98,7 @@ const int DB_NO_SYNC		 = 0x04;
  *  readers from opening the database while it unsafe to do so, but there's
  *  not currently a mechanism in Xapian to handle notifying existing readers.
  */
-const int DB_DANGEROUS		 = 0x08;
+const int DB_DANGEROUS		 = 0x10;
 
 /** When creating a database, don't create a termlist table.
  *
@@ -114,7 +131,7 @@ const int DB_DANGEROUS		 = 0x08;
  *  You can also convert an existing database to not have a termlist table
  *  by simply deleting termlist.*.
  */
-const int DB_NO_TERMLIST	 = 0x10;
+const int DB_NO_TERMLIST	 = 0x20;
 
 /** Use the brass backend.
  *
@@ -144,7 +161,7 @@ const int DB_BACKEND_CHERT	 = 0x200;
  *
  *  When opening a Database, this flag means to only open it if it's a stub
  *  database file.  There's rarely a good reason to do this - it's mostly
- *  provided  as equivalent functionality to Xapian::Auto::open_stub() in
+ *  provided as equivalent functionality to Xapian::Auto::open_stub() in
  *  Xapian 1.2.
  */
 const int DB_BACKEND_STUB	 = 0x300;

@@ -52,6 +52,14 @@ ContiguousAllDocsPostList::get_doclength() const
 }
 
 Xapian::termcount
+ContiguousAllDocsPostList::get_unique_terms() const
+{
+    Assert(did != 0);
+    Assert(!at_end());
+    return db->get_unique_terms(did);
+}
+
+Xapian::termcount
 ContiguousAllDocsPostList::get_wdf() const
 {
     Assert(did != 0);

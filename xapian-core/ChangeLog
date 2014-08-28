@@ -1,3 +1,127 @@
+Tue Aug 26 22:31:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Fri Aug 22 09:09:52 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+
+	* api/,backends/brass/,backends/chert/,
+	  backends/contiguousalldocspostlist.cc,
+	  backends/contiguousalldocspostlist.h,backends/database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h,
+	  backends/remote/,common/remoteprotocol.h,docs/sorting.rst,
+	  include/xapian/database.h,include/xapian/postingiterator.h,
+	  include/xapian/weight.h,matcher/,net/remoteserver.cc,
+	  net/remoteserver.h,tests/,weight/: Provide the number of distinct
+	  terms in the document to weighting schemes.  The current
+	  implementation for the disk-based backends is a bit inefficient as
+	  it has to look at the termlist table entry for the document.
+
+Thu Aug 21 12:29:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/weight.cc: Add missing parameter to debug logging for
+	  Weight::init_().
+
+Tue Aug 19 14:25:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.h: Don't sync handles for tables which
+	  aren't open.  Reported by Austin Clements.
+
+Fri Aug 15 13:13:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: freecode no longer accepts updates, so drop that item from
+	  the release checklist.
+
+Wed Aug 13 23:55:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc:
+	  Only full sync the final base file written.
+
+Mon Aug 11 05:30:20 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: For Sun's C++ compiler, pass -library=Crun separately
+	  since libtool looks for " -library=stlport4 " (with the spaces).
+	  (fixes#650)
+
+Mon Aug 11 03:00:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Rename XAPIAN_TEST_CXXFLAGS_ to XAPIAN_TEST_CXXFLAGS
+	  (since the latter is never used) and make it take a variable to
+	  add the flags to.  Also, fix it to restore CXXFLAGS correctly if
+	  the success case contains "break".
+
+Wed Aug 06 10:49:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/compactor.h: Fix formatting of doxygen comment.
+
+Wed Aug 06 10:49:20 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/constants.h: Whitespace tweak.
+
+Wed Aug 06 10:08:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_version.cc,common/io_utils.h,
+	  include/xapian/constants.h: Add DB_FULL_SYNC flag - if this is set
+	  for a database, we use the Mac OS X F_FULL_SYNC instead of
+	  fdatasync()/fsync()/etc on the version file when committing.
+
+Mon Aug 04 05:58:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc: Whitespace tweak.
+
+Mon Aug 04 05:57:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc: When compacting, sync all the
+	  tables together at the end.
+
+Mon Aug 04 05:42:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/brass/brass_version.cc:
+	  Clean up temporary file in BrassVersion::sync() in all failure
+	  cases.
+
+Mon Aug 04 05:21:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: In DB_DANGEROUS mode, update the version file
+	  in-place.
+
+Fri Aug 01 02:49:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc: Lock the target database while
+	  we're compacting to it, which has the side effect of creating the
+	  'flintlock' file there.
+
+Fri Aug 01 02:35:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/visibility.h: Add link to GCC Visibility wiki page.
+
+Thu Jul 31 02:54:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_weight.cc,weight/bb2weight.cc: Avoid calculating logs of 0
+	  or negative values by clamping the normalise wdf to at most one less
+	  than the collection frequency, and the collection size to at least
+	  2.
+
+Thu Jul 31 02:48:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_weight.cc,weight/bb2weight.cc: Fix upper bound for
+	  BB2Weight to not be scaled twice by wqf and factor.
+
+Wed Jul 30 05:48:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/bb2weight.cc: Fix comment typo, and capitalise "Stirling" in
+	  comments.
+
+Wed Jul 30 05:47:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/bb2weight.cc: Whitespace cleanup.
+
+Wed Jul 30 05:43:59 GMT 2014  Aarsh Shah <aarshkshah1992@gmail.com>
+
+	* include/xapian/weight.h,weight/bb2weight.cc: Optimise BB2Weight and
+	  fix incorrect upper bound in some cases.
+
 Tue Jul 29 07:20:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_version.cc: Remove assertion that table sizes

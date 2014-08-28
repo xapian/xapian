@@ -34,6 +34,21 @@
  */
 inline bool io_sync(int fd)
 {
+#if defined HAVE_FDATASYNC
+    // If we have it, prefer fdatasync() over fsync() as the former avoids
+    // updating the access time so is probably a little more efficient.
+    return fdatasync(fd) == 0;
+#elif defined HAVE_FSYNC
+    return fsync(fd) == 0;
+#elif defined __WIN32__
+    return _commit(fd) == 0;
+#else
+# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
+#endif
+}
+
+inline bool io_full_sync(int fd)
+{
 #ifdef F_FULLFSYNC
     /* Only supported on Mac OS X (at the time of writing at least).
      *
@@ -48,18 +63,7 @@ inline bool io_sync(int fd)
     if (fcntl(fd, F_FULLFSYNC, 0) == 0)
 	return true;
 #endif
-
-#if defined HAVE_FDATASYNC
-    // If we have it, prefer fdatasync() over fsync() as the former avoids
-    // updating the access time so is probably a little more efficient.
-    return fdatasync(fd) == 0;
-#elif defined HAVE_FSYNC
-    return fsync(fd) == 0;
-#elif defined __WIN32__
-    return _commit(fd) == 0;
-#else
-# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
-#endif
+    return io_sync(fd);
 }
 
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
