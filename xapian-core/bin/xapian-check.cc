@@ -42,7 +42,7 @@ static void show_usage() {
 " F = attempt to fix a broken database (implemented for chert currently)\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
-" b = show bitmap\n"
+" b = show free blocks\n"
 " v = show stats about B-tree (default)\n"
 " + = same as tbv\n"
 " e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
@@ -75,11 +75,11 @@ main(int argc, char **argv)
 	switch (*p) {
 	    case 't': opts |= Xapian::DBCHECK_SHORT_TREE; break;
 	    case 'f': opts |= Xapian::DBCHECK_FULL_TREE; break;
-	    case 'b': opts |= Xapian::DBCHECK_SHOW_BITMAP; break;
+	    case 'b': opts |= Xapian::DBCHECK_SHOW_FREELIST; break;
 	    case 'v': opts |= Xapian::DBCHECK_SHOW_STATS; break;
 	    case '+':
 		opts |= Xapian::DBCHECK_SHORT_TREE;
-		opts |= Xapian::DBCHECK_SHOW_BITMAP;
+		opts |= Xapian::DBCHECK_SHOW_FREELIST;
 		opts |= Xapian::DBCHECK_SHOW_STATS;
 		break;
 	    case 'F':

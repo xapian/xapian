@@ -1,3 +1,9 @@
+Thu Aug 28 16:04:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
+	  bin/xapian-check.cc,include/xapian/constants.h: Rename
+	  DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST.
+
 Tue Aug 26 22:31:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

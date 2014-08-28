@@ -189,6 +189,12 @@ const int DBCHECK_FULL_TREE = 2;
  *
  *  For use with Xapian::Database::check().
  */
+const int DBCHECK_SHOW_FREELIST = 4;
+
+/** Old name for DBCHECK_SHOW_FREELIST.
+ *
+ *  For use with Xapian::Database::check().
+ */
 const int DBCHECK_SHOW_BITMAP = 4;
 
 /** Show statistics for the B-tree.
