@@ -1,3 +1,9 @@
+xapian-core (1.3.1.avature11) precise; urgency=medium
+
+  * Better handling of config.guess and config.status.
+
+ -- Olly Betts <olly@survex.com>  Fri, 29 Aug 2014 13:58:34 +0000
+
 xapian-core (1.3.1.avature10) precise; urgency=medium
 
   * Don't sync handles for tables which aren't open.
