@@ -256,7 +256,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    version_file.read();
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_brass_table(tablename.c_str(), filename,
+	    errors = check_brass_table(tablename.c_str(), dir,
 				       version_file, opts,
 				       doclens, db_last_docid, out);
 #endif

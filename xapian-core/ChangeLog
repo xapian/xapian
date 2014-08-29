@@ -1,3 +1,7 @@
+Fri Aug 29 21:06:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: Fix checking a single brass table.
+
 Thu Aug 28 16:04:59 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
