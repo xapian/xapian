@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2013 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -92,14 +92,12 @@ debian/control: debian/rules debian/control.in
 	mv debian/control.tmp debian/control
 
 configure: configure-stamp
-configure-stamp:
+configure-stamp: debian/control
 	dh_testdir
 
 	# Use the latest config.sub and config.guess from the autotools-dev
 	# package.
-	rm -f config.sub config.guess
-	ln -s /usr/share/misc/config.sub config.sub
-	ln -s /usr/share/misc/config.guess config.guess
+	dh_autotools-dev_updateconfig
 
 	# Configure in a subdirectory, for neatness.
 	mkdir -p debian/build
@@ -198,7 +196,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -rf debian/build
-	rm -f config.sub config.guess
+	dh_autotools-dev_restoreconfig
 	dh_clean
 
 .PHONY: configure build build-arch build-indep install binary binary-arch binary-indep clean

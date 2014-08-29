@@ -6,7 +6,7 @@ Architecture: any
 Depends: ruby | ruby-interpeter, ${shlibs:Depends}, ${misc:Depends}
 Replaces: libxapian-ruby1.8 (<< 1.2.15-1~), libxapian-ruby1.9.1 (<< 1.2.15-1~)
 Breaks: libxapian-ruby1.8 (<< 1.2.15-1~), libxapian-ruby1.9.1 (<< 1.2.15-1~)
-Provides: @RUBY_PROVIDES@
+@RUBY_PROVIDES@
 Suggests: xapian-doc
 Description: Xapian search engine interface for Ruby
  This package provides Xapian Ruby bindings built for Ruby.

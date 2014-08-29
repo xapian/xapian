@@ -68,13 +68,17 @@ rubylibdir := vendorlibdir
 rubyarchdir := vendorarchdir
 # Ruby 2.0 will debut in jessie and was in Ubuntu saucy, which neatly matches
 # the versions on new ruby policy.
-ifeq ($(findstring .$(CODENAME)., .saucy.trusty.), )
-# Ruby 1.8 should be gone in jessie, but saucy and trusty still have it.
-RUBY_VERSIONS := 1.9.1 2.0
-RUBY_PROVIDES := libxapian-ruby1.9.1
+ifeq ($(findstring .$(CODENAME)., .saucy.), )
+# More recent versions all have the ruby-all-dev and ruby packages.
+BUILD_DEPS += ruby-all-dev, ruby,
+RUBY_VERSIONS := $(shell ruby -rruby_debian_dev -e 'print RubyDebianDev::RUBY_CONFIG_VERSION.values.join(" ")')
+RUBY_PROVIDES := $(shell ruby -rruby_debian_dev -e 'p = RubyDebianDev::RUBY_CONFIG_VERSION.values.grep(/^1\./).map {|v| "libxapian-ruby"+v }.join(", "); print p.size() ? "Provides: "+p : "X-Dummy: No provides"')
+RUBY_LATEST_VERSION := $(shell ruby -rruby_debian_dev -e 'print RubyDebianDev::RUBY_CONFIG_VERSION.values[-1]')
 else
+# Ubuntu saucy didn't have the ruby-all-dev and ruby packages.
 RUBY_VERSIONS := 1.8 1.9.1 2.0
-RUBY_PROVIDES := libxapian-ruby1.8, libxapian-ruby1.9.1
+RUBY_PROVIDES := Provides: libxapian-ruby1.8, libxapian-ruby1.9.1
+RUBY_LATEST_VERSION := 2.0
 endif
 else
 # For old ruby policy:
@@ -83,12 +87,14 @@ rubylibdir := rubylibdir
 rubyarchdir := archdir
 RUBY_VERSIONS := 1.8 1.9.1
 endif
-# Build depends for Ruby.
+ifeq ($(findstring ruby-all-dev, $(BUILD_DEPS)), )
+# Build depends for Ruby when ruby-all-dev isn't available.
 #
 # Only the first % in the replacement part is substituted, so we need to do
 # this in two goes.
 BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%-dev,)
 BUILD_DEPS += $(RUBY_VERSIONS:%=ruby%,)
+endif
 endif
 
 X_PYTHON_VERSION := X-Dummy-Python: Python bindings not being packaged
@@ -189,7 +195,7 @@ commonconfflags := \
 # a bit of time and diskspace while building.
 commonconfflags += --disable-dependency-tracking
 
-maint: debian/control
+debian/control: maint
 
 maintclean: clean
 	rm -f debian/control \
@@ -202,7 +208,7 @@ maintclean: clean
 	      debian/ruby-xapian.doc-base \
 	      debian/ruby-xapian.install
 
-debian/control: debian/rules debian/control.in
+maint:
 	rm -f debian/control.tmp
 	sed -e 's/@BUILD_DEPS@/$(BUILD_DEPS)/g' \
 	    -e 's/@X_PYTHON_VERSION@/$(X_PYTHON_VERSION)/g' \
@@ -260,9 +266,7 @@ configure-stamp:
 
 	# Use the latest config.sub and config.guess from the autotools-dev
 	# package.
-	rm -f config.sub config.guess
-	ln -s /usr/share/misc/config.sub config.sub
-	ln -s /usr/share/misc/config.guess config.guess
+	dh_autotools-dev_updateconfig
 
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
@@ -366,20 +370,20 @@ install-stamp: build-stamp
 	done
 ifdef XB_RUBY_VERSIONS
 	# We only need one xapian.rb for ruby-xapian, and it should be the same
-	# for all versions, so if present, check that the 1.8 and 2.0 versions
-	# are the same as the 1.9.1, then throw them away.
-	test ! -f debian/tmp/usr/lib/ruby/vendor_ruby/1.8/xapian.rb || \
-	    diff debian/tmp/usr/lib/ruby/vendor_ruby/1.8/xapian.rb \
-		 debian/tmp/usr/lib/ruby/vendor_ruby/1.9.1/xapian.rb
-	test ! -f debian/tmp/usr/lib/ruby/vendor_ruby/2.0*/xapian.rb || \
-	    diff debian/tmp/usr/lib/ruby/vendor_ruby/2.0*/xapian.rb \
-		 debian/tmp/usr/lib/ruby/vendor_ruby/1.9.1/xapian.rb
-	rm -f debian/tmp/usr/lib/ruby/vendor_ruby/1.8/xapian.rb \
-	      debian/tmp/usr/lib/ruby/vendor_ruby/2.0*/xapian.rb
-	# The same goes for the docs.  Docs for 1.9.1 are installed by
+	# for all versions, so if present, check that the older versions are
+	# the same as the latest, then throw them away.  Also, delete the older
+	# versions of the docs - the latest docs are installed by
 	# ruby-xapian.install.
-	rm -rf debian/tmp/usr/share/doc/xapian-bindings-ruby1.8 \
-	       debian/tmp/usr/share/doc/xapian-bindings-ruby2.0
+	rb=debian/tmp`/usr/bin/ruby$(RUBY_LATEST_VERSION) -rrbconfig -e 'puts RbConfig::CONFIG["$(rubylibdir)"]'`/xapian.rb; \
+	for v in $(RUBY_VERSIONS); do \
+	    if [ "$$v" != "$(RUBY_LATEST_VERSION)" ] ; then \
+		set -e; \
+		rb_old=debian/tmp`/usr/bin/ruby$$v -rrbconfig -e 'puts RbConfig::CONFIG["$(rubylibdir)"]'`/xapian.rb; \
+		diff "$$rb_old" "$$rb"; \
+		rm -rf "$$rb_old" debian/tmp/usr/share/doc/xapian-bindings-ruby$$v; \
+	    fi; \
+	done; \
+	mv "$$rb" debian/tmp/usr/lib/ruby/vendor_ruby
 endif
 
 ifeq ($(BUILD_TCL), 1)
@@ -452,8 +456,7 @@ binary-indep: build-indep install
 clean:
 	dh_testdir
 	dh_testroot
-	rm -rf debian/build
-	rm -f config.sub config.guess
+	dh_autotools-dev_restoreconfig
 	dh_clean
 
 .PHONY: maint maintclean configure build build-arch build-indep install binary binary-arch binary-indep clean

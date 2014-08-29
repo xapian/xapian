@@ -35,7 +35,7 @@ xapian-core (1.3.1.avature6) precise; urgency=medium
 xapian-core (1.3.1-6) UNRELEASED; urgency=low
 
   * Upstream development release.
-  * Remaining changes over 1.2.17-1:
+  * Remaining changes over 1.2.18-1:
     + Patch phrase-settling-pond-update-20130517.patch.
     + Remove xapian-chert-update from xapian-tools.install, as it's dropped
       upstream.
@@ -44,6 +44,8 @@ xapian-core (1.3.1-6) UNRELEASED; urgency=low
     + libxapian-1.3-1 Breaks+Replaces libxapian13-1 and libxapian1.3-1, which
       were the runtime library package name in an earlier versions of the 1.3
       packaging.
+  * debian/rules: Use dh_autotools-dev_updateconfig and
+    dh_autotools-dev_restoreconfig.
 
  -- Olly Betts <olly@survex.com>  Thu, 07 Nov 2013 11:10:15 +0000
 

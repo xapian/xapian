@@ -1,6 +1,6 @@
 Source: xapian-core
 Section: libs
-Priority: optional
+Priority: important
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.9.5
 Build-Depends: @BUILD_DEPS@ autotools-dev, zlib1g-dev, uuid-dev
@@ -11,7 +11,6 @@ Vcs-git: git://anonscm.debian.org/collab-maint/xapian-core.git
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
 Section: libs
-Priority: optional
 Breaks: libxapian13-1, libxapian1.3-1
 Replaces: libxapian13-1, libxapian1.3-1
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -47,6 +46,7 @@ Description: Debugging symbols for the Xapian Search engine library
 Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
 Architecture: any
 Section: libdevel
+Priority: optional
 Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${binary:Version}), libc6-dev | libc-dev, ${misc:Depends}
 Suggests: xapian-doc (= ${binary:Version}), xapian-examples (= ${binary:Version})
 Description: Development files for Xapian search engine library
@@ -64,6 +64,7 @@ Description: Development files for Xapian search engine library
 Package: xapian-tools
 Architecture: any
 Section: utils
+Priority: optional
 Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Basic tools for Xapian search engine library
  This package contains several tools related to Xapian.
@@ -89,6 +90,7 @@ Description: Basic tools for Xapian search engine library
 Package: xapian-doc
 Architecture: all
 Section: doc
+Priority: optional
 Depends: ${misc:Depends}
 Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${binary:Version})
 Description: Core Xapian documentation
@@ -106,6 +108,7 @@ Description: Core Xapian documentation
 Package: xapian-examples
 Architecture: any
 Section: doc
+Priority: optional
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${binary:Version})
 Description: Xapian simple example programs

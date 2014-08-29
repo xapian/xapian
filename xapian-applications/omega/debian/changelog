@@ -4,6 +4,32 @@ xapian-omega (1.3.1-1) unstable; urgency=low
 
  -- Olly Betts <olly@survex.com>  Fri, 24 Jan 2014 15:08:57 +1300
 
+xapian-omega (1.2.18-2) UNRELEASED; urgency=medium
+
+  * debian/copyright: Add licence details for portability/mkdtemp.cc.
+  * debian/rules: Use dh_autotools-dev_updateconfig and
+    dh_autotools-dev_restoreconfig.
+
+ -- Olly Betts <olly@survex.com>  Thu, 31 Jul 2014 14:16:17 +1200
+
+xapian-omega (1.2.18-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/copyright: Update for 2014.
+  * debian/rules: Add dependency from configure-stamp to debian/control to
+    ensure it gets regenerated when necessary.
+  * debian/control.in: Update VCS details.
+
+ -- Olly Betts <olly@survex.com>  Sun, 29 Jun 2014 16:50:23 +1200
+
+xapian-omega (1.2.17-1) unstable; urgency=medium
+
+  * New upstream release.
+  * debian/watch: Add pgpsigurlmangle setting to automatically verify
+    detached GPG signatures on upstream release tarballs.
+
+ -- Olly Betts <olly@survex.com>  Fri, 31 Jan 2014 11:42:29 +1300
+
 xapian-omega (1.2.16-1) unstable; urgency=low
 
   * New upstream release.

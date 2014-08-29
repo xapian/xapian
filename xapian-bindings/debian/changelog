@@ -19,8 +19,35 @@ xapian-bindings (1.3.1.avature6) precise; urgency=low
 xapian-bindings (1.3.1-2) UNRELEASED; urgency=low
 
   * New upstream development release
+  * debian/rules: Use dh_autotools-dev_updateconfig and
+    dh_autotools-dev_restoreconfig.
+
+ -- Olly Betts <olly@survex.com>  Fri, 29 Aug 2014 13:12:55 +0000
+
+xapian-bindings (1.2.18-1) unstable; urgency=medium
+
+  * New upstream development release
 
  -- Olly Betts <olly@survex.com>  Mon, 20 May 2013 16:24:09 +1200
+
+xapian-bindings (1.2.17-3) unstable; urgency=medium
+
+  * Fix reversed conditional for adding pre-ruby-all-dev ruby BDs.
+    (Closes: #748749)
+
+ -- Olly Betts <olly@survex.com>  Sun, 04 May 2014 18:25:44 +1200
+
+xapian-bindings (1.2.17-2) unstable; urgency=medium
+
+  * Check debian/bindings-to-packages for a list of bindings to package, to
+    allow people to easily build subsets of the binary packages.
+  * Always regenerate debian/control on "debian/rules maint" as the
+    dependencies are complex and the work to regenerate is minor.
+  * Where available, use ruby-all-dev and ruby-all as BDs and use
+    ruby_debian_dev.rb to determine the ruby versions to build for.
+    (Closes: #745924)
+
+ -- Olly Betts <olly@survex.com>  Sun, 04 May 2014 17:15:00 +1300
 
 xapian-bindings (1.2.17-2) UNRELEASED; urgency=medium
 

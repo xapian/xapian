@@ -8,8 +8,8 @@ Build-Depends: @BUILD_DEPS@ debhelper (>= 7), autotools-dev, libpcre3-dev,
     libxapian-dev (>= 1.2.0-2~)
 Standards-Version: 3.9.5
 Homepage: http://xapian.org/
-Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-applications/omega
-Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-applications/omega
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/xapian-omega.git
+Vcs-git: git://anonscm.debian.org/collab-maint/xapian-omega.git
 
 Package: xapian-omega
 Section: web
