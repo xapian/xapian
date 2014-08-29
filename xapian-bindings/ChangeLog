@@ -1,3 +1,7 @@
+Fri Aug 29 21:36:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Add DBCHECK_SHOW_FREELIST as a constant to wrap.
+
 Thu Aug 21 08:53:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Add DB_FULL_SYNC as a constant to wrap.
