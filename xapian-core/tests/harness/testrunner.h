@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009 Olly Betts
+ * Copyright 2008,2009,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -110,9 +110,6 @@ class TestRunner {
 
     /// True if the backend is the chert backend.
     bool chert;
-
-    /// True if the backend is the flint backend.
-    bool flint;
 
     /// Virtual destructor - needed for abstract class.
     virtual ~TestRunner();
