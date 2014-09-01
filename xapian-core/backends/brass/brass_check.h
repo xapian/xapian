@@ -41,8 +41,8 @@ class BrassTableCheck : public BrassTable {
 		int opts, std::ostream *out);
     private:
 	BrassTableCheck(const char * tablename_, const std::string &path_,
-			bool readonly, std::ostream *out_)
-	    : BrassTable(tablename_, path_, readonly), out(out_) { }
+			bool readonly_, std::ostream *out_)
+	    : BrassTable(tablename_, path_, readonly_), out(out_) { }
 
 	void block_check(Brass::Cursor * C_, int j, int opts,
 			 BrassFreeListChecker &flcheck);
