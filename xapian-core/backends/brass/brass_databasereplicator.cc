@@ -27,8 +27,8 @@
 #include "xapian/error.h"
 
 #include "../flint_lock.h"
+#include "brass_defs.h"
 #include "brass_replicate_internal.h"
-#include "brass_types.h"
 #include "brass_version.h"
 #include "compression_stream.h"
 #include "debuglog.h"

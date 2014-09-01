@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_DBSTATS_H
 #define XAPIAN_INCLUDED_BRASS_DBSTATS_H
 
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "xapian/types.h"
 
 #include "internaltypes.h"

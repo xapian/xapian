@@ -27,7 +27,7 @@
 #include <string>
 
 #include <xapian/types.h>
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "brass_table.h"
 
 using namespace std;

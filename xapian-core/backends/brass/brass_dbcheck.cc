@@ -30,8 +30,8 @@
 
 #include "brass_check.h"
 #include "brass_cursor.h"
+#include "brass_defs.h"
 #include "brass_table.h"
-#include "brass_types.h"
 #include "pack.h"
 #include "backends/valuestats.h"
 

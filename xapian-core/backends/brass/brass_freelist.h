@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_FREELIST_H
 #define XAPIAN_INCLUDED_BRASS_FREELIST_H
 
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "pack.h"
 
 class BrassTable;

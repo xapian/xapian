@@ -1,3 +1,7 @@
+Mon Sep 01 14:48:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Eliminate backends/brass/brass_types.h.
+
 Fri Aug 29 21:06:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/dbcheck.cc: Fix checking a single brass table.

@@ -23,7 +23,7 @@
 #ifndef OM_HGUARD_BRASS_CURSOR_H
 #define OM_HGUARD_BRASS_CURSOR_H
 
-#include "brass_types.h"
+#include "brass_defs.h"
 
 #include "omassert.h"
 

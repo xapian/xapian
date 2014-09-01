@@ -30,7 +30,6 @@ noinst_HEADERS +=\
 	backends/brass/brass_table.h\
 	backends/brass/brass_termlist.h\
 	backends/brass/brass_termlisttable.h\
-	backends/brass/brass_types.h\
 	backends/brass/brass_valuelist.h\
 	backends/brass/brass_values.h\
 	backends/brass/brass_version.h

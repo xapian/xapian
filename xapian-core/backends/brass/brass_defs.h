@@ -50,4 +50,7 @@ typedef uint4 brass_revision_number_t;
 /// How many entries there are in a table.
 typedef unsigned long long brass_tablesize_t;
 
+/// Document length (sum of wdf for all terms in a document).
+typedef unsigned brass_doclen_t;
+
 #endif // XAPIAN_INCLUDED_BRASS_DEFS_H
