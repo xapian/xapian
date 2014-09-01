@@ -579,12 +579,12 @@ BrassDatabase::modifications_failed(brass_revision_number_t new_revision,
 	++new_revision;
 	set_revision_number(flags, new_revision);
     } catch (const Xapian::Error &e) {
-	// We can't get the database into a consistent state, so close
-	// it to avoid the risk of database corruption.
+	// We failed to roll-back so close the database to avoid the risk of
+	// database corruption.
 	BrassDatabase::close();
-	throw Xapian::DatabaseError("Modifications failed (" + msg +
-				    "), and cannot set consistent table "
-				    "revision numbers: " + e.get_msg());
+	throw Xapian::DatabaseError("Modifications failed (" + msg + "), "
+				    "and couldn't open at the old revision: " +
+				    e.get_msg());
     }
 
     BrassChanges * p;

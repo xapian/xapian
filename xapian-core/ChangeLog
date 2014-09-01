@@ -1,3 +1,9 @@
+Mon Sep 01 16:27:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc: Update comment and exception
+	  message not to talk about "consistent state", as that was to do
+	  with the base files.
+
 Mon Sep 01 14:57:02 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc: Explicitly include brass_defs.h.
