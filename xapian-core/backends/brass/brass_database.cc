@@ -1008,7 +1008,7 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 	// Set the values.
 	value_manager.add_document(did, document, value_stats);
 
-	brass_doclen_t new_doclen = 0;
+	Xapian::termcount new_doclen = 0;
 	{
 	    Xapian::TermIterator term = document.termlist_begin();
 	    for ( ; term != document.termlist_end(); ++term) {
@@ -1177,9 +1177,9 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	    intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 	    BrassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
-	    brass_doclen_t old_doclen = termlist.get_doclength();
+	    Xapian::termcount old_doclen = termlist.get_doclength();
 	    stats.delete_document(old_doclen);
-	    brass_doclen_t new_doclen = old_doclen;
+	    Xapian::termcount new_doclen = old_doclen;
 
 	    string old_tname, new_tname;
 

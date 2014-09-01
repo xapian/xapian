@@ -1,7 +1,7 @@
 /** @file brass_termlisttable.h
  * @brief Subclass of BrassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ class BrassTermListTable : public BrassLazyTable {
      *  @param doclen	The document length.
      */
     void set_termlist(Xapian::docid did, const Xapian::Document & doc,
-		      brass_doclen_t doclen);
+		      Xapian::termcount doclen);
 
     /** Delete the termlist data for document @a did.
      *

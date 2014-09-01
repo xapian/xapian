@@ -1,3 +1,8 @@
+Mon Sep 01 21:42:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Eliminate brass_doclen_t in favour of just using
+	  Xapian::termcount.
+
 Mon Sep 01 21:28:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_check.h: Tweak to ease upcoming big merge.

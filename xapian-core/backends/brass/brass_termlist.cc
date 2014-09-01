@@ -77,10 +77,10 @@ BrassTermList::BrassTermList(intrusive_ptr<const BrassDatabase> db_,
     }
 }
 
-brass_doclen_t
+Xapian::termcount
 BrassTermList::get_doclength() const
 {
-    LOGCALL(DB, brass_doclen_t, "BrassTermList::get_doclength", NO_ARGS);
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
 }
 
