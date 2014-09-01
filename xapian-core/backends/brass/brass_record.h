@@ -55,10 +55,6 @@ class BrassRecordTable : public BrassTable {
 	 */
 	string get_record(Xapian::docid did) const;
 
-	/** Get the number of records in the table.
-	 */
-	Xapian::doccount get_doccount() const;
-
 	/* Add a new record to the table, or replace an existing record.
 	 *
 	 * @param did	The document ID to use.

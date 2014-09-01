@@ -52,19 +52,6 @@ BrassRecordTable::get_record(Xapian::docid did) const
     RETURN(tag);
 }
 
-Xapian::doccount
-BrassRecordTable::get_doccount() const
-{   
-    LOGCALL(DB, Xapian::doccount, "BrassRecordTable::get_doccount", NO_ARGS);
-    brass_tablesize_t count = get_entry_count();
-    if (rare(count > brass_tablesize_t(Xapian::doccount(-1)))) {
-	// If we've got more entries than there are possible docids, the
-	// database is in an odd state.
-	throw Xapian::DatabaseCorruptError("Impossibly many entries in the record table");
-    }
-    RETURN(Xapian::doccount(count));
-}
-
 void
 BrassRecordTable::replace_record(const string & data, Xapian::docid did)
 {

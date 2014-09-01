@@ -1,3 +1,8 @@
+Mon Sep 01 16:54:44 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_record.cc,backends/brass/brass_record.h: Remove
+	  BrassRecordTable::get_doccount() as it is no longer used.
+
 Mon Sep 01 16:51:04 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Track doccount in the database stats.
