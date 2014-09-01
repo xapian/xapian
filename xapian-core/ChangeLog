@@ -1,3 +1,9 @@
+Mon Sep 01 20:59:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/dbcheck.cc: Only create a btree entry for
+	  the document data if it is non-empty.  The table is now lazily
+	  created, so won't exist if no documents have document data set.
+
 Mon Sep 01 16:54:44 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_record.cc,backends/brass/brass_record.h: Remove

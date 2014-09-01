@@ -205,7 +205,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	// Note: it's important to check termlist before postlist so
 	// that we can cross-check the document lengths.
 	const char * tables[] = {
-	    "record", "termlist", "postlist", "position",
+	    "docdata", "termlist", "postlist", "position",
 	    "spelling", "synonym"
 	};
 	for (const char **t = tables;

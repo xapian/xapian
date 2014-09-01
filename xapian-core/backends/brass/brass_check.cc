@@ -234,8 +234,8 @@ BrassTableCheck::check(const char * tablename, const string & path,
     Brass::table_type tab_type;
     if (strcmp(tablename, "postlist") == 0) {
 	tab_type = Brass::POSTLIST;
-    } else if (strcmp(tablename, "record") == 0) {
-	tab_type = Brass::RECORD;
+    } else if (strcmp(tablename, "docdata") == 0) {
+	tab_type = Brass::DOCDATA;
     } else if (strcmp(tablename, "termlist") == 0) {
 	tab_type = Brass::TERMLIST;
     } else if (strcmp(tablename, "position") == 0) {

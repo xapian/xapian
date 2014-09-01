@@ -15,6 +15,7 @@ noinst_HEADERS +=\
 	backends/brass/brass_dbcheck.h\
 	backends/brass/brass_dbstats.h\
 	backends/brass/brass_defs.h\
+	backends/brass/brass_docdata.h\
 	backends/brass/brass_document.h\
 	backends/brass/brass_freelist.h\
 	backends/brass/brass_inverter.h\
@@ -22,7 +23,6 @@ noinst_HEADERS +=\
 	backends/brass/brass_metadata.h\
 	backends/brass/brass_positionlist.h\
 	backends/brass/brass_postlist.h\
-	backends/brass/brass_record.h\
 	backends/brass/brass_replicate_internal.h\
 	backends/brass/brass_spelling.h\
 	backends/brass/brass_spellingwordslist.h\
@@ -51,7 +51,6 @@ lib_src +=\
 	backends/brass/brass_metadata.cc\
 	backends/brass/brass_positionlist.cc\
 	backends/brass/brass_postlist.cc\
-	backends/brass/brass_record.cc\
 	backends/brass/brass_spelling.cc\
 	backends/brass/brass_spellingwordslist.cc\
 	backends/brass/brass_synonym.cc\

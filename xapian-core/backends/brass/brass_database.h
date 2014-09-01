@@ -28,10 +28,10 @@
 #include "backends/database.h"
 #include "brass_changes.h"
 #include "brass_dbstats.h"
+#include "brass_docdata.h"
 #include "brass_inverter.h"
 #include "brass_positionlist.h"
 #include "brass_postlist.h"
-#include "brass_record.h"
 #include "brass_spelling.h"
 #include "brass_synonym.h"
 #include "brass_termlisttable.h"
@@ -102,9 +102,9 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 */
 	mutable BrassSpellingTable spelling_table;
 
-	/** Table storing records.
+	/** Table storing document data.
 	 */
-	BrassRecordTable record_table;
+	BrassDocDataTable docdata_table;
 
 	/// Lock object.
 	FlintLock lock;

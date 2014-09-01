@@ -830,7 +830,7 @@ compact_brass(Xapian::Compactor & compactor,
     static const table_list tables[] = {
 	// name		type			compress_strategy	lazy
 	{ "postlist",	Brass::POSTLIST,	DONT_COMPRESS,		false },
-	{ "record",	Brass::RECORD,		Z_DEFAULT_STRATEGY,	false },
+	{ "docdata",	Brass::DOCDATA,		Z_DEFAULT_STRATEGY,	true },
 	{ "termlist",	Brass::TERMLIST,	Z_DEFAULT_STRATEGY,	false },
 	{ "position",	Brass::POSITION,	DONT_COMPRESS,		true },
 	{ "spelling",	Brass::SPELLING,	Z_DEFAULT_STRATEGY,	true },
@@ -966,7 +966,7 @@ compact_brass(Xapian::Compactor & compactor,
 			       inputs.begin(), inputs.end());
 		break;
 	    default:
-		// Position, Record, Termlist
+		// Position, DocData, Termlist
 		merge_docid_keyed(t->name, out, inputs, root, rev, offset, t->lazy);
 		break;
 	}

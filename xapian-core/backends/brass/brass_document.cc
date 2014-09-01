@@ -27,7 +27,7 @@
 #include "debuglog.h"
 #include "brass_database.h"
 #include "brass_values.h"
-#include "brass_record.h"
+#include "brass_docdata.h"
 
 /** Retrieve a value from the database
  *
@@ -55,5 +55,5 @@ string
 BrassDocument::do_get_data() const
 {
     LOGCALL(DB, string, "BrassDocument::do_get_data", NO_ARGS);
-    RETURN(record_table->get_record(did));
+    RETURN(docdata_table->get_document_data(did));
 }
