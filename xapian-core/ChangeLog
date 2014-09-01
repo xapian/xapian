@@ -1,3 +1,7 @@
+Mon Sep 01 16:51:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Track doccount in the database stats.
+
 Mon Sep 01 16:27:15 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc: Update comment and exception
