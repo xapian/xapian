@@ -1,3 +1,7 @@
+Mon Sep 01 14:57:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc: Explicitly include brass_defs.h.
+
 Mon Sep 01 14:48:01 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/: Eliminate backends/brass/brass_types.h.
