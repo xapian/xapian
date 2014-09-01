@@ -1,3 +1,8 @@
+Mon Sep 01 22:03:11 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: New testcase readonlyparentdir1 to ensure that
+	  commit works with a read-only parent directory.
+
 Mon Sep 01 21:51:45 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/harness/testrunner.h: Drop "flint" flag - flint was removed
