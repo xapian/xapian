@@ -1,3 +1,8 @@
+Tue Sep 02 14:15:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_spellingwordslist.h: Explicit include
+	  brass_cursor.h since we actually use BrassCursor here.
+
 Mon Sep 01 22:03:11 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: New testcase readonlyparentdir1 to ensure that
