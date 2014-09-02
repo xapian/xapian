@@ -1886,11 +1886,11 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_snippet: {
 		Xapian::Snipper snipper;
-		snipper.set_query(queryterms);
+		snipper.set_query(query);
 		snipper.set_mset(mset);
 		snipper.set_stemmer(Xapian::Stem(option["stemmer"]));
 		size_t len = (args.size() == 1) ? 200 : string_to_int(args[1]);
-		double qweight = (args.size() < 3) ? 0.9 : string_to_double(args[2]); 
+		double qweight = (args.size() < 3) ? 0.5 : string_to_double(args[2]); 
 		value = snipper.generate_snippet(args[0], len, 5, 0.5, qweight);
 		break;
 	    }

@@ -38,14 +38,15 @@ using namespace std;
 // tests that the number of indexed documents is the size of the one set
 DEFINE_TESTCASE(snipper1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query("this"));
+	Xapian::Query query = Xapian::Query("this");
+    enquire.set_query(query);
     Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     // MSet size should be 6.
     TEST_MSET_SIZE(mymset, 6);
 
     Xapian::Snipper snipper;
-    snipper.set_query("this");
+    snipper.set_query(query);
     snipper.set_mset(mymset, 4);
     TEST(snipper.get_description().find("rm_doccount=4,") != string::npos);
     TEST(snipper.get_description().find("query=this)") != string::npos);

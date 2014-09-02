@@ -25,6 +25,7 @@
 
 #include <xapian/enquire.h>
 #include <xapian/snipper.h>
+#include <xapian/query.h>
 #include <xapian/stem.h>
 
 #include <map>
@@ -126,7 +127,7 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
     /** Set the query terms for the generation of the Snippet
      *  @param queryterm The query terms for the current query.
      */
-    void set_query(const std::string & queryterm);
+    void set_query(const Xapian::Query & queryterm);
 
 	/** Return snippet generated from text using the precalculated relevance model */
 	std::string generate_snippet(const std::string & text,

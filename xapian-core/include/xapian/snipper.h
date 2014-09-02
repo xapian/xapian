@@ -31,6 +31,7 @@
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
+#include <xapian/query.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -68,7 +69,7 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
     /** Set the query terms for the generation of the Snippet
      *  @param querytem The query terms for the current query.
      */
-    void set_query(const std::string & queryterm);
+    void set_query(const Xapian::Query & queryterm);
 
     /**
      * Set the MSet and calculate the relevance model according to it.
@@ -87,7 +88,7 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
      *			    (default: 200)
      * @param window_size   Size of the window (default: 25)
      * @param smoothing	    Smoothing coefficient (default: 0.5)
-     * @param query_contribution    Query contribution coefficient (default: 0.9)
+     * @param query_contribution    Query contribution coefficient (default: 0.5)
      *
      * @return	    Text of the snippet relevant to the model from input.
      */
@@ -95,7 +96,7 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
 				 size_t length = 200,
 				 Xapian::termcount window_size = 25,
 				 double smoothing = 0.5,
-				 double query_contribution = 0.9);
+				 double query_contribution = 0.5);
     
     /// Return a string describing this object.
     std::string get_description() const XAPIAN_PURE_FUNCTION;
