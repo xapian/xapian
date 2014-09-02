@@ -28,6 +28,7 @@
 #include <xapian/document.h>
 #include <xapian/enquire.h>
 #include <xapian/termgenerator.h>
+#include <xapian/queryparser.h>
 #include <xapian/stem.h>
 
 #include <algorithm>
@@ -98,22 +99,22 @@ Snipper::Internal::is_stemmed(const string & term)
 void
 Snipper::Internal::set_query(const string & query)
 {
-	/* Indexing the query terms using same logic as done with document string. */
-	Document snippet_doc;
-	TermGenerator term_gen;
-	
-	term_gen.set_document(snippet_doc);
-	term_gen.set_stemmer(stemmer);
-	term_gen.index_text(query);
+	/* Parsing the query using query parser */
+	QueryParser querypar ;
+	querypar.set_stemmer(stemmer);
+	querypar.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+	Query parsed_query = querypar.parse_query(query);
 
-	// Document terms.
-	for (TermIterator it = snippet_doc.termlist_begin(); it != snippet_doc.termlist_end(); ++it) {
+	// Query Terms interation
+	for (TermIterator it = parsed_query.get_terms_begin(); it != parsed_query.get_terms_end(); ++it) {
 		if (is_stemmed(*it))
 			continue;
-		//Positional information
-		queryterms[*it] = it.positionlist_count();
+		//Increment the frequency of the word.
+		++queryterms[*it];
 	
 	}
+	
+	
 	for (map<string, unsigned int>::iterator queryit = queryterms.begin(); queryit!= queryterms.end(); ++queryit) {
 		query_square_sum += (queryit->second)*(queryit->second);
 	}
@@ -263,10 +264,10 @@ Snipper::Internal::generate_snippet(const string & text,
 	    docterms_relevance[i] = (prev_score + next_score) / 2;
 	}
     }
-	map<string, unsigned int> sentence_frequency;
+    map<string, unsigned int> sentence_frequency;
     for (unsigned int i = snippet_begin; i < snippet_end; ++i) {
 	double score = docterms_relevance[i];
-	string current_stemmed_term = 'z' + stemmer(docterms[i].term);
+	string current_stemmed_term =  "z" + stemmer(docterms[i].term);
 	 ++sentence_frequency[current_stemmed_term];
 	sum += score;
     }
@@ -275,11 +276,11 @@ Snipper::Internal::generate_snippet(const string & text,
 
     for (size_t i = snippet_end; i < docterms.size(); ++i) {
 	double score = docterms_relevance[i];
-	string current_stemmed_term = 'z'+stemmer(docterms[i].term);
+	string current_stemmed_term = "z" + stemmer(docterms[i].term);
 	++sentence_frequency[current_stemmed_term];
 	sum += score;
 	double head_score = docterms_relevance[i - window_size];
-	string removed_stemmed_word = 'z'+stemmer(docterms[i - window_size].term);
+	string removed_stemmed_word = "z" + stemmer(docterms[i - window_size].term);
 	if(sentence_frequency.find(removed_stemmed_word) != sentence_frequency.end()) {
 		sentence_frequency[removed_stemmed_word]--;
 		if(sentence_frequency[removed_stemmed_word] == 0) {

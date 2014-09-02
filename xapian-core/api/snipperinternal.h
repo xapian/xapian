@@ -124,7 +124,7 @@ class Snipper::Internal : public Xapian::Internal::intrusive_base {
 		     query_square_sum(0) { }
 
     /** Set the query terms for the generation of the Snippet
-     *  @param querytem The query terms for the current query.
+     *  @param queryterm The query terms for the current query.
      */
     void set_query(const std::string & queryterm);
 
