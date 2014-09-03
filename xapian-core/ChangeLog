@@ -1,3 +1,8 @@
+Wed Sep 03 19:30:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/internaltypes.h: Update comment to reflect C++11 now being
+	  out.
+
 Wed Sep 03 19:29:09 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/internaltypes.h,configure.ac: Make uint2 available.

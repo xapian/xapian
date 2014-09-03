@@ -1,7 +1,7 @@
 /** @file internaltypes.h
  * @brief Types used internally.
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,10 +52,10 @@ typedef unsigned long uint4;
 #if SIZEOF_LONG >= 8
 typedef unsigned long uint8;
 #else
-/* "long long" is C99, and will be in C++-1x, but isn't yet standard C++.
- * However it seems to be widely supported (e.g. GCC has supported it for ages,
- * MSVC since at least 2003 it appears) and we've not had any reports of
- * compilation failing due to lack of support for it.
+/* C99 and C++11 actually standardised "long long", but it seems to be widely
+ * supported (e.g. GCC has supported it for ages, MSVC since at least 2003 it
+ * appears) and we've not had any reports of compilation failing due to lack of
+ * support for it.
  */
 typedef unsigned long long uint8;
 #endif
