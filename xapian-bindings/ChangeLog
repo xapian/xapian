@@ -1,3 +1,9 @@
+Wed Sep 03 19:15:34 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-head.i,xapian-headers.i: Define XAPIAN_IN_XAPIAN_H rather
+	  than XAPIAN_LIB_BUILD to avoid the direct subheader inclusion
+	  checks.
+
 Fri Aug 29 21:36:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Add DBCHECK_SHOW_FREELIST as a constant to wrap.
