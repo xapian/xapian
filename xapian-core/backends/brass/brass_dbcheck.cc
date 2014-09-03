@@ -34,6 +34,7 @@
 #include "brass_types.h"
 #include "pack.h"
 #include "backends/valuestats.h"
+#include "unicode/description_append.h"
 
 #include <xapian.h>
 
@@ -839,8 +840,11 @@ check_brass_table(const char * tablename, const string &db_dir,
 		continue;
 	    }
 	    if (pos == end) {
-		if (out)
-		    *out << "No termname in key" << endl;
+		if (out) {
+		    string dkey;
+		    description_append(dkey, key);
+		    *out << "No termname in key '" << dkey << "' - decoded docid = " << did << endl;
+		}
 		++errors;
 		continue;
 	    }

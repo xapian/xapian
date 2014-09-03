@@ -1,3 +1,10 @@
+xapian-core (1.3.1.avature12) UNRELEASED; urgency=medium
+
+  * If we hit a key without a termname while checking the position table,
+    report what that key was.
+
+ -- Olly Betts <olly@survex.com>  Wed, 03 Sep 2014 13:59:32 +0000
+
 xapian-core (1.3.1.avature11) precise; urgency=medium
 
   * Better handling of config.guess and config.status.
