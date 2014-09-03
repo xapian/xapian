@@ -1,3 +1,7 @@
+Wed Sep 03 19:29:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/internaltypes.h,configure.ac: Make uint2 available.
+
 Wed Sep 03 19:27:41 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.h: Remove method which is declared but
