@@ -49,8 +49,10 @@ const int DB_CREATE		 = 0x02;
  */
 const int DB_OPEN		 = 0x03;
 
+#ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for action codes. */
 const int DB_ACTION_MASK_	 = 0x03;
+#endif
 
 /** Don't attempt to ensure changes have hit disk.
  *
@@ -166,11 +168,13 @@ const int DB_BACKEND_CHERT	 = 0x200;
  */
 const int DB_BACKEND_STUB	 = 0x300;
 
+#ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for backend codes. */
 const int DB_BACKEND_MASK_	 = 0x300;
 
 /** @internal Used internally to signify opening read-only. */
 const int DB_READONLY_		 = -1;
+#endif
 
 
 /** Show a short-format display of the B-tree contents.
