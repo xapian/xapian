@@ -144,13 +144,6 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 */
 	void get_database_write_lock(int flags, bool creating);
 
-	/** Open tables at specified revision number.
-	 *
-	 *  @exception Xapian::InvalidArgumentError is thrown if the specified
-	 *  revision is not available.
-	 */
-	void open_tables(int flags, brass_revision_number_t revision);
-
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
 	 *

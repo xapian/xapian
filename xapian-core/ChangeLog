@@ -1,3 +1,8 @@
+Wed Sep 03 19:27:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.h: Remove method which is declared but
+	  never defined.
+
 Wed Sep 03 18:52:40 GMT 2014  Olly Betts <olly@survex.com>
 
 	* generate-exceptions,include/xapian/: Use XAPIAN_IN_XAPIAN_H rather
