@@ -1,3 +1,13 @@
+Wed Sep 03 18:52:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* generate-exceptions,include/xapian/: Use XAPIAN_IN_XAPIAN_H rather
+	  than XAPIAN_INCLUDED_XAPIAN_H in the direct inclusion of subheader
+	  checks.  Currently neither will catch the case of the user including
+	  a sub-header after <xapian.h> since the include guard for the
+	  subheader will stop us getting to the direct inclusion check, but
+	  XAPIAN_IN_XAPIAN_H will work if we move the check outside the
+	  include guard.
+
 Wed Sep 03 18:29:41 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/constants.h: Hide internal constants from external

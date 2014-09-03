@@ -1,7 +1,7 @@
 /** @file expanddecider.h
  * @brief Allow rejection of terms during ESet generation.
  */
-/* Copyright (C) 2007,2011,2013 Olly Betts
+/* Copyright (C) 2007,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_EXPANDDECIDER_H
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/expanddecider.h> directly; include <xapian.h> instead."
 #endif
 

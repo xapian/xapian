@@ -3,7 +3,7 @@
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012,2013 Olly Betts
+ * Copyright 2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #ifndef XAPIAN_INCLUDED_GEOSPATIAL_H
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/geospatial.h> directly; include <xapian.h> instead."
 #endif
 
