@@ -38,4 +38,4 @@ DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	TCL_LIB="`pwd`/../_inst/tmp_tcllib" \
 	PERL_LIB="`pwd`/../_inst/tmp_perllib" \
 	LUA_LIB="`pwd`/../_inst/tmp_lualib" \
-	GO_LIB="`pwd`/../_inst/tmp_golib" \
+	GO_LIB="`pwd`/../_inst/tmp_golib"
