@@ -14,7 +14,7 @@ EXTRA_DIST = fake_dbfactory.i xapian-head.i xapian-headers.i generic/except.i \
     HACKING
 
 SUBDIRS = . @BINDINGS@
-DIST_SUBDIRS = python python3 php java ruby tcl8 csharp perl lua
+DIST_SUBDIRS = python python3 php java ruby tcl8 csharp perl lua go
 
 if MAINTAINER_MODE
 BUILT_SOURCES = generic/except.i
@@ -37,4 +37,5 @@ DISTCHECK_CONFIGURE_FLAGS = XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
 	RUBY_LIB_ARCH="`pwd`/../_inst/tmp_rubylibarch" \
 	TCL_LIB="`pwd`/../_inst/tmp_tcllib" \
 	PERL_LIB="`pwd`/../_inst/tmp_perllib" \
-	LUA_LIB="`pwd`/../_inst/tmp_lualib"
+	LUA_LIB="`pwd`/../_inst/tmp_lualib" \
+	GO_LIB="`pwd`/../_inst/tmp_golib" \
