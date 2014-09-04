@@ -705,7 +705,7 @@ BrassDatabase::get_freqs(const string & term,
 			 Xapian::doccount * termfreq_ptr,
 			 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    LOGCALL_VOID(DB, "BrassDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
     postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
@@ -1307,7 +1307,7 @@ BrassWritableDatabase::get_freqs(const string & term,
 				 Xapian::doccount * termfreq_ptr,
 				 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    LOGCALL_VOID(DB, "BrassWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
     BrassDatabase::get_freqs(term, termfreq_ptr, collfreq_ptr);
     Xapian::termcount_diff tf_delta, cf_delta;

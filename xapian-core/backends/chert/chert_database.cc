@@ -798,7 +798,7 @@ ChertDatabase::get_freqs(const string & term,
 			 Xapian::doccount * termfreq_ptr,
 			 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    LOGCALL_VOID(DB, "ChertDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
     postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
@@ -1493,7 +1493,7 @@ ChertWritableDatabase::get_freqs(const string & term,
 				 Xapian::doccount * termfreq_ptr,
 				 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, void, "ChertWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    LOGCALL_VOID(DB, "ChertWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
     ChertDatabase::get_freqs(term, termfreq_ptr, collfreq_ptr);
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
