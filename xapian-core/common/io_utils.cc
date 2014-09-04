@@ -108,13 +108,22 @@ void
 io_read_block(int fd, char * p, size_t n, off_t b)
 {
     off_t o = b * n;
+    // Prefer pread if available since it's typically implemented as a
+    // separate syscall, and that eliminates the overhead of an extra syscall
+    // per block read.
 #ifdef HAVE_PREAD
-    while (n) {
+    while (true) {
 	ssize_t c = pread(fd, p, n, o);
+	// We should get a full read most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return;
+	// -1 is error, 0 is EOF
 	if (c <= 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the read.
+	    if (errno == EINTR) continue;
 	    if (c == 0)
 		throw_block_error("EOF reading block ", b);
-	    if (errno == EINTR) continue;
 	    throw_block_error("Error reading block ", b, errno);
 	}
 	p += c;
@@ -124,12 +133,17 @@ io_read_block(int fd, char * p, size_t n, off_t b)
 #else
     if (rare(lseek(fd, o, SEEK_SET) == off_t(-1)))
 	throw_block_error("Error seeking to block ", b, errno);
-    while (n) {
+    while (true) {
 	ssize_t c = read(fd, p, n);
+	// We should get a full read most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return;
 	if (c <= 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the read.
+	    if (errno == EINTR) continue;
 	    if (c == 0)
 		throw_block_error("EOF reading block ", b);
-	    if (errno == EINTR) continue;
 	    throw_block_error("Error reading block ", b, errno);
 	}
 	p += c;
@@ -142,10 +156,18 @@ void
 io_write_block(int fd, const char * p, size_t n, off_t b)
 {
     off_t o = b * n;
+    // Prefer pwrite if available since it's typically implemented as a
+    // separate syscall, and that eliminates the overhead of an extra syscall
+    // per block write.
 #ifdef HAVE_PWRITE
-    while (n) {
+    while (true) {
 	ssize_t c = pwrite(fd, p, n, o);
+	// We should get a full write most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return;
 	if (c < 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the write.
 	    if (errno == EINTR) continue;
 	    throw_block_error("Error writing block ", b, errno);
 	}
@@ -156,9 +178,14 @@ io_write_block(int fd, const char * p, size_t n, off_t b)
 #else
     if (rare(lseek(fd, o, SEEK_SET) == off_t(-1)))
 	throw_block_error("Error seeking to block ", b, errno);
-    while (n) {
+    while (true) {
 	ssize_t c = write(fd, p, n);
+	// We should get a full write most of the time, so streamline that case.
+	if (usual(c == ssize_t(n)))
+	    return;
 	if (c < 0) {
+	    // We get EINTR if the syscall was interrupted by a signal.
+	    // In this case we should retry the write.
 	    if (errno == EINTR) continue;
 	    throw_block_error("Error writing block ", b, errno);
 	}
