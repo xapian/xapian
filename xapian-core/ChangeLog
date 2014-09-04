@@ -1,3 +1,8 @@
+Thu Sep 04 18:02:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc,backends/brass/brass_freelist.h:
+	  Make the BrassTable parameter a const pointer.
+
 Thu Sep 04 17:13:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/io_utils.cc: Reading or writing a block will almost always
