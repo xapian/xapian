@@ -476,8 +476,8 @@ bool
 ChertDatabase::reopen()
 {
     LOGCALL(DB, bool, "ChertDatabase::reopen", NO_ARGS);
-    if (!readonly) return false;
-    return open_tables_consistent();
+    if (!readonly) RETURN(false);
+    RETURN(open_tables_consistent());
 }
 
 void
@@ -849,7 +849,7 @@ ChertDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "ChertDatabase::term_exists", term);
     Assert(!term.empty());
-    return postlist_table.term_exists(term);
+    RETURN(postlist_table.term_exists(term));
 }
 
 bool
@@ -983,9 +983,9 @@ ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 {
     LOGCALL(DB, TermList *, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
-    if (!cursor) return NULL;
-    return new ChertMetadataTermList(intrusive_ptr<const ChertDatabase>(this),
-				     cursor, prefix);
+    if (!cursor) RETURN(NULL);
+    RETURN(new ChertMetadataTermList(intrusive_ptr<const ChertDatabase>(this),
+				     cursor, prefix));
 }
 
 string

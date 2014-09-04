@@ -717,7 +717,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	retval.internal->stats = stats.release();
     }
 
-    return retval;
+    RETURN(retval);
 }
 
 ESet

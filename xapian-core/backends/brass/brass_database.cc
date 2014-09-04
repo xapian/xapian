@@ -351,8 +351,8 @@ bool
 BrassDatabase::reopen()
 {
     LOGCALL(DB, bool, "BrassDatabase::reopen", NO_ARGS);
-    if (!readonly) return false;
-    return open_tables(postlist_table.get_flags());
+    if (!readonly) RETURN(false);
+    RETURN(open_tables(postlist_table.get_flags()));
 }
 
 void
@@ -756,7 +756,7 @@ BrassDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "BrassDatabase::term_exists", term);
     Assert(!term.empty());
-    return postlist_table.term_exists(term);
+    RETURN(postlist_table.term_exists(term));
 }
 
 bool
@@ -890,9 +890,9 @@ BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
     LOGCALL(DB, TermList *, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.cursor_get();
-    if (!cursor) return NULL;
-    return new BrassMetadataTermList(intrusive_ptr<const BrassDatabase>(this),
-				     cursor, prefix);
+    if (!cursor) RETURN(NULL);
+    RETURN(new BrassMetadataTermList(intrusive_ptr<const BrassDatabase>(this),
+				     cursor, prefix));
 }
 
 string

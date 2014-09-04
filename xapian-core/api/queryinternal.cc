@@ -976,14 +976,14 @@ QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.
-	return ctx.postlist(qopt);
+	RETURN(ctx.postlist(qopt));
     }
 
     // We currently assume wqf is 1 for calculating the OP_MAX's weight
     // since conceptually the OP_MAX is one "virtual" term.  If we were
     // to combine multiple occurrences of the same OP_MAX expansion into
     // a single instance with wqf set, we would want to track the wqf.
-    return ctx.postlist_max(qopt);
+    RETURN(ctx.postlist_max(qopt));
 }
 
 Xapian::Query::op

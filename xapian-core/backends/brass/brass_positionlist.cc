@@ -130,9 +130,9 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     }
     if (cursor.get() &&
 	cursor->find_exact(BrassPositionListTable::make_key(did, tname))) {
-	return read_data(cursor->current_tag);
+	RETURN(read_data(cursor->current_tag));
     }
-    return read_data(string());
+    RETURN(read_data(string()));
 }
 
 Xapian::termcount
