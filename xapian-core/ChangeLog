@@ -1,3 +1,9 @@
+Fri Sep 05 14:34:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/dbfactory.cc: Fix incorrect return type in logging
+	  annotations for InMemory::open().
+
 Mon Aug 11 05:59:35 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

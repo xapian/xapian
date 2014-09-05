@@ -100,8 +100,8 @@ Flint::open(const string &dir, int action, int block_size) {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 WritableDatabase
 InMemory::open() {
-    LOGCALL_STATIC(API, Database, "InMemory::open", NO_ARGS);
-    return WritableDatabase(new InMemoryDatabase);
+    LOGCALL_STATIC(API, WritableDatabase, "InMemory::open", NO_ARGS);
+    RETURN(WritableDatabase(new InMemoryDatabase));
 }
 #endif
 
