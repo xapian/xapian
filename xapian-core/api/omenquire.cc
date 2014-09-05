@@ -693,7 +693,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // networked case.
     retval.internal->enquire = this;
 
-    return retval;
+    RETURN(retval);
 }
 
 ESet

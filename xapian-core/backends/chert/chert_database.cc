@@ -857,7 +857,7 @@ ChertDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "ChertDatabase::term_exists", term);
     Assert(!term.empty());
-    return postlist_table.term_exists(term);
+    RETURN(postlist_table.term_exists(term));
 }
 
 bool
@@ -991,9 +991,8 @@ ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 {
     LOGCALL(DB, string, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
-    if (!cursor) return NULL;
-    return new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
-				     cursor, prefix);
+    RETURN(new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+				     cursor, prefix));
 }
 
 string

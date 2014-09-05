@@ -874,7 +874,7 @@ BrassDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "BrassDatabase::term_exists", term);
     Assert(!term.empty());
-    return postlist_table.term_exists(term);
+    RETURN(postlist_table.term_exists(term));
 }
 
 bool
@@ -1008,9 +1008,9 @@ BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
     LOGCALL(DB, string, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.cursor_get();
-    if (!cursor) return NULL;
-    return new BrassMetadataTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
-				     cursor, prefix);
+    if (!cursor) RETURN(NULL);
+    RETURN(new BrassMetadataTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),
+				     cursor, prefix));
 }
 
 string

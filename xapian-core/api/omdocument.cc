@@ -203,14 +203,14 @@ std::string
 Document::serialise() const
 {
     LOGCALL(API, std::string, "Document::serialise", NO_ARGS);
-    return serialise_document(*this);
+    RETURN(serialise_document(*this));
 }
 
 Document
 Document::unserialise(const std::string &s)
 {
     LOGCALL_STATIC(API, Document, "Document::unserialise", s);
-    return unserialise_document(s);
+    RETURN(unserialise_document(s));
 }
 
 }

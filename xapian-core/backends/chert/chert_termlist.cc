@@ -195,6 +195,6 @@ Xapian::PositionIterator
 ChertTermList::positionlist_begin() const
 {
     LOGCALL(DB, Xapian::PositionIterator, "ChertTermList::positionlist_begin", NO_ARGS);
-    return Xapian::PositionIterator(
-	    new ChertPositionList(&db->position_table, did, current_term));
+    RETURN(Xapian::PositionIterator(
+	    new ChertPositionList(&db->position_table, did, current_term)));
 }

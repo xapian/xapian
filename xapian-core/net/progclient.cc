@@ -110,7 +110,7 @@ ProgClient::run_program(const string &progname, const string &args
 	// parent
 	// close the child's end of the socket
 	::close(sv[1]);
-	return sv[0];
+	RETURN(sv[0]);
     }
 
     /* child process:
@@ -227,7 +227,7 @@ ProgClient::run_program(const string &progname, const string &args
 
     CloseHandle(hClient);
     CloseHandle(procinfo.hThread);
-    return _open_osfhandle((intptr_t)hPipe, O_RDWR|O_BINARY);
+    RETURN(_open_osfhandle((intptr_t)hPipe, O_RDWR|O_BINARY));
 #endif
 }
 

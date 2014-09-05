@@ -707,7 +707,7 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 
 BrassPostList::~BrassPostList()
 {
-    LOGCALL_VOID(DB, "BrassPostList::~BrassPostList", NO_ARGS);
+    LOGCALL_DTOR(DB, "BrassPostList");
 }
 
 Xapian::termcount

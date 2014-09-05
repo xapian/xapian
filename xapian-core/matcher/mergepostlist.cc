@@ -103,7 +103,7 @@ MergePostList::get_termfreq_max() const
     for (i = plists.begin(); i != plists.end(); ++i) {
 	total += (*i)->get_termfreq_max();
     }
-    return total;
+    RETURN(total);
 }
 
 Xapian::doccount
@@ -116,7 +116,7 @@ MergePostList::get_termfreq_min() const
     for (i = plists.begin(); i != plists.end(); ++i) {
 	total += (*i)->get_termfreq_min();
     }
-    return total;
+    RETURN(total);
 }
 
 Xapian::doccount
@@ -129,7 +129,7 @@ MergePostList::get_termfreq_est() const
     for (i = plists.begin(); i != plists.end(); ++i) {
 	total += (*i)->get_termfreq_est();
     }
-    return total;
+    RETURN(total);
 }
 
 Xapian::docid
@@ -147,7 +147,7 @@ MergePostList::get_weight() const
 {
     LOGCALL(MATCH, Xapian::weight, "MergePostList::get_weight", NO_ARGS);
     Assert(current != -1);
-    return plists[current]->get_weight();
+    RETURN(plists[current]->get_weight());
 }
 
 const string *
@@ -155,14 +155,14 @@ MergePostList::get_collapse_key() const
 {
     LOGCALL(MATCH, string *, "MergePostList::get_collapse_key", NO_ARGS);
     Assert(current != -1);
-    return plists[current]->get_collapse_key();
+    RETURN(plists[current]->get_collapse_key());
 }
 
 Xapian::weight
 MergePostList::get_maxweight() const
 {
     LOGCALL(MATCH, Xapian::weight, "MergePostList::get_maxweight", NO_ARGS);
-    return w_max;
+    RETURN(w_max);
 }
 
 Xapian::weight
@@ -192,7 +192,7 @@ MergePostList::recalc_maxweight()
 	    }
 	}
     }
-    return w_max;
+    RETURN(w_max);
 }
 
 bool
@@ -200,7 +200,7 @@ MergePostList::at_end() const
 {
     LOGCALL(MATCH, bool, "MergePostList::at_end", NO_ARGS);
     Assert(current != -1);
-    return unsigned(current) >= plists.size();    
+    RETURN(unsigned(current) >= plists.size());
 }
 
 string
@@ -219,7 +219,7 @@ MergePostList::get_doclength() const
 {
     LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_doclength", NO_ARGS);
     Assert(current != -1);
-    return plists[current]->get_doclength();
+    RETURN(plists[current]->get_doclength());
 }
 
 Xapian::termcount

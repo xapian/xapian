@@ -36,8 +36,8 @@ Remote::open(const string &host, unsigned int port, Xapian::timeout timeout_,
 	     Xapian::timeout connect_timeout)
 {
     LOGCALL_STATIC(API, Database, "Remote::open", host | port | timeout_ | connect_timeout);
-    return Database(new RemoteTcpClient(host, port, timeout_ * 1e-3,
-					connect_timeout * 1e-3, false));
+    RETURN(Database(new RemoteTcpClient(host, port, timeout_ * 1e-3,
+					connect_timeout * 1e-3, false)));
 }
 
 WritableDatabase
@@ -45,8 +45,8 @@ Remote::open_writable(const string &host, unsigned int port,
 		      Xapian::timeout timeout_, Xapian::timeout connect_timeout)
 {
     LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", host | port | timeout_ | connect_timeout);
-    return WritableDatabase(new RemoteTcpClient(host, port, timeout_ * 1e-3,
-						connect_timeout * 1e-3, true));
+    RETURN(WritableDatabase(new RemoteTcpClient(host, port, timeout_ * 1e-3,
+						connect_timeout * 1e-3, true)));
 }
 
 Database
@@ -54,7 +54,7 @@ Remote::open(const string &program, const string &args,
 	     Xapian::timeout timeout_)
 {
     LOGCALL_STATIC(API, Database, "Remote::open", program | args | timeout_);
-    return Database(new ProgClient(program, args, timeout_ * 1e-3, false));
+    RETURN(Database(new ProgClient(program, args, timeout_ * 1e-3, false)));
 }
 
 WritableDatabase
@@ -62,8 +62,8 @@ Remote::open_writable(const string &program, const string &args,
 		      Xapian::timeout timeout_)
 {
     LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", program | args | timeout_);
-    return WritableDatabase(new ProgClient(program, args,
-					   timeout_ * 1e-3, true));
+    RETURN(WritableDatabase(new ProgClient(program, args,
+					   timeout_ * 1e-3, true)));
 }
 
 }

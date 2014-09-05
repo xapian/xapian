@@ -93,7 +93,7 @@ Registry::operator=(const Registry & other)
 {
     LOGCALL(API, Xapian::Registry &, "Xapian::Registry::operator=", other);
     internal = other.internal;
-    return(*this);
+    RETURN(*this);
 }
 
 Registry::Registry()

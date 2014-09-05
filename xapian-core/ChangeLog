@@ -1,3 +1,11 @@
+Fri Sep 05 14:51:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* api/,backends/brass/,backends/chert/,backends/dbfactory_remote.cc,
+	  matcher/mergepostlist.cc,matcher/remotesubmatch.cc,
+	  net/progclient.cc: Add missing RETURN() markup for debug logging,
+	  highlighted by warning from recent GCC.
+
 Fri Sep 05 14:34:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
