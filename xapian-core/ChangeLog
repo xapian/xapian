@@ -1,3 +1,11 @@
+Fri Sep 05 17:41:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/harness/fdtracker.cc: Don't report apparent leaks of fds
+	  opened on /dev/urandom - at least on Linux, something in the C
+	  library seems to lazily open it, and the report of a possible leak
+	  followed by assurance that it's OK really is just noise we could
+	  do without.
+
 Fri Sep 05 14:06:08 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/pretty.h: Add new brass-related types.
