@@ -1,3 +1,9 @@
+Fri Sep 05 15:10:17 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* HACKING: freecode no longer accepts updates, so drop that item from
+	  the release checklist.
+
 Fri Sep 05 14:51:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
