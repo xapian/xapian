@@ -1,3 +1,8 @@
+Fri Sep 05 15:11:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* include/xapian/compactor.h: Fix formatting of doxygen comment.
+
 Fri Sep 05 15:10:17 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
