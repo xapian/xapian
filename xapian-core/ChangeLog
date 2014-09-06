@@ -1,3 +1,12 @@
+Sat Sep 06 02:11:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/fdtracker.cc: Don't report apparent leaks of fds
+	  opened on /dev/urandom - at least on Linux, something in the C
+	  library seems to lazily open it, and the report of a possible leak
+	  followed by assurance that it's OK really is just noise we could
+	  do without.
+
 Fri Sep 05 15:11:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
