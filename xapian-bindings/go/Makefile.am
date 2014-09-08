@@ -137,11 +137,7 @@ endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 exampledatadir = $(docdir)/python/examples
-dist_exampledata_DATA = \
-	docs/examples/simpleindex.py \
-	docs/examples/simpleexpand.py \
-	docs/examples/simplematchdecider.py \
-	docs/examples/simplesearch.py
+dist_exampledata_DATA = 
 
-docdatadir = $(docdir)/python
+docdatadir = $(docdir)/go
 dist_docdata_DATA = docs/index.html
