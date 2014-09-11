@@ -40,7 +40,7 @@ using namespace std;
 const unsigned C_BASE = 8;
 
 void
-BrassFreeList::read_block(BrassTable * B, uint4 n, byte * ptr)
+BrassFreeList::read_block(const BrassTable * B, uint4 n, byte * ptr)
 {
     B->read_block(n, ptr);
     if (rare(GET_LEVEL(ptr) != LEVEL_FREELIST))
@@ -48,7 +48,7 @@ BrassFreeList::read_block(BrassTable * B, uint4 n, byte * ptr)
 }
 
 void
-BrassFreeList::write_block(BrassTable * B, uint4 n, byte * ptr)
+BrassFreeList::write_block(const BrassTable * B, uint4 n, byte * ptr)
 {
     setint4(ptr, 4, 0);
     SET_LEVEL(ptr, LEVEL_FREELIST);
@@ -56,7 +56,7 @@ BrassFreeList::write_block(BrassTable * B, uint4 n, byte * ptr)
 }
 
 uint4
-BrassFreeList::get_block(BrassTable *B, uint4 block_size)
+BrassFreeList::get_block(const BrassTable *B, uint4 block_size)
 {
     if (fl == fl_end) {
 	return first_unused_block++;
@@ -93,7 +93,7 @@ BrassFreeList::get_block(BrassTable *B, uint4 block_size)
 }
 
 uint4
-BrassFreeList::walk(BrassTable *B, uint4 block_size, bool inclusive)
+BrassFreeList::walk(const BrassTable *B, uint4 block_size, bool inclusive)
 {
     if (fl == fl_end) {
 	// It's expected that the caller checks !empty() first.
@@ -130,7 +130,7 @@ BrassFreeList::walk(BrassTable *B, uint4 block_size, bool inclusive)
 }
 
 void
-BrassFreeList::mark_block_unused(BrassTable * B, uint4 block_size, uint4 blk)
+BrassFreeList::mark_block_unused(const BrassTable * B, uint4 block_size, uint4 blk)
 {
     if (!pw) {
 	pw = new byte[block_size];
@@ -170,7 +170,7 @@ BrassFreeList::mark_block_unused(BrassTable * B, uint4 block_size, uint4 blk)
 }
 
 void
-BrassFreeList::commit(BrassTable * B, uint4 block_size)
+BrassFreeList::commit(const BrassTable * B, uint4 block_size)
 {
     if (pw && flw.c != 0) {
 	memset(pw + flw.c, 255, block_size - flw.c - 4);

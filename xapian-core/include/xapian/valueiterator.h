@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_VALUEITERATOR_H
 #define XAPIAN_INCLUDED_VALUEITERATOR_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/valueiterator.h> directly; include <xapian.h> instead."
 #endif
 

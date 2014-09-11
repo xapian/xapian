@@ -160,7 +160,7 @@ BrassValueManager::get_chunk_containing_did(Xapian::valueno slot,
     LOGCALL(DB, Xapian::docid, "BrassValueManager::get_chunk_containing_did", slot | did | chunk);
     if (!cursor.get())
 	cursor.reset(postlist_table->cursor_get());
-    if (!cursor.get()) return 0;
+    if (!cursor.get()) RETURN(0);
 
     bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
     if (!exact) {
@@ -170,14 +170,14 @@ BrassValueManager::get_chunk_containing_did(Xapian::valueno slot,
 	const char * end = p + cursor->current_key.size();
 
 	// Check that it is a value stream chunk.
-	if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
+	if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') RETURN(0);
 
 	// Check that it's for the right value slot.
 	Xapian::valueno v;
 	if (!unpack_uint(&p, end, &v)) {
 	    throw Xapian::DatabaseCorruptError("Bad value key");
 	}
-	if (v != slot) return 0;
+	if (v != slot) RETURN(0);
 
 	// And get the first docid for the chunk so we can return it.
 	if (!unpack_uint_preserving_sort(&p, end, &did) || p != end) {
@@ -188,7 +188,7 @@ BrassValueManager::get_chunk_containing_did(Xapian::valueno slot,
     cursor->read_tag();
     swap(chunk, cursor->current_tag);
 
-    return did;
+    RETURN(did);
 }
 
 static const size_t CHUNK_SIZE_THRESHOLD = 2000;

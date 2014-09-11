@@ -99,7 +99,7 @@ using namespace std;
 %include stl.i
 
 // Disable errors about not including headers individually.
-#define XAPIAN_LIB_BUILD
+#define XAPIAN_IN_XAPIAN_H
 
 // Define these away for SWIG's parser.
 #define XAPIAN_DEPRECATED(D) D

@@ -666,15 +666,16 @@ static const test test_or_queries[] = {
     { "category:1 OR category:2", "(0 * XCAT1 OR 0 * XCAT2)" },
     { "category:1 AND category:2", "(0 * XCAT1 AND 0 * XCAT2)" },
     { "foo AND category:2", "(Zfoo@1 AND 0 * XCAT2)" },
+    { "A site:1 site:2", "(a@1 FILTER (H1 OR H2))" },
 #if 0
-    { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
-    { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
-    { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
-    { "A site:1 site2:2", "(a FILTER (H1 AND J2))" },
-    { "A site:1 site:2 site2:2", "(a FILTER ((H1 OR H2) AND J2))" },
-    { "A site:1 OR site:2", "(a FILTER (H1 OR H2))" },
-    { "A site:1 AND site:2", "(a FILTER (H1 AND H2))" },
+    { "A (site:1 OR site:2)", "(a@1 FILTER (H1 OR H2))" },
 #endif
+    { "A site:1 site2:2", "(a@1 FILTER (H1 AND J2))" },
+    { "A site:1 site:2 site2:2", "(a@1 FILTER ((H1 OR H2) AND J2))" },
+#if 0
+    { "A site:1 OR site:2", "(a@1 FILTER (H1 OR H2))" },
+#endif
+    { "A site:1 AND site:2", "((a@1 FILTER H1) AND 0 * H2)" },
     { "site:xapian.org OR site:www.xapian.org", "(0 * Hxapian.org OR 0 * Hwww.xapian.org)" },
     { "site:xapian.org site:www.xapian.org", "0 * (Hxapian.org OR Hwww.xapian.org)" },
     { "site:xapian.org AND site:www.xapian.org", "(0 * Hxapian.org AND 0 * Hwww.xapian.org)" },

@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_CONSTANTS_H
 #define XAPIAN_INCLUDED_CONSTANTS_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/constants.h> directly; include <xapian.h> instead."
 #endif
 
@@ -49,8 +49,10 @@ const int DB_CREATE		 = 0x02;
  */
 const int DB_OPEN		 = 0x03;
 
+#ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for action codes. */
 const int DB_ACTION_MASK_	 = 0x03;
+#endif
 
 /** Don't attempt to ensure changes have hit disk.
  *
@@ -166,11 +168,13 @@ const int DB_BACKEND_CHERT	 = 0x200;
  */
 const int DB_BACKEND_STUB	 = 0x300;
 
+#ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for backend codes. */
 const int DB_BACKEND_MASK_	 = 0x300;
 
 /** @internal Used internally to signify opening read-only. */
 const int DB_READONLY_		 = -1;
+#endif
 
 
 /** Show a short-format display of the B-tree contents.
@@ -186,6 +190,12 @@ const int DBCHECK_SHORT_TREE = 1;
 const int DBCHECK_FULL_TREE = 2;
 
 /** Show the bitmap for the B-tree.
+ *
+ *  For use with Xapian::Database::check().
+ */
+const int DBCHECK_SHOW_FREELIST = 4;
+
+/** Old name for DBCHECK_SHOW_FREELIST.
  *
  *  For use with Xapian::Database::check().
  */

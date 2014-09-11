@@ -386,7 +386,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	B.base.clear_bit_map();
     }
 
-    if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
+    if (opts & Xapian::DBCHECK_SHOW_FREELIST) {
 	int limit = B.base.get_bit_map_size() - 1;
 
 	limit = limit * CHAR_BIT + CHAR_BIT - 1;

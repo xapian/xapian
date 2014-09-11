@@ -47,8 +47,9 @@
 using namespace std;
 
 /// Brass format version (date of change):
-#define BRASS_FORMAT_VERSION DATE_TO_VERSION(2014,7,28)
-// 2014,7,28  1.3.2 Order position table by term first; merge base files into revision file
+#define BRASS_FORMAT_VERSION DATE_TO_VERSION(2014,9,1)
+// 2014,9,1   1.3.2 Document count held in DB stats
+// 2014,7,28  1.3.2pre Order position table by term first; merge base files into revision file
 
 /// Convert date <-> version number.  Dates up to 2190-03-02 fit in 2 bytes.
 #define DATE_TO_VERSION(Y,M,D) (((((Y)-2014)*12+((M)-1))*31)+(D)-1)

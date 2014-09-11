@@ -32,7 +32,7 @@
 namespace Brass {
     enum table_type {
 	POSTLIST,
-	RECORD,
+	DOCDATA,
 	TERMLIST,
 	POSITION,
 	SPELLING,

@@ -1,3 +1,146 @@
+Wed Sep 10 17:02:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc: If we hit an unknown query serialisation,
+	  report the numeric code for it in the exception thrown.
+
+Wed Sep 10 16:59:20 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Enable some disabled cases which actually
+	  work (in some cases with slightly tweaked expected answers which are
+	  equivalent to those that were shown).
+
+Fri Sep 05 17:41:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/harness/fdtracker.cc: Don't report apparent leaks of fds
+	  opened on /dev/urandom - at least on Linux, something in the C
+	  library seems to lazily open it, and the report of a possible leak
+	  followed by assurance that it's OK really is just noise we could
+	  do without.
+
+Fri Sep 05 14:06:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Add new brass-related types.
+
+Thu Sep 04 20:51:16 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory.cc: Fix incorrect return type in logging
+	  annotations for InMemory::open().
+
+Thu Sep 04 20:48:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,backends/chert/chert_database.cc:
+	  Fix logging annotations for get_freqs() to reflect that it now has
+	  void return type.
+
+Thu Sep 04 20:21:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/,backends/brass/,backends/chert/,backends/dbfactory_remote.cc,
+	  matcher/mergepostlist.cc,matcher/remotesubmatch.cc,
+	  net/progclient.cc: Add missing RETURN() markup for debug logging,
+	  highlighted by warning from recent GCC.
+
+Thu Sep 04 18:02:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc,backends/brass/brass_freelist.h:
+	  Make the BrassTable parameter a const pointer.
+
+Thu Sep 04 17:13:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/io_utils.cc: Reading or writing a block will almost always
+	  complete in one call, so streamline that case.
+
+Wed Sep 03 19:30:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/internaltypes.h: Update comment to reflect C++11 now being
+	  out.
+
+Wed Sep 03 19:29:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/internaltypes.h,configure.ac: Make uint2 available.
+
+Wed Sep 03 19:27:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.h: Remove method which is declared but
+	  never defined.
+
+Wed Sep 03 18:52:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* generate-exceptions,include/xapian/: Use XAPIAN_IN_XAPIAN_H rather
+	  than XAPIAN_INCLUDED_XAPIAN_H in the direct inclusion of subheader
+	  checks.  Currently neither will catch the case of the user including
+	  a sub-header after <xapian.h> since the include guard for the
+	  subheader will stop us getting to the direct inclusion check, but
+	  XAPIAN_IN_XAPIAN_H will work if we move the check outside the
+	  include guard.
+
+Wed Sep 03 18:29:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/constants.h: Hide internal constants from external
+	  users.
+
+Tue Sep 02 14:15:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_spellingwordslist.h: Explicit include
+	  brass_cursor.h since we actually use BrassCursor here.
+
+Mon Sep 01 22:03:11 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: New testcase readonlyparentdir1 to ensure that
+	  commit works with a read-only parent directory.
+
+Mon Sep 01 21:51:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/harness/testrunner.h: Drop "flint" flag - flint was removed
+	  from trunk some time ago.
+
+Mon Sep 01 21:42:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Eliminate brass_doclen_t in favour of just using
+	  Xapian::termcount.
+
+Mon Sep 01 21:28:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.h: Tweak to ease upcoming big merge.
+
+Mon Sep 01 20:59:40 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/,backends/dbcheck.cc: Only create a btree entry for
+	  the document data if it is non-empty.  The table is now lazily
+	  created, so won't exist if no documents have document data set.
+
+Mon Sep 01 16:54:44 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_record.cc,backends/brass/brass_record.h: Remove
+	  BrassRecordTable::get_doccount() as it is no longer used.
+
+Mon Sep 01 16:51:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Track doccount in the database stats.
+
+Mon Sep 01 16:27:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc: Update comment and exception
+	  message not to talk about "consistent state", as that was to do
+	  with the base files.
+
+Mon Sep 01 14:57:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc: Explicitly include brass_defs.h.
+
+Mon Sep 01 14:48:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/: Eliminate backends/brass/brass_types.h.
+
+Fri Aug 29 21:06:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: Fix checking a single brass table.
+
+Thu Aug 28 16:04:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
+	  bin/xapian-check.cc,include/xapian/constants.h: Rename
+	  DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST.
+
 Tue Aug 26 22:31:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

@@ -123,7 +123,7 @@ Database::reopen()
 	if ((*i)->reopen())
 	    maybe_changed = true;
     }
-    return maybe_changed;
+    RETURN(maybe_changed);
 }
 
 void

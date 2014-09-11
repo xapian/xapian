@@ -204,14 +204,14 @@ std::string
 Document::serialise() const
 {
     LOGCALL(API, std::string, "Document::serialise", NO_ARGS);
-    return serialise_document(*this);
+    RETURN(serialise_document(*this));
 }
 
 Document
 Document::unserialise(const std::string &s)
 {
     LOGCALL_STATIC(API, Document, "Document::unserialise", s);
-    return unserialise_document(s);
+    RETURN(unserialise_document(s));
 }
 
 }
@@ -284,9 +284,9 @@ string
 Xapian::Document::Internal::get_data() const
 {
     LOGCALL(DB, string, "Xapian::Document::Internal::get_data", NO_ARGS);
-    if (data_here) return data;
-    if (!database.get()) return string();
-    return do_get_data();
+    if (data_here) RETURN(data);
+    if (!database.get()) RETURN(string());
+    RETURN(do_get_data());
 }
 
 void

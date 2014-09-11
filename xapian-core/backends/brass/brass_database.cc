@@ -36,13 +36,14 @@
 #include "backends/contiguousalldocspostlist.h"
 #include "brass_alldocspostlist.h"
 #include "brass_alltermslist.h"
-#include "brass_replicate_internal.h"
+#include "brass_defs.h"
+#include "brass_docdata.h"
 #include "brass_document.h"
 #include "../flint_lock.h"
 #include "brass_metadata.h"
 #include "brass_positionlist.h"
 #include "brass_postlist.h"
-#include "brass_record.h"
+#include "brass_replicate_internal.h"
 #include "brass_spellingwordslist.h"
 #include "brass_termlist.h"
 #include "brass_valuelist.h"
@@ -101,7 +102,7 @@ BrassDatabase::BrassDatabase(const string &brass_dir, int flags,
 	  value_manager(&postlist_table, &termlist_table),
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
-	  record_table(db_dir, readonly),
+	  docdata_table(db_dir, readonly),
 	  lock(db_dir),
 	  changes(db_dir)
 {
@@ -165,7 +166,8 @@ BrassDatabase::~BrassDatabase()
 bool
 BrassDatabase::database_exists() {
     LOGCALL(DB, bool, "BrassDatabase::database_exists", NO_ARGS);
-    RETURN(record_table.exists() && postlist_table.exists());
+    // The postlist table is the only non-optional one.
+    RETURN(postlist_table.exists());
 }
 
 void
@@ -180,7 +182,7 @@ BrassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     position_table.create_and_open(flags, block_size);
     synonym_table.create_and_open(flags, block_size);
     spelling_table.create_and_open(flags, block_size);
-    record_table.create_and_open(flags, block_size);
+    docdata_table.create_and_open(flags, block_size);
     termlist_table.create_and_open(flags, block_size);
     postlist_table.create_and_open(flags, block_size);
 
@@ -214,7 +216,7 @@ BrassDatabase::open_tables(int flags)
 	RETURN(false);
     }
 
-    record_table.open(flags, version_file.get_root(Brass::RECORD), rev);
+    docdata_table.open(flags, version_file.get_root(Brass::DOCDATA), rev);
     spelling_table.open(flags, version_file.get_root(Brass::SPELLING), rev);
     synonym_table.open(flags, version_file.get_root(Brass::SYNONYM), rev);
     termlist_table.open(flags, version_file.get_root(Brass::TERMLIST), rev);
@@ -235,7 +237,7 @@ BrassDatabase::open_tables(int flags)
 	termlist_table.set_changes(p);
 	synonym_table.set_changes(p);
 	spelling_table.set_changes(p);
-	record_table.set_changes(p);
+	docdata_table.set_changes(p);
     }
     return true;
 }
@@ -321,14 +323,14 @@ BrassDatabase::set_revision_number(int flags, brass_revision_number_t new_revisi
     termlist_table.flush_db();
     synonym_table.flush_db();
     spelling_table.flush_db();
-    record_table.flush_db();
+    docdata_table.flush_db();
 
     postlist_table.commit(new_revision, version_file.root_to_set(Brass::POSTLIST));
     position_table.commit(new_revision, version_file.root_to_set(Brass::POSITION));
     termlist_table.commit(new_revision, version_file.root_to_set(Brass::TERMLIST));
     synonym_table.commit(new_revision, version_file.root_to_set(Brass::SYNONYM));
     spelling_table.commit(new_revision, version_file.root_to_set(Brass::SPELLING));
-    record_table.commit(new_revision, version_file.root_to_set(Brass::RECORD));
+    docdata_table.commit(new_revision, version_file.root_to_set(Brass::DOCDATA));
 
     const string & tmpfile = version_file.write(new_revision, flags);
     if (!postlist_table.sync() ||
@@ -336,7 +338,7 @@ BrassDatabase::set_revision_number(int flags, brass_revision_number_t new_revisi
 	!termlist_table.sync() ||
 	!synonym_table.sync() ||
 	!spelling_table.sync() ||
-	!record_table.sync() ||
+	!docdata_table.sync() ||
 	!version_file.sync(tmpfile, new_revision, flags)) {
 	(void)unlink(tmpfile.c_str());
 	throw Xapian::DatabaseError("Commit failed", errno);
@@ -349,8 +351,8 @@ bool
 BrassDatabase::reopen()
 {
     LOGCALL(DB, bool, "BrassDatabase::reopen", NO_ARGS);
-    if (!readonly) return false;
-    return open_tables(postlist_table.get_flags());
+    if (!readonly) RETURN(false);
+    RETURN(open_tables(postlist_table.get_flags()));
 }
 
 void
@@ -362,7 +364,7 @@ BrassDatabase::close()
     termlist_table.close(true);
     synonym_table.close(true);
     spelling_table.close(true);
-    record_table.close(true);
+    docdata_table.close(true);
     lock.release();
 }
 
@@ -406,7 +408,7 @@ BrassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
 	"termlist."BRASS_TABLE_EXTENSION"\0"
 	"synonym."BRASS_TABLE_EXTENSION"\0"
 	"spelling."BRASS_TABLE_EXTENSION"\0"
-	"record."BRASS_TABLE_EXTENSION"\0"
+	"docdata."BRASS_TABLE_EXTENSION"\0"
 	"position."BRASS_TABLE_EXTENSION"\0"
 	"postlist."BRASS_TABLE_EXTENSION"\0"
 	"iambrass\0";
@@ -564,7 +566,7 @@ BrassDatabase::modifications_failed(brass_revision_number_t new_revision,
 
 	// Reopen tables with old revision number.
 	version_file.cancel();
-	record_table.open(flags, version_file.get_root(Brass::RECORD), old_revision);
+	docdata_table.open(flags, version_file.get_root(Brass::DOCDATA), old_revision);
 	spelling_table.open(flags, version_file.get_root(Brass::SPELLING), old_revision);
 	synonym_table.open(flags, version_file.get_root(Brass::SYNONYM), old_revision);
 	termlist_table.open(flags, version_file.get_root(Brass::TERMLIST), old_revision);
@@ -578,12 +580,12 @@ BrassDatabase::modifications_failed(brass_revision_number_t new_revision,
 	++new_revision;
 	set_revision_number(flags, new_revision);
     } catch (const Xapian::Error &e) {
-	// We can't get the database into a consistent state, so close
-	// it to avoid the risk of database corruption.
+	// We failed to roll-back so close the database to avoid the risk of
+	// database corruption.
 	BrassDatabase::close();
-	throw Xapian::DatabaseError("Modifications failed (" + msg +
-				    "), and cannot set consistent table "
-				    "revision numbers: " + e.get_msg());
+	throw Xapian::DatabaseError("Modifications failed (" + msg + "), "
+				    "and couldn't open at the old revision: " +
+				    e.get_msg());
     }
 
     BrassChanges * p;
@@ -594,7 +596,7 @@ BrassDatabase::modifications_failed(brass_revision_number_t new_revision,
     termlist_table.set_changes(p);
     synonym_table.set_changes(p);
     spelling_table.set_changes(p);
-    record_table.set_changes(p);
+    docdata_table.set_changes(p);
 }
 
 void
@@ -607,7 +609,7 @@ BrassDatabase::apply()
 	!value_manager.is_modified() &&
 	!synonym_table.is_modified() &&
 	!spelling_table.is_modified() &&
-	!record_table.is_modified()) {
+	!docdata_table.is_modified()) {
 	return;
     }
 
@@ -632,7 +634,7 @@ BrassDatabase::apply()
     termlist_table.set_changes(p);
     synonym_table.set_changes(p);
     spelling_table.set_changes(p);
-    record_table.set_changes(p);
+    docdata_table.set_changes(p);
 }
 
 void
@@ -647,14 +649,14 @@ BrassDatabase::cancel()
     value_manager.cancel();
     synonym_table.cancel(version_file.get_root(Brass::SYNONYM), rev);
     spelling_table.cancel(version_file.get_root(Brass::SPELLING), rev);
-    record_table.cancel(version_file.get_root(Brass::RECORD), rev);
+    docdata_table.cancel(version_file.get_root(Brass::DOCDATA), rev);
 }
 
 Xapian::doccount
 BrassDatabase::get_doccount() const
 {
     LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_doccount", NO_ARGS);
-    RETURN(record_table.get_doccount());
+    RETURN(stats.get_doccount());
 }
 
 Xapian::docid
@@ -675,12 +677,7 @@ Xapian::doclength
 BrassDatabase::get_avlength() const
 {
     LOGCALL(DB, Xapian::doclength, "BrassDatabase::get_avlength", NO_ARGS);
-    Xapian::doccount doccount = record_table.get_doccount();
-    if (doccount == 0) {
-	// Avoid dividing by zero when there are no documents.
-	RETURN(0);
-    }
-    RETURN(double(stats.get_total_doclen()) / doccount);
+    RETURN(stats.get_avlength());
 }
 
 Xapian::termcount
@@ -708,7 +705,7 @@ BrassDatabase::get_freqs(const string & term,
 			 Xapian::doccount * termfreq_ptr,
 			 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    LOGCALL_VOID(DB, "BrassDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
     postlist_table.get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
@@ -759,7 +756,7 @@ BrassDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "BrassDatabase::term_exists", term);
     Assert(!term.empty());
-    return postlist_table.term_exists(term);
+    RETURN(postlist_table.term_exists(term));
 }
 
 bool
@@ -815,7 +812,7 @@ BrassDatabase::open_document(Xapian::docid did, bool lazy) const
     }
 
     intrusive_ptr<const Database::Internal> ptrtothis(this);
-    RETURN(new BrassDocument(ptrtothis, did, &value_manager, &record_table));
+    RETURN(new BrassDocument(ptrtothis, did, &value_manager, &docdata_table));
 }
 
 PositionList *
@@ -893,9 +890,9 @@ BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
     LOGCALL(DB, TermList *, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.cursor_get();
-    if (!cursor) return NULL;
-    return new BrassMetadataTermList(intrusive_ptr<const BrassDatabase>(this),
-				     cursor, prefix);
+    if (!cursor) RETURN(NULL);
+    RETURN(new BrassMetadataTermList(intrusive_ptr<const BrassDatabase>(this),
+				     cursor, prefix));
 }
 
 string
@@ -1005,13 +1002,13 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
     LOGCALL(DB, Xapian::docid, "BrassWritableDatabase::add_document_", did | document);
     Assert(did != 0);
     try {
-	// Add the record using that document ID.
-	record_table.replace_record(document.get_data(), did);
+	// Set the document data.
+	docdata_table.replace_document_data(did, document.get_data());
 
 	// Set the values.
 	value_manager.add_document(did, document, value_stats);
 
-	brass_doclen_t new_doclen = 0;
+	Xapian::termcount new_doclen = 0;
 	{
 	    Xapian::TermIterator term = document.termlist_begin();
 	    for ( ; term != document.termlist_end(); ++term) {
@@ -1066,17 +1063,22 @@ BrassWritableDatabase::delete_document(Xapian::docid did)
     if (!termlist_table.is_open())
 	throw_termlist_table_close_exception();
 
+    // Remove the document data.  If this fails, just propagate the exception since
+    // the state should still be consistent.
+    bool doc_really_existed = docdata_table.delete_document_data(did);
+
     if (rare(modify_shortcut_docid == did)) {
 	// The modify_shortcut document can't be used for a modification
 	// shortcut now, because it's been deleted!
 	modify_shortcut_document = NULL;
 	modify_shortcut_docid = 0;
+	doc_really_existed = true;
     }
 
-    // Remove the record.  If this fails, just propagate the exception since
-    // the state should still be consistent (most likely it's
-    // DocNotFoundError).
-    record_table.delete_record(did);
+    if (!doc_really_existed) {
+	// Ensure we throw DocumentNotFound if the document doesn't exist.
+	(void)get_doclength(did);
+    }
 
     try {
 	// Remove the values.
@@ -1175,9 +1177,9 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	    intrusive_ptr<const BrassWritableDatabase> ptrtothis(this);
 	    BrassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
-	    brass_doclen_t old_doclen = termlist.get_doclength();
+	    Xapian::termcount old_doclen = termlist.get_doclength();
 	    stats.delete_document(old_doclen);
-	    brass_doclen_t new_doclen = old_doclen;
+	    Xapian::termcount new_doclen = old_doclen;
 
 	    string old_tname, new_tname;
 
@@ -1253,8 +1255,8 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->data_modified()) {
-	    // Replace the record
-	    record_table.replace_record(document.get_data(), did);
+	    // Update the document data.
+	    docdata_table.replace_document_data(did, document.get_data());
 	}
 
 	if (!modifying || document.internal->values_modified()) {
@@ -1305,7 +1307,7 @@ BrassWritableDatabase::get_freqs(const string & term,
 				 Xapian::doccount * termfreq_ptr,
 				 Xapian::termcount * collfreq_ptr) const
 {
-    LOGCALL(DB, Xapian::doccount, "BrassWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
+    LOGCALL_VOID(DB, "BrassWritableDatabase::get_freqs", term | termfreq_ptr | collfreq_ptr);
     Assert(!term.empty());
     BrassDatabase::get_freqs(term, termfreq_ptr, collfreq_ptr);
     Xapian::termcount_diff tf_delta, cf_delta;

@@ -282,7 +282,7 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=618868ce3dbbde24bff185afea0c019d031cf857
+swig_git_commit_hash=e12322df865a17cc794b5cd4e9743f105b5a38bd
 swig_origin_url=git://github.com/swig/swig.git
 
 if [ -d .git ] ; then

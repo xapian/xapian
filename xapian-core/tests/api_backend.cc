@@ -958,3 +958,34 @@ DEFINE_TESTCASE(newfreelistblock1, writable) {
 
     return true;
 }
+
+/** Check that the parent directory for the database doesn't need to be
+ *  writable.  Regression test for early versions on the brass new btree
+ *  branch which failed to append a "/" when generating a temporary filename
+ *  from the database directory.
+ */
+DEFINE_TESTCASE(readonlyparentdir1, brass || chert) {
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
+    string path = get_named_writable_database_path("readonlyparentdir1");
+    // Fix permissions if the previous test was killed.
+    (void)chmod(path.c_str(), 0700);
+    mkdir(path.c_str(), 0777);
+    mkdir((path + "/sub").c_str(), 0777);
+    Xapian::WritableDatabase db = get_named_writable_database("readonlyparentdir1/sub");
+    TEST(chmod(path.c_str(), 0500) == 0);
+    try {
+	Xapian::Document doc;
+	doc.add_term("hello");
+	doc.set_data("some text");
+	db.add_document(doc);
+	db.commit();
+    } catch (...) {
+	// Attempt to fix the permissions, otherwise things like "rm -rf" on
+	// the source tree will fail.
+	(void)chmod(path.c_str(), 0700);
+	throw;
+    }
+    TEST(chmod(path.c_str(), 0700) == 0);
+#endif
+    return true;
+}

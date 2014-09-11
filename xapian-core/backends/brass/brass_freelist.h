@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_FREELIST_H
 #define XAPIAN_INCLUDED_BRASS_FREELIST_H
 
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "pack.h"
 
 class BrassTable;
@@ -68,9 +68,9 @@ class BrassFreeList {
 
     void operator=(const BrassFreeList &);
 
-    void read_block(BrassTable * B, uint4 n, byte * p);
+    void read_block(const BrassTable * B, uint4 n, byte * p);
 
-    void write_block(BrassTable * B, uint4 n, byte * p);
+    void write_block(const BrassTable * B, uint4 n, byte * p);
 
   protected:
     uint4 revision;
@@ -106,18 +106,18 @@ class BrassFreeList {
 
     bool empty() const { return fl == fl_end; }
 
-    uint4 get_block(BrassTable * B, uint4 block_size);
+    uint4 get_block(const BrassTable * B, uint4 block_size);
 
-    uint4 walk(BrassTable *B, uint4 block_size, bool inclusive);
+    uint4 walk(const BrassTable *B, uint4 block_size, bool inclusive);
 
-    void mark_block_unused(BrassTable * B, uint4 block_size, uint4 n);
+    void mark_block_unused(const BrassTable * B, uint4 block_size, uint4 n);
 
     uint4 get_revision() const { return revision; }
     void set_revision(uint4 revision_) { revision = revision_; }
 
     uint4 get_first_unused_block() const { return first_unused_block; }
 
-    void commit(BrassTable * B, uint4 block_size);
+    void commit(const BrassTable * B, uint4 block_size);
 
     void pack(std::string & buf) {
 	pack_uint(buf, revision);

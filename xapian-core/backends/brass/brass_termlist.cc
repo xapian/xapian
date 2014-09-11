@@ -77,10 +77,10 @@ BrassTermList::BrassTermList(intrusive_ptr<const BrassDatabase> db_,
     }
 }
 
-brass_doclen_t
+Xapian::termcount
 BrassTermList::get_doclength() const
 {
-    LOGCALL(DB, brass_doclen_t, "BrassTermList::get_doclength", NO_ARGS);
+    LOGCALL(DB, Xapian::termcount, "BrassTermList::get_doclength", NO_ARGS);
     RETURN(doclen);
 }
 
@@ -196,6 +196,6 @@ Xapian::PositionIterator
 BrassTermList::positionlist_begin() const
 {
     LOGCALL(DB, Xapian::PositionIterator, "BrassTermList::positionlist_begin", NO_ARGS);
-    return Xapian::PositionIterator(
-	    new BrassPositionList(&db->position_table, did, current_term));
+    RETURN(Xapian::PositionIterator(
+	    new BrassPositionList(&db->position_table, did, current_term)));
 }

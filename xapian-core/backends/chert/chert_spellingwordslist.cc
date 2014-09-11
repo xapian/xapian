@@ -63,7 +63,7 @@ ChertSpellingWordsList::get_termfreq() const
     if (!unpack_uint_last(&p, p + cursor->current_tag.size(), &freq)) {
 	throw Xapian::DatabaseCorruptError("Bad spelling word freq");
     }
-    return freq;
+    RETURN(freq);
 }
 
 Xapian::termcount

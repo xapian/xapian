@@ -1,7 +1,7 @@
 /** @file deprecated.h
  * @brief Define XAPIAN_DEPRECATED() and related macros.
  */
-// Copyright (C) 2006,2007,2009,2011,2012,2013 Olly Betts
+// Copyright (C) 2006,2007,2009,2011,2012,2013,2014 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #ifndef XAPIAN_INCLUDED_DEPRECATED_H
 #define XAPIAN_INCLUDED_DEPRECATED_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/deprecated.h> directly; include <xapian.h> instead."
 #endif
 

@@ -234,8 +234,8 @@ BrassTableCheck::check(const char * tablename, const string & path,
     Brass::table_type tab_type;
     if (strcmp(tablename, "postlist") == 0) {
 	tab_type = Brass::POSTLIST;
-    } else if (strcmp(tablename, "record") == 0) {
-	tab_type = Brass::RECORD;
+    } else if (strcmp(tablename, "docdata") == 0) {
+	tab_type = Brass::DOCDATA;
     } else if (strcmp(tablename, "termlist") == 0) {
 	tab_type = Brass::TERMLIST;
     } else if (strcmp(tablename, "position") == 0) {
@@ -277,22 +277,22 @@ BrassTableCheck::check(const char * tablename, const string & path,
 	BrassFreeListChecker flcheck(B->free_list);
 	B->block_check(C, B->level, opts, flcheck);
 
-	if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
+	if (opts & Xapian::DBCHECK_SHOW_FREELIST) {
 	    *out << "Freelist:";
 	    if (B->free_list.empty())
 		*out << " empty";
 	}
 	while (!B->free_list.empty()) {
 	    uint4 n = B->free_list.walk(B.get(), B->block_size, true);
-	    if (opts & Xapian::DBCHECK_SHOW_BITMAP)
+	    if (opts & Xapian::DBCHECK_SHOW_FREELIST)
 		*out << ' ' << n;
 	    if (!flcheck.mark_used(n)) {
-		if (opts & Xapian::DBCHECK_SHOW_BITMAP)
+		if (opts & Xapian::DBCHECK_SHOW_FREELIST)
 		    *out << endl;
 		failure("Used block in freelist, or same block in freelist more than once", n);
 	    }
 	}
-	if (opts & Xapian::DBCHECK_SHOW_BITMAP)
+	if (opts & Xapian::DBCHECK_SHOW_FREELIST)
 	    *out << endl;
 
 	uint4 first_bad;

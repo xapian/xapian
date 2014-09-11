@@ -27,8 +27,8 @@
 #include "xapian/error.h"
 
 #include "../flint_lock.h"
+#include "brass_defs.h"
 #include "brass_replicate_internal.h"
-#include "brass_types.h"
 #include "brass_version.h"
 #include "compression_stream.h"
 #include "debuglog.h"
@@ -51,7 +51,7 @@ using namespace Xapian;
 
 static const char * dbnames =
 	"/postlist."BRASS_TABLE_EXTENSION"\0"
-	"/record."BRASS_TABLE_EXTENSION"\0\0\0"
+	"/docdata."BRASS_TABLE_EXTENSION"\0\0"
 	"/termlist."BRASS_TABLE_EXTENSION"\0"
 	"/position."BRASS_TABLE_EXTENSION"\0"
 	"/spelling."BRASS_TABLE_EXTENSION"\0"

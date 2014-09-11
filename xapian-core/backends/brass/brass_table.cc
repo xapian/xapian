@@ -230,8 +230,8 @@ BrassTable::write_block(uint4 n, const byte * p, bool appending) const
 	v = int(Brass::POSITION);
     } else if (strcmp(tablename, "postlist") == 0) {
 	v = int(Brass::POSTLIST);
-    } else if (strcmp(tablename, "record") == 0) {
-	v = int(Brass::RECORD);
+    } else if (strcmp(tablename, "docdata") == 0) {
+	v = int(Brass::DOCDATA);
     } else if (strcmp(tablename, "spelling") == 0) {
 	v = int(Brass::SPELLING);
     } else if (strcmp(tablename, "synonym") == 0) {

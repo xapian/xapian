@@ -30,8 +30,8 @@
 
 #include "brass_check.h"
 #include "brass_cursor.h"
+#include "brass_defs.h"
 #include "brass_table.h"
-#include "brass_types.h"
 #include "pack.h"
 #include "backends/valuestats.h"
 #include "unicode/description_append.h"
@@ -65,7 +65,7 @@ check_brass_table(const char * tablename, const string &db_dir,
 {
     if (out)
 	*out << tablename << ":\n";
-    if (strcmp(tablename, "record") != 0 && strcmp(tablename, "postlist") != 0) {
+    if (strcmp(tablename, "postlist") != 0) {
 	// Other filenames are created lazily, so may not exist.
 	string filename(db_dir);
 	filename += '/';
@@ -113,6 +113,7 @@ check_brass_table(const char * tablename, const string &db_dir,
 		cursor->read_tag();
 		// Check format of the METAINFO key.
 		totlen_t total_doclen;
+		Xapian::doccount doccount;
 		Xapian::docid last_docid;
 		Xapian::termcount doclen_lbound;
 		Xapian::termcount doclen_ubound;
@@ -120,7 +121,11 @@ check_brass_table(const char * tablename, const string &db_dir,
 
 		const char * data = cursor->current_tag.data();
 		const char * end = data + cursor->current_tag.size();
-		if (!unpack_uint(&data, end, &last_docid)) {
+		if (!unpack_uint(&data, end, &doccount)) {
+		    if (out)
+			*out << "Tag containing meta information is corrupt (couldn't read doccount)." << endl;
+		    ++errors;
+		} else if (!unpack_uint(&data, end, &last_docid)) {
 		    if (out)
 			*out << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
 		    ++errors;
@@ -631,8 +636,8 @@ check_brass_table(const char * tablename, const string &db_dir,
 		++errors;
 	    }
 	}
-    } else if (strcmp(tablename, "record") == 0) {
-	// Now check the contents of the record table.  Any data is valid as
+    } else if (strcmp(tablename, "docdata") == 0) {
+	// Now check the contents of the docdata table.  Any data is valid as
 	// the tag so we don't check the tags.
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
