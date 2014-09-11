@@ -208,7 +208,6 @@ merge_postlists(Xapian::Compactor & compactor,
 		vector<string>::const_iterator e,
 		Xapian::docid last_docid)
 {
-    Xapian::doccount doccount = 0;
     totlen_t tot_totlen = 0;
     Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
     Xapian::termcount wdf_ubound = 0;
@@ -233,15 +232,6 @@ merge_postlists(Xapian::Compactor & compactor,
 	if (is_metainfo_key(cur->key)) {
 	    const char * data = cur->tag.data();
 	    const char * end = data + cur->tag.size();
-	    Xapian::doccount doccount_tmp;
-	    if (!unpack_uint(&data, end, &doccount_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    doccount += doccount_tmp;
-	    if (doccount < doccount_tmp) {
-		throw "doccount wrapped!";
-	    }
-
 	    Xapian::docid dummy_did = 0;
 	    if (!unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
@@ -291,8 +281,7 @@ merge_postlists(Xapian::Compactor & compactor,
 	if (doclen_lbound > doclen_ubound)
 	    doclen_lbound = doclen_ubound;
 	string tag;
-	pack_uint(tag, doccount);
-	pack_uint(tag, last_docid - doccount);
+	pack_uint(tag, last_docid);
 	pack_uint(tag, doclen_lbound);
 	pack_uint(tag, wdf_ubound);
 	pack_uint(tag, doclen_ubound - wdf_ubound);

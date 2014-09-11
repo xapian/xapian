@@ -1,7 +1,7 @@
 /** @file brass_dbstats.cc
  * @brief Brass class for database statistics.
  */
-/* Copyright (C) 2009,2010,2014 Olly Betts
+/* Copyright (C) 2009 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -43,15 +43,12 @@ BrassDatabaseStats::read(BrassPostListTable & postlist_table)
     const char * p = data.data();
     const char * end = p + data.size();
 
-    if (unpack_uint(&p, end, &doccount) &&
-	unpack_uint(&p, end, &last_docid) &&
+    if (unpack_uint(&p, end, &last_docid) &&
 	unpack_uint(&p, end, &doclen_lbound) &&
 	unpack_uint(&p, end, &wdf_ubound) &&
 	unpack_uint(&p, end, &doclen_ubound) &&
 	unpack_uint(&p, end, &oldest_changeset) &&
 	unpack_uint_last(&p, end, &total_doclen)) {
-	// last_docid must always be >= doccount.
-	last_docid += doccount;
 	// doclen_ubound should always be >= wdf_ubound, so we store the
 	// difference as it may encode smaller.  wdf_ubound is likely to
 	// be larger than doclen_lbound.
@@ -69,9 +66,7 @@ void
 BrassDatabaseStats::write(BrassPostListTable & postlist_table) const
 {
     string data;
-    pack_uint(data, doccount);
-    // last_docid must always be >= doccount.
-    pack_uint(data, last_docid - doccount);
+    pack_uint(data, last_docid);
     pack_uint(data, doclen_lbound);
     pack_uint(data, wdf_ubound);
     // doclen_ubound should always be >= wdf_ubound, so we store the

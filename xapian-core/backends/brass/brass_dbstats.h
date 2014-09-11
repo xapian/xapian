@@ -1,7 +1,7 @@
 /** @file brass_dbstats.h
  * @brief Brass class for database statistics.
  */
-/* Copyright (C) 2009,2010,2014 Olly Betts
+/* Copyright (C) 2009,2014 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -37,9 +37,6 @@ class BrassDatabaseStats {
     /// Don't allow copying.
     BrassDatabaseStats(const BrassDatabaseStats &);
 
-    /// The number of documents in the database.
-    Xapian::doccount doccount;
-
     /// The total of the lengths of all documents in the database.
     totlen_t total_doclen;
 
@@ -60,11 +57,8 @@ class BrassDatabaseStats {
 
   public:
     BrassDatabaseStats()
-	: doccount(0), total_doclen(0), last_docid(0),
-	  doclen_lbound(0), doclen_ubound(0),
+	: total_doclen(0), last_docid(0), doclen_lbound(0), doclen_ubound(0),
 	  wdf_ubound(0), oldest_changeset(0) { }
-
-    Xapian::doccount get_doccount() const { return doccount; }
 
     totlen_t get_total_doclen() const { return total_doclen; }
 
@@ -82,15 +76,7 @@ class BrassDatabaseStats {
 
     brass_revision_number_t get_oldest_changeset() const { return oldest_changeset; }
 
-    Xapian::doclength get_avlength() const {
-	// Don't divide by zero when the database is empty.
-	if (rare(doccount == 0))
-	    return 0;
-	return Xapian::doclength(total_doclen) / doccount;
-    }
-
     void zero() {
-	doccount = 0;
 	total_doclen = 0;
 	last_docid = 0;
 	doclen_lbound = 0;
@@ -108,7 +94,6 @@ class BrassDatabaseStats {
     }
 
     void add_document(Xapian::termcount doclen) {
-	++doccount;
 	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
 	    doclen_lbound = doclen;
 	if (doclen > doclen_ubound)
@@ -117,7 +102,6 @@ class BrassDatabaseStats {
     }
 
     void delete_document(Xapian::termcount doclen) {
-	--doccount;
 	total_doclen -= doclen;
 	// If the database no longer contains any postings, we can reset
 	// doclen_lbound, doclen_ubound and wdf_ubound.

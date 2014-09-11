@@ -656,7 +656,7 @@ Xapian::doccount
 BrassDatabase::get_doccount() const
 {
     LOGCALL(DB, Xapian::doccount, "BrassDatabase::get_doccount", NO_ARGS);
-    RETURN(stats.get_doccount());
+    RETURN(record_table.get_doccount());
 }
 
 Xapian::docid
@@ -677,7 +677,12 @@ Xapian::doclength
 BrassDatabase::get_avlength() const
 {
     LOGCALL(DB, Xapian::doclength, "BrassDatabase::get_avlength", NO_ARGS);
-    RETURN(stats.get_avlength());
+    Xapian::doccount doccount = record_table.get_doccount();
+    if (doccount == 0) {
+	// Avoid dividing by zero when there are no documents.
+	RETURN(0);
+    }
+    RETURN(double(stats.get_total_doclen()) / doccount);
 }
 
 Xapian::termcount
