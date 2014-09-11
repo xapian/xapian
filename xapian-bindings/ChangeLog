@@ -1,3 +1,10 @@
+Thu Sep 11 16:59:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix SWIG version check to not fail on 3.* by making the
+	  pattern match all older versions rather than some newer ones, and
+	  update the minimum checked for to be what we actually currently want
+	  - it was 1.3.40 which is 5 years old!
+
 Wed Sep 03 19:15:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-head.i,xapian-headers.i: Define XAPIAN_IN_XAPIAN_H rather
