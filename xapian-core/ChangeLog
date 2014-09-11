@@ -1,3 +1,8 @@
+Wed Sep 10 17:02:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc: If we hit an unknown query serialisation,
+	  report the numeric code for it in the exception thrown.
+
 Wed Sep 10 16:59:20 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Enable some disabled cases which actually

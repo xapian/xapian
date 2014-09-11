@@ -516,7 +516,9 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    break;
 	}
     }
-    throw SerialisationError("Unknown Query serialisation");
+    string msg = "Unknown Query serialisation: ";
+    msg += str(ch);
+    throw SerialisationError(msg);
 }
 
 void
