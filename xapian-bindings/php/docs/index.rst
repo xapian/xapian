@@ -139,17 +139,17 @@ follows:
 +------------------+----------------------+
 | Iterator         | Dereferencing method |
 +==================+======================+
-| PositionIterator |    ``get_termpos()`` |
+| PositionIterator |   ``get_termpos()``  |
 +------------------+----------------------+
-| PostingIterator  |  ``get_docid()``     |
+| PostingIterator  |   ``get_docid()``    |
 +------------------+----------------------+
-| TermIterator     |     ``get_term()``   |
+| TermIterator     |   ``get_term()``     |
 +------------------+----------------------+
-| ValueIterator    |     ``get_value()``  |
+| ValueIterator    |   ``get_value()``    |
 +------------------+----------------------+
-| MSetIterator     |     ``get_docid()``  |
+| MSetIterator     |   ``get_docid()``    |
 +------------------+----------------------+
-| ESetIterator     |     ``get_term()``   |
+| ESetIterator     |   ``get_term()``     |
 +------------------+----------------------+
 
 Other methods, such as ``MSetIterator::get_document()``, are
@@ -161,17 +161,17 @@ MSet
 MSet objects have some additional methods to simplify access (these
 work using the C++ array dereferencing):
 
-+-----------------------------------+----------------------------------------+
-| Method name                       |            Explanation                 |
-+===================================+========================================+
-| ``get_hit(index)``                |   returns MSetIterator at index        |
-+-----------------------------------+----------------------------------------+
-|``get_document_percentage(index)`` | ``convert_to_percent(get_hit(index))`` |
-+-----------------------------------+----------------------------------------+
-| ``get_document(index)``           | ``get_hit(index)->get_document()``     |
-+-----------------------------------+----------------------------------------+
-| ``get_docid(index)``              | ``get_hit(index)->get_docid()``        |
-+-----------------------------------+----------------------------------------+
++------------------------------------+----------------------------------------+
+| Method name                        |            Explanation                 |
++====================================+========================================+
+| ``get_hit(index)``                 |   returns MSetIterator at index        |
++------------------------------------+----------------------------------------+
+| ``get_document_percentage(index)`` | ``convert_to_percent(get_hit(index))`` |
++------------------------------------+----------------------------------------+
+| ``get_document(index)``            | ``get_hit(index)->get_document()``     |
++------------------------------------+----------------------------------------+
+| ``get_docid(index)``               | ``get_hit(index)->get_docid()``        |
++------------------------------------+----------------------------------------+
 
 
 Database Factory Functions
