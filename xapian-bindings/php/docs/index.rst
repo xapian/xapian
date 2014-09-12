@@ -101,15 +101,33 @@ to index strings in a different encoding, use the PHP `iconv function <http://ph
 Iterators
 #########
 
-All iterators support ``next()`` and ``equals()`` methods
-to move through and test iterators (as for all language bindings).
-MSetIterator and ESetIterator also support ``prev()``.
+Since Xapian 1.3.2, Xapian's iterators (except ``XapianLatLongCoordsIterator``)
+are wrapped as PHP iterators, so can be used in ``foreach``.
 
-In C++, trying to dereference or advance an iterator which is at its end point
-is undefined behaviour and should be avoided, and currently the PHP wrappers
-around the Xapian iterator classes inherit these semantics.  The plan is to
-wrap these PHP iterators (see `ticket#520 <http://trac.xapian.org/ticket/520>`_).
+There's one important thing to beware of currently - the ``rewind()`` method
+on ``XapianPositionIterator``, ``XapianPostingIterator``,
+``XapianTermIterator`` and ``XapianValueIterator`` currently does nothing.  We
+can't make it simply throw an exception, as ``foreach`` calls ``rewind()``
+before iteration starts - each iterator needs to track if ``next()`` has been
+called yet, and we've not yet implemented machinery for that.  This doesn't
+affect the standard pattern of iterating once with ``foreach``, but if you want
+to iterate a second time, you can't reuse the iterator (but it will currently
+fail quietly).
 
+You can safely call ``rewind()`` on ``XapianESetIterator`` and
+``XapianMSetIterator``.
+
+The ``current()`` method returns the result of dereferencing the iterator
+in C++ (e.g. for a ``TermIterator``, it returns the term as a string - see
+the section below for more details) and the ``key()`` method returns the
+iterator object, which you can call other methods on, for example::
+
+    foreach ($db->allterms_begin() as $k => $term) {
+	print "{$k->get_termfreq()}\t$term\n";
+    }
+
+As well as the standard PHP iterator methods, MSetIterator and ESetIterator
+also support ``prev()`` to go back one place.
 
 Iterator dereferencing
 ######################

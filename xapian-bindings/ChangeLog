@@ -1,3 +1,11 @@
+Fri Sep 12 16:19:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleexpand.php5,
+	  php/docs/examples/simplematchdecider.php5,
+	  php/docs/examples/simplesearch.php5,php/docs/index.rst,php/php.i,
+	  php/smoketest.php: Wrap Xapian iterator classes as PHP iterators.
+	  (fixes#652)
+
 Fri Sep 12 13:40:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Ignore new iterator API (which we see via friend
