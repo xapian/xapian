@@ -1,3 +1,8 @@
+Fri Sep 12 13:40:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Ignore new iterator API (which we see via friend
+	  declarations).
+
 Fri Sep 12 13:35:25 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING,README,php/docs/index.rst: Make PHP 5.4 the minimum
