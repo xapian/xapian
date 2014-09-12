@@ -213,7 +213,7 @@ quartz
 remote
     This can specify either a "program" or TCP remote backend, for example::
 
-        remote :ssh xapian-prog.example.com xapian-progsrv
+        remote :ssh xapian-prog.example.com xapian-progsrv /srv/xapian/db1
 
     or::
 
