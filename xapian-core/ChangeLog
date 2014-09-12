@@ -1,3 +1,9 @@
+Thu Sep 11 21:33:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/Makefile.mk,include/xapian/enquire.h,
+	  include/xapian/iterator.h: Add simple API to help with creating
+	  language-idiomatic iterator wrappers.
+
 Wed Sep 10 17:02:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc: If we hit an unknown query serialisation,

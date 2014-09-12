@@ -271,6 +271,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	friend class MSet;
 	friend bool operator==(const MSetIterator &a, const MSetIterator &b);
 	friend bool operator!=(const MSetIterator &a, const MSetIterator &b);
+	friend void Xapian::iterator_rewind(MSetIterator & it);
+	friend bool Xapian::iterator_valid(const MSetIterator & it);
 
 	MSetIterator(Xapian::doccount index_, const MSet & mset_)
 	    : index(index_), mset(mset_) { }
@@ -401,9 +403,6 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	 */
 	int get_percent() const;
 
-	/// @private @internal Determine if the iterator has been exhausted.
-	bool at_end() const { return index == mset.size(); }
-
 	/// Return a string describing this object.
 	std::string get_description() const;
 
@@ -496,6 +495,8 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	friend class ESet;
 	friend bool operator==(const ESetIterator &a, const ESetIterator &b);
 	friend bool operator!=(const ESetIterator &a, const ESetIterator &b);
+	friend void Xapian::iterator_rewind(ESetIterator & it);
+	friend bool Xapian::iterator_valid(const ESetIterator & it);
 
 	ESetIterator(Xapian::termcount index_, const ESet & eset_)
 	    : index(index_), eset(eset_) { }
@@ -556,9 +557,6 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 
 	/// Return a string describing this object.
 	std::string get_description() const;
-
-	/// @private @internal Determine if the iterator has been exhausted.
-	bool at_end() const { return index == eset.size(); }
 
 	/// Allow use as an STL iterator
 	//@{
