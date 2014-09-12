@@ -5,9 +5,9 @@ The PHP bindings for Xapian are packaged in the ``xapian``
 extension.  The PHP API provided by this extension largely follows Xapian's C++
 API.  This document lists the differences and additions.
 
-As of Xapian version 1.3.1, these bindings require at least PHP 5.3.
-(if you really need support for PHP 5.0, 5.1, or 5.2, Xapian 1.2
-supports these).
+As of Xapian version 1.3.2, these bindings require at least PHP 5.4.
+(If you really need support for older releases, Xapian 1.2 supports PHP
+5.0-5.3).
 
 PHP strings, arrays, etc., are converted automatically to and from the
 corresponding C++ types in the bindings, so generally you can pass arguments as

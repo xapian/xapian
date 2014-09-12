@@ -41,7 +41,7 @@ Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 		replace the XS bindings once we are satisfied they are stable.
 		The bindings here probably need Perl 5.8 or later.
 
-PHP		Requires PHP >= 5.3 (older versions are no longer supported by
+PHP		Requires PHP >= 5.4 (older versions are no longer supported by
 		the PHP developers).
 
 Python 2.x	Requires Python 2.5 or later.  If you still need support for
