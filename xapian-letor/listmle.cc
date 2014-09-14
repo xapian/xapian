@@ -11,6 +11,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "safeunistd.h"
+
 #include "ranker.h"
 #include "ranklist.h"
 //#include "evalmetric.h"
