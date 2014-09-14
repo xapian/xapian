@@ -32,6 +32,11 @@ dnl 0:0:0 1.3.1 First release with xapian-letor split out from xapian-core
 LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
+dnl Where xapian.h, etc go.  In development release append "/xapian-1.3".
+dnl incdir=$includedir
+incdir=$includedir/xapian-1.3
+AC_SUBST(incdir)
+
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR([letor.cc])
