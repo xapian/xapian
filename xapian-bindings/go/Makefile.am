@@ -127,7 +127,7 @@ $(stamp): except.i doccomments.i
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -go -O -outdir modern \
 	    -o modern/xapian_wrap.cc '$(srcdir)/'go.i
-	$(PERL) -pi -e 's/class Error:/class Error(Exception):/' modern/xapian.py
+	$(PERL) -pi -e 's/class Error:/class Error(Exception):/' modern/xapian.go
 	$(multitarget_end)
 
 -include modern/xapian_wrap.d
@@ -140,4 +140,4 @@ exampledatadir = $(docdir)/python/examples
 dist_exampledata_DATA = 
 
 docdatadir = $(docdir)/go
-dist_docdata_DATA = docs/index.html
+dist_docdata_DATA = 
