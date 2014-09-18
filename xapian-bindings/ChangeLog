@@ -1,3 +1,9 @@
+Thu Sep 18 02:19:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/extra.i: Fix typo in code to keep a reference to a
+	  FieldProcessor object, reported by Germán M. Bravo in github PR59.
+	* python3/smoketest.py: Add regression test.
+
 Thu Sep 18 02:12:47 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Fix typo in code to keep a reference to a
