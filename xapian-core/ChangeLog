@@ -1,3 +1,8 @@
+Fri Sep 19 05:31:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Fix compilation with clang.  Reported by
+	  Germán M. Bravo.
+
 Fri Sep 12 17:54:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Add missing database path to example of using
