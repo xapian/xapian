@@ -226,7 +226,7 @@ EXTRA_DIST +=\
 	testdata/etext.txt
 
 remove-cached-databases:
-	rm -rf .brass .chert .multibrass .multichert .stub
+	rm -rf .brass .chert .multibrass .multichert .replicatmp .stub
 
 clean-local: remove-cached-databases
 
