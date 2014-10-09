@@ -1,3 +1,9 @@
+Thu Oct 09 02:39:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Suppress unused typedef warnings from debugging
+	  logging macros, which occur in functions which always exit via
+	  throwing an exception.
+
 Thu Oct 09 01:45:00 GMT 2014  Olly Betts <olly@survex.com>
 
 	* tests/harness/fdtracker.cc: Fix code typo in recent change to skip
