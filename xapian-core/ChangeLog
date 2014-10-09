@@ -1,3 +1,9 @@
+Thu Oct 09 10:26:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/harness/fdtracker.cc: Fix code typo in recent change to skip
+	  apparent leaks of /dev/urandom.
+
 Sat Sep 06 02:11:02 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

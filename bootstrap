@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from git to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -168,12 +168,12 @@ END
   fi
 
   if [ -f "$stamp" ] ; then
-    find_stdout=`find "$stamp" -newer "$tarball" -print`
+    find_stdout=`find "$tarball" ../patches/"$package"/* -newer "$stamp" -print 2> /dev/null||true`
   else
-    find_stdout=
+    find_stdout=force
   fi
 
-  if [ -z "$find_stdout" ] ; then
+  if [ -n "$find_stdout" ] ; then
     # Verify the tarball's checksum before building it.
     check_sha1sum "$checksum" "$tarball"
 
@@ -192,6 +192,21 @@ END
     esac
 
     cd "$basename"
+
+    if [ ! -f "../../patches/$package/series" ] ; then
+      cat <<END >&2
+No patch series file 'patches/$package/series' - if there are no patches,
+this should just be an empty file.
+END
+      exit 1
+    fi
+    echo "Applying patches from $package/series"
+    sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "../../patches/$package/series" | \
+	while read p ; do
+      echo "Applying patch $package/$p"
+      patch -p1 < "../../patches/$package/$p"
+    done
+
     # Fix doxygen/Qt stupid and pointless enumerating of Mac OS X releases
     # which stops it building on each new OS X release.
     if [ -f qtools/qglobal.h ] ; then
@@ -199,6 +214,7 @@ END
 	    qtools/qglobal.h > qtools/qglobal.hT
 	mv qtools/qglobal.hT qtools/qglobal.h
     fi
+
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
     else
@@ -686,10 +702,38 @@ recheck:
 Makefile: $srcdir/configure
 	$cmd
 
-$srcdir/configure: $srcdir/bootstrap
+$srcdir/configure: \\
+END_OF_CONFIGURE
+
+# We want to rerun bootstrap if a series file changes (patch added or removed)
+# or an existing patch changes.  Since we always have an series file (even if
+# it is empty), this also handles us adding the first patch for something.
+patches=
+for d in patches/* ; do
+  series=$d/series
+  echo "    $series"'\\\\'
+  sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" |\
+      while read p ; do
+    patch=$d/$p
+    echo "    $patch"'\\\\'
+    patches="$patches $patch"
+  done
+done >> configure.tmp
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
+    $srcdir/bootstrap
 	$srcdir/bootstrap
 
 .PHONY: $targets recheck
+
+# Dummy dependencies to allow for patches to be deleted.
+END_OF_CONFIGURE
+
+for p in $patches ; do
+  echo "$p:"
+done >> configure.tmp
+
+cat <<'END_OF_CONFIGURE' >> configure.tmp
 EOF
 mv -f Makefile.tmp Makefile
 trap - EXIT
