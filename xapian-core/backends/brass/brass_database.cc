@@ -1006,7 +1006,7 @@ BrassDatabase::get_metadata(const string & key) const
 TermList *
 BrassDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, string, "BrassDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList*, "BrassDatabase::open_metadata_keylist", NO_ARGS);
     BrassCursor * cursor = postlist_table.cursor_get();
     if (!cursor) RETURN(NULL);
     RETURN(new BrassMetadataTermList(Xapian::Internal::RefCntPtr<const BrassDatabase>(this),

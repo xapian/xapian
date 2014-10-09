@@ -989,7 +989,7 @@ ChertDatabase::get_metadata(const string & key) const
 TermList *
 ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, string, "ChertDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList *, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
     RETURN(new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
 				     cursor, prefix));

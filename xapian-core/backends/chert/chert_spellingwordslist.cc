@@ -51,7 +51,7 @@ ChertSpellingWordsList::get_termname() const
 Xapian::doccount
 ChertSpellingWordsList::get_termfreq() const
 {
-    LOGCALL(DB, string, "ChertSpellingWordsList::get_termfreq", NO_ARGS);
+    LOGCALL(DB, Xapian::doccount, "ChertSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());

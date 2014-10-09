@@ -1,3 +1,13 @@
+Thu Oct 09 23:01:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_database.cc,
+	  backends/brass/brass_spellingwordslist.cc,
+	  backends/chert/chert_database.cc,
+	  backends/chert/chert_spellingwordslist.cc,matcher/mergepostlist.cc:
+	  Fix mismatched return type in debug logging annotations so that code
+	  compiles when configured with --enable-log.  These are already fixed
+	  on trunk.
+
 Thu Oct 09 22:59:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

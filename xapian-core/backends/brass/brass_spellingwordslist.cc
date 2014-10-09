@@ -51,7 +51,7 @@ BrassSpellingWordsList::get_termname() const
 Xapian::doccount
 BrassSpellingWordsList::get_termfreq() const
 {
-    LOGCALL(DB, string, "BrassSpellingWordsList::get_termfreq", NO_ARGS);
+    LOGCALL(DB, Xapian::doccount, "BrassSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
