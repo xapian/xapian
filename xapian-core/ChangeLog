@@ -1,3 +1,9 @@
+Thu Oct 09 22:59:34 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/pretty.h: Fix debug logging code to compile with clang.
+	  (fixes #657, reported by Germán M. Bravo)
+
 Thu Oct 09 10:41:59 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

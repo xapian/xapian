@@ -30,9 +30,6 @@
 #include "xapian/base.h"
 #include "xapian/types.h"
 
-namespace Xapian {
-namespace Internal {
-
 template<class S>
 struct PrettyOStream {
     /// The std::ostream object we're outputting to.
@@ -46,12 +43,6 @@ struct Literal {
     Literal(const char * lit) : _lit(lit) { }
     Literal(const std::string & s) : _lit(s.c_str()) { }
 };
-
-}
-}
-
-using Xapian::Internal::PrettyOStream;
-using Xapian::Internal::Literal;
 
 /// Default is to output as std::ostream would.
 template<class S, class T>
