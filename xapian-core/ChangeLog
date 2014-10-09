@@ -1,3 +1,8 @@
+Thu Oct 09 10:41:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* tests/Makefile.am: Remove .replicatmp upon "make clean".
+
 Thu Oct 09 10:31:53 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

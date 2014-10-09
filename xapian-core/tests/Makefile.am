@@ -276,7 +276,7 @@ EXTRA_DIST +=\
 	testdata/flint-1.0.2/termlist.DB
 
 remove-cached-databases:
-	rm -rf .brass .chert .flint .multibrass .multichert .multiflint .stub
+	rm -rf .brass .chert .flint .multibrass .multichert .multiflint .replicatmp .stub
 
 clean-local: remove-cached-databases
 
