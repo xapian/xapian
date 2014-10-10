@@ -1859,7 +1859,7 @@ BrassTable::commit(brass_revision_number_t revision, int changes_fd,
 	// Do this as late as possible to allow maximum time for writes to
 	// happen, and so the calls to io_sync() are adjacent which may be
 	// more efficient, at least with some Linux kernel versions.
-	if (!io_sync(handle)) {
+	if (changes_tail ? !io_full_sync(handle) : !io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    (void)unlink(tmp);

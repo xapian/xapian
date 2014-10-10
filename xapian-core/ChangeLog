@@ -1,3 +1,9 @@
+Fri Oct 10 11:18:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc:
+	  Only full sync the final base file written.
+
 Fri Oct 10 03:20:03 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

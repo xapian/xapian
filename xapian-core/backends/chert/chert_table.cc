@@ -1739,6 +1739,9 @@ ChertTable::create_and_open(unsigned int block_size_)
     base_.set_block_size(block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
+    // Doing a full sync here would be overly paranoid, as an empty table
+    // contains no precious data and xapian-check can recreate lost base
+    // files.
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
 
     /* remove the alternative base file, if any */
@@ -1877,7 +1880,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	// Do this as late as possible to allow maximum time for writes to
 	// happen, and so the calls to io_sync() are adjacent which may be
 	// more efficient, at least with some Linux kernel versions.
-	if (!io_sync(handle)) {
+	if (changes_tail ? !io_full_sync(handle) : !io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    (void)unlink(tmp);
