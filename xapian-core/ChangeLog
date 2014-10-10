@@ -1,3 +1,9 @@
+Fri Oct 10 10:53:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc: The
+	  table is sync-ed after the base file, so it's the last table we want
+	  to full-sync, not the last base file.
+
 Thu Oct 09 02:39:00 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/debuglog.h: Suppress unused typedef warnings from debugging
