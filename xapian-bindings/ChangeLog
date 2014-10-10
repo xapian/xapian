@@ -1,3 +1,9 @@
+Fri Oct 10 11:43:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/add-php-ref-handling: Be careful to pick up just the parameter
+	  name and not any default value.  (Fixes #659, reported by jmienert)
+	* php/smoketest.php: Add regression test.
+
 Thu Sep 18 02:23:53 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python3/: Remove executable bits from a number of files which

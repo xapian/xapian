@@ -593,4 +593,17 @@ if ($s !== '(coffee:1)') {
     exit(1);
 }
 
+# Test reference tracking and regression test for #659.
+$qp = new XapianQueryParser();
+{
+    $stop = new XapianSimpleStopper();
+    $stop->add('a');
+    $qp->set_stopper($stop);
+}
+$query = $qp->parse_query('a b');
+if ($query->get_description() !== 'Query(b@2)') {
+    print "XapianQueryParser::set_stopper() didn't work as expected - result was ".$query->get_description()."\n";
+    exit(1);
+}
+
 ?>
