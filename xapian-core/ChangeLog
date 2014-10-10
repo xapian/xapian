@@ -1,3 +1,10 @@
+Fri Oct 10 03:20:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/debuglog.h: Suppress unused typedef warnings from debugging
+	  logging macros, which occur in functions which always exit via
+	  throwing an exception.
+
 Thu Oct 09 23:01:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,

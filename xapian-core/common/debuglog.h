@@ -1,7 +1,7 @@
 /** @file debuglog.h
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -348,9 +348,16 @@ class DebugLogFuncVoid {
     }
 };
 
+#ifdef __GNUC__
+// __attribute__((unused)) supported since at least GCC 2.95.3.
+# define XAPIAN_UNUSED __attribute__((unused))
+#else
+# define XAPIAN_UNUSED
+#endif
+
 /// Log a call to a method returning non-void.
 #define LOGCALL(CATEGORY, TYPE, FUNC, PARAMS) \
-    typedef TYPE xapian_logcall_return_type_; \
+    typedef TYPE xapian_logcall_return_type_ XAPIAN_UNUSED; \
     std::string xapian_logcall_parameters_; \
     if (xapian_debuglogger_.is_category_wanted(DEBUGLOG_CATEGORY_##CATEGORY)) { \
 	std::ostringstream xapian_logcall_ostream_; \
@@ -388,7 +395,7 @@ class DebugLogFuncVoid {
 
 /// Log a call to a static method returning a non-void type.
 #define LOGCALL_STATIC(CATEGORY, TYPE, FUNC, PARAMS) \
-    typedef TYPE xapian_logcall_return_type_; \
+    typedef TYPE xapian_logcall_return_type_ XAPIAN_UNUSED; \
     std::string xapian_logcall_parameters_; \
     if (xapian_debuglogger_.is_category_wanted(DEBUGLOG_CATEGORY_##CATEGORY)) { \
 	std::ostringstream xapian_logcall_ostream_; \
