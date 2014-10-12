@@ -1,3 +1,7 @@
+Sun Oct 12 12:03:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Fri Oct 10 10:53:38 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc: The

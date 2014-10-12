@@ -1,19 +1,54 @@
- 18211       olly Fri Aug 22 09:09:52 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+ 18275       olly Fri Oct 10 10:53:38 GMT 2014  Olly Betts <olly@survex.com>
 
 backport fodder:
+
+backported for 1.2.19:
+
+ 18275       olly Fri Oct 10 10:53:38 GMT 2014  Olly Betts <olly@survex.com>
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc: The
+	  table is sync-ed after the base file, so it's the last table we want
+	  to full-sync, not the last base file.
+ 18204       olly Wed Aug 13 23:55:24 GMT 2014  Olly Betts <olly@survex.com>
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc:
+	  Only full sync the final base file written.
+
+ 18266       olly Thu Oct 09 02:39:00 GMT 2014  Olly Betts <olly@survex.com>
+	* common/debuglog.h: Suppress unused typedef warnings from debugging
+	  logging macros, which occur in functions which always exit via
+	  throwing an exception.
+
+ 18264       olly Thu Oct 09 01:43:02 GMT 2014  Olly Betts <olly@survex.com>
+	* common/pretty.h: Fix debug logging code to compile with clang.
+	  (fixes #657, reported by Germán M. Bravo)
+
+ 18262       olly Mon Oct 06 21:41:58 GMT 2014  Olly Betts <olly@survex.com>
+	* tests/Makefile.am: Remove .replicatmp upon "make clean".
+
+ 18243       olly Fri Sep 05 17:41:53 GMT 2014  Olly Betts <olly@survex.com>
+	* tests/harness/fdtracker.cc: Don't report apparent leaks of fds
+	  opened on /dev/urandom - at least on Linux, something in the C
+	  library seems to lazily open it, and the report of a possible leak
+	  followed by assurance that it's OK really is just noise we could
+	  do without.
+ 18265       olly Thu Oct 09 01:45:00 GMT 2014  Olly Betts <olly@survex.com>
+	* tests/harness/fdtracker.cc: Fix code typo in recent change to skip
+	  apparent leaks of /dev/urandom.
+
+ 18195       olly Wed Aug 06 10:49:46 GMT 2014  Olly Betts <olly@survex.com>
+	* include/xapian/compactor.h: Fix formatting of doxygen comment.
 
  18206       olly Fri Aug 15 13:13:43 GMT 2014  Olly Betts <olly@survex.com>
 	* HACKING: freecode no longer accepts updates, so drop that item from
 	  the release checklist.
 
- 18204       olly Wed Aug 13 23:55:24 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc:
-	  Only full sync the final base file written.
-
- 18195       olly Wed Aug 06 10:49:46 GMT 2014  Olly Betts <olly@survex.com>
-	* include/xapian/compactor.h: Fix formatting of doxygen comment.
-
-backported for 1.2.19:
+ 18235       olly Thu Sep 04 20:21:32 GMT 2014  Olly Betts <olly@survex.com>
+	* api/,backends/brass/,backends/chert/,backends/dbfactory_remote.cc,
+	  matcher/mergepostlist.cc,matcher/remotesubmatch.cc,
+	  net/progclient.cc: Add missing RETURN() markup for debug logging,
+	  highlighted by warning from recent GCC.
+ 18237       olly Thu Sep 04 20:51:16 GMT 2014  Olly Betts <olly@survex.com>
+	* backends/dbfactory.cc: Fix incorrect return type in logging
+	  annotations for InMemory::open().
 
  18197       olly Mon Aug 11 05:30:20 GMT 2014  Olly Betts <olly@survex.com>
 	* configure.ac: For Sun's C++ compiler, pass -library=Crun separately
@@ -34,16 +69,29 @@ backported for 1.2.19:
  18162       olly Thu Jul 10 13:29:50 GMT 2014  Olly Betts <olly@survex.com>
 	* weight/bm25weight.cc: Pre-multiply termweight by (param_k1 + 1).
 
-Xapian-core 1.3.2 (2014-08-26):
+ 18256       olly Fri Sep 12 17:54:34 GMT 2014  Olly Betts <olly@survex.com>
+	* docs/overview.rst: Add missing database path to example of using
+	  xapian-progsrv in a stub database file.
+
+Xapian-core 1.3.2 (2014-10-10):
 
 	* languages/: Add stopwords lists from Snowball plus an Arabic one.
+
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
+	  bin/xapian-check.cc,include/xapian/constants.h: Rename
+	  DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST. (check was in 1.3.0)
+
+	* generate-exceptions,include/xapian/: Use XAPIAN_IN_XAPIAN_H rather
+	  than XAPIAN_INCLUDED_XAPIAN_H in the direct inclusion of subheader
+	  checks.  Currently neither will catch the case of the user including
+	  a sub-header after <xapian.h> since the include guard for the
+	  subheader will stop us getting to the direct inclusion check, but
+	  XAPIAN_IN_XAPIAN_H will work if we move the check outside the
+	  include guard.
 
 ---
 
 This release includes all changes from 1.2.16-1.2.18 which are relevant.
-
-	* backends/brass/brass_table.h: Don't sync handles for tables which
-	  aren't open.  Reported by Austin Clements.
 
 API:
 
@@ -149,6 +197,9 @@ API:
 
 * Stem: Add an early english stemmer.
 
+* Add simple API to help with creating language-idiomatic iterator wrappers
+  in <xapian/iterator.h>.
+
 testsuite:
 
 * Extend checkstatsweight1 to check that Weight::get_collection_freq() returns
@@ -156,6 +207,10 @@ testsuite:
 
 * queryparsertest: Add testcase for FieldProcessor on boolean prefix with
   quoted contents.
+
+* queryparsertest: Enable some disabled cases which actually work (in some
+  cases with slightly tweaked expected answers which are equivalent to those
+  that were shown).
 
 * Make use of the new writable multidatabase feature to simplify the
   multi-database handling in the test harness.
@@ -168,6 +223,9 @@ testsuite:
   #238)
 
 * apitest: Test Query ops with a single MatchAll subquery.
+
+* apitest: New testcase readonlyparentdir1 to ensure that commit works with a
+  read-only parent directory.
 
 matcher:
 
@@ -212,18 +270,13 @@ brass backend:
 * Eliminate the base files, and instead store the root block and freelist
   pointers in the "iambrass" file.
 
- 18191       olly Mon Aug 04 05:58:13 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/brass_compact.cc: Whitespace tweak.
- 18190       olly Mon Aug 04 05:57:27 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/brass_compact.cc: When compacting, sync all the
-	  tables together at the end.
- 18189       olly Mon Aug 04 05:42:21 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/brass_compact.cc,backends/brass/brass_version.cc:
-	  Clean up temporary file in BrassVersion::sync() in all failure
-	  cases.
- 18188       olly Mon Aug 04 05:21:02 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/: In DB_DANGEROUS mode, update the version file
-	  in-place.
+* When compacting, sync all the tables together at the end.
+
+* In DB_DANGEROUS mode, update the version file in-place.
+
+* Only actually store the document data if it is non-empty.  The table which
+  holds the document data is now lazily created, so won't exist if you never
+  set the document data.
 
 chert backend:
 
