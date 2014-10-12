@@ -1,3 +1,89 @@
+ 18276       olly Fri Oct 10 11:18:43 GMT 2014  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.19 (2014-10-12):
+
+API:
+
+* Xapian::BM5Weight:
+
+  + Improve BM25 upper bound in the case when our wdf upper bound > our
+    document length lower bound.  Thanks to Craig Macdonald for pointing out
+    this trick.
+
+  + Pre-multiply termweight by (param_k1 + 1) rather than doing it for
+    every weighted term in every document considered.
+
+testsuite:
+
+* Don't report apparent leaks of fds opened on /dev/urandom - at least on
+  Linux, something in the C library seems to lazily open it, and the report of
+  a possible leak followed by assurance that it's OK really is just noise we
+  can do without.
+
+matcher:
+
+
+brass backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+chert backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+flint backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* For Sun's C++ compiler, pass -library=Crun separately since libtool looks for
+  " -library=stlport4 " (with the spaces).  (fixes#650)
+
+* Remove .replicatmp (created by the test suite) upon "make clean".
+
+documentation:
+
+* include/xapian/compactor.h: Fix formatting of doxygen comment.
+
+* HACKING: freecode no longer accepts updates, so drop that item from the
+  release checklist.
+
+* docs/overview.rst: Add missing database path to example of using
+  xapian-progsrv in a stub database file.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Suppress unused typedef warnings from debugging logging macros, which occur
+  in functions which always exit via throwing an exception when compiling with
+  recent versions of GCC or clang.
+
+* Fix debug logging code to compile with clang.  (fixes #657, reported by
+  Germán M. Bravo)
+
+packaging:
+
+
+debug code:
+
+* Add missing RETURN() markup for debug logging in a few places, highlighted by
+  warnings from recent GCC.
+
+* Fix incorrect return types in debug logging annotations so that code compiles
+  when configured with --enable-log.
+
 Xapian-core 1.2.18 (2014-06-22):
 
 API:
