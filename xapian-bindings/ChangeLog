@@ -1,3 +1,7 @@
+Mon Oct 13 11:41:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Fri Oct 10 11:43:55 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/add-php-ref-handling: Be careful to pick up just the parameter
