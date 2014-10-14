@@ -1,3 +1,36 @@
+ 18278       olly Fri Oct 10 12:01:00 GMT 2014  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.19 (2014-10-14):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+* Fix XapianQueryParser::set_stopper() and XapianTermGenerator::set_stopper()
+  which were getting incorrectly wrapped such that they didn't actually do
+  anything.  Fixes #659, reported by jmienert.  This bug was introduced by the
+  reference tracking fix in 1.2.14.
+
+Python:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.18 (2014-06-22):
 
 Documentation:
