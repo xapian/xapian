@@ -1,3 +1,11 @@
+Tue Oct 14 03:18:29 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Fix up SWIG generated C++ wrapper code so that
+	  subclassing of wrapped classes in PHP works with PHP 5.4 and later.
+	  (Fixes #652, reported by Sebastian Gottfried)
+	* php/smoketest.php: Re-enable all tests under PHP 5.4 and later,
+	  which also serves as a regression test for this issue.
+
 Tue Oct 14 02:57:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

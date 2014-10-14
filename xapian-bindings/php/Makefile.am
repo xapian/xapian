@@ -59,7 +59,7 @@ if MAINTAINER_MODE
 
 php5/xapian_wrap.cc php5/xapian_wrap.h php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
 	@stamp=php5/xapian_wrap.stamp; $(make_many_locked)
-php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
+php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i Makefile.am
 	-test -d php5 || mkdir php5
 	$(multitarget_begin)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
@@ -70,6 +70,7 @@ php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	rm xapian_wrap_d.tmp
 	$(PERL) '$(srcdir)/'add-php-ref-handling php5/xapian.php > php5/xapian.tmp
 	mv php5/xapian.tmp php5/xapian.php
+	$(PERL) -pi -e 's/\b(zend_hash_update\(.*sizeof\(zval)\)/$$1*)/' php5/xapian_wrap.cc
 	$(multitarget_end)
 
 -include xapian_wrap.d
