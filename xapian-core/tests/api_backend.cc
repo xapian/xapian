@@ -989,3 +989,32 @@ DEFINE_TESTCASE(readonlyparentdir1, brass || chert) {
 #endif
     return true;
 }
+
+static void
+make_phrasebug1_db(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_posting("hurricane", 199881);
+    doc.add_posting("hurricane", 203084);
+    doc.add_posting("katrina", 199882);
+    doc.add_posting("katrina", 202473);
+    doc.add_posting("katrina", 203085);
+    db.add_document(doc);
+}
+
+/// Regression test for ticket#653, fixed in 1.3.2 and 1.2.19.
+DEFINE_TESTCASE(phrasebug1, generated && positional) {
+    Xapian::Database db = get_database("phrasebug1", make_phrasebug1_db);
+    const char * qterms[] = { "katrina", "hurricane" };
+    Xapian::Enquire e(db);
+    Xapian::Query q(q.OP_PHRASE, qterms, qterms + 2, 5);
+    e.set_query(q);
+    Xapian::MSet mset = e.get_mset(0, 100);
+    TEST_EQUAL(mset.size(), 0);
+    const char * qterms2[] = { "hurricane", "katrina" };
+    Xapian::Query q2(q.OP_PHRASE, qterms2, qterms2 + 2, 5);
+    e.set_query(q2);
+    mset = e.get_mset(0, 100);
+    TEST_EQUAL(mset.size(), 1);
+    return true;
+}
