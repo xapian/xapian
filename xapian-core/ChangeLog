@@ -1,3 +1,8 @@
+Tue May 05 23:24:21 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,matcher/: Split NearPostList out into separate
+	  source file and header.
+
 Tue May 05 15:25:22 GMT 2015  Olly Betts <olly@survex.com>
 
 	* bin/xapian-progsrv.cc: Fix comment typo.

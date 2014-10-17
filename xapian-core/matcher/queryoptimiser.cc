@@ -33,6 +33,7 @@
 #include "multiandpostlist.h"
 #include "multimatch.h"
 #include "multixorpostlist.h"
+#include "nearpostlist.h"
 #include "omassert.h"
 #include "omqueryinternal.h"
 #include "orpostlist.h"
