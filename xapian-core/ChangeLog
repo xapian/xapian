@@ -1,3 +1,8 @@
+Sat Oct 18 06:15:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Don't provide a default expansion scheme
+	  name in Enquire::set_expansion_scheme().
+
 Fri Oct 17 00:33:55 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc,matcher/: Split NearPostList out into separate

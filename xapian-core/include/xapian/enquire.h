@@ -762,16 +762,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the weighting scheme to use for expansion.
 	 *
+	 *  If you don't call this method, the default is as if you'd used:
+	 *
+	 *  get_expansion_scheme("trad");
+	 *
 	 *  @param eweightname_  A string in lowercase specifying the name of
 	 *                       the scheme to be used. The following schemes
 	 *                       are currently available:
 	 *                       "bo1" : The Bo1 scheme for query expansion.
 	 *                       "trad" : The TradWeight scheme for query expansion.
-	 *                       If no scheme is specified, TradWeight is used by default.
 	 *  @param expand_k_ The parameter required for TradWeight query expansion.
 	 *                   A default value of 1.0 is used if none is specified.
 	 */
-	void set_expansion_scheme(const std::string &eweightname_ = "trad",
+	void set_expansion_scheme(const std::string &eweightname_,
 				  double expand_k_ = 1.0) const;
 
 	/** Set the collapse key to use for queries.
