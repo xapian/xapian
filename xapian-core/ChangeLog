@@ -1,3 +1,10 @@
+Sun Oct 19 08:14:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/exactphrasepostlist.cc: We never try to build an
+	  ExactPhrasePostList over 0 or 1 terms, so simply assert we don't,
+	  rather than having an explicit check for it in the code.
+
 Sun Oct 12 06:08:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
