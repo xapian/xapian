@@ -1,3 +1,7 @@
+Sun Oct 19 09:40:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* README: Note that Ruby 2.1 works too.
+
 Mon Oct 13 11:41:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
