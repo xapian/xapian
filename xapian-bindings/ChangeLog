@@ -1,3 +1,8 @@
+Sun Oct 19 09:53:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* README: Note that Ruby 2.1 works too.
+
 Tue Oct 14 03:18:29 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Fix up SWIG generated C++ wrapper code so that
