@@ -1,3 +1,11 @@
+Mon Oct 20 09:40:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/phrasepostlist.cc,tests/api_backend.cc: If the anchor term
+	  for a phrase is the first or last, set the min or max to its
+	  position respectively.  Fixes the testcase in #657, but may not be
+	  a complete fix.
+
 Sun Oct 19 08:14:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:

@@ -190,7 +190,7 @@ PhrasePostList::test_doc()
     std::sort(plists.begin(), plists.end(), PositionListCmpLt());
 
     Xapian::termpos pos;
-    Xapian::termpos idx, min;
+    Xapian::termpos idx, min, max;
     do {
 	plists[0]->next();
 	if (plists[0]->at_end()) {
@@ -199,9 +199,18 @@ PhrasePostList::test_doc()
 	}
 	pos = plists[0]->get_position();
 	idx = plists[0]->index;
-	min = pos + plists.size() - idx;
-	if (min > window) min -= window; else min = 0;
-    } while (!do_test(plists, 1, min, pos + window - idx));
+	if (idx == 0) {
+	    min = pos;
+	} else {
+	    min = pos + plists.size() - idx;
+	    if (min > window) min -= window; else min = 0;
+	}
+	if (idx == plists.size() - 1) {
+	    max = pos + 1;
+	} else {
+	    max = pos + window - idx;
+	}
+    } while (!do_test(plists, 1, min, max));
     LOGLINE(MATCH, "**HIT**");
     RETURN(true);
 }
