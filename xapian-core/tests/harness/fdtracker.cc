@@ -111,7 +111,7 @@ FDTracker::check()
 	char buf[1024];
 	int res = readlink(proc_symlink.c_str(), buf, sizeof(buf));
 	if (res == CONST_STRLEN("/dev/urandom") &&
-	    memcmp(buf, "/dev/urandom", CONST_STRLEN("/dev/urandom") == 0)) {
+	    memcmp(buf, "/dev/urandom", CONST_STRLEN("/dev/urandom")) == 0) {
 	    // /dev/urandom isn't a real leak - something in the C library
 	    // opens it lazily (at least on Linux).
 	    fds.insert(fd);

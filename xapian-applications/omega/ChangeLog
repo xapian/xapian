@@ -1,3 +1,7 @@
+Mon Oct 20 00:55:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* .gitignore: Update to ignore new generated files.
+
 Thu Jul 24 21:27:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

@@ -139,8 +139,9 @@ Currently we don't have an equivalent of the C++ ``XAPIAN_DEPRECATED()`` macro
 for the bindings, but it would be good to have.  Here are some notes on how
 this could be achieved for various languages we support:
 
-  * PHP 5.3 added an E_USER_DEPRECATED error level, and for < 5.3 we can
-    use E_USER_NOTICE, by putting this near the start of xapian.php::
+  * PHP 5.3 added an E_USER_DEPRECATED error level, and we now require at
+    least 5.4.  If we wanted to backport this to 1.2, we could use
+    E_USER_NOTICE there instead, by putting this near the start of xapian.php::
 
       define('XAPIAN_DEPRECATED',defined(E_USER_DEPRECATED)?E_USER_DEPRECATED:E_USER_NOTICE);
 

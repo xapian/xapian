@@ -10,6 +10,7 @@
 /modern
 /except.i
 /doccomments.i
+/doctrees
 /version.i
 /db_test_get_uuid1
 /db_test_get_uuid2

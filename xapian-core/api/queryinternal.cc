@@ -36,6 +36,7 @@
 #include "matcher/maxpostlist.h"
 #include "matcher/multiandpostlist.h"
 #include "matcher/multixorpostlist.h"
+#include "matcher/nearpostlist.h"
 #include "matcher/orpostlist.h"
 #include "matcher/phrasepostlist.h"
 #include "matcher/queryoptimiser.h"
@@ -315,6 +316,7 @@ AndContext::add_pos_filter(Query::op op_,
 			   size_t n_subqs,
 			   Xapian::termcount window)
 {
+    Assert(n_subqs > 1);
     size_t end = pls.size();
     size_t begin = end - n_subqs;
     pos_filters.push_back(PosFilter(op_, begin, end, window));

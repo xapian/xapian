@@ -53,6 +53,7 @@
 /api_queryopt.h
 /api_scalability.h
 /api_serialise.h
+/api_snipper.h
 /api_sorting.h
 /api_spelling.h
 /api_stem.h

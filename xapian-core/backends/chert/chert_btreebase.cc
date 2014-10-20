@@ -320,11 +320,7 @@ ChertTable_base::write_to_file(const string &filename,
     }
 
     io_write(h, buf.data(), buf.size());
-    // Only full sync the base file for the final table written on each commit.
-    if (changes_tail != NULL)
-	io_full_sync(h);
-    else
-	io_sync(h);
+    io_sync(h);
 }
 
 /*

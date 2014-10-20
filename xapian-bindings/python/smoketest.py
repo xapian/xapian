@@ -384,6 +384,21 @@ def test_all():
     expect(xapian.sortable_unserialise(a), 10)
     expect(xapian.sortable_unserialise(b), 20)
 
+    # Feature test for xapian.FieldProcessor
+    context("running feature test for xapian.FieldProcessor")
+    class testfieldprocessor(xapian.FieldProcessor):
+        def __call__(self, s):
+            if s == 'spam':
+                raise Exception('already spam')
+            return xapian.Query("spam")
+
+    qp.add_prefix('spam', testfieldprocessor())
+    qp.add_boolean_prefix('boolspam', testfieldprocessor())
+    query = qp.parse_query('spam:ignored')
+    expect(str(query), 'Query(spam)')
+
+    expect_exception(Exception, 'already spam', qp.parse_query, 'spam:spam')
+
     # Regression tests copied from PHP (probably always worked in python, but
     # let's check...)
     context("running regression tests for issues which were found in PHP")

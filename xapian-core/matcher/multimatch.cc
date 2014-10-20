@@ -157,7 +157,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 		 vector<Xapian::RSet> & subrsets)
 {
     LOGCALL_STATIC_VOID(MATCH, "split_rset_by_db", rset | number_of_subdbs | subrsets);
-    if (rset) {
+    if (rset && !rset->empty()) {
 	if (number_of_subdbs == 1) {
 	    // The common case of a single database is easy to handle.
 	    subrsets.push_back(*rset);

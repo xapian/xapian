@@ -1,8 +1,15 @@
- 18185       olly Fri Aug 01 06:34:31 GMT 2014  Olly Betts <olly@survex.com>
+ 18277       olly Fri Oct 10 11:43:55 GMT 2014  Olly Betts <olly@survex.com>
+
+backport fodder:
 
 backported to 1.2.19
 
-Xapian-bindings 1.3.2 (2014-08-05):
+ 18277       olly Fri Oct 10 11:43:55 GMT 2014  Olly Betts <olly@survex.com>
+	* php/add-php-ref-handling: Be careful to pick up just the parameter
+	  name and not any default value.  (Fixes #659, reported by jmienert)
+	* php/smoketest.php: Add regression test.
+
+Xapian-bindings 1.3.2 (2014-10-13):
 
 *** Updated to use latest SWIG.
 
@@ -31,6 +38,9 @@ General:
 
 * Provide a SimpleStopper constructor which provides the ability to initialise
   from a stopword list in a file.  Based on patch from Assem Chelli.
+
+* configure: Fix SWIG version check to accept 3.x, and update the minimum
+  accepted version to be what we actually currently want.
 
 Packaging:
 
@@ -62,6 +72,14 @@ Perl:
 
 PHP:
 
+* Make PHP 5.4 the minimum officially supported version, as 5.3 has now reached
+  EOL.
+
+* Wrap Xapian iterator classes as PHP iterators.  (fixes#652)
+
+* Fix handling of an exception thrown from a PHP implementation of
+  FieldProcessor::apply().
+
 * smoketest.php: Add tests of get_eset() with an ExpandDecider and with a min
   weight threshold.
 
@@ -76,6 +94,9 @@ Python2:
   chert_open() - that code dates back to when chert was the only disk-based
   backend to support valuestreams, but flint was the default backend.
 
+* Fix typo in code to keep a reference to a FieldProcessor object, reported by
+  Germán M. Bravo in github PR59.
+
 * Generate Python API docs with Sphinx.  (Fixes #138, patch from Assem Chelli)
 
 Python3:
@@ -85,6 +106,9 @@ Python3:
   will need updating for Python 3, and the wrapped API is necessarily different
   in how Unicode is handled, so we've dropped deprecated features (such as
   'MSet.items' and 'ESet.items') from the Python 3 bindings.  (see #346)
+
+* Fix typo in code to keep a reference to a FieldProcessor object, reported by
+  Germán M. Bravo in github PR59.
 
 * Generate Python API docs with Sphinx.  (Fixes #138, patch from Assem Chelli)
 

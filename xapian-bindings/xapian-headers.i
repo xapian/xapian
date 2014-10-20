@@ -21,6 +21,10 @@
  */
 %}
 
+/* Ignore these functions: */
+%ignore Xapian::iterator_rewind;
+%ignore Xapian::iterator_valid;
+
 /* A class which can usefully be subclassed in the target language. */
 %define SUBCLASSABLE(NS, CLASS)
     %ignore NS::CLASS::clone;

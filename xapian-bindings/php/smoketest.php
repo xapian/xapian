@@ -255,9 +255,7 @@ $enquire = new XapianEnquire($db);
 $rset = new XapianRSet();
 $rset->add_document(1);
 $eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, new testexpanddecider());
-$end = $eset->end();
-for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
-    $t = $i->get_term();
+foreach ($eset->begin() as $t) {
     if ($t[0] === 'a') {
 	print "XapianExpandDecider was not used\n";
 	exit(1);
@@ -267,8 +265,7 @@ for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
 # Check min_wt argument to get_eset() works (new in 1.2.5).
 $eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ);
 $min_wt = 0;
-$end = $eset->end();
-for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+foreach ($eset->begin() as $i => $dummy) {
     $min_wt = $i->get_weight();
 }
 if ($min_wt >= 1.9) {
@@ -277,8 +274,7 @@ if ($min_wt >= 1.9) {
 }
 $eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, NULL, 1.9);
 $min_wt = 0;
-$end = $eset->end();
-for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+foreach ($eset->begin() as $i => $dummy) {
     $min_wt = $i->get_weight();
 }
 if ($min_wt < 1.9) {
@@ -505,12 +501,9 @@ if ($query->get_description() != 'Query()') {
     $matchspy = new XapianValueCountMatchSpy(0);
     $enquire->add_matchspy($matchspy);
     $enquire->get_mset(0, 10);
-    $beg = $matchspy->values_begin();
-    $end = $matchspy->values_end();
     $values = array();
-    while (!($beg->equals($end))) {
-        $values[$beg->get_term()] = $beg->get_termfreq();
-        $beg->next();
+    foreach ($matchspy->values_begin() as $k => $term) {
+	$values[$term] = $k->get_termfreq();
     }
     $expected = array(
         "ABB" => 1,
@@ -536,6 +529,25 @@ $doc = new XapianDocument();
 $indexer->set_document($doc);
 $indexer->index_text("I ask nothing in return");
 $indexer->index_text_without_positions("Tea time");
+$indexer->index_text("Return in time");
+
+$s = '';
+foreach ($doc->termlist_begin() as $term) {
+    $s .= $term . ' ';
+}
+if ($s !== 'ask i in nothing return tea time ') {
+    print "PHP Iterator wrapping of TermIterator doesn't work ($s)\n";
+    exit(1);
+}
+
+$s = '';
+foreach ($doc->termlist_begin() as $k => $term) {
+    $s .= $term . ':' . $k->get_wdf() . ' ';
+}
+if ($s !== 'ask:1 i:1 in:2 nothing:1 return:2 tea:1 time:2 ') {
+    print "PHP Iterator wrapping of TermIterator keys doesn't work ($s)\n";
+    exit(1);
+}
 
 # Test GeoSpatial API
 $coord = new XapianLatLongCoord();
@@ -569,6 +581,28 @@ $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {
     print "Expected one result with XapianLatLongDistancePostingSource, got ";
     print $mset->size() . "\n";
+    exit(1);
+}
+
+$s='';
+foreach ($db->allterms_begin() as $k => $term) {
+    $s .= "($term:{$k->get_termfreq()})";
+}
+if ($s !== '(coffee:1)') {
+    print "PHP Iterator iteration of allterms doesn't work ($s)\n";
+    exit(1);
+}
+
+# Test reference tracking and regression test for #659.
+$qp = new XapianQueryParser();
+{
+    $stop = new XapianSimpleStopper();
+    $stop->add('a');
+    $qp->set_stopper($stop);
+}
+$query = $qp->parse_query('a b');
+if ($query->get_description() !== 'Query(b@2)') {
+    print "XapianQueryParser::set_stopper() didn't work as expected - result was ".$query->get_description()."\n";
     exit(1);
 }
 

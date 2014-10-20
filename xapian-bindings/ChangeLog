@@ -1,3 +1,67 @@
+Mon Oct 20 00:53:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* .gitignore,csharp/.gitignore,java/.gitignore,lua/.gitignore,
+	  perl/.gitignore,php/.gitignore,python/.gitignore,python3/.gitignore,
+	  python3/docs/.gitignore,ruby/.gitignore,tcl8/.gitignore: Update to
+	  ignore new generated files.
+
+Sun Oct 19 09:40:09 GMT 2014  Olly Betts <olly@survex.com>
+
+	* README: Note that Ruby 2.1 works too.
+
+Mon Oct 13 11:41:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Fri Oct 10 11:43:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/add-php-ref-handling: Be careful to pick up just the parameter
+	  name and not any default value.  (Fixes #659, reported by jmienert)
+	* php/smoketest.php: Add regression test.
+
+Thu Sep 18 02:23:53 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/: Remove executable bits from a number of files which
+	  shouldn't have them.
+
+Thu Sep 18 02:19:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/extra.i: Fix typo in code to keep a reference to a
+	  FieldProcessor object, reported by Germán M. Bravo in github PR59.
+	* python3/smoketest.py: Add regression test.
+
+Thu Sep 18 02:12:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Fix typo in code to keep a reference to a
+	  FieldProcessor object, reported by Germán M. Bravo in github PR59.
+	* python/smoketest.py: Add regression test.
+
+Thu Sep 18 01:53:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* java/java.i: Update to use the new Xapian::iterator_valid() API.
+
+Fri Sep 12 16:21:34 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/docs/index.rst: Align entries in tables in ReST source.
+
+Fri Sep 12 16:19:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleexpand.php5,
+	  php/docs/examples/simplematchdecider.php5,
+	  php/docs/examples/simplesearch.php5,php/docs/index.rst,php/php.i,
+	  php/smoketest.php: Wrap Xapian iterator classes as PHP iterators.
+	  (fixes#652)
+
+Fri Sep 12 13:40:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Ignore new iterator API (which we see via friend
+	  declarations).
+
+Fri Sep 12 13:35:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING,README,php/docs/index.rst: Make PHP 5.4 the minimum
+	  officially supported version, as 5.3 has now reached EOL.
+
 Thu Sep 11 17:02:10 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Add regression test for throwing an exception from
