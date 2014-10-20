@@ -1,6 +1,6 @@
- 18278       olly Fri Oct 10 12:01:00 GMT 2014  Olly Betts <olly@survex.com>
+ 18291       olly Sun Oct 19 09:53:10 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.19 (2014-10-14):
+Xapian-bindings 1.2.19 (2014-10-20):
 
 Documentation:
 
@@ -20,6 +20,10 @@ Perl:
 
 PHP:
 
+* Fix up SWIG generated C++ wrapper code so that subclassing of wrapped classes
+  in PHP works with PHP 5.4 and later.  (Fixes #652, reported by Sebastian
+  Gottfried)
+
 * Fix XapianQueryParser::set_stopper() and XapianTermGenerator::set_stopper()
   which were getting incorrectly wrapped such that they didn't actually do
   anything.  Fixes #659, reported by jmienert.  This bug was introduced by the
@@ -28,6 +32,8 @@ PHP:
 Python:
 
 Ruby:
+
+* README: Note that Ruby 2.1 works too.
 
 Tcl:
 
