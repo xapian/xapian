@@ -194,9 +194,9 @@ other filters too - see below):
 * text files (.txt, .text)
 * SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
-* PDF (.pdf) if pdftotext is available (comes with xpdf)
+* PDF (.pdf) if pdftotext is available (comes with poppler or xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
-  with xpdf) are available
+  with poppler or xpdf) are available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
