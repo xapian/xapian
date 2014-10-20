@@ -1,3 +1,8 @@
+Mon Oct 20 00:47:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* .gitignore,docs/.gitignore,tests/.gitignore,unicode/.gitignore:
+	  Update to ignore new generated files.
+
 Sat Oct 18 06:15:52 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Don't provide a default expansion scheme
