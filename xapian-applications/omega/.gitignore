@@ -3,6 +3,7 @@
 /Makefile
 /Makefile.in
 /aclocal.m4
+/compile
 /configure
 /config.cache
 /config.guess
@@ -17,6 +18,7 @@
 /stamp-h
 /stamp-h1
 /stamp-h.in
+/test-driver
 /.deps
 /.libs
 /autom4te*.cache
