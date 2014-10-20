@@ -1,6 +1,6 @@
- 18276       olly Fri Oct 10 11:18:43 GMT 2014  Olly Betts <olly@survex.com>
+ 18296       olly Mon Oct 20 09:40:14 GMT 2014  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.19 (2014-10-12):
+Xapian-core 1.2.19 (2014-10-20):
 
 API:
 
@@ -22,6 +22,8 @@ testsuite:
 
 matcher:
 
+* Fix false matches reported for non-exact phrases in some cases.  Fixes the
+  reduced testcase in #657, reported by Jean-Francois Dockes.
 
 brass backend:
 
