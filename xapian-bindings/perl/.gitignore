@@ -10,6 +10,7 @@
 /xapian_wrap.h
 /xapian_wrap.d
 /Xapian.la
+/Xapian.pm
 /*.stamp
 /auto
 /testdb

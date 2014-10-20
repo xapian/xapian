@@ -1,3 +1,10 @@
+Mon Oct 20 00:53:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* .gitignore,csharp/.gitignore,java/.gitignore,lua/.gitignore,
+	  perl/.gitignore,php/.gitignore,python/.gitignore,python3/.gitignore,
+	  python3/docs/.gitignore,ruby/.gitignore,tcl8/.gitignore: Update to
+	  ignore new generated files.
+
 Sun Oct 19 09:40:09 GMT 2014  Olly Betts <olly@survex.com>
 
 	* README: Note that Ruby 2.1 works too.

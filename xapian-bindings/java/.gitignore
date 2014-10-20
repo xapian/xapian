@@ -4,6 +4,7 @@
 /Makefile
 /.deps
 /.libs
+/docs/index.html
 /libxapian_jni.la
 /SmokeTest.class
 /MyMatchDecider.class

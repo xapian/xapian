@@ -4,6 +4,7 @@
 /Makefile
 /.deps
 /.libs
+/docs/index.html
 /SmokeTest.exe
 /AssemblyInfo.cs
 /xapian_wrap.cc
