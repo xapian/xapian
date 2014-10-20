@@ -1,3 +1,8 @@
+Mon Oct 20 05:09:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Note that pdftotext is part of poppler as well as
+	  xpdf.  (Noted by Paul Wise)
+
 Mon Oct 20 00:55:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* .gitignore: Update to ignore new generated files.
