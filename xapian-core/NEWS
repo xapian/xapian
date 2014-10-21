@@ -1,6 +1,4 @@
- 18296       olly Mon Oct 20 09:40:14 GMT 2014  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.19 (2014-10-20):
+Xapian-core 1.2.19 (2014-10-21):
 
 API:
 
@@ -37,12 +35,6 @@ flint backend:
 
 * Only full sync after writing the final base file (only affects Max OS X).
 
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * For Sun's C++ compiler, pass -library=Crun separately since libtool looks for
@@ -60,12 +52,6 @@ documentation:
 * docs/overview.rst: Add missing database path to example of using
   xapian-progsrv in a stub database file.
 
-tools:
-
-
-examples:
-
-
 portability:
 
 * Suppress unused typedef warnings from debugging logging macros, which occur
@@ -74,9 +60,6 @@ portability:
 
 * Fix debug logging code to compile with clang.  (fixes #657, reported by
   Germán M. Bravo)
-
-packaging:
-
 
 debug code:
 
