@@ -1,3 +1,7 @@
+Tue Oct 21 00:34:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.19.
+
 Mon Oct 20 10:51:20 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

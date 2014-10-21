@@ -1,22 +1,4 @@
- 18291       olly Sun Oct 19 09:53:10 GMT 2014  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.19 (2014-10-20):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
-
-Perl:
+Xapian-bindings 1.2.19 (2014-10-21):
 
 PHP:
 
@@ -29,13 +11,9 @@ PHP:
   anything.  Fixes #659, reported by jmienert.  This bug was introduced by the
   reference tracking fix in 1.2.14.
 
-Python:
-
 Ruby:
 
 * README: Note that Ruby 2.1 works too.
-
-Tcl:
 
 Xapian-bindings 1.2.18 (2014-06-22):
 
