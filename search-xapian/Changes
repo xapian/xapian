@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.19.0
+1.2.19.0  Tue Oct 21 00:35:35 UTC 2014
 	[Changes contributed by Dmitry Karasik]
 	- Fix deliberate leaks in QueryParser::add_valuerangeprocessor() and
 	  QueryParser::set_stopper() by tracking object ownership properly.
