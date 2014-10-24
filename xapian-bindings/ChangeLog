@@ -1,3 +1,8 @@
+Fri Oct 24 23:06:25 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Update for addition of LMWeight
+	  class.
+
 Mon Oct 20 00:53:59 GMT 2014  Olly Betts <olly@survex.com>
 
 	* .gitignore,csharp/.gitignore,java/.gitignore,lua/.gitignore,
