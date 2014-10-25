@@ -1,3 +1,8 @@
+Sat Oct 25 19:05:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/dlhweight.cc,weight/dphweight.cc: Avoid dividing by zero when
+	  the collection size is 0.
+
 Fri Oct 24 23:04:24 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
 
 	* api/registry.cc,include/xapian/weight.h,tests/api_backend.cc,
