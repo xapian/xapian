@@ -1,3 +1,13 @@
+Sat Oct 25 19:25:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/query.cc,api/queryinternal.cc,api/smallvector.h,
+	  include/xapian/query.h: Stop using a reference where we may end up
+	  passing *NULL, as that's invalid.  Thanks Nick Lewycky and ubsan
+	  for helping track this down.
+	* tests/api_postingsource.cc: Fix testsuite to avoid passing literal
+	  NULL - pass nullptr for C++11 and don't bother with that part of
+	  the testcase for older C++.
+
 Sat Oct 25 19:05:07 GMT 2014  Olly Betts <olly@survex.com>
 
 	* weight/dlhweight.cc,weight/dphweight.cc: Avoid dividing by zero when
