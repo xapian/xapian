@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,10 +27,22 @@
 #include <xapian.h>
 
 #include "apitest.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
 using namespace std;
+
+// Check the version functions give consistent results.
+DEFINE_TESTCASE(version1, !backend) {
+    string version = str(Xapian::major_version());
+    version += '.';
+    version += str(Xapian::minor_version());
+    version += '.';
+    version += str(Xapian::revision());
+    TEST_EQUAL(Xapian::version_string(), version);
+    return true;
+}
 
 // Regression test: various methods on Database() used to segfault or cause
 // division by 0.  Fixed in 1.1.4 and 1.0.18.  Ticket#415.
@@ -40,14 +52,14 @@ DEFINE_TESTCASE(nosubdatabases1, !backend) {
     // TEST_EQUAL(db.get_metadata("foo"), std::string());
     TEST(db.get_metadata("foo").empty());
     TEST_EQUAL(db.metadata_keys_begin(), db.metadata_keys_end());
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.termlist_begin(1));
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
     TEST_EQUAL(db.allterms_begin("foo"), db.allterms_end("foo"));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.positionlist_begin(1, "foo"));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.positionlist_begin(1, "foo"));
     TEST_EQUAL(db.get_lastdocid(), 0);
     TEST_EQUAL(db.valuestream_begin(7), db.valuestream_end(7));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
-    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_document(1));
     return true;
 }
 
@@ -90,6 +102,7 @@ DEFINE_TESTCASE(emptyquery4, !backend) {
     TEST(Xapian::Query(q.OP_PHRASE, &q, &q).empty());
     TEST(Xapian::Query(q.OP_ELITE_SET, &q, &q).empty());
     TEST(Xapian::Query(q.OP_SYNONYM, &q, &q).empty());
+    TEST(Xapian::Query(q.OP_MAX, &q, &q).empty());
     return true;
 }
 
@@ -110,6 +123,7 @@ DEFINE_TESTCASE(singlesubquery1, !backend) {
     singlesubquery1_(OP_PHRASE);
     singlesubquery1_(OP_ELITE_SET);
     singlesubquery1_(OP_SYNONYM);
+    singlesubquery1_(OP_MAX);
     return true;
 }
 
@@ -129,6 +143,27 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
     singlesubquery2_(OP_PHRASE);
     singlesubquery2_(OP_ELITE_SET);
     singlesubquery2_(OP_SYNONYM);
+    singlesubquery2_(OP_MAX);
+    return true;
+}
+
+DEFINE_TESTCASE(singlesubquery3, !backend) {
+    // Like the previous test, but using MatchNothing as the subquery.
+#define singlesubquery3_(OP) \
+    TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
+	"Query(<alldocuments>)")
+    Xapian::Query q[1] = { Xapian::Query::MatchAll };
+    singlesubquery3_(OP_AND);
+    singlesubquery3_(OP_OR);
+    singlesubquery3_(OP_AND_NOT);
+    singlesubquery3_(OP_XOR);
+    singlesubquery3_(OP_AND_MAYBE);
+    singlesubquery3_(OP_FILTER);
+    singlesubquery3_(OP_NEAR);
+    singlesubquery3_(OP_PHRASE);
+    singlesubquery3_(OP_ELITE_SET);
+    singlesubquery3_(OP_SYNONYM);
+    singlesubquery3_(OP_MAX);
     return true;
 }
 

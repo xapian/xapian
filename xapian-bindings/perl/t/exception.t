@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -12,7 +12,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 4 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
 #########################
@@ -35,15 +35,15 @@ while( defined( my $file = readdir( DB_DIR ) ) ) {
 closedir( DB_DIR );
 
 my $database;
-ok( $database = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE ) );
+ok( $database = Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE ) );
 eval {
   # this should work
-  my $other_database = Search::Xapian::Database->new( $db_dir );
+  my $other_database = Xapian::Database->new( $db_dir );
 };
 ok( !$@ );
 eval {
   # should fail because database is already locked
-  my $other_database = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE );
+  my $other_database = Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE );
 };
 ok( $@ );
 

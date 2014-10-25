@@ -1,7 +1,7 @@
 /** @file chert_positionlist.h
  * @brief A position list in a chert database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,12 @@
 
 #include <xapian/types.h>
 
+#include "bitstream.h"
 #include "chert_lazytable.h"
 #include "pack.h"
 #include "backends/positionlist.h"
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -76,17 +76,20 @@ class ChertPositionListTable : public ChertLazyTable {
 
 /** A position list in a chert database. */
 class ChertPositionList : public PositionList {
-    /// Vector of term positions.
-    vector<Xapian::termpos> positions;
+    /// Interpolative decoder.
+    BitReader rd;
 
-    /// Position of iteration through data.
-    vector<Xapian::termpos>::const_iterator current_pos;
+    /// Current entry.
+    Xapian::termpos current_pos;
+
+    /// Last entry.
+    Xapian::termpos last;
+
+    /// Number of entries.
+    Xapian::termcount size;
 
     /// Have we started iterating yet?
     bool have_started;
-
-    /// Advance to next term position.
-    void next_internal();
 
     /// Copying is not allowed.
     ChertPositionList(const ChertPositionList &);
@@ -96,7 +99,7 @@ class ChertPositionList : public PositionList {
 
   public:
     /// Default constructor.
-    ChertPositionList() : have_started(false) {}
+    ChertPositionList() { }
 
     /// Construct and initialise with data.
     ChertPositionList(const ChertTable * table, Xapian::docid did,

@@ -2,15 +2,15 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = $(RUN_CSHARP)
-
 ## Test programs to be run
 TESTS = SmokeTest.exe
+LOG_COMPILER = $(RUN_CSHARP)
 
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Auto.cs \
+	generated-csharp/BB2Weight.cs \
 	generated-csharp/BM25Weight.cs \
 	generated-csharp/BoolWeight.cs \
 	generated-csharp/Brass.cs \
@@ -19,16 +19,24 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Database.cs \
 	generated-csharp/DateValueRangeProcessor.cs \
 	generated-csharp/DecreasingValueWeightPostingSource.cs \
+	generated-csharp/DLHWeight.cs \
+	generated-csharp/DPHWeight.cs \
 	generated-csharp/Document.cs \
 	generated-csharp/ESet.cs \
 	generated-csharp/ESetIterator.cs \
 	generated-csharp/Enquire.cs \
 	generated-csharp/ExpandDecider.cs \
 	generated-csharp/ExpandDeciderAnd.cs \
+	generated-csharp/ExpandDeciderFilterPrefix.cs \
+	generated-csharp/FieldProcessor.cs \
 	generated-csharp/FixedWeightPostingSource.cs \
 	generated-csharp/GreatCircleMetric.cs \
+	generated-csharp/IfB2Weight.cs \
+	generated-csharp/IneB2Weight.cs \
+	generated-csharp/InL2Weight.cs \
 	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \
+	generated-csharp/LMWeight.cs \
 	generated-csharp/LatLongCoord.cs \
 	generated-csharp/LatLongCoords.cs \
 	generated-csharp/LatLongCoordsIterator.cs \
@@ -41,6 +49,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MSetIterator.cs \
 	generated-csharp/MultiValueKeyMaker.cs \
 	generated-csharp/NumberValueRangeProcessor.cs \
+	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
 	generated-csharp/PostingIterator.cs \
 	generated-csharp/PostingSource.cs \
@@ -51,12 +60,14 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/SWIGTYPE_p_std__string.cs \
 	generated-csharp/Registry.cs \
 	generated-csharp/SimpleStopper.cs \
+	generated-csharp/Snipper.cs \
 	generated-csharp/Stem.cs \
 	generated-csharp/StemImplementation.cs \
 	generated-csharp/Stopper.cs \
 	generated-csharp/StringValueRangeProcessor.cs \
 	generated-csharp/TermGenerator.cs \
 	generated-csharp/TermIterator.cs \
+	generated-csharp/TfIdfWeight.cs \
 	generated-csharp/TradWeight.cs \
 	generated-csharp/ValueCountMatchSpy.cs \
 	generated-csharp/ValueIterator.cs \
@@ -86,7 +97,7 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
-EXTRA_DIST = csharp.i SmokeTest.cs $(BUILT_SOURCES)
+EXTRA_DIST = csharp.i SmokeTest.cs docs/index.rst $(BUILT_SOURCES)
 
 lib_LTLIBRARIES = _XapianSharp.la
 
@@ -119,20 +130,20 @@ all-am: $(ASSEMBLY).dll
 CLEANFILES = XapianSharp.snk $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
-xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)
-xapian_wrap.stamp:
+stamp = xapian_wrap.stamp
+RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+
+xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): $(stamp)
+	$(make_many_locked)
+$(stamp):
 	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f generated-csharp/*
 	$(MKDIR_P) generated-csharp
-	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport _XapianSharp \
-	    -o xapian_wrap.cc -outdir generated-csharp \
-	    -MD -MF xapian_wrap_d.tmp '$(srcdir)/'csharp.i
-	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
-	mv xapian_wrap_d.tmp xapian_wrap.d
+	    -o xapian_wrap.cc -outdir generated-csharp '$(srcdir)/'csharp.i
 	: # Check that exactly the sources we expected were generated.
 	$(PERL) -e 'print "$$_\n" for sort @ARGV' generated-csharp/*.cs > generated-csharp/list
 	$(PERL) -e 'print "$$_\n" for sort @ARGV' $(XAPIAN_SWIG_CS_SRCS)|diff -c - generated-csharp/list
@@ -140,7 +151,7 @@ xapian_wrap.stamp:
 
 -include xapian_wrap.d
 
-CLEANFILES += xapian_wrap.stamp
+CLEANFILES += $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
@@ -155,3 +166,9 @@ dist_exampledata_DATA =\
 
 docdatadir = $(docdir)/csharp
 dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif

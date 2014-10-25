@@ -1,7 +1,7 @@
 /** @file exactphrasepostlist.cc
  * @brief Return docs containing terms forming a particular exact phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include "debuglog.h"
 #include "backends/positionlist.h"
+#include "omassert.h"
 
 #include <algorithm>
 #include <vector>
@@ -36,6 +37,7 @@ ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
     : SelectPostList(source_), terms(terms_begin, terms_end)
 {
     size_t n = terms.size();
+    Assert(n > 1);
     poslists = new PositionList*[n];
     try {
 	order = new unsigned[n];
@@ -75,8 +77,6 @@ bool
 ExactPhrasePostList::test_doc()
 {
     LOGCALL(MATCH, bool, "ExactPhrasePostList::test_doc", NO_ARGS);
-
-    if (terms.size() <= 1) RETURN(true);
 
     // We often don't need to read all the position lists, so rather than using
     // the shortest position lists first, we approximate by using the terms
@@ -141,7 +141,7 @@ ExactPhrasePostList::get_wdf() const
 
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); i++) {
+    for (; i != terms.end(); ++i) {
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;

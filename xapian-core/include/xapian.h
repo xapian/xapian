@@ -1,7 +1,7 @@
 /** @file xapian.h
  *  @brief Public interfaces for the Xapian library.
  */
-// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012 Olly Betts
+// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,6 +20,22 @@
 #ifndef XAPIAN_INCLUDED_XAPIAN_H
 #define XAPIAN_INCLUDED_XAPIAN_H
 
+#ifdef slots
+# ifdef Q_OBJECT
+// Qt headers '#define slots' by default, which clashes with us using it as a
+// class member name.  Including <xapian.h> first is a simple workaround, or
+// you can use 'no_keywords' to stop Qt polluting the global macro namespace,
+// as described here:
+//
+// http://qt-project.org/doc/qt-5.0/signalsandslots.html#using-qt-with-3rd-party-signals-and-slots
+#  error "Include <xapian.h> before Qt headers, or put 'CONFIG += no_keywords' in your .pro file and use Q_SLOTS instead of slots, etc"
+# endif
+# ifdef WT_API
+// Argh, copycat polluters!
+#  error "Include <xapian.h> before Wt headers, or define WT_NO_SLOT_MACROS to stop Wt from defining the macros 'slots' and 'SLOT()'"
+# endif
+#endif
+
 // Define so that deprecation warnings are given to API users, but not
 // while building the library.
 #define XAPIAN_IN_XAPIAN_H
@@ -29,6 +45,12 @@
 
 // Types
 #include <xapian/types.h>
+
+// Function attributes
+#include <xapian/attributes.h>
+
+// Constants
+#include <xapian/constants.h>
 
 // Exceptions
 #include <xapian/error.h>
@@ -60,6 +82,9 @@
 // Stemming
 #include <xapian/stem.h>
 
+// Snippets
+#include <xapian/snipper.h>
+
 // Subclass registry
 #include <xapian/registry.h>
 
@@ -78,6 +103,22 @@
 /// The Xapian namespace contains public interfaces for the Xapian library.
 namespace Xapian {
 
+#ifndef SWIG
+namespace Internal {
+
+/** @private @internal */
+struct vinfo {
+    int major, minor, revision;
+    char str[8];
+};
+
+/** @private @internal */
+XAPIAN_VISIBILITY_DEFAULT
+const struct vinfo * XAPIAN_NOTHROW(get_vinfo_()) XAPIAN_CONST_FUNCTION;
+
+}
+#endif
+
 // Functions returning library version:
 
 /** Report the version string of the library which the program is linked with.
@@ -85,32 +126,36 @@ namespace Xapian {
  * This may be different to the version compiled against (given by
  * XAPIAN_VERSION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-const char * version_string();
+inline const char * version_string() {
+    return Internal::get_vinfo_()->str;
+}
 
 /** Report the major version of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-int major_version();
+inline int major_version() {
+    return Internal::get_vinfo_()->major;
+}
 
 /** Report the minor version of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-int minor_version();
+inline int minor_version() {
+    return Internal::get_vinfo_()->minor;
+}
 
 /** Report the revision of the library which the program is linked with.
  *
  * This may be different to the version compiled against (given by
  * XAPIAN_REVISION) if shared libraries are being used.
  */
-XAPIAN_VISIBILITY_DEFAULT
-int revision();
+inline int revision() {
+    return Internal::get_vinfo_()->revision;
+}
 
 }
 

@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -221,6 +221,12 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x1EEF0), Unicode::MATH_SYMBOL);
     // U+1F634 was added in Unicode 6.1.0.
     TEST_EQUAL(Unicode::get_category(0x1F634), Unicode::OTHER_SYMBOL);
+    // U+20BA was added in Unicode 6.2.0.
+    TEST_EQUAL(Unicode::get_category(0x20BA), Unicode::CURRENCY_SYMBOL);
+    // U+061C was added in Unicode 6.3.0.
+    TEST_EQUAL(Unicode::get_category(0x61C), Unicode::FORMAT);
+    // U+037F "GREEK CAPITAL LETTER YOT" was added in Unicode 7.0.0.
+    TEST_EQUAL(Unicode::get_category(0x37F), Unicode::UPPERCASE_LETTER);
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -247,6 +253,12 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
     TEST_EQUAL(Unicode::toupper(0x242), 0x241);
     TEST_EQUAL(Unicode::toupper(0x241), 0x241);
     TEST_EQUAL(Unicode::tolower(0x241), 0x242);
+
+    // Regression test for bug fixed in 1.2.17.
+    TEST_EQUAL(Unicode::tolower(0x1c5), 0x1c6);
+    TEST_EQUAL(Unicode::tolower(0x1c8), 0x1c9);
+    TEST_EQUAL(Unicode::tolower(0x1cb), 0x1cc);
+    TEST_EQUAL(Unicode::tolower(0x1f2), 0x1f3);
 
     // Pound currency symbol:
     TEST_EQUAL(Unicode::tolower(0xa3), 0xa3);
@@ -305,6 +317,13 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     TEST_EQUAL(Unicode::tolower(0x3cf), 0x3d7);
     TEST_EQUAL(Unicode::toupper(0x3d7), 0x3cf);
 
+    // U+20BA was added in Unicode 6.2.0:
+    TEST_EQUAL(Unicode::toupper(0x20ba), 0x20ba);
+    TEST_EQUAL(Unicode::tolower(0x20ba), 0x20ba);
+
+    // U+061C was added in Unicode 6.3.0:
+    TEST_EQUAL(Unicode::toupper(0x61c), 0x61c);
+    TEST_EQUAL(Unicode::tolower(0x61c), 0x61c);
 
     unsigned u;
     for (u = 0x514; u < 0x524; u += 2) {
@@ -369,6 +388,8 @@ DEFINE_TESTCASE(unicodepredicates1,!backend) {
     const unsigned currency[] = {
 	// CURRENCY_SYMBOL
 	'$', 0xa3,
+	// CURRENCY_SYMBOL (added in Unicode 6.2.0)
+	0x20ba,
 	0
     };
     const unsigned whitespace[] = {
@@ -383,6 +404,8 @@ DEFINE_TESTCASE(unicodepredicates1,!backend) {
 	0x5be,
 	// OTHER_SYMBOL (added in Unicode 5.1.0)
 	0x1f093,
+	// FORMAT (added in Unicode 6.3.0)
+	0x61c,
 	// UNASSIGNED
 	0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
 	// PRIVATE_USE

@@ -496,7 +496,7 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
       if (ambig && !exact)
 	{
 	  if (print_errors)
-	    fprintf (stderr, _("%s: option `%s' is ambiguous\n"),
+	    fprintf (stderr, _("%s: option '%s' is ambiguous\n"),
 		     argv[0], argv[optind]);
 	  nextchar += strlen (nextchar);
 	  optind++;
@@ -521,12 +521,12 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 		      if (argv[optind - 1][1] == '-')
 			/* --option */
 			fprintf (stderr,
-				 _("%s: option `--%s' doesn't allow an argument\n"),
+				 _("%s: option '--%s' doesn't allow an argument\n"),
 				 argv[0], pfound->name);
 		      else
 			/* +option or -option */
 			fprintf (stderr,
-				 _("%s: option `%c%s' doesn't allow an argument\n"),
+				 _("%s: option '%c%s' doesn't allow an argument\n"),
 				 argv[0], argv[optind - 1][0], pfound->name);
 		    }
 
@@ -544,7 +544,7 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 		{
 		  if (print_errors)
 		    fprintf (stderr,
-			   _("%s: option `%s' requires an argument\n"),
+			   _("%s: option '%s' requires an argument\n"),
 			   argv[0], argv[optind - 1]);
 		  nextchar += strlen (nextchar);
 		  optopt = pfound->val;
@@ -573,11 +573,11 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 	    {
 	      if (argv[optind][1] == '-')
 		/* --option */
-		fprintf (stderr, _("%s: unrecognized option `--%s'\n"),
+		fprintf (stderr, _("%s: unrecognized option '--%s'\n"),
 			 argv[0], nextchar);
 	      else
 		/* +option or -option */
-		fprintf (stderr, _("%s: unrecognized option `%c%s'\n"),
+		fprintf (stderr, _("%s: unrecognized option '%c%s'\n"),
 			 argv[0], argv[optind][0], nextchar);
 	    }
 	  nextchar = const_cast<char *>("");
@@ -683,7 +683,7 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 	if (ambig && !exact)
 	  {
 	    if (print_errors)
-	      fprintf (stderr, _("%s: option `-W %s' is ambiguous\n"),
+	      fprintf (stderr, _("%s: option '-W %s' is ambiguous\n"),
 		       argv[0], argv[optind]);
 	    nextchar += strlen (nextchar);
 	    optind++;
@@ -702,7 +702,7 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 		  {
 		    if (print_errors)
 		      fprintf (stderr, _("\
-%s: option `-W %s' doesn't allow an argument\n"),
+%s: option '-W %s' doesn't allow an argument\n"),
 			       argv[0], pfound->name);
 
 		    nextchar += strlen (nextchar);
@@ -717,7 +717,7 @@ gnu_getopt_internal_(int argc, char *const *argv, const char *optstring, const s
 		  {
 		    if (print_errors)
 		      fprintf (stderr,
-			       _("%s: option `%s' requires an argument\n"),
+			       _("%s: option '%s' requires an argument\n"),
 			       argv[0], argv[optind - 1]);
 		    nextchar += strlen (nextchar);
 		    return optstring[0] == ':' ? ':' : '?';

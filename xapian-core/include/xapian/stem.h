@@ -1,7 +1,7 @@
 /** @file stem.h
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010,2011 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011,2013,2014 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,10 @@
 
 #ifndef XAPIAN_INCLUDED_STEM_H
 #define XAPIAN_INCLUDED_STEM_H
+
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/stem.h> directly; include <xapian.h> instead."
+#endif
 
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
@@ -76,6 +80,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  - danish (da)
      *  - dutch (nl)
      *  - english (en) - Martin Porter's 2002 revision of his stemmer
+     *  - earlyenglish - Early English (e.g. Shakespeare, Dickens) stemmer
      *  - english_lovins (lovins) - Lovin's stemmer
      *  - english_porter (porter) - Porter's stemmer as described in
      *			his 1980 paper

@@ -2,7 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2007,2008,2009,2011,2012 Olly Betts
+ * Copyright (C) 2007,2008,2009,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,7 @@
 
 #include "net_postlist.h"
 #include "net/length.h"
+#include "unicode/description_append.h"
 
 using namespace std;
 
@@ -43,6 +44,12 @@ Xapian::termcount
 NetworkPostList::get_doclength() const
 {
     return db->get_doclength(lastdocid);
+}
+
+Xapian::termcount
+NetworkPostList::get_unique_terms() const
+{
+    return db->get_unique_terms(lastdocid);
 }
 
 Xapian::termcount
@@ -104,7 +111,7 @@ string
 NetworkPostList::get_description() const
 {
     string desc = "NetworkPostList(";
-    desc += term;
+    description_append(desc, term);
     desc += ')';
     return desc;
 }

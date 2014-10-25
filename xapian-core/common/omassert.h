@@ -1,7 +1,7 @@
 /** @file omassert.h
  * @brief Various assertion macros.
  */
-/* Copyright (C) 2007,2008,2009,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,10 +37,17 @@
  *  is used in header files, multiple headers might be included from the same
  *  source file and have CompileTimeAssert() at the same line number.
  */
-#define CompileTimeAssert(COND)\
+#if __cplusplus >= 201103L
+// Under C++11, just use static_assert.
+# define CompileTimeAssert(COND) static_assert(COND, #COND)
+#else
+# define CompileTimeAssert(COND)\
     do {\
 	typedef int xapian_compile_time_check_[(COND) ? 1 : -1];\
+	xapian_compile_time_check_ xapian_compile_time_check_var_;\
+	(void)xapian_compile_time_check_var_;\
     } while (0)
+#endif
 
 #ifndef XAPIAN_ASSERTIONS
 // The configure script should always define XAPIAN_ASSERTIONS if it defines

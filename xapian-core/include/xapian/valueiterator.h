@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,9 +22,14 @@
 #ifndef XAPIAN_INCLUDED_VALUEITERATOR_H
 #define XAPIAN_INCLUDED_VALUEITERATOR_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/valueiterator.h> directly; include <xapian.h> instead."
+#endif
+
 #include <iterator>
 #include <string>
 
+#include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -55,7 +60,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  Creates an uninitialised iterator, which can't be used before being
      *  assigned to, but is sometimes syntactically convenient.
      */
-    ValueIterator() : internal(0) { }
+    XAPIAN_NOTHROW(ValueIterator())
+	: internal(0) { }
 
     /// Destructor.
     ~ValueIterator() {
@@ -80,7 +86,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  If we're iterating over values of a document, this method will throw
      *  Xapian::InvalidOperationError.
      */
-    Xapian::docid get_docid() const;
+    Xapian::docid get_docid() const XAPIAN_PURE_FUNCTION;
 
     /** Return the value slot number for the current position.
      *
@@ -88,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  number.  If the iterator is over the values in a particular document,
      *  it returns the number of each slot in turn.
      */
-    Xapian::valueno get_valueno() const;
+    Xapian::valueno get_valueno() const XAPIAN_PURE_FUNCTION;
 
     /** Advance the iterator to document id or value slot @a docid_or_slot.
      *
@@ -134,10 +140,23 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *
      *  @param docid	The document id to check.
      */
+#ifndef check
     bool check(Xapian::docid docid);
+#else
+    // The AssertMacros.h header in the OS X SDK currently defines a check
+    // macro.  Apple have deprecated check() in favour of __Check() and
+    // plan to remove check() in a "future release", but for now prevent
+    // expansion of check by adding parentheses in the method prototype:
+    // http://www.opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/AssertMacros.h
+    //
+    // We do this conditionally, as these parentheses trip up SWIG's
+    // parser:
+    // https://github.com/swig/swig/issues/45
+    bool (check)(Xapian::docid docid);
+#endif
 
     /// Return a string describing this object.
-    std::string get_description() const;
+    std::string get_description() const XAPIAN_PURE_FUNCTION;
 
     /** @private @internal ValueIterator is what the C++ STL calls an
      *  input_iterator.
@@ -163,6 +182,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     // @}
 };
 
+bool
+XAPIAN_NOTHROW(operator==(const ValueIterator &a, const ValueIterator &b));
+
 /// Equality test for ValueIterator objects.
 inline bool
 operator==(const ValueIterator &a, const ValueIterator &b)
@@ -171,6 +193,9 @@ operator==(const ValueIterator &a, const ValueIterator &b)
     // handling of end iterators (which we ensure have NULL internals).
     return a.internal == b.internal;
 }
+
+bool
+XAPIAN_NOTHROW(operator!=(const ValueIterator &a, const ValueIterator &b));
 
 /// Inequality test for ValueIterator objects.
 inline bool

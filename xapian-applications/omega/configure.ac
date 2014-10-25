@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.3.0], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.3.1], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.11 -Wportability tar-ustar no-dist-gzip dist-xz])
 
 AC_CONFIG_SRCDIR([omega.cc])
 
@@ -25,9 +25,9 @@ AC_SUBST(NO_UNDEFINED)
 dnl Checks for programs.
 AC_PROG_CXX
 
-# Checked: freebsd8.0 openbsd4.6
+# Checked: freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
-  linux* | k*bsd*-gnu | freebsd* | openbsd*)
+  linux* | k*bsd*-gnu | freebsd* | openbsd* | solaris*)
     dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
     link_all_deplibs_CXX=no
     ;;
@@ -55,6 +55,14 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
 
+dnl For _ftime64() on mingw we need to tell it we're happy to require
+dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
+case $host_os in
+  *mingw*)
+    AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
+    ;;
+esac
+
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
   [case ${enableval} in
@@ -81,11 +89,32 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 dnl libmagic used to detect MIME types for files we don't detect by extension.
 AC_CHECK_HEADERS([magic.h])
 if test $ac_cv_header_magic_h != yes ; then
-  AC_MSG_ERROR([libmagic required but magic.h not found])
+  if test -r /etc/debian_version ; then
+    pkg="libmagic-dev"
+  else
+    pkg="file-devel (or maybe libmagic-devl)"
+  fi
+  AC_MSG_ERROR([libmagic required but magic.h not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
 fi
 save_LIBS=$LIBS
 LIBS=
+AC_ARG_VAR(MAGIC_PREFIX, [Prefix for libmagic])
+if test "$MAGIC_PREFIX"; then
+AC_SEARCH_LIBS([magic_open], [magic], [], [
+   MAGIC_LDFLAGS=-L$MAGIC_PREFIX/lib
+   save_LDFLAGS=$LDFLAGS
+   LDFLAGS="$LDFLAGS $MAGIC_LDFLAGS"
+   AC_CHECK_LIB([magic], [magic_open], [], [
+      MAGIC_LIBS=
+      ])
+   LDFLAGS=$save_LDFLAGS
+   AC_SUBST([MAGIC_LDFLAGS])
+ ])
+else
 AC_SEARCH_LIBS([magic_open], [magic])
+fi
+dnl magic_descriptor was added in file-4.22 released 2007-12-27.
+AC_CHECK_FUNCS([magic_descriptor])
 MAGIC_LIBS=$LIBS
 LIBS=$save_LIBS
 AC_SUBST([MAGIC_LIBS])
@@ -97,7 +126,7 @@ AC_TYPE_PID_T
 
 dnl Check for time functions.
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS(gettimeofday ftime)
+AC_CHECK_FUNCS(gettimeofday ftime timegm)
 
 dnl See if ftime() returns void (as it does on mingw).
 if test $ac_cv_func_ftime = yes ; then
@@ -106,6 +135,14 @@ if test $ac_cv_func_ftime = yes ; then
     ,
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
 fi
+
+dnl Solaris < 10 only has putenv().
+dnl
+dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
+dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
+dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
+dnl on __WIN32__ being defined.
+AC_CHECK_FUNCS([setenv _putenv_s])
 
 dnl Use for Unix permission checks.
 AC_CHECK_FUNCS([getgrouplist])
@@ -143,7 +180,7 @@ AC_LINK_IFELSE([
 
 dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource
 dnl limits on filter programs.
-AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic])
+AC_CHECK_FUNCS([mmap fork setrlimit sysmp pstat_getdynamic setpgid sigaction])
 
 dnl -lxnet is needed on Solaris and apparently on HP-UX too.
 AC_SEARCH_LIBS([socketpair], [xnet],
@@ -347,50 +384,33 @@ dnl ******************************
 
 dnl Set flags to control warnings (enable more, or disable annoying ones).
 if test yes = "$GXX"; then
-  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
-  dnl which we actually have.
-  AC_EGREP_CPP(yes,
-    [#ifdef __INTEL_COMPILER
-     yes
-     #endif
-    ],
-    [
-      dnl Intel's compiler:
-      dnl
-      dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
-    ],
-    [
-      dnl GCC:
+  dnl Intel's C++ compiler and clang both lie and define __GNUC__, so check which
+  dnl we actually have, as neither is really 100% compatible.
+  case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
+    *__INTEL_COMPILER*__clang__*)
+      dnl GCC (since neither substituted):
       dnl
       dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
-      dnl we can rely on it.
+      dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      dnl
-      dnl FIXME: Fix the warnings from -Woverloaded-virtual and add it here too.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef"
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
 
-      dnl The output of g++ --version seems to change with almost every minor
-      dnl release so use the preprocessor macros which should be more robust.
-      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_version=$gxx_major_version.$gxx_minor_version
+      dnl The exact format of g++ --version seems to change with almost every
+      dnl minor release so use the preprocessor macros which should be more
+      dnl robust.
+      AC_MSG_CHECKING([for version of GCC])
+      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -E -|sed '/^#/d;s/ //g'`
+      AC_MSG_RESULT([$gxx_version])
 
       case $gxx_version in
-      [[012]].* | 3.0)
+      [[012]].* | 3.0.*)
 	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
 	;;
-      3.*) ;;
-      *) dnl GCC >= 4.0
+      3.*|4.0.*) ;;
+      *) dnl GCC >= 4.1
 	case $gxx_version in
-	4.0) ;;
-	4.1)
+	4.1.*)
 	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
 	  dnl only enable it for GCC >= 4.1.
 	  dnl
@@ -399,21 +419,23 @@ if test yes = "$GXX"; then
 	  dnl in a static method is the same as a member variable, so only
 	  dnl enable it for GCC >= 4.1.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
-	4.2)
+	4.2.*)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
-	*)
+	4.[[345]].*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
+	*) dnl GCC >= 4.6
+	  dnl -Wdouble-promotion was added in GCC 4.6.
 	  dnl
-	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
-	  dnl is ignored by g++ which warns for this case with -Wuninitialized
-	  dnl (implied by -W).  But at some point this bug (filed upstream as
-	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	  dnl anyway - we don't intend to use this idiom, so any instances are
-	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+	  dnl warns for this case with -Wuninitialized (implied by -W).  We
+	  dnl don't intend to use this idiom, so any instances are bugs we'd
+	  dnl like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
 	esac
 
 	dnl FIXME:
@@ -440,20 +462,38 @@ if test yes = "$GXX"; then
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-	dnl and some GCC 3.x compilers issue spurious warnings.
+	dnl using GCC 4.1 or newer.  We don't do this for older GCCs as GCC 2.95,
+	dnl some GCC 3.x compilers, and Apple's GCC 4.0 issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  case $gxx_version in
-	  4.0)
-	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
-	    ;;
-	  *)
-	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
-	  esac
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
 	fi
 	;;
       esac
-    ])
+      ;;
+    *__clang__*)
+      dnl Intel's compiler (since __clang__ not substituted):
+
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+    *__INTEL_COMPILER*)
+      dnl clang (since __INTEL_COMPILER not substituted):
+
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+  esac
 fi
 
 AC_SUBST(AM_CXXFLAGS)
@@ -492,23 +532,6 @@ AH_BOTTOM(
 # define usual(COND) (COND)
 #endif
 ])
-
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [Enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
-  esac])
-
-dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
-dnl AC_SUBST-ed value like this allows the choice to be easily overridden
-dnl if you want to see exactly what make and libtool are up to - just run
-dnl make like this: `make QUIET='
-QUIET=
-if test yes = "$enable_quiet"; then
-  QUIET=--quiet
-fi
-AC_SUBST(QUIET)
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS

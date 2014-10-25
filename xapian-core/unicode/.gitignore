@@ -4,3 +4,4 @@
 /.deps
 /.libs
 /.dirstamp
+/unicode-data.cc

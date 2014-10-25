@@ -30,7 +30,7 @@
 #include <string>
 
 #ifndef HAVE_MKDTEMP
-extern char * mkdtemp(char *);
+#include "portability/mkdtemp.h"
 #endif
 
 using namespace std;

@@ -1,7 +1,7 @@
 /** @file unixcmds.cc
  *  @brief C++ function versions of useful Unix commands.
  */
-/* Copyright (C) 2003,2004,2007,2012 Olly Betts
+/* Copyright (C) 2003,2004,2007,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,53 +33,11 @@
 # include "safewindows.h"
 #endif
 
+#include "append_filename_arg.h"
 #include "filetests.h"
 #include "str.h"
-#include "stringutils.h"
 
 using namespace std;
-
-/// Append filename argument arg to command cmd with suitable escaping.
-static bool
-append_filename_argument(string & cmd, const string & arg) {
-#ifdef __WIN32__
-    cmd.reserve(cmd.size() + arg.size() + 3);
-    cmd += " \"";
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '/') {
-	    // Convert Unix path separators to backslashes.  C library
-	    // functions understand "/" in paths, but we are going to
-	    // call commands like "deltree" or "rd" which don't.
-	    cmd += '\\';
-	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
-	    // Check for illegal characters in filename.
-	    return false;
-	} else {
-	    cmd += *i;
-	}
-    }
-    cmd += '"';
-#else
-    // Allow for escaping a few characters.
-    cmd.reserve(cmd.size() + arg.size() + 10);
-
-    // Prevent a leading "-" on the filename being interpreted as a command
-    // line option.
-    if (arg[0] == '-')
-	cmd += " ./";
-    else
-	cmd += ' ';
-
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	// Don't escape a few safe characters which are common in filenames.
-	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
-	    cmd += '\\';
-	}
-	cmd += *i;
-    }
-#endif
-    return true;
-}
 
 /// Call system() and throw exception if it fails.
 static void
@@ -98,10 +56,9 @@ checked_system(const string & cmd)
 /// Recursively copy a directory.
 void cp_R(const std::string &src, const std::string &dest) {
 #ifdef __WIN32__
-    // xcopy should be available on both NT and 95 derivatives.  We create
-    // the target directory first to avoid being prompted as to whether we
-    // want to create a directory or a file (which makes no sense when
-    // copying a directory, but that's how xcopy seems to work!)
+    // We create the target directory first to avoid being prompted as to
+    // whether we want to create a directory or a file (which makes no sense
+    // when copying a directory, but that's how xcopy seems to work!)
     mkdir(dest.c_str());
     string cmd("xcopy /E /Y");
 #else
@@ -119,21 +76,6 @@ void cp_R(const std::string &src, const std::string &dest) {
 #endif
 }
 
-#ifdef __WIN32__
-static bool running_on_win9x() {
-    static int win9x = -1;
-    if (win9x == -1) {
-	OSVERSIONINFO info;
-	memset(&info, 0, sizeof(OSVERSIONINFO));
-	info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	if (GetVersionEx(&info)) {
-	    win9x = (info.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
-	}
-    }
-    return win9x;
-}
-#endif
-
 /// Remove a directory and contents, just like the Unix "rm -rf" command.
 void rm_rf(const string &filename) {
     // Check filename exists and is actually a directory
@@ -141,14 +83,7 @@ void rm_rf(const string &filename) {
 	return;
 
 #ifdef __WIN32__
-    string cmd;
-    if (running_on_win9x()) {
-	// For 95-like systems:
-	cmd = "deltree /y";
-    } else {
-	// For NT-like systems:
-	cmd = "rd /s /q";
-    }
+    string cmd("rd /s /q");
 #else
     string cmd("rm -rf");
 #endif

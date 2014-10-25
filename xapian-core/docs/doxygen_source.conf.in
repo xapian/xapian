@@ -766,7 +766,7 @@ GENERATE_HTML          = YES
 
 # The HTML_OUTPUT tag is used to specify where the HTML docs will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
-# put in front of it. If left blank `html' will be used as the default path.
+# put in front of it. If left blank 'html' will be used as the default path.
 
 HTML_OUTPUT            = html
 
@@ -983,17 +983,17 @@ GENERATE_LATEX         = NO
 
 # The LATEX_OUTPUT tag is used to specify where the LaTeX docs will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
-# put in front of it. If left blank `latex' will be used as the default path.
+# put in front of it. If left blank 'latex' will be used as the default path.
 
 LATEX_OUTPUT           = latex
 
 # The LATEX_CMD_NAME tag can be used to specify the LaTeX command name to be
-# invoked. If left blank `latex' will be used as the default command name.
+# invoked. If left blank 'latex' will be used as the default command name.
 
 LATEX_CMD_NAME         = latex
 
 # The MAKEINDEX_CMD_NAME tag can be used to specify the command name to
-# generate index for LaTeX. If left blank `makeindex' will be used as the
+# generate index for LaTeX. If left blank 'makeindex' will be used as the
 # default command name.
 
 MAKEINDEX_CMD_NAME     = @MAKEINDEX@
@@ -1066,7 +1066,7 @@ GENERATE_RTF           = NO
 
 # The RTF_OUTPUT tag is used to specify where the RTF docs will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
-# put in front of it. If left blank `rtf' will be used as the default path.
+# put in front of it. If left blank 'rtf' will be used as the default path.
 
 RTF_OUTPUT             = rtf
 
@@ -1107,7 +1107,7 @@ GENERATE_MAN           = NO
 
 # The MAN_OUTPUT tag is used to specify where the man pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
-# put in front of it. If left blank `man' will be used as the default path.
+# put in front of it. If left blank 'man' will be used as the default path.
 
 MAN_OUTPUT             = man
 
@@ -1136,7 +1136,7 @@ GENERATE_XML           = NO
 
 # The XML_OUTPUT tag is used to specify where the XML pages will be put.
 # If a relative path is entered the value of OUTPUT_DIRECTORY will be
-# put in front of it. If left blank `xml' will be used as the default path.
+# put in front of it. If left blank 'xml' will be used as the default path.
 
 XML_OUTPUT             = xml
 
@@ -1261,7 +1261,11 @@ PREDEFINED             = DOXYGEN \
 			 XAPIAN_DEPRECATED_CLASS= \
 			 XAPIAN_DEPRECATED_CLASS_EX= \
 			 XAPIAN_DEPRECATED(D)=D \
-			 XAPIAN_DEPRECATED_EX(D)=D
+			 XAPIAN_DEPRECATED_EX(D)=D \
+			 XAPIAN_NORETURN(D)=D \
+			 XAPIAN_CONST_FUNCTION= \
+			 XAPIAN_PURE_FUNCTION= \
+			 XAPIAN_NOTHROW(D)=D
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then
 # this tag can be used to specify a list of macro names that should be expanded.
@@ -1319,7 +1323,7 @@ ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
 
 # The PERL_PATH should be the absolute path and name of the perl script
-# interpreter (i.e. the result of `which perl').
+# interpreter (i.e. the result of 'which perl').
 
 PERL_PATH              = @PERL@
 

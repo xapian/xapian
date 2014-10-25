@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,12 +23,19 @@
 
 #include "myhtmlparse.h"
 
+#include "keyword.h"
+#include "my-html-tok.h"
 #include "utf8convert.h"
 
 #include <cctype>
+#include <cstdlib>
 #include <cstring>
+#include <time.h>
+#include "timegm.h"
 
 using namespace std;
+
+static const char whitespace[] = "_ \t\r\r\f";
 
 inline void
 lowercase_string(string &str)
@@ -38,13 +45,90 @@ lowercase_string(string &str)
     }
 }
 
+static time_t
+parse_datetime(const string & s)
+{
+    struct tm t;
+    const char * p = s.c_str();
+    char * q;
+    if (s.find('T') != string::npos || s.find('-') != string::npos) {
+	// E.g. "2013-01-17T09:10:55Z"
+	t.tm_year = strtoul(p, &q, 10) - 1900;
+	p = q;
+	if (*p == '-') {
+	    t.tm_mon = strtoul(p + 1, &q, 10) - 1;
+	    p = q;
+	} else {
+	    t.tm_mon = 0;
+	}
+	if (*p == '-') {
+	    t.tm_mday = strtoul(p + 1, &q, 10);
+	    p = q;
+	} else {
+	    t.tm_mday = 1;
+	}
+	if (*p == 'T') {
+	    t.tm_hour = strtoul(p + 1, &q, 10);
+	    p = q;
+	    if (*p == ':') {
+		t.tm_min = strtoul(p + 1, &q, 10);
+		p = q;
+	    } else {
+		t.tm_min = 0;
+	    }
+	    if (*p == ':') {
+		t.tm_sec = strtoul(p + 1, &q, 10);
+		p = q;
+	    } else {
+		t.tm_sec = 0;
+	    }
+	} else {
+	    t.tm_hour = t.tm_min = t.tm_sec = 0;
+	}
+	if (*p == 'Z') {
+	    // FIXME: always assume UTC for now...
+	}
+    } else {
+	// As produced by LibreOffice HTML export.
+	// E.g.
+	// "20130117;09105500" == 2013-01-17T09:10:55
+	// "20070903;200000000000" == 2007-09-03T00:02:00
+	// "20070831;5100000000000" == 2007-08-31T00:51:00
+	unsigned long v = strtoul(p, &q, 10);
+	if (v == 0) {
+	    // LibreOffice sometimes exports "0;0".  A date of "0" is
+	    // clearly invalid.
+	    return time_t(-1);
+	}
+	p = q;
+	t.tm_mday = v % 100;
+	v /= 100;
+	t.tm_mon = v % 100 - 1;
+	t.tm_year = v / 100 - 1900;
+	if (*p == ';') {
+	    ++p;
+	    v = strtoul(p, &q, 10);
+	    v /= (q - p > 10) ? 1000000000 : 100;
+	    t.tm_sec = v % 100;
+	    v /= 100;
+	    t.tm_min = v % 100;
+	    t.tm_hour = v / 100;
+	} else {
+	    t.tm_hour = t.tm_min = t.tm_sec = 0;
+	}
+    }
+    t.tm_isdst = -1;
+
+    return timegm(&t);
+}
+
 void
 MyHtmlParser::parse_html(const string &text, const string &charset_,
 			 bool charset_from_meta_)
 {
     charset = charset_;
     charset_from_meta = charset_from_meta_;
-    HtmlParser::parse_html(text);
+    parse(text);
 }
 
 void
@@ -52,16 +136,18 @@ MyHtmlParser::process_text(const string &text)
 {
     if (!text.empty() && !in_script_tag && !in_style_tag) {
 	string::size_type b = text.find_first_not_of(WHITESPACE);
-	if (b) pending_space = true;
+	if (b && !pending_space) pending_space = SPACE;
 	while (b != string::npos) {
-	    if (pending_space && !dump.empty()) dump += ' ';
+	    if (pending_space && !target->empty())
+		*target += whitespace[pending_space];
 	    string::size_type e = text.find_first_of(WHITESPACE, b);
-	    pending_space = (e != string::npos);
-	    if (!pending_space) {
-		dump.append(text.data() + b, text.size() - b);
+	    if (e == string::npos) {
+		target->append(text.data() + b, text.size() - b);
+		pending_space = 0;
 		return;
 	    }
-	    dump.append(text.data() + b, e - b);
+	    target->append(text.data() + b, e - b);
+	    pending_space = SPACE;
 	    b = text.find_first_not_of(WHITESPACE, e + 1);
 	}
     }
@@ -70,49 +156,22 @@ MyHtmlParser::process_text(const string &text)
 bool
 MyHtmlParser::opening_tag(const string &tag)
 {
-    if (tag.empty()) return true;
-    switch (tag[0]) {
-	case 'a':
-	    if (tag == "address") pending_space = true;
-	    break;
-	case 'b':
-	    if (tag == "body") {
-		dump.resize(0);
-		break;
+    int k = keyword(tab, tag.data(), tag.size());
+    if (k < 0)
+	return true;
+    pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
+    switch ((html_tag)k) {
+	case P:
+	    if (pending_space < PAGE) {
+		string style;
+		if (get_parameter("style", style)) {
+		    // As produced by Libreoffice's HTML export:
+		    if (style.find("page-break-before: always") != string::npos)
+			pending_space = PAGE;
+		}
 	    }
-	    if (tag == "blockquote" || tag == "br") pending_space = true;
 	    break;
-	case 'c':
-	    if (tag == "center") pending_space = true;
-	    break;
-	case 'd':
-	    if (tag == "dd" || tag == "dir" || tag == "div" || tag == "dl" ||
-		tag == "dt") pending_space = true;
-	    break;
-	case 'e':
-	    if (tag == "embed") pending_space = true;
-	    break;
-	case 'f':
-	    if (tag == "fieldset" || tag == "form") pending_space = true;
-	    break;
-	case 'h':
-	    // hr, and h1, ..., h6
-	    if (tag.length() == 2 && strchr("r123456", tag[1]))
-		pending_space = true;
-	    break;
-	case 'i':
-	    if (tag == "iframe" || tag == "img" || tag == "isindex" ||
-		tag == "input") pending_space = true;
-	    break;
-	case 'k':
-	    if (tag == "keygen") pending_space = true;
-	    break;
-	case 'l':
-	    if (tag == "legend" || tag == "li" || tag == "listing")
-		pending_space = true;
-	    break;
-	case 'm':
-	    if (tag == "meta") {
+	case META: {
 		string content;
 		if (get_parameter("content", content)) {
 		    string name;
@@ -134,6 +193,11 @@ MyHtmlParser::opening_tag(const string &tag)
 			    convert_to_utf8(content, charset);
 			    decode_entities(content);
 			    author += content;
+			} else if (name == "classification") {
+			    if (!topic.empty()) topic += ' ';
+			    convert_to_utf8(content, charset);
+			    decode_entities(content);
+			    topic += content;
 			} else if (!ignoring_metarobots && name == "robots") {
 			    decode_entities(content);
 			    lowercase_string(content);
@@ -142,6 +206,10 @@ MyHtmlParser::opening_tag(const string &tag)
 				indexing_allowed = false;
 				return false;
 			    }
+			} else if (name == "created") {
+			    created = parse_datetime(content);
+			} else if (name == "dcterms.issued") {
+			    created = parse_datetime(content);
 			}
 			break;
 		    }
@@ -195,39 +263,18 @@ MyHtmlParser::opening_tag(const string &tag)
 		}
 		break;
 	    }
-	    if (tag == "marquee" || tag == "menu" || tag == "multicol")
-		pending_space = true;
+	case STYLE:
+	    in_style_tag = true;
 	    break;
-	case 'o':
-	    if (tag == "ol" || tag == "option") pending_space = true;
+	case SCRIPT:
+	    in_script_tag = true;
 	    break;
-	case 'p':
-	    if (tag == "p" || tag == "pre" || tag == "plaintext")
-		pending_space = true;
+	case TITLE:
+	    target = &title;
+	    pending_space = 0;
 	    break;
-	case 'q':
-	    if (tag == "q") pending_space = true;
-	    break;
-	case 's':
-	    if (tag == "style") {
-		in_style_tag = true;
-		break;
-	    }
-	    if (tag == "script") {
-		in_script_tag = true;
-		break;
-	    }
-	    if (tag == "select") pending_space = true;
-	    break;
-	case 't':
-	    if (tag == "table" || tag == "td" || tag == "textarea" ||
-		tag == "th") pending_space = true;
-	    break;
-	case 'u':
-	    if (tag == "ul") pending_space = true;
-	    break;
-	case 'x':
-	    if (tag == "xmp") pending_space = true;
+	default:
+	    /* No action */
 	    break;
     }
     return true;
@@ -236,75 +283,23 @@ MyHtmlParser::opening_tag(const string &tag)
 bool
 MyHtmlParser::closing_tag(const string &tag)
 {
-    if (tag.empty()) return true;
-    switch (tag[0]) {
-	case 'a':
-	    if (tag == "address") pending_space = true;
+    int k = keyword(tab, tag.data(), tag.size());
+    if (k < 0 || (token_space[k] & NOCLOSE))
+	return true;
+    pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
+    switch ((html_tag)k) {
+	case STYLE:
+	    in_style_tag = false;
 	    break;
-	case 'b':
-	    if (tag == "body") {
-		return false;
-	    }
-	    if (tag == "blockquote" || tag == "br") pending_space = true;
+	case SCRIPT:
+	    in_script_tag = false;
 	    break;
-	case 'c':
-	    if (tag == "center") pending_space = true;
+	case TITLE:
+	    target = &dump;
+	    pending_space = 0;
 	    break;
-	case 'd':
-	    if (tag == "dd" || tag == "dir" || tag == "div" || tag == "dl" ||
-		tag == "dt") pending_space = true;
-	    break;
-	case 'f':
-	    if (tag == "fieldset" || tag == "form") pending_space = true;
-	    break;
-	case 'h':
-	    // hr, and h1, ..., h6
-	    if (tag.length() == 2 && strchr("r123456", tag[1]))
-		pending_space = true;
-	    break;
-	case 'i':
-	    if (tag == "iframe") pending_space = true;
-	    break;
-	case 'l':
-	    if (tag == "legend" || tag == "li" || tag == "listing")
-		pending_space = true;
-	    break;
-	case 'm':
-	    if (tag == "marquee" || tag == "menu") pending_space = true;
-	    break;
-	case 'o':
-	    if (tag == "ol" || tag == "option") pending_space = true;
-	    break;
-	case 'p':
-	    if (tag == "p" || tag == "pre") pending_space = true;
-	    break;
-	case 'q':
-	    if (tag == "q") pending_space = true;
-	    break;
-	case 's':
-	    if (tag == "style") {
-		in_style_tag = false;
-		break;
-	    }
-	    if (tag == "script") {
-		in_script_tag = false;
-		break;
-	    }
-	    if (tag == "select") pending_space = true;
-	    break;
-	case 't':
-	    if (tag == "title") {
-		if (title.empty()) swap(title, dump);
-		break;
-	    }
-	    if (tag == "table" || tag == "td" || tag == "textarea" ||
-		tag == "th") pending_space = true;
-	    break;
-	case 'u':
-	    if (tag == "ul") pending_space = true;
-	    break;
-	case 'x':
-	    if (tag == "xmp") pending_space = true;
+	default:
+	    /* No action */
 	    break;
     }
     return true;

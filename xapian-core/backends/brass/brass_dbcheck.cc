@@ -2,7 +2,7 @@
  * @brief Check consistency of a brass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,15 +30,17 @@
 
 #include "brass_check.h"
 #include "brass_cursor.h"
+#include "brass_defs.h"
 #include "brass_table.h"
-#include "brass_types.h"
 #include "pack.h"
 #include "backends/valuestats.h"
 
 #include <xapian.h>
 
+#include "filetests.h"
 #include "autoptr.h"
 #include <ostream>
+#include <vector>
 
 using namespace std;
 
@@ -55,19 +57,38 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_brass_table(const char * tablename, string filename, int opts,
+check_brass_table(const char * tablename, const string &db_dir,
+		  const BrassVersion & version_file, int opts,
 		  vector<Xapian::termcount> & doclens,
-		  Xapian::docid db_last_docid, ostream & out)
+		  Xapian::docid db_last_docid, ostream * out)
 {
-    filename += '.';
+    if (out)
+	*out << tablename << ":\n";
+    if (strcmp(tablename, "postlist") != 0) {
+	// Other filenames are created lazily, so may not exist.
+	string filename(db_dir);
+	filename += '/';
+	filename += tablename;
+	filename += "."BRASS_TABLE_EXTENSION;
+	if (!file_exists(filename)) {
+	    if (out) {
+		if (strcmp(tablename, "termlist") == 0) {
+		    *out << "Not present.\n";
+		} else {
+		    *out << "Lazily created, and not yet used.\n";
+		}
+		*out << endl;
+	    }
+	    return 0;
+	}
+    }
 
     // Check the btree structure.
-    BrassTableCheck::check(tablename, filename, opts, out);
+    AutoPtr<BrassTable> table(
+	    BrassTableCheck::check(tablename, db_dir, version_file, opts, out));
 
     // Now check the brass structures inside the btree.
-    BrassTable table(tablename, filename, true);
-    table.open();
-    AutoPtr<BrassCursor> cursor(table.cursor_get());
+    AutoPtr<BrassCursor> cursor(table->cursor_get());
 
     size_t errors = 0;
 
@@ -91,6 +112,7 @@ check_brass_table(const char * tablename, string filename, int opts,
 		cursor->read_tag();
 		// Check format of the METAINFO key.
 		totlen_t total_doclen;
+		Xapian::doccount doccount;
 		Xapian::docid last_docid;
 		Xapian::termcount doclen_lbound;
 		Xapian::termcount doclen_ubound;
@@ -98,23 +120,33 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 		const char * data = cursor->current_tag.data();
 		const char * end = data + cursor->current_tag.size();
-		if (!unpack_uint(&data, end, &last_docid)) {
-		    out << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
+		if (!unpack_uint(&data, end, &doccount)) {
+		    if (out)
+			*out << "Tag containing meta information is corrupt (couldn't read doccount)." << endl;
+		    ++errors;
+		} else if (!unpack_uint(&data, end, &last_docid)) {
+		    if (out)
+			*out << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
 		    ++errors;
 		} else if (!unpack_uint(&data, end, &doclen_lbound)) {
-		    out << "Tag containing meta information is corrupt (couldn't read doclen_lbound)." << endl;
+		    if (out)
+			*out << "Tag containing meta information is corrupt (couldn't read doclen_lbound)." << endl;
 		    ++errors;
 		} else if (!unpack_uint(&data, end, &wdf_ubound)) {
-		    out << "Tag containing meta information is corrupt (couldn't read wdf_ubound)." << endl;
+		    if (out)
+			*out << "Tag containing meta information is corrupt (couldn't read wdf_ubound)." << endl;
 		    ++errors;
 		} else if (!unpack_uint(&data, end, &doclen_ubound)) {
-		    out << "Tag containing meta information is corrupt (couldn't read doclen_ubound)." << endl;
+		    if (out)
+			*out << "Tag containing meta information is corrupt (couldn't read doclen_ubound)." << endl;
 		    ++errors;
 		} else if (!unpack_uint_last(&data, end, &total_doclen)) {
-		    out << "Tag containing meta information is corrupt (couldn't read total_doclen)." << endl;
+		    if (out)
+			*out << "Tag containing meta information is corrupt (couldn't read total_doclen)." << endl;
 		    ++errors;
 		} else if (data != end) {
-		    out << "Tag containing meta information is corrupt (junk at end)." << endl;
+		    if (out)
+			*out << "Tag containing meta information is corrupt (junk at end)." << endl;
 		    ++errors;
 		}
 		cursor->next();
@@ -129,14 +161,17 @@ check_brass_table(const char * tablename, string filename, int opts,
 		// checks on it other than to check that the tag isn't empty.
 		cursor->read_tag();
 		if (cursor->current_tag.empty()) {
-		    out << "User metadata item is empty" << endl;
+		    if (out)
+			*out << "User metadata item is empty" << endl;
 		    ++errors;
 		}
 		continue;
 	    }
 
 	    if (!have_metainfo_key) {
-		out << "METAINFO key missing from postlist table" << endl;
+		have_metainfo_key = true;
+		if (out)
+		    *out << "METAINFO key missing from postlist table" << endl;
 		++errors;
 	    }
 
@@ -150,7 +185,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 		    end = pos + key.size();
 		    pos += 2;
 		    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-			out << "Error unpacking docid from doclen key" << endl;
+			if (out)
+			    *out << "Error unpacking docid from doclen key" << endl;
 			++errors;
 			continue;
 		    }
@@ -162,33 +198,38 @@ check_brass_table(const char * tablename, string filename, int opts,
 		if (key.size() == 2) {
 		    // Initial chunk.
 		    if (end - pos < 2 || pos[0] || pos[1]) {
-			out << "Initial doclen chunk has nonzero dummy fields" << endl;
+			if (out)
+			    *out << "Initial doclen chunk has nonzero dummy fields" << endl;
 			++errors;
 			continue;
 		    }
 		    pos += 2;
 		    if (!unpack_uint(&pos, end, &did)) {
-			out << "Failed to unpack firstdid for doclen" << endl;
+			if (out)
+			    *out << "Failed to unpack firstdid for doclen" << endl;
 			++errors;
 			continue;
 		    }
 		    ++did;
 		    if (did <= lastdid) {
-			out << "First did in this chunk is <= last in "
-			    "prev chunk" << endl;
+			if (out)
+			    *out << "First did in this chunk is <= last in "
+				    "prev chunk" << endl;
 			++errors;
 		    }
 		}
 
 		bool is_last_chunk;
 		if (!unpack_bool(&pos, end, &is_last_chunk)) {
-		    out << "Failed to unpack last chunk flag for doclen" << endl;
+		    if (out)
+			*out << "Failed to unpack last chunk flag for doclen" << endl;
 		    ++errors;
 		    continue;
 		}
 		// Read what the final document ID in this chunk is.
 		if (!unpack_uint(&pos, end, &lastdid)) {
-		    out << "Failed to unpack increase to last" << endl;
+		    if (out)
+			*out << "Failed to unpack increase to last" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -197,16 +238,18 @@ check_brass_table(const char * tablename, string filename, int opts,
 		while (true) {
 		    Xapian::termcount doclen;
 		    if (!unpack_uint(&pos, end, &doclen)) {
-			out << "Failed to unpack doclen" << endl;
+			if (out)
+			    *out << "Failed to unpack doclen" << endl;
 			++errors;
 			bad = true;
 			break;
 		    }
 
 		    if (did > db_last_docid) {
-			out << "document id " << did << " in doclen stream "
-			     << "is larger than get_last_docid() "
-			     << db_last_docid << endl;
+			if (out)
+			    *out << "document id " << did << " in doclen "
+				    "stream is larger than get_last_docid() "
+				 << db_last_docid << endl;
 			++errors;
 		    }
 
@@ -218,10 +261,11 @@ check_brass_table(const char * tablename, string filename, int opts,
 			    termlist_doclen = doclens[did];
 
 			if (doclen != termlist_doclen) {
-			    out << "document id " << did << ": length "
-				 << doclen << " doesn't match "
-				 << termlist_doclen << " in the termlist table"
-				 << endl;
+			    if (out)
+				*out << "document id " << did << ": length "
+				     << doclen << " doesn't match "
+				     << termlist_doclen << " in the termlist "
+					"table" << endl;
 			    ++errors;
 			}
 		    }
@@ -230,7 +274,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 		    Xapian::docid inc;
 		    if (!unpack_uint(&pos, end, &inc)) {
-			out << "Failed to unpack docid increase" << endl;
+			if (out)
+			    *out << "Failed to unpack docid increase" << endl;
 			++errors;
 			bad = true;
 			break;
@@ -238,8 +283,9 @@ check_brass_table(const char * tablename, string filename, int opts,
 		    ++inc;
 		    did += inc;
 		    if (did > lastdid) {
-			out << "docid " << did << " > last docid " << lastdid
-			     << endl;
+			if (out)
+			    *out << "docid " << did << " > last docid "
+				 << lastdid << endl;
 			++errors;
 		    }
 		}
@@ -248,8 +294,9 @@ check_brass_table(const char * tablename, string filename, int opts,
 		}
 		if (is_last_chunk) {
 		    if (did != lastdid) {
-			out << "lastdid " << lastdid << " != last did " << did
-			     << endl;
+			if (out)
+			    *out << "lastdid " << lastdid << " != last did "
+				 << did << endl;
 			++errors;
 		    }
 		}
@@ -264,7 +311,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 		p += 2;
 		Xapian::valueno slot;
 		if (!unpack_uint_last(&p, end, &slot)) {
-		    out << "Bad valuestats key (no slot)" << endl;
+		    if (out)
+			*out << "Bad valuestats key (no slot)" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -275,19 +323,25 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 		VStats & v = valuestats[slot];
 		if (!unpack_uint(&p, end, &v.freq)) {
-		    if (*p == 0) {
-			out << "Incomplete stats item in value table" << endl;
-		    } else {
-			out << "Frequency statistic in value table is too large" << endl;
+		    if (out) {
+			if (*p == 0) {
+			    *out << "Incomplete stats item in value table";
+			} else {
+			    *out << "Frequency statistic in value table is too large";
+			}
+			*out << endl;
 		    }
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_string(&p, end, v.lower_bound)) {
-		    if (*p == 0) {
-			out << "Incomplete stats item in value table" << endl;
-		    } else {
-			out << "Lower bound statistic in value table is too large" << endl;
+		    if (out) {
+			if (*p == 0) {
+			    *out << "Incomplete stats item in value table";
+			} else {
+			    *out << "Lower bound statistic in value table is too large";
+			}
+			*out << endl;
 		    }
 		    ++errors;
 		    continue;
@@ -309,18 +363,21 @@ check_brass_table(const char * tablename, string filename, int opts,
 		p += 2;
 		Xapian::valueno slot;
 		if (!unpack_uint(&p, end, &slot)) {
-		    out << "Bad value chunk key (no slot)" << endl;
+		    if (out)
+			*out << "Bad value chunk key (no slot)" << endl;
 		    ++errors;
 		    continue;
 		}
 		Xapian::docid did;
 		if (!unpack_uint_preserving_sort(&p, end, &did)) {
-		    out << "Bad value chunk key (no docid)" << endl;
+		    if (out)
+			*out << "Bad value chunk key (no docid)" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (p != end) {
-		    out << "Bad value chunk key (trailing junk)" << endl;
+		    if (out)
+			*out << "Bad value chunk key (trailing junk)" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -334,7 +391,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 		while (true) {
 		    string value;
 		    if (!unpack_string(&p, end, value)) {
-			out << "Failed to unpack value from chunk" << endl;
+			if (out)
+			    *out << "Failed to unpack value from chunk" << endl;
 			++errors;
 			break;
 		    }
@@ -348,36 +406,42 @@ check_brass_table(const char * tablename, string filename, int opts,
 		    // FIXME: Check if the bounds are tight?  Or is that better
 		    // as a separate tool which can also update the bounds?
 		    if (value < v.lower_bound) {
-			out << "Value slot " << slot << " has value below "
-			       "lower bound: '" << value << "' < '"
-			    << v.lower_bound << "'" << endl;
+			if (out)
+			    *out << "Value slot " << slot << " has value "
+				    "below lower bound: '" << value << "' < '"
+				 << v.lower_bound << "'" << endl;
 			++errors;
 		    } else if (value > v.upper_bound) {
-			out << "Value slot " << slot << " has value above "
-			       "upper bound: '" << value << "' > '"
-			    << v.upper_bound << "'" << endl;
+			if (out)
+			    *out << "Value slot " << slot << " has value "
+				    "above upper bound: '" << value << "' > '"
+				 << v.upper_bound << "'" << endl;
 			++errors;
 		    }
 
 		    if (p == end) break;
 		    Xapian::docid delta;
 		    if (!unpack_uint(&p, end, &delta)) {
-			out << "Failed to unpack docid delta from chunk" << endl;
+			if (out)
+			    *out << "Failed to unpack docid delta from chunk"
+				 << endl;
 			++errors;
 			break;
 		    }
 		    Xapian::docid new_did = did + delta + 1;
 		    if (new_did <= did) {
-			out << "docid overflowed in value chunk" << endl;
+			if (out)
+			    *out << "docid overflowed in value chunk" << endl;
 			++errors;
 			break;
 		    }
 		    did = new_did;
 
 		    if (did > db_last_docid) {
-			out << "document id " << did << " in value chunk "
-			    << "is larger than get_last_docid() "
-			    << db_last_docid << endl;
+			if (out)
+			    *out << "document id " << did << " in value chunk "
+				    "is larger than get_last_docid() "
+				 << db_last_docid << endl;
 			++errors;
 		    }
 		}
@@ -393,20 +457,23 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    string term;
 	    Xapian::docid did;
 	    if (!unpack_string_preserving_sort(&pos, end, term)) {
-		out << "Error unpacking termname from key" << endl;
+		if (out)
+		    *out << "Error unpacking termname from key" << endl;
 		++errors;
 		continue;
 	    }
 	    if (!current_term.empty() && term != current_term) {
 		// The term changed unexpectedly.
 		if (pos == end) {
-		    out << "No last chunk for term `" << current_term
-			<< "'" << endl;
+		    if (out)
+			*out << "No last chunk for term '" << current_term
+			     << "'" << endl;
 		    current_term.resize(0);
 		} else {
-		    out << "Mismatch in follow-on chunk in posting "
-			   "list for term `" << current_term << "' (got `"
-			<< term << "')" << endl;
+		    if (out)
+			*out << "Mismatch in follow-on chunk in posting list "
+				"for term '" << current_term << "' (got '"
+			     << term << "')" << endl;
 		    current_term = term;
 		    tf = cf = 0;
 		    lastdid = 0;
@@ -417,8 +484,10 @@ check_brass_table(const char * tablename, string filename, int opts,
 		// First chunk.
 		if (term == current_term) {
 		    // This probably isn't possible.
-		    out << "First posting list chunk for term `" << term
-			<< "' follows previous chunk for the same term" << endl;
+		    if (out)
+			*out << "First posting list chunk for term '" << term
+			     << "' follows previous chunk for the same term"
+			     << endl;
 		    ++errors;
 		}
 		current_term = term;
@@ -429,20 +498,23 @@ check_brass_table(const char * tablename, string filename, int opts,
 		pos = cursor->current_tag.data();
 		end = pos + cursor->current_tag.size();
 		if (!unpack_uint(&pos, end, &termfreq)) {
-		    out << "Failed to unpack termfreq for term `" << term
-			<< "'" << endl;
+		    if (out)
+			*out << "Failed to unpack termfreq for term '" << term
+			     << "'" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &collfreq)) {
-		    out << "Failed to unpack collfreq for term `" << term
-			<< "'" << endl;
+		    if (out)
+			*out << "Failed to unpack collfreq for term '" << term
+			     << "'" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (!unpack_uint(&pos, end, &did)) {
-		    out << "Failed to unpack firstdid for term `" << term
-			<< "'" << endl;
+		    if (out)
+			*out << "Failed to unpack firstdid for term '" << term
+			     << "'" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -450,20 +522,23 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    } else {
 		// Continuation chunk.
 		if (current_term.empty()) {
-		    out << "First chunk for term `" << current_term << "' "
-			   "is a continuation chunk" << endl;
+		    if (out)
+			*out << "First chunk for term '" << current_term
+			     << "' is a continuation chunk" << endl;
 		    ++errors;
 		    current_term = term;
 		}
 		AssertEq(current_term, term);
 		if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		    out << "Failed to unpack did from key" << endl;
+		    if (out)
+			*out << "Failed to unpack did from key" << endl;
 		    ++errors;
 		    continue;
 		}
 		if (did <= lastdid) {
-		    out << "First did in this chunk is <= last in "
-			   "prev chunk" << endl;
+		    if (out)
+			*out << "First did in this chunk is <= last in "
+				"prev chunk" << endl;
 		    ++errors;
 		}
 		cursor->read_tag();
@@ -473,13 +548,15 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 	    bool is_last_chunk;
 	    if (!unpack_bool(&pos, end, &is_last_chunk)) {
-		out << "Failed to unpack last chunk flag" << endl;
+		if (out)
+		    *out << "Failed to unpack last chunk flag" << endl;
 		++errors;
 		continue;
 	    }
 	    // Read what the final document ID in this chunk is.
 	    if (!unpack_uint(&pos, end, &lastdid)) {
-		out << "Failed to unpack increase to last" << endl;
+		if (out)
+		    *out << "Failed to unpack increase to last" << endl;
 		++errors;
 		continue;
 	    }
@@ -488,7 +565,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    while (true) {
 		Xapian::termcount wdf;
 		if (!unpack_uint(&pos, end, &wdf)) {
-		    out << "Failed to unpack wdf" << endl;
+		    if (out)
+			*out << "Failed to unpack wdf" << endl;
 		    ++errors;
 		    bad = true;
 		    break;
@@ -500,7 +578,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 		Xapian::docid inc;
 		if (!unpack_uint(&pos, end, &inc)) {
-		    out << "Failed to unpack docid increase" << endl;
+		    if (out)
+			*out << "Failed to unpack docid increase" << endl;
 		    ++errors;
 		    bad = true;
 		    break;
@@ -508,8 +587,9 @@ check_brass_table(const char * tablename, string filename, int opts,
 		++inc;
 		did += inc;
 		if (did > lastdid) {
-		    out << "docid " << did << " > last docid " << lastdid
-			<< endl;
+		    if (out)
+			*out << "docid " << did << " > last docid " << lastdid
+			     << endl;
 		    ++errors;
 		}
 	    }
@@ -518,40 +598,45 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    }
 	    if (is_last_chunk) {
 		if (tf != termfreq) {
-		    out << "termfreq " << termfreq << " != # of entries "
-			<< tf << endl;
+		    if (out)
+			*out << "termfreq " << termfreq << " != # of entries "
+			     << tf << endl;
 		    ++errors;
 		}
 		if (cf != collfreq) {
-		    out << "collfreq " << collfreq << " != sum wdf " << cf
-			<< endl;
+		    if (out)
+			*out << "collfreq " << collfreq << " != sum wdf " << cf
+			     << endl;
 		    ++errors;
 		}
 		if (did != lastdid) {
-		    out << "lastdid " << lastdid << " != last did " << did
-			<< endl;
+		    if (out)
+			*out << "lastdid " << lastdid << " != last did " << did
+			     << endl;
 		    ++errors;
 		}
 		current_term.resize(0);
 	    }
 	}
 	if (!current_term.empty()) {
-	    out << "Last term `" << current_term << "' has no last chunk"
-		<< endl;
+	    if (out)
+		*out << "Last term '" << current_term << "' has no last chunk"
+		     << endl;
 	    ++errors;
 	}
 
 	map<Xapian::valueno, VStats>::const_iterator i;
 	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
 	    if (i->second.freq != i->second.freq_real) {
-		out << "Value stats frequency for slot " << i->first << " is "
-		    << i->second.freq << " but recounting gives "
-		    << i->second.freq_real << endl;
+		if (out)
+		    *out << "Value stats frequency for slot " << i->first
+			 << " is " << i->second.freq << " but recounting "
+			    "gives " << i->second.freq_real << endl;
 		++errors;
 	    }
 	}
-    } else if (strcmp(tablename, "record") == 0) {
-	// Now check the contents of the record table.  Any data is valid as
+    } else if (strcmp(tablename, "docdata") == 0) {
+	// Now check the contents of the docdata table.  Any data is valid as
 	// the tag so we don't check the tags.
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
@@ -562,10 +647,12 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		out << "Error unpacking docid from key" << endl;
+		if (out)
+		    *out << "Error unpacking docid from key" << endl;
 		++errors;
 	    } else if (pos != end) {
-		out << "Extra junk in key" << endl;
+		if (out)
+		    *out << "Extra junk in key" << endl;
 		++errors;
 	    }
 	}
@@ -580,7 +667,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		out << "Error unpacking docid from key" << endl;
+		if (out)
+		    *out << "Error unpacking docid from key" << endl;
 		++errors;
 		continue;
 	    }
@@ -593,14 +681,16 @@ check_brass_table(const char * tablename, string filename, int opts,
 		end = pos + cursor->current_tag.size();
 
 		if (pos == end) {
-		    out << "Empty value slots used tag" << endl;
+		    if (out)
+			*out << "Empty value slots used tag" << endl;
 		    ++errors;
 		    continue;
 		}
 
 		Xapian::valueno prev_slot;
 		if (!unpack_uint(&pos, end, &prev_slot)) {
-		    out << "Value slot encoding corrupt" << endl;
+		    if (out)
+			*out << "Value slot encoding corrupt" << endl;
 		    ++errors;
 		    continue;
 		}
@@ -608,13 +698,16 @@ check_brass_table(const char * tablename, string filename, int opts,
 		while (pos != end) {
 		    Xapian::valueno slot;
 		    if (!unpack_uint(&pos, end, &slot)) {
-			out << "Value slot encoding corrupt" << endl;
+			if (out)
+			    *out << "Value slot encoding corrupt" << endl;
 			++errors;
 			break;
 		    }
 		    slot += prev_slot + 1;
 		    if (slot <= prev_slot) {
-			out << "Value slot number overflowed (" << prev_slot << " -> " << slot << ")" << endl;
+			if (out)
+			    *out << "Value slot number overflowed ("
+				 << prev_slot << " -> " << slot << ")" << endl;
 			++errors;
 		    }
 		    prev_slot = slot;
@@ -623,7 +716,8 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    }
 
 	    if (pos != end) {
-		out << "Extra junk in key" << endl;
+		if (out)
+		    *out << "Extra junk in key" << endl;
 		++errors;
 		continue;
 	    }
@@ -642,10 +736,13 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 	    // Read doclen
 	    if (!unpack_uint(&pos, end, &doclen)) {
-		if (pos != 0) {
-		    out << "doclen out of range" << endl;
-		} else {
-		    out << "Unexpected end of data when reading doclen" << endl;
+		if (out) {
+		    if (pos != 0) {
+			*out << "doclen out of range";
+		    } else {
+			*out << "Unexpected end of data when reading doclen";
+		    }
+		    *out << endl;
 		}
 		++errors;
 		continue;
@@ -653,10 +750,14 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 	    // Read termlist_size
 	    if (!unpack_uint(&pos, end, &termlist_size)) {
-		if (pos != 0) {
-		    out << "termlist_size out of range" << endl;
-		} else {
-		    out << "Unexpected end of data when reading termlist_size" << endl;
+		if (out) {
+		    if (pos != 0) {
+			*out << "termlist_size out of range";
+		    } else {
+			*out << "Unexpected end of data when reading "
+				"termlist_size";
+		    }
+		    *out << endl;
 		}
 		++errors;
 		continue;
@@ -689,10 +790,14 @@ check_brass_table(const char * tablename, string filename, int opts,
 		if (!got_wdf) {
 		    // Read wdf
 		    if (!unpack_uint(&pos, end, &current_wdf)) {
-			if (pos == 0) {
-			    out << "Unexpected end of data when reading termlist current_wdf" << endl;
-			} else {
-			    out << "Size of wdf out of range, in termlist" << endl;
+			if (out) {
+			    if (pos == 0) {
+				*out << "Unexpected end of data when reading "
+					"termlist current_wdf";
+			    } else {
+				*out << "Size of wdf out of range in termlist";
+			    }
+			    *out << endl;
 			}
 			++errors;
 			bad = true;
@@ -708,11 +813,13 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    }
 
 	    if (termlist_size != actual_termlist_size) {
-		out << "termlist_size != # of entries in termlist" << endl;
+		if (out)
+		    *out << "termlist_size != # of entries in termlist" << endl;
 		++errors;
 	    }
 	    if (doclen != actual_doclen) {
-		out << "doclen != sum(wdf)" << endl;
+		if (out)
+		    *out << "doclen != sum(wdf)" << endl;
 		++errors;
 	    }
 
@@ -731,12 +838,14 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
-		out << "Error unpacking docid from key" << endl;
+		if (out)
+		    *out << "Error unpacking docid from key" << endl;
 		++errors;
 		continue;
 	    }
 	    if (pos == end) {
-		out << "No termname in key" << endl;
+		if (out)
+		    *out << "No termname in key" << endl;
 		++errors;
 		continue;
 	    }
@@ -749,7 +858,9 @@ check_brass_table(const char * tablename, string filename, int opts,
 
 	    Xapian::termpos pos_last;
 	    if (!unpack_uint(&pos, end, &pos_last)) {
-		out << tablename << " table: Position list data corrupt" << endl;
+		if (out)
+		    *out << tablename << " table: Position list data corrupt"
+			 << endl;
 		++errors;
 		continue;
 	    }
@@ -760,33 +871,43 @@ check_brass_table(const char * tablename, string filename, int opts,
 		BitReader rd(data, pos - data.data());
 		Xapian::termpos pos_first = rd.decode(pos_last);
 		Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-		vector<Xapian::termpos> positions;
-		positions.resize(pos_size);
-		positions[0] = pos_first;
-		positions.back() = pos_last;
-		rd.decode_interpolative(positions, 0, pos_size - 1);
-		vector<Xapian::termpos>::const_iterator current_pos = positions.begin();
-		Xapian::termpos lastpos = *current_pos++;
-		while (current_pos != positions.end()) {
-		    Xapian::termpos termpos = *current_pos++;
-		    if (termpos <= lastpos) {
-			out << tablename << " table: Positions not strictly monotonically increasing" << endl;
+		rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+		Xapian::termpos p = rd.decode_interpolative_next();
+		bool ok = true;
+		while (p != pos_last) {
+		    Xapian::termpos pos_prev = p;
+		    p = rd.decode_interpolative_next();
+		    if (p <= pos_prev) {
+			if (out)
+			    *out << tablename << " table: Positions not "
+				    "strictly monotonically increasing" << endl;
 			++errors;
+			ok = false;
 			break;
 		    }
-		    lastpos = termpos;
+		}
+		if (ok && !rd.check_all_gone()) {
+		    if (out)
+			*out << tablename << " table: Junk after position data"
+			     << endl;
+		    ++errors ;
 		}
 	    }
 	}
     } else {
-	out << tablename << " table: Don't know how to check structure\n" << endl;
+	if (out)
+	    *out << tablename << " table: Don't know how to check structure\n"
+		 << endl;
 	return errors;
     }
 
-    if (!errors)
-	out << tablename << " table structure checked OK\n" << endl;
-    else
-	out << tablename << " table errors found: " << errors << "\n" << endl;
+    if (out) {
+	if (!errors)
+	    *out << tablename << " table structure checked OK\n";
+	else
+	    *out << tablename << " table errors found: " << errors << "\n";
+	*out << endl;
+    }
 
     return errors;
 }

@@ -21,6 +21,33 @@ use a subclass of it.  ``Xapian::QueryParser`` maintains a list of
 each range search in the query until one accepts it, or all have been
 tried (in which case an error is reported).
 
+The ``Xapian::StringValueRangeProcessor`` subclass supports setting a prefix or
+suffix string which must be present for the range to be recognised by that
+object, and ``Xapian::DateValueRangeProcessor`` and
+``Xapian::NumberValueRangeProcessor`` are subclasses of this so also
+support a prefix or suffix (since Xapian 1.1.2 - before this all there were
+direct subclasses of ``Xapian::ValueRangeProcessor``, with only
+``Xapian::NumberValueRangeProcessor`` supporting this).
+
+So you can support multiple filters distinguished by a prefix or suffix.  For
+example, if you want to support range filters on price and weight, you can do
+that like this::
+
+    Xapian::QueryParser qp;
+    Xapian::NumberValueRangeProcessor price_proc(0, "$", true);
+    Xapian::NumberValueRangeProcessor weight_proc(1, "kg", false);
+    qp.add_valuerangeprocessor(&price_proc);
+    qp.add_valuerangeprocessor(&weight_proc);
+
+Then the user can enter queries like::
+
+    laptop $300..800 ..1.5kg
+
+A common way to use this feature is with a prefix string which is a "field
+name" followed by a colon, for example::
+
+    created:1/1/1999..1/1/2003
+
 Each ``Xapian::ValueRangeProcessor`` is passed the start and end of the
 range.  If it doesn't understand the range, it should return
 ``Xapian::BAD_VALUENO``.  If it does understand the range, it should return
@@ -106,18 +133,6 @@ at index time using the ``Xapian::sortable_serialise()`` method::
 This method produces strings which will sort in numeric order, so you can use
 it if you want to be able to sort based on the value in numeric order, too.
 
-The class allows a prefix or suffix to be specified which must be present on
-the values, allowing multiple NumberValueRangeProcessors to be active in the
-same queryparser.  For example, this specifies that a prefix of "$" must be
-present on the first value (and may optionally be present on the second
-value)::
-
-    Xapian::QueryParser qp;
-    Xapian::NumberValueRangeProcessor numrange_proc(0, "$", true);
-    qp.add_valuerangeprocessor(&numrange_proc);
-
-
-
 Custom subclasses
 =================
 
@@ -128,22 +143,23 @@ so for example you could implement a better version of the author range
 described above which only matches ranges with a prefix (e.g.
 ``author:asimov..bradbury``) and lower-cases the names::
 
-    struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
-        AuthorValueRangeProcessor() {}
+    struct AuthorValueRangeProcessor : public Xapian::StringValueRangeProcessor {
+        AuthorValueRangeProcessor()
+            : StringValueRangeProcessor(4, "author:", true) { }
 
         Xapian::valueno operator()(std::string &begin, std::string &end) {
-            if (begin.substr(0, 7) != "author:")
-                return Xapian::BAD_VALUENO;
-            begin.erase(0, 7);
+            // Let the base class do the prefix check.
+            if (StringValueRangeProcessor::operator()(begin, end) == BAD_VALUENO)
+                return BAD_VALUENO;
             begin = Xapian::Unicode::tolower(begin);
             end = Xapian::Unicode::tolower(end);
-            return 4;
+            return valno;
         }
     };
 
 If you want to support open-ended ranges, you need to handle begin or end
 being empty suitably.  ``Xapian::QueryParser`` won't call your subclass
-with both begin and end being empty.
+with *both* begin and end being empty.
 
 Using Several ValueRangeProcessors
 ==================================

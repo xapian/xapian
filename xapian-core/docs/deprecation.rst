@@ -2,7 +2,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
 
 ===========
 Deprecation
@@ -59,8 +59,8 @@ make, you might do this like so::
 API and ABI compatibility
 -------------------------
 
-Releases are given three-part version numbers (e.g. 1.0.2), the three parts
-being termed "major" (1), "minor" (0), and "revision" (2).  Releases with
+Releases are given three-part version numbers (e.g. 1.2.9), the three parts
+being termed "major" (1), "minor" (2), and "revision" (9).  Releases with
 the same major and minor version are termed a "release series".
 
 For Xapian releases 1.0.0 and higher, an even minor version indicates a stable
@@ -446,6 +446,12 @@ Removed Feature name                        Upgrade suggestion and comments
                                             So we are deprecating it and will replace it with something better thought out,
                                             probably during the 1.3.x development series.  There's so further thoughts at
                                             http://trac.xapian.org/ticket/3#comment:8
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.2   ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.2   ``Xapian::Brass::open()``           Use the constructor with ``Xapian::DB_BACKEND_BRASS`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.2   ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in 1.3.2) instead.
 ======= =================================== ==================================================================================
 
 

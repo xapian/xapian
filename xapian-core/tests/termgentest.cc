@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -42,6 +42,14 @@ struct test {
     //  - nopos: Don't store positions.
     //  - weight=N: where N is a number - set the weight to N.
     //  - stem=FOO: Change stemming algorithm to foo ("none" to turn off).
+    //    (this persists for subsequent tests until it's turned off).
+    //  - all: Set stemming strategy to STEM_ALL.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - all_z: Set stemming strategy to STEM_ALL_Z.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - none: Set stemming strategy to STEM_NONE.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - some: Set stemming strategy to STEM_SOME.
     //    (this persists for subsequent tests until it's turned off).
     //  - prefix=FOO: Use the specified prefix.
     //    (this persists for subsequent tests until it's turned off).
@@ -114,7 +122,7 @@ static const test test_simple[] = {
     // Basic CJK tests:
     { "stem=", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
     { "", "극지라", "극[1] 극지:1 라[3] 지[2] 지라:1" },
-    { "", "ウルス アップ", "ア[4] ウ[1] ウル:1 ス[3] ッ[5] ップ:1 プ[6] ル[2] ルス:1" },
+    { "", "ウルス アップ", "ア[4] アッ:1 ウ[1] ウル:1 ス[3] ッ[5] ップ:1 プ[6] ル[2] ルス:1" },
 
     // CJK with prefix:
     { "prefix=XA", "发送从", "XA从[3] XA发[1] XA发送:1 XA送[2] XA送从:1" },
@@ -124,12 +132,29 @@ static const test test_simple[] = {
     { "prefix=", "インtestタ", "test[3] イ[1] イン:1 タ[4] ン[2]" },
     { "", "配this is合a个 test!", "a[5] is[3] test[7] this[2] 个[6] 合[4] 配[1]" },
 
+    // CJK with CJK punctuation
+    // the text contains U+FF01 FULLWIDTH EXCLAMATION MARK which
+    // is both a CJK character and a non-word character; it should
+    // be handled as non-word text and not appear in any term
+    { "", "申込み！月額円", "み[3] 円[6] 月[4] 月額:1 申[1] 申込:1 込[2] 込み:1 額[5] 額円:1" },
+
+    // Test set_stemming_strategy():
+    { "stem=en,none",
+	  "Unstemmed words!", "unstemmed[1] words[2]" },
+
+    { "all",
+	  "Only stemmed words!", "onli[1] stem[2] word[3]" },
+
+    { "all_z",
+	  "Only stemmed words!", "Zonli[1] Zstem[2] Zword[3]" },
+
     // All following tests are for things which we probably don't really want to
     // behave as they currently do, but we haven't found a sufficiently general
     // way to implement them yet.
 
     // Test number like things
-    { "stem=en", "11:59", "11[1] 59[2]" },
+    { "stem=en,some",
+	  "11:59", "11[1] 59[2]" },
     { "", "11:59am", "11[1] 59am[2]" },
 
     { NULL, NULL, NULL }
@@ -694,6 +719,18 @@ static bool test_termgen1()
 		}
 		termgen.set_stemmer(Xapian::Stem(stemmer));
 		tout << "Setting stemmer to: " << stemmer << '\n';
+	    } else if (strncmp(o, "all_z", 5) == 0) {
+		o += 5;
+		termgen.set_stemming_strategy(termgen.STEM_ALL_Z);
+	    } else if (strncmp(o, "all", 3) == 0) {
+		o += 3;
+		termgen.set_stemming_strategy(termgen.STEM_ALL);
+	    } else if (strncmp(o, "none", 4) == 0) {
+		o += 4;
+		termgen.set_stemming_strategy(termgen.STEM_NONE);
+	    } else if (strncmp(o, "some", 4) == 0) {
+		o += 4;
+		termgen.set_stemming_strategy(termgen.STEM_SOME);
 	    } else if (strncmp(o, "prefix=", 7) == 0) {
 		o += 7;
 		prefix.resize(0);
@@ -778,18 +815,36 @@ static bool test_tg_spell2()
     return true;
 }
 
+static bool test_tg_max_word_length1()
+{
+    Xapian::TermGenerator termgen;
+    termgen.set_stemmer(Xapian::Stem("en"));
+    termgen.set_max_word_length(4);
+
+    Xapian::Document doc;
+    termgen.set_document(doc);
+
+    termgen.index_text("cups bowls mugs");
+
+    TEST_STRINGS_EQUAL(format_doc_termlist(doc),
+		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
+
+    return true;
+}
+
 /// Test cases for the TermGenerator.
 static const test_desc tests[] = {
     TESTCASE(termgen1),
     TESTCASE(tg_spell1),
     TESTCASE(tg_spell2),
+    TESTCASE(tg_max_word_length1),
     END_OF_TESTCASES
 };
 
 int main(int argc, char **argv)
 try {
     // FIXME: It would be better to test with and without XAPIAN_CJK_NGRAM set.
-#ifdef __WIN32__
+#ifdef HAVE__PUTENV_S
     _putenv_s("XAPIAN_CJK_NGRAM", "1");
 #elif defined HAVE_SETENV
     setenv("XAPIAN_CJK_NGRAM", "1", 1);

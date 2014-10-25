@@ -59,7 +59,7 @@ try_read_config_file(const char * cfile)
     ifstream in(cfile);
     if (!in) {
 	if (file_exists(cfile))
-	    throw string("Can't open configuration file `") + cfile + "'";
+	    throw string("Can't open configuration file '") + cfile + "'";
 	return false;
     }
 
@@ -83,7 +83,7 @@ try_read_config_file(const char * cfile)
 
 	while (*q && isspace((unsigned char)*q)) ++q;
 	if (value.empty() || *q) {
-	    throw string("Bad line in configuration file `") + cfile + "'";
+	    throw string("Bad line in configuration file '") + cfile + "'";
 	}
 
 	if (*value.rbegin() != '/')

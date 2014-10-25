@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -12,7 +12,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 26 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
 # FIXME: these tests pass in the XS version.
@@ -23,7 +23,7 @@ my $disable_fixme = 1;
 # Insert your test code below, the Test module is use()ed here so read
 # its man page ( perldoc Test ) for help writing this test script.
 
-my $doc = Search::Xapian::Document->new();
+my $doc = Xapian::Document->new();
 $data = "hello world";
 $doc->set_data($data);
 ok( $doc->get_data() eq $data );
@@ -51,7 +51,7 @@ ok( $doc->get_value(2) eq "chocolate" );
 $doc->clear_values();
 ok( $doc->get_value(2) eq "" );
 
-my $database = Search::Xapian::WritableDatabase->new();
+my $database = Xapian::WritableDatabase->new();
 
 # in <= 0.8.3.0 this added with wdfinc 1
 $doc->add_posting( "hello", 1, 100 );
@@ -61,7 +61,7 @@ $database->add_document($doc);
 
 ok( $database->get_doclength(1) == 101 );
 
-$doc = Search::Xapian::Document->new();
+$doc = Xapian::Document->new();
 # in <= 0.8.3.0 this added with wdfinc 1 (happens to work as it should)
 $doc->add_posting( "goodbye", 1, 1 );
 # in <= 0.8.3.0 this added with wdfinc 1 (happens to work as it should)
@@ -72,7 +72,7 @@ $database->add_document($doc);
 
 ok( $database->get_doclength(2) == 1 );
 
-$doc = Search::Xapian::Document->new();
+$doc = Xapian::Document->new();
 # in <= 0.8.3.0 this added with wdfinc 1
 $doc->add_term( "a", 100 );
 # in <= 0.8.3.0 this added with wdfinc 0

@@ -1,4 +1,5 @@
 noinst_HEADERS +=\
+	common/append_filename_arg.h\
 	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\
@@ -10,23 +11,26 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/internaltypes.h\
 	common/io_utils.h\
+	common/keyword.h\
+	common/log2.h\
 	common/msvc_dirent.h\
-	common/msvc_posix_wrapper.h\
 	common/noreturn.h\
 	common/omassert.h\
 	common/output.h\
 	common/output-internal.h\
 	common/pack.h\
+	common/posixy_wrapper.h\
 	common/pretty.h\
 	common/realtime.h\
-	common/registryinternal.h\
 	common/remoteprotocol.h\
 	common/replicate_utils.h\
 	common/replicationprotocol.h\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
+	common/safenetdb.h\
 	common/safesysselect.h\
+	common/safesyssocket.h\
 	common/safesysstat.h\
 	common/safesyswait.h\
 	common/safeunistd.h\
@@ -44,18 +48,19 @@ EXTRA_DIST +=\
 	common/dir_contents\
 	common/win32_uuid.cc\
 	common/win32_uuid.h\
-	common/Makefile
+	common/Makefile\
+	common/Tokeniseise.pm
 
 lib_src +=\
 	common/bitstream.cc\
 	common/closefrom.cc\
-	common/compression_stream.cc\
 	common/debuglog.cc\
 	common/fileutils.cc\
 	common/io_utils.cc\
+	common/keyword.cc\
 	common/msvc_dirent.cc\
-	common/msvc_posix_wrapper.cc\
 	common/omassert.cc\
+	common/posixy_wrapper.cc\
 	common/replicate_utils.cc\
 	common/safe.cc\
 	common/serialise-double.cc\
@@ -63,6 +68,10 @@ lib_src +=\
 	common/str.cc\
 	common/stringutils.cc
 
+if BUILD_BACKEND_BRASS_OR_CHERT
+lib_src +=\
+	common/compression_stream.cc
+endif
 
 if USE_WIN32_UUID_API
 lib_src +=\

@@ -89,6 +89,7 @@ MultiAndPostList::get_termfreq_max() const
 Xapian::doccount
 MultiAndPostList::get_termfreq_est() const
 {
+    LOGCALL(MATCH, Xapian::doccount, "MultiAndPostList::get_termfreq_est", NO_ARGS);
     if (rare(db_size == 0))
 	RETURN(0);
     // We calculate the estimate assuming independence.  With this assumption,
@@ -103,7 +104,7 @@ MultiAndPostList::get_termfreq_est() const
 
 TermFreqs
 MultiAndPostList::get_termfreq_est_using_stats(
-	const Xapian::Weight::Internal & stats) const 
+	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "MultiAndPostList::get_termfreq_est_using_stats", stats);
     // We calculate the estimate assuming independence.  With this assumption,
@@ -113,6 +114,7 @@ MultiAndPostList::get_termfreq_est_using_stats(
 
     double freqest = double(freqs.termfreq);
     double relfreqest = double(freqs.reltermfreq);
+    double collfreqest = double(freqs.collfreq);
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
@@ -123,6 +125,7 @@ MultiAndPostList::get_termfreq_est_using_stats(
 	// If the collection is empty, freqest should be 0 already, so leave
 	// it alone.
 	freqest = (freqest * freqs.termfreq) / stats.collection_size;
+	collfreqest = (collfreqest * freqs.collfreq) / stats.total_term_count;
 
 	// If the rset is empty, relfreqest should be 0 already, so leave
 	// it alone.
@@ -131,7 +134,8 @@ MultiAndPostList::get_termfreq_est_using_stats(
     }
 
     RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
+		     static_cast<Xapian::doccount>(relfreqest + 0.5),
+		     static_cast<Xapian::termcount>(collfreqest + 0.5)));
 }
 
 double
@@ -155,6 +159,17 @@ MultiAndPostList::get_doclength() const
 	AssertEq(doclength, plist[i]->get_doclength());
     }
     return doclength;
+}
+
+Xapian::termcount
+MultiAndPostList::get_unique_terms() const
+{
+    Assert(did);
+    Xapian::termcount unique_terms = plist[0]->get_unique_terms();
+    for (size_t i = 1; i < n_kids; ++i) {
+	AssertEq(unique_terms, plist[i]->get_unique_terms());
+    }
+    return unique_terms;
 }
 
 double
@@ -257,8 +272,7 @@ MultiAndPostList::count_matching_subqs() const
 {
     Xapian::termcount total = 0;
     for (size_t i = 0; i < n_kids; ++i) {
-	if (max_wt[i] > 0.0)
-	    total += plist[i]->count_matching_subqs();
+	total += plist[i]->count_matching_subqs();
     }
     return total;
 }

@@ -1,0 +1,75 @@
+#!/usr/bin/perl -w
+# Add reference handling code
+#
+# Copyright (C) 2013,2014 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+use strict;
+
+my $query_ctor = 0;
+
+while (<>) {
+    if (/^class XapianEnquire\b/) {
+	$_ .= "\tprotected \$_ps=null;\n";
+	$_ .= "\tprotected \$_sorter=null;\n";
+	$_ .= "\tprotected \$_spies=null;\n";
+    } elsif (/^\tfunction set_sort_by_\w*key\w*\((\$\w+)/) {
+	$_ .= "\t\t\$this->_sorter=$1;\n";
+    } elsif (/^\tfunction add_matchspy\((\$\w+)/) {
+	$_ .= "\t\t\$this->_spies[]=$1;\n";
+    } elsif (/^\tfunction clear_matchspies\(/) {
+	$_ .= "\t\t\$this->_spies=null;\n";
+    } elsif (/^\tfunction set_query\((\$\w+)/) {
+	$_ .= "\t\t\$this->_ps=$1->_ps;\n";
+    } elsif (/^\tfunction get_query\((\$\w+)/) {
+	print;
+	while (<>) {
+	    last if /^\t}/;
+	    s/^(\t+)return (new XapianQuery\(.*)/$1\$r=$2; \$r->_ps=\$this->_ps; return \$r;/;
+	    print;
+	}
+    } elsif (/^class XapianQuery\b/) {
+	$_ .= "\tpublic \$_ps=null;\n";
+	$query_ctor = 1;
+    } elsif ($query_ctor && /^\tfunction __construct\((\$\w+)[^,]*,(\$\w+)[^,]*,(\$\w+)/) {
+	$query_ctor = 0;
+	$_ .= "\t\tif ($1 instanceof XapianPostingSource) {\n";
+	$_ .= "\t\t\t\$this->_ps[]=$1;\n";
+	$_ .= "\t\t} else if (is_array($2)) {\n";
+	$_ .= "\t\t\tforeach ($2 as \$xxx) {\n";
+	$_ .= "\t\t\t\tif (\$xxx instanceof XapianQuery) \$this->_ps[]=\$xxx->_ps;\n";
+	$_ .= "\t\t\t}\n";
+	$_ .= "\t\t} else {\n";
+	$_ .= "\t\t\tif ($1 instanceof XapianQuery) \$this->_ps[]=$1->_ps;\n";
+	$_ .= "\t\t\tif ($2 instanceof XapianQuery) \$this->_ps[]=$2->_ps;\n";
+	$_ .= "\t\t\tif ($3 instanceof XapianQuery) \$this->_ps[]=$3->_ps;\n";
+	$_ .= "\t\t}\n";
+    } elsif (/^class XapianQueryParser\b/) {
+	$_ .= "\tprotected \$_vrps=null;\n";
+	$_ .= "\tprotected \$_stopper=null;\n";
+    } elsif (/^class XapianTermGenerator\b/) {
+	$_ .= "\tprotected \$_stopper=null;\n";
+    } elsif (/^\tfunction add_valuerangeprocessor\((\$\w+)/) {
+	$_ .= "\t\t\$this->_vrps[]=$1;\n";
+    } elsif (/^\tfunction set_stopper\((\$\w+)/) {
+	$_ .= "\t\t\$this->_stopper=$1;\n";
+    }
+    print;
+}

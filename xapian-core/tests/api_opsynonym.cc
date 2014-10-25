@@ -1,7 +1,7 @@
 /** @file api_opsynonym.cc
- * @brief tests of OP_SYNONYM.
+ * @brief tests of OP_SYNONYM and OP_MAX.
  */
-/* Copyright 2009,2011 Olly Betts
+/* Copyright 2009,2011,2014 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,186 +41,200 @@ using namespace std;
 // #######################################################################
 // # Tests start here
 
+struct synonym1_data_type {
+    // How many results should have the same weight when combined with
+    // OP_SYNONYM instead of OP_OR.
+    int sameweight_count;
+    // How many results should have a different weight when combined with
+    // OP_SYNONYM instead of OP_OR.
+    int diffweight_count;
+    // How many subqueries.
+    unsigned n_subqs;
+    // The subqueries (use NOQ for unused ones).
+    Xapian::Query subqs[4];
+};
+
+#define NOQ Xapian::Query::MatchNothing
+static synonym1_data_type synonym1_data[] = {
+    {
+	// Single term - all 33 results should be same weight.
+	33, 0, 1,
+	{ Xapian::Query("date"), NOQ, NOQ, NOQ }
+    },
+    {
+	// Two terms, which co-occur in some documents.
+	//
+	// All 34 results should be different.
+	0, 34, 2,
+	{ Xapian::Query("sky"), Xapian::Query("date"), NOQ, NOQ }
+    },
+    {
+	// Two terms which are entirely disjoint, and where the maximum weight
+	// doesn't occur in the first or second match.
+	//
+	// All 18 results should be different.
+	0, 18, 2,
+	{ Xapian::Query("gutenberg"), Xapian::Query("blockhead"), NOQ, NOQ }
+    },
+    {
+	// All 34 results should be different.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_OR,
+			  Xapian::Query("sky"),
+			  Xapian::Query("glove")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// All 34 results should be different.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_OR,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// All 34 results should be different.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_AND_MAYBE,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// All 34 results should be different.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_AND_NOT,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// The AND only matches 1 document, so the estimated termfreq for the
+	// whole synonym works out as 33 (due to rounding), which is the same
+	// as the termfreq for "date".  Therefore most of the weights are the
+	// same as just for the pure "date" search, and the only document which
+	// gets a different weight is the one also matched by "sky" (because it
+	// has a wdf boost).
+	32, 1, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_AND,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// All 34 results should be different.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_XOR,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// When the top-level operator is OR, the synonym part has an estimated
+	// termfreq of 35.  When the top-level operator is SYNONYM, the whole
+	// query has an estimated termfreq of 66, which is rather bogus, but
+	// that's the current situation here (1.2 did better as it flattened
+	// this into a single OP_SYNONYM operator and then merged the two
+	// "date" terms to one with wqf=2.  We've decided we shouldn't do such
+	// merging from 1.3.x on (merging to sum the scale_factors is fine, but
+	// we don't do that yet - FIXME).
+	//
+	// Anyway, this means that currently the weights are different for all
+	// matches.
+	0, 34, 2,
+	{
+	    Xapian::Query("date"),
+	    Xapian::Query(Xapian::Query::OP_SYNONYM,
+			  Xapian::Query("sky"),
+			  Xapian::Query("date")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// All 35 results should be different.
+	0, 35, 4,
+	{
+	    Xapian::Query("sky"),
+	    Xapian::Query("date"),
+	    Xapian::Query("stein"),
+	    Xapian::Query("ally")
+	}
+    },
+    {
+	// The estimated term frequency for the synoynm is 2 (because the
+	// estimate for the phrase is 0), which is the same as the term
+	// frequency of "attitud".  Thus, the synonym gets the same weight as
+	// "attitud", so documents with only "attitud" (but not the phrase) in
+	// them get the same wdf, and have the same total weight.  There turns
+	// out to be exactly one such document.
+	1, 3, 2,
+	{
+	    Xapian::Query("attitud"),
+	    Xapian::Query(Xapian::Query::OP_PHRASE,
+			  Xapian::Query("german"),
+			  Xapian::Query("adventur")),
+	    NOQ, NOQ
+	}
+    },
+    {
+	// All 54 results should be different.
+	0, 54, 2,
+	{
+	    Xapian::Query("attitud"),
+	    Xapian::Query(Xapian::Query::OP_OR,
+			  Xapian::Query("german"),
+			  Xapian::Query(Xapian::Query::OP_SYNONYM,
+					Xapian::Query("sky"),
+					Xapian::Query("date"))),
+	    NOQ, NOQ
+	}
+    }
+};
+
 // Check a synonym search
 DEFINE_TESTCASE(synonym1, backend) {
     Xapian::Database db(get_database("etext"));
 
     TEST_REL(db.get_doclength_upper_bound(), >, 0);
 
-    Xapian::doccount lots = 214;
+    const Xapian::doccount lots = 214;
 
-    // Make a list of lists of subqueries, which are going to be joined
-    // together as a synonym.
-    vector<vector<Xapian::Query> > subqueries_list;
+    for (size_t subqgroup = 0;
+	 subqgroup != sizeof(synonym1_data) / sizeof(synonym1_data[0]);
+	 ++subqgroup) {
+	const synonym1_data_type & data = synonym1_data[subqgroup];
+	const Xapian::Query * qlist = data.subqs;
+	const Xapian::Query * qlist_end = qlist + data.n_subqs;
 
-    // For each set of subqueries, keep a list of the number of results for
-    // which the weight should be the same when combined with OP_SYNONYM as
-    // when combined with OP_OR.
-    vector<int> subqueries_sameweight_count;
-    vector<int> subqueries_diffweight_count;
-
-    vector<Xapian::Query> subqueries;
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries_list.push_back(subqueries);
-    // Single term - all 33 results should be same weight.
-    subqueries_sameweight_count.push_back(33);
-    subqueries_diffweight_count.push_back(0);
-
-    // Two terms, which co-occur in some documents.
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("sky"));
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries_list.push_back(subqueries);
-    // All 34 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(34);
-
-    // Two terms which are entirely disjoint, and where the maximum weight
-    // doesn't occur in the first or second match.
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("gutenberg"));
-    subqueries.push_back(Xapian::Query("blockhead"));
-    subqueries_list.push_back(subqueries);
-    // All 18 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(18);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_OR,
-				       Xapian::Query("sky"),
-				       Xapian::Query("glove")));
-    subqueries_list.push_back(subqueries);
-    // All 34 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(34);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_OR,
-				       Xapian::Query("sky"),
-				       Xapian::Query("date")));
-    subqueries_list.push_back(subqueries);
-    // All 34 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(34);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_AND_MAYBE,
-				       Xapian::Query("sky"),
-				       Xapian::Query("date")));
-    subqueries_list.push_back(subqueries);
-    // All 34 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(34);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_AND_NOT,
-				       Xapian::Query("sky"),
-				       Xapian::Query("date")));
-    subqueries_list.push_back(subqueries);
-    // All 34 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(34);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_AND,
-				       Xapian::Query("sky"),
-				       Xapian::Query("date")));
-    subqueries_list.push_back(subqueries);
-    // The AND only matches 1 document, so the estimated termfreq for the whole
-    // synonym works out as 33 (due to rounding), which is the same as the
-    // termfreq for "date".  Therefore most of the weights are the same as just
-    // for the pure "date" search, and the only document which gets a different
-    // weight is the one also matched by "sky" (because it has a wdf boost).
-    subqueries_sameweight_count.push_back(32);
-    subqueries_diffweight_count.push_back(1);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_XOR,
-				       Xapian::Query("sky"),
-				       Xapian::Query("date")));
-    subqueries_list.push_back(subqueries);
-    // All 34 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(34);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_SYNONYM,
-				       Xapian::Query("sky"),
-				       Xapian::Query("date")));
-    subqueries_list.push_back(subqueries);
-    // When the top-level operator is OR, the synonym part has an estimated
-    // termfreq of 35.  When the top-level operator is SYNONYM, the whole query
-    // has an estimated termfreq of 66, which is rather bogus, but that's the
-    // current situation here (1.2 did better as it flattened this into a
-    // single OP_SYNONYM operator and then merged the two "date" terms to one
-    // with wqf=2.  We've decided we shouldn't do such merging from 1.3.x on
-    // (merging to sum the scale_factors is fine, but we don't do that yet -
-    // FIXME).
-    //
-    // Anyway, this means that currently the weights are different for all
-    // matches.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(34);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("sky"));
-    subqueries.push_back(Xapian::Query("date"));
-    subqueries.push_back(Xapian::Query("stein"));
-    subqueries.push_back(Xapian::Query("ally"));
-    subqueries_list.push_back(subqueries);
-    // All 35 results should be different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(35);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("attitud"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_PHRASE,
-				       Xapian::Query("german"),
-				       Xapian::Query("adventur")));
-    subqueries_list.push_back(subqueries);
-    // The estimated term frequency for the synoynm is 2 (because the estimate
-    // for the phrase is 0), which is the same as the term frequency of
-    // "attitud".  Thus, the synonym gets the same weight as "attitud", so
-    // documents with only "attitud" (but not the phrase) in them get the same
-    // wdf, and have the same total weight.  There turns out to be exactly one
-    // such document.
-    subqueries_sameweight_count.push_back(1);
-    subqueries_diffweight_count.push_back(3);
-
-    subqueries.clear();
-    subqueries.push_back(Xapian::Query("attitud"));
-    subqueries.push_back(Xapian::Query(Xapian::Query::OP_OR,
-				       Xapian::Query("german"),
-				       Xapian::Query(Xapian::Query::OP_SYNONYM,
-						     Xapian::Query("sky"),
-						     Xapian::Query("date"))));
-    subqueries_list.push_back(subqueries);
-    // All 54 results are different.
-    subqueries_sameweight_count.push_back(0);
-    subqueries_diffweight_count.push_back(54);
-
-    for (vector<vector<Xapian::Query> >::size_type subqgroup = 0;
-	 subqgroup != subqueries_list.size(); ++subqgroup)
-    {
-	vector<Xapian::Query> * qlist = &(subqueries_list[subqgroup]);
 	// Run two queries, one joining the subqueries with OR and one joining
 	// them with SYNONYM.
 	Xapian::Enquire enquire(db);
 
-	// Do the search with OR
-	Xapian::Query orquery(Xapian::Query::OP_OR, qlist->begin(), qlist->end());
+	// Do the search with OP_OR, getting all the results.
+	Xapian::Query orquery(Xapian::Query::OP_OR, qlist, qlist_end);
 	enquire.set_query(orquery);
 	Xapian::MSet ormset = enquire.get_mset(0, lots);
 
-	// Do the search with synonym, getting all the results.
-	Xapian::Query synquery(Xapian::Query::OP_SYNONYM, qlist->begin(), qlist->end());
+	// Do the search with OP_SYNONYM, getting all the results.
+	Xapian::Query synquery(Xapian::Query::OP_SYNONYM, qlist, qlist_end);
 	enquire.set_query(synquery);
 	Xapian::MSet synmset = enquire.get_mset(0, lots);
 
@@ -255,11 +269,9 @@ DEFINE_TESTCASE(synonym1, backend) {
 	    }
 	}
 
-	int expected_same = subqueries_sameweight_count[subqgroup];
-	int expected_diff = subqueries_diffweight_count[subqgroup];
 
-	TEST_EQUAL(different_weight, expected_diff);
-	TEST_EQUAL(same_weight, expected_same);
+	TEST_EQUAL(different_weight, data.diffweight_count);
+	TEST_EQUAL(same_weight, data.sameweight_count);
 
 	// Do the search with synonym, but just get the top result.
 	// (Regression test - the OR subquery in the synonym postlist tree used
@@ -406,6 +418,51 @@ DEFINE_TESTCASE(synonym4, backend) {
 	}
 	check_msets_contain_same_docs(mset1, mset2);
     }
+
+    return true;
+}
+
+DEFINE_TESTCASE(opmax1, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enq(db);
+    Xapian::Query q1("king");
+    Xapian::Query q2("friedrich");
+    Xapian::Query qmax(Xapian::Query::OP_MAX, q1, q2);
+    enq.set_query(q1);
+    Xapian::MSet mset1 = enq.get_mset(0, db.get_doccount());
+    enq.set_query(q2);
+    Xapian::MSet mset2 = enq.get_mset(0, db.get_doccount());
+    enq.set_query(qmax);
+    Xapian::MSet msetmax = enq.get_mset(0, db.get_doccount());
+
+    // Check that the weights in msetmax are the maximum of the weights in
+    // mset1 and mset2 for each docid.
+    map<Xapian::docid, double> expected_weights;
+    Xapian::MSetIterator i;
+    for (i = mset1.begin(); i != mset1.end(); ++i) {
+	expected_weights[*i] = i.get_weight();
+    }
+    for (i = mset2.begin(); i != mset2.end(); ++i) {
+	map<Xapian::docid, double>::iterator j;
+	j = expected_weights.find(*i);
+	if (j != expected_weights.end()) {
+	    j->second = max(j->second, i.get_weight());
+	} else {
+	    expected_weights[*i] = i.get_weight();
+	}
+    }
+
+    for (i = msetmax.begin(); i != msetmax.end(); ++i) {
+	map<Xapian::docid, double>::iterator j;
+	j = expected_weights.find(*i);
+	TEST(j != expected_weights.end());
+	TEST_EQUAL_DOUBLE(j->second, i.get_weight());
+	expected_weights.erase(j);
+	tout << expected_weights.size() << endl;
+    }
+
+    // Any document in mset1 or mset2 should also be in msetmax.
+    TEST_EQUAL(expected_weights.size(), 0);
 
     return true;
 }

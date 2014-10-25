@@ -2,7 +2,7 @@
  * @brief Interface to Btree cursors
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,8 +23,12 @@
 #ifndef OM_HGUARD_BRASS_CURSOR_H
 #define OM_HGUARD_BRASS_CURSOR_H
 
-#include "brass_types.h"
+#include "brass_defs.h"
 
+#include "omassert.h"
+
+#include <algorithm>
+#include <cstring>
 #include <string>
 using std::string;
 
@@ -38,25 +42,96 @@ class Cursor {
         Cursor(const Cursor &);
         Cursor & operator=(const Cursor &);
 
-    public:
-	/// Constructor, to initialise important elements.
-	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false)
-	{}
+	/// Pointer to reference counted data.
+	char * data;
 
-	/// pointer to a block
-	byte * p;
+    public:
+	/// Constructor.
+	Cursor() : data(0), c(-1), rewrite(false) { }
+
+	~Cursor() { destroy(); }
+
+	byte * init(unsigned block_size) {
+	    if (data && refs() > 1) {
+		--refs();
+		data = NULL;
+	    }
+	    if (!data)
+		data = new char[block_size + 8];
+	    refs() = 1;
+	    set_n(BLK_UNUSED);
+	    rewrite = false;
+	    c = -1;
+	    return reinterpret_cast<byte*>(data + 8);
+	}
+
+	const byte * clone(const Cursor & o) {
+	    if (data != o.data) {
+		destroy();
+		data = o.data;
+		++refs();
+	    }
+	    return reinterpret_cast<byte*>(data + 8);
+	}
+
+	void swap(Cursor & o) {
+	    std::swap(data, o.data);
+	    std::swap(c, o.c);
+	    std::swap(rewrite, o.rewrite);
+	}
+
+	void destroy() {
+	    if (data) {
+		if (--refs() == 0)
+		    delete [] data;
+		data = NULL;
+		rewrite = false;
+	    }
+	}
+
+	uint4 & refs() const {
+	    Assert(data);
+	    return *reinterpret_cast<uint4*>(data);
+	}
+
+	/** Get the block number.
+	 *
+	 *  Returns BLK_UNUSED if no block is currently loaded.
+	 */
+	uint4 get_n() const {
+	    Assert(data);
+	    return *reinterpret_cast<uint4*>(data + 4);
+	}
+
+	void set_n(uint4 n) {
+	    Assert(data);
+	    //Assert(refs() == 1);
+	    *reinterpret_cast<uint4*>(data + 4) = n;
+	}
+
+	/** Get pointer to block.
+	 *
+	 * Returns NULL if no block is currently loaded.
+	 */
+	const byte * get_p() const {
+	    if (rare(!data)) return NULL;
+	    return reinterpret_cast<byte*>(data + 8);
+	}
+
+	byte * get_modifiable_p(unsigned block_size) {
+	    if (rare(!data)) return NULL;
+	    if (refs() > 1) {
+		char * new_data = new char[block_size + 8];
+		std::memcpy(new_data, data, block_size + 8);
+		--refs();
+		data = new_data;
+		refs() = 1;
+	    }
+	    return reinterpret_cast<byte*>(data + 8);
+	}
 
 	/// offset in the block's directory
 	int c;
-
-	/** block number
-	 *
-	 * n is kept in tandem with p.  The unassigned state is when
-	 * p == 0 and n == BLK_UNUSED.
-	 * 
-	 * Setting n to BLK_UNUSED is necessary in at least some cases.
-	 */
-	uint4 n;
 
 	/// true if the block is not the same as on disk, and so needs rewriting
 	bool rewrite;
@@ -145,7 +220,16 @@ class BrassCursor {
 	 *  attached to is destroyed.  It's safe to destroy the BrassCursor
 	 *  after the Btree though, you just may not use the BrassCursor.
 	 */
-	BrassCursor(const BrassTable *B);
+	BrassCursor(const BrassTable *B, const Brass::Cursor * C_ = NULL);
+
+	/** Clone a cursor.
+	 *
+	 *  Creates a new cursor, primed with the blocks in the first cursor.
+	 *  The new cursor is initially *unpositioned*.
+	 */
+	BrassCursor * clone() const {
+	    return new BrassCursor(B, C);
+	}
 
 	/** Destroy the BrassCursor */
 	~BrassCursor();
@@ -219,6 +303,16 @@ class BrassCursor {
 	 *          otherwise.
 	 */
 	bool find_entry(const string &key);
+
+	/** Position the cursor exactly on a key.
+	 *
+	 *  If key is found, the cursor will be set to it, the tag read.  If
+	 *  it is not found, the cursor is left unpositioned.
+	 *
+	 *  @param key	The key to search for.
+	 *  @return true if the key was found.
+	 */
+	bool find_exact(const string &key);
 
 	/// Position the cursor on the highest entry with key < @a key.
 	void find_entry_lt(const string &key) {

@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_MULTIALLTERMSLIST_H
-#define XAPIAN_INCLUDED_MULTIALLTERMSLIST_H
+#ifndef XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H
+#define XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H
 
 #include "backends/alltermslist.h"
 
@@ -73,4 +73,4 @@ class MultiAllTermsList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif // XAPIAN_INCLUDED_MULTIALLTERMSLIST_H
+#endif // XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H

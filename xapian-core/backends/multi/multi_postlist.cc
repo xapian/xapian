@@ -44,7 +44,7 @@ MultiPostList::MultiPostList(std::vector<LeafPostList *> & pls,
 MultiPostList::~MultiPostList()
 {
     std::vector<LeafPostList *>::iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	delete *i;
     }
     postlists.clear();
@@ -111,6 +111,17 @@ MultiPostList::get_doclength() const
 }
 
 Xapian::termcount
+MultiPostList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "MultiPostList::get_unique_terms", NO_ARGS);
+    Assert(!at_end());
+    Assert(currdoc != 0);
+    Xapian::termcount result = postlists[(currdoc - 1) % multiplier]->get_unique_terms();
+    AssertEqParanoid(result, this_db.get_unique_terms(get_docid()));
+    RETURN(result);
+}
+
+Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[(currdoc - 1) % multiplier]->get_wdf();
@@ -169,7 +180,7 @@ MultiPostList::skip_to(Xapian::docid did, double w_min)
     Xapian::docid realdid = (did - 1) / multiplier + 2;
     Xapian::doccount dbnumber = (did - 1) % multiplier;
     std::vector<LeafPostList *>::iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {	
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	if (offset == dbnumber) --realdid;
 	++offset;
 	Assert((realdid - 1) * multiplier + offset >= did);
@@ -202,7 +213,7 @@ MultiPostList::get_description() const
     std::string desc;
 
     std::vector<LeafPostList *>::const_iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	if (!desc.empty()) desc += ',';
 	desc += (*i)->get_description();
     }

@@ -1,7 +1,7 @@
 /** @file chert_compact.cc
  * @brief Compact a chert database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,9 @@
 
 #include <config.h>
 
-#include <xapian/compactor.h>
+#include "xapian/compactor.h"
+#include "xapian/error.h"
+#include "xapian/types.h"
 
 #include <algorithm>
 #include <queue>
@@ -40,7 +42,6 @@
 
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
-#include <xapian.h>
 
 using namespace std;
 
@@ -255,11 +256,13 @@ merge_postlists(Xapian::Compactor & compactor,
 	    if (tot_totlen < totlen) {
 		throw "totlen wrapped!";
 	    }
-	}
-	if (cur->next()) {
-	    pq.push(cur);
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
 	} else {
-	    delete cur;
+	    pq.push(cur);
 	}
     }
 
@@ -328,7 +331,6 @@ merge_postlists(Xapian::Compactor & compactor,
 	Xapian::doccount freq = 0;
 	string lbound, ubound;
 
-	string last_tag;
 	while (!pq.empty()) {
 	    PostlistCursor * cur = pq.top();
 	    const string& key = cur->key;
@@ -538,13 +540,13 @@ merge_spellings(ChertTable * out,
 	    string lastword;
 	    while (!pqtag.empty()) {
 		PrefixCompressedStringItor * it = pqtag.top();
+		pqtag.pop();
 		string word = **it;
 		if (word != lastword) {
 		    lastword = word;
 		    wr.append(lastword);
 		}
 		++*it;
-		pqtag.pop();
 		if (!it->at_end()) {
 		    pqtag.push(it);
 		} else {
@@ -647,13 +649,13 @@ merge_synonyms(ChertTable * out,
 	string lastword;
 	while (!pqtag.empty()) {
 	    ByteLengthPrefixedStringItor * it = pqtag.top();
+	    pqtag.pop();
 	    if (**it != lastword) {
 		lastword = **it;
 		tag += byte(lastword.size() ^ MAGIC_XOR_VALUE);
 		tag += lastword;
 	    }
 	    ++*it;
-	    pqtag.pop();
 	    if (!it->at_end()) {
 		pqtag.push(it);
 	    } else {
@@ -703,7 +705,7 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	    tmptab.create_and_open(65536);
 
 	    merge_postlists(compactor, &tmptab, off.begin() + i,
-			    tmp.begin() + i, tmp.begin() + j, 0);
+			    tmp.begin() + i, tmp.begin() + j, last_docid);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());

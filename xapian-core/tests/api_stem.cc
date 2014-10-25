@@ -63,10 +63,22 @@ DEFINE_TESTCASE(stem2, !backend) {
 	       Xapian::Stem("no").get_description());
     TEST_NOT_EQUAL(st_norwegian.get_description(),
 		   Xapian::Stem("en").get_description());
+    TEST_NOT_EQUAL(st_norwegian.get_description(),
+		   Xapian::Stem("none").get_description());
     return true;
 }
 
-// Provides coverage for the switch in api/stem.cc.
+/// Test add a stemmer test
+DEFINE_TESTCASE(stem3, !backend) {
+    Xapian::Stem earlyenglish("earlyenglish");
+    TEST_EQUAL(earlyenglish("loved"), "love");
+    TEST_EQUAL(earlyenglish("loving"), "love");
+    TEST_EQUAL(earlyenglish("loveth"), "love");
+    TEST_EQUAL(earlyenglish("givest"), "give");
+    return true;
+}
+
+/// Test invalid language names with various characters in.
 DEFINE_TESTCASE(stemlangs2, !backend) {
     string lang("xdummy");
     for (unsigned ch = 0; ch <= 255; ++ch) {

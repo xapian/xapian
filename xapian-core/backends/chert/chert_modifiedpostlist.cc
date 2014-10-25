@@ -1,7 +1,7 @@
 /** @file chert_modifiedpostlist.cc
  * @brief A ChertPostList plus pending modifications
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,9 @@ ChertModifiedPostList::skip_deletes(double w_min)
 Xapian::doccount
 ChertModifiedPostList::get_termfreq() const
 {
-    return this_db->get_termfreq(term);
+    Xapian::doccount tf;
+    this_db->get_freqs(term, &tf, NULL);
+    return tf;
 }
 
 Xapian::docid

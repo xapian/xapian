@@ -1,7 +1,7 @@
 /* brass_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,7 +52,7 @@ hex_display_encode(const string & input)
 
 #define DIR_START        11
 
-BrassCursor::BrassCursor(const BrassTable *B_)
+BrassCursor::BrassCursor(const BrassTable *B_, const Brass::Cursor * C_)
 	: is_positioned(false),
 	  is_after_end(false),
 	  tag_status(UNREAD),
@@ -62,13 +62,10 @@ BrassCursor::BrassCursor(const BrassTable *B_)
 {
     B->cursor_created_since_last_modification = true;
     C = new Brass::Cursor[level + 1];
-
-    for (int j = 0; j < level; j++) {
-        C[j].n = BLK_UNUSED;
-	C[j].p = new byte[B->block_size];
+    if (!C_) C_ = B->C;
+    for (int j = 0; j <= level; j++) {
+	C[j].clone(C_[j]);
     }
-    C[level].n = B->C[level].n;
-    C[level].p = B->C[level].p;
 }
 
 void
@@ -76,38 +73,27 @@ BrassCursor::rebuild()
 {
     int new_level = B->level;
     if (new_level <= level) {
-	for (int i = 0; i < new_level; i++) {
-	    C[i].n = BLK_UNUSED;
-	}
-	for (int j = new_level; j < level; ++j) {
-	    delete C[j].p;
+	for (int j = new_level; j <= level; ++j) {
+	    C[j].destroy();
 	}
     } else {
 	Cursor * old_C = C;
 	C = new Cursor[new_level + 1];
 	for (int i = 0; i < level; i++) {
-	    C[i].p = old_C[i].p;
-	    C[i].n = BLK_UNUSED;
+	    C[i].swap(old_C[i]);
 	}
 	delete [] old_C;
 	for (int j = level; j < new_level; j++) {
-	    C[j].p = new byte[B->block_size];
-	    C[j].n = BLK_UNUSED;
+	    C[j].init(B->block_size);
 	}
     }
     level = new_level;
-    C[level].n = B->C[level].n;
-    C[level].p = B->C[level].p;
+    C[level].clone(B->C[level]);
     version = B->cursor_version;
 }
 
 BrassCursor::~BrassCursor()
 {
-    // Use the value of level stored in the cursor rather than the
-    // Btree, since the Btree might have been deleted already.
-    for (int j = 0; j < level; j++) {
-	delete [] C[j].p;
-    }
     delete [] C;
 }
 
@@ -133,7 +119,7 @@ BrassCursor::prev()
 		is_positioned = false;
 		RETURN(false);
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
 		break;
 	    }
 	}
@@ -144,7 +130,7 @@ BrassCursor::prev()
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	if (Item(C[0].p, C[0].c).component_of() == 1) {
+	if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
 	    break;
 	}
     }
@@ -173,7 +159,7 @@ BrassCursor::next()
 		is_positioned = false;
 		break;
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item(C[0].get_p(), C[0].c).component_of() == 1) {
 		is_positioned = true;
 		break;
 	    }
@@ -221,7 +207,7 @@ BrassCursor::find_entry(const string &key)
 	    C[0].c = DIR_START;
 	    if (! B->prev(C, 0)) goto done;
 	}
-	while (Item(C[0].p, C[0].c).component_of() != 1) {
+	while (Item(C[0].get_p(), C[0].c).component_of() != 1) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
 		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
@@ -238,6 +224,31 @@ done:
 
     LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
     RETURN(found);
+}
+
+bool
+BrassCursor::find_exact(const string &key)
+{
+    LOGCALL(DB, bool, "BrassCursor::find_exact", key);
+    is_after_end = false;
+    is_positioned = false;
+    if (rare(key.size() > BRASS_BTREE_MAX_KEY_LEN)) {
+	// There can't be a match
+	RETURN(false);
+    }
+
+    if (B->cursor_version != version) {
+	rebuild();
+    }
+
+    B->form_key(key);
+    if (!B->find(C)) {
+	RETURN(false);
+    }
+    current_key = key;
+    B->read_tag(C, &current_tag, false);
+
+    RETURN(true);
 }
 
 bool
@@ -272,7 +283,7 @@ BrassCursor::find_entry_ge(const string &key)
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	Assert(Item(C[0].p, C[0].c).component_of() == 1);
+	Assert(Item(C[0].get_p(), C[0].c).component_of() == 1);
 	get_key(&current_key);
     }
     tag_status = UNREAD;
@@ -287,7 +298,7 @@ BrassCursor::get_key(string * key) const
     Assert(B->level <= level);
     Assert(is_positioned);
 
-    (void)Item(C[0].p, C[0].c).key().read(key);
+    (void)Item(C[0].get_p(), C[0].c).key().read(key);
 }
 
 bool

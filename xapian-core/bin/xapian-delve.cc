@@ -1,8 +1,8 @@
-/* delve.cc: Allow inspection of the contents of a Xapian database
+/* xapian-delve.cc: Allow inspection of the contents of a Xapian database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ using namespace std;
 
 static char separator = ' ';
 
-static bool verbose = false;
+static int verbose = 0;
 static bool showvalues = false;
 static bool showdocdata = false;
 static bool count_zero_length_docs = false;
@@ -52,6 +52,7 @@ static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE...\n\n"
 "Options:\n"
 "  -a                    show all terms in the database\n"
+"  -A <prefix>           show all terms in the database with given prefix\n"
 "  -r <recno>            for term list(s)\n"
 "  -t <term>             for posting list(s)\n"
 "  -t <term> -r <recno>  for position list(s)\n"
@@ -65,6 +66,8 @@ static void show_usage() {
 "  -v                    extra info (wdf and len for postlist;\n"
 "                        wdf and termfreq for termlist; number of terms for db;\n"
 "                        termfreq when showing all terms)\n"
+"  -vv                   even more info (also show collection freq and wdf\n"
+"                        upper bound for terms)\n"
 "      --help            display this help and exit\n"
 "      --version         output version information and exit" << endl;
 }
@@ -171,25 +174,43 @@ show_docdata(Database &db,
 }
 
 static void
-show_termlist(const Database &db, Xapian::docid did)
+show_termlist(const Database &db, Xapian::docid did,
+	      const char * all_pfx = NULL)
 {
     TermIterator t, tend;
-    if (did == 0) {
-	t = db.allterms_begin();
-	tend = db.allterms_end();
-	cout << "All terms in database:";
+    if (all_pfx) {
+	t = db.allterms_begin(all_pfx);
+	tend = db.allterms_end(all_pfx);
+	cout << "All terms in database";
+	if (all_pfx[0])
+	    cout << " with prefix \"" << all_pfx << "\"";
     } else {
 	t = db.termlist_begin(did);
 	tend = db.termlist_end(did);
-	cout << "Term List for record #" << did << ':';
+	cout << "Term List for record #" << did;
     }
+    if (verbose) {
+	cout << " (";
+	if (did != 0)
+	    cout << "wdf, ";
+	cout << "termfreq";
+	if (verbose > 1)
+	    cout << ", collection freq, wdf upper bound";
+	cout << ')';
+    }
+    cout << ':';
 
     while (t != tend) {
-	cout << separator << *t;
+	const string & term = *t;
+	cout << separator << term;
 	if (verbose) {
 	    if (did != 0)
 		cout << ' ' << t.get_wdf();
 	    cout << ' ' << t.get_termfreq();
+	    if (verbose > 1) {
+		cout << ' ' << db.get_collection_freq(term)
+		     << ' ' << db.get_wdf_upper_bound(term);
+	    }
 	}
 	++t;
     }
@@ -224,7 +245,7 @@ main(int argc, char **argv) try {
 	}
     }
 
-    bool all_terms = false;
+    const char * all_terms = NULL;
     vector<docid> recnos;
     vector<string> terms;
     vector<string> dbs;
@@ -233,10 +254,13 @@ main(int argc, char **argv) try {
     bool slot_set = false;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "ar:t:s:1vV::dz")) != -1) {
+    while ((c = gnu_getopt(argc, argv, "aA:r:t:s:1vV::dz")) != -1) {
 	switch (c) {
 	    case 'a':
-		all_terms = true;
+		all_terms = "";
+		break;
+	    case 'A':
+		all_terms = optarg;
 		break;
 	    case 'r': {
 		char * end;
@@ -286,7 +310,7 @@ main(int argc, char **argv) try {
 		showdocdata = true;
 		break;
 	    case 'v':
-		verbose = true;
+		++verbose;
 		break;
 	    case 'z':
 		count_zero_length_docs = true;
@@ -309,11 +333,11 @@ main(int argc, char **argv) try {
     Database db;
     {
 	vector<string>::const_iterator i;
-	for (i = dbs.begin(); i != dbs.end(); i++) {
+	for (i = dbs.begin(); i != dbs.end(); ++i) {
 	    try {
 		db.add_database(Database(*i));
 	    } catch (const Error &e) {
-		cerr << "Error opening database `" << *i << "': ";
+		cerr << "Error opening database '" << *i << "': ";
 		cerr << e.get_description() << endl;
 		return 1;
 	    }
@@ -327,7 +351,7 @@ main(int argc, char **argv) try {
     }
 
     if (all_terms) {
-	show_termlist(db, 0);
+	show_termlist(db, 0, all_terms);
     }
 
     if (!recnos.empty()) {
@@ -358,17 +382,17 @@ main(int argc, char **argv) try {
     }
 
     vector<string>::const_iterator i;
-    for (i = terms.begin(); i != terms.end(); i++) {
+    for (i = terms.begin(); i != terms.end(); ++i) {
 	string term = stemmer(*i);
 	PostingIterator p = db.postlist_begin(term);
 	PostingIterator pend = db.postlist_end(term);
 	if (p == pend) {
-	    cout << "term `" << term << "' not in database\n";
+	    cout << "term '" << term << "' not in database\n";
 	    continue;
 	}
 	if (recnos.empty()) {
 	    // Display posting list
-	    cout << "Posting List for term `" << term << "' (termfreq "
+	    cout << "Posting List for term '" << term << "' (termfreq "
 		 << db.get_termfreq(term) << ", collfreq "
 		 << db.get_collection_freq(term) << ", wdf_max "
 		 << db.get_wdf_upper_bound(term) << "):";
@@ -379,19 +403,19 @@ main(int argc, char **argv) try {
 		}
 		if (showvalues) show_values(db, *p, ' ');
 		if (showdocdata) show_docdata(db, *p, ' ');
-		p++;
+		++p;
 	    }
 	    cout << endl;
 	} else {
 	    // Display position lists
 	    vector<docid>::const_iterator j;
-	    for (j = recnos.begin(); j != recnos.end(); j++) {
+	    for (j = recnos.begin(); j != recnos.end(); ++j) {
 		p.skip_to(*j);
 		if (p == pend || *p != *j) {
-		    cout << "term `" << term <<
+		    cout << "term '" << term <<
 			"' doesn't index document #" << *j << endl;
 		} else {
-		    cout << "Position List for term `" << term
+		    cout << "Position List for term '" << term
 			<< "', record #" << *j << ':';
 		    try {
 			PositionIterator pos = p.positionlist_begin();

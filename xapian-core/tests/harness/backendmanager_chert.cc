@@ -1,7 +1,7 @@
 /** @file backendmanager_chert.cc
  * @brief BackendManager subclass for chert databases.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,11 +53,13 @@ BackendManagerChert::get_writable_database_path(const string & name)
 Xapian::Database
 BackendManagerChert::get_writable_database_as_database()
 {
-    return Xapian::Chert::open(".chert/" + last_wdb_name);
+    return Xapian::Database(".chert/" + last_wdb_name,
+			    Xapian::DB_BACKEND_CHERT);
 }
 
 Xapian::WritableDatabase
 BackendManagerChert::get_writable_database_again()
 {
-    return Xapian::Chert::open(".chert/" + last_wdb_name, Xapian::DB_OPEN);
+    return Xapian::WritableDatabase(".chert/" + last_wdb_name,
+				    Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT);
 }

@@ -2,7 +2,7 @@
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
@@ -23,5 +23,5 @@ MAINTAINERCLEANFILES = \
 
 if DOCUMENTATION_RULES
 .rst.html:
-	$(RST2HTML) --exit-status=warning $< $@
+	$(RST2HTML) --math-output=HTML --exit-status=warning $< $@
 endif

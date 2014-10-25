@@ -1,7 +1,7 @@
 /** @file postingiterator.cc
  *  @brief Class for iterating over a list of document ids.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -122,6 +122,14 @@ PostingIterator::get_doclength() const
     RETURN(internal->get_doclength());
 }
 
+Xapian::termcount
+PostingIterator::get_unique_terms() const
+{
+    LOGCALL(API, Xapian::termcount, "PostingIterator::get_unique_terms", NO_ARGS);
+    Assert(internal);
+    RETURN(internal->get_unique_terms());
+}
+
 #if 0 // FIXME: TermIterator supports this, so PostingIterator really ought to.
 Xapian::termcount
 PostingIterator::positionlist_count() const
@@ -144,8 +152,8 @@ void
 PostingIterator::skip_to(Xapian::docid did)
 {
     LOGCALL_VOID(API, "PostingIterator::skip_to", did);
-    Assert(internal);
-    post_advance(internal->skip_to(did));
+    if (internal)
+	post_advance(internal->skip_to(did));
 }
 
 std::string

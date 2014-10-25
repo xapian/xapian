@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -23,6 +23,11 @@
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/matchspy.h> directly; include <xapian.h> instead."
+#endif
+
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -51,7 +56,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
 
   protected:
     /// Default constructor, needed by subclass constructors.
-    MatchSpy() {}
+    XAPIAN_NOTHROW(MatchSpy()) {}
 
   public:
     /** Virtual destructor, because we have virtual methods. */
@@ -130,12 +135,12 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  method in your subclass as shown here:
      *  http://trac.xapian.org/ticket/554#comment:1
      *
-     *  @param s	A string containing the serialised results.
+     *  @param serialised	A string containing the serialised results.
      *  @param context	Registry object to use for unserialisation to permit
      *			MatchSpy subclasses with sub-MatchSpy objects to be
      *			implemented.
      */
-    virtual MatchSpy * unserialise(const std::string & s,
+    virtual MatchSpy * unserialise(const std::string & serialised,
 				   const Registry & context) const;
 
     /** Serialise the results of this match spy.
@@ -156,9 +161,9 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  can use the default implementation which simply throws
      *  Xapian::UnimplementedError.
      *
-     *  @param s	A string containing the serialised results.
+     *  @param serialised	A string containing the serialised results.
      */
-    virtual void merge_results(const std::string & s);
+    virtual void merge_results(const std::string & serialised);
 
     /** Return a string describing this object.
      *
@@ -207,8 +212,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	    : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */
-    size_t get_total() const {
-	return internal->total;
+    size_t XAPIAN_NOTHROW(get_total() const) {
+	return internal.get() ? internal->total : 0;
     }
 
     /** Get an iterator over the values seen in the slot.
@@ -221,7 +226,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator values_begin() const;
 
     /** End iterator corresponding to values_begin() */
-    TermIterator values_end() const {
+    TermIterator XAPIAN_NOTHROW(values_end() const) {
 	return TermIterator();
     }
 
@@ -238,7 +243,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     TermIterator top_values_begin(size_t maxvalues) const;
 
     /** End iterator corresponding to top_values_begin() */
-    TermIterator top_values_end(size_t) const {
+    TermIterator XAPIAN_NOTHROW(top_values_end(size_t) const) {
 	return TermIterator();
     }
 
@@ -254,10 +259,10 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     virtual MatchSpy * clone() const;
     virtual std::string name() const;
     virtual std::string serialise() const;
-    virtual MatchSpy * unserialise(const std::string & s,
+    virtual MatchSpy * unserialise(const std::string & serialised,
 				   const Registry & context) const;
     virtual std::string serialise_results() const;
-    virtual void merge_results(const std::string & s);
+    virtual void merge_results(const std::string & serialised);
     virtual std::string get_description() const;
 };
 

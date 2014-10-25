@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright 2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -27,6 +27,7 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 using namespace std;
 
@@ -57,7 +58,9 @@ ValueRangePostList::get_termfreq_est_using_stats(
     LOGCALL(MATCH, TermFreqs, "ValueRangePostList::get_termfreq_est_using_stats", stats);
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end?
-    RETURN(TermFreqs(stats.collection_size / 2, stats.rset_size / 2));
+    RETURN(TermFreqs(stats.collection_size / 2,
+		     stats.rset_size / 2,
+		     stats.total_term_count / 2));
 }
 
 Xapian::doccount
@@ -90,6 +93,13 @@ ValueRangePostList::get_weight() const
 
 Xapian::termcount
 ValueRangePostList::get_doclength() const
+{
+    Assert(db);
+    return 0;
+}
+
+Xapian::termcount
+ValueRangePostList::get_unique_terms() const
 {
     Assert(db);
     return 0;
@@ -183,9 +193,9 @@ ValueRangePostList::get_description() const
     string desc = "ValueRangePostList(";
     desc += str(slot);
     desc += ", ";
-    desc += begin;
+    description_append(desc, begin);
     desc += ", ";
-    desc += end;
+    description_append(desc, end);
     desc += ")";
     return desc;
 }

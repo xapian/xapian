@@ -1,7 +1,7 @@
 /** @file remotesubmatch.h
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006,2007,2009,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2011,2014 Olly Betts
  * Copyright (C) 2007,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -66,15 +66,13 @@ class RemoteSubMatch : public SubMatch {
     void start_match(Xapian::doccount first,
 		     Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     const Xapian::Weight::Internal & total_stats);
+		     Xapian::Weight::Internal & total_stats);
 
-    /// Get PostList and term info.
-    PostList * get_postlist_and_term_info(MultiMatch *matcher,
-	std::map<std::string,
-		 Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts,
-	Xapian::termcount * total_subqs_ptr);
+    /// Get PostList.
+    PostList * get_postlist(MultiMatch * matcher,
+			    Xapian::termcount * total_subqs_ptr);
 
-    /// Get percentage factor - only valid after get_postlist_and_term_info().
+    /// Get percentage factor - only valid after get_postlist().
     double get_percent_factor() const { return percent_factor; }
 
     /// Short-cut for single remote match.

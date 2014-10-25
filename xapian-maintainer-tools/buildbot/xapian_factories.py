@@ -1,70 +1,123 @@
 # -*- python -*-
 # ex: set syntax=python:
 
-from buildbot.process import step, factory
+from buildbot.process import factory
+from buildbot.steps import source, shell, slave
+from datetime import date
 
-from tarsource import Tar
+xapian_config_arg = 'XAPIAN_CONFIG=../xapian-core/xapian-config'
 
-class Bootstrap(step.ShellCommand):
-    name = "bootstrap"
-    haltOnFailure = 1
-    description = ["bootstrapping"]
-    descriptionDone = ["bootstrap"]
-    command = ["./bootstrap"]
+def Bootstrap():
+    return shell.ShellCommand(
+        name = "bootstrap",
+        haltOnFailure = 1,
+        description = ["bootstrapping"],
+        descriptionDone = ["bootstrap"],
+        command = ["./bootstrap"],
+    )
 
-class CleanInstall(step.ShellCommand):
-    name = "cleaninstall"
-    haltOnFailure = 1
-    description = ["cleaninstall"]
-    descriptionDone = ["cleaninstall"]
-    command = ['rm', '-rf', 'install']
+def QuietenLibtool(libtool_files):
+    # Need -e after -i for BSD sed.
+    cmd = ["sed", "-i", "-e", r"s/\<func_warning\>.*-no-\(install.*is ignored\|fast-install.*instead\)/# &/"]
+    cmd.extend(libtool_files)
+    # Ignore failure - sed doesn't support -i on all platforms, but this
+    # workaround is only needed on OS X and mingw, and the command works
+    # on both of those.
+    return shell.ShellCommand(
+        command = cmd,
+        flunkOnFailure=False
+    )
 
-class Install(step.ShellCommand):
-    name = "install"
-    haltOnFailure = 1
-    description = ["install"]
-    descriptionDone = ["install"]
-    command = ['make', 'install']
+def CleanInstall():
+    return shell.ShellCommand(
+        name = "cleaninstall",
+        haltOnFailure = 1,
+        description = ["cleaninstall"],
+        descriptionDone = ["cleaninstall"],
+        command = ['rm', '-rf', 'install'],
+    )
 
-class MakeWritable(step.ShellCommand):
-    """Step which ensures that the permissions are writable on all
+def Install():
+    return shell.ShellCommand(
+        name = "install",
+        haltOnFailure = 1,
+        description = ["install"],
+        descriptionDone = ["install"],
+        command = ['make', 'install'],
+    )
+
+def MakeWritable():
+    """
+    Step which ensures that the permissions are writable on all
     subdirectories.
     """
-    name = "make writable"
-    haltOnFailure = 1
-    description = ["making writable"]
-    descriptionDone = ["made writable"]
-    command = ["chmod", "-R", "+w", "."]
+    return shell.ShellCommand(
+        name = "make writable",
+        haltOnFailure = 1,
+        description = ["making writable"],
+        descriptionDone = ["made writable"],
+        command = ["chmod", "-R", "+w", "."],
+    )
 
-def gen_svn_updated_factory(baseURL):
+def core_factory(baseURL, usedocs=False, configure=None, audit=False,
+                 clean=False, nocheck = False, configure_opts=None):
+    f = factory.BuildFactory()
+    mode = "update"
+    if clean:
+        #f.addStep(MakeWritable, workdir='.')
+        f.addStep(shell.ShellCommand(command = ["chmod", "-R", "+w", "."], workdir='.'))
+        mode = "clobber"
+    f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode=mode))
+    if audit:
+        f.addStep(shell.ShellCommand(command = ["python", 'audit.py'], workdir='build/xapian-maintainer-tools'))
+        f.addStep(shell.ShellCommand(command = ["chmod", '644', 'copyright.csv', 'fixmes.csv'], workdir='build/xapian-maintainer-tools'))
+        f.addStep(shell.ShellCommand(command = ["mv", 'copyright.csv', 'fixmes.csv', '/var/www/'], workdir='build/xapian-maintainer-tools'))
+
+    f.addStep(Bootstrap())
+    if configure:
+        f.addStep(shell.Configure(command=configure))
+    else:
+        if configure_opts is None:
+            configure_opts = []
+        if not usedocs:
+            configure_opts.append("--disable-documentation")
+        if configure_opts:
+            f.addStep(shell.Configure(command=["sh", "configure"] + configure_opts))
+        else:
+            f.addStep(shell.Configure())
+
+    f.addStep(QuietenLibtool([
+        'xapian-core/libtool',
+        'xapian-applications/omega/libtool',
+        'xapian-bindings/libtool'
+        ]))
+    f.addStep(shell.Compile())
+    if not nocheck:
+        f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    return f
+
+def gen_svn_updated_factory(baseURL, usedocs=False, clean=False):
     """
     Make a factory for doing HEAD build from SVN, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
-    f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure)
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    return f
+    return core_factory(baseURL=baseURL, usedocs=usedocs, clean=clean)
 
-def gen_svn_updated_factory2(baseURL):
+def gen_svn_updated_factory_llvm(baseURL):
+    """
+    Make a factory for doing HEAD build from SVN, but without cleaning
+    first.  This build is intended to catch commonly made mistakes quickly.
+    """
+    return core_factory(baseURL=baseURL, configure_opts=["CXX=/Developer/usr/llvm-gcc-4.2/bin/llvm-g++-4.2", "CC=/Developer/usr/llvm-gcc-4.2/bin/llvm-gcc-4.2"])
+
+def gen_svn_updated_factory2(baseURL, configure_opts=[]):
     """
     Make a factory for doing HEAD build from SVN, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     This factory also runs audit.py and publishes the result.
     """
-    f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(step.ShellCommand, command = ["python", 'audit.py'], workdir='build/xapian-maintainer-tools')
-    f.addStep(step.ShellCommand, command = ["mv", 'copyright.csv', 'fixmes.csv', '/home/xapian-buildbot/pub/http/'], workdir='build/xapian-maintainer-tools')
-    f.addStep(step.ShellCommand, command = ["chmod", '644', '/home/xapian-buildbot/pub/http/fixmes.csv', '/home/xapian-buildbot/pub/http/copyright.csv'])
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure)
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    return f
+    return core_factory(baseURL=baseURL, usedocs=False, audit=True,
+                        configure_opts=configure_opts)
 
 def gen_svn_updated_factory3(baseURL):
     """
@@ -73,88 +126,114 @@ def gen_svn_updated_factory3(baseURL):
     This build runs with --disable-documentation, so the documentation building
     tools aren't required.
     """
-    f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure, command=("sh", "configure",
-                                       "--disable-documentation",))
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    return f
-
+    return core_factory(baseURL=baseURL, usedocs=False)
 
 def gen_svn_gccsnapshot_updated_factory(baseURL):
     """
     Make a factory for doing HEAD build from SVN, but without cleaning
     first, using gcc snapshot.  Also uses compiles with logging and assertions.
     """
-    f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure,
-              command=("sh", "configure", "--enable-assertions",
-                       "--enable-log", "CXX=/usr/lib/gcc-snapshot/bin/g++",
-                       "CC=/usr/lib/gcc-snapshot/bin/gcc",
-                      ))
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    return f
+    return core_factory(baseURL=baseURL,
+                        configure_opts=["--enable-assertions", "--enable-log", "CXX=/usr/lib/gcc-snapshot/bin/g++", "CC=/usr/lib/gcc-snapshot/bin/gcc",
+        ])
 
-def gen_svn_debug_updated_factory(baseURL, *opts):
+def gen_svn_debug_updated_factory(baseURL, opts, nocheck=False):
     """
     Make a factory for doing a debug HEAD build from SVN, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
     f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure, command=("sh", "configure", ) + opts)
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    f.addStep(source.SVN(baseURL=baseURL,
+                         defaultBranch='trunk',
+                         mode="update"))
+    f.addStep(Bootstrap())
+    opts.append("--disable-documentation")
+    f.addStep(shell.Configure(command = ["sh", "configure", ] + opts))
+    f.addStep(QuietenLibtool([
+        'xapian-core/libtool',
+        'xapian-applications/omega/libtool',
+        'xapian-bindings/libtool'
+        ]))
+    f.addStep(shell.Compile())
+    if not nocheck:
+        f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     return f
 
-def gen_tarball_updated_factory(rooturl):
+def gen_tarball_updated_factory(rooturl, nocheck=False, configure_opts=[]):
     """
     Make a factory for doing builds from tarballs.
     """
+    configure_cmd = ["sh", "configure", ] + configure_opts
     f = factory.BuildFactory()
-    f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
-              'http://svn.xapian.org/*checkout*/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True)
-    f.addStep(step.ShellCommand, command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True)
-    f.addStep(step.Configure, workdir='build/xapian-core')
-    f.addStep(step.Compile, workdir='build/xapian-core')
-    f.addStep(step.Test, workdir='build/xapian-core', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    f.addStep(step.Configure, workdir='build/xapian-omega', command=("python", "runconfigure.py"))
-    f.addStep(step.Compile, workdir='build/xapian-omega')
-    f.addStep(step.Test, workdir='build/xapian-omega', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    f.addStep(step.Configure, workdir='build/xapian-bindings', command=("python", "runconfigure.py"))
-    f.addStep(step.Compile, workdir='build/xapian-bindings')
-    f.addStep(step.Test, workdir='build/xapian-bindings', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    f.addStep(shell.ShellCommand(command = ["python", "-c", "try: import urllib2 as u\nexcept: import urllib.request as u\nopen('get_tarballs.py', 'wb').write(u.urlopen('%s').read())" %
+              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True))
+    f.addStep(shell.ShellCommand(command = ["python", 'get_tarballs.py', rooturl], workdir='.', haltOnFailure=True))
+    f.addStep(shell.Configure(workdir='build/xapian-core', command=configure_cmd))
+    f.addStep(QuietenLibtool(['xapian-core/libtool']))
+    f.addStep(shell.Compile(workdir='build/xapian-core'))
+    if not nocheck:
+        f.addStep(shell.Test(workdir='build/xapian-core', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    f.addStep(shell.Configure(workdir='build/xapian-omega', command = ["./configure", xapian_config_arg] + configure_opts))
+    f.addStep(QuietenLibtool(['xapian-omega/libtool']))
+    f.addStep(shell.Compile(workdir='build/xapian-omega'))
+    if not nocheck:
+        f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
+    f.addStep(QuietenLibtool(['xapian-bindings/libtool']))
+    f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
+    if not nocheck:
+        f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    # If everything passed, there's not much point keeping the build - we'd
+    # delete the old build tree and download new tarballs next time anyway.
+    f.addStep(slave.RemoveDirectory('build'))
     return f
 
-def gen_svn_updated_valgrind_factory(baseURL):
+def gen_svn_updated_valgrind_factory(baseURL, configure_opts=[]):
     """
     Factory for doing HEAD build from SVN, without cleaning first, and using
     valgrind to check.  This one is much more expensive, so should be run with
     a higher stable time.
     """
     f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
-    f.addStep(Bootstrap)
-    f.addStep(step.Configure)
-    f.addStep(step.Compile)
+    f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode="update"))
+    f.addStep(Bootstrap())
+    configure_opts.append("--disable-documentation")
+    f.addStep(shell.Configure(command = ["sh", "configure", "CXXFLAGS=-O0 -g"] + configure_opts))
+    f.addStep(QuietenLibtool([
+        'xapian-core/libtool',
+        'xapian-applications/omega/libtool',
+        'xapian-bindings/libtool'
+        ]))
+    f.addStep(shell.Compile())
 
-    for target in ("check-none", "check-inmemory", "check-remoteprog",
-                   "check-flint"):
-        f.addStep(step.Test, name=target, command=("make", target, "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=/home/olly/install/bin/valgrind"), workdir='build/xapian-core')
-
-    # Currently, valgrind incorrectly reports leaked memory for the remotetcp
-    # backend, so check that one without using valgrind.
-    f.addStep(step.Test, name="check-remotetcp", command=("make", "check-remotetcp", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=/home/olly/install/bin/valgrind"), workdir='build/xapian-core')
+    f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain"], workdir='build/xapian-core'))
 
     return f
 
-def gen_svn_clean_factory(baseURL):
+def gen_svn_updated_lcov_factory(baseURL, configure_opts=[]):
+    """
+    Factory for doing HEAD build from SVN, without cleaning first, and using
+    lcov to generate a coverage report.  This one is much more expensive, so
+    should be run with a higher stable time.
+    """
+    f = factory.BuildFactory()
+    f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode="update"))
+    f.addStep(Bootstrap())
+    f.addStep(shell.Configure(command = ["sh", "configure", "--enable-maintainer-mode", "--disable-shared", "--disable-documentation", "CXXFLAGS=-O0 --coverage", "VALGRIND=", "CCACHE_DISABLE=1"] + configure_opts, workdir="build/xapian-core"))
+    # We only configure xapian-core for this build.
+    f.addStep(QuietenLibtool([
+        'xapian-core/libtool',
+        ]))
+    f.addStep(shell.Compile(workdir="build/xapian-core"))
+    f.addStep(shell.ShellCommand(command = ["make", "coverage-check", "GENHTML_ARGS=--html-gzip"], workdir="build/xapian-core", haltOnFailure=True))
+    f.addStep(shell.ShellCommand(command = ["chmod", "-R", "a+rX", "lcov"], workdir="build/xapian-core", haltOnFailure=True))
+    f.addStep(shell.ShellCommand(command = 'NOW=`date -u +%Y-%m-%d`; cp -a lcov/. /var/www/"$NOW" && ln -sfT "$NOW" /var/www/latest', workdir="build/xapian-core", haltOnFailure=True))
+
+    return f
+
+#### FIXME: factories beyond here not updated
+
+def gen_svn_clean_dist_factory(baseURL):
     """
     Factory for doing HEAD build from a clean SVN checkout.  This build also
     performs a "make distcheck", so should catch problems with files which have
@@ -163,24 +242,29 @@ def gen_svn_clean_factory(baseURL):
     """
     f = factory.BuildFactory()
     f.addStep(MakeWritable, workdir='.')
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="clobber")
-    f.addStep(Bootstrap)
+    f.addStep(source.SVN, baseURL=baseURL, defaultBranch='trunk', mode="clobber")
+    f.addStep(Bootstrap())
     f.addStep(step.Configure, command = ["xapian-maintainer-tools/buildbot/scripts/configure_with_prefix.sh"])
+    f.addStep(QuietenLibtool([
+        'xapian-core/libtool',
+        'xapian-applications/omega/libtool',
+        'xapian-bindings/libtool'
+        ]))
     extraargs = (
         "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="
     )
-    f.addStep(step.Compile, command=("make",) + extraargs)
+    f.addStep(step.Compile, command = ["make",] + extraargs)
     # Don't bother running check as a separate step - all the checks will be
     # done by distcheck, anyway.  (Running it as a separate step _does_ check
     # that the tests work in a non-VPATH build, but this is tested by other
     # factories, anyway.)
-    #f.addStep(step.Test, name="check", command=("make", "check") + extraargs)
-    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-core')
-    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-applications/omega')
+    #f.addStep(step.Test, name="check", command = ["make", "check"] + extraargs)
+    f.addStep(step.Test, name="distcheck", command = ["make", "distcheck"] + extraargs, workdir='build/xapian-core')
+    f.addStep(step.Test, name="distcheck", command = ["make", "distcheck"] + extraargs, workdir='build/xapian-applications/omega')
 
     # Have to install the core for distcheck to pass on the bindings.
-    f.addStep(step.Test, name="install", command=("make", "install") + extraargs, workdir='build/xapian-core')
-    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-bindings')
+    f.addStep(step.Test, name="install", command = ["make", "install"] + extraargs, workdir='build/xapian-core')
+    f.addStep(step.Test, name="distcheck", command = ["make", "distcheck"] + extraargs, workdir='build/xapian-bindings')
     return f
 
 def gen_svn_updated_win_factory(baseURL):
@@ -205,10 +289,10 @@ def gen_tarball_updated_win_factory(rooturl):
 
     """
     f = factory.BuildFactory()
-    f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
-              'http://svn.xapian.org/*checkout*/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True)
-    f.addStep(step.ShellCommand, command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True)
-    f.addStep(step.Compile, workdir='build/xapian-core/win32', command=("compile_with_vc7.bat"))
+    f.addStep(shell.ShellCommand(command = ["python", "-c", "try: import urllib2 as u\nexcept: import urllib.request as u\nopen('get_tarballs.py', 'wb').write(u.urlopen('%s').read())" %
+              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True))
+    f.addStep(shell.ShellCommand, command = ["python", 'get_tarballs.py', rooturl], workdir='.', haltOnFailure=True)
+    f.addStep(shell.Compile, workdir='build/xapian-core/win32', command = ["compile_with_vc7.bat"])
     return f
 
 all = []

@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -22,7 +22,7 @@ use_ok("SymbolTest");
 eval { SymbolTest::throw_from_libxapian() };
 like( $@, qr/DatabaseOpeningError caught in SymbolTest/, 'Correct exception caught');
 
-use Search::Xapian qw( :all );
+use Xapian qw( :all );
 
 eval { SymbolTest::throw_from_libxapian() };
 like( $@, qr/DatabaseOpeningError caught in SymbolTest/, 'Correct exception caught');

@@ -10,7 +10,7 @@
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
 ** Synced with upstream:
-** http://www.sqlite.org/src/artifact/949328f67cac94969d3112b105b8457edf27f44e
+** http://www.sqlite.org/src/artifact/796930d5fc2036c7
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -21,7 +21,7 @@
 
 #ifndef __WIN32__
 #   if defined(_WIN32) || defined(WIN32)
-#	define __WIN32__
+#       define __WIN32__
 #   endif
 #endif
 
@@ -123,7 +123,6 @@ void ResortStates(struct lemon *);
 void  SetSize(int);             /* All sets will be of size N */
 char *SetNew(void);               /* A new set for element 0..N */
 void  SetFree(char*);             /* Deallocate a set */
-
 int SetAdd(char*,int);            /* Add element to a set */
 int SetUnion(char *,char *);    /* A <- A U B, thru element N */
 #define SetFind(X,Y) (X[Y])       /* True if Y is in set X */
@@ -315,7 +314,7 @@ struct lemon {
 /*
 ** Code for processing tables in the LEMON parser generator.
 */
-/* Routines for handling a strings */
+/* Routines for handling strings */
 
 const char *Strsafe(const char *);
 
@@ -662,7 +661,7 @@ void FindRulePrecedences(struct lemon *xp)
           }
         }else if( sp->prec>=0 ){
           rp->precsym = rp->rhs[i];
-	}
+        }
       }
     }
   }
@@ -693,8 +692,9 @@ void FindFirstSets(struct lemon *lemp)
     for(rp=lemp->rule; rp; rp=rp->next){
       if( rp->lhs->lambda ) continue;
       for(i=0; i<rp->nrhs; i++){
-         struct symbol *sp = rp->rhs[i];
-         if( sp->type!=TERMINAL || sp->lambda==LEMON_FALSE ) break;
+        struct symbol *sp = rp->rhs[i];
+        assert( sp->type==NONTERMINAL || sp->lambda==LEMON_FALSE );
+        if( sp->lambda==LEMON_FALSE ) break;
       }
       if( i==rp->nrhs ){
         rp->lhs->lambda = LEMON_TRUE;
@@ -719,12 +719,12 @@ void FindFirstSets(struct lemon *lemp)
             progress += SetAdd(s1->firstset,s2->subsym[j]->index);
           }
           break;
-	}else if( s1==s2 ){
+        }else if( s1==s2 ){
           if( s1->lambda==LEMON_FALSE ) break;
-	}else{
+        }else{
           progress += SetUnion(s1->firstset,s2->firstset);
           if( s2->lambda==LEMON_FALSE ) break;
-	}
+        }
       }
     }
   }while( progress );
@@ -864,7 +864,7 @@ PRIVATE void buildshifts(struct lemon *lemp, struct state *stp)
   struct symbol *bsp;  /* Symbol following the dot in configuration "bcfp" */
   struct state *newstp; /* A pointer to a successor state */
 
-  /* Each configuration becomes complete after it contibutes to a successor
+  /* Each configuration becomes complete after it contributes to a successor
   ** state.  Initially, all configurations are incomplete */
   for(cfp=stp->cfp; cfp; cfp=cfp->next) cfp->status = INCOMPLETE;
 
@@ -967,15 +967,15 @@ void FindFollowSets(struct lemon *lemp)
           if( change ){
             plp->cfp->status = INCOMPLETE;
             progress = 1;
-	  }
-	}
+          }
+        }
         cfp->status = COMPLETE;
       }
     }
   }while( progress );
 }
 
-static int resolve_conflict(struct action *,struct action *, struct symbol *);
+static int resolve_conflict(struct action *,struct action *);
 
 /* Compute the reduce actions, and resolve conflicts.
 */
@@ -1001,7 +1001,7 @@ void FindActions(struct lemon *lemp)
             ** rule "cfp->rp" if the lookahead symbol is "lemp->symbols[j]" */
             Action_add(&stp->ap,REDUCE,lemp->symbols[j],(char *)cfp->rp);
           }
-	}
+        }
       }
     }
   }
@@ -1029,7 +1029,7 @@ void FindActions(struct lemon *lemp)
       for(nap=ap->next; nap && nap->sp==ap->sp; nap=nap->next){
          /* The two actions "ap" and "nap" have the same lookahead.
          ** Figure out which one should be used */
-         lemp->nconflict += resolve_conflict(ap,nap,lemp->errsym);
+         lemp->nconflict += resolve_conflict(ap,nap);
       }
     }
   }
@@ -1064,8 +1064,7 @@ void FindActions(struct lemon *lemp)
 */
 static int resolve_conflict(
   struct action *apx,
-  struct action *apy,
-  struct symbol *errsym   /* The error symbol (if defined.  NULL otherwise) */
+  struct action *apy
 ){
   struct symbol *spx, *spy;
   int errcnt = 0;
@@ -1271,11 +1270,11 @@ void Configlist_closure(struct lemon *lemp)
               SetAdd(newcfp->fws, xsp->subsym[k]->index);
             }
             break;
-	  }else{
+          }else{
             SetUnion(newcfp->fws,xsp->firstset);
             if( xsp->lambda==LEMON_FALSE ) break;
-	  }
-	}
+          }
+        }
         if( i==rp->nrhs ) Plink_add(&cfp->fplp,newcfp);
       }
     }
@@ -1586,7 +1585,7 @@ int main(int argc, char **argv)
 /*
 ** Return a pointer to the next structure in the linked list.
 */
-#define NEXT(A) (*(char**)(((unsigned long)A)+offset))
+#define NEXT(A) (*(char**)(((char*)A)+offset))
 
 /*
 ** Inputs:
@@ -1649,7 +1648,7 @@ static char *merge(
 **
 ** Return Value:
 **   A pointer to the head of a sorted list containing the elements
-**   orginally in list.
+**   originally in list.
 **
 ** Side effects:
 **   The "next" pointers for elements in list are changed.
@@ -2036,7 +2035,7 @@ static void parseonetoken(struct pstate *psp)
 "There is no prior rule upon which to attach the code "
 "fragment which begins on this line.");
           psp->errorcnt++;
-	}else if( psp->prevrule->code!=0 ){
+        }else if( psp->prevrule->code!=0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
 "Code fragment beginning on this line is not the first "
 "to follow the previous rule.");
@@ -2044,7 +2043,7 @@ static void parseonetoken(struct pstate *psp)
         }else{
           psp->prevrule->line = psp->tokenlineno;
           psp->prevrule->code = &x[1];
-	}
+        }
       }else if( x[0]=='[' ){
         psp->state = PRECEDENCE_MARK_1;
       }else{
@@ -2137,7 +2136,7 @@ static void parseonetoken(struct pstate *psp)
             "Can't allocate enough memory for this rule.");
           psp->errorcnt++;
           psp->prevrule = 0;
-	}else{
+        }else{
           int i;
           rp->ruleline = psp->tokenlineno;
           rp->rhs = (struct symbol**)&rp[1];
@@ -2145,7 +2144,7 @@ static void parseonetoken(struct pstate *psp)
           for(i=0; i<psp->nrhs; i++){
             rp->rhs[i] = psp->rhs[i];
             rp->rhsalias[i] = psp->alias[i];
-	  }
+          }
           rp->lhs = psp->lhs;
           rp->lhsalias = psp->lhsalias;
           rp->nrhs = psp->nrhs;
@@ -2157,12 +2156,12 @@ static void parseonetoken(struct pstate *psp)
           rp->next = 0;
           if( psp->firstrule==0 ){
             psp->firstrule = psp->lastrule = rp;
-	  }else{
+          }else{
             psp->lastrule->next = rp;
             psp->lastrule = rp;
-	  }
+          }
           psp->prevrule = rp;
-	}
+        }
         psp->state = WAITING_FOR_DECL_OR_RULE;
       }else if( isalpha(x[0]) ){
         if( psp->nrhs>=MAXRHS ){
@@ -2171,11 +2170,11 @@ static void parseonetoken(struct pstate *psp)
             x);
           psp->errorcnt++;
           psp->state = RESYNC_AFTER_RULE_ERROR;
-	}else{
+        }else{
           psp->rhs[psp->nrhs] = Symbol_new(x);
           psp->alias[psp->nrhs] = 0;
           psp->nrhs++;
-	}
+        }
       }else if( (x[0]=='|' || x[0]=='/') && psp->nrhs>0 ){
         struct symbol *msp = psp->rhs[psp->nrhs-1];
         if( msp->type!=MULTITERMINAL ){
@@ -2239,24 +2238,24 @@ static void parseonetoken(struct pstate *psp)
         if( strcmp(x,"name")==0 ){
           psp->declargslot = &(psp->gp->name);
           psp->insertLineMacro = 0;
-	}else if( strcmp(x,"include")==0 ){
+        }else if( strcmp(x,"include")==0 ){
           psp->declargslot = &(psp->gp->include);
-	}else if( strcmp(x,"code")==0 ){
+        }else if( strcmp(x,"code")==0 ){
           psp->declargslot = &(psp->gp->extracode);
-	}else if( strcmp(x,"token_destructor")==0 ){
+        }else if( strcmp(x,"token_destructor")==0 ){
           psp->declargslot = &psp->gp->tokendest;
-	}else if( strcmp(x,"default_destructor")==0 ){
+        }else if( strcmp(x,"default_destructor")==0 ){
           psp->declargslot = &psp->gp->vardest;
-	}else if( strcmp(x,"token_prefix")==0 ){
+        }else if( strcmp(x,"token_prefix")==0 ){
           psp->declargslot = &psp->gp->tokenprefix;
           psp->insertLineMacro = 0;
-	}else if( strcmp(x,"syntax_error")==0 ){
+        }else if( strcmp(x,"syntax_error")==0 ){
           psp->declargslot = &(psp->gp->error);
-	}else if( strcmp(x,"parse_accept")==0 ){
+        }else if( strcmp(x,"parse_accept")==0 ){
           psp->declargslot = &(psp->gp->accept);
-	}else if( strcmp(x,"parse_failure")==0 ){
+        }else if( strcmp(x,"parse_failure")==0 ){
           psp->declargslot = &(psp->gp->failure);
-	}else if( strcmp(x,"stack_overflow")==0 ){
+        }else if( strcmp(x,"stack_overflow")==0 ){
           psp->declargslot = &(psp->gp->overflow);
         }else if( strcmp(x,"extra_argument")==0 ){
           psp->declargslot = &(psp->gp->arg);
@@ -2285,9 +2284,9 @@ static void parseonetoken(struct pstate *psp)
           psp->preccounter++;
           psp->declassoc = NONE;
           psp->state = WAITING_FOR_PRECEDENCE_SYMBOL;
-	}else if( strcmp(x,"destructor")==0 ){
+        }else if( strcmp(x,"destructor")==0 ){
           psp->state = WAITING_FOR_DESTRUCTOR_SYMBOL;
-	}else if( strcmp(x,"type")==0 ){
+        }else if( strcmp(x,"type")==0 ){
           psp->state = WAITING_FOR_DATATYPE_SYMBOL;
         }else if( strcmp(x,"fallback")==0 ){
           psp->fallback = 0;
@@ -2299,7 +2298,7 @@ static void parseonetoken(struct pstate *psp)
             "Unknown declaration keyword: \"%%%s\".",x);
           psp->errorcnt++;
           psp->state = RESYNC_AFTER_DECL_ERROR;
-	}
+        }
       }else{
         ErrorMsg(psp->filename,psp->tokenlineno,
           "Illegal declaration keyword: \"%s\".",x);
@@ -2354,10 +2353,10 @@ static void parseonetoken(struct pstate *psp)
           ErrorMsg(psp->filename,psp->tokenlineno,
             "Symbol \"%s\" has already be given a precedence.",x);
           psp->errorcnt++;
-	}else{
+        }else{
           sp->prec = psp->preccounter;
           sp->assoc = psp->declassoc;
-	}
+        }
       }else{
         ErrorMsg(psp->filename,psp->tokenlineno,
           "Can't assign a precedence to \"%s\".",x);
@@ -2627,12 +2626,12 @@ void Parse(struct lemon *gp)
             if( c=='\n' ) lineno++;
             prevc = c;
             cp++;
-	  }
-	}else if( c=='/' && cp[1]=='/' ){  /* Skip C++ style comments too */
+          }
+        }else if( c=='/' && cp[1]=='/' ){  /* Skip C++ style comments too */
           cp = &cp[2];
           while( (c= *cp)!=0 && c!='\n' ) cp++;
           if( c ) lineno++;
-	}else if( c=='\'' || c=='\"' ){    /* String a character literals */
+        }else if( c=='\'' || c=='\"' ){    /* String a character literals */
           int startchar, prevc;
           startchar = c;
           prevc = 0;
@@ -2640,8 +2639,8 @@ void Parse(struct lemon *gp)
             if( c=='\n' ) lineno++;
             if( prevc=='\\' ) prevc = 0;
             else              prevc = c;
-	  }
-	}
+          }
+        }
       }
       if( c==0 ){
         ErrorMsg(ps.filename,ps.tokenlineno,
@@ -3435,7 +3434,7 @@ void print_stack_union(
   int maxdtlength;          /* Maximum length of any ".datatype" field. */
   char *stddt;              /* Standardized name for a datatype */
   int i,j;                  /* Loop counters */
-  int hash;                 /* For hashing the name of a type */
+  unsigned hash;            /* For hashing the name of a type */
   const char *name;         /* Name of the parser */
 
   /* Allocate and initialize types[] and allocate stddt[] */
@@ -3502,7 +3501,7 @@ void print_stack_union(
         break;
       }
       hash++;
-      if( hash>=arraysize ) hash = 0;
+      if( hash>=(unsigned)arraysize ) hash = 0;
     }
     if( types[hash]==0 ){
       sp->dtnum = hash + 1;
@@ -3997,7 +3996,7 @@ void ReportTable(
   /* Generate the table of rule information 
   **
   ** Note: This code depends on the fact that rules are number
-  ** sequentually beginning with 0.
+  ** sequentially beginning with 0.
   */
   for(rp=lemp->rule; rp; rp=rp->next){
     fprintf(out,"  { %d, %d },\n",rp->lhs->index,rp->nrhs); lineno++;
@@ -4053,7 +4052,7 @@ void ReportTable(
   tplt_print(out,lemp,lemp->accept,&lineno);
   tplt_xfer(lemp->name,in,out,&lineno);
 
-  /* Append any addition code the user desires */
+  /* Append any additional code the user desires */
   tplt_print(out,lemp,lemp->extracode,&lineno);
 
   fclose(in);
@@ -4303,10 +4302,10 @@ int SetUnion(char *s1, char *s2)
 ** Code for processing tables in the LEMON parser generator.
 */
 
-PRIVATE int strhash(const char *x)
+PRIVATE unsigned strhash(const char *x)
 {
-  int h = 0;
-  while( *x) h = h*13 + *(x++);
+  unsigned h = 0;
+  while( *x ) h = h*13 + *(x++);
   return h;
 }
 
@@ -4378,8 +4377,8 @@ void Strsafe_init(){
 int Strsafe_insert(const char *data)
 {
   x1node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x1a==0 ) return 0;
   ph = strhash(data);
@@ -4433,7 +4432,7 @@ int Strsafe_insert(const char *data)
 ** if no such key. */
 const char *Strsafe_find(const char *key)
 {
-  int h;
+  unsigned h;
   x1node *np;
 
   if( x1a==0 ) return 0;
@@ -4544,8 +4543,8 @@ void Symbol_init(){
 int Symbol_insert(struct symbol *data, const char *key)
 {
   x2node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x2a==0 ) return 0;
   ph = strhash(key);
@@ -4601,7 +4600,7 @@ int Symbol_insert(struct symbol *data, const char *key)
 ** if no such key. */
 struct symbol *Symbol_find(const char *key)
 {
-  int h;
+  unsigned h;
   x2node *np;
 
   if( x2a==0 ) return 0;
@@ -4675,9 +4674,9 @@ PRIVATE int statecmp(struct config *a, struct config *b)
 }
 
 /* Hash a state */
-PRIVATE int statehash(struct config *a)
+PRIVATE unsigned statehash(struct config *a)
 {
-  int h=0;
+  unsigned h=0;
   while( a ){
     h = h*571 + a->rp->index*37 + a->dot;
     a = a->bp;
@@ -4743,8 +4742,8 @@ void State_init(){
 int State_insert(struct state *data, struct config *key)
 {
   x3node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x3a==0 ) return 0;
   ph = statehash(key);
@@ -4800,7 +4799,7 @@ int State_insert(struct state *data, struct config *key)
 ** if no such key. */
 struct state *State_find(struct config *key)
 {
-  int h;
+  unsigned h;
   x3node *np;
 
   if( x3a==0 ) return 0;
@@ -4830,9 +4829,9 @@ struct state **State_arrayof()
 }
 
 /* Hash a configuration */
-PRIVATE int confighash(struct config *a)
+PRIVATE unsigned confighash(struct config *a)
 {
-  int h=0;
+  unsigned h=0;
   h = h*571 + a->rp->index*37 + a->dot;
   return h;
 }
@@ -4885,8 +4884,8 @@ void Configtable_init(){
 int Configtable_insert(struct config *data)
 {
   x4node *np;
-  int h;
-  int ph;
+  unsigned h;
+  unsigned ph;
 
   if( x4a==0 ) return 0;
   ph = confighash(data);

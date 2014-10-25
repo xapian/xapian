@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,10 +37,14 @@ using namespace std;
 
 string
 TermFreqs::get_description() const {
-    string desc("TermFreqs(");
+    string desc("TermFreqs(termfreq=");
     desc += str(termfreq);
-    desc += ", ";
+    desc += ", reltermfreq=";
     desc += str(reltermfreq);
+    desc += ", collfreq=";
+    desc += str(collfreq);
+    desc += ", max_part=";
+    desc += str(max_part);
     desc += ")";
     return desc;
 }
@@ -53,6 +57,7 @@ Weight::Internal::operator +=(const Weight::Internal & inc)
     total_length += inc.total_length;
     collection_size += inc.collection_size;
     rset_size += inc.rset_size;
+    total_term_count += inc.total_term_count;
 
     // Add termfreqs and reltermfreqs
     map<string, TermFreqs>::const_iterator i;
@@ -60,17 +65,6 @@ Weight::Internal::operator +=(const Weight::Internal & inc)
 	termfreqs[i->first] += i->second;
     }
     return *this;
-}
-
-Xapian::doccount
-Weight::Internal::get_termfreq(const string & term) const
-{
-    // We pass an empty std::string for term when calculating the extra weight.
-    if (term.empty()) return 0;
-
-    map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
-    Assert(tfreq != termfreqs.end());
-    return tfreq->second.termfreq;
 }
 
 void
@@ -81,10 +75,15 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     collection_size += subdb.get_doccount();
     rset_size += rset.size();
 
+    total_term_count += subdb.get_doccount() * subdb.get_total_length();
     map<string, TermFreqs>::iterator t;
     for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
 	const string & term = t->first;
-	t->second.termfreq += subdb.get_termfreq(term);
+	Xapian::doccount sub_tf;
+	Xapian::termcount sub_cf;
+	subdb.get_freqs(term, &sub_tf, &sub_cf);
+	t->second.termfreq += sub_tf;
+	t->second.collfreq += sub_cf;
     }
 
     const set<Xapian::docid> & items(rset.internal->get_items());
@@ -92,9 +91,9 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     for (d = items.begin(); d != items.end(); ++d) {
 	Xapian::docid did = *d;
 	Assert(did);
-	// The query is likely to far fewer terms than the documents, and we
-	// can skip the document's termlist, so look for each query term in the
-	// document.
+	// The query is likely to contain far fewer terms than the documents,
+	// and we can skip the document's termlist, so look for each query term
+	// in the document.
 	AutoPtr<TermList> tl(subdb.open_term_list(did));
 	for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
 	    const string & term = t->first;
@@ -109,17 +108,6 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
     }
 }
 
-Xapian::doccount
-Weight::Internal::get_reltermfreq(const string & term) const
-{
-    // We pass an empty string for term when calculating the extra weight.
-    if (term.empty()) return 0;
-
-    map<string, TermFreqs>::const_iterator tfreq = termfreqs.find(term);
-    Assert(tfreq != termfreqs.end());
-    return tfreq->second.reltermfreq;
-}
-
 string
 Weight::Internal::get_description() const
 {
@@ -129,7 +117,18 @@ Weight::Internal::get_description() const
     desc += str(collection_size);
     desc += ", rset_size=";
     desc += str(rset_size);
-    desc += ')';
+    desc += ", total_term_count=";
+    desc += str(total_term_count);
+    desc += ", termfreqs={";
+    map<string, TermFreqs>::const_iterator i;
+    for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
+	if (i != termfreqs.begin())
+	    desc += ", ";
+	desc += i->first;
+	desc += " => ";
+	desc += i->second.get_description();
+    }
+    desc += "})";
     return desc;
 }
 

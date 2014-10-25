@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_DOCUMENT_H
 #define XAPIAN_INCLUDED_BRASS_DOCUMENT_H
 
-#include "brass_record.h"
+#include "brass_docdata.h"
 #include "brass_values.h"
 #include "backends/database.h"
 #include "backends/document.h"
@@ -38,7 +38,7 @@ class BrassDocument : public Xapian::Document::Internal {
     const BrassValueManager *value_manager;
 
     /// Used for lazy access to document data.
-    const BrassRecordTable *record_table;
+    const BrassDocDataTable *docdata_table;
 
     /// BrassDatabase::open_document() needs to call our private constructor.
     friend class BrassDatabase;
@@ -47,9 +47,9 @@ class BrassDocument : public Xapian::Document::Internal {
     BrassDocument(Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db,
 		  Xapian::docid did_,
 		  const BrassValueManager *value_manager_,
-		  const BrassRecordTable *record_table_)
+		  const BrassDocDataTable *docdata_table_)
 	: Xapian::Document::Internal(db, did_),
-	  value_manager(value_manager_), record_table(record_table_) { }
+	  value_manager(value_manager_), docdata_table(docdata_table_) { }
 
   public:
     /** Implementation of virtual methods @{ */

@@ -2,14 +2,14 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = $(RUBY) -I.libs -I$(srcdir)
-
 ## Test programs to be run
 TESTS = smoketest.rb
+LOG_COMPILER = $(RUBY)
+AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-EXTRA_DIST = ruby.i extra.i docs/rdocs $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = ruby.i extra.i docs/rdocs docs/index.rst $(TESTS) $(BUILT_SOURCES)
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
@@ -31,20 +31,21 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(RUBY_LIBS)
 
 CLEANFILES =
 if MAINTAINER_MODE
-xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)
-xapian_wrap.stamp:
+stamp = xapian_wrap.stamp
+RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+
+xapian_wrap.cc xapian_wrap.h: $(stamp)
+	$(make_many_locked)
+$(stamp):
 	$(multitarget_begin)
-	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -initname _xapian -ruby \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'ruby.i
-	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
-	mv xapian_wrap_d.tmp xapian_wrap.d
+	    -o xapian_wrap.cc '$(srcdir)/'ruby.i
 	$(multitarget_end)
 
 -include xapian_wrap.d
 
-CLEANFILES += xapian_wrap.stamp
+CLEANFILES += $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
@@ -94,6 +95,10 @@ docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
 	cd docs && $(RDOC) --op rdocs xapian.rb
+
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
 endif
 
 CLEANFILES += docs/xapian.rb

@@ -1,7 +1,7 @@
 /** @file tmpdir.h
  * @brief create a temporary directory securely
  *
- * Copyright (C) 2011 Olly Betts
+ * Copyright (C) 2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,34 @@
  *  @return If successful, path to directory; otherwise empty string.
  */
 const std::string & get_tmpdir();
+
+/** Return temporary filename with specified leaf.
+ *
+ *  The filename will be in a securely created temporary directory.
+ *
+ *  @return If successful, filename with specified leaf; otherwise empty
+ *	    string.
+ */
+inline std::string get_tmpfile(const char * leaf) {
+    std::string f = get_tmpdir();
+    if (!f.empty())
+	f += leaf;
+    return f;
+}
+
+/** Return temporary filename with specified leaf.
+ *
+ *  The filename will be in a securely created temporary directory.
+ *
+ *  @return If successful, filename with specified leaf; otherwise empty
+ *	    string.
+ */
+inline std::string get_tmpfile(const std::string & leaf) {
+    std::string f = get_tmpdir();
+    if (!f.empty())
+	f += leaf;
+    return f;
+}
 
 /** Attempt to remove the directory if we created one.
  *

@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -165,11 +165,7 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 
 	PyList_SET_ITEM(retval, idx++, t);
 
-#if PY_VERSION_HEX >= 0x03000000
-	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
-#else
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
-#endif
 	if (str == 0) {
 	    Py_DECREF(retval);
 	    return NULL;
@@ -326,7 +322,6 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 %typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
     int res = XapianSWIG_anystring_as_ptr(&($input), (std::string**)(0));
     $1 = SWIG_CheckState(res);
-
 }
 
 /* This typemap is only currently needed for returning a value from the
@@ -425,11 +420,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     PyTuple_SET_ITEM(newresult, 0, $result);
     $result = newresult;
 
-%#if PY_VERSION_HEX >= 0x03000000
-    str = PyBytes_FromStringAndSize($1->data(), $1->size());
-%#else
     str = PyString_FromStringAndSize($1->data(), $1->size());
-%#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
@@ -437,11 +428,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     }
     PyTuple_SET_ITEM($result, 1, str);
 
-%#if PY_VERSION_HEX >= 0x03000000
-    str = PyBytes_FromStringAndSize($2->data(), $2->size());
-%#else
     str = PyString_FromStringAndSize($2->data(), $2->size());
-%#endif
     if (str == 0) {
         Py_DECREF($result);
         $result = NULL;
@@ -458,11 +445,7 @@ XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     }
 
     for (size_t i = 0; i != num_tags; ++i) {
-%#if PY_VERSION_HEX >= 0x03000000
-	PyObject * str = PyBytes_FromStringAndSize(tags[i].data(), tags[i].size());
-%#else
 	PyObject * str = PyString_FromStringAndSize(tags[i].data(), tags[i].size());
-%#endif
 	if (str == 0) {
 	    Py_DECREF(result);
 	    return NULL;

@@ -33,6 +33,7 @@ using namespace std;
 // Utility code we use:
 #include "../common/str.cc"
 #include "../common/stringutils.cc"
+#include "../common/log2.h"
 
 // Simpler version of TEST_EXCEPTION macro.
 #define TEST_EXCEPTION(TYPE, CODE) \
@@ -299,6 +300,16 @@ static bool test_serialiselength2()
 }
 #endif
 
+// Test log2() (which might be our replacement version).
+static bool test_log2()
+{
+    TEST_EQUAL(log2(1.0), 0.0);
+    TEST_EQUAL(log2(2.0), 1.0);
+    TEST_EQUAL(log2(1024.0), 10.0);
+    TEST_EQUAL(log2(0.5), -1.0);
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -308,6 +319,7 @@ static const test_desc tests[] = {
     TESTCASE(serialiselength1),
     TESTCASE(serialiselength2),
 #endif
+    TESTCASE(log2),
     END_OF_TESTCASES
 };
 

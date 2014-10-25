@@ -1,7 +1,7 @@
 /** @file valuerangeproc.cc
  * @brief Standard ValueRangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -212,13 +212,12 @@ NumberValueRangeProcessor::operator()(string &begin, string &end)
 	return BAD_VALUENO;
 
     // Parse the numbers to floating point.
-    double beginnum, endnum;
-    const char * startptr;
-    char * endptr;
+    double beginnum;
 
     if (!begin.empty()) {
 	errno = 0;
-	startptr = begin.c_str();
+	const char * startptr = begin.c_str();
+	char * endptr;
 	beginnum = strtod(startptr, &endptr);
 	if (endptr != startptr + begin.size())
 	    // Invalid characters in string
@@ -233,8 +232,9 @@ NumberValueRangeProcessor::operator()(string &begin, string &end)
 
     if (!end.empty()) {
 	errno = 0;
-	startptr = end.c_str();
-	endnum = strtod(startptr, &endptr);
+	const char * startptr = end.c_str();
+	char * endptr;
+	double endnum = strtod(startptr, &endptr);
 	if (endptr != startptr + end.size())
 	    // Invalid characters in string
 	    return Xapian::BAD_VALUENO;

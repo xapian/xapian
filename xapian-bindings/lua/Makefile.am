@@ -2,12 +2,17 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = LUA_CPATH='.libs/?$(LUA_SO)' $(LUA)
-
 ## Test programs to be run
 TESTS = smoketest.lua
+AM_TESTS_ENVIRONMENT = \
+	LUA_CPATH='.libs/?$(LUA_SO)' ;\
+	export LUA_CPATH ;
+LOG_COMPILER = $(LUA)
 
-EXTRA_DIST = lua.i util.i except.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = lua.i util.i except.i \
+	generate-lua-exceptions \
+	docs/index.rst \
+	$(TESTS) $(BUILT_SOURCES)
 
 lualibdir = @LUA_LIB@
 
@@ -37,11 +42,12 @@ BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-lua-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-lua-exceptions
 
+RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+
 xapian_wrap.cc: except.i
-	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -lua \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'lua.i
-	mv xapian_wrap_d.tmp xapian_wrap.d
+	    -o xapian_wrap.cc '$(srcdir)/'lua.i
 
 -include xapian_wrap.d
 endif
@@ -56,3 +62,9 @@ dist_exampledata_DATA = \
 
 docdatadir = $(docdir)/lua
 dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif

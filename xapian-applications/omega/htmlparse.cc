@@ -164,7 +164,7 @@ HtmlParser::decode_entities(string &s)
 }
 
 void
-HtmlParser::parse_html(const string &body)
+HtmlParser::parse(const string &body)
 {
     in_script = false;
 
@@ -173,7 +173,7 @@ HtmlParser::parse_html(const string &body)
 
     while (true) {
 	// Skip through until we find an HTML tag, a comment, or the end of
-	// document.  Ignore isolated occurrences of `<' which don't start
+	// document.  Ignore isolated occurrences of '<' which don't start
 	// a tag or comment.
 	string::const_iterator p = start;
 	while (true) {

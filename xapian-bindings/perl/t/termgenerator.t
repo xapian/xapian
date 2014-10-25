@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -10,7 +10,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 28 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
 #########################
@@ -20,8 +20,8 @@ ok(1); # If we made it this far, we're ok.
 
 # first create database dir, if it doesn't exist;
 
-my $termgen = new Search::Xapian::TermGenerator();
-my $doc = new Search::Xapian::Document();
+my $termgen = new Xapian::TermGenerator();
+my $doc = new Xapian::Document();
 $termgen->set_document($doc);
 $termgen->index_text('foo bar baz foo');
 $termgen->index_text_without_positions('baz zoo');
@@ -61,12 +61,12 @@ ok( $pi, $ti->positionlist_end() );
 
 ok( ++$ti eq $doc->termlist_end() );
 
-my $db = Search::Xapian::WritableDatabase->new("testdb-spell", DB_CREATE_OR_OVERWRITE);
+my $db = Xapian::WritableDatabase->new("testdb-spell", DB_CREATE_OR_OVERWRITE);
 ok( $db );
-my $indexer = Search::Xapian::TermGenerator->new();
-$indexer->set_flags(Search::Xapian::FLAG_SPELLING);
+my $indexer = Xapian::TermGenerator->new();
+$indexer->set_flags(Xapian::FLAG_SPELLING);
 $indexer->set_database($db);
-my $document = Search::Xapian::Document->new();
+my $document = Xapian::Document->new();
 $indexer->set_document($document);
 $indexer->index_text('test hello');
 $termgen->index_text('foo bar baz foo', 4);

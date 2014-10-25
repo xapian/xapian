@@ -1,7 +1,7 @@
 /** @file fdtracker.cc
  * @brief Track leaked file descriptors.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 #include <set>
 
 #include "str.h"
+#include "stringutils.h"
 
 using namespace std;
 
@@ -104,14 +105,21 @@ FDTracker::check()
 	int fd = atoi(name);
 	if (fds.find(fd) != fds.end()) continue;
 
-	message += ' ';
-	message += str(fd);
-
-	string filename = "/proc/self/fd/";
-	filename += name;
+	string proc_symlink = "/proc/self/fd/";
+	proc_symlink += name;
 
 	char buf[1024];
-	int res = readlink(filename.c_str(), buf, sizeof(buf));
+	int res = readlink(proc_symlink.c_str(), buf, sizeof(buf));
+	if (res == CONST_STRLEN("/dev/urandom") &&
+	    memcmp(buf, "/dev/urandom", CONST_STRLEN("/dev/urandom")) == 0) {
+	    // /dev/urandom isn't a real leak - something in the C library
+	    // opens it lazily (at least on Linux).
+	    fds.insert(fd);
+	    continue;
+	}
+
+	message += ' ';
+	message += str(fd);
 	if (res > 0) {
 	    message += " -> ";
 	    message.append(buf, res);

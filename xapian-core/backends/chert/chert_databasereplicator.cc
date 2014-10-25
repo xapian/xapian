@@ -2,7 +2,7 @@
  * @brief Support for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012 Olly Betts
+ * Copyright 2009,2010,2011,2012,2014 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -37,6 +37,7 @@
 #include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
+#include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
 #include "replicate_utils.h"
 #include "replicationprotocol.h"
@@ -44,11 +45,8 @@
 #include "str.h"
 #include "stringutils.h"
 
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
-
 #include <cstdio> // For rename().
+#include <cstdlib>
 
 using namespace std;
 using namespace Xapian;
@@ -120,11 +118,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     // Write base_size bytes from start of buf to base file for tablename
     string tmp_path = db_dir + "/" + tablename + "tmp";
     string base_path = db_dir + "/" + tablename + ".base" + letter;
-#ifdef __WIN32__
-    int fd = msvc_posix_open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-    int fd = ::open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
+    int fd = posixy_open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (fd == -1) {
 	string msg = "Failed to open ";
 	msg += tmp_path;
@@ -140,11 +134,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     // Finish writing the changeset before moving the base file into place.
     write_and_clear_changes(changes_fd, buf, base_size);
 
-#if defined __WIN32__
-    if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
-#else
-    if (rename(tmp_path.c_str(), base_path.c_str()) < 0) {
-#endif
+    if (posixy_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then
 	// the retried operation fails.  So we need to check if the source
@@ -177,27 +167,11 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     write_and_clear_changes(changes_fd, buf, ptr - buf.data());
 
     string db_path = db_dir + "/" + tablename + ".DB";
-#ifdef __WIN32__
-    int fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_BINARY);
-#else
-    int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
-#endif
+    int fd = posixy_open(db_path.c_str(), O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
     if (fd == -1) {
-	if (file_exists(db_path)) {
-	    string msg = "Failed to open ";
-	    msg += db_path;
-	    throw DatabaseError(msg, errno);
-	}
-#ifdef __WIN32__
-	fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	if (fd == -1) {
-	    string msg = "Failed to create and open ";
-	    msg += db_path;
-	    throw DatabaseError(msg, errno);
-	}
+	string msg = "Failed to open ";
+	msg += db_path;
+	throw DatabaseError(msg, errno);
     }
     {
 	FD closer(fd);
@@ -219,14 +193,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	    if (buf.size() < changeset_blocksize)
 		throw NetworkError("Incomplete block in changeset");
 
-	    // Write the block.
-	    // FIXME - should use pwrite if that's available.
-	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
-		string msg = "Failed to seek to block ";
-		msg += str(block_number);
-		throw DatabaseError(msg, errno);
-	    }
-	    io_write(fd, buf.data(), changeset_blocksize);
+	    io_write_block(fd, buf.data(), changeset_blocksize, block_number);
 
 	    write_and_clear_changes(changes_fd, buf, changeset_blocksize);
 	}

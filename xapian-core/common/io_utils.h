@@ -1,7 +1,7 @@
 /** @file io_utils.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2014 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,21 @@
  */
 inline bool io_sync(int fd)
 {
+#if defined HAVE_FDATASYNC
+    // If we have it, prefer fdatasync() over fsync() as the former avoids
+    // updating the access time so is probably a little more efficient.
+    return fdatasync(fd) == 0;
+#elif defined HAVE_FSYNC
+    return fsync(fd) == 0;
+#elif defined __WIN32__
+    return _commit(fd) == 0;
+#else
+# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
+#endif
+}
+
+inline bool io_full_sync(int fd)
+{
 #ifdef F_FULLFSYNC
     /* Only supported on Mac OS X (at the time of writing at least).
      *
@@ -48,18 +63,7 @@ inline bool io_sync(int fd)
     if (fcntl(fd, F_FULLFSYNC, 0) == 0)
 	return true;
 #endif
-
-#if defined HAVE_FDATASYNC
-    // If we have it, prefer fdatasync() over fsync() as the former avoids
-    // updating the access time so is probably a little more efficient.
-    return fdatasync(fd) == 0;
-#elif defined HAVE_FSYNC
-    return fsync(fd) == 0;
-#elif defined __WIN32__
-    return _commit(fd) == 0;
-#else
-# error Cannot implement io_sync() without fdatasync(), fsync(), or _commit()
-#endif
+    return io_sync(fd);
 }
 
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
@@ -73,6 +77,20 @@ size_t io_read(int fd, char * p, size_t n, size_t min);
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
 void io_write(int fd, const char * p, size_t n);
+
+inline void io_write(int fd, const unsigned char * p, size_t n) {
+    io_write(fd, reinterpret_cast<const char *>(p), n);
+}
+
+/// Read block b size n bytes into buffer p from file descriptor fd.
+void io_read_block(int fd, char * p, size_t n, off_t b);
+
+/// Write block b size n bytes from buffer p to file descriptor fd.
+void io_write_block(int fd, const char * p, size_t n, off_t b);
+
+inline void io_write_block(int fd, const unsigned char * p, size_t n, off_t b) {
+    io_write_block(fd, reinterpret_cast<const char *>(p), n, b);
+}
 
 /** Delete a file.
  *

@@ -1,7 +1,7 @@
 /** @file brass_inverter.h
  * @brief Inverter class which "inverts the file".
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,12 +25,18 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "omassert.h"
 #include "str.h"
 #include "xapian/error.h"
 
 class BrassPostListTable;
+class BrassPositionListTable;
+
+namespace Xapian {
+class TermIterator;
+}
 
 /** Magic wdf value used for a deleted posting. */
 const Xapian::termcount DELETED_POSTING = Xapian::termcount(-1);
@@ -108,6 +114,19 @@ class Inverter {
     /// Buffered changes to postlists.
     std::map<std::string, PostingChanges> postlist_changes;
 
+    /// Buffered changes to positional data.
+    std::map<std::string, std::map<Xapian::docid, std::string> > pos_changes;
+
+    void store_positions(const BrassPositionListTable & position_table,
+			 Xapian::docid did,
+			 const std::string & tname,
+			 const std::vector<Xapian::termpos> & posvec,
+			 bool modifying);
+
+    void set_positionlist(Xapian::docid did,
+			  const std::string & term,
+			  const std::string & s);
+
   public:
     /// Buffered changes to document lengths.
     std::map<Xapian::docid, Xapian::termcount> doclen_changes;
@@ -150,9 +169,25 @@ class Inverter {
 	}
     }
 
+    void set_positionlist(const BrassPositionListTable & position_table,
+			  Xapian::docid did,
+			  const std::string & tname,
+			  const Xapian::TermIterator & term,
+			  bool modifying = false);
+
+    void delete_positionlist(Xapian::docid did,
+			     const std::string & term);
+
+    bool get_positionlist(Xapian::docid did,
+			  const std::string & term,
+			  std::string & s) const;
+
+    bool has_positions(const BrassPositionListTable & position_table) const;
+
     void clear() {
 	doclen_changes.clear();
 	postlist_changes.clear();
+	pos_changes.clear();
     }
 
     void set_doclength(Xapian::docid did, Xapian::termcount doclen, bool add) {
@@ -190,23 +225,23 @@ class Inverter {
     /// Flush postlist changes for all terms which start with @a pfx.
     void flush_post_lists(BrassPostListTable & table, const std::string & pfx);
 
-    /// Flush all changes.
+    /// Flush all postlist table changes.
     void flush(BrassPostListTable & table);
 
-    Xapian::termcount_diff get_tfdelta(const std::string & term) const {
-	std::map<std::string, PostingChanges>::const_iterator i;
-	i = postlist_changes.find(term);
-	if (i == postlist_changes.end())
-	    return 0;
-	return i->second.get_tfdelta();
-    }
+    /// Flush position changes.
+    void flush_pos_lists(BrassPositionListTable & table);
 
-    Xapian::termcount_diff get_cfdelta(const std::string & term) const {
+    bool get_deltas(const std::string & term,
+		    Xapian::termcount_diff & tf_delta,
+		    Xapian::termcount_diff & cf_delta) const {
 	std::map<std::string, PostingChanges>::const_iterator i;
 	i = postlist_changes.find(term);
-	if (i == postlist_changes.end())
-	    return 0;
-	return i->second.get_cfdelta();
+	if (i == postlist_changes.end()) {
+	    return false;
+	}
+	tf_delta = i->second.get_tfdelta();
+	cf_delta = i->second.get_cfdelta();
+	return true;
     }
 };
 

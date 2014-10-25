@@ -1,7 +1,7 @@
 /** @file brass_positionlist.h
  * @brief A position list in a brass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,12 +24,13 @@
 
 #include <xapian/types.h>
 
+#include "autoptr.h"
+#include "bitstream.h"
 #include "brass_lazytable.h"
 #include "pack.h"
 #include "backends/positionlist.h"
 
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -37,8 +38,8 @@ class BrassPositionListTable : public BrassLazyTable {
   public:
     static string make_key(Xapian::docid did, const string & term) {
 	string key;
+	pack_string_preserving_sort(key, term);
 	pack_uint_preserving_sort(key, did);
-	key += term;
 	return key;
     }
 
@@ -54,15 +55,18 @@ class BrassPositionListTable : public BrassLazyTable {
 	: BrassLazyTable("position", dbdir + "/position.", readonly,
 			 DONT_COMPRESS) { }
 
-    /** Set the position list for term tname in document did.
+    /** Pack a position list into a string.
      *
-     *  @param check_for_update If true, check if the new list is the same as
-     *				the existing list (if there is one).
+     *  @param s The string to append the position list data to.
+     */
+    void pack(string & s, const std::vector<Xapian::termpos> & vec) const;
+
+    /** Set the position list for term tname in document did.
      */
     void set_positionlist(Xapian::docid did, const string & tname,
-			  Xapian::PositionIterator pos,
-			  const Xapian::PositionIterator &pos_end,
-			  bool check_for_update);
+			  const string & s) {
+	add(make_key(did, tname), s);
+    }
 
     /// Delete the position list for term tname in document did.
     void delete_positionlist(Xapian::docid did, const string & tname) {
@@ -76,17 +80,23 @@ class BrassPositionListTable : public BrassLazyTable {
 
 /** A position list in a brass database. */
 class BrassPositionList : public PositionList {
-    /// Vector of term positions.
-    vector<Xapian::termpos> positions;
+    /// Interpolative decoder.
+    BitReader rd;
 
-    /// Position of iteration through data.
-    vector<Xapian::termpos>::const_iterator current_pos;
+    /// Current entry.
+    Xapian::termpos current_pos;
+
+    /// Last entry.
+    Xapian::termpos last;
+
+    /// Number of entries.
+    Xapian::termcount size;
+
+    /// Cursor for locating multiple entries efficiently.
+    AutoPtr<BrassCursor> cursor;
 
     /// Have we started iterating yet?
     bool have_started;
-
-    /// Advance to next term position.
-    void next_internal();
 
     /// Copying is not allowed.
     BrassPositionList(const BrassPositionList &);
@@ -96,13 +106,19 @@ class BrassPositionList : public PositionList {
 
   public:
     /// Default constructor.
-    BrassPositionList() : have_started(false) {}
+    BrassPositionList() { }
 
     /// Construct and initialise with data.
     BrassPositionList(const BrassTable * table, Xapian::docid did,
 		      const string & tname) {
 	(void)read_data(table, did, tname);
     }
+
+    /** Fill list with data, and move the position to the start.
+     *
+     *  @return true if position data was read.
+     */
+    bool read_data(const string & data);
 
     /** Fill list with data, and move the position to the start.
      *

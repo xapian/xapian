@@ -2,7 +2,7 @@
 %{
 /* tcl.i: SWIG interface file for the Tcl bindings
  *
- * Copyright (c) 2006,2007,2011 Olly Betts
+ * Copyright (c) 2006,2007,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +54,12 @@ class XapianSWIGQueryItor {
     int n;
 
   public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
     XapianSWIGQueryItor()
 	: n(0) { }
 
@@ -85,11 +91,10 @@ class XapianSWIGQueryItor {
 	return !(*this == o);
     }
 
-    typedef std::input_iterator_tag iterator_category;
-    typedef Xapian::Query value_type;
-    typedef Xapian::termcount_diff difference_type;
-    typedef Xapian::Query * pointer;
-    typedef Xapian::Query & reference;
+    difference_type operator-(const XapianSWIGQueryItor &o) const {
+        // Note: n counts *DOWN*, so reverse subtract.
+        return o.n - n;
+    }
 };
 
 %}
@@ -144,6 +149,6 @@ static int XapianTclHandleError(Tcl_Interp * interp) {
     }
 }
 
-%include ../xapian.i
+%include ../xapian-headers.i
 
 /* vim:set syntax=cpp: */

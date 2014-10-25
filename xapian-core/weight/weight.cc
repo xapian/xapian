@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Xapian::Weight base class
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2014 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 #include "weightinternal.h"
 
+#include "omassert.h"
 #include "debuglog.h"
 
 #include "xapian/error.h"
@@ -45,11 +46,13 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length)
 	doclength_upper_bound_ = stats.db.get_doclength_upper_bound();
     if (stats_needed & DOC_LENGTH_MIN)
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
+    collectionfreq_ = 0;
     wdf_upper_bound_ = 0;
     termfreq_ = 0;
     reltermfreq_ = 0;
     query_length_ = query_length;
     wqf_ = 1;
+    init(0.0);
 }
 
 void
@@ -67,10 +70,12 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	doclength_lower_bound_ = stats.db.get_doclength_lower_bound();
     if (stats_needed & WDF_MAX)
 	wdf_upper_bound_ = stats.db.get_wdf_upper_bound(term);
-    if (stats_needed & TERMFREQ)
-	termfreq_ = stats.get_termfreq(term);
-    if (stats_needed & RELTERMFREQ)
-	reltermfreq_ = stats.get_reltermfreq(term);
+    if (stats_needed & (TERMFREQ | RELTERMFREQ | COLLECTION_FREQ)) {
+	bool ok = stats.get_stats(term,
+				  termfreq_, reltermfreq_, collectionfreq_);
+	(void)ok;
+	Assert(ok);
+    }
     query_length_ = query_length;
     wqf_ = wqf;
     init(factor);
@@ -79,9 +84,9 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
 void
 Weight::init_(const Internal & stats, Xapian::termcount query_length,
 	      double factor, Xapian::doccount termfreq,
-	      Xapian::doccount reltermfreq)
+	      Xapian::doccount reltermfreq, Xapian::termcount collection_freq)
 {
-    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | factor | termfreq | reltermfreq);
+    LOGCALL_VOID(MATCH, "Weight::init_", stats | query_length | factor | termfreq | reltermfreq | collection_freq);
     // Synonym case.
     collection_size_ = stats.collection_size;
     rset_size_ = stats.rset_size;
@@ -104,6 +109,7 @@ Weight::init_(const Internal & stats, Xapian::termcount query_length,
     termfreq_ = termfreq;
     reltermfreq_ = reltermfreq;
     query_length_ = query_length;
+    collectionfreq_ = collection_freq;
     wqf_ = 1;
     init(factor);
 }

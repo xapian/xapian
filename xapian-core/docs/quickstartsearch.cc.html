@@ -50,7 +50,7 @@
 
         <FONT color=#0000ff>// Build the query object</FONT>
         Xapian::Query query(Xapian::Query::OP_OR, argv + 2, argv + argc);
-        cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query `&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt; <FONT color=#ff00ff>&quot;'&quot;</FONT> &lt;&lt; endl;
+        cout &lt;&lt; <FONT color=#ff00ff>&quot;Performing query '&quot;</FONT> &lt;&lt; query.get_description() &lt;&lt; <FONT color=#ff00ff>&quot;'&quot;</FONT> &lt;&lt; endl;
 
         <FONT color=#0000ff>// Give the query object to the enquire session</FONT>
         enquire.set_query(query);

@@ -6,7 +6,7 @@
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc.
- * Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -179,6 +179,12 @@ class XapianSWIGQueryItor {
     int i;
 
   public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
     XapianSWIGQueryItor() { }
 
     void begin(VALUE array_) {
@@ -221,11 +227,9 @@ class XapianSWIGQueryItor {
 	return !(*this == o);
     }
 
-    typedef std::input_iterator_tag iterator_category;
-    typedef Xapian::Query value_type;
-    typedef Xapian::termcount_diff difference_type;
-    typedef Xapian::Query * pointer;
-    typedef Xapian::Query & reference;
+    difference_type operator-(const XapianSWIGQueryItor &o) const {
+        return i - o.i;
+    }
 };
 
 %}
@@ -254,6 +258,6 @@ class XapianSWIGQueryItor {
 
 %include ../generic/except.i
 
-%include ../xapian.i
+%include ../xapian-headers.i
 
 %include extra.i

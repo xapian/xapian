@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,8 +25,13 @@
 #ifndef XAPIAN_INCLUDED_DOCUMENT_H
 #define XAPIAN_INCLUDED_DOCUMENT_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/document.h> directly; include <xapian.h> instead."
+#endif
+
 #include <string>
 
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -221,7 +226,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	TermIterator termlist_begin() const;
 
 	/// Equivalent end iterator for termlist_begin().
-	TermIterator termlist_end() const {
+	TermIterator XAPIAN_NOTHROW(termlist_end() const) {
 	    return TermIterator();
 	}
 
@@ -232,7 +237,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	ValueIterator values_begin() const;
 
 	/// Equivalent end iterator for values_begin().
-	ValueIterator values_end() const {
+	ValueIterator XAPIAN_NOTHROW(values_end() const) {
 	    return ValueIterator();
 	}
 
@@ -260,7 +265,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/** Unserialise a document from a string produced by serialise().
 	 */
-	static Document unserialise(const std::string &s);
+	static Document unserialise(const std::string &serialised);
 
 	/// Return a string describing this object.
 	std::string get_description() const;

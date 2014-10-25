@@ -1,7 +1,7 @@
 /** @file debuglog.cc
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2011 Olly Betts
+/* Copyright (C) 2008,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ DebugLogger::initialise_categories_mask()
 		}
 	    }
 
-	    fd = open(fnm.c_str(), O_CREAT|O_WRONLY|O_SYNC|O_APPEND, 0644);
+	    fd = open(fnm.c_str(), O_CREAT|O_WRONLY|O_SYNC|O_APPEND|O_CLOEXEC, 0644);
 	    if (fd == -1) {
 		// If we failed to open the log file, report to stderr, but
 		// don't spew all the log output to stderr too or else the
@@ -109,6 +109,10 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
 {
     if (fd < 0) return;
 
+    // Preserve errno over logging calls, so they can safely be added to code
+    // which expects errno not to change.
+    int saved_errno = errno;
+
     string line;
     line.reserve(9 + indent_level + msg.size());
     line = char(category) + '@';
@@ -133,11 +137,13 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
 	    LOGLINE(ALWAYS, PACKAGE_STRING": Failed to write log output ("
 		    << strerror(errno) << ')');
 	    fd = -2;
-	    return;
+	    break;
 	}
 	p += n;
 	to_do -= n;
     }
+
+    errno = saved_errno;
 }
 
 #endif // XAPIAN_DEBUG_LOG

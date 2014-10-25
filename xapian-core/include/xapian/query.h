@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -22,9 +22,13 @@
 #ifndef XAPIAN_INCLUDED_QUERY_H
 #define XAPIAN_INCLUDED_QUERY_H
 
-#include <string>
-#include <vector>
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/query.h> directly; include <xapian.h> instead."
+#endif
 
+#include <string>
+
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/postingiterator.h>
 #include <xapian/registry.h>
@@ -103,11 +107,18 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	OP_ELITE_SET = 10,
 	OP_VALUE_GE = 11,
 	OP_VALUE_LE = 12,
-	OP_SYNONYM = 13
+	OP_SYNONYM = 13,
+	OP_MAX = 14,
+
+	LEAF_TERM = 100,
+	LEAF_POSTING_SOURCE,
+	LEAF_MATCH_ALL,
+	LEAF_MATCH_NOTHING
     };
 
     /// Default constructor.
-    Query() : internal(0) { }
+    XAPIAN_NOTHROW(Query())
+	: internal(0) { }
 
     /// Destructor.
     ~Query() { }
@@ -181,22 +192,44 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     // provide this fake specialised form of the above prototype.
     Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
 		 Xapian::termcount parameter = 0);
+
+# ifdef SWIGJAVA
+    Query::Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
+		 Xapian::termcount parameter = 0);
+# endif
 #endif
 
     const TermIterator get_terms_begin() const;
 
-    const TermIterator get_terms_end() const { return TermIterator(); }
+    const TermIterator XAPIAN_NOTHROW(get_terms_end() const) {
+	return TermIterator();
+    }
 
-    Xapian::termcount get_length() const;
+    Xapian::termcount get_length() const XAPIAN_PURE_FUNCTION;
 
-    bool empty() const { return internal.get() == 0; }
+    bool XAPIAN_NOTHROW(empty() const) XAPIAN_PURE_FUNCTION {
+	return internal.get() == 0;
+    }
 
     std::string serialise() const;
 
-    static const Query unserialise(const std::string & s,
+    static const Query unserialise(const std::string & serialised,
 				   const Registry & reg = Registry());
 
-    std::string get_description() const;
+    /** Get the type of the top level of the query. */
+    op get_type() const XAPIAN_PURE_FUNCTION;
+
+    /** Get the number of subqueries of the top level query. */
+    size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+
+    /** Read a top level subquery.
+      *
+      * @param n  Return the n-th subquery (starting from 0) - only valid when
+      *		  0 <= n < get_num_subqueries().
+      */
+    const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
+
+    std::string get_description() const XAPIAN_PURE_FUNCTION;
 
     const Query operator&=(const Query & o) {
 	return (*this = Query(OP_AND, *this, o));
@@ -218,11 +251,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	return (*this = Query(1.0 / factor, *this));
     }
 
-  private:
-    // Pass a reference to avoid ambiguity for Query(NULL) (not useful, but the
-    // testsuite does it...)  FIXME
-    Query(Query::Internal & internal_) : internal(&internal_) { }
+    /** @private @internal */
+    Query(Internal * internal_) : internal(internal_) { }
 
+  private:
     void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
 
     template<typename I>
@@ -329,7 +361,7 @@ class XorContext;
 
 class Query::Internal : public Xapian::Internal::intrusive_base {
   public:
-    Internal() { }
+    XAPIAN_NOTHROW(Internal()) { }
 
     virtual ~Internal();
 
@@ -347,15 +379,20 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 				  QueryOptimiser * qopt,
 				  double factor) const;
 
-    virtual termcount get_length() const;
+    virtual termcount get_length() const XAPIAN_PURE_FUNCTION;
 
     virtual void serialise(std::string & result) const = 0;
 
     static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
 
-    virtual std::string get_description() const = 0;
+    virtual Query::op get_type() const XAPIAN_PURE_FUNCTION = 0;
+    virtual size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+    virtual const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
 
-    virtual void gather_terms(std::vector<std::pair<Xapian::termpos, std::string> > &terms) const;
+    virtual std::string get_description() const XAPIAN_PURE_FUNCTION = 0;
+
+    // Pass argument as void* to avoid need to include <vector>.
+    virtual void gather_terms(void * void_terms) const;
 };
 
 }

@@ -1,12 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-# `make QUIET=' overrides `./configure --enable-quiet'.
-# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
-LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
-
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
@@ -14,14 +10,20 @@ ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = . docs
 
-INCLUDES = -I$(top_srcdir)/common
+my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < '$(srcdir)/myhtmlparse.tokens'
 
-BUILT_SOURCES = extra/omegascript.vim
+BUILT_SOURCES = extra/omegascript.vim my-html-tok.h
+
+CLEANFILES = my-html-tok.h
 
 EXTRA_DIST =\
+	common/Tokeniseise.pm \
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
+	gen-myhtmltags \
 	gen-omegascript-vim \
+	myhtmlparse.tokens \
 	templates/query \
 	templates/topterms \
 	templates/opensearch \
@@ -70,6 +72,7 @@ EXTRA_DIST =\
 	xapian-omega.spec
 
 AM_CPPFLAGS = \
+	-I$(top_srcdir)/common \
 	-DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\" \
 	-DPKGLIBBINDIR=\"$(pkglibbindir)\"
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
@@ -77,12 +80,13 @@ AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 dist_pkglibbin_SCRIPTS = outlookmsg2html
-bin_PROGRAMS = omindex scriptindex
+bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = atomparsetest htmlparsetest md5test urlenctest utf8converttest
+check_PROGRAMS = atomparsetest htmlparsetest jsonesctest md5test urlenctest utf8converttest
 TESTS =	atomparsetest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
+	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
@@ -94,15 +98,19 @@ dist_sysconf_DATA = omega.conf
 
 noinst_HEADERS = omega.h query.h cgiparam.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
- commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
+ commonhelp.h cdb.h cdb_int.h hashterm.h jsonescape.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
- weight.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h
+ weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
+ xlsxparse.h opendocparse.h msxmlparse.h timegm.h\
+ portability/mkdtemp.h
 
 # headers maintained in xapian-core
 noinst_HEADERS +=\
+	common/append_filename_arg.h\
 	common/gnu_getopt.h\
+	common/keyword.h\
 	common/msvc_dirent.h\
 	common/noreturn.h\
 	common/omassert.h\
@@ -115,10 +123,11 @@ noinst_HEADERS +=\
 	common/safesyswait.h\
 	common/safeunistd.h\
 	common/safewindows.h\
+	common/safewinsock2.h\
 	common/str.h\
 	common/stringutils.h
 
-AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS)
+AM_LDFLAGS = $(NO_UNDEFINED) $(ICONV_LDFLAGS) $(MAGIC_LDFLAGS)
 
 # We want to compile transform.cc with PCRE_CFLAGS, but if this adds a -I for
 # a directory with a different version of iconv, then we get problems (this
@@ -131,15 +140,17 @@ libtransform_la_CPPFLAGS = $(PCRE_CFLAGS)
 libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc utf8convert.cc\
- datematchdecider.cc weight.cc common/str.cc unixperm.cc urlencode.cc
-omega_LDADD = $(XAPIAN_LIBS) libtransform.la
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
+ datematchdecider.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc
+# Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
+omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
- pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc
+ pkglibbindir.cc svgparse.cc tmpdir.cc urlencode.cc atomparse.cc xlsxparse.cc\
+ opendocparse.cc common/keyword.cc msxmlparse.cc common/safe.cc timegm.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
@@ -147,15 +158,19 @@ omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- common/safe.cc common/stringutils.cc utf8convert.cc utf8truncate.cc
+ common/safe.cc common/stringutils.cc utf8convert.cc utf8truncate.cc\
+ common/keyword.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
+omindex_list_SOURCES = omindex-list.cc
+omindex_list_LDADD = $(XAPIAN_LIBS)
+
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
- myhtmlparse.cc utf8convert.cc
+ myhtmlparse.cc utf8convert.cc common/keyword.cc
 atomparsetest_LDADD = $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
- utf8convert.cc
+ utf8convert.cc common/keyword.cc
 htmlparsetest_LDADD = $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
@@ -165,8 +180,11 @@ utf8converttest_LDADD = $(XAPIAN_LIBS)
 
 urlenctest_SOURCES = urlenctest.cc urlencode.cc
 
+jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
+jsonesctest_LDADD = $(XAPIAN_LIBS)
+
 if !MAINTAINER_NO_DOCS
-dist_man_MANS = omindex.1 scriptindex.1
+dist_man_MANS = omindex.1 scriptindex.1 omindex-list.1
 MAINTAINERCLEANFILES = $(dist_man_MANS)
 endif
 
@@ -176,6 +194,9 @@ omindex.1: omindex$(EXEEXT) makemanpage
 
 scriptindex.1: scriptindex$(EXEEXT) makemanpage
 	./makemanpage ./scriptindex $(srcdir)/scriptindex.cc scriptindex.1
+
+omindex-list.1: omindex-list$(EXEEXT) makemanpage
+	./makemanpage ./omindex-list $(srcdir)/omindex-list.cc omindex-list.1
 endif
 
 if MAINTAINER_MODE

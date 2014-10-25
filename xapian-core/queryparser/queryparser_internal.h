@@ -38,18 +38,27 @@ class State;
 
 typedef enum { NON_BOOLEAN, BOOLEAN, BOOLEAN_EXCLUSIVE } filter_type;
 
-/** Information about how to handle a prefix in the query string. */
-struct PrefixInfo {
-    /// The type of this prefix.
+/** Information about how to handle a field prefix in the query string. */
+struct FieldInfo {
+    /// The type of this field.
     filter_type type;
 
-    /// Prefix strings.
+    /// Field prefix strings.
     list<string> prefixes;
 
-    PrefixInfo(filter_type type_, const string & prefix)
+    /// Field processors.  Currently only one is supported.
+    list<Xapian::FieldProcessor*> procs;
+
+    FieldInfo(filter_type type_, const string & prefix)
 	: type(type_)
     {
 	prefixes.push_back(prefix);
+    }
+
+    FieldInfo(filter_type type_, Xapian::FieldProcessor *proc)
+	: type(type_)
+    {
+	procs.push_back(proc);
     }
 };
 
@@ -71,7 +80,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO". FIXME: it does more than this now!
-    map<string, PrefixInfo> prefixmap;
+    map<string, FieldInfo> field_map;
 
     list<ValueRangeProcessor *> valrangeprocs;
 
@@ -80,6 +89,9 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     Xapian::termcount max_wildcard_expansion;
 
     void add_prefix(const string &field, const string &prefix,
+		    filter_type type);
+
+    void add_prefix(const string &field, Xapian::FieldProcessor *proc,
 		    filter_type type);
 
     std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,

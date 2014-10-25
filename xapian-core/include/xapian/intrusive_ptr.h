@@ -5,7 +5,7 @@
 //  Based on Boost's intrusive_ptr.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov
-//  Copyright (c) 2011 Olly Betts
+//  Copyright (c) 2011,2013,2014 Olly Betts
 //
 // Distributed under the Boost Software License, Version 1.0.
 //
@@ -35,6 +35,10 @@
 //
 //  See http://www.boost.org/libs/smart_ptr/intrusive_ptr.html for documentation.
 //
+
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead."
+#endif
 
 namespace Xapian {
 namespace Internal {

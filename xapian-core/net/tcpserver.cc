@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "safesyssocket.h"
 
 #include "noreturn.h"
 #include "remoteconnection.h"
@@ -35,13 +36,12 @@
 #ifdef __WIN32__
 # include <process.h>    /* _beginthread, _endthread */
 #else
-# include <sys/socket.h>
 # include <netinet/in_systm.h>
 # include <netinet/in.h>
 # include <netinet/ip.h>
 # include <netinet/tcp.h>
 # include <arpa/inet.h>
-# include <netdb.h>
+# include "safenetdb.h"
 # include <signal.h>
 # include <sys/wait.h>
 #endif
@@ -92,11 +92,17 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 #endif
 				)
 {
-    int socketfd = socket(PF_INET, SOCK_STREAM, 0);
-
+    int socketfd = socket(PF_INET, SOCK_STREAM|SOCK_CLOEXEC, 0);
     if (socketfd < 0) {
 	throw Xapian::NetworkError("socket", socket_errno());
     }
+#if !defined __WIN32__ && defined F_SETFD && defined FD_CLOEXEC
+    // We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as on
+    // Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC SOCK_CLOEXEC'
+    // to allow '#ifdef SOCK_CLOEXEC' to work.
+    if (SOCK_CLOEXEC == 0)
+	(void)fcntl(socketfd, F_SETFD, FD_CLOEXEC);
+#endif
 
     int retval = 0;
 

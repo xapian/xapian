@@ -25,17 +25,53 @@
 
 #include "xapian/error.h"
 #include "xapian/geospatial.h"
+#include "xapian/intrusive_ptr.h"
 #include "xapian/matchspy.h"
 #include "xapian/postingsource.h"
 #include "xapian/weight.h"
 
-#include "registryinternal.h"
 #include "debuglog.h"
 
 #include <algorithm>
 #include <map>
+#include <string>
 
 using namespace std;
+
+class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
+    friend class Xapian::Registry;
+
+    /// Registered weighting schemes.
+    std::map<std::string, Xapian::Weight *> wtschemes;
+
+    /// Registered external posting sources.
+    std::map<std::string, Xapian::PostingSource *> postingsources;
+
+    /// Registered match spies.
+    std::map<std::string, Xapian::MatchSpy *> matchspies;
+
+    /// Registered lat-long metrics.
+    std::map<std::string, Xapian::LatLongMetric *> lat_long_metrics;
+
+    /// Add the standard subclasses provided in the API.
+    void add_defaults();
+
+    /// Clear all registered weighting schemes.
+    void clear_weighting_schemes();
+
+    /// Clear all registered posting sources.
+    void clear_posting_sources();
+
+    /// Clear all registered match spies.
+    void clear_match_spies();
+
+    /// Clear all registered lat-long metrics.
+    void clear_lat_long_metrics();
+
+  public:
+    Internal();
+    ~Internal();
+};
 
 template<class T>
 static inline void
@@ -83,6 +119,107 @@ lookup_object(map<string, T*> registry, const string & name)
 
 namespace Xapian {
 
+Registry::Internal::Internal()
+{
+    add_defaults();
+}
+
+Registry::Internal::~Internal()
+{
+    clear_weighting_schemes();
+    clear_posting_sources();
+    clear_match_spies();
+    clear_lat_long_metrics();
+}
+
+void
+Registry::Internal::add_defaults()
+{
+    Xapian::Weight * weighting_scheme;
+    weighting_scheme = new Xapian::BB2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::BM25Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::BoolWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::TradWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::TfIdfWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::InL2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::IfB2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::IneB2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::DLHWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::PL2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::DPHWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::LMWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+
+    Xapian::PostingSource * source;
+    source = new Xapian::ValueWeightPostingSource(0);
+    postingsources[source->name()] = source;
+    source = new Xapian::DecreasingValueWeightPostingSource(0);
+    postingsources[source->name()] = source;
+    source = new Xapian::ValueMapPostingSource(0);
+    postingsources[source->name()] = source;
+    source = new Xapian::FixedWeightPostingSource(0.0);
+    postingsources[source->name()] = source;
+    source = new Xapian::LatLongDistancePostingSource(0,
+	Xapian::LatLongCoords(),
+	Xapian::GreatCircleMetric());
+    postingsources[source->name()] = source;
+
+    Xapian::MatchSpy * spy;
+    spy = new Xapian::ValueCountMatchSpy();
+    matchspies[spy->name()] = spy;
+
+    Xapian::LatLongMetric * metric;
+    metric = new Xapian::GreatCircleMetric();
+    lat_long_metrics[metric->name()] = metric;
+}
+
+void
+Registry::Internal::clear_weighting_schemes()
+{
+    map<string, Xapian::Weight*>::const_iterator i;
+    for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
+	delete i->second;
+    }
+}
+
+void
+Registry::Internal::clear_posting_sources()
+{
+    map<string, Xapian::PostingSource *>::const_iterator i;
+    for (i = postingsources.begin(); i != postingsources.end(); ++i) {
+	delete i->second;
+    }
+}
+
+void
+Registry::Internal::clear_match_spies()
+{
+    map<string, Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	delete i->second;
+    }
+}
+
+void
+Registry::Internal::clear_lat_long_metrics()
+{
+    map<string, Xapian::LatLongMetric *>::const_iterator i;
+    for (i = lat_long_metrics.begin(); i != lat_long_metrics.end(); ++i) {
+	delete i->second;
+    }
+}
+
 Registry::Registry(const Registry & other)
 	: internal(other.internal)
 {
@@ -94,7 +231,7 @@ Registry::operator=(const Registry & other)
 {
     LOGCALL(API, Xapian::Registry &, "Xapian::Registry::operator=", other);
     internal = other.internal;
-    return(*this);
+    RETURN(*this);
 }
 
 Registry::Registry()
@@ -165,95 +302,8 @@ Registry::register_lat_long_metric(const Xapian::LatLongMetric &metric)
 const Xapian::LatLongMetric *
 Registry::get_lat_long_metric(const string & name) const
 {
-    LOGCALL(API, const Xapian::MatchSpy *, "Xapian::Registry::get_lat_long_metric", name);
+    LOGCALL(API, const Xapian::LatLongMetric *, "Xapian::Registry::get_lat_long_metric", name);
     RETURN(lookup_object(internal->lat_long_metrics, name));
-}
-
-Registry::Internal::Internal()
-	: Xapian::Internal::intrusive_base(),
-          wtschemes(),
-	  postingsources(),
-	  lat_long_metrics()
-{
-    add_defaults();
-}
-
-Registry::Internal::~Internal()
-{
-    clear_weighting_schemes();
-    clear_posting_sources();
-    clear_match_spies();
-    clear_lat_long_metrics();
-}
-
-void
-Registry::Internal::add_defaults()
-{
-    Xapian::Weight * weighting_scheme;
-    weighting_scheme = new Xapian::BM25Weight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::BoolWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::TradWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-
-    Xapian::PostingSource * source;
-    source = new Xapian::ValueWeightPostingSource(0);
-    postingsources[source->name()] = source;
-    source = new Xapian::DecreasingValueWeightPostingSource(0);
-    postingsources[source->name()] = source;
-    source = new Xapian::ValueMapPostingSource(0);
-    postingsources[source->name()] = source;
-    source = new Xapian::FixedWeightPostingSource(0.0);
-    postingsources[source->name()] = source;
-    source = new Xapian::LatLongDistancePostingSource(0,
-	Xapian::LatLongCoords(),
-	Xapian::GreatCircleMetric());
-    postingsources[source->name()] = source;
-
-    Xapian::MatchSpy * spy;
-    spy = new Xapian::ValueCountMatchSpy();
-    matchspies[spy->name()] = spy;
-
-    Xapian::LatLongMetric * metric;
-    metric = new Xapian::GreatCircleMetric();
-    lat_long_metrics[metric->name()] = metric;
-}
-
-void
-Registry::Internal::clear_weighting_schemes()
-{
-    map<string, Xapian::Weight*>::const_iterator i;
-    for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
-	delete i->second;
-    }
-}
-
-void
-Registry::Internal::clear_posting_sources()
-{
-    map<string, Xapian::PostingSource *>::const_iterator i;
-    for (i = postingsources.begin(); i != postingsources.end(); ++i) {
-	delete i->second;
-    }
-}
-
-void
-Registry::Internal::clear_match_spies()
-{
-    map<string, Xapian::MatchSpy *>::const_iterator i;
-    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
-	delete i->second;
-    }
-}
-
-void
-Registry::Internal::clear_lat_long_metrics()
-{
-    map<string, Xapian::LatLongMetric *>::const_iterator i;
-    for (i = lat_long_metrics.begin(); i != lat_long_metrics.end(); ++i) {
-	delete i->second;
-    }
 }
 
 }

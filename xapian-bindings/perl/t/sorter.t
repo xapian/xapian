@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -11,7 +11,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 BEGIN { plan tests => 39 };
-use Search::Xapian qw(:all);
+use Xapian qw(:all);
 
 #########################
 
@@ -28,13 +28,13 @@ sub mset_expect_order (\@@) {
 }
 
 my $db;
-ok( $db = Search::Xapian::WritableDatabase->new(), "test db opened ok" );
+ok( $db = Xapian::WritableDatabase->new(), "test db opened ok" );
 
 my $enquire;
-ok( $enquire = Search::Xapian::Enquire->new( $db ), "enquire object created" );
+ok( $enquire = Xapian::Enquire->new( $db ), "enquire object created" );
 
 my $doc;
-ok( $doc = Search::Xapian::Document->new() );
+ok( $doc = Xapian::Document->new() );
 $doc->add_term("foo");
 $doc->add_value(0, "ABB");
 $db->add_document($doc);
@@ -47,11 +47,11 @@ $db->add_document($doc);
 $doc->add_value(0, "ABC\xff");
 $db->add_document($doc);
 
-$enquire->set_query(Search::Xapian::Query->new("foo"));
+$enquire->set_query(Xapian::Query->new("foo"));
 
 {
     {
-	my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+	my $sorter = Xapian::MultiValueKeyMaker->new();
 	$sorter->add_value(0);
 	$enquire->set_sort_by_key($sorter, 1);
     }
@@ -60,7 +60,7 @@ $enquire->set_query(Search::Xapian::Query->new("foo"));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    my $sorter = Xapian::MultiValueKeyMaker->new();
     $sorter->add_value(0, 1);
     $enquire->set_sort_by_key($sorter, 1);
     my @matches = $enquire->matches(0, 10);
@@ -68,7 +68,7 @@ $enquire->set_query(Search::Xapian::Query->new("foo"));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    my $sorter = Xapian::MultiValueKeyMaker->new();
     $sorter->add_value(0);
     $sorter->add_value(1);
     $enquire->set_sort_by_key($sorter, 1);
@@ -77,7 +77,7 @@ $enquire->set_query(Search::Xapian::Query->new("foo"));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    my $sorter = Xapian::MultiValueKeyMaker->new();
     $sorter->add_value(0, 1);
     $sorter->add_value(1);
     $enquire->set_sort_by_key($sorter, 1);
@@ -86,7 +86,7 @@ $enquire->set_query(Search::Xapian::Query->new("foo"));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    my $sorter = Xapian::MultiValueKeyMaker->new();
     $sorter->add_value(0);
     $sorter->add_value(1, 1);
     $enquire->set_sort_by_key($sorter, 1);
@@ -95,7 +95,7 @@ $enquire->set_query(Search::Xapian::Query->new("foo"));
 }
 
 {
-    my $sorter = Search::Xapian::MultiValueKeyMaker->new();
+    my $sorter = Xapian::MultiValueKeyMaker->new();
     $sorter->add_value(0, 1);
     $sorter->add_value(1, 1);
     $enquire->set_sort_by_key($sorter, 1);

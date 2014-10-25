@@ -104,7 +104,6 @@ class MSetIter(object):
     def __iter__(self):
         return self
 
-    # For Python2:
     def next(self):
         if self._iter == self._end:
             raise StopIteration
@@ -112,16 +111,6 @@ class MSetIter(object):
             r = MSetItem(self._iter, self._mset)
             self._iter.next()
             return r
-
-    # For Python3:
-    def __next__(self):
-        if self._iter == self._end:
-            raise StopIteration
-        else:
-            r = MSetItem(self._iter, self._mset)
-            next(self._iter)
-            return r
-
 
 # Modify the MSet to allow access to the python iterators, and have other
 # convenience methods.
@@ -189,22 +178,12 @@ class ESetIter(object):
     def __iter__(self):
         return self
 
-    # For Python2:
     def next(self):
         if self._iter == self._end:
             raise StopIteration
         else:
             r = ESetItem(self._iter)
             self._iter.next()
-            return r
-
-    # For Python3:
-    def __next__(self):
-        if self._iter == self._end:
-            raise StopIteration
-        else:
-            r = ESetItem(self._iter)
-            next(self._iter)
             return r
 
 # Modify the ESet to allow access to the python iterators, and have other
@@ -380,26 +359,9 @@ class TermIter(object):
     def __iter__(self):
         return self
 
-    # For Python2:
     def next(self):
         if not self._moved:
             self._iter.next()
-            self._moved = True
-
-        if self._iter == self._end:
-            self._lastterm = None
-            raise StopIteration
-        else:
-            self._lastterm = self._iter.get_term()
-            self._moved = False
-            if self._return_strings:
-                return self._lastterm
-            return TermListItem(self, self._lastterm)
-
-    # For Python3:
-    def __next__(self):
-        if not self._moved:
-            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -624,7 +586,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
     """Get an iterator over all the unstemmed forms of a stemmed term.
     
     This returns an iterator which returns all the unstemmed words which were
-    stemmed to the stemmed form specifed by `tname` when parsing the previous
+    stemmed to the stemmed form specified by `tname` when parsing the previous
     query.  Each instance of a word which stems to `tname` is returned by the
     iterator in the order in which the words appeared in the query - an
     individual unstemmed word may thus occur multiple times.
@@ -740,6 +702,30 @@ def _queryparser_add_valuerangeprocessor(self, vrproc):
 _queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeprocessor_orig.__doc__
 QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
 del _queryparser_add_valuerangeprocessor
+
+# When we set a FieldProcessor into the QueryParser, keep a python
+# reference so it won't be deleted. This hack can probably be removed once
+# xapian bug #186 is fixed.
+__queryparser_add_prefix_orig = QueryParser.add_prefix
+def _queryparser_add_prefix(self, s, proc):
+    if not isinstance(proc, (str, bytes)):
+        if not hasattr(self, '_fps'):
+            self._fps = []
+        self._fps.append(proc)
+    return __queryparser_add_prefix_orig(self, s, proc)
+_queryparser_add_prefix.__doc__ = __queryparser_add_prefix_orig.__doc__
+QueryParser.add_prefix = _queryparser_add_prefix
+del _queryparser_add_prefix
+__queryparser_add_boolean_prefix_orig = QueryParser.add_boolean_prefix
+def _queryparser_add_boolean_prefix(self, s, proc, exclusive = True):
+    if not isinstance(proc, (str, bytes)):
+        if not hasattr(self, '_fps'):
+            self._fps = []
+        self._fps.append(proc)
+    return __queryparser_add_boolean_prefix_orig(self, s, proc, exclusive)
+_queryparser_add_boolean_prefix.__doc__ = __queryparser_add_boolean_prefix_orig.__doc__
+QueryParser.add_boolean_prefix = _queryparser_add_boolean_prefix
+del _queryparser_add_boolean_prefix
 
 # When we set a Stopper into the QueryParser, keep a python reference so it
 # won't be deleted. This hack can probably be removed once xapian bug #186 is
@@ -878,22 +864,9 @@ class PostingIter(object):
     def __iter__(self):
         return self
 
-    # For Python2:
     def next(self):
         if not self._moved:
             self._iter.next()
-            self._moved = True
-
-        if self._iter == self._end:
-            raise StopIteration
-        else:
-            self._moved = False
-            return PostingItem(self)
-
-    # For Python3:
-    def __next__(self):
-        if not self._moved:
-            next(self._iter)
             self._moved = True
 
         if self._iter == self._end:
@@ -956,22 +929,12 @@ class PositionIter(object):
     def __iter__(self):
         return self
 
-    # For Python2:
     def next(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = self.iter.get_termpos()
             self.iter.next()
-            return r
-
-    # For Python3:
-    def __next__(self):
-        if self.iter==self.end:
-            raise StopIteration
-        else:
-            r = self.iter.get_termpos()
-            next(self.iter)
             return r
 
 # Modify Database to add a "positionlist()" method.
@@ -1017,22 +980,12 @@ class ValueIter(object):
     def __iter__(self):
         return self
 
-    # For Python2:
     def next(self):
         if self.iter==self.end:
             raise StopIteration
         else:
             r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
             self.iter.next()
-            return r
-
-    # For Python3:
-    def __next__(self):
-        if self.iter==self.end:
-            raise StopIteration
-        else:
-            r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
-            next(self.iter)
             return r
 
 # Modify Document to add a "values()" method.
@@ -1080,20 +1033,7 @@ class ValueStreamIter(object):
     def __iter__(self):
         return self
 
-    # For Python2:
     def next(self):
-        if not self.moved:
-            self.iter.next()
-            self.moved = True
-
-        if self.iter==self.end:
-            raise StopIteration
-        else:
-            self.moved = False
-            return ValueStreamItem(self.iter.get_docid(), self.iter.get_value())
-
-    # For Python3:
-    def __next__(self):
         if not self.moved:
             self.iter.next()
             self.moved = True
@@ -1167,17 +1107,7 @@ class LatLongCoordsIter(object):
     def __ne__(self, other):
         return not self.equals(other)
 
-    # For Python2:
     def next(self):
-        if self.iter.equals(self.end):
-            raise StopIteration
-        else:
-            r = self.iter.get_coord()
-            self.iter.next()
-            return r
-
-    # For Python3:
-    def __next__(self):
         if self.iter.equals(self.end):
             raise StopIteration
         else:

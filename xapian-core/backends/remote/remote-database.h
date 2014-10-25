@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -138,6 +138,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param sort_key			The value number to sort on.
      * @param sort_by			Which order to apply sorts in.
      * @param sort_value_forward	Sort order for values.
+     * @param time_limit_		Seconds to reduce check_at_least after
+     *					(or <= 0 for no limit).
      * @param percent_cutoff		Percentage cutoff.
      * @param weight_cutoff		Weight cutoff.
      * @param wtscheme			Weighting scheme.
@@ -152,6 +154,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   Xapian::valueno sort_key,
 		   Xapian::Enquire::Internal::sort_setting sort_by,
 		   bool sort_value_forward,
+		   double time_limit,
 		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
@@ -210,14 +213,14 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::doclength get_avlength() const;
 
     Xapian::termcount get_doclength(Xapian::docid did) const;
+    Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
     /// Check if term exists.
     bool term_exists(const string & tname) const;
 
-    /// Find frequency of term.
-    Xapian::doccount get_termfreq(const string & tname) const;
-
-    Xapian::termcount get_collection_freq(const string & tname) const;
+    void get_freqs(const string & term,
+		   Xapian::doccount * termfreq_ptr,
+		   Xapian::termcount * collfreq_ptr) const;
 
     /// Read the value statistics for a value from a remote database.
     void read_value_stats(Xapian::valueno slot) const;

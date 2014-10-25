@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2004,2005,2006,2007,2008,2010 Olly Betts
+ * Copyright 2004,2005,2006,2007,2008,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,18 +26,19 @@
 #include "tcpclient.h"
 #include <xapian/error.h>
 
+#include "realtime.h"
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysselect.h"
+#include "safesyssocket.h"
 #include "socket_utils.h"
 
 #include <cmath>
 #include <cstring>
 #ifndef __WIN32__
-# include <netdb.h>
+# include "safenetdb.h"
 # include <netinet/in.h>
 # include <netinet/tcp.h>
-# include <sys/socket.h>
 #endif
 
 using namespace std;
@@ -64,10 +65,17 @@ TcpClient::open_socket(const std::string & hostname, int port,
 		);
     }
 
-    int socketfd = socket(PF_INET, SOCK_STREAM, 0);
+    int socketfd = socket(PF_INET, SOCK_STREAM|SOCK_CLOEXEC, 0);
     if (socketfd < 0) {
 	throw Xapian::NetworkError("Couldn't create socket", socket_errno());
     }
+#if !defined __WIN32__ && defined F_SETFD && defined FD_CLOEXEC
+    // We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as on
+    // Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC SOCK_CLOEXEC'
+    // to allow '#ifdef SOCK_CLOEXEC' to work.
+    if (SOCK_CLOEXEC == 0)
+	(void)fcntl(socketfd, F_SETFD, FD_CLOEXEC);
+#endif
 
     struct sockaddr_in remaddr;
     memset(&remaddr, 0, sizeof(remaddr));
@@ -122,9 +130,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	do {
 	    // FIXME: Reduce the timeout if we retry on EINTR.
 	    struct timeval tv;
-	    tv.tv_sec = long(timeout_connect);
-	    tv.tv_usec = long(std::fmod(timeout_connect, 1.0) * 1e6);
-
+	    RealTime::to_timeval(timeout_connect, &tv);
 	    retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
 	} while (retval < 0 && errno == EINTR);
 

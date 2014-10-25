@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -23,6 +23,11 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/queryparser.h> directly; include <xapian.h> instead."
+#endif
+
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/query.h>
 #include <xapian/termiterator.h>
@@ -60,7 +65,15 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
     /// Default constructor.
     SimpleStopper() { }
 
-    /// Initialise from a pair of iterators.
+    /** Initialise from a pair of iterators.
+     *
+     * Xapian includes stop list files for many languages. You can initialise from a file like that:
+     * @code
+     * ifstream inFile ("stopwords/english/stop.txt");
+     * Xapian::SimplerStopper stopper(istream_iterator<string>(inFile), istream_iterator<string>());
+     * @endcode
+     *
+     */
 #if ! defined __SUNPRO_CC || __SUNPRO_CC - 0 >= 0x580
     template <class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
@@ -221,6 +234,58 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public StringValueRang
 	: StringValueRangeProcessor(slot_, str_, prefix_),
 	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
+#ifndef SWIG
+    /** Constructor.
+     *
+     *  This is like the previous version, but with const char * instead of
+     *  std::string - we need this overload as otherwise
+     *  DateValueRangeProcessor(1, "date:") quietly interprets the second
+     *  argument as a boolean in preference to std::string.  If you want to
+     *  be compatible with 1.2.12 and earlier, then explicitly convert to
+     *  std::string, i.e.: DateValueRangeProcessor(1, std::string("date:"))
+     *
+     *  @param slot_	    The value number to return from operator().
+     *
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this date range.
+     *
+     *  @param prefix_  Whether to look for the string at the start or end of
+     *                  the values.  If true, the string is a prefix; if
+     *                  false, the string is a suffix (default: true).
+     *
+     *  @param prefer_mdy_  Should ambiguous dates be interpreted as
+     *			    month/day/year rather than day/month/year?
+     *			    (default: false)
+     *
+     *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
+     *			    years (default: 1970, so 1/1/69 is 2069 while
+     *			    1/1/70 is 1970).
+     *
+     *  The string supplied in str_ is used by @a operator() to decide whether
+     *  the pair of strings supplied to it constitute a valid range.  If
+     *  prefix_ is true, the first value in a range must begin with str_ (and
+     *  the second value may optionally begin with str_);
+     *  if prefix_ is false, the second value in a range must end with str_
+     *  (and the first value may optionally end with str_).
+     *
+     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
+     *  strings are required at the start or end of the strings defining the
+     *  range.
+     *
+     *  The remainder of both strings defining the endpoints must be valid
+     *  dates.
+     *
+     *  For example, if str_ is "created:" and prefix_ is true, and the range
+     *  processor has been added to the queryparser, the queryparser will
+     *  accept "created:1/1/2000..31/12/2001".
+     */
+    DateValueRangeProcessor(Xapian::valueno slot_, const char * str_,
+			    bool prefix_ = true,
+			    bool prefer_mdy_ = false, int epoch_year_ = 1970)
+	: StringValueRangeProcessor(slot_, str_, prefix_),
+	  prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
+#endif
+
     /** Check for a valid date range.
      *
      *  @param[in,out] begin	The start of the range as specified in the
@@ -309,6 +374,23 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
      *		returns Xapian::BAD_VALUENO.
      */
     Xapian::valueno operator()(std::string &begin, std::string &end);
+};
+
+/** Base class for field processors.
+ *
+ *  Experimental API - may change.
+ */
+struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
+    /// Destructor.
+    virtual ~FieldProcessor();
+
+    /** Convert a field-prefixed string to a Query object.
+     *
+     *  @param str	The string to convert.
+     *
+     *  @return	Query object corresponding to @a str.
+     */
+    virtual Xapian::Query operator()(const std::string &str) = 0;
 };
 
 /// Build a Xapian::Query object from a user query string.
@@ -409,7 +491,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_DEFAULT = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE
     } feature_flag;
 
-    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
+    /// Stemming strategies, for use with set_stemming_strategy().
+    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
 
     /// Copy constructor.
     QueryParser(const QueryParser & o);
@@ -444,14 +527,17 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  probabilistic fields - boolean filter terms are never stemmed.
      *
      *  @param strategy	The strategy to use - possible values are:
-     *   - STEM_NONE: Don't perform any stemming.  (default in Xapian <= 1.3.0)
-     *   - STEM_SOME: Search for stemmed forms of terms except for those which
-     *		      start with a capital letter, or are followed by certain
-     *		      characters (currently: (/\@<>=*[{" ), or are used with
-     *		      operators which need positional information.  Stemmed
-     *		      terms are prefixed with 'Z'.  (default in Xapian > 1.3.1)
-     *   - STEM_ALL:  Search for stemmed forms of all words (note: no 'Z'
-     *		      prefix is added).
+     *   - STEM_NONE:	Don't perform any stemming.  (default in Xapian <=
+     *			1.3.0)
+     *   - STEM_SOME:	Stem all terms except for those which start with a
+     *			capital letter, or are followed by certain characters
+     *			(currently: <code>(/\@<>=*[{"</code> ), or are used
+     *			with operators which need positional information.
+     *			Stemmed terms are prefixed with 'Z'.  (default in
+     *			Xapian >= 1.3.1)
+     *   - STEM_ALL:	Stem all terms (note: no 'Z' prefix is added).
+     *   - STEM_ALL_Z:	Stem all terms (note: 'Z' prefix is added).  (new in
+     *			Xapian 1.2.11 and 1.3.1)
      */
     void set_stemming_strategy(stem_strategy strategy);
 
@@ -567,6 +653,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void add_prefix(const std::string &field, const std::string &prefix);
 
+    /** Register a FieldProcessor.
+     *
+     *  Experimental API - may change.
+     */
+    void add_prefix(const std::string &field, Xapian::FieldProcessor * proc);
+
     /** Add a boolean term prefix allowing the user to restrict a
      *  search with a boolean filter specified in the free text query.
      *
@@ -622,15 +714,22 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     void add_boolean_prefix(const std::string &field, const std::string &prefix,
 			    bool exclusive = true);
 
+    /** Register a FieldProcessor for a boolean prefix.
+     *
+     *  Experimental API - may change.
+     */
+    void add_boolean_prefix(const std::string &field, Xapian::FieldProcessor *proc,
+			    bool exclusive = true);
+
     /// Iterate over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;
-    TermIterator stoplist_end() const {
+    TermIterator XAPIAN_NOTHROW(stoplist_end() const) {
 	return TermIterator();
     }
 
     /// Iterate over unstemmed forms of the given (stemmed) term used in the query.
     TermIterator unstem_begin(const std::string &term) const;
-    TermIterator unstem_end(const std::string &) const {
+    TermIterator XAPIAN_NOTHROW(unstem_end(const std::string &) const) {
 	return TermIterator();
     }
 
@@ -644,10 +743,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  If there were no corrections, an empty string is returned.
      */
-    std::string get_corrected_query_string() const;
+    std::string get_corrected_query_string() const XAPIAN_PURE_FUNCTION;
 
     /// Return a string describing this object.
-    std::string get_description() const;
+    std::string get_description() const XAPIAN_PURE_FUNCTION;
 };
 
 /** Convert a floating point number to a string, preserving sort order.
@@ -677,7 +776,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
  *  @param value	The number to serialise.
  */
 XAPIAN_VISIBILITY_DEFAULT
-std::string sortable_serialise(double value);
+std::string sortable_serialise(double value) XAPIAN_CONST_FUNCTION;
 
 /** Convert a string encoded using @a sortable_serialise back to a floating
  *  point number.
@@ -691,10 +790,10 @@ std::string sortable_serialise(double value);
  *  which represent doubles with the precisions specified by IEEE_754, but
  *  may be a different (nearby) value on other platforms.
  *
- *  @param value	The serialised string to decode.
+ *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double sortable_unserialise(const std::string & value);
+double sortable_unserialise(const std::string & serialised) XAPIAN_CONST_FUNCTION;
 
 }
 

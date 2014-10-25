@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010,2011 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -33,6 +33,7 @@
 #include "ortermlist.h"
 #include "str.h"
 #include "api/termlist.h"
+#include "unicode/description_append.h"
 
 #include "autoptr.h"
 #include <set>
@@ -49,7 +50,7 @@ Internal::ExpandTerm::get_description() const
     string desc("ExpandTerm(");
     desc += str(wt);
     desc += ", ";
-    desc += term;
+    description_append(desc, term);
     desc += ')';
     return desc;
 }
@@ -139,7 +140,7 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 		       const Xapian::Database & db,
 		       const RSet & rset,
 		       const Xapian::ExpandDecider * edecider,
-		       const Xapian::Internal::ExpandWeight & eweight,
+		       Xapian::Internal::ExpandWeight & eweight,
 		       double min_wt)
 {
     LOGCALL_VOID(EXPAND, "ESet::Internal::expand", max_esize | db | rset | edecider | eweight);
@@ -172,7 +173,12 @@ ESet::Internal::expand(Xapian::termcount max_esize,
 
 	++ebound;
 
-	double wt = eweight.get_weight(tree.get(), term);
+	/* Set up the ExpandWeight by clearing the existing statistics and
+	   collecting statistics for the new term. */
+	eweight.collect_stats(tree.get(), term);
+
+	double wt = eweight.get_weight();
+
 	// If the weights are equal, we prefer the lexically smaller term and
 	// so we use "<=" not "<" here.
 	if (wt <= min_wt) continue;

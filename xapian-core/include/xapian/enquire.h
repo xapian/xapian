@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -26,8 +26,14 @@
 #ifndef XAPIAN_INCLUDED_ENQUIRE_H
 #define XAPIAN_INCLUDED_ENQUIRE_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/enquire.h> directly; include <xapian.h> instead."
+#endif
+
+#include "xapian/deprecated.h"
 #include <string>
 
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -51,10 +57,10 @@ class Weight;
 class XAPIAN_VISIBILITY_DEFAULT MSet {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
-	/// @internal Constructor for internal use.
+	/// @private @internal Constructor for internal use.
 	explicit MSet(Internal * internal_);
 
 	/// Create an empty Xapian::MSet.
@@ -265,6 +271,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	friend class MSet;
 	friend bool operator==(const MSetIterator &a, const MSetIterator &b);
 	friend bool operator!=(const MSetIterator &a, const MSetIterator &b);
+	friend void iterator_rewind(MSetIterator & it);
+	friend bool iterator_valid(const MSetIterator & it);
 
 	MSetIterator(Xapian::doccount index_, const MSet & mset_)
 	    : index(index_), mset(mset_) { }
@@ -276,7 +284,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */
-	MSetIterator() : index(0), mset() { }
+	XAPIAN_NOTHROW(MSetIterator())
+	    : index(0), mset() { }
 
 	/// Copying is allowed (and is cheap).
 	MSetIterator(const MSetIterator &other) {
@@ -428,7 +437,7 @@ class ESetIterator;
 class XAPIAN_VISIBILITY_DEFAULT ESet {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Construct an empty ESet
@@ -486,6 +495,8 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	friend class ESet;
 	friend bool operator==(const ESetIterator &a, const ESetIterator &b);
 	friend bool operator!=(const ESetIterator &a, const ESetIterator &b);
+	friend void iterator_rewind(ESetIterator & it);
+	friend bool iterator_valid(const ESetIterator & it);
 
 	ESetIterator(Xapian::termcount index_, const ESet & eset_)
 	    : index(index_), eset(eset_) { }
@@ -497,7 +508,8 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	/** Create an uninitialised iterator; this cannot be used, but is
 	 *  convenient syntactically.
 	 */
-	ESetIterator() : index(0), eset() { }
+	XAPIAN_NOTHROW(ESetIterator())
+	    : index(0), eset() { }
 
 	/// Copying is allowed (and is cheap).
 	ESetIterator(const ESetIterator &other) {
@@ -512,7 +524,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	}
 
 	/// Advance the iterator.
-	ESetIterator & operator++() {
+	ESetIterator & XAPIAN_NOTHROW(operator++()) {
 	    ++index;
 	    return *this;
 	}
@@ -525,7 +537,7 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	}
 
 	/// Decrement the iterator.
-	ESetIterator & operator--() {
+	ESetIterator & XAPIAN_NOTHROW(operator--()) {
 	    --index;
 	    return *this;
 	}
@@ -556,14 +568,22 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	//@}
 };
 
+bool
+XAPIAN_NOTHROW(operator==(const ESetIterator &a, const ESetIterator &b));
+
 /// Equality test for ESetIterator objects.
-inline bool operator==(const ESetIterator &a, const ESetIterator &b)
+inline bool
+operator==(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index == b.index);
 }
 
+bool
+XAPIAN_NOTHROW(operator!=(const ESetIterator &a, const ESetIterator &b));
+
 /// Inequality test for ESetIterator objects.
-inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
+inline bool
+operator!=(const ESetIterator &a, const ESetIterator &b)
 {
     return (a.index != b.index);
 }
@@ -577,7 +597,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 	/// Class holding details of RSet
 	class Internal;
 
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/// Copy constructor
@@ -656,7 +676,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void operator=(const Enquire & other);
 
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
 
 	/** Create a Xapian::Enquire object.
@@ -739,6 +759,23 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		    default parameters.
 	 */
 	void set_weighting_scheme(const Weight &weight_);
+
+	/** Set the weighting scheme to use for expansion.
+	 *
+	 *  If you don't call this method, the default is as if you'd used:
+	 *
+	 *  get_expansion_scheme("trad");
+	 *
+	 *  @param eweightname_  A string in lowercase specifying the name of
+	 *                       the scheme to be used. The following schemes
+	 *                       are currently available:
+	 *                       "bo1" : The Bo1 scheme for query expansion.
+	 *                       "trad" : The TradWeight scheme for query expansion.
+	 *  @param expand_k_ The parameter required for TradWeight query expansion.
+	 *                   A default value of 1.0 is used if none is specified.
+	 */
+	void set_expansion_scheme(const std::string &eweightname_,
+				  double expand_k_ = 1.0) const;
 
 	/** Set the collapse key to use for queries.
 	 *
@@ -901,7 +938,13 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param reverse   If true, reverses the sort order.
+	 * @param reverse   If true, reverses the sort order of sort_key.
+	 *		    Beware that in 1.2.16 and earlier, the sense
+	 *		    of this parameter was incorrectly inverted
+	 *		    and inconsistent with the other set_sort_by_...
+	 *		    methods.  This was fixed in 1.2.17, so make that
+	 *		    version a minimum requirement if this detail
+	 *		    matters to your application.
 	 */
 	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					      bool reverse);
@@ -918,10 +961,35 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param reverse   If true, reverses the sort order.
+	 * @param reverse   If true, reverses the sort order of the generated
+	 *		    keys.  Beware that in 1.2.16 and earlier, the sense
+	 *		    of this parameter was incorrectly inverted
+	 *		    and inconsistent with the other set_sort_by_...
+	 *		    methods.  This was fixed in 1.2.17, so make that
+	 *		    version a minimum requirement if this detail
+	 *		    matters to your application.
 	 */
 	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
+
+	/** Set a time limit for the match.
+	 *
+	 *  Matches with check_at_least set high can take a long time in some
+	 *  cases.  You can set a time limit on this, after which check_at_least
+	 *  will be turned off.
+	 *
+	 *  @param time_limit  time in seconds after which to disable
+	 *		       check_at_least (default: 0.0 which means no
+	 *		       time limit)
+	 *
+	 *  Limitations:
+	 *
+	 *  This feature is currently supported on platforms which support POSIX
+	 *  interval timers.  Interaction with the remote backend when using
+	 *  multiple databases may have bugs.  There's not currently a way to
+	 *  force the match to end after a certain time.
+	 */
+	void set_time_limit(double time_limit);
 
 	/** Get (a portion of) the match set for the current query.
 	 *
@@ -987,10 +1055,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *			dbs, calculate the exact termfreq; otherwise an
 	 *			approximation is used which can greatly improve
 	 *			efficiency, but still returns good results.
-	 *  @param k	     the parameter k in the query expansion algorithm
-	 *		     (default is 1.0)
 	 *  @param edecider  a decision functor to use to decide whether a
 	 *		     given term should be put in the ESet
+	 *  @param min_wt    the minimum weight for included terms
 	 *
 	 *  @return	     An ESet object containing the results of the
 	 *		     expand.
@@ -998,10 +1065,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
 	ESet get_eset(Xapian::termcount maxitems,
-			const RSet & omrset,
-			int flags = 0,
-			double k = 1.0,
-			const Xapian::ExpandDecider * edecider = 0) const;
+		      const RSet & omrset,
+		      int flags = 0,
+		      const Xapian::ExpandDecider * edecider = 0,
+		      double min_wt = 0.0) const;
 
 	/** Get the expand set for the given rset.
 	 *
@@ -1017,8 +1084,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
 	inline ESet get_eset(Xapian::termcount maxitems, const RSet & omrset,
-			       const Xapian::ExpandDecider * edecider) const {
-	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
+			     const Xapian::ExpandDecider * edecider) const {
+	    return get_eset(maxitems, omrset, 0, edecider);
 	}
 
 	/** Get the expand set for the given rset.
@@ -1045,12 +1112,15 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
 	 */
-	ESet get_eset(Xapian::termcount maxitems,
-			const RSet & omrset,
-			int flags,
-			double k,
-			const Xapian::ExpandDecider * edecider,
-			double min_wt) const;
+	XAPIAN_DEPRECATED(ESet get_eset(Xapian::termcount maxitems,
+			  const RSet & rset,
+			  int flags,
+			  double k,
+			  const Xapian::ExpandDecider * edecider = NULL,
+			  double min_wt = 0.0) const) {
+	    set_expansion_scheme("trad", k);
+	    return get_eset(maxitems, rset, flags, edecider, min_wt);
+	}
 
 	/** Get terms which match a given document, by document id.
 	 *
@@ -1083,7 +1153,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	TermIterator get_matching_terms_begin(Xapian::docid did) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(Xapian::docid /*did*/) const {
+	TermIterator XAPIAN_NOTHROW(get_matching_terms_end(Xapian::docid /*did*/) const) {
 	    return TermIterator();
 	}
 
@@ -1112,7 +1182,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	TermIterator get_matching_terms_begin(const MSetIterator &it) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(const MSetIterator &/*it*/) const {
+	TermIterator XAPIAN_NOTHROW(get_matching_terms_end(const MSetIterator &/*it*/) const) {
 	    return TermIterator();
 	}
 

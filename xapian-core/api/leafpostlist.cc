@@ -1,7 +1,7 @@
 /** @file leafpostlist.cc
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -59,6 +59,7 @@ LeafPostList::set_termweight(const Xapian::Weight * weight_)
     Assert(!weight);
     weight = weight_;
     need_doclength = weight->get_sumpart_needs_doclength_();
+    need_unique_terms = weight->get_sumpart_needs_uniqueterms_();
 }
 
 double
@@ -71,11 +72,16 @@ double
 LeafPostList::get_weight() const
 {
     if (!weight) return 0;
-    Xapian::termcount doclen = 0;
-    // Fetching the document length is work we can avoid if the weighting
-    // scheme doesn't use it.
-    if (need_doclength) doclen = get_doclength();
-    return weight->get_sumpart(get_wdf(), doclen);
+    Xapian::termcount doclen = 0, unique_terms = 0;
+    // Fetching the document length and number of unique terms is work we can
+    // avoid if the weighting scheme doesn't use them.
+    if (need_doclength)
+	doclen = get_doclength();
+    if (need_unique_terms)
+	unique_terms = get_unique_terms();
+    double sumpart = weight->get_sumpart(get_wdf(), doclen, unique_terms);
+    AssertRel(sumpart, <=, weight->get_maxpart());
+    return sumpart;
 }
 
 double
@@ -90,7 +96,9 @@ LeafPostList::get_termfreq_est_using_stats(
 {
     LOGCALL(MATCH, TermFreqs, "LeafPostList::get_termfreq_est_using_stats", stats);
     if (term.empty()) {
-	RETURN(TermFreqs(stats.collection_size, stats.rset_size));
+	RETURN(TermFreqs(stats.collection_size,
+			 stats.rset_size,
+			 stats.total_term_count));
     }
     map<string, TermFreqs>::const_iterator i = stats.termfreqs.find(term);
     Assert(i != stats.termfreqs.end());
@@ -100,5 +108,11 @@ LeafPostList::get_termfreq_est_using_stats(
 Xapian::termcount
 LeafPostList::count_matching_subqs() const
 {
-    return 1;
+    return weight ? 1 : 0;
+}
+
+LeafPostList *
+LeafPostList::open_nearby_postlist(const std::string &) const
+{
+    return NULL;
 }

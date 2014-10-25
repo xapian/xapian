@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -70,6 +70,55 @@ try {
 } catch (Exception $e) {
     if ($e->getMessage() !== "QueryParserError: Syntax: <expression> AND <expression>") {
 	print "QueryParserError Exception string not as expected, got: '$e->getMessage()'\n";
+	exit(1);
+    }
+}
+
+# Check that open_stub() is wrapped as expected.
+try {
+    $db = Xapian::auto_open_stub("nosuchdir/nosuchdb");
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+	exit(1);
+    }
+}
+
+# Check that DB_BACKEND_STUB works as expected.
+try {
+    $db = new XapianDatabase("nosuchdir/nosuchdb", Xapian::DB_BACKEND_STUB);
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+	exit(1);
+    }
+}
+
+# Check that open_stub() writable form is wrapped as expected.
+try {
+    $db = Xapian::auto_open_stub("nosuchdir/nosuchdb", Xapian::DB_OPEN);
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
+	exit(1);
+    }
+}
+
+# Check that DB_BACKEND_STUB works as expected.
+try {
+    $db = new XapianWritableDatabase("nosuchdir/nosuchdb",
+				     Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
+    print "Opened non-existent stub database\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DatabaseOpeningError: Couldn't open stub database file: nosuchdir/nosuchdb (No such file or directory)") {
+	print "DatabaseOpeningError Exception string not as expected, got: '{$e->getMessage()}'\n";
 	exit(1);
     }
 }
@@ -178,17 +227,59 @@ class testmatchdecider extends XapianMatchDecider {
     }
 }
 
-$query = new XapianQuery($stem->apply("out"));
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
+    print "Skipping known failure subclassing Xapian classes in PHP under PHP 5.4+\n";
+} else {
+    $query = new XapianQuery($stem->apply("out"));
+    $enquire = new XapianEnquire($db);
+    $enquire->set_query($query);
+    $mdecider = new testmatchdecider();
+    $mset = $enquire->get_mset(0, 10, null, $mdecider);
+    if ($mset->size() != 1) {
+	print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+	exit(1);
+    }
+    if ($mset->get_docid(0) != 2) {
+	print "MatchDecider mset has wrong docid in\n";
+	exit(1);
+    }
+}
+
+class testexpanddecider extends XapianExpandDecider {
+    function apply($term) {
+	return ($term[0] !== 'a');
+    }
+}
+
 $enquire = new XapianEnquire($db);
-$enquire->set_query($query);
-$mdecider = new testmatchdecider();
-$mset = $enquire->get_mset(0, 10, null, $mdecider);
-if ($mset->size() != 1) {
-    print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+$rset = new XapianRSet();
+$rset->add_document(1);
+$eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, new testexpanddecider());
+foreach ($eset->begin() as $t) {
+    if ($t[0] === 'a') {
+	print "XapianExpandDecider was not used\n";
+	exit(1);
+    }
+}
+
+# Check min_wt argument to get_eset() works (new in 1.2.5).
+$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ);
+$min_wt = 0;
+foreach ($eset->begin() as $i => $dummy) {
+    $min_wt = $i->get_weight();
+}
+if ($min_wt >= 1.9) {
+    print "ESet min weight too high for testcase\n";
     exit(1);
 }
-if ($mset->get_docid(0) != 2) {
-    print "MatchDecider mset has wrong docid in\n";
+$eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, NULL, 1.9);
+$min_wt = 0;
+foreach ($eset->begin() as $i => $dummy) {
+    $min_wt = $i->get_weight();
+}
+if ($min_wt < 1.9) {
+    print "ESet min_wt threshold not applied\n";
+    exit(1);
 }
 
 if (XapianQuery::OP_ELITE_SET != 10) {
@@ -207,13 +298,43 @@ $oquery = $oqparser->parse_query("I like tea");
 $enq->set_cutoff(100);
 
 # Check DateValueRangeProcessor works.
+function add_vrp_date(&$qp) {
+    $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
+    $qp->add_valuerangeprocessor($vrpdate);
+}
 $qp = new XapianQueryParser();
-$vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
-$qp->add_valuerangeprocessor($vrpdate);
+add_vrp_date($qp);
 $query = $qp->parse_query('12/03/99..12/04/01');
 if ($query->get_description() !== 'Query(0 * VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
+}
+
+# Feature test for XapianFieldProcessor
+class testfieldprocessor extends XapianFieldProcessor {
+    function apply($str) {
+	if ($str === 'spam') throw new Exception('already spam');
+	return new XapianQuery("spam");
+    }
+}
+
+$tfp = new testfieldprocessor();
+$qp->add_prefix('spam', $tfp);
+$query = $qp->parse_query('spam:ignored');
+if ($query->get_description() !== 'Query(spam)') {
+    print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
+    exit(1);
+}
+
+try {
+    $query = $qp->parse_query('spam:spam');
+    print "testfieldprocessor exception not rethrown\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== 'already spam') {
+	print "Exception has wrong message\n";
+	exit(1);
+    }
 }
 
 # Test setting and getting metadata
@@ -380,12 +501,9 @@ if ($query->get_description() != 'Query()') {
     $matchspy = new XapianValueCountMatchSpy(0);
     $enquire->add_matchspy($matchspy);
     $enquire->get_mset(0, 10);
-    $beg = $matchspy->values_begin();
-    $end = $matchspy->values_end();
     $values = array();
-    while (!($beg->equals($end))) {
-        $values[$beg->get_term()] = $beg->get_termfreq();
-        $beg->next();
+    foreach ($matchspy->values_begin() as $k => $term) {
+	$values[$term] = $k->get_termfreq();
     }
     $expected = array(
         "ABB" => 1,
@@ -411,6 +529,25 @@ $doc = new XapianDocument();
 $indexer->set_document($doc);
 $indexer->index_text("I ask nothing in return");
 $indexer->index_text_without_positions("Tea time");
+$indexer->index_text("Return in time");
+
+$s = '';
+foreach ($doc->termlist_begin() as $term) {
+    $s .= $term . ' ';
+}
+if ($s !== 'ask i in nothing return tea time ') {
+    print "PHP Iterator wrapping of TermIterator doesn't work ($s)\n";
+    exit(1);
+}
+
+$s = '';
+foreach ($doc->termlist_begin() as $k => $term) {
+    $s .= $term . ':' . $k->get_wdf() . ' ';
+}
+if ($s !== 'ask:1 i:1 in:2 nothing:1 return:2 tea:1 time:2 ') {
+    print "PHP Iterator wrapping of TermIterator keys doesn't work ($s)\n";
+    exit(1);
+}
 
 # Test GeoSpatial API
 $coord = new XapianLatLongCoord();
@@ -444,6 +581,28 @@ $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {
     print "Expected one result with XapianLatLongDistancePostingSource, got ";
     print $mset->size() . "\n";
+    exit(1);
+}
+
+$s='';
+foreach ($db->allterms_begin() as $k => $term) {
+    $s .= "($term:{$k->get_termfreq()})";
+}
+if ($s !== '(coffee:1)') {
+    print "PHP Iterator iteration of allterms doesn't work ($s)\n";
+    exit(1);
+}
+
+# Test reference tracking and regression test for #659.
+$qp = new XapianQueryParser();
+{
+    $stop = new XapianSimpleStopper();
+    $stop->add('a');
+    $qp->set_stopper($stop);
+}
+$query = $qp->parse_query('a b');
+if ($query->get_description() !== 'Query(b@2)') {
+    print "XapianQueryParser::set_stopper() didn't work as expected - result was ".$query->get_description()."\n";
     exit(1);
 }
 

@@ -84,7 +84,7 @@ AndMaybePostList::next(double w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	LOGLINE(MATCH, "AND MAYBE -> AND");
-	ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize, true);
+	ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 	l = r = NULL;
 	skip_to_handling_prune(ret, std::max(lhead, rhead) + 1, w_min, matcher);
 	RETURN(ret);
@@ -100,7 +100,7 @@ AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	LOGLINE(MATCH, "AND MAYBE -> AND (in skip_to)");
-	ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize, true);
+	ret = new MultiAndPostList(l, r, lmax, rmax, matcher, dbsize);
 	did = std::max(did, std::max(lhead, rhead));
 	l = r = NULL;
 	skip_to_handling_prune(ret, did, w_min, matcher);
@@ -202,6 +202,15 @@ AndMaybePostList::get_doclength() const
     Assert(lhead != 0); // check we've started
     if (lhead == rhead) AssertEq(l->get_doclength(), r->get_doclength());
     RETURN(l->get_doclength());
+}
+
+Xapian::termcount
+AndMaybePostList::get_unique_terms() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_unique_terms", NO_ARGS);
+    Assert(lhead != 0); // check we've started
+    if (lhead == rhead) AssertEq(l->get_unique_terms(), r->get_unique_terms());
+    RETURN(l->get_unique_terms());
 }
 
 Xapian::termcount

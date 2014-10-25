@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,13 +37,10 @@
 #include "filetests.h"
 #include "noreturn.h"
 #include "omassert.h"
+#include "posixy_wrapper.h"
 #include "realtime.h"
 #include "length.h"
 #include "socket_utils.h"
-
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 using namespace std;
 
@@ -80,13 +77,13 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 #endif
 }
 
+#ifdef __WIN32__
 RemoteConnection::~RemoteConnection()
 {
-#ifdef __WIN32__
     if (overlapped.hEvent)
 	CloseHandle(overlapped.hEvent);
-#endif
 }
+#endif
 
 void
 RemoteConnection::read_at_least(size_t min_len, double end_time)
@@ -168,9 +165,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    FD_SET(fdin, &fdset);
 
 	    struct timeval tv;
-	    tv.tv_sec = long(time_diff);
-	    tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
-
+	    RealTime::to_timeval(time_diff, &tv);
 	    int select_result = select(fdin + 1, &fdset, 0, &fdset, &tv);
 	    if (select_result > 0) break;
 
@@ -299,9 +294,7 @@ RemoteConnection::send_message(char type, const string &message,
 	}
 
 	struct timeval tv;
-	tv.tv_sec = long(time_diff);
-	tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
-
+	RealTime::to_timeval(time_diff, &tv);
 	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
 
 	if (select_result < 0) {
@@ -434,9 +427,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	}
 
 	struct timeval tv;
-	tv.tv_sec = long(time_diff);
-	tv.tv_usec = long(fmod(time_diff, 1.0) * 1000000);
-
+	RealTime::to_timeval(time_diff, &tv);
 	int select_result = select(fdout + 1, 0, &fdset, &fdset, &tv);
 
 	if (select_result < 0) {
@@ -590,13 +581,10 @@ RemoteConnection::receive_file(const string &file, double end_time)
     if (fdin == -1)
 	throw_database_closed();
 
-#ifdef __WIN32__
-    // Do we want to be able to delete the file during writing?
-    FD fd(msvc_posix_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC));
-#else
-    FD fd(open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666));
-#endif
-    if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
+    // FIXME: Do we want to be able to delete the file during writing?
+    FD fd(posixy_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC, 0666));
+    if (fd == -1)
+	throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
 
     read_at_least(2, end_time);
     size_t len = static_cast<unsigned char>(buffer[1]);
@@ -612,7 +600,9 @@ RemoteConnection::receive_file(const string &file, double end_time)
     unsigned char ch;
     int shift = 0;
     do {
-	if (i == buffer.end() || shift > 28) {
+	// Allow a full 64 bits for message lengths - anything longer than that
+	// is almost certainly a corrupt value.
+	if (i == buffer.end() || shift > 63) {
 	    // Something is very wrong...
 	    throw Xapian::NetworkError("Insane message length specified!");
 	}

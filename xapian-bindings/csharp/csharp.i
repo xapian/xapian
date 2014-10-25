@@ -2,7 +2,7 @@
 %{
 /* csharp.i: SWIG interface file for the C# bindings
  *
- * Copyright (c) 2005,2006,2008,2009,2011 Olly Betts
+ * Copyright (c) 2005,2006,2008,2009,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -237,4 +237,5 @@ namespace Xapian {
 }
 
 %include ../generic/except.i
-%include ../xapian.i
+%include ../xapian-headers.i
+%include ../fake_dbfactory.i

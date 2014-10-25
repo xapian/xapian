@@ -26,10 +26,8 @@
 #include "xapian/error.h"
 
 #include "io_utils.h"
+#include "posixy_wrapper.h"
 
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
@@ -49,13 +47,7 @@ create_changeset_file(const string & changeset_dir,
     changes_name = changeset_dir;
     changes_name += '/';
     changes_name += filename;
-#ifdef __WIN32__
-    int changes_fd = msvc_posix_open(changes_name.c_str(),
-				     O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-    int changes_fd = open(changes_name.c_str(),
-			  O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
+    int changes_fd = posixy_open(changes_name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (changes_fd < 0) {
 	string message("Couldn't open changeset to write: ");
 	message += changes_name;

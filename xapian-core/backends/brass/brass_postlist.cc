@@ -1,7 +1,7 @@
 /* brass_postlist.cc: Postlists in a brass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,33 +30,27 @@
 #include "noreturn.h"
 #include "pack.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 using Xapian::Internal::intrusive_ptr;
 
-Xapian::doccount
-BrassPostListTable::get_termfreq(const string & term) const
+void
+BrassPostListTable::get_freqs(const string & term,
+			      Xapian::doccount * termfreq_ptr,
+			      Xapian::termcount * collfreq_ptr) const
 {
     string key = make_key(term);
     string tag;
-    if (!get_exact_entry(key, tag)) return 0;
-
-    Xapian::doccount termfreq;
-    const char * p = tag.data();
-    BrassPostList::read_number_of_entries(&p, p + tag.size(), &termfreq, NULL);
-    return termfreq;
-}
-
-Xapian::termcount
-BrassPostListTable::get_collection_freq(const string & term) const
-{
-    string key = make_key(term);
-    string tag;
-    if (!get_exact_entry(key, tag)) return 0;
-
-    Xapian::termcount collfreq;
-    const char * p = tag.data();
-    BrassPostList::read_number_of_entries(&p, p + tag.size(), NULL, &collfreq);
-    return collfreq;
+    if (!get_exact_entry(key, tag)) {
+	if (termfreq_ptr)
+	    *termfreq_ptr = 0;
+	if (collfreq_ptr)
+	    *collfreq_ptr = 0;
+    } else {
+	const char * p = tag.data();
+	BrassPostList::read_number_of_entries(&p, p + tag.size(),
+					      termfreq_ptr, collfreq_ptr);
+    }
 }
 
 Xapian::termcount
@@ -683,6 +677,25 @@ BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
 	  cursor(this_db_->postlist_table.cursor_get())
 {
     LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | keep_reference);
+    init();
+}
+
+BrassPostList::BrassPostList(intrusive_ptr<const BrassDatabase> this_db_,
+			     const string & term_,
+			     BrassCursor * cursor_)
+	: LeafPostList(term_),
+	  this_db(this_db_),
+	  have_started(false),
+	  is_at_end(false),
+	  cursor(cursor_)
+{
+    LOGCALL_CTOR(DB, "BrassPostList", this_db_.get() | term_ | cursor_);
+    init();
+}
+
+void
+BrassPostList::init()
+{
     string key = BrassPostListTable::make_key(term);
     int found = cursor->find_entry(key);
     if (!found) {
@@ -712,6 +725,17 @@ BrassPostList::~BrassPostList()
     LOGCALL_DTOR(DB, "BrassPostList");
 }
 
+LeafPostList *
+BrassPostList::open_nearby_postlist(const std::string & term_) const
+{
+    LOGCALL(DB, LeafPostList *, "BrassPostList::open_nearby_postlist", term_);
+    if (term_.empty())
+	RETURN(NULL);
+    if (!this_db.get() || this_db->postlist_table.is_writable())
+	RETURN(NULL);
+    RETURN(new BrassPostList(this_db, term_, cursor->clone()));
+}
+
 Xapian::termcount
 BrassPostList::get_doclength() const
 {
@@ -719,6 +743,15 @@ BrassPostList::get_doclength() const
     Assert(have_started);
     Assert(this_db.get());
     RETURN(this_db->get_doclength(did));
+}
+
+Xapian::termcount
+BrassPostList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "BrassPostList::get_unique_terms", NO_ARGS);
+    Assert(have_started);
+    Assert(this_db.get());
+    RETURN(this_db->get_unique_terms(did));
 }
 
 bool
@@ -750,7 +783,7 @@ BrassPostList::next_chunk()
     cursor->next();
     if (cursor->after_end()) {
 	is_at_end = true;
-	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
 				     term + "'");
     }
     const char * keypos = cursor->current_key.data();
@@ -758,7 +791,7 @@ BrassPostList::next_chunk()
     // Check we're still in same postlist
     if (!check_tname_in_key_lite(&keypos, keyend, term)) {
 	is_at_end = true;
-	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
 				     term + "'");
     }
 
@@ -974,7 +1007,11 @@ BrassPostList::jump_to(Xapian::docid desired_did)
 string
 BrassPostList::get_description() const
 {
-    return term + ":" + str(number_of_entries);
+    string desc;
+    description_append(desc, term);
+    desc += ":";
+    desc += str(number_of_entries);
+    return desc;
 }
 
 // Returns the last did to allow in this chunk.

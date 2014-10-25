@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #include <config.h>
 #include "remoteserver.h"
 
+#include "xapian/constants.h"
 #include "xapian/database.h"
 #include "xapian/enquire.h"
 #include "xapian/error.h"
@@ -42,6 +43,7 @@
 #include "serialise.h"
 #include "serialise-double.h"
 #include "str.h"
+#include "stringutils.h"
 #include "weight/weightinternal.h"
 
 XAPIAN_NORETURN(static void throw_read_only());
@@ -182,6 +184,7 @@ RemoteServer::run()
 		0, // MSG_GETMSET - used during a conversation.
 		0, // MSG_SHUTDOWN - handled by get_message().
 		&RemoteServer::msg_openmetadatakeylist,
+		&RemoteServer::msg_uniqueterms,
 	    };
 
 	    string message;
@@ -229,13 +232,21 @@ RemoteServer::run()
 void
 RemoteServer::msg_allterms(const string &message)
 {
-    const string & prefix = message;
+    string prev = message;
+    string reply;
 
+    const string & prefix = message;
     const Xapian::TermIterator end = db->allterms_end(prefix);
     for (Xapian::TermIterator t = db->allterms_begin(prefix); t != end; ++t) {
-	string item = encode_length(t.get_termfreq());
-	item += *t;
-	send_message(REPLY_ALLTERMS, item);
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string & v = *t;
+	size_t reuse = common_prefix_length(prev, v);
+	reply = encode_length(t.get_termfreq());
+	reply.append(1, char(reuse));
+	reply.append(v, reuse, string::npos);
+	send_message(REPLY_ALLTERMS, reply);
+	prev = v;
     }
 
     send_message(REPLY_DONE, string());
@@ -249,12 +260,19 @@ RemoteServer::msg_termlist(const string &message)
     Xapian::docid did = decode_length(&p, p_end, false);
 
     send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
+    string prev;
     const Xapian::TermIterator end = db->termlist_end(did);
     for (Xapian::TermIterator t = db->termlist_begin(did); t != end; ++t) {
-	string item = encode_length(t.get_wdf());
-	item += encode_length(t.get_termfreq());
-	item += *t;
-	send_message(REPLY_TERMLIST, item);
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string & v = *t;
+	size_t reuse = common_prefix_length(prev, v);
+	string reply = encode_length(t.get_wdf());
+	reply += encode_length(t.get_termfreq());
+	reply.append(1, char(reuse));
+	reply.append(v, reuse, string::npos);
+	send_message(REPLY_TERMLIST, reply);
+	prev = v;
     }
 
     send_message(REPLY_DONE, string());
@@ -406,6 +424,8 @@ RemoteServer::msg_query(const string &message_in)
     }
     bool sort_value_forward(*p++ != '0');
 
+    double time_limit = unserialise_double(&p, p_end);
+
     int percent_cutoff = *p++;
     if (percent_cutoff < 0 || percent_cutoff > 100) {
 	throw Xapian::NetworkError("bad message (percent_cutoff)");
@@ -459,7 +479,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query, qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
-		     sort_key, sort_by, sort_value_forward, NULL,
+		     sort_key, sort_by, sort_value_forward, time_limit, NULL,
 		     local_stats, wt.get(), matchspies.spies, false, false);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
@@ -476,11 +496,13 @@ RemoteServer::msg_query(const string &message_in)
     check_at_least = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
-    Xapian::Weight::Internal total_stats(unserialise_stats(message));
-    total_stats.set_bounds_from_db(*db);
+    AutoPtr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
+    unserialise_stats(message, *(total_stats.get()));
+    total_stats->set_bounds_from_db(*db);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, *(total_stats.get()), 0, 0);
+    mset.internal->stats = total_stats.release();
 
     message.resize(0);
     vector<Xapian::MatchSpy *>::const_iterator i;
@@ -540,6 +562,14 @@ RemoteServer::msg_termfreq(const string &term)
 }
 
 void
+RemoteServer::msg_freqs(const string &term)
+{
+    string msg = encode_length(db->get_termfreq(term));
+    msg += encode_length(db->get_collection_freq(term));
+    send_message(REPLY_FREQS, msg);
+}
+
+void
 RemoteServer::msg_valuestats(const string & message)
 {
     const char *p = message.data();
@@ -566,6 +596,15 @@ RemoteServer::msg_doclength(const string &message)
     const char *p_end = p + message.size();
     Xapian::docid did = decode_length(&p, p_end, false);
     send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
+}
+
+void
+RemoteServer::msg_uniqueterms(const string &message)
+{
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    Xapian::docid did = decode_length(&p, p_end, false);
+    send_message(REPLY_UNIQUETERMS, encode_length(db->get_unique_terms(did)));
 }
 
 void
@@ -665,12 +704,22 @@ RemoteServer::msg_getmetadata(const string & message)
 void
 RemoteServer::msg_openmetadatakeylist(const string & message)
 {
-    const Xapian::TermIterator end = db->metadata_keys_end(message);
-    Xapian::TermIterator t = db->metadata_keys_begin(message);
-    for (; t != end; ++t) {
-	send_message(REPLY_METADATAKEYLIST, *t);
-    }
+    string prev = message;
+    string reply;
 
+    const string & prefix = message;
+    const Xapian::TermIterator end = db->metadata_keys_end(prefix);
+    Xapian::TermIterator t = db->metadata_keys_begin(prefix);
+    for (; t != end; ++t) {
+	if (rare(prev.size() > 255))
+	    prev.resize(255);
+	const string & v = *t;
+	size_t reuse = common_prefix_length(prev, v);
+	reply.assign(1, char(reuse));
+	reply.append(v, reuse, string::npos);
+	send_message(REPLY_METADATAKEYLIST, reply);
+	prev = v;
+    }
     send_message(REPLY_DONE, string());
 }
 

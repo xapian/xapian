@@ -214,7 +214,7 @@ module Xapian
       Xapian._safelyIterate(self._begin(), 
                             self._end()) { |item|
 	# note: in the ExpandTerm wrapper, we implicitly rename
-	# ESetIterator#term() (defined in xapian.i) to ExpandTerm#term()
+	# ESetIterator#term() (defined in xapian-headers.i) to ExpandTerm#term()
         Xapian::ExpandTerm.new(item.term, item.weight)
       }
 

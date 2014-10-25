@@ -1,7 +1,7 @@
 /** @file realtime.h
  *  @brief Functions for handling a time or time interval in a double.
  */
-/* Copyright (C) 2010,2011 Olly Betts
+/* Copyright (C) 2010,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,8 +44,17 @@ namespace RealTime {
 /// Return the current time.
 inline double now() {
 #ifndef __WIN32__
-    // POSIX.1-2008 stopped specifying ftime(), so prefer gettimeofday().
-# ifdef HAVE_GETTIMEOFDAY
+    // We prefer clock_gettime() over gettimeofday() over ftime().  This order
+    // favours functions which can return the time with a higher precision.
+    //
+    // Also, POSIX.1-2008 stopped specifying ftime(), and marked gettimeofday()
+    // as obsolete, recommending clock_gettime() instead.
+# if defined HAVE_CLOCK_GETTIME
+    struct timespec ts;
+    if (usual(clock_gettime(CLOCK_REALTIME, &ts) == 0))
+	return ts.tv_sec + (ts.tv_nsec * 1e-9);
+    return double(std::time(NULL));
+# elif defined HAVE_GETTIMEOFDAY
     struct timeval tv;
     if (usual(gettimeofday(&tv, NULL) == 0))
 	return tv.tv_sec + (tv.tv_usec * 1e-6);
@@ -78,27 +87,61 @@ inline double end_time(double timeout) {
     return (timeout == 0.0 ? timeout : timeout + now());
 }
 
+#if defined HAVE_NANOSLEEP || defined HAVE_TIMER_CREATE
+/// Fill in struct timespec from number of seconds in a double.
+inline void to_timespec(double t, struct timespec *ts) {
+    double secs;
+    ts->tv_nsec = long(std::modf(t, &secs) * 1e9);
+    ts->tv_sec = long(secs);
+}
+#endif
+
+#ifndef __WIN32__
+/// Fill in struct timeval from number of seconds in a double.
+inline void to_timeval(double t, struct timeval *tv) {
+    double secs;
+    tv->tv_usec = long(std::modf(t, &secs) * 1e6);
+    tv->tv_sec = long(secs);
+}
+#else
+// Use a macro to avoid having to pull in winsock2.h just for struct timeval.
+#define to_timeval(T, TV) to_timeval_((T), (TV)->tv_sec, (TV)->tv_usec)
+inline void to_timeval_(double t, long & tv_sec, long & tv_usec) {
+    double secs;
+    tv_usec = long(std::modf(t, &secs) * 1e6);
+    tv_sec = long(secs);
+}
+#endif
+
 /// Sleep until the time represented by this object.
 inline void sleep(double t) {
 #ifndef __WIN32__
+# ifdef HAVE_NANOSLEEP
+    double delta = t - RealTime::now();
+    if (delta <= 0.0)
+	return;
+    struct timespec ts;
+    to_timespec(delta, &ts);
+    while (nanosleep(&ts, &ts) < 0 && errno == EINTR) { }
+# else
     double delta;
     struct timeval tv;
     do {
-	delta = RealTime::now() - t;
+	delta = t - RealTime::now();
 	if (delta <= 0.0)
 	    return;
-	tv.tv_sec = long(delta);
-	tv.tv_usec = long(std::fmod(delta, 1.0) * 1e6);
+	to_timeval(delta, &tv);
     } while (select(0, NULL, NULL, NULL, &tv) < 0 && errno == EINTR);
+# endif
 #else
-    double delta = RealTime::now() - t;
+    double delta = t - RealTime::now();
     if (delta <= 0.0)
 	return;
-    while (rare(t > 4294967.0)) {
+    while (rare(delta > 4294967.0)) {
 	xapian_sleep_milliseconds(4294967000u);
-	t -= 4294967.0;
+	delta -= 4294967.0;
     }
-    xapian_sleep_milliseconds(unsigned(t * 1000.0));
+    xapian_sleep_milliseconds(unsigned(delta * 1000.0));
 #endif
 }
 

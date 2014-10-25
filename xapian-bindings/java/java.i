@@ -2,7 +2,8 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012,2014 Olly Betts
+ * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,6 +100,10 @@ class Version {
 }
 }
 
+%{
+#include <xapian/iterator.h>
+%}
+
 namespace Xapian {
 
 %ignore version_string;
@@ -109,46 +114,214 @@ namespace Xapian {
 // For compatibility with the original JNI wrappers.
 // FIXME: These make use of the fact that the default ctor for PostingIterator,
 // TermIterator, and ValueIterator produces an end iterator.
-
 %extend PostingIterator {
-    bool hasNext() const { return (*self) == Xapian::PostingIterator(); }
+    Xapian::docid next () {
+        Xapian::docid tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = -1;
+        }
+        return tmp;
+    }
+
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
 %extend TermIterator {
-    bool hasNext() const { return (*self) == Xapian::TermIterator(); }
+    std::string next () {
+        std:string tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = "";
+        }
+        return tmp;
+    }
+
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
 %extend ValueIterator {
-    bool hasNext() const { return (*self) == Xapian::ValueIterator(); }
+    std::string next () {
+        std:string tmp;
+        if (Xapian::iterator_valid(*self)) {
+            tmp = (**self);
+            ++(*self);
+        } else {
+            tmp = "";
+        }
+        return tmp;
+    }
+
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
-// FIXME: MSetIterator::hasNext() and ESetIterator::hasNext().
+%extend ESetIterator {
+    std::string next () {
+	std:string tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	} else {
+	    tmp = "";
+	}
+	return tmp;
+    }
+
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
+}
+
+%extend MSetIterator {
+    Xapian::docid next () {
+	Xapian::docid tmp;
+	if (Xapian::iterator_valid(*self)) {
+	    tmp = (**self);
+	    ++(*self);
+	} else {
+	    tmp = -1;
+	}
+	return tmp;
+    }
+
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
+}
 
 }
 
-/* This tells SWIG to treat vector<string> as a special case when used as a
- * parameter in a function call. */
-%typemap(in) const vector<string> & (vector<string> v, jsize len) {
-    len = jenv->GetArrayLength($input);
-    v.reserve(len);
-    for (int i = 0; i < len; ++i) {
-	jstring term = (jstring)jenv->GetObjectArrayElement($input, i);
+#define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
+
+%{
+class XapianSWIGStrItor {
+    JNIEnv * jenv;
+
+    jobjectArray array;
+
+    jsize i;
+
+  public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
+    XapianSWIGStrItor() { }
+
+    void begin(JNIEnv * jenv_, jobjectArray array_) {
+        jenv = jenv_;
+        array = array_;
+        i = 0;
+    }
+
+    void end(jsize len_) {
+        i = len_;
+    }
+
+    XapianSWIGStrItor & operator++() {
+	++i;
+	return *this;
+    }
+
+    Xapian::Query operator*() const {
+	jstring term = (jstring)jenv->GetObjectArrayElement(array, i);
 	const char *c_term = jenv->GetStringUTFChars(term, 0);
-	v.push_back(c_term);
+	Xapian::Query subq(c_term);
 	jenv->ReleaseStringUTFChars(term, c_term);
 	jenv->DeleteLocalRef(term);
+	return subq;
     }
-    $1 = &v;
+
+    bool operator==(const XapianSWIGStrItor & o) {
+	return i == o.i;
+    }
+
+    bool operator!=(const XapianSWIGStrItor & o) {
+	return !(*this == o);
+    }
+
+    difference_type operator-(const XapianSWIGStrItor &o) const {
+        return i - o.i;
+    }
+};
+
+class XapianSWIGQueryItor {
+    jlong * p;
+
+  public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
+    XapianSWIGQueryItor() { }
+
+    void set_p(jlong * p_) { p = p_; }
+
+    XapianSWIGQueryItor & operator++() {
+	++p;
+	return *this;
+    }
+
+    const Xapian::Query & operator*() const {
+	return **(Xapian::Query **)p;
+    }
+
+    bool operator==(const XapianSWIGQueryItor & o) {
+	return p == o.p;
+    }
+
+    bool operator!=(const XapianSWIGQueryItor & o) {
+	return !(*this == o);
+    }
+
+    difference_type operator-(const XapianSWIGQueryItor &o) const {
+        return p - o.p;
+    }
+};
+
+%}
+
+%typemap(in) (XapianSWIGStrItor qbegin, XapianSWIGStrItor qend) {
+    $1.begin(jenv, $input);
+    $2.end(jenv->GetArrayLength($input));
 }
 
 /* These 3 typemaps tell SWIG what JNI and Java types to use. */
-%typemap(jni) const vector<string> & "jobjectArray"
-%typemap(jtype) const vector<string> & "String[]"
-%typemap(jstype) const vector<string> & "String[]"
+%typemap(jni) XapianSWIGStrItor, XapianSWIGStrItor "jobjectArray"
+%typemap(jtype) XapianSWIGStrItor, XapianSWIGStrItor "String[]"
+%typemap(jstype) XapianSWIGStrItor, XapianSWIGStrItor "String[]"
 
 /* This typemap handles the conversion of the jtype to jstype typemap type
  * and vice versa. */
-%typemap(javain) const vector<string> & "$javainput"
+%typemap(javain) XapianSWIGStrItor, XapianSWIGStrItor "$javainput"
+
+%typemap(in) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) %{
+    if (!$input)
+	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+    jlong * jarr = jenv->GetLongArrayElements($input, NULL);
+    if (!jarr) return $null;
+    $1.set_p(jarr);
+    $2.set_p(jarr + jenv->GetArrayLength($input));
+%}
+
+%typemap(freearg) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) %{
+    /* We don't change the array so use JNI_ABORT to avoid any work
+     * copying back non-existent changes if the JVM gave us a copy
+     * of the array data. */
+    jenv->ReleaseLongArrayElements($input, jarr, JNI_ABORT);
+%}
+
+/* These 3 typemaps tell SWIG what JNI and Java types to use. */
+%typemap(jni) XapianSWIGQueryItor, XapianSWIGQueryItor "jlongArray"
+%typemap(jtype) XapianSWIGQueryItor, XapianSWIGQueryItor "long[]"
+%typemap(jstype) XapianSWIGQueryItor, XapianSWIGQueryItor "Query[]"
+
+/* This typemap handles the conversion of the jstype to the jtype. */
+%typemap(javain) XapianSWIGQueryItor, XapianSWIGQueryItor "Query.cArrayUnwrap($javainput)"
 
 %typemap(javacode) Xapian::Query %{
     // For compatibility with the original JNI wrappers.
@@ -174,44 +347,55 @@ namespace Xapian {
     }
 %}
 
-/* This tells SWIG to treat vector<Xapian::Query> as a special case when used
- * as a parameter in a function call. */
-%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v, jlong *jarr, jsize len) {
-    if (!$input)
-	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
-    len = jenv->GetArrayLength($input);
-    v.reserve(len);
-    jarr = jenv->GetLongArrayElements($input, NULL);
-    if (!jarr) return $null;
-    for (int i = 0; i < len; ++i) {
-	Xapian::Query * query = *(Xapian::Query **)&jarr[i];
-	v.push_back(*query);
-    }
-    /* We don't change the array so use JNI_ABORT to avoid any work
-     * copying back non-existent changes if the JVM gave us a copy
-     * of the array data. */
-    jenv->ReleaseLongArrayElements($input, jarr, JNI_ABORT);
-    $1 = &v;
-}
-
-/* These 3 typemaps tell SWIG what JNI and Java types to use. */
-%typemap(jni) const vector<Xapian::Query> & "jlongArray"
-%typemap(jtype) const vector<Xapian::Query> & "long[]"
-%typemap(jstype) const vector<Xapian::Query> & "Query[]"
-
-/* This typemap handles the conversion of the jstype to the jtype. */
-%typemap(javain) const vector<Xapian::Query> & "Query.cArrayUnwrap($javainput)"
-
-#if 0
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 %typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
+    jobjectArray c_result;
+    jboolean jbool;
+    jstring temp_string;
+    int n = 0;
+    const jclass clazz = jenv->FindClass("java/lang/String");
+    const jclass arrayClass = jenv->FindClass("java/util/ArrayList");
+    if (arrayClass == NULL)
+	return NULL;
+
+    const jmethodID mid_init = jenv->GetMethodID(arrayClass, "<init>", "()V");
+    if (mid_init == NULL)
+	return NULL;
+
+    jobject objArr = jenv->NewObject(arrayClass, mid_init);
+    if (objArr == NULL)
+	return NULL;
+
+    const jmethodID mid_add = jenv->GetMethodID(arrayClass, "add",
+						"(Ljava/lang/Object;)Z");
+    if (mid_add == NULL)
+	return NULL;
+
+    const jmethodID mid_toArray = jenv->GetMethodID(arrayClass, "toArray", "([Ljava/lang/Object;)[Ljava/lang/Object;");
+    if (mid_toArray == NULL) return NULL;
+
     for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-	/* FIXME: implement this bit! */
+	temp_string = jenv->NewStringUTF((*i).c_str());
+	jbool = jenv->CallBooleanMethod(objArr, mid_add, temp_string);
+	if (jbool == false) return NULL;
+	jenv->DeleteLocalRef(temp_string);
+	++n;
     }
+
+    c_result = jenv->NewObjectArray(n, clazz, NULL);
+    $result = (jobjectArray)jenv->CallObjectMethod(objArr, mid_toArray, c_result);
 }
-#endif
+
+%typemap(jni) std::pair<Xapian::TermIterator, Xapian::TermIterator> "jobjectArray"
+%typemap(jtype) std::pair<Xapian::TermIterator, Xapian::TermIterator> "String[]"
+%typemap(jstype) std::pair<Xapian::TermIterator, Xapian::TermIterator> "String[]"
+
+/* This typemap handles the conversion of the jstype to the jtype. */
+%typemap(javaout) std::pair<Xapian::TermIterator, Xapian::TermIterator> { return $jnicall; }
+
 
 #pragma SWIG nowarn=822 /* Suppress warning about covariant return types (FIXME - check if this is a problem!) */
 
 %include ../generic/except.i
-%include ../xapian.i
+%include ../xapian-headers.i
+%include ../fake_dbfactory.i

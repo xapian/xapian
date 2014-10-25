@@ -1,8 +1,8 @@
 /* Driver template for the LEMON parser generator.
 ** The author disclaims copyright to this source code.
 **
-** Synced with upstream CVS rev 1.45:
-** http://www.sqlite.org/cvstrac/fileview?f=sqlite/tool/lempar.c&v=1.45
+** Synced with upstream:
+** http://www.sqlite.org/src/artifact/01ca97f87610d1da
 */
 /* First off, code is included that follows the "include" declaration
 ** in the input grammar file. */
@@ -400,7 +400,7 @@ static void yy_shift(
   YYMINORTYPE *yypMinor         /* Pointer to the minor token to shift in */
 ){
   /* Here code is inserted which will execute if the parser
-  ** stack every overflows.  We use std::vector<> for our stack
+  ** stack ever overflows.  We use std::vector<> for our stack
   ** so we'll never need this code.
   */
 #if 0

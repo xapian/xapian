@@ -2,11 +2,16 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = \
-  LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" $(srcdir)/run-java-test
-
 ## Test programs to be run
 TESTS = SmokeTest.class
+AM_TESTS_ENVIRONMENT = \
+	LIBTOOL="$(LIBTOOL)" ;\
+	JAVA="$(JAVA)" ;\
+	PATHSEP="$(JAVA_PATHSEP)" ;\
+	export LIBTOOL ;\
+	export JAVA ;\
+	export PATHSEP ;
+LOG_COMPILER = $(srcdir)/run-java-test
 
 CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
 	built/xapian_jni.jar\
@@ -14,11 +19,13 @@ CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
 
 SmokeTest: SmokeTest.class
 
+# To get debug symbols, use: make JAVACFLAGS=-g
 .java.class:
-	$(JAVAC) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
+	$(JAVAC) $(JAVACFLAGS) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
 
 XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Auto.java\
+	org/xapian/BB2Weight.java\
 	org/xapian/BM25Weight.java\
 	org/xapian/BoolWeight.java\
 	org/xapian/Brass.java\
@@ -27,16 +34,24 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Database.java\
 	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
+	org/xapian/DLHWeight.java\
+	org/xapian/DPHWeight.java\
 	org/xapian/Document.java\
 	org/xapian/Enquire.java\
 	org/xapian/ESet.java\
 	org/xapian/ESetIterator.java\
 	org/xapian/ExpandDecider.java\
 	org/xapian/ExpandDeciderAnd.java\
+	org/xapian/ExpandDeciderFilterPrefix.java\
+	org/xapian/FieldProcessor.java\
 	org/xapian/FixedWeightPostingSource.java\
 	org/xapian/GreatCircleMetric.java\
+	org/xapian/IfB2Weight.java\
+	org/xapian/IneB2Weight.java\
+	org/xapian/InL2Weight.java\
 	org/xapian/InMemory.java\
 	org/xapian/KeyMaker.java\
+	org/xapian/LMWeight.java \
 	org/xapian/LatLongCoord.java\
 	org/xapian/LatLongCoords.java\
 	org/xapian/LatLongCoordsIterator.java\
@@ -49,6 +64,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/MSetIterator.java\
 	org/xapian/MultiValueKeyMaker.java\
 	org/xapian/NumberValueRangeProcessor.java\
+	org/xapian/PL2Weight.java\
 	org/xapian/PositionIterator.java\
 	org/xapian/PostingIterator.java\
 	org/xapian/PostingSource.java\
@@ -58,6 +74,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Remote.java\
 	org/xapian/RSet.java\
 	org/xapian/SimpleStopper.java\
+	org/xapian/Snipper.java\
 	org/xapian/Stem.java\
 	org/xapian/StemImplementation.java\
 	org/xapian/Stopper.java\
@@ -65,6 +82,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/SWIGTYPE_p_std__string.java\
 	org/xapian/TermGenerator.java\
 	org/xapian/TermIterator.java\
+	org/xapian/TfIdfWeight.java\
 	org/xapian/TradWeight.java\
 	org/xapian/ValueCountMatchSpy.java\
 	org/xapian/ValueIterator.java\
@@ -99,7 +117,7 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 noinst_DATA = built/xapian_jni.jar
 
 built/xapian_jni.jar: $(XAPIAN_SWIG_JAVA_CLASS)
-	-test -d built || mkdir built
+	$(MKDIR_P) built
 	$(JAR) -cf built/xapian_jni.jar org/xapian/*.class
 ##$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
@@ -136,22 +154,23 @@ libxapian_jni_la_SOURCES = xapian_wrap.cc
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
 
-EXTRA_DIST = run-java-test SmokeTest.java $(BUILT_SOURCES)
+EXTRA_DIST = run-java-test SmokeTest.java docs/index.rst $(BUILT_SOURCES)
 
 if MAINTAINER_MODE
-xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)						       
-xapian_wrap.stamp:
+stamp = xapian_wrap.stamp
+RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+
+xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): $(stamp)
+	$(make_many_locked)
+$(stamp):
 	$(multitarget_begin)
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f org/xapian/*
 	$(MKDIR_P) org/xapian
-	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -java -module Xapian -package org.xapian -outdir org/xapian \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'java.i
-	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
-	mv xapian_wrap_d.tmp xapian_wrap.d
+	    -o xapian_wrap.cc '$(srcdir)/'java.i
 	: # Insert code to automatically load the JNI library.
 	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' org/xapian/XapianJNI.java
 	: # Check that exactly the sources we expected were generated.
@@ -161,7 +180,7 @@ xapian_wrap.stamp:
 
 -include xapian_wrap.d
 
-CLEANFILES += xapian_wrap.stamp
+CLEANFILES += $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
@@ -175,3 +194,9 @@ dist_exampledata_DATA =\
 
 docdatadir = $(docdir)/java
 dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif

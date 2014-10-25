@@ -2,7 +2,7 @@
  * @brief Wrapper which exposes only the const methods of database internals.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2009,2011 Olly Betts
+ * Copyright (C) 2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,8 +53,10 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     totlen_t get_total_length() const;
     Xapian::doclength get_avlength() const;
     Xapian::termcount get_doclength(Xapian::docid did) const;
-    Xapian::doccount get_termfreq(const string & tname) const;
-    Xapian::termcount get_collection_freq(const string & tname) const;
+    Xapian::termcount get_unique_terms(Xapian::docid did) const;
+    void get_freqs(const string & term,
+		   Xapian::doccount * termfreq_ptr,
+		   Xapian::termcount * collfreq_ptr) const;
     Xapian::doccount get_value_freq(Xapian::valueno slot) const;
     std::string get_value_lower_bound(Xapian::valueno slot) const;
     std::string get_value_upper_bound(Xapian::valueno slot) const;

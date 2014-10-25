@@ -2,13 +2,21 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = \
- srcdir="$(srcdir)" LIBTOOL="$(LIBTOOL)" TCLSH="$(TCLSH)" $(srcdir)/run-tcl-test
-
 ## Test programs to be run
 TESTS = smoketest.tcl
+AM_TESTS_ENVIRONMENT = \
+	srcdir='$(srcdir)' ;\
+	LIBTOOL='$(LIBTOOL)' ;\
+	TCLSH='$(TCLSH)' ; \
+	export srcdir ;\
+	export LIBTOOL ;\
+	export TCLSH ;
+LOG_COMPILER = $(srcdir)/run-tcl-test
 
-EXTRA_DIST = tcl.i except.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl
+EXTRA_DIST = tcl.i except.i \
+	generate-tcl-exceptions \
+	run-tcl-test runtest.tcl \
+	$(TESTS) $(BUILT_SOURCES)
 
 tcllibdir = @TCL_LIB@/xapian@VERSION@
 
@@ -36,11 +44,16 @@ xapian_la_LIBADD = $(XAPIAN_LIBS) $(TCL_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
-xapian_wrap.cc:
-	$(SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+BUILT_SOURCES += except.i
+except.i: $(srcdir)/generate-tcl-exceptions ../../xapian-core/exception_data.pm
+	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-tcl-exceptions
+
+RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+
+xapian_wrap.cc: except.i
+	$(RUN_SWIG) $(SWIG_WERROR) -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -tcl8 -namespace -pkgversion '@VERSION_NO_SNAPSHOT@' \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'tcl.i
-	mv xapian_wrap_d.tmp xapian_wrap.d
+	    -o xapian_wrap.cc '$(srcdir)/'tcl.i
 
 -include xapian_wrap.d
 endif
@@ -54,3 +67,9 @@ dist_exampledata_DATA = \
 
 docdatadir = $(docdir)/tcl8
 dist_docdata_DATA = docs/index.html
+
+if DOCUMENTATION_RULES
+.rst.html:
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
+	$(RST2HTML) --exit-status=warning $< $@
+endif

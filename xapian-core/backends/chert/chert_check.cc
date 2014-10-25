@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2011,2012 Olly Betts
+ * Copyright 2002,2004,2005,2008,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,8 @@
 
 #include "filetests.h"
 #include "io_utils.h"
-#include "xapian/database.h" // For Xapian::DBCHECK_*
+#include "unicode/description_append.h"
+#include "xapian/constants.h"
 
 #include <climits>
 #include <ostream>
@@ -37,12 +38,12 @@ using namespace std;
 
 void ChertTableCheck::print_spaces(int n) const
 {
-    while (n--) out.put(' ');
+    while (n--) out->put(' ');
 }
 
 void ChertTableCheck::print_bytes(int n, const byte * p) const
 {
-    out.write(reinterpret_cast<const char *>(p), n);
+    out->write(reinterpret_cast<const char *>(p), n);
 }
 
 void ChertTableCheck::print_key(const byte * p, int c, int j) const
@@ -51,27 +52,25 @@ void ChertTableCheck::print_key(const byte * p, int c, int j) const
     string key;
     if (item.key().length() >= 0)
 	item.key().read(&key);
+    string escaped;
+    description_append(escaped, key);
+    *out << escaped;
     if (j == 0) {
-	out << key << '/' << item.component_of();
-    } else {
-	for (string::const_iterator i = key.begin(); i != key.end(); ++i) {
-	    // out << (*i < 32 ? '.' : *i);
-	    char ch = *i;
-	    if (ch < 32) out << '/' << unsigned(ch); else out << ch;
-	}
+	*out << ' ' << item.component_of();
     }
 }
 
 void ChertTableCheck::print_tag(const byte * p, int c, int j) const
 {
     Item item(p, c);
-    string tag;
-    item.append_chunk(&tag);
     if (j == 0) {
-	out << "/" << item.components_of() << tag;
+	string tag;
+	item.append_chunk(&tag);
+	string escaped;
+	description_append(escaped, tag);
+	*out << '/' << item.components_of() << ' ' << escaped;
     } else {
-	out << "--> [" << getint4(reinterpret_cast<const byte*>(tag.data()), 0)
-	    << ']';
+	*out << "--> [" << item.block_given_by() << ']';
     }
 }
 
@@ -79,17 +78,17 @@ void ChertTableCheck::report_block_full(int m, int n, const byte * p) const
 {
     int j = GET_LEVEL(p);
     int dir_end = DIR_END(p);
-    out << '\n';
+    *out << '\n';
     print_spaces(m);
-    out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
+    *out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
 	 << " items (" << (dir_end - DIR_START)/D2 << ") usage "
 	 << block_usage(p) << "%:\n";
     for (int c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
 	print_key(p, c, j);
-	out << ' ';
+	*out << ' ';
 	print_tag(p, c, j);
-	out << '\n';
+	*out << '\n';
     }
 }
 
@@ -109,17 +108,17 @@ void ChertTableCheck::report_block(int m, int n, const byte * p) const
     int dir_end = DIR_END(p);
     int c;
     print_spaces(m);
-    out << "[" << n << "] *" << REVISION(p) << " ("
-	<< (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
+    *out << "[" << n << "] *" << REVISION(p) << " ("
+	 << (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	if (c == DIR_START + 6) out << "... ";
+	if (c == DIR_START + 6) *out << "... ";
 	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
 
 	print_key(p, c, j);
-	out << ' ';
+	*out << ' ';
     }
-    out << endl;
+    *out << endl;
 }
 
 void ChertTableCheck::failure(const char * msg) const
@@ -207,7 +206,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 
 	if (j == 1 && c > DIR_START)
 	    if (Item(q, DIR_START).key() < Item(p, c).key())
-		failure("Key < left dividing key in root block");
+		failure("Leaf key < left dividing key in level above");
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
@@ -230,14 +229,28 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 }
 
 void
-ChertTableCheck::check(const char * tablename, const string & path, int opts,
-		       ostream &out)
+ChertTableCheck::check(const char * tablename, const string & path,
+		       chert_revision_number_t * rev_ptr, int opts,
+		       ostream *out)
 {
     string faked_base;
 
     ChertTableCheck B(tablename, path, false, out);
     try {
-	B.open(); // throws exception if open fails
+	if (rev_ptr && *rev_ptr) {
+	    // On failure, fake exception to be caught below.
+	    if (!B.open(*rev_ptr)) {
+		string msg = "Failed to open ";
+		msg += tablename;
+		msg += " table at revision ";
+		msg += str(*rev_ptr);
+		throw Xapian::DatabaseOpeningError(msg);
+	    }
+	} else {
+	    // open() throws an exception if it fails.
+	    B.open();
+	    *rev_ptr = B.get_open_revision_number();
+	}
     } catch (const Xapian::DatabaseOpeningError &) {
 	if ((opts & Xapian::DBCHECK_FIX) == 0 ||
 	    file_size(path + "baseA") > 0 ||
@@ -248,7 +261,7 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 
 	// Fake up a base file with no bitmap first, then fill it in when we
 	// scan the tree below.
-	int fd = ::open((path + "DB").c_str(), O_RDONLY | O_BINARY);
+	int fd = ::open((path + "DB").c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
 	if (fd < 0) throw;
 	unsigned char buf[65536];
 	uint4 blocksize = 8192; // Default.
@@ -260,38 +273,61 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 		Item item(buf, c);
 		blocksize += item.size();
 	    }
-	    out << "Block size deduced as " << blocksize << endl;
+	    if (out)
+		*out << "Block size deduced as " << blocksize << endl;
 	} else {
-	    out << "Empty table, assuming default block size of " << blocksize << endl;
+	    if (out)
+		*out << "Empty table, assuming default block size of "
+		     << blocksize << endl;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
 	    B.failure("Failed to seek to start of table");
 	}
 	// Scan for root block.
+	bool found = false;
 	uint4 root = 0;
 	uint4 revision = 0;
 	uint4 level = 0;
-	uint4 blk_no = 0;
-	while (io_read(fd, (char*)buf, blocksize, 0) == blocksize) {
+	uint4 blk_no;
+	for (blk_no = 0;
+	     io_read(fd, (char*)buf, blocksize, 0) == blocksize;
+	     ++blk_no) {
 	    uint4 rev = REVISION(buf);
-	    // FIXME: this isn't smart enough - it will happily pick a new
-	    // revision which was partly written but never committed.  Also
-	    // there's nothing to ensure that it picks the same revision of
-	    // each table.
-	    if (rev > revision ||
-		(rev == revision && uint4(GET_LEVEL(buf)) > level)) {
-		root = blk_no;
-		revision = rev;
-		level = GET_LEVEL(buf);
-		out << "Root guess -> blk " << root << " rev "<<revision << " level " << level << endl;
+	    if (rev_ptr && *rev_ptr) {
+		// We have a specified revision to look for, but we still need
+		// to scan to find the block with the highest level in that
+		// revision.
+		//
+		// Note: We could have more than one root block with the same
+		// revision if one is written but not committed and then
+		// another is written and committed.  We go for the lowest
+		// block number, which will probably pick the right one with
+		// the current freespace reallocation strategy.
+		if (rev != *rev_ptr)
+		    continue;
+	    } else {
+		// FIXME: this isn't smart enough - it will happily pick a new
+		// revision which was partly written but never committed.  And
+		// it suffers from the issue of multiple roots mentioned above.
+		if (rev < revision)
+		    continue;
 	    }
-	    ++blk_no;
+	    uint4 blk_level = GET_LEVEL(buf);
+	    if (blk_level <= level)
+		continue;
+	    found = true;
+	    root = blk_no;
+	    revision = rev;
+	    level = blk_level;
+	    if (out)
+		*out << "Root guess -> blk " << root << " rev " << revision
+		     << " level " << level << endl;
 	}
 	::close(fd);
 
 	// Check that we actually found a candidate root block.
-	if (revision == 0)
+	if (!found)
 	    throw;
 
 	ChertTable_base fake_base;
@@ -301,56 +337,76 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	fake_base.set_level(level);
 	fake_base.set_item_count(0); // Will get filled in later.
 	fake_base.set_sequential(false); // Will get filled in later.
+	if (blk_no) {
+	    // Mark the last block as in use so that if assertions are enabled,
+	    // we don't get a failure in ChertTable::read_block() when we try
+	    // to read blocks.  We clear the bitmap before we regenerate it
+	    // below, so the last block will still end up correctly marked.
+	    fake_base.mark_block(blk_no - 1);
+	}
 	faked_base = path;
 	faked_base += "baseA";
 	fake_base.write_to_file(faked_base, 'A', string(), -1, NULL);
 
 	// And retry the open.
-	B.open();
+	if (!B.open(revision)) {
+	    string msg = "Root guess of blk ";
+	    msg += str(root);
+	    msg += " rev ";
+	    msg += str(revision);
+	    msg += " didn't work";
+	    throw Xapian::DatabaseOpeningError(msg);
+	}
+
+	if (rev_ptr && !*rev_ptr)
+	    *rev_ptr = revision;
     }
 
     Cursor * C = B.C;
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {
-	out << "base" << (char)B.base_letter
-	    << " blocksize=" << B.block_size / 1024 << "K"
-	       " items=" << B.item_count
-	    << " lastblock=" << B.base.get_last_block()
-	    << " revision=" << B.revision_number
-	    << " levels=" << B.level
-	    << " root=";
+	*out << "base" << (char)B.base_letter
+	     << " blocksize=" << B.block_size / 1024 << "K"
+		" items=" << B.item_count
+	     << " lastblock=" << B.base.get_last_block()
+	     << " revision=" << B.revision_number
+	     << " levels=" << B.level
+	     << " root=";
 	if (B.faked_root_block)
-	    out << "(faked)";
+	    *out << "(faked)";
 	else
-	    out << C[B.level].n;
-	out << endl;
+	    *out << C[B.level].n;
+	*out << endl;
     }
 
     if (opts & Xapian::DBCHECK_FIX) {
-	// Clear the bitmap in case we're regenerating an existing base file.
+	// Clear the bitmap before we start.  If we're regenerating it, it'll
+	// likely have some bits set already, and if we're starting from a
+	// fake, the last block will have been marked as in use above.
 	B.base.clear_bit_map();
     }
 
-    if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
+    if (opts & Xapian::DBCHECK_SHOW_FREELIST) {
 	int limit = B.base.get_bit_map_size() - 1;
 
 	limit = limit * CHAR_BIT + CHAR_BIT - 1;
 
 	for (int j = 0; j <= limit; j++) {
-	    out << (B.base.block_free_at_start(j) ? '.' : '*');
+	    *out << (B.base.block_free_at_start(j) ? '.' : '*');
 	    if (j > 0) {
 		if ((j + 1) % 100 == 0) {
-		    out << '\n';
+		    *out << '\n';
 		} else if ((j + 1) % 10 == 0) {
-		    out << ' ';
+		    *out << ' ';
 		}
 	    }
 	}
-	out << '\n' << endl;
+	*out << '\n' << endl;
     }
 
     if (B.faked_root_block) {
-	if (opts) out << "void ";
+	if (out && opts)
+	    *out << "void ";
     } else {
 	try {
 	    B.block_check(C, B.level, opts);
@@ -365,8 +421,12 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	    --B.check_item_count;
 
 	if (opts & Xapian::DBCHECK_FIX) {
-	    out << "Counted " << B.check_item_count << " entries in the Btree" << endl;
-	    out << (B.check_sequential ? "Sequential" : "Non-sequential") << endl;
+	    if (out) {
+		*out << "Counted " << B.check_item_count << " entries in the "
+			"Btree" << endl;
+		*out << (B.check_sequential ? "Sequential" : "Non-sequential")
+		     << endl;
+	    }
 	    B.base.set_item_count(B.check_item_count);
 	    B.base.set_sequential(B.check_sequential);
 	    string base_name = path;
@@ -375,7 +435,8 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	    B.base.write_to_file(base_name, B.base_letter, string(), -1, NULL);
 	} else {
 	    /* the bit map should now be entirely clear: */
-	    if (!B.base.is_empty()) {
+	    B.base.calculate_last_block();
+	    if (B.base.get_bit_map_size() != 0) {
 		B.failure("Unused block(s) marked used in bitmap");
 	    }
 
@@ -390,18 +451,20 @@ ChertTableCheck::check(const char * tablename, const string & path, int opts,
 	    if (B.sequential && !B.check_sequential) {
 		B.failure("Btree flagged as sequential but isn't");
 	    }
-	    if (!B.sequential && B.check_sequential) {
-		out << "Note: Btree not flagged as sequential, but is (not an error)" << endl;
+	    if (!B.sequential && B.check_sequential && out) {
+		*out << "Note: Btree not flagged as sequential, but is "
+			"(not an error)" << endl;
 	    }
 	}
     }
-    if (opts) out << "B-tree checked okay" << endl;
+    if (out && opts)
+	*out << "B-tree checked okay" << endl;
 }
 
 void ChertTableCheck::report_cursor(int N, const Cursor * C_) const
 {
-    out << N << ")\n";
+    *out << N << ")\n";
     for (int i = 0; i <= level; i++)
-	out << "p=" << C_[i].p << ", c=" << C_[i].c << ", n=[" << C_[i].n
-	    << "], rewrite=" << C_[i].rewrite << endl;
+	*out << "p=" << C_[i].p << ", c=" << C_[i].c << ", n=[" << C_[i].n
+	     << "], rewrite=" << C_[i].rewrite << endl;
 }

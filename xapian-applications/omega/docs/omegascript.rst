@@ -215,6 +215,14 @@ $httpheader{NAME,VALUE}
 $id
 	document id of current document
 
+$json{STRING}
+        encode STRING as a JSON string (not including the enclosing quotes), e.g.
+        ``$json{The path is "C:\"}`` gives ``The path is \"C:\\\"``
+
+$jsonarray{LIST}
+        encodes LIST (a string of tab-separated values) as a JSON array, e.g.
+        ``$jsonarray{$split{a "b" c:\}}`` gives ``["a","\"b\"","c:\\"]``
+
 $last
 	MSet index of last hit on this page
 
@@ -366,7 +374,7 @@ $set{OPT,VALUE}
 	* thousand - the thousands separator ("," by default - localised query
 	  templates may want to set this to ".", " ", or "").
 	* stemmer - which stemming language to use ("english" by default, other
-	  values are as understood by Xapian::Stem, so "none" means no
+	  values are as understood by ``Xapian::Stem``, so "none" means no
 	  stemming).
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
@@ -387,8 +395,21 @@ $set{OPT,VALUE}
           parameters to use if the weighting scheme supports them.  The syntax
           is a string consisting of the scheme name followed by any parameters,
           all separated by whitespace.  Any parameters not specified will use
-          their default values.  Valid scheme names are ``bm25``, ``bool``, and
-          ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
+          their default values.  Valid scheme names are
+          ``bb2`` (in Omega >= 1.3.2), ``bm25``, ``bool``,
+          ``dlh`` (in Omega >= 1.3.2), ``dph`` (in Omega >= 1.3.2),
+          ``ifb2`` (in Omega >= 1.3.2), ``ineb2`` (in Omega >= 1.3.2),
+          ``inl2`` (in Omega >= 1.3.2), ``lm`` (in Omega >= 1.3.2),
+          ``pl2`` (in Omega >= 1.3.2), ``tfidf`` (in Omega >= 1.3.1),
+          and ``trad``.  e.g.  ``$set{weighting,bm25 1 0.8}``
+
+        * expansion - set the query expansion scheme to use, and (optionally)
+          the parameters to use if the expansion scheme supports them. The syntax
+          is a string consisting of the scheme name followed by any parameters,
+          all separated by whitespace.  Any parameters not specified will use
+          their default values.  Valid expansion schemes names are
+          ``trad`` and ``bo1``.  e.g.
+          ``$set{expansion,trad 2.0}``
 
 	Omega 1.2.5 and later support the following options can be set to a
 	non-empty value to enable the corresponding ``QueryParser`` flag.
@@ -475,6 +496,11 @@ $slice{LIST,POSITIONS}
 	 "$slice{LIST,$range{1,3}}" = "b	c	d"
 	 "$slice{LIST,$range{-10,10}}" = "a	b	c	d"
 
+$snippet{TEXT[,LENGTH]}
+	Generate a context-sensitive snippet from ``TEXT`` using the
+	``Xapian::Snipper`` class.  The snippet will be at most ``LENGTH``
+	bytes long (default: 200).
+
 $split{STRING}
 
 $split{SPLIT,STRING}
@@ -539,6 +565,15 @@ $transform{REGEXP,SUBST,STRING}
         In SUBST, ``\1`` to ``\9`` are substituted by the 1st to 9th bracket
         grouping (or are empty if there is no such bracket grouping).  ``\\``
         is a literal backslash.
+
+$truncate{STRING,LEN[,IND[,IND2]]}
+	truncate STRING to LEN bytes, but try to break after a word (unless
+	that would mean truncating to much less than LEN).  If we have to
+	split a word, then IND is appended (if specified).  If we have to
+	truncate (but don't split a word) then IND2 is appended (if specified).
+	For example::
+
+	 $truncate{$field{text},500,..., ...}
 
 $uniq{LIST}
 	remove duplicates from a sorted list

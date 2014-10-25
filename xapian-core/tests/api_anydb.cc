@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <string>
 
+#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 #include "backendmanager_local.h"
 #include "testsuite.h"
@@ -248,55 +249,7 @@ DEFINE_TESTCASE(wildquery1, backend) {
     return true;
 }
 
-// tests a query across multiple databases
-DEFINE_TESTCASE(multidb1, backend) {
-    Xapian::Database mydb1(get_database("apitest_simpledata", "apitest_simpledata2"));
-    Xapian::Enquire enquire1(mydb1);
-
-    Xapian::Database mydb2(get_database("apitest_simpledata"));
-    mydb2.add_database(get_database("apitest_simpledata2"));
-    Xapian::Enquire enquire2(mydb2);
-
-    // make a simple query, with one word in it - "word".
-    Xapian::Query myquery("word");
-    enquire1.set_query(myquery);
-    enquire2.set_query(myquery);
-
-    // retrieve the top ten results from each method of accessing
-    // multiple text files
-    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
-    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
-
-    TEST_EQUAL(mymset1.size(), mymset2.size());
-    TEST(mset_range_is_same_weights(mymset1, 0, mymset2, 0, mymset1.size()));
-    return true;
-}
-
-// tests a query across multiple databases with terms only
-// in one of the two databases
-DEFINE_TESTCASE(multidb2, backend && !multi) {
-    Xapian::Database mydb1(get_database("apitest_simpledata",
-				  "apitest_simpledata2"));
-    Xapian::Enquire enquire1(mydb1);
-
-    Xapian::Database mydb2(get_database("apitest_simpledata"));
-    mydb2.add_database(get_database("apitest_simpledata2"));
-    Xapian::Enquire enquire2(mydb2);
-
-    // make a simple query
-    Xapian::Query myquery = query(Xapian::Query::OP_OR, "inmemory", "word");
-    enquire1.set_query(myquery);
-    enquire2.set_query(myquery);
-
-    // retrieve the top ten results from each method of accessing
-    // multiple text files
-    Xapian::MSet mymset1 = enquire1.get_mset(0, 10);
-    Xapian::MSet mymset2 = enquire2.get_mset(0, 10);
-
-    TEST_EQUAL(mymset1.size(), mymset2.size());
-    TEST(mset_range_is_same_weights(mymset1, 0, mymset2, 0, mymset1.size()));
-    return true;
-}
+// multidb1 and multidb2 no longer exist.
 
 // test that a multidb with 2 dbs query returns correct docids
 DEFINE_TESTCASE(multidb3, backend && !multi) {
@@ -387,6 +340,13 @@ DEFINE_TESTCASE(expandweights1, backend) {
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
 
+    // Test non-default k too.
+    eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ, 2.0);
+    TEST_EQUAL(eset.size(), 3);
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 5.88109547674955);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 5.88109547674955);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.44473599216144);
+
     return true;
 }
 
@@ -432,8 +392,8 @@ DEFINE_TESTCASE(expandweights3, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    // Set min_wt to 0
-    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 1.0, 0, 0);
+    // Set min_wt to 0.0
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0.0);
     if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
@@ -465,7 +425,7 @@ DEFINE_TESTCASE(expandweights4, backend) {
     myrset.add_document(*i);
     myrset.add_document(*(++i));
 
-    Xapian::ESet eset = enquire.get_eset(37, myrset, 0, 1.0, 0, -100);
+    Xapian::ESet eset = enquire.get_eset(37, myrset, 0, 0, -100);
     // Now include negative weights
     TEST_EQUAL(eset.size(), 37);
     TEST_REL(eset[36].get_weight(),<,0);
@@ -474,6 +434,93 @@ DEFINE_TESTCASE(expandweights4, backend) {
     return true;
 }
 
+// test for Bo1EWeight
+DEFINE_TESTCASE(expandweights5, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    enquire.set_expansion_scheme("bo1");
+    Xapian::ESet eset = enquire.get_eset(3, myrset);
+
+    TEST_EQUAL(eset.size(), 3);
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 7.21765284821702);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.661623193760022);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.58090119783738);
+
+    return true;
+}
+
+// test that "trad" can be set as an expansion scheme.
+DEFINE_TESTCASE(expandweights6, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    enquire.set_expansion_scheme("trad");
+    Xapian::ESet eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
+
+    TEST_EQUAL(eset.size(), 3);
+    TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+
+    return true;
+}
+
+// test that invalid scheme names are not accepted
+DEFINE_TESTCASE(expandweights7, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   enquire.set_expansion_scheme("no_such_scheme"));
+
+    return true;
+}
+
+// test that "expand_k" can be passed as a parameter to get_eset
+DEFINE_TESTCASE(expandweights8, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    // Set expand_k to 1.0 and min_wt to 0
+    Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 1.0, 0, 0);
+    if (!startswith(get_dbtype(), "multi")) {
+	// For a single database, the weights should be the same with or
+	// without USE_EXACT_TERMFREQ.
+	TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+    } else {
+	// For multiple databases, we expect that using USE_EXACT_TERMFREQ
+	// will result in different weights in some cases.
+	TEST_NOT_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
+	TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
+	TEST_NOT_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
+    }
+    TEST_REL(eset.back().get_weight(),>=,0);
+
+    return true;
+}
 
 // tests that when specifying maxitems to get_eset, no more than
 // that are returned.
@@ -684,6 +731,57 @@ DEFINE_TESTCASE(expandfunctor1, backend) {
     TEST_EQUAL(orig, myeset_orig.end());
     TEST_AND_EXPLAIN(filt == myeset.end(),
 		     "Extra items in the filtered eset.");
+    return true;
+}
+
+DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    TEST(mymset.size() >= 2);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    Xapian::ESet myeset_orig = enquire.get_eset(1000, myrset);
+    unsigned int neweset_size = 0;
+
+    //choose the first char in the first term as prefix
+    Xapian::ESetIterator j = myeset_orig.begin();
+    TEST(myeset_orig.size() >= 1);
+    string prefix = (*j).substr(0, 1);
+    Xapian::ExpandDeciderFilterPrefix myfunctor(prefix);
+
+    for ( ; j != myeset_orig.end(); ++j) {
+	if (myfunctor(*j)) neweset_size++;
+    }
+    Xapian::ESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
+
+    Xapian::ESetIterator orig = myeset_orig.begin();
+    Xapian::ESetIterator filt = myeset.begin();
+    for (; orig != myeset_orig.end() && filt != myeset.end(); ++orig, ++filt) {
+	// skip over items that shouldn't be in myeset
+	while (orig != myeset_orig.end() && !myfunctor(*orig)) {
+	    ++orig;
+	}
+
+	TEST_AND_EXPLAIN(*orig == *filt &&
+	    orig.get_weight() == filt.get_weight(),
+	    "Mismatch in items " << *orig << " vs. " << *filt
+	    << " after filtering");
+    }
+
+    while (orig != myeset_orig.end() && !myfunctor(*orig)) {
+	++orig;
+    }
+
+    TEST_EQUAL(orig, myeset_orig.end());
+    TEST_AND_EXPLAIN(filt == myeset.end(),
+	"Extra items in the filtered eset.");
+
     return true;
 }
 
@@ -919,11 +1017,13 @@ DEFINE_TESTCASE(reversebool1, backend) {
     {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset2.begin();
-	for ( ; i != mymset1.end(), j != mymset2.end(); ++i, j++) {
+	for ( ; i != mymset1.end(); ++i, j++) {
+	    TEST(j != mymset2.end());
 	    // if this fails, then setting match_sort_forward=true was not
 	    // the same as the default.
 	    TEST_EQUAL(*i, *j);
 	}
+	TEST(j == mymset2.end());
     }
 
     // mymset1 and mymset3 should be same but reversed
@@ -931,13 +1031,11 @@ DEFINE_TESTCASE(reversebool1, backend) {
 
     {
 	Xapian::MSetIterator i = mymset1.begin();
-	vector<Xapian::docid> rev(mymset3.begin(), mymset3.end());
-	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	vector<Xapian::docid>::reverse_iterator j = rev.rbegin();
-	for ( ; i != mymset1.end(); ++i, j++) {
+	Xapian::MSetIterator j = mymset3.end();
+	for ( ; i != mymset1.end(); ++i) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*i, *j);
+	    TEST_EQUAL(*i, *--j);
 	}
     }
 
@@ -966,24 +1064,25 @@ DEFINE_TESTCASE(reversebool2, backend) {
     {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset2.begin();
-	for ( ; i != mymset1.end(), j != mymset2.end(); ++i, j++) {
+	for ( ; j != mymset2.end(); ++i, j++) {
+	    TEST(i != mymset1.end());
 	    // if this fails, then setting match_sort_forward=true was not
 	    // the same as the default.
 	    TEST_EQUAL(*i, *j);
 	}
+	// mymset1 should be larger.
+	TEST(i != mymset1.end());
     }
 
     // mymset3 should be last msize items of mymset1, in reverse order
     TEST_EQUAL(msize, mymset3.size());
     {
-	vector<Xapian::docid> rev(mymset1.begin(), mymset1.end());
-	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
-	vector<Xapian::docid>::reverse_iterator i = rev.rbegin();
-	Xapian::MSetIterator j = mymset3.begin();
-	for ( ; j != mymset3.end(); ++i, j++) {
+	Xapian::MSetIterator i = mymset1.end();
+	Xapian::MSetIterator j;
+	for (j = mymset3.begin(); j != mymset3.end(); j++) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
-	    TEST_EQUAL(*i, *j);
+	    TEST_EQUAL(*--i, *j);
 	}
     }
 
@@ -2294,6 +2393,32 @@ DEFINE_TESTCASE(tradweight1, backend) {
     // the weights as stated in the documentation.
     TEST_EQUAL(mset[0].get_weight(), mset[5].get_weight());
 
+    return true;
+}
+
+// Test TradWeight when weighting documents using an RSet.
+// Simply changed the weighting scheme used by rset2 testcase.
+DEFINE_TESTCASE(tradweight4, backend) {
+    Xapian::Database mydb(get_database("apitest_rset"));
+    Xapian::Enquire enquire(mydb);
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");   
+    
+    enquire.set_query(myquery); 
+    enquire.set_weighting_scheme(Xapian::TradWeight()); 
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);    
+
+    Xapian::RSet myrset;
+    myrset.add_document(2);
+
+    Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
+
+    mset_expect_order(mymset1, 1, 2);    
+    // Document 2 should have higher weight than document 1 despite the wdf of
+    // "people" being 1 because "people" indexes a document in the RSet whereas
+    // "cuddly" (wdf=2) does not.
+    mset_expect_order(mymset2, 2, 1);
+    
     return true;
 }
 

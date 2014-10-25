@@ -1,7 +1,7 @@
 /** @file tradweight.cc
  * @brief Xapian::TradWeight class - the "traditional" probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include "xapian/error.h"
 
+#include <algorithm>
 #include <cmath>
 
 using namespace std;
@@ -135,12 +136,13 @@ TradWeight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double k = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::NetworkError("Extra data in BM25Weight::unserialise()");
+	throw Xapian::SerialisationError("Extra data in TradWeight::unserialise()");
     return new TradWeight(k);
 }
 
 double
-TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
+TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
+			Xapian::termcount) const
 {
     double wdf_double(wdf);
     return termweight * (wdf_double / (len * len_factor + wdf_double));
@@ -156,7 +158,7 @@ TradWeight::get_maxpart() const
 }
 
 double
-TradWeight::get_sumextra(Xapian::termcount) const
+TradWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }

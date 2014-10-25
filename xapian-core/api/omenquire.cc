@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -53,6 +53,8 @@
 using namespace std;
 
 using Xapian::Internal::ExpandWeight;
+using Xapian::Internal::Bo1EWeight;
+using Xapian::Internal::TradEWeight;
 
 namespace Xapian {
 
@@ -220,11 +222,11 @@ Xapian::doccount
 MSet::get_termfreq(const string &tname) const
 {
     LOGCALL(API, Xapian::doccount, "Xapian::MSet::get_termfreq", tname);
-    map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
-    i = internal->termfreqandwts.find(tname);
-    if (i != internal->termfreqandwts.end()) {
-	RETURN(i->second.termfreq);
+    if (usual(internal->stats)) {
+	Xapian::doccount termfreq;
+	if (internal->stats->get_stats(tname, termfreq))
+	    RETURN(termfreq);
     }
     if (internal->enquire.get() == 0) {
 	throw InvalidOperationError("Can't get termfreq from an MSet which is not derived from a query.");
@@ -236,14 +238,17 @@ double
 MSet::get_termweight(const string &tname) const
 {
     LOGCALL(API, double, "Xapian::MSet::get_termweight", tname);
-    map<string, Internal::TermFreqAndWeight>::const_iterator i;
     Assert(internal.get() != 0);
-    i = internal->termfreqandwts.find(tname);
-    if (i == internal->termfreqandwts.end()) {
-	throw InvalidArgumentError("Term weight of `" + tname +
-				     "' not available.");
+    if (!internal->stats) {
+	throw InvalidOperationError("Can't get termweight from an MSet which is not derived from a query.");
     }
-    RETURN(i->second.termweight);
+    double termweight;
+    if (!internal->stats->get_termweight(tname, termweight)) {
+	string msg = tname;
+	msg += ": termweight not available";
+	throw InvalidArgumentError(msg);
+    }
+    RETURN(termweight);
 }
 
 Xapian::doccount
@@ -396,12 +401,20 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     if (index < firstitem || index >= firstitem + items.size()) {
 	throw RangeError("The mset returned from the match does not contain the document at index " + str(index));
     }
-    fetch_items(index, index); // FIXME: this checks indexeddocs AGAIN!
-    /* Actually read the fetched documents */
-    read_docs();
-    Assert(indexeddocs.find(index) != indexeddocs.end());
-    Assert(indexeddocs.find(index)->first == index); // Paranoid assert
-    RETURN(indexeddocs.find(index)->second);
+    Assert(enquire.get());
+    if (!requested_docs.empty()) {
+	// There's already a pending request, so handle that.
+	read_docs();
+	// Maybe we just fetched the doc we want.
+	doc = indexeddocs.find(index);
+	if (doc != indexeddocs.end()) {
+	    RETURN(doc->second);
+	}
+    }
+
+    // Don't cache unless fetch() was called by the API user.
+    enquire->request_doc(items[index - firstitem]);
+    RETURN(enquire->read_doc(items[index - firstitem]));
 }
 
 void
@@ -625,7 +638,8 @@ Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
   : db(db_), query(), collapse_key(Xapian::BAD_VALUENO), collapse_max(0),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
-    sorter(0), errorhandler(errorhandler_), weight(0)
+    sorter(0), time_limit(0.0), errorhandler(errorhandler_), weight(0),
+    eweightname("trad"), expand_k(1.0)
 {
     if (db.internal.empty()) {
 	throw InvalidArgumentError("Can't make an Enquire object from an uninitialised Database object.");
@@ -675,18 +689,18 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	check_at_least = max(check_at_least, maxitems);
     }
 
-    Xapian::Weight::Internal stats;
+    AutoPtr<Xapian::Weight::Internal> stats(new Xapian::Weight::Internal);
     ::MultiMatch match(db, query, qlen, rset,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
-		       errorhandler, stats, weight, spies,
+		       time_limit, errorhandler, *(stats.get()), weight, spies,
 		       (sorter != NULL),
 		       (mdecider != NULL));
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
-		   stats, mdecider, sorter);
+		   *(stats.get()), mdecider, sorter);
     if (first_orig != first && retval.internal.get()) {
 	retval.internal->firstitem = first_orig;
     }
@@ -699,15 +713,19 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // networked case.
     retval.internal->enquire = this;
 
-    return retval;
+    if (!retval.internal->stats) {
+	retval.internal->stats = stats.release();
+    }
+
+    RETURN(retval);
 }
 
 ESet
 Enquire::Internal::get_eset(Xapian::termcount maxitems,
-                    const RSet & rset, int flags, double k,
-		    const ExpandDecider * edecider, double min_wt) const
+			    const RSet & rset, int flags,
+			    const ExpandDecider * edecider, double min_wt) const
 {
-    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider | min_wt);
+    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | edecider | min_wt);
 
     if (maxitems == 0 || rset.empty()) {
 	// Either we were asked for no results, or wouldn't produce any
@@ -740,10 +758,16 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     }
 
     bool use_exact_termfreq(flags & Enquire::USE_EXACT_TERMFREQ);
-    ExpandWeight eweight(db, rset.size(), use_exact_termfreq, k);
-
     Xapian::ESet eset;
-    eset.internal->expand(maxitems, db, rset, edecider, eweight, min_wt);
+
+    if (eweightname == "bo1") {
+	Bo1EWeight bo1eweight(db, rset.size(), use_exact_termfreq);
+	eset.internal->expand(maxitems, db, rset, edecider, bo1eweight, min_wt);
+    } else {
+	TradEWeight tradeweight(db, rset.size(), use_exact_termfreq, expand_k);
+	eset.internal->expand(maxitems, db, rset, edecider, tradeweight, min_wt);
+    }
+
     RETURN(eset);
 }
 
@@ -933,6 +957,19 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 }
 
 void
+Enquire::set_expansion_scheme(const std::string &eweightname_, double expand_k_) const
+{
+     LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_ | expand_k_);
+
+     if (eweightname_ != "bo1" && eweightname_ != "trad") {
+	 throw InvalidArgumentError("Invalid name for query expansion scheme.");
+     }
+
+     internal->eweightname = eweightname_;
+     internal->expand_k = expand_k_;
+}
+
+void
 Enquire::set_collapse_key(Xapian::valueno collapse_key, Xapian::doccount collapse_max)
 {
     if (collapse_key == Xapian::BAD_VALUENO) collapse_max = 0;
@@ -1016,6 +1053,12 @@ Enquire::set_sort_by_relevance_then_key(KeyMaker * sorter, bool ascending)
     internal->sort_value_forward = ascending;
 }
 
+void
+Enquire::set_time_limit(double time_limit)
+{
+    internal->time_limit = time_limit;
+}
+
 MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
@@ -1034,26 +1077,12 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 ESet
 Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
-		  double k, const ExpandDecider * edecider) const
+		  const ExpandDecider * edecider, double min_wt) const
 {
-    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider);
+    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | edecider | min_wt);
 
     try {
-	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider, 0));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
-}
-
-ESet
-Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
-		  double k, const ExpandDecider * edecider, double min_wt) const
-{
-    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider | min_wt);
-
-    try {
-	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider, min_wt));
+	RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

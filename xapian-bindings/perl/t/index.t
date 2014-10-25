@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -10,8 +10,8 @@ use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
-BEGIN { plan tests => 95 };
-use Search::Xapian qw(:standard);
+BEGIN { plan tests => 117 };
+use Xapian qw(:standard);
 
 # FIXME: these tests pass in the XS version.
 my $disable_fixme = 1;
@@ -24,15 +24,15 @@ my $disable_fixme = 1;
 foreach my $backend ("inmemory", "auto") {
   my $database;
   if ($backend eq "inmemory") {
-    ok( $database = Search::Xapian::WritableDatabase->new() );
+    ok( $database = Xapian::WritableDatabase->new() );
   } else {
-    ok( $database = Search::Xapian::WritableDatabase->new( 'testdb', Search::Xapian::DB_CREATE_OR_OVERWRITE ) );
+    ok( $database = Xapian::WritableDatabase->new( 'testdb', Xapian::DB_CREATE_OR_OVERWRITE ) );
   }
 
   ok( $database->get_description() );
 
   my $stemmer;
-  ok( $stemmer = Search::Xapian::Stem->new( 'english' ) );
+  ok( $stemmer = Xapian::Stem->new( 'english' ) );
   ok( $stemmer->get_description() );
 
   my %docs;
@@ -46,7 +46,7 @@ foreach my $backend ("inmemory", "auto") {
 
   my $docid;
   for my $num (qw( one two three )) {
-    ok( $docs{$num} = Search::Xapian::Document->new() );
+    ok( $docs{$num} = Xapian::Document->new() );
     ok( $docs{$num}->get_description() );
 
     $docs{$num}->set_data( "$term $num" );
@@ -83,6 +83,24 @@ foreach my $backend ("inmemory", "auto") {
   $posit++;
   ok( $posit eq $database->positionlist_end(1, $term) );
 
+  my $postit = $database->postlist_begin('one');
+  ok( $postit ne $database->postlist_end('one') );
+  ok( $postit != $database->postlist_end('one') );
+  is( $postit->get_docid(), 1 );
+  $postit++;
+  ok( $postit eq $database->postlist_end('one') );
+  ok( $postit == $database->postlist_end('one') );
+
+  my $termit = $database->termlist_begin(1);
+  ok( $termit != $database->termlist_end(1) );
+  ok( $disable_fixme || "$termit" eq 'one' );
+  $termit++;
+  ok( $termit ne $database->termlist_end(1) );
+  is( $termit->get_termname(), 'test' );
+  ++$termit;
+  ok( $termit eq $database->termlist_end(1) );
+  ok( $termit == $database->termlist_end(1) );
+
   my $alltermit = $database->allterms_begin();
   ok( $alltermit != $database->allterms_end() );
   ok( $disable_fixme || "$alltermit" eq 'one' );
@@ -115,11 +133,11 @@ foreach my $backend ("inmemory", "auto") {
 # Check that trying to create an invalid stemmer gives an exception, not an
 # abort.
 eval {
-  my $badstem = Search::Xapian::Stem->new( 'gibberish' );
+  my $badstem = Xapian::Stem->new( 'gibberish' );
 };
 ok($@);
-ok(ref($@), "Search::Xapian::InvalidArgumentError");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok(ref($@), "Xapian::InvalidArgumentError");
+ok($@->isa('Xapian::Error'));
 ok($@->get_msg, "Language code gibberish unknown");
 ok( $disable_fixme || "$@" =~ /^Exception: Language code gibberish unknown(?: at \S+ line \d+\.)?$/ );
 

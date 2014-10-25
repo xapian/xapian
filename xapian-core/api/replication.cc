@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "replication.h"
 
 #include "xapian/intrusive_ptr.h"
+#include "xapian/constants.h"
 #include "xapian/dbfactory.h"
 #include "xapian/error.h"
 #include "xapian/version.h"
@@ -33,10 +34,8 @@
 #include "debuglog.h"
 #include "filetests.h"
 #include "fileutils.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 #include "omassert.h"
+#include "posixy_wrapper.h"
 #include "realtime.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
@@ -45,6 +44,7 @@
 #include "safeunistd.h"
 #include "net/length.h"
 #include "str.h"
+#include "unicode/description_append.h"
 
 #include "autoptr.h"
 #include <cstdio> // For rename().
@@ -105,7 +105,10 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 string
 DatabaseMaster::get_description() const
 {
-    return "DatabaseMaster(" + path + ")";
+    string desc = "DatabaseMaster(";
+    description_append(desc, path);
+    desc += ")";
+    return desc;
 }
 
 /// Internal implementation of DatabaseReplica
@@ -312,13 +315,7 @@ DatabaseReplica::Internal::update_stub_database() const
 	stub << REPLICA_STUB_BANNER
 		"auto replica_" << live_id << endl;
     }
-    int result;
-#ifdef __WIN32__
-    result = msvc_posix_rename(tmp_path.c_str(), stub_path.c_str());
-#else
-    result = rename(tmp_path.c_str(), stub_path.c_str());
-#endif
-    if (result == -1) {
+    if (posixy_rename(tmp_path.c_str(), stub_path.c_str()) == -1) {
 	string msg("Failed to update stub db file for replica: ");
 	msg += path;
 	throw Xapian::DatabaseOpeningError(msg);
@@ -331,8 +328,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  last_live_changeset_time(), conn(NULL)
 {
     LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
-#if ! defined XAPIAN_HAS_CHERT_BACKEND
-    throw FeatureUnavailableError("Replication requires the Chert backend to be enabled");
+#if !defined XAPIAN_HAS_CHERT_BACKEND && !defined XAPIAN_HAS_BRASS_BACKEND
+    throw FeatureUnavailableError("Replication requires at least one of the chert or brass backends to be enabled");
 #else
     if (mkdir(path.c_str(), 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a
@@ -353,7 +350,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	}
 	string stub_path = path;
 	stub_path += "/XAPIANDB";
-	live_db = Auto::open_stub(stub_path, Xapian::DB_OPEN);
+	live_db = WritableDatabase(stub_path,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
 	// FIXME: simplify all this?
 	ifstream stub(stub_path.c_str());
 	string line;

@@ -2,7 +2,7 @@
  * @brief Wrapper which exposes only the const methods of database internals.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011 Olly Betts
+ * Copyright 2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,16 +71,18 @@ ConstDatabaseWrapper::get_doclength(Xapian::docid did) const
     return realdb->get_doclength(did);
 }
 
-Xapian::doccount
-ConstDatabaseWrapper::get_termfreq(const string & tname) const
+Xapian::termcount
+ConstDatabaseWrapper::get_unique_terms(Xapian::docid did) const
 {
-    return realdb->get_termfreq(tname);
+    return realdb->get_unique_terms(did);
 }
 
-Xapian::termcount
-ConstDatabaseWrapper::get_collection_freq(const string & tname) const
+void
+ConstDatabaseWrapper::get_freqs(const string & term,
+				Xapian::doccount * termfreq_ptr,
+				Xapian::termcount * collfreq_ptr) const
 {
-    return realdb->get_collection_freq(tname);
+    realdb->get_freqs(term, termfreq_ptr, collfreq_ptr);
 }
 
 Xapian::doccount

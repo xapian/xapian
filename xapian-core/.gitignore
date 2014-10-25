@@ -2,6 +2,7 @@
 /Makefile
 /Makefile.in
 /aclocal.m4
+/compile
 /configure
 /config.cache
 /config.guess
@@ -29,6 +30,6 @@
 /libxapian.la
 /libxapian-1.3.la
 /libgetopt.la
-/xapian-core-*.tar.gz
+/xapian-core-*.tar.xz
 /xapian-core.spec
 /xapian-config.1

@@ -52,7 +52,7 @@ class BrassTermList : public TermList {
     Xapian::docid did;
 
     /// The length of document @a did.
-    brass_doclen_t doclen;
+    Xapian::termcount doclen;
 
     /// The number of entries in this termlist.
     Xapian::termcount termlist_size;
@@ -91,7 +91,7 @@ class BrassTermList : public TermList {
      *
      *  This is a non-virtual method, used by BrassDatabase.
      */
-    brass_doclen_t get_doclength() const;
+    Xapian::termcount get_doclength() const;
 
     /** Return approximate size of this termlist.
      *

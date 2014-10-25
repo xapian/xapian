@@ -87,7 +87,7 @@ is 8, only documents matching both branches are now of interest so it
 mutates into an AND. If the minimum weight is 6 it changes into an
 AND\_MAYBE (A AND\_MAYBE B matches documents which which match A, but B
 contributes to the weight - in most search engines query syntax, that's
-expressed as \`+A B'). See the "Operator Decay" section below for full
+expressed as `+A B`). See the "Operator Decay" section below for full
 details of these mutations. If the minimum weight needed is 12, no
 document is good enough, and the OR returns "end of list".
 

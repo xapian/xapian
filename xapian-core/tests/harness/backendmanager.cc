@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,8 +48,7 @@ void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 					const vector<string> & files)
 {
-    FileIndexer f(datadir, files);
-    while (f) database.add_document(f.next());
+    FileIndexer(datadir, files).index_to(database);
 }
 
 /** Create the directory dirname if needed.  Returns true if the
@@ -93,14 +92,15 @@ BackendManager::createdb_brass(const vector<string> &files)
 
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = files.begin();
-	 i != files.end(); i++) {
+	 i != files.end(); ++i) {
 	dbdir += '=';
 	dbdir += *i;
     }
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
-	Xapian::WritableDatabase db(Xapian::Brass::open(dbdir, Xapian::DB_CREATE, 2048));
+	Xapian::WritableDatabase db(dbdir,
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_BRASS, 2048);
 	index_files_to_database(db, files);
 	db.commit();
     }
@@ -118,7 +118,8 @@ BackendManager::getwritedb_brass(const string & name,
     (void)create_dir_if_needed(dbdir);
 
     // directory was created, so do the indexing.
-    Xapian::WritableDatabase db(Xapian::Brass::open(dbdir, Xapian::DB_CREATE, 2048));
+    Xapian::WritableDatabase db(dbdir,
+	    Xapian::DB_CREATE|Xapian::DB_BACKEND_BRASS, 2048);
     index_files_to_database(db, files);
     return db;
 }
@@ -145,14 +146,15 @@ BackendManager::createdb_chert(const vector<string> &files)
 
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = files.begin();
-	 i != files.end(); i++) {
+	 i != files.end(); ++i) {
 	dbdir += '=';
 	dbdir += *i;
     }
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
-	Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
+	Xapian::WritableDatabase db(dbdir,
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT, 2048);
 	index_files_to_database(db, files);
 	db.commit();
     }
@@ -170,7 +172,8 @@ BackendManager::getwritedb_chert(const string & name,
     (void)create_dir_if_needed(dbdir);
 
     // directory was created, so do the indexing.
-    Xapian::WritableDatabase db(Xapian::Chert::open(dbdir, Xapian::DB_CREATE, 2048));
+    Xapian::WritableDatabase db(dbdir,
+	    Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT, 2048);
     index_files_to_database(db, files);
     return db;
 }

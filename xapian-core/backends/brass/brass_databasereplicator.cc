@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,35 +27,65 @@
 #include "xapian/error.h"
 
 #include "../flint_lock.h"
-#include "brass_record.h"
+#include "brass_defs.h"
 #include "brass_replicate_internal.h"
-#include "brass_types.h"
 #include "brass_version.h"
+#include "compression_stream.h"
 #include "debuglog.h"
 #include "fd.h"
-#include "filetests.h"
 #include "internaltypes.h"
 #include "io_utils.h"
 #include "pack.h"
+#include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
 #include "replicationprotocol.h"
 #include "safeerrno.h"
 #include "str.h"
 #include "stringutils.h"
 
-
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
-
+#include <algorithm>
 #include <cstdio> // For rename().
 
 using namespace std;
 using namespace Xapian;
 
+static const char * dbnames =
+	"/postlist."BRASS_TABLE_EXTENSION"\0"
+	"/docdata."BRASS_TABLE_EXTENSION"\0\0"
+	"/termlist."BRASS_TABLE_EXTENSION"\0"
+	"/position."BRASS_TABLE_EXTENSION"\0"
+	"/spelling."BRASS_TABLE_EXTENSION"\0"
+	"/synonym."BRASS_TABLE_EXTENSION;
+
 BrassDatabaseReplicator::BrassDatabaseReplicator(const string & db_dir_)
     : db_dir(db_dir_)
 {
+    std::fill_n(fds, sizeof(fds) / sizeof(fds[0]), -1);
+}
+
+void
+BrassDatabaseReplicator::commit() const
+{
+    for (size_t i = 0; i != Brass::MAX_; ++i) {
+	int fd = fds[i];
+	if (fd >= 0) {
+	    io_sync(fd);
+#if 0 // FIXME: close or keep open?
+	    close(fd);
+	    fds[i] = -1;
+#endif
+	}
+    }
+}
+
+BrassDatabaseReplicator::~BrassDatabaseReplicator()
+{
+    for (size_t i = 0; i != Brass::MAX_; ++i) {
+	int fd = fds[i];
+	if (fd >= 0) {
+	    close(fd);
+	}
+    }
 }
 
 bool
@@ -83,79 +113,62 @@ BrassDatabaseReplicator::check_revision_at_least(const string & rev,
 }
 
 void
-BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
-						      string & buf,
-						      RemoteConnection & conn,
-						      double end_time) const
+BrassDatabaseReplicator::process_changeset_chunk_version(string & buf,
+							 RemoteConnection & conn,
+							 double end_time) const
 {
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
-    // Get the letter
-    char letter = ptr[0];
-    if (letter != 'A' && letter != 'B')
-	throw NetworkError("Invalid base file letter in changeset");
-    ++ptr;
+    brass_revision_number_t rev;
+    if (!unpack_uint(&ptr, end, &rev))
+	throw NetworkError("Invalid revision in changeset");
 
+    string::size_type size;
+    if (!unpack_uint(&ptr, end, &size))
+	throw NetworkError("Invalid version file size in changeset");
 
-    // Get the base size
-    if (ptr == end)
-	throw NetworkError("Unexpected end of changeset (5)");
-    string::size_type base_size;
-    if (!unpack_uint(&ptr, end, &base_size))
-	throw NetworkError("Invalid base file size in changeset");
-
-    // Get the new base file into buf.
+    // Get the new version file into buf.
     buf.erase(0, ptr - buf.data());
-    conn.get_message_chunk(buf, base_size, end_time);
-
-    if (buf.size() < base_size)
+    if (!conn.get_message_chunk(buf, size, end_time))
 	throw NetworkError("Unexpected end of changeset (6)");
 
-    // Write base_size bytes from start of buf to base file for tablename
-    string tmp_path = db_dir + "/" + tablename + "tmp";
-    string base_path = db_dir + "/" + tablename + ".base" + letter;
-#ifdef __WIN32__
-    int fd = msvc_posix_open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-    int fd = ::open(tmp_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
+    // Write size bytes from start of buf to new version file.
+    string tmpfile = db_dir;
+    tmpfile += "/v.rtmp";
+    int fd = posixy_open(tmpfile.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (fd == -1) {
 	string msg = "Failed to open ";
-	msg += tmp_path;
+	msg += tmpfile;
 	throw DatabaseError(msg, errno);
     }
     {
 	FD closer(fd);
-
-	io_write(fd, buf.data(), base_size);
+	io_write(fd, buf.data(), size);
 	io_sync(fd);
     }
-#if defined __WIN32__
-    if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
-#else
-    if (rename(tmp_path.c_str(), base_path.c_str()) < 0) {
-#endif
+    string version_file = db_dir;
+    version_file += "/iambrass";
+    if (posixy_rename(tmpfile.c_str(), version_file.c_str()) < 0) {
 	// With NFS, rename() failing may just mean that the server crashed
 	// after successfully renaming, but before reporting this, and then
 	// the retried operation fails.  So we need to check if the source
 	// file still exists, which we do by calling unlink(), since we want
 	// to remove the temporary file anyway.
 	int saved_errno = errno;
-	if (unlink(tmp_path.c_str()) == 0 || errno != ENOENT) {
-	    string msg("Couldn't update base file ");
-	    msg += tablename;
-	    msg += ".base";
-	    msg += letter;
+	if (unlink(tmpfile.c_str()) == 0 || errno != ENOENT) {
+	    string msg("Couldn't create new version file ");
+	    msg += version_file;
 	    throw DatabaseError(msg, saved_errno);
 	}
     }
 
-    buf.erase(0, base_size);
+    buf.erase(0, size);
 }
 
 void
-BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename,
+BrassDatabaseReplicator::process_changeset_chunk_blocks(Brass::table_type table,
+							unsigned v,
 							string & buf,
 							RemoteConnection & conn,
 							double end_time) const
@@ -163,101 +176,35 @@ BrassDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
 
-    unsigned int changeset_blocksize;
-    if (!unpack_uint(&ptr, end, &changeset_blocksize))
+    unsigned int changeset_blocksize = 2048 << v;
+    if (changeset_blocksize > 65536 ||
+	(changeset_blocksize & (changeset_blocksize - 1))) {
 	throw NetworkError("Invalid blocksize in changeset");
+    }
+    uint4 block_number;
+    if (!unpack_uint(&ptr, end, &block_number))
+	throw NetworkError("Invalid block number in changeset");
+
     buf.erase(0, ptr - buf.data());
 
-    string db_path = db_dir + "/" + tablename + ".DB";
-#ifdef __WIN32__
-    int fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_BINARY);
-#else
-    int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
-#endif
+    int fd = fds[table];
     if (fd == -1) {
-	if (file_exists(db_path)) {
+	string db_path = db_dir;
+	db_path += dbnames + table * (11 + CONST_STRLEN(BRASS_TABLE_EXTENSION));
+	fd = posixy_open(db_path.c_str(), O_WRONLY | O_CREAT | O_CLOEXEC, 0666);
+	if (fd == -1) {
 	    string msg = "Failed to open ";
 	    msg += db_path;
 	    throw DatabaseError(msg, errno);
 	}
-#ifdef __WIN32__
-	fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	if (fd == -1) {
-	    string msg = "Failed to create and open ";
-	    msg += db_path;
-	    throw DatabaseError(msg, errno);
-	}
+	fds[table] = fd;
     }
-    {
-	FD closer(fd);
-	unsigned char out[changeset_blocksize];
-	CompressionStream comp_stream = CompressionStream(Z_DEFAULT_STRATEGY);
 
-	while (true) {
-	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
-	    ptr = buf.data();
-	    end = ptr + buf.size();
-	    uint4 block_number;
-	    if (!unpack_uint(&ptr, end, &block_number))
-		throw NetworkError("Invalid block number in changeset");
-	    buf.erase(0, ptr - buf.data());
-	    if (block_number == 0)
-		break;
-	    --block_number;
+    if (!conn.get_message_chunk(buf, changeset_blocksize, end_time))
+	throw NetworkError("Unexpected end of changeset (4)");
 
-	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
-	    ptr = buf.data();
-	    end = ptr + buf.size();
-	    unsigned int compressed_block_size;
-	    if(!unpack_uint(&ptr, end, &compressed_block_size))
-		throw NetworkError("Invalid v2 changeset");
-	    buf.erase(0, ptr - buf.data());
-
-	    const char * block_ptr;
-	    if (compressed_block_size > 0) {
-
-		conn.get_message_chunk(buf, changeset_blocksize, end_time);
-		comp_stream.lazy_alloc_inflate_zstream();
-		comp_stream.inflate_zstream->next_in = (Bytef*)const_cast<char *>(buf.data());
-		comp_stream.inflate_zstream->avail_in = compressed_block_size;
-		comp_stream.inflate_zstream->next_out = out;
-		comp_stream.inflate_zstream->avail_out = changeset_blocksize;
-		comp_stream.zerr = inflate(comp_stream.inflate_zstream, Z_FINISH);
-		if (comp_stream.zerr != Z_STREAM_END)
-		    throw Xapian::NetworkError("Bad compressed replication changeset");
-
-		unsigned got = comp_stream.inflate_zstream->next_out - out;
-		if (got != changeset_blocksize) {
-		    throw NetworkError("Incomplete block in changeset");
-		}
-		block_ptr = reinterpret_cast<const char *>(out);
-	    } else {
-		conn.get_message_chunk(buf, changeset_blocksize, end_time);
-		if (buf.size() < changeset_blocksize)
-		    throw NetworkError("Incomplete block in changeset");
-		block_ptr = buf.data();
-	    }
-
-	    // Write the block.
-	    // FIXME - should use pwrite if that's available.
-	    if (lseek(fd, off_t(changeset_blocksize) * block_number, SEEK_SET) == -1) {
-		string msg = "Failed to seek to block ";
-		msg += str(block_number);
-		throw DatabaseError(msg, errno);
-	    }
-	    io_write(fd, block_ptr, changeset_blocksize);
-
-	    if (compressed_block_size > 0) {
-		buf.erase(0, compressed_block_size);
-	    } else {
-		buf.erase(0, changeset_blocksize);
-	    }
-	}
-	io_sync(fd);
-    }
+    io_write_block(fd, buf.data(), changeset_blocksize, block_number);
+    buf.erase(0, changeset_blocksize);
 }
 
 string
@@ -284,16 +231,16 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     // changeset.
 
     conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+    const char *ptr = buf.data();
+    const char *end = ptr + buf.size();
     // Check the magic string.
     if (!startswith(buf, CHANGES_MAGIC_STRING)) {
 	throw NetworkError("Invalid ChangeSet magic string");
     }
-    buf.erase(0, 12);
-    const char *ptr = buf.data();
-    const char *end = ptr + buf.size();
-    unsigned int changes_version;
-    if (!unpack_uint(&ptr, end, &changes_version))
+    ptr += CONST_STRLEN(CHANGES_MAGIC_STRING);
+    if (ptr == end)
 	throw NetworkError("Couldn't read a valid version number from changeset");
+    unsigned int changes_version = *ptr++;
     if (changes_version != CHANGES_VERSION)
 	throw NetworkError("Unsupported changeset version");
 
@@ -316,13 +263,13 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	// If the database was not known to be valid, we cannot
 	// reliably determine its revision number, so must skip this
 	// check.
-	BrassRecordTable record_table(db_dir, true);
-	record_table.open();
-	if (startrev != record_table.get_open_revision_number())
+	BrassVersion version_file(db_dir);
+	version_file.read();
+	if (startrev != version_file.get_revision())
 	    throw NetworkError("Changeset supplied is for wrong revision number");
     }
 
-    unsigned char changes_type = ptr[0];
+    unsigned char changes_type = *ptr++;
     if (changes_type != 0) {
 	throw NetworkError("Unsupported changeset type: " + str(changes_type));
 	// FIXME - support changes of type 1, produced when DANGEROUS mode is
@@ -330,58 +277,51 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     }
 
     // Clear the bits of the buffer which have been read.
-    buf.erase(0, ptr + 1 - buf.data());
+    buf.erase(0, ptr - buf.data());
 
     // Read the items from the changeset.
     while (true) {
 	conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
 	ptr = buf.data();
 	end = ptr + buf.size();
+	if (ptr == end)
+	    throw NetworkError("Unexpected end of changeset (3)");
 
 	// Read the type of the next chunk of data
-	if (ptr == end)
-	    throw NetworkError("Unexpected end of changeset (2)");
-	unsigned char chunk_type = ptr[0];
-	++ptr;
-	if (chunk_type == 0)
+	// chunk type can be (in binary):
+	//
+	// 11111111 - last chunk
+	// 11111110 - version file
+	// 00BBBTTT - table block:
+	//   Block size = (2048<<BBB) BBB=0..5; Table TTT=0..(Brass::MAX_-1)
+	unsigned char chunk_type = *ptr++;
+	if (chunk_type == 0xff)
 	    break;
-
-	// Get the tablename.
-	string tablename;
-	if (!unpack_string(&ptr, end, tablename))
-	    throw NetworkError("Unexpected end of changeset (3)");
-	if (tablename.empty())
-	    throw NetworkError("Missing tablename in changeset");
-	if (tablename.find_first_not_of("abcdefghijklmnopqrstuvwxyz") !=
-	    tablename.npos)
-	    throw NetworkError("Invalid character in tablename in changeset");
+	if (chunk_type == 0xfe) {
+	    // Version file.
+	    buf.erase(0, ptr - buf.data());
+	    process_changeset_chunk_version(buf, conn, end_time);
+	    continue;
+	}
+	size_t table_code = (chunk_type & 0x07);
+	if (table_code >= Brass::MAX_)
+	    throw NetworkError("Bad table code in changeset file");
+	Brass::table_type table = static_cast<Brass::table_type>(table_code);
+	unsigned char v = (chunk_type >> 3) & 0x0f;
 
 	// Process the chunk
-	if (ptr == end)
-	    throw NetworkError("Unexpected end of changeset (4)");
 	buf.erase(0, ptr - buf.data());
-
-	switch (chunk_type) {
-	    case 1:
-		process_changeset_chunk_base(tablename, buf, conn, end_time);
-		break;
-	    case 2:
-		process_changeset_chunk_blocks(tablename, buf, conn, end_time);
-		break;
-	    default:
-		throw NetworkError("Unrecognised item type in changeset");
-	}
+	process_changeset_chunk_blocks(table, v, buf, conn, end_time);
     }
-    brass_revision_number_t reqrev;
-    if (!unpack_uint(&ptr, end, &reqrev))
-	throw NetworkError("Couldn't read a valid required revision from changeset");
-    if (reqrev < endrev)
-	throw NetworkError("Required revision in changeset is earlier than end revision");
+
     if (ptr != end)
 	throw NetworkError("Junk found at end of changeset");
 
     buf.resize(0);
-    pack_uint(buf, reqrev);
+    pack_uint(buf, endrev);
+
+    commit();
+
     RETURN(buf);
 }
 
@@ -391,7 +331,7 @@ BrassDatabaseReplicator::get_uuid() const
     LOGCALL(DB, string, "BrassDatabaseReplicator::get_uuid", NO_ARGS);
     BrassVersion version_file(db_dir);
     try {
-	version_file.read_and_check();
+	version_file.read();
     } catch (const Xapian::DatabaseError &) {
 	RETURN(string());
     }

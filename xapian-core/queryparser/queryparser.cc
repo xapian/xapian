@@ -1,7 +1,7 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007,2008,2010,2011 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -58,6 +58,8 @@ SimpleStopper::get_description() const
 
 ValueRangeProcessor::~ValueRangeProcessor() { }
 
+FieldProcessor::~FieldProcessor() { }
+
 QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
 
 QueryParser &
@@ -99,6 +101,7 @@ QueryParser::set_default_op(Query::op default_op)
 	case Query::OP_PHRASE:
 	case Query::OP_ELITE_SET:
 	case Query::OP_SYNONYM:
+	case Query::OP_MAX:
 	    // These are OK.
 	    break;
 	default:
@@ -113,8 +116,10 @@ QueryParser::set_default_op(Query::op default_op)
 		    "OP_PHRASE"
 		    ", "
 		    "OP_ELITE_SET"
+		    ", "
+		    "OP_SYNONYM"
 		    " or "
-		    "OP_SYNONYM");
+		    "OP_MAX");
     }
     internal->default_op = default_op;
 }
@@ -163,6 +168,13 @@ QueryParser::add_prefix(const string &field, const string &prefix)
 }
 
 void
+QueryParser::add_prefix(const string &field, Xapian::FieldProcessor * proc)
+{
+    Assert(internal.get());
+    internal->add_prefix(field, proc, NON_BOOLEAN);
+}
+
+void
 QueryParser::add_boolean_prefix(const string &field, const string &prefix,
 				bool exclusive)
 {
@@ -173,6 +185,19 @@ QueryParser::add_boolean_prefix(const string &field, const string &prefix,
 	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
     filter_type type = (exclusive ? BOOLEAN_EXCLUSIVE : BOOLEAN);
     internal->add_prefix(field, prefix, type);
+}
+
+void
+QueryParser::add_boolean_prefix(const string &field, Xapian::FieldProcessor * proc,
+				bool exclusive)
+{
+    Assert(internal.get());
+    // Don't allow the empty prefix to be set as boolean as it doesn't
+    // really make sense.
+    if (field.empty())
+	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
+    filter_type type = (exclusive ? BOOLEAN_EXCLUSIVE : BOOLEAN);
+    internal->add_prefix(field, proc, type);
 }
 
 TermIterator

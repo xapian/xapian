@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <sys/types.h>
-#include <sys/socket.h>
+#include "safesyssocket.h"
 #include <sys/wait.h>
 #include <signal.h>
 #include <cstring>
@@ -41,6 +41,10 @@
 
 #ifdef __CYGWIN__
 #include <sys/cygwin.h>
+#endif
+
+#ifdef FLINTLOCK_USE_FLOCK
+# include <sys/file.h>
 #endif
 
 #include "xapian/error.h"
@@ -56,7 +60,15 @@ FlintLock::lock(bool exclusive, string & explanation) {
     Assert(hFile == INVALID_HANDLE_VALUE);
 #ifdef __CYGWIN__
     char fnm[MAX_PATH];
+#if CYGWIN_VERSION_API_MAJOR == 0 && CYGWIN_VERSION_API_MINOR < 181
     cygwin_conv_to_win32_path(filename.c_str(), fnm);
+#else
+    if (cygwin_conv_path(CCP_POSIX_TO_WIN_A|CCP_RELATIVE, filename.c_str(),
+			 fnm, MAX_PATH) < 0) {
+	explanation = string("cygwin_conv_path failed:") + strerror(errno);
+	return UNKNOWN;
+    }
+#endif
 #else
     const char *fnm = filename.c_str();
 #endif
@@ -77,9 +89,47 @@ FlintLock::lock(bool exclusive, string & explanation) {
     if (rc == ERROR_ACCESS_DENIED) return INUSE;
     explanation = string();
     return UNKNOWN;
+#elif defined FLINTLOCK_USE_FLOCK
+    // This is much simpler than using fcntl() due to saner semantics around
+    // releasing locks when closing other descriptors on the same file (at
+    // least on platforms where flock() isn't just a compatibility wrapper
+    // around fcntl()).  We can't simply switch to this without breaking
+    // locking compatibility with previous releases, though it might be useful
+    // for porting to platforms without fcntl() locking.  Also, flock()
+    // apparently doesn't work over NFS - perhaps that's OK, but we should at
+    // least check the failure mode.
+    Assert(fd == -1);
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+    if (lockfd < 0) {
+	// Couldn't open lockfile.
+	explanation = string("Couldn't open lockfile: ") + strerror(errno);
+	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+    }
+
+    while (flock(lockfd, LOCK_EX|LOCK_NB) == -1) {
+	if (errno != EINTR) {
+	    // Lock failed - translate known errno values into a reason code.
+	    close(lockfd);
+	    switch (errno) {
+		case EWOULDBLOCK:
+		    return INUSE;
+		case ENOLCK:
+		    return UNSUPPORTED; // FIXME: what do we get for NFS?
+		default:
+		    return UNKNOWN;
+	    }
+	}
+    }
+
+    fd = lockfd;
+    return SUCCESS;
 #else
     Assert(fd == -1);
+#if defined F_SETFD && defined FD_CLOEXEC
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+#else
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
+#endif
     if (lockfd < 0) {
 	// Couldn't open lockfile.
 	explanation = string("Couldn't open lockfile: ") + strerror(errno);
@@ -119,7 +169,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
     }
 
     int fds[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
+    if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
 	explanation = string("Couldn't create socketpair: ") + strerror(errno);
 	reason why = ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
@@ -132,6 +182,36 @@ FlintLock::lock(bool exclusive, string & explanation) {
     if (child == 0) {
 	// Child process.
 	close(fds[0]);
+
+#if defined F_SETFD && defined FD_CLOEXEC
+	// Clear close-on-exec flag, if we set it when we called socketpair().
+	// Clearing it here means there's no window where another thread in the
+	// parent process could fork()+exec() and end up with this fd still
+	// open (assuming close-on-exec is supported).
+	//
+	// We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as
+	// on Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC
+	// SOCK_CLOEXEC' to allow '#ifdef SOCK_CLOEXEC' to work.
+	if (SOCK_CLOEXEC != 0)
+	    (void)fcntl(fds[1], F_SETFD, 0);
+	if (O_CLOEXEC != 0)
+	    (void)fcntl(lockfd, F_SETFD, 0);
+#endif
+	// Connect pipe to stdin and stdout.
+	dup2(fds[1], 0);
+	dup2(fds[1], 1);
+
+	// Make sure we don't hang on to open files which may get deleted but
+	// not have their disk space released until we exit.  Close these
+	// before we try to get the lock because if one of them is open on
+	// the lock file then closing it after obtaining the lock would release
+	// the lock, which would be really bad.
+	for (int i = 2; i < lockfd; ++i) {
+	    // Retry on EINTR; just ignore other errors (we'll get
+	    // EBADF if the fd isn't open so that's OK).
+	    while (close(i) < 0 && errno == EINTR) { }
+	}
+	closefrom(lockfd + 1);
 
 	reason why = SUCCESS;
 	{
@@ -159,7 +239,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	{
 	    // Tell the parent if we got the lock, and if not, why not.
 	    char ch = static_cast<char>(why);
-	    while (write(fds[1], &ch, 1) < 0) {
+	    while (write(1, &ch, 1) < 0) {
 		// EINTR means a signal interrupted us, so retry.
 		// Otherwise we're DOOMED!  The best we can do is just exit
 		// and the parent process should get EOF and know the lock
@@ -168,10 +248,6 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	    }
 	    if (why != SUCCESS) _exit(0);
 	}
-
-	// Connect pipe to stdin and stdout.
-	dup2(fds[1], 0);
-	dup2(fds[1], 1);
 
 	// Make sure we don't block unmount() of partition holding the current
 	// directory.
@@ -183,15 +259,6 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	    // We need the if statement because glibc's _FORTIFY_SOURCE mode
 	    // gives a warning even if we cast the result to void.
 	}
-
-	// Make sure we don't hang on to open files which may get deleted but
-	// not have their disk space released until we exit.
-	for (int i = 2; i < lockfd; ++i) {
-	    // Retry on EINTR; just ignore other errors (we'll get
-	    // EBADF if the fd isn't open so that's OK).
-	    while (close(i) < 0 && errno == EINTR) { }
-	}
-	closefrom(lockfd + 1);
 
 	// FIXME: use special statically linked helper instead of cat.
 	execl("/bin/cat", "/bin/cat", static_cast<void*>(NULL));
@@ -258,6 +325,10 @@ FlintLock::release() {
     if (hFile == NULLHANDLE) return;
     DosClose(hFile);
     hFile = NULLHANDLE;
+#elif defined FLINTLOCK_USE_FLOCK
+    if (fd < 0) return;
+    close(fd);
+    fd = -1;
 #else
     if (fd < 0) return;
     close(fd);

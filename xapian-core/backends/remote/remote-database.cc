@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -118,10 +118,13 @@ RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
 			    0));
     vector<NetworkTermListItem> & items = tlist->items;
 
+    string term = prefix;
     char type;
     while ((type = get_message(message)) == REPLY_METADATAKEYLIST) {
 	NetworkTermListItem item;
-	item.tname = message;
+	term.resize(size_t((unsigned char)message[0]));
+	term.append(message, 1, string::npos);
+	item.tname = term;
 	items.push_back(item);
     }
     if (type != REPLY_DONE)
@@ -156,6 +159,7 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 			    did));
     vector<NetworkTermListItem> & items = tlist->items;
 
+    string term;
     char type;
     while ((type = get_message(message)) == REPLY_TERMLIST) {
 	NetworkTermListItem item;
@@ -163,7 +167,9 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	p_end = p + message.size();
 	item.wdf = decode_length(&p, p_end, false);
 	item.termfreq = decode_length(&p, p_end, false);
-	item.tname.assign(p, p_end);
+	term.resize(size_t((unsigned char)*p++));
+	term.append(p, p_end);
+	item.tname = term;
 	items.push_back(item);
     }
     if (type != REPLY_DONE)
@@ -186,6 +192,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 			    0));
     vector<NetworkTermListItem> & items = tlist->items;
 
+    string term = prefix;
     string message;
     char type;
     while ((type = get_message(message)) == REPLY_ALLTERMS) {
@@ -193,7 +200,9 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
 	item.termfreq = decode_length(&p, p_end, false);
-	item.tname.assign(p, p_end);
+	term.resize(size_t((unsigned char)*p++));
+	term.append(p, p_end);
+	item.tname = term;
 	items.push_back(item);
     }
     if (type != REPLY_DONE)
@@ -393,30 +402,36 @@ RemoteDatabase::term_exists(const string & tname) const
     return (type == REPLY_TERMEXISTS);
 }
 
-Xapian::doccount
-RemoteDatabase::get_termfreq(const string & tname) const
+void
+RemoteDatabase::get_freqs(const string & term,
+			  Xapian::doccount * termfreq_ptr,
+			  Xapian::termcount * collfreq_ptr) const
 {
-    Assert(!tname.empty());
-    send_message(MSG_TERMFREQ, tname);
+    Assert(!term.empty());
     string message;
-    get_message(message, REPLY_TERMFREQ);
-    const char * p = message.data();
-    const char * p_end = p + message.size();
-    return decode_length(&p, p_end, false);
+    const char * p;
+    const char * p_end;
+    if (termfreq_ptr) {
+	if (collfreq_ptr) {
+	    send_message(MSG_FREQS, term);
+	    get_message(message, REPLY_FREQS);
+	} else {
+	    send_message(MSG_TERMFREQ, term);
+	    get_message(message, REPLY_TERMFREQ);
+	}
+	p = message.data();
+	p_end = p + message.size();
+	*termfreq_ptr = decode_length(&p, p_end, false);
+    } else if (collfreq_ptr) {
+	send_message(MSG_COLLFREQ, term);
+	get_message(message, REPLY_COLLFREQ);
+	p = message.data();
+	p_end = p + message.size();
+    }
+    if (collfreq_ptr) {
+	*collfreq_ptr = decode_length(&p, p_end, false);
+    }
 }
-
-Xapian::termcount
-RemoteDatabase::get_collection_freq(const string & tname) const
-{
-    Assert(!tname.empty());
-    send_message(MSG_COLLFREQ, tname);
-    string message;
-    get_message(message, REPLY_COLLFREQ);
-    const char * p = message.data();
-    const char * p_end = p + message.size();
-    return decode_length(&p, p_end, false);
-}
-
 
 void
 RemoteDatabase::read_value_stats(Xapian::valueno slot) const
@@ -500,6 +515,22 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
     return doclen;
 }
 
+Xapian::termcount
+RemoteDatabase::get_unique_terms(Xapian::docid did) const
+{
+    Assert(did != 0);
+    send_message(MSG_UNIQUETERMS, encode_length(did));
+    string message;
+    get_message(message, REPLY_UNIQUETERMS);
+    const char * p = message.c_str();
+    const char * p_end = p + message.size();
+    Xapian::termcount doclen = decode_length(&p, p_end, false);
+    if (p != p_end) {
+	throw Xapian::NetworkError("Bad REPLY_UNIQUETERMS message received", context);
+    }
+    return doclen;
+}
+
 reply_type
 RemoteDatabase::get_message(string &result, reply_type required_type) const
 {
@@ -553,6 +584,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 			 Xapian::valueno sort_key,
 			 Xapian::Enquire::Internal::sort_setting sort_by,
 			 bool sort_value_forward,
+			 double time_limit,
 			 int percent_cutoff, double weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
@@ -570,6 +602,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
     message += encode_length(sort_key);
     message += char('0' + sort_by);
     message += char('0' + sort_value_forward);
+    message += serialise_double(time_limit);
     message += char(percent_cutoff);
     message += serialise_double(weight_cutoff);
 
@@ -589,7 +622,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
     for (i = matchspies.begin(); i != matchspies.end(); ++i) {
 	tmp = (*i)->name();
 	if (tmp.empty()) {
-	    throw Xapian::UnimplementedError("MatchSpy not suitable for use with remote searches - name() method returned empty string");
+	    throw Xapian::UnimplementedError("MatchSpy subclass not suitable for use with remote searches - name() method returned empty string");
 	}
 	message += encode_length(tmp.size());
 	message += tmp;
@@ -609,7 +642,7 @@ RemoteDatabase::get_remote_stats(bool nowait, Xapian::Weight::Internal &out)
 
     string message;
     get_message(message, REPLY_STATS);
-    out = unserialise_stats(message);
+    unserialise_stats(message, out);
 
     return true;
 }

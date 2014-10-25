@@ -1,6 +1,6 @@
 /* md5wrap.cc: wrapper functions to allow easy use of MD5 from C++.
  *
- * Copyright (C) 2006,2010 Olly Betts
+ * Copyright (C) 2006,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,7 +80,8 @@ md5_file(const string &file_name, string &md5, bool try_noatime)
 	if (c == 0) break;
 	if (c < 0) {
 	    if (errno == EINTR) continue;
-	    break;
+	    close(fd);
+	    return false;
 	}
 	MD5Update(&md5_ctx, blk, c);
     }
@@ -98,14 +99,13 @@ md5_file(const string &file_name, string &md5, bool try_noatime)
 }
 
 void
-md5_string(const string &str, string &md5)
+md5_block(const char * p, size_t len, string &md5)
 {
     unsigned char blk[16];
     MD5Context md5_ctx;
 
     MD5Init(&md5_ctx);
-    MD5Update(&md5_ctx, reinterpret_cast<const unsigned char *>(str.data()),
-	      str.size());
+    MD5Update(&md5_ctx, reinterpret_cast<const unsigned char *>(p), len);
     MD5Final(blk, &md5_ctx);
     md5.assign(reinterpret_cast<const char *>(blk), 16);
 }

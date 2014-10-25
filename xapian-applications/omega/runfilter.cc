@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007,2009,2010,2011 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,8 +42,8 @@
 #include "safesyswait.h"
 #include "safeunistd.h"
 
-#if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
-# include <csignal>
+#if defined HAVE_FORK && defined HAVE_SOCKETPAIR
+# include <signal.h>
 #endif
 
 #include "freemem.h"
@@ -55,21 +55,134 @@
 
 using namespace std;
 
+#if defined HAVE_FORK && defined HAVE_SOCKETPAIR
+static pid_t pid_to_kill_on_signal;
+
+#ifdef HAVE_SIGACTION
+static struct sigaction old_hup_handler;
+static struct sigaction old_int_handler;
+static struct sigaction old_quit_handler;
+static struct sigaction old_term_handler;
+
+extern "C" {
+
+static void
+handle_signal(int signum)
+{
+    if (pid_to_kill_on_signal) {
+	kill(pid_to_kill_on_signal, SIGKILL);
+	pid_to_kill_on_signal = 0;
+    }
+    switch (signum) {
+	case SIGHUP:
+	    sigaction(signum, &old_hup_handler, NULL);
+	    break;
+	case SIGINT:
+	    sigaction(signum, &old_int_handler, NULL);
+	    break;
+	case SIGQUIT:
+	    sigaction(signum, &old_quit_handler, NULL);
+	    break;
+	case SIGTERM:
+	    sigaction(signum, &old_term_handler, NULL);
+	    break;
+	default:
+	    return;
+    }
+    raise(signum);
+}
+
+}
+
+void
+runfilter_init()
+{
+    struct sigaction sa;
+    sa.sa_handler = handle_signal;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGHUP, &sa, &old_hup_handler);
+    sigaction(SIGINT, &sa, &old_int_handler);
+    sigaction(SIGQUIT, &sa, &old_quit_handler);
+    sigaction(SIGTERM, &sa, &old_term_handler);
+}
+#else
+static sighandler_t old_hup_handler;
+static sighandler_t old_int_handler;
+static sighandler_t old_quit_handler;
+static sighandler_t old_term_handler;
+
+extern "C" {
+
+static void
+handle_signal(int signum)
+{
+    if (pid_to_kill_on_signal) {
+	kill(pid_to_kill_on_signal, SIGKILL);
+	pid_to_kill_on_signal = 0;
+    }
+    switch (signum) {
+	case SIGHUP:
+	    signal(signum, old_hup_handler);
+	    break;
+	case SIGINT:
+	    signal(signum, old_int_handler);
+	    break;
+	case SIGQUIT:
+	    signal(signum, old_quit_handler);
+	    break;
+	case SIGTERM:
+	    signal(signum, old_term_handler);
+	    break;
+	default:
+	    return;
+    }
+    raise(signum);
+}
+
+}
+
+void
+runfilter_init()
+{
+    old_hup_handler = signal(SIGHUP, handle_signal);
+    old_int_handler = signal(SIGINT, handle_signal);
+    old_quit_handler = signal(SIGQUIT, handle_signal);
+    old_term_handler = signal(SIGTERM, handle_signal);
+}
+#endif
+#else
+void
+runfilter_init()
+{
+}
+#endif
+
 string
 stdout_to_string(const string &cmd)
 {
     string out;
-#if defined HAVE_FORK && defined HAVE_SOCKETPAIR && defined HAVE_SETRLIMIT
+#if defined HAVE_FORK && defined HAVE_SOCKETPAIR
     // We want to be able to get the exit status of the child process.
     signal(SIGCHLD, SIG_DFL);
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0)
-	throw ReadError();
+	throw ReadError("socketpair failed");
 
     pid_t child = fork();
     if (child == 0) {
 	// We're the child process.
+
+#ifdef HAVE_SETPGID
+	// Put the child process into its own process group, so that we can
+	// easily kill it and any children it in turn forks if we need to.
+	setpgid(0, 0);
+	pid_to_kill_on_signal = -child;
+#else
+	pid_to_kill_on_signal = child;
+#endif
 
 	// Close the parent's side of the socket pair.
 	close(fds[0]);
@@ -77,6 +190,7 @@ stdout_to_string(const string &cmd)
 	// Connect stdout to our side of the socket pair.
 	dup2(fds[1], 1);
 
+#ifdef HAVE_SETRLIMIT
 	// Impose some pretty generous resource limits to prevent run-away
 	// filter programs from causing problems.
 
@@ -103,6 +217,7 @@ stdout_to_string(const string &cmd)
 #endif
 	}
 #endif
+#endif
 
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	_exit(-1);
@@ -115,7 +230,7 @@ stdout_to_string(const string &cmd)
     if (child == -1) {
 	// fork() failed.
 	close(fds[0]);
-	throw ReadError();
+	throw ReadError("fork failed");
     }
 
     int fd = fds[0];
@@ -142,11 +257,16 @@ stdout_to_string(const string &cmd)
 	    } else {
 		cerr << "Filter inactive for too long" << endl;
 	    }
+#ifdef HAVE_SETPGID
+	    kill(-child, SIGKILL);
+#else
 	    kill(child, SIGKILL);
+#endif
 	    close(fd);
-	    int status;
-	    (void)waitpid(child, &status, 0);
-	    throw ReadError();
+	    int status = 0;
+	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+	    pid_to_kill_on_signal = 0;
+	    throw ReadError(status);
 	}
 
 	char buf[4096];
@@ -158,27 +278,36 @@ stdout_to_string(const string &cmd)
 		continue;
 	    }
 	    close(fd);
-	    int status;
-	    (void)waitpid(child, &status, 0);
-	    throw ReadError();
+#ifdef HAVE_SETPGID
+	    kill(-child, SIGKILL);
+#endif
+	    int status = 0;
+	    while (waitpid(child, &status, 0) < 0 && errno == EINTR) { }
+	    pid_to_kill_on_signal = 0;
+	    throw ReadError(status);
 	}
 	out.append(buf, res);
     }
 
     close(fd);
-    int status;
-    if (waitpid(child, &status, 0) == -1) {
-	throw ReadError();
+#ifdef HAVE_SETPGID
+    kill(-child, SIGKILL);
+#endif
+    int status = 0;
+    while (waitpid(child, &status, 0) < 0) {
+	if (errno != EINTR)
+	    throw ReadError("wait pid failed");
     }
+    pid_to_kill_on_signal = 0;
 #else
     FILE * fh = popen(cmd.c_str(), "r");
-    if (fh == NULL) throw ReadError();
+    if (fh == NULL) throw ReadError("popen failed");
     while (!feof(fh)) {
 	char buf[4096];
 	size_t len = fread(buf, 1, 4096, fh);
 	if (ferror(fh)) {
 	    (void)pclose(fh);
-	    throw ReadError();
+	    throw ReadError("fread failed");
 	}
 	out.append(buf, len);
     }
@@ -194,7 +323,7 @@ stdout_to_string(const string &cmd)
 	    cerr << "Filter process consumed too much CPU time" << endl;
 	}
 #endif
-	throw ReadError();
+	throw ReadError(status);
     }
     return out;
 }

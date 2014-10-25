@@ -2,14 +2,14 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.0], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.1], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
 dnl
-dnl 1. Start with version information of `0:0:0' for each libtool library.
+dnl 1. Start with version information of '0:0:0' for each libtool library.
 dnl
 dnl 2. Update the version information only immediately before a public
 dnl    release of your software.  More frequent updates are unnecessary,
@@ -17,7 +17,7 @@ dnl    and only guarantee that the current interface number gets larger
 dnl    faster.
 dnl
 dnl 3. If the library source code has changed at all since the last
-dnl    update, then increment REVISION (`C:R:A' becomes `C:r+1:A').
+dnl    update, then increment REVISION ('C:R:A' becomes 'C:r+1:A').
 dnl
 dnl 4. If any interfaces have been added, removed, or changed since the
 dnl    last update, increment CURRENT, and set REVISION to 0.
@@ -28,19 +28,12 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO:
-dnl 21:11:6 1.0.20 No API changes
-dnl 22:0:0 1.2.0 Many API changes!
-dnl 23:0:1 1.2.1 QueryParser::add_boolean_prefix()'s exclusive parameter.
-dnl 23:1:1 1.2.2 No API changes
-dnl 23:2:1 1.2.3 No API changes
-dnl 24:0:2 1.2.4 Compactor
-dnl 25:0:3 1.2.5 New min_wt overload for Enquire::get_eset()
-dnl 26:0:4 1.2.6 QueryParser::set_max_wildcard_expansion() added
-dnl
 dnl LIBRARY_VERSION_INFO for libxapian-1.3:
 dnl 0:0:0 1.3.0 Reset as library renamed
-LIBRARY_VERSION_INFO=0:0:0
+dnl 1:0:0 1.3.0_svn16813 Default stemming strategy now STEM_SOME
+dnl 2:0:1 1.3.1 Added TfIdfWeight, MSetIterator::at_end(), etc
+dnl 3:0:0 1.3.2 Enquire::get_eset() overload -> default parameter
+LIBRARY_VERSION_INFO=3:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 LIBRARY_VERSION_SUFFIX=-1.3
@@ -61,7 +54,6 @@ case `pwd` in
 *' '*)
    AC_MSG_ERROR([You can't build in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Check the source directory doesn't contain a space, so we die early with
@@ -73,7 +65,6 @@ case $0 in
    dnl before this can.
    AC_MSG_ERROR([You can't build with sources in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Check the prefix to install in doesn't contain a space, so we die early with
@@ -82,7 +73,6 @@ case $prefix in
 *' '*)
    AC_MSG_ERROR([You can't install in a directory whose path contains a space])
    ;;
-*) ;;
 esac
 
 dnl Note if the user specified a particular C++ compiler so we can give a more
@@ -95,7 +85,7 @@ elif test -n "$CCC" ; then
 fi
 
 dnl See HACKING document for details of the reasons for required versions.
-AM_INIT_AUTOMAKE([1.10.2 -Wportability tar-ustar std-options])
+AM_INIT_AUTOMAKE([1.11 -Wportability tar-ustar no-dist-gzip dist-xz std-options])
 AC_CONFIG_SRCDIR([matcher/multiandpostlist.cc])
 
 AC_CONFIG_HEADERS([config.h])
@@ -104,6 +94,10 @@ AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
+dnl Libtool doesn't know about -library=stdcxx4 yet, and also it checks for
+dnl -library=stlport4 before we enable it, so trick it into not wanting to add
+dnl -library=Cstd.
+solaris_use_stlport4=yes
 LT_INIT
 
 AM_CXXFLAGS=
@@ -140,9 +134,9 @@ AM_MAINTAINER_MODE
 dnl Checks for programs.
 AC_PROG_CXX
 
-# Checked: freebsd8.0 openbsd4.6
+# Checked: freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
-  linux* | k*bsd*-gnu | freebsd* | openbsd*)
+  linux* | k*bsd*-gnu | freebsd* | openbsd* | solaris*)
     dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
     link_all_deplibs_CXX=no
     ;;
@@ -156,6 +150,18 @@ case $host_os in
     test -z "$d" || sys_lib_dlsearch_path_spec=$d
     ;;
 esac
+
+case $host in
+  *-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-os2* | *-*-darwin* | *-cegcc*)
+    dnl On these platforms, libtool emits a warning if -no-install is passed,
+    dnl and uses -no-fast-install instead - the least ugly way to avoid that
+    dnl warnings seems to be to duplicate the above list of platforms from
+    dnl libtool and use -no-fast-install on them directly.
+    NO_INSTALL=-no-fast-install ;;
+  *)
+    NO_INSTALL=-no-install ;;
+esac
+AC_SUBST([NO_INSTALL])
 
 dnl For reasons which are beyond me, if autoconf can't find a C++ compiler
 dnl it will set CXX to g++ (which obviously won't work) rather than actually
@@ -202,16 +208,18 @@ if test no = "$xo_cv_cxx_works" ; then
   fi
 fi
 
+dnl We don't use a C compiler to compile Xapian's code, but on some platforms
+dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
+dnl build auxiliary tools like snowball and lemon.
+AC_PROG_CC
+
 dnl We want a non-cross-compiling C compiler for building lemon with.
 if test -z "$CC_FOR_BUILD" ; then
-  AC_PROG_CC
   if test yes = "$cross_compiling"; then
     CC_FOR_BUILD=cc
   else
     CC_FOR_BUILD="$CC"
   fi
-  dnl Unset CC to make sure we don't accidentally use it.
-  unset CC
 fi
 AC_ARG_VAR(CC_FOR_BUILD, [C compiler command for native compilation (needed to compile build tools during cross-builds)])
 
@@ -219,7 +227,9 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 XAPIAN_LDFLAGS=
+XAPIAN_LIBS=
 AC_SUBST(XAPIAN_LDFLAGS)
+AC_SUBST(XAPIAN_LIBS)
 
 AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   [
@@ -227,7 +237,10 @@ AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   AC_CACHE_VAL([xo_cv_$2],
     [
     flag=$1
-    if $CXX -Wl,$1 >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD|grep -e $1 >/dev/null 2>&1; then
+    dnl The option in $1 will start with a dash so needs protecting.  We can't
+    dnl use -e as Solaris /usr/bin/grep doesn't support that, so prepend an
+    dnl empty group instead.
+    if $CXX -Wl,$1 >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD|grep '\(\)'$1 >/dev/null 2>&1; then
       dnl The error message contains the flag name - it must be a
       dnl complaint that the option is unrecognized (doing it this
       dnl way allows it to work regardless of the i18n in use):
@@ -240,6 +253,20 @@ AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
     fi
     ])
   AC_MSG_RESULT([$xo_cv_$2])
+  ])
+
+dnl Test if the compiler works with $1 added to CXXFLAGS; if it does, add $1 to
+dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
+AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
+  [
+  XTC_save_CXXFLAGS=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS $1"
+  AC_TRY_COMPILE([], [],
+		 [$2="$2 $1"
+		  CXXFLAGS=$XTC_save_CXXFLAGS
+		  $3],
+		 [CXXFLAGS=$XTC_save_CXXFLAGS
+		  $4])
   ])
 
 ldflags=
@@ -309,23 +336,37 @@ else
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
-      dnl If this proves to be a problem, try '-std ansi -D__USE_STD_IOSTREAM'
-      ANSI_CXXFLAGS="-std strict_ansi"
+      dnl If this proves to be a problem, we could instead try
+      dnl '-std ansi -D__USE_STD_IOSTREAM'.
+      dnl
       dnl Check that the compiler recognises these flags to avoid problems
       dnl with other compilers named cxx.
-      AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
+      XAPIAN_TEST_CXXFLAGS([-std strict_ansi], [ANSI_CXXFLAGS]) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
       case `$CXX -V 2>&1` in
       *Sun\ C++*)
-	dnl Select ANSI conforming STL - for more information see:
-	dnl http://developers.sun.com/solaris/articles/cmp_stlport_libCstd.html
-	dnl and:
-	dnl http://developers.sun.com/sunstudio/documentation/ss12/mr/READMEs/c++_faq.html#Coding12
-	dnl (Looks like -features=tmplife was added around 2000 so just pass
-	dnl it unconditionally)
 	compiler=sun
-	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
+	dnl Select ANSI conforming STL - for more information see:
+	dnl http://www.oracle.com/technetwork/server-storage/solarisstudio/documentation/cplusplus-faq-355066.html#LibComp5
+	dnl -library=stdcxx4 is better, but needs "Solaris 10 update 10 or
+	dnl Solaris 11".
+	dnl
+	dnl If the compiler supports -library=stdcxx4 but the user has
+	dnl specified CXXFLAGS=-library=stlport4, then this should put
+	dnl -library=stlport4 in ANSI_CXXFLAGS, since the compiler will give
+	dnl an error when passed -library=stlport4 -library=stdcxx4.
+	for l in stdcxx4 stlport4 Cstd ; do
+	  dnl We avoid -library-$l,Crun as libtool looks for
+	  dnl " -library=stlport4 " (with the spaces either side).
+	  f="-library=$l -library=Crun"
+	  XAPIAN_TEST_CXXFLAGS([$f], [ANSI_CXXFLAGS], [break])
+	done
+	dnl Older versions of this compiler defaulted to a non-standard
+	dnl lifetime for temporary objects, and -features=tmplife is required
+	dnl for standard conforming behaviour (which Xapian code expects).
+	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ANSI_CXXFLAGS])
+	;;
       *)
 	case `$CXX -v 2>&1` in
 	MIPSpro*)
@@ -406,6 +447,9 @@ using namespace std;], [
     ])
 ])
 
+dnl See if log2() function on math library is supported.
+AC_CHECK_FUNCS([log2])
+
 dnl See if <typeinfo> can be used in the testsuite - for GCC at least,
 dnl compilation fails if -fno-rtti is specified.
 AC_MSG_CHECKING([if RTTI is supported])
@@ -416,35 +460,55 @@ AC_TRY_COMPILE([#include <typeinfo>],
     AC_MSG_RESULT(no))
 
 dnl Check for time functions.
-AC_CHECK_FUNCS(gettimeofday ftime)
+AC_CHECK_FUNCS([clock_gettime nanosleep gettimeofday ftime])
 
 dnl For _ftime64() on mingw we need to tell it we're happy to require
-dnl MSVCRT 0x0601, which isn't too onerous a requirement it seems.
+dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
 case $host_os in
   *mingw*)
     AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
     ;;
 esac
 
+dnl We use timer_create() if available to implement a search time limit.
+SAVE_LIBS=$LIBS
+AC_SEARCH_LIBS(timer_create, rt,
+    [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"
+    AC_DEFINE(HAVE_TIMER_CREATE, 1,[Define to 1 if you have the 'timer_create' function.])])
+LIBS=$SAVE_LIBS
+
+dnl Used by tests/soaktest/soaktest.cc
+AC_CHECK_FUNCS([srandom random])
+
 dnl Used by tests/harness/testsuite.cc
 AC_CHECK_FUNCS([sigaction])
 AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
 AC_TRY_COMPILE([#include <setjmp.h>],
   [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
-  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the `sigsetjmp' function])
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the 'sigsetjmp' function])
   AC_MSG_RESULT([yes]),
   AC_MSG_RESULT([no]))
 
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
-dnl Used by tests/api_replicate.cc (Solaris < 10 only has putenv()):
-AC_CHECK_FUNCS([setenv])
+
+dnl Used by tests/api_replicate.cc, tests/queryparsertest.cc and
+dnl tests/termgentest.cc.
+dnl
+dnl Solaris < 10 only has putenv().
+dnl
+dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
+dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
+dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
+dnl on __WIN32__ being defined.
+AC_CHECK_FUNCS([setenv _putenv_s])
 
 dnl Check for a more efficient way of closing fds during daemonisation.
 dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
 dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
-dnl dirfd() is useful for an efficient implementation on some platforms.
-AC_CHECK_FUNCS([closefrom dirfd])
+dnl dirfd() and getrlimit are useful for an efficient implementation on some
+dnl platforms.
+AC_CHECK_FUNCS([closefrom dirfd getrlimit])
 
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
@@ -469,6 +533,7 @@ AC_TYPE_PID_T
 
 AC_TYPE_MODE_T
 
+AC_CHECK_SIZEOF([short])
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([long])
 
@@ -495,13 +560,6 @@ if test x"$enable_documentation" = xyes ; then
   DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
   AC_SUBST(DOXYGEN_DOT_PATH)
 
-  dnl FIXME: pdflatex is needed to make some more of the documentation but
-  dnl doxygen expects it to be on PATH.
-
-  dnl Check for makeindex. (Needed to make some more of the documentation)
-  AC_PATH_PROG(MAKEINDEX, makeindex, [])
-  test -z "$MAKEINDEX" && AC_MSG_ERROR([makeindex is required to build documentation])
-
   dnl Check for doxygen. (Needed to make some more of the documentation)
   AC_PATH_PROG(DOXYGEN, doxygen, [])
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
@@ -513,12 +571,12 @@ if test x"$enable_documentation" = xyes ; then
   dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
   dnl Also look for rst2html.py, which archlinux reportedly installs it as.
   AC_PATH_PROGS(RST2HTML, [rst2html rst2html.py], [])
-  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation (try package python-docutils)])
 
   dnl Check for pngcrush, which we optionally use to reduce the size of the
   dnl PNG files which doxygen generates.  We can get by without it, so don't
   dnl fail here if it's not found.
-  AC_PATH_PROGS(PNGCRUSH, [pngcrush], [])
+  AC_PATH_PROG(PNGCRUSH, [pngcrush], [])
 fi
 
 dnl Check whether we need -ldl for dlsym() etc.
@@ -529,6 +587,8 @@ dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
+AC_CHECK_HEADERS([sys/resource.h],
+		 [], [], [#include <sys/types.h>])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
@@ -571,6 +631,13 @@ fi
 
 if test -n "$VALGRIND" ; then
   AC_DEFINE(HAVE_VALGRIND, 1, [Define if a suitable valgrind is installed])
+fi
+
+dnl If eatmydata is installed, we run the testsuite under it to speed it up.
+dnl If EATMYDATA is set to an empty value, then skip this check and don't use
+dnl eatmydata.
+if test -n "${EATMYDATA-unset}" ; then
+  AC_PATH_PROG(EATMYDATA, eatmydata, [])
 fi
 
 dnl Checks for library functions.
@@ -667,22 +734,6 @@ XAPIAN_BACKEND_ENABLE(chert)
 XAPIAN_BACKEND_ENABLE(inmemory)
 XAPIAN_BACKEND_ENABLE(remote)
 
-if test yes = "$enable_backend_brass" ; then
-  dnl We would need to implement a locking strategy for MSDOS before we
-  dnl could build brass there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_brass=no ;;
-  esac
-fi
-
-if test yes = "$enable_backend_chert" ; then
-  dnl We would need to implement a locking strategy for MSDOS before we
-  dnl could build chert there.
-  case $host_os in
-    *djgpp* | *msdos* ) enable_backend_chert=no ;;
-  esac
-fi
-
 use_win32_uuid_api=0
 case $enable_backend_chert$enable_backend_brass in
 *yes*)
@@ -700,13 +751,12 @@ case $enable_backend_chert$enable_backend_brass in
 
   dnl Check for zlibVersion in -lz.
   SAVE_LIBS=$LIBS
-  LIBS=
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
     AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for brass and chert (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
-    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+    XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
   fi
   LIBS=$SAVE_LIBS
 
@@ -723,12 +773,11 @@ case $enable_backend_chert$enable_backend_brass in
 	dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
 	dnl -luuid.
 	SAVE_LIBS=$LIBS
-	LIBS=
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
 	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for brass and chert (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	if test x != x"$LIBS" ; then
-	  XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+	  XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
 	fi
       ], [
 	dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
@@ -746,18 +795,17 @@ case $enable_backend_chert$enable_backend_brass in
 
   dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
   dnl uuid_unparse_lower(), only uuid_unparse().
-  AC_LINK_IFELSE([AC_LANG_CALL([], [uuid_unparse_lower])], [found=true], [found=false])
-  if $found ; then
+  AC_LINK_IFELSE([AC_LANG_CALL([], [uuid_unparse_lower])],
+    [
     AC_DEFINE([HAVE_UUID_UNPARSE_LOWER], [1],
 	      [Define to 1 if you have the 'uuid_unparse_lower' function.])
-  fi
-
+    ])
   LIBS=$SAVE_LIBS
   ;;
 esac
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
-REMOTE_LDFLAGS=
+REMOTE_LIBS=
 if test "$enable_backend_remote" = yes ; then
   AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
 #ifdef __WIN32__
@@ -768,57 +816,55 @@ if test "$enable_backend_remote" = yes ; then
   case $host_os-$win32 in
     *-yes )
       dnl For mingw and msvc we have an alternative implementation which
-      dnl doesn't need fork().  Also the "prog" variant isn't built
-      dnl currently so socketpair() isn't required either.
+      dnl doesn't need fork() or socketpair().
       dnl
       dnl We need -lws2_32 for gethostbyname(), etc.  Hardcode that knowledge
       dnl here because AC_SEARCH_LIBS fails to link the test program (I think
       dnl because its prototype has the wrong calling convention).
-      REMOTE_LDFLAGS=-lws2_32
+      REMOTE_LIBS=-lws2_32
       ;;
     *djgpp* | *msdos* )
       dnl DJGPP has a dummy implementation of fork which always fails.
-      enable_backend_remote=no ;;
+      dnl
+      dnl For disk-based backend, use flock() for locking, which doesn't need
+      dnl fork() or socketpair().
+      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking])
+      dnl If someone actually wanted remote backend support, then DJGPP has a
+      dnl pthreads port, so using threads like we do on Windows would make more
+      dnl sense.
+      enable_backend_remote=no
+      ;;
     *)
       dnl On Unix, we need fork and socketpair for the remotebackend.
-      AC_CHECK_FUNCS(fork)
       SAVE_LIBS=$LIBS
-      LIBS=
-      if test "$ac_cv_func_fork" = no ; then
-	enable_backend_remote=no
-      else
-	dnl Check if -lsocket is required for socketpair (Solaris needs it).
-	AC_SEARCH_LIBS(socketpair, socket, [], [enable_backend_remote=no])
-	if test "$enable_backend_remote" = yes ; then
-	  AC_DEFINE(HAVE_SOCKETPAIR, 1,
-		    [Define to 1 if you have the 'socketpair' function.])
-	  dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-	  AC_SEARCH_LIBS(gethostbyname, nsl, [], [enable_backend_remote=no])
-	  if test "$enable_backend_remote" = yes ; then
-	    dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-	    AC_SEARCH_LIBS(gethostbyaddr, nsl, [], [enable_backend_remote=no])
-	    if test "$enable_backend_remote" = yes ; then
-	      REMOTE_LDFLAGS=$LIBS
-	    fi
-	  fi
-	fi
-      fi
-      LIBS="$SAVE_LIBS"
+      AC_CHECK_FUNCS(fork, [], [
+	AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      dnl Check if -lsocket is required for socketpair (Solaris needs it).
+      dnl And on Haiku it's in -lnetwork.
+      AC_SEARCH_LIBS(socketpair, [socket network], [], [
+	AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_DEFINE(HAVE_SOCKETPAIR, 1,
+		[Define to 1 if you have the 'socketpair' function.])
+      dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
+      AC_SEARCH_LIBS(gethostbyname, nsl, [], [
+	AC_MSG_ERROR([gethostbyname() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
+      AC_SEARCH_LIBS(gethostbyaddr, nsl, [], [
+	AC_MSG_ERROR([gethostbyaddr() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      REMOTE_LIBS=$LIBS
+      LIBS=$SAVE_LIBS
       ;;
   esac
 
   if test "$enable_backend_remote" = yes ; then
     TYPE_SOCKLEN_T
-    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $REMOTE_LDFLAGS"
+    XAPIAN_LIBS="$XAPIAN_LIBS $REMOTE_LIBS"
   fi
 fi
-
-AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
-  [case ${enableval} in
-    yes|no) ;;
-    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
-  esac])
 
 AC_ARG_ENABLE(visibility,
   [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
@@ -826,16 +872,6 @@ AC_ARG_ENABLE(visibility,
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
   esac])
-
-dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
-dnl AC_SUBST-ed value like this allows the choice to be easily overridden
-dnl if you want to see exactly what make and libtool are up to - just run
-dnl make like this: `make QUIET='
-QUIET=
-if test yes = "$enable_quiet"; then
-  QUIET=--quiet
-fi
-AC_SUBST(QUIET)
 
 vpath_build=no
 if test "`pwd`" != "`cd $srcdir;pwd`" ; then
@@ -864,10 +900,9 @@ fi
 AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-SAVE_LIBS="$LIBS"
-LIBS=
-AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LDFLAGS="$LIBS $XAPIAN_LDFLAGS"])
-LIBS="$SAVE_LIBS"
+SAVE_LIBS=$LIBS
+AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
+LIBS=$SAVE_LIBS
 
 AC_CHECK_FUNCS(fsync)
 
@@ -1002,27 +1037,13 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 dnl Set flags to control warnings (enable more, or disable annoying ones).
+dash_d_visibility=
 if test yes = "$GXX"; then
-  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
-  dnl which we actually have.
-  AC_EGREP_CPP(yes,
-    [#ifdef __INTEL_COMPILER
-     yes
-     #endif
-    ],
-    [
-      dnl Intel's compiler:
-      dnl
-      dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
-    ],
-    [
-      dnl GCC:
+  dnl Intel's C++ compiler and clang both lie and define __GNUC__, so check which
+  dnl we actually have, as neither is really 100% compatible.
+  case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
+    *__INTEL_COMPILER*__clang__*)
+      dnl GCC (since neither substituted):
       dnl
       dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
       dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
@@ -1030,21 +1051,21 @@ if test yes = "$GXX"; then
       dnl All the other options were supported by g++ 2.95.
       AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
 
-      dnl The output of g++ --version seems to change with almost every minor
-      dnl release so use the preprocessor macros which should be more robust.
-      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_version=$gxx_major_version.$gxx_minor_version
+      dnl The exact format of g++ --version seems to change with almost every
+      dnl minor release so use the preprocessor macros which should be more
+      dnl robust.
+      AC_MSG_CHECKING([for version of $CXX])
+      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -E -|sed '/^#/d;s/ //g'`
+      AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[012]].* | 3.0)
-	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
+      [[012]].* | 3.0.*)
+	AC_MSG_ERROR([Xapian requires GCC 3.1 or later])
 	;;
-      3.*) ;;
-      *) dnl GCC >= 4.0
+      3.*|4.0.*) ;;
+      *) dnl GCC >= 4.1
 	case $gxx_version in
-	4.0) ;;
-	4.1)
+	4.1.*)
 	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
 	  dnl only enable it for GCC >= 4.1.
 	  dnl
@@ -1053,27 +1074,29 @@ if test yes = "$GXX"; then
 	  dnl in a static method is the same as a member variable, so only
 	  dnl enable it for GCC >= 4.1.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
-	4.2)
-	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
-	  dnl have proved too noisy.
-	  dnl
-	  dnl Also, xapian-core seems to hit an aliasing bug in GCC 4.2:
+	4.2.*)
+	  dnl xapian-core seems to hit an aliasing bug in GCC 4.2:
 	  dnl   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35643
 	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
 	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
 	  dnl See http://trac.xapian.org/ticket/449 for more details.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -fno-strict-aliasing" ;;
-	*)
+	  AM_CXXFLAGS="$AM_CXXFLAGS -fno-strict-aliasing"
+	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
+	  dnl have proved too noisy.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
+	4.[[345]].*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
+	*) dnl GCC >= 4.6
+	  dnl -Wdouble-promotion was added in GCC 4.6.
 	  dnl
-	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
-	  dnl is ignored by g++ which warns for this case with -Wuninitialized
-	  dnl (implied by -W).  But at some point this bug (filed upstream as
-	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	  dnl anyway - we don't intend to use this idiom, so any instances are
-	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+	  dnl warns for this case with -Wuninitialized (implied by -W).  We
+	  dnl don't intend to use this idiom, so any instances are bugs we'd
+	  dnl like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
 	esac
 
 	dnl FIXME:
@@ -1086,55 +1109,82 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no != "$enable_visibility"; then
-	  dnl GCC doesn't support symbol visibility on all platforms (notably
-	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
-	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
-	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
-	    AC_MSG_RESULT([yes])
-	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
-	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
-	  else
-	    AC_MSG_RESULT([no])
-	  fi
-	fi
-
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-	dnl and some GCC 3.x compilers issue spurious warnings.
+	dnl using GCC 4.1 or newer.  We don't do this for older GCCs as GCC 2.95,
+	dnl some GCC 3.x compilers, and Apple's GCC 4.0 issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
-	  case $gxx_version in
-	  4.0)
-	    dnl Apple's GCC 4.0 issues spurious uninitialised warnings.
-	    ;;
-	  *)
-	    AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
-	  esac
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
 	fi
 	;;
       esac
+      ;;
+    *__clang__*)
+      dnl Intel's compiler (since __clang__ not substituted):
+      compiler=intel
 
-      XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
-	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
-    ])
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+    *__INTEL_COMPILER*)
+      dnl clang (since __INTEL_COMPILER not substituted):
+      compiler=clang
+
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+  esac
+
+  if test no != "$enable_visibility"; then
+    dnl GCC doesn't support symbol visibility on all platforms (notably
+    dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+    AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+    if echo 'int bar() __attribute__((visibility("default"))); int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+      AC_MSG_RESULT([yes])
+      AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+      dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
 else
   dnl WARNING_CXXFLAGS is set above.
   AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
 fi
 
+XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
+  [XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
+
+FP_EXCESS_PRECISION=no
 AC_MSG_CHECKING([whether to use SSE instructions on x86])
 case $host_cpu in
   i*86)
     if test "$enable_sse" = no ; then
       AC_MSG_RESULT([no])
+      FP_EXCESS_PRECISION=yes
     else
       dnl Default to sse2.
       test "$enable_sse" != yes || enable_sse=sse2
       case $compiler in
+      clang|intel)
+	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	dnl These options are supported at least as far back as clang 3.0.
+	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
+	;;
       gcc)
 	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
 	case $gxx_version in
-	3.*|4.[[01]]) dnl -mtune=generic added in GCC 4.2.
+	3.*|4.[[01]].*) dnl -mtune=generic added in GCC 4.2.
 	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse" ;;
 	*)
 	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic" ;;
@@ -1153,6 +1203,7 @@ case $host_cpu in
   *)
     AC_MSG_RESULT([non-x86 arch ($host_cpu)]) ;;
 esac
+AC_SUBST(FP_EXCESS_PRECISION)
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
@@ -1187,6 +1238,11 @@ AH_BOTTOM(
 # define rare(COND) (COND)
 # define usual(COND) (COND)
 #endif
+
+/* Signal we're building the library so it's OK to include headers such as
+ * xapian/query.h directly.
+ */
+#define XAPIAN_LIB_BUILD 1
 ])
 
 AC_SUBST(AM_CXXFLAGS)
@@ -1214,7 +1270,7 @@ AC_SUBST(PERCENT)
 dnl Split up the version number into "MAJOR.MINOR.REVISION".
 MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
-[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
+[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_.*$//'`]
 
 dnl **************************
 dnl * Build the output files *
@@ -1244,8 +1300,8 @@ dnl There are no files generated by AC_OUTPUT in the following directories
 dnl and we need to ensure they exist so that the rest of configure or make
 dnl won't fail because they don't exist when srcdir != builddir.
 if test yes = "$vpath_build" ; then
-  for dir in include include/xapian languages queryparser ; do
-    test -d "$dir" || mkdir "$dir"
+  for dir in include/xapian languages queryparser ; do
+    AS_MKDIR_P(["$dir"])
   done
 fi
 
@@ -1255,7 +1311,7 @@ AC_SUBST([AUTOM4TE])
 
 dnl Generate include/xapian/version.h:
 
-dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
+dnl MAIN_VERSION is VERSION without any _git123 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
 for backend in BRASS CHERT INMEMORY REMOTE ; do
@@ -1264,15 +1320,22 @@ for backend in BRASS CHERT INMEMORY REMOTE ; do
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
   fi
 done
-if test yes = "$GXX" ; then
-    dnl If _GLIBCXX_DEBUG is being deliberately set or unset, do the same
-    dnl when generating version.h.
-    for flag in $CXXFLAGS $CPPFLAGS ; do
-      case $flag in
-      -D_GLIBCXX_DEBUG*|-U_GLIBCXX_DEBUG*) cxxcpp_flags="$cxxcpp_flags $flag" ;;
-      esac
-    done
-fi
+dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
+dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
+dnl which affect the ABI (e.g. -fabi-version for GCC) so we want to use these
+dnl options when generating version.h.  For these compilers, CXXCPP="$CXX -E"
+dnl so it should understand all compiler options.
+dnl
+dnl For other compilers, we only pass $CPPFLAGS to $CXXCPP in case it's an
+dnl external cpp which doesn't understand flags which might be in $CXXFLAGS.
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [[#ifndef __GNUC__
+#ifndef _MSC_VER
+       choke me
+#endif
+#endif
+]])],
+	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS $CXXFLAGS"],
+	[cxxcpp_flags="$cxxcpp_flags $CPPFLAGS"])
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
 dnl where we'll always have GNU sed, and other sed's will just interpret

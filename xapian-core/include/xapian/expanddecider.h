@@ -1,7 +1,7 @@
 /** @file expanddecider.h
  * @brief Allow rejection of terms during ESet generation.
  */
-/* Copyright (C) 2007,2011 Olly Betts
+/* Copyright (C) 2007,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,10 @@
 
 #ifndef XAPIAN_INCLUDED_EXPANDDECIDER_H
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
+
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/expanddecider.h> directly; include <xapian.h> instead."
+#endif
 
 #include <set>
 #include <string>
@@ -94,6 +98,24 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider 
 	: rejects(reject_begin, reject_end) { }
 
     virtual bool operator()(const std::string &term) const;
+};
+
+/** ExpandDecider subclass which restrict terms to a particular prefix
+ *
+ *  ExpandDeciderFilterPrefix provides an easy way to choose terms with a
+ *  particular prefix when generating an ESet.
+ */
+class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterPrefix : public ExpandDecider {
+    std::string prefix;
+
+  public:
+    /** The parameter specify the prefix of terms to be retained
+     *  @param prefix_   restrict terms to the particular prefix_
+     */
+    ExpandDeciderFilterPrefix(const std::string &prefix_)
+       : prefix(prefix_) { }
+
+    virtual bool operator() (const std::string &term) const;
 };
 
 }

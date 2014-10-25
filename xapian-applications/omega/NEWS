@@ -1,8 +1,10 @@
- 16537       olly Tue May 08 11:39:28 GMT 2012  Olly Betts <olly@survex.com>
+ 18143       olly Sun Jun 22 13:32:10 GMT 2014  Olly Betts <olly@survex.com>
 
-trunk only:
+backported for 1.2.19:
 
-Omega 1.3.1 (2012-05-09):
+Omega 1.3.2 (2014-07-24):
+
+This release includes all changes from 1.2.16-1.2.18 which are relevant.
 
 general:
 
@@ -12,9 +14,72 @@ indexers:
 
 * omindex:
 
+  + The starting URL wasn't previously URL encoded.  In 1.2.18, a minimally
+    intrusive fix was implemented.  In 1.3.2, we now encode the starting URL
+    as we do for the rest of the filename.
+
+  + Don't assume .doc is application/msword but let libmagic decide, since .doc
+    files may actually be RTF, and sometimes people use .doc for plain-text
+    documentation.
+
+  + Add support for indexing 'topic' and 'created date' meta-data for
+    OpenDocument format and HTML.
+
+  + Index "topic" for PDF documents.
+
+  + Commit changes and exit, rather than skipping the current file on most
+    unexpected errors reading directories or initialising libmagic - otherwise
+    we can end up deleting a lot of database entries on errors like EHOSTDOWN
+    when indexing network mounts.
+
+  + Add --opendir-sleep=SECS option to allow working around problems with
+    indexing files on Microsoft DFS shares.
+
+  + If we get ENOTDIR trying to index a file, skip it quietly (unless in
+    verbose mode) as we already do if we get ENOENT, since ENOTDIR is what we
+    get if the file and the directory it was in got removed between us getting
+    the filename and trying to open it.
+
+  + Handle ENOENT, ENOTDIR and EACCES from readdir().
+
+  + If we've already opened the file (as we often will have if using a modern
+    libmagic with magic_descriptor() available), then use fstat() on that fd
+    rather than stat()/lstat() on the pathname.
+
+  + Pass error message string and errno value in ReadError exceptions.
+
+  + Report strerror(errno) if we can't read a file.
+
+  + Filtering via text/html now handles HTML documents which specify a charset.
+
+  + Add support for indexing Microsoft Publisher files using pub2xhtml.
+
+  + Restrict the length of what we consider to be an extension, currently to 7
+    characters or whatever the longest extension in the mime_map is if it is
+    longer.
+
+  + Avoid '//' in temporary filenames (cosmetic only).
+
 * scriptindex:
 
+* omindex-list: New tool to list URLs of all the documents in a database (or
+  list of databases) indexed by omindex.
+
 omega:
+
+* Allow setting query expansion scheme to "bo1".
+
+* Make the $json and $jsonarray force the text to be valid UTF-8, since
+  otherwise the output isn't valid JSON.
+
+* Check parameters to $set{weighting,bm25 ...} and $set{weighting,trad ...}
+  converted OK.  Based on patch from Aarsh Shah.
+
+* Add support to $set{weighting,...} for bb2, dlh, dph, ifb2, ineb2, inl2, pl2
+  when we're built against a xapian-core which is new enough to have these
+  schemes.
+
+* Add $snippet to generate a snippet of text tailored to the search.
 
 templates:
 
@@ -22,13 +87,83 @@ testsuite:
 
 build system:
 
+* configure: Enable GCC's -Woverloaded-virtual warning.
+
 portability:
 
- 16536       olly Tue May 08 11:32:48 GMT 2012  Olly Betts <olly@survex.com>
-	* tmpdir.cc: Add safeunistd.h for rmdir, required by GCC 4.7 (reported
-	  by Gaurav Arora).
+* Ship common/safewinsock2.h, needed under mingw.
 
 packaging:
+
+Omega 1.3.1 (2013-05-03):
+
+This release includes all changes from 1.2.10-1.2.15 which are relevant.
+
+documentation:
+
+* INSTALL,configure: Provide hints as to what package to install for magic.h.
+
+indexers:
+
+* The HTML parser now explicitly handles <APPLET>, <OBJECT> and <TR>.
+
+* Use a generated compact and efficient table to convert HTML tag names
+  to enum codes - this is both faster and smaller than the approach we were
+  using, with the benefit that the table is auto-generated.
+
+* Always use our built-in conversion code for the character sets it can handle
+  (previously we'd use iconv if available; now we only use iconv for other
+  character sets).  This gives us more consistent results, and in particular
+  means we now handle BOMs better (at least when using GNU iconv).
+
+* A lot of data labelled as "iso-8859-1" is actually "windows-1252".  The two
+  only differ in characters which are control characters in iso-8859-1, so
+  assume the latter when we see the former.
+
+* omindex:
+
+  + Extend --filter to handle commands which produce HTML on stdout.
+
+  + Don't report an error if a file is deleted (or renamed) between us reading
+    the directory entry for it and trying to read the file itself by default.
+    In --verbose mode, the situation is still reported, but now with a
+    specific message.
+
+  + If omindex receives any of the signals SIGHUP, SIGINT, SIGQUIT or SIGTERM,
+    then kill any active external filter child process, then handle the signal
+    as we did before.  If setpgid() is available, put each external filter in
+    its own process group and kill the whole process group when we get a
+    signal.
+
+  + Use magic_descriptor() if the version of libmagic we're building against
+    is new enough to have it.  This eliminates an extra opening of a file
+    being indexed in certain cases.
+
+  + Use rst2html to handle .rst and .rest files.
+
+omega:
+
+* Add new $json and $jsonarray OmegaScript commands to support producing JSON
+  output.
+
+* Add $truncate command which truncates a string after a word.
+
+* Add support for $set{weighting,tfidf} to allow the new TfIdfWeight weighting
+  scheme to be used.
+
+build system:
+
+* configure: Now looks for libmagic in MAGIC_PREFIX, to allow building with
+  libmagic installed in a non-standard location.
+
+* Remove support for 'configure --enable-quiet', 'make QUIET=' and 'make
+  QUIET=y' - automake now supports 'configure --enable-silent-rules', 'make
+  V=1' and 'make V=0' which are broadly equivalent and more standard.
+
+portability:
+
+* tmpdir.cc: Add safeunistd.h for rmdir, required by GCC 4.7 (reported by
+  Gaurav Arora).
 
 Omega 1.3.0 (2012-03-14):
 
@@ -96,6 +231,160 @@ packaging:
 
 * xapian-omega.spec: We're ABI compatible within a release series so make
   dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.18 (2014-06-22):
+
+indexers:
+
+* omindex:
+
+  + Work around libmagic returning a MIME content-type of "Composite Document
+    File V2 Document[...]" or "application/CDFV2-corrupt" by returning a more
+    suitable filetype based on looking at the file's extension.
+
+  + The starting URL wasn't previously URL encoded.  In 1.3.2, this will be
+    fixed by URL encoding it as we do for the rest of the path, for the 1.2
+    branch we only URL encode it if it contains a character <= 31 or at least
+    one of '#', '%', ':' or '?'.  This avoids a one-off reindex of every
+    document in the database in cases which work OK in practice.
+
+  + When we skip a file because it exceeds the configured size limit, include
+    that size limit in the message.
+
+omega:
+
+* Add support for setting the query expansion scheme to use.
+
+portability:
+
+* Don't compile in unixperm.cc - it isn't currently used, and it fails to build
+  with mingw.  (fixes #635, reported by Alexis Denis)
+
+* Fix warning when built with GCC 4.7.2 using -Os.
+
+* Removed unused inline function, fixing compiler warning.
+
+Omega 1.2.17 (2014-01-29):
+
+documentation:
+
+* docs/overview.html: Add Abiword as an example use of --filter, based on patch
+  from Frank J Bruzzaniti (fixes#383).
+
+portability:
+
+* Fix "no previous declaration" warning on platforms which don't have
+  mkdtemp().
+
+Omega 1.2.16 (2013-12-04):
+
+indexers:
+
+* omindex:
+
+  + Fix off-by-one when finding documents to delete which would sometimes cause
+    omindex to fail to delete documents from the database when they weren't
+    refound during an index update.
+
+  + Decode dates in xlsx files.
+
+  + Ignore extensions 'adm', 'cur', and 'ico' by default.
+
+  + Group-readable files which are owner-readable but not world-readable should
+    still get a "readable by owner" term added.  Reported by Emmanuel Garette.
+
+build system:
+
+* Compress source tarballs with xz instead of gzip.
+
+* configure: Sync compiler warning flag machinery against xapian-core.  The
+  changes are special handling for clang, passing -fshow-column where
+  supported, and handling for new warning flags in GCC 4.6 and 4.7.
+
+Omega 1.2.15 (2013-04-16):
+
+omega:
+
+* Don't pointlessly link utf8convert.o into the omega CGI.
+
+Omega 1.2.14 (2013-03-14):
+
+indexers:
+
+* omindex:
+
+  + Correct "max" -> "min" when reserving space for shared strings in .xlsx
+    files.  This just means we now reserve a more appropriate amount of space
+    to start with.
+
+  + Ignore .com files by default.
+
+Omega 1.2.13 (2013-01-09):
+
+indexers:
+
+* omindex:
+
+  + Extracting text using external filters now works for filenames containing a
+    newline character - previously the newline got lost during escaping for the
+    shell.
+
+  + Fix segfault when -F option without a ':' is passed.
+
+  + Skip a file if we get a read error while calculating the MD5 checksum (used
+    for duplicate detection) - previously we used a checksum of the file up to
+    that point.
+
+  + Avoid rereading SVG and Atom files when we calculate their MD5 checksums.
+
+  + Improvement --help output and man page, most notably:
+
+    - Say explicitly that --sample-size accepts the same formats as --max-size.
+
+    - Note default size limit on files to index is unlimited.
+
+  + When generating a sample for a CSV file, limit the size we pre-allocate to
+    the CSV file size if that's smaller than the requested sample size, in case
+    the user sets that limit very high.
+
+omega:
+
+* Fix to decode %-encoded character at the end of the query string.
+
+build system:
+
+* INCLUDES is now deprecated in automake, so use AM_CPPFLAGS instead.
+
+Omega 1.2.12 (2012-06-27):
+
+No changes since 1.2.11 except to bump the version - this release was made to
+fix an incorrect library version information update in xapian-core 1.2.11.
+
+Omega 1.2.11 (2012-06-26):
+
+indexers:
+
+* Change HTML parser's handling of multiple <body> tags and of text outside of
+  <body> to match the behaviour of modern web browsers.  (ticket#599)
+
+* omindex:
+
+  + Add command line option to control the size of the document sample stored.
+    Patch from Mihai Bivol.
+
+  + Rework .xlsx parsing to substitute the shared strings into the positions
+    they are used in, so that the sample actually matches what appears in the
+    spreadsheet, and to index calculated cell contents.
+
+  + Improve handling of headers and footers in OpenDocument documents.
+
+  + pdftotext outputs a formfeed between each page, which messes up our "empty
+    body" check, so trim any trailing formfeeds before this check.
+
+build system:
+
+* Don't explicitly link indirect shared library dependencies on FreeBSD,
+  OpenBSD, and Solaris.
 
 Omega 1.2.10 (2012-05-09):
 
@@ -168,6 +457,9 @@ indexers:
     the database isn't helpful.
 
 omega:
+
+  + Add new $prettyurl{} command which undoes RFC3986 URL escaping which
+    doesn't affect semantics in practice.  Partly addresses ticket#550.
 
   + Replace URL decoder with new implementation which handles various corner
     cases better.  Fixes bug#578.

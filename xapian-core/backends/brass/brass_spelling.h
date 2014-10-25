@@ -1,7 +1,7 @@
 /** @file brass_spelling.h
  * @brief Spelling correction data for a brass database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,8 @@
 
 namespace Brass {
 
+class RootInfo;
+
 struct fragment {
     char data[4];
 
@@ -55,6 +57,8 @@ struct fragment {
 };
 
 }
+
+using Brass::RootInfo;
 
 class BrassSpellingTable : public BrassLazyTable {
     void toggle_word(const std::string & word);
@@ -111,12 +115,12 @@ class BrassSpellingTable : public BrassLazyTable {
 	BrassTable::flush_db();
     }
 
-    void cancel() {
+    void cancel(const RootInfo & root_info, brass_revision_number_t rev) {
 	// Discard batched-up changes.
 	wordfreq_changes.clear();
 	termlist_deltas.clear();
 
-	BrassTable::cancel();
+	BrassTable::cancel(root_info, rev);
     }
 
     // @}

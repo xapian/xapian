@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -29,11 +29,9 @@
 #include <xapian/error.h>
 
 #include "safeerrno.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 #include "omassert.h"
+#include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE().
 
 // Define to use "dangerous" mode - in this mode we write modified btree
@@ -50,18 +48,6 @@
 // #define DANGEROUS
 
 #include <sys/types.h>
-
-// Trying to include the correct headers with the correct defines set to
-// get pread() and pwrite() prototyped on every platform without breaking any
-// other platform is a real can of worms.  So instead we probe for what
-// prototypes (if any) are required in configure and put them into
-// PREAD_PROTOTYPE and PWRITE_PROTOTYPE.
-#if defined HAVE_PREAD && defined PREAD_PROTOTYPE
-PREAD_PROTOTYPE
-#endif
-#if defined HAVE_PWRITE && defined PWRITE_PROTOTYPE
-PWRITE_PROTOTYPE
-#endif
 
 #include <cstdio>    /* for rename */
 #include <cstring>   /* for memmove */
@@ -187,45 +173,22 @@ ChertTable::read_block(uint4 n, byte * p) const
 {
     // Log the value of p, not the contents of the block it points to...
     LOGCALL_VOID(DB, "ChertTable::read_block", n | (void*)p);
+    if (rare(handle == -2))
+	ChertTable::throw_database_closed();
+
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
-#ifdef HAVE_PREAD
-    off_t offset = off_t(block_size) * n;
-    int m = block_size;
-    while (true) {
-	ssize_t bytes_read = pread(handle, reinterpret_cast<char *>(p), m,
-				   offset);
-	// normal case - read succeeded, so return.
-	if (bytes_read == m) return;
-	if (bytes_read == -1) {
-	    if (errno == EINTR) continue;
-	    string message = "Error reading block " + str(n) + ": ";
-	    message += strerror(errno);
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_read == 0) {
-	    string message = "Error reading block " + str(n) + ": got end of file";
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_read < m) {
-	    /* Read part of the block, which is not an error.  We should
-	     * continue reading the rest of the block.
-	     */
-	    m -= int(bytes_read);
-	    p += bytes_read;
-	    offset += bytes_read;
-	}
-    }
-#else
-    if (lseek(handle, off_t(block_size) * n, SEEK_SET) == -1) {
-	string message = "Error seeking to block: ";
-	message += strerror(errno);
-	throw Xapian::DatabaseError(message);
-    }
+    io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
 
-    io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
-#endif
+    int dir_end = DIR_END(p);
+    if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
+	string msg("dir_end invalid in block ");
+	msg += str(n);
+	throw Xapian::DatabaseCorruptError(msg);
+    }
 }
 
 /** write_block(n, p) writes block n in the DB file from address p.
@@ -261,40 +224,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 	latest_revision_number = revision_number;
     }
 
-#ifdef HAVE_PWRITE
-    off_t offset = off_t(block_size) * n;
-    int m = block_size;
-    while (true) {
-	ssize_t bytes_written = pwrite(handle, p, m, offset);
-	if (bytes_written == m) {
-	    // normal case - write succeeded, so return.
-	    return;
-	} else if (bytes_written == -1) {
-	    if (errno == EINTR) continue;
-	    string message = "Error writing block: ";
-	    message += strerror(errno);
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_written == 0) {
-	    string message = "Error writing block: wrote no data";
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_written < m) {
-	    /* Wrote part of the block, which is not an error.  We should
-	     * continue writing the rest of the block.
-	     */
-	    m -= bytes_written;
-	    p += bytes_written;
-	    offset += bytes_written;
-	}
-    }
-#else
-    if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
-	string message = "Error seeking to block: ";
-	message += strerror(errno);
-	throw Xapian::DatabaseError(message);
-    }
-
-    io_write(handle, reinterpret_cast<const char *>(p), block_size);
-#endif
+    io_write_block(handle, reinterpret_cast<const char *>(p), block_size, n);
 }
 
 
@@ -358,7 +288,7 @@ ChertTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
 
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
-    if (writable && n == C[j].n) {
+    if (n == C[j].n) {
 	if (p != C[j].p)
 	    memcpy(p, C[j].p, block_size);
     } else {
@@ -454,7 +384,7 @@ ChertTable::alter()
 int
 ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (void*)p | (const void *)key.get_address() | leaf | c);
+    LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (const void*)p | (const void *)key.get_address() | leaf | c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
@@ -1348,7 +1278,7 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 		::close(handle);
 		handle = -1;
 	    }
-	    string message = "Error opening table `";
+	    string message = "Error opening table '";
 	    message += name;
 	    message += "':\n";
 	    message += err_msg;
@@ -1493,7 +1423,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
     if (handle == -2) {
 	ChertTable::throw_database_closed();
     }
-    int flags = O_RDWR | O_BINARY;
+    int flags = O_RDWR | O_BINARY | O_CLOEXEC;
     if (create_db) flags |= O_CREAT | O_TRUNC;
     handle = ::open((name + "DB").c_str(), flags, 0666);
     if (handle < 0) {
@@ -1668,8 +1598,8 @@ ChertTable::lazy_alloc_inflate_zstream() const {
 bool
 ChertTable::exists() const {
     LOGCALL(DB, bool, "ChertTable::exists", NO_ARGS);
-    return (file_exists(name + "DB") &&
-	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
+    RETURN(file_exists(name + "DB") &&
+	   (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
 
 void
@@ -1705,7 +1635,6 @@ ChertTable::create_and_open(unsigned int block_size_)
     Assert(writable);
     close();
 
-    if (block_size_ == 0) abort();
     set_block_size(block_size_);
 
     // FIXME: it would be good to arrange that this works such that there's
@@ -1717,9 +1646,12 @@ ChertTable::create_and_open(unsigned int block_size_)
     /* create the base file */
     ChertTable_base base_;
     base_.set_revision(revision_number);
-    base_.set_block_size(block_size_);
+    base_.set_block_size(block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
+    // Doing a full sync here would be overly paranoid, as an empty table
+    // contains no precious data and xapian-check can recreate lost base
+    // files.
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
 
     /* remove the alternative base file, if any */
@@ -1858,19 +1790,14 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	// Do this as late as possible to allow maximum time for writes to
 	// happen, and so the calls to io_sync() are adjacent which may be
 	// more efficient, at least with some Linux kernel versions.
-	if (!io_sync(handle)) {
+	if (changes_tail ? !io_full_sync(handle) : !io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    (void)unlink(tmp.c_str());
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
 	}
 
-#if defined __WIN32__
-	if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
-#else
-	if (rename(tmp.c_str(), basefile.c_str()) < 0)
-#endif
-	{
+	if (posixy_rename(tmp.c_str(), basefile.c_str()) < 0) {
 	    // With NFS, rename() failing may just mean that the server crashed
 	    // after successfully renaming, but before reporting this, and then
 	    // the retried operation fails.  So we need to check if the source
@@ -1996,7 +1923,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
     if (handle == -2) {
 	ChertTable::throw_database_closed();
     }
-    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
+    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!

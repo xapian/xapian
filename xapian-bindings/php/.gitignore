@@ -4,6 +4,8 @@
 /Makefile
 /.deps
 /.libs
+/docs/index.html
 /xapian.la
 /php5
 /xapian_wrap.d
+/except.i

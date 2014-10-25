@@ -10,11 +10,12 @@ from twisted.internet.task import LoopingCall
 from buildbot import util
 from buildbot.changes import base
 from buildbot.changes.changes import Change
-from buildbot.process.step import Source, RemoteShellCommand
+from buildbot.process.buildstep import RemoteShellCommand
+from buildbot.steps.source import Source
 
 import re
 
-tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.gz">')
+tarlink_re = re.compile('<a href="([a-zA-Z0-9_\.-]+).tar.xz">')
 
 def parsehtml(html, archives):
     max_revision = 0
@@ -116,7 +117,7 @@ class TarPoller(base.ChangeSource, util.ComparableMixin):
 
     def submit_changes(self, change):
         if change is not None:
-            self.parent.addChange(change)
+            self.master.addChange(change)
 
     def finished_ok(self, res):
         log.msg("TarPoller finished polling")
@@ -167,7 +168,7 @@ class Tar(Source):
         cmdargs = ['curl', '-s']
         for link in links:
             cmdargs.append('-O')
-            cmdargs.append(self.rooturl + link + '.tar.gz')
+            cmdargs.append(self.rooturl + link + '.tar.xz')
 
         cmd = RemoteShellCommand('build', command=(cmdargs))
         self.startCommand(cmd)

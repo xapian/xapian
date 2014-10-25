@@ -1,7 +1,7 @@
 /** @file brass_compact.cc
  * @brief Compact a brass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,10 @@
 
 #include <config.h>
 
-#include <xapian/compactor.h>
+#include "xapian/compactor.h"
+#include "xapian/constants.h"
+#include "xapian/error.h"
+#include "xapian/types.h"
 
 #include <algorithm>
 #include <queue>
@@ -30,9 +33,12 @@
 
 #include "safeerrno.h"
 
+#include "backends/flint_lock.h"
+#include "brass_defs.h"
 #include "brass_table.h"
 #include "brass_compact.h"
 #include "brass_cursor.h"
+#include "brass_version.h"
 #include "filetests.h"
 #include "internaltypes.h"
 #include "pack.h"
@@ -40,7 +46,6 @@
 
 #include "../byte_length_strings.h"
 #include "../prefix_compressed_strings.h"
-#include <xapian.h>
 
 using namespace std;
 
@@ -195,18 +200,21 @@ encode_valuestats(Xapian::doccount freq,
 static void
 merge_postlists(Xapian::Compactor & compactor,
 		BrassTable * out, vector<Xapian::docid>::const_iterator offset,
+		vector<RootInfo>::const_iterator root,
+		vector<brass_revision_number_t>::const_iterator rev,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e,
 		Xapian::docid last_docid)
 {
+    Xapian::doccount doccount = 0;
     totlen_t tot_totlen = 0;
     Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
     Xapian::termcount wdf_ubound = 0;
     Xapian::termcount doclen_ubound = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
-    for ( ; b != e; ++b, ++offset) {
+    for ( ; b != e; ++b, ++root, ++rev, ++offset) {
 	BrassTable *in = new BrassTable("postlist", *b, true);
-	in->open();
+	in->open(0, *root, *rev);
 	if (in->empty()) {
 	    // Skip empty tables.
 	    delete in;
@@ -223,6 +231,15 @@ merge_postlists(Xapian::Compactor & compactor,
 	if (is_metainfo_key(cur->key)) {
 	    const char * data = cur->tag.data();
 	    const char * end = data + cur->tag.size();
+	    Xapian::doccount doccount_tmp;
+	    if (!unpack_uint(&data, end, &doccount_tmp)) {
+		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+	    }
+	    doccount += doccount_tmp;
+	    if (doccount < doccount_tmp) {
+		throw "doccount wrapped!";
+	    }
+
 	    Xapian::docid dummy_did = 0;
 	    if (!unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
@@ -255,11 +272,13 @@ merge_postlists(Xapian::Compactor & compactor,
 	    if (tot_totlen < totlen) {
 		throw "totlen wrapped!";
 	    }
-	}
-	if (cur->next()) {
-	    pq.push(cur);
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
 	} else {
-	    delete cur;
+	    pq.push(cur);
 	}
     }
 
@@ -268,7 +287,8 @@ merge_postlists(Xapian::Compactor & compactor,
 	if (doclen_lbound > doclen_ubound)
 	    doclen_lbound = doclen_ubound;
 	string tag;
-	pack_uint(tag, last_docid);
+	pack_uint(tag, doccount);
+	pack_uint(tag, last_docid - doccount);
 	pack_uint(tag, doclen_lbound);
 	pack_uint(tag, wdf_ubound);
 	pack_uint(tag, doclen_ubound - wdf_ubound);
@@ -325,7 +345,6 @@ merge_postlists(Xapian::Compactor & compactor,
 	Xapian::doccount freq = 0;
 	string lbound, ubound;
 
-	string last_tag;
 	while (!pq.empty()) {
 	    PostlistCursor * cur = pq.top();
 	    const string& key = cur->key;
@@ -474,13 +493,15 @@ struct CursorGt {
 
 static void
 merge_spellings(BrassTable * out,
+		vector<RootInfo>::const_iterator root,
+		vector<brass_revision_number_t>::const_iterator rev,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b) {
+    for ( ; b != e; ++b, ++root, ++rev) {
 	BrassTable *in = new BrassTable("spelling", *b, true, DONT_COMPRESS, true);
-	in->open();
+	in->open(0, *root, *rev);
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of BrassTable in and is
 	    // responsible for deleting it.
@@ -535,13 +556,13 @@ merge_spellings(BrassTable * out,
 	    string lastword;
 	    while (!pqtag.empty()) {
 		PrefixCompressedStringItor * it = pqtag.top();
+		pqtag.pop();
 		string word = **it;
 		if (word != lastword) {
 		    lastword = word;
 		    wr.append(lastword);
 		}
 		++*it;
-		pqtag.pop();
 		if (!it->at_end()) {
 		    pqtag.push(it);
 		} else {
@@ -588,13 +609,15 @@ merge_spellings(BrassTable * out,
 
 static void
 merge_synonyms(BrassTable * out,
+	       vector<RootInfo>::const_iterator root,
+	       vector<brass_revision_number_t>::const_iterator rev,
 	       vector<string>::const_iterator b,
 	       vector<string>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b) {
+    for ( ; b != e; ++b, ++root, ++rev) {
 	BrassTable *in = new BrassTable("synonym", *b, true, DONT_COMPRESS, true);
-	in->open();
+	in->open(0, *root, *rev);
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of BrassTable in and is
 	    // responsible for deleting it.
@@ -644,13 +667,13 @@ merge_synonyms(BrassTable * out,
 	string lastword;
 	while (!pqtag.empty()) {
 	    ByteLengthPrefixedStringItor * it = pqtag.top();
+	    pqtag.pop();
 	    if (**it != lastword) {
 		lastword = **it;
 		tag += byte(lastword.size() ^ MAGIC_XOR_VALUE);
 		tag += lastword;
 	    }
 	    ++*it;
-	    pqtag.pop();
 	    if (!it->at_end()) {
 		pqtag.push(it);
 	    } else {
@@ -676,12 +699,20 @@ static void
 multimerge_postlists(Xapian::Compactor & compactor,
 		     BrassTable * out, const char * tmpdir,
 		     Xapian::docid last_docid,
-		     vector<string> tmp, vector<Xapian::docid> off)
+		     vector<string> tmp,
+		     vector<RootInfo> root,
+		     vector<brass_revision_number_t> rev,
+		     vector<Xapian::docid> off)
 {
     unsigned int c = 0;
+    RootInfo tmp_root;
     while (tmp.size() > 3) {
 	vector<string> tmpout;
 	tmpout.reserve(tmp.size() / 2);
+	vector<RootInfo> rootout;
+	rootout.reserve(tmpout.size());
+	vector<brass_revision_number_t> revout;
+	revout.reserve(tmpout.size());
 	vector<Xapian::docid> newoff;
 	newoff.resize(tmp.size() / 2);
 	for (unsigned int i = 0, j; i < tmp.size(); i = j) {
@@ -697,32 +728,35 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	    // be.
 	    BrassTable tmptab("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
-	    tmptab.create_and_open(65536);
+	    tmptab.create_and_open(Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC,
+				   65536);
 
 	    merge_postlists(compactor, &tmptab, off.begin() + i,
-			    tmp.begin() + i, tmp.begin() + j, 0);
+			    root.begin() + i, rev.begin() + i,
+			    tmp.begin() + i, tmp.begin() + j, last_docid);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
-		    unlink((tmp[k] + "DB").c_str());
-		    unlink((tmp[k] + "baseA").c_str());
-		    unlink((tmp[k] + "baseB").c_str());
+		    unlink((tmp[k] + BRASS_TABLE_EXTENSION).c_str());
 		}
 	    }
 	    tmpout.push_back(dest);
 	    tmptab.flush_db();
-	    tmptab.commit(1);
+	    rootout.push_back(RootInfo());
+	    revout.push_back(1);
+	    tmptab.commit(1, &rootout.back());
+	    AssertRel(rootout.back().get_blocksize(),==,65536);
 	}
 	swap(tmp, tmpout);
+	swap(root, rootout);
+	swap(rev, revout);
 	swap(off, newoff);
 	++c;
     }
-    merge_postlists(compactor,
-		    out, off.begin(), tmp.begin(), tmp.end(), last_docid);
+    merge_postlists(compactor, out, off.begin(), root.begin(), rev.begin(),
+		    tmp.begin(), tmp.end(), last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
-	    unlink((tmp[k] + "DB").c_str());
-	    unlink((tmp[k] + "baseA").c_str());
-	    unlink((tmp[k] + "baseB").c_str());
+	    unlink((tmp[k] + BRASS_TABLE_EXTENSION).c_str());
 	}
     }
 }
@@ -730,13 +764,15 @@ multimerge_postlists(Xapian::Compactor & compactor,
 static void
 merge_docid_keyed(const char * tablename,
 		  BrassTable *out, const vector<string> & inputs,
+		  const vector<RootInfo> & root,
+		  const vector<brass_revision_number_t> & rev,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
 	BrassTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
-	in.open();
+	in.open(0, root[i], rev[i]);
 	if (in.empty()) continue;
 
 	BrassCursor cur(&in);
@@ -780,14 +816,11 @@ compact_brass(Xapian::Compactor & compactor,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      Xapian::Compactor::compaction_level compaction, bool multipass,
 	      Xapian::docid last_docid) {
-    enum table_type {
-	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
-    };
     struct table_list {
 	// The "base name" of the table.
 	const char * name;
 	// The type.
-	table_type type;
+	Brass::table_type type;
 	// zlib compression strategy to use on tags.
 	int compress_strategy;
 	// Create tables after position lazily.
@@ -795,17 +828,38 @@ compact_brass(Xapian::Compactor & compactor,
     };
 
     static const table_list tables[] = {
-	// name		type		compress_strategy	lazy
-	{ "postlist",	POSTLIST,	DONT_COMPRESS,		false },
-	{ "record",	RECORD,		Z_DEFAULT_STRATEGY,	false },
-	{ "termlist",	TERMLIST,	Z_DEFAULT_STRATEGY,	false },
-	{ "position",	POSITION,	DONT_COMPRESS,		true },
-	{ "spelling",	SPELLING,	Z_DEFAULT_STRATEGY,	true },
-	{ "synonym",	SYNONYM,	Z_DEFAULT_STRATEGY,	true }
+	// name		type			compress_strategy	lazy
+	{ "postlist",	Brass::POSTLIST,	DONT_COMPRESS,		false },
+	{ "docdata",	Brass::DOCDATA,		Z_DEFAULT_STRATEGY,	true },
+	{ "termlist",	Brass::TERMLIST,	Z_DEFAULT_STRATEGY,	false },
+	{ "position",	Brass::POSITION,	DONT_COMPRESS,		true },
+	{ "spelling",	Brass::SPELLING,	Z_DEFAULT_STRATEGY,	true },
+	{ "synonym",	Brass::SYNONYM,		Z_DEFAULT_STRATEGY,	true }
     };
     const table_list * tables_end = tables +
 	(sizeof(tables) / sizeof(tables[0]));
 
+    const int FLAGS = Xapian::DB_DANGEROUS;
+
+    vector<BrassVersion> version_file;
+    version_file.reserve(sources.size());
+    for (size_t i = 0; i != sources.size(); ++i) {
+	version_file.push_back(BrassVersion(sources[i]));
+	version_file[i].read();
+    }
+
+    FlintLock lock(destdir);
+    string explanation;
+    FlintLock::reason why = lock.lock(true, explanation);
+    if (why != FlintLock::SUCCESS) {
+	lock.throw_databaselockerror(why, destdir, explanation);
+    }
+
+    BrassVersion version_file_out(destdir);
+    version_file_out.create(block_size, 0);
+
+    vector<BrassTable *> tabs;
+    tabs.reserve(tables_end - tables);
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -836,7 +890,7 @@ compact_brass(Xapian::Compactor & compactor,
 	    s += t->name;
 	    s += '.';
 
-	    off_t db_size = file_size(s + "DB");
+	    off_t db_size = file_size(s + BRASS_TABLE_EXTENSION);
 	    if (errno == 0) {
 		in_size += db_size / 1024;
 		output_will_exist = true;
@@ -851,7 +905,7 @@ compact_brass(Xapian::Compactor & compactor,
 	}
 
 	// If any inputs lack a termlist table, suppress it in the output.
-	if (t->type == TERMLIST && inputs_present != sources.size()) {
+	if (t->type == Brass::TERMLIST && inputs_present != sources.size()) {
 	    if (inputs_present != 0) {
 		string m = str(inputs_present);
 		m += " of ";
@@ -868,47 +922,63 @@ compact_brass(Xapian::Compactor & compactor,
 	    continue;
 	}
 
-	BrassTable out(t->name, dest, false, t->compress_strategy, t->lazy);
+	BrassTable * out =
+	    new BrassTable(t->name, dest, false, t->compress_strategy, t->lazy);
+	tabs.push_back(out);
 	if (!t->lazy) {
-	    out.create_and_open(block_size);
+	    out->create_and_open(FLAGS, block_size);
 	} else {
-	    out.erase();
-	    out.set_block_size(block_size);
+	    out->erase();
+	    out->set_flags(FLAGS);
+	    out->set_blocksize(block_size);
 	}
 
-	out.set_full_compaction(compaction != compactor.STANDARD);
-	if (compaction == compactor.FULLER) out.set_max_item_size(1);
+	out->set_full_compaction(compaction != compactor.STANDARD);
+	if (compaction == compactor.FULLER) out->set_max_item_size(1);
+
+	vector<RootInfo> root;
+	root.reserve(version_file.size());
+	vector<brass_revision_number_t> rev;
+	rev.reserve(version_file.size());
+	for (size_t i = 0; i != version_file.size(); ++i) {
+	    root.push_back(version_file[i].get_root(t->type));
+	    rev.push_back(version_file[i].get_revision());
+	}
 
 	switch (t->type) {
-	    case POSTLIST:
+	    case Brass::POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(compactor, &out, destdir, last_docid,
-					 inputs, offset);
+		    multimerge_postlists(compactor, out, destdir, last_docid,
+					 inputs, root, rev, offset);
 		} else {
-		    merge_postlists(compactor, &out, offset.begin(),
+		    merge_postlists(compactor, out, offset.begin(),
+				    root.begin(), rev.begin(),
 				    inputs.begin(), inputs.end(),
 				    last_docid);
 		}
 		break;
-	    case SPELLING:
-		merge_spellings(&out, inputs.begin(), inputs.end());
+	    case Brass::SPELLING:
+		merge_spellings(out, root.begin(), rev.begin(),
+				inputs.begin(), inputs.end());
 		break;
-	    case SYNONYM:
-		merge_synonyms(&out, inputs.begin(), inputs.end());
+	    case Brass::SYNONYM:
+		merge_synonyms(out, root.begin(), rev.begin(),
+			       inputs.begin(), inputs.end());
 		break;
 	    default:
-		// Position, Record, Termlist
-		merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
+		// Position, DocData, Termlist
+		merge_docid_keyed(t->name, out, inputs, root, rev, offset, t->lazy);
 		break;
 	}
 
 	// Commit as revision 1.
-	out.flush_db();
-	out.commit(1);
+	out->flush_db();
+	out->commit(1, version_file_out.root_to_set(t->type));
+	out->sync();
 
 	off_t out_size = 0;
 	if (!bad_stat) {
-	    off_t db_size = file_size(dest + "DB");
+	    off_t db_size = file_size(dest + BRASS_TABLE_EXTENSION);
 	    if (errno == 0) {
 		out_size = db_size / 1024;
 	    } else {
@@ -944,4 +1014,16 @@ compact_brass(Xapian::Compactor & compactor,
 	    compactor.set_status(t->name, status);
 	}
     }
+
+    string tmpfile = version_file_out.write(1, FLAGS);
+    for (unsigned j = 0; j != tabs.size(); ++j) {
+	tabs[j]->sync();
+    }
+    // Commit with revision 1.
+    version_file_out.sync(tmpfile, 1, FLAGS);
+    for (unsigned j = 0; j != tabs.size(); ++j) {
+	delete tabs[j];
+    }
+
+    lock.release();
 }

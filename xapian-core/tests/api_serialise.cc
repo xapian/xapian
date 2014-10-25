@@ -2,7 +2,7 @@
  * @brief Tests of serialisation functionality.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012 Olly Betts
+ * Copyright 2009,2011,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -335,20 +335,11 @@ DEFINE_TESTCASE(double_register_leak, !backend) {
 
 class ExceptionalPostingSource : public Xapian::PostingSource {
   public:
-    typedef enum { NONE, CLONE, DTOR } failmode;
+    typedef enum { NONE, CLONE } failmode;
 
     failmode fail;
 
-    PostingSource * & allocated;
-
-    ExceptionalPostingSource(failmode fail_, PostingSource * & allocated_)
-	: fail(fail_), allocated(allocated_) { }
-
-    ~ExceptionalPostingSource() {
-	if (fail == DTOR) {
-	    throw runtime_error(string("arfle barfle gloop?"));
-	}
-    }
+    ExceptionalPostingSource(failmode fail_) : fail(fail_) { }
 
     string name() const {
 	return "ExceptionalPostingSource";
@@ -357,8 +348,7 @@ class ExceptionalPostingSource : public Xapian::PostingSource {
     PostingSource * clone() const {
 	if (fail == CLONE)
 	    throw bad_alloc();
-	allocated = new ExceptionalPostingSource(fail, allocated);
-	return allocated;
+	return new ExceptionalPostingSource(fail);
     }
 
     void init(const Xapian::Database &) { }
@@ -381,15 +371,12 @@ DEFINE_TESTCASE(registry1, !backend) {
     {
 	Xapian::Registry reg;
 
-	Xapian::PostingSource * ptr = NULL;
-	ExceptionalPostingSource eps(ExceptionalPostingSource::NONE, ptr);
+	ExceptionalPostingSource eps(ExceptionalPostingSource::NONE);
 	TEST_EXCEPTION(Xapian::UnimplementedError, eps.serialise());
 	TEST_EXCEPTION(Xapian::UnimplementedError, eps.unserialise(string()));
 	reg.register_posting_source(eps);
 	try {
-	    Xapian::PostingSource * ptr_clone = NULL;
-	    ExceptionalPostingSource eps_clone(ExceptionalPostingSource::CLONE,
-					       ptr_clone);
+	    ExceptionalPostingSource eps_clone(ExceptionalPostingSource::CLONE);
 	    reg.register_posting_source(eps_clone);
 	    return false;
 	} catch (const bad_alloc &) {
@@ -403,56 +390,16 @@ DEFINE_TESTCASE(registry1, !backend) {
 	}
     }
 
-    // Test that the replaced object throwing runtime_error is handled.
-    {
-	Xapian::Registry reg;
-
-	Xapian::PostingSource * ptr_dtor = NULL;
-	ExceptionalPostingSource eps_dtor(ExceptionalPostingSource::DTOR,
-					  ptr_dtor);
-	reg.register_posting_source(eps_dtor);
-	// Prevent eps_dtor's dtor from throwing an exception.
-	eps_dtor.fail = ExceptionalPostingSource::NONE;
-
-	try {
-	    Xapian::PostingSource * ptr = NULL;
-	    ExceptionalPostingSource eps(ExceptionalPostingSource::NONE, ptr);
-	    reg.register_posting_source(eps);
-	    return false;
-	} catch (const runtime_error &) {
-	}
-
-	// Either the old entry should be removed, or it should work.
-	const Xapian::PostingSource * p;
-        p = reg.get_posting_source("ExceptionalPostingSource");
-	if (p) {
-	    TEST_EQUAL(p->name(), "ExceptionalPostingSource");
-	}
-
-	// Because the destructor threw an exception, the memory allocated for
-	// the object didn't get released.
-	delete ptr_dtor;
-    }
-
     return true;
 }
 
 class ExceptionalWeight : public Xapian::Weight {
   public:
-    typedef enum { NONE, CLONE, DTOR } failmode;
+    typedef enum { NONE, CLONE } failmode;
 
     failmode fail;
 
-    Weight * & allocated;
-
-    ExceptionalWeight(failmode fail_, Weight * & allocated_)
-	: fail(fail_), allocated(allocated_) { }
-
-    ~ExceptionalWeight() {
-	if (fail == DTOR) {
-	    throw runtime_error(string("arfle barfle gloop?"));
-	}
-    }
+    ExceptionalWeight(failmode fail_) : fail(fail_) { }
 
     string name() const {
 	return "ExceptionalWeight";
@@ -461,8 +408,7 @@ class ExceptionalWeight : public Xapian::Weight {
     Weight * clone() const {
 	if (fail == CLONE)
 	    throw bad_alloc();
-	allocated = new ExceptionalWeight(fail, allocated);
-	return allocated;
+	return new ExceptionalWeight(fail);
     }
 
     void init(double) { }
@@ -470,9 +416,12 @@ class ExceptionalWeight : public Xapian::Weight {
     double get_sumpart(Xapian::termcount, Xapian::termcount) const {
 	return 0;
     }
+    double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
+	return 0;
+    }
     double get_maxpart() const { return 0; }
 
-    double get_sumextra(Xapian::termcount) const { return 0; }
+    double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
     double get_maxextra() const { return 0; }
 };
 
@@ -482,13 +431,10 @@ DEFINE_TESTCASE(registry2, !backend) {
     {
 	Xapian::Registry reg;
 
-	Xapian::Weight * ptr = NULL;
-	ExceptionalWeight ewt(ExceptionalWeight::NONE, ptr);
+	ExceptionalWeight ewt(ExceptionalWeight::NONE);
 	reg.register_weighting_scheme(ewt);
 	try {
-	    Xapian::Weight * ptr_clone = NULL;
-	    ExceptionalWeight ewt_clone(ExceptionalWeight::CLONE,
-					       ptr_clone);
+	    ExceptionalWeight ewt_clone(ExceptionalWeight::CLONE);
 	    reg.register_weighting_scheme(ewt_clone);
 	    return false;
 	} catch (const bad_alloc &) {
@@ -502,56 +448,16 @@ DEFINE_TESTCASE(registry2, !backend) {
 	}
     }
 
-    // Test that the replaced object throwing runtime_error is handled.
-    {
-	Xapian::Registry reg;
-
-	Xapian::Weight * ptr_dtor = NULL;
-	ExceptionalWeight ewt_dtor(ExceptionalWeight::DTOR,
-					  ptr_dtor);
-	reg.register_weighting_scheme(ewt_dtor);
-	// Prevent ewt_dtor's dtor from throwing an exception.
-	ewt_dtor.fail = ExceptionalWeight::NONE;
-
-	try {
-	    Xapian::Weight * ptr = NULL;
-	    ExceptionalWeight ewt(ExceptionalWeight::NONE, ptr);
-	    reg.register_weighting_scheme(ewt);
-	    return false;
-	} catch (const runtime_error &) {
-	}
-
-	// Either the old entry should be removed, or it should work.
-	const Xapian::Weight * p;
-        p = reg.get_weighting_scheme("ExceptionalWeight");
-	if (p) {
-	    TEST_EQUAL(p->name(), "ExceptionalWeight");
-	}
-
-	// Because the destructor threw an exception, the memory allocated for
-	// the object didn't get released.
-	delete ptr_dtor;
-    }
-
     return true;
 }
 
 class ExceptionalMatchSpy : public Xapian::MatchSpy {
   public:
-    typedef enum { NONE, CLONE, DTOR } failmode;
+    typedef enum { NONE, CLONE } failmode;
 
     failmode fail;
 
-    MatchSpy * & allocated;
-
-    ExceptionalMatchSpy(failmode fail_, MatchSpy * & allocated_)
-	: fail(fail_), allocated(allocated_) { }
-
-    ~ExceptionalMatchSpy() {
-	if (fail == DTOR) {
-	    throw runtime_error(string("arfle barfle gloop?"));
-	}
-    }
+    ExceptionalMatchSpy(failmode fail_) : fail(fail_) { }
 
     string name() const {
 	return "ExceptionalMatchSpy";
@@ -560,8 +466,7 @@ class ExceptionalMatchSpy : public Xapian::MatchSpy {
     MatchSpy * clone() const {
 	if (fail == CLONE)
 	    throw bad_alloc();
-	allocated = new ExceptionalMatchSpy(fail, allocated);
-	return allocated;
+	return new ExceptionalMatchSpy(fail);
     }
 
     void operator()(const Xapian::Document &, double) {
@@ -574,13 +479,10 @@ DEFINE_TESTCASE(registry3, !backend) {
     {
 	Xapian::Registry reg;
 
-	Xapian::MatchSpy * ptr = NULL;
-	ExceptionalMatchSpy ems(ExceptionalMatchSpy::NONE, ptr);
+	ExceptionalMatchSpy ems(ExceptionalMatchSpy::NONE);
 	reg.register_match_spy(ems);
 	try {
-	    Xapian::MatchSpy * ptr_clone = NULL;
-	    ExceptionalMatchSpy ems_clone(ExceptionalMatchSpy::CLONE,
-					  ptr_clone);
+	    ExceptionalMatchSpy ems_clone(ExceptionalMatchSpy::CLONE);
 	    reg.register_match_spy(ems_clone);
 	    return false;
 	} catch (const bad_alloc &) {
@@ -592,36 +494,6 @@ DEFINE_TESTCASE(registry3, !backend) {
 	if (p) {
 	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
 	}
-    }
-
-    // Test that the replaced object throwing runtime_error is handled.
-    {
-	Xapian::Registry reg;
-
-	Xapian::MatchSpy * ptr_dtor = NULL;
-	ExceptionalMatchSpy ems_dtor(ExceptionalMatchSpy::DTOR, ptr_dtor);
-	reg.register_match_spy(ems_dtor);
-	// Prevent ems_dtor's dtor from throwing an exception.
-	ems_dtor.fail = ExceptionalMatchSpy::NONE;
-
-	try {
-	    Xapian::MatchSpy * ptr = NULL;
-	    ExceptionalMatchSpy ems(ExceptionalMatchSpy::NONE, ptr);
-	    reg.register_match_spy(ems);
-	    return false;
-	} catch (const runtime_error &) {
-	}
-
-	// Either the old entry should be removed, or it should work.
-	const Xapian::MatchSpy * p;
-        p = reg.get_match_spy("ExceptionalMatchSpy");
-	if (p) {
-	    TEST_EQUAL(p->name(), "ExceptionalMatchSpy");
-	}
-
-	// Because the destructor threw an exception, the memory allocated for
-	// the object didn't get released.
-	delete ptr_dtor;
     }
 
     return true;

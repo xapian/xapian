@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -9,9 +9,9 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 # Number of test cases to run - increase this if you add more testcases.
-plan tests => 40;
+plan tests => 42;
 
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 
 my $db_dir = 'testdb-writabledatabase';
 
@@ -24,13 +24,13 @@ if (opendir( DB_DIR, $db_dir )) {
   closedir( DB_DIR );
 }
 
-my $write = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE );
+my $write = Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE );
 
 # Let's try to index something.
 my $term = 'test';
 
 for my $num (1..1000) {
-  my $doc = Search::Xapian::Document->new();
+  my $doc = Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
 
@@ -39,10 +39,10 @@ for my $num (1..1000) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-} 
+}
 
 for my $num (qw(three four five)) {
-  my $doc = Search::Xapian::Document->new();
+  my $doc = Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
 
@@ -58,7 +58,7 @@ my $doccount = $write->get_doccount();
 is($doccount, 1003, "check number of documents in WritableDatabase");
 
 # replace document by docid
-my $repdoc = Search::Xapian::Document->new();
+my $repdoc = Xapian::Document->new();
 my $num = "six";
 $term = "test";
 my $docid = 500;
@@ -73,11 +73,16 @@ is($write->get_document($docid)->get_data(), "$term $docid", "check document dat
 $write->replace_document($docid, $repdoc);
 $write->flush();
 
+$write->keep_alive();
+
 ok($write->term_exists($num), "check term exists");
 is($write->get_document($docid)->get_data(), "$term $num", "check document data");
 
+is($write->get_collection_freq($term), 1003, "check term frequency");
+is($write->get_avlength(), 2, "check term frequency");
+
 # replace document by term
-$repdoc = Search::Xapian::Document->new();
+$repdoc = Xapian::Document->new();
 $term = "test";
 $num = "seven";
 $repdoc->set_data( "$term $num" );
@@ -100,7 +105,7 @@ is($write->get_termfreq($num), 1, "check term frequency");
 is($write->get_termfreq($repterm), 0, "check term frequency");
 
 # replace document by term, if term is new
-$repdoc = Search::Xapian::Document->new();
+$repdoc = Xapian::Document->new();
 $term = "test";
 $num = "eight";
 $repdoc->set_data( "$term $num" );
@@ -122,7 +127,7 @@ is($write->get_termfreq($num), 1, "check term frequency");
 # replace document by term.
 # all documents indexed with the term are replaced; the replacement uses the
 # lowest docid if multiple documents are indexed by the term.
-$repdoc = Search::Xapian::Document->new();
+$repdoc = Xapian::Document->new();
 $term = "test";
 $num = "nine";
 $repdoc->set_data( "$term $num" );
@@ -139,7 +144,7 @@ is($doc->get_data(), "$term $num", "check document data");
 
 # add documents for following tests
 for my $num (qw(one two three four five)) {
-  my $doc = Search::Xapian::Document->new();
+  my $doc = Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
 
@@ -191,24 +196,24 @@ is($write->get_termfreq($delterm), 0, 'check term frequency after deleting all d
 
 eval {
   # Should fail because the database is already open for writing.
-  Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN );
+  Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE_OR_OPEN );
 };
 ok( $@ );
 
 $write->close();
 eval {
   # Should fail because the database has been closed.
-  $write->add_document(Search::Xapian::Document->new());
+  $write->add_document(Xapian::Document->new());
 };
 ok( $@ );
 
 # Should work now.
-ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+ok( Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE_OR_OPEN ) );
 
 # And reference counting should have closed it.
-ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+ok( Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE_OR_OPEN ) );
 
-my $read = Search::Xapian::Database->new( $db_dir );
+my $read = Xapian::Database->new( $db_dir );
 ok( $@ );
 $read->close();
 eval {

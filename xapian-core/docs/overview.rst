@@ -156,17 +156,17 @@ object <apidoc/html/classXapian_1_1Database.html>`_. Generally, you can
 just construct the object, passing the pathname to the database. Xapian
 looks at the path and autodetects the database type.
 
-In some cases (with the Remote backend, or if you want more control) you
-need to use a factory function such as ``Xapian::Chert::open()`` - each
-backend type has one or more. The parameters the function takes depend
-on the backend type, and whether we are creating a read-only or a
-writable database.
+With the Remote backend, you need to use the ``Xapian::Remote::open()``
+factory function.  The parameters you need to pass depend on whether
+you're using the TCP or prog variant, and whether you are creating a read-only
+or a writable database.
 
 You can also create a "stub database" file which lists one or more
 databases. These files are recognised by the autodetection in the
 Database constructor (if the pathname is file rather than a directory,
-it's treated as a stub database file) or you can open them explicitly
-using Xapian::Auto::open\_stub(). The stub database format specifies one
+it's treated as a stub database file, or if the pathname is a directory
+containing a file called ``XAPIANDB``) or you can open them explicitly
+using ``Xapian::DB_BACKEND_STUB``. The stub database format specifies one
 database per line. For example::
 
      remote localhost:23876
@@ -213,15 +213,17 @@ quartz
 remote
     This can specify either a "program" or TCP remote backend, for example::
 
-        remote ssh xapian-prog.example.com xapian-progsrv
+        remote :ssh xapian-prog.example.com xapian-progsrv /srv/xapian/db1
 
     or::
 
         remote xapian-tcp.example.com:12345
 
-    Currently the two are distinguished by checking for a colon (``:``)
-    anywhere in the line, so for the "program" backend, your command can't
-    contain a colon.
+    If the first character of the second word is a colon (``:``), then this is
+    skipped and the remainder of the line is used as the command to run
+    xapian-progsrv and the "program" variant of the remote backend is used.
+    Otherwise the TCP variant of the remote backend is used, and the rest of
+    the line specifies the host and port to connect to.
 
 Multiple databases
 ~~~~~~~~~~~~~~~~~~
@@ -512,8 +514,8 @@ Xapian::Query::OP\_OR operators. For example,
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("canned"));
         query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("fish"));
 
-This creates a probabilistic query with terms \`regulation', \`import',
-\`export', \`canned' and \`fish'.
+This creates a probabilistic query with terms `regulation`, `import`,
+`export`, `canned` and `fish`.
 
 In fact this style of creation is so common that there is the shortcut
 construction::
@@ -563,8 +565,8 @@ Plus and minus terms
 
 A common requirement in search engine functionality is to run a
 probabilistic query where some terms are required to index all the
-retrieved documents (\`+' terms), and others are required to index none
-of the retrieved documents (\`-' terms). For example,
+retrieved documents (`+` terms), and others are required to index none
+of the retrieved documents (`-` terms). For example,
 ::
 
         regulation import export +canned +fish -japan

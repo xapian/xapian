@@ -1,6 +1,6 @@
 /* sample.cc: generate a sample from a utf-8 string.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@
 using namespace std;
 
 string
-generate_sample(const string & input, size_t maxlen)
+generate_sample(const string & input, size_t maxlen,
+		const string & ind, const string & ind2)
 {
     string output;
 
@@ -50,9 +51,9 @@ generate_sample(const string & input, size_t maxlen)
 	    // Need to truncate output.
 	    if (last_word_end <= maxlen / 2) {
 		// Monster word!  We'll have to just split it.
-		output.replace(maxlen - 3, string::npos, "...", 3);
+		output.replace(maxlen - ind.size(), string::npos, ind);
 	    } else {
-		output.replace(last_word_end, string::npos, " ...", 4);
+		output.replace(last_word_end, string::npos, ind2);
 	    }
 	    break;
 	}

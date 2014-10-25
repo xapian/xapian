@@ -51,10 +51,10 @@ $if{$not{$msizeexact},
 <table>
 $hitlist{<TR>
 <td align=right><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</A>&nbsp;</td>
-<TD><B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
-<A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</A></B><BR>
-<small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
-<A HREF="$html{$field{url}}">$prettyurl{$html{$field{url}}}</A><br>
+<TD><B><small>$html{$date{$field{modtime,$cgi{ID}},%Y-%m-%d %H:%M}}</small>
+<A HREF="$html{$field{url,$cgi{ID}}}">$html{$or{$field{caption,$cgi{ID}},$field{title,$cgi{ID}},$prettyurl{$field{url,$cgi{ID}}},Untitled}}</A></B><BR>
+<small>$highlight{$field{sample,$cgi{ID}},$terms}$if{$field{sample,$cgi{ID}},...}</small><br>
+<A HREF="$html{$field{url,$cgi{ID}}}">$prettyurl{$html{$field{url,$cgi{ID}}}}</A><br>
 <hr></TD></TR>}
 </table>
 ${suppress next, prev, and page links if there's only one page}

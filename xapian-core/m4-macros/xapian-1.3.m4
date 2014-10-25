@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 9
+# serial 13
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -29,7 +29,27 @@ m4_ifdef([AC_PROVIDE_IFELSE],
 AC_DEFUN([XO_LIB_XAPIAN],
 [
   AC_ARG_VAR(XAPIAN_CONFIG, [Location of xapian-config (default:] ifelse([$3], [], xapian-config, [$3]) [on PATH)])
-  AC_PATH_PROG(XAPIAN_CONFIG, ifelse([$3], [], xapian-config, [$3]), [])
+  dnl AC_PATH_PROG ignores an existing user setting of XAPIAN_CONFIG unless it
+  dnl has a full path, so add special handling for such cases.
+  xapian_config_to_check_for="ifelse([$3], [], xapian-config, [$3])"
+  [case $XAPIAN_CONFIG in
+  "") ;;
+  [\\/]* | ?:[\\/]*)
+    # XAPIAN_CONFIG has an absolute path, so AC_PATH_PROG can handle it.
+    ;;
+  *[\\/]?*)
+    # Convert a relative path to an absolute one.
+    XAPIAN_CONFIG=`pwd`/$XAPIAN_CONFIG
+    ;;
+  *)
+    # If there's no path on XAPIAN_CONFIG, use it as the name of the tool to
+    # search PATH for, so that things like this work:
+    #   ./configure XAPIAN_CONFIG=xapian-config1.3
+    xapian_config_to_check_for=$XAPIAN_CONFIG
+    XAPIAN_CONFIG=
+    ;;
+  esac]
+  AC_PATH_PROG(XAPIAN_CONFIG, "$xapian_config_to_check_for")
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
       [ifelse([$1], , [
@@ -61,23 +81,23 @@ AC_DEFUN([XO_LIB_XAPIAN],
     else
       case $? in
       127)
-	AC_MSG_ERROR([\`$XAPIAN_CONFIG' not found, aborting])
+	AC_MSG_ERROR(['$XAPIAN_CONFIG' not found, aborting])
 	;;
       126)
 	if test -d "$XAPIAN_CONFIG" ; then
-	  AC_MSG_ERROR([\`$XAPIAN_CONFIG' is a directory; it should be the filename of the xapian-config script])
+	  AC_MSG_ERROR(['$XAPIAN_CONFIG' is a directory; it should be the filename of the xapian-config script])
 	fi
-	AC_MSG_ERROR([\`$XAPIAN_CONFIG' not executable, aborting])
+	AC_MSG_ERROR(['$XAPIAN_CONFIG' not executable, aborting])
 	;;
       esac
-      AC_MSG_ERROR([\`$XAPIAN_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
+      AC_MSG_ERROR(['$XAPIAN_CONFIG --ltlibs --cxxflags' doesn't work, aborting])
     fi
 
 dnl If LT_INIT, AC_PROG_LIBTOOL or the deprecated older version
 dnl AM_PROG_LIBTOOL has already been expanded, enable libtool support now.
 dnl Otherwise add hooks to the end of LT_INIT, AC_PROG_LIBTOOL and
 dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
-    XAPIAN_VERSION=`$XAPIAN_CONFIG --version|sed 's/.* //;s/_svn[[0-9]]*$//'`
+    XAPIAN_VERSION=`$XAPIAN_CONFIG --version|sed 's/.* //;s/_.*$//'`
     XAPIAN_CXXFLAGS=`$XAPIAN_CONFIG --cxxflags`
     AC_PROVIDE_IFELSE([LT_INIT],
       [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],

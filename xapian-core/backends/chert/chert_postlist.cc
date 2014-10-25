@@ -1,7 +1,7 @@
 /* chert_postlist.cc: Postlists in a chert database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2014 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,30 +33,23 @@
 
 using Xapian::Internal::intrusive_ptr;
 
-Xapian::doccount
-ChertPostListTable::get_termfreq(const string & term) const
+void
+ChertPostListTable::get_freqs(const string & term,
+			      Xapian::doccount * termfreq_ptr,
+			      Xapian::termcount * collfreq_ptr) const
 {
     string key = make_key(term);
     string tag;
-    if (!get_exact_entry(key, tag)) return 0;
-
-    Xapian::doccount termfreq;
-    const char * p = tag.data();
-    ChertPostList::read_number_of_entries(&p, p + tag.size(), &termfreq, NULL);
-    return termfreq;
-}
-
-Xapian::termcount
-ChertPostListTable::get_collection_freq(const string & term) const
-{
-    string key = make_key(term);
-    string tag;
-    if (!get_exact_entry(key, tag)) return 0;
-
-    Xapian::termcount collfreq;
-    const char * p = tag.data();
-    ChertPostList::read_number_of_entries(&p, p + tag.size(), NULL, &collfreq);
-    return collfreq;
+    if (!get_exact_entry(key, tag)) {
+	if (termfreq_ptr)
+	    *termfreq_ptr = 0;
+	if (collfreq_ptr)
+	    *collfreq_ptr = 0;
+    } else {
+	const char * p = tag.data();
+	ChertPostList::read_number_of_entries(&p, p + tag.size(),
+					      termfreq_ptr, collfreq_ptr);
+    }
 }
 
 Xapian::termcount
@@ -721,6 +714,15 @@ ChertPostList::get_doclength() const
     RETURN(this_db->get_doclength(did));
 }
 
+Xapian::termcount
+ChertPostList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "ChertPostList::get_unique_terms", NO_ARGS);
+    Assert(have_started);
+    Assert(this_db.get());
+    RETURN(this_db->get_unique_terms(did));
+}
+
 bool
 ChertPostList::next_in_chunk()
 {
@@ -750,7 +752,7 @@ ChertPostList::next_chunk()
     cursor->next();
     if (cursor->after_end()) {
 	is_at_end = true;
-	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
 				     term + "'");
     }
     const char * keypos = cursor->current_key.data();
@@ -758,7 +760,7 @@ ChertPostList::next_chunk()
     // Check we're still in same postlist
     if (!check_tname_in_key_lite(&keypos, keyend, term)) {
 	is_at_end = true;
-	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
+	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for '" +
 				     term + "'");
     }
 

@@ -2,7 +2,7 @@
  * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009,2011 Olly Betts
+ * Copyright 2009,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,10 @@
 
 #ifndef XAPIAN_INCLUDED_REGISTRY_H
 #define XAPIAN_INCLUDED_REGISTRY_H
+
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/registry.h> directly; include <xapian.h> instead."
+#endif
 
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>

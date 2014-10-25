@@ -1,8 +1,8 @@
 /** @file valuesetmatchdecider.h
  * @brief MatchDecider subclass for filtering results by value.
  */
-/* Copyright 2008 Lemur Consulting Limited
- * Copyright 2008,2009,2011 Olly Betts
+/* Copyright 2008 Lemur Consulting Ltd
+ * Copyright 2008,2009,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,10 @@
 
 #ifndef XAPIAN_INCLUDED_VALUESETMATCHDECIDER_H
 #define XAPIAN_INCLUDED_VALUESETMATCHDECIDER_H
+
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/valuesetmatchdecider.h> directly; include <xapian.h> instead."
+#endif
 
 #include <xapian/enquire.h>
 #include <xapian/types.h>

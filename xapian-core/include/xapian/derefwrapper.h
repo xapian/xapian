@@ -1,7 +1,7 @@
 /** @file  derefwrapper.h
  *  @brief Class for wrapping type returned by an input_iterator.
  */
-/* Copyright (C) 2004,2008,2009 Olly Betts
+/* Copyright (C) 2004,2008,2009,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,10 @@
 
 #ifndef XAPIAN_INCLUDED_DEREFWRAPPER_H
 #define XAPIAN_INCLUDED_DEREFWRAPPER_H
+
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/derefwraper.h> directly; include <xapian.h> instead."
+#endif
 
 namespace Xapian {
 

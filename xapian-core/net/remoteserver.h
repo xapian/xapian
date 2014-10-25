@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2014 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -98,6 +98,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // get termfreq
     void msg_termfreq(const std::string & message);
 
+    // get termfreq and collection freq
+    void msg_freqs(const std::string & message);
+
     // get value statistics
     void msg_valuestats(const std::string & message);
 
@@ -163,6 +166,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 
     // remove a spelling
     void msg_removespelling(const std::string & message);
+
+    // get number of unique terms
+    void msg_uniqueterms(const std::string & message);
 
   public:
     /** Construct a RemoteServer.

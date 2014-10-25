@@ -1,7 +1,7 @@
 /** @file api_query.cc
- * @brief Query-related tests which don't need a backend.
+ * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -142,6 +142,108 @@ DEFINE_TESTCASE(nearsubqueries1, writable) {
     q = Xapian::Query(Xapian::Query::OP_PHRASE, x_phrs_y, Xapian::Query("c"));
     TEST_EXCEPTION(Xapian::UnimplementedError,
 	enq.set_query(q); (void)enq.get_mset(0, 10));
+
+    return true;
+}
+
+/// Test that XOR handles all remaining subqueries running out at the same
+//  time.
+DEFINE_TESTCASE(xor3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    const char * subqs[] = {
+	"hack", "which", "paragraph", "is", "return"
+    };
+    // Document where the subqueries run out *does* match XOR:
+    Xapian::Query q(Xapian::Query::OP_XOR, subqs, subqs + 5);
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+
+    TEST_EQUAL(mset.size(), 3);
+    TEST_EQUAL(*mset[0], 4);
+    TEST_EQUAL(*mset[1], 2);
+    TEST_EQUAL(*mset[2], 3);
+
+    // Document where the subqueries run out *does not* match XOR:
+    q = Xapian::Query(Xapian::Query::OP_XOR, subqs, subqs + 4);
+    enq.set_query(q);
+    mset = enq.get_mset(0, 10);
+
+    TEST_EQUAL(mset.size(), 4);
+    TEST_EQUAL(*mset[0], 5);
+    TEST_EQUAL(*mset[1], 4);
+    TEST_EQUAL(*mset[2], 2);
+    TEST_EQUAL(*mset[3], 3);
+
+    return true;
+}
+
+/// Check encoding of non-UTF8 terms in query descriptions.
+DEFINE_TESTCASE(nonutf8termdesc1, !backend) {
+    TEST_EQUAL(Xapian::Query("\xc0\x80\xf5\x80\x80\x80\xfe\xff").get_description(),
+	       "Query(\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff)");
+    TEST_EQUAL(Xapian::Query(string("\x00\x1f", 2)).get_description(),
+	       "Query(\\x00\\x1f)");
+    // Check that backslashes are encoded so output isn't ambiguous.
+    TEST_EQUAL(Xapian::Query("back\\slash").get_description(),
+	       "Query(back\\x5cslash)");
+    // Check that \x7f is escaped.
+    TEST_EQUAL(Xapian::Query("D\x7f_\x7f~").get_description(),
+	       "Query(D\\x7f_\\x7f~)");
+    return true;
+}
+
+/// Test introspection on Query objects.
+DEFINE_TESTCASE(queryintro1, !backend) {
+    TEST_EQUAL(Xapian::Query::MatchAll.get_type(), Xapian::Query::LEAF_MATCH_ALL);
+    TEST_EQUAL(Xapian::Query::MatchAll.get_num_subqueries(), 0);
+    TEST_EQUAL(Xapian::Query::MatchNothing.get_type(), Xapian::Query::LEAF_MATCH_NOTHING);
+    TEST_EQUAL(Xapian::Query::MatchNothing.get_num_subqueries(), 0);
+
+    Xapian::Query q;
+    q = Xapian::Query(q.OP_AND_NOT, Xapian::Query::MatchAll, Xapian::Query("fair"));
+    TEST_EQUAL(q.get_type(), q.OP_AND_NOT);
+    TEST_EQUAL(q.get_num_subqueries(), 2);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_MATCH_ALL);
+    TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
+
+    q = Xapian::Query("foo") & Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_AND);
+
+    q = Xapian::Query("foo") &~ Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_AND_NOT);
+
+    q = ~Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_AND_NOT);
+
+    q = Xapian::Query("foo") | Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_OR);
+
+    q = Xapian::Query("foo") ^ Xapian::Query("bar");
+    TEST_EQUAL(q.get_type(), q.OP_XOR);
+
+    q = 1.25 * (Xapian::Query("one") | Xapian::Query("two"));
+    TEST_EQUAL(q.get_type(), q.OP_SCALE_WEIGHT);
+    TEST_EQUAL(q.get_num_subqueries(), 1);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.OP_OR);
+
+    q = Xapian::Query("one") / 2.0;
+    TEST_EQUAL(q.get_type(), q.OP_SCALE_WEIGHT);
+    TEST_EQUAL(q.get_num_subqueries(), 1);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
+
+    q = Xapian::Query(q.OP_NEAR, Xapian::Query("a"), Xapian::Query("b"));
+    TEST_EQUAL(q.get_type(), q.OP_NEAR);
+    TEST_EQUAL(q.get_num_subqueries(), 2);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
+    TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
+
+    q = Xapian::Query(q.OP_PHRASE, Xapian::Query("c"), Xapian::Query("d"));
+    TEST_EQUAL(q.get_type(), q.OP_PHRASE);
+    TEST_EQUAL(q.get_num_subqueries(), 2);
+    TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
+    TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
 
     return true;
 }

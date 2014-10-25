@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -118,7 +118,7 @@ ChertTermList::get_termfreq() const
 {
     LOGCALL(DB, Xapian::doccount, "ChertTermList::get_termfreq", NO_ARGS);
     if (current_termfreq == 0)
-	current_termfreq = db->get_termfreq(current_term);
+	db->get_freqs(current_term, &current_termfreq, NULL);
     RETURN(current_termfreq);
 }
 
@@ -196,6 +196,6 @@ Xapian::PositionIterator
 ChertTermList::positionlist_begin() const
 {
     LOGCALL(DB, Xapian::PositionIterator, "ChertTermList::positionlist_begin", NO_ARGS);
-    return Xapian::PositionIterator(
-	    new ChertPositionList(&db->position_table, did, current_term));
+    RETURN(Xapian::PositionIterator(
+	    new ChertPositionList(&db->position_table, did, current_term)));
 }

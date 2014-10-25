@@ -38,7 +38,7 @@ MergePostList::~MergePostList()
 {
     LOGCALL_DTOR(MATCH, "MergePostList");
     std::vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); i++) {
+    for (i = plists.begin(); i != plists.end(); ++i) {
 	delete *i;
     }
 }
@@ -100,10 +100,10 @@ MergePostList::get_termfreq_max() const
     // sum of termfreqs for all children
     Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); i++) {
+    for (i = plists.begin(); i != plists.end(); ++i) {
 	total += (*i)->get_termfreq_max();
     }
-    return total;
+    RETURN(total);
 }
 
 Xapian::doccount
@@ -113,10 +113,10 @@ MergePostList::get_termfreq_min() const
     // sum of termfreqs for all children
     Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); i++) {
+    for (i = plists.begin(); i != plists.end(); ++i) {
 	total += (*i)->get_termfreq_min();
     }
-    return total;
+    RETURN(total);
 }
 
 Xapian::doccount
@@ -126,10 +126,10 @@ MergePostList::get_termfreq_est() const
     // sum of termfreqs for all children
     Xapian::doccount total = 0;
     vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); i++) {
+    for (i = plists.begin(); i != plists.end(); ++i) {
 	total += (*i)->get_termfreq_est();
     }
-    return total;
+    RETURN(total);
 }
 
 Xapian::docid
@@ -147,7 +147,7 @@ MergePostList::get_weight() const
 {
     LOGCALL(MATCH, double, "MergePostList::get_weight", NO_ARGS);
     Assert(current != -1);
-    return plists[current]->get_weight();
+    RETURN(plists[current]->get_weight());
 }
 
 const string *
@@ -155,14 +155,14 @@ MergePostList::get_collapse_key() const
 {
     LOGCALL(MATCH, const string *, "MergePostList::get_collapse_key", NO_ARGS);
     Assert(current != -1);
-    return plists[current]->get_collapse_key();
+    RETURN(plists[current]->get_collapse_key());
 }
 
 double
 MergePostList::get_maxweight() const
 {
     LOGCALL(MATCH, double, "MergePostList::get_maxweight", NO_ARGS);
-    return w_max;
+    RETURN(w_max);
 }
 
 double
@@ -171,7 +171,7 @@ MergePostList::recalc_maxweight()
     LOGCALL(MATCH, double, "MergePostList::recalc_maxweight", NO_ARGS);
     w_max = 0;
     vector<PostList *>::iterator i;
-    for (i = plists.begin(); i != plists.end(); i++) {
+    for (i = plists.begin(); i != plists.end(); ++i) {
 	try {
 	    double w = (*i)->recalc_maxweight();
 	    if (w > w_max) w_max = w;
@@ -192,7 +192,7 @@ MergePostList::recalc_maxweight()
 	    }
 	}
     }
-    return w_max;
+    RETURN(w_max);
 }
 
 bool
@@ -200,7 +200,7 @@ MergePostList::at_end() const
 {
     LOGCALL(MATCH, bool, "MergePostList::at_end", NO_ARGS);
     Assert(current != -1);
-    return unsigned(current) >= plists.size();    
+    RETURN(unsigned(current) >= plists.size());
 }
 
 string
@@ -208,7 +208,7 @@ MergePostList::get_description() const
 {
     string desc = "( Merge ";
     vector<PostList *>::const_iterator i;
-    for (i = plists.begin(); i != plists.end(); i++) {
+    for (i = plists.begin(); i != plists.end(); ++i) {
 	desc += (*i)->get_description() + " ";
     }
     return desc + ")";
@@ -219,7 +219,15 @@ MergePostList::get_doclength() const
 {
     LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_doclength", NO_ARGS);
     Assert(current != -1);
-    return plists[current]->get_doclength();
+    RETURN(plists[current]->get_doclength());
+}
+
+Xapian::termcount
+MergePostList::get_unique_terms() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_unique_terms", NO_ARGS);
+    Assert(current != -1);
+    RETURN(plists[current]->get_unique_terms());
 }
 
 Xapian::termcount

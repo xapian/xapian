@@ -1,7 +1,7 @@
 /** @file positioniterator.cc
  *  @brief Class for iterating over term positions.
  */
-/* Copyright (C) 2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,11 +102,12 @@ void
 PositionIterator::skip_to(Xapian::termpos pos)
 {
     LOGCALL_VOID(API, "PositionIterator::skip_to", pos);
-    Assert(internal);
-    internal->skip_to(pos);
-    if (internal->at_end()) {
-	decref();
-	internal = NULL;
+    if (internal) {
+	internal->skip_to(pos);
+	if (internal->at_end()) {
+	    decref();
+	    internal = NULL;
+	}
     }
 }
 

@@ -168,7 +168,7 @@ Be warned that Xapian is heavily I/O dependent, and therefore performance over
 a network file system is likely to be slow unless you've got a very well tuned
 setup.
 
-Xapian needs to be able to create a lock file in a database directory when
+Xapian needs to be able to lock a file in a database directory when
 modifications are being performed.  On some network files systems (e.g., NFS)
 this requires a lock daemon to be running.
 

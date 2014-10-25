@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -556,3 +556,31 @@ DEFINE_TESTCASE(compactempty1, brass || chert) {
     return true;
 }
 
+DEFINE_TESTCASE(compactmultipass1, brass || chert) {
+    string empty_dbpath = get_database_path(string());
+    string outdbpath = get_named_writable_database_path("compactmultipass1");
+    rm_rf(outdbpath);
+
+    string a = get_database_path("compactnorenumber1a", make_sparse_db,
+				 "5-7 24 76 987 1023-1027 9999 !9999");
+    string b = get_database_path("compactnorenumber1b", make_sparse_db,
+				 "1027-1030");
+    string c = get_database_path("compactnorenumber1c", make_sparse_db,
+				 "1028-1040");
+    string d = get_database_path("compactnorenumber1d", make_sparse_db,
+				 "3000 999999 !999999");
+
+    Xapian::Compactor compact;
+    compact.set_destdir(outdbpath);
+    compact.add_source(a);
+    compact.add_source(b);
+    compact.add_source(c);
+    compact.add_source(d);
+    compact.set_multipass(true);
+    compact.compact();
+
+    Xapian::Database outdb(outdbpath);
+    dbcheck(outdb, 29, 1041);
+
+    return true;
+}

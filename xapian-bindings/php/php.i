@@ -2,7 +2,7 @@
 %{
 /* php.i: SWIG interface file for the PHP bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -111,6 +111,12 @@ class XapianSWIGQueryItor {
     }
 
   public:
+    typedef std::random_access_iterator_tag iterator_category;
+    typedef Xapian::Query value_type;
+    typedef Xapian::termcount_diff difference_type;
+    typedef Xapian::Query * pointer;
+    typedef Xapian::Query & reference;
+
     XapianSWIGQueryItor()
 	: ht(NULL) { }
 
@@ -156,11 +162,13 @@ fail: // Label which SWIG_PHP_Error needs.
 	return !(*this == o);
     }
 
-    typedef std::input_iterator_tag iterator_category;
-    typedef Xapian::Query value_type;
-    typedef Xapian::termcount_diff difference_type;
-    typedef Xapian::Query * pointer;
-    typedef Xapian::Query & reference;
+    difference_type operator-(const XapianSWIGQueryItor &o) const {
+	// This is a hack - the only time where this will actually get called
+	// is when "this" is "end" and "o" is "begin", in which case the
+        // answer is the number of elements in the HashTable, which will be in
+        // o.ht.
+	return zend_hash_num_elements(o.ht);
+    }
 };
 
 %}
@@ -206,6 +214,27 @@ fail: // Label which SWIG_PHP_Error needs.
     }
 }
 
+%{
+#include <xapian/iterator.h>
+%}
+
+%define PHP_ITERATOR(NS, CLASS, RET_TYPE, REWIND_ACTION)
+    %typemap("phpinterfaces") NS::CLASS "Iterator";
+    %extend NS::CLASS {
+	const NS::CLASS & key() { return *self; }
+	RET_TYPE current() { return **self; }
+	bool valid() { return Xapian::iterator_valid(*self); }
+	void rewind() { REWIND_ACTION }
+    }
+%enddef
+
+PHP_ITERATOR(Xapian, ESetIterator, std::string, Xapian::iterator_rewind(*self);)
+PHP_ITERATOR(Xapian, MSetIterator, Xapian::docid, Xapian::iterator_rewind(*self);)
+PHP_ITERATOR(Xapian, TermIterator, std::string, )
+PHP_ITERATOR(Xapian, PositionIterator, Xapian::termpos, )
+PHP_ITERATOR(Xapian, PostingIterator, Xapian::docid, )
+PHP_ITERATOR(Xapian, ValueIterator, std::string, )
+
 %include except.i
 
-%include ../xapian.i
+%include ../xapian-headers.i

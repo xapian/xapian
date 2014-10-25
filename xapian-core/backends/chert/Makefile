@@ -2,7 +2,7 @@
 
 SHELL = /bin/sh
 
-all check:
+all check check-syntax:
 	cd ../.. && $(MAKE) $@
 
 clean:

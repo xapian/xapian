@@ -2,7 +2,7 @@
  * @brief Tests of percentage calculations.
  */
 /* Copyright (C) 2008,2009 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 
 #include "apitest.h"
 #include "backendmanager_local.h"
+#include "str.h"
 #include "testutils.h"
 
 #include <cfloat>
@@ -259,7 +260,7 @@ DEFINE_TESTCASE(topercent5, backend) {
 }
 
 /// Test that OP_FILTER doesn't affect percentages.
-//  Regression test for bug fixed in 1.3.1 and 1.2.10.
+//  Regression test for bug#590 fixed in 1.3.1 and 1.2.10.
 DEFINE_TESTCASE(topercent6, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query q(Xapian::Query::OP_OR,
@@ -274,5 +275,85 @@ DEFINE_TESTCASE(topercent6, backend) {
     Xapian::MSet mset2 = enquire.get_mset(0, 10);
     TEST(!mset2.empty());
     TEST_EQUAL(mset[0].get_percent(), mset2[0].get_percent());
+    return true;
+}
+
+static void
+make_topercent7_db(Xapian::WritableDatabase &db, const string &)
+{
+    for (int i = 1; i <= 6; ++i) {
+	Xapian::Document d;
+	d.set_data(str(i));
+	d.add_term("boom", 2 + (i - 4)*(i - 2));
+	if (i != 5)
+	    d.add_boolean_term("XCAT122");
+	db.add_document(d);
+    }
+    db.commit();
+}
+
+/// Test that a term with wdf always = 0 gets counted.
+//  Regression test for bug introduced in 1.2.10 by the original fix for #590,
+//  and fixed in 1.2.13 (and in trunk before 1.3.1 was released).
+DEFINE_TESTCASE(topercent7, generated) {
+    Xapian::Database db(get_database("topercent7", make_topercent7_db));
+
+    Xapian::Query q;
+    q = Xapian::Query(q.OP_OR, Xapian::Query("tomb"), Xapian::Query("boom"));
+    q = Xapian::Query(q.OP_AND, q, Xapian::Query("XCAT122"));
+
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    Xapian::MSet m = enq.get_mset(0, 10);
+    TEST(!m.empty());
+    TEST_REL(m[0].get_percent(),>,60);
+    return true;
+}
+
+class ZWeight : public Xapian::Weight {
+  public:
+    ZWeight() { }
+
+    void init(double) { }
+
+    Weight * clone() const {
+	return new ZWeight();
+    }
+
+    double get_sumpart(Xapian::termcount,
+		       Xapian::termcount,
+		       Xapian::termcount) const {
+	return 0.0;
+    }
+
+    double get_maxpart() const {
+	return 0.0;
+    }
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount) const {
+	return 1.0 / doclen;
+    }
+
+    double get_maxextra() const {
+	return 1.0;
+    }
+};
+
+/// Regression test for bug introduced in 1.3.1 and fixed in 1.3.2.
+DEFINE_TESTCASE(checkzeromaxpartopt1, backend && !remote) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    // "this" indexes all documents, so will get replaced with MatchAll
+    // internally.
+    const char * terms[] = { "this", "spoken", "blank" };
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, terms, terms + 3));
+    ZWeight wt;
+    enquire.set_weighting_scheme(wt);
+    Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+    // No documents match all 3 terms, so the score shouldn't be 100%.
+    TEST(mset[0].get_percent() != 100);
+    // Make sure the percentage score isn't 0 or 1 though.
+    TEST_REL(mset[0].get_percent(), >, 1);
     return true;
 }

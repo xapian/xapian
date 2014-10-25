@@ -47,12 +47,6 @@ mset_range_is_same_weights(const Xapian::MSet &mset1, unsigned int first1,
 			   const Xapian::MSet &mset2, unsigned int first2,
 			   unsigned int count);
 
-// Test that the percentages in two mset ranges are the same, ignoring docids.
-bool
-mset_range_is_same_percents(const Xapian::MSet &mset1, unsigned int first1,
-			    const Xapian::MSet &mset2, unsigned int first2,
-			    unsigned int count);
-
 bool operator==(const Xapian::MSet &first, const Xapian::MSet &second);
 
 inline bool operator!=(const Xapian::MSet &first, const Xapian::MSet &second)
@@ -77,8 +71,8 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 
 /// Check MSet M has size S.
 #define TEST_MSET_SIZE(M, S) TEST_AND_EXPLAIN(((M).size() == (S)), \
-	"MSet `"STRINGIZE(M)"' is not of expected size: was `" << \
-	(M).size() << "' expected `" << (S) << "':\n" << \
+	"MSet '"STRINGIZE(M)"' is not of expected size: was '" << \
+	(M).size() << "' expected '" << (S) << "':\n" << \
 	"Full mset was:\n" << (M))
 
 /// Check that a piece of code throws an expected exception.

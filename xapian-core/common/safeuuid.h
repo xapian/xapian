@@ -2,7 +2,7 @@
  *  @brief #include <uuid/uuid.h>, with alternative implementation for windows.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2009,2010 Olly Betts
+ * Copyright (C) 2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,8 +53,20 @@ inline void uuid_unparse_lower(uuid_t uu, char *out) {
 
 #else
 
-// FreeBSD/NetBSD UUID API.
-# include <uuid.h>
+// UUID API on FreeBSD, NetBSD and AIX.
+
+# ifdef _AIX
+/* AIX uses a byte typedef in its <uuid.h> which collides with ours, so use a
+ * macro to rename theirs out of the way.
+ */
+#  define byte xapian_hack_aix_uuid_byte
+#  include <uuid.h>
+#  undef byte
+# else
+#  include <uuid.h>
+# endif
+
+# include <cstdlib>
 # include <cstring>
 # include <exception>
 
@@ -69,7 +81,7 @@ uuid_generate(uuid_t_ out) {
 	// Can only be uuid_s_no_memory it seems.
 	throw std::bad_alloc();
     }
-    std::memcpy(&out, &uuid, sizeof(uuid_t_));
+    std::memcpy(out, &uuid, sizeof(uuid_t_));
 }
 
 inline int
@@ -77,7 +89,14 @@ uuid_parse(const char * in, uuid_t_ uu)
 {
     uuid_t uuid;
     uint32_t status;
+#ifdef _AIX
+    // AIX takes unsigned char* not const char *.
+    char * nonconst_in = const_cast<char*>(in);
+    unsigned char * unsigned_in = reinterpret_cast<unsigned char *>(nonconst_in);
+    uuid_from_string(unsigned_in, &uuid, &status);
+#else
     uuid_from_string(in, &uuid, &status);
+#endif
     if (status != uuid_s_ok)
 	return -1;
     std::memcpy(uu, &uuid, sizeof(uuid_t_));
@@ -90,10 +109,15 @@ uuid_unparse_lower(const uuid_t_ uu, char * out)
     uuid_t uuid;
     uint32_t status;
     std::memcpy(&uuid, uu, sizeof(uuid_t));
+#ifdef _AIX
+    // AIX takes unsigned char* not char *.
+    unsigned char * result;
+#else
     char * result;
+#endif
     uuid_to_string(&uuid, &result, &status);
     std::memcpy(out, result, 36);
-    free(result);
+    std::free(result);
     if (status != uuid_s_ok) {
 	// Could be uuid_s_bad_version (FIXME) or uuid_s_no_memory it seems.
 	throw std::bad_alloc();

@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -23,7 +23,7 @@ if ($@) {
 # Number of test cases to run - increase this if you add more testcases.
 plan tests => 65;
 
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 
 # TODO: check these classes too:
 # MSet/Tied.pm
@@ -90,68 +90,68 @@ sub thread_proc {
     return 0 unless ref($tg) !~ 'Xapian';
 }
 
-ok( $wdb = Search::Xapian::WritableDatabase->new(), 'create WritableDatabase' );
+ok( $wdb = Xapian::WritableDatabase->new(), 'create WritableDatabase' );
 is( $wdb->get_doccount(), 0, 'check WritableDatabase' );
 
-ok( $db = Search::Xapian::Database->new('testdb'), 'create Database' );
+ok( $db = Xapian::Database->new('testdb'), 'create Database' );
 is( $db->get_doccount(), 2, 'check Database' );
 
 ok( $doc = $db->get_document(1), 'create Document' );
 is( $doc->get_data(), 'test one', 'check Document' );
 
-ok( $bm25wt = Search::Xapian::BM25Weight->new(), 'create BM25Weight' );
-is( ref($bm25wt), 'Search::Xapian::BM25Weight', 'check BM25Weight' );
+ok( $bm25wt = Xapian::BM25Weight->new(), 'create BM25Weight' );
+is( ref($bm25wt), 'Xapian::BM25Weight', 'check BM25Weight' );
 
-ok( $boolwt = Search::Xapian::BoolWeight->new(), 'create BoolWeight' );
-is( ref($boolwt), 'Search::Xapian::BoolWeight', 'check BoolWeight' );
+ok( $boolwt = Xapian::BoolWeight->new(), 'create BoolWeight' );
+is( ref($boolwt), 'Xapian::BoolWeight', 'check BoolWeight' );
 
-ok( $tradwt = Search::Xapian::TradWeight->new(), 'create TradWeight' );
-is( ref($tradwt), 'Search::Xapian::TradWeight', 'check TradWeight' );
+ok( $tradwt = Xapian::TradWeight->new(), 'create TradWeight' );
+is( ref($tradwt), 'Xapian::TradWeight', 'check TradWeight' );
 
-ok( $enq = Search::Xapian::Enquire->new($db), 'create Enquire' );
+ok( $enq = Xapian::Enquire->new($db), 'create Enquire' );
 ok( $enq->get_query()->empty(), 'check Enquire' );
 
-ok( $qp = Search::Xapian::QueryParser->new(), 'create QueryParser' );
+ok( $qp = Xapian::QueryParser->new(), 'create QueryParser' );
 is( $qp->get_default_op(), OP_OR, 'check QueryParser' );
 
 ok( $q = $qp->parse_query("foo"), 'create Query' );
 ok( !$q->empty(), 'check Query' );
 
-ok( $stem = Search::Xapian::Stem->new('en'), 'create Stem' );
+ok( $stem = Xapian::Stem->new('en'), 'create Stem' );
 is( $stem->stem_word('testing'), 'test', 'check Stem' );
 
-ok( $eset = Search::Xapian::ESet->new(), 'create ESet' );
+ok( $eset = Xapian::ESet->new(), 'create ESet' );
 ok( $eset->empty(), 'check ESet' );
 
-ok( $mset = Search::Xapian::MSet->new(), 'create MSet' );
+ok( $mset = Xapian::MSet->new(), 'create MSet' );
 ok( $mset->empty(), 'check MSet' );
 
-ok( $rset = Search::Xapian::RSet->new(), 'create RSet' );
+ok( $rset = Xapian::RSet->new(), 'create RSet' );
 ok( $rset->empty(), 'check RSet' );
 
 ok( $esetit = $eset->begin(), 'create ESetIterator' );
-is( ref($esetit), 'Search::Xapian::ESetIterator', 'check ESetIterator' );
+is( ref($esetit), 'Xapian::ESetIterator', 'check ESetIterator' );
 
 ok( $msetit = $mset->begin(), 'create MSetIterator' );
-is( ref($msetit), 'Search::Xapian::MSetIterator', 'check MSetIterator' );
+is( ref($msetit), 'Xapian::MSetIterator', 'check MSetIterator' );
 
 ok( $postit = $db->postlist_begin("one"), 'create PostingIterator' );
-is( ref($postit), 'Search::Xapian::PostingIterator', 'check PostingIterator' );
+is( ref($postit), 'Xapian::PostingIterator', 'check PostingIterator' );
 
 ok( $posit = $db->positionlist_begin(1, "one"), 'create PositionIterator' );
-is( ref($posit), 'Search::Xapian::PositionIterator', 'check PositionIterator' );
+is( ref($posit), 'Xapian::PositionIterator', 'check PositionIterator' );
 
 ok( $termit = $db->termlist_begin(1), 'create TermIterator' );
-is( ref($termit), 'Search::Xapian::TermIterator', 'check TermIterator' );
+is( ref($termit), 'Xapian::TermIterator', 'check TermIterator' );
 
 ok( $valueit = $doc->values_begin(), 'create ValueIterator' );
 is( $valueit->get_valueno(), 0, 'check ValueIterator' );
 
-ok( $sstop = Search::Xapian::SimpleStopper->new(), 'create SimpleStopper' );
-is( ref($sstop), 'Search::Xapian::SimpleStopper', 'check SimpleStopper' );
+ok( $sstop = Xapian::SimpleStopper->new(), 'create SimpleStopper' );
+is( ref($sstop), 'Xapian::SimpleStopper', 'check SimpleStopper' );
 
-ok( $tg = Search::Xapian::TermGenerator->new(), 'create TermGenerator' );
-is( ref($tg), 'Search::Xapian::TermGenerator', 'check TermGenerator' );
+ok( $tg = Xapian::TermGenerator->new(), 'create TermGenerator' );
+is( ref($tg), 'Xapian::TermGenerator', 'check TermGenerator' );
 
 my $thread1 = threads->create(sub { thread_proc(); });
 my $thread2 = threads->create(sub { thread_proc(); });
@@ -161,9 +161,9 @@ ok( $thread2->join, 'check thread2' );
 is( $wdb->get_doccount(), 0, 'check WritableDatabase' );
 is( $db->get_doccount(), 2, 'check Database' );
 is( $doc->get_data(), 'test one', 'check Document' );
-is( ref($bm25wt), 'Search::Xapian::BM25Weight', 'check BM25Weight' );
-is( ref($boolwt), 'Search::Xapian::BoolWeight', 'check BoolWeight' );
-is( ref($tradwt), 'Search::Xapian::TradWeight', 'check TradWeight' );
+is( ref($bm25wt), 'Xapian::BM25Weight', 'check BM25Weight' );
+is( ref($boolwt), 'Xapian::BoolWeight', 'check BoolWeight' );
+is( ref($tradwt), 'Xapian::TradWeight', 'check TradWeight' );
 ok( $enq->get_query()->empty(), 'check Enquire' );
 is( $qp->get_default_op(), OP_OR, 'check QueryParser' );
 ok( !$q->empty(), 'check Query' );
@@ -171,11 +171,11 @@ is( $stem->stem_word('testing'), 'test', 'check Stem' );
 ok( $eset->empty(), 'check ESet' );
 ok( $mset->empty(), 'check MSet' );
 ok( $rset->empty(), 'check RSet' );
-is( ref($esetit), 'Search::Xapian::ESetIterator', 'check ESetIterator' );
-is( ref($msetit), 'Search::Xapian::MSetIterator', 'check MSetIterator' );
-is( ref($postit), 'Search::Xapian::PostingIterator', 'check PostingIterator' );
-is( ref($posit), 'Search::Xapian::PositionIterator', 'check PositionIterator' );
-is( ref($termit), 'Search::Xapian::TermIterator', 'check TermIterator' );
+is( ref($esetit), 'Xapian::ESetIterator', 'check ESetIterator' );
+is( ref($msetit), 'Xapian::MSetIterator', 'check MSetIterator' );
+is( ref($postit), 'Xapian::PostingIterator', 'check PostingIterator' );
+is( ref($posit), 'Xapian::PositionIterator', 'check PositionIterator' );
+is( ref($termit), 'Xapian::TermIterator', 'check TermIterator' );
 is( $valueit->get_valueno(), 0, 'check ValueIterator' );
-is( ref($sstop), 'Search::Xapian::SimpleStopper', 'check SimpleStopper' );
-is( ref($tg), 'Search::Xapian::TermGenerator', 'check TermGenerator' );
+is( ref($sstop), 'Xapian::SimpleStopper', 'check SimpleStopper' );
+is( ref($tg), 'Xapian::TermGenerator', 'check TermGenerator' );

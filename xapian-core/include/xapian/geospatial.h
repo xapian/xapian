@@ -3,7 +3,7 @@
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012 Olly Betts
+ * Copyright 2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,10 +24,15 @@
 #ifndef XAPIAN_INCLUDED_GEOSPATIAL_H
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/geospatial.h> directly; include <xapian.h> instead."
+#endif
+
 #include <iterator>
 #include <vector>
 #include <string>
 
+#include <xapian/attributes.h>
 #include <xapian/derefwrapper.h>
 #include <xapian/keymaker.h>
 #include <xapian/postingsource.h>
@@ -38,6 +43,9 @@ namespace Xapian {
 
 class Registry;
 
+double
+XAPIAN_NOTHROW(miles_to_metres(double miles)) XAPIAN_CONST_FUNCTION;
+
 /** Convert from miles to metres.
  *
  *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
@@ -47,6 +55,9 @@ miles_to_metres(double miles)
 {
     return 1609.344 * miles;
 }
+
+double
+XAPIAN_NOTHROW(metres_to_miles(double metres)) XAPIAN_CONST_FUNCTION;
 
 /** Convert from metres to miles.
  *
@@ -88,7 +99,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
     /** Construct an uninitialised coordinate.
      */
-    LatLongCoord() {}
+    XAPIAN_NOTHROW(LatLongCoord()) {}
 
     /** Construct a coordinate.
      *
@@ -133,7 +144,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
     /** Compare with another LatLongCoord.
      */
-    bool operator<(const LatLongCoord & other) const
+    bool XAPIAN_NOTHROW(operator<(const LatLongCoord & other) const)
     {
 	if (latitude < other.latitude) return true;
 	if (latitude > other.latitude) return false;
@@ -347,9 +358,9 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
 
     /** Create object given string serialisation returned by serialise().
      *
-     *  @param s A serialised instance of this LatLongMetric subclass.
+     *  @param serialised A serialised instance of this LatLongMetric subclass.
      */
-    virtual LatLongMetric * unserialise(const std::string & s) const = 0;
+    virtual LatLongMetric * unserialise(const std::string & serialised) const = 0;
 };
 
 /** Calculate the great-circle distance between two coordinates on a sphere.
@@ -392,7 +403,7 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
     LatLongMetric * clone() const;
     std::string name() const;
     std::string serialise() const;
-    LatLongMetric * unserialise(const std::string & s) const;
+    LatLongMetric * unserialise(const std::string & serialised) const;
 };
 
 /** Posting source which returns a weight based on geospatial distance.
@@ -477,7 +488,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     std::string name() const;
     std::string serialise() const;
     LatLongDistancePostingSource *
-	    unserialise_with_registry(const std::string &s,
+	    unserialise_with_registry(const std::string &serialised,
 				      const Registry & registry) const;
     void init(const Database & db_);
 

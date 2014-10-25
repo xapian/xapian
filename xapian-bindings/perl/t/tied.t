@@ -1,5 +1,5 @@
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.pl'
+# Before 'make install' is performed this script should be runnable with
+# 'make test'. After 'make install' it should work as 'perl test.pl'
 
 #########################
 
@@ -10,7 +10,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 22 };
-use Search::Xapian qw(:ops);
+use Xapian qw(:ops);
 
 #########################
 
@@ -20,9 +20,9 @@ use Search::Xapian qw(:ops);
 # None of the following tests can be expected to succeed without first
 # creating a test database in the directory testdb.
 
-my $db = Search::Xapian::Database->new( 'testdb' );
-my $enq = Search::Xapian::Enquire->new( $db );
-my $query = Search::Xapian::Query->new( 'test' );
+my $db = Xapian::Database->new( 'testdb' );
+my $enq = Xapian::Enquire->new( $db );
+my $query = Xapian::Query->new( 'test' );
 
 $enq->set_query( $query );
 
@@ -48,7 +48,7 @@ ok( exists $matches[-1] );
 # Test that "tying by hand" still works.
 sub tie_mset {
     my @a;
-    tie( @a, 'Search::Xapian::MSet::Tied', shift );
+    tie( @a, 'Xapian::MSet::Tied', shift );
     return @a;
 }
 ok( $mset = $enq->get_mset(0, 1) );
@@ -64,7 +64,7 @@ ok( $match->get_percent() );
 my $eset;
 my $rset;
 
-ok( $rset = Search::Xapian::RSet->new() );
+ok( $rset = Xapian::RSet->new() );
 $rset->add_document( 1 );
 
 ok( $eset = $enq->get_eset( 10, $rset ) );

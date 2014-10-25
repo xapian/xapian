@@ -1,7 +1,7 @@
 /** @file dbfactory.h
  * @brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,12 +22,19 @@
 #ifndef XAPIAN_INCLUDED_DBFACTORY_H
 #define XAPIAN_INCLUDED_DBFACTORY_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/dbfactory.h> directly; include <xapian.h> instead."
+#endif
+
 #ifndef _MSC_VER
 # include <sys/types.h>
 #endif
 
 #include <string>
 
+#include <xapian/constants.h>
+#include <xapian/database.h>
+#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/version.h>
 #include <xapian/visibility.h>
@@ -37,9 +44,6 @@ namespace Xapian {
 #ifdef _MSC_VER
 typedef unsigned useconds_t;
 #endif
-
-class Database;
-class WritableDatabase;
 
 /// Database factory functions which determine the database type automatically.
 namespace Auto {
@@ -51,8 +55,13 @@ namespace Auto {
  *
  * @param file  pathname of the stub database file.
  */
-XAPIAN_VISIBILITY_DEFAULT
-Database open_stub(const std::string &file);
+XAPIAN_DEPRECATED(Database open_stub(const std::string &file));
+
+inline Database
+open_stub(const std::string &file)
+{
+    return Database(file, DB_BACKEND_STUB);
+}
 
 /** Construct a WritableDatabase object for a stub database file.
  *
@@ -70,8 +79,13 @@ Database open_stub(const std::string &file);
  *  - Xapian::DB_OPEN			open existing database, failing if none
  *					exists.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_stub(const std::string &file, int action);
+XAPIAN_DEPRECATED(WritableDatabase open_stub(const std::string &file, int action));
+
+inline WritableDatabase
+open_stub(const std::string &file, int action)
+{
+    return WritableDatabase(file, action|DB_BACKEND_STUB);
+}
 
 }
 
@@ -98,8 +112,13 @@ namespace Brass {
  *
  * @param dir  pathname of the directory containing the database.
  */
-XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &dir);
+XAPIAN_DEPRECATED(Database open(const std::string &dir));
+
+inline Database
+open(const std::string &dir)
+{
+    return Database(dir, DB_BACKEND_BRASS);
+}
 
 /** Construct a Database object for update access to a Brass database.
  *
@@ -119,9 +138,13 @@ Database open(const std::string &dir);
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+XAPIAN_DEPRECATED(WritableDatabase open(const std::string &dir, int action, int block_size = 0));
+
+inline WritableDatabase
+open(const std::string &dir, int action, int block_size)
+{
+    return WritableDatabase(dir, action|DB_BACKEND_BRASS, block_size);
+}
 
 }
 #endif
@@ -134,8 +157,13 @@ namespace Chert {
  *
  * @param dir  pathname of the directory containing the database.
  */
-XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &dir);
+XAPIAN_DEPRECATED(Database open(const std::string &dir));
+
+inline Database
+open(const std::string &dir)
+{
+    return Database(dir, DB_BACKEND_CHERT);
+}
 
 /** Construct a Database object for update access to a Chert database.
  *
@@ -155,9 +183,13 @@ Database open(const std::string &dir);
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+XAPIAN_DEPRECATED(WritableDatabase open(const std::string &dir, int action, int block_size = 0));
+
+inline WritableDatabase
+open(const std::string &dir, int action, int block_size)
+{
+    return WritableDatabase(dir, action|DB_BACKEND_CHERT, block_size);
+}
 
 }
 #endif

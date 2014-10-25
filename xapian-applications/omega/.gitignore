@@ -3,6 +3,7 @@
 /Makefile
 /Makefile.in
 /aclocal.m4
+/compile
 /configure
 /config.cache
 /config.guess
@@ -17,6 +18,7 @@
 /stamp-h
 /stamp-h1
 /stamp-h.in
+/test-driver
 /.deps
 /.libs
 /autom4te*.cache
@@ -30,7 +32,7 @@
 /md5test
 /utf8converttest
 /libtransform.la
-/xapian-omega-*.tar.gz
+/xapian-omega-*.tar.xz
 /xapian-omega.spec
 /makemanpage
 /outlookmsg2html

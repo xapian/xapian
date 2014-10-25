@@ -2,12 +2,9 @@
 
 include ../generic/generic.mk
 
-TESTS_ENVIRONMENT = \
-	CPPFLAGS="$(CPPFLAGS)" \
-	CXX="$(CXX)" \
-	CXXFLAGS="$(CXXFLAGS)" \
-	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
-	prove -I. -I"$(srcdir)"
+# Disable parallel build for this make invocation; some tests depend
+# on previous ones having set up their database for them.
+.NOTPARALLEL:
 
 ## Test programs to be run
 TESTS = \
@@ -24,28 +21,41 @@ TESTS = \
 	t/parser.t \
 	t/search.t \
 	t/sorter.t \
+	t/stem.t \
 	t/symbol-test.t \
 	t/termgenerator.t \
 	t/thread.t \
 	t/tied.t \
 	t/valuerange.t \
 	t/writabledatabase.t
+AM_TESTS_ENVIRONMENT = \
+	CPPFLAGS="$(CPPFLAGS)" ;\
+	CXX="$(CXX)" ;\
+	CXXFLAGS="$(CXXFLAGS)" ;\
+	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" ;\
+	export CPPFLAGS ;\
+	export CXX ;\
+	export CXXFLAGS ;\
+	export XAPIAN_CONFIG ;
+LOG_COMPILER = $(PROVE)
+AM_LOG_FLAGS = -I. -I'$(srcdir)'
 
 clean-local:
 	rm -rf testdb* auto
 
-BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc \
-	auto/Search/Xapian/Xapian$(PERL_SO)
+BUILT_SOURCES = Xapian.pm xapian_wrap.cc \
+	auto/Xapian/Xapian$(PERL_SO)
 
-auto/Search/Xapian/Xapian$(PERL_SO): Xapian.la
-	@$(MKDIR_P) auto/Search/Xapian
+auto/Xapian/Xapian$(PERL_SO): Xapian.la
+	@$(MKDIR_P) auto/Xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
 ## ksh requires a path on the sourced file.
-	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Search/Xapian
+	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Xapian
 	rm -f libtoolconfig.tmp
 
 EXTRA_DIST = perl.i except.i $(TESTS) \
-	Search/Xapian.pm xapian_wrap.cc \
+	generate-perl-exceptions \
+	Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \
 	t/symbol-test/SymbolTest.xs \
@@ -63,7 +73,7 @@ dist_exampledata_DATA = \
 docdatadir = $(docdir)/perl
 dist_docdata_DATA = docs/index.html
 
-perlarchdir = $(PERL_ARCH)/auto/Search/Xapian
+perlarchdir = $(PERL_ARCH)/auto/Xapian
 perlarch_LTLIBRARIES = Xapian.la
 
 # Remove the .la file - Xapian.la is never linked against (it's a module)
@@ -80,53 +90,53 @@ uninstall-local:
 
 perllibdir = $(PERL_LIB)
 nobase_dist_perllib_DATA = \
-	Search/Xapian.pm \
-	Search/Xapian/AssertionError.pm \
-	Search/Xapian/BM25Weight.pm \
-	Search/Xapian/BoolWeight.pm \
-	Search/Xapian/DatabaseCorruptError.pm \
-	Search/Xapian/DatabaseCreateError.pm \
-	Search/Xapian/DatabaseError.pm \
-	Search/Xapian/DatabaseLockError.pm \
-	Search/Xapian/DatabaseModifiedError.pm \
-	Search/Xapian/DatabaseOpeningError.pm \
-	Search/Xapian/Database.pm \
-	Search/Xapian/DatabaseVersionError.pm \
-	Search/Xapian/DocNotFoundError.pm \
-	Search/Xapian/Document.pm \
-	Search/Xapian/Enquire.pm \
-	Search/Xapian/Error.pm \
-	Search/Xapian/ESetIterator.pm \
-	Search/Xapian/ESet.pm \
-	Search/Xapian/FeatureUnavailableError.pm \
-	Search/Xapian/InternalError.pm \
-	Search/Xapian/InvalidArgumentError.pm \
-	Search/Xapian/InvalidOperationError.pm \
-	Search/Xapian/LogicError.pm \
-	Search/Xapian/MSetIterator.pm \
-	Search/Xapian/MSet.pm \
-	Search/Xapian/MultiValueSorter.pm \
-	Search/Xapian/NetworkError.pm \
-	Search/Xapian/NetworkTimeoutError.pm \
-	Search/Xapian/PerlStopper.pm \
-	Search/Xapian/PositionIterator.pm \
-	Search/Xapian/PostingIterator.pm \
-	Search/Xapian/QueryParserError.pm \
-	Search/Xapian/QueryParser.pm \
-	Search/Xapian/Query.pm \
-	Search/Xapian/RangeError.pm \
-	Search/Xapian/RSet.pm \
-	Search/Xapian/RuntimeError.pm \
-	Search/Xapian/SimpleStopper.pm \
-	Search/Xapian/Stem.pm \
-	Search/Xapian/Stopper.pm \
-	Search/Xapian/TermGenerator.pm \
-	Search/Xapian/TermIterator.pm \
-	Search/Xapian/TradWeight.pm \
-	Search/Xapian/UnimplementedError.pm \
-	Search/Xapian/ValueIterator.pm \
-	Search/Xapian/Weight.pm \
-	Search/Xapian/WritableDatabase.pm
+	Xapian.pm \
+	Xapian/AssertionError.pm \
+	Xapian/BM25Weight.pm \
+	Xapian/BoolWeight.pm \
+	Xapian/DatabaseCorruptError.pm \
+	Xapian/DatabaseCreateError.pm \
+	Xapian/DatabaseError.pm \
+	Xapian/DatabaseLockError.pm \
+	Xapian/DatabaseModifiedError.pm \
+	Xapian/DatabaseOpeningError.pm \
+	Xapian/Database.pm \
+	Xapian/DatabaseVersionError.pm \
+	Xapian/DocNotFoundError.pm \
+	Xapian/Document.pm \
+	Xapian/Enquire.pm \
+	Xapian/Error.pm \
+	Xapian/ESetIterator.pm \
+	Xapian/ESet.pm \
+	Xapian/FeatureUnavailableError.pm \
+	Xapian/InternalError.pm \
+	Xapian/InvalidArgumentError.pm \
+	Xapian/InvalidOperationError.pm \
+	Xapian/LogicError.pm \
+	Xapian/MSetIterator.pm \
+	Xapian/MSet.pm \
+	Xapian/MultiValueSorter.pm \
+	Xapian/NetworkError.pm \
+	Xapian/NetworkTimeoutError.pm \
+	Xapian/PerlStopper.pm \
+	Xapian/PositionIterator.pm \
+	Xapian/PostingIterator.pm \
+	Xapian/QueryParserError.pm \
+	Xapian/QueryParser.pm \
+	Xapian/Query.pm \
+	Xapian/RangeError.pm \
+	Xapian/RSet.pm \
+	Xapian/RuntimeError.pm \
+	Xapian/SimpleStopper.pm \
+	Xapian/Stem.pm \
+	Xapian/Stopper.pm \
+	Xapian/TermGenerator.pm \
+	Xapian/TermIterator.pm \
+	Xapian/TradWeight.pm \
+	Xapian/UnimplementedError.pm \
+	Xapian/ValueIterator.pm \
+	Xapian/Weight.pm \
+	Xapian/WritableDatabase.pm
 
 AM_CPPFLAGS = -I$(PERL_INC)
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
@@ -140,26 +150,25 @@ except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-perl-exceptions
 
 BUILT_SOURCES += docs/index.html
-docs/index.html: Search/Xapian.pm
-	test -d docs || mkdir docs
-	pod2html Search/Xapian.pm > docs/index.html
+docs/index.html: Xapian.pm
+	$(MKDIR_P) docs
+	pod2html Xapian.pm > docs/index.html
 	rm -f pod2htm?.tmp
 
-xapian_wrap.cc Search/Xapian.pm: xapian_wrap.stamp
-	@stamp=xapian_wrap.stamp; $(make_many_locked)
-xapian_wrap.stamp: except.i
+stamp = xapian_wrap.stamp
+RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+
+xapian_wrap.cc Xapian.pm: $(stamp)
+	$(make_many_locked)
+$(stamp): except.i
 	$(multitarget_begin)
-	test -d Search || mkdir Search
-	$(SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -perl -module Search::Xapian -proxy -const \
-	    -o xapian_wrap.cc -MD -MF xapian_wrap_d.tmp '$(srcdir)/'perl.i
-	$(PERL) -pi -e 's!xapian_wrap.cc:!xapian_wrap.stamp:!' xapian_wrap_d.tmp
-	mv xapian_wrap_d.tmp xapian_wrap.d
-	mv Xapian.pm Search/Xapian.pm
+	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
+	    -perl -module Xapian -proxy -const \
+	    -o xapian_wrap.cc '$(srcdir)/'perl.i
 	$(multitarget_end)
 
 -include xapian_wrap.d
 
-CLEANFILES = pod2htm?.tmp xapian_wrap.d xapian_wrap.stamp
+CLEANFILES = pod2htm?.tmp xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)

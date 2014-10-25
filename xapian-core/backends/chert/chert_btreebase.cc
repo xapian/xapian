@@ -1,7 +1,7 @@
 /* chert_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2014 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -23,9 +23,6 @@
 #include <config.h>
 
 #include "safeerrno.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
 
 #include <xapian/error.h>
 
@@ -34,6 +31,7 @@
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
+#include "posixy_wrapper.h"
 #include "str.h"
 
 #include <algorithm>
@@ -87,32 +85,6 @@ ChertTable_base::ChertTable_base()
 	  bit_map0(0),
 	  bit_map(0)
 {
-}
-
-ChertTable_base::ChertTable_base(const ChertTable_base &other)
-	: revision(other.revision),
-	  block_size(other.block_size),
-	  root(other.root),
-	  level(other.level),
-	  bit_map_size(other.bit_map_size),
-	  item_count(other.item_count),
-	  last_block(other.last_block),
-	  have_fakeroot(other.have_fakeroot),
-	  sequential(other.sequential),
-	  bit_map_low(other.bit_map_low),
-	  bit_map0(0),
-	  bit_map(0)
-{
-    try {
-	bit_map0 = new byte[bit_map_size];
-	bit_map = new byte[bit_map_size];
-
-	memcpy(bit_map0, other.bit_map0, bit_map_size);
-	memcpy(bit_map, other.bit_map, bit_map_size);
-    } catch (...) {
-	delete [] bit_map0;
-	delete [] bit_map;
-    }
 }
 
 void
@@ -195,12 +167,7 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
 		      string &err_msg)
 {
     string basename = name + "base" + ch;
-#ifdef __WIN32__
-    FD h(msvc_posix_open(basename.c_str(), O_RDONLY | O_BINARY));
-#else
-    FD h(open(basename.c_str(), O_RDONLY | O_BINARY));
-#endif
-
+    FD h(posixy_open(basename.c_str(), O_RDONLY | O_CLOEXEC));
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
@@ -236,7 +203,7 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
     if (have_fakeroot && !sequential) {
 	sequential = true; // FIXME : work out why we need this...
 	/*
-	err_msg += "Corrupt base file, `" + basename + "':\n"
+	err_msg += "Corrupt base file, '" + basename + "':\n"
 		"sequential must be set whenever have_fakeroot is set.\n" +
 		"sequential=" + (sequential?"true":"false") +
 		", have_fakeroot=" + (have_fakeroot?"true":"false") + "\n";
@@ -330,11 +297,7 @@ ChertTable_base::write_to_file(const string &filename,
     }
     pack_uint(buf, revision);  // REVISION3
 
-#ifdef __WIN32__
-    FD h(msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY));
-#else
-    FD h(open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
-#endif
+    FD h(posixy_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666));
     if (h < 0) {
 	string message = string("Couldn't open base ")
 		+ filename + " to write: " + strerror(errno);
@@ -507,39 +470,25 @@ ChertTable_base::block_free_now(uint4 n)
 void
 ChertTable_base::calculate_last_block()
 {
-    if (bit_map_size == 0) {
-	last_block = 0;
-	return;
-    }
     int i = bit_map_size - 1;
-    while (bit_map[i] == 0 && i > 0) {
+    while (i >= 0 && bit_map[i] == 0) {
 	i--;
     }
     bit_map_size = i + 1;
 
-    int x = bit_map[i];
-
     /* Check for when there are no blocks */
-    if (x == 0) {
+    if (bit_map_size == 0) {
 	last_block = 0;
 	return;
     }
+
+    int x = bit_map[i];
+
     uint4 n = (i + 1) * CHAR_BIT - 1;
     int d = 0x1 << (CHAR_BIT - 1);
     while ((x & d) == 0) { d >>= 1; n--; }
 
     last_block = n;
-}
-
-bool
-ChertTable_base::is_empty() const
-{
-    for (uint4 i = 0; i < bit_map_size; i++) {
-	if (bit_map[i] != 0) {
-	    return false;
-	}
-    }
-    return true;
 }
 
 void

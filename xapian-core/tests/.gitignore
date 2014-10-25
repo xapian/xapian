@@ -53,6 +53,7 @@
 /api_queryopt.h
 /api_scalability.h
 /api_serialise.h
+/api_snipper.h
 /api_sorting.h
 /api_spelling.h
 /api_stem.h
@@ -60,6 +61,7 @@
 /api_unicode.h
 /api_valuestats.h
 /api_valuestream.h
+/api_weight.h
 /api_wrdb.h
 /perflog.xml
 /submitperftest

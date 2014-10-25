@@ -188,10 +188,37 @@ which you might find useful:
   XAPIAN_TESTSUITE_LD_PRELOAD:
     The runtest script will add this to LD_PRELOAD if it is set, allowing you
     to easily load LD_PRELOAD libraries when running the testsuite.  The
-    intended use is to allow use of libeatmydata
-    (http://www.flamingspork.com/projects/libeatmydata/) which makes fsync
-    and related calls no-ops.  Since the testsuite does a lot of small
-    database operations, this can speed up running the testsuite substantially.
+    original intended use was to allow use of libeatmydata
+    (https://www.flamingspork.com/projects/libeatmydata/) which makes fsync
+    and related calls no-ops, but configure now checks for the eatmydata
+    wrapper script and this is used automatically.  However, there may be
+    other LD_PRELOAD libraries which are useful, so we've left the machinery
+    in place.
+
+Speeding up the testsuite with eatmydata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The testsuite does a lot of small database operations, and the calls to fsync,
+fdatasync, etc which Xapian makes by default can slow down testsuite runs
+substantially.  There's a handy LD_PRELOAD library called eatmydata
+(http://www.flamingspork.com/projects/libeatmydata/), which can help here, by
+turning fsync and related calls into no-ops.
+
+You need a version of eatmydata with the eatmydata wrapper script (version 37
+or newer), and then configure should auto-detect it and it'll get used when
+running the testsuite (via runtest).  If you wish to disable this
+auto-detection for some reason, you can run configure with:
+
+./configure EATMYDATA=
+
+Or you can disable use of eatmydata during a particular run of "make check"
+like so:
+
+make check EATMYDATA=
+
+Or disable it while running a test directly (under sh or bash):
+
+EATMYDATA= ./runtest ./apitest
 
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
@@ -237,22 +264,27 @@ To use Insure (another proprietary tool):
 
   ./configure CXX=insure
 
-To use lcov to generate a test coverage report there are two make targets:
+To use lcov (at least version 1.10) to generate a test coverage report (see
+`lcov.xapian.org <http://lcov.xapian.org/>`_ for reports) there are two make
+targets:
 
   * coverage-reconfigure: reruns configure in the source tree.  See
     Makefile.am for details of the configure options used and why they
     are needed.
   
   * coverage-check: runs "make check" and generates an HTML report in a
-    directory called "lcov".
+    directory called "lcov".  You can specify extra arguments to pass to the
+    ``genhtml`` tool using GENHTML_ARGS, like so::
+
+    make coverage-check GENHTML_ARGS=--html-gzip
 
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
 
-SVN Snapshots
-=============
+Snapshots
+=========
 
-If you want to try unreleased Xapian code, you can fetch it from our SVN
+If you want to try unreleased Xapian code, you can fetch it from our git
 repository.  For convenience, we also provide bootstrapped tarballs (much like
 the sourcecode download for any release version) which get built every 20
 minutes if there have been any changes checked in.  These tarballs need to
@@ -260,15 +292,16 @@ pass "make distcheck" to be automatically uploaded, so using them will help
 to assure that you don't pick a "bad" version.  The snapshots are available
 from the "Bleeding Edge" page of the Xapian website.
 
-Building from SVN or git
-========================
+Building from git
+=================
 
-When building from an SVN or git checkout, we *strongly* recommend that you use
+When building from a git checkout, we *strongly* recommend that you use
 the ``bootstrap`` script in the top level directory to set up the tree ready
 for building.  This script will check which directories you have checked out,
-so you can bootstrap a partial tree.
+so you can bootstrap a partial tree.  You can also ``touch .nobootstrap`` in
+a subdirectory to tell bootstrap to ignore it.
 
-You will need the following tools installed to build from SVN or git:
+You will need the following tools installed to build from git:
 
 * GNU m4 (for autoconf)
 * perl 5 (for automake; also for various maintainer scripts)
@@ -276,11 +309,12 @@ You will need the following tools installed to build from SVN or git:
 * GNU make (or another make which support VPATH for explicit rules)
 * GNU flex (for building doxygen)
 * GNU bison (for building doxygen)
+* Tcl (to generate unicode/unicode-data.cc)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison tcl
 
 If you want to build Omega, you'll also need::
 
@@ -290,7 +324,13 @@ On Fedora, the uuid library can be installed by doing::
 
     yum install libuuid-devel
 
-If building from git, you'll also need git-svn installed.
+On Mac OS X, if you're using macports you'll want the following:
+
+  * file (magic.h in configure)
+
+If you're using homebrew you'll want the following::
+
+    brew install libmagic pcre
 
 If you're doing much development work, you'll probably also want the following
 tools installed:
@@ -305,11 +345,12 @@ parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
 the repo directly (in the case of Snowball and Lemon), or pull them in to a
-checkout using svn:externals or git-svn (SWIG), or the bootstrap script will
-lazily download, build, and install them within the source tree (autoconf,
+checkout using svn:externals or git or git-svn (SWIG), or the bootstrap script
+will lazily download, build, and install them within the source tree (autoconf,
 automake, libtool, and doxygen).  To download the source tarballs for these,
-bootstrap will use wget or curl if installed.  If not, it will give an error
-telling you the URL to download from by hand and where to copy the file to.
+bootstrap will use wget, curl or lwp-request if installed.  If not, it will
+give an error telling you the URL to download from by hand and where to copy
+the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -341,7 +382,7 @@ If you wish to prevent bootstrap from downloading and building the autotools
 pass the --without-autotools option.  You can force it to delete the downloaded
 and installed versions by passing --clean.
 
-If you are tracking development in SVN or git, there will sometimes be changes
+If you are tracking development in git, there will sometimes be changes
 to the build system sources which require regeneration of the generated
 makefiles and associated machinery.  We aim to make the build system
 automatically regenerate the necessary files, but in the event that a build
@@ -363,27 +404,72 @@ documentation), but you can configure and build.
 
 The documentation tools are:
 
-* doxygen (v1.7.6.1 is used for 1.3.x snapshots and releases; 1.4.6 produced
-  incomplete documentation for Xapian::Query).
+* doxygen (v1.8.7 is used for 1.3.x snapshots and releases; 1.7.6.1 fails to
+  process trunk after PL2Weight was added).
 * dot (part of Graphviz.  Doxygen's DOT_MULTI_TARGETS option apparently needs
   ">1.8.10")
-* gs (part of Ghostscript)
-* pdflatex (in texlive-latex-base on Debian/Ubuntu)
-* epstopdf (in texlive-extra-utils on Debian/Ubuntu)
-* makeindex (in texlive-base-bin on Debian/Ubuntu)
 * help2man
 * rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
+* sphinx-doc (in python-sphinx and python3-sphinx on Debian/Ubuntu, or as
+  sphinx via pip install)
+
+For a recent version of Debian or Ubuntu, this command should install all the
+required documentation tools::
+
+    apt-get install doxygen graphviz help2man python-docutils pngcrush python-sphinx python3-sphinx
+
+On Mac OS X, if you're using homebrew, you'll want the following::
+
+    brew install help2man graphviz
+
+If you installed graphviz by using homebrew but get the following error when
+running the configure script::
+
+    configure: error: dot (part of the graphviz package) is required to build documentation
+
+Suppose you are using graphviz 2.36.0, you can type the following into
+terminal and rerun the configure script::
+
+    ln -s /usr/local/Cellar/graphviz/2.36.0/bin/dot /usr/local/bin/dot
+
+PDF versions of docs
+~~~~~~~~~~~~~~~~~~~~
+
+As of 1.3.2, we no longer build PDF versions of the API docs by default, but
+you can build them yourself with::
+
+    make -C docs apidoc.pdf
+
+Additional tools are needed for these:
+
+* gs (part of Ghostscript)
+* pdflatex (in texlive-latex-base on Debian/Ubuntu)
+* epstopdf (in texlive-extra-utils on Debian/Ubuntu)
+* makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
 path (as specified by the environmental variable PATH), since doxygen will look
 for them there.
 
-For a recent version of Debian or Ubuntu, this command should install all the
-required documentation tools::
+For a recent version of Debian or Ubuntu, this command should install these
+extra tools::
 
-    apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+    apt-get install ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended
+
+On Mac OS X, if you're using macports you'll want the following:
+
+  * texlive (pdflatex during build)
+  * texlive-basic (for makeindex in configure)
+  * texlive-latex-extra (latex style)
+
+Alternatively, you can install MacTeX from http://www.tug.org/mactex/ instead
+of texlive, texlive-basic and texlive-latex-extra.
+
+The homebrew texlive package only supports 32 bit systems, so even if you're
+using homebrew, you'll probably want to install MacTeX from
+http://www.tug.org/mactex/ instead.
 
 Autotools versions
 ------------------
@@ -402,15 +488,13 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.12 is used to generate snapshots and releases.
+* automake 1.14.1 is used to generate snapshots and releases.
 
-  automake 1.10.2 is a hard minimum requirement.
+  automake 1.12.2 is a hard minimum requirement.  This version fixes a
+  security issue (CVE-2012-3386) in the generated `make distcheck` rules.
 
-  automake 1.10 requires autoconf 2.60 and Perl 5.6.
-
-  automake 1.10.1 fixes "make clean" to remove .libs from bin/ and examples/.
-
-  automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
+  automake 1.12 is needed to support using LOG_COMPILER to specify a testsuite
+  driver (used by xapian-bindings).
 
 * libtool 2.4.2 is used to generate snapshots and releases.
 
@@ -424,14 +508,60 @@ Please tell us if you find that newer versions of any of these tools work or
 fail to work.
 
 There is a good GNU autotools tutorial at
-<http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
+<http://www.lrde.epita.fr/~adl/autotools.html>.
 
-Building from SVN on Windows with MSVC
+Building from git on Windows with MSVC
 --------------------------------------
 
 The windows build process is maintained in the xapian-maintainer-tools
-directory in the subversion repository.  See the win32msvc/README file in that
-directory for details of how to build from subversion.
+directory in the Xapian git repository.  See the win32msvc/README file in that
+directory for details of how to build from git.
+
+Using a Vagrant-driven Ubuntu virtual machine
+---------------------------------------------
+
+Note: Vagrant support is experimental. Please report bugs in the
+normal fashion, to http://trac.xapian.org/newticket, or ask for help
+on the #xapian IRC channel on Freenode.
+
+If you have Vagrant (http://www.vagrantup.com/, tested on version
+1.5.2) and VirtualBox (https://www.virtualbox.org/, tested on version
+4.3.10) installed, `vagrant up` will make a virtual machine suitable
+for developing Xapian:
+
+ * Ubuntu 13.04 with all packages needed to build Xapian and its
+   documentation
+
+ * eatmydata (to speed up test runs) and valgrind (for debugging
+   memory allocations) both also installed
+
+ * source code from this checkout in /vagrant; edit it on your host
+   operating system and changes are reflected in the VM. The source
+   tree is bootstrapped automatically (ensuring that the right
+   versions of the build tools are available on the VM)
+
+ * build tree in /home/vagrant/build, configured to install into
+   /home/vagrant/install, with maintainer mode and documentation
+   both enabled
+
+Setting up can take a long time, as it downloads a minimal base box
+and then installs all the required packages; once this is done you
+don't have to wait so long if you need to reprovision the VM. (Once
+Ubuntu 14.04 is released the plan is to build our own base box with
+these packages already installed, which should make the process much
+faster.)
+
+`vagrant ssh` will log you into the VM, and you can type `cd build &&
+make` to build Xapian. `make check` will run the tests.
+
+(As noted above, in maintainer mode most changes that require
+reconfiguration will happen automatically. If you need to do it by
+hand you can either run the configure command yourself, or you can run
+`vagrant provision`, which also checks for any system package
+updates.)
+
+The VM has a single 64 bit virtual processor, with 384M of memory; it
+takes about 8G of disk space once up and running.
 
 Use of C++ Features
 ===================
@@ -521,7 +651,11 @@ To help us move towards a consistent ordering of #include lines in source
 files, please follow the following policy when ordering them:
 
 * #include <config.h> should be first, and use <> not "" (as recommended by the
-  autoconf manual).
+  autoconf manual).  Always include config.h from C/C++ source files, but don't
+  include it from header files - the autoconf manual recommends that it should
+  be included first, so including it from headers is either redundant, or may
+  hide a missing config.h include in the source file the header was included
+  from (better to get an error in this case).
 
 * The header corresponding to the source file should be next. This means that
   compilation of the library ensures that each header with a corresponding
@@ -599,6 +733,13 @@ Don't directly '#include <sys/select.h>' - instead '#include "safesysselect.h"'
 which supports older UNIX platforms which predate POSIX 1003.1-2001 and works
 around a problem on Solaris.
 
+<sys/socket.h>:
+---------------
+
+Don't directly '#include <sys/socket.h>' - instead '#include "safesyssocket.h"'
+which supports older UNIX platforms which predate POSIX 1003.1-2001 and works
+on Windows too.
+
 <sys/stat.h>:
 -------------
 
@@ -670,8 +811,11 @@ at least GCC gives a warning).
 Branch Prediction Hints
 =======================
 
-GCC 3.0 and newer and Intel's C++ compiler both provide a mechanism for giving
-the compiler hints to assist branch prediction (using ``__builtin_expect()``).
+For compilers which support ``__builtin_expect()`` (GCC >= 3.0 and some others)
+you can provide manual hints to assist branch prediction.  We've wrapped these
+in macros which evaluate to just their argument for compilers which don't
+support ``__builtin_expect()__``.
+
 Within the xapian-core library code, you can mark the expressions in ``if`` and
 ``while`` statements as ``rare`` (if the condition is rarely true) or ``usual``
 (if the condition is usually true).
@@ -768,9 +912,10 @@ Here's an incomplete list of things to avoid:
   Note that versions of these (GNU versions in particular) support switches
   which aren't portable - notably, "test -r" isn't portable; neither is
   "cp -a".  And note that "mkdir -p" isn't portable - the semantics vary.
-  See the "Goat Book" for more details and other useful tips:
+  The autoconf manual has some useful information about writing portable
+  shell code (most of it not specific to autoconf)::
 
-    http://sources.redhat.com/autobook/
+    http://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
 
 * Don't use "include" - it's not present in BSD make (at least some versions
   have ".include" instead, but that doesn't really seem to help...)  Automake
@@ -1235,8 +1380,8 @@ so please check with your employer if this applies.  Be aware that even if you
 are a student your university may try and claim some rights on code which you
 write.
 
-Patches which are submitted to Xapian will only be included if they are
-licensed for distribution under each of the following licenses:
+Patches which are submitted to Xapian will only be included if the copyright
+holder(s) dual-license them under each of the following licences:
 
  - GPL version 2 and all later versions (see the file "COPYING" for details).
  - MIT/X license::
@@ -1425,12 +1570,22 @@ single "tab" character!
 Don't forget to remove (or rename) this and check the documentation builds
 before committing or generating a patch though!
 
+If you are using an editor or other tool capable of running syntax checks as you
+work there you can use the `make` target 'check-syntax'. For 'emacs' users this
+works well with 'flymake'. Usage from a shell::
+
+    make check-syntax check_sources=api/omdatabase.cc
+
+
 How to make a release
 =====================
 
 This is a (hopefully complete) list of the jobs which need doing:
 
 * Email Fabrice Colin and Tim Brody so they can check RPM packaging.
+
+* Check if `config/config.guess` and `config/config.sub` need updating to
+  more recent versions from http://git.savannah.gnu.org/gitweb/?p=config.git
 
 * Check the revision currently specified in the svn:externals property of
   xapian-applications/omega.  Unless there's a good reason, we should release
@@ -1479,15 +1634,12 @@ This is a (hopefully complete) list of the jobs which need doing:
   date of this release and adding an entry for the next release with an
   estimated release date.
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
+* Update the website: `generate` in the CVS module www.xapian.org contains the
   latest version and the date it was released.
 
 * Run /home/olly/tmp/xapian-website-update/update_website.sh
 
 * Announce the new version on xapian-discuss
-
-* Update the freshcode entry at:
-  http://freecode.com/projects/xapian/releases/new
 
 * Have a nice cup of tea!
 
@@ -1551,4 +1703,4 @@ updated as follows:
    dput xapian-backports build/xapian-[bo]*99*_source.changes
    dput xapian-backports build/libsearch-xapian-perl*_source.changes
 
-.. vim: syntax=
+.. vim: syntax=rst

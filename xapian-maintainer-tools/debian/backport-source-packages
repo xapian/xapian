@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -27,13 +27,13 @@ set -e
 #MIRROR=http://ftp.de.debian.org/debian/
 MIRROR=http://ftp.nz.debian.org/debian/
 
-DEBIAN_CODENAMES='squeeze lenny'
-UBUNTU_CODENAMES='oneiric natty maverick lucid'
+DEBIAN_CODENAMES='wheezy squeeze'
+UBUNTU_CODENAMES='saucy raring quantal precise oneiric lucid'
 
 V_OPT=
 case $1 in
 -v)
-  V_OPT="$1 $2"
+  V_OPT="$1$2"
   shift
   shift
   ;;
@@ -46,7 +46,7 @@ esac
 if [ x"$1" = x--help -o $# -lt 2 ] ; then
   echo "Usage: $0 [-v <last uploaded version>] SOURCE_PKG VERSION [CODENAME...]"
   echo
-  echo "e.g.: $0 xapian-core 1.2.5-1 lucid"
+  echo "e.g.: $0 xapian-core 1.2.15-1 precise"
   echo 'If no codenames are specified, the default is to backport for all of them.'
   echo
   echo "Currently, the recognised values are:"
@@ -92,14 +92,20 @@ adjust_changelog() {
 
 build_it() {
   adjust_changelog
-  # The default -si only looks for *exactly* -0 or -1.
-  # FIXME: We don't really want to upload the orig tarball for all Ubuntu
-  # backports, only if it isn't already in the archive.  So for now, just
-  # upload it for lucid as that gets uploaded first in alphabetical order.
-  include_src_opt=-sa
-  case $PKG in
-    libsearch-xapian-perl|survex) ;;
+
+  case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
+    '')
+      echo 'Failed to grep debian/rules'
+      exit 1
+      ;;
+    [01])
+      # Run maintclean and maint targets, if they exist.
+      fakeroot debian/rules maintclean || true
+      fakeroot debian/rules maint || true
+      ;;
     *)
+      # If debian/rules has at least two non-commented out references to
+      # CODENAME then create debian/codename.
       echo "$CODENAME" > debian/codename
       # Generates control from control.in (and maybe other files).
       fakeroot debian/rules maintclean CODENAME="$CODENAME"
@@ -107,16 +113,22 @@ build_it() {
       ;;
   esac
 
-  if [ 1 = "$ubuntu" ] ; then
-    # Ubuntu
-    [ lucid = "$CODENAME" ] || include_src_opt=-sd
-    debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
+  # We don't really want to upload the orig tarball for all Ubuntu backports,
+  # only if it isn't already in the archive.  So for now, just upload it for
+  # lucid as that gets uploaded first in alphabetical order.
+  if [ lucid = "$CODENAME" ] ; then
+    include_src_opt=-sa
   else
+    # The default is -si, which used to check for -0 or -1, but now looks for
+    # a change in upstream version number.  Once that change is in all releases
+    # we care about, we can remove this setting (FIXME).
+    include_src_opt=-sd
+  fi
+  debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
+
+  if [ 1 != "$ubuntu" ] ; then
     # Debian
-    DIST="$CODENAME" pdebuild --debbuildopts "$V_OPT $include_src_opt" --buildresult .. -- --override-config --configfile "`pwd`/../../pbuilderrc"
-    if [ x"$PKG" = xxapian-core ] ; then
-      DIST="$CODENAME" pbuilder update --override-config --configfile "`pwd`/../../pbuilderrc"
-    fi
+    echo "sbuild --debbuildopt=$V_OPT -d $CODENAME-backports ${PKG}_$backport_version.dsc"
   fi
 }
 
@@ -132,6 +144,10 @@ for CODENAME in $CODENAMES ; do
   UBUNTU_CODENAMES_RE='\('`echo "$UBUNTU_CODENAMES"|sed 's/ /\\\|/g'`'\)$'
   if expr "$CODENAME" : "$DEBIAN_CODENAMES_RE" >/dev/null ; then
     echo "Making source packages for $CODENAME"
+    if [ -z "$V_OPT" ] ; then
+      echo 'You need to specify -v<last backported version> for debian backports'
+      exit 1
+    fi
   elif expr "$CODENAME" : "$UBUNTU_CODENAMES_RE" >/dev/null ; then
     echo "Making source packages for $CODENAME"
     ubuntu=1
@@ -154,10 +170,10 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # backports.org-compatible package versions - e.g. we append "~bpo60+1" for
 # Debian 6.0 (squeeze) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+wheezy)
+  BACKPORT_SUFFIX='~bpo70+1' ;;
 squeeze)
   BACKPORT_SUFFIX='~bpo60+1' ;;
-lenny)
-  BACKPORT_SUFFIX='~bpo50+1' ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
     echo "Debian codename '$CODENAME' not mapped to a ~bpoNN+1 suffix"

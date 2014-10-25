@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,10 @@
 
 #ifndef XAPIAN_INCLUDED_TERMGENERATOR_H
 #define XAPIAN_INCLUDED_TERMGENERATOR_H
+
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/termgenerator.h> directly; include <xapian.h> instead."
+#endif
 
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
@@ -82,11 +86,17 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Set the database to index spelling data to.
     void set_database(const Xapian::WritableDatabase &db);
 
+    /// For backward comptibility with Xapian 1.2
+    typedef int flags;
+
     /// Flags to OR together and pass to TermGenerator::set_flags().
-    enum flags {
+    enum {
 	/// Index data required for spelling correction.
 	FLAG_SPELLING = 128 // Value matches QueryParser flag.
     };
+
+    /// Stemming strategies, for use with set_stemming_strategy().
+    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
 
     /** Set flags.
      *
@@ -101,6 +111,38 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *  @return		The old flags setting.
      */
     flags set_flags(flags toggle, flags mask = flags(0));
+
+    /** Set the stemming strategy.
+     *
+     *  This method controls how the stemming algorithm is applied.  It was
+     *  new in Xapian 1.3.1.
+     *
+     *  @param strategy	The strategy to use - possible values are:
+     *   - STEM_NONE:	Don't perform any stemming - only unstemmed terms
+     *			are generated.
+     *   - STEM_SOME:	Generate both stemmed (with a "Z" prefix) and unstemmed
+     *			terms.  This is the default strategy.
+     *   - STEM_ALL:	Generate only stemmed terms (but without a "Z" prefix).
+     *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
+     */
+    void set_stemming_strategy(stem_strategy strategy);
+
+    /** Set the maximum length word to index.
+     *
+     *  The limit is on the length of a word prior to stemming and prior to
+     *  adding any term prefix.
+     *
+     *  The backends mostly impose a limit on the length of terms (often of
+     *  about 240 bytes), but it's generally useful to have a lower limit to
+     *  help prevent the index being bloated by useless junk terms from trying
+     *  to indexing things like binary data, uuencoded data, ASCII art, etc.
+     *
+     *  This method was new in Xapian 1.3.1.
+     *
+     *  @param max_word_length	The maximum length word to index, in bytes in
+     *				UTF-8 representation.  Default is 64.
+     */
+    void set_max_word_length(unsigned max_word_length);
 
     /** Index some text.
      *

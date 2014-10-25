@@ -44,6 +44,8 @@ class MyExpandDecider extends ExpandDecider {
 
 public class SmokeTest {
     public static void main(String[] args) throws Exception {
+	TermGenerator termGenerator = new TermGenerator();
+	termGenerator.setFlags(TermGenerator.FLAG_SPELLING);
 	try {
 	    Stem stem = new Stem("english");
 	    if (!stem.toString().equals("Xapian::Stem(english)")) {
@@ -69,7 +71,7 @@ public class SmokeTest {
 	    doc.addPosting(stem.apply("anybody"), 3);
 	    doc.addPosting(stem.apply("out"), 4);
 	    doc.addPosting(stem.apply("there"), 5);
-// FIXME: was WritableDatabase db = Xapian.InMemory.open();
+	    // FIXME: was WritableDatabase db = Xapian.InMemory.open();
 	    WritableDatabase db = InMemory.open();
 	    db.addDocument(doc);
 	    if (db.getDocCount() != 1) {
@@ -112,19 +114,34 @@ public class SmokeTest {
 		System.err.println("Unexpected mset.size()");
 		System.exit(1);
 	    }
-/*
+	    MSetIterator m_itor = mset.begin();
+	    Document m_doc = null;
+	    long m_id;
+	    while(m_itor.hasNext()) {
+		m_id = m_itor.next();
+		if(m_itor.hasNext()) {
+		    m_doc = mset.getDocument(m_id);
+		}
+	    }
+
+	    // Only one doc exists in this mset
+	    if(m_doc != null && m_doc.getDocId() != 0) {
+		System.err.println("Unexpected docid");
+		    System.exit(1);
+	    }
+
 	    String term_str = "";
-	    TermIterator itor = enq.getMatchingTerms(mset.getElement(0));
+	    TermIterator itor = enq.getMatchingTermsBegin(mset.getElement(0));
 	    while (itor.hasNext()) {
 		term_str += itor.next();
-		if (itor.hasNext()) term_str += ' ';
+		if (itor.hasNext())
+		    term_str += ' ';
 	    }
 	    if (!term_str.equals("is there")) {
 		System.err.println("Unexpected term_str");
 		System.exit(1);
 	    }
-*/
-/*
+/* FIXME:dc: Fails since Xapian::Error is still unmapped
 	    boolean ok = false;
 	    try {
 		Database db_fail = new Database("NOsuChdaTabASe");
@@ -153,10 +170,9 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 
-/*
-	    ESetIterator eit = eset.iterator();
 	    int count = 0;
-	    while (eit.hasNext()) {
+	    for(ESetIterator eit = eset.begin(); eit.hasNext(); ) {
+	    // for (int i = 0; i < eset.size(); i++) {
 		if (eit.getTerm().charAt(0) == 'a') {
 		    System.err.println("MyExpandDecider wasn't used");
 		    System.exit(1);
@@ -166,9 +182,9 @@ public class SmokeTest {
 	    }
 	    if (count != eset.size()) {
 		System.err.println("ESet.size() mismatched number of terms returned by ESetIterator");
+		System.err.println(count + " " + eset.size());
 		System.exit(1);
 	    }
-*/
 
 /*
 	    MSet mset2 = enq.getMSet(0, 10, null, new MyMatchDecider());

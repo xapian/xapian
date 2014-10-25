@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -29,7 +29,7 @@
 
 #include <xapian.h>
 
-#include "backendmanager.h" // For XAPIAN_BIN_PATH.
+#include "filetests.h"
 #include "omassert.h"
 #include "str.h"
 #include "testsuite.h"
@@ -424,8 +424,10 @@ DEFINE_TESTCASE(adddoc5, writable) {
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_wdf(), j.get_wdf());
+		// Actually use termfreq to stop compiler optimising away the
+		// call to get_termfreq().
 		TEST_EXCEPTION(Xapian::InvalidOperationError,
-			       (void)i.get_termfreq());
+			       if (i.get_termfreq()) return false);
 		TEST_NOT_EQUAL(0, j.get_termfreq());
 		if (*i == "foobar") {
 		    // termfreq of foobar is 2
@@ -1495,7 +1497,10 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, brass || chert) {
+DEFINE_TESTCASE(crashrecovery1, chert) {
+    // Brass has a single version file per revision, rather than multiple base
+    // files, so it simply can't get into the situations we are testing
+    // recovery from.
     const string & dbtype = get_dbtype();
     string path = ".";
     path += dbtype;
@@ -1509,6 +1514,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 	TEST_EQUAL(dbr.get_doccount(), 0);
 
 	// Xapian::Database has full set of baseA, no baseB
+	TEST(file_exists(path + "/postlist.baseA"));
+	TEST(file_exists(path + "/record.baseA"));
+	TEST(file_exists(path + "/termlist.baseA"));
+	TEST(!file_exists(path + "/postlist.baseB"));
+	TEST(!file_exists(path + "/record.baseB"));
+	TEST(!file_exists(path + "/termlist.baseB"));
 
 	db.add_document(doc);
 	db.commit();
@@ -1516,6 +1527,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 	TEST_EQUAL(dbr.get_doccount(), 1);
 
 	// Xapian::Database has full set of baseB, old baseA
+	TEST(file_exists(path + "/postlist.baseA"));
+	TEST(file_exists(path + "/record.baseA"));
+	TEST(file_exists(path + "/termlist.baseA"));
+	TEST(file_exists(path + "/postlist.baseB"));
+	TEST(file_exists(path + "/record.baseB"));
+	TEST(file_exists(path + "/termlist.baseB"));
 
 	db.add_document(doc);
 	db.commit();
@@ -1523,6 +1540,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 	TEST_EQUAL(dbr.get_doccount(), 2);
 
 	// Xapian::Database has full set of baseA, old baseB
+	TEST(file_exists(path + "/postlist.baseA"));
+	TEST(file_exists(path + "/record.baseA"));
+	TEST(file_exists(path + "/termlist.baseA"));
+	TEST(file_exists(path + "/postlist.baseB"));
+	TEST(file_exists(path + "/record.baseB"));
+	TEST(file_exists(path + "/termlist.baseB"));
 
 	// Simulate a transaction starting, some of the baseB getting removed,
 	// but then the transaction fails.
@@ -1535,6 +1558,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
 
     Xapian::WritableDatabase db(path, Xapian::DB_OPEN);
     // Xapian::Database has full set of baseA, some old baseB
+    TEST(file_exists(path + "/postlist.baseA"));
+    TEST(file_exists(path + "/record.baseA"));
+    TEST(file_exists(path + "/termlist.baseA"));
+    TEST(file_exists(path + "/postlist.baseB"));
+    TEST(!file_exists(path + "/record.baseB"));
+    TEST(!file_exists(path + "/termlist.baseB"));
     Xapian::Database dbr = Xapian::Database(path);
 
     db.add_document(doc);
@@ -1543,6 +1572,12 @@ DEFINE_TESTCASE(crashrecovery1, brass || chert) {
     TEST_EQUAL(dbr.get_doccount(), 3);
 
     // Xapian::Database has full set of baseB, old baseA
+    TEST(file_exists(path + "/postlist.baseA"));
+    TEST(file_exists(path + "/record.baseA"));
+    TEST(file_exists(path + "/termlist.baseA"));
+    TEST(file_exists(path + "/postlist.baseB"));
+    TEST(file_exists(path + "/record.baseB"));
+    TEST(file_exists(path + "/termlist.baseB"));
 
     db.add_document(doc);
     db.commit();
@@ -1844,17 +1879,8 @@ DEFINE_TESTCASE(cursordelbug1, brass || chert) {
 
     db.commit();
 
-    string cmd = XAPIAN_BIN_PATH"xapian-check ";
-    cmd += get_named_writable_database_path("cursordelbug1");
-#ifdef __WIN32__
-    cmd += " >nul";
-#else
-    cmd += " >/dev/null";
-#endif
-    if (system(cmd.c_str()) != 0)
-	return false;
-
-    return true;
+    const string & db_path = get_named_writable_database_path("cursordelbug1");
+    return Xapian::Database::check(db_path) == 0;
 }
 
 /** Helper function for modifyvalues1.
@@ -1864,7 +1890,7 @@ static void
 check_vals(const Xapian::Database & db, const map<Xapian::docid, string> & vals)
 {
     TEST_EQUAL(db.get_doccount(), vals.size());
-    if (vals.size() == 0) return;
+    if (vals.empty()) return;
     TEST_REL(vals.rbegin()->first,<=,db.get_lastdocid());
     map<Xapian::docid, string>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {

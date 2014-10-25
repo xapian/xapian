@@ -139,13 +139,16 @@ AndNotPostList::get_termfreq_est_using_stats(
     TermFreqs lfreqs(l->get_termfreq_est_using_stats(stats));
     TermFreqs rfreqs(r->get_termfreq_est_using_stats(stats));
 
-    double freqest, relfreqest;
+    double freqest, relfreqest, collfreqest;
 
     // Our caller should have ensured this.
     Assert(stats.collection_size);
 
     freqest = lfreqs.termfreq *
 	    (1.0 - (double(rfreqs.termfreq) / stats.collection_size));
+
+    collfreqest = lfreqs.collfreq *
+	    (1.0 - (double(rfreqs.collfreq) / stats.total_term_count));
 
     if (stats.rset_size == 0) {
 	relfreqest = 0;
@@ -155,7 +158,8 @@ AndNotPostList::get_termfreq_est_using_stats(
     }
 
     RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-		     static_cast<Xapian::doccount>(relfreqest + 0.5)));
+		     static_cast<Xapian::doccount>(relfreqest + 0.5),
+		     static_cast<Xapian::termcount>(collfreqest + 0.5)));
 }
 
 Xapian::docid
@@ -208,6 +212,13 @@ AndNotPostList::get_doclength() const
 {
     LOGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_doclength", NO_ARGS);
     RETURN(l->get_doclength());
+}
+
+Xapian::termcount
+AndNotPostList::get_unique_terms() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_unique_terms", NO_ARGS);
+    RETURN(l->get_unique_terms());
 }
 
 Xapian::termcount

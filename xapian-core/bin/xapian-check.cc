@@ -2,7 +2,7 @@
  * @brief Tool to check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,7 @@ static void show_usage() {
 " F = attempt to fix a broken database (implemented for chert currently)\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
-" b = show bitmap\n"
+" b = show free blocks\n"
 " v = show stats about B-tree (default)\n"
 " + = same as tbv\n"
 " e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
@@ -75,11 +75,11 @@ main(int argc, char **argv)
 	switch (*p) {
 	    case 't': opts |= Xapian::DBCHECK_SHORT_TREE; break;
 	    case 'f': opts |= Xapian::DBCHECK_FULL_TREE; break;
-	    case 'b': opts |= Xapian::DBCHECK_SHOW_BITMAP; break;
+	    case 'b': opts |= Xapian::DBCHECK_SHOW_FREELIST; break;
 	    case 'v': opts |= Xapian::DBCHECK_SHOW_STATS; break;
 	    case '+':
 		opts |= Xapian::DBCHECK_SHORT_TREE;
-		opts |= Xapian::DBCHECK_SHOW_BITMAP;
+		opts |= Xapian::DBCHECK_SHOW_FREELIST;
 		opts |= Xapian::DBCHECK_SHOW_STATS;
 		break;
 	    case 'F':
@@ -93,7 +93,7 @@ main(int argc, char **argv)
     }
 
     try {
-	size_t errors = Xapian::Database::check(argv[1], opts);
+	size_t errors = Xapian::Database::check(argv[1], opts, &cout);
 	if (errors > 0) {
 	    cout << "Total errors found: " << errors << endl;
 	    exit(1);

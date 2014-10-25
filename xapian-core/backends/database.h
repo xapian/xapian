@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2013,2014 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -45,9 +45,6 @@ class RemoteDatabase;
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
 typedef Xapian::ValueIterator::Internal ValueList;
-
-// Used by brass and chert.
-const int XAPIAN_DB_READONLY = 0;
 
 namespace Xapian {
 
@@ -142,24 +139,24 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	virtual Xapian::termcount get_doclength(Xapian::docid did) const = 0;
 
-	/** Return the number of documents indexed by a given term.  This
-	 *  may be an approximation, but must be an upper bound (ie,
-	 *  greater or equal to the true value), and should be as accurate
-	 *  as possible.
+	/** Get the number of unique term in document.
 	 *
-	 *  @param tname  The term whose term frequency is being requested.
+	 *  @param did  The document id of the document whose number of terms is
+	 *		being requested.
 	 */
-	virtual Xapian::doccount get_termfreq(const string & tname) const = 0;
+	virtual	Xapian::termcount get_unique_terms(Xapian::docid did) const = 0;
 
-	/** Return the total number of occurrences of the given term.  This
-	 *  is the sum of the number of occurrences of the term in each
-	 *  document: ie, the sum of the within document frequencies of the
-	 *  term.
+	/** Returns frequencies for a term.
 	 *
-	 *  @param tname  The term whose collection frequency is being
-	 *                requested.
+	 *  @param term		The term to get frequencies for
+	 *  @param termfreq_ptr	Point to return number of docs indexed by @a
+	 *			term (or NULL not to return)
+	 *  @param collfreq_ptr	Point to return number of occurrences of @a
+	 *			term in the database (or NULL not to return)
 	 */
-	virtual Xapian::termcount get_collection_freq(const string & tname) const = 0;
+	virtual void get_freqs(const string & term,
+			       Xapian::doccount * termfreq_ptr,
+			       Xapian::termcount * collfreq_ptr) const = 0;
 
 	/** Return the frequency of a given value slot.
 	 *

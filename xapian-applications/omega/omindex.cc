@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -44,14 +44,18 @@
 
 #include <xapian.h>
 
+#include "append_filename_arg.h"
 #include "atomparse.h"
 #include "commonhelp.h"
 #include "diritor.h"
 #include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
+#include "msxmlparse.h"
 #include "myhtmlparse.h"
+#include "opendocparse.h"
 #include "pkglibbindir.h"
+#include "realtime.h"
 #include "runfilter.h"
 #include "sample.h"
 #include "str.h"
@@ -63,6 +67,7 @@
 #include "utils.h"
 #include "values.h"
 #include "xmlparse.h"
+#include "xlsxparse.h"
 #include "xpsxmlparse.h"
 
 #include "gnu_getopt.h"
@@ -80,10 +85,12 @@ static bool follow_symlinks = false;
 static bool ignore_exclusions = false;
 static bool spelling = false;
 static off_t  max_size = 0;
+static std::string pretty_max_size;
 static bool verbose = false;
 static enum {
     EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
 } empty_body = EMPTY_BODY_WARN;
+static double sleep_before_opendir = 0;
 
 static string root;
 static string site_term, host_term;
@@ -95,74 +102,62 @@ static Xapian::doccount old_docs_not_seen;
 static Xapian::docid old_lastdocid;
 static vector<bool> updated;
 
+// The longest string after a '.' to treat as an extension.  If there's a
+// longer entry in the mime_map, we set this to that length instead.
+static size_t max_ext_len = 7;
+
+static void
+mark_as_seen(Xapian::docid did)
+{
+    if (usual(did < updated.size() && !updated[did])) {
+	updated[did] = true;
+	--old_docs_not_seen;
+    }
+}
+
+static string
+mimetype_from_ext(const map<string, string> & mime_map, string ext)
+{
+    map<string,string>::const_iterator mt = mime_map.find(ext);
+    if (mt == mime_map.end()) {
+	// If the extension isn't found, see if the lower-cased version (if
+	// different) is found.
+	bool changed = false;
+	string::iterator i;
+	for (i = ext.begin(); i != ext.end(); ++i) {
+	    if (*i >= 'A' && *i <= 'Z') {
+		*i = tolower(*i);
+		changed = true;
+	    }
+	}
+	if (changed) mt = mime_map.find(ext);
+    }
+    if (mt != mime_map.end()) {
+	return mt->second;
+    }
+    return string();
+}
+
 static time_t last_mod_max;
 
 // Commands which take a filename as the last argument, and output UTF-8
-// text are common, so we handle these with a std::map.
-static map<string, string> commands;
+// text or some other mime type are common, so we handle these with a std::map.
+struct Filter {
+    string cmd;
+    string output_type;
+    Filter() : cmd(), output_type() { }
+    explicit Filter(const string & cmd_)
+	: cmd(cmd_), output_type() { }
+    Filter(const string & cmd_, const string & output_type_)
+	: cmd(cmd_), output_type(output_type_) { }
+};
+
+static map<string, Filter> commands;
 
 inline static bool
 p_notalnum(unsigned int c)
 {
     return !isalnum(static_cast<unsigned char>(c));
-}
-
-static string
-shell_protect(const string & file)
-{
-    string safefile = file;
-#ifdef __WIN32__
-    bool need_to_quote = false;
-    for (string::iterator i = safefile.begin(); i != safefile.end(); ++i) {
-	unsigned char ch = *i;
-	if (!isalnum(ch) && ch < 128) {
-	    if (ch == '/') {
-		// Convert Unix path separators to backslashes.  C library
-		// functions understand "/" in paths, but external commands
-		// generally don't, and also may interpret a leading '/' as
-		// introducing a command line option.
-		*i = '\\';
-	    } else if (ch == ' ') {
-		need_to_quote = true;
-	    } else if (ch < 32 || strchr("<>\"|*?", ch)) {
-		// Check for invalid characters in the filename.
-		string m("Invalid character '");
-		m += ch;
-		m += "' in filename \"";
-		m += file;
-		m += '"';
-		throw m;
-	    }
-	}
-    }
-    if (safefile[0] == '-') {
-	// If the filename starts with a '-', protect it from being treated as
-	// an option by prepending ".\".
-	safefile.insert(0, ".\\");
-    }
-    if (need_to_quote) {
-	safefile.insert(0, "\"");
-	safefile += '"';
-    }
-#else
-    string::size_type p = 0;
-    if (!safefile.empty() && safefile[0] == '-') {
-	// If the filename starts with a '-', protect it from being treated as
-	// an option by prepending "./".
-	safefile.insert(0, "./");
-	p = 2;
-    }
-    while (p < safefile.size()) {
-	// Don't escape some safe characters which are common in filenames.
-	unsigned char ch = safefile[p];
-	if (!isalnum(ch) && strchr("/._-", ch) == NULL) {
-	    safefile.insert(p, "\\");
-	    ++p;
-	}
-	++p;
-    }
-#endif
-    return safefile;
 }
 
 static void
@@ -181,11 +176,13 @@ parse_pdfinfo_field(const char * p, const char * end, string & out, const char *
     parse_pdfinfo_field((P), (END), (OUT), FIELD":", CONST_STRLEN(FIELD) + 1)
 
 static void
-get_pdf_metainfo(const string & safefile, string &author, string &title,
-		 string &keywords)
+get_pdf_metainfo(const string & file, string &author, string &title,
+		 string &keywords, string &topic)
 {
     try {
-	string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
+	string cmd = "pdfinfo -enc UTF-8";
+	append_filename_argument(cmd, file);
+	string pdfinfo = stdout_to_string(cmd);
 
 	const char * p = pdfinfo.data();
 	const char * end = p + pdfinfo.size();
@@ -206,6 +203,9 @@ get_pdf_metainfo(const string & safefile, string &author, string &title,
 		case 'K':
 		    PARSE_PDFINFO_FIELD(start, eol, keywords, "Keywords");
 		    break;
+		case 'S':
+		    PARSE_PDFINFO_FIELD(start, eol, topic, "Subject");
+		    break;
 		case 'T':
 		    PARSE_PDFINFO_FIELD(start, eol, title, "Title");
 		    break;
@@ -217,11 +217,12 @@ get_pdf_metainfo(const string & safefile, string &author, string &title,
 }
 
 static void
-generate_sample_from_csv(const string & csv_data, string & sample)
+generate_sample_from_csv(const string & csv_data, string & sample, size_t sample_size)
 {
     // Add 3 to allow for a 4 byte utf-8 sequence being appended when
-    // output is SAMPLE_SIZE - 1 bytes long.
-    sample.reserve(SAMPLE_SIZE + 3);
+    // output is sample_size - 1 bytes long.  Use csv_data.size() if smaller
+    // since the user might reasonably set sample_size really high.
+    sample.reserve(min(sample_size + 3, csv_data.size()));
     size_t last_word_end = 0;
     bool in_space = true;
     bool in_quotes = false;
@@ -265,11 +266,11 @@ generate_sample_from_csv(const string & csv_data, string & sample)
 	    in_space = false;
 	}
 
-	if (sample.size() >= SAMPLE_SIZE) {
+	if (sample.size() >= sample_size) {
 	    // Need to truncate sample.
-	    if (last_word_end <= SAMPLE_SIZE / 2) {
+	    if (last_word_end <= sample_size / 2) {
 		// Monster word!  We'll have to just split it.
-		sample.replace(SAMPLE_SIZE - 3, string::npos, "...", 3);
+		sample.replace(sample_size - 3, string::npos, "...", 3);
 	    } else {
 		sample.replace(last_word_end, string::npos, " ...", 4);
 	    }
@@ -311,48 +312,30 @@ skip_unknown_mimetype(const string & file, const string & mimetype)
 
 void
 index_mimetype(const string & file, const string & url, const string & ext,
-	       const string &mimetype, DirectoryIterator &d);
+	       const string &mimetype, DirectoryIterator &d, size_t sample_size);
 
 static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
-	   map<string, string>& mime_map)
+	   map<string, string>& mime_map, size_t sample_size)
 {
     string ext;
     const char * dot_ptr = strrchr(d.leafname(), '.');
-    if (dot_ptr)
+    if (dot_ptr) {
 	ext.assign(dot_ptr + 1);
-
-    map<string,string>::iterator mt = mime_map.find(ext);
-    if (mt == mime_map.end()) {
-	// If the extension isn't found, see if the lower-cased version (if
-	// different) is found.
-	bool changed = false;
-	string::iterator i;
-	for (i = ext.begin(); i != ext.end(); ++i) {
-	    if (*i >= 'A' && *i <= 'Z') {
-		*i = tolower(*i);
-		changed = true;
-	    }
-	}
-	if (changed) mt = mime_map.find(ext);
-    }
-    if (mt != mime_map.end()) {
-	if (mt->second == "ignore")
-	    return;
+	if (ext.size() > max_ext_len)
+	    ext.resize(0);
     }
 
-    string mimetype;
-    if (mt == mime_map.end()) {
+    string mimetype = mimetype_from_ext(mime_map, ext);
+    if (mimetype.empty()) {
 	mimetype = d.get_magic_mimetype();
 	if (mimetype.empty()) {
 	    skip(file, "Unknown extension and unrecognised format",
 		 SKIP_SHOW_FILENAME);
 	    return;
 	}
-//	skip(file, "Unknown extension", SKIP_SHOW_FILENAME);
-//	return;
-    } else {
-	mimetype = mt->second;
+    } else if (mimetype == "ignore") {
+	return;
     }
 
     if (verbose)
@@ -368,16 +351,17 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     }
 
     if (max_size > 0 && d.get_size() > max_size) {
-	skip(file, "Larger than size limit", SKIP_VERBOSE_ONLY);
+	skip(file, "Larger than size limit of " + pretty_max_size,
+	     SKIP_VERBOSE_ONLY);
 	return;
     }
 
-    index_mimetype(file, url, ext, mimetype, d);
+    index_mimetype(file, url, ext, mimetype, d, sample_size);
 }
 
 void
 index_mimetype(const string & file, const string & url, const string & ext,
-	       const string &mimetype, DirectoryIterator &d)
+	       const string &mimetype, DirectoryIterator &d, size_t sample_size)
 {
     string urlterm("U");
     urlterm += url;
@@ -386,6 +370,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
     time_t last_mod = d.get_mtime();
+    time_t created = time_t(-1);
 
     Xapian::docid did = 0; 
     if (skip_duplicates) {
@@ -394,10 +379,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    if (verbose)
 		cout << "already indexed, not updating" << endl;
 	    did = *p;
-	    if (usual(did < updated.size() && !updated[did])) {
-		updated[did] = true;
-		--old_docs_not_seen;
-	    }
+	    mark_as_seen(did);
 	    return;
 	}
     } else {
@@ -417,10 +399,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    // exception is if the URL was long and hashed to the
 		    // same URL as an existing document indexed in the same
 		    // batch.
-		    if (usual(did < updated.size() && !updated[did])) {
-			updated[did] = true;
-			--old_docs_not_seen;
-		    }
+		    mark_as_seen(did);
 		    return;
 		}
 	    }
@@ -429,27 +408,49 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
     if (verbose) cout << flush;
 
-    string author, title, sample, keywords, dump;
+    string author, title, sample, keywords, topic, dump;
     string md5;
 
     try {
-	map<string, string>::const_iterator cmd_it = commands.find(mimetype);
+	map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
 	if (cmd_it != commands.end()) {
-	    // Easy "run a command and read UTF-8 text from stdout" cases.
-	    string cmd = cmd_it->second;
+	    // Easy "run a command and read UTF-8 text or HTML from stdout"
+	    // cases.
+	    string cmd = cmd_it->second.cmd;
 	    if (cmd.empty()) {
 		skip(file, "required filter not installed", SKIP_VERBOSE_ONLY);
 		return;
 	    }
-	    cmd += shell_protect(file);
+	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
+		if (cmd_it->second.output_type == "text/html") {
+		    MyHtmlParser p;
+		    p.ignore_metarobots();
+		    try {
+			p.parse_html(dump, "iso-8859-1", false);
+		    } catch (const string & newcharset) {
+			p.reset();
+			p.ignore_metarobots();
+			p.parse_html(dump, newcharset, true);
+		    } catch (ReadError) {
+			skip_cmd_failed(file, cmd);
+			return;
+		    }
+		    dump = p.dump;
+		    title = p.title;
+		    keywords = p.keywords;
+		    topic = p.topic;
+		    sample = p.sample;
+		    author = p.author;
+		    created = p.created;
+		}
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
 	} else if (mimetype == "text/html") {
-	    string text = d.file_to_string();
+	    const string & text = d.file_to_string();
 	    MyHtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();
 	    try {
@@ -468,8 +469,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    dump = p.dump;
 	    title = p.title;
 	    keywords = p.keywords;
+	    topic = p.topic;
 	    sample = p.sample;
 	    author = p.author;
+	    created = p.created;
 	    md5_string(text, md5);
 	} else if (mimetype == "text/plain") {
 	    // Currently we assume that text files are UTF-8 unless they have a
@@ -491,15 +494,16 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 	} else if (mimetype == "application/pdf") {
-	    string safefile = shell_protect(file);
-	    string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
+	    string cmd = "pdftotext -enc UTF-8";
+	    append_filename_argument(cmd, file);
+	    cmd += " -";
 	    try {
 		dump = stdout_to_string(cmd);
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
-	    get_pdf_metainfo(safefile, author, title, keywords);
+	    get_pdf_metainfo(file, author, title, keywords, topic);
 	} else if (mimetype == "application/postscript") {
 	    // There simply doesn't seem to be a Unicode capable PostScript to
 	    // text converter (e.g. pstotext always outputs ISO-8859-1).  The
@@ -508,7 +512,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    // some Chinese PostScript files I found using Google.  It also has
 	    // the benefit of allowing us to extract meta information from
 	    // PostScript files.
-	    string tmpfile = get_tmpdir();
+	    string tmpfile = get_tmpfile("tmp.pdf");
 	    if (tmpfile.empty()) {
 		// FIXME: should this be fatal?  Or disable indexing postscript?
 		string msg = "Couldn't create temporary directory (";
@@ -517,12 +521,14 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip(file, msg);
 		return;
 	    }
-	    tmpfile += "/tmp.pdf";
-	    string safetmp = shell_protect(tmpfile);
-	    string cmd = "ps2pdf " + shell_protect(file) + " " + safetmp;
+	    string cmd = "ps2pdf";
+	    append_filename_argument(cmd, file);
+	    append_filename_argument(cmd, tmpfile);
 	    try {
 		(void)stdout_to_string(cmd);
-		cmd = "pdftotext -enc UTF-8 " + safetmp + " -";
+		cmd = "pdftotext -enc UTF-8";
+		append_filename_argument(cmd, tmpfile);
+		cmd += " -";
 		dump = stdout_to_string(cmd);
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -533,7 +539,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		throw;
 	    }
 	    try {
-		get_pdf_metainfo(safetmp, author, title, keywords);
+		get_pdf_metainfo(tmpfile, author, title, keywords, topic);
 	    } catch (...) {
 		unlink(tmpfile.c_str());
 		throw;
@@ -543,30 +549,37 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		   startswith(mimetype, "application/vnd.oasis.opendocument."))
 	{
 	    // Inspired by http://mjr.towers.org.uk/comp/sxw2text
-	    string safefile = shell_protect(file);
-	    string cmd = "unzip -p " + safefile + " content.xml styles.xml";
+	    string cmd = "unzip -p";
+	    append_filename_argument(cmd, file);
+	    cmd += " content.xml ; unzip -p";
+	    append_filename_argument(cmd, file);
+	    cmd += " styles.xml";
 	    try {
-		XmlParser xmlparser;
-		xmlparser.parse_html(stdout_to_string(cmd));
-		dump = xmlparser.dump;
+		OpenDocParser parser;
+		parser.parse(stdout_to_string(cmd));
+		dump = parser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
 
-	    cmd = "unzip -p " + safefile + " meta.xml";
+	    cmd = "unzip -p";
+	    append_filename_argument(cmd, file);
+	    cmd += " meta.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse_html(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
+		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
 	    } catch (ReadError) {
 		// It's probably best to index the document even if this fails.
 	    }
 	} else if (mimetype == "application/vnd.ms-excel") {
-	    string cmd = "xls2csv -c' ' -q0 -dutf-8 " + shell_protect(file);
+	    string cmd = "xls2csv -c' ' -q0 -dutf-8";
+	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
 	    } catch (ReadError) {
@@ -582,7 +595,22 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// no footers.
 		args = " word/document.xml word/header\\*.xml word/footer\\*.xml 2>/dev/null||test $? = 11";
 	    } else if (startswith(tail, "spreadsheetml.")) {
-		args = " xl/sharedStrings.xml";
+		// Extract the shared string table first, so our parser can
+		// grab those ready for parsing the sheets which will reference
+		// the shared strings.
+		string cmd = "unzip -p";
+		append_filename_argument(cmd, file);
+		cmd += " xl/styles.xml xl/workbook.xml xl/sharedStrings.xml ; unzip -p";
+		append_filename_argument(cmd, file);
+		cmd += " xl/worksheets/sheet\\*.xml";
+		try {
+		    XlsxParser parser;
+		    parser.parse(stdout_to_string(cmd));
+		    dump = parser.dump;
+		} catch (ReadError) {
+		    skip_cmd_failed(file, cmd);
+		    return;
+		}
 	    } else if (startswith(tail, "presentationml.")) {
 		// unzip returns exit code 11 if a file to extract wasn't found
 		// which we want to ignore, because there may be no notesSlides
@@ -593,23 +621,30 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip_unknown_mimetype(file, mimetype);
 		return;
 	    }
-	    string safefile = shell_protect(file);
-	    string cmd = "unzip -p " + safefile + args;
-	    try {
-		XmlParser xmlparser;
-		xmlparser.parse_html(stdout_to_string(cmd));
-		dump = xmlparser.dump;
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
+
+	    if (args) {
+		string cmd = "unzip -p";
+		append_filename_argument(cmd, file);
+		cmd += args;
+		try {
+		    MSXmlParser xmlparser;
+		    xmlparser.parse_xml(stdout_to_string(cmd));
+		    dump = xmlparser.dump;
+		} catch (ReadError) {
+		    skip_cmd_failed(file, cmd);
+		    return;
+		}
 	    }
 
-	    cmd = "unzip -p " + safefile + " docProps/core.xml";
+	    string cmd = "unzip -p";
+	    append_filename_argument(cmd, file);
+	    cmd += " docProps/core.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse_html(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
+		// FIXME: topic = metaxmlparser.topic;
 		sample = metaxmlparser.sample;
 		author = metaxmlparser.author;
 	    } catch (ReadError) {
@@ -618,47 +653,31 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	} else if (mimetype == "application/x-abiword") {
 	    // FIXME: Implement support for metadata.
 	    XmlParser xmlparser;
-	    string text = d.file_to_string();
-	    xmlparser.parse_html(text);
+	    const string & text = d.file_to_string();
+	    xmlparser.parse_xml(text);
 	    dump = xmlparser.dump;
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
 	    // FIXME: Implement support for metadata.
-	    string cmd = "gzip -dc " + shell_protect(file);
+	    string cmd = "gzip -dc";
+	    append_filename_argument(cmd, file);
 	    try {
 		XmlParser xmlparser;
-		xmlparser.parse_html(stdout_to_string(cmd));
+		xmlparser.parse_xml(stdout_to_string(cmd));
 		dump = xmlparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
-	} else if (mimetype == "text/rtf") {
-	    // The --text option unhelpfully converts all non-ASCII characters
-	    // to "?" so we use --html instead, which produces HTML entities.
-	    string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
-	    MyHtmlParser p;
-	    p.ignore_metarobots();
-	    try {
-		// No point going looking for charset overrides as unrtf doesn't
-		// produce them.
-		p.parse_html(stdout_to_string(cmd), "iso-8859-1", true);
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
-	    }
-	    dump = p.dump;
-	    title = p.title;
-	    keywords = p.keywords;
-	    sample = p.sample;
 	} else if (mimetype == "text/x-perl") {
 	    // pod2text's output character set doesn't seem to be documented,
 	    // but from inspecting the source it looks like it's probably
 	    // iso-8859-1.
-	    string cmd = "pod2text " + shell_protect(file);
+	    string cmd = "pod2text";
+	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
-		convert_to_utf8(dump, "ISO-8859-1");
+		convert_to_utf8(dump, "iso-8859-1");
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
@@ -669,17 +688,19 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    // actually better to use -e2 (ISO-8859-1) and then convert, so
 	    // let's do that for now until we handle Unicode "compatibility
 	    // decompositions".
-	    string cmd = "catdvi -e2 -s " + shell_protect(file);
+	    string cmd = "catdvi -e2 -s";
+	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
-		convert_to_utf8(dump, "ISO-8859-1");
+		convert_to_utf8(dump, "iso-8859-1");
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
 	} else if (mimetype == "application/vnd.ms-xpsdocument") {
-	    string safefile = shell_protect(file);
-	    string cmd = "unzip -p " + safefile + " Documents/1/Pages/\\*.fpage";
+	    string cmd = "unzip -p";
+	    append_filename_argument(cmd, file);
+	    cmd += " Documents/1/Pages/\\*.fpage";
 	    try {
 		XpsXmlParser xpsparser;
 		dump = stdout_to_string(cmd);
@@ -691,7 +712,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    // 2 bytes from the start of dump.
 		    convert_to_utf8(dump, "UTF-16");
 		}
-		xpsparser.parse_html(dump);
+		xpsparser.parse(dump);
 		dump = xpsparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -717,38 +738,20 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 
-	    generate_sample_from_csv(dump, sample);
-	} else if (mimetype == "application/vnd.ms-outlook") {
-	    string cmd = get_pkglibbindir() + "/outlookmsg2html " + shell_protect(file);
-	    MyHtmlParser p;
-	    p.ignore_metarobots();
-	    try {
-		dump = stdout_to_string(cmd);
-		// FIXME: what should the default charset be?
-		p.parse_html(dump, "iso-8859-1", false);
-	    } catch (const string & newcharset) {
-		p.reset();
-		p.ignore_metarobots();
-		p.parse_html(dump, newcharset, true);
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
-	    }
-	    dump = p.dump;
-	    title = p.title;
-	    keywords = p.keywords;
-	    sample = p.sample;
-	    author = p.author;
+	    generate_sample_from_csv(dump, sample, sample_size);
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
-	    svgparser.parse_html(d.file_to_string());
+	    const string & text = d.file_to_string();
+	    md5_string(text, md5);
+	    svgparser.parse(text);
 	    dump = svgparser.dump;
 	    title = svgparser.title;
 	    keywords = svgparser.keywords;
+	    // FIXME: topic = svgparser.topic;
 	    author = svgparser.author;
 	} else if (mimetype == "application/x-debian-package") {
-	    string cmd("dpkg-deb -f ");
-	    cmd += shell_protect(file);
+	    string cmd("dpkg-deb -f");
+	    append_filename_argument(cmd, file);
 	    cmd += " Description";
 	    const string & desc = stdout_to_string(cmd);
 	    // First line is short description, which we use as the title.
@@ -758,8 +761,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		dump.assign(desc, idx + 1, string::npos);
 	    }
 	} else if (mimetype == "application/x-redhat-package-manager") {
-	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p ");
-	    cmd += shell_protect(file);
+	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
+	    append_filename_argument(cmd, file);
 	    const string & desc = stdout_to_string(cmd);
 	    // First line is summary, which we use as the title.
 	    string::size_type idx = desc.find('\n');
@@ -769,10 +772,13 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    }
 	} else if (mimetype == "application/atom+xml") {
 	    AtomParser atomparser;
-	    atomparser.parse_html(d.file_to_string());
+	    const string & text = d.file_to_string();
+	    md5_string(text, md5);
+	    atomparser.parse(text);
 	    dump = atomparser.dump;
 	    title = atomparser.title;
 	    keywords = atomparser.keywords;
+	    // FIXME: topic = atomparser.topic;
 	    author = atomparser.author;
 	} else {
 	    // Don't know how to index this type.
@@ -782,9 +788,24 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 	// Compute the MD5 of the file if we haven't already.
 	if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
-	    skip(file, "failed to read file to calculate MD5 checksum");
+	    if (errno == ENOENT || errno == ENOTDIR) {
+		skip(file, "File removed during indexing",
+		     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
+	    } else {
+		skip(file, "failed to read file to calculate MD5 checksum");
+	    }
 	    return;
 	}
+
+	// Remove any trailing formfeeds, so we don't consider them when
+	// considering if we extracted any text (e.g. pdftotext outputs a
+	// formfeed between each page, even for blank pages).
+	//
+	// If dump contain only formfeeds, then trim_end will be string::npos
+	// and ++trim_end will be 0, which is the correct new size.
+	string::size_type trim_end = dump.find_last_not_of('\f');
+	if (++trim_end != dump.size())
+	    dump.resize(trim_end);
 
 	if (dump.empty()) {
 	    switch (empty_body) {
@@ -802,9 +823,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 	// Produce a sample
 	if (sample.empty()) {
-	    sample = generate_sample(dump, SAMPLE_SIZE);
+	    sample = generate_sample(dump, sample_size, "...", " ...");
 	} else {
-	    sample = generate_sample(sample, SAMPLE_SIZE);
+	    sample = generate_sample(sample, sample_size, "...", " ...");
 	}
 
 	// Put the data in the document
@@ -815,7 +836,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	record += sample;
 	if (!title.empty()) {
 	    record += "\ncaption=";
-	    record += generate_sample(title, TITLE_SIZE);
+	    record += generate_sample(title, TITLE_SIZE, "...", " ...");
 	}
 	if (!author.empty()) {
 	    record += "\nauthor=";
@@ -827,11 +848,15 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    record += "\nmodtime=";
 	    record += str(last_mod);
 	}
+	if (created != (time_t)-1) {
+	    record += "\ncreated=";
+	    record += str(created);
+	}
 	record += "\nsize=";
 	record += str(d.get_size());
 	newdocument.set_data(record);
 
-	// Index the title, document text, and keywords.
+	// Index the title, document text, keywords and topic.
 	indexer.set_document(newdocument);
 	if (!title.empty()) {
 	    indexer.index_text(title, 5, "S");
@@ -844,12 +869,16 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    indexer.increase_termpos(100);
 	    indexer.index_text(keywords);
 	}
+	if (!topic.empty()) {
+	    indexer.increase_termpos(100);
+	    indexer.index_text(topic, 1, "B");
+	}
 	// Index the leafname of the file.
 	{
 	    indexer.increase_termpos(100);
 	    string leaf = d.leafname();
 	    string::size_type dot = leaf.find_last_of('.');
-	    if (dot != string::npos)
+	    if (dot != string::npos && leaf.size() - dot - 1 <= max_ext_len)
 		leaf.resize(dot);
 	    indexer.index_text(leaf);
 	}
@@ -899,7 +928,6 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    const char * group = d.get_group();
 	    if (group) {
 		newdocument.add_boolean_term(string("I#") + group);
-		inc_tag_added = true;
 	    }
 	}
 	const char * owner = d.get_owner();
@@ -930,12 +958,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    } else {
 		did = db.replace_document(urlterm, newdocument);
 	    }
-	    if (did < updated.size()) {
-		if (usual(!updated[did])) {
-		    updated[did] = true;
-		    --old_docs_not_seen;
-		}
-	    }
+	    mark_as_seen(did);
 	    if (verbose) {
 		if (did <= old_lastdocid) {
 		    cout << "updated" << endl;
@@ -950,10 +973,13 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cout << "added" << endl;
 	}
     } catch (ReadError) {
-	skip(file, "can't read file");
+	skip(file, string("can't read file: ") + strerror(errno));
     } catch (NoSuchFilter) {
 	skip(file, "Filter for \"" + mimetype + "\" not installed");
-	commands[mimetype] = string();
+	commands[mimetype] = Filter();
+    } catch (FileNotFound) {
+	skip(file, "File removed during indexing",
+	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
     } catch (const std::string & error) {
 	skip(file, error);
     }
@@ -961,7 +987,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 static void
 index_directory(const string &path, const string &url_, size_t depth_limit,
-		map<string, string>& mime_map)
+		map<string, string>& mime_map, size_t sample_size)
 {
     if (verbose)
 	cout << "[Entering directory \"" << path.substr(root.size()) << "\"]"
@@ -969,6 +995,10 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 
     DirectoryIterator d(follow_symlinks);
     try {
+	// Crude workaround for MS-DFS share misbehaviour.
+	if (sleep_before_opendir > 0.0)
+	    RealTime::sleep(RealTime::now() + sleep_before_opendir);
+
 	d.start(path);
 
 	while (d.next()) {
@@ -986,24 +1016,60 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			}
 			url += '/';
 			file += '/';
-			index_directory(file, url, new_limit, mime_map);
+			index_directory(file, url, new_limit, mime_map, sample_size);
 			break;
 		    }
 		    case DirectoryIterator::REGULAR_FILE:
-			index_file(file, url, d, mime_map);
+			index_file(file, url, d, mime_map, sample_size);
 			break;
 		    default:
 			skip(file, "Not a regular file",
 			     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 		}
+	    } catch (FileNotFound) {
+		skip(file, "File removed during indexing",
+		     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 	    } catch (const std::string & error) {
 		skip(file, error, SKIP_SHOW_FILENAME);
 	    }
 	}
+    } catch (FileNotFound) {
+	if (verbose)
+	    cout << "Directory \"" << path.substr(root.size()) << "\" "
+		    "deleted during indexing" << endl;
     } catch (const std::string & error) {
 	cout << error << " - skipping directory "
 		"\"" << path.substr(root.size()) << "\"" << endl;
     }
+}
+
+static off_t
+parse_size(char* p)
+{
+    // Don't want negative numbers, infinity, NaN, or hex numbers.
+    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
+	double arg = strtod(p, &p);
+	switch (*p) {
+	    case '\0':
+		break;
+	    case 'k': case 'K':
+		arg *= 1024;
+		++p;
+		break;
+	    case 'm': case 'M':
+		arg *= (1024 * 1024);
+		++p;
+		break;
+	    case 'g': case 'G':
+		arg *= (1024 * 1024 * 1024);
+		++p;
+		break;
+	}
+	if (*p == '\0') {
+	    return off_t(arg);
+	}
+    }
+    return -1;
 }
 
 int
@@ -1016,7 +1082,9 @@ main(int argc, char **argv)
     bool delete_removed_documents = true;
     string baseurl;
     size_t depth_limit = 0;
+    size_t sample_size = SAMPLE_SIZE;
 
+    enum { OPT_OPENDIR_SLEEP = 256 };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
@@ -1036,6 +1104,8 @@ main(int argc, char **argv)
 	{ "verbose",	no_argument,		NULL, 'v' },
 	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ "max-size",	required_argument,	NULL, 'm' },
+	{ "sample-size",required_argument,	NULL, 'E' },
+	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1049,6 +1119,10 @@ main(int argc, char **argv)
     mime_map["htm"] = "text/html";
     mime_map["shtml"] = "text/html";
     mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
+
+    // reStructured text:
+    mime_map["rst"] = "text/x-rst";
+    mime_map["rest"] = "text/x-rst";
 
     // Comma-Separated Values:
     mime_map["csv"] = "text/csv";
@@ -1122,7 +1196,6 @@ main(int argc, char **argv)
     mime_map["potm"] = "application/vnd.openxmlformats-officedocument.presentationml.template";
 
     // Some other word processor formats:
-    mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
     mime_map["wpd"] = "application/vnd.wordperfect";
     mime_map["wps"] = "application/vnd.ms-works";
@@ -1130,6 +1203,9 @@ main(int argc, char **argv)
     mime_map["abw"] = "application/x-abiword"; // AbiWord
     mime_map["zabw"] = "application/x-abiword-compressed"; // AbiWord compressed
     mime_map["rtf"] = "text/rtf";
+    // Leave .doc files to libmagic, as they may actually be RTF (AbiWord
+    // actually saves RTF when asked to save as .doc, and Microsoft Word
+    // quietly loads RTF files with a .doc extension), or plain-text.
 
     // Other MS formats:
     mime_map["xls"] = "application/vnd.ms-excel";
@@ -1138,6 +1214,11 @@ main(int argc, char **argv)
     mime_map["xlr"] = "application/vnd.ms-excel"; // Later Microsoft Works produced XL format but with a different extension.
     mime_map["ppt"] = "application/vnd.ms-powerpoint";
     mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
+    // Adobe PageMaker apparently uses .pub for an unrelated format, but
+    // libmagic seems to misidentify MS .pub as application/msword, so we
+    // can't just leave it to libmagic.  We don't handle Adobe PageMaker
+    // files yet, so this isn't a big issue currently.
+    mime_map["pub"] = "application/x-mspublisher";
     mime_map["msg"] = "application/vnd.ms-outlook"; // Outlook .msg email
 
     // Perl:
@@ -1167,14 +1248,18 @@ main(int argc, char **argv)
 
     // Extensions to quietly ignore:
     mime_map["a"] = "ignore";
+    mime_map["adm"] = "ignore";
     mime_map["bin"] = "ignore";
+    mime_map["com"] = "ignore";
     mime_map["css"] = "ignore";
+    mime_map["cur"] = "ignore";
     mime_map["dat"] = "ignore";
     mime_map["db"] = "ignore";
     mime_map["dll"] = "ignore";
     mime_map["dylib"] = "ignore";
     mime_map["exe"] = "ignore";
     mime_map["fon"] = "ignore";
+    mime_map["ico"] = "ignore";
     mime_map["jar"] = "ignore";
     mime_map["js"] = "ignore";
     mime_map["lib"] = "ignore";
@@ -1191,19 +1276,29 @@ main(int argc, char **argv)
     mime_map["tmp"] = "ignore";
     mime_map["ttf"] = "ignore";
 
-    commands["application/msword"] = "antiword -mUTF-8.txt ";
-    commands["application/vnd.ms-powerpoint"] = "catppt -dutf-8 ";
+    commands["application/msword"] = Filter("antiword -mUTF-8.txt");
+    commands["application/vnd.ms-powerpoint"] = Filter("catppt -dutf-8");
     // Looking at the source of wpd2html and wpd2text I think both output
     // UTF-8, but it's hard to be sure without sample Unicode .wpd files
     // as they don't seem to be at all well documented.
-    commands["application/vnd.wordperfect"] = "wpd2text ";
+    commands["application/vnd.wordperfect"] = Filter("wpd2text");
     // wps2text produces UTF-8 output from the sample files I've tested.
-    commands["application/vnd.ms-works"] = "wps2text ";
+    commands["application/vnd.ms-works"] = Filter("wps2text");
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
     // (as it is in CP1250).
-    commands["image/vnd.djvu"] = "djvutxt ";
+    commands["image/vnd.djvu"] = Filter("djvutxt");
+    // The --text option unhelpfully converts all non-ASCII characters to "?"
+    // so we use --html instead, which produces HTML entities.  The --nopict
+    // option suppresses exporting picture files as pictNNNN.wmf in the current
+    // directory.  Note that this option was ignored in some older versions,
+    // but it was fixed in unrtf 0.20.4.
+    commands["text/rtf"] = Filter("unrtf --nopict --html 2>/dev/null", "text/html");
+    commands["text/x-rst"] = Filter("rst2html", "text/html");
+    commands["application/x-mspublisher"] = Filter("pub2xhtml", "text/html");
+    commands["application/vnd.ms-outlook"] =
+	Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html");
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but
@@ -1215,7 +1310,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:E:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1227,31 +1322,42 @@ main(int argc, char **argv)
 "BASEDIR is the directory corresponding to URL (default: DIRECTORY).\n"
 "\n"
 "Options:\n"
-"  -d, --duplicates         set duplicate handling ('ignore' or 'replace')\n"
-"  -p, --no-delete          skip the deletion of documents corresponding to\n"
-"                           deleted files (--preserve-nonduplicates is a\n"
-"                           deprecated alias for --no-delete)\n"
-"  -e, --empty-docs=ARG     how to handle documents we extract no text from:\n"
-"                           ARG can be index, warn (issue a diagnostic and\n"
-"                           index), or skip.  (default: warn)\n"
-"  -D, --db=DATABASE        path to database to use\n"
-"  -U, --url=URL            base url BASEDIR corresponds to (default: /)\n"
-"  -M, --mime-type=EXT:TYPE map file extension EXT to MIME Content-Type TYPE\n"
-"                           (empty TYPE removes any MIME mapping for EXT)\n"
-"  -F, --filter=TYPE:CMD    process files with MIME Content-Type TYPE using\n"
-"                           command CMD, which should produce UTF-8 text on\n"
-"                           stdout e.g. -Fapplication/octet-stream:'strings -n8'\n"
-"  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
-"  -f, --follow             follow symbolic links\n"
-"  -i, --ignore-exclusions  ignore meta robots tags and similar exclusions\n"
-"  -S, --spelling           index data for spelling correction\n"
-"  -m, --max-size           maximum size of file to index (in bytes or with a\n"
-"                           suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
-"  -v, --verbose            show more information about what is happening\n"
-"      --overwrite          create the database anew (the default is to update\n"
-"                           if the database already exists)" << endl;
-	    print_stemmer_help("     ");
-	    print_help_and_version_help("     ");
+"  -d, --duplicates          set duplicate handling ('ignore' or 'replace')\n"
+"  -p, --no-delete           skip the deletion of documents corresponding to\n"
+"                            deleted files (--preserve-nonduplicates is a\n"
+"                            deprecated alias for --no-delete)\n"
+"  -e, --empty-docs=ARG      how to handle documents we extract no text from:\n"
+"                            ARG can be index, warn (issue a diagnostic and\n"
+"                            index), or skip.  (default: warn)\n"
+"  -D, --db=DATABASE         path to database to use\n"
+"  -U, --url=URL             base url BASEDIR corresponds to (default: /)\n"
+"  -M, --mime-type=EXT:TYPE  map file extension EXT to MIME Content-Type TYPE\n"
+"                            (empty TYPE removes any MIME mapping for EXT)\n"
+"  -F, --filter=M[,T]:CMD    process files with MIME Content-Type M using\n"
+"                            command CMD, which produces output on stdout with\n"
+"                            Content-Type T or file extension T.  Currently\n"
+"                            output types text/html and UTF-8 text/plain (the\n"
+"                            default) are supported.\n"
+"                            e.g. -Fapplication/octet-stream:'strings -n8'\n"
+"  -l, --depth-limit=LIMIT   set recursion limit (0 = unlimited)\n"
+"  -f, --follow              follow symbolic links\n"
+"  -i, --ignore-exclusions   ignore meta robots tags and similar exclusions\n"
+"  -S, --spelling            index data for spelling correction\n"
+"  -m, --max-size            maximum size of file to index (in bytes or with a\n"
+"                            suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
+"                            (default: unlimited)\n"
+"  -E, --sample-size=SIZE    maximum size for the document text sample\n"
+"                            (supports the same formats as --max-size).\n"
+"                            (default: 512)\n"
+"      --opendir-sleep=SECS  sleep for SECS seconds before opening each\n"
+"                            directory - sleeping for 2 seconds seems to\n"
+"                            reliably work around problems with indexing files\n"
+"                            on Microsoft DFS shares.\n"
+"  -v, --verbose             show more information about what is happening\n"
+"      --overwrite           create the database anew (the default is to update\n"
+"                            if the database already exists)" << endl;
+	    print_stemmer_help("      ");
+	    print_help_and_version_help("      ");
 	    return 0;
 	}
 	case 'V':
@@ -1311,13 +1417,33 @@ main(int argc, char **argv)
 	}
 	case 'F': {
 	    const char * s = strchr(optarg, ':');
-	    if (s != NULL || !s[1]) {
-		string command(s + 1);
-		command += ' ';
-		commands[string(optarg, s - optarg)] = command;
+	    if (s != NULL && s[1]) {
+		const char * c = (const char *)memchr(optarg, ',', s - optarg);
+		string output_type;
+		if (c) {
+		    // Filter produces a specified content-type.
+		    output_type.assign(c + 1, s - (c + 1));
+		    if (output_type.find('/') == string::npos) {
+			map<string, string>::const_iterator m;
+			m = mime_map.find(output_type);
+			if (m != mime_map.end())
+			    output_type = m->second;
+		    }
+		    if (output_type != "text/html" &&
+			output_type != "text/plain") {
+			cerr << "Currently only output types 'text/html' and 'text/plain' are supported."
+			     << endl;
+			return 1;
+		    }
+		} else {
+		    c = s;
+		}
+		string mime_type(optarg, c - optarg);
+		commands[mime_type] = Filter(string(s + 1), output_type);
 	    } else {
 		cerr << "Invalid filter mapping '" << optarg << "'\n"
-			"Should be of the form TYPE:COMMAND, e.g. 'application/octet-stream:strings -n8'"
+			"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or TYPE,EXT:COMMAND\n"
+			"e.g. 'application/octet-stream:strings -n8'"
 		     << endl;
 		return 1;
 	    }
@@ -1351,33 +1477,51 @@ main(int argc, char **argv)
 	case 'v':
 	    verbose = true;
 	    break;
+	case 'E': {
+	    off_t arg = parse_size(optarg);
+	    if (arg >= 0) {
+		sample_size = size_t(arg);
+		break;
+	    }
+	    cerr << PROG_NAME": bad sample size '" << optarg << "'" << endl;
+	    return 1;
+	}
 	case 'm': {
+	    off_t size = parse_size(optarg);
+	    if (size >= 0) {
+		max_size = size;
+		const char * suffix;
+		// Set lsb to the lowest set bit in max_size.
+		off_t lsb = max_size & -max_size;
+		if (lsb >= off_t(1L << 30)) {
+		    size >>= 30;
+		    suffix = "GB";
+		} else if (lsb >= off_t(1L << 20)) {
+		    size >>= 20;
+		    suffix = "MB";
+		} else if (lsb >= off_t(1L << 10)) {
+		    size >>= 10;
+		    suffix = "KB";
+		} else {
+		    suffix = "B";
+		}
+		pretty_max_size = str(size);
+		pretty_max_size += suffix;
+		break;
+	    }
+	    cerr << PROG_NAME": bad max size '" << optarg << "'" << endl;
+	    return 1;
+	}
+	case OPT_OPENDIR_SLEEP: {
 	    // Don't want negative numbers, infinity, NaN, or hex numbers.
 	    char * p = optarg;
 	    if (C_isdigit(p[0]) && (p[1] | 32) != 'x') {
-		double arg = strtod(p, &p);
-		switch (*p) {
-		    case '\0':
-			break;
-		    case 'k': case 'K':
-			arg *= 1024;
-			++p;
-			break;
-		    case 'm': case 'M':
-			arg *= (1024 * 1024);
-			++p;
-			break;
-		    case 'g': case 'G':
-			arg *= (1024 * 1024 * 1024);
-			++p;
-			break;
-		}
-		if (*p == '\0') {
-		    max_size = off_t(arg);
+		sleep_before_opendir = strtod(p, &p);
+		if (*p == '\0')
 		    break;
-		}
 	    }
-	    cerr << PROG_NAME": bad max size '" << optarg << "'" << endl;
+	    cerr << PROG_NAME": bad --opendir-sleep argument: "
+		 "'" << optarg << "'" << endl;
 	    return 1;
 	}
 	case ':': // missing param
@@ -1392,42 +1536,12 @@ main(int argc, char **argv)
 	return 1;
     }
     if (baseurl.empty()) {
-	cerr << PROG_NAME": --url not specified, assuming `/'." << endl;
+	cerr << PROG_NAME": --url not specified, assuming '/'." << endl;
     }
     // baseurl must end in a '/'.
     if (!endswith(baseurl, '/')) {
 	baseurl += '/';
     }
-
-    if (optind >= argc || optind + 2 < argc) {
-	cerr << PROG_NAME": you must specify a directory to index.\n"
-"Do this either as a single directory (corresponding to the base URL)\n"
-"or two directories - the first corresponding to the base URL and the second\n"
-"a subdirectory of that to index." << endl;
-	return 1;
-    }
-    root = argv[optind];
-    if (!endswith(root, '/')) {
-	root += '/';
-    }
-    string start_url;
-    if (optind + 2 == argc) {
-	start_url = argv[optind + 1];
-	if (startswith(start_url, '/')) {
-	    // Make relative to root.
-	    if (!startswith(start_url, root)) {
-		cerr << PROG_NAME": '" << argv[optind + 1] << "' "
-		    "is not a subdirectory of '" << argv[optind] << "'."
-		     << endl;
-		return 1;
-	    }
-	    start_url.erase(0, root.size());
-	}
-	if (!endswith(start_url, '/')) {
-	    start_url += '/';
-	}
-    }
-
     string::size_type j;
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
     if (j > 0 && baseurl.substr(j, 3) == "://") {
@@ -1441,7 +1555,8 @@ main(int argc, char **argv)
 	} else {
 	    // Path:
 	    string::size_type path_len = baseurl.size() - k;
-	    // Subtract one to lose the trailing /, unless it's the initial / too.
+	    // Subtract one to lose the trailing /, unless it's the initial /
+	    // too.
 	    if (path_len > 1) --path_len;
 	    site_term = "P" + baseurl.substr(k, path_len);
 	    // Host:
@@ -1456,6 +1571,37 @@ main(int argc, char **argv)
 	// Subtract one to lose the trailing /, unless it's the initial / too.
 	if (path_len > 1) --path_len;
 	site_term = "P" + baseurl.substr(0, path_len);
+    }
+
+    if (optind >= argc || optind + 2 < argc) {
+	cerr << PROG_NAME": you must specify a directory to index.\n"
+"Do this either as a single directory (corresponding to the base URL)\n"
+"or two directories - the first corresponding to the base URL and the second\n"
+"a subdirectory of that to index." << endl;
+	return 1;
+    }
+
+    root = argv[optind];
+    if (!endswith(root, '/')) {
+	root += '/';
+    }
+    if (optind + 2 == argc) {
+	string start_url = argv[optind + 1];
+	if (startswith(start_url, '/')) {
+	    // Make relative to root.
+	    if (!startswith(start_url, root)) {
+		cerr << PROG_NAME": '" << argv[optind + 1] << "' "
+		    "is not a subdirectory of '" << argv[optind] << "'."
+		     << endl;
+		return 1;
+	    }
+	    start_url.erase(0, root.size());
+	}
+	if (!endswith(start_url, '/')) {
+	    start_url += '/';
+	}
+	root += start_url;
+	url_encode_path(baseurl, start_url);
     }
 
     int exitcode = 1;
@@ -1486,14 +1632,22 @@ main(int argc, char **argv)
 	}
 	indexer.set_stemmer(stemmer);
 
-	index_directory(root + start_url, baseurl + start_url, depth_limit, mime_map);
+	runfilter_init();
+
+	// Find the longest extension in the map.
+	map<string,string>::const_iterator mt;
+	for (mt = mime_map.begin(); mt != mime_map.end(); ++mt) {
+	    max_ext_len = max(max_ext_len, mt->first.size());
+	}
+
+	index_directory(root, baseurl, depth_limit, mime_map, sample_size);
 	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
 	    }
 	    Xapian::PostingIterator alldocs = db.postlist_begin(string());
 	    Xapian::docid did = *alldocs;
-	    do {
+	    while (did < updated.size()) {
 		if (!updated[did]) {
 		    alldocs.skip_to(did);
 		    if (alldocs == db.postlist_end(string()))
@@ -1507,10 +1661,15 @@ main(int argc, char **argv)
 		    if (--old_docs_not_seen == 0)
 			break;
 		}
-	    } while (++did < updated.size());
+		++did;
+	    }
 	}
 	db.commit();
 	exitcode = 0;
+    } catch (const CommitAndExit &e) {
+	cout << "Exception: " << e.what() << endl;
+	cout << "Committing pending changes..." << endl;
+	db.commit();
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_description() << endl;
     } catch (const exception &e) {

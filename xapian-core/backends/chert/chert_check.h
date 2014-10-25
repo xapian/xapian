@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2006,2008,2011,2012 Olly Betts
+ * Copyright 2002,2004,2005,2006,2008,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,10 +34,11 @@
 class ChertTableCheck : public ChertTable {
     public:
 	static void check(const char * tablename, const std::string & path,
-			  int opts, std::ostream &out);
+			  chert_revision_number_t * rev_ptr,
+			  int opts, std::ostream *out);
     private:
 	ChertTableCheck(const char * tablename_, const std::string &path_,
-		        bool readonly, std::ostream &out_)
+			bool readonly, std::ostream *out_)
 	    : ChertTable(tablename_, path_, readonly), out(out_),
 	      check_item_count(0), check_sequential(true),
 	      last_sequential_block(0) { }
@@ -54,7 +55,7 @@ class ChertTableCheck : public ChertTable {
 	void print_spaces(int n) const;
 	void print_bytes(int n, const byte * p) const;
 
-	std::ostream &out;
+	std::ostream *out;
 
 	chert_tablesize_t check_item_count;
 

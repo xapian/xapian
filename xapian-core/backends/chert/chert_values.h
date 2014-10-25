@@ -28,8 +28,11 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
+#include "autoptr.h"
 #include <map>
 #include <string>
+
+class ChertCursor;
 
 /** Generate a key for a value stream chunk. */
 inline std::string
@@ -85,6 +88,8 @@ class ChertValueManager {
     std::map<Xapian::docid, std::string> slots;
 
     std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
+
+    mutable AutoPtr<ChertCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
 		   const std::string & val);

@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,15 +30,16 @@
 #include "xapian/intrusive_ptr.h"
 #include "xapian/types.h"
 
-namespace Xapian {
-namespace Internal {
-
 template<class S>
 struct PrettyOStream {
     /// The std::ostream object we're outputting to.
     S & os;
 
     PrettyOStream(S & os_) : os(os_) { }
+    template <typename T> PrettyOStream & operator|(const T & t){
+	os << ", ";
+	return *this << t;
+    }
 };
 
 struct Literal {
@@ -46,12 +47,6 @@ struct Literal {
     Literal(const char * lit) : _lit(lit) { }
     Literal(const std::string & s) : _lit(s.c_str()) { }
 };
-
-}
-}
-
-using Xapian::Internal::PrettyOStream;
-using Xapian::Internal::Literal;
 
 /// Default is to output as std::ostream would.
 template<class S, class T>
@@ -277,8 +272,13 @@ namespace Xapian {
     }
 }
 
+namespace Brass {
+    class RootInfo;
+}
+
 class BrassCursor;
 class BrassDatabase;
+class BrassFreeListChecker;
 class BrassTable;
 class ChertCursor;
 class ChertDatabase;
@@ -293,6 +293,7 @@ operator<<(PrettyOStream<S> &ps, const C &) {\
 }
 
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::ExpandDecider)
+XAPIAN_PRETTY_AS_CLASSNAME(Xapian::LatLongMetric)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::MatchDecider)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Registry)
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Weight)
@@ -300,7 +301,9 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext);
+XAPIAN_PRETTY_AS_CLASSNAME(Brass::RootInfo);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassCursor);
+XAPIAN_PRETTY_AS_CLASSNAME(BrassFreeListChecker);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassDatabase);
 XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
 XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor);
@@ -310,7 +313,7 @@ XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
 template<class S>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const Xapian::Weight *p) {
-    ps.os << "(Xapian:Weight*)" << (void*)p;
+    ps.os << "(Xapian:Weight*)" << (const void*)p;
     return ps;
 }
 
@@ -328,7 +331,7 @@ operator<<(PrettyOStream<S> &ps, const RemoteConnection &) {
 template<class S>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, const Xapian::Database::Internal *p) {
-    ps.os << "(Database::Internal*)" << (void*)p;
+    ps.os << "(Database::Internal*)" << (const void*)p;
     return ps;
 }
 
@@ -336,13 +339,6 @@ template<class S, class T>
 inline PrettyOStream<S> &
 operator<<(PrettyOStream<S> &ps, Xapian::Internal::intrusive_ptr<const T> t) {
     ps.os << "intrusive_ptr->";
-    return ps << t;
-}
-
-template<class S, typename T>
-inline PrettyOStream<S> &
-operator|(PrettyOStream<S> &ps, const T & t) {
-    ps.os << ", ";
     return ps << t;
 }
 

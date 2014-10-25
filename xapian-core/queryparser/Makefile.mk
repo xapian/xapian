@@ -1,7 +1,7 @@
 if VPATH_BUILD
 # We need this so that generated sources can find non-generated headers in a
-# VPATH build from SVN.
-INCLUDES += -I$(top_srcdir)/queryparser
+# VPATH build from git.
+AM_CPPFLAGS += -I$(top_srcdir)/queryparser
 endif
 
 noinst_HEADERS +=\

@@ -1,7 +1,7 @@
 /** @file xapian-replicate.cc
  * @brief Replicate a database from a master server to a local copy.
  */
-/* Copyright (C) 2008,2011 Olly Betts
+/* Copyright (C) 2008,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,10 @@ static void show_usage() {
 "                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
 "                      applying repeated changesets (default: "STRINGIZE(READER_CLOSE_TIME)")\n"
+"  -f, --force-copy    force a full copy of the database to be sent (and then\n"
+"                      replicate as normal)\n"
 "  -o, --one-shot      replicate only once and then exit\n"
+"  -q, --quiet         only report errors\n"
 "  -v, --verbose       be more verbose\n"
 "  --help              display this help and exit\n"
 "  --version           output version information and exit" << endl;
@@ -64,7 +67,7 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 {
-    const char * opts = "h:p:m:i:r:ov";
+    const char * opts = "h:p:m:i:r:ofqv";
     const struct option long_opts[] = {
 	{"host",	required_argument,	0, 'h'},
 	{"port",	required_argument,	0, 'p'},
@@ -72,6 +75,8 @@ main(int argc, char **argv)
 	{"interval",	required_argument,	0, 'i'},
 	{"reader-time",	required_argument,	0, 'r'},
 	{"one-shot",	no_argument,		0, 'o'},
+	{"force-copy",	no_argument,		0, 'f'},
+	{"quiet",	no_argument,		0, 'q'},
 	{"verbose",	no_argument,		0, 'v'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
@@ -83,7 +88,8 @@ main(int argc, char **argv)
     string masterdb;
     int interval = DEFAULT_INTERVAL;
     bool one_shot = false;
-    bool verbose = false;
+    enum { NORMAL, VERBOSE, QUIET } verbosity = NORMAL;
+    bool force_copy = false;
     int reader_close_time = READER_CLOSE_TIME;
 
     int c;
@@ -104,11 +110,17 @@ main(int argc, char **argv)
 	    case 'r':
 		reader_close_time = atoi(optarg);
 		break;
+	    case 'f':
+		force_copy = true;
+		break;
 	    case 'o':
 		one_shot = true;
 		break;
+	    case 'q':
+		verbosity = QUIET;
+		break;
 	    case 'v':
-		verbose = true;
+		verbosity = VERBOSE;
 		break;
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -148,30 +160,34 @@ main(int argc, char **argv)
 
     while (true) {
 	try {
-	    if (verbose) {
+	    if (verbosity == VERBOSE) {
 		cout << "Connecting to " << host << ":" << port << endl;
 	    }
 	    ReplicateTcpClient client(host, port, 10000);
-	    if (verbose) {
+	    if (verbosity == VERBOSE) {
 		cout << "Getting update for " << dbpath << " from "
 		     << masterdb << endl;
 	    }
 	    Xapian::ReplicationInfo info;
 	    client.update_from_master(dbpath, masterdb, info,
-				      reader_close_time);
-	    if (verbose) {
-		cout << "Update complete: " <<
-			info.fullcopy_count << " copies, " <<
-			info.changeset_count << " changesets, " <<
-			(info.changed ? "new live database" : "no changes to live database") <<
-			endl;
+				      reader_close_time, force_copy);
+	    if (verbosity == VERBOSE) {
+		cout << "Update complete: "
+		     << info.fullcopy_count << " copies, "
+		     << info.changeset_count << " changesets, "
+		     << (info.changed ? "new live database"
+				      : "no changes to live database")
+		     <<	endl;
+	    }
+	    if (verbosity != QUIET) {
 		if (info.fullcopy_count > 0 && !info.changed) {
 		    cout <<
-"Replication using a full copy failed. This is usually due to changes being\n"
-"made at remote end too frequently. Ensure that sufficient changesets are\n"
-"present at remote end by setting XAPIAN_MAX_CHANGESETS" << endl;
+"Replication using a full copy failed.  This usually means that the master\n"
+"database is changing too frequently.  Ensure that sufficient changesets are\n"
+"present by setting XAPIAN_MAX_CHANGESETS on the master." << endl;
 		}
 	    }
+	    force_copy = false;
 	} catch (const Xapian::NetworkError &error) {
 	    // Don't stop running if there's a network error - just log to
 	    // stderr and retry at next timeout.  This should make the client

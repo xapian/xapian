@@ -1,7 +1,7 @@
 /** @file errorhandler.h
  * @brief Decide if a Xapian::Error exception should be ignored.
  */
-/* Copyright (C) 2003,2006,2007,2012 Olly Betts
+/* Copyright (C) 2003,2006,2007,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,11 @@
 #ifndef XAPIAN_INCLUDED_ERRORHANDLER_H
 #define XAPIAN_INCLUDED_ERRORHANDLER_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/errorhandler.h> directly; include <xapian.h> instead."
+#endif
+
+#include <xapian/attributes.h>
 #include <xapian/deprecated.h>
 #include <xapian/visibility.h>
 
@@ -71,7 +76,7 @@ class XAPIAN_VISIBILITY_DEFAULT ErrorHandler {
 
   public:
     /// Default constructor.
-    ErrorHandler() {}
+    XAPIAN_NOTHROW(ErrorHandler()) {}
 
     /// We require a virtual destructor because we have virtual methods.
     virtual ~ErrorHandler();

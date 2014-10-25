@@ -1,6 +1,6 @@
 /* brass_positionlist.cc: A position list in a brass database.
  *
- * Copyright (C) 2004,2005,2006,2008,2009,2010 Olly Betts
+ * Copyright (C) 2004,2005,2006,2008,2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,37 +34,21 @@
 using namespace std;
 
 void
-BrassPositionListTable::set_positionlist(Xapian::docid did,
-					 const string & tname,
-					 Xapian::PositionIterator pos,
-					 const Xapian::PositionIterator &pos_end,
-					 bool check_for_update)
+BrassPositionListTable::pack(string & s,
+			     const vector<Xapian::termpos> & vec) const
 {
-    LOGCALL_VOID(DB, "BrassPositionListTable::set_positionlist", did | tname | pos | pos_end | check_for_update);
-    Assert(pos != pos_end);
+    LOGCALL_VOID(DB, "BrassPositionListTable::pack", s | vec);
+    Assert(!vec.empty());
 
-    // FIXME: avoid the need for this copy!
-    vector<Xapian::termpos> poscopy(pos, pos_end);
+    pack_uint(s, vec.back());
 
-    string key = make_key(did, tname);
-
-    string s;
-    pack_uint(s, poscopy.back());
-
-    if (poscopy.size() > 1) {
+    if (vec.size() > 1) {
 	BitWriter wr(s);
-	wr.encode(poscopy[0], poscopy.back());
-	wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);
-	wr.encode_interpolative(poscopy, 0, poscopy.size() - 1);
+	wr.encode(vec[0], vec.back());
+	wr.encode(vec.size() - 2, vec.back() - vec[0]);
+	wr.encode_interpolative(vec, 0, vec.size() - 1);
 	swap(s, wr.freeze());
     }
-
-    if (check_for_update) {
-	string old_tag;
-	if (get_exact_entry(key, old_tag) && s == old_tag)
-	    return;
-    }
-    add(key, s);
 }
 
 Xapian::termcount
@@ -99,18 +83,17 @@ BrassPositionListTable::positionlist_count(Xapian::docid did,
 ///////////////////////////////////////////////////////////////////////////
 
 bool
-BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
-			     const string & tname)
+BrassPositionList::read_data(const string & data)
 {
-    LOGCALL(DB, bool, "BrassPositionList::read_data", table | did | tname);
+    LOGCALL(DB, bool, "BrassPositionList::read_data", data);
 
     have_started = false;
-    positions.clear();
 
-    string data;
-    if (!table->get_exact_entry(BrassPositionListTable::make_key(did, tname), data)) {
+    if (data.empty()) {
 	// There's no positional information for this term.
-	current_pos = positions.begin();
+	size = 0;
+	last = 0;
+	current_pos = 1;
 	RETURN(false);
     }
 
@@ -122,28 +105,41 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     }
     if (pos == end) {
 	// Special case for single entry position list.
-	positions.push_back(pos_last);
-	current_pos = positions.begin();
+	size = 1;
+	current_pos = last = pos_last;
 	RETURN(true);
     }
     // Skip the header we just read.
-    BitReader rd(data, pos - data.data());
+    rd.init(data, pos - data.data());
     Xapian::termpos pos_first = rd.decode(pos_last);
     Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
-    positions.resize(pos_size);
-    positions[0] = pos_first;
-    positions.back() = pos_last;
-    rd.decode_interpolative(positions, 0, pos_size - 1);
-
-    current_pos = positions.begin();
+    rd.decode_interpolative(0, pos_size - 1, pos_first, pos_last);
+    size = pos_size;
+    last = pos_last;
+    current_pos = pos_first;
     RETURN(true);
+}
+
+bool
+BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
+			     const string & tname)
+{
+    LOGCALL(DB, bool, "BrassPositionList::read_data", table | did | tname);
+    if (!cursor.get()) {
+	cursor.reset(table->cursor_get());
+    }
+    if (cursor.get() &&
+	cursor->find_exact(BrassPositionListTable::make_key(did, tname))) {
+	RETURN(read_data(cursor->current_tag));
+    }
+    RETURN(read_data(string()));
 }
 
 Xapian::termcount
 BrassPositionList::get_size() const
 {
     LOGCALL(DB, Xapian::termcount, "BrassPositionList::get_size", NO_ARGS);
-    RETURN(positions.size());
+    RETURN(size);
 }
 
 Xapian::termpos
@@ -151,35 +147,53 @@ BrassPositionList::get_position() const
 {
     LOGCALL(DB, Xapian::termpos, "BrassPositionList::get_position", NO_ARGS);
     Assert(have_started);
-    RETURN(*current_pos);
+    RETURN(current_pos);
 }
 
 void
 BrassPositionList::next()
 {
     LOGCALL_VOID(DB, "BrassPositionList::next", NO_ARGS);
-
-    if (!have_started) {
+    if (rare(!have_started)) {
 	have_started = true;
-    } else {
-	Assert(!at_end());
-	++current_pos;
+	return;
     }
+    if (current_pos == last) {
+	last = 0;
+	current_pos = 1;
+	return;
+    }
+    current_pos = rd.decode_interpolative_next();
 }
 
 void
 BrassPositionList::skip_to(Xapian::termpos termpos)
 {
     LOGCALL_VOID(DB, "BrassPositionList::skip_to", termpos);
-    if (!have_started) {
-	have_started = true;
+    have_started = true;
+    if (termpos >= last) {
+	if (termpos == last) {
+	    current_pos = last;
+	    return;
+	}
+	last = 0;
+	current_pos = 1;
+	return;
     }
-    while (!at_end() && *current_pos < termpos) ++current_pos;
+    while (current_pos < termpos) {
+	if (current_pos == last) {
+	    last = 0;
+	    current_pos = 1;
+	    return;
+	}
+	current_pos = rd.decode_interpolative_next();
+    }
 }
 
 bool
 BrassPositionList::at_end() const
 {
     LOGCALL(DB, bool, "BrassPositionList::at_end", NO_ARGS);
-    RETURN(current_pos == positions.end());
+    Assert(have_started);
+    RETURN(current_pos > last);
 }

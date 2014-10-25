@@ -2,7 +2,7 @@
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
@@ -20,6 +20,7 @@ RSTDOCS = \
 	collapsing.rst \
 	deprecation.rst \
 	facets.rst \
+	geospatial.rst \
 	glossary.rst \
 	index.rst \
 	install.rst \
@@ -50,14 +51,12 @@ RSTHTML = $(RSTDOCS:.rst=.html)
 EXTRA_DIST = doxygen_api.conf.in doxygen_source.conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_source_header.html_tmpl doxygen_source_footer.html_tmpl \
-	$(RSTDOCS) \
+	$(RSTDOCS) $(HTMLDOCS) $(RSTHTML) \
 	dir_contents
 
 # Other files which should be distributed
 dist-hook: doxygen_api_docs
-	test -d $(distdir) || mkdir $(distdir)
-	test -d $(distdir)/apidoc || mkdir $(distdir)/apidoc
-	test -d $(distdir)/apidoc/html || mkdir $(distdir)/apidoc/html
+	$(MKDIR_P) '$(distdir)/apidoc/html'
 	test "`echo $(srcdir)/apidoc/html/*.png`" = "$(srcdir)/apidoc/html/*.png" || \
 	  cp -p $(srcdir)/apidoc/html/*.png $(distdir)/apidoc/html
 	test "`echo apidoc/html/*.png`" = "apidoc/html/*.png" || \
@@ -71,11 +70,10 @@ dist-hook: doxygen_api_docs
 	test "`echo apidoc/html/*.html`" = "apidoc/html/*.html" || \
 	  cp -p apidoc/html/*.html $(distdir)/apidoc/html
 
+# Disable these rules if configured with --enable-maintainer-mode and
+# --disable-documentation so that "make install" works in this case.
 if !MAINTAINER_NO_DOCS
-# Build API docs with doxygen
-all-local: doxygen_api_docs
-
-dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
+doc_DATA = $(HTMLDOCS) $(RSTHTML)
 
 install-data-local: doxygen_api_docs
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
@@ -108,6 +106,9 @@ doxygen_api_docs: apidoc/html/index.html
 doxygen_docs: doxygen_source_docs doxygen_api_docs
 
 if DOCUMENTATION_RULES
+# Build API docs with doxygen
+all-local: doxygen_api_docs
+
 # We use $T instead of $(top_srcdir) in APIDOC_SRC, SOURCEDOC_SRC, and
 # DIR_CONTENTS_FILES to keep their sizes down.
 T=$(top_srcdir)
@@ -119,18 +120,19 @@ include docsource.mk
 code_structure.html: gen_codestructure_doc $(DIR_CONTENTS_FILES)
 	./gen_codestructure_doc code_structure.html $(DIR_CONTENTS_FILES)
 
-apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api.conf \
+APIDOC_DEPS = $(APIDOC_SRC) doxygen_api.conf \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl
+
+apidoc/html/index.html: $(APIDOC_DEPS)
 	rm -rf apidoc
-	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api.conf
+	sed 's/^\(GENERATE_HTML\)\>.*/\1 = YES/;s/^\(GENERATE_LATEX\)\>.*/\1 = NO/' doxygen_api.conf |\
+	    top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) -
 	## Regression test - 1.0.17 failed to generate docs from error.h in a
 	## VPATH build.
 	test -f apidoc/html/classXapian_1_1RuntimeError.html || \
 	  ( echo "No api docs for Xapian::RuntimeError" ; \
 	    rm apidoc/html/index.html ; exit 1 )
-	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
-	mv apidoc/latex/refman.pdf apidoc.pdf
 	if test "x$(PNGCRUSH)" != x ; then \
 	  for png in apidoc/html/*.png ; do \
 	    $(PNGCRUSH) -q $$png $${png}T && mv $${png}T $$png ; \
@@ -138,11 +140,13 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api.conf \
 	fi
 	touch apidoc/html/index.html
 
-# This dependency is required so that parallel make doesn't try to run latex
-# twice simultaneously.  We touch apidoc/html/index.html after apidoc.pdf is
-# created so that make doesn't attempt to regenerate it due to the dependency
-# of index.html on apidoc.pdf
-apidoc/html/index.html: apidoc.pdf
+# Not built by default, but available in case users want to build it for
+# themselves.
+apidoc.pdf: $(APIDOC_DEPS)
+	sed 's/^\(GENERATE_HTML\)\>.*/\1 = NO/;s/^\(GENERATE_LATEX\)\>.*/\1 = YES/' doxygen_api.conf |\
+	    top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) -
+	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
+	mv apidoc/latex/refman.pdf apidoc.pdf
 
 sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		doxygen_source.conf \
@@ -152,5 +156,5 @@ sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_source.conf
 
 .rst.html:
-	$(RST2HTML) --exit-status=warning $< $@
+	$(RST2HTML) --math-output=HTML --exit-status=warning $< $@
 endif

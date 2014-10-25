@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,10 +25,15 @@
 #ifndef XAPIAN_INCLUDED_DATABASE_H
 #define XAPIAN_INCLUDED_DATABASE_H
 
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+# error "Never use <xapian/database.h> directly; include <xapian.h> instead."
+#endif
+
 #include <iosfwd>
 #include <string>
 #include <vector>
 
+#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
@@ -61,26 +66,6 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/// @private @internal Reference counted internals.
 	std::vector<Xapian::Internal::intrusive_ptr<Internal> > internal;
 
-	/** @private @internal Get a document from the database, but doesn't
-	 *  need to check if it exists.
-	 *
-	 *  This method returns a Xapian::Document object which provides the
-	 *  information about a document.  If the document doesn't exist,
-	 *  either a NULL pointer may be returned, or the returned object will
-	 *  throw DocNotFoundError when you try to access it.
-	 *
-	 *  The caller should delete the returned object when it has finished
-	 *  with it.
-	 *
-	 *  The returned value is cast to void* to avoid needing to include
-	 *  xapian/document.h from here.
-	 *
-	 *  @param did   The document id of the document to retrieve.
-	 *
-	 *  @return      Pointer to Document::Internal object cast to void*.
-	 */
-	void * get_document_lazily_(Xapian::docid did) const;
-
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
 	 *
@@ -97,7 +82,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 * @param path directory that the database is stored in.
 	 */
-	explicit Database(const std::string &path);
+	explicit Database(const std::string &path, int flags = 0);
 
 	/** @private @internal Create a Database from its internals.
 	 */
@@ -194,7 +179,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Corresponding end iterator to postlist_begin().
 	 */
-	PostingIterator postlist_end(const std::string &) const {
+	PostingIterator XAPIAN_NOTHROW(postlist_end(const std::string &) const) {
 	    return PostingIterator();
 	}
 
@@ -207,7 +192,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Corresponding end iterator to termlist_begin().
 	 */
-	TermIterator termlist_end(Xapian::docid) const {
+	TermIterator XAPIAN_NOTHROW(termlist_end(Xapian::docid) const) {
 	    return TermIterator();
 	}
 
@@ -221,7 +206,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Corresponding end iterator to positionlist_begin().
 	 */
-	PositionIterator positionlist_end(Xapian::docid, const std::string &) const {
+	PositionIterator XAPIAN_NOTHROW(positionlist_end(Xapian::docid, const std::string &) const) {
 	    return PositionIterator();
 	}
 
@@ -231,7 +216,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Corresponding end iterator to allterms_begin().
 	 */
-	TermIterator allterms_end() const {
+	TermIterator XAPIAN_NOTHROW(allterms_end() const) {
 	    return TermIterator();
 	}
 
@@ -250,7 +235,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Corresponding end iterator to allterms_begin(prefix).
 	 */
-	TermIterator allterms_end(const std::string &) const {
+	TermIterator XAPIAN_NOTHROW(allterms_end(const std::string &) const) {
 	    return TermIterator();
 	}
 
@@ -339,12 +324,15 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	ValueIterator valuestream_begin(Xapian::valueno slot) const;
 
 	/// Return end iterator corresponding to valuestream_begin().
-	ValueIterator valuestream_end(Xapian::valueno) const {
+	ValueIterator XAPIAN_NOTHROW(valuestream_end(Xapian::valueno) const) {
 	    return ValueIterator();
 	}
 
 	/// Get the length of a document.
 	Xapian::termcount get_doclength(Xapian::docid did) const;
+
+	/// Get the number of unique terms in document.
+	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
 	/** Send a "keep-alive" to remote databases to stop them timing out.
 	 *
@@ -390,7 +378,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	Xapian::TermIterator spellings_begin() const;
 
 	/// Corresponding end iterator to spellings_begin().
-	Xapian::TermIterator spellings_end() const {
+	Xapian::TermIterator XAPIAN_NOTHROW(spellings_end() const) {
 	    return Xapian::TermIterator();
 	}
 
@@ -401,7 +389,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	Xapian::TermIterator synonyms_begin(const std::string &term) const;
 
 	/// Corresponding end iterator to synonyms_begin(term).
-	Xapian::TermIterator synonyms_end(const std::string &) const {
+	Xapian::TermIterator XAPIAN_NOTHROW(synonyms_end(const std::string &) const) {
 	    return Xapian::TermIterator();
 	}
 
@@ -413,7 +401,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// Corresponding end iterator to synonym_keys_begin(prefix).
-	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const {
+	Xapian::TermIterator XAPIAN_NOTHROW(synonym_keys_end(const std::string & = std::string()) const) {
 	    return Xapian::TermIterator();
 	}
 
@@ -464,7 +452,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	Xapian::TermIterator metadata_keys_begin(const std::string &prefix = std::string()) const;
 
 	/// Corresponding end iterator to metadata_keys_begin().
-	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const {
+	Xapian::TermIterator XAPIAN_NOTHROW(metadata_keys_end(const std::string & = std::string()) const) {
 	    return Xapian::TermIterator();
 	}
 
@@ -492,21 +480,10 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  @param path	Path to database or table
 	 *  @param opts	Options to use for check
-	 *  @param out	std::ostream to write output to
+	 *  @param out	std::ostream to write output to (NULL for no output)
 	 */
-	static size_t check(const std::string & path, int opts,
-			    std::ostream &out);
-
-	/** Check the integrity of a database or database table.
-	 *
-	 *  This method is currently experimental, and may change incompatibly
-	 *  or possibly even be removed.  Feedback on how well it works and
-	 *  how it might be improved are welcome.
-	 *
-	 *  @param path	Path to database or table
-	 *  @param opts	Options to use for check
-	 */
-	static size_t check(const std::string & path, int opts);
+	static size_t check(const std::string & path, int opts = 0,
+			    std::ostream *out = NULL);
 };
 
 /** This class provides read/write access to a database.
@@ -527,7 +504,10 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	virtual ~WritableDatabase();
 
-	/** Create an empty WritableDatabase.
+	/** Create a WritableDatabase with no subdatabases.
+	 *
+	 *  The created object isn't very useful in this state - it's intended
+	 *  as a placeholder value.
 	 */
 	WritableDatabase();
 
@@ -539,13 +519,26 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  exist (but only the leaf directory, not recursively).
 	 *
 	 * @param path directory that the database is stored in.
-	 * @param action one of:
+	 * @param flags one of:
 	 *  - Xapian::DB_CREATE_OR_OPEN open for read/write; create if no db
-	 *    exists
+	 *    exists (the default if flags isn't specified)
 	 *  - Xapian::DB_CREATE create new database; fail if db exists
 	 *  - Xapian::DB_CREATE_OR_OVERWRITE overwrite existing db; create if
 	 *    none exists
 	 *  - Xapian::DB_OPEN open for read/write; fail if no db exists
+	 *
+	 *  Additionally, the following flags can be combined with action
+	 *  using bitwise-or (| in C++):
+	 *
+	 *   - Xapian::DB_NO_SYNC don't call fsync() or similar
+	 *   - Xapian::DB_DANGEROUS don't be crash-safe, no concurrent readers
+	 *
+	 *  @param block_size If a new database is created, this specifies
+	 *		      the block size (in bytes) for backends which
+	 *		      have such a concept.  For chert and brass, the
+	 *		      block size must be a power of 2 between 2048 and
+	 *		      65536 (inclusive), and the default (also used if
+	 *		      an invalid value is passed) is 8192 bytes.
 	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
@@ -553,7 +546,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  @exception Xapian::DatabaseLockError will be thrown if a lock
 	 *	       couldn't be acquired on the database.
 	 */
-	WritableDatabase(const std::string &path, int action);
+	explicit WritableDatabase(const std::string &path,
+				  int flags = 0,
+				  int block_size = 0);
 
 	/** @private @internal Create an WritableDatabase given its internals.
 	 */
@@ -958,54 +953,6 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	/// Return a string describing this object.
 	std::string get_description() const;
 };
-
-/** Open for read/write; create if no db exists. */
-const int DB_CREATE_OR_OPEN = 1;
-/** Create a new database; fail if db exists. */
-const int DB_CREATE = 2;
-/** Overwrite existing db; create if none exists. */
-const int DB_CREATE_OR_OVERWRITE = 3;
-/** Open for read/write; fail if no db exists. */
-const int DB_OPEN = 4;
-
-/** Show a short-format display of the B-tree contents.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_SHORT_TREE = 1;
-
-/** Show a full display of the B-tree contents.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_FULL_TREE = 2;
-
-/** Show the bitmap for the B-tree.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_SHOW_BITMAP = 4;
-
-/** Show statistics for the B-tree.
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_SHOW_STATS = 8;
-
-/** Fix problems.
- *
- *  Currently this is supported for chert, and will:
- *
- *    * regenerate the "iamchert" file if it isn't valid (so if it is lost, you
- *      can just create it empty and then "fix problems").
- *
- *    * regenerate base files (currently the algorithm for finding the root
- *      block may not work if there was a change partly written but not
- *      committed).
- *
- *  For use with Xapian::Database::check().
- */
-const int DBCHECK_FIX = 16;
 
 }
 

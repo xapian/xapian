@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,19 +26,24 @@
 #define OM_HGUARD_BRASS_DATABASE_H
 
 #include "backends/database.h"
+#include "brass_changes.h"
 #include "brass_dbstats.h"
+#include "brass_docdata.h"
 #include "brass_inverter.h"
 #include "brass_positionlist.h"
 #include "brass_postlist.h"
-#include "brass_record.h"
 #include "brass_spelling.h"
 #include "brass_synonym.h"
 #include "brass_termlisttable.h"
 #include "brass_values.h"
 #include "brass_version.h"
 #include "../flint_lock.h"
-#include "brass_types.h"
+#include "brass_defs.h"
 #include "backends/valuestats.h"
+
+#include "noreturn.h"
+
+#include "xapian/constants.h"
 
 #include <map>
 
@@ -80,7 +85,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 
 	/** Table storing position lists.
 	 */
-	BrassPositionListTable position_table;
+	mutable BrassPositionListTable position_table;
 
 	/** Table storing term lists.
 	 */
@@ -97,25 +102,18 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 */
 	mutable BrassSpellingTable spelling_table;
 
-	/** Table storing records.
-	 *
-	 *  Whenever an update is performed, this table is the last to be
-	 *  updated: therefore, its most recent revision number is the most
-	 *  recent consistent revision available.  If this table's most
-	 *  recent revision number is not available for all tables, there
-	 *  is no consistent revision available, and the database is corrupt.
+	/** Table storing document data.
 	 */
-	BrassRecordTable record_table;
+	BrassDocDataTable docdata_table;
 
 	/// Lock object.
 	FlintLock lock;
 
-	/** The maximum number of changesets which should be kept in the
-	 *  database. */
-	unsigned int max_changesets;
-
 	/// Database statistics.
 	BrassDatabaseStats stats;
+
+	/// Replication changesets.
+	BrassChanges changes;
 
 	/** Return true if a database exists at the path specified for this
 	 *  database.
@@ -125,17 +123,17 @@ class BrassDatabase : public Xapian::Database::Internal {
 	/** Create new tables, and open them.
 	 *  Any existing tables will be removed first.
 	 */
-	void create_and_open_tables(unsigned int blocksize);
+	void create_and_open_tables(int flags, unsigned int blocksize);
 
-	/** Open all tables at most recent consistent revision.
+	/** Open all tables at most recent revision.
 	 *
-	 *  @return	true if the tables were reopened; false if we could
-	 *		tell they were alreayd open at the latest revision.
+	 *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
+	 *  found with the database's format.
 	 *
-	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
-	 *  consistent revision available.
+	 *  @return false if the tables were already open at the most recent
+	 *  revision.
 	 */
-	bool open_tables_consistent();
+	bool open_tables(int flags);
 
 	/** Get a write lock on the database, or throw an
 	 *  Xapian::DatabaseLockError if failure.
@@ -144,21 +142,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  created - if false, will throw a DatabaseOpening error if the lock
 	 *  can't be acquired and the database doesn't exist.
 	 */
-	void get_database_write_lock(bool creating);
-
-	/** Open tables at specified revision number.
-	 *
-	 *  @exception Xapian::InvalidArgumentError is thrown if the specified
-	 *  revision is not available.
-	 */
-	void open_tables(brass_revision_number_t revision);
-
-	/** Get an object holding the revision number which the tables are
-	 *  opened at.
-	 *
-	 *  @return the current revision number.
-	 */
-	brass_revision_number_t get_revision_number() const;
+	void get_database_write_lock(int flags, bool creating);
 
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
@@ -173,11 +157,11 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  becomes the specified revision number.
 	 *
 	 *  @param new_revision The new revision number to store.  This must
-	 *          be greater than the latest revision number (see
-	 *          get_latest_revision_number()), or undefined behaviour will
-	 *          result.
+	 *          be greater than the current revision number.  FIXME: If
+	 *          we support rewinding to a previous revision, maybe this
+	 *          needs to be greater than any previously used revision.
 	 */
-	void set_revision_number(brass_revision_number_t new_revision);
+	void set_revision_number(int flags, brass_revision_number_t new_revision);
 
 	/** Re-open tables to recover from an overwritten condition,
 	 *  or just get most up-to-date version.
@@ -193,8 +177,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *  @param msg is a string description of the exception that was
 	 *  raised when the modifications failed.
 	 */
-	void modifications_failed(brass_revision_number_t old_revision,
-				  brass_revision_number_t new_revision,
+	void modifications_failed(brass_revision_number_t new_revision,
 				  const std::string & msg);
 
 	/** Apply any outstanding changes to the tables.
@@ -224,8 +207,8 @@ class BrassDatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a brass database.
 	 *
-	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
-	 *             consistent revision available.
+	 *  @exception Xapian::DatabaseCorruptError is thrown if a problem is
+	 *	       found with the database's format.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't
 	 *             be opened.
@@ -241,8 +224,8 @@ class BrassDatabase : public Xapian::Database::Internal {
 	 *                    correct value, when the database is being
 	 *                    created.
 	 */
-	BrassDatabase(const string &db_dir_, int action = XAPIAN_DB_READONLY,
-		       unsigned int block_size = 0u);
+	BrassDatabase(const string &db_dir_, int flags = Xapian::DB_READONLY_,
+		      unsigned int block_size = 0u);
 
 	~BrassDatabase();
 
@@ -251,6 +234,13 @@ class BrassDatabase : public Xapian::Database::Internal {
 	    return postlist_table.cursor_get();
 	}
 
+	/** Get an object holding the revision number which the tables are
+	 *  opened at.
+	 *
+	 *  @return the current revision number.
+	 */
+	brass_revision_number_t get_revision_number() const;
+
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::doccount  get_doccount() const;
@@ -258,8 +248,10 @@ class BrassDatabase : public Xapian::Database::Internal {
 	totlen_t get_total_length() const;
 	Xapian::doclength get_avlength() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;
-	Xapian::doccount get_termfreq(const string & tname) const;
-	Xapian::termcount get_collection_freq(const string & tname) const;
+	Xapian::termcount get_unique_terms(Xapian::docid did) const;
+	void get_freqs(const string & term,
+		       Xapian::doccount * termfreq_ptr,
+		       Xapian::termcount * collfreq_ptr) const;
 	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 	std::string get_value_lower_bound(Xapian::valueno slot) const;
 	std::string get_value_upper_bound(Xapian::valueno slot) const;
@@ -294,6 +286,7 @@ class BrassDatabase : public Xapian::Database::Internal {
 	string get_uuid() const;
 	//@}
 
+	XAPIAN_NORETURN(void throw_termlist_table_close_exception() const);
 };
 
 /** A writable brass database.
@@ -372,22 +365,26 @@ class BrassWritableDatabase : public BrassDatabase {
 	 *
 	 *  @param dir directory holding brass tables
 	 */
-	BrassWritableDatabase(const string &dir, int action, int block_size);
+	BrassWritableDatabase(const string &dir, int flags, int block_size);
 
 	~BrassWritableDatabase();
 
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::termcount get_doclength(Xapian::docid did) const;
-	Xapian::doccount get_termfreq(const string & tname) const;
-	Xapian::termcount get_collection_freq(const string & tname) const;
+	void get_freqs(const string & term,
+		       Xapian::doccount * termfreq_ptr,
+		       Xapian::termcount * collfreq_ptr) const;
 	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 	std::string get_value_lower_bound(Xapian::valueno slot) const;
 	std::string get_value_upper_bound(Xapian::valueno slot) const;
 	bool term_exists(const string & tname) const;
+	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
 	ValueList * open_value_list(Xapian::valueno slot) const;
+	PositionList * open_position_list(Xapian::docid did, const string & term) const;
+	TermList * open_term_list(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;

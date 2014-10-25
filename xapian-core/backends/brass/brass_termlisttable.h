@@ -1,7 +1,7 @@
 /** @file brass_termlisttable.h
  * @brief Subclass of BrassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_BRASS_TERMLISTTABLE_H
 #define XAPIAN_INCLUDED_BRASS_TERMLISTTABLE_H
 
+#include <xapian/constants.h>
 #include <xapian/types.h>
 
 #include "brass_lazytable.h"
@@ -61,7 +62,7 @@ class BrassTermListTable : public BrassLazyTable {
      *  @param doclen	The document length.
      */
     void set_termlist(Xapian::docid did, const Xapian::Document & doc,
-		      brass_doclen_t doclen);
+		      Xapian::termcount doclen);
 
     /** Delete the termlist data for document @a did.
      *
@@ -69,15 +70,19 @@ class BrassTermListTable : public BrassLazyTable {
      */
     void delete_termlist(Xapian::docid did) { del(make_key(did)); }
 
-    /** Non-lazy override of BrassLazyTable::create_and_open().
+    /** Conditionally lazy override of BrassLazyTable::create_and_open().
      *
-     * Don't create lazily, but if the termlist is deleted, work without it.
+     *  Only create lazily if Xapian::DB_NO_TERMLIST is set in flags_.
      *
      *  This method isn't virtual, but we never call it such that it needs to
      *  be.
      */
-    void create_and_open(unsigned int blocksize) {
-	BrassTable::create_and_open(blocksize);
+    void create_and_open(int flags_, unsigned blocksize_) {
+	if (flags_ & Xapian::DB_NO_TERMLIST) {
+	    BrassLazyTable::create_and_open(flags_, blocksize_);
+	} else {
+	    BrassTable::create_and_open(flags_, blocksize_);
+	}
     }
 };
 

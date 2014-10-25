@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -79,7 +79,7 @@ DEFINE_TESTCASE(stubdb1, backend && !inmemory && !remote) {
     out.close();
 
     {
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
@@ -106,7 +106,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
     out.close();
 
     {
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
@@ -133,7 +133,7 @@ DEFINE_TESTCASE(stubdb3, backend && !inmemory && !remote) {
     out.close();
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB));
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
@@ -152,7 +152,7 @@ DEFINE_TESTCASE(stubdb4, backend && !inmemory && !remote) {
     out.close();
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB));
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
@@ -173,7 +173,7 @@ DEFINE_TESTCASE(stubdb5, backend && !inmemory && !remote) {
     out.close();
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath));
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB));
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath));
@@ -192,7 +192,7 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 
     // Read-only tests:
     {
-	Xapian::Database db = Xapian::Auto::open_stub(dbpath);
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
 	TEST_EQUAL(db.get_doccount(), 0);
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
@@ -210,14 +210,15 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 
     // Writable tests:
     {
-	Xapian::WritableDatabase db;
-        db = Xapian::Auto::open_stub(dbpath, Xapian::DB_OPEN);
+	Xapian::WritableDatabase db(dbpath,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
 	TEST_EQUAL(db.get_doccount(), 0);
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
     }
     {
-	Xapian::WritableDatabase db(dbpath, Xapian::DB_OPEN);
+	Xapian::WritableDatabase db(dbpath,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
 	TEST_EQUAL(db.get_doccount(), 0);
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
@@ -914,11 +915,11 @@ DEFINE_TESTCASE(allterms1, backend) {
     ati++;
     TEST(ati != db.allterms_end());
     if (verbose) {
-	tout << "*ati = `" << *ati << "'\n";
-	tout << "*ati.length = `" << (*ati).length() << "'\n";
+	tout << "*ati = '" << *ati << "'\n";
+	tout << "*ati.length = '" << (*ati).length() << "'\n";
 	tout << "*ati == \"one\" = " << (*ati == "one") << "\n";
 	tout << "*ati[3] = " << ((*ati)[3]) << "\n";
-	tout << "*ati = `" << *ati << "'\n";
+	tout << "*ati = '" << *ati << "'\n";
     }
     TEST(*ati == "three");
     TEST(ati.get_termfreq() == 3);
@@ -1467,25 +1468,33 @@ DEFINE_TESTCASE(chertdatabaseopeningerror1, chert) {
     mkdir(".chert", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/nosuchdirectory"));
+	    Xapian::Database(".chert/nosuchdirectory",
+		Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/nosuchdirectory", Xapian::DB_OPEN));
+	    Xapian::WritableDatabase(".chert/nosuchdirectory",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
 
     mkdir(".chert/emptydirectory", 0700);
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/emptydirectory"));
+	    Xapian::Database(".chert/emptydirectory",
+		Xapian::DB_BACKEND_CHERT));
 
     touch(".chert/somefile");
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/somefile"));
+	    Xapian::Database(".chert/somefile",
+		Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_OPEN));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE_OR_OPEN));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   Xapian::Chert::open(".chert/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+	    Xapian::WritableDatabase(".chert/somefile",
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
 #endif
 
     return true;
@@ -1499,49 +1508,53 @@ DEFINE_TESTCASE(chertdatabaseopen1, chert) {
 
     {
 	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_OPEN));
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
 	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
 	rm_rf(dbdir);
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
 	TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE));
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
-	Xapian::Chert::open(dbdir);
+	    Xapian::WritableDatabase(dbdir,
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
-	Xapian::Chert::open(dbdir);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 
     {
-	Xapian::WritableDatabase wdb =
-	    Xapian::Chert::open(dbdir, Xapian::DB_OPEN);
-	Xapian::Chert::open(dbdir);
+	Xapian::WritableDatabase wdb(dbdir,
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
     }
 #endif
 
@@ -1552,6 +1565,9 @@ DEFINE_TESTCASE(chertdatabaseopen1, chert) {
 // set_sort_by_value
 // set_sort_by_value_then_relevance
 // set_sort_by_relevance_then_value
+// Prior to 1.2.17 and 1.3.2, order8 and order9 were swapped, and
+// set_sort_by_relevance_then_value was buggy, so this testcase now serves as
+// a regression test for that bug.
 DEFINE_TESTCASE(sortrel1, backend) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_sort_by_value(1, true);
@@ -1564,8 +1580,8 @@ DEFINE_TESTCASE(sortrel1, backend) {
     const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
     const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
     const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
-    const Xapian::docid order8[] = { 7,6,2,9,5,1,8,4,3 };
-    const Xapian::docid order9[] = { 2,6,7,1,5,9,3,4,8 };
+    const Xapian::docid order8[] = { 2,6,7,1,5,9,3,4,8 };
+    const Xapian::docid order9[] = { 7,6,2,9,5,1,8,4,3 };
 
     Xapian::MSet mset;
     size_t i;
@@ -1771,9 +1787,12 @@ class MyWeight : public Xapian::Weight {
     double get_sumpart(Xapian::termcount, Xapian::termcount) const {
 	return scale_factor;
     }
+    double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
+	return scale_factor;
+    }
     double get_maxpart() const { return scale_factor; }
 
-    double get_sumextra(Xapian::termcount) const { return 0; }
+    double get_sumextra(Xapian::termcount, Xapian::termcount) const { return 0; }
     double get_maxextra() const { return 0; }
 };
 

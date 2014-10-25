@@ -64,7 +64,7 @@ qp:set_stemming_strategy(xapian.QueryParser_STEM_SOME)
 query = qp:parse_query(query_string)
 
 if not query:empty() then
-	print("Parsed query is: " .. query:get_description())
+	print("Parsed query is: " .. tostring(query))
 
 	-- Find the top 10 results for the query.
 	enquire:set_query(query)

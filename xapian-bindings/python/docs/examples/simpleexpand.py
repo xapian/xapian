@@ -3,7 +3,7 @@
 # Simple example script demonstrating query expansion.
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2006,2007,2012 Olly Betts
+# Copyright (C) 2004,2006,2007,2012,2013 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -88,10 +88,8 @@ try:
     # Get the suggested expand terms
     eterms = enquire.get_eset(10, reldocs)
     print "%i suggested additional terms" % eterms.size()
-    k = eterms.begin()
-    while k != eterms.end():
-        print "%s: %f" % (k.get_term(), k.get_weight())
-        k.next()
+    for k in eterms:
+        print "%s: %f" % (k.term, k.weight)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)

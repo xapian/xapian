@@ -1,7 +1,7 @@
 /** @file flint_lock.h
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,12 +34,16 @@
 # include <sys/types.h>
 #endif
 
+#include "noreturn.h"
+
 class FlintLock {
     std::string filename;
 #if defined __CYGWIN__ || defined __WIN32__
     HANDLE hFile;
 #elif defined __EMX__
     HFILE hFile;
+#elif defined FLINTLOCK_USE_FLOCK
+    int fd;
 #else
     int fd;
     pid_t pid;
@@ -69,6 +73,11 @@ class FlintLock {
 	filename += "/flintlock";
     }
     operator bool() const { return hFile != NULLHANDLE; }
+#elif defined FLINTLOCK_USE_FLOCK
+    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
+	filename += "/flintlock";
+    }
+    operator bool() const { return fd != -1; }
 #else
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
 	filename += "/flintlock";
@@ -90,9 +99,10 @@ class FlintLock {
     void release();
 
     /// Throw Xapian::DatabaseLockError.
+    XAPIAN_NORETURN(
     void throw_databaselockerror(FlintLock::reason why,
 				 const std::string & db_dir,
-				 const std::string & explanation);
+				 const std::string & explanation));
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

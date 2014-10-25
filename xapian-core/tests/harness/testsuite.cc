@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,13 +29,13 @@
 #endif
 #include "fdtracker.h"
 #include "testrunner.h"
+#include "safeunistd.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
 # include <valgrind/memcheck.h>
 # include <sys/types.h>
 # include "safefcntl.h"
-# include "safeunistd.h"
 #endif
 
 #include <algorithm>
@@ -71,7 +71,7 @@
 using namespace std;
 
 /// The global verbose flag.
-bool verbose;
+int verbose;
 
 #ifdef HAVE_VALGRIND
 static int vg_log_fd = -1;
@@ -336,6 +336,8 @@ test_driver::runtest(const test_desc *test)
 		    write_and_clear_tout();
 		    return FAIL;
 		}
+		if (verbose > 1)
+		    write_and_clear_tout();
 #ifndef NO_LIBXAPIAN
 		if (backendmanager)
 		    backendmanager->clean_up();
@@ -360,7 +362,7 @@ test_driver::runtest(const test_desc *test)
 		    // Record the current position so we can restore it so
 		    // REPORT_FAIL_VG() gets the whole output.
 		    off_t curpos = lseek(vg_log_fd, 0, SEEK_CUR);
-		    char buf[1024];
+		    char buf[4096];
 		    while (true) {
 			ssize_t c = read(vg_log_fd, buf, sizeof(buf));
 			if (c == 0 || (c < 0 && errno != EINTR)) {
@@ -369,10 +371,10 @@ test_driver::runtest(const test_desc *test)
 			}
 			if (c > 0) {
 			    // Valgrind output has "==<pid>== \n" between
-			    // report "records", so skip to the next occurrence
-			    // of ' ' not followed by '\n'.
+			    // report "records", so skip any lines like that,
+			    // and also any warnings and continuation lines.
 			    ssize_t i = 0;
-			    do {
+			    while (true) {
 				const char * spc;
 				spc = static_cast<const char *>(
 					memchr(buf + i, ' ', c - i));
@@ -381,7 +383,26 @@ test_driver::runtest(const test_desc *test)
 				    break;
 				}
 				i = spc - buf;
-			    } while (++i < c && buf[i] == '\n');
+				if (++i >= c) break;
+				if (buf[i] == '\n')
+				    continue;
+				if (c - i >= 8 &&
+				    (memcmp(buf + i, "Warning:", 8) == 0 ||
+				     memcmp(buf + i, "   ", 3) == 0)) {
+				    // Skip this line.
+				    i += 3;
+				    const char * nl;
+				    nl = static_cast<const char *>(
+					    memchr(buf + i, '\n', c - i));
+				    if (!nl) {
+					i = c;
+					break;
+				    }
+				    i = nl - buf;
+				    continue;
+				}
+				break;
+			    }
 
 			    char *start = buf + i;
 			    c -= i;
@@ -689,7 +710,7 @@ test_driver::report(const test_driver::result &r, const string &desc)
 void
 test_driver::add_command_line_option(const string &l, char s, string * arg)
 {
-    short_opts.insert(make_pair<int, string *>(int(s), arg));
+    short_opts.insert(make_pair(int(s), arg));
     opt_help += "[-";
     opt_help += s;
     opt_help += ' ';
@@ -738,7 +759,7 @@ test_driver::parse_command_line(int argc, char **argv)
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'v':
-		verbose = true;
+		++verbose;
 		break;
 	    case 'o':
 		abort_on_error = true;
@@ -767,12 +788,7 @@ test_driver::parse_command_line(int argc, char **argv)
 	    // Open the valgrind log file, and unlink it.
 	    char fname[64];
 	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
-	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    if (vg_log_fd == -1 && errno == ENOENT) {
-		// Older valgrind versions named the log output differently.
-		sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
-		vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    }
+	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
 	    if (vg_log_fd != -1) unlink(fname);
 	}
     }

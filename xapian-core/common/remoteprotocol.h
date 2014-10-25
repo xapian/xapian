@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
  * Copyright (C) 2007,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,9 @@
 // 35: 1.1.5 Support for add_spelling() and remove_spelling().
 // 35.1: 1.2.4 Support for metadata_keys_begin().
 // 36: 1.3.0 REPLY_UPDATE and REPLY_GREETING merged, and more...
-#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 36
+// 37: 1.3.1 Prefix-compress termlists.
+// 38: 1.3.2 Stats serialisation now includes collection freq, and more...
+#define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 38
 #define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
 
 /** Message types (client -> server).
@@ -84,6 +86,8 @@ enum message_type {
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
     MSG_METADATAKEYLIST,	// Iterator for metadata keys
+    MSG_FREQS,			// Get termfreq and collfreq
+    MSG_UNIQUETERMS,		// Get number of unique terms in doc
     MSG_MAX
 };
 
@@ -110,6 +114,8 @@ enum reply_type {
     REPLY_RESULTS,		// Results (MSet)
     REPLY_METADATA,		// Metadata
     REPLY_METADATAKEYLIST,	// Iterator for metadata keys
+    REPLY_FREQS,		// Get termfreq and collfreq
+    REPLY_UNIQUETERMS,		// Get number of unique terms in doc
     REPLY_MAX
 };
 

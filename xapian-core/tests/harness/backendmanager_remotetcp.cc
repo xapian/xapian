@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.cc
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2013 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,7 +32,7 @@
 #ifdef HAVE_FORK
 # include <signal.h>
 # include <sys/types.h>
-# include <sys/socket.h>
+# include "safesyssocket.h"
 # include <sys/wait.h>
 # include <unistd.h>
 // Some older systems had SIGCLD rather than SIGCHLD.
@@ -45,6 +45,7 @@
 # include <io.h> // For _open_osfhandle().
 # include "safefcntl.h"
 # include "safewindows.h"
+# include <cstdlib> // For free().
 #endif
 
 #include "noreturn.h"

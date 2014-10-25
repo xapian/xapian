@@ -1,6 +1,6 @@
 /* utf8convert.cc: convert a string to UTF-8 encoding.
  *
- * Copyright (C) 2006,2007,2008,2010 Olly Betts
+ * Copyright (C) 2006,2007,2008,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,9 +27,8 @@
 #include "safeerrno.h"
 #ifdef USE_ICONV
 # include <iconv.h>
-#else
-# include <xapian.h>
 #endif
+#include <xapian.h>
 #include "strcasecmp.h"
 #include "stringutils.h"
 
@@ -50,69 +49,23 @@ convert_to_utf8(string & text, const string & charset)
 	return;
 
     char buf[1024];
-
-#ifdef USE_ICONV
-    iconv_t conv = iconv_open("UTF-8", charset.c_str());
-    if (conv == (iconv_t)-1) {
-	if (charset.size() < 4 || charset[3] == '-')
-	    return;
-
-	// Try correcting common misspellings of UTF-16 and UCS-2 charsets.
-	// In particular, handle ' ' or '_' instead of '-', and a missing '-',
-	// so: UCS2 -> UCS-2, UTF_16 -> UTF-16, etc.
-	//
-	// Note: libiconv on OSX doesn't support these misspellings, though
-	// libiconv on Ubuntu does.
-	if (strncasecmp(charset.c_str(), "ucs", 3) != 0 &&
-	    strncasecmp(charset.c_str(), "utf", 3) != 0) {
-	    return;
-	}
-
-	string adjusted_charset(charset, 0, 3);
-	adjusted_charset += '-';
-	if (charset[3] == ' ' || charset[3] == '_') {
-	    adjusted_charset.append(charset, 4, string::npos);
-	} else {
-	    adjusted_charset.append(charset, 3, string::npos);
-	}
-
-	conv = iconv_open("UTF-8", adjusted_charset.c_str());
-	if (conv == (iconv_t)-1) return;
-    }
-
     string tmp;
 
-    ICONV_INPUT_TYPE in = const_cast<char *>(text.c_str());
-    size_t in_len = text.size();
-    while (in_len) {
-	char * out = buf;
-	size_t out_len = sizeof(buf);
-	if (iconv(conv, &in, &in_len, &out, &out_len) == size_t(-1) &&
-	    errno != E2BIG) {
-	    // FIXME: how to handle this?
-	    break;
-	}
-	tmp.append(buf, out - buf);
-    }
-
-    (void)iconv_close(conv);
-#else
-    /* If we don't have iconv, handle iso-8859-1, utf-16/ucs-2,
+    /* Handle iso-8859-1/windows-1252/cp-1252, utf-16/ucs-2,
      * utf-16be/ucs-2be, and utf-16le/ucs-2le. */
-    string tmp;
     const char * p = charset.c_str();
 
     bool utf16 = false;
     if (strncasecmp(p, "utf", 3) == 0) {
 	p += 3;
 	if (*p == '-' || *p == '_' || *p == ' ') ++p;
-	if (*p != '1' || p[1] != '6') return;
+	if (*p != '1' || p[1] != '6') goto try_iconv;
 	p += 2;
 	utf16 = true;
     } else if (strncasecmp(p, "ucs", 3) == 0) {
 	p += 3;
 	if (*p == '-' || *p == '_' || *p == ' ') ++p;
-	if (*p != '2') return;
+	if (*p != '2') goto try_iconv;
 	++p;
 	utf16 = true;
     }
@@ -123,6 +76,7 @@ convert_to_utf8(string & text, const string & charset)
 	bool big_endian = true;
 	string::const_iterator i = text.begin();
 	if (*p == '\0') {
+	    // GNU iconv doesn't seem to handle BOMs.
 	    if (startswith(text, "\xfe\xff")) {
 		i += 2;
 	    } else if (startswith(text, "\xff\xfe")) {
@@ -136,7 +90,7 @@ convert_to_utf8(string & text, const string & charset)
 	} else if (strcasecmp(p, "LE") == 0) {
 	    big_endian = false;
 	} else if (!(strcasecmp(p, "BE") == 0)) {
-	    return;
+	    goto try_iconv;
 	}
 
 	tmp.reserve(text.size() / 2);
@@ -181,21 +135,49 @@ convert_to_utf8(string & text, const string & charset)
 	}
 	if (start) tmp.append(buf, start);
     } else {
-	if (strncasecmp(p, "iso", 3) == 0) {
-	    p += 3;
-	    if (*p == '-' || *p == '_' || *p == ' ') ++p;
+	// Assume windows-1252 if iso-8859-1 is specified.  The only
+	// differences are in the range 128-159 which are control characters in
+	// iso-8859-1, and a lot of content is mislabelled.  We use our own
+	// conversion code for this case, as GNU iconv fails if it sees one of
+	// the unassigned code points in windows-1252, whereas it would accept
+	// the same input as iso-8859-1, and it seems undesirable to be
+	// rejecting input due to this behind-the-scenes character set
+	// shenanigans.
+	const char * q = NULL;
+	if (strncasecmp(p, "windows", 7) == 0) {
+	    q = p + 7;
+	} else if (strncasecmp(p, "cp", 2) == 0) {
+	    q = p + 2;
 	}
-	if (strncmp(p, "8859", 4) != 0) return;
-	p += 4;
-	if (*p == '-' || *p == '_' || *p == ' ') ++p;
-	if (strcmp(p, "1") != 0) return;
+	if (q) {
+	    if (*q == '-' || *q == '_' || *q == ' ') ++q;
+	    if (strcmp(q, "1252") != 0)
+		goto try_iconv;
+	} else {
+	    if (strncasecmp(p, "iso", 3) == 0) {
+		p += 3;
+		if (*p == '-' || *p == '_' || *p == ' ') ++p;
+	    }
+	    if (strncmp(p, "8859", 4) != 0) goto try_iconv;
+	    p += 4;
+	    if (*p == '-' || *p == '_' || *p == ' ') ++p;
+	    if (strcmp(p, "1") != 0) goto try_iconv;
+	}
 
 	// FIXME: pull this out as a standard "normalise utf-8" function?
 	tmp.reserve(text.size());
 
 	size_t start = 0;
 	for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
+	    static const unsigned cp1252_to_unicode[32] = {
+		0x20ac,    129, 0x201a, 0x0192, 0x201e, 0x2026, 0x2020, 0x2021,
+		0x02c6, 0x2030, 0x0160, 0x2039, 0x0152,    141, 0x017d,    143,
+		   144, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
+		0x02dc, 0x2122, 0x0161, 0x203a, 0x0153,    157, 0x017e, 0x0178
+	    };
 	    unsigned ch = static_cast<unsigned char>(*i);
+	    if (ch - 128 < sizeof(cp1252_to_unicode) / sizeof(*cp1252_to_unicode))
+		ch = cp1252_to_unicode[ch - 128];
 	    start += Xapian::Unicode::to_utf8(ch, buf + start);
 	    if (start >= sizeof(buf) - 4) {
 		tmp.append(buf, start);
@@ -204,7 +186,31 @@ convert_to_utf8(string & text, const string & charset)
 	}
 	if (start) tmp.append(buf, start);
     }
+
+    if (false) {
+try_iconv:
+#ifdef USE_ICONV
+	iconv_t conv = iconv_open("UTF-8", charset.c_str());
+	if (conv == (iconv_t)-1)
+	    return;
+	ICONV_INPUT_TYPE in = const_cast<char *>(text.c_str());
+	size_t in_len = text.size();
+	while (in_len) {
+	    char * out = buf;
+	    size_t out_len = sizeof(buf);
+	    if (iconv(conv, &in, &in_len, &out, &out_len) == size_t(-1) &&
+		errno != E2BIG) {
+		// FIXME: how to handle this?
+		break;
+	    }
+	    tmp.append(buf, out - buf);
+	}
+
+	(void)iconv_close(conv);
+#else
+	return;
 #endif
+    }
 
     swap(text, tmp);
 }

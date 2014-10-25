@@ -23,8 +23,8 @@
  * IN THE SOFTWARE.
  */
 
-#ifndef GEOENCODE_INCLUDED_H
-#define GEOENCODE_INCLUDED_H
+#ifndef XAPIAN_INCLUDED_GEOENCODE_H
+#define XAPIAN_INCLUDED_GEOENCODE_H
 
 #include <string>
 
@@ -156,4 +156,4 @@ class DecoderWithBoundingBox {
 
 }
 
-#endif /* GEOENCODE_INCLUDED_H */
+#endif /* XAPIAN_INCLUDED_GEOENCODE_H */

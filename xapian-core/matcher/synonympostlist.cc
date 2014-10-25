@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011 Olly Betts
+ * Copyright 2009,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 #include "branchpostlist.h"
 #include "debuglog.h"
+#include "omassert.h"
 
 SynonymPostList::~SynonymPostList()
 {
@@ -76,13 +77,22 @@ SynonymPostList::get_weight() const
     // that this is true.  Note that this requires the doclength to be
     // calculated even if the weight object doesn't want it.
 
+    Xapian::termcount unique_terms = 0;
+    if (want_unique_terms)
+	unique_terms = get_unique_terms();
     if (want_wdf) {
 	Xapian::termcount wdf = get_wdf();
-	Xapian::termcount doclen = get_doclength();
-	if (wdf > doclen) wdf = doclen;
-	RETURN(wt->get_sumpart(wdf, doclen));
+	Xapian::termcount doclen = 0;
+	if (want_doclength || wdf > doclen_lower_bound) {
+	    doclen = get_doclength();
+	    if (wdf > doclen) wdf = doclen;
+	}
+	double sumpart = wt->get_sumpart(wdf, doclen, unique_terms);
+	AssertRel(sumpart, <=, wt->get_maxpart());
+	RETURN(sumpart);
     }
-    RETURN(wt->get_sumpart(0, want_doclength ? get_doclength() : 0));
+    Xapian::termcount doclen = want_doclength ? get_doclength() : 0;
+    RETURN(wt->get_sumpart(0, doclen, unique_terms));
 }
 
 double
@@ -140,6 +150,12 @@ Xapian::termcount
 SynonymPostList::get_doclength() const {
     LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_doclength", NO_ARGS);
     RETURN(subtree->get_doclength());
+}
+
+Xapian::termcount
+SynonymPostList::get_unique_terms() const {
+    LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_unique_terms", NO_ARGS);
+    RETURN(subtree->get_unique_terms());
 }
 
 bool

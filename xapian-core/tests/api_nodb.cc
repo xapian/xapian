@@ -302,6 +302,92 @@ DEFINE_TESTCASE(weight1, !backend) {
     Xapian::BM25Weight bm25weight2(1, 0.5, 1, 0.5, 0.5);
     TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
 
+    Xapian::TfIdfWeight tfidfweight_dflt;
+    Xapian::TfIdfWeight tfidfweight("ntn");
+    TEST_EQUAL(tfidfweight.name(), "Xapian::TfIdfWeight");
+    TEST_EQUAL(tfidfweight_dflt.serialise(), tfidfweight.serialise());
+    wt = Xapian::TfIdfWeight().unserialise(tfidfweight.serialise());
+    TEST_EQUAL(tfidfweight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::TfIdfWeight tfidfweight2("bpn");
+    TEST_NOT_EQUAL(tfidfweight.serialise(), tfidfweight2.serialise());
+
+    Xapian::InL2Weight inl2weight_dflt;
+    Xapian::InL2Weight inl2weight(1.0);
+    TEST_EQUAL(inl2weight.name(), "Xapian::InL2Weight");
+    TEST_EQUAL(inl2weight_dflt.serialise(), inl2weight.serialise());
+    wt = Xapian::InL2Weight().unserialise(inl2weight.serialise());
+    TEST_EQUAL(inl2weight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::InL2Weight inl2weight2(2.0);
+    TEST_NOT_EQUAL(inl2weight.serialise(), inl2weight2.serialise());
+
+    Xapian::IfB2Weight ifb2weight_dflt;
+    Xapian::IfB2Weight ifb2weight(1.0);
+    TEST_EQUAL(ifb2weight.name(), "Xapian::IfB2Weight");
+    TEST_EQUAL(ifb2weight_dflt.serialise(), ifb2weight.serialise());
+    wt = Xapian::IfB2Weight().unserialise(ifb2weight.serialise());
+    TEST_EQUAL(ifb2weight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::IfB2Weight ifb2weight2(2.0);
+    TEST_NOT_EQUAL(ifb2weight.serialise(), ifb2weight2.serialise());
+
+    Xapian::IneB2Weight ineb2weight_dflt;
+    Xapian::IneB2Weight ineb2weight(1.0);
+    TEST_EQUAL(ineb2weight.name(), "Xapian::IneB2Weight");
+    TEST_EQUAL(ineb2weight_dflt.serialise(), ineb2weight.serialise());
+    wt = Xapian::IneB2Weight().unserialise(ineb2weight.serialise());
+    TEST_EQUAL(ineb2weight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::IneB2Weight ineb2weight2(2.0);
+    TEST_NOT_EQUAL(ineb2weight.serialise(), ineb2weight2.serialise());
+
+    Xapian::BB2Weight bb2weight_dflt;
+    Xapian::BB2Weight bb2weight(1.0);
+    TEST_EQUAL(bb2weight.name(), "Xapian::BB2Weight");
+    TEST_EQUAL(bb2weight_dflt.serialise(), bb2weight.serialise());
+    wt = Xapian::BB2Weight().unserialise(bb2weight.serialise());
+    TEST_EQUAL(bb2weight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::BB2Weight bb2weight2(2.0);
+    TEST_NOT_EQUAL(bb2weight.serialise(), bb2weight2.serialise());
+
+    Xapian::DLHWeight dlhweight;
+    TEST_EQUAL(dlhweight.name(), "Xapian::DLHWeight");
+    wt = Xapian::DLHWeight().unserialise(dlhweight.serialise());
+    TEST_EQUAL(dlhweight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::PL2Weight pl2weight_dflt;
+    Xapian::PL2Weight pl2weight(1.0);
+    TEST_EQUAL(pl2weight.name(), "Xapian::PL2Weight");
+    TEST_EQUAL(pl2weight_dflt.serialise(), pl2weight.serialise());
+    wt = Xapian::PL2Weight().unserialise(pl2weight.serialise());
+    TEST_EQUAL(pl2weight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::PL2Weight pl2weight2(2.0);
+    TEST_NOT_EQUAL(pl2weight.serialise(), pl2weight2.serialise());
+
+    Xapian::DPHWeight dphweight;
+    TEST_EQUAL(dphweight.name(), "Xapian::DPHWeight");
+    wt = Xapian::DPHWeight().unserialise(dphweight.serialise());
+    TEST_EQUAL(dphweight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::LMWeight unigramlmweight_dflt;
+    Xapian::LMWeight unigramlmweight(32000, Xapian::Weight::DIRICHLET_SMOOTHING, 2034.0, 0.0);
+    TEST_EQUAL(unigramlmweight.name(), "Xapian::LMWeight");
+    TEST_NOT_EQUAL(unigramlmweight_dflt.serialise(), unigramlmweight.serialise());
+    wt = Xapian::LMWeight().unserialise(unigramlmweight.serialise());
+    TEST_EQUAL(unigramlmweight.serialise(), wt->serialise());
+    delete wt;
+
     return true;
 }
 
@@ -431,5 +517,19 @@ DEFINE_TESTCASE(emptymset1, !backend) {
     Xapian::MSet emptymset;
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 		   emptymset.get_termfreq("foo"));
+    return true;
+}
+
+DEFINE_TESTCASE(expanddeciderfilterprefix1, !backend) {
+    string prefix = "tw";
+    Xapian::ExpandDeciderFilterPrefix decider(prefix);
+    TEST(!decider("one"));
+    TEST(!decider("t"));
+    TEST(!decider(""));
+    TEST(!decider("Two"));
+    TEST(decider("two"));
+    TEST(decider("twitter"));
+    TEST(decider(prefix));
+
     return true;
 }

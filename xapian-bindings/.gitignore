@@ -2,6 +2,7 @@
 /Makefile
 /Makefile.in
 /aclocal.m4
+/compile
 /configure
 /config.cache
 /config.guess
@@ -18,9 +19,10 @@
 /stamp-h
 /stamp-h1
 /stamp-h.in
+/test-driver
 /autom4te*.cache
 /depcomp
 /missing
-/xapian-bindings-*.tar.gz
+/xapian-bindings-*.tar.xz
 /xapian-bindings.spec
 /xapian-version.h

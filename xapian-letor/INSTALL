@@ -31,3 +31,13 @@ build xapian-letor:
    then you are probably good.  Often these files are in a separate
    package, which is probably named something like libsvm-dev or
    libsvm-devel.
+
+   On Mac OS X, if you installed libsvm using homebrew but got the following
+   error when running the configure script:
+
+      configure: error: libsvm required but libsvm/svm.h not found
+
+   Suppose you are using libsvm 3.17, you can type the following into terminal
+   and rerun the configure script:
+
+      ln -s /usr/local/Cellar/libsvm/3.17/include/ /usr/local/include/libsvm
