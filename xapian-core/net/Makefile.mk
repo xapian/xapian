@@ -12,6 +12,8 @@ noinst_HEADERS +=\
 	net/tcpserver.h
 
 EXTRA_DIST +=\
+	net/remote_protocol.rst\
+	net/replication_protocol.rst\
 	net/Makefile
 
 if BUILD_BACKEND_REMOTE

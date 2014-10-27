@@ -45,7 +45,8 @@ modifications are made.
 
 This document gives an overview of how and why to use the replication protocol.
 For technical details of the implementation of the replication protocol, see
-the separate `Replication Protocol <replication_protocol.html>`_ document.
+the separate document `net/replication_protocol.rst` in the xapian-core
+source tree.
 
 Backend Support
 ===============

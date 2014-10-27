@@ -31,9 +31,7 @@ RSTDOCS = \
 	postingsource.rst \
 	queryparser.rst \
 	quickstart.rst \
-	remote_protocol.rst \
 	remote.rst \
-	replication_protocol.rst \
 	replication.rst \
 	scalability.rst \
 	serialisation.rst \
