@@ -2,10 +2,8 @@
 /Makefile.in
 /Makefile
 /.deps
-/gen_codestructure_doc
 /admin_notes.html
 /bm25.html
-/code_structure.html
 /collapsing.html
 /deprecation.html
 /facets.html

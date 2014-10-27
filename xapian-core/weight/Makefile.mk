@@ -2,7 +2,6 @@ noinst_HEADERS +=\
 	weight/weightinternal.h
 
 EXTRA_DIST +=\
-	weight/dir_contents\
 	weight/Makefile
 
 lib_src +=\

@@ -14,7 +14,6 @@ noinst_HEADERS +=\
 	backends/valuestats.h
 
 EXTRA_DIST +=\
-	backends/dir_contents\
 	backends/Makefile
 
 lib_src +=\

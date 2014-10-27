@@ -201,7 +201,7 @@ api_generated.cc: generate-api_generated
 endif
 
 EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
-	$(collated_apitest_sources:.cc=.h) dir_contents
+	$(collated_apitest_sources:.cc=.h)
 
 ## Distribute test data:
 EXTRA_DIST +=\

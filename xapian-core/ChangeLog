@@ -1,3 +1,27 @@
+Mon Oct 27 19:19:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/Makefile.mk,api/dir_contents,backends/Makefile.mk,
+	  backends/brass/Makefile.mk,backends/brass/dir_contents,
+	  backends/chert/Makefile.mk,backends/chert/dir_contents,
+	  backends/dir_contents,backends/inmemory/Makefile.mk,
+	  backends/inmemory/dir_contents,backends/multi/Makefile.mk,
+	  backends/multi/dir_contents,backends/remote/Makefile.mk,
+	  backends/remote/dir_contents,bin/Makefile.mk,bin/dir_contents,
+	  common/Makefile.mk,common/dir_contents,configure.ac,dir_contents,
+	  docs/,examples/Makefile.mk,examples/dir_contents,expand/Makefile.mk,
+	  expand/dir_contents,geospatial/Makefile.mk,geospatial/dir_contents,
+	  include/Makefile.mk,include/dir_contents,include/xapian/dir_contents,
+	  languages/Makefile.mk,languages/dir_contents,m4-macros/dir_contents,
+	  m4/dir_contents,matcher/Makefile.mk,matcher/dir_contents,
+	  net/Makefile.mk,net/dir_contents,preautoreconf,
+	  queryparser/Makefile.mk,queryparser/dir_contents,tests/Makefile.am,
+	  tests/dir_contents,tests/harness/Makefile.mk,
+	  tests/harness/dir_contents,tests/perftest/Makefile.mk,
+	  tests/perftest/dir_contents,tests/soaktest/Makefile.mk,
+	  tests/soaktest/dir_contents,unicode/Makefile.mk,unicode/dir_contents,
+	  weight/Makefile.mk,weight/dir_contents: Remove the dir_contents files
+	  and all the machinery to handle them.
+
 Sat Oct 25 19:25:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/query.cc,api/queryinternal.cc,api/smallvector.h,

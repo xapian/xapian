@@ -15,7 +15,6 @@ lemon_built_sources =\
 	queryparser/queryparser_token.h
 
 EXTRA_DIST += $(lemon_built_sources)\
-	queryparser/dir_contents\
 	queryparser/Makefile\
 	queryparser/lemon.c\
 	queryparser/queryparser.lemony\

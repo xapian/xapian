@@ -27,7 +27,6 @@ noinst_HEADERS +=\
 	matcher/valuestreamdocument.h
 
 EXTRA_DIST +=\
-	matcher/dir_contents\
 	matcher/Makefile
 
 if BUILD_BACKEND_REMOTE

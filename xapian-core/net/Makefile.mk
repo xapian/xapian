@@ -12,7 +12,6 @@ noinst_HEADERS +=\
 	net/tcpserver.h
 
 EXTRA_DIST +=\
-	net/dir_contents\
 	net/Makefile
 
 if BUILD_BACKEND_REMOTE
