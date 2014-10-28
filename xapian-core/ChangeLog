@@ -1,3 +1,7 @@
+Tue Oct 28 23:35:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Fix typo.
+
 Tue Oct 28 02:34:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/postingsource.rst: Use a modern class in postingsource example.

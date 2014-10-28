@@ -77,7 +77,7 @@ of the database.
 
 The value which `XAPIAN_MAX_CHANGESETS` is set to determines the maximum number
 of changeset files which will be kept.  The best number to keep depends on how
-you frequently you run replication and how big your transactions are - if all
+frequently you run replication and how big your transactions are - if all
 the changeset files needed to update a replica aren't present, a full copy of
 the database will be sent, but at some point that becomes more efficient
 anyway.  `10` is probably a good value to start with.
