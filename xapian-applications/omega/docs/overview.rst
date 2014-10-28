@@ -560,3 +560,11 @@ Then you need only give the field values in the document data, which can
 save a lot of space in a large database.  With the setting of fieldnames
 above, the first line of document data can be accessed with $field{caption},
 the second with $field{sample}, and the third with $field{url}.
+
+Stopword List
+=============
+
+At search time, Omega uses a built-in list of stopwords, which are::
+
+    a about an and are as at be by en for from how i in is it of on or that the
+    this to was what when where which who why will with you your
