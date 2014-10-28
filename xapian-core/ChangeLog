@@ -1,3 +1,8 @@
+Tue Oct 28 02:34:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Use a modern class in postingsource example.
+	  (Noted by James Aylett)
+
 Mon Oct 27 21:06:55 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/,net/Makefile.mk,net/remote_protocol.rst,
