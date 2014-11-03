@@ -2,7 +2,7 @@ Xapian-core 1.2.19 (2014-10-21):
 
 API:
 
-* Xapian::BM5Weight:
+* Xapian::BM25Weight:
 
   + Improve BM25 upper bound in the case when our wdf upper bound > our
     document length lower bound.  Thanks to Craig Macdonald for pointing out
