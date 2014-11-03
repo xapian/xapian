@@ -1,3 +1,11 @@
+Mon Nov 03 22:11:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* INSTALL,php/docs/index.rst: In current PHP releases, dl() will only
+	  look in the configured extension directory, and only accepts a
+	  leafname, and dl() is disabled in most SAPIs, so update the
+	  documentation about how to install the PHP bindings without being
+	  root.  Fixes #661, reported by Felix Ostmann.
+
 Sun Nov 02 20:51:03 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.2.19 release.
