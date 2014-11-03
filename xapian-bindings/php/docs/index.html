@@ -84,20 +84,6 @@ may need to restart the webserver for this change to take effect.
 </p>
 
 <p>
-Alternatively, you can get scripts which use Xapian to explicitly load it.
-This approach is useful if you don't have root access and so can't make
-changes to php.ini.  The simplest set up is to copy <code>xapian.so</code> into
-the same directory as your PHP script, and then add the following line to the
-start of your PHP scripts which use Xapian: <code>dl('xapian.so');</code>
-</p>
-
-<p>
-You can put <code>xapian.so</code> elsewhere (and it's probably better to)
-but note that <code>dl()</code> requires a <b>relative</b> path so you
-might have to use something insane-looking like:
-<code>dl('../../../../usr/lib/php5/20051025/xapian.so');</code>
-
-<p>
 You also need to add <code>include&nbsp;"xapian.php"</code>
 to your PHP scripts which use Xapian in order to get the PHP class wrappers.
 </p>

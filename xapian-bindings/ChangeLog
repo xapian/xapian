@@ -1,3 +1,12 @@
+Mon Nov 03 22:42:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* INSTALL,php/docs/index.html: In current PHP releases, dl() will only
+	  look in the configured extension directory, and only accepts a
+	  leafname, and dl() is disabled in most SAPIs, so update the
+	  documentation about how to install the PHP bindings without being
+	  root.  Fixes #661, reported by Felix Ostmann.
+
 Tue Oct 21 00:34:49 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.19.

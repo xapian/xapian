@@ -68,8 +68,8 @@ The simplest way to compile this package is:
        ./configure PYTHON=/opt/bin/python2.6
 
      If you don't have root access and want to compile any of the bindings
-     other than Java and C#, read the next section: "Installing without root
-     access".
+     other than C#, Java and PHP, read the next section: "Installing without
+     root access".
 
      Running `configure' might take a while.  While running, it prints
      some messages telling which features it is checking for.
@@ -112,17 +112,31 @@ Installing without root access
 
   PHP:
 
+     With current releases of PHP, there doesn't seem to be a good way to
+     install the PHP bindings without root access such that they can be used
+     from PHP run from a webserver, which is what most users want to do.
+
+     If you're only interested in running code from the command line (via PHP's
+     CLI SAPI) then the following will work:
+
      ./configure --with-php --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
      make
      make install
 
-     And you'll need to load the Xapian module in your PHP code using something
-     like:
+     Then tell the PHP interpreter to load extensions from there:
 
-     dl("../../../home/USERNAME/my_php_extensions/xapian.so");
+     php -d extension_dir="$HOME/my_php_extensions" myscript.php
 
-     The number of ".."s you need depends on what extension_dir is set to
-     in php.ini.
+     However, this will stop PHP from looking in the default place for
+     extensions!  It doesn't seem to be possible to specify more than one
+     directory, but you can copy or symlink system installed extensions
+     from the default extension directory to $HOME/my_php_extensions like
+     so:
+
+     ln -s "`php -r 'print PHP_EXTENSION_DIR;'`"/* "$HOME/my_php_extensions"
+
+     This will symlink all of them, but you only actually need those that
+     get loaded.
 
   Python:
 
