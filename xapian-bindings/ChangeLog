@@ -1,3 +1,8 @@
+Mon Nov 03 22:45:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/docs/index.html: Remove text about subclassing bug with PHP 5.4
+	  and later - that was fixed in 1.2.19.
+
 Mon Nov 03 22:42:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
