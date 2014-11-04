@@ -1,3 +1,12 @@
+xapian-core (1.3.1.avature13) precise; urgency=medium
+
+  * Merge in changes from SVN trunk (up to r18326):
+    + Assorted bug fixes.
+  * Revert change to allow xapian-compact to handle compact a single old-format
+    brass table to new-format brass, as the brass format has evolved further.
+
+ -- Olly Betts <olly@survex.com>  Tue, 04 Nov 2014 20:40:31 +0000
+
 xapian-core (1.3.1.avature12) precise; urgency=medium
 
   * If we hit a key without a termname while checking the position table,
