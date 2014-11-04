@@ -116,6 +116,18 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     Xapian::termcount wdf_upper_bound_;
 
   public:
+
+    /** Type of smoothing to use with the Language Model Weighting scheme.
+     *
+     *  Default is TWO_STAGE_SMOOTHING.
+     */
+    typedef enum {
+	TWO_STAGE_SMOOTHING = 1,
+	DIRICHLET_SMOOTHING = 2,
+	ABSOLUTE_DISCOUNT_SMOOTHING = 3,
+	JELINEK_MERCER_SMOOTHING = 4
+    } type_smoothing;
+
     class Internal;
 
     /** Virtual destructor, because we have virtual methods. */
@@ -1121,6 +1133,98 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
 		       Xapian::termcount uniqterms) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
+    double get_maxextra() const;
+};
+
+
+/** Xapian::Weight subclass implementing the Language Model formula.
+ *
+ * This class implements the "Language Model" Weighting scheme, as
+ * described by the early papers on LM by Bruce Croft.
+ *
+ * LM works by comparing the query to a Language Model of the document.
+ * The language model itself is parameter-free, though LMWeight takes
+ * parameters which specify the smoothing used.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
+
+    /** The type of smoothing to use. */
+    type_smoothing select_smoothing;
+
+    // Parameters for handling negative value of log, and for smoothing.
+    double param_log, param_smoothing1, param_smoothing2;
+
+    //Collection weight.
+    double weight_collection;
+
+    LMWeight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a LMWeight.
+     *
+     *  @param param_log_	A non-negative parameter controlling how much
+     *				to clamp negative values returned by the log.
+     *				The log is calculated by multiplying the
+     *				actual weight by param_log.  If param_log is
+     *				0.0, then the document length upper bound will
+     *				be used (default: document length upper	bound)
+     *
+     *  @param select_smoothing_	A parameter of type enum
+     *					type_smoothing.  This parameter
+     *					controls which smoothing type to use.
+     *					(default: TWO_STAGE_SMOOTHING)
+     *
+     *  @param param_smoothing1_	A non-negative parameter for smoothing
+     *					whose meaning depends on
+     *					select_smoothing_.  In
+     *					JELINEK_MERCER_SMOOTHING, it plays the
+     *					role of estimation and in
+     *					DIRICHLET_SMOOTHING the role of query
+     *					modelling. (default JELINEK_MERCER,
+     *					ABSOLUTE, TWOSTAGE(0.7),
+     *					DIRCHLET(2000))
+     *
+     *  @param param_smoothing2_	A non-negative parameter which is used
+     *					only with TWO_STAGE_SMOOTHING as
+     *					parameter for Dirichlet's smoothing.
+     *					(default: 2000)
+     */
+    // Unigram LM Constructor to specifically mention all parameters for handling negative log value and smoothing.
+    explicit LMWeight(double param_log_ = 0.0,
+		      type_smoothing select_smoothing_ = TWO_STAGE_SMOOTHING,
+		      double param_smoothing1_ = 0.7,
+		      double param_smoothing2_ = 2000.0)
+	: select_smoothing(select_smoothing_), param_log(param_log_), param_smoothing1(param_smoothing1_),
+	  param_smoothing2(param_smoothing2_)
+    {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(COLLECTION_SIZE);
+	need_stat(RSET_SIZE);
+	need_stat(TERMFREQ);
+	need_stat(RELTERMFREQ);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(COLLECTION_FREQ);
+	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
+	    need_stat(UNIQUE_TERMS);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    LMWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;

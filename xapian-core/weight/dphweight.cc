@@ -48,6 +48,11 @@ DPHWeight::init(double factor)
     double min_wdf_to_len = wdf_lower / len_upper;
     double min_normalization = pow(1.0 / len_upper, 2) / (wdf_upper + 1.0);
 
+    if (wdf_upper == 0) {
+	lower_bound = upper_bound = 0.0;
+	return;
+    }
+
     /* Calculate lower bound on the weight in order to deal with negative
      * weights. */
     double min_weight = min_normalization *
@@ -58,15 +63,11 @@ DPHWeight::init(double factor)
 
     lower_bound = factor * get_wqf() * min_weight;
 
-    // Calculate the upper bound on the weight.
-    if (wdf_upper == 0) {
-	upper_bound = 0.0;
-	return;
-    }
-
     /* Calculate constant value to be used in get_sumpart(). */
     log_constant = get_average_length() * N / F;
     wqf_product_factor = get_wqf() * factor;
+
+    // Calculate the upper bound on the weight.
 
     /* Calculations to decide the values to be used for calculating upper bound. */
     /* The upper bound of the term appearing in the second log is obtained

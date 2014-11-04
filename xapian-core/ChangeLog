@@ -1,3 +1,150 @@
+Sun Nov 02 21:14:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Fix typo.
+
+Tue Oct 28 23:35:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Fix typo.
+
+Tue Oct 28 02:34:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Use a modern class in postingsource example.
+	  (Noted by James Aylett)
+
+Mon Oct 27 21:06:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/,net/Makefile.mk,net/remote_protocol.rst,
+	  net/replication_protocol.rst: Move the protocol docs for the remote
+	  and replication protocols into the net/ subdirectory.
+
+Mon Oct 27 19:19:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/Makefile.mk,api/dir_contents,backends/Makefile.mk,
+	  backends/brass/Makefile.mk,backends/brass/dir_contents,
+	  backends/chert/Makefile.mk,backends/chert/dir_contents,
+	  backends/dir_contents,backends/inmemory/Makefile.mk,
+	  backends/inmemory/dir_contents,backends/multi/Makefile.mk,
+	  backends/multi/dir_contents,backends/remote/Makefile.mk,
+	  backends/remote/dir_contents,bin/Makefile.mk,bin/dir_contents,
+	  common/Makefile.mk,common/dir_contents,configure.ac,dir_contents,
+	  docs/,examples/Makefile.mk,examples/dir_contents,expand/Makefile.mk,
+	  expand/dir_contents,geospatial/Makefile.mk,geospatial/dir_contents,
+	  include/Makefile.mk,include/dir_contents,include/xapian/dir_contents,
+	  languages/Makefile.mk,languages/dir_contents,m4-macros/dir_contents,
+	  m4/dir_contents,matcher/Makefile.mk,matcher/dir_contents,
+	  net/Makefile.mk,net/dir_contents,preautoreconf,
+	  queryparser/Makefile.mk,queryparser/dir_contents,tests/Makefile.am,
+	  tests/dir_contents,tests/harness/Makefile.mk,
+	  tests/harness/dir_contents,tests/perftest/Makefile.mk,
+	  tests/perftest/dir_contents,tests/soaktest/Makefile.mk,
+	  tests/soaktest/dir_contents,unicode/Makefile.mk,unicode/dir_contents,
+	  weight/Makefile.mk,weight/dir_contents: Remove the dir_contents files
+	  and all the machinery to handle them.
+
+Sat Oct 25 19:25:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/query.cc,api/queryinternal.cc,api/smallvector.h,
+	  include/xapian/query.h: Stop using a reference where we may end up
+	  passing *NULL, as that's invalid.  Thanks Nick Lewycky and ubsan
+	  for helping track this down.
+	* tests/api_postingsource.cc: Fix testsuite to avoid passing literal
+	  NULL - pass nullptr for C++11 and don't bother with that part of
+	  the testcase for older C++.
+
+Sat Oct 25 19:05:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/dlhweight.cc,weight/dphweight.cc: Avoid dividing by zero when
+	  the collection size is 0.
+
+Fri Oct 24 23:04:24 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+
+	* api/registry.cc,include/xapian/weight.h,tests/api_backend.cc,
+	  tests/api_nodb.cc,tests/api_weight.cc,weight/Makefile.mk,
+	  weight/lmweight.cc: Add Unigram LMWeight class.
+
+Tue Oct 21 19:19:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.2.19 release.
+
+Mon Oct 20 00:47:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* .gitignore,docs/.gitignore,tests/.gitignore,unicode/.gitignore:
+	  Update to ignore new generated files.
+
+Sat Oct 18 06:15:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Don't provide a default expansion scheme
+	  name in Enquire::set_expansion_scheme().
+
+Fri Oct 17 00:33:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,matcher/: Split NearPostList out into separate
+	  source file and header.
+
+Wed Oct 15 04:33:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,matcher/exactphrasepostlist.cc: We never try to
+	  build an ExactPhrasePostList over 0 or 1 terms, so simply assert we
+	  don't, rather than having an explicit check for it in the code.
+
+Tue Oct 14 02:47:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/phrasepostlist.cc,tests/api_backend.cc: If the anchor term
+	  for a phrase is the first or last, set the min or max to its
+	  position respectively.  Fixes the testcase in #657, but may not be
+	  a complete fix.
+
+Sun Oct 12 12:03:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Fri Oct 10 10:53:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc: The
+	  table is sync-ed after the base file, so it's the last table we want
+	  to full-sync, not the last base file.
+
+Thu Oct 09 02:39:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Suppress unused typedef warnings from debugging
+	  logging macros, which occur in functions which always exit via
+	  throwing an exception.
+
+Thu Oct 09 01:45:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/harness/fdtracker.cc: Fix code typo in recent change to skip
+	  apparent leaks of /dev/urandom.
+
+Thu Oct 09 01:43:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/pretty.h: Fix debug logging code to compile with clang.
+	  (fixes #657, reported by Germán M. Bravo)
+
+Wed Oct 08 04:43:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: If an empty RSet is specified, just handle it
+	  as if no RSet were specified.
+
+Mon Oct 06 21:41:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Remove .replicatmp upon "make clean".
+
+Fri Sep 19 05:31:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Fix compilation with clang.  Reported by
+	  Germán M. Bravo.
+
+Fri Sep 12 17:54:34 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Add missing database path to example of using
+	  xapian-progsrv in a stub database file.
+
+Thu Sep 11 21:33:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/Makefile.mk,include/xapian/enquire.h,
+	  include/xapian/iterator.h: Add simple API to help with creating
+	  language-idiomatic iterator wrappers.
+
 Wed Sep 10 17:02:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc: If we hit an unknown query serialisation,

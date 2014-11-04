@@ -1,7 +1,7 @@
 <?php
 /* Simple example PHP5 script demonstrating query expansion.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,22 +70,19 @@ try {
     // Display the results.
     print "{$matches->get_matches_estimated()} results found:\n";
 
-    $i = $matches->begin();
-    while (!$i->equals($matches->end())) {
+    foreach ($matches->begin() as $i => $dummy) {
 	$n = $i->get_rank() + 1;
 	$data = $i->get_document()->get_data();
 	print "$n: {$i->get_percent()}% docid={$i->get_docid()} [$data]\n\n";
-	$i->next();
     }
 
     // If no relevant docids were given, invent an RSet containing the top 5
     // matches (or all the matches if there are less than 5).
     if ($rset->is_empty()) {
 	$c = 5;
-	$i = $matches->begin();
-	while ($c-- && !$i->equals($matches->end())) {
-	    $rset->add_document($i->get_docid());
-	    $i->next();
+	foreach ($matches->begin() as $docid) {
+	    $rset->add_document($docid);
+	    if (--$c) break;
 	}
     }
 
@@ -94,8 +91,8 @@ try {
     $eset = $enquire->get_eset(10, $rset);
 
     // List the terms.
-    for ($t = $eset->begin(); !$t->equals($eset->end()); $t->next()) {
-	print "{$t->get_term()}: weight = {$t->get_weight()}\n";
+    foreach ($eset->begin() as $t => $term) {
+	print "$term: weight = {$t->get_weight()}\n";
     }
 } catch (Exception $e) {
     print $e->getMessage() . "\n";

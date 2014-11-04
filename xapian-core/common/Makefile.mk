@@ -45,7 +45,6 @@ noinst_HEADERS +=\
 	common/unaligned.h
 
 EXTRA_DIST +=\
-	common/dir_contents\
 	common/win32_uuid.cc\
 	common/win32_uuid.h\
 	common/Makefile\

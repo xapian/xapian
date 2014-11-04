@@ -1,5 +1,5 @@
-/** @file phrasepostlist.h
- * @brief Return only items where terms form a phrase
+/** @file nearpostlist.h
+ * @brief Return only items where terms are near to each other
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2004,2005,2014 Olly Betts
@@ -21,22 +21,22 @@
  * USA
  */
 
-#ifndef OM_HGUARD_PHRASEPOSTLIST_H
-#define OM_HGUARD_PHRASEPOSTLIST_H
+#ifndef OM_HGUARD_NEARPOSTLIST_H
+#define OM_HGUARD_NEARPOSTLIST_H
 
 #include "selectpostlist.h"
 #include <vector>
 
 typedef Xapian::PositionIterator::Internal PositionList;
 
-/** A postlist comprising several postlists PHRASEd together.
+/** a postlist comprising several postlists NEARed together.
  *
  *  This postlist returns a posting if and only if it is in all of the
- *  sub-postlists and all the terms occur IN THE GIVEN ORDER within a
- *  specified distance of each other somewhere in the document.  The weight
- *  for a posting is the sum of the weights of the sub-postings.
+ *  sub-postlists and all the terms occur within a specified distance of
+ *  each other somewhere in the document.  The weight for a posting is the
+ *  sum of the weights of the sub-postings.
  */
-class PhrasePostList : public SelectPostList {
+class NearPostList : public SelectPostList {
     private:
         Xapian::termpos window;
 	std::vector<PostList *> terms;
@@ -51,19 +51,19 @@ class PhrasePostList : public SelectPostList {
 	Xapian::doccount get_termfreq_est() const
 	{
 	    // No idea how to estimate this - FIXME
-	    return source->get_termfreq_est() / 3;
+	    return source->get_termfreq_est() / 2;
 	}
 
 	TermFreqs get_termfreq_est_using_stats(
             const Xapian::Weight::Internal & stats) const;
 
-        PhrasePostList(PostList *source_, Xapian::termpos window_,
-		       std::vector<PostList *>::const_iterator &terms_begin_,
-		       std::vector<PostList *>::const_iterator &terms_end_)
+        NearPostList(PostList *source_, Xapian::termpos window_,
+		     std::vector<PostList *>::const_iterator &terms_begin_,
+		     std::vector<PostList *>::const_iterator &terms_end_)
 	    : SelectPostList(source_), terms(terms_begin_, terms_end_)
         {
 	    window = window_;
 	}
 };
 
-#endif /* OM_HGUARD_PHRASEPOSTLIST_H */
+#endif /* OM_HGUARD_NEARPOSTLIST_H */

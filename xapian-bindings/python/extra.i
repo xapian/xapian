@@ -711,7 +711,7 @@ def _queryparser_add_prefix(self, s, proc):
     if not isinstance(proc, (str, bytes)):
         if not hasattr(self, '_fps'):
             self._fps = []
-        self._fps.append(fproc)
+        self._fps.append(proc)
     return __queryparser_add_prefix_orig(self, s, proc)
 _queryparser_add_prefix.__doc__ = __queryparser_add_prefix_orig.__doc__
 QueryParser.add_prefix = _queryparser_add_prefix
@@ -721,7 +721,7 @@ def _queryparser_add_boolean_prefix(self, s, proc, exclusive = True):
     if not isinstance(proc, (str, bytes)):
         if not hasattr(self, '_fps'):
             self._fps = []
-        self._fps.append(fproc)
+        self._fps.append(proc)
     return __queryparser_add_boolean_prefix_orig(self, s, proc, exclusive)
 _queryparser_add_boolean_prefix.__doc__ = __queryparser_add_boolean_prefix_orig.__doc__
 QueryParser.add_boolean_prefix = _queryparser_add_boolean_prefix

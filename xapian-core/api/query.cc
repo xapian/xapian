@@ -149,7 +149,7 @@ Query::unserialise(const string & s, const Registry & reg)
     const char * end = p + s.size();
     Query::Internal * q = Query::Internal::unserialise(&p, end, reg);
     AssertEq(p, end);
-    return Query(*q);
+    return Query(q);
 }
 
 Xapian::Query::op

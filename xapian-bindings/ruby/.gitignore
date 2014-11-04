@@ -4,6 +4,7 @@
 /Makefile
 /.deps
 /.libs
+/docs/index.html
 /rubyio.h
 /xapian_wrap.cc
 /xapian_wrap.h

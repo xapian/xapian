@@ -2,13 +2,12 @@
 /Makefile.in
 /Makefile
 /.deps
-/gen_codestructure_doc
 /admin_notes.html
 /bm25.html
-/code_structure.html
 /collapsing.html
 /deprecation.html
 /facets.html
+/geospatial.html
 /glossary.html
 /index.html
 /install.html
@@ -20,9 +19,7 @@
 /queryparser.html
 /quickstart.html
 /remote.html
-/remote_protocol.html
 /replication.html
-/replication_protocol.html
 /scalability.html
 /serialisation.html
 /sorting.html

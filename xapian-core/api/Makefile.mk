@@ -16,7 +16,6 @@ noinst_HEADERS +=\
 	api/vectortermlist.h
 
 EXTRA_DIST +=\
-	api/dir_contents\
 	api/Makefile
 
 lib_src +=\

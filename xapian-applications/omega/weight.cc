@@ -64,6 +64,27 @@ double_param(const char ** p, double * ptr_val)
     return true;
 }
 
+#if XAPIAN_AT_LEAST(1,3,2)
+static bool
+type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
+{
+    char *end;
+    errno = 0;
+    int v = strtol(*p, &end, 10);
+    if (*p == end || errno || v < 1 || v > 4)
+	return false;
+    *p = end;
+    static const Xapian::Weight::type_smoothing smooth_tab[4] = {
+	Xapian::Weight::TWO_STAGE_SMOOTHING,
+	Xapian::Weight::DIRICHLET_SMOOTHING,
+	Xapian::Weight::ABSOLUTE_DISCOUNT_SMOOTHING,
+	Xapian::Weight::JELINEK_MERCER_SMOOTHING
+    };
+    *ptr_val = smooth_tab[v - 1];
+    return true;
+}
+#endif
+
 void
 set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		     bool force_boolean)
@@ -241,6 +262,35 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	    }
 	    if (C_isspace((unsigned char)*p)) {
 		throw "No parameters are required for DPH";
+	    }
+	}
+#endif
+
+#if XAPIAN_AT_LEAST(1,3,2)
+	if (startswith(scheme, "lm")) {
+	    const char *p = scheme.c_str() + 2;
+	    if (*p == '\0') {
+		enq.set_weighting_scheme(Xapian::LMWeight());
+		return;
+	    }
+	    if (C_isspace((unsigned char)*p)) {
+		double param_log = 0;
+		Xapian::Weight::type_smoothing type = Xapian::Weight::TWO_STAGE_SMOOTHING;
+		double smoothing1 = 0.7;
+		double smoothing2 = 2000;
+		if (!double_param(&p, &param_log))
+		    parameter_error("Parameter 1 (log) is invalid", scheme);
+		if (*p && !type_smoothing_param(&p, &type))
+		    parameter_error("Parameter 2 (smoothing_type) is invalid", scheme);
+		if (*p && !double_param(&p, &smoothing1))
+		    parameter_error("Parameter 3 (smoothing1) is invalid", scheme);
+		if (*p && !double_param(&p, &smoothing2))
+		    parameter_error("Parameter 4 (smoothing2) is invalid", scheme);
+		if (*p)
+		    parameter_error("Extra data after parameter 4", scheme);
+		Xapian::LMWeight wt(param_log, type, smoothing1, smoothing2);
+		enq.set_weighting_scheme(wt);
+		return;
 	    }
 	}
 #endif

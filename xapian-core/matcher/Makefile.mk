@@ -15,6 +15,7 @@ noinst_HEADERS +=\
 	matcher/multiandpostlist.h\
 	matcher/multimatch.h\
 	matcher/multixorpostlist.h\
+	matcher/nearpostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\
 	matcher/queryoptimiser.h\
@@ -26,7 +27,6 @@ noinst_HEADERS +=\
 	matcher/valuestreamdocument.h
 
 EXTRA_DIST +=\
-	matcher/dir_contents\
 	matcher/Makefile
 
 if BUILD_BACKEND_REMOTE
@@ -53,6 +53,7 @@ lib_src +=\
 	matcher/multiandpostlist.cc\
 	matcher/multimatch.cc\
 	matcher/multixorpostlist.cc\
+	matcher/nearpostlist.cc\
 	matcher/orpostlist.cc\
 	matcher/phrasepostlist.cc\
 	matcher/selectpostlist.cc\

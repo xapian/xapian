@@ -5,9 +5,9 @@ The PHP bindings for Xapian are packaged in the ``xapian``
 extension.  The PHP API provided by this extension largely follows Xapian's C++
 API.  This document lists the differences and additions.
 
-As of Xapian version 1.3.1, these bindings require at least PHP 5.3.
-(if you really need support for PHP 5.0, 5.1, or 5.2, Xapian 1.2
-supports these).
+As of Xapian version 1.3.2, these bindings require at least PHP 5.4.
+(If you really need support for older releases, Xapian 1.2 supports PHP
+5.0-5.3).
 
 PHP strings, arrays, etc., are converted automatically to and from the
 corresponding C++ types in the bindings, so generally you can pass arguments as
@@ -59,17 +59,6 @@ as the extension, and MS Windows uses ``.dll``).
 If you're using PHP as a webserver module (e.g. mod_php with Apache), you
 may need to restart the webserver for this change to take effect.
 
-Alternatively, you can get scripts which use Xapian to explicitly load it.
-This approach is useful if you don't have root access and so can't make
-changes to php.ini.  The simplest set up is to copy ``xapian.so`` into
-the same directory as your PHP script, and then add the following line to the
-start of your PHP scripts which use Xapian: ``dl('xapian.so');``
-
-You can put ``xapian.so`` elsewhere (and it's probably better to)
-but note that ``dl()`` requires a **relative** path so you
-might have to use something insane-looking like:
-``dl('../../../../usr/lib/php5/20051025/xapian.so');``
-
 You also need to add ``include&nbsp;"xapian.php"``
 to your PHP scripts which use Xapian in order to get the PHP class wrappers.
 
@@ -101,15 +90,33 @@ to index strings in a different encoding, use the PHP `iconv function <http://ph
 Iterators
 #########
 
-All iterators support ``next()`` and ``equals()`` methods
-to move through and test iterators (as for all language bindings).
-MSetIterator and ESetIterator also support ``prev()``.
+Since Xapian 1.3.2, Xapian's iterators (except ``XapianLatLongCoordsIterator``)
+are wrapped as PHP iterators, so can be used in ``foreach``.
 
-In C++, trying to dereference or advance an iterator which is at its end point
-is undefined behaviour and should be avoided, and currently the PHP wrappers
-around the Xapian iterator classes inherit these semantics.  The plan is to
-wrap these PHP iterators (see `ticket#520 <http://trac.xapian.org/ticket/520>`_).
+There's one important thing to beware of currently - the ``rewind()`` method
+on ``XapianPositionIterator``, ``XapianPostingIterator``,
+``XapianTermIterator`` and ``XapianValueIterator`` currently does nothing.  We
+can't make it simply throw an exception, as ``foreach`` calls ``rewind()``
+before iteration starts - each iterator needs to track if ``next()`` has been
+called yet, and we've not yet implemented machinery for that.  This doesn't
+affect the standard pattern of iterating once with ``foreach``, but if you want
+to iterate a second time, you can't reuse the iterator (but it will currently
+fail quietly).
 
+You can safely call ``rewind()`` on ``XapianESetIterator`` and
+``XapianMSetIterator``.
+
+The ``current()`` method returns the result of dereferencing the iterator
+in C++ (e.g. for a ``TermIterator``, it returns the term as a string - see
+the section below for more details) and the ``key()`` method returns the
+iterator object, which you can call other methods on, for example::
+
+    foreach ($db->allterms_begin() as $k => $term) {
+	print "{$k->get_termfreq()}\t$term\n";
+    }
+
+As well as the standard PHP iterator methods, MSetIterator and ESetIterator
+also support ``prev()`` to go back one place.
 
 Iterator dereferencing
 ######################
@@ -121,17 +128,17 @@ follows:
 +------------------+----------------------+
 | Iterator         | Dereferencing method |
 +==================+======================+
-| PositionIterator |    ``get_termpos()`` |
+| PositionIterator |   ``get_termpos()``  |
 +------------------+----------------------+
-| PostingIterator  |  ``get_docid()``     |
+| PostingIterator  |   ``get_docid()``    |
 +------------------+----------------------+
-| TermIterator     |     ``get_term()``   |
+| TermIterator     |   ``get_term()``     |
 +------------------+----------------------+
-| ValueIterator    |     ``get_value()``  |
+| ValueIterator    |   ``get_value()``    |
 +------------------+----------------------+
-| MSetIterator     |     ``get_docid()``  |
+| MSetIterator     |   ``get_docid()``    |
 +------------------+----------------------+
-| ESetIterator     |     ``get_term()``   |
+| ESetIterator     |   ``get_term()``     |
 +------------------+----------------------+
 
 Other methods, such as ``MSetIterator::get_document()``, are
@@ -143,17 +150,17 @@ MSet
 MSet objects have some additional methods to simplify access (these
 work using the C++ array dereferencing):
 
-+-----------------------------------+----------------------------------------+
-| Method name                       |            Explanation                 |
-+===================================+========================================+
-| ``get_hit(index)``                |   returns MSetIterator at index        |
-+-----------------------------------+----------------------------------------+
-|``get_document_percentage(index)`` | ``convert_to_percent(get_hit(index))`` |
-+-----------------------------------+----------------------------------------+
-| ``get_document(index)``           | ``get_hit(index)->get_document()``     |
-+-----------------------------------+----------------------------------------+
-| ``get_docid(index)``              | ``get_hit(index)->get_docid()``        |
-+-----------------------------------+----------------------------------------+
++------------------------------------+----------------------------------------+
+| Method name                        |            Explanation                 |
++====================================+========================================+
+| ``get_hit(index)``                 |   returns MSetIterator at index        |
++------------------------------------+----------------------------------------+
+| ``get_document_percentage(index)`` | ``convert_to_percent(get_hit(index))`` |
++------------------------------------+----------------------------------------+
+| ``get_document(index)``            | ``get_hit(index)->get_document()``     |
++------------------------------------+----------------------------------------+
+| ``get_docid(index)``               | ``get_hit(index)->get_docid()``        |
++------------------------------------+----------------------------------------+
 
 
 Database Factory Functions

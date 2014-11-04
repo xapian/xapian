@@ -45,52 +45,17 @@ for (sort keys %s) {
     }
 }
 
-my @dir_contents = ();
-my %desc = ();
-for (map {m!^(.*?)[^/]*$!; $1} @makefile_am) {
-    my $dir = $_;
-    my $dir_contents = "${dir}dir_contents";
-    push @dir_contents, $dir_contents;
-    if (! -f $dir_contents) {
-	print STDERR "$0: Warning: '$dir_contents' not found\n";
-	next;
-    }
-
-    open DIR_CONTENTS, "<$dir_contents" or die "$dir_contents: $!\n";
-    local $/ = undef;
-    my $xml = <DIR_CONTENTS>;
-    close DIR_CONTENTS;
-
-    my ($xmldir) = ($xml =~ m!<Directory>\s*(\S+)\s*</Directory>!);
-    if (!defined $xmldir) {
-	die "$dir_contents: No valid <Directory> tag found\n";
-    }
-    if ($xmldir eq "ROOT") {
-	$xmldir = "";
-    }
-    $dir =~ s!/$!!;
-    if ($dir ne $xmldir) {
-	die "$dir_contents: File is in '$dir', but <Directory> says '$xmldir'\n";
-    }
-    my ($desc) = ($xml =~ m!<Description>\s*(.*?)\s*</Description>!s);
-    if (!defined $desc) {
-	die "$dir_contents: No valid <Description> tag found\n";
-    }
-}
-
 open MAKEFRAG, ">docs/docsource.tmp" or die $!;
 print MAKEFRAG "APIDOC_SRC=", join("\\\n\t", "", @apidoc_src), "\n";
 print MAKEFRAG "SOURCEDOC_SRC=", join("\\\n\t", "", @sourcedoc_src), "\n";
-print MAKEFRAG "DIR_CONTENTS_FILES=", join("\\\n\t\$T/", "", @dir_contents), "\n";
 close MAKEFRAG or do { unlink "docs/docsource.tmp"; die $! };
 rename "docs/docsource.tmp", "docs/docsource.mk" or do { unlink "docs/docsource.tmp"; die $! };
 
 open MAKEFRAG, ">docsource.tmp" or die $!;
-print MAKEFRAG "docsource.mk: preautoreconf ", join(" ", @makefile_am, @dir_contents), "\n";
+print MAKEFRAG "docsource.mk: preautoreconf\n";
 print MAKEFRAG "\tcd \$(top_srcdir) && ./preautoreconf\n";
-# Add dummy rules so that "make" works even if a Makefile.am or dir_contents
-# file is removed.
-for (@makefile_am, @dir_contents) {
+# Add dummy rules so that "make" works even if a Makefile.am is removed.
+for (@makefile_am) {
     print MAKEFRAG "\n$_:\n";
 }
 close MAKEFRAG or do { unlink "docsource.tmp"; die $! };

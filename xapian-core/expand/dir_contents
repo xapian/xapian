@@ -1,5 +1,0 @@
-<Directory>expand</Directory>
-
-<Description>
-This directory houses the query expansion code.
-</Description>

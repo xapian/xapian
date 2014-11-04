@@ -1,3 +1,20 @@
+Tue Oct 28 02:34:34 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document built-in list of stopwords.
+
+Fri Oct 24 23:07:24 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+
+	* docs/omegascript.rst,weight.cc: Add support for $set{weighting,lm}.
+
+Mon Oct 20 05:09:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Note that pdftotext is part of poppler as well as
+	  xpdf.  (Noted by Paul Wise)
+
+Mon Oct 20 00:55:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* .gitignore: Update to ignore new generated files.
+
 Thu Jul 24 21:27:26 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

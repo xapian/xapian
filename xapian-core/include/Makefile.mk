@@ -1,7 +1,5 @@
 EXTRA_DIST +=\
-	include/dir_contents\
 	include/Makefile\
-	include/xapian/dir_contents\
 	include/xapian/Makefile
 
 xapianincludedir = $(incdir)/xapian
@@ -22,6 +20,7 @@ xapianinclude_HEADERS =\
 	include/xapian/errorhandler.h\
 	include/xapian/expanddecider.h\
 	include/xapian/intrusive_ptr.h\
+	include/xapian/iterator.h\
 	include/xapian/keymaker.h\
 	include/xapian/matchspy.h\
 	include/xapian/positioniterator.h\

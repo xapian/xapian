@@ -1,5 +1,4 @@
 EXTRA_DIST +=\
-	backends/chert/dir_contents\
 	backends/chert/Makefile
 
 if BUILD_BACKEND_CHERT

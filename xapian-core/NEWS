@@ -1,49 +1,28 @@
- 18211       olly Fri Aug 22 09:09:52 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+ 18292       olly Mon Oct 20 00:47:32 GMT 2014  Olly Betts <olly@survex.com>
 
 backport fodder:
 
- 18206       olly Fri Aug 15 13:13:43 GMT 2014  Olly Betts <olly@survex.com>
-	* HACKING: freecode no longer accepts updates, so drop that item from
-	  the release checklist.
+backported for 1.2.20:
 
- 18204       olly Wed Aug 13 23:55:24 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc:
-	  Only full sync the final base file written.
-
- 18195       olly Wed Aug 06 10:49:46 GMT 2014  Olly Betts <olly@survex.com>
-	* include/xapian/compactor.h: Fix formatting of doxygen comment.
-
-backported for 1.2.19:
-
- 18197       olly Mon Aug 11 05:30:20 GMT 2014  Olly Betts <olly@survex.com>
-	* configure.ac: For Sun's C++ compiler, pass -library=Crun separately
-	  since libtool looks for " -library=stlport4 " (with the spaces).
-	  (fixes#650)
-
- 18196       olly Mon Aug 11 03:00:15 GMT 2014  Olly Betts <olly@survex.com>
-	* configure.ac: Rename XAPIAN_TEST_CXXFLAGS_ to XAPIAN_TEST_CXXFLAGS
-	  (since the latter is never used) and make it take a variable to
-	  add the flags to.  Also, fix it to restore CXXFLAGS correctly if
-	  the success case contains "break".
-
- 18163       olly Fri Jul 11 10:44:48 GMT 2014  Olly Betts <olly@survex.com>
-	* weight/bm25weight.cc: Improve BM25 upper bound in the case when our
-	  wdf upper bound > our document length lower bound.  Thanks to
-	  Craig Macdonald for pointing out this trick.
-
- 18162       olly Thu Jul 10 13:29:50 GMT 2014  Olly Betts <olly@survex.com>
-	* weight/bm25weight.cc: Pre-multiply termweight by (param_k1 + 1).
-
-Xapian-core 1.3.2 (2014-08-26):
+Xapian-core 1.3.2 (2014-10-20):
 
 	* languages/: Add stopwords lists from Snowball plus an Arabic one.
 
+	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
+	  bin/xapian-check.cc,include/xapian/constants.h: Rename
+	  DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST. (check was in 1.3.0)
+
+	* generate-exceptions,include/xapian/: Use XAPIAN_IN_XAPIAN_H rather
+	  than XAPIAN_INCLUDED_XAPIAN_H in the direct inclusion of subheader
+	  checks.  Currently neither will catch the case of the user including
+	  a sub-header after <xapian.h> since the include guard for the
+	  subheader will stop us getting to the direct inclusion check, but
+	  XAPIAN_IN_XAPIAN_H will work if we move the check outside the
+	  include guard.
+
 ---
 
-This release includes all changes from 1.2.16-1.2.18 which are relevant.
-
-	* backends/brass/brass_table.h: Don't sync handles for tables which
-	  aren't open.  Reported by Austin Clements.
+This release includes all changes from 1.2.16-1.2.19 which are relevant.
 
 API:
 
@@ -69,12 +48,9 @@ API:
 * Methods and functions which take a string to unserialise now consistently
   call that parameter "serialised".
 
-* Weight: Make collection frequency available to subclasses.  Patch from
+* Weight: Make number of distinct terms indexing each document and the
+  collection frequency of the term available to subclasses.  Patch from
   Gaurav Arora's Language Modelling branch.
-	  net/remoteserver.h,tests/,weight/: Provide the number of distinct
-	  terms in the document to weighting schemes.  The current
-	  implementation for the disk-based backends is a bit inefficient as
-	  it has to look at the termlist table entry for the document.
 
 * WritableDatabase: Add support for multiple subdatabases, and support opening
   a stub database containing multiple subdatabases as a WritableDatabase.
@@ -149,6 +125,9 @@ API:
 
 * Stem: Add an early english stemmer.
 
+* Add simple API to help with creating language-idiomatic iterator wrappers
+  in <xapian/iterator.h>.
+
 testsuite:
 
 * Extend checkstatsweight1 to check that Weight::get_collection_freq() returns
@@ -156,6 +135,10 @@ testsuite:
 
 * queryparsertest: Add testcase for FieldProcessor on boolean prefix with
   quoted contents.
+
+* queryparsertest: Enable some disabled cases which actually work (in some
+  cases with slightly tweaked expected answers which are equivalent to those
+  that were shown).
 
 * Make use of the new writable multidatabase feature to simplify the
   multi-database handling in the test harness.
@@ -168,6 +151,9 @@ testsuite:
   #238)
 
 * apitest: Test Query ops with a single MatchAll subquery.
+
+* apitest: New testcase readonlyparentdir1 to ensure that commit works with a
+  read-only parent directory.
 
 matcher:
 
@@ -212,18 +198,13 @@ brass backend:
 * Eliminate the base files, and instead store the root block and freelist
   pointers in the "iambrass" file.
 
- 18191       olly Mon Aug 04 05:58:13 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/brass_compact.cc: Whitespace tweak.
- 18190       olly Mon Aug 04 05:57:27 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/brass_compact.cc: When compacting, sync all the
-	  tables together at the end.
- 18189       olly Mon Aug 04 05:42:21 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/brass_compact.cc,backends/brass/brass_version.cc:
-	  Clean up temporary file in BrassVersion::sync() in all failure
-	  cases.
- 18188       olly Mon Aug 04 05:21:02 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/brass/: In DB_DANGEROUS mode, update the version file
-	  in-place.
+* When compacting, sync all the tables together at the end.
+
+* In DB_DANGEROUS mode, update the version file in-place.
+
+* Only actually store the document data if it is non-empty.  The table which
+  holds the document data is now lazily created, so won't exist if you never
+  set the document data.
 
 chert backend:
 
@@ -656,6 +637,77 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.19 (2014-10-21):
+
+API:
+
+* Xapian::BM25Weight:
+
+  + Improve BM25 upper bound in the case when our wdf upper bound > our
+    document length lower bound.  Thanks to Craig Macdonald for pointing out
+    this trick.
+
+  + Pre-multiply termweight by (param_k1 + 1) rather than doing it for
+    every weighted term in every document considered.
+
+testsuite:
+
+* Don't report apparent leaks of fds opened on /dev/urandom - at least on
+  Linux, something in the C library seems to lazily open it, and the report of
+  a possible leak followed by assurance that it's OK really is just noise we
+  can do without.
+
+matcher:
+
+* Fix false matches reported for non-exact phrases in some cases.  Fixes the
+  reduced testcase in #657, reported by Jean-Francois Dockes.
+
+brass backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+chert backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+flint backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+build system:
+
+* For Sun's C++ compiler, pass -library=Crun separately since libtool looks for
+  " -library=stlport4 " (with the spaces).  (fixes#650)
+
+* Remove .replicatmp (created by the test suite) upon "make clean".
+
+documentation:
+
+* include/xapian/compactor.h: Fix formatting of doxygen comment.
+
+* HACKING: freecode no longer accepts updates, so drop that item from the
+  release checklist.
+
+* docs/overview.rst: Add missing database path to example of using
+  xapian-progsrv in a stub database file.
+
+portability:
+
+* Suppress unused typedef warnings from debugging logging macros, which occur
+  in functions which always exit via throwing an exception when compiling with
+  recent versions of GCC or clang.
+
+* Fix debug logging code to compile with clang.  (fixes #657, reported by
+  Germán M. Bravo)
+
+debug code:
+
+* Add missing RETURN() markup for debug logging in a few places, highlighted by
+  warnings from recent GCC.
+
+* Fix incorrect return types in debug logging annotations so that code compiles
+  when configured with --enable-log.
 
 Xapian-core 1.2.18 (2014-06-22):
 
