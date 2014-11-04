@@ -1,3 +1,8 @@
+Tue Nov 04 20:38:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/docs/index.rst: Note that PHP < 5.4 are now out of security
+	  support.
+
 Tue Nov 04 04:38:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Iterating foreach ($it as $k => $c) doesn't work
