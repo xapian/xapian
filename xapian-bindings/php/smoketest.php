@@ -261,8 +261,15 @@ foreach ($eset->begin() as $t) {
 # Check min_wt argument to get_eset() works (new in 1.2.5).
 $eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ);
 $min_wt = 0;
-foreach ($eset->begin() as $i => $dummy) {
-    $min_wt = $i->get_weight();
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50500) {
+    foreach ($eset->begin() as $i => $dummy) {
+	$min_wt = $i->get_weight();
+    }
+} else {
+    $end = $eset->end();
+    for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+	$min_wt = $i->get_weight();
+    }
 }
 if ($min_wt >= 1.9) {
     print "ESet min weight too high for testcase\n";
@@ -270,8 +277,15 @@ if ($min_wt >= 1.9) {
 }
 $eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, NULL, 1.9);
 $min_wt = 0;
-foreach ($eset->begin() as $i => $dummy) {
-    $min_wt = $i->get_weight();
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50500) {
+    foreach ($eset->begin() as $i => $dummy) {
+	$min_wt = $i->get_weight();
+    }
+} else {
+    $end = $eset->end();
+    for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+	$min_wt = $i->get_weight();
+    }
 }
 if ($min_wt < 1.9) {
     print "ESet min_wt threshold not applied\n";
@@ -498,8 +512,17 @@ if ($query->get_description() != 'Query()') {
     $enquire->add_matchspy($matchspy);
     $enquire->get_mset(0, 10);
     $values = array();
-    foreach ($matchspy->values_begin() as $k => $term) {
-	$values[$term] = $k->get_termfreq();
+    if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50500) {
+	foreach ($matchspy->values_begin() as $k => $term) {
+	    $values[$term] = $k->get_termfreq();
+	}
+    } else {
+	$beg = $matchspy->values_begin();
+	$end = $matchspy->values_end();
+	while (!($beg->equals($end))) {
+	    $values[$beg->get_term()] = $beg->get_termfreq();
+	    $beg->next();
+	}
     }
     $expected = array(
         "ABB" => 1,
@@ -536,13 +559,15 @@ if ($s !== 'ask i in nothing return tea time ') {
     exit(1);
 }
 
-$s = '';
-foreach ($doc->termlist_begin() as $k => $term) {
-    $s .= $term . ':' . $k->get_wdf() . ' ';
-}
-if ($s !== 'ask:1 i:1 in:2 nothing:1 return:2 tea:1 time:2 ') {
-    print "PHP Iterator wrapping of TermIterator keys doesn't work ($s)\n";
-    exit(1);
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50500) {
+    $s = '';
+    foreach ($doc->termlist_begin() as $k => $term) {
+	$s .= $term . ':' . $k->get_wdf() . ' ';
+    }
+    if ($s !== 'ask:1 i:1 in:2 nothing:1 return:2 tea:1 time:2 ') {
+	print "PHP Iterator wrapping of TermIterator keys doesn't work ($s)\n";
+	exit(1);
+    }
 }
 
 # Test GeoSpatial API
@@ -580,13 +605,15 @@ if ($mset->size() != 1) {
     exit(1);
 }
 
-$s='';
-foreach ($db->allterms_begin() as $k => $term) {
-    $s .= "($term:{$k->get_termfreq()})";
-}
-if ($s !== '(coffee:1)') {
-    print "PHP Iterator iteration of allterms doesn't work ($s)\n";
-    exit(1);
+if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50500) {
+    $s='';
+    foreach ($db->allterms_begin() as $k => $term) {
+	$s .= "($term:{$k->get_termfreq()})";
+    }
+    if ($s !== '(coffee:1)') {
+	print "PHP Iterator iteration of allterms doesn't work ($s)\n";
+	exit(1);
+    }
 }
 
 # Test reference tracking and regression test for #659.

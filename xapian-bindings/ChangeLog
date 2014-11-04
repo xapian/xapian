@@ -1,3 +1,9 @@
+Tue Nov 04 04:38:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Iterating foreach ($it as $k => $c) doesn't work
+	  unless $k is a string or integer in PHP < 5.5, so test the old way
+	  under older versions.
+
 Tue Nov 04 04:25:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Remove disabling of subclassing tests for PHP
