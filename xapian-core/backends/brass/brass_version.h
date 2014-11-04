@@ -125,9 +125,6 @@ class BrassVersion {
 
     brass_revision_number_t get_revision() const { return rev; }
 
-    // Only used by compaction code to handle reading an old brass DB.
-    void set_revision(brass_revision_number_t rev_) { rev = rev_; }
-
     const RootInfo & get_root(Brass::table_type tbl) const {
 	return root[tbl];
     }

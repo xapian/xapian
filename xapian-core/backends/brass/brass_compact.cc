@@ -39,11 +39,9 @@
 #include "brass_compact.h"
 #include "brass_cursor.h"
 #include "brass_version.h"
-#include "fd.h"
 #include "filetests.h"
 #include "internaltypes.h"
 #include "pack.h"
-#include "posixy_wrapper.h"
 #include "backends/valuestats.h"
 
 #include "../byte_length_strings.h"
@@ -246,8 +244,6 @@ merge_postlists(Xapian::Compactor & compactor,
 	    if (!unpack_uint(&data, end, &dummy_did)) {
 		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
 	    }
-	    if (last_docid == Xapian::docid(-1))
-		last_docid = dummy_did;
 
 	    Xapian::termcount doclen_lbound_tmp;
 	    if (!unpack_uint(&data, end, &doclen_lbound_tmp)) {
@@ -812,135 +808,6 @@ merge_docid_keyed(const char * tablename,
 
 }
 
-// 201311060 Order position table by term first
-#define BRASS_OLD_VERSION 201311060
-
-#define MAGIC_STRING "IAmBrass"
-
-#define MAGIC_LEN CONST_STRLEN(MAGIC_STRING)
-// 4 for the version number; 16 for the UUID.
-#define VERSIONFILE_SIZE (MAGIC_LEN + 4 + 16)
-
-// Literal version of VERSIONFILE_SIZE, used for error message.  This needs
-// to be updated by hand should VERSIONFILE_SIZE change, but that rarely
-// happens so this isn't an onerous requirement.
-#define VERSIONFILE_SIZE_LITERAL 28
-
-static void
-read_and_check_old_iambrass(int fd)
-{
-    // Try to read an extra byte so we know if the file is too long.
-    char buf[VERSIONFILE_SIZE + 1];
-    size_t size;
-    size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
-
-    if (size != VERSIONFILE_SIZE) {
-	CompileTimeAssert(VERSIONFILE_SIZE == VERSIONFILE_SIZE_LITERAL);
-	string msg =
-	    "Brass version file should be "
-	    STRINGIZE(VERSIONFILE_SIZE_LITERAL)" bytes, actually ";
-	msg += str(size);
-	throw Xapian::DatabaseCorruptError(msg);
-    }
-
-    if (memcmp(buf, MAGIC_STRING, MAGIC_LEN) != 0) {
-	string msg = "Brass version file doesn't contain the right magic string";
-	throw Xapian::DatabaseCorruptError(msg);
-    }
-
-    const unsigned char *v;
-    v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
-    unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
-    if (version != BRASS_OLD_VERSION) {
-	string msg = "Brass version file is version ";
-	msg += str(version);
-	msg += " but I can only upgrade from "STRINGIZE(BRASS_OLD_VERSION);
-	throw Xapian::DatabaseVersionError(msg);
-    }
-}
-
-#define CURR_FORMAT 5U
-
-#define DO_UNPACK_UINT_ERRCHECK(start, end, var) \
-do { \
-    if (!unpack_uint(start, end, &var)) { \
-	return false; \
-    } \
-} while(0)
-
-/* How much of the base file to read at the first go (in bytes).
- * This must be big enough that the base file without bitmap
- * will fit in to this size with no problem.  Other than that
- * it's fairly arbitrary, but shouldn't be big enough to cause
- * serious memory problems!
- */
-#define REASONABLE_BASE_SIZE 1024
-
-static bool
-read_base(const string & basename, off_t db_size,
-	  RootInfo * root_info, brass_revision_number_t & rev)
-{
-    FD h(posixy_open(basename.c_str(), O_RDONLY | O_CLOEXEC));
-    if (h < 0)
-	return false;
-
-    char buf[REASONABLE_BASE_SIZE];
-
-    const char *start = buf;
-    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE, 0);
-
-    DO_UNPACK_UINT_ERRCHECK(&start, end, rev);
-    uint4 format;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, format);
-    if (format != CURR_FORMAT) {
-	return false;
-    }
-
-    unsigned block_size;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, block_size);
-    if (root_info) root_info->set_blocksize(block_size);
-    brass_block_t root;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, root);
-    if (root_info) root_info->set_root(root);
-    unsigned level;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, level);
-    if (root_info) root_info->set_level(level);
-    brass_block_t bit_map_size;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, bit_map_size);
-    brass_tablesize_t item_count;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, item_count);
-    if (root_info) root_info->set_num_entries(item_count);
-    brass_block_t last_block;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, last_block);
-    uint4 have_fakeroot_;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, have_fakeroot_);
-    if (root_info) root_info->set_root_is_fake(have_fakeroot_);
-
-    uint4 sequential_;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, sequential_);
-    if (have_fakeroot_) sequential_ = true;
-    if (root_info) root_info->set_sequential_mode(sequential_);
-
-    uint4 revision2;
-    DO_UNPACK_UINT_ERRCHECK(&start, end, revision2);
-    if (rev != revision2) {
-	return false;
-    }
-
-    if (root_info) {
-	string fl;
-	pack_uint(fl, rev);
-	pack_uint(fl, brass_block_t(db_size / block_size));
-	pack_uint(fl, 0u);
-	pack_uint(fl, 0u);
-	pack_uint(fl, 0u);
-	pack_uint(fl, 0u);
-	root_info->set_free_list(fl);
-    }
-
-    return true;
-}
-
 using namespace BrassCompact;
 
 void
@@ -978,105 +845,7 @@ compact_brass(Xapian::Compactor & compactor,
     version_file.reserve(sources.size());
     for (size_t i = 0; i != sources.size(); ++i) {
 	version_file.push_back(BrassVersion(sources[i]));
-	try {
-	    version_file[i].read();
-	} catch (Xapian::DatabaseError & e) {
-	    if (e.get_msg() != "Couldn't read enough (EOF)")
-		throw;
-
-	    // Check if it's the older variant of brass, before the base file
-	    // to freelist change.
-	    string src_iambrass = sources[i];
-	    src_iambrass += "/iambrass";
-	    {
-		FD fd(::open(src_iambrass.c_str(), O_RDONLY|O_BINARY|O_CLOEXEC));
-		if (fd == -1)
-		    throw;
-		read_and_check_old_iambrass(fd);
-	    }
-
-	    // Work out what revision to open at.
-	    vector<brass_revision_number_t> candidate_revs;
-	    for (const table_list * t = tables; t < tables_end; ++t) {
-		string s(sources[i]);
-		s += '/';
-		s += t->name;
-		off_t db_size = file_size(s + ".DB");
-		if (errno) {
-		    if (errno == ENOENT) continue;
-		    db_size = (off_t)-1;
-		}
-		s += ".base";
-
-		vector<brass_revision_number_t> valid_revs;
-		brass_revision_number_t rev;
-		if (read_base(s + 'A', db_size, NULL, rev))
-		    valid_revs.push_back(rev);
-		if (read_base(s + 'B', db_size, NULL, rev))
-		    valid_revs.push_back(rev);
-		sort(valid_revs.begin(), valid_revs.end());
-		if (candidate_revs.empty()) {
-		    // First table.
-		    swap(candidate_revs, valid_revs);
-		} else {
-		    vector<brass_revision_number_t> out(candidate_revs.size());
-		    vector<brass_revision_number_t>::iterator it;
-		    it = set_intersection(candidate_revs.begin(), candidate_revs.end(),
-					  valid_revs.begin(), valid_revs.end(), out.begin());
-		    out.resize(it - out.begin());
-		    swap(candidate_revs, out);
-		}
-	    }
-	    if (candidate_revs.empty()) {
-		throw;
-	    }
-	    brass_revision_number_t rev = candidate_revs.back();
-	    version_file[i].set_revision(rev);
-
-	    // Find the root block info.
-	    for (const table_list * t = tables; t < tables_end; ++t) {
-		RootInfo * root_info = version_file[i].root_to_set(t->type);
-		string s(sources[i]);
-		s += '/';
-		s += t->name;
-		off_t db_size = file_size(s + ".DB");
-		if (errno) {
-		    if (errno == ENOENT) continue;
-		    db_size = (off_t)-1;
-		}
-		s += ".base";
-
-		bool opened = false;
-		brass_revision_number_t rev_base;
-		if (read_base(s + 'A', db_size, root_info, rev_base)) {
-		    if (rev_base == rev) {
-			// Symlink new table name to old one.
-			s.replace(s.size() - 4, string::npos, BRASS_TABLE_EXTENSION);
-			if (symlink((string(t->name) + ".DB").c_str(), s.c_str()) < 0) {
-			    throw Xapian::DatabaseError("Couldn't symlink new table name to old", errno);
-			}
-			continue;
-		    }
-		    opened = true;
-		}
-		if (read_base(s + 'B', db_size, root_info, rev_base)) {
-		    if (rev_base == rev) {
-			// Symlink new table name to old one.
-			s.replace(s.size() - 4, string::npos, BRASS_TABLE_EXTENSION);
-			if (symlink((string(t->name) + ".DB").c_str(), s.c_str()) < 0) {
-			    throw Xapian::DatabaseError("Couldn't symlink new table name to old", errno);
-			}
-			continue;
-		    }
-		    opened = true;
-		}
-
-		if (opened) {
-		    throw;
-		}
-		root_info[t->type].init(8192);
-	    }
-	}
+	version_file[i].read();
     }
 
     FlintLock lock(destdir);
