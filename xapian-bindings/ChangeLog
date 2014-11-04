@@ -1,3 +1,8 @@
+Tue Nov 04 04:25:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Remove disabling of subclassing tests for PHP
+	  versions >= 5.4.
+
 Mon Nov 03 22:11:19 GMT 2014  Olly Betts <olly@survex.com>
 
 	* INSTALL,php/docs/index.rst: In current PHP releases, dl() will only
