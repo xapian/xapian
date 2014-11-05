@@ -1,3 +1,8 @@
+Wed Nov 05 21:38:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: Handle DBCHECK_FIX for a zero sized
+	  .DB file.
+
 Wed Nov 05 21:02:21 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_check.cc: After we successfully regenerate

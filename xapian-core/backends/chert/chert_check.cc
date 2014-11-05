@@ -259,6 +259,11 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    throw;
 	}
 
+	uint4 root = 0;
+	uint4 revision = 0;
+	int level = -1;
+	uint4 blk_no = 0;
+
 	// Fake up a base file with no bitmap first, then fill it in when we
 	// scan the tree below.
 	int fd = ::open((path + "DB").c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
@@ -275,60 +280,67 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    }
 	    if (out)
 		*out << "Block size deduced as " << blocksize << endl;
+
+	    if (lseek(fd, 0, SEEK_SET) < 0) {
+		B.failure("Failed to seek to start of table");
+	    }
+	    // Scan for root block.
+	    bool found = false;
+	    for (blk_no = 0;
+		 io_read(fd, (char*)buf, blocksize, 0) == blocksize;
+		 ++blk_no) {
+		uint4 rev = REVISION(buf);
+		if (rev_ptr && *rev_ptr) {
+		    // We have a specified revision to look for, but we still need
+		    // to scan to find the block with the highest level in that
+		    // revision.
+		    //
+		    // Note: We could have more than one root block with the same
+		    // revision if one is written but not committed and then
+		    // another is written and committed.  We go for the lowest
+		    // block number, which will probably pick the right one with
+		    // the current freespace reallocation strategy.
+		    if (rev != *rev_ptr)
+			continue;
+		} else {
+		    // FIXME: this isn't smart enough - it will happily pick a new
+		    // revision which was partly written but never committed.  And
+		    // it suffers from the issue of multiple roots mentioned above.
+		    if (rev < revision)
+			continue;
+		}
+		int blk_level = int(GET_LEVEL(buf));
+		if (blk_level <= level)
+		    continue;
+		found = true;
+		root = blk_no;
+		revision = rev;
+		level = blk_level;
+		if (out)
+		    *out << "Root guess -> blk " << root << " rev " << revision
+			 << " level " << level << endl;
+	    }
+	    ::close(fd);
+
+	    // Check that we actually found a candidate root block.
+	    if (!found) {
+		if (out)
+		    *out << "Failed to find a suitable root block with revision "
+			 << *rev_ptr << endl;
+		throw;
+	    }
 	} else {
+	    if (!rev_ptr) {
+		if (out)
+		    *out << "Empty table, but revision number not yet known" << endl;
+		throw;
+	    }
+	    revision = *rev_ptr;
+	    level = 0;
 	    if (out)
 		*out << "Empty table, assuming default block size of "
 		     << blocksize << endl;
 	}
-
-	if (lseek(fd, 0, SEEK_SET) < 0) {
-	    B.failure("Failed to seek to start of table");
-	}
-	// Scan for root block.
-	bool found = false;
-	uint4 root = 0;
-	uint4 revision = 0;
-	int level = -1;
-	uint4 blk_no;
-	for (blk_no = 0;
-	     io_read(fd, (char*)buf, blocksize, 0) == blocksize;
-	     ++blk_no) {
-	    uint4 rev = REVISION(buf);
-	    if (rev_ptr && *rev_ptr) {
-		// We have a specified revision to look for, but we still need
-		// to scan to find the block with the highest level in that
-		// revision.
-		//
-		// Note: We could have more than one root block with the same
-		// revision if one is written but not committed and then
-		// another is written and committed.  We go for the lowest
-		// block number, which will probably pick the right one with
-		// the current freespace reallocation strategy.
-		if (rev != *rev_ptr)
-		    continue;
-	    } else {
-		// FIXME: this isn't smart enough - it will happily pick a new
-		// revision which was partly written but never committed.  And
-		// it suffers from the issue of multiple roots mentioned above.
-		if (rev < revision)
-		    continue;
-	    }
-	    int blk_level = int(GET_LEVEL(buf));
-	    if (blk_level <= level)
-		continue;
-	    found = true;
-	    root = blk_no;
-	    revision = rev;
-	    level = blk_level;
-	    if (out)
-		*out << "Root guess -> blk " << root << " rev " << revision
-		     << " level " << level << endl;
-	}
-	::close(fd);
-
-	// Check that we actually found a candidate root block.
-	if (!found)
-	    throw;
 
 	ChertTable_base fake_base;
 	fake_base.set_revision(revision);
@@ -343,6 +355,8 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    // to read blocks.  We clear the bitmap before we regenerate it
 	    // below, so the last block will still end up correctly marked.
 	    fake_base.mark_block(blk_no - 1);
+	} else {
+	    fake_base.set_have_fakeroot(true);
 	}
 	faked_base = path;
 	faked_base += "baseA";
