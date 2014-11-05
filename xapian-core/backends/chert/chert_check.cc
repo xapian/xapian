@@ -288,7 +288,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	bool found = false;
 	uint4 root = 0;
 	uint4 revision = 0;
-	uint4 level = 0;
+	int level = -1;
 	uint4 blk_no;
 	for (blk_no = 0;
 	     io_read(fd, (char*)buf, blocksize, 0) == blocksize;
@@ -313,7 +313,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 		if (rev < revision)
 		    continue;
 	    }
-	    uint4 blk_level = GET_LEVEL(buf);
+	    int blk_level = int(GET_LEVEL(buf));
 	    if (blk_level <= level)
 		continue;
 	    found = true;
@@ -334,7 +334,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	fake_base.set_revision(revision);
 	fake_base.set_block_size(blocksize);
 	fake_base.set_root(root);
-	fake_base.set_level(level);
+	fake_base.set_level(uint4(level));
 	fake_base.set_item_count(0); // Will get filled in later.
 	fake_base.set_sequential(false); // Will get filled in later.
 	if (blk_no) {

@@ -1,3 +1,9 @@
+Wed Nov 05 20:58:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: Fix DBCHECK_FIX to be able to find a
+	  level 0 root block (happens when a table has sufficiently little
+	  data in that it all fits in one block).
+
 Sun Nov 02 21:14:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Fix typo.
