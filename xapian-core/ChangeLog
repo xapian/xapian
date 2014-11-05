@@ -1,3 +1,9 @@
+Wed Nov 05 21:02:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: After we successfully regenerate
+	  baseA, remove any empty baseB file to prevent it causing problems.
+	  Tracked down with help from Phil Hands.
+
 Wed Nov 05 20:58:27 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_check.cc: Fix DBCHECK_FIX to be able to find a

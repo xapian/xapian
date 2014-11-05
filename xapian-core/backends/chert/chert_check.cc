@@ -348,6 +348,9 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	faked_base += "baseA";
 	fake_base.write_to_file(faked_base, 'A', string(), -1, NULL);
 
+	// Remove the other base if there was one - it's an empty file anyway.
+	(void)unlink((path + "baseB").c_str());
+
 	// And retry the open.
 	if (!B.open(revision)) {
 	    string msg = "Root guess of blk ";
