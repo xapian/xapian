@@ -415,9 +415,9 @@ else
   lazy_build automake 1.14.1 \
     tar.xz 2ced676f6b792a95c5919243f81790b1172c7f5b \
     tar.gz 0bb1714b78d70cab9907d2013082978a28f48a46
-  lazy_build libtool 2.4.2 \
-    tar.xz 4671f3323f2fbc712a70afce57602ce906a82a15 \
-    tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
+  lazy_build libtool 2.4.3 \
+    tar.xz 7e946bd07b846a8803bf4321e82cd6be8059c0ca \
+    tar.gz c5cd22a47bb175fc269da56551f8bfca89490b73
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
       lazy_build file 5.10 tar.gz 72fd435e78955ee122b7b3d323ff2f92e6263e89
