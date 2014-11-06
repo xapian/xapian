@@ -1,3 +1,7 @@
+Thu Nov 06 22:23:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using doxygen 1.8.8.
+
 Thu Nov 06 04:18:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Now using libtool 2.4.3.
