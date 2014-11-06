@@ -1,3 +1,7 @@
+Thu Nov 06 04:18:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using libtool 2.4.3.
+
 Wed Nov 05 21:38:45 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_check.cc: Handle DBCHECK_FIX for a zero sized
