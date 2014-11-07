@@ -1,3 +1,14 @@
+Fri Nov 07 00:34:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "Add the
+	  "%token_class" directive to the LEMON parser generator. This opens
+	  up the possibility of simplifying the parser. Also remove all calls
+	  to sprintf(), strcpy(), and strcat() from LEMON to avoid compiler
+	  warnings on OpenBSD. (Aside: It is this change to avoid harmless
+	  compiler warnings that was the cause of the reason spat of bugs.)"
+	  Generated code is identical aside from whitespace changes in
+	  queryparser_token.h.
+
 Fri Nov 07 00:17:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Sync change from upstream: "In Lemon, when
