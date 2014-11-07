@@ -10,7 +10,7 @@
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
 ** Synced with upstream:
-** http://www.sqlite.org/src/artifact/6842b2e7af12835f9f6e55808a0b1861cd0696fe
+** http://www.sqlite.org/src/artifact/07aba6270d5a5016ba8107b09e431eea4ecdc123
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -88,7 +88,7 @@ static void lemon_addtext(
   zBuf[*pnUsed] = 0;
 }
 static int lemon_vsprintf(char *str, const char *zFormat, va_list ap){
-  int i, j, k, c, size;
+  int i, j, k, c;
   int nUsed = 0;
   const char *z;
   char zTemp[50];

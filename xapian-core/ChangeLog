@@ -1,3 +1,8 @@
+Fri Nov 07 00:44:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "Fix harmless
+	  compiler warning in LEMON."  Generated code is identical.
+
 Fri Nov 07 00:39:44 GMT 2014  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Sync change from upstream: "In LEMON, limit the
