@@ -1,3 +1,12 @@
+Fri Nov 07 00:17:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "In Lemon, when
+	  comparing the output to the *.h file to see if it has changed, make
+	  sure that the proposed new output and the preexisting output are the
+	  same size before deciding that they are the same".  Generated code
+	  is identical, but this will fix misbehaviour in a build from a
+	  non-clean tree if new tokens get appended to queryparser_token.h.
+
 Thu Nov 06 22:23:27 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Now using doxygen 1.8.8.
