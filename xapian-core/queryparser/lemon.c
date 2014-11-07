@@ -10,7 +10,7 @@
 ** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 **
 ** Synced with upstream:
-** http://www.sqlite.org/src/artifact/07aba6270d5a5016ba8107b09e431eea4ecdc123
+** http://www.sqlite.org/src/artifact/3ff0fec22f92dfb54e62eeb48772eddffdbeb0d6
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -1191,8 +1191,7 @@ static int resolve_conflict(
       apx->type = SH_RESOLVED;
     }else{
       assert( spx->prec==spy->prec && spx->assoc==NONE );
-      apy->type = SRCONFLICT;
-      errcnt++;
+      apx->type = ERROR;
     }
   }else if( apx->type==REDUCE && apy->type==REDUCE ){
     spx = apx->x.rp->precsym;

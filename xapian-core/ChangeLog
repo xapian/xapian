@@ -1,3 +1,12 @@
+Fri Nov 07 00:49:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "Modify the
+	  %nonassoc directive in lemon so that it generates a run-time error
+	  rather than a parsing conflict. This changes is due to a bug report
+	  on the mailing list. SQLite does not use the %nonassoc directive in
+	  its grammar so this change does not affect SQLite."  Generated code
+	  is identical.
+
 Fri Nov 07 00:44:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Sync change from upstream: "Fix harmless
