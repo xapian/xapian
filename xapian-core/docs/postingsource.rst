@@ -235,7 +235,7 @@ intended to be combined with an existing query using `OP_AND_MAYBE` like so::
 
 The wtsource would be a class like this one::
 
-    class WeightSource:
+    class WeightSource(object):
 	def get_maxweight(self):
 	    return 12.34;
 
