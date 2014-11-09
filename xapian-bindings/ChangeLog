@@ -1,3 +1,7 @@
+Sun Nov 09 22:48:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Tue Nov 04 20:38:38 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/docs/index.rst: Note that PHP < 5.4 are now out of security
