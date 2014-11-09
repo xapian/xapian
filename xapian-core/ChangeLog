@@ -1,3 +1,8 @@
+Sun Nov 09 22:03:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* docs/deprecation.rst: Fix typo.
+
 Sun Nov 09 22:02:36 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
