@@ -1,16 +1,21 @@
- 18292       olly Mon Oct 20 00:47:32 GMT 2014  Olly Betts <olly@survex.com>
+ 18338       olly Fri Nov 07 00:49:22 GMT 2014  Olly Betts <olly@survex.com>
 
 backport fodder:
 
 backported for 1.2.20:
 
-Xapian-core 1.3.2 (2014-10-20):
+ 18334       olly Fri Nov 07 00:17:18 GMT 2014  Olly Betts <olly@survex.com>
+	* queryparser/lemon.c: Sync change from upstream: "In Lemon, when
+	  comparing the output to the *.h file to see if it has changed, make
+	  sure that the proposed new output and the preexisting output are the
+	  same size before deciding that they are the same".  Generated code
+	  is identical, but this will fix misbehaviour in a build from a
+	  non-clean tree if new tokens get appended to queryparser_token.h.
+
+Xapian-core 1.3.2 (2014-11-09):
 
 	* languages/: Add stopwords lists from Snowball plus an Arabic one.
-
-	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
-	  bin/xapian-check.cc,include/xapian/constants.h: Rename
-	  DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST. (check was in 1.3.0)
+	  patch from Assem Chelli.
 
 	* generate-exceptions,include/xapian/: Use XAPIAN_IN_XAPIAN_H rather
 	  than XAPIAN_INCLUDED_XAPIAN_H in the direct inclusion of subheader
@@ -44,6 +49,10 @@ API:
 
   + Correct failure message which talks above the root block when it's actually
     testing a leaf key.
+
+  + Rename DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST (old name still
+    provided for now, but flagged as deprecated - DBCHECK_SHOW_BITMAP was new
+    in 1.3.0, so will likely be removed before 1.4.0).
 
 * Methods and functions which take a string to unserialise now consistently
   call that parameter "serialised".
@@ -86,6 +95,9 @@ API:
 
 * Xapian::Auto::open_stub(), Xapian::Brass::open() and Xapian::Chert::open()
   are now deprecated in favour of these new flags.
+
+* Add LMWeight class, which implements the Unigram Language Modelling weighting
+  scheme.  Patch from Gaurav Arora.
 
 * Add implementations of a number of DfR weighting schemes (BB2, DLH, DPH,
   IfB2, IneB2, InL2, PL2).  Patches from Aarsh Shah.
@@ -208,10 +220,17 @@ brass backend:
 
 chert backend:
 
-* Improve DBCHECK_FIX - if fixing a whole database, we now take the revision
-  from the first table we successfully look at, which should be correct in most
-  cases, and is definitely better than trying to determine the revision of each
-  broken table independently.
+* Improve DBCHECK_FIX:
+
+  + if fixing a whole database, we now take the revision from the first table
+    we successfully look at, which should be correct in most cases, and is
+    definitely better than trying to determine the revision of each broken
+    table independently.
+
+  + handle a zero-sized .DB file.
+
+  + After we successfully regenerate baseA, remove any empty baseB file to
+    prevent it causing problems.  Tracked down with help from Phil Hands.
 
 remote backend:
 
@@ -240,7 +259,17 @@ documentation:
 
 * Actually ship, process and install geospatial.rst.
 
-* HACKING: Note we now use doxygen 1.8.7 for 1.3.x snapshots and releases.
+* postingsource.rst: Use a modern class in postingsource example.  (Noted by
+  James Aylett)
+
+* Move the protocol docs for the remote and replication protocols into the net/
+  subdirectory.
+
+* Remove the dir_contents files and all the machinery to handle them.
+
+* HACKING: Note we now use doxygen 1.8.8 for 1.3.x snapshots and releases.
+
+* HACKING: Now using libtool 2.4.3 to bootstrap snapshots and 1.3.x releases.
 
 * HACKING: Now using automake 1.14.1 to bootstrap snapshots and 1.3.x releases.
 
@@ -279,6 +308,12 @@ portability:
 * Drop code supporting Microsoft Windows 9x which reached EOL in 2006.
 
 * Under C++11, use unique_ptr for AutoPtr.
+
+* Stop using a reference where we may end up passing *NULL, as that's invalid.
+  Thanks Nick Lewycky and ubsan for helping track this down.
+
+* In DLHWeight and DPHWeight, avoid dividing by zero when the collection size
+  is 0.
 
 packaging:
 

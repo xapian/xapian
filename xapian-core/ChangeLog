@@ -1,3 +1,7 @@
+Sun Nov 09 22:38:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Fri Nov 07 00:49:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Sync change from upstream: "Modify the
