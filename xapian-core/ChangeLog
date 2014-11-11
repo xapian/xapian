@@ -1,3 +1,7 @@
+Tue Nov 11 02:58:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Just have one copy of the licence boilerplate.
+
 Sun Nov 09 22:38:04 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
