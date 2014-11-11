@@ -1,3 +1,9 @@
+Tue Nov 11 22:17:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,api/queryinternal.h: Move all the get_op()
+	  definitions out of the header as they're virtual and there's not
+	  much scope for devirtualisation.
+
 Tue Nov 11 02:58:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* exception_data.pm: Just have one copy of the licence boilerplate.
