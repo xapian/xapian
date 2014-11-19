@@ -2,7 +2,7 @@
 
 #define XAPIAN_SWIG_DIRECTORS
 
-%ignore operator();
+%rename(Apply) operator();
 %ignore operator&;
 %ignore operator|;
 %ignore operator^;
