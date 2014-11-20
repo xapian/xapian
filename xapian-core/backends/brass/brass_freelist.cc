@@ -100,7 +100,7 @@ BrassFreeList::walk(const BrassTable *B, uint4 block_size, bool inclusive)
 	return static_cast<uint4>(-1);
     }
 
-    if (p == 0 || fl.c == block_size) {
+    if (p == 0 || fl.c == block_size - 4) {
 	if (p == 0) {
 	    p = new byte[block_size];
 	} else {
