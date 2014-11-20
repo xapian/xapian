@@ -133,6 +133,7 @@ class BrassFreeList {
 		 flw.unpack(pstart, end);
 	if (r) {
 	    fl_end = flw;
+	    flw_appending = false;
 	}
 	return r;
     }
