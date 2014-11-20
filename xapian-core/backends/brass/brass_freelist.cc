@@ -223,7 +223,7 @@ BrassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	    else if (sizeof(elt_type) == sizeof(unsigned long long))
 		first_bad_blk += __builtin_ctzll(elt);
 #else
-	    // GCC has had __builtin_ffs() in all values we support, which
+	    // GCC has had __builtin_ffs() in all versions we support, which
 	    // returns one more than ctz (and is defined for an input of 0,
 	    // which we don't need).
 	    if (sizeof(elt_type) == sizeof(unsigned))

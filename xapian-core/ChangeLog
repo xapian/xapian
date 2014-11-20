@@ -1,3 +1,7 @@
+Thu Nov 20 21:36:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc: Fix comment typo.
+
 Thu Nov 20 03:53:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_freelist.cc: Fix end-of-block condition when
