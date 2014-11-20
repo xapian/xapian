@@ -1,3 +1,7 @@
+Thu Nov 20 02:31:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc: Straighten out confusing comments.
+
 Sun Nov 16 23:49:38 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
