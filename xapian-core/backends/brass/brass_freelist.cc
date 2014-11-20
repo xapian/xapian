@@ -110,8 +110,8 @@ BrassFreeList::walk(const BrassTable *B, uint4 block_size, bool inclusive)
 	}
 	read_block(B, fl.n, p);
 
-	// Either the freelist end is in this block, or this freelist block has a
-	// next pointer.
+	// Either the freelist end is in this block, or this freelist block has
+	// a next pointer.
 	Assert(fl.n == fl_end.n || getint4(p, block_size - 4) != -1);
 
 	if (inclusive)

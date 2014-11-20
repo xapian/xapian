@@ -1,3 +1,7 @@
+Thu Nov 20 02:32:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc: Wrap comment line.
+
 Thu Nov 20 02:31:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* matcher/exactphrasepostlist.cc: Straighten out confusing comments.
