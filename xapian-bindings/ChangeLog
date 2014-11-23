@@ -1,3 +1,7 @@
+Sun Nov 23 05:14:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/docs/introduction.rst: Fix typo.
+
 Sun Nov 09 22:48:08 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

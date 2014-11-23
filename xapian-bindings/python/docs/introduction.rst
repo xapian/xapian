@@ -355,7 +355,7 @@ should return a tuple of (value number, begin, end).  For example:
 Apache and mod_python/mod_wsgi
 ##############################
 
-Prior to Xapian 1.3.0, the you had to tell mod_python and mod_wsgi to run
+Prior to Xapian 1.3.0, you had to tell mod_python and mod_wsgi to run
 applications which use Xapian in the main interpreter.  Xapian 1.3.0 no
 longer uses the simplified GIL state API, and so this restriction should
 no longer apply.
