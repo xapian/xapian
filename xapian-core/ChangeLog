@@ -1,3 +1,8 @@
+Sun Nov 23 22:23:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc,backends/brass/brass_freelist.h:
+	  Set the revision in BrassFreeList::write_block().
+
 Thu Nov 20 21:36:35 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_freelist.h: Reset flw_appending when we unpack

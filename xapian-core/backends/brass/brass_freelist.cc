@@ -48,8 +48,9 @@ BrassFreeList::read_block(const BrassTable * B, uint4 n, byte * ptr)
 }
 
 void
-BrassFreeList::write_block(const BrassTable * B, uint4 n, byte * ptr)
+BrassFreeList::write_block(const BrassTable * B, uint4 n, byte * ptr, uint4 rev)
 {
+    SET_REVISION(ptr, rev);
     setint4(ptr, 4, 0);
     SET_LEVEL(ptr, LEVEL_FREELIST);
     B->write_block(n, ptr, flw_appending);
@@ -153,8 +154,7 @@ BrassFreeList::mark_block_unused(const BrassTable * B, uint4 block_size, uint4 b
 	// just use blk as the next block in the freelist chain.
 	uint4 n = get_block(B, block_size);
 	setint4(pw, flw.c, n);
-	SET_REVISION(pw, revision + 1);
-	write_block(B, flw.n, pw);
+	write_block(B, flw.n, pw, revision + 1);
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
 	    memcpy(p, pw, block_size);
@@ -174,14 +174,13 @@ BrassFreeList::commit(const BrassTable * B, uint4 block_size)
 {
     if (pw && flw.c != 0) {
 	memset(pw + flw.c, 255, block_size - flw.c - 4);
-	SET_REVISION(pw, revision);
-	write_block(B, flw.n, pw);
-	flw_appending = true;
-	fl_end = flw;
+	write_block(B, flw.n, pw, revision);
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
 	    memcpy(p, pw, block_size);
 	}
+	flw_appending = true;
+	fl_end = flw;
     }
 }
 

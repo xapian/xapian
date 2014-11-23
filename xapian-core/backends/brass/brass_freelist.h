@@ -70,7 +70,7 @@ class BrassFreeList {
 
     void read_block(const BrassTable * B, uint4 n, byte * p);
 
-    void write_block(const BrassTable * B, uint4 n, byte * p);
+    void write_block(const BrassTable * B, uint4 n, byte * p, uint4 rev);
 
   protected:
     uint4 revision;
