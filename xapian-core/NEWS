@@ -69,9 +69,9 @@ API:
 
   + Xapian::DB_DANGEROUS: to enable in-place updates
 
-  + Xapian::DB_BACKEND_BRASS: if creating, create a brass database
-
   + Xapian::DB_BACKEND_CHERT: if creating, create a chert database
+
+  + Xapian::DB_BACKEND_GLASS: if creating, create a glass database
 
   + Xapian::DB_NO_TERMLIST: create a database without a termlist (see #181)
 
@@ -82,14 +82,14 @@ API:
 * Database: Add optional flags argument to constructor - the following can be
   bitwise OR-ed into it:
 
-  + Xapian::DB_BACKEND_BRASS (only open a brass database)
-
   + Xapian::DB_BACKEND_CHERT (only open a chert database)
+
+  + Xapian::DB_BACKEND_GLASS (only open a glass database)
 
   + Xapian::DB_BACKEND_STUB (only open a stub database)
 
-* Xapian::Auto::open_stub(), Xapian::Brass::open() and Xapian::Chert::open()
-  are now deprecated in favour of these new flags.
+* Xapian::Auto::open_stub() and Xapian::Chert::open() are now deprecated in
+  favour of these new flags.
 
 * Add LMWeight class, which implements the Unigram Language Modelling weighting
   scheme.  Patch from Gaurav Arora.
@@ -178,7 +178,11 @@ matcher:
   MatchAll, we still need to set a weight object on it to get percentages
   calculated correctly.
 
-brass backend:
+glass backend:
+
+* 'brass' backend renamed to 'glass' - we decided to use names in ascending
+  alphabetical order to make it easier to understand which backend is newest,
+  and since 'flint' was used recently, we skipped over 'd', 'e' and 'f'.
 
 * Change positionlist keys to be ordered by term first rather than docid first,
   which helps phrase searching significantly.  For more efficient indexing,
@@ -195,7 +199,7 @@ brass backend:
   for queries which contain a lot of terms (e.g. wildcards which expand to a
   lot of terms).
 
-* Under brass, optimise the turning of a query into a postlist to reuse the
+* Under glass, optimise the turning of a query into a postlist to reuse the
   cursor blocks which are the same as the previous term's postlist.  This is
   particularly effective for a wildcard query which expands to a lot of terms.
 
@@ -203,7 +207,7 @@ brass backend:
   bitmaps.  (fixes #40)
 
 * Eliminate the base files, and instead store the root block and freelist
-  pointers in the "iambrass" file.
+  pointers in the "iamglass" file.
 
 * When compacting, sync all the tables together at the end.
 
@@ -241,7 +245,7 @@ inmemory backend:
 build system:
 
 * Fix conditional for enabling replication code - if chert is disabled but
-  brass isn't, we should still enable it.
+  glass isn't, we should still enable it.
 
 * configure: Add hint for which package to install for rst2html
 

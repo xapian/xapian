@@ -4,7 +4,7 @@ EXTRA_DIST +=\
 bin_PROGRAMS +=\
 	bin/xapian-delve
 
-if BUILD_BACKEND_BRASS_OR_CHERT
+if BUILD_BACKEND_CHERT_OR_GLASS
 bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact\

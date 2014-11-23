@@ -37,8 +37,8 @@
 #include "safeerrno.h"
 #include <cstdlib> // For atoi().
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-# include "brass/brass_database.h"
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+# include "glass/glass_database.h"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 # include "chert/chert_database.h"
@@ -107,10 +107,10 @@ open_stub(Database &db, const string &file)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	if (type == "brass") {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	if (type == "glass") {
 	    resolve_relative_path(line, file);
-	    db.add_database(Database(new BrassDatabase(line)));
+	    db.add_database(Database(new GlassDatabase(line)));
 	    continue;
 	}
 #endif
@@ -215,10 +215,10 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	if (type == "brass") {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	if (type == "glass") {
 	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_BRASS));
+	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_GLASS));
 	    continue;
 	}
 #endif
@@ -287,12 +287,12 @@ Database::Database(const string &path, int flags)
 #else
 	    throw FeatureUnavailableError("Chert backend disabled");
 #endif
-	case DB_BACKEND_BRASS:
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	    internal.push_back(new BrassDatabase(path));
+	case DB_BACKEND_GLASS:
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	    internal.push_back(new GlassDatabase(path));
 	    return;
 #else
-	    throw FeatureUnavailableError("Brass backend disabled");
+	    throw FeatureUnavailableError("Glass backend disabled");
 #endif
 	case DB_BACKEND_STUB:
 	    open_stub(*this, path);
@@ -321,9 +321,9 @@ Database::Database(const string &path, int flags)
     }
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-    if (file_exists(path + "/iambrass")) {
-	internal.push_back(new BrassDatabase(path));
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (file_exists(path + "/iamglass")) {
+	internal.push_back(new GlassDatabase(path));
 	return;
     }
 #endif
@@ -341,9 +341,9 @@ Database::Database(const string &path, int flags)
 	throw FeatureUnavailableError("Chert backend disabled");
     }
 #endif
-#ifndef XAPIAN_HAS_BRASS_BACKEND
-    if (file_exists(path + "/iambrass")) {
-	throw FeatureUnavailableError("Brass backend disabled");
+#ifndef XAPIAN_HAS_GLASS_BACKEND
+    if (file_exists(path + "/iamglass")) {
+	throw FeatureUnavailableError("Glass backend disabled");
     }
 #endif
     if (file_exists(path + "/iamflint")) {
@@ -354,7 +354,7 @@ Database::Database(const string &path, int flags)
 }
 
 #if defined XAPIAN_HAS_CHERT_BACKEND || \
-    defined XAPIAN_HAS_BRASS_BACKEND
+    defined XAPIAN_HAS_GLASS_BACKEND
 #define HAVE_DISK_BACKEND
 #endif
 
@@ -362,7 +362,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
     : Database()
 {
     LOGCALL_CTOR(API, "WritableDatabase", path|flags|block_size);
-    // Avoid warning if both brass and chert are disabled.
+    // Avoid warning if both chert and glass are disabled.
     (void)block_size;
     int type = flags & DB_BACKEND_MASK_;
     // Clear the backend bits, so we just pass on other flags to open_stub, etc.
@@ -393,12 +393,12 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 #else
 		throw FeatureUnavailableError("Chert backend disabled");
 #endif
-	    } else if (file_exists(path + "/iambrass")) {
-		// Existing brass DB.
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-		type = DB_BACKEND_BRASS;
+	    } else if (file_exists(path + "/iamglass")) {
+		// Existing glass DB.
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+		type = DB_BACKEND_GLASS;
 #else
-		throw FeatureUnavailableError("Brass backend disabled");
+		throw FeatureUnavailableError("Glass backend disabled");
 #endif
 	    } else if (file_exists(path + "/iamflint")) {
 		// Existing flint DB.
@@ -422,12 +422,12 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	case 0: {
 	    // If only one backend is enabled, there's no point checking the
 	    // environmental variable.
-#if defined XAPIAN_HAS_BRASS_BACKEND && defined XAPIAN_HAS_CHERT_BACKEND
-	    // If $XAPIAN_PREFER_BRASS is set to a non-empty value, prefer brass
+#if defined XAPIAN_HAS_CHERT_BACKEND && defined XAPIAN_HAS_GLASS_BACKEND
+	    // If $XAPIAN_PREFER_GLASS is set to a non-empty value, prefer glass
 	    // if there's no existing database.
-	    const char *p = getenv("XAPIAN_PREFER_BRASS");
+	    const char *p = getenv("XAPIAN_PREFER_GLASS");
 	    if (p && *p)
-	       	goto brass;
+	       	goto glass;
 #endif
 	}
 	// Fall through to first enabled case, so order the remaining cases
@@ -437,12 +437,12 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	    internal.push_back(new ChertWritableDatabase(path, flags, block_size));
 	    return;
 #endif
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	case DB_BACKEND_BRASS:
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	case DB_BACKEND_GLASS:
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-brass:
+glass:
 #endif
-	    internal.push_back(new BrassWritableDatabase(path, flags, block_size));
+	    internal.push_back(new GlassWritableDatabase(path, flags, block_size));
 	    return;
 #endif
     }

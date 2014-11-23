@@ -83,11 +83,11 @@ BackendManager::getwritedb_inmemory(const vector<string> &files)
 }
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 string
-BackendManager::createdb_brass(const vector<string> &files)
+BackendManager::createdb_glass(const vector<string> &files)
 {
-    string parent_dir = ".brass";
+    string parent_dir = ".glass";
     create_dir_if_needed(parent_dir);
 
     string dbdir = parent_dir + "/db";
@@ -100,7 +100,7 @@ BackendManager::createdb_brass(const vector<string> &files)
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(dbdir,
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_BRASS, 2048);
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS, 2048);
 	index_files_to_database(db, files);
 	db.commit();
     }
@@ -108,10 +108,10 @@ BackendManager::createdb_brass(const vector<string> &files)
 }
 
 Xapian::WritableDatabase
-BackendManager::getwritedb_brass(const string & name,
+BackendManager::getwritedb_glass(const string & name,
 				 const vector<string> & files)
 {
-    string dbdir = getwritedb_brass_path(name);
+    string dbdir = getwritedb_glass_path(name);
 
     // For a writable database we need to start afresh each time.
     rm_rf(dbdir);
@@ -119,15 +119,15 @@ BackendManager::getwritedb_brass(const string & name,
 
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(dbdir,
-	    Xapian::DB_CREATE|Xapian::DB_BACKEND_BRASS, 2048);
+	    Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS, 2048);
     index_files_to_database(db, files);
     return db;
 }
 
 std::string
-BackendManager::getwritedb_brass_path(const string & name)
+BackendManager::getwritedb_glass_path(const string & name)
 {
-    string parent_dir = ".brass";
+    string parent_dir = ".glass";
     create_dir_if_needed(parent_dir);
 
     string dbdir = parent_dir;

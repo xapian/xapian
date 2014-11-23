@@ -1,3 +1,13 @@
+Sun Nov 23 23:56:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,NEWS,NEWS.SKELETON,api/compactor.cc,
+	  api/replication.cc,backends/Makefile.mk,backends/brass/,
+	  backends/databasereplicator.cc,backends/dbcheck.cc,
+	  backends/dbfactory.cc,backends/glass/,bin/Makefile.mk,
+	  common/Makefile.mk,common/pack.h,common/pretty.h,configure.ac,docs/,
+	  include/xapian/,net/replication_protocol.rst,tests/,tests/harness/:
+	  Rename 'brass' backend to 'glass'.
+
 Sun Nov 23 22:23:00 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_freelist.cc,backends/brass/brass_freelist.h:

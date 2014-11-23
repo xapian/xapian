@@ -26,8 +26,8 @@
 
 #include "testsuite.h"
 #include "backendmanager.h"
-#include "backendmanager_brass.h"
 #include "backendmanager_chert.h"
+#include "backendmanager_glass.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
 #include "backendmanager_remoteprog.h"
@@ -52,16 +52,16 @@ struct BackendProperties {
 static BackendProperties backend_properties[] = {
     { "none", "" },
     { "inmemory", "backend,positional,writable,metadata,valuestats,inmemory" },
-    { "brass", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,valuestats,generated,brass" },
     { "chert", "backend,transactions,positional,writable,spelling,metadata,"
 	       "synonyms,replicas,valuestats,generated,chert" },
-    { "multi_brass", "backend,positional,valuestats,multi" },
+    { "glass", "backend,transactions,positional,writable,spelling,metadata,"
+	       "synonyms,replicas,valuestats,generated,glass" },
     { "multi_chert", "backend,positional,valuestats,multi" },
-    { "remoteprog_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
-    { "remotetcp_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "multi_glass", "backend,positional,valuestats,multi" },
     { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remoteprog_glass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "remotetcp_glass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { NULL, NULL }
 };
 
@@ -84,8 +84,8 @@ TestRunner::set_properties(const string & properties)
     valuestats = false;
     generated = false;
     inmemory = false;
-    brass = false;
     chert = false;
+    glass = false;
 
     // Read the properties specified in the string
     string::size_type pos = 0;
@@ -122,10 +122,10 @@ TestRunner::set_properties(const string & properties)
 	    generated = true;
 	else if (propname == "inmemory")
 	    inmemory = true;
-	else if (propname == "brass")
-	    brass = true;
 	else if (propname == "chert")
 	    chert = true;
+	else if (propname == "glass")
+	    glass = true;
 	else
 	    throw Xapian::InvalidArgumentError("Unknown property '" + propname + "' found in proplist");
 
@@ -196,9 +196,9 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
-	    BackendManagerBrass m;
+	    BackendManagerGlass m;
 	    do_tests_for_backend(&m);
 	}
 #endif
@@ -210,9 +210,9 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
-	    BackendManagerMulti m("brass");
+	    BackendManagerMulti m("glass");
 	    do_tests_for_backend(&m);
 	}
 #endif
@@ -224,13 +224,13 @@ TestRunner::run_tests(int argc, char ** argv)
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-#ifdef XAPIAN_HAS_BRASS_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
-	    BackendManagerRemoteProg m("brass");
+	    BackendManagerRemoteProg m("glass");
 	    do_tests_for_backend(&m);
 	}
 	{
-	    BackendManagerRemoteTcp m("brass");
+	    BackendManagerRemoteTcp m("glass");
 	    do_tests_for_backend(&m);
 	}
 #endif

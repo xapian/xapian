@@ -20,9 +20,9 @@
 /stemtest.exe
 /termgentest.exe
 /unittest.exe
-/.brass
+/.glass
 /.chert
-/.multibrass
+/.multiglass
 /.multichert
 /.stub
 /api_all.h

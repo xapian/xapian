@@ -67,7 +67,7 @@ lib_src +=\
 	common/str.cc\
 	common/stringutils.cc
 
-if BUILD_BACKEND_BRASS_OR_CHERT
+if BUILD_BACKEND_CHERT_OR_GLASS
 lib_src +=\
 	common/compression_stream.cc
 endif

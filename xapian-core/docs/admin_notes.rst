@@ -2,7 +2,7 @@
 .. Copyright (C) 2006 Lemur Consulting Ltd
 .. Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
 
-.. FIXME: Once brass settles down, update this for brass
+.. FIXME: Once glass settles down, update this for glass
 
 ============================
 Xapian Administrator's Guide
@@ -185,7 +185,7 @@ The flint backend (the default for 1.0) is still supported by 1.2.x, but
 deprecated - only use it if you already have flint databases; and plan to
 migrate away.
 
-There's also a development backend called brass.  The main distinguishing
+There's also a development backend called glass.  The main distinguishing
 feature of this is that the format may change incompatibly from time to time.
 It passes Xapian's extensive testsuite, but has seen less real world use
 than chert.

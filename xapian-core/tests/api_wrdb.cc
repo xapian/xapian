@@ -1498,7 +1498,7 @@ DEFINE_TESTCASE(consistency2, writable) {
 }
 
 DEFINE_TESTCASE(crashrecovery1, chert) {
-    // Brass has a single version file per revision, rather than multiple base
+    // Glass has a single version file per revision, rather than multiple base
     // files, so it simply can't get into the situations we are testing
     // recovery from.
     const string & dbtype = get_dbtype();
@@ -1758,7 +1758,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
     db.commit();
 
     {
-	// Currently brass and chert escape zero bytes from terms in keys for
+	// Currently chert and glass escape zero bytes from terms in keys for
 	// some tables, so a term with 127 zero bytes won't work either.
 	Xapian::Document doc;
 	doc.add_term(string(127, '\0'));
@@ -1821,7 +1821,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lazytablebug1, brass || chert) {
+DEFINE_TESTCASE(lazytablebug1, chert || glass) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
 
@@ -1853,7 +1853,7 @@ DEFINE_TESTCASE(lazytablebug1, brass || chert) {
  *  Chert also has the same duff code but this testcase doesn't actually 
  *  tickle the bug there.
  */
-DEFINE_TESTCASE(cursordelbug1, brass || chert) {
+DEFINE_TESTCASE(cursordelbug1, chert || glass) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 

@@ -179,12 +179,15 @@ The current types understood by Xapian are:
 
 auto
     This isn't an actual database format, but rather auto-detection of one of
-    the disk based backends (e.g. "brass" or "chert") from a single specified
+    the disk based backends (e.g. "chert" or "glass") from a single specified
     path (which can be to a file or directory).
 
 brass
-    Brass is the current development backend, and it is intended to be the
-    default backend in Xapian 1.4.x.
+    Brass was the current "under development" database format in Xapian 1.2.x,
+    1.3.0 and 1.3.1.  It was renamed to 'glass' in Xapian 1.3.2 because we
+    decided to use backend names in ascending alphabetical order to make it
+    easier to understand which backend is newest, and since 'flint' was used
+    recently, we skipped over 'd', 'e' and 'f'.
 
 chert
     Chert is the default backend in Xapian 1.2.x. It supports incremental
@@ -197,6 +200,10 @@ flint
     database to Chert, `see the 'Admin Notes'
     <admin_notes.html#converting-a-flint-database-to-a-chert-database%60>`_
     for a way to do this.
+
+glass
+    Glass is the current development backend (renamed from Brass in 1.3.2),
+    It is intended to be the default backend in Xapian 1.4.x.
 
 inmemory
     This type is a database held entirely in memory. It was originally written

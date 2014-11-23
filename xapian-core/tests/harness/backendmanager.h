@@ -96,19 +96,6 @@ class BackendManager {
     Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-  protected:
-    std::string createdb_brass(const std::vector<std::string> &files);
-
-  public:
-    /// Get a writable brass database instance.
-    Xapian::WritableDatabase getwritedb_brass(const std::string & name,
-					      const std::vector<std::string> &files);
-
-    /// Get the path of a writable brass database instance.
-    std::string getwritedb_brass_path(const std::string & name);
-#endif
-
 #ifdef XAPIAN_HAS_CHERT_BACKEND
   protected:
     std::string createdb_chert(const std::vector<std::string> &files);
@@ -120,6 +107,19 @@ class BackendManager {
 
     /// Get the path of a writable chert database instance.
     std::string getwritedb_chert_path(const std::string & name);
+#endif
+
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+  protected:
+    std::string createdb_glass(const std::vector<std::string> &files);
+
+  public:
+    /// Get a writable glass database instance.
+    Xapian::WritableDatabase getwritedb_glass(const std::string & name,
+					      const std::vector<std::string> &files);
+
+    /// Get the path of a writable glass database instance.
+    std::string getwritedb_glass_path(const std::string & name);
 #endif
 
   public:

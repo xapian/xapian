@@ -104,7 +104,7 @@ const int DB_DANGEROUS		 = 0x10;
 
 /** When creating a database, don't create a termlist table.
  *
- *  For backends which support it (currently brass), this will prevent creation
+ *  For backends which support it (currently glass), this will prevent creation
  *  of a termlist table.  This saves on the disk space that would be needed to
  *  store it, and the CPU and I/O needed to update it, but some features either
  *  inherently need the termlist table, or the current implementation of them
@@ -135,17 +135,18 @@ const int DB_DANGEROUS		 = 0x10;
  */
 const int DB_NO_TERMLIST	 = 0x20;
 
-/** Use the brass backend.
+/** Use the glass backend.
  *
- *  When opening a WritableDatabase, this means create a brass database if a
+ *  When opening a WritableDatabase, this means create a glass database if a
  *  new database is created.  If there's an existing database (of any type)
  *  at the specified path, this flag has no effect.
  *
- *  When opening a Database, this flag means to only open it if it's a brass
+ *  When opening a Database, this flag means to only open it if it's a glass
  *  database.  There's rarely a good reason to do this - it's mostly provided
- *  as equivalent functionality to Xapian::Brass::open() in Xapian 1.2.
+ *  as equivalent functionality to that provided by the namespaced open()
+ *  functions in Xapian 1.2.
  */
-const int DB_BACKEND_BRASS	 = 0x100;
+const int DB_BACKEND_GLASS	 = 0x100;
 
 /** Use the chert backend.
  *

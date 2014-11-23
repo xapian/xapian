@@ -47,9 +47,9 @@
 #include "stringutils.h"
 #include "str.h"
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-#include "backends/brass/brass_compact.h"
-#include "backends/brass/brass_version.h"
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+#include "backends/glass/glass_compact.h"
+#include "backends/glass/glass_version.h"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 #include "backends/chert/chert_compact.h"
@@ -75,8 +75,8 @@ class CmpByFirstUsed {
 
 static const char * backend_names[] = {
     NULL,
-    "brass",
     "chert",
+    "glass",
 };
 
 enum { STUB_NO, STUB_FILE, STUB_DIR };
@@ -96,7 +96,7 @@ class Compactor::Internal : public Xapian::Internal::intrusive_base {
     Xapian::docid tot_off;
     Xapian::docid last_docid;
 
-    enum { UNKNOWN, BRASS, CHERT } backend;
+    enum { UNKNOWN, CHERT, GLASS } backend;
 
     string first_source;
 
@@ -255,7 +255,7 @@ Compactor::Internal::add_source(const string & srcdir)
 		string type(line, 0, space);
 		line.erase(0, space + 1);
 
-		if (type == "auto" || type == "chert" || type == "brass") {
+		if (type == "auto" || type == "chert" || type == "glass") {
 		    resolve_relative_path(line, file);
 		    add_source(line);
 		    continue;
@@ -283,17 +283,19 @@ Compactor::Internal::add_source(const string & srcdir)
 	} else if (backend != CHERT) {
 	    backend_mismatch(first_source, backend, srcdir, CHERT);
 	}
-    } else if (file_exists(string(srcdir) + "/iambrass")) {
+    } else if (file_exists(string(srcdir) + "/iamglass")) {
 	if (backend == UNKNOWN) {
-	    backend = BRASS;
-	} else if (backend != BRASS) {
-	    backend_mismatch(first_source, backend, srcdir, BRASS);
+	    backend = GLASS;
+	} else if (backend != GLASS) {
+	    backend_mismatch(first_source, backend, srcdir, GLASS);
 	}
     } else if (file_exists(string(srcdir) + "/iamflint")) {
 	throw Xapian::DatabaseError("Flint backend no longer supported");
+    } else if (file_exists(string(srcdir) + "/iambrass")) {
+	throw Xapian::DatabaseError("Brass backend no longer supported");
     } else {
 	string msg = srcdir;
-	msg += ": not a chert or brass database";
+	msg += ": not a chert or glass database";
 	throw Xapian::InvalidArgumentError(msg);
     }
 
@@ -458,13 +460,13 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 	(void)compactor;
 	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
 #endif
-    } else if (backend == BRASS) {
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	compact_brass(compactor, destdir.c_str(), sources, offset, block_size,
+    } else if (backend == GLASS) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	compact_glass(compactor, destdir.c_str(), sources, offset, block_size,
 		      compaction, multipass, last_docid);
 #else
 	(void)compactor;
-	throw Xapian::FeatureUnavailableError("Brass backend disabled at build time");
+	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");
 #endif
     }
 

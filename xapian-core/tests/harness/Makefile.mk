@@ -3,8 +3,8 @@ EXTRA_DIST +=\
 
 noinst_HEADERS +=\
 	harness/backendmanager.h\
-	harness/backendmanager_brass.h\
 	harness/backendmanager_chert.h\
+	harness/backendmanager_glass.h\
 	harness/backendmanager_inmemory.h\
 	harness/backendmanager_local.h\
 	harness/backendmanager_multi.h\
@@ -37,12 +37,12 @@ utestharness_sources =\
 	harness/fdtracker.cc\
 	harness/utestsuite.cc
 
-if BUILD_BACKEND_BRASS
-testharness_sources += harness/backendmanager_brass.cc
-endif
-
 if BUILD_BACKEND_CHERT
 testharness_sources += harness/backendmanager_chert.cc
+endif
+
+if BUILD_BACKEND_GLASS
+testharness_sources += harness/backendmanager_glass.cc
 endif
 
 if BUILD_BACKEND_INMEMORY

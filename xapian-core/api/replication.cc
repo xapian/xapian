@@ -328,8 +328,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  last_live_changeset_time(), conn(NULL)
 {
     LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
-#if !defined XAPIAN_HAS_CHERT_BACKEND && !defined XAPIAN_HAS_BRASS_BACKEND
-    throw FeatureUnavailableError("Replication requires at least one of the chert or brass backends to be enabled");
+#if !defined XAPIAN_HAS_CHERT_BACKEND && !defined XAPIAN_HAS_GLASS_BACKEND
+    throw FeatureUnavailableError("Replication requires at least one of the chert or glass backends to be enabled");
 #else
     if (mkdir(path.c_str(), 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a

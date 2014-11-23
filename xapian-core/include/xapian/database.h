@@ -535,7 +535,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  @param block_size If a new database is created, this specifies
 	 *		      the block size (in bytes) for backends which
-	 *		      have such a concept.  For chert and brass, the
+	 *		      have such a concept.  For chert and glass, the
 	 *		      block size must be a power of 2 between 2048 and
 	 *		      65536 (inclusive), and the default (also used if
 	 *		      an invalid value is passed) is 8192 bytes.

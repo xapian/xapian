@@ -129,9 +129,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, brass, or chert backends using ``make check-inmemory``,
+multi-database, glass, or chert backends using ``make check-inmemory``,
 ``make check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
-``make check-brass``, or ``make check-chert``
+``make check-glass``, or ``make check-chert``
 respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote

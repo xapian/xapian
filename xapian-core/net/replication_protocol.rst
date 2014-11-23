@@ -73,7 +73,7 @@ the database directory.  This file contains a record of the changes made,
 currently in the following format (but note that this format may change in
 the future):
 
- - 12 bytes holding the string "FlintChanges", "ChertChanges" or "BrassChanges"
+ - 12 bytes holding the string "FlintChanges", "ChertChanges" or "GlassChanges"
    (used to check that a file is a changeset file).
 
  - The format of the changeset (as a variable length unsigned integer).
@@ -108,7 +108,7 @@ the future):
 
    - If a list of blocks:
 
-     - The blocksize in use (for brass, divided by 2048).
+     - The blocksize in use (for glass, divided by 2048).
 
      - A list of items:
 
