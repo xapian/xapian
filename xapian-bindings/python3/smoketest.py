@@ -107,11 +107,6 @@ def test_all():
     expect_exception(AttributeError, "'module' object has no attribute 'open_stub'",
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
 
-    expect_exception(AttributeError, "'module' object has no attribute 'brass_open'",
-            lambda : xapian.brass_open(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, "'module' object has no attribute 'brass_open'",
-            lambda : xapian.brass_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
-
     expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb"))
     expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
@@ -123,9 +118,9 @@ def test_all():
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB))
 
     expect_exception(xapian.DatabaseOpeningError, None,
-            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_BRASS))
+            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_GLASS))
     expect_exception(xapian.DatabaseCreateError, None,
-            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_BRASS))
+            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
 
     expect_exception(xapian.DatabaseOpeningError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_CHERT))

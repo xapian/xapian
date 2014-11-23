@@ -21,7 +21,9 @@ Documentation:
 
 * Convert HTML docs to reStructured text.  (Patch from Mayank Chaudhary)
 
-* Update for deprecation of Xapian::Brass::open() and Xapian::Chert::open().
+* Update for deprecation of Xapian::Chert::open().
+
+* Update for renaming of "brass" backend to "glass".
 
 * Remove SVN "$Date" placeholders as they aren't expanded by git, and the "last
   updated" information isn't all that informative anyway - there can still be

@@ -38,16 +38,6 @@ namespace Xapian {
 %}
 #ifndef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 %{
-#ifndef XAPIAN_HAS_BRASS_BACKEND
-    namespace Brass {
-	static Database open(const string &) {
-	    throw FeatureUnavailableError("Brass backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 8192) {
-	    throw FeatureUnavailableError("Brass backend not supported");
-	}
-    }
-#endif
 
 #ifndef XAPIAN_HAS_CHERT_BACKEND
     namespace Chert {

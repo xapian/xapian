@@ -108,11 +108,6 @@ def test_all():
                      xapian.open_stub, "nosuchdir/nosuchdb", xapian.DB_OPEN)
 
     expect_exception(xapian.DatabaseOpeningError, None,
-                     xapian.brass_open, "nosuchdir/nosuchdb")
-    expect_exception(xapian.DatabaseCreateError, None,
-                     xapian.brass_open, "nosuchdir/nosuchdb", xapian.DB_CREATE)
-
-    expect_exception(xapian.DatabaseOpeningError, None,
                      xapian.chert_open, "nosuchdir/nosuchdb")
     expect_exception(xapian.DatabaseCreateError, None,
                      xapian.chert_open, "nosuchdir/nosuchdb", xapian.DB_CREATE)

@@ -126,7 +126,6 @@ wrapped like so for Lua:
 -  ``Xapian::minor_version()`` is wrapped as ``xapian.minor_version()``
 -  ``Xapian::revision()`` is wrapped as ``xapian.revision()``
 -  ``Xapian::Auto::open_stub()`` is wrapped as ``xapian.open_stub()`` (but is now deprecated)
--  ``Xapian::Brass::open()`` is wrapped as ``xapian.brass_open()`` (but is now deprecated)
 -  ``Xapian::Chert::open()`` is wrapped as ``xapian.chert_open()`` (but is now deprecated)
 -  ``Xapian::InMemory::open()`` is wrapped as ``xapian.inmemory_open()``
 -  ``Xapian::Remote::open()`` is wrapped as ``xapian.remote_open()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
