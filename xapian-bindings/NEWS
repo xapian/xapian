@@ -1,8 +1,17 @@
- 18309       olly Fri Oct 24 23:06:25 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+ 18326       olly Tue Nov 04 20:38:38 GMT 2014  Olly Betts <olly@survex.com>
 
 backport fodder:
 
-Xapian-bindings 1.3.2 (2014-11-02):
+backported for 1.2.20:
+
+ 18320       olly Mon Nov 03 22:11:19 GMT 2014  Olly Betts <olly@survex.com>
+	* INSTALL,php/docs/index.rst: In current PHP releases, dl() will only
+	  look in the configured extension directory, and only accepts a
+	  leafname, and dl() is disabled in most SAPIs, so update the
+	  documentation about how to install the PHP bindings without being
+	  root.  Fixes #661, reported by Felix Ostmann.
+
+Xapian-bindings 1.3.2 (2014-11-09):
 
 *** Updated to use latest SWIG.
 
@@ -12,7 +21,9 @@ Documentation:
 
 * Convert HTML docs to reStructured text.  (Patch from Mayank Chaudhary)
 
-* Update for deprecation of Xapian::Brass::open() and Xapian::Chert::open().
+* Update for deprecation of Xapian::Chert::open().
+
+* Update for renaming of "brass" backend to "glass".
 
 * Remove SVN "$Date" placeholders as they aren't expanded by git, and the "last
   updated" information isn't all that informative anyway - there can still be
@@ -68,7 +79,10 @@ PHP:
 * Make PHP 5.4 the minimum officially supported version, as 5.3 has now reached
   EOL.
 
-* Wrap Xapian iterator classes as PHP iterators.  (fixes#652)
+* Wrap Xapian iterator classes as PHP iterators - requires PHP 5.5 for full
+  support, under PHP 5.4 you can't use `foreach ($it as $k => $c)`, but
+  `foreach ($it as $c)` works and allows iterating through the equivalent of
+  C++ operator* on the iterator.  (fixes#652)
 
 * Fix handling of an exception thrown from a PHP implementation of
   FieldProcessor::apply().

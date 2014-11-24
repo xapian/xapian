@@ -25,11 +25,11 @@
 
 #include "xapian/error.h"
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-#include "brass/brass_changes.h"
-#include "brass/brass_database.h"
-#include "brass/brass_dbcheck.h"
-#include "brass/brass_version.h"
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+#include "glass/glass_changes.h"
+#include "glass/glass_database.h"
+#include "glass/glass_dbcheck.h"
+#include "glass/glass_version.h"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 #include "chert/chert_database.h"
@@ -50,7 +50,7 @@ using namespace std;
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
 // "only" requires (4 * last_docid()) bytes.
 
-#if defined XAPIAN_HAS_BRASS_BACKEND || defined XAPIAN_HAS_CHERT_BACKEND
+#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_GLASS_BACKEND
 static void
 reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
 		ostream * out)
@@ -167,19 +167,19 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    }
 	}
 #endif
-    } else if (stat((path + "/iambrass").c_str(), &sb) == 0) {
-#ifndef XAPIAN_HAS_BRASS_BACKEND
+    } else if (stat((path + "/iamglass").c_str(), &sb) == 0) {
+#ifndef XAPIAN_HAS_GLASS_BACKEND
 	(void)opts;
 	(void)out;
-	throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
+	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
-	// Check a whole brass database directory.
+	// Check a whole glass database directory.
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
 	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 	try {
 	    // Open at the lower level so we can get the revision number.
-	    BrassDatabase db(path);
+	    GlassDatabase db(path);
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
 	} catch (const Xapian::Error & e) {
@@ -191,17 +191,17 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    ++errors;
 	}
 
-	BrassVersion version_file(path);
+	GlassVersion version_file(path);
 	version_file.read();
-	for (brass_revision_number_t r = version_file.get_revision(); r != 0; --r) {
+	for (glass_revision_number_t r = version_file.get_revision(); r != 0; --r) {
 	    string changes_file = path;
 	    changes_file += "/changes";
 	    changes_file += str(r);
 	    if (file_exists(changes_file))
-		BrassChanges::check(changes_file);
+		GlassChanges::check(changes_file);
 	}
 
-	// This is a brass directory so try to check all the btrees.
+	// This is a glass directory so try to check all the btrees.
 	// Note: it's important to check termlist before postlist so
 	// that we can cross-check the document lengths.
 	const char * tables[] = {
@@ -210,7 +210,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	};
 	for (const char **t = tables;
 	     t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-	    errors += check_brass_table(*t, path, version_file, opts, doclens,
+	    errors += check_glass_table(*t, path, version_file, opts, doclens,
 					db_last_docid, out);
 	}
 #endif
@@ -218,6 +218,10 @@ Database::check(const string & path, int opts, std::ostream *out)
 	if (stat((path + "/iamflint").c_str(), &sb) == 0) {
 	    // Flint is no longer supported as of Xapian 1.3.0.
 	    throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
+	}
+	if (stat((path + "/iambrass").c_str(), &sb) == 0) {
+	    // Brass was renamed to glass as of Xapian 1.3.2.
+	    throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
 	}
 	if (stat((path + "/record_DB").c_str(), &sb) == 0) {
 	    // Quartz is no longer supported as of Xapian 1.1.0.
@@ -248,15 +252,15 @@ Database::check(const string & path, int opts, std::ostream *out)
 
 	// If we're passed a "naked" table (with no accompanying files)
 	// assume it is chert.
-	if (file_exists(dir + "iambrass")) {
-#ifndef XAPIAN_HAS_BRASS_BACKEND
-	    throw Xapian::FeatureUnavailableError("Brass database support isn't enabled");
+	if (file_exists(dir + "iamglass")) {
+#ifndef XAPIAN_HAS_GLASS_BACKEND
+	    throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
-	    BrassVersion version_file(dir);
+	    GlassVersion version_file(dir);
 	    version_file.read();
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_brass_table(tablename.c_str(), dir,
+	    errors = check_glass_table(tablename.c_str(), dir,
 				       version_file, opts,
 				       doclens, db_last_docid, out);
 #endif

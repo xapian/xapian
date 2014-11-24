@@ -149,8 +149,8 @@ CONSTANT(int, Xapian, DB_NO_SYNC);
 CONSTANT(int, Xapian, DB_FULL_SYNC);
 CONSTANT(int, Xapian, DB_DANGEROUS);
 CONSTANT(int, Xapian, DB_NO_TERMLIST);
-CONSTANT(int, Xapian, DB_BACKEND_BRASS);
 CONSTANT(int, Xapian, DB_BACKEND_CHERT);
+CONSTANT(int, Xapian, DB_BACKEND_GLASS);
 CONSTANT(int, Xapian, DB_BACKEND_STUB);
 CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
 CONSTANT(int, Xapian, DBCHECK_FULL_TREE);
@@ -396,7 +396,6 @@ STANDARD_IGNORES(Xapian, Snipper)
 %rename("inmemory_open") Xapian::InMemory::open;
 
 #ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
-%ignore Xapian::Brass::open;
 %ignore Xapian::Chert::open;
 %ignore Xapian::Auto::open_stub;
 #else
@@ -405,12 +404,8 @@ STANDARD_IGNORES(Xapian, Snipper)
  * functions, so we don't wrap them so users are forced to use the
  * WritableDatabase ctor instead. */
 #ifdef SWIGTCL
-%ignore Xapian::Brass::open(const std::string &dir, int action, int block_size = 8192);
 %ignore Xapian::Chert::open(const std::string &dir, int action, int block_size = 8192);
 #endif
-
-#define XAPIAN_HAS_BRASS_BACKEND
-%rename("brass_open") Xapian::Brass::open;
 
 #define XAPIAN_HAS_CHERT_BACKEND
 %rename("chert_open") Xapian::Chert::open;

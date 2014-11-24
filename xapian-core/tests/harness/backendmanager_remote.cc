@@ -29,8 +29,8 @@ BackendManagerRemote::BackendManagerRemote(const std::string & remote_type_)
 	: remote_type(remote_type_)
 {
     if (!(false
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	  || remote_type == "brass"
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	  || remote_type == "glass"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	  || remote_type == "chert"
@@ -50,10 +50,10 @@ BackendManagerRemote::get_writable_database_args(const std::string & name,
     // because the host is slow or busy.
     std::string args = "-t300000 --writable ";
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-    if (remote_type == "brass") {
-	(void)getwritedb_brass(name, std::vector<std::string>(1, file));
-	args += ".brass/";
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (remote_type == "glass") {
+	(void)getwritedb_glass(name, std::vector<std::string>(1, file));
+	args += ".glass/";
     }
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
@@ -74,9 +74,9 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
     std::string args = "-t";
     args += str(timeout);
     args += ' ';
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	if (remote_type == "brass") {
-	    args += createdb_brass(files);
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	if (remote_type == "glass") {
+	    args += createdb_glass(files);
 	}
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
@@ -92,9 +92,9 @@ std::string
 BackendManagerRemote::get_writable_database_as_database_args()
 {
     std::string args = "-t300000 ";
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-    if (remote_type == "brass") {
-	args += ".brass/";
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (remote_type == "glass") {
+	args += ".glass/";
     }
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
@@ -111,9 +111,9 @@ std::string
 BackendManagerRemote::get_writable_database_again_args()
 {
     std::string args = "-t300000 --writable ";
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-    if (remote_type == "brass") {
-	args += ".brass/";
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (remote_type == "glass") {
+	args += ".glass/";
     }
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND

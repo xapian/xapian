@@ -105,11 +105,11 @@ class TestRunner {
     /// True if the backend is the inmemory backend.
     bool inmemory;
 
-    /// True if the backend is the brass backend.
-    bool brass;
-
     /// True if the backend is the chert backend.
     bool chert;
+
+    /// True if the backend is the glass backend.
+    bool glass;
 
     /// Virtual destructor - needed for abstract class.
     virtual ~TestRunner();

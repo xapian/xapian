@@ -4,8 +4,8 @@ Term Prefixes
 
 Xapian itself doesn't put any restrictions on the contents of a term, other
 than that terms can't be empty, and there's an upper limit on the length
-(which is backend dependent - chert and brass allow 245 bytes, except that
-zero bytes count double in this length).
+(which is backend dependent - chert and glass allow 245 bytes, except
+that zero bytes count double in this length).
 
 However, Omega and ``Xapian::QueryParser`` impose some rules to aid
 interoperability and make it easier to write code that doesn't require

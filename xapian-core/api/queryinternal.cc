@@ -1427,6 +1427,72 @@ QueryMax::postlist(QueryOptimiser * qopt, double factor) const
     RETURN(pl);
 }
 
+Xapian::Query::op
+QueryAnd::get_op() const
+{
+    return Xapian::Query::OP_AND;
+}
+
+Xapian::Query::op
+QueryOr::get_op() const
+{
+    return Xapian::Query::OP_OR;
+}
+
+Xapian::Query::op
+QueryAndNot::get_op() const
+{
+    return Xapian::Query::OP_AND_NOT;
+}
+
+Xapian::Query::op
+QueryXor::get_op() const
+{
+    return Xapian::Query::OP_XOR;
+}
+
+Xapian::Query::op
+QueryAndMaybe::get_op() const
+{
+    return Xapian::Query::OP_AND_MAYBE;
+}
+
+Xapian::Query::op
+QueryFilter::get_op() const
+{
+    return Xapian::Query::OP_FILTER;
+}
+
+Xapian::Query::op
+QueryNear::get_op() const
+{
+    return Xapian::Query::OP_NEAR;
+}
+
+Xapian::Query::op
+QueryPhrase::get_op() const
+{
+    return Xapian::Query::OP_PHRASE;
+}
+
+Xapian::Query::op
+QueryEliteSet::get_op() const
+{
+    return Xapian::Query::OP_ELITE_SET;
+}
+
+Xapian::Query::op
+QuerySynonym::get_op() const
+{
+    return Xapian::Query::OP_SYNONYM;
+}
+
+Xapian::Query::op
+QueryMax::get_op() const
+{
+    return Xapian::Query::OP_MAX;
+}
+
 string
 QueryAnd::get_description() const
 {

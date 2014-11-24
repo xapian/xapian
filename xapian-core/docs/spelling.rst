@@ -162,7 +162,7 @@ search would be prohibitively expensive for many uses.
 Backend Support
 ---------------
 
-Currently spelling correction is supported for chert, and brass
+Currently spelling correction is supported for chert, and glass
 databases.  It works with a single database or multiple databases (use
 Database::add_database() as usual).  We've no plans to support it for the
 InMemory backend, but we do intend to support it for

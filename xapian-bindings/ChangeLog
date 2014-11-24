@@ -1,3 +1,20 @@
+Sun Nov 23 23:57:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS,csharp/Makefile.am,csharp/docs/index.rst,fake_dbfactory.i,
+	  java/Makefile.am,lua/docs/index.rst,php/docs/index.rst,
+	  python/docs/introduction.rst,python/smoketest.py,
+	  python3/docs/introduction.rst,python3/smoketest.py,
+	  ruby/docs/index.rst,tcl8/docs/index.rst,xapian-head.i,
+	  xapian-headers.i: Update for renaming of 'brass' backend to 'glass'.
+
+Sun Nov 23 05:14:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/docs/introduction.rst: Fix typo.
+
+Sun Nov 09 22:48:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Tue Nov 04 20:38:38 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/docs/index.rst: Note that PHP < 5.4 are now out of security

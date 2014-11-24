@@ -1,3 +1,129 @@
+Sun Nov 23 23:56:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,NEWS,NEWS.SKELETON,api/compactor.cc,
+	  api/replication.cc,backends/Makefile.mk,backends/brass/,
+	  backends/databasereplicator.cc,backends/dbcheck.cc,
+	  backends/dbfactory.cc,backends/glass/,bin/Makefile.mk,
+	  common/Makefile.mk,common/pack.h,common/pretty.h,configure.ac,docs/,
+	  include/xapian/,net/replication_protocol.rst,tests/,tests/harness/:
+	  Rename 'brass' backend to 'glass'.
+
+Sun Nov 23 22:23:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc,backends/brass/brass_freelist.h:
+	  Set the revision in BrassFreeList::write_block().
+
+Thu Nov 20 21:36:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.h: Reset flw_appending when we unpack
+	  a freelist.
+
+Thu Nov 20 21:36:15 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc: Fix comment typo.
+
+Thu Nov 20 03:53:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc: Fix end-of-block condition when
+	  walking the freelist during database consistency checking.
+
+Thu Nov 20 02:32:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc: Wrap comment line.
+
+Thu Nov 20 02:31:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc: Straighten out confusing comments.
+
+Sun Nov 16 23:49:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Thu Nov 13 20:35:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_freelist.cc: Wrap comment line.
+
+Tue Nov 11 22:17:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,api/queryinternal.h: Move all the get_op()
+	  definitions out of the header as they're virtual and there's not
+	  much scope for devirtualisation.
+
+Tue Nov 11 02:58:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Just have one copy of the licence boilerplate.
+
+Sun Nov 09 22:38:04 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
+Fri Nov 07 00:49:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "Modify the
+	  %nonassoc directive in lemon so that it generates a run-time error
+	  rather than a parsing conflict. This changes is due to a bug report
+	  on the mailing list. SQLite does not use the %nonassoc directive in
+	  its grammar so this change does not affect SQLite."  Generated code
+	  is identical.
+
+Fri Nov 07 00:44:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "Fix harmless
+	  compiler warning in LEMON."  Generated code is identical.
+
+Fri Nov 07 00:39:44 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "In LEMON, limit the
+	  size of the grammar file to 100MB. This ensures that the program
+	  will never experience integer overflow. To be doubly sure, use
+	  calloc() instead of malloc() when allocating arrays." Generated code
+	  is identical.
+
+Fri Nov 07 00:34:26 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "Add the
+	  "%token_class" directive to the LEMON parser generator. This opens
+	  up the possibility of simplifying the parser. Also remove all calls
+	  to sprintf(), strcpy(), and strcat() from LEMON to avoid compiler
+	  warnings on OpenBSD. (Aside: It is this change to avoid harmless
+	  compiler warnings that was the cause of the reason spat of bugs.)"
+	  Generated code is identical aside from whitespace changes in
+	  queryparser_token.h.
+
+Fri Nov 07 00:17:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Sync change from upstream: "In Lemon, when
+	  comparing the output to the *.h file to see if it has changed, make
+	  sure that the proposed new output and the preexisting output are the
+	  same size before deciding that they are the same".  Generated code
+	  is identical, but this will fix misbehaviour in a build from a
+	  non-clean tree if new tokens get appended to queryparser_token.h.
+
+Thu Nov 06 22:23:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using doxygen 1.8.8.
+
+Thu Nov 06 04:18:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using libtool 2.4.3.
+
+Wed Nov 05 21:38:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: Handle DBCHECK_FIX for a zero sized
+	  .DB file.
+
+Wed Nov 05 21:02:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: After we successfully regenerate
+	  baseA, remove any empty baseB file to prevent it causing problems.
+	  Tracked down with help from Phil Hands.
+
+Wed Nov 05 20:58:27 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: Fix DBCHECK_FIX to be able to find a
+	  level 0 root block (happens when a table has sufficiently little
+	  data in that it all fits in one block).
+
 Sun Nov 02 21:14:43 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Fix typo.

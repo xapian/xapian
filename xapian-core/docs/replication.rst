@@ -51,7 +51,7 @@ source tree.
 Backend Support
 ===============
 
-Replication is supported by the chert, and brass database backends,
+Replication is supported by the chert, and glass database backends,
 and can cleanly handle the
 master switching database type (a full copy is sent in this situation).  It
 doesn't make a lot of sense to support replication for the remote backend.
@@ -160,7 +160,7 @@ switched atomically after a database copy has occurred.  The reopen() method
 doesn't re-read the stub database file in this situation, so ends up
 attempting to read the old database which has been deleted.
 
-We intend to fix this issue in the Brass backend (currently under development
+We intend to fix this issue in the Glass backend (currently under development
 by eliminating this hidden use of a stub database file).
 
 Alternative approaches

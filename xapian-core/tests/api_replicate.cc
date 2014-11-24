@@ -342,7 +342,7 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
 // Test replication from a replicated copy.
 DEFINE_TESTCASE(replicate2, replicas) {
-    SKIP_TEST_FOR_BACKEND("brass"); // Brass doesn't currently support this.
+    SKIP_TEST_FOR_BACKEND("glass"); // Glass doesn't currently support this.
     UNSET_MAX_CHANGESETS_AFTERWARDS;
 
     string tempdir = ".replicatmp";
@@ -482,9 +482,9 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 
 // Test changesets which are truncated (and therefore invalid).
 DEFINE_TESTCASE(replicate3, replicas) {
-    // FIXME: This currently fails for brass - not worked out what's going on,
-    // but brass replication is going to get further reworked soon anyway.
-    SKIP_TEST_FOR_BACKEND("brass");
+    // FIXME: This currently fails for glass - not worked out what's going on,
+    // but glass replication is going to get further reworked soon anyway.
+    SKIP_TEST_FOR_BACKEND("glass");
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -581,7 +581,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
     doc2.add_term("nopos");
     orig.add_document(doc2);
     if (get_dbtype() != "chert") {
-	set_max_changesets(0); // FIXME: Needs to be pre-commit for new-brass
+	set_max_changesets(0); // FIXME: Needs to be pre-commit for new-glass
     }
     orig.commit();
 

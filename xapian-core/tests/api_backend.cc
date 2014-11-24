@@ -42,7 +42,7 @@
 using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
-DEFINE_TESTCASE(lockfileumask1, brass || chert) {
+DEFINE_TESTCASE(lockfileumask1, chert || glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     mode_t old_umask = umask(022);
     try {
@@ -93,8 +93,8 @@ DEFINE_TESTCASE(dbstats1, backend) {
     const Xapian::termcount max_wdf = 22;
 
     if (get_dbtype().find("chert") != string::npos ||
-	get_dbtype().find("brass") != string::npos) {
-	// Should be exact for brass and chert as no deletions have happened.
+	get_dbtype().find("glass") != string::npos) {
+	// Should be exact for chert and glass as no deletions have happened.
 	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
 	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
     } else {
@@ -166,7 +166,7 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lockfilefd0or1, brass || chert) {
+DEFINE_TESTCASE(lockfilefd0or1, chert || glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     int old_stdin = dup(0);
     int old_stdout = dup(1);
@@ -209,7 +209,7 @@ DEFINE_TESTCASE(lockfilefd0or1, brass || chert) {
 }
 
 /// Regression test for bug fixed in 1.2.13 and 1.3.1.
-DEFINE_TESTCASE(lockfilealreadyopen1, brass || chert) {
+DEFINE_TESTCASE(lockfilealreadyopen1, chert || glass) {
     string path = get_named_writable_database_path("lockfilealreadyopen1");
     int fd = ::open((path + "/flintlock").c_str(), O_RDONLY);
     try {
@@ -667,7 +667,7 @@ DEFINE_TESTCASE(orcheck1, generated) {
  *
  *  We failed to mark the Btree as unmodified after cancel().
  */
-DEFINE_TESTCASE(failedreplace1, brass || chert) {
+DEFINE_TESTCASE(failedreplace1, chert || glass) {
     Xapian::WritableDatabase db(get_writable_database());
     Xapian::Document doc;
     doc.add_term("foo");
@@ -683,7 +683,7 @@ DEFINE_TESTCASE(failedreplace1, brass || chert) {
     return true;
 }
 
-DEFINE_TESTCASE(failedreplace2, brass || chert) {
+DEFINE_TESTCASE(failedreplace2, chert || glass) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
     db.commit();
     Xapian::doccount db_size = db.get_doccount();
@@ -898,7 +898,7 @@ DEFINE_TESTCASE(itorskiptofromend1, backend) {
 // Regression test for bug fixed in 1.2.17 and 1.3.2 - the size gets fixed
 // but the uncorrected size was passed to the base file.  Also, abort() was
 // called on 0.
-DEFINE_TESTCASE(blocksize1, brass || chert) {
+DEFINE_TESTCASE(blocksize1, chert || glass) {
     string db_dir = "." + get_dbtype();
     mkdir(db_dir.c_str(), 0755);
     db_dir += "/db__blocksize1";
@@ -906,7 +906,7 @@ DEFINE_TESTCASE(blocksize1, brass || chert) {
     if (get_dbtype() == "chert") {
 	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT;
     } else {
-	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_BRASS;
+	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
     }
     static const unsigned bad_sizes[] = {
 	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
@@ -925,7 +925,7 @@ DEFINE_TESTCASE(blocksize1, brass || chert) {
 }
 
 /// Feature test for Xapian::DB_NO_TERMLIST.
-DEFINE_TESTCASE(notermlist1, brass) {
+DEFINE_TESTCASE(notermlist1, glass) {
     string db_dir = "." + get_dbtype();
     mkdir(db_dir.c_str(), 0755);
     db_dir += "/db__notermlist1";
@@ -933,7 +933,7 @@ DEFINE_TESTCASE(notermlist1, brass) {
     if (get_dbtype() == "chert") {
 	flags |= Xapian::DB_BACKEND_CHERT;
     } else {
-	flags |= Xapian::DB_BACKEND_BRASS;
+	flags |= Xapian::DB_BACKEND_GLASS;
     }
     rm_rf(db_dir);
     Xapian::WritableDatabase db(db_dir, flags);
@@ -947,7 +947,7 @@ DEFINE_TESTCASE(notermlist1, brass) {
     return true;
 }
 
-/// Regression test for bug starting a new brass freelist block.
+/// Regression test for bug starting a new glass freelist block.
 DEFINE_TESTCASE(newfreelistblock1, writable) {
     Xapian::Document doc;
     doc.add_term("foo");
@@ -970,11 +970,11 @@ DEFINE_TESTCASE(newfreelistblock1, writable) {
 }
 
 /** Check that the parent directory for the database doesn't need to be
- *  writable.  Regression test for early versions on the brass new btree
+ *  writable.  Regression test for early versions on the glass new btree
  *  branch which failed to append a "/" when generating a temporary filename
  *  from the database directory.
  */
-DEFINE_TESTCASE(readonlyparentdir1, brass || chert) {
+DEFINE_TESTCASE(readonlyparentdir1, chert || glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
     string path = get_named_writable_database_path("readonlyparentdir1");
     // Fix permissions if the previous test was killed.

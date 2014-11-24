@@ -448,13 +448,13 @@ pack_chert_postlist_key(const std::string &term, Xapian::docid did)
 }
 
 inline std::string
-pack_brass_postlist_key(const std::string &term)
+pack_glass_postlist_key(const std::string &term)
 {
     return pack_chert_postlist_key(term);
 }
 
 inline std::string
-pack_brass_postlist_key(const std::string &term, Xapian::docid did)
+pack_glass_postlist_key(const std::string &term, Xapian::docid did)
 {
     return pack_chert_postlist_key(term, did);
 }

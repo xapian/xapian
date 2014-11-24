@@ -1,30 +1,30 @@
- 18292       olly Mon Oct 20 00:47:32 GMT 2014  Olly Betts <olly@survex.com>
+ 18347       olly Thu Nov 13 20:35:25 GMT 2014  Olly Betts <olly@survex.com>
 
 backport fodder:
 
 backported for 1.2.20:
 
-Xapian-core 1.3.2 (2014-10-20):
+ 18334       olly Fri Nov 07 00:17:18 GMT 2014  Olly Betts <olly@survex.com>
+	* queryparser/lemon.c: Sync change from upstream: "In Lemon, when
+	  comparing the output to the *.h file to see if it has changed, make
+	  sure that the proposed new output and the preexisting output are the
+	  same size before deciding that they are the same".  Generated code
+	  is identical, but this will fix misbehaviour in a build from a
+	  non-clean tree if new tokens get appended to queryparser_token.h.
+
+Xapian-core 1.3.2 (2014-11-16):
 
 	* languages/: Add stopwords lists from Snowball plus an Arabic one.
-
-	* backends/brass/brass_check.cc,backends/chert/chert_check.cc,
-	  bin/xapian-check.cc,include/xapian/constants.h: Rename
-	  DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST. (check was in 1.3.0)
-
-	* generate-exceptions,include/xapian/: Use XAPIAN_IN_XAPIAN_H rather
-	  than XAPIAN_INCLUDED_XAPIAN_H in the direct inclusion of subheader
-	  checks.  Currently neither will catch the case of the user including
-	  a sub-header after <xapian.h> since the include guard for the
-	  subheader will stop us getting to the direct inclusion check, but
-	  XAPIAN_IN_XAPIAN_H will work if we move the check outside the
-	  include guard.
+	  patch from Assem Chelli.
 
 ---
 
 This release includes all changes from 1.2.16-1.2.19 which are relevant.
 
 API:
+
+* Improve check for direct inclusion of Xapian subheaders in user code to
+  catch more cases.
 
 * Update Unicode character database to Unicode 7.0.0.
 
@@ -44,6 +44,10 @@ API:
 
   + Correct failure message which talks above the root block when it's actually
     testing a leaf key.
+
+  + Rename DBCHECK_SHOW_BITMAP to DBCHECK_SHOW_FREELIST (old name still
+    provided for now, but flagged as deprecated - DBCHECK_SHOW_BITMAP was new
+    in 1.3.0, so will likely be removed before 1.4.0).
 
 * Methods and functions which take a string to unserialise now consistently
   call that parameter "serialised".
@@ -65,9 +69,9 @@ API:
 
   + Xapian::DB_DANGEROUS: to enable in-place updates
 
-  + Xapian::DB_BACKEND_BRASS: if creating, create a brass database
-
   + Xapian::DB_BACKEND_CHERT: if creating, create a chert database
+
+  + Xapian::DB_BACKEND_GLASS: if creating, create a glass database
 
   + Xapian::DB_NO_TERMLIST: create a database without a termlist (see #181)
 
@@ -78,14 +82,17 @@ API:
 * Database: Add optional flags argument to constructor - the following can be
   bitwise OR-ed into it:
 
-  + Xapian::DB_BACKEND_BRASS (only open a brass database)
-
   + Xapian::DB_BACKEND_CHERT (only open a chert database)
+
+  + Xapian::DB_BACKEND_GLASS (only open a glass database)
 
   + Xapian::DB_BACKEND_STUB (only open a stub database)
 
-* Xapian::Auto::open_stub(), Xapian::Brass::open() and Xapian::Chert::open()
-  are now deprecated in favour of these new flags.
+* Xapian::Auto::open_stub() and Xapian::Chert::open() are now deprecated in
+  favour of these new flags.
+
+* Add LMWeight class, which implements the Unigram Language Modelling weighting
+  scheme.  Patch from Gaurav Arora.
 
 * Add implementations of a number of DfR weighting schemes (BB2, DLH, DPH,
   IfB2, IneB2, InL2, PL2).  Patches from Aarsh Shah.
@@ -171,7 +178,11 @@ matcher:
   MatchAll, we still need to set a weight object on it to get percentages
   calculated correctly.
 
-brass backend:
+glass backend:
+
+* 'brass' backend renamed to 'glass' - we decided to use names in ascending
+  alphabetical order to make it easier to understand which backend is newest,
+  and since 'flint' was used recently, we skipped over 'd', 'e' and 'f'.
 
 * Change positionlist keys to be ordered by term first rather than docid first,
   which helps phrase searching significantly.  For more efficient indexing,
@@ -188,7 +199,7 @@ brass backend:
   for queries which contain a lot of terms (e.g. wildcards which expand to a
   lot of terms).
 
-* Under brass, optimise the turning of a query into a postlist to reuse the
+* Under glass, optimise the turning of a query into a postlist to reuse the
   cursor blocks which are the same as the previous term's postlist.  This is
   particularly effective for a wildcard query which expands to a lot of terms.
 
@@ -196,7 +207,7 @@ brass backend:
   bitmaps.  (fixes #40)
 
 * Eliminate the base files, and instead store the root block and freelist
-  pointers in the "iambrass" file.
+  pointers in the "iamglass" file.
 
 * When compacting, sync all the tables together at the end.
 
@@ -208,10 +219,17 @@ brass backend:
 
 chert backend:
 
-* Improve DBCHECK_FIX - if fixing a whole database, we now take the revision
-  from the first table we successfully look at, which should be correct in most
-  cases, and is definitely better than trying to determine the revision of each
-  broken table independently.
+* Improve DBCHECK_FIX:
+
+  + if fixing a whole database, we now take the revision from the first table
+    we successfully look at, which should be correct in most cases, and is
+    definitely better than trying to determine the revision of each broken
+    table independently.
+
+  + handle a zero-sized .DB file.
+
+  + After we successfully regenerate baseA, remove any empty baseB file to
+    prevent it causing problems.  Tracked down with help from Phil Hands.
 
 remote backend:
 
@@ -227,7 +245,7 @@ inmemory backend:
 build system:
 
 * Fix conditional for enabling replication code - if chert is disabled but
-  brass isn't, we should still enable it.
+  glass isn't, we should still enable it.
 
 * configure: Add hint for which package to install for rst2html
 
@@ -240,7 +258,17 @@ documentation:
 
 * Actually ship, process and install geospatial.rst.
 
-* HACKING: Note we now use doxygen 1.8.7 for 1.3.x snapshots and releases.
+* postingsource.rst: Use a modern class in postingsource example.  (Noted by
+  James Aylett)
+
+* Move the protocol docs for the remote and replication protocols into the net/
+  subdirectory.
+
+* Remove the dir_contents files and all the machinery to handle them.
+
+* HACKING: Note we now use doxygen 1.8.8 for 1.3.x snapshots and releases.
+
+* HACKING: Now using libtool 2.4.3 to bootstrap snapshots and 1.3.x releases.
 
 * HACKING: Now using automake 1.14.1 to bootstrap snapshots and 1.3.x releases.
 
@@ -279,6 +307,12 @@ portability:
 * Drop code supporting Microsoft Windows 9x which reached EOL in 2006.
 
 * Under C++11, use unique_ptr for AutoPtr.
+
+* Stop using a reference where we may end up passing *NULL, as that's invalid.
+  Thanks Nick Lewycky and ubsan for helping track this down.
+
+* In DLHWeight and DPHWeight, avoid dividing by zero when the collection size
+  is 0.
 
 packaging:
 

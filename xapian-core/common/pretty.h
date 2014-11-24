@@ -272,17 +272,17 @@ namespace Xapian {
     }
 }
 
-namespace Brass {
+namespace Glass {
     class RootInfo;
 }
 
-class BrassCursor;
-class BrassDatabase;
-class BrassFreeListChecker;
-class BrassTable;
 class ChertCursor;
 class ChertDatabase;
 class ChertTable;
+class GlassCursor;
+class GlassDatabase;
+class GlassFreeListChecker;
+class GlassTable;
 
 #define XAPIAN_PRETTY_AS_CLASSNAME(C)\
 template<class S>\
@@ -301,14 +301,14 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext);
-XAPIAN_PRETTY_AS_CLASSNAME(Brass::RootInfo);
-XAPIAN_PRETTY_AS_CLASSNAME(BrassCursor);
-XAPIAN_PRETTY_AS_CLASSNAME(BrassFreeListChecker);
-XAPIAN_PRETTY_AS_CLASSNAME(BrassDatabase);
-XAPIAN_PRETTY_AS_CLASSNAME(BrassTable);
 XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor);
 XAPIAN_PRETTY_AS_CLASSNAME(ChertDatabase);
 XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
+XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo);
+XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor);
+XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker);
+XAPIAN_PRETTY_AS_CLASSNAME(GlassDatabase);
+XAPIAN_PRETTY_AS_CLASSNAME(GlassTable);
 
 template<class S>
 inline PrettyOStream<S> &

@@ -37,17 +37,6 @@ class Auto {
     Database open_stub(const string & file);
 };
 
-class Brass {
-  private:
-    Brass();
-    ~Brass();
-  public:
-    static
-    Database open(const std::string &dir);
-    static
-    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-};
-
 class Chert {
   private:
     Chert();

@@ -168,7 +168,6 @@ Database Factory Functions
 
 
 - ``Xapian::Auto::open_stub(file)`` is wrapped as ``Xapian::auto_open_stub(file)`` (now deprecated)
-- ``Xapian::Brass::open()`` is wrapped as ``Xapian::brass_open()`` (now deprecated)
 - ``Xapian::Chert::open()`` is wrapped as ``Xapian::chert_open()`` (now deprecated)
 - ``Xapian::InMemory::open()`` is wrapped as ``Xapian::inmemory_open()``
 - ``Xapian::Remote::open(...)`` is wrapped as ``Xapian::remote_open(...)`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).

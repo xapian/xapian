@@ -1,3 +1,12 @@
+Sun Nov 23 23:57:34 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.rst: Update for renaming of 'brass' backend to
+	  'glass'.
+
+Sun Nov 09 22:48:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Tue Oct 28 02:34:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Document built-in list of stopwords.

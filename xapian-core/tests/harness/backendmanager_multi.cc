@@ -37,8 +37,8 @@ BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
 	: subtype(subtype_)
 {
     if (!(false
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	  || subtype == "brass"
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	  || subtype == "glass"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	  || subtype == "chert"
@@ -88,8 +88,8 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     // a multi-db combining them contains the documents in the expected order.
     Xapian::WritableDatabase dbs;
     int flags = Xapian::DB_CREATE_OR_OVERWRITE;
-    if (subtype == "brass") {
-	flags |= Xapian::DB_BACKEND_BRASS;
+    if (subtype == "glass") {
+	flags |= Xapian::DB_BACKEND_GLASS;
     } else if (subtype == "chert") {
 	flags |= Xapian::DB_BACKEND_CHERT;
     } else {

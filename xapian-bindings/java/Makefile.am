@@ -28,7 +28,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/BB2Weight.java\
 	org/xapian/BM25Weight.java\
 	org/xapian/BoolWeight.java\
-	org/xapian/Brass.java\
 	org/xapian/Chert.java\
 	org/xapian/Compactor.java\
 	org/xapian/Database.java\

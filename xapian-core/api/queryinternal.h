@@ -219,7 +219,7 @@ class QueryOrLike : public QueryBranch {
 };
 
 class QueryAnd : public QueryAndLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_AND; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryAnd(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
@@ -228,7 +228,7 @@ class QueryAnd : public QueryAndLike {
 };
 
 class QueryOr : public QueryOrLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_OR; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryOr(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
@@ -241,7 +241,7 @@ class QueryOr : public QueryOrLike {
 };
 
 class QueryAndNot : public QueryBranch {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_AND_NOT; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryAndNot(size_t n_subqueries) : QueryBranch(n_subqueries) { }
@@ -256,7 +256,7 @@ class QueryAndNot : public QueryBranch {
 };
 
 class QueryXor : public QueryOrLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_XOR; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryXor(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
@@ -269,7 +269,7 @@ class QueryXor : public QueryOrLike {
 };
 
 class QueryAndMaybe : public QueryBranch {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_AND_MAYBE; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) { }
@@ -284,7 +284,7 @@ class QueryAndMaybe : public QueryBranch {
 };
 
 class QueryFilter : public QueryAndLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_FILTER; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryFilter(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
@@ -311,7 +311,7 @@ class QueryWindowed : public QueryAndLike {
 };
 
 class QueryNear : public QueryWindowed {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_NEAR; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryNear(size_t n_subqueries, Xapian::termcount window_)
@@ -325,7 +325,7 @@ class QueryNear : public QueryWindowed {
 };
 
 class QueryPhrase : public QueryWindowed {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_PHRASE; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryPhrase(size_t n_subqueries, Xapian::termcount window_)
@@ -339,7 +339,7 @@ class QueryPhrase : public QueryWindowed {
 };
 
 class QueryEliteSet : public QueryOrLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_ELITE_SET; }
+    Xapian::Query::op get_op() const;
 
     Xapian::termcount set_size;
 
@@ -358,9 +358,7 @@ class QueryEliteSet : public QueryOrLike {
 };
 
 class QuerySynonym : public QueryOrLike {
-    // FIXME: move all these get_op() definitions out of the header if we end
-    // up keeping them.
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_SYNONYM; }
+    Xapian::Query::op get_op() const;
 
   public:
     QuerySynonym(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
@@ -373,9 +371,7 @@ class QuerySynonym : public QueryOrLike {
 };
 
 class QueryMax : public QueryOrLike {
-    // FIXME: move all these get_op() definitions out of the header if we end
-    // up keeping them.
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_MAX; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryMax(size_t n_subqueries) : QueryOrLike(n_subqueries) { }

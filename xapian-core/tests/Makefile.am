@@ -18,11 +18,11 @@ libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
-	check-brass check-chert \
-	check-multi check-multi-brass check-multi-chert \
+	check-chert check-glass \
+	check-multi check-multi-chert check-multi-glass \
 	check-remote check-remoteprog check-remotetcp \
-	check-remoteprog-brass check-remoteprog-chert \
-	check-remotetcp-brass check-remotetcp-chert \
+	check-remoteprog-chert check-remoteprog-glass \
+	check-remotetcp-chert check-remotetcp-glass \
 	up remove-cached-databases
 
 up:
@@ -51,7 +51,7 @@ if BUILD_BACKEND_REMOTE
 check-remote: check-remoteprog check-remotetcp
 
 check-remoteprog: apitest$(EXEEXT)
-## If both chert and brass are enabled, just run remoteprog_chert.
+## If both chert and glass are enabled, just run remoteprog_chert.
 if BUILD_BACKEND_CHERT
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
 else
@@ -59,18 +59,18 @@ else
 endif
 
 check-remotetcp: apitest$(EXEEXT)
-## If both chert and brass are enabled, just run remotetcp_brass.
-if BUILD_BACKEND_BRASS
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
+## If both chert and glass are enabled, just run remotetcp_glass.
+if BUILD_BACKEND_GLASS
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
 else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
 endif
 
-if BUILD_BACKEND_BRASS
-check-remoteprog-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_brass
-check-remotetcp-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
+if BUILD_BACKEND_GLASS
+check-remoteprog-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_glass
+check-remotetcp-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -81,11 +81,11 @@ check-remotetcp-chert: apitest$(EXEEXT)
 endif
 endif
 
-if BUILD_BACKEND_BRASS
-check-multi-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_brass
-check-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b brass
+if BUILD_BACKEND_GLASS
+check-multi-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_glass
+check-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b glass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -226,7 +226,7 @@ EXTRA_DIST +=\
 	testdata/etext.txt
 
 remove-cached-databases:
-	rm -rf .brass .chert .multibrass .multichert .replicatmp .stub
+	rm -rf .chert .glass .multichert .multiglass .replicatmp .stub
 
 clean-local: remove-cached-databases
 

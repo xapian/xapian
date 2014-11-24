@@ -99,8 +99,8 @@ Options to give to configure
 	consistency checks.  This will run more slowly, but is useful if you
 	suspect a bug in Xapian.
 
---enable-backend-brass
 --enable-backend-chert
+--enable-backend-glass
 --enable-backend-inmemory
 --enable-backend-remote
 	These options enable (or disable if --disable-backend-XXX is specified)

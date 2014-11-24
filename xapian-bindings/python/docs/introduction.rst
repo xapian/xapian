@@ -264,7 +264,6 @@ wrapped like so for Python:
 - ``Xapian::minor_version()`` is wrapped as ``xapian.minor_version()``
 - ``Xapian::revision()`` is wrapped as ``xapian.revision()``
 - ``Xapian::Auto::open_stub()`` is wrapped as ``xapian.open_stub()`` (now deprecated)
-- ``Xapian::Brass::open()`` is wrapped as ``xapian.brass_open()`` (now deprecated)
 - ``Xapian::Chert::open()`` is wrapped as ``xapian.chert_open()`` (now deprecated)
 - ``Xapian::InMemory::open()`` is wrapped as ``xapian.inmemory_open()``
 - ``Xapian::Remote::open()`` is wrapped as ``xapian.remote_open()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
@@ -355,7 +354,7 @@ should return a tuple of (value number, begin, end).  For example:
 Apache and mod_python/mod_wsgi
 ##############################
 
-Prior to Xapian 1.3.0, the you had to tell mod_python and mod_wsgi to run
+Prior to Xapian 1.3.0, you had to tell mod_python and mod_wsgi to run
 applications which use Xapian in the main interpreter.  Xapian 1.3.0 no
 longer uses the simplified GIL state API, and so this restriction should
 no longer apply.

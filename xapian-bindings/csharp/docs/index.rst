@@ -124,7 +124,6 @@ member functions of abstract classes like so:
 - ``Xapian::minor_version()`` is wrapped as ``Xapian.Version.Minor()``
 - ``Xapian::revision()`` is wrapped as ``Xapian.Version.Revision()``
 - ``Xapian::Auto::open_stub()`` is wrapped as ``Xapian.Auto.OpenStub()`` (but is now deprecated)
-- ``Xapian::Brass::open()`` is wrapped as ``Xapian.Brass.Open()`` (but is now deprecated)
 - ``Xapian::Chert::open()`` is wrapped as ``Xapian.Chert.Open()`` (but is now deprecated)
 - ``Xapian::InMemory::open()`` is wrapped as ``Xapian.InMemory.Open()``
 - ``Xapian::Remote::open()`` is wrapped as ``Xapian.Remote.Open()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).

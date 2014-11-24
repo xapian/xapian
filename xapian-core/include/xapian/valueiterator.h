@@ -122,8 +122,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  @a did actually exists in the database.
      *
      *  This method acts like skip_to() if that can be done at little extra
-     *  cost, in which case it then returns true.  This is how brass and
-     *  chert databases behave because they store values in streams which allow
+     *  cost, in which case it then returns true.  This is how chert and
+     *  glass databases behave because they store values in streams which allow
      *  for an efficient implementation of skip_to().
      *
      *  Otherwise it simply checks if a particular docid is present.  If it
