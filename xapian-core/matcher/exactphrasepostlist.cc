@@ -132,13 +132,7 @@ ExactPhrasePostList::get_wdf() const
     // Calculate an estimate for the wdf of an exact phrase postlist.
     //
     // We use the minimum wdf of a sub-postlist as our estimate.  See the
-    // comment in NearPostList::get_wdf for justification of this estimate.
-    //
-    // We divide the value calculated for a NearPostList by 3, as a very rough
-    // heuristic to represent the fact that the words must occur exactly in
-    // order, and phrases are therefore rarer than near matches and (non-exact)
-    // phrase matches.
-
+    // comment in NearPostList::get_wdf() for justification of this estimate.
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
     for (; i != terms.end(); ++i) {
@@ -153,6 +147,11 @@ ExactPhrasePostList::get_termfreq_est() const
     // It's hard to estimate how many times the exact phrase will occur as
     // it depends a lot on the phrase, but usually the exact phrase will
     // occur significantly less often than the individual terms.
+    //
+    // We divide by 4 here rather than by 2 as we do for NearPostList and
+    // PhrasePostList, as a very rough heuristic to represent the fact that the
+    // words must occur exactly in order, and phrases are therefore rarer than
+    // near matches and (non-exact) phrase matches.
     return source->get_termfreq_est() / 4;
 }
 
@@ -161,7 +160,7 @@ ExactPhrasePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "ExactPhrasePostList::get_termfreq_est_using_stats", stats);
-    // No idea how to estimate this  - do the same as get_termfreq_est() for
+    // No idea how to estimate this - do the same as get_termfreq_est() for
     // now.
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 4;

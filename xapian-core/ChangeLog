@@ -1,3 +1,8 @@
+Mon Nov 24 01:26:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* matcher/exactphrasepostlist.cc: Straighten out confusing comments.
+
 Sun Nov 09 22:03:24 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
