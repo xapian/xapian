@@ -1,8 +1,4 @@
- 18315       olly Tue Oct 28 02:34:34 GMT 2014  Olly Betts <olly@survex.com>
-
-backported for 1.2.20:
-
-Omega 1.3.2 (2014-11-09):
+Omega 1.3.2 (2014-11-24):
 
 This release includes all changes from 1.2.16-1.2.19 which are relevant.
 
@@ -11,6 +7,8 @@ general:
 documentation:
 
 * docs/overview.rst: Document built-in list of stopwords.
+
+* docs/termprefixes.rst: Update for renaming of 'brass' backend to 'glass'.
 
 indexers:
 
@@ -62,8 +60,6 @@ indexers:
 
   + Avoid '//' in temporary filenames (cosmetic only).
 
-* scriptindex:
-
 * omindex-list: New tool to list URLs of all the documents in a database (or
   list of databases) indexed by omindex.
 
@@ -83,10 +79,6 @@ omega:
 
 * Add $snippet to generate a snippet of text tailored to the search.
 
-templates:
-
-testsuite:
-
 build system:
 
 * configure: Enable GCC's -Woverloaded-virtual warning.
@@ -94,8 +86,6 @@ build system:
 portability:
 
 * Ship common/safewinsock2.h, needed under mingw.
-
-packaging:
 
 Omega 1.3.1 (2013-05-03):
 
