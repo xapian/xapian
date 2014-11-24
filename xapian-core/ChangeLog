@@ -1,3 +1,13 @@
+Mon Nov 24 06:17:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* queryparser/lemon.c: Sync change from upstream: "In Lemon, when
+	  comparing the output to the *.h file to see if it has changed, make
+	  sure that the proposed new output and the preexisting output are the
+	  same size before deciding that they are the same".  Generated code
+	  is identical, but this will fix misbehaviour in a build from a
+	  non-clean tree if new tokens get appended to queryparser_token.h.
+
 Mon Nov 24 01:26:41 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
