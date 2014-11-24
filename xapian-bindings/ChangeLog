@@ -1,3 +1,7 @@
+Mon Nov 24 09:35:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Mon Nov 03 22:45:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* php/docs/index.html: Remove text about subclassing bug with PHP 5.4

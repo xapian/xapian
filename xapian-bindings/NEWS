@@ -1,3 +1,40 @@
+ 18323       olly Mon Nov 03 22:45:37 GMT 2014  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.20 (2014-11-24):
+
+Documentation:
+
+* php/docs/index.html: Remove text about subclassing bug with PHP 5.4 and later
+  - that was fixed in 1.2.19.
+
+* INSTALL,php/docs/index.html: In current PHP releases, dl() is disabled in
+  most SAPIs, and even where available it will now only look in the configured
+  extension directory.  The upshot is that there no longer seems to be a sane
+  way to install the PHP bindings without being root.  Fixes #661, reported by
+  Felix Ostmann.
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+Python:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.19 (2014-10-21):
 
 PHP:
