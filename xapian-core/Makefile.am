@@ -71,7 +71,7 @@ DISTCLEANFILES += xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.0 ChangeLog.examples HACKING PLATFORMS \
  xapian-core.spec include/xapian/error.h include/xapian/errordispatch.h \
- generate-exceptions exception_data.pm preautoreconf dir_contents
+ generate-exceptions exception_data.pm preautoreconf
 
 cmakedir = $(libdir)/cmake/xapian
 cmake_DATA = cmake/xapian-config.cmake cmake/xapian-config-version.cmake

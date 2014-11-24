@@ -51,7 +51,6 @@ snowball_headers =\
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources) $(snowball_stopwords_preprocessed)\
 	languages/collate-sbl\
 	languages/sbl-dispatch.h\
-	languages/dir_contents\
 	languages/Makefile\
 	languages/allsnowballheaders.h
 

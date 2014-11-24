@@ -68,11 +68,11 @@ class SmallVector : private SmallVector_ {
 	const_iterator operator++(int) { return const_iterator(ptr++); }
 
 	T operator*() const {
-	    return T(*static_cast<typename T::Internal*>(*ptr));
+	    return T(static_cast<typename T::Internal*>(*ptr));
 	}
 
 	T operator[](size_type idx) const {
-	    return T(*static_cast<typename T::Internal*>(ptr[idx]));
+	    return T(static_cast<typename T::Internal*>(ptr[idx]));
 	}
 
 	bool operator==(const const_iterator& o) const { return ptr == o.ptr; }

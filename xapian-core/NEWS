@@ -1,79 +1,10 @@
- 18275       olly Fri Oct 10 10:53:38 GMT 2014  Olly Betts <olly@survex.com>
+ 18292       olly Mon Oct 20 00:47:32 GMT 2014  Olly Betts <olly@survex.com>
 
 backport fodder:
 
-backported for 1.2.19:
+backported for 1.2.20:
 
- 18275       olly Fri Oct 10 10:53:38 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc: The
-	  table is sync-ed after the base file, so it's the last table we want
-	  to full-sync, not the last base file.
- 18204       olly Wed Aug 13 23:55:24 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/chert/chert_btreebase.cc,backends/chert/chert_table.cc:
-	  Only full sync the final base file written.
-
- 18266       olly Thu Oct 09 02:39:00 GMT 2014  Olly Betts <olly@survex.com>
-	* common/debuglog.h: Suppress unused typedef warnings from debugging
-	  logging macros, which occur in functions which always exit via
-	  throwing an exception.
-
- 18264       olly Thu Oct 09 01:43:02 GMT 2014  Olly Betts <olly@survex.com>
-	* common/pretty.h: Fix debug logging code to compile with clang.
-	  (fixes #657, reported by Germán M. Bravo)
-
- 18262       olly Mon Oct 06 21:41:58 GMT 2014  Olly Betts <olly@survex.com>
-	* tests/Makefile.am: Remove .replicatmp upon "make clean".
-
- 18243       olly Fri Sep 05 17:41:53 GMT 2014  Olly Betts <olly@survex.com>
-	* tests/harness/fdtracker.cc: Don't report apparent leaks of fds
-	  opened on /dev/urandom - at least on Linux, something in the C
-	  library seems to lazily open it, and the report of a possible leak
-	  followed by assurance that it's OK really is just noise we could
-	  do without.
- 18265       olly Thu Oct 09 01:45:00 GMT 2014  Olly Betts <olly@survex.com>
-	* tests/harness/fdtracker.cc: Fix code typo in recent change to skip
-	  apparent leaks of /dev/urandom.
-
- 18195       olly Wed Aug 06 10:49:46 GMT 2014  Olly Betts <olly@survex.com>
-	* include/xapian/compactor.h: Fix formatting of doxygen comment.
-
- 18206       olly Fri Aug 15 13:13:43 GMT 2014  Olly Betts <olly@survex.com>
-	* HACKING: freecode no longer accepts updates, so drop that item from
-	  the release checklist.
-
- 18235       olly Thu Sep 04 20:21:32 GMT 2014  Olly Betts <olly@survex.com>
-	* api/,backends/brass/,backends/chert/,backends/dbfactory_remote.cc,
-	  matcher/mergepostlist.cc,matcher/remotesubmatch.cc,
-	  net/progclient.cc: Add missing RETURN() markup for debug logging,
-	  highlighted by warning from recent GCC.
- 18237       olly Thu Sep 04 20:51:16 GMT 2014  Olly Betts <olly@survex.com>
-	* backends/dbfactory.cc: Fix incorrect return type in logging
-	  annotations for InMemory::open().
-
- 18197       olly Mon Aug 11 05:30:20 GMT 2014  Olly Betts <olly@survex.com>
-	* configure.ac: For Sun's C++ compiler, pass -library=Crun separately
-	  since libtool looks for " -library=stlport4 " (with the spaces).
-	  (fixes#650)
-
- 18196       olly Mon Aug 11 03:00:15 GMT 2014  Olly Betts <olly@survex.com>
-	* configure.ac: Rename XAPIAN_TEST_CXXFLAGS_ to XAPIAN_TEST_CXXFLAGS
-	  (since the latter is never used) and make it take a variable to
-	  add the flags to.  Also, fix it to restore CXXFLAGS correctly if
-	  the success case contains "break".
-
- 18163       olly Fri Jul 11 10:44:48 GMT 2014  Olly Betts <olly@survex.com>
-	* weight/bm25weight.cc: Improve BM25 upper bound in the case when our
-	  wdf upper bound > our document length lower bound.  Thanks to
-	  Craig Macdonald for pointing out this trick.
-
- 18162       olly Thu Jul 10 13:29:50 GMT 2014  Olly Betts <olly@survex.com>
-	* weight/bm25weight.cc: Pre-multiply termweight by (param_k1 + 1).
-
- 18256       olly Fri Sep 12 17:54:34 GMT 2014  Olly Betts <olly@survex.com>
-	* docs/overview.rst: Add missing database path to example of using
-	  xapian-progsrv in a stub database file.
-
-Xapian-core 1.3.2 (2014-10-10):
+Xapian-core 1.3.2 (2014-10-20):
 
 	* languages/: Add stopwords lists from Snowball plus an Arabic one.
 
@@ -91,7 +22,7 @@ Xapian-core 1.3.2 (2014-10-10):
 
 ---
 
-This release includes all changes from 1.2.16-1.2.18 which are relevant.
+This release includes all changes from 1.2.16-1.2.19 which are relevant.
 
 API:
 
@@ -117,12 +48,9 @@ API:
 * Methods and functions which take a string to unserialise now consistently
   call that parameter "serialised".
 
-* Weight: Make collection frequency available to subclasses.  Patch from
+* Weight: Make number of distinct terms indexing each document and the
+  collection frequency of the term available to subclasses.  Patch from
   Gaurav Arora's Language Modelling branch.
-	  net/remoteserver.h,tests/,weight/: Provide the number of distinct
-	  terms in the document to weighting schemes.  The current
-	  implementation for the disk-based backends is a bit inefficient as
-	  it has to look at the termlist table entry for the document.
 
 * WritableDatabase: Add support for multiple subdatabases, and support opening
   a stub database containing multiple subdatabases as a WritableDatabase.
@@ -709,6 +637,77 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.19 (2014-10-21):
+
+API:
+
+* Xapian::BM25Weight:
+
+  + Improve BM25 upper bound in the case when our wdf upper bound > our
+    document length lower bound.  Thanks to Craig Macdonald for pointing out
+    this trick.
+
+  + Pre-multiply termweight by (param_k1 + 1) rather than doing it for
+    every weighted term in every document considered.
+
+testsuite:
+
+* Don't report apparent leaks of fds opened on /dev/urandom - at least on
+  Linux, something in the C library seems to lazily open it, and the report of
+  a possible leak followed by assurance that it's OK really is just noise we
+  can do without.
+
+matcher:
+
+* Fix false matches reported for non-exact phrases in some cases.  Fixes the
+  reduced testcase in #657, reported by Jean-Francois Dockes.
+
+brass backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+chert backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+flint backend:
+
+* Only full sync after writing the final base file (only affects Max OS X).
+
+build system:
+
+* For Sun's C++ compiler, pass -library=Crun separately since libtool looks for
+  " -library=stlport4 " (with the spaces).  (fixes#650)
+
+* Remove .replicatmp (created by the test suite) upon "make clean".
+
+documentation:
+
+* include/xapian/compactor.h: Fix formatting of doxygen comment.
+
+* HACKING: freecode no longer accepts updates, so drop that item from the
+  release checklist.
+
+* docs/overview.rst: Add missing database path to example of using
+  xapian-progsrv in a stub database file.
+
+portability:
+
+* Suppress unused typedef warnings from debugging logging macros, which occur
+  in functions which always exit via throwing an exception when compiling with
+  recent versions of GCC or clang.
+
+* Fix debug logging code to compile with clang.  (fixes #657, reported by
+  Germán M. Bravo)
+
+debug code:
+
+* Add missing RETURN() markup for debug logging in a few places, highlighted by
+  warnings from recent GCC.
+
+* Fix incorrect return types in debug logging annotations so that code compiles
+  when configured with --enable-log.
 
 Xapian-core 1.2.18 (2014-06-22):
 

@@ -1,5 +1,4 @@
 EXTRA_DIST +=\
-	backends/brass/dir_contents\
 	backends/brass/Makefile
 
 if BUILD_BACKEND_BRASS

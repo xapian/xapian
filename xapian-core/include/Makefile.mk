@@ -1,7 +1,5 @@
 EXTRA_DIST +=\
-	include/dir_contents\
 	include/Makefile\
-	include/xapian/dir_contents\
 	include/xapian/Makefile
 
 xapianincludedir = $(incdir)/xapian

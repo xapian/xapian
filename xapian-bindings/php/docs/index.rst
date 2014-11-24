@@ -6,8 +6,8 @@ extension.  The PHP API provided by this extension largely follows Xapian's C++
 API.  This document lists the differences and additions.
 
 As of Xapian version 1.3.2, these bindings require at least PHP 5.4.
-(If you really need support for older releases, Xapian 1.2 supports PHP
-5.0-5.3).
+(Older versions of PHP are now out of security support, but if you really need
+support for them then Xapian 1.2 supports PHP 5.0 and later).
 
 PHP strings, arrays, etc., are converted automatically to and from the
 corresponding C++ types in the bindings, so generally you can pass arguments as
@@ -58,17 +58,6 @@ as the extension, and MS Windows uses ``.dll``).
 
 If you're using PHP as a webserver module (e.g. mod_php with Apache), you
 may need to restart the webserver for this change to take effect.
-
-Alternatively, you can get scripts which use Xapian to explicitly load it.
-This approach is useful if you don't have root access and so can't make
-changes to php.ini.  The simplest set up is to copy ``xapian.so`` into
-the same directory as your PHP script, and then add the following line to the
-start of your PHP scripts which use Xapian: ``dl('xapian.so');``
-
-You can put ``xapian.so`` elsewhere (and it's probably better to)
-but note that ``dl()`` requires a **relative** path so you
-might have to use something insane-looking like:
-``dl('../../../../usr/lib/php5/20051025/xapian.so');``
 
 You also need to add ``include&nbsp;"xapian.php"``
 to your PHP scripts which use Xapian in order to get the PHP class wrappers.

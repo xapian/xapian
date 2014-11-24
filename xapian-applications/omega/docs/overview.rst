@@ -193,9 +193,9 @@ other filters too - see below):
 * text files (.txt, .text)
 * SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
-* PDF (.pdf) if pdftotext is available (comes with xpdf)
+* PDF (.pdf) if pdftotext is available (comes with poppler or xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
-  with xpdf) are available
+  with poppler or xpdf) are available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
@@ -560,3 +560,11 @@ Then you need only give the field values in the document data, which can
 save a lot of space in a large database.  With the setting of fieldnames
 above, the first line of document data can be accessed with $field{caption},
 the second with $field{sample}, and the third with $field{url}.
+
+Stopword List
+=============
+
+At search time, Omega uses a built-in list of stopwords, which are::
+
+    a about an and are as at be by en for from how i in is it of on or that the
+    this to was what when where which who why will with you your

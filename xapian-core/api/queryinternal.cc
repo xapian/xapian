@@ -433,7 +433,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    throw SerialisationError("Unknown multi-way branch Query operator");
 	    }
 	    do {
-		result->add_subquery(Xapian::Query(*unserialise(p, end, reg)));
+		result->add_subquery(Xapian::Query(unserialise(p, end, reg)));
 	    } while (--n_subqs);
 	    result->done();
 	    return result;
@@ -503,7 +503,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		    using Xapian::Internal::QueryScaleWeight;
 		    double scale_factor = unserialise_double(p, end);
 		    return new QueryScaleWeight(scale_factor,
-						Query(*unserialise(p, end, reg)));
+						Query(unserialise(p, end, reg)));
 		}
 		case 0x0e: {
 		    Xapian::termcount wqf = decode_length(p, end, false);

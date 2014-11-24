@@ -2,7 +2,6 @@ noinst_HEADERS +=\
 	unicode/description_append.h
 
 EXTRA_DIST +=\
-	unicode/dir_contents\
 	unicode/Makefile\
 	unicode/UnicodeData-README.txt\
 	unicode/UnicodeData.txt\

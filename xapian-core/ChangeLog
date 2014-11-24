@@ -1,3 +1,71 @@
+Sun Nov 02 21:14:43 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Fix typo.
+
+Tue Oct 28 23:35:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/replication.rst: Fix typo.
+
+Tue Oct 28 02:34:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/postingsource.rst: Use a modern class in postingsource example.
+	  (Noted by James Aylett)
+
+Mon Oct 27 21:06:55 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/,net/Makefile.mk,net/remote_protocol.rst,
+	  net/replication_protocol.rst: Move the protocol docs for the remote
+	  and replication protocols into the net/ subdirectory.
+
+Mon Oct 27 19:19:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/Makefile.mk,api/dir_contents,backends/Makefile.mk,
+	  backends/brass/Makefile.mk,backends/brass/dir_contents,
+	  backends/chert/Makefile.mk,backends/chert/dir_contents,
+	  backends/dir_contents,backends/inmemory/Makefile.mk,
+	  backends/inmemory/dir_contents,backends/multi/Makefile.mk,
+	  backends/multi/dir_contents,backends/remote/Makefile.mk,
+	  backends/remote/dir_contents,bin/Makefile.mk,bin/dir_contents,
+	  common/Makefile.mk,common/dir_contents,configure.ac,dir_contents,
+	  docs/,examples/Makefile.mk,examples/dir_contents,expand/Makefile.mk,
+	  expand/dir_contents,geospatial/Makefile.mk,geospatial/dir_contents,
+	  include/Makefile.mk,include/dir_contents,include/xapian/dir_contents,
+	  languages/Makefile.mk,languages/dir_contents,m4-macros/dir_contents,
+	  m4/dir_contents,matcher/Makefile.mk,matcher/dir_contents,
+	  net/Makefile.mk,net/dir_contents,preautoreconf,
+	  queryparser/Makefile.mk,queryparser/dir_contents,tests/Makefile.am,
+	  tests/dir_contents,tests/harness/Makefile.mk,
+	  tests/harness/dir_contents,tests/perftest/Makefile.mk,
+	  tests/perftest/dir_contents,tests/soaktest/Makefile.mk,
+	  tests/soaktest/dir_contents,unicode/Makefile.mk,unicode/dir_contents,
+	  weight/Makefile.mk,weight/dir_contents: Remove the dir_contents files
+	  and all the machinery to handle them.
+
+Sat Oct 25 19:25:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/query.cc,api/queryinternal.cc,api/smallvector.h,
+	  include/xapian/query.h: Stop using a reference where we may end up
+	  passing *NULL, as that's invalid.  Thanks Nick Lewycky and ubsan
+	  for helping track this down.
+	* tests/api_postingsource.cc: Fix testsuite to avoid passing literal
+	  NULL - pass nullptr for C++11 and don't bother with that part of
+	  the testcase for older C++.
+
+Sat Oct 25 19:05:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* weight/dlhweight.cc,weight/dphweight.cc: Avoid dividing by zero when
+	  the collection size is 0.
+
+Fri Oct 24 23:04:24 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+
+	* api/registry.cc,include/xapian/weight.h,tests/api_backend.cc,
+	  tests/api_nodb.cc,tests/api_weight.cc,weight/Makefile.mk,
+	  weight/lmweight.cc: Add Unigram LMWeight class.
+
+Tue Oct 21 19:19:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.2.19 release.
+
 Mon Oct 20 00:47:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* .gitignore,docs/.gitignore,tests/.gitignore,unicode/.gitignore:

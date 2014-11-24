@@ -47,7 +47,6 @@ soaktest/soaktest_collated.stamp: $(collated_soaktest_sources) collate-test soak
 endif
 
 EXTRA_DIST += \
- soaktest/dir_contents \
  soaktest/soaktest_all.h \
  soaktest/soaktest_collated.h \
  $(collated_soaktest_sources:.cc=.h)

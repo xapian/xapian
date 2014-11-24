@@ -1,3 +1,36 @@
+Tue Nov 04 20:38:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/docs/index.rst: Note that PHP < 5.4 are now out of security
+	  support.
+
+Tue Nov 04 04:38:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Iterating foreach ($it as $k => $c) doesn't work
+	  unless $k is a string or integer in PHP < 5.5, so test the old way
+	  under older versions.
+
+Tue Nov 04 04:25:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Remove disabling of subclassing tests for PHP
+	  versions >= 5.4.
+
+Mon Nov 03 22:11:19 GMT 2014  Olly Betts <olly@survex.com>
+
+	* INSTALL,php/docs/index.rst: In current PHP releases, dl() will only
+	  look in the configured extension directory, and only accepts a
+	  leafname, and dl() is disabled in most SAPIs, so update the
+	  documentation about how to install the PHP bindings without being
+	  root.  Fixes #661, reported by Felix Ostmann.
+
+Sun Nov 02 20:51:03 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for 1.2.19 release.
+
+Fri Oct 24 23:06:25 GMT 2014  Gaurav Arora <gauravarora.daiict@gmail.com>
+
+	* csharp/Makefile.am,java/Makefile.am: Update for addition of LMWeight
+	  class.
+
 Mon Oct 20 00:53:59 GMT 2014  Olly Betts <olly@survex.com>
 
 	* .gitignore,csharp/.gitignore,java/.gitignore,lua/.gitignore,

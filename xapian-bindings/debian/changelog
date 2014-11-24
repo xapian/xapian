@@ -1,3 +1,12 @@
+xapian-bindings (1.3.1.avature13) precise; urgency=medium
+
+  * Merge in changes from SVN trunk (up to r18326):
+    + Reenable subclassing tests for PHP >= 5.4.
+    + Fix set_stopper() methods (Fixes #659, reported by jmienert)
+    + Wrap Xapian iterator classes as PHP iterators. (fixes#652)
+
+ -- Olly Betts <olly@survex.com>  Tue, 04 Nov 2014 21:48:30 +0000
+
 xapian-bindings (1.3.1.avature12) precise; urgency=medium
 
   * Fixes for directors in PHP >= 5.4, and for throwing exceptions from
