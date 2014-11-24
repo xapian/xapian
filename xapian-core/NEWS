@@ -1,30 +1,8 @@
- 18347       olly Thu Nov 13 20:35:25 GMT 2014  Olly Betts <olly@survex.com>
-
-backport fodder:
-
-backported for 1.2.20:
-
- 18334       olly Fri Nov 07 00:17:18 GMT 2014  Olly Betts <olly@survex.com>
-	* queryparser/lemon.c: Sync change from upstream: "In Lemon, when
-	  comparing the output to the *.h file to see if it has changed, make
-	  sure that the proposed new output and the preexisting output are the
-	  same size before deciding that they are the same".  Generated code
-	  is identical, but this will fix misbehaviour in a build from a
-	  non-clean tree if new tokens get appended to queryparser_token.h.
-
-Xapian-core 1.3.2 (2014-11-16):
-
-	* languages/: Add stopwords lists from Snowball plus an Arabic one.
-	  patch from Assem Chelli.
-
----
+Xapian-core 1.3.2 (2014-11-24):
 
 This release includes all changes from 1.2.16-1.2.19 which are relevant.
 
 API:
-
-* Improve check for direct inclusion of Xapian subheaders in user code to
-  catch more cases.
 
 * Update Unicode character database to Unicode 7.0.0.
 
@@ -131,6 +109,12 @@ API:
   in the Hungarian Snowball stemmer.  Reported by Tom Lane to snowball-discuss.
 
 * Stem: Add an early english stemmer.
+
+* Provide the stopword lists from Snowball plus an Arabic one, installed in
+  ${prefix}/share/xapian-core/stopwords/.  Patch from Assem Chelli, fixes #269.
+
+* Improve check for direct inclusion of Xapian subheaders in user code to
+  catch more cases.
 
 * Add simple API to help with creating language-idiomatic iterator wrappers
   in <xapian/iterator.h>.
@@ -239,9 +223,6 @@ remote backend:
 * Make Weight::Internal track if any max_part values are set, so we don't need
   to serialise them when they've not been set.
 
-inmemory backend:
-
-
 build system:
 
 * Fix conditional for enabling replication code - if chert is disabled but
@@ -279,11 +260,6 @@ documentation:
 
 * HACKING: Note that MacTeX seems to be the best option if using homebrew.
 
-tools:
-
-examples:
-
-
 portability:
 
 * Don't pass an integer argument to log(), to avoid ambiguity errors with xlC
@@ -313,9 +289,6 @@ portability:
 
 * In DLHWeight and DPHWeight, avoid dividing by zero when the collection size
   is 0.
-
-packaging:
-
 
 debug code:
 
