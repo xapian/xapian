@@ -1,3 +1,8 @@
+Mon Nov 24 10:45:30 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update comment about MACOSX_DEPLOYMENT_TARGET -
+	  OS X 10.2 is long obsolete now.
+
 Sun Nov 23 23:57:02 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS,csharp/Makefile.am,csharp/docs/index.rst,fake_dbfactory.i,

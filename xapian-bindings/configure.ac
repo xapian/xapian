@@ -16,11 +16,10 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
-dnl successfully link the SWIG generated modules.  The link always fails
-dnl on earlier versions of Mac OS X (10.1.4 and 10.2.8 tested), so always
-dnl setting MACOSX_DEPLOYMENT_TARGET to at least 10.3 seems to be the
-dnl appropriate thing to do.  Most Mac OS X developers will have upgraded
-dnl from 10.1 and 10.2 by now anyhow.
+dnl successfully link the SWIG generated modules.  The link always fails on
+dnl earlier versions of Mac OS X (10.1.4 and 10.2.8 tested), and these versions
+dnl are long obsolete now, so we just ensure that MACOSX_DEPLOYMENT_TARGET is
+dnl set to at least 10.3.
 dnl
 dnl NB we must do this *BEFORE* LT_INIT since that is what checks
 dnl MACOSX_DEPLOYMENT_TARGET.
