@@ -1,3 +1,8 @@
+Mon Nov 24 03:14:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/: Install the stopword lists as
+	  ${pkgdatadir}/stopwords/LANG.list.
+
 Sun Nov 23 23:56:02 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,NEWS,NEWS.SKELETON,api/compactor.cc,
