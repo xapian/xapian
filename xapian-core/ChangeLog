@@ -1,3 +1,8 @@
+Mon Nov 24 03:59:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: Add missing '\' at end of line in previous
+	  commit.
+
 Mon Nov 24 03:14:22 GMT 2014  Olly Betts <olly@survex.com>
 
 	* languages/: Install the stopword lists as
