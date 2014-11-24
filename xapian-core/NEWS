@@ -1,3 +1,56 @@
+ 18363       olly Mon Nov 24 06:17:32 GMT 2014  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.20 (2014-11-24):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+documentation:
+
+* docs/postingsource.rst: Use a modern class in postingsource example.  (Noted
+  by James Aylett)
+
+* docs/deprecation.rst,docs/replication.rst: Fix typos.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.19 (2014-10-21):
 
 API:
