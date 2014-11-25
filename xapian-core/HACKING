@@ -1519,10 +1519,13 @@ This is a (hopefully complete) list of the jobs which need doing:
 How to make Debian packages for a new release
 =============================================
 
-Debian control files are stored in the "debian" subdirectory of each module
-for which packages have been produced (currently xapian-core, xapian-bindings
-and xapian-applications/omega).  After each release, these should be
-updated as follows:
+Debian control files are stored in separate git repositories:
+
+* http://anonscm.debian.org/cgit/collab-maint/xapian-bindings.git
+* http://anonscm.debian.org/cgit/collab-maint/xapian-core.git
+* http://anonscm.debian.org/cgit/collab-maint/xapian-omega.git
+
+To package a new upstream release, these should be updated as follows:
 
 * If there are any patch files in "debian/patches", check if these have been
   incorporated into the new release, and if so remove them and update
@@ -1530,22 +1533,18 @@ updated as follows:
 
 * Update the debian/changelog file, being sure to keep it in the
   standard Debian format (the easiest way is to use the dch utility
-  like so: "dch -v 1.0.14-1".  The new version number should be the
+  like so: "dch -v 1.2.19-1".  The new version number should be the
   version number of the release followed by "-1" (i.e., a debian
   patch number of 1).  The changelog message should indicate that
   there is a new upstream release, and should mention any significant
   changes in the new release.
 
-* Run ``xapian-maintainer-tools/debian/svn-tag-debs`` to tag all the files in the
-  debian control directory - e.g., for a new release of version 1.0.14, it tags
-  with "tags/debian-1.0.14-1".
+* Tag using: ``git tag -s -m 1.2.19-1 1.2.19-1``
 
-* ``cd xapian-maintainer-tools/debian``
+* FIXME: Document how to make source packages, or update
+  ``make-source-packages``.
 
-* Run ``./make-source-packages`` to make new source packages for Debian unstable.
-
-* Run ``sudo ./build-packages`` to build binary packages from these source
-  packages.
+* FIXME: Document how to build binary packages, or update ``build-packages``.
 
 * Test the packages.
 
@@ -1555,13 +1554,13 @@ updated as follows:
 
 * For the Ubuntu backports::
 
-   ./backport-source-packages xapian-core 1.0.15-1 ubuntu
-   ./backport-source-packages xapian-omega 1.0.15-1 ubuntu
-   ./backport-source-packages xapian-bindings 1.0.15-1 ubuntu
+   ./backport-source-packages xapian-core 1.2.19-1 ubuntu
+   ./backport-source-packages xapian-omega 1.2.19-1 ubuntu
+   ./backport-source-packages xapian-bindings 1.2.19-1 ubuntu
 
   And once libsearch-xapian-perl is uploaded to Debian unstable::
 
-   ./backport-source-packages libsearch-xapian-perl 1.0.15.0-1 ubuntu
+   ./backport-source-packages libsearch-xapian-perl 1.2.19.0-1 ubuntu
 
   Then sign::
 
