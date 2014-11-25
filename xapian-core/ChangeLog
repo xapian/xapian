@@ -1,3 +1,7 @@
+Tue Nov 25 21:13:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update link to cygwin FAQ.
+
 Tue Nov 25 01:55:17 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Update details of building Xapian packages.
