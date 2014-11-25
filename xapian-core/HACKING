@@ -344,13 +344,13 @@ The repository does not contain any automatically generated files
 parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
-the repo directly (in the case of Snowball and Lemon), or pull them in to a
-checkout using svn:externals or git or git-svn (SWIG), or the bootstrap script
-will lazily download, build, and install them within the source tree (autoconf,
-automake, libtool, and doxygen).  To download the source tarballs for these,
-bootstrap will use wget, curl or lwp-request if installed.  If not, it will
-give an error telling you the URL to download from by hand and where to copy
-the file to.
+the repo directly (in the case of Snowball and Lemon), or the bootstrap script
+will download them as tarballs (autoconf, automake, libtool, and doxygen) or
+from git (SWIG), build them, and install them within the source tree.
+
+To download source tarballs, bootstrap will use wget, curl or lwp-request if
+installed.  If not, it will give an error telling you the URL to download from
+by hand and where to copy the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -764,16 +764,8 @@ Don't directly '#include <unistd.h>' - instead '#include "safeunistd.h"'
 - MSVC doesn't even HAVE unistd.h!
 
 The various "safe" headers are maintained in xapian-core/common, but also used
-by Omega.  Omega pulls in a copy using the svn:externals property which is
-set on xapian-applications/omega.  Because of how this feature of SVN works,
-we pull in a read-only copy via HTTP access to the main repository, so you
-have to update it in xapian-core, and if you have ssh write access to the
-repo but no HTTP access, this will fail.
-
-The imported URL has to be absolute, which isn't too branch friendly.  To avoid
-problems from this, we specify a particular revision to import, but this does
-mean we need to monitor changes to xapian-core and decide when to update omega.
-The release checklist includes a reminder to check this.
+by Omega.  Currently bootstrap sorts out setting up a copy of this subdirectory
+via a secondary git checkout.
 
 Warning-Free Compilation
 ------------------------
@@ -891,7 +883,7 @@ Here's an incomplete list of things to avoid:
     $(srcdir)/foo.ext
 
   If it's a generated object file or similar, just write the name as is.  The
-  tricky case is a generated file which isn't in SVN but is shipped in the
+  tricky case is a generated file which isn't in git but is shipped in the
   distribution tarball, as such a file could be in either the source or build
   tree.  Use this trick to make sure it's found whichever directory it's in::
 
@@ -1182,7 +1174,6 @@ submitting a patch.
 
 We find patches in unified diff format easiest to read.  If you're using
 git, then "git diff" is good (or "git format-patch" for a patch series).  If
-you're using a SVN checkout just use "svn diff" to generate the diff.  If
 you're working from a tarball, you can unpack a second clean copy of the files
 and compare the two versions with "diff -pruN" (-p reports the function name
 for each chunk, -r acts recursively, -u does a unified diff, and -N shows
@@ -1411,13 +1402,8 @@ under the GPL, but we are working towards being able to distribute Xapian under
 a more permissive license, and are not willing to accept patches which we will
 have to rewrite before this can happen.
 
-Developers with SVN access:
-===========================
-
-People who are more seriously involved with the project are likely to
-have write access to the SVN repository.  This section gives the conventions
-for those developers, but most of these also apply if you're generating a
-patch you'd like us to include.
+Tips for Submitting a Good Patch
+================================
 
 1) Make sure that the documentation is updated
 ----------------------------------------------
@@ -1444,8 +1430,10 @@ patch you'd like us to include.
  * If you're adding a feature, also add feature tests for it.  These both
    ensure that the feature isn't broken to start with and detect if later
    changes stop it working as intended.
+
  * If you've fixed a bug, make sure there's a regression test which
    fails on the existing code and succeeds after your changes.
+
  * Make sure all existing tests continue to pass.
 
 If you don't know how to write tests using the Xapian test rig, then
@@ -1462,6 +1450,7 @@ introduction to the Xapian test system in ``docs/tests.html``.
    one anyway, so it's a judgement call).  If you've added files which
    you've written from scratch, they should include the GPL boilerplate
    with your name only.
+
  * If you're not in there, add yourself to the AUTHORS file.
 
 4) Create a ChangeLog entry and commit
@@ -1471,7 +1460,7 @@ introduction to the Xapian test system in ``docs/tests.html``.
    ``xapian-maintainer-tools`` repository top-level directory.  If you must
    do this by hand, add an entry to the ChangeLog file at the top-level of the
    module you have modified.  The text of this should generally be the same as
-   the SVN commit message.  The datestamps in our ChangeLog entries are as
+   the git commit message.  The datestamps in our ChangeLog entries are as
    produced by the GNU date utility when invoked as::
 
      date --utc "+%a %b %d %T GMT %Y"
@@ -1587,8 +1576,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Check if `config/config.guess` and `config/config.sub` need updating to
   more recent versions from http://git.savannah.gnu.org/gitweb/?p=config.git
 
-* Check the revision currently specified in the svn:externals property of
-  xapian-applications/omega.  Unless there's a good reason, we should release
+* Check the revision currently specified in the bootstrap for the common
+  subdirectory.  Unless there's a good reason, we should release
   xapian-core and omega with synchronised versions of the shared files.
 
 * Make sure that any new/changed/removed API methods in xapian-core have been
@@ -1606,10 +1595,10 @@ This is a (hopefully complete) list of the jobs which need doing:
 
    http://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
 
-* On atreus, svn tag the source trees for the new revision - use the
-  svn-tag-release script, running it with the new version number, for example:
+* On atreus, tag the source trees for the new revision - use the
+  git-tag-release script, running it with the new version number, for example:
 
-  xapian-maintainer-tools/svn-tag-release 1.0.14
+  xapian-maintainer-tools/git-tag-release 1.0.14
 
   This script also generates tarballs for the new release and copies them
   across to the website.
