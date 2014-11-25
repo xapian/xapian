@@ -137,7 +137,7 @@ case $build_os in
 *** to make sure you have a UNIX-like find installed and fix your PATH, then
 *** rerun configure.  For more information, see:
 ***
-***   http://www.cygwin.com/faq/faq-nochunks.html#faq.using.find
+***   https://www.cygwin.com/faq/faq.html#faq.using.find
 ])
     fi
   ;;
