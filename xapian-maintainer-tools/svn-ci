@@ -46,25 +46,17 @@ if (-d '.svn') {
 } else {
     # Assume git for now.
     $vcs = 'git';
+    chomp($email = `git config --get user.email`) if ! defined $email;
+    chomp($realname = `git config --get user.name`) if ! defined $realname;
 }
 
 # Set default values if the user hasn't set their own above...
 my @passwd = getpwuid(getuid());
 unless ($email) {
     $email = $passwd[0];
-    if ($email eq 'olly') {
-	$email .= '@survex.com';
-    } elsif ($email eq 'richard') {
-	$email .= '@tartarus.org';
-    } elsif ($email eq 'kosei') {
-	$email = 'cou929@gmail.com';
-    } elsif ($email eq 'dcolish') {
-	$email .= '@gmail.com';
-    } else {
-	my $host = `hostname -d`;
-	chomp($host);
-	$email = $passwd[0] . '@' . $host;
-    }
+    my $host = `hostname -d`;
+    chomp($host);
+    $email = $passwd[0] . '@' . $host;
 }
 $realname ||= (split /,/, $passwd[6])[0];
 
