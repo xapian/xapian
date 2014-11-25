@@ -47,7 +47,7 @@ def MakeWritable():
         command = ["chmod", "-R", "+w", "."],
     )
 
-def core_factory(baseURL, usedocs=False, configure=None, audit=False,
+def core_factory(repourl, usedocs=False, configure=None, audit=False,
                  clean=False, nocheck = False, configure_opts=None):
     f = factory.BuildFactory()
     mode = "update"
@@ -55,7 +55,7 @@ def core_factory(baseURL, usedocs=False, configure=None, audit=False,
         #f.addStep(MakeWritable, workdir='.')
         f.addStep(shell.ShellCommand(command = ["chmod", "-R", "+w", "."], workdir='.'))
         mode = "clobber"
-    f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode=mode))
+    f.addStep(source.Git(repourl=repourl, mode=mode))
     if audit:
         f.addStep(shell.ShellCommand(command = ["python", 'audit.py'], workdir='build/xapian-maintainer-tools'))
         f.addStep(shell.ShellCommand(command = ["chmod", '644', 'copyright.csv', 'fixmes.csv'], workdir='build/xapian-maintainer-tools'))
@@ -79,56 +79,54 @@ def core_factory(baseURL, usedocs=False, configure=None, audit=False,
         f.addStep(shell.Test(name="check", command=["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     return f
 
-def gen_svn_updated_factory(baseURL, usedocs=False, clean=False):
+def gen_git_updated_factory(repourl, usedocs=False, clean=False):
     """
-    Make a factory for doing HEAD build from SVN, but without cleaning
+    Make a factory for doing build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
-    return core_factory(baseURL=baseURL, usedocs=usedocs, clean=clean)
+    return core_factory(repourl=repourl, usedocs=usedocs, clean=clean)
 
-def gen_svn_updated_factory_llvm(baseURL):
+def gen_git_updated_factory_llvm(repourl):
     """
-    Make a factory for doing HEAD build from SVN, but without cleaning
+    Make a factory for doing build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
-    return core_factory(baseURL=baseURL, configure_opts=["CXX=/Developer/usr/llvm-gcc-4.2/bin/llvm-g++-4.2", "CC=/Developer/usr/llvm-gcc-4.2/bin/llvm-gcc-4.2"])
+    return core_factory(repourl=repourl, configure_opts=["CXX=/Developer/usr/llvm-gcc-4.2/bin/llvm-g++-4.2", "CC=/Developer/usr/llvm-gcc-4.2/bin/llvm-gcc-4.2"])
 
-def gen_svn_updated_factory2(baseURL, configure_opts=[]):
+def gen_git_updated_factory2(repourl, configure_opts=[]):
     """
-    Make a factory for doing HEAD build from SVN, but without cleaning
+    Make a factory for doing build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     This factory also runs audit.py and publishes the result.
     """
-    return core_factory(baseURL=baseURL, usedocs=False, audit=True,
+    return core_factory(repourl=repourl, usedocs=False, audit=True,
                         configure_opts=configure_opts)
 
-def gen_svn_updated_factory3(baseURL):
+def gen_git_updated_factory3(repourl):
     """
-    Make a factory for doing HEAD build from SVN, but without cleaning
+    Make a factory for doing build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     This build runs with --disable-documentation, so the documentation building
     tools aren't required.
     """
-    return core_factory(baseURL=baseURL, usedocs=False)
+    return core_factory(repourl=repourl, usedocs=False)
 
-def gen_svn_gccsnapshot_updated_factory(baseURL):
+def gen_git_gccsnapshot_updated_factory(repourl):
     """
-    Make a factory for doing HEAD build from SVN, but without cleaning
+    Make a factory for doing build from git master, but without cleaning
     first, using gcc snapshot.  Also uses compiles with logging and assertions.
     """
-    return core_factory(baseURL=baseURL,
+    return core_factory(repourl=repourl,
                         configure_opts=["--enable-assertions", "--enable-log", "CXX=/usr/lib/gcc-snapshot/bin/g++", "CC=/usr/lib/gcc-snapshot/bin/gcc",
         ])
 
-def gen_svn_debug_updated_factory(baseURL, opts, nocheck=False):
+def gen_git_debug_updated_factory(repourl, opts, nocheck=False):
     """
-    Make a factory for doing a debug HEAD build from SVN, but without cleaning
+    Make a factory for doing a debug build from git master, but without cleaning
     first.  This build is intended to catch commonly made mistakes quickly.
     """
     f = factory.BuildFactory()
-    f.addStep(source.SVN(baseURL=baseURL,
-                         defaultBranch='trunk',
-                         mode="update"))
+    f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
     opts.append("--disable-documentation")
     f.addStep(shell.Configure(command = ["sh", "configure", ] + opts))
@@ -164,14 +162,14 @@ def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, configure_op
     f.addStep(slave.RemoveDirectory('build'))
     return f
 
-def gen_svn_updated_valgrind_factory(baseURL, configure_opts=[]):
+def gen_git_updated_valgrind_factory(repourl, configure_opts=[]):
     """
-    Factory for doing HEAD build from SVN, without cleaning first, and using
+    Factory for doing build from git master, without cleaning first, and using
     valgrind to check.  This one is much more expensive, so should be run with
     a higher stable time.
     """
     f = factory.BuildFactory()
-    f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode="update"))
+    f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
     configure_opts.append("--disable-documentation")
     f.addStep(shell.Configure(command = ["sh", "configure", "CXXFLAGS=-O0 -g"] + configure_opts))
@@ -181,14 +179,14 @@ def gen_svn_updated_valgrind_factory(baseURL, configure_opts=[]):
 
     return f
 
-def gen_svn_updated_lcov_factory(baseURL, configure_opts=[]):
+def gen_git_updated_lcov_factory(repourl, configure_opts=[]):
     """
-    Factory for doing HEAD build from SVN, without cleaning first, and using
+    Factory for doing build from git master, without cleaning first, and using
     lcov to generate a coverage report.  This one is much more expensive, so
     should be run with a higher stable time.
     """
     f = factory.BuildFactory()
-    f.addStep(source.SVN(baseURL=baseURL, defaultBranch='trunk', mode="update"))
+    f.addStep(source.Git(repourl=repourl, mode="update"))
     f.addStep(Bootstrap())
     f.addStep(shell.Configure(command = ["sh", "configure", "--enable-maintainer-mode", "--disable-shared", "--disable-documentation", "CXXFLAGS=-O0 --coverage", "VALGRIND=", "CCACHE_DISABLE=1"] + configure_opts, workdir="build/xapian-core"))
     f.addStep(shell.Compile(workdir="build/xapian-core"))
@@ -200,16 +198,16 @@ def gen_svn_updated_lcov_factory(baseURL, configure_opts=[]):
 
 #### FIXME: factories beyond here not updated
 
-def gen_svn_clean_dist_factory(baseURL):
+def gen_git_clean_dist_factory(repourl):
     """
-    Factory for doing HEAD build from a clean SVN checkout.  This build also
+    Factory for doing build from a clean checkout of git master.  This build also
     performs a "make distcheck", so should catch problems with files which have
     been missed from the distribution.  This one is much more expensive, so
     should be run with a higher stable time.
     """
     f = factory.BuildFactory()
     f.addStep(MakeWritable, workdir='.')
-    f.addStep(source.SVN, baseURL=baseURL, defaultBranch='trunk', mode="clobber")
+    f.addStep(source.Git(repourl=repourl, mode="clobber"))
     f.addStep(Bootstrap())
     f.addStep(step.Configure, command = ["xapian-maintainer-tools/buildbot/scripts/configure_with_prefix.sh"])
     extraargs = (
@@ -229,12 +227,12 @@ def gen_svn_clean_dist_factory(baseURL):
     f.addStep(step.Test, name="distcheck", command = ["make", "distcheck"] + extraargs, workdir='build/xapian-bindings')
     return f
 
-def gen_svn_updated_win_factory(baseURL):
+def gen_git_updated_win_factory(repourl):
     """
-    Factory for doing a windows build from an SVN checkout, without cleaning first.
+    Factory for doing a windows build from git, without cleaning first.
     """
     f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
+    f.addStep(step.Git(repourl=repourl, mode="update"))
     f.addStep(step.ShellCommand, command="xapian-maintainer-tools\\buildbot\\scripts\\prepare_build.bat")
 
     # Compile core: we use a .bat file to get vsvars32.bat to run before the
