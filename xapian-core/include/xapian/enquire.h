@@ -1091,7 +1091,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/** Get the expand set for the given rset.
 	 *
 	 *  @param maxitems  the maximum number of items to return.
-	 *  @param omrset    the relevance set to use when performing
+	 *  @param rset      the relevance set to use when performing
 	 *		     the expand operation.
 	 *  @param flags     zero or more of these values |-ed together:
 	 *		      - Xapian::Enquire::INCLUDE_QUERY_TERMS query
