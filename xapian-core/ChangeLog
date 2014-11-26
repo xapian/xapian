@@ -1,3 +1,8 @@
+Wed Nov 26 04:03:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/geospatial.h: Drop documentation of parameter which
+	  the method doesn't actually take.
+
 Wed Nov 26 04:03:24 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fix incorrect parameter name in doxygen

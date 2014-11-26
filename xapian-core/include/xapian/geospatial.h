@@ -463,7 +463,6 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     /** Construct a new match decider which returns only documents within
      *  range of one of the central coordinates.
      *
-     *  @param db_ The database to read values from.
      *  @param slot_ The value slot to read values from.
      *  @param centre_ The centre point to use for distance calculations.
      *  @param metric_ The metric to use for distance calculations.
