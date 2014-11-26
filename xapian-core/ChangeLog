@@ -1,3 +1,8 @@
+Wed Nov 26 03:29:28 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_source.conf.in: @MAKEINDEX@ isn't substituted, so just
+	  use literal 'makeindex'.
+
 Tue Nov 25 21:13:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update link to cygwin FAQ.
