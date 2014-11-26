@@ -968,7 +968,7 @@ LATEX_CMD_NAME         = latex
 # generate index for LaTeX. If left blank 'makeindex' will be used as the
 # default command name.
 
-MAKEINDEX_CMD_NAME     = @MAKEINDEX@
+MAKEINDEX_CMD_NAME     = makeindex
 
 # If the COMPACT_LATEX tag is set to YES Doxygen generates more compact
 # LaTeX documents. This may be useful for small projects and may help to
