@@ -1,3 +1,8 @@
+Wed Nov 26 03:55:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable automake option 'subdir-objects' to avoid
+	  warning from newer automake.
+
 Tue Oct 21 00:33:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.2.19.

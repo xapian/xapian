@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT([xapian-omega], [1.2.19], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
-AM_INIT_AUTOMAKE([1.11 -Wportability tar-ustar no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.11 -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 
 AC_CONFIG_SRCDIR([omega.cc])
 
