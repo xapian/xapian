@@ -1,3 +1,10 @@
+Thu Dec 11 03:52:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+++ b/xapian-core/ChangeLog
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Update to
+	  avoid warnings about obsolete tags from newer doxygen.
+
 Thu Dec 11 03:48:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
