@@ -1,3 +1,8 @@
+Wed Nov 26 03:28:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Update to
+	  avoid warnings about obsolete tags from newer doxygen.
+
 Tue Nov 25 21:13:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update link to cygwin FAQ.
