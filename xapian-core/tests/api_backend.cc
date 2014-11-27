@@ -43,7 +43,7 @@ using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
 DEFINE_TESTCASE(lockfileumask1, chert || glass) {
-#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     mode_t old_umask = umask(022);
     try {
 	Xapian::WritableDatabase db = get_named_writable_database("lockfileumask1");
@@ -167,7 +167,7 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
 }
 
 DEFINE_TESTCASE(lockfilefd0or1, chert || glass) {
-#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     int old_stdin = dup(0);
     int old_stdout = dup(1);
     try {
@@ -975,7 +975,7 @@ DEFINE_TESTCASE(newfreelistblock1, writable) {
  *  from the database directory.
  */
 DEFINE_TESTCASE(readonlyparentdir1, chert || glass) {
-#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __EMX__
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     string path = get_named_writable_database_path("readonlyparentdir1");
     // Fix permissions if the previous test was killed.
     (void)chmod(path.c_str(), 0700);

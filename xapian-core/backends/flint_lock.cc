@@ -88,17 +88,6 @@ FlintLock::lock(bool exclusive, string & explanation) {
     if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
     explanation = string();
     return UNKNOWN;
-#elif defined __EMX__
-    APIRET rc;
-    ULONG ulAction;
-    rc = DosOpen((PCSZ)filename.c_str(), &hFile, &ulAction, 0, FILE_NORMAL,
-		 OPEN_ACTION_OPEN_IF_EXISTS | OPEN_ACTION_CREATE_IF_NEW,
-		 OPEN_SHARE_DENYWRITE | OPEN_ACCESS_WRITEONLY,
-		 NULL);
-    if (rc == NO_ERROR) return SUCCESS;
-    if (rc == ERROR_ACCESS_DENIED) return INUSE;
-    explanation = string();
-    return UNKNOWN;
 #elif defined FLINTLOCK_USE_FLOCK
     // This is much simpler than using fcntl() due to saner semantics around
     // releasing locks when closing other descriptors on the same file (at
@@ -377,10 +366,6 @@ FlintLock::release() {
     if (hFile == INVALID_HANDLE_VALUE) return;
     CloseHandle(hFile);
     hFile = INVALID_HANDLE_VALUE;
-#elif defined __EMX__
-    if (hFile == NULLHANDLE) return;
-    DosClose(hFile);
-    hFile = NULLHANDLE;
 #elif defined FLINTLOCK_USE_FLOCK
     if (fd < 0) return;
     close(fd);

@@ -26,10 +26,6 @@
 
 #if defined __CYGWIN__ || defined __WIN32__
 # include "safewindows.h"
-#elif defined __EMX__
-# define INCL_DOS
-# define INCL_DOSERRORS
-# include <os2.h>
 #else
 # include <sys/types.h>
 #endif
@@ -40,8 +36,6 @@ class FlintLock {
     std::string filename;
 #if defined __CYGWIN__ || defined __WIN32__
     HANDLE hFile;
-#elif defined __EMX__
-    HFILE hFile;
 #elif defined FLINTLOCK_USE_FLOCK
     int fd;
 #else
@@ -67,12 +61,6 @@ class FlintLock {
 	filename += "/flintlock";
     }
     operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
-#elif defined __EMX__
-    FlintLock(const std::string &filename_)
-	: filename(filename_), hFile(NULLHANDLE) {
-	filename += "/flintlock";
-    }
-    operator bool() const { return hFile != NULLHANDLE; }
 #elif defined FLINTLOCK_USE_FLOCK
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
 	filename += "/flintlock";

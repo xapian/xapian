@@ -1,3 +1,11 @@
+Thu Nov 27 04:00:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc,backends/flint_lock.cc,backends/flint_lock.h,
+	  examples/copydatabase.cc,tests/api_backend.cc: Drop support code for
+	  building on OS/2 with EMX - EMX was last updated in 2001 and comes
+	  with GCC 3.2.1, which pre-dates C++11 and we're going to require
+	  a compiler with good C++11 support in the near future.
+
 Thu Nov 27 03:15:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING: Rename svn-ci to xapian-commit (see #621).
