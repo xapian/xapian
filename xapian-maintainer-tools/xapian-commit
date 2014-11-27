@@ -1,11 +1,14 @@
 #! /usr/bin/perl -w
-# Wrap "svn ci"/"git commit" and help generate ChangeLog entries.
+# Wrap "git commit" and help generate ChangeLog entries.
+# 
+# Generally you'll use "git add" to add files to the index before running
+# this script, but it can also take a list of files and/or directories like
+# "git commit" does (but note that the handling isn't currently the same if
+# there are already files in the index).
 #
-# This script takes an optional list of files and/or directories, just like
-# "svn ci".
-#
-# If you save this somewhere on your PATH, you can just run "svn-ci" instead
-# of "svn ci" when you want to check in a change to the Xapian tree.
+# If you save this somewhere on your PATH, you can just run "xapian-commit"
+# instead of "git commit" when you want to check in a change to the Xapian
+# tree.
 
 require 5.000;
 use strict;
@@ -19,9 +22,9 @@ my $realname;
 
 if (defined $ARGV[0] && $ARGV[0] eq '--help') {
     print <<END;
-Syntax: $0 [FILE]...
+Syntax: $0 [--revert] [--backport] [FILE]...
 
-The default is to check in all changed files in the current directory or
+The default is to check in all changed files in the current directory and
 its subdirectories.
 
 If there is no ChangeLog in the current directory, $0 will look for one
@@ -31,8 +34,8 @@ If ChangeLog has already been updated and doesn't contain evidence of
 conflicts or diff fragments, check in the requested files plus ChangeLog.
 
 If ChangeLog hasn't updated, a suitable entry header is prepended, plus
-the diffs between CVS and the files to be checked in, and the user is
-prompted to edit it.
+a diff showing the changes to be checked in, and the user is prompted to
+edit it.
 
 If ChangeLog contains evidence of conflicts or diff fragments, the user
 is prompted to edit it.
