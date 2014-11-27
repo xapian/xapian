@@ -1,3 +1,7 @@
+Thu Nov 27 03:15:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Rename svn-ci to xapian-commit (see #621).
+
 Thu Nov 27 03:05:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Use F_OFD_SETLK where available, which
