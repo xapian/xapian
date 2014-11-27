@@ -1,3 +1,11 @@
+Thu Nov 27 03:05:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Use F_OFD_SETLK where available, which
+	  avoids having to fork() a child process to hold the lock.  This
+	  currently requires Linux kernel >= 3.15, but it has been submitted
+	  to POSIX so hopefully will be widely supported eventually.  Thanks
+	  to Austin Clements for pointing out this now exists.
+
 Wed Nov 26 04:03:45 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/geospatial.h: Drop documentation of parameter which

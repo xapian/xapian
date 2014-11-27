@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,6 +50,16 @@
 #include "xapian/error.h"
 
 using namespace std;
+
+#ifndef F_OFD_SETLK
+# ifdef __linux__
+// Apparently defining _GNU_SOURCE should get us F_OFD_SETLK, etc, but that
+// doesn't actually seem to work, so hard-code the known values.
+#  define F_OFD_GETLK	36
+#  define F_OFD_SETLK	37
+#  define F_OFD_SETLKW	38
+# endif
+#endif
 
 FlintLock::reason
 FlintLock::lock(bool exclusive, string & explanation) {
@@ -135,6 +145,52 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	explanation = string("Couldn't open lockfile: ") + strerror(errno);
 	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
+
+#ifdef F_OFD_SETLK
+    // F_OFD_SETLK has exactly the semantics we want, so use it if it's
+    // available.  Support was added in Linux 3.15, and there's work on
+    // getting it standardised via POSIX:
+    // http://austingroupbugs.net/view.php?id=768
+
+    // Use a static flag so we don't repeatedly try F_OFD_SETLK when
+    // the kernel in use doesn't support it.  This should be safe in a
+    // threaded context - at worst multiple threads might end up trying
+    // F_OFD_SETLK and then setting f_ofd_setlk_fails to true.
+    static bool f_ofd_setlk_fails = false;
+    if (!f_ofd_setlk_fails) {
+	struct flock fl;
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_start = 0;
+	fl.l_len = 1;
+	fl.l_pid = 0;
+	while (fcntl(lockfd, F_OFD_SETLK, &fl) == -1) {
+	    if (errno != EINTR) {
+		if (errno == EINVAL) {
+		    // F_OFD_SETLK not supported by this kernel.
+		    goto no_ofd_support;
+		}
+		// Lock failed - translate known errno values into a reason
+		// code.
+		int e = errno;
+		close(lockfd);
+		switch (e) {
+		    case EACCES: case EAGAIN:
+			return INUSE;
+		    case ENOLCK:
+			return UNSUPPORTED;
+		    default:
+			return UNKNOWN;
+		}
+	    }
+	}
+	fd = lockfd;
+	pid = 0;
+	return SUCCESS;
+no_ofd_support:
+	f_ofd_setlk_fails = true;
+    }
+#endif
 
     // If stdin and/or stdout have been closed, it is possible that lockfd could
     // be 0 or 1.  We need fds 0 and 1 to be available in the child process to
@@ -333,6 +389,9 @@ FlintLock::release() {
     if (fd < 0) return;
     close(fd);
     fd = -1;
+#ifdef F_OFD_SETLK
+    if (pid == 0) return;
+#endif
     // Kill the child process which is holding the lock.  Use SIGKILL since
     // that can't be caught or ignored (we used to use SIGHUP, but if the
     // application has set that to SIG_IGN, the child process inherits that
