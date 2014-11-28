@@ -1,3 +1,9 @@
+Fri Nov 28 11:38:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Move AC_CANONICAL_HOST before first use of $host_os.
+	  In practice this wasn't a problem, as LT_INIT implicitly calls
+	  AC_CANONICAL_HOST before this point anyway.
+
 Wed Nov 26 03:55:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Enable automake option 'subdir-objects' to avoid

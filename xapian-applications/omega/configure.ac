@@ -25,6 +25,8 @@ AC_SUBST(NO_UNDEFINED)
 dnl Checks for programs.
 AC_PROG_CXX
 
+AC_CANONICAL_HOST
+
 # Checked: freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
   linux* | k*bsd*-gnu | freebsd* | openbsd* | solaris*)
@@ -265,7 +267,6 @@ if test no != "$with_iconv" ; then
   AC_SEARCH_LIBS(iconv, iconv, [], [
     if test -f "/sw/etc/fink.conf" ; then
       dnl For fink on OS X.
-      AC_CANONICAL_HOST
       case $host_os in
       darwin*)
 	ICONV_LDFLAGS=-L/sw/lib
