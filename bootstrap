@@ -210,7 +210,7 @@ END
     # Fix doxygen/Qt stupid and pointless enumerating of Mac OS X releases
     # which stops it building on each new OS X release.
     if [ -f qtools/qglobal.h ] ; then
-	sed 's!^[	 ]*#[	 ]*error.*Mac *OS *X is unsupported!// &!' \
+	sed 's!^[	 ]*#[	 ]*\(error\|warning\).*Mac *OS *X is unsupported!// &!' \
 	    qtools/qglobal.h > qtools/qglobal.hT
 	mv qtools/qglobal.hT qtools/qglobal.h
     fi
