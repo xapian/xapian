@@ -1,3 +1,9 @@
+Fri Nov 28 09:38:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* win32msvc/win32_bindings_ruby.mak: Fix include path when running
+	  Ruby tests.  Patch found in an SVN checkout, but I don't remember
+	  who reported the issue.
+
 Wed May 25 03:32:42 GMT 2011  Charlie Hull <charlie@flax.co.uk>
 
 	* README: add details of patch to api/compactor.cc and diritor.h
