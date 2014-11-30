@@ -1,3 +1,7 @@
+Sun Nov 30 15:55:20 GMT 2014  James Aylett <james@tartarus.org>
+
+	* HACKING: improve OS X docs build information.
+
 Thu Nov 27 04:00:38 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/dbcheck.cc,backends/flint_lock.cc,backends/flint_lock.h,

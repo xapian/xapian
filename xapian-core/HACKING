@@ -420,19 +420,31 @@ required documentation tools::
 
     apt-get install doxygen graphviz help2man python-docutils pngcrush python-sphinx python3-sphinx
 
+Documentation builds on OS X
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 On Mac OS X, if you're using homebrew, you'll want the following::
 
-    brew install help2man graphviz
+    brew install doxygen help2man graphviz pngcrush
 
-If you installed graphviz by using homebrew but get the following error when
-running the configure script::
+(Ensure you're up to date with brew, as earlier packaging of graphviz
+didn't properly install dot.)
 
-    configure: error: dot (part of the graphviz package) is required to build documentation
+You also need sphinx and docutils, which are python packages; you can
+install them via pip::
 
-Suppose you are using graphviz 2.36.0, you can type the following into
-terminal and rerun the configure script::
+    pip install sphinx docutils
 
-    ln -s /usr/local/Cellar/graphviz/2.36.0/bin/dot /usr/local/bin/dot
+You may find it easier to use homebrew to install python first, so
+these packages are separate from the system python::
+
+    brew install python
+
+If you install both python (v2) and python3 (v3) via homebrew, you
+will be able to build bindings for both; you'll then need to install
+sphinx for python3::
+
+    pip3 install sphinx
 
 PDF versions of docs
 ~~~~~~~~~~~~~~~~~~~~
