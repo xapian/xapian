@@ -1171,17 +1171,30 @@ if test no != "$with_lua" ; then
 	lua_cpath=`$LUA -e 'require("package") print(package.cpath)'`
 	dnl Look for the first absolute path in lua_cpath which has leaf
 	dnl "?.<ext>" and put the directory part into lua_lib and <ext> into
-	dnl lua_so.
+	dnl lua_so.  If LUA_SO was specified by the user, only consider
+	dnl entries where <ext> matches LUA_SO.
 	lua_lib=
 	lua_so=
-	[lua_so_pat=${LUA_SO:-'[a-zA-Z][a-zA-Z]*'}]
-	lua_so_pat=`echo "X$lua_so_pat"|sed 's/^X\.\{0,1\}//;'`
+	case $LUA_SO in
+	  "")
+	   [lua_so_pat='[a-zA-Z][a-zA-Z]*'] ;;
+	  .*)
+	    dnl If LUA_SO has a leading '.', remove it.
+	    lua_so_pat=`AS_ECHO("$LUA_SO")|sed 's/^\.//'` ;;
+	  *)
+	    dnl If LUA_SO was specified without a leading '.', add one to the
+	    dnl value substituted into Makefile.in.
+	    lua_so_pat=$LUA_SO
+	    LUA_SO=.$LUA_SO
+	    ;;
+	esac
 	while test x"$lua_cpath" != x ; do
 	  [lua_lib=`expr X"$lua_cpath" : X'\([^;]*\)'`]
 	  lua_so=.`expr X"$lua_lib" : X'/.*/?\.\('"$lua_so_pat"'\)$'`
 	  case $lua_so in
 	    .|.lua)
 	      dnl If someone has foolishly put ?.lua in cpath, ignore them.
+	      lua_lib=
 	      ;;
 	    *)
 	      lua_lib=`expr X"$lua_lib" : X'\(/.*\)/?\.'"$lua_so_pat"'$'`
