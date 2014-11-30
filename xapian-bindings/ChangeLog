@@ -1,3 +1,8 @@
+Sun Nov 30 21:49:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Rework LUA_SO checks to be clearer and to properly
+	  handle LUA_SO being specified without a leading '.'.
+
 Sun Nov 30 15:46:08 GMT 2014  James Aylett <james@tartarus.org>
 
 	* configure.ac: use \{0,1\} instead of \? for better sed
