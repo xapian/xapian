@@ -1,3 +1,8 @@
+Sun Nov 30 15:46:08 GMT 2014  James Aylett <james@tartarus.org>
+
+	* configure.ac: use \{0,1\} instead of \? for better sed
+	  portability.
+
 Mon Nov 24 19:58:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.3.2.
