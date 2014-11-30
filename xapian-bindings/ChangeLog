@@ -1,3 +1,7 @@
+Sun Nov 30 22:00:58 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add an example of specifying LUA_SO to --help output.
+
 Sun Nov 30 21:49:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Rework LUA_SO checks to be clearer and to properly
