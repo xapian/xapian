@@ -1,3 +1,8 @@
+Sun Nov 30 15:46:08 GMT 2014  James Aylett <james@tartarus.org>
+
+	* configure.ac: use \{0,1\} instead of \? for better sed
+	  portability.
+
 Tue Jan 13 09:17:26 GMT 2015  Olly Betts <olly@survex.com>
 
 	* lua/Makefile.am: Remove intermediate file.
