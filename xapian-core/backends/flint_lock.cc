@@ -62,7 +62,7 @@ using namespace std;
 #endif
 
 FlintLock::reason
-FlintLock::lock(bool exclusive, string & explanation) {
+FlintLock::lock(bool exclusive, bool wait, string & explanation) {
     // Currently we only support exclusive locks.
     (void)exclusive;
     Assert(exclusive);
@@ -82,10 +82,20 @@ FlintLock::lock(bool exclusive, string & explanation) {
 #else
     const char *fnm = filename.c_str();
 #endif
+retry:
+    // FIXME: Use LockFileEx() for locking, which would allow proper blocking
+    // and also byte-range locking for when we implement MVCC.  But is there a
+    // way to interwork with the CreateFile()-based locking while doing so?
     hFile = CreateFile(fnm, GENERIC_WRITE, FILE_SHARE_READ,
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
-    if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+	if (wait) {
+	    Sleep(1000);
+	    goto retry;
+	}
+	return INUSE;
+    }
     explanation = string();
     return UNKNOWN;
 #elif defined FLINTLOCK_USE_FLOCK
@@ -105,7 +115,9 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
 
-    while (flock(lockfd, LOCK_EX|LOCK_NB) == -1) {
+    int op = LOCK_EX;
+    if (!wait) op |= LOCK_NB;
+    while (flock(lockfd, op) == -1) {
 	if (errno != EINTR) {
 	    // Lock failed - translate known errno values into a reason code.
 	    close(lockfd);
@@ -153,7 +165,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	fl.l_start = 0;
 	fl.l_len = 1;
 	fl.l_pid = 0;
-	while (fcntl(lockfd, F_OFD_SETLK, &fl) == -1) {
+	while (fcntl(lockfd, wait ? F_OFD_SETLKW : F_OFD_SETLK, &fl) == -1) {
 	    if (errno != EINTR) {
 		if (errno == EINVAL) {
 		    // F_OFD_SETLK not supported by this kernel.
@@ -265,7 +277,7 @@ no_ofd_support:
 	    fl.l_whence = SEEK_SET;
 	    fl.l_start = 0;
 	    fl.l_len = 1;
-	    while (fcntl(lockfd, F_SETLK, &fl) == -1) {
+	    while (fcntl(lockfd, wait ? F_SETLKW : F_SETLK, &fl) == -1) {
 		if (errno != EINTR) {
 		    // Lock failed - translate known errno values into a reason
 		    // code.

@@ -140,7 +140,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int flags,
 	    throw Xapian::DatabaseCreateError("Cannot create directory '" +
 					      db_dir + "'", errno);
 	}
-	get_database_write_lock(true);
+	get_database_write_lock(flags, true);
 
 	create_and_open_tables(block_size);
 	return;
@@ -152,7 +152,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int flags,
 					  "not to overwrite it");
     }
 
-    get_database_write_lock(false);
+    get_database_write_lock(flags, false);
     // if we're overwriting, pretend the db doesn't exist
     if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
 	create_and_open_tables(block_size);
@@ -494,11 +494,12 @@ ChertDatabase::close()
 }
 
 void
-ChertDatabase::get_database_write_lock(bool creating)
+ChertDatabase::get_database_write_lock(int flags, bool creating)
 {
-    LOGCALL_VOID(DB, "ChertDatabase::get_database_write_lock", creating);
+    LOGCALL_VOID(DB, "ChertDatabase::get_database_write_lock", flags|creating);
     string explanation;
-    FlintLock::reason why = lock.lock(true, explanation);
+    bool retry = flags & Xapian::DB_RETRY_LOCK;
+    FlintLock::reason why = lock.lock(true, retry, explanation);
     if (why != FlintLock::SUCCESS) {
 	if (why == FlintLock::UNKNOWN && !creating && !database_exists()) {
 	    string msg("No chert database found at path '");

@@ -372,12 +372,12 @@ void
 GlassDatabase::get_database_write_lock(int flags, bool creating)
 {
     LOGCALL_VOID(DB, "GlassDatabase::get_database_write_lock", flags|creating);
-    (void)flags;
     // FIXME: Handle Xapian::DB_DANGEROUS here, perhaps by having readers
     // get a lock on the revision they're reading, and then requiring the
     // writer get an exclusive lock in this case.
     string explanation;
-    FlintLock::reason why = lock.lock(true, explanation);
+    bool retry = flags & Xapian::DB_RETRY_LOCK;
+    FlintLock::reason why = lock.lock(true, retry, explanation);
     if (why != FlintLock::SUCCESS) {
 	if (why == FlintLock::UNKNOWN && !creating && !database_exists()) {
 	    string msg("No glass database found at path '");

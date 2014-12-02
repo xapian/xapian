@@ -135,6 +135,15 @@ const int DB_DANGEROUS		 = 0x10;
  */
 const int DB_NO_TERMLIST	 = 0x20;
 
+/** If the database is already locked, retry the lock.
+ *
+ *  By default, if the database is already locked by a writer, trying to
+ *  open it again for writing will fail by throwing Xapian::DatabaseLockError.
+ *  If this flag is specified, then Xapian will instead wait for the lock
+ *  (indefinitely, unless it gets an error trying to do so).
+ */
+const int DB_RETRY_LOCK		 = 0x40;
+
 /** Use the glass backend.
  *
  *  When opening a WritableDatabase, this means create a glass database if a

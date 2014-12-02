@@ -143,11 +143,13 @@ class ChertDatabase : public Xapian::Database::Internal {
 	/** Get a write lock on the database, or throw an
 	 *  Xapian::DatabaseLockError if failure.
 	 *
+	 *  @param flags Bit-wise or of zero or more Xapian::DB_* constants
+	 *
 	 *  @param creating true if the database is in the process of being
 	 *  created - if false, will throw a DatabaseOpening error if the lock
 	 *  can't be acquired and the database doesn't exist.
 	 */
-	void get_database_write_lock(bool creating);
+	void get_database_write_lock(int flags, bool creating);
 
 	/** Open tables at specified revision number.
 	 *

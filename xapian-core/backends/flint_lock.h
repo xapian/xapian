@@ -1,7 +1,7 @@
 /** @file flint_lock.h
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -80,8 +80,12 @@ class FlintLock {
      *  If the attempt fails with code "UNKNOWN", the string supplied in the
      *  explanation parameter will be set to contain any details available of
      *  the reason for the failure.
+     *
+     *	   @param exclusive  Get an exclusive lock?  Value currently ignored,
+     *			     and the lock is always exclusive.
+     *	   @param wait	     Wait until we can get the lock?
      */
-    reason lock(bool exclusive, std::string & explanation);
+    reason lock(bool exclusive, bool wait, std::string & explanation);
 
     /// Release the lock.
     void release();

@@ -1,3 +1,15 @@
+Tue Dec 02 02:58:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/chert/chert_databasereplicator.cc,backends/,
+	  backends/glass/glass_compact.cc,backends/glass/glass_database.cc,
+	  backends/glass/glass_databasereplicator.cc,
+	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
+	  include/xapian/constants.h,include/xapian/database.h,
+	  include/xapian/dbfactory.h,net/,tests/api_backend.cc: Add new flag
+	  Xapian::DB_RETRY_LOCK which allows opening a database for writing
+	  to wait until it can get a write lock.  (fixes#275)
+
 Tue Dec 02 02:55:33 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_database.h: Document parameter to internal

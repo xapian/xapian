@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -238,13 +238,13 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 		} else {
 		    line.erase(0, 1);
 		}
-		db.add_database(Remote::open_writable(line, args));
+		db.add_database(Remote::open_writable(line, args, 0, flags));
 	    } else if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
 		unsigned int port = atoi(line.c_str() + colon + 1);
 		line.erase(colon);
-		db.add_database(Remote::open_writable(line, port));
+		db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
 	    }
 	    continue;
 	}

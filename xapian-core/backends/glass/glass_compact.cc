@@ -850,7 +850,7 @@ compact_glass(Xapian::Compactor & compactor,
 
     FlintLock lock(destdir);
     string explanation;
-    FlintLock::reason why = lock.lock(true, explanation);
+    FlintLock::reason why = lock.lock(true, false, explanation);
     if (why != FlintLock::SUCCESS) {
 	lock.throw_databaselockerror(why, destdir, explanation);
     }
