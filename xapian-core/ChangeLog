@@ -1,3 +1,8 @@
+Tue Dec 02 02:55:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_database.h: Document parameter to internal
+	  method
+
 Sun Nov 30 15:55:20 GMT 2014  James Aylett <james@tartarus.org>
 
 	* HACKING: improve OS X docs build information.
