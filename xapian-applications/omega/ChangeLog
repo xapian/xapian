@@ -1,3 +1,7 @@
+Wed Dec 03 02:29:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Remove unused '#include <fstream>'.
+
 Wed Dec 03 02:18:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* diritor.h: Fix get_mtime() to return time_t not off_t.  In practice,
