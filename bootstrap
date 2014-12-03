@@ -677,11 +677,15 @@ END_OF_CONFIGURE
 patches=
 for d in patches/* ; do
   series=$d/series
-  echo "    $series"'\\\\'
+  cat << END
+    $series\\\\
+END
   sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" |\
       while read p ; do
     patch=$d/$p
-    echo "    $patch"'\\\\'
+    cat << END
+    $patch\\\\
+END
     patches="$patches $patch"
   done
 done >> configure.tmp
