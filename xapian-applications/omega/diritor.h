@@ -1,6 +1,6 @@
 /* diritor.h: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010,2011 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,7 +145,7 @@ class DirectoryIterator {
 	return statbuf.st_size;
     }
 
-    off_t get_mtime() {
+    time_t get_mtime() {
 	ensure_statbuf_valid();
 	return statbuf.st_mtime;
     }

@@ -1,3 +1,8 @@
+Wed Dec 03 02:18:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.h: Fix get_mtime() to return time_t not off_t.  In practice,
+	  this probably wouldn't have caused issues until at least 2038.
+
 Fri Nov 28 11:38:56 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Move AC_CANONICAL_HOST before first use of $host_os.
