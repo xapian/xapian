@@ -527,7 +527,7 @@ fi
 for tool in SWIG $autotools ; do
   eval "val=\$$tool"
   if [ -n "$val" ] ; then
-    echo ': ${'"$tool=\"$val\""'}' >> configure.tmp
+    echo ': ${'"$tool='$val'"'}' >> configure.tmp
     echo "export $tool" >> configure.tmp
     vars="$vars $tool='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
   fi
