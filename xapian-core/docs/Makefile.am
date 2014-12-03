@@ -129,7 +129,7 @@ apidoc/html/index.html: $(APIDOC_DEPS)
 	    rm apidoc/html/index.html ; exit 1 )
 	if test "x$(PNGCRUSH)" != x ; then \
 	  for png in apidoc/html/*.png ; do \
-	    $(PNGCRUSH) -q $$png $${png}T && mv $${png}T $$png ; \
+	    $(PNGCRUSH) -q "$$png" "$${png}T" && mv "$${png}T" "$$png" ; \
 	  done \
 	fi
 	touch apidoc/html/index.html

@@ -1,3 +1,9 @@
+Wed Dec 03 09:38:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Quote png filenames we run through pngcrush to
+	  avoid problems if there's an oddly-named extra PNG file in the
+	  directory.
+
 Tue Dec 02 02:58:59 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
