@@ -1,3 +1,9 @@
+Wed Dec 03 04:17:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* templates/xml: Update handling of DATE1, DATE2 and DAYSMINUS which
+	  were renamed in 0.6.x and the compatibility aliases removed in
+	  1.0.0. 
+
 Wed Dec 03 04:15:51 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst: Update documentation references to DATE1,
