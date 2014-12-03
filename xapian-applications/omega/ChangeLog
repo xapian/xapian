@@ -1,3 +1,8 @@
+Wed Dec 03 02:40:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Make sample_size a global variable rather than passing
+	  it around everywhere.
+
 Wed Dec 03 02:29:37 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Remove unused '#include <fstream>'.

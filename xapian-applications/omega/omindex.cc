@@ -84,6 +84,7 @@ static bool follow_symlinks = false;
 static bool ignore_exclusions = false;
 static bool spelling = false;
 static off_t  max_size = 0;
+static size_t sample_size = SAMPLE_SIZE;
 static std::string pretty_max_size;
 static bool verbose = false;
 static enum {
@@ -216,7 +217,7 @@ get_pdf_metainfo(const string & file, string &author, string &title,
 }
 
 static void
-generate_sample_from_csv(const string & csv_data, string & sample, size_t sample_size)
+generate_sample_from_csv(const string & csv_data, string & sample)
 {
     // Add 3 to allow for a 4 byte utf-8 sequence being appended when
     // output is sample_size - 1 bytes long.  Use csv_data.size() if smaller
@@ -311,11 +312,11 @@ skip_unknown_mimetype(const string & file, const string & mimetype)
 
 void
 index_mimetype(const string & file, const string & url, const string & ext,
-	       const string &mimetype, DirectoryIterator &d, size_t sample_size);
+	       const string &mimetype, DirectoryIterator &d);
 
 static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
-	   map<string, string>& mime_map, size_t sample_size)
+	   map<string, string>& mime_map)
 {
     string ext;
     const char * dot_ptr = strrchr(d.leafname(), '.');
@@ -355,12 +356,12 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    index_mimetype(file, url, ext, mimetype, d, sample_size);
+    index_mimetype(file, url, ext, mimetype, d);
 }
 
 void
 index_mimetype(const string & file, const string & url, const string & ext,
-	       const string &mimetype, DirectoryIterator &d, size_t sample_size)
+	       const string &mimetype, DirectoryIterator &d)
 {
     string urlterm("U");
     urlterm += url;
@@ -737,7 +738,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 
-	    generate_sample_from_csv(dump, sample, sample_size);
+	    generate_sample_from_csv(dump, sample);
 	} else if (mimetype == "image/svg+xml") {
 	    SvgParser svgparser;
 	    const string & text = d.file_to_string();
@@ -986,7 +987,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 static void
 index_directory(const string &path, const string &url_, size_t depth_limit,
-		map<string, string>& mime_map, size_t sample_size)
+		map<string, string>& mime_map)
 {
     if (verbose)
 	cout << "[Entering directory \"" << path.substr(root.size()) << "\"]"
@@ -1015,11 +1016,11 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			}
 			url += '/';
 			file += '/';
-			index_directory(file, url, new_limit, mime_map, sample_size);
+			index_directory(file, url, new_limit, mime_map);
 			break;
 		    }
 		    case DirectoryIterator::REGULAR_FILE:
-			index_file(file, url, d, mime_map, sample_size);
+			index_file(file, url, d, mime_map);
 			break;
 		    default:
 			skip(file, "Not a regular file",
@@ -1081,7 +1082,6 @@ main(int argc, char **argv)
     bool delete_removed_documents = true;
     string baseurl;
     size_t depth_limit = 0;
-    size_t sample_size = SAMPLE_SIZE;
 
     enum { OPT_OPENDIR_SLEEP = 256 };
     static const struct option longopts[] = {
@@ -1639,7 +1639,7 @@ main(int argc, char **argv)
 	    max_ext_len = max(max_ext_len, mt->first.size());
 	}
 
-	index_directory(root, baseurl, depth_limit, mime_map, sample_size);
+	index_directory(root, baseurl, depth_limit, mime_map);
 	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
