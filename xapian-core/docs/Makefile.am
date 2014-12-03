@@ -133,7 +133,7 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api.conf \
 	mv apidoc/latex/refman.pdf apidoc.pdf
 	if test "x$(PNGCRUSH)" != x ; then \
 	  for png in apidoc/html/*.png ; do \
-	    $(PNGCRUSH) -q $$png $${png}T && mv $${png}T $$png ; \
+	    $(PNGCRUSH) -q "$$png" "$${png}T" && mv "$${png}T" "$$png" ; \
 	  done \
 	fi
 	touch apidoc/html/index.html

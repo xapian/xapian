@@ -1,3 +1,9 @@
+Wed Dec 03 09:38:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Quote png filenames we run through pngcrush to
+	  avoid problems if there's an oddly-named extra PNG file in the
+	  directory.
+
 Thu Nov 27 03:05:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: Use F_OFD_SETLK where available, which
