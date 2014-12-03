@@ -1,3 +1,9 @@
+Wed Dec 03 04:15:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Update documentation references to DATE1,
+	  DATE2, and DAYSMINUS which were renamed in 0.6.x and the
+	  compatibility aliases removed in 1.0.0. 
+
 Wed Dec 03 02:40:50 GMT 2014  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Make sample_size a global variable rather than passing
