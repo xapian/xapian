@@ -1,3 +1,10 @@
+Thu Dec 04 02:17:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix detection of fdatasync(), which appears to have
+	  been broken practically forever - this means we've probably been
+	  using fsync() instead, which probably isn't a big additional
+	  overhead.
+
 Wed Dec 03 09:38:24 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Quote png filenames we run through pngcrush to
