@@ -3743,7 +3743,7 @@ Return the wdf of the current term (if meaningful).
 
 Xapian::termcount Xapian::TermIterator::get_wdf() const
 
-The wdf (within document frequency) is the number of occurences of a
+The wdf (within document frequency) is the number of occurrences of a
 term in a particular document. ";
 
 %feature("docstring")  Xapian::TermIterator::get_termfreq "
