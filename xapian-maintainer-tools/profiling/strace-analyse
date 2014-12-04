@@ -29,11 +29,17 @@ while (<>) {
         my ($fd, $blocksize, $off) = ($1, $2, $3);
         my $block = $off / $blocksize;
         print "read $block from $fd[$fd]\n";
+    } elsif (/^pwrite(?:64)?\((\d+).*, (\d+), (\d+)\)/) {
+        my ($fd, $blocksize, $off) = ($1, $2, $3);
+        my $block = $off / $blocksize;
+        print "write $block to $fd[$fd]\n";
     } elsif (/^open\("(.*)".* = (\d+)/) {
 	$fd[$2] = $1;
     } elsif (/^close\((\d+)/) {
         $fd[$1] = undef;
     } elsif (/^dup[23]?\((\d+).* = (\d+)/) {
         $fd[$2] = $fd[$1];
+    } elsif (/^f(?:data)?sync\((\d+)\)/) {
+        print "sync $fd[$1]\n";
     }
 }
