@@ -1,0 +1,18 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my @fd = qw(STDIN STDOUT STDERR);
+while (<>) {
+    if (/^pread\((\d+).*, (\d+), (\d+)\)/) {
+        my ($fd, $blocksize, $off) = ($1, $2, $3);
+        my $block = $off / $blocksize;
+        print "read $block from $fd[$fd]\n";
+    } elsif (/^open\("(.*)".* = (\d+)/) {
+	$fd[$2] = $1;
+    } elsif (/^close\((\d+)/) {
+        $fd[$1] = undef;
+    } elsif (/^dup[23]?\((\d+).* = (\d+)/) {
+        $fd[$2] = $fd[$1];
+    }
+}
