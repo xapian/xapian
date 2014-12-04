@@ -23,23 +23,68 @@
 use strict;
 use warnings;
 
+# Usage:
+#
+# Run strace like so:
+#
+# strace -y -s0 -efdatasync,fsync,pread,pread64,pwrite,pwrite64 -o strace.log COMMAND ARGS...
+# ./strace-analyse strace.log
+#
+# Or for strace < 4.7:
+#
+# strace -s0 -eclose,dup,dup2,dup3,fdatasync,fsync,open,pread,pread64,pwrite,pwrite64 -o strace.log COMMAND ARGS...
+# ./strace-analyse strace.log
+#
+# Passing -s0 is optional, but doing so reduces the log size by stopping strace
+# from writing out any of the contents of blocks being read or written (default
+# is to write up to 32 bytes).
+#
+# You can also pass -r, -i, -t, -tt and/or -ttt - the script can parse out the
+# extra information these add, but it currently doesn't do anything with it.
+
+# Track the filename currently corresponding to each fd (unless -y is used).
 my @fd = qw(STDIN STDOUT STDERR);
 while (<>) {
-    if (/^pread(?:64)?\((\d+).*, (\d+), (\d+)\)/) {
-        my ($fd, $blocksize, $off) = ($1, $2, $3);
+    my $systime;
+    if (s/ <([0-9.]+)>$//) {
+	# -T was used.
+	$systime = 0 + $1;
+    }
+    my $time_t;
+    if (s/^\s*([0-9.]+) //) {
+	my $t = 0 + $1;
+	if ($t < 1e9) {
+	    # -r was used - relative time since start of previous syscall.
+	} else {
+	    # -ttt was used - seconds since epoch.
+	    $time_t = $t;
+	}
+    } elsif (s/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9](?:\.[0-9]*)? //) {
+	# -t or -tt was used.
+    }
+    my $addr;
+    if (s/^\[([0-9a-f]+)\] //) {
+	# -i was used: instruction pointer.
+	$addr = $1;
+    }
+    if (/^pread(?:64)?\((\d+)(?:<(.*?)>)?, .*, (\d+), (\d+)\)/) {
+        my ($fd, $path, $blocksize, $off) = ($1, $2, $3, $4);
         my $block = $off / $blocksize;
-        print "read $block from $fd[$fd]\n";
-    } elsif (/^pwrite(?:64)?\((\d+).*, (\d+), (\d+)\)/) {
-        my ($fd, $blocksize, $off) = ($1, $2, $3);
+	$path //= $fd[$fd];
+        print "read $block from $path\n";
+    } elsif (/^pwrite(?:64)?\((\d+)(?:<(.*?)>)?, .*, (\d+), (\d+)\)/) {
+	my ($fd, $path, $blocksize, $off) = ($1, $2, $3, $4);
         my $block = $off / $blocksize;
-        print "write $block to $fd[$fd]\n";
-    } elsif (/^open\("(.*)".* = (\d+)/) {
+	$path //= $fd[$fd];
+        print "write $block to $path\n";
+    } elsif (/^open\("(.*)".* = (\d+)$/) {
 	$fd[$2] = $1;
-    } elsif (/^close\((\d+)/) {
+    } elsif (/^close\((\d+)\)/) {
         $fd[$1] = undef;
-    } elsif (/^dup[23]?\((\d+).* = (\d+)/) {
+    } elsif (/^dup[23]?\((\d+)[^<].* = (\d+)/) {
         $fd[$2] = $fd[$1];
-    } elsif (/^f(?:data)?sync\((\d+)\)/) {
-        print "sync $fd[$1]\n";
+    } elsif (/^f(?:data)?sync\((\d+)(?:<(.*?)>)?\)/) {
+	my $path = $2 // $fd[$1];
+        print "sync $path\n";
     }
 }
