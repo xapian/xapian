@@ -958,7 +958,7 @@ SAVE_LIBS=$LIBS
 AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
 LIBS=$SAVE_LIBS
 
-AC_CHECK_FUNCS(fsync)
+AC_CHECK_FUNCS([fdatasync fsync])
 
 dnl HP-UX has pread and pwrite, but they don't work!  Apparently this problem
 dnl manifests when largefile support is enabled, and we definitely want that
