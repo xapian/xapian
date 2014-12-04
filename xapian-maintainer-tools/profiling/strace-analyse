@@ -25,7 +25,7 @@ use warnings;
 
 my @fd = qw(STDIN STDOUT STDERR);
 while (<>) {
-    if (/^pread\((\d+).*, (\d+), (\d+)\)/) {
+    if (/^pread(?:64)?\((\d+).*, (\d+), (\d+)\)/) {
         my ($fd, $blocksize, $off) = ($1, $2, $3);
         my $block = $off / $blocksize;
         print "read $block from $fd[$fd]\n";
