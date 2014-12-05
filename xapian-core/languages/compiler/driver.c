@@ -52,7 +52,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
     char * s;
     int i = 2;
 
-    /* set defauts: */
+    /* set defaults: */
 
     o->output_file = 0;
     o->syntax_tree = false;

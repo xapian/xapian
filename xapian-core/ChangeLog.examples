@@ -49,7 +49,7 @@ Fri Nov 05 16:45:12 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using
 	  the C++ compiler; select ANSI mode for aCC and cxx; Check GXX not
-	  GCC when chosing warning flags.
+	  GCC when choosing warning flags.
 
 Wed Nov 03 20:09:20 GMT 2004  Olly Betts <olly@survex.com>
 
@@ -563,7 +563,7 @@ Wed Apr 11 10:56:33 BST 2001 Olly Betts
 
 Sat Mar 31 15:06:23 BST 2001 Olly Betts
 
-	* Tidied up issues in omega with ammended $map and new $include.
+	* Tidied up issues in omega with amended $map and new $include.
 	  Not tested, so there may still be issues...
 
 Thu Mar 29 17:54:11 BST 2001  Richard Boulton <richard.boulton@omsee.com>
@@ -833,7 +833,7 @@ Tue Sep 19 14:52:24 BST 2000 Olly Betts
 
 	* omega: renamed op to default_op; size_t -> std::string::size_type;
 	  now lookup macro commands in a map; removed $pagemax which was
-	  indentical to $lastpage; godmode template improved.
+	  identical to $lastpage; godmode template improved.
 
 Fri Sep  8 11:59:47 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
