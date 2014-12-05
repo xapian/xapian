@@ -11,7 +11,7 @@
 	* more than one syllable word check
 	* (y,n,s,U) context check
 	* vowel harmony check
-	* last consonent check and conversion (b, c, d, ğ to p, ç, t, k)
+	* last consonant check and conversion (b, c, d, ğ to p, ç, t, k)
 	
 	* The stemming algorithm is based on the paper "An Affix Stripping
 	* Morphological Analyzer for Turkish" by Gülşen Eryiğit and

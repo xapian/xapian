@@ -50,7 +50,7 @@ void
 Ranker::save_model() {
 }
 
-    /* This method shoudl read the letor format data and transform into the list of 
+    /* This method should read the letor format data and transform into the list of 
      * Xapian::RankList format
      */
 std::list<Xapian::RankList>

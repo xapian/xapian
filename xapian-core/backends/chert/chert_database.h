@@ -133,7 +133,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	/** Open all tables at most recent consistent revision.
 	 *
 	 *  @return	true if the tables were reopened; false if we could
-	 *		tell they were alreayd open at the latest revision.
+	 *		tell they were already open at the latest revision.
 	 *
 	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *  consistent revision available.

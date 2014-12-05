@@ -3060,7 +3060,7 @@ Wed Jul 04 17:31:38 BST 2007  Olly Betts <olly@survex.com>
 Mon Jul 02 16:42:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* htmlparsetest.cc,md5test.cc: Add #include <stdlib.h>, to get a
-	  defintion for exit().  Fixes compilation with gcc-snapshot.
+	  definition for exit().  Fixes compilation with gcc-snapshot.
 
 Thu Jun 28 18:05:18 BST 2007  Olly Betts <olly@survex.com>
 
@@ -4458,7 +4458,7 @@ Mon Dec 19 06:03:31 GMT 2005  Olly Betts <olly@survex.com>
 
 Sun Dec 11 09:30:44 GMT 2005  Olly Betts <olly@survex.com>
 
-	* templates/godmode: If a non-existant docid is specified, report the
+	* templates/godmode: If a non-existent docid is specified, report the
 	  error and prompt the user to enter another docid.  Fixes bug#60.
 
 Sun Dec 11 09:27:18 GMT 2005  Olly Betts <olly@survex.com>
@@ -4933,7 +4933,7 @@ Fri Nov 05 17:20:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using
 	  the C++ compiler; select ANSI mode for aCC and cxx; Check GXX not
-	  GCC when chosing warning flags.
+	  GCC when choosing warning flags.
 
 Wed Nov 03 20:15:34 GMT 2004  Olly Betts <olly@survex.com>
 
@@ -5649,7 +5649,7 @@ Wed Feb 26 15:13:02 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
 	* dbi2omega: Add DBUSER and DBPASSWD env var support so that password
 	  protected DB's can easily be used
-	* add cgi paramter COLLAPSE to collapse on key values
+	* add cgi parameter COLLAPSE to collapse on key values
 	* Add $value{key[,docid]} support to omegascript
 
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
@@ -5679,7 +5679,7 @@ Mon Dec 23 03:23:33 GMT 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt,templates/query: Added $unstem to map
 	  a stemmed term to the form(s) used in the query; $queryterms now
-	  only includes the first occurence of each stemmed form; $prettyterm
+	  only includes the first occurrence of each stemmed form; $prettyterm
 	  uses the unstem map.
 
 Sat Dec 21 17:47:33 GMT 2002  Olly Betts <olly@survex.com>
@@ -6078,7 +6078,7 @@ Thu May 16 15:41:14 BST 2002  Sam Liddicott <sam@ananova.com>
 
 Thu May 16 14:53:54 BST 2002  Sam Liddicott <sam@ananova.com>
 
-	* Moved images to a seperate optional package to stop touching
+	* Moved images to a separate optional package to stop touching
 	  user's web tree until we work out what to do.  sysadmin can
 	  still install images if he wants and on a redhat box they will
 	  end up in the right place. This will no doubt get revisted later,

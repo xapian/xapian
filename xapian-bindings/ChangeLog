@@ -3165,7 +3165,7 @@ Mon Jul 20 13:37:56 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 Fri Jul 17 14:52:41 GMT 2009  Kosei Moriyama <cou929@gmail.com>
 
 	* perl/Makefile.am,perl/generate-perl-exceptions: Add exception
-	wrapping refering python/generate-python-exceptions and
+	wrapping referring python/generate-python-exceptions and
 	search-xapian/handle_exception.cc .
 
 Thu Jul 16 13:45:33 GMT 2009  Kosei Moriyama <cou929@gmail.com>
@@ -3584,7 +3584,7 @@ Tue Feb 02 13:02:00 GMT 2010  Richard Boulton <richard@tartarus.org>
 
 	* xapian.i: Remove the replication API from the bindings.  Access
 	  to replication, for now, is via the command-line scripts: this is
-	  similiar to the access to running a remote database server, and
+	  similar to the access to running a remote database server, and
 	  the access to database compaction and checking.  See ticket #347
 	  for some commentary.
 
@@ -4278,7 +4278,7 @@ Fri Oct 31 19:22:53 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/generate-python-exceptions.in: Convert
 	  XapianSetPythonException to Xapian::SetPythonException, and
-	  export it.  This is neccessary to allow separately compiled
+	  export it.  This is necessary to allow separately compiled
 	  extension modules to handle xapian errors appropriately.
 
 Thu Oct 09 09:53:39 GMT 2008  Olly Betts <olly@survex.com>
@@ -6192,7 +6192,7 @@ Mon Apr 23 15:54:15 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 	* python/extra.i: Set __docformat__ and __all__ to make output from
 	  "help" and tools like epydoc nicer.  __all__ is set by filtering
 	  the symbols returned by dir(), so the value it's set to shouldn't
-	  need much maintainance.  Setting __all__ also makes it more
+	  need much maintenance.  Setting __all__ also makes it more
 	  reasonable to do "from xapian import *", but that's probably not
 	  really a good idea in anything but the simplest script.
 
@@ -6429,7 +6429,7 @@ Wed Apr 18 02:12:31 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 Wed Apr 18 02:01:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Prefer gmcs to mcs when looking for a C# compiler
-	  since gmcs is the newer compiler targetting the 2.0 runtime.
+	  since gmcs is the newer compiler targeting the 2.0 runtime.
 
 Wed Apr 18 01:12:39 BST 2007  Olly Betts <olly@survex.com>
 
@@ -9634,7 +9634,7 @@ Wed Sep 15 17:38:02 BST 2004  Olly Betts <olly@survex.com>
 Tue Sep 14 03:37:55 BST 2004  Olly Betts <olly@survex.com>
 
 	* guile/Makefile.am,guile/extra.i: Added empty extra.i which
-	  will be required when these bindings get ressurected.
+	  will be required when these bindings get resurrected.
 
 Tue Sep 14 03:37:23 BST 2004  Olly Betts <olly@survex.com>
 
@@ -10022,7 +10022,7 @@ Thu Jan  1 22:46:51 2004  James Aylett  <james@tartarus.org>
 
 	* Python bindings: MSet provides a Python iterator
 	  (new target language-specific interface file extra.i
-	  included at end of xapian.i to accomodate this)
+	  included at end of xapian.i to accommodate this)
 
 Thu Jan  1 22:45:26 2004  James Aylett  <james@tartarus.org>
 
