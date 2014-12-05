@@ -1,3 +1,8 @@
+Fri Dec 05 11:20:17 GMT 2014  Olly Betts <olly@survex.com>
+
+	* doxygen_xml.conf.in: Update to avoid warnings about obsolete tags
+	  from newer doxygen.
+
 Sun Nov 30 22:00:58 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add an example of specifying LUA_SO to --help output.
