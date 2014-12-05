@@ -62,7 +62,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
     void save_model();
 
-    /* This method shoudl read the letor format data and transform into the list of 
+    /* This method should read the letor format data and transform into the list of
      * Xapian::RankList format
      */
     std::list<Xapian::RankList> load_data(const std::string & data_file);
