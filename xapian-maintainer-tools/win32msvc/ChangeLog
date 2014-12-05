@@ -1,3 +1,7 @@
+Fri Dec 05 10:32:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* win32msvc/doccomments.i: Remove 6.5 year old copy of generated file.
+
 Fri Nov 28 09:38:31 GMT 2014  Olly Betts <olly@survex.com>
 
 	* win32msvc/win32_bindings_ruby.mak: Fix include path when running
