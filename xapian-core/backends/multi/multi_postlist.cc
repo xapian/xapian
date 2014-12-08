@@ -132,7 +132,7 @@ MultiPostList::next(Xapian::weight w_min)
     Xapian::docid newdoc = 0;
     Xapian::docid offset = 1;
     std::vector<LeafPostList *>::iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	if (!(*i)->at_end()) {
 	    Xapian::docid id = ((*i)->get_docid() - 1) * multiplier + offset;
 	    // Check if it needs to be advanced

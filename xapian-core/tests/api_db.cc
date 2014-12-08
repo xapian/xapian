@@ -1284,7 +1284,7 @@ DEFINE_TESTCASE(postlist2, backend) {
     p = db.postlist_begin("this");
     pend = db.postlist_end("this");
     vector<Xapian::docid>::const_iterator i;
-    for (i = v.begin(); i != v.end(); i++) {
+    for (i = v.begin(); i != v.end(); ++i) {
 	TEST_NOT_EQUAL(p, pend);
 	TEST_EQUAL(*i, *p);
 	p++;

@@ -787,7 +787,7 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
 	string term = *docterms;
         map<string, unsigned int>::iterator t = tmap.find(term);
         if (t != tmap.end()) matching_terms.push_back(term);
-	docterms++;
+	++docterms;
     }
 
     // sort the resulting list by query position.
