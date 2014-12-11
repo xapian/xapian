@@ -1,3 +1,8 @@
+Sun Dec 07 23:13:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* win32msvc/Makefile: Remove copying of removed stale copy of
+	  generated file.
+
 Fri Dec 05 10:32:57 GMT 2014  Olly Betts <olly@survex.com>
 
 	* win32msvc/doccomments.i: Remove 6.5 year old copy of generated file.

@@ -34,7 +34,7 @@
 #include "remoteconnection.h"
 
 #ifdef __WIN32__
-# include <process.h>    /* _beginthread, _endthread */
+# include <process.h>    /* _beginthreadex, _endthreadex */
 #else
 # include <netinet/in_systm.h>
 # include <netinet/in.h>
