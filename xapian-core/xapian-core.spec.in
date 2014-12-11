@@ -123,6 +123,7 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_libdir}/libxapian*.a
 %{_libdir}/libxapian*.la
 %{_libdir}/cmake/xapian
+%{_libdir}/pkgconfig/xapian*.pc
 %{_datadir}/aclocal/xapian*.m4
 %doc %{_datadir}/doc/%{name}-devel-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
