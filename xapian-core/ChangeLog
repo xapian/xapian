@@ -1,3 +1,13 @@
+Thu Dec 11 03:20:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,api/error.cc,api/replication.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/chert/chert_table.cc,
+	  backends/glass/glass_databasereplicator.cc,
+	  backends/glass/glass_table.cc: Remove unnecessary includes of
+	  <cstdio> in files which used to need it for rename() but no longer
+	  do.
+
 Fri Dec 05 11:30:05 GMT 2014  Olly Betts <olly@survex.com>
 
 	* ChangeLog,ChangeLog.0,ChangeLog.examples,

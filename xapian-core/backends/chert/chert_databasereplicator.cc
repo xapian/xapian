@@ -45,7 +45,6 @@
 #include "str.h"
 #include "stringutils.h"
 
-#include <cstdio> // For rename().
 #include <cstdlib>
 
 using namespace std;
