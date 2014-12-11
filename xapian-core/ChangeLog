@@ -1,3 +1,7 @@
+Thu Dec 11 03:21:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Fix comment.
+
 Thu Dec 11 03:20:56 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/compactor.cc,api/error.cc,api/replication.cc,
