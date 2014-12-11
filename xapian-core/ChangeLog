@@ -1,3 +1,7 @@
+Thu Dec 11 20:45:28 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_version.cc: Use str() rather than sprintf().
+
 Thu Dec 11 03:21:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Fix comment.
