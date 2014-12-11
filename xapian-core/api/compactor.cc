@@ -29,7 +29,6 @@
 #include <algorithm>
 #include <fstream>
 
-#include <cstdio> // for rename()
 #include <cstdlib>
 #include <cstring>
 #include <ctime>

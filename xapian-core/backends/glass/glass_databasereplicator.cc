@@ -44,7 +44,6 @@
 #include "stringutils.h"
 
 #include <algorithm>
-#include <cstdio> // For rename().
 
 using namespace std;
 using namespace Xapian;

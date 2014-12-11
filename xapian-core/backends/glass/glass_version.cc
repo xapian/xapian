@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"
+#include "str.h"
 #include "stringutils.h"
 
 #include "common/safeuuid.h"
@@ -96,16 +97,14 @@ GlassVersion::read()
 	char datebuf[9];
 	string msg = filename;
 	msg += ": Database is format version ";
-	sprintf(datebuf, "%08d",
-		VERSION_TO_YEAR(version) * 10000 +
-		VERSION_TO_MONTH(version) * 100 +
-		VERSION_TO_DAY(version));
+	msg += str(VERSION_TO_YEAR(version) * 10000 +
+		   VERSION_TO_MONTH(version) * 100 +
+		   VERSION_TO_DAY(version));
 	msg += datebuf;
 	msg += " but I only understand ";
-	sprintf(datebuf, "%08d",
-		VERSION_TO_YEAR(GLASS_FORMAT_VERSION) * 10000 +
-		VERSION_TO_MONTH(GLASS_FORMAT_VERSION) * 100 +
-		VERSION_TO_DAY(GLASS_FORMAT_VERSION));
+	msg += str(VERSION_TO_YEAR(GLASS_FORMAT_VERSION) * 10000 +
+		   VERSION_TO_MONTH(GLASS_FORMAT_VERSION) * 100 +
+		   VERSION_TO_DAY(GLASS_FORMAT_VERSION));
 	msg += datebuf;
 	throw Xapian::DatabaseVersionError(msg);
     }
