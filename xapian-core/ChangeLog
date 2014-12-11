@@ -1,3 +1,7 @@
+Thu Dec 11 03:21:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Fix comment.
+
 Thu Dec 04 02:17:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix detection of fdatasync(), which appears to have

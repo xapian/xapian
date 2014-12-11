@@ -34,7 +34,7 @@
 #include "utils.h"
 
 #ifdef __WIN32__
-# include <process.h>    /* _beginthread, _endthread */
+# include <process.h>    /* _beginthreadex, _endthreadex */
 # include "safewinsock2.h"
 #else
 # include <netinet/in_systm.h>
