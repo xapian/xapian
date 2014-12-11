@@ -1,3 +1,8 @@
+Thu Dec 11 11:33:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Add timegm.cc to scriptindex_SOURCES to fix build on
+	  platforms which don't provide timegm().
+
 Wed Dec 03 04:17:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* templates/xml: Update handling of DATE1, DATE2 and DAYSMINUS which
