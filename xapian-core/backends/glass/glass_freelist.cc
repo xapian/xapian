@@ -66,13 +66,18 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size)
     if (p == 0 || fl.c == block_size - 4) {
 	if (p == 0) {
 	    p = new byte[block_size];
+	    read_block(B, fl.n, p);
 	} else {
-	    mark_block_unused(B, block_size, fl.n);
+	    // Delay calling mark_block_unused() on the old block until after
+	    // we've started a new one to avoid a potential infinite recursion.
+	    uint4 block_to_free = fl.n;
+
 	    fl.n = getint4(p, fl.c);
 	    // Allow for mini-header at start of freelist block.
 	    fl.c = C_BASE;
+	    read_block(B, fl.n, p);
+	    mark_block_unused(B, block_size, block_to_free);
 	}
-	read_block(B, fl.n, p);
 
 	// Either the freelist end is in this block, or this freelist block has
 	// a next pointer.

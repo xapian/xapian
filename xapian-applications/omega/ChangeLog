@@ -1,3 +1,48 @@
+Wed Dec 03 04:17:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* templates/xml: Update handling of DATE1, DATE2 and DAYSMINUS which
+	  were renamed in 0.6.x and the compatibility aliases removed in
+	  1.0.0. 
+
+Wed Dec 03 04:15:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.rst: Update documentation references to DATE1,
+	  DATE2, and DAYSMINUS which were renamed in 0.6.x and the
+	  compatibility aliases removed in 1.0.0. 
+
+Wed Dec 03 02:40:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Make sample_size a global variable rather than passing
+	  it around everywhere.
+
+Wed Dec 03 02:29:37 GMT 2014  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Remove unused '#include <fstream>'.
+
+Wed Dec 03 02:18:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* diritor.h: Fix get_mtime() to return time_t not off_t.  In practice,
+	  this probably wouldn't have caused issues until at least 2038.
+
+Fri Nov 28 17:12:37 GMT 2014  James Aylett <james@tartarus.org>
+
+	* Makefile.am: link omindex-list with our (GNU) getopt.
+
+Fri Nov 28 11:38:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Move AC_CANONICAL_HOST before first use of $host_os.
+	  In practice this wasn't a problem, as LT_INIT implicitly calls
+	  AC_CANONICAL_HOST before this point anyway.
+
+Wed Nov 26 03:55:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enable automake option 'subdir-objects' to avoid
+	  warning from newer automake.
+
+Mon Nov 24 20:00:52 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.3.2.
+
 Sun Nov 23 23:57:34 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.rst: Update for renaming of 'brass' backend to
@@ -3015,7 +3060,7 @@ Wed Jul 04 17:31:38 BST 2007  Olly Betts <olly@survex.com>
 Mon Jul 02 16:42:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* htmlparsetest.cc,md5test.cc: Add #include <stdlib.h>, to get a
-	  defintion for exit().  Fixes compilation with gcc-snapshot.
+	  definition for exit().  Fixes compilation with gcc-snapshot.
 
 Thu Jun 28 18:05:18 BST 2007  Olly Betts <olly@survex.com>
 
@@ -4413,7 +4458,7 @@ Mon Dec 19 06:03:31 GMT 2005  Olly Betts <olly@survex.com>
 
 Sun Dec 11 09:30:44 GMT 2005  Olly Betts <olly@survex.com>
 
-	* templates/godmode: If a non-existant docid is specified, report the
+	* templates/godmode: If a non-existent docid is specified, report the
 	  error and prompt the user to enter another docid.  Fixes bug#60.
 
 Sun Dec 11 09:27:18 GMT 2005  Olly Betts <olly@survex.com>
@@ -4888,7 +4933,7 @@ Fri Nov 05 17:20:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using
 	  the C++ compiler; select ANSI mode for aCC and cxx; Check GXX not
-	  GCC when chosing warning flags.
+	  GCC when choosing warning flags.
 
 Wed Nov 03 20:15:34 GMT 2004  Olly Betts <olly@survex.com>
 
@@ -5604,7 +5649,7 @@ Wed Feb 26 15:13:02 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
 	* dbi2omega: Add DBUSER and DBPASSWD env var support so that password
 	  protected DB's can easily be used
-	* add cgi paramter COLLAPSE to collapse on key values
+	* add cgi parameter COLLAPSE to collapse on key values
 	* Add $value{key[,docid]} support to omegascript
 
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
@@ -5634,7 +5679,7 @@ Mon Dec 23 03:23:33 GMT 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt,templates/query: Added $unstem to map
 	  a stemmed term to the form(s) used in the query; $queryterms now
-	  only includes the first occurence of each stemmed form; $prettyterm
+	  only includes the first occurrence of each stemmed form; $prettyterm
 	  uses the unstem map.
 
 Sat Dec 21 17:47:33 GMT 2002  Olly Betts <olly@survex.com>
@@ -6033,7 +6078,7 @@ Thu May 16 15:41:14 BST 2002  Sam Liddicott <sam@ananova.com>
 
 Thu May 16 14:53:54 BST 2002  Sam Liddicott <sam@ananova.com>
 
-	* Moved images to a seperate optional package to stop touching
+	* Moved images to a separate optional package to stop touching
 	  user's web tree until we work out what to do.  sysadmin can
 	  still install images if he wants and on a redhat box they will
 	  end up in the right place. This will no doubt get revisted later,

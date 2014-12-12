@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.3.1], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.3.2], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
-AM_INIT_AUTOMAKE([1.11 -Wportability tar-ustar no-dist-gzip dist-xz])
+AM_INIT_AUTOMAKE([1.11 -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 
 AC_CONFIG_SRCDIR([omega.cc])
 
@@ -24,6 +24,8 @@ AC_SUBST(NO_UNDEFINED)
 
 dnl Checks for programs.
 AC_PROG_CXX
+
+AC_CANONICAL_HOST
 
 # Checked: freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
@@ -265,7 +267,6 @@ if test no != "$with_iconv" ; then
   AC_SEARCH_LIBS(iconv, iconv, [], [
     if test -f "/sw/etc/fink.conf" ; then
       dnl For fink on OS X.
-      AC_CANONICAL_HOST
       case $host_os in
       darwin*)
 	ICONV_LDFLAGS=-L/sw/lib

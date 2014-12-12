@@ -1,3 +1,134 @@
+Fri Dec 12 03:41:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Avoid infinite recursion when we
+	  hit the end of the freelist block we're reading and the end of the
+	  block we're writing at the same time.
+
+Thu Dec 11 20:45:28 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_version.cc: Use str() rather than sprintf().
+
+Thu Dec 11 03:21:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Fix comment.
+
+Thu Dec 11 03:20:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/compactor.cc,api/error.cc,api/replication.cc,
+	  backends/chert/chert_databasereplicator.cc,
+	  backends/chert/chert_table.cc,
+	  backends/glass/glass_databasereplicator.cc,
+	  backends/glass/glass_table.cc: Remove unnecessary includes of
+	  <cstdio> in files which used to need it for rename() but no longer
+	  do.
+
+Fri Dec 05 11:30:05 GMT 2014  Olly Betts <olly@survex.com>
+
+	* ChangeLog,ChangeLog.0,ChangeLog.examples,
+	  backends/chert/chert_btreebase.cc,backends/chert/chert_database.h,
+	  languages/compiler/driver.c,languages/turkish.sbl: Fix typos reported
+	  by Veres Lajos.
+
+Thu Dec 04 02:17:46 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix detection of fdatasync(), which appears to have
+	  been broken practically forever - this means we've probably been
+	  using fsync() instead, which probably isn't a big additional
+	  overhead.
+
+Wed Dec 03 09:38:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Quote png filenames we run through pngcrush to
+	  avoid problems if there's an oddly-named extra PNG file in the
+	  directory.
+
+Tue Dec 02 02:58:59 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_database.h,
+	  backends/chert/chert_databasereplicator.cc,backends/,
+	  backends/glass/glass_compact.cc,backends/glass/glass_database.cc,
+	  backends/glass/glass_databasereplicator.cc,
+	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
+	  include/xapian/constants.h,include/xapian/database.h,
+	  include/xapian/dbfactory.h,net/,tests/api_backend.cc: Add new flag
+	  Xapian::DB_RETRY_LOCK which allows opening a database for writing
+	  to wait until it can get a write lock.  (fixes#275)
+
+Tue Dec 02 02:55:33 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_database.h: Document parameter to internal
+	  method
+
+Sun Nov 30 15:55:20 GMT 2014  James Aylett <james@tartarus.org>
+
+	* HACKING: improve OS X docs build information.
+
+Thu Nov 27 04:00:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc,backends/flint_lock.cc,backends/flint_lock.h,
+	  examples/copydatabase.cc,tests/api_backend.cc: Drop support code for
+	  building on OS/2 with EMX - EMX was last updated in 2001 and comes
+	  with GCC 3.2.1, which pre-dates C++11 and we're going to require
+	  a compiler with good C++11 support in the near future.
+
+Thu Nov 27 03:15:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Rename svn-ci to xapian-commit (see #621).
+
+Thu Nov 27 03:05:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: Use F_OFD_SETLK where available, which
+	  avoids having to fork() a child process to hold the lock.  This
+	  currently requires Linux kernel >= 3.15, but it has been submitted
+	  to POSIX so hopefully will be widely supported eventually.  Thanks
+	  to Austin Clements for pointing out this now exists.
+
+Wed Nov 26 04:03:45 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/geospatial.h: Drop documentation of parameter which
+	  the method doesn't actually take.
+
+Wed Nov 26 04:03:24 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Fix incorrect parameter name in doxygen
+	  comment.
+
+Wed Nov 26 03:29:28 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_source.conf.in: @MAKEINDEX@ isn't substituted, so just
+	  use literal 'makeindex'.
+
+Wed Nov 26 03:28:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api.conf.in,docs/doxygen_source.conf.in: Update to
+	  avoid warnings about obsolete tags from newer doxygen.
+
+Tue Nov 25 21:13:51 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update link to cygwin FAQ.
+
+Tue Nov 25 01:55:17 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Update details of building Xapian packages.
+
+Tue Nov 25 01:48:44 GMT 2014  Olly Betts <olly@survex.com>
+
+	* HACKING: Update for SVN to git migration.
+
+Mon Nov 24 19:50:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.3.2.
+
+Mon Nov 24 03:59:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: Add missing '\' at end of line in previous
+	  commit.
+
+Mon Nov 24 03:14:22 GMT 2014  Olly Betts <olly@survex.com>
+
+	* languages/: Install the stopword lists as
+	  ${pkgdatadir}/stopwords/LANG.list.
+
 Sun Nov 23 23:56:02 GMT 2014  Olly Betts <olly@survex.com>
 
 	* HACKING,INSTALL,NEWS,NEWS.SKELETON,api/compactor.cc,
@@ -2706,7 +2837,7 @@ Sun Mar 17 03:59:52 GMT 2013  Dan Colish <dcolish@gmail.com>
 
 Sun Mar 17 02:58:52 GMT 2013  Dan Colish <dcolish@gmail.com>
 
-	* common/pretty.h: Resolve ambiguity by moving operator| to a memeber
+	* common/pretty.h: Resolve ambiguity by moving operator| to a member
 	  function of PrettyOStream
 
 Sat Mar 16 21:43:32 GMT 2013  Olly Betts <olly@survex.com>
@@ -6941,7 +7072,7 @@ Sat Aug 28 10:30:08 GMT 2010  Olly Betts <olly@survex.com>
 Sat Aug 28 03:15:47 GMT 2010  Olly Betts <olly@survex.com>
 
 	* matcher/queryoptimiser.cc: Need to avoid excess precision on m68k
-	  when targetting models 68010, 68020, 68030 as well as 68000.
+	  when targeting models 68010, 68020, 68030 as well as 68000.
 
 Tue Aug 24 05:54:27 GMT 2010  Olly Betts <olly@survex.com>
 
@@ -9053,7 +9184,7 @@ Tue Feb 02 13:45:24 GMT 2010  Richard Boulton <richard@tartarus.org>
 	  tests/generate-api_generated: Move replication support out of the
 	  public API headers and public symbol visibility.  Access to
 	  replication, for now, is via the command-line scripts: this is
-	  similiar to the access to running a remote database server, and
+	  similar to the access to running a remote database server, and
 	  the access to database compaction and checking.  See ticket #347
 	  for some commentary.
 
@@ -9936,7 +10067,7 @@ Sat Nov 21 17:39:23 GMT 2009  Richard Boulton <richard@tartarus.org>
 	* backends/chert/chert_values.cc,backends/chert/chert_values.h:
 	  Make ValueChunkReader::skip_to() assign the value to a string
 	  only when the target has been reached.  Saves a lot of
-	  unneccessary string copying - on a benchmark of mydeco data,
+	  unnecessary string copying - on a benchmark of mydeco data,
 	  improves time for 100 queries from 3.66s to 3.10s.
 
 Sat Nov 21 01:13:26 GMT 2009  Olly Betts <olly@survex.com>
@@ -11745,7 +11876,7 @@ Sat May 16 05:02:35 GMT 2009  Olly Betts <olly@survex.com>
 
 Thu May 14 04:38:47 GMT 2009  Olly Betts <olly@survex.com>
 
-	* tests/api_percentages.cc: Remove superfluous explict std::
+	* tests/api_percentages.cc: Remove superfluous explicit std::
 	  qualifiers.
 
 Thu May 14 04:36:29 GMT 2009  Olly Betts <olly@survex.com>
@@ -21038,7 +21169,7 @@ Wed Jul 04 10:09:33 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/valuerangeproc.cc: Change encoding used for doubles to a much
 	  more compact scheme, and add support for +-INFINITY.  Also, some
-	  other tweaks to avoid unneccessary computation.
+	  other tweaks to avoid unnecessary computation.
 	* tests/queryparsertest.cc: Update test cases to expect new
 	  encoding of doubles, and add values for INFINITY and DBL_MAX and
 	  some other special numbers to the list of numbers that are
@@ -21919,7 +22050,7 @@ Sat Jun 16 22:19:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk,bin/xapian-inspect.cc,xapian-core.spec.in:
 	  New utility 'xapian-inspect' allowing interactive inspection of
-	  key/tag pairs in a flint Btree.  Useful for developement and
+	  key/tag pairs in a flint Btree.  Useful for development and
 	  debugging, and an approximate replacement for quartzdump.
 
 Sat Jun 16 17:03:57 BST 2007  Olly Betts <olly@survex.com>
@@ -23415,7 +23546,7 @@ Fri May 04 17:11:11 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 	  memory was accessed because p was compared to end, p will always
 	  be set to NULL when the iterator reaches the end.  No regression
 	  test, but the smoketest tests I'm implementing in the bindings
-	  will excercise this code.
+	  will exercise this code.
 
 Fri May 04 16:29:51 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
@@ -23828,7 +23959,7 @@ Sat Apr 21 23:27:33 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,common/Makefile.mk,getopt/: Move getopt.cc from getopt/
 	  to common/.  Having a whole directory for a single source file
-	  is a bit extravagent, and putting it in common/ allows us to share a
+	  is a bit extravagant, and putting it in common/ allows us to share a
 	  copy with omega easily.
 
 Sat Apr 21 21:38:20 BST 2007  Olly Betts <olly@survex.com>
@@ -25153,7 +25284,7 @@ Tue Mar 27 11:57:53 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* languages/romanian.sbl: Add Martin Porter's new romanian stemming
 	  algorithm.
-	* languages/romanian1.sbl,langauges/romanian2.sbl: Remove old
+	* languages/romanian1.sbl,languages/romanian2.sbl: Remove old
 	  romanian stemming algorithms.
 	* languages/Makefile.mk: Replace romanian1 and romanian2 by
 	  romanian.
@@ -26106,7 +26237,7 @@ Thu Feb 15 18:42:49 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c,languages/steminternal.cc,
 	  languages/steminternal.h: Tweak the "grouping" functions to allow
-	  skipping past multiple occurences and use this to implement "goto"
+	  skipping past multiple occurrences and use this to implement "goto"
 	  or "gopast" followed by a grouping or "non" grouping more
 	  efficiently.
 
@@ -35570,7 +35701,7 @@ Thu Oct 10 16:08:22 BST 2002  Olly Betts <olly@survex.com>
 Thu Oct 10 15:25:10 BST 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h: More comment
-	  improvments; Removed superfluous Cursor parameter from
+	  improvements; Removed superfluous Cursor parameter from
 	  Btree::add_kt() - it always gets passed the C member of Btree
 	  which we have available anyway.
 
@@ -35933,7 +36064,7 @@ Sat Sep 14 10:00:35 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
 
 Sat Sep 14 09:29:08 BST 2002  Richard Boulton <richard@tartarus.org>
 
-	* buildall: change to srcdir before testing for neccessary tools
+	* buildall: change to srcdir before testing for necessary tools
 	  so that scripts which guess which autotools version to use have more
 	  information available to guess with: for example, the Debian
 	  autoconf version guessing script looks for "configure.ac" as a sign
@@ -35970,7 +36101,7 @@ Wed Sep 11 11:13:43 BST 2002  Olly Betts <olly@survex.com>
 Tue Sep 10 14:50:16 BST 2002  Olly Betts <olly@survex.com>
 
 	* configure.in: tweaked test for perl modules - stderr is now
-	  fully supressed on sh (which behaves slightly differently to bash).
+	  fully suppressed on sh (which behaves slightly differently to bash).
 
 Tue Sep 10 14:27:15 BST 2002  Richard Boulton <richard@tartarus.org>
 
@@ -36950,7 +37081,7 @@ Mon Apr 15 15:42:47 BST 2002  Olly Betts <olly@survex.com>
 Mon Apr 15 2002  Sam Liddicott <sam@ananova.com>
 
 	* Hacked around bindings and bindings/php to remove some SWIG
-	  workarounds.  SWIG cvs + some new non-comitted patches is need still.
+	  workarounds.  SWIG cvs + some new non-committed patches is need still.
 
 Mon Apr 15 12:12:05 BST 2002  Olly Betts <olly@survex.com>
 
@@ -37130,7 +37261,7 @@ Fri Jan 11 15:40:50 GMT 2002  Sam Liddicott <sam@ananova.com>
 	  that when/if it happens.
 
 	  It seems to work fine here on some DB's which I had to stop growing
-	  cos they got too big; I'm now past the 2G boundry with no problems
+	  cos they got too big; I'm now past the 2G boundary with no problems
 
 	  I guess we should still add overflow detection for 2^31 blocks.
 	  Ideas?
@@ -37835,7 +37966,7 @@ Wed Feb 21 14:33:50 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 	* Use a deque<> directly instead of a queue, due to conflict
 	  with Solaris headers.
 
-	* Split the collect_doc loop into a seperate function
+	* Split the collect_doc loop into a separate function
 
 	* SocketClient should be more robust against request_doc() being
 	  used without collect_doc().
@@ -37880,7 +38011,7 @@ Fri Feb 16 15:55:31 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 Thu Feb 15 19:05:24 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
-	* The remote server now supports a seperate timeout used while
+	* The remote server now supports a separate timeout used while
 	  idle, rather than actually servicing a request from the client.
 	  Options --idle-timeout and --active-timeout added to omtcpsrv,
 	  and --timeout sets both timeouts.
@@ -38156,7 +38287,7 @@ Thu Jan 25 11:36:39 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 Wed Jan 24 15:57:10 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Improve test of OmMSetIterators equality comparisions.
+	* Improve test of OmMSetIterators equality comparisons.
 
 	* Update TODO
 
@@ -38175,7 +38306,7 @@ Wed Jan 24 15:11:11 GMT 2001 Chris Emerson <chris.emerson@open.muscat.com>
 Tue Jan 23 19:01:29 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove OmBatchEnquire from system: it may return at a later date,
-	  but for now it is simply out of date and a maintainance liability,
+	  but for now it is simply out of date and a maintenance liability,
 	  and gives no significant advantage.  Code now exists in
 	  ombatchenquire.h in CVS, but is not part of build process.
 

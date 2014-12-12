@@ -49,7 +49,6 @@
 
 #include <sys/types.h>
 
-#include <cstdio>    /* for rename */
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
 

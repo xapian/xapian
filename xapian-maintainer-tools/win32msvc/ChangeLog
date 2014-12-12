@@ -1,3 +1,18 @@
+Sun Dec 07 23:13:08 GMT 2014  Olly Betts <olly@survex.com>
+
+	* win32msvc/Makefile: Remove copying of removed stale copy of
+	  generated file.
+
+Fri Dec 05 10:32:57 GMT 2014  Olly Betts <olly@survex.com>
+
+	* win32msvc/doccomments.i: Remove 6.5 year old copy of generated file.
+
+Fri Nov 28 09:38:31 GMT 2014  Olly Betts <olly@survex.com>
+
+	* win32msvc/win32_bindings_ruby.mak: Fix include path when running
+	  Ruby tests.  Patch found in an SVN checkout, but I don't remember
+	  who reported the issue.
+
 Wed May 08 11:04:54 GMT 2013  Olly Betts <olly@survex.com>
 
 	* README,config.mak: Update references to subversion/SVN to talk about

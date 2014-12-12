@@ -237,7 +237,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    filename.resize(filename.size() - 3);
 
 	size_t p = filename.find_last_of('/');
-#if defined __WIN32__ || defined __EMX__
+#if defined __WIN32__ || defined __OS2__
 	if (p == string::npos) p = 0;
 	p = filename.find_last_of('\\', p);
 #endif

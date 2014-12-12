@@ -329,7 +329,17 @@ RemoteServer::msg_writeaccess(const string & msg)
     if (!writable) 
 	throw_read_only();
 
-    wdb = new Xapian::WritableDatabase(context, Xapian::DB_OPEN);
+    int flags = Xapian::DB_OPEN;
+    const char *p = msg.c_str();
+    const char *p_end = p + msg.size();
+    if (p != p_end) {
+	flags |= decode_length(&p, p_end, false) &~ Xapian::DB_ACTION_MASK_;
+	if (p != p_end) {
+	    throw Xapian::NetworkError("Junk at end of MSG_WRITEACCESS");
+	}
+    }
+
+    wdb = new Xapian::WritableDatabase(context, flags);
     delete db;
     db = wdb;
     msg_update(msg);

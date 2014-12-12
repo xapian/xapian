@@ -497,7 +497,7 @@ ChertTable_base::clear_bit_map()
     memset(bit_map, 0, bit_map_size);
 }
 
-// We've commited, so "bitmap at start" needs to be reset to the current bitmap.
+// We've committed, so "bitmap at start" needs to be reset to the current bitmap.
 void
 ChertTable_base::commit()
 {

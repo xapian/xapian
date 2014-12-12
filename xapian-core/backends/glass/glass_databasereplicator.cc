@@ -44,7 +44,6 @@
 #include "stringutils.h"
 
 #include <algorithm>
-#include <cstdio> // For rename().
 
 using namespace std;
 using namespace Xapian;
@@ -217,7 +216,7 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
     string explanation;
-    FlintLock::reason why = lock.lock(true, explanation);
+    FlintLock::reason why = lock.lock(true, false, explanation);
     if (why != FlintLock::SUCCESS) {
 	lock.throw_databaselockerror(why, db_dir, explanation);
     }

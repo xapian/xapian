@@ -52,3 +52,4 @@
 /turkish.h
 /generate-allsnowballheaders
 /sbl-dispatch.h
+/stopwords/*.list

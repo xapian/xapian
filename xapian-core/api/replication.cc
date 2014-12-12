@@ -47,7 +47,6 @@
 #include "unicode/description_append.h"
 
 #include "autoptr.h"
-#include <cstdio> // For rename().
 #include <fstream>
 #include <string>
 

@@ -1,6 +1,6 @@
 /* dbfactory_remote.cc: Database factories for remote databases.
  *
- * Copyright (C) 2006,2007,2008,2010,2011 Olly Betts
+ * Copyright (C) 2006,2007,2008,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,16 +37,18 @@ Remote::open(const string &host, unsigned int port, useconds_t timeout_,
 {
     LOGCALL_STATIC(API, Database, "Remote::open", host | port | timeout_ | connect_timeout);
     RETURN(Database(new RemoteTcpClient(host, port, timeout_ * 1e-3,
-					connect_timeout * 1e-3, false)));
+					connect_timeout * 1e-3, false, 0)));
 }
 
 WritableDatabase
 Remote::open_writable(const string &host, unsigned int port,
-		      useconds_t timeout_, useconds_t connect_timeout)
+		      useconds_t timeout_, useconds_t connect_timeout,
+		      int flags)
 {
-    LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", host | port | timeout_ | connect_timeout);
+    LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", host | port | timeout_ | connect_timeout | flags);
     RETURN(WritableDatabase(new RemoteTcpClient(host, port, timeout_ * 1e-3,
-						connect_timeout * 1e-3, true)));
+						connect_timeout * 1e-3, true,
+						flags)));
 }
 
 Database
@@ -54,16 +56,16 @@ Remote::open(const string &program, const string &args,
 	     useconds_t timeout_)
 {
     LOGCALL_STATIC(API, Database, "Remote::open", program | args | timeout_);
-    RETURN(Database(new ProgClient(program, args, timeout_ * 1e-3, false)));
+    RETURN(Database(new ProgClient(program, args, timeout_ * 1e-3, false, 0)));
 }
 
 WritableDatabase
 Remote::open_writable(const string &program, const string &args,
-		      useconds_t timeout_)
+		      useconds_t timeout_, int flags)
 {
-    LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", program | args | timeout_);
+    LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", program | args | timeout_ | flags);
     RETURN(WritableDatabase(new ProgClient(program, args,
-					   timeout_ * 1e-3, true)));
+					   timeout_ * 1e-3, true, flags)));
 }
 
 }

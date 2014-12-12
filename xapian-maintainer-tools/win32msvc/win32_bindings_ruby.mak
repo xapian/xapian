@@ -34,7 +34,7 @@ CLEANSWIG:
 DOTEST :
 	cd "$(OUTDIR)"
 	copy "$(ZLIB_BIN_DIR)\zlib1.dll"
-	"$(RUBY_EXE)" smoketest.rb
+	"$(RUBY_EXE)" -I. smoketest.rb
 	
 CHECK: ALL DOTEST	
 

@@ -1,9 +1,9 @@
 $httpheader{Content-Type,application/xml}
 <results DBSize="$html{$dbsize}" Query="$html{$query}" TopDoc="$topdoc" Matches="$msize" Last="$last"
 ThisPage="$thispage" LastPage="$lastpage" xP="$html{$list{$queryterms,,.,.}}"
-$if{$cgi{DAYSMINUS},xDAYSMINUS="$html{$cgi{DAYSMINUS}}" }
-$if{$cgi{DATE1},xDATE1="$html{$cgi{DATE1}}" }
-$if{$cgi{DATE2},xDATE2="$html{$cgi{DATE2}}" }
+$if{$cgi{SPAN},xSPAN="$html{$cgi{SPAN}}" }
+$if{$cgi{START},xSTART="$html{$cgi{START}}" }
+$if{$cgi{END},xEND="$html{$cgi{END}}" }
 $if{$cgi{THRESHOLD},xTHRESHOLD="$html{$cgi{THRESHOLD}}" }
 $if{$dbname,xDB="$html{$dbname}" }
 $if{$ne{$msize,0},$list{$relevants,relevants=",.,"}}

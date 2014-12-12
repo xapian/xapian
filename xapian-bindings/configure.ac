@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.3.1], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.3.2], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -16,11 +16,10 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
-dnl successfully link the SWIG generated modules.  The link always fails
-dnl on earlier versions of Mac OS X (10.1.4 and 10.2.8 tested), so always
-dnl setting MACOSX_DEPLOYMENT_TARGET to at least 10.3 seems to be the
-dnl appropriate thing to do.  Most Mac OS X developers will have upgraded
-dnl from 10.1 and 10.2 by now anyhow.
+dnl successfully link the SWIG generated modules.  The link always fails on
+dnl earlier versions of Mac OS X (10.1.4 and 10.2.8 tested), and these versions
+dnl are long obsolete now, so we just ensure that MACOSX_DEPLOYMENT_TARGET is
+dnl set to at least 10.3.
 dnl
 dnl NB we must do this *BEFORE* LT_INIT since that is what checks
 dnl MACOSX_DEPLOYMENT_TARGET.
@@ -710,7 +709,7 @@ if test no != "$with_csharp" ; then
     fi
     if test -z "$CSC" ; then
       dnl gmcs, smcs, and dmcs are versions of the Mono CSharp compiler
-      dnl targetting various runtime versions, deprecated in favour of mcs
+      dnl targeting various runtime versions, deprecated in favour of mcs
       dnl (checked for above) as of Mono 2.11.
       dnl
       dnl cscc is the Portable.NET CSharp compiler.
@@ -1166,23 +1165,36 @@ if test no != "$with_lua" ; then
       AC_MSG_RESULT([$lua_version])
 
       AC_ARG_VAR([LUA_LIB], [Directory to install compiled Lua modules into])
-      AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules])
+      AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules (e.g. LUA_SO=.so)])
       AC_MSG_CHECKING([for directory to install compiled Lua modules into])
       if test -z "$LUA_LIB" -o -z "$LUA_SO" ; then
 	lua_cpath=`$LUA -e 'require("package") print(package.cpath)'`
 	dnl Look for the first absolute path in lua_cpath which has leaf
 	dnl "?.<ext>" and put the directory part into lua_lib and <ext> into
-	dnl lua_so.
+	dnl lua_so.  If LUA_SO was specified by the user, only consider
+	dnl entries where <ext> matches LUA_SO.
 	lua_lib=
 	lua_so=
-	[lua_so_pat=${LUA_SO:-'[a-zA-Z][a-zA-Z]*'}]
-	lua_so_pat=`echo "X$lua_so_pat"|sed 's/^X\.\?//'`
+	case $LUA_SO in
+	  "")
+	   [lua_so_pat='[a-zA-Z][a-zA-Z]*'] ;;
+	  .*)
+	    dnl If LUA_SO has a leading '.', remove it.
+	    lua_so_pat=`AS_ECHO("$LUA_SO")|sed 's/^\.//'` ;;
+	  *)
+	    dnl If LUA_SO was specified without a leading '.', add one to the
+	    dnl value substituted into Makefile.in.
+	    lua_so_pat=$LUA_SO
+	    LUA_SO=.$LUA_SO
+	    ;;
+	esac
 	while test x"$lua_cpath" != x ; do
 	  [lua_lib=`expr X"$lua_cpath" : X'\([^;]*\)'`]
 	  lua_so=.`expr X"$lua_lib" : X'/.*/?\.\('"$lua_so_pat"'\)$'`
 	  case $lua_so in
 	    .|.lua)
 	      dnl If someone has foolishly put ?.lua in cpath, ignore them.
+	      lua_lib=
 	      ;;
 	    *)
 	      lua_lib=`expr X"$lua_lib" : X'\(/.*\)/?\.'"$lua_so_pat"'$'`

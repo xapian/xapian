@@ -74,7 +74,7 @@ After we have built a model, its quite straightforward to get a real score for a
 Features
 ========
 
-Features play a major role in the learning. In LTR, features are mainly of three types: query dependant, document dependant (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependant (TF-IDF Score, BM25 Score, etc). In total we have incorporated 19 features which are described below. These features are statistically tested in [Nallapati2004]_.
+Features play a major role in the learning. In LTR, features are mainly of three types: query dependent, document dependent (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependent (TF-IDF Score, BM25 Score, etc). In total we have incorporated 19 features which are described below. These features are statistically tested in [Nallapati2004]_.
 
     Here c(w,D) means that count of term w in Document D. C represents the Collection. 'n' is the total number of terms in query.
     :math:`|.|` is size-of function and idf(.) is the inverse-document-frequency.

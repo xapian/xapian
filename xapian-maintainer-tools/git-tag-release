@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2004,2005,2007,2008,2010,2012,2013 Olly Betts
+# Copyright (C) 2004,2005,2007,2008,2010,2012,2013,2014 Olly Betts
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -45,7 +45,7 @@ if [ -d "$download_dir" ] ; then
     exit 1
 fi
 
-if [ "`git branch|sed 's/^* //p;d'`" != "$BRANCH" ] ; then
+if [ "`git branch --color=never --contains|cut -d' ' -f2-`" != "$BRANCH" ] ; then
     echo "Not on branch $BRANCH"
     exit 1
 fi

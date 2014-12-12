@@ -64,15 +64,16 @@ split_words(const string &text, vector<string> &words, char ws = ' ')
 #endif
 
 ProgClient::ProgClient(const string &progname, const string &args,
-		       double timeout_, bool writable)
+		       double timeout_, bool writable, int flags)
 	: RemoteDatabase(run_program(progname, args
 #ifndef __WIN32__
 						   , pid
 #endif
         ),
-			 timeout_, get_progcontext(progname, args), writable)
+			 timeout_, get_progcontext(progname, args), writable,
+			 flags)
 {
-    LOGCALL_CTOR(DB, "ProgClient", progname | args | timeout_ | writable);
+    LOGCALL_CTOR(DB, "ProgClient", progname | args | timeout_ | writable | flags);
 }
 
 string

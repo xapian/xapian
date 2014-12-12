@@ -162,7 +162,7 @@ scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/keyword.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
-omindex_list_SOURCES = omindex-list.cc
+omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\

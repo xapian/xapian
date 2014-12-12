@@ -29,7 +29,6 @@
 # include "safenetdb.h"
 #endif
 
-#include <cstdio> // For sprintf().
 #include <cstring> // For strerror().
 
 #include "str.h"

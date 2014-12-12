@@ -45,6 +45,7 @@
 #include <string>
 #include <vector>
 
+#include "xapian/constants.h"
 #include "xapian/error.h"
 #include "xapian/matchspy.h"
 
@@ -59,7 +60,8 @@ throw_bad_message(const string & context)
 }
 
 RemoteDatabase::RemoteDatabase(int fd, double timeout_,
-			       const string & context_, bool writable)
+			       const string & context_, bool writable,
+			       int flags)
 	: link(fd, fd, context_),
 	  context(context_),
 	  cached_stats_valid(),
@@ -86,7 +88,14 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 
     update_stats(MSG_MAX);
 
-    if (writable) update_stats(MSG_WRITEACCESS);
+    if (writable) {
+	if (flags & Xapian::DB_RETRY_LOCK) {
+	    const string & body = encode_length(flags & Xapian::DB_RETRY_LOCK);
+	    update_stats(MSG_WRITEACCESS, body);
+	} else {
+	    update_stats(MSG_WRITEACCESS);
+	}
+    }
 }
 
 RemoteDatabase *
@@ -314,12 +323,12 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 }
 
 bool
-RemoteDatabase::update_stats(message_type msg_code) const
+RemoteDatabase::update_stats(message_type msg_code, const string & body) const
 {
     // MSG_MAX signals that we're handling the opening greeting, which isn't in
     // response to an explicit message.
     if (msg_code != MSG_MAX)
-	send_message(msg_code, string());
+	send_message(msg_code, body);
 
     string message;
     reply_type type = get_message(message);

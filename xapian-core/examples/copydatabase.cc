@@ -94,7 +94,7 @@ try {
 
 	// Find the leaf-name of the database path for reporting progress.
 	const char * leaf = strrchr(src, '/');
-#if defined __WIN32__ || defined __EMX__
+#if defined __WIN32__ || defined __OS2__
 	if (!leaf) leaf = strrchr(src, '\\');
 #endif
 	if (leaf) ++leaf; else leaf = src;

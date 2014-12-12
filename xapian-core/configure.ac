@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.1], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.2], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -118,7 +118,7 @@ case $build_os in
 *** to make sure you have a UNIX-like find installed and fix your PATH, then
 *** rerun configure.  For more information, see:
 ***
-***   http://www.cygwin.com/faq/faq-nochunks.html#faq.using.find
+***   https://www.cygwin.com/faq/faq.html#faq.using.find
 ])
     fi
   ;;
@@ -904,7 +904,7 @@ SAVE_LIBS=$LIBS
 AC_SEARCH_LIBS(fdatasync, rt, [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
 LIBS=$SAVE_LIBS
 
-AC_CHECK_FUNCS(fsync)
+AC_CHECK_FUNCS([fdatasync fsync])
 
 dnl HP-UX has pread and pwrite, but they don't work!  Apparently this problem
 dnl manifests when largefile support is enabled, and we definitely want that

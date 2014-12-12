@@ -1,7 +1,7 @@
 /** @file flint_lock.h
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,10 +26,6 @@
 
 #if defined __CYGWIN__ || defined __WIN32__
 # include "safewindows.h"
-#elif defined __EMX__
-# define INCL_DOS
-# define INCL_DOSERRORS
-# include <os2.h>
 #else
 # include <sys/types.h>
 #endif
@@ -40,8 +36,6 @@ class FlintLock {
     std::string filename;
 #if defined __CYGWIN__ || defined __WIN32__
     HANDLE hFile;
-#elif defined __EMX__
-    HFILE hFile;
 #elif defined FLINTLOCK_USE_FLOCK
     int fd;
 #else
@@ -67,12 +61,6 @@ class FlintLock {
 	filename += "/flintlock";
     }
     operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
-#elif defined __EMX__
-    FlintLock(const std::string &filename_)
-	: filename(filename_), hFile(NULLHANDLE) {
-	filename += "/flintlock";
-    }
-    operator bool() const { return hFile != NULLHANDLE; }
 #elif defined FLINTLOCK_USE_FLOCK
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
 	filename += "/flintlock";
@@ -92,8 +80,12 @@ class FlintLock {
      *  If the attempt fails with code "UNKNOWN", the string supplied in the
      *  explanation parameter will be set to contain any details available of
      *  the reason for the failure.
+     *
+     *	   @param exclusive  Get an exclusive lock?  Value currently ignored,
+     *			     and the lock is always exclusive.
+     *	   @param wait	     Wait until we can get the lock?
      */
-    reason lock(bool exclusive, std::string & explanation);
+    reason lock(bool exclusive, bool wait, std::string & explanation);
 
     /// Release the lock.
     void release();
