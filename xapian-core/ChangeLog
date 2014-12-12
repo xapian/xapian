@@ -1,3 +1,9 @@
+Fri Dec 12 03:41:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Avoid infinite recursion when we
+	  hit the end of the freelist block we're reading and the end of the
+	  block we're writing at the same time.
+
 Thu Dec 11 20:45:28 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_version.cc: Use str() rather than sprintf().
