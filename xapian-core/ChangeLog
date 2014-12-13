@@ -1,3 +1,10 @@
+Sat Dec 13 02:48:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/error.cc,generate-exceptions,net/remoteconnection.h: On
+	  Windows, avoid defining EADDRINUSE, etc if they're already defined,
+	  and use WSAE* constants un-negated, as they start from a high value
+	  so won't collide with E* constants.
+
 Sat Jan 24 11:54:16 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

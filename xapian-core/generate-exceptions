@@ -79,7 +79,9 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  an error from gethostbyname() or similar).
      *
      *  On Windows, if this value is < 0, it's a negated Windows error code
-     *  (as given by GetLastError() or WSAGetLastError()).
+     *  (as given by GetLastError()), while if it is >= WSABASEERR then it is a
+     *  WinSock error code (as given by WSAGetLastError()).  Prior to Xapian
+     *  1.2.20 and 1.3.3, WSAGetLastError() codes were also negated.
      *
      *  NB We don't just call this member "errno" to avoid problems on
      *  platforms where errno is a preprocessor macro.
