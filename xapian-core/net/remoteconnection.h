@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,14 +70,33 @@ struct WinsockInitializer {
  *  the return value will be the value of errno.
  */
 inline int socket_errno() {
-    return -(int)WSAGetLastError();
+    int wsa_err = WSAGetLastError();
+    switch (wsa_err) {
+# ifdef EADDRINUSE
+	case WSAEADDRINUSE: return EADDRINUSE;
+# endif
+# ifdef ETIMEDOUT
+	case WSAETIMEDOUT: return ETIMEDOUT;
+# endif
+# ifdef EINPROGRESS
+	case WSAEINPROGRESS: return EINPROGRESS;
+# endif
+	default: return wsa_err;
+    }
 }
 
-// Define some of the UNIX socket error constants to be negated versions of the
-// winsock ones.
-# define EADDRINUSE (-(WSAEADDRINUSE))
-# define ETIMEDOUT (-(WSAETIMEDOUT))
-# define EINPROGRESS (-(WSAEINPROGRESS))
+/* Newer compilers define these, in which case we map to those already defined
+ * values in socket_errno() above.
+ */
+# ifndef EADDRINUSE
+#  define EADDRINUSE WSAEADDRINUSE
+# endif
+# ifndef ETIMEDOUT
+#  define ETIMEDOUT WSAETIMEDOUT
+# endif
+# ifndef EINPROGRESS
+#  define EINPROGRESS WSAEINPROGRESS
+# endif
 
 #else
 // Use a macro so we don't need to pull safeerrno.h in here.

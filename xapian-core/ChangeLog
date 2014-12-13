@@ -1,3 +1,16 @@
+Sat Dec 13 02:48:10 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/error.cc,generate-exceptions,net/remoteconnection.h: On
+	  Windows, avoid defining EADDRINUSE, etc if they're already defined,
+	  and use WSAE* constants un-negated, as they start from a high value
+	  so won't collide with E* constants.
+
+Fri Dec 12 03:41:02 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Avoid infinite recursion when we
+	  hit the end of the freelist block we're reading and the end of the
+	  block we're writing at the same time.
+
 Thu Dec 11 20:45:28 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_version.cc: Use str() rather than sprintf().

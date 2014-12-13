@@ -1,7 +1,7 @@
 /** @file error.cc
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008,2011,2013 Olly Betts
+/* Copyright (C) 2007,2008,2011,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,8 @@
 # include "safenetdb.h"
 #endif
 
-#include <cstring> // For strerror().
+#include <cstdlib> // For abs().
+#include <cstring> // For strerror(), memcmp().
 
 #include "str.h"
 #include "unicode/description_append.h"
@@ -47,60 +48,65 @@ Xapian::Error::Error(const std::string &msg_, const std::string &context_,
 const char *
 Xapian::Error::get_error_string() const
 {
-    if (!error_string.empty()) return error_string.c_str();
-    if (my_errno == 0) return NULL;
-    if (my_errno > 0) {
-	error_string.assign(strerror(my_errno));
-	return error_string.c_str();
-    }
+    if (error_string.empty()) {
+	if (my_errno == 0) return NULL;
 #ifdef __WIN32__
-    DWORD len;
-    char * error;
-    len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-			0, -my_errno, 0, (CHAR*)&error, 0, 0);
-    if (error) {
-	// Remove any trailing \r\n from output of FormatMessage.
-	if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
-	    len -= 2;
-	error_string.assign(error, len);
-	LocalFree(error);
-	return error_string.c_str();
-    }
+	if (my_errno < 0 || my_errno >= WSABASEERR) {
+	    int e = abs(my_errno);
+	    DWORD len;
+	    char * error;
+	    len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|
+				FORMAT_MESSAGE_ALLOCATE_BUFFER,
+				0, e, 0, (CHAR*)&error, 0, 0);
+	    if (error) {
+		// Remove any trailing \r\n from output of FormatMessage.
+		if (len >= 2 && memcmp(error + len - 2, "\r\n", 2) == 0)
+		    len -= 2;
+		error_string.assign(error, len);
+		LocalFree(error);
+	    } else {
+		error_string = "Unknown Error ";
+		error_string += str(e);
+	    }
+	} else {
+	    error_string.assign(strerror(my_errno));
+	}
 #else
-# ifdef HAVE_HSTRERROR
-    error_string.assign(hstrerror(-my_errno));
-    return error_string.c_str();
+	if (my_errno > 0) {
+	    error_string.assign(strerror(my_errno));
+	} else {
+# ifndef HAVE_HSTRERROR
+	    const char * s = NULL;
+	    switch (-my_errno) {
+		case HOST_NOT_FOUND:
+		    s = "Unknown host";
+		    break;
+		case NO_ADDRESS:
+#  if NO_ADDRESS != NO_DATA
+		case NO_DATA:
+#  endif
+		    s = "No address associated with name";
+		    break;
+		case NO_RECOVERY:
+		    s = "Unknown server error";
+		    break;
+		case TRY_AGAIN:
+		    s = "Host name lookup failure";
+		    break;
+	    }
+	    if (s) {
+		error_string.assign(s);
+	    } else {
+		error_string = "Unknown Error ";
+		error_string += str(-my_errno);
+	    }
 # else
-    const char * s = NULL;
-    switch (-my_errno) {
-	case HOST_NOT_FOUND:
-	    s = "Unknown host";
-	    break;
-	case NO_ADDRESS:
-# if NO_ADDRESS != NO_DATA
-	case NO_DATA:
+	    error_string.assign(hstrerror(-my_errno));
 # endif
-	    s = "No address associated with name";
-	    break;
-	case NO_RECOVERY:
-	    s = "Unknown server error";
-	    break;
-	case TRY_AGAIN:
-	    s = "Host name lookup failure";
-	    break;
-    }
-    if (s) {
-	error_string.assign(s);
-	return error_string.c_str();
-    }
-# endif
+	}
 #endif
-
-#ifndef HAVE_HSTRERROR
-    error_string = "Unknown Error ";
-    error_string += str(-my_errno);
+    }
     return error_string.c_str();
-#endif
 }
 
 string
