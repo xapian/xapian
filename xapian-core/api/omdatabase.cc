@@ -212,12 +212,6 @@ Database::termlist_begin(Xapian::docid did) const
 }
 
 TermIterator
-Database::allterms_begin() const
-{
-    return allterms_begin(string());
-}
-
-TermIterator
 Database::allterms_begin(const std::string & prefix) const
 {
     LOGCALL(API, TermIterator, "Database::allterms_begin", NO_ARGS);
