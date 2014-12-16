@@ -1,3 +1,8 @@
+Tue Dec 16 06:54:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add missing m4 quoting.  Generated configure file is
+	  unchanged.
+
 Tue Dec 16 06:28:21 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't check for strerror - it's specified by C89, and
