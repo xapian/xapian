@@ -1,3 +1,8 @@
+Tue Dec 16 06:54:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add missing m4 quoting.  Generated configure file is
+	  unchanged.
+
 Mon Jan 05 01:52:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check-brass.cc,bin/xapian-check-chert.cc: Cross-check the
