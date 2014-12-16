@@ -95,7 +95,7 @@ if test $ac_cv_header_magic_h != yes ; then
   if test -r /etc/debian_version ; then
     pkg="libmagic-dev"
   else
-    pkg="file-devel (or maybe libmagic-devl)"
+    pkg="file-devel (or maybe libmagic-devel)"
   fi
   AC_MSG_ERROR([libmagic required but magic.h not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
 fi
