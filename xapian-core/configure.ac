@@ -658,7 +658,7 @@ fi
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
-AC_CHECK_FUNCS(strerror hstrerror)
+AC_CHECK_FUNCS(hstrerror)
 
 dnl Check that snprintf actually works as it's meant to.
 dnl
