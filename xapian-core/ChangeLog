@@ -1,3 +1,8 @@
+Tue Dec 16 03:50:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Define MINGW_HAS_SECURE_API under mingw to get
+	  _putenv_s() declared in stdlib.h.
+
 Sun Dec 14 09:42:01 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,include/xapian/database.h: Make overloaded forms of
