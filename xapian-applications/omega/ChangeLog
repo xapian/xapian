@@ -1,3 +1,8 @@
+Tue Dec 16 03:53:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Define MINGW_HAS_SECURE_API under mingw to get
+	  _putenv_s() declared in stdlib.h.
+
 Wed Dec 03 04:17:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* templates/xml: Update handling of DATE1, DATE2 and DAYSMINUS which
