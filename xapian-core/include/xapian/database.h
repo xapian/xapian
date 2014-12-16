@@ -210,32 +210,16 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	    return PositionIterator();
 	}
 
-	/** An iterator which runs across all terms in the database.
-	 */
-	TermIterator allterms_begin() const;
-
-	/** Corresponding end iterator to allterms_begin().
-	 */
-	TermIterator XAPIAN_NOTHROW(allterms_end() const) {
-	    return TermIterator();
-	}
-
 	/** An iterator which runs across all terms with a given prefix.
 	 *
-	 *  This is functionally similar to getting an iterator with
-	 *  allterms_begin() and then calling skip_to(prefix) on that iterator
-	 *  to move to the start of the prefix, but is more convenient (because
-	 *  it detects the end of the prefixed terms), and may be more
-	 *  efficient than simply calling skip_to() after opening the iterator,
-	 *  particularly for remote databases.
-	 *
-	 *  @param prefix The prefix to restrict the returned terms to.
+	 *  @param prefix The prefix to restrict the returned terms to (default:
+	 *		  iterate all terms)
 	 */
-	TermIterator allterms_begin(const std::string & prefix) const;
+	TermIterator allterms_begin(const std::string & prefix = std::string()) const;
 
 	/** Corresponding end iterator to allterms_begin(prefix).
 	 */
-	TermIterator XAPIAN_NOTHROW(allterms_end(const std::string &) const) {
+	TermIterator XAPIAN_NOTHROW(allterms_end(const std::string & = std::string()) const) {
 	    return TermIterator();
 	}
 

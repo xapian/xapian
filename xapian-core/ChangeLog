@@ -1,3 +1,19 @@
+Tue Dec 16 03:59:39 UTC 2014  Sébastien Debrard <sebastien.debrard@gmail.com>
+
+	* api/omenquire.cc,backends/multi/multi_postlist.cc,
+	  tests/api_anydb.cc,tests/api_db.cc: Prefer ++x to x++.
+
+Tue Dec 16 03:50:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Define MINGW_HAS_SECURE_API under mingw to get
+	  _putenv_s() declared in stdlib.h.
+
+Sun Dec 14 09:42:01 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,include/xapian/database.h: Make overloaded forms of
+	  Database::allterms_begin() and Database::allterms_end() use default
+	  parameters instead.
+
 Sat Dec 13 02:48:10 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/error.cc,generate-exceptions,net/remoteconnection.h: On

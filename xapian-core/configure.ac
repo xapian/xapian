@@ -462,11 +462,12 @@ AC_TRY_COMPILE([#include <typeinfo>],
 dnl Check for time functions.
 AC_CHECK_FUNCS([clock_gettime nanosleep gettimeofday ftime])
 
-dnl For _ftime64() on mingw we need to tell it we're happy to require
-dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
 case $host_os in
   *mingw*)
+    dnl For _ftime64() on mingw we need to tell it we're happy to require
+    dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
     AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
+    AC_DEFINE([MINGW_HAS_SECURE_API], [1], [Define on mingw to get _s suffixed "secure" functions declared in headers])
     ;;
 esac
 
