@@ -1,3 +1,8 @@
+Tue Dec 16 03:59:39 UTC 2014  Sébastien Debrard <sebastien.debrard@gmail.com>
+
+	* api/omenquire.cc,backends/multi/multi_postlist.cc,
+	  tests/api_anydb.cc,tests/api_db.cc: Prefer ++x to x++.
+
 Tue Dec 16 03:50:41 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Define MINGW_HAS_SECURE_API under mingw to get
