@@ -30,6 +30,7 @@
 
 #include "safeerrno.h"
 
+#include "errno_to_string.h"
 #include "omassert.h"
 #include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE().
@@ -1435,7 +1436,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
 	string message(create_db ? "Couldn't create " : "Couldn't open ");
 	message += name;
 	message += "DB read/write: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -1807,7 +1808,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 		string msg("Couldn't update base file ");
 		msg += basefile;
 		msg += ": ";
-		msg += strerror(saved_errno);
+		errno_to_string(saved_errno, msg);
 		throw Xapian::DatabaseError(msg);
 	    }
 	}
@@ -1932,7 +1933,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
 	string message("Couldn't open ");
 	message += name;
 	message += "DB to read: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
