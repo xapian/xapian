@@ -1,3 +1,8 @@
+Wed Dec 17 02:59:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Drop probe for gethostbyaddr() - we've not used it for
+	  over 8.5 years (since e33972a5).
+
 Tue Dec 16 06:54:32 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add missing m4 quoting.  Generated configure file is

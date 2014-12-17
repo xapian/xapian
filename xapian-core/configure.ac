@@ -885,11 +885,7 @@ if test "$enable_backend_remote" = yes ; then
 	  dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
 	  AC_SEARCH_LIBS([gethostbyname], [nsl], [], [enable_backend_remote=no])
 	  if test "$enable_backend_remote" = yes ; then
-	    dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-	    AC_SEARCH_LIBS([gethostbyaddr], [nsl], [], [enable_backend_remote=no])
-	    if test "$enable_backend_remote" = yes ; then
-	      REMOTE_LIBS=$LIBS
-	    fi
+	    REMOTE_LIBS=$LIBS
 	  fi
 	fi
       fi
