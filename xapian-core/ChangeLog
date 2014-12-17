@@ -1,3 +1,8 @@
+Wed Dec 17 02:33:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/internaltypes.h: Take CHAR_BIT into account when chosing
+	  types for uint2, uint4 and uint8.
+
 Wed Dec 17 02:30:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/error.cc,backends/chert/chert_btreebase.cc,
