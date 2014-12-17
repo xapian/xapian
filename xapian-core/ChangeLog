@@ -1,3 +1,11 @@
+Wed Dec 17 02:30:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/error.cc,backends/chert/chert_btreebase.cc,
+	  backends/chert/chert_table.cc,backends/flint_lock.cc,
+	  backends/glass/glass_table.cc,common/,configure.ac,
+	  net/remoteconnection.cc: Add errno_to_string() function which is
+	  thread-safe where a suitable alternative to strerror() exists.
+
 Sat Dec 20 10:40:44 GMT 2014  Sébastien Debrard <sebastien.debrard@gmail.com>
 
 	* Makefile.am,configure.ac,pkgconfig/,xapian-core.spec.in: Generate a

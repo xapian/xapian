@@ -71,6 +71,7 @@ PWRITE_PROTOTYPE
 #include "brass_cursor.h"
 
 #include "debuglog.h"
+#include "errno_to_string.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
@@ -1517,7 +1518,7 @@ BrassTable::do_open_to_write(bool revision_supplied,
 	string message(create_db ? "Couldn't create " : "Couldn't open ");
 	message += name;
 	message += "DB read/write: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -2006,7 +2007,7 @@ BrassTable::do_open_to_read(bool revision_supplied, brass_revision_number_t revi
 	string message("Couldn't open ");
 	message += name;
 	message += "DB to read: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 

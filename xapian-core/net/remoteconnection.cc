@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -138,7 +138,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	if (received == 0)
 	    throw Xapian::NetworkError("Received EOF", context);
 
-	LOGLINE(REMOTE, "read gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "read gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -276,7 +276,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    continue;
 	}
 
-	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -416,7 +416,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    continue;
 	}
 
-	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)

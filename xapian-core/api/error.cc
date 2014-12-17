@@ -1,7 +1,7 @@
 /** @file error.cc
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008 Olly Betts
+/* Copyright (C) 2007,2008,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,8 +30,8 @@
 #endif
 
 #include <cstdio> // For sprintf().
-#include <cstring> // For strerror().
 
+#include "errno_to_string.h"
 #include "str.h"
 
 using namespace std;
@@ -50,7 +50,7 @@ Xapian::Error::get_error_string() const
     if (!error_string.empty()) return error_string.c_str();
     if (my_errno == 0) return NULL;
     if (my_errno > 0) {
-	error_string.assign(strerror(my_errno));
+	errno_to_string(my_errno, error_string);
 	return error_string.c_str();
     }
 #ifdef __WIN32__

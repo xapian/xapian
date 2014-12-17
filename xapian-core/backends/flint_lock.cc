@@ -37,6 +37,7 @@
 #endif
 
 #include "closefrom.h"
+#include "errno_to_string.h"
 #include "omassert.h"
 
 #ifdef __CYGWIN__
@@ -71,7 +72,8 @@ FlintLock::lock(bool exclusive, string & explanation) {
 #else
     if (cygwin_conv_path(CCP_POSIX_TO_WIN_A|CCP_RELATIVE, filename.c_str(),
 			 fnm, MAX_PATH) < 0) {
-	explanation = string("cygwin_conv_path failed:") + strerror(errno);
+	explanation.assign("cygwin_conv_path failed: ");
+	errno_to_string(errno, explanation);
 	return UNKNOWN;
     }
 #endif
@@ -100,7 +102,8 @@ FlintLock::lock(bool exclusive, string & explanation) {
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0666);
     if (lockfd < 0) {
 	// Couldn't open lockfile.
-	explanation = string("Couldn't open lockfile: ") + strerror(errno);
+	explanation.assign("Couldn't open lockfile: ");
+	errno_to_string(errno, explanation);
 	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
 
@@ -185,7 +188,8 @@ no_ofd_support:
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
-	explanation = string("Couldn't create socketpair: ") + strerror(errno);
+	explanation.assign("Couldn't create socketpair: ");
+	errno_to_string(errno, explanation);
 	reason why = ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
 	(void)close(lockfd);
 	return why;
@@ -273,7 +277,8 @@ no_ofd_support:
 
     if (child == -1) {
 	// Couldn't fork.
-	explanation = string("Couldn't fork: ") + strerror(errno);
+	explanation.assign("Couldn't fork: ");
+	errno_to_string(errno, explanation);
 	close(fds[0]);
 	return UNKNOWN;
     }
@@ -299,7 +304,8 @@ no_ofd_support:
 	}
 	if (errno != EINTR) {
 	    // Treat unexpected errors from read() as failure to get the lock.
-	    explanation = string("Error reading from child process: ") + strerror(errno);
+	    explanation.assign("Error reading from child process: ");
+	    errno_to_string(errno, explanation);
 	    break;
 	}
     }

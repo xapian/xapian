@@ -30,6 +30,7 @@
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
+#include "errno_to_string.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
@@ -176,7 +177,11 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
 #endif
 
     if (h == -1) {
-	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
+	err_msg += "Couldn't open ";
+	err_msg += basename;
+	err_msg += ": ";
+	errno_to_string(errno, err_msg);
+	err_msg += "\n";
 	return false;
     }
     fdcloser closefd(h);
@@ -311,8 +316,10 @@ ChertTable_base::write_to_file(const string &filename,
     int h = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
     if (h < 0) {
-	string message = string("Couldn't open base ")
-		+ filename + " to write: " + strerror(errno);
+	string message("Couldn't open base ");
+	message += filename;
+	message += " to write: ";
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);

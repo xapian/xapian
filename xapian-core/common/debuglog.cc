@@ -1,7 +1,7 @@
 /** @file debuglog.cc
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2011,2012 Olly Betts
+/* Copyright (C) 2008,2011,2012,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@
 #include "safeunistd.h"
 
 #include <cstdlib> // For getenv().
-#include <cstring> // For strerror().
 #include <string>
 
 using namespace std;
@@ -81,8 +80,10 @@ DebugLogger::initialise_categories_mask()
 		// user will probably miss the message about the debug log
 		// failing to open!
 		fd = 2;
+		string e;
+		errno_to_string(errno, e);
 		LOGLINE(ALWAYS, PACKAGE_STRING": Failed to open debug log '"
-			<< fnm << "' (" << strerror(errno) << ')');
+			<< fnm << "' (" << e << ')');
 		fd = -2;
 	    }
 	}
@@ -134,8 +135,10 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
 	    // logging.
 	    (void)close(fd);
 	    fd = 2;
+	    string e;
+	    errno_to_string(errno, e);
 	    LOGLINE(ALWAYS, PACKAGE_STRING": Failed to write log output ("
-		    << strerror(errno) << ')');
+		    << e << ')');
 	    fd = -2;
 	    break;
 	}
