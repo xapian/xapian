@@ -1,3 +1,9 @@
+Wed Dec 17 23:01:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions,
+	  python3/generate-python-exceptions: Remove comment which is no
+	  longer correct since #538 was fixed 4.5 years ago.
+
 Mon Dec 15 00:10:42 GMT 2014  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Add DB_RETRY_LOCK as a constant to wrap.
