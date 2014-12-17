@@ -854,10 +854,6 @@ if test "$enable_backend_remote" = yes ; then
       AC_SEARCH_LIBS([gethostbyname], [nsl], [], [
 	AC_MSG_ERROR([gethostbyname() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
       ])
-      dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-      AC_SEARCH_LIBS([gethostbyaddr], [nsl], [], [
-	AC_MSG_ERROR([gethostbyaddr() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
-      ])
       REMOTE_LIBS=$LIBS
       LIBS=$SAVE_LIBS
       ;;
