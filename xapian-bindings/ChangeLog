@@ -1,3 +1,8 @@
+Wed Dec 17 23:01:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions: Remove comment which is no
+	  longer correct since #538 was fixed 4.5 years ago.
+
 Fri Dec 05 11:26:16 GMT 2014  Olly Betts <olly@survex.com>
 
 	* ChangeLog,configure.ac: Fix typos reported by Veres Lajos.
