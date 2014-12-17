@@ -1,3 +1,31 @@
+Wed Dec 17 02:59:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Drop probe for gethostbyaddr() - we've not used it for
+	  over 8.5 years (since e33972a5).
+
+Wed Dec 17 02:33:36 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/internaltypes.h: Take CHAR_BIT into account when choosing
+	  types for uint2, uint4 and uint8.
+
+Wed Dec 17 02:30:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* api/error.cc,backends/chert/chert_btreebase.cc,
+	  backends/chert/chert_table.cc,backends/flint_lock.cc,
+	  backends/glass/glass_table.cc,common/,configure.ac,
+	  net/remoteconnection.cc: Add errno_to_string() function which is
+	  thread-safe where a suitable alternative to strerror() exists.
+
+Tue Dec 16 06:54:32 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add missing m4 quoting.  Generated configure file is
+	  unchanged.
+
+Tue Dec 16 06:28:21 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't check for strerror - it's specified by C89, and
+	  we weren't using the result of the check anyway.
+
 Tue Dec 16 03:59:39 UTC 2014  Sébastien Debrard <sebastien.debrard@gmail.com>
 
 	* api/omenquire.cc,backends/multi/multi_postlist.cc,

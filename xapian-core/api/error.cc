@@ -30,8 +30,9 @@
 #endif
 
 #include <cstdlib> // For abs().
-#include <cstring> // For strerror(), memcmp().
+#include <cstring> // For memcmp().
 
+#include "errno_to_string.h"
 #include "str.h"
 #include "unicode/description_append.h"
 
@@ -69,11 +70,11 @@ Xapian::Error::get_error_string() const
 		error_string += str(e);
 	    }
 	} else {
-	    error_string.assign(strerror(my_errno));
+	    errno_to_string(my_errno, error_string);
 	}
 #else
 	if (my_errno > 0) {
-	    error_string.assign(strerror(my_errno));
+	    errno_to_string(my_errno, error_string);
 	} else {
 # ifndef HAVE_HSTRERROR
 	    const char * s = NULL;
