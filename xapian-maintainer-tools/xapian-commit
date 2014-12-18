@@ -361,7 +361,7 @@ while (<CI>) {
     }
 }
 close CI;
-$msg =~ s/\s+$//s;
+$msg =~ s/\s+$//m;
 $msg =~ s/^\s+(?:\* \b)?//mg;
 die "No changelog entry" if length($msg) == 0;
 my $newclentry = "ChangeLog.newentry.$$";
