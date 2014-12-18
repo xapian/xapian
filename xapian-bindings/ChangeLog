@@ -1,3 +1,8 @@
+Thu Dec 18 00:30:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/python.i: Don't release the GIL when using
+	  XapianSWIGQueryItor as it uses Python C API calls.
+
 Thu Dec 18 00:19:56 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python3/pythontest.py: Actually reenable the test case which was
