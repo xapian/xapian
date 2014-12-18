@@ -1,7 +1,7 @@
 /** @file safesyssocket.h
  * @brief #include <sys/socket.h> with portability workarounds.
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,8 @@
 #else
 // On Linux at least, sometimes SOCK_CLOEXEC is defined but the kernel doesn't
 // handle it in socket() or socketpair():
+
+# include "safeerrno.h"
 
 inline int socket_(int domain, int type, int protocol) {
     // Usually type is passed a constant, so we'll collapse to one branch or

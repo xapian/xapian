@@ -1,3 +1,7 @@
+Thu Dec 18 10:28:17 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/safesyssocket.h: Include safeerrno.h when we use errno.
+
 Thu Dec 18 06:17:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc: Use POSIX O_NONBLOCK in preference to O_NDELAY
