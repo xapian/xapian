@@ -188,6 +188,10 @@ class XapianSWIG_Python_Thread_Allow {
 
 #define XAPIAN_MIXED_SUBQUERIES_BY_ITERATOR_TYPEMAP
 
+// Don't release the GIL for this method since we use Python C API calls to do
+// the iteration.
+%nothreadallow Xapian::Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend, Xapian::termcount parameter = 0);
+
 %typemap(typecheck, precedence=500) (XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend) {
     // Checking for a sequence is enough to disambiguate currently.
     $1 = PySequence_Check($input);
