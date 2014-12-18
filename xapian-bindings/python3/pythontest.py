@@ -1611,9 +1611,6 @@ if have_threads:
     # it before running tests in a thread.
     del test_import_star
 
-    # FIXME: This testcase seg faults under threads.
-    del test_postingsource
-
     t = threading.Thread(name='test runner', target=run)
     t.start()
     # Block until the thread has completed so the thread gets a chance to exit
