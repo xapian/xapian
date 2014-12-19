@@ -1,3 +1,7 @@
+Fri Dec 19 03:21:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.rst: Improve wording of docs for SORT parameter.
+
 Tue Dec 16 04:06:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo: 'libmagic-devl' -> 'libmagic-devel'
