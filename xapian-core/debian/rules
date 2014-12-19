@@ -208,6 +208,9 @@ endif
 	# Xapian website since we don't build and package them.
 	sed -i 's,sourcedoc/html/annotated.html,http://xapian.org/docs/&,' debian/tmp/usr/share/doc/xapian-core/internals.html
 
+	# Temporarily ignore these.
+	rm -rf debian/tmp/usr/share/xapian-core/stopwords
+
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --fail-missing
 	touch $@
