@@ -92,11 +92,11 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 dnl libmagic used to detect MIME types for files we don't detect by extension.
 AC_CHECK_HEADERS([magic.h])
 if test $ac_cv_header_magic_h = yes ; then
-  save_LIBS=$LIBS
-  LIBS=
-  AC_SEARCH_LIBS([magic_open], [magic])
-  MAGIC_LIBS=$LIBS
-  LIBS=$save_LIBS
+  dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
+  dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
+  dnl libtool, but we've checked for magic.h, so checking the library would
+  dnl not really gain us much - we know it is -lmagic.
+  MAGIC_LIBS=-lmagic
 else
   MAGIC_LIBS=
 fi
