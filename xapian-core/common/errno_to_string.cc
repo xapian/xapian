@@ -31,6 +31,8 @@
 #if (HAVE_DECL__SYS_ERRLIST && HAVE_DECL__SYS_NERR) || \
     (HAVE_DECL_SYS_ERRLIST && HAVE_DECL_SYS_NERR)
 # include <stdio.h>
+// Under mingw, these are in stdlib.h.
+# include <stdlib.h>
 #endif
 
 #include "str.h"

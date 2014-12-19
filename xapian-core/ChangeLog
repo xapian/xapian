@@ -1,3 +1,7 @@
+Fri Dec 19 22:30:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/errno_to_string.cc: Need stdlib.h under mingw.
+
 Fri Jan 09 04:38:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/debuglog.cc: Add '#include "errno_to_string.h"'.
