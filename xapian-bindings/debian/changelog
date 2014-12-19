@@ -1,3 +1,9 @@
+xapian-bindings (1.3.1.avature15) precise; urgency=medium
+
+  * Merge in changes from git master (up to 9c31cb4).
+
+ -- Olly Betts <olly@survex.com>  Fri, 19 Dec 2014 17:47:29 +1300
+
 xapian-bindings (1.3.1.avature14) precise; urgency=medium
 
   * Merge in changes from SVN trunk (up to r18359).
