@@ -1,3 +1,8 @@
+Fri Dec 19 04:38:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_check.cc: Distinguish between a block in use
+	  and in the freelist, and a block in the freelist more than once.
+
 Fri Dec 19 04:37:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_freelist.cc,backends/glass/glass_freelist.h:
