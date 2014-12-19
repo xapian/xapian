@@ -1,3 +1,23 @@
+Fri Dec 19 04:38:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_check.cc: Distinguish between a block in use
+	  and in the freelist, and a block in the freelist more than once.
+
+Fri Dec 19 04:37:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc,backends/glass/glass_freelist.h:
+	  Avoid any mutual recursion between GlassFreeList::get_block() and
+	  GlassFreeList::mark_block_unused().
+
+Thu Dec 18 10:28:17 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/safesyssocket.h: Include safeerrno.h when we use errno.
+
+Thu Dec 18 06:17:18 GMT 2014  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc: Use POSIX O_NONBLOCK in preference to O_NDELAY
+	  which has different semantics on BSD and System V.
+
 Wed Dec 17 02:59:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Drop probe for gethostbyaddr() - we've not used it for

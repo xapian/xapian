@@ -99,27 +99,12 @@ if test $ac_cv_header_magic_h != yes ; then
   fi
   AC_MSG_ERROR([libmagic required but magic.h not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
 fi
-save_LIBS=$LIBS
-LIBS=
-AC_ARG_VAR(MAGIC_PREFIX, [Prefix for libmagic])
-if test "$MAGIC_PREFIX"; then
-AC_SEARCH_LIBS([magic_open], [magic], [], [
-   MAGIC_LDFLAGS=-L$MAGIC_PREFIX/lib
-   save_LDFLAGS=$LDFLAGS
-   LDFLAGS="$LDFLAGS $MAGIC_LDFLAGS"
-   AC_CHECK_LIB([magic], [magic_open], [], [
-      MAGIC_LIBS=
-      ])
-   LDFLAGS=$save_LDFLAGS
-   AC_SUBST([MAGIC_LDFLAGS])
- ])
-else
-AC_SEARCH_LIBS([magic_open], [magic])
-fi
-dnl magic_descriptor was added in file-4.22 released 2007-12-27.
-AC_CHECK_FUNCS([magic_descriptor])
-MAGIC_LIBS=$LIBS
-LIBS=$save_LIBS
+
+dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
+dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
+dnl libtool, but we've checked for magic.h, so checking the library would
+dnl not really gain us much - we know it is -lmagic.
+MAGIC_LIBS=-lmagic
 AC_SUBST([MAGIC_LIBS])
 
 dnl mingw (for instance) lacks ssize_t
