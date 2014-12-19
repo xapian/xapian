@@ -1,3 +1,9 @@
+Fri Dec 19 04:37:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc,backends/glass/glass_freelist.h:
+	  Avoid any mutual recursion between GlassFreeList::get_block() and
+	  GlassFreeList::mark_block_unused().
+
 Thu Dec 18 10:28:17 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/safesyssocket.h: Include safeerrno.h when we use errno.

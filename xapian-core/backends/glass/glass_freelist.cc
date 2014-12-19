@@ -57,7 +57,8 @@ GlassFreeList::write_block(const GlassTable * B, uint4 n, byte * ptr, uint4 rev)
 }
 
 uint4
-GlassFreeList::get_block(const GlassTable *B, uint4 block_size)
+GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
+			 uint4 * blk_to_free)
 {
     if (fl == fl_end) {
 	return first_unused_block++;
@@ -68,15 +69,20 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size)
 	    p = new byte[block_size];
 	    read_block(B, fl.n, p);
 	} else {
-	    // Delay calling mark_block_unused() on the old block until after
-	    // we've started a new one to avoid a potential infinite recursion.
-	    uint4 block_to_free = fl.n;
+	    // Delay handling marking old block as unused until after we've
+	    // started a new one.
+	    uint4 old_fl_blk = fl.n;
 
 	    fl.n = getint4(p, fl.c);
 	    // Allow for mini-header at start of freelist block.
 	    fl.c = C_BASE;
 	    read_block(B, fl.n, p);
-	    mark_block_unused(B, block_size, block_to_free);
+	    if (blk_to_free) {
+		Assert(*blk_to_free == BLK_UNUSED);
+		*blk_to_free = old_fl_blk;
+	    } else {
+		mark_block_unused(B, block_size, old_fl_blk);
+	    }
 	}
 
 	// Either the freelist end is in this block, or this freelist block has
@@ -138,6 +144,13 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 void
 GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 blk)
 {
+    // If the current flw block is full, we need to call get_block(), and if
+    // the returned block is the last entry in its freelist block, that block
+    // needs to be marked as unused.  The recursion this would create is
+    // problematic, so we instead note down that block and mark it as unused
+    // once we've processed the original request.
+    uint4 blk_to_free = BLK_UNUSED;
+
     if (!pw) {
 	pw = new byte[block_size];
 	if (flw.c != 0) {
@@ -146,7 +159,7 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 	}
     }
     if (flw.c == 0) {
-	uint4 n = get_block(B, block_size);
+	uint4 n = get_block(B, block_size, &blk_to_free);
 	flw.n = n;
 	flw.c = C_BASE;
 	if (fl.c == 0) {
@@ -157,7 +170,7 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
     } else if (flw.c == block_size - 4) {
 	// blk is free *after* the current revision gets released, so we can't
 	// just use blk as the next block in the freelist chain.
-	uint4 n = get_block(B, block_size);
+	uint4 n = get_block(B, block_size, &blk_to_free);
 	setint4(pw, flw.c, n);
 	write_block(B, flw.n, pw, revision + 1);
 	if (p && flw.n == fl.n) {
@@ -172,6 +185,9 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 
     setint4(pw, flw.c, blk);
     flw.c += 4;
+
+    if (blk_to_free != BLK_UNUSED)
+	mark_block_unused(B, block_size, blk_to_free);
 }
 
 void
