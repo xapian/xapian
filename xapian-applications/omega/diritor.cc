@@ -149,7 +149,8 @@ DirectoryIterator::get_magic_mimetype()
     }
 
     const char * res = NULL;
-#ifdef HAVE_MAGIC_DESCRIPTOR
+    // MAGIC_MIME_TYPE and magic_descriptor() were both added in 4.22.
+#ifdef MAGIC_MIME_TYPE
     if (fd >= 0) {
 	if (lseek(fd, 0, SEEK_SET) == 0)
 	    res = magic_descriptor(magic_cookie, fd);

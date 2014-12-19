@@ -1,3 +1,9 @@
+Fri Dec 19 13:09:11 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac,diritor.cc: Avoid doing link tests with libmagic in
+	  configure as they fail on mingw due to not automatically picking up
+	  libraries which libmagic itself depends on.
+
 Fri Dec 19 03:21:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.rst: Improve wording of docs for SORT parameter.
