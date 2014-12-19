@@ -57,11 +57,12 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
 
-dnl For _ftime64() on mingw we need to tell it we're happy to require
-dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
 case $host_os in
   *mingw*)
+    dnl For _ftime64() on mingw we need to tell it we're happy to require
+    dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
     AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
+    AC_DEFINE([MINGW_HAS_SECURE_API], [1], [Define on mingw to get _s suffixed "secure" functions declared in headers])
     ;;
 esac
 
@@ -94,7 +95,7 @@ if test $ac_cv_header_magic_h != yes ; then
   if test -r /etc/debian_version ; then
     pkg="libmagic-dev"
   else
-    pkg="file-devel (or maybe libmagic-devl)"
+    pkg="file-devel (or maybe libmagic-devel)"
   fi
   AC_MSG_ERROR([libmagic required but magic.h not found.  If you're installing from packages, you probably need to install a package called something like $pkg in order to be able to build $PACKAGE_NAME.])
 fi

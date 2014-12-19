@@ -1792,7 +1792,7 @@ DEFINE_TESTCASE(termlist2, backend) {
     t = db.termlist_begin(1);
     tend = db.termlist_end(1);
     vector<string>::const_iterator i;
-    for (i = v.begin(); i != v.end(); i++) {
+    for (i = v.begin(); i != v.end(); ++i) {
 	TEST_NOT_EQUAL(t, tend);
 	TEST_EQUAL(*i, *t);
 	t++;

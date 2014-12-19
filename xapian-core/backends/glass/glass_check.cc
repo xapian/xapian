@@ -275,6 +275,7 @@ GlassTableCheck::check(const char * tablename, const string & path,
 	// the free list, marking the blocks which aren't used.  Any blocks not
 	// marked have been leaked.
 	GlassFreeListChecker flcheck(B->free_list);
+	GlassFreeListChecker flcheck2(B->free_list);
 	B->block_check(C, B->level, opts, flcheck);
 
 	if (opts & Xapian::DBCHECK_SHOW_FREELIST) {
@@ -286,10 +287,15 @@ GlassTableCheck::check(const char * tablename, const string & path,
 	    uint4 n = B->free_list.walk(B.get(), B->block_size, true);
 	    if (opts & Xapian::DBCHECK_SHOW_FREELIST)
 		*out << ' ' << n;
+	    if (!flcheck2.mark_used(n)) {
+		if (opts & Xapian::DBCHECK_SHOW_FREELIST)
+		    *out << endl;
+		failure("Same block is in freelist more than once", n);
+	    }
 	    if (!flcheck.mark_used(n)) {
 		if (opts & Xapian::DBCHECK_SHOW_FREELIST)
 		    *out << endl;
-		failure("Used block in freelist, or same block in freelist more than once", n);
+		failure("Used block also in freelist", n);
 	    }
 	}
 	if (opts & Xapian::DBCHECK_SHOW_FREELIST)

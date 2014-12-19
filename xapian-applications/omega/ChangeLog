@@ -1,3 +1,21 @@
+Fri Dec 19 03:21:13 GMT 2014  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.rst: Improve wording of docs for SORT parameter.
+
+Tue Dec 16 04:06:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo: 'libmagic-devl' -> 'libmagic-devel'
+
+Tue Dec 16 03:53:25 GMT 2014  Olly Betts <olly@survex.com>
+
+	* configure.ac: Define MINGW_HAS_SECURE_API under mingw to get
+	  _putenv_s() declared in stdlib.h.
+
+Thu Dec 11 11:33:41 GMT 2014  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Add timegm.cc to scriptindex_SOURCES to fix build on
+	  platforms which don't provide timegm().
+
 Wed Dec 03 04:17:18 GMT 2014  Olly Betts <olly@survex.com>
 
 	* templates/xml: Update handling of DATE1, DATE2 and DAYSMINUS which

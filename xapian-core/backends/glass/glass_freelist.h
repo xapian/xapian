@@ -106,7 +106,8 @@ class GlassFreeList {
 
     bool empty() const { return fl == fl_end; }
 
-    uint4 get_block(const GlassTable * B, uint4 block_size);
+    uint4 get_block(const GlassTable * B, uint4 block_size,
+		    uint4 * blk_to_free = NULL);
 
     uint4 walk(const GlassTable *B, uint4 block_size, bool inclusive);
 

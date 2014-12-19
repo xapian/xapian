@@ -1,3 +1,28 @@
+Thu Dec 18 00:30:06 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/python.i: Don't release the GIL when using
+	  XapianSWIGQueryItor as it uses Python C API calls.
+
+Thu Dec 18 00:19:56 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/pythontest.py: Actually reenable the test case which was
+	  failing before the previous commit fixed the underlying problem.
+
+Thu Dec 18 00:18:07 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python3/python.i: Don't release the GIL when using
+	  XapianSWIGQueryItor as it uses Python C API calls.  (fixes #346)
+
+Wed Dec 17 23:01:35 GMT 2014  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions,
+	  python3/generate-python-exceptions: Remove comment which is no
+	  longer correct since #538 was fixed 4.5 years ago.
+
+Mon Dec 15 00:10:42 GMT 2014  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Add DB_RETRY_LOCK as a constant to wrap.
+
 Fri Dec 05 11:26:16 GMT 2014  Olly Betts <olly@survex.com>
 
 	* ChangeLog,configure.ac: Fix typos reported by Veres Lajos.

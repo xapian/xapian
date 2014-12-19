@@ -22,6 +22,8 @@
 #ifndef XAPIAN_INCLUDED_INTERNALTYPES_H
 #define XAPIAN_INCLUDED_INTERNALTYPES_H
 
+#include <climits>
+
 /// Unsigned 8 bit type.
 typedef unsigned char byte;
 
@@ -35,21 +37,21 @@ typedef unsigned char byte;
 # error SIZEOF_LONG is not defined
 #endif
 
-#if SIZEOF_SHORT == 2
+#if SIZEOF_SHORT * CHAR_BIT == 16
 typedef unsigned short uint2;
 #else
 # error Type short is more than 16 bits, which Xapian does not currently handle
 #endif
 
-#if SIZEOF_INT >= 4
+#if SIZEOF_INT * CHAR_BIT >= 32
 typedef unsigned int uint4;
-#elif SIZEOF_LONG >= 4
+#elif SIZEOF_LONG * CHAR_BIT >= 32
 typedef unsigned long uint4;
 #else
 # error Type long is less than 32 bits, which ISO does not allow!
 #endif
 
-#if SIZEOF_LONG >= 8
+#if SIZEOF_LONG * CHAR_BIT >= 64
 typedef unsigned long uint8;
 #else
 /* C99 and C++11 actually standardised "long long", but it seems to be widely
