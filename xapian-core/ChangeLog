@@ -1,3 +1,7 @@
+Fri Dec 19 22:30:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/errno_to_string.cc: Need stdlib.h under mingw.
+
 Fri Dec 19 04:38:56 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_check.cc: Distinguish between a block in use
