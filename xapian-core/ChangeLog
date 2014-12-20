@@ -1,3 +1,8 @@
+Sat Dec 20 10:40:44 GMT 2014  Sébastien Debrard <sebastien.debrard@gmail.com>
+
+	* Makefile.am,configure.ac,pkgconfig/,xapian-core.spec.in: Generate a
+	  file for pkg-config.  (Fixes#540)
+
 Mon Jan 05 08:39:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Remove the generated .pc file on "make distclean".
