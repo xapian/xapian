@@ -1,3 +1,7 @@
+Sun Dec 21 20:55:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Document the enum stat_flags values.
+
 Sun Dec 21 20:51:47 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Fix indentation.
