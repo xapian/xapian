@@ -1,3 +1,7 @@
+Sun Dec 21 20:51:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Fix indentation.
+
 Sat Dec 20 10:40:44 GMT 2014  Sébastien Debrard <sebastien.debrard@gmail.com>
 
 	* Makefile.am,configure.ac,pkgconfig/,xapian-core.spec.in: Generate a
