@@ -2220,7 +2220,10 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
+	    long page = atol(val->second.c_str());
+	    // Do something sensible for page 0 (we count pages from 1).
+	    if (page == 0) page = 1;
+	    topdoc = (page - 1) * hits_per_page;
 	}
 
 	// raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
