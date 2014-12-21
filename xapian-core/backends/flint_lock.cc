@@ -25,7 +25,6 @@
 
 #ifndef __WIN32__
 #include "safeerrno.h"
-
 #include "safefcntl.h"
 #include <unistd.h>
 #include <cstdlib>
@@ -37,10 +36,12 @@
 #endif
 
 #include "closefrom.h"
+#include "errno_to_string.h"
 #include "omassert.h"
 
 #ifdef __CYGWIN__
 #include <sys/cygwin.h>
+#include "safewindows.h"
 #endif
 
 #ifdef FLINTLOCK_USE_FLOCK
@@ -62,7 +63,7 @@ using namespace std;
 #endif
 
 FlintLock::reason
-FlintLock::lock(bool exclusive, string & explanation) {
+FlintLock::lock(bool exclusive, bool wait, string & explanation) {
     // Currently we only support exclusive locks.
     (void)exclusive;
     Assert(exclusive);
@@ -75,17 +76,28 @@ FlintLock::lock(bool exclusive, string & explanation) {
 #else
     if (cygwin_conv_path(CCP_POSIX_TO_WIN_A|CCP_RELATIVE, filename.c_str(),
 			 fnm, MAX_PATH) < 0) {
-	explanation = string("cygwin_conv_path failed:") + strerror(errno);
+	explanation.assign("cygwin_conv_path failed: ");
+	errno_to_string(errno, explanation);
 	return UNKNOWN;
     }
 #endif
 #else
     const char *fnm = filename.c_str();
 #endif
+retry:
+    // FIXME: Use LockFileEx() for locking, which would allow proper blocking
+    // and also byte-range locking for when we implement MVCC.  But is there a
+    // way to interwork with the CreateFile()-based locking while doing so?
     hFile = CreateFile(fnm, GENERIC_WRITE, FILE_SHARE_READ,
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
-    if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+	if (wait) {
+	    Sleep(1000);
+	    goto retry;
+	}
+	return INUSE;
+    }
     explanation = string();
     return UNKNOWN;
 #elif defined FLINTLOCK_USE_FLOCK
@@ -101,11 +113,14 @@ FlintLock::lock(bool exclusive, string & explanation) {
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
     if (lockfd < 0) {
 	// Couldn't open lockfile.
-	explanation = string("Couldn't open lockfile: ") + strerror(errno);
+	explanation.assign("Couldn't open lockfile: ");
+	errno_to_string(errno, explanation);
 	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
 
-    while (flock(lockfd, LOCK_EX|LOCK_NB) == -1) {
+    int op = LOCK_EX;
+    if (!wait) op |= LOCK_NB;
+    while (flock(lockfd, op) == -1) {
 	if (errno != EINTR) {
 	    // Lock failed - translate known errno values into a reason code.
 	    close(lockfd);
@@ -131,9 +146,27 @@ FlintLock::lock(bool exclusive, string & explanation) {
 #endif
     if (lockfd < 0) {
 	// Couldn't open lockfile.
-	explanation = string("Couldn't open lockfile: ") + strerror(errno);
+	explanation.assign("Couldn't open lockfile: ");
+	errno_to_string(errno, explanation);
 	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
+
+#if defined  __CYGWIN__ || defined __WIN32__
+    OVERLAPPED xOverlapped;     //Overlapper structure required by LockFileEx()
+    xOverlapped.Offset = 0;     // Low order offset position of file in database
+    xOverlapped.OffsetHigh = 0; //High order offset position of file in database
+    
+    if (!(LockFileEx(hFile, LOCKFILE_EXCLUSIVE_LOCK, LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &xOverlapped))) {
+                               // Requires Exclusive access hFile rather than standard filename.c_str() from lockfd
+                                 
+     GetLastError();   // Lock Failed check for errors
+     return UNKNOWN;                 
+    }
+    fd = fnm;                  
+    return SUCCESS;          
+
+#endif
+
 
 #ifdef F_OFD_SETLK
     // F_OFD_SETLK has exactly the semantics we want, so use it if it's
@@ -153,7 +186,7 @@ FlintLock::lock(bool exclusive, string & explanation) {
 	fl.l_start = 0;
 	fl.l_len = 1;
 	fl.l_pid = 0;
-	while (fcntl(lockfd, F_OFD_SETLK, &fl) == -1) {
+	while (fcntl(lockfd, wait ? F_OFD_SETLKW : F_OFD_SETLK, &fl) == -1) {
 	    if (errno != EINTR) {
 		if (errno == EINVAL) {
 		    // F_OFD_SETLK not supported by this kernel.
@@ -216,7 +249,8 @@ no_ofd_support:
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
-	explanation = string("Couldn't create socketpair: ") + strerror(errno);
+	explanation.assign("Couldn't create socketpair: ");
+	errno_to_string(errno, explanation);
 	reason why = ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
 	(void)close(lockfd);
 	return why;
@@ -258,6 +292,25 @@ no_ofd_support:
 	}
 	closefrom(lockfd + 1);
 
+#if defined __CYGWIN__ || defined  __WIN32__
+
+	reason why = SUCCESS;
+        {  OVERLAPPED xOverlapped;     
+           xOverlapped.Offset = 0;     
+           xOverlapped.OffsetHigh = 0; 
+    
+	   if (!(LockFileEx(hFile, LOCKFILE_EXCLUSIVE_LOCK, LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &xOverlapped))) {
+                                 
+      errno = GetLastError();   // Lock Failed check for errors                 
+	   }
+	   if ( errno == 307 )
+	     return UNSUPPORTED;
+           else 
+	     return UNKNOWN;
+        } 
+
+#endif
+
 	reason why = SUCCESS;
 	{
 	    struct flock fl;
@@ -265,7 +318,7 @@ no_ofd_support:
 	    fl.l_whence = SEEK_SET;
 	    fl.l_start = 0;
 	    fl.l_len = 1;
-	    while (fcntl(lockfd, F_SETLK, &fl) == -1) {
+	    while (fcntl(lockfd, wait ? F_SETLKW : F_SETLK, &fl) == -1) {
 		if (errno != EINTR) {
 		    // Lock failed - translate known errno values into a reason
 		    // code.
@@ -318,7 +371,8 @@ no_ofd_support:
 
     if (child == -1) {
 	// Couldn't fork.
-	explanation = string("Couldn't fork: ") + strerror(errno);
+	explanation.assign("Couldn't fork: ");
+	errno_to_string(errno, explanation);
 	close(fds[0]);
 	return UNKNOWN;
     }
@@ -344,7 +398,8 @@ no_ofd_support:
 	}
 	if (errno != EINTR) {
 	    // Treat unexpected errors from read() as failure to get the lock.
-	    explanation = string("Error reading from child process: ") + strerror(errno);
+	    explanation.assign("Error reading from child process: ");
+	    errno_to_string(errno, explanation);
 	    break;
 	}
     }
