@@ -1,3 +1,7 @@
+Sun Dec 21 21:54:48 GMT 2014  Olly Betts <olly@survex.com>
+
+	* query.cc: Handle [=0 as [=1.
+
 Fri Dec 19 13:09:11 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac,diritor.cc: Avoid doing link tests with libmagic in
