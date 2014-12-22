@@ -1,3 +1,8 @@
+Mon Dec 22 03:15:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Allow restricting the number of
+	  freelist entries per block by setting GLASS_FREELIST_SIZE.
+
 Sun Dec 21 20:55:47 GMT 2014  Olly Betts <olly@survex.com>
 
 	* include/xapian/weight.h: Document the enum stat_flags values.

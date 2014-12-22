@@ -31,6 +31,17 @@
 
 using namespace std;
 
+// Allow forcing the freelist to be shorter to tickle bugs.
+// FIXME: Sort out a way we can set this dynamically while running the
+// testsuite.
+#ifdef GLASS_FREELIST_SIZE
+# define FREELIST_END_ \
+    (8 + (GLASS_FREELIST_SIZE < 3 ? 3 : GLASS_FREELIST_SIZE) * 4)
+# define FREELIST_END (FREELIST_END_ < 2048 ? FREELIST_END_ : 2048)
+#else
+# define FREELIST_END block_size
+#endif
+
 /** The first offset to use for storing free block info.
  *
  *  The first 4 bytes store the revision.  The next byte (which is the level
@@ -64,7 +75,7 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
 	return first_unused_block++;
     }
 
-    if (p == 0 || fl.c == block_size - 4) {
+    if (p == 0 || fl.c == FREELIST_END - 4) {
 	if (p == 0) {
 	    p = new byte[block_size];
 	    read_block(B, fl.n, p);
@@ -87,14 +98,14 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
 
 	// Either the freelist end is in this block, or this freelist block has
 	// a next pointer.
-	Assert(fl.n == fl_end.n || getint4(p, block_size - 4) != -1);
+	Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
 
 	return get_block(B, block_size);
     }
 
     // Either the freelist end is in this block, or this freelist block has a
     // next pointer.
-    Assert(fl.n == fl_end.n || getint4(p, block_size - 4) != -1);
+    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
 
     uint4 blk = getint4(p, fl.c);
     if (blk == uint4(-1))
@@ -112,7 +123,7 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 	return static_cast<uint4>(-1);
     }
 
-    if (p == 0 || fl.c == block_size - 4) {
+    if (p == 0 || fl.c == FREELIST_END - 4) {
 	if (p == 0) {
 	    p = new byte[block_size];
 	} else {
@@ -124,7 +135,7 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 
 	// Either the freelist end is in this block, or this freelist block has
 	// a next pointer.
-	Assert(fl.n == fl_end.n || getint4(p, block_size - 4) != -1);
+	Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
 
 	if (inclusive)
 	    return fl.n;
@@ -133,7 +144,7 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 
     // Either the freelist end is in this block, or this freelist block has a
     // next pointer.
-    Assert(fl.n == fl_end.n || getint4(p, block_size - 4) != -1);
+    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
 
     uint4 blk = getint4(p, fl.c);
     fl.c += 4;
@@ -166,12 +177,17 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 	    fl = fl_end = flw;
 	}
 	flw_appending = (n == first_unused_block - 1);
-	setint4(pw, block_size - 4, -1);
-    } else if (flw.c == block_size - 4) {
+	setint4(pw, FREELIST_END - 4, -1);
+    } else if (flw.c == FREELIST_END - 4) {
 	// blk is free *after* the current revision gets released, so we can't
 	// just use blk as the next block in the freelist chain.
 	uint4 n = get_block(B, block_size, &blk_to_free);
 	setint4(pw, flw.c, n);
+#ifdef GLASS_FREELIST_SIZE
+	if (block_size != FREELIST_END) {
+	    memset(pw + FREELIST_END, 0, block_size - FREELIST_END);
+	}
+#endif
 	write_block(B, flw.n, pw, revision + 1);
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
@@ -180,7 +196,7 @@ GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, uint4 b
 	flw.n = n;
 	flw.c = C_BASE;
 	flw_appending = (n == first_unused_block - 1);
-	setint4(pw, block_size - 4, -1);
+	setint4(pw, FREELIST_END - 4, -1);
     }
 
     setint4(pw, flw.c, blk);
@@ -194,7 +210,12 @@ void
 GlassFreeList::commit(const GlassTable * B, uint4 block_size)
 {
     if (pw && flw.c != 0) {
-	memset(pw + flw.c, 255, block_size - flw.c - 4);
+	memset(pw + flw.c, 255, FREELIST_END - flw.c - 4);
+#ifdef GLASS_FREELIST_SIZE
+	if (block_size != FREELIST_END) {
+	    memset(pw + FREELIST_END, 0xaa, block_size - FREELIST_END);
+	}
+#endif
 	write_block(B, flw.n, pw, revision);
 	if (p && flw.n == fl.n) {
 	    // FIXME: share and refcount?
