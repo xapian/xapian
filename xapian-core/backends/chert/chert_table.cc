@@ -463,6 +463,9 @@ ChertTable::alter()
    right ends of the search area. In sequential addition, c will often
    be the answer, so we test the keys round c and move i and j towards
    c if possible.
+
+   The returned value is < DIR_END(p).  If leaf is false, the returned
+   value is >= DIR_START; if leaf is true, it can also be == DIR_START - D2.
 */
 
 int
@@ -493,6 +496,12 @@ ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
    Result is true if found, false otherwise.  When false, the B_tree
    cursor is positioned at the last key in the B-tree <= the search
    key.  Goes to first (null) item in B-tree when key length == 0.
+
+   Note: The cursor can be left with C_[0].c == DIR_START - D2 if the
+   requested key doesn't exist and is less than the smallest key in a
+   leaf block, but after the dividing key.  The caller needs to fix up
+   C_[0].c in this case, either explicitly or by performing an
+   operation which gives C_[0].c a valid value.
 */
 
 bool
@@ -520,7 +529,9 @@ ChertTable::find(Cursor * C_) const
     report_block_full(0, C_[0].n, p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
-    if (c < DIR_START) RETURN(false);
+    if (c < DIR_START) {
+	RETURN(false);
+    }
     RETURN(Item(p, c).key() == key);
 }
 
