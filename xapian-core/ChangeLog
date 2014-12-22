@@ -1,3 +1,29 @@
+Mon Dec 22 03:39:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Add more freelist assertions.
+
+Mon Dec 22 03:15:50 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Allow restricting the number of
+	  freelist entries per block by setting GLASS_FREELIST_SIZE.
+
+Sun Dec 21 20:55:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Document the enum stat_flags values.
+
+Sun Dec 21 20:51:47 GMT 2014  Olly Betts <olly@survex.com>
+
+	* include/xapian/weight.h: Fix indentation.
+
+Sat Dec 20 10:40:44 GMT 2014  Sébastien Debrard <sebastien.debrard@gmail.com>
+
+	* Makefile.am,configure.ac,pkgconfig/,xapian-core.spec.in: Generate a
+	  file for pkg-config.  (Fixes#540)
+
+Fri Dec 19 22:30:39 GMT 2014  Olly Betts <olly@survex.com>
+
+	* common/errno_to_string.cc: Need stdlib.h under mingw.
+
 Fri Dec 19 04:38:56 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_check.cc: Distinguish between a block in use

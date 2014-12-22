@@ -1284,6 +1284,7 @@ AC_CONFIG_FILES([
  xapian-core.spec
  cmake/xapian-config.cmake
  cmake/xapian-config-version.cmake
+ pkgconfig/xapian-core"$LIBRARY_VERSION_SUFFIX".pc:pkgconfig/xapian-core.pc.in
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
