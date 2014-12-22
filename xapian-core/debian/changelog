@@ -1,3 +1,10 @@
+xapian-core (1.3.1.avature16) precise; urgency=medium
+
+  * Merge in changes from git master (up to 3545bbb).
+  * debian/rules: Add support for DEB_BUILD_OPTIONS=assertions
+
+ -- Olly Betts <olly@survex.com>  Mon, 22 Dec 2014 16:45:31 +1300
+
 xapian-core (1.3.1.avature15) precise; urgency=medium
 
   * Merge in changes from git master (up to 9c31cb4):

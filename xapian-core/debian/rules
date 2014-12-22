@@ -94,6 +94,9 @@ ifneq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 else
     MAKE_CHECK := $(MAKE) check VALGRIND=
 endif
+ifneq (,$(filter assertions,$(DEB_BUILD_OPTIONS)))
+    confflags += --enable-assertions
+endif
 
 confflags += CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" CPPFLAGS="$(CPPFLAGS)" LDFLAGS="$(LDFLAGS)"
 
