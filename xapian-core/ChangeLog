@@ -1,3 +1,8 @@
+Mon Dec 22 23:28:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Document situations in which the
+	  cursor can be left pointing before DIR_START.
+
 Mon Dec 22 03:39:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_freelist.cc: Add more freelist assertions.
