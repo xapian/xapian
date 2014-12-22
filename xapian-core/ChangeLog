@@ -1,3 +1,7 @@
+Mon Dec 22 03:39:14 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Add more freelist assertions.
+
 Mon Dec 22 03:15:50 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_freelist.cc: Allow restricting the number of
