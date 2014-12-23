@@ -42,6 +42,7 @@
 
 #ifdef __CYGWIN__
 #include <sys/cygwin.h>
+#include "safewindows.h"
 #endif
 
 #ifdef FLINTLOCK_USE_FLOCK
@@ -85,9 +86,7 @@ FlintLock::lock(bool exclusive, bool wait, string & explanation) {
     const char *fnm = filename.c_str();
 #endif
 retry:
-    // FIXME: Use LockFileEx() for locking, which would allow proper blocking
-    // and also byte-range locking for when we implement MVCC.  But is there a
-    // way to interwork with the CreateFile()-based locking while doing so?
+   
     hFile = CreateFile(fnm, GENERIC_WRITE, FILE_SHARE_READ,
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
@@ -150,6 +149,23 @@ retry:
 	errno_to_string(errno, explanation);
 	return ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
     }
+    
+    #if defined  __CYGWIN__ || defined __WIN32__
+    OVERLAPPED xOverlapped;     //Overlapper structure required by LockFileEx()
+    xOverlapped.Offset = 0;     // Low order offset position of file in database
+    xOverlapped.OffsetHigh = 0; //High order offset position of file in database
+    
+    if (!(LockFileEx(hFile, LOCKFILE_EXCLUSIVE_LOCK, LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &xOverlapped))) {
+                               // Requires Exclusive access hFile rather than standard filename.c_str() from lockfd
+                                 
+     GetLastError();   // Lock Failed check for errors
+     return UNKNOWN;                 
+    }
+    fd = fnm;                  
+    return SUCCESS;          
+
+#endif
+
 
 #ifdef F_OFD_SETLK
     // F_OFD_SETLK has exactly the semantics we want, so use it if it's
@@ -274,6 +290,35 @@ no_ofd_support:
 	    while (close(i) < 0 && errno == EINTR) { }
 	}
 	closefrom(lockfd + 1);
+	
+	#if defined __CYGWIN__ || defined  __WIN32__
+
+	reason why = SUCCESS;
+        {  OVERLAPPED xOverlapped;     
+           xOverlapped.Offset = 0;     
+           xOverlapped.OffsetHigh = 0; 
+    
+	   if (!(LockFileEx(hFile, LOCKFILE_EXCLUSIVE_LOCK, LOCKFILE_FAIL_IMMEDIATELY, 0, MAXDWORD, MAXDWORD, &xOverlapped))) {
+                                 
+      errno = GetLastError();   // Lock Failed check for errors                 
+	   }
+	   
+	   if (errno != EINTR) {
+             // Lock failed - translate known errno values into a reason
+               // code.
+           if (errno == EACCES || errno == EAGAIN) {
+                     why = INUSE;
+                     } else if (errno == ENOLCK) {
+                         why = UNSUPPORTED;
+                     } else {
+                               _exit(0);
+                     }
+
+                } 
+        }
+ 
+        #endif
+
 
 	reason why = SUCCESS;
 	{
