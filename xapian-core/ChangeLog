@@ -1,3 +1,9 @@
+Tue Dec 23 03:58:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: In enter_key(), we know the insertion
+	  point will be the position after the current cursor position, so
+	  there's no need to call find_in_block() to locate it.
+
 Tue Dec 23 03:11:12 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_check.cc: Add check that dir_end is odd.
