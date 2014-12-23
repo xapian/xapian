@@ -1,3 +1,7 @@
+Tue Dec 23 21:26:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: More assertions about c.
+
 Tue Dec 23 04:26:38 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc: Fix assertion to allow for c being
