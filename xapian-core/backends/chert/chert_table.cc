@@ -2270,8 +2270,12 @@ ChertTable::next_default(Cursor * C_, int j) const
     LOGCALL(DB, bool, "ChertTable::next_default", Literal("C_") | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= DIR_START);
     c += D2;
+    if (j > 0) {
+	AssertRel(DIR_START,<,c);
+    } else {
+	AssertRel(DIR_START,<=,c);
+    }
     Assert((unsigned)c < block_size);
     // Sometimes c can be DIR_END(p) + 2 here it appears...
     if (c >= DIR_END(p)) {

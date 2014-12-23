@@ -1,3 +1,8 @@
+Tue Dec 23 04:26:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Fix assertion to allow for c being
+	  DIR_START - D2 in leaf blocks.
+
 Tue Dec 23 04:01:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc: Add more assertions that c has
