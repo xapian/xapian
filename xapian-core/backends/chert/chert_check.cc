@@ -139,7 +139,9 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     base.free_block(n);
 
     if (j != GET_LEVEL(p)) failure(10);
-    if (dir_end <= DIR_START || dir_end > block_size) failure(20);
+    // dir_end must be > DIR_START, fit within the block, and be odd.
+    if (dir_end <= DIR_START || dir_end > block_size || (dir_end & 1) != 1)
+	failure(20);
 
     if (opts & OPT_SHORT_TREE) report_block(3*(level - j), n, p);
 
