@@ -662,7 +662,10 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].p, item.key(), false, 0) + D2;
+    // The split block gets inserted into the parent after the pointer to the
+    // current child.
+    AssertEq(C[j].c, find_in_block(C[j].p, item.key(), false, C[j].c));
+    C[j].c += D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_item(item, j);
 }
