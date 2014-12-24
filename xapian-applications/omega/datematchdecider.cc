@@ -103,7 +103,7 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
 	    }
 	    span = time_t(str_to_long) * 24 * 60 * 60;
 	} else {
-	    long str_to_longlong;
+	    long long str_to_longlong;
 	    errno = 0;
 	    str_to_longlong = strtoll(date_span.c_str(),NULL,0);
 	    if (errno == ERANGE) {
