@@ -1,3 +1,7 @@
+Mon Jan 05 04:42:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_table.cc: More assertions that c is valid.
+
 Mon Jan 05 01:52:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_dbcheck.cc,backends/glass/glass_dbcheck.cc:
