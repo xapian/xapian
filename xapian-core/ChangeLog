@@ -1,3 +1,9 @@
+Mon Jan 05 04:43:35 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_table.cc: In enter_key(), we know the insertion
+	  point will be the position after the current cursor position, so
+	  there's no need to call find_in_block() to locate it.
+
 Mon Jan 05 04:42:17 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_table.cc: More assertions that c is valid.
