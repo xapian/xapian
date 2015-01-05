@@ -748,6 +748,18 @@ check_brass_table(const char * tablename, string filename,
 		continue;
 	    }
 
+	    if (!doclens.empty()) {
+		// In glass, a document without terms doesn't get a
+		// termlist entry, so we can't tell the difference
+		// easily.
+		if (did >= doclens.size() || doclens[did] == 0) {
+		    cout << "Position list entry for document " << did
+			 << " which doesn't exist or has no terms" << endl;
+		    ++errors;
+		    continue;
+		}
+	    }
+
 	    cursor->read_tag();
 
 	    const string & data = cursor->current_tag;

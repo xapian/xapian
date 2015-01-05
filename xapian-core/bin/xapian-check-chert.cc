@@ -748,6 +748,19 @@ check_chert_table(const char * tablename, string filename,
 		++errors;
 		continue;
 	    }
+
+	    if (!doclens.empty()) {
+		// In chert, a document without terms doesn't get a
+		// termlist entry, so we can't tell the difference
+		// easily.
+		if (did >= doclens.size() || doclens[did] == 0) {
+		    cout << "Position list entry for document " << did
+			 << " which doesn't exist or has no terms" << endl;
+		    ++errors;
+		    continue;
+		}
+	    }
+
 	    if (pos == end) {
 		cout << "No termname in key" << endl;
 		++errors;
