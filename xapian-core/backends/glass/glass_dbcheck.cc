@@ -859,6 +859,19 @@ check_glass_table(const char * tablename, const string &db_dir,
 		continue;
 	    }
 
+	    if (!doclens.empty()) {
+		// In glass, a document without terms doesn't get a
+		// termlist entry, so we can't tell the difference
+		// easily.
+		if (did >= doclens.size() || doclens[did] == 0) {
+		    if (out)
+			*out << "Position list entry for document " << did
+			     << " which doesn't exist or has no terms" << endl;
+		    ++errors;
+		    continue;
+		}
+	    }
+
 	    cursor->read_tag();
 
 	    const string & data = cursor->current_tag;

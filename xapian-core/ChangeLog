@@ -1,3 +1,9 @@
+Mon Jan 05 01:52:54 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_dbcheck.cc,backends/glass/glass_dbcheck.cc:
+	  Cross-check the position and postlist tables and report positional
+	  data for non-existent documents.
+
 Mon Jan 05 01:28:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_dbcheck.cc: Fix decoding of positionlist keys -
