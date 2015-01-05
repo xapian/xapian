@@ -87,6 +87,7 @@ dist_m4data_DATA = m4-macros/xapian-1.3.m4
 # Install the pkg-config file containing the correct compiler options.
 pkgconfigdir = $(libdir)/pkgconfig
 nodist_pkgconfig_DATA = pkgconfig/xapian-core-1.3.pc
+DISTCLEANFILES += pkgconfig/xapian-core-1.3.pc
 
 libxapian_la = libxapian-1.3.la
 lib_LTLIBRARIES = libxapian-1.3.la

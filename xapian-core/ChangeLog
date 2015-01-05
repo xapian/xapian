@@ -1,3 +1,7 @@
+Mon Jan 05 08:39:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Remove the generated .pc file on "make distclean".
+
 Mon Jan 05 04:43:35 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_table.cc: In enter_key(), we know the insertion
