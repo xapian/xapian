@@ -1,3 +1,7 @@
+Mon Jan 05 01:25:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_check.cc: Check that dir_end is odd.
+
 Tue Dec 23 21:26:49 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc: More assertions about c.
