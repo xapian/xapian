@@ -1,3 +1,7 @@
+Mon Jan 05 08:39:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Remove the generated .pc file on "make distclean".
+
 Wed Dec 17 02:59:54 GMT 2014  Olly Betts <olly@survex.com>
 
 	* configure.ac: Drop probe for gethostbyaddr() - we've not used it for
