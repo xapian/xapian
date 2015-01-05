@@ -836,6 +836,14 @@ check_glass_table(const char * tablename, const string &db_dir,
 	    const char * pos = key.data();
 	    const char * end = pos + key.size();
 
+	    string term;
+	    if (!unpack_string_preserving_sort(&pos, end, term)) {
+		if (out)
+		    *out << "Error unpacking term from key" << endl;
+		++errors;
+		continue;
+	    }
+
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
@@ -843,9 +851,10 @@ check_glass_table(const char * tablename, const string &db_dir,
 		++errors;
 		continue;
 	    }
-	    if (pos == end) {
+
+	    if (pos != end) {
 		if (out)
-		    *out << "No termname in key" << endl;
+		    *out << "Extra junk in key with docid " << did << endl;
 		++errors;
 		continue;
 	    }

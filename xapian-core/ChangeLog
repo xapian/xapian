@@ -1,3 +1,8 @@
+Mon Jan 05 01:28:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_dbcheck.cc: Fix decoding of positionlist keys -
+	  this hadn't been updated for the key format change.
+
 Mon Jan 05 01:25:17 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_check.cc: Check that dir_end is odd.
