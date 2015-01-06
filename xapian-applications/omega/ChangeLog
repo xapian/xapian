@@ -1,3 +1,9 @@
+Tue Jan 06 21:15:14 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use pkg-config in preference to determine flags needed
+	  to compile and link with PCRE, as this will just work when
+	  cross-compiling (at least under MXE).
+
 Sun Dec 21 21:54:48 GMT 2014  Olly Betts <olly@survex.com>
 
 	* query.cc: Handle [=0 as [=1.
