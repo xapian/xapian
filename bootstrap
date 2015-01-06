@@ -360,12 +360,12 @@ else
   # 2.69 is fussy about the m4 version
   # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.14.1 \
-    tar.xz 2ced676f6b792a95c5919243f81790b1172c7f5b \
-    tar.gz 0bb1714b78d70cab9907d2013082978a28f48a46
-  lazy_build libtool 2.4.3 \
-    tar.xz 7e946bd07b846a8803bf4321e82cd6be8059c0ca \
-    tar.gz c5cd22a47bb175fc269da56551f8bfca89490b73
+  lazy_build automake 1.15 \
+    tar.xz c279b35ca6c410809dac8ade143b805fb48b7655 \
+    tar.gz b5a840c7ec4321e78fdc9472e476263fa6614ca1
+  lazy_build libtool 2.4.4 \
+    tar.xz a62d0f9a5c8ddf2de2a3210a5ab712fd3b4531e9 \
+    tar.gz bba19e682d80941cfb7467689dda2ad9f8f50494
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
       lazy_build file 5.10 tar.gz 72fd435e78955ee122b7b3d323ff2f92e6263e89
