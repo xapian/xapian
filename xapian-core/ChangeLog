@@ -1,3 +1,7 @@
+Tue Jan 06 02:22:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using automake 1.15 and libtool 2.4.4.
+
 Mon Jan 05 08:39:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Remove the generated .pc file on "make distclean".
