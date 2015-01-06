@@ -120,7 +120,7 @@ class IrcBuildRequest:
         if eta is not None:
             response = "build forced [ETA %s]" % self.parent.convertTime(eta)
         self.parent.send(response)
-        self.parent.send("I'll give a shout when the build finishes")
+        self.parent.send("I will politely inform you when the build finishes")
         d = s.waitUntilFinished()
         d.addCallback(self.parent.watchedBuildFinished)
 
