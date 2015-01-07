@@ -1,3 +1,7 @@
+Wed Jan 07 04:00:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't AC_SUBST LUA_INC as we never use it.
+
 Wed Dec 17 23:01:35 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/generate-python-exceptions: Remove comment which is no
