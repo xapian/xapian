@@ -1,3 +1,7 @@
+Wed Jan 07 04:00:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't AC_SUBST LUA_INC as we never use it.
+
 Thu Dec 18 00:30:06 GMT 2014  Olly Betts <olly@survex.com>
 
 	* python/python.i: Don't release the GIL when using
