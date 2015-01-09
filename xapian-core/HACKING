@@ -500,7 +500,7 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.14.1 is used to generate snapshots and releases.
+* automake 1.15 is used to generate snapshots and releases.
 
   automake 1.12.2 is a hard minimum requirement.  This version fixes a
   security issue (CVE-2012-3386) in the generated `make distcheck` rules.
@@ -508,7 +508,7 @@ Autotools versions
   automake 1.12 is needed to support using LOG_COMPILER to specify a testsuite
   driver (used by xapian-bindings).
 
-* libtool 2.4.3 is used to generate snapshots and releases.
+* libtool 2.4.4 is used to generate snapshots and releases.
 
   libtool 2.2.8 is the current hard minimum requirement.
 

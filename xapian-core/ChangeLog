@@ -1,3 +1,70 @@
+Thu Jan 08 05:59:01 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_compact.cc: Fix compaction of position tables
+	  for the change in key format.
+
+Tue Jan 06 02:22:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using automake 1.15 and libtool 2.4.4.
+
+Mon Jan 05 08:39:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Remove the generated .pc file on "make distclean".
+
+Mon Jan 05 04:43:35 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_table.cc: In enter_key(), we know the insertion
+	  point will be the position after the current cursor position, so
+	  there's no need to call find_in_block() to locate it.
+
+Mon Jan 05 04:42:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_table.cc: More assertions that c is valid.
+
+Mon Jan 05 01:52:54 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_dbcheck.cc,backends/glass/glass_dbcheck.cc:
+	  Cross-check the position and postlist tables and report positional
+	  data for non-existent documents.
+
+Mon Jan 05 01:28:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_dbcheck.cc: Fix decoding of positionlist keys -
+	  this hadn't been updated for the key format change.
+
+Mon Jan 05 01:25:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_check.cc: Check that dir_end is odd.
+
+Tue Dec 23 21:26:49 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: More assertions about c.
+
+Tue Dec 23 04:26:38 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Fix assertion to allow for c being
+	  DIR_START - D2 in leaf blocks.
+
+Tue Dec 23 04:01:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Add more assertions that c has
+	  suitable values.
+
+Tue Dec 23 03:58:00 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: In enter_key(), we know the insertion
+	  point will be the position after the current cursor position, so
+	  there's no need to call find_in_block() to locate it.
+
+Tue Dec 23 03:11:12 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: Add check that dir_end is odd.
+
+Mon Dec 22 23:28:54 GMT 2014  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Document situations in which the
+	  cursor can be left pointing before DIR_START.
+
 Mon Dec 22 03:39:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_freelist.cc: Add more freelist assertions.

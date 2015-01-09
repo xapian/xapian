@@ -34,7 +34,6 @@
 #include "glass_table.h"
 #include "pack.h"
 #include "backends/valuestats.h"
-#include "unicode/description_append.h"
 
 #include <xapian.h>
 
@@ -837,6 +836,14 @@ check_glass_table(const char * tablename, const string &db_dir,
 	    const char * pos = key.data();
 	    const char * end = pos + key.size();
 
+	    string term;
+	    if (!unpack_string_preserving_sort(&pos, end, term)) {
+		if (out)
+		    *out << "Error unpacking term from key" << endl;
+		++errors;
+		continue;
+	    }
+
 	    Xapian::docid did;
 	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
@@ -844,14 +851,25 @@ check_glass_table(const char * tablename, const string &db_dir,
 		++errors;
 		continue;
 	    }
-	    if (pos == end) {
-		if (out) {
-		    string dkey;
-		    description_append(dkey, key);
-		    *out << "No termname in key '" << dkey << "' - decoded docid = " << did << endl;
-		}
+
+	    if (pos != end) {
+		if (out)
+		    *out << "Extra junk in key with docid " << did << endl;
 		++errors;
 		continue;
+	    }
+
+	    if (!doclens.empty()) {
+		// In glass, a document without terms doesn't get a
+		// termlist entry, so we can't tell the difference
+		// easily.
+		if (did >= doclens.size() || doclens[did] == 0) {
+		    if (out)
+			*out << "Position list entry for document " << did
+			     << " which doesn't exist or has no terms" << endl;
+		    ++errors;
+		    continue;
+		}
 	    }
 
 	    cursor->read_tag();

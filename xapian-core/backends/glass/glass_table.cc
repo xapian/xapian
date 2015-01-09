@@ -420,8 +420,13 @@ int
 GlassTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
     LOGCALL_STATIC(DB, int, "GlassTable::find_in_block", (const void*)p | (const void *)key.get_address() | leaf | c);
+    // c should be odd (either -1, or an even offset from DIR_START).
+    Assert((c & 1) == 1);
     int i = DIR_START;
     if (leaf) i -= D2;
+    if (c != -1) {
+	AssertRel(i,<=,c);
+    }
     int j = DIR_END(p);
 
     if (c != -1) {
@@ -436,6 +441,12 @@ GlassTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
 	if (key < Item(p, k).key()) j = k; else i = k;
     }
+    if (leaf) {
+	AssertRel(DIR_START - D2,<=,i);
+    } else {
+	AssertRel(DIR_START,<=,i);
+    }
+    AssertRel(i,<,DIR_END(p));
     RETURN(i);
 }
 
@@ -602,7 +613,10 @@ GlassTable::enter_key(int j, Key prevkey, Key newkey)
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].get_p(), item.key(), false, 0) + D2;
+    // The split block gets inserted into the parent after the pointer to the
+    // current child.
+    AssertEq(C[j].c, find_in_block(C[j].get_p(), item.key(), false, C[j].c));
+    C[j].c += D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_item(item, j);
 }
@@ -656,7 +670,8 @@ GlassTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 
     AssertRel(MAX_FREE(p),>=,needed);
 
-    Assert(dir_end >= c);
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<=,dir_end);
 
     memmove(p + c + D2, p + c, dir_end - c);
     dir_end += D2;
@@ -699,6 +714,7 @@ GlassTable::add_item(Item_wr kt_, int j)
 	    m = mid_point(p);
 	} else {
 	    // During sequential addition, split at the insert point
+	    AssertRel(c,>=,DIR_START);
 	    m = c;
 	}
 
@@ -781,6 +797,8 @@ GlassTable::delete_item(int j, bool repeatedly)
     Assert(writable);
     byte * p = C[j].get_modifiable_p(block_size);
     int c = C[j].c;
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
     int kt_len = Item(p, c).size(); /* size of the item to be deleted */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
 
@@ -864,6 +882,8 @@ GlassTable::add_kt(bool found)
 
 	byte * p = C[0].get_modifiable_p(block_size);
 	int c = C[0].c;
+	AssertRel(DIR_START,<=,c);
+	AssertRel(c,<,DIR_END(p));
 	Item item(p, c);
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
@@ -1679,6 +1699,8 @@ GlassTable::prev_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
 {
     LOGCALL(DB, bool, "GlassTable::prev_for_sequential", Literal("C_") | Literal("/*dummy*/"));
     int c = C_[0].c;
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(C_[0].get_p()));
     if (c == DIR_START) {
 	uint4 n = C_[0].get_n();
 	const byte * p;
@@ -1718,6 +1740,7 @@ GlassTable::prev_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
 	    if (GET_LEVEL(p) == 0) break;
 	}
 	c = DIR_END(p);
+	AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[0].c = c;
@@ -1731,6 +1754,7 @@ GlassTable::next_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
     const byte * p = C_[0].get_p();
     Assert(p);
     int c = C_[0].c;
+    AssertRel(c,<,DIR_END(p));
     c += D2;
     Assert((unsigned)c < block_size);
     if (c == DIR_END(p)) {
@@ -1786,14 +1810,15 @@ GlassTable::prev_default(Glass::Cursor * C_, int j) const
     LOGCALL(DB, bool, "GlassTable::prev_default", Literal("C_") | j);
     const byte * p = C_[j].get_p();
     int c = C_[j].c;
-    Assert(c >= DIR_START);
-    Assert((unsigned)c < block_size);
-    Assert(c <= DIR_END(p));
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     if (c == DIR_START) {
 	if (j == level) RETURN(false);
 	if (!prev_default(C_, j + 1)) RETURN(false);
 	p = C_[j].get_p();
 	c = DIR_END(p);
+	AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[j].c = c;
@@ -1809,9 +1834,14 @@ GlassTable::next_default(Glass::Cursor * C_, int j) const
     LOGCALL(DB, bool, "GlassTable::next_default", Literal("C_") | j);
     const byte * p = C_[j].get_p();
     int c = C_[j].c;
-    Assert(c >= DIR_START);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     c += D2;
-    Assert((unsigned)c < block_size);
+    if (j > 0) {
+	AssertRel(DIR_START,<,c);
+    } else {
+	AssertRel(DIR_START,<=,c);
+    }
     // Sometimes c can be DIR_END(p) + 2 here it appears...
     if (c >= DIR_END(p)) {
 	if (j == level) RETURN(false);

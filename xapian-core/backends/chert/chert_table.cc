@@ -379,14 +379,22 @@ ChertTable::alter()
    right ends of the search area. In sequential addition, c will often
    be the answer, so we test the keys round c and move i and j towards
    c if possible.
+
+   The returned value is < DIR_END(p).  If leaf is false, the returned
+   value is >= DIR_START; if leaf is true, it can also be == DIR_START - D2.
 */
 
 int
 ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
     LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (const void*)p | (const void *)key.get_address() | leaf | c);
+    // c should be odd (either -1, or an even offset from DIR_START).
+    Assert((c & 1) == 1);
     int i = DIR_START;
     if (leaf) i -= D2;
+    if (c != -1) {
+	AssertRel(i,<=,c);
+    }
     int j = DIR_END(p);
 
     if (c != -1) {
@@ -401,6 +409,12 @@ ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
 	if (key < Item(p, k).key()) j = k; else i = k;
     }
+    if (leaf) {
+	AssertRel(DIR_START - D2,<=,i);
+    } else {
+	AssertRel(DIR_START,<=,i);
+    }
+    AssertRel(i,<,DIR_END(p));
     RETURN(i);
 }
 
@@ -409,6 +423,12 @@ ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
    Result is true if found, false otherwise.  When false, the B_tree
    cursor is positioned at the last key in the B-tree <= the search
    key.  Goes to first (null) item in B-tree when key length == 0.
+
+   Note: The cursor can be left with C_[0].c == DIR_START - D2 if the
+   requested key doesn't exist and is less than the smallest key in a
+   leaf block, but after the dividing key.  The caller needs to fix up
+   C_[0].c in this case, either explicitly or by performing an
+   operation which gives C_[0].c a valid value.
 */
 
 bool
@@ -436,7 +456,9 @@ ChertTable::find(Cursor * C_) const
     report_block_full(0, C_[0].n, p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
-    if (c < DIR_START) RETURN(false);
+    if (c < DIR_START) {
+	RETURN(false);
+    }
     RETURN(Item(p, c).key() == key);
 }
 
@@ -567,7 +589,10 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].p, item.key(), false, 0) + D2;
+    // The split block gets inserted into the parent after the pointer to the
+    // current child.
+    AssertEq(C[j].c, find_in_block(C[j].p, item.key(), false, C[j].c));
+    C[j].c += D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_item(item, j);
 }
@@ -621,7 +646,8 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 
     AssertRel(MAX_FREE(p),>=,needed);
 
-    Assert(dir_end >= c);
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<=,dir_end);
 
     memmove(p + c + D2, p + c, dir_end - c);
     dir_end += D2;
@@ -664,6 +690,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 	    m = mid_point(p);
 	} else {
 	    // During sequential addition, split at the insert point
+	    AssertRel(c,>=,DIR_START);
 	    m = c;
 	}
 
@@ -746,6 +773,8 @@ ChertTable::delete_item(int j, bool repeatedly)
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
     int kt_len = Item(p, c).size(); /* size of the item to be deleted */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
 
@@ -833,6 +862,8 @@ ChertTable::add_kt(bool found)
 
 	byte * p = C[0].p;
 	int c = C[0].c;
+	AssertRel(DIR_START,<=,c);
+	AssertRel(c,<,DIR_END(p));
 	Item item(p, c);
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
@@ -2008,6 +2039,8 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 {
     LOGCALL(DB, bool, "ChertTable::prev_for_sequential", Literal("C_") | Literal("/*dummy*/"));
     int c = C_[0].c;
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(C_[0].p));
     if (c == DIR_START) {
 	byte * p = C_[0].p;
 	Assert(p);
@@ -2049,6 +2082,7 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 	}
 	c = DIR_END(p);
 	C_[0].n = n;
+	AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[0].c = c;
@@ -2062,6 +2096,7 @@ ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
     byte * p = C_[0].p;
     Assert(p);
     int c = C_[0].c;
+    AssertRel(c,<,DIR_END(p));
     c += D2;
     Assert((unsigned)c < block_size);
     if (c == DIR_END(p)) {
@@ -2114,13 +2149,14 @@ ChertTable::prev_default(Cursor * C_, int j) const
     LOGCALL(DB, bool, "ChertTable::prev_default", Literal("C_") | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= DIR_START);
-    Assert((unsigned)c < block_size);
-    Assert(c <= DIR_END(p));
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     if (c == DIR_START) {
 	if (j == level) RETURN(false);
 	if (!prev_default(C_, j + 1)) RETURN(false);
 	c = DIR_END(p);
+	AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[j].c = c;
@@ -2136,9 +2172,14 @@ ChertTable::next_default(Cursor * C_, int j) const
     LOGCALL(DB, bool, "ChertTable::next_default", Literal("C_") | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= DIR_START);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     c += D2;
-    Assert((unsigned)c < block_size);
+    if (j > 0) {
+	AssertRel(DIR_START,<,c);
+    } else {
+	AssertRel(DIR_START,<=,c);
+    }
     // Sometimes c can be DIR_END(p) + 2 here it appears...
     if (c >= DIR_END(p)) {
 	if (j == level) RETURN(false);

@@ -1239,7 +1239,6 @@ if test no != "$with_lua" ; then
         BINDINGS="$BINDINGS lua"
         LUA_CPPFLAGS="-I$LUA_INC"
       fi
-      AC_SUBST([LUA_INC])
       AC_SUBST([LUA_CPPFLAGS])
     fi
   else

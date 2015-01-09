@@ -151,7 +151,8 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 
     if (j != GET_LEVEL(p))
 	failure("Block has wrong level");
-    if (dir_end <= DIR_START || dir_end > block_size)
+    // dir_end must be > DIR_START, fit within the block, and be odd.
+    if (dir_end <= DIR_START || dir_end > block_size || (dir_end & 1) != 1)
 	failure("directory end pointer invalid");
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)

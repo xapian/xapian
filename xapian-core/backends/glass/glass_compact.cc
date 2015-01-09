@@ -1,7 +1,7 @@
 /** @file glass_compact.cc
  * @brief Compact a glass database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -761,6 +761,90 @@ multimerge_postlists(Xapian::Compactor & compactor,
     }
 }
 
+class PositionCursor : private GlassCursor {
+    Xapian::docid offset;
+
+  public:
+    string key;
+    Xapian::docid firstdid;
+
+    PositionCursor(GlassTable *in, Xapian::docid offset_)
+	: GlassCursor(in), offset(offset_), firstdid(0) {
+	find_entry(string());
+	next();
+    }
+
+    ~PositionCursor() {
+	delete GlassCursor::get_table();
+    }
+
+    bool next() {
+	if (!GlassCursor::next()) return false;
+	read_tag();
+	const char * d = current_key.data();
+	const char * e = d + current_key.size();
+	string term;
+	Xapian::docid did;
+	if (!unpack_string_preserving_sort(&d, e, term) ||
+	    !unpack_uint_preserving_sort(&d, e, &did) ||
+	    d != e) {
+	    throw Xapian::DatabaseCorruptError("Bad position key");
+	}
+
+	key.resize(0);
+	pack_string_preserving_sort(key, term);
+	pack_uint_preserving_sort(key, did + offset);
+	return true;
+    }
+
+    const string & get_tag() const {
+	return current_tag;
+    }
+};
+
+class PositionCursorGt {
+  public:
+    /** Return true if and only if a's key is strictly greater than b's key.
+     */
+    bool operator()(const PositionCursor *a, const PositionCursor *b) {
+	return a->key > b->key;
+    }
+};
+
+static void
+merge_positions(GlassTable *out, const vector<string> & inputs,
+		const vector<RootInfo> & root,
+		const vector<glass_revision_number_t> & rev,
+		const vector<Xapian::docid> & offset)
+{
+    priority_queue<PositionCursor *, vector<PositionCursor *>, PositionCursorGt> pq;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+	GlassTable *in =
+	    new GlassTable("position", inputs[i], true, DONT_COMPRESS, true);
+	in->open(0, root[i], rev[i]);
+	if (in->empty()) {
+	    // Skip empty tables.
+	    delete in;
+	    continue;
+	}
+
+	// PositionCursor takes ownership of GlassTable in and is responsible
+	// for deleting it.
+	pq.push(new PositionCursor(in, offset[i]));
+    }
+
+    while (!pq.empty()) {
+	PositionCursor * cur = pq.top();
+	pq.pop();
+	out->add(cur->key, cur->get_tag());
+	if (cur->next()) {
+	    pq.push(cur);
+	} else {
+	    delete cur;
+	}
+    }
+}
+
 static void
 merge_docid_keyed(const char * tablename,
 		  GlassTable *out, const vector<string> & inputs,
@@ -965,8 +1049,11 @@ compact_glass(Xapian::Compactor & compactor,
 		merge_synonyms(out, root.begin(), rev.begin(),
 			       inputs.begin(), inputs.end());
 		break;
+	    case Glass::POSITION:
+		merge_positions(out, inputs, root, rev, offset);
+		break;
 	    default:
-		// Position, DocData, Termlist
+		// DocData, Termlist
 		merge_docid_keyed(t->name, out, inputs, root, rev, offset, t->lazy);
 		break;
 	}
