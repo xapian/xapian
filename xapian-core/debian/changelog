@@ -1,3 +1,11 @@
+xapian-core (1.3.1.avature17) precise; urgency=medium
+
+  * Merge in changes from git master (up to 2086d8a):
+    + Fix compaction and db checking for glass position key format change.
+    + More assertions in glass backend.
+
+ -- Olly Betts <olly@survex.com>  Fri, 09 Jan 2015 15:50:55 +1300
+
 xapian-core (1.3.1.avature16) precise; urgency=medium
 
   * Merge in changes from git master (up to 3545bbb).
