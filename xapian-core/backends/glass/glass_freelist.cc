@@ -1,7 +1,7 @@
 /** @file glass_freelist.cc
  * @brief Glass freelist
  */
-/* Copyright 2014 Olly Betts
+/* Copyright 2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,53 +75,51 @@ GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
 	return first_unused_block++;
     }
 
-    if (p == 0 || fl.c == FREELIST_END - 4) {
-	if (p == 0) {
-	    p = new byte[block_size];
-	    if (fl.n == glass_block_t(-1)) {
-		throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
-	    }
-	    read_block(B, fl.n, p);
-	    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
-	} else {
-	    // Delay handling marking old block as unused until after we've
-	    // started a new one.
-	    uint4 old_fl_blk = fl.n;
-
-	    Assert(fl.c == FREELIST_END - 4);
-	    fl.n = getint4(p, fl.c);
-	    if (fl.n == glass_block_t(-1)) {
-		throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
-	    }
-	    // Allow for mini-header at start of freelist block.
-	    fl.c = C_BASE;
-	    read_block(B, fl.n, p);
-	    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
-	    if (blk_to_free) {
-		Assert(*blk_to_free == BLK_UNUSED);
-		*blk_to_free = old_fl_blk;
-	    } else {
-		mark_block_unused(B, block_size, old_fl_blk);
-	    }
+    if (p == 0) {
+	if (fl.n == glass_block_t(-1)) {
+	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
-
-	// Either the freelist end is in this block, or this freelist block has
-	// a next pointer.
-	Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
-
-	return get_block(B, block_size);
+	// Actually read the current freelist block.
+	p = new byte[block_size];
+	read_block(B, fl.n, p);
     }
 
     // Either the freelist end is in this block, or this freelist block has a
     // next pointer.
     Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
 
-    uint4 blk = getint4(p, fl.c);
-    if (blk == uint4(-1))
-	throw Xapian::DatabaseCorruptError("Ran off end of freelist (" + str(fl.n) + ", " + str(fl.c) + ")");
-    fl.c += 4;
+    if (fl.c != FREELIST_END - 4) {
+	uint4 blk = getint4(p, fl.c);
+	if (blk == uint4(-1))
+	    throw Xapian::DatabaseCorruptError("Ran off end of freelist (" + str(fl.n) + ", " + str(fl.c) + ")");
+	fl.c += 4;
+	return blk;
+    }
 
-    return blk;
+    // Delay handling marking old block as unused until after we've
+    // started a new one.
+    uint4 old_fl_blk = fl.n;
+
+    fl.n = getint4(p, fl.c);
+    if (fl.n == glass_block_t(-1)) {
+	throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
+    }
+    // Allow for mini-header at start of freelist block.
+    fl.c = C_BASE;
+    read_block(B, fl.n, p);
+
+    // Either the freelist end is in this block, or this freelist block has
+    // a next pointer.
+    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+
+    if (blk_to_free) {
+	Assert(*blk_to_free == BLK_UNUSED);
+	*blk_to_free = old_fl_blk;
+    } else {
+	mark_block_unused(B, block_size, old_fl_blk);
+    }
+
+    return get_block(B, block_size);
 }
 
 uint4
@@ -132,36 +130,43 @@ GlassFreeList::walk(const GlassTable *B, uint4 block_size, bool inclusive)
 	return static_cast<uint4>(-1);
     }
 
-    if (p == 0 || fl.c == FREELIST_END - 4) {
-	if (p == 0) {
-	    p = new byte[block_size];
-	} else {
-	    fl.n = getint4(p, fl.c);
-	    // Allow for mini-header at start of freelist block.
-	    fl.c = C_BASE;
-	}
+    if (p == 0) {
 	if (fl.n == glass_block_t(-1)) {
-	    throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
+	    throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
 	}
+	p = new byte[block_size];
 	read_block(B, fl.n, p);
-
-	// Either the freelist end is in this block, or this freelist block has
-	// a next pointer.
-	Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
-
-	if (inclusive)
+	if (inclusive) {
+	    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
 	    return fl.n;
-	return walk(B, block_size, inclusive);
+	}
     }
 
-    // Either the freelist end is in this block, or this freelist block has a
-    // next pointer.
+    // Either the freelist end is in this block, or this freelist block has
+    // a next pointer.
     Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
 
-    uint4 blk = getint4(p, fl.c);
-    fl.c += 4;
+    if (fl.c != FREELIST_END - 4) {
+	uint4 blk = getint4(p, fl.c);
+	fl.c += 4;
+	return blk;
+    }
 
-    return blk;
+    fl.n = getint4(p, fl.c);
+    if (fl.n == glass_block_t(-1)) {
+	throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
+    }
+    // Allow for mini-header at start of freelist block.
+    fl.c = C_BASE;
+    read_block(B, fl.n, p);
+
+    // Either the freelist end is in this block, or this freelist block has
+    // a next pointer.
+    Assert(fl.n == fl_end.n || getint4(p, FREELIST_END - 4) != -1);
+
+    if (inclusive)
+	return fl.n;
+    return walk(B, block_size, inclusive);
 }
 
 void
