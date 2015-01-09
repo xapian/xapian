@@ -1,3 +1,12 @@
+Fri Jan 09 05:19:20 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Fix freelist handling to allow for
+	  the newly loaded first block of the freelist being already used up.
+
+Fri Jan 09 04:38:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/debuglog.cc: Add '#include "errno_to_string.h"'.
+
 Thu Jan 08 05:59:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_compact.cc: Fix compaction of position tables
