@@ -1,3 +1,7 @@
+Fri Jan 09 04:38:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/debuglog.cc: Add '#include "errno_to_string.h"'.
+
 Wed Dec 17 02:30:14 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/error.cc,backends/chert/chert_btreebase.cc,
