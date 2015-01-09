@@ -1,7 +1,7 @@
 /** @file debuglog.cc
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008,2011,2012,2014 Olly Betts
+/* Copyright (C) 2008,2011,2012,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include "debuglog.h"
 
+#include "errno_to_string.h"
 #include "str.h"
 
 #include <sys/types.h>
