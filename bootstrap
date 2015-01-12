@@ -229,18 +229,6 @@ END
   fi
 }
 
-handle_svn_external() {
-  path=$1
-  if [ ! -f "$path/.nobootstrap" ] ; then
-    revopt=$2
-    url=$3
-    if [ ! -d "$path" ] ; then
-      git svn init "$url" "$path"/
-    fi
-    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --oneline --show-commit|awk '{print $3}'`)
-  fi
-}
-
 handle_git_external() {
   path=$1
   if [ ! -f "$path/.nobootstrap" ] ; then
@@ -281,84 +269,56 @@ case $srcdir in
     cd "$srcdir" ;;
 esac
 
-if [ -d ".git" ] ; then
-  for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
-    if test -d "$emptydir" ; then
-      :
-    else
-      parent=`echo "$emptydir"|sed 's,/[^/]*$,,'`
-      if test -d "$parent" ; then
-	mkdir "$emptydir"
-      fi
-    fi
-  done
+if [ ! -d .git ] ; then
+  echo "$0: No '.git' directory found - this script should be run from a"
+  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
+  exit 1
+fi
 
-  if [ -f .git/info/exclude ] ; then
-    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
+  if test -d "$emptydir" ; then
+    :
   else
-    [ -d .git/info ] || mkdir .git/info
+    parent=`echo "$emptydir"|sed 's,/[^/]*$,,'`
+    if test -d "$parent" ; then
+      mkdir "$emptydir"
+    fi
   fi
-  cat <<END >> .git/info/exclude~
+done
+
+if [ -f .git/info/exclude ] ; then
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+else
+  [ -d .git/info ] || mkdir .git/info
+fi
+cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 END
-  if [ -f .git/info/exclude ] && 
-     cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
-    rm .git/info/exclude~
-  else
-    mv .git/info/exclude~ .git/info/exclude
-  fi
-
-  if git config --get svn-remote.svn.url >/dev/null ; then
-    # git repo checked out with git-svn from svn.xapian.org.
-
-    # Pull in each svn:externals as a separate little git repo:
-    git svn show-externals | while read path revopt url ; do
-      # For example:
-      # /swig -r12724 svn://svn.tartarus.org/swig/trunk/
-      if [ -n "$url" ] ; then
-	case $path in
-	/swig)
-	  if [ -d swig/.git/svn ] ; then
-	    # Old git-svn checkout - move it aside rather than
-	    # deleting in case there are local changes.
-	    echo 'Moving old git-svn checkout of swig to swig.git-svn.old'
-	    echo 'If you have not modified it locally, you can safely delete'
-	    echo 'this now'
-	    mv swig swig.git-svn.old
-	  fi
-	  swig_origin_url=git://github.com/swig/swig.git
-	  handle_git_external swig 210266cd7004108b074fac9da4fc97d1df0adc53 "$swig_origin_url"
-	  ;;
-	/*)
-	  path=`echo "$path"|sed 's,^/,,'`
-	  handle_svn_external "$path" "$revopt" "$url"
-	  ;;
-	esac
-      fi
-    done
-  else
-    # git repo cloned from git.xapian.org or a mirror of it.
-
-    # If this tree is checked out from the github mirror, use the same access
-    # method for swig, so we avoid firewall issues.  If there's no default
-    # remote, the git config command will exit with status 1, so ignore that
-    # failure.
-    origin_url=`git config remote.origin.url||:`
-    case $origin_url in
-      *[@/]github.com[:/]*)
-	swig_origin_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
-      *)
-	swig_origin_url=git://github.com/ ;;
-    esac
-    swig_origin_url=${swig_origin_url}swig/swig.git
-    handle_git_external swig 210266cd7004108b074fac9da4fc97d1df0adc53 "$swig_origin_url"
-
-    # Equivalent to r17643 in the Xapian SVN tree:
-    handle_git_external xapian-applications/omega/.common.git 7647fbab408bb146eff4ee5b31c04e573c7ebbb2 .
-    ln -sf .common.git/xapian-core/common xapian-applications/omega/common
-  fi
+if [ -f .git/info/exclude ] && 
+   cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
+  rm .git/info/exclude~
+else
+  mv .git/info/exclude~ .git/info/exclude
 fi
+
+# If this tree is checked out from the github mirror, use the same access
+# method for swig, so we avoid firewall issues.  If there's no default
+# remote, the git config command will exit with status 1, so ignore that
+# failure.
+origin_url=`git config remote.origin.url||:`
+case $origin_url in
+  *[@/]github.com[:/]*)
+    swig_origin_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
+  *)
+    swig_origin_url=git://github.com/ ;;
+esac
+swig_origin_url=${swig_origin_url}swig/swig.git
+handle_git_external swig 210266cd7004108b074fac9da4fc97d1df0adc53 "$swig_origin_url"
+
+# Equivalent to r17643 in the Xapian SVN tree:
+handle_git_external xapian-applications/omega/.common.git 7647fbab408bb146eff4ee5b31c04e573c7ebbb2 .
+ln -sf .common.git/xapian-core/common xapian-applications/omega/common
 
 # Prefer http downloads as they are more likely to work through firewalls.
 use_ftp=no
@@ -366,7 +326,7 @@ if [ "$1" = "--ftp" ] ; then
   shift
   use_ftp=yes
 fi
- 
+
 if [ "$1" = "--without-autotools" ] ; then
   shift
 else
