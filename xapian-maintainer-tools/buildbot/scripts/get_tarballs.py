@@ -110,7 +110,7 @@ clear_build_dir(builddir)
 
 xz = None
 for try_xz in ['xz', 'xzdec', ('busybox', 'xz')]:
-    print("Trying '%s' as xz unpacker" % try_xz)
+    print("Trying '%s' as xz unpacker" % str(try_xz))
     try:
         try_xz = list(try_xz)
         xz_proc = subprocess.Popen(try_xz + ['--help'], stdin=open('/dev/null', 'r'))
