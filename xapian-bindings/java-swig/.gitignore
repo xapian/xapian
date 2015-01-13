@@ -1,0 +1,17 @@
+/.*.sw?
+/*.lo
+/Makefile.in
+/Makefile
+/.deps
+/.libs
+/docs/index.html
+/libxapian_jni.la
+/SmokeTest.class
+/MyMatchDecider.class
+/MyExpandDecider.class
+/built
+/org
+/xapian_wrap.cc
+/xapian_wrap.d
+/xapian_wrap.h
+/xapian_wrap.stamp

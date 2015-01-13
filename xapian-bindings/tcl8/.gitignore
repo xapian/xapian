@@ -1,0 +1,12 @@
+/.*.sw?
+/*.lo
+/Makefile.in
+/Makefile
+/.deps
+/.libs
+/docs/index.html
+/xapian_wrap.cc
+/xapian_wrap.d
+/xapian.la
+/pkgIndex.tcl
+/except.i

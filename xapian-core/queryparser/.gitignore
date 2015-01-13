@@ -1,0 +1,11 @@
+/.*.sw?
+/*.lo
+/*.obj
+/.deps
+/.libs
+/.dirstamp
+/lemon
+/queryparser_internal.cc
+/queryparser_internal.lock
+/queryparser_internal.stamp
+/queryparser_token.h
