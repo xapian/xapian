@@ -1,3 +1,7 @@
+Tue Jan 13 09:17:26 GMT 2015  Olly Betts <olly@survex.com>
+
+	* lua/Makefile.am: Remove intermediate file.
+
 Mon Nov 24 09:35:46 GMT 2014  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
