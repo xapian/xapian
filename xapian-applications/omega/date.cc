@@ -159,7 +159,7 @@ date_range_filter(const string & date_start, const string & date_end,
 	}
 	if (time_t(str_to_longlong) > (numeric_limits<time_t>::max() / (24 * 60 * 60)))
 	    throw (string("Date span overflow:"));
-	time_t span = time_t(str_to_longlong) * (24 * 60 * 60);
+	time_t secs = time_t(str_to_longlong) * (24 * 60 * 60);
 	if (!date_end.empty()) {
 	    parse_date(date_end, &y2, &m2, &d2);
 	    struct tm t;
