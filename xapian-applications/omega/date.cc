@@ -32,7 +32,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <climits> // for detecting underflow or overflow e.g LONG_MIN
-#include <cstring> // for strerror
+#include <limits>
 #include <errno.h> // for errno variable
 
 using namespace std;
@@ -147,40 +147,19 @@ date_range_filter(const string & date_start, const string & date_end,
 {
     int y1, m1, d1, y2, m2, d2;
     if (!date_span.empty()) {
-    	time_t secs;
-	// For x32 system use long (32bit)
-	// For x64 system use long long (64bit)
-	if (sizeof(int *) < 8) {
-	    long str_to_long;
-	    errno = 0;
-	    str_to_long = strtol(date_span.c_str(),NULL,0);
-	    if (errno == ERANGE) {
-		switch(str_to_long) {
-		    case LONG_MIN:
-			throw (string("Date span underflow: ") + string(strerror(errno)));
-		    break;
-		    case LONG_MAX:
-			throw (string("Date span overflow: ") + string(strerror(errno)));
-		    break;
-		}
+	errno = 0;
+	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
+	if (errno == ERANGE) {
+	    switch (str_to_longlong) {
+		case LLONG_MIN:
+		    throw (string("Date span underflow:"));
+		case LLONG_MAX:
+		    throw (string("Date span overflow:"));
 	    }
-	    secs = time_t(str_to_long) * 24 * 60 * 60;
-	} else {
-	    long long str_to_longlong;
-	    errno = 0;
-	    str_to_longlong = strtoll(date_span.c_str(),NULL,0);
-	    if (errno == ERANGE) {
-		switch(str_to_longlong) {
-		    case LLONG_MIN:
-			throw (string("Date span underflow: ") + string(strerror(errno)));
-		    break;
-		    case LLONG_MAX:
-			throw (string("Date span overflow: ") + string(strerror(errno)));
-		    break;
-		}
-	    }
-	    secs = time_t(str_to_longlong) * 24 * 60 * 60;
 	}
+	if (time_t(str_to_longlong) > (numeric_limits<time_t>::max() / (24 * 60 * 60)))
+	    throw (string("Date span overflow:"));
+	time_t span = time_t(str_to_longlong) * (24 * 60 * 60);
 	if (!date_end.empty()) {
 	    parse_date(date_end, &y2, &m2, &d2);
 	    struct tm t;
