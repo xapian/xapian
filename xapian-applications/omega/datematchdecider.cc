@@ -23,7 +23,7 @@
 #include <cstring>
 #include <climits> // for checking underflow or overflow e.g LONG_MIN
 #include <errno.h> // for errno variable
-
+#include <limits>
 #include <xapian.h>
 
 #include "datematchdecider.h"
@@ -84,39 +84,19 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
 	: val(val_)
 {
     if (!date_span.empty()) {
-	time_t span;
-	// For x32 system use long (32bit)
-	// For x64 system use long long (64bit)
-	if (sizeof(int *) < 8) {
-	    long str_to_long;
-	    errno = 0;
-	    str_to_long = strtol(date_span.c_str(),NULL,0);
-	    if (errno == ERANGE) {
-		switch(str_to_long) {
-		    case LONG_MIN:
-			throw (string("Date span underflow: ") + string(strerror(errno)));
-		    break;
-		    case LONG_MAX:
-			throw (string("Date span overflow: ") + string(strerror(errno)));
-		    break;
-		}
+    	errno = 0;
+	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
+	if (errno == ERANGE) {
+	    switch (str_to_longlong) {
+		case LLONG_MIN:
+		    throw (string("Date span underflow:"));
+		case LLONG_MAX:
+		    throw (string("Date span overflow:"));
 	    }
-	    span = time_t(str_to_long) * 24 * 60 * 60;
-	} else {
-	    long long str_to_longlong;
-	    errno = 0;
-	    str_to_longlong = strtoll(date_span.c_str(),NULL,0);
-	    if (errno == ERANGE) {
-		switch(str_to_longlong) {
-		    case LLONG_MIN:
-			throw (string("Date span underflow: ") + string(strerror(errno)));
-		    break;
-		    case LLONG_MAX:
-			throw (string("Date span overflow: ") + string(strerror(errno)));
-		    break;
-		}
-	    }
-	    span = time_t(str_to_longlong) * 24 * 60 * 60;
+	}
+	if (time_t(str_to_longlong) > (numeric_limits<time_t>::max() / (24 * 60 * 60)))
+	    throw (string("Date span overflow:"));
+	time_t span = time_t(str_to_longlong) * (24 * 60 * 60);
 	}
 	if (!date_end.empty()) {
 	    time_t endsec = set_end(date_end);
