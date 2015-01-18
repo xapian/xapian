@@ -97,7 +97,6 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
 	if (time_t(str_to_longlong) > (numeric_limits<time_t>::max() / (24 * 60 * 60)))
 	    throw (string("Date span overflow:"));
 	time_t span = time_t(str_to_longlong) * (24 * 60 * 60);
-	}
 	if (!date_end.empty()) {
 	    time_t endsec = set_end(date_end);
 	    set_start(endsec - span);
