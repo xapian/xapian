@@ -1,3 +1,9 @@
+Thu Jan 22 01:44:01 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Ignore extensions .msi and .msp, which are Microsoft
+	  installer files, but which libmagic sometimes incorrectly identifies
+	  as application/msword.
+
 Tue Jan 06 21:15:14 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Use pkg-config in preference to determine flags needed
