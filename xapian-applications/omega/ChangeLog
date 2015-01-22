@@ -1,3 +1,9 @@
+Thu Jan 22 01:44:01 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Ignore extensions .msi and .msp, which are Microsoft
+	  installer files, but which libmagic sometimes incorrectly identifies
+	  as application/msword.
+
 Fri Dec 19 03:21:13 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.rst: Improve wording of docs for SORT parameter.
