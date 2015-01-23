@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -28,6 +28,7 @@
 
 #include <xapian/error.h>
 
+#include "errno_to_string.h"
 #include "safeerrno.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
@@ -222,7 +223,7 @@ FlintTable::read_block(uint4 n, byte * p) const
 	    if (errno == EBADF && handle == -2)
 		FlintTable::throw_database_closed();
 	    string message = "Error reading block " + str(n) + ": ";
-	    message += strerror(errno);
+	    errno_to_string(errno, message);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read == 0) {
 	    string message = "Error reading block " + str(n) + ": got end of file";
@@ -241,7 +242,7 @@ FlintTable::read_block(uint4 n, byte * p) const
 	if (errno == EBADF && handle == -2)
 	    FlintTable::throw_database_closed();
 	string message = "Error seeking to block: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseError(message);
     }
 
@@ -300,7 +301,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 	} else if (bytes_written == -1) {
 	    if (errno == EINTR) continue;
 	    string message = "Error writing block: ";
-	    message += strerror(errno);
+	    errno_to_string(errno, message);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_written == 0) {
 	    string message = "Error writing block: wrote no data";
@@ -317,7 +318,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 #else
     if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
 	string message = "Error seeking to block: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseError(message);
     }
 
@@ -1507,7 +1508,7 @@ FlintTable::do_open_to_write(bool revision_supplied,
 	string message(create_db ? "Couldn't create " : "Couldn't open ");
 	message += name;
 	message += "DB read/write: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -1888,7 +1889,7 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 		string msg("Couldn't update base file ");
 		msg += basefile;
 		msg += ": ";
-		msg += strerror(saved_errno);
+		errno_to_string(saved_errno, msg);
 		throw Xapian::DatabaseError(msg);
 	    }
 	}
@@ -2009,7 +2010,7 @@ FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revi
 	string message("Couldn't open ");
 	message += name;
 	message += "DB to read: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 

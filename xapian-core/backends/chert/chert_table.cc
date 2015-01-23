@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -209,7 +209,7 @@ ChertTable::read_block(uint4 n, byte * p) const
 	    if (errno == EBADF && handle == -2)
 		ChertTable::throw_database_closed();
 	    string message = "Error reading block " + str(n) + ": ";
-	    message += strerror(errno);
+	    errno_to_string(errno, message);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read == 0) {
 	    string message = "Error reading block " + str(n) + ": got end of file";
@@ -228,7 +228,7 @@ ChertTable::read_block(uint4 n, byte * p) const
 	if (errno == EBADF && handle == -2)
 	    ChertTable::throw_database_closed();
 	string message = "Error seeking to block: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseError(message);
     }
 
@@ -287,7 +287,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 	} else if (bytes_written == -1) {
 	    if (errno == EINTR) continue;
 	    string message = "Error writing block: ";
-	    message += strerror(errno);
+	    errno_to_string(errno, message);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_written == 0) {
 	    string message = "Error writing block: wrote no data";
@@ -304,7 +304,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 #else
     if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
 	string message = "Error seeking to block: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseError(message);
     }
 

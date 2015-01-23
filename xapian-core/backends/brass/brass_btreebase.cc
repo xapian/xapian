@@ -1,7 +1,7 @@
 /* brass_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,7 @@
 #include <xapian/error.h>
 
 #include "brass_btreebase.h"
+#include "errno_to_string.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
@@ -174,7 +175,9 @@ BrassTable_base::read(const string & name, char ch, bool read_bitmap,
 #endif
 
     if (h == -1) {
-	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
+	err_msg += "Couldn't open " + basename + ": ";
+	errno_to_string(errno, err_msg);
+	err_msg += "\n";
 	return false;
     }
     fdcloser closefd(h);
@@ -310,7 +313,8 @@ BrassTable_base::write_to_file(const string &filename,
 #endif
     if (h < 0) {
 	string message = string("Couldn't open base ")
-		+ filename + " to write: " + strerror(errno);
+		+ filename + " to write: ";
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);

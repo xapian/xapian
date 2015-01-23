@@ -1,3 +1,10 @@
+Fri Jan 23 12:53:50 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_btreebase.cc,backends/brass/brass_table.cc,
+	  backends/chert/chert_table.cc,backends/flint/flint_btreebase.cc,
+	  backends/flint/flint_table.cc: Replace all uses of strerror in
+	  library code which weren't addressed by the backported commits.
+
 Fri Dec 19 22:30:39 GMT 2014  Olly Betts <olly@survex.com>
 
 	* common/errno_to_string.cc: Need stdlib.h under mingw.

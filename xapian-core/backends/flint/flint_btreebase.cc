@@ -1,7 +1,7 @@
 /* flint_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2011,2015 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include "errno_to_string.h"
 #include "flint_btreebase.h"
 #include "flint_utils.h"
 #include "io_utils.h"
@@ -155,7 +156,9 @@ FlintTable_base::read(const string & name, char ch, bool read_bitmap,
 #endif
 
     if (h == -1) {
-	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
+	err_msg += "Couldn't open " + basename + ": ";
+	errno_to_string(errno, err_msg);
+	err_msg += "\n";
 	return false;
     }
     fdcloser closefd(h);
@@ -291,7 +294,8 @@ FlintTable_base::write_to_file(const string &filename,
 #endif
     if (h < 0) {
 	string message = string("Couldn't open base ")
-		+ filename + " to write: " + strerror(errno);
+		+ filename + " to write: ";
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);
