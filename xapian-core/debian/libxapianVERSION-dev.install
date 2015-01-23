@@ -4,5 +4,6 @@ usr/lib/cmake/xapian
 usr/lib/libxapian@VERSION_SUFFIX@.a
 usr/lib/libxapian@VERSION_SUFFIX@.la
 usr/lib/libxapian@VERSION_SUFFIX@.so
+usr/lib/pkgconfig/xapian-core@VERSION_SUFFIX@.pc
 usr/share/aclocal
 usr/share/man/man1/xapian-config@VERSION_SUFFIX@.1

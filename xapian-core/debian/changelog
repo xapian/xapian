@@ -2,6 +2,8 @@ xapian-core (1.3.1.avature18) precise; urgency=medium
 
   * Merge in changes from git master (up to 52ea044):
     + Fix edge case in freelist handling.
+  * Merge in packaging changes:
+    + debian/libxapianVERSION-dev.install: Package the new .pc file.
 
  -- Olly Betts <olly@survex.com>  Fri, 09 Jan 2015 18:24:09 +1300
 
@@ -106,8 +108,9 @@ xapian-core (1.3.1-6) UNRELEASED; urgency=low
       packaging.
   * debian/rules: Use dh_autotools-dev_updateconfig and
     dh_autotools-dev_restoreconfig.
+  * debian/libxapianVERSION-dev.install: Package the new .pc file.
 
- -- Olly Betts <olly@survex.com>  Thu, 07 Nov 2013 11:10:15 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 23 Jan 2015 14:33:37 +1300
 
 xapian-core (1.2.17-1) unstable; urgency=medium
 
