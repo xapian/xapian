@@ -1,6 +1,6 @@
- 18363       olly Mon Nov 24 06:17:32 GMT 2014  Olly Betts <olly@survex.com>
+350d1c77 (Olly Betts 2015-01-24 01:56:20 +1300     1) Fri Jan 23 12:53:50 GMT 2015  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.20 (2014-11-24):
+Xapian-core 1.2.20 (2015-01-25):
 
 
 API:
@@ -14,9 +14,10 @@ matcher:
 
 brass backend:
 
-
 chert backend:
 
+* After splitting a block, we always insert the new block in the parent right
+  after the block it was split from - there's no need to binary chop.
 
 flint backend:
 
@@ -29,27 +30,59 @@ inmemory backend:
 
 build system:
 
+* Generate and install a file for pkg-config.  (Fixes#540)
+
+* configure: Update link to cygwin FAQ in error message.
+
 documentation:
+
+* include/xapian/weight.h: Document the enum stat_flags values.
 
 * docs/postingsource.rst: Use a modern class in postingsource example.  (Noted
   by James Aylett)
 
 * docs/deprecation.rst,docs/replication.rst: Fix typos.
 
+* Update doxygen configuration files to avoid warnings about obsolete tags from
+  newer doxygen versions.
+
+* HACKING: Update details of building Xapian packages.
+
 tools:
 
+* xapian-check: For chert and brass, cross-check the position and postlist
+  tables to detect positional data for non-existent documents.
 
 examples:
 
 
 portability:
 
+* When locking a database for writing, use F_OFD_SETLK where available, which
+  avoids having to fork() a child process to hold the lock.  This currently
+  requires Linux kernel >= 3.15, but it has been submitted to POSIX so
+  hopefully will be widely supported eventually.  Thanks to Austin Clements for
+  pointing out this now exists.
+
+* Fix detection of fdatasync(), which appears to have been broken practically
+  forever - this means we've probably been using fsync() instead, which
+  probably isn't a big additional overhead.
+
+* configure: Define MINGW_HAS_SECURE_API under mingw to get _putenv_s()
+  declared in stdlib.h.
+
+* Use POSIX O_NONBLOCK in preference to O_NDELAY which has different semantics
+  on BSD and System V.
+
+* According to POSIX, strerror() may not be thread safe, so use alternative
+  thread-safe ways to translate errno values where possible.
 
 packaging:
 
 
 debug code:
 
+* Add more assertions to the chert backend code.
 
 Xapian-core 1.2.19 (2014-10-21):
 
