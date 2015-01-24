@@ -1,3 +1,7 @@
+Sat Jan 24 12:14:33 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Thu Jan 22 01:44:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Ignore extensions .msi and .msp, which are Microsoft

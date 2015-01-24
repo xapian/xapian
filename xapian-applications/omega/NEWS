@@ -1,3 +1,52 @@
+31da6ad1 (Olly Betts 2015-01-22 14:44:38 +1300    1) Thu Jan 22 01:44:01 GMT 2015  Olly Betts <olly@survex.com>
+
+Omega 1.2.20 (2015-01-24):
+
+general:
+
+documentation:
+
+* docs/cgiparams.rst: Improve wording of docs for SORT parameter.
+
+* docs/omegascript.rst: Update documentation references to DATE1, DATE2, and
+  DAYSMINUS which were renamed in 0.6.x and the compatibility aliases removed
+  in 1.0.0.
+
+indexers:
+
+* omindex:
+
+  + Ignore extensions .msi and .msp, which are Microsoft installer files, but
+    which libmagic sometimes incorrectly identifies as application/msword.
+
+* scriptindex:
+
+omega:
+
+* Handle CGI parameter [=0 as [=1.
+
+templates:
+
+* templates/xml: Update handling of DATE1, DATE2 and DAYSMINUS which were
+  renamed in 0.6.x and the compatibility aliases removed in 1.0.0.
+
+testsuite:
+
+build system:
+
+* configure: Use pkg-config in preference to determine flags needed to
+  compile and link with PCRE, as this will just work when cross-compiling
+  (at least under MXE).
+
+* configure: Define MINGW_HAS_SECURE_API under mingw to get _putenv_s()
+  declared in stdlib.h.
+
+* Enable automake option 'subdir-objects' to avoid warning from newer automake.
+
+portability:
+
+packaging:
+
 Omega 1.2.19 (2014-10-21):
 
 documentation:
