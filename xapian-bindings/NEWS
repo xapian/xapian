@@ -1,6 +1,6 @@
- 18323       olly Mon Nov 03 22:45:37 GMT 2014  Olly Betts <olly@survex.com>
+4439a1db (Olly Betts   2015-01-07 17:01:07 +1300    1) Wed Jan 07 04:00:24 GMT 2015  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.20 (2014-11-24):
+Xapian-bindings 1.2.20 (2015-01-24):
 
 Documentation:
 
@@ -10,11 +10,19 @@ Packaging:
 
 Portability:
 
+* configure: Avoid using \? in sed command in Lua detection - it isn't
+  supported by all sed implementations.
+
 CSharp:
 
 Java:
 
 Lua:
+
+* configure: Rework LUA_SO checks to be clearer and to properly handle LUA_SO
+  being specified without a leading '.'.
+
+* configure: Add an example of specifying LUA_SO to --help output.
 
 Perl:
 
