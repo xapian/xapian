@@ -1,3 +1,9 @@
+Sun Jan 25 23:48:34 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check for declaration of fdatasync() first, as OS X
+	  has a dummy implementation in the library which is not prototyped in
+	  any header.  Reported by Vlad Shablinsky.
+
 Sat Dec 13 02:48:10 GMT 2014  Olly Betts <olly@survex.com>
 
 	* api/error.cc,generate-exceptions,net/remoteconnection.h: On
