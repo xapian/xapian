@@ -149,17 +149,13 @@ date_range_filter(const string & date_start, const string & date_end,
     if (!date_span.empty()) {
 	errno = 0;
 	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
-	if (errno == ERANGE) {
-	    switch (str_to_longlong) {
-		case LLONG_MIN:
-		    throw (string("Date span underflow:"));
-		case LLONG_MAX:
-		    throw (string("Date span overflow:"));
-	    }
+	if (str_to_longlong > (numeric_limits<time_t>::max() / (24 * 60 * 60))) {
+	    secs = numeric_limits<time_t>::max();
+	} else if (str_to_longlong < (numeric_limits<time_t>::min() / (24 * 60 * 60))) {
+	    secs = numeric_limits<time_t>::min();
+	} else {
+	    secs = time_t(str_to_longlong) * (24 * 60 * 60);
 	}
-	if (time_t(str_to_longlong) > (numeric_limits<time_t>::max() / (24 * 60 * 60)))
-	    throw (string("Date span overflow:"));
-	time_t secs = time_t(str_to_longlong) * (24 * 60 * 60);
 	if (!date_end.empty()) {
 	    parse_date(date_end, &y2, &m2, &d2);
 	    struct tm t;
@@ -169,7 +165,14 @@ date_range_filter(const string & date_start, const string & date_end,
 	    t.tm_hour = 12;
 	    t.tm_min = t.tm_sec = 0;
 	    t.tm_isdst = -1;
-	    time_t then = mktime(&t) - secs;
+	    time_t then;
+	    // if secs is equal to time_t min value,
+	    // then = mktime + time_t min val hence which would do addition
+	    // so checking for that overflow.
+	    if (secs < (mktime(&t) - numeric_limits<time_t>::max()))
+		then = numeric_limits<time_t>::max();
+	    else
+		then = mktime(&t) - secs;
 	    struct tm *t2 = localtime(&then);
 	    y1 = t2->tm_year + 1900;
 	    m1 = t2->tm_mon + 1;
@@ -183,7 +186,12 @@ date_range_filter(const string & date_start, const string & date_end,
 	    t.tm_hour = 12;
 	    t.tm_min = t.tm_sec = 0;
 	    t.tm_isdst = -1;
-	    time_t end = mktime(&t) + secs;
+	    time_t end;
+	    // checking for overflow in case mktime + secs > time_t max value
+	    if (secs > (numeric_limits<time_t>::max() - mktime(&t)))
+		end = numeric_limits<time_t>::max();
+	    else
+		end = mktime(&t) + secs;
 	    struct tm *t2 = localtime(&end);
 	    y2 = t2->tm_year + 1900;
 	    m2 = t2->tm_mon + 1;
@@ -194,7 +202,14 @@ date_range_filter(const string & date_start, const string & date_end,
 	    y2 = t->tm_year + 1900;
 	    m2 = t->tm_mon + 1;
 	    d2 = t->tm_mday;
-	    time_t then = end - secs;
+	    time_t then;
+	    // if secs is equal to time_t min value then
+	    // then = mktime + time_t min val hence which would do addition
+	    // so checking that overflow.
+	    if (secs < (end - numeric_limits<time_t>::max()))
+		then = numeric_limits<time_t>::max();
+	    else
+		then = end - secs;
 	    struct tm *t2 = localtime(&then);
 	    y1 = t2->tm_year + 1900;
 	    m1 = t2->tm_mon + 1;
