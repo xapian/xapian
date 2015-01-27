@@ -402,6 +402,15 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		skip(file, "required filter not installed", SKIP_VERBOSE_ONLY);
 		return;
 	    }
+	    if (cmd == "false") {
+		// Allow setting 'false' as a filter to mean that a MIME type
+		// should be quietly ignored.
+		string m = "ignoring MIME type '";
+		m += cmd_it->first;
+		m += "'";
+		skip(file, m, SKIP_VERBOSE_ONLY);
+		return;
+	    }
 	    append_filename_argument(cmd, file);
 	    try {
 		dump = stdout_to_string(cmd);
