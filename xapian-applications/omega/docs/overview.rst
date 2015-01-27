@@ -385,6 +385,9 @@ If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
 including it as a standard filter.
 
+If you specify ``false`` as the command in ``--filter``, omindex will skip
+files with the specified MIME type.
+
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be
 explicitly set with ``--duplicates=replace``) is to reindex if the last
