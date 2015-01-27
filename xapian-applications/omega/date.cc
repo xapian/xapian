@@ -31,9 +31,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <ctime>
-#include <climits> // for detecting underflow or overflow e.g LONG_MIN
 #include <limits>
-#include <errno.h> // for errno variable
 
 using namespace std;
 
@@ -147,8 +145,8 @@ date_range_filter(const string & date_start, const string & date_end,
 {
     int y1, m1, d1, y2, m2, d2;
     if (!date_span.empty()) {
-	errno = 0;
 	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
+	time_t secs;
 	if (str_to_longlong > (numeric_limits<time_t>::max() / (24 * 60 * 60))) {
 	    secs = numeric_limits<time_t>::max();
 	} else if (str_to_longlong < (numeric_limits<time_t>::min() / (24 * 60 * 60))) {
