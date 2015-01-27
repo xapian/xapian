@@ -411,8 +411,16 @@ index_mimetype(const string & file, const string & url, const string & ext,
     string author, title, sample, keywords, topic, dump;
     string md5;
 
+    map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
+    if (cmd_it == commands.end()) {
+	string wildtype = mimetype;
+	size_t slash = wildtype.find('/');
+	if (slash != string::npos) {
+	    wildtype.replace(slash + 1, string::npos, "*");
+	    cmd_it = commands.find(wildtype);
+	}
+    }
     try {
-	map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
 	if (cmd_it != commands.end()) {
 	    // Easy "run a command and read UTF-8 text or HTML from stdout"
 	    // cases.
@@ -975,8 +983,17 @@ index_mimetype(const string & file, const string & url, const string & ext,
     } catch (ReadError) {
 	skip(file, string("can't read file: ") + strerror(errno));
     } catch (NoSuchFilter) {
-	skip(file, "Filter for \"" + mimetype + "\" not installed");
-	commands[mimetype] = Filter();
+	string filter_entry;
+	if (cmd_it != commands.end()) {
+	    filter_entry = cmd_it->first;
+	} else {
+	    filter_entry = mimetype;
+	}
+	string m = "Filter for \"";
+	m += filter_entry;
+	m += "\" not installed";
+	skip(file, m);
+	commands[filter_entry] = Filter();
     } catch (FileNotFound) {
 	skip(file, "File removed during indexing",
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);

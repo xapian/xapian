@@ -301,6 +301,14 @@ string, but to be useful there either needs to be a filter set for that type
    - image/vnd.djvu
    - ignore (magic token to tell omindex to quietly ignore such files)
 
+You can specify ``*`` as the MIME sub-type for ``--filter``, for example if you
+have a filter you want to apply to any video files, you could specify it using
+``--filter 'video/*:index-video-file'``.  Note that this is checked right after
+checking for the exact MIME type, so will override any built-in filters which
+would otherwise match.  Also you can't use arbitrary wildcards, just ``*`` for
+the entire sub-type.  And be careful to quote ``*`` to protect it from the
+shell.
+
 By default, files with the following extensions are marked as 'ignore'::
 
    - a
