@@ -83,6 +83,7 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
 {
     if (!date_span.empty()) {
 	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
+	time_t span;
 	if (str_to_longlong > (numeric_limits<time_t>::max() / (24 * 60 * 60))) {
 	    span = numeric_limits<time_t>::max();
 	} else if (str_to_longlong < (numeric_limits<time_t>::min() / (24 * 60 * 60))) {
