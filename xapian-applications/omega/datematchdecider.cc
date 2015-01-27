@@ -21,7 +21,6 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <climits> // for checking underflow or overflow e.g LONG_MIN
 #include <limits>
 #include <xapian.h>
 
