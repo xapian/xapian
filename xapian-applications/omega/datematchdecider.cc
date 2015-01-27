@@ -22,7 +22,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <climits> // for checking underflow or overflow e.g LONG_MIN
-#include <errno.h> // for errno variable
 #include <limits>
 #include <xapian.h>
 
@@ -84,29 +83,43 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
 	: val(val_)
 {
     if (!date_span.empty()) {
-    	errno = 0;
 	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
-	if (errno == ERANGE) {
-	    switch (str_to_longlong) {
-		case LLONG_MIN:
-		    throw (string("Date span underflow:"));
-		case LLONG_MAX:
-		    throw (string("Date span overflow:"));
-	    }
+	if (str_to_longlong > (numeric_limits<time_t>::max() / (24 * 60 * 60))) {
+	    span = numeric_limits<time_t>::max();
+	} else if (str_to_longlong < (numeric_limits<time_t>::min() / (24 * 60 * 60))) {
+	    span = numeric_limits<time_t>::min();	
+	} else {
+	    span = time_t(str_to_longlong) * (24 * 60 * 60);
 	}
-	if (time_t(str_to_longlong) > (numeric_limits<time_t>::max() / (24 * 60 * 60)))
-	    throw (string("Date span overflow:"));
-	time_t span = time_t(str_to_longlong) * (24 * 60 * 60);
 	if (!date_end.empty()) {
 	    time_t endsec = set_end(date_end);
-	    set_start(endsec - span);
+	    time_t startsec;
+	    // if span is equal to time_t min value i.e -ve value,
+	    // then = endsec + time_t min val hence which would do addition
+	    // so checking for that overflow.
+	    if (span < (endsec - numeric_limits<time_t>::max()))
+		startsec = numeric_limits<time_t>::max();
+	    else
+		startsec = endsec - span;
+	    set_start(startsec);
 	} else if (!date_start.empty()) {
 	    time_t startsec = set_start(date_start);
-	    set_end(startsec + span);
+	    time_t endsec;
+	    // checking for overflow in case startsec + secs > time_t max value
+	    if (span > (numeric_limits<time_t>::max() - startsec))
+		endsec = numeric_limits<time_t>::max();
+	    else
+		endsec = startsec + span;
+	    set_end(endsec);
 	} else {
 	    time_t endsec = time(NULL);
 	    set_end(endsec);
-	    set_start(endsec - span);
+	    time_t startsec;
+	    if (span < (endsec - numeric_limits<time_t>::max()))
+		startsec = numeric_limits<time_t>::max();
+	    else
+		startsec = endsec - span;
+	    set_start(startsec);
 	}
     } else {
 	if (date_start.empty()) {
