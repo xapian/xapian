@@ -163,14 +163,16 @@ date_range_filter(const string & date_start, const string & date_end,
 	    t.tm_hour = 12;
 	    t.tm_min = t.tm_sec = 0;
 	    t.tm_isdst = -1;
-	    time_t then;
-	    // if secs is equal to time_t min value,
-	    // then = mktime + time_t min val hence which would do addition
-	    // so checking for that overflow.
-	    if (secs < (mktime(&t) - numeric_limits<time_t>::max()))
+	    time_t given_time = mktime(&t);
+	    time_t then = given_time - secs;
+	    bool flag = given_time < 0;
+	    //check for underflow
+	    if (flag == (secs > 0) && flag != (then < 0))
+		then = numeric_limits<time_t>::min();
+	    flag = given_time > 0;
+	    //check for overflow
+	    if (flag == (secs < 0) && flag != (then > 0))
 		then = numeric_limits<time_t>::max();
-	    else
-		then = mktime(&t) - secs;
 	    struct tm *t2 = localtime(&then);
 	    y1 = t2->tm_year + 1900;
 	    m1 = t2->tm_mon + 1;
@@ -184,12 +186,16 @@ date_range_filter(const string & date_start, const string & date_end,
 	    t.tm_hour = 12;
 	    t.tm_min = t.tm_sec = 0;
 	    t.tm_isdst = -1;
-	    time_t end;
-	    // checking for overflow in case mktime + secs > time_t max value
-	    if (secs > (numeric_limits<time_t>::max() - mktime(&t)))
+	    time_t given_time = mktime(&t);
+	    time_t end = given_time + secs;
+	    bool flag = given_time < 0;
+	    //check for underflow
+	    if (flag == (secs < 0) && flag != (end < 0))
+		end = numeric_limits<time_t>::min();
+	    flag = given_time > 0;
+	    //check for overflow
+	    if (flag == (secs > 0) && flag != (end > 0))
 		end = numeric_limits<time_t>::max();
-	    else
-		end = mktime(&t) + secs;
 	    struct tm *t2 = localtime(&end);
 	    y2 = t2->tm_year + 1900;
 	    m2 = t2->tm_mon + 1;
@@ -200,14 +206,15 @@ date_range_filter(const string & date_start, const string & date_end,
 	    y2 = t->tm_year + 1900;
 	    m2 = t->tm_mon + 1;
 	    d2 = t->tm_mday;
-	    time_t then;
-	    // if secs is equal to time_t min value then
-	    // then = mktime + time_t min val hence which would do addition
-	    // so checking that overflow.
-	    if (secs < (end - numeric_limits<time_t>::max()))
+	    time_t then = end - secs;
+	    bool flag = end < 0;
+	    //check for underflow
+	    if (flag == (secs > 0) && flag != (then < 0))
+		then = numeric_limits<time_t>::min();
+	    flag = end > 0;
+	    //check for overflow
+	    if (flag == (secs < 0) && flag != (then > 0))
 		then = numeric_limits<time_t>::max();
-	    else
-		then = end - secs;
 	    struct tm *t2 = localtime(&then);
 	    y1 = t2->tm_year + 1900;
 	    m1 = t2->tm_mon + 1;
