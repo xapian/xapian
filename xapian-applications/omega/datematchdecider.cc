@@ -93,32 +93,40 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
 	}
 	if (!date_end.empty()) {
 	    time_t endsec = set_end(date_end);
-	    time_t startsec;
-	    // if span is equal to time_t min value i.e -ve value,
-	    // then = endsec + time_t min val hence which would do addition
-	    // so checking for that overflow.
-	    if (span < (endsec - numeric_limits<time_t>::max()))
+	    time_t startsec = endsec - span;
+	    bool flag = endsec < 0;
+	    //check for underflow
+	    if (flag == (span > 0) && flag != (startsec < 0))
+		startsec = numeric_limits<time_t>::min();
+	    flag = endsec > 0;
+	    //check for overflow
+	    if (flag == (span < 0) && flag != (startsec > 0))
 		startsec = numeric_limits<time_t>::max();
-	    else
-		startsec = endsec - span;
 	    set_start(startsec);
 	} else if (!date_start.empty()) {
 	    time_t startsec = set_start(date_start);
-	    time_t endsec;
-	    // checking for overflow in case startsec + secs > time_t max value
-	    if (span > (numeric_limits<time_t>::max() - startsec))
+	    time_t endsec = startsec + span;
+	    bool flag = startsec < 0;
+	    //check for underflow
+	    if (flag == (span < 0) && flag != (endsec < 0))
+		endsec = numeric_limits<time_t>::min();
+	    flag = startsec > 0;
+	    //check for overflow
+	    if (flag == (span > 0) && flag != (endsec > 0))
 		endsec = numeric_limits<time_t>::max();
-	    else
-		endsec = startsec + span;
 	    set_end(endsec);
 	} else {
 	    time_t endsec = time(NULL);
 	    set_end(endsec);
-	    time_t startsec;
-	    if (span < (endsec - numeric_limits<time_t>::max()))
+	    time_t startsec = endsec - span;
+	    bool flag = endsec < 0;
+	    //check for underflow
+	    if (flag == (span > 0) && flag != (startsec < 0))
+		startsec = numeric_limits<time_t>::min();
+	    flag = endsec > 0;
+	    //check for overflow
+	    if (flag == (span < 0) && flag != (startsec > 0))
 		startsec = numeric_limits<time_t>::max();
-	    else
-		startsec = endsec - span;
 	    set_start(startsec);
 	}
     } else {
