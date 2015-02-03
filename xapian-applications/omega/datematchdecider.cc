@@ -84,24 +84,28 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
     if (!date_span.empty()) {
 	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
 	time_t span;
-	if (str_to_longlong > (numeric_limits<time_t>::max() / (24 * 60 * 60))) {
-	    span = numeric_limits<time_t>::max();
-	} else if (str_to_longlong < (numeric_limits<time_t>::min() / (24 * 60 * 60))) {
-	    span = numeric_limits<time_t>::min();	
+	time_t min_time = numeric_limits<time_t>::min();
+	time_t max_time = numeric_limits<time_t>::max();
+	if (str_to_longlong > (max_time / (24 * 60 * 60))) {
+	    span = max_time;
+	} else if (str_to_longlong < (min_time / (24 * 60 * 60))) {
+	    span = min_time;	
 	} else {
 	    span = time_t(str_to_longlong) * (24 * 60 * 60);
 	}
 	if (!date_end.empty()) {
 	    time_t endsec = set_end(date_end);
+	    if (span == min_time)
+	    	span += 1;
 	    time_t startsec = endsec - span;
 	    bool flag = endsec < 0;
 	    //check for underflow
 	    if (flag == (span > 0) && flag != (startsec < 0))
-		startsec = numeric_limits<time_t>::min();
+		startsec = min_time;
 	    flag = endsec > 0;
 	    //check for overflow
 	    if (flag == (span < 0) && flag != (startsec > 0))
-		startsec = numeric_limits<time_t>::max();
+		startsec = max_time;
 	    set_start(startsec);
 	} else if (!date_start.empty()) {
 	    time_t startsec = set_start(date_start);
@@ -109,24 +113,26 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
 	    bool flag = startsec < 0;
 	    //check for underflow
 	    if (flag == (span < 0) && flag != (endsec < 0))
-		endsec = numeric_limits<time_t>::min();
+		endsec = min_time;
 	    flag = startsec > 0;
 	    //check for overflow
 	    if (flag == (span > 0) && flag != (endsec > 0))
-		endsec = numeric_limits<time_t>::max();
+		endsec = max_time;
 	    set_end(endsec);
 	} else {
 	    time_t endsec = time(NULL);
 	    set_end(endsec);
+	    if (span == min_time)
+	    	span += 1;
 	    time_t startsec = endsec - span;
 	    bool flag = endsec < 0;
 	    //check for underflow
 	    if (flag == (span > 0) && flag != (startsec < 0))
-		startsec = numeric_limits<time_t>::min();
+		startsec = min_time;
 	    flag = endsec > 0;
 	    //check for overflow
 	    if (flag == (span < 0) && flag != (startsec > 0))
-		startsec = numeric_limits<time_t>::max();
+		startsec = max_time;
 	    set_start(startsec);
 	}
     } else {
