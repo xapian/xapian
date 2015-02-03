@@ -147,10 +147,12 @@ date_range_filter(const string & date_start, const string & date_end,
     if (!date_span.empty()) {
 	long long str_to_longlong = strtoll(date_span.c_str(), NULL, 0);
 	time_t secs;
-	if (str_to_longlong > (numeric_limits<time_t>::max() / (24 * 60 * 60))) {
-	    secs = numeric_limits<time_t>::max();
-	} else if (str_to_longlong < (numeric_limits<time_t>::min() / (24 * 60 * 60))) {
-	    secs = numeric_limits<time_t>::min();
+	time_t max_time = numeric_limits<time_t>::max();
+	time_t min_time = numeric_limits<time_t>::min();
+	if (str_to_longlong > (max_time / (24 * 60 * 60))) {
+	    secs = max_time;
+	} else if (str_to_longlong < (min_time / (24 * 60 * 60))) {
+	    secs = min_time;
 	} else {
 	    secs = time_t(str_to_longlong) * (24 * 60 * 60);
 	}
@@ -164,15 +166,17 @@ date_range_filter(const string & date_start, const string & date_end,
 	    t.tm_min = t.tm_sec = 0;
 	    t.tm_isdst = -1;
 	    time_t given_time = mktime(&t);
+	    if (secs == min_time)
+	    	secs += 1;
 	    time_t then = given_time - secs;
 	    bool flag = given_time < 0;
 	    //check for underflow
 	    if (flag == (secs > 0) && flag != (then < 0))
-		then = numeric_limits<time_t>::min();
+		then = min_time;
 	    flag = given_time > 0;
 	    //check for overflow
 	    if (flag == (secs < 0) && flag != (then > 0))
-		then = numeric_limits<time_t>::max();
+		then = max_time;
 	    struct tm *t2 = localtime(&then);
 	    y1 = t2->tm_year + 1900;
 	    m1 = t2->tm_mon + 1;
@@ -191,11 +195,11 @@ date_range_filter(const string & date_start, const string & date_end,
 	    bool flag = given_time < 0;
 	    //check for underflow
 	    if (flag == (secs < 0) && flag != (end < 0))
-		end = numeric_limits<time_t>::min();
+		end = min_time;
 	    flag = given_time > 0;
 	    //check for overflow
 	    if (flag == (secs > 0) && flag != (end > 0))
-		end = numeric_limits<time_t>::max();
+		end = max_time;
 	    struct tm *t2 = localtime(&end);
 	    y2 = t2->tm_year + 1900;
 	    m2 = t2->tm_mon + 1;
@@ -206,15 +210,17 @@ date_range_filter(const string & date_start, const string & date_end,
 	    y2 = t->tm_year + 1900;
 	    m2 = t->tm_mon + 1;
 	    d2 = t->tm_mday;
+	    if (secs == min_time)
+	    	secs += 1;
 	    time_t then = end - secs;
 	    bool flag = end < 0;
 	    //check for underflow
 	    if (flag == (secs > 0) && flag != (then < 0))
-		then = numeric_limits<time_t>::min();
+		then = min_time;
 	    flag = end > 0;
 	    //check for overflow
 	    if (flag == (secs < 0) && flag != (then > 0))
-		then = numeric_limits<time_t>::max();
+		then = max_time;
 	    struct tm *t2 = localtime(&then);
 	    y1 = t2->tm_year + 1900;
 	    m1 = t2->tm_mon + 1;
