@@ -1,7 +1,7 @@
 /** @file queryoptimiser.h
  * @brief Details passed around while building PostList tree from Query tree
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -51,6 +51,8 @@ class QueryOptimiser {
     LeafPostList * hint;
 
   public:
+    bool need_positions;
+
     const Xapian::Database::Internal & db;
 
     Xapian::doccount db_size;
@@ -61,7 +63,8 @@ class QueryOptimiser {
 		   LocalSubMatch & localsubmatch_,
 		   MultiMatch * matcher_)
 	: localsubmatch(localsubmatch_), total_subqs(0), hint(0),
-	  db(db_), db_size(db.get_doccount()), matcher(matcher_) { }
+	  need_positions(false), db(db_), db_size(db.get_doccount()),
+	  matcher(matcher_) { }
 
     void inc_total_subqs() { ++total_subqs; }
 
@@ -72,7 +75,8 @@ class QueryOptimiser {
     LeafPostList * open_post_list(const std::string& term,
 				  Xapian::termcount wqf,
 				  double factor) {
-	return localsubmatch.open_post_list(term, wqf, factor, &hint);
+	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
+					    &hint);
     }
 
     PostList * make_synonym_postlist(PostList * pl, double factor) {
