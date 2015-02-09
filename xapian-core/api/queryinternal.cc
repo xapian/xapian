@@ -1340,15 +1340,19 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
 {
     // FIXME: should has_positions() be on the combined DB (not this sub)?
     if (qopt->db.has_positions()) {
+	bool old_need_positions = qopt->need_positions;
+	qopt->need_positions = true;
+
 	QueryVector::const_iterator i;
 	for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	    // MatchNothing subqueries should have been removed by done().
 	    Assert((*i).internal.get());
-	    // FIXME: postlist_sub_positional?
 	    ctx.add_postlist((*i).internal->postlist(qopt, factor));
 	}
 	// Record the positional filter to apply higher up the tree.
 	ctx.add_pos_filter(op, subqueries.size(), window);
+
+	qopt->need_positions = old_need_positions;
     } else {
 	QueryAndLike::postlist_sub_and_like(ctx, qopt, factor);
     }

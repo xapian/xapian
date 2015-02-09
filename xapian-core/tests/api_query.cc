@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -244,6 +244,25 @@ DEFINE_TESTCASE(queryintro1, !backend) {
     TEST_EQUAL(q.get_num_subqueries(), 2);
     TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
     TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
+
+    return true;
+}
+
+/// Regression test for bug introduced in 1.3.1 and fixed in 1.3.3.
+//  We were incorrectly converting a term which indexed all docs and was used
+//  in an unweighted phrase into an all docs postlist, so check that this
+//  case actually works.
+DEFINE_TESTCASE(phrasealldocs1, backend) {
+    Xapian::Database db = get_database("apitest_declen");
+    Xapian::Query q;
+    const char * phrase[] = { "this", "is", "the" };
+    q = Xapian::Query(q.OP_AND_NOT,
+	    Xapian::Query("paragraph"),
+	    Xapian::Query(q.OP_PHRASE, phrase, phrase + 3));
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 3);
 
     return true;
 }

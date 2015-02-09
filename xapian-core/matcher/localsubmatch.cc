@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -125,9 +125,10 @@ LeafPostList *
 LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
+			      bool need_positions,
 			      LeafPostList ** hint)
 {
-    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | hint);
+    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | hint);
 
     bool weighted = (factor != 0.0 && !term.empty());
     AutoPtr<Xapian::Weight> wt(weighted ? wt_factory->clone() : NULL);
@@ -137,15 +138,15 @@ LocalSubMatch::open_post_list(const string& term,
     }
 
     LeafPostList * pl = NULL;
-    if (!term.empty()) {
+    if (!term.empty() && !need_positions) {
 	if (!weighted || !wt_factory->get_sumpart_needs_wdf_()) {
 	    Xapian::doccount sub_tf;
 	    db->get_freqs(term, &sub_tf, NULL);
 	    if (sub_tf == db->get_doccount()) {
-		// If we're not going to use the wdf and the term indexes all
-		// documents, we can replace it with the MatchAll postlist,
-		// which is especially efficient if there are no gaps in the
-		// docids.
+		// If we're not going to use the wdf or term positions, and the
+		// term indexes all documents, we can replace it with the
+		// MatchAll postlist, which is especially efficient if there
+		// are no gaps in the docids.
 		pl = db->open_post_list(string());
 	    }
 	}

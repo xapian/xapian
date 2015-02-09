@@ -301,6 +301,14 @@ string, but to be useful there either needs to be a filter set for that type
    - image/vnd.djvu
    - ignore (magic token to tell omindex to quietly ignore such files)
 
+You can specify ``*`` as the MIME sub-type for ``--filter``, for example if you
+have a filter you want to apply to any video files, you could specify it using
+``--filter 'video/*:index-video-file'``.  Note that this is checked right after
+checking for the exact MIME type, so will override any built-in filters which
+would otherwise match.  Also you can't use arbitrary wildcards, just ``*`` for
+the entire sub-type.  And be careful to quote ``*`` to protect it from the
+shell.
+
 By default, files with the following extensions are marked as 'ignore'::
 
    - a
@@ -376,6 +384,9 @@ to repeat this for each format which you want to use LibreOffice on).
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
 including it as a standard filter.
+
+If you specify ``false`` as the command in ``--filter``, omindex will skip
+files with the specified MIME type.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be

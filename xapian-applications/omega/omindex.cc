@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -411,14 +411,31 @@ index_mimetype(const string & file, const string & url, const string & ext,
     string author, title, sample, keywords, topic, dump;
     string md5;
 
+    map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
+    if (cmd_it == commands.end()) {
+	string wildtype = mimetype;
+	size_t slash = wildtype.find('/');
+	if (slash != string::npos) {
+	    wildtype.replace(slash + 1, string::npos, "*");
+	    cmd_it = commands.find(wildtype);
+	}
+    }
     try {
-	map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
 	if (cmd_it != commands.end()) {
 	    // Easy "run a command and read UTF-8 text or HTML from stdout"
 	    // cases.
 	    string cmd = cmd_it->second.cmd;
 	    if (cmd.empty()) {
 		skip(file, "required filter not installed", SKIP_VERBOSE_ONLY);
+		return;
+	    }
+	    if (cmd == "false") {
+		// Allow setting 'false' as a filter to mean that a MIME type
+		// should be quietly ignored.
+		string m = "ignoring MIME type '";
+		m += cmd_it->first;
+		m += "'";
+		skip(file, m, SKIP_VERBOSE_ONLY);
 		return;
 	    }
 	    append_filename_argument(cmd, file);
@@ -975,8 +992,17 @@ index_mimetype(const string & file, const string & url, const string & ext,
     } catch (ReadError) {
 	skip(file, string("can't read file: ") + strerror(errno));
     } catch (NoSuchFilter) {
-	skip(file, "Filter for \"" + mimetype + "\" not installed");
-	commands[mimetype] = Filter();
+	string filter_entry;
+	if (cmd_it != commands.end()) {
+	    filter_entry = cmd_it->first;
+	} else {
+	    filter_entry = mimetype;
+	}
+	string m = "Filter for \"";
+	m += filter_entry;
+	m += "\" not installed";
+	skip(file, m);
+	commands[filter_entry] = Filter();
     } catch (FileNotFound) {
 	skip(file, "File removed during indexing",
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
@@ -1263,6 +1289,8 @@ main(int argc, char **argv)
     mime_map["js"] = "ignore";
     mime_map["lib"] = "ignore";
     mime_map["lnk"] = "ignore";
+    mime_map["msi"] = "ignore";
+    mime_map["msp"] = "ignore";
     mime_map["o"] = "ignore";
     mime_map["obj"] = "ignore";
     mime_map["pyc"] = "ignore";

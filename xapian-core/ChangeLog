@@ -1,3 +1,16 @@
+Mon Feb 09 02:56:54 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/queryinternal.cc,matcher/localsubmatch.cc,
+	  matcher/localsubmatch.h,matcher/queryoptimiser.h,tests/api_query.cc:
+	  Don't convert an unweighted term which indexes all docs to an all
+	  docs postlist if we need positional data for it.
+
+Sun Jan 25 23:48:34 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check for declaration of fdatasync() first, as OS X
+	  has a dummy implementation in the library which is not prototyped in
+	  any header.  Reported by Vlad Shablinsky.
+
 Fri Jan 09 05:19:20 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_freelist.cc: Fix freelist handling to allow for

@@ -72,7 +72,7 @@ def get_archive_links(url, archives):
 
 def unpack_tarball(path, link, builddir):
     if path.endswith('.xz'):
-        xz_proc = subprocess.Popen([xz, '-dc', path], stdout=subprocess.PIPE)
+        xz_proc = subprocess.Popen(xz + ['-dc', path], stdout=subprocess.PIPE)
         tar_proc = subprocess.Popen([tar, 'xf', '-', link], cwd=builddir, stdin=xz_proc.stdout)
     else:
         # Pipe the file in on stdin to avoid having to juggle 'path' being relative
@@ -109,10 +109,11 @@ def clear_build_dir(dir):
 clear_build_dir(builddir)
 
 xz = None
-for try_xz in ['xz', 'lzma']:
-    print("Trying '%s' as xz unpacker" % try_xz)
+for try_xz in ['xz', 'xzdec', ('busybox', 'xz')]:
+    print("Trying '%s' as xz unpacker" % str(try_xz))
     try:
-        xz_proc = subprocess.Popen([try_xz, '--help'], stdin=open('/dev/null', 'r'))
+        try_xz = list(try_xz)
+        xz_proc = subprocess.Popen(try_xz + ['--help'], stdin=open('/dev/null', 'r'))
         if xz_proc.wait() == 0:
             xz = try_xz
             break

@@ -899,11 +899,19 @@ fi
 AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
 
 dnl See if we have fdatasync, and what libraries are needed for it.
-SAVE_LIBS=$LIBS
-AC_SEARCH_LIBS([fdatasync], [rt], [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
-LIBS=$SAVE_LIBS
+dnl We need to actually check for a declaration as OS X has a dummy
+dnl implementation in the library which is not prototyped in any header.
+AC_CHECK_DECL([fdatasync(int)], [
+  SAVE_LIBS=$LIBS
+  AC_SEARCH_LIBS([fdatasync], [rt], [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"])
+  LIBS=$SAVE_LIBS
+  AC_CHECK_FUNCS([fdatasync])
+  ],
+  [ac_cv_func_fdatasync=no],
+  [#include <unistd.h>]
+)
 
-AC_CHECK_FUNCS([fdatasync fsync])
+AC_CHECK_FUNCS([fsync])
 
 dnl HP-UX has pread and pwrite, but they don't work!  Apparently this problem
 dnl manifests when largefile support is enabled, and we definitely want that
