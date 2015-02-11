@@ -1,3 +1,8 @@
+Wed Feb 11 22:44:35 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: mid_point() should never fail to find
+	  a split point, but just in case it does, return a usable answer.
+
 Sun Jan 25 23:48:34 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Check for declaration of fdatasync() first, as OS X
