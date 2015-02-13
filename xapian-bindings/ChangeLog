@@ -1,3 +1,8 @@
+Fri Feb 13 13:10:11 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py,python3/smoketest.py: Update testcases for lazy
+	  wildcard expansion change in xapian-core.
+
 Wed Jan 07 04:00:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't AC_SUBST LUA_INC as we never use it.
