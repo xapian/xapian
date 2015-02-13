@@ -1,3 +1,8 @@
+Fri Feb 13 10:18:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* generate-exceptions: Note that the change to not negate
+	  WSAGetLastError() values internally was backported for 1.2.20.
+
 Fri Feb 13 05:57:13 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/,common/remoteprotocol.h,exception_data.pm,
