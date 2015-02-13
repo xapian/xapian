@@ -1,7 +1,7 @@
 /** @file queryinternal.h
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -377,6 +377,33 @@ class QueryMax : public QueryOrLike {
     QueryMax(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
+
+    std::string get_description() const;
+};
+
+class QueryWildcard : public Query::Internal {
+    std::string pattern;
+
+    Xapian::termcount max_expansion;
+
+    Query::op combiner;
+
+    Xapian::Query::op get_op() const;
+
+  public:
+    QueryWildcard(const std::string &pattern_,
+		  Xapian::termcount max_expansion_,
+		  Query::op combiner_)
+	: pattern(pattern_), max_expansion(max_expansion_), combiner(combiner_)
+    { }
+
+    Xapian::Query::op get_type() const;
+
+    PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
+
+    termcount get_length() const;
+
+    void serialise(std::string & result) const;
 
     std::string get_description() const;
 };

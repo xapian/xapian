@@ -1,3 +1,14 @@
+Fri Feb 13 05:57:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/,common/remoteprotocol.h,exception_data.pm,
+	  include/xapian/query.h,include/xapian/queryparser.h,matcher/,
+	  queryparser/queryparser.lemony,tests/api_qpbackend.cc,
+	  tests/queryparsertest.cc,weight/weightinternal.cc,
+	  weight/weightinternal.h: Add new OP_WILDCARD query operator, which
+	  expands wildcards lazily, so now we create the PostList tree for a
+	  wildcard directly, rather than creating an intermediate Query tree.
+	  See ticket#48.
+
 Wed Feb 11 22:45:26 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_table.cc: mid_point() should never fail to find

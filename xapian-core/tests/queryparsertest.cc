@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -903,15 +903,15 @@ static bool test_qp_flag_wildcard1()
     Xapian::QueryParser qp;
     qp.set_database(db);
     Xapian::Query qobj = qp.parse_query("ab*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(abc@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((SYNONYM WILDCARD OR ab))");
     qobj = qp.parse_query("muscle*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((muscle@1 SYNONYM musclebound@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((SYNONYM WILDCARD OR muscle))");
     qobj = qp.parse_query("meat*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((SYNONYM WILDCARD OR meat))");
     qobj = qp.parse_query("musc*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((muscat@1 SYNONYM muscle@1 SYNONYM musclebound@1 SYNONYM muscular@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((SYNONYM WILDCARD OR musc))");
     qobj = qp.parse_query("mutt*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(mutton@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((SYNONYM WILDCARD OR mutt))");
     // Regression test (we weren't lowercasing terms before checking if they
     // were in the database or not):
     qobj = qp.parse_query("mUTTON++");
@@ -920,70 +920,70 @@ static bool test_qp_flag_wildcard1()
     unsigned flags = Xapian::QueryParser::FLAG_WILDCARD |
 		     Xapian::QueryParser::FLAG_LOVEHATE;
     qobj = qp.parse_query("+mai* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_MAYBE main@2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR mai) AND_MAYBE main@2))");
     // Regression test (if we had a +term which was a wildcard and wasn't
     // present, the query could still match documents).
     qobj = qp.parse_query("foo* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@2)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) OR main@2))");
     qobj = qp.parse_query("main foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 OR (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("+foo* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND_MAYBE main@2))");
     qobj = qp.parse_query("main +foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND_MAYBE main@1))");
     qobj = qp.parse_query("foo* +main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@2)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@2 AND_MAYBE (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("+main foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_MAYBE (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("+foo* +main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND main@2))");
     qobj = qp.parse_query("+main +foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("foo* mai", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(mai@2)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) OR mai@2))");
     qobj = qp.parse_query("mai foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(mai@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((mai@1 OR (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("+foo* mai", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND_MAYBE mai@2))");
     qobj = qp.parse_query("mai +foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND_MAYBE mai@1))");
     qobj = qp.parse_query("foo* +mai", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(mai@2)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((mai@2 AND_MAYBE (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("+mai foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(mai@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((mai@1 AND_MAYBE (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("+foo* +mai", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND mai@2))");
     qobj = qp.parse_query("+mai +foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((mai@1 AND (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("-foo* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@2)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@2 AND_NOT (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("main -foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_NOT (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("main -foo* -bar", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_NOT bar@3))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_NOT ((SYNONYM WILDCARD OR foo) OR bar@3)))");
     qobj = qp.parse_query("main -bar -foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_NOT bar@2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_NOT (bar@2 OR (SYNONYM WILDCARD OR foo))))");
     // Check with OP_AND too.
     qp.set_default_op(Xapian::Query::OP_AND);
     qobj = qp.parse_query("foo* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND main@2))");
     qobj = qp.parse_query("main foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND (SYNONYM WILDCARD OR foo)))");
     qp.set_default_op(Xapian::Query::OP_AND);
     qobj = qp.parse_query("+foo* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND main@2))");
     qobj = qp.parse_query("main +foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("-foo* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@2)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@2 AND_NOT (SYNONYM WILDCARD OR foo)))");
     qobj = qp.parse_query("main -foo*", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(main@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((main@1 AND_NOT (SYNONYM WILDCARD OR foo)))");
     // Check empty wildcard followed by negation.
-    qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query()");
+    qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_LOVEHATE|Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR foo) AND_NOT main@2))");
     // Regression test for bug#484 fixed in 1.2.1 and 1.0.21.
     qobj = qp.parse_query("abc muscl* main", flags);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((abc@1 AND (muscle@2 SYNONYM musclebound@2)) AND main@3))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((abc@1 AND (SYNONYM WILDCARD OR muscl)) AND main@3))");
     return true;
 #endif
 }
@@ -1005,9 +1005,9 @@ static bool test_qp_flag_wildcard2()
     qp.add_prefix("author", "A");
     Xapian::Query qobj;
     qobj = qp.parse_query("author:h*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((Aheinlein@1 SYNONYM Ahuxley@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((SYNONYM WILDCARD OR Ah))");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((Aheinlein@1 SYNONYM Ahuxley@1) OR test@2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR Ah) OR test@2))");
     return true;
 #endif
 }
@@ -1060,15 +1060,15 @@ static bool test_qp_flag_wildcard3()
     test_qp_flag_wildcard1_helper(db, 6, "m*");
 
     // These cases should expand to one more than the limit.
-    TEST_EXCEPTION(Xapian::QueryParserError,
+    TEST_EXCEPTION(Xapian::WildcardError,
 	test_qp_flag_wildcard1_helper(db, 1, "muscle*"));
-    TEST_EXCEPTION(Xapian::QueryParserError,
+    TEST_EXCEPTION(Xapian::WildcardError,
 	test_qp_flag_wildcard1_helper(db, 3, "musc*"));
-    TEST_EXCEPTION(Xapian::QueryParserError,
+    TEST_EXCEPTION(Xapian::WildcardError,
 	test_qp_flag_wildcard1_helper(db, 3, "mus*"));
-    TEST_EXCEPTION(Xapian::QueryParserError,
+    TEST_EXCEPTION(Xapian::WildcardError,
 	test_qp_flag_wildcard1_helper(db, 4, "mu*"));
-    TEST_EXCEPTION(Xapian::QueryParserError,
+    TEST_EXCEPTION(Xapian::WildcardError,
 	test_qp_flag_wildcard1_helper(db, 5, "m*"));
 
     return true;
@@ -1115,76 +1115,76 @@ static bool test_qp_flag_partial1()
 
     // Check behaviour with unstemmed terms
     Xapian::Query qobj = qp.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((abc@1 OR Za@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR a) OR Za@1))");
     qobj = qp.parse_query("ab", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((abc@1 OR Zab@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR ab) OR Zab@1))");
     qobj = qp.parse_query("muscle", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((muscle@1 SYNONYM musclebound@1) OR Zmuscl@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR muscle) OR Zmuscl@1))");
     qobj = qp.parse_query("meat", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(Zmeat@1)");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR meat) OR Zmeat@1))");
     qobj = qp.parse_query("musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((muscat@1 SYNONYM muscle@1 SYNONYM musclebound@1 SYNONYM muscular@1) OR Zmusc@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR musc) OR Zmusc@1))");
     qobj = qp.parse_query("mutt", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((mutton@1 OR Zmutt@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR mutt) OR Zmutt@1))");
     qobj = qp.parse_query("abc musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((Zabc@1 OR ((muscat@2 SYNONYM muscle@2 SYNONYM musclebound@2 SYNONYM muscular@2) OR Zmusc@2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((Zabc@1 OR ((SYNONYM WILDCARD OR musc) OR Zmusc@2)))");
     qobj = qp.parse_query("a* mutt", Xapian::QueryParser::FLAG_PARTIAL | Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((abc@1 OR (mutton@2 OR Zmutt@2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR a) OR ((SYNONYM WILDCARD OR mutt) OR Zmutt@2)))");
 
     // Check behaviour with stemmed terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((out@1 SYNONYM outside@1) OR Zo@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR o) OR Zo@1))");
     qobj = qp.parse_query("ou", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((out@1 SYNONYM outside@1) OR Zou@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR ou) OR Zou@1))");
     qobj = qp.parse_query("out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((out@1 SYNONYM outside@1) OR Zout@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR out) OR Zout@1))");
     qobj = qp.parse_query("outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR Zout@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outs) OR Zout@1))");
     qobj = qp.parse_query("outsi", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR Zoutsi@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outsi) OR Zoutsi@1))");
     qobj = qp.parse_query("outsid", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR Zoutsid@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outsid) OR Zoutsid@1))");
     qobj = qp.parse_query("outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR Zoutsid@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outside) OR Zoutsid@1))");
 
     // Check behaviour with capitalised terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((out@1 SYNONYM outside@1) OR out@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR out) OR out@1))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR outs@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outs) OR outs@1))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR outside@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outside) OR outside@1))");
     // FIXME: Used to be this, but we aren't currently doing this change:
     // TEST_STRINGS_EQUAL(qobj.get_description(), "Query(outside@1#2)");
 
     // And now with stemming strategy STEM_ALL.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((out@1 SYNONYM outside@1) OR out@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR out) OR out@1))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR out@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outs) OR out@1))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR outsid@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outside) OR outsid@1))");
 
     // And now with stemming strategy STEM_ALL_Z.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL_Z);
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((out@1 SYNONYM outside@1) OR Zout@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR out) OR Zout@1))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR Zout@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outs) OR Zout@1))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((outside@1 OR Zoutsid@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR outside) OR Zoutsid@1))");
 
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qobj = qp.parse_query("title:cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((XTcowl@1 SYNONYM XTcows@1) OR ZXTcow@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR XTcow) OR ZXTcow@1))");
     qobj = qp.parse_query("title:cows", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((XTcows@1 OR ZXTcow@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR XTcows) OR ZXTcow@1))");
     qobj = qp.parse_query("title:Cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((XTcowl@1 SYNONYM XTcows@1) OR XTcow@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR XTcow) OR XTcow@1))");
     qobj = qp.parse_query("title:Cows", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((XTcows@1 OR XTcows@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR XTcows) OR XTcows@1))");
     // FIXME: Used to be this, but we aren't currently doing this change:
     // TEST_STRINGS_EQUAL(qobj.get_description(), "Query(XTcows@1#2)");
 
@@ -1192,19 +1192,19 @@ static bool test_qp_flag_partial1()
     // inflate the wqf of the "parsed as normal" version of a partial term
     // by multiplying it by the number of prefixes mapped to.
     qobj = qp.parse_query("double:vision", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query((ZXONEvision@1 SYNONYM ZXTWOvision@1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEvision SYNONYM WILDCARD OR XTWOvision) OR (ZXONEvision@1 SYNONYM ZXTWOvision@1)))");
 
     // Test handling of FLAG_PARTIAL when there's more than one prefix.
     qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((XONEpartial@1 SYNONYM XONEpartial2@1 SYNONYM XTWOpartial3@1 SYNONYM XTWOpartial4@1) OR (ZXONEpart@1 SYNONYM ZXTWOpart@1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpart SYNONYM WILDCARD OR XTWOpart) OR (ZXONEpart@1 SYNONYM ZXTWOpart@1)))");
 
     // Test handling of FLAG_PARTIAL when there's more than one prefix, without
     // stemming.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_NONE);
     qobj = qp.parse_query("double:part", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((XONEpartial@1 SYNONYM XONEpartial2@1 SYNONYM XTWOpartial3@1 SYNONYM XTWOpartial4@1) OR (XONEpart@1 SYNONYM XTWOpart@1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpart SYNONYM WILDCARD OR XTWOpart) OR (XONEpart@1 SYNONYM XTWOpart@1)))");
     qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((XONEpartial@1 SYNONYM XONEpartial2@1 SYNONYM XTWOpartial3@1 SYNONYM XTWOpartial4@1) OR (XONEpartial@1 SYNONYM XTWOpartial@1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpartial SYNONYM WILDCARD OR XTWOpartial) OR (XONEpartial@1 SYNONYM XTWOpartial@1)))");
 
     return true;
 #endif
@@ -2614,26 +2614,26 @@ static bool test_qp_phrase1()
 
 static const test test_stopword_group_or_queries[] = {
     { "this is a test", "test@4" },
-    { "test*", "(test@1 SYNONYM testable@1 SYNONYM tester@1)" },
-    { "a test*", "(test@2 SYNONYM testable@2 SYNONYM tester@2)" },
-    { "is a test*", "(test@3 SYNONYM testable@3 SYNONYM tester@3)" },
-    { "this is a test*", "(test@4 SYNONYM testable@4 SYNONYM tester@4)" },
-    { "this is a us* test*", "(user@4 OR (test@5 SYNONYM testable@5 SYNONYM tester@5))" },
-    { "this is a user test*", "(user@4 OR (test@5 SYNONYM testable@5 SYNONYM tester@5))" },
+    { "test*", "(SYNONYM WILDCARD OR test)" },
+    { "a test*", "(SYNONYM WILDCARD OR test)" },
+    { "is a test*", "(SYNONYM WILDCARD OR test)" },
+    { "this is a test*", "(SYNONYM WILDCARD OR test)" },
+    { "this is a us* test*", "((SYNONYM WILDCARD OR us) OR (SYNONYM WILDCARD OR test))" },
+    { "this is a user test*", "(user@4 OR (SYNONYM WILDCARD OR test))" },
     { NULL, NULL }
 };
 
 static const test test_stopword_group_and_queries[] = {
     { "this is a test", "test@4" },
-    { "test*", "(test@1 SYNONYM testable@1 SYNONYM tester@1)" },
-    { "a test*", "(test@2 SYNONYM testable@2 SYNONYM tester@2)" },
+    { "test*", "(SYNONYM WILDCARD OR test)" },
+    { "a test*", "(SYNONYM WILDCARD OR test)" },
     // Two stopwords + one wildcard failed in 1.0.16
-    { "is a test*", "(test@3 SYNONYM testable@3 SYNONYM tester@3)" },
+    { "is a test*", "(SYNONYM WILDCARD OR test)" },
     // Three stopwords + one wildcard failed in 1.0.16
-    { "this is a test*", "(test@4 SYNONYM testable@4 SYNONYM tester@4)" },
+    { "this is a test*", "(SYNONYM WILDCARD OR test)" },
     // Three stopwords + two wildcards failed in 1.0.16
-    { "this is a us* test*", "(user@4 AND (test@5 SYNONYM testable@5 SYNONYM tester@5))" },
-    { "this is a user test*", "(user@4 AND (test@5 SYNONYM testable@5 SYNONYM tester@5))" },
+    { "this is a us* test*", "((SYNONYM WILDCARD OR us) AND (SYNONYM WILDCARD OR test))" },
+    { "this is a user test*", "(user@4 AND (SYNONYM WILDCARD OR test))" },
     { NULL, NULL }
 };
 

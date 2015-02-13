@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -444,29 +444,16 @@ Term::get_query() const
 Query *
 Term::as_wildcarded_query(State * state_) const
 {
-    const Database & db = state_->get_database();
-    vector<Query> subqs;
-
     const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
-    Xapian::termcount expansion_count = 0;
     Xapian::termcount max = state_->get_max_wildcard_expansion();
+    vector<Query> subqs;
+    subqs.reserve(prefixes.size());
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
-	TermIterator t = db.allterms_begin(root);
-	while (t != db.allterms_end(root)) {
-	    if (max != 0 && ++expansion_count > max) {
-		string msg("Wildcard ");
-		msg += unstemmed;
-		msg += "* expands to more than ";
-		msg += str(max);
-		msg += " terms";
-		throw Xapian::QueryParserError(msg);
-	    }
-	    subqs.push_back(Query(*t, 1, pos));
-	    ++t;
-	}
+	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
+	subqs.push_back(Query(Query::OP_WILDCARD, root, max, Query::OP_OR));
     }
     Query * q = new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
     delete this;
@@ -476,7 +463,7 @@ Term::as_wildcarded_query(State * state_) const
 Query *
 Term::as_partial_query(State * state_) const
 {
-    const Database & db = state_->get_database();
+    Xapian::termcount max = state_->get_max_wildcard_expansion();
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
 
@@ -485,11 +472,9 @@ Term::as_partial_query(State * state_) const
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
-	TermIterator t = db.allterms_begin(root);
-	while (t != db.allterms_end(root)) {
-	    subqs_partial.push_back(Query(*t, 1, pos));
-	    ++t;
-	}
+	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
+	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max,
+				      Query::OP_OR));
 	// Add the term, as it would normally be handled, as an alternative.
 	subqs_full.push_back(Query(make_term(*piter), 1, pos));
     }

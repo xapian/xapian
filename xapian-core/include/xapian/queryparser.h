@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -576,9 +576,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void set_database(const Database &db);
 
-    /** Specify the maximum expansion of a wildcard term.
+    /** Specify the maximum expansion of a wildcard or partial term.
      *
-     *  Note: you must also set FLAG_WILDCARD for wildcard expansion to happen.
+     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL for this
+     *  setting to have anything to affect.
      *
      *  @param limit	The maximum number of terms each wildcard in the query
      *			can expand to, or 0 for no limit (which is the default).

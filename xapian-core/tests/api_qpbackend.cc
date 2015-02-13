@@ -1,7 +1,7 @@
 /** @file api_qpbackend.cc
  * @brief QueryParser tests which need a backend
  */
-/* Copyright (c) 2009 Olly Betts
+/* Copyright (c) 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,10 +41,10 @@ struct test {
 /// Regression test for bug#407 fixed in 1.0.17 and 1.1.3.
 DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
     static const test test_queries[] = {
-	{ "hello", "hello@1" },
+	{ "hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
 	{ "~hello", "(hello@1 SYNONYM hi@1 SYNONYM howdy@1)" },
-	{ "hello world", "(hello@1 OR world@2)" },
-	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
+	{ "hello world", "(hello@1 OR ((SYNONYM WILDCARD OR world) OR world@2))" },
+	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR ((SYNONYM WILDCARD OR world) OR world@2))" },
 	{ "world ~hello", "(world@1 OR (hello@2 SYNONYM hi@2 SYNONYM howdy@2))" },
 	{ NULL, NULL }
     };
@@ -57,11 +57,11 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	{ NULL, NULL }
     };
     static const  test test_queries_partial_auto[] = {
-	{ "hello", "hello@1" },
-	{ "~hello", "hello@1" },
-	{ "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
-	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR world@2)" },
-	{ "world ~hello", "(world@1 OR hello@2)" },
+	{ "hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
+	{ "~hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
+	{ "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR ((SYNONYM WILDCARD OR world) OR world@2))" },
+	{ "~hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR ((SYNONYM WILDCARD OR world) OR world@2))" },
+	{ "world ~hello", "(world@1 OR ((SYNONYM WILDCARD OR hello) OR hello@2))" },
 	{ NULL, NULL }
     };
 
