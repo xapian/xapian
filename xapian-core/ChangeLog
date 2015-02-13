@@ -1,3 +1,9 @@
+Fri Feb 13 10:47:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_table.cc,backends/flint/flint_table.cc:
+	  mid_point() should never fail to find a split point, but just in
+	  case it does, return a usable answer.
+
 Wed Feb 11 22:44:35 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc: mid_point() should never fail to find

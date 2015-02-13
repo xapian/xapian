@@ -677,9 +677,11 @@ FlintTable::mid_point(byte * p)
 	}
     }
 
-    /* falling out of mid_point */
+    /* This shouldn't happen, as the sum of the item sizes should be the same
+     * as the value calculated in size, so assert but return a sane value just
+     * in case. */
     Assert(false);
-    return 0; /* Stop compiler complaining about end of method. */
+    return dir_end;
 }
 
 /** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
