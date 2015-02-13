@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from git to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -637,6 +637,8 @@ Makefile: $srcdir/configure
 $srcdir/configure: \\
 END_OF_CONFIGURE
 
+: > configure.tmp2
+
 # We want to rerun bootstrap if a series file changes (patch added or removed)
 # or an existing patch changes.  Since we always have an series file (even if
 # it is empty), this also handles us adding the first patch for something.
@@ -652,7 +654,9 @@ END
     cat << END
     $patch\\\\
 END
-    patches="$patches $patch"
+    # Because there's a pipeline, this is a subshell, so use a temporary file
+    # rather than a variable to compile a list of patches to use below.
+    echo "$patch:" >> configure.tmp2
   done
 done >> configure.tmp
 
@@ -665,9 +669,7 @@ cat <<'END_OF_CONFIGURE' >> configure.tmp
 # Dummy dependencies to allow for patches to be deleted.
 END_OF_CONFIGURE
 
-for p in $patches ; do
-  echo "$p:"
-done >> configure.tmp
+cat configure.tmp2 >> configure.tmp
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 EOF
@@ -675,6 +677,8 @@ mv -f Makefile.tmp Makefile
 trap - EXIT
 echo "Configured successfully - now run \"${MAKE-make}\""
 END_OF_CONFIGURE
+
+rm -f configure.tmp2
 
 chmod +x configure.tmp
 mv -f configure.tmp configure
