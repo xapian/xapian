@@ -1,6 +1,6 @@
-31da6ad1 (Olly Betts 2015-01-22 14:44:38 +1300    1) Thu Jan 22 01:44:01 GMT 2015  Olly Betts <olly@survex.com>
+be18fb2e (Olly Betts 2015-01-27 17:37:56 +1300    1) Tue Jan 27 04:37:12 GMT 2015  Olly Betts <olly@survex.com>
 
-Omega 1.2.20 (2015-01-24):
+Omega 1.2.20 (2015-02-14):
 
 general:
 
@@ -18,6 +18,9 @@ indexers:
 
   + Ignore extensions .msi and .msp, which are Microsoft installer files, but
     which libmagic sometimes incorrectly identifies as application/msword.
+
+  + Interpret a command of "false" in "--filter" as meaning to ignore files
+    with that MIME type.
 
 * scriptindex:
 

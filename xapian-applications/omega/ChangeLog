@@ -1,3 +1,7 @@
+Sat Feb 14 10:46:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Tue Jan 27 04:37:12 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Interpret a command of "false" in
