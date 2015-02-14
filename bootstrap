@@ -667,7 +667,7 @@ cat <<'END_OF_CONFIGURE' >> configure.tmp
 
 .PHONY: $targets recheck
 
-# Dummy dependencies to allow for patches to be deleted.
+# Dummy dependencies to allow removing patches we no longer need.
 END_OF_CONFIGURE
 
 cat configure.tmp2 >> configure.tmp
