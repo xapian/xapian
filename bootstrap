@@ -645,6 +645,7 @@ END_OF_CONFIGURE
 patches=
 for d in patches/* ; do
   series=$d/series
+  echo "$series:" >> configure.tmp2
   cat << END
     $series\\\\
 END
