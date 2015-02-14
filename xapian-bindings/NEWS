@@ -1,6 +1,6 @@
-4439a1db (Olly Betts   2015-01-07 17:01:07 +1300    1) Wed Jan 07 04:00:24 GMT 2015  Olly Betts <olly@survex.com>
+413e8ebf (Olly Betts 2015-01-25 01:19:48 +1300    1) Sat Jan 24 12:19:36 GMT 2015  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.20 (2015-01-24):
+Xapian-bindings 1.2.20 (2015-02-14):
 
 Documentation:
 
@@ -34,7 +34,8 @@ PHP:
 * In current PHP releases, dl() is disabled in most SAPIs, and even where
   available it will now only look in the configured extension directory.  The
   upshot is that there no longer seems to be a sane way to install the PHP
-  bindings without being root.  Fixes #661, reported by Felix Ostmann.
+  bindings without being root, so update the documentation to reflect this.
+  Fixes #661, reported by Felix Ostmann.
 
 Python:
 
