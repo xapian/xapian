@@ -1,7 +1,7 @@
 /** @file expand.cc
  * @brief Set the query expansion scheme for Omega
  */
-/* Copyright (C) 2009,2013,2014 Olly Betts
+/* Copyright (C) 2009,2013,2014,2015 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or modify
@@ -77,7 +77,8 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    return;
 	}
 	if (C_isspace((unsigned char)*p)) {
-	    double k;
+	    // Initialise k just to silence compiler warning.
+	    double k = 0.0;
 	    if (!double_param(&p, &k))
 		parameter_error("Parameter k is invalid", scheme);
 	    if (*p)

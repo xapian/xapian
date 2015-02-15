@@ -1,3 +1,8 @@
+Sun Feb 15 11:04:05 GMT 2015  Olly Betts <olly@tartarus.org>
+
+	* expand.cc: Suppress bogus uninitialised variable warning with -Os
+	  under GCC 4.7.2.
+
 Tue Jan 27 04:37:12 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Interpret a command of "false" in
