@@ -1263,6 +1263,7 @@ BrassPostList::init()
 	if (!found) {
 		LOGLINE(DB, "postlist for term not found");
 		number_of_entries = 0;
+    is_last_chunk = true;
 		is_at_end = true;
 		pos = 0;
 		end = 0;
