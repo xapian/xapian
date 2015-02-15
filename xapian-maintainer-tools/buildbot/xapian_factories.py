@@ -137,7 +137,7 @@ def gen_git_debug_updated_factory(repourl, opts, nocheck=False):
         f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     return f
 
-def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, configure_opts=[]):
+def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, bindings=True, configure_opts=[]):
     """
     Make a factory for doing builds from tarballs.
     """
@@ -155,10 +155,11 @@ def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, configure_op
         f.addStep(shell.Compile(workdir='build/xapian-omega'))
         if not nocheck:
             f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
-    f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
-    f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
-    if not nocheck:
-        f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    if bindings:
+        f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
+        f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
+        if not nocheck:
+            f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     # If everything passed, there's not much point keeping the build - we'd
     # delete the old build tree and download new tarballs next time anyway.
     f.addStep(slave.RemoveDirectory('build'))
