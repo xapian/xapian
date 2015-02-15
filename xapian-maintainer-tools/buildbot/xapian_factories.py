@@ -7,6 +7,8 @@ from datetime import date
 
 xapian_config_arg = 'XAPIAN_CONFIG=../xapian-core/xapian-config'
 
+get_tarballs_url = 'https://raw.githubusercontent.com/xapian/xapian/master/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'
+
 def Bootstrap():
     return shell.ShellCommand(
         name = "bootstrap",
@@ -142,7 +144,7 @@ def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, configure_op
     configure_cmd = ["sh", "configure", ] + configure_opts
     f = factory.BuildFactory()
     f.addStep(shell.ShellCommand(command = ["python", "-c", "try: import urllib2 as u\nexcept: import urllib.request as u\nopen('get_tarballs.py', 'wb').write(u.urlopen('%s').read())" %
-              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True))
+              get_tarballs_url], workdir='.', haltOnFailure=True))
     f.addStep(shell.ShellCommand(command = ["python", 'get_tarballs.py', rooturl], workdir='.', haltOnFailure=True))
     f.addStep(shell.Configure(workdir='build/xapian-core', command=configure_cmd))
     f.addStep(shell.Compile(workdir='build/xapian-core'))
@@ -250,7 +252,7 @@ def gen_tarball_updated_win_factory(rooturl):
     """
     f = factory.BuildFactory()
     f.addStep(shell.ShellCommand(command = ["python", "-c", "try: import urllib2 as u\nexcept: import urllib.request as u\nopen('get_tarballs.py', 'wb').write(u.urlopen('%s').read())" %
-              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True))
+              get_tarballs_url], workdir='.', haltOnFailure=True))
     f.addStep(shell.ShellCommand, command = ["python", 'get_tarballs.py', rooturl], workdir='.', haltOnFailure=True)
     f.addStep(shell.Compile, workdir='build/xapian-core/win32', command = ["compile_with_vc7.bat"])
     return f
