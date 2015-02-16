@@ -1,3 +1,7 @@
+Mon Feb 16 04:15:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: Fix xapian-check on a single table.
+
 Fri Feb 13 10:18:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* generate-exceptions: Note that the change to not negate
