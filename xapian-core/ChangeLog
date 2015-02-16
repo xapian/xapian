@@ -1,3 +1,8 @@
+Mon Feb 16 10:18:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,languages/: Merge generate-allsnowballheaders script
+	  into collate-sbl.
+
 Mon Feb 16 04:15:46 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_check.cc: Fix xapian-check on a single table.

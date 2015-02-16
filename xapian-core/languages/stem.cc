@@ -1,7 +1,7 @@
 /** @file stem.cc
  *  @brief Implementation of Xapian::Stem API class.
  */
-/* Copyright (C) 2007,2008,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2012,2015 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@
 
 #include "steminternal.h"
 
-#include "allsnowballheaders.h"
 #include "keyword.h"
 #include "sbl-dispatch.h"
 

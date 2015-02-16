@@ -51,8 +51,7 @@ snowball_headers =\
 EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
 	languages/collate-sbl\
 	languages/sbl-dispatch.h\
-	languages/Makefile\
-	languages/allsnowballheaders.h
+	languages/Makefile
 
 stopworddir = $(pkgdatadir)/stopwords
 dist_stopword_DATA = $(snowball_stopwords:.txt=.list)
@@ -91,14 +90,10 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 .sbl.h:
 	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
-languages/allsnowballheaders.h: languages/generate-allsnowballheaders languages/Makefile.mk
-	languages/generate-allsnowballheaders $(snowball_built_sources)
-
 languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
 
 BUILT_SOURCES += $(snowball_built_sources)\
-	languages/allsnowballheaders.h\
 	languages/sbl-dispatch.h
 CLEANFILES += languages/snowball
 endif
