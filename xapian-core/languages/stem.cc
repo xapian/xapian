@@ -153,10 +153,4 @@ Stem::get_description() const
     return desc;
 }
 
-string
-Stem::get_available_languages()
-{
-    return LANGSTRING;
-}
-
 }

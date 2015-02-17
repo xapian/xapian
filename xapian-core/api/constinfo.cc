@@ -1,7 +1,7 @@
-/** @file version.cc
- * @brief Library version information
+/** @file constinfo.cc
+ * @brief Mechanism for accessing a struct of constant information
  */
-/* Copyright (C) 2013 Olly Betts
+/* Copyright (C) 2013,2015 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -24,17 +24,21 @@
 
 #include <config.h>
 
-#include "xapian.h"
+#include "xapian/constinfo.h"
+#include "languages/sbl-dispatch.h"
+#include "stringutils.h"
 
-static const struct Xapian::Internal::vinfo version_info = {
+static const struct Xapian::Internal::constinfo const_info = {
     XAPIAN_MAJOR_VERSION,
     XAPIAN_MINOR_VERSION,
     XAPIAN_REVISION,
-    XAPIAN_VERSION
+    XAPIAN_VERSION,
+    CONST_STRLEN(LANGSTRING),
+    LANGSTRING
 };
 
 namespace Xapian {
 namespace Internal {
-const struct vinfo * get_vinfo_() { return & version_info; }
+const struct constinfo * get_constinfo_() { return & const_info; }
 }
 }

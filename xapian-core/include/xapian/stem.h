@@ -26,6 +26,7 @@
 # error "Never use <xapian/stem.h> directly; include <xapian.h> instead."
 #endif
 
+#include <xapian/constinfo.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 
@@ -140,7 +141,11 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  spaces.  This is a static method, so a Xapian::Stem object is not
      *  required for this operation.
      */
-    static std::string get_available_languages();
+    static std::string get_available_languages() {
+	const struct Xapian::Internal::constinfo * info =
+	    Xapian::Internal::get_constinfo_();
+	return std::string(info->stemmer_data, info->stemmer_name_len);
+    }
 };
 
 }

@@ -1,3 +1,10 @@
+Tue Feb 17 05:14:02 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/constinfo.cc,api/version.cc,include/xapian.h,
+	  include/xapian/constinfo.h,include/xapian/stem.h,languages/stem.cc:
+	  Put the list of stemmers into the vinfo struct and renamed it to
+	  const_info.
+
 Mon Feb 16 10:18:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac,languages/: Merge generate-allsnowballheaders script
