@@ -1,3 +1,10 @@
+Thu Feb 19 08:04:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_nodb.cc,tests/harness/testrunner.cc,
+	  tests/harness/testsuite.cc,tests/stemtest.cc: Use std::string's
+	  assign() or construct from substring rather than assigning or
+	  initialising with the result of calling substr().
+
 Tue Feb 17 18:31:25 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/Makefile.mk: Ship new file from previous commit.

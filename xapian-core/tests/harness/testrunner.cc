@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2011 Olly Betts
+ * Copyright 2008,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,7 +92,7 @@ TestRunner::set_properties(const string & properties)
     string::size_type comma = 0;
     while (pos != string::npos) {
 	comma = properties.find(',', pos + 1);
-	string propname = properties.substr(pos, comma - pos);
+	string propname(properties, pos, comma - pos);
 
 	// Set the flags according to the property.
 	if (propname.empty()) {}
