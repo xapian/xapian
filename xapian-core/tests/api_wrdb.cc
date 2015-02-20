@@ -43,6 +43,8 @@
 #include <cstdlib>
 #include <map>
 #include <string>
+#include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -92,7 +94,14 @@ DEFINE_TESTCASE(adddoc1, writable) {
 
     mset_expect_order(mset, 3, 1, 2);
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // test that removing a posting and removing a term works
@@ -266,7 +275,14 @@ DEFINE_TESTCASE(adddoc2, writable) {
     TEST(iter1 == doc1.termlist_end());
     TEST(iter2 == doc2.termlist_end());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // test that adding lots of documents works, and doesn't leak memory
@@ -283,7 +299,15 @@ DEFINE_TESTCASE(adddoc3, writable) {
 	}
 	db.add_document(doc);
     }
-    return true;
+    /*try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }*/
+	return true;
 }
 
 // We originally wanted to test that a termlist starting with a 48 character
@@ -315,7 +339,14 @@ DEFINE_TESTCASE(adddoc4, writable) {
     Xapian::Document doc = db.get_document(241);
     TEST(doc.termlist_begin() == doc.termlist_end());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test adding a document, and checking that it got added correctly.
@@ -339,7 +370,7 @@ DEFINE_TESTCASE(adddoc5, writable) {
     document_in2.add_posting("falling", 2);
     {
 	Xapian::WritableDatabase database(get_writable_database());
-
+	
 	TEST_EQUAL(database.get_doccount(), 0);
 	TEST_EQUAL(database.get_avlength(), 0);
 
@@ -448,8 +479,15 @@ DEFINE_TESTCASE(adddoc5, writable) {
 	    TEST_EQUAL(j, document_out.termlist_end());
 	}
     }
-
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
+	
 }
 
 // Test adding a document, and checking that it got added correctly.
@@ -495,7 +533,14 @@ DEFINE_TESTCASE(adddoc6, writable) {
 	TEST_EQUAL(database.get_collection_freq("baz"), 0);
     }
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // tests that database destructors commit if it isn't done explicitly
@@ -510,7 +555,14 @@ DEFINE_TESTCASE(implicitendsession1, writable) {
     doc.add_posting("fbi", 3);
     db.add_document(doc);
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // tests that assignment of Xapian::Database and Xapian::WritableDatabase works
@@ -574,7 +626,14 @@ DEFINE_TESTCASE(deldoc1, writable) {
     tit++;
     TEST_EQUAL(tit, doc2.termlist_end());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // tests that deletion and updating of documents works as expected
@@ -652,7 +711,14 @@ DEFINE_TESTCASE(deldoc2, writable) {
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // another test of deletion of documents, a cut-down version of deldoc2
@@ -702,7 +768,14 @@ DEFINE_TESTCASE(deldoc3, writable) {
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // tests that deletion and updating of (lots of) documents works as expected
@@ -789,7 +862,15 @@ DEFINE_TESTCASE(deldoc4, writable) {
 
     TEST_EQUAL(db.allterms_begin(), db.allterms_end());
 
-    return true;
+    /*try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }*/
+	return true;
 }
 
 // Test deleting a document which was added in the same batch.
@@ -836,7 +917,14 @@ DEFINE_TESTCASE(deldoc5, writable) {
     ++p;
     TEST_EQUAL(p, db.postlist_end("foo"));
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Regression test for bug in quartz and flint, fixed in 1.0.2.
@@ -867,7 +955,14 @@ DEFINE_TESTCASE(deldoc6, writable) {
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 DEFINE_TESTCASE(replacedoc1, writable) {
@@ -911,7 +1006,14 @@ DEFINE_TESTCASE(replacedoc1, writable) {
     TEST_EQUAL(*rIter, 2);
     ++tIter;
     TEST_EQUAL(tIter, doc3.termlist_end());
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test of new feature: WritableDatabase::replace_document accepts a docid
@@ -970,7 +1072,14 @@ DEFINE_TESTCASE(replacedoc2, writable) {
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.replace_document(0, doc2));
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test replacing a document which was added in the same batch.
@@ -1036,7 +1145,14 @@ DEFINE_TESTCASE(replacedoc3, writable) {
     ++p;
     TEST_EQUAL(p, db.postlist_end("world"));
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test replacing a document which was deleted in the same batch.
@@ -1096,7 +1212,14 @@ DEFINE_TESTCASE(replacedoc4, writable) {
     ++p;
     TEST_EQUAL(p, db.postlist_end("world"));
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test replacing a document with itself without modifying postings.
@@ -1153,7 +1276,14 @@ DEFINE_TESTCASE(replacedoc5, writable) {
 	TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
     }
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test replacing a document while adding values, without changing anything
@@ -1193,7 +1323,14 @@ DEFINE_TESTCASE(replacedoc6, writable) {
     TEST_EQUAL(doc.get_value(1), "banana1");
     TEST_EQUAL(doc.get_value(2), "banana2");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test of new feature: WritableDatabase::replace_document and delete_document
@@ -1249,7 +1386,14 @@ DEFINE_TESTCASE(uniqueterm1, writable) {
 
     TEST_EQUAL(db.get_doccount(), 16);
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // tests all document postlists
@@ -1292,7 +1436,14 @@ DEFINE_TESTCASE(allpostlist2, writable) {
     }
     TEST_EQUAL(j, 512);
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 static void test_emptyterm2_helper(Xapian::WritableDatabase & db)
@@ -1337,7 +1488,14 @@ DEFINE_TESTCASE(emptyterm2, writable) {
 	test_emptyterm2_helper(db);
     }
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Check that PHRASE/NEAR becomes AND if there's no positional info in the
@@ -1376,7 +1534,14 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
     mymset = enquire.get_mset(0, 10);
     TEST_EQUAL(0, mymset.size());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Check that a large number of position list entries for a particular term
@@ -1441,7 +1606,15 @@ DEFINE_TESTCASE(longpositionlist1, writable) {
     ++t;
     TEST(t == tend);
 
-    return true;
+    /*try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }*/
+	return true;
 }
 
 // Regression test for bug#110: Inconsistent sort order between pages with
@@ -1494,7 +1667,14 @@ DEFINE_TESTCASE(consistency2, writable) {
 	TEST_EQUAL(*mset1[i + 2], *mset2c[i]);
     }
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 DEFINE_TESTCASE(crashrecovery1, chert) {
@@ -1584,7 +1764,14 @@ DEFINE_TESTCASE(crashrecovery1, chert) {
     TEST(dbr.reopen());
     TEST_EQUAL(dbr.get_doccount(), 4);
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Check that DatabaseError is thrown if the docid counter would wrap.
@@ -1603,7 +1790,14 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
 
     TEST_EXCEPTION(Xapian::DatabaseError, db.add_document(doc));
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test synonym iterators.
@@ -1717,7 +1911,14 @@ DEFINE_TESTCASE(synonymitor1, writable && synonyms) {
     }
     TEST_STRINGS_EQUAL(s, "|hello|");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test that adding a document with a really long term gives an error on
@@ -1775,7 +1976,15 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
-    return true;
+    /*try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }*/
+	return true;
 }
 
 /// Test playing with a postlist
@@ -1818,7 +2027,14 @@ DEFINE_TESTCASE(postlist7, writable) {
     ++p;
     TEST(p == db_w.postlist_end("foo"));
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 DEFINE_TESTCASE(lazytablebug1, chert || glass) {
@@ -1845,7 +2061,14 @@ DEFINE_TESTCASE(lazytablebug1, chert || glass) {
 	tout << *t << endl;
     }
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+	
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 /** Regression test for bug #287 for flint.
@@ -1857,6 +2080,7 @@ DEFINE_TESTCASE(cursordelbug1, chert || glass) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 
+    int res=0;	
     Xapian::WritableDatabase db;
     db = get_named_writable_database("cursordelbug1", string());
 
@@ -1867,20 +2091,65 @@ DEFINE_TESTCASE(cursordelbug1, chert || glass) {
 	doc.add_term("XAdef");
 	doc.add_term("XRghi");
 	doc.add_term("XYabc");
+	doc.add_term("ask");
+	doc.add_term("fear");
+	doc.add_term("story");
 	size_t c = copies[i];
 	while (c--) db.add_document(doc);
     }
+	
+	const string & db_path = get_named_writable_database_path("cursordelbug1");
+   	db.commit();
 
-    db.commit();
+	res=res+Xapian::Database::check(db_path);
+	static const std::string story_syn[]={"tale", "myth", "legend", "fable", "yarn", "account", "narrative", "chronicle", "epic", "sage", "anecdote", "record", "memoir"};
+    	static const std::string ask_syn[]={"question", "demand", "request", "expect", "inquire", "query", "interrogate", "examine", "quiz"};
+	static const std::string fear_syn[]={"fright", "dread", "terror", "alarm", "dismay", "anxiety", "scare", "awe", "horror", "panic", "apprehension"};
+	//cout<<story_syn[0];
+	for(int i=0;i<13;i++)
+	db.add_synonym("story",story_syn[i]);
+	
+	for(int i=0;i<9;i++)
+	db.add_synonym("ask",ask_syn[i]);
 
+	for(int i=0;i<11;i++)
+	db.add_synonym("fear",story_syn[i]);
+	
+	db.commit();
+	res=res+Xapian::Database::check(db_path);
+	//copied the code of spell0 testscase from api_spelling.cc
+	db.add_spelling("hello");
+    	db.add_spelling("cell", 2);
+    	db.commit();
+   	db.add_spelling("zig");
+    	db.add_spelling("ch");
+    	db.add_spelling("hello", 2);
+    	db.remove_spelling("hello", 2);
+    	db.remove_spelling("cell", 6);
+    	db.commit();
+    	db.remove_spelling("hello");
+    	db.remove_spelling("nonsuch");
+    	db.remove_spelling("zzzzzzzzz", 1000000);
+    	db.remove_spelling("aarvark");
+    	db.remove_spelling("hello");
+    	db.commit();
+    	db.remove_spelling("hello");
+	db.commit();
+
+	res=res+Xapian::Database::check(db_path);
+	
+
+
+	//cout<<db.get_doccount()<<"\n";
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
 	db.delete_document("XC" + str(terms[i]));
+	//cout<<db.get_doccount()<<"\n";
     }
 
     db.commit();
 
-    const string & db_path = get_named_writable_database_path("cursordelbug1");
-    return Xapian::Database::check(db_path) == 0;
+    //const string & db_path = get_named_writable_database_path("cursordelbug1");
+    return res==0;
 }
 
 /** Helper function for modifyvalues1.
@@ -2015,5 +2284,31 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     db.commit();
     check_vals(db, vals);
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
+}
+
+DEFINE_TESTCASE(nakeddb, glass||chert) {
+	Xapian::WritableDatabase db;
+    db = get_named_writable_database("nakeddb", string());
+	Xapian::Document d;
+	d.set_data(string("tom"));
+    d.add_posting("foo", 1);
+    d.add_posting("foo", 1);
+	db.add_document(d);
+	db.commit();
+	std::string db_path=get_named_writable_database_path("nakeddb");
+	
+	if(db_path.find(".glass")!=std::string::npos) {
+	return (true && (Xapian::Database::check(db_path+"/termlist.glass")==0) && (Xapian::Database::check(db_path+"/postlist.glass")==0));
+	}
+	else {
+	return (true && (Xapian::Database::check(db_path+"/termlist.DB")==0) && (Xapian::Database::check(db_path+"/postlist.DB")==0));
+	}
+	
 }
