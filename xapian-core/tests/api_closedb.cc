@@ -318,7 +318,13 @@ DEFINE_TESTCASE(closedb9, writable && synonyms) {
     TEST_EXCEPTION(Xapian::DatabaseError,
 		   db.synonym_keys_begin());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test metadata related methods.
