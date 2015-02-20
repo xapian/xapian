@@ -24,6 +24,7 @@
 #include "api_spelling.h"
 
 #include <xapian.h>
+#include <iostream>
 
 #include "apitest.h"
 #include "testsuite.h"
@@ -54,7 +55,13 @@ DEFINE_TESTCASE(spell0, spelling || remote) {
     db.commit();
     db.remove_spelling("hello");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test basic spelling correction features.
@@ -153,7 +160,13 @@ DEFINE_TESTCASE(spell1, spelling) {
     db.commit();
     db.remove_spelling("hello");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test spelling correction for Unicode.
@@ -178,7 +191,13 @@ DEFINE_TESTCASE(spell2, spelling) {
     TEST_EQUAL(dbr.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
     TEST_EQUAL(dbr.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test spelling correction with multi databases
@@ -235,7 +254,13 @@ DEFINE_TESTCASE(spell3, spelling) {
     ++i;
     TEST(i == db.spellings_end());
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Regression test - check that appending works correctly.
@@ -250,7 +275,13 @@ DEFINE_TESTCASE(spell4, spelling) {
 
     TEST_EQUAL(db.get_spelling_suggestion("jeck", 2), "pecks");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Regression test - used to segfault with some input values.
@@ -264,7 +295,13 @@ DEFINE_TESTCASE(spell5, spelling) {
     string s = db.get_spelling_suggestion("\xe4\xb8\x8d", 3);
     TEST_EQUAL(s, target);
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test basic spelling correction features.
@@ -280,7 +317,13 @@ DEFINE_TESTCASE(spell6, spelling) {
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "sell");
     TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "sell");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
 
 // Test suggestions when there's an exact match.
@@ -299,7 +342,10 @@ DEFINE_TESTCASE(spell7, spelling) {
     TEST_EQUAL(db.get_spelling_suggestion("sword"), "word");
     TEST_EQUAL(db.get_spelling_suggestion("wrod"), "word");
 
-    return true;
+    try {
+	const string & db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { return true; }
 }
 
 /// Regression test - repeated trigrams cancelled in 1.2.5 and earlier.
@@ -312,5 +358,11 @@ DEFINE_TESTCASE(spell8, spelling) {
     db.commit();
     TEST_EQUAL(db.get_spelling_suggestion("scimkin", 3), "skinking");
 
-    return true;
+    try {
+	std::string db_path=get_named_writable_database_path();
+    	return (true && (Xapian::Database::check(db_path)==0));
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false;	 }
 }
