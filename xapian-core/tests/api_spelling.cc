@@ -345,7 +345,10 @@ DEFINE_TESTCASE(spell7, spelling) {
     try {
 	const string & db_path=get_named_writable_database_path();
     	return (true && (Xapian::Database::check(db_path)==0));
-    }	catch(Xapian::Error &e) { return true; }
+    }	catch(Xapian::Error &e) { if(strcmp(e.get_type(),"InvalidArgumentError")==0) 
+					return true;
+				   else
+					return false; }
 }
 
 /// Regression test - repeated trigrams cancelled in 1.2.5 and earlier.
