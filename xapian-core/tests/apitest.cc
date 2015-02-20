@@ -95,6 +95,12 @@ get_named_writable_database(const std::string &name, const std::string &source)
 }
 
 std::string
+get_named_writable_database_path()
+{
+   return backendmanager->get_writable_database_path("dbw");
+}
+
+std::string
 get_named_writable_database_path(const std::string &name)
 {
    return backendmanager->get_writable_database_path("dbw__" + name);
