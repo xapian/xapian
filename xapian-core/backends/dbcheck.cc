@@ -43,6 +43,8 @@
 
 #include <ostream>
 #include <stdexcept>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -85,7 +87,7 @@ namespace Xapian {
 
 size_t
 Database::check(const string & path, int opts, std::ostream *out)
-{
+{	
     if (!out) {
 	// If we have nowhere to write output, then disable all the options
 	// which only affect what we output.
@@ -214,7 +216,9 @@ Database::check(const string & path, int opts, std::ostream *out)
 					db_last_docid, out);
 	}
 #endif
-    } else {
+    }
+	
+	 else {
 	if (stat((path + "/iamflint").c_str(), &sb) == 0) {
 	    // Flint is no longer supported as of Xapian 1.3.0.
 	    throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
@@ -235,32 +239,36 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    filename.resize(filename.size() - 1);
 	else if (endswith(filename, ".DB"))
 	    filename.resize(filename.size() - 3);
-
+	else if (endswith(filename, ".glass"))
+		filename.resize(filename.size() - 6);
+	
 	size_t p = filename.find_last_of('/');
 #if defined __WIN32__ || defined __OS2__
 	if (p == string::npos) p = 0;
 	p = filename.find_last_of('\\', p);
 #endif
 	if (p == string::npos) p = 0; else ++p;
-
+	
 	string dir(filename, 0, p);
-
+	string dir2(filename, 0, p-1);	
+	//fl.close();
+	//fl<<dir<<"\n";
 	string tablename;
 	while (p != filename.size()) {
 	    tablename += tolower(static_cast<unsigned char>(filename[p++]));
 	}
-
+	
 	// If we're passed a "naked" table (with no accompanying files)
 	// assume it is chert.
 	if (file_exists(dir + "iamglass")) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
 	    throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
-	    GlassVersion version_file(dir);
+	    GlassVersion version_file(dir2);
 	    version_file.read();
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_glass_table(tablename.c_str(), dir,
+	    errors = check_glass_table(tablename.c_str(), dir2,
 				       version_file, opts,
 				       doclens, db_last_docid, out);
 #endif
@@ -273,11 +281,16 @@ Database::check(const string & path, int opts, std::ostream *out)
 #else
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_chert_table(tablename.c_str(), filename, NULL, opts,
+		chert_revision_number_t rev = 0;
+		chert_revision_number_t * rev_ptr = &rev;
+		ChertDatabase db(dir2);
+		rev = db.get_revision_number();
+		errors = check_chert_table(tablename.c_str(), filename, rev_ptr, opts,
 				       doclens, db_last_docid, out);
 #endif
 	}
-    }
+	
+    
     return errors;
 }
 
