@@ -40,6 +40,8 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
+#include <fstream>
 #include <set>
 
 #include <cfloat> // For DBL_DIG.
@@ -778,7 +780,29 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 
     while (argv[optind]) {
+	string st=string(argv[optind]);
+	if(st.find(".cc")!=std::string::npos && st.find(string("api_"))==0) {
+		fstream f;
+		string s;
+		st.resize(st.size()-2);
+		st=st+"h";
+		f.open(st,fstream::in);
+		int ctr=0;
+		while(std::getline(f,s)) {
+			
+			if(s.c_str()[0]!='/') {
+			ctr++;
+			s.resize(s.size()-3);
+			test_names.push_back(s.substr(17));
+			}
+		}
+		f.close();
+		if(ctr==0)
+		test_names.push_back(string("dummytest"));
+	}
+	else
 	test_names.push_back(string(argv[optind]));
+	
 	optind++;
     }
 
