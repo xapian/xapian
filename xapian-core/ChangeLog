@@ -1,3 +1,8 @@
+Mon Feb 23 04:26:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Fix compilation issue with previous
+	  change.
+
 Thu Feb 19 08:04:17 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc,tests/api_nodb.cc,tests/harness/testrunner.cc,

@@ -135,7 +135,7 @@ test_driver::get_srcdir()
     string::size_type i = srcdir.find_last_of(ARGV0_SEP);
     string srcfile;
     if (i != string::npos) {
-	srcfile.assign(srcdir, i + 1);
+	srcfile.assign(srcdir, i + 1, string::npos);
 	srcdir.erase(i);
 	// libtool may put the real executable in .libs.
 	i = srcdir.find_last_of(ARGV0_SEP);
