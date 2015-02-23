@@ -1,3 +1,9 @@
+Mon Feb 23 04:48:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/emptypostlist.cc,api/emptypostlist.h: Fix handling of
+	  OP_WILDCARD which expands to no terms when used under OP_SYNONYM.
+	* tests/api_query.cc: Regression test dualprefixwildcard1.
+
 Mon Feb 23 04:26:52 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Fix compilation issue with previous

@@ -266,3 +266,15 @@ DEFINE_TESTCASE(phrasealldocs1, backend) {
 
     return true;
 }
+
+DEFINE_TESTCASE(dualprefixwildcard1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Query q(Xapian::Query::OP_SYNONYM,
+		    Xapian::Query(Xapian::Query::OP_WILDCARD, "fo"),
+		    Xapian::Query(Xapian::Query::OP_WILDCARD, "Sfo"));
+    tout << q.get_description() << endl;
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 2);
+    return true;
+}
