@@ -441,8 +441,7 @@ ErrorHandler, standard ExpandDecider subclasses
 (user-defined ones works),
 user-defined weight classes.
 
-We don't yet wrap Xapian::Query::MatchAll, Xapian::Query::MatchNothing,
-or Xapian::BAD_VALUENO.
+We don't yet wrap Xapian::BAD_VALUENO.
 
 =item Unwrapped methods
 
