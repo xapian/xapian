@@ -20,6 +20,7 @@ my $xapian_config;
 my $CC;
 my %var = ();
 
+# Write out args for use by t/symboltest.t.
 open ARGS, '>', 'makefile-pl-args' or die $!;
 for (@ARGV) {
     print ARGS $_, "\n";
