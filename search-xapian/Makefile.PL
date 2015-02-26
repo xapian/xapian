@@ -98,14 +98,27 @@ if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
     $libs = `$xapian_config --ltlibs`;
     chomp($libs);
     $libs = {'LDLOADLIBS' => $libs};
-    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module";
+    open LDWRAP, '>', 'ld-wrapper' or die $!;
+    print LDWRAP <<END;
+#!/bin/sh
+set -e
+SO=\$1
+INST_ARCHAUTODIR=\$2
+shift
+shift
+"\$\@"
+ln -sf ".libs/Xapian.\$SO" "\$INST_ARCHAUTODIR/Xapian.\$SO"
+END
+    chmod 0755, *LDWRAP or die $!;
+    close LDWRAP or die $!;
+    $LD = "./ld-wrapper \"\$(SO)\" \"\$(INST_ARCHAUTODIR)\"";
+    $LD .= " $libtool --tag=CXX --mode=link $CC -avoid-version -module";
     $LD .= " -rpath \$(PERL_ARCHLIB)/auto/\$(FULLEXT)";
     $LD .= " -shrext .".$Config{'dlext'};
     $CC = "$libtool --tag=CXX --mode=compile $CC";
     push @writemakefile_args, (
 	'OBJ_EXT'	=> '.lo',
-	'DLEXT'		=> 'la',
-	'FULLPERL'	=> '$(PERL) "-I$(INST_ARCHAUTODIR)/.libs"',
+	'DLEXT'		=> 'la'
     );
 }
 
@@ -150,6 +163,7 @@ push @writemakefile_args, (
     'XSOPT'		=> '-C++',
     # 'typemap' is implicitly added to this list.
     'TYPEMAPS'		=> ['perlobject.map', 'typemap-errorclasses'],
+    'clean'		=> { 'FILES' => 'ld-wrapper' },
     # Add "make check" as alias for "make test".
     # Make sure that we rebuild the Makefile if the version number changes.
     'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },

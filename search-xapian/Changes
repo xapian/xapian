@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.20.0
+	[Changes contributed by Olly Betts]
+	- Fix "make test" to use the Xapian.so we just built, rather than an
+	  installed version.
+
 1.2.19.0  Tue Oct 21 00:35:35 UTC 2014
 	[Changes contributed by Dmitry Karasik]
 	- Fix deliberate leaks in QueryParser::add_valuerangeprocessor() and
