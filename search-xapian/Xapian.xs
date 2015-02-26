@@ -280,7 +280,8 @@ INCLUDE: XS/StringValueRangeProcessor.xs
 BOOT:
     {
 	HV *mHvStash = gv_stashpv( "Search::Xapian", TRUE );
-#define ENUM_CONST(P, C) newCONSTSUB( mHvStash, (char*)#P, newSViv(C) )
+// Perl >= probably 5.10 doesn't need the const_cast<> here.
+#define ENUM_CONST(P, C) newCONSTSUB( mHvStash, const_cast<char*>(#P), newSViv(C) )
 
 	ENUM_CONST(OP_AND, Query::OP_AND);
 	ENUM_CONST(OP_OR, Query::OP_OR);
