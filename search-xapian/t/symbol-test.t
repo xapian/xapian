@@ -14,6 +14,10 @@ my @args = <ARGS>;
 close ARGS;
 chomp @args;
 
+# Avoid inheriting values with Search/Xapian path in.
+delete $ENV{LD};
+delete $ENV{MAKEFLAGS};
+
 system($^X, "Makefile.PL", @args) == 0 or die $!;
 system("make 2>&1") == 0 or die $!;
 

@@ -129,6 +129,7 @@ t/parser.t
 t/search.t
 t/sorter.t
 t/symbol-test.t
+t/symbol-test/Makefile.PL
 t/symbol-test/SymbolTest.pm
 t/symbol-test/SymbolTest.xs
 t/symbol-test/typemap
