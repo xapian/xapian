@@ -19,4 +19,5 @@ handle_exception\.lo
 Search-Xapian-[0-9.]+\.tar\.gz
 Search-Xapian-[0-9.]+
 html
+ld-wrapper
 makefile-pl-args
