@@ -97,7 +97,7 @@ $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
 			   @{ $EXPORT_TAGS{'db'} },
 			   @{ $EXPORT_TAGS{'qpflags'} },
 			   @{ $EXPORT_TAGS{'qpstem'} } ];
-$EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'} } ];
+$EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'} }, 'BAD_VALUENO' ];
 
 
 # Names which can be exported.
@@ -440,8 +440,6 @@ The following Xapian classes are not yet wrapped:
 ErrorHandler, standard ExpandDecider subclasses
 (user-defined ones works),
 user-defined weight classes.
-
-We don't yet wrap Xapian::BAD_VALUENO.
 
 =item Unwrapped methods
 

@@ -7,7 +7,7 @@
 use Test;
 use Devel::Leak;
 use Devel::Peek;
-BEGIN { plan tests => 61 };
+BEGIN { plan tests => 62 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -164,5 +164,8 @@ ok( $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
 ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );
+
+# Check BAD_VALUENO is wrapped.
+ok( Search::Xapian::BAD_VALUENO != 0 );
 
 1;
