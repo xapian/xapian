@@ -56,7 +56,7 @@ public class SimpleSearch {
 
         System.err.println("Found " + matches.size() + " matching documents using " + query);
         while (itr.hasNext()) {
-            float percent = itr.getPercent();
+            int percent = itr.getPercent();
             long docID = itr.next();
             // TODO:  Make this more like a Java Iterator by returning some
             // kind of "MatchDescriptor" object
