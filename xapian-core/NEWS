@@ -1,6 +1,6 @@
-350d1c77 (Olly Betts 2015-01-24 01:56:20 +1300     1) Fri Jan 23 12:53:50 GMT 2015  Olly Betts <olly@survex.com>
+15db2d05 (Olly Betts 2015-02-13 23:48:12 +1300     1) Fri Feb 13 10:47:52 GMT 2015  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.20 (2015-01-25):
+Xapian-core 1.2.20 (2015-03-03):
 
 
 API:
@@ -66,16 +66,21 @@ portability:
 
 * Fix detection of fdatasync(), which appears to have been broken practically
   forever - this means we've probably been using fsync() instead, which
-  probably isn't a big additional overhead.
+  probably isn't a big additional overhead.  Thanks to Vlad Shablinsky for
+  helping with Mac OS X portability of this fix.
 
 * configure: Define MINGW_HAS_SECURE_API under mingw to get _putenv_s()
   declared in stdlib.h.
 
-* Use POSIX O_NONBLOCK in preference to O_NDELAY which has different semantics
-  on BSD and System V.
+* Use POSIX O_NONBLOCK in preference to O_NDELAY - the semantics of the latter
+  differ between BSD and System V.
 
 * According to POSIX, strerror() may not be thread safe, so use alternative
   thread-safe ways to translate errno values where possible.
+
+* On Microsoft Windows, avoid defining EADDRINUSE, etc if they're already
+  defined, and use WSAE* constants un-negated - they start from a high value
+  so won't collide with E* constants.
 
 packaging:
 

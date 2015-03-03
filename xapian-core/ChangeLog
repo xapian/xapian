@@ -1,3 +1,7 @@
+Tue Mar 03 11:35:42 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Fri Feb 13 10:47:52 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_table.cc,backends/flint/flint_table.cc:
