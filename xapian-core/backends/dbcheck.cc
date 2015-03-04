@@ -43,8 +43,6 @@
 
 #include <ostream>
 #include <stdexcept>
-#include <iostream>
-#include <fstream>
 
 using namespace std;
 
@@ -250,9 +248,6 @@ Database::check(const string & path, int opts, std::ostream *out)
 	if (p == string::npos) p = 0; else ++p;
 	
 	string dir(filename, 0, p);
-	string dir2(filename, 0, p-1);	
-	//fl.close();
-	//fl<<dir<<"\n";
 	string tablename;
 	while (p != filename.size()) {
 	    tablename += tolower(static_cast<unsigned char>(filename[p++]));
@@ -268,7 +263,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    version_file.read();
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_glass_table(tablename.c_str(), dir2,
+	    errors = check_glass_table(tablename.c_str(), dir,
 				       version_file, opts,
 				       doclens, db_last_docid, out);
 #endif
@@ -281,11 +276,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 #else
 	    // Set the last docid to its maximum value to suppress errors.
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-		chert_revision_number_t rev = 0;
-		chert_revision_number_t * rev_ptr = &rev;
-		ChertDatabase db(dir2);
-		rev = db.get_revision_number();
-		errors = check_chert_table(tablename.c_str(), filename, rev_ptr, opts,
+	    errors = check_chert_table(tablename.c_str(), filename, NULL, opts,
 				       doclens, db_last_docid, out);
 #endif
 	}
