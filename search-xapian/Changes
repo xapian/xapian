@@ -1,7 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.20.0
+1.2.20.0  Wed Mar  4 00:30:08 UTC 2015
 	[Changes contributed by Olly Betts]
+	- Remove TODO for wrapping MatchAll and MatchNothing - these were added
+	  in 1.2.13.0.  Reported by Will Crawford.
 	- Wrap Xapian::BAD_VALUENO.
 	- Fix "make test" to use the Xapian.so we just built, rather than an
 	  installed version.
