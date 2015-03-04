@@ -1,21 +1,9 @@
-413e8ebf (Olly Betts 2015-01-25 01:19:48 +1300    1) Sat Jan 24 12:19:36 GMT 2015  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.2.20 (2015-02-14):
-
-Documentation:
-
-General:
-
-Packaging:
+Xapian-bindings 1.2.20 (2015-03-04):
 
 Portability:
 
 * configure: Avoid using \? in sed command in Lua detection - it isn't
   supported by all sed implementations.
-
-CSharp:
-
-Java:
 
 Lua:
 
@@ -23,8 +11,6 @@ Lua:
   being specified without a leading '.'.
 
 * configure: Add an example of specifying LUA_SO to --help output.
-
-Perl:
 
 PHP:
 
@@ -36,12 +22,6 @@ PHP:
   upshot is that there no longer seems to be a sane way to install the PHP
   bindings without being root, so update the documentation to reflect this.
   Fixes #661, reported by Felix Ostmann.
-
-Python:
-
-Ruby:
-
-Tcl:
 
 Xapian-bindings 1.2.19 (2014-10-21):
 
