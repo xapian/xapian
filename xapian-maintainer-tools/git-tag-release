@@ -22,7 +22,7 @@
 
 set -e
 
-BRANCH=master
+BRANCH=svn/1.2
 
 version=$1
 
