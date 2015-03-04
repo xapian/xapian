@@ -1,32 +1,9 @@
-15db2d05 (Olly Betts 2015-02-13 23:48:12 +1300     1) Fri Feb 13 10:47:52 GMT 2015  Olly Betts <olly@survex.com>
-
-Xapian-core 1.2.20 (2015-03-03):
-
-
-API:
-
-
-testsuite:
-
-
-matcher:
-
-
-brass backend:
+Xapian-core 1.2.20 (2015-03-04):
 
 chert backend:
 
 * After splitting a block, we always insert the new block in the parent right
   after the block it was split from - there's no need to binary chop.
-
-flint backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
 
 build system:
 
@@ -53,9 +30,6 @@ tools:
 * xapian-check: For chert and brass, cross-check the position and postlist
   tables to detect positional data for non-existent documents.
 
-examples:
-
-
 portability:
 
 * When locking a database for writing, use F_OFD_SETLK where available, which
@@ -81,9 +55,6 @@ portability:
 * On Microsoft Windows, avoid defining EADDRINUSE, etc if they're already
   defined, and use WSAE* constants un-negated - they start from a high value
   so won't collide with E* constants.
-
-packaging:
-
 
 debug code:
 
