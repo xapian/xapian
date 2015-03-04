@@ -1,8 +1,4 @@
-be18fb2e (Olly Betts 2015-01-27 17:37:56 +1300    1) Tue Jan 27 04:37:12 GMT 2015  Olly Betts <olly@survex.com>
-
-Omega 1.2.20 (2015-02-14):
-
-general:
+Omega 1.2.20 (2015-03-04):
 
 documentation:
 
@@ -22,8 +18,6 @@ indexers:
   + Interpret a command of "false" in "--filter" as meaning to ignore files
     with that MIME type.
 
-* scriptindex:
-
 omega:
 
 * Handle CGI parameter [=0 as [=1.
@@ -32,8 +26,6 @@ templates:
 
 * templates/xml: Update handling of DATE1, DATE2 and DAYSMINUS which were
   renamed in 0.6.x and the compatibility aliases removed in 1.0.0.
-
-testsuite:
 
 build system:
 
@@ -48,7 +40,8 @@ build system:
 
 portability:
 
-packaging:
+* Avoid doing link tests with libmagic in configure as they fail on mingw due
+  to not automatically picking up libraries which libmagic itself depends on.
 
 Omega 1.2.19 (2014-10-21):
 
