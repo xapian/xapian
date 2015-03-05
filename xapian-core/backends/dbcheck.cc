@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -227,14 +227,31 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    // Quartz is no longer supported as of Xapian 1.1.0.
 	    throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
 	}
-	// Just check a single Btree.  If it ends with "." or ".DB"
-	// already, trim that so the user can do xapian-check on
-	// "foo", "foo.", or "foo.DB".
+	// Just check a single Btree.  If it ends with ".", ".DB", or ".glass",
+	// trim that so the user can do xapian-check on "foo", "foo.", "foo.DB",
+	// "foo.glass", etc.
+	enum { UNKNOWN, CHERT, GLASS } backend = UNKNOWN;
 	string filename = path;
-	if (endswith(filename, '.'))
+	if (endswith(filename, '.')) {
 	    filename.resize(filename.size() - 1);
-	else if (endswith(filename, ".DB"))
+	} else if (endswith(filename, ".DB")) {
 	    filename.resize(filename.size() - CONST_STRLEN(".DB"));
+	    backend = CHERT;
+	} else if (endswith(filename, ".glass")) {
+	    filename.resize(filename.size() - CONST_STRLEN(".glass"));
+	    backend = GLASS;
+	}
+
+	if (backend == UNKNOWN) {
+	    if (stat((filename + ".DB").c_str(), &sb) == 0) {
+		// It could also be flint or brass, but we check for those below.
+		backend = CHERT;
+	    } else if (stat((filename + ".glass").c_str(), &sb) == 0) {
+		backend = GLASS;
+	    } else {
+		throw Xapian::DatabaseError("Not a Xapian database or database table");
+	    }
+	}
 
 	size_t p = filename.find_last_of('/');
 #if defined __WIN32__ || defined __OS2__
@@ -250,9 +267,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    tablename += tolower(static_cast<unsigned char>(filename[p++]));
 	}
 
-	// If we're passed a "naked" table (with no accompanying files)
-	// assume it is chert.
-	if (file_exists(dir + "iamglass")) {
+	if (backend == GLASS) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
 	    throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
@@ -264,10 +279,17 @@ Database::check(const string & path, int opts, std::ostream *out)
 				       version_file, opts,
 				       doclens, db_last_docid, out);
 #endif
-	} else if (file_exists(dir + "iamflint")) {
-	    // Flint is no longer supported as of Xapian 1.3.0.
-	    throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
-	} else {
+	} else if (backend == CHERT) {
+	    // Flint and brass also used the extension ".DB", so check that we
+	    // haven't been passed a single table in a flint or brass database.
+	    if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
+		// Flint is no longer supported as of Xapian 1.3.0.
+		throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
+	    }
+	    if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
+		// Brass was renamed to glass as of Xapian 1.3.2.
+		throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
+	    }
 #ifndef XAPIAN_HAS_CHERT_BACKEND
 	    throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
 #else

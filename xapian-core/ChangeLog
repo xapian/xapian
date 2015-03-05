@@ -1,3 +1,9 @@
+Thu Mar 05 11:13:56 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: When checking a single table, handle the
+	  ".glass" extension on glass database tables, and use the extension
+	  to guide the decision of which backend the table is from.
+
 Thu Mar 05 04:38:21 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/dbcheck.cc: Don't hard-code string length as number.
