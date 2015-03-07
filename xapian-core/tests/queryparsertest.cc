@@ -1306,6 +1306,8 @@ static const test test_value_range1_queries[] = {
     // Feature test for single-ended ranges (ticket#480):
     { "..b", "VALUE_RANGE 1  b" },
     { "a..", "VALUE_GE 1 a" },
+    // Test for expanded set of characters allowed in range start:
+    { "10:30+1300..11:00+1300", "VALUE_RANGE 1 10:30+1300 11:00+1300" },
     { NULL, NULL }
 };
 

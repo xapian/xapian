@@ -1,3 +1,11 @@
+Tue May 05 11:48:57 GMT 2015  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Extend the
+	  set of characters allowed in the start of a range to be anything
+	  except for '(' and characters <= ' '.  This better matches what's
+	  accepted for a range end (anything except for ')' and characters <=
+	  ' ').  Reported by Jani Nikula.
+
 Tue May 05 11:46:57 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
