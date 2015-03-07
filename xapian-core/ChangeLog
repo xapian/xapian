@@ -1,3 +1,11 @@
+Sat Mar 07 11:27:23 GMT 2015  Olly Betts <olly@tartarus.org>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Extend the
+	  set of characters allowed in the start of a range to be anything
+	  except for '(' and characters <= ' '.  This better matches what's
+	  accepted for a range end (anything except for ')' and characters <=
+	  ' ').  Reported by Jani Nikula.
+
 Thu Mar 05 11:13:56 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/dbcheck.cc: When checking a single table, handle the

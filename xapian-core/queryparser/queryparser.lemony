@@ -828,8 +828,7 @@ just_had_operator_needing_term:
 		    if (!a.empty() || (p != end && *p > ' ' && *p != ')')) {
 			string b;
 			// Allow any character except whitespace and ')' in the
-			// upper bound.  Or should we be consistent with the
-			// lower bound?
+			// upper bound.
 			while (p != end && *p > ' ' && *p != ')') {
 			    Unicode::append_utf8(b, *p++);
 			}
@@ -850,8 +849,9 @@ just_had_operator_needing_term:
 		    goto main_lex_loop;
 		}
 		ch = *p;
-		if (!(is_wordchar(ch) || is_currency(ch) ||
-		      (ch < 128 && strchr("%,-./:@", ch)))) break;
+		// Allow any character except whitespace and '(' in the lower
+		// bound.
+		if (ch <= ' ' || ch == '(') break;
 		++p;
 	    }
 	}
