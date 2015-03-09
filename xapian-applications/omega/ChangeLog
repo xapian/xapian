@@ -1,3 +1,7 @@
+Mon Mar 09 10:16:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/xml: Add XML declaration.
+
 Mon Mar 09 10:14:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* templates/query: Eliminate blank line before <html>.
