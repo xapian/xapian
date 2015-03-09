@@ -1,3 +1,8 @@
+Tue May 05 12:43:59 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document 'E' prefixed boolean terms for filtering
+	  by extension (see #668, reported by bramvdh).
+
 Tue May 05 12:42:59 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Whitespace cleanup.
