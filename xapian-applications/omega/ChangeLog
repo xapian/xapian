@@ -1,3 +1,7 @@
+Mon Mar 09 10:14:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/query: Eliminate blank line before <html>.
+
 Mon Mar 09 10:14:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* templates/godmode: Return charset utf-8 in the content-type.
