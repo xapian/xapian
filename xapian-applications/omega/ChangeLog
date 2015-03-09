@@ -1,3 +1,7 @@
+Tue May 05 12:42:59 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Whitespace cleanup.
+
 Tue May 05 12:41:52 GMT 2015  Olly Betts <olly@survex.com>
 
 	* templates/xml: Add XML declaration.
