@@ -1,7 +1,7 @@
 /* @file urldecode.h
  * @brief URL decoding as described by RFC3986.
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2015 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -25,6 +25,7 @@
 #ifndef OMEGA_INCLUDED_URLDECODE_H
 #define OMEGA_INCLUDED_URLDECODE_H
 
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -179,13 +180,23 @@ operator!=(const StdinItor& a, const StdinItor& b)
     return !(a == b);
 }
 
-// First group is RFC3986 reserved "gen-delims", second reserved "sub-delims".
-// We also need to leave an encoded "%" alone!
+// First group is RFC3986 reserved "gen-delims", except []@: (which are safe
+// to decode if they occur after the "authority".
 //
-// We may not need to honour all of these in practice, but let's start
-// cautious.  Some are only reserved in particular contexts, which may
-// depend on the scheme.
-#define URL_PRESERVE ":/?#[]@" "!$&'()*+,;=" "%"
+// Second group is RFC3986 reserved "sub-delims", except !$'()*,; (which are
+// actually safe to decode in practice) and &+= (which are OK to decode if they
+// aren't in the "query" part).
+//
+// We also need to leave an encoded "%" alone.  We should probably leave an
+// encoded "/" alone too (though we shouldn't encounter one in a database
+// created by omindex, unless it was in the base URL specified by the user).
+//
+// This prettifying is aimed at URLs produced by omindex, so we don't currently
+// try to decode the query or fragment parts of the URL at all.  We can probably
+// safely decode the query in a similar way, but also leaving &+= alone.
+#define URL_PRESERVE "?#" "%" "/"
+
+#define URL_PRESERVE_BEFORE_PATH ":[]@"
 
 /** Prettify a URL.
  *
@@ -197,10 +208,20 @@ inline void
 url_prettify(std::string & url)
 {
     size_t pcent = url.find('%');
-    // Fast path for URLs without a % in.
-    if (pcent == std::string::npos || pcent + 2 >= url.size())
+    // Fast path for URLs without a '%' in.
+    if (pcent == std::string::npos)
 	return;
 
+    if (url.size() < 3)
+	return;
+
+    // Don't try to decode the query or fragment, and don't try to decode if
+    // there aren't 2 characters after the '%'.
+    size_t pretty_limit = std::min(url.find_first_of("?#"), url.size() - 2);
+    if (pcent >= pretty_limit)
+	return;
+
+    size_t slash = std::string::npos;
     size_t start = 0;
     std::string in;
     swap(in, url);
@@ -212,7 +233,37 @@ url_prettify(std::string & url)
 	    ch |= hex_decode_(in[pcent + 2]);
 	    // FIXME: It would be nice to unescape top bit set bytes, at least
 	    // when they form valid UTF-8 sequences.
-	    if (0x20 <= ch && ch < 0x7f && !strchr(URL_PRESERVE, ch)) {
+	    bool safe;
+	    if (ch < 0x20 || ch >= 0x7f || std::strchr(URL_PRESERVE, ch)) {
+		// Not safe to decode.
+		safe = false;
+	    } else if (std::strchr(URL_PRESERVE_BEFORE_PATH, ch)) {
+		// ':' is safe to decode if there is a single '/' earlier in
+		// the URL.
+		if (slash == std::string::npos) {
+		    // Lazily set slash to the position of the first single '/'.
+		    const char * d = in.data();
+		    const void * s = d;
+		    slash = 0;
+		    while (true) {
+			s = std::memchr(d + slash, '/', pretty_limit - slash);
+			if (s == NULL) {
+			    slash = in.size();
+			    break;
+			}
+			slash = reinterpret_cast<const char *>(s) - d;
+			if (slash == in.size() - 1 || d[slash + 1] != '/')
+			    break;
+			++slash;
+			while (++slash < in.size() - 1 && d[slash] == '/') { }
+		    }
+		}
+		safe = (pcent > slash);
+	    } else {
+		safe = true;
+	    }
+
+	    if (safe) {
 		url.append(in, start, pcent - start);
 		url += char(ch);
 		pcent += 3;
@@ -225,7 +276,7 @@ url_prettify(std::string & url)
 	}
 	pcent = in.find('%', pcent);
 
-	if (pcent == std::string::npos || pcent + 2 >= in.size()) {
+	if (pcent >= pretty_limit) {
 	    url.append(in, start, std::string::npos);
 	    return;
 	}

@@ -1,7 +1,7 @@
 /** @file enctest.cc
  * @brief Test URL encoding and decoding functions
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2015 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -121,6 +121,17 @@ struct pretty_testcase pretty_testcases[] = {
       "http://example.com/~hello world/" },
     { "http://example.com/%25/a%20b%80/100%",
       "http://example.com/%25/a b%80/100%" },
+    { "http:http.html", 0 },
+    { "http%3ahttp.html", 0 },
+    { "/foo.html?a%3db=c%2bd", 0 },
+    { "/foo.html#%31", 0 },
+    { "/x%3dy.html", "/x=y.html" },
+    { "/XML%3a%3aSimple.html", "/XML::Simple.html" },
+    { "back%20slash%2fco%3alon", "back slash%2fco%3alon" },
+    { "%5b%5D%40%21%24%26%27%28%29%2A%2B%2c%3b%3D", "%5b%5D%40!$&'()*+,;=" },
+    { "/%5b%5D%40%21%24%26%27%28%29%2A%2B%2c%3b%3D", "/[]@!$&'()*+,;=" },
+    { "https://x%3ax%40x%5b%5dx/", 0 },
+    { "//x%3ax%40x%5b%5dx/", 0 },
     { NULL, NULL }
 };
 
