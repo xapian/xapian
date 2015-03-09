@@ -446,6 +446,8 @@ Boolean terms
 omindex will create the following boolean terms when it indexes a
 document:
 
+E
+    Extension of the file (e.g. `Epdf`) [since Omega 1.2.5]
 T
     MIME type
 H
