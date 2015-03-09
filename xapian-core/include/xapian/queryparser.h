@@ -411,7 +411,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_LOVEHATE = 4,
 	/// Support AND, OR, etc even if they aren't in ALLCAPS.
 	FLAG_BOOLEAN_ANY_CASE = 8,
-	/** Support right truncation (e.g. Xap*).
+	/** Support wildcards.
+	 *
+	 *  At present only right truncation (e.g. Xap*) is supported.
 	 *
 	 *  Currently you can't use wildcards with boolean filter prefixes,
 	 *  or in a phrase (either an explicitly quoted one, or one implicitly
