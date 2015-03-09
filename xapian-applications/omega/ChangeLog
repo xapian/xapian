@@ -1,3 +1,7 @@
+Mon Mar 09 10:14:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/godmode: Return charset utf-8 in the content-type.
+
 Mon Mar 09 06:58:13 GMT 2015  Olly Betts <olly@survex.com>
 
 	* urldecode.h,urlenctest.cc: Improve decoding done by $prettyurl - we
