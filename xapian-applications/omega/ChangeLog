@@ -1,3 +1,8 @@
+Tue May 05 12:14:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/: Add a document about character encoding, as suggested by
+	  James Aylett in #550.
+
 Tue May 05 12:08:39 GMT 2015  Olly Betts <olly@survex.com>
 
 	* urldecode.h,urlenctest.cc: Improve decoding done by $prettyurl - we
