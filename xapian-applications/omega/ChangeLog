@@ -1,3 +1,12 @@
+Mon Mar 09 06:58:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* urldecode.h,urlenctest.cc: Improve decoding done by $prettyurl - we
+	  now leave the query and fragment parts of the URL alone and don't
+	  decode an escaped "/" (omindex doesn't create URLs with any of
+	  these, so we only risk breaking other URLs which have them), and we
+	  decode some additional ASCII characters in the path part:
+	  []@!$&'()*+.;=  (addresses #550 in part)
+
 Sun Feb 15 11:04:05 GMT 2015  Olly Betts <olly@tartarus.org>
 
 	* expand.cc: Suppress bogus uninitialised variable warning with -Os
