@@ -1,3 +1,8 @@
+Mon Mar 09 12:31:44 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/: Add a document about character encoding, as suggested by
+	  James Aylett in #550.
+
 Mon Mar 09 11:32:32 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Document 'E' prefixed boolean terms for filtering
