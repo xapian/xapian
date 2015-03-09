@@ -1,3 +1,7 @@
+Tue May 05 12:04:02 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Doxygen comment formatting tweaks.
+
 Tue May 05 11:48:57 GMT 2015  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Extend the
