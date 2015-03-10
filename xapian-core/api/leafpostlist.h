@@ -1,7 +1,7 @@
 /** @file leafpostlist.h
  * @brief Abstract base class for leaf postlists.
  */
-/* Copyright (C) 2007,2009,2011,2013 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2015 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -68,6 +68,23 @@ class LeafPostList : public PostList {
      *  @param weight_	The weighting object to use.  Must not be NULL.
      */
     void set_termweight(const Xapian::Weight * weight_);
+
+    double resolve_lazy_termweight(Xapian::Weight * weight_,
+				   Xapian::Weight::Internal * stats,
+				   Xapian::termcount qlen,
+				   Xapian::termcount wqf,
+				   double factor)
+    {
+	weight_->init_(*stats, qlen, term, wqf, factor);
+	// There should be an existing LazyWeight set already.
+	Assert(weight);
+	const Xapian::Weight * const_weight_ = weight_;
+	swap(weight, const_weight_);
+	delete const_weight_;
+	need_doclength = weight->get_sumpart_needs_doclength_();
+	stats->termfreqs[term].max_part += weight->get_maxpart();
+	return stats->termfreqs[term].max_part;
+    }
 
     /** Return the exact term frequency.
      *

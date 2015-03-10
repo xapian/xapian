@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -249,7 +249,7 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
-	string language = langs.substr(i, spc - i);
+	string language(langs, i, spc - i);
 	tout << "checking language code '" << language << "' works" << endl;
 	Xapian::Stem stemmer(language);
 	if (language.size() > 2) {

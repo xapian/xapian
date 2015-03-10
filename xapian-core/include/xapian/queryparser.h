@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -411,7 +411,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_LOVEHATE = 4,
 	/// Support AND, OR, etc even if they aren't in ALLCAPS.
 	FLAG_BOOLEAN_ANY_CASE = 8,
-	/** Support right truncation (e.g. Xap*).
+	/** Support wildcards.
+	 *
+	 *  At present only right truncation (e.g. Xap*) is supported.
 	 *
 	 *  Currently you can't use wildcards with boolean filter prefixes,
 	 *  or in a phrase (either an explicitly quoted one, or one implicitly
@@ -576,9 +578,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void set_database(const Database &db);
 
-    /** Specify the maximum expansion of a wildcard term.
+    /** Specify the maximum expansion of a wildcard or partial term.
      *
-     *  Note: you must also set FLAG_WILDCARD for wildcard expansion to happen.
+     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL for this
+     *  setting to have anything to affect.
      *
      *  @param limit	The maximum number of terms each wildcard in the query
      *			can expand to, or 0 for no limit (which is the default).
@@ -600,13 +603,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		   calling get_msg() on the caught exception.  The current
      *		   possible values (in case you want to translate them) are:
      *
-     *			@li Unknown range operation
-     *			@li parse error
-     *			@li Syntax: &lt;expression&gt; AND &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; OR &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
+     *		   @li Unknown range operation
+     *		   @li parse error
+     *		   @li Syntax: &lt;expression&gt; AND &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; OR &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,

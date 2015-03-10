@@ -1,7 +1,7 @@
 /** @file emptypostlist.cc
  * @brief A PostList which contains no entries.
  */
-/* Copyright (C) 2009,2010,2011 Olly Betts
+/* Copyright (C) 2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,6 +42,14 @@ Xapian::doccount
 EmptyPostList::get_termfreq_est() const
 {
     return 0;
+}
+
+// OP_WILDCARD which expands to no terms becomes EmptyPostList, and this is
+// needed if that is used under OP_SYNONYM.
+TermFreqs
+EmptyPostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal &) const
+{
+    return TermFreqs();
 }
 
 double

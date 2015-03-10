@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,6 +99,21 @@ Query::Query(op op_, Xapian::valueno slot,
     } else if (usual(begin <= end)) {
 	internal = new Xapian::Internal::QueryValueRange(slot, begin, end);
     }
+}
+
+Query::Query(op op_,
+	     const std::string & pattern,
+	     Xapian::termcount max_expansion,
+	     op combiner)
+{
+    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | combiner);
+    if (rare(op_ != OP_WILDCARD))
+	throw Xapian::InvalidArgumentError("op must be OP_WILDCARD");
+    if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
+	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
+    internal = new Xapian::Internal::QueryWildcard(pattern,
+						   max_expansion,
+						   combiner);
 }
 
 const TermIterator

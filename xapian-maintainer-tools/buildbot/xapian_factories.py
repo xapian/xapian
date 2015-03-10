@@ -7,6 +7,8 @@ from datetime import date
 
 xapian_config_arg = 'XAPIAN_CONFIG=../xapian-core/xapian-config'
 
+get_tarballs_url = 'https://raw.githubusercontent.com/xapian/xapian/master/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'
+
 def Bootstrap():
     return shell.ShellCommand(
         name = "bootstrap",
@@ -135,14 +137,14 @@ def gen_git_debug_updated_factory(repourl, opts, nocheck=False):
         f.addStep(shell.Test(name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     return f
 
-def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, configure_opts=[]):
+def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, bindings=True, configure_opts=[]):
     """
     Make a factory for doing builds from tarballs.
     """
     configure_cmd = ["sh", "configure", ] + configure_opts
     f = factory.BuildFactory()
     f.addStep(shell.ShellCommand(command = ["python", "-c", "try: import urllib2 as u\nexcept: import urllib.request as u\nopen('get_tarballs.py', 'wb').write(u.urlopen('%s').read())" %
-              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True))
+              get_tarballs_url], workdir='.', haltOnFailure=True))
     f.addStep(shell.ShellCommand(command = ["python", 'get_tarballs.py', rooturl], workdir='.', haltOnFailure=True))
     f.addStep(shell.Configure(workdir='build/xapian-core', command=configure_cmd))
     f.addStep(shell.Compile(workdir='build/xapian-core'))
@@ -153,10 +155,11 @@ def gen_tarball_updated_factory(rooturl, nocheck=False, omega=True, configure_op
         f.addStep(shell.Compile(workdir='build/xapian-omega'))
         if not nocheck:
             f.addStep(shell.Test(workdir='build/xapian-omega', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
-    f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
-    f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
-    if not nocheck:
-        f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
+    if bindings:
+        f.addStep(shell.Configure(workdir='build/xapian-bindings', command = ["./configure", xapian_config_arg] + configure_opts))
+        f.addStep(shell.Compile(workdir='build/xapian-bindings', command = ["make"]))
+        if not nocheck:
+            f.addStep(shell.Test(workdir='build/xapian-bindings', name="check", command = ["make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="]))
     # If everything passed, there's not much point keeping the build - we'd
     # delete the old build tree and download new tarballs next time anyway.
     f.addStep(slave.RemoveDirectory('build'))
@@ -250,7 +253,7 @@ def gen_tarball_updated_win_factory(rooturl):
     """
     f = factory.BuildFactory()
     f.addStep(shell.ShellCommand(command = ["python", "-c", "try: import urllib2 as u\nexcept: import urllib.request as u\nopen('get_tarballs.py', 'wb').write(u.urlopen('%s').read())" %
-              'http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py'], workdir='.', haltOnFailure=True))
+              get_tarballs_url], workdir='.', haltOnFailure=True))
     f.addStep(shell.ShellCommand, command = ["python", 'get_tarballs.py', rooturl], workdir='.', haltOnFailure=True)
     f.addStep(shell.Compile, workdir='build/xapian-core/win32', command = ["compile_with_vc7.bat"])
     return f

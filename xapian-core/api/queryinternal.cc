@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -44,6 +44,7 @@
 #include "matcher/valuegepostlist.h"
 #include "net/length.h"
 #include "serialise-double.h"
+#include "termlist.h"
 
 #include "autoptr.h"
 #include "debuglog.h"
@@ -138,6 +139,14 @@ class Context {
 
     void add_postlist(PostList * pl) {
 	pls.push_back(pl);
+    }
+
+    bool empty() const {
+	return pls.empty();
+    }
+
+    size_t size() const {
+	return pls.size();
     }
 };
 
@@ -382,9 +391,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	case 4: case 5: case 6: case 7: { // Multi-way branch
 	    size_t n_subqs = ch & 0x07;
 	    if (n_subqs == 0) {
-		n_subqs = decode_length(p, end, false) + 9;
-	    } else {
-		++n_subqs;
+		n_subqs = decode_length(p, end, false) + 8;
 	    }
 	    unsigned char code = (ch >> 3) & 0x0f;
 	    Xapian::termcount parameter = 0;
@@ -479,6 +486,19 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	}
 	case 0: {
 	    switch (ch & 0x0f) {
+		case 0x0b: { // Wildcard
+		    if (*p == end)
+			throw SerialisationError("not enough data");
+		    Xapian::termcount max_expansion = decode_length(p, end,
+								    false);
+		    op combiner = static_cast<op>(*(*p)++);
+		    size_t len = decode_length(p, end, true);
+		    string pattern(*p, len);
+		    *p += len;
+		    return new Xapian::Internal::QueryWildcard(pattern,
+							       max_expansion,
+							       combiner);
+		}
 		case 0x0c: { // PostingSource
 		    size_t len = decode_length(p, end, true);
 		    string name(*p, len);
@@ -819,6 +839,114 @@ QueryValueGE::get_description() const
     return desc;
 }
 
+PostingIterator::Internal *
+QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
+{
+    LOGCALL(QUERY, PostingIterator::Internal *, "QueryWildcard::postlist", qopt | factor);
+    Query::op op = combiner;
+    double or_factor = 0.0;
+    if (factor == 0.0) {
+	// If we have a factor of 0, we don't care about the weights, so
+	// we're just like a normal OR query.
+	op = Query::OP_OR;
+    } else if (op != Query::OP_SYNONYM) {
+	or_factor = factor;
+    }
+    OrContext ctx(0);
+    AutoPtr<TermList> t(qopt->db.open_allterms(pattern));
+    Xapian::termcount expansions_left = max_expansion;
+    // If there's no expansion limit, set expansions_left to the maximum
+    // value Xapian::termcount can hold.
+    if (expansions_left == 0)
+	--expansions_left;
+    while (true) {
+	t->next();
+	if (t->at_end())
+	    break;
+	if (expansions_left-- == 0) {
+	    string msg("Wildcard ");
+	    msg += pattern;
+	    msg += "* expands to more than ";
+	    msg += str(max_expansion);
+	    msg += " terms";
+	    throw Xapian::WildcardError(msg);
+	}
+	const string & term = t->get_termname();
+	ctx.add_postlist(qopt->open_lazy_post_list(term, 1, or_factor));
+    }
+
+    if (factor != 0.0) {
+	if (op != Query::OP_SYNONYM) {
+	    qopt->set_total_subqs(qopt->get_total_subqs() + ctx.size());
+	} else {
+	    qopt->inc_total_subqs();
+	}
+    }
+
+    if (ctx.empty())
+	RETURN(new EmptyPostList);
+
+    if (op == Query::OP_MAX)
+	RETURN(ctx.postlist_max(qopt));
+
+    PostList * pl = ctx.postlist(qopt);
+    if (op == Query::OP_OR)
+	RETURN(pl);
+
+    // We build an OP_OR tree for OP_SYNONYM and then wrap it in a
+    // SynonymPostList, which supplies the weights.
+    PostingIterator::Internal * r = qopt->make_synonym_postlist(pl, factor);
+    RETURN(r);
+}
+
+termcount
+QueryWildcard::get_length() const
+{
+    // We currently assume wqf is 1 for calculating the synonym's weight
+    // since conceptually the synonym is one "virtual" term.  If we were
+    // to combine multiple occurrences of the same synonym expansion into
+    // a single instance with wqf set, we would want to track the wqf.
+    return 1;
+}
+
+void
+QueryWildcard::serialise(string & result) const
+{
+    result += static_cast<char>(0x0b);
+    result += encode_length(max_expansion);
+    result += static_cast<unsigned char>(combiner);
+    result += encode_length(pattern.size());
+    result += pattern;
+}
+
+Query::op
+QueryWildcard::get_type() const
+{
+    return Query::OP_WILDCARD;
+}
+
+string
+QueryWildcard::get_description() const
+{
+    string desc = "WILDCARD ";
+    switch (combiner) {
+	case Query::OP_SYNONYM:
+	    desc += "SYNONYM ";
+	    break;
+	case Query::OP_MAX:
+	    desc += "MAX ";
+	    break;
+	case Query::OP_OR:
+	    desc += "OR ";
+	    break;
+	default:
+	    desc += "BAD ";
+	    break;
+    }
+    description_append(desc, pattern);
+    return desc;
+}
+
 Xapian::termcount
 QueryBranch::get_length() const
 {
@@ -860,11 +988,11 @@ QueryBranch::serialise_(string & result, Xapian::termcount parameter) const
     unsigned char ch = first_byte[op_];
     if (ch & 0x80) {
 	// Multi-way operator.
-	if (subqueries.size() < 9)
-	    ch |= (subqueries.size() - 1);
+	if (subqueries.size() < 8)
+	    ch |= subqueries.size();
 	result += ch;
-	if (subqueries.size() >= 9)
-	    result += encode_length(subqueries.size() - 9);
+	if (subqueries.size() >= 8)
+	    result += encode_length(subqueries.size() - 8);
 	if (ch >= MULTIWAY(13))
 	    result += encode_length(parameter);
     } else {
@@ -930,7 +1058,9 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     // FIXME: we could optimise by merging OP_ELITE_SET and OP_OR like we do
     // for AND-like operations.
 
-    AssertRel(subqueries.size(), >=, 2);
+    // OP_SYNONYM with a single subquery is only simplified by
+    // QuerySynonym::done() if the single subquery is a term or MatchAll.
+    Assert(subqueries.size() >= 2 || get_op() == Query::OP_SYNONYM);
 
     vector<PostList *> postlists;
     postlists.reserve(subqueries.size() - first);
@@ -1407,12 +1537,15 @@ QuerySynonym::done()
     if (subqueries.empty())
 	return NULL;
     // Synonym of a single subquery should only be simplified if that subquery
-    // is a term (or MatchAll).  Note that MatchNothing subqueries are dropped,
-    // so we'd never get here with a single MatchNothing subquery.
+    // is a term (or MatchAll), or if it's also OP_SYNONYM.  Note that
+    // MatchNothing subqueries are dropped, so we'd never get here with a
+    // single MatchNothing subquery.
     if (subqueries.size() == 1) {
 	Query::op sub_type = subqueries[0].get_type();
-	if (sub_type == Query::LEAF_TERM || sub_type == Query::LEAF_MATCH_ALL)
+	if (sub_type == Query::LEAF_TERM || sub_type == Query::LEAF_MATCH_ALL ||
+	    sub_type == Query::OP_SYNONYM) {
 	    return subqueries[0].internal.get();
+	}
     }
     return this;
 }
@@ -1497,6 +1630,12 @@ QueryMax::get_op() const
     return Xapian::Query::OP_MAX;
 }
 
+Xapian::Query::op
+QueryWildcard::get_op() const
+{
+    return Xapian::Query::OP_WILDCARD;
+}
+
 string
 QueryAnd::get_description() const
 {
@@ -1554,6 +1693,12 @@ QueryEliteSet::get_description() const
 string
 QuerySynonym::get_description() const
 {
+    if (subqueries.size() == 1) {
+	string d = "(SYNONYM ";
+	d += subqueries[0].internal->get_description();
+	d += ")";
+	return d;
+    }
     return get_description_helper(" SYNONYM ");
 }
 

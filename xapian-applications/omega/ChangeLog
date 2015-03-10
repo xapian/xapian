@@ -1,3 +1,43 @@
+Mon Mar 09 12:31:44 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/: Add a document about character encoding, as suggested by
+	  James Aylett in #550.
+
+Mon Mar 09 11:32:32 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Document 'E' prefixed boolean terms for filtering
+	  by extension (see #668, reported by bramvdh).
+
+Mon Mar 09 11:29:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: Whitespace cleanup.
+
+Mon Mar 09 10:16:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/xml: Add XML declaration.
+
+Mon Mar 09 10:14:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/query: Eliminate blank line before <html>.
+
+Mon Mar 09 10:14:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/godmode: Return charset utf-8 in the content-type.
+
+Mon Mar 09 06:58:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* urldecode.h,urlenctest.cc: Improve decoding done by $prettyurl - we
+	  now leave the query and fragment parts of the URL alone and don't
+	  decode an escaped "/" (omindex doesn't create URLs with any of
+	  these, so we only risk breaking other URLs which have them), and we
+	  decode some additional ASCII characters in the path part:
+	  []@!$&'()*+.;=  (addresses #550 in part)
+
+Sun Feb 15 11:04:05 GMT 2015  Olly Betts <olly@tartarus.org>
+
+	* expand.cc: Suppress bogus uninitialised variable warning with -Os
+	  under GCC 4.7.2.
+
 Tue Jan 27 04:37:12 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Interpret a command of "false" in

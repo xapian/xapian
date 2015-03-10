@@ -12,7 +12,7 @@ via a web front-end provided by omega, a CGI application.  A search can also be
 done over more than one database at once.
 
 There are separate documents covering `CGI parameters <cgiparams.html>`_, the
-`Term Prefixes <termprefixes.html>`_ which are conventionally used, and 
+`Term Prefixes <termprefixes.html>`_ which are conventionally used, and
 `OmegaScript <omegascript.html>`_, the language used to define omega's web
 interface.  Omega ships with several OmegaScript templates and you can
 use these, modify them, or just write your own.  See the "Supplied Templates"
@@ -44,15 +44,15 @@ B(oolean) terms with the same prefix are ORed together, with all the
 different prefix groups being ANDed together. This is then FILTERed
 against the P(robabilistic) terms. This will look something like::
 
-		      [ FILTER ]
-		       /      \
-		      /        \
-		 P-terms      [     AND     ]
-			       /     | ... \
-			      /
-			[    OR    ]
-		       /      | ... \
-		    B(F,1) B(F,2)...B(F,n)
+                  [ FILTER ]
+                   /      \
+                  /        \
+             P-terms      [   AND   ]
+                           /   |...\
+                          /
+                    [   OR   ]
+                   /    | ... \
+              B(F,1) B(F,2)...B(F,n)
 
 Where B(F,1) is the first boolean term with prefix F, and so on.
 
@@ -89,10 +89,10 @@ Sites work by having all documents within them having a common base
 URL. For instance, you might have two sites, one for your press area
 and one for your product descriptions:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/bigproduct.html
-	- \http://example.com/products/littleproduct.html
+    - \http://example.com/press/index.html
+    - \http://example.com/press/bigrelease.html
+    - \http://example.com/products/bigproduct.html
+    - \http://example.com/products/littleproduct.html
 
 You could index all documents within \http://example.com/press/ using a
 site of '/press', and all within \http://example.com/products/ using
@@ -145,10 +145,10 @@ second being a relative directory within that to index.
 For instance, in the example above, if you separate your products by
 size, you might end up with:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/large/bigproduct.html
-	- \http://example.com/products/small/littleproduct.html
+    - \http://example.com/press/index.html
+    - \http://example.com/press/bigrelease.html
+    - \http://example.com/products/large/bigproduct.html
+    - \http://example.com/products/small/littleproduct.html
 
 If the entire website is stored in the file system under the directory
 /www/example, then you would probably index the site in two
@@ -437,6 +437,7 @@ mnoGoSearch)::
     Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex-->
 
 ::
+
     <!--UdmComment--><div>Boring copyright notice</div><!--/UdmComment-->
 
 Boolean terms
@@ -445,32 +446,35 @@ Boolean terms
 omindex will create the following boolean terms when it indexes a
 document:
 
-T	
-        MIME type
-H	
-        hostname of site (if supplied - this term won't exist if you index a
-        site with base URL '/press', for instance)
-P	
-        path of site (i.e. the rest of the site base URL)
-U	
-        full URL of indexed document - if the resulting term would be > 240
-	characters, a hashing scheme is used to prevent omindex overflowing
-	the Xapian term length limit.
+E
+    Extension of the file (e.g. `Epdf`) [since Omega 1.2.5]
+T
+    MIME type
+H
+    hostname of site (if supplied - this term won't exist if you index a
+    site with base URL '/press', for instance)
+P
+    path of site (i.e. the rest of the site base URL)
+U
+    full URL of indexed document - if the resulting term would be > 240
+    characters, a hashing scheme is used to prevent omindex overflowing
+    the Xapian term length limit.
 
 
 
-D	
-        date (numeric format: YYYYMMDD)
-	date can also have the magical form "latest" - a document indexed
-	by the term Dlatest matches any date-range without an end date.
-	You can index dynamic documents which are always up to date
-	with Dlatest and they'll match as expected.  (If you use sort by date,
-	you'll probably also want to set the value containing the timestamp to
-	a "max" value so dynamic documents match a date in the far future).
-M	
-        month (numeric format: YYYYMM)
-Y	
-        year (four digits)
+D
+    date (numeric format: YYYYMMDD)
+
+    date can also have the magical form "latest" - a document indexed
+    by the term Dlatest matches any date-range without an end date.
+    You can index dynamic documents which are always up to date
+    with Dlatest and they'll match as expected.  (If you use sort by date,
+    you'll probably also want to set the value containing the timestamp to
+    a "max" value so dynamic documents match a date in the far future).
+M
+    month (numeric format: YYYYMM)
+Y
+    year (four digits)
 
 omega configuration
 ===================

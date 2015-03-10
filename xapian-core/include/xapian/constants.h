@@ -219,16 +219,16 @@ const int DBCHECK_SHOW_STATS = 8;
 
 /** Fix problems.
  *
+ *  For use with Xapian::Database::check().
+ *
  *  Currently this is supported for chert, and will:
  *
- *    * regenerate the "iamchert" file if it isn't valid (so if it is lost, you
+ *  @li regenerate the "iamchert" file if it isn't valid (so if it is lost, you
  *      can just create it empty and then "fix problems").
  *
- *    * regenerate base files (currently the algorithm for finding the root
+ *  @li regenerate base files (currently the algorithm for finding the root
  *      block may not work if there was a change partly written but not
  *      committed).
- *
- *  For use with Xapian::Database::check().
  */
 const int DBCHECK_FIX = 16;
 

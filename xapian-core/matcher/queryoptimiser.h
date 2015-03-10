@@ -76,7 +76,13 @@ class QueryOptimiser {
 				  Xapian::termcount wqf,
 				  double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    &hint);
+					    &hint, false);
+    }
+
+    LeafPostList * open_lazy_post_list(const std::string& term,
+				       Xapian::termcount wqf,
+				       double factor) {
+	return localsubmatch.open_post_list(term, wqf, factor, false, &hint, true);
     }
 
     PostList * make_synonym_postlist(PostList * pl, double factor) {

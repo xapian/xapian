@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -299,10 +299,10 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem(b'en'))
     expect_query(qp.parse_query(b"foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((out@2 SYNONYM outsid@2) OR Zo@2))")
+                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR o) OR Zo@2))")
 
     expect_query(qp.parse_query(b"foo outside", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND Zoutsid@2)")
+                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR outside) OR Zoutsid@2))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (b'foo', b'bar')),

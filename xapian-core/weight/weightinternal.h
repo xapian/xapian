@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,6 +68,17 @@ class RSet;
 
 /** Class to hold statistics for a given collection. */
 class Weight::Internal {
+#ifdef XAPIAN_ASSERTIONS
+    /** Number of sub-databases. */
+    size_t subdbs;
+
+    /** True if we've finalised the stats.
+     *
+     *  Used for assertions.
+     */
+    mutable bool finalised;
+#endif
+
   public:
     /** Total length of all documents in the collection. */
     totlen_t total_length;
@@ -90,12 +101,19 @@ class Weight::Internal {
     /** Database to get the bounds on doclength and wdf from. */
     Xapian::Database db;
 
+    /** The query. */
+    Xapian::Query query;
+
     /** Map of term frequencies and relevant term frequencies for the
      *  collection. */
     std::map<std::string, TermFreqs> termfreqs;
 
     Internal()
-	: total_length(0), collection_size(0), rset_size(0),
+	:
+#ifdef XAPIAN_ASSERTIONS
+	  subdbs(0), finalised(false),
+#endif
+	  total_length(0), collection_size(0), rset_size(0),
 	  total_term_count(0), have_max_part(false) { }
 
     /** Add in the supplied statistics from a sub-database.
@@ -105,15 +123,12 @@ class Weight::Internal {
      */
     Internal & operator +=(const Internal & inc);
 
-    /// Mark the terms we need to collate stats for.
-    void mark_wanted_terms(const Xapian::Query &query) {
-	Xapian::TermIterator t;
-	for (t = query.get_terms_begin(); t != Xapian::TermIterator(); ++t) {
-	    termfreqs.insert(make_pair(*t, TermFreqs()));
-	}
+    void set_query(const Xapian::Query &query_) {
+	AssertEq(subdbs, 0);
+	query = query_;
     }
 
-    /// Accumulate the rtermfreqs for terms marked by mark_wanted_terms().
+    /// Accumulate the rtermfreqs for terms in the query.
     void accumulate_stats(const Xapian::Database::Internal &sub_db,
 			  const Xapian::RSet &rset);
 
@@ -132,6 +147,9 @@ class Weight::Internal {
 		   Xapian::doccount & termfreq,
 		   Xapian::doccount & reltermfreq,
 		   Xapian::termcount & collfreq) const {
+#ifdef XAPIAN_ASSERTIONS
+	finalised = true;
+#endif
 	// We pass an empty std::string for term when calculating the extra
 	// weight.
 	if (term.empty()) {
@@ -163,6 +181,9 @@ class Weight::Internal {
 
     /// Get the termweight.
     bool get_termweight(const std::string & term, double & termweight) {
+#ifdef XAPIAN_ASSERTIONS
+	finalised = true;
+#endif
 	termweight = 0.0;
 	if (term.empty()) {
 	    return false;
@@ -182,17 +203,23 @@ class Weight::Internal {
 	have_max_part = true;
 	Assert(!term.empty());
 	map<string, TermFreqs>::iterator i = termfreqs.find(term);
-	Assert(i != termfreqs.end());
-	i->second.max_part += max_part;
+	if (i != termfreqs.end())
+	    i->second.max_part += max_part;
     }
 
     Xapian::doclength get_average_length() const {
+#ifdef XAPIAN_ASSERTIONS
+	finalised = true;
+#endif
 	if (rare(collection_size == 0)) return 0;
 	return Xapian::doclength(total_length) / collection_size;
     }
 
     /** Set the "bounds" stats from Database @a db. */
-    void set_bounds_from_db(const Xapian::Database &db_) { db = db_; }
+    void set_bounds_from_db(const Xapian::Database &db_) {
+	Assert(!finalised);
+	db = db_;
+    }
 
     /// Return a std::string describing this object.
     std::string get_description() const;

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2004,2005,2008,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -250,7 +250,8 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	} else {
 	    // open() throws an exception if it fails.
 	    B.open();
-	    *rev_ptr = B.get_open_revision_number();
+	    if (rev_ptr)
+		*rev_ptr = B.get_open_revision_number();
 	}
     } catch (const Xapian::DatabaseOpeningError &) {
 	if ((opts & Xapian::DBCHECK_FIX) == 0 ||

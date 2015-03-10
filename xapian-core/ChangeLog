@@ -1,3 +1,95 @@
+Mon Mar 09 03:08:14 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/constants.h,include/xapian/queryparser.h: Doxygen
+	  comment wording tweaks.
+
+Mon Mar 09 03:07:36 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/constants.h,include/xapian/queryparser.h,
+	  include/xapian/weight.h: Doxygen comment formatting tweaks.
+
+Sat Mar 07 11:27:23 GMT 2015  Olly Betts <olly@tartarus.org>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Extend the
+	  set of characters allowed in the start of a range to be anything
+	  except for '(' and characters <= ' '.  This better matches what's
+	  accepted for a range end (anything except for ')' and characters <=
+	  ' ').  Reported by Jani Nikula.
+
+Thu Mar 05 11:13:56 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: When checking a single table, handle the
+	  ".glass" extension on glass database tables, and use the extension
+	  to guide the decision of which backend the table is from.
+
+Thu Mar 05 04:38:21 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/dbcheck.cc: Don't hard-code string length as number.
+
+Mon Feb 23 04:48:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/emptypostlist.cc,api/emptypostlist.h: Fix handling of
+	  OP_WILDCARD which expands to no terms when used under OP_SYNONYM.
+	* tests/api_query.cc: Regression test dualprefixwildcard1.
+
+Mon Feb 23 04:26:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Fix compilation issue with previous
+	  change.
+
+Thu Feb 19 08:04:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_nodb.cc,tests/harness/testrunner.cc,
+	  tests/harness/testsuite.cc,tests/stemtest.cc: Use std::string's
+	  assign() or construct from substring rather than assigning or
+	  initialising with the result of calling substr().
+
+Tue Feb 17 18:31:25 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/Makefile.mk: Ship new file from previous commit.
+
+Tue Feb 17 05:14:02 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/constinfo.cc,api/version.cc,include/xapian.h,
+	  include/xapian/constinfo.h,include/xapian/stem.h,languages/stem.cc:
+	  Put the list of stemmers into the vinfo struct and renamed it to
+	  const_info.
+
+Mon Feb 16 10:18:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,languages/: Merge generate-allsnowballheaders script
+	  into collate-sbl.
+
+Mon Feb 16 04:15:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_check.cc: Fix xapian-check on a single table.
+
+Fri Feb 13 10:18:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* generate-exceptions: Note that the change to not negate
+	  WSAGetLastError() values internally was backported for 1.2.20.
+
+Fri Feb 13 05:57:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/,common/remoteprotocol.h,exception_data.pm,
+	  include/xapian/query.h,include/xapian/queryparser.h,matcher/,
+	  queryparser/queryparser.lemony,tests/api_qpbackend.cc,
+	  tests/queryparsertest.cc,weight/weightinternal.cc,
+	  weight/weightinternal.h: Add new OP_WILDCARD query operator, which
+	  expands wildcards lazily, so now we create the PostList tree for a
+	  wildcard directly, rather than creating an intermediate Query tree.
+	  See ticket#48.
+
+Wed Feb 11 22:45:26 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_table.cc: mid_point() should never fail to find
+	  a split point, but just in case it does, return a usable answer.
+
+Wed Feb 11 22:44:35 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: mid_point() should never fail to find
+	  a split point, but just in case it does, return a usable answer.
+
 Mon Feb 09 02:56:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc,matcher/localsubmatch.cc,

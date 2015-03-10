@@ -52,14 +52,16 @@ public class SimpleSearch {
         Enquire enquire = new Enquire(db);
         enquire.setQuery(query);
         MSet matches = enquire.getMSet(0, 2500);    // get up to 2500 matching documents
-        MSetIterator itr = matches.iterator();
+        MSetIterator itr = matches.begin();
 
         System.err.println("Found " + matches.size() + " matching documents using " + query);
         while (itr.hasNext()) {
-            itr = (MSetIterator) itr.next(); // TODO:  Make this more like a Java Iterator
-            // by returning some kind of "MatchDescriptor" object
-            Document doc = itr.getDocument();
-            System.err.println(itr.getPercent() + "% [" + itr.getDocumentId() + "] " + doc.getValue(0));
+            int percent = itr.getPercent();
+            long docID = itr.next();
+            // TODO:  Make this more like a Java Iterator by returning some
+            // kind of "MatchDescriptor" object
+            Document doc = db.getDocument(docID);
+            System.err.println(percent + "% [" + docID + "] " + doc.getValue(0));
         }
     }
 

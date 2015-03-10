@@ -1,7 +1,7 @@
 # exception_data.pm: details of the exception hierarchy used by Xapian.
 package exception_data;
 $copyright = <<'EOF';
-/* Copyright (C) 2003,2004,2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2003,2004,2006,2007,2008,2009,2011,2015 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -169,6 +169,11 @@ DOC
 
 errorclass(18, 'RangeError', 'RuntimeError', <<'DOC');
 /** RangeError indicates an attempt to access outside the bounds of a container.
+ */
+DOC
+
+errorclass(19, 'WildcardError', 'RuntimeError', <<'DOC');
+/** WildcardError indicates an error expanding a wildcarded query.
  */
 DOC
 

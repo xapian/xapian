@@ -20,6 +20,7 @@ EXTRA_DIST +=\
 
 lib_src +=\
 	api/compactor.cc\
+	api/constinfo.cc\
 	api/decvalwtsource.cc\
 	api/documentvaluelist.cc\
 	api/editdistance.cc\
@@ -49,5 +50,4 @@ lib_src +=\
 	api/valueiterator.cc\
 	api/valuerangeproc.cc\
 	api/valuesetmatchdecider.cc\
-	api/vectortermlist.cc\
-	api/version.cc
+	api/vectortermlist.cc

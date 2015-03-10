@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -752,7 +752,7 @@ DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
     //choose the first char in the first term as prefix
     Xapian::ESetIterator j = myeset_orig.begin();
     TEST(myeset_orig.size() >= 1);
-    string prefix = (*j).substr(0, 1);
+    string prefix(*j, 0, 1);
     Xapian::ExpandDeciderFilterPrefix myfunctor(prefix);
 
     for ( ; j != myeset_orig.end(); ++j) {
