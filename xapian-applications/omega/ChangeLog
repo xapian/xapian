@@ -1,3 +1,8 @@
+Tue May 05 12:20:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* urldecode.h,urlenctest.cc: $prettyurl now decodes valid UTF-8
+	  sequences.  Fixes #550 and #644, reported by catkin and terencz.
+
 Tue May 05 12:14:06 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/: Add a document about character encoding, as suggested by
