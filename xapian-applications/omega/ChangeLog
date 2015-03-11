@@ -1,3 +1,7 @@
+Wed Mar 11 11:28:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/encodings.rst: Discuss encodings of filenames (see #550).
+
 Wed Mar 11 11:07:29 GMT 2015  Olly Betts <olly@survex.com>
 
 	* urldecode.h,urlenctest.cc: $prettyurl now decodes valid UTF-8
