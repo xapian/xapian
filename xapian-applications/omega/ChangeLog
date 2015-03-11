@@ -1,3 +1,8 @@
+Tue May 05 12:27:14 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/encodings.rst: Note that one should ensure that Omega gets sent
+	  form submissions encoded in UTF-8.
+
 Tue May 05 12:23:09 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/encodings.rst: Discuss encodings of filenames (see #550).
