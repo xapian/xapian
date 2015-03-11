@@ -4,6 +4,30 @@ Character Encodings
 
 The omega CGI assumes that text in the database is encoded as UTF-8.
 
+If you are writing your own search form, it is best to ensure that the query
+will be sent as UTF-8.  By default, web browsers will send the form parameters
+with the same encoding as the page the form is on (and the default encoding for
+HTML pages is ISO-8859-1).  You can override this by adding the parameter
+`accept-charset="UTF-8"` to the `<form>` tag of your search form (and it's
+safe to do this even in a page which is explicitly UTF-8).
+
+If the form parameters get sent as ISO-8859-1, there are several issues:
+
+The first is that characters which aren't representable in ISO-8859-1 get
+sent as numeric HTML entities, such as `&#25991;`.  But there's no way
+to distinguish these from the same text literally entered into the form
+by the user.
+
+The second is that Omega can't simply re-encode the form data as the
+encoding used isn't specified in the form submission (whether that is by
+GET or POST).
+
+If Xapian is asked to parse a query string which isn't valid UTF-8, it will
+fall-back to handling it as ISO-8859-1, which will usually do the right thing
+for queries which are representable in ISO-8859-1.  However, things like
+boolean filters in `B` parameters will be used as-is, so any which contain
+non-ASCII characters won't work properly.
+
 omindex
 =======
 
