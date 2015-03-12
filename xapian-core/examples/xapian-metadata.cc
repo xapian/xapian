@@ -1,7 +1,7 @@
 /** @file xapian-metadata.cc
  * @brief Read and write user metadata
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ using namespace std;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" get PATH_TO_DATABASE KEY\n"
+	    "       "PROG_NAME" list PATH_TO_DATABASE\n"
 	    "       "PROG_NAME" set PATH_TO_DATABASE KEY VALUE" << endl;
 }
 
@@ -64,6 +65,14 @@ syntax_error:
 	if (argc != 4) goto syntax_error;
 	Xapian::Database db(argv[2]);
 	cout << db.get_metadata(argv[3]) << endl;
+    } else if (strcmp(command, "list") == 0) {
+	if (argc != 3) goto syntax_error;
+	Xapian::Database db(argv[2]);
+	for (Xapian::TermIterator t = db.metadata_keys_begin();
+	     t != db.metadata_keys_end();
+	     ++t) {
+	    cout << *t << '\n';
+	}
     } else if (strcmp(command, "set") == 0) {
 	if (argc != 5) goto syntax_error;
 	Xapian::WritableDatabase db(argv[2], Xapian::DB_CREATE_OR_OPEN);

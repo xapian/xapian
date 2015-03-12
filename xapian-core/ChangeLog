@@ -1,3 +1,8 @@
+Thu Mar 12 04:09:07 GMT 2015  Olly Betts <olly@survex.com>
+
+	* examples/xapian-metadata.cc: Add 'list' subcommand to list all the
+	  metadata keys.
+
 Mon Mar 09 03:08:14 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/constants.h,include/xapian/queryparser.h: Doxygen
