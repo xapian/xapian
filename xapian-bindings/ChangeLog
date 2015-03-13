@@ -1,3 +1,10 @@
+Fri Mar 13 05:28:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,perl/Makefile.am,
+	  php/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: Fix "make
+	  install" from a git tree configured with --disable-documentation.
+	  (Fixes #658, reported by German M. Bravo)
+
 Tue Mar 03 04:04:36 GMT 2015  Olly Betts <olly@survex.com>
 
 	* java/docs/examples/SimpleSearch.java: getPercent() returns an

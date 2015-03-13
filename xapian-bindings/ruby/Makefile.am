@@ -59,9 +59,6 @@ dist_exampledata_DATA = \
 	docs/examples/simplematchdecider.rb \
 	docs/examples/simplesearch.rb
 
-docdatadir = $(docdir)/ruby
-dist_docdata_DATA = docs/index.html
-
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
 	@test -f docs/rdocs/index.html && cd docs || cd "$(srcdir)/docs" ; \
@@ -84,7 +81,12 @@ uninstall-local:
 	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
 	  done
 
+docdatadir = $(docdir)/ruby
+EXTRA_DIST += docs/index.html
+
 if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+
 BUILT_SOURCES += docs/rdocs/index.html
 
 docs/rdocs: docs/rdocs/index.html

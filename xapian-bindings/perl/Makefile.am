@@ -70,9 +70,6 @@ dist_exampledata_DATA = \
 	docs/examples/simplematchdecider.pl \
 	docs/examples/simplesearch.pl
 
-docdatadir = $(docdir)/perl
-dist_docdata_DATA = docs/index.html
-
 perlarchdir = $(PERL_ARCH)/auto/Xapian
 perlarch_LTLIBRARIES = Xapian.la
 
@@ -149,12 +146,6 @@ BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
 	$(PERL) -w -I$(srcdir)/../../xapian-core $(srcdir)/generate-perl-exceptions
 
-BUILT_SOURCES += docs/index.html
-docs/index.html: Xapian.pm
-	$(MKDIR_P) docs
-	pod2html Xapian.pm > docs/index.html
-	rm -f pod2htm?.tmp
-
 stamp = xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
@@ -172,3 +163,15 @@ $(stamp): except.i
 CLEANFILES = pod2htm?.tmp xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+
+docdatadir = $(docdir)/perl
+EXTRA_DIST += docs/index.html
+
+if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+
+docs/index.html: Xapian.pm
+	$(MKDIR_P) docs
+	pod2html Xapian.pm > docs/index.html
+	rm -f pod2htm?.tmp
+endif

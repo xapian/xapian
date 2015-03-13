@@ -164,9 +164,11 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleExpand.cs
 
 docdatadir = $(docdir)/csharp
-dist_docdata_DATA = docs/index.html
+EXTRA_DIST += docs/index.html
 
 if DOCUMENTATION_RULES
+docdata_DATA = docs/index.html
+
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
