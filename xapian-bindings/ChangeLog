@@ -1,3 +1,10 @@
+Fri Mar 13 10:33:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Fix 'make install' when
+	  building from git with --disable-documentation.  Fix to handle a
+	  VPATH build from a tarball when the generated docs will be in
+	  $(srcdir).
+
 Fri Mar 13 05:28:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,java/Makefile.am,lua/Makefile.am,perl/Makefile.am,
