@@ -1,3 +1,8 @@
+Tue May 05 12:52:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_compact.cc: Make sure we open all the tables of
+	  a database at the same revision when compacting.  (Fixes #649)
+
 Tue May 05 12:48:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* examples/xapian-metadata.cc: Add 'list' subcommand to list all the
