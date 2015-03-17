@@ -1,3 +1,10 @@
+Tue Mar 17 03:51:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc: Fixed reversed conditonal for
+	  picking the shorter position list for an exact phrase of two terms.
+	  The difference this fix makes isn't dramatic, but can be measured
+	  (at least with cachegrind).  Thanks to kbwt for spotting this.
+
 Fri Mar 13 11:21:37 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_compact.cc: Make sure we open all the tables of

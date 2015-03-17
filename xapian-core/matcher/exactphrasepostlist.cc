@@ -96,7 +96,7 @@ ExactPhrasePostList::test_doc()
     // terms, so check the true positionlist length for the two terms with the
     // lowest wdf and if necessary swap them so the true shorter one is first.
     start_position_list(1);
-    if (poslists[0]->get_size() < poslists[1]->get_size()) {
+    if (poslists[0]->get_size() > poslists[1]->get_size()) {
 	poslists[1]->skip_to(poslists[1]->index);
 	if (poslists[1]->at_end()) RETURN(false);
 	swap(poslists[0], poslists[1]);
