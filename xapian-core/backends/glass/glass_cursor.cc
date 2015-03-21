@@ -94,6 +94,7 @@ GlassCursor::rebuild()
 
 GlassCursor::~GlassCursor()
 {
+    // We must not use B here, as it may have already been destroyed.
     delete [] C;
 }
 

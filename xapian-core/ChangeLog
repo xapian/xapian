@@ -1,3 +1,8 @@
+Sat Mar 21 22:11:53 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_cursor.cc: Add comment warning that B can't be
+	  used in GlassCursor's destructor.
+
 Tue Mar 17 03:51:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/exactphrasepostlist.cc: Fixed reversed conditonal for
