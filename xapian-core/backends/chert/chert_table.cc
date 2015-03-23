@@ -1541,9 +1541,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
     if (handle == -2) {
 	ChertTable::throw_database_closed();
     }
-    int flags = O_RDWR | O_BINARY;
-    if (create_db) flags |= O_CREAT | O_TRUNC;
-    handle = ::open((name + "DB").c_str(), flags, 0666);
+    handle = io_open_block_wr(name + "DB", create_db);
     if (handle < 0) {
 	// lazy doesn't make a lot of sense with create_db anyway, but ENOENT
 	// with O_CREAT means a parent directory doesn't exist.
@@ -2052,7 +2050,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
     if (handle == -2) {
 	ChertTable::throw_database_closed();
     }
-    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
+    handle = io_open_block_rd(name + "DB");
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!

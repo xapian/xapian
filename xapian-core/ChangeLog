@@ -1,5 +1,13 @@
 Tue May 05 13:10:44 GMT 2015  Olly Betts <olly@survex.com>
 
+	* backends/chert/chert_table.cc,backends/glass/glass_table.cc,
+	  common/io_utils.cc,common/io_utils.h,tests/api_backend.cc:
+	  Avoid using fds < 3 for writable database tables, as it risks
+	  corruption is some code in the same process tries to write to stdout
+	  or stderr without realising it is closed.  (Partly addresses #651)
+
+Tue May 05 13:10:44 GMT 2015  Olly Betts <olly@survex.com>
+
 	* matcher/exactphrasepostlist.cc: Fixed reversed conditonal for
 	  picking the shorter position list for an exact phrase of two terms.
 	  The difference this fix makes isn't dramatic, but can be measured

@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -35,6 +35,7 @@
 
 #include "apitest.h"
 
+#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
@@ -956,5 +957,62 @@ DEFINE_TESTCASE(phrasebug1, generated && positional) {
     e.set_query(q2);
     mset = e.get_mset(0, 100);
     TEST_EQUAL(mset.size(), 1);
+    return true;
+}
+
+// Opening a WritableDatabase with low fds available - it should avoid them.
+DEFINE_TESTCASE(dbfilefd012, brass || chert) {
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
+    int oldfds[3];
+    for (int i = 0; i < 3; ++i) {
+	oldfds[i] = dup(i);
+    }
+    try {
+	for (int j = 0; j < 3; ++j) {
+	    close(j);
+	    TEST_EQUAL(lseek(j, 0, SEEK_CUR), -1);
+	    TEST_EQUAL(errno, EBADF);
+	}
+
+	Xapian::WritableDatabase db = get_writable_database();
+
+	// Check we didn't use any of those low fds for tables, as that risks
+	// data corruption if some other code in the same process tries to
+	// write to them (see #651).
+	for (int fd = 0; fd < 3; ++fd) {
+	    // Check that the fd is still closed, or isn't open O_RDWR (the
+	    // lock file gets opened O_WRONLY), or it's a pipe (if we're using
+	    // a child process to hold a non-OFD fcntl lock).
+	    int flags = fcntl(fd, F_GETFL);
+	    if (flags == -1) {
+		TEST_EQUAL(errno, EBADF);
+	    } else if ((flags & O_ACCMODE) != O_RDWR) {
+		// OK.
+	    } else {
+		struct stat sb;
+		TEST_NOT_EQUAL(fstat(fd, &sb), -1);
+#ifdef S_ISSOCK
+		TEST(S_ISSOCK(sb.st_mode));
+#else
+		// If we can't check it is a socket, at least check it is not a
+		// regular file.
+		TEST(!S_ISREG(sb.st_mode);
+#endif
+	    }
+	}
+    } catch (...) {
+	for (int j = 0; j < 3; ++j) {
+	    dup2(oldfds[j], j);
+	    close(oldfds[j]);
+	}
+	throw;
+    }
+
+    for (int j = 0; j < 3; ++j) {
+	dup2(oldfds[j], j);
+	close(oldfds[j]);
+    }
+#endif
+
     return true;
 }
