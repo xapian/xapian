@@ -1389,9 +1389,8 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
-    int open_flags = O_RDWR | O_BINARY | O_CLOEXEC;
-    if (root_info == NULL) open_flags |= O_CREAT | O_TRUNC;
-    handle = ::open((name + GLASS_TABLE_EXTENSION).c_str(), open_flags, 0666);
+    handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION,
+			      root_info == NULL);
     if (handle < 0) {
 	// lazy doesn't make a lot of sense when we're creating a DB (which
 	// is the case when root_info==NULL), but ENOENT with O_CREAT means a
@@ -1658,7 +1657,7 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
-    handle = ::open((name + GLASS_TABLE_EXTENSION).c_str(), O_RDONLY | O_BINARY | O_CLOEXEC);
+    handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!

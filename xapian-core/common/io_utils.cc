@@ -1,7 +1,7 @@
 /** @file io_utils.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2004,2006,2007,2008,2009,2011,2014 Olly Betts
+/* Copyright (C) 2004,2006,2007,2008,2009,2011,2014,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@
 #include <xapian/error.h>
 
 #include "noreturn.h"
+#include "omassert.h"
 #include "str.h"
 
 // Trying to include the correct headers with the correct defines set to
@@ -56,6 +57,62 @@ io_unlink(const std::string & filename)
 	throw Xapian::DatabaseError(filename + ": delete failed", errno);
     }
     return false;
+}
+
+// The smallest fd we want to use for a writable handle.
+const int MIN_WRITE_FD = 3;
+
+int
+io_open_block_wr(const char * fname, bool anew)
+{
+    int flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    if (anew) flags |= O_CREAT | O_TRUNC;
+    int fd = ::open(fname, flags, 0666);
+    if (fd >= MIN_WRITE_FD || fd < 0) return fd;
+
+    // We want to avoid using fd < MIN_WRITE_FD, in case some other code in
+    // the same process tries to write to stdout or stderr, which would end up
+    // corrupting our database.
+    int badfd = fd;
+#ifdef F_DUPFD_CLOEXEC
+    // dup to the first unused fd >= MIN_WRITE_FD.
+    fd = fcntl(badfd, F_DUPFD_CLOEXEC, MIN_WRITE_FD);
+    // F_DUPFD_CLOEXEC may not be supported.
+    if (fd < 0 && errno == EINVAL)
+#endif
+#ifdef F_DUPFD
+    {
+	fd = fcntl(badfd, F_DUPFD, MIN_WRITE_FD);
+# ifdef FD_CLOEXEC
+	if (fd >= 0)
+	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+# endif
+    }
+    int save_errno = errno;
+    (void)close(badfd);
+    errno = save_errno;
+#else
+    {
+	vector<int> toclose;
+	do {
+	    toclose.push_back(badfd);
+	    fd = dup(badfd);
+	    if (fd < 0) {
+		int save_errno = errno;
+		for_each(toclose.begin(), toclose.end(), close);
+		errno = save_errno;
+		return fd;
+	    }
+	    badfd = fd;
+	} while (fd < MIN_WRITE_FD);
+	for_each(toclose.begin(), toclose.end(), close);
+# ifdef FD_CLOEXEC
+	(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+# endif
+    }
+#endif
+    Assert(fd >= MIN_WRITE_FD || fd < 0);
+    return fd;
 }
 
 size_t

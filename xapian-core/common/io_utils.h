@@ -1,7 +1,7 @@
 /** @file io_utils.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -26,6 +26,40 @@
 #include "safefcntl.h"
 #include "safeunistd.h"
 #include <string>
+
+/** Open a block-based file for reading.
+ *
+ *  @param fname  The path of the file to open.
+ */
+inline int io_open_block_rd(const char * fname) {
+    return ::open(fname, O_RDONLY | O_BINARY | O_CLOEXEC);
+}
+
+/** Open a block-based file for reading.
+ *
+ *  @param fname  The path of the file to open.
+ */
+inline int io_open_block_rd(const std::string & fname)
+{
+    return io_open_block_rd(fname.c_str());
+}
+
+/** Open a block-based file for writing.
+ *
+ *  @param fname  The path of the file to open.
+ *  @param anew   If true, open the file anew (create or truncate it).
+ */
+int io_open_block_wr(const char * fname, bool anew);
+
+/** Open a block-based file for writing.
+ *
+ *  @param fname  The path of the file to open.
+ *  @param anew  If true, open the file anew (create or truncate it).
+ */
+inline int io_open_block_wr(const std::string & fname, bool anew)
+{
+    return io_open_block_wr(fname.c_str(), anew);
+}
 
 /** Ensure all data previously written to file descriptor fd has been written to
  *  disk.

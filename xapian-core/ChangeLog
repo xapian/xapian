@@ -1,3 +1,11 @@
+Mon Mar 23 06:33:39 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc,backends/glass/glass_table.cc,
+	  common/io_utils.cc,common/io_utils.h,tests/api_backend.cc:
+	  Avoid using fds < 3 for writable database tables, as it risks
+	  corruption is some code in the same process tries to write to stdout
+	  or stderr without realising it is closed.  (Partly addresses #651)
+
 Sat Mar 21 22:11:53 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_cursor.cc: Add comment warning that B can't be
