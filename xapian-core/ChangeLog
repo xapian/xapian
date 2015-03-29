@@ -1,3 +1,7 @@
+Tue May 05 14:00:25 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/Makefile.am: Add missing quoting.
+
 Tue May 05 13:10:44 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/glass/glass_table.cc,

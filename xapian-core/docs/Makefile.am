@@ -123,7 +123,7 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api.conf \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 	rm -rf apidoc
-	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api.conf
+	top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) doxygen_api.conf
 	## Regression test - 1.0.17 failed to generate docs from error.h in a
 	## VPATH build.
 	test -f apidoc/html/classXapian_1_1RuntimeError.html || \
@@ -149,7 +149,7 @@ sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		$(srcdir)/doxygen_source_header.html_tmpl \
 		$(srcdir)/doxygen_source_footer.html_tmpl
 	rm -rf sourcedoc
-	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_source.conf
+	top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) doxygen_source.conf
 
 .rst.html:
 	$(RST2HTML) --exit-status=warning $< $@
