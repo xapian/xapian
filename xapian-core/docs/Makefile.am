@@ -121,7 +121,7 @@ APIDOC_DEPS = $(APIDOC_SRC) doxygen_api.conf \
 apidoc/html/index.html: $(APIDOC_DEPS)
 	rm -rf apidoc
 	sed 's/^\(GENERATE_HTML\)\>.*/\1 = YES/;s/^\(GENERATE_LATEX\)\>.*/\1 = NO/' doxygen_api.conf |\
-	    top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) -
+	    top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) -
 	## Regression test - 1.0.17 failed to generate docs from error.h in a
 	## VPATH build.
 	test -f apidoc/html/classXapian_1_1RuntimeError.html || \
@@ -138,7 +138,7 @@ apidoc/html/index.html: $(APIDOC_DEPS)
 # themselves.
 apidoc.pdf: $(APIDOC_DEPS)
 	sed 's/^\(GENERATE_HTML\)\>.*/\1 = NO/;s/^\(GENERATE_LATEX\)\>.*/\1 = YES/' doxygen_api.conf |\
-	    top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) -
+	    top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) -
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
 
@@ -147,7 +147,7 @@ sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		$(srcdir)/doxygen_source_header.html_tmpl \
 		$(srcdir)/doxygen_source_footer.html_tmpl
 	rm -rf sourcedoc
-	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_source.conf
+	top_srcdir='$(top_srcdir)' top_builddir='$(top_builddir)' $(DOXYGEN) doxygen_source.conf
 
 .rst.html:
 	$(RST2HTML) --math-output=HTML --exit-status=warning $< $@
