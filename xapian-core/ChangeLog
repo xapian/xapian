@@ -1,3 +1,8 @@
+Tue May 05 14:01:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/flint_lock.cc: If available, use F_DUPFD to dup to a file
+	  descriptor which is >= 2.
+
 Tue May 05 14:00:25 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/Makefile.am: Add missing quoting.

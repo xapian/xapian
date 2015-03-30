@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -157,10 +157,23 @@ no_ofd_support:
     // be 0 or 1.  We need fds 0 and 1 to be available in the child process to
     // be stdin and stdout, and we can't use dup() on lockfd after locking it,
     // as the lock won't be transferred, so we handle this corner case here by
-    // using dup() once or twice to get lockfd to be >= 2.
+    // using F_DUPFD or by calling dup() once or twice so that lockfd >= 2.
     if (rare(lockfd < 2)) {
 	// Note this temporarily requires one or two spare fds to work, but
 	// then we need two spare for socketpair() to succeed below anyway.
+#ifdef F_DUPFD
+	// Where available, F_DUPFD allows us to directly get the first unused
+	// fd which is at least 2.
+	int lockfd_dup = fcntl(lockfd, F_DUPFD, 2);
+	int eno = errno;
+	close(lockfd);
+	if (lockfd_dup < 0) {
+	    return ((eno == EMFILE || eno == ENFILE) ? FDLIMIT : UNKNOWN);
+	}
+	lockfd = lockfd_dup;
+#else
+	// Otherwise we have to call dup() until we get one, though at least
+	// that's only at most twice.
 	int lockfd_dup = dup(lockfd);
 	if (rare(lockfd_dup < 2)) {
 	    int eno = 0;
@@ -183,6 +196,7 @@ no_ofd_support:
 	    close(lockfd);
 	    lockfd = lockfd_dup;
 	}
+#endif
     }
 
     int fds[2];
