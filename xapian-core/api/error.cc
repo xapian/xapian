@@ -1,7 +1,7 @@
 /** @file error.cc
  *  @brief Xapian::Error base class.
  */
-/* Copyright (C) 2007,2008,2011,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2011,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,34 +76,13 @@ Xapian::Error::get_error_string() const
 	if (my_errno > 0) {
 	    errno_to_string(my_errno, error_string);
 	} else {
-# ifndef HAVE_HSTRERROR
-	    const char * s = NULL;
-	    switch (-my_errno) {
-		case HOST_NOT_FOUND:
-		    s = "Unknown host";
-		    break;
-		case NO_ADDRESS:
-#  if NO_ADDRESS != NO_DATA
-		case NO_DATA:
-#  endif
-		    s = "No address associated with name";
-		    break;
-		case NO_RECOVERY:
-		    s = "Unknown server error";
-		    break;
-		case TRY_AGAIN:
-		    s = "Host name lookup failure";
-		    break;
-	    }
-	    if (s) {
-		error_string.assign(s);
-	    } else {
-		error_string = "Unknown Error ";
-		error_string += str(-my_errno);
-	    }
-# else
-	    error_string.assign(hstrerror(-my_errno));
-# endif
+	    // POSIX says only that EAI_* constants are "non-zero" - they're
+	    // negative on Linux, but we allow for them being positive.  We
+	    // check they all that the same sign in net/remoteconnection.h.
+	    if (EAI_FAIL > 0)
+		error_string.assign(gai_strerror(-my_errno));
+	    else
+		error_string.assign(gai_strerror(my_errno));
 	}
 #endif
     }

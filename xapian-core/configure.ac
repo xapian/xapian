@@ -643,7 +643,6 @@ fi
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
-AC_CHECK_FUNCS([hstrerror])
 AC_FUNC_STRERROR_R
 AC_CHECK_DECLS([sys_errlist, _sys_errlist, sys_nerr, _sys_nerr])
 
@@ -821,9 +820,7 @@ if test "$enable_backend_remote" = yes ; then
       dnl For mingw and msvc we have an alternative implementation which
       dnl doesn't need fork() or socketpair().
       dnl
-      dnl We need -lws2_32 for gethostbyname(), etc.  Hardcode that knowledge
-      dnl here because AC_SEARCH_LIBS fails to link the test program (I think
-      dnl because its prototype has the wrong calling convention).
+      dnl We need -lws2_32 for getaddrinfo(), etc.
       REMOTE_LIBS=-lws2_32
       ;;
     *djgpp* | *msdos* )
@@ -850,9 +847,13 @@ if test "$enable_backend_remote" = yes ; then
       ])
       AC_DEFINE([HAVE_SOCKETPAIR], [1],
 		[Define to 1 if you have the 'socketpair' function.])
-      dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-      AC_SEARCH_LIBS([gethostbyname], [nsl], [], [
-	AC_MSG_ERROR([gethostbyname() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      dnl Check if extra libraries are needed for getaddrinfo (e.g. on Solaris).
+      dnl We're currently assuming that any system that is worth trying to
+      dnl support has getaddrinfo(), since that's the standard route for
+      dnl supporting IPv6, and that's pretty much essential for platforms to
+      dnl support now.
+      AC_SEARCH_LIBS([getaddrinfo], [nsl socket], [], [
+	AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
       ])
       REMOTE_LIBS=$LIBS
       LIBS=$SAVE_LIBS

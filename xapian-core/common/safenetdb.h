@@ -1,7 +1,7 @@
 /** @file safenetdb.h
  *  @brief #include <netdb.h>, with portability workarounds.
  */
-/* Copyright (C) 2013 Olly Betts
+/* Copyright (C) 2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +22,10 @@
 #ifndef XAPIAN_INCLUDED_SAFENETDB_H
 #define XAPIAN_INCLUDED_SAFENETDB_H
 
-#ifdef __WIN32__
-# error "safenetdb.h not supported under __WIN32__"
+#ifndef __WIN32__
+# include <netdb.h>
+#else
+# include <ws2tcpip.h> // For getaddrinfo().
 #endif
-
-#ifdef _AIX
-# define _USE_IRS // Needed to get hstrerror().
-#endif
-#include <netdb.h>
 
 #endif // XAPIAN_INCLUDED_SAFENETDB_H

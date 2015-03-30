@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #include <string>
 
 #include "remoteprotocol.h"
+#include "safeerrno.h"
+#include "safenetdb.h" // For EAI_* constants.
 #include "safeunistd.h"
 
 #ifdef __WIN32__
@@ -98,10 +100,62 @@ inline int socket_errno() {
 #  define EINPROGRESS WSAEINPROGRESS
 # endif
 
+// We must call closesocket() (instead of just close()) under __WIN32__ or
+// else the socket remains in the CLOSE_WAIT state.
+# define CLOSESOCKET(S) closesocket(S)
 #else
 // Use a macro so we don't need to pull safeerrno.h in here.
 # define socket_errno() errno
+
+# define CLOSESOCKET(S) close(S)
 #endif
+
+inline int eai_to_xapian(int e) {
+    // Under WIN32, the EAI_* constants are defined to be WSA_* constants with
+    // roughly equivalent meanings, so we can just let them be handled as any
+    // other WSA_* error codes would be.
+#ifndef __WIN32__
+    // Ensure they all have the same sign - this switch will fail to compile if
+    // we bitwise-or some 1 and some 2 bits to get 3.
+#define C(X) ((X) < 0 ? 2 : 1)
+    switch (0) {
+	case
+	    C(EAI_AGAIN)|
+	    C(EAI_BADFLAGS)|
+	    C(EAI_FAIL)|
+	    C(EAI_FAMILY)|
+	    C(EAI_MEMORY)|
+	    C(EAI_NONAME)|
+	    C(EAI_SERVICE)|
+	    C(EAI_SOCKTYPE)|
+	    C(EAI_SYSTEM)|
+#ifdef EAI_ADDRFAMILY
+	    // In RFC 2553 but not RFC 3493 or POSIX:
+	    C(EAI_ADDRFAMILY)|
+#endif
+#ifdef EAI_NODATA
+	    // In RFC 2553 but not RFC 3493 or POSIX:
+	    C(EAI_NODATA)|
+#endif
+#ifdef EAI_OVERFLOW
+	    // In RFC 3493 and POSIX but not RFC 2553:
+	    C(EAI_OVERFLOW)|
+#endif
+	    0: break;
+	case 3: break;
+    }
+#undef C
+
+    // EAI_SYSTEM means "look at errno".
+    if (e == EAI_SYSTEM)
+	return errno;
+    // POSIX only says that EAI_* constants are "non-zero".  On Linux they are
+    // negative, but allow for them being positive too.
+    if (EAI_FAIL > 0)
+	return -e;
+#endif
+    return e;
+}
 
 /** A RemoteConnection object provides a bidirectional connection to another
  *  RemoteConnection object on a remote machine.

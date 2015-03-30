@@ -1,3 +1,11 @@
+Mon Mar 30 01:16:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/error.cc,common/safenetdb.h,configure.ac,generate-exceptions,
+	  net/remoteconnection.h,net/tcpclient.cc,net/tcpserver.cc: Use
+	  getaddrinfo() instead of gethostbyname(), as a step towards
+	  IPv6 support (currently we still only look for IPv4 addresses).
+	  See #374.
+
 Sun Mar 29 03:56:12 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/Makefile.am: Add missing quoting.
