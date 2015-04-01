@@ -184,6 +184,7 @@ RemoteServer::run()
 		0, // MSG_GETMSET - used during a conversation.
 		0, // MSG_SHUTDOWN - handled by get_message().
 		&RemoteServer::msg_openmetadatakeylist,
+		&RemoteServer::msg_freqs,
 		&RemoteServer::msg_uniqueterms,
 	    };
 
