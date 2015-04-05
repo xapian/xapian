@@ -36,9 +36,9 @@
 using namespace std;
 
 static unsigned get_value(unsigned  key, const character_map *map_, int map_length) {
-    for (int i=0; i < map_length; ++i){
+    for (int i=0; i < map_length; ++i) {
         if (map_[i].key == key) return map_[i].value;
-    };
+    }
     return 0;
 }
 
@@ -109,7 +109,7 @@ string ArabicNormalizer::arabize(const string& word, int romanization_system) {
     for (; i != Xapian::Utf8Iterator(); ++i) {
         unsigned ch = *i, subst_ch = 0;
         subst_ch = get_value(ch, mapping, mapping_length);
-        if ( subst_ch != 0 ) {
+        if (subst_ch != 0) {
             Xapian::Unicode::append_utf8(new_word, subst_ch);
         }
     }
