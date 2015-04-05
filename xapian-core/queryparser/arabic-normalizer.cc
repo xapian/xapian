@@ -107,8 +107,8 @@ string ArabicNormalizer::arabize(const string& word, int romanization_system) {
     }
 
     for (; i != Xapian::Utf8Iterator(); ++i) {
-        unsigned ch = *i, subst_ch = 0;
-        subst_ch = get_value(ch, mapping, mapping_length);
+        unsigned ch = *i;
+        unsigned subst_ch = get_value(ch, mapping, mapping_length);
         if (subst_ch != 0) {
             Xapian::Unicode::append_utf8(new_word, subst_ch);
         }
