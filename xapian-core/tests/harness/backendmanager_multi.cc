@@ -1,7 +1,7 @@
 /** @file backendmanager_multi.cc
  * @brief BackendManager subclass for multi databases.
  */
-/* Copyright (C) 2007,2008,2009,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -36,16 +36,13 @@ using namespace std;
 BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
 	: subtype(subtype_)
 {
-    if (!(false
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	  || subtype == "glass"
+    if (subtype == "glass") return;
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	  || subtype == "chert"
+    if (subtype == "chert") return;
 #endif
-	 )) {
-	throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
-    }
+    throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
 }
 
 std::string

@@ -1,3 +1,9 @@
+Mon Apr 06 00:22:22 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_multi.cc,
+	  tests/harness/backendmanager_remote.cc: Cleaner code for checking
+	  the backend subtype.
+
 Mon Mar 30 03:22:29 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: If available, use F_DUPFD to dup to a file
