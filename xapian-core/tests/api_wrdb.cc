@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2015 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -646,6 +646,10 @@ DEFINE_TESTCASE(deldoc2, writable) {
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(2));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(3));
 
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(3));
+
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(3));
@@ -696,6 +700,9 @@ DEFINE_TESTCASE(deldoc3, writable) {
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(2));
+
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(2));
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
@@ -768,6 +775,7 @@ DEFINE_TESTCASE(deldoc4, writable) {
 	tout.str(string());
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
+	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
     }
 
@@ -1014,14 +1022,20 @@ DEFINE_TESTCASE(replacedoc3, writable) {
     TEST_EQUAL(db.get_doclength(2), 1);
     TEST_EQUAL(db.get_doclength(3), 4);
 
+    TEST_EQUAL(db.get_unique_terms(1), 3);
+    TEST_EQUAL(db.get_unique_terms(2), 1);
+    TEST_EQUAL(db.get_unique_terms(3), 4);
+
     Xapian::PostingIterator p = db.postlist_begin("foo");
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     TEST_EQUAL(p.get_doclength(), 3);
+    TEST_EQUAL(p.get_unique_terms(), 3);
     ++p;
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 3);
     TEST_EQUAL(p.get_doclength(), 4);
+    TEST_EQUAL(p.get_unique_terms(), 4);
     ++p;
     TEST_EQUAL(p, db.postlist_end("foo"));
 
@@ -1029,10 +1043,12 @@ DEFINE_TESTCASE(replacedoc3, writable) {
     TEST_NOT_EQUAL(p, db.postlist_end("world"));
     TEST_EQUAL(*p, 2);
     TEST_EQUAL(p.get_doclength(), 1);
+    TEST_EQUAL(p.get_unique_terms(), 1);
     ++p;
     TEST_NOT_EQUAL(p, db.postlist_end("world"));
     TEST_EQUAL(*p, 3);
     TEST_EQUAL(p.get_doclength(), 4);
+    TEST_EQUAL(p.get_unique_terms(), 4);
     ++p;
     TEST_EQUAL(p, db.postlist_end("world"));
 
@@ -1795,6 +1811,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(*p, 5);
     TEST_EQUAL(p.get_wdf(), 3);
     TEST_EQUAL(p.get_doclength(), 7);
+    TEST_EQUAL(p.get_unique_terms(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
 
@@ -1810,11 +1827,13 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(*p, 5);
     TEST_EQUAL(p.get_wdf(), 3);
     TEST_EQUAL(p.get_doclength(), 7);
+    TEST_EQUAL(p.get_unique_terms(), 2);
     ++p;
     TEST(p != db_w.postlist_end("foo"));
     TEST_EQUAL(*p, 6);
     TEST_EQUAL(p.get_wdf(), 1);
     TEST_EQUAL(p.get_doclength(), 2);
+    TEST_EQUAL(p.get_unique_terms(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
 

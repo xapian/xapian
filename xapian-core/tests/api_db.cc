@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1351,7 +1351,13 @@ DEFINE_TESTCASE(postlist6, backend) {
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));
+	TEST_EQUAL(i.get_unique_terms(), db.get_unique_terms(*i));
 	TEST_REL(i.get_wdf(),<=,i.get_doclength());
+	TEST_REL(1,<=,i.get_unique_terms());
+	// The next two aren't necessarily true if there are terms with wdf=0
+	// in the document, but that isn't the case here.
+	TEST_REL(i.get_unique_terms(),<=,i.get_doclength());
+	TEST_REL(i.get_wdf() + i.get_unique_terms() - 1,<=,i.get_doclength());
 	++i;
     }
     return true;

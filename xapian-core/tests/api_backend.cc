@@ -151,9 +151,11 @@ DEFINE_TESTCASE(modifiedpostlist1, writable) {
 DEFINE_TESTCASE(doclenaftercommit1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(1));
     db.replace_document(1, Xapian::Document());
     db.commit();
     TEST_EQUAL(db.get_doclength(1), 0);;
+    TEST_EQUAL(db.get_unique_terms(1), 0);;
     return true;
 }
 

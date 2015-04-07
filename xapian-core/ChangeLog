@@ -1,3 +1,9 @@
+Tue Apr 07 23:02:21 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/: Fix problems with get_unique_terms() on a modified
+	  chert database.
+	* tests/: Add more test coverage for get_unique_terms().
+
 Mon Apr 06 00:22:22 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_multi.cc,

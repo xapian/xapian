@@ -2148,6 +2148,7 @@ DEFINE_TESTCASE(alldocspl1, writable) {
     TEST(i != db.postlist_end(""));
     TEST_EQUAL(*i, 5);
     TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_unique_terms(), 0);
     TEST_EQUAL(i.get_wdf(), 1);
     ++i;
     TEST(i == db.postlist_end(""));
@@ -2171,6 +2172,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 5);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2183,6 +2185,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 5);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2199,11 +2202,13 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 5);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i != end);
 	TEST_EQUAL(*i, 7);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2217,6 +2222,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 7);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2231,6 +2237,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
     TEST(i != end);
     TEST_EQUAL(*i, 7);
     TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_unique_terms(), 0);
     TEST_EQUAL(i.get_wdf(), 1);
     ++i;
     TEST(i == end);

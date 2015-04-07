@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,6 +59,7 @@ DEFINE_TESTCASE(nosubdatabases1, !backend) {
     TEST_EQUAL(db.get_lastdocid(), 0);
     TEST_EQUAL(db.valuestream_begin(7), db.valuestream_end(7));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_unique_terms(1));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_document(1));
     return true;
 }

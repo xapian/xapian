@@ -710,6 +710,7 @@ ChertPostList::get_doclength() const
 {
     LOGCALL(DB, Xapian::termcount, "ChertPostList::get_doclength", NO_ARGS);
     Assert(have_started);
+    Assert(!is_at_end);
     Assert(this_db.get());
     RETURN(this_db->get_doclength(did));
 }
@@ -719,6 +720,7 @@ ChertPostList::get_unique_terms() const
 {
     LOGCALL(DB, Xapian::termcount, "ChertPostList::get_unique_terms", NO_ARGS);
     Assert(have_started);
+    Assert(!is_at_end);
     Assert(this_db.get());
     RETURN(this_db->get_unique_terms(did));
 }

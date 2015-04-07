@@ -1,7 +1,7 @@
 /* dbcheck.cc: test database contents and consistency.
  *
  * Copyright 2009 Richard Boulton
- * Copyright 2010 Olly Betts
+ * Copyright 2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -160,6 +160,7 @@ dbcheck(const Xapian::Database & db,
 	TEST_EQUAL(dociter.get_wdf(), 1);
 	Xapian::Document doc(db.get_document(did));
 	Xapian::termcount doclen(db.get_doclength(did));
+	Xapian::termcount unique_terms(db.get_unique_terms(did));
 	if (doclen < doclen_lower_bound)
 	    doclen_lower_bound = doclen;
 	if (doclen > doclen_upper_bound)
@@ -233,6 +234,7 @@ dbcheck(const Xapian::Database & db,
 	TEST(t2 == db.termlist_end(did));
 	Xapian::termcount expected_termcount = doc.termlist_count();
 	TEST_EQUAL(expected_termcount, found_termcount);
+	TEST_EQUAL(unique_terms, found_termcount);
 	TEST_EQUAL(doclen, wdf_sum);
     }
 
