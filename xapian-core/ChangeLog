@@ -1,3 +1,11 @@
+Wed Apr 08 11:59:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Add missing cast to unsigned char when
+	  we check if the value will fit in the double type.  On machines with
+	  IEEE-754 doubles (which is most current platforms), which change
+	  makes no difference as we're checking if the value cast to a double
+	  is > 255.<something> which is never the case.
+
 Wed Apr 08 10:42:43 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc: Avoid reading one byte past the end of
