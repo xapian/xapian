@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2010,2012 Olly Betts
+/* Copyright (C) 2006,2007,2010,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include <cfloat>
+#include <cstring>
 #include <iostream>
 
 #include "testsuite.h"
@@ -155,8 +156,16 @@ DEFINE_TESTCASE_(resolverelativepath1) {
 static void
 check_double_serialisation(double u)
 {
+    // Commonly C++ string implementations keep the string nul-terminated, and
+    // encoded.data() returns a pointer to a buffer including the nul (the same
+    // as encoded.c_str()).  This means that valgrind won't catch a read one
+    // past the end of the serialised value, so we copy just the serialised
+    // value into a temporary buffer.
+    char buf[16];
     string encoded = serialise_double(u);
-    const char * ptr = encoded.data();
+    TEST(encoded.size() < sizeof(buf));
+    memcpy(buf, encoded.data(), encoded.size());
+    const char * ptr = buf;
     const char * end = ptr + encoded.size();
     double v = unserialise_double(&ptr, end);
     if (ptr != end || u != v) {

@@ -1,3 +1,14 @@
+Wed Apr 08 10:42:43 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Avoid reading one byte past the end of
+	  the serialised value.  In practice this was harmless on most
+	  platforms, as dbl_max_mantissa is 255 for IEEE-754 format doubles,
+	  and at least GCC's std::string keeps the buffer nul-terminated.
+	  Reported by Germán M. Bravo in github PR#67.
+	* tests/unittest.cc: Copy the serialised value to a temporary buffer
+	  before calling unserialise_double() so that valgrind can detect if
+	  we read one byte past the end.
+
 Tue Apr 07 23:02:21 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/: Fix problems with get_unique_terms() on a modified
