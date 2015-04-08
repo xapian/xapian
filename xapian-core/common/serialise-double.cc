@@ -1,7 +1,7 @@
 /* @file serialise-double.cc
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2015 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -175,7 +175,7 @@ double unserialise_double(const char ** p, const char *end)
     static int dbl_max_exp = base256ify_double(dbl_max_mantissa);
     *p += mantissa_len;
     if (exp > dbl_max_exp ||
-	(exp == dbl_max_exp && double(**p) > dbl_max_mantissa)) {
+	(exp == dbl_max_exp && double(*p[-1]) > dbl_max_mantissa)) {
 	// The mantissa check should be precise provided that FLT_RADIX
 	// is a power of 2.
 	v = HUGE_VAL;

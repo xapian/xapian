@@ -1,3 +1,11 @@
+Tue May 05 14:05:14 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Avoid reading one byte past the end of
+	  the serialised value.  In practice this was harmless on most
+	  platforms, as dbl_max_mantissa is 255 for IEEE-754 format doubles,
+	  and at least GCC's std::string keeps the buffer nul-terminated.
+	  Reported by Germán M. Bravo in github PR#67.
+
 Tue May 05 14:01:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/flint_lock.cc: If available, use F_DUPFD to dup to a file
