@@ -174,26 +174,23 @@ double unserialise_double(const char ** p, const char *end)
     static double dbl_max_mantissa = DBL_MAX;
     static int dbl_max_exp = base256ify_double(dbl_max_mantissa);
     *p += mantissa_len;
-    if (exp > dbl_max_exp ||
-	(exp == dbl_max_exp && double(**p) > dbl_max_mantissa)) {
-	// The mantissa check should be precise provided that FLT_RADIX
-	// is a power of 2.
-	v = HUGE_VAL;
-    } else {
-	const char *q = *p;
-	while (mantissa_len--) {
-	    v *= 0.00390625; // 1/256
-	    v += double(static_cast<unsigned char>(*--q));
-	}
+    const char *q = *p;
+    while (mantissa_len--) {
+	v *= 0.00390625; // 1/256
+	v += double(static_cast<unsigned char>(*--q));
+    }
 
-	if (exp) v = ldexp(v, exp * 8);
+    if (exp > dbl_max_exp || (exp == dbl_max_exp && v > dbl_max_mantissa)) {
+	v = HUGE_VAL;
+    } else if (exp) {
+	v = ldexp(v, exp * 8);
+    }
 
 #if 0
 	if (v == 0.0) {
 	    // FIXME: handle underflow
 	}
 #endif
-    }
 
     if (negative) v = -v;
 
