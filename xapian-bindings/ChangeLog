@@ -1,3 +1,8 @@
+Thu Apr 09 21:47:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am: Ship generate-rdoc-stubs in the tarball.  Reported
+	  by Matthias Klose in https://bugs.debian.org/782270
+
 Fri Mar 13 10:33:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python3/Makefile.am: Fix 'make install' when

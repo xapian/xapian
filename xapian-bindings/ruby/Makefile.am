@@ -84,6 +84,8 @@ uninstall-local:
 docdatadir = $(docdir)/ruby
 EXTRA_DIST += docs/index.html
 
+EXTRA_DIST += generate-rdoc-stubs
+
 if DOCUMENTATION_RULES
 docdata_DATA = docs/index.html
 
