@@ -118,7 +118,9 @@ inline int eai_to_xapian(int e) {
     // Ensure they all have the same sign - this switch will fail to compile if
     // we bitwise-or some 1 and some 2 bits to get 3.
 #define C(X) ((X) < 0 ? 2 : 1)
-    switch (0) {
+    // Switch on a value there is a case for, to avoid clang warning:
+    // "no case matching constant switch condition '0'"
+    switch (3) {
 	case
 	    C(EAI_AGAIN)|
 	    C(EAI_BADFLAGS)|

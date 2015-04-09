@@ -1,3 +1,8 @@
+Thu Apr 09 00:40:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.h: Avoid compiler warning from clang in new
+	  getaddrinfo() code.
+
 Wed Apr 08 11:59:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc: Add missing cast to unsigned char when
