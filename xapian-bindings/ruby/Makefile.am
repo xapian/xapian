@@ -83,6 +83,8 @@ uninstall-local:
 	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
 	  done
 
+EXTRA_DIST += generate-rdoc-stubs
+
 if DOCUMENTATION_RULES
 BUILT_SOURCES += docs/rdocs/index.html
 
