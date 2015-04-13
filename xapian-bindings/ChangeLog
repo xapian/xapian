@@ -1,3 +1,9 @@
+Mon Apr 13 06:22:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tcl8/tcl.i: Adjust precedence of the typecheck typemap for wrapping
+	  constructing a query from a Tcl list so that we disambiguate this
+	  from the new OP_WILDCARD constructor correctly.
+
 Thu Apr 09 21:47:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am: Ship generate-rdoc-stubs in the tarball.  Reported
