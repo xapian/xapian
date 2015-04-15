@@ -1,3 +1,9 @@
+Tue May 05 14:12:42 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Fix bug in recent fix.
+	* tests/unittest.cc: Extend serialise_double() to provide regression
+	  test.
+
 Tue May 05 14:08:58 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc: Add missing cast to unsigned char when
