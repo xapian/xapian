@@ -1,3 +1,8 @@
+Tue May 05 14:17:16 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/query: When listing matching terms, don't make the commas
+	  italic.
+
 Tue May 05 12:43:59 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst: Document 'E' prefixed boolean terms for filtering
