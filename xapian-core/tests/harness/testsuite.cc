@@ -630,7 +630,13 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	if (do_this_test) {
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
-	    test_driver::test_result test_res = runtest(test);
+	    test_driver::test_result test_res;
+	    try {
+		test_res = runtest(test);
+	    } catch (...) {
+		out << col_yellow << " buggy compiler: catch (...) didn't catch!" << col_reset << endl;
+		test_res = SKIP;
+	    }
 #ifndef NO_LIBXAPIAN
 	    if (backendmanager)
 		backendmanager->clean_up();
