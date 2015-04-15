@@ -1,9 +1,3 @@
-Wed Apr 15 10:18:39 GMT 2015  Olly Betts <olly@tartarus.org>
-
-	* tests/harness/testsuite.cc: Add higher level exception check to try
-	  to stop clang exception handling issues from preventing the
-	  testsuite from running.
-
 Wed Apr 15 06:25:13 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc: Fix bug in recent fix.
