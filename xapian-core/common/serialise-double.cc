@@ -176,7 +176,7 @@ double unserialise_double(const char ** p, const char *end)
     *p += mantissa_len;
     if (exp > dbl_max_exp ||
 	(exp == dbl_max_exp &&
-	 double(static_cast<unsigned char>(*p[-1])) > dbl_max_mantissa)) {
+	 double(static_cast<unsigned char>((*p)[-1])) > dbl_max_mantissa)) {
 	// The mantissa check should be precise provided that FLT_RADIX
 	// is a power of 2.
 	v = HUGE_VAL;

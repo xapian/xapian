@@ -165,15 +165,18 @@ check_double_serialisation(double u)
     string encoded = serialise_double(u);
     TEST(encoded.size() < sizeof(buf));
     memcpy(buf, encoded.data(), encoded.size());
-    const char * ptr = buf;
-    const char * end = ptr + encoded.size();
-    double v = unserialise_double(&ptr, end);
-    if (ptr != end || u != v) {
+    // Put a NULL pointer either side, to catch incrementing/decrementing at
+    // the wrong level of indirection (regression test for a bug in an
+    // unreleased version).
+    const char * ptr[3] = { NULL, buf, NULL };
+    const char * end = ptr[1] + encoded.size();
+    double v = unserialise_double(&(ptr[1]), end);
+    if (ptr[1] != end || u != v) {
 	cout << u << " -> " << v << ", difference = " << v - u << endl;
 	cout << "FLT_RADIX = " << FLT_RADIX << endl;
 	cout << "DBL_MAX_EXP = " << DBL_MAX_EXP << endl;
     }
-    TEST_EQUAL(static_cast<const void*>(ptr), static_cast<const void*>(end));
+    TEST_EQUAL(static_cast<const void*>(ptr[1]), static_cast<const void*>(end));
 }
 
 // Check serialisation of doubles.

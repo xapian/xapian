@@ -1,3 +1,9 @@
+Wed Apr 15 06:25:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Fix bug in recent fix.
+	* tests/unittest.cc: Extend serialise_double() to provide regression
+	  test.
+
 Thu Apr 09 00:40:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.h: Avoid compiler warning from clang in new
