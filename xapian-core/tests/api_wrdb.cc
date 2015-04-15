@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2014,2015 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -423,8 +423,13 @@ DEFINE_TESTCASE(adddoc5, writable) {
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_wdf(), j.get_wdf());
+#ifndef __clang__
+		// clang's exception handling is buggy, and this exception
+		// leaks through catches in the test harness.  Confirmed as a
+		// bug by a clang developer, but it seems no fix is in sight.
 		TEST_EXCEPTION(Xapian::InvalidOperationError,
 			       (void)i.get_termfreq());
+#endif
 		TEST_NOT_EQUAL(0, j.get_termfreq());
 		if (*i == "foobar") {
 		    // termfreq of foobar is 2
