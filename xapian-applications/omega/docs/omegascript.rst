@@ -332,12 +332,17 @@ $prettyurl{URL}
 	still work if copied and pasted.
 
 $query[{PREFIX}]
-	query string for prefix PREFIX.
+	list of query strings for prefix PREFIX.  Any tab characters in the
+	query strings are converted to spaces before adding them to the list
+	(since an OmegaScript list is a string with tabs in).
 
 	If PREFIX is omitted or empty, this is built from CGI ``P`` variable(s)
 	plus possible added terms from ``ADD`` and ``X``.
 
 	If PREFIX is non-empty, this is built from CGI ``P.PREFIX`` variables.
+
+	Note: In Omega < 1.3.3, $query simply joins together the query strings
+	with spaces rather than returning a list.
 
 $querydescription
         a human readable description of the ``Xapian::Query`` object which

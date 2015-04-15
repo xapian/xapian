@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -188,10 +188,6 @@ try {
 	if (!v.empty()) fmtname = v;
     }
 
-    // The probabilistic query string.
-    string query_string;
-
-    // Get the probabilistic query.
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
@@ -215,38 +211,51 @@ try {
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, 0,
 						expand_param_k, &decider));
 #endif
+	    string morelike_query;
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
-		if (!query_string.empty()) query_string += ' ';
-		query_string += pretty_term(*i);
+		if (!morelike_query.empty()) morelike_query += ' ';
+		morelike_query += pretty_term(*i);
 	    }
+	    set_probabilistic_query(string(), morelike_query);
 	}
-    }
-
-    if (query_string.empty()) {
-	// collect the unprefixed prob fields
-	g = cgi_params.equal_range("P");
-	for (MCI i = g.first; i != g.second; i++) {
-	    const string & v = i->second;
-	    if (!v.empty()) {
-		if (!query_string.empty()) query_string += ' ';
-		query_string += v;
-	    }
-	}
-
+    } else {
 	// add expand/topterms terms if appropriate
+	string expand_terms;
 	if (cgi_params.find("ADD") != cgi_params.end()) {
 	    g = cgi_params.equal_range("X");
 	    for (MCI i = g.first; i != g.second; i++) {
 		const string & v = i->second;
 		if (!v.empty()) {
-		    if (!query_string.empty()) query_string += ' ';
-		    query_string += v;
+		    if (!expand_terms.empty())
+			expand_terms += ' ';
+		    expand_terms += v;
 		}
 	    }
 	}
-    } 
 
-    set_probabilistic_query(string(), query_string);
+	// collect the unprefixed prob fields
+	g = cgi_params.equal_range("P");
+	for (MCI i = g.first; i != g.second; i++) {
+	    const string & v = i->second;
+	    if (!v.empty()) {
+		// If there are expand terms, append them to the first
+		// non-empty P parameter.
+		if (!expand_terms.empty()) {
+		    string q = v;
+		    q += ' ';
+		    q += expand_terms;
+		    set_probabilistic_query(string(), q);
+		    expand_terms = string();
+		} else {
+		    set_probabilistic_query(string(), v);
+		}
+	    }
+	}
+
+	if (!expand_terms.empty()) {
+	    set_probabilistic_query(string(), expand_terms);
+	}
+    }
 
     g.first = cgi_params.lower_bound("P.");
     g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
@@ -255,7 +264,6 @@ try {
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
 	    set_probabilistic_query(pfx, v);
-	    // FIXME: Handled P.FOO specified more than once.
 	}
     }
 

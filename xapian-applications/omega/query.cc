@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -216,7 +216,7 @@ vet_filename(const string &filename)
 // BAD_QUERY parse error (message in error_msg)
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
-static map<string, string> probabilistic_query;
+static multimap<string, string> probabilistic_query;
 
 void
 set_probabilistic_query(const string & prefix, const string & s)
@@ -353,7 +353,7 @@ set_probabilistic(const string &oldp)
 	vector<Xapian::Query> queries;
 	queries.reserve(probabilistic_query.size());
 
-	map<string, string>::const_iterator j;
+	multimap<string, string>::const_iterator j;
 	for (j = probabilistic_query.begin();
 	     j != probabilistic_query.end();
 	     ++j) {
@@ -369,7 +369,9 @@ set_probabilistic(const string &oldp)
 	    unsigned f = read_qp_flags(prefix + ":flag_", default_flags);
 
 	    const string & query_string = j->second;
-	    queries.push_back(qp.parse_query(query_string, f, prefix));
+	    Xapian::Query q = qp.parse_query(query_string, f, prefix);
+	    if (!q.empty())
+		queries.push_back(q);
 	}
 	query = Xapian::Query(query.OP_AND, queries.begin(), queries.end());
     } catch (Xapian::QueryParserError &e) {
@@ -390,8 +392,9 @@ set_probabilistic(const string &oldp)
 
     // Check new query against the previous one
     if (oldp.empty()) {
-	// FIXME: should take into account other probabilistic prefixes here...
-	return probabilistic_query[string()].empty() ? SAME_QUERY : NEW_QUERY;
+	// If oldp was empty that means there were no probabilistic terms
+	// before, so if there are now this is a new query.
+	return n_new_terms ? NEW_QUERY : SAME_QUERY;
     }
 
     // The terms in oldp are separated by tabs.
@@ -1450,26 +1453,41 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_hitlist:
 #if 0
-		const char *q;
-		int ch;
-
 		url_query_string = "?DB=";
 		url_query_string += dbname;
-		url_query_string += "&P=";
-		q = probabilistic_query[string()].c_str();
-		while ((ch = *q++) != '\0') {
-		    switch (ch) {
-		     case '+':
-			url_query_string += "%2b";
-			break;
-		     case '"':
-			url_query_string += "%22";
-			break;
-		     case ' ':
-			ch = '+';
-			/* fall through */
-		     default:
-			url_query_string += ch;
+		multimap<string, string>::const_iterator j;
+		for (j = probabilistic_query.begin();
+		     j != probabilistic_query.end();
+		     ++j) {
+		    if (j->first.empty()) {
+			url_query_string += "&P=";
+		    } else {
+			url_query_string += "&P."
+			url_query_string += j->first;
+			url_query_string += '=';
+		    }
+		    const char *q = j->second.c_str();
+		    int ch;
+		    while ((ch = *q++) != '\0') {
+			switch (ch) {
+			 case '+':
+			    url_query_string += "%2b";
+			    break;
+			 case '"':
+			    url_query_string += "%22";
+			    break;
+			 case '%':
+			    url_query_string += "%25";
+			    break;
+			 case '&':
+			    url_query_string += "%26";
+			    break;
+			 case ' ':
+			    ch = '+';
+			    /* fall through */
+			 default:
+			    url_query_string += ch;
+			}
 		    }
 		}
 	        // add any boolean terms
@@ -1782,9 +1800,25 @@ eval(const string &fmt, const vector<string> &param)
 		value = args[0];
 		url_prettify(value);
 		break;
-	    case CMD_query:
-		value = probabilistic_query[args.empty() ? string() : args[0]];
+	    case CMD_query: {
+		pair<multimap<string, string>::const_iterator,
+		     multimap<string, string>::const_iterator> r;
+		r = probabilistic_query.equal_range(args.empty() ?
+						    string() : args[0]);
+		multimap<string, string>::const_iterator j;
+		for (j = r.first; j != r.second; ++j) {
+		    if (!value.empty()) value += '\t';
+		    const string & s = j->second;
+		    size_t start = 0, tab;
+		    while ((tab = s.find('\t', start)) != string::npos) {
+			value.append(s, start, tab - start);
+			value += ' ';
+			start = tab + 1;
+		    }
+		    value.append(s, start, string::npos);
+		}
 		break;
+	    }
 	    case CMD_querydescription:
 		value = query.get_description();
 		break;

@@ -1,3 +1,11 @@
+Wed Apr 15 01:12:33 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.rst,docs/omegascript.rst,omega.cc,query.cc: Fix
+	  handling of multiple P.<prefix> fields - previously only the first
+	  seen was used.  These fields are also now taken into account when
+	  deciding if the query has changed.  $query now returns an
+	  OmegaScript list with one entry for each CGI parameter passed.
+
 Wed Apr 15 01:11:08 GMT 2015  Olly Betts <olly@survex.com>
 
 	* templates/query: Fix setting setting of prefix map for P - in 1.3.2,
