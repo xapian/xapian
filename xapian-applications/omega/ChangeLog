@@ -1,3 +1,9 @@
+Wed Apr 15 01:11:08 GMT 2015  Olly Betts <olly@survex.com>
+
+	* templates/query: Fix setting setting of prefix map for P - in 1.3.2,
+	  this would failed to also search in the subject.  Now it also
+	  searches in the subject and topic.
+
 Wed Apr 15 01:09:29 GMT 2015  Olly Betts <olly@survex.com>
 
 	* templates/query: When listing matching terms, don't make the commas
