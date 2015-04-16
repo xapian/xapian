@@ -1,7 +1,7 @@
 /** @file errno_to_string.cc
  * @brief Convert errno value to std::string, thread-safely if possible
  */
-/* Copyright (C) 2014 Olly Betts
+/* Copyright (C) 2014,2015 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -27,7 +27,8 @@
 #include "errno_to_string.h"
 
 #include "safeerrno.h"
-#include <cstring>
+// <cstring> doesn't give us strerror_r() with Sun C++ 5.9.
+#include <string.h>
 #if (HAVE_DECL__SYS_ERRLIST && HAVE_DECL__SYS_NERR) || \
     (HAVE_DECL_SYS_ERRLIST && HAVE_DECL_SYS_NERR)
 # include <stdio.h>

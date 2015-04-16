@@ -1,3 +1,7 @@
+Tue May 05 14:26:01 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/errno_to_string.cc: Fix to build with Sun's C++ compiler.
+
 Tue May 05 14:24:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix XAPIAN_TEST_CXXFLAGS macro to append to the
