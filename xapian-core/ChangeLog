@@ -1,3 +1,8 @@
+Thu Apr 16 06:43:40 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix XAPIAN_TEST_CXXFLAGS macro to append to the
+	  existing value of the variable, not its name.
+
 Wed Apr 15 11:36:40 GMT 2015  Olly Betts <olly@tartarus.org>
 
 	* tests/api_wrdb.cc: Just #ifdef out the problematic part of the
