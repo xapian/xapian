@@ -1,3 +1,11 @@
+Mon Apr 20 12:53:04 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/phrasepostlist.cc,matcher/phrasepostlist.h: Reimplement
+	  OP_PHRASE check for loose phrases - the existing implementation was
+	  buggy, giving both false positives and false negatives in rare
+	  cases.  Fixes #653, reported by Jean-Francois Dockes.
+	* tests/api_query.cc: Add regression test loosephrase1.
+
 Thu Apr 16 06:51:31 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/errno_to_string.cc: Fix to build with Sun's C++ compiler.

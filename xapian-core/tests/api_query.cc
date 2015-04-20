@@ -278,3 +278,43 @@ DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     TEST_EQUAL(enq.get_mset(0, 5).size(), 2);
     return true;
 }
+
+struct loosephrase1_testcase {
+    int window;
+    const char * terms[3];
+    Xapian::docid result;
+};
+
+static const
+loosephrase1_testcase loosephrase1_testcases[] = {
+    { 5, { "expect", "to", "mset" }, 0 },
+    { 5, { "word", "well", "the" }, 2 },
+    { 5, { "if", "word", "doesnt" }, 0 },
+    { 5, { "at", "line", "three" }, 0 },
+    { 5, { "paragraph", "other", "the" }, 0 },
+    { 5, { "other", "the", "with" }, 0 },
+    { 0, { NULL, NULL, NULL }, 0 }
+};
+
+/// Regression test for bug fixed in 1.3.3 and 1.2.21.
+DEFINE_TESTCASE(loosephrase1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+
+    const loosephrase1_testcase * p = loosephrase1_testcases;
+    while (p->window) {
+	Xapian::Query q(Xapian::Query::OP_PHRASE,
+			p->terms, p->terms + 3, p->window);
+	enq.set_query(q);
+	Xapian::MSet mset = enq.get_mset(0, 10);
+	if (p->result == 0) {
+	    TEST(mset.empty());
+	} else {
+	    TEST_EQUAL(mset.size(), 1);
+	    TEST_EQUAL(*mset[0], p->result);
+	}
+	++p;
+    }
+
+    return true;
+}
