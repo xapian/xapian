@@ -1,3 +1,11 @@
+Tue May 05 23:27:19 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/phrasepostlist.cc,matcher/phrasepostlist.h: Reimplement
+	  OP_PHRASE check for loose phrases - the existing implementation was
+	  buggy, giving both false positives and false negatives in rare
+	  cases.  Fixes #653, reported by Jean-Francois Dockes.
+	* tests/api_query.cc: Add regression test loosephrase1.
+
 Tue May 05 23:24:21 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/queryinternal.cc,matcher/: Split NearPostList out into separate
