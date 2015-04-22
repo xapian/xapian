@@ -1,3 +1,7 @@
+Wed May 06 03:52:57 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/nearpostlist.cc: Fix "/*" within comment.
+
 Wed May 06 03:50:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/nearpostlist.cc,matcher/nearpostlist.h: Reimplement OP_NEAR
