@@ -1,3 +1,10 @@
+Wed Apr 22 12:53:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/nearpostlist.cc,matcher/nearpostlist.h: Reimplement OP_NEAR
+	  check.  The new implementation consistently requires the terms to
+	  occur at different positions, and fixes some false negatives.
+	* tests/api_query.cc: Add regression tests as loosenear1.
+
 Mon Apr 20 12:53:04 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/phrasepostlist.cc,matcher/phrasepostlist.h: Reimplement
