@@ -2,7 +2,7 @@
  * @brief Return docs containing terms within a specified window.
  */
 /* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
-/* Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
