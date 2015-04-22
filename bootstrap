@@ -316,9 +316,12 @@ esac
 swig_origin_url=${swig_origin_url}swig/swig.git
 handle_git_external swig 210266cd7004108b074fac9da4fc97d1df0adc53 "$swig_origin_url"
 
-# Equivalent to r17643 in the Xapian SVN tree:
-handle_git_external xapian-applications/omega/.common.git 7647fbab408bb146eff4ee5b31c04e573c7ebbb2 .
-ln -sf .common.git/xapian-core/common xapian-applications/omega/common
+# If someone's created a directory for common, leave it be.
+if [ ! -d xapian-applications/omega/common ] ; then
+  # Equivalent to r17643 in the Xapian SVN tree:
+  handle_git_external xapian-applications/omega/.common.git 7647fbab408bb146eff4ee5b31c04e573c7ebbb2 .
+  ln -sf .common.git/xapian-core/common xapian-applications/omega/common
+fi
 
 # Prefer http downloads as they are more likely to work through firewalls.
 use_ftp=no
