@@ -1,3 +1,9 @@
+Wed May 06 03:54:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/nearpostlist.cc: Be lazier about opening PositionList
+	  objects, as that causes a read of all the data for that
+	  positionlist.
+
 Wed May 06 03:54:05 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/nearpostlist.cc: Make code for scanning window for duplicate

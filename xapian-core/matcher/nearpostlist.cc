@@ -67,32 +67,39 @@ NearPostList::test_doc()
     LOGCALL(MATCH, bool, "NearPostList::test_doc", NO_ARGS);
 
     // Sort to put least frequent terms first, to try to minimise the number of
-    // position lists we need to read if we return false from the setup loop
-    // in do_test().  We use wdf as a proxy for the length of the position
-    // lists, since we'd need to read each position list to find its length and
-    // we're trying to avoid having to read them all if we can.
+    // position lists we need to read if there are no matches.
+    //
+    // We use wdf as a proxy for the length of the position lists, since we'd
+    // need to read each position list to find its length and we're trying to
+    // avoid having to read them all if we can.
     sort(terms.begin(), terms.end(), TermCmp());
 
-    Xapian::termpos last = 0;
-    for (size_t i = 0; i != terms.size(); ++i) {
-	PositionList * posl = poslists[i] = terms[i]->read_position_list();
-	if (i == 0 || last < window) {
-	    posl->next();
-	} else {
-	    // No point considering positions which we already know are before
-	    // the window.
-	    posl->skip_to(last - window + 1);
-	}
-	if (posl->at_end()) RETURN(false);
-	Xapian::termpos pos = posl->get_position();
-	if (pos > last) last = pos;
-    }
+    poslists[0] = terms[0]->read_position_list();
+    poslists[0]->next();
 
-    PositionList ** end = poslists + terms.size();
-    make_heap<PositionList **, Cmp>(poslists, end, Cmp());
+    Xapian::termpos last = poslists[0]->get_position();
+    PositionList ** end = poslists + 1;
 
     while (true) {
 	if (last - poslists[0]->get_position() < window) {
+	    if (size_t(end - poslists) != terms.size()) {
+		// We haven't started all the position lists yet, so start the
+		// next one.
+		PositionList * posl =
+		    terms[end - poslists]->read_position_list();
+		if (last < window) {
+		    posl->next();
+		} else {
+		    posl->skip_to(last - window + 1);
+		}
+		if (posl->at_end()) RETURN(false);
+		Xapian::termpos pos = posl->get_position();
+		if (pos > last) last = pos;
+		*end++ = posl;
+		push_heap<PositionList **, Cmp>(poslists, end, Cmp());
+		continue;
+	    }
+
 	    // We have all the terms within the specified window, but some may
 	    // be at the same position (in particular if the same term is
 	    // listed twice).  So we work through the terms in ascending
