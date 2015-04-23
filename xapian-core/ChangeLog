@@ -1,3 +1,10 @@
+Thu Apr 23 05:25:48 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/exactphrasepostlist.cc: When matching an exact phrase, if a
+	  term doesn't occur where we want, we can advance "term 0" using
+	  skip_to() based on where the term does next occur rather than just
+	  calling next() on it.
+
 Thu Apr 23 05:03:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/nearpostlist.cc: Be lazier about opening PositionList
