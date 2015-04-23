@@ -103,10 +103,10 @@ NearPostList::test_doc()
 	    // we need to adjust.
 	    PositionList ** i = end;
 	    pop_heap<PositionList **, Cmp>(poslists, i, Cmp());
-	    last = (*--i)->get_position();
+	    Xapian::termpos pos = (*--i)->get_position();
 	    while (true) {
 		pop_heap<PositionList **, Cmp>(poslists, i, Cmp());
-		if ((*--i)->get_position() == last) {
+		if ((*--i)->get_position() == pos) {
 		    (*i)->next();
 		    if ((*i)->at_end())
 			RETURN(false);
@@ -119,9 +119,9 @@ NearPostList::test_doc()
 		    push_heap<PositionList **, Cmp>(poslists, ++i, Cmp());
 		    continue;
 		}
-		last = (*i)->get_position();
+		pos = (*i)->get_position();
 		if (i == poslists) {
-		    Assert(last - end[-1]->get_position() < window);
+		    Assert(pos - end[-1]->get_position() < window);
 		    RETURN(true);
 		}
 	    }

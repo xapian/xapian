@@ -1,3 +1,8 @@
+Thu Apr 23 04:11:30 GMT 2015  Olly Betts <olly@survex.com>
+
+	* matcher/nearpostlist.cc: Make code for scanning window for duplicate
+	  positions a little clearer.
+
 Wed Apr 22 13:52:55 GMT 2015  Olly Betts <olly@tartarus.org>
 
 	* matcher/nearpostlist.cc: Fix "/*" within comment.
