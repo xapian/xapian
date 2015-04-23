@@ -1,7 +1,7 @@
 /** @file exactphrasepostlist.cc
  * @brief Return docs containing terms forming a particular exact phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010,2014 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,13 +115,18 @@ ExactPhrasePostList::test_doc()
 		// if less common.  Should we allow for the number of positions
 		// we've read from poslist[0] already?
 	    }
-	    Xapian::termpos required = base + poslists[i]->index;
+	    Xapian::termpos idx = poslists[i]->index;
+	    Xapian::termpos required = base + idx;
 	    poslists[i]->skip_to(required);
 	    if (poslists[i]->at_end()) RETURN(false);
-	    if (poslists[i]->get_position() != required) break;
-	    if (++i == terms.size()) RETURN(true);
+	    Xapian::termpos got = poslists[i]->get_position();
+	    if (got == required) {
+		if (++i == terms.size()) RETURN(true);
+		continue;
+	    }
+	    poslists[0]->skip_to(got - idx + idx0);
+	    break;
 	}
-	poslists[0]->next();
     } while (!poslists[0]->at_end());
     RETURN(false);
 }
