@@ -1,3 +1,10 @@
+Fri Apr 24 03:26:10 GMT 2015  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Don't wrap Query::LEAF_* - they're for internal
+	  use in xapian-core.
+	* python/smoketest.py: Add test_internal_enums_not_wrapped to check
+	  that xapian.Query has no attributes starting with "LEAF_".
+
 Mon Apr 13 06:22:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tcl8/tcl.i: Adjust precedence of the typecheck typemap for wrapping

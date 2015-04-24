@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -205,6 +205,10 @@ STANDARD_IGNORES(Xapian, Query)
 %ignore *::operator*;
 %ignore *::operator/;
 #endif
+%ignore Xapian::Query::LEAF_TERM;
+%ignore Xapian::Query::LEAF_POSTING_SOURCE;
+%ignore Xapian::Query::LEAF_MATCH_ALL;
+%ignore Xapian::Query::LEAF_MATCH_NOTHING;
 
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Query::Internal;
 #if defined SWIGCSHARP || defined SWIGJAVA || defined SWIGPERL || \
