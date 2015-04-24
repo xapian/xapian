@@ -245,8 +245,6 @@ ChertDatabase::open_tables_consistent()
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
-    value_manager.reset();
-
     bool fully_opened = false;
     int tries_left = MAX_OPEN_RETRIES;
     while (!fully_opened && (tries_left--) > 0) {
@@ -281,6 +279,8 @@ ChertDatabase::open_tables_consistent()
 	}
     }
 
+    value_manager.reset();
+
     if (!fully_opened) {
 	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
     }
@@ -303,13 +303,13 @@ ChertDatabase::open_tables(chert_revision_number_t revision)
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
-    value_manager.reset();
-
     spelling_table.open(revision);
     synonym_table.open(revision);
     termlist_table.open(revision);
     position_table.open(revision);
     postlist_table.open(revision);
+
+    value_manager.reset();
 }
 
 chert_revision_number_t
