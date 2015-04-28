@@ -1,3 +1,13 @@
+Tue Apr 28 04:51:33 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_cursor.cc,backends/chert/chert_table.cc,
+	  backends/glass/glass_cursor.cc,backends/glass/glass_table.cc:
+	  Potentially increment the cursor version on cancel() or when the
+	  database is reopened, and flag the current cursor version as used
+	  when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+	* tests/api_backend.cc: Add regression test cursorbug1 based on
+	  reproducer supplied by Germán.
+
 Thu Apr 23 05:25:48 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/exactphrasepostlist.cc: When matching an exact phrase, if a
