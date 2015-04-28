@@ -157,6 +157,7 @@ class ChertValueManager {
     void reset() {
 	/// Ignore any old cached valuestats.
 	mru_slot = Xapian::BAD_VALUENO;
+	cursor.reset(0);
     }
 
     bool is_modified() const {
