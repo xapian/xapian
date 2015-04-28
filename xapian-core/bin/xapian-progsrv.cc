@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     /* Unlike xapian-tcpsrv, xapian-progsrv only has a single 'connection'
      * which is established immediately.  So, there is no point in attempting
      * to open the database(s) to check they work - if they can't be opened the
-     * client get an exception right away anyway.
+     * client will get an exception right away anyway.
      */
     vector<string> dbnames(argv + optind, argv + argc);
 
