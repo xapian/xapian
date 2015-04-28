@@ -1450,6 +1450,11 @@ BrassTable::basic_open(bool revision_supplied, brass_revision_number_t revision_
 
     base_letter = ch;
 
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
+
     /* ready to open the main file */
 
     RETURN(true);
@@ -1987,6 +1992,11 @@ BrassTable::cancel()
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
+
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
 }
 
 /************ B-tree reading ************/

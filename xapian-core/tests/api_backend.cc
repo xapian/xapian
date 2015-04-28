@@ -1016,3 +1016,45 @@ DEFINE_TESTCASE(dbfilefd012, brass || chert) {
 
     return true;
 }
+
+/// Regression test for #675, fixed in 1.3.3 and 1.2.21.
+DEFINE_TESTCASE(cursorbug1, brass || chert) {
+    Xapian::WritableDatabase wdb = get_writable_database();
+    Xapian::Database db = get_writable_database_as_database();
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query::MatchAll);
+    Xapian::MSet mset;
+    // The original problem triggers for chert and glass on repeat==7.
+    for (int repeat = 0; repeat < 10; ++repeat) {
+	tout.str(string());
+	tout << "iteration #" << repeat << endl;
+
+	const int ITEMS = 10;
+	int free_id = db.get_doccount();
+	int offset = max(free_id, ITEMS * 2) - (ITEMS * 2);
+	int limit = offset + (ITEMS * 2);
+
+	mset = enq.get_mset(offset, limit);
+	for (Xapian::MSetIterator m1 = mset.begin(); m1 != mset.end(); ++m1) {
+	    (void)m1.get_document().get_value(0);
+	}
+
+	for (int i = free_id; i <= free_id + ITEMS; ++i) {
+	    Xapian::Document doc;
+	    const string & id = str(i);
+	    string qterm = "Q" + id;
+	    doc.add_value(0, id);
+	    doc.add_boolean_term(qterm);
+	    wdb.replace_document(qterm, doc);
+	}
+	wdb.commit();
+
+	db.reopen();
+	mset = enq.get_mset(offset, limit);
+	for (Xapian::MSetIterator m2 = mset.begin(); m2 != mset.end(); ++m2) {
+	    (void)m2.get_document().get_value(0);
+	}
+    }
+
+    return true;
+}

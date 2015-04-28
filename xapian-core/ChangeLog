@@ -1,3 +1,13 @@
+Tue May 05 15:02:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_cursor.cc,backends/brass/_table.cc,
+	  backends/chert/chert_cursor.cc,backends/chert/chert_table.cc:
+	  Potentially increment the cursor version on cancel() or when the
+	  database is reopened, and flag the current cursor version as used
+	  when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+	* tests/api_backend.cc: Add regression test cursorbug1 based on
+	  reproducer supplied by Germán.
+
 Tue May 05 14:26:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/errno_to_string.cc: Fix to build with Sun's C++ compiler.
