@@ -1,3 +1,9 @@
+Wed Apr 29 03:00:32 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/glass/glass_database.cc:
+	  Fix get_changeset_revisions() not to potentially read uninitialised
+	  data if a changeset file is truncated.
+
 Wed Apr 29 00:09:57 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_databasereplicator.cc: Use return value of
