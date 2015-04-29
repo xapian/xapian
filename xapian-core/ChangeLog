@@ -1,3 +1,9 @@
+Wed May 06 04:02:33 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/glass/glass_database.cc:
+	  Fix get_changeset_revisions() not to potentially read uninitialised
+	  data if a changeset file is truncated.
+
 Wed May 06 04:00:20 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/exactphrasepostlist.cc: When matching an exact phrase, if a
