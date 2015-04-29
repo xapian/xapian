@@ -1,3 +1,9 @@
+Wed May 06 05:27:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_databasereplicator.cc: Use return value of
+	  get_message_chunk() rather than ignoring it and repeating the check
+	  in the caller.
+
 Wed May 06 05:24:52 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/brass/,backends/chert/chert_database.cc,
