@@ -109,9 +109,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 
     // Get the new base file into buf.
     write_and_clear_changes(changes_fd, buf, ptr - buf.data());
-    conn.get_message_chunk(buf, base_size, end_time);
-
-    if (buf.size() < base_size)
+    if (!conn.get_message_chunk(buf, base_size, end_time))
 	throw NetworkError("Unexpected end of changeset (6)");
 
     // Write base_size bytes from start of buf to base file for tablename
@@ -188,8 +186,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		break;
 	    --block_number;
 
-	    conn.get_message_chunk(buf, changeset_blocksize, end_time);
-	    if (buf.size() < changeset_blocksize)
+	    if (!conn.get_message_chunk(buf, changeset_blocksize, end_time))
 		throw NetworkError("Incomplete block in changeset");
 
 	    io_write_block(fd, buf.data(), changeset_blocksize, block_number);

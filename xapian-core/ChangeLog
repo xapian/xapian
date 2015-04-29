@@ -1,3 +1,9 @@
+Wed Apr 29 00:09:57 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_databasereplicator.cc: Use return value of
+	  get_message_chunk() rather than ignoring it and repeating the check
+	  in the caller.
+
 Tue Apr 28 22:22:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* bin/xapian-progsrv.cc: Fix comment typo.
