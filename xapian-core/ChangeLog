@@ -1,3 +1,8 @@
+Thu Apr 30 14:22:10 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: OS X >= 10.4 apparently supports symbol visibility, so
+	  update comment.
+
 Thu Apr 30 14:21:37 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/unordered_map.h: No longer relevant now we require C++11.

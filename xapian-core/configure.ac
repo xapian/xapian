@@ -1012,8 +1012,8 @@ if test yes = "$GXX"; then
   esac
 
   if test no != "$enable_visibility"; then
-    dnl GCC doesn't support symbol visibility on all platforms (notably
-    dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+    dnl GCC doesn't support symbol visibility on all platforms (e.g. it isn't
+    dnl on mingw).
     AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
     if echo 'int bar() __attribute__((visibility("default"))); int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
       AC_MSG_RESULT([yes])
