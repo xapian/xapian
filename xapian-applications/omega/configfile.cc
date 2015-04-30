@@ -2,7 +2,7 @@
  *
  * Copyright 2001 Lemur Consulting Ltd.
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2005,2007,2010 Olly Betts
+ * Copyright 2003,2005,2007,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,7 @@
 #include "safesysstat.h"
 #include "safeunistd.h"
 #include <cstdlib>
+#include "stringutils.h"
 
 #include "configfile.h"
 
@@ -68,20 +69,20 @@ try_read_config_file(const char * cfile)
 	in.getline(line, sizeof(line));
 
 	char *p = line;
-	while (isspace((unsigned char)*p)) ++p;
+	while (C_isspace(*p)) ++p;
 	if (!*p || *p == '#') continue; // Ignore blank line and comments
 
 	char *q = p;
-	while (*q && !isspace((unsigned char)*q)) ++q;
+	while (*q && !C_isspace(*q)) ++q;
 	string name(p, q - p);
 
 	p = q;
-	while (isspace((unsigned char)*p)) ++p;
+	while (C_isspace(*p)) ++p;
 	q = p;
-	while (*q && !isspace((unsigned char)*q)) ++q;
+	while (*q && !C_isspace(*q)) ++q;
 	string value(p, q - p);
 
-	while (*q && isspace((unsigned char)*q)) ++q;
+	while (*q && C_isspace(*q)) ++q;
 	if (value.empty() || *q) {
 	    throw string("Bad line in configuration file `") + cfile + "'";
 	}

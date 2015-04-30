@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,26 +63,26 @@ static int delcount;
 inline static bool
 p_space(unsigned int c)
 {
-    return isspace(static_cast<unsigned char>(c));
+    return C_isspace(c);
 }
 
 inline static bool
 p_notspace(unsigned int c)
 {
-    return !isspace(static_cast<unsigned char>(c));
+    return !C_isspace(c);
 }
 
 inline static bool
 p_notalpha(unsigned int c)
 {
-    return !isalpha(static_cast<unsigned char>(c));
+    return !C_isalpha(c);
 }
 
 // Characters allowed as second or subsequent characters in a fieldname
 inline static bool
 p_notfieldnamechar(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '_';
+    return !C_isalnum(c) && c != '_';
 }
 
 inline bool
@@ -164,7 +164,7 @@ parse_index_script(const string &filename)
 	i = find_if(s.begin(), s.end(), p_notspace);
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
-	    if (!isalnum(static_cast<unsigned char>(*i))) {
+	    if (!C_isalnum(*i)) {
 		cout << filename << ':' << line_no
 		     << ": field name must start with alphanumeric" << endl;
 		exit(1);

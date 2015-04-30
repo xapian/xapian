@@ -1,3 +1,11 @@
+Wed May 06 04:53:56 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configfile.cc,htmlparse.cc,myhtmlparse.cc,omega.cc,omindex.cc,
+	  query.cc,scriptindex.cc,urldecode.h: Consistently use C_isupper(),
+	  C_toupper(), etc as these versions aren't affected by the locale
+	  setting, and also allow signed char values (so we don't need to
+	  cast the argument to unsigned char).
+
 Tue May 05 14:17:16 GMT 2015  Olly Betts <olly@survex.com>
 
 	* templates/query: When listing matching terms, don't make the commas

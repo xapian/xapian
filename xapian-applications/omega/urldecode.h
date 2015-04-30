@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include "stringutils.h"
 
 struct CGIParameterHandler {
     void operator()(const std::string&, const std::string&) const;
@@ -65,7 +66,7 @@ process_ch:
 		    break;
 		unsigned char hex1 = *begin;
 		++begin;
-		if (begin == end || !isxdigit(hex1)) {
+		if (begin == end || !C_isxdigit(hex1)) {
 		    val += ch;
 		    ch = hex1;
 		    if (begin == end)
@@ -74,7 +75,7 @@ process_ch:
 		}
 		unsigned char hex2 = *begin;
 		++begin;
-		if (!isxdigit(hex2)) {
+		if (!C_isxdigit(hex2)) {
 		    val += ch;
 		    val += hex1;
 		    ch = hex2;
@@ -286,7 +287,7 @@ encoded_ucont(const std::string & s, size_t i)
 {
     return s[i] == '%' &&
 	url_chars[static_cast<unsigned char>(s[i + 1])] == OK89AB &&
-	isxdigit(static_cast<unsigned char>(s[i + 2]));
+	C_isxdigit(s[i + 2]);
 }
 
 /** Prettify a URL.
@@ -319,8 +320,7 @@ url_prettify(std::string & url)
     url.reserve(in.size());
     while (true) {
 	// We've checked there are at least two bytes after the '%' already.
-	if (isxdigit(static_cast<unsigned char>(in[pcent + 1])) &&
-	    isxdigit(static_cast<unsigned char>(in[pcent + 2]))) {
+	if (C_isxdigit(in[pcent + 1]) && C_isxdigit(in[pcent + 2])) {
 	    int ch = (hex_decode_(in[pcent + 1]) << 4);
 	    ch |= hex_decode_(in[pcent + 2]);
 	    bool safe = true;

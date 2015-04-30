@@ -176,7 +176,7 @@ prefix_from_term(string &prefix, const string &term)
     if (term[0] == 'X') {
 	const string::const_iterator begin = term.begin();
 	string::const_iterator i = begin + 1;
-	while (i != term.end() && isupper(static_cast<unsigned char>(*i))) ++i;
+	while (i != term.end() && C_isupper(*i)) ++i;
 	prefix.assign(begin, i);
 	if (i != term.end() && *i == ':') ++i;
 	return i - begin;
@@ -568,14 +568,14 @@ static int word_in_list(const string& word, const string& list)
 inline static bool
 p_notid(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '_';
+    return !C_isalnum(c) && c != '_';
 }
 
 // Not a character in an HTML tag name
 inline static bool
 p_nottag(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '-';
+    return !C_isalnum(c) && c != '.' && c != '-';
 }
 
 // FIXME: shares algorithm with indextext.cc!
@@ -599,10 +599,10 @@ html_highlight(const string &s, const string &list,
 	string term;
 	string word;
 	const char *l = j.raw();
-	if (*first < 128 && isupper(*first)) {
+	if (*first < 128 && C_isupper(*first)) {
 	    j = first;
 	    Xapian::Unicode::append_utf8(term, *j);
-	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
+	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && C_isupper(*j)) {
 		Xapian::Unicode::append_utf8(term, *j);
 	    }
 	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
@@ -2053,13 +2053,13 @@ pretty_term(string term)
     if (term.length() <= 1) return term;
 
     // Assume unprefixed terms are unstemmed.
-    if (!isupper(term[0])) return term;
+    if (!C_isupper(term[0])) return term;
 
     // FIXME: keep this for now in case people are still generating 'R' terms?
     // But if we assumed unprefixed terms are unstemmed, what use is this?
     if (term[0] == 'R') {
 	term.erase(0, 1);
-	term[0] = toupper(static_cast<unsigned char>(term[0]));
+	term[0] = C_toupper(term[0]);
 	return term;
     }
 
@@ -2079,7 +2079,7 @@ pretty_term(string term)
     bool add_quotes = false;
 
     // Check if the term has a prefix.
-    if (isupper(term[0])) {
+    if (C_isupper(term[0])) {
 	// See if we have this prefix in the termprefix_to_userprefix map.  If
 	// so, just reverse the mapping (e.g. turn 'Sfish' into 'subject:fish').
 	string prefix;
@@ -2306,7 +2306,7 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
 	       ch = term[0];
 	    }
 
-	    if (isupper(ch)) {
+	    if (C_isupper(ch)) {
 		string prefix;
 		size_t prefix_len = prefix_from_term(prefix, term);
 		term.erase(0, prefix_len);
@@ -2325,7 +2325,7 @@ OmegaExpandDecider::operator()(const string & term) const
     unsigned char ch = term[0];
 
     // Reject terms with a prefix.
-    if (isupper(ch)) return false;
+    if (C_isupper(ch)) return false;
 
     {
 	MyStopper stopper;
@@ -2334,7 +2334,7 @@ OmegaExpandDecider::operator()(const string & term) const
     }
 
     // Reject small numbers.
-    if (term.size() < 4 && isdigit(ch)) return false;
+    if (term.size() < 4 && C_isdigit(ch)) return false;
 
     // Reject terms containing a space.
     if (term.find(' ') != string::npos) return false;

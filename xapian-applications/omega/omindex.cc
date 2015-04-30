@@ -112,7 +112,7 @@ static map<string, string> commands;
 inline static bool
 p_notalnum(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c));
+    return !C_isalnum(c);
 }
 
 
@@ -297,7 +297,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	string::iterator i;
 	for (i = ext.begin(); i != ext.end(); ++i) {
 	    if (*i >= 'A' && *i <= 'Z') {
-		*i = tolower(*i);
+		*i = C_tolower(*i);
 		changed = true;
 	    }
 	}
