@@ -1,3 +1,8 @@
+Wed May 06 04:56:39 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Add common/stringutils.cc to urlenctest_SOURCES, needed
+	  now urldecode.h uses C_isxdigit().
+
 Wed May 06 04:53:56 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configfile.cc,htmlparse.cc,myhtmlparse.cc,omega.cc,omindex.cc,
