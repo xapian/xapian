@@ -74,9 +74,6 @@ the source directory) from the build directory, like so:
   cd BUILD
   ../configure
 
-IRIX make doesn't handle this correctly - either build in the source tree or
-use "smake -M" (or better still, just use GNU make if you have it installed!)
-
 Options to give to configure
 ============================
 
