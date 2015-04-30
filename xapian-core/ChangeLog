@@ -1,3 +1,7 @@
+Thu Apr 30 10:48:11 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING: Update URL.
+
 Thu Apr 30 10:47:10 GMT 2015  Olly Betts <olly@survex.com>
 
 	* m4/ax_cxx_compile_stdcxx_11.m4: Add support for HP's aCC (untested
