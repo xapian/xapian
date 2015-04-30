@@ -1,3 +1,8 @@
+Thu Apr 30 12:17:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* bin/xapian-tcpsrv.cc: Use STRINGIZE() to include defaults literally
+	  in string for --help.
+
 Thu Apr 30 10:48:11 GMT 2015  Olly Betts <olly@survex.com>
 
 	* HACKING: Update URL.
