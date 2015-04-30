@@ -1,3 +1,7 @@
+Wed May 06 05:00:38 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING: Update URL.
+
 Wed May 06 04:59:33 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac,xapian-config.in: Rename ANSI_CXXFLAGS to ISO_CXXFLAGS

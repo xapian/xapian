@@ -1150,8 +1150,8 @@ to follow the style of the existing code.  In particular:
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").
   Finding the size of a container may not be a constant time operation for
   all containers (e.g. std::list may not be, and indeed isn't for GCC - see
-  http://gcc.gnu.org/onlinedocs/libstdc++/23_containers/howto.html#6).  And
-  the "empty()" form makes the intent of the test more explicit.
+  https://gcc.gnu.org/onlinedocs/libstdc++/manual/containers.html#sequences.list.size).
+  Also the "empty()" form makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
   end of the "if" block (e.g. by "return", "continue", "break", "throw").  This
