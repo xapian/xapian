@@ -308,14 +308,14 @@ dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST([ldflags])
 
 WARNING_CXXFLAGS=
-ANSI_CXXFLAGS=
-AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
+ISO_CXXFLAGS=
+AC_MSG_CHECKING([for $CXX options to enable ISO C++ mode])
 if test yes = "$GXX"; then
   compiler=gcc
   AC_MSG_RESULT([none required])
 else
   compiler=unknown
-  dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
+  dnl Some C++ compilers need a special switch to select ISO C++ mode.  Do
   dnl this early in configure so such settings are used for other tests.
   case $CXX in
     aCC|*/aCC)
@@ -333,7 +333,7 @@ else
       dnl "Allow various C++ extensions.  Currently -ext enables the 64 bit
       dnl integer (long long) data type."  This seems to be implied by -AA
       dnl but otherwise is needed to allow "cout << (long long)42;".
-      ANSI_CXXFLAGS="-AA"
+      ISO_CXXFLAGS="-AA"
       dnl +w turns on more warnings.
       dnl +wlint turns on "lint-like" warnings.
       dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
@@ -361,7 +361,7 @@ else
       dnl
       dnl Check that the compiler recognises these flags to avoid problems
       dnl with other compilers named cxx.
-      XAPIAN_TEST_CXXFLAGS([-std strict_ansi], [ANSI_CXXFLAGS]) ;;
+      XAPIAN_TEST_CXXFLAGS([-std strict_ansi], [ISO_CXXFLAGS]) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
       case `$CXX -V 2>&1` in
@@ -374,18 +374,18 @@ else
 	dnl
 	dnl If the compiler supports -library=stdcxx4 but the user has
 	dnl specified CXXFLAGS=-library=stlport4, then this should put
-	dnl -library=stlport4 in ANSI_CXXFLAGS, since the compiler will give
+	dnl -library=stlport4 in ISO_CXXFLAGS, since the compiler will give
 	dnl an error when passed -library=stlport4 -library=stdcxx4.
 	for l in stdcxx4 stlport4 Cstd ; do
 	  dnl We avoid -library-$l,Crun as libtool looks for
 	  dnl " -library=stlport4 " (with the spaces either side).
 	  f="-library=$l -library=Crun"
-	  XAPIAN_TEST_CXXFLAGS([$f], [ANSI_CXXFLAGS], [break])
+	  XAPIAN_TEST_CXXFLAGS([$f], [ISO_CXXFLAGS], [break])
 	done
 	dnl Older versions of this compiler defaulted to a non-standard
 	dnl lifetime for temporary objects, and -features=tmplife is required
 	dnl for standard conforming behaviour (which Xapian code expects).
-	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ANSI_CXXFLAGS])
+	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ISO_CXXFLAGS])
 	;;
       *)
 	case `$CXX -v 2>&1` in
@@ -393,15 +393,15 @@ else
 	  dnl On stderr: MIPSpro Compilers: Version 7.4.2m
 	  dnl Select ANSI mode for SGI's CC with "-LANG:std".  Also, we have to
 	  dnl specify "-ptused" or we get strange template linking errors.
-	  ANSI_CXXFLAGS="-LANG:std -ptused" ;;
+	  ISO_CXXFLAGS="-LANG:std -ptused" ;;
 	esac
 	;;
       esac
       ;;
   esac
 
-  if test -n "$ANSI_CXXFLAGS" ; then
-    AC_MSG_RESULT([$ANSI_CXXFLAGS])
+  if test -n "$ISO_CXXFLAGS" ; then
+    AC_MSG_RESULT([$ISO_CXXFLAGS])
   else
     dnl Perhaps we should try to compile some code which uses iostream, for
     dnl scoping, etc, but maintaining such a snippet to cover everything we
@@ -415,14 +415,14 @@ save_CXXFLAGS=$CXXFLAGS
 
 dnl Put any flags for ANSI mode in CXXFLAGS for the duration of configure
 dnl since we want to make feature tests using those flags.
-if test -n "$ANSI_CXXFLAGS" ; then
-  CXXFLAGS="$ANSI_CXXFLAGS $CXXFLAGS"
-  AM_CXXFLAGS="$ANSI_CXXFLAGS $AM_CXXFLAGS"
+if test -n "$ISO_CXXFLAGS" ; then
+  CXXFLAGS="$ISO_CXXFLAGS $CXXFLAGS"
+  AM_CXXFLAGS="$ISO_CXXFLAGS $AM_CXXFLAGS"
 fi
 
 dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
-AC_SUBST([ANSI_CXXFLAGS])
+AC_SUBST([ISO_CXXFLAGS])
 
 dnl x86 has excess precision issues with 387 FP instructions, which are
 dnl avoided by using SSE instructions instead.  This is also faster (~6% in

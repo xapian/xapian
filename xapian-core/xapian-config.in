@@ -220,7 +220,7 @@ for arg in $actions ; do
 	    esac
 	fi
 	cxxflags=
-	[ -n "@ANSI_CXXFLAGS@" ] && cxxflags="@ANSI_CXXFLAGS@ "
+	[ -n "@ISO_CXXFLAGS@" ] && cxxflags="@ISO_CXXFLAGS@ "
 	echo "$cxxflags$I"
 	;;
 
