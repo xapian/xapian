@@ -74,7 +74,6 @@ PWRITE_PROTOTYPE
 #include "debuglog.h"
 #include "errno_to_string.h"
 #include "io_utils.h"
-#include "omassert.h"
 #include "pack.h"
 #include "unaligned.h"
 #include "utils.h"
