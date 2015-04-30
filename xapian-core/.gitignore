@@ -23,7 +23,8 @@
 /.libs
 /autom4te*.cache
 /depcomp
-/m4
+/m4/libtool.m4
+/m4/lt*.m4
 /missing
 /makemanpage
 /sourcedoc.mk
