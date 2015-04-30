@@ -1,3 +1,9 @@
+Thu Apr 30 05:30:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* m4/ax_cxx_compile_stdcxx_11.m4: Add macro from autoconf-archive to
+	  detect any compiler options needed to enable C++11 support (not yet
+	  used).
+
 Thu Apr 30 05:14:56 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/posixy_wrapper.cc: O_RDONLY, etc are better described as
