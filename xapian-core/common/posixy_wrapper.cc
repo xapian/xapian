@@ -145,7 +145,7 @@ posixy_unlink(const char * filename)
 int
 posixy_open(const char *filename, int flags)
 {
-    /* Translate ANSI read mode to Windows access mode */
+    /* Translate POSIX read mode to Windows access mode */
     DWORD dwDesiredAccess = GENERIC_READ;
     switch (flags & (O_RDONLY | O_RDWR | O_WRONLY)) {
 	case O_RDONLY:
@@ -161,7 +161,7 @@ posixy_open(const char *filename, int flags)
     /* Subsequent operations may open this file to read, write or delete it */
     DWORD dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
-    /* Translate ANSI creation mode to Windows creation mode */
+    /* Translate POSIX creation mode to Windows creation mode */
     DWORD dwCreationDisposition = OPEN_EXISTING;
     switch (flags & (O_CREAT | O_TRUNC | O_EXCL)) {
 	case O_EXCL:

@@ -1,3 +1,8 @@
+Thu Apr 30 05:14:56 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/posixy_wrapper.cc: O_RDONLY, etc are better described as
+	  "POSIX" than "ANSI".
+
 Thu Apr 30 05:12:33 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac,xapian-config.in: Rename ANSI_CXXFLAGS to ISO_CXXFLAGS
