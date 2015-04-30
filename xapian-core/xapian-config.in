@@ -230,7 +230,7 @@ for arg in $actions ; do
 	    # in the include path if it's different to srcdir.
 	    set_I_for_uninstalled
 	else
-	    I="-I@includedir@"
+	    I="-I@incdir@"
 	fi
 	echo "$I"
 	;;
