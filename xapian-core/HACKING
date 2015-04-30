@@ -1088,13 +1088,8 @@ There are several variants of Assert:
   won't be checked, but Asserts will.  You can also use AssertRelParanoid
   and AssertEqParanoid.
 
-- CompileTimeAssert(P) -- if P is a constant expression, CompileTimeAssert
-  can be used to assert it is non-zero at compile-time - the P evaluates
-  to zero, then the compilation will fail with an error.  CompileTimeAssert
-  can only be used inside a function body.  There should be no runtime
-  overhead for using CompileTimeAssert(), so CompileTimeAssert() is always
-  enabled, regardless of whether --enable-assertions is passed to configure
-  or not.
+- CompileTimeAssert(P) -- this has now been removed, since we require C++11
+  support from the compuiler, and C++11 added ``static_assert``.
 
 Marking Features as Deprecated
 ==============================

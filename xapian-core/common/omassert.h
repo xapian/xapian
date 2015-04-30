@@ -26,29 +26,6 @@
 #ifndef XAPIAN_INCLUDED_OMASSERT_H
 #define XAPIAN_INCLUDED_OMASSERT_H
 
-/** Assert that a constant expression is non-zero.
- *
- *  If the assertion fails, compilation fails with an error.  There's no
- *  run-time overhead for a compile-time assertion, so we always enable
- *  them.
- *
- *  This macro must be used within a function (this is because we can only
- *  portably generate a "unique" name using __LINE__, but then if this macro
- *  is used in header files, multiple headers might be included from the same
- *  source file and have CompileTimeAssert() at the same line number.
- */
-#if __cplusplus >= 201103L
-// Under C++11, just use static_assert.
-# define CompileTimeAssert(COND) static_assert(COND, #COND)
-#else
-# define CompileTimeAssert(COND)\
-    do {\
-	typedef int xapian_compile_time_check_[(COND) ? 1 : -1];\
-	xapian_compile_time_check_ xapian_compile_time_check_var_;\
-	(void)xapian_compile_time_check_var_;\
-    } while (0)
-#endif
-
 #ifndef XAPIAN_ASSERTIONS
 // The configure script should always define XAPIAN_ASSERTIONS if it defines
 // XAPIAN_ASSERTIONS_PARANOID.

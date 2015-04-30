@@ -1,3 +1,10 @@
+Thu Apr 30 14:38:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING,backends/chert/chert_table.cc,
+	  backends/chert/chert_version.cc,backends/glass/glass_table.cc,
+	  common/omassert.h: Remove CompileTimeAssert() and just use
+	  C++11's static_assert instead.
+
 Thu Apr 30 14:28:10 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_freelist.cc: Drop conditionals for GCC >= 3.4

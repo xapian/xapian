@@ -989,11 +989,15 @@ ChertTable::add(const string &key, string tag, bool already_compressed)
     if (already_compressed) {
 	compressed = true;
     } else if (compress_strategy != DONT_COMPRESS && tag.size() > COMPRESS_MIN) {
-	CompileTimeAssert(DONT_COMPRESS != Z_DEFAULT_STRATEGY);
-	CompileTimeAssert(DONT_COMPRESS != Z_FILTERED);
-	CompileTimeAssert(DONT_COMPRESS != Z_HUFFMAN_ONLY);
+	static_assert(DONT_COMPRESS != Z_DEFAULT_STRATEGY,
+		      "DONT_COMPRESS clashes with zlib constant");
+	static_assert(DONT_COMPRESS != Z_FILTERED,
+		      "DONT_COMPRESS clashes with zlib constant");
+	static_assert(DONT_COMPRESS != Z_HUFFMAN_ONLY,
+		      "DONT_COMPRESS clashes with zlib constant");
 #ifdef Z_RLE
-	CompileTimeAssert(DONT_COMPRESS != Z_RLE);
+	static_assert(DONT_COMPRESS != Z_RLE,
+		      "DONT_COMPRESS clashes with zlib constant");
 #endif
 
 	lazy_alloc_deflate_zstream();
