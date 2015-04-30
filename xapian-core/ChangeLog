@@ -1,3 +1,9 @@
+Thu Apr 30 04:07:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fix typo so cached result of test in
+	  is_uninstalled() is actually used on subsequent calls.  Fixes #676,
+	  reported (with patch) by Ryan Schmidt.
+
 Wed Apr 29 03:00:32 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/glass/glass_database.cc:

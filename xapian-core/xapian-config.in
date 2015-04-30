@@ -55,7 +55,7 @@ is_uninstalled_cache=
 # Check if this is an uninstalled xapian-config.
 is_uninstalled()
 {
-    if [ -z "$uninstalled_cache" ]; then
+    if [ -z "$is_uninstalled_cache" ]; then
 	[ -n "$builddir" -a -f "${builddir}Makefile" ]
 	is_uninstalled_cache=$?
     fi
