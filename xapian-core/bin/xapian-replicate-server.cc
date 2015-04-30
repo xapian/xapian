@@ -39,7 +39,7 @@ using namespace std;
 #define OPT_VERSION 2
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_PARENT_DIRECTORY\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_PARENT_DIRECTORY\n\n"
 "Options:\n"
 "  -I, --interface=ADDR  listen on interface ADDR\n"
 "  -p, --port=PORT   port to listen on\n"
@@ -79,11 +79,11 @@ main(int argc, char **argv)
 		one_shot = true;
 		break;
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    default:
 		show_usage();

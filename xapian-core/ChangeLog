@@ -1,3 +1,15 @@
+Wed May 06 05:24:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/replication.cc,backends/brass/,backends/chert/chert_database.cc,
+	  backends/chert/chert_table.cc,backends/chert/chert_version.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_table.cc,
+	  backends/flint/flint_version.cc,backends/remote/remote-database.cc,
+	  bin/,examples/copydatabase.cc,examples/quest.cc,
+	  examples/xapian-metadata.cc,net/tcpclient.cc,
+	  queryparser/queryparser.lemony,tests/harness/: Add spaces between
+	  literal strings and macros which expand to literal strings for C++11
+	  compatibility.
+
 Wed May 06 05:04:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* bin/xapian-tcpsrv.cc: Use STRINGIZE() to include defaults literally

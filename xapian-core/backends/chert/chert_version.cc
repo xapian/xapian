@@ -139,7 +139,7 @@ ChertVersion::read_and_check()
 	string msg = filename;
 	msg += ": Chert version file is version ";
 	msg += str(version);
-	msg += " but I only understand "STRINGIZE(CHERT_VERSION);
+	msg += " but I only understand " STRINGIZE(CHERT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }
 

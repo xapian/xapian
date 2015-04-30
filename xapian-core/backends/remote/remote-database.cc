@@ -100,7 +100,7 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 	errmsg += str(protocol_major);
 	errmsg += '.';
 	errmsg += str(protocol_minor);
-	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
+	errmsg += " (" STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION) "." STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) " supported)";
 	throw Xapian::NetworkError(errmsg, context);
     }
 

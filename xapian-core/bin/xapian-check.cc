@@ -58,7 +58,7 @@ using namespace std;
 // "only" requires (4 * last_docid()) bytes.
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
+    cout << "Usage: " PROG_NAME " <database directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
 "If a whole database is checked, then additional cross-checks between\n"
 "the tables are performed.\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
@@ -67,8 +67,8 @@ static void show_usage() {
 " b = show bitmap\n"
 " v = show stats about B-tree (default)\n"
 " + = same as tbv\n"
-" e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
-"      "PROG_NAME" /var/lib/xapian/data/default/postlist fbv" << endl;
+" e.g. " PROG_NAME " /var/lib/xapian/data/default\n"
+"      " PROG_NAME " /var/lib/xapian/data/default/postlist fbv" << endl;
 }
 
 static void
@@ -101,12 +101,12 @@ main(int argc, char **argv)
 {
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
-	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	     cout << PROG_NAME " - " PROG_DESC "\n\n";
 	    show_usage();
 	    exit(0);
 	}
 	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
 	    exit(0);
 	}
     }

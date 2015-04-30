@@ -567,7 +567,7 @@ FlintTable::split_root(uint4 split_n)
     /* check level overflow - this isn't something that should ever happen
      * but deserves more than an Assert()... */
     if (level == BTREE_CURSOR_LEVELS) {
-	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large ("STRINGIZE(BTREE_CURSOR_LEVELS)" levels)");
+	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large (" STRINGIZE(BTREE_CURSOR_LEVELS) " levels)");
     }
 
     byte * q = zeroed_new(block_size);

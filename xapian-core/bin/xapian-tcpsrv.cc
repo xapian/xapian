@@ -71,7 +71,7 @@ static const struct option long_opts[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --interface ADDRESS     listen on the interface associated with name or\n"
@@ -101,11 +101,11 @@ int main(int argc, char **argv) {
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'I':
                 host.assign(optarg);

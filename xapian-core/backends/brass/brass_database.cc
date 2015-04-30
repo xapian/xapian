@@ -1136,7 +1136,7 @@ BrassWritableDatabase::add_document_(Xapian::docid did,
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
+		    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 
 		inverter.add_posting(did, tname, wdf);
 
@@ -1331,7 +1331,7 @@ BrassWritableDatabase::replace_document(Xapian::docid did,
 		    new_doclen += new_wdf;
 		    stats.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
 		    if (pos_modified) {
 			PositionIterator pos = term.positionlist_begin();

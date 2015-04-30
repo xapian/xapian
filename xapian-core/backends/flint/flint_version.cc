@@ -120,7 +120,7 @@ void FlintVersion::read_and_check(bool readonly)
     if (size != VERSIONFILE_SIZE) {
 	string msg("Flint version file ");
 	msg += filename;
-	msg += " should be "STRINGIZE(VERSIONFILE_SIZE)" bytes, actually ";
+	msg += " should be " STRINGIZE(VERSIONFILE_SIZE) " bytes, actually ";
 	msg += str(size);
 	throw Xapian::DatabaseCorruptError(msg);
     }
@@ -160,7 +160,7 @@ void FlintVersion::read_and_check(bool readonly)
 	msg += filename;
 	msg += " is version ";
 	msg += str(version);
-	msg += " but I only understand "STRINGIZE(FLINT_VERSION);
+	msg += " but I only understand " STRINGIZE(FLINT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }
 

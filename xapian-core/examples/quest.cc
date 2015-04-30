@@ -103,7 +103,7 @@ inline bool operator<(const wt & f1, const wt & f2) {
 }
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
 "Options:\n"
 "  -d, --db=DIRECTORY                database to search (multiple databases may\n"
@@ -122,7 +122,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -138,7 +138,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -154,7 +154,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -318,10 +318,10 @@ try {
 		break;
 	    }
 	    case 'v':
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'h':
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case ':': // missing parameter

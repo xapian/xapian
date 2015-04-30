@@ -62,7 +62,7 @@ using namespace std;
 #define OPT_NO_RENUMBER 3
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE DESTINATION_DATABASE\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] SOURCE_DATABASE DESTINATION_DATABASE\n\n"
 "Options:\n"
 "  -b                Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
 "                    (must be between 2K and 64K and a power of 2, default 8K)\n"
@@ -352,7 +352,7 @@ main(int argc, char **argv)
 		}
 		if (*p || block_size < 2048 || block_size > 65536 ||
 		    (block_size & (block_size - 1)) != 0) {
-		    cerr << PROG_NAME": Bad value '" << optarg
+		    cerr << PROG_NAME ": Bad value '" << optarg
 			 << "' passed for blocksize, must be a power of 2 between 2K and 64K"
 			 << endl;
 		    exit(1);
@@ -360,11 +360,11 @@ main(int argc, char **argv)
 		break;
 	    }
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    default:
 		show_usage();

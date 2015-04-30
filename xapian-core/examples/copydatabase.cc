@@ -37,7 +37,7 @@ using namespace std;
 static void
 show_usage(int rc)
 {
-    cout << "Usage: "PROG_NAME" SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
+    cout << "Usage: " PROG_NAME " SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "Options:\n"
 "  --no-renumber    Preserve the numbering of document ids (useful if you have\n"
 "                   external references to them, or have set them to match\n"
@@ -56,11 +56,11 @@ try {
     bool renumber = true;
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
-	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	    cout << PROG_NAME " - " PROG_DESC "\n\n";
 	    show_usage(0);
 	}
 	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
 	    exit(0);
 	}
 	if (strcmp(argv[1], "--no-renumber") == 0) {

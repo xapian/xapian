@@ -70,7 +70,7 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 
 /// Check MSet M has size S.
 #define TEST_MSET_SIZE(M, S) TEST_AND_EXPLAIN(((M).size() == (S)), \
-	"MSet `"STRINGIZE(M)"' is not of expected size: was `" << \
+	"MSet `" STRINGIZE(M) "' is not of expected size: was `" << \
 	(M).size() << "' expected `" << (S) << "':\n" << \
 	"Full mset was:\n" << (M))
 

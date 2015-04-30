@@ -46,15 +46,15 @@ using namespace std;
 #define READER_CLOSE_TIME 30
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE\n\n"
 "Options:\n"
 "  -h, --host=HOST     host to connect to (required)\n"
 "  -p, --port=PORT     port to connect to (required)\n"
 "  -m, --master=DB     replicate database DB from the master (default: DATABASE)\n"
 "  -i, --interval=N    wait N seconds between each connection to the master\n"
-"                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
+"                      (default: " STRINGIZE(DEFAULT_INTERVAL) ")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
-"                      applying repeated changesets (default: "STRINGIZE(READER_CLOSE_TIME)")\n"
+"                      applying repeated changesets (default: " STRINGIZE(READER_CLOSE_TIME) ")\n"
 "  -f, --force-copy    force a full copy of the database to be sent (and then\n"
 "                      replicate as normal)\n"
 "  -o, --one-shot      replicate only once and then exit\n"
@@ -123,11 +123,11 @@ main(int argc, char **argv)
 		verbosity = VERBOSE;
 		break;
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    default:
 		show_usage();

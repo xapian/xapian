@@ -138,7 +138,7 @@ BrassVersion::read_and_check()
 	string msg = filename;
 	msg += ": Brass version file is version ";
 	msg += str(version);
-	msg += " but I only understand "STRINGIZE(BRASS_VERSION);
+	msg += " but I only understand " STRINGIZE(BRASS_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }
 
