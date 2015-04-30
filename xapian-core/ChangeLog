@@ -1,3 +1,8 @@
+Thu Apr 30 10:47:10 GMT 2015  Olly Betts <olly@survex.com>
+
+	* m4/ax_cxx_compile_stdcxx_11.m4: Add support for HP's aCC (untested
+	  as I no longer have access to this compiler).
+
 Thu Apr 30 05:30:13 GMT 2015  Olly Betts <olly@survex.com>
 
 	* m4/ax_cxx_compile_stdcxx_11.m4: Add macro from autoconf-archive to
