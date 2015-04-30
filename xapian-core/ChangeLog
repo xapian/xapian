@@ -1,3 +1,8 @@
+Wed May 06 05:30:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: OS X >= 10.4 apparently supports symbol visibility, so
+	  update comment.
+
 Wed May 06 05:29:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Remove superfluous comment left over from code
