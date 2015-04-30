@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 #include <xapian.h>
 
+#include "stringutils.h"
 #include "utf8convert.h"
 
 #include <algorithm>
@@ -41,7 +42,7 @@ inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
-	*i = tolower(static_cast<unsigned char>(*i));
+	*i = C_tolower(*i);
     }
 }
 
@@ -50,44 +51,44 @@ map<string, unsigned int> HtmlParser::named_ents;
 inline static bool
 p_notdigit(char c)
 {
-    return !isdigit(static_cast<unsigned char>(c));
+    return !C_isdigit(c);
 }
 
 inline static bool
 p_notxdigit(char c)
 {
-    return !isxdigit(static_cast<unsigned char>(c));
+    return !C_isxdigit(c);
 }
 
 inline static bool
 p_notalnum(char c)
 {
-    return !isalnum(static_cast<unsigned char>(c));
+    return !C_isalnum(c);
 }
 
 inline static bool
 p_notwhitespace(char c)
 {
-    return !isspace(static_cast<unsigned char>(c));
+    return !C_isspace(c);
 }
 
 inline static bool
 p_nottag(char c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) &&
-	c != '.' && c != '-' && c != ':'; // ':' for XML namespaces.
+    // ':' for XML namespaces.
+    return !C_isalnum(c) && c != '.' && c != '-' && c != ':';
 }
 
 inline static bool
 p_whitespacegt(char c)
 {
-    return isspace(static_cast<unsigned char>(c)) || c == '>';
+    return C_isspace(c) || c == '>';
 }
 
 inline static bool
 p_whitespaceeqgt(char c)
 {
-    return isspace(static_cast<unsigned char>(c)) || c == '=' || c == '>';
+    return C_isspace(c) || c == '=' || c == '>';
 }
 
 bool
@@ -182,7 +183,7 @@ HtmlParser::parse(const string &body)
 	    unsigned char ch = *(p + 1);
 
 	    // Tag, closing tag, or comment (or SGML declaration).
-	    if ((!in_script && isalpha(ch)) || ch == '/' || ch == '!') break;
+	    if ((!in_script && C_isalpha(ch)) || ch == '/' || ch == '!') break;
 
 	    if (ch == '?') {
 		// PHP code or XML declaration.

@@ -126,7 +126,7 @@ mimetype_from_ext(const map<string, string> & mime_map, string ext)
 	string::iterator i;
 	for (i = ext.begin(); i != ext.end(); ++i) {
 	    if (*i >= 'A' && *i <= 'Z') {
-		*i = tolower(*i);
+		*i = C_tolower(*i);
 		changed = true;
 	    }
 	}
@@ -157,7 +157,7 @@ static map<string, Filter> commands;
 inline static bool
 p_notalnum(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c));
+    return !C_isalnum(c);
 }
 
 static void
