@@ -178,7 +178,7 @@ md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
 utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
 utf8converttest_LDADD = $(XAPIAN_LIBS)
 
-urlenctest_SOURCES = urlenctest.cc urlencode.cc
+urlenctest_SOURCES = urlenctest.cc urlencode.cc common/stringutils.cc
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(XAPIAN_LIBS)
