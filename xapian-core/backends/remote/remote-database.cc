@@ -353,7 +353,12 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
 	errmsg += str(protocol_major);
 	errmsg += '.';
 	errmsg += str(protocol_minor);
-	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
+	errmsg +=
+	    " ("
+	    STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)
+	    "."
+	    STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)
+	    " supported)";
 	throw Xapian::NetworkError(errmsg, context);
     }
 

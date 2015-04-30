@@ -69,7 +69,7 @@ check_glass_table(const char * tablename, const string &db_dir,
 	string filename(db_dir);
 	filename += '/';
 	filename += tablename;
-	filename += "."GLASS_TABLE_EXTENSION;
+	filename += "." GLASS_TABLE_EXTENSION;
 	if (!file_exists(filename)) {
 	    if (out) {
 		if (strcmp(tablename, "termlist") == 0) {

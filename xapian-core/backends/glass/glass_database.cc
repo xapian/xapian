@@ -405,12 +405,12 @@ GlassDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     // Send all the tables.  The tables which we want to be cached best after
     // the copy finishes are sent last.
     static const char filenames[] =
-	"termlist."GLASS_TABLE_EXTENSION"\0"
-	"synonym."GLASS_TABLE_EXTENSION"\0"
-	"spelling."GLASS_TABLE_EXTENSION"\0"
-	"docdata."GLASS_TABLE_EXTENSION"\0"
-	"position."GLASS_TABLE_EXTENSION"\0"
-	"postlist."GLASS_TABLE_EXTENSION"\0"
+	"termlist." GLASS_TABLE_EXTENSION "\0"
+	"synonym." GLASS_TABLE_EXTENSION "\0"
+	"spelling." GLASS_TABLE_EXTENSION "\0"
+	"docdata." GLASS_TABLE_EXTENSION "\0"
+	"position." GLASS_TABLE_EXTENSION "\0"
+	"postlist." GLASS_TABLE_EXTENSION "\0"
 	"iamglass\0";
     string filepath = db_dir;
     filepath += '/';
@@ -1019,7 +1019,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
+		    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 
 		inverter.add_posting(did, tname, wdf);
 		inverter.set_positionlist(position_table, did, tname, term);
@@ -1213,7 +1213,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    new_doclen += new_wdf;
 		    stats.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
 		    if (pos_modified) {
 			inverter.set_positionlist(position_table, did, new_tname, term);

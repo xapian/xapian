@@ -93,7 +93,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close_fd_or_socket(fd);
 	    freeaddrinfo(result);
-	    throw Xapian::NetworkError("Couldn't set "FLAG_NAME, saved_errno);
+	    throw Xapian::NetworkError("Couldn't set " FLAG_NAME, saved_errno);
 #undef FLAG_NAME
 	}
 

@@ -49,12 +49,12 @@ using namespace std;
 using namespace Xapian;
 
 static const char * dbnames =
-	"/postlist."GLASS_TABLE_EXTENSION"\0"
-	"/docdata."GLASS_TABLE_EXTENSION"\0\0"
-	"/termlist."GLASS_TABLE_EXTENSION"\0"
-	"/position."GLASS_TABLE_EXTENSION"\0"
-	"/spelling."GLASS_TABLE_EXTENSION"\0"
-	"/synonym."GLASS_TABLE_EXTENSION;
+	"/postlist." GLASS_TABLE_EXTENSION "\0"
+	"/docdata." GLASS_TABLE_EXTENSION "\0\0"
+	"/termlist." GLASS_TABLE_EXTENSION "\0"
+	"/position." GLASS_TABLE_EXTENSION "\0"
+	"/spelling." GLASS_TABLE_EXTENSION "\0"
+	"/synonym." GLASS_TABLE_EXTENSION;
 
 GlassDatabaseReplicator::GlassDatabaseReplicator(const string & db_dir_)
     : db_dir(db_dir_)

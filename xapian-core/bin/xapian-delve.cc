@@ -49,7 +49,7 @@ static bool count_zero_length_docs = false;
 #define PROG_DESC "Inspect the contents of a Xapian database"
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE...\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE...\n\n"
 "Options:\n"
 "  -a                    show all terms in the database\n"
 "  -A <prefix>           show all terms in the database with given prefix\n"
@@ -235,12 +235,12 @@ int
 main(int argc, char **argv) try {
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
-	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	    cout << PROG_NAME " - " PROG_DESC "\n\n";
 	    show_usage();
 	    exit(0);
 	}
 	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
 	    exit(0);
 	}
     }

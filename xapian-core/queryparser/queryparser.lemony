@@ -1701,7 +1701,7 @@ Term::as_positional_cjk_term(Terms * terms) const
 #define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
-	    state->error = "Syntax: <expression> "OP_TXT" <expression>";\
+	    state->error = "Syntax: <expression> " OP_TXT " <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\

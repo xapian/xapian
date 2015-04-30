@@ -1175,7 +1175,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
+		    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 		add_freq_delta(tname, 1, wdf);
 		insert_mod_plist(did, tname, wdf);
 
@@ -1381,7 +1381,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    new_doclen += new_wdf;
 		    stats.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
 		    if (pos_modified) {
