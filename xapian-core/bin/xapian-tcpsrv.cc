@@ -33,6 +33,7 @@
 
 #include "xapian/error.h"
 #include "remotetcpserver.h"
+#include "stringutils.h"
 
 using namespace std;
 
@@ -75,8 +76,8 @@ static void show_usage() {
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --interface ADDRESS     listen on the interface associated with name or\n"
 "                          address ADDRESS (default is all interfaces)\n"
-"  --idle-timeout MSECS    set timeout for idle connections (default " << MSECS_IDLE_TIMEOUT_DEFAULT << "ms)\n"
-"  --active-timeout MSECS  set timeout for active connections (default " << MSECS_ACTIVE_TIMEOUT_DEFAULT << "ms)\n"
+"  --idle-timeout MSECS    set timeout for idle connections (default " STRINGIZE(MSECS_IDLE_TIMEOUT_DEFAULT) "ms)\n"
+"  --active-timeout MSECS  set timeout for active connections (default " STRINGIZE(MSECS_ACTIVE_TIMEOUT_DEFAULT) "ms)\n"
 "  --timeout MSECS         set both timeout values\n"
 "  --one-shot              serve a single connection and exit\n"
 "  --quiet                 disable information messages to stdout\n"
