@@ -1,3 +1,8 @@
+Thu Apr 30 14:41:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_freelist.cc: Add missing explicit include of
+	  "omassert.h",
+
 Thu Apr 30 14:38:06 GMT 2015  Olly Betts <olly@survex.com>
 
 	* HACKING,backends/chert/chert_table.cc,

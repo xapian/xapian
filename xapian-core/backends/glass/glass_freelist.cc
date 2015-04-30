@@ -26,6 +26,7 @@
 #include "glass_table.h"
 #include "xapian/error.h"
 
+#include "omassert.h"
 #include "unaligned.h"
 #include <cstring>
 
