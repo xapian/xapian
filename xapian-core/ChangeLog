@@ -1,3 +1,7 @@
+Thu Apr 30 12:34:14 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Fix for C++11 where AutoPtr is unique_ptr.
+
 Thu Apr 30 12:20:22 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/replication.cc,backends/chert/chert_database.cc,

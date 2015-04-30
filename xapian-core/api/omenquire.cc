@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -742,15 +742,12 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     AutoPtr<ExpandDecider> decider_andnoquery;
 
     if (!query.empty() && !(flags & Enquire::INCLUDE_QUERY_TERMS)) {
-	AutoPtr<ExpandDecider> temp1(
+	decider_noquery.reset(
 	    new ExpandDeciderFilterTerms(query.get_terms_begin(),
 					 query.get_terms_end()));
-        decider_noquery = temp1;
-
 	if (edecider) {
-	    AutoPtr<ExpandDecider> temp2(
+	    decider_andnoquery.reset(
 		new ExpandDeciderAnd(decider_noquery.get(), edecider));
-	    decider_andnoquery = temp2;
 	    edecider = decider_andnoquery.get();
 	} else {
 	    edecider = decider_noquery.get();
