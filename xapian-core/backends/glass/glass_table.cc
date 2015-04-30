@@ -49,7 +49,6 @@
 #include "errno_to_string.h"
 #include "filetests.h"
 #include "io_utils.h"
-#include "omassert.h"
 #include "pack.h"
 #include "unaligned.h"
 

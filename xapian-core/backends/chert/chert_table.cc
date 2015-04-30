@@ -58,7 +58,6 @@
 
 #include "filetests.h"
 #include "io_utils.h"
-#include "omassert.h"
 #include "debuglog.h"
 #include "pack.h"
 #include "str.h"
