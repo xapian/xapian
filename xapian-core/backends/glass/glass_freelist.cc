@@ -274,7 +274,6 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	if (c == 0 && p_first_bad_blk) {
 	    uint4 first_bad_blk = i * BITS_PER_ELT;
 #if defined __GNUC__
-#if __GNUC__ * 100 + __GNUC_MINOR__ >= 304
 	    // GCC 3.4 added __builtin_ctz() (with l and ll variants).
 	    if (sizeof(elt_type) == sizeof(unsigned))
 		first_bad_blk += __builtin_ctz(elt);
@@ -282,13 +281,6 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 		first_bad_blk += __builtin_ctzl(elt);
 	    else if (sizeof(elt_type) == sizeof(unsigned long long))
 		first_bad_blk += __builtin_ctzll(elt);
-#else
-	    // GCC has had __builtin_ffs() in all versions we support, which
-	    // returns one more than ctz (and is defined for an input of 0,
-	    // which we don't need).
-	    if (sizeof(elt_type) == sizeof(unsigned))
-		first_bad_blk += __builtin_ffs(elt) - 1;
-#endif
 	    else
 #endif
 	    {
@@ -300,8 +292,8 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	}
 
 	// Count set bits in elt.
+#if defined __GNUC__
 	// GCC 3.4 added __builtin_popcount and variants.
-#if defined __GNUC__ && __GNUC__ * 100 + __GNUC_MINOR__ >= 304
 	if (sizeof(elt_type) == sizeof(unsigned))
 	    c += __builtin_popcount(elt);
 	else if (sizeof(elt_type) == sizeof(unsigned long))
