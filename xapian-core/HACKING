@@ -223,17 +223,17 @@ EATMYDATA= ./runtest ./apitest
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
 
-If you're using GCC 3.4 or newer, you can turn on debugging iterators, etc in
-the GNU C++ STL by defining _GLIBCXX_DEBUG:
+GCC's libstdc++ supports a debug mode, which checks for various misuses of
+the STL - to enable this, define _GLIBCXX_DEBUG when building Xapian:
 
   ./configure CPPFLAGS=-D_GLIBCXX_DEBUG
 
 For documentation of this option, see:
 http://gcc.gnu.org/onlinedocs/libstdc++/debug.html
 
-Note: all C++ code must be compiled with this defined or you'll get problems -
-Xapian 0.9.7 and later add a suitable check to xapian/version.h to prevent you
-making this mistake.
+Note: all C++ code must be compiled with this defined or you'll get problems.
+Xapian's API headers include a check that the same setting is used when
+building code using Xapian as was used to build Xapian.
 
 To use valgrind (http://www.valgrind.org/), no special build options are
 required, but make sure you compile with debugging information (on by default

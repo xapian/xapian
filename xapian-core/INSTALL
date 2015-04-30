@@ -33,39 +33,25 @@ libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
 Compilers
 =========
 
-We aim to support compilation with any C++ compiler which conforms to ISO C++,
-or a reasonable approximation to it.
+We aim to support compilation with any C++ compiler which conforms to ISO
+C++11, or a reasonable approximation to it.
 
 If you're using MS Visual C++, see the Xapian download page for a link to
 a set of suitable makefiles: http://xapian.org/download
 
-If you're using GCC, we currently recommend GCC 4.3 or newer (this is the
+If you're using GCC, we currently recommend GCC 4.7 or newer (this is the
 oldest version we regularly test with).
 
-The oldest version we've tested with at all recently was GCC 3.3, but the
-hard minimum requirement is GCC 3.1 (we rely on the <limits> and <streambuf>
-headers, which were added in GCC 3.0, but requiring GCC 3.1 allows us to
-eliminate some preprocessor conditionals which we are no longer easily able
-to test.  We also doubt GCC 3.0 is still in use since GCC 3.1 was released on
-2002-05-15, and widespread adoption of GCC3 didn't happen until after 3.0).
+The current hard minimum requirement is at least GCC 4.4 (due to requiring
+C++11 support).
 
-If you really still need to use an older version of GCC, Xapian 1.0.x should
-build with GCC 2.95.3 or GCC 3.0.x.
+If you really still need to use an older version of GCC, Xapian 1.2.x doesn't
+require C++11 suport and should build with older versions - probably as far
+back as GCC 3.1.
 
-When using HP's aCC, Xapian must be compiled with -AA ("ANSI mode"), which
-xapian-core's configure automatically detects and passes.  This means your code
-must also be compiled with -AA (and "xapian-config --cxxflags" will include
-"-AA" automatically in this situation).  Compiling with -AP (non-ANSI mode)
-would require adjusting Xapian away from standard ISO C++, and is only required
-if you need to link to Xapian and another library not available in -AA form.
-HP recommend ISVs to supply libraries in -AA form, so this isn't a likely
-scenario.
-
-When building on IRIX with SGI's compiler, Omega has to be built with "-ptused"
-in CXXFLAGS (this is now added automatically by Omega's configure).  You may
-need to do the same when building your own applications.  We don't fully
-understand the issues here yet, but perhaps "-ptused" should be automatically
-set by xapian-config.  Feedback from developers on IRIX is invited.
+When using HP's aCC, Xapian must be compiled with +std=c++11, which
+xapian-core's configure automatically detects and passes.  You don't have to
+pass this option when building code which uses Xapian, but you can.
 
 Multi-Arch
 ==========

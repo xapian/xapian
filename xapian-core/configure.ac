@@ -208,6 +208,9 @@ if test no = "$xo_cv_cxx_works" ; then
   fi
 fi
 
+dnl Probe for any options needed to enable C++11 suport.
+AX_CXX_COMPILE_STDCXX_11
+
 dnl We don't use a C compiler to compile Xapian's code, but on some platforms
 dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
 dnl build auxiliary tools like snowball and lemon.
@@ -287,122 +290,8 @@ fi
 dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST([ldflags])
 
-WARNING_CXXFLAGS=
-ISO_CXXFLAGS=
-AC_MSG_CHECKING([for $CXX options to enable ISO C++ mode])
-if test yes = "$GXX"; then
-  compiler=gcc
-  AC_MSG_RESULT([none required])
-else
-  compiler=unknown
-  dnl Some C++ compilers need a special switch to select ISO C++ mode.  Do
-  dnl this early in configure so such settings are used for other tests.
-  case $CXX in
-    aCC|*/aCC)
-      dnl Select ANSI mode for HP's aCC, which gives us the std:: namespace,
-      dnl Koenig lookup, and ANSI scoping for the variable i in:
-      dnl   for (int i = 1; i < n; ++i) { ... }
-      dnl (don't confuse -AA with -Aa which is similar but without the std::
-      dnl namespace).
-      dnl
-      dnl Note that using -AA means that user code must be built with -AA
-      dnl (which is the default on Itanium, but not on PARISC:
-      dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
-      dnl )
-      dnl Also -ext (which can also be spelled +e):
-      dnl "Allow various C++ extensions.  Currently -ext enables the 64 bit
-      dnl integer (long long) data type."  This seems to be implied by -AA
-      dnl but otherwise is needed to allow "cout << (long long)42;".
-      ISO_CXXFLAGS="-AA"
-      dnl +w turns on more warnings.
-      dnl +wlint turns on "lint-like" warnings.
-      dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
-      dnl 2340 (remark) "value copied to temporary, reference to temporary
-      dnl	use", in: throw Xapian::UnimplementedError("...");
-      dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
-      dnl	virtual destructor for intrusive_base, since we never delete
-      dnl       its subclasses by a intrusive_base *).
-      dnl 3348 "declaration hides constant ..." which seems to misfire!
-      dnl 4255 (remark) "padding size of struct "..." with ... bytes to
-      dnl	alignment boundary".
-      dnl 4273 "floating-point equality and inequality comparisons may be
-      dnl	inappropriate due to roundoff common in floating-point computation"
-      dnl	No obvious workaround for when you really do want == or !=.
-      dnl 4285 "operator= does not have a check for the source and destination
-      dnl	addresses being non-identical" - fires for AutoPtr which
-      dnl	includes such a check indirectly (internaltest's autoptr1 check this).
-      dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
-      WARNING_CXXFLAGS="+w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
-    cxx|*/cxx)
-      dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
-      dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
-      dnl If this proves to be a problem, we could instead try
-      dnl '-std ansi -D__USE_STD_IOSTREAM'.
-      dnl
-      dnl Check that the compiler recognises these flags to avoid problems
-      dnl with other compilers named cxx.
-      XAPIAN_TEST_CXXFLAGS([-std strict_ansi], [ISO_CXXFLAGS]) ;;
-    CC|*/CC)
-      dnl Could be Sun's, SGI's, or something else entirely.
-      case `$CXX -V 2>&1` in
-      *Sun\ C++*)
-	compiler=sun
-	dnl Select ANSI conforming STL - for more information see:
-	dnl http://www.oracle.com/technetwork/server-storage/solarisstudio/documentation/cplusplus-faq-355066.html#LibComp5
-	dnl -library=stdcxx4 is better, but needs "Solaris 10 update 10 or
-	dnl Solaris 11".
-	dnl
-	dnl If the compiler supports -library=stdcxx4 but the user has
-	dnl specified CXXFLAGS=-library=stlport4, then this should put
-	dnl -library=stlport4 in ISO_CXXFLAGS, since the compiler will give
-	dnl an error when passed -library=stlport4 -library=stdcxx4.
-	for l in stdcxx4 stlport4 Cstd ; do
-	  dnl We avoid -library-$l,Crun as libtool looks for
-	  dnl " -library=stlport4 " (with the spaces either side).
-	  f="-library=$l -library=Crun"
-	  XAPIAN_TEST_CXXFLAGS([$f], [ISO_CXXFLAGS], [break])
-	done
-	dnl Older versions of this compiler defaulted to a non-standard
-	dnl lifetime for temporary objects, and -features=tmplife is required
-	dnl for standard conforming behaviour (which Xapian code expects).
-	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ISO_CXXFLAGS])
-	;;
-      *)
-	case `$CXX -v 2>&1` in
-	MIPSpro*)
-	  dnl On stderr: MIPSpro Compilers: Version 7.4.2m
-	  dnl Select ANSI mode for SGI's CC with "-LANG:std".  Also, we have to
-	  dnl specify "-ptused" or we get strange template linking errors.
-	  ISO_CXXFLAGS="-LANG:std -ptused" ;;
-	esac
-	;;
-      esac
-      ;;
-  esac
-
-  if test -n "$ISO_CXXFLAGS" ; then
-    AC_MSG_RESULT([$ISO_CXXFLAGS])
-  else
-    dnl Perhaps we should try to compile some code which uses iostream, for
-    dnl scoping, etc, but maintaining such a snippet to cover everything we
-    dnl require which any C++ compiler may not support is tricky.
-    AC_MSG_RESULT([none known for $CXX])
-  fi
-fi
-
 dnl Preserve the default CXXFLAGS.
 save_CXXFLAGS=$CXXFLAGS
-
-dnl Put any flags for ANSI mode in CXXFLAGS for the duration of configure
-dnl since we want to make feature tests using those flags.
-if test -n "$ISO_CXXFLAGS" ; then
-  CXXFLAGS="$ISO_CXXFLAGS $CXXFLAGS"
-  AM_CXXFLAGS="$ISO_CXXFLAGS $AM_CXXFLAGS"
-fi
-
-dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
-dnl with Xapian.
-AC_SUBST([ISO_CXXFLAGS])
 
 dnl x86 has excess precision issues with 387 FP instructions, which are
 dnl avoided by using SSE instructions instead.  This is also faster (~6% in
@@ -1053,11 +942,13 @@ if test yes = "$GXX"; then
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
       dnl
-      dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
-      dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
+      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
+      dnl
+      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
+      dnl GCC 4.3.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
 
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
@@ -1067,69 +958,38 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[012]].* | 3.0.*)
-	AC_MSG_ERROR([Xapian requires GCC 3.1 or later])
+      [[0123]].*|4.[[0123]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.4 or later])
 	;;
-      3.*|4.0.*) ;;
-      *) dnl GCC >= 4.1
-	case $gxx_version in
-	4.1.*)
-	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
-	  dnl only enable it for GCC >= 4.1.
-	  dnl
-	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
-	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
-	  dnl in a static method is the same as a member variable, so only
-	  dnl enable it for GCC >= 4.1.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
-	4.2.*)
-	  dnl xapian-core seems to hit an aliasing bug in GCC 4.2:
-	  dnl   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35643
-	  dnl GCC 4.1 and 4.3 produce working code.  This bug can be avoided
-	  dnl by disabling aliasing with -fno-strict-aliasing, so we do that.
-	  dnl See http://trac.xapian.org/ticket/449 for more details.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fno-strict-aliasing"
-	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
-	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
-	4.[[345]].*)
-	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
-	  dnl GCC 4.3.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
-	*) dnl GCC >= 4.6
-	  dnl -Wdouble-promotion was added in GCC 4.6.
-	  dnl
-	  dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
-	  dnl warns for this case with -Wuninitialized (implied by -W).  We
-	  dnl don't intend to use this idiom, so any instances are bugs we'd
-	  dnl like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
-	esac
-
-	dnl FIXME:
-	dnl -Wconversion in older GCC versions is intended to help migration
-	dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
-	dnl to -Wtraditional-conversion and a new -Wconversion added which
-	dnl sounds useful but is a bit buggy currently.  So we should consider
-	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+      4.[[45]].*) ;;
+      *) dnl GCC >= 4.6
+	dnl -Wdouble-promotion was added in GCC 4.6.
 	dnl
-	dnl -Wold-style-cast is interesting, but triggers for macros from
-	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
-
-	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC 4.1 or newer.  We don't do this for older GCCs as GCC 2.95,
-	dnl some GCC 3.x compilers, and Apple's GCC 4.0 issue spurious warnings.
-	if test x$USE_MAINTAINER_MODE = xyes; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-	fi
-	;;
+	dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+	dnl warns for this case with -Wuninitialized (implied by -W).  We
+	dnl don't intend to use this idiom, so any instances are bugs we'd
+	dnl like to know about.
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
       esac
+
+      dnl FIXME:
+      dnl -Wconversion in older GCC versions is intended to help migration
+      dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
+      dnl to -Wtraditional-conversion and a new -Wconversion added which
+      dnl sounds useful but is a bit buggy currently.  So we should consider
+      dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+      dnl
+      dnl -Wold-style-cast is interesting, but triggers for macros from
+      dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
       ;;
     *__clang__*)
       dnl Intel's compiler (since __clang__ not substituted):
-      compiler=intel
-
+      dnl
       dnl -w1 stops the avalanche of uninteresting "remark" messages.
       dnl -wd... disables warnings which don't have good code workarounds.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
@@ -1141,8 +1001,6 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
-      compiler=clang
-
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
       AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
 
@@ -1166,8 +1024,29 @@ if test yes = "$GXX"; then
     fi
   fi
 else
-  dnl WARNING_CXXFLAGS is set above.
-  AM_CXXFLAGS="$AM_CXXFLAGS $WARNING_CXXFLAGS"
+  dnl Not GCC, nor a compiler masquerading as GCC.
+  case /$CXX in
+  */aCC)
+    dnl +w turns on more warnings.
+    dnl +wlint turns on "lint-like" warnings.
+    dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
+    dnl 2340 (remark) "value copied to temporary, reference to temporary
+    dnl	use", in: throw Xapian::UnimplementedError("...");
+    dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
+    dnl	virtual destructor for intrusive_base, since we never delete
+    dnl       its subclasses by a intrusive_base *).
+    dnl 3348 "declaration hides constant ..." which seems to misfire!
+    dnl 4255 (remark) "padding size of struct "..." with ... bytes to
+    dnl	alignment boundary".
+    dnl 4273 "floating-point equality and inequality comparisons may be
+    dnl	inappropriate due to roundoff common in floating-point computation"
+    dnl	No obvious workaround for when you really do want == or !=.
+    dnl 4285 "operator= does not have a check for the source and destination
+    dnl	addresses being non-identical" - fires for AutoPtr which
+    dnl	includes such a check indirectly (internaltest's autoptr1 check this).
+    dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
+    AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
+  esac
 fi
 
 XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
@@ -1183,29 +1062,22 @@ case $host_cpu in
     else
       dnl Default to sse2.
       test "$enable_sse" != yes || enable_sse=sse2
-      case $compiler in
-      clang|intel)
+      if test yes = "$GXX"; then
 	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	dnl These options are supported at least as far back as clang 3.0.
+	dnl We can unconditionally use -mtune=generic as it was added in GCC
+	dnl 4.2, and supported at least as far back as clang 3.0.
 	AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic"
-	;;
-      gcc)
-	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	case $gxx_version in
-	3.*|4.[[01]].*) dnl -mtune=generic added in GCC 4.2.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse" ;;
-	*)
-	  AM_CXXFLAGS="$AM_CXXFLAGS -mfpmath=sse -m$enable_sse -mtune=generic" ;;
-	esac
-	;;
-      sun)
-	AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
-	AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"
-	;;
-      *)
-        AC_MSG_RESULT([don't know how to for compiler $CXX])
-	;;
-      esac
+      else
+	AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+[[#ifndef __SUNPRO_CC
+#error Not Sun compiler
+#endif]])],
+	  [AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
+	  AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"]
+	  ,
+	  [AC_MSG_RESULT([don't know how to for compiler $CXX])]
+	)
+      fi
     fi
     ;;
   *)

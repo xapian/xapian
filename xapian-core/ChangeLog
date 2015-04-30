@@ -1,3 +1,8 @@
+Thu Apr 30 13:59:16 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,configure.ac,xapian-config.in: Require a C++
+	  compiler - the minimum required GCC version is now probably GCC 4.4.
+
 Thu Apr 30 13:48:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Remove superfluous comment left over from code

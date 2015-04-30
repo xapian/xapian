@@ -219,9 +219,7 @@ for arg in $actions ; do
 	    *) I="-I@incdir@" ;;
 	    esac
 	fi
-	cxxflags=
-	[ -n "@ISO_CXXFLAGS@" ] && cxxflags="@ISO_CXXFLAGS@ "
-	echo "$cxxflags$I"
+	echo "$I"
 	;;
 
     --swigflags)
