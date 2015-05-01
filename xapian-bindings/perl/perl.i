@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+%}
+
+%begin %{
+/* Perl's headers define a seed() macro, which breaks RNG stuff pulled in by
+ * <algorithm> under C++11, so include <algorithm> early before Perl breaks
+ * stuff.  This is fixed by newer SWIG, so this can go away once we update
+ * to require that.
+ */
+#include <algorithm>
 %}
 
 /* The XS Xapian never wrapped these, and they're now deprecated. */
