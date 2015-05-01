@@ -1,3 +1,8 @@
+Fri May 01 13:03:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,m4/ax_cxx_compile_stdcxx_11.m4: Sync with xapian-core,
+	  enabling C++11.
+
 Fri May 01 12:26:08 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove unused probe for <stdint.h>.
