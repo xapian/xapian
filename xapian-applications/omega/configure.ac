@@ -79,12 +79,6 @@ test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
 
-dnl IRIX helpfully won't allow stdint.h to be included from C++ code,
-dnl so we can't just use AC_CHECK_HEADERS.
-AC_TRY_COMPILE([#include <stdint.h>],
-  [uint32_t foo = 7; return (int)foo;],
-  AC_DEFINE(HAVE_WORKING_STDINT_H, 1, [Define to 1 if you have the <stdint.h> header file and it can be used in C++ code.]))
-
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl

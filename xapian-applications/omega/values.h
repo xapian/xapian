@@ -1,6 +1,6 @@
 /* values.h: constants and functions for document value handling.
  *
- * Copyright (C) 2006,2010 Olly Betts
+ * Copyright (C) 2006,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,10 +23,10 @@
 #include <cstring>
 #include <string>
 
-// Include these to get uint32_t and htonl, etc.
-#ifdef HAVE_WORKING_STDINT_H
-# include <stdint.h>
-#endif
+#include <cstdint>
+using std::uint32_t;
+
+// Include these to get htonl, etc.
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #endif
@@ -34,9 +34,6 @@
 # include <netinet/in.h>
 #endif
 #ifdef __WIN32__
-# ifndef HAVE_WORKING_STDINT_H
-typedef unsigned int uint32_t;
-# endif
 inline uint32_t htonl(uint32_t v) {
     return (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);
 }

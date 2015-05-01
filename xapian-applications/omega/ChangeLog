@@ -1,3 +1,8 @@
+Fri May 01 09:36:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,md5.h,values.h: Now we require C++11, just include
+	  <cstdint> for uint32_t.
+
 Fri May 01 09:02:34 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: For Sun's C++ compiler, -std=c++11 enables C++11
