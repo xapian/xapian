@@ -154,6 +154,8 @@ AM_MAINTAINER_MODE
 dnl Checks for programs.
 AC_PROG_CXX
 
+AC_CANONICAL_HOST
+
 # Checked: freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
   linux* | k*bsd*-gnu | freebsd* | openbsd* | solaris*)

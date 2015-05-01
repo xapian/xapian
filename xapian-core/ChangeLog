@@ -1,3 +1,7 @@
+Wed May 06 07:21:04 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add explicit AC_CANONICAL_HOST.
+
 Wed May 06 05:32:46 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc,tests/api_nodb.cc: Eliminate needless uses of
