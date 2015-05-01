@@ -1,3 +1,8 @@
+Fri May 01 14:53:16 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_replicate.cc: Reenable replicate3 for glass, as it no
+	  longer fails.
+
 Fri May 01 13:38:48 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/autoptr.h: Just map AutoPtr to std::unique_ptr now we require

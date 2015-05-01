@@ -482,9 +482,6 @@ replicate_with_brokenness(Xapian::DatabaseMaster & master,
 
 // Test changesets which are truncated (and therefore invalid).
 DEFINE_TESTCASE(replicate3, replicas) {
-    // FIXME: This currently fails for glass - not worked out what's going on,
-    // but glass replication is going to get further reworked soon anyway.
-    SKIP_TEST_FOR_BACKEND("glass");
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
