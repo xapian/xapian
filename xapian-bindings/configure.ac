@@ -972,10 +972,6 @@ if test no != "$with_ruby" ; then
     dnl gives a deprecation warning with Ruby 1.9.3).
     version=`$RUBY -e 'print RUBY_VERSION' 2>/dev/null`
     case $version in
-    [1.[89]*]) ;; # Ruby 1.8, 1.9
-    [1.[1-9][0-9]*]) ;; # Ruby 1.10+
-    [[2-9]*]) ;; # Ruby 2-Ruby 9
-    [1[0-9]*]) ;; # Ruby 10+
     "")
       AC_MSG_RESULT([\$RUBY -e 'print RUBY_VERSION' didn't work])
       if test yes = "$with_ruby" ; then
@@ -983,7 +979,7 @@ if test no != "$with_ruby" ; then
       fi
       RUBY=
       ;;
-    *)
+    [0.*|1.[0-7]|1.[0-7].*])
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
 	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($RUBY is $version)])

@@ -1,3 +1,7 @@
+Fri May 01 12:15:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Simplify test of Ruby version.
+
 Fri May 01 12:14:31 GMT 2015  Olly Betts <olly@survex.com>
 
 	* INSTALL: IRIX is past EOL so drop information about IRIX make.
