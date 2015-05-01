@@ -1,3 +1,7 @@
+Fri May 01 01:37:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tweak comment to match xapian-omega's configure.
+
 Fri May 01 01:36:41 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Set default value for AUTOM4TE before AC_OUTPUT so the
