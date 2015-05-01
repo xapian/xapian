@@ -578,17 +578,19 @@ takes about 8G of disk space once up and running.
 Use of C++ Features
 ===================
 
-* STL:  We decided early on to embrace the C++ STL.  Some older compilers
-  don't include full support for this.  Often we can work around this, and we
-  should do where the effort is low compared to the gain (so a compiler
-  version which is widely used is more worth supporting than one which is
-  hardly used by anyone).
+* As of Xapian 1.3.3, a compiler with decent support for C++11 is required to
+  build Xapian.  We currently aim to allow users to use a non-C++11 compiler
+  to build code which uses Xapian.
 
-  There is now plenty of choice of compilers which provide good conformance to
-  ISO C++, so if working around problems for some compiler proves too hard we
-  should just document the issue and users will either have to upgrade to a
-  more compliant compiler, or use another STL implementation such as STLport
-  (http://stlport.sourceforge.net/).
+  There are now several compilers with good C++11 support, but there are a
+  few shortfalls in commonly deployed versions of most of them.  Often we can
+  work around this, and we should do where the effort is low compared to the
+  gain (so a compiler version which is widely used is more worth supporting
+  than one which is hardly used by anyone).
+
+  However, we shouldn't have to jump through hoops to cater for compilers where
+  their authors aren't putting in the effort to keep up with the language
+  standards.
 
 * C++ features we currently assume:
 

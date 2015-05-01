@@ -94,10 +94,6 @@ AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
-dnl Libtool doesn't know about -library=stdcxx4 yet, and also it checks for
-dnl -library=stlport4 before we enable it, so trick it into not wanting to add
-dnl -library=Cstd.
-solaris_use_stlport4=yes
 LT_INIT
 
 AM_CXXFLAGS=

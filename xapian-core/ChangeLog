@@ -1,3 +1,12 @@
+Fri May 01 08:59:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL: STLport was last released in 2008, so (a) it's no
+	  longer actively developed and (b) it won't support C++11, so strip
+	  out documentation which mentions it.
+	* configure.ac: For Sun's C++ compiler, -std=c++11 enables C++11
+	  support, and is incompatible with -library=stlport, so remove code
+	  to enable that later option.
+
 Fri May 01 01:37:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Tweak comment to match xapian-omega's configure.
