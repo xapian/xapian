@@ -1,3 +1,9 @@
+Fri May 01 00:37:42 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Remove self-assignment check of AutoPtr as
+	  that doesn't work under C++11 when AutoPtr is unique_ptr, and add
+	  other checks of reassignment which should work for both.
+
 Fri May 01 00:37:09 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_postingsource.cc: Remove C++11 specific test which doesn't

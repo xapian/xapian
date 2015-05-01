@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -158,16 +158,44 @@ static bool test_autoptr1()
 	AutoPtr<test_autoptr> ptr(raw_ptr);
 
 	TEST_EQUAL(ptr.get(), raw_ptr);
-
 	TEST(!deleted);
 
-	ptr = ptr;
+	ptr.reset(ptr.release());
 
 	TEST_EQUAL(ptr.get(), raw_ptr);
+	TEST(!deleted);
 
+	ptr.swap(ptr);
+
+	TEST_EQUAL(ptr.get(), raw_ptr);
+	TEST(!deleted);
+
+	swap(ptr, ptr);
+
+	TEST_EQUAL(ptr.get(), raw_ptr);
 	TEST(!deleted);
     }
 
+    TEST(deleted);
+
+    deleted = false;
+    raw_ptr = new test_autoptr(deleted);
+
+    bool deleted2 = false;
+    test_autoptr * raw_ptr2 = new test_autoptr(deleted2);
+    AutoPtr<test_autoptr> ptr(raw_ptr2);
+
+    TEST_EQUAL(ptr.get(), raw_ptr2);
+    TEST(!deleted);
+    TEST(!deleted2);
+
+    ptr.reset(raw_ptr);
+    TEST_EQUAL(ptr.get(), raw_ptr);
+    TEST(!deleted);
+    TEST(deleted2);
+
+    ptr.reset();
+    TEST_EQUAL(ptr.get(), static_cast<test_autoptr*>(0));
     TEST(deleted);
 
     return true;
