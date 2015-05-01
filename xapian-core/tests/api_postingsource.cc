@@ -94,9 +94,6 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
     MyOddPostingSource src(db);
 
     // Check that passing NULL is rejected as intended.
-#if __cplusplus >= 201103L
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query bad(nullptr));
-#endif
     Xapian::PostingSource * nullsrc = NULL;
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query bad(nullsrc));
 		

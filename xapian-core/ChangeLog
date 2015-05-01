@@ -1,3 +1,8 @@
+Fri May 01 00:37:09 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: Remove C++11 specific test which doesn't
+	  actually work with C++11.
+
 Fri May 01 00:33:43 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc,
