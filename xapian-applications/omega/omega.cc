@@ -119,8 +119,8 @@ try {
 	} else {
 	    // Seems we're running from the command line so give version
 	    // and allow a query to be entered for testing
-	    cout << PROGRAM_NAME" - "PACKAGE" "VERSION" "
-		"(compiled "__DATE__" "__TIME__")\n";
+	    cout << PROGRAM_NAME " - " PACKAGE " " VERSION " "
+		"(compiled " __DATE__ " " __TIME__ ")\n";
 	    if (argc > 1) exit(0);
 	    cout << "Enter NAME=VALUE lines, end with blank line\n";
 	    decode_test();
