@@ -1,3 +1,9 @@
+Fri May 01 09:02:34 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: For Sun's C++ compiler, -std=c++11 enables C++11
+	  support, and is incompatible with -library=stlport, so remove code
+	  to enable that later option.
+
 Fri May 01 08:35:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* commonhelp.cc,omega.cc,omindex-list.cc,omindex.cc,scriptindex.cc:

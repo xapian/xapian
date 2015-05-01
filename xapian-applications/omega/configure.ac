@@ -11,10 +11,6 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 LT_PREREQ([2.2.6])
-dnl Libtool doesn't know about -library=stdcxx4 yet, and also it checks for
-dnl -library=stlport4 before we enable it, so trick it into not wanting to add
-dnl -library=Cstd.
-solaris_use_stlport4=yes
 LT_INIT
 
 dnl -no-undefined can cause problems on some platforms, so only pass it
