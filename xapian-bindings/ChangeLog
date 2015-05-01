@@ -1,3 +1,7 @@
+Fri May 01 12:14:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* INSTALL: IRIX is past EOL so drop information about IRIX make.
+
 Fri May 01 12:05:53 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/perl.i: Add workaround for Perl defining a seed() macro which
