@@ -1,3 +1,8 @@
+Fri May 01 13:38:48 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/autoptr.h: Just map AutoPtr to std::unique_ptr now we require
+	  C++11.
+
 Fri May 01 13:33:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc,net/progclient.cc: IRIX is dead, so remove
