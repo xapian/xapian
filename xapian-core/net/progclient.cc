@@ -172,7 +172,7 @@ ProgClient::run_program(const string &progname, const string &args
     /* throwing an exception is a bad idea, since we're
      * not the original process. */
     _exit(-1);
-#if defined __sgi || defined __xlC__
+#ifdef __xlC__
     // Avoid "missing return statement" warning.
     return 0;
 #endif

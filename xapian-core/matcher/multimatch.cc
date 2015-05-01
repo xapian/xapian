@@ -139,7 +139,7 @@ const Xapian::Enquire::Internal::sort_setting REL_VAL =
 	Xapian::Enquire::Internal::REL_VAL;
 const Xapian::Enquire::Internal::sort_setting VAL =
 	Xapian::Enquire::Internal::VAL;
-#if 0 // VAL_REL isn't currently used which causes a warning with SGI CC.
+#if 0 // VAL_REL isn't currently used so avoid compiler warnings.
 const Xapian::Enquire::Internal::sort_setting VAL_REL =
 	Xapian::Enquire::Internal::VAL_REL;
 #endif
