@@ -11,6 +11,10 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 LT_PREREQ([2.2.6])
+dnl Libtool doesn't know about -library=stdcxx4 yet, and also it checks for
+dnl -library=stlport4 before we enable it, so trick it into not wanting to add
+dnl -library=Cstd.
+solaris_use_stlport4=yes
 LT_INIT
 
 dnl -no-undefined can cause problems on some platforms, so only pass it
@@ -21,6 +25,9 @@ if test unsupported = "$allow_undefined_flag" ; then
   NO_UNDEFINED=-no-undefined
 fi
 AC_SUBST(NO_UNDEFINED)
+
+dnl disable "maintainer only" rules by default
+AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CXX
@@ -44,6 +51,9 @@ case $host_os in
     ;;
 esac
 
+dnl Probe for any options needed to enable C++11 suport.
+AX_CXX_COMPILE_STDCXX_11
+
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
@@ -53,9 +63,6 @@ XO_LIB_XAPIAN([], [], [xapian-config])
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
-
-dnl disable "maintainer only" rules by default
-AM_MAINTAINER_MODE
 
 case $host_os in
   *mingw*)
@@ -190,14 +197,15 @@ dnl have a working snprintf but with non-ISO return semantics, handle
 dnl that case separately as it may still be useful in many cases.
 dnl
 dnl mingw has _snprintf so check for that too.
-AC_MSG_CHECKING(for working ISO C90 conforming snprintf)
+AC_MSG_CHECKING([for working ISO C90 conforming snprintf])
 ac_cv_func_snprintf_noniso=no
 for func in snprintf _snprintf ; do
   AC_RUN_IFELSE([
     AC_LANG_PROGRAM(
       [[
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+using namespace std;
       ]],
       dnl Return different exit status for each error so we can see which
       dnl check failed by consulting config.log.
@@ -225,21 +233,21 @@ done
 AC_MSG_RESULT([$ac_cv_func_snprintf])
 case $ac_cv_func_snprintf in
   no)
-    AC_MSG_CHECKING(for working non-ISO C90 conforming snprintf)
+    AC_MSG_CHECKING([for working non-ISO C90 conforming snprintf])
     AC_MSG_RESULT([$ac_cv_func_snprintf_noniso])
     if test no != "$ac_cv_func_snprintf_noniso" ; then
-      AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf_noniso],
-	[Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+      AC_DEFINE_UNQUOTED([SNPRINTF], [$ac_cv_func_snprintf_noniso],
+	[Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     fi
     ;;
   unknown)
     dnl be conservative when crosscompiling
     ;;
   *)
-    AC_DEFINE_UNQUOTED(SNPRINTF_ISO, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf with ISO C90 semantics (if one exists)])
-    AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf],
-       [Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
+    AC_DEFINE_UNQUOTED([SNPRINTF_ISO], [$ac_cv_func_snprintf],
+       [Define to the name of a function implementing snprintf with ISO C99 semantics (if one exists)])
+    AC_DEFINE_UNQUOTED([SNPRINTF], [$ac_cv_func_snprintf],
+       [Define to the name of a function implementing snprintf but not caring about ISO C99 return value semantics (if one exists)])
     ;;
 esac
 
@@ -405,89 +413,67 @@ if test yes = "$GXX"; then
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
       dnl
-      dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
-      dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
+      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
+      dnl
+      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
+      dnl GCC 4.3.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
 
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
       dnl robust.
-      AC_MSG_CHECKING([for version of GCC])
+      AC_MSG_CHECKING([for version of $CXX])
       gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -E -|sed '/^#/d;s/ //g'`
-      AC_MSG_RESULT([$gxx_version])
+      AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[012]].* | 3.0.*)
-	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
+      [[0123]].*|4.[[0123]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.4 or later])
 	;;
-      3.*|4.0.*) ;;
-      *) dnl GCC >= 4.1
-	case $gxx_version in
-	4.1.*)
-	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
-	  dnl only enable it for GCC >= 4.1.
-	  dnl
-	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
-	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
-	  dnl in a static method is the same as a member variable, so only
-	  dnl enable it for GCC >= 4.1.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
-	4.2.*)
-	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
-	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
-	4.[[345]].*)
-	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
-	  dnl GCC 4.3.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
-	*) dnl GCC >= 4.6
-	  dnl -Wdouble-promotion was added in GCC 4.6.
-	  dnl
-	  dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
-	  dnl warns for this case with -Wuninitialized (implied by -W).  We
-	  dnl don't intend to use this idiom, so any instances are bugs we'd
-	  dnl like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
-	esac
-
-	dnl FIXME:
-	dnl -Wconversion in older GCC versions is intended to help migration
-	dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
-	dnl to -Wtraditional-conversion and a new -Wconversion added which
-	dnl sounds useful but is a bit buggy currently.  So we should consider
-	dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+      4.[[45]].*) ;;
+      *) dnl GCC >= 4.6
+	dnl -Wdouble-promotion was added in GCC 4.6.
 	dnl
-	dnl -Wold-style-cast is interesting, but triggers for macros from
-	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
-
-	if test no != "$enable_visibility"; then
-	  dnl GCC doesn't support symbol visibility on all platforms (notably
-	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
-	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
-	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
-	    AC_MSG_RESULT([yes])
-	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
-	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
-	  else
-	    AC_MSG_RESULT([no])
-	  fi
-	fi
-
-	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC 4.1 or newer.  We don't do this for older GCCs as GCC 2.95,
-	dnl some GCC 3.x compilers, and Apple's GCC 4.0 issue spurious warnings.
-	if test x$USE_MAINTAINER_MODE = xyes; then
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-	fi
-	;;
+	dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+	dnl warns for this case with -Wuninitialized (implied by -W).  We
+	dnl don't intend to use this idiom, so any instances are bugs we'd
+	dnl like to know about.
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
       esac
+
+      dnl FIXME:
+      dnl -Wconversion in older GCC versions is intended to help migration
+      dnl from K&R to ISO C, and isn't useful for us.  In 4.3 it was renamed
+      dnl to -Wtraditional-conversion and a new -Wconversion added which
+      dnl sounds useful but is a bit buggy currently.  So we should consider
+      dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+      dnl
+      dnl -Wold-style-cast is interesting, but triggers for macros from
+      dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
+
+      if test no != "$enable_visibility"; then
+	dnl GCC doesn't support symbol visibility on all platforms (notably
+	dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+	AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+	if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	  AC_MSG_RESULT([yes])
+	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	  dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+	else
+	  AC_MSG_RESULT([no])
+	fi
+      fi
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
       ;;
     *__clang__*)
       dnl Intel's compiler (since __clang__ not substituted):
-
+      dnl
       dnl -w1 stops the avalanche of uninteresting "remark" messages.
       dnl -wd... disables warnings which don't have good code workarounds.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
@@ -499,7 +485,6 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
-
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
       AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
 
@@ -509,9 +494,31 @@ if test yes = "$GXX"; then
       fi
       ;;
   esac
+else
+  dnl Not GCC, nor a compiler masquerading as GCC.
+  case /$CXX in
+  */aCC)
+    dnl +w turns on more warnings.
+    dnl +wlint turns on "lint-like" warnings.
+    dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
+    dnl 2340 (remark) "value copied to temporary, reference to temporary
+    dnl	use", in: throw Xapian::UnimplementedError("...");
+    dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
+    dnl	virtual destructor for intrusive_base, since we never delete
+    dnl       its subclasses by a intrusive_base *).
+    dnl 3348 "declaration hides constant ..." which seems to misfire!
+    dnl 4255 (remark) "padding size of struct "..." with ... bytes to
+    dnl	alignment boundary".
+    dnl 4273 "floating-point equality and inequality comparisons may be
+    dnl	inappropriate due to roundoff common in floating-point computation"
+    dnl	No obvious workaround for when you really do want == or !=.
+    dnl 4285 "operator= does not have a check for the source and destination
+    dnl	addresses being non-identical" - fires for AutoPtr which
+    dnl	includes such a check indirectly (internaltest's autoptr1 check this).
+    dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
+    AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
+  esac
 fi
-
-AC_SUBST(AM_CXXFLAGS)
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
@@ -548,6 +555,8 @@ AH_BOTTOM(
 #endif
 ])
 
+AC_SUBST([AM_CXXFLAGS])
+
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
@@ -562,7 +571,11 @@ dnl **************************
 dnl * Build the output files *
 dnl **************************
 
-AC_CONFIG_FILES([Makefile docs/Makefile xapian-omega.spec])
+AC_CONFIG_FILES([
+ Makefile
+ docs/Makefile
+ xapian-omega.spec
+ ])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([outlookmsg2html], [chmod +x outlookmsg2html])
 AC_OUTPUT

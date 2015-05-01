@@ -1,3 +1,8 @@
+Fri May 01 06:27:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,m4/ax_cxx_compile_stdcxx_11.m4: Sync with xapian-core,
+	  enabling C++11.
+
 Fri May 01 01:38:08 GMT 2015  Olly Betts <olly@survex.com>
 
 	* INSTALL: IRIX is past EOL so drop information about IRIX make.
