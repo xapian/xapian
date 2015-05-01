@@ -1,3 +1,8 @@
+Wed May 06 07:21:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set default value for AUTOM4TE before AC_OUTPUT so the
+	  default will actually get used.
+
 Wed May 06 07:21:04 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add explicit AC_CANONICAL_HOST.

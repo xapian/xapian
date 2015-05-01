@@ -1312,6 +1312,10 @@ CXXFLAGS=$save_CXXFLAGS
 dnl See if large file support is available
 AC_SYS_LARGEFILE
 
+dnl Required for auto regeneration to work in a combined maintainer-mode tree.
+: ${AUTOM4TE=autom4te}
+AC_SUBST([AUTOM4TE])
+
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST([link_all_deplibs_CXX])
 
@@ -1358,10 +1362,6 @@ if test yes = "$vpath_build" ; then
     test -d "$dir" || mkdir "$dir"
   done
 fi
-
-dnl Required for auto regeneration to work in a combined maintainer-mode tree.
-: ${AUTOM4TE=autom4te}
-AC_SUBST([AUTOM4TE])
 
 dnl Generate include/xapian/version.h:
 
