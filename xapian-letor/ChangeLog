@@ -1,3 +1,7 @@
+Fri May 01 12:26:08 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove unused probe for <stdint.h>.
+
 Fri Dec 05 10:37:28 GMT 2014  Olly Betts <olly@survex.com>
 
 	* docs/letor.rst,ranker.cc,ranker.h: Fix typos reported by Veres Lajos.
