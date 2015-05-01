@@ -1,3 +1,7 @@
+Fri May 01 12:16:29 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update check for -fvisibility to match xapian-core's.
+
 Fri May 01 12:15:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Simplify test of Ruby version.

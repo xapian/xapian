@@ -1312,37 +1312,24 @@ if test yes = "$GXX" ; then
       SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -w1 -wd177,1572"
     ],
     [
-      dnl GCC:
+      dnl GCC or clang:
       dnl
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
       SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fshow-column -Wall -Wno-unused -Wno-uninitialized"
-
-      if test no != "$enable_visibility"; then
-	AC_MSG_CHECKING([whether to use -fvisibility=hidden])
-	dnl To be robust, we check both that -fvisibility=hidden is recognised
-	dnl and that SWIG will have added the visibility attributes.
-	dnl The GCC wiki says it's supported from GCC 4.0 onwards.  GCC 3.4
-	dnl also supports -fvisibility, but doesn't allow visibility to be
-	dnl specified for classes, which probably breaks throwing exception
-	dnl classes from the library.  We want that to work, so only switch
-	dnl this on for GCC 4.0 onwards.
-	SAVE_CXXFLAGS=$CXXFLAGS
-	CXXFLAGS="-Werror -fvisibility=hidden"
-	AC_TRY_COMPILE([], [
-#if __GNUC__ >= 4
-  /* GCC supports -fvisibility and allows specifying visibility for classes. */
-#else
-  choke me
-#endif
-],
-		     AC_MSG_RESULT(yes)
-		     SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fvisibility=hidden"
-		     ,
-		     AC_MSG_RESULT(no))
-	CXXFLAGS=$SAVE_CXXFLAGS
-      fi
     ])
+
+  if test no != "$enable_visibility"; then
+    dnl GCC doesn't support symbol visibility on all platforms (e.g. it isn't
+    dnl on mingw).
+    AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+    if echo 'int bar() __attribute__((visibility("default"))); int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+      AC_MSG_RESULT([yes])
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fvisibility=hidden"
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
 fi
 AC_SUBST(SWIG_CXXFLAGS)
 
