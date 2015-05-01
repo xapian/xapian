@@ -1,3 +1,11 @@
+Fri May 01 00:33:43 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc,
+	  tests/harness/backendmanager_remotetcp.cc,
+	  tests/harness/testsuite.h,tests/harness/testutils.h: Add spaces
+	  between literal strings and macros which expand to literal strings
+	  for C++11 compatibility.
+
 Thu Apr 30 14:41:59 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc,backends/glass/glass_table.cc: Remove

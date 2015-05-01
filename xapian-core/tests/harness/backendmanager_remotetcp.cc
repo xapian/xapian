@@ -112,7 +112,7 @@ launch_xapian_tcpsrv(const string & args)
     // if xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
-    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port " + str(port) + " " + args;
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif

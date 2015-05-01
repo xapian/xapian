@@ -346,7 +346,7 @@ BackendManager::get_xapian_progsrv_command()
 {
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	return "./runsrv "XAPIAN_PROGSRV;
+	return "./runsrv " XAPIAN_PROGSRV;
     }
 #endif
     return XAPIAN_PROGSRV;
