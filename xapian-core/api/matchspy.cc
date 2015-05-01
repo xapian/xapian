@@ -1,7 +1,7 @@
 /** @file matchspy.cc
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -308,8 +308,7 @@ TermIterator
 ValueCountMatchSpy::values_begin() const
 {
     Assert(internal.get());
-    AutoPtr<ValueCountTermList> termlist(new ValueCountTermList(internal.get()));
-    return Xapian::TermIterator(termlist.release());
+    return Xapian::TermIterator(new ValueCountTermList(internal.get()));
 }
 
 TermIterator

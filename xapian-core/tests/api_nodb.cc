@@ -31,7 +31,6 @@
 #include "testsuite.h"
 #include "testutils.h"
 
-#include "autoptr.h"
 #include <list>
 #include <string>
 #include <vector>
@@ -152,12 +151,10 @@ DEFINE_TESTCASE(querylen2, !backend) {
     vector<string> v1(terms, terms + 3);
     vector<Xapian::Query> v2(queries, queries + 3);
     vector<Xapian::Query *> v3;
-    AutoPtr<Xapian::Query> dynquery1(new Xapian::Query(Xapian::Query::OP_AND,
-					   string("ball"),
-					   string("club")));
-    AutoPtr<Xapian::Query> dynquery2(new Xapian::Query("ring"));
-    v3.push_back(dynquery1.get());
-    v3.push_back(dynquery2.get());
+    Xapian::Query query1(Xapian::Query::OP_AND, string("ball"), string("club"));
+    Xapian::Query query2("ring");
+    v3.push_back(&query1);
+    v3.push_back(&query2);
 
     Xapian::Query myq1 = Xapian::Query(Xapian::Query::OP_AND, v1.begin(), v1.end());
     tout << "myq1=" << myq1 << "\n";
