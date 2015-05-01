@@ -84,6 +84,9 @@ esac
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
+dnl Probe for any options needed to enable C++11 suport.
+AX_CXX_COMPILE_STDCXX_11
+
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
 

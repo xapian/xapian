@@ -1,3 +1,8 @@
+Fri May 01 11:04:33 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,m4/ax_cxx_compile_stdcxx_11.m4: Require a C++11
+	  compiler.
+
 Fri Apr 24 03:26:10 GMT 2015  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Don't wrap Query::LEAF_* - they're for internal
