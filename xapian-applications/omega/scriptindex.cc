@@ -754,8 +754,8 @@ try {
     argv += optind;
     argc -= optind;
     if (show_help || argc < 2) {
-	cout << PROG_NAME" - "PROG_DESC"\n"
-"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
+	cout << PROG_NAME " - " PROG_DESC "\n"
+"Usage: " PROG_NAME " [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
 "\n"
 "Creates or updates a Xapian database with the data from the input files listed\n"
 "on the command line.  If no files are specified, data is read from stdin.\n"

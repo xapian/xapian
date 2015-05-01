@@ -1341,8 +1341,8 @@ main(int argc, char **argv)
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
-	    cout << PROG_NAME" - "PROG_DESC"\n\n"
-"Usage: "PROG_NAME" [OPTIONS] --db DATABASE [BASEDIR] DIRECTORY\n"
+	    cout << PROG_NAME " - " PROG_DESC "\n\n"
+"Usage: " PROG_NAME " [OPTIONS] --db DATABASE [BASEDIR] DIRECTORY\n"
 "\n"
 "DIRECTORY is the directory to start indexing from.\n"
 "\n"
