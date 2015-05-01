@@ -1,3 +1,7 @@
+Fri May 01 01:38:08 GMT 2015  Olly Betts <olly@survex.com>
+
+	* INSTALL: IRIX is past EOL so drop information about IRIX make.
+
 Thu Apr 30 05:08:13 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Add common/stringutils.cc to urlenctest_SOURCES, needed
