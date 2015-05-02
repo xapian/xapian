@@ -117,6 +117,31 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	LEAF_MATCH_NOTHING
     };
 
+    enum {
+	/** Throw an error if OP_WILDCARD exceeds its expansion limit.
+	 *
+	 *  Xapian::WildcardError will be thrown when the query is actually
+	 *  run.
+	 */
+	WILDCARD_LIMIT_ERROR,
+	/** Stop expanding when OP_WILDCARD reaches its expansion limit.
+	 *
+	 *  This makes the wildcard expand to only the first N terms (sorted
+	 *  by byte order).
+	 */
+	WILDCARD_LIMIT_FIRST,
+	/** Limit OP_WILDCARD expansion to the most frequent terms.
+	 *
+	 *  If OP_WILDCARD would expand to more than its expansion limit, the
+	 *  most frequent terms are taken.  This approach works well for cases
+	 *  such as expanding a partial term at the end of a query string which
+	 *  the user hasn't finished typing yet - as well as being less expense
+	 *  to evaluate than the full expansion, using only the most frequent
+	 *  terms tends to give better results too.
+	 */
+	WILDCARD_LIMIT_MOST_FREQUENT
+    };
+
     /// Default constructor.
     XAPIAN_NOTHROW(Query())
 	: internal(0) { }
@@ -175,10 +200,25 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     Query(op op_, Xapian::valueno slot,
 	  const std::string & begin, const std::string & end);
 
-    // OP_WILDCARD
+    /** Query constructor for OP_WILDCARD queries.
+     *
+     *  @param op	Must be OP_WILDCARD
+     *  @param pattern	The wildcard pattern - currently this is just a string
+     *			and the wildcard expands to terms which start with
+     *			exactly this string.
+     *	@param max_expansion	The maximum number of terms to expand to
+     *				(default: 0, which means no limit)
+     *	@param max_type	How to enforce max_expansion - one of
+     *			@a WILDCARD_LIMIT_ERROR (the default),
+     *			@a WILDCARD_LIMIT_FIRST or
+     *			@a WILDCARD_LIMIT_MOST_FREQUENT.
+     *	@param combiner The @op to combine the terms with - one of
+     *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
+     */
     Query(op op_,
 	  const std::string & pattern,
 	  Xapian::termcount max_expansion = 0,
+	  int max_type = WILDCARD_LIMIT_ERROR,
 	  op combiner = OP_SYNONYM);
 
     template<typename I>

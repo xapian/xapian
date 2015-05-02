@@ -104,15 +104,17 @@ Query::Query(op op_, Xapian::valueno slot,
 Query::Query(op op_,
 	     const std::string & pattern,
 	     Xapian::termcount max_expansion,
+	     int max_type,
 	     op combiner)
 {
-    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | combiner);
+    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | max_type | combiner);
     if (rare(op_ != OP_WILDCARD))
 	throw Xapian::InvalidArgumentError("op must be OP_WILDCARD");
     if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
 	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
     internal = new Xapian::Internal::QueryWildcard(pattern,
 						   max_expansion,
+						   max_type,
 						   combiner);
 }
 

@@ -166,6 +166,9 @@ class OrContext : public Context {
     /// Select the best set_size postlists from the last out_of added.
     void select_elite_set(size_t set_size, size_t out_of);
 
+    /// Select the set_size postlists with the highest term frequency.
+    void select_most_frequent(size_t set_size);
+
     PostList * postlist(QueryOptimiser* qopt);
     PostList * postlist_max(QueryOptimiser* qopt);
 };
@@ -181,6 +184,16 @@ OrContext::select_elite_set(size_t set_size, size_t out_of)
     nth_element(begin, begin + set_size - 1, pls.end(), CmpMaxOrTerms());
     for_each(begin + set_size, pls.end(), delete_ptr<PostList>());
     pls.resize(pls.size() - out_of + set_size);
+}
+
+void
+OrContext::select_most_frequent(size_t set_size)
+{
+    vector<PostList*>::iterator begin = pls.begin();
+    nth_element(begin, begin + set_size - 1, pls.end(),
+		ComparePostListTermFreqAscending());
+    for_each(begin + set_size, pls.end(), delete_ptr<PostList>());
+    pls.resize(set_size);
 }
 
 PostList *
@@ -491,12 +504,16 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			throw SerialisationError("not enough data");
 		    Xapian::termcount max_expansion = decode_length(p, end,
 								    false);
+		    if (end - *p < 2)
+			throw SerialisationError("not enough data");
+		    int max_type = static_cast<unsigned char>(*(*p)++);
 		    op combiner = static_cast<op>(*(*p)++);
 		    size_t len = decode_length(p, end, true);
 		    string pattern(*p, len);
 		    *p += len;
 		    return new Xapian::Internal::QueryWildcard(pattern,
 							       max_expansion,
+							       max_type,
 							       combiner);
 		}
 		case 0x0c: { // PostingSource
@@ -863,16 +880,30 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	t->next();
 	if (t->at_end())
 	    break;
-	if (expansions_left-- == 0) {
-	    string msg("Wildcard ");
-	    msg += pattern;
-	    msg += "* expands to more than ";
-	    msg += str(max_expansion);
-	    msg += " terms";
-	    throw Xapian::WildcardError(msg);
+	if (max_type < Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
+	    if (expansions_left-- == 0) {
+		if (max_type == Xapian::Query::WILDCARD_LIMIT_FIRST)
+		    break;
+		string msg("Wildcard ");
+		msg += pattern;
+		msg += "* expands to more than ";
+		msg += str(max_expansion);
+		msg += " terms";
+		throw Xapian::WildcardError(msg);
+	    }
 	}
 	const string & term = t->get_termname();
 	ctx.add_postlist(qopt->open_lazy_post_list(term, 1, or_factor));
+    }
+
+    if (max_type == Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) {
+	// FIXME: open_lazy_post_list() results in the term getting registered
+	// for stats, so we still incur an avoidable cost from the full
+	// expansion size of the wildcard, which is most likely to be visible
+	// with the remote backend.  Perhaps we should split creating the lazy
+	// postlist from registering the term for stats.
+	if (ctx.size() > max_expansion)
+	    ctx.select_most_frequent(max_expansion);
     }
 
     if (factor != 0.0) {
@@ -914,6 +945,7 @@ QueryWildcard::serialise(string & result) const
 {
     result += static_cast<char>(0x0b);
     result += encode_length(max_expansion);
+    result += static_cast<unsigned char>(max_type);
     result += static_cast<unsigned char>(combiner);
     result += encode_length(pattern.size());
     result += pattern;

@@ -453,7 +453,8 @@ Term::as_wildcarded_query(State * state_) const
 	string root = *piter;
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
-	subqs.push_back(Query(Query::OP_WILDCARD, root, max, Query::OP_OR));
+	subqs.push_back(Query(Query::OP_WILDCARD, root, max,
+			      Query::WILDCARD_LIMIT_ERROR, Query::OP_OR));
     }
     Query * q = new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
     delete this;
@@ -474,6 +475,7 @@ Term::as_partial_query(State * state_) const
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
 	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max,
+				      Query::WILDCARD_LIMIT_MOST_FREQUENT,
 				      Query::OP_OR));
 	// Add the term, as it would normally be handled, as an alternative.
 	subqs_full.push_back(Query(make_term(*piter), 1, pos));

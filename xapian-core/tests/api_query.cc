@@ -267,6 +267,80 @@ DEFINE_TESTCASE(phrasealldocs1, backend) {
     return true;
 }
 
+struct wildcard_testcase {
+    const char * pattern;
+    Xapian::termcount max_expansion;
+    char max_type;
+    const char * terms[4];
+};
+
+#define WILDCARD_EXCEPTION { 0, 0, 0, "" }
+static const
+wildcard_testcase wildcard1_testcases[] = {
+    // Tries to expand to 7 terms.
+    { "th",	6, 'E', WILDCARD_EXCEPTION },
+    { "thou",	1, 'E', { "though", 0, 0, 0 } },
+    { "s",	2, 'F', { "say", "search", 0, 0 } },
+    { "s",	2, 'M', { "simpl", "so", 0, 0 } },
+    { 0,	0, 0, { 0, 0, 0, 0 } }
+};
+
+DEFINE_TESTCASE(wildcard1, backend) {
+    // FIXME: The counting of terms the wildcard expands to is per subdatabase,
+    // so the wildcard may expand to more terms than the limit if some aren't
+    // in all subdatabases.  Also WILDCARD_LIMIT_MOST_FREQUENT uses the
+    // frequency from the subdatabase, and so may select different terms in
+    // each subdatabase.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::Enquire enq2(db);
+    const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
+
+    const wildcard_testcase * p = wildcard1_testcases;
+    while (p->pattern) {
+	tout << p->pattern << endl;
+	const char * const * tend = p->terms + 4;
+	while (tend[-1] == NULL) --tend;
+	bool expect_exception = (tend - p->terms == 4 && tend[-1][0] == '\0');
+	Xapian::Query q;
+	if (p->max_type) {
+	    int max_type;
+	    switch (p->max_type) {
+		case 'E':
+		    max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+		    break;
+		case 'F':
+		    max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
+		    break;
+		case 'M':
+		    max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+		    break;
+		default:
+		    return false;
+	    }
+	    q = Xapian::Query(o, p->pattern, p->max_expansion, max_type);
+	} else {
+	    q = Xapian::Query(o, p->pattern, p->max_expansion);
+	}
+	enq.set_query(q);
+	try {
+	    Xapian::MSet mset = enq.get_mset(0, 10);
+	    TEST(!expect_exception);
+	    q = Xapian::Query(q.OP_SYNONYM, p->terms, tend);
+	    enq.set_query(q);
+	    Xapian::MSet mset2 = enq.get_mset(0, 10);
+	    TEST_EQUAL(mset.size(), mset2.size());
+	    TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
+	} catch (const Xapian::WildcardError &) {
+	    TEST(expect_exception);
+	}
+	++p;
+    }
+
+    return true;
+}
+
 DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Query q(Xapian::Query::OP_SYNONYM,
