@@ -88,6 +88,12 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     Xapian::termcount max_wildcard_expansion;
 
+    Xapian::termcount max_partial_expansion;
+
+    int max_wildcard_type;
+
+    int max_partial_type;
+
     void add_prefix(const string &field, const string &prefix,
 		    filter_type type);
 
@@ -100,7 +106,10 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     Internal() : stem_action(STEM_SOME), stopper(NULL),
-	default_op(Query::OP_OR), errmsg(NULL), max_wildcard_expansion(0) { }
+	default_op(Query::OP_OR), errmsg(NULL),
+	max_wildcard_expansion(0), max_partial_expansion(100),
+	max_wildcard_type(Xapian::Query::WILDCARD_LIMIT_ERROR),
+	max_partial_type(Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) { }
 
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };

@@ -251,6 +251,10 @@ Native C++ API
 
 .. Keep table width to <= 126 columns.
 
+.. Substitution definitions for feature names which are two wide for the column:
+
+.. |set_max_wildcard_expansion| replace:: ``Xapian::QueryParser::set_max_wildcard_expansion()``
+
 ======= =================================== ==================================================================================
 Removed Feature name                        Upgrade suggestion and comments
 ======= =================================== ==================================================================================
@@ -454,6 +458,8 @@ Removed Feature name                        Upgrade suggestion and comments
 1.3.2   The Brass backend                   Use the Glass backend instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   ``Xapian::Brass::open()``           Use the constructor with ``Xapian::DB_BACKEND_GLASS`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.3   |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
 ======= =================================== ==================================================================================
 
 

@@ -569,15 +569,47 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      */
     void set_database(const Database &db);
 
-    /** Specify the maximum expansion of a wildcard or partial term.
+    /** Specify the maximum expansion of a wildcard and/or partial term.
      *
-     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL for this
-     *  setting to have anything to affect.
+     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL in the flags
+     *  parameter to @a parse_query() for this setting to have anything to
+     *  affect.
      *
-     *  @param limit	The maximum number of terms each wildcard in the query
-     *			can expand to, or 0 for no limit (which is the default).
+     *  If you don't call this method, the default settings are no limit on
+     *  wildcard expansion, and partial terms expanding to the most frequent
+     *  100 terms - i.e. as if you'd called:
+     *
+     *  set_max_expansion(0);
+     *  set_max_expansion(100, Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT, Xapian::QueryParser::FLAG_PARTIAL);
+     *
+     *  @param max_expansion  The maximum number of terms each wildcard in the
+     *			query can expand to, or 0 for no limit (which is the
+     *			default).
+     *	@param max_type	@a Xapian::Query::WILDCARD_LIMIT_ERROR,
+     *			@a Xapian::Query::WILDCARD_LIMIT_FIRST or
+     *			@a Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT
+     *			(default: Xapian::Query::WILDCARD_LIMIT_ERROR).
+     *  @param flags	What to set the limit for (default:
+     *			FLAG_WILDCARD|FLAG_PARTIAL, setting the limit for both
+     *			wildcards and partial terms).
      */
-    void set_max_wildcard_expansion(Xapian::termcount limit);
+    void set_max_expansion(Xapian::termcount max_expansion,
+			   int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
+			   unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+
+    /** Specify the maximum expansion of a wildcard.
+     *
+     *  If any wildcard expands to more than @a max_expansion terms, an
+     *  exception will be thrown.
+     *
+     *  This method is provided for API compatibility with Xapian 1.2.x and is
+     *  deprecated - replace it with:
+     *
+     *  set_max_wildcard_expansion(max_expansion,
+     *				   Xapian::Query::WILDCARD_LIMIT_ERROR,
+     *				   Xapian::QueryParser::FLAG_WILDCARD);
+     */
+    XAPIAN_DEPRECATED(void set_max_wildcard_expansion(Xapian::termcount));
 
     /** Parse a query.
      *
@@ -742,6 +774,14 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Return a string describing this object.
     std::string get_description() const XAPIAN_PURE_FUNCTION;
 };
+
+inline void
+QueryParser::set_max_wildcard_expansion(Xapian::termcount max_expansion)
+{
+    set_max_expansion(max_expansion,
+		      Xapian::Query::WILDCARD_LIMIT_ERROR,
+		      FLAG_WILDCARD);
+}
 
 /** Convert a floating point number to a string, preserving sort order.
  *

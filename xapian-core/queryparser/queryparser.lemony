@@ -281,6 +281,18 @@ class State {
     Xapian::termcount get_max_wildcard_expansion() const {
 	return qpi->max_wildcard_expansion;
     }
+
+    int get_max_wildcard_type() const {
+	return qpi->max_wildcard_type;
+    }
+
+    Xapian::termcount get_max_partial_expansion() const {
+	return qpi->max_partial_expansion;
+    }
+
+    int get_max_partial_type() const {
+	return qpi->max_partial_type;
+    }
 };
 
 string
@@ -447,14 +459,15 @@ Term::as_wildcarded_query(State * state_) const
     const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
     Xapian::termcount max = state_->get_max_wildcard_expansion();
+    int max_type = state_->get_max_wildcard_type();
     vector<Query> subqs;
     subqs.reserve(prefixes.size());
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
-	subqs.push_back(Query(Query::OP_WILDCARD, root, max,
-			      Query::WILDCARD_LIMIT_ERROR, Query::OP_OR));
+	subqs.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
+			      Query::OP_OR));
     }
     Query * q = new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
     delete this;
@@ -464,7 +477,8 @@ Term::as_wildcarded_query(State * state_) const
 Query *
 Term::as_partial_query(State * state_) const
 {
-    Xapian::termcount max = state_->get_max_wildcard_expansion();
+    Xapian::termcount max = state_->get_max_partial_expansion();
+    int max_type = state_->get_max_partial_type();
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
 
@@ -474,8 +488,7 @@ Term::as_partial_query(State * state_) const
 	string root = *piter;
 	root += name;
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
-	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max,
-				      Query::WILDCARD_LIMIT_MOST_FREQUENT,
+	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
 				      Query::OP_OR));
 	// Add the term, as it would normally be handled, as an alternative.
 	subqs_full.push_back(Query(make_term(*piter), 1, pos));

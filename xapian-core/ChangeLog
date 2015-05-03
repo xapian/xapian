@@ -1,3 +1,15 @@
+Sun May 03 12:41:58 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst,include/xapian/queryparser.h,
+	  queryparser/queryparser.cc,queryparser/queryparser.lemony,
+	  queryparser/queryparser_internal.h,tests/queryparsertest.cc:
+	  Allow setting the expansion limits and types for wildcards
+	  and partial terms in the QueryParser independently.  Partial
+	  terms now default to the 100 most frequent matching terms.
+	  Deprecate set_max_wildcard_expansion() in favour of new
+	  set_max_expansion() method which can set expansion limits
+	  for partial terms too.  Completes #608.
+
 Sat May 02 09:20:30 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,

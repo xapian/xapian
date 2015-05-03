@@ -1020,7 +1020,7 @@ test_qp_flag_wildcard1_helper(const Xapian::Database &db,
 {
     Xapian::QueryParser qp;
     qp.set_database(db);
-    qp.set_max_wildcard_expansion(max_expansion);
+    qp.set_max_expansion(max_expansion);
     Xapian::Enquire e(db);
     e.set_query(qp.parse_query(query_string, Xapian::QueryParser::FLAG_WILDCARD));
     // The exception for expanding too much may happen at parse time or later
