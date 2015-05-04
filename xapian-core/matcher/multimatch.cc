@@ -639,7 +639,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
 
 	if (sort_by != REL) {
-	    if (sorter) {
+	    const string * ptr = pl->get_sort_key();
+	    if (ptr) {
+		new_item.sort_key = *ptr;
+	    } else if (sorter) {
 		new_item.sort_key = (*sorter)(doc);
 	    } else {
 		new_item.sort_key = vsdoc.get_value(sort_key);

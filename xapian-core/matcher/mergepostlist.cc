@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2015 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -148,6 +148,14 @@ MergePostList::get_weight() const
     LOGCALL(MATCH, double, "MergePostList::get_weight", NO_ARGS);
     Assert(current != -1);
     RETURN(plists[current]->get_weight());
+}
+
+const string *
+MergePostList::get_sort_key() const
+{
+    LOGCALL(MATCH, const string *, "MergePostList::get_sort_key", NO_ARGS);
+    Assert(current != -1);
+    RETURN(plists[current]->get_sort_key());
 }
 
 const string *

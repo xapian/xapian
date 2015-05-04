@@ -1,7 +1,7 @@
 /** @file msetpostlist.cc
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -80,6 +80,14 @@ MSetPostList::get_weight() const
     LOGCALL(MATCH, double, "MSetPostList::get_weight", NO_ARGS);
     Assert(cursor != -1);
     RETURN(mset_internal->items[cursor].wt);
+}
+
+const string *
+MSetPostList::get_sort_key() const
+{
+    LOGCALL(MATCH, const string *, "MSetPostList::get_sort_key", NO_ARGS);
+    Assert(cursor != -1);
+    RETURN(&mset_internal->items[cursor].sort_key);
 }
 
 const string *

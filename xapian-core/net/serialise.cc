@@ -1,7 +1,7 @@
 /** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -172,12 +172,15 @@ serialise_mset(const Xapian::MSet &mset)
     result += serialise_double(mset.internal->percent_factor);
 
     result += encode_length(mset.size());
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	result += serialise_double(i.get_weight());
-	result += encode_length(*i);
-	result += encode_length(i.get_collapse_key().size());
-	result += i.get_collapse_key();
-	result += encode_length(i.get_collapse_count());
+    for (size_t i = 0; i != mset.size(); ++i) {
+	const Xapian::Internal::MSetItem & item = mset.internal->items[i];
+	result += serialise_double(item.wt);
+	result += encode_length(item.did);
+	result += encode_length(item.sort_key.size());
+	result += item.sort_key;
+	result += encode_length(item.collapse_key.size());
+	result += item.collapse_key;
+	result += encode_length(item.collapse_count);
     }
 
     if (mset.internal->stats)
@@ -207,10 +210,14 @@ unserialise_mset(const char * p, const char * p_end)
 	double wt = unserialise_double(&p, p_end);
 	Xapian::docid did = decode_length(&p, p_end, false);
 	size_t len = decode_length(&p, p_end, true);
+	string sort_key(p, len);
+	p += len;
+	len = decode_length(&p, p_end, true);
 	string key(p, len);
 	p += len;
 	Xapian::doccount collapse_cnt = decode_length(&p, p_end, false);
 	items.push_back(Xapian::Internal::MSetItem(wt, did, key, collapse_cnt));
+	swap(items.back().sort_key, sort_key);
     }
 
     AutoPtr<Xapian::Weight::Internal> stats;
