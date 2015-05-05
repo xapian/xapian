@@ -1,3 +1,8 @@
+Wed May 06 07:45:18 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/pythontest2.py,python/pythontest3.py: Fix typo in test context
+	  ("multipler" -> "multiplier").
+
 Wed May 06 07:42:56 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Simplify test of Ruby version.
