@@ -1,3 +1,8 @@
+Tue May 05 04:56:25 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/pythontest.py,python3/pythontest.py: Fix typo in test context
+	  ("multipler" -> "multiplier").
+
 Tue May 05 04:09:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/Makefile.am,perl/t/collapse.t: Add test coverage for

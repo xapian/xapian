@@ -894,7 +894,7 @@ def test_scale_weight():
     """
     db = setup_database()
     for mult in (0, 1, 2.5):
-        context("checking queries with OP_SCALE_WEIGHT with a multipler of %r" %
+        context("checking queries with OP_SCALE_WEIGHT with a multiplier of %r" %
                 mult)
         query1 = xapian.Query("it")
         query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
@@ -911,7 +911,7 @@ def test_scale_weight():
             expected = [(int(item.weight * mult * 1000000), item.docid) for item in mset1]
         expect([(int(item.weight * 1000000), item.docid) for item in mset2], expected)
 
-    context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
+    context("checking queries with OP_SCALE_WEIGHT with a multiplier of -1")
     query1 = xapian.Query("it")
     expect_exception(xapian.InvalidArgumentError,
                      "OP_SCALE_WEIGHT requires factor >= 0",
