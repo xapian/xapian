@@ -1,3 +1,8 @@
+Tue May 05 02:38:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Use inet_ntop() instead of inet_ntoa() - the
+	  latter isn't thread-safe.
+
 Tue May 05 02:05:27 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Update documentation to reflect that

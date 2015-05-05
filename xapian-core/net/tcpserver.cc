@@ -264,8 +264,13 @@ TcpServer::accept_connection()
     }
 
     if (verbose) {
-	cout << "Connection from " << inet_ntoa(remote_address.sin_addr)
-	     << ", port " << remote_address.sin_port << endl;
+	char buf[INET_ADDRSTRLEN];
+	const void * src = &remote_address.sin_addr;
+	const char * r = inet_ntop(AF_INET, src, buf, sizeof(buf));
+	if (!r)
+	    throw Xapian::NetworkError("inet_ntop failed", errno);
+	int port = remote_address.sin_port;
+	cout << "Connection from " << r << ", port " << port << endl;
     }
 
     return con_socket;
