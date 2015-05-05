@@ -309,7 +309,7 @@ main(int argc, char **argv)
 	    if (endswith(filename, '.'))
 		filename.resize(filename.size() - 1);
 	    else if (endswith(filename, ".DB"))
-		filename.resize(filename.size() - 3);
+		filename.resize(filename.size() - CONST_STRLEN(".DB"));
 
 	    size_t p = filename.find_last_of('/');
 #if defined __WIN32__ || defined __EMX__

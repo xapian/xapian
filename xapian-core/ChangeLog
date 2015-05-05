@@ -1,3 +1,8 @@
+Tue May 05 11:46:57 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* bin/xapian-check.cc: Don't hard-code string length as number.
+
 Wed Mar 04 00:53:14 GMT 2015  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Update for 1.2.20.
