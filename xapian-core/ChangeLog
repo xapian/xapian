@@ -1,3 +1,9 @@
+Tue May 05 13:06:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/brass/brass_compact.cc,backends/flint/flint_compact.cc:
+	  Make sure we open all the tables of a database at the same revision
+	  when compacting for brass and flint too.  (Fixes #649)
+
 Tue May 05 12:52:17 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_compact.cc: Make sure we open all the tables of
