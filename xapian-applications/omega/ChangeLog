@@ -1,3 +1,9 @@
+Wed May 06 07:26:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omega.cc: Drop compilation date and time from output - they prevent
+	  reproducible builds and the version number is sufficient
+	  information.
+
 Wed May 06 07:24:27 GMT 2015  Olly Betts <olly@survex.com>
 
 	* commonhelp.cc,omega.cc,omindex.cc,scriptindex.cc: Add spaces between
