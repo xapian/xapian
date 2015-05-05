@@ -1018,7 +1018,7 @@ DEFINE_TESTCASE(dbfilefd012, brass || chert) {
 }
 
 /// Regression test for #675, fixed in 1.3.3 and 1.2.21.
-DEFINE_TESTCASE(cursorbug1, brass || chert) {
+DEFINE_TESTCASE(cursorbug1, brass || chert || flint) {
     Xapian::WritableDatabase wdb = get_writable_database();
     Xapian::Database db = get_writable_database_as_database();
     Xapian::Enquire enq(db);

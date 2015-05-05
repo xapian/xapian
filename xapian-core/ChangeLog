@@ -1,3 +1,8 @@
+Tue May 05 15:23:48 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.cc,backends/flint/flint_table.cc,
+	  tests/api_backend.cc: Fix #675 for flint as well.
+
 Tue May 05 15:02:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_cursor.cc,backends/brass/_table.cc,
