@@ -1,3 +1,9 @@
+Tue May 05 02:05:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Update documentation to reflect that
+	  the database passed to QueryParser::set_database() is no longer
+	  used to expand wildcards and partial terms.
+
 Mon May 04 11:32:40 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/postlist.cc,api/postlist.h,common/remoteprotocol.h,matcher/,
