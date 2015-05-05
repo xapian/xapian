@@ -1,3 +1,8 @@
+Tue May 05 04:09:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/Makefile.am,perl/t/collapse.t: Add test coverage for
+	  Enquire::set_collapse_key() with 1 and 2 parameters.
+
 Fri May 01 12:16:29 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update check for -fvisibility to match xapian-core's.
