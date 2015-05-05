@@ -1,3 +1,8 @@
+Tue May 05 12:29:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/encodings.rst: $prettyurl undoes %-encoding of UTF-8 in 1.2.21
+	  and later too.
+
 Tue May 05 12:27:14 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/encodings.rst: Note that one should ensure that Omega gets sent
