@@ -1,3 +1,38 @@
+642a0522 (Olly Betts 2015-05-05 16:56:48 +1200    1) Wed May 06 07:45:18 GMT 2015  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.2.21 (2015-05-06):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+* Add workaround for Perl defining a seed() macro which breaks compilation with
+  GCC in C++11 mode (due to <algorithm> now pulling in random number generation
+  classes with a method called seed).
+
+PHP:
+
+Python:
+
+Ruby:
+
+* Ship generate-rdoc-stubs in the tarball.  Reported by Matthias Klose in
+  https://bugs.debian.org/782270
+
+Tcl:
+
 Xapian-bindings 1.2.20 (2015-03-04):
 
 Portability:
