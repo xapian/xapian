@@ -36,7 +36,7 @@ Enquire::set_query2(query, len)
 	}
 
 Query *
-Enquire::get_query();
+Enquire::get_query()
     CODE:
 	try {
 	    RETVAL = new Query(THIS->get_query());
