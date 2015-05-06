@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -386,15 +386,15 @@ FlintDatabase::get_changeset_revisions(const string & path,
     const char *start = buf;
     const char *end = buf + io_read(changes_fd, buf,
 				    REASONABLE_CHANGESET_SIZE, 0);
-    if (strncmp(start, CHANGES_MAGIC_STRING,
-		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
+    if (size_t(end - start) < CONST_STRLEN(CHANGES_MAGIC_STRING))
+	throw Xapian::DatabaseError("Changeset too short at " + path);
+    if (memcmp(start, CHANGES_MAGIC_STRING,
+	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
 		+ path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
     start += CONST_STRLEN(CHANGES_MAGIC_STRING);
-    if (start >= end)
-	throw Xapian::DatabaseError("Changeset too short at " + path);
 
     unsigned int changes_version;
     if (!F_unpack_uint(&start, end, &changes_version))

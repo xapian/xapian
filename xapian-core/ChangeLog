@@ -1,3 +1,10 @@
+Wed May 06 10:00:49 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: Fix get_changeset_revisions() not
+	  to potentially read uninitialised data if a changeset file is
+	  truncated.  Adapted from equivalent change already backported for
+	  brass and chert.
+
 Wed May 06 07:22:23 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Tweak comment to match xapian-omega's configure.
