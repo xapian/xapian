@@ -1,3 +1,7 @@
+Wed May 06 10:08:33 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Wed May 06 07:26:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* omega.cc: Drop compilation date and time from output - they prevent

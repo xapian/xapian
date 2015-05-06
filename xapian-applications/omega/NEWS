@@ -1,3 +1,58 @@
+08d19a31 (Olly Betts 2015-05-05 13:41:55 +1200    1) Wed May 06 07:26:28 GMT 2015  Olly Betts <olly@survex.com>
+
+Omega 1.2.21 (2015-05-06):
+
+general:
+
+documentation:
+
+* docs/overview.rst: Document 'E' prefixed boolean terms for filtering by
+  extension (see #668, reported by bramvdh).
+
+* docs/encodings.rst: Add a document about character encoding, as suggested by
+  James Aylett in #550.
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+* $prettyurl now decodes valid UTF-8 sequences, and some additional ASCII
+  characters in the path part: []@!$&'()*+.;= (Fixes #550 and #644, reported by
+  catkin and terencz.)
+
+* $prettyurl now leaves the query and fragment parts of the URL alone and won't
+  decode an escaped "/" (omindex doesn't create URLs with any of these, so we
+  only risk breaking other URLs which have them).
+
+* Drop compilation date and time from output when run from the command line -
+  they prevent reproducible builds and the version number is sufficient
+  information.
+
+templates:
+
+* templates/query: When listing matching terms, don't make the commas italic.
+
+* templates/query: Eliminate blank line before <html>.
+
+* templates/xml: Add XML declaration.
+
+* templates/godmode: Specify charset utf-8 in the content-type.
+
+testsuite:
+
+build system:
+
+portability:
+
+* Add spaces between literal strings and macros which expand to literal strings
+  for C++11 compatibility.
+
+packaging:
+
 Omega 1.2.20 (2015-03-04):
 
 documentation:
