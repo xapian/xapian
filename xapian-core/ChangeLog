@@ -1,3 +1,7 @@
+Wed May 06 11:18:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Wed May 06 10:00:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Fix get_changeset_revisions() not

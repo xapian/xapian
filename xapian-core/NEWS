@@ -1,3 +1,135 @@
+5fbf1669 (Olly Betts 2015-05-01 13:37:44 +1200     1) Wed May 06 07:22:23 GMT 2015  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.21 (2015-05-06):
+
+API:
+
+* QueryParser: Extend the set of characters allowed in the start of a range to
+  be anything except for '(' and characters <= ' '.  This better matches what's
+  accepted for a range end (anything except for ')' and characters <= ' ').
+  Reported by Jani Nikula.
+
+testsuite:
+
+
+matcher:
+
+* Reimplement OP_PHRASE for non-exact phrases.  The previous implementation was
+  buggy, giving both false positives and false negatives in rare cases when
+  three or more terms were involved.  Fixes #653, reported by Jean-Francois
+  Dockes.
+
+* Reimplement OP_NEAR - the new implementation consistently requires the terms
+  to occur at different positions, and fixes some previously missed matches.
+
+* Fix a reversed check for picking the shorter position list for an exact
+  phrase of two terms.  The difference this makes isn't dramatic, but can be
+  measured (at least with cachegrind).  Thanks to kbwt for spotting this.
+
+* When matching an exact phrase, if a term doesn't occur where we want, use
+  its actual position to advance the anchor term, rather than just checking
+  the next position of the anchor term.
+
+brass backend:
+
+* Fix cursor versioning to consider cancel() and reopen() as events where
+  the cursor version may need incrementing, and flag the current cursor version
+  as used when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+
+* Avoid using file descriptions < 3 for writable database tables, as it risks
+  corruption if some code in the same process tries to write to stdout or
+  stderr without realising it is closed.  (Partly addresses #651)
+
+chert backend:
+
+* Fix cursor versioning to consider cancel() and reopen() as events where
+  the cursor version may need incrementing, and flag the current cursor version
+  as used when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+
+* Avoid using file descriptions < 3 for writable database tables, as it risks
+  corruption if some code in the same process tries to write to stdout or
+  stderr without realising it is closed.  (Partly addresses #651)
+
+flint backend:
+
+* Fix cursor versioning to consider cancel() and reopen() as events where
+  the cursor version may need incrementing, and flag the current cursor version
+  as used when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* xapian-config: Fix typo so cached result of test in is_uninstalled() is
+  actually used on subsequent calls.  Fixes #676, reported (with patch) by Ryan
+  Schmidt.
+
+* Makefile.am,docs/Makefile.am: Add missing quoting.
+
+* configure: Changes in 1.2.19 broken the custom macro we use to probe for
+  supported compiler flags such that the flags never got used.  This release
+  fixes the problem.
+
+* configure: Say "ISO C++" rather than "ANSI C++".
+
+* configure: Set default value for AUTOM4TE before AC_OUTPUT so the default
+  will actually get used.  Only relevant when building in maintainer mode
+  (e.g. from git).
+
+documentation:
+
+* API documentation: Minor wording tweaks and formatting improvements.
+
+* HACKING: Update URL.
+
+tools:
+
+* xapian-compact: Make sure we open all the tables of input databases at the same
+  revision.  (Fixes #649)
+
+* xapian-metadata: Add 'list' subcommand to list all the metadata keys.
+
+* xapian-replicate-server: Avoid potentially reading uninitialised data if a
+  changeset file is truncated.
+
+examples:
+
+
+portability:
+
+* apitest: The adddoc5 testcase fails under clang due to an exception handling
+  bug, so just #ifdef out the problematic part of the testcase when building
+  with clang for now.
+
+* Fix to build with Sun's C++ compiler.
+
+* Add spaces between literal strings and macros which expand to literal strings
+  for C++11 compatibility.
+
+* Use F_DUPFD where available to dup to a file descriptor which is >= 2, rather
+  than calling dup() until we get one.
+
+* When unserialising a double, avoid reading one byte past the end of the
+  serialised value.  In practice this was harmless on most platforms, as
+  dbl_max_mantissa is 255 for IEEE-754 format doubles, and at least GCC's
+  std::string keeps the buffer nul-terminated.  Reported by Germán M. Bravo in
+  github PR#67.
+
+* When unserialising a double, add missing cast to unsigned char when we check
+  if the value will fit in the double type.  On machines with IEEE-754 doubles
+  (which is most current platforms) this happened to work OK before.  It would
+  also have been fine on machines where char is unsigned by default.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.20 (2015-03-04):
 
 chert backend:
