@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -604,7 +604,7 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
 	message += tmp;
     }
 
-    send_message(MSG_QUERY, message);
+    send_message(MSG_QUERY_NEW, message);
 }
 
 bool
@@ -637,7 +637,7 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
 			 const vector<Xapian::MatchSpy *> & matchspies)
 {
     string message;
-    get_message(message, REPLY_RESULTS);
+    get_message(message, REPLY_RESULTS_NEW);
     const char * p = message.data();
     const char * p_end = p + message.size();
 
@@ -650,7 +650,7 @@ RemoteDatabase::get_mset(Xapian::MSet &mset,
 	p += len;
 	(*i)->merge_results(spyresults);
     }
-    mset = unserialise_mset(p, p_end);
+    mset = unserialise_mset_new(p, p_end);
 }
 
 void

@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -186,6 +186,7 @@ RemoteServer::run()
 		0, // MSG_GETMSET - used during a conversation.
 		0, // MSG_SHUTDOWN - handled by get_message().
 		&RemoteServer::msg_openmetadatakeylist,
+		&RemoteServer::msg_query_new,
 	    };
 
 	    string message;
@@ -485,6 +486,132 @@ RemoteServer::msg_query(const string &message_in)
     }
     message += serialise_mset(mset);
     send_message(REPLY_RESULTS, message);
+}
+
+void
+RemoteServer::msg_query_new(const string &message_in)
+{
+    const char *p = message_in.c_str();
+    const char *p_end = p + message_in.size();
+    size_t len;
+
+    // Unserialise the Query.
+    len = decode_length(&p, p_end, true);
+    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len), reg));
+    p += len;
+
+    // Unserialise assorted Enquire settings.
+    Xapian::termcount qlen = decode_length(&p, p_end, false);
+
+    Xapian::valueno collapse_max = decode_length(&p, p_end, false);
+
+    Xapian::valueno collapse_key = Xapian::BAD_VALUENO;
+    if (collapse_max) collapse_key = decode_length(&p, p_end, false);
+
+    if (p_end - p < 4 || *p < '0' || *p > '2') {
+	throw Xapian::NetworkError("bad message (docid_order)");
+    }
+    Xapian::Enquire::docid_order order;
+    order = static_cast<Xapian::Enquire::docid_order>(*p++ - '0');
+
+    Xapian::valueno sort_key = decode_length(&p, p_end, false);
+
+    if (*p < '0' || *p > '3') {
+	throw Xapian::NetworkError("bad message (sort_by)");
+    }
+    Xapian::Enquire::Internal::sort_setting sort_by;
+    sort_by = static_cast<Xapian::Enquire::Internal::sort_setting>(*p++ - '0');
+
+    if (*p < '0' || *p > '1') {
+	throw Xapian::NetworkError("bad message (sort_value_forward)");
+    }
+    bool sort_value_forward(*p++ != '0');
+
+    int percent_cutoff = *p++;
+    if (percent_cutoff < 0 || percent_cutoff > 100) {
+	throw Xapian::NetworkError("bad message (percent_cutoff)");
+    }
+
+    Xapian::weight weight_cutoff = unserialise_double(&p, p_end);
+    if (weight_cutoff < 0) {
+	throw Xapian::NetworkError("bad message (weight_cutoff)");
+    }
+
+    // Unserialise the Weight object.
+    len = decode_length(&p, p_end, true);
+    string wtname(p, len);
+    p += len;
+
+    const Xapian::Weight * wttype = reg.get_weighting_scheme(wtname);
+    if (wttype == NULL) {
+	// Note: user weighting schemes should be registered by adding them to
+	// a Registry, and setting the context using
+	// RemoteServer::set_registry().
+	throw Xapian::InvalidArgumentError("Weighting scheme " +
+					   wtname + " not registered");
+    }
+
+    len = decode_length(&p, p_end, true);
+    AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
+    p += len;
+
+    // Unserialise the RSet object.
+    len = decode_length(&p, p_end, true);
+    Xapian::RSet rset = unserialise_rset(string(p, len));
+    p += len;
+
+    // Unserialise any MatchSpy objects.
+    MatchSpyList matchspies;
+    while (p != p_end) {
+	len = decode_length(&p, p_end, true);
+	string spytype(p, len);
+	const Xapian::MatchSpy * spyclass = reg.get_match_spy(spytype);
+	if (spyclass == NULL) {
+	    throw Xapian::InvalidArgumentError("Match spy " + spytype +
+					       " not registered");
+	}
+	p += len;
+
+	len = decode_length(&p, p_end, true);
+	matchspies.spies.push_back(spyclass->unserialise(string(p, len), reg));
+	p += len;
+    }
+
+    Xapian::Weight::Internal local_stats;
+    MultiMatch match(*db, query.get(), qlen, &rset, collapse_max, collapse_key,
+		     percent_cutoff, weight_cutoff, order,
+		     sort_key, sort_by, sort_value_forward, NULL,
+		     local_stats, wt.get(), matchspies.spies, false, false);
+
+    send_message(REPLY_STATS, serialise_stats(local_stats));
+
+    string message;
+    get_message(active_timeout, message, MSG_GETMSET);
+    p = message.c_str();
+    p_end = p + message.size();
+
+    Xapian::termcount first = decode_length(&p, p_end, false);
+    Xapian::termcount maxitems = decode_length(&p, p_end, false);
+
+    Xapian::termcount check_at_least = 0;
+    check_at_least = decode_length(&p, p_end, false);
+
+    message.erase(0, message.size() - (p_end - p));
+    Xapian::Weight::Internal total_stats(unserialise_stats(message));
+    total_stats.set_bounds_from_db(*db);
+
+    Xapian::MSet mset;
+    match.get_mset(first, maxitems, check_at_least, mset, total_stats, 0, 0, 0);
+
+    message.resize(0);
+    vector<Xapian::MatchSpy *>::const_iterator i;
+    for (i = matchspies.spies.begin(); i != matchspies.spies.end(); ++i) {
+	string spy_results = (*i)->serialise_results();
+	message += encode_length(spy_results.size());
+	message += spy_results;
+    }
+    message += serialise_mset_new(mset);
+    send_message(REPLY_RESULTS_NEW, message);
 }
 
 void

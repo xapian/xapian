@@ -1,3 +1,11 @@
+Wed May 06 13:18:11 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/postlist.cc,api/postlist.h,common/remoteprotocol.h,matcher/,
+	  net/remoteconnection.cc,net/serialise.cc,tests/api_backend.cc: Fix
+	  sort by value when multiple databases are in use and one or more are
+	  remote.  This change necessitated a minor version bump in the remote
+	  protocol.  Fixes #674, reported by Dylan Griffith.
+
 Wed May 06 11:18:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

@@ -1058,3 +1058,23 @@ DEFINE_TESTCASE(cursorbug1, brass || chert || flint) {
 
     return true;
 }
+
+// Regression test for #674, fixed in 1.2.21 and 1.3.3.
+DEFINE_TESTCASE(sortvalue2, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    db.add_database(get_database("apitest_simpledata2"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query::MatchAll);
+    enq.set_sort_by_value(0, false);
+    Xapian::MSet mset = enq.get_mset(0, 50);
+
+    // Check all results are in key order - the bug was that they were sorted
+    // by docid instead with multiple remote databases.
+    string old_key;
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	string key = db.get_document(*i).get_value(0);
+	TEST(old_key <= key);
+	swap(old_key, key);
+    }
+    return true;
+}
