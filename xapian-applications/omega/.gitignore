@@ -32,14 +32,18 @@
 /omindex
 /omindex-config
 /scriptindex
+/atomparsetest
 /htmlparsetest
 /md5test
+/urlenctest
 /utf8converttest
 /omega.exe
 /omindex.exe
 /scriptindex.exe
+/atomparsetest.exe
 /htmlparsetest.exe
 /md5test.exe
+/urlenctest.exe
 /utf8converttest.exe
 /libtransform.la
 /xapian-omega-*.tar.xz
@@ -47,3 +51,4 @@
 /makemanpage
 /outlookmsg2html
 /*.1
+/.common.git
