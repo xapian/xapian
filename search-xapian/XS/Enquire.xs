@@ -47,11 +47,12 @@ Enquire::get_query();
 	RETVAL
 
 void
-Enquire::set_collapse_key(collapse_key)
+Enquire::set_collapse_key(collapse_key, collapse_max = 1)
     valueno     collapse_key
+    doccount    collapse_max
     CODE:
 	try {
-	    THIS->set_collapse_key(collapse_key);
+	    THIS->set_collapse_key(collapse_key, collapse_max);
 	} catch (...) {
 	    handle_exception();
 	}
