@@ -1,3 +1,12 @@
+Thu May 07 12:42:11 GMT 2015  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc,common/socket_utils.cc,common/socket_utils.h,
+	  net/replicatetcpclient.cc,net/replicatetcpclient.h: Set SO_KEEPALIVE
+	  for xapian-replicate's connection to the master, and add command
+	  line option to allow setting socket-level timeouts (SO_RCVTIMEO and
+	  SO_SNDTIMEO) on platforms that support them.  Fixes #546, reported
+	  by nkvoll.
+
 Thu May 07 12:00:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* bin/xapian-replicate.cc: Fix connection timeout to be 10 seconds
