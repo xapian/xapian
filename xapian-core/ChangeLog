@@ -1,3 +1,8 @@
+Thu May 07 12:00:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: Fix connection timeout to be 10 seconds
+	  rather than 10000 seconds which is has been since 1.2.3.
+
 Tue May 05 02:38:37 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Use inet_ntop() instead of inet_ntoa() - the

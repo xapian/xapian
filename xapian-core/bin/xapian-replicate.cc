@@ -163,7 +163,7 @@ main(int argc, char **argv)
 	    if (verbosity == VERBOSE) {
 		cout << "Connecting to " << host << ":" << port << endl;
 	    }
-	    ReplicateTcpClient client(host, port, 10000);
+	    ReplicateTcpClient client(host, port, 10.0);
 	    if (verbosity == VERBOSE) {
 		cout << "Getting update for " << dbpath << " from "
 		     << masterdb << endl;
