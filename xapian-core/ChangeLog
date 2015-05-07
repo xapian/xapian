@@ -1,3 +1,8 @@
+Thu May 14 03:34:26 GMT 2015  Olly Betts <olly@survex.com>
+
+	* bin/xapian-replicate.cc: Fix connection timeout to be 10 seconds
+	  rather than 10000 seconds which is has been since 1.2.3.
+
 Thu May 14 03:15:32 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: Backport assertion fixes from chert
