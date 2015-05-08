@@ -54,6 +54,9 @@
 %constant int OP_SCALE_WEIGHT = Xapian::Query::OP_SCALE_WEIGHT;
 %constant int OP_ELITE_SET = Xapian::Query::OP_ELITE_SET;
 %constant int OP_VALUE_GE = Xapian::Query::OP_VALUE_GE;
+%constant int OP_SYNONYM = Xapian::Query::OP_SYNONYM;
+%constant int OP_MAX = Xapian::Query::OP_MAX;
+%constant int OP_WILDCARD = Xapian::Query::OP_WILDCARD;
 %constant int OP_VALUE_LE = Xapian::Query::OP_VALUE_LE;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;
 %constant int FLAG_PHRASE = Xapian::QueryParser::FLAG_PHRASE;
@@ -70,6 +73,7 @@
 %constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
 %constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
+%constant int STEM_ALL_Z = Xapian::QueryParser::STEM_ALL_Z;
 %constant int FLAG_SPELLING = Xapian::TermGenerator::FLAG_SPELLING;
 %constant int WILDCARD_LIMIT_ERROR = Xapian::Query::WILDCARD_LIMIT_ERROR;
 %constant int WILDCARD_LIMIT_FIRST = Xapian::Query::WILDCARD_LIMIT_FIRST;
