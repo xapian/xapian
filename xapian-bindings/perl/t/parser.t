@@ -10,7 +10,7 @@ my $disable_fixme = 1;
 use warnings;
 BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
-use Test;
+use Test::More;
 use Devel::Peek;
 BEGIN { plan tests => 61 };
 use Xapian qw(:standard);
@@ -37,10 +37,10 @@ $qp->set_default_op( OP_AND );
 my $query;
 ok( $query = $qp->parse_query( 'one or two', FLAG_BOOLEAN|FLAG_BOOLEAN_ANY_CASE|FLAG_SPELLING_CORRECTION ) );
 ok( not $qp->get_corrected_query_string());
-ok( $query->get_description(), 'Query((one@1 OR two@2))' );
+is( $query->get_description(), 'Query((one@1 OR two@2))' );
 
 ok( $query = $qp->parse_query( 'one OR (two AND three)' ) );
-ok( $query->get_description(), 'Query((one@1 OR (two@2 AND three@3)))' );
+is( $query->get_description(), 'Query((one@1 OR (two@2 AND three@3)))' );
 
 ok( my $enq = $database->enquire( $query ) );
 
@@ -54,7 +54,7 @@ ok( my $enq = $database->enquire( $query ) );
   foreach (qw(one two three four five)) {
     ok( !$stopper->stop_word($_) );
   }
-  ok( $qp->set_stopper($stopper), undef );
+  is( $qp->set_stopper($stopper), undef );
 }
 ok( $qp->parse_query("one two many") );
 
@@ -82,7 +82,7 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Query($res)" );
+    is( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Xapian::QueryParser();
@@ -124,7 +124,7 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Query($res)" );
+    is( $query->get_description(), "Query($res)" );
 }
 
 $qp = new Xapian::QueryParser();
@@ -141,7 +141,7 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Query($res)" );
+    is( $query->get_description(), "Query($res)" );
 }
 
 # Regression test for Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
@@ -152,9 +152,9 @@ eval {
     $qp->parse_query('other* AND', FLAG_BOOLEAN|FLAG_WILDCARD);
 };
 ok($@);
-ok(ref($@), "Xapian::QueryParserError", "correct class for exception");
+is(ref($@), "Xapian::QueryParserError", "correct class for exception");
 ok($@->isa('Xapian::Error'));
-ok($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
+is($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
 ok( $disable_fixme || $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\.)?$/ );
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
