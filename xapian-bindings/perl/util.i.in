@@ -49,7 +49,6 @@
 %constant int OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
 %constant int OP_SCALE_WEIGHT = Xapian::Query::OP_SCALE_WEIGHT;
 %constant int OP_ELITE_SET = Xapian::Query::OP_ELITE_SET;
-%constant int OP_VALUE_RANGE = Xapian::Query::OP_VALUE_RANGE;
 %constant int OP_VALUE_GE = Xapian::Query::OP_VALUE_GE;
 %constant int OP_VALUE_LE = Xapian::Query::OP_VALUE_LE;
 %constant int FLAG_BOOLEAN = Xapian::QueryParser::FLAG_BOOLEAN;

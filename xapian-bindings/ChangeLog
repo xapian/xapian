@@ -1,3 +1,7 @@
+Thu May 14 03:50:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Remove duplicate %constant for OP_VALUE_RANGE.
+
 Wed May 06 11:19:42 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
