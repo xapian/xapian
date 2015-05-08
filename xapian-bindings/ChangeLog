@@ -1,3 +1,7 @@
+Thu May 14 03:54:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Wrap missing constants OP_SYNONYM and STEM_ALL_Z.
+
 Thu May 14 03:50:37 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/util.i.in: Remove duplicate %constant for OP_VALUE_RANGE.
