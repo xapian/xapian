@@ -1,3 +1,7 @@
+Fri May 08 09:56:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/perl.i: Remove duplicate %constant for OP_WILDCARD.
+
 Tue May 05 04:56:25 GMT 2015  Olly Betts <olly@survex.com>
 
 	* python/pythontest.py,python3/pythontest.py: Fix typo in test context
