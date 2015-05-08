@@ -1,3 +1,8 @@
+Fri May 08 10:54:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/perl.i,perl/t/parser.t: Wrap WILDCARD_LIMIT_* constants as
+	  constants.
+
 Fri May 08 10:48:20 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/t/parser.t: Update to use Test::More.

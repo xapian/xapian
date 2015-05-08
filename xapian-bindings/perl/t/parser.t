@@ -12,7 +12,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 61 };
+BEGIN { plan tests => 73 };
 use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -20,6 +20,15 @@ ok(1); # If we made it this far, we're ok.
 
 # Insert your test code below, the Test module is use()ed here so read
 # its man page ( perldoc Test ) for help writing this test script.
+
+sub mset_expect_order (\@@) {
+    my ($m, @a) = @_;
+    my @m = map { $_->get_docid() } @{$m};
+    is( scalar @m, scalar @a );
+    for my $j (0 .. (scalar @a - 1)) {
+	is( $m[$j], $a[$j] );
+    }
+}
 
 # first create database dir, if it doesn't exist;
 my $db_dir = 'testdb';
@@ -159,5 +168,30 @@ ok( $disable_fixme || $@ =~ /^Exception: Syntax: <expression> AND <expression>(?
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
 ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );
+
+# Test OP_WILDCARD with limits.
+my ($q, @matches);
+ok( $enq = Xapian::Enquire->new($database) );
+
+$qp->set_max_expansion(1, Xapian::WILDCARD_LIMIT_FIRST);
+ok( $q = $qp->parse_query('t*', FLAG_WILDCARD) );
+$enq->set_query($q);
+@matches = $enq->matches(0, 10);
+mset_expect_order(@matches, (1, 2));
+
+$qp->set_max_expansion(1, Xapian::WILDCARD_LIMIT_MOST_FREQUENT);
+ok( $q = $qp->parse_query('t*', FLAG_WILDCARD) );
+$enq->set_query($q);
+@matches = $enq->matches(0, 10);
+mset_expect_order(@matches, (1, 2));
+
+$qp->set_max_expansion(1, Xapian::WILDCARD_LIMIT_ERROR);
+ok( $q = $qp->parse_query('t*', FLAG_WILDCARD) );
+$enq->set_query($q);
+eval {
+    @matches = $enq->matches(0, 10);
+};
+ok( $@ );
+is(ref($@), "Xapian::WildcardError", "correct class for exception");
 
 1;

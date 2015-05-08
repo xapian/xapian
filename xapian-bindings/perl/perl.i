@@ -71,6 +71,9 @@
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
 %constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
 %constant int FLAG_SPELLING = Xapian::TermGenerator::FLAG_SPELLING;
+%constant int WILDCARD_LIMIT_ERROR = Xapian::Query::WILDCARD_LIMIT_ERROR;
+%constant int WILDCARD_LIMIT_FIRST = Xapian::Query::WILDCARD_LIMIT_FIRST;
+%constant int WILDCARD_LIMIT_MOST_FREQUENT = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
 
 /* Xapian::Enquire */
 %feature("shadow") Xapian::Enquire::get_mset
