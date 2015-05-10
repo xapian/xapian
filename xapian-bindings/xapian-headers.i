@@ -334,6 +334,7 @@ SUBCLASSABLE(Xapian, Stopper)
 SUBCLASSABLE(Xapian, ValueRangeProcessor)
 // Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
 %warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::ValueRangeProcessor;
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::FieldProcessor;
 STANDARD_IGNORES(Xapian, QueryParser)
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
 %include <xapian/queryparser.h>
