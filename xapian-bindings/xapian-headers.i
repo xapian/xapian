@@ -120,6 +120,7 @@
 %ignore const_iterator;
 %ignore size_type;
 %ignore unserialise(const char **, const char *);
+%ignore release();
 
 /* These methods won't throw exceptions. */
 %exception Xapian::major_version "$action"
@@ -331,6 +332,8 @@ SUBCLASSABLE(Xapian, KeyMaker)
 SUBCLASSABLE(Xapian, FieldProcessor)
 SUBCLASSABLE(Xapian, Stopper)
 SUBCLASSABLE(Xapian, ValueRangeProcessor)
+// Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::ValueRangeProcessor;
 STANDARD_IGNORES(Xapian, QueryParser)
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
 %include <xapian/queryparser.h>
