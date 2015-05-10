@@ -88,7 +88,8 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
 };
 
 /// Base class for value range processors.
-struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
+struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
+    : public Xapian::Internal::opt_intrusive_base {
     /// Destructor.
     virtual ~ValueRangeProcessor();
 
@@ -107,6 +108,16 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
      *		returns Xapian::BAD_VALUENO.
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
+
+    ValueRangeProcessor * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const ValueRangeProcessor * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /** Handle a string range.

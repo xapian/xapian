@@ -1,7 +1,7 @@
 /** @file queryparser_internal.h
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -82,7 +82,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     // "foobar" -> "XFOO". FIXME: it does more than this now!
     map<string, FieldInfo> field_map;
 
-    list<ValueRangeProcessor *> valrangeprocs;
+    list<Xapian::Internal::opt_intrusive_ptr<ValueRangeProcessor> > valrangeprocs;
 
     string corrected_query;
 

@@ -244,7 +244,7 @@ class State {
     }
 
     Term * value_range(const string &a, const string &b) {
-	list<ValueRangeProcessor *>::const_iterator i;
+	list<Xapian::Internal::opt_intrusive_ptr<Xapian::ValueRangeProcessor> >::const_iterator i;
 	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
 	    string start = a;
 	    string end = b;

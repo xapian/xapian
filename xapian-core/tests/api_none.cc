@@ -178,3 +178,74 @@ DEFINE_TESTCASE(combinewqfnomore1, !backend) {
     TEST_EQUAL(q.get_description(), "Query((beer@1 OR beer@1))");
     return true;
 }
+
+struct TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
+    bool & destroyed;
+
+    TestValueRangeProcessor(bool & destroyed_) : destroyed(destroyed_) {
+	destroyed = false;
+    }
+
+    ~TestValueRangeProcessor() {
+	destroyed = true;
+    }
+
+    Xapian::valueno operator()(std::string &, std::string &) {
+	return 42;
+    }
+};
+
+/// Check reference counting of user-subclassable classes.
+DEFINE_TESTCASE(subclassablerefcount1, !backend) {
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_valuerangeprocessor(vrp->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_valuerangeprocessor(vrp->release());
+	vrp->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a VRP with automatic storage
+    // works OK.
+    {
+	TestValueRangeProcessor vrp_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::QueryParser qp1;
+	    {
+		Xapian::QueryParser qp2;
+		Xapian::ValueRangeProcessor * vrp;
+		vrp = new TestValueRangeProcessor(gone);
+		TEST(!gone);
+		qp1.add_valuerangeprocessor(vrp->release());
+		TEST(!gone);
+		qp2.add_valuerangeprocessor(vrp);
+		TEST(!gone);
+		qp2.add_valuerangeprocessor(&vrp_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}

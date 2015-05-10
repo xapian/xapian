@@ -5,7 +5,7 @@
 //  Based on Boost's intrusive_ptr.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov
-//  Copyright (c) 2011,2013,2014 Olly Betts
+//  Copyright (c) 2011,2013,2014,2015 Olly Betts
 //
 // Distributed under the Boost Software License, Version 1.0.
 //
@@ -175,6 +175,163 @@ template<class T, class U> inline bool operator==(T * a, intrusive_ptr<U> const 
 }
 
 template<class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const & b)
+{
+    return a != b.get();
+}
+
+/// Base class for objects managed by opt_intrusive_ptr.
+class opt_intrusive_base : public intrusive_base {
+  public:
+    opt_intrusive_base(const opt_intrusive_base&) : intrusive_base() { }
+
+    opt_intrusive_base& operator=(const opt_intrusive_base&) {
+	// Don't touch _refs.
+	return *this;
+    }
+
+    /** Construct object which is initially not reference counted.
+     *
+     *  The reference counting starts if release() is called.
+     */
+    opt_intrusive_base() : intrusive_base() { }
+
+    /* Subclasses of opt_intrusive_base may be deleted by calling delete on a
+     * pointer to intrusive_base.
+     */
+    virtual ~opt_intrusive_base() { }
+
+    void ref() const {
+	if (_refs == 0)
+	    _refs = 2;
+	else
+	    ++_refs;
+    }
+
+    void unref() const {
+	if (--_refs == 1)
+	    delete this;
+    }
+
+  protected:
+    /** Start reference counting.
+     *
+     *  The object is constructed with _refs set to 0, meaning it isn't being
+     *  reference counted.
+     *
+     *  Calling release() sets _refs to 1 if it is 0, and from then
+     *  opt_intrusive_ptr will increment and decrement _refs.  If it is
+     *  decremented to 1, the object is deleted.
+     */
+    void release() const {
+	if (_refs == 0)
+	    _refs = 1;
+    }
+};
+
+//
+//  opt_intrusive_ptr
+//
+
+/// A smart pointer that optionally uses intrusive reference counting.
+template<class T> class opt_intrusive_ptr
+{
+private:
+
+    typedef opt_intrusive_ptr this_type;
+
+public:
+
+    opt_intrusive_ptr(): px( 0 )
+    {
+    }
+
+    opt_intrusive_ptr( T * p): px( p )
+    {
+	if( px != 0 && px->_refs ) ++px->_refs;
+    }
+
+    template<class U>
+    opt_intrusive_ptr( opt_intrusive_ptr<U> const & rhs )
+    : px( rhs.get() )
+    {
+	if( px != 0 && px->_refs ) ++px->_refs;
+    }
+
+    opt_intrusive_ptr(opt_intrusive_ptr const & rhs): px( rhs.px )
+    {
+	if( px != 0 && px->_refs ) ++px->_refs;
+    }
+
+    ~opt_intrusive_ptr()
+    {
+	if( px != 0 && px->_refs && --px->_refs == 1 ) delete px;
+    }
+
+    opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)
+    {
+	this_type(rhs).swap(*this);
+	return *this;
+    }
+
+    opt_intrusive_ptr & operator=(T * rhs)
+    {
+	this_type(rhs).swap(*this);
+	return *this;
+    }
+
+    T * get() const
+    {
+	return px;
+    }
+
+    T & operator*() const
+    {
+	return *px;
+    }
+
+    T * operator->() const
+    {
+	return px;
+    }
+
+    void swap(opt_intrusive_ptr & rhs)
+    {
+	T * tmp = px;
+	px = rhs.px;
+	rhs.px = tmp;
+    }
+
+private:
+
+    T * px;
+};
+
+template<class T, class U> inline bool operator==(opt_intrusive_ptr<T> const & a, opt_intrusive_ptr<U> const & b)
+{
+    return a.get() == b.get();
+}
+
+template<class T, class U> inline bool operator!=(opt_intrusive_ptr<T> const & a, opt_intrusive_ptr<U> const & b)
+{
+    return a.get() != b.get();
+}
+
+template<class T, class U> inline bool operator==(opt_intrusive_ptr<T> const & a, U * b)
+{
+    return a.get() == b;
+}
+
+template<class T, class U> inline bool operator!=(opt_intrusive_ptr<T> const & a, U * b)
+{
+    return a.get() != b;
+}
+
+template<class T, class U> inline bool operator==(T * a, opt_intrusive_ptr<U> const & b)
+{
+    return a == b.get();
+}
+
+template<class T, class U> inline bool operator!=(T * a, opt_intrusive_ptr<U> const & b)
 {
     return a != b.get();
 }
