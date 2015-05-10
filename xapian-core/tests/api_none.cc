@@ -179,16 +179,24 @@ DEFINE_TESTCASE(combinewqfnomore1, !backend) {
     return true;
 }
 
-struct TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
+class DestroyedFlag {
     bool & destroyed;
 
-    TestValueRangeProcessor(bool & destroyed_) : destroyed(destroyed_) {
+  public:
+    DestroyedFlag(bool & destroyed_) : destroyed(destroyed_) {
 	destroyed = false;
     }
 
-    ~TestValueRangeProcessor() {
+    ~DestroyedFlag() {
 	destroyed = true;
     }
+};
+
+class TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
+    DestroyedFlag destroyed;
+
+  public:
+    TestValueRangeProcessor(bool & destroyed_) : destroyed(destroyed_) { }
 
     Xapian::valueno operator()(std::string &, std::string &) {
 	return 42;
@@ -237,6 +245,72 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
 		qp2.add_valuerangeprocessor(vrp);
 		TEST(!gone);
 		qp2.add_valuerangeprocessor(&vrp_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}
+
+class TestFieldProcessor : public Xapian::FieldProcessor {
+    DestroyedFlag destroyed;
+
+  public:
+    TestFieldProcessor(bool & destroyed_) : destroyed(destroyed_) { }
+
+    Xapian::Query operator()(const string &str) {
+	return Xapian::Query(str);
+    }
+};
+
+/// Check reference counting of user-subclassable classes.
+DEFINE_TESTCASE(subclassablerefcount2, !backend) {
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_prefix("foo", proc->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_prefix("foo", proc->release());
+	proc->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a FieldProcessor with automatic
+    // storage works OK.
+    {
+	TestFieldProcessor proc_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::QueryParser qp1;
+	    {
+		Xapian::QueryParser qp2;
+		Xapian::FieldProcessor * proc;
+		proc = new TestFieldProcessor(gone);
+		TEST(!gone);
+		qp1.add_prefix("foo", proc->release());
+		TEST(!gone);
+		qp2.add_prefix("foo", proc);
+		TEST(!gone);
+		qp2.add_prefix("bar", &proc_auto);
 		TEST(!gone);
 		TEST(!gone_auto);
 	    }

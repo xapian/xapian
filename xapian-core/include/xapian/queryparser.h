@@ -382,7 +382,8 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
  *
  *  Experimental API - may change.
  */
-struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
+struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor
+    : public Xapian::Internal::opt_intrusive_base {
     /// Destructor.
     virtual ~FieldProcessor();
 
@@ -393,6 +394,16 @@ struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
      *  @return	Query object corresponding to @a str.
      */
     virtual Xapian::Query operator()(const std::string &str) = 0;
+
+    FieldProcessor * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const FieldProcessor * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /// Build a Xapian::Query object from a user query string.
