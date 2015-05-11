@@ -1,3 +1,11 @@
+Mon May 11 06:29:42 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/constinfo.cc,docs/doxygen_api.conf.in,
+	  docs/doxygen_source.conf.in,include/xapian/: C++11's noexcept
+	  needs to be on definitions as well as declarations, but GCC
+	  function attributes must only be on declarations, so split
+	  XAPIAN_NOEXCEPT off from XAPIAN_NOTHROW.
+
 Sun May 10 13:26:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser_internal.h,

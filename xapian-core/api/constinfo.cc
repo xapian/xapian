@@ -39,6 +39,8 @@ static const struct Xapian::Internal::constinfo const_info = {
 
 namespace Xapian {
 namespace Internal {
-const struct constinfo * get_constinfo_() { return & const_info; }
+const struct constinfo * get_constinfo_() XAPIAN_NOEXCEPT {
+    return & const_info;
+}
 }
 }

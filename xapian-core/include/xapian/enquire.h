@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -493,8 +493,8 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     private:
 	friend class ESet;
-	friend bool operator==(const ESetIterator &a, const ESetIterator &b);
-	friend bool operator!=(const ESetIterator &a, const ESetIterator &b);
+	friend bool operator==(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT;
+	friend bool operator!=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT;
 	friend void iterator_rewind(ESetIterator & it);
 	friend bool iterator_valid(const ESetIterator & it);
 
@@ -573,7 +573,7 @@ XAPIAN_NOTHROW(operator==(const ESetIterator &a, const ESetIterator &b));
 
 /// Equality test for ESetIterator objects.
 inline bool
-operator==(const ESetIterator &a, const ESetIterator &b)
+operator==(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
 {
     return (a.index == b.index);
 }
@@ -583,7 +583,7 @@ XAPIAN_NOTHROW(operator!=(const ESetIterator &a, const ESetIterator &b));
 
 /// Inequality test for ESetIterator objects.
 inline bool
-operator!=(const ESetIterator &a, const ESetIterator &b)
+operator!=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
 {
     return (a.index != b.index);
 }

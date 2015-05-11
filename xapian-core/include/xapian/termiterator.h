@@ -1,7 +1,7 @@
 /** @file  termiterator.h
  *  @brief Class for iterating over a list of terms
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -145,7 +145,7 @@ XAPIAN_NOTHROW(operator==(const TermIterator &a, const TermIterator &b));
 
 /// Equality test for TermIterator objects.
 inline bool
-operator==(const TermIterator &a, const TermIterator &b)
+operator==(const TermIterator &a, const TermIterator &b) XAPIAN_NOEXCEPT
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
@@ -157,7 +157,7 @@ XAPIAN_NOTHROW(operator!=(const TermIterator &a, const TermIterator &b));
 
 /// Inequality test for TermIterator objects.
 inline bool
-operator!=(const TermIterator &a, const TermIterator &b)
+operator!=(const TermIterator &a, const TermIterator &b) XAPIAN_NOEXCEPT
 {
     return !(a == b);
 }

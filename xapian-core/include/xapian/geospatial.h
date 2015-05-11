@@ -3,7 +3,7 @@
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012,2013,2014 Olly Betts
+ * Copyright 2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ XAPIAN_NOTHROW(miles_to_metres(double miles)) XAPIAN_CONST_FUNCTION;
  *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-miles_to_metres(double miles)
+miles_to_metres(double miles) XAPIAN_NOEXCEPT
 {
     return 1609.344 * miles;
 }
@@ -64,7 +64,7 @@ XAPIAN_NOTHROW(metres_to_miles(double metres)) XAPIAN_CONST_FUNCTION;
  *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-metres_to_miles(double metres)
+metres_to_miles(double metres) XAPIAN_NOEXCEPT
 {
     return metres * (1.0 / 1609.344);
 }

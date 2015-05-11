@@ -1,7 +1,7 @@
 /** @file  postingiterator.h
  *  @brief Class for iterating over a list of document ids
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -147,7 +147,7 @@ XAPIAN_NOTHROW(operator==(const PostingIterator &a, const PostingIterator &b));
 
 /// Equality test for PostingIterator objects.
 inline bool
-operator==(const PostingIterator &a, const PostingIterator &b)
+operator==(const PostingIterator &a, const PostingIterator &b) XAPIAN_NOEXCEPT
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
@@ -159,7 +159,7 @@ XAPIAN_NOTHROW(operator!=(const PostingIterator &a, const PostingIterator &b));
 
 /// Inequality test for PostingIterator objects.
 inline bool
-operator!=(const PostingIterator &a, const PostingIterator &b)
+operator!=(const PostingIterator &a, const PostingIterator &b) XAPIAN_NOEXCEPT
 {
     return !(a == b);
 }
