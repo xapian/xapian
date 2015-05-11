@@ -1,3 +1,8 @@
+Mon May 11 06:55:32 GMT 2015  Olly Betts <olly@survex.com>
+
+	* doxygen_xml.conf.in,xapian-head.i: Update for addition of
+	  XAPIAN_NOEXCEPT.
+
 Sun May 10 13:27:23 GMT 2015  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Update for optional reference counting of

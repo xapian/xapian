@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,6 +99,7 @@ using namespace std;
 #define XAPIAN_VISIBILITY_DEFAULT
 #define XAPIAN_CONST_FUNCTION
 #define XAPIAN_PURE_FUNCTION
+#define XAPIAN_NOEXCEPT
 #define XAPIAN_NOTHROW(D) D
 
 // Ignore these which SWIG seems to add pointless type entries for due them
