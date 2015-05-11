@@ -353,9 +353,9 @@ else
     tar.gz 843f7dfcc6addf129dc2c8b12f7d72d371478f42
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.11.6 tar.gz 29d7832b148e2157e03ad0d3620fbb7f5a13bc21
-  lazy_build libtool 2.4.2 \
-    tar.xz 4671f3323f2fbc712a70afce57602ce906a82a15 \
-    tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
+  lazy_build libtool 2.4.6 \
+    tar.xz 3e7504b832eb2dd23170c91b6af72e15b56eb94e \
+    tar.gz 25b6931265230a06f0fc2146df64c04e5ae6ec33
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
       lazy_build file 5.22 \
