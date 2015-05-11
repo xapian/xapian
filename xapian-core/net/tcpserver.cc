@@ -196,9 +196,9 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	memcpy(&addr.sin_addr, hostent->h_addr, hostent->h_length);
     }
 
-    retval = bind(socketfd,
-		  reinterpret_cast<sockaddr *>(&addr),
-		  sizeof(addr));
+    retval = ::bind(socketfd,
+		    reinterpret_cast<sockaddr *>(&addr),
+		    sizeof(addr));
 
     if (retval < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
