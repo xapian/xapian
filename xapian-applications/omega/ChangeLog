@@ -1,3 +1,8 @@
+Mon May 11 07:05:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* cdb_hash.cc,md5.cc: Remove 'register' as it's deprecated, and
+	  likely to just be ignored by any modern compiler anyway.
+
 Tue May 05 12:25:20 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/encodings.rst: $prettyurl undoes %-encoding of UTF-8 in 1.2.21
