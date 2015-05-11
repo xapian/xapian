@@ -334,8 +334,9 @@ using namespace std;], [
     ])
 ])
 
-dnl See if log2() function on math library is supported.
-AC_CHECK_FUNCS([log2])
+dnl C++11 should have log2(), but keep this check for now to allow for
+dnl compilers with incomplete library support for C++11.
+AC_CHECK_DECLS([log2], [], [], [#include <cmath>])
 
 dnl See if <typeinfo> can be used in the testsuite - for GCC at least,
 dnl compilation fails if -fno-rtti is specified.

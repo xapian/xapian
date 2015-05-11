@@ -1,3 +1,11 @@
+Mon May 11 10:53:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/log2.h,configure.ac: Change probe for log2() to check for a
+	  declaration and '#include <cmath>' to get it to fix build on Solaris
+	  with Sun C++.  C++11 compilers should all provide log2(), but let's
+	  not rely on that just yet as it's easy to provide a fallback
+	  implementation.
+
 Mon May 11 07:04:06 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/getopt.cc,net/tcpserver.cc: Fix clang warnings on OS X.
