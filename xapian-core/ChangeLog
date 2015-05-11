@@ -1,3 +1,7 @@
+Thu May 14 06:24:18 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING: libtool 2.4.6 is now used for snapshots and releases.
+
 Thu May 14 05:17:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_cursor.cc,backends/flint/flint_cursor.cc:
