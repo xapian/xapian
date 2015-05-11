@@ -1,3 +1,8 @@
+Mon May 11 07:04:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/getopt.cc,net/tcpserver.cc: Fix clang warnings on OS X.
+	  Reported by Germán M. Bravo.
+
 Mon May 11 06:29:42 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/constinfo.cc,docs/doxygen_api.conf.in,
