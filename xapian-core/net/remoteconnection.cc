@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -563,7 +563,7 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
 
     read_at_least(at_least, end_time);
 
-    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
+    size_t retlen = min(off_t(buffer.size()), chunked_data_left);
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;

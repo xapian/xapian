@@ -1,7 +1,7 @@
 /** @file tradweight.cc
  * @brief Xapian::TradWeight class - the "traditional" probabilistic formula
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -142,7 +142,7 @@ TradWeight::unserialise(const string & s) const
 Xapian::weight
 TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
-    double wdf_double(wdf);
+    double wdf_double = wdf;
     return termweight * (wdf_double / (len * len_factor + wdf_double));
 }
 
@@ -150,7 +150,7 @@ Xapian::weight
 TradWeight::get_maxpart() const
 {
     // FIXME: need to force non-zero wdf_max to stop percentages breaking...
-    double wdf_max(max(get_wdf_upper_bound(), Xapian::termcount(1)));
+    double wdf_max = max(get_wdf_upper_bound(), Xapian::termcount(1));
     Xapian::termcount doclen_lb = get_doclength_lower_bound();
     return termweight * (wdf_max / (doclen_lb * len_factor + wdf_max));
 }

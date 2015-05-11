@@ -1,3 +1,8 @@
+Thu May 14 04:38:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/str.cc,matcher/multiandpostlist.cc,net/remoteconnection.cc,
+	  weight/: Fixes for errors when compiling with Sun C++.
+
 Thu May 14 04:16:05 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/getopt.cc,net/tcpserver.cc: Fix clang warnings on OS X.

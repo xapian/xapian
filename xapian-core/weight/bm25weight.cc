@@ -1,7 +1,7 @@
 /** @file bm25weight.cc
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009,2010,2014 Olly Betts
+/* Copyright (C) 2009,2010,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -166,7 +166,7 @@ BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_sumpart", wdf | len);
     Xapian::doclength normlen = max(len * len_factor, param_min_normlen);
 
-    double wdf_double(wdf);
+    double wdf_double = wdf;
     double denom = param_k1 * (normlen * param_b + (1 - param_b)) + wdf_double;
     AssertRel(denom,>,0);
     RETURN(termweight * (wdf_double / denom));
@@ -192,7 +192,7 @@ BM25Weight::get_maxpart() const
 	    denom *= (normlen_lb * param_b + (1 - param_b));
 	}
     }
-    double wdf_max(get_wdf_upper_bound());
+    double wdf_max = get_wdf_upper_bound();
     denom += wdf_max;
     AssertRel(denom,>,0);
     RETURN(termweight * (wdf_max / denom));
