@@ -1,3 +1,7 @@
+Mon May 11 14:16:22 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING: libtool 2.4.6 is now used for snapshots and releases.
+
 Mon May 11 14:14:04 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/str.cc,expand/bo1eweight.cc,geospatial/geoencode.cc,
