@@ -1,3 +1,8 @@
+Thu May 14 04:16:34 GMT 2015  Olly Betts <olly@survex.com>
+
+	* cdb_hash.cc,md5.cc: Remove 'register' as it's deprecated, and
+	  likely to just be ignored by any modern compiler anyway.
+
 Wed May 06 10:08:33 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
