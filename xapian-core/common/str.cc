@@ -1,7 +1,7 @@
 /** @file str.cc
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009,2012 Olly Betts
+/* Copyright (C) 2009,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ tostring_unsigned(T value)
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch(value % 10);
+	char ch = static_cast<char>(value % 10);
 	value /= 10;
 	*(--p) = ch + '0';
     } while (value);
@@ -65,7 +65,7 @@ tostring(T value)
     char * p = buf + sizeof(buf);
     do {
 	AssertRel(p,>,buf);
-	char ch(value % 10);
+	char ch = static_cast<char>(value % 10);
 	value /= 10;
 	*(--p) = ch + '0';
     } while (value);

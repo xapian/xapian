@@ -2,7 +2,7 @@
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2014 Olly Betts
+ * Copyright (C) 2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,7 @@ BB2Weight::clone() const
 void
 BB2Weight::init(double factor)
 {
-    double wdfn_upper(get_wdf_upper_bound());
+    double wdfn_upper = get_wdf_upper_bound();
 
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
@@ -74,7 +74,7 @@ BB2Weight::init(double factor)
     wdfn_lower *= log2(1 + c_product_avlen / get_doclength_upper_bound());
     wdfn_upper *= log2(1 + c_product_avlen / get_doclength_lower_bound());
 
-    double F(get_collection_freq());
+    double F = get_collection_freq();
 
     // Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
     // stirling_value().
@@ -141,7 +141,7 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 
     double wdfn = wdf * log2(1 + c_product_avlen / len);
 
-    double F(get_collection_freq());
+    double F = get_collection_freq();
 
     // Clamp wdfn to at most (F - 1) to avoid ill-defined log calculations in
     // stirling_value().

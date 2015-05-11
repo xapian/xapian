@@ -1,3 +1,9 @@
+Mon May 11 14:14:04 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/str.cc,expand/bo1eweight.cc,geospatial/geoencode.cc,
+	  matcher/multiandpostlist.cc,net/remoteconnection.cc,weight/:
+	  Fixes for errors when compiling with Sun C++.
+
 Mon May 11 10:53:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/log2.h,configure.ac: Change probe for log2() to check for a

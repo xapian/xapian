@@ -38,12 +38,12 @@ DPHWeight::clone() const
 void
 DPHWeight::init(double factor)
 {
-    double F(get_collection_freq());
-    double N(get_collection_size());
-    double wdf_lower(1.0);
-    double wdf_upper(get_wdf_upper_bound());
+    double F = get_collection_freq();
+    double N = get_collection_size();
+    double wdf_lower = 1.0;
+    double wdf_upper = get_wdf_upper_bound();
 
-    double len_upper(get_doclength_upper_bound());
+    double len_upper = get_doclength_upper_bound();
 
     double min_wdf_to_len = wdf_lower / len_upper;
     double min_normalization = pow(1.0 / len_upper, 2) / (wdf_upper + 1.0);

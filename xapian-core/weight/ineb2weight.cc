@@ -54,7 +54,7 @@ IneB2Weight::clone() const
 void
 IneB2Weight::init(double factor)
 {
-    double wdfn_upper(get_wdf_upper_bound());
+    double wdfn_upper = get_wdf_upper_bound();
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
 	return;
@@ -63,9 +63,9 @@ IneB2Weight::init(double factor)
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
 
-    double N(get_collection_size());
-    double F(get_collection_freq());
-    double termfreq(get_termfreq());
+    double N = get_collection_size();
+    double F = get_collection_freq();
+    double termfreq = get_termfreq();
 
     double max_wdfn_product_B = (F + 1.0) / (termfreq + (termfreq / wdfn_upper));
 
@@ -111,7 +111,7 @@ IneB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 			 Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
-    double wdfn(wdf);
+    double wdfn = wdf;
 
     wdfn *= log2(1 + c_product_avlen / len);
 

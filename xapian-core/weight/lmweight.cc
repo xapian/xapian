@@ -144,9 +144,9 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 		      Xapian::termcount uniqterm) const
 {
     // Within Document Frequency of the term in document being considered.
-    double wdf_double(wdf);
+    double wdf_double = wdf;
     // Length of the Document in terms of number of terms.
-    double len_double(len);
+    double len_double = len;
     // variable to store weight contribution of term in the document scoring for LM.
     double weight_sum;
 
@@ -162,7 +162,7 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 	weight_sum = (wdf_double + (param_smoothing1 * weight_collection)) /
 		     (len_double + param_smoothing1);
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
-	double uniqterm_double(uniqterm);
+	double uniqterm_double = uniqterm;
 	weight_sum = ((((wdf_double - param_smoothing1) > 0) ? (wdf_double - param_smoothing1) : 0) / len_double) + ((param_smoothing1 * weight_collection * uniqterm_double) / len_double);
     } else {
 	weight_sum = (((1 - param_smoothing1) * (wdf_double + (param_smoothing2 * weight_collection)) / (len_double + param_smoothing2)) + (param_smoothing1 * weight_collection));

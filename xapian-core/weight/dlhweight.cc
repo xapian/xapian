@@ -37,14 +37,14 @@ DLHWeight::clone() const
 void
 DLHWeight::init(double factor)
 {
-    double wdf_lower(1.0);
-    double wdf_upper(get_wdf_upper_bound());
-    double len_upper(get_doclength_upper_bound());
+    double wdf_lower = 1.0;
+    double wdf_upper = get_wdf_upper_bound();
+    double len_upper = get_doclength_upper_bound();
 
     double min_wdf_to_len = wdf_lower / len_upper;
 
-    double N(get_collection_size());
-    double F(get_collection_freq());
+    double N = get_collection_size();
+    double F = get_collection_freq();
 
     if (wdf_upper == 0) {
 	lower_bound = upper_bound = 0.0;

@@ -1,7 +1,7 @@
 /** @file multiandpostlist.cc
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009,2011,2012 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2015 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -95,7 +95,7 @@ MultiAndPostList::get_termfreq_est() const
     // We calculate the estimate assuming independence.  With this assumption,
     // the estimate is the product of the estimates for the sub-postlists
     // divided by db_size (n_kids - 1) times.
-    double result(plist[0]->get_termfreq_est());
+    double result = plist[0]->get_termfreq_est();
     for (size_t i = 1; i < n_kids; ++i) {
 	result = (result * plist[i]->get_termfreq_est()) / db_size;
     }
