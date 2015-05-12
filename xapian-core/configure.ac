@@ -1127,6 +1127,16 @@ AH_BOTTOM(
  * xapian/query.h directly.
  */
 #define XAPIAN_LIB_BUILD 1
+
+/* With Sun CC 5.13 (Studio 12.4) on Solaris 11.2, <math.h> seems to get
+ * implicitly included somehow before <cmath>, and compilation fails due
+ * to 'std::exception' colliding with 'struct exception'.  It's not clear
+ * how to avoid this, so just define the making macro which <cmath> does
+ * before it includes <math.h>.
+ */
+#ifdef __SUNPRO_CC
+# define __MATHERR_RENAME_EXCEPTION
+#endif
 ])
 
 AC_SUBST([AM_CXXFLAGS])

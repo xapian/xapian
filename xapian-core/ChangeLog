@@ -1,3 +1,7 @@
+Tue May 12 03:49:38 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add workaround for odd <cmath> issue with Sun C++.
+
 Tue May 12 03:49:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: On Solaris, inet_ntop() needs -lnsl.
