@@ -1,3 +1,8 @@
+Tue May 12 14:07:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst,omindex.cc: Allow --filter to handle commands
+	  which produce output in a temporary file rather than on stdout.
+
 Tue May 12 13:37:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Handle application/vnd.ms-excel via commands map instead

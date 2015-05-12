@@ -444,6 +444,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		return;
 	    }
 	    bool substituted = false;
+	    string tmpout;
 	    size_t pcent = 0;
 	    while (true) {
 		pcent = cmd.find('%', pcent);
@@ -466,6 +467,29 @@ index_mimetype(const string & file, const string & url, const string & ext,
 			cmd += tail;
 			break;
 		    }
+		    case 't': { // %t -> temporary output file.
+			if (tmpout.empty()) {
+			    // Use a temporary file with a suitable extension
+			    // in case the command cares, and for more helpful
+			    // error messages from the command.
+			    if (cmd_it->second.output_type == "text/html") {
+				tmpout = get_tmpfile("tmp.html");
+			    } else {
+				tmpout = get_tmpfile("tmp.txt");
+			    }
+			}
+			substituted = true;
+			string tail(cmd, pcent + 2);
+			cmd.resize(pcent);
+			append_filename_argument(cmd, tmpout);
+			// Remove the space append_filename_argument() adds before
+			// the argument - the command string either includes one,
+			// or won't expect one (e.g. --input=%f).
+			cmd.erase(pcent, 1);
+			pcent = cmd.size();
+			cmd += tail;
+			break;
+		    }
 		    default:
 			// Leave anything else alone for now.
 			pcent += 2;
@@ -477,7 +501,17 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		append_filename_argument(cmd, file);
 	    }
 	    try {
-		dump = stdout_to_string(cmd);
+		if (!tmpout.empty()) {
+		    // Output in temporary file.
+		    (void)stdout_to_string(cmd);
+		    if (!load_file(tmpout, dump)) {
+			throw ReadError("Couldn't read output file");
+		    }
+		    unlink(tmpout.c_str());
+		} else {
+		    // Output on stdout.
+		    dump = stdout_to_string(cmd);
+		}
 		if (cmd_it->second.output_type == "text/html") {
 		    MyHtmlParser p;
 		    p.ignore_metarobots();

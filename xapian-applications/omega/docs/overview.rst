@@ -356,16 +356,26 @@ to.
 
 You can add support for additional MIME content types (or override existing
 ones) using the ``--filter`` option to specify a command to run.  At present,
-this command needs to produce output on stdout in either HTML or UTF-8 text
-format.
+this command needs to produce output in either HTML or UTF-8 text format.
 
-As of 1.3.3, any ``%f`` in this command will be replaced with the filename of
-the file to extract (suitably escaped to protect it from the shell, so don't
-put quotes around ``%f``), and ``%%`` can be used should you need a literal
-``%`` in the command.
+As of 1.3.3, the command can include certain placeholders which are substituted
+by omindex:
 
-If you don't include ``%f`` in the command, then the filename of the file to be
-extracted will be appended to the command, separated by a space.
+ * Any ``%f`` in this command will be replaced with the filename of the file to
+   extract (suitably escaped to protect it from the shell, so don't put quotes
+   around ``%f``).
+
+   If you don't include ``%f`` in the command, then the filename of the file to
+   be extracted will be appended to the command, separated by a space.
+
+ * Any ``%t`` in this command will be replaced with a filename in a temporary
+   directory (suitably escaped to protect it from the shell, so don't put
+   quotes around ``%t``).  The extension of this filename will reflect the
+   expected output format (either ``.html`` or ``.txt``).  If you don't use
+   ``%t`` in the command, then omindex will expect output on ``stdout`` (prior
+   to 1.3.3, output had to be on ``stdout``).
+
+ * ``%%`` can be used should you need a literal ``%`` in the command.
 
 For example, if you'd prefer to use Abiword to extract text from word documents
 (by default, omindex uses antiword), then you can pass the option
