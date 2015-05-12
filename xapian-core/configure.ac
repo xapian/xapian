@@ -96,6 +96,15 @@ dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
 LT_INIT
 
+dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
+dnl pass -no-undefined on platforms where it is required in order to link a
+dnl shared library at all (Windows is the main one).
+NO_UNDEFINED=
+if test unsupported = "$allow_undefined_flag" ; then
+  NO_UNDEFINED=-no-undefined
+fi
+AC_SUBST(NO_UNDEFINED)
+
 AM_CXXFLAGS=
 
 dnl A standard "gotcha" for mingw and cygwin users is to not set up their

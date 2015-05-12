@@ -1,3 +1,10 @@
+Tue May 12 06:40:38 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Only pass -no-undefined when linking the library if
+	  it's actually required for the current platform.  Sun C++ doesn't
+	  link the C++ runtime libraries to shared objects, so the build
+	  fails with -no-undefined.
+
 Tue May 12 06:39:26 GMT 2015  Olly Betts <olly@survex.com>
 
 	* INSTALL,configure.ac: Fix comment and doc typos.
