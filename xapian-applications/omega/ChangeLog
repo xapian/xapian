@@ -1,3 +1,7 @@
+Tue May 12 07:38:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo.
+
 Mon May 11 07:05:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* cdb_hash.cc,md5.cc: Remove 'register' as it's deprecated, and
