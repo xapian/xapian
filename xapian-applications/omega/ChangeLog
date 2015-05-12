@@ -1,3 +1,8 @@
+Tue May 12 11:17:20 GMT 2015  Olly Betts <olly@survex.com>
+
+	* diritor.h,omindex.cc,values.h: Add -track-ctime option to allow
+	  omindex to pick up changes to file ownership and permissions.
+
 Tue May 12 07:38:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo.

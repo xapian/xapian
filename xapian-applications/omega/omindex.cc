@@ -91,6 +91,7 @@ static enum {
     EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
 } empty_body = EMPTY_BODY_WARN;
 static double sleep_before_opendir = 0;
+static bool use_ctime = false;
 
 static string root;
 static string site_term, host_term;
@@ -138,7 +139,7 @@ mimetype_from_ext(const map<string, string> & mime_map, string ext)
     return string();
 }
 
-static time_t last_mod_max;
+static time_t last_altered_max;
 
 // Commands which take a filename as the last argument, and output UTF-8
 // text or some other mime type are common, so we handle these with a std::map.
@@ -369,8 +370,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
     if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
-    time_t last_mod = d.get_mtime();
-    time_t created = time_t(-1);
+    // FIXME: We could be cleverer here and check mtime too when use_ctime is
+    // set - if the ctime has changed but the mtime is unchanged, we can just
+    // update the existing Document and avoid having to re-extract text, etc.
+    time_t last_altered = use_ctime ? d.get_ctime() : d.get_mtime();
 
     Xapian::docid did = 0; 
     if (skip_duplicates) {
@@ -383,16 +386,17 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    return;
 	}
     } else {
-	// If last_mod > last_mod_max, we know for sure that the file is new
-	// or updated.
-	if (last_mod <= last_mod_max) {
+	// If last_altered > last_altered_max, we know for sure that the file
+	// is new or updated.
+	if (last_altered <= last_altered_max) {
 	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	    if (p != db.postlist_end(urlterm)) {
 		did = *p;
 		Xapian::Document doc = db.get_document(did);
-		string value = doc.get_value(VALUE_LASTMOD);
-		time_t old_last_mod = binary_string_to_int(value);
-		if (last_mod <= old_last_mod) {
+		Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
+		string value = doc.get_value(slot);
+		time_t old_last_altered = binary_string_to_int(value);
+		if (last_altered <= old_last_altered) {
 		    if (verbose)
 			cout << "already indexed" << endl;
 		    // The docid should be in updated - the only valid
@@ -410,6 +414,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
     string author, title, sample, keywords, topic, dump;
     string md5;
+    time_t created = time_t(-1);
 
     map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
     if (cmd_it == commands.end()) {
@@ -861,9 +866,10 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	}
 	record += "\ntype=";
 	record += mimetype;
-	if (last_mod != (time_t)-1) {
+	time_t mtime = d.get_mtime();
+	if (mtime != (time_t)-1) {
 	    record += "\nmodtime=";
-	    record += str(last_mod);
+	    record += str(mtime);
 	}
 	if (created != (time_t)-1) {
 	    record += "\ncreated=";
@@ -913,7 +919,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	if (!host_term.empty())
 	    newdocument.add_boolean_term(host_term);
 
-	struct tm *tm = localtime(&last_mod);
+	struct tm *tm = localtime(&mtime);
 	string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
 	newdocument.add_boolean_term(date_term); // Date (YYYYMMDD)
 	date_term.resize(7);
@@ -925,9 +931,15 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 	newdocument.add_boolean_term(urlterm); // Url
 
-	// Add last_mod as a value to allow "sort by date".
+	// Add mtime as a value to allow "sort by date".
 	newdocument.add_value(VALUE_LASTMOD,
-			      int_to_binary_string((uint32_t)last_mod));
+			      int_to_binary_string((uint32_t)mtime));
+	if (use_ctime) {
+	    // Add ctime as a value to track modifications.
+	    time_t ctime = d.get_ctime();
+	    newdocument.add_value(VALUE_CTIME,
+				  int_to_binary_string((uint32_t)ctime));
+	}
 
 	// Add MD5 as a value to allow duplicate documents to be collapsed
 	// together.
@@ -969,7 +981,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    if (did) {
 		// We already found out the document id above.
 		db.replace_document(did, newdocument);
-	    } else if (last_mod <= last_mod_max) {
+	    } else if (last_altered <= last_altered_max) {
 		// We checked for the UID term and didn't find it.
 		did = db.add_document(newdocument);
 	    } else {
@@ -1131,6 +1143,7 @@ main(int argc, char **argv)
 	{ "max-size",	required_argument,	NULL, 'm' },
 	{ "sample-size",required_argument,	NULL, 'E' },
 	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
+	{ "track-ctime",no_argument,		NULL, 'C' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1380,6 +1393,8 @@ main(int argc, char **argv)
 "                            directory - sleeping for 2 seconds seems to\n"
 "                            reliably work around problems with indexing files\n"
 "                            on Microsoft DFS shares.\n"
+"  -C, --track-ctime         track each file's ctime so we can detect changes\n"
+"                            to ownership or permissions.\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
@@ -1551,6 +1566,9 @@ main(int argc, char **argv)
 		 "'" << optarg << "'" << endl;
 	    return 1;
 	}
+	case 'C':
+	    use_ctime = true;
+	    break;
 	case ':': // missing param
 	    return 1;
 	case '?': // unknown option: FIXME -> char
@@ -1642,12 +1660,13 @@ main(int argc, char **argv)
 		updated.resize(old_lastdocid + 1);
 	    }
 	    try {
-		string ubound = db.get_value_upper_bound(VALUE_LASTMOD);
+		Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
+		string ubound = db.get_value_upper_bound(slot);
 		if (!ubound.empty()) 
-		    last_mod_max = binary_string_to_int(ubound);
+		    last_altered_max = binary_string_to_int(ubound);
 	    } catch (const Xapian::UnimplementedError &) {
 		numeric_limits<time_t> n;
-		last_mod_max = n.max();
+		last_altered_max = n.max();
 	    }
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
