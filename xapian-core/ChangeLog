@@ -1,3 +1,7 @@
+Thu May 14 06:29:10 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add workaround for odd <cmath> issue with Sun C++.
+
 Thu May 14 06:24:18 GMT 2015  Olly Betts <olly@survex.com>
 
 	* HACKING: libtool 2.4.6 is now used for snapshots and releases.
