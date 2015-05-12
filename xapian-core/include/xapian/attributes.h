@@ -74,7 +74,7 @@
 
 #ifndef XAPIAN_NOTHROW
 /** A function or method which will never throw an exception. */
-# define XAPIAN_NOTHROW(D) D XAPIAN_NOEXPECT
+# define XAPIAN_NOTHROW(D) D XAPIAN_NOEXCEPT
 #endif
 
 #endif // XAPIAN_INCLUDED_ATTRIBUTES_H

@@ -1,3 +1,9 @@
+Tue May 12 03:07:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/attributes.h: Fix typo in definition of
+	  XAPIAN_NOTHROW() definition for C++11 compilers other than GCC and
+	  MSVC.
+
 Tue May 12 01:48:19 GMT 2015  Olly Betts <olly@survex.com>
 
 	* exception_data.pm: Fix not to parse mentions of XAPIAN_THROW() in
