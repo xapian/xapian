@@ -631,15 +631,6 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    } catch (ReadError) {
 		// It's probably best to index the document even if this fails.
 	    }
-	} else if (mimetype == "application/vnd.ms-excel") {
-	    string cmd = "xls2csv -c' ' -q0 -dutf-8";
-	    append_filename_argument(cmd, file);
-	    try {
-		dump = stdout_to_string(cmd);
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
-	    }
 	} else if (startswith(mimetype, "application/vnd.openxmlformats-officedocument.")) {
 	    const char * args = NULL;
 	    string tail(mimetype, 46);
@@ -1349,6 +1340,7 @@ main(int argc, char **argv)
     mime_map["ttf"] = "ignore";
 
     commands["application/msword"] = Filter("antiword -mUTF-8.txt");
+    commands["application/vnd.ms-excel"] = Filter("xls2csv -c' ' -q0 -dutf-8");
     commands["application/vnd.ms-powerpoint"] = Filter("catppt -dutf-8");
     // Looking at the source of wpd2html and wpd2text I think both output
     // UTF-8, but it's hard to be sure without sample Unicode .wpd files

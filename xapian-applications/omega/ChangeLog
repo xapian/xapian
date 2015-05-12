@@ -1,3 +1,8 @@
+Tue May 12 13:37:01 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Handle application/vnd.ms-excel via commands map instead
+	  of a hardcoded case.
+
 Tue May 12 12:56:40 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/overview.rst,omindex.cc: Add support for %f in command passed
