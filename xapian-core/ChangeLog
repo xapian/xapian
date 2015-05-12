@@ -1,3 +1,8 @@
+Tue May 12 01:48:19 GMT 2015  Olly Betts <olly@survex.com>
+
+	* exception_data.pm: Fix not to parse mentions of XAPIAN_THROW() in
+	  comments.
+
 Mon May 11 14:16:22 GMT 2015  Olly Betts <olly@survex.com>
 
 	* HACKING: libtool 2.4.6 is now used for snapshots and releases.
