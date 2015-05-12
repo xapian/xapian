@@ -359,11 +359,18 @@ ones) using the ``--filter`` option to specify a command to run.  At present,
 this command needs to produce output on stdout in either HTML or UTF-8 text
 format.
 
+As of 1.3.3, any ``%f`` in this command will be replaced with the filename of
+the file to extract (suitably escaped to protect it from the shell, so don't
+put quotes around ``%f``), and ``%%`` can be used should you need a literal
+``%`` in the command.
+
+If you don't include ``%f`` in the command, then the filename of the file to be
+extracted will be appended to the command, separated by a space.
+
 For example, if you'd prefer to use Abiword to extract text from word documents
 (by default, omindex uses antiword), then you can pass the option
 ``--filter=application/msword:'abiword --to=txt --to-name=fd://1'`` to
-omindex.  The filename of the file to be extracted will be appended to this
-command, separated by a space.
+omindex.
 
 Another example - if you wanted to handle files of MIME type
 ``application/octet-stream`` by running them through ``strings -n8``, you can

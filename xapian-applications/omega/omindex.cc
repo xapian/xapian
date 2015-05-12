@@ -443,7 +443,39 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip(file, m, SKIP_VERBOSE_ONLY);
 		return;
 	    }
-	    append_filename_argument(cmd, file);
+	    bool substituted = false;
+	    size_t pcent = 0;
+	    while (true) {
+		pcent = cmd.find('%', pcent);
+		if (pcent >= cmd.size() - 1)
+		    break;
+		switch (cmd[pcent + 1]) {
+		    case '%': // %% -> %.
+			cmd.erase(++pcent, 1);
+			break;
+		    case 'f': { // %f -> escaped filename.
+			substituted = true;
+			string tail(cmd, pcent + 2);
+			cmd.resize(pcent);
+			append_filename_argument(cmd, file);
+			// Remove the space append_filename_argument() adds before
+			// the argument - the command string either includes one,
+			// or won't expect one (e.g. --input=%f).
+			cmd.erase(pcent, 1);
+			pcent = cmd.size();
+			cmd += tail;
+			break;
+		    }
+		    default:
+			// Leave anything else alone for now.
+			pcent += 2;
+			break;
+		}
+	    }
+	    if (!substituted) {
+		// If no %f, append the filename to the command.
+		append_filename_argument(cmd, file);
+	    }
 	    try {
 		dump = stdout_to_string(cmd);
 		if (cmd_it->second.output_type == "text/html") {
