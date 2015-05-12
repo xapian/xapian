@@ -94,7 +94,7 @@ lib_LTLIBRARIES = libxapian-1.3.la
 libxapian_1_3_la_SOURCES = $(lib_src)
 libxapian_1_3_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_1_3_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
 
 lib_src =
 

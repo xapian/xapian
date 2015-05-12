@@ -1,3 +1,7 @@
+Tue May 12 07:38:12 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Actually use $(NO_UNDEFINED).
+
 Tue May 12 06:40:38 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only pass -no-undefined when linking the library if
