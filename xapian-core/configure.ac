@@ -206,7 +206,7 @@ if test no = "$xo_cv_cxx_works" ; then
   fi
 fi
 
-dnl Probe for any options needed to enable C++11 suport.
+dnl Probe for any options needed to enable C++11 support.
 AX_CXX_COMPILE_STDCXX_11
 
 dnl We don't use a C compiler to compile Xapian's code, but on some platforms

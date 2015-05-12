@@ -1,3 +1,7 @@
+Tue May 12 06:39:26 GMT 2015  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac: Fix comment and doc typos.
+
 Tue May 12 03:49:38 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add workaround for odd <cmath> issue with Sun C++.
