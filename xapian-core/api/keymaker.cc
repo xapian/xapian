@@ -1,7 +1,7 @@
 /** @file keymaker.cc
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,7 +70,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	    // except for '\0' which we convert to "\xff\0".  We insert
 	    // "\xff\xff" after the encoded value.
 	    for (string::const_iterator j = v.begin(); j != v.end(); ++j) {
-		unsigned char ch(*j);
+		unsigned char ch = static_cast<unsigned char>(*j);
 		result += char(255 - ch);
 		if (ch == 0) result += '\0';
 	    }

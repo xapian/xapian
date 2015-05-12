@@ -1,3 +1,7 @@
+Thu May 14 05:12:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/keymaker.cc: Fix error compiling with Sun C++.
+
 Thu May 14 04:38:05 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/str.cc,matcher/multiandpostlist.cc,net/remoteconnection.cc,
