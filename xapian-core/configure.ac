@@ -735,13 +735,18 @@ if test "$enable_backend_remote" = yes ; then
       ])
       AC_DEFINE([HAVE_SOCKETPAIR], [1],
 		[Define to 1 if you have the 'socketpair' function.])
-      dnl Check if extra libraries are needed for getaddrinfo (e.g. on Solaris).
+      dnl Check if extra libraries are needed for getaddrinfo or inet_ntop()
+      dnl (e.g. on Solaris).
+      dnl
       dnl We're currently assuming that any system that is worth trying to
-      dnl support has getaddrinfo(), since that's the standard route for
-      dnl supporting IPv6, and that's pretty much essential for platforms to
-      dnl support now.
+      dnl support has getaddrinfo() and inet_ntop(), since these are the
+      dnl standard route for supporting IPv6, and that's pretty much essential
+      dnl for platforms to support now.
       AC_SEARCH_LIBS([getaddrinfo], [nsl socket], [], [
 	AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_SEARCH_LIBS([inet_ntop], [nsl socket], [], [
+	AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
       ])
       REMOTE_LIBS=$LIBS
       LIBS=$SAVE_LIBS
