@@ -1,3 +1,7 @@
+Wed May 13 15:02:36 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Message tweak.
+
 Wed May 13 15:00:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Handle text/x-perl and application/x-dvi via the
