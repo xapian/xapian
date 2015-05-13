@@ -1,3 +1,7 @@
+Thu May 14 05:15:18 GMT 2015  Olly Betts <olly@survex.com>
+
+	* outlookmsg2html.in: Fix handling of message/rfc822 subparts.
+
 Thu May 14 04:16:34 GMT 2015  Olly Betts <olly@survex.com>
 
 	* cdb_hash.cc,md5.cc: Remove 'register' as it's deprecated, and
