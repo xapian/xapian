@@ -756,34 +756,6 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		skip_cmd_failed(file, cmd);
 		return;
 	    }
-	} else if (mimetype == "text/x-perl") {
-	    // pod2text's output character set doesn't seem to be documented,
-	    // but from inspecting the source it looks like it's probably
-	    // iso-8859-1.
-	    string cmd = "pod2text";
-	    append_filename_argument(cmd, file);
-	    try {
-		dump = stdout_to_string(cmd);
-		convert_to_utf8(dump, "iso-8859-1");
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
-	    }
-	} else if (mimetype == "application/x-dvi") {
-	    // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi",
-	    // etc appearing as single ligatures.  For European languages, it's
-	    // actually better to use -e2 (ISO-8859-1) and then convert, so
-	    // let's do that for now until we handle Unicode "compatibility
-	    // decompositions".
-	    string cmd = "catdvi -e2 -s";
-	    append_filename_argument(cmd, file);
-	    try {
-		dump = stdout_to_string(cmd);
-		convert_to_utf8(dump, "iso-8859-1");
-	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
-		return;
-	    }
 	} else if (mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";
 	    append_filename_argument(cmd, file);
@@ -1405,6 +1377,16 @@ main(int argc, char **argv)
     commands["application/x-mspublisher"] = Filter("pub2xhtml", "text/html");
     commands["application/vnd.ms-outlook"] =
 	Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html");
+    // pod2text's output character set doesn't seem to be documented, but from
+    // inspecting the source it looks like it's probably iso-8859-1.
+    commands["text/x-perl"] =
+	Filter("pod2text", "text/plain", "iso-8859-1");
+    // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
+    // appearing as single ligatures.  For European languages, it's actually
+    // better to use -e2 (ISO-8859-1) and then convert, so let's do that for
+    // now until we handle Unicode "compatibility decompositions".
+    commands["application/x-dvi"] =
+	Filter("catdvi -e2 -s", "text/plain", "iso-8859-1");
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but
