@@ -1364,7 +1364,7 @@ main(int argc, char **argv)
 		}
 	    } else {
 		cerr << "Invalid MIME mapping '" << optarg << "'\n"
-			"Should be of the form ext:type, eg txt:text/plain\n"
+			"Should be of the form ext:type, e.g. txt:text/plain\n"
 			"(or txt: to delete a default mapping)" << endl;
 		return 1;
 	    }

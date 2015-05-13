@@ -1,3 +1,7 @@
+Thu May 14 05:16:08 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Message tweak.
+
 Thu May 14 05:15:18 GMT 2015  Olly Betts <olly@survex.com>
 
 	* outlookmsg2html.in: Fix handling of message/rfc822 subparts.
