@@ -146,11 +146,16 @@ static time_t last_altered_max;
 struct Filter {
     string cmd;
     string output_type;
+    string output_charset;
     Filter() : cmd(), output_type() { }
     explicit Filter(const string & cmd_)
 	: cmd(cmd_), output_type() { }
     Filter(const string & cmd_, const string & output_type_)
 	: cmd(cmd_), output_type(output_type_) { }
+    Filter(const string & cmd_, const string & output_type_,
+	   const string & output_charset_)
+	: cmd(cmd_), output_type(output_type_),
+	  output_charset(output_charset_) { }
 };
 
 static map<string, Filter> commands;
@@ -427,8 +432,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
     }
     try {
 	if (cmd_it != commands.end()) {
-	    // Easy "run a command and read UTF-8 text or HTML from stdout"
-	    // cases.
+	    // Easy "run a command and read text or HTML from stdout or a
+	    // temporary file" cases.
 	    string cmd = cmd_it->second.cmd;
 	    if (cmd.empty()) {
 		skip(file, "required filter not installed", SKIP_VERBOSE_ONLY);
@@ -512,11 +517,12 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    // Output on stdout.
 		    dump = stdout_to_string(cmd);
 		}
+		const string & charset = cmd_it->second.output_charset;
 		if (cmd_it->second.output_type == "text/html") {
 		    MyHtmlParser p;
 		    p.ignore_metarobots();
 		    try {
-			p.parse_html(dump, "iso-8859-1", false);
+			p.parse_html(dump, charset, false);
 		    } catch (const string & newcharset) {
 			p.reset();
 			p.ignore_metarobots();
@@ -532,6 +538,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    sample = p.sample;
 		    author = p.author;
 		    created = p.created;
+		} else if (!charset.empty()) {
+		    convert_to_utf8(dump, charset);
 		}
 	    } catch (ReadError) {
 		skip_cmd_failed(file, cmd);
@@ -1431,12 +1439,14 @@ main(int argc, char **argv)
 "  -U, --url=URL             base url BASEDIR corresponds to (default: /)\n"
 "  -M, --mime-type=EXT:TYPE  map file extension EXT to MIME Content-Type TYPE\n"
 "                            (empty TYPE removes any MIME mapping for EXT)\n"
-"  -F, --filter=M[,T]:CMD    process files with MIME Content-Type M using\n"
-"                            command CMD, which produces output on stdout with\n"
-"                            Content-Type T or file extension T.  Currently\n"
-"                            output types text/html and UTF-8 text/plain (the\n"
-"                            default) are supported.\n"
-"                            e.g. -Fapplication/octet-stream:'strings -n8'\n"
+"  -F, --filter=M[,[T][,C]]:CMD\n"
+"                            process files with MIME Content-Type M using\n"
+"                            command CMD, which produces output (on stdout or\n"
+"                            in a temporary file) with format T (Content-Type\n"
+"                            or file extension; currently txt (default) or\n"
+"                            html) in character encoding C (default: UTF-8).\n"
+"                            E.g. -Fapplication/octet-stream:'strings -n8'\n"
+"                            or -Ftext/x-foo,,utf-16:'foo2utf16 %f %t'\n"
 "  -l, --depth-limit=LIMIT   set recursion limit (0 = unlimited)\n"
 "  -f, --follow              follow symbolic links\n"
 "  -i, --ignore-exclusions   ignore meta robots tags and similar exclusions\n"
@@ -1519,10 +1529,19 @@ main(int argc, char **argv)
 	    const char * s = strchr(optarg, ':');
 	    if (s != NULL && s[1]) {
 		const char * c = (const char *)memchr(optarg, ',', s - optarg);
-		string output_type;
+		string output_type, output_charset;
 		if (c) {
 		    // Filter produces a specified content-type.
-		    output_type.assign(c + 1, s - (c + 1));
+		    ++c;
+		    const char * c2 = (const char *)memchr(c, ',', s - c);
+		    if (c2) {
+			output_type.assign(c, c2 - c);
+			++c2;
+			output_charset.assign(c2, s - c2);
+		    } else {
+			output_type.assign(c, s - c);
+		    }
+		    --c;
 		    if (output_type.find('/') == string::npos) {
 			map<string, string>::const_iterator m;
 			m = mime_map.find(output_type);
@@ -1539,7 +1558,8 @@ main(int argc, char **argv)
 		    c = s;
 		}
 		string mime_type(optarg, c - optarg);
-		commands[mime_type] = Filter(string(s + 1), output_type);
+		commands[mime_type] =
+		    Filter(string(s + 1), output_type, output_charset);
 	    } else {
 		cerr << "Invalid filter mapping '" << optarg << "'\n"
 			"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or TYPE,EXT:COMMAND\n"

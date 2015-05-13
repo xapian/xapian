@@ -356,7 +356,9 @@ to.
 
 You can add support for additional MIME content types (or override existing
 ones) using the ``--filter`` option to specify a command to run.  At present,
-this command needs to produce output in either HTML or UTF-8 text format.
+this command needs to produce output in either HTML or plain text format
+(as of 1.3.3, you can specify the character encoding that the output will be
+in; in earlier versions, plain text output had to be UTF-8).
 
 As of 1.3.3, the command can include certain placeholders which are substituted
 by omindex:
@@ -386,7 +388,12 @@ Another example - if you wanted to handle files of MIME type
 ``application/octet-stream`` by running them through ``strings -n8``, you can
 pass the option ``--filter=application/octet-stream:'strings -n8'``.
 
-A more complex example of the use of ``--filter`` makes use of LibreOffice,
+A more complex example: to process ``.foo`` files with the (fictional)
+``foo2utf16`` utility which produces UTF-16 text but doesn't support writing
+output to stdout, run omindex with ``-Mfoo:text/x-foo
+-Ftext/x-foo,,utf-16:'foo2utf16 %f %t'``.
+
+A less contrived example of the use of ``--filter`` makes use of LibreOffice,
 via the unoconv script, to extract text from various formats.  First you
 need to start a listening instance (if you don't, unoconv will start up
 LibreOffice for every file, which is rather inefficient) - the ``&`` tells
