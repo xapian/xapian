@@ -1,3 +1,8 @@
+Thu May 14 12:40:57 GMT 2015  Olly Betts <olly@survex.com>
+
+	* README: Remove note about the subclassing bug with PHP 5.4 and later
+	  - that was fixed in 1.2.19.
+
 Thu May 14 12:07:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/util.i.in: Update list of unwrapped things.
