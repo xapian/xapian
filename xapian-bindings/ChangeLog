@@ -1,3 +1,7 @@
+Thu May 14 13:57:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* README: Remove the experimental marker from the Lua bindings.
+
 Thu May 14 12:40:57 GMT 2015  Olly Betts <olly@survex.com>
 
 	* README: Remove note about the subclassing bug with PHP 5.4 and later
