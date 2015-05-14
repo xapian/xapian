@@ -1,8 +1,4 @@
-f7b003b6 (Olly Betts 2015-05-14 03:02:50 +1200    1) Thu May 14 05:16:08 GMT 2015  Olly Betts <olly@survex.com>
-
 Omega 1.2.21 (2015-05-14):
-
-general:
 
 documentation:
 
@@ -17,8 +13,6 @@ indexers:
 * omindex:
 
   + outlookmsg2html: Fix handling of message/rfc822 subparts.
-
-* scriptindex:
 
 omega:
 
@@ -44,10 +38,6 @@ templates:
 
 * templates/godmode: Specify charset utf-8 in the content-type.
 
-testsuite:
-
-build system:
-
 portability:
 
 * Add spaces between literal strings and macros which expand to literal strings
@@ -56,8 +46,6 @@ portability:
 * Remove 'register' as it's deprecated and clang spits out warnings because of
   that.  Any modern compiler likely just ignores it as an optimisation hint
   anyway.
-
-packaging:
 
 Omega 1.2.20 (2015-03-04):
 
