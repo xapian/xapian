@@ -1,3 +1,7 @@
+Thu May 14 10:28:26 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Thu May 14 03:54:05 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/util.i.in: Wrap missing constants OP_SYNONYM and STEM_ALL_Z.

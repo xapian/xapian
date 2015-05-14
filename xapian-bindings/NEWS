@@ -1,6 +1,6 @@
-642a0522 (Olly Betts 2015-05-05 16:56:48 +1200    1) Wed May 06 07:45:18 GMT 2015  Olly Betts <olly@survex.com>
+92465f1c (Olly Betts 2015-05-08 22:55:45 +1200    1) Thu May 14 03:54:05 GMT 2015  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.2.21 (2015-05-06):
+Xapian-bindings 1.2.21 (2015-05-14):
 
 Documentation:
 
@@ -17,6 +17,8 @@ Java:
 Lua:
 
 Perl:
+
+* Wrap missing constants OP_SYNONYM and STEM_ALL_Z.
 
 * Add workaround for Perl defining a seed() macro which breaks compilation with
   GCC in C++11 mode (due to <algorithm> now pulling in random number generation
