@@ -1,6 +1,6 @@
-5fbf1669 (Olly Betts 2015-05-01 13:37:44 +1200     1) Wed May 06 07:22:23 GMT 2015  Olly Betts <olly@survex.com>
+b550dcea (Olly Betts 2015-05-12 19:38:31 +1200     1) Thu May 14 06:33:05 GMT 2015  Olly Betts <olly@survex.com>
 
-Xapian-core 1.2.21 (2015-05-06):
+Xapian-core 1.2.21 (2015-05-14):
 
 API:
 
@@ -58,6 +58,11 @@ flint backend:
 
 remote backend:
 
+* Fix sort by value when multiple databases are in use and one or more are
+  remote.  This change necessitated a minor version bump in the remote
+  protocol.  Fixes #674, reported by Dylan Griffith.  If you are upgrading a
+  live system which uses the remote backend, upgrade the servers before the
+  clients.
 
 inmemory backend:
 
@@ -84,14 +89,27 @@ documentation:
 
 * API documentation: Minor wording tweaks and formatting improvements.
 
+* docs/deprecation.rst: Add deprecation of omindex --preserve-nonduplicates
+  which happened in 1.2.4.
+
 * HACKING: Update URL.
+
+* HACKING: libtool 2.4.6 is now used for bootstrapping snapshots and releases.
 
 tools:
 
-* xapian-compact: Make sure we open all the tables of input databases at the same
-  revision.  (Fixes #649)
+* xapian-compact: Make sure we open all the tables of input databases at the
+  same revision.  (Fixes #649)
 
 * xapian-metadata: Add 'list' subcommand to list all the metadata keys.
+
+* xapian-replicate: Fix connection timeout to be 10 seconds rather than 10000
+  seconds (the incorrect timeout has been the case since 1.2.3).
+
+* xapian-replicate: Set SO_KEEPALIVE for xapian-replicate's connection to the
+  master, and add command line option to allow setting socket-level timeouts
+  (SO_RCVTIMEO and SO_SNDTIMEO) on platforms that support them.  Fixes #546,
+  reported by nkvoll.
 
 * xapian-replicate-server: Avoid potentially reading uninitialised data if a
   changeset file is truncated.
@@ -104,6 +122,8 @@ portability:
 * apitest: The adddoc5 testcase fails under clang due to an exception handling
   bug, so just #ifdef out the problematic part of the testcase when building
   with clang for now.
+
+* Fix clang warnings on OS X.  Reported by Germán M. Bravo.
 
 * Fix to build with Sun's C++ compiler.
 
@@ -124,11 +144,17 @@ portability:
   (which is most current platforms) this happened to work OK before.  It would
   also have been fine on machines where char is unsigned by default.
 
+* Fix incorrect use of "delete" which should be "delete []".  This is
+  undefined behaviour in C++, though the type is POD, so in practice this
+  probably worked OK on many platforms.
+
 packaging:
 
 
 debug code:
 
+* Fix some overly strict assertions in flint, which caused apitest's
+  cursordelbug1 to fail with assertions on.
 
 Xapian-core 1.2.20 (2015-03-04):
 
