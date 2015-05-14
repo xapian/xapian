@@ -1,3 +1,8 @@
+Thu May 14 03:15:32 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Backport assertion fixes from chert
+	  to fix test failure of cursordelbug1 when assertions are enabled.
+
 Wed May 06 13:18:11 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/postlist.cc,api/postlist.h,common/remoteprotocol.h,matcher/,

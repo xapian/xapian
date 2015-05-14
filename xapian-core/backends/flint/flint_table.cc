@@ -2204,13 +2204,14 @@ FlintTable::prev_default(Cursor_ * C_, int j) const
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= DIR_START);
-    Assert((unsigned)c < block_size);
-    Assert(c <= DIR_END(p));
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     if (c == DIR_START) {
 	if (j == level) return false;
 	if (!prev_default(C_, j + 1)) return false;
 	c = DIR_END(p);
+	AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[j].c = c;
@@ -2225,9 +2226,14 @@ FlintTable::next_default(Cursor_ * C_, int j) const
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= DIR_START);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     c += D2;
-    Assert((unsigned)c < block_size);
+    if (j > 0) {
+	AssertRel(DIR_START,<,c);
+    } else {
+	AssertRel(DIR_START,<=,c);
+    }
     // Sometimes c can be DIR_END(p) + 2 here it appears...
     if (c >= DIR_END(p)) {
 	if (j == level) return false;
