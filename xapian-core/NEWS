@@ -1,5 +1,3 @@
-b550dcea (Olly Betts 2015-05-12 19:38:31 +1200     1) Thu May 14 06:33:05 GMT 2015  Olly Betts <olly@survex.com>
-
 Xapian-core 1.2.21 (2015-05-14):
 
 API:
@@ -8,9 +6,6 @@ API:
   be anything except for '(' and characters <= ' '.  This better matches what's
   accepted for a range end (anything except for ')' and characters <= ' ').
   Reported by Jani Nikula.
-
-testsuite:
-
 
 matcher:
 
@@ -64,22 +59,15 @@ remote backend:
   live system which uses the remote backend, upgrade the servers before the
   clients.
 
-inmemory backend:
-
-
 build system:
 
 * xapian-config: Fix typo so cached result of test in is_uninstalled() is
   actually used on subsequent calls.  Fixes #676, reported (with patch) by Ryan
   Schmidt.
 
-* Makefile.am,docs/Makefile.am: Add missing quoting.
-
-* configure: Changes in 1.2.19 broken the custom macro we use to probe for
+* configure: Changes in 1.2.19 broke the custom macro we use to probe for
   supported compiler flags such that the flags never got used.  This release
-  fixes the problem.
-
-* configure: Say "ISO C++" rather than "ANSI C++".
+  fixes this problem.
 
 * configure: Set default value for AUTOM4TE before AC_OUTPUT so the default
   will actually get used.  Only relevant when building in maintainer mode
@@ -114,9 +102,6 @@ tools:
 * xapian-replicate-server: Avoid potentially reading uninitialised data if a
   changeset file is truncated.
 
-examples:
-
-
 portability:
 
 * apitest: The adddoc5 testcase fails under clang due to an exception handling
@@ -147,9 +132,6 @@ portability:
 * Fix incorrect use of "delete" which should be "delete []".  This is
   undefined behaviour in C++, though the type is POD, so in practice this
   probably worked OK on many platforms.
-
-packaging:
-
 
 debug code:
 
