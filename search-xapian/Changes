@@ -4,6 +4,7 @@ Revision history for Perl extension Search::Xapian.
 	[Changes contributed by Olly Betts]
 	- Support passing collapse_max argument to Enquire::set_collapse_key().
 	  Fixes #669, reported by Felix Ostmann.
+	- Add missing 'my' to testcases.
 
 1.2.20.0  Wed Mar  4 00:30:08 UTC 2015
 	[Changes contributed by Olly Betts]

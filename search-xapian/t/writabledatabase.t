@@ -86,7 +86,7 @@ $repdoc->set_data( "$term $num" );
 $repdoc->add_posting( $term, 0 );
 $repdoc->add_posting( $num, 1 );
 $repdoc->add_value(0, $num);
-$repterm = "five";
+my $repterm = "five";
 
 ok(!$write->term_exists($num), "check term exists");
 ok($write->term_exists($repterm), "check term exists");

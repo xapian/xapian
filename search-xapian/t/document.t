@@ -17,7 +17,7 @@ ok(1); # If we made it this far, we're ok.
 # its man page ( perldoc Test ) for help writing this test script.
 
 my $doc = Search::Xapian::Document->new();
-$data = "hello world";
+my $data = "hello world";
 $doc->set_data($data);
 ok( $doc->get_data() eq $data );
 $doc->add_value(1, "fudge");
