@@ -1,3 +1,8 @@
+Fri May 15 05:13:30 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/perftest/Makefile.mk: Use $(NO_INSTALL)
+	  rather than @NO_INSTALL@ to allow make-time overriding.
+
 Fri May 15 05:11:42 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/soaktest/Makefile.mk: Use -no-fast-install instead of
