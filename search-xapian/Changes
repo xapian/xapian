@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.21.0
+1.2.21.0  Fri May 15 07:05:14 UTC 2015
 	[Changes contributed by Olly Betts]
 	- Support passing collapse_max argument to Enquire::set_collapse_key().
 	  Fixes #669, reported by Felix Ostmann.
