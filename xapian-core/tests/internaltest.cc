@@ -340,11 +340,13 @@ static bool test_temporarydtor1()
 
 static bool test_static_assert1()
 {
-    STATIC_ASSERT(true);
-    STATIC_ASSERT(1);
-    STATIC_ASSERT(-1);
-    STATIC_ASSERT(42);
-    STATIC_ASSERT(sizeof(char) == 1);
+    // These tests aren't so useful now we're using C++11 static_assert(),
+    // but it's not a bad idea to sanity check it.
+    static_assert(true, "true");
+    static_assert(1, "1");
+    static_assert(-1, "-1");
+    static_assert(42, "42");
+    static_assert(sizeof(char) == 1, "sizeof(char) == 1");
 
     // FIXME: We should test cases which should fail, but these are hard to
     // check with our current test framework.

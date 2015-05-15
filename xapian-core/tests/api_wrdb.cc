@@ -1946,7 +1946,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     // Note: doccount must be coprime with 13
     const Xapian::doccount doccount = 1000;
-    STATIC_ASSERT(doccount % 13 != 0);
+    static_assert(doccount % 13 != 0, "doccount divisible by 13");
 
     map<Xapian::docid, string> vals;
 

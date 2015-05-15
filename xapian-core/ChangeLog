@@ -1,3 +1,9 @@
+Fri May 15 12:27:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/omassert.h,common/pack.h,tests/api_wrdb.cc,
+	  tests/internaltest.cc: Replace STATIC_ASSERT() with C++11's
+	  static_assert().
+
 Fri May 15 11:34:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/stringutils.cc: Use static_assert rather than an adhoc check

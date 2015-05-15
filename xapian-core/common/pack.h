@@ -1,7 +1,7 @@
 /** @file pack.h
  * @brief Pack types into strings and unpack them again.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,7 +145,8 @@ pack_uint_preserving_sort(std::string & s, U value)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
-    STATIC_ASSERT(sizeof(U) <= SORTABLE_UINT_MAX_BYTES);
+    static_assert(sizeof(U) <= SORTABLE_UINT_MAX_BYTES,
+		  "Template type U too wide for database format");
 
     char tmp[sizeof(U) + 1];
     char * p = tmp + sizeof(tmp);
@@ -175,7 +176,8 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
-    STATIC_ASSERT(sizeof(U) < 256);
+    static_assert(sizeof(U) < 256,
+		  "Template type U too wide for database format");
     Assert(result);
 
     const char * ptr = *p;
