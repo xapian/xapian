@@ -1,3 +1,9 @@
+Fri May 15 03:08:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Use -no-install or -no-fast-install when
+	  linking test programs which never get installed, which means libtool
+	  can often avoid creating a shell script wrapper.
+
 Wed May 13 15:02:36 GMT 2015  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Message tweak.
