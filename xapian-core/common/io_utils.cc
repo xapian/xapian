@@ -27,6 +27,7 @@
 #include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <cstring>
 #include <string>
 
 #include <xapian/error.h>
@@ -93,22 +94,24 @@ io_open_block_wr(const char * fname, bool anew)
     errno = save_errno;
 #else
     {
-	vector<int> toclose;
+	char toclose[MIN_WRITE_FD];
+	memset(toclose, 0, sizeof(toclose));
+	fd = badfd;
 	do {
-	    toclose.push_back(badfd);
-	    fd = dup(badfd);
-	    if (fd < 0) {
-		int save_errno = errno;
-		for_each(toclose.begin(), toclose.end(), close);
-		errno = save_errno;
-		return fd;
-	    }
-	    badfd = fd;
-	} while (fd < MIN_WRITE_FD);
-	for_each(toclose.begin(), toclose.end(), close);
+	    toclose[fd] = 1;
+	    fd = dup(fd);
+	} while (fd >= 0 && fd < MIN_WRITE_FD);
+	int save_errno = errno;
+	for (badfd = 0; badfd != MIN_WRITE_FD; ++badfd)
+	    if (toclose[badfd])
+		close(badfd);
+	if (fd < 0) {
+	    errno = save_errno;
+	} else {
 # ifdef FD_CLOEXEC
-	(void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 # endif
+	}
     }
 #endif
     Assert(fd >= MIN_WRITE_FD || fd < 0);
