@@ -1,7 +1,7 @@
 /** @file stringutils.cc
  * @brief Various handy helpers which std::string really should provide.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,13 +27,10 @@ namespace Internal {
 
 // FIXME: These tables assume ASCII or an ASCII compatible character set
 // such as ISO-8859-N or UTF-8.  EBCDIC would need some work (patches
-// welcome!)  For now, use a compile time check - if '\x20' isn't a space
-// then the array dimension will be negative.
+// welcome!)
+static_assert('\x20' == ' ', "character set isn't a superset of ASCII");
 
-// FIXME: look at using boost's static_assert for cleaner compile time
-// asserts...
-
-const unsigned char is_tab[('\x20' == ' ') ? 256 : -1] = {
+const unsigned char is_tab[256] = {
  /* \x00     */ 0,
  /* \x01     */ 0,
  /* \x02     */ 0,

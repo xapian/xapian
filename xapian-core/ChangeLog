@@ -1,3 +1,8 @@
+Fri May 15 11:34:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/stringutils.cc: Use static_assert rather than an adhoc check
+	  via a negative array size.
+
 Fri May 15 11:16:18 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/io_utils.cc: Replace the code used on platforms without
