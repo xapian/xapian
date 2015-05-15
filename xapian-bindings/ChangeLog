@@ -1,3 +1,7 @@
+Fri May 15 06:49:50 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Add a "LICENSE" section to the main POD.
+
 Fri May 15 04:50:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* python3/pythontest.py: Expand comment about disabling
