@@ -1,3 +1,11 @@
+Fri May 15 05:18:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,pkgconfig/xapian-core.pc.in,xapian-config.in: When
+	  compiling with xlC on AIX, _LARGE_FILES gets defined by
+	  AC_SYS_LARGEFILE to enable large file support, and defining this
+	  changes the ABI of std::string, so include it in xapian-config
+	  --cxxflags and the pkg-config equivalent.
+
 Fri May 15 05:13:30 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am,tests/perftest/Makefile.mk: Use $(NO_INSTALL)
