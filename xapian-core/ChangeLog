@@ -1,3 +1,7 @@
+Fri May 15 05:30:33 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Another update for 1.2.21.
+
 Fri May 15 05:19:27 GMT 2015  Olly Betts <olly@survex.com>
 
 	* pkgconfig/xapian-core.pc.in: Include @ldflags@ in pkg-config .pc

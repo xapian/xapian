@@ -1,4 +1,4 @@
-Xapian-core 1.2.21 (2015-05-14):
+Xapian-core 1.2.21 (2015-05-15):
 
 API:
 
@@ -61,6 +61,18 @@ remote backend:
 
 build system:
 
+* xapian-config,xapian-core.pc: When compiling with xlC on AIX, the reported
+  --cxxflags/--cflags now include -D_LARGE_FILES=1 as this is defined for the
+  library, and defining it changes the ABI of std::string with this compiler,
+  so it must also be defined when building code using the Xapian API.
+
+* xapian-core.pc: Include --enable-runtime-pseudo-reloc in --libs output for
+  mingw and cygwin, like xapian-config does.
+
+* xapian-core.pc: Fix include directory reported by `pkg-config --cflags`.
+  This bug was harmless if xapian-core was installed to a directory which was
+  on the default header search path (such as /usr/include).
+
 * xapian-config: Fix typo so cached result of test in is_uninstalled() is
   actually used on subsequent calls.  Fixes #676, reported (with patch) by Ryan
   Schmidt.
@@ -72,6 +84,10 @@ build system:
 * configure: Set default value for AUTOM4TE before AC_OUTPUT so the default
   will actually get used.  Only relevant when building in maintainer mode
   (e.g. from git).
+
+* soaktest: Link with libtool's '-no-install' or '-no-fast-install', like we
+  already do for other test programs, which means that libtool doesn't need to
+  generate shell script wrappers for them on most platforms.
 
 documentation:
 
@@ -111,6 +127,10 @@ portability:
 * Fix clang warnings on OS X.  Reported by Germán M. Bravo.
 
 * Fix to build with Sun's C++ compiler.
+
+* Fix examples to build with xlC on AIX - they were failing due to _LARGE_FILES
+  being defined for the library build but not for the examples, and defining
+  this changes the ABI of std::string with this compiler.
 
 * Add spaces between literal strings and macros which expand to literal strings
   for C++11 compatibility.
