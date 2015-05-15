@@ -1,3 +1,8 @@
+Fri May 15 12:28:32 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/debuglog.h: Remove commented out STATIC_ASSERT() which
+	  is conceptually flawed.
+
 Fri May 15 12:27:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/omassert.h,common/pack.h,tests/api_wrdb.cc,

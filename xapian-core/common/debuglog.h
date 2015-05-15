@@ -76,8 +76,6 @@ enum debuglog_categories {
     DEBUGLOG_CATEGORY_ALWAYS = 31
 };
 
-// FIXME: STATIC_ASSERT(DEBUGLOG_CATEGORY_WTCALC < DEBUGLOG_CATEGORY_ALWAYS);
-
 /// Class to actually do the logging.
 class DebugLogger {
     /// Don't allow assignment.
