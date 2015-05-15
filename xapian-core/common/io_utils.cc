@@ -72,7 +72,7 @@ const int MIN_WRITE_FD = 3;
 int
 io_open_block_wr(const char * fname, bool anew)
 {
-    int flags = O_RDWR | O_BINARY | O_CLOEXEC;
+    int flags = O_RDWR | O_BINARY;
     if (anew) flags |= O_CREAT | O_TRUNC;
     int fd = ::open(fname, flags, 0666);
     if (fd >= MIN_WRITE_FD || fd < 0) return fd;

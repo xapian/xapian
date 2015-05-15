@@ -32,7 +32,7 @@
  *  @param fname  The path of the file to open.
  */
 inline int io_open_block_rd(const char * fname) {
-    return ::open(fname, O_RDONLY | O_BINARY | O_CLOEXEC);
+    return ::open(fname, O_RDONLY | O_BINARY);
 }
 
 /** Open a block-based file for reading.
