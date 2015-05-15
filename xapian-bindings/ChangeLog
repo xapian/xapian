@@ -1,3 +1,9 @@
+Fri May 15 11:31:59 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/perl.i: Just call the existing Perl Xapian::inmemory_open()
+	  function rather than defining and wrapping an inline C++
+	  new3_WritableDatabase() function which calls InMemory::open().
+
 Fri May 15 06:49:50 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/util.i.in: Add a "LICENSE" section to the main POD.

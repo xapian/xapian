@@ -447,22 +447,11 @@ sub new {
   my $pkg = shift;
   my $self;
   if( scalar(@_) == 0 ) {
-    $self = Xapianc::new3_WritableDatabase(@_);
-  } else {
-    $self = Xapianc::new_WritableDatabase(@_);
+    # For compatibility with Search::Xapian
+    return Xapian::inmemory_open();
   }
+  $self = Xapianc::new_WritableDatabase(@_);
   bless $self, $pkg if defined($self);
-}
-%}
-
-%inline %{
-Xapian::WritableDatabase * new3_WritableDatabase() {
-	try {
-	    return new Xapian::WritableDatabase(Xapian::InMemory::open());
-	}
-	catch (const Xapian::Error &error) {
-	    croak( "Exception: %s", error.get_msg().c_str() );
-	}
 }
 %}
 
