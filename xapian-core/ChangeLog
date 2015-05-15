@@ -1,3 +1,8 @@
+Fri May 15 05:19:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* pkgconfig/xapian-core.pc.in: Include @ldflags@ in pkg-config .pc
+	  file.
+
 Fri May 15 05:18:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* pkgconfig/xapian-core.pc.in: Fix include directory reported by
