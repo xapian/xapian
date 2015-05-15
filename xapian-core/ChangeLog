@@ -1,3 +1,8 @@
+Fri May 15 05:18:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* pkgconfig/xapian-core.pc.in: Fix include directory reported by
+	  pkg-config.
+
 Fri May 15 05:18:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac,pkgconfig/xapian-core.pc.in,xapian-config.in: When
