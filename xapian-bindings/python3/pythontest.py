@@ -1607,8 +1607,13 @@ run()
 if have_threads:
     print("Running tests with threads")
 
-    # This testcase seems to just block when run in a thread, so just remove
-    # it before running tests in a thread.
+    # This testcase seems to just block when run in a thread under Python 3
+    # on some plaforms.  It fails with 3.2.3 on Debian wheezy, but passes
+    # with the exact same package version on Debian unstable not long after
+    # the jessie release.  The issue it's actually serving to regression
+    # test for is covered by running it without threads, so just disable it
+    # rather than risk test failures that don't seem to indicate a problem
+    # in Xapian.
     del test_import_star
 
     t = threading.Thread(name='test runner', target=run)

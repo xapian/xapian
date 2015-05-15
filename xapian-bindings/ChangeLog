@@ -1,3 +1,8 @@
+Fri May 15 04:50:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python3/pythontest.py: Expand comment about disabling
+	  test_import_star under threads.
+
 Thu May 14 13:50:24 GMT 2015  Olly Betts <olly@survex.com>
 
 	* README: Remove the experimental markers from Lua and Python3,
