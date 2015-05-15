@@ -1,3 +1,9 @@
+Fri May 15 13:32:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Enhance the probe for whether the test harness can use
+	  RTTI so that it works for xlC (which defaults to not generating
+	  RTTI).
+
 Fri May 15 11:16:18 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/io_utils.cc: Replace the code used on platforms without
