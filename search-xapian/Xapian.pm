@@ -472,6 +472,11 @@ Please report any bugs/suggestions to E<lt>xapian-discuss@lists.xapian.orgE<gt>
 or use the Xapian bug tracker L<http://xapian.org/bugs>.  Please do
 NOT use the CPAN bug tracker or mail any of the authors individually.
 
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
 =head1 SEE ALSO
 
 L<Search::Xapian::BM25Weight>,
