@@ -1,3 +1,7 @@
+Fri May 15 05:32:35 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Another update for 1.2.21.
+
 Fri May 15 05:16:05 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Use -no-install or -no-fast-install when

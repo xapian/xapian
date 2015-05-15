@@ -1,4 +1,4 @@
-Omega 1.2.21 (2015-05-14):
+Omega 1.2.21 (2015-05-15):
 
 documentation:
 
@@ -37,6 +37,12 @@ templates:
 * templates/xml: Add XML declaration.
 
 * templates/godmode: Specify charset utf-8 in the content-type.
+
+build system:
+
+* Link test programs with libtool's '-no-install' or '-no-fast-install', like
+  we already do in xapian-core, which means that libtool doesn't need to
+  generate shell script wrappers for them on most platforms.
 
 portability:
 
