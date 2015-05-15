@@ -1,3 +1,12 @@
+Thu Sep 24 12:02:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* examples/simpleexpand.cc,examples/simpleindex.cc,
+	  examples/simplesearch.cc: '#include <config.h>' in the examples, as
+	  when compiling with xlC on AIX, _LARGE_FILES gets defined by
+	  AC_SYS_LARGEFILE to enable large file support, and defining this
+	  changes the ABI of std::string, so it also needs to be defined when
+	  compiling code using Xapian.
+
 Mon Sep 14 00:40:28 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc: Add missing '#include <arpa/inet.h>' to htons().
