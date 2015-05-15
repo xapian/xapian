@@ -1,4 +1,4 @@
-Xapian-bindings 1.2.21 (2015-05-14):
+Xapian-bindings 1.2.21 (2015-05-15):
 
 Lua:
 
@@ -29,6 +29,11 @@ PHP:
 
 * README: Remove note about the subclassing bug with PHP 5.4 and later - that
   was fixed in 1.2.19.
+
+Python:
+
+* README: Add note that 1.3.2 has Python 3 support, and that this will be in
+  stable release 1.4.0.
 
 Ruby:
 
