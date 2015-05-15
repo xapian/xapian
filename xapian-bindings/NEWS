@@ -1,20 +1,9 @@
-92465f1c (Olly Betts 2015-05-08 22:55:45 +1200    1) Thu May 14 03:54:05 GMT 2015  Olly Betts <olly@survex.com>
-
 Xapian-bindings 1.2.21 (2015-05-14):
 
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
 Lua:
+
+* README: Remove note about the Lua bindings being experimental - it's not
+  really been true for some time now.
 
 Perl:
 
@@ -24,16 +13,27 @@ Perl:
   GCC in C++11 mode (due to <algorithm> now pulling in random number generation
   classes with a method called seed).
 
+* Update list of unwrapped things in POD documentation.
+
+* Perl tests are ordering-dependent, so use .NOTPARALLEL to avoid problems
+  during parallel builds.
+
+* Add test coverage for Enquire::set_collapse_key() with 1 and 2 parameters.
+
+* Add test that we can create all the stemmers returned by
+  Stem::get_available_languages().
+
+* Use croak_sv() or ERRSV if defined.
+
 PHP:
 
-Python:
+* README: Remove note about the subclassing bug with PHP 5.4 and later - that
+  was fixed in 1.2.19.
 
 Ruby:
 
 * Ship generate-rdoc-stubs in the tarball.  Reported by Matthias Klose in
   https://bugs.debian.org/782270
-
-Tcl:
 
 Xapian-bindings 1.2.20 (2015-03-04):
 

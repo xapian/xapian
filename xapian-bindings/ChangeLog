@@ -1,3 +1,7 @@
+Fri May 15 04:54:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 1.2.21.
+
 Thu May 14 13:57:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* README: Remove the experimental marker from the Lua bindings.
