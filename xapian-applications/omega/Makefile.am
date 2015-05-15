@@ -157,18 +157,20 @@ scriptindex_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
  myhtmlparse.cc utf8convert.cc
-atomparsetest_LDADD = $(XAPIAN_LIBS)
+atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
  utf8convert.cc
-htmlparsetest_LDADD = $(XAPIAN_LIBS)
+htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
+md5test_LDADD = $(NO_INSTALL)
 
 utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
-utf8converttest_LDADD = $(XAPIAN_LIBS)
+utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 urlenctest_SOURCES = urlenctest.cc urlencode.cc common/stringutils.cc
+urlenctest_LDADD = $(NO_INSTALL)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1
