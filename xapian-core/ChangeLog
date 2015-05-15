@@ -1,3 +1,8 @@
+Fri May 15 11:16:18 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/io_utils.cc: Replace the code used on platforms without
+	  F_DUPFD with simpler code which actually compiles.
+
 Fri May 15 05:30:33 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Another update for 1.2.21.
