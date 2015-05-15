@@ -10,5 +10,5 @@ indexing and search facilities to applications. This package provides the
 libraries for applications using Xapian functionality.
 URL: http://xapian.org/
 Version: @VERSION@
-Cflags: -I${includedir}/@PACKAGE@@LIBRARY_VERSION_SUFFIX@
+Cflags: -I${includedir}/@PACKAGE@@LIBRARY_VERSION_SUFFIX@ @abi_affecting_cxxflags@
 Libs: -L${libdir} -l@PACKAGE@@LIBRARY_VERSION_SUFFIX@

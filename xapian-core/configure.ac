@@ -1155,6 +1155,13 @@ CXXFLAGS=$save_CXXFLAGS
 
 dnl Enable large file support if possible.
 AC_SYS_LARGEFILE
+dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
+dnl also needs to be used when compiling user code.
+abi_affecting_cxxflags=
+if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
+  abi_affecting_cxxflags=-D_LARGE_FILES
+fi
+AC_SUBST([abi_affecting_cxxflags])
 
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
