@@ -347,13 +347,22 @@ dnl C++11 should have log2(), but keep this check for now to allow for
 dnl compilers with incomplete library support for C++11.
 AC_CHECK_DECLS([log2], [], [], [#include <cmath>])
 
-dnl See if <typeinfo> can be used in the testsuite - for GCC at least,
-dnl compilation fails if -fno-rtti is specified.
+dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
+dnl compilation of the test code below fails if RTTI isn't being generated
+dnl (g++ -fno-rtti, or by default with xlC).
 AC_MSG_CHECKING([if RTTI is supported])
-AC_TRY_COMPILE([#include <typeinfo>],
-    [int i; const char * m = typeid(i).name();],
+AC_TRY_COMPILE([
+#include <exception>
+#include <typeinfo>],
+	[
+	int f();
+	try {
+	    return f();
+	} catch (std::exception & e) {
+	    return typeid(e).name()[0];
+	}],
     AC_MSG_RESULT([yes])
-    AC_DEFINE([USE_RTTI], [1], [Define if the testsuite should use RTTI]),
+    AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI]),
     AC_MSG_RESULT([no]))
 
 dnl Check for time functions.
