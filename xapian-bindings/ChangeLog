@@ -1,3 +1,9 @@
+Fri May 15 12:36:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/util.i.in: Just call the existing Perl Xapian::inmemory_open()
+	  function rather than defining and wrapping an inline C++
+	  new3_WritableDatabase() function which calls InMemory::open().
+
 Fri May 15 05:34:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Another update for 1.2.21.
