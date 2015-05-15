@@ -1,3 +1,12 @@
+Fri May 15 05:11:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* examples/simpleexpand.cc,examples/simpleindex.cc,
+	  examples/simplesearch.cc: '#include <config.h>' in the examples, as
+	  when compiling with xlC on AIX, _LARGE_FILES gets defined by
+	  AC_SYS_LARGEFILE to enable large file support, and defining this
+	  changes the ABI of std::string, so it also needs to be defined when
+	  compiling code using Xapian.
+
 Fri May 15 04:57:27 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/io_utils.cc,common/io_utils.h: Fix build on platforms without
