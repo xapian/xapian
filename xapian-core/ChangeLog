@@ -1,3 +1,9 @@
+Sat May 16 12:08:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/socket_utils.cc: Fix casts on the 4th argument of
+	  setsockopt() so they compile on platforms which expect
+	  char * or const char * there.
+
 Sat May 16 11:02:13 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/socket_utils.cc: Don't include <sys/socket.h> under
