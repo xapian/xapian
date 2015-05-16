@@ -1,3 +1,8 @@
+Sat May 16 11:02:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/socket_utils.cc: Don't include <sys/socket.h> under
+	  __WIN32__.
+
 Fri May 15 13:32:05 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Enhance the probe for whether the test harness can use

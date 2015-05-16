@@ -23,11 +23,12 @@
 
 #include <cmath>
 #include <limits>
-#include <sys/socket.h>
 
 using namespace std;
 
-#ifdef __WIN32__
+#ifndef __WIN32__
+# include <sys/socket.h>
+#else
 # include "safeerrno.h"
 
 # include <io.h>
