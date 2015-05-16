@@ -124,11 +124,11 @@ set_socket_timeouts(int fd, double timeout)
 # endif
 # ifdef SO_SNDTIMEO
 	(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
-			 reinterpret_cast<void*>(&t), sizeof(t));
+			 reinterpret_cast<char*>(&t), sizeof(t));
 # endif
 # ifdef SO_RCVTIMEO
 	(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
-			 reinterpret_cast<void*>(&t), sizeof(t));
+			 reinterpret_cast<char*>(&t), sizeof(t));
 # endif
     }
 #endif
@@ -143,7 +143,7 @@ set_socket_timeouts(int fd, double timeout)
 	DWORD flag = 1;
 # endif
 	(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
-			 reinterpret_cast<void*>(&flag), sizeof(flag));
+			 reinterpret_cast<char*>(&flag), sizeof(flag));
     }
 #endif
 }

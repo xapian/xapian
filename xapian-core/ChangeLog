@@ -1,3 +1,9 @@
+Sat May 16 12:08:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/socket_utils.cc: Fix casts on the 4th argument of
+	  setsockopt() so they compile on platforms which expect
+	  char * or const char * there.
+
 Fri May 15 13:24:55 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Enhance the probe for whether the test harness can use
