@@ -1,3 +1,10 @@
+Sun May 17 11:35:36 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_version.cc: When reporting an error that the
+	  glass format version doesn't match, don't append an uninitialised
+	  char[] buffer to the error string (code accidentally left behind
+	  by the previous change in this area).
+
 Sat May 16 12:08:17 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/socket_utils.cc: Fix casts on the 4th argument of

@@ -1,7 +1,7 @@
 /** @file glass_version.cc
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -94,18 +94,15 @@ GlassVersion::read()
     version <<= 8;
     version |= static_cast<unsigned char>(buf[GLASS_VERSION_MAGIC_LEN + 1]);
     if (version != GLASS_FORMAT_VERSION) {
-	char datebuf[9];
 	string msg = filename;
 	msg += ": Database is format version ";
 	msg += str(VERSION_TO_YEAR(version) * 10000 +
 		   VERSION_TO_MONTH(version) * 100 +
 		   VERSION_TO_DAY(version));
-	msg += datebuf;
 	msg += " but I only understand ";
 	msg += str(VERSION_TO_YEAR(GLASS_FORMAT_VERSION) * 10000 +
 		   VERSION_TO_MONTH(GLASS_FORMAT_VERSION) * 100 +
 		   VERSION_TO_DAY(GLASS_FORMAT_VERSION));
-	msg += datebuf;
 	throw Xapian::DatabaseVersionError(msg);
     }
 
