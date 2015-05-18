@@ -1,4 +1,4 @@
-Xapian-bindings 1.2.21 (2015-05-15):
+Xapian-bindings 1.2.21 (2015-05-18):
 
 Lua:
 
@@ -36,6 +36,8 @@ Python:
   stable release 1.4.0.
 
 Ruby:
+
+* smoketest.rb: Fix "warning: assigned but unused variable - mset".
 
 * Ship generate-rdoc-stubs in the tarball.  Reported by Matthias Klose in
   https://bugs.debian.org/782270

@@ -1,3 +1,7 @@
+Mon May 18 04:44:56 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Another update prior to 1.2.21 release.
+
 Mon May 18 04:43:38 GMT 2015  Olly Betts <olly@survex.com>
 
 	* ruby/smoketest.rb: Extend testcase to check returned MSet size.
