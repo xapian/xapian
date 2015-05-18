@@ -483,6 +483,10 @@ dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
 dnl compilation of the test code below fails if RTTI isn't being generated
 dnl (g++ -fno-rtti, or by default with xlC).
 AC_MSG_CHECKING([if RTTI is supported])
+save_CXXFLAGS=$CXXFLAGS
+dnl xlC issues a warning for typeid() being used without RTTI being enabled,
+dnl so for this test we pass the xlC option to make that warning into an error.
+XAPIAN_TEST_CXXFLAGS([-qhaltonmsg=1540-2412], [CXXFLAGS])
 AC_TRY_COMPILE([
 #include <exception>
 #include <typeinfo>],
@@ -496,6 +500,7 @@ AC_TRY_COMPILE([
     AC_MSG_RESULT([yes])
     AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI]),
     AC_MSG_RESULT([no]))
+CXXFLAGS=$save_CXXFLAGS
 
 dnl Check for time functions.
 AC_CHECK_FUNCS([gettimeofday ftime])

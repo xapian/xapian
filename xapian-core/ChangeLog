@@ -1,3 +1,9 @@
+Mon May 18 04:18:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Arrange to pass command line option so that xlC
+	  actually fails to compile the test code for typeid() when RTTI isn't
+	  enabled.
+
 Sat May 16 12:08:17 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/socket_utils.cc: Fix casts on the 4th argument of
