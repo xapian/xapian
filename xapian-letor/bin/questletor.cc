@@ -1,7 +1,7 @@
 /** @file questletor.cc
  * @brief Command line search tool using Xapian::QueryParser and Xapian::Letor
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2011 Parth Gupta
  *
  * This program is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ static const char * sw[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
 "Options:\n"
 "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
@@ -142,10 +142,10 @@ try {
 		break;
 	    }
 	    case 'v':
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'h':
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case ':': // missing parameter
