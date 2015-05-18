@@ -1,3 +1,9 @@
+Mon May 18 04:18:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Arrange to pass command line option so that xlC
+	  actually fails to compile the test code for typeid() when RTTI isn't
+	  enabled.
+
 Sun May 17 11:35:36 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_version.cc: When reporting an error that the
