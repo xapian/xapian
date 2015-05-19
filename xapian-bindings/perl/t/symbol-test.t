@@ -10,7 +10,12 @@ my ($srcdir) = ($0 =~ m!(.*/)!);
 chdir("${srcdir}symbol-test") or die $!;
 
 system($^X, "Makefile.PL") == 0 or die $!;
-system("make 2>&1") == 0 or die $!;
+SKIP: {
+
+# Building this module can fail for reasons such as Perl being built with a
+# different compiler with incompatible flags.  So treat this build failing
+# as a reason to skip to avoid test failures in such cases.
+system("make 2>&1") == 0 or skip "Failed to build symbol-test module", 3;
 
 use lib ("blib/arch/auto/SymbolTest", "blib/arch/auto/SymbolTest/.libs", "blib/lib");
 
@@ -22,5 +27,7 @@ use Search::Xapian qw( :all );
 
 eval { SymbolTest::throw_from_libxapian() };
 like( $@, qr/DatabaseOpeningError caught in SymbolTest/, 'Correct exception caught');
+
+}
 
 1;
