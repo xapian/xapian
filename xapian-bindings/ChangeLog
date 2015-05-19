@@ -1,3 +1,10 @@
+Tue May 19 05:45:48 GMT 2015  Olly Betts <olly@survex.com>
+
+	* perl/t/symbol-test.t: If the symboltest module build fails, skip the
+	  test - it's likely due to external reasons, like incompatible
+	  compiler flags being taken from Perl's Config module, due to Perl
+	  having been built with a different compiler to Xapian.
+
 Fri May 15 11:31:59 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/perl.i: Just call the existing Perl Xapian::inmemory_open()
