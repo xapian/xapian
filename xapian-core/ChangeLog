@@ -1,3 +1,10 @@
+Thu May 21 11:13:29 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable "<FUNCTION> is expected to return a value"
+	  warning from Sun's C++ compiler, as it fires even for functions we
+	  end in a "throw" statement.  Genuine instances will be caught by
+	  compilers with superior warning machinery.
+
 Wed May 20 14:40:55 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 1.2.21 (probably).

@@ -398,6 +398,13 @@ else
 	dnl lifetime for temporary objects, and -features=tmplife is required
 	dnl for standard conforming behaviour (which Xapian code expects).
 	XAPIAN_TEST_CXXFLAGS([-features=tmplife], [ISO_CXXFLAGS])
+	dnl Sun's C++ compiler warns about functions failing to return a value even
+	dnl when the function ends with a "throw" statement.  That's just unhelpful
+	dnl noise, and adding a dummy "return" after "throw" seems a worse solution
+	dnl than simply disabling this warning - any genuinely missing return
+	dnl statements will get reported by compilers with superior warning
+	dnl machinery.
+	XAPIAN_TEST_CXXFLAGS([-erroff=voidretw], [WARNING_CXXFLAGS])
 	;;
       *)
 	case `$CXX -v 2>&1` in
