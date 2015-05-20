@@ -1,4 +1,4 @@
-Xapian-core 1.2.21 (2015-05-15):
+Xapian-core 1.2.21 (2015-05-20):
 
 API:
 
@@ -120,20 +120,27 @@ tools:
 
 portability:
 
+* Add spaces between literal strings and macros which expand to literal strings
+  for C++11 compatibility.
+
+* ValueCountMatchSpy::top_values_begin(): Fix the comparison function not to
+  return true for two equal elements, which manifests as incorrect sorting in
+  some cases when using clang's libc++ (which recent OS X versions do).
+
 * apitest: The adddoc5 testcase fails under clang due to an exception handling
   bug, so just #ifdef out the problematic part of the testcase when building
   with clang for now.
 
 * Fix clang warnings on OS X.  Reported by Germán M. Bravo.
 
+* Fix examples to build with IBM's xlC compiler on AIX - they were failing due
+  to _LARGE_FILES being defined for the library build but not for the examples,
+  and defining this changes the ABI of std::string with this compiler.
+
+* configure: Improve the probe for whether the test harness can use RTTI to
+  work for IBM's xlC compiler (which defaults to not generating RTTI).
+
 * Fix to build with Sun's C++ compiler.
-
-* Fix examples to build with xlC on AIX - they were failing due to _LARGE_FILES
-  being defined for the library build but not for the examples, and defining
-  this changes the ABI of std::string with this compiler.
-
-* Add spaces between literal strings and macros which expand to literal strings
-  for C++11 compatibility.
 
 * Use F_DUPFD where available to dup to a file descriptor which is >= 2, rather
   than calling dup() until we get one.
