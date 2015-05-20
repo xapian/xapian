@@ -1,3 +1,9 @@
+Wed May 20 01:49:18 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc: Fix comparison function not to return true for two
+	  equal elements, which fixes matchspy4 test failure with clang and
+	  libc++.
+
 Wed May 20 00:20:56 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Disable "<FUNCTION> is expected to return a value"
