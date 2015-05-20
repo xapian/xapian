@@ -1073,6 +1073,15 @@ else
     dnl	includes such a check indirectly (internaltest's autoptr1 check this).
     dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
     AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
+  */sunCC|*/CC)
+    dnl Sun's C++ compiler warns about functions failing to return a value even
+    dnl when the function ends with a "throw" statement.  That's just unhelpful
+    dnl noise, and adding a dummy "return" after "throw" seems a worse solution
+    dnl than simply disabling this warning - any genuinely missing return
+    dnl statements will get reported by compilers with superior warning
+    dnl machinery.
+    XAPIAN_TEST_CXXFLAGS([-erroff=voidretw], [AM_CXXFLAGS])
+    ;;
   esac
 fi
 
