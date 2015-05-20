@@ -5,7 +5,7 @@ const char * dummy[] = {
 "/** @file version.h",
 " * @brief Define preprocessor symbols for the library version",
 " */",
-"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010 Olly Betts",
+"// Copyright (C) 2002,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts",
 "//",
 "// This program is free software; you can redistribute it and/or",
 "// modify it under the terms of the GNU General Public License as",
@@ -59,6 +59,21 @@ const char * dummy[] = {
 // GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
 // been 101!  But we reject 3.0 above, so this doesn't actually matter.
 "#if !defined(__GXX_ABI_VERSION) || __GXX_ABI_VERSION != ",__GXX_ABI_VERSION,
+#if __GXX_ABI_VERSION >= 1002
+// ABI versions 2 and up are compatible aside from obscure corner cases, so
+// issue a warning, but don't refuse to compile as there's a good chance that
+// things will actually work.
+"#if defined __GXX_ABI_VERSION && __GXX_ABI_VERSION >= 1002",
+"#warning The C++ ABI version of compiler you are using does not exactly match",
+"#warning that of the compiler used to build the library.  If linking fails",
+"#warning due to missing symbols, this is probably the reason why.",
+#ifdef __GNUC_PATCHLEVEL__
+"#warning The Xapian library was built with ",V3(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__),
+#else
+"#warning The Xapian library was built with ",V2(__GNUC__,__GNUC_MINOR__),
+#endif
+"#else",
+#endif
 "#error The C++ ABI version of compiler you are using does not match",
 "#error that of the compiler used to build the library.  The versions",
 "#error must match or your program will not work correctly.",
@@ -66,6 +81,9 @@ const char * dummy[] = {
 "#error The Xapian library was built with ",V3(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__),
 #else
 "#error The Xapian library was built with ",V2(__GNUC__,__GNUC_MINOR__),
+#endif
+#if __GXX_ABI_VERSION >= 1002
+"#endif",
 #endif
 "#endif",
 "",

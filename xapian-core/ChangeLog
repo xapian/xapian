@@ -1,3 +1,14 @@
+Wed May 20 14:24:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: If old and new __GXX_ABI_VERSION are
+	  both >= 1002 (which means GCC >= 3.4), then issue a warning about
+	  mismatching versions instead of an error.  The changes in these
+	  versions are bug fixes for corner cases, so there's a good chance of
+	  things working - e.g. building xapian-bindings with GCC 5.1 (which
+	  defaults to __GXX_ABI_VERSION 1008) against xapian-core built with
+	  GCC 4.9 (1002) seems to work OK.  A warning is still useful as a
+	  clue to what is going on if linking fails due to a missing symbol.
+
 Wed May 20 09:54:36 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Another update for 1.2.21.
