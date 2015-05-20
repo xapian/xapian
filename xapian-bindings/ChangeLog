@@ -1,3 +1,7 @@
+Wed May 20 09:56:51 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Another update for 1.2.21.
+
 Tue May 19 05:45:48 GMT 2015  Olly Betts <olly@survex.com>
 
 	* perl/t/symbol-test.t: If the symboltest module build fails, skip the
