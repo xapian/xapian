@@ -178,8 +178,7 @@ class StringAndFreqCmpByFreq {
 		    const StringAndFrequency &b) const {
 	if (a.get_frequency() > b.get_frequency()) return true;
 	if (a.get_frequency() < b.get_frequency()) return false;
-	if (a.get_string() > b.get_string()) return false;
-	return true;
+	return a.get_string() < b.get_string();
     }
 };
 

@@ -1,3 +1,9 @@
+Wed May 20 01:49:18 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc: Fix comparison function not to return true for two
+	  equal elements, which fixes matchspy4 test failure with clang and
+	  libc++.
+
 Tue May 19 11:58:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/brass/brass_database.cc,backends/chert/chert_database.cc,
