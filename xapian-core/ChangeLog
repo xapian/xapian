@@ -1,3 +1,10 @@
+Wed May 20 13:47:50 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/serialise.cc: Don't use encode_length() on a bool - it's
+	  overkill, and leads to a warning from GCC 5.1 (due to the
+	  comparison (bool_value < 255) from the template expansion
+	  always being true).
+
 Wed May 20 01:49:18 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc: Fix comparison function not to return true for two

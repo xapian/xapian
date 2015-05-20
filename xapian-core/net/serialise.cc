@@ -31,6 +31,7 @@
 #include "length.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "str.h"
 #include "weight/weightinternal.h"
 
 #include "autoptr.h"
@@ -100,7 +101,7 @@ serialise_stats(const Xapian::Weight::Internal &stats)
     result += encode_length(stats.collection_size);
     result += encode_length(stats.rset_size);
     result += encode_length(stats.total_term_count);
-    result += encode_length(stats.have_max_part);
+    result += static_cast<char>(stats.have_max_part);
 
     result += encode_length(stats.termfreqs.size());
     map<string, TermFreqs>::const_iterator i;
@@ -128,7 +129,8 @@ unserialise_stats(const string &s, Xapian::Weight::Internal & stat)
     stat.collection_size = decode_length(&p, p_end, false);
     stat.rset_size = decode_length(&p, p_end, false);
     stat.total_term_count = decode_length(&p, p_end, false);
-    stat.have_max_part = decode_length(&p, p_end, false);
+    // If p == p_end, the next decode_length() will report it.
+    stat.have_max_part = (p != p_end && *p++);
 
     size_t n = decode_length(&p, p_end, false);
     while (n--) {
