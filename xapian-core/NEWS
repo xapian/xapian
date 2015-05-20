@@ -61,6 +61,15 @@ remote backend:
 
 build system:
 
+* The compiler ABI check in the public API headers now issues a warning
+  (instead of an error) for an ABI mismatch for ABI versions 2 and later
+  (which means GCC >= 3.4).  The changes in these ABI versions are bug fixes
+  for corner cases, so there's a good chance of things working - e.g. building
+  xapian-bindings with GCC 5.1 (which defaults to ABI version 8) against
+  xapian-core built with GCC 4.9 (which defaults to ABI version 2) seems to
+  work OK.  A warning is still useful as a clue to what is going on if linking
+  fails due to a missing symbol.
+
 * xapian-config,xapian-core.pc: When compiling with xlC on AIX, the reported
   --cxxflags/--cflags now include -D_LARGE_FILES=1 as this is defined for the
   library, and defining it changes the ABI of std::string with this compiler,
