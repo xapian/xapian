@@ -580,14 +580,23 @@ if test no != "$with_php" ; then
 fi
 
 if test no != "$with_tcl" ; then
+  dnl The documented minimum requirement is Tcl 8.5.  Older versions may work,
+  dnl but we don't test with them regularly, and they are no longer supported
+  dnl upstream.  Also ::tcl::pckconfig was added in Tcl 8.5, which makes the
+  dnl tests below simpler and more reliable.
+  dnl
+  dnl If you really want to build with an older version, run configure with
+  dnl a lower tcl_min and specify at least TCL_INC explicitly:
+  dnl
+  dnl ./configure tcl_min=8.4 TCL_INC=/usr/include/tcl8.4
+  dnl
+  dnl We definitely need at least Tcl 8.1 for TCL_STUBS.
+  : ${tcl_min=8.5}
   AC_PATH_PROGS(TCLSH, ["${TCLSH-tclsh}"], [])
   AC_ARG_VAR(TCLSH, [Tcl interpreter])
   if test -n "$TCLSH" ; then
-    dnl We need Tcl 8.1 or later for TCL_STUBS.
-    dnl Note: The bindings can easily be made to work with Tcl 8.0 (just
-    dnl don't pass -DUSE_TCL_STUBS when compiling) should you need that.
     AC_MSG_CHECKING([$TCLSH version])
-    if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
+    if echo 'if {$tcl_version < '"$tcl_min"' } { exit 1 }'|$TCLSH 2> /dev/null ; then
       tcl_version=`echo 'puts "$tcl_version"'|$TCLSH`
       AC_MSG_RESULT([$tcl_version])
 
@@ -601,27 +610,13 @@ if test no != "$with_tcl" ; then
       if test -z "$TCL_INC" ; then
 	dnl ::tcl::pkgconfig was added in Tcl 8.5.
 	[TCL_INC=`echo 'puts [::tcl::pkgconfig get includedir,runtime]'|$TCLSH 2> /dev/null`]
-	if test -z "$TCL_INC" ; then
-	  dnl Prior to Tcl 8.5, there's no good way to get
-	  dnl "/usr/include/tcl8.N" directly - tclConfig.sh contains it, but
-	  dnl there's no reliable way to locate that prior to Tcl 8.5!
-	  dnl
-	  dnl So first we find the prefix Tcl is installed under (e.g. "/usr")
-	  dnl from the path on TCLSH (or default to /usr if the path doesn't
-	  dnl contain "/bin/"), and then we append "/include/tcl" and
-	  dnl $tcl_version.
-	  tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
-	  test -n "$tcl_prefix" || tcl_prefix=/usr
-	  TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
-	  test -f "$TCL_INC/tcl.h" || TCL_INC=/usr/include
-	fi
       fi
 
       dnl Check that the headers are there (the tcl8.N-dev package
       dnl may not be installed).
       TCL_CPPFLAGS=
-      AC_MSG_CHECKING([for tcl.h for version $tcl_version])
-      if test -f "$TCL_INC/tcl.h" ; then
+      AC_MSG_CHECKING([for tcl.h from Tcl $tcl_version])
+      if test x"$TCL_INC" != x && test -f "$TCL_INC/tcl.h" ; then
 	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' "$TCL_INC/tcl.h"|sed 's/"//g'`
 	if test x"$tcl_hdr_version" = x"$tcl_version" ; then
 	  AC_MSG_RESULT([$TCL_INC/tcl.h])
@@ -632,7 +627,7 @@ if test no != "$with_tcl" ; then
 	else
 	  AC_MSG_RESULT([not found])
 	  if test yes = "$with_tcl" ; then
-	    AC_MSG_ERROR([Found tcl.h for version $tcl_hdr_version, not $tcl_version])
+	    AC_MSG_ERROR([Found tcl.h from version $tcl_hdr_version, not $tcl_version - specify TCL_INC on configure command line])
 	  fi
 	  TCLSH=
 	fi
@@ -658,8 +653,7 @@ if test no != "$with_tcl" ; then
 	  dnl necessary to link against -ltclstub anyway.
 	  [TCLCONFIG_SH=`echo 'puts [file join [::tcl::pkgconfig get libdir,runtime] tclConfig.sh]'|$TCLSH 2> /dev/null`]
 	  if test -n "$TCLCONFIG_SH" && test -r "$TCLCONFIG_SH" ; then
-	    eval "`grep ^TCL_STUB_LIB_SPEC= $TCLCONFIG_SH`"
-	    TCL_LIBS=$TCL_STUB_LIB_SPEC
+	    eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
 	  fi
 	  TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
 	esac
@@ -668,9 +662,9 @@ if test no != "$with_tcl" ; then
       AC_SUBST(TCL_CPPFLAGS)
       AC_SUBST(TCL_LIBS)
     else
-      AC_MSG_RESULT([< 8.1 (too old)])
+      AC_MSG_RESULT([< $tcl_min (too old)])
       if test yes = "$with_tcl" ; then
-	AC_MSG_ERROR([$TCLSH too old (Tcl 8.1 or newer required)])
+	AC_MSG_ERROR([$TCLSH too old (Tcl $tcl_min or newer required)])
       fi
     fi
   else

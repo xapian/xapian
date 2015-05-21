@@ -52,10 +52,9 @@ Ruby		Requires Ruby 1.8 or later.  With Ruby 1.9.0, the testsuite
 		testsuite passes.  Ruby 2.0 and 2.1 also work with
 		xapian-bindings >= 1.2.17 and xapian-bindings >= 1.3.2.
 
-Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
-		without too much work, but versions 8.3 and earlier are no
-		longer supported by the Tcl developers, so it doesn't make
-		sense for us to expend effort to support them).
+Tcl		Requires Tcl 8.5 or later (older versions are no longer
+		supported by the Tcl developers, so it doesn't make sense for
+		us to expend effort to support them).
 
 Languages Supported Elsewhere
 -----------------------------
