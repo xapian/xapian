@@ -1,7 +1,7 @@
 use ExtUtils::MakeMaker;
 use strict;
 use Config;
-
+use File::Spec;
 
 my $builddir;
 
@@ -19,6 +19,7 @@ if ($srcdir =~ s!/([^/]*)$!!) {
 my $xapian_config;
 my $CC;
 my %var = ();
+my $devnull = File::Spec->devnull();
 
 # Write out args for use by t/symboltest.t.
 open ARGS, '>', 'makefile-pl-args' or die $!;
@@ -82,7 +83,7 @@ chomp($inc);
 
 my @writemakefile_args = ();
 my $libsvar = 'LIBS';
-my $libs = `$xapian_config --libs 2> /dev/null`;
+my $libs = `$xapian_config --libs 2> $devnull`;
 chomp($libs);
 my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
 if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
