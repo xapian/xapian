@@ -8,6 +8,8 @@ Revision history for Perl extension Search::Xapian.
 	- Add 'use strict' to all testcases.
 	- Add a "LICENSE" section to the main POD.
 	- META.yml: Specify licence and minimum Perl version.
+	- Fix t/symboltest.t to work when built against an installed version
+	  of xapian-core (broken by changes in 1.2.20.0).
 	- Fix "Filehandle STDOUT reopened as M only for input" warning from
 	  running "perl Makefile.PL".
 
