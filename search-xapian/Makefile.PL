@@ -176,9 +176,11 @@ push @writemakefile_args, (
 # Throw away STDOUT from WriteMakefile() to suppress warnings about parameters
 # we allow the user to specify: CPPFLAGS CXX CXXFLAGS XAPIAN_CONFIG
 *TEMP = *STDOUT;
-close STDOUT;
+open DEVNULL, '>', $devnull;
+*STDOUT = *DEVNULL;
 WriteMakefile(@writemakefile_args);
 *STDOUT = *TEMP;
+close DEVNULL;
 
 my $VERSION = "unknown";
 open F, "Makefile" or die $!;
