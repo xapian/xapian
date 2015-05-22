@@ -37,6 +37,8 @@ D
         Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
 E
         Extension (folded to lowercase - e.g. Ehtml, or E for no extension)
+F
+        Filename
 G	
         newsGroup (or similar entity - e.g. a web forum name)
 H	
@@ -76,7 +78,7 @@ Y
 Z	
         stemmed term
 
-Reserved but currently unallocated: CFJW
+Reserved but currently unallocated: CJW
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.

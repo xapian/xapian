@@ -940,7 +940,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    string::size_type dot = leaf.find_last_of('.');
 	    if (dot != string::npos && leaf.size() - dot - 1 <= max_ext_len)
 		leaf.resize(dot);
-	    indexer.index_text(leaf);
+	    indexer.index_text(leaf, 1, "F");
 	}
 
 	if (!author.empty()) {
