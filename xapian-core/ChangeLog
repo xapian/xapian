@@ -1,3 +1,7 @@
+Fri May 22 03:22:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Wed May 20 14:24:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: If old and new __GXX_ABI_VERSION are

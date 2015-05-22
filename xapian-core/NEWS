@@ -1,3 +1,165 @@
+48761520 (Olly Betts 2015-05-21 02:30:40 +1200     1) Wed May 20 14:24:03 GMT 2015  Olly Betts <olly@survex.com>
+
+Xapian-core 1.3.3 (2015-05-22):
+
+This release includes all changes from 1.2.20-1.2.21 which are relevant.
+
+API:
+
+* Database:
+
+  + Add new flag Xapian::DB_RETRY_LOCK which allows opening a database for
+    writing to wait until it can get a write lock.  (Fixes #275, reported by
+    Richard Boulton).
+
+  + Database::check(): When checking a single table, handle the ".glass"
+    extension on glass database tables, and use the extension to guide the
+    decision of which backend the table is from.
+
+* Query:
+
+  + Add new OP_WILDCARD query operator, which expands wildcards lazily, so now
+    we create the PostList tree for a wildcard directly, rather than creating
+    an intermediate Query tree.  OP_WILDCARD offers a choice of ways to limit
+    wildcard expansion (no limit, throw an exception, use the first N by term
+    name, or use the most frequent N).  (See tickets #48 and #608).
+
+* QueryParser:
+
+  + Add new set_max_expansion() method which provides access to OP_WILDCARD's
+    choice of ways to limit expansion and can set limits for partial terms as
+    well as for wildcards.  Partial terms now default to the 100 most frequent
+    matching terms.  (Completes #608, reported by boomboo).
+
+  + Deprecate set_max_wildcard_expansion() in favour of set_max_expansion().
+
+* Add support for optional reference counting of FieldProcessor and
+  ValueRangeProcessor objects.
+
+testsuite:
+
+* Re-enable replicate3 for glass, as it no longer fails.
+
+* Add more test coverage for get_unique_terms().
+
+matcher:
+
+
+glass backend:
+
+* When reporting freelist errors during a database check, distinguish between a
+  block in use and in the freelist, and a block in the freelist more than once.
+
+* Fix compaction and database checking for the change to the format of keys
+  in the positionlist table which happened in 1.3.2.
+
+* After splitting a block, we always insert the new block in the parent right
+  after the block it was split from - there's no need to binary chop.
+
+* Avoid infinite recursion when we hit the end of the freelist block we're
+  reading and the end of the block we're writing at the same time.
+
+* Fix freelist handling to allow for the newly loaded first block of the
+  freelist being already used up.
+
+chert backend:
+
+* Fix problems with get_unique_terms() on a modified chert database.
+
+* Fix xapian-check on a single chert table, which seg faulted in 1.3.2.
+
+flint backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* Merge generate-allsnowballheaders script into collate-sbl.
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* A compiler with good support for C++11 is now required to build Xapian.
+  Most of the actively developed C++ compilers already have decent support,
+  or are close to having it, and it makes development easier and more
+  efficient.  Currently known to work: GCC >= 4.7, recent versions of clang
+  (3.5 works).  Solaris Studio 12.4 compiles the code, but tests currently
+  fail.  IBM's xlC doesn't support enough of C++11 yet.  HP's aCC hasn't
+  been tested, but the documentation suggests it also doesn't support enough
+  of C++11 yet.
+
+* Drop workarounds and special cases for old versions of various compilers
+  which don't support C++11.
+
+* Use C++11's static_assert() and unique_ptr instead of custom implementations
+  of equivalent functionality.
+
+* Building on OS/2 with EMX is no longer supported - EMX was last updated in
+  2001 and comes with GCC 3.2.1, which is much too old to support C++11.
+
+* Building on IRIX is no longer supported, because IRIX has reached end of
+  life.
+
+* Building with SGI's and Compaq's C++ compilers is no longer supported -
+  both seem to have ceased development, and don't support C++11.
+
+* Building with STLport is no longer supported - STLport was last released in
+  2008, so it's no longer actively developed and won't support C++11.
+
+* Disable "<FUNCTION> is expected to return a value" warning from Sun's C++
+  compiler, as it fires even for functions we end in a "throw" statement.
+  Genuine instances will be caught by compilers with superior warning
+  machinery.
+
+* Fix warning from GCC 5.1 where template expansion leads to the comparison
+  (bool_value < 255) which is always true.  Warning introduced by changes in
+  1.3.2.
+
+* Use getaddrinfo() instead of gethostbyname(), since the latter may not be
+  thread-safe, and as a step towards IPv6 support (see #374), but currently we
+  still only look for IPv4 addresses.
+
+	* api/constinfo.cc,docs/doxygen_api.conf.in,
+	  docs/doxygen_source.conf.in,include/xapian/: C++11's noexcept
+	  needs to be on definitions as well as declarations, but GCC
+	  function attributes must only be on declarations, so split
+	  XAPIAN_NOEXCEPT off from XAPIAN_NOTHROW.
+
+	* common/log2.h,configure.ac: Change probe for log2() to check for a
+	  declaration and '#include <cmath>' to get it to fix build on Solaris
+	  with Sun C++.  C++11 compilers should all provide log2(), but let's
+	  not rely on that just yet as it's easy to provide a fallback
+	  implementation.
+
+	* configure.ac: For Sun's C++ compiler, -std=c++11 enables C++11
+	  support, and is incompatible with -library=stlport, so remove code
+	  to enable that later option.
+
+* The list of stemmers is now in the same static const struct as the version
+  info, and Stem::get_available_languages() is just an inlined wrapper which
+  fetches this structure and returns the appropriate member.  This saves a
+  relocation, reducing library load time a little.
+
+packaging:
+
+
+debug code:
+
+* Add more assertions to the glass backend code.
+
 Xapian-core 1.3.2 (2014-11-24):
 
 This release includes all changes from 1.2.16-1.2.19 which are relevant.
@@ -644,6 +806,244 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.21 (2015-05-20):
+
+API:
+
+* QueryParser: Extend the set of characters allowed in the start of a range to
+  be anything except for '(' and characters <= ' '.  This better matches what's
+  accepted for a range end (anything except for ')' and characters <= ' ').
+  Reported by Jani Nikula.
+
+matcher:
+
+* Reimplement OP_PHRASE for non-exact phrases.  The previous implementation was
+  buggy, giving both false positives and false negatives in rare cases when
+  three or more terms were involved.  Fixes #653, reported by Jean-Francois
+  Dockes.
+
+* Reimplement OP_NEAR - the new implementation consistently requires the terms
+  to occur at different positions, and fixes some previously missed matches.
+
+* Fix a reversed check for picking the shorter position list for an exact
+  phrase of two terms.  The difference this makes isn't dramatic, but can be
+  measured (at least with cachegrind).  Thanks to kbwt for spotting this.
+
+* When matching an exact phrase, if a term doesn't occur where we want, use
+  its actual position to advance the anchor term, rather than just checking
+  the next position of the anchor term.
+
+brass backend:
+
+* Fix cursor versioning to consider cancel() and reopen() as events where
+  the cursor version may need incrementing, and flag the current cursor version
+  as used when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+
+* Avoid using file descriptions < 3 for writable database tables, as it risks
+  corruption if some code in the same process tries to write to stdout or
+  stderr without realising it is closed.  (Partly addresses #651)
+
+chert backend:
+
+* Fix cursor versioning to consider cancel() and reopen() as events where
+  the cursor version may need incrementing, and flag the current cursor version
+  as used when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+
+* Avoid using file descriptions < 3 for writable database tables, as it risks
+  corruption if some code in the same process tries to write to stdout or
+  stderr without realising it is closed.  (Partly addresses #651)
+
+flint backend:
+
+* Fix cursor versioning to consider cancel() and reopen() as events where
+  the cursor version may need incrementing, and flag the current cursor version
+  as used when a cursor is rebuilt.  Fixes #675, reported by Germán M. Bravo.
+
+remote backend:
+
+* Fix sort by value when multiple databases are in use and one or more are
+  remote.  This change necessitated a minor version bump in the remote
+  protocol.  Fixes #674, reported by Dylan Griffith.  If you are upgrading a
+  live system which uses the remote backend, upgrade the servers before the
+  clients.
+
+build system:
+
+* The compiler ABI check in the public API headers now issues a warning
+  (instead of an error) for an ABI mismatch for ABI versions 2 and later
+  (which means GCC >= 3.4).  The changes in these ABI versions are bug fixes
+  for corner cases, so there's a good chance of things working - e.g. building
+  xapian-bindings with GCC 5.1 (which defaults to ABI version 8) against
+  xapian-core built with GCC 4.9 (which defaults to ABI version 2) seems to
+  work OK.  A warning is still useful as a clue to what is going on if linking
+  fails due to a missing symbol.
+
+* xapian-config,xapian-core.pc: When compiling with xlC on AIX, the reported
+  --cxxflags/--cflags now include -D_LARGE_FILES=1 as this is defined for the
+  library, and defining it changes the ABI of std::string with this compiler,
+  so it must also be defined when building code using the Xapian API.
+
+* xapian-core.pc: Include --enable-runtime-pseudo-reloc in --libs output for
+  mingw and cygwin, like xapian-config does.
+
+* xapian-core.pc: Fix include directory reported by `pkg-config --cflags`.
+  This bug was harmless if xapian-core was installed to a directory which was
+  on the default header search path (such as /usr/include).
+
+* xapian-config: Fix typo so cached result of test in is_uninstalled() is
+  actually used on subsequent calls.  Fixes #676, reported (with patch) by Ryan
+  Schmidt.
+
+* configure: Changes in 1.2.19 broke the custom macro we use to probe for
+  supported compiler flags such that the flags never got used.  This release
+  fixes this problem.
+
+* configure: Set default value for AUTOM4TE before AC_OUTPUT so the default
+  will actually get used.  Only relevant when building in maintainer mode
+  (e.g. from git).
+
+* soaktest: Link with libtool's '-no-install' or '-no-fast-install', like we
+  already do for other test programs, which means that libtool doesn't need to
+  generate shell script wrappers for them on most platforms.
+
+documentation:
+
+* API documentation: Minor wording tweaks and formatting improvements.
+
+* docs/deprecation.rst: Add deprecation of omindex --preserve-nonduplicates
+  which happened in 1.2.4.
+
+* HACKING: Update URL.
+
+* HACKING: libtool 2.4.6 is now used for bootstrapping snapshots and releases.
+
+tools:
+
+* xapian-compact: Make sure we open all the tables of input databases at the
+  same revision.  (Fixes #649)
+
+* xapian-metadata: Add 'list' subcommand to list all the metadata keys.
+
+* xapian-replicate: Fix connection timeout to be 10 seconds rather than 10000
+  seconds (the incorrect timeout has been the case since 1.2.3).
+
+* xapian-replicate: Set SO_KEEPALIVE for xapian-replicate's connection to the
+  master, and add command line option to allow setting socket-level timeouts
+  (SO_RCVTIMEO and SO_SNDTIMEO) on platforms that support them.  Fixes #546,
+  reported by nkvoll.
+
+* xapian-replicate-server: Avoid potentially reading uninitialised data if a
+  changeset file is truncated.
+
+portability:
+
+* Add spaces between literal strings and macros which expand to literal strings
+  for C++11 compatibility.
+
+* ValueCountMatchSpy::top_values_begin(): Fix the comparison function not to
+  return true for two equal elements, which manifests as incorrect sorting in
+  some cases when using clang's libc++ (which recent OS X versions do).
+
+* apitest: The adddoc5 testcase fails under clang due to an exception handling
+  bug, so just #ifdef out the problematic part of the testcase when building
+  with clang for now.
+
+* Fix clang warnings on OS X.  Reported by Germán M. Bravo.
+
+* Fix examples to build with IBM's xlC compiler on AIX - they were failing due
+  to _LARGE_FILES being defined for the library build but not for the examples,
+  and defining this changes the ABI of std::string with this compiler.
+
+* configure: Improve the probe for whether the test harness can use RTTI to
+  work for IBM's xlC compiler (which defaults to not generating RTTI).
+
+* Fix to build with Sun's C++ compiler.
+
+* Use F_DUPFD where available to dup to a file descriptor which is >= 2, rather
+  than calling dup() until we get one.
+
+* When unserialising a double, avoid reading one byte past the end of the
+  serialised value.  In practice this was harmless on most platforms, as
+  dbl_max_mantissa is 255 for IEEE-754 format doubles, and at least GCC's
+  std::string keeps the buffer nul-terminated.  Reported by Germán M. Bravo in
+  github PR#67.
+
+* When unserialising a double, add missing cast to unsigned char when we check
+  if the value will fit in the double type.  On machines with IEEE-754 doubles
+  (which is most current platforms) this happened to work OK before.  It would
+  also have been fine on machines where char is unsigned by default.
+
+* Fix incorrect use of "delete" which should be "delete []".  This is
+  undefined behaviour in C++, though the type is POD, so in practice this
+  probably worked OK on many platforms.
+
+debug code:
+
+* Fix some overly strict assertions in flint, which caused apitest's
+  cursordelbug1 to fail with assertions on.
+
+Xapian-core 1.2.20 (2015-03-04):
+
+chert backend:
+
+* After splitting a block, we always insert the new block in the parent right
+  after the block it was split from - there's no need to binary chop.
+
+build system:
+
+* Generate and install a file for pkg-config.  (Fixes#540)
+
+* configure: Update link to cygwin FAQ in error message.
+
+documentation:
+
+* include/xapian/weight.h: Document the enum stat_flags values.
+
+* docs/postingsource.rst: Use a modern class in postingsource example.  (Noted
+  by James Aylett)
+
+* docs/deprecation.rst,docs/replication.rst: Fix typos.
+
+* Update doxygen configuration files to avoid warnings about obsolete tags from
+  newer doxygen versions.
+
+* HACKING: Update details of building Xapian packages.
+
+tools:
+
+* xapian-check: For chert and brass, cross-check the position and postlist
+  tables to detect positional data for non-existent documents.
+
+portability:
+
+* When locking a database for writing, use F_OFD_SETLK where available, which
+  avoids having to fork() a child process to hold the lock.  This currently
+  requires Linux kernel >= 3.15, but it has been submitted to POSIX so
+  hopefully will be widely supported eventually.  Thanks to Austin Clements for
+  pointing out this now exists.
+
+* Fix detection of fdatasync(), which appears to have been broken practically
+  forever - this means we've probably been using fsync() instead, which
+  probably isn't a big additional overhead.  Thanks to Vlad Shablinsky for
+  helping with Mac OS X portability of this fix.
+
+* configure: Define MINGW_HAS_SECURE_API under mingw to get _putenv_s()
+  declared in stdlib.h.
+
+* Use POSIX O_NONBLOCK in preference to O_NDELAY - the semantics of the latter
+  differ between BSD and System V.
+
+* According to POSIX, strerror() may not be thread safe, so use alternative
+  thread-safe ways to translate errno values where possible.
+
+* On Microsoft Windows, avoid defining EADDRINUSE, etc if they're already
+  defined, and use WSAE* constants un-negated - they start from a high value
+  so won't collide with E* constants.
+
+debug code:
+
+* Add more assertions to the chert backend code.
 
 Xapian-core 1.2.19 (2014-10-21):
 
