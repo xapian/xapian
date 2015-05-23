@@ -1,3 +1,9 @@
+Sat May 23 10:12:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Add spaces between literal
+	  strings and macros which expand to literal strings for C++11
+	  compatibility in __WIN32__-specific code.
+
 Fri May 22 03:22:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
