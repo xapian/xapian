@@ -1,3 +1,8 @@
+Mon May 25 04:30:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Don't leave an extra fd
+	  open when starting xapian-tcpsrv for remotetcp tests.
+
 Mon May 25 04:19:01 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager_remotetcp.cc: Add spaces between literal
