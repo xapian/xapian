@@ -1,3 +1,9 @@
+Mon May 25 04:19:01 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager_remotetcp.cc: Add spaces between literal
+	  strings and macros which expand to literal strings for C++11
+	  compatibility in __WIN32__-specific code.
+
 Thu May 21 11:13:29 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Disable "<FUNCTION> is expected to return a value"

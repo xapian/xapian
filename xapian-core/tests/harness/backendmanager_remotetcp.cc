@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.cc
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008,2009,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2013,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -243,7 +243,7 @@ launch_xapian_tcpsrv(const string & args)
     int port = DEFAULT_PORT;
 
 try_next_port:
-    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port " + str(port) + " " + args;
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;
