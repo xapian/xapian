@@ -117,7 +117,7 @@ try_next_port:
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif
     int fds[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
+    if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	string msg("Couldn't create socketpair: ");
 	msg += strerror(errno);
 	throw msg;
@@ -128,8 +128,19 @@ try_next_port:
 	// Child process.
 	close(fds[0]);
 	// Connect stdout and stderr to the socket.
+	//
+	// Make sure the socket isn't fd 1 or 2.  We need to ensure that
+	// FD_CLOEXEC isn't set for stdout or stderr (which creating them with
+	// dup2() achieves), and that we close fds[1].  The cleanest way to
+	// address this seems to be to turn the unusual situation into the
+	// usual one.
+	if (fds[1] == 1 || fds[1] == 2) {
+	    dup2(fds[1], 3);
+	    fds[1] = 3;
+	}
 	dup2(fds[1], 1);
 	dup2(fds[1], 2);
+	close(fds[1]);
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	_exit(-1);
     }
