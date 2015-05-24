@@ -1,3 +1,8 @@
+Sun May 24 12:52:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_postingsource.cc: timer_create() seems to always fail on
+	  AIX with EAGAIN, so just skip the matchtimelimit1 testcase there.
+
 Sun May 24 11:48:30 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Under __WIN32__, inet_ntop()'s second parameter
