@@ -1,3 +1,10 @@
+Sun May 24 13:30:26 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix configure test for whether $MONO can run CSharp
+	  programs - previously it would always fail, which would mean that
+	  the CSharp tests wouldn't be run if CSharp programs can't be run
+	  directly.
+
 Wed May 20 09:56:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Another update for 1.2.21.

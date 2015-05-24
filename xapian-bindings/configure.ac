@@ -658,7 +658,7 @@ if test no != "$with_csharp" ; then
 	  AC_ARG_VAR(MONO, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
 	  if test -n "$MONO" ; then
 	    AC_MSG_CHECKING([whether $MONO can run CSharp programs])
-	    if OK = "`$MONO ./conftest.exe 2> /dev/null`" ; then
+	    if test OK = "`$MONO ./conftest.exe 2> /dev/null`" ; then
 	      AC_MSG_RESULT(yes)
 	      RUN_CSHARP=mono
 	    else
