@@ -1,3 +1,8 @@
+Sun May 24 06:46:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc: Add missing declaration of variable under
+	  __WIN32__.
+
 Sun May 24 06:39:56 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.h: Simplify FAIL_TEST and SKIP_TEST

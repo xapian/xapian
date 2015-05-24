@@ -186,7 +186,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
     }
 
 #ifdef __WIN32__
-    enabled = 0;
+    ULONG enabled = 0;
     ioctlsocket(socketfd, FIONBIO, &enabled);
 #else
     fcntl(socketfd, F_SETFL, 0);
