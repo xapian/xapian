@@ -1,7 +1,7 @@
 /* testsuite.h: a generic test suite engine
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2006,2007,2008,2009,2013 Olly Betts
+ * Copyright 2002,2003,2005,2006,2007,2008,2009,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,16 +50,14 @@ class TestSkip { };
 /** Macro used to build a TestFail object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-#define FAIL_TEST(a) do { TestFail testfail; \
-                          if (verbose) { tout << a << '\n'; } \
-		          throw testfail; } while (0)
+#define FAIL_TEST(a) do { if (verbose) { tout << a << '\n'; } \
+			  throw TestFail(); } while (0)
 
 /** Macro used to build a TestSkip object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-#define SKIP_TEST(a) do { TestSkip testskip; \
-                          if (verbose) { tout << a << '\n'; } \
-		          throw testskip; } while (0)
+#define SKIP_TEST(a) do { if (verbose) { tout << a << '\n'; } \
+			  throw TestSkip(); } while (0)
 
 /// Type for a test function.
 typedef bool (*test_func)();
