@@ -31,11 +31,6 @@
 # define NOMINMAX
 #endif
 
-// Make more modern interfaces visible.
-#ifndef WINVER
-# define WINVER 0x0500
-#endif
-
 // Prevent windows.h from including lots of obscure win32 api headers
 // which we don't care about and will just slow down compilation and
 // increase the risk of symbol collisions.

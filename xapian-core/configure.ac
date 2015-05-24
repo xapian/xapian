@@ -733,6 +733,11 @@ if test "$enable_backend_remote" = yes ; then
       dnl
       dnl We need -lws2_32 for getaddrinfo(), etc.
       REMOTE_LIBS=-lws2_32
+      dnl Vista is needed for the AI_ADDRCONFIG flag to getaddrinfo().
+      AC_DEFINE([WINVER], [0x600],
+		[Version of Windows to assume (0x600 => Vista).])
+      AC_DEFINE([_WIN32_WINNT], [WINVER],
+		[Version of Windows to assume.])
       ;;
     *djgpp* | *msdos* )
       dnl DJGPP has a dummy implementation of fork which always fails.

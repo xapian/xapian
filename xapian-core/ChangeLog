@@ -1,3 +1,10 @@
+Sun May 24 10:41:39 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/safewindows.h,configure.ac: Under __WIN32__, we need to
+	  specify Vista as the minimum supported version to get the
+	  AI_ADDRCONFIG flag.  Older versions seem to all be out of support
+	  anyway.
+
 Sun May 24 06:46:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc: Add missing declaration of variable under
