@@ -1,3 +1,8 @@
+Sun May 24 11:48:30 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Under __WIN32__, inet_ntop()'s second parameter
+	  is 'void*' (to POSIX says it should be 'const void*').
+
 Sun May 24 11:46:25 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/safenetdb.h: Under __WIN32__, MSDN says that newer platforms

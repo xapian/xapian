@@ -265,7 +265,9 @@ TcpServer::accept_connection()
 
     if (verbose) {
 	char buf[INET_ADDRSTRLEN];
-	const void * src = &remote_address.sin_addr;
+	// Under __WIN32__, inet_ntop()'s second parameter isn't const for some
+	// reason.
+	void * src = &remote_address.sin_addr;
 	const char * r = inet_ntop(AF_INET, src, buf, sizeof(buf));
 	if (!r)
 	    throw Xapian::NetworkError("inet_ntop failed", errno);
