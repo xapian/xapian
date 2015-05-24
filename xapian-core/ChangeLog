@@ -1,3 +1,9 @@
+Sun May 24 11:46:25 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/safenetdb.h: Under __WIN32__, MSDN says that newer platforms
+	  need <ws2def.h> for AI_* constants.  And mingw doesn't seem to
+	  define AI_NUMERICSERV yet.
+
 Sun May 24 10:41:39 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/safewindows.h,configure.ac: Under __WIN32__, we need to
