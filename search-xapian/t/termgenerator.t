@@ -79,6 +79,6 @@ my $count = Devel::Leak::NoteSV($handle);
     $tg->set_stopper(Search::Xapian::SimpleStopper->new(qw(a an the)));
     $tg->set_stopper(Search::Xapian::SimpleStopper->new(qw(a the)));
 }
-ok( $count == Devel::Leak::CheckSV($handle) );
+ok( $count, Devel::Leak::CheckSV($handle) );
 
 1;
