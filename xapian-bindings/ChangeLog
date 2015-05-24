@@ -1,3 +1,10 @@
+Sun May 24 13:07:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix configure test for whether $CLI can run CSharp
+	  programs - previously it would always fail, which would mean that
+	  the CSharp tests wouldn't be run if CSharp programs can't be run
+	  directly.
+
 Fri May 22 06:13:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

@@ -773,7 +773,7 @@ if test no != "$with_csharp" ; then
 	  AC_ARG_VAR(CLI, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
 	  if test -n "$CLI" ; then
 	    AC_MSG_CHECKING([whether $CLI can run CSharp programs])
-	    if OK = "`$CLI ./conftest.exe 2> /dev/null`" ; then
+	    if test OK = "`$CLI ./conftest.exe 2> /dev/null`" ; then
 	      AC_MSG_RESULT(yes)
 	      RUN_CSHARP=$CLI
 	    else
