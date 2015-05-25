@@ -1,3 +1,9 @@
+Mon May 25 09:58:30 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Eliminate 'modern'
+	  subdirectory - we haven't generated a non-modern variant of the
+	  python bindings for ages.
+
 Mon May 25 05:59:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python3/Makefile.am: Fix Makefile comment typo.
