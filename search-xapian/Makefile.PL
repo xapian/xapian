@@ -193,7 +193,7 @@ while (<F>) {
 close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
-if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
+if ($xver !~ /^\Q$BASEVERSION\E(?:_(?:svn|git)[0-9]+)?$/) {
     # We definitely need Xapian 1.2.x.
     my $no_chance = ($xver !~ /^1\.2\./);
     my $msg;
