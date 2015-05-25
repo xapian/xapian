@@ -1,3 +1,7 @@
+Mon May 25 05:59:49 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: Fix Makefile comment typo.
+
 Sun May 24 13:07:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix configure test for whether $CLI can run CSharp

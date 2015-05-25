@@ -171,7 +171,7 @@ all-local: $(sphinxdocs)
 $(sphinxdocs): xapian/__init__.py docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 	PYTHONPATH=..:$$PYTHONPATH $(PYTHON3) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
 else
-## Create empty directory so the instal-data-local target doesn't fail.
+## Create empty directory so the install-data-local target doesn't fail.
 all-local:
 	$(MKDIR_P) docs/html
 endif
