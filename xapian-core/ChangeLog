@@ -1,3 +1,7 @@
+Mon May 25 04:33:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Sun May 24 12:52:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_postingsource.cc: timer_create() seems to always fail on
