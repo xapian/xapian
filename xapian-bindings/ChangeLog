@@ -1,3 +1,9 @@
+Mon May 25 10:03:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python3/Makefile.am: SWIG now automatically
+	  makes xapian.Error a subclass of the Python Exception class, so
+	  drop our post-processing tweak to add this in.
+
 Mon May 25 09:58:30 GMT 2015  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am,python3/Makefile.am: Eliminate 'modern'
