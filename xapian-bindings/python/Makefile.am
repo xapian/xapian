@@ -122,8 +122,6 @@ modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i $(DOCCOMMENTS_I) extra
 	$(PERL) -pe 's!modern/xapian_wrap.cc:!modern/xapian_wrap.stamp:!' modern/xapian_wrap_d.tmp > modern/xapian_wrap_d2.tmp
 	mv modern/xapian_wrap_d2.tmp modern/xapian_wrap.d
 	rm modern/xapian_wrap_d.tmp
-	$(PERL) -pe 's/class Error:/class Error(Exception):/' modern/xapian.py > modern/xapian_py.tmp
-	mv modern/xapian_py.tmp modern/xapian.py
 	$(multitarget_end)
 
 -include modern/xapian_wrap.d

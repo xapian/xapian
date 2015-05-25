@@ -1,3 +1,9 @@
+Thu Sep 24 01:28:08 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: SWIG now automatically makes xapian.Error a
+	  subclass of the Python Exception class, so drop our post-processing
+	  tweak to add this in.
+
 Thu Dec 15 12:50:42 GMT 2011  Olly Betts <olly@survex.com>
 
 	* generic/except.i: Correct comments about how and where this file gets
