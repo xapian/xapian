@@ -137,7 +137,8 @@ CSharp:
 
 Java:
 
-* Add testcase that FLAG_SPELLING is now wrapped in a usable way.  (see #616)
+* Add testcase that FLAG_SPELLING is now wrapped in a usable way.  Patch from
+  Anish Kanchan.  (see #616, reported by "Naveen")
 
 Lua:
 
