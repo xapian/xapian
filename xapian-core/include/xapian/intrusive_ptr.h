@@ -241,30 +241,31 @@ private:
 
 public:
 
-    opt_intrusive_ptr(): px( 0 )
+    opt_intrusive_ptr(): px( 0 ), counting( false )
     {
     }
 
-    opt_intrusive_ptr( T * p): px( p )
+    opt_intrusive_ptr( T * p): px( p ), counting( px != 0 && px->_refs )
     {
-	if( px != 0 && px->_refs ) ++px->_refs;
+	if( counting ) ++px->_refs;
     }
 
     template<class U>
     opt_intrusive_ptr( opt_intrusive_ptr<U> const & rhs )
-    : px( rhs.get() )
+    : px( rhs.get() ), counting( rhs.counting )
     {
-	if( px != 0 && px->_refs ) ++px->_refs;
+	if( counting ) ++px->_refs;
     }
 
-    opt_intrusive_ptr(opt_intrusive_ptr const & rhs): px( rhs.px )
+    opt_intrusive_ptr(opt_intrusive_ptr const & rhs)
+    : px( rhs.px ), counting( rhs.counting )
     {
-	if( px != 0 && px->_refs ) ++px->_refs;
+	if( counting ) ++px->_refs;
     }
 
     ~opt_intrusive_ptr()
     {
-	if( px != 0 && px->_refs && --px->_refs == 1 ) delete px;
+	if( counting && --px->_refs == 1 ) delete px;
     }
 
     opt_intrusive_ptr & operator=(opt_intrusive_ptr const & rhs)
@@ -299,11 +300,16 @@ public:
 	T * tmp = px;
 	px = rhs.px;
 	rhs.px = tmp;
+	bool tmp2 = counting;
+	counting = rhs.counting;
+	rhs.counting = tmp2;
     }
 
 private:
 
     T * px;
+
+    bool counting;
 };
 
 template<class T, class U> inline bool operator==(opt_intrusive_ptr<T> const & a, opt_intrusive_ptr<U> const & b)

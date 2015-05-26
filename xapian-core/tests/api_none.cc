@@ -255,6 +255,24 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     }
     TEST(gone_auto);
 
+    // Regression test for initial implementation, where ~opt_instrusive_ptr()
+    // checked the reference of the object, which may have already been deleted
+    // if it wasn't been reference counted.
+    {
+	Xapian::QueryParser qp;
+	{
+	    Xapian::ValueRangeProcessor * vrp =
+		new TestValueRangeProcessor(gone);
+	    TEST(!gone);
+	    qp.add_valuerangeprocessor(vrp);
+	    delete vrp;
+	    TEST(gone);
+	}
+	// At the end of this block, qp is destroyed, but mustn't dereference
+	// the pointer it has to vrp.  If it does, that should get caught
+	// when tests are run under valgrind.
+    }
+
     return true;
 }
 

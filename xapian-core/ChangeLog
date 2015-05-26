@@ -1,3 +1,10 @@
+Tue May 26 06:14:22 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/intrusive_ptr.h,tests/api_none.cc: Fix issue with 
+	  the optional reference counting where the reference count of a
+	  non-reference counted and deleted object could get checked to
+	  see if the object was reference counted.
+
 Mon May 25 04:33:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
