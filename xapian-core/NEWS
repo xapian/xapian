@@ -178,7 +178,8 @@ API:
 
 * Update Unicode character database to Unicode 7.0.0.
 
-* New Xapian::Snipper class.  (mostly fixes #211)
+* New Xapian::Snipper class from Mihai Bivol's GSOC 2012 project.  (mostly
+  fixes #211)
 
 * Fix all get_description() methods to always return UTF-8 text.  (fixes #620)
 
