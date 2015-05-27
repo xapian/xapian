@@ -1,14 +1,6 @@
-171b355b (Olly Betts 2015-05-22 16:48:47 +1200     1) Fri May 22 04:48:35 GMT 2015  Olly Betts <olly@survex.com>
+d0909eef (Olly Betts 2015-05-27 11:18:04 +1200     1) Tue May 26 23:17:09 GMT 2015  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.3.3 (2015-05-22):
-
-FIXME: This seems to be buggy for Python currently:
-
-	* xapian-headers.i: Update for optional reference counting of
-	  FieldProcessor.
-
-	* xapian-headers.i: Update for optional reference counting of
-	  functors.
+Xapian-bindings 1.3.3 (2015-05-27):
 
 This release includes all changes from 1.2.20-1.2.21 which are relevant.
 
@@ -46,6 +38,10 @@ Portability:
 * configure: Update check for -fvisibility to match xapian-core's.
 
 CSharp:
+
+* Fix configure test for whether $CLI can run CSharp programs - previously it
+  would always fail, which would mean that the CSharp tests wouldn't be run on
+  platforms where CSharp programs can't be run directly.
 
 Java:
 
