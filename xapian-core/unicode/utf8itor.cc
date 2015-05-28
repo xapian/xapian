@@ -1,6 +1,6 @@
 /* utf8itor.cc: iterate over a utf8 string.
  *
- * Copyright (C) 2006,2007,2010,2013 Olly Betts
+ * Copyright (C) 2006,2007,2010,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ Utf8Iterator::Utf8Iterator(const char *p_)
 }
 
 bool
-Utf8Iterator::calculate_sequence_length() const
+Utf8Iterator::calculate_sequence_length() const XAPIAN_NOEXCEPT
 {
     // Handle invalid UTF-8, overlong sequences, and truncated sequences as
     // if the text was actually in ISO-8859-1 since we need to do something
@@ -109,7 +109,7 @@ Utf8Iterator::calculate_sequence_length() const
     return true;
 }
 
-unsigned Utf8Iterator::operator*() const {
+unsigned Utf8Iterator::operator*() const XAPIAN_NOEXCEPT {
     if (p == NULL) return unsigned(-1);
     if (seqlen == 0) calculate_sequence_length();
     unsigned char ch = *p;
@@ -122,7 +122,7 @@ unsigned Utf8Iterator::operator*() const {
 }
 
 unsigned
-Utf8Iterator::strict_deref() const
+Utf8Iterator::strict_deref() const XAPIAN_NOEXCEPT
 {
     if (p == NULL) return unsigned(-1);
     if (seqlen == 0) {

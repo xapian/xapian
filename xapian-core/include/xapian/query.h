@@ -252,7 +252,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	return TermIterator();
     }
 
-    Xapian::termcount get_length() const XAPIAN_PURE_FUNCTION;
+    Xapian::termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
 
     bool XAPIAN_NOTHROW(empty() const) {
 	return internal.get() == 0;
@@ -264,10 +264,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 				   const Registry & reg = Registry());
 
     /** Get the type of the top level of the query. */
-    op get_type() const XAPIAN_PURE_FUNCTION;
+    op XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION;
 
     /** Get the number of subqueries of the top level query. */
-    size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+    size_t XAPIAN_NOTHROW(get_num_subqueries() const) XAPIAN_PURE_FUNCTION;
 
     /** Read a top level subquery.
       *
@@ -426,14 +426,14 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 				  QueryOptimiser * qopt,
 				  double factor) const;
 
-    virtual termcount get_length() const XAPIAN_PURE_FUNCTION;
+    virtual termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
 
     virtual void serialise(std::string & result) const = 0;
 
     static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
 
-    virtual Query::op get_type() const XAPIAN_PURE_FUNCTION = 0;
-    virtual size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+    virtual Query::op XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION = 0;
+    virtual size_t XAPIAN_NOTHROW(get_num_subqueries() const) XAPIAN_PURE_FUNCTION;
     virtual const Query get_subquery(size_t n) const;
 
     virtual std::string get_description() const = 0;

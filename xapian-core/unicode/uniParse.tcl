@@ -410,7 +410,7 @@ enum {
  *  Unicode character tables.
  */
 int
-Xapian::Unicode::Internal::get_character_info(unsigned ch)
+Xapian::Unicode::Internal::get_character_info(unsigned ch) XAPIAN_NOEXCEPT
 {
     if (rare(ch >= 0x110000)) {
 	// Categorise non-Unicode values as UNASSIGNED with no case variants.

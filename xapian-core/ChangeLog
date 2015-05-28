@@ -1,3 +1,9 @@
+Thu May 28 13:49:37 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,
+	  include/xapian/query.h,include/xapian/unicode.h,unicode/uniParse.tcl,
+	  unicode/utf8itor.cc: Add attributes where appropriate.
+
 Thu May 28 10:37:32 GMT 2015  Olly Betts <olly@survex.com>
 
 	* generate-exceptions,include/xapian/: Remove XAPIAN_PURE_FUNCTION

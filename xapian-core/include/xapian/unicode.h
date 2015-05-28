@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     const unsigned char *end;
     mutable unsigned seqlen;
 
-    bool calculate_sequence_length() const;
+    bool XAPIAN_NOTHROW(calculate_sequence_length() const);
 
     unsigned get_char() const;
 
@@ -138,7 +138,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned operator*() const XAPIAN_PURE_FUNCTION;
+    unsigned XAPIAN_NOTHROW(operator*() const) XAPIAN_PURE_FUNCTION;
 
     /** @private @internal Get the current Unicode character
      *  value pointed to by the iterator.
@@ -150,7 +150,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
-    unsigned strict_deref() const XAPIAN_PURE_FUNCTION;
+    unsigned XAPIAN_NOTHROW(strict_deref() const) XAPIAN_PURE_FUNCTION;
 
     /** Move forward to the next Unicode character.
      *
@@ -252,7 +252,7 @@ namespace Internal {
      *  treated as UNASSIGNED with no case variants.
      */
     XAPIAN_VISIBILITY_DEFAULT
-    int get_character_info(unsigned ch) XAPIAN_CONST_FUNCTION;
+    int XAPIAN_NOTHROW(get_character_info(unsigned ch)) XAPIAN_CONST_FUNCTION;
 
     /** @private @internal Extract how to convert the case of a Unicode
      *  character from its info.

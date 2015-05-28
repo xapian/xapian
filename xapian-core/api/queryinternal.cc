@@ -371,7 +371,7 @@ AndContext::postlist(QueryOptimiser* qopt)
 Query::Internal::~Internal() { }
 
 size_t
-Query::Internal::get_num_subqueries() const
+Query::Internal::get_num_subqueries() const XAPIAN_NOEXCEPT
 {
     return 0;
 }
@@ -388,7 +388,7 @@ Query::Internal::gather_terms(void *) const
 }
 
 Xapian::termcount
-Query::Internal::get_length() const
+Query::Internal::get_length() const XAPIAN_NOEXCEPT
 {
     return 0;
 }
@@ -587,7 +587,7 @@ Query::Internal::postlist_sub_xor(XorContext& ctx,
 namespace Internal {
 
 Query::op
-QueryTerm::get_type() const
+QueryTerm::get_type() const XAPIAN_NOEXCEPT
 {
     return term.empty() ? Query::LEAF_MATCH_ALL : Query::LEAF_TERM;
 }
@@ -633,7 +633,7 @@ QueryPostingSource::~QueryPostingSource()
 }
 
 Query::op
-QueryPostingSource::get_type() const
+QueryPostingSource::get_type() const XAPIAN_NOEXCEPT
 {
     return Query::LEAF_POSTING_SOURCE;
 }
@@ -655,13 +655,13 @@ QueryScaleWeight::QueryScaleWeight(double factor, const Query & subquery_)
 }
 
 Query::op
-QueryScaleWeight::get_type() const
+QueryScaleWeight::get_type() const XAPIAN_NOEXCEPT
 {
     return Query::OP_SCALE_WEIGHT;
 }
 
 size_t
-QueryScaleWeight::get_num_subqueries() const
+QueryScaleWeight::get_num_subqueries() const XAPIAN_NOEXCEPT
 {
     return 1;
 }
@@ -751,7 +751,7 @@ QueryValueRange::serialise(string & result) const
 }
 
 Query::op
-QueryValueRange::get_type() const
+QueryValueRange::get_type() const XAPIAN_NOEXCEPT
 {
     return Query::OP_VALUE_RANGE;
 }
@@ -798,7 +798,7 @@ QueryValueLE::serialise(string & result) const
 }
 
 Query::op
-QueryValueLE::get_type() const
+QueryValueLE::get_type() const XAPIAN_NOEXCEPT
 {
     return Query::OP_VALUE_LE;
 }
@@ -841,7 +841,7 @@ QueryValueGE::serialise(string & result) const
 }
 
 Query::op
-QueryValueGE::get_type() const
+QueryValueGE::get_type() const XAPIAN_NOEXCEPT
 {
     return Query::OP_VALUE_GE;
 }
@@ -931,7 +931,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 }
 
 termcount
-QueryWildcard::get_length() const
+QueryWildcard::get_length() const XAPIAN_NOEXCEPT
 {
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were
@@ -952,7 +952,7 @@ QueryWildcard::serialise(string & result) const
 }
 
 Query::op
-QueryWildcard::get_type() const
+QueryWildcard::get_type() const XAPIAN_NOEXCEPT
 {
     return Query::OP_WILDCARD;
 }
@@ -980,7 +980,7 @@ QueryWildcard::get_description() const
 }
 
 Xapian::termcount
-QueryBranch::get_length() const
+QueryBranch::get_length() const XAPIAN_NOEXCEPT
 {
     // Sum results from all subqueries.
     Xapian::termcount result = 0;
@@ -1153,13 +1153,13 @@ QueryBranch::do_max(QueryOptimiser * qopt, double factor) const
 }
 
 Xapian::Query::op
-QueryBranch::get_type() const
+QueryBranch::get_type() const XAPIAN_NOEXCEPT
 {
     return get_op();
 }
 
 size_t
-QueryBranch::get_num_subqueries() const
+QueryBranch::get_num_subqueries() const XAPIAN_NOEXCEPT
 {
     return subqueries.size();
 }
