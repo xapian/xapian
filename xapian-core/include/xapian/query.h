@@ -254,7 +254,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     Xapian::termcount get_length() const XAPIAN_PURE_FUNCTION;
 
-    bool XAPIAN_NOTHROW(empty() const) XAPIAN_PURE_FUNCTION {
+    bool XAPIAN_NOTHROW(empty() const) {
 	return internal.get() == 0;
     }
 
@@ -274,9 +274,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
       * @param n  Return the n-th subquery (starting from 0) - only valid when
       *		  0 <= n < get_num_subqueries().
       */
-    const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
+    const Query get_subquery(size_t n) const;
 
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 
     const Query operator&=(const Query & o) {
 	return (*this = Query(OP_AND, *this, o));
@@ -434,9 +434,9 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 
     virtual Query::op get_type() const XAPIAN_PURE_FUNCTION = 0;
     virtual size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
-    virtual const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
+    virtual const Query get_subquery(size_t n) const;
 
-    virtual std::string get_description() const XAPIAN_PURE_FUNCTION = 0;
+    virtual std::string get_description() const = 0;
 
     // Pass argument as void* to avoid need to include <vector>.
     virtual void gather_terms(void * void_terms) const;

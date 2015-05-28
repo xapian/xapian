@@ -86,7 +86,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  If we're iterating over values of a document, this method will throw
      *  Xapian::InvalidOperationError.
      */
-    Xapian::docid get_docid() const XAPIAN_PURE_FUNCTION;
+    Xapian::docid get_docid() const;
 
     /** Return the value slot number for the current position.
      *
@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  number.  If the iterator is over the values in a particular document,
      *  it returns the number of each slot in turn.
      */
-    Xapian::valueno get_valueno() const XAPIAN_PURE_FUNCTION;
+    Xapian::valueno get_valueno() const;
 
     /** Advance the iterator to document id or value slot @a docid_or_slot.
      *
@@ -156,7 +156,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 #endif
 
     /// Return a string describing this object.
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 
     /** @private @internal ValueIterator is what the C++ STL calls an
      *  input_iterator.

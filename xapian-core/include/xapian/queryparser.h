@@ -796,10 +796,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  If there were no corrections, an empty string is returned.
      */
-    std::string get_corrected_query_string() const XAPIAN_PURE_FUNCTION;
+    std::string get_corrected_query_string() const;
 
     /// Return a string describing this object.
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 };
 
 inline void

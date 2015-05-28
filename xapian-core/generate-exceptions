@@ -124,12 +124,12 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
 
   public:
     /// The type of this error (e.g. "DocNotFoundError".)
-    const char * XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION {
+    const char * XAPIAN_NOTHROW(get_type() const) {
 	return type + 1;
     }
 
     /// Message giving details of the error, intended for human consumption.
-    const std::string & XAPIAN_NOTHROW(get_msg() const) XAPIAN_PURE_FUNCTION {
+    const std::string & XAPIAN_NOTHROW(get_msg() const) {
 	return msg;
     }
 
@@ -140,8 +140,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  and remove that server from those being searched).  But it's typically
      *  a plain-text string, and so also fit for human consumption.
      */
-    const std::string & XAPIAN_NOTHROW(get_context() const) XAPIAN_PURE_FUNCTION
-    {
+    const std::string & XAPIAN_NOTHROW(get_context() const) {
 	return context;
     }
 
@@ -151,7 +150,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  GetLastError() (on MS Windows).  If there is no associated system
      *  error string, NULL is returned.
      */
-    const char * get_error_string() const XAPIAN_PURE_FUNCTION;
+    const char * get_error_string() const;
 
     /// Return a string describing this object.
     std::string get_description() const;

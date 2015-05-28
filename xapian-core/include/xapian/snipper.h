@@ -28,7 +28,6 @@
 #endif
 
 #include <string>
-#include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
@@ -91,7 +90,7 @@ class XAPIAN_VISIBILITY_DEFAULT Snipper {
 				 double smoothing = 0.5);
 
     /// Return a string describing this object.
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 };
 
 }

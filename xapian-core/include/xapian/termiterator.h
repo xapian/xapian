@@ -68,13 +68,13 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     }
 
     /// Return the term at the current position.
-    std::string operator*() const XAPIAN_PURE_FUNCTION;
+    std::string operator*() const;
 
     /// Return the wdf for the term at the current position.
-    Xapian::termcount get_wdf() const XAPIAN_PURE_FUNCTION;
+    Xapian::termcount get_wdf() const;
 
     /// Return the term frequency for the term at the current position.
-    Xapian::doccount get_termfreq() const XAPIAN_PURE_FUNCTION;
+    Xapian::doccount get_termfreq() const;
 
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;
@@ -109,7 +109,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     void skip_to(const std::string &term);
 
     /// Return a string describing this object.
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 
     /** @private @internal TermIterator is what the C++ STL calls an
      *  input_iterator.

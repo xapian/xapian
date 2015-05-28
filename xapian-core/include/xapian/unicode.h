@@ -49,12 +49,12 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
   public:
     /** Return the raw const char * pointer for the current position. */
-    const char * raw() const XAPIAN_PURE_FUNCTION {
+    const char * raw() const {
 	return reinterpret_cast<const char *>(p ? p : end);
     }
 
     /** Return the number of bytes left in the iterator's buffer. */
-    size_t left() const XAPIAN_PURE_FUNCTION { return p ? end - p : 0; }
+    size_t left() const { return p ? end - p : 0; }
 
     /** Assign a new string to the iterator.
      *

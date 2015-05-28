@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -101,7 +101,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  Xapian will always call init() on a PostingSource before calling this
      *  for the first time.
      */
-    virtual Xapian::doccount get_termfreq_min() const XAPIAN_PURE_FUNCTION = 0;
+    virtual Xapian::doccount get_termfreq_min() const = 0;
 
     /** An estimate of the number of documents this object can return.
      *
@@ -112,14 +112,14 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  Xapian will always call init() on a PostingSource before calling this
      *  for the first time.
      */
-    virtual Xapian::doccount get_termfreq_est() const XAPIAN_PURE_FUNCTION = 0;
+    virtual Xapian::doccount get_termfreq_est() const = 0;
 
     /** An upper bound on the number of documents this object can return.
      *
      *  Xapian will always call init() on a PostingSource before calling this
      *  for the first time.
      */
-    virtual Xapian::doccount get_termfreq_max() const XAPIAN_PURE_FUNCTION = 0;
+    virtual Xapian::doccount get_termfreq_max() const = 0;
 
     /// Return the currently set upper bound on what get_weight() can return.
     double XAPIAN_NOTHROW(get_maxweight() const) { return max_weight_; }
@@ -137,7 +137,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  next(), skip_to() or check(), and will ensure that the PostingSource is
      *  not at the end by calling at_end()).
      */
-    virtual double get_weight() const XAPIAN_PURE_FUNCTION;
+    virtual double get_weight() const;
 
     /** Return the current docid.
      *
@@ -148,7 +148,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  be in the single subdatabase relevant to this posting source.  See the
      *  @a init() method for details.
      */
-    virtual Xapian::docid get_docid() const XAPIAN_PURE_FUNCTION = 0;
+    virtual Xapian::docid get_docid() const = 0;
 
     /** Advance the current position to the next matching document.
      *
@@ -235,7 +235,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  At least one of @a next(), @a skip_to() or @a check() will be called
      *  before this method is first called.
      */
-    virtual bool at_end() const XAPIAN_PURE_FUNCTION = 0;
+    virtual bool at_end() const = 0;
 
     /** Clone the posting source.
      *
