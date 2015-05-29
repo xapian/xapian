@@ -1,3 +1,7 @@
+Thu Sep 24 03:38:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* xapian.i: Ignore internal methods of Xapian::Weight.
+
 Thu Sep 24 01:28:08 GMT 2015  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: SWIG now automatically makes xapian.Error a
