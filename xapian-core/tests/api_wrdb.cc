@@ -423,13 +423,8 @@ DEFINE_TESTCASE(adddoc5, writable) {
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_wdf(), j.get_wdf());
-#ifndef __clang__
-		// clang's exception handling is buggy, and this exception
-		// leaks through catches in the test harness.  Confirmed as a
-		// bug by a clang developer, but it seems no fix is in sight.
 		TEST_EXCEPTION(Xapian::InvalidOperationError,
 			       (void)i.get_termfreq());
-#endif
 		TEST_NOT_EQUAL(0, j.get_termfreq());
 		if (*i == "foobar") {
 		    // termfreq of foobar is 2
