@@ -70,7 +70,11 @@ static int base256ify_double(double &v) {
     v = frexp(v, &exp);
     // v is now in the range [0.5, 1.0)
     --exp;
+#if FLT_RADIX == 2
+    v = scalbn(v, (exp & 7) + 1);
+#else
     v = ldexp(v, (exp & 7) + 1);
+#endif
     // v is now in the range [1.0, 256.0)
     exp >>= 3;
     return exp;
@@ -187,7 +191,13 @@ double unserialise_double(const char ** p, const char *end)
 	    v += double(static_cast<unsigned char>(*--q));
 	}
 
+#if FLT_RADIX == 2
+	if (exp) v = scalbn(v, exp * 8);
+#elif FLT_RADIX == 16
+	if (exp) v = scalbn(v, exp * 2);
+#else
 	if (exp) v = ldexp(v, exp * 8);
+#endif
 
 #if 0
 	if (v == 0.0) {
