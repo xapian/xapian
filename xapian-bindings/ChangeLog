@@ -1,3 +1,8 @@
+Fri May 29 07:30:20 GMT 2015  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Ignore new internal sortable_serialise_()
+	  function.
+
 Fri May 29 07:25:17 GMT 2015  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Ignore internal methods of Xapian::Weight.

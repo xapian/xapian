@@ -24,6 +24,7 @@
 /* Ignore these functions: */
 %ignore Xapian::iterator_rewind;
 %ignore Xapian::iterator_valid;
+%ignore Xapian::sortable_serialise_;
 
 /* A class which can usefully be subclassed in the target language. */
 %define SUBCLASSABLE(NS, CLASS)
