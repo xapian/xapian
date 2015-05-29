@@ -714,19 +714,21 @@ test_driver::parse_command_line(int argc, char **argv)
     argv0 = argv[0];
 
 #ifndef __WIN32__
-    bool colourise = true;
-    const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
-    if (p == NULL || !*p || strcmp(p, "auto") == 0) {
-	colourise = isatty(1);
-    } else if (strcmp(p, "plain") == 0) {
-	colourise = false;
-    }
-    if (colourise) {
-	col_red = "\x1b[1m\x1b[31m";
-	col_green = "\x1b[1m\x1b[32m";
-	col_yellow = "\x1b[1m\x1b[33m";
-	col_reset = "\x1b[0m";
-	use_cr = true;
+    {
+	bool colourise = true;
+	const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
+	if (p == NULL || !*p || strcmp(p, "auto") == 0) {
+	    colourise = isatty(1);
+	} else if (strcmp(p, "plain") == 0) {
+	    colourise = false;
+	}
+	if (colourise) {
+	    col_red = "\x1b[1m\x1b[31m";
+	    col_green = "\x1b[1m\x1b[32m";
+	    col_yellow = "\x1b[1m\x1b[33m";
+	    col_reset = "\x1b[0m";
+	    use_cr = true;
+	}
     }
 #endif
 
