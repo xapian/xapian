@@ -41,14 +41,14 @@ using namespace std;
 # pragma warning(disable:4146)
 #endif
 
-string
-Xapian::sortable_serialise(double value)
+size_t
+Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
 {
     double mantissa;
     int exponent;
 
     // Negative infinity.
-    if (value < -DBL_MAX) return string();
+    if (value < -DBL_MAX) return 0;
 
     mantissa = frexp(value, &exponent);
 
@@ -60,7 +60,10 @@ Xapian::sortable_serialise(double value)
      * -2039 - if smaller exponents are possible anywhere, we underflow such
      *  numbers to 0.
      */
-    if (mantissa == 0.0 || exponent < -2039) return "\x80";
+    if (mantissa == 0.0 || exponent < -2039) {
+	*buf = '\x80';
+	return 1;
+    }
 
     bool negative = (mantissa < 0);
     if (negative) mantissa = -mantissa;
@@ -70,9 +73,10 @@ Xapian::sortable_serialise(double value)
 	if (negative) {
 	    // This can only happen with a non-IEEE representation, because
 	    // we've already tested for value < -DBL_MAX
-	    return string();
+	    return 0;
 	} else {
-	    return string(9, '\xff');
+	    memset(buf, '\xff', 9);
+	    return 9;
 	}
     }
 
@@ -94,7 +98,7 @@ Xapian::sortable_serialise(double value)
 	next ^= 0x60;
     }
 
-    string result;
+    size_t len = 0;
 
     /* We store the exponent in 3 or 11 bits.  If the number is negative, we
      * flip all the bits of the exponent, since larger negative numbers should
@@ -115,7 +119,7 @@ Xapian::sortable_serialise(double value)
 	// first byte:
 	next |= static_cast<unsigned char>(exponent >> 6);
 	if (negative ^ exponent_negative) next ^= 0x1f;
-	result += next;
+	buf[len++] = next;
 	// And the lower 6 bits of the exponent go into the upper 6 bits
 	// of the second byte:
 	next = static_cast<unsigned char>(exponent) << 2;
@@ -145,24 +149,22 @@ Xapian::sortable_serialise(double value)
 
     word1 &= 0x03ffffff;
     next |= static_cast<unsigned char>(word1 >> 24);
-    result += next;
-    result.push_back(char(word1 >> 16));
-    result.push_back(char(word1 >> 8));
-    result.push_back(char(word1));
+    buf[len++] = next;
+    buf[len++] = char(word1 >> 16);
+    buf[len++] = char(word1 >> 8);
+    buf[len++] = char(word1);
 
-    result.push_back(char(word2 >> 24));
-    result.push_back(char(word2 >> 16));
-    result.push_back(char(word2 >> 8));
-    result.push_back(char(word2));
+    buf[len++] = char(word2 >> 24);
+    buf[len++] = char(word2 >> 16);
+    buf[len++] = char(word2 >> 8);
+    buf[len++] = char(word2);
 
     // Finally, we can chop off any trailing zero bytes.
-    size_t len = result.size();
-    while (len > 0 && result[len - 1] == '\0') {
+    while (len > 0 && buf[len - 1] == '\0') {
 	--len;
     }
-    result.resize(len);
 
-    return result;
+    return len;
 }
 
 /// Get a number from the character at a given position in a string, returning

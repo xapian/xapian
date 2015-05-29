@@ -1,3 +1,9 @@
+Fri May 29 05:40:10 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/sortable-serialise.cc,include/xapian/queryparser.h: Make
+	  sortable_serialise() an inlined wrapper around a function which
+	  won't throw and can be flagged as XAPIAN_CONST_FUNCTION.
+
 Fri May 29 05:35:23 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: sortable_unserialise() can't validly

@@ -810,6 +810,10 @@ QueryParser::set_max_wildcard_expansion(Xapian::termcount max_expansion)
 		      FLAG_WILDCARD);
 }
 
+/// @private @internal Helper for sortable_serialise().
+XAPIAN_VISIBILITY_DEFAULT
+size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf)) XAPIAN_CONST_FUNCTION;
+
 /** Convert a floating point number to a string, preserving sort order.
  *
  *  This method converts a floating point number to a string, suitable for
@@ -836,8 +840,10 @@ QueryParser::set_max_wildcard_expansion(Xapian::termcount max_expansion)
  *
  *  @param value	The number to serialise.
  */
-XAPIAN_VISIBILITY_DEFAULT
-std::string sortable_serialise(double value) XAPIAN_CONST_FUNCTION;
+inline std::string sortable_serialise(double value) {
+    char buf[9];
+    return std::string(buf, sortable_serialise_(value, buf));
+}
 
 /** Convert a string encoded using @a sortable_serialise back to a floating
  *  point number.
