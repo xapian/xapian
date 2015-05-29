@@ -1,3 +1,9 @@
+Fri May 29 07:47:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Revert disabling of part of adddoc5 for clang, as
+	  that should now work now the method in question isn't marked as
+	  XAPIAN_PURE_FUNCTION.
+
 Fri May 29 06:13:32 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/sortable-serialise.cc,tests/queryparsertest.cc,
