@@ -1,3 +1,11 @@
+Fri May 29 05:35:23 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: sortable_unserialise() can't validly
+	  be marked as XAPIAN_CONST_FUNCTION, since scalbn() can raise
+	  FE_OVERFLOW or FE_UNDERFLOW floating point exceptions.  It isn't
+	  a function that's likely to be called such that the result can
+	  be usefully subject to CSE or eliminated as dead code anyway.
+
 Fri May 29 05:31:29 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/sortable-serialise.cc: Use scalbn() instead of ldexp() in

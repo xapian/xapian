@@ -854,7 +854,7 @@ std::string sortable_serialise(double value) XAPIAN_CONST_FUNCTION;
  *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double XAPIAN_NOTHROW(sortable_unserialise(const std::string & serialised)) XAPIAN_CONST_FUNCTION;
+double XAPIAN_NOTHROW(sortable_unserialise(const std::string & serialised));
 
 }
 
