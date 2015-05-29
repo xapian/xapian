@@ -1,3 +1,9 @@
+Fri May 29 05:15:09 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/sortable-serialise.cc,include/xapian/queryparser.h: Tweak
+	  sortable_unserialise() not to construct std::string objects (as that
+	  could throw std::bad_alloc), and mark it as XAPIAN_NOTHROW.
+
 Thu May 28 13:49:37 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/query.cc,api/queryinternal.cc,api/queryinternal.h,

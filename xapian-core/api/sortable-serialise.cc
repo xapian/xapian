@@ -1,7 +1,7 @@
 /** @file sortable-serialise.cc
  * @brief Serialise floating point values to string which sort the same way.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include <cfloat>
 #include <cmath>
+#include <cstring>
 
 #include <string>
 
@@ -173,13 +174,14 @@ numfromstr(const std::string & str, std::string::size_type pos)
 }
 
 double
-Xapian::sortable_unserialise(const std::string & value)
+Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
 {
     // Zero.
-    if (value == "\x80") return 0.0;
+    if (value.size() == 1 && value[0] == '\x80') return 0.0;
 
     // Positive infinity.
-    if (value == string(9, '\xff')) {
+    if (value.size() == 9 &&
+	memcmp(value.data(), "\xff\xff\xff\xff\xff\xff\xff\xff\xff", 9) == 0) {
 #ifdef INFINITY
 	// INFINITY is C99.  Oddly, it's of type "float" so sanity check in
 	// case it doesn't cast to double as infinity (apparently some
