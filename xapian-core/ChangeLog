@@ -1,3 +1,9 @@
+Mon Jun 01 11:34:23 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: If command line option --verbose/-v
+	  isn't specified, set the verbosity level from environmental variable
+	  VERBOSE.
+
 Mon Jun 01 11:33:19 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Put handling for XAPIAN_TESTSUITE_OUTPUT

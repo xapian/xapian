@@ -769,6 +769,13 @@ test_driver::parse_command_line(int argc, char **argv)
 	}
     }
 
+    if (verbose == 0) {
+	const char *p = getenv("VERBOSE");
+	if (p != NULL) {
+	    verbose = atoi(p);
+	}
+    }
+
     while (argv[optind]) {
 	test_names.push_back(string(argv[optind]));
 	optind++;
