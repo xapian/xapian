@@ -1,3 +1,9 @@
+Fri May 29 05:31:29 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/sortable-serialise.cc: Use scalbn() instead of ldexp() in
+	  sortable_unserialise(), as ldexp() can set errno, which it seems
+	  better to avoid doing.
+
 Fri May 29 05:15:09 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/sortable-serialise.cc,include/xapian/queryparser.h: Tweak
