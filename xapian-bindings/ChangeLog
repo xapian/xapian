@@ -1,3 +1,9 @@
+Fri May 29 07:31:12 GMT 2015  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Add new testcase to catch any internal
+	  functions, methods, constants, etc which have accidentally been
+	  wrapped.
+
 Fri May 29 07:30:20 GMT 2015  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Ignore new internal sortable_serialise_()
