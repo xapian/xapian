@@ -1,3 +1,9 @@
+Fri May 29 13:50:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Put handling for XAPIAN_TESTSUITE_OUTPUT
+	  environmental variable into its own block to contain the scope of
+	  the temporary variables.
+
 Fri May 29 07:57:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc: Prefer scalbn() to ldexp() where
