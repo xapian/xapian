@@ -1,3 +1,8 @@
+Mon Jun 01 11:29:25 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Prefer scalbn() to ldexp() where
+	  where possible, since the former doesn't ever set errno.
+
 Mon Jun 01 11:24:10 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/sortable-serialise.cc: Use scalbn() instead of ldexp() in
