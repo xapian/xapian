@@ -1507,58 +1507,6 @@ static bool test_qp_value_range3()
 #endif
 }
 
-static const double test_value_range_numbers[] = {
-#ifdef INFINITY
-    -INFINITY,
-#endif
-    -HUGE_VAL,
-    -DBL_MAX,
-    -pow(2.0, 1022),
-    -1024.5,
-    -3.14159265358979323846,
-    -3,
-    -2,
-    -1.8,
-    -1.1,
-    -1,
-    -0.5,
-    -0.2,
-    -0.1,
-    -0.000005,
-    -0.000002,
-    -0.000001,
-    -pow(2.0, -1023),
-    -pow(2.0, -1024),
-    -pow(2.0, -1074),
-    -DBL_MIN,
-    0,
-    DBL_MIN,
-    pow(2.0, -1074),
-    pow(2.0, -1024),
-    pow(2.0, -1023),
-    0.000001,
-    0.000002,
-    0.000005,
-    0.1,
-    0.2,
-    0.5,
-    1,
-    1.1,
-    1.8,
-    2,
-    3,
-    3.14159265358979323846,
-    1024.5,
-    pow(2.0, 1022),
-    DBL_MAX,
-    HUGE_VAL,
-#ifdef INFINITY
-    INFINITY,
-#endif
-
-    64 // Magic number which we stop at.
-};
-
 static const test test_value_range4_queries[] = {
     { "id:19254@foo..example.com", "0 * Q19254@foo..example.com" },
     { "hello:world", "0 * XHELLOworld" },
@@ -1602,46 +1550,6 @@ static bool test_qp_value_range4()
     return true;
 }
 
-
-// Test serialisation and unserialisation of various numbers.
-static bool test_value_range_serialise1()
-{
-    double prevnum = 0;
-    string prevstr;
-    bool started = false;
-    for (const double *p = test_value_range_numbers; *p != 64; ++p) {
-	double num = *p;
-	tout << "Number: " << num << '\n';
-	string str = Xapian::sortable_serialise(num);
-	tout << "String: " << str << '\n';
-	TEST_EQUAL(Xapian::sortable_unserialise(str), num);
-
-	if (started) {
-	    int num_cmp = 0;
-	    if (prevnum < num) {
-		num_cmp = -1;
-	    } else if (prevnum > num) {
-		num_cmp = 1;
-	    }
-	    int str_cmp = 0;
-	    if (prevstr < str) {
-		str_cmp = -1;
-	    } else if (prevstr > str) {
-		str_cmp = 1;
-	    }
-
-	    TEST_AND_EXPLAIN(num_cmp == str_cmp,
-			     "Numbers " << prevnum << " and " << num <<
-			     " don't sort the same way as their string "
-			     "counterparts");
-	}
-
-	prevnum = num;
-	prevstr = str;
-	started = true;
-    }
-    return true;
-}
 
 static const test test_value_daterange1_queries[] = {
     { "12/03/99..12/04/01", "0 * VALUE_RANGE 1 19991203 20011204" },
@@ -2777,7 +2685,6 @@ static const test_desc tests[] = {
     TESTCASE(qp_unstem_boolean_prefix),
     TESTCASE(qp_default_prefix1),
     TESTCASE(qp_default_prefix2),
-    TESTCASE(value_range_serialise1),
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),

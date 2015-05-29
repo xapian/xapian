@@ -1,3 +1,11 @@
+Fri May 29 06:13:32 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/sortable-serialise.cc,tests/queryparsertest.cc,
+	  tests/unittest.cc: Only enable assertions in sortable_serialise()
+	  and sortable_unserialise() in the testsuite (since these functions
+	  shouldn't throw exceptions), and move the tests of these functions
+	  from queryparsertest to unittest to facilitate this.
+
 Fri May 29 05:40:10 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/sortable-serialise.cc,include/xapian/queryparser.h: Make
