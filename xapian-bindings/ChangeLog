@@ -1,3 +1,7 @@
+Fri May 29 07:25:17 GMT 2015  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Ignore internal methods of Xapian::Weight.
+
 Wed May 27 03:07:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

@@ -354,6 +354,9 @@ STANDARD_IGNORES(Xapian, Weight)
 %ignore Xapian::Weight::clone;
 %ignore Xapian::Weight::clone_;
 %ignore Xapian::Weight::init_;
+%ignore Xapian::Weight::get_sumpart_needs_doclength_;
+%ignore Xapian::Weight::get_sumpart_needs_uniqueterms_;
+%ignore Xapian::Weight::get_sumpart_needs_wdf_;
 %ignore Xapian::Weight::serialise;
 %ignore Xapian::Weight::unserialise;
 %include <xapian/weight.h>
