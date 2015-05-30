@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -401,6 +401,7 @@ Xapian::doclength
 RemoteDatabase::get_avlength() const
 {
     if (!cached_stats_valid) update_stats();
+    if (rare(doccount == 0)) return 0;
     return Xapian::doclength(total_length) / doccount;
 }
 
