@@ -1,3 +1,8 @@
+Mon Jun 01 11:36:39 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc: Avoid divide by zero when
+	  getting the average length for an empty database.
+
 Mon Jun 01 11:34:23 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: If command line option --verbose/-v

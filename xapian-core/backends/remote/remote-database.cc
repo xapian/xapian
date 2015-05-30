@@ -382,6 +382,7 @@ Xapian::doclength
 RemoteDatabase::get_avlength() const
 {
     if (!cached_stats_valid) update_stats();
+    if (rare(doccount == 0)) return 0;
     return Xapian::doclength(total_length) / doccount;
 }
 
