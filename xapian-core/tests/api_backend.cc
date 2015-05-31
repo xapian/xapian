@@ -93,18 +93,26 @@ DEFINE_TESTCASE(dbstats1, backend) {
     const Xapian::termcount max_len = 532;
     const Xapian::termcount max_wdf = 22;
 
-    if (get_dbtype().find("chert") != string::npos ||
-	get_dbtype().find("brass") != string::npos) {
-	// Should be exact for brass and chert as no deletions have happened.
+    if (get_dbtype() != "inmemory" &&
+	get_dbtype().find("flint") == string::npos) {
+	// Should be exact as no deletions have happened.
 	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
 	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
     } else {
-	// For other backends, we usually give rather loose bounds.
+	// For flint and inmemory, we usually give rather loose bounds.
 	TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
 	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
     }
 
-    TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
+    if (get_dbtype() != "inmemory" && !startswith(get_dbtype(), "remote") &&
+	get_dbtype().find("flint") == string::npos) {
+	TEST_EQUAL(db.get_wdf_upper_bound("the"), max_wdf);
+    } else {
+	// For flint, inmemory and remote backends, we usually give rather
+	// loose bounds (remote matches use tighter bounds, but querying the
+	// wdf bound gives a looser one).
+	TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
+    }
 
     return true;
 }
