@@ -1,3 +1,7 @@
+Sun May 31 12:45:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/intrusive_ptr.h: Fix comment typo.
+
 Sun May 31 12:31:11 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,tests/api_backend.cc: Fix

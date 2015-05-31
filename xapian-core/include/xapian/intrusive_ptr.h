@@ -196,7 +196,7 @@ class opt_intrusive_base : public intrusive_base {
     opt_intrusive_base() : intrusive_base() { }
 
     /* Subclasses of opt_intrusive_base may be deleted by calling delete on a
-     * pointer to intrusive_base.
+     * pointer to opt_intrusive_base.
      */
     virtual ~opt_intrusive_base() { }
 
