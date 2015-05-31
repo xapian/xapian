@@ -1,3 +1,10 @@
+Sun May 31 12:54:09 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/intrusive_ptr.h: Don't derive opt_intrusive_base from
+	  intrusive_base - it just opens the door to bugs from accidentally
+	  using intrusive_ptr instead of opt_intrusive_ptr with
+	  opt_intrusive_base.
+
 Sun May 31 12:45:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/intrusive_ptr.h: Fix comment typo.

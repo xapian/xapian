@@ -180,9 +180,9 @@ template<class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const 
 }
 
 /// Base class for objects managed by opt_intrusive_ptr.
-class opt_intrusive_base : public intrusive_base {
+class opt_intrusive_base {
   public:
-    opt_intrusive_base(const opt_intrusive_base&) : intrusive_base() { }
+    opt_intrusive_base(const opt_intrusive_base&) : _refs(0) { }
 
     opt_intrusive_base& operator=(const opt_intrusive_base&) {
 	// Don't touch _refs.
@@ -193,7 +193,7 @@ class opt_intrusive_base : public intrusive_base {
      *
      *  The reference counting starts if release() is called.
      */
-    opt_intrusive_base() : intrusive_base() { }
+    opt_intrusive_base() : _refs(0) { }
 
     /* Subclasses of opt_intrusive_base may be deleted by calling delete on a
      * pointer to opt_intrusive_base.
@@ -211,6 +211,13 @@ class opt_intrusive_base : public intrusive_base {
 	if (--_refs == 1)
 	    delete this;
     }
+
+    /** Reference count.
+     *
+     *  This needs to be mutable so we can add/remove references through const
+     *  pointers.
+     */
+    mutable unsigned _refs;
 
   protected:
     /** Start reference counting.
