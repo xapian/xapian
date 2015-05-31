@@ -385,12 +385,15 @@ Database::get_doclength_lower_bound() const
 
     if (rare(internal.empty())) RETURN(0);
 
+    Xapian::termcount full_lb = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    i = internal.begin();
-    Xapian::termcount full_lb = (*i)->get_doclength_lower_bound();
-    while (++i != internal.end()) {
-	Xapian::termcount lb = (*i)->get_doclength_lower_bound();
-	if (lb < full_lb) full_lb = lb;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+	// Skip sub-databases which are empty or only contain documents with
+	// doclen==0.
+	if ((*i)->get_total_length() != 0) {
+	    Xapian::termcount lb = (*i)->get_doclength_lower_bound();
+	    if (full_lb == 0 || lb < full_lb) full_lb = lb;
+	}
     }
     RETURN(full_lb);
 }

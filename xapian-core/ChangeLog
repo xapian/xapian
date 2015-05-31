@@ -1,3 +1,11 @@
+Sun May 31 12:31:11 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,tests/api_backend.cc: Fix
+	  Database::get_doclength_lower_bound() over multiple databases when
+	  some are empty or consist only of zero-length documents.  Previously
+	  this would report a lower bound of zero, now it reports the same
+	  lowest bound as a single database containing all the same documents.
+
 Sun May 31 12:25:53 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Tweak bounds checks in dbstats1 testcase
