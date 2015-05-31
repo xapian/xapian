@@ -1,3 +1,11 @@
+Mon Jun 01 11:42:11 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,tests/api_backend.cc: Fix
+	  Database::get_doclength_lower_bound() over multiple databases when
+	  some are empty or consist only of zero-length documents.  Previously
+	  this would report a lower bound of zero, now it reports the same
+	  lowest bound as a single database containing all the same documents.
+
 Mon Jun 01 11:36:39 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc: Avoid divide by zero when

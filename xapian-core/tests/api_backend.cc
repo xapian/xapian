@@ -109,6 +109,42 @@ DEFINE_TESTCASE(dbstats1, backend) {
     return true;
 }
 
+// Check stats with a single document.  In a multi-database situation, this
+// gave 0 for get-_doclength_lower_bound() in 1.3.2.
+DEFINE_TESTCASE(dbstats2, backend) {
+    Xapian::Database db = get_database("apitest_onedoc");
+
+    // Use precalculated values to avoid expending CPU cycles to calculate
+    // these every time without improving test coverage.
+    const Xapian::termcount min_len = 15;
+    const Xapian::termcount max_len = 15;
+    const Xapian::termcount max_wdf = 7;
+
+    if (get_dbtype() != "inmemory" && get_dbtype() != "flint") {
+	// Should be exact as no deletions have happened.
+	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
+	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
+    } else {
+	// For inmemory and flint, we usually give rather loose bounds.
+	TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
+	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
+    }
+
+    if (get_dbtype() != "inmemory" && get_dbtype() != "flint" &&
+	!startswith(get_dbtype(), "remote")) {
+	TEST_EQUAL(db.get_wdf_upper_bound("word"), max_wdf);
+    } else {
+	// For inmemory, flint, and remote backends, we usually give rather
+	// loose bounds (remote matches use tighter bounds, but querying the
+	// wdf bound gives a looser one).
+	TEST_REL(db.get_wdf_upper_bound("word"),>=,max_wdf);
+    }
+
+    TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
+
+    return true;
+}
+
 /// Check handling of alldocs on an empty database.
 DEFINE_TESTCASE(alldocspl3, backend) {
     Xapian::Database db = get_database(string());
