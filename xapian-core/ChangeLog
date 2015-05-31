@@ -1,3 +1,8 @@
+Sun May 31 12:25:53 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Tweak bounds checks in dbstats1 testcase
+	  - multi backends should give tight bounds.
+
 Sat May 30 14:24:55 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc: Avoid divide by zero when
