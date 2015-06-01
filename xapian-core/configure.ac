@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.2], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.3], [http://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -33,7 +33,8 @@ dnl 0:0:0 1.3.0 Reset as library renamed
 dnl 1:0:0 1.3.0_svn16813 Default stemming strategy now STEM_SOME
 dnl 2:0:1 1.3.1 Added TfIdfWeight, MSetIterator::at_end(), etc
 dnl 3:0:0 1.3.2 Enquire::get_eset() overload -> default parameter
-LIBRARY_VERSION_INFO=3:0:0
+dnl 4:0:0 1.3.3 Database::allterms_begin() overload -> default parameter
+LIBRARY_VERSION_INFO=4:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=-1.3

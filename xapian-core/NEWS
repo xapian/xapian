@@ -1,6 +1,4 @@
-b26e4f78 (Olly Betts 2015-05-27 11:15:39 +1200     1) Tue May 26 23:15:21 GMT 2015  Olly Betts <olly@survex.com>
-
-Xapian-core 1.3.3 (2015-05-27):
+Xapian-core 1.3.3 (2015-06-01):
 
 This release includes all changes from 1.2.20-1.2.21 which are relevant.
 
@@ -11,6 +9,11 @@ API:
   + Add new flag Xapian::DB_RETRY_LOCK which allows opening a database for
     writing to wait until it can get a write lock.  (Fixes #275, reported by
     Richard Boulton).
+
+  + Fix Database::get_doclength_lower_bound() over multiple databases when some
+    are empty or consist only of zero-length documents.  Previously this would
+    report a lower bound of zero, now it reports the same lowest bound as a
+    single database containing all the same documents.
 
   + Database::check(): When checking a single table, handle the ".glass"
     extension on glass database tables, and use the extension to guide the
@@ -38,14 +41,14 @@ API:
 
 testsuite:
 
+* If command line option --verbose/-v isn't specified, set the verbosity level
+  from environmental variable VERBOSE.
+
 * Re-enable replicate3 for glass, as it no longer fails.
 
 * Add more test coverage for get_unique_terms().
 
 * Don't leave an extra fd open when starting xapian-tcpsrv for remotetcp tests.
-
-matcher:
-
 
 glass backend:
 
@@ -70,27 +73,14 @@ chert backend:
 
 * Fix xapian-check on a single chert table, which seg faulted in 1.3.2.
 
-flint backend:
-
-
 remote backend:
 
-
-inmemory backend:
-
+* Avoid dividing zero by zero when calculating the average length for an empty
+  database.
 
 build system:
 
 * Merge generate-allsnowballheaders script into collate-sbl.
-
-documentation:
-
-
-tools:
-
-
-examples:
-
 
 portability:
 
@@ -100,7 +90,7 @@ portability:
   efficient.  Currently known to work: GCC >= 4.7, recent versions of clang
   (3.5 works).  Solaris Studio 12.4 compiles the code, but tests currently
   fail.  IBM's xlC doesn't support enough of C++11 yet.  HP's aCC hasn't
-  been tested, but the documentation suggests it also doesn't support enough
+  been tested, but its documentation suggests it also doesn't support enough
   of C++11 yet.
 
 * Drop workarounds and special cases for old versions of various compilers
@@ -112,19 +102,19 @@ portability:
 * Building on OS/2 with EMX is no longer supported - EMX was last updated in
   2001 and comes with GCC 3.2.1, which is much too old to support C++11.
 
-* Building on IRIX is no longer supported, because IRIX has reached end of
-  life.
-
 * Building with SGI's and Compaq's C++ compilers is no longer supported -
   both seem to have ceased development, and don't support C++11.
 
 * Building with STLport is no longer supported - STLport was last released in
   2008, so it's no longer actively developed and won't support C++11.
 
+* Building on IRIX is no longer supported, because IRIX has reached end of
+  life.
+
 * Disable "<FUNCTION> is expected to return a value" warning from Sun's C++
-  compiler, as it fires even for functions we end in a "throw" statement.
-  Genuine instances will be caught by compilers with superior warning
-  machinery.
+  compiler, as it fires for functions which end in a "throw" statement.
+  Genuine instances of missing return values will be caught by compilers with
+  superior warning machinery.
 
 * Fix warning from GCC 5.1 where template expansion leads to the comparison
   (bool_value < 255) which is always true.  Warning introduced by changes in
@@ -146,15 +136,41 @@ portability:
   provide log2(), but let's not rely on that just yet as it's easy to provide a
   fallback implementation.
 
+* Use scalbn() instead of ldexp() where possible (which we can in all cases
+  when FLT_RADIX == 2, as it is on pretty much all current platforms).  On
+  overflow and underflow ldexp() sets errno, which it seems better to avoid
+  doing.
+
 * The list of stemmers is now in the same static const struct as the version
   info, and Stem::get_available_languages() is just an inlined wrapper which
   fetches this structure and returns the appropriate member.  This saves a
   relocation, reducing library load time a little.
 
-packaging:
+* Remove "pure" attribute from API functions which could throw an exception.
+  These functions aren't really pure, and while we're happy for calls to them
+  to be CSE-ed or eliminated entirely, the compiler might make more assumptions
+  than that about a pure function - clang seems to assume pure => nothrow and
+  an exception from such a function can't be caught.
 
+* Remove "pure" attribute from sortable_unserialise(), which can raise floating
+  point exceptions FE_OVERFLOW and FE_UNDERFLOW.
+
+* Add "nothrow" attribute to more API functions which will never throw an
+  exception.
+
+* Make sortable_serialise() an inlined wrapper around a function which won't
+  throw and can be flagged with attribute 'const'.
+
+* Tweak sortable_unserialise() not to compare with a fixed string by
+  constructing a temporary std::string object (which could throw
+  std::bad_alloc), and mark it as XAPIAN_NOTHROW.
 
 debug code:
+
+* Only enable assertions in sortable_serialise() and sortable_unserialise() in
+  the testsuite (since these functions shouldn't throw exceptions), and move
+  the tests of these functions from queryparsertest to unittest to facilitate
+  this.
 
 * Add more assertions to the glass backend code.
 
