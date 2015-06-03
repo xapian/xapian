@@ -1,3 +1,7 @@
+Wed Jun 03 03:12:25 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Fix to build when S_ISSOCK() isn't defined.
+
 Mon Jun 01 11:42:11 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,tests/api_backend.cc: Fix

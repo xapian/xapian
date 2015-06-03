@@ -1032,7 +1032,7 @@ DEFINE_TESTCASE(dbfilefd012, brass || chert) {
 #else
 		// If we can't check it is a socket, at least check it is not a
 		// regular file.
-		TEST(!S_ISREG(sb.st_mode);
+		TEST(!S_ISREG(sb.st_mode));
 #endif
 	    }
 	}
