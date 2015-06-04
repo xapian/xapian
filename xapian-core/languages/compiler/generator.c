@@ -329,7 +329,6 @@ static void generate_AE(struct generator * g, struct node * p) {
             w(g, p->mode == m_forward ? "~zl" : "~zlb"); break;
         case c_size:
 	    w(g, "SIZE(~zp)"); break;
-	    break;
     }
 }
 

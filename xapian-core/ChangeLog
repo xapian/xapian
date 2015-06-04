@@ -1,3 +1,7 @@
+Thu Jun 04 12:40:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Remove extra "break;".
+
 Thu Jun 04 12:39:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Remove bogus extra "Query::" qualifier from
