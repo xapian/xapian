@@ -1,3 +1,10 @@
+Thu Jun 04 12:38:36 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.h,api/leafpostlist.h,api/matchspy.cc,
+	  include/xapian/,net/length.cc: Mark constructors taking a
+	  single argument as "explicit" to avoid unwanted implicit
+	  conversions.
+
 Mon Jun 01 13:11:02 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS.SKELETON: Remove section for "flint backend" from template.

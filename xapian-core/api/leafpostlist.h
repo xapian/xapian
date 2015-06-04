@@ -51,7 +51,7 @@ class LeafPostList : public PostList {
     std::string term;
 
     /// Only constructable as a base class for derived classes.
-    LeafPostList(const std::string & term_)
+    explicit LeafPostList(const std::string & term_)
 	: weight(0), need_doclength(false), need_unique_terms(false),
 	  term(term_) { }
 

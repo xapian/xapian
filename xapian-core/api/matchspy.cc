@@ -98,7 +98,9 @@ class ValueCountTermList : public TermList {
     intrusive_ptr<Xapian::ValueCountMatchSpy::Internal> spy;
   public:
 
-    ValueCountTermList(ValueCountMatchSpy::Internal * spy_) : spy(spy_) {
+    explicit ValueCountTermList(ValueCountMatchSpy::Internal * spy_)
+	: spy(spy_)
+    {
 	it = spy->values.begin();
 	started = false;
     }

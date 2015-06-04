@@ -42,7 +42,7 @@ class Xapian_NetworkError {
     const char * msg;
 
   public:
-    Xapian_NetworkError(const char * msg_) : msg(msg_) { }
+    explicit Xapian_NetworkError(const char * msg_) : msg(msg_) { }
 
     const char * get_description() const { return msg; }
 };

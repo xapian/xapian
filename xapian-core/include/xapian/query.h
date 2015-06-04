@@ -167,7 +167,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	  Xapian::termpos pos = 0);
 
     /** Construct a Query object for a PostingSource. */
-    Query(Xapian::PostingSource * source);
+    explicit Query(Xapian::PostingSource * source);
 
     // FIXME: new form for OP_SCALE_WEIGHT - do we want this?
     Query(double factor, const Xapian::Query & subquery);
@@ -299,7 +299,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     }
 
     /** @private @internal */
-    Query(Internal * internal_) : internal(internal_) { }
+    explicit Query(Internal * internal_) : internal(internal_) { }
 
   private:
     void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
@@ -373,7 +373,7 @@ class InvertedQuery_ {
 
     void operator=(const InvertedQuery_ &);
 
-    InvertedQuery_(const Query & query_) : query(query_) { }
+    explicit InvertedQuery_(const Query & query_) : query(query_) { }
 
   public:
     // GCC 4.2 seems to needs a copy ctor.

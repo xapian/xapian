@@ -112,7 +112,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterPrefix : public ExpandDecider
     /** The parameter specify the prefix of terms to be retained
      *  @param prefix_   restrict terms to the particular prefix_
      */
-    ExpandDeciderFilterPrefix(const std::string &prefix_)
+    explicit ExpandDeciderFilterPrefix(const std::string &prefix_)
        : prefix(prefix_) { }
 
     virtual bool operator() (const std::string &term) const;
