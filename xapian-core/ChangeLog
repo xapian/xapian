@@ -1,3 +1,8 @@
+Thu Jun 04 12:42:04 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Fix compilation in case where S_ISSOCK() isn't
+	  defined.
+
 Thu Jun 04 12:41:31 GMT 2015  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Remove redundant assignment.
