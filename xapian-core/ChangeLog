@@ -1,3 +1,7 @@
+Thu Sep 24 23:30:29 GMT 2015  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Remove extra "break;".
+
 Thu Sep 24 23:03:41 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Make Database::get_wdf_upper_bound("") return 0.
