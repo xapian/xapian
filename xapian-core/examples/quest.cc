@@ -412,7 +412,7 @@ try {
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
 
     cout << "MSet:" << endl;
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	string data = doc.get_data();
 	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";

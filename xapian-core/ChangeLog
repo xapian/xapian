@@ -1,3 +1,7 @@
+Thu Jun 04 12:44:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Prefer pre-increment ++.
+
 Thu Jun 04 12:42:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_compact.cc,tests/api_posdb.cc: Remove unused variables.
