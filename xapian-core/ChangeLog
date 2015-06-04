@@ -1,3 +1,7 @@
+Thu Jun 04 12:41:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Remove redundant assignment.
+
 Thu Jun 04 12:40:52 GMT 2015  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Remove extra "break;".

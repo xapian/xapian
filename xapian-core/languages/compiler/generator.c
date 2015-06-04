@@ -1468,7 +1468,6 @@ static void generate_among_table(struct generator * g, struct among * x) {
     g->I[1] = x->literalstring_count;
     w(g, "~N~Mstatic const struct among a_~I0[~I1] =~N{~N");
 
-    v = x->b;
     {
         int i;
         for (i = 0; i < x->literalstring_count; i++) {
