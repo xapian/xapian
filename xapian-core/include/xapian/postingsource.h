@@ -382,7 +382,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      *
      *  @param slot_ The value slot to read values from.
      */
-    ValuePostingSource(Xapian::valueno slot_);
+    explicit ValuePostingSource(Xapian::valueno slot_);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
@@ -425,7 +425,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
      *
      *  @param slot_ The value slot to read values from.
      */
-    ValueWeightPostingSource(Xapian::valueno slot_);
+    explicit ValueWeightPostingSource(Xapian::valueno slot_);
 
     Xapian::weight get_weight() const;
     ValueWeightPostingSource * clone() const;
@@ -514,7 +514,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueMapPostingSource
      *
      *  @param slot_ The value slot to read values from.
      */
-    ValueMapPostingSource(Xapian::valueno slot_);
+    explicit ValueMapPostingSource(Xapian::valueno slot_);
 
     /** Add a mapping.
      *
@@ -569,7 +569,7 @@ class XAPIAN_VISIBILITY_DEFAULT FixedWeightPostingSource : public PostingSource 
      *
      *  @param wt The fixed weight to return.
      */
-    FixedWeightPostingSource(Xapian::weight wt);
+    explicit FixedWeightPostingSource(Xapian::weight wt);
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;

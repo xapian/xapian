@@ -130,7 +130,7 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
      *
      *  @param slot_	The value number to return from operator().
      */
-    StringValueRangeProcessor(Xapian::valueno slot_)
+    explicit StringValueRangeProcessor(Xapian::valueno slot_)
 	: valno(slot_), str() { }
 
     /** Constructor.
@@ -312,7 +312,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
      *
      *  @param slot_   The value number to return from operator().
      */
-    NumberValueRangeProcessor(Xapian::valueno slot_)
+    explicit NumberValueRangeProcessor(Xapian::valueno slot_)
 	: StringValueRangeProcessor(slot_) { }
 
     /** Constructor.

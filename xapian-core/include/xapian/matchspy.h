@@ -195,7 +195,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 	std::map<std::string, Xapian::doccount> values;
 
 	Internal() : slot(Xapian::BAD_VALUENO), total(0) {}
-	Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
+	explicit Internal(Xapian::valueno slot_) : slot(slot_), total(0) {}
     };
 #endif
 
@@ -207,7 +207,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     ValueCountMatchSpy() : internal() {}
 
     /// Construct a MatchSpy which counts the values in a particular slot.
-    ValueCountMatchSpy(Xapian::valueno slot_)
+    explicit ValueCountMatchSpy(Xapian::valueno slot_)
 	    : internal(new Internal(slot_)) {}
 
     /** Return the total number of documents tallied. */

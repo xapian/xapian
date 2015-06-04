@@ -43,7 +43,7 @@ class DocumentValueList : public ValueList {
     Xapian::Document::Internal::document_values::const_iterator it;
 
   public:
-    DocumentValueList(const Xapian::Internal::RefCntPtr<Xapian::Document::Internal> & doc_)
+    explicit DocumentValueList(const Xapian::Internal::RefCntPtr<Xapian::Document::Internal> & doc_)
 	: doc(doc_), it(doc->values.end()) { }
 
     Xapian::docid get_docid() const;

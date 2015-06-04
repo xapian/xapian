@@ -1,3 +1,9 @@
+Thu Sep 24 05:59:39 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/documentvaluelist.h,api/matchspy.cc,include/xapian/: Mark
+	  constructors taking a single argument as "explicit" to avoid
+	  unwanted implicit conversions.
+
 Thu Sep 24 05:47:19 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Tweak bounds checks in dbstats1 testcase
