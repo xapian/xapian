@@ -561,7 +561,6 @@ DEFINE_TESTCASE(compactempty1, brass || chert) {
 }
 
 DEFINE_TESTCASE(compactmultipass1, brass || chert) {
-    string empty_dbpath = get_database_path(string());
     string outdbpath = get_named_writable_database_path("compactmultipass1");
     rm_rf(outdbpath);
 

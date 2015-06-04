@@ -1,3 +1,7 @@
+Fri Sep 25 00:01:23 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_compact.cc,tests/api_posdb.cc: Remove unused variables.
+
 Thu Sep 24 23:31:12 GMT 2015  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Remove redundant assignment.
