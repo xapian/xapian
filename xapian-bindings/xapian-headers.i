@@ -374,6 +374,8 @@ SUBCLASSABLE(Xapian, PostingSource)
 %ignore Xapian::PostingSource::unserialise_with_registry;
 %include <xapian/postingsource.h>
 
+// Suppress warning that Xapian::Internal::intrusive_base is unknown.
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::MatchSpy;
 SUBCLASSABLE(Xapian, MatchSpy)
 %ignore Xapian::MatchSpy::serialise_results;
 %include <xapian/matchspy.h>

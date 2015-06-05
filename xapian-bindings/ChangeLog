@@ -1,3 +1,8 @@
+Fri Jun 05 12:42:41 GMT 2015  Olly Betts <olly@survex.com>
+
+	* xapian-headers.i: Update for optional reference counting of
+	  MatchSpy.
+
 Mon Jun 01 13:14:40 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.3.3.
