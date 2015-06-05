@@ -146,7 +146,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
      * @param weight_cutoff		Weight cutoff.
      * @param wtscheme			Weighting scheme.
      * @param omrset			The rset.
-     * @param matchspies                The matchspies to use.  NULL if none.
+     * @param matchspies                The matchspies to use.
      */
     void set_query(const Xapian::Query& query,
 		   Xapian::termcount qlen,

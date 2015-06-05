@@ -1,3 +1,8 @@
+Fri Jun 05 02:55:54 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.h: Correct doxygen comment for
+	  internal method.
+
 Thu Jun 04 12:44:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Prefer pre-increment ++.
