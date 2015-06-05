@@ -29,6 +29,7 @@
 #include "xapian/error.h"
 #include "xapian/errorhandler.h"
 #include "xapian/expanddecider.h"
+#include "xapian/matchspy.h"
 #include "xapian/termiterator.h"
 #include "xapian/weight.h"
 

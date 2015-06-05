@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
  * Copyright (C) 2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -160,7 +160,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   int percent_cutoff, double weight_cutoff,
 		   const Xapian::Weight *wtscheme,
 		   const Xapian::RSet &omrset,
-		   const vector<Xapian::MatchSpy *> & matchspies);
+		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /** Get the stats from the remote server.
      *
@@ -176,7 +176,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Get the MSet from the remote server.
     void get_mset(Xapian::MSet &mset,
-		  const vector<Xapian::MatchSpy *> & matchspies);
+		  const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies);
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;

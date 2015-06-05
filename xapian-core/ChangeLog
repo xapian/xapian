@@ -1,3 +1,11 @@
+Fri Jun 05 12:08:02 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/omenquireinternal.h,
+	  backends/remote/remote-database.cc,backends/remote/remote-database.h,
+	  include/xapian/matchspy.h,matcher/,net/remoteserver.cc,
+	  tests/api_none.cc: Add support for optional reference counting of
+	  MatchSpy objects.
+
 Fri Jun 05 02:55:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.h: Correct doxygen comment for

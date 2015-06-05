@@ -243,10 +243,10 @@ prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
 class MultipleMatchSpy : public Xapian::MatchSpy {
   private:
     /// List of match spies to call, in order.
-    const std::vector<Xapian::MatchSpy *> & spies;
+    const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies;
 
   public:
-    MultipleMatchSpy(const std::vector<Xapian::MatchSpy *> & spies_)
+    MultipleMatchSpy(const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies_)
 	    : spies(spies_) {}
 
     /** Implementation of virtual operator().
@@ -259,9 +259,8 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
 void 
 MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
     LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
-    vector<Xapian::MatchSpy *>::const_iterator i;
-    for (i = spies.begin(); i != spies.end(); ++i) {
-	(**i)(doc, wt);
+    for (auto i : spies) {
+	(*i)(doc, wt);
     }
 }
 
@@ -283,7 +282,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_,
-		       const vector<Xapian::MatchSpy *> & matchspies_,
+		       const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_,
 		       bool have_sorter, bool have_mdecider)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
@@ -505,7 +504,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     MultipleMatchSpy multispy(matchspies);
     if (!matchspies.empty()) {
 	if (matchspies.size() == 1) {
-	    matchspy = matchspies[0];
+	    matchspy = matchspies[0].get();
 	} else {
 	    matchspy = &multispy;
 	}

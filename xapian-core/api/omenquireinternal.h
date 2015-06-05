@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -170,7 +170,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 	/// The parameter required for TradWeight query expansion.
 	double expand_k;
 
-	vector<MatchSpy *> spies;
+	vector<Xapian::Internal::opt_intrusive_ptr<MatchSpy>> spies;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();

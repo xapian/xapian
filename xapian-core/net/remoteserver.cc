@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -380,22 +380,6 @@ RemoteServer::msg_update(const string &)
     send_message(REPLY_UPDATE, message);
 }
 
-/** Structure holding a list of match spies.
- *
- *  The main reason for the existence of this structure is to make it easy to
- *  ensure that the match spies are all deleted after use.
- */
-struct MatchSpyList {
-    vector<Xapian::MatchSpy *> spies;
-
-    ~MatchSpyList() {
-	vector<Xapian::MatchSpy *>::const_iterator i;
-	for (i = spies.begin(); i != spies.end(); ++i) {
-	    delete *i;
-	}
-    }
-};
-
 void
 RemoteServer::msg_query(const string &message_in)
 {
@@ -471,7 +455,7 @@ RemoteServer::msg_query(const string &message_in)
     p += len;
 
     // Unserialise any MatchSpy objects.
-    MatchSpyList matchspies;
+    vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> matchspies;
     while (p != p_end) {
 	len = decode_length(&p, p_end, true);
 	string spytype(p, len);
@@ -483,7 +467,7 @@ RemoteServer::msg_query(const string &message_in)
 	p += len;
 
 	len = decode_length(&p, p_end, true);
-	matchspies.spies.push_back(spyclass->unserialise(string(p, len), reg));
+	matchspies.push_back(spyclass->unserialise(string(p, len), reg)->release());
 	p += len;
     }
 
@@ -491,7 +475,7 @@ RemoteServer::msg_query(const string &message_in)
     MultiMatch match(*db, query, qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward, time_limit, NULL,
-		     local_stats, wt.get(), matchspies.spies, false, false);
+		     local_stats, wt.get(), matchspies, false, false);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));
 
@@ -516,9 +500,8 @@ RemoteServer::msg_query(const string &message_in)
     mset.internal->stats = total_stats.release();
 
     message.resize(0);
-    vector<Xapian::MatchSpy *>::const_iterator i;
-    for (i = matchspies.spies.begin(); i != matchspies.spies.end(); ++i) {
-	string spy_results = (*i)->serialise_results();
+    for (auto i : matchspies) {
+	string spy_results = i->serialise_results();
 	message += encode_length(spy_results.size());
 	message += spy_results;
     }

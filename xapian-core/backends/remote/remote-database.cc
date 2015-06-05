@@ -603,7 +603,7 @@ RemoteDatabase::set_query(const Xapian::Query& query,
 			 int percent_cutoff, double weight_cutoff,
 			 const Xapian::Weight *wtscheme,
 			 const Xapian::RSet &omrset,
-			 const vector<Xapian::MatchSpy *> & matchspies)
+			 const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies)
 {
     string tmp = query.serialise();
     string message = encode_length(tmp.size());
@@ -633,16 +633,15 @@ RemoteDatabase::set_query(const Xapian::Query& query,
     message += encode_length(tmp.size());
     message += tmp;
 
-    vector<Xapian::MatchSpy *>::const_iterator i;
-    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
-	tmp = (*i)->name();
+    for (auto i : matchspies) {
+	tmp = i->name();
 	if (tmp.empty()) {
 	    throw Xapian::UnimplementedError("MatchSpy subclass not suitable for use with remote searches - name() method returned empty string");
 	}
 	message += encode_length(tmp.size());
 	message += tmp;
 
-	tmp = (*i)->serialise();
+	tmp = i->serialise();
 	message += encode_length(tmp.size());
 	message += tmp;
     }
@@ -677,21 +676,20 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
 
 void
 RemoteDatabase::get_mset(Xapian::MSet &mset,
-			 const vector<Xapian::MatchSpy *> & matchspies)
+			 const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies)
 {
     string message;
     get_message(message, REPLY_RESULTS);
     const char * p = message.data();
     const char * p_end = p + message.size();
 
-    vector<Xapian::MatchSpy *>::const_iterator i;
-    for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+    for (auto i : matchspies) {
 	if (p == p_end)
 	    throw Xapian::NetworkError("Expected serialised matchspy");
 	size_t len = decode_length(&p, p_end, true);
 	string spyresults(p, len);
 	p += len;
-	(*i)->merge_results(spyresults);
+	i->merge_results(spyresults);
     }
     mset = unserialise_mset(p, p_end);
 }

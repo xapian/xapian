@@ -341,3 +341,69 @@ DEFINE_TESTCASE(subclassablerefcount2, !backend) {
 
     return true;
 }
+
+class TestMatchSpy : public Xapian::MatchSpy {
+    DestroyedFlag destroyed;
+
+  public:
+    TestMatchSpy(bool & destroyed_) : destroyed(destroyed_) { }
+
+    void operator()(const Xapian::Document &, double) { }
+};
+
+/// Check reference counting of MatchSpy.
+DEFINE_TESTCASE(subclassablerefcount3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::MatchSpy * spy = new TestMatchSpy(gone);
+	TEST(!gone);
+	Xapian::Enquire enquire(db);
+	enquire.add_matchspy(spy->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::MatchSpy * spy = new TestMatchSpy(gone);
+	TEST(!gone);
+	Xapian::Enquire enquire(db);
+	enquire.add_matchspy(spy->release());
+	spy->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a MatchSpy with automatic
+    // storage works OK.
+    {
+	TestMatchSpy spy_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::Enquire enq1(db);
+	    {
+		Xapian::Enquire enq2(db);
+		Xapian::MatchSpy * spy;
+		spy = new TestMatchSpy(gone);
+		TEST(!gone);
+		enq1.add_matchspy(spy->release());
+		TEST(!gone);
+		enq2.add_matchspy(spy);
+		TEST(!gone);
+		enq2.add_matchspy(&spy_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}

@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -46,7 +46,8 @@ class Registry;
  *  to calculate aggregate functions, or other profiles of the matching
  *  documents.
  */
-class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
+class XAPIAN_VISIBILITY_DEFAULT MatchSpy
+    : public Xapian::Internal::opt_intrusive_base {
   private:
     /// Don't allow assignment.
     void operator=(const MatchSpy &);
@@ -173,6 +174,16 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  subclass).
      */
     virtual std::string get_description() const;
+
+    MatchSpy * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const MatchSpy * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 
