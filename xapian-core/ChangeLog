@@ -1,3 +1,8 @@
+Thu Jun 11 05:05:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* examples/xapian-metadata.cc: Extend "list" subcommand to take
+	  optional key prefix.
+
 Sat Jun 06 11:02:50 GMT 2015  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Use C++11 auto and container

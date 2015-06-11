@@ -35,7 +35,7 @@ using namespace std;
 
 static void show_usage() {
     cout << "Usage: " PROG_NAME " get PATH_TO_DATABASE KEY\n"
-	    "       " PROG_NAME " list PATH_TO_DATABASE\n"
+	    "       " PROG_NAME " list PATH_TO_DATABASE [PREFIX]\n"
 	    "       " PROG_NAME " set PATH_TO_DATABASE KEY VALUE" << endl;
 }
 
@@ -66,10 +66,12 @@ syntax_error:
 	Xapian::Database db(argv[2]);
 	cout << db.get_metadata(argv[3]) << endl;
     } else if (strcmp(command, "list") == 0) {
-	if (argc != 3) goto syntax_error;
+	if (argc != 3 && argc != 4) goto syntax_error;
 	Xapian::Database db(argv[2]);
-	for (Xapian::TermIterator t = db.metadata_keys_begin();
-	     t != db.metadata_keys_end();
+	string prefix;
+	if (argc == 4) prefix = argv[3];
+	for (Xapian::TermIterator t = db.metadata_keys_begin(prefix);
+	     t != db.metadata_keys_end(prefix);
 	     ++t) {
 	    cout << *t << '\n';
 	}
