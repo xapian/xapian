@@ -47,6 +47,7 @@
 #include "atomparse.h"
 #include "commonhelp.h"
 #include "diritor.h"
+#include "failed.h"
 #include "hashterm.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
@@ -82,6 +83,7 @@ using namespace std;
 static bool skip_duplicates = false;
 static bool follow_symlinks = false;
 static bool ignore_exclusions = false;
+static bool retry_failed = false;
 static bool spelling = false;
 static off_t  max_size = 0;
 static size_t sample_size = SAMPLE_SIZE;
@@ -102,6 +104,8 @@ static Xapian::TermGenerator indexer;
 static Xapian::doccount old_docs_not_seen;
 static Xapian::docid old_lastdocid;
 static vector<bool> updated;
+
+Failed failed;
 
 // The longest string after a '.' to treat as an extension.  If there's a
 // longer entry in the mime_map, we set this to that length instead.
@@ -288,36 +292,43 @@ generate_sample_from_csv(const string & csv_data, string & sample)
 enum skip_flags { SKIP_VERBOSE_ONLY = 0x01, SKIP_SHOW_FILENAME = 0x02 };
 
 static void
-skip(const string & file, const string & msg, unsigned flags = 0)
+skip(const string & urlterm, const string & context, const string & msg,
+     off_t size, time_t last_mod, unsigned flags = 0)
 {
+    failed.add(urlterm, last_mod, size);
+
     if (!verbose || (flags & SKIP_SHOW_FILENAME)) {
 	if (!verbose && (flags & SKIP_VERBOSE_ONLY)) return;
-	cout << file.substr(root.size()) << ": ";
+	cout << context << ": ";
     }
 
     cout << "Skipping - " << msg << endl;
 }
 
 static void
-skip_cmd_failed(const string & file, const string & cmd)
+skip_cmd_failed(const string & urlterm, const string & context, const string & cmd,
+		off_t size, time_t last_mod)
 {
-    skip(file, "\"" + cmd + "\" failed");
+    skip(urlterm, context, "\"" + cmd + "\" failed", size, last_mod);
 }
 
 static void
-skip_meta_tag(const string & file)
+skip_meta_tag(const string & urlterm, const string & context,
+	      off_t size, time_t last_mod)
 {
-    skip(file, "indexing disallowed by meta tag");
+    skip(urlterm, context, "indexing disallowed by meta tag", size, last_mod);
 }
 
 static void
-skip_unknown_mimetype(const string & file, const string & mimetype)
+skip_unknown_mimetype(const string & urlterm, const string & context,
+		      const string & mimetype, off_t size, time_t last_mod)
 {
-    skip(file, "unknown MIME type '" + mimetype + "'");
+    skip(urlterm, context, "unknown MIME type '" + mimetype + "'", size, last_mod);
 }
 
 void
-index_mimetype(const string & file, const string & url, const string & ext,
+index_mimetype(const string & file, const string & urlterm, const string & url,
+	       const string & ext,
 	       const string &mimetype, DirectoryIterator &d);
 
 static void
@@ -332,12 +343,18 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	    ext.resize(0);
     }
 
+    string urlterm("U");
+    urlterm += url;
+
+    if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
+	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
+
     string mimetype = mimetype_from_ext(mime_map, ext);
     if (mimetype.empty()) {
 	mimetype = d.get_magic_mimetype();
 	if (mimetype.empty()) {
-	    skip(file, "Unknown extension and unrecognised format",
-		 SKIP_SHOW_FILENAME);
+	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
+		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
 	    return;
 	}
     } else if (mimetype == "ignore") {
@@ -351,29 +368,30 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     // Only check the file size if we recognise the extension to avoid a call
     // to stat()/lstat() for files we definitely can't handle when readdir()
     // tells us the file type.
-    if (d.get_size() == 0) {
-	skip(file, "Zero-sized file", SKIP_VERBOSE_ONLY);
+    off_t size = d.get_size();
+    if (size == 0) {
+	skip(urlterm, file.substr(root.size()), "Zero-sized file",
+	     size, d.get_mtime(), SKIP_VERBOSE_ONLY);
 	return;
     }
 
-    if (max_size > 0 && d.get_size() > max_size) {
-	skip(file, "Larger than size limit of " + pretty_max_size,
+    if (max_size > 0 && size > max_size) {
+	skip(urlterm, file.substr(root.size()),
+	     "Larger than size limit of " + pretty_max_size,
+	     size, d.get_mtime(),
 	     SKIP_VERBOSE_ONLY);
 	return;
     }
 
-    index_mimetype(file, url, ext, mimetype, d);
+    index_mimetype(file, urlterm, url, ext, mimetype, d);
 }
 
 void
-index_mimetype(const string & file, const string & url, const string & ext,
+index_mimetype(const string & file, const string & urlterm, const string & url,
+	       const string & ext,
 	       const string &mimetype, DirectoryIterator &d)
 {
-    string urlterm("U");
-    urlterm += url;
-
-    if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
-	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
+    string context(file, root.size(), string::npos);
 
     // FIXME: We could be cleverer here and check mtime too when use_ctime is
     // set - if the ctime has changed but the mtime is unchanged, we can just
@@ -415,6 +433,25 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	}
     }
 
+    if (!retry_failed) {
+	// We only store and check the mtime (last modified)i - a change to the
+	// metadata won't generally cause a previous failure to now work
+	// (FIXME: except permissions).
+	time_t failed_last_mod;
+	off_t failed_size;
+	if (failed.contains(urlterm, failed_last_mod, failed_size)) {
+	    if (d.get_mtime() <= failed_last_mod &&
+		d.get_size() == failed_size) {
+		if (verbose)
+		    cout << "failed to extract text on earlier run" << endl;
+		return;
+	    }
+	    // The file has changed, so remove the entry for it.  If it fails
+	    // again on this attempt, we'll add a new one.
+	    failed.del(urlterm);
+	}
+    }
+
     if (verbose) cout << flush;
 
     string author, title, sample, keywords, topic, dump;
@@ -436,7 +473,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    // temporary file" cases.
 	    string cmd = cmd_it->second.cmd;
 	    if (cmd.empty()) {
-		skip(file, "required filter not installed", SKIP_VERBOSE_ONLY);
+		skip(urlterm, context, "required filter not installed",
+		     d.get_size(), d.get_mtime(), SKIP_VERBOSE_ONLY);
 		return;
 	    }
 	    if (cmd == "false") {
@@ -445,7 +483,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		string m = "ignoring MIME type '";
 		m += cmd_it->first;
 		m += "'";
-		skip(file, m, SKIP_VERBOSE_ONLY);
+		skip(urlterm, context, m, d.get_size(), d.get_mtime(),
+		     SKIP_VERBOSE_ONLY);
 		return;
 	    }
 	    bool substituted = false;
@@ -528,7 +567,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 			p.ignore_metarobots();
 			p.parse_html(dump, newcharset, true);
 		    } catch (ReadError) {
-			skip_cmd_failed(file, cmd);
+			skip_cmd_failed(urlterm, context, cmd,
+					d.get_size(), d.get_mtime());
 			return;
 		    }
 		    dump = p.dump;
@@ -542,7 +582,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    convert_to_utf8(dump, charset);
 		}
 	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
+		skip_cmd_failed(urlterm, context, cmd,
+				d.get_size(), d.get_mtime());
 		return;
 	    }
 	} else if (mimetype == "text/html") {
@@ -559,7 +600,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		p.parse_html(text, newcharset, true);
 	    }
 	    if (!p.indexing_allowed) {
-		skip_meta_tag(file);
+		skip_meta_tag(urlterm, context,
+			      d.get_size(), d.get_mtime());
 		return;
 	    }
 	    dump = p.dump;
@@ -596,7 +638,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    try {
 		dump = stdout_to_string(cmd);
 	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
+		skip_cmd_failed(urlterm, context, cmd,
+				d.get_size(), d.get_mtime());
 		return;
 	    }
 	    get_pdf_metainfo(file, author, title, keywords, topic);
@@ -614,7 +657,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		string msg = "Couldn't create temporary directory (";
 		msg += strerror(errno);
 		msg += ")";
-		skip(file, msg);
+		skip(urlterm, context, msg,
+		     d.get_size(), d.get_mtime());
 		return;
 	    }
 	    string cmd = "ps2pdf";
@@ -627,7 +671,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cmd += " -";
 		dump = stdout_to_string(cmd);
 	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
+		skip_cmd_failed(urlterm, context, cmd,
+				d.get_size(), d.get_mtime());
 		unlink(tmpfile.c_str());
 		return;
 	    } catch (...) {
@@ -655,7 +700,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		parser.parse(stdout_to_string(cmd));
 		dump = parser.dump;
 	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
+		skip_cmd_failed(urlterm, context, cmd,
+				d.get_size(), d.get_mtime());
 		return;
 	    }
 
@@ -695,7 +741,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    parser.parse(stdout_to_string(cmd));
 		    dump = parser.dump;
 		} catch (ReadError) {
-		    skip_cmd_failed(file, cmd);
+		    skip_cmd_failed(urlterm, context, cmd,
+				    d.get_size(), d.get_mtime());
 		    return;
 		}
 	    } else if (startswith(tail, "presentationml.")) {
@@ -705,7 +752,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		args = " ppt/slides/slide\\*.xml ppt/notesSlides/notesSlide\\*.xml ppt/comments/comment\\*.xml 2>/dev/null||test $? = 11";
 	    } else {
 		// Don't know how to index this type.
-		skip_unknown_mimetype(file, mimetype);
+		skip_unknown_mimetype(urlterm, context, mimetype,
+				      d.get_size(), d.get_mtime());
 		return;
 	    }
 
@@ -718,7 +766,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		    xmlparser.parse_xml(stdout_to_string(cmd));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
-		    skip_cmd_failed(file, cmd);
+		    skip_cmd_failed(urlterm, context, cmd,
+				    d.get_size(), d.get_mtime());
 		    return;
 		}
 	    }
@@ -753,7 +802,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		xmlparser.parse_xml(stdout_to_string(cmd));
 		dump = xmlparser.dump;
 	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
+		skip_cmd_failed(urlterm, context, cmd,
+				d.get_size(), d.get_mtime());
 		return;
 	    }
 	} else if (mimetype == "application/vnd.ms-xpsdocument") {
@@ -774,7 +824,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		xpsparser.parse(dump);
 		dump = xpsparser.dump;
 	    } catch (ReadError) {
-		skip_cmd_failed(file, cmd);
+		skip_cmd_failed(urlterm, context, cmd,
+				d.get_size(), d.get_mtime());
 		return;
 	    }
 	} else if (mimetype == "text/csv") {
@@ -841,17 +892,20 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    author = atomparser.author;
 	} else {
 	    // Don't know how to index this type.
-	    skip_unknown_mimetype(file, mimetype);
+	    skip_unknown_mimetype(urlterm, context, mimetype,
+				  d.get_size(), d.get_mtime());
 	    return;
 	}
 
 	// Compute the MD5 of the file if we haven't already.
 	if (md5.empty() && md5_file(file, md5, d.try_noatime()) == 0) {
 	    if (errno == ENOENT || errno == ENOTDIR) {
-		skip(file, "File removed during indexing",
+		skip(urlterm, context, "File removed during indexing",
+		     d.get_size(), d.get_mtime(),
 		     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 	    } else {
-		skip(file, "failed to read file to calculate MD5 checksum");
+		skip(urlterm, context, "failed to read file to calculate MD5 checksum",
+		     d.get_size(), d.get_mtime());
 	    }
 	    return;
 	}
@@ -875,7 +929,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 			    "but indexing metadata anyway" << endl;
 		    break;
 		case EMPTY_BODY_SKIP:
-		    skip(file, "no text extracted from document body");
+		    skip(urlterm, context, "no text extracted from document body",
+			 d.get_size(), d.get_mtime());
 		    return;
 	    }
 	}
@@ -912,8 +967,9 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	    record += "\ncreated=";
 	    record += str(created);
 	}
+	off_t size = d.get_size();
 	record += "\nsize=";
-	record += str(d.get_size());
+	record += str(size);
 	newdocument.set_data(record);
 
 	// Index the title, document text, keywords and topic.
@@ -984,7 +1040,7 @@ index_mimetype(const string & file, const string & url, const string & ext,
 
 	// Add the file size as a value to allow "sort by size" and size ranges.
 	newdocument.add_value(VALUE_SIZE,
-			      Xapian::sortable_serialise(d.get_size()));
+			      Xapian::sortable_serialise(size));
 
 	bool inc_tag_added = false;
 	if (d.is_other_readable()) {
@@ -1039,7 +1095,8 @@ index_mimetype(const string & file, const string & url, const string & ext,
 		cout << "added" << endl;
 	}
     } catch (ReadError) {
-	skip(file, string("can't read file: ") + strerror(errno));
+	skip(urlterm, context, string("can't read file: ") + strerror(errno),
+	     d.get_size(), d.get_mtime());
     } catch (NoSuchFilter) {
 	string filter_entry;
 	if (cmd_it != commands.end()) {
@@ -1050,13 +1107,14 @@ index_mimetype(const string & file, const string & url, const string & ext,
 	string m = "Filter for \"";
 	m += filter_entry;
 	m += "\" not installed";
-	skip(file, m);
+	skip(urlterm, context, m, d.get_size(), d.get_mtime());
 	commands[filter_entry] = Filter();
     } catch (FileNotFound) {
-	skip(file, "File removed during indexing",
+	skip(urlterm, context, "File removed during indexing",
+	     d.get_size(), d.get_mtime(),
 	     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
     } catch (const std::string & error) {
-	skip(file, error);
+	skip(urlterm, context, error, d.get_size(), d.get_mtime());
     }
 }
 
@@ -1098,14 +1156,17 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			index_file(file, url, d, mime_map);
 			break;
 		    default:
-			skip(file, "Not a regular file",
+			skip("U" + url, file.substr(root.size()), "Not a regular file",
+			     d.get_size(), d.get_mtime(),
 			     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
 		}
-	    } catch (FileNotFound) {
-		skip(file, "File removed during indexing",
-		     SKIP_VERBOSE_ONLY | SKIP_SHOW_FILENAME);
+	    } catch (const FileNotFound & e) {
+		skip("U" + url, file.substr(root.size()), "File removed during indexing",
+		     d.get_size(), d.get_mtime(),
+		     /*SKIP_VERBOSE_ONLY |*/ SKIP_SHOW_FILENAME);
 	    } catch (const std::string & error) {
-		skip(file, error, SKIP_SHOW_FILENAME);
+		skip("U" + url, file.substr(root.size()), error,
+		     d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
 	    }
 	}
     } catch (FileNotFound) {
@@ -1179,6 +1240,7 @@ main(int argc, char **argv)
 	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ "max-size",	required_argument,	NULL, 'm' },
 	{ "sample-size",required_argument,	NULL, 'E' },
+	{ "retry-failed",	no_argument,	NULL, 'R' },
 	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
 	{ "track-ctime",no_argument,		NULL, 'C' },
 	{ 0, 0, NULL, 0 }
@@ -1398,7 +1460,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:E:",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfRSVe:im:E:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1439,6 +1501,8 @@ main(int argc, char **argv)
 "  -E, --sample-size=SIZE    maximum size for the document text sample\n"
 "                            (supports the same formats as --max-size).\n"
 "                            (default: 512)\n"
+"  -R, --retry-failed        retry files which omindex failed to extract text\n"
+"                            from on a previous run\n"
 "      --opendir-sleep=SECS  sleep for SECS seconds before opening each\n"
 "                            directory - sleeping for 2 seconds seems to\n"
 "                            reliably work around problems with indexing files\n"
@@ -1562,6 +1626,9 @@ main(int argc, char **argv)
 	    break;
 	case 'i':
 	    ignore_exclusions = true;
+	    break;
+	case 'R': // --retry-failed
+	    retry_failed = true;
 	    break;
 	case 's':
 	    try {
@@ -1730,6 +1797,10 @@ main(int argc, char **argv)
 	    }
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
+	    // There are no failures to retry, so setting this flag doesn't
+	    // change the outcome, but does mean we avoid the overhead of
+	    // checking for a previous failure.
+	    retry_failed = true;
 	}
 
 	if (spelling) {
@@ -1739,6 +1810,17 @@ main(int argc, char **argv)
 	indexer.set_stemmer(stemmer);
 
 	runfilter_init();
+
+	failed.init(db);
+
+	if (retry_failed) {
+	    if (!overwrite) failed.clear();
+	} else if (failed.empty()) {
+	    // If there are no existing failures, setting this flag doesn't
+	    // change the outcome, but does mean we avoid the overhead of
+	    // checking for a previous failure.
+	    retry_failed = true;
+	}
 
 	// Find the longest extension in the map.
 	map<string,string>::const_iterator mt;

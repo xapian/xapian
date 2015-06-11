@@ -437,6 +437,28 @@ a certain number of directories.  Specifying ``--depth-limit=0`` means no limit
 is imposed on recursion; ``--depth-limit=1`` means don't descend into any
 subdirectories of the start directory.
 
+Tracking files which couldn't be indexed
+----------------------------------------
+
+In older versions, omindex only tracked files which it successfully indexed -
+if a file couldn't be read, or a filter program failed on it, or it was marked
+not to be indexed (e.g. with an HTML meta tag) then it would be retried on
+subsequent runs.  Starting from version 1.3.4, omindex now tracks failed
+files in the user metadata of the database, along with their sizes and last
+modified times, and uses this data to skip files which previously failed and
+haven't changed since.
+
+You can force omindex to retry such files using the ``--retry-failed`` option.
+One situation in which this is useful is if you've upgraded a filter program
+to a newer version which you suspect will index some files which previously
+failed.
+
+Currently there's no mechanism for automatically removing failure entries
+when the file they refer to is removed or renamed.  These lingering entries are
+harmless, except they bloat the database a little.  A simple way to clear them
+out is to run periodically with ``--retry-failed`` as this removes any existing
+failure entries before indexing starts.
+
 HTML Parsing
 ============
 

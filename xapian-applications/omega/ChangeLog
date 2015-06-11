@@ -1,3 +1,10 @@
+Thu Jun 11 05:03:52 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/overview.rst,failed.h,omindex.cc: Track files which
+	  couldn't be indexed in the user metadata and skip them by default on
+	  subsequent runs to avoid the costs of repeatedly running a filter on
+	  a file it can't handle.
+
 Mon Jun 01 13:13:26 GMT 2015  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 1.3.3.
