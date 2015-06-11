@@ -1,3 +1,10 @@
+Thu Jun 11 11:57:50 GMT 2015  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Remove XAPIAN_CONST_FUNCTION marker
+	  from sortable_serialise_() helper, as it writes to the passed in
+	  buffer, so it isn't const or pure.  Fixes decvalwtsource2 testcase
+	  failure when compiled with clang.
+
 Thu Jun 11 05:05:27 GMT 2015  Olly Betts <olly@survex.com>
 
 	* examples/xapian-metadata.cc: Extend "list" subcommand to take

@@ -812,7 +812,7 @@ QueryParser::set_max_wildcard_expansion(Xapian::termcount max_expansion)
 
 /// @private @internal Helper for sortable_serialise().
 XAPIAN_VISIBILITY_DEFAULT
-size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf)) XAPIAN_CONST_FUNCTION;
+size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf));
 
 /** Convert a floating point number to a string, preserving sort order.
  *
