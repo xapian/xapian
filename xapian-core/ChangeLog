@@ -1,3 +1,8 @@
+Fri Sep 25 00:05:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* examples/xapian-metadata.cc: Extend "list" subcommand to take
+	  optional key prefix.
+
 Fri Sep 25 00:03:37 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/remote-database.h: Correct doxygen comment for internal
