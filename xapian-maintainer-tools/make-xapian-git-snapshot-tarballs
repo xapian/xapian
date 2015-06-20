@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2011,2012,2013 Olly Betts
+# Copyright (C) 2011,2012,2013,2015 Olly Betts
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -138,7 +138,7 @@ foreach my $tag (@ARGV) {
 	system "rm", "-rf", $co_dir;
 	# Check out the tag into a directory of the same name.
 	my $branch = $tag;
-	$branch =~ s!^branches/!svn/! || $branch =~ s!^tags/!svn/tags/! ||
+	$branch =~ s!^branches/!svn/! || $branch =~ s!^tags/!! ||
 	    ($branch =~ s/^trunk$/master/);
 	open CMD, "git clone --branch \Q$branch\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
 	$log = join '', <CMD>;
@@ -375,7 +375,7 @@ foreach my $tag (@ARGV) {
     }
 
     my $d = "$webbase/oligarchy.co.uk/xapian/$tag";
-    if ($tag =~ m!^tags/([\d.]+)$!) {
+    if ($tag =~ m!^tags/v?([\d.]+)$!) {
 	$d = "$webbase/oligarchy.co.uk/xapian/$1";
     }
     if (! -d $d) {
