@@ -365,7 +365,7 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     TEST_EQUAL(Unicode::toupper(0xA7B1), 0xA7B1);
     TEST_EQUAL(Unicode::tolower(0x0287), 0x0287);
     TEST_EQUAL(Unicode::toupper(0x0287), 0xA7B1);
- 
+
     // U+A7B4 (capital) and U+A7B5 (small) added in Unicode 8.0.0
     TEST_EQUAL(Unicode::tolower(0xA7B4), 0xA7B5);
     TEST_EQUAL(Unicode::toupper(0xA7B4), 0xA7B4);

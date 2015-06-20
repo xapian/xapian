@@ -1,3 +1,8 @@
+Sat Jun 20 12:32:13 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc: Fix trailing whitespace introduced by previous
+	  commit.
+
 Sat Jun 20 06:31:27 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_unicode.cc,unicode/Makefile.mk,
