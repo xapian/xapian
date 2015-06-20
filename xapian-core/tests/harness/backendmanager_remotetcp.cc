@@ -49,7 +49,6 @@
 #endif
 
 #include "noreturn.h"
-#include "str.h"
 
 #include <string>
 #include <vector>
@@ -112,7 +111,10 @@ launch_xapian_tcpsrv(const string & args)
     // if xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
-    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
+    cmd += to_string(port);
+    cmd += " ";
+    cmd += args;
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif
@@ -254,7 +256,10 @@ launch_xapian_tcpsrv(const string & args)
     int port = DEFAULT_PORT;
 
 try_next_port:
-    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
+    cmd += to_string(port);
+    cmd += " ";
+    cmd += args;
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;

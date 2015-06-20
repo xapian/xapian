@@ -1,7 +1,7 @@
 /* api_replicate.cc: tests of replication functionality
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -36,7 +36,6 @@
 #include "safefcntl.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
-#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -237,9 +236,9 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
 static void
 set_max_changesets(int count) {
 #ifdef HAVE__PUTENV_S
-    _putenv_s("XAPIAN_MAX_CHANGESETS", str(count).c_str());
+    _putenv_s("XAPIAN_MAX_CHANGESETS", to_string(count).c_str());
 #elif defined HAVE_SETENV
-    setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
+    setenv("XAPIAN_MAX_CHANGESETS", to_string(count).c_str(), 1);
 #else
     static char buf[64] = "XAPIAN_MAX_CHANGESETS=";
     sprintf(buf + CONST_STRLEN("XAPIAN_MAX_CHANGESETS="), "%d", count);

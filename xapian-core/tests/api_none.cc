@@ -27,7 +27,6 @@
 #include <xapian.h>
 
 #include "apitest.h"
-#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -35,11 +34,11 @@ using namespace std;
 
 // Check the version functions give consistent results.
 DEFINE_TESTCASE(version1, !backend) {
-    string version = str(Xapian::major_version());
+    string version = to_string(Xapian::major_version());
     version += '.';
-    version += str(Xapian::minor_version());
+    version += to_string(Xapian::minor_version());
     version += '.';
-    version += str(Xapian::revision());
+    version += to_string(Xapian::revision());
     TEST_EQUAL(Xapian::version_string(), version);
     return true;
 }

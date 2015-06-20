@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -35,7 +35,6 @@
 #include <cstdlib>
 #include <fstream>
 
-#include "str.h"
 #include "unixcmds.h"
 
 using namespace std;
@@ -67,9 +66,9 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 		db.delete_document(first);
 	    } else {
 		Xapian::Document doc;
-		string id = str(first);
+		string id = to_string(first);
 		doc.set_data(id);
-		doc.add_term("Q" + str(first));
+		doc.add_term("Q" + to_string(first));
 		doc.add_term(string(first % 7 + 1, char((first % 26) + 'a')));
 		db.replace_document(first, doc);
 	    }

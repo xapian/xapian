@@ -242,39 +242,6 @@ static bool test_stringcomp1()
     return success;
 }
 
-static bool test_tostring1()
-{
-    TEST_EQUAL(str(0), "0");
-    TEST_EQUAL(str(0u), "0");
-    TEST_EQUAL(str(1), "1");
-    TEST_EQUAL(str(1u), "1");
-    TEST_EQUAL(str(9), "9");
-    TEST_EQUAL(str(9u), "9");
-    TEST_EQUAL(str(10), "10");
-    TEST_EQUAL(str(10u), "10");
-    TEST_EQUAL(str(-1), "-1");
-    TEST_EQUAL(str(-9), "-9");
-    TEST_EQUAL(str(-10), "-10");
-    TEST_EQUAL(str(0xffffffff), "4294967295");
-    TEST_EQUAL(str(0x7fffffff), "2147483647");
-    TEST_EQUAL(str(0x7fffffffu), "2147483647");
-    TEST_EQUAL(str(-0x7fffffff), "-2147483647");
-
-#ifdef __WIN32__
-    /* Test the 64 bit integer conversion to string.
-     * (Currently only exists for windows.)
-     */
-    TEST_EQUAL(str(10ll), "10");
-    TEST_EQUAL(str(-10ll), "-10");
-    TEST_EQUAL(str(0x200000000ll), "8589934592");
-// We don't currently have an "unsigned long long" version since it's not required
-// anywhere in the library.
-//    TEST_EQUAL(str(0x200000000ull), "8589934592");
-#endif
-
-    return true;
-}
-
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of Xapian::Error.
 static bool test_serialiseerror1()
@@ -390,14 +357,6 @@ static bool test_static_assert1()
     return true;
 }
 
-/// Regression test for bug fixed in 1.1.1.
-static bool test_strbool1()
-{
-    TEST_EQUAL(str(true), "1");
-    TEST_EQUAL(str(false), "0");
-    return true;
-}
-
 /// Test pack_uint_preserving_sort()
 static bool test_pack_uint_preserving_sort1()
 {
@@ -429,12 +388,10 @@ static const test_desc tests[] = {
     {"autoptr1",		test_autoptr1},
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
-    {"tostring1",		test_tostring1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiseerror1",		test_serialiseerror1},
 #endif
     {"static_assert1",		test_static_assert1},
-    {"strbool1",		test_strbool1},
     {"pack1",			test_pack_uint_preserving_sort1},
     {0, 0}
 };

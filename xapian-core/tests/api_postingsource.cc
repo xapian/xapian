@@ -30,7 +30,6 @@
 #include "safeunistd.h"
 
 #include "testutils.h"
-#include "str.h"
 #include "apitest.h"
 
 using namespace std;
@@ -476,8 +475,8 @@ class ChangeMaxweightPostingSource : public Xapian::PostingSource {
     double get_weight() const {
 	if (did > maxid_accessed) {
 	    FAIL_TEST("ChangeMaxweightPostingSource::get_weight() called "
-		      "for docid " + str(did) + ", max id accessed "
-		      "should be " + str(maxid_accessed));
+		      "for docid " + to_string(did) + ", max id accessed "
+		      "should be " + to_string(maxid_accessed));
 	}
 	return 5 - did;
     }

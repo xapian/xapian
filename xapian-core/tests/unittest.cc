@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2010,2012,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2012,2015 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -33,7 +33,6 @@ using namespace std;
 #define XAPIAN_UNITTEST
 
 // Utility code we use:
-#include "../common/str.cc"
 #include "../common/stringutils.cc"
 #include "../common/log2.h"
 
@@ -50,6 +49,7 @@ using namespace std;
 // Code we're unit testing:
 #include "../common/fileutils.cc"
 #include "../common/serialise-double.cc"
+#include "../common/str.cc"
 #include "../net/length.cc"
 #include "../api/sortable-serialise.cc"
 
@@ -418,6 +418,47 @@ static bool test_sortableserialise1()
     return true;
 }
 
+static bool test_tostring1()
+{
+    TEST_EQUAL(str(0), "0");
+    TEST_EQUAL(str(0u), "0");
+    TEST_EQUAL(str(1), "1");
+    TEST_EQUAL(str(1u), "1");
+    TEST_EQUAL(str(9), "9");
+    TEST_EQUAL(str(9u), "9");
+    TEST_EQUAL(str(10), "10");
+    TEST_EQUAL(str(10u), "10");
+    TEST_EQUAL(str(-1), "-1");
+    TEST_EQUAL(str(-9), "-9");
+    TEST_EQUAL(str(-10), "-10");
+    TEST_EQUAL(str(0xffffffff), "4294967295");
+    TEST_EQUAL(str(0x7fffffff), "2147483647");
+    TEST_EQUAL(str(0x7fffffffu), "2147483647");
+    TEST_EQUAL(str(-0x7fffffff), "-2147483647");
+
+#ifdef __WIN32__
+    /* Test the 64 bit integer conversion to string.
+     * (Currently only exists for windows.)
+     */
+    TEST_EQUAL(str(10ll), "10");
+    TEST_EQUAL(str(-10ll), "-10");
+    TEST_EQUAL(str(0x200000000ll), "8589934592");
+// We don't currently have an "unsigned long long" version since it's not required
+// anywhere in the library.
+//    TEST_EQUAL(str(0x200000000ull), "8589934592");
+#endif
+
+    return true;
+}
+
+/// Regression test for bug fixed in 1.1.1.
+static bool test_strbool1()
+{
+    TEST_EQUAL(str(true), "1");
+    TEST_EQUAL(str(false), "0");
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -429,6 +470,8 @@ static const test_desc tests[] = {
 #endif
     TESTCASE(log2),
     TESTCASE(sortableserialise1),
+    TESTCASE(tostring1),
+    TESTCASE(strbool1),
     END_OF_TESTCASES
 };
 

@@ -1,7 +1,7 @@
 /** @file unixcmds.cc
  *  @brief C++ function versions of useful Unix commands.
  */
-/* Copyright (C) 2003,2004,2007,2012,2014 Olly Betts
+/* Copyright (C) 2003,2004,2007,2012,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,6 @@
 
 #include "append_filename_arg.h"
 #include "filetests.h"
-#include "str.h"
 
 using namespace std;
 
@@ -48,7 +47,7 @@ checked_system(const string & cmd)
 	string msg = "system(\"";
 	msg += cmd;
 	msg += "\") failed, returning ";
-	msg += str(res);
+	msg += to_string(res);
 	throw msg;
     }
 }

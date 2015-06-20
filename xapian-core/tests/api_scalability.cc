@@ -1,7 +1,7 @@
 /** @file api_scalability.cc
  * @brief Tests of scalability.
  */
-/* Copyright (C) 2008,2009,2011,2013 Olly Betts
+/* Copyright (C) 2008,2009,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,7 +26,6 @@
 #include "apitest.h"
 #include "cputimer.h"
 #include "scalability.h"
-#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -65,7 +64,7 @@ querypairwise1_helper(unsigned num_subqs)
     for (int c = 0; c < 100; ++c) {
 	Xapian::Query q("xxx");
 	for (unsigned i = 0; i < num_subqs; ++i) {
-	    q = Xapian::Query(q.OP_OR, q, Xapian::Query(str(i)));
+	    q = Xapian::Query(q.OP_OR, q, Xapian::Query(to_string(i)));
 	}
     }
     return timer.get_time();

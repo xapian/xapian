@@ -1,6 +1,6 @@
 /* termgentest.cc: Tests of Xapian::TermGenerator
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@
 #include <iostream>
 #include <string>
 
-#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -665,20 +664,20 @@ format_doc_termlist(const Xapian::Document & doc)
 	    // the length of the positionlist.
 	    if (it.get_wdf() != it.positionlist_count()) {
 	        output += ':';
-		output += str(it.get_wdf());
+		output += to_string(it.get_wdf());
 	    }
 	    char ch = '[';
 	    Xapian::PositionIterator posit;
 	    for (posit = it.positionlist_begin(); posit != it.positionlist_end(); posit++) {
 		output += ch;
 		ch = ',';
-		output += str(*posit);
+		output += to_string(*posit);
 	    }
 	    output += ']';
 	} else if (it.get_wdf() != 0) {
 	    // If no position list, display any non-zero wdfs.
 	    output += ':';
-	    output += str(it.get_wdf());
+	    output += to_string(it.get_wdf());
 	}
     }
     return output;

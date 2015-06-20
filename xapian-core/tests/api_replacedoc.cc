@@ -1,6 +1,7 @@
 /* api_replacedoc.cc: tests of document replacing.
  *
  * Copyright 2009 Richard Boulton
+ * Copyright 2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -255,7 +256,9 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     TEST_EQUAL(postlist_to_string(db, "takeaway"), "");
     TEST_EXCEPTION(Xapian::DocNotFoundError, docstats_to_string(db, 1));
     TEST_EQUAL(termstats_to_string(db, "takeaway"), "tf=0,cf=0");
-    TEST_EQUAL(dbstats_to_string(db), "dc=0,al=0,ld=1");
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_avlength(), 0);
+    TEST_EQUAL(db.get_lastdocid(), 1);
 
     return true;
 }

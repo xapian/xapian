@@ -1,7 +1,7 @@
 /* perftest_matchdecider.cc: performance tests for match decider
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,6 @@
 
 #include "backendmanager.h"
 #include "perftest.h"
-#include "str.h"
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -42,20 +41,20 @@ builddb_valuestest1(Xapian::WritableDatabase &db, const string & dbname)
 
     // Rebuild the database.
     std::map<std::string, std::string> params;
-    params["runsize"] = str(runsize);
+    params["runsize"] = to_string(runsize);
     logger.indexing_begin(dbname, params);
     for (unsigned int i = 0; i < runsize; ++i) {
 	unsigned int v = i % 100;
 	Xapian::Document doc;
-	doc.set_data("test document " + str(i));
+	doc.set_data("test document " + to_string(i));
 	doc.add_term("foo");
-	string vs = str(v);
+	string vs = to_string(v);
 	if (vs.size() == 1) vs = "0" + vs;
 	doc.add_value(0, vs);
 	doc.add_term("F" + vs);
-	doc.add_term("Q" + str(i));
+	doc.add_term("Q" + to_string(i));
 	for (int j = 0; j != 100; ++j)
-	    doc.add_term("J" + str(j));
+	    doc.add_term("J" + to_string(j));
 	db.replace_document(i + 10, doc);
 	logger.indexing_add();
     }
@@ -94,11 +93,11 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
     Xapian::ValueSetMatchDecider md(0, true);
 
     for (unsigned int i = 0; i < 100; ++i) {
-	string vs = str(i);
+	string vs = to_string(i);
 	if (vs.size() == 1) vs = "0" + vs;
 	md.add_value(vs);
 
-	logger.searching_start("Match decider accepting " + str(i + 1) + "%");
+	logger.searching_start("Match decider accepting " + to_string(i + 1) + "%");
 	logger.search_start();
 	enquire.set_query(query);
 	mset = enquire.get_mset(0, 10, 0, NULL, &md);
@@ -109,7 +108,7 @@ DEFINE_TESTCASE(valuesetmatchdecider1, writable && !remote && !inmemory) {
 
 	Xapian::Query query2(Xapian::Query::OP_FILTER, query,
 			     Xapian::Query(Xapian::Query::OP_VALUE_LE, 0, vs));
-	logger.searching_start("Value range LE accepting " + str(i + 1) + "%");
+	logger.searching_start("Value range LE accepting " + to_string(i + 1) + "%");
 	Xapian::MSet mset2;
 	logger.search_start();
 	enquire.set_query(query2);

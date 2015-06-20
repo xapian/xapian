@@ -23,7 +23,6 @@
 
 #include "dbcheck.h"
 
-#include "str.h"
 #include "testsuite.h"
 
 using namespace std;
@@ -39,7 +38,7 @@ positions_to_string(Xapian::PositionIterator & it,
     while (it != end) {
 	if (need_comma)
 	    result += ", ";
-	result += str(*it);
+	result += to_string(*it);
 	need_comma = true;
 	++it;
 	++c;
@@ -68,9 +67,9 @@ postlist_to_string(const Xapian::Database & db, const string & tname)
 	    posrepr = ", pos=[" + posrepr + "]";
 	}
 
-	result += "(" + str(*p) +
-		", doclen=" + str(p.get_doclength()) +
-		", wdf=" + str(p.get_wdf()) +
+	result += "(" + to_string(*p) +
+		", doclen=" + to_string(p.get_doclength()) +
+		", wdf=" + to_string(p.get_wdf()) +
 		posrepr + ")";
 	need_comma = true;
     }
@@ -93,7 +92,8 @@ docterms_to_string(const Xapian::Database & db, Xapian::docid did)
 	}
 	if (need_comma)
 	    result += ", ";
-	result += "Term(" + *t + ", wdf=" + str(t.get_wdf()) + posrepr + ")";
+	result += "Term(" + *t + ", wdf=" + to_string(t.get_wdf()) + posrepr;
+	result += ")";
 	need_comma = true;
     }
     return result;
@@ -104,7 +104,7 @@ docstats_to_string(const Xapian::Database & db, Xapian::docid did)
 {
     string result;
 
-    result += "len=" + str(db.get_doclength(did));
+    result += "len=" + to_string(db.get_doclength(did));
 
     return result;
 }
@@ -114,20 +114,8 @@ termstats_to_string(const Xapian::Database & db, const string & term)
 {
     string result;
 
-    result += "tf=" + str(db.get_termfreq(term));
-    result += ",cf=" + str(db.get_collection_freq(term));
-
-    return result;
-}
-
-string
-dbstats_to_string(const Xapian::Database & db)
-{
-    string result;
-
-    result += "dc=" + str(db.get_doccount());
-    result += ",al=" + str(db.get_avlength());
-    result += ",ld=" + str(db.get_lastdocid());
+    result += "tf=" + to_string(db.get_termfreq(term));
+    result += ",cf=" + to_string(db.get_collection_freq(term));
 
     return result;
 }
@@ -201,8 +189,8 @@ dbcheck(const Xapian::Database & db,
 	    if (!posrepr.empty()) {
 		posrepr = ",[" + posrepr + "]";
 	    }
-	    string posting_repr = "(" + str(did) + "," +
-		    str(t.get_wdf()) + "/" + str(doclen) +
+	    string posting_repr = "(" + to_string(did) + "," +
+		    to_string(t.get_wdf()) + "/" + to_string(doclen) +
 		    posrepr + ")";
 
 	    // Append the representation to the list for the term.
@@ -219,7 +207,7 @@ dbcheck(const Xapian::Database & db,
 	     v != doc.values_end();
 	     ++v, ++vcount) {
 	    TEST((*v).size() != 0);
-	    string value_repr = "(" + str(did) + "," + *v + ")";
+	    string value_repr = "(" + to_string(did) + "," + *v + ")";
 
 	    // Append the values to the value lists.
 	    map<Xapian::valueno, string>::iterator i;
@@ -270,9 +258,9 @@ dbcheck(const Xapian::Database & db,
 	    if (!posrepr.empty()) {
 		posrepr = ",[" + posrepr + "]";
 	    }
-	    posting_repr += "(" + str(*p) + "," +
-		    str(p.get_wdf()) + "/" + str(p.get_doclength()) +
-		    posrepr + ")";
+	    posting_repr += "(" + to_string(*p) + "," +
+		    to_string(p.get_wdf()) + "/" +
+		    to_string(p.get_doclength()) + posrepr + ")";
 	    if (wdf_upper_bound < p.get_wdf())
 		wdf_upper_bound = p.get_wdf();
 	    need_comma = true;
@@ -307,7 +295,7 @@ dbcheck(const Xapian::Database & db,
 		    value_lower_bound = *v;
 		}
 	    }
-	    value_repr += "(" + str(v.get_docid()) + "," + *v + ")";
+	    value_repr += "(" + to_string(v.get_docid()) + "," + *v + ")";
 	}
 	TEST_EQUAL(value_repr, j->second);
 	try {

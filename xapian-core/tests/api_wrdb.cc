@@ -31,7 +31,6 @@
 
 #include "filetests.h"
 #include "omassert.h"
-#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -1219,10 +1218,10 @@ DEFINE_TESTCASE(uniqueterm1, writable) {
 
     for (int n = 1; n <= 20; ++n) {
 	Xapian::Document doc;
-	string uterm = "U" + str(n % 16);
+	string uterm = "U" + to_string(n % 16);
 	doc.add_term(uterm);
-	doc.add_term(str(n));
-	doc.add_term(str(n ^ 9));
+	doc.add_term(to_string(n));
+	doc.add_term(to_string(n ^ 9));
 	doc.add_term("all");
 	doc.set_data("pass1");
 	db.add_document(doc);
@@ -1238,14 +1237,14 @@ DEFINE_TESTCASE(uniqueterm1, writable) {
 	15, 15, 15, 15
     };
     for (int n = 1; n <= 20; ++n) {
-	string uterm = "U" + str(n % 16);
+	string uterm = "U" + to_string(n % 16);
 	if (uterm == "U2") {
 	    db.delete_document(uterm);
 	} else {
 	    Xapian::Document doc;
 	    doc.add_term(uterm);
-	    doc.add_term(str(n));
-	    doc.add_term(str(n ^ 9));
+	    doc.add_term(to_string(n));
+	    doc.add_term(to_string(n ^ 9));
 	    doc.add_term("all");
 	    doc.set_data("pass2");
 	    db.replace_document(uterm, doc);
@@ -1363,8 +1362,8 @@ DEFINE_TESTCASE(phraseorneartoand1, writable) {
 
     for (int n = 1; n <= 20; ++n) {
 	Xapian::Document doc;
-	doc.add_term(str(n));
-	doc.add_term(str(n ^ 9));
+	doc.add_term(to_string(n));
+	doc.add_term(to_string(n ^ 9));
 	doc.add_term("all");
 	doc.set_data("pass1");
 	db.add_document(doc);
@@ -1881,7 +1880,7 @@ DEFINE_TESTCASE(cursordelbug1, chert || glass) {
 
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
 	Xapian::Document doc;
-	doc.add_term("XC" + str(terms[i]));
+	doc.add_term("XC" + to_string(terms[i]));
 	doc.add_term("XTabc");
 	doc.add_term("XAdef");
 	doc.add_term("XRghi");
@@ -1893,7 +1892,7 @@ DEFINE_TESTCASE(cursordelbug1, chert || glass) {
     db.commit();
 
     for (size_t i = 0; i < sizeof(terms) / sizeof(terms[0]); ++i) {
-	db.delete_document("XC" + str(terms[i]));
+	db.delete_document("XC" + to_string(terms[i]));
     }
 
     db.commit();
@@ -1948,7 +1947,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     for (Xapian::doccount num = 1; num <= doccount; ++num) {
 	tout.str(string());
     	Xapian::Document doc;
-	string val = "val" + str(num);
+	string val = "val" + to_string(num);
 	tout << "Setting val '" << val << "' in doc " << num << "\n";
 	doc.add_value(1, val);
 	db.add_document(doc);
@@ -2007,7 +2006,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 	string val;
 
 	if (num % 5 != 0) {
-	    val = "newval" + str(num);
+	    val = "newval" + to_string(num);
 	    tout << "Setting val '" << val << "' in doc " << did << "\n";
 	    doc.add_value(1, val);
 	} else {

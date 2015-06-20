@@ -2,7 +2,7 @@
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012 Olly Betts
+ * Copyright 2009,2011,2012,2015 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@
 
 #include <xapian.h>
 
-#include "str.h"
 #include <cmath>
 #include <map>
 #include <vector>
@@ -105,7 +104,7 @@ static string values_to_repr(const Xapian::ValueCountMatchSpy & spy) {
 	 ++i) {
 	resultrepr += *i;
 	resultrepr += ':';
-	resultrepr += str(i.get_termfreq());
+	resultrepr += to_string(i.get_termfreq());
 	resultrepr += '|';
     }
     return resultrepr;
@@ -116,24 +115,24 @@ make_matchspy2_db(Xapian::WritableDatabase &db, const string &)
 {
     for (int c = 1; c <= 25; ++c) {
 	Xapian::Document doc;
-	doc.set_data("Document " + str(c));
+	doc.set_data("Document " + to_string(c));
 	int factors = 0;
 	for (int factor = 1; factor <= c; ++factor) {
 	    doc.add_term("all");
 	    if (c % factor == 0) {
-		doc.add_term("XFACT" + str(factor));
+		doc.add_term("XFACT" + to_string(factor));
 		++factors;
 	    }
 	}
 
 	// Number of factors.
-	doc.add_value(0, str(factors));
+	doc.add_value(0, to_string(factors));
 	// Units digits.
-	doc.add_value(1, str(c % 10));
+	doc.add_value(1, to_string(c % 10));
 	// Constant.
 	doc.add_value(2, "fish");
 	// Number of digits.
-	doc.add_value(3, str(str(c).size()));
+	doc.add_value(3, to_string(to_string(c).size()));
 
 	db.add_document(doc);
     }
@@ -241,7 +240,7 @@ DEFINE_TESTCASE(matchspy4, generated)
 		 ++i, ++allvals_size) {
 		allvals_str += *i;
 		allvals_str += ':';
-		allvals_str += str(i.get_termfreq());
+		allvals_str += to_string(i.get_termfreq());
 		allvals_str += '|';
 	    }
 	    tout << allvals_str << endl;

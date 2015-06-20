@@ -1,3 +1,13 @@
+Sat Jun 20 13:05:50 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/str.h,tests/,tests/harness/,tests/internaltest.cc,
+	  tests/perftest/perftest.cc,tests/perftest/perftest_matchdecider.cc,
+	  tests/perftest/perftest_randomidx.cc,tests/queryparsertest.cc,
+	  tests/soaktest/soaktest_queries.cc,tests/termgentest.cc,
+	  tests/unittest.cc: Make str() private to the library, and use
+	  C++11 std::to_string() to convert numbers to std::string in the
+	  testsuite.  (ticket #63)
+
 Sat Jun 20 12:32:13 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_unicode.cc: Fix trailing whitespace introduced by previous

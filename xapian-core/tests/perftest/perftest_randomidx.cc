@@ -1,7 +1,7 @@
 /* perftest_randomidx.cc: performance tests involving a randomly generated index
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,6 @@
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "str.h"
 
 using namespace std;
 
@@ -104,23 +103,23 @@ DEFINE_TESTCASE(randomidx1, writable && !inmemory) {
     srand(seed);
 
     std::map<std::string, std::string> params;
-    params["runsize"] = str(runsize);
-    params["seed"] = str(seed);
-    params["slots_used"] = str(slots_used);
-    params["slot_probability"] = str(slot_probability);
-    params["slotval_minlen"] = str(slotval_minlen);
-    params["slotval_maxlen"] = str(slotval_maxlen);
-    params["minterms"] = str(minterms);
-    params["maxterms"] = str(maxterms);
-    params["mintermlen"] = str(mintermlen);
-    params["maxtermlen"] = str(maxtermlen);
-    params["termcharrange"] = str(termcharrange);
+    params["runsize"] = to_string(runsize);
+    params["seed"] = to_string(seed);
+    params["slots_used"] = to_string(slots_used);
+    params["slot_probability"] = to_string(slot_probability);
+    params["slotval_minlen"] = to_string(slotval_minlen);
+    params["slotval_maxlen"] = to_string(slotval_maxlen);
+    params["minterms"] = to_string(minterms);
+    params["maxterms"] = to_string(maxterms);
+    params["mintermlen"] = to_string(mintermlen);
+    params["maxtermlen"] = to_string(maxtermlen);
+    params["termcharrange"] = to_string(termcharrange);
     logger.indexing_begin(dbname, params);
 
     unsigned int i;
     for (i = 0; i < runsize; ++i) {
 	Xapian::Document doc;
-	doc.set_data("random document " + str(i));
+	doc.set_data("random document " + to_string(i));
 
 	unsigned int terms = rand_int(minterms, maxterms);
 	for (unsigned int j = 0; j < terms; ++j) {

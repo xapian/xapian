@@ -2,6 +2,7 @@
  * @brief Soaktest generating lots of random queries.
  */
 /* Copyright (C) 2010 Richard Boulton
+ * Copyright (C) 2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +28,6 @@
 #include <xapian.h>
 
 #include "backendmanager.h"
-#include "str.h"
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
@@ -49,7 +49,7 @@ builddb_queries1(Xapian::WritableDatabase &db, const string &arg)
     for (unsigned int i = 0; i < doccount; ++i) {
 	Xapian::Document doc;
 	for (unsigned int j = randint(maxtermsperfield) + 1; j != 0; --j) {
-	    doc.add_term("N" + str(j));
+	    doc.add_term("N" + to_string(j));
 	}
 	db.add_document(doc);
     }
@@ -92,7 +92,7 @@ typedef void (*QueryStep)(QueryBuilderEnv &);
 static void push_leaf_N(QueryBuilderEnv & env)
 {
     env.pieces.push_back(Xapian::Query(
-	"N" + str(randint(env.maxtermsperfield) + 1)));
+	"N" + to_string(randint(env.maxtermsperfield) + 1)));
 }
 
 /** Combine some queries with OR.
@@ -207,8 +207,8 @@ DEFINE_TESTCASE(queries1, writable && !remote && !inmemory) {
     QueryBuilder builder(maxtermsperfield, 10, 10);
 
     Xapian::Database db;
-    string arg(str(maxtermsperfield));
-    db = backendmanager->get_database("queries1_" + str(seed) + "_" + arg,
+    string arg(to_string(maxtermsperfield));
+    db = backendmanager->get_database("queries1_" + to_string(seed) + "_" + arg,
 				      builddb_queries1, arg);
 
     // Reset the random seed, to make results repeatable whether database was

@@ -2,7 +2,7 @@
  * @brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2012,2013 Olly Betts
+ * Copyright 2008,2009,2010,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,6 @@
 #include "perftest/perftest_all.h"
 #include "realtime.h"
 #include "runprocess.h"
-#include "str.h"
 #include "stringutils.h"
 #include "testrunner.h"
 #include "testsuite.h"
@@ -147,7 +146,7 @@ get_ncpus()
 #ifdef __WIN32__
     SYSTEM_INFO siSysInfo;
     GetSystemInfo(&siSysInfo); 
-    ncpus = str(siSysInfo.dwNumberOfProcessors);
+    ncpus = to_string(siSysInfo.dwNumberOfProcessors);
 #else
     try {
 	// Works on Linux, at least back to kernel 2.2.26.
@@ -185,11 +184,11 @@ get_distro()
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     distro = "Microsoft Windows v";
-    distro += str(osvi.dwMajorVersion);
+    distro += to_string(osvi.dwMajorVersion);
     distro += '.';
-    distro += str(osvi.dwMinorVersion);
+    distro += to_string(osvi.dwMinorVersion);
     distro += '.';
-    distro += str(osvi.dwBuildNumber);
+    distro += to_string(osvi.dwBuildNumber);
 #else
     try {
 	distro = stdout_to_string("perftest/get_machine_info 2>/dev/null");
@@ -235,7 +234,7 @@ PerfTestLogger::open(const string & logpath)
 	write("  <ncpus>" + ncpus + "</ncpus>\n");
     if (!distro.empty())
 	write("  <distro>" + distro + "</distro>\n");
-    write("  <physmem>" + str(get_total_physical_memory()) + "</physmem>\n");
+    write("  <physmem>" + to_string(get_total_physical_memory()) + "</physmem>\n");
     write(" </machineinfo>\n");
 
     const string & commit_ref = get_commit_ref();
@@ -287,7 +286,7 @@ PerfTestLogger::indexing_begin(const string & dbname,
 	if (flush_threshold == 0)
 	    flush_threshold = 10000;
 	write("    <param name=\"flush_threshold\">" +
-	      escape_xml(str(flush_threshold)) + "</param>\n");
+	      escape_xml(to_string(flush_threshold)) + "</param>\n");
     }
     write("   </params>\n");
     indexing_addcount = 0;
@@ -306,8 +305,8 @@ PerfTestLogger::indexing_log()
     last_indexlog_timer = RealTime::now();
     double elapsed(last_indexlog_timer - indexing_timer);
     write("   <item>"
-	  "<time>" + str(elapsed) + "</time>"
-	  "<adds>" + str(indexing_addcount) + "</adds>"
+	  "<time>" + to_string(elapsed) + "</time>"
+	  "<adds>" + to_string(indexing_addcount) + "</adds>"
 	  "</item>\n");
     indexing_unlogged_changes = false;
 }
@@ -362,13 +361,13 @@ PerfTestLogger::search_end(const Xapian::Query & query,
     Assert(searching_started);
     double elapsed(RealTime::now() - searching_timer);
     write("    <search>"
-	  "<time>" + str(elapsed) + "</time>"
+	  "<time>" + to_string(elapsed) + "</time>"
 	  "<query>" + escape_xml(query.get_description()) + "</query>"
 	  "<mset>"
-	  "<size>" + str(mset.size()) + "</size>"
-	  "<lb>" + str(mset.get_matches_lower_bound()) + "</lb>"
-	  "<est>" + str(mset.get_matches_estimated()) + "</est>"
-	  "<ub>" + str(mset.get_matches_upper_bound()) + "</ub>"
+	  "<size>" + to_string(mset.size()) + "</size>"
+	  "<lb>" + to_string(mset.get_matches_lower_bound()) + "</lb>"
+	  "<est>" + to_string(mset.get_matches_estimated()) + "</est>"
+	  "<ub>" + to_string(mset.get_matches_upper_bound()) + "</ub>"
 	  "</mset>"
 	  "</search>\n");
     search_start();
@@ -389,7 +388,7 @@ PerfTestLogger::testcase_begin(const string & testcase)
     testcase_end();
     write(" <testcase name=\"" + testcase + "\" backend=\"" +
 	  backendmanager->get_dbtype() + "\" repnum=\"" +
-	  str(repetition_number) + "\">\n");
+	  to_string(repetition_number) + "\">\n");
     testcase_started = true;
 }
 
