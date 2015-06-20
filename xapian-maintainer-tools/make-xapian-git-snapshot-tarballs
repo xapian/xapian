@@ -60,8 +60,11 @@ open LOCK, '>', 'flockme' or die "Couldn't open 'flockme' for writing: $!\n";
 unless (flock LOCK, LOCK_EX|LOCK_NB) {
     # If we're building a tagged release, we want to wait rather than exit.
     unless (scalar @ARGV && $ARGV[0] =~ m!^tags/! && flock LOCK, LOCK_EX) {
-	# Work directory already in use.  Don't print anything or the cron job will
-	# send it as mail, which we don't really want.
+	# Work directory already in use.  Don't print anything unless STDOUT
+	# is a tty - the cron job will send it as mail, which we don't really
+	# want.
+	print STDERR "'flockme' is already locked, can't build '$ARGV[0]' right now\n"
+	    if -t STDERR;
 	exit 1;
     }
 }
@@ -73,7 +76,8 @@ my $HOSTNAME = Sys::Hostname::hostname();
 # Check the load average isn't too high.
 if (!$force) {
     if (-e "/var/run/dobackup") {
-	#print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n";
+	print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n"
+	    if -t STDERR;
 	exit(1);
     }
     if (((`uptime 2>/dev/null`)[0] =~ /.*: (\d+(?:\.\d+)?),/) &&
