@@ -9,7 +9,7 @@ EXTRA_DIST +=\
 
 if MAINTAINER_MODE
 unicode/unicode-data.cc: unicode/uniParse.tcl unicode/UnicodeData.txt
-	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 6.3.0 unicode/unicode-data.cc
+	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 8.0.0 unicode/unicode-data.cc
 
 BUILT_SOURCES += unicode/unicode-data.cc
 MAINTAINERCLEANFILES += unicode/unicode-data.cc

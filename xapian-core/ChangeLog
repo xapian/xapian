@@ -1,3 +1,9 @@
+Sat Jun 20 06:31:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_unicode.cc,unicode/Makefile.mk,
+	  unicode/UnicodeData-README.txt,unicode/UnicodeData.txt:
+	  Update to Unicode 8.0.0.  (fixes #680)
+
 Thu Jun 11 11:57:50 GMT 2015  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Remove XAPIAN_CONST_FUNCTION marker
