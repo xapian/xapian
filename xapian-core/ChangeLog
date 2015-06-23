@@ -1,3 +1,9 @@
+Tue Jun 23 13:38:54 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/snipper.cc,api/snipperinternal.h: Use appropriate typedefs
+	  rather than unsigned int.  Split out of patch by Dylan Griffith in
+	  #385.
+
 Tue Jun 23 13:32:36 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_database.cc,backends/chert/chert_types.h,

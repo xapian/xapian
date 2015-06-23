@@ -61,7 +61,7 @@ Snipper::~Snipper()
 }
 
 void
-Snipper::set_mset(const MSet & mset, unsigned int rm_docno)
+Snipper::set_mset(const MSet & mset, Xapian::doccount rm_docno)
 {
     internal->calculate_rm(mset, rm_docno);
 }
@@ -69,7 +69,7 @@ Snipper::set_mset(const MSet & mset, unsigned int rm_docno)
 string
 Snipper::generate_snippet(const string & text,
 			  size_t length,
-			  unsigned int window_size,
+			  Xapian::termcount window_size,
 			  double smoothing)
 {
     return internal->generate_snippet(text, length, window_size, smoothing);
