@@ -258,7 +258,8 @@ RemoteServer::msg_termlist(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end, false);
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
 
     send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
     string prev;
@@ -284,7 +285,8 @@ RemoteServer::msg_positionlist(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end, false);
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
     string term(p, p_end - p);
 
     Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
@@ -334,7 +336,9 @@ RemoteServer::msg_writeaccess(const string & msg)
     const char *p = msg.c_str();
     const char *p_end = p + msg.size();
     if (p != p_end) {
-	flags |= decode_length(&p, p_end, false) &~ Xapian::DB_ACTION_MASK_;
+	unsigned flag_bits;
+	decode_length(&p, p_end, flag_bits);
+	flags |= flag_bits &~ Xapian::DB_ACTION_MASK_;
 	if (p != p_end) {
 	    throw Xapian::NetworkError("Junk at end of MSG_WRITEACCESS");
 	}
@@ -385,20 +389,23 @@ RemoteServer::msg_query(const string &message_in)
 {
     const char *p = message_in.c_str();
     const char *p_end = p + message_in.size();
-    size_t len;
 
     // Unserialise the Query.
-    len = decode_length(&p, p_end, true);
+    size_t len;
+    decode_length_and_check(&p, p_end, len);
     Xapian::Query query(Xapian::Query::unserialise(string(p, len), reg));
     p += len;
 
     // Unserialise assorted Enquire settings.
-    Xapian::termcount qlen = decode_length(&p, p_end, false);
+    Xapian::termcount qlen;
+    decode_length(&p, p_end, qlen);
 
-    Xapian::valueno collapse_max = decode_length(&p, p_end, false);
+    Xapian::valueno collapse_max;
+    decode_length(&p, p_end, collapse_max);
 
     Xapian::valueno collapse_key = Xapian::BAD_VALUENO;
-    if (collapse_max) collapse_key = decode_length(&p, p_end, false);
+    if (collapse_max)
+	decode_length(&p, p_end, collapse_key);
 
     if (p_end - p < 4 || *p < '0' || *p > '2') {
 	throw Xapian::NetworkError("bad message (docid_order)");
@@ -406,7 +413,8 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Enquire::docid_order order;
     order = static_cast<Xapian::Enquire::docid_order>(*p++ - '0');
 
-    Xapian::valueno sort_key = decode_length(&p, p_end, false);
+    Xapian::valueno sort_key;
+    decode_length(&p, p_end, sort_key);
 
     if (*p < '0' || *p > '3') {
 	throw Xapian::NetworkError("bad message (sort_by)");
@@ -432,7 +440,7 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     // Unserialise the Weight object.
-    len = decode_length(&p, p_end, true);
+    decode_length_and_check(&p, p_end, len);
     string wtname(p, len);
     p += len;
 
@@ -445,19 +453,19 @@ RemoteServer::msg_query(const string &message_in)
 					   wtname + " not registered");
     }
 
-    len = decode_length(&p, p_end, true);
+    decode_length_and_check(&p, p_end, len);
     AutoPtr<Xapian::Weight> wt(wttype->unserialise(string(p, len)));
     p += len;
 
     // Unserialise the RSet object.
-    len = decode_length(&p, p_end, true);
+    decode_length_and_check(&p, p_end, len);
     Xapian::RSet rset = unserialise_rset(string(p, len));
     p += len;
 
     // Unserialise any MatchSpy objects.
     vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> matchspies;
     while (p != p_end) {
-	len = decode_length(&p, p_end, true);
+	decode_length_and_check(&p, p_end, len);
 	string spytype(p, len);
 	const Xapian::MatchSpy * spyclass = reg.get_match_spy(spytype);
 	if (spyclass == NULL) {
@@ -466,7 +474,7 @@ RemoteServer::msg_query(const string &message_in)
 	}
 	p += len;
 
-	len = decode_length(&p, p_end, true);
+	decode_length_and_check(&p, p_end, len);
 	matchspies.push_back(spyclass->unserialise(string(p, len), reg)->release());
 	p += len;
     }
@@ -484,11 +492,13 @@ RemoteServer::msg_query(const string &message_in)
     p = message.c_str();
     p_end = p + message.size();
 
-    Xapian::termcount first = decode_length(&p, p_end, false);
-    Xapian::termcount maxitems = decode_length(&p, p_end, false);
+    Xapian::termcount first;
+    decode_length(&p, p_end, first);
+    Xapian::termcount maxitems;
+    decode_length(&p, p_end, maxitems);
 
-    Xapian::termcount check_at_least = 0;
-    check_at_least = decode_length(&p, p_end, false);
+    Xapian::termcount check_at_least;
+    decode_length(&p, p_end, check_at_least);
 
     message.erase(0, message.size() - (p_end - p));
     AutoPtr<Xapian::Weight::Internal> total_stats(new Xapian::Weight::Internal);
@@ -514,7 +524,8 @@ RemoteServer::msg_document(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end, false);
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
 
     Xapian::Document doc = db->get_document(did);
 
@@ -569,7 +580,8 @@ RemoteServer::msg_valuestats(const string & message)
     const char *p = message.data();
     const char *p_end = p + message.size();
     while (p != p_end) {
-	Xapian::valueno slot = decode_length(&p, p_end, false);
+	Xapian::valueno slot;
+	decode_length(&p, p_end, slot);
 	string message_out;
 	message_out += encode_length(db->get_value_freq(slot));
 	string bound = db->get_value_lower_bound(slot);
@@ -588,7 +600,8 @@ RemoteServer::msg_doclength(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end, false);
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
     send_message(REPLY_DOCLENGTH, encode_length(db->get_doclength(did)));
 }
 
@@ -597,7 +610,8 @@ RemoteServer::msg_uniqueterms(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end, false);
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
     send_message(REPLY_UNIQUETERMS, encode_length(db->get_unique_terms(did)));
 }
 
@@ -643,7 +657,8 @@ RemoteServer::msg_deletedocument(const string & message)
 
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end, false);
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
 
     wdb->delete_document(did);
 
@@ -667,7 +682,8 @@ RemoteServer::msg_replacedocument(const string & message)
 
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end, false);
+    Xapian::docid did;
+    decode_length(&p, p_end, did);
 
     wdb->replace_document(did, unserialise_document(string(p, p_end)));
 }
@@ -680,7 +696,8 @@ RemoteServer::msg_replacedocumentterm(const string & message)
 
     const char *p = message.data();
     const char *p_end = p + message.size();
-    size_t len = decode_length(&p, p_end, true);
+    size_t len;
+    decode_length_and_check(&p, p_end, len);
     string unique_term(p, len);
     p += len;
 
@@ -724,7 +741,8 @@ RemoteServer::msg_setmetadata(const string & message)
 	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
-    size_t keylen = decode_length(&p, p_end, true);
+    size_t keylen;
+    decode_length_and_check(&p, p_end, keylen);
     string key(p, keylen);
     p += keylen;
     string val(p, p_end - p);
@@ -738,7 +756,8 @@ RemoteServer::msg_addspelling(const string & message)
 	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::termcount freqinc = decode_length(&p, p_end, false);
+    Xapian::termcount freqinc;
+    decode_length(&p, p_end, freqinc);
     wdb->add_spelling(string(p, p_end - p), freqinc);
 }
 
@@ -749,6 +768,7 @@ RemoteServer::msg_removespelling(const string & message)
 	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::termcount freqdec = decode_length(&p, p_end, false);
+    Xapian::termcount freqdec;
+    decode_length(&p, p_end, freqdec);
     wdb->remove_spelling(string(p, p_end - p), freqdec);
 }

@@ -404,12 +404,13 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	case 4: case 5: case 6: case 7: { // Multi-way branch
 	    size_t n_subqs = ch & 0x07;
 	    if (n_subqs == 0) {
-		n_subqs = decode_length(p, end, false) + 8;
+		decode_length(p, end, n_subqs);
+		n_subqs += 8;
 	    }
 	    unsigned char code = (ch >> 3) & 0x0f;
 	    Xapian::termcount parameter = 0;
 	    if (code >= 13)
-		parameter = decode_length(p, end, false);
+		decode_length(p, end, parameter);
 	    Xapian::Internal::QueryBranch * result;
 	    switch (code) {
 		case 0: // OP_AND
@@ -460,8 +461,10 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	}
 	case 2: case 3: { // Term
 	    size_t len = ch & 0x0f;
-	    if (len == 0)
-		len = decode_length(p, end, false) + 16;
+	    if (len == 0) {
+		decode_length(p, end, len);
+		len += 16;
+	    }
 	    if (size_t(end - *p) < len)
 		throw SerialisationError("Not enough data");
 	    string term(*p, len);
@@ -471,17 +474,22 @@ Query::Internal::unserialise(const char ** p, const char * end,
 
 	    Xapian::termcount wqf = static_cast<Xapian::termcount>(code > 0);
 	    if (code == 3)
-		wqf = decode_length(p, end, false);
+		decode_length(p, end, wqf);
 
-	    Xapian::termpos pos = code >= 2 ? decode_length(p, end, false) : 0;
+	    Xapian::termpos pos = 0;
+	    if (code >= 2)
+		decode_length(p, end, pos);
 
 	    return new Xapian::Internal::QueryTerm(term, wqf, pos);
 	}
 	case 1: { // OP_VALUE_RANGE or OP_VALUE_GE or OP_VALUE_LE
 	    Xapian::valueno slot = ch & 15;
-	    if (slot == 15)
-		slot = decode_length(p, end, false) + 15;
-	    size_t len = decode_length(p, end, true);
+	    if (slot == 15) {
+		decode_length(p, end, slot);
+		slot += 15;
+	    }
+	    size_t len;
+	    decode_length_and_check(p, end, len);
 	    string begin(*p, len);
 	    *p += len;
 	    if (ch & 0x10) {
@@ -490,7 +498,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    }
 
 	    // OP_VALUE_RANGE
-	    len = decode_length(p, end, true);
+	    decode_length_and_check(p, end, len);
 	    string end_(*p, len);
 	    *p += len;
 	    if (begin.empty()) // FIXME: is this right?
@@ -502,13 +510,14 @@ Query::Internal::unserialise(const char ** p, const char * end,
 		case 0x0b: { // Wildcard
 		    if (*p == end)
 			throw SerialisationError("not enough data");
-		    Xapian::termcount max_expansion = decode_length(p, end,
-								    false);
+		    Xapian::termcount max_expansion;
+		    decode_length(p, end, max_expansion);
 		    if (end - *p < 2)
 			throw SerialisationError("not enough data");
 		    int max_type = static_cast<unsigned char>(*(*p)++);
 		    op combiner = static_cast<op>(*(*p)++);
-		    size_t len = decode_length(p, end, true);
+		    size_t len;
+		    decode_length_and_check(p, end, len);
 		    string pattern(*p, len);
 		    *p += len;
 		    return new Xapian::Internal::QueryWildcard(pattern,
@@ -517,7 +526,8 @@ Query::Internal::unserialise(const char ** p, const char * end,
 							       combiner);
 		}
 		case 0x0c: { // PostingSource
-		    size_t len = decode_length(p, end, true);
+		    size_t len;
+		    decode_length_and_check(p, end, len);
 		    string name(*p, len);
 		    *p += len;
 
@@ -529,7 +539,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			throw SerialisationError(m);
 		    }
 
-		    len = decode_length(p, end, true);
+		    decode_length_and_check(p, end, len);
 		    PostingSource * source =
 			reg_source->unserialise_with_registry(string(*p, len),
 							      reg);
@@ -543,8 +553,10 @@ Query::Internal::unserialise(const char ** p, const char * end,
 						Query(unserialise(p, end, reg)));
 		}
 		case 0x0e: {
-		    Xapian::termcount wqf = decode_length(p, end, false);
-		    Xapian::termpos pos = decode_length(p, end, false);
+		    Xapian::termcount wqf;
+		    Xapian::termpos pos;
+		    decode_length(p, end, wqf);
+		    decode_length(p, end, pos);
 		    return new Xapian::Internal::QueryTerm(string(), wqf, pos);
 		}
 		case 0x0f:

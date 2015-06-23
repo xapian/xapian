@@ -1,7 +1,7 @@
 /** @file length.h
  * @brief length encoded as a string
  */
-/* Copyright (C) 2006,2007,2008,2009,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #ifndef XAPIAN_INCLUDED_LENGTH_H
 #define XAPIAN_INCLUDED_LENGTH_H
 
+#include <cstdint>
 #include <string>
 
 /** Encode a length as a variable-length string.
@@ -59,11 +60,24 @@ encode_length(T len)
  *  @param p	Pointer to a pointer to the string, which will be advanced past
  *		the encoded length.
  *  @param end	Pointer to the end of the string.
- *  @param check_remaining	Check the result against the amount of data
- *				remaining after the length has been decoded.
- *
- *  @return	The decoded length.
+ *  @param[out] out	The decoded length.
  */
-size_t decode_length(const char ** p, const char *end, bool check_remaining);
+void decode_length(const char ** p, const char *end, uint32_t & out);
+
+void decode_length(const char ** p, const char *end, uint64_t & out);
+
+/** Decode a length encoded by encode_length.
+ *
+ *  Also checks the result against the amount of data remaining after the
+ *  length has been decoded.
+ *
+ *  @param p	Pointer to a pointer to the string, which will be advanced past
+ *		the encoded length.
+ *  @param end	Pointer to the end of the string.
+ *  @param[out] out	The decoded length.
+ */
+void decode_length_and_check(const char ** p, const char *end, uint32_t & out);
+
+void decode_length_and_check(const char ** p, const char *end, uint64_t & out);
 
 #endif //XAPIAN_INCLUDED_LENGTH_H

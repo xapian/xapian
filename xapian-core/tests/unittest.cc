@@ -223,7 +223,8 @@ static bool test_serialiselength1()
 	string s = encode_length(n);
 	const char *p = s.data();
 	const char *p_end = p + s.size();
-	size_t decoded_n = decode_length(&p, p_end, false);
+	size_t decoded_n;
+	decode_length(&p, p_end, decoded_n);
 	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
 	TEST_EQUAL(n, decoded_n);
 	TEST_EQUAL(p_end - p, 0);
@@ -246,14 +247,18 @@ static bool test_serialiselength2()
 	{
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 0);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    TEST(r == 0);
 	    TEST(p == p_end);
 	}
 	s += 'x';
 	{
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 0);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    TEST(r == 0);
 	    TEST_EQUAL(p_end - p, 1);
 	}
     }
@@ -263,20 +268,26 @@ static bool test_serialiselength2()
 	TEST_EXCEPTION(Xapian_NetworkError,
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    (void)decode_length(&p, p_end, true);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    (void)r;
 	);
 	s += 'x';
 	{
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    TEST(r == 1);
 	    TEST_EQUAL(p_end - p, 1);
 	}
 	s += 'x';
 	{
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == 1);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    TEST(r == 1);
 	    TEST_EQUAL(p_end - p, 2);
 	}
     }
@@ -286,26 +297,34 @@ static bool test_serialiselength2()
 	TEST_EXCEPTION(Xapian_NetworkError,
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    (void)decode_length(&p, p_end, true);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    (void)r;
 	);
 	s.append(n - 1, 'x');
 	TEST_EXCEPTION(Xapian_NetworkError,
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    (void)decode_length(&p, p_end, true);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    (void)r;
 	);
 	s += 'x';
 	{
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    TEST(r == n);
 	    TEST_EQUAL(size_t(p_end - p), n);
 	}
 	s += 'x';
 	{
 	    const char *p = s.data();
 	    const char *p_end = p + s.size();
-	    TEST(decode_length(&p, p_end, true) == n);
+	    size_t r;
+	    decode_length_and_check(&p, p_end, r);
+	    TEST(r == n);
 	    TEST_EQUAL(size_t(p_end - p), n + 1);
 	}
     }

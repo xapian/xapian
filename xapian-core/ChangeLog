@@ -1,3 +1,12 @@
+Tue Jun 23 13:04:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/,backends/remote/net_postlist.cc,
+	  backends/remote/remote-database.cc,
+	  geospatial/latlong_posting_source.cc,net/,tests/unittest.cc: Split
+	  decode_length() into versions which decode a 32 vs 64 bit value,
+	  and which check that there's at least the decoded length in bytes
+	  in the source data.  (Fixes #678 and helps #385)
+
 Tue Jun 23 11:49:15 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/remoteserver.cc: Check length of key in MSG_SETMETADATA.

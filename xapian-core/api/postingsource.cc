@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -258,7 +258,8 @@ ValueWeightPostingSource::unserialise(const string &s) const
     const char * p = s.data();
     const char * end = p + s.size();
 
-    Xapian::valueno new_slot = decode_length(&p, end, false);
+    Xapian::valueno new_slot;
+    decode_length(&p, end, new_slot);
     if (p != end) {
 	throw Xapian::NetworkError("Bad serialised ValueWeightPostingSource - junk at end");
     }
@@ -375,11 +376,13 @@ ValueMapPostingSource::unserialise(const string &s) const
     const char * p = s.data();
     const char * end = p + s.size();
 
-    Xapian::valueno new_slot = decode_length(&p, end, false);
+    Xapian::valueno new_slot;
+    decode_length(&p, end, new_slot);
     AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(new_slot));
     res->set_default_weight(unserialise_double(&p, end));
     while (p != end) {
-	size_t keylen = decode_length(&p, end, true);
+	size_t keylen;
+	decode_length_and_check(&p, end, keylen);
 	string key(p, keylen);
 	p += keylen;
 	res->add_mapping(key, unserialise_double(&p, end));
