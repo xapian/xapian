@@ -1153,7 +1153,7 @@ ChertWritableDatabase::add_document(const Xapian::Document & document)
 {
     LOGCALL(DB, Xapian::docid, "ChertWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
-    if (stats.get_last_docid() == Xapian::docid(-1))
+    if (stats.get_last_docid() == CHERT_MAX_DOCID)
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     // Use the next unused document ID.
     RETURN(add_document_(stats.get_next_docid(), document));

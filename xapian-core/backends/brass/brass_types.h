@@ -55,4 +55,7 @@ typedef unsigned int brass_doclen_t;
  */
 #define BRASS_DEFAULT_BLOCK_SIZE 8192
 
+/// The largest docid value supported by brass.
+#define BRASS_MAX_DOCID Xapian::docid(0xffffffff)
+
 #endif /* OM_HGUARD_BRASS_TYPES_H */

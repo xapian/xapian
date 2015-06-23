@@ -1,7 +1,7 @@
 /* chert_types.h: Types used by chert backend and the Btree manager
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2008,2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,5 +54,8 @@ typedef unsigned int chert_doclen_t;
  *  correspondingly.
  */
 #define CHERT_DEFAULT_BLOCK_SIZE 8192
+
+/// The largest docid value supported by chert.
+#define CHERT_MAX_DOCID Xapian::docid(0xffffffff)
 
 #endif /* OM_HGUARD_CHERT_TYPES_H */
