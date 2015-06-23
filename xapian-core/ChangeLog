@@ -1,3 +1,11 @@
+Tue Jun 23 13:32:36 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_database.cc,backends/chert/chert_types.h,
+	  backends/glass/glass_database.cc,backends/glass/glass_defs.h: Add
+	  constants CHERT_MAX_DOCID and GLASS_MAX_DOCID for the largest docid
+	  which the backends support, independent of the size of type
+	  Xapian::docid.  (helps #385)
+
 Tue Jun 23 13:19:06 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Add regression test for #385.

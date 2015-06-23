@@ -1,7 +1,7 @@
 /** @file glass_defs.h
  * @brief Definitions, types, etc for use inside glass.
  */
-/* Copyright (C) 2010,2014 Olly Betts
+/* Copyright (C) 2010,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,9 @@
 
 /// Default B-tree block size.
 #define GLASS_DEFAULT_BLOCKSIZE 8192
+
+/// The largest docid value supported by glass.
+#define GLASS_MAX_DOCID Xapian::docid(0xffffffff)
 
 namespace Glass {
     enum table_type {
