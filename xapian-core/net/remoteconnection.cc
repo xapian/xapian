@@ -34,6 +34,7 @@
 #include <string>
 
 #include "debuglog.h"
+#include "net/length.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "serialise.h"

@@ -4,6 +4,7 @@ EXTRA_DIST +=\
 
 if BUILD_BACKEND_REMOTE
 lib_src +=\
+	net/length.cc\
 	net/progclient.cc\
 	net/remoteconnection.cc\
 	net/remoteserver.cc\

@@ -1,3 +1,11 @@
+Fri Sep 25 07:08:42 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/,backends/remote/net_postlist.cc,
+	  backends/remote/remote-database.cc,common/serialise.h,net/: Split
+	  decode_length() into versions which decode a 32 vs 64 bit value,
+	  and which check that there's at least the decoded length in bytes
+	  in the source data.  (Fixes #678 and helps #385)
+
 Fri Sep 25 04:48:27 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/socket_utils.cc: Change C-style cast to reinterpret_cast.

@@ -48,6 +48,7 @@
 #include "brass_values.h"
 #include "debuglog.h"
 #include "io_utils.h"
+#include "net/length.h"
 #include "pack.h"
 #include "remoteconnection.h"
 #include "replication.h"

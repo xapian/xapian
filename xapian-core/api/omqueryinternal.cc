@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2015 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,7 @@
 #include "omqueryinternal.h"
 
 #include "debuglog.h"
+#include "net/length.h"
 #include "registryinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"
@@ -445,7 +446,8 @@ QUnserial::readquery() {
 	throw Xapian::InvalidArgumentError("Bad serialised query");
     switch (*p++) {
 	case '[': {
-	    size_t length = decode_length(&p, end, true);
+	    size_t length;
+	    decode_length_and_check(&p, end, length);
 	    string tname(p, length);
 	    p += length;
 	    Xapian::termpos term_pos = curpos;
@@ -453,11 +455,11 @@ QUnserial::readquery() {
 	    if (p != end) {
 		if (*p == '@') {
 		    ++p;
-		    term_pos = decode_length(&p, end, false);
+		    decode_length(&p, end, term_pos);
 		}
 		if (*p == '#') {
 		    ++p;
-		    wqf = decode_length(&p, end, false);
+		    decode_length(&p, end, wqf);
 		}
 	    }
 	    ++curpos;
@@ -479,7 +481,8 @@ QUnserial::readexternal()
     if (p == end)
 	throw Xapian::InvalidArgumentError("Bad serialised query");
 
-    size_t length = decode_length(&p, end, true);
+    size_t length;
+    decode_length_and_check(&p, end, length);
     string sourcename(p, length);
     const Xapian::PostingSource * source = reg.get_posting_source(sourcename);
     if (source == NULL) {
@@ -488,7 +491,7 @@ QUnserial::readexternal()
     }
 
     p += length;
-    length = decode_length(&p, end, true);
+    decode_length_and_check(&p, end, length);
     string sourcedata(p, length);
     p += length;
 
@@ -563,42 +566,51 @@ QUnserial::readcompound() {
 	        case '-':
 		    return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
 	        case '~': {
-		    Xapian::termcount window(decode_length(&p, end, false));
+		    Xapian::termcount window;
+		    decode_length(&p, end, window);
 		    return qint_from_vector(Xapian::Query::OP_NEAR, subqs, window);
 	        }
 	        case '"': {
-		    Xapian::termcount window(decode_length(&p, end, false));
+		    Xapian::termcount window;
+		    decode_length(&p, end, window);
 		    return qint_from_vector(Xapian::Query::OP_PHRASE, subqs, window);
 	        }
 	        case '*': {
-		    Xapian::termcount elite_set_size(decode_length(&p, end, false));
+		    Xapian::termcount elite_set_size;
+		    decode_length(&p, end, elite_set_size);
 		    return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
 					    elite_set_size);
 		}
 		case ']': {
-		    size_t len = decode_length(&p, end, true);
+		    size_t len;
+		    decode_length_and_check(&p, end, len);
 		    string start(p, len);
 		    p += len;
-		    len = decode_length(&p, end, true);
+		    decode_length_and_check(&p, end, len);
 		    string stop(p, len);
 		    p += len;
-		    Xapian::valueno slot(decode_length(&p, end, false));
+		    Xapian::valueno slot;
+		    decode_length(&p, end, slot);
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, slot,
 						       start, stop);
 	        }
 		case '}': {
-		    size_t len = decode_length(&p, end, true);
+		    size_t len;
+		    decode_length_and_check(&p, end, len);
 		    string start(p, len);
 		    p += len;
-		    Xapian::valueno slot(decode_length(&p, end, false));
+		    Xapian::valueno slot;
+		    decode_length(&p, end, slot);
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_GE, slot,
 						       start);
 	        }
 		case '{': {
-		    size_t len = decode_length(&p, end, true);
+		    size_t len;
+		    decode_length_and_check(&p, end, len);
 		    string start(p, len);
 		    p += len;
-		    Xapian::valueno slot(decode_length(&p, end, false));
+		    Xapian::valueno slot;
+		    decode_length(&p, end, slot);
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_LE, slot,
 						       start);
 	        }

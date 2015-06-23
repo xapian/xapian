@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
+#include "net/length.h"
 #include "omassert.h"
 #include "realtime.h"
 #include "remoteconnection.h"
@@ -89,7 +90,8 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     } else {
 	const char * ptr = start_revision.data();
 	const char * end = ptr + start_revision.size();
-	size_t uuid_length = decode_length(&ptr, end, true);
+	size_t uuid_length;
+	decode_length_and_check(&ptr, end, uuid_length);
 	string request_uuid(ptr, uuid_length);
 	ptr += uuid_length;
 	string db_uuid = db.internal[0]->get_uuid();
@@ -414,7 +416,8 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
 	check_message_type(type, REPL_REPLY_DB_HEADER);
 	const char * ptr = buf.data();
 	const char * end = ptr + buf.size();
-	size_t uuid_length = decode_length(&ptr, end, true);
+	size_t uuid_length;
+	decode_length_and_check(&ptr, end, uuid_length);
 	offline_uuid.assign(ptr, uuid_length);
 	offline_revision.assign(buf, ptr + uuid_length - buf.data(), buf.npos);
     }

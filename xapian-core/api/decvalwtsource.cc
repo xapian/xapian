@@ -2,6 +2,7 @@
  * @brief A posting source which returns decreasing weights from a value.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
+ * Copyright (C) 2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +23,7 @@
 
 #include "xapian/postingsource.h"
 #include "xapian/error.h"
+#include "net/length.h"
 #include "serialise.h"
 #include "serialise-double.h"
 #include <cmath>
@@ -67,9 +69,11 @@ Xapian::DecreasingValueWeightPostingSource *
 DecreasingValueWeightPostingSource::unserialise(const std::string &s) const {
     const char * pos = s.data();
     const char * end = pos + s.size();
-    Xapian::valueno new_slot = decode_length(&pos, end, false);
-    Xapian::docid new_range_start = decode_length(&pos, end, false);
-    Xapian::docid new_range_end = decode_length(&pos, end, false);
+    Xapian::valueno new_slot;
+    Xapian::docid new_range_start, new_range_end;
+    decode_length(&pos, end, new_slot);
+    decode_length(&pos, end, new_range_start);
+    decode_length(&pos, end, new_range_end);
     if (pos != end)
 	throw Xapian::NetworkError("Junk at end of serialised "
 				   "DecreasingValueWeightPostingSource");

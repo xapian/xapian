@@ -34,6 +34,7 @@
 
 #include "autoptr.h"
 #include "debuglog.h"
+#include "net/length.h"
 #include "omassert.h"
 #include "serialise.h"
 #include "stringutils.h"
@@ -345,7 +346,8 @@ ValueCountMatchSpy::unserialise(const string & s, const Registry &) const
     const char * p = s.data();
     const char * end = p + s.size();
 
-    valueno new_slot = decode_length(&p, end, false);
+    valueno new_slot;
+    decode_length(&p, end, new_slot);
     if (p != end) {
 	throw NetworkError("Junk at end of serialised ValueCountMatchSpy");
     }
@@ -376,15 +378,20 @@ ValueCountMatchSpy::merge_results(const string & s) {
     const char * p = s.data();
     const char * end = p + s.size();
 
-    internal->total += decode_length(&p, end, false);
+    Xapian::doccount n;
+    decode_length(&p, end, n);
+    internal->total += n;
 
-    map<string, doccount>::size_type items = decode_length(&p, end, false);
+    map<string, doccount>::size_type items;
+    decode_length(&p, end, items);
     while (p != end) {
 	while (items != 0) {
-	    size_t vallen = decode_length(&p, end, true);
+	    size_t vallen;
+	    decode_length_and_check(&p, end, vallen);
 	    string val(p, vallen);
 	    p += vallen;
-	    doccount freq = decode_length(&p, end, false);
+	    doccount freq;
+	    decode_length(&p, end, freq);
 	    internal->values[val] += freq;
 	    --items;
 	}
