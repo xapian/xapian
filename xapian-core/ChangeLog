@@ -1,3 +1,7 @@
+Fri Sep 25 01:13:59 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Check length of key in MSG_SETMETADATA.
+
 Fri Sep 25 00:05:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* examples/xapian-metadata.cc: Extend "list" subcommand to take
