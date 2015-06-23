@@ -1,3 +1,7 @@
+Tue Jun 23 13:19:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Add regression test for #385.
+
 Tue Jun 23 13:04:06 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/,backends/remote/net_postlist.cc,

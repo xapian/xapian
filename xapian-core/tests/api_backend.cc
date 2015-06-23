@@ -79,6 +79,12 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
     TEST_EQUAL(db.get_avlength(), 2000000000);
     db.commit();
     TEST_EQUAL(db.get_avlength(), 2000000000);
+    for (int i = 0; i != 20; ++i) {
+	db.add_document(doc);
+    }
+    TEST_EQUAL(db.get_avlength(), 2000000000);
+    db.commit();
+    TEST_EQUAL(db.get_avlength(), 2000000000);
     if (get_dbtype() != "inmemory") {
 	// InMemory doesn't support get_writable_database_as_database().
 	Xapian::Database dbr = get_writable_database_as_database();
