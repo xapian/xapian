@@ -8,7 +8,7 @@ Tue Jun 23 13:32:36 GMT 2015  Olly Betts <olly@survex.com>
 
 Tue Jun 23 13:19:06 GMT 2015  Olly Betts <olly@survex.com>
 
-	* tests/api_backend.cc: Add regression test for #385.
+	* tests/api_backend.cc: Add regression test for #678.
 
 Tue Jun 23 13:04:06 GMT 2015  Olly Betts <olly@survex.com>
 
