@@ -724,7 +724,7 @@ RemoteServer::msg_setmetadata(const string & message)
 	throw_read_only();
     const char *p = message.data();
     const char *p_end = p + message.size();
-    size_t keylen = decode_length(&p, p_end, false);
+    size_t keylen = decode_length(&p, p_end, true);
     string key(p, keylen);
     p += keylen;
     string val(p, p_end - p);

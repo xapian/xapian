@@ -1,3 +1,7 @@
+Tue Jun 23 11:49:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/remoteserver.cc: Check length of key in MSG_SETMETADATA.
+
 Sat Jun 20 13:05:50 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/str.h,tests/,tests/harness/,tests/internaltest.cc,
