@@ -1,3 +1,9 @@
+Wed Jun 24 10:07:05 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/harness/testutils.cc,tests/harness/testutils.h: Use
+	  'Xapian::docid' instead of 'unsigned int' so that things work with
+	  64 bit docids (see #385).
+
 Tue Jun 23 13:38:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/snipper.cc,api/snipperinternal.h: Use appropriate typedefs
