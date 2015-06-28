@@ -29,6 +29,7 @@
 #include <queue>
 
 #include <cstdio>
+#include <unistd.h>
 
 #include "safeerrno.h"
 
