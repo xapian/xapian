@@ -31,6 +31,7 @@
 #include "safeerrno.h"
 #include <sys/types.h>
 #include "safesysstat.h"
+#include "safeunistd.h"
 
 #include "chert_table.h"
 #include "chert_compact.h"

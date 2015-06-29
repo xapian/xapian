@@ -1,3 +1,8 @@
+Fri Sep 25 04:18:08 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_compact.cc: Need <unistd.h> for unlink() on
+	  FreeBSD, reported by Germán M. Bravo via github PR 72.
+
 Fri Sep 25 04:14:53 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/harness/testutils.cc,tests/harness/testutils.h: Use
