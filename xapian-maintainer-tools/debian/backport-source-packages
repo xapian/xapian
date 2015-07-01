@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -27,8 +27,8 @@ set -e
 #MIRROR=http://ftp.de.debian.org/debian/
 MIRROR=http://ftp.nz.debian.org/debian/
 
-DEBIAN_CODENAMES='wheezy squeeze'
-UBUNTU_CODENAMES='saucy raring quantal precise oneiric lucid'
+DEBIAN_CODENAMES='jessie wheezy squeeze'
+UBUNTU_CODENAMES='vivid utopic trusty precise'
 
 V_OPT=
 case $1 in
@@ -82,8 +82,11 @@ adjust_changelog() {
     # stopping to confirm the bad version is OK.
     if [ 1 = "$ubuntu" ] ; then
       distribution=$CODENAME
-    else
+    elif [ "`echo "$DEBIAN_CODENAMES"|cut -d' ' -f1`" = "$CODENAME" ] ; then
+      # Backport for the most recent stable debian release.
       distribution=$CODENAME-backports
+    else
+      distribution=$CODENAME-backports-sloppy
     fi
     dch --force-bad-version -v "$backport_version" -D "$distribution" \
 	"Rebuild for $CODENAME backports." < /dev/null
@@ -167,16 +170,18 @@ trap "echo \"backport-source-packages failed\"" EXIT
 # For Ubuntu we add ".99$CODENAME" since it should sort
 # before any other modification (and since dapper, Ubuntu codenames are
 # allocated alphabetically).  For Debian releases, we use
-# backports.org-compatible package versions - e.g. we append "~bpo60+1" for
-# Debian 6.0 (squeeze) (and a suffix starting "~" sorts as less than no suffix).
+# backports.org-compatible package versions - e.g. we append "~bpo8+1" for
+# Debian 8 (jessie) (and a suffix starting "~" sorts as less than no suffix).
 case $CODENAME in
+jessie)
+  BACKPORT_SUFFIX='~bpo8+1' ;;
 wheezy)
-  BACKPORT_SUFFIX='~bpo70+1' ;;
+  BACKPORT_SUFFIX='~bpo7+1' ;;
 squeeze)
   BACKPORT_SUFFIX='~bpo60+1' ;;
 *)
   if [ x"$ubuntu" = x0 ] ; then
-    echo "Debian codename '$CODENAME' not mapped to a ~bpoNN+1 suffix"
+    echo "Debian codename '$CODENAME' not mapped to a ~bpoN+1 suffix"
     exit 1
   fi
   BACKPORT_SUFFIX=".99$CODENAME" ;;
