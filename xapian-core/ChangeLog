@@ -1,3 +1,10 @@
+Fri Sep 25 01:16:32 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/safeunistd.h,configure.ac: Don't provide our own
+	  implementation of sleep() under __WIN32__ if there's already one -
+	  mingw provides one, and in some situations it seems to clash with
+	  ours.  Reported to xapian-discuss by John Alveris.
+
 Fri Sep 25 01:13:59 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/remoteserver.cc: Check length of key in MSG_SETMETADATA.

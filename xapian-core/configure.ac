@@ -510,7 +510,7 @@ AC_TRY_COMPILE([
 CXXFLAGS=$save_CXXFLAGS
 
 dnl Check for time functions.
-AC_CHECK_FUNCS([gettimeofday ftime])
+AC_CHECK_FUNCS([sleep gettimeofday ftime])
 
 case $host_os in
   *mingw*)
