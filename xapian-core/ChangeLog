@@ -1,3 +1,10 @@
+Mon Jul 06 09:44:54 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/safeunistd.h,configure.ac: Don't provide our own
+	  implementation of sleep() under __WIN32__ if there's already one -
+	  mingw provides one, and in some situations it seems to clash with
+	  ours.  Reported to xapian-discuss by John Alveris.
+
 Mon Jun 29 12:10:22 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_compact.cc: Need <unistd.h> for unlink() on
