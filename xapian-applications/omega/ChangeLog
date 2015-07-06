@@ -1,3 +1,10 @@
+Mon Jul 06 09:54:50 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't provide our own implementation of sleep() under
+	  __WIN32__ if there's already one - mingw provides one, and in some
+	  situations it seems to clash with ours.  Reported to xapian-discuss
+	  by John Alveris.
+
 Thu Jun 11 05:03:52 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/overview.rst,failed.h,omindex.cc: Track files which
