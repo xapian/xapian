@@ -1,3 +1,15 @@
+Tue Jul 07 01:37:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,api/query.cc,backends/chert/,backends/database.cc,
+	  backends/database.h,backends/glass/,common/io_utils.cc,
+	  common/io_utils.h,configure.ac,include/xapian/enquire.h,
+	  include/xapian/query.h,matcher/multimatch.cc: Where posix_fadvise()
+	  is available, use it to prefetch postlist Btree blocks from the
+	  level below the root block which will be needed for postlists of
+	  terms in the query, and similarly for the record/docdata table
+	  when MSet::fetch() is called.  Based on patch by Will Greenberg
+	  in #671.
+
 Mon Jul 06 09:44:54 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/safeunistd.h,configure.ac: Don't provide our own

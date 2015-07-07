@@ -79,3 +79,9 @@ ChertRecordTable::delete_record(Xapian::docid did)
     if (!del(make_key(did)))
 	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
 }
+
+void
+ChertRecordTable::readahead_for_record(Xapian::docid did) const
+{
+    readahead_key(make_key(did));
+}

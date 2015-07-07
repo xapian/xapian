@@ -1157,6 +1157,43 @@ GlassTable::del(const string &key)
 }
 
 bool
+GlassTable::readahead_key(const string &key) const
+{
+    LOGCALL(DB, bool, "GlassTable::readahead_key", key);
+    Assert(!key.empty());
+
+    // Two cases:
+    //
+    // handle = -1:  Lazy table which isn't yet open
+    //
+    // handle = -2:  Table has been closed.  Since the readahead is just a
+    // hint, we can safely ignore it for a closed table.
+    if (handle < 0)
+	RETURN(false);
+
+    // If the table only has one level, there are no branch blocks to preread.
+    if (level == 0)
+	RETURN(false);
+
+    form_key(key);
+    Key ktkey = kt.key();
+
+    // We'll only readahead the first level, since descending the B-tree would
+    // require actual reads that would likely hurt performance more than help.
+    const byte * p = C[level].get_p();
+    int c = find_in_block(p, ktkey, false, C[level].c);
+    uint4 n = Item(p, c).block_given_by();
+    // Don't preread if it's the block we last preread or already in the
+    // cursor.
+    if (n != last_readahead && n != C[level - 1].get_n()) {
+	last_readahead = n;
+	if (!io_readahead_block(handle, block_size, n))
+	    RETURN(false);
+    }
+    RETURN(true);
+}
+
+bool
 GlassTable::get_exact_entry(const string &key, string & tag) const
 {
     LOGCALL(DB, bool, "GlassTable::get_exact_entry", key | tag);
@@ -1454,7 +1491,8 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 	  split_p(0),
 	  compress_strategy(compress_strategy_),
 	  comp_stream(compress_strategy_),
-	  lazy(lazy_)
+	  lazy(lazy_),
+	  last_readahead(uint4(-1))
 {
     LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }

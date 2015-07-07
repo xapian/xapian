@@ -252,6 +252,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	return TermIterator();
     }
 
+    const TermIterator get_unique_terms_begin() const;
+
     Xapian::termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
 
     bool XAPIAN_NOTHROW(empty() const) {

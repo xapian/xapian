@@ -99,6 +99,10 @@ class GlassDocDataTable : public GlassLazyTable {
      *		     there's no such document, or the document has no data).
      */
     bool delete_document_data(Xapian::docid did) { return del(make_key(did)); }
+
+    void readahead_for_document(Xapian::docid did) const {
+	readahead_key(make_key(did));
+    }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_DOCDATA_H

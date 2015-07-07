@@ -50,6 +50,11 @@ Database::Internal::keep_alive()
 }
 
 
+void
+Database::Internal::readahead_for_query(const Xapian::Query &)
+{
+}
+
 Xapian::doccount
 Database::Internal::get_value_freq(Xapian::valueno) const
 {

@@ -331,6 +331,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		is_remote[i] = true;
 	    } else {
 		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+		subdb->readahead_for_query(query);
 	    }
 #else
 	    // Avoid unused parameter warnings.

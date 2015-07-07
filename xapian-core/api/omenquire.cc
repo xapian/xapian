@@ -414,6 +414,9 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     }
 
     // Don't cache unless fetch() was called by the API user.
+    // FIXME: This is needed for the remote case, but for a local disk-based
+    // database it means we try to pre-read right before we actually read,
+    // which probably isn't useful.
     enquire->request_doc(items[index - firstitem]);
     RETURN(enquire->read_doc(items[index - firstitem]));
 }

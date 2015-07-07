@@ -347,6 +347,23 @@ GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_revisi
     changes.commit(new_revision, flags);
 }
 
+void
+GlassDatabase::request_document(Xapian::docid did) const
+{
+    docdata_table.readahead_for_document(did);
+}
+
+void
+GlassDatabase::readahead_for_query(const Xapian::Query &query)
+{
+    Xapian::TermIterator t;
+    for (t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
+	const string & term = *t;
+	if (!postlist_table.readahead_key(GlassPostListTable::make_key(term)))
+	    break;
+    }
+}
+
 bool
 GlassDatabase::reopen()
 {

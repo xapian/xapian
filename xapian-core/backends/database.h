@@ -48,6 +48,7 @@ typedef Xapian::ValueIterator::Internal ValueList;
 
 namespace Xapian {
 
+class Query;
 struct ReplicationInfo;
 
 /** Base class for databases.
@@ -104,6 +105,8 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 *  it from timing out.
 	 */
 	virtual void keep_alive();
+
+	virtual void readahead_for_query(const Xapian::Query & query);
 
 	//////////////////////////////////////////////////////////////////
 	// Database statistics:

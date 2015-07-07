@@ -1137,6 +1137,48 @@ ChertTable::del(const string &key)
 }
 
 bool
+ChertTable::readahead_key(const string &key) const
+{
+    LOGCALL(DB, bool, "ChertTable::readahead_key", key);
+    Assert(!key.empty());
+
+    // Two cases:
+    //
+    // handle = -1:  Lazy table which isn't yet open
+    //
+    // handle = -2:  Table has been closed.  Since the readahead is just a
+    // hint, we can safely ignore it for a closed table.
+    if (handle < 0)
+	RETURN(false);
+
+    // If the table only has one level, there are no branch blocks to preread.
+    if (level == 0)
+	RETURN(false);
+
+    form_key(key);
+    Key ktkey = kt.key();
+
+    // We'll only readahead the first level, since descending the B-tree would
+    // require actual reads that would likely hurt performance more than help.
+    const byte * p = C[level].p;
+    int c = find_in_block(p, ktkey, false, C[level].c);
+    uint4 n = Item(p, c).block_given_by();
+    // Don't preread if it's the block we last preread or already in the
+    // cursor.
+    if (n != last_readahead && n != C[level - 1].n) {
+	/* Use the base bit_map_size not the bitmap's size, because the latter
+	 * is uninitialised in readonly mode.
+	 */
+	Assert(n / CHAR_BIT < base.get_bit_map_size());
+
+	last_readahead = n;
+	if (!io_readahead_block(handle, block_size, n))
+	    RETURN(false);
+    }
+    RETURN(true);
+}
+
+bool
 ChertTable::get_exact_entry(const string &key, string & tag) const
 {
     LOGCALL(DB, bool, "ChertTable::get_exact_entry", key | tag);

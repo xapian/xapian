@@ -144,6 +144,34 @@ Query::get_terms_begin() const
     return TermIterator(new VectorTermList(v.begin(), v.end()));
 }
 
+const TermIterator
+Query::get_unique_terms_begin() const
+{
+    if (!internal.get())
+	return TermIterator();
+
+    vector<pair<Xapian::termpos, string> > terms;
+    internal->gather_terms(static_cast<void*>(&terms));
+    sort(terms.begin(), terms.end(), [](
+		const pair<Xapian::termpos, string>& a,
+		const pair<Xapian::termpos, string>& b) {
+	return a.second < b.second;
+    });
+
+    vector<string> v;
+    vector<pair<Xapian::termpos, string> >::const_iterator i;
+    const string * old_term = NULL;
+    for (i = terms.begin(); i != terms.end(); ++i) {
+	// Remove duplicate term names.
+	if (old_term && *old_term == i->second)
+	    continue;
+
+	v.push_back(i->second);
+	old_term = &(i->second);
+    }
+    return TermIterator(new VectorTermList(v.begin(), v.end()));
+}
+
 Xapian::termcount
 Query::get_length() const XAPIAN_NOEXCEPT
 {

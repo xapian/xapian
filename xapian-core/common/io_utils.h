@@ -116,6 +116,16 @@ inline void io_write(int fd, const unsigned char * p, size_t n) {
     io_write(fd, reinterpret_cast<const char *>(p), n);
 }
 
+/** Readahead block b size n bytes from file descriptor fd.
+ *
+ *  Returns false if we can't readahead on this fd.
+ */
+#ifdef HAVE_POSIX_FADVISE
+bool io_readahead_block(int fd, size_t n, off_t b);
+#else
+inline bool io_readahead_block(int, size_t, off_t) { return false; }
+#endif
+
 /// Read block b size n bytes into buffer p from file descriptor fd.
 void io_read_block(int fd, char * p, size_t n, off_t b);
 

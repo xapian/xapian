@@ -77,12 +77,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
 	/** Fetch the document info for a set of items in the MSet.
 	 *
-	 *  This method causes the documents in the range specified by the
-	 *  iterators to be fetched from the database, and cached in the
-	 *  Xapian::MSet object.  This has little effect when performing a
-	 *  search across a local database, but will greatly speed up
-	 *  subsequent access to the document contents when the documents are
-	 *  stored in a remote database.
+	 *  This method provides a hint as to which documents from the MSet
+	 *  will be wanted.  For a local disk-based database, it may result in
+	 *  prefetching of data which will be needed for this; for a remote
+	 *  database, it may start a pipelined fetch of these documents.
 	 *
 	 *  The iterators must be over this Xapian::MSet - undefined behaviour
 	 *  will result otherwise.
