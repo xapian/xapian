@@ -1,0 +1,6 @@
+*.o
+
+/configure
+/config.cache
+/BUILD
+/INST

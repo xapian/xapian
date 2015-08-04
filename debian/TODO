@@ -1,0 +1,6 @@
+A section 3 man page should be written to describe libxapian (see the libxml
+manpage for example.)
+
+We could also produce debug variants of the libxapian package, built with
+--enable-assertions and/or --enable-log (the current -dbg package is just
+debug symbols for the libxapian package).
