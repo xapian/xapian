@@ -1,7 +1,7 @@
 
 all:
-	cd "$(PKG_NAME)" && $(MAKE)
+	cd xapian-core && $(MAKE)
 distcheck:
-	cd "$(PKG_NAME)" && $(MAKE) $@
+	cd xapian-core && $(MAKE) $@
 
 .PHONY: all distcheck

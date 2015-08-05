@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd "$PKG_NAME" && ./autogen.sh "$@"
+cd xapian-core && ./autogen.sh "$@"
