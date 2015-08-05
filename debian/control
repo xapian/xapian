@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.9.3
-Build-Depends: graphviz, help2man, doxygen, python-docutils, debhelper (>= 7), autotools-dev, zlib1g-dev, uuid-dev
+Build-Depends: graphviz, help2man, doxygen, python-docutils, tcl, debhelper (>= 7), autotools-dev, zlib1g-dev, uuid-dev
 Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-core
 Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-core
