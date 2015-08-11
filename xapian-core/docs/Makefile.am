@@ -11,8 +11,7 @@ endif
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-HTMLDOCS = code_structure.html \
- quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
+HTMLDOCS = code_structure.html
 
 RSTDOCS = \
 	admin_notes.rst \
@@ -29,7 +28,6 @@ RSTDOCS = \
 	overview.rst \
 	postingsource.rst \
 	queryparser.rst \
-	quickstart.rst \
 	remote_protocol.rst \
 	remote.rst \
 	replication_protocol.rst \

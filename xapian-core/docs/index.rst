@@ -3,7 +3,7 @@
     <div align="center">
 
 `website <http://xapian.org/>`_ \| `install <install.html>`_ \|
-`quickstart <quickstart.html>`_ \| `overview <overview.html>`_ \|
+`overview <overview.html>`_ \|
 `sysadmins <admin_notes.html>`_ \| `scalability <scalability.html>`_ \|
 `API <apidoc/html/annotated.html>`_ \| `deprecated <deprecation.html>`_
 \| `IR <intro_ir.html>`_ \| `wiki <http://trac.xapian.org/wiki>`_
@@ -34,10 +34,6 @@ documentation for the `other language bindings
 We suggest you start by reading the `Installation
 Guide <install.html>`_, which covers downloading the code, and
 unpacking, configuring, building and installing it.
-
-For a quick introduction to our software, including a walk-through
-example of an application for searching through some data, read the
-`Quickstart <quickstart.html>`_ document.
 
 The `glossary <glossary.html>`_ provides definitions for specialized
 terminology you might encounter while using Xapian.
