@@ -1,3 +1,9 @@
+Tue Aug 11 08:24:48 GMT 2015  Olly Betts <olly@survex.com>
+
+	* pkgconfig/xapian-core.pc.in: Fix library name in .pc file to say
+	  "xapian" not "xapian-core".  Reported by Eric Lindblad to the
+	  xapian-devel list.
+
 Tue Jul 07 01:37:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,api/query.cc,backends/chert/,backends/database.cc,

@@ -11,4 +11,4 @@ libraries for applications using Xapian functionality.
 URL: http://xapian.org/
 Version: @VERSION@
 Cflags: -I${includedir} @abi_affecting_cxxflags@
-Libs: @ldflags@ -L${libdir} -l@PACKAGE@@LIBRARY_VERSION_SUFFIX@
+Libs: @ldflags@ -L${libdir} -lxapian@LIBRARY_VERSION_SUFFIX@
