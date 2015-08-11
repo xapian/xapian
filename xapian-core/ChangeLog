@@ -1,3 +1,9 @@
+Fri Sep 25 04:21:03 GMT 2015  Olly Betts <olly@survex.com>
+
+	* pkgconfig/xapian-core.pc.in: Fix library name in .pc file to say
+	  "xapian" not "xapian-core".  Reported by Eric Lindblad to the
+	  xapian-devel list.
+
 Fri Sep 25 04:18:08 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_compact.cc: Need <unistd.h> for unlink() on
