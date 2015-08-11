@@ -1,3 +1,8 @@
+Tue Aug 11 09:32:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/: Strip out "quickstart" examples which are out of date and
+	  rather redundant with the "simple" examples.
+
 Tue Aug 11 08:24:48 GMT 2015  Olly Betts <olly@survex.com>
 
 	* pkgconfig/xapian-core.pc.in: Fix library name in .pc file to say

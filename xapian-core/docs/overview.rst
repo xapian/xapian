@@ -14,8 +14,7 @@ This document assumes you already have Xapian installed, so if you
 haven't, it is a good idea to read `Installing Xapian <install.html>`_
 first.
 
-You may also wish to read the `QuickStart <quickstart.html>`_ reference,
-for some simple worked examples of Xapian usage, and the `Introduction
+You may also wish to read the `Introduction
 to Information Retrieval <intro_ir.html>`_ for a background into the
 Information Retrieval theories behind Xapian.
 
@@ -855,9 +854,5 @@ from two different processes.
 Examples
 --------
 
-Extensively documented examples of simple usage of the Xapian API for
-creating databases and then for searching through them are given in the
-`QuickStart <quickstart.html>`_ tutorial.
-
-Further examples of usage of Xapian are available in the examples
+Examples of usage of Xapian are available in the examples
 subdirectory of xapian-core.
