@@ -354,16 +354,20 @@ RemoteDatabase::update_stats(message_type msg_code, const string & body) const
     int protocol_minor = static_cast<unsigned char>(*p++);
     if (protocol_major != XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION ||
 	protocol_minor < XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) {
-	string errmsg("Unknown protocol version ");
+	string errmsg("Server supports protocol version");
+	if (protocol_minor) {
+	    errmsg += "s ";
+	    errmsg += str(protocol_major);
+	    errmsg += ".0 to ";
+	}
 	errmsg += str(protocol_major);
 	errmsg += '.';
 	errmsg += str(protocol_minor);
 	errmsg +=
-	    " ("
+	    " - client is using "
 	    STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)
 	    "."
-	    STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)
-	    " supported)";
+	    STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
 	throw Xapian::NetworkError(errmsg, context);
     }
 
