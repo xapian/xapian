@@ -1,3 +1,8 @@
+Fri Sep 25 04:27:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc: Improve error when the client and
+	  server remote protocol versions aren't compatible.
+
 Fri Sep 25 04:23:38 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/: Strip out "quickstart" examples which are out of date and
