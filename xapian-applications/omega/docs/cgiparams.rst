@@ -24,7 +24,10 @@ DB
 xDB
 	database(s) used for last query (separated by / if appropriate).
 	If the database(s) used change then relevance judgements are
-	discarded and the first page of matches is shown.
+	discarded and the first page of matches is shown.  If xDB is not set,
+	the database is assumed not to have changed, which means if you only
+	deal with one database you don't have to pass a useless extra parameter
+	around.
 
 DEFAULTOP
 	default operator - values recognised ``AND``, ``and``, ``OR``, ``or``.

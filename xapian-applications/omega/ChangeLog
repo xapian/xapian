@@ -1,3 +1,7 @@
+Sat Aug 15 17:24:07 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.rst: Document behaviour if xDB is not set.
+
 Sat Aug 15 17:19:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.rst,query.cc: If xFILTERS is not set, don't force the
