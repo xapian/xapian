@@ -2318,13 +2318,11 @@ ensure_query_parsed()
 	    val = cgi_params.find("xDB");
 	    if (val != cgi_params.end() && val->second != dbname) break;
 	    if (result == SAME_QUERY && force_first_page) {
-		force_first_page = false;
 		val = cgi_params.find("xFILTERS");
-		string xfilters;
-		if (val != cgi_params.end()) xfilters = val->second;
-		if (filters != xfilters) {
-		    // Filters changed since last query
-		    force_first_page = true;
+		if (val != cgi_params.end() && val->second != filters) {
+		    // Filters have changed since last query.
+		} else {
+		    force_first_page = false;
 		}
 	    }
 	    discard_rset = false;
