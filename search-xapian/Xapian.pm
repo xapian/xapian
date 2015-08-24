@@ -31,7 +31,6 @@ use Search::Xapian::BM25Weight;
 use Search::Xapian::BoolWeight;
 use Search::Xapian::TradWeight;
 
-use Search::Xapian::MatchSpy;
 use Search::Xapian::ValueCountMatchSpy;
 use Search::Xapian::PerlMatchSpy;
 

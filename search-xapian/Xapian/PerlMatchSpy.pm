@@ -5,6 +5,10 @@ use strict;
 use warnings;
 use Carp;
 
+use Search::Xapian::MatchSpy;
+require DynaLoader;
+@Search::Xapian::PerlMatchSpy = qw(DynaLoader Search::Xapian::MatchSpy);
+
 sub CLONE_SKIP { 1 }
 
 sub register {
@@ -81,7 +85,10 @@ Sub-classes need to use this parent class and provide implementations for the re
 
 Virtual method. Must be implemented by extending classes. Registers a document with the match spy.
 
-This is called by the matcher once with each document seen by the matcher during the match process. Note that the matcher will often not see all the documents which match the query, due to optimisations which allow low-weighted documents to be skipped, and allow the match process to be terminated early.
+This is called by the matcher once with each document seen by the matcher
+during the match process. Note that the matcher will often not see all the
+documents which match the query, due to optimisations which allow low-weighted
+documents to be skipped, and allow the match process to be terminated early.
 
 =back
 

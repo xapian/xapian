@@ -7,7 +7,6 @@ Enquire::new(databases)
     Database *  databases
     CODE:
 	try {
-	    RETVAL = XAPIAN_PERL_NEW(PerlSpyAwareEnquire, (*databases));
 	    RETVAL = XAPIAN_PERL_NEW(Enquire, (*databases));
 	} catch (...) {
 	    handle_exception();
@@ -329,35 +328,39 @@ string
 Enquire::get_description()
 
 void
-Enquire::add_matchspyi(spy)
-    MatchSpy* spy
+Enquire::add_matchspy_perl(MatchSpy * spy)
     CODE:
-        try {
-            THIS->add_matchspy(spy);
-        } catch (...) {
-            handle_exception();
-        }
+    try {
+        fprintf(stderr, "Adding perl matchspy?\n");
+        XAPIAN_PERL_REF(Enquire, THIS, matchspy, ST(1));
+        THIS->add_matchspy(spy);
+    } catch (...) {
+        handle_exception();
+    }
 
 void
-Enquire::add_pmatchspy(spy)
-    SV* spy
+Enquire::add_matchspy_internal(MatchSpy * spy)
     CODE:
-        try {
-            ((PerlSpyAwareEnquire*) THIS)->add_pmatchspy(spy);
-        } catch (...) {
-            handle_exception();
-        }
+    try {
+        printf("In add_matchspy\n");
+        XAPIAN_PERL_REF(Enquire, THIS, matchspy, ST(1));
+        THIS->add_matchspy(spy);
+    } catch (...) {
+        handle_exception();
+    }
 
 void
 Enquire::clear_matchspies()
     CODE:
-        try {
-            ((PerlSpyAwareEnquire*) THIS)->clear_matchspies();
-        } catch (...) {
-            handle_exception();
-        }
+    try {
+        printf("in Enquire.xs clear_matchspies\n");
+        XAPIAN_PERL_REF(Enquire, THIS, clear_matchspies,  NULL);
+        THIS->clear_matchspies();
+    } catch (...) {
+        handle_exception();
+    }
 
 void
 Enquire::DESTROY()
     CODE:
-	XAPIAN_PERL_DESTROY(PerlSpyAwareEnquire, THIS);
+	XAPIAN_PERL_DESTROY(Enquire, THIS);

@@ -28,6 +28,7 @@ using namespace Xapian;
 struct Enquire_perl {
     Enquire real_obj;
     SV * sorter;
+    vector<SV *> matchspies;
 
     Enquire_perl(const Xapian::Database & db) : real_obj(db), sorter(NULL) { }
 
@@ -37,9 +38,31 @@ struct Enquire_perl {
 	SvREFCNT_dec(sv);
     }
 
+    void ref_matchspy(SV* sv) {
+	SvREFCNT_inc(sv);
+	fprintf(stderr, "in ref_matchspy, have %lu spies already!\n", matchspies.size());
+	matchspies.push_back(sv);
+    }
+    void ref_clear_matchspies(SV* sv) {
+	fprintf(stderr, "in ref_clear_matchspies, have %lu spies already!\n", matchspies.size());
+
+	vector<SV *>::const_iterator i;
+	for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	    fprintf(stderr, "  decreasing refcount for a matchspy\n");
+	    SvREFCNT_dec(*i);
+	}
+	matchspies.clear();
+    }
     ~Enquire_perl() {
+	fprintf(stdout, "in destroyer for Enquire, gonna clear up sorters and matchspies!\n");
 	SvREFCNT_dec(sorter);
 	sorter = NULL;
+	vector<SV *>::const_iterator i;
+	for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	    fprintf(stderr, "  decreasing refcount for a matchspy\n");
+	    SvREFCNT_dec(*i);
+	}
+	matchspies.clear();
     }
 };
 
@@ -230,85 +253,45 @@ class perlExpandDecider : public Xapian::ExpandDecider {
  * Make operator(doc, wt) call Perl $OBJECT->register(doc, wt)
  */
 
-class PerlMatchSpyAdaptor : public Xapian::MatchSpy {
-    public:
-        PerlMatchSpyAdaptor(SV* spy) {
-            obj = newRV_inc(spy);
-        }
+class PerlMatchSpy_perl : public Xapian::MatchSpy {
+    SV * SV_matchspy_ref;
+    
+  public:
+    PerlMatchSpy_perl(SV* spy) {
+	fprintf(stdout, "In PerlMatchSpy XS new?\n");
+	SV_matchspy_ref = newRV_inc(spy);
+    }
 
-        ~PerlMatchSpyAdaptor() {
-            sv_2mortal(obj);
-        }
+    ~PerlMatchSpy_perl() {
+	sv_2mortal(SV_matchspy_ref);
+    }
 
-        void operator()(const Xapian::Document& doc, Xapian::weight wt) {
-            dSP ;
+    void operator()(const Xapian::Document& doc, Xapian::weight wt) {
+	dSP ;
 
-            ENTER ;
-            SAVETMPS ;
+	ENTER ;
+	SAVETMPS ;
 
-            PUSHMARK(SP);
+	PUSHMARK(SP);
+	PUSHs(SvRV(SV_matchspy_ref));
 
-            SV* arg = sv_newmortal();
-            Document* pdoc = new Document(doc);
-            sv_setref_pv(arg, "Search::Xapian::Document", (void*) pdoc);
-            
-            PUSHs(SvRV(obj));
-            XPUSHs(arg);
-            mXPUSHn(wt);
+	fprintf(stdout, "XXXXX: in operatore in PerlMatchSpy Xapian.xs, about to call register\n");
+	SV* arg = sv_newmortal();
+	Document* pdoc = new Document(doc);
+	sv_setref_pv(arg, "Search::Xapian::Document", (void*) pdoc);
 
-            PUTBACK ;
+	XPUSHs(arg);
+	mXPUSHn(wt);
 
-            call_method("register", G_VOID);
+	PUTBACK ;
 
-            SPAGAIN ;
-            FREETMPS ;
-            LEAVE ;
-        }
+	call_method("register", G_VOID);
 
-    private:
-        SV * obj;
+	SPAGAIN ;
+	FREETMPS ;
+	LEAVE ;
+    }
 };
-
-/* PerlSpyAwareEnquire
- *
- * Extend Xapian::Enquire to keep track of all created PerlMatchSpyAdatptor classes
- * Helps avoid cyclic references and memory leaks 
- */
-class PerlSpyAwareEnquire : public Xapian::Enquire {
-    public:
-        PerlSpyAwareEnquire(Database& database) : Xapian::Enquire(database) {
-        }
-
-        ~PerlSpyAwareEnquire() {
-            freePerlSpies();
-        }
-
-        void add_pmatchspy(SV* spy) {
-            MatchSpy* iMatchSpy = new PerlMatchSpyAdaptor(spy);
-            try {
-                add_matchspy(iMatchSpy);
-                perlSpyRefs.push_back(iMatchSpy);
-            } catch (...) {
-                delete iMatchSpy;
-                throw;
-            }   
-        }
-
-        void clear_matchspies() {
-            Enquire::clear_matchspies();
-            freePerlSpies();
-        }
-    private:
-        std::vector<MatchSpy*> perlSpyRefs;
-
-        void freePerlSpies() {
-            while(!perlSpyRefs.empty()){
-                delete perlSpyRefs.back();
-                perlSpyRefs.pop_back();
-            }
-        }
-}; 
-
 
 MODULE = Search::Xapian		PACKAGE = Search::Xapian
 
