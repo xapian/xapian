@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.2.4.0';
+our $VERSION = '1.2.4.1';
 
 use Exporter 'import';
 
@@ -30,6 +30,10 @@ use Search::Xapian::WritableDatabase;
 use Search::Xapian::BM25Weight;
 use Search::Xapian::BoolWeight;
 use Search::Xapian::TradWeight;
+
+use Search::Xapian::MatchSpy;
+use Search::Xapian::ValueCountMatchSpy;
+use Search::Xapian::PerlMatchSpy;
 
 use Search::Xapian::SimpleStopper;
 use Search::Xapian::PerlStopper;
@@ -493,6 +497,7 @@ L<Search::Xapian::TradWeight>,
 L<Search::Xapian::ValueIterator>,
 L<Search::Xapian::Weight>,
 L<Search::Xapian::WritableDatabase>,
+L<Search::Xapian::MatchSpy>,
 and
 L<http://xapian.org/>.
 

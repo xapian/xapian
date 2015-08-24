@@ -7,12 +7,17 @@ Enquire::new(databases)
     Database *  databases
     CODE:
 	try {
-	    RETVAL = new Enquire(*databases);
+	    RETVAL = new PerlSpyAwareEnquire(*databases);
 	} catch (...) {
 	    handle_exception();
 	}
     OUTPUT:
 	RETVAL
+
+void
+Enquire::DESTROY()
+    CODE:
+        delete (PerlSpyAwareEnquire*) THIS;
 
 void
 Enquire::set_query1(query)
@@ -320,4 +325,30 @@ string
 Enquire::get_description()
 
 void
-Enquire::DESTROY()
+Enquire::add_matchspyi(spy)
+    MatchSpy* spy
+    CODE:
+        try {
+            THIS->add_matchspy(spy);
+        } catch (...) {
+            handle_exception();
+        }
+
+void
+Enquire::add_pmatchspy(spy)
+    SV* spy
+    CODE:
+        try {
+            ((PerlSpyAwareEnquire*) THIS)->add_pmatchspy(spy);
+        } catch (...) {
+            handle_exception();
+        }
+
+void
+Enquire::clear_matchspies()
+    CODE:
+        try {
+            ((PerlSpyAwareEnquire*) THIS)->clear_matchspies();
+        } catch (...) {
+            handle_exception();
+        }

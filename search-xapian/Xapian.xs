@@ -152,6 +152,91 @@ class perlExpandDecider : public Xapian::ExpandDecider {
     }
 };
 
+/* PerlMatchSpy class
+ *
+ * Make operator(doc, wt) call Perl $OBJECT->register(doc, wt)
+ */
+
+class PerlMatchSpyAdaptor : public Xapian::MatchSpy {
+    public:
+        PerlMatchSpyAdaptor(SV* spy) {
+            obj = newRV_inc(spy);
+        }
+
+        ~PerlMatchSpyAdaptor() {
+            sv_2mortal(obj);
+        }
+
+        void operator()(const Xapian::Document& doc, Xapian::weight wt) {
+            dSP ;
+
+            ENTER ;
+            SAVETMPS ;
+
+            PUSHMARK(SP);
+
+            SV* arg = sv_newmortal();
+            Document* pdoc = new Document(doc);
+            sv_setref_pv(arg, "Search::Xapian::Document", (void*) pdoc);
+            
+            PUSHs(SvRV(obj));
+            XPUSHs(arg);
+            mXPUSHn(wt);
+
+            PUTBACK ;
+
+            call_method("register", G_VOID);
+
+            SPAGAIN ;
+            FREETMPS ;
+            LEAVE ;
+        }
+
+    private:
+        SV * obj;
+};
+
+/* PerlSpyAwareEnquire
+ *
+ * Extend Xapian::Enquire to keep track of all created PerlMatchSpyAdatptor classes
+ * Helps avoid cyclic references and memory leaks 
+ */
+class PerlSpyAwareEnquire : public Xapian::Enquire {
+    public:
+        PerlSpyAwareEnquire(Database& database) : Xapian::Enquire(database) {
+        }
+
+        ~PerlSpyAwareEnquire() {
+            freePerlSpies();
+        }
+
+        void add_pmatchspy(SV* spy) {
+            MatchSpy* iMatchSpy = new PerlMatchSpyAdaptor(spy);
+            try {
+                add_matchspy(iMatchSpy);
+                perlSpyRefs.push_back(iMatchSpy);
+            } catch (...) {
+                delete iMatchSpy;
+                throw;
+            }   
+        }
+
+        void clear_matchspies() {
+            Enquire::clear_matchspies();
+            freePerlSpies();
+        }
+    private:
+        std::vector<MatchSpy*> perlSpyRefs;
+
+        void freePerlSpies() {
+            while(!perlSpyRefs.empty()){
+                delete perlSpyRefs.back();
+                perlSpyRefs.pop_back();
+            }
+        }
+}; 
+
+
 MODULE = Search::Xapian		PACKAGE = Search::Xapian
 
 PROTOTYPES: ENABLE
@@ -203,6 +288,10 @@ INCLUDE: XS/Weight.xs
 INCLUDE: XS/DateValueRangeProcessor.xs
 INCLUDE: XS/NumberValueRangeProcessor.xs
 INCLUDE: XS/StringValueRangeProcessor.xs
+
+
+INCLUDE: XS/MatchSpy.xs
+INCLUDE: XS/ValueCountMatchSpy.xs
 
 BOOT:
     {
