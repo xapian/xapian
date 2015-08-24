@@ -1,7 +1,7 @@
 /* flint_btreebase.h: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004,2007,2008 Olly Betts
+ * Copyright 2002,2004,2007,2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,9 +33,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	/** Construct an object with all zero fields. */
 	FlintTable_base();
 
-	/** Copy constructor */
-	FlintTable_base(const FlintTable_base &other);
-
 	/** Destructor - frees resources. */
 	~FlintTable_base();
 
@@ -43,13 +40,15 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	 *
 	 *  @param name		The base of the filename
 	 *  @param ch		The suffix
+	 *  @param read_bitmap	True if we should read the bitmap
 	 *  @param err_msg	An error string which will be appended
 	 *  			to for some errors instead of throwing
 	 *  			an exception.
 	 *
 	 *  @return	true if the read succeeded, or false otherwise.
 	 */
-	bool read(const std::string &name, char ch, std::string &err_msg);
+	bool read(const std::string &name, char ch, bool read_bitmap,
+		  std::string &err_msg);
 
 	uint4 get_revision() const { return revision; }
 	uint4 get_block_size() const { return block_size; }
@@ -121,6 +120,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	void swap(FlintTable_base &other);
 
     private:
+	/** No copying. */
+	FlintTable_base(const FlintTable_base &);
+
 	/** private assignment operator - you probably want swap() instead */
 	void operator=(const FlintTable_base &other);
 

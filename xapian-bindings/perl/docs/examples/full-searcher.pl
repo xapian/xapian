@@ -19,7 +19,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
+use 5.006;
 use strict;
+use warnings;
+
 use Search::Xapian (':all');
 
 # Constants denoting what we're using the number value slots for.
@@ -132,7 +135,7 @@ eval {
     print "Results 1-$msize:\n";
 
     foreach my $m ($mset->items()) {
-        printf "#%u: Score %u%%: %s\n",
+	printf "#%u: Score %u%%: %s\n",
 	      $m->get_rank() + 1,
 	      $m->get_percent(),
 	      $m->get_document()->get_data();

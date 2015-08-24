@@ -35,6 +35,8 @@
 // Use SWIG directors for Python wrappers.
 #define XAPIAN_SWIG_DIRECTORS
 
+%include version.i
+
 %include typemaps.i
 %include stl.i
 
@@ -157,28 +159,6 @@ namespace Xapian {
     }
     $1 = &v;
     Py_DECREF(fastseq);
-}
-
-#define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
-%typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
-    $result = PyList_New(0);
-    if ($result == 0) {
-	return NULL;
-    }
-
-    for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
-%#if PY_VERSION_HEX >= 0x03000000
-	PyObject * str = PyBytes_FromStringAndSize((*i).data(), (*i).size());
-%#else
-	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
-%#endif
-	if (str == 0) return NULL;
-	if (PyList_Append($result, str) == -1) {
-            Py_DECREF(str);
-            return NULL;
-        }
-        Py_DECREF(str);
-    }
 }
 
 %typedef PyObject *LangSpecificListType;
@@ -351,15 +331,11 @@ namespace Xapian {
     }
 }
 
-%{
-/* Forward declaration. */
-SWIGINTERN int
-SWIG_AsPtr_std_string (PyObject * obj, std::string **val);
-
+%fragment("XapianSWIG_anystring_as_ptr", "header", fragment="SWIG_AsPtr_std_string") {
 /* Utility function which works like SWIG_AsPtr_std_string, but
  * converts unicode strings to UTF-8 simple strings first. */
-SWIGINTERN int
-SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
+static int
+XapianSWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 {
     if (PyUnicode_Check(*obj)) {
 	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(*obj), PyUnicode_GET_SIZE(*obj), "ignore");
@@ -371,36 +347,36 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 	return SWIG_AsPtr_std_string(*obj, val);
     }
 }
-%}
+}
 
 /* These typemaps depends somewhat heavily on the internals of SWIG, so
  * might break with future versions of SWIG.
  */
-%typemap(in) const std::string &(int res = SWIG_OLDOBJ) {
+%typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string &(int res = SWIG_OLDOBJ) {
     std::string *ptr = (std::string *)0;
-    res = SWIG_anystring_as_ptr(&($input), &ptr);
+    res = XapianSWIG_anystring_as_ptr(&($input), &ptr);
     if (!SWIG_IsOK(res)) {
-	%argument_fail(res,"$type",$symname, $argnum); 
+	%argument_fail(res, "$type", $symname, $argnum);
     }
     if (!ptr) {
-	%argument_nullref("$type",$symname, $argnum); 
+	%argument_nullref("$type", $symname, $argnum);
     }
     $1 = ptr;
 }
-%typemap(in) std::string {
+%typemap(in, fragment="XapianSWIG_anystring_as_ptr") std::string {
     std::string *ptr = (std::string *)0;
-    int res = SWIG_anystring_as_ptr(&($input), &ptr);
+    int res = XapianSWIG_anystring_as_ptr(&($input), &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-	%argument_fail((ptr ? res : SWIG_TypeError),"$type",$symname, $argnum); 
+	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }
     $1 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
 }
-%typemap(freearg,noblock=1,match="in") const std::string & {
+%typemap(freearg, noblock=1, match="in") const std::string & {
     if (SWIG_IsNewObj(res$argnum)) %delete($1);
 }
-%typemap(typecheck,noblock=1,precedence=900) const std::string & {
-    int res = SWIG_anystring_as_ptr(&($input), (std::string**)(0));
+%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
+    int res = XapianSWIG_anystring_as_ptr(&($input), (std::string**)(0));
     $1 = SWIG_CheckState(res);
 
 }
@@ -409,17 +385,17 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
  * get_description() method of a Stopper subclass to a C++ caller, but might be
  * more generally useful in future.
  */
-%typemap(directorout,noblock=1) std::string {
+%typemap(directorout, noblock=1, fragment="XapianSWIG_anystring_as_ptr") std::string {
     std::string *swig_optr = 0;
     int swig_ores;
     {
 	PyObject * tmp = $input;
 	Py_INCREF(tmp);
-	swig_ores = SWIG_anystring_as_ptr(&tmp, &swig_optr);
+	swig_ores = XapianSWIG_anystring_as_ptr(&tmp, &swig_optr);
 	Py_DECREF(tmp);
     }
     if (!SWIG_IsOK(swig_ores) || !swig_optr) {
-	%dirout_fail((swig_optr ? swig_ores : SWIG_TypeError),"$type");
+	%dirout_fail((swig_optr ? swig_ores : SWIG_TypeError), "$type");
     }
     $result = *swig_optr;
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
@@ -455,7 +431,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (!SWIG_IsOK(swig_res) || !ptr) {
         delete ptr;
         ptr = (std::string *)0;
-	%dirout_fail((ptr ? swig_res : SWIG_TypeError),"($type, std::string, std::string)"); 
+	%dirout_fail((ptr ? swig_res : SWIG_TypeError), "($type, std::string, std::string)");
     }
     begin = *ptr;
     delete ptr;
@@ -466,7 +442,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (!SWIG_IsOK(swig_res) || !ptr) {
         delete ptr;
         ptr = (std::string *)0;
-	%dirout_fail((ptr ? swig_res : SWIG_TypeError),"($type, std::string, std::string)"); 
+	%dirout_fail((ptr ? swig_res : SWIG_TypeError), "($type, std::string, std::string)");
     }
     end = *ptr;
     delete ptr;
@@ -481,7 +457,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     std::string *ptr = (std::string *)0;
     int res = SWIG_AsPtr_std_string($input, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-	%argument_fail((ptr ? res : SWIG_TypeError),"$type",$symname, $argnum); 
+	%argument_fail((ptr ? res : SWIG_TypeError), "$type", $symname, $argnum);
     }
     temp = *ptr;
     $1 = &temp;

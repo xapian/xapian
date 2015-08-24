@@ -14,7 +14,7 @@ our @ISA = qw(DynaLoader);
 sub CLONE_SKIP { 1 }
 
 use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -165,6 +165,17 @@ This will only be set if FLAG_SPELLING_CORRECTION is specified when
 QueryParser::parse_query() was last called.
 
 If there were no corrections, an empty string is returned.
+
+=item set_max_wildcard_expansion <limit>
+
+Specify the maximum expansion of a wildcard term.
+
+Note: you must also set FLAG_WILDCARD for wildcard expansion to happen.
+
+Parameter limit is the maximum number of terms each wildcard in the query can
+expand to, or 0 for no limit (which is the default).
+
+=cut
 
 =back
 

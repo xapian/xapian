@@ -1,7 +1,7 @@
 /** @file realtime.h
  *  @brief Functions for handling a time or time interval in a double.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -84,21 +84,21 @@ inline void sleep(double t) {
     double delta;
     struct timeval tv;
     do {
-	delta = RealTime::now() - t;
+	delta = t - RealTime::now();
 	if (delta <= 0.0)
 	    return;
 	tv.tv_sec = long(delta);
 	tv.tv_usec = long(std::fmod(delta, 1.0) * 1e6);
     } while (select(0, NULL, NULL, NULL, &tv) < 0 && errno == EINTR);
 #else
-    double delta = RealTime::now() - t;
+    double delta = t - RealTime::now();
     if (delta <= 0.0)
 	return;
-    while (rare(t > 4294967.0)) {
+    while (rare(delta > 4294967.0)) {
 	xapian_sleep_milliseconds(4294967000u);
-	t -= 4294967.0;
+	delta -= 4294967.0;
     }
-    xapian_sleep_milliseconds(unsigned(t * 1000.0));
+    xapian_sleep_milliseconds(unsigned(delta * 1000.0));
 #endif
 }
 

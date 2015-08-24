@@ -1,0 +1,7 @@
+/.*.sw?
+/*.lo
+/*.obj
+/.deps
+/.libs
+/.dirstamp
+/unicode-data.cc

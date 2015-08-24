@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -59,9 +59,12 @@
 #include "str.h"
 #include "stringutils.h"
 #include "transform.h"
+#include "urldecode.h"
+#include "urlencode.h"
 #include "unixperm.h"
 #include "values.h"
 #include "weight.h"
+#include "expand.h"
 
 #include <xapian.h>
 
@@ -173,7 +176,7 @@ prefix_from_term(string &prefix, const string &term)
     if (term[0] == 'X') {
 	const string::const_iterator begin = term.begin();
 	string::const_iterator i = begin + 1;
-	while (i != term.end() && isupper(static_cast<unsigned char>(*i))) ++i;
+	while (i != term.end() && C_isupper(*i)) ++i;
 	prefix.assign(begin, i);
 	if (i != term.end() && *i == ':') ++i;
 	return i - begin;
@@ -236,7 +239,76 @@ set_probabilistic(const string &oldp)
     }
 
     try {
-	unsigned f = qp.FLAG_DEFAULT;
+	unsigned f = 0;
+	map<string, string>::const_iterator i = option.lower_bound("flag_");
+	for (; i != option.end() && startswith(i->first, "flag_"); ++i) {
+	    if (i->second.empty()) continue;
+	    const string & s = i->first;
+	    switch (s[5]) {
+		case 'a':
+		    if (s == "flag_auto_multiword_synonyms") {
+			f |= Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+			break;
+		    }
+		    if (s == "flag_auto_synonyms") {
+			f |= Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
+			break;
+		    }
+		    break;
+		case 'b':
+		    if (s == "flag_boolean") {
+			f |= Xapian::QueryParser::FLAG_BOOLEAN;
+			break;
+		    }
+		    if (s == "flag_boolean_any_case") {
+			f |= Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
+			break;
+		    }
+		    break;
+		case 'd':
+		    if (s == "flag_default") {
+			f |= Xapian::QueryParser::FLAG_DEFAULT;
+			break;
+		    }
+		    break;
+		case 'l':
+		    if (s == "flag_lovehate") {
+			f |= Xapian::QueryParser::FLAG_LOVEHATE;
+			break;
+		    }
+		    break;
+		case 'p':
+		    if (s == "flag_partial") {
+			f |= Xapian::QueryParser::FLAG_PARTIAL;
+			break;
+		    }
+		    if (s == "flag_phrase") {
+			f |= Xapian::QueryParser::FLAG_PHRASE;
+			break;
+		    }
+		    if (s == "flag_pure_not") {
+			f |= Xapian::QueryParser::FLAG_PURE_NOT;
+			break;
+		    }
+		    break;
+		case 's':
+		    if (s == "flag_spelling_correction") {
+			f |= Xapian::QueryParser::FLAG_SPELLING_CORRECTION;
+			break;
+		    }
+		    if (s == "flag_synonym") {
+			f |= Xapian::QueryParser::FLAG_SYNONYM;
+			break;
+		    }
+		    break;
+		case 'w':
+		    if (s == "flag_wildcard") {
+			f |= Xapian::QueryParser::FLAG_WILDCARD;
+			break;
+		    }
+		    break;
+	    }
+	}
 	if (option["spelling"] == "true")
 	    f |= qp.FLAG_SPELLING_CORRECTION;
 	query = qp.parse_query(query_string, f);
@@ -400,13 +472,18 @@ run_query()
     }
 
     if (!query.empty()) {
+#if 0
+	// FIXME: If we start doing permissions checks based on $REMOTE_USER
+	// we're going to break some existing setups if users upgrade.  We
+	// probably want a way to set this from OmegaScript.
 	const char * remote_user = getenv("REMOTE_USER");
 	if (remote_user)
 	    apply_unix_permissions(query, remote_user);
+#endif
 
 	enquire->set_query(query);
 	// We could use the value of topdoc as first parameter, but we
-	// need to know the first few items on the mset to fake a
+	// need to know the first few items in the mset to fake a
 	// relevance set for topterms.
 	//
 	// If min_hits isn't set, check at least one extra result so we
@@ -415,24 +492,6 @@ run_query()
 	mset = enquire->get_mset(0, topdoc + hits_per_page,
 				 topdoc + max(hits_per_page + 1, min_hits),
 				 &rset, mdecider);
-    }
-}
-
-static string
-percent_encode(const string &str)
-{
-    string res;
-    const char *p = str.c_str();
-    while (true) {
-	unsigned char ch = *p++;
-	if (ch == 0) return res;
-	if (ch <= 32 || ch >= 127 || strchr("#%&+,/:;<=>?@[\\]^_{|}", ch)) {
-	    char buf[4];
-	    my_snprintf(buf, sizeof(buf), "%%%02x", ch);
-	    res.append(buf, 3);
-	} else {
-	    res += ch;
-	}
     }
 }
 
@@ -509,20 +568,14 @@ static int word_in_list(const string& word, const string& list)
 inline static bool
 p_notid(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '_';
+    return !C_isalnum(c) && c != '_';
 }
 
 // Not a character in an HTML tag name
 inline static bool
 p_nottag(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '-';
-}
-
-inline static bool
-p_plusminus(unsigned int c)
-{
-    return c == '+' || c == '-';
+    return !C_isalnum(c) && c != '.' && c != '-';
 }
 
 // FIXME: shares algorithm with indextext.cc!
@@ -546,10 +599,10 @@ html_highlight(const string &s, const string &list,
 	string term;
 	string word;
 	const char *l = j.raw();
-	if (*first < 128 && isupper(*first)) {
+	if (*first < 128 && C_isupper(*first)) {
 	    j = first;
 	    Xapian::Unicode::append_utf8(term, *j);
-	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
+	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && C_isupper(*j)) {
 		Xapian::Unicode::append_utf8(term, *j);
 	    }
 	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
@@ -789,6 +842,7 @@ CMD_or,
 CMD_pack,
 CMD_percentage,
 CMD_prettyterm,
+CMD_prettyurl,
 CMD_query,
 CMD_querydescription,
 CMD_queryterms,
@@ -908,6 +962,7 @@ T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
 T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
+T(prettyurl,	   1, 1, N, 0), // pretty version of URL
 T(query,	   0, 0, N, Q), // query
 T(querydescription,0, 0, N, Q), // query.get_description()
 T(queryterms,	   0, 0, N, Q), // list of query terms
@@ -1642,6 +1697,10 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_prettyterm:
 		value = pretty_term(args[0]);
 		break;
+	    case CMD_prettyurl:
+		value = args[0];
+		url_prettify(value);
+		break;
 	    case CMD_query:
 		value = query_string;
 		break;
@@ -1854,7 +1913,9 @@ eval(const string &fmt, const vector<string> &param)
 		    OmegaExpandDecider decider(db, &termset);
 
 		    if (!rset.empty()) {
-			eset = enquire->get_eset(howmany * 2, rset, &decider);
+			set_expansion_scheme(*enquire, option);
+			eset = enquire->get_eset(howmany * 2, rset, 0,
+						 expand_param_k, &decider);
 		    } else if (mset.size()) {
 			// invent an rset
 			Xapian::RSet tmp;
@@ -1867,7 +1928,9 @@ eval(const string &fmt, const vector<string> &param)
 			    if (--c == 0) break;
 			}
 
-			eset = enquire->get_eset(howmany * 2, tmp, &decider);
+			set_expansion_scheme(*enquire, option);
+			eset = enquire->get_eset(howmany * 2, tmp, 0,
+						 expand_param_k, &decider);
 		    }
 
 		    // Don't show more than one word with the same stem.
@@ -1925,7 +1988,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = Xapian::Unicode::toupper(args[0]);
 		break;
 	    case CMD_url:
-	        value = percent_encode(args[0]);
+		url_encode(value, args[0]);
 		break;
 	    case CMD_value: {
 		Xapian::docid id = q0;
@@ -1935,7 +1998,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_version:
-		value = "Xapian - "PACKAGE" "VERSION;
+		value = PACKAGE_STRING;
 		break;
 	    case CMD_weight:
 		value = double_to_string(weight);
@@ -1990,13 +2053,13 @@ pretty_term(string term)
     if (term.length() <= 1) return term;
 
     // Assume unprefixed terms are unstemmed.
-    if (!isupper(term[0])) return term;
+    if (!C_isupper(term[0])) return term;
 
     // FIXME: keep this for now in case people are still generating 'R' terms?
     // But if we assumed unprefixed terms are unstemmed, what use is this?
     if (term[0] == 'R') {
 	term.erase(0, 1);
-	term[0] = toupper(static_cast<unsigned char>(term[0]));
+	term[0] = C_toupper(term[0]);
 	return term;
     }
 
@@ -2016,7 +2079,7 @@ pretty_term(string term)
     bool add_quotes = false;
 
     // Check if the term has a prefix.
-    if (isupper(term[0])) {
+    if (C_isupper(term[0])) {
 	// See if we have this prefix in the termprefix_to_userprefix map.  If
 	// so, just reverse the mapping (e.g. turn 'Sfish' into 'subject:fish').
 	string prefix;
@@ -2070,6 +2133,7 @@ parse_omegascript()
 	std::string output = eval_file(fmtname);
 	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << std::endl;
+	    set_content_type = true;
 	}
 	cout << std::endl;
 	cout << output;
@@ -2078,6 +2142,7 @@ parse_omegascript()
 	// reported rather than giving a server error.
 	if (!set_content_type && !suppress_http_headers) {
 	    cout << "Content-Type: text/html" << std::endl;
+	    set_content_type = true;
 	}
 	cout << std::endl;
 	throw;
@@ -2155,7 +2220,10 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
+	    long page = atol(val->second.c_str());
+	    // Do something sensible for page 0 (we count pages from 1).
+	    if (page == 0) page = 1;
+	    topdoc = (page - 1) * hits_per_page;
 	}
 
 	// raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
@@ -2238,7 +2306,7 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
 	       ch = term[0];
 	    }
 
-	    if (isupper(ch)) {
+	    if (C_isupper(ch)) {
 		string prefix;
 		size_t prefix_len = prefix_from_term(prefix, term);
 		term.erase(0, prefix_len);
@@ -2257,7 +2325,7 @@ OmegaExpandDecider::operator()(const string & term) const
     unsigned char ch = term[0];
 
     // Reject terms with a prefix.
-    if (isupper(ch)) return false;
+    if (C_isupper(ch)) return false;
 
     {
 	MyStopper stopper;
@@ -2266,7 +2334,7 @@ OmegaExpandDecider::operator()(const string & term) const
     }
 
     // Reject small numbers.
-    if (term.size() < 4 && isdigit(ch)) return false;
+    if (term.size() < 4 && C_isdigit(ch)) return false;
 
     // Reject terms containing a space.
     if (term.find(' ') != string::npos) return false;

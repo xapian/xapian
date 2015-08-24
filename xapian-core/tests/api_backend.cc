@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2013,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -30,10 +30,14 @@
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
+#include "unixcmds.h"
 #include "utils.h"
 
 #include "apitest.h"
 
+#include "safeerrno.h"
+#include "safefcntl.h"
+#include "safesysstat.h"
 #include "safeunistd.h"
 
 using namespace std;
@@ -101,6 +105,42 @@ DEFINE_TESTCASE(dbstats1, backend) {
     }
 
     TEST_REL(db.get_wdf_upper_bound("the"),>=,max_wdf);
+
+    return true;
+}
+
+// Check stats with a single document.  In a multi-database situation, this
+// gave 0 for get-_doclength_lower_bound() in 1.3.2.
+DEFINE_TESTCASE(dbstats2, backend) {
+    Xapian::Database db = get_database("apitest_onedoc");
+
+    // Use precalculated values to avoid expending CPU cycles to calculate
+    // these every time without improving test coverage.
+    const Xapian::termcount min_len = 15;
+    const Xapian::termcount max_len = 15;
+    const Xapian::termcount max_wdf = 7;
+
+    if (get_dbtype() != "inmemory" && get_dbtype() != "flint") {
+	// Should be exact as no deletions have happened.
+	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
+	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);
+    } else {
+	// For inmemory and flint, we usually give rather loose bounds.
+	TEST_REL(db.get_doclength_upper_bound(),>=,max_len);
+	TEST_REL(db.get_doclength_lower_bound(),<=,min_len);
+    }
+
+    if (get_dbtype() != "inmemory" && get_dbtype() != "flint" &&
+	!startswith(get_dbtype(), "remote")) {
+	TEST_EQUAL(db.get_wdf_upper_bound("word"), max_wdf);
+    } else {
+	// For inmemory, flint, and remote backends, we usually give rather
+	// loose bounds (remote matches use tighter bounds, but querying the
+	// wdf bound gives a looser one).
+	TEST_REL(db.get_wdf_upper_bound("word"),>=,max_wdf);
+    }
+
+    TEST_EQUAL(db.get_wdf_upper_bound(""), 0);
 
     return true;
 }
@@ -197,6 +237,24 @@ DEFINE_TESTCASE(lockfilefd0or1, brass || chert || flint) {
     close(old_stdin);
     close(old_stdout);
 #endif
+
+    return true;
+}
+
+/// Regression test for bug fixed in 1.2.13 and 1.3.1.
+DEFINE_TESTCASE(lockfilealreadyopen1, brass || chert) {
+    string path = get_named_writable_database_path("lockfilealreadyopen1");
+    int fd = ::open((path + "/flintlock").c_str(), O_RDONLY);
+    try {
+	Xapian::WritableDatabase db(path, Xapian::DB_CREATE_OR_OPEN);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::WritableDatabase db2(path, Xapian::DB_CREATE_OR_OPEN)
+	);
+    } catch (...) {
+	close(fd);
+	throw;
+    }
+    close(fd);
 
     return true;
 }
@@ -333,6 +391,14 @@ DEFINE_TESTCASE(databasemodified1, writable && !inmemory && !remote) {
     db.add_document(doc);
     try {
 	TEST_EQUAL(*rodb.termlist_begin(N - 1), "abc");
+	return false;
+    } catch (const Xapian::DatabaseModifiedError &) {
+    }
+
+    try {
+	Xapian::Enquire enq(rodb);
+	enq.set_query(Xapian::Query("abc"));
+	Xapian::MSet mset = enq.get_mset(0, 10);
 	return false;
     } catch (const Xapian::DatabaseModifiedError &) {
     }
@@ -739,6 +805,312 @@ DEFINE_TESTCASE(tradweight2, backend) {
     Xapian::weight weight0 = mset[0].get_weight();
     for (size_t i = 1; i != mset.size(); ++i) {
 	TEST_EQUAL(weight0, mset[i].get_weight());
+    }
+    return true;
+}
+
+// Regression test for bug fix in 1.2.9.
+DEFINE_TESTCASE(emptydb1, backend) {
+    Xapian::Database db(get_database(string()));
+    static const Xapian::Query::op ops[] = {
+	Xapian::Query::OP_AND,
+	Xapian::Query::OP_OR,
+	Xapian::Query::OP_AND_NOT,
+	Xapian::Query::OP_XOR,
+	Xapian::Query::OP_AND_MAYBE,
+	Xapian::Query::OP_FILTER,
+	Xapian::Query::OP_NEAR,
+	Xapian::Query::OP_PHRASE,
+	Xapian::Query::OP_ELITE_SET
+    };
+    const Xapian::Query::op * p;
+    for (p = ops; p - ops != sizeof(ops) / sizeof(*ops); ++p) {
+	tout << *p << endl;
+	Xapian::Enquire enquire(db);
+	Xapian::Query query(*p, Xapian::Query("a"), Xapian::Query("b"));
+	enquire.set_query(query);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	TEST_EQUAL(mset.get_matches_estimated(), 0);
+	TEST_EQUAL(mset.get_matches_upper_bound(), 0);
+	TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    }
+    return true;
+}
+
+/// Test error opening non-existent stub databases.
+// Regression test for bug fixed in 1.3.1 and 1.2.11.
+DEFINE_TESTCASE(stubdb7, !backend) {
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Auto::open_stub("nosuchdirectory"));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Auto::open_stub("nosuchdirectory", Xapian::DB_OPEN));
+    return true;
+}
+
+/// Test which checks the weights are as expected.
+//  This runs for multi_* too, so serves to check that we get the same weights
+//  with multiple databases as without.
+DEFINE_TESTCASE(msetweights1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::Query q(Xapian::Query::OP_OR,
+		    Xapian::Query("paragraph"),
+		    Xapian::Query("word"));
+    enq.set_query(q);
+    // 5 documents match, and the 4th and 5th have the same weight, so ask for
+    // 4 as that's a good test that we get the right one in this case.
+    Xapian::MSet mset = enq.get_mset(0, 4);
+
+    static const struct { Xapian::docid did; double wt; } expected[] = {
+	{ 2, 1.2058248004573934864 },
+	{ 4, 0.81127876655507624726 },
+	{ 1, 0.17309550762546158098 },
+	{ 3, 0.14609528172558261527 }
+    };
+
+    TEST_EQUAL(mset.size(), sizeof(expected) / sizeof(expected[0]));
+    for (size_t i = 0; i < mset.size(); ++i) {
+	TEST_EQUAL(*mset[i], expected[i].did);
+	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected[i].wt);
+    }
+
+    // Now test a query which matches only even docids, so in the multi case
+    // one subdatabase doesn't match.
+    enq.set_query(Xapian::Query("one"));
+    mset = enq.get_mset(0, 3);
+
+    static const struct { Xapian::docid did; double wt; } expected2[] = {
+	{ 6, 0.73354729848273669823 },
+	{ 2, 0.45626501034348893038 }
+    };
+
+    TEST_EQUAL(mset.size(), sizeof(expected2) / sizeof(expected2[0]));
+    for (size_t i = 0; i < mset.size(); ++i) {
+	TEST_EQUAL(*mset[i], expected2[i].did);
+	TEST_EQUAL_DOUBLE(mset[i].get_weight(), expected2[i].wt);
+    }
+
+    return true;
+}
+
+DEFINE_TESTCASE(itorskiptofromend1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    Xapian::TermIterator t = db.termlist_begin(1);
+    t.skip_to("zzzzz");
+    TEST(t == db.termlist_end(1));
+    // This worked in 1.2.x but segfaulted in 1.3.1.
+    t.skip_to("zzzzzz");
+
+    Xapian::PostingIterator p = db.postlist_begin("one");
+    p.skip_to(99999);
+    TEST(p == db.postlist_end("one"));
+    // This segfaulted prior to 1.3.2.
+    p.skip_to(999999);
+
+    Xapian::PositionIterator i = db.positionlist_begin(6, "one");
+    i.skip_to(99999);
+    TEST(i == db.positionlist_end(6, "one"));
+    // This segfaulted prior to 1.3.2.
+    i.skip_to(999999);
+
+    Xapian::ValueIterator v = db.valuestream_begin(1);
+    v.skip_to(99999);
+    TEST(v == db.valuestream_end(1));
+    // These segfaulted prior to 1.3.2.
+    v.skip_to(999999);
+    v.check(9999999);
+
+    return true;
+}
+
+/// Check handling of invalid block sizes.
+// Regression test for bug fixed in 1.2.17 and 1.3.2 - the size gets fixed
+// but the uncorrected size was passed to the base file.  Also, abort() was
+// called on 0.
+DEFINE_TESTCASE(blocksize1, brass || chert || flint) {
+    string db_dir = "." + get_dbtype();
+    mkdir(db_dir.c_str(), 0755);
+    db_dir += "/db__blocksize1";
+    static const unsigned bad_sizes[] = {
+	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
+    };
+    for (size_t i = 0; i < sizeof(bad_sizes) / sizeof(bad_sizes[0]); ++i) {
+	size_t block_size = bad_sizes[i];
+	rm_rf(db_dir);
+	Xapian::WritableDatabase db;
+	if (get_dbtype() == "chert") {
+#ifdef XAPIAN_HAS_CHERT_BACKEND
+	    db = Xapian::Chert::open(db_dir, Xapian::DB_CREATE, block_size);
+#else
+	    SKIP_TEST("chert backend disabled");
+#endif
+	} else if (get_dbtype() == "flint") {
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	    db = Xapian::Flint::open(db_dir, Xapian::DB_CREATE, block_size);
+#else
+	    SKIP_TEST("flint backend disabled");
+#endif
+	} else {
+#ifdef XAPIAN_HAS_BRASS_BACKEND
+	    db = Xapian::Brass::open(db_dir, Xapian::DB_CREATE, block_size);
+#else
+	    SKIP_TEST("brass backend disabled");
+#endif
+	}
+	Xapian::Document doc;
+	doc.add_term("XYZ");
+	doc.set_data("foo");
+	db.add_document(doc);
+	db.commit();
+    }
+    return true;
+}
+
+static void
+make_phrasebug1_db(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_posting("hurricane", 199881);
+    doc.add_posting("hurricane", 203084);
+    doc.add_posting("katrina", 199882);
+    doc.add_posting("katrina", 202473);
+    doc.add_posting("katrina", 203085);
+    db.add_document(doc);
+}
+
+/// Regression test for ticket#653, fixed in 1.3.2 and 1.2.19.
+DEFINE_TESTCASE(phrasebug1, generated && positional) {
+    Xapian::Database db = get_database("phrasebug1", make_phrasebug1_db);
+    const char * qterms[] = { "katrina", "hurricane" };
+    Xapian::Enquire e(db);
+    Xapian::Query q(q.OP_PHRASE, qterms, qterms + 2, 5);
+    e.set_query(q);
+    Xapian::MSet mset = e.get_mset(0, 100);
+    TEST_EQUAL(mset.size(), 0);
+    const char * qterms2[] = { "hurricane", "katrina" };
+    Xapian::Query q2(q.OP_PHRASE, qterms2, qterms2 + 2, 5);
+    e.set_query(q2);
+    mset = e.get_mset(0, 100);
+    TEST_EQUAL(mset.size(), 1);
+    return true;
+}
+
+// Opening a WritableDatabase with low fds available - it should avoid them.
+DEFINE_TESTCASE(dbfilefd012, brass || chert) {
+#if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
+    int oldfds[3];
+    for (int i = 0; i < 3; ++i) {
+	oldfds[i] = dup(i);
+    }
+    try {
+	for (int j = 0; j < 3; ++j) {
+	    close(j);
+	    TEST_EQUAL(lseek(j, 0, SEEK_CUR), -1);
+	    TEST_EQUAL(errno, EBADF);
+	}
+
+	Xapian::WritableDatabase db = get_writable_database();
+
+	// Check we didn't use any of those low fds for tables, as that risks
+	// data corruption if some other code in the same process tries to
+	// write to them (see #651).
+	for (int fd = 0; fd < 3; ++fd) {
+	    // Check that the fd is still closed, or isn't open O_RDWR (the
+	    // lock file gets opened O_WRONLY), or it's a pipe (if we're using
+	    // a child process to hold a non-OFD fcntl lock).
+	    int flags = fcntl(fd, F_GETFL);
+	    if (flags == -1) {
+		TEST_EQUAL(errno, EBADF);
+	    } else if ((flags & O_ACCMODE) != O_RDWR) {
+		// OK.
+	    } else {
+		struct stat sb;
+		TEST_NOT_EQUAL(fstat(fd, &sb), -1);
+#ifdef S_ISSOCK
+		TEST(S_ISSOCK(sb.st_mode));
+#else
+		// If we can't check it is a socket, at least check it is not a
+		// regular file.
+		TEST(!S_ISREG(sb.st_mode));
+#endif
+	    }
+	}
+    } catch (...) {
+	for (int j = 0; j < 3; ++j) {
+	    dup2(oldfds[j], j);
+	    close(oldfds[j]);
+	}
+	throw;
+    }
+
+    for (int j = 0; j < 3; ++j) {
+	dup2(oldfds[j], j);
+	close(oldfds[j]);
+    }
+#endif
+
+    return true;
+}
+
+/// Regression test for #675, fixed in 1.3.3 and 1.2.21.
+DEFINE_TESTCASE(cursorbug1, brass || chert || flint) {
+    Xapian::WritableDatabase wdb = get_writable_database();
+    Xapian::Database db = get_writable_database_as_database();
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query::MatchAll);
+    Xapian::MSet mset;
+    // The original problem triggers for chert and glass on repeat==7.
+    for (int repeat = 0; repeat < 10; ++repeat) {
+	tout.str(string());
+	tout << "iteration #" << repeat << endl;
+
+	const int ITEMS = 10;
+	int free_id = db.get_doccount();
+	int offset = max(free_id, ITEMS * 2) - (ITEMS * 2);
+	int limit = offset + (ITEMS * 2);
+
+	mset = enq.get_mset(offset, limit);
+	for (Xapian::MSetIterator m1 = mset.begin(); m1 != mset.end(); ++m1) {
+	    (void)m1.get_document().get_value(0);
+	}
+
+	for (int i = free_id; i <= free_id + ITEMS; ++i) {
+	    Xapian::Document doc;
+	    const string & id = str(i);
+	    string qterm = "Q" + id;
+	    doc.add_value(0, id);
+	    doc.add_boolean_term(qterm);
+	    wdb.replace_document(qterm, doc);
+	}
+	wdb.commit();
+
+	db.reopen();
+	mset = enq.get_mset(offset, limit);
+	for (Xapian::MSetIterator m2 = mset.begin(); m2 != mset.end(); ++m2) {
+	    (void)m2.get_document().get_value(0);
+	}
+    }
+
+    return true;
+}
+
+// Regression test for #674, fixed in 1.2.21 and 1.3.3.
+DEFINE_TESTCASE(sortvalue2, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    db.add_database(get_database("apitest_simpledata2"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query::MatchAll);
+    enq.set_sort_by_value(0, false);
+    Xapian::MSet mset = enq.get_mset(0, 50);
+
+    // Check all results are in key order - the bug was that they were sorted
+    // by docid instead with multiple remote databases.
+    string old_key;
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	string key = db.get_document(*i).get_value(0);
+	TEST(old_key <= key);
+	swap(old_key, key);
     }
     return true;
 }

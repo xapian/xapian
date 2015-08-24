@@ -1,4 +1,5 @@
 #!/usr/bin/perl -W
+use strict;
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
@@ -6,7 +7,7 @@
 
 use Test::More;
 # Number of test cases to run - increase this if you add more testcases.
-plan tests => 35;
+plan tests => 42;
 
 use Search::Xapian qw(:standard);
 
@@ -36,9 +37,9 @@ for my $num (1..1000) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-} 
+}
 
-for my $num qw (three four five) {
+for my $num (qw(three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
@@ -70,8 +71,13 @@ is($write->get_document($docid)->get_data(), "$term $docid", "check document dat
 $write->replace_document($docid, $repdoc);
 $write->flush();
 
+$write->keep_alive();
+
 ok($write->term_exists($num), "check term exists");
 is($write->get_document($docid)->get_data(), "$term $num", "check document data");
+
+is($write->get_collection_freq($term), 1003, "check term frequency");
+is($write->get_avlength(), 2, "check term frequency");
 
 # replace document by term
 $repdoc = Search::Xapian::Document->new();
@@ -81,7 +87,7 @@ $repdoc->set_data( "$term $num" );
 $repdoc->add_posting( $term, 0 );
 $repdoc->add_posting( $num, 1 );
 $repdoc->add_value(0, $num);
-$repterm = "five";
+my $repterm = "five";
 
 ok(!$write->term_exists($num), "check term exists");
 ok($write->term_exists($repterm), "check term exists");
@@ -135,7 +141,7 @@ is($write->get_doccount(), 1, "check document count");
 is($doc->get_data(), "$term $num", "check document data");
 
 # add documents for following tests
-for my $num qw (one two three four five) {
+for my $num (qw(one two three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
@@ -186,10 +192,31 @@ is($write->get_doccount(), 0, 'check WritableDatabase after deleting all documen
 ok(!$write->term_exists($delterm), 'check term exists after deleting all documents');
 is($write->get_termfreq($delterm), 0, 'check term frequency after deleting all documents');
 
+eval {
+  # Should fail because the database is already open for writing.
+  Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN );
+};
+ok( $@ );
+
 $write->close();
 eval {
   # Should fail because the database has been closed.
   $write->add_document(Search::Xapian::Document->new());
+};
+ok( $@ );
+
+# Should work now.
+ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+
+# And reference counting should have closed it.
+ok( Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN ) );
+
+my $read = Search::Xapian::Database->new( $db_dir );
+ok( $@ );
+$read->close();
+eval {
+  # Should fail because the database has been closed.
+  $write->allterms_begin();
 };
 ok( $@ );
 

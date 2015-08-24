@@ -5,57 +5,57 @@ PROTOTYPES: ENABLE
 MSetIterator *
 new1()
     CODE:
-        RETVAL = new MSetIterator();
+	RETVAL = new MSetIterator();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 MSetIterator *
 new2(other)
     MSetIterator *	other
     CODE:
-        RETVAL = new MSetIterator(* other);
+	RETVAL = new MSetIterator(* other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 MSetIterator::inc()
     CODE:
-        ++(*THIS);
+	++(*THIS);
 
 void
 MSetIterator::dec()
     CODE:
-        --(*THIS);
+	--(*THIS);
 
 bool
 MSetIterator::equal(that)
     MSetIterator *	that
     CODE:
-        RETVAL = ((*THIS) == (*that));
+	RETVAL = ((*THIS) == (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 MSetIterator::nequal(that)
     MSetIterator *	that
     CODE:
-        RETVAL = ((*THIS) != (*that));
+	RETVAL = ((*THIS) != (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 docid
 MSetIterator::get_docid()
     CODE:
-        RETVAL = THIS->operator*();
+	RETVAL = THIS->operator*();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 Document *
 MSetIterator::get_document()
     CODE:
-        RETVAL = new Document(THIS->get_document());
+	RETVAL = new Document(THIS->get_document());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 doccount
 MSetIterator::get_rank()

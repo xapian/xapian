@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2010-09-03 for Xapian 1.2.3 (with PHP 5.3 added)
+2011-01-07 for Xapian 1.2.4
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -38,12 +38,8 @@ What works?
 - omega, omindex and scriptindex (although these may have difficulty parsing
   Windows directory paths)
 
-What doesn't work?
-==================
-
-- Any other bindings. Java-Swig bindings do not work for SVN HEAD and the 
-  1.2.0 series (note that the Java-Swig bindings are still rather alpha, 
-  and may be subject to significant API change). See http://trac.xapian.org/ticket/474
+What doesn't work - Xapian core
+===============================
 
 - Warning: unlike Unix, windows does not usually allow open files to be
   deleted.  This caused a serious problem with releases of Xapian on
@@ -69,11 +65,21 @@ What doesn't work?
 This may be due to the test itself or the replication subsystem, so at 
 present we do not advise the use of the replication system on Windows when using a 
 Flint database. The test also hangs forever with the Brass database: if you want to run all 
-the other tests (with 'nmake check') you can comment out lines 454-495 of api_replicate.cc.
+the other tests (with 'nmake check') you can comment out lines 470-512 of api_replicate.cc.
+
+- The 'compactstub3' and 'compactstub4' tests fail on Windows. If you want to run all 
+the other tests (with 'nmake check') you can comment out lines 361-383 and 389-413 of api_compact.cc.
+
+What doesn't work - Xapian bindings
+===================================
 
 - The ruby bindings fail one of the tests, see http://trac.xapian.org/ticket/478 for
 more details. We have opted to package them anyway (see win32_bindings_ruby.mak for how)
 
+- Any other bindings. Java-Swig bindings do not work for SVN HEAD and the 
+  1.2.0 series (note that the Java-Swig bindings are still rather alpha, 
+  and may be subject to significant API change). See http://trac.xapian.org/ticket/474
+      
 TODOS
 =====
 

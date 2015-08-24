@@ -1,7 +1,7 @@
 /** @file keymaker.cc
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,9 +38,9 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 {
     string result;
 
-    vector<pair<Xapian::valueno, bool> >::const_iterator i = valnos.begin();
-    // Don't crash if valnos is empty.
-    if (rare(i == valnos.end())) return result;
+    vector<pair<Xapian::valueno, bool> >::const_iterator i = slots.begin();
+    // Don't crash if slots is empty.
+    if (rare(i == slots.end())) return result;
 
     size_t last_not_empty_forwards = 0;
     while (true) {
@@ -54,7 +54,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	if (reverse_sort || !v.empty())
 	    last_not_empty_forwards = result.size();
 
-	if (++i == valnos.end() && !reverse_sort) {
+	if (++i == slots.end() && !reverse_sort) {
 	    if (v.empty()) {
 		// Trim off all the trailing empty forwards values.
 		result.resize(last_not_empty_forwards);
@@ -70,12 +70,12 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	    // except for '\0' which we convert to "\xff\0".  We insert
 	    // "\xff\xff" after the encoded value.
 	    for (string::const_iterator j = v.begin(); j != v.end(); ++j) {
-		unsigned char ch(*j);
+		unsigned char ch = static_cast<unsigned char>(*j);
 		result += char(255 - ch);
 		if (ch == 0) result += '\0';
 	    }
 	    result.append("\xff\xff", 2);
-	    if (i == valnos.end()) break;
+	    if (i == slots.end()) break;
 	    last_not_empty_forwards = result.size();
 	} else {
 	    // For a forward ordered value (unless it's the last value), we
@@ -102,9 +102,9 @@ MultiValueSorter::operator()(const Xapian::Document & doc) const
 {
     string result;
 
-    vector<pair<Xapian::valueno, bool> >::const_iterator i = valnos.begin();
-    // Don't crash if valnos is empty.
-    if (rare(i == valnos.end())) return result;
+    vector<pair<Xapian::valueno, bool> >::const_iterator i = slots.begin();
+    // Don't crash if slots is empty.
+    if (rare(i == slots.end())) return result;
 
     while (true) {
 	// All values (except for the last if it's sorted forwards) need to
@@ -114,7 +114,7 @@ MultiValueSorter::operator()(const Xapian::Document & doc) const
 	string v = doc.get_value(i->first);
 	bool reverse_sort = !i->second;
 
-	if (++i == valnos.end() && !reverse_sort) {
+	if (++i == slots.end() && !reverse_sort) {
 	    // No need to adjust the last value if it's sorted forwards.
 	    result += v;
 	    break;
@@ -130,7 +130,7 @@ MultiValueSorter::operator()(const Xapian::Document & doc) const
 		if (ch == 0) result += '\0';
 	    }
 	    result.append("\xff\xff", 2);
-	    if (i == valnos.end()) break;
+	    if (i == slots.end()) break;
 	} else {
 	    // For a forward ordered value (unless it's the last value), we
 	    // convert any '\0' to "\0\xff".  We insert "\0\0" after the

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,6 +38,8 @@
 #include "chert_types.h"
 #include "valuestats.h"
 
+#include "noreturn.h"
+
 #include <map>
 
 class ChertTermList;
@@ -68,6 +70,13 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	ChertVersion version_file;
 
+	/* Make postlist_table public so that bin/xapian-check.cc can get the
+	 * revision number for the open database without us having to add to
+	 * change the ABI.  On trunk the checking code is in the library, so
+	 * this is a 1.2-only hack.
+	 */
+    public:
+
 	/** Table storing posting lists.
 	 *
 	 *  Whenever an update is performed, this table is the first to be
@@ -76,6 +85,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 */
 	mutable ChertPostListTable postlist_table;
 
+    private:
 	/** Table storing position lists.
 	 */
 	ChertPositionListTable position_table;
@@ -147,13 +157,6 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 *  revision is not available.
 	 */
 	void open_tables(chert_revision_number_t revision);
-
-	/** Get an object holding the revision number which the tables are
-	 *  opened at.
-	 *
-	 *  @return the current revision number.
-	 */
-	chert_revision_number_t get_revision_number() const;
 
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
@@ -245,6 +248,13 @@ class ChertDatabase : public Xapian::Database::Internal {
 	    return postlist_table.cursor_get();
 	}
 
+	/** Get an object holding the revision number which the tables are
+	 *  opened at.
+	 *
+	 *  @return the current revision number.
+	 */
+	chert_revision_number_t get_revision_number() const;
+
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::doccount  get_doccount() const;
@@ -254,9 +264,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
-	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-	std::string get_value_lower_bound(Xapian::valueno valno) const;
-	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
+	std::string get_value_lower_bound(Xapian::valueno slot) const;
+	std::string get_value_upper_bound(Xapian::valueno slot) const;
 	Xapian::termcount get_doclength_lower_bound() const;
 	Xapian::termcount get_doclength_upper_bound() const;
 	Xapian::termcount get_wdf_upper_bound(const string & term) const;
@@ -288,6 +298,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 	string get_uuid() const;
 	//@}
 
+	XAPIAN_NORETURN(void throw_termlist_table_close_exception() const);
 };
 
 /** A writable chert database.
@@ -420,9 +431,9 @@ class ChertWritableDatabase : public ChertDatabase {
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
-	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
-	std::string get_value_lower_bound(Xapian::valueno valno) const;
-	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
+	std::string get_value_lower_bound(Xapian::valueno slot) const;
+	std::string get_value_upper_bound(Xapian::valueno slot) const;
 	bool term_exists(const string & tname) const;
 
 	LeafPostList * open_post_list(const string & tname) const;

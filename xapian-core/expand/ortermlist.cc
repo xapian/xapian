@@ -224,7 +224,7 @@ Xapian::PositionIterator
 OrTermList::positionlist_begin() const
 {
     Assert(false);
-    return Xapian::PositionIterator(NULL);
+    return Xapian::PositionIterator();
 }
 
 

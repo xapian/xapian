@@ -49,7 +49,7 @@ class FlintDocument : public Xapian::Document::Internal {
 	FlintDocument(const FlintDocument &);
 	FlintDocument & operator = (const FlintDocument &);
     public:
-	string do_get_value(Xapian::valueno valueid) const;
+	string do_get_value(Xapian::valueno slot) const;
 	void do_get_all_values(map<Xapian::valueno, string> & values_) const;
 	string do_get_data() const;
 };

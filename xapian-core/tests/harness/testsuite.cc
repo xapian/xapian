@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,13 +27,13 @@
 #include "backendmanager.h"
 #include "fdtracker.h"
 #include "testrunner.h"
+#include "safeunistd.h"
 
 #ifdef HAVE_VALGRIND
 # include "safeerrno.h"
 # include <valgrind/memcheck.h>
 # include <sys/types.h>
 # include "safefcntl.h"
-# include "safeunistd.h"
 #endif
 
 #include <algorithm>
@@ -67,7 +67,7 @@
 using namespace std;
 
 /// The global verbose flag.
-bool verbose;
+int verbose;
 
 #ifdef HAVE_VALGRIND
 static int vg_log_fd = -1;
@@ -322,6 +322,7 @@ test_driver::runtest(const test_desc *test)
 		    vg_errs = VALGRIND_COUNT_ERRORS;
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
+		    (void)dummy;
 		    // Skip past any unread log output.
 		    lseek(vg_log_fd, 0, SEEK_END);
 		}
@@ -331,6 +332,8 @@ test_driver::runtest(const test_desc *test)
 		    write_and_clear_tout();
 		    return FAIL;
 		}
+		if (verbose > 1)
+		    write_and_clear_tout();
 		if (backendmanager)
 		    backendmanager->clean_up();
 #ifdef HAVE_VALGRIND
@@ -353,7 +356,7 @@ test_driver::runtest(const test_desc *test)
 		    // Record the current position so we can restore it so
 		    // REPORT_FAIL_VG() gets the whole output.
 		    off_t curpos = lseek(vg_log_fd, 0, SEEK_CUR);
-		    char buf[1024];
+		    char buf[4096];
 		    while (true) {
 			ssize_t c = read(vg_log_fd, buf, sizeof(buf));
 			if (c == 0 || (c < 0 && errno != EINTR)) {
@@ -362,10 +365,10 @@ test_driver::runtest(const test_desc *test)
 			}
 			if (c > 0) {
 			    // Valgrind output has "==<pid>== \n" between
-			    // report "records", so skip to the next occurrence
-			    // of ' ' not followed by '\n'.
+			    // report "records", so skip any lines like that,
+			    // and also any warnings and continuation lines.
 			    ssize_t i = 0;
-			    do {
+			    while (true) {
 				const char * spc;
 				spc = static_cast<const char *>(
 					memchr(buf + i, ' ', c - i));
@@ -374,7 +377,26 @@ test_driver::runtest(const test_desc *test)
 				    break;
 				}
 				i = spc - buf;
-			    } while (++i < c && buf[i] == '\n');
+				if (++i >= c) break;
+				if (buf[i] == '\n')
+				    continue;
+				if (c - i >= 8 &&
+				    (memcmp(buf + i, "Warning:", 8) == 0 ||
+				     memcmp(buf + i, "   ", 3) == 0)) {
+				    // Skip this line.
+				    i += 3;
+				    const char * nl;
+				    nl = static_cast<const char *>(
+					    memchr(buf + i, '\n', c - i));
+				    if (!nl) {
+					i = c;
+					break;
+				    }
+				    i = nl - buf;
+				    continue;
+				}
+				break;
+			    }
 
 			    char *start = buf + i;
 			    c -= i;
@@ -401,6 +423,7 @@ test_driver::runtest(const test_desc *test)
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
 					 dummy);
+		    (void)dummy;
 		    vg_leaks = vg_leaks2 - vg_leaks;
 		    vg_dubious = vg_dubious2 - vg_dubious;
 		    vg_reachable = vg_reachable2 - vg_reachable;
@@ -677,7 +700,7 @@ test_driver::report(const test_driver::result &r, const string &desc)
 void
 test_driver::add_command_line_option(const string &l, char s, string * arg)
 {
-    short_opts.insert(make_pair<int, string *>(int(s), arg));
+    short_opts.insert(make_pair(int(s), arg));
     opt_help += "[-";
     opt_help += s;
     opt_help += ' ';
@@ -691,19 +714,21 @@ test_driver::parse_command_line(int argc, char **argv)
     argv0 = argv[0];
 
 #ifndef __WIN32__
-    bool colourise = true;
-    const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
-    if (p == NULL || !*p || strcmp(p, "auto") == 0) {
-	colourise = isatty(1);
-    } else if (strcmp(p, "plain") == 0) {
-	colourise = false;
-    }
-    if (colourise) {
-	col_red = "\x1b[1m\x1b[31m";
-	col_green = "\x1b[1m\x1b[32m";
-	col_yellow = "\x1b[1m\x1b[33m";
-	col_reset = "\x1b[0m";
-	use_cr = true;
+    {
+	bool colourise = true;
+	const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
+	if (p == NULL || !*p || strcmp(p, "auto") == 0) {
+	    colourise = isatty(1);
+	} else if (strcmp(p, "plain") == 0) {
+	    colourise = false;
+	}
+	if (colourise) {
+	    col_red = "\x1b[1m\x1b[31m";
+	    col_green = "\x1b[1m\x1b[32m";
+	    col_yellow = "\x1b[1m\x1b[33m";
+	    col_reset = "\x1b[0m";
+	    use_cr = true;
+	}
     }
 #endif
 
@@ -726,7 +751,7 @@ test_driver::parse_command_line(int argc, char **argv)
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'v':
-		verbose = true;
+		++verbose;
 		break;
 	    case 'o':
 		abort_on_error = true;
@@ -744,6 +769,13 @@ test_driver::parse_command_line(int argc, char **argv)
 	}
     }
 
+    if (verbose == 0) {
+	const char *p = getenv("VERBOSE");
+	if (p != NULL) {
+	    verbose = atoi(p);
+	}
+    }
+
     while (argv[optind]) {
 	test_names.push_back(string(argv[optind]));
 	optind++;
@@ -756,11 +788,6 @@ test_driver::parse_command_line(int argc, char **argv)
 	    char fname[64];
 	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
 	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    if (vg_log_fd == -1 && errno == ENOENT) {
-		// Older valgrind versions named the log output differently.
-		sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
-		vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    }
 	    if (vg_log_fd != -1) unlink(fname);
 	}
     }

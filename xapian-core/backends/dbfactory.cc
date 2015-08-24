@@ -100,8 +100,8 @@ Flint::open(const string &dir, int action, int block_size) {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 WritableDatabase
 InMemory::open() {
-    LOGCALL_STATIC(API, Database, "InMemory::open", NO_ARGS);
-    return WritableDatabase(new InMemoryDatabase);
+    LOGCALL_STATIC(API, WritableDatabase, "InMemory::open", NO_ARGS);
+    RETURN(WritableDatabase(new InMemoryDatabase));
 }
 #endif
 
@@ -116,6 +116,11 @@ open_stub(Database &db, const string &file)
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
     ifstream stub(file.c_str());
+    if (!stub) {
+	string msg = "Couldn't open stub database file: ";
+	msg += file;
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
     string line;
     unsigned int line_no = 0;
     while (getline(stub, line)) {
@@ -221,6 +226,11 @@ open_stub(WritableDatabase &db, const string &file, int action)
     // Any paths specified in stub database files which are relative will be
     // considered to be relative to the directory containing the stub database.
     ifstream stub(file.c_str());
+    if (!stub) {
+	string msg = "Couldn't open stub database file: ";
+	msg += file;
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
     string line;
     unsigned int line_no = 0;
     while (true) {
@@ -464,7 +474,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	    // If only brass is enabled, there's no point checking the
 	    // environmental variable.
-# if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
+#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
 	    // If $XAPIAN_PREFER_BRASS is set to a non-empty value, prefer brass
 	    // if there's no existing database.
 	    const char *p = getenv("XAPIAN_PREFER_BRASS");
@@ -487,7 +497,9 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 #endif
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	case BRASS:
+#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
 brass:
+#endif
 	    internal.push_back(new BrassWritableDatabase(path, action, 8192));
 	    break;
 #endif

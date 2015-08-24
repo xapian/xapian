@@ -19,6 +19,7 @@ OBJS= \
                 $(INTDIR)\chert_alldocspostlist.obj\
                 $(INTDIR)\chert_alltermslist.obj\
                 $(INTDIR)\chert_btreebase.obj\
+                $(INTDIR)\chert_compact.obj\
                 $(INTDIR)\chert_cursor.obj\
                 $(INTDIR)\chert_database.obj\
                 $(INTDIR)\chert_databasereplicator.obj\
@@ -44,6 +45,7 @@ SRCS= \
                 $(INTDIR)\chert_alldocspostlist.cc\
                 $(INTDIR)\chert_alltermslist.cc\
                 $(INTDIR)\chert_btreebase.cc\
+                $(INTDIR)\brass_compact.cc\
                 $(INTDIR)\chert_cursor.cc\
                 $(INTDIR)\chert_database.cc\
                 $(INTDIR)\chert_databasereplicator.cc\

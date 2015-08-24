@@ -3,10 +3,11 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2015 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
+ * Copyright 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,6 +71,7 @@
 
 #include <algorithm>
 #include "autoptr.h"
+#include <cstdlib>
 #include <string>
 
 using namespace std;
@@ -89,22 +91,13 @@ using namespace Xapian;
 // byte in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
-/** Delete file, throwing an error if we can't delete it (but not if it
- *  doesn't exist).
+/** Maximum number of times to try opening the tables to get them at a
+ *  consistent revision.
+ *
+ *  This is mostly just to avoid any chance of an infinite loop - normally
+ *  we'll either get then on the first or second try.
  */
-static void
-sys_unlink_if_exists(const string & filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename + "'",
-				    errno);
-    }
-}
+const int MAX_OPEN_RETRIES = 100;
 
 /* This finds the tables, opens them at consistent revisions, manages
  * determining the current and next revision numbers, and stores handles
@@ -132,12 +125,7 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 	return;
     }
 
-    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
-    if (p)
-	max_changesets = atoi(p);
-
     if (action != Xapian::DB_OPEN && !database_exists()) {
-	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 
 	// Create the directory for the database, if it doesn't exist
 	// already.
@@ -166,7 +154,6 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int action,
 
     get_database_write_lock(false);
     // if we're overwriting, pretend the db doesn't exist
-    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
     if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
 	create_and_open_tables(block_size);
 	return;
@@ -261,8 +248,7 @@ ChertDatabase::open_tables_consistent()
     value_manager.reset();
 
     bool fully_opened = false;
-    int tries = 100;
-    int tries_left = tries;
+    int tries_left = MAX_OPEN_RETRIES;
     while (!fully_opened && (tries_left--) > 0) {
 	if (spelling_table.open(revision) &&
 	    synonym_table.open(revision) &&
@@ -354,9 +340,9 @@ ChertDatabase::get_changeset_revisions(const string & path,
 {
     int changes_fd = -1;
 #ifdef __WIN32__
-    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY);
+    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY | O_BINARY);
 #else
-    changes_fd = open(path.c_str(), O_RDONLY);
+    changes_fd = open(path.c_str(), O_RDONLY | O_BINARY);
 #endif
     fdcloser closer(changes_fd);
 
@@ -370,15 +356,15 @@ ChertDatabase::get_changeset_revisions(const string & path,
     const char *start = buf;
     const char *end = buf + io_read(changes_fd, buf,
 				    REASONABLE_CHANGESET_SIZE, 0);
-    if (strncmp(start, CHANGES_MAGIC_STRING,
-		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
+    if (size_t(end - start) < CONST_STRLEN(CHANGES_MAGIC_STRING))
+	throw Xapian::DatabaseError("Changeset too short at " + path);
+    if (memcmp(start, CHANGES_MAGIC_STRING,
+	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
 		+ path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
     start += CONST_STRLEN(CHANGES_MAGIC_STRING);
-    if (start >= end)
-	throw Xapian::DatabaseError("Changeset too short at " + path);
 
     unsigned int changes_version;
     if (!unpack_uint(&start, end, &changes_version))
@@ -414,6 +400,13 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     int changes_fd = -1;
     string changes_name;
 
+    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
+    if (p) {
+	max_changesets = atoi(p);
+    } else {
+	max_changesets = 0;
+    }
+ 
     if (max_changesets > 0) {
 	chert_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -434,8 +427,11 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	    pack_uint(buf, old_revision);
 	    pack_uint(buf, new_revision);
 
-	    // FIXME - if DANGEROUS mode is in use, this should be 1 not 0.
-	    pack_uint(buf, 0u); // Changes can be applied to a live database.
+#ifndef DANGEROUS
+	    buf += '\x00'; // Changes can be applied to a live database.
+#else
+	    buf += '\x01';
+#endif
 
 	    io_write(changes_fd, buf.data(), buf.size());
 
@@ -467,10 +463,18 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     } catch (...) {
 	// Remove the changeset, if there was one.
 	if (changes_fd >= 0) {
-	    sys_unlink_if_exists(changes_name);
+	    (void)io_unlink(changes_name);
 	}
 
 	throw;
+    }
+    
+    if (changes_fd >= 0 && max_changesets < new_revision) {
+	// While change sets less than N - max_changesets exist, delete them
+	// 1 must be subtracted so we don't delete the changeset we just wrote
+	// when max_changesets = 1
+	unsigned rev = new_revision - max_changesets - 1;
+	while (io_unlink(db_dir + "/changes" + str(rev--))) { }
     }
 }
 
@@ -538,12 +542,16 @@ ChertDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     filepath += '/';
     for (const char * p = filenames; *p; p += *p + 1) {
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
-        filepath.replace(db_dir.size() + 1, string::npos, leaf);
-	if (file_exists(filepath)) {
-	    // FIXME - there is a race condition here - the file might get
-	    // deleted between the file_exists() test and the access to send it.
+	filepath.replace(db_dir.size() + 1, string::npos, leaf);
+#ifdef __WIN32__
+	int fd = msvc_posix_open(filepath.c_str(), O_RDONLY | O_BINARY);
+#else
+	int fd = open(filepath.c_str(), O_RDONLY | O_BINARY);
+#endif
+	if (fd >= 0) {
+	    fdcloser closefd(fd);
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
-	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
+	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
 	}
     }
 }
@@ -640,7 +648,14 @@ ChertDatabase::write_changesets_to_fd(int fd,
 
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
-	    if (file_exists(changes_name)) {
+#ifdef __WIN32__
+	    int fd_changes = msvc_posix_open(changes_name.c_str(), O_RDONLY | O_BINARY);
+#else
+	    int fd_changes = open(changes_name.c_str(), O_RDONLY | O_BINARY);
+#endif
+	    if (fd_changes >= 0) {
+		fdcloser closefd(fd_changes);
+
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
 		chert_revision_number_t changeset_start_rev_num;
@@ -654,10 +669,8 @@ ChertDatabase::write_changesets_to_fd(int fd,
 		if (changeset_start_rev_num >= changeset_end_rev_num) {
 		    throw Xapian::DatabaseError("Changeset start revision is not less than end revision");
 		}
-		// FIXME - there is a race condition here - the file might get
-		// deleted between the file_exists() test and the access to
-		// send it.
-		conn.send_file(REPL_REPLY_CHANGESET, changes_name, 0.0);
+
+		conn.send_file(REPL_REPLY_CHANGESET, fd_changes, 0.0);
 		start_rev_num = changeset_end_rev_num;
 		if (info != NULL) {
 		    ++(info->changeset_count);
@@ -802,24 +815,24 @@ ChertDatabase::get_collection_freq(const string & term) const
 }
 
 Xapian::doccount
-ChertDatabase::get_value_freq(Xapian::valueno valno) const
+ChertDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", valno);
-    RETURN(value_manager.get_value_freq(valno));
+    LOGCALL(DB, Xapian::doccount, "ChertDatabase::get_value_freq", slot);
+    RETURN(value_manager.get_value_freq(slot));
 }
 
 std::string
-ChertDatabase::get_value_lower_bound(Xapian::valueno valno) const
+ChertDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", valno);
-    RETURN(value_manager.get_value_lower_bound(valno));
+    LOGCALL(DB, std::string, "ChertDatabase::get_value_lower_bound", slot);
+    RETURN(value_manager.get_value_lower_bound(slot));
 }
 
 std::string
-ChertDatabase::get_value_upper_bound(Xapian::valueno valno) const
+ChertDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", valno);
-    RETURN(value_manager.get_value_upper_bound(valno));
+    LOGCALL(DB, std::string, "ChertDatabase::get_value_upper_bound", slot);
+    RETURN(value_manager.get_value_upper_bound(slot));
 }
 
 Xapian::termcount
@@ -845,7 +858,7 @@ ChertDatabase::term_exists(const string & term) const
 {
     LOGCALL(DB, bool, "ChertDatabase::term_exists", term);
     Assert(!term.empty());
-    return postlist_table.term_exists(term);
+    RETURN(postlist_table.term_exists(term));
 }
 
 bool
@@ -885,8 +898,7 @@ ChertDatabase::open_term_list(Xapian::docid did) const
     LOGCALL(DB, TermList *, "ChertDatabase::open_term_list", did);
     Assert(did != 0);
     if (!termlist_table.is_open())
-	throw Xapian::FeatureUnavailableError("Database has no termlist");
-
+	throw_termlist_table_close_exception();
     Xapian::Internal::RefCntPtr<const ChertDatabase> ptrtothis(this);
     RETURN(new ChertTermList(ptrtothis, did));
 }
@@ -978,11 +990,10 @@ ChertDatabase::get_metadata(const string & key) const
 TermList *
 ChertDatabase::open_metadata_keylist(const std::string &prefix) const
 {
-    LOGCALL(DB, string, "ChertDatabase::open_metadata_keylist", NO_ARGS);
+    LOGCALL(DB, TermList *, "ChertDatabase::open_metadata_keylist", NO_ARGS);
     ChertCursor * cursor = postlist_table.cursor_get();
-    if (!cursor) return NULL;
-    return new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
-				     cursor, prefix);
+    RETURN(new ChertMetadataTermList(Xapian::Internal::RefCntPtr<const ChertDatabase>(this),
+				     cursor, prefix));
 }
 
 string
@@ -999,6 +1010,16 @@ ChertDatabase::get_uuid() const
 {
     LOGCALL(DB, string, "ChertDatabase::get_uuid", NO_ARGS);
     RETURN(version_file.get_uuid_string());
+}
+
+void
+ChertDatabase::throw_termlist_table_close_exception() const
+{
+    // Either the database has been closed, or else there's no termlist table.
+    // Check if the postlist table is open to determine which is the case.
+    if (!postlist_table.is_open())
+	ChertTable::throw_database_closed();
+    throw Xapian::FeatureUnavailableError("Database has no termlist");
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1162,7 +1183,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
+		    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 		add_freq_delta(tname, 1, wdf);
 		insert_mod_plist(did, tname, wdf);
 
@@ -1218,7 +1239,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
     Assert(did != 0);
 
     if (!termlist_table.is_open())
-	throw Xapian::FeatureUnavailableError("Database has no termlist");
+	throw_termlist_table_close_exception();
 
     if (rare(modify_shortcut_docid == did)) {
 	// The modify_shortcut document can't be used for a modification
@@ -1298,7 +1319,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		(void)add_document_(did, document);
 		return;
 	    }
-	    throw Xapian::FeatureUnavailableError("Database has no termlist");
+	    throw_termlist_table_close_exception();
 	}
 
 	// Check for a document read from this database being replaced - ie, a
@@ -1326,13 +1347,17 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	}
 
 	if (!modifying || document.internal->terms_modified()) {
+	    bool pos_modified = !modifying ||
+				document.internal->term_positions_modified();
 	    Xapian::Internal::RefCntPtr<const ChertWritableDatabase> ptrtothis(this);
 	    ChertTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
-	    chert_doclen_t new_doclen = termlist.get_doclength();
+	    chert_doclen_t old_doclen = termlist.get_doclength();
+	    stats.delete_document(old_doclen);
+	    chert_doclen_t new_doclen = old_doclen;
+
 	    string old_tname, new_tname;
 
-	    stats.delete_document(new_doclen);
 	    termlist.next();
 	    while (!termlist.at_end() || term != document.termlist_end()) {
 		int cmp;
@@ -1354,7 +1379,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    termcount old_wdf = termlist.get_wdf();
 		    new_doclen -= old_wdf;
 		    add_freq_delta(old_tname, -1, -old_wdf);
-		    position_table.delete_positionlist(did, old_tname);
+		    if (pos_modified)
+			position_table.delete_positionlist(did, old_tname);
 		    update_mod_plist(did, old_tname, 'D', 0u);
 		    termlist.next();
 		} else if (cmp > 0) {
@@ -1363,14 +1389,16 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    new_doclen += new_wdf;
 		    stats.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(
-			    did, new_tname,
-			    pos, term.positionlist_end(), false);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(
+				did, new_tname,
+				pos, term.positionlist_end(), false);
+			}
 		    }
 		    ++term;
 		} else if (cmp == 0) {
@@ -1389,13 +1417,15 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(did, new_tname, pos,
-							term.positionlist_end(),
-							true);
-		    } else {
-			position_table.delete_positionlist(did, new_tname);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(did, new_tname, pos,
+							    term.positionlist_end(),
+							    true);
+			} else {
+			    position_table.delete_positionlist(did, new_tname);
+			}
 		    }
 
 		    ++term;
@@ -1409,7 +1439,8 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		termlist_table.set_termlist(did, document, new_doclen);
 
 	    // Set the new document length
-	    doclens[did] = new_doclen;
+	    if (new_doclen != old_doclen)
+		doclens[did] = new_doclen;
 	    stats.add_document(new_doclen);
 	}
 
@@ -1491,33 +1522,33 @@ ChertWritableDatabase::get_collection_freq(const string & tname) const
 }
 
 Xapian::doccount
-ChertWritableDatabase::get_value_freq(Xapian::valueno valno) const
+ChertWritableDatabase::get_value_freq(Xapian::valueno slot) const
 {
-    LOGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", valno);
+    LOGCALL(DB, Xapian::doccount, "ChertWritableDatabase::get_value_freq", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.freq);
-    RETURN(ChertDatabase::get_value_freq(valno));
+    RETURN(ChertDatabase::get_value_freq(slot));
 }
 
 std::string
-ChertWritableDatabase::get_value_lower_bound(Xapian::valueno valno) const
+ChertWritableDatabase::get_value_lower_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", valno);
+    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_lower_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.lower_bound);
-    RETURN(ChertDatabase::get_value_lower_bound(valno));
+    RETURN(ChertDatabase::get_value_lower_bound(slot));
 }
 
 std::string
-ChertWritableDatabase::get_value_upper_bound(Xapian::valueno valno) const
+ChertWritableDatabase::get_value_upper_bound(Xapian::valueno slot) const
 {
-    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", valno);
+    LOGCALL(DB, std::string, "ChertWritableDatabase::get_value_upper_bound", slot);
     map<Xapian::valueno, ValueStats>::const_iterator i;
-    i = value_stats.find(valno);
+    i = value_stats.find(slot);
     if (i != value_stats.end()) RETURN(i->second.upper_bound);
-    RETURN(ChertDatabase::get_value_upper_bound(valno));
+    RETURN(ChertDatabase::get_value_upper_bound(slot));
 }
 
 bool

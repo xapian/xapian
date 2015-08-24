@@ -28,8 +28,11 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
+#include "autoptr.h"
 #include <map>
 #include <string>
+
+class BrassCursor;
 
 namespace Brass {
 
@@ -77,7 +80,7 @@ class BrassValueManager {
      *  Set to Xapian::BAD_VALUENO if no value statistics are currently
      *  cached.
      */
-    mutable Xapian::valueno mru_valno;
+    mutable Xapian::valueno mru_slot;
 
     /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
@@ -89,6 +92,8 @@ class BrassValueManager {
     std::map<Xapian::docid, std::string> slots;
 
     std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
+
+    mutable AutoPtr<BrassCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
 		   const std::string & val);
@@ -108,7 +113,7 @@ class BrassValueManager {
     /** Create a new BrassValueManager object. */
     BrassValueManager(BrassPostListTable * postlist_table_,
 		      BrassTermListTable * termlist_table_)
-	: mru_valno(Xapian::BAD_VALUENO),
+	: mru_slot(Xapian::BAD_VALUENO),
 	  postlist_table(postlist_table_),
 	  termlist_table(termlist_table_) { }
 
@@ -130,17 +135,17 @@ class BrassValueManager {
 			Xapian::docid did) const;
 
     Xapian::doccount get_value_freq(Xapian::valueno slot) const {
-	if (mru_valno != slot) get_value_stats(slot);
+	if (mru_slot != slot) get_value_stats(slot);
 	return mru_valstats.freq;
     }
 
     std::string get_value_lower_bound(Xapian::valueno slot) const {
-	if (mru_valno != slot) get_value_stats(slot);
+	if (mru_slot != slot) get_value_stats(slot);
 	return mru_valstats.lower_bound;
     }
 
     std::string get_value_upper_bound(Xapian::valueno slot) const {
-	if (mru_valno != slot) get_value_stats(slot);
+	if (mru_slot != slot) get_value_stats(slot);
 	return mru_valstats.upper_bound;
     }
 
@@ -155,7 +160,7 @@ class BrassValueManager {
 
     void reset() {
 	/// Ignore any old cached valuestats.
-	mru_valno = Xapian::BAD_VALUENO;
+	mru_slot = Xapian::BAD_VALUENO;
     }
 
     bool is_modified() const {

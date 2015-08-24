@@ -1,7 +1,7 @@
 /* chert_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2014 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
+#include "errno_to_string.h"
 #include "io_utils.h"
 #include "omassert.h"
 #include "pack.h"
@@ -87,32 +88,6 @@ ChertTable_base::ChertTable_base()
 	  bit_map0(0),
 	  bit_map(0)
 {
-}
-
-ChertTable_base::ChertTable_base(const ChertTable_base &other)
-	: revision(other.revision),
-	  block_size(other.block_size),
-	  root(other.root),
-	  level(other.level),
-	  bit_map_size(other.bit_map_size),
-	  item_count(other.item_count),
-	  last_block(other.last_block),
-	  have_fakeroot(other.have_fakeroot),
-	  sequential(other.sequential),
-	  bit_map_low(other.bit_map_low),
-	  bit_map0(0),
-	  bit_map(0)
-{
-    try {
-	bit_map0 = new byte[bit_map_size];
-	bit_map = new byte[bit_map_size];
-
-	memcpy(bit_map0, other.bit_map0, bit_map_size);
-	memcpy(bit_map, other.bit_map, bit_map_size);
-    } catch (...) {
-	delete [] bit_map0;
-	delete [] bit_map;
-    }
 }
 
 void
@@ -191,7 +166,8 @@ do { \
 #define REASONABLE_BASE_SIZE 1024
 
 bool
-ChertTable_base::read(const string & name, char ch, string &err_msg)
+ChertTable_base::read(const string & name, char ch, bool read_bitmap,
+		      string &err_msg)
 {
     string basename = name + "base" + ch;
 #ifdef __WIN32__
@@ -201,7 +177,11 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
 #endif
 
     if (h == -1) {
-	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
+	err_msg += "Couldn't open ";
+	err_msg += basename;
+	err_msg += ": ";
+	errno_to_string(errno, err_msg);
+	err_msg += "\n";
 	return false;
     }
     fdcloser closefd(h);
@@ -258,6 +238,9 @@ ChertTable_base::read(const string & name, char ch, string &err_msg)
     bit_map0 = 0;
     delete [] bit_map;
     bit_map = 0;
+
+    if (!read_bitmap)
+	return true;
 
     bit_map0 = new byte[bit_map_size];
     bit_map = new byte[bit_map_size];
@@ -321,11 +304,11 @@ ChertTable_base::write_to_file(const string &filename,
     pack_uint(buf, static_cast<uint4>(last_block));
     pack_uint(buf, have_fakeroot);
     pack_uint(buf, sequential);
-    pack_uint(buf, revision);
+    pack_uint(buf, revision);  // REVISION2
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    pack_uint(buf, revision);  // REVISION2
+    pack_uint(buf, revision);  // REVISION3
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
@@ -333,8 +316,10 @@ ChertTable_base::write_to_file(const string &filename,
     int h = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
     if (h < 0) {
-	string message = string("Couldn't open base ")
-		+ filename + " to write: " + strerror(errno);
+	string message("Couldn't open base ");
+	message += filename;
+	message += " to write: ";
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);

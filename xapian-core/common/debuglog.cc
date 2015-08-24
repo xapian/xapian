@@ -1,7 +1,7 @@
 /** @file debuglog.cc
  * @brief Debug logging macros.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011,2012,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include "debuglog.h"
 
+#include "errno_to_string.h"
 #include "str.h"
 
 #include <sys/types.h>
@@ -33,7 +34,6 @@
 #include "safeunistd.h"
 
 #include <cstdlib> // For getenv().
-#include <cstring> // For strerror().
 #include <string>
 
 using namespace std;
@@ -81,8 +81,10 @@ DebugLogger::initialise_categories_mask()
 		// user will probably miss the message about the debug log
 		// failing to open!
 		fd = 2;
+		string e;
+		errno_to_string(errno, e);
 		LOGLINE(ALWAYS, PACKAGE_STRING": Failed to open debug log '"
-			<< fnm << "' (" << strerror(errno) << ')');
+			<< fnm << "' (" << e << ')');
 		fd = -2;
 	    }
 	}
@@ -109,12 +111,16 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
 {
     if (fd < 0) return;
 
+    // Preserve errno over logging calls, so they can safely be added to code
+    // which expects errno not to change.
+    int saved_errno = errno;
+
     string line;
-    line.reserve(8 + indent_string.size() + msg.size());
+    line.reserve(9 + indent_level + msg.size());
     line = char(category) + '@';
     line += ' ';
     line += str(getpid());
-    line += indent_string;
+    line.append(indent_level + 1, ' ');
     line += msg;
     line += '\n';
 
@@ -130,14 +136,18 @@ DebugLogger::log_line(debuglog_categories category, const string & msg)
 	    // logging.
 	    (void)close(fd);
 	    fd = 2;
+	    string e;
+	    errno_to_string(errno, e);
 	    LOGLINE(ALWAYS, PACKAGE_STRING": Failed to write log output ("
-		    << strerror(errno) << ')');
+		    << e << ')');
 	    fd = -2;
-	    return;
+	    break;
 	}
 	p += n;
 	to_do -= n;
     }
+
+    errno = saved_errno;
 }
 
 #endif // XAPIAN_DEBUG_LOG

@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of xapian-compact.
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -312,6 +312,7 @@ DEFINE_TESTCASE(compactstub1, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     string outdbpath = get_named_writable_database_path("compactstub1out");
     rm_rf(outdbpath);
@@ -338,6 +339,7 @@ DEFINE_TESTCASE(compactstub2, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     string outdbpath = get_named_writable_database_path("compactstub2out");
     rm_rf(outdbpath);
@@ -364,6 +366,7 @@ DEFINE_TESTCASE(compactstub3, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     Xapian::doccount in_docs;
     {
@@ -394,6 +397,7 @@ DEFINE_TESTCASE(compactstub4, brass || chert || flint) {
     TEST(stub.is_open());
     stub << "auto ../../" << get_database_path("apitest_simpledata") << endl;
     stub << "auto ../../" << get_database_path("apitest_simpledata2") << endl;
+    stub.close();
 
     Xapian::doccount in_docs;
     {
@@ -462,3 +466,125 @@ DEFINE_TESTCASE(compactmissingtables1, generated) {
     return true;
 }
 
+static void
+make_all_tables2(Xapian::WritableDatabase &db, const string &)
+{
+    Xapian::Document doc;
+    doc.add_term("bar");
+    db.add_document(doc);
+    db.add_spelling("bar");
+    db.add_synonym("bar", "baa");
+    db.add_synonym("barfoo", "barbar");
+    db.add_synonym("foofoo", "barfoo");
+
+    db.commit();
+}
+
+/// Adds coverage for merging synonym table.
+DEFINE_TESTCASE(compactmergesynonym1, generated) {
+    string a = get_database_path("compactmergesynonym1a",
+				 make_all_tables);
+    string b = get_database_path("compactmergesynonym1b",
+				 make_all_tables2);
+
+    string out = get_named_writable_database_path("compactmergesynonym1out");
+    rm_rf(out);
+
+    Xapian::Compactor compact;
+    compact.set_destdir(out);
+    compact.add_source(a);
+    compact.add_source(b);
+    compact.compact();
+
+    {
+	Xapian::Database db(out);
+
+	Xapian::TermIterator i = db.spellings_begin();
+	TEST_NOT_EQUAL(i, db.spellings_end());
+	TEST_EQUAL(*i, "bar");
+	++i;
+	TEST_NOT_EQUAL(i, db.spellings_end());
+	TEST_EQUAL(*i, "foo");
+	++i;
+	TEST_EQUAL(i, db.spellings_end());
+
+	i = db.synonym_keys_begin();
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "bar");
+	++i;
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "barfoo");
+	++i;
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "foobar");
+	++i;
+	TEST_NOT_EQUAL(i, db.synonym_keys_end());
+	TEST_EQUAL(*i, "foofoo");
+	++i;
+	TEST_EQUAL(i, db.synonym_keys_end());
+    }
+
+    return true;
+}
+
+DEFINE_TESTCASE(compactempty1, brass || chert) {
+    string empty_dbpath = get_database_path(string());
+    string outdbpath = get_named_writable_database_path("compactempty1out");
+    rm_rf(outdbpath);
+
+    {
+	// Compacting an empty database tried to divide by zero in 1.3.0.
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
+
+	Xapian::Database outdb(outdbpath);
+	TEST_EQUAL(outdb.get_doccount(), 0);
+	dbcheck(outdb, 0, 0);
+    }
+
+    {
+	// Check compacting two empty databases together.
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
+
+	Xapian::Database outdb(outdbpath);
+	TEST_EQUAL(outdb.get_doccount(), 0);
+	dbcheck(outdb, 0, 0);
+    }
+
+    return true;
+}
+
+DEFINE_TESTCASE(compactmultipass1, brass || chert) {
+    string empty_dbpath = get_database_path(string());
+    string outdbpath = get_named_writable_database_path("compactmultipass1");
+    rm_rf(outdbpath);
+
+    string a = get_database_path("compactnorenumber1a", make_sparse_db,
+				 "5-7 24 76 987 1023-1027 9999 !9999");
+    string b = get_database_path("compactnorenumber1b", make_sparse_db,
+				 "1027-1030");
+    string c = get_database_path("compactnorenumber1c", make_sparse_db,
+				 "1028-1040");
+    string d = get_database_path("compactnorenumber1d", make_sparse_db,
+				 "3000 999999 !999999");
+
+    Xapian::Compactor compact;
+    compact.set_destdir(outdbpath);
+    compact.add_source(a);
+    compact.add_source(b);
+    compact.add_source(c);
+    compact.add_source(d);
+    compact.set_multipass(true);
+    compact.compact();
+
+    Xapian::Database outdb(outdbpath);
+    dbcheck(outdb, 29, 1041);
+
+    return true;
+}

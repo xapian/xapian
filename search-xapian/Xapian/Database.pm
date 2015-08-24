@@ -17,7 +17,7 @@ sub CLONE_SKIP { 1 }
 # Preloaded methods go here.
 
 use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub enquire {
   my $self = shift;
@@ -72,14 +72,14 @@ Search::Xapian::Database - Search database object
 
 =head1 DESCRIPTION
 
-This class represents a Xapian database for searching. See 
+This class represents a Xapian database for searching. See
 L<Search::Xapian::WritableDatabase> for an object suitable for indexing.
 To perform searches, this class works with the L<Search::Xapian::Query>
 object.
 
 =head1 METHODS
 
-=over 4 
+=over 4
 
 =item new <database>
 
@@ -92,13 +92,13 @@ Return a clone of this class.
 
 =item add_database
 
-Add an existing database (or group of databases) to those accessed by this 
+Add an existing database (or group of databases) to those accessed by this
 object.
 
 =item reopen
 
-This re-opens the database(s) to the latest available version(s). It can be 
-used either to make sure the latest results are returned, or to recover from 
+This re-opens the database(s) to the latest available version(s). It can be
+used either to make sure the latest results are returned, or to recover from
 a Xapian::DatabaseModifiedError.
 
 =item close
@@ -155,22 +155,22 @@ terms starting with that string are returned.
 
 =item allterms_end [<prefix>]
 
-Returns a L<Search::Xapian::TermIterator> pointing to the end of the 
+Returns a L<Search::Xapian::TermIterator> pointing to the end of the
 termlist corresponding to allterms_begin.
 
 =item termlist_begin <docid>
 
-Returns a L<Search::Xapian::TermIterator> pointing to the start of the 
+Returns a L<Search::Xapian::TermIterator> pointing to the start of the
 termlist for a given document.
 
 =item termlist_end <docid>
 
-Returns a L<Search::Xapian::TermIterator> pointing to the end of the 
+Returns a L<Search::Xapian::TermIterator> pointing to the end of the
 termlist for a given document.
 
 =item positionlist_begin <docid> <term>
 
-Returns a L<Search::Xapian::PositionIterator> pointing to the 
+Returns a L<Search::Xapian::PositionIterator> pointing to the
 start of the position list for a given term in the given document.
 
 =item positionlist_end <docid> <term>
@@ -180,17 +180,17 @@ of the position list for a given term in the given document.
 
 =item postlist_begin <term>
 
-Returns a L<Search::Xapian::PostingIterator> pointing to the 
+Returns a L<Search::Xapian::PostingIterator> pointing to the
 start of the posting list for a given term.
 
 =item postlist_end <term>
 
-Returns a L<Search::Xapian::PostingIterator> pointing to the 
+Returns a L<Search::Xapian::PostingIterator> pointing to the
 end of the posting list for a given term.
 
 =item keep_alive
 
-Send a "keep-alive" to remote databases to stop them timing out. 
+Send a "keep-alive" to remote databases to stop them timing out.
 
 =item get_collection_freq <term>
 

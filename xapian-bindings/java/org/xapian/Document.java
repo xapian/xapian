@@ -31,7 +31,7 @@ import org.xapian.errors.XapianRuntimeError;
 public class Document {
     private Document _createdfrom = null;
 
-    long id = -1;
+    long id = 0;
 
     Document(long id) {
         this.id = id;

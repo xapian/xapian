@@ -38,7 +38,7 @@ endif
 libxapian_jni_la_SOURCES = Database.cc Document.cc ESet.cc ESetIterator.cc \
  Enquire.cc MSet.cc MSetIterator.cc PositionIterator.cc Query.cc RSet.cc \
  Stem.cc TermIterator.cc WritableDatabase.cc org_xapian_XapianJNI.cc utils.cc \
- org_xapian_XapianJNI.h xapian_jni.h XapianObjectHolder.h
+ org_xapian_XapianJNI.h xapian_jni.h
 
 if NEED_JNILIB_EXT
 SHREXT=-shrext .jnilib

@@ -2,7 +2,7 @@
  *  \brief performance tests for Xapian.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2010 Olly Betts
+ * Copyright 2008,2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -198,53 +198,16 @@ get_distro()
     return distro;
 }
 
-/// Get the subversion revision in use.
+/// Get the git commit for HEAD.
 static string
-get_svnrev()
+get_commit_ref()
 {
-    string svnrev;
+    string commit_ref;
     try {
-	svnrev = stdout_to_string("svn info --non-interactive -R $srcdir/.. 2>/dev/null | sed 's/^Revision: //p;d' | sort -rn | head -n 1");
+	commit_ref = stdout_to_string("cd \"$srcdir\" && git log -n1 --abbrev-commit --format=%h");
     } catch (NoSuchProgram) {} catch (ReadError) {}
 
-    return svnrev;
-}
-
-/// Get the subversion revision in use.
-static string
-get_svnbranch()
-{
-    string branch;
-    try {
-	string svnurl = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | sed 's/^URL: //p;d'");
-	string svnroot = stdout_to_string("svn info --non-interactive $srcdir/.. 2>/dev/null | sed 's/^Repository Root: //p;d'");
-	string svnst = stdout_to_string("svn status --non-interactive -q --no-ignore $srcdir/.. 2>/dev/null");
-	svnurl.erase(0, svnroot.size());
-
-	if (startswith(svnurl, '/'))
-	    svnurl.erase(0, 1);
-
-	// Append the name of the branch we're on
-	string::size_type i = svnurl.find('/');
-	if (i != svnurl.npos) {
-	    if (i == CONST_STRLEN("trunk") && startswith(svnurl, "trunk")) {
-		// On trunk.
-		branch = "trunk";
-	    } else if (i == CONST_STRLEN("branches") && startswith(svnurl, "branches")) {
-		svnurl.erase(0, i + 1);
-		i = svnurl.find('/');
-		if (i != svnurl.npos) {
-		    branch = svnurl.substr(0, i);
-		} else {
-		    branch = svnurl;
-		}
-	    }
-	}
-	if (!branch.empty() && !svnst.empty())
-	    branch += " (modified)";
-    } catch (NoSuchProgram) {} catch (ReadError) {}
-
-    return branch;
+    return commit_ref;
 }
 
 bool
@@ -275,14 +238,11 @@ PerfTestLogger::open(const string & logpath)
     write("  <physmem>" + str(get_total_physical_memory()) + "</physmem>\n");
     write(" </machineinfo>\n");
 
-    string svnrev = get_svnrev();
-    string svnbranch = get_svnbranch();
+    const string & commit_ref = get_commit_ref();
 
     write(" <sourceinfo>\n");
-    if (!svnrev.empty())
-	write("  <svnrev>" + svnrev + "</svnrev>\n");
-    if (!svnbranch.empty())
-	write("  <svnbranch>" + svnbranch + "</svnbranch>\n");
+    if (!commit_ref.empty())
+	write("  <commitref>" + commit_ref + "</commitref>\n");
     write("  <version>" + string(Xapian::version_string()) + "</version>\n");
     write(" </sourceinfo>\n");
 

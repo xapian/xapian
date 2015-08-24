@@ -40,7 +40,7 @@ eval {
     $indexer->set_stemmer($stemmer);
 
     my $para = '';
-    foreach my $line (<STDIN>) {
+    while (my $line = <STDIN>) {
 	$line =~ s/\s+$//;
 	$line =~ s/^\s+//;
 	if ($line eq '') {

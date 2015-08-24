@@ -3,8 +3,9 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
+ * Copyright 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,10 +52,10 @@ class Weight;
 class XAPIAN_VISIBILITY_DEFAULT MSet {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
-	/// @internal Constructor for internal use.
+	/// @private @internal Constructor for internal use.
 	explicit MSet(MSet::Internal * internal_);
 
 	/// Create an empty Xapian::MSet.
@@ -97,6 +98,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
 	 *  and only if the item did not match the query at all.
+	 *
+	 *  @param wt	The weight to convert.
 	 */
 	Xapian::percent convert_to_percent(Xapian::weight wt) const;
 
@@ -234,6 +237,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  In other words, the offset is into the documents represented by
 	 *  this object, not into the set of documents matching the query.
+	 *
+	 *  @param i	The index into the MSet.
 	 */
 	MSetIterator operator[](Xapian::doccount i) const;
 
@@ -419,7 +424,7 @@ class ESetIterator;
 class XAPIAN_VISIBILITY_DEFAULT ESet {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
 	/// Construct an empty ESet
@@ -461,7 +466,10 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
 	/** Iterator pointing to the last element of this E-Set */
 	ESetIterator back() const;
 
-	/** This returns the term at position i in this E-Set.  */
+	/** This returns the term at position i in this E-Set.
+	 *
+	 *  @param i	The index into the ESet.
+	 */
 	ESetIterator operator[](Xapian::termcount i) const;
 
 	/// Return a string describing this object.
@@ -565,7 +573,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 	/// Class holding details of RSet
 	class Internal;
 
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
 	/// Copy constructor
@@ -614,7 +622,9 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
     public:
 	/** Decide whether we want this document to be in the MSet.
 	 *
-	 *  Return true if the document is acceptable, or false if the document
+	 *  @param doc	The document to test.
+	 *
+	 *  @return true if the document is acceptable, or false if the document
 	 *  should be excluded from the MSet.
 	 */
 	virtual bool operator()(const Xapian::Document &doc) const = 0;
@@ -642,7 +652,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void operator=(const Enquire & other);
 
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
 	/** Create a Xapian::Enquire object.
@@ -667,7 +677,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	   should be 0.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if an
-	 *  initialised Database object is supplied.
+	 *  empty Database object is supplied.
 	 */
 	explicit Enquire(const Database &database, ErrorHandler * errorhandler_ = 0);
 
@@ -785,8 +795,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  Note: If you add documents in strict date order, then a boolean
 	 *  search - i.e. set_weighting_scheme(Xapian::BoolWeight()) - with
-	 *  set_docid_order(Xapian::Enquire::DESCENDING) is a very efficient
-	 *  way to perform "sort by date, newest first".
+	 *  set_docid_order(Xapian::Enquire::DESCENDING) is an efficient
+	 *  way to perform "sort by date, newest first", and with
+	 *  set_docid_order(Xapian::Enquire::ASCENDING) a very efficient way
+	 *  to perform "sort by date, oldest first".
 	 */
 	void set_docid_order(docid_order order);
 
@@ -892,7 +904,13 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sort_key  value number to sort on.
 	 *
-	 * @param reverse   If true, reverses the sort order.
+	 * @param reverse   If true, reverses the sort order of sort_key.
+	 *		    Beware that in 1.2.16 and earlier, the sense
+	 *		    of this parameter was incorrectly inverted
+	 *		    and inconsistent with the other set_sort_by_...
+	 *		    methods.  This was fixed in 1.2.17, so make that
+	 *		    version a minimum requirement if this detail
+	 *		    matters to your application.
 	 */
 	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					      bool reverse);
@@ -911,7 +929,13 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param sorter    The functor to use for generating keys.
 	 *
-	 * @param reverse   If true, reverses the sort order.
+	 * @param reverse   If true, reverses the sort order of the generated
+	 *		    keys.  Beware that in 1.2.16 and earlier, the sense
+	 *		    of this parameter was incorrectly inverted
+	 *		    and inconsistent with the other set_sort_by_...
+	 *		    methods.  This was fixed in 1.2.17, so make that
+	 *		    version a minimum requirement if this detail
+	 *		    matters to your application.
 	 */
 	void set_sort_by_relevance_then_key(Xapian::KeyMaker * sorter,
 					    bool reverse);
@@ -957,19 +981,17 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     assumed to be a relatively expensive test so may
 	 *		     be applied in a lazier fashion.
 	 *
-	 *		     @deprecated this parameter is deprecated - use the
+	 *  @deprecated      The matchspy parameter is deprecated - use the
 	 *		     newer MatchSpy class and add_matchspy() method
 	 *		     instead.
 	 *
-	 *  @return	     A Xapian::MSet object containing the results of the
+	 * @return	     A Xapian::MSet object containing the results of the
 	 *		     query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 *
+	 *  @{
 	 */
-	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
-		      Xapian::doccount checkatleast = 0,
-		      const RSet * omrset = 0,
-		      const MatchDecider * mdecider = 0) const;
 	XAPIAN_DEPRECATED(
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast,
@@ -977,10 +999,15 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 		      const MatchDecider * mdecider,
 		      const MatchDecider * matchspy) const);
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		      Xapian::doccount checkatleast = 0,
+		      const RSet * omrset = 0,
+		      const MatchDecider * mdecider = 0) const;
+	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
 	    return get_mset(first, maxitems, 0, omrset, mdecider);
 	}
+	/** @} */
 
 	static const int INCLUDE_QUERY_TERMS = 1;
 	static const int USE_EXACT_TERMFREQ = 2;
@@ -1031,6 +1058,37 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	    return get_eset(maxitems, omrset, 0, 1.0, edecider);
 	}
 
+	/** Get the expand set for the given rset.
+	 *
+	 *  @param maxitems  the maximum number of items to return.
+	 *  @param omrset    the relevance set to use when performing
+	 *		     the expand operation.
+	 *  @param flags     zero or more of these values |-ed together:
+	 *		      - Xapian::Enquire::INCLUDE_QUERY_TERMS query
+	 *			terms may be returned from expand
+	 *		      - Xapian::Enquire::USE_EXACT_TERMFREQ for multi
+	 *			dbs, calculate the exact termfreq; otherwise an
+	 *			approximation is used which can greatly improve
+	 *			efficiency, but still returns good results.
+	 *  @param k	     the parameter k in the query expansion algorithm
+	 *		     (default is 1.0)
+	 *  @param edecider  a decision functor to use to decide whether a
+	 *		     given term should be put in the ESet
+	 *
+	 *  @param min_wt    the minimum weight for included terms
+	 *
+	 *  @return	     An ESet object containing the results of the
+	 *		     expand.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 */
+	ESet get_eset(Xapian::termcount maxitems,
+			const RSet & omrset,
+			int flags,
+			double k,
+			const Xapian::ExpandDecider * edecider,
+			Xapian::weight min_wt) const;
+
 	/** Get terms which match a given document, by document id.
 	 *
 	 *  This method returns the terms in the current query which match
@@ -1063,7 +1121,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** End iterator corresponding to get_matching_terms_begin() */
 	TermIterator get_matching_terms_end(Xapian::docid /*did*/) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Get terms which match a given document, by match set item.
@@ -1092,7 +1150,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** End iterator corresponding to get_matching_terms_begin() */
 	TermIterator get_matching_terms_end(const MSetIterator &/*it*/) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Return a string describing this object.

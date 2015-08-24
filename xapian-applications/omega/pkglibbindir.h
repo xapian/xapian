@@ -1,7 +1,7 @@
 /* @file pkglibbindir.h
  * @brief Get the directory which helper programs live in.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -27,6 +27,6 @@
 
 #include <string>
 
-const std::string & get_pkglibdindir();
+const std::string & get_pkglibbindir();
 
 #endif // OMEGA_INCLUDED_PKGLIBBINDIR_H

@@ -33,6 +33,8 @@ A
         Author
 D	
         Date (numeric format: YYYYMMDD or "latest" - e.g. D20050224 or Dlatest)
+E
+        Extension (folded to lowercase - e.g. Ehtml, or E for no extension)
 G	
         newsGroup (or similar entity - e.g. a web forum name)
 H	
@@ -72,7 +74,7 @@ Y
 Z	
         stemmed term
 
-Reserved but currently unallocated: BCEFJW
+Reserved but currently unallocated: BCFJW
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.
@@ -164,4 +166,13 @@ the decoupling of "UI prefix" and "term prefix" means you can easily translate
 the "UI prefixes" if you have frontends in different languages.
 
 Note that if you want words from the subject to be found without a prefix, you
-need to generate unprefixed terms as well as the prefixed ones.
+either need to generate unprefixed terms as well as the prefixed ones, or map
+the empty prefix to both "" and "S" like so::
+
+    Xapian::QueryParser qp;
+    // Search both subject and body if no field is specified:
+    qp.add_prefix("", "");
+    qp.add_prefix("", "S");
+    // Search just the subject if 'subject:' is specified:
+    qp.add_prefix("subject", "S");
+    Xapian::Query query = qp.parse_query(user_query_string);

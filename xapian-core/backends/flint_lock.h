@@ -1,7 +1,7 @@
 /** @file flint_lock.h
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,8 @@
 #else
 # include <sys/types.h>
 #endif
+
+#include "noreturn.h"
 
 class FlintLock {
     std::string filename;
@@ -90,9 +92,10 @@ class FlintLock {
     void release();
 
     /// Throw Xapian::DatabaseLockError.
+    XAPIAN_NORETURN(
     void throw_databaselockerror(FlintLock::reason why,
 				 const std::string & db_dir,
-				 const std::string & explanation);
+				 const std::string & explanation));
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

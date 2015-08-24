@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 
 #include <xapian.h>
 
+#include "stringutils.h"
 #include "utf8convert.h"
 
 #include <algorithm>
@@ -41,7 +42,7 @@ inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
-	*i = tolower(static_cast<unsigned char>(*i));
+	*i = C_tolower(*i);
     }
 }
 
@@ -50,44 +51,44 @@ map<string, unsigned int> HtmlParser::named_ents;
 inline static bool
 p_notdigit(char c)
 {
-    return !isdigit(static_cast<unsigned char>(c));
+    return !C_isdigit(c);
 }
 
 inline static bool
 p_notxdigit(char c)
 {
-    return !isxdigit(static_cast<unsigned char>(c));
+    return !C_isxdigit(c);
 }
 
 inline static bool
 p_notalnum(char c)
 {
-    return !isalnum(static_cast<unsigned char>(c));
+    return !C_isalnum(c);
 }
 
 inline static bool
 p_notwhitespace(char c)
 {
-    return !isspace(static_cast<unsigned char>(c));
+    return !C_isspace(c);
 }
 
 inline static bool
 p_nottag(char c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) &&
-	c != '.' && c != '-' && c != ':'; // ':' for XML namespaces.
+    // ':' for XML namespaces.
+    return !C_isalnum(c) && c != '.' && c != '-' && c != ':';
 }
 
 inline static bool
 p_whitespacegt(char c)
 {
-    return isspace(static_cast<unsigned char>(c)) || c == '>';
+    return C_isspace(c) || c == '>';
 }
 
 inline static bool
 p_whitespaceeqgt(char c)
 {
-    return isspace(static_cast<unsigned char>(c)) || c == '=' || c == '>';
+    return C_isspace(c) || c == '=' || c == '>';
 }
 
 bool
@@ -182,7 +183,7 @@ HtmlParser::parse_html(const string &body)
 	    unsigned char ch = *(p + 1);
 
 	    // Tag, closing tag, or comment (or SGML declaration).
-	    if ((!in_script && isalpha(ch)) || ch == '/' || ch == '!') break;
+	    if ((!in_script && C_isalpha(ch)) || ch == '/' || ch == '!') break;
 
 	    if (ch == '?') {
 		// PHP code or XML declaration.
@@ -265,12 +266,31 @@ HtmlParser::parse_html(const string &body)
 			start = body.begin() + i + 21;
 			continue;
 		    }
+		    // Check for udmcomment (similar to htdig's)
+		    if (p - start == 12 && string(start, p - 2) == "UdmComment") {
+			string::size_type i;
+			i = body.find("<!--/UdmComment-->", p + 1 - body.begin());
+			if (i == string::npos) break;
+			start = body.begin() + i + 18;
+			continue;
+		    }
 		    // If we found --> skip to there.
 		    start = p;
 		} else {
 		    // Otherwise skip to the first > we found (as Netscape does).
 		    start = close;
 		}
+	    } else if (body.size() - (start - body.begin()) > 6 &&
+		       body.compare(start - body.begin() - 1, 7, "[CDATA[", 7) == 0) {
+		start += 6;
+		string::size_type b = start - body.begin();
+		string::size_type i;
+		i = body.find("]]>", b);
+		string text(body, b, i - b);
+		convert_to_utf8(text, charset);
+		process_text(text);
+		if (i == string::npos) break;
+		start = body.begin() + i + 2;
 	    } else {
 		// just an SGML declaration, perhaps giving the DTD - ignore it
 		start = find(start - 1, body.end(), '>');
@@ -305,7 +325,8 @@ HtmlParser::parse_html(const string &body)
 	    lowercase_string(tag);
 
 	    if (closing) {
-		closing_tag(tag);
+		if (!closing_tag(tag))
+		    return;
 		if (in_script && tag == "script") in_script = false;
 
 		/* ignore any bogus parameters on closing tags */
@@ -370,11 +391,14 @@ HtmlParser::parse_html(const string &body)
 		}
 		cout << ">\n";
 #endif
-		opening_tag(tag);
+		if (!opening_tag(tag))
+		    return;
 		parameters.clear();
 
-		if (empty_element)
-		    closing_tag(tag);
+		if (empty_element) {
+		    if (!closing_tag(tag))
+			return;
+		}
 
 		// In <script> tags we ignore opening tags to avoid problems
 		// with "a<b".

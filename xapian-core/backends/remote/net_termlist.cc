@@ -88,7 +88,7 @@ NetworkTermList::next()
 {
     if (started) {
 	Assert(!at_end());
-	current_position++;
+	++current_position;
     } else {
 	started = true;
     }

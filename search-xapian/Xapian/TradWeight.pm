@@ -45,7 +45,7 @@ on Probabilistic Retrieval.  BM25 generally gives better results.
 
 =head1 METHODS
 
-=over 4 
+=over 4
 
 =item new
 

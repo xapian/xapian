@@ -1,12 +1,7 @@
 use ExtUtils::MakeMaker;
 use strict;
 use Config;
-
-# Suppress warnings about parameters we allow the user to specify.
-$ExtUtils::MakeMaker::Recognized_Att_Keys{CPPFLAGS} = 1;
-$ExtUtils::MakeMaker::Recognized_Att_Keys{CXX} = 1;
-$ExtUtils::MakeMaker::Recognized_Att_Keys{CXXFLAGS} = 1;
-$ExtUtils::MakeMaker::Recognized_Att_Keys{XAPIAN_CONFIG} = 1;
+use File::Spec;
 
 my $builddir;
 
@@ -24,7 +19,9 @@ if ($srcdir =~ s!/([^/]*)$!!) {
 my $xapian_config;
 my $CC;
 my %var = ();
+my $devnull = File::Spec->devnull();
 
+# Write out args for use by t/symboltest.t.
 open ARGS, '>', 'makefile-pl-args' or die $!;
 for (@ARGV) {
     print ARGS $_, "\n";
@@ -86,7 +83,7 @@ chomp($inc);
 
 my @writemakefile_args = ();
 my $libsvar = 'LIBS';
-my $libs = `$xapian_config --libs 2> /dev/null`;
+my $libs = `$xapian_config --libs 2> $devnull`;
 chomp($libs);
 my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
 if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
@@ -103,14 +100,27 @@ if ($? || ($xapian_config_dir ne '' && -f "${xapian_config_dir}Makefile")) {
     $libs = `$xapian_config --ltlibs`;
     chomp($libs);
     $libs = {'LDLOADLIBS' => $libs};
-    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module";
+    open LDWRAP, '>', 'ld-wrapper' or die $!;
+    print LDWRAP <<END;
+#!/bin/sh
+set -e
+SO=\$1
+INST_ARCHAUTODIR=\$2
+shift
+shift
+"\$\@"
+ln -sf ".libs/Xapian.\$SO" "\$INST_ARCHAUTODIR/Xapian.\$SO"
+END
+    chmod 0755, *LDWRAP or die $!;
+    close LDWRAP or die $!;
+    $LD = "./ld-wrapper \"\$(SO)\" \"\$(INST_ARCHAUTODIR)\"";
+    $LD .= " $libtool --tag=CXX --mode=link $CC -avoid-version -module";
     $LD .= " -rpath \$(PERL_ARCHLIB)/auto/\$(FULLEXT)";
     $LD .= " -shrext .".$Config{'dlext'};
     $CC = "$libtool --tag=CXX --mode=compile $CC";
     push @writemakefile_args, (
 	'OBJ_EXT'	=> '.lo',
-	'DLEXT'		=> 'la',
-	'FULLPERL'	=> '$(PERL) "-I$(INST_ARCHAUTODIR)/.libs"',
+	'DLEXT'		=> 'la'
     );
 }
 
@@ -123,8 +133,16 @@ $CCFLAGS =~ s/(?:^|\s+)-Wdeclaration-after-statement(?:\s+|$)/ /;
 # if Perl was built with -Wall.
 $CCFLAGS =~ s/(^|\s+)-Wall(\s+|$)/$1-Wall -Wno-uninitialized$2/;
 
-$CCFLAGS .= ' ' . $var{CPPFLAGS} if exists $var{CPPFLAGS};
-$CCFLAGS .= ' ' . $var{CXXFLAGS} if exists $var{CXXFLAGS};
+if (exists $var{CPPFLAGS}) {
+    $CCFLAGS .= ' ' . $var{CPPFLAGS};
+} elsif (exists $ENV{CPPFLAGS}) {
+    $CCFLAGS .= ' ' . $ENV{CPPFLAGS};
+}
+if (exists $var{CXXFLAGS}) {
+    $CCFLAGS .= ' ' . $var{CXXFLAGS};
+} elsif (exists $ENV{CXXFLAGS}) {
+    $CCFLAGS .= ' ' . $ENV{CXXFLAGS};
+}
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -137,6 +155,9 @@ push @writemakefile_args, (
        AUTHOR     => 'Alex Bowley <xapian-discuss@lists.xapian.org>') : ()),
 #       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     $libsvar		=> $libs, # e.g., '-lm'
+    'LICENSE'		=> 'perl_5',
+    'MIN_PERL_VERSION'	=> '5.6.0',
+    'BUILD_REQUIRES'	=> { 'Devel::Leak' => 0 },
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'CC'		=> $CC,
     'CCFLAGS'		=> $CCFLAGS,
@@ -146,11 +167,20 @@ push @writemakefile_args, (
     'XSOPT'		=> '-C++',
     # 'typemap' is implicitly added to this list.
     'TYPEMAPS'		=> ['perlobject.map', 'typemap-errorclasses'],
+    'clean'		=> { 'FILES' => 'ld-wrapper makefile-pl-args' },
     # Add "make check" as alias for "make test".
     # Make sure that we rebuild the Makefile if the version number changes.
     'depend'		=> { 'check' => 'test', 'Makefile' => 'Xapian.pm' },
 );
+
+# Throw away STDOUT from WriteMakefile() to suppress warnings about parameters
+# we allow the user to specify: CPPFLAGS CXX CXXFLAGS XAPIAN_CONFIG
+*TEMP = *STDOUT;
+open DEVNULL, '>', $devnull;
+*STDOUT = *DEVNULL;
 WriteMakefile(@writemakefile_args);
+*STDOUT = *TEMP;
+close DEVNULL;
 
 my $VERSION = "unknown";
 open F, "Makefile" or die $!;
@@ -163,7 +193,7 @@ while (<F>) {
 close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
-if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
+if ($xver !~ /^\Q$BASEVERSION\E(?:_(?:svn|git)[0-9]+)?$/) {
     # We definitely need Xapian 1.2.x.
     my $no_chance = ($xver !~ /^1\.2\./);
     my $msg;

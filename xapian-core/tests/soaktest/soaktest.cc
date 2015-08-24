@@ -1,7 +1,8 @@
 /** @file soaktest.cc
  * @brief Long-running "soak" tests for Xapian.
  */
-/* Copyright (C) 2010 Richard boulton
+/* Copyright (C) 2010 Richard Boulton
+ * Copyright (C) 2011,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +28,8 @@
 #include "testrunner.h"
 #include "testsuite.h"
 
-#include <cstdlib>
+// random() and srandom() aren't in <cstdlib> with Sun's compiler.
+#include <stdlib.h>
 
 using namespace std;
 
@@ -36,15 +38,26 @@ unsigned int g_random_seed;
 extern unsigned int initrand()
 {
     tout << "Setting random seed to " << g_random_seed << "\n";
+#if defined HAVE_SRANDOM && defined HAVE_RANDOM
     srandom(g_random_seed);
+#else
+    srand(g_random_seed);
+#endif
     return g_random_seed;
 }
 
 extern unsigned int randint(unsigned int s)
 {
+#if defined HAVE_SRANDOM && defined HAVE_RANDOM
     unsigned long int r = static_cast<unsigned long int>(random());
     r = r % static_cast<unsigned long int>(s);
     return static_cast<unsigned int>(r);
+#else
+    unsigned int r = static_cast<unsigned long int>(rand());
+    // The low order bits have lousy randomness on some platforms.
+    r = r / (RAND_MAX / s);
+    return r;
+#endif
 }
 
 class SoakTestRunner : public TestRunner

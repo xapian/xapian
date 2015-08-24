@@ -30,7 +30,7 @@ In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  If you're
 using Mono on UNIX with a UTF-8 locale (which is the default on most
 modern Linux distributions), then Xapian appears to get passed Unicode
-strings as UTF-8, so it should just work.  We tested with Mono 1.2.3.1
+strings as UTF-8, so it should just work.  We tested with Mono 2.6.7
 using the Mono C# 2.0 compiler (gmcs).
 </p>
 
@@ -179,8 +179,15 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for C#, but you can use <code>xapian.Query("")</code>
-instead of MatchAll and <code>xapian.Query()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as static constants
+<code>xapian.Query.MatchAll</code> and <code>xapian.Query.MatchNothing</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>new xapian.Query("")</code> instead of <code>xapian.Query.MatchAll</code>
+and <code>new xapian.Query()</code> instead of
+<code>xapian.Query.MatchNothing</code>.
 </p>
 
 <!-- FIXME: Need to define the custom output typemap to handle this if it

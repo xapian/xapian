@@ -1,7 +1,7 @@
 /** @file api_spelling.cc
  * @brief Test the spelling correction suggestion API.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -298,6 +298,19 @@ DEFINE_TESTCASE(spell7, spelling) {
     TEST_EQUAL(db.get_spelling_suggestion("words"), "word");
     TEST_EQUAL(db.get_spelling_suggestion("sword"), "word");
     TEST_EQUAL(db.get_spelling_suggestion("wrod"), "word");
+
+    return true;
+}
+
+/// Regression test - repeated trigrams cancelled in 1.2.5 and earlier.
+DEFINE_TESTCASE(spell8, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
+
+    // kin and kin used to cancel out in "skinking".
+    db.add_spelling("skinking", 2);
+    db.add_spelling("stinking", 1);
+    db.commit();
+    TEST_EQUAL(db.get_spelling_suggestion("scimkin", 3), "skinking");
 
     return true;
 }

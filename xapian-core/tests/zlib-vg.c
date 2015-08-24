@@ -1,7 +1,7 @@
 /* @file zlib-vg.c
  * @brief LD_PRELOAD hack to avoid bogus valgrind errors caused by zlib.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2013 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,12 +39,12 @@ int deflate(z_streamp strm, int flush) {
 	real_deflate = (int (*)(z_streamp, int))dlsym(RTLD_NEXT, "deflate");
 	if (!real_deflate) _exit(1);
     }
-    VALGRIND_CHECK_MEM_IS_DEFINED(strm->next_in, strm->avail_in);
+    (void)VALGRIND_CHECK_MEM_IS_DEFINED(strm->next_in, strm->avail_in);
     const unsigned char * start = strm->next_out;
     int res = real_deflate(strm, flush);
     if (res == Z_OK || res == Z_STREAM_END) {
 	size_t len = strm->next_out - start;
-	VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE(start, len);
+	(void)VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE(start, len);
     }
     return res;
 }

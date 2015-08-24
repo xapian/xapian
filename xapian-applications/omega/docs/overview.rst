@@ -12,7 +12,7 @@ via a web front-end provided by omega, a CGI application.  A search can also be
 done over more than one database at once.
 
 There are separate documents covering `CGI parameters <cgiparams.html>`_, the
-`Term Prefixes <termprefixes.html>`_ which are conventionally used, and 
+`Term Prefixes <termprefixes.html>`_ which are conventionally used, and
 `OmegaScript <omegascript.html>`_, the language used to define omega's web
 interface.  Omega ships with several OmegaScript templates and you can
 use these, modify them, or just write your own.  See the "Supplied Templates"
@@ -44,15 +44,15 @@ B(oolean) terms with the same prefix are ORed together, with all the
 different prefix groups being ANDed together. This is then FILTERed
 against the P(robabilistic) terms. This will look something like::
 
-		      [ FILTER ]
-		       /      \
-		      /        \
-		 P-terms      [     AND     ]
-			       /     | ... \
-			      /
-			[    OR    ]
-		       /      | ... \
-		    B(F,1) B(F,2)...B(F,n)
+                  [ FILTER ]
+                   /      \
+                  /        \
+             P-terms      [   AND   ]
+                           /   |...\
+                          /
+                    [   OR   ]
+                   /    | ... \
+              B(F,1) B(F,2)...B(F,n)
 
 Where B(F,1) is the first boolean term with prefix F, and so on.
 
@@ -89,10 +89,10 @@ Sites work by having all documents within them having a common base
 URL. For instance, you might have two sites, one for your press area
 and one for your product descriptions:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/bigproduct.html
-	- \http://example.com/products/littleproduct.html
+    - \http://example.com/press/index.html
+    - \http://example.com/press/bigrelease.html
+    - \http://example.com/products/bigproduct.html
+    - \http://example.com/products/littleproduct.html
 
 You could index all documents within \http://example.com/press/ using a
 site of '/press', and all within \http://example.com/products/ using
@@ -145,10 +145,10 @@ second being a relative directory within that to index.
 For instance, in the example above, if you separate your products by
 size, you might end up with:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/large/bigproduct.html
-	- \http://example.com/products/small/littleproduct.html
+    - \http://example.com/press/index.html
+    - \http://example.com/press/bigrelease.html
+    - \http://example.com/products/large/bigproduct.html
+    - \http://example.com/products/small/littleproduct.html
 
 If the entire website is stored in the file system under the directory
 /www/example, then you would probably index the site in two
@@ -175,10 +175,16 @@ site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, CSV
-(Comma-Separated Values) files, and AbiWord documents.  It can also index a
-number of other formats using external programs.  Filter programs are run with
-CPU and memory limits to prevent a runaway filter from blocking indexing of
-other files.
+(Comma-Separated Values) files, Atom feeds, and AbiWord documents.  It can also
+index a number of other formats using external programs.  Filter programs are
+run with CPU, time and memory limits to prevent a runaway filter from blocking
+indexing of other files.
+
+The way omindex decides how to index a file is based around MIME content-types.
+First of all omindex will look up a file's extension in its extension to MIME
+type map.  If there's no entry, and omindex was built with libmagic support,
+then it will then ask libmagic to examine the contents of the file and try to
+determine a MIME type.
 
 The following formats are supported as standard (you can tell omindex to use
 other filters too - see below):
@@ -188,17 +194,17 @@ other filters too - see below):
 * text files (.txt, .text)
 * SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
-* PDF (.pdf) if pdftotext is available (comes with xpdf)
+* PDF (.pdf) if pdftotext is available (comes with poppler or xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
-  with xpdf) are available
+  with poppler or xpdf) are available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
   .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
   available
 * MS Word documents (.doc, .dot) if antiword is available
-* MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with
-  catdoc)
+* MS Excel documents (.xls, .xlb, .xlt, .xlr) if xls2csv is available (comes
+  with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
   catdoc)
 * MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx,
@@ -216,6 +222,7 @@ other filters too - see below):
 * XPS files (.xps) if unzip is available
 * Debian packages (.deb, .udeb) if dpkg-deb is available
 * RPM packages (.rpm) if rpm is available
+* Atom feeds (.atom)
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
@@ -224,14 +231,16 @@ instance::
 $ omindex --db /var/lib/omega/data/default --url /press /www/example/press --mime-type doc:application/postscript
 
 The syntax of ``--mime-type`` is 'ext:type', where ext is the extension of
-a file of that type (everything after the last '.'), and type is one
-of:
+a file of that type (everything after the last '.').  The ``type`` can be any
+string, but to be useful there either needs to be a filter set for that type
+- either using ``--filter`` or by ``type`` being understood by default:
 
    - text/csv
    - text/html
    - text/plain
    - text/rtf
    - text/x-perl
+   - application/atom+xml
    - application/msword
    - application/pdf
    - application/postscript
@@ -287,13 +296,33 @@ of:
 By default, files with the following extensions are marked as 'ignore'::
 
    - a
+   - adm
+   - bin
+   - com
+   - css
+   - cur
+   - dat
+   - db
    - dll
    - dylib
    - exe
+   - fon
+   - ico
+   - jar
+   - js
    - lib
+   - lnk
    - o
    - obj
+   - pyc
+   - pyd
+   - pyo
    - so
+   - sqlite
+   - sqlite3
+   - sqlite-journal
+   - tmp
+   - ttf
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: ``--mime-type=doc:``
@@ -306,17 +335,38 @@ you can set different handling for differently cased variants if you need
 to.
 
 You can add support for additional MIME content types (or override existing
-ones) using the ``--filter`` option - for example, if you wanted to handle
-files of MIME type ``application/octet-stream`` by running them through
-``strings -n8``, you can pass the option
-``--filter=application/octet-stream:'strings -n8'``.  The filename of the
-file to be extracted will be appended to this command, separated by a space.
-The command needs to produce UTF-8 text output on stdout.
+ones) using the ``--filter`` option to specify a command to run.  In Omega
+1.2.x, this command needs to produce output on stdout in UTF-8 text format
+(1.3.x also supports commands which produce HTML output).
 
-You'll also need to tell omindex to map one or more extensions to
-``application/octet-stream`` with ``--mime-type``.  If you know of a reliable
-filter which can extract text from a file format which might be of interest to
-others, please let us know so we can consider including it as standard.
+For example, if you'd prefer to use Abiword to extract text from word documents
+(by default, omindex uses antiword), then you can pass the option
+``--filter=application/msword:'abiword --to=txt --to-name=fd://1'`` to
+omindex.  The filename of the file to be extracted will be appended to this
+command, separated by a space.
+
+Another example - if you wanted to handle files of MIME type
+``application/octet-stream`` by running them through ``strings -n8``, you can
+pass the option ``--filter=application/octet-stream:'strings -n8'``.
+
+A more complex example of the use of ``--filter`` makes use of LibreOffice,
+via the unoconv script, to extract text from various formats.  First you
+need to start a listening instance (if you don't, unoconv will start up
+LibreOffice for every file, which is rather inefficient) - the ``&`` tells
+the shell to run it in the background::
+
+  unoconv --listener &
+
+Then run omindex with options such as
+``--filter=application/msword:'unoconv --stdout -f text'`` (you'll want one
+for each format which you want to extract text from with LibreOffice).
+
+If you know of a reliable filter which can extract text from a file format
+which might be of interest to others, please let us know so we can consider
+including it as a standard filter.
+
+If you specify ``false`` as the command in ``--filter``, omindex will skip
+files with the specified MIME type.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be
@@ -332,7 +382,7 @@ that doesn't correspond to a file seen on disk - in other words, it will clear
 out everything that doesn't exist any more.  However if you are building up
 an omega database with several runs of omindex, this is not
 appropriate (as each run would delete the data from the previous run),
-so you should use the ``--preserve-removed`` option.  Note that if you
+so you should use the ``--no-delete`` option.  Note that if you
 choose to work like this, it is impossible to prune old documents from
 the database using omindex. If this is a problem for you, an
 alternative is to index each subsite into a different database, and
@@ -357,11 +407,18 @@ which are marked as ``noindex`` or ``none``, for example any of the following::
     <meta name="robots" content="noindex">
     <meta name="robots" content="none">
 
-The parser also understand ht://dig comments to mark sections of the document
-to not index (for example, you can use this to avoid indexing navigation links
-or standard headers/footers) - for example::
+Sometimes it is useful to be able to exclude just part of a page from being
+indexed (for example you may not want to index navigation links, or a footer
+which appears on every page).  To allow this, the parser supports "magic"
+comments to mark sections of the document to not index.  Two formats are
+supported - htdig_noindex (used by ht://Dig) and UdmComment (used by
+mnoGoSearch)::
 
-    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex>
+    Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex-->
+
+::
+
+    <!--UdmComment--><div>Boring copyright notice</div><!--/UdmComment-->
 
 Boolean terms
 =============
@@ -369,32 +426,35 @@ Boolean terms
 omindex will create the following boolean terms when it indexes a
 document:
 
-T	
-        MIME type
-H	
-        hostname of site (if supplied - this term won't exist if you index a
-        site with base URL '/press', for instance)
-P	
-        path of site (i.e. the rest of the site base URL)
-U	
-        full URL of indexed document - if the resulting term would be > 240
-	characters, a hashing scheme is used to prevent omindex overflowing
-	the Xapian term length limit.
+E
+    Extension of the file (e.g. `Epdf`) [since Omega 1.2.5]
+T
+    MIME type
+H
+    hostname of site (if supplied - this term won't exist if you index a
+    site with base URL '/press', for instance)
+P
+    path of site (i.e. the rest of the site base URL)
+U
+    full URL of indexed document - if the resulting term would be > 240
+    characters, a hashing scheme is used to prevent omindex overflowing
+    the Xapian term length limit.
 
 
 
-D	
-        date (numeric format: YYYYMMDD)
-	date can also have the magical form "latest" - a document indexed
-	by the term Dlatest matches any date-range without an end date.
-	You can index dynamic documents which are always up to date
-	with Dlatest and they'll match as expected.  (If you use sort by date,
-	you'll probably also want to set the value containing the timestamp to
-	a "max" value so dynamic documents match a date in the far future).
-M	
-        month (numeric format: YYYYMM)
-Y	
-        year (four digits)
+D
+    date (numeric format: YYYYMMDD)
+
+    date can also have the magical form "latest" - a document indexed
+    by the term Dlatest matches any date-range without an end date.
+    You can index dynamic documents which are always up to date
+    with Dlatest and they'll match as expected.  (If you use sort by date,
+    you'll probably also want to set the value containing the timestamp to
+    a "max" value so dynamic documents match a date in the far future).
+M
+    month (numeric format: YYYYMM)
+Y
+    year (four digits)
 
 omega configuration
 ===================

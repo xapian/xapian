@@ -44,7 +44,7 @@ FlintValueTable::unpack_entry(const char ** pos,
 				 Xapian::valueno * this_value_no,
 				 string & this_value)
 {
-    LOGCALL_STATIC_VOID(DB, "FlintValueTable::unpack_entry", pos | (void*)end | this_value_no | this_value);
+    LOGCALL_STATIC_VOID(DB, "FlintValueTable::unpack_entry", pos | (const void*)end | this_value_no | this_value);
     if (!F_unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
 	else throw Xapian::RangeError("Value number in value table is too large");
@@ -84,9 +84,9 @@ FlintValueTable::set_encoded_values(Xapian::docid did, const string & enc)
 void
 FlintValueTable::get_value(string & value,
 			      Xapian::docid did,
-			      Xapian::valueno valueno) const
+			      Xapian::valueno slot) const
 {
-    LOGCALL_VOID(DB, "FlintValueTable::get_value", value | did | valueno);
+    LOGCALL_VOID(DB, "FlintValueTable::get_value", value | did | slot);
     string key;
     make_key(key, did);
     string tag;
@@ -102,16 +102,16 @@ FlintValueTable::get_value(string & value,
 
 	    unpack_entry(&pos, end, &this_value_no, this_value);
 
-	    if (this_value_no == valueno) {
+	    if (this_value_no == slot) {
 		value = this_value;
 		return;
 	    }
 
 	    // Values are stored in sorted order.
-	    if (this_value_no > valueno) break;
+	    if (this_value_no > slot) break;
 	}
     }
-    value = "";
+    value = string();
 }
 
 void

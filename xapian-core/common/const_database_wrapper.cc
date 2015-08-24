@@ -82,21 +82,21 @@ ConstDatabaseWrapper::get_collection_freq(const string & tname) const
 }
 
 Xapian::doccount
-ConstDatabaseWrapper::get_value_freq(Xapian::valueno valno) const
+ConstDatabaseWrapper::get_value_freq(Xapian::valueno slot) const
 {
-    return realdb->get_value_freq(valno);
+    return realdb->get_value_freq(slot);
 }
 
 std::string
-ConstDatabaseWrapper::get_value_lower_bound(Xapian::valueno valno) const
+ConstDatabaseWrapper::get_value_lower_bound(Xapian::valueno slot) const
 {
-    return realdb->get_value_lower_bound(valno);
+    return realdb->get_value_lower_bound(slot);
 }
 
 std::string
-ConstDatabaseWrapper::get_value_upper_bound(Xapian::valueno valno) const
+ConstDatabaseWrapper::get_value_upper_bound(Xapian::valueno slot) const
 {
-    return realdb->get_value_upper_bound(valno);
+    return realdb->get_value_upper_bound(slot);
 }
 
 bool

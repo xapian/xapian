@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +40,8 @@
 #include "cgiparam.h"
 #include "query.h"
 #include "str.h"
+#include "stringutils.h"
+#include "expand.h"
 
 using namespace std;
 
@@ -95,6 +97,8 @@ try {
     MCI val;
     pair<MCI, MCI> g;
 
+    option["flag_default"] = "true";
+
     // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
     option["decimal"] = ".";
     option["thousand"] = ",";
@@ -115,8 +119,7 @@ try {
 	} else {
 	    // Seems we're running from the command line so give version
 	    // and allow a query to be entered for testing
-	    cout << PROGRAM_NAME" - "PACKAGE" "VERSION" "
-		"(compiled "__DATE__" "__TIME__")\n";
+	    cout << PROGRAM_NAME " - " PACKAGE " " VERSION "\n";
 	    if (argc > 1) exit(0);
 	    cout << "Enter NAME=VALUE lines, end with blank line\n";
 	    decode_test();
@@ -201,7 +204,9 @@ try {
 	    tmprset.add_document(docid);
 
 	    OmegaExpandDecider decider(db);
-	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
+	    set_expansion_scheme(*enquire, option);
+	    Xapian::ESet eset(enquire->get_eset(40, tmprset, 0,
+						expand_param_k, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if (!query_string.empty()) query_string += ' ';
 		query_string += pretty_term(*i);
@@ -243,7 +248,7 @@ try {
 	assert(len != string::npos);
 	if (first_nonspace > 0 || len <= query_string.length() - 1) {
 	    len = len + 1 - first_nonspace;
-	    query_string = query_string.substr(first_nonspace, len + 1);
+	    query_string = query_string.substr(first_nonspace, len);
 	}
     }
 
@@ -254,7 +259,7 @@ try {
 	for (MCI i = g.first; i != g.second; i++) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
-	    if (!v.empty() && isalnum(static_cast<unsigned char>(v[0]))) {
+	    if (!v.empty() && C_isalnum(v[0])) {
 		add_bterm(v);
 		filter_v.push_back(v);
 	    }

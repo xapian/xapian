@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 91 };
+BEGIN { plan tests => 95 };
 use Search::Xapian qw(:standard);
 
 # FIXME: these tests pass in the XS version.
@@ -41,7 +41,7 @@ foreach my $backend ("inmemory", "auto") {
   }
 
   my $docid;
-  for my $num qw( one two three ) {
+  for my $num (qw( one two three )) {
     ok( $docs{$num} = Search::Xapian::Document->new() );
     ok( $docs{$num}->get_description() );
 
@@ -63,6 +63,9 @@ foreach my $backend ("inmemory", "auto") {
   $database->delete_document( $docid );
   is( $database->get_doccount(), 2 );
   is( $database->get_lastdocid(), 3 );
+
+  is( $database->get_document(1)->get_docid(), 1 );
+  is( $database->get_document(2)->get_docid(), 2 );
 
   # regression test - add_posting with 2 parameters set wdfinc 0 in <=0.8.3.0
   ok( $database->get_doclength(1) == 2 );
@@ -112,7 +115,7 @@ eval {
 };
 ok($@);
 ok(ref($@), "Search::Xapian::InvalidArgumentError");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->isa('Search::Xapian::Error'));
 ok($@->get_msg, "Language code gibberish unknown");
 ok( $disable_fixme || "$@" =~ /^Exception: Language code gibberish unknown(?: at \S+ line \d+\.)?$/ );
 

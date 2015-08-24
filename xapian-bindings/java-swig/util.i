@@ -1,7 +1,7 @@
 %{
 /* java-swig/util.i: custom Java typemaps for xapian-bindings
  *
- * Copyright (c) 2007,2009 Olly Betts
+ * Copyright (c) 2007,2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -159,6 +159,9 @@ namespace Xapian {
     public final static op OP_PHRASE = new op("OP_PHRASE");
     public final static op OP_ELITE_SET = new op("OP_ELITE_SET");
     public final static op OP_VALUE_RANGE = new op("OP_VALUE_RANGE");
+
+    public final static Query MatchAll = new Query("");
+    public final static Query MatchNothing = new Query();
 
     protected static long[] cArrayUnwrap(Query[] arrayWrapper) {
 	long[] cArray = new long[arrayWrapper.length];

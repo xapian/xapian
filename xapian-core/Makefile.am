@@ -9,15 +9,15 @@ LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
-INCLUDES += -I$(top_builddir)/include
+AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
 
 # Order is relevant: when building, tests must be after ".".
@@ -102,22 +102,17 @@ coverage-check:
 	## Don't run under valgrind even if configure was run by hand.
 	$(MAKE) $(AM_MAKEFLAGS) check VALGRIND=
 	rm -f xapian-core.lcov
-	for d in api backends bin common examples expand include languages \
-	    matcher net queryparser tests unicode weight ; do \
-	    rm -f tests/$$d ; \
-	    ln -s ../$$d tests/$$d ; \
-	done
-	cd tests && lcov -c -b `pwd` -d `pwd` -o ../tmp.lcov
-	sed '/^SF:\/usr/,/^end_of_record/{d};s,^\(SF:/.*/xapian-core/\)\([^t]\),\1tests/\2,' tmp.lcov > xapian-core.lcov
-	genhtml -q -t "Test Coverage for xapian-core r`svn info|sed 's/^Revision: //p;d'`" -o lcov xapian-core.lcov
+	lcov --capture -d . --quiet --rc 'lcov_branch_coverage=1' --no-external -o xapian-core.lcov
+	rm -rf lcov
+	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
 bin_SCRIPTS = xapian-config
 
 DISTCLEANFILES += xapian-config
 
-EXTRA_DIST = ChangeLog ChangeLog.examples HACKING PLATFORMS xapian-core.spec \
- include/xapian/error.h include/xapian/errordispatch.h generate-exceptions \
- exception_data.pm preautoreconf dir_contents
+EXTRA_DIST = ChangeLog ChangeLog.0 ChangeLog.examples HACKING PLATFORMS \
+ xapian-core.spec include/xapian/error.h include/xapian/errordispatch.h \
+ generate-exceptions exception_data.pm preautoreconf dir_contents
 
 cmakedir = $(libdir)/cmake/xapian
 cmake_DATA = cmake/xapian-config.cmake cmake/xapian-config-version.cmake
@@ -130,11 +125,17 @@ include docsource.mk
 m4datadir = $(datadir)/aclocal
 dist_m4data_DATA = m4-macros/xapian.m4
 
+# Install the pkg-config file containing the correct compiler options.
+pkgconfigdir = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA = pkgconfig/xapian-core.pc
+DISTCLEANFILES += pkgconfig/xapian-core.pc
+
 libxapian_la = libxapian.la
 lib_LTLIBRARIES = libxapian.la
 libxapian_la_SOURCES = $(lib_src)
+libxapian_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
 
 lib_src =
 

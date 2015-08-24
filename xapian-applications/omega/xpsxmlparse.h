@@ -1,7 +1,7 @@
 /** @file xpsxmlparse.h
  * @brief Subclass of HtmlParser for parsing XPS .fpage files.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 class XpsXmlParser : public HtmlParser {
   public:
     XpsXmlParser() { }
-    void opening_tag(const string &tag);
+    bool opening_tag(const string &tag);
     string dump;
 };
 

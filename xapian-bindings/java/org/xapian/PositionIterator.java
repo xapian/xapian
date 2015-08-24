@@ -31,7 +31,7 @@ import org.xapian.errors.XapianRuntimeError;
 import java.util.Iterator;
 
 public class PositionIterator implements Iterator {
-    long id = -1;
+    long id = 0;
     private long _end;
     private long _value;
 
@@ -41,12 +41,12 @@ public class PositionIterator implements Iterator {
     }
 
     public long getPosition() {
-        if (id == -1) throw new XapianRuntimeError("This is an empty PositionIterator");
+        if (id == 0) throw new XapianRuntimeError("This is an empty PositionIterator");
         return _value;
     }
 
     public Object next() {
-        if (id == -1) throw new XapianRuntimeError("This is an empty PositionIterator");
+        if (id == 0) throw new XapianRuntimeError("This is an empty PositionIterator");
 
         try {
             _value = XapianJNI.positioniterator_getvalue(id);
@@ -59,7 +59,7 @@ public class PositionIterator implements Iterator {
     }
 
     public boolean hasNext() {
-        if (id == -1) return false;
+        if (id == 0) return false;
 
         try {
             return !XapianJNI.positioniterator_equals(id, _end);

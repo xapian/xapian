@@ -2,12 +2,16 @@
 
 include ../generic/generic.mk
 
+# Disable parallel build for this make invocation; some tests depend
+# on previous ones having set up their database for them.
+.NOTPARALLEL:
+
 TESTS_ENVIRONMENT = \
 	CPPFLAGS="$(CPPFLAGS)" \
 	CXX="$(CXX)" \
 	CXXFLAGS="$(CXXFLAGS)" \
 	XAPIAN_CONFIG="$(XAPIAN_CONFIG)" \
-	prove -I.libs -I. -I"$(srcdir)"
+	prove -I. -I"$(srcdir)"
 
 ## Test programs to be run
 TESTS = \
@@ -16,6 +20,7 @@ TESTS = \
 	t/03podcoverage.t \
 	t/04functions.t \
 	t/10query.t \
+	t/collapse.t \
 	t/create.t \
 	t/databasemodified.t \
 	t/document.t \
@@ -24,6 +29,7 @@ TESTS = \
 	t/parser.t \
 	t/search.t \
 	t/sorter.t \
+	t/stem.t \
 	t/symbol-test.t \
 	t/termgenerator.t \
 	t/thread.t \
@@ -32,11 +38,21 @@ TESTS = \
 	t/writabledatabase.t
 
 clean-local:
-	rm -rf testdb*
+	rm -rf testdb* auto
 
-BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc
+BUILT_SOURCES = Search/Xapian.pm xapian_wrap.cc \
+	auto/Search/Xapian/Xapian$(PERL_SO)
 
-EXTRA_DIST = except.i $(TESTS) $(BUILT_SOURCES) \
+auto/Search/Xapian/Xapian$(PERL_SO): Xapian.la
+	@$(MKDIR_P) auto/Search/Xapian
+	$(LIBTOOL) --config > libtoolconfig.tmp
+## ksh requires a path on the sourced file.
+	. ./libtoolconfig.tmp; cp "$$objdir/Xapian$(PERL_SO)" auto/Search/Xapian
+	rm -f libtoolconfig.tmp
+
+EXTRA_DIST = except.i $(TESTS) \
+	generate-perl-exceptions \
+	Search/Xapian.pm xapian_wrap.cc \
 	t/symbol-test/SymbolTest.pm \
 	t/symbol-test/typemap \
 	t/symbol-test/SymbolTest.xs \

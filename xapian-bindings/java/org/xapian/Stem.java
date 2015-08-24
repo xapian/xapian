@@ -34,7 +34,7 @@ import java.util.StringTokenizer;
  *
  */
 public class Stem {
-    long id = -1;
+    long id = 0;
 
     public static final String[] getAvailableLanguages() throws XapianError {
         StringTokenizer st = new StringTokenizer(XapianJNI.stem_get_available_languages(), " ");

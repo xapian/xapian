@@ -72,5 +72,5 @@ RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
     // For remote databases we report percent_factor rather than counting the
     // number of subqueries.
     (void)total_subqs_ptr;
-    return new MSetPostList(mset, decreasing_relevance);
+    RETURN(new MSetPostList(mset, decreasing_relevance));
 }

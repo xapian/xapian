@@ -120,6 +120,7 @@ t/02pod.t
 t/03podcoverage.t
 t/04functions.t
 t/10query.t
+t/collapse.t
 t/create.t
 t/databasemodified.t
 t/document.t
@@ -128,6 +129,11 @@ t/index.t
 t/parser.t
 t/search.t
 t/sorter.t
+t/symbol-test.t
+t/symbol-test/Makefile.PL
+t/symbol-test/SymbolTest.pm
+t/symbol-test/SymbolTest.xs
+t/symbol-test/typemap
 t/termgenerator.t
 t/thread.t
 t/tied.t

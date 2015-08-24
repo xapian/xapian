@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2008,2009 Olly Betts
+/* Copyright (C) 2007,2008,2009,2015 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -91,6 +91,8 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 
     /// Return the weight contribution for the current position.
     virtual Xapian::weight get_weight() const = 0;
+
+    virtual const std::string * get_sort_key() const;
 
     /** If the collapse key is already known, return it.
      *

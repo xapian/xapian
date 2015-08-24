@@ -32,7 +32,7 @@ import org.xapian.errors.XapianRuntimeError;
  *
  */
 public class RSet {
-    long id = -1;
+    long id = 0;
 
     RSet(long id) {
         this.id = id;

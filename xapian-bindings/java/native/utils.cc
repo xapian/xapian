@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2006,2008, Olly Betts
+ Copyright (c) 2006,2008,2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -25,7 +25,6 @@
  THE POSSIBILITY OF SUCH DAMAGE.
  **/
  
-#include <typeinfo>
 #include "xapian_jni.h"
 
 bool check_for_java_exception(JNIEnv *env) {

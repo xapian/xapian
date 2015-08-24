@@ -1,7 +1,7 @@
 /** @file chert_spelling.h
  * @brief Spelling correction data for a chert database.
  */
-/* Copyright (C) 2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,9 +53,19 @@ inline bool operator<(const fragment &a, const fragment &b) {
 }
 
 class ChertSpellingTable : public ChertLazyTable {
+    void toggle_word(const std::string & word);
     void toggle_fragment(fragment frag, const std::string & word);
 
     std::map<std::string, Xapian::termcount> wordfreq_changes;
+
+    /** Changes to make to the termlists.
+     *
+     *  This list is essentially xor-ed with the list on disk, so an entry
+     *  here either means a new entry needs to be added on disk, or an
+     *  existing entry on disk needs to be removed.  We do it this way so
+     *  we don't need to store an additional add/remove flag for every
+     *  word.
+     */
     std::map<fragment, std::set<std::string> > termlist_deltas;
 
   public:

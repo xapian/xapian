@@ -33,6 +33,7 @@
 
 #include "xapian/error.h"
 #include "remotetcpserver.h"
+#include "stringutils.h"
 
 using namespace std;
 
@@ -70,13 +71,13 @@ static const struct option long_opts[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --interface ADDRESS     listen on the interface associated with name or\n"
 "                          address ADDRESS (default is all interfaces)\n"
-"  --idle-timeout MSECS    set timeout for idle connections (default " << MSECS_IDLE_TIMEOUT_DEFAULT << "ms)\n"
-"  --active-timeout MSECS  set timeout for active connections (default " << MSECS_ACTIVE_TIMEOUT_DEFAULT << "ms)\n"
+"  --idle-timeout MSECS    set timeout for idle connections (default " STRINGIZE(MSECS_IDLE_TIMEOUT_DEFAULT) "ms)\n"
+"  --active-timeout MSECS  set timeout for active connections (default " STRINGIZE(MSECS_ACTIVE_TIMEOUT_DEFAULT) "ms)\n"
 "  --timeout MSECS         set both timeout values\n"
 "  --one-shot              serve a single connection and exit\n"
 "  --quiet                 disable information messages to stdout\n"
@@ -100,11 +101,11 @@ int main(int argc, char **argv) {
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'I':
                 host.assign(optarg);

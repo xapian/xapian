@@ -33,9 +33,9 @@ class ValueGePostList: public ValueRangePostList {
 
   public:
     ValueGePostList(const Xapian::Database::Internal *db_,
-		    Xapian::valueno valno_,
+		    Xapian::valueno slot_,
 		    const std::string &begin_)
-	: ValueRangePostList(db_, valno_, begin_, "") {}
+	: ValueRangePostList(db_, slot_, begin_, std::string()) {}
 
     PostList * next(Xapian::weight w_min);
 

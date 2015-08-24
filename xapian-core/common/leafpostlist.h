@@ -47,7 +47,7 @@ class LeafPostList : public PostList {
 
     bool need_doclength;
 
-    /// The term name for this postlist ("" for an alldocs postlist).
+    /// The term name for this postlist (empty for an alldocs postlist).
     std::string term;
 
     /// Only constructable as a base class for derived classes.

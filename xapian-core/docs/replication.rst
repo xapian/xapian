@@ -1,5 +1,5 @@
 .. Copyright (C) 2008 Lemur Consulting Ltd
-.. Copyright (C) 2008,2010 Olly Betts
+.. Copyright (C) 2008,2010,2011,2012 Olly Betts
 
 =======================================
 Xapian Database Replication Users Guide
@@ -69,11 +69,17 @@ there is one configuration step to be performed on the master machine, and two
 servers to run.
 
 Firstly, on the master machine, the indexer must be run with the environment
-variable `XAPIAN_MAX_CHANGESETS` set to a non-zero value.  (Currently, the
-actual value it is set to is irrelevant, but I suggest using a value of 10).
-This will cause changeset files to be created whenever a transaction is
-performed, which allow the transaction to be replayed efficiently on a replica
+variable `XAPIAN_MAX_CHANGESETS` set to a non-zero value, which will cause
+changeset files to be created whenever a transaction is committed.  A
+changeset file allows the transaction to be replayed efficiently on a replica
 of the database.
+
+The value which `XAPIAN_MAX_CHANGESETS` is set to determines the maximum number
+of changeset files which will be kept.  The best number to keep depends on how
+frequently you run replication and how big your transactions are - if all
+the changeset files needed to update a replica aren't present, a full copy of
+the database will be sent, but at some point that becomes more efficient
+anyway.  `10` is probably a good value to start with.
 
 Secondly, also on the master machine, run the `xapian-replicate-server` server
 to serve the databases which are to be replicated.  This takes various
@@ -96,7 +102,15 @@ example, contacting the above server from the same machine::
   xapian-replicate -h 127.0.0.1 -p 7010 -m foo foo2
 
 would produce a database "foo2" containing a replica of the database
-"/var/search/dbs/foo".
+"/var/search/dbs/foo".  Note that the first time you run this, this command
+will create the foo2 directory and populate it with appropriate files; you
+should not create this directory yourself.
+
+As of 1.2.5, if you don't specify the master name, the same name is used
+remotely and locally, so this will replicate remote database "foo2" to
+local database "foo2"::
+
+  xapian-replicate -h 127.0.0.1 -p 7010 foo2
 
 Both the server and client can be run in "one-shot" mode, by passing `-o`.
 This may be particularly useful for the client, to allow a shell script to be

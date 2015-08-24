@@ -1,7 +1,7 @@
 /** @file  valueiterator.h
  *  @brief Class for iterating over document values.
  */
-/* Copyright (C) 2008,2009,2010 Olly Betts
+/* Copyright (C) 2008,2009,2010,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -111,6 +111,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  overloading works.  Xapian::docid and Xapian::valueno are both typedefs
      *  for the same unsigned integer type, so overloading can't distinguish
      *  them.
+     *
+     *  @param docid_or_slot	The docid/slot to advance to.
      */
     void skip_to(Xapian::docid docid_or_slot);
 
@@ -135,8 +137,23 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  Currently the inmemory, flint, and remote backends behave in the
      *  latter way because they don't support streamed values and so skip_to()
      *  must check each document it skips over which is significantly slower.
+     *
+     *  @param docid	The document id to check.
      */
+#ifndef check
     bool check(Xapian::docid docid);
+#else
+    // The AssertMacros.h header in the OS X SDK currently defines a check
+    // macro.  Apple have deprecated check() in favour of __Check() and
+    // plan to remove check() in a "future release", but for now prevent
+    // expansion of check by adding parentheses in the method prototype:
+    // http://www.opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/AssertMacros.h
+    //
+    // We do this conditionally, as these parentheses trip up SWIG's
+    // parser:
+    // https://github.com/swig/swig/issues/45
+    bool (check)(Xapian::docid docid);
+#endif
 
     /// Return a string describing this object.
     std::string get_description() const;

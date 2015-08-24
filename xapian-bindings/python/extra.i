@@ -1,5 +1,5 @@
 %{
-/* python/extra.i: Xapian scripting python interface additional code.
+/* python/extra.i: Xapian scripting python interface additional python code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
  * Copyright (C) 2005,2006,2007,2008,2009,2010 Olly Betts
@@ -154,16 +154,6 @@ def _mset_getitem(self, index):
     return MSetItem(self._get_hit_internal(index), self)
 MSet.__getitem__ = _mset_getitem
 MSet.get_hit = _mset_getitem
-
-def _mset_contains(self, index):
-    """Check if the Mset contains an item at the given index
-
-    The supplied index is relative to the start of the MSet, not the absolute
-    rank of the item.
-
-    """
-    return key >= 0 and key < len(self)
-MSet.__contains__ = _mset_contains
 
 
 ##################################
@@ -634,7 +624,7 @@ def _queryparser_gen_unstemlist_iter(self, tname):
     """Get an iterator over all the unstemmed forms of a stemmed term.
     
     This returns an iterator which returns all the unstemmed words which were
-    stemmed to the stemmed form specifed by `tname` when parsing the previous
+    stemmed to the stemmed form specified by `tname` when parsing the previous
     query.  Each instance of a word which stems to `tname` is returned by the
     iterator in the order in which the words appeared in the query - an
     individual unstemmed word may thus occur multiple times.

@@ -20,7 +20,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+use 5.006;
 use strict;
+use warnings;
+
 use Search::Xapian (':all');
 
 # We require at least two command line arguments.
@@ -59,7 +62,7 @@ eval {
     printf "Results 1-%i:\n", $mset->size();
 
     foreach my $m ($mset->items()) {
-        printf "%i: %i%% docid=%i [%s]\n", $m->get_rank() + 1, $m->get_percent(), $m->get_docid(), $m->get_document()->get_data();
+	printf "%i: %i%% docid=%i [%s]\n", $m->get_rank() + 1, $m->get_percent(), $m->get_docid(), $m->get_document()->get_data();
     }
 };
 if ($@) {

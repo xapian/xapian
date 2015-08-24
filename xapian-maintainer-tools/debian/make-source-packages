@@ -31,8 +31,8 @@ fi
 trap "echo \"make-source-packages failed\"" EXIT
 
 # Where to get debian directories from.
-BRANCH=trunk
-#BRANCH=branches/1.0
+#BRANCH=trunk
+BRANCH=branches/1.2
 
 # Options to pass to dpkg-buildpackage when building source packages
 BUILDPACKAGE_SRC_OPTS="--no-lintian -us -uc -d -S"

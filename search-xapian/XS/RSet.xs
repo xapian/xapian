@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 RSet *
 new1()
     CODE:
-        RETVAL = new RSet();
+	RETVAL = new RSet();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 RSet *
 new2(other)
     RSet *	other
     CODE:
-        RETVAL = new RSet(*other);
+	RETVAL = new RSet(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 
 doccount
@@ -54,7 +54,7 @@ RSet::contains1(it)
     CODE:
 	RETVAL = THIS->contains(*it);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 RSet::contains2(did)
@@ -62,7 +62,7 @@ RSet::contains2(did)
     CODE:
 	RETVAL = THIS->contains(did);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 RSet::get_description()

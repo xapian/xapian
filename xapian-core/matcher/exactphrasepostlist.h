@@ -51,7 +51,9 @@ class ExactPhrasePostList : public SelectPostList {
     bool test_doc();
 
   public:
-    ExactPhrasePostList(PostList *source_, const std::vector<PostList*> &terms_);
+    ExactPhrasePostList(PostList *source_,
+			const std::vector<PostList*>::const_iterator &terms_begin,
+			const std::vector<PostList*>::const_iterator &terms_end);
 
     ~ExactPhrasePostList();
 

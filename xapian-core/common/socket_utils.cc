@@ -1,7 +1,7 @@
 /** @file  socket_utils.cc
  *  @brief Socket handling utilities.
  */
-/* Copyright (C) 2006,2007,2008 Olly Betts
+/* Copyright (C) 2006,2007,2008,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,14 @@
 #include <config.h>
 #include "socket_utils.h"
 
-#ifdef __WIN32__
+#include <cmath>
+#include <limits>
+
+using namespace std;
+
+#ifndef __WIN32__
+# include <sys/socket.h>
+#else
 # include "safeerrno.h"
 
 # include <io.h>
@@ -94,4 +101,51 @@ extern void close_fd_or_socket(int fd) {
 	closesocket(fd);
     }
 }
+
 #endif
+
+void
+set_socket_timeouts(int fd, double timeout)
+{
+    (void)fd;
+    (void)timeout;
+#if defined SO_SNDTIMEO || defined SO_RCVTIMEO
+    {
+# ifndef __WIN32__
+	struct timeval t;
+	double secs;
+	t.tv_usec = long(std::modf(timeout, &secs) * 1e6);
+	t.tv_sec = long(secs);
+# else
+	// Just to be different, it's a DWORD counting in milliseconds.
+	DWORD t;
+	if (usual(timeout < numeric_limits<DWORD>::max() / 1000))
+	    t = timeout * 1000;
+	else
+	    t = numeric_limits<DWORD>::max();
+# endif
+# ifdef SO_SNDTIMEO
+	(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
+			 reinterpret_cast<char*>(&t), sizeof(t));
+# endif
+# ifdef SO_RCVTIMEO
+	(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
+			 reinterpret_cast<char*>(&t), sizeof(t));
+# endif
+    }
+#endif
+#ifdef SO_KEEPALIVE
+    // SO_SNDTIMEO and SO_RCVTIMEO may be ignored even if they exist, so set
+    // SO_KEEPALIVE anyway if it exists, as it will cause stuck connections to
+    // time out eventually (though it may take ~2 hours).
+    {
+# ifndef __WIN32__
+	int flag = 1;
+# else
+	DWORD flag = 1;
+# endif
+	(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
+			 reinterpret_cast<char*>(&flag), sizeof(flag));
+    }
+#endif
+}

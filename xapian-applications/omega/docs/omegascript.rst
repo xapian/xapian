@@ -139,8 +139,8 @@ $filesize{SIZE}
         ``4.0M``, ``1.3G``).  If ``SIZE`` is negative, expands to nothing.
 
 $filters
-	serialised version of filter-like settings (currently ``B``, ``DATE1``,
-        ``DATE2``, ``DAYSMINUS``, and ``DEFAULTOP``) - set ``xFILTERS`` to this
+        serialised version of filter-like settings (currently ``B``, ``START``,
+        ``END``, ``SPAN``, and ``DEFAULTOP``) - set ``xFILTERS`` to this
         so that Omega can detect when the filters have changed and force the
         first page.
 
@@ -176,10 +176,11 @@ $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
         If ``OPEN`` is specified, but close is omitted, ``CLOSE`` defaults to
         the appropriate closing tag for ``OPEN`` (i.e. with a "/" in front and
         any parameters removed).  If both are omitted, then ``OPEN`` is set to:
-	``<b style="color:black;background-color:#XXXXXX">`` (where ``XXXXXX``
-        cycles through ``ffff66`` ``66ffff`` ``ff66ff`` ``6666ff`` ``ff6666``
-        ``66ff66`` ``ffaa33`` ``33ffaa`` ``aa33ff`` ``33aaff``) and ``CLOSE``
-        is ``</b>``.
+	``<b style="color:XXXXX;background-color:#YYYYYY">`` (where ``YYYYYY``
+        cycles through ``ffff66`` ``99ff99`` ``99ffff`` ``ff66ff`` ``ff9999``
+        ``990000`` ``009900`` ``996600`` ``006699`` ``990099`` and ``XXXXX``
+        is ``black`` is ``YYYYYY`` contains an ``f``, and otherwise ``white``)
+        and ``CLOSE`` is ``</b>``.
 
 $hit
 	MSet index of current doc (first document in MSet is 0, so if
@@ -304,12 +305,23 @@ $pack{NUMBER}
 $percentage
 	percentage score of current hit (in range 1-100).
 
+	You probably don't want to show these percentage scores to end
+	users in new applications - they're not really a percentage of
+	anything meaningful, and research seems to suggest that users
+	don't find numeric scores in search results useful.
+
 $prettyterm{TERM}
 	convert a term to "user form", as it might be entered in a query.  If
 	a matching term was entered in the query, just use that (the first
 	occurrence if a term was generated multiple times from a query).
 	Otherwise term prefixes are converted back to user forms as specified
 	by ``$setmap{prefix,...}`` and ``$setmap{boolprefix,...}``.
+
+$prettyurl{URL}
+	Prettify URL.  This command undoes RFC3986 URL escaping which doesn't
+	affect semantics in practice, in order to make a prettier version of a
+	URL for displaying to the user (rather than in links), but which should
+	still work if copied and pasted.
 
 $query
 	query string (built from CGI ``P`` variable(s) plus possible added
@@ -350,12 +362,14 @@ $set{OPT,VALUE}
 	* thousand - the thousands separator ("," by default - localised query
 	  templates may want to set this to ".", " ", or "").
 	* stemmer - which stemming language to use ("english" by default, other
-	  values are as understood by Xapian::Stem, so "none" means no
+	  values are as understood by ``Xapian::Stem``, so "none" means no
 	  stemming).
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
 	* spelling - if "true", then the query parser spelling correction
-	  feature is enabled and ``$suggestion`` can be used.
+	  feature is enabled and ``$suggestion`` can be used.  Deprecated -
+	  use flag_spelling_correction instead (which was added in version
+	  1.2.5).
 	* fieldnames - if set to a non-empty value then the document data is
 	  parsed with each line being the value of a field, and the names
 	  are taken from entries in the list in fieldnames.  So
@@ -371,6 +385,32 @@ $set{OPT,VALUE}
           all separated by whitespace.  Any parameters not specified will use
           their default values.  Valid scheme names are ``bm25``, ``bool``, and
           ``trad``.  e.g. ``$set{weighting,bm25 1 0.8}``
+
+        * expansion - (supported in 1.2.18 and later) set the query expansion
+          scheme to use, and (optionally) the parameters to use if the
+          expansion scheme supports them. The syntax is a string consisting of
+          the scheme name followed by any parameters, all separated by
+          whitespace.  Any parameters not specified will use their default
+          values.  The only valid expansion scheme name in 1.2.x is ``trad``.
+          e.g. ``$set{expansion,trad 2.0}``
+
+	Omega 1.2.5 and later support the following options can be set to a
+	non-empty value to enable the corresponding ``QueryParser`` flag.
+	Omega sets ``flag_default`` to ``true`` by default - you can set it to
+	an empty value to turn it off (``$set{flag_default,}``):
+
+	* flag_auto_multiword_synonyms
+	* flag_auto_synonyms
+	* flag_boolean
+	* flag_boolean_any_case
+	* flag_default
+	* flag_lovehate
+	* flag_partial
+	* flag_phrase
+	* flag_pure_not
+	* flag_spelling_correction
+	* flag_synonym
+	* flag_wildcard
 
 $setrelevant{docids}
 	add documents into the RSet
@@ -504,7 +544,7 @@ $value{VALUENO[,DOCID]}
         ``$hitlist``).
 
 $version
-	omega version string - e.g. "Xapian - omega 0.9.2"
+	omega version string - e.g. "xapian-omega 1.2.6"
 
 $weight
 	raw document weight of the current hit, as a floating point value
@@ -513,26 +553,27 @@ $weight
 Numeric Operators:
 ==================
 
-$add{A,B,...}
-	add arguments together
+$add{...}
+	add arguments together (if called with one argument, this will convert
+	it to a string and back, which ensures it is an integer).
 
 $div{A,B}
-	returns int(A / B) (or "divide by 0" if B is zero)
+	returns int(A / B) (or the text "divide by 0" if B is zero)
 
 $mod{A,B}
-	returns int(A % B) (or "divide by 0" if B is zero)
+	returns int(A % B) (or the text "divide by 0" if B is zero)
 
-$max{...}
+$max{A,...}
 	maximum of the arguments
 
-$min{...}
+$min{A,...}
 	minimum of the arguments
 
 $mul{A,B,...}
-	multiply arguments together
+multiply arguments together
 
 $muldiv{A,B,C}
-	returns int((A * B) / C) (or "divide by 0" if C is zero)
+	returns int((A * B) / C) (or the text "divide by 0" if C is zero)
 
 $sub{A,B}
 	returns (A - B)

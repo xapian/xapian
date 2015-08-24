@@ -1,6 +1,6 @@
 
-.. Copyright (C) 2008,2009 Olly Betts
-.. Copyright (C) 2009 Lemur Consulting Ltd
+.. Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
+.. Copyright (C) 2008,2009 Lemur Consulting Ltd
 
 =====================
 Xapian::PostingSource
@@ -60,7 +60,8 @@ It must always be true that::
 PostingSources must always return documents in increasing document ID order.
 
 After construction, a PostingSource points to a position *before* the first
-document id - so before a docid can be read, the position must be advanced.
+document id - so before a docid can be read, the position must be advanced
+by calling ``next()``, ``skip_to()`` or ``check()``.
 
 The ``get_weight()`` method returns the weight that you want to contribute
 to the current document.  This weight must always be >= 0::
@@ -180,7 +181,69 @@ what ``get_description()`` gives for your sub-class.
 Examples
 ========
 
-FIXME: Provide some!
+Here is an example of a Python PostingSource which contributes additional
+weight from some external source (note that in Python, you call ``next()``
+on an iterator to get each item, including the first, which is exactly
+the semantics we need to implement here)::
+
+    class ExternalWeightPostingSource(xapian.PostingSource):
+	"""
+	A Xapian posting source returning weights from an external source.
+	"""
+	def __init__(self, db, wtsource):
+	    xapian.PostingSource.__init__(self)
+	    self.db = db
+	    self.wtsource = wtsource
+
+	def init(self, db):
+	    self.alldocs = db.postlist('')
+
+	def get_termfreq_min(self): return 0
+	def get_termfreq_est(self): return self.db.get_doccount()
+	def get_termfreq_max(self): return self.db.get_doccount()
+
+	def next(self, minweight):
+	    try:
+		self.current = self.alldocs.next()
+	    except StopIteration:
+		self.current = None
+
+	def skip_to(self, docid, minweight):
+	    try:
+		self.current = self.alldocs.skip_to(docid)
+	    except StopIteration:
+		self.current = None
+
+	def at_end(self):
+	    return self.current is None
+
+	def get_docid(self):
+	    return self.current.docid
+
+	def get_maxweight(self):
+	    return self.wtsource.get_maxweight()
+
+	def get_weight(self):
+	    doc = self.db.get_document(self.current.docid)
+	    return self.wtsource.get_weight(doc)
+
+ExternalWeightPostingSource doesn't restrict which documents match - it's
+intended to be combined with an existing query using `OP_AND_MAYBE` like so::
+
+    extwtps = xapian.ExternalWeightPostingSource(db, wtsource)
+    query = xapian.Query(query.OP_AND_MAYBE, query, xapian.Query(extwtps))
+
+The wtsource would be a class like this one::
+
+    class WeightSource(object):
+	def get_maxweight(self):
+	    return 12.34;
+
+	def get_weight(self, doc):
+	    return some_func(doc.get_docid())
+
+.. FIXME: Provide some more examples!
+.. FIXME "why you might want to do this" (e.g. scenario) too
 
 Multiple databases, and remote databases
 ========================================

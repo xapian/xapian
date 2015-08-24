@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008 Olly Betts
+// Copyright (C) 2005,2006,2007,2008,2011 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,16 +17,18 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
 
-//import org.xapian.*;
+import org.xapian.*;
+
+// FIXME: need to sort out throwing wrapped Xapian::Error subclasses
 //import org.xapian.errors.*;
 
-// FIXME "implements" not "extends" in JNI Java API
+// FIXME: "implements" not "extends" in JNI Java API
 class MyMatchDecider extends MatchDecider {
     public boolean accept(Document d) {
 	// NB It's not normally appropriate to call getData() in a MatchDecider
 	// but we do it here to make sure we don't get an empty document.
 /*	try { */
-	    return d.getData() == "";
+	    return d.getData().length() == 0;
 /*
 	} catch (XapianError e) {
 	    return true;
@@ -35,9 +37,9 @@ class MyMatchDecider extends MatchDecider {
     }
 }
 
-// FIXME "implements" not "extends" in JNI Java API
+// FIXME: "implements" not "extends" in JNI Java API
 class MyExpandDecider extends ExpandDecider {
-    public boolean accept(String s) { return s.substring(0, 1) != "a"; }
+    public boolean accept(String s) { return s.charAt(0) != 'a'; }
 }
 
 public class SmokeTest {
@@ -49,6 +51,16 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 	    Document doc = new Document();
+	    doc.setData("a\000b");
+	    String s = doc.getData();
+	    if (s.equals("a")) {
+		System.err.println("getData+setData truncates at a zero byte");
+		System.exit(1);
+	    }
+	    if (!s.equals("a\000b")) {
+		System.err.println("getData+setData doesn't transparently handle a zero byte");
+		System.exit(1);
+	    }
 	    doc.setData("is there anybody out there?");
 	    doc.addTerm("XYzzy");
 	    doc.addPosting(stem.apply("is"), 1);
@@ -63,6 +75,16 @@ public class SmokeTest {
 		System.err.println("Unexpected db.getDocCount()");
 		System.exit(1);
 	    }
+
+            if (!Query.MatchAll.toString().equals("Xapian::Query(<alldocuments>)")) {
+		System.err.println("Unexpected Query.MatchAll.toString()");
+		System.exit(1);
+            }
+
+            if (!Query.MatchNothing.toString().equals("Xapian::Query()")) {
+		System.err.println("Unexpected Query.MatchNothing.toString()");
+		System.exit(1);
+            }
 
 	    String[] terms = { "smoke", "test", "terms" };
 	    Query query = new Query(Query.OP_OR, terms);
@@ -133,7 +155,7 @@ public class SmokeTest {
 	    ESetIterator eit = eset.iterator();
 	    int count = 0;
 	    while (eit.hasNext()) {
-		if (eit.getTerm().substring(0, 1) == "a") {
+		if (eit.getTerm().charAt(0) == 'a') {
 		    System.err.println("MyExpandDecider wasn't used");
 		    System.exit(1);
 		}

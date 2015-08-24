@@ -245,7 +245,7 @@ InMemoryTermList::next()
     if (db->is_closed()) InMemoryDatabase::throw_database_closed();
     if (started) {
 	Assert(!at_end());
-	pos++;
+	++pos;
     } else {
 	started = true;
     }
@@ -567,7 +567,7 @@ InMemoryDatabase::get_metadata(const std::string & key) const
 TermList *
 InMemoryDatabase::open_metadata_keylist(const string &) const
 {
-    if (metadata.empty()) return NULL;
+    if (!closed && metadata.empty()) return NULL;
     // FIXME: nobody implemented this yet...
     throw Xapian::UnimplementedError("InMemory backend doesn't currently implement Database::metadata_keys_begin()");
 }
@@ -676,7 +676,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 				 string(" not found"));
     }
     termlists[did-1].is_valid = false;
-    doclists[did-1] = "";
+    doclists[did-1] = string();
     map<Xapian::valueno, string>::const_iterator j;
     for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
 	map<Xapian::valueno, ValueStats>::iterator i;

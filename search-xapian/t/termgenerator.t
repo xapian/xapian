@@ -1,11 +1,13 @@
+use strict;
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
 #########################
 
 use Test;
+use Devel::Leak;
 use Devel::Peek;
-BEGIN { plan tests => 27 };
+BEGIN { plan tests => 29 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -65,7 +67,18 @@ $indexer->set_database($db);
 my $document = Search::Xapian::Document->new();
 $indexer->set_document($document);
 $indexer->index_text('test hello');
-$db->add_document($document);
+$termgen->index_text('foo bar baz foo', 4);
+$termgen->index_text_without_positions('baz zoo', 42);
+ok( $db->add_document($document) );
 undef $db;
+
+my $handle;
+my $count = Devel::Leak::NoteSV($handle);
+{
+    my $tg = new Search::Xapian::TermGenerator();
+    $tg->set_stopper(Search::Xapian::SimpleStopper->new(qw(a an the)));
+    $tg->set_stopper(Search::Xapian::SimpleStopper->new(qw(a the)));
+}
+ok( $count, Devel::Leak::CheckSV($handle) );
 
 1;

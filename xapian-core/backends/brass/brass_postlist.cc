@@ -1,7 +1,7 @@
 /* brass_postlist.cc: Postlists in a brass database
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011 Olly Betts
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -136,6 +136,8 @@ class Brass::PostlistChunkWriter {
 
 	string chunk;
 };
+
+using Brass::PostlistChunkWriter;
 
 // Static functions
 
@@ -291,6 +293,8 @@ class Brass::PostlistChunkReader {
      */
     void next();
 };
+
+using Brass::PostlistChunkReader;
 
 void
 PostlistChunkReader::next()
@@ -673,8 +677,8 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 	: LeafPostList(term_),
 	  this_db(keep_reference ? this_db_ : NULL),
 	  have_started(false),
-	  cursor(this_db_->postlist_table.cursor_get()),
-	  is_at_end(false)
+	  is_at_end(false),
+	  cursor(this_db_->postlist_table.cursor_get())
 {
     LOGCALL_VOID(DB, "BrassPostList::BrassPostList", this_db_.get() | term_ | keep_reference);
     string key = BrassPostListTable::make_key(term);
@@ -703,7 +707,7 @@ BrassPostList::BrassPostList(Xapian::Internal::RefCntPtr<const BrassDatabase> th
 
 BrassPostList::~BrassPostList()
 {
-    LOGCALL_VOID(DB, "BrassPostList::~BrassPostList", NO_ARGS);
+    LOGCALL_DTOR(DB, "BrassPostList");
 }
 
 Xapian::termcount

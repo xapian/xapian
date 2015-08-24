@@ -107,7 +107,7 @@ Database::positionlist_end(did, term)
 	RETVAL
 
 TermIterator *
-Database::allterms_begin(prefix = "")
+Database::allterms_begin(prefix = NO_INIT)
     string prefix
     CODE:
 	try {
@@ -119,7 +119,7 @@ Database::allterms_begin(prefix = "")
 	RETVAL
 
 TermIterator *
-Database::allterms_end(prefix = "")
+Database::allterms_end(prefix = NO_INIT)
     string prefix
     CODE:
 	try {
@@ -270,6 +270,15 @@ Database::get_spelling_suggestion(word, max_edit_distance = 2)
 
 string
 Database::get_metadata(string key)
+
+void
+Database::close()
+    CODE:
+	try {
+	    THIS->close();
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Database::DESTROY()

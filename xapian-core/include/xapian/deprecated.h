@@ -1,7 +1,7 @@
 /** @file deprecated.h
- * @brief Define XAPIAN_DEPRECATED() macro.
+ * @brief Define XAPIAN_DEPRECATED() and XAPIAN_DEPRECATED_CLASS macros.
  */
-// Copyright (C) 2006,2007,2009 Olly Betts
+// Copyright (C) 2006,2007,2009,2011 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -34,12 +34,18 @@
 // is now our minimum requirement, so there's no need to check the GCC version
 // in use.
 #  define XAPIAN_DEPRECATED(D) D __attribute__((__deprecated__))
+#  define XAPIAN_DEPRECATED_CLASS __attribute__((__deprecated__))
 # elif defined _MSC_VER && _MSC_VER >= 1300
 // __declspec(deprecated) is supported by MSVC 7.0 and later.
 #  define XAPIAN_DEPRECATED(D) __declspec(deprecated) D
+#  define XAPIAN_DEPRECATED_CLASS __declspec(deprecated)
 # else
 #  define XAPIAN_DEPRECATED(D) D
 # endif
+#endif
+
+#ifndef XAPIAN_DEPRECATED_CLASS
+# define XAPIAN_DEPRECATED_CLASS
 #endif
 
 #endif

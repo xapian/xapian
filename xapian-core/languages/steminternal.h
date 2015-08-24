@@ -22,7 +22,6 @@
 #ifndef XAPIAN_INCLUDED_STEMINTERNAL_H
 #define XAPIAN_INCLUDED_STEMINTERNAL_H
 
-#include <xapian/base.h>
 #include <xapian/stem.h>
 
 #include <cstdlib>

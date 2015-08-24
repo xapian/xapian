@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 ValueIterator *
 new1()
     CODE:
-        RETVAL = new ValueIterator();
+	RETVAL = new ValueIterator();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ValueIterator *
 new2(other)
     ValueIterator *	other
     CODE:
-        RETVAL = new ValueIterator(*other);
+	RETVAL = new ValueIterator(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 ValueIterator::DESTROY()
@@ -23,30 +23,30 @@ ValueIterator::DESTROY()
 void
 ValueIterator::inc()
     CODE:
-        ++(*THIS);
+	++(*THIS);
 
 bool
 ValueIterator::equal(that)
     ValueIterator *	that
     CODE:
-        RETVAL = ((*THIS) == (*that));
+	RETVAL = ((*THIS) == (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 ValueIterator::nequal(that)
     ValueIterator *	that
     CODE:
-        RETVAL = ((*THIS) != (*that));
+	RETVAL = ((*THIS) != (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 ValueIterator::get_value()
     CODE:
-        RETVAL = THIS->operator*();
+	RETVAL = THIS->operator*();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 valueno
 ValueIterator::get_valueno()

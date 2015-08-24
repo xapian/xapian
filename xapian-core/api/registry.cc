@@ -93,7 +93,7 @@ Registry::operator=(const Registry & other)
 {
     LOGCALL(API, Xapian::Registry &, "Xapian::Registry::operator=", other);
     internal = other.internal;
-    return(*this);
+    RETURN(*this);
 }
 
 Registry::Registry()
@@ -156,9 +156,6 @@ Registry::get_match_spy(const string & name) const
 
 
 Registry::Internal::Internal()
-	: Xapian::Internal::RefCntBase(),
-          wtschemes(),
-	  postingsources()
 {
     add_defaults();
 }
@@ -173,13 +170,13 @@ Registry::Internal::~Internal()
 void
 Registry::Internal::add_defaults()
 {
-    Xapian::Weight * weight;
-    weight = new Xapian::BM25Weight;
-    wtschemes[weight->name()] = weight;
-    weight = new Xapian::BoolWeight;
-    wtschemes[weight->name()] = weight;
-    weight = new Xapian::TradWeight;
-    wtschemes[weight->name()] = weight;
+    Xapian::Weight * weighting_scheme;
+    weighting_scheme = new Xapian::BM25Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::BoolWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::TradWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
 
     Xapian::PostingSource * source;
     source = new Xapian::ValueWeightPostingSource(0);

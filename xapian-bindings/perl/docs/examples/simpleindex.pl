@@ -20,7 +20,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+use 5.006;
 use strict;
+use warnings;
+
 use Search::Xapian (':all');
 
 if (scalar @ARGV != 1) {
@@ -37,7 +40,7 @@ eval {
     $indexer->set_stemmer($stemmer);
 
     my $para = '';
-    foreach my $line (<STDIN>) {
+    while (my $line = <STDIN>) {
 	$line =~ s/\s+$//;
 	$line =~ s/^\s+//;
 	if ($line eq '') {

@@ -1,3 +1,4 @@
+use strict;
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
@@ -7,7 +8,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 25 };
+BEGIN { plan tests => 26 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -17,12 +18,13 @@ ok(1); # If we made it this far, we're ok.
 # its man page ( perldoc Test ) for help writing this test script.
 
 my $doc = Search::Xapian::Document->new();
-$data = "hello world";
+my $data = "hello world";
 $doc->set_data($data);
 ok( $doc->get_data() eq $data );
 $doc->add_value(1, "fudge");
 $doc->add_value(2, "chocolate");
 ok( $doc->get_value(1) eq "fudge" );
+ok( $doc->get_docid() == 0 );
 
 my $it = $doc->values_begin();
 ok( $it ne $doc->values_end() );

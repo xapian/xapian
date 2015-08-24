@@ -59,7 +59,7 @@ InMemoryPositionList::next()
 {
     if (iterating_in_progress) {
 	Assert(!at_end());
-	mypos++;
+	++mypos;
     } else {
 	iterating_in_progress = true;
     }
@@ -69,7 +69,7 @@ void
 InMemoryPositionList::skip_to(Xapian::termpos termpos)
 {
     if (!iterating_in_progress) iterating_in_progress = true;
-    while (!at_end() && *mypos < termpos) mypos++;
+    while (!at_end() && *mypos < termpos) ++mypos;
 }
 
 bool

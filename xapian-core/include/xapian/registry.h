@@ -2,7 +2,7 @@
  * @brief Class for looking up user subclasses during unserialisation.
  */
 /* Copyright 2009 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,12 +52,16 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
     /** Copy constructor.
      *
      *  The internals are reference counted, so copying is cheap.
+     *
+     *  @param other	The object to copy.
      */
     Registry(const Registry & other);
 
     /** Assignment operator.
      *
      *  The internals are reference counted, so assignment is cheap.
+     *
+     *  @param other	The object to copy.
      */
     Registry & operator=(const Registry & other);
 
@@ -70,38 +74,53 @@ class XAPIAN_VISIBILITY_DEFAULT Registry {
 
     ~Registry();
 
-    /// Register a weighting scheme.
+    /** Register a weighting scheme.
+     *
+     *  @param wt	The weighting scheme to register.
+     */
     void register_weighting_scheme(const Xapian::Weight &wt);
 
     /** Get the weighting scheme given a name.
      *
-     *  The returned weighting scheme is owned by the registry object.
-     *
-     *  Returns NULL if the weighting scheme could not be found.
+     *  @param name	The name of the weighting scheme to find.
+     *  @return		An object with the requested name, or NULL if the
+     *			weighting scheme could not be found.  The returned
+     *			object is owned by the registry and so must not be
+     *			deleted by the caller.
      */
     const Xapian::Weight *
 	    get_weighting_scheme(const std::string & name) const;
 
-    /// Register a user-defined posting source class.
+    /** Register a user-defined posting source class.
+     *
+     *  @param source	The posting source to register.
+     */
     void register_posting_source(const Xapian::PostingSource &source);
 
     /** Get a posting source given a name.
      *
-     *  The returned posting source is owned by the registry object.
-     *
-     *  Returns NULL if the posting source could not be found.
+     *  @param name	The name of the posting source to find.
+     *  @return		An object with the requested name, or NULL if the
+     *			posting source could not be found.  The returned
+     *			object is owned by the registry and so must not be
+     *			deleted by the caller.
      */
     const Xapian::PostingSource *
 	    get_posting_source(const std::string & name) const;
 
-    /// Register a user-defined match spy class.
+    /** Register a user-defined match spy class.
+     *
+     *  @param spy	The match spy to register.
+     */
     void register_match_spy(const Xapian::MatchSpy &spy);
 
     /** Get a match spy given a name.
      *
-     *  The returned match spy is owned by the registry object.
-     *
-     *  Returns NULL if the match spy could not be found.
+     *  @param name	The name of the match spy to find.
+     *  @return		An object with the requested name, or NULL if the
+     *			match spy could not be found.  The returned
+     *			object is owned by the registry and so must not be
+     *			deleted by the caller.
      */
     const Xapian::MatchSpy *
 	    get_match_spy(const std::string & name) const;

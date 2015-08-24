@@ -31,6 +31,7 @@
  */
 
 #include <config.h>
+#include "mkdtemp.h"
 
 #include <sys/types.h>
 

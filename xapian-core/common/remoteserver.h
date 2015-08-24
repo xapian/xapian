@@ -110,6 +110,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // set the query; return the mset
     void msg_query(const std::string & message);
 
+    // set the query; return the mset (protocol 35.2 version)
+    void msg_query_new(const std::string & message);
+
     // get termlist
     void msg_termlist(const std::string & message);
 

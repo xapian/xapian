@@ -1,8 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.2.3], [http://xapian.org/bugs])
+AC_INIT([xapian-omega], [1.2.21], [http://xapian.org/bugs])
 AC_PREREQ([2.63])
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.11 -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 
 AC_CONFIG_SRCDIR([omega.cc])
 
@@ -25,8 +25,11 @@ AC_SUBST(NO_UNDEFINED)
 dnl Checks for programs.
 AC_PROG_CXX
 
+AC_CANONICAL_HOST
+
+# Checked: freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
-  linux* | k*bsd*-gnu)
+  linux* | k*bsd*-gnu | freebsd* | openbsd* | solaris*)
     dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
     link_all_deplibs_CXX=no
     ;;
@@ -41,6 +44,18 @@ case $host_os in
     ;;
 esac
 
+case $host in
+  *-*-cygwin* | *-*-mingw* | *-*-pw32* | *-*-os2* | *-*-darwin* | *-cegcc*)
+    dnl On these platforms, libtool emits a warning if -no-install is passed,
+    dnl and uses -no-fast-install instead - the least ugly way to avoid that
+    dnl warnings seems to be to duplicate the above list of platforms from
+    dnl libtool and use -no-fast-install on them directly.
+    NO_INSTALL=-no-fast-install ;;
+  *)
+    NO_INSTALL=-no-install ;;
+esac
+AC_SUBST([NO_INSTALL])
+
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
@@ -53,6 +68,15 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
+
+case $host_os in
+  *mingw*)
+    dnl For _ftime64() on mingw we need to tell it we're happy to require
+    dnl MSVCRT 6.10 or higher, which isn't too onerous a requirement it seems.
+    AC_DEFINE([__MSVCRT_VERSION__], [0x0601], [Define on mingw to the minimum msvcrt version to assume])
+    AC_DEFINE([MINGW_HAS_SECURE_API], [1], [Define on mingw to get _s suffixed "secure" functions declared in headers])
+    ;;
+esac
 
 AC_ARG_ENABLE(documentation,
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
@@ -71,7 +95,7 @@ AC_TRY_COMPILE([#include <stdint.h>],
   AC_DEFINE(HAVE_WORKING_STDINT_H, 1, [Define to 1 if you have the <stdint.h> header file and it can be used in C++ code.]))
 
 dnl Check for headers.
-AC_CHECK_HEADERS([strings.h], [], [], [ ])
+AC_CHECK_HEADERS([strings.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
@@ -80,11 +104,11 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 dnl libmagic used to detect MIME types for files we don't detect by extension.
 AC_CHECK_HEADERS([magic.h])
 if test $ac_cv_header_magic_h = yes ; then
-  save_LIBS=$LIBS
-  LIBS=
-  AC_SEARCH_LIBS([magic_open], [magic])
-  MAGIC_LIBS=$LIBS
-  LIBS=$save_LIBS
+  dnl On mingw there are several dependent libraries, so AC_CHECK_LIB would
+  dnl fail - we'd have to use LT_OUTPUT and then perform the test link with
+  dnl libtool, but we've checked for magic.h, so checking the library would
+  dnl not really gain us much - we know it is -lmagic.
+  MAGIC_LIBS=-lmagic
 else
   MAGIC_LIBS=
 fi
@@ -228,7 +252,6 @@ if test no != "$with_iconv" ; then
   AC_SEARCH_LIBS(iconv, iconv, [], [
     if test -f "/sw/etc/fink.conf" ; then
       dnl For fink on OS X.
-      AC_CANONICAL_HOST
       case $host_os in
       darwin*)
 	ICONV_LDFLAGS=-L/sw/lib
@@ -318,9 +341,7 @@ if test x"$enable_documentation" = xyes; then
   test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
 fi
 
-AC_ARG_VAR(PCRE_CONFIG, [Location of pcre-config])
-AC_PATH_PROG(PCRE_CONFIG, pcre-config)
-if test -z "$PCRE_CONFIG" ; then
+pcre_runtime_installed() {
   dnl Simple check to see if the problem is likely to be that we're using a
   dnl "packaged" pcre but only have the runtime package installed.
   for sfx in '' 32 64 ; do
@@ -331,58 +352,45 @@ if test -z "$PCRE_CONFIG" ; then
       else
 	pkg="pcre-devel"
       fi
-      AC_MSG_ERROR([Can't find pcre-config, although the PCRE runtime library seems to be installed.  If you've installed PCRE from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+      exit 0
     fi
   done
-  AC_MSG_ERROR([Can't find pcre-config.  If the PCRE library is installed, you need to add PCRE_CONFIG=/path/to/pcre-config to your configure command.])
+  exit 1
+}
+
+AC_ARG_VAR(PCRE_CONFIG, [Location of pcre-config])
+if test -z "$PCRE_CONFIG" ; then
+  AC_ARG_VAR(PKG_CONFIG, [Location of pkg-config])
+  AC_PATH_TOOL(PKG_CONFIG, [pkg-config])
+  if test -n "$PKG_CONFIG" ; then
+    pcre_try="$PKG_CONFIG libpcre"
+    if $pcre_try 2>/dev/null ; then
+      PCRE_CONFIG=$pcre_try
+    else
+      if pcre_runtime_installed ; then
+	AC_MSG_ERROR(['$pcre_try' failed, but the PCRE runtime library seems to be installed.  If you've installed PCRE from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+      else
+	AC_MSG_ERROR(['$pcre_try' failed.  If the PCRE library is installed, you need to add PCRE_CONFIG=/path/to/pcre-config to your configure command.])
+      fi
+    fi
+  else
+    dnl Fall back to looking for pcre-config, but that's not installed on PATH
+    dnl with the platform tuple prefixed (at least under MXE), so preferring
+    dnl 'pkg-config libpcre' works better when cross-compiling.
+    AC_PATH_TOOL(PCRE_CONFIG, [pcre-config])
+    if test -z $PCRE_CONFIG ; then
+      if pcre_runtime_installed ; then
+	AC_MSG_ERROR([Can't find pcre-config, although the PCRE runtime library seems to be installed.  If you've installed PCRE from a package, you probably need to install an extra package called something like $pkg in order to be able to build $PACKAGE_NAME.])
+      else
+	AC_MSG_ERROR([Can't find pcre-config.  If the PCRE library is installed, you need to add PCRE_CONFIG=/path/to/pcre-config to your configure command.])
+      fi
+    fi
+  fi
 fi
 PCRE_CFLAGS=`$PCRE_CONFIG --cflags`
 PCRE_LIBS=`$PCRE_CONFIG --libs`
 AC_SUBST(PCRE_CFLAGS)
 AC_SUBST(PCRE_LIBS)
-
-dnl Disabled XML stuff as we don't currently build omindex-config
-dnl dnl Check for libxml or libxml2.  We do this by looking for xml-config.
-dnl AC_PATH_PROG(XML_CONFIG_PATH, xml2-config)
-dnl if test -n "$XML_CONFIG_PATH" ; then
-dnl   HAVE_LIBXML2=yes
-dnl   AC_DEFINE(HAVE_LIBXML2,, [Define if libxml2 is available.])
-dnl else
-dnl   HAVE_LIBXML2=no
-dnl   AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
-dnl fi
-dnl if test -n "$XML_CONFIG_PATH" ; then
-dnl   AC_DEFINE(HAVE_LIBXML,, [Define if libxml or libxml2 is available.])
-dnl fi
-dnl AM_CONDITIONAL(HAVE_LIBXML2, test yes = "$HAVE_LIBXML2")
-dnl 
-dnl if test -n "$XML_CONFIG_PATH" ; then
-dnl     AC_MSG_CHECKING([libxml flags])
-dnl     LIBXML_CFLAGS="`$XML_CONFIG_PATH --cflags`"
-dnl     LIBXML_LIBS="`$XML_CONFIG_PATH --libs`"
-dnl 
-dnl     AC_LANG_SAVE
-dnl     AC_LANG_C
-dnl     SAVE_CFLAGS="$CFLAGS"
-dnl     CFLAGS="$CFLAGS $LIBXML_CFLAGS"
-dnl     AC_TRY_COMPILE([
-dnl #include <parser.h>
-dnl #include <valid.h>
-dnl ], [ xmlValidCtxt ctxt;
-dnl      xmlDocPtr doc;
-dnl      xmlValidateDocument(&ctxt, doc);
-dnl      ], [have_libxml_valid=yes], [have_libxml_valid=no])
-dnl     CFLAGS="$SAVE_CFLAGS"
-dnl     AC_LANG_RESTORE
-dnl     AC_MSG_RESULT("$LIBXML_CFLAGS")
-dnl fi
-dnl AC_SUBST(LIBXML_CFLAGS)
-dnl AC_SUBST(LIBXML_LIBS)
-dnl if test yes = "$have_libxml_valid"; then
-dnl AC_DEFINE(HAVE_LIBXML_VALID,, [Define if libxml has validation available ])
-dnl else
-dnl AC_MSG_WARN(libxml doesn't have xmlValidateDocument: disabling validation.)
-dnl fi
 
 dnl ******************************
 dnl * Set special compiler flags *
@@ -390,66 +398,59 @@ dnl ******************************
 
 dnl Set flags to control warnings (enable more, or disable annoying ones).
 if test yes = "$GXX"; then
-  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
-  dnl which we actually have.
-  AC_EGREP_CPP(yes,
-    [#ifdef __INTEL_COMPILER
-     yes
-     #endif
-    ],
-    [
-      dnl Intel's compiler:
+  dnl Intel's C++ compiler and clang both lie and define __GNUC__, so check which
+  dnl we actually have, as neither is really 100% compatible.
+  case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
+    *__INTEL_COMPILER*__clang__*)
+      dnl GCC (since neither substituted):
       dnl
-      dnl -w1 stops the avalanche of uninteresting "remark" messages.
-      dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
-    ],
-    [
-      dnl GCC:
+      dnl -Wundef was supported by g++ 3.0 and since we now require GCC >= 3.1,
+      dnl we can rely on it.  -fshow-column was present in GCC 3.1 too.
       dnl
-      dnl -Wundef and -Wshadow were supported by g++ 3.0 (though -Wshadow was
-      dnl buggy there).  We now require GCC >= 3.1, so can rely on them.
-      dnl All the other options were supported by g++ 2.95 and there's little
-      dnl likelihood Xapian will build with any earlier version, so there's
-      dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Wshadow"
+      dnl All the other options were supported by g++ 2.95.
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef"
+      dnl FIXME: Fix the warnings from -Woverloaded-virtual and add it here too.
 
-      dnl The output of g++ --version seems to change with almost every minor
-      dnl release so use the preprocessor macros which should be more robust.
-      gxx_major_version=`echo __GNUC__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_minor_version=`echo __GNUC_MINOR__|$CXX -E -|sed '/^#/d;s/ //g'`
-      gxx_version=$gxx_major_version.$gxx_minor_version
+      dnl The exact format of g++ --version seems to change with almost every
+      dnl minor release so use the preprocessor macros which should be more
+      dnl robust.
+      AC_MSG_CHECKING([for version of GCC])
+      gxx_version=`echo __GNUC__.__GNUC_MINOR__.__GNUC_PATCHLEVEL__|$CXX -E -|sed '/^#/d;s/ //g'`
+      AC_MSG_RESULT([$gxx_version])
 
       case $gxx_version in
-      [[012]].* | 3.0)
+      [[012]].* | 3.0.*)
 	AC_MSG_ERROR([Xapian requires GCC 3.1 or later (you appear to have $gxx_version)])
 	;;
-      3.*) ;;
-      *) dnl GCC >= 4.0
-	dnl -Wstrict-null-sentinel was new 4.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel"
-
+      3.*|4.0.*) ;;
+      *) dnl GCC >= 4.1
 	case $gxx_version in
-	4.[[01]]) ;;
-	4.2)
+	4.1.*)
+	  dnl -Wstrict-null-sentinel was new in 4.0.1, but for simplicity we
+	  dnl only enable it for GCC >= 4.1.
+	  dnl
+	  dnl -Wshadow was supported by g++ 3.0 (though buggy then).  But it's
+	  dnl also buggy in 4.0 (at least on Mac OS X) and warns if a parameter
+	  dnl in a static method is the same as a member variable, so only
+	  dnl enable it for GCC >= 4.1.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow" ;;
+	4.2.*)
 	  dnl -Wstrict-overflow was new in GCC 4.2.  Higher settings than 1
 	  dnl have proved too noisy.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1" ;;
-	*)
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1" ;;
+	4.[[345]].*)
 	  dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
 	  dnl GCC 4.3.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations" ;;
+	*) dnl GCC >= 4.6
+	  dnl -Wdouble-promotion was added in GCC 4.6.
 	  dnl
-	  dnl -Winit-self was added in GCC 3.4, but up to at least GCC 4.4 it
-	  dnl is ignored by g++ which warns for this case with -Wuninitialized
-	  dnl (implied by -W).  But at some point this bug (filed upstream as
-	  dnl http://gcc.gnu.org/PR34772) may get fixed so we pass this option
-	  dnl anyway - we don't intend to use this idiom, so any instances are
-	  dnl bugs we'd like to know about.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-overflow=1 -Winit-self -Wlogical-op -Wmissing-declarations" ;;
+	  dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+	  dnl warns for this case with -Wuninitialized (implied by -W).  We
+	  dnl don't intend to use this idiom, so any instances are bugs we'd
+	  dnl like to know about.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
 	esac
 
 	dnl FIXME:
@@ -462,22 +463,52 @@ if test yes = "$GXX"; then
 	dnl -Wold-style-cast is interesting, but triggers for macros from
 	dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
-	if test no = "$enable_visibility"; then
-	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
-	else
-	  dnl Turn on visibility support for GCC >= 4.0.
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	if test no != "$enable_visibility"; then
+	  dnl GCC doesn't support symbol visibility on all platforms (notably
+	  dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
+	  AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
+	  if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
+	    AC_MSG_RESULT([yes])
+	    AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
+	    dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
+	  else
+	    AC_MSG_RESULT([no])
+	  fi
 	fi
 
 	dnl Automatically add -Werror if maintainer mode is enabled and we're
-	dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
-	dnl and some GCC 3.x compilers issue spurious warnings.
+	dnl using GCC 4.1 or newer.  We don't do this for older GCCs as GCC 2.95,
+	dnl some GCC 3.x compilers, and Apple's GCC 4.0 issue spurious warnings.
 	if test x$USE_MAINTAINER_MODE = xyes; then
 	  AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
 	fi
 	;;
       esac
-    ])
+      ;;
+    *__clang__*)
+      dnl Intel's compiler (since __clang__ not substituted):
+
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+    *__INTEL_COMPILER*)
+      dnl clang (since __INTEL_COMPILER not substituted):
+
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
+
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      ;;
+  esac
 fi
 
 AC_SUBST(AM_CXXFLAGS)
@@ -504,7 +535,7 @@ AH_BOTTOM(
  * we can use __builtin_expect to give the compiler hints about branch
  * prediction.  See HACKING for how to use these.
  */
-#if defined __GNUC__ && __GNUC__ >= 3
+#if defined __GNUC__
 /* The arguments of __builtin_expect() are both long, so use !! to ensure that
  * the first argument is always an integer expression, and always 0 or 1, but
  * still has the same truth value for the if or while it is used in.

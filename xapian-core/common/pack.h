@@ -227,6 +227,18 @@ pack_uint(std::string & s, U value)
     s += static_cast<char>(value);
 }
 
+/** Append an encoded unsigned integer (bool type) to a string.
+ *
+ *  @param s		The string to append to.
+ *  @param value	The unsigned integer to encode.
+ */
+template<>
+inline void
+pack_uint(std::string & s, bool value)
+{
+    s += static_cast<char>(value);
+}
+
 /** Decode an unsigned integer from a string.
  *
  *  @param p	    Pointer to pointer to the current position in the string.

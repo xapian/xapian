@@ -1,11 +1,11 @@
-MODULE = Search::Xapian 		PACKAGE = Search::Xapian::QueryParser
+MODULE = Search::Xapian			PACKAGE = Search::Xapian::QueryParser
 
 PROTOTYPES: ENABLE
 
 QueryParser *
 new0()
     CODE:
-	RETVAL = new QueryParser();
+	RETVAL = XAPIAN_PERL_NEW(QueryParser, ());
     OUTPUT:
 	RETVAL
 
@@ -25,9 +25,8 @@ void
 QueryParser::set_stopper(stopper)
     Stopper * stopper
     CODE:
-	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
-	// a SEGV!
-	SvREFCNT_inc(ST(1));
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(QueryParser, THIS, stopper, ST(1));
 	THIS->set_stopper(stopper);
 
 void
@@ -48,6 +47,9 @@ QueryParser::set_database(database)
     Database * database
     CODE:
 	THIS->set_database(*database);
+
+void
+QueryParser::set_max_wildcard_expansion(termcount limit)
 
 Query *
 QueryParser::parse_query(q, flags = QueryParser::FLAG_DEFAULT)
@@ -115,10 +117,11 @@ QueryParser::get_description()
 void
 QueryParser::add_valuerangeprocessor(ValueRangeProcessor * vrproc)
     CODE:
-	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
-	// a SEGV!
-	SvREFCNT_inc(ST(1));
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(QueryParser, THIS, vrp, ST(1));
 	THIS->add_valuerangeprocessor(vrproc);
 
 void
 QueryParser::DESTROY()
+    CODE:
+	XAPIAN_PERL_DESTROY(QueryParser, THIS);

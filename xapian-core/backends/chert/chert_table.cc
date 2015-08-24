@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -33,6 +33,7 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include "errno_to_string.h"
 #include "omassert.h"
 #include "stringutils.h" // For STRINGIZE().
 
@@ -71,7 +72,6 @@ PWRITE_PROTOTYPE
 #include "chert_cursor.h"
 
 #include "io_utils.h"
-#include "omassert.h"
 #include "debuglog.h"
 #include "pack.h"
 #include "str.h"
@@ -108,23 +108,6 @@ static void report_cursor(int N, Btree * B, Cursor * C)
 
 /*------to here--------*/
 #endif /* BTREE_DEBUG_FULL */
-
-/* Input/output is defined with calls to the basic Unix system interface: */
-
-static void sys_unlink(const string &filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	string message = "Failed to unlink ";
-	message += filename;
-	message += ": ";
-	message += strerror(errno);
-	throw Xapian::DatabaseCorruptError(message);
-    }
-}
 
 static inline byte *zeroed_new(size_t size)
 {
@@ -186,10 +169,6 @@ static inline byte *zeroed_new(size_t size)
  *  sequential additions (in negated form). */
 #define SEQ_START_POINT (-10)
 
-/** Even for items of at maximum size, it must be possible to get this number of
- *  items in a block */
-#define BLOCK_CAPACITY 4
-
 
 /* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
    if the nth block is free, otherwise 1. bit_map0 is the initial state of
@@ -223,11 +202,13 @@ ChertTable::read_block(uint4 n, byte * p) const
 	ssize_t bytes_read = pread(handle, reinterpret_cast<char *>(p), m,
 				   offset);
 	// normal case - read succeeded, so return.
-	if (bytes_read == m) return;
+	if (bytes_read == m) break;
 	if (bytes_read == -1) {
 	    if (errno == EINTR) continue;
+	    if (errno == EBADF && handle == -2)
+		ChertTable::throw_database_closed();
 	    string message = "Error reading block " + str(n) + ": ";
-	    message += strerror(errno);
+	    errno_to_string(errno, message);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_read == 0) {
 	    string message = "Error reading block " + str(n) + ": got end of file";
@@ -243,13 +224,22 @@ ChertTable::read_block(uint4 n, byte * p) const
     }
 #else
     if (lseek(handle, off_t(block_size) * n, SEEK_SET) == -1) {
+	if (errno == EBADF && handle == -2)
+	    ChertTable::throw_database_closed();
 	string message = "Error seeking to block: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseError(message);
     }
 
     io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
+
+    int dir_end = DIR_END(p);
+    if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
+	string msg("dir_end invalid in block ");
+	msg += str(n);
+	throw Xapian::DatabaseCorruptError(msg);
+    }
 }
 
 /** write_block(n, p) writes block n in the DB file from address p.
@@ -274,7 +264,13 @@ ChertTable::write_block(uint4 n, const byte * p) const
 
     if (both_bases) {
 	// Delete the old base before modifying the database.
-	sys_unlink(name + "base" + other_base_letter());
+	//
+	// If the file is on NFS, then io_unlink() may return false even if
+	// the file was removed, so on balance throwing an exception in this
+	// case is unhelpful, since we wanted the file gone anyway!  The
+	// likely explanation is that somebody moved, deleted, or changed a
+	// symlink to the database directory.
+	(void)io_unlink(name + "base" + other_base_letter());
 	both_bases = false;
 	latest_revision_number = revision_number;
     }
@@ -290,7 +286,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 	} else if (bytes_written == -1) {
 	    if (errno == EINTR) continue;
 	    string message = "Error writing block: ";
-	    message += strerror(errno);
+	    errno_to_string(errno, message);
 	    throw Xapian::DatabaseError(message);
 	} else if (bytes_written == 0) {
 	    string message = "Error writing block: wrote no data";
@@ -307,7 +303,7 @@ ChertTable::write_block(uint4 n, const byte * p) const
 #else
     if (lseek(handle, (off_t)block_size * n, SEEK_SET) == -1) {
 	string message = "Error seeking to block: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseError(message);
     }
 
@@ -376,7 +372,7 @@ ChertTable::block_to_cursor(Cursor * C_, int j, uint4 n) const
 
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
-    if (writable && n == C[j].n) {
+    if (n == C[j].n) {
 	if (p != C[j].p)
 	    memcpy(p, C[j].p, block_size);
     } else {
@@ -467,14 +463,22 @@ ChertTable::alter()
    right ends of the search area. In sequential addition, c will often
    be the answer, so we test the keys round c and move i and j towards
    c if possible.
+
+   The returned value is < DIR_END(p).  If leaf is false, the returned
+   value is >= DIR_START; if leaf is true, it can also be == DIR_START - D2.
 */
 
 int
 ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (void*)p | (const void *)key.get_address() | leaf | c);
+    LOGCALL_STATIC(DB, int, "ChertTable::find_in_block", (const void*)p | (const void *)key.get_address() | leaf | c);
+    // c should be odd (either -1, or an even offset from DIR_START).
+    Assert((c & 1) == 1);
     int i = DIR_START;
     if (leaf) i -= D2;
+    if (c != -1) {
+	AssertRel(i,<=,c);
+    }
     int j = DIR_END(p);
 
     if (c != -1) {
@@ -489,6 +493,12 @@ ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
 	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
 	if (key < Item(p, k).key()) j = k; else i = k;
     }
+    if (leaf) {
+	AssertRel(DIR_START - D2,<=,i);
+    } else {
+	AssertRel(DIR_START,<=,i);
+    }
+    AssertRel(i,<,DIR_END(p));
     RETURN(i);
 }
 
@@ -497,6 +507,12 @@ ChertTable::find_in_block(const byte * p, Key key, bool leaf, int c)
    Result is true if found, false otherwise.  When false, the B_tree
    cursor is positioned at the last key in the B-tree <= the search
    key.  Goes to first (null) item in B-tree when key length == 0.
+
+   Note: The cursor can be left with C_[0].c == DIR_START - D2 if the
+   requested key doesn't exist and is less than the smallest key in a
+   leaf block, but after the dividing key.  The caller needs to fix up
+   C_[0].c in this case, either explicitly or by performing an
+   operation which gives C_[0].c a valid value.
 */
 
 bool
@@ -524,7 +540,9 @@ ChertTable::find(Cursor * C_) const
     report_block_full(0, C_[0].n, p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
-    if (c < DIR_START) RETURN(false);
+    if (c < DIR_START) {
+	RETURN(false);
+    }
     RETURN(Item(p, c).key() == key);
 }
 
@@ -567,7 +585,7 @@ ChertTable::split_root(uint4 split_n)
     /* check level overflow - this isn't something that should ever happen
      * but deserves more than an Assert()... */
     if (level == BTREE_CURSOR_LEVELS) {
-	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large ("STRINGIZE(BTREE_CURSOR_LEVELS)" levels)");
+	throw Xapian::DatabaseCorruptError("Btree has grown impossibly large (" STRINGIZE(BTREE_CURSOR_LEVELS) " levels)");
     }
 
     byte * q = zeroed_new(block_size);
@@ -655,7 +673,10 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
-    C[j].c = find_in_block(C[j].p, item.key(), false, 0) + D2;
+    // The split block gets inserted into the parent after the pointer to the
+    // current child.
+    AssertEq(C[j].c, find_in_block(C[j].p, item.key(), false, C[j].c));
+    C[j].c += D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_item(item, j);
 }
@@ -680,9 +701,11 @@ ChertTable::mid_point(byte * p)
 	}
     }
 
-    /* falling out of mid_point */
+    /* This shouldn't happen, as the sum of the item sizes should be the same
+     * as the value calculated in size, so assert but return a sane value just
+     * in case. */
     Assert(false);
-    RETURN(0); /* Stop compiler complaining about end of method. */
+    RETURN(dir_end);
 }
 
 /** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
@@ -709,7 +732,8 @@ ChertTable::add_item_to_block(byte * p, Item_wr kt_, int c)
 
     AssertRel(MAX_FREE(p),>=,needed);
 
-    Assert(dir_end >= c);
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<=,dir_end);
 
     memmove(p + c + D2, p + c, dir_end - c);
     dir_end += D2;
@@ -752,6 +776,7 @@ ChertTable::add_item(Item_wr kt_, int j)
 	    m = mid_point(p);
 	} else {
 	    // During sequential addition, split at the insert point
+	    AssertRel(c,>=,DIR_START);
 	    m = c;
 	}
 
@@ -834,6 +859,8 @@ ChertTable::delete_item(int j, bool repeatedly)
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
     int kt_len = Item(p, c).size(); /* size of the item to be deleted */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
 
@@ -921,6 +948,8 @@ ChertTable::add_kt(bool found)
 
 	byte * p = C[0].p;
 	int c = C[0].c;
+	AssertRel(DIR_START,<=,c);
+	AssertRel(c,<,DIR_END(p));
 	Item item(p, c);
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
@@ -1351,7 +1380,7 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 	bool valid_base = false;
 	{
 	    for (size_t i = 0; i < BTREE_BASES; ++i) {
-		bool ok = bases[i].read(name, basenames[i], err_msg);
+		bool ok = bases[i].read(name, basenames[i], writable, err_msg);
 		base_ok[i] = ok;
 		if (ok) {
 		    valid_base = true;
@@ -1453,6 +1482,11 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 
     base_letter = ch;
 
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
+
     /* ready to open the main file */
 
     RETURN(true);
@@ -1511,9 +1545,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
     if (handle == -2) {
 	ChertTable::throw_database_closed();
     }
-    int flags = O_RDWR | O_BINARY;
-    if (create_db) flags |= O_CREAT | O_TRUNC;
-    handle = ::open((name + "DB").c_str(), flags, 0666);
+    handle = io_open_block_wr(name + "DB", create_db);
     if (handle < 0) {
 	// lazy doesn't make a lot of sense with create_db anyway, but ENOENT
 	// with O_CREAT means a parent directory doesn't exist.
@@ -1524,7 +1556,7 @@ ChertTable::do_open_to_write(bool revision_supplied,
 	string message(create_db ? "Couldn't create " : "Couldn't open ");
 	message += name;
 	message += "DB read/write: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -1692,25 +1724,8 @@ ChertTable::lazy_alloc_inflate_zstream() const {
 bool
 ChertTable::exists() const {
     LOGCALL(DB, bool, "ChertTable::exists", NO_ARGS);
-    return (file_exists(name + "DB") &&
-	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
-}
-
-/** Delete file, throwing an error if we can't delete it (but not if it
- *  doesn't exist).
- */
-static void
-sys_unlink_if_exists(const string & filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename +
-			      "': " + strerror(errno));
-    }
+    RETURN(file_exists(name + "DB") &&
+	   (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
 
 void
@@ -1719,9 +1734,9 @@ ChertTable::erase()
     LOGCALL_VOID(DB, "ChertTable::erase", NO_ARGS);
     close();
 
-    sys_unlink_if_exists(name + "baseA");
-    sys_unlink_if_exists(name + "baseB");
-    sys_unlink_if_exists(name + "DB");
+    (void)io_unlink(name + "baseA");
+    (void)io_unlink(name + "baseB");
+    (void)io_unlink(name + "DB");
 }
 
 void
@@ -1746,7 +1761,6 @@ ChertTable::create_and_open(unsigned int block_size_)
     Assert(writable);
     close();
 
-    if (block_size_ == 0) abort();
     set_block_size(block_size_);
 
     // FIXME: it would be good to arrange that this works such that there's
@@ -1758,13 +1772,16 @@ ChertTable::create_and_open(unsigned int block_size_)
     /* create the base file */
     ChertTable_base base_;
     base_.set_revision(revision_number);
-    base_.set_block_size(block_size_);
+    base_.set_block_size(block_size);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
+    // Doing a full sync here would be overly paranoid, as an empty table
+    // contains no precious data and xapian-check can recreate lost base
+    // files.
     base_.write_to_file(name + "baseA", 'A', string(), -1, NULL);
 
     /* remove the alternative base file, if any */
-    sys_unlink_if_exists(name + "baseB");
+    (void)io_unlink(name + "baseB");
 
     // Any errors are thrown if revision_supplied is false.
     (void)do_open_to_write(false, 0, true);
@@ -1899,7 +1916,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	// Do this as late as possible to allow maximum time for writes to
 	// happen, and so the calls to io_sync() are adjacent which may be
 	// more efficient, at least with some Linux kernel versions.
-	if (!io_sync(handle)) {
+	if (changes_tail ? !io_full_sync(handle) : !io_sync(handle)) {
 	    (void)::close(handle);
 	    handle = -1;
 	    (void)unlink(tmp);
@@ -1922,7 +1939,7 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 		string msg("Couldn't update base file ");
 		msg += basefile;
 		msg += ": ";
-		msg += strerror(saved_errno);
+		errno_to_string(saved_errno, msg);
 		throw Xapian::DatabaseError(msg);
 	    }
 	}
@@ -2000,7 +2017,7 @@ ChertTable::cancel()
     // This causes problems: if (!Btree_modified) return;
 
     string err_msg;
-    if (!base.read(name, base_letter, err_msg)) {
+    if (!base.read(name, base_letter, writable, err_msg)) {
 	throw Xapian::DatabaseCorruptError(string("Couldn't reread base ") + base_letter);
     }
 
@@ -2026,6 +2043,11 @@ ChertTable::cancel()
     changed_n = 0;
     changed_c = DIR_START;
     seq_count = SEQ_START_POINT;
+
+    if (cursor_created_since_last_modification) {
+	cursor_created_since_last_modification = false;
+	++cursor_version;
+    }
 }
 
 /************ B-tree reading ************/
@@ -2037,7 +2059,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
     if (handle == -2) {
 	ChertTable::throw_database_closed();
     }
-    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
+    handle = io_open_block_rd(name + "DB");
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!
@@ -2047,7 +2069,7 @@ ChertTable::do_open_to_read(bool revision_supplied, chert_revision_number_t revi
 	string message("Couldn't open ");
 	message += name;
 	message += "DB to read: ";
-	message += strerror(errno);
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -2125,6 +2147,8 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 {
     LOGCALL(DB, bool, "ChertTable::prev_for_sequential", Literal("C_") | Literal("/*dummy*/"));
     int c = C_[0].c;
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(C_[0].p));
     if (c == DIR_START) {
 	byte * p = C_[0].p;
 	Assert(p);
@@ -2166,6 +2190,7 @@ ChertTable::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 	}
 	c = DIR_END(p);
 	C_[0].n = n;
+	AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[0].c = c;
@@ -2179,6 +2204,7 @@ ChertTable::next_for_sequential(Cursor * C_, int /*dummy*/) const
     byte * p = C_[0].p;
     Assert(p);
     int c = C_[0].c;
+    AssertRel(c,<,DIR_END(p));
     c += D2;
     Assert((unsigned)c < block_size);
     if (c == DIR_END(p)) {
@@ -2231,13 +2257,14 @@ ChertTable::prev_default(Cursor * C_, int j) const
     LOGCALL(DB, bool, "ChertTable::prev_default", Literal("C_") | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= DIR_START);
-    Assert((unsigned)c < block_size);
-    Assert(c <= DIR_END(p));
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     if (c == DIR_START) {
 	if (j == level) RETURN(false);
 	if (!prev_default(C_, j + 1)) RETURN(false);
 	c = DIR_END(p);
+	AssertRel(DIR_START,<,c);
     }
     c -= D2;
     C_[j].c = c;
@@ -2253,9 +2280,14 @@ ChertTable::next_default(Cursor * C_, int j) const
     LOGCALL(DB, bool, "ChertTable::next_default", Literal("C_") | j);
     byte * p = C_[j].p;
     int c = C_[j].c;
-    Assert(c >= DIR_START);
+    AssertRel(c,<,DIR_END(p));
+    AssertRel((unsigned)DIR_END(p),<=,block_size);
     c += D2;
-    Assert((unsigned)c < block_size);
+    if (j > 0) {
+	AssertRel(DIR_START,<,c);
+    } else {
+	AssertRel(DIR_START,<=,c);
+    }
     // Sometimes c can be DIR_END(p) + 2 here it appears...
     if (c >= DIR_END(p)) {
 	if (j == level) RETURN(false);

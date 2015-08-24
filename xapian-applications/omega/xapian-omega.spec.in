@@ -11,11 +11,10 @@ License: GPL
 Vendor: xapian.org
 Group: Applications/Internet
 URL: http://xapian.org/
-# FIXME: once we reach 1.0 "=" should become ">="
-Requires: xapian-core-libs = %{version}, webserver
+Requires: xapian-core-libs >= %{version}, webserver
 BuildRequires: xapian-core-devel = %{version}
 BuildRequires: autoconf automake libtool
-Source0: http://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
+Source0: http://oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.xz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
@@ -72,6 +71,10 @@ cp AUTHORS ChangeLog COPYING NEWS README TODO %{buildroot}/usr/share/doc/%{name}
 %{_bindir}/scriptindex
 %{_bindir}/htdig2omega
 %{_bindir}/mbox2omega
+# On 64-bit, this goes to /usr/lib64/...
+# FIXME: Sort this out:
+# http://thread.gmane.org/gmane.comp.search.xapian.general/8678
+%{_libdir}/xapian-omega/bin/outlookmsg2html
 %{contentdir}/omega
 %{logdir}/omega
 /var/www/cgi-bin/omega

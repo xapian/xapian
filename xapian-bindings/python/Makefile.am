@@ -9,11 +9,11 @@ TESTS_ENVIRONMENT = trap 'rm -f "$(srcdir)"/*.pyc' 0 1 2 13 15; \
 ## Test programs to be run
 TESTS = smoketest.py pythontest.py
 
-# FIXME: replicationtest.py attempts to test the concurrent performance of
-# performing replication whilst modifications are in progress.  However, it
-# sometimes fails due to a race condition in it.  It also contains hard-coded
-# paths to the replication scripts, which assume the file layout in an SVN
-# checkout.  Therefore, we don't run it by default currently.
+# FIXME: replicationtest.py attempts to test performing replication whilst
+# modifications are in progress.  However, it sometimes fails due to a race
+# condition in it.  It also contains hard-coded paths to the replication
+# server and client, which assume the file layout in a repo checkout.
+# Therefore, we don't run it by default currently.
 # replicationtest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
@@ -24,6 +24,8 @@ DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
 endif
 
 EXTRA_DIST = util.i extra.i extracomments.i except.i \
+	generate-python-exceptions \
+	module_top.py \
 	testsuite.py testsuite2.py testsuite3.py \
 	test_xapian_star.py \
 	smoketest2.py smoketest3.py \
@@ -62,10 +64,12 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 # versions so we can't let the .pyc and .pyo files get written there.  Hence we
 # copy the .py file to the build directory from wherever it actually is and use
 # the copy.  We also rename the copy to __init__.py so that it can be installed
-# in a "xapian" directory and be treated as a package.
+# in a "xapian" directory and be treated as a package.  Finally, we take this
+# opportunity to insert a module doc string at the top of the file.
 xapian/__init__.py: modern/xapian.py
 	-test -d xapian || mkdir xapian
-	cp `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py xapian/__init__.py
+	cat '$(srcdir)/module_top.py' `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py > xapian/__init__.pyT
+	mv xapian/__init__.pyT xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken __init__.pyc or __init__.pyo.

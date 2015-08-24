@@ -55,23 +55,28 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_brass_table(const char * tablename, string filename, int opts,
+check_brass_table(const char * tablename, string filename,
+		  brass_revision_number_t * rev_ptr, int opts,
 		  vector<Xapian::termcount> & doclens,
 		  Xapian::docid db_last_docid)
 {
     filename += '.';
 
     // Check the btree structure.
-    BrassTableCheck::check(tablename, filename, opts);
+    BrassTableCheck::check(tablename, filename, rev_ptr, opts);
 
     // Now check the brass structures inside the btree.
     BrassTable table(tablename, filename, true);
-    table.open();
+    if (rev_ptr) {
+	table.open(*rev_ptr);
+    } else {
+	table.open();
+    }
     AutoPtr<BrassCursor> cursor(table.cursor_get());
 
     size_t errors = 0;
 
-    cursor->find_entry("");
+    cursor->find_entry(string());
     cursor->next(); // Skip the empty entry.
 
     if (strcmp(tablename, "postlist") == 0) {
@@ -136,6 +141,7 @@ check_brass_table(const char * tablename, string filename, int opts,
 	    }
 
 	    if (!have_metainfo_key) {
+		have_metainfo_key = true;
 		cout << "METAINFO key missing from postlist table" << endl;
 		++errors;
 	    }
@@ -740,6 +746,18 @@ check_brass_table(const char * tablename, string filename, int opts,
 		cout << "No termname in key" << endl;
 		++errors;
 		continue;
+	    }
+
+	    if (!doclens.empty()) {
+		// In glass, a document without terms doesn't get a
+		// termlist entry, so we can't tell the difference
+		// easily.
+		if (did >= doclens.size() || doclens[did] == 0) {
+		    cout << "Position list entry for document " << did
+			 << " which doesn't exist or has no terms" << endl;
+		    ++errors;
+		    continue;
+		}
 	    }
 
 	    cursor->read_tag();

@@ -1,7 +1,7 @@
 %{
 /* php/util.i: custom PHP typemaps for xapian-bindings
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2010 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,9 @@
 #include "../xapian-version.h"
 %}
 
+// Use SWIG directors for PHP wrappers.
+#define XAPIAN_SWIG_DIRECTORS
+
 /* Add a section to the output from phpinfo(). */
 %pragma(php) phpinfo="
     const char * linked_version = Xapian::version_string();
@@ -33,12 +36,15 @@
     php_info_print_table_end();
 "
 
-// No point wrapping this abstract base class until SWIG supports directors
-// for PHP.
-%ignore Xapian::Sorter;
-
 %rename("is_empty") empty() const;
 %rename("clone_object") clone() const;
+
+/* Fake a namespace on open_stub() (PHP5.3 added real namespaces, but we want
+ * to support older versions still. */
+%rename(auto_open_stub) Xapian::Auto::open_stub;
+
+/* Handle op as an int rather than an enum. */
+%apply int { Xapian::Query::op };
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) const SWIGTYPE & {
     void *ptr;
@@ -134,7 +140,6 @@
     }
 }
 
-#if 0 // FIXME: only useful once we enable director support
 %typemap(directorin) (size_t num_tags, const std::string tags[]) {
     if (array_init($input) == FAILURE) {
 	SWIG_PHP_Error(E_ERROR, "array_init failed");
@@ -146,6 +151,5 @@
 	add_next_index_stringl($input, p, term.length(), 1);
     }
 }
-#endif
 
 /* vim:set syntax=cpp:set noexpandtab: */

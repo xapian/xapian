@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.cc
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2013,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -45,6 +45,7 @@
 # include <io.h> // For _open_osfhandle().
 # include "safefcntl.h"
 # include "safewindows.h"
+# include <cstdlib> // For free().
 #endif
 
 #include "noreturn.h"
@@ -111,7 +112,7 @@ launch_xapian_tcpsrv(const string & args)
     // if xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
-    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port " + str(port) + " " + args;
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif
@@ -129,6 +130,9 @@ try_next_port:
 	// Connect stdout and stderr to the socket.
 	dup2(fds[1], 1);
 	dup2(fds[1], 2);
+	if (fds[1] != 1 && fds[1] != 2) {
+	    close(fds[1]);
+	}
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	_exit(-1);
     }
@@ -242,7 +246,7 @@ launch_xapian_tcpsrv(const string & args)
     int port = DEFAULT_PORT;
 
 try_next_port:
-    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port " + str(port) + " " + args;
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;

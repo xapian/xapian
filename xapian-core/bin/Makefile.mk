@@ -46,11 +46,12 @@ endif
 endif
 
 bin_xapian_check_CPPFLAGS =\
+	$(AM_CPPFLAGS)\
 	-I$(top_srcdir)/backends/brass\
 	-I$(top_srcdir)/backends/chert\
 	-I$(top_srcdir)/backends/flint
 bin_xapian_check_SOURCES = bin/xapian-check.cc
-bin_xapian_check_LDADD = $(ldflags) $(libxapian_la)
+bin_xapian_check_LDADD = $(ldflags)
 if BUILD_BACKEND_BRASS
 bin_xapian_check_SOURCES += bin/xapian-check-brass.cc bin/xapian-check-brass.h
 bin_xapian_check_LDADD += libbrasscheck.la
@@ -63,15 +64,16 @@ if BUILD_BACKEND_FLINT
 bin_xapian_check_SOURCES += bin/xapian-check-flint.cc bin/xapian-check-flint.h
 bin_xapian_check_LDADD += libflintcheck.la
 endif
+bin_xapian_check_LDADD += $(libxapian_la)
 
-bin_xapian_chert_update_CPPFLAGS = -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
+bin_xapian_chert_update_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/backends/flint -I$(top_srcdir)/backends/chert
 bin_xapian_chert_update_SOURCES = bin/xapian-chert-update.cc
 bin_xapian_chert_update_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_inspect_CPPFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_inspect_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/backends/flint
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
@@ -88,15 +90,6 @@ bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
 bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
 if DOCUMENTATION_RULES
-bin/quartzcheck.1: bin/quartzcheck$(EXEEXT) makemanpage
-	./makemanpage bin/quartzcheck $(srcdir)/bin/quartzcheck.cc bin/quartzcheck.1
-
-bin/quartzcompact.1: bin/quartzcompact$(EXEEXT) makemanpage
-	./makemanpage bin/quartzcompact $(srcdir)/bin/quartzcompact.cc bin/quartzcompact.1
-
-bin/quartzdump.1: bin/quartzdump$(EXEEXT) makemanpage
-	./makemanpage bin/quartzdump $(srcdir)/bin/quartzdump.cc bin/quartzdump.1
-
 bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-check $(srcdir)/bin/xapian-check.cc bin/xapian-check.1
 

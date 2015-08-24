@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '1.2.4.1';
+our $VERSION = '1.2.21.0';
 
 use Exporter 'import';
 
@@ -51,33 +51,33 @@ sub dl_load_flags { 0x01 }
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
 our %EXPORT_TAGS = (
-                    'ops' => [ qw(
-                                  OP_AND
-                                  OP_OR
-                                  OP_AND_NOT
-                                  OP_XOR
-                                  OP_AND_MAYBE
-                                  OP_FILTER
-                                  OP_NEAR
-                                  OP_PHRASE
+		    'ops' => [ qw(
+				  OP_AND
+				  OP_OR
+				  OP_AND_NOT
+				  OP_XOR
+				  OP_AND_MAYBE
+				  OP_FILTER
+				  OP_NEAR
+				  OP_PHRASE
 				  OP_VALUE_RANGE
 				  OP_SCALE_WEIGHT
-                                  OP_ELITE_SET
+				  OP_ELITE_SET
 				  OP_VALUE_GE
 				  OP_VALUE_LE
-                                 ) ],
-                    'db' => [ qw(
-                                 DB_OPEN
-                                 DB_CREATE
-                                 DB_CREATE_OR_OPEN
-                                 DB_CREATE_OR_OVERWRITE
-                                 ) ],
-                    'enq_order' => [ qw(
+				 ) ],
+		    'db' => [ qw(
+				 DB_OPEN
+				 DB_CREATE
+				 DB_CREATE_OR_OPEN
+				 DB_CREATE_OR_OVERWRITE
+				 ) ],
+		    'enq_order' => [ qw(
 				 ENQ_DESCENDING
 				 ENQ_ASCENDING
 				 ENQ_DONT_CARE
 				   ) ],
-                    'qpflags' => [ qw(
+		    'qpflags' => [ qw(
 				 FLAG_BOOLEAN
 				 FLAG_PHRASE
 				 FLAG_LOVEHATE
@@ -90,18 +90,18 @@ our %EXPORT_TAGS = (
 				 FLAG_AUTO_SYNONYMS
 				 FLAG_AUTO_MULTIWORD_SYNONYMS
 				 FLAG_DEFAULT
-                                 ) ],
-                    'qpstem' => [ qw(
+				 ) ],
+		    'qpstem' => [ qw(
 				 STEM_NONE
 				 STEM_SOME
 				 STEM_ALL
-                                 ) ]
-                   );
+				 ) ]
+		   );
 $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
 			   @{ $EXPORT_TAGS{'db'} },
 			   @{ $EXPORT_TAGS{'qpflags'} },
 			   @{ $EXPORT_TAGS{'qpstem'} } ];
-$EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'} } ];
+$EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'} }, 'BAD_VALUENO' ];
 
 
 # Names which can be exported.
@@ -240,7 +240,7 @@ Like OP_AND, but only weight using the left query.
 =item OP_NEAR
 
 Match if the words are near each other. The window should be specified, as
-a parameter to C<Search::Xapian::Query::Query>, but it defaults to the 
+a parameter to C<Search::Xapian::Query::Query>, but it defaults to the
 number of terms in the list.
 
 =item OP_PHRASE
@@ -268,7 +268,7 @@ flags to the default ones.
 
 =item FLAG_BOOLEAN
 
-Support AND, OR, etc and bracketted subexpressions.
+Support AND, OR, etc and bracketed subexpressions.
 
 =item FLAG_LOVEHATE
 
@@ -441,12 +441,9 @@ docs.
 =item Unwrapped classes
 
 The following Xapian classes are not yet wrapped:
-Error (and subclasses), ErrorHandler, standard ExpandDecider subclasses
+ErrorHandler, standard ExpandDecider subclasses
 (user-defined ones works),
 user-defined weight classes.
-
-We don't yet wrap Xapian::Query::MatchAll, Xapian::Query::MatchNothing,
-or Xapian::BAD_VALUENO.
 
 =item Unwrapped methods
 
@@ -478,6 +475,11 @@ Alex Bowley E<lt>kilinrax@cpan.orgE<gt>
 Please report any bugs/suggestions to E<lt>xapian-discuss@lists.xapian.orgE<gt>
 or use the Xapian bug tracker L<http://xapian.org/bugs>.  Please do
 NOT use the CPAN bug tracker or mail any of the authors individually.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
 
 =head1 SEE ALSO
 

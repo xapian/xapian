@@ -36,7 +36,7 @@ public class Enquire {
     private Database _database = null;
     private Query _query = null;
 
-    long id = -1;
+    long id = 0;
 
     public Enquire(Database db) throws XapianError {
         // must hold a reference to the database, otherwise the JVM
@@ -93,7 +93,7 @@ public class Enquire {
     }
 
     public MSet getMSet(long first, long maxitems, RSet rset, MatchDecider md) throws XapianError {
-        return new MSet(XapianJNI.enquire_get_mset(id, first, maxitems, rset == null ? -1 : rset.id, md));
+        return new MSet(XapianJNI.enquire_get_mset(id, first, maxitems, rset == null ? 0 : rset.id, md));
     }
 
     public ESet getESet(long maxitems, RSet rset, int flags, double k, ExpandDecider ed) throws XapianError {

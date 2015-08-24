@@ -1,6 +1,6 @@
 /* metaxmlparse.cc: subclass of HtmlParser for parsing OpenDocument's meta.xml.
  *
- * Copyright (C) 2006,2009,2010 Olly Betts
+ * Copyright (C) 2006,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,10 +47,10 @@ MetaXmlParser::process_text(const string &text)
     }
 }
 
-void
+bool
 MetaXmlParser::opening_tag(const string &tag)
 {
-    if (tag.size() < 8) return;
+    if (tag.size() < 8) return true;
     if (tag[0] == 'd' && tag[1] == 'c') {
 	if (tag == "dc:subject") {
 	    // dc:subject is "Subject and Keywords":
@@ -74,10 +74,12 @@ MetaXmlParser::opening_tag(const string &tag)
 	// </meta:keywords>
 	if (tag == "meta:keyword") field = KEYWORDS;
     }
+    return true;
 }
 
-void
+bool
 MetaXmlParser::closing_tag(const string &)
 {
     field = NONE;
+    return true;
 }

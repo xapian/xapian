@@ -1,7 +1,7 @@
 /* selectpostlist.h: Parent class for classes which only return selected docs
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2009,2010 Olly Betts
+ * Copyright 2003,2004,2009,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,8 +33,13 @@ class SelectPostList : public PostList {
         SelectPostList(const SelectPostList &);
         SelectPostList & operator=(const SelectPostList &);
 
+	inline bool check_weight(double w_min) {
+	    return w_min == 0.0 || SelectPostList::get_weight() >= w_min;
+	}
+
     protected:
 	PostList *source;
+	mutable double wt;
 
 	/** Subclasses should override test_doc() with a method which returns
 	 *  true if a document meets the appropriate criterion, false in not
@@ -50,7 +55,11 @@ class SelectPostList : public PostList {
 	Xapian::doccount get_termfreq_min() const { return 0; }
 	Xapian::weight get_maxweight() const { return source->get_maxweight(); }
 	Xapian::docid get_docid() const { return source->get_docid(); }
-	Xapian::weight get_weight() const { return source->get_weight(); }
+	Xapian::weight get_weight() const {
+	    if (wt < 0.0)
+		wt = source->get_weight();
+	    return wt;
+	}
 	Xapian::termcount get_doclength() const { return source->get_doclength(); }
 	Xapian::weight recalc_maxweight() { return source->recalc_maxweight(); }
 	PositionList * read_position_list() { return source->read_position_list(); }
@@ -63,7 +72,7 @@ class SelectPostList : public PostList {
 
 	std::string get_description() const;    
     
-	SelectPostList(PostList *source_) : source(source_) { }
+	SelectPostList(PostList *source_) : source(source_), wt(-1) { }
         ~SelectPostList() { delete source; }
 };
 

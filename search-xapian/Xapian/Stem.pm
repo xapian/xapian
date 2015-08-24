@@ -28,7 +28,7 @@ Search::Xapian::Stem - Snowball stemmer
 
 =item new <language>
 
-Constructor. Takes the language to stem as as parameter.
+Constructor. Takes the language to stem as a parameter.
 
 =item stem_word <word>
 

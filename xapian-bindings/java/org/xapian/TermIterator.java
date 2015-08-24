@@ -53,7 +53,7 @@ public class TermIterator implements Iterator {
     private boolean _hasNext = true;
 
     TermIterator(long id, long end_id) throws XapianError {
-        this(-1, id, end_id);
+        this(0, id, end_id);
     }
 
     TermIterator(long dbdocid, long id, long end_id) throws XapianError {
@@ -86,7 +86,7 @@ public class TermIterator implements Iterator {
         try {
             String termname = XapianJNI.termiterator_get_termname(id);
             _info.set(termname,
-                    _dbdocid != -1 ? -1 : XapianJNI.termiterator_get_term_freq(id), // can't get term frequency when we have a document id
+                    _dbdocid != 0 ? 0 : XapianJNI.termiterator_get_term_freq(id), // can't get term frequency when we have a document id
                     XapianJNI.termiterator_get_wdf(id));
 
             XapianJNI.termiterator_next(id);
@@ -111,7 +111,7 @@ public class TermIterator implements Iterator {
     }
 
     public PositionIterator getPositionListIterator(Database db) throws XapianError {
-        if (_dbdocid == -1)
+        if (_dbdocid == 0)
             throw new InvalidOperationError("No Document id associated with this TermIterator");
 
         return db.getPositionIterator(_dbdocid, _info.term);

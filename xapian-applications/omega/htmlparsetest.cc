@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006,2008 Olly Betts
+ * Copyright (C) 2006,2008,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,12 @@ static const testcase tests[] = {
     { "<html><head><meta http-equiv=Content-Type content=\"text/html;charset=utf-8\"><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><meta charset='utf-8'><title>\xc2\xae</title></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
     { "<html><head><title>\xc2\xae</title><meta charset=\"utf-8\"></head><body>\xc2\xa3</body></html>", "\xc2\xa3", "\xc2\xae", "", "" },
+    { "<!--UdmComment-->test<!--/UdmComment--><div id='body'>test</div>", "test", "", "", "" },
+    { "Foo<![CDATA[ & bar <literal>\"]]> ok", "Foo & bar <literal>\" ok", "", "", "" },
+    { "Foo<![CDATA", "Foo", "", "", "" },
+    { "foo<![CDATA[bar", "foobar", "", "", "" },
+    // Test that handling of multiple body tags matches modern browser behaviour (ticket#599).
+    { "a<html>b<head>c<title>bad</title>d</head>e<body>f</body>g<body>h</body>i</html>j<body>k", "abcdefghijk", "bad", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
@@ -64,13 +70,7 @@ main()
 	    p.parse_html(tests[i].html, "iso-8859-1", false);
 	} catch (const string &newcharset) {
 	    p.reset();
-	    try {
-		p.parse_html(tests[i].html, newcharset, true);
-	    } catch (bool) {
-	    }
-	} catch (bool) {
-	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
-	    // indexing is disallowed
+	    p.parse_html(tests[i].html, newcharset, true);
 	}
 	if (!p.indexing_allowed) {
 	    cout << "indexing disallowed by meta tag - skipping\n";

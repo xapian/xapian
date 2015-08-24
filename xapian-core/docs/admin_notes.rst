@@ -1,6 +1,6 @@
 
 .. Copyright (C) 2006 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
 
 .. FIXME: Once brass settles down, update this for brass
 
@@ -23,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is up-to-date for Xapian version 1.2.0.
+The document is up-to-date for Xapian version 1.2.10.
 
 Databases
 =========
@@ -32,15 +32,16 @@ Xapian databases hold all the information needed to perform searches in a set
 of tables.  The following tables always exist:
 
  - A posting list table, which holds a list of all the documents indexed by
-   each term in the database.
+   each term in the database, and (for chert) also chunked streams of the
+   values in each value slot.
  - A record table, which holds the document data associated with each document
    in the database.
  - A termlist table, which holds a list of all the terms which index each
-   document.
+   document, and (for chert) also the value slots used in each document.
 
 And the following optional tables exist only when there is data to store in
 them (in 1.0.1 and earlier, the position and value tables were always created
-even if empty; spelling and synonym tables are new in 1.0.2):
+even if empty; spelling and synonym tables were new in 1.0.2):
 
  - A position list table, which holds a list of all the word positions in each
    document which each term occurs at.
@@ -162,15 +163,15 @@ tool.
 Network file systems
 --------------------
 
-Xapian should work correctly over a network file system.  However, there are a
-large number of potential issues with such file systems, so we recommend
+Xapian should work correctly over a network file system.  However, there are
+various potential issues with such file systems, so we recommend
 extensive testing of your particular network file system before deployment.
 
 Be warned that Xapian is heavily I/O dependent, and therefore performance over
 a network file system is likely to be slow unless you've got a very well tuned
 setup.
 
-Xapian needs to be able to create a lock file in a database directory when
+Xapian needs to be able to lock a file in a database directory when
 modifications are being performed.  On some network files systems (e.g., NFS)
 this requires a lock daemon to be running.
 
@@ -184,7 +185,7 @@ Support for the pre-1.0 quartz format (deprecated in 1.0) was removed in 1.1.0.
 See below for how to convert a quartz database to a flint one.
 
 The flint backend (the default for 1.0) is still supported by 1.2.x, but
-deprecated - only use it if you already have flint databases, and plan to
+deprecated - only use it if you already have flint databases; and plan to
 migrate away.
 
 There's also a development backend called brass.  The main distinguishing
@@ -339,9 +340,8 @@ Merging databases
 
 When building an index for a very large amount of data, it can be desirable to
 index the data in smaller chunks (perhaps on separate machines), and then
-merge the chunks together into a single database.  This can also be performed
-using the "xapian-compact" tool, simply by supplying
-several source database paths.
+merge the chunks together into a single database.  This can be performed using
+the "xapian-compact" tool, simply by supplying several source database paths.
 
 Normally, merging works by reading the source databases in parallel, and
 writing the contents in sorted order to the destination database.  This will
@@ -368,11 +368,30 @@ of database "foo"::
   xapian-check foo/termlist.DB
 
 
-Converting a flint database to a chert database
-------------------------------------------------
+Converting a pre-1.1.4 chert database to a chert database
+---------------------------------------------------------
 
-It is possible to convert a flint database to a chert database by
-using the "copydatabase" example program included with Xapian.  This is a
+The chert format changed in 1.1.4 - at that point the format hadn't been
+finalised, but a number of users had already deployed it, and it wasn't hard
+to write an updater, so we provided one called xapian-chert-update which makes
+a copy with the updated format::
+
+  xapian-chert-update SOURCE DESTINATION
+
+It works much like xapian-compact so should take a similar amount of time (and
+results in a compact database).  The initial version had a few bugs, so use
+xapian-chert-update from Xapian 1.2.5 or later.
+
+The xapian-chert-update utility was removed in Xapian 1.3.0, so you'll need to
+install Xapian 1.2.x to use it.
+
+
+Converting a flint database to a chert database
+-----------------------------------------------
+
+It is possible to convert a flint database to a chert database by using
+the "copydatabase" example program included with Xapian (you will need to use
+Xapian 1.2.x for this so it has support for both flint and chert).  This is a
 lot slower to run than "xapian-compact", since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
 re-index from source data since it doesn't need to perform the tokenisation
@@ -382,6 +401,12 @@ The following command will copy a database from "SOURCE" to "DESTINATION",
 creating the new database at "DESTINATION" as a chert database::
 
   copydatabase SOURCE DESTINATION
+
+By default copydatabase will renumber your documents starting with docid 1.
+If the docids are stored in or come from some external system, you should
+preserve them by using the --no-renumber option (new in Xapian 1.2.5)::
+
+  copydatabase --no-renumber SOURCE DESTINATION
 
 
 Converting a quartz database to a flint database

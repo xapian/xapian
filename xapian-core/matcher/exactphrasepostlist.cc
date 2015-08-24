@@ -1,7 +1,7 @@
 /** @file exactphrasepostlist.cc
  * @brief Return docs containing terms forming a particular exact phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include "debuglog.h"
 #include "positionlist.h"
+#include "omassert.h"
 
 #include <algorithm>
 #include <vector>
@@ -31,10 +32,12 @@
 using namespace std;
 
 ExactPhrasePostList::ExactPhrasePostList(PostList *source_,
-					 const vector<PostList*> &terms_)
-	: SelectPostList(source_), terms(terms_)
+					 const vector<PostList*>::const_iterator &terms_begin,
+					 const vector<PostList*>::const_iterator &terms_end)
+    : SelectPostList(source_), terms(terms_begin, terms_end)
 {
-    size_t n = terms_.size();
+    size_t n = terms.size();
+    Assert(n > 1);
     poslists = new PositionList*[n];
     try {
 	order = new unsigned[n];
@@ -75,8 +78,6 @@ ExactPhrasePostList::test_doc()
 {
     LOGCALL(MATCH, bool, "ExactPhrasePostList::test_doc", NO_ARGS);
 
-    if (terms.size() <= 1) RETURN(true);
-
     // We often don't need to read all the position lists, so rather than using
     // the shortest position lists first, we approximate by using the terms
     // with the lowest wdf first.  This will typically give the same or a very
@@ -95,7 +96,7 @@ ExactPhrasePostList::test_doc()
     // terms, so check the true positionlist length for the two terms with the
     // lowest wdf and if necessary swap them so the true shorter one is first.
     start_position_list(1);
-    if (poslists[0]->get_size() < poslists[1]->get_size()) {
+    if (poslists[0]->get_size() > poslists[1]->get_size()) {
 	poslists[1]->skip_to(poslists[1]->index);
 	if (poslists[1]->at_end()) RETURN(false);
 	swap(poslists[0], poslists[1]);
@@ -114,13 +115,18 @@ ExactPhrasePostList::test_doc()
 		// if less common.  Should we allow for the number of positions
 		// we've read from poslist[0] already?
 	    }
-	    Xapian::termpos required = base + poslists[i]->index;
+	    Xapian::termpos idx = poslists[i]->index;
+	    Xapian::termpos required = base + idx;
 	    poslists[i]->skip_to(required);
 	    if (poslists[i]->at_end()) RETURN(false);
-	    if (poslists[i]->get_position() != required) break;
-	    if (++i == terms.size()) RETURN(true);
+	    Xapian::termpos got = poslists[i]->get_position();
+	    if (got == required) {
+		if (++i == terms.size()) RETURN(true);
+		continue;
+	    }
+	    poslists[0]->skip_to(got - idx + idx0);
+	    break;
 	}
-	poslists[0]->next();
     } while (!poslists[0]->at_end());
     RETURN(false);
 }
@@ -131,17 +137,11 @@ ExactPhrasePostList::get_wdf() const
     // Calculate an estimate for the wdf of an exact phrase postlist.
     //
     // We use the minimum wdf of a sub-postlist as our estimate.  See the
-    // comment in NearPostList::get_wdf for justification of this estimate.
-    //
-    // We divide the value calculated for a NearPostList by 3, as a very rough
-    // heuristic to represent the fact that the words must occur exactly in
-    // order, and phrases are therefore rarer than near matches and (non-exact)
-    // phrase matches.
-
-    std::vector<PostList *>::const_iterator i = terms.begin();
+    // comment in NearPostList::get_wdf() for justification of this estimate.
+    vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); i++) {
-	wdf = std::min(wdf, (*i)->get_wdf());
+    for (; i != terms.end(); ++i) {
+	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
 }
@@ -152,6 +152,11 @@ ExactPhrasePostList::get_termfreq_est() const
     // It's hard to estimate how many times the exact phrase will occur as
     // it depends a lot on the phrase, but usually the exact phrase will
     // occur significantly less often than the individual terms.
+    //
+    // We divide by 4 here rather than by 2 as we do for NearPostList and
+    // PhrasePostList, as a very rough heuristic to represent the fact that the
+    // words must occur exactly in order, and phrases are therefore rarer than
+    // near matches and (non-exact) phrase matches.
     return source->get_termfreq_est() / 4;
 }
 
@@ -160,7 +165,7 @@ ExactPhrasePostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
 {
     LOGCALL(MATCH, TermFreqs, "ExactPhrasePostList::get_termfreq_est_using_stats", stats);
-    // No idea how to estimate this  - do the same as get_termfreq_est() for
+    // No idea how to estimate this - do the same as get_termfreq_est() for
     // now.
     TermFreqs result(source->get_termfreq_est_using_stats(stats));
     result.termfreq /= 4;

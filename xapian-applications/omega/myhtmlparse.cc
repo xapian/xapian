@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,6 +23,7 @@
 
 #include "myhtmlparse.h"
 
+#include "stringutils.h"
 #include "utf8convert.h"
 
 #include <cctype>
@@ -34,7 +35,7 @@ inline void
 lowercase_string(string &str)
 {
     for (string::iterator i = str.begin(); i != str.end(); ++i) {
-	*i = tolower(static_cast<unsigned char>(*i));
+	*i = C_tolower(*i);
     }
 }
 
@@ -54,32 +55,29 @@ MyHtmlParser::process_text(const string &text)
 	string::size_type b = text.find_first_not_of(WHITESPACE);
 	if (b) pending_space = true;
 	while (b != string::npos) {
-	    if (pending_space && !dump.empty()) dump += ' ';
+	    if (pending_space && !target->empty())
+		*target += ' ';
 	    string::size_type e = text.find_first_of(WHITESPACE, b);
 	    pending_space = (e != string::npos);
 	    if (!pending_space) {
-		dump.append(text.data() + b, text.size() - b);
+		target->append(text.data() + b, text.size() - b);
 		return;
 	    }
-	    dump.append(text.data() + b, e - b);
+	    target->append(text.data() + b, e - b);
 	    b = text.find_first_not_of(WHITESPACE, e + 1);
 	}
     }
 }
 
-void
+bool
 MyHtmlParser::opening_tag(const string &tag)
 {
-    if (tag.empty()) return;
+    if (tag.empty()) return true;
     switch (tag[0]) {
 	case 'a':
 	    if (tag == "address") pending_space = true;
 	    break;
 	case 'b':
-	    if (tag == "body") {
-		dump.resize(0);
-		break;
-	    }
 	    if (tag == "blockquote" || tag == "br") pending_space = true;
 	    break;
 	case 'c':
@@ -134,13 +132,13 @@ MyHtmlParser::opening_tag(const string &tag)
 			    convert_to_utf8(content, charset);
 			    decode_entities(content);
 			    author += content;
-			} else if (name == "robots") {
+			} else if (!ignoring_metarobots && name == "robots") {
 			    decode_entities(content);
 			    lowercase_string(content);
 			    if (content.find("none") != string::npos ||
 				content.find("noindex") != string::npos) {
 				indexing_allowed = false;
-				throw true;
+				return false;
 			    }
 			}
 			break;
@@ -222,6 +220,10 @@ MyHtmlParser::opening_tag(const string &tag)
 	case 't':
 	    if (tag == "table" || tag == "td" || tag == "textarea" ||
 		tag == "th") pending_space = true;
+	    else if (tag == "title") {
+		target = &title;
+		pending_space = false;
+	    }
 	    break;
 	case 'u':
 	    if (tag == "ul") pending_space = true;
@@ -230,20 +232,18 @@ MyHtmlParser::opening_tag(const string &tag)
 	    if (tag == "xmp") pending_space = true;
 	    break;
     }
+    return true;
 }
 
-void
+bool
 MyHtmlParser::closing_tag(const string &tag)
 {
-    if (tag.empty()) return;
+    if (tag.empty()) return true;
     switch (tag[0]) {
 	case 'a':
 	    if (tag == "address") pending_space = true;
 	    break;
 	case 'b':
-	    if (tag == "body") {
-		throw true;
-	    }
 	    if (tag == "blockquote" || tag == "br") pending_space = true;
 	    break;
 	case 'c':
@@ -292,12 +292,13 @@ MyHtmlParser::closing_tag(const string &tag)
 	    if (tag == "select") pending_space = true;
 	    break;
 	case 't':
-	    if (tag == "title") {
-		if (title.empty()) swap(title, dump);
-		break;
-	    }
 	    if (tag == "table" || tag == "td" || tag == "textarea" ||
 		tag == "th") pending_space = true;
+	    else if (tag == "title") {
+		target = &dump;
+		pending_space = false;
+		break;
+	    }
 	    break;
 	case 'u':
 	    if (tag == "ul") pending_space = true;
@@ -306,4 +307,5 @@ MyHtmlParser::closing_tag(const string &tag)
 	    if (tag == "xmp") pending_space = true;
 	    break;
     }
+    return true;
 }

@@ -1,7 +1,7 @@
 /** @file termgenerator.cc
  * @brief TermGenerator class implementation
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,6 +83,18 @@ TermGenerator::set_flags(flags toggle, flags mask)
 }
 
 void
+TermGenerator::set_stemming_strategy(stem_strategy strategy)
+{
+    internal->strategy = strategy;
+}
+
+void
+TermGenerator::set_max_word_length(unsigned max_word_length)
+{
+    internal->max_word_length = max_word_length;
+}
+
+void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 			  Xapian::termcount weight,
 			  const string & prefix)
@@ -119,18 +131,15 @@ TermGenerator::set_termpos(Xapian::termcount termpos)
 string
 TermGenerator::get_description() const
 {
-    string s("Xapian::TermGenerator(");
-    if (internal.get()) {
-	s += "stem=";
-	s += internal->stemmer.get_description();
-	if (internal->stopper) {
-	    s += ", stopper set";
-	}
-	s += ", doc=";
-	s += internal->doc.get_description();
-	s += ", termpos=";
-	s += str(internal->termpos);
+    string s("Xapian::TermGenerator(stem=");
+    s += internal->stemmer.get_description();
+    if (internal->stopper) {
+	s += ", stopper set";
     }
+    s += ", doc=";
+    s += internal->doc.get_description();
+    s += ", termpos=";
+    s += str(internal->termpos);
     s += ")";
     return s;
 }

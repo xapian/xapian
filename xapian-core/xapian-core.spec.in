@@ -13,7 +13,7 @@ Vendor: xapian.org
 Group: Applications/Databases
 URL: http://xapian.org/
 Requires: %{name}-libs = %{version}
-Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
+Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.xz
 # May need e2fsprogs-devel instead of libuuid-devel on older platforms
 BuildRequires: gcc-c++ zlib-devel libuuid-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -123,6 +123,7 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_libdir}/libxapian*.a
 %{_libdir}/libxapian*.la
 %{_libdir}/cmake/xapian
+%{_libdir}/pkgconfig/xapian*.pc
 %{_datadir}/aclocal/xapian*.m4
 %doc %{_datadir}/doc/%{name}-devel-%{version}
 # man pages may be gzipped, hence the trailing wildcard.

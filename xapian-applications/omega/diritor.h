@@ -1,6 +1,6 @@
 /* diritor.h: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010 Olly Betts
+ * Copyright (C) 2007,2008,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,11 @@
 #include "safesysstat.h"
 
 #include <sys/types.h>
+
+#ifndef __WIN32__
 #include <grp.h> // For getgrgid().
 #include <pwd.h> // For getpwuid().
+#endif
 
 #ifdef HAVE_MAGIC_H
 #include <magic.h>
@@ -41,7 +44,9 @@
 #include "runfilter.h" // For class ReadError.
 
 class DirectoryIterator {
+#if defined O_NOATIME && O_NOATIME != 0
     static uid_t euid;
+#endif
 
 #ifdef HAVE_MAGIC_H
     static magic_t magic_cookie;
@@ -69,7 +74,7 @@ class DirectoryIterator {
 
   public:
 
-    DirectoryIterator(bool follow_symlinks_)
+    explicit DirectoryIterator(bool follow_symlinks_)
 	: dir(NULL), follow_symlinks(follow_symlinks_) { }
 
     ~DirectoryIterator() {
@@ -140,36 +145,56 @@ class DirectoryIterator {
 	return statbuf.st_size;
     }
 
-    off_t get_mtime() {
+    time_t get_mtime() {
 	ensure_statbuf_valid();
 	return statbuf.st_mtime;
     }
 
     const char * get_owner() {
+#ifndef __WIN32__
 	ensure_statbuf_valid();
 	struct passwd * pwentry = getpwuid(statbuf.st_uid);
 	return pwentry ? pwentry->pw_name : NULL;
+#else
+	return NULL;
+#endif
     }
 
     const char * get_group() {
+#ifndef __WIN32__
 	ensure_statbuf_valid();
 	struct group * grentry = getgrgid(statbuf.st_gid);
 	return grentry ? grentry->gr_name : NULL;
+#else
+	return NULL;
+#endif
     }
 
     bool is_owner_readable() {
 	ensure_statbuf_valid();
+#ifndef __WIN32__
 	return (statbuf.st_mode & S_IRUSR);
+#else
+	return (statbuf.st_mode & S_IREAD);
+#endif
     }
 
     bool is_group_readable() {
 	ensure_statbuf_valid();
+#ifndef __WIN32__
 	return (statbuf.st_mode & S_IRGRP);
+#else
+	return false;
+#endif
     }
 
     bool is_other_readable() {
 	ensure_statbuf_valid();
+#ifndef __WIN32__
 	return (statbuf.st_mode & S_IROTH);
+#else
+	return false;
+#endif
     }
 
     bool try_noatime() {

@@ -1,4 +1,4 @@
-MODULE = Search::Xapian  		PACKAGE = Search::Xapian::Stopper
+MODULE = Search::Xapian			PACKAGE = Search::Xapian::Stopper
 
 PROTOTYPES: ENABLE
 

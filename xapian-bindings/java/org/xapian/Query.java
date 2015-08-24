@@ -45,7 +45,7 @@ public class Query {
     public static final int OP_ELITE_SET = 10;
 
     private Query _left = null, _right = null;
-    long id = -1;
+    long id = 0;
 /*
     private String _nativeStuff;
     private String _nativeOperator;

@@ -3,8 +3,9 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2008,2009,2012 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
+ * Copyright 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -112,8 +113,46 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	     */
 	    OP_SCALE_WEIGHT,
 
-	    /** Select an elite set from the subqueries, and perform
-	     *  a query with these combined as an OR query.
+	    /** Pick the best N subqueries and combine with OP_OR.
+	     *
+	     *  If you want to implement a feature which finds documents
+	     *  similar to a piece of text, an obvious approach is to build an
+	     *  "OR" query from all the terms in the text, and run this query
+	     *  against a database containing the documents.  However such a
+	     *  query can contain a lots of terms and be quite slow to perform,
+	     *  yet many of these terms don't contribute usefully to the
+	     *  results.
+	     *
+	     *  The OP_ELITE_SET operator can be used instead of OP_OR in this
+	     *  situation.  OP_ELITE_SET selects the most important ''N'' terms
+	     *  and then acts as an OP_OR query with just these, ignoring any
+	     *  other terms.  This will usually return results just as good as
+	     *  the full OP_OR query, but much faster.
+	     *
+	     *  In general, the OP_ELITE_SET operator can be used when you have
+	     *  a large OR query, but it doesn't matter if the search
+	     *  completely ignores some of the less important terms in the
+	     *  query.
+	     *
+	     *  The subqueries don't have to be terms, but if they aren't then
+	     *  OP_ELITE_SET will look at the estimated frequencies of the
+	     *  subqueries and so could pick a subset which don't actually
+	     *  match any documents even if the full OR would match some.
+	     *
+	     *  You can specify a parameter to the query constructor which
+	     *  control the number of terms which OP_ELITE_SET will pick.  If
+	     *  not specified, this defaults to 10 (or
+	     *  <code>ceil(sqrt(number_of_subqueries))</code> if there are more
+	     *  than 100 subqueries, but this rather arbitrary special case
+	     *  will be dropped in 1.3.0).  For example, this will pick the
+	     *  best 7 terms:
+	     *
+	     *  <pre>
+	     *  Xapian::Query query(Xapian::Query::OP_ELITE_SET, subqs.begin(), subqs.end(), 7);
+	     *  </pre>
+	     *
+	     * If the number of subqueries is less than this threshold,
+	     * OP_ELITE_SET behaves identically to OP_OR.
 	     */
 	    OP_ELITE_SET,
 
@@ -176,8 +215,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  The Xapian::Query objects are specified with begin and end
 	 *  iterators.
 	 * 
-	 *  AND, OR, SYNONYM, NEAR and PHRASE can take any number of subqueries.
-	 *  Other operators take exactly two subqueries.
+	 *  AND, OR, XOR, ELITE_SET, SYNONYM, NEAR and PHRASE can take any
+	 *  number of subqueries.  Other operators take exactly two subqueries.
 	 *
 	 *  The iterators may be to Xapian::Query objects, pointers to
 	 *  Xapian::Query objects, or termnames (std::string-s).
@@ -198,31 +237,31 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Construct a value range query on a document value.
 	 *
 	 *  A value range query matches those documents which have a value
-	 *  stored in the slot given by @a valno which is in the range
+	 *  stored in the slot given by @a slot which is in the range
 	 *  specified by @a begin and @a end (in lexicographical
 	 *  order), including the endpoints.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
 	 *               be OP_VALUE_RANGE.
-	 *  @param valno The slot number to get the value from.
+	 *  @param slot  The slot number to get the value from.
 	 *  @param begin The start of the range.
 	 *  @param end   The end of the range.
 	 */
-	Query(Query::op op_, Xapian::valueno valno,
+	Query(Query::op op_, Xapian::valueno slot,
 	      const std::string &begin, const std::string &end);
 
 	/** Construct a value comparison query on a document value.
 	 *
 	 *  This query matches those documents which have a value stored in the
-	 *  slot given by @a valno which compares, as specified by the
+	 *  slot given by @a slot which compares, as specified by the
 	 *  operator, to @a value.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
 	 *               be OP_VALUE_GE or OP_VALUE_LE.
-	 *  @param valno The slot number to get the value from.
+	 *  @param slot  The slot number to get the value from.
 	 *  @param value The value to compare.
 	 */
-	Query(Query::op op_, Xapian::valueno valno, const std::string &value);
+	Query(Query::op op_, Xapian::valueno slot, const std::string &value);
 
 	/** Construct an external source query.
 	 *
@@ -259,7 +298,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 *  query.
 	 */
 	TermIterator get_terms_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Test if the query is empty (i.e. was constructed using
@@ -445,12 +484,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	Internal(op_t op_, Xapian::termcount parameter);
 
 	/** Construct a range query on a document value. */
-	Internal(op_t op_, Xapian::valueno valno,
+	Internal(op_t op_, Xapian::valueno slot,
 		 const std::string &begin, const std::string &end);
 
 	/** Construct a value greater-than-or-equal query on a document value.
 	 */
-	Internal(op_t op_, Xapian::valueno valno, const std::string &value);
+	Internal(op_t op_, Xapian::valueno slot, const std::string &value);
 
 	/// Construct an external source query.
 	explicit Internal(Xapian::PostingSource * external_source_, bool owned);

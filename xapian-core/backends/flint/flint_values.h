@@ -72,7 +72,7 @@ class FlintValueTable : public FlintTable {
 	 *  @return The value if found, a null value otherwise.
 	 */
 	void get_value(string & value, Xapian::docid did,
-		       Xapian::valueno valueno) const;
+		       Xapian::valueno slot) const;
 
 	/** Get all values.
 	 *

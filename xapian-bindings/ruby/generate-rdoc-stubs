@@ -24,7 +24,10 @@ open INDEX, '<', "$dir/index.xml" or die $!;
 while (<INDEX>) {
     if (m!\bkind="(?:class|struct)".*><name>Xapian::(.+)</name>!) {
        my $class = $1;
-       if (exists $documented{$class}) {
+       if (exists $documented{$class} ||
+	   $class =~ /^Internal::/ ||
+	   $class =~ /::Internal$/ ||
+	   $class =~ /_$/) {
 	   next;
        }
        if (m!\brefid="(\w+)"!) {

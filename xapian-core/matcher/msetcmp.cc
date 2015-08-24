@@ -1,6 +1,7 @@
-/* msetcmp.cc - MSetItem comparison functions and functors.
- *
- * Copyright (C) 2006,2009 Olly Betts
+/** @file msetcmp.cc
+ * @brief MSetItem comparison functions and functors.
+ */
+/* Copyright (C) 2006,2009,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,10 +120,10 @@ static mset_cmp mset_cmp_table[] = {
     msetcmp_by_value_then_relevance<false, true>,
     msetcmp_by_value_then_relevance<true, true>,
     // Xapian::Enquire::Internal::REL_VAL
-    msetcmp_by_relevance_then_value<true, true>,
-    msetcmp_by_relevance_then_value<false, true>,
+    msetcmp_by_relevance_then_value<false, false>,
     msetcmp_by_relevance_then_value<true, false>,
-    msetcmp_by_relevance_then_value<false, false>
+    msetcmp_by_relevance_then_value<false, true>,
+    msetcmp_by_relevance_then_value<true, true>
 };
 
 mset_cmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bool sort_forward, bool sort_value_forward) {

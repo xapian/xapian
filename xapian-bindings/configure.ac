@@ -4,11 +4,11 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.2.3], [http://xapian.org/bugs])
+AC_INIT([xapian-bindings], [1.2.21], [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
-AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
+AM_INIT_AUTOMAKE([1.11.2 -Wportability tar-ustar no-dist-gzip dist-xz])
 AC_CONFIG_SRCDIR([xapian.i])
 
 AC_CONFIG_HEADERS([config.h])
@@ -22,13 +22,16 @@ dnl setting MACOSX_DEPLOYMENT_TARGET to at least 10.3 seems to be the
 dnl appropriate thing to do.  Most Mac OS X developers will have upgraded
 dnl from 10.1 and 10.2 by now anyhow.
 dnl
-dnl NB we must do this *BEFORE* AC_PROG_LIBTOOL since that is what checks
+dnl NB we must do this *BEFORE* LT_INIT since that is what checks
 dnl MACOSX_DEPLOYMENT_TARGET.
 AC_CANONICAL_HOST
 OVERRIDE_MACOSX_DEPLOYMENT_TARGET=
-NEED_JNILIB_EXT=no
-case $host_os in
-darwin*)
+case $host in
+*86*-darwin8*|*-darwin[[91]]*)
+  dnl On 10.5 or later, and 10.4 on x86, the deployment target defaults to the
+  dnl OS version, so we don't need to override on these.
+  ;;
+*-darwin*)
   case $MACOSX_DEPLOYMENT_TARGET in
   "")
     OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
@@ -36,7 +39,6 @@ darwin*)
     AC_MSG_WARN([Overriding MACOSX_DEPLOYMENT_TARGET from $MACOSX_DEPLOYMENT_TARGET to 10.3])
     OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
   esac
-  NEED_JNILIB_EXT=yes
   ;;
 esac
 AM_CONDITIONAL(OVERRIDE_MACOSX_DEPLOYMENT_TARGET, test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET")
@@ -44,7 +46,6 @@ AC_SUBST(OVERRIDE_MACOSX_DEPLOYMENT_TARGET)
 if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
   MACOSX_DEPLOYMENT_TARGET=$OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 fi
-AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
@@ -64,8 +65,9 @@ AC_SUBST(NO_UNDEFINED)
 dnl Checks for programs.
 AC_PROG_CXX
 
+# Checked: freebsd8.0 openbsd4.6 solaris2.9 solaris2.10
 case $host_os in
-  linux* | k*bsd*-gnu)
+  linux* | k*bsd*-gnu | freebsd* | openbsd* | solaris*)
     dnl Vanilla libtool sets this to "unknown" which it then handles as "yes".
     link_all_deplibs_CXX=no
     ;;
@@ -86,6 +88,38 @@ AC_LANG_CPLUSPLUS
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [], [xapian-config])
 
+NEED_JNILIB_EXT=no
+NEED_INTREE_DYLD=no
+INTREE_DYLD_PATH=
+case $host_os in
+darwin*)
+  NEED_JNILIB_EXT=yes
+  dnl If we're building against an uninstalled xapian-core, xapian-config
+  dnl --libs will give an error.
+  if $XAPIAN_CONFIG --libs >/dev/null 2>/dev/null ; then
+    :
+  else
+    NEED_INTREE_DYLD=yes
+    dnl $XAPIAN_LIBS may have some options first, so grab the last argument,
+    dnl which should be the .la file.
+    set x $XAPIAN_LIBS
+    as_fn_arith $# - 1
+    shift $as_val
+    INTREE_DYLD_PATH=$1
+    dnl Make sure the path is absolute.
+    case $INTREE_DYLD_PATH in
+      /*) ;;
+      *) INTREE_DYLD_PATH=`pwd`/$INTREE_DYLD_PATH ;;
+    esac
+    dnl Add .libs or equivalent.
+    INTREE_DYLD_PATH=`echo "$INTREE_DYLD_PATH"|sed 's,\(.*/\).*,\1,'`$lt_cv_objdir
+    AC_SUBST([INTREE_DYLD_PATH])
+  fi
+  ;;
+esac
+AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
+AM_CONDITIONAL(NEED_INTREE_DYLD, test yes = "$NEED_INTREE_DYLD")
+
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so add it to
 dnl CXXFLAGS for the duration of configure.
 save_CXXFLAGS=$CXXFLAGS
@@ -93,12 +127,12 @@ CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
 dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
-dnl COMPAT_VERSION also ignores any _svn6789 suffix which snapshots will have.
+dnl COMPAT_VERSION also ignores any _git123 suffix which snapshots will have.
 COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
 AC_SUBST(COMPAT_VERSION)
 
-dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
-VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_svn[0-9]*$//'`]
+dnl VERSION_NO_SNAPSHOT simply has any _git123 suffix removed.
+VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_.*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
 
 dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
@@ -112,6 +146,16 @@ AC_ARG_ENABLE(quiet,
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
   esac])
+
+dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
+dnl AC_SUBST-ed value like this allows the choice to be easily overridden
+dnl if you want to see exactly what make and libtool are up to - just run
+dnl make like this: `make QUIET='
+QUIET=
+if test yes = "$enable_quiet"; then
+  QUIET=--quiet
+fi
+AC_SUBST(QUIET)
 
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
@@ -138,20 +182,13 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.40 (SVN rev 11194):
+  dnl Check for new enough SWIG.
   dnl
-  dnl 1.3.30 produces class wrappers for PHP5
-  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments,
-  dnl memory leaks for PHP4 and PHP5, some problems with ZTS-enabled PHP builds
-  dnl (noted on Windows; Linux builds of PHP generally don't enable ZTS), and
-  dnl several other issues.
-  dnl 1.3.40 fixes Python 3.0.1 support and removes superfulous GIL locking to
-  dnl workaround mod_python problems.
+  dnl 2.0.5 avoids E_NOTICE from generating 'return $r;' when $r isn't set.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-    [1.3.[4-9][0-9]|1.[4-9].*|2.*]) ;;
-    *)
-      msg="SWIG >= 1.3.40 (SVN rev 11194 or later) required (you have ${v:-an unknown version})"
+    [[01].*|2.0.[0-4]|""])
+      msg="SWIG >= 2.0.5 (commit 210266c) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
@@ -166,7 +203,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
   dnl Need python in maintainer mode to run doxy2swig.py.
-  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
+  AC_PATH_PROGS(PYTHON, ["${PYTHON-python2 python}"], [])
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
@@ -205,7 +242,12 @@ AC_ARG_WITH(perl,
   [],
   [with_perl=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl in
+AC_ARG_WITH(lua,
+  AC_HELP_STRING([--with-lua], [enable Lua bindings]),
+  [],
+  [with_lua=])
+
+case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -215,6 +257,7 @@ case $with_python$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl in
   test -z "$with_java" && with_java=no
   test -z "$with_ruby" && with_ruby=no
   test -z "$with_perl" && with_perl=no
+  test -z "$with_lua" && with_lua=no
   ;;
 esac
 
@@ -222,7 +265,7 @@ BINDINGS=
 
 if test no != "$with_python" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
+  AC_PATH_PROGS(PYTHON, ["${PYTHON-python2 python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
     dnl Require Python 2.3 or newer.  It's now > 4.5 years since the last
@@ -230,7 +273,15 @@ if test no != "$with_python" ; then
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[3-9]*|2.[12][0-9][0-9]*|[3-9].*])
+    [2.[3-9]*|2.[12][0-9][0-9]*])
+      AC_MSG_RESULT([$version])
+      ;;
+    [[3-9].*])
+      AC_MSG_RESULT([$version (too new - only Python 2 is supported by Xapian 1.2.x)])
+      if test yes = "$with_python" ; then
+	AC_MSG_ERROR([Only Python 2 is supported by Xapian 1.2.x ($python is $version)])
+      fi
+      PYTHON=
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
@@ -240,7 +291,6 @@ if test no != "$with_python" ; then
       PYTHON=
       ;;
     esac
-    AC_MSG_RESULT([$version])
     if test -n "$PYTHON" ; then
       if $PYTHON -c 'import distutils.sysconfig' 2>/dev/null ; then
 	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print(distutils.sysconfig.get_python_inc().replace(os.sep,"/"))'`
@@ -378,10 +428,17 @@ if test no != "$with_php" ; then
       if test yes != "$PHP_found" ; then
 	dnl Try phpN then php.  If the PHP interpreter can't be found, skip the
 	dnl PHP bindings tests.
-	AC_PATH_PROGS(PHP, [php$PHP_MAJOR_VERSION php], [\$(top_srcdir)/skiptest])
+	AC_PATH_PROGS(PHP, [php$PHP_MAJOR_VERSION php], [])
       fi
       if test -z "$PHP" ; then
 	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
+	dnl The skiptest script just returns exit code 77.
+	PHP='$(top_srcdir)/skiptest'
+      else
+	AC_MSG_CHECKING([for PHP path separator])
+	PHP_PATH_SEPARATOR=`$PHP -r 'echo PATH_SEPARATOR;'`
+	AC_SUBST([PHP_PATH_SEPARATOR])
+	AC_MSG_RESULT([$PHP_PATH_SEPARATOR])
       fi
 
       case $host_os in
@@ -419,51 +476,74 @@ if test no != "$with_tcl" ; then
       fi
       AC_SUBST(TCL_LIB)
 
-      dnl There's no obvious way to get "/usr/include/tcl8.N" directly, so
-      dnl first we find the prefix Tcl is installed under (e.g. "/usr") from
-      dnl the path on TCLSH (or default to /usr if the path doesn't contain
-      dnl "/bin/"), and then we add "/include/tcl" and $tcl_version.
-      tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
-      test -n "$tcl_prefix" || tcl_prefix=/usr
-      TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
+      AC_ARG_VAR([TCL_INC], [Directory to include for Tcl headers])
+      if test -z "$TCL_INC" ; then
+	dnl ::tcl::pkgconfig was added in Tcl 8.5.
+	[TCL_INC=`echo 'puts [::tcl::pkgconfig get includedir,runtime]'|$TCLSH 2> /dev/null`]
+	if test -z "$TCL_INC" ; then
+	  dnl Prior to Tcl 8.5, there's no good way to get
+	  dnl "/usr/include/tcl8.N" directly - tclConfig.sh contains it, but
+	  dnl there's no reliable way to locate that prior to Tcl 8.5!
+	  dnl
+	  dnl So first we find the prefix Tcl is installed under (e.g. "/usr")
+	  dnl from the path on TCLSH (or default to /usr if the path doesn't
+	  dnl contain "/bin/"), and then we append "/include/tcl" and
+	  dnl $tcl_version.
+	  tcl_prefix=`echo "$TCLSH"|sed 's!/bin/.*!!p;d'`
+	  test -n "$tcl_prefix" || tcl_prefix=/usr
+	  TCL_INC=${tcl_prefix}/include/tcl${tcl_version}
+	  test -f "$TCL_INC/tcl.h" || TCL_INC=/usr/include
+	fi
+      fi
 
       dnl Check that the headers are there (the tcl8.N-dev package
       dnl may not be installed).
       TCL_CPPFLAGS=
       AC_MSG_CHECKING([for tcl.h for version $tcl_version])
       if test -f "$TCL_INC/tcl.h" ; then
-	AC_MSG_RESULT([$TCL_INC/tcl.h])
-	BINDINGS="$BINDINGS tcl8"
-	TCL_CPPFLAGS="-I$TCL_INC"
-      elif test -f "/usr/include/tcl.h" ; then
-	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h`
-	if test x"$tcl_hdr_version" = x'"'"$tcl_version"'"' ; then
-	  AC_MSG_RESULT([/usr/include/tcl.h])
+	tcl_hdr_version=`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' "$TCL_INC/tcl.h"|sed 's/"//g'`
+	if test x"$tcl_hdr_version" = x"$tcl_version" ; then
+	  AC_MSG_RESULT([$TCL_INC/tcl.h])
 	  BINDINGS="$BINDINGS tcl8"
+	  if test x"$TCL_INC" != x"/usr/include" ; then
+	    TCL_CPPFLAGS="-I$TCL_INC"
+	  fi
 	else
 	  AC_MSG_RESULT([not found])
 	  if test yes = "$with_tcl" ; then
-	    AC_MSG_ERROR([Can't find tcl.h for version $tcl_version])
+	    AC_MSG_ERROR([Found tcl.h for version $tcl_hdr_version, not $tcl_version])
 	  fi
+	  TCLSH=
 	fi
       else
 	AC_MSG_RESULT([not found])
 	if test yes = "$with_tcl" ; then
 	  AC_MSG_ERROR([Can't find tcl.h])
 	fi
+	TCLSH=
       fi
 
-      dnl Cygwin needs to link with -ltcl8.5 or similar.
-      TCL_LIBS=
-      case $host_os in
-      cygwin*)
-	AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
-		     [TCL_LIBS="-ltcl$tcl_version"],
-		     [AC_MSG_ERROR([libtcl$tcl_version not found])])
-	;;
-      *)
-	TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
-      esac
+      if test -n "$TCLSH" ; then
+	dnl Cygwin needs to link with -ltcl8.5 or similar.
+	TCL_LIBS=
+	case $host_os in
+	cygwin*)
+	  AC_CHECK_LIB([tcl$tcl_version], [Tcl_Init],
+		       [TCL_LIBS="-ltcl$tcl_version"],
+		       [AC_MSG_ERROR([libtcl$tcl_version not found])])
+	  ;;
+	*)
+	  dnl ::tcl::pkgconfig was added in Tcl 8.5, but prior to 8.6 it isn't
+	  dnl necessary to link against -ltclstub anyway.
+	  [TCLCONFIG_SH=`echo 'puts [file join [::tcl::pkgconfig get libdir,runtime] tclConfig.sh]'|$TCLSH 2> /dev/null`]
+	  if test -n "$TCLCONFIG_SH" && test -r "$TCLCONFIG_SH" ; then
+	    eval "`grep ^TCL_STUB_LIB_SPEC= $TCLCONFIG_SH`"
+	    TCL_LIBS=$TCL_STUB_LIB_SPEC
+	  fi
+	  TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
+	esac
+      fi
+
       AC_SUBST(TCL_CPPFLAGS)
       AC_SUBST(TCL_LIBS)
     else
@@ -486,30 +566,14 @@ if test no != "$with_csharp" ; then
     AC_PATH_PROGS(CSC, ["$CSC"], [])
   fi
   if test -z "$CSC" ; then
-    dnl gmcs is the newer name for the Mono CSharp compiler.
-    dnl cscc is the Portable.NET CSharp compiler.
-    AC_PATH_PROGS(CSC, [gmcs cscc], [])
+    dnl First we try cli-csc and mono-csc, which are used by Debian and Ubuntu
+    dnl as "alternatives" which can be mapped to the CSharp compiler the admin
+    dnl favours.
+    AC_PATH_PROGS(CSC, [cli-csc mono-csc], [])
     if test -z "$CSC" ; then
-      dnl csc is the Microsoft CSharp compiler.
-      AC_PATH_PROGS(CSC, [csc], [])
-      if test -n "$CSC" ; then
-	dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
-	dnl check if the output from "csc -version" includes the word chicken
-	dnl which is sufficient to distinguish Chicken's csc from Microsoft's
-	dnl csc.exe.
-	AC_MSG_CHECKING([whether $CSC is for CSharp])
-	csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
-	if test -z "$csc_tmp" ; then
-	  AC_MSG_RESULT(yes)
-	else
-	  AC_MSG_RESULT(no)
-	  CSC=
-	  csc_note="$csc_note (found Chicken csc program)"
-	fi
-      fi
-    fi
-    if test -z "$CSC" ; then
-      dnl mcs is the Mono CSharp compiler.
+      dnl mcs is the Mono CSharp compiler, which is a unified compiler
+      dnl available from Mono 2.11 (and also the compiler in Mono 1.0, but
+      dnl that's no longer relevant).
       AC_PATH_PROGS(CSC, [mcs], [])
       if test -n "$CSC" ; then
 	dnl There are other tools called mcs (such as /usr/bin/mcs on Tru64),
@@ -525,16 +589,50 @@ if test no != "$with_csharp" ; then
 	fi
       fi
     fi
+    if test -z "$CSC" ; then
+      dnl gmcs, smcs, and dmcs are versions of the Mono CSharp compiler
+      dnl targeting various runtime versions, deprecated in favour of mcs
+      dnl (checked for above) as of Mono 2.11.
+      dnl
+      dnl cscc is the Portable.NET CSharp compiler.
+      AC_PATH_PROGS(CSC, [dmcs smcs gmcs cscc], [])
+    fi
+    if test -z "$CSC" ; then
+      dnl csc is the Microsoft CSharp compiler.
+      AC_PATH_PROGS(CSC, [csc], [])
+      if test -n "$CSC" ; then
+	dnl Chicken (the Scheme-to-C compiler) includes a tool called csc so we
+	dnl check if the output from "csc -version" includes the word chicken
+	dnl which is sufficient to distinguish Chicken's csc from Microsoft's
+	dnl csc.exe.
+	AC_MSG_CHECKING([whether $CSC is for CSharp])
+	if $CSC -version 2>/dev/null|grep chicken > /dev/null ; then
+	  AC_MSG_RESULT(no)
+	  CSC=
+	  csc_note="$csc_note (found Chicken csc program)"
+	else
+	  AC_MSG_RESULT(yes)
+	fi
+      fi
+    fi
   fi
 
   if test -n "$CSC" ; then
-    AC_PATH_PROGS(GACUTIL, ["${GACUTIL-gacutil}"], [])
-    if test -z "$GACUTIL" ; then
-      AC_PATH_PROGS(GACUTIL, [ilgac], [])
-    fi
-    AC_PATH_PROGS(SN, ["${SN-sn}"], [])
     AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
+    if test -n "$GACUTIL" ; then
+      AC_PATH_PROGS(GACUTIL, ["$GACUTIL"], [])
+    fi
+    if test -z "$GACUTIL" ; then
+      AC_PATH_PROGS(GACUTIL, [cli-gacutil gacutil ilgac], [])
+    fi
+
     AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
+    if test -n "$SN" ; then
+      AC_PATH_PROGS(SN, ["$SN"], [])
+    fi
+    if test -z "$SN" ; then
+      AC_PATH_PROGS(SN, [cli-sn sn], [])
+    fi
     if test -z "$SN" ; then
       case $GACUTIL in
       dnl Portable.net doesn't support strong naming yet and ilgac doesn't
@@ -560,7 +658,7 @@ if test no != "$with_csharp" ; then
 	  AC_ARG_VAR(MONO, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
 	  if test -n "$MONO" ; then
 	    AC_MSG_CHECKING([whether $MONO can run CSharp programs])
-	    if OK = "`$MONO ./conftest.exe 2> /dev/null`" ; then
+	    if test OK = "`$MONO ./conftest.exe 2> /dev/null`" ; then
 	      AC_MSG_RESULT(yes)
 	      RUN_CSHARP=mono
 	    else
@@ -573,6 +671,23 @@ if test no != "$with_csharp" ; then
 	  fi
 	fi
 	AC_SUBST(RUN_CSHARP)
+
+	AC_MSG_CHECKING([for extra flags for $GACUTIL])
+	GACUTIL_FLAGS='/package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)'
+	case $GACUTIL in
+	*ilgac*) ;;
+	*)
+	  dnl Microsoft's gacutil accepts fewer options than Mono's
+	  $GACUTIL /\?|grep '\<Mono\>' >/dev/null || GACUTIL_FLAGS=
+	  ;;
+	esac
+	AC_SUBST([GACUTIL_FLAGS])
+	if test -z "$GACUTIL_FLAGS" ; then
+	  AC_MSG_RESULT([no])
+	else
+	  AC_MSG_RESULT([$GACUTIL_FLAGS])
+	fi
+
 	BINDINGS="$BINDINGS csharp"
       else
 	AC_MSG_RESULT(no)
@@ -615,20 +730,34 @@ if test no != "$with_java" ; then
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
     dnl
     dnl So checking for jni.h presumably implicitly checks we have "Java 2".
-    dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems).
-    dnl So we could check for that if we want to check for a particular
+    dnl Note: jni.h #defines JNI_VERSION_1_[1246] (but not 3 or 5 it seems).
+    dnl So we could check for one of these if we want to check for a particular
     dnl JDK version...
     java_ok=no
     AC_CHECK_HEADER([jni.h], [java_ok=yes], [
       dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
-      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, we jni.h lives
+      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
-      for jnidir in $JNI_INCLUDE_DIR ${JAVA_HOME+"$JAVA_HOME/include"} ${JDK_HOME+"$JDK_HOME/include"} /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do
+      real_javac=$JAVAC
+      dnl Avoid endlessly traversing if there's a symlink loop.
+      for count in 1 2 3 4 5 6 7 8 9 ; do
+	r=`readlink "$real_javac"`
+	test -n "$r" || break
+	real_javac=$r
+      done
+      dnl Translate ".../bin/javac" to ".../include".
+      [rel_jnidir=`echo "$real_javac"|sed 's!/[^/]*/[^/]*$!/include!'`]
+      for jnidir in \
+	  $JNI_INCLUDE_DIR \
+	  ${JAVA_HOME+"$JAVA_HOME/include"} \
+	  ${JDK_HOME+"$JDK_HOME/include"} \
+	  "$rel_jnidir" \
+	  /System/Library/Frameworks/JavaVM.framework/Headers ; do
 	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
 	AC_MSG_CHECKING([for jni.h in $jnidir])
 	if test -f "$jnidir/jni.h" ; then
-	  AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
 	  if test yes = $java_ok ; then
 	    AC_MSG_RESULT([yes])
 	    JAVA_CPPFLAGS=-I$jnidir
@@ -649,7 +778,7 @@ if test no != "$with_java" ; then
 	  esac
 	  if test -n "$jni_host_os" ; then
 	    CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
-	    AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	    AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <jni.h>]])], [java_ok=yes])
 	    if test yes = $java_ok ; then
 	      AC_MSG_RESULT([yes, requires additional -I$jnidir/$jni_host_os])
 	      JAVA_CPPFLAGS="-I$jnidir -I$jnidir/$jni_host_os"
@@ -717,13 +846,19 @@ if test no != "$with_ruby" ; then
     dnl Brief testing with Ruby 1.6.8 show the bindings probably work there,
     dnl but smoketest.rb doesn't because the test/unit module isn't available.
     AC_MSG_CHECKING([$RUBY version])
-    version=`$RUBY --version 2>/dev/null`
+    dnl RUBY_VERSION works with 1.6.  Once we've checked we have at least 1.8
+    dnl we can safely use RbConfig below (RbConfig requires Ruby 1.8; Config
+    dnl gives a deprecation warning with Ruby 1.9.3).
+    version=`$RUBY -e 'print RUBY_VERSION' 2>/dev/null`
     case $version in
-    [ruby\ 1.[89]*]) ;; # Ruby 1.8, 1.9
-    [ruby\ 1.[1-9][0-9]*]) ;; # Ruby 1.10+
-    [ruby\ [2-9]*]) ;; # Ruby 2-Ruby 9
-    [ruby\ 1[0-9]*]) ;; # Ruby 10+
-    *)
+    "")
+      AC_MSG_RESULT([\$RUBY -e 'print RUBY_VERSION' didn't work])
+      if test yes = "$with_ruby" ; then
+	AC_MSG_ERROR([Working Ruby interpreter not found])
+      fi
+      RUBY=
+      ;;
+    [0.*|1.[0-7]|1.[0-7].*])
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
 	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($RUBY is $version)])
@@ -736,7 +871,7 @@ if test no != "$with_ruby" ; then
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
       if test -z "$RUBY_INC" ; then
 	dnl Ruby 1.9 added rubyhdrdir; for older Ruby we use archdir.
-	[RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG["rubyhdrdir"] || Config::CONFIG["archdir"]'`]
+	[RUBY_INC=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["rubyhdrdir"] || RbConfig::CONFIG["archdir"]'`]
       fi
       AC_SUBST(RUBY_INC)
       dnl Check that ruby.h is there, which is a good way to check that
@@ -745,10 +880,15 @@ if test no != "$with_ruby" ; then
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
 
-	AC_MSG_CHECKING([ruby/io.h])
+	AC_MSG_CHECKING([for ruby/io.h])
 	rm -f ruby/rubyio.h
 	if test -f "$RUBY_INC/ruby/io.h" ; then
 	  AC_MSG_RESULT(yes)
+
+	  dnl In a VPATH build, the ruby subdirectory won't exist the first
+	  dnl time.
+	  test -d ruby || mkdir ruby
+
 	  dnl Newer Ruby has ruby/io.h - older has rubyio.h.  Ruby doesn't
 	  dnl seem to provide any way to generate code which works with
 	  dnl both (and even the version number isn't a discriminator as
@@ -763,29 +903,31 @@ if test no != "$with_ruby" ; then
 
 	AC_ARG_VAR(RUBY_INC_ARCH, [Directory where ruby/config.h can be found (needed from Ruby 1.9)])
 	if test -z "$RUBY_INC_ARCH" ; then
-	  dnl Ruby 1.9 requires this.
-	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = Config::CONFIG["rubyhdrdir"];if d != nil; print d + "/" + Config::CONFIG["arch"]; end'`]
-	  dnl For earlier versions, just make it the same as RUBY_INC.
+	  dnl Ruby 2.0 and later Ruby 1.9 have rubyarchhdrdir; for early 1.9,
+	  dnl use rubyhdrdir+"/"+arch.
+	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = RbConfig::CONFIG["rubyhdrdir"]; print RbConfig::CONFIG["rubyarchhdrdir"] || (d ? d + "/" + RbConfig::CONFIG["arch"] : "")'`]
+	  dnl Ruby 1.8 has no rubyhdrdir, so set RUBY_INC_ARCH=RUBY_INC.
 	  test x"$RUBY_INC_ARCH" != x || RUBY_INC_ARCH=$RUBY_INC
 	fi
 	AC_SUBST(RUBY_INC_ARCH)
 
 	AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
 	if test -z "$RUBY_LIB" ; then
-	  [RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitelibdir"]'`]
+	  [RUBY_LIB=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["sitelibdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB)
 
 	AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
 	if test -z "$RUBY_LIB_ARCH" ; then
-	  [RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG["sitearchdir"]'`]
+	  [RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["sitearchdir"]'`]
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
 
 	RUBY_LIBS=
-	case $host_os in
-	cygwin*) RUBY_LIBS=-lruby ;;
-	esac
+	if test unsupported = "$allow_undefined_flag" ; then
+	  dnl For Microsoft Windows and a few other platforms.
+	  [RUBY_LIBS=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["LIBRUBYARG"]'`]
+	fi
 	AC_SUBST(RUBY_LIBS)
 
 	if test yes = "$enable_documentation" ; then
@@ -809,7 +951,7 @@ if test no != "$with_ruby" ; then
 	  AC_MSG_ERROR([ruby.h not found])
 	fi
       fi
-      RUBY_DLEXT=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["DLEXT"]]'`
+      RUBY_DLEXT=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG[["DLEXT"]]'`
       AC_SUBST(RUBY_DLEXT)
     fi
   fi
@@ -821,31 +963,33 @@ if test no != "$with_perl" ; then
   if test -n "$PERL" ; then
     AC_ARG_VAR(PERL_INC, [Directory to include for XSUB,h and other Perl API headers])
     if test -z "$PERL_INC" ; then
-      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE";'`
+      PERL_INC=`$PERL -MConfig -e 'print $Config{archlibexp}, "/CORE"'`
     fi
     AC_SUBST(PERL_INC)
 
     AC_ARG_VAR(PERL_ARCH, [Directory to install architecture-dependent perl files into])
     if test -z "$PERL_ARCH" ; then
-      PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch};'`
+      PERL_ARCH=`$PERL -MConfig -e 'print $Config{installsitearch}'`
     fi
     AC_SUBST(PERL_ARCH)
 
     AC_ARG_VAR(PERL_LIB, [Directory to install architecture-independent perl files into])
     if test -z "$PERL_LIB" ; then
-      PERL_LIB=`$PERL -MConfig -e 'print $Config{installsitelib};'`
+      PERL_LIB=`$PERL -MConfig -e 'print $Config{installsitelib}'`
     fi
     AC_SUBST(PERL_LIB)
 
     AC_ARG_VAR(PERL_SO, [for perl module extension])
     if test -z "$PERL_SO" ; then
-      PERL_SO=`$PERL -MConfig -e 'print ".", $Config{'dlext'};'`
+      PERL_SO=`$PERL -MConfig -e 'print ".", $Config{dlext}'`
     fi
     AC_SUBST(PERL_SO)
 
     if test -z "$PERL_XAPIAN_VERSION" ; then
-      dnl snapshot versions are like: 1.2.3_svn14971
+      dnl snapshot versions look like 1.2.3_git123 or 1.2.3_svn14971
       case $PACKAGE_VERSION in
+      *_git*)
+	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_git/./'` ;;
       *_svn*)
 	PERL_XAPIAN_VERSION=`echo "$PACKAGE_VERSION"|sed 's/_svn/./'` ;;
       *)
@@ -858,6 +1002,119 @@ if test no != "$with_perl" ; then
   else
     if test yes = "$with_perl" ; then
       AC_MSG_ERROR([perl not found])
+    fi
+  fi
+fi
+
+if test no != "$with_lua" ; then
+  AC_PATH_PROGS(LUA, ["${LUA-lua}"], [])
+  AC_ARG_VAR(LUA, [lua interpreter])
+  if test -n "$LUA" ; then
+    dnl We need Lua 5.1 or later.
+    AC_MSG_CHECKING([$LUA version])
+    lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`
+
+    case $lua_version in
+    [[01234]].*|5.0|5.0.*)
+      AC_MSG_RESULT([$lua_version < 5.1 (too old)])
+      if test yes = "$with_lua" ; then
+        AC_MSG_ERROR([$LUA too old (Lua 5.1 or newer required)])
+      fi
+      LUA=
+      ;;
+    "")
+      AC_MSG_RESULT([\$LUA -e 'print(_VERSION)' | cut -f 2 -d ' ' didn't work])
+
+      if test yes = "$with_lua" ; then
+        AC_MSG_ERROR([Working Lua interpreter not found])
+      fi
+      LUA=
+      ;;
+    esac
+
+    if test -n "$LUA" ; then
+      AC_MSG_RESULT([$lua_version])
+
+      AC_ARG_VAR([LUA_LIB], [Directory to install compiled Lua modules into])
+      AC_ARG_VAR([LUA_SO], [Extension for compiled Lua modules (e.g. LUA_SO=.so)])
+      AC_MSG_CHECKING([for directory to install compiled Lua modules into])
+      if test -z "$LUA_LIB" -o -z "$LUA_SO" ; then
+	lua_cpath=`$LUA -e 'require("package") print(package.cpath)'`
+	dnl Look for the first absolute path in lua_cpath which has leaf
+	dnl "?.<ext>" and put the directory part into lua_lib and <ext> into
+	dnl lua_so.  If LUA_SO was specified by the user, only consider
+	dnl entries where <ext> matches LUA_SO.
+	lua_lib=
+	lua_so=
+	case $LUA_SO in
+	  "")
+	   [lua_so_pat='[a-zA-Z][a-zA-Z]*'] ;;
+	  .*)
+	    dnl If LUA_SO has a leading '.', remove it.
+	    lua_so_pat=`AS_ECHO("$LUA_SO")|sed 's/^\.//'` ;;
+	  *)
+	    dnl If LUA_SO was specified without a leading '.', add one to the
+	    dnl value substituted into Makefile.in.
+	    lua_so_pat=$LUA_SO
+	    LUA_SO=.$LUA_SO
+	    ;;
+	esac
+	while test x"$lua_cpath" != x ; do
+	  [lua_lib=`expr X"$lua_cpath" : X'\([^;]*\)'`]
+	  lua_so=.`expr X"$lua_lib" : X'/.*/?\.\('"$lua_so_pat"'\)$'`
+	  case $lua_so in
+	    .|.lua)
+	      dnl If someone has foolishly put ?.lua in cpath, ignore them.
+	      lua_lib=
+	      ;;
+	    *)
+	      lua_lib=`expr X"$lua_lib" : X'\(/.*\)/?\.'"$lua_so_pat"'$'`
+	      break ;;
+	  esac
+	  [lua_cpath=`expr X"$lua_cpath" : X'[^;]*;*\(.*\)'`]
+	done
+	test -n "$LUA_LIB" || LUA_LIB=$lua_lib
+	test -n "$LUA_SO" || LUA_SO=$lua_so
+      fi
+      if test -z "$LUA_LIB"; then
+	AC_MSG_RESULT([not found])
+      else
+	AC_MSG_RESULT([$LUA_LIB])
+      fi
+      AC_SUBST([LUA_LIB])
+
+      AC_MSG_CHECKING([for extension to use for compiled Lua modules])
+      if test -z "$LUA_SO"; then
+	AC_MSG_RESULT([not found])
+      else
+	AC_MSG_RESULT([$LUA_SO])
+      fi
+      AC_SUBST([LUA_SO])
+
+      AC_MSG_CHECKING([for Lua header files])
+      AC_ARG_VAR([LUA_INC], [Directory to include for lua headers])
+      if test -z "$LUA_INC" ; then
+        dirs="/usr/include/lua$lua_version /usr/local/include/lua$lua_version"
+        for i in $dirs ; do
+          if test -r "$i/lua.h"; then
+            LUA_INC=$i
+            break
+          fi
+        done
+      fi
+
+      if test -z "$LUA_INC" ; then
+        AC_MSG_RESULT([not found])
+      else
+        AC_MSG_RESULT([$LUA_INC])
+        BINDINGS="$BINDINGS lua"
+        LUA_CPPFLAGS="-I$LUA_INC"
+      fi
+      AC_SUBST([LUA_CPPFLAGS])
+    fi
+  else
+    if test yes = "$with_lua" ; then
+      AC_MSG_ERROR([lua not found])
     fi
   fi
 fi
@@ -951,7 +1208,7 @@ AC_SUBST([AUTOM4TE])
 
 AC_CONFIG_FILES([Makefile
  xapian-version.h
- python/Makefile
+ python/Makefile python/version.i
  php/Makefile
  java/Makefile java/native/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
@@ -960,6 +1217,7 @@ AC_CONFIG_FILES([Makefile
  csharp/Makefile csharp/AssemblyInfo.cs
  ruby/Makefile
  perl/Makefile perl/util.i
+ lua/Makefile
  xapian-bindings.spec
  ])
 AC_OUTPUT
@@ -979,6 +1237,13 @@ else
 fi
 echo ""
 if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
+  release_series=[`echo "$COMPAT_VERSION"|sed 's/[0-9][0-9]*$//'`]
+  case $XAPIAN_VERSION in
+  $release_series*) ;;
+  *)
+    AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} which is from a different release series to bindings $PACKAGE_VERSION, so they aren't compatible.])
+    ;;
+  esac
   dnl 0.8.2 was the first version which set XAPIAN_VERSION
   AC_MSG_WARN([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION - we strongly recommend using matching versions.])
 fi

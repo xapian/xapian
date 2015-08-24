@@ -82,7 +82,7 @@ class MapTermList : public TermList {
 		started = true;
 	    } else {
 		Assert(!at_end());
-		it++;
+		++it;
 	    }
 	    return NULL;
 	}

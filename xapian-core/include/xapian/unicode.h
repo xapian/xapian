@@ -1,7 +1,7 @@
 /** @file unicode.h
  * @brief Unicode and UTF-8 related classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,6 +126,10 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
     /** Get the current Unicode character value pointed to by the iterator.
      *
+     *  If an invalid UTF-8 sequence is encountered, then the byte values
+     *  comprising it are returned until valid UTF-8 or the end of the input is
+     *  reached.
+     *
      *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
      */
     unsigned operator*() const;
@@ -159,12 +163,14 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
     /** Test two Utf8Iterators for equality.
      *
+     *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators point to the same position.
      */
     bool operator==(const Utf8Iterator &other) const { return p == other.p; }
 
     /** Test two Utf8Iterators for inequality.
      *
+     *  @param other	The Utf8Iterator to compare this one with.
      *  @return true iff the iterators do not point to the same position.
      */
     bool operator!=(const Utf8Iterator &other) const { return p != other.p; }
@@ -217,24 +223,26 @@ typedef enum {
 } category;
 
 namespace Internal {
-    /** @internal Extract the information about a character from the Unicode
-     *  character tables.
+    /** @private @internal Extract the information about a character from the
+     *  Unicode character tables.
      *
      *  ch must be a valid Unicode character value (i.e. < 0x110000)
      */
     XAPIAN_VISIBILITY_DEFAULT
     int get_character_info(unsigned ch);
 
-    /** @internal Extract how to convert the case of a Unicode character from
-     *  its info.
+    /** @private @internal Extract how to convert the case of a Unicode
+     *  character from its info.
      */
     inline int get_case_type(int info) { return ((info & 0xe0) >> 5); }
 
-    /// @internal Extract the category of a Unicode character from its info.
+    /** @private @internal Extract the category of a Unicode character from its
+     *  info.
+     */
     inline category get_category(int info) { return static_cast<category>(info & 0x1f); }
 
-    /** @internal Extract the delta to use for case conversion of a character
-     *  from its info.
+    /** @private @internal Extract the delta to use for case conversion of a
+     *  character from its info.
      */
     inline int get_delta(int info) {
 	/* It's implementation defined if sign extension happens on right shift
@@ -242,7 +250,16 @@ namespace Internal {
 	 * spot this and optimise it to a sign-extending shift on architectures
 	 * with a suitable instruction).
 	 */
+#ifdef __GNUC__
+	// GCC 4.7.1 doesn't optimise the more complex expression down
+	// (reported as http://gcc.gnu.org/PR55299), but the documented
+	// behaviour for GCC is that right shift of a signed integer performs
+	// sign extension:
+	// http://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Integers-implementation.html
+	return info >> 15;
+#else
 	return (info >= 0) ? (info >> 15) : (~(~info >> 15));
+#endif
     }
 }
 
@@ -250,20 +267,22 @@ namespace Internal {
  *
  *  This is intended mainly as a helper method for to_utf8().
  *
- *  The character @a ch (which must be > 128) is written to the buffer @a buf
- *  and the length of the resultant UTF-8 character is returned.
+ *  @param ch	The character (which must be > 128) to write to @a buf.
+ *  @param buf	The buffer to write the character to - it must have
+ *		space for (at least) 4 bytes.
  *
- *  NB buf must have space for (at least) 4 bytes.
+ *  @return	The length of the resultant UTF-8 character in bytes.
  */
 XAPIAN_VISIBILITY_DEFAULT
 unsigned nonascii_to_utf8(unsigned ch, char * buf);
 
 /** Convert a single Unicode character to UTF-8.
  *
- *  The character @a ch is written to the buffer @a buf and the length of the
- *  resultant UTF-8 character is returned.
+ *  @param ch	The character to write to @a buf.
+ *  @param buf	The buffer to write the character to - it must have
+ *		space for (at least) 4 bytes.
  *
- *  NB buf must have space for (at least) 4 bytes.
+ *  @return	The length of the resultant UTF-8 character in bytes.
  */
 inline unsigned to_utf8(unsigned ch, char *buf) {
     if (ch < 128) {

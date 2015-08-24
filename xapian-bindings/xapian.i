@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,9 +41,6 @@ using namespace std;
 // other Xapian headers.
 %include <xapian/visibility.h>
 
-// Kill the macro magic for deprecation warnings.
-#define XAPIAN_DEPRECATED()
-
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path.
 %include "util.i"
@@ -55,8 +52,8 @@ using namespace std;
 
 // In C#, we wrap ++ and -- as ++ and --.
 #ifdef SWIGCSHARP
-#define NEXT(RET, CLASS) CLASS & next() { return ++(*self); }
-#define PREV(RET, CLASS) CLASS & prev() { return --(*self); }
+#define NEXT(RET, CLASS) CLASS next() { return ++(*self); }
+#define PREV(RET, CLASS) CLASS prev() { return --(*self); }
 #elif defined SWIGJAVA
 #define NEXT(RET, CLASS) RET next() { return *(++(*self)); }
 #define PREV(RET, CLASS) RET prev() { return *(--(*self)); }
@@ -158,6 +155,8 @@ class TermIterator {
 
     Xapian::termcount get_wdf() const;
     Xapian::doccount get_termfreq() const;
+
+    Xapian::termcount positionlist_count() const;
 
     // allow iteration of positionlist for current document
     PositionIterator positionlist_begin();
@@ -352,8 +351,10 @@ class MatchDecider {
  * directors be supported.  So we only wrap ExpandDecider for languages which
  * support directors. */
 
-#ifdef XAPIAN_SWIG_DIRECTORS
+#if defined XAPIAN_SWIG_DIRECTORS || defined SWIGLUA
+# ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") ExpandDecider;
+# endif
 class ExpandDecider {
   public:
     virtual bool operator() (const string &term) const = 0;
@@ -423,11 +424,17 @@ class Enquire {
 		  const RSet *omrset,
 		  const MatchDecider *mdecider = 0) const;
 
-#ifdef XAPIAN_SWIG_DIRECTORS
+#if defined XAPIAN_SWIG_DIRECTORS || defined SWIGLUA
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
+    ESet get_eset(termcount maxitems,
+	    const RSet & omrset,
+	    int flags,
+	    double k,
+	    const ExpandDecider *edecider,
+	    Xapian::weight min_wt) const;
     ESet get_eset(termcount maxitems, const RSet & omrset, const Xapian::ExpandDecider * edecider) const;
 #else
     ESet get_eset(termcount maxitems,
@@ -531,7 +538,7 @@ class Database {
 	Xapian::termcount get_wdf_upper_bound(const std::string & term) const;
 	ValueIterator valuestream_begin(Xapian::valueno slot) const;
 	ValueIteratorEnd_ valuestream_end(Xapian::valueno) const;
-	doclength get_doclength(docid docid) const;
+	Xapian::termcount get_doclength(docid docid) const;
 	void keep_alive();
 	Document get_document(docid did);
 	std::string get_spelling_suggestion(const std::string &word,
@@ -547,6 +554,7 @@ class Database {
 	Xapian::TermIterator metadata_keys_end(const std::string &prefix = "") const;
 	std::string get_uuid() const;
 
+	bool has_positions() const;
 };
 
 class WritableDatabase : public Database {
@@ -591,13 +599,8 @@ class WritableDatabase : public Database {
 %constant int DB_OPEN = Xapian::DB_OPEN;
 
 // Database factory functions:
-
 #if !defined SWIGCSHARP && !defined SWIGJAVA
 namespace Auto {
-#ifdef SWIGPHP
-    /* PHP lacks namespaces so fake them. */
-    %rename(auto_open_stub) open_stub;
-#endif
     Database open_stub(const string & file);
 }
 
@@ -734,12 +737,9 @@ class Remote {
 
 // xapian/query.h:
 
-#ifdef SWIGPHP
-%apply int { Xapian::Query::op };
-#endif
-#ifndef SWIGTCL
-// FIXME: wrap MatchAll and MatchNothing for other languages(except for Python,
-// which wraps them in a different way).
+#if !defined SWIGTCL && !defined SWIGLUA && !defined SWIGPHP
+// FIXME: wrap MatchAll and MatchNothing for other languages (except for
+// Python, Ruby, and Perl which wrap them in a different way)
 %ignore Xapian::Query::MatchAll;
 %ignore Xapian::Query::MatchNothing;
 #endif
@@ -807,7 +807,7 @@ class Remote {
 
 namespace Xapian {
 
-#if defined SWIGPYTHON
+#if defined SWIGPYTHON || defined SWIGRUBY
 %include extra.i
 #endif
 

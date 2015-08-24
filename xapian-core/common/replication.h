@@ -2,7 +2,7 @@
  * \brief Replication support for Xapian databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008 Olly Betts
+ * Copyright 2008,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -187,12 +187,15 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *
      *  @param info     If non-NULL, the supplied structure will be updated
      *                  to reflect the changes read from the file descriptor.
+     *  @param reader_close_time	Wait at least this many seconds between
+     *					applying changesets to allow active
+     *					readers to finish.
      *
      *  @return true if there are more changesets to apply on the file
      *  descriptor, false otherwise.
      */
     bool apply_next_changeset(ReplicationInfo * info,
-			      int reader_close_time);
+			      double reader_close_time);
 
     /** Close the DatabaseReplica.
      *

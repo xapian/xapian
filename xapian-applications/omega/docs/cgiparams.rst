@@ -123,8 +123,10 @@ Reordering parameters
 ---------------------
 
 SORT
-	reorder results by this value number (greater values are better).
-	The comparison used is a string compare.
+	reorder results by this value number.  The comparison used is a string
+	compare of the unsigned byte values, and greater values are better
+	by default (but this can be changed by setting SORTREVERSE to a
+	non-zero value).
 
 SORTREVERSE
 	if non-zero, reverse the sort order so that lower values are better.

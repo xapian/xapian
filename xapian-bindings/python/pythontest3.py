@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010 Olly Betts
+# Copyright (C) 2008,2009,2010,2013 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -340,7 +340,7 @@ def test_allterms_iter():
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError, 'Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
 
     context("checking that restricting the terms iterated with a prefix works")
@@ -433,13 +433,13 @@ def test_termlist_iter():
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -483,13 +483,13 @@ def test_dbdocument_iter():
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -536,16 +536,16 @@ def test_newdocument_iter():
     for i in range(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, termitems[i], 'termfreq')
+                         getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(positers))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, termitems[i], 'positer')
+                         getattr, termitem, 'positer')
 
 def test_postinglist_iter():
     """Test postinglist iterator on Database.
@@ -629,10 +629,10 @@ def test_postinglist_iter():
         expect(postings[i].wdf, wdfs[i])
 
     expect(len(postings), len(positers))
-    for i in range(len(postings)):
+    for posting in postings:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, postings[i], 'positer')
+                         getattr, posting, 'positer')
 
 def test_valuestream_iter():
     """Test a valuestream iterator on Database.
@@ -900,7 +900,7 @@ def test_scale_weight():
     """
     db = setup_database()
     for mult in (0, 1, 2.5):
-        context("checking queries with OP_SCALE_WEIGHT with a multipler of %r" %
+        context("checking queries with OP_SCALE_WEIGHT with a multiplier of %r" %
                 mult)
         query1 = xapian.Query("it")
         query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
@@ -917,7 +917,7 @@ def test_scale_weight():
             expected = [(int(item.weight * mult * 1000000), item.docid) for item in mset1]
         expect([(int(item.weight * 1000000), item.docid) for item in mset2], expected)
 
-    context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
+    context("checking queries with OP_SCALE_WEIGHT with a multiplier of -1")
     query1 = xapian.Query("it")
     expect_exception(xapian.InvalidArgumentError,
                      "Xapian::Query: SCALE_WEIGHT requires a non-negative parameter.",
@@ -1087,7 +1087,7 @@ def test_value_stats():
 
     """
     dbpath = 'db_test_value_stats'
-    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
     for id in range(10):
@@ -1174,7 +1174,7 @@ def test_value_mods():
 
     """
     dbpath = 'db_test_value_mods'
-    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
     random.seed(42)
     doccount = 1000
     vals = {}

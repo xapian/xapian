@@ -1,7 +1,7 @@
 /** @file svgparse.h
  * @brief Extract text from an SVG file.
  */
-/* Copyright (C) 2010 Olly Betts
+/* Copyright (C) 2010,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ class SvgParser : public HtmlParser {
   public:
     SvgParser() : state(OTHER) { }
     void process_text(const string &text);
-    void opening_tag(const string &tag);
-    void closing_tag(const string &tag);
+    bool opening_tag(const string &tag);
+    bool closing_tag(const string &tag);
     string title, keywords, dump, author;
 };
 

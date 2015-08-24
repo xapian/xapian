@@ -17,11 +17,11 @@ for my $f (<Xapian/*.pm>) {
 for (sort keys %pages) {
     my $v = $pages{$_};
     if ($v eq 'Y') {
-        print "$_ has a POD but is never linked to\n";
+	print "$_ has a POD but is never linked to\n";
     } elsif ($v =~ /^N=/) {
-        print "$_ has no POD but is linked to\n";
+	print "$_ has no POD but is linked to\n";
     } elsif ($v eq 'N') {
-#        print "$_ has no POD (but no links)\n";
+#	print "$_ has no POD (but no links)\n";
     }
 }
 
@@ -36,7 +36,7 @@ sub pod2html {
     my $is_pod;
     open POD, $in or die $!;
     while (<POD>) {
-        if (/^=/) {
+	if (/^=/) {
 	    $is_pod = 1;
 	    last;
 	}

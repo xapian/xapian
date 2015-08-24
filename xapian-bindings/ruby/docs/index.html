@@ -177,8 +177,14 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for Ruby, but you can use <code>Xapian.Query.new("")</code>
-instead of MatchAll and <code>Xapian.Query.new()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as class constants
+<code>Xapian::Query::MatchAll</code> and <code>Xapian::Query::MatchNothing</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>Xapian::Query.new("")</code> for MatchAll and
+<code>Xapian::Query.new()</code> for MatchNothing.
 </p>
 
 <h2>MatchDecider</h2>

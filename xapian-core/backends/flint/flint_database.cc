@@ -3,10 +3,11 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
+ * Copyright 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -85,22 +86,13 @@ using namespace Xapian;
 // used to store the next free docid and total length of all documents.
 static const string METAINFO_KEY(1, '\0');
 
-/** Delete file, throwing an error if we can't delete it (but not if it
- *  doesn't exist).
+/** Maximum number of times to try opening the tables to get them at a
+ *  consistent revision.
+ *
+ *  This is mostly just to avoid any chance of an infinite loop - normally
+ *  we'll either get then on the first or second try.
  */
-static void
-sys_unlink_if_exists(const string & filename)
-{
-#ifdef __WIN32__
-    if (msvc_posix_unlink(filename.c_str()) == -1) {
-#else
-    if (unlink(filename) == -1) {
-#endif
-	if (errno == ENOENT) return;
-	throw Xapian::DatabaseError("Can't delete file: `" + filename + "'",
-				    errno);
-    }
-}
+const int MAX_OPEN_RETRIES = 100;
 
 /* This finds the tables, opens them at consistent revisions, manages
  * determining the current and next revision numbers, and stores handles
@@ -130,12 +122,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	return;
     }
 
-    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
-    if (p)
-	max_changesets = atoi(p);
-
     if (action != Xapian::DB_OPEN && !database_exists()) {
-	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 
 	// Create the directory for the database, if it doesn't exist
 	// already.
@@ -164,7 +151,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 
     get_database_write_lock(false);
     // if we're overwriting, pretend the db doesn't exist
-    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
     if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
 	create_and_open_tables(block_size);
 	return;
@@ -291,8 +277,7 @@ FlintDatabase::open_tables_consistent()
     spelling_table.set_block_size(block_size);
 
     bool fully_opened = false;
-    int tries = 100;
-    int tries_left = tries;
+    int tries_left = MAX_OPEN_RETRIES;
     while (!fully_opened && (tries_left--) > 0) {
 	if (spelling_table.open(revision) &&
 	    synonym_table.open(revision) &&
@@ -385,9 +370,9 @@ FlintDatabase::get_changeset_revisions(const string & path,
 {
     int changes_fd = -1;
 #ifdef __WIN32__
-    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY);
+    changes_fd = msvc_posix_open(path.c_str(), O_RDONLY | O_BINARY);
 #else
-    changes_fd = open(path.c_str(), O_RDONLY);
+    changes_fd = open(path.c_str(), O_RDONLY | O_BINARY);
 #endif
     fdcloser closer(changes_fd);
 
@@ -401,15 +386,15 @@ FlintDatabase::get_changeset_revisions(const string & path,
     const char *start = buf;
     const char *end = buf + io_read(changes_fd, buf,
 				    REASONABLE_CHANGESET_SIZE, 0);
-    if (strncmp(start, CHANGES_MAGIC_STRING,
-		CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
+    if (size_t(end - start) < CONST_STRLEN(CHANGES_MAGIC_STRING))
+	throw Xapian::DatabaseError("Changeset too short at " + path);
+    if (memcmp(start, CHANGES_MAGIC_STRING,
+	       CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 	string message = string("Changeset at ")
 		+ path + " does not contain valid magic string";
 	throw Xapian::DatabaseError(message);
     }
     start += CONST_STRLEN(CHANGES_MAGIC_STRING);
-    if (start >= end)
-	throw Xapian::DatabaseError("Changeset too short at " + path);
 
     unsigned int changes_version;
     if (!F_unpack_uint(&start, end, &changes_version))
@@ -444,6 +429,14 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
     int changes_fd = -1;
     string changes_name;
 
+    // always check max_changesets for modification since last revision
+    const char *p = getenv("XAPIAN_MAX_CHANGESETS");
+    if (p) {
+	max_changesets = atoi(p);
+    } else {
+	max_changesets = 0;
+    }
+ 
     if (max_changesets > 0) {
 	flint_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -464,8 +457,11 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 	    buf += F_pack_uint(old_revision);
 	    buf += F_pack_uint(new_revision);
 
-	    // FIXME - if DANGEROUS mode is in use, this should contain F_pack_uint(1u)
-	    buf += F_pack_uint(0u); // Changes can be applied to a live database.
+#ifndef DANGEROUS
+	    buf += '\x00'; // Changes can be applied to a live database.
+#else
+	    buf += '\x01';
+#endif
 
 	    io_write(changes_fd, buf.data(), buf.size());
 
@@ -499,10 +495,18 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
     } catch (...) {
 	// Remove the changeset, if there was one.
 	if (changes_fd >= 0) {
-	    sys_unlink_if_exists(changes_name);
+	    (void)io_unlink(changes_name);
 	}
 
 	throw;
+    }
+
+    if (changes_fd >= 0 && max_changesets < new_revision) {
+	// while change sets less than N - max_changesets exist, delete them
+	// 1 must be subtracted so we don't delete the changset we just wrote
+	// when max_changesets = 1
+	unsigned rev = new_revision - max_changesets - 1;
+	while (io_unlink(db_dir + "/changes" + str(rev--)))  { }
     }
 }
 
@@ -575,12 +579,16 @@ FlintDatabase::send_whole_database(RemoteConnection & conn, double end_time)
     filepath += '/';
     for (const char * p = filenames; *p; p += *p + 1) {
 	string leaf(p + 1, size_t(static_cast<unsigned char>(*p)));
-        filepath.replace(db_dir.size() + 1, string::npos, leaf);
-	if (file_exists(filepath)) {
-	    // FIXME - there is a race condition here - the file might get
-	    // deleted between the file_exists() test and the access to send it.
+	filepath.replace(db_dir.size() + 1, string::npos, leaf);
+#ifdef __WIN32__
+	int fd = msvc_posix_open(filepath.c_str(), O_RDONLY | O_BINARY);
+#else
+	int fd = open(filepath.c_str(), O_RDONLY | O_BINARY);
+#endif
+	if (fd > 0) {
+	    fdcloser closefd(fd);
 	    conn.send_message(REPL_REPLY_DB_FILENAME, leaf, end_time);
-	    conn.send_file(REPL_REPLY_DB_FILEDATA, filepath, end_time);
+	    conn.send_file(REPL_REPLY_DB_FILEDATA, fd, end_time);
 	}
     }
 }
@@ -605,7 +613,7 @@ FlintDatabase::write_changesets_to_fd(int fd,
 	need_whole_db = true;
     }
 
-    RemoteConnection conn(-1, fd, "");
+    RemoteConnection conn(-1, fd);
 
     // While the starting revision number is less than the latest revision
     // number, look for a changeset, and write it.
@@ -677,7 +685,14 @@ FlintDatabase::write_changesets_to_fd(int fd,
 
 	    // Look for the changeset for revision start_rev_num.
 	    string changes_name = db_dir + "/changes" + str(start_rev_num);
-	    if (file_exists(changes_name)) {
+#ifdef __WIN32__
+	    int fd_changes = msvc_posix_open(changes_name.c_str(), O_RDONLY | O_BINARY);
+#else
+	    int fd_changes = open(changes_name.c_str(), O_RDONLY | O_BINARY);
+#endif
+	    if (fd_changes > 0) {
+		fdcloser closefd(fd_changes);
+
 		// Send it, and also update start_rev_num to the new value
 		// specified in the changeset.
 		flint_revision_number_t changeset_start_rev_num;
@@ -691,10 +706,8 @@ FlintDatabase::write_changesets_to_fd(int fd,
 		if (changeset_start_rev_num >= changeset_end_rev_num) {
 		    throw Xapian::DatabaseError("Changeset start revision is not less than end revision");
 		}
-		// FIXME - there is a race condition here - the file might get
-		// deleted between the file_exists() test and the access to
-		// send it.
-		conn.send_file(REPL_REPLY_CHANGESET, changes_name, 0.0);
+
+		conn.send_file(REPL_REPLY_CHANGESET, fd_changes, 0.0);
 		start_rev_num = changeset_end_rev_num;
 		if (info != NULL) {
 		    ++(info->changeset_count);
@@ -1150,7 +1163,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
+		    throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 		add_freq_delta(tname, 1, wdf);
 		insert_mod_plist(did, tname, wdf);
 
@@ -1299,6 +1312,8 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	}
   
 	if (!modifying || document.internal->terms_modified()) {
+	    bool pos_modified = !modifying ||
+				document.internal->term_positions_modified();
 	    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
 	    FlintTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
@@ -1338,21 +1353,24 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		if (cmp < 0) {
 		    // Term old_tname has been deleted.
 		    add_freq_delta(old_tname, -1, -termlist.get_wdf());
-		    position_table.delete_positionlist(did, old_tname);
+		    if (pos_modified)
+			position_table.delete_positionlist(did, old_tname);
 		    update_mod_plist(did, old_tname, 'D', 0u);
 		    termlist.next();
 		} else if (cmp > 0) {
 		    // Term new_tname as been added.
 		    termcount new_wdf = term.get_wdf();
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + new_tname);
+			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    add_freq_delta(new_tname, 1, new_wdf);
 		    update_mod_plist(did, new_tname, 'A', new_wdf);
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(
-			    did, new_tname,
-			    pos, term.positionlist_end(), false);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(
+				did, new_tname,
+				pos, term.positionlist_end(), false);
+			}
 		    }
 		    ++term;
 		} else {
@@ -1364,13 +1382,15 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }
 
-		    PositionIterator pos = term.positionlist_begin();
-		    if (pos != term.positionlist_end()) {
-			position_table.set_positionlist(did, new_tname, pos,
-							term.positionlist_end(),
-							true);
-		    } else {
-			position_table.delete_positionlist(did, new_tname);
+		    if (pos_modified) {
+			PositionIterator pos = term.positionlist_begin();
+			if (pos != term.positionlist_end()) {
+			    position_table.set_positionlist(did, new_tname, pos,
+							    term.positionlist_end(),
+							    true);
+			} else {
+			    position_table.delete_positionlist(did, new_tname);
+			}
 		    }
 
 		    termlist.next();

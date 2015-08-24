@@ -5,9 +5,9 @@ PROTOTYPES: ENABLE
 TradWeight *
 new1()
     CODE:
-        RETVAL = new TradWeight();
+	RETVAL = new TradWeight();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TradWeight *
 new2(k)

@@ -15,7 +15,7 @@ our @ISA = qw(DynaLoader);
 sub CLONE_SKIP { 1 }
 
 use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -115,19 +115,19 @@ Removes a term without positional information.
 
 Remove all terms from the document.
 
-=item termlist_count 
+=item termlist_count
 
 Returns number of terms in the document.
 
 =item termlist_begin
 
 Iterator for the terms in this document. Returns a
-L<Search::Xapian::TermIterator>. 
+L<Search::Xapian::TermIterator>.
 
 =item termlist_end
 
 Equivalent end iterator for termlist_begin().  Returns a
-L<Search::Xapian::TermIterator>. 
+L<Search::Xapian::TermIterator>.
 
 =item values_count
 

@@ -27,7 +27,6 @@
 
 #include <string>
 
-#include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/postingiterator.h>
 

@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-import gc
 import os
 import random
 import shutil
@@ -98,6 +97,20 @@ def test_mset_iter():
     expect(items[2].collapse_key, '')
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), 'was it warm? three')
+
+    # Test coverage for mset.items
+    mset_items = mset.items
+    expect(len(mset), len(mset_items), "Expected number of items to be length of mset")
+
+    context("testing mset_items[2]")
+    expect(mset_items[2][xapian.MSET_DID], 4)
+    expect(mset_items[2][xapian.MSET_WT] > 0.0, True)
+    expect(mset_items[2][xapian.MSET_RANK], 2)
+    expect(mset_items[2][xapian.MSET_PERCENT], 86)
+    # MSET_DOCUMENT is documented but not implemented!  FIXME: resolve this -
+    # if it has never worked, we may just want to remove the documentation for
+    # it.
+    #expect(mset_items[2][xapian.MSET_DOCUMENT].get_data(), 'was it warm? three')
 
     # Check iterators for sub-msets against the whole mset.
     for start in range(0, 6):
@@ -206,15 +219,11 @@ def test_matchingterms_iter():
     db = setup_database()
     query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
 
-    # Check for memory leaks: Prior to 1.2.4 Enquire.get_matching_terms()
-    # leaked references to its members.
-    gc.collect()
-    object_count = len(gc.get_objects())
+    # Prior to 1.2.4 Enquire.matching_terms() leaked references to its members.
 
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
     mset = enquire.get_mset(0, 10)
-    msetiter = mset.begin()
 
     for item in mset:
         # Make a list of the term names
@@ -222,18 +231,8 @@ def test_matchingterms_iter():
         mterms2 = [term for term in enquire.matching_terms(item)]
         expect(mterms, mterms2)
 
-        expect(msetiter == mset.end(), False)
-        mterms3 = enquire.get_matching_terms(msetiter)
-        expect(mterms, mterms3)
-        msetiter.next()
-    expect(msetiter, mset.end())
-
     mterms = [term for term in enquire.matching_terms(mset.get_hit(0))]
     expect(mterms, ['it', 'two', 'warm', 'was'])
-
-    del mterms, mterms2, mterms3, term, item, enquire, mset, msetiter
-    gc.collect()
-    expect(object_count, len(gc.get_objects()))
 
 def test_queryterms_iter():
     """Test Query term iterator.
@@ -352,7 +351,7 @@ def test_allterms_iter():
         expect(termitems[i].term, terms[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError, 'Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
 
     context("checking that restricting the terms iterated with a prefix works")
@@ -445,13 +444,13 @@ def test_termlist_iter():
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -495,13 +494,13 @@ def test_dbdocument_iter():
         expect(termitems[i].wdf, wdfs[i])
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
@@ -548,16 +547,16 @@ def test_newdocument_iter():
     for i in range(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, termitems[i], 'termfreq')
+                         getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(positers))
-    for i in range(len(termitems)):
+    for termitem in termitems:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, termitems[i], 'positer')
+                         getattr, termitem, 'positer')
 
 def test_postinglist_iter():
     """Test postinglist iterator on Database.
@@ -641,10 +640,10 @@ def test_postinglist_iter():
         expect(postings[i].wdf, wdfs[i])
 
     expect(len(postings), len(positers))
-    for i in range(len(postings)):
+    for posting in postings:
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, postings[i], 'positer')
+                         getattr, posting, 'positer')
 
 def test_valuestream_iter():
     """Test a valuestream iterator on Database.
@@ -912,7 +911,7 @@ def test_scale_weight():
     """
     db = setup_database()
     for mult in (0, 1, 2.5):
-        context("checking queries with OP_SCALE_WEIGHT with a multipler of %r" %
+        context("checking queries with OP_SCALE_WEIGHT with a multiplier of %r" %
                 mult)
         query1 = xapian.Query("it")
         query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
@@ -929,7 +928,7 @@ def test_scale_weight():
             expected = [(int(item.weight * mult * 1000000), item.docid) for item in mset1]
         expect([(int(item.weight * 1000000), item.docid) for item in mset2], expected)
 
-    context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
+    context("checking queries with OP_SCALE_WEIGHT with a multiplier of -1")
     query1 = xapian.Query("it")
     expect_exception(xapian.InvalidArgumentError,
                      "Xapian::Query: SCALE_WEIGHT requires a non-negative parameter.",
@@ -1099,7 +1098,7 @@ def test_value_stats():
 
     """
     dbpath = 'db_test_value_stats'
-    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     vals = (6, 9, 4.5, 4.4, 4.6, 2, 1, 4, 3, 0)
     for id in range(10):
@@ -1186,7 +1185,7 @@ def test_value_mods():
 
     """
     dbpath = 'db_test_value_mods'
-    db = xapian.chert_open(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
     random.seed(42)
     doccount = 1000
     vals = {}
@@ -1284,7 +1283,7 @@ def test_serialise_query():
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
     expect(str(q), 'Xapian::Query()')
- 
+
     q = xapian.Query('hello')
     q2 = xapian.Query.unserialise(q.serialise())
     expect(str(q), str(q2))
@@ -1309,7 +1308,7 @@ def test_preserve_query_parser_stopper():
         return queryparser
     queryparser = make_qp()
     query = queryparser.parse_query('to be')
-    expect([term for term in queryparser.stoplist()], ['to']) 
+    expect([term for term in queryparser.stoplist()], ['to'])
 
 def test_preserve_term_generator_stopper():
     """Test preservation of stopper set on term generator.
@@ -1330,7 +1329,7 @@ def test_preserve_term_generator_stopper():
     doc = termgen.get_document()
     terms = [term.term for term in doc.termlist()]
     terms.sort()
-    expect(terms, ['Zbe', 'be', 'to']) 
+    expect(terms, ['Zbe', 'be', 'to'])
 
 def test_preserve_enquire_sorter():
     """Test preservation of sorter set on enquire.
@@ -1427,6 +1426,7 @@ def test_compactor():
 
     """
     tmpdir = tempfile.mkdtemp()
+    db1 = db2 = db3 = None
     try:
         db1path = os.path.join(tmpdir, 'db1')
         db2path = os.path.join(tmpdir, 'db2')
@@ -1502,6 +1502,13 @@ def test_compactor():
         expect(db3.get_metadata('key2'), '2')
 
     finally:
+        if db1 is not None:
+            db1.close()
+        if db2 is not None:
+            db2.close()
+        if db3 is not None:
+            db3.close()
+
         shutil.rmtree(tmpdir)
 
 def test_leak_mset_items():
@@ -1516,13 +1523,8 @@ def test_leak_mset_items():
     enq.set_query(xapian.Query('drip'))
     mset = enq.get_mset(0, 10)
 
-    gc.collect()
-    object_count = len(gc.get_objects())
     # Prior to 1.2.4 this next line leaked an object.
     mset.items
-    gc.collect()
-
-    expect(object_count, len(gc.get_objects()))
 
 def test_custom_matchspy():
     class MSpy(xapian.MatchSpy):
@@ -1545,8 +1547,9 @@ def test_custom_matchspy():
     expect(len(mset), 1)
     expect(mspy.count >= 1, True)
 
-# Run all tests (ie, callables with names starting "test_").
     expect(db.get_doccount(), 5)
+
+# Run all tests (ie, callables with names starting "test_").
 if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)
 

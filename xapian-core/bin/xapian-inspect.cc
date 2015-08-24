@@ -43,7 +43,7 @@ using namespace std;
 #define OPT_VERSION 2
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] TABLE\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] TABLE\n\n"
 "Options:\n"
 "  --help           display this help and exit\n"
 "  --version        output version information and exit" << endl;
@@ -142,11 +142,11 @@ main(int argc, char **argv)
     while ((c = gnu_getopt_long(argc, argv, "", long_opts, 0)) != -1) {
         switch (c) {
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
             default:
 		show_usage();

@@ -67,11 +67,15 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	Document(const Document &other);
 
 	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const Document &other);
 
@@ -86,32 +90,44 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  Returns an empty string if no value with the given number is present
 	 *  in the document.
 	 *
-	 *  @param valueno The number of the value.
+	 *  @param slot The number of the value.
 	 */
-	std::string get_value(Xapian::valueno valueno) const;
+	std::string get_value(Xapian::valueno slot) const;
 
 	/** Add a new value.
 	 *
 	 *  The new value will replace any existing value with the same number
 	 *  (or if the new value is empty, it will remove any existing value
 	 *  with the same number).
+	 *
+	 *  @param slot		The value slot to add the value in.
+	 *  @param value	The value to set.
 	 */
-	void add_value(Xapian::valueno valueno, const std::string &value);
+	void add_value(Xapian::valueno slot, const std::string &value);
 
 	/// Remove any value with the given number.
-	void remove_value(Xapian::valueno valueno);
+	void remove_value(Xapian::valueno slot);
 
 	/// Remove all values associated with the document.
 	void clear_values();
 
 	/** Get data stored in the document.
-	 *  This is a potentially expensive operation, and shouldn't normally
-	 *  be used in a match decider functor.  Put data for use by match
-	 *  deciders in a value instead.
+	 *
+	 *  This is potentially a relatively expensive operation, and shouldn't
+	 *  normally be used during the match (e.g. in a PostingSource or match
+	 *  decider functor.  Put data for use by match deciders in a value
+	 *  instead.
 	 */
 	std::string get_data() const;
 
-	/// Set data stored in the document.
+	/** Set data stored in the document.
+	 *
+	 *  Xapian treats the data as an opaque blob.  It may try to compress
+	 *  it, but other than that it will just store it and return it when
+	 *  requested.
+	 *
+	 *  @param data	The data to store.
+	 */
 	void set_data(const std::string &data);
 
 	/** Add an occurrence of a term at a particular position.
@@ -206,7 +222,7 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 
 	/// Equivalent end iterator for termlist_begin().
 	TermIterator termlist_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Count the values in this document.

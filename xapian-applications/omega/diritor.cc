@@ -1,6 +1,6 @@
 /* diritor.cc: Iterator through entries in a directory.
  *
- * Copyright (C) 2007,2008,2010 Olly Betts
+ * Copyright (C) 2007,2008,2010,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,9 @@
 
 using namespace std;
 
+#if defined O_NOATIME && O_NOATIME != 0
 uid_t DirectoryIterator::euid = geteuid();
+#endif
 
 #ifdef HAVE_MAGIC_H
 magic_t DirectoryIterator::magic_cookie = NULL;
@@ -101,7 +103,13 @@ string
 DirectoryIterator::get_magic_mimetype()
 {
     if (rare(magic_cookie == NULL)) {
+#ifdef MAGIC_MIME_TYPE
 	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME_TYPE|MAGIC_ERROR);
+#else
+	// MAGIC_MIME_TYPE was added in 4.22, released 2007-12-27.  If we don't
+	// have it then use MAGIC_MIME instead and trim any encoding off below.
+	magic_cookie = magic_open(MAGIC_SYMLINK|MAGIC_MIME|MAGIC_ERROR);
+#endif
 	if (magic_cookie == NULL) {
 	    string m("Failed to initialise the file magic library: ");
 	    m += strerror(errno);
@@ -130,6 +138,61 @@ DirectoryIterator::get_magic_mimetype()
 	}
 	return string();
     }
+
+    // Sometimes libmagic returns this string instead of a mime-type for some
+    // Microsoft documents, so pick a suitable MIME content-type based on the
+    // extension.  Newer versions seem to return "application/CDFV2-corrupt"
+    // instead for this case (on Debian, file 5.11 gives the former and file
+    // 5.18 the latter).
+#define COMPOSITE_DOC "Composite Document File V2 Document"
+    if (strncmp(res, COMPOSITE_DOC, sizeof(COMPOSITE_DOC) - 1) == 0 ||
+	strcmp(res, "application/CDFV2-corrupt") == 0) {
+	// Default to something self-explanatory.
+	res = "application/x-compound-document-file";
+	const char * leaf = leafname();
+	const char * ext = strrchr(leaf, '.');
+	if (ext && strlen(++ext) == 3) {
+	    char e[3];
+	    for (int i = 0; i != 3; ++i) {
+		if (ext[i] <= 'Z' && ext[i] >= 'A')
+		    e[i] = ext[i] + ('a' - 'A');
+		else
+		    e[i] = ext[i];
+	    }
+	    switch (e[0]) {
+		case 'd':
+		    if (e[1] == 'o')
+			res = "application/msword";
+		    break;
+		case 'm':
+		    if (e[1] == 's' && e[2] == 'g')
+			res = "application/vnd.ms-outlook";
+		    break;
+		case 'p':
+		    if (e[1] == 'p' || e[1] == 'o')
+			res = "application/vnd.ms-powerpoint";
+		    else if (e[1] == 'u' && e[2] == 'b')
+			res = "application/x-mspublisher";
+		    break;
+		case 'x':
+		    if (e[1] == 'l')
+			res = "application/vnd.ms-excel";
+		    break;
+		case 'w':
+		    if (e[1] == 'p' && e[2] != 'd')
+			res = "application/vnd.ms-works";
+		    break;
+	    }
+	}
+    } else {
+#ifndef MAGIC_MIME_TYPE
+	// Discard any encoding returned.
+	char * spc = strchr(res, ' ');
+	if (spc)
+	    *spc = '\0';
+#endif
+    }
+
     return res;
 }
 #endif

@@ -1,7 +1,7 @@
 /* flint_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2011,2015 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
+#include "errno_to_string.h"
 #include "flint_btreebase.h"
 #include "flint_utils.h"
 #include "io_utils.h"
@@ -89,32 +90,6 @@ FlintTable_base::FlintTable_base()
 {
 }
 
-FlintTable_base::FlintTable_base(const FlintTable_base &other)
-	: revision(other.revision),
-	  block_size(other.block_size),
-	  root(other.root),
-	  level(other.level),
-	  bit_map_size(other.bit_map_size),
-	  item_count(other.item_count),
-	  last_block(other.last_block),
-	  have_fakeroot(other.have_fakeroot),
-	  sequential(other.sequential),
-	  bit_map_low(other.bit_map_low),
-	  bit_map0(0),
-	  bit_map(0)
-{
-    try {
-	bit_map0 = new byte[bit_map_size];
-	bit_map = new byte[bit_map_size];
-
-	memcpy(bit_map0, other.bit_map0, bit_map_size);
-	memcpy(bit_map, other.bit_map, bit_map_size);
-    } catch (...) {
-	delete [] bit_map0;
-	delete [] bit_map;
-    }
-}
-
 void
 FlintTable_base::swap(FlintTable_base &other)
 {
@@ -170,7 +145,8 @@ do { \
 #define REASONABLE_BASE_SIZE 1024
 
 bool
-FlintTable_base::read(const string & name, char ch, string &err_msg)
+FlintTable_base::read(const string & name, char ch, bool read_bitmap,
+		      string &err_msg)
 {
     string basename = name + "base" + ch;
 #ifdef __WIN32__
@@ -180,7 +156,9 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 #endif
 
     if (h == -1) {
-	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
+	err_msg += "Couldn't open " + basename + ": ";
+	errno_to_string(errno, err_msg);
+	err_msg += "\n";
 	return false;
     }
     fdcloser closefd(h);
@@ -237,6 +215,9 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     bit_map0 = 0;
     delete [] bit_map;
     bit_map = 0;
+
+    if (!read_bitmap)
+	return true;
 
     bit_map0 = new byte[bit_map_size];
     bit_map = new byte[bit_map_size];
@@ -300,11 +281,11 @@ FlintTable_base::write_to_file(const string &filename,
     buf += F_pack_uint(static_cast<uint4>(last_block));
     buf += F_pack_uint(have_fakeroot);
     buf += F_pack_uint(sequential);
-    buf += F_pack_uint(revision);
+    buf += F_pack_uint(revision);  // REVISION2
     if (bit_map_size > 0) {
 	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     }
-    buf += F_pack_uint(revision);  // REVISION2
+    buf += F_pack_uint(revision);  // REVISION3
 
 #ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
@@ -313,7 +294,8 @@ FlintTable_base::write_to_file(const string &filename,
 #endif
     if (h < 0) {
 	string message = string("Couldn't open base ")
-		+ filename + " to write: " + strerror(errno);
+		+ filename + " to write: ";
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
     fdcloser closefd(h);

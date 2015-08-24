@@ -1,7 +1,7 @@
 /** @file io_utils.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,10 +23,107 @@
 
 #include "io_utils.h"
 
+#ifdef __WIN32__
+# include "msvc_posix_wrapper.h"
+#endif
+
 #include "safeerrno.h"
 #include "safeunistd.h"
 
+#include <cstring>
+#include <string>
+
 #include <xapian/error.h>
+
+#include "noreturn.h"
+#include "omassert.h"
+#include "str.h"
+
+// Trying to include the correct headers with the correct defines set to
+// get pread() and pwrite() prototyped on every platform without breaking any
+// other platform is a real can of worms.  So instead we probe for what
+// prototypes (if any) are required in configure and put them into
+// PREAD_PROTOTYPE and PWRITE_PROTOTYPE.
+#if defined HAVE_PREAD && defined PREAD_PROTOTYPE
+PREAD_PROTOTYPE
+#endif
+#if defined HAVE_PWRITE && defined PWRITE_PROTOTYPE
+PWRITE_PROTOTYPE
+#endif
+
+bool
+io_unlink(const std::string & filename)
+{
+#ifdef __WIN32__
+    if (msvc_posix_unlink(filename.c_str()) == 0) {
+#else
+    if (unlink(filename.c_str()) == 0) {
+#endif
+	return true;
+    }
+    if (errno != ENOENT) {
+	throw Xapian::DatabaseError(filename + ": delete failed", errno);
+    }
+    return false;
+}
+
+// The smallest fd we want to use for a writable handle.
+const int MIN_WRITE_FD = 3;
+
+int
+io_open_block_wr(const char * fname, bool anew)
+{
+    int flags = O_RDWR | O_BINARY;
+    if (anew) flags |= O_CREAT | O_TRUNC;
+    int fd = ::open(fname, flags, 0666);
+    if (fd >= MIN_WRITE_FD || fd < 0) return fd;
+
+    // We want to avoid using fd < MIN_WRITE_FD, in case some other code in
+    // the same process tries to write to stdout or stderr, which would end up
+    // corrupting our database.
+    int badfd = fd;
+#ifdef F_DUPFD_CLOEXEC
+    // dup to the first unused fd >= MIN_WRITE_FD.
+    fd = fcntl(badfd, F_DUPFD_CLOEXEC, MIN_WRITE_FD);
+    // F_DUPFD_CLOEXEC may not be supported.
+    if (fd < 0 && errno == EINVAL)
+#endif
+#ifdef F_DUPFD
+    {
+	fd = fcntl(badfd, F_DUPFD, MIN_WRITE_FD);
+# ifdef FD_CLOEXEC
+	if (fd >= 0)
+	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+# endif
+    }
+    int save_errno = errno;
+    (void)close(badfd);
+    errno = save_errno;
+#else
+    {
+	char toclose[MIN_WRITE_FD];
+	memset(toclose, 0, sizeof(toclose));
+	fd = badfd;
+	do {
+	    toclose[fd] = 1;
+	    fd = dup(fd);
+	} while (fd >= 0 && fd < MIN_WRITE_FD);
+	int save_errno = errno;
+	for (badfd = 0; badfd != MIN_WRITE_FD; ++badfd)
+	    if (toclose[badfd])
+		close(badfd);
+	if (fd < 0) {
+	    errno = save_errno;
+	} else {
+# ifdef FD_CLOEXEC
+	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
+# endif
+	}
+    }
+#endif
+    Assert(fd >= MIN_WRITE_FD || fd < 0);
+    return fd;
+}
 
 size_t
 io_read(int fd, char * p, size_t n, size_t min)

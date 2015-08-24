@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,19 +28,14 @@
 
 #include "stringutils.h"
 
+#include <limits>
 #include <string>
+
+#include "cjk-tokenizer.h"
 
 using namespace std;
 
 namespace Xapian {
-
-// Put a limit on the size of terms to help prevent the index being bloated
-// by useless junk terms.
-static const unsigned int MAX_PROB_TERM_LENGTH = 64;
-// FIXME: threshold is currently in bytes of UTF-8 representation, not unicode
-// characters - what actually makes most sense here?
-
-// FIXME: Add API to allow control of how stemming is used?
 
 inline bool
 U_isupper(unsigned ch) {
@@ -67,7 +62,7 @@ should_stem(const std::string & term)
 /** Value representing "ignore this" when returned by check_infix() or
  *  check_infix_digit().
  */
-const unsigned UNICODE_IGNORE(-1);
+const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
 
 inline unsigned check_infix(unsigned ch) {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
@@ -123,9 +118,11 @@ inline unsigned check_suffix(unsigned ch) {
 #define STOPWORDS_INDEX_UNSTEMMED_ONLY 2
 
 void
-TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
+TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
+    bool cjk_ngram = CJK::is_cjk_enabled();
+
     int stop_mode = STOPWORDS_INDEX_UNSTEMMED_ONLY;
 
     if (!stopper) stop_mode = STOPWORDS_NONE;
@@ -163,11 +160,72 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 	}
 
 	while (true) {
+	    if (cjk_ngram &&
+		CJK::codepoint_is_cjk(*itor) &&
+		Unicode::is_wordchar(*itor)) {
+		const string & cjk = CJK::get_cjk(itor);
+		for (CJKTokenIterator tk(cjk); tk != CJKTokenIterator(); ++tk) {
+		    const string & cjk_token = *tk;
+		    if (cjk_token.size() > max_word_length) continue;
+
+		    if (stop_mode == STOPWORDS_IGNORE && (*stopper)(cjk_token))
+			continue;
+
+		    if (strategy == TermGenerator::STEM_SOME ||
+			strategy == TermGenerator::STEM_NONE) {
+			if (with_positions && tk.get_length() == 1) {
+			    doc.add_posting(prefix + cjk_token, ++termpos, wdf_inc);
+			} else {
+			    doc.add_term(prefix + cjk_token, wdf_inc);
+			}
+		    }
+
+		    if ((flags & FLAG_SPELLING) && prefix.empty())
+			db.add_spelling(cjk_token);
+
+		    if (strategy == TermGenerator::STEM_NONE ||
+			!stemmer.internal.get()) continue;
+
+		    if (strategy == TermGenerator::STEM_SOME) {
+			if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY &&
+			    (*stopper)(cjk_token))
+			    continue;
+
+			// Note, this uses the lowercased term, but that's OK
+			// as we only want to avoid stemming terms starting
+			// with a digit.
+			if (!should_stem(cjk_token)) continue;
+		    }
+
+		    // Add stemmed form without positional information.
+		    string stem;
+		    if (strategy != TermGenerator::STEM_ALL) {
+			stem += "Z";
+		    }
+		    stem += prefix;
+		    stem += stemmer(cjk_token);
+		    if (strategy != TermGenerator::STEM_SOME &&
+			with_positions) {
+			doc.add_posting(stem, ++termpos, wdf_inc);
+		    } else {
+			doc.add_term(stem, wdf_inc);
+		    }
+		}
+		while (true) {
+		    if (itor == Utf8Iterator()) return;
+		    ch = check_wordchar(*itor);
+		    if (ch) break;
+		    ++itor;
+		}
+		continue;
+	    }
 	    unsigned prevch;
 	    do {
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
-		if (++itor == Utf8Iterator()) goto endofterm;
+		if (++itor == Utf8Iterator() ||
+		    (cjk_ngram && CJK::codepoint_is_cjk(*itor)))
+		    goto endofterm;
 		ch = check_wordchar(*itor);
 	    } while (ch);
 
@@ -207,31 +265,45 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 	}
 
 endofterm:
-	if (term.size() > MAX_PROB_TERM_LENGTH) continue;
+	if (term.size() > max_word_length) continue;
 
 	if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term)) continue;
 
-	if (with_positions) {
-	    doc.add_posting(prefix + term, ++termpos, weight);
-	} else {
-	    doc.add_term(prefix + term, weight);
+	if (strategy == TermGenerator::STEM_SOME ||
+	    strategy == TermGenerator::STEM_NONE) {
+	    if (with_positions) {
+		doc.add_posting(prefix + term, ++termpos, wdf_inc);
+	    } else {
+		doc.add_term(prefix + term, wdf_inc);
+	    }
 	}
 	if ((flags & FLAG_SPELLING) && prefix.empty()) db.add_spelling(term);
 
-	if (!stemmer.internal.get()) continue;
+	if (strategy == TermGenerator::STEM_NONE ||
+	    !stemmer.internal.get()) continue;
 
-	if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
-	    continue;
+	if (strategy == TermGenerator::STEM_SOME) {
+	    if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
+		continue;
 
-	// Note, this uses the lowercased term, but that's OK as we only
-	// want to avoid stemming terms starting with a digit.
-	if (!should_stem(term)) continue;
+	    // Note, this uses the lowercased term, but that's OK as we only
+	    // want to avoid stemming terms starting with a digit.
+	    if (!should_stem(term)) continue;
+	}
 
 	// Add stemmed form without positional information.
-	string stem("Z");
+	string stem;
+	if (strategy != TermGenerator::STEM_ALL) {
+	    stem += "Z";
+	}
 	stem += prefix;
 	stem += stemmer(term);
-	doc.add_term(stem, weight);
+	if (strategy != TermGenerator::STEM_SOME &&
+	    with_positions) {
+	    doc.add_posting(stem, ++termpos, wdf_inc);
+	} else {
+	    doc.add_term(stem, wdf_inc);
+	}
     }
 }
 

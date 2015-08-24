@@ -1,5 +1,6 @@
 noinst_HEADERS +=\
 	common/alltermslist.h\
+	common/append_filename_arg.h\
 	common/autoptr.h\
 	common/bitstream.h\
 	common/closefrom.h\
@@ -11,6 +12,7 @@ noinst_HEADERS +=\
 	common/document.h\
 	common/documentterm.h\
 	common/emptypostlist.h\
+	common/errno_to_string.h\
 	common/esetinternal.h\
 	common/expandweight.h\
 	common/fileutils.h\
@@ -51,6 +53,7 @@ noinst_HEADERS +=\
 	common/safedirent.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
+	common/safenetdb.h\
 	common/safesysselect.h\
 	common/safesysstat.h\
 	common/safesyswait.h\
@@ -85,6 +88,7 @@ lib_src +=\
 	common/closefrom.cc\
 	common/const_database_wrapper.cc\
 	common/debuglog.cc\
+	common/errno_to_string.cc\
 	common/fileutils.cc\
 	common/io_utils.cc\
 	common/msvc_dirent.cc\

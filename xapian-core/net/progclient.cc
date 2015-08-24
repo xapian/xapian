@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007,2010 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +38,7 @@
 # include <sys/socket.h>
 # include <sys/wait.h>
 #else
+# include <cstdio> // For sprintf().
 # include <io.h>
 #endif
 
@@ -109,7 +110,7 @@ ProgClient::run_program(const string &progname, const string &args
 	// parent
 	// close the child's end of the socket
 	::close(sv[1]);
-	return sv[0];
+	RETURN(sv[0]);
     }
 
     /* child process:
@@ -157,7 +158,7 @@ ProgClient::run_program(const string &progname, const string &args
     /* throwing an exception is a bad idea, since we're
      * not the original process. */
     _exit(-1);
-#ifdef __sgi
+#if defined __sgi || defined __xlC__
     // Avoid "missing return statement" warning.
     return 0;
 #endif
@@ -226,7 +227,7 @@ ProgClient::run_program(const string &progname, const string &args
 
     CloseHandle(hClient);
     CloseHandle(procinfo.hThread);
-    return _open_osfhandle((intptr_t)hPipe, O_RDWR|O_BINARY);
+    RETURN(_open_osfhandle((intptr_t)hPipe, O_RDWR|O_BINARY));
 #endif
 }
 

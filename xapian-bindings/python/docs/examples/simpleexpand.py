@@ -3,7 +3,7 @@
 # Simple example script demonstrating query expansion.
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2006,2007 Olly Betts
+# Copyright (C) 2004,2006,2007,2012,2013 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -78,20 +78,18 @@ try:
 
     # Put the top 5 (at most) docs into the rset if rset is empty
     if reldocs.empty():
-        i = matches.begin()
-        for j in xrange(1, 5):
-            reldocs.add_document(i.get_docid())
-            i.next()
-            if i == matches.end():
+        rel_count = 0
+        for m in matches:
+            reldocs.add_document(m.docid)
+            rel_count += 1
+            if rel_count == 5:
                 break
 
     # Get the suggested expand terms
     eterms = enquire.get_eset(10, reldocs)
     print "%i suggested additional terms" % eterms.size()
-    k = eterms.begin()
-    while k != eterms.end():
-        print "%s: %f" % (k.get_term(), k.get_weight())
-        k.next()
+    for k in eterms:
+        print "%s: %f" % (k.term, k.weight)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)

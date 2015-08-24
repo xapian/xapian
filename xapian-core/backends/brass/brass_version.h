@@ -68,8 +68,9 @@ class BrassVersion {
 	return std::string(buf, 36);
     }
 
+#if 0 // Unused currently.
     /// Set the UUID from 16 byte binary value @a data.
-    void set_uuid(void * data) {
+    void set_uuid(const void * data) {
 	std::memcpy(uuid, data, 16);
     }
 
@@ -80,6 +81,7 @@ class BrassVersion {
     bool set_uuid_string(const std::string & s) {
 	return uuid_parse(s.c_str(), uuid);
     }
+#endif
 };
 
 #endif

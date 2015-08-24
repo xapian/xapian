@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2007,2009 Olly Betts
+ * Copyright 2003,2004,2007,2009,2012 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -118,6 +118,8 @@ Xapian::doccount
 AndNotPostList::get_termfreq_est() const
 {
     LOGCALL(MATCH, Xapian::doccount, "AndNotPostList::get_termfreq_est", NO_ARGS);
+    if (rare(dbsize == 0))
+	RETURN(0);
     // Estimate assuming independence:
     // P(l and r) = P(l) . P(r)
     // P(l not r) = P(l) - P(l and r) = P(l) . ( 1 - P(r))

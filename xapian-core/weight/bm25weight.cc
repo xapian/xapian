@@ -1,7 +1,7 @@
 /** @file bm25weight.cc
  * @brief Xapian::BM25Weight class - the BM25 probabilistic formula
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -110,12 +110,13 @@ BM25Weight::init(double factor)
 	termweight *= (param_k3 + 1) * wqf_double / (param_k3 + wqf_double);
     }
 #endif
+    termweight *= (param_k1 + 1);
 
     LOGVALUE(WTCALC, termweight);
 
-    if (param_b == 0 || param_k1 == 0) {
-	// If either param_b or param_k1 is 0 then the document length doesn't
-	// affect the weight.
+    if (param_k2 == 0 && (param_b == 0 || param_k1 == 0)) {
+	// If k2 is 0, and either param_b or param_k1 is 0 then the document
+	// length doesn't affect the weight.
 	len_factor = 0;
     } else {
 	len_factor = get_average_length();
@@ -165,22 +166,36 @@ BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
     LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_sumpart", wdf | len);
     Xapian::doclength normlen = max(len * len_factor, param_min_normlen);
 
-    double wdf_double(wdf);
+    double wdf_double = wdf;
     double denom = param_k1 * (normlen * param_b + (1 - param_b)) + wdf_double;
     AssertRel(denom,>,0);
-    RETURN(termweight * (param_k1 + 1) * (wdf_double / denom));
+    RETURN(termweight * (wdf_double / denom));
 }
 
 Xapian::weight
 BM25Weight::get_maxpart() const
 {
     LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_maxpart", NO_ARGS);
-    Xapian::doclength normlen_lb = max(get_doclength_lower_bound() * len_factor,
-				       param_min_normlen);
-    double wdf_max(get_wdf_upper_bound());
-    double denom = param_k1 * (normlen_lb * param_b + (1 - param_b)) + wdf_max;
+    double denom = param_k1;
+    if (param_k1 != 0.0) {
+	if (param_b != 0.0) {
+	    // "Upper-bound Approximations for Dynamic Pruning" Craig
+	    // Macdonald, Nicola Tonellotto and Iadh Ounis. ACM Transactions on
+	    // Information Systems. 29(4), 2011 shows that evaluating at
+	    // doclen=wdf_max is a good bound.
+	    //
+	    // However, we can do better if doclen_min > wdf_max since then a
+	    // better bound can be found by simply evaluating at
+	    // doclen=doclen_min and wdf=wdf_max.
+	    Xapian::doclength normlen_lb =
+		 max(max(get_wdf_upper_bound(), get_doclength_lower_bound()) * len_factor, param_min_normlen);
+	    denom *= (normlen_lb * param_b + (1 - param_b));
+	}
+    }
+    double wdf_max = get_wdf_upper_bound();
+    denom += wdf_max;
     AssertRel(denom,>,0);
-    RETURN(termweight * (param_k1 + 1) * (wdf_max / denom));
+    RETURN(termweight * (wdf_max / denom));
 }
 
 /* The BM25 formula gives:
@@ -204,8 +219,10 @@ Xapian::weight
 BM25Weight::get_maxextra() const
 {
     LOGCALL(WTCALC, Xapian::weight, "BM25Weight::get_maxextra", NO_ARGS);
+    if (param_k2 == 0.0)
+	RETURN(0.0);
     Xapian::weight num = (2.0 * param_k2 * get_query_length());
-    RETURN(num / (1.0 + max(double(get_doclength_lower_bound()),
+    RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor,
 			    param_min_normlen)));
 }
 

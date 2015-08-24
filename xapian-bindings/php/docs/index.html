@@ -27,6 +27,11 @@ to a floating point number.
 </p>
 
 <p>
+With version 1.2.6 and later, you can subclass Xapian classes in PHP and
+virtual methods defined in PHP are called from C++ in the way you'd expect.
+</p>
+
+<p>
 PHP has a lot of reserved words of various sorts, which sadly clash with common
 method names.  Because of this <code>empty()</code> methods of various
 container-like classes are wrapped as <code>is_empty()</code> for PHP
@@ -39,7 +44,8 @@ The <code>examples</code> subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/simpleindex.php5">simpleindex.php5</a>,
 <a href="examples/simplesearch.php5">simplesearch.php5</a>,
-<a href="examples/simpleexpand.php5">simpleexpand.php5</a>.
+<a href="examples/simpleexpand.php5">simpleexpand.php5</a>,
+<a href="examples/simplematchdecider.php5">simplematchdecider.php5</a>.
 </p>
 
 Note that these examples are written to work with the command line (CLI)
@@ -72,20 +78,6 @@ as the extension, and MS Windows uses <code>.dll</code>).
 If you're using PHP as a webserver module (e.g. mod_php with Apache), you
 may need to restart the webserver for this change to take effect.
 </p>
-
-<p>
-Alternatively, you can get scripts which use Xapian to explicitly load it.
-This approach is useful if you don't have root access and so can't make
-changes to php.ini.  The simplest set up is to copy <code>xapian.so</code> into
-the same directory as your PHP script, and then add the following line to the
-start of your PHP scripts which use Xapian: <code>dl('xapian.so');</code>
-</p>
-
-<p>
-You can put <code>xapian.so</code> elsewhere (and it's probably better to)
-but note that <code>dl()</code> requires a <b>relative</b> path so you
-might have to use something insane-looking like:
-<code>dl('../../../../usr/lib/php5/20051025/xapian.so');</code>
 
 <p>
 You also need to add <code>include&nbsp;"xapian.php"</code>
@@ -232,8 +224,14 @@ decide which to call).
 <h3>MatchAll and MatchNothing</h3>
 
 <p>
-These aren't yet wrapped for PHP, but you can use <code>XapianQuery("")</code>
-instead of MatchAll and <code>XapianQuery()</code> instead of MatchNothing.
+In Xapian 1.3.0 and later, these are wrapped as static methods
+<code>XapianQuery::MatchAll()</code> and <code>XapianQuery::MatchNothing()</code>.
+</p>
+
+<p>
+If you want to be compatible with earlier versions, you can continue to use
+<code>new XapianQuery('')</code> for MatchAll and
+<code>new XapianQuery()</code> for MatchNothing.
 </p>
 
 <h2>Enquire</h2>

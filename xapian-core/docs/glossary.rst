@@ -43,6 +43,11 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  modifications, and concurrent single-writer and multiple-reader access to a
  database.
 
+**Collection Frequency**
+ The collection frequency of a term is the total number of times is occurs in
+ the database.  This is equal to the sum of the within-document frequency for
+ the term in all the documents it occurs in.
+
 **Database**
  In Xapian (as opposed to a relational database system) a database consists of
  little more than indexed documents: this reflects the purpose of Xapian as an

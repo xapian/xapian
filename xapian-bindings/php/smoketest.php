@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2013 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,19 @@
  * USA
  */
 
-include "php5/xapian.php";
+# Die on any error, warning, notice, etc.
+function die_on_error($errno, $errstr, $file, $line) {
+    if ($file !== Null) {
+	print $file;
+	if ($line !== Null) print ":$line";
+	print ": ";
+    }
+    print "$errstr\n";
+    exit(1);
+}
+set_error_handler("die_on_error", -1);
+
+include "xapian.php";
 
 # Test the version number reporting functions give plausible results.
 $v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
@@ -121,6 +133,11 @@ if ($query1->get_description() != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 t
     print "Unexpected \$query1->get_description()\n";
     exit(1);
 }
+$query1b = new XapianQuery(XapianQuery::OP_NEAR, array("smoke", "test", "tuple"), 4);
+if ($query1b->get_description() != "Xapian::Query((smoke NEAR 4 test NEAR 4 tuple))") {
+    print "Unexpected \$query1b->get_description()\n";
+    exit(1);
+}
 $query2 = new XapianQuery(XapianQuery::OP_XOR, array(new XapianQuery("smoke"), $query1, "string"));
 if ($query2->get_description() != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))") {
     print "Unexpected \$query2->get_description()\n";
@@ -145,6 +162,35 @@ if ($terms != "is there") {
     exit(1);
 }
 
+# Feature test for MatchDecider
+$doc = new XapianDocument();
+$doc->set_data("Two");
+$doc->add_posting($stem->apply("out"), 1);
+$doc->add_posting($stem->apply("outside"), 1);
+$doc->add_posting($stem->apply("source"), 2);
+$doc->add_value(0, "yes");
+$db->add_document($doc);
+
+class testmatchdecider extends XapianMatchDecider {
+    function apply($doc) {
+	return ($doc->get_value(0) == "yes");
+    }
+}
+
+$query = new XapianQuery($stem->apply("out"));
+$enquire = new XapianEnquire($db);
+$enquire->set_query($query);
+$mdecider = new testmatchdecider();
+$mset = $enquire->get_mset(0, 10, null, $mdecider);
+if ($mset->size() != 1) {
+    print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+    exit(1);
+}
+if ($mset->get_docid(0) != 2) {
+    print "MatchDecider mset has wrong docid in\n";
+    exit(1);
+}
+
 if (XapianQuery::OP_ELITE_SET != 10) {
     print "OP_ELITE_SET is XapianQuery::OP_ELITE_SET not 10\n";
     exit(1);
@@ -161,9 +207,12 @@ $oquery = $oqparser->parse_query("I like tea");
 $enq->set_cutoff(100);
 
 # Check DateValueRangeProcessor works.
+function add_vrp_date(&$qp) {
+    $vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
+    $qp->add_valuerangeprocessor($vrpdate);
+}
 $qp = new XapianQueryParser();
-$vrpdate = new XapianDateValueRangeProcessor(1, 1, 1960);
-$qp->add_valuerangeprocessor($vrpdate);
+add_vrp_date($qp);
 $query = $qp->parse_query('12/03/99..12/04/01');
 if ($query->get_description() !== 'Xapian::Query(VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
@@ -315,6 +364,20 @@ if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
     exit(1);
 }
 
+$query = XapianQuery::MatchAll();
+if ($query->get_description() != 'Xapian::Query(<alldocuments>)') {
+    print "Unexpected \$query->get_description():\n";
+    print $query->get_description() . "\n";
+    exit(1);
+}
+
+$query = XapianQuery::MatchNothing();
+if ($query->get_description() != 'Xapian::Query()') {
+    print "Unexpected \$query->get_description():\n";
+    print $query->get_description() . "\n";
+    exit(1);
+}
+
 # Test access to matchspy values:
 {
     $matchspy = new XapianValueCountMatchSpy(0);
@@ -341,6 +404,28 @@ if ($query->get_description() != 'Xapian::Query(VALUE_GE 0 100)') {
 	print "\n";
 	exit(1);
     }
+}
+
+# Regression test for SWIG bug - it was generating "return $r;" in wrapper
+# functions which didn't set $r.
+$indexer = new XapianTermGenerator();
+$doc = new XapianDocument();
+
+$indexer->set_document($doc);
+$indexer->index_text("I ask nothing in return");
+$indexer->index_text_without_positions("Tea time");
+
+# Test reference tracking and regression test for #659.
+$qp = new XapianQueryParser();
+{
+    $stop = new XapianSimpleStopper();
+    $stop->add('a');
+    $qp->set_stopper($stop);
+}
+$query = $qp->parse_query('a b');
+if ($query->get_description() !== 'Xapian::Query(b:(pos=2))') {
+    print "XapianQueryParser::set_stopper() didn't work as expected - result was ".$query->get_description()."\n";
+    exit(1);
 }
 
 ?>

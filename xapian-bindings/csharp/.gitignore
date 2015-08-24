@@ -1,0 +1,17 @@
+/.*.sw?
+/*.lo
+/Makefile.in
+/Makefile
+/.deps
+/.libs
+/docs/index.html
+/SmokeTest.exe
+/AssemblyInfo.cs
+/xapian_wrap.cc
+/xapian_wrap.h
+/xapian_wrap.d
+/XapianSharp.dll
+/_XapianSharp.la
+/XapianSharp.snk
+/*.stamp
+/generated-csharp

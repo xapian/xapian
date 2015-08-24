@@ -1,7 +1,7 @@
 /** @file flint_compact.cc
  * @brief Compact a flint database, or merge and compact several.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,9 @@
 #include "flint_compact.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
+#include "flint_database.h"
 #include "internaltypes.h"
+#include "noreturn.h"
 #include "utils.h"
 
 #include "../byte_length_strings.h"
@@ -44,6 +46,16 @@
 #include <xapian.h>
 
 using namespace std;
+
+XAPIAN_NORETURN(
+static void failed_to_open_at_rev(string, flint_revision_number_t));
+static void
+failed_to_open_at_rev(string m, flint_revision_number_t rev)
+{
+    m += ": Couldn't open at revision ";
+    m += str(rev);
+    throw Xapian::DatabaseError(m);
+}
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in chert_compact.cc.
@@ -138,13 +150,16 @@ merge_postlists(Xapian::Compactor & compactor,
 		FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		vector<string>::const_iterator b,
 		vector<string>::const_iterator e,
+		vector<flint_revision_number_t>::const_iterator rev,
 		Xapian::docid last_docid)
 {
     totlen_t tot_totlen = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
-    for ( ; b != e; ++b, ++offset) {
+    for ( ; b != e; ++b, ++offset, ++rev) {
 	FlintTable *in = new FlintTable("postlist", *b, true);
-	in->open();
+	if (!in->open(*rev)) {
+	    failed_to_open_at_rev(*b, *rev);
+	}
 	if (in->empty()) {
 	    // Skip empty tables.
 	    delete in;
@@ -173,11 +188,13 @@ merge_postlists(Xapian::Compactor & compactor,
 	    if (tot_totlen < totlen) {
 		throw "totlen wrapped!";
 	    }
-	}
-	if (cur->next()) {
-	    pq.push(cur);
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
 	} else {
-	    delete cur;
+	    pq.push(cur);
 	}
     }
 
@@ -298,12 +315,15 @@ struct CursorGt {
 static void
 merge_spellings(FlintTable * out,
 		vector<string>::const_iterator b,
-		vector<string>::const_iterator e)
+		vector<string>::const_iterator e,
+		vector<flint_revision_number_t>::const_iterator rev)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b) {
+    for ( ; b != e; ++b, ++rev) {
 	FlintTable *in = new FlintTable("spelling", *b, true, DONT_COMPRESS, true);
-	in->open();
+	if (!in->open(*rev)) {
+	    failed_to_open_at_rev(*b, *rev);
+	}
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
 	    // responsible for deleting it.
@@ -411,12 +431,15 @@ merge_spellings(FlintTable * out,
 static void
 merge_synonyms(FlintTable * out,
 	       vector<string>::const_iterator b,
-	       vector<string>::const_iterator e)
+	       vector<string>::const_iterator e,
+	       vector<flint_revision_number_t>::const_iterator rev)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b) {
+    for ( ; b != e; ++b, ++rev) {
 	FlintTable *in = new FlintTable("synonym", *b, true, DONT_COMPRESS, true);
-	in->open();
+	if (!in->open(*rev)) {
+	    failed_to_open_at_rev(*b, *rev);
+	}
 	if (!in->empty()) {
 	    // The MergeCursor takes ownership of FlintTable in and is
 	    // responsible for deleting it.
@@ -498,7 +521,8 @@ static void
 multimerge_postlists(Xapian::Compactor & compactor,
 		     FlintTable * out, const char * tmpdir,
 		     Xapian::docid last_docid,
-		     vector<string> tmp, vector<Xapian::docid> off)
+		     vector<string> tmp, vector<flint_revision_number_t> revs,
+		     vector<Xapian::docid> off)
 {
     unsigned int c = 0;
     while (tmp.size() > 3) {
@@ -506,6 +530,8 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	tmpout.reserve(tmp.size() / 2);
 	vector<Xapian::docid> newoff;
 	newoff.resize(tmp.size() / 2);
+	vector<flint_revision_number_t> newrevs;
+	newrevs.reserve(tmp.size() / 2);
 	for (unsigned int i = 0, j; i < tmp.size(); i = j) {
 	    j = i + 2;
 	    if (j == tmp.size() - 1) ++j;
@@ -522,7 +548,8 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	    tmptab.create_and_open(65536);
 
 	    merge_postlists(compactor, &tmptab, off.begin() + i,
-			    tmp.begin() + i, tmp.begin() + j, 0);
+			    tmp.begin() + i, tmp.begin() + j,
+			    revs.begin() + i, last_docid);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + "DB").c_str());
@@ -533,13 +560,16 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	    tmpout.push_back(dest);
 	    tmptab.flush_db();
 	    tmptab.commit(1);
+	    newrevs.push_back(1);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
+	swap(revs, newrevs);
 	++c;
     }
     merge_postlists(compactor,
-		    out, off.begin(), tmp.begin(), tmp.end(), last_docid);
+		    out, off.begin(), tmp.begin(), tmp.end(), revs.begin(),
+		    last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + "DB").c_str());
@@ -552,13 +582,16 @@ multimerge_postlists(Xapian::Compactor & compactor,
 static void
 merge_docid_keyed(const char * tablename,
 		  FlintTable *out, const vector<string> & inputs,
+		  const vector<flint_revision_number_t> & revs,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
 	FlintTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
-	in.open();
+	if (!in.open(revs[i])) {
+	    failed_to_open_at_rev(inputs[i], revs[i]);
+	}
 	if (in.empty()) continue;
 
 	FlintCursor cur(&in);
@@ -601,6 +634,16 @@ compact_flint(Xapian::Compactor & compactor,
 	      const vector<Xapian::docid> & offset, size_t block_size,
 	      Xapian::Compactor::compaction_level compaction, bool multipass,
 	      Xapian::docid last_docid) {
+    // Get the revisions of each database to use to ensure we don't read tables
+    // at different revisions from any of them.
+    vector<flint_revision_number_t> revs;
+    revs.reserve(sources.size());
+    for (vector<string>::const_iterator i = sources.begin();
+	 i != sources.end(); ++i) {
+	FlintDatabase db(*i);
+	revs.push_back(db.get_revision_number());
+    }
+
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
     };
@@ -692,22 +735,24 @@ compact_flint(Xapian::Compactor & compactor,
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(compactor, &out, destdir, last_docid,
-					 inputs, offset);
+					 inputs, revs, offset);
 		} else {
 		    merge_postlists(compactor, &out, offset.begin(),
 				    inputs.begin(), inputs.end(),
-				    last_docid);
+				    revs.begin(), last_docid);
 		}
 		break;
 	    case SPELLING:
-		merge_spellings(&out, inputs.begin(), inputs.end());
+		merge_spellings(&out, inputs.begin(), inputs.end(),
+				revs.begin());
 		break;
 	    case SYNONYM:
-		merge_synonyms(&out, inputs.begin(), inputs.end());
+		merge_synonyms(&out, inputs.begin(), inputs.end(),
+			       revs.begin());
 		break;
 	    default:
 		// Position, Record, Termlist, Value.
-		merge_docid_keyed(t->name, &out, inputs, offset, t->lazy);
+		merge_docid_keyed(t->name, &out, inputs, revs, offset, t->lazy);
 		break;
 	}
 

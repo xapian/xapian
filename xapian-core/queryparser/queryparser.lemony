@@ -1,8 +1,9 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
+ * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,12 +27,16 @@
 #include "queryparser_internal.h"
 #include <xapian/error.h>
 #include <xapian/unicode.h>
+#include "str.h"
 #include "stringutils.h"
 
 // Include the list of token values lemon generates.
 #include "queryparser_token.h"
 
+#include "cjk-tokenizer.h"
+
 #include <algorithm>
+#include <limits>
 #include <list>
 #include <string>
 
@@ -122,16 +127,14 @@ struct filter_group_id {
 
     /// Ordering needed to allow storage in a map.
     bool operator<(const filter_group_id & other) const {
-	// Check slot first since comparison is cheap.
 	if (slot != other.slot)
 	    return slot < other.slot;
-	if (!prefix_info || prefix_info == other.prefix_info)
-	    return false;
-	if (!other.prefix_info)
-	    return true;
-	return prefix_info->prefixes < other.prefix_info->prefixes;
+	// std::less provides a total order over pointers.
+	return less<const PrefixInfo*>()(prefix_info, other.prefix_info);
     }
 };
+
+class Terms;
 
 /** Class used to pass information about a token from lexer to parser.
  *
@@ -188,6 +191,12 @@ class Term {
      *  know).
      */
     Query * as_partial_query(State * state_) const;
+
+    /** Build a query for a string of CJK characters. */
+    Query * as_cjk_query() const;
+
+    /** Handle a CJK character string in a positional context. */
+    void as_positional_cjk_term(Terms * terms) const;
 
     /// Value range query.
     Query as_value_range_query() const;
@@ -257,13 +266,18 @@ class State {
     void stoplist_resize(size_t s) {
 	qpi->stoplist.resize(s);
     }
+
+    Xapian::termcount get_max_wildcard_expansion() const {
+	return qpi->max_wildcard_expansion;
+    }
 };
 
 string
 Term::make_term(const string & prefix) const
 {
     string term;
-    if (stem == QueryParser::STEM_SOME) term += 'Z';
+    if (stem == QueryParser::STEM_SOME || stem == QueryParser::STEM_ALL_Z)
+	term += 'Z';
     if (!prefix.empty()) {
 	term += prefix;
 	if (prefix_needs_colon(prefix, name[0])) term += ':';
@@ -370,11 +384,21 @@ Term::as_wildcarded_query(State * state_) const
 
     const list<string> & prefixes = prefix_info->prefixes;
     list<string>::const_iterator piter;
+    Xapian::termcount expansion_count = 0;
+    Xapian::termcount max = state_->get_max_wildcard_expansion();
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
 	TermIterator t = db.allterms_begin(root);
 	while (t != db.allterms_end(root)) {
+	    if (max != 0 && ++expansion_count > max) {
+		string msg("Wildcard ");
+		msg += unstemmed;
+		msg += "* expands to more than ";
+		msg += str(max);
+		msg += " terms";
+		throw Xapian::QueryParserError(msg);
+	    }
 	    subqs.push_back(Query(*t, 1, pos));
 	    ++t;
 	}
@@ -409,6 +433,24 @@ Term::as_partial_query(State * state_) const
 				subqs_partial.begin(), subqs_partial.end()),
 			  Query(Query::OP_SYNONYM,
 				subqs_full.begin(), subqs_full.end()));
+    delete this;
+    return q;
+}
+
+Query *
+Term::as_cjk_query() const
+{
+    vector<Query> prefix_cjk;
+    const list<string> & prefixes = prefix_info->prefixes;
+    list<string>::const_iterator piter;
+    for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
+	for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+	    string cjk = *piter;
+	    cjk += *tk;
+	    prefix_cjk.push_back(Query(cjk, 1, pos));
+	}
+    }
+    Query * q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
     delete this;
     return q;
 }
@@ -455,7 +497,7 @@ should_stem(const string & term)
 /** Value representing "ignore this" when returned by check_infix() or
  *  check_infix_digit().
  */
-const unsigned UNICODE_IGNORE(-1);
+const unsigned UNICODE_IGNORE = numeric_limits<unsigned>::max();
 
 inline unsigned check_infix(unsigned ch) {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
@@ -465,11 +507,14 @@ inline unsigned check_infix(unsigned ch) {
 	// real world cases).
 	return ch;
     }
-    // 0x2019 is Unicode apostrophe and single closing quote.
-    // 0x201b is Unicode single opening quote with the tail rising.
-    if (ch == 0x2019 || ch == 0x201b) return '\'';
-    if (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
-	return UNICODE_IGNORE;
+    if (ch >= 0x200b) {
+	// 0x2019 is Unicode apostrophe and single closing quote.
+	// 0x201b is Unicode single opening quote with the tail rising.
+	if (ch == 0x2019 || ch == 0x201b)
+	    return '\'';
+	if (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff)
+	    return UNICODE_IGNORE;
+    }
     return 0;
 }
 
@@ -520,6 +565,7 @@ QueryParser::Internal::add_prefix(const string &field, const string &prefix,
 
 string
 QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
+				  bool cjk_ngram, bool & is_cjk_term,
 				  bool &was_acronym)
 {
     string term;
@@ -545,10 +591,16 @@ QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
     }
     was_acronym = !term.empty();
 
+    if (cjk_ngram && term.empty() && CJK::codepoint_is_cjk(*it)) {
+	term = CJK::get_cjk(it);
+	is_cjk_term = true;
+    }
+
     if (term.empty()) {
 	unsigned prevch = *it;
 	Unicode::append_utf8(term, prevch);
 	while (++it != end) {
+	    if (cjk_ngram && CJK::codepoint_is_cjk(*it)) break;
 	    unsigned ch = *it;
 	    if (!is_wordchar(ch)) {
 		// Treat a single embedded '&' or "'" or similar as a word
@@ -617,6 +669,8 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
+    bool cjk_ngram = CJK::is_cjk_enabled();
+
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
     value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
@@ -703,8 +757,7 @@ just_had_operator_needing_term:
 		    if (!a.empty() || (p != end && *p > ' ' && *p != ')')) {
 			string b;
 			// Allow any character except whitespace and ')' in the
-			// upper bound.  Or should we be consistent with the
-			// lower bound?
+			// upper bound.
 			while (p != end && *p > ' ' && *p != ')') {
 			    Unicode::append_utf8(b, *p++);
 			}
@@ -725,8 +778,9 @@ just_had_operator_needing_term:
 		    goto main_lex_loop;
 		}
 		ch = *p;
-		if (!(is_wordchar(ch) || is_currency(ch) ||
-		      (ch < 128 && strchr("%,-./:@", ch)))) break;
+		// Allow any character except whitespace and '(' in the lower
+		// bound.
+		if (ch <= ' ' || ch == '(') break;
 		++p;
 	    }
 	}
@@ -958,7 +1012,8 @@ not_prefix:
 
 phrased_term:
 	bool was_acronym;
-	string term = parse_term(it, end, was_acronym);
+	bool is_cjk_term = false;
+	string term = parse_term(it, end, cjk_ngram, is_cjk_term, was_acronym);
 
 	// Boolean operators.
 	if ((mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) &&
@@ -999,10 +1054,10 @@ phrased_term:
 			    Parse(pParser, ADJ, new Term(width), &state);
 			    goto just_had_operator;
 			}
+		    } else {
+			Parse(pParser, ADJ, NULL, &state);
+			goto just_had_operator;
 		    }
-
-		    Parse(pParser, ADJ, NULL, &state);
-		    goto just_had_operator;
 		}
 	    } else if (op.size() == 2) {
 		if (op == "OR") {
@@ -1022,10 +1077,10 @@ phrased_term:
 			    Parse(pParser, NEAR, new Term(width), &state);
 			    goto just_had_operator;
 			}
+		    } else {
+			Parse(pParser, NEAR, NULL, &state);
+			goto just_had_operator;
 		    }
-
-		    Parse(pParser, NEAR, NULL, &state);
-		    goto just_had_operator;
 		}
 	    }
 	}
@@ -1057,6 +1112,12 @@ phrased_term:
 
 	    Term * term_obj = new Term(&state, term, prefix_info,
 				       unstemmed_term, stem_term, term_pos++);
+
+	    if (is_cjk_term) {
+		Parse(pParser, CJKTERM, term_obj, &state);
+		if (it == end) break;
+		continue;
+	    }
 
 	    if (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2) {
 		if (it != end) {
@@ -1184,9 +1245,15 @@ phrased_term:
     }
 done:
     if (!state.error) {
-	// Implicitly close any unclosed quotes...
+	// Implicitly close any unclosed quotes.
 	if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
 	    Parse(pParser, QUOTE, NULL, &state);
+
+	// Implicitly close all unclosed brackets.
+	while (prefix_stack.size() > 1) {
+	    Parse(pParser, KET, NULL, &state);
+	    prefix_stack.pop_back();
+	}
 	Parse(pParser, 0, NULL, &state);
     }
 
@@ -1290,11 +1357,16 @@ TermGroup::as_group(State *state) const
 {
     const Xapian::Stopper * stopper = state->get_stopper();
     size_t stoplist_size = state->stoplist_size();
+    bool default_op_is_positional = is_positional(state->default_op());
 reprocess:
     Query::op default_op = state->default_op();
     vector<Query> subqs;
     subqs.reserve(terms.size());
-    if (state->flags & QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS) {
+    // FLAG_AUTO_MULTIWORD_SYNONYMS is 1024 | FLAG_AUTO_SYNONYMS so if we
+    // tested with that we'd enable multi-word synonyms when FLAG_AUTO_SYNONYMS
+    // was set (as was the case in 1.2.8 and earlier).
+    const unsigned ENABLE_AUTO_MULTIWORD_SYNONYMS = 1024; 
+    if (state->flags & ENABLE_AUTO_MULTIWORD_SYNONYMS) {
 	// Check for multi-word synonyms.
 	Database db = state->get_database();
 
@@ -1309,6 +1381,8 @@ reprocess:
 		if (stopper && (*stopper)((*i)->name)) {
 		    state->add_to_stoplist(*i);
 		} else {
+		    if (default_op_is_positional)
+			(*i)->need_positions();
 		    subqs.push_back((*i)->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
@@ -1336,6 +1410,8 @@ reprocess:
 		if (stopper && (*stopper)((*i)->name)) {
 		    state->add_to_stoplist(*i);
 		} else {
+		    if (default_op_is_positional)
+			(*i)->need_positions();
 		    subqs.push_back((*i)->get_query_with_auto_synonyms());
 		}
 		begin = ++i;
@@ -1348,11 +1424,13 @@ reprocess:
 		if (stopper && (*stopper)((*j)->name)) {
 		    state->add_to_stoplist(*j);
 		} else {
+		    if (default_op_is_positional)
+			(*i)->need_positions();
 		    subqs2.push_back((*j)->get_query());
 		}
 	    }
 	    Query q_original_terms;
-	    if (is_positional(default_op)) {
+	    if (default_op_is_positional) {
 		q_original_terms = Query(default_op,
 					 subqs2.begin(), subqs2.end(),
 					 subqs2.size() + 9);
@@ -1380,6 +1458,8 @@ reprocess:
 	    if (stopper && (*stopper)((*i)->name)) {
 		state->add_to_stoplist(*i);
 	    } else {
+		if (default_op_is_positional)
+		    (*i)->need_positions();
 		subqs.push_back((*i)->get_query_with_auto_synonyms());
 	    }
 	}
@@ -1396,7 +1476,7 @@ reprocess:
 
     Query * q = NULL;
     if (!subqs.empty()) {
-	if (is_positional(default_op)) {
+	if (default_op_is_positional) {
 	    q = new Query(default_op, subqs.begin(), subqs.end(),
 			     subqs.size() + 9);
 	} else {
@@ -1526,11 +1606,28 @@ class Terms {
     }
 };
 
+void
+Term::as_positional_cjk_term(Terms * terms) const
+{
+    // Add each individual CJK character to the phrase.
+    string t;
+    for (Utf8Iterator it(name); it != Utf8Iterator(); ++it) {
+	Unicode::append_utf8(t, *it);
+	Term * c = new Term(state, t, prefix_info, unstemmed, stem, pos);
+	terms->add_positional_term(c);
+	t.resize(0);
+    }
+
+    // FIXME: we want to add the n-grams as filters too for efficiency.
+
+    delete this;
+}
+
 // Helper macro for converting a boolean operation into a Xapian::Query.
 #define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
-	    state->error = "Syntax: <expression> "OP_TXT" <expression>";\
+	    state->error = "Syntax: <expression> " OP_TXT " <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\
@@ -1588,7 +1685,7 @@ class Terms {
 %destructor PARTIAL_TERM {delete $$;}
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
-// add_bool_prefix().  It's added to the query using an OP_FILTER operator,
+// add_boolean_prefix().  It's added to the query using an OP_FILTER operator,
 // (or OP_AND_NOT if it's negated) e.g. site:xapian.org or -site:xapian.org
 %destructor BOOLEAN_FILTER {delete $$;}
 
@@ -1892,9 +1989,8 @@ compound_term(T) ::= QUOTE phrase(P) QUOTE.
 compound_term(T) ::= phrased_term(P).
 	{ T = P->as_phrase_query(); }
 
-compound_term(T) ::= group(P).  {
-    T = P->as_group(state);
-}
+compound_term(T) ::= group(P).
+	{ T = P->as_group(state); }
 
 compound_term(T) ::= near_expr(P).
 	{ T = P->as_near_query(); }
@@ -1910,6 +2006,10 @@ compound_term(T) ::= SYNONYM TERM(U). {
     delete U;
 }
 
+compound_term(T) ::= CJKTERM(U). {
+    { T = U->as_cjk_query(); }
+}
+
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 
 %type phrase {Terms *}
@@ -1921,9 +2021,19 @@ phrase(P) ::= TERM(T). {
     P->add_positional_term(T);
 }
 
+phrase(P) ::= CJKTERM(T). {
+    P = new Terms;
+    T->as_positional_cjk_term(P);
+}
+
 phrase(P) ::= phrase(Q) TERM(T). {
     P = Q;
     P->add_positional_term(T);
+}
+
+phrase(P) ::= phrase(Q) CJKTERM(T). {
+    P = Q;
+    T->as_positional_cjk_term(P);
 }
 
 // phrased_term - A phrased term works like a single term, but is actually

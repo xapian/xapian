@@ -103,7 +103,7 @@ bool
 BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
 			     const string & tname)
 {
-    LOGCALL_VOID(DB, "BrassPositionList::read_data", table | did | tname);
+    LOGCALL(DB, bool, "BrassPositionList::read_data", table | did | tname);
 
     have_started = false;
     positions.clear();
@@ -112,7 +112,7 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     if (!table->get_exact_entry(BrassPositionListTable::make_key(did, tname), data)) {
 	// There's no positional information for this term.
 	current_pos = positions.begin();
-	return false;
+	RETURN(false);
     }
 
     const char * pos = data.data();
@@ -137,7 +137,7 @@ BrassPositionList::read_data(const BrassTable * table, Xapian::docid did,
     rd.decode_interpolative(positions, 0, pos_size - 1);
 
     current_pos = positions.begin();
-    return true;
+    RETURN(true);
 }
 
 Xapian::termcount

@@ -8,7 +8,7 @@ LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
-# from a bootstrapped SVN tree.
+# from a bootstrapped git tree.
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
@@ -16,10 +16,11 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 # This requires GNU make, but apparently that's the default on OS X.
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 
-# This is a hack to enable tests in an SVN build (or build with similar layout)
-# on macosx to find the uninstalled xapian library. See
-# http://trac.xapian.org/ticket/322
-export DYLD_LIBRARY_PATH="$(abs_builddir)/../../xapian-core/.libs"
+if NEED_INTREE_DYLD
+# This is a hack for Mac OS X to enable tests to work when built against an
+# uninstalled xapian-core tree.  See http://trac.xapian.org/ticket/322
+export DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
+endif
 endif
 
 # Recover from the removal of $@.  A full explanation of this is in the

@@ -83,13 +83,13 @@
 #define PACKAGE_NAME "xapian-omega"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "xapian-omega 1.2.3"
+#define PACKAGE_STRING "xapian-omega 1.2.4"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "xapian-omega"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.2.3"
+#define PACKAGE_VERSION "1.2.4"
 
 /* Define to the name of a function implementing snprintf but not caring about
    ISO C90 return value semantics (if one exists) */
@@ -106,7 +106,7 @@
 /* USE_ICONV */
 
 /* Version number of package */
-#define VERSION "1.2.3"
+#define VERSION "1.2.4"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
@@ -147,3 +147,5 @@
 # pragma warning(disable:4003)
 #endif
 
+/* no defined helper directory */
+#define PKGLIBBINDIR ""

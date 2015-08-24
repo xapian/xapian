@@ -1,7 +1,7 @@
 /** @file chert_version.cc
  * @brief ChertVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2013 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,6 @@
 # include "msvc_posix_wrapper.h"
 #endif
 
-#include <cstdio> // For rename().
 #include <cstring> // For memcmp() and memcpy().
 #include <string>
 
@@ -88,6 +87,7 @@ ChertVersion::create()
 	throw;
     }
 
+    io_sync(fd);
     if (close(fd) != 0) {
 	string msg("Failed to create chert version file: ");
 	msg += filename;
@@ -139,7 +139,7 @@ ChertVersion::read_and_check()
 	string msg = filename;
 	msg += ": Chert version file is version ";
 	msg += str(version);
-	msg += " but I only understand "STRINGIZE(CHERT_VERSION);
+	msg += " but I only understand " STRINGIZE(CHERT_VERSION);
 	throw Xapian::DatabaseVersionError(msg);
     }
 

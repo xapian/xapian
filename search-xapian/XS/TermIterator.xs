@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 TermIterator *
 new1()
     CODE:
-        RETVAL = new TermIterator();
+	RETVAL = new TermIterator();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 new2(other)
     TermIterator *	other
     CODE:
-        RETVAL = new TermIterator(*other);
+	RETVAL = new TermIterator(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 TermIterator::DESTROY()
@@ -23,32 +23,32 @@ TermIterator::DESTROY()
 TermIterator *
 TermIterator::inc()
     CODE:
-        RETVAL = new TermIterator(++(*THIS));
+	RETVAL = new TermIterator(++(*THIS));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 TermIterator::equal(that)
     TermIterator *	that
     CODE:
-        RETVAL = ((*THIS) == (*that));
+	RETVAL = ((*THIS) == (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 TermIterator::nequal(that)
     TermIterator *	that
     CODE:
-        RETVAL = ((*THIS) != (*that));
+	RETVAL = ((*THIS) != (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 TermIterator::get_termname()
     CODE:
-        RETVAL = THIS->operator*();
+	RETVAL = THIS->operator*();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 TermIterator::skip_to(string tname)
@@ -62,16 +62,16 @@ TermIterator::get_termfreq()
 PositionIterator *
 TermIterator::positionlist_begin()
     CODE:
-        RETVAL = new PositionIterator(THIS->positionlist_begin());
+	RETVAL = new PositionIterator(THIS->positionlist_begin());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 PositionIterator *
 TermIterator::positionlist_end()
     CODE:
-        RETVAL = new PositionIterator(THIS->positionlist_end());
+	RETVAL = new PositionIterator(THIS->positionlist_end());
     OUTPUT:
-        RETVAL
+	RETVAL
 
 string
 TermIterator::get_description()

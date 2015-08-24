@@ -12,11 +12,11 @@ new0()
 void
 MultiValueSorter::add(valueno valno, bool forward = NO_INIT)
     CODE:
-        if (items == 3) { /* items includes the hidden this pointer */
-            THIS->add(valno, forward);
-        } else {
-            THIS->add(valno);
-        }
+	if (items == 3) { /* items includes the hidden this pointer */
+	    THIS->add(valno, forward);
+	} else {
+	    THIS->add(valno);
+	}
 
 void
 MultiValueSorter::DESTROY()

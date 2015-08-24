@@ -1,4 +1,4 @@
-/* datematchdecider.cc: date filtering using a Xapian::MatchDecider
+/* datematchdecider.h: date filtering using a Xapian::MatchDecider
  *
  * Copyright (C) 2006 Olly Betts
  *

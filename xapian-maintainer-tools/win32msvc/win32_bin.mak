@@ -16,6 +16,7 @@ INTDIR=.\
 PROGRAMS = \
            "$(OUTDIR)\xapian-compact.exe" \
            "$(OUTDIR)\xapian-progsrv.exe" \
+           "$(OUTDIR)\xapian-chert-update.exe" \
            "$(OUTDIR)\xapian-tcpsrv.exe" \
            "$(OUTDIR)\xapian-inspect.exe" \
            "$(OUTDIR)\xapian-check.exe" \
@@ -24,9 +25,7 @@ PROGRAMS = \
            
 SRCS = \
 	"$(INTDIR)\xapian-compact.cc" \
-	"$(INTDIR)\xapian-compact-chert.cc" \
-	"$(INTDIR)\xapian-compact-brass.cc" \
-	"$(INTDIR)\xapian-compact-flint.cc" \
+	"$(INTDIR)\xapian-chert-update.cc" \
 	"$(INTDIR)\xapian-progsrv.cc" \
 	"$(INTDIR)\xapian-tcpsrv.cc" \
 	"$(INTDIR)\xapian-inspect.cc" \
@@ -40,11 +39,9 @@ SRCS = \
 	   
 ALL : $(PROGRAMS)
 
-XAPIAN_COMPACT_OBJS= \
-	"$(INTDIR)\xapian-compact.obj" \
-	"$(INTDIR)\xapian-compact-flint.obj" \
-	"$(INTDIR)\xapian-compact-chert.obj" \
-	"$(INTDIR)\xapian-compact-brass.obj" 
+XAPIAN_COMPACT_OBJS= "$(INTDIR)\xapian-compact.obj" 
+
+XAPIAN_CHERT_UPDATE_OBJS= "$(INTDIR)\xapian-chert-update.obj" 
 
 XAPIAN_PROGSRV_OBJS= "$(INTDIR)\xapian-progsrv.obj" 
 
@@ -66,6 +63,7 @@ XAPIAN_REPLICATE_SERVER_OBJS= "$(INTDIR)\xapian-replicate-server.obj"
 CLEAN :
 	-@erase $(PROGRAMS)
 	-@erase $(XAPIAN_COMPACT_OBJS)
+    -@erase $(XAPIAN_CHERT_UPDATE_OBJS)
 	-@erase $(XAPIAN_PROGSRV_OBJS)
 	-@erase $(XAPIAN_TCPSRV_OBJS)
 	-@erase $(XAPIAN_INSPECT_OBJS)
@@ -107,6 +105,14 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
     $(MANIFEST) "$(OUTDIR)\xapian-progsrv.exe.manifest" -outputresource:"$(OUTDIR)\xapian-progsrv.exe;1"
     -@erase "$(OUTDIR)\xapian-progsrv.exe.manifest"
 
+"$(OUTDIR)\xapian-chert-update.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_CHERT_UPDATE_OBJS) \
+                             $(PROGRAM_DEPENDENCIES)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-chert-update.exe" $(DEF_FLAGS) $(XAPIAN_CHERT_UPDATE_OBJS)
+<<
+    $(MANIFEST) "$(OUTDIR)\xapian-chert-update.exe.manifest" -outputresource:"$(OUTDIR)\xapian-chert-update.exe;1"
+    -@erase "$(OUTDIR)\xapian-chert-update.exe.manifest"
+    
 "$(OUTDIR)\xapian-tcpsrv.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_TCPSRV_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<

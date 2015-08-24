@@ -28,8 +28,11 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
+#include "autoptr.h"
 #include <map>
 #include <string>
+
+class ChertCursor;
 
 /** Generate a key for a value stream chunk. */
 inline std::string
@@ -73,7 +76,7 @@ class ChertValueManager {
      *  Set to Xapian::BAD_VALUENO if no value statistics are currently
      *  cached.
      */
-    mutable Xapian::valueno mru_valno;
+    mutable Xapian::valueno mru_slot;
 
     /** The most recently used value statistics. */
     mutable ValueStats mru_valstats;
@@ -85,6 +88,8 @@ class ChertValueManager {
     std::map<Xapian::docid, std::string> slots;
 
     std::map<Xapian::valueno, std::map<Xapian::docid, std::string> > changes;
+
+    mutable AutoPtr<ChertCursor> cursor;
 
     void add_value(Xapian::docid did, Xapian::valueno slot,
 		   const std::string & val);
@@ -104,7 +109,7 @@ class ChertValueManager {
     /** Create a new ChertValueManager object. */
     ChertValueManager(ChertPostListTable * postlist_table_,
 		      ChertTermListTable * termlist_table_)
-	: mru_valno(Xapian::BAD_VALUENO),
+	: mru_slot(Xapian::BAD_VALUENO),
 	  postlist_table(postlist_table_),
 	  termlist_table(termlist_table_) { }
 
@@ -126,17 +131,17 @@ class ChertValueManager {
 			Xapian::docid did) const;
 
     Xapian::doccount get_value_freq(Xapian::valueno slot) const {
-	if (mru_valno != slot) get_value_stats(slot);
+	if (mru_slot != slot) get_value_stats(slot);
 	return mru_valstats.freq;
     }
 
     std::string get_value_lower_bound(Xapian::valueno slot) const {
-	if (mru_valno != slot) get_value_stats(slot);
+	if (mru_slot != slot) get_value_stats(slot);
 	return mru_valstats.lower_bound;
     }
 
     std::string get_value_upper_bound(Xapian::valueno slot) const {
-	if (mru_valno != slot) get_value_stats(slot);
+	if (mru_slot != slot) get_value_stats(slot);
 	return mru_valstats.upper_bound;
     }
 
@@ -151,7 +156,7 @@ class ChertValueManager {
 
     void reset() {
 	/// Ignore any old cached valuestats.
-	mru_valno = Xapian::BAD_VALUENO;
+	mru_slot = Xapian::BAD_VALUENO;
     }
 
     bool is_modified() const {

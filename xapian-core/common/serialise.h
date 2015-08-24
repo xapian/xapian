@@ -1,7 +1,7 @@
 /* @file serialise.h
  * @brief functions to convert classes to strings and back
  *
- * Copyright (C) 2006,2007,2008,2009 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,13 +54,13 @@ encode_length(T len)
 	result += '\xff';
 	len -= 255;
 	while (true) {
-	    unsigned char byte = static_cast<unsigned char>(len & 0x7f);
+	    unsigned char b = static_cast<unsigned char>(len & 0x7f);
 	    len >>= 7;
 	    if (!len) {
-		result += (byte | static_cast<unsigned char>(0x80));
+		result += (b | static_cast<unsigned char>(0x80));
 		break;
 	    }
-	    result += byte;
+	    result += b;
 	}
     }
     return result;
@@ -130,6 +130,14 @@ Xapian::Weight::Internal unserialise_stats(const std::string &s);
  */
 std::string serialise_mset(const Xapian::MSet &mset);
 
+/** Serialise a Xapian::MSet object with sort keys.
+ *
+ *  @param mset		The object to serialise.
+ *
+ *  @return		The serialisation of the Xapian::MSet object.
+ */
+std::string serialise_mset_new(const Xapian::MSet &mset);
+
 /** Unserialise a serialised Xapian::MSet object.
  *
  *  @param p	 Pointer to the start of the string to unserialise.
@@ -138,6 +146,15 @@ std::string serialise_mset(const Xapian::MSet &mset);
  *  @return	The unserialised Xapian::MSet object.
  */
 Xapian::MSet unserialise_mset(const char * p, const char * p_end);
+
+/** Unserialise a serialised Xapian::MSet object with sort keys.
+ *
+ *  @param p	 Pointer to the start of the string to unserialise.
+ *  @param p_end Pointer to the end of the string to unserialise.
+ *
+ *  @return	The unserialised Xapian::MSet object.
+ */
+Xapian::MSet unserialise_mset_new(const char * p, const char * p_end);
 
 /** Serialise a Xapian::RSet object.
  *

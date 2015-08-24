@@ -184,7 +184,7 @@ static bool test_autoptr1()
     return true;
 }
 
-// test string comparisions
+// test string comparisons
 static bool test_stringcomp1()
 {
     bool success = true;
@@ -204,7 +204,7 @@ static bool test_stringcomp1()
 
     if ((s1 == s2) || (s1 < s2)) {
 	success = false;
-	tout << "String comparisions don't cope with extra nulls" << endl;
+	tout << "String comparisons don't cope with extra nulls" << endl;
     }
 
     s2 += '\0';

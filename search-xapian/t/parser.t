@@ -1,12 +1,13 @@
+use strict;
 # Before `make install' is performed this script should be runnable with
-# 	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
 # `make test'. After `make install' it should work as `perl test.pl'
 
 #########################
 
 use Test;
+use Devel::Leak;
 use Devel::Peek;
-BEGIN { plan tests => 58 };
+BEGIN { plan tests => 62 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -58,6 +59,17 @@ ok( $vrp = new Search::Xapian::StringValueRangeProcessor(1) );
 $qp->add_valuerangeprocessor($vrp);
 $qp->add_boolean_prefix("test", "XTEST");
 
+my $handle;
+my $count = Devel::Leak::NoteSV($handle);
+{
+    my $qp2 = new Search::Xapian::QueryParser();
+    $qp2->add_valuerangeprocessor(
+	Search::Xapian::StringValueRangeProcessor->new(1, 'test:', 1));
+    $qp2->set_stopper(Search::Xapian::SimpleStopper->new(qw(a an the)));
+    $qp2->set_stopper(Search::Xapian::SimpleStopper->new(qw(a the)));
+}
+ok( $count == Devel::Leak::CheckSV($handle) );
+
 my $pair;
 foreach $pair (
     [ 'a..b', 'VALUE_RANGE 1 a b' ],
@@ -85,10 +97,14 @@ my $vrp2 = new Search::Xapian::NumberValueRangeProcessor(2);
 my $vrp3 = new Search::Xapian::StringValueRangeProcessor(3);
 my $vrp4 = new Search::Xapian::NumberValueRangeProcessor(4, '$');
 my $vrp5 = new Search::Xapian::NumberValueRangeProcessor(5, 'kg', 0);
+my $vrp6 = new Search::Xapian::StringValueRangeProcessor(6, 'country:');
+my $vrp7 = new Search::Xapian::StringValueRangeProcessor(7, ':name', 0);
 $qp->add_valuerangeprocessor( $vrp1 );
 $qp->add_valuerangeprocessor( $vrp2 );
 $qp->add_valuerangeprocessor( $vrp4 );
 $qp->add_valuerangeprocessor( $vrp5 );
+$qp->add_valuerangeprocessor( $vrp6 );
+$qp->add_valuerangeprocessor( $vrp7 );
 $qp->add_valuerangeprocessor( $vrp3 );
 
 $qp->add_boolean_prefix("test", "XTEST");
@@ -108,6 +124,8 @@ foreach $pair (
     [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19990312 20010412' ],
     [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
     [ '(test:a..test:b hello)', '(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)' ],
+    [ 'country:chile..denmark', 'VALUE_RANGE 6 chile denmark' ],
+    [ 'albert..xeni:name', 'VALUE_RANGE 7 albert xeni' ],
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
@@ -140,11 +158,14 @@ eval {
 };
 ok($@);
 ok(ref($@), "Search::Xapian::QueryParserError", "correct class for exception");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->isa('Search::Xapian::Error'));
 ok($@->get_msg, "Syntax: <expression> AND <expression>", "get_msg works");
 ok( $@ =~ /^Exception: Syntax: <expression> AND <expression>(?: at \S+ line \d+\.)?$/ );
 
 # Check FLAG_DEFAULT is wrapped (new in 1.0.11.0).
 ok( $qp->parse_query('hello world', FLAG_DEFAULT|FLAG_BOOLEAN_ANY_CASE) );
+
+# Check BAD_VALUENO is wrapped.
+ok( Search::Xapian::BAD_VALUENO != 0 );
 
 1;

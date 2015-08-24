@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,26 +63,26 @@ static int delcount;
 inline static bool
 p_space(unsigned int c)
 {
-    return isspace(static_cast<unsigned char>(c));
+    return C_isspace(c);
 }
 
 inline static bool
 p_notspace(unsigned int c)
 {
-    return !isspace(static_cast<unsigned char>(c));
+    return !C_isspace(c);
 }
 
 inline static bool
 p_notalpha(unsigned int c)
 {
-    return !isalpha(static_cast<unsigned char>(c));
+    return !C_isalpha(c);
 }
 
 // Characters allowed as second or subsequent characters in a fieldname
 inline static bool
 p_notfieldnamechar(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '_';
+    return !C_isalnum(c) && c != '_';
 }
 
 inline bool
@@ -115,10 +115,11 @@ private:
     string string_arg;
 public:
     Action(type action_) : action(action_), num_arg(0) { }
-    Action(type action_, string arg) : action(action_), string_arg(arg) {
+    Action(type action_, const string & arg)
+	: action(action_), string_arg(arg) {
 	num_arg = atoi(string_arg.c_str());
     }
-    Action(type action_, string arg, int num)
+    Action(type action_, const string & arg, int num)
 	: action(action_), num_arg(num), string_arg(arg) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }
@@ -163,7 +164,7 @@ parse_index_script(const string &filename)
 	i = find_if(s.begin(), s.end(), p_notspace);
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
-	    if (!isalnum(static_cast<unsigned char>(*i))) {
+	    if (!C_isalnum(*i)) {
 		cout << filename << ':' << line_no
 		     << ": field name must start with alphanumeric" << endl;
 		exit(1);
@@ -292,7 +293,7 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), p_notspace);
 		i = find_if(j, s.end(), p_space);
-		string val = string(j, i);
+		string val(j, i);
 		if (takes_integer_argument) {
 		    if (val.find('.') != string::npos) {
 			cout << filename << ':' << line_no
@@ -422,6 +423,11 @@ parse_index_script(const string &filename)
 		v.insert(v.end(), actions.begin(), actions.end());
 	    }
 	}
+    }
+
+    if (index_spec.empty()) {
+	cout << filename << ": No rules found in index script" << endl;
+	exit(1);
     }
 }
 
@@ -558,16 +564,7 @@ index_file(const char *fname, istream &stream,
 			    p.parse_html(value, "iso-8859-1", false);
 			} catch (const string & newcharset) {
 			    p.reset();
-			    try {
-				p.parse_html(value, newcharset, true);
-			    } catch (bool) {
-				// MyHtmlParser throws a bool to abandon
-				// parsing at </body> or when indexing is
-				// disallowed.
-			    }
-			} catch (bool) {
-			    // MyHtmlParser throws a bool to abandon parsing at
-			    // </body> or when indexing is disallowed.
+			    p.parse_html(value, newcharset, true);
 			}
 			if (p.indexing_allowed)
 			    value = p.dump;
@@ -769,16 +766,21 @@ try {
     argv += optind;
     argc -= optind;
     if (show_help || argc < 2) {
-	cout << PROG_NAME" - "PROG_DESC"\n"
-"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n\n"
+	cout << PROG_NAME " - " PROG_DESC "\n"
+"Usage: " PROG_NAME " [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n"
+"\n"
 "Creates or updates a Xapian database with the data from the input files listed\n"
-"on the command line.  If no files are specified, data is read from stdin.\n\n"
+"on the command line.  If no files are specified, data is read from stdin.\n"
+"\n"
+"See http://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
+"format for INDEXER_SCRIPT.\n"
+"\n"
 "Options:\n"
 "  -v, --verbose       display additional messages to aid debugging\n"
 "      --overwrite     create the database anew (the default is to update if\n"
 "                      the database already exists)\n";
 	print_stemmer_help("");
-	print_help_and_version_help("", 'V');
+	print_help_and_version_help("");
 	exit(show_help ? 0 : 1);
     }
 

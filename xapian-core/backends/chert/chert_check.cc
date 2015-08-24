@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008 Olly Betts
+ * Copyright 2002,2004,2005,2008,2013 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -59,13 +59,12 @@ void ChertTableCheck::print_key(const byte * p, int c, int j) const
 void ChertTableCheck::print_tag(const byte * p, int c, int j) const
 {
     Item item(p, c);
-    string tag;
-    item.append_chunk(&tag);
     if (j == 0) {
+	string tag;
+	item.append_chunk(&tag);
 	out << "/" << item.components_of() << tag;
     } else {
-	out << "--> [" << getint4(reinterpret_cast<const byte*>(tag.data()), 0)
-	    << ']';
+	out << "--> [" << item.block_given_by() << ']';
     }
 }
 
@@ -140,7 +139,9 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     base.free_block(n);
 
     if (j != GET_LEVEL(p)) failure(10);
-    if (dir_end <= DIR_START || dir_end > block_size) failure(20);
+    // dir_end must be > DIR_START, fit within the block, and be odd.
+    if (dir_end <= DIR_START || dir_end > block_size || (dir_end & 1) != 1)
+	failure(20);
 
     if (opts & OPT_SHORT_TREE) report_block(3*(level - j), n, p);
 
@@ -197,11 +198,16 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 }
 
 void
-ChertTableCheck::check(const char * tablename, const string & path, int opts,
+ChertTableCheck::check(const char * tablename, const string & path,
+		       chert_revision_number_t * rev_ptr, int opts,
 		       ostream &out)
 {
     ChertTableCheck B(tablename, path, false, out);
-    B.open(); // throws exception if open fails
+    // open() throws an exception if it fails
+    if (rev_ptr)
+	B.open(*rev_ptr);
+    else
+	B.open();
     Cursor * C = B.C;
 
     if (opts & OPT_SHOW_STATS) {

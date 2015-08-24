@@ -1,3 +1,4 @@
+use strict;
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
@@ -7,7 +8,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 5 };
+BEGIN { plan tests => 6 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -54,11 +55,11 @@ for my $num (1..1000) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-} 
+}
 $write->flush();
 $read->reopen();
 
-for my $num qw (three four five) {
+for my $num (qw(three four five)) {
   my $doc = Search::Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
@@ -72,12 +73,16 @@ for my $num qw (three four five) {
 }
 $write->flush();
 eval {
-    my $mset = $enq->get_mset(0, 10);    
+    my $mset = $enq->get_mset(0, 10);
 };
 ok($@);
 ok(ref($@), "Search::Xapian::DatabaseModifiedError", "correct class for exception");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->isa('Search::Xapian::Error'));
 
 ok($@->get_msg, "The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation", "get_msg works");
+
+# WritableDatabase::reopen() is a no-op, but it shouldn't fail.
+$write->reopen();
+ok(1);
 
 1;

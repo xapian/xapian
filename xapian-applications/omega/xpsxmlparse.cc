@@ -1,7 +1,7 @@
 /** @file xpsxmlparse.cc
  * @brief Subclass of HtmlParser for parsing XPS .fpage files.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2011 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #include "xpsxmlparse.h"
 
-void
+bool
 XpsXmlParser::opening_tag(const string &tag)
 {
     if (tag == "glyphs") {
@@ -30,4 +30,5 @@ XpsXmlParser::opening_tag(const string &tag)
 	if (get_parameter("unicodestring", unicodestring))
 	    dump += unicodestring;
     }
+    return true;
 }

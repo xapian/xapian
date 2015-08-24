@@ -1586,7 +1586,7 @@ char **argv;
 /*
 ** Return a pointer to the next structure in the linked list.
 */
-#define NEXT(A) (*(char**)(((unsigned long)A)+offset))
+#define NEXT(A) (*(char**)(((char*)A)+offset))
 
 /*
 ** Inputs:
@@ -2558,6 +2558,7 @@ struct lemon *gp;
   filesize = ftell(fp);
   if( filesize==-1 ){
     ErrorMsg(ps.filename,0,"Couldn't read size of this file.");
+    fclose(fp);
     gp->errorcnt++;
     return;
   }
@@ -2566,12 +2567,14 @@ struct lemon *gp;
   if( filebuf==0 ){
     ErrorMsg(ps.filename,0,"Can't allocate %d of memory to hold this file.",
       filesize+1);
+    fclose(fp);
     gp->errorcnt++;
     return;
   }
   if( fread(filebuf,1,filesize,fp)!=(size_t)filesize ){
     ErrorMsg(ps.filename,0,"Can't read in all %d bytes of this file.",
       filesize);
+    fclose(fp);
     free(filebuf);
     gp->errorcnt++;
     return;
@@ -3278,7 +3281,10 @@ PRIVATE char *append_str(char *zText, int n, int p1, int p2){
     alloced = n + sizeof(zInt)*2 + used + 200;
     z = realloc(z,  alloced);
   }
-  if( z==0 ) return "";
+  if( z==0 ){
+    fprintf(stderr,"Out of memory.\n");
+    exit(1);
+  }
   while( n-- > 0 ){
     c = *(zText++);
     if( c=='%' && n>0 && zText[0]=='d' ){
@@ -4062,12 +4068,14 @@ struct lemon *lemp;
     in = file_open(lemp,".h","rb");
   }
   if( in ){
+    int nextChar;
     for(i=1; i<lemp->nterminal && fgets(line,LINESIZE,in); i++){
       sprintf(pattern,"#define %s%-30s %2d\n",prefix,lemp->symbols[i]->name,i);
       if( strcmp(line,pattern) ) break;
     }
+    nextChar = fgetc(in);
     fclose(in);
-    if( i==lemp->nterminal ){
+    if( i==lemp->nterminal && nextChar==EOF ){
       /* No change in the file.  Don't rewrite it. */
       return;
     }

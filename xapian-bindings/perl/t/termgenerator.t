@@ -5,7 +5,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 27 };
+BEGIN { plan tests => 28 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -65,7 +65,9 @@ $indexer->set_database($db);
 my $document = Search::Xapian::Document->new();
 $indexer->set_document($document);
 $indexer->index_text('test hello');
-$db->add_document($document);
+$termgen->index_text('foo bar baz foo', 4);
+$termgen->index_text_without_positions('baz zoo', 42);
+ok( $db->add_document($document) );
 undef $db;
 
 1;

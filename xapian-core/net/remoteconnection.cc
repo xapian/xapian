@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "safesysselect.h"
+#include "safesysstat.h"
 #include "safeunistd.h"
 
 #include <algorithm>
@@ -38,9 +40,7 @@
 #include "socket_utils.h"
 #include "utils.h"
 
-#ifndef __WIN32__
-# include "safesysselect.h"
-#else
+#ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 
@@ -138,7 +138,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	if (received == 0)
 	    throw Xapian::NetworkError("Received EOF", context);
 
-	LOGLINE(REMOTE, "read gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "read gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -276,7 +276,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    continue;
 	}
 
-	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -315,26 +315,18 @@ RemoteConnection::send_message(char type, const string &message,
 }
 
 void
-RemoteConnection::send_file(char type, const string &file, double end_time)
+RemoteConnection::send_file(char type, int fd, double end_time)
 {
-    LOGCALL_VOID(REMOTE, "RemoteConnection::send_file", type | file | end_time);
+    LOGCALL_VOID(REMOTE, "RemoteConnection::send_file", type | fd | end_time);
     if (fdout == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
-
-#ifdef __WIN32__
-    int fd = msvc_posix_open(file.c_str(), O_RDONLY);
-#else
-    int fd = open(file.c_str(), O_RDONLY);
-#endif
-    if (fd == -1) throw Xapian::NetworkError("File not found: " + file, errno);
-    fdcloser closefd(fd);
 
     off_t size;
     {
 	struct stat sb;
 	if (fstat(fd, &sb) == -1)
-	    throw Xapian::NetworkError("Couldn't stat file: " + file, errno);
+	    throw Xapian::NetworkError("Couldn't stat file to send", errno);
 	size = sb.st_size;
     }
     // FIXME: Use sendfile() or similar if available?
@@ -424,7 +416,7 @@ RemoteConnection::send_file(char type, const string &file, double end_time)
 	    continue;
 	}
 
-	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -571,7 +563,7 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
 
     read_at_least(at_least, end_time);
 
-    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
+    size_t retlen = min(off_t(buffer.size()), chunked_data_left);
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;
@@ -604,9 +596,9 @@ RemoteConnection::receive_file(const string &file, double end_time)
 
 #ifdef __WIN32__
     // Do we want to be able to delete the file during writing?
-    int fd = msvc_posix_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
+    int fd = msvc_posix_open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY);
 #else
-    int fd = open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666);
+    int fd = open(file.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
 #endif
     if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
     fdcloser closefd(fd);
@@ -625,7 +617,9 @@ RemoteConnection::receive_file(const string &file, double end_time)
     unsigned char ch;
     int shift = 0;
     do {
-	if (i == buffer.end() || shift > 28) {
+	// Allow a full 64 bits for message lengths - anything longer than that
+	// is almost certainly a corrupt value.
+	if (i == buffer.end() || shift > 63) {
 	    // Something is very wrong...
 	    throw Xapian::NetworkError("Insane message length specified!");
 	}

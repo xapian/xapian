@@ -1,7 +1,7 @@
 /** @file tradweight.cc
  * @brief Xapian::TradWeight class - the "traditional" probabilistic formula
  */
-/* Copyright (C) 2009,2010 Olly Betts
+/* Copyright (C) 2009,2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 
 #include "xapian/error.h"
 
+#include <algorithm>
 #include <cmath>
 
 using namespace std;
@@ -135,14 +136,14 @@ TradWeight::unserialise(const string & s) const
     const char *end = ptr + s.size();
     double k = unserialise_double(&ptr, end);
     if (rare(ptr != end))
-	throw Xapian::NetworkError("Extra data in BM25Weight::unserialise()");
+	throw Xapian::NetworkError("Extra data in TradWeight::unserialise()");
     return new TradWeight(k);
 }
 
 Xapian::weight
 TradWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
 {
-    double wdf_double(wdf);
+    double wdf_double = wdf;
     return termweight * (wdf_double / (len * len_factor + wdf_double));
 }
 
@@ -150,7 +151,7 @@ Xapian::weight
 TradWeight::get_maxpart() const
 {
     // FIXME: need to force non-zero wdf_max to stop percentages breaking...
-    double wdf_max(max(get_wdf_upper_bound(), Xapian::termcount(1)));
+    double wdf_max = max(get_wdf_upper_bound(), Xapian::termcount(1));
     Xapian::termcount doclen_lb = get_doclength_lower_bound();
     return termweight * (wdf_max / (doclen_lb * len_factor + wdf_max));
 }

@@ -88,7 +88,7 @@ Omega
 
 As of Omega 1.1.1, omindex and scriptindex support indexing spelling correction
 data and omega supports suggesting corrected spellings at search time.  See the
-Omega documentation for more details.
+`Omega documentation <http://xapian.org/docs/omega/>`_ for more details.
 
 Algorithm
 =========

@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -107,11 +107,15 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	Database(const Database &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const Database &other);
 
@@ -128,30 +132,37 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Close the database.
 	 *
-	 *  This closes the database and releases all file handles held by the
-	 *  database.
+	 *  This closes the database and closes all its file handles.
 	 *
-	 *  This is a permanent close of the database: calling reopen() after
-	 *  closing a database will not reopen it, and will raise an exception.
+	 *  For a WritableDatabase, if a transaction is active it will be
+	 *  aborted, while if no transaction is active commit() will be
+	 *  implicitly called.  Also the write lock is released.
 	 *
-	 *  Calling close() on a database which is already closed has no effect
-	 *  (and doesn't raise an exception).
+	 *  Closing a database cannot be undone - in particular, calling
+	 *  reopen() after close() will not reopen it, but will instead throw a
+	 *  Xapian::DatabaseError exception.
 	 *
-	 *  After this call, calls made to methods of the database (other than
-	 *  close() or the destructor), or to objects associated with the
-	 *  database will behave in one of the following ways (but which
-	 *  behaviour happens may vary between releases, and between database
-	 *  backends):
+	 *  Calling close() again on a database which has already been closed
+	 *  has no effect (and doesn't raise an exception).
 	 *
-	 *   - raise a Xapian::DatabaseError indicating that the database is
-	 *   closed.
+	 *  After close() has been called, calls to other methods of the
+	 *  database, and to methods of other objects associated with the
+	 *  database, will either:
 	 *
 	 *   - behave exactly as they would have done if the database had not
-	 *   been closed (by using cached data).
+	 *     been closed (this can only happen if all the required data is
+	 *     cached)
 	 *
-	 *  To summarise - you should not rely on the exception being raised,
-	 *  or the normal result being available, but if you do get a result,
-	 *  it will be correct.
+	 *   - raise a Xapian::DatabaseError exception indicating that the
+	 *     database is closed.
+	 *
+	 *  The reason for this behaviour is that otherwise we'd have to check
+	 *  that the database is still open on every method call on every
+	 *  object associated with a Database, when in many cases they are
+	 *  working on data which has already been loaded and so they are able
+	 *  to just behave correctly.
+	 *
+	 *  This method was added in Xapian 1.1.0.
 	 */
 	virtual void close();
 
@@ -161,28 +172,32 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
 	 *
-	 *  If the term name is the empty string, the iterator returned
-	 *  will list all the documents in the database.  Such an iterator
-	 *  will always return a WDF value of 1, since there is no obvious
-	 *  meaning for this quantity in this case.
+	 *  @param tname	The termname to iterate postings for.  If the
+	 *			term name is the empty string, the iterator
+	 *			returned will list all the documents in the
+	 *			database.  Such an iterator will always return
+	 *			a WDF value of 1, since there is no obvious
+	 *			meaning for this quantity in this case.
 	 */
 	PostingIterator postlist_begin(const std::string &tname) const;
 
 	/** Corresponding end iterator to postlist_begin().
 	 */
 	PostingIterator postlist_end(const std::string &) const {
-	    return PostingIterator(NULL);
+	    return PostingIterator();
 	}
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
+	 *
+	 *  @param did	The document id of the document to iterate terms for.
 	 */
 	TermIterator termlist_begin(Xapian::docid did) const;
 
 	/** Corresponding end iterator to termlist_begin().
 	 */
 	TermIterator termlist_end(Xapian::docid) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** Does this database have any positional information? */
@@ -196,7 +211,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to positionlist_begin().
 	 */
 	PositionIterator positionlist_end(Xapian::docid, const std::string &) const {
-	    return PositionIterator(NULL);
+	    return PositionIterator();
 	}
 
 	/** An iterator which runs across all terms in the database.
@@ -206,7 +221,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to allterms_begin().
 	 */
 	TermIterator allterms_end() const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/** An iterator which runs across all terms with a given prefix.
@@ -225,7 +240,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Corresponding end iterator to allterms_begin(prefix).
 	 */
 	TermIterator allterms_end(const std::string &) const {
-	    return TermIterator(NULL);
+	    return TermIterator();
 	}
 
 	/// Get the number of documents in the database.
@@ -242,9 +257,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Check if a given term exists in the database.
 	 *
-	 *  Return true if and only if the term exists in the database.
-	 *  This is the same as (get_termfreq(tname) != 0), but will often be
-	 *  more efficient.
+	 *  @param tname	The term to test the existence of.
+	 *
+	 *  @return	true if and only if the term exists in the database.
+	 *		This is the same as (get_termfreq(tname) != 0), but
+	 *		will often be more efficient.
 	 */
 	bool term_exists(const std::string & tname) const;
 
@@ -264,12 +281,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  This is the number of documents which have a (non-empty) value
 	 *  stored in the slot.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 *
 	 *  @exception UnimplementedError The frequency of the value isn't
 	 *  available for this database type.
 	 */
-	Xapian::doccount get_value_freq(Xapian::valueno valno) const;
+	Xapian::doccount get_value_freq(Xapian::valueno slot) const;
 
 	/** Get a lower bound on the values stored in the given value slot.
 	 *
@@ -279,21 +296,21 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  If the lower bound isn't available for the given database type,
 	 *  this will return the lowest possible bound - the empty string.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 */
-	std::string get_value_lower_bound(Xapian::valueno valno) const;
+	std::string get_value_lower_bound(Xapian::valueno slot) const;
 
 	/** Get an upper bound on the values stored in the given value slot.
 	 *
 	 *  If there are no values stored in the given value slot, this will
 	 *  return an empty string.
 	 *
-	 *  @param valno The value slot to examine.
+	 *  @param slot The value slot to examine.
 	 *
 	 *  @exception UnimplementedError The upper bound of the values isn't
 	 *  available for this database type.
 	 */
-	std::string get_value_upper_bound(Xapian::valueno valno) const;
+	std::string get_value_upper_bound(Xapian::valueno slot) const;
 
 	/** Get a lower bound on the length of a document in this DB.
 	 *
@@ -335,6 +352,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 *  @exception Xapian::DocNotFoundError      The document specified
 	 *		could not be found in the database.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  did was 0, which is not
+	 *		a valid document id.
 	 */
 	Xapian::Document get_document(Xapian::docid did) const;
 
@@ -360,7 +380,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to spellings_begin().
 	Xapian::TermIterator spellings_end() const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** An iterator which returns all the synonyms for a given term.
@@ -371,7 +391,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to synonyms_begin(term).
 	Xapian::TermIterator synonyms_end(const std::string &) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** An iterator which returns all terms which have synonyms.
@@ -383,7 +403,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to synonym_keys_begin(prefix).
 	Xapian::TermIterator synonym_keys_end(const std::string & = std::string()) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** Get the user-specified metadata associated with a given key.
@@ -434,7 +454,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/// Corresponding end iterator to metadata_keys_begin().
 	Xapian::TermIterator metadata_keys_end(const std::string & = std::string()) const {
-	    return Xapian::TermIterator(NULL);
+	    return Xapian::TermIterator();
 	}
 
 	/** Get a UUID for the database.
@@ -460,9 +480,15 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
     public:
 	/** Destroy this handle on the database.
 	 *
-	 *  If there are no copies of this object remaining, the database
-	 *  will be closed.  If there are any transactions in progress
-	 *  these will be aborted as if cancel_transaction had been called.
+	 *  If no other handles to this database remain, the database will be
+	 *  closed.
+	 *
+	 *  If a transaction is active cancel_transaction() will be implicitly
+	 *  called; if no transaction is active commit() will be implicitly
+	 *  called, but any exception will be swallowed (because throwing
+	 *  exceptions in C++ destructors is problematic).  If you aren't using
+	 *  transactions and want to know about any failure to commit changes,
+	 *  call commit() explicitly before the destructor gets called.
 	 */
 	virtual ~WritableDatabase();
 
@@ -500,6 +526,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	WritableDatabase(const WritableDatabase &other);
 
@@ -509,6 +537,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  Note that only an WritableDatabase may be assigned to an
 	 *  WritableDatabase: an attempt to assign a Database is caught
 	 *  at compile-time.
+	 *
+	 *  @param other	The object to copy.
 	 */
 	void operator=(const WritableDatabase &other);
 
@@ -540,6 +570,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  conservative, and if you have a machine with plenty of memory,
 	 *  you can improve indexing throughput dramatically by setting
 	 *  XAPIAN_FLUSH_THRESHOLD in the environment to a larger value.
+	 *
+	 *  This method was new in Xapian 1.1.0 - in earlier versions it was
+	 *  called flush().
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
@@ -586,6 +619,14 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  were pending before the transaction began will also be discarded.
 	 *
 	 *  Transactions aren't currently supported by the InMemory backend.
+	 *
+	 *  @param flushed	Is this a flushed transaction?  By default
+	 *			transactions are "flushed", which means that
+	 *			committing a transaction will ensure those
+	 *			changes are permanently written to the
+	 *			database.  By contrast, unflushed transactions
+	 *			only ensure that changes within the transaction
+	 *			are either all applied or all aren't.
 	 *
 	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
@@ -764,11 +805,6 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  document.add_term(unique_term) first when using replace_document()
 	 *  in this way.
 	 *
-	 *  Another possible use is to allow groups of documents to be marked for
-	 *  later deletion - for example, you could add a "deletion date" term
-	 *  to documents at index time and use this method to easily and efficiently
-	 *  delete all documents due for deletion on a particular date.
-	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see commit() for more details.
 	 *
@@ -815,22 +851,26 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
 	/** Add a synonym for a term.
 	 *
-	 *  If @a synonym is already a synonym for @a term, then no action is
-	 *  taken.
+	 *  @param term		The term to add a synonym for.
+	 *  @param synonym	The synonym to add.  If this is already a
+	 *			synonym for @a term, then no action is taken.
 	 */
 	void add_synonym(const std::string & term,
 			 const std::string & synonym) const;
 
 	/** Remove a synonym for a term.
 	 *
-	 *  If @a synonym isn't a synonym for @a term, then no action is taken.
+	 *  @param term		The term to remove a synonym for.
+	 *  @param synonym	The synonym to remove.  If this isn't currently
+	 *			a synonym for @a term, then no action is taken.
 	 */
 	void remove_synonym(const std::string & term,
 			    const std::string & synonym) const;
 
 	/** Remove all synonyms for a term.
 	 *
-	 *  If @a term has no synonyms, no action is taken.
+	 *  @param term		The term to remove all synonyms for.  If the
+	 *			term has no synonyms, no action is taken.
 	 */
 	void clear_synonyms(const std::string & term) const;
 
@@ -892,8 +932,6 @@ const int DB_CREATE = 2;
 const int DB_CREATE_OR_OVERWRITE = 3;
 /** Open for read/write; fail if no db exists. */
 const int DB_OPEN = 4;
-// Can't see any sensible use for this one
-// const int DB_OVERWRITE = XXX;
 
 }
 

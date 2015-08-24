@@ -18,6 +18,7 @@ OBJS= \
                 $(INTDIR)\brass_alldocspostlist.obj\
                 $(INTDIR)\brass_alltermslist.obj\
                 $(INTDIR)\brass_btreebase.obj\
+                $(INTDIR)\brass_compact.obj\
                 $(INTDIR)\brass_cursor.obj\
                 $(INTDIR)\brass_database.obj\
                 $(INTDIR)\brass_databasereplicator.obj\
@@ -42,6 +43,7 @@ SRCS= \
                 $(INTDIR)\brass_alldocspostlist.cc\
                 $(INTDIR)\brass_alltermslist.cc\
                 $(INTDIR)\brass_btreebase.cc\
+                $(INTDIR)\brass_compact.cc\
                 $(INTDIR)\brass_cursor.cc\
                 $(INTDIR)\brass_database.cc\
                 $(INTDIR)\brass_databasereplicator.cc\

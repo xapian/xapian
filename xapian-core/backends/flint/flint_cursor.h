@@ -115,7 +115,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	 *    string key;
 	 *
 	 *    // Now do something to each key in the Btree
-         *    BC.find_entry(""); // must give result true
+	 *    BC.find_entry(string()); // must give result true
 	 *
 	 *    while (BC.next()) {
 	 *        BC.get_key(&key);

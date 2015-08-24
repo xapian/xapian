@@ -1,6 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
- Copyright (c) 2008, Olly Betts
+ Copyright (c) 2008,2011, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -32,30 +32,30 @@ using namespace Xapian;
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_termiterator_1positionlist_1begin (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
         PositionIterator *positr = new PositionIterator(itr->positionlist_begin());
-        return _positioniterator->put(positr);
+        return id_from_obj(positr);
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_termiterator_1positionlist_1end (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
         PositionIterator *positr = new PositionIterator(itr->positionlist_end());
-        return _positioniterator->put(positr);
+        return id_from_obj(positr);
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_termiterator_1next (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
         (*itr)++;
     CATCH(;)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_termiterator_1get_1termname (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
         if (!itr) throw "TermIterator is invalid";
         string term = *(*itr);
         return env->NewStringUTF(term.c_str());
@@ -64,44 +64,41 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_termiterator_1get_1termname 
 
 JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_termiterator_1get_1term_1freq (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
         return itr->get_termfreq();
     CATCH(-1)
 }
 
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_termiterator_1get_1wdf (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
         return itr->get_wdf();
     CATCH(-1)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_termiterator_1skip_1to (JNIEnv *env, jclass clazz, jlong termiteratorid, jstring term) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
-        const char *c_term = env->GetStringUTFChars(term, 0);
-	string cpp_term(c_term, env->GetStringUTFLength(term));
-        itr->skip_to(cpp_term);
-        env->ReleaseStringUTFChars(term, c_term);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
+        itr->skip_to(cpp_string(env, term));
     CATCH(;)
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_termiterator_1get_1description (JNIEnv *env, jclass clazz, jlong termiteratorid) {
     TRY
-        TermIterator *itr = _termiterator->get(termiteratorid);
+        TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
         return env->NewStringUTF(itr->get_description().c_str());
     CATCH(NULL)
 }
 
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_termiterator_1equals (JNIEnv *env, jclass clazz, jlong aid, jlong bid) {
     TRY
-        TermIterator *a = _termiterator->get(aid);
-        TermIterator *b = _termiterator->get(bid);
+        TermIterator *a = obj_from_id<TermIterator *>(aid);
+        TermIterator *b = obj_from_id<TermIterator *>(bid);
         return (*a) == (*b);
     CATCH(0)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_termiterator_1finalize (JNIEnv *env, jclass clazz, jlong termiteratorid) {
-    TermIterator *itr = _termiterator->remove(termiteratorid);
-    if (itr) delete itr;
+    TermIterator *itr = obj_from_id<TermIterator *>(termiteratorid);
+    delete itr;
 }

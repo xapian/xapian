@@ -1,7 +1,7 @@
 /** @file xapian-replicate.cc
  * @brief Replicate a database from a master server to a local copy.
  */
-/* Copyright (C) 2008 Olly Betts
+/* Copyright (C) 2008,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,17 +45,25 @@ using namespace std;
 // Number of seconds before we assume that a reader will be closed.
 #define READER_CLOSE_TIME 30
 
+// Socket level timeout (in seconds).
+#define DEFAULT_TIMEOUT 0
+
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE\n\n"
 "Options:\n"
-"  -h, --host=HOST     host to connect to\n"
-"  -p, --port=PORT     port to connect to\n"
-"  -m, --master=DB     replicate database DB from the master\n"
+"  -h, --host=HOST     host to connect to (required)\n"
+"  -p, --port=PORT     port to connect to (required)\n"
+"  -m, --master=DB     replicate database DB from the master (default: DATABASE)\n"
 "  -i, --interval=N    wait N seconds between each connection to the master\n"
-"                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
+"                      (default: " STRINGIZE(DEFAULT_INTERVAL) ")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
-"                      applying repeated changesets (default: "STRINGIZE(READER_CLOSE_TIME)")\n"
+"                      applying repeated changesets (default: " STRINGIZE(READER_CLOSE_TIME) ")\n"
+"  -t, --timeout=N     set socket timeouts (if supported) to N seconds; N=0 for\n"
+"                      no timeout (default: " STRINGIZE(DEFAULT_TIMEOUT) ")\n"
+"  -f, --force-copy    force a full copy of the database to be sent (and then\n"
+"                      replicate as normal)\n"
 "  -o, --one-shot      replicate only once and then exit\n"
+"  -q, --quiet         only report errors\n"
 "  -v, --verbose       be more verbose\n"
 "  --help              display this help and exit\n"
 "  --version           output version information and exit" << endl;
@@ -64,14 +72,17 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 {
-    const char * opts = "h:p:m:i:r:ov";
+    const char * opts = "h:p:m:i:r:t:ofqv";
     const struct option long_opts[] = {
 	{"host",	required_argument,	0, 'h'},
 	{"port",	required_argument,	0, 'p'},
 	{"master",	required_argument,	0, 'm'},
 	{"interval",	required_argument,	0, 'i'},
 	{"reader-time",	required_argument,	0, 'r'},
+	{"timeout",	required_argument,	0, 't'},
 	{"one-shot",	no_argument,		0, 'o'},
+	{"force-copy",	no_argument,		0, 'f'},
+	{"quiet",	no_argument,		0, 'q'},
 	{"verbose",	no_argument,		0, 'v'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
@@ -83,8 +94,10 @@ main(int argc, char **argv)
     string masterdb;
     int interval = DEFAULT_INTERVAL;
     bool one_shot = false;
-    bool verbose = false;
+    enum { NORMAL, VERBOSE, QUIET } verbosity = NORMAL;
+    bool force_copy = false;
     int reader_close_time = READER_CLOSE_TIME;
+    int timeout = DEFAULT_TIMEOUT;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -104,18 +117,27 @@ main(int argc, char **argv)
 	    case 'r':
 		reader_close_time = atoi(optarg);
 		break;
+	    case 't':
+		timeout = atoi(optarg);
+		break;
+	    case 'f':
+		force_copy = true;
+		break;
 	    case 'o':
 		one_shot = true;
 		break;
+	    case 'q':
+		verbosity = QUIET;
+		break;
 	    case 'v':
-		verbose = true;
+		verbosity = VERBOSE;
 		break;
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    default:
 		show_usage();
@@ -128,35 +150,54 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    if (host.empty()) {
+	cout << "Host required - specify with --host=HOST\n\n";
+	show_usage();
+	exit(1);
+    }
+
+    if (port == 0) {
+	cout << "Port required - specify with --port=PORT\n\n";
+	show_usage();
+	exit(1);
+    }
+
     // Path to the database to create/update.
     string dbpath(argv[optind]);
 
+    if (masterdb.empty())
+	masterdb = dbpath;
+
     while (true) {
 	try {
-	    if (verbose) {
+	    if (verbosity == VERBOSE) {
 		cout << "Connecting to " << host << ":" << port << endl;
 	    }
-	    ReplicateTcpClient client(host, port, 10000);
-	    if (verbose) {
+	    ReplicateTcpClient client(host, port, 10.0, timeout);
+	    if (verbosity == VERBOSE) {
 		cout << "Getting update for " << dbpath << " from "
 		     << masterdb << endl;
 	    }
 	    Xapian::ReplicationInfo info;
 	    client.update_from_master(dbpath, masterdb, info,
-				      reader_close_time);
-	    if (verbose) {
-		cout << "Update complete: " <<
-			info.fullcopy_count << " copies, " <<
-			info.changeset_count << " changesets, " <<
-			(info.changed ? "new live database" : "no changes to live database") <<
-			endl;
+				      reader_close_time, force_copy);
+	    if (verbosity == VERBOSE) {
+		cout << "Update complete: "
+		     << info.fullcopy_count << " copies, "
+		     << info.changeset_count << " changesets, "
+		     << (info.changed ? "new live database"
+				      : "no changes to live database")
+		     <<	endl;
+	    }
+	    if (verbosity != QUIET) {
 		if (info.fullcopy_count > 0 && !info.changed) {
 		    cout <<
-"Replication using a full copy failed. This is usually due to changes being\n"
-"made at remote end too frequently. Ensure that sufficient changesets are\n"
-"present at remote end by setting XAPIAN_MAX_CHANGESETS" << endl;
+"Replication using a full copy failed.  This usually means that the master\n"
+"database is changing too frequently.  Ensure that sufficient changesets are\n"
+"present by setting XAPIAN_MAX_CHANGESETS on the master." << endl;
 		}
 	    }
+	    force_copy = false;
 	} catch (const Xapian::NetworkError &error) {
 	    // Don't stop running if there's a network error - just log to
 	    // stderr and retry at next timeout.  This should make the client

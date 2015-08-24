@@ -5,7 +5,7 @@ PROTOTYPES: ENABLE
 TermGenerator *
 new0()
     CODE:
-	RETVAL = new TermGenerator();
+	RETVAL = XAPIAN_PERL_NEW(TermGenerator, ());
     OUTPUT:
 	RETVAL
 
@@ -19,9 +19,8 @@ void
 TermGenerator::set_stopper(stopper)
     Stopper * stopper
     CODE:
-	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
-	// a SEGV!
-	SvREFCNT_inc(ST(1));
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(TermGenerator, THIS, stopper, ST(1));
 	THIS->set_stopper(stopper);
 
 void
@@ -43,7 +42,7 @@ TermGenerator::get_document()
 	RETVAL
 
 void
-TermGenerator::index_text(text, weight = 1, prefix = "")
+TermGenerator::index_text(text, weight = 1, prefix = NO_INIT)
     string text
     termcount weight
     string prefix
@@ -57,7 +56,7 @@ TermGenerator::set_flags(int toggle, int mask = 0)
 	RETVAL
 
 void
-TermGenerator::index_text_without_positions(text, weight = 1, prefix = "")
+TermGenerator::index_text_without_positions(text, weight = 1, prefix = NO_INIT)
     string text
     termcount weight
     string prefix
@@ -76,3 +75,5 @@ TermGenerator::get_description()
 
 void
 TermGenerator::DESTROY()
+    CODE:
+	XAPIAN_PERL_DESTROY(TermGenerator, THIS);

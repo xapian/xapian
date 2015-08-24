@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,6 +30,7 @@
 
 #include "safeerrno.h"
 
+#include <cstdio>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -93,7 +94,7 @@ BackendManager::createdb_brass(const vector<string> &files)
 
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = files.begin();
-	 i != files.end(); i++) {
+	 i != files.end(); ++i) {
 	dbdir += '=';
 	dbdir += *i;
     }
@@ -145,7 +146,7 @@ BackendManager::createdb_chert(const vector<string> &files)
 
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = files.begin();
-	 i != files.end(); i++) {
+	 i != files.end(); ++i) {
 	dbdir += '=';
 	dbdir += *i;
     }
@@ -396,7 +397,7 @@ BackendManager::get_xapian_progsrv_command()
 {
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	return "./runsrv "XAPIAN_PROGSRV;
+	return "./runsrv " XAPIAN_PROGSRV;
     }
 #endif
     return XAPIAN_PROGSRV;

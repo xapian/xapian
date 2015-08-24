@@ -4,6 +4,7 @@
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
+ * Copyright 2011, Action Without Borders
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -394,12 +395,20 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
     if (index < firstitem || index >= firstitem + items.size()) {
 	throw RangeError("The mset returned from the match does not contain the document at index " + str(index));
     }
-    fetch_items(index, index); // FIXME: this checks indexeddocs AGAIN!
-    /* Actually read the fetched documents */
-    read_docs();
-    Assert(indexeddocs.find(index) != indexeddocs.end());
-    Assert(indexeddocs.find(index)->first == index); // Paranoid assert
-    RETURN(indexeddocs.find(index)->second);
+    Assert(enquire.get());
+    if (!requested_docs.empty()) {
+	// There's already a pending request, so handle that.
+	read_docs();
+	// Maybe we just fetched the doc we want.
+	doc = indexeddocs.find(index);
+	if (doc != indexeddocs.end()) {
+	    RETURN(doc->second);
+	}
+    }
+
+    // Don't cache unless fetch() was called by the API user.
+    enquire->request_doc(items[index - firstitem]);
+    RETURN(enquire->read_doc(items[index - firstitem]));
 }
 
 void
@@ -684,15 +693,15 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // networked case.
     retval.internal->enquire = this;
 
-    return retval;
+    RETURN(retval);
 }
 
 ESet
 Enquire::Internal::get_eset(Xapian::termcount maxitems,
                     const RSet & rset, int flags, double k,
-		    const ExpandDecider * edecider) const
+		    const ExpandDecider * edecider, Xapian::weight min_wt) const
 {
-    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider);
+    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | k | edecider | min_wt);
 
     if (maxitems == 0 || rset.empty()) {
 	// Either we were asked for no results, or wouldn't produce any
@@ -728,7 +737,7 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     ExpandWeight eweight(db, rset.size(), use_exact_termfreq, k);
 
     Xapian::ESet eset;
-    eset.internal->expand(maxitems, db, rset, edecider, eweight);
+    eset.internal->expand(maxitems, db, rset, edecider, eweight, min_wt);
     RETURN(eset);
 }
 
@@ -754,7 +763,7 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
 {
     if (query.empty())
 	throw Xapian::InvalidArgumentError("get_matching_terms with empty query");
-	//return TermIterator(NULL);
+	//return TermIterator();
 
     // The ordered list of terms in the query.
     TermIterator qt = query.get_terms_begin();
@@ -778,7 +787,7 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
 	string term = *docterms;
         map<string, unsigned int>::iterator t = tmap.find(term);
         if (t != tmap.end()) matching_terms.push_back(term);
-	docterms++;
+	++docterms;
     }
 
     // sort the resulting list by query position.
@@ -845,12 +854,6 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 	if (errorhandler) (*errorhandler)(e);
 	throw;
     }
-}
-
-void
-Enquire::Internal::register_match_decider(const string &,
-	const MatchDecider *)
-{
 }
 
 // Methods of Xapian::Enquire
@@ -1043,7 +1046,21 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
     LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider);
 
     try {
-	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider));
+	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider, 0));
+    } catch (Error & e) {
+	if (internal->errorhandler) (*internal->errorhandler)(e);
+	throw;
+    }
+}
+
+ESet
+Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
+		  double k, const ExpandDecider * edecider, Xapian::weight min_wt) const
+{
+    LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | k | edecider | min_wt);
+
+    try {
+	RETURN(internal->get_eset(maxitems, rset, flags, k, edecider, min_wt));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

@@ -5,17 +5,17 @@ PROTOTYPES: ENABLE
 PositionIterator *
 new1()
     CODE:
-        RETVAL = new PositionIterator();
+	RETVAL = new PositionIterator();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 PositionIterator *
 new2(other)
     PositionIterator *	other
     CODE:
-        RETVAL = new PositionIterator(*other);
+	RETVAL = new PositionIterator(*other);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 PositionIterator::DESTROY()
@@ -23,30 +23,30 @@ PositionIterator::DESTROY()
 void
 PositionIterator::inc()
     CODE:
-        ++(*THIS);
+	++(*THIS);
 
 bool
 PositionIterator::equal1(that)
     PositionIterator *	that
     CODE:
-        RETVAL = ((*THIS) == (*that));
+	RETVAL = ((*THIS) == (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 bool
 PositionIterator::nequal1(that)
     PositionIterator *	that
     CODE:
-        RETVAL = ((*THIS) != (*that));
+	RETVAL = ((*THIS) != (*that));
     OUTPUT:
-        RETVAL
+	RETVAL
 
 termpos
 PositionIterator::get_termpos()
     CODE:
-        RETVAL = THIS->operator*();
+	RETVAL = THIS->operator*();
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 PositionIterator::skip_to(termpos pos)

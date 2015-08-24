@@ -141,17 +141,17 @@ Query::Query(Query::op op_, Xapian::Query q, double parameter)
     }
 }
 
-Query::Query(Query::op op_, Xapian::valueno valno,
+Query::Query(Query::op op_, Xapian::valueno slot,
 	     const string &begin, const string &end)
-    : internal(new Query::Internal(op_, valno, begin, end))
+    : internal(new Query::Internal(op_, slot, begin, end))
 {
-    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | valno | begin | end);
+    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | slot | begin | end);
 }
 
-Query::Query(Query::op op_, Xapian::valueno valno, const std::string &value)
-    : internal(new Query::Internal(op_, valno, value))
+Query::Query(Query::op op_, Xapian::valueno slot, const std::string &value)
+    : internal(new Query::Internal(op_, slot, value))
 {
-    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | valno | value);
+    LOGCALL_VOID(API, "Xapian::Query::Query", op_ | slot | value);
 }
 
 Query::Query(PostingSource * external_source)
@@ -244,7 +244,7 @@ termcount Query::get_length() const
 TermIterator Query::get_terms_begin() const
 {
     LOGCALL(API, Xapian::TermIterator, "Xapian::Query::get_terms_begin", NO_ARGS);
-    if (!internal.get()) RETURN(TermIterator(NULL));
+    if (!internal.get()) RETURN(TermIterator());
     RETURN(internal->get_terms());
 }
 

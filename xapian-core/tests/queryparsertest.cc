@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -32,6 +32,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include <stdlib.h> // For setenv() or putenv()
 
 using namespace std;
 
@@ -173,6 +175,13 @@ static const test test_or_queries[] = {
     // before testing C_isdigit(), so this rather artificial example parsed
     // to: (a:(pos=1) NEAR 262 b:(pos=2))
     { "a NEAR/\xc4\xb5 b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
+    { "a ADJ/\xc4\xb5 b", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
+    // Regression test - the first two cases were parsed as if the '/' were a
+    // space, which was inconsistent with the second two.  Fixed in 1.2.5.
+    { "a NEAR/b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 b:(pos=3)))" },
+    { "a ADJ/b", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 b:(pos=3)))" },
+    { "a NEAR/b c", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 b:(pos=3)) OR Zc:(pos=4))" },
+    { "a ADJ/b c", "(Za:(pos=1) OR (adj:(pos=2) PHRASE 2 b:(pos=3)) OR Zc:(pos=4))" },
     // Regression tests - + and - didn't work on bracketed subexpressions prior
     // to 1.0.2.
     { "+(one two) three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND_MAYBE Zthree:(pos=3))" },
@@ -185,6 +194,11 @@ static const test test_or_queries[] = {
     { "category:\"Hello world\"", "0 * XCAT:Hello world" },
     { "category:\"literal \"\"\"", "0 * XCATliteral \"" },
     { "category:\"(unterminated)", "0 * XCAT(unterminated)" },
+    // Feature tests for implicitly closing brackets:
+    { "(foo", "Zfoo:(pos=1)" },
+    { "(foo XOR bar", "(Zfoo:(pos=1) XOR Zbar:(pos=2))" },
+    { "(foo XOR (bar AND baz)", "(Zfoo:(pos=1) XOR (Zbar:(pos=2) AND Zbaz:(pos=3)))" },
+    { "(foo XOR (bar AND baz", "(Zfoo:(pos=1) XOR (Zbar:(pos=2) AND Zbaz:(pos=3)))" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },
@@ -632,6 +646,19 @@ static const test test_or_queries[] = {
     { "multisite:xapian.org site:www.xapian.org author:richard authortitle:richard", "((ZArichard:(pos=1) OR ZArichard:(pos=2) OR ZXTrichard:(pos=2)) FILTER (Hwww.xapian.org AND (Hxapian.org OR Jxapian.org)))"},
     { "authortitle:richard-boulton", "((Arichard:(pos=1) PHRASE 2 Aboulton:(pos=2)) OR (XTrichard:(pos=1) PHRASE 2 XTboulton:(pos=2)))"},
     { "authortitle:\"richard boulton\"", "((Arichard:(pos=1) PHRASE 2 Aboulton:(pos=2)) OR (XTrichard:(pos=1) PHRASE 2 XTboulton:(pos=2)))"},
+    // Some CJK tests.
+    { "久有归天愿", "(久:(pos=1) AND 久有:(pos=1) AND 有:(pos=1) AND 有归:(pos=1) AND 归:(pos=1) AND 归天:(pos=1) AND 天:(pos=1) AND 天愿:(pos=1) AND 愿:(pos=1))" },
+    { "久有 归天愿", "((久:(pos=1) AND 久有:(pos=1) AND 有:(pos=1)) OR (归:(pos=2) AND 归天:(pos=2) AND 天:(pos=2) AND 天愿:(pos=2) AND 愿:(pos=2)))" },
+    { "久有！归天愿", "((久:(pos=1) AND 久有:(pos=1) AND 有:(pos=1)) OR (归:(pos=2) AND 归天:(pos=2) AND 天:(pos=2) AND 天愿:(pos=2) AND 愿:(pos=2)))" },
+    { "title:久有 归 天愿", "((XT久:(pos=1) AND XT久有:(pos=1) AND XT有:(pos=1)) OR 归:(pos=2) OR (天:(pos=3) AND 天愿:(pos=3) AND 愿:(pos=3)))" },
+    { "h众ello万众", "(Zh:(pos=1) OR 众:(pos=2) OR Zello:(pos=3) OR (万:(pos=4) AND 万众:(pos=4) AND 众:(pos=4)))" },
+    { "世(の中)TEST_tm", "(世:(pos=1) OR (の:(pos=2) AND の中:(pos=2) AND 中:(pos=2)) OR test_tm:(pos=3))" },
+    { "다녀 AND 와야", "(다:(pos=1) AND 다녀:(pos=1) AND 녀:(pos=1) AND 와:(pos=2) AND 와야:(pos=2) AND 야:(pos=2))" },
+    { "authortitle:학술 OR 연구를", "((A학:(pos=1) AND XT학:(pos=1) AND A학술:(pos=1) AND XT학술:(pos=1) AND A술:(pos=1) AND XT술:(pos=1)) OR (연:(pos=2) AND 연구:(pos=2) AND 구:(pos=2) AND 구를:(pos=2) AND 를:(pos=2)))" },
+    // FIXME: These should really filter by bigrams to accelerate:
+    { "\"久有归\"", "(久:(pos=1) PHRASE 3 有:(pos=1) PHRASE 3 归:(pos=1))" },
+    { "\"久有test归\"", "(久:(pos=1) PHRASE 4 有:(pos=1) PHRASE 4 test:(pos=2) PHRASE 4 归:(pos=3))" },
+    // FIXME: this should work: { "久 NEAR 有", "(久:(pos=1) NEAR 11 有:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -702,6 +729,9 @@ static const test test_and_queries[] = {
     // Add coverage for other cases similar to the above.
     { "a b site:xapian.org", "((Za:(pos=1) AND Zb:(pos=2)) FILTER Hxapian.org)" },
     { "site:xapian.org a b", "((Za:(pos=1) AND Zb:(pos=2)) FILTER Hxapian.org)" },
+    // Some CJK tests.
+    { "author:험가 OR subject:万众 hello world!", "((A험:(pos=1) AND A험가:(pos=1) AND A가:(pos=1)) OR (XT万:(pos=2) AND XT万众:(pos=2) AND XT众:(pos=2) AND Zhello:(pos=3) AND Zworld:(pos=4)))" },
+    { "洛伊one儿差点two脸three", "(洛:(pos=1) AND 洛伊:(pos=1) AND 伊:(pos=1) AND Zone:(pos=2) AND 儿:(pos=3) AND 儿差:(pos=3) AND 差:(pos=3) AND 差点:(pos=3) AND 点:(pos=3) AND Ztwo:(pos=4) AND 脸:(pos=5) AND Zthree:(pos=6))" },
     { NULL, NULL }
 };
 
@@ -754,6 +784,8 @@ static bool test_qp_default_prefix1()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZAme:(pos=1) OR ZXTstuff:(pos=2)))");
     qobj = qp.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "A");
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXTstuff:(pos=1) OR ZAme:(pos=2)))");
+    qobj = qp.parse_query("英国 title:文森hello", 0, "A");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((A英:(pos=1) AND A英国:(pos=1) AND A国:(pos=1)) OR (XT文:(pos=2) AND XT文森:(pos=2) AND XT森:(pos=2)) OR ZAhello:(pos=3)))");
     return true;
 }
 
@@ -905,7 +937,7 @@ static bool test_qp_flag_wildcard1()
     qobj = qp.parse_query("main -foo*", flags);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     // Check empty wildcard followed by negation.
-    qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
+    qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_LOVEHATE|Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     // Regression test for bug#484 fixed in 1.2.1 and 1.0.21.
     qobj = qp.parse_query("abc muscl* main", flags);
@@ -934,6 +966,69 @@ static bool test_qp_flag_wildcard2()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)))");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((Aheinlein:(pos=1) SYNONYM Ahuxley:(pos=1)) OR test:(pos=2)))");
+    return true;
+#endif
+}
+
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+static void
+test_qp_flag_wildcard1_helper(const Xapian::Database &db,
+			      Xapian::termcount max_expansion,
+			      const string & query_string)
+{
+    Xapian::QueryParser qp;
+    qp.set_database(db);
+    qp.set_max_wildcard_expansion(max_expansion);
+    Xapian::Enquire e(db);
+    e.set_query(qp.parse_query(query_string, Xapian::QueryParser::FLAG_WILDCARD));
+    // The exception for expanding too much may happen at parse time or later
+    // so we need to calculate the MSet too.
+    e.get_mset(0, 10);
+}
+#endif
+
+// Test right truncation with a limit on expansion.
+static bool test_qp_flag_wildcard3()
+{
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    doc.add_term("abc");
+    doc.add_term("main");
+    doc.add_term("muscat");
+    doc.add_term("muscle");
+    doc.add_term("musclebound");
+    doc.add_term("muscular");
+    doc.add_term("mutton");
+    db.add_document(doc);
+
+    // Test that a max of 0 doesn't set a limit.
+    test_qp_flag_wildcard1_helper(db, 0, "z*");
+    test_qp_flag_wildcard1_helper(db, 0, "m*");
+
+    // These cases should expand to the limit given.
+    test_qp_flag_wildcard1_helper(db, 1, "z*");
+    test_qp_flag_wildcard1_helper(db, 1, "ab*");
+    test_qp_flag_wildcard1_helper(db, 2, "muscle*");
+    test_qp_flag_wildcard1_helper(db, 4, "musc*");
+    test_qp_flag_wildcard1_helper(db, 4, "mus*");
+    test_qp_flag_wildcard1_helper(db, 5, "mu*");
+    test_qp_flag_wildcard1_helper(db, 6, "m*");
+
+    // These cases should expand to one more than the limit.
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 1, "muscle*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "musc*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 3, "mus*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 4, "mu*"));
+    TEST_EXCEPTION(Xapian::QueryParserError,
+	test_qp_flag_wildcard1_helper(db, 5, "m*"));
+
     return true;
 #endif
 }
@@ -1026,6 +1121,15 @@ static bool test_qp_flag_partial1()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR out:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR outsid:(pos=1)))");
+
+    // And now with stemming strategy STEM_ALL_Z.
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL_Z);
+    qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((out:(pos=1) SYNONYM outside:(pos=1)) OR Zout:(pos=1)))");
+    qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
+    qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
 
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -1202,6 +1306,8 @@ static const test test_value_range1_queries[] = {
     // Feature test for single-ended ranges (ticket#480):
     { "..b", "VALUE_RANGE 1  b" },
     { "a..", "VALUE_GE 1 a" },
+    // Test for expanded set of characters allowed in range start:
+    { "10:30+1300..11:00+1300", "VALUE_RANGE 1 10:30+1300 11:00+1300" },
     { NULL, NULL }
 };
 
@@ -1532,6 +1638,8 @@ static const test test_value_daterange2_queries[] = {
     { "created:12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
     { "modified:03-12-99..04-14-01", "VALUE_RANGE 2 19990312 20010414" },
     { "accessed:01/30/70..02/02/69", "VALUE_RANGE 3 19700130 20690202" },
+    // In <=1.2.12, and in 1.3.0, this gave "Unknown range operation":
+    { "deleted:12/03/99..12/04/01", "VALUE_RANGE 4 19990312 20010412" },
     { "1999-03-12..2001-04-14", "Unknown range operation" },
     { "12/03/99..created:12/04/01", "Unknown range operation" },
     { "12/03/99created:..12/04/01", "Unknown range operation" },
@@ -1548,9 +1656,14 @@ static bool test_qp_value_daterange2()
     Xapian::DateValueRangeProcessor vrp_cdate(1, "created:", true, true, 1970);
     Xapian::DateValueRangeProcessor vrp_mdate(2, "modified:", true, true, 1970);
     Xapian::DateValueRangeProcessor vrp_adate(3, "accessed:", true, true, 1970);
+    // Regression test - here a const char * was taken as a bool rather than a
+    // std::string when resolving the overloaded forms.  Fixed in 1.2.13 and
+    // 1.3.1.
+    Xapian::DateValueRangeProcessor vrp_ddate(4, "deleted:");
     qp.add_valuerangeprocessor(&vrp_cdate);
     qp.add_valuerangeprocessor(&vrp_mdate);
     qp.add_valuerangeprocessor(&vrp_adate);
+    qp.add_valuerangeprocessor(&vrp_ddate);
     for (const test *p = test_value_daterange2_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
@@ -1879,6 +1992,9 @@ static const test test_synonym_queries[] = {
     { "search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
     // Shouldn't trigger synonyms:
     { "\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
+    // Check that setting FLAG_AUTO_SYNONYMS doesn't enable multi-word
+    // synonyms.  Regression test for bug fixed in 1.3.0 and 1.2.9.
+    { "regression test", "(Zregress:(pos=1) OR Ztest:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -1893,6 +2009,7 @@ static bool test_qp_synonym1()
     db.add_synonym("Zsearch", "Zlocate");
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
+    db.add_synonym("regression test", "magic");
 
     db.commit();
 
@@ -1970,6 +2087,7 @@ static const test test_synonym_op_queries[] = {
     { "+~search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
     { "-~search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) SYNONYM find:(pos=1)))" },
     { "~search terms", "((Zsearch:(pos=1) SYNONYM find:(pos=1)) OR Zterm:(pos=2))" },
+    { "~foo:search", "(ZXFOOsearch:(pos=1) SYNONYM prefixated:(pos=1))" },
     // FIXME: should look for multi-term synonym...
     { "~\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
     { NULL, NULL }
@@ -1986,6 +2104,7 @@ static bool test_qp_synonym3()
     db.add_synonym("Zsearch", "Zlocate");
     db.add_synonym("search", "find");
     db.add_synonym("Zseek", "Zsearch");
+    db.add_synonym("ZXFOOsearch", "prefixated");
 
     db.commit();
 
@@ -1993,6 +2112,7 @@ static bool test_qp_synonym3()
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.set_database(db);
+    qp.add_prefix("foo", "XFOO");
 
     for (const test *p = test_synonym_op_queries; p->query; ++p) {
 	string expect = "Xapian::Query(";
@@ -2015,6 +2135,7 @@ static const test test_stem_all_queries[] = {
     { "\"chemical engineers\"", "(chemic:(pos=1) PHRASE 2 engin:(pos=2))" },
     { "chemical NEAR engineers", "(chemic:(pos=1) NEAR 11 engin:(pos=2))" },
     { "chemical engineers", "(chemic:(pos=1) OR engin:(pos=2))" },
+    { "title:(chemical engineers)", "(XTchemic:(pos=1) OR XTengin:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -2023,7 +2144,45 @@ static bool test_qp_stem_all1()
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(qp.STEM_ALL);
+    qp.add_prefix("title", "XT");
     for (const test *p = test_stem_all_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static const test test_stem_all_z_queries[] = {
+    { "\"chemical engineers\"", "(Zchemic:(pos=1) PHRASE 2 Zengin:(pos=2))" },
+    { "chemical NEAR engineers", "(Zchemic:(pos=1) NEAR 11 Zengin:(pos=2))" },
+    { "chemical engineers", "(Zchemic:(pos=1) OR Zengin:(pos=2))" },
+    { "title:(chemical engineers)", "(ZXTchemic:(pos=1) OR ZXTengin:(pos=2))" },
+    { NULL, NULL }
+};
+
+static bool test_qp_stem_all_z1()
+{
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(qp.STEM_ALL_Z);
+    qp.add_prefix("title", "XT");
+    for (const test *p = test_stem_all_z_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
@@ -2081,13 +2240,16 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 	n = n_new;
     }
 
+    n /= 5;
+
     string q_n;
     q_n.reserve(q.size() * n);
     for (unsigned i = n; i != 0; --i) {
 	q_n += q;
     }
 
-    double time2 = time_query_parse(db, q_n, 1, flags);
+    // Time 5 repetitions so we average random variations a bit.
+    double time2 = time_query_parse(db, q_n, 5, flags);
     tout << "small=" << time1 << "s, large=" << time2 << "s\n";
 
     // Allow a factor of 2.15 difference, to cover random variation and a
@@ -2144,14 +2306,14 @@ static const test test_near_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
 // FIXME: these give NEAR 2
-//    { "foo -baz bar", "((Zfoo:(pos=1) NEAR 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
-//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) NEAR 11 Zthree:(pos=3)))" },
-    { "foo bar", "(Zfoo:(pos=1) NEAR 11 Zbar:(pos=2))" },
-    { "foo bar baz", "(Zfoo:(pos=1) NEAR 12 Zbar:(pos=2) NEAR 12 Zbaz:(pos=3))" },
+//    { "foo -baz bar", "((foo:(pos=1) NEAR 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) NEAR 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) NEAR 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) NEAR 12 bar:(pos=2) NEAR 12 baz:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
-    { "author:orwell animal farm", "(ZAorwel:(pos=1) NEAR 12 Zanim:(pos=2) NEAR 12 Zfarm:(pos=3))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "author:Orwell Animal Farm", "(Aorwell:(pos=1) NEAR 12 animal:(pos=2) NEAR 12 farm:(pos=3))" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
@@ -2168,7 +2330,7 @@ static const test test_near_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
-    { "hard\xa0space", "(Zhard:(pos=1) NEAR 11 Zspace:(pos=2))" },
+    { "hard\xa0space", "(hard:(pos=1) NEAR 11 space:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -2216,14 +2378,14 @@ static const test test_phrase_queries[] = {
     { "simple-example", "(simple:(pos=1) PHRASE 2 example:(pos=2))" },
     { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
 // FIXME: these give PHRASE 2
-//    { "foo -baz bar", "((Zfoo:(pos=1) PHRASE 11 Zbar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
-//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (Zone:(pos=1) PHRASE 11 Zthree:(pos=3)))" },
-    { "foo bar", "(Zfoo:(pos=1) PHRASE 11 Zbar:(pos=2))" },
-    { "foo bar baz", "(Zfoo:(pos=1) PHRASE 12 Zbar:(pos=2) PHRASE 12 Zbaz:(pos=3))" },
+//    { "foo -baz bar", "((foo:(pos=1) PHRASE 11 bar:(pos=3)) AND_NOT Zbaz:(pos=2))" },
+//    { "one +two three", "(Ztwo:(pos=2) AND_MAYBE (one:(pos=1) PHRASE 11 three:(pos=3)))" },
+    { "foo bar", "(foo:(pos=1) PHRASE 11 bar:(pos=2))" },
+    { "foo bar baz", "(foo:(pos=1) PHRASE 12 bar:(pos=2) PHRASE 12 baz:(pos=3))" },
     { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
     { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
-    { "author:orwell animal farm", "(ZAorwel:(pos=1) PHRASE 12 Zanim:(pos=2) PHRASE 12 Zfarm:(pos=3))" },
+    { "author:orwell animal farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
     { "author:Orwell Animal Farm", "(Aorwell:(pos=1) PHRASE 12 animal:(pos=2) PHRASE 12 farm:(pos=3))" },
     { "beer NOT \"orange juice\"", "(Zbeer:(pos=1) AND_NOT (orange:(pos=2) PHRASE 2 juice:(pos=3)))" },
     { "beer AND NOT lager", "(Zbeer:(pos=1) AND_NOT Zlager:(pos=2))" },
@@ -2240,7 +2402,9 @@ static const test test_phrase_queries[] = {
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
     { "OR foo", "Syntax: <expression> OR <expression>" },
     { "XOR", "Syntax: <expression> XOR <expression>" },
-    { "hard\xa0space", "(Zhard:(pos=1) PHRASE 11 Zspace:(pos=2))" },
+    { "hard\xa0space", "(hard:(pos=1) PHRASE 11 space:(pos=2))" },
+    // FIXME: this isn't what we want, but fixing phrase to work with
+    // subqueries first might be the best approach.
     { "(one AND two) three", "((Zone:(pos=1) PHRASE 11 Zthree:(pos=3)) AND (Ztwo:(pos=2) PHRASE 11 Zthree:(pos=3)))" },
     { NULL, NULL }
 };
@@ -2399,6 +2563,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_odd_chars1),
     TESTCASE(qp_flag_wildcard1),
     TESTCASE(qp_flag_wildcard2),
+    TESTCASE(qp_flag_wildcard3),
     TESTCASE(qp_flag_partial1),
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),
@@ -2424,6 +2589,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_synonym2),
     TESTCASE(qp_synonym3),
     TESTCASE(qp_stem_all1),
+    TESTCASE(qp_stem_all_z1),
     TESTCASE(qp_scale1),
     TESTCASE(qp_near1),
     TESTCASE(qp_phrase1),
@@ -2434,6 +2600,14 @@ static const test_desc tests[] = {
 
 int main(int argc, char **argv)
 try {
+    // FIXME: It would be better to test with and without XAPIAN_CJK_NGRAM set.
+#ifdef HAVE__PUTENV_S
+    _putenv_s("XAPIAN_CJK_NGRAM", "1");
+#elif defined HAVE_SETENV
+    setenv("XAPIAN_CJK_NGRAM", "1", 1);
+#else
+    putenv(const_cast<char*>("XAPIAN_CJK_NGRAM=1"));
+#endif
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
 } catch (const char * e) {

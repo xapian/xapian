@@ -1,7 +1,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011 Olly Betts
 
 ===========
 Deprecation
@@ -38,10 +38,10 @@ Deprecation markers
 -------------------
 
 At any particular point, some parts of the C++ API will be marked as
-"deprecated".  This is indicated with the ``XAPIAN_DEPRECATED`` macro, which
-will cause compilers with appropriate support (such as GCC 3.1 or later, and
-MSVC 7.0 or later) to emit warning messages about the use of deprecated
-features at compile time.
+"deprecated".  This is indicated with the ``XAPIAN_DEPRECATED()`` or
+``XAPIAN_DEPRECATED_CLASS`` macros, which will cause compilers with appropriate
+support (such as GCC 3.1 or later, and MSVC 7.0 or later) to emit warning
+messages about the use of deprecated features at compile time.
 
 If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
@@ -58,8 +58,8 @@ make, you might do this like so::
 API and ABI compatibility
 -------------------------
 
-Releases are given three-part version numbers (e.g. 1.0.2), the three parts
-being termed "major" (1), "minor" (0), and "revision" (2).  Releases with
+Releases are given three-part version numbers (e.g. 1.2.9), the three parts
+being termed "major" (1), "minor" (2), and "revision" (9).  Releases with
 the same major and minor version are termed a "release series".
 
 For Xapian releases 1.0.0 and higher, an even minor version indicates a stable
@@ -201,6 +201,8 @@ Native C++ API
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+1.1.0      ?      Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.1.0      1.3.0  Default second parameter to         The parameter name was ``ascending`` and defaulted to ``true``.  However
                   ``Enquire`` sorting functions.      ascending=false gave what you'd expect the default sort order to be (and
                                                       probably think of as ascending) while ascending=true gave the reverse
@@ -244,6 +246,11 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
                   ``Enquire::get_mset()``             instead.
 ========== ====== =================================== ========================================================================
 
+.. flush() is just a simple inlined alias, so perhaps not worth causing pain by
+.. removing it in a hurry, though it would be nice to be able to reuse the
+.. method name to actually implement a flush() which writes out data but
+.. doesn't commit.
+
 Bindings
 --------
 
@@ -256,6 +263,10 @@ Deprecated Remove Language Feature name                 Upgrade suggestion and c
 ---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
 1.1.0      1.3.0  Python   Stem_get_available_languages Use Stem.get_available_languages instead (static method instead of
                                                         function)
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.2.5      1.5.0  Python   MSet.items                   Iterate the MSet object itself instead.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.2.5      1.5.0  Python   ESet.items                   Iterate the ESet object itself instead.
 ========== ====== ======== ============================ ======================================================================
 
 Omega
@@ -266,6 +277,10 @@ Omega
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+1.2.4      1.5.0  omindex command line long option    Renamed to ``--no-delete``, which works in 1.2.4 and later.
+                  ``--preserve-nonduplicates``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.2.5      1.5.0  $set{spelling,true}                 Use $set{flag_spelling_suggestion,true} instead.
 ========== ====== =================================== ========================================================================
 
 .. Features currently marked as experimental
@@ -338,7 +353,7 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.0.0   Document::add_term_nopos()          Use ``Document::add_term()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.0.0   Enquire::set_bias()                 No replacement yet implemented.
+1.0.0   Enquire::set_bias()                 Use ``PostingSource`` instead (new in 1.2).
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.0.0   ExpandDecider::operator()           Return type is now ``bool`` not ``int``.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
@@ -490,18 +505,31 @@ Removed Language Feature name                 Upgrade suggestion and comments
                                               To convert, just change ``msetitem.get_FOO()`` to ``msetitem.FOO``
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   Python   Enquire.get_matching_terms   Replaced by ``Enquire.matching_terms``, for consistency with
-                                              rest of Python API.
+                                              rest of Python API.  Note: an ``Enquire.get_matching_terms`` method existed in
+                                              releases up-to and including 1.2.4, but this was actually an old implementation
+                                              which only accepted a MSetIterator as a parameter, and would have failed with
+                                              code written expecting the version in 1.0.0.  It was fully removed after
+                                              release 1.2.4.
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
         [#rswg]_
 ------- -------- ---------------------------- --------------------------------------------------------------------------------
 1.1.0   SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
         [#rsw2]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.2.0   Python   mset[i][xapian.MSET_DID] etc This was inadvertently removed in 1.2.0, but not noticed until 1.2.5, by which
+                                              point it no longer seemed worthwhile to reinstate it.  Please use the property
+                                              API instead, e.g. ``mset[i].docid``, ``mset[i].weight``, etc.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.2.5   Python   if idx in mset               This was nominally implemented, but never actually worked.  Since nobody seems
+                                              to have noticed in 3.5 years, we just removed it.  If you have uses (which were
+                                              presumably never called), you can replace them with:
+                                              ``if idx >= 0 and idx < len(mset)``
 ======= ======== ============================ ================================================================================
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
-.. [#rsw2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
+.. [#rsw2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function was deprecated in Xapian-core.
 
 .. [#rsw3] This affects all SWIG generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 

@@ -15,13 +15,15 @@ our @ISA = qw(DynaLoader);
 sub CLONE_SKIP { 1 }
 
 use overload '""' => sub { $_[0]->get_description() }, # FIXME: perhaps unwise?
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub new {
   my $class = shift;
   my $query;
 
-  if( @_ == 1 ) {
+  if( @_ == 0 ) {
+    $query = new0();
+  } elsif( @_ == 1 ) {
     $query = new1(@_);
   } else {
     my $op = $_[0];
@@ -35,12 +37,12 @@ sub new {
       $query = new4range( @_ );
     } elsif( $op == 9 ) { # FIXME: OP_SCALE_WEIGHT
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
+	Carp::croak( "USAGE: $class->new(OP_SCALE_WEIGHT, QUERY, FACTOR)" );
       }
       $query = new3scale( @_ );
     } elsif( $op == 11 || $op == 12 ) { # FIXME: OP_VALUE_GE, OP_VALUE_LE; eliminate hardcoded literals
       if( @_ != 3 ) {
-        Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
+	Carp::croak( "USAGE: $class->new(OP_VALUE_[GL]E, VALNO, LIMIT)" );
       }
       $query = new3range( @_ );
     } else {
@@ -73,10 +75,14 @@ sub get_terms {
     my @terms;
     my $q=$self->get_terms_begin;
     while ($q ne $self->get_terms_end) {
-        push @terms,$q->get_termname;
-        $q++;
+	push @terms,$q->get_termname;
+	$q++;
     }
     return @terms;
 }
+
+sub MatchNothing () { Search::Xapian::Query->new }
+
+sub MatchAll () { Search::Xapian::Query->new('') }
 
 1;

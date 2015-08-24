@@ -1,17 +1,137 @@
 Revision history for Perl extension Search::Xapian.
 
-1.2.4.1  Wed Mar 23 13:50:37 UTC 2011
-        [Changes contributed by Val Rosca]
-        Expose the facets API:
-        - Wrappers for the MatchSpy and ValueCountMatchSpy classes
-        - Allow Perl implementations of MatchSpy by inheriting from the
-          PerlMatchSpy class
-        - Make Xapian::Enquire PerlSpy-aware via the PerlSpyAwareEnquire
-          class ; keep track of references to avoid leaks
-        - Create a PerlMatchSpyAdaptor class that is used by
-          PerlSpyAwareEnquire to wrap SV as MatchSpies
-        - add_matchspy & clear_matchspies methods added to Xapian::Enquire
-        - t/facets.t
+    [Changes contributed by Val Rosca, updated by Andreas Marienborg]
+    Expose the facets API:
+    - Wrappers for the MatchSpy and ValueCountMatchSpy classes
+    - Allow Perl implementations of MatchSpy by inheriting from the
+      PerlMatchSpy class
+    - Make Xapian::Enquire PerlSpy-aware via the PerlSpyAwareEnquire
+      class ; keep track of references to avoid leaks
+    - Create a PerlMatchSpyAdaptor class that is used by
+      PerlSpyAwareEnquire to wrap SV as MatchSpies
+    - add_matchspy & clear_matchspies methods added to Xapian::Enquire
+    - t/facets.t
+
+1.2.21.1
+	[Changes contributed by Olly Betts]
+	- t/termgenerator.t: If a memory leak is detected, report how many
+	  objects were allocated before and after the test.
+	- Allow for "_gitN" tag on snapshots when checking for version
+	  compatibility with xapian-core.
+
+1.2.21.0  Wed May 20 14:34:41 UTC 2015
+	[Changes contributed by Olly Betts]
+	- Support passing collapse_max argument to Enquire::set_collapse_key().
+	  Fixes #669, reported by Felix Ostmann.
+	- Add missing 'my' to testcases.
+	- Add 'use strict' to all testcases.
+	- Add a "LICENSE" section to the main POD.
+	- META.yml: Specify licence and minimum Perl version.
+	- Fix t/symboltest.t to work when built against an installed version
+	  of xapian-core (broken by changes in 1.2.20.0).
+	- Fix "Filehandle STDOUT reopened as M only for input" warning from
+	  running "perl Makefile.PL".
+
+1.2.20.0  Wed Mar  4 00:30:08 UTC 2015
+	[Changes contributed by Olly Betts]
+	- Remove TODO for wrapping MatchAll and MatchNothing - these were added
+	  in 1.2.13.0.  Reported by Will Crawford.
+	- Wrap Xapian::BAD_VALUENO.
+	- Fix "make test" to use the Xapian.so we just built, rather than an
+	  installed version.
+
+1.2.19.0  Tue Oct 21 00:35:35 UTC 2014
+	[Changes contributed by Dmitry Karasik]
+	- Fix deliberate leaks in QueryParser::add_valuerangeprocessor() and
+	  QueryParser::set_stopper() by tracking object ownership properly.
+	  (ticket#647)
+	[Changes contributed by Olly Betts]
+	- Fix deliberate leaks in TermGenerator::set_stopper() and Enquire
+	  methods which allow specifying a Sorter object similarly.
+
+1.2.18.0  Sun Jun 22 06:39:55 UTC 2014
+	[Changes contributed by Olly Betts]
+	- README: Add link to "Getting Started with Xapian".
+	- Mass whitespace clean-up.
+
+1.2.17.0  Wed Jan 29 00:00:00 UTC 2014
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.17.
+
+1.2.16.0  Wed Dec  4 00:00:00 UTC 2013
+	[Changes contributed by Olly Betts]
+	- t/symbol-test/Makefile.PL: Pass $CPPFLAGS and $CXXFLAGS from the
+	  environment through to the sub-build, fixing symbol-test.t failure
+	  when built with CPPFLAGS=-D_GLIBCXX_DEBUG.
+
+1.2.15.0  Tue Apr 16 23:43:24 UTC 2013
+	[Changes contributed by Olly Betts]
+	- Remove superfluous duplicate method wrappers from WritableDatabase
+	  for methods wrapped in Database parent class.
+	- Improve test coverage.
+	- Fix minor typo in POD documentation.
+
+1.2.14.0  Thu Mar 14 23:12:38 UTC 2013
+	[Changes contributed by Olly Betts]
+	- Perl 5.16.1 adds a '.' after "at foo line 123" so adjust regexp in
+	  testcase t/10query.t to allow an optional '.' there.  (ticket#610)
+
+1.2.13.0  Wed Jan  9 11:19:20 UTC 2013
+	[Changes contributed by Adam Sjøgren]
+	- Wrap 2 and 3 parameter forms of StringValueRangeProcessor
+	  constructor so prefixes and suffixes can be specified.
+	  (ticket#607)
+	[Changes contributed by Olly Betts]
+	- Wrap the zero argument Query constructor.
+	- Add wrappers for Query::MatchAll and Query::MatchNothing.
+	- Don't pointlessly reinitialise default std::string parameters to an
+	  empty string (performance and code size micro-optimisation).
+
+1.2.12.0  Wed Jun 27 12:17:26 UTC 2012
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.12.
+
+1.2.11.0  Tue Jun 26 12:13:39 UTC 2012
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.2.11.
+
+1.2.10.0  Wed May  9 10:45:51 UTC 2012
+	[Changes contributed by Olly Betts]
+	- Wrap Database::close() (was previously only wrapped for
+	  WritableDatabase).
+	- Suppress warnings about "not a known MakeMaker parameter name" in a
+	  way which also works for newer versions of Perl.
+
+1.2.9.0  Thu Mar  8 07:19:27 UTC 2012
+	[Changes contributed by Olly Betts]
+	- Wrap Document::get_docid() method.
+	- Fix "Use of qw(...) as parentheses is deprecated" warnings in tests
+	  with Perl 5.14.
+	- Improve test coverage of TermGenerator (backported from trunk).
+
+1.2.8.0  Tue Dec 13 14:45:07 UTC 2011
+	[Changes contributed by Olly Betts]
+	- Add note to README about documentation, pointing out that the docs
+	  for Xapian are useful.
+	- Improve note in README about moving to SWIG-generated wrappers in the
+	  next release series.
+
+1.2.7.0  Wed Aug 10 06:14:53 UTC 2011
+	[Changes contributed by Olly Betts]
+	- Note in README that the hand-coded XS wrappers are heading for
+	  retirement.
+
+1.2.6.0  Sun Jun 12 11:55:42 UTC 2011
+	[Changes contributed by Adam Sjøgren]
+	- Wrap new method QueryParser::set_max_wildcard_expansion().
+	  (ticket#350)
+
+1.2.5.0  Mon Apr  4 14:00:38 UTC 2011
+	[Changes contributed by Olly Betts]
+	- simpleindex.pl - use 'while' to loop over input lines - 'foreach'
+	  reads them all in and then loops over them, while reads and processes
+	  line by line.
+	- Add '1;' to the end of t/symbol-test/SymbolTest.pm.
 
 1.2.4.0  Thu Dec 19 12:41:49 UTC 2010
 	[Changes contributed by Olly Betts]
@@ -98,6 +218,23 @@ Revision history for Perl extension Search::Xapian.
 	  However, there's still a wrinkle in this change - you can't currently
 	  run "make install" in a tree configured to use an uninstalled
 	  xapian-core.
+
+1.0.23.0  Fri Jan 14 04:18:24 UTC 2011
+	[Changes contributed by David F. Skoll and Dave O'Neill]
+	- Tell DynaLoader to load the module with RTLD_GLOBAL so exceptions
+	  still work when multiple Perl modules which link to xapian-core are
+	  loaded (ticket#522).
+
+1.0.22.0  Sun Oct  3 12:36:44 UTC 2010
+	[Changes contributed by Jess Robinson]
+	- Fix bogus "can't find libtool" error when rerunning Makefile.PL and
+	  XAPIAN_CONFIG isn't explicitly specified.
+	[Changes contributed by Tim Brody]
+	- New testcase t/10query.t.
+
+1.0.21.0  Fri Jun 18 16:41:32 UTC 2010
+	- No change except for bumping the version to indicate compatibility
+	  with Xapian 1.0.21.
 
 1.0.20.0  Tue Apr 27 12:35:35 UTC 2010
 	[Changes contributed by Olly Betts]

@@ -51,7 +51,7 @@ ChertSpellingWordsList::get_termname() const
 Xapian::doccount
 ChertSpellingWordsList::get_termfreq() const
 {
-    LOGCALL(DB, string, "ChertSpellingWordsList::get_termfreq", NO_ARGS);
+    LOGCALL(DB, Xapian::doccount, "ChertSpellingWordsList::get_termfreq", NO_ARGS);
     Assert(cursor);
     Assert(!at_end());
     Assert(!cursor->current_key.empty());
@@ -63,7 +63,7 @@ ChertSpellingWordsList::get_termfreq() const
     if (!unpack_uint_last(&p, p + cursor->current_tag.size(), &freq)) {
 	throw Xapian::DatabaseCorruptError("Bad spelling word freq");
     }
-    return freq;
+    RETURN(freq);
 }
 
 Xapian::termcount

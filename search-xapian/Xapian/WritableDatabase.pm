@@ -15,7 +15,7 @@ our @ISA = qw(DynaLoader Search::Xapian::Database);
 sub CLONE_SKIP { 1 }
 
 use overload '='  => sub { $_[0]->clone() },
-             'fallback' => 1;
+	     'fallback' => 1;
 
 sub clone() {
   my $self = shift;
@@ -83,40 +83,40 @@ Return a clone of this class.
 
 Flush to disk any modifications made to the database.
 
-For efficiency reasons, when performing multiple updates to a database it is 
-best (indeed, almost essential) to make as many modifications as memory will 
+For efficiency reasons, when performing multiple updates to a database it is
+best (indeed, almost essential) to make as many modifications as memory will
 permit in a single pass through the database. To ensure this, Xapian batches
 up modifications.
 
-Flush may be called at any time to ensure that the modifications which have 
-been made are written to disk: if the flush succeeds, all the preceding 
+Flush may be called at any time to ensure that the modifications which have
+been made are written to disk: if the flush succeeds, all the preceding
 modifications will have been written to disk.
 
-If any of the modifications fail, an exception will be thrown and the database 
-will be left in a state in which each separate addition, replacement or 
-deletion operation has either been fully performed or not performed at all: 
-it is then up to the application to work out which operations need to be 
+If any of the modifications fail, an exception will be thrown and the database
+will be left in a state in which each separate addition, replacement or
+deletion operation has either been fully performed or not performed at all:
+it is then up to the application to work out which operations need to be
 repeated.
 
-Beware of calling flush too frequently: this will have a severe performance 
+Beware of calling flush too frequently: this will have a severe performance
 cost.
 
-Note that flush need not be called explicitly: it will be called automatically 
-when the database is closed, or when a sufficient number of modifications 
+Note that flush need not be called explicitly: it will be called automatically
+when the database is closed, or when a sufficient number of modifications
 have been made.
 
 =item add_document <document>
 
 Add a new document to the database.
 
-This method adds the specified document to the database, returning a newly 
+This method adds the specified document to the database, returning a newly
 allocated document ID.
 
-Note that this does not mean the document will immediately appear in the 
+Note that this does not mean the document will immediately appear in the
 database; see flush() for more details.
 
-As with all database modification operations, the effect is atomic: the 
-document will either be fully added, or the document fails to be added and 
+As with all database modification operations, the effect is atomic: the
+document will either be fully added, or the document fails to be added and
 an exception is thrown (possibly at a later time when flush is called or the
 database is closed).
 
@@ -128,14 +128,14 @@ the specified document ID from the database.
 Note that this does not mean the document will immediately disappear from
 the database; see flush() for more details.
 
-As with all database modification operations, the effect is atomic: the 
+As with all database modification operations, the effect is atomic: the
 document will either be fully removed, or the document fails to be removed
 and an exception is thrown (possibly at a later time when flush is called or
 the database is closed).
 
 =item delete_document_by_term <term>
 
-Delete any documents indexed by a term from the database. This method removes 
+Delete any documents indexed by a term from the database. This method removes
 any documents indexed by the specified term from the database.
 
 The intended use is to allow UIDs from another system to easily be mapped to
@@ -145,12 +145,12 @@ terms in Xapian, although this method probably has other uses.
 
 eplace a given document in the database.
 
-This method replaces the document with the specified document ID. Note that 
-this does not mean the document will immediately change in the database; see 
+This method replaces the document with the specified document ID. Note that
+this does not mean the document will immediately change in the database; see
 flush() for more details.
 
-As with all database modification operations, the effect is atomic: the 
-document will either be fully replaced, or the document fails to be replaced 
+As with all database modification operations, the effect is atomic: the
+document will either be fully replaced, or the document fails to be replaced
 and an exception is thrown (possibly at a later time when flush is called or
 the database is closed).
 
@@ -158,15 +158,15 @@ the database is closed).
 
 Replace any documents matching an unique term.
 
-This method replaces any documents indexed by the specified term with the 
+This method replaces any documents indexed by the specified term with the
 specified document. If any documents are indexed by the term, the lowest
-document ID will be used for the document, otherwise a new document ID 
+document ID will be used for the document, otherwise a new document ID
 will be generated as for add_document.
 
-The intended use is to allow UIDs from another system to easily be mapped 
+The intended use is to allow UIDs from another system to easily be mapped
 to terms in Xapian, although this method probably has other uses.
 
-Note that this does not mean the document(s) will immediately change in the 
+Note that this does not mean the document(s) will immediately change in the
 database; see flush() for more details.
 
 As with all database modification operations, the effect is atomic: the
@@ -181,8 +181,8 @@ Add a word to the spelling dictionary.
 If the word is already present, its frequency is increased.
 
 Parameters:
-    word        The word to add.
-    freqinc     How much to increase its frequency by (default 1).
+    word     The word to add.
+    freqinc  How much to increase its frequency by (default 1).
 
 =item remove_spelling <word> <freqdec>
 
@@ -192,8 +192,8 @@ The word's frequency is decreased, and if would become zero or less
 then the word is removed completely.
 
 Parameters:
-    word        The word to remove.
-    freqdec     How much to decrease its frequency by (default 1).
+    word     The word to remove.
+    freqdec  How much to decrease its frequency by (default 1).
 
 =item reopen
 

@@ -49,22 +49,27 @@ is_user_metadata_key(const string & key)
 }
 
 size_t
-check_flint_table(const char * tablename, string filename, int opts,
+check_flint_table(const char * tablename, string filename,
+		  flint_revision_number_t * rev_ptr, int opts,
 		  vector<Xapian::termcount> & doclens)
 {
     filename += '.';
 
     // Check the btree structure.
-    BtreeCheck::check(tablename, filename, opts);
+    BtreeCheck::check(tablename, filename, rev_ptr, opts);
 
     // Now check the flint structures inside the btree.
     FlintTable table(tablename, filename, true);
-    table.open();
+    if (rev_ptr) {
+	table.open(*rev_ptr);
+    } else {
+	table.open();
+    }
     AutoPtr<FlintCursor> cursor(table.cursor_get());
 
     size_t errors = 0;
 
-    cursor->find_entry("");
+    cursor->find_entry(string());
     cursor->next(); // Skip the empty entry.
 
     if (strcmp(tablename, "postlist") == 0) {
@@ -115,6 +120,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    }
 
 	    if (!have_metainfo_key) {
+		have_metainfo_key = true;
 		cout << "METAINFO key missing from postlist table" << endl;
 		++errors;
 	    }
@@ -232,7 +238,7 @@ check_flint_table(const char * tablename, string filename, int opts,
 	    end = pos + key.size();
 
 	    string term;
-	    Xapian::docid did;
+	    Xapian::docid did = 0;
 	    if (!F_unpack_string_preserving_sort(&pos, end, term)) {
 		cout << "Error unpacking termname from key" << endl;
 		++errors;
@@ -470,7 +476,8 @@ check_flint_table(const char * tablename, string filename, int opts,
 
 	    bool bad = false;
 	    while (pos != end) {
-		Xapian::doccount current_wdf;
+		// Initialize to silence g++ with -O3
+		Xapian::doccount current_wdf = 0;
 		bool got_wdf = false;
 		// If there was a previous term, how much to reuse.
 		if (!current_tname.empty()) {

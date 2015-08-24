@@ -1,4 +1,4 @@
-MODULE = Search::Xapian         PACKAGE = Search::Xapian::Enquire
+MODULE = Search::Xapian	 PACKAGE = Search::Xapian::Enquire
 
 PROTOTYPES: ENABLE
 
@@ -7,17 +7,13 @@ Enquire::new(databases)
     Database *  databases
     CODE:
 	try {
-	    RETVAL = new PerlSpyAwareEnquire(*databases);
+	    RETVAL = XAPIAN_PERL_NEW(PerlSpyAwareEnquire, (*databases));
+	    RETVAL = XAPIAN_PERL_NEW(Enquire, (*databases));
 	} catch (...) {
 	    handle_exception();
 	}
     OUTPUT:
 	RETVAL
-
-void
-Enquire::DESTROY()
-    CODE:
-        delete (PerlSpyAwareEnquire*) THIS;
 
 void
 Enquire::set_query1(query)
@@ -41,7 +37,7 @@ Enquire::set_query2(query, len)
 	}
 
 Query *
-Enquire::get_query();
+Enquire::get_query()
     CODE:
 	try {
 	    RETVAL = new Query(THIS->get_query());
@@ -52,18 +48,19 @@ Enquire::get_query();
 	RETVAL
 
 void
-Enquire::set_collapse_key(collapse_key)
+Enquire::set_collapse_key(collapse_key, collapse_max = 1)
     valueno     collapse_key
+    doccount    collapse_max
     CODE:
 	try {
-	    THIS->set_collapse_key(collapse_key);
+	    THIS->set_collapse_key(collapse_key, collapse_max);
 	} catch (...) {
 	    handle_exception();
 	}
 
 void
 Enquire::set_docid_order(order)
-    int         order
+    int	 order
     CODE:
 	try {
 	    THIS->set_docid_order(static_cast<Enquire::docid_order>(order));
@@ -88,12 +85,18 @@ Enquire::set_cutoff(percent_cutoff, weight_cutoff = NO_INIT)
 
 void
 Enquire::set_sort_by_relevance()
+    CODE:
+	// Clear reference to any currently set sorter object.
+	XAPIAN_PERL_REF(Enquire, THIS, sorter, NULL);
+	THIS->set_sort_by_relevance();
 
 void
 Enquire::set_sort_by_value(sort_key, ascending = NO_INIT)
     valueno	sort_key
     bool	ascending
     CODE:
+	// Clear reference to any currently set sorter object.
+	XAPIAN_PERL_REF(Enquire, THIS, sorter, NULL);
 	try {
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_value(sort_key, ascending);
@@ -109,6 +112,8 @@ Enquire::set_sort_by_value_then_relevance(sort_key, ascending = NO_INIT)
     valueno	sort_key
     bool	ascending
     CODE:
+	// Clear reference to any currently set sorter object.
+	XAPIAN_PERL_REF(Enquire, THIS, sorter, NULL);
 	try {
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_value_then_relevance(sort_key, ascending);
@@ -124,6 +129,8 @@ Enquire::set_sort_by_relevance_then_value(sort_key, ascending = NO_INIT)
     valueno	sort_key
     bool	ascending
     CODE:
+	// Clear reference to any currently set sorter object.
+	XAPIAN_PERL_REF(Enquire, THIS, sorter, NULL);
 	try {
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_relevance_then_value(sort_key, ascending);
@@ -139,10 +146,9 @@ Enquire::set_sort_by_key(sorter, ascending = NO_INIT)
     MultiValueSorter * sorter
     bool	ascending
     CODE:
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(Enquire, THIS, sorter, ST(1));
 	try {
-	    // FIXME: no corresponding SvREFCNT_dec(), but a leak seems better
-	    // than a SEGV!
-	    SvREFCNT_inc(ST(1));
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_key(sorter, ascending);
 	    } else {
@@ -157,10 +163,9 @@ Enquire::set_sort_by_key_then_relevance(sorter, ascending = NO_INIT)
     MultiValueSorter * sorter
     bool	ascending
     CODE:
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(Enquire, THIS, sorter, ST(1));
 	try {
-	    // FIXME: no corresponding SvREFCNT_dec(), but a leak seems better
-	    // than a SEGV!
-	    SvREFCNT_inc(ST(1));
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_key_then_relevance(sorter, ascending);
 	    } else {
@@ -175,10 +180,9 @@ Enquire::set_sort_by_relevance_then_key(sorter, ascending = NO_INIT)
     MultiValueSorter * sorter
     bool	ascending
     CODE:
+	// Keep a reference to the currently set object.
+	XAPIAN_PERL_REF(Enquire, THIS, sorter, ST(1));
 	try {
-	    // FIXME: no corresponding SvREFCNT_dec(), but a leak seems better
-	    // than a SEGV!
-	    SvREFCNT_inc(ST(1));
 	    if (items == 3) { /* items includes the hidden this pointer */
 		THIS->set_sort_by_relevance_then_key(sorter, ascending);
 	    } else {
@@ -242,7 +246,7 @@ ESet *
 Enquire::get_eset(maxitems, rset, func = NO_INIT)
     doccount    maxitems
     RSet *      rset
-    SV *        func
+    SV *	func
     CODE:
 	try {
 	    ESet eset;
@@ -263,7 +267,7 @@ Enquire::get_eset(maxitems, rset, func = NO_INIT)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_begin1(docid did)
@@ -274,11 +278,11 @@ Enquire::get_matching_terms_begin1(docid did)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_begin2(it)
-    MSetIterator *        it
+    MSetIterator *	it
     CODE:
 	try {
 	    RETVAL = new TermIterator(THIS->get_matching_terms_begin(* it));
@@ -286,7 +290,7 @@ Enquire::get_matching_terms_begin2(it)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_end1(docid did)
@@ -297,7 +301,7 @@ Enquire::get_matching_terms_end1(docid did)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 TermIterator *
 Enquire::get_matching_terms_end2(it)
@@ -309,7 +313,7 @@ Enquire::get_matching_terms_end2(it)
 	    handle_exception();
 	}
     OUTPUT:
-        RETVAL
+	RETVAL
 
 void
 Enquire::set_weighting_scheme(weight_)
@@ -352,3 +356,8 @@ Enquire::clear_matchspies()
         } catch (...) {
             handle_exception();
         }
+
+void
+Enquire::DESTROY()
+    CODE:
+	XAPIAN_PERL_DESTROY(PerlSpyAwareEnquire, THIS);

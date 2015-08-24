@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2004,2005,2006,2007,2008,2010 Olly Betts
+ * Copyright 2004,2005,2006,2007,2008,2010,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,16 +28,18 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "safesysselect.h"
 #include "socket_utils.h"
 
 #include <cmath>
 #include <cstring>
 #ifndef __WIN32__
-# include <netdb.h>
+# include "safenetdb.h"
 # include <netinet/in.h>
 # include <netinet/tcp.h>
 # include <sys/socket.h>
-# include "safesysselect.h"
+#else
+# include "safewinsock2.h"
 #endif
 
 using namespace std;
@@ -65,7 +67,6 @@ TcpClient::open_socket(const std::string & hostname, int port,
     }
 
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
-
     if (socketfd < 0) {
 	throw Xapian::NetworkError("Couldn't create socket", socket_errno());
     }
@@ -79,13 +80,19 @@ TcpClient::open_socket(const std::string & hostname, int port,
 #ifdef __WIN32__
     ULONG enabled = 1;
     int rc = ioctlsocket(socketfd, FIONBIO, &enabled);
+#define FLAG_NAME "FIONBIO"
+#elif defined O_NONBLOCK
+    int rc = fcntl(socketfd, F_SETFL, O_NONBLOCK);
+#define FLAG_NAME "O_NONBLOCK"
 #else
     int rc = fcntl(socketfd, F_SETFL, O_NDELAY);
+#define FLAG_NAME "O_NDELAY"
 #endif
     if (rc < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
 	close_fd_or_socket(socketfd);
-	throw Xapian::NetworkError("Couldn't set O_NDELAY", saved_errno);
+	throw Xapian::NetworkError("Couldn't set " FLAG_NAME, saved_errno);
+#undef FLAG_NAME
     }
 
     if (tcp_nodelay) {

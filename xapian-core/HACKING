@@ -188,10 +188,37 @@ which you might find useful:
   XAPIAN_TESTSUITE_LD_PRELOAD:
     The runtest script will add this to LD_PRELOAD if it is set, allowing you
     to easily load LD_PRELOAD libraries when running the testsuite.  The
-    intended use is to allow use of libeatmydata
-    (http://www.flamingspork.com/projects/libeatmydata/) which makes fsync
-    and related calls no-ops.  Since the testsuite does a lot of small
-    database operations, this can speed up running the testsuite substantially.
+    original intended use was to allow use of libeatmydata
+    (https://www.flamingspork.com/projects/libeatmydata/) which makes fsync
+    and related calls no-ops, but configure now checks for the eatmydata
+    wrapper script and this is used automatically.  However, there may be
+    other LD_PRELOAD libraries which are useful, so we've left the machinery
+    in place.
+
+Speeding up the testsuite with eatmydata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The testsuite does a lot of small database operations, and the calls to fsync,
+fdatasync, etc which Xapian makes by default can slow down testsuite runs
+substantially.  There's a handy LD_PRELOAD library called eatmydata
+(http://www.flamingspork.com/projects/libeatmydata/), which can help here, by
+turning fsync and related calls into no-ops.
+
+You need a version of eatmydata with the eatmydata wrapper script (version 37
+or newer), and then configure should auto-detect it and it'll get used when
+running the testsuite (via runtest).  If you wish to disable this
+auto-detection for some reason, you can run configure with:
+
+./configure EATMYDATA=
+
+Or you can disable use of eatmydata during a particular run of "make check"
+like so:
+
+make check EATMYDATA=
+
+Or disable it while running a test directly (under sh or bash):
+
+EATMYDATA= ./runtest ./apitest
 
 Using various debugging, profiling, and leak-finding tools
 ==========================================================
@@ -237,7 +264,9 @@ To use Insure (another proprietary tool):
 
   ./configure CXX=insure
 
-To use lcov to generate a test coverage report there are two make targets:
+To use lcov (at least version 1.10) to generate a test coverage report (see
+`lcov.xapian.org <http://lcov.xapian.org/>`_ for reports) there are two make
+targets:
 
   * coverage-reconfigure: reruns configure in the source tree.  See
     Makefile.am for details of the configure options used and why they
@@ -249,10 +278,10 @@ To use lcov to generate a test coverage report there are two make targets:
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
 
-SVN Snapshots
-=============
+Snapshots
+=========
 
-If you want to try unreleased Xapian code, you can fetch it from our SVN
+If you want to try unreleased Xapian code, you can fetch it from our git
 repository.  For convenience, we also provide bootstrapped tarballs (much like
 the sourcecode download for any release version) which get built every 20
 minutes if there have been any changes checked in.  These tarballs need to
@@ -260,15 +289,15 @@ pass "make distcheck" to be automatically uploaded, so using them will help
 to assure that you don't pick a "bad" version.  The snapshots are available
 from the "Bleeding Edge" page of the Xapian website.
 
-Building from SVN
+Building from git
 =================
 
-When building from an SVN checkout, we *strongly* recommend that you use the
-``bootstrap`` script in the top level directory to set up the tree ready for
-building.  This script will check what directories you have checked out, so you
-can bootstrap a partial tree.
+When building from a git checkout, we *strongly* recommend that you use
+the ``bootstrap`` script in the top level directory to set up the tree ready
+for building.  This script will check which directories you have checked out,
+so you can bootstrap a partial tree.
 
-You will need the following tools installed to build from SVN:
+You will need the following tools installed to build from git:
 
 * GNU m4 (for autoconf)
 * perl 5 (for automake; also for various maintainer scripts)
@@ -276,11 +305,12 @@ You will need the following tools installed to build from SVN:
 * GNU make (or another make which support VPATH for explicit rules)
 * GNU flex (for building doxygen)
 * GNU bison (for building doxygen)
+* Tcl (to generate unicode/unicode-data.cc)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison tcl
 
 If you want to build Omega, you'll also need::
 
@@ -290,17 +320,26 @@ On Fedora, the uuid library can be installed by doing::
 
     yum install libuuid-devel
 
-The SVN repository does not contain any automatically generated files
+If building from git, you'll also need git-svn installed.
+
+If you're doing much development work, you'll probably also want the following
+tools installed:
+
+* valgrind for better testsuite error finding
+* ccache for faster rebuilds
+* eatmydata for faster testsuite runs
+
+The repository does not contain any automatically generated files
 (such as configure, Makefile.in, Snowball-generated stemmers, Lemon-generated
 parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
-the SVN repo directly (in the case of Snowball and Lemon), or pull them in to
-an SVN checkout using svn:externals (SWIG), or the bootstrap script will lazily
-download, build, and install them within the source tree (autoconf, automake,
-libtool, and doxygen).  To download the source tarballs for these, bootstrap
-will use wget or curl if installed.  If not, it will give an error telling you
-the URL to download from by hand and where to copy the file to.
+the repo directly (in the case of Snowball and Lemon), or pull them in to a
+checkout using svn:externals or git-svn (SWIG), or the bootstrap script will
+lazily download, build, and install them within the source tree (autoconf,
+automake, libtool, and doxygen).  To download the source tarballs for these,
+bootstrap will use wget or curl if installed.  If not, it will give an error
+telling you the URL to download from by hand and where to copy the file to.
 
 Bootstrap will then run autoreconf on each of the checked-out subdirectories,
 and generate a top-level configure script.  This configure script allows you to
@@ -332,12 +371,13 @@ If you wish to prevent bootstrap from downloading and building the autotools
 pass the --without-autotools option.  You can force it to delete the downloaded
 and installed versions by passing --clean.
 
-If you are tracking development in SVN, there will sometimes be changes to the
-build system sources which require regeneration of the generated makefiles and
-associated machinery.  We aim to make the build system automatically regenerate
-the necessary files, but in the event that a build fails after an update, it
-may be worth re-running the bootstrap script to regenerate the build system
-from scratch, before looking for the cause of the error elsewhere.
+If you are tracking development in git, there will sometimes be changes
+to the build system sources which require regeneration of the generated
+makefiles and associated machinery.  We aim to make the build system
+automatically regenerate the necessary files, but in the event that a build
+fails after an update, it may be worth re-running the bootstrap script to
+regenerate the build system from scratch, before looking for the cause of the
+error elsewhere.
 
 Tools required to build documentation
 -------------------------------------
@@ -359,32 +399,27 @@ The documentation tools are:
 * gs (part of Ghostscript)
 * pdflatex (in texlive-latex-base on Debian/Ubuntu)
 * epstopdf (in texlive-extra-utils on Debian/Ubuntu)
-* makeindex (in texlive-base-bin on Debian/Ubuntu)
+* makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 * help2man
 * rst2html or rst2html.py (in python-docutils on Debian/Ubuntu)
 * pngcrush (optional - used to reduce the size of PNG files in the HTML
   apidocs)
 
-Note that pdflatex, epstopdf, gs, and makeindex must all currently be on the
-system path (as specified by the environmental variable PATH), since doxygen
-will look for them there.
+Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
+path (as specified by the environmental variable PATH), since doxygen will look
+for them there.
 
 For a recent version of Debian or Ubuntu, this command should install all the
 required documentation tools::
 
-    apt-get install doxygen graphviz gs texlive-latex-base texlive-extra-utils texlive-base-bin texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
+    apt-get install doxygen graphviz ghostscript texlive-latex-base texlive-extra-utils texlive-binaries texlive-fonts-extra texlive-fonts-recommended texlive-latex-extra texlive-latex-recommended help2man python-docutils pngcrush
 
 Autotools versions
 ------------------
 
-* autoconf 2.67 is used to generate snapshots and releases.
+* autoconf 2.68 is used to generate snapshots and releases.
 
   autoconf 2.64 is a hard minimum requirement.
-
-  autoconf 2.57 fixes the annoying chmod warnings on FreeBSD.
-
-  autoconf 2.58 is required by automake 1.8.5, and 2.59 was released the same
-  day as 2.58 to fix a problem.
 
   autoconf 2.60 is required for docdir support and AC_TYPE_SSIZE_T.
 
@@ -396,14 +431,9 @@ Autotools versions
 
   autoconf 2.64 generates smaller configure scripts by using shell functions.
 
-* automake 1.11.1 is used to generate snapshots and releases.
+* automake 1.11.6 is used to generate snapshots and releases.
 
   automake 1.10.2 is a hard minimum requirement.
-
-  automake 1.7 adds support for per-program and per-library _CPPFLAGS.
-
-  automake 1.9 is required for option "tar-ustar".  It also reduces Makefile.in
-  size.
 
   automake 1.10 requires autoconf 2.60 and Perl 5.6.
 
@@ -411,7 +441,7 @@ Autotools versions
 
   automake 1.10.2 fixes a few bugs (not investigated if these affect Xapian)
 
-* libtool 2.2.10 is used to generate snapshots and releases.
+* libtool 2.4.6 is used to generate snapshots and releases.
 
   libtool 2.2.8 is the current hard minimum requirement.
 
@@ -419,18 +449,18 @@ Autotools versions
   and sys_lib_dlsearch_path_spec in configure.  It also fixes some
   long-standing issues and is significantly faster.
 
-Please tell us if you find that older or newer versions of any of these
-tools work or fail to work.
+Please tell us if you find that newer versions of any of these tools work or
+fail to work.
 
 There is a good GNU autotools tutorial at
-<http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
+<http://www.lrde.epita.fr/~adl/autotools.html>.
 
-Building from SVN on Windows with MSVC
+Building from git on Windows with MSVC
 --------------------------------------
 
 The windows build process is maintained in the xapian-maintainer-tools
-directory in the subversion repository.  See the win32msvc/README file in that
-directory for details of how to build from subversion.
+directory in the Xapian git repository.  See the win32msvc/README file in that
+directory for details of how to build from git.
 
 Use of C++ Features
 ===================
@@ -444,8 +474,8 @@ Use of C++ Features
   There is now plenty of choice of compilers which provide good conformance to
   ISO C++, so if working around problems for some compiler proves too hard we
   should just document the issue and users will either have to upgrade to a
-  more compliant compiler, or use another STL implementation such as STLPort
-  (http://www.stlport.org/).
+  more compliant compiler, or use another STL implementation such as STLport
+  (http://stlport.sourceforge.net/).
 
 * C++ features we currently assume:
 
@@ -669,8 +699,11 @@ at least GCC gives a warning).
 Branch Prediction Hints
 =======================
 
-GCC 3.0 and newer and Intel's C++ compiler both provide a mechanism for giving
-the compiler hints to assist branch prediction (using ``__builtin_expect()``).
+For compilers which support ``__builtin_expect()`` (GCC >= 3.0 and some others)
+you can provide manual hints to assist branch prediction.  We've wrapped these
+in macros which evaluate to just their argument for compilers which don't
+support ``__builtin_expect()__``.
+
 Within the xapian-core library code, you can mark the expressions in ``if`` and
 ``while`` statements as ``rare`` (if the condition is rarely true) or ``usual``
 (if the condition is usually true).
@@ -767,9 +800,10 @@ Here's an incomplete list of things to avoid:
   Note that versions of these (GNU versions in particular) support switches
   which aren't portable - notably, "test -r" isn't portable; neither is
   "cp -a".  And note that "mkdir -p" isn't portable - the semantics vary.
-  See the "Goat Book" for more details and other useful tips:
+  The autoconf manual has some useful information about writing portable
+  shell code (most of it not specific to autoconf)::
 
-    http://sources.redhat.com/autobook/
+    http://www.gnu.org/software/autoconf/manual/autoconf.html#Portable-Shell
 
 * Don't use "include" - it's not present in BSD make (at least some versions
   have ".include" instead, but that doesn't really seem to help...)  Automake
@@ -950,15 +984,17 @@ Marking Features as Deprecated
 ==============================
 
 In the API headers, a feature (a class, method, function, enum, typedef, etc)
-can be marked as deprecated by using the XAPIAN_DEPRECATED() macro.  Note that
-you can't deprecate a preprocessor macro.
+can be marked as deprecated by using the XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS macros.  Note that you can't deprecate a preprocessor
+macro.
 
 For compilers with a suitable mechanism (currently GCC 3.1 or later, and
 MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
 any use of the deprecated feature.  For compilers without support, the macro
 just expands to its argument.
 
-You must add this line to any API header which uses XAPIAN_DEPRECATED():
+You must add this line to any API header which uses XAPIAN_DEPRECATED() or
+XAPIAN_DEPRECATED_CLASS::
 
     #include <xapian/deprecated.h>
 
@@ -983,19 +1019,19 @@ semicolon and any "definition" part, for example::
         XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
     };
 
-Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED()`` after the class
-keyword like so::
+Mark a class as deprecated by inserting ``XAPIAN_DEPRECATED_CLASS`` after the
+class keyword like so::
 
-    class XAPIAN_DEPRECATED() Foo {
+    class XAPIAN_DEPRECATED_CLASS Foo {
       public:
-        Foo() { };
+        Foo() { }
 
         // ...
     };
 
 To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
 you can't mark a method which is defined inline in a class with
-XAPIAN_DEPRECATED (this works with recent GCC versions though)::
+``XAPIAN_DEPRECATED()`` (this works with recent GCC versions though)::
     
     class Foo {
       public:
@@ -1023,10 +1059,15 @@ on the xapian-devel mailing list first:
 Also, please read the following section on licensing of patches before
 submitting a patch.
 
-We find patches in unified diff format easiest to read.  If you're using a
-SVN checkout just use "svn diff" to generate the diff.  If you're working
-from a tarball, compare against the original versions of files using
-"diff -puN" (-p reports the function name for each chunk).
+We find patches in unified diff format easiest to read.  If you're using
+git, then "git diff" is good (or "git format-patch" for a patch series).  If
+you're using a SVN checkout just use "svn diff" to generate the diff.  If
+you're working from a tarball, you can unpack a second clean copy of the files
+and compare the two versions with "diff -pruN" (-p reports the function name
+for each chunk, -r acts recursively, -u does a unified diff, and -N shows
+new files in the diff).  Alternatively "ptardiff" (which comes with perl, at
+least on Debian and Ubuntu) can diff against the original tarball, unpacking
+it on the fly.
 
 Please set the width of a tab character in your editor to 8 spaces, and use
 Unix line endings (i.e. LF, not CR+LF).  Failing to do so will make it much
@@ -1093,6 +1134,10 @@ to follow the style of the existing code.  In particular:
   The rationale for this is that it conserves vertical space (allowing more
   code to fit on screen) without reducing readability.
 
+* If you have an empty loop body, use `{ }` rather than `;` as the former
+  stands out more clearly to the reader (but also consider if the code might be
+  clearer written a different way).
+
 * Prefer "++i;" to "i++;", "i += 1;", or "i = i + 1".  For simple integer
   variables these should generate equivalent (if not identical) code, but if i
   is an iterator object then the pre-increment form can be more efficient in
@@ -1105,8 +1150,8 @@ to follow the style of the existing code.  In particular:
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").
   Finding the size of a container may not be a constant time operation for
   all containers (e.g. std::list may not be, and indeed isn't for GCC - see
-  http://gcc.gnu.org/onlinedocs/libstdc++/23_containers/howto.html#6).  And
-  the "empty()" form makes the intent of the test more explicit.
+  https://gcc.gnu.org/onlinedocs/libstdc++/manual/containers.html#sequences.list.size).
+  Also the "empty()" form makes the intent of the test more explicit.
 
 * Prefer not to use "else" when the control flow is diverted elsewhere at the
   end of the "if" block (e.g. by "return", "continue", "break", "throw").  This
@@ -1214,8 +1259,8 @@ so please check with your employer if this applies.  Be aware that even if you
 are a student your university may try and claim some rights on code which you
 write.
 
-Patches which are submitted to Xapian will only be included if they are
-licensed for distribution under each of the following licenses:
+Patches which are submitted to Xapian will only be included if the copyright
+holder(s) dual-license them under each of the following licences:
 
  - GPL version 2 and all later versions (see the file "COPYING" for details).
  - MIT/X license::
@@ -1412,6 +1457,9 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Email Fabrice Colin and Tim Brody so they can check RPM packaging.
 
+* Check if `config/config.guess` and `config/config.sub` need updating to
+  more recent versions from http://git.savannah.gnu.org/gitweb/?p=config.git
+
 * Check the revision currently specified in the svn:externals property of
   xapian-applications/omega.  Unless there's a good reason, we should release
   xapian-core and omega with synchronised versions of the shared files.
@@ -1459,50 +1507,44 @@ This is a (hopefully complete) list of the jobs which need doing:
   date of this release and adding an entry for the next release with an
   estimated release date.
 
-* Update the website: version.php in the CVS module www.xapian.org contains the
+* Update the website: `generate` in the CVS module www.xapian.org contains the
   latest version and the date it was released.
 
 * Run /home/olly/tmp/xapian-website-update/update_website.sh
 
 * Announce the new version on xapian-discuss
 
-* Update the freshmeat entry at:
-  http://freshmeat.net/projects/xapian/releases/new
-
 * Have a nice cup of tea!
 
 How to make Debian packages for a new release
 =============================================
 
-Debian control files are stored in the "debian" subdirectory of each module
-for which packages have been produced (currently xapian-core, xapian-bindings
-and xapian-applications/omega).  After each release, these should be
-updated as follows:
+Debian control files are stored in separate git repositories:
+
+* http://anonscm.debian.org/cgit/collab-maint/xapian-bindings.git
+* http://anonscm.debian.org/cgit/collab-maint/xapian-core.git
+* http://anonscm.debian.org/cgit/collab-maint/xapian-omega.git
+
+To package a new upstream release, these should be updated as follows:
 
 * If there are any patch files in "debian/patches", check if these have been
   incorporated into the new release, and if so remove them and update
-  "debian/patches/series".  If there are no patches left and
-  "debian/patches/series" is empty or only contains lines starting with a "#"
-  then the dependency on quilt is automatically omitted.
+  "debian/patches/series".
 
 * Update the debian/changelog file, being sure to keep it in the
   standard Debian format (the easiest way is to use the dch utility
-  like so: "dch -v 1.0.14-1".  The new version number should be the
+  like so: "dch -v 1.2.19-1".  The new version number should be the
   version number of the release followed by "-1" (i.e., a debian
   patch number of 1).  The changelog message should indicate that
   there is a new upstream release, and should mention any significant
   changes in the new release.
 
-* Run ``xapian-maintainer-tools/debian/svn-tag-debs`` to tag all the files in the
-  debian control directory - e.g., for a new release of version 1.0.14, it tags
-  with "tags/debian-1.0.14-1".
+* Tag using: ``git tag -s -m 1.2.19-1 1.2.19-1``
 
-* ``cd xapian-maintainer-tools/debian``
+* FIXME: Document how to make source packages, or update
+  ``make-source-packages``.
 
-* Run ``./make-source-packages`` to make new source packages for Debian unstable.
-
-* Run ``sudo ./build-packages`` to build binary packages from these source
-  packages.
+* FIXME: Document how to build binary packages, or update ``build-packages``.
 
 * Test the packages.
 
@@ -1512,13 +1554,13 @@ updated as follows:
 
 * For the Ubuntu backports::
 
-   ./backport-source-packages xapian-core 1.0.15-1 jaunty intrepid hardy dapper
-   ./backport-source-packages xapian-omega 1.0.15-1 jaunty intrepid hardy dapper
-   ./backport-source-packages xapian-bindings 1.0.15-1 jaunty intrepid hardy dapper
+   ./backport-source-packages xapian-core 1.2.19-1 ubuntu
+   ./backport-source-packages xapian-omega 1.2.19-1 ubuntu
+   ./backport-source-packages xapian-bindings 1.2.19-1 ubuntu
 
   And once libsearch-xapian-perl is uploaded to Debian unstable::
 
-   ./backport-source-packages libsearch-xapian-perl 1.0.15.0-1 jaunty intrepid hardy
+   ./backport-source-packages libsearch-xapian-perl 1.2.19.0-1 ubuntu
 
   Then sign::
 

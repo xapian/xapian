@@ -20,6 +20,7 @@ OBJS= \
                 $(INTDIR)\flint_alldocspostlist.obj\
                 $(INTDIR)\flint_alltermslist.obj\
                 $(INTDIR)\flint_btreebase.obj\
+                $(INTDIR)\flint_compact.obj\
                 $(INTDIR)\flint_cursor.obj\
                 $(INTDIR)\flint_database.obj\
                 $(INTDIR)\flint_databasereplicator.obj\
@@ -42,6 +43,7 @@ SRCS= \
                 $(INTDIR)\flint_alldocspostlist.cc\
                 $(INTDIR)\flint_alltermslist.cc\
                 $(INTDIR)\flint_btreebase.cc\
+                $(INTDIR)\flint_compact.cc\
                 $(INTDIR)\flint_cursor.cc\
                 $(INTDIR)\flint_database.cc\
                 $(INTDIR)\flint_databasereplicator.cc\

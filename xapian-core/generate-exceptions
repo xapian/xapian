@@ -79,7 +79,9 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  an error from gethostbyname() or similar).
      *
      *  On Windows, if this value is < 0, it's a negated Windows error code
-     *  (as given by GetLastError() or WSAGetLastError()).
+     *  (as given by GetLastError()), while if it is >= WSABASEERR then it is a
+     *  WinSock error code (as given by WSAGetLastError()).  Prior to Xapian
+     *  1.2.20 and 1.3.3, WSAGetLastError() codes were also negated.
      *
      *  NB We don't just call this member "errno" to avoid problems on
      *  platforms where errno is a preprocessor macro.
@@ -194,10 +196,21 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
      */
     $class(const std::string \&msg_, const std::string \&context_, const char * error_string_)
 	: $parent(msg_, context_, "$class", error_string_) {}
-    /** General purpose constructor which allows setting errno. */
+    /** General purpose constructor.
+     *
+     *  \@param msg_		Message giving details of the error, intended
+     *				for human consumption.
+     *  \@param context_	Optional context information for this error.
+     *  \@param errno_		Optional errno value associated with this error.
+     */
     explicit $class(const std::string \&msg_, const std::string \&context_ = std::string(), int errno_ = 0)
 	: $parent(msg_, context_, "$class", errno_) {}
-    /** Construct from message and errno value. */
+    /** Construct from message and errno value.
+     *
+     *  \@param msg_		Message giving details of the error, intended
+     *				for human consumption.
+     *  \@param errno_		Optional errno value associated with this error.
+     */
     $class(const std::string \&msg_, int errno_)
 	: $parent(msg_, std::string(), "$class", errno_) {}
   protected:

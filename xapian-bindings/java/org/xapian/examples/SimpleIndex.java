@@ -39,7 +39,7 @@ public class SimpleIndex {
             System.exit(0);
         }
 
-        // create or *overwrite an existing* Xapian (quartz) database
+        // create or *overwrite an existing* Xapian database
         String dbpath = args[0];
         WritableDatabase db = new WritableDatabase(dbpath, Xapian.DB_CREATE_OR_OVERWRITE);
 

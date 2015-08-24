@@ -1,3 +1,4 @@
+use strict;
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.pl'
 
@@ -6,7 +7,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 91 };
+BEGIN { plan tests => 117 };
 use Search::Xapian qw(:standard);
 
 #########################
@@ -38,7 +39,7 @@ foreach my $backend ("inmemory", "auto") {
   }
 
   my $docid;
-  for my $num qw( one two three ) {
+  for my $num (qw( one two three )) {
     ok( $docs{$num} = Search::Xapian::Document->new() );
     ok( $docs{$num}->get_description() );
 
@@ -61,6 +62,9 @@ foreach my $backend ("inmemory", "auto") {
   is( $database->get_doccount(), 2 );
   is( $database->get_lastdocid(), 3 );
 
+  is( $database->get_document(1)->get_docid(), 1 );
+  is( $database->get_document(2)->get_docid(), 2 );
+
   # regression test - add_posting with 2 parameters set wdfinc 0 in <=0.8.3.0
   ok( $database->get_doclength(1) == 2 );
 
@@ -72,6 +76,24 @@ foreach my $backend ("inmemory", "auto") {
   ok( $posit == 0 );
   $posit++;
   ok( $posit eq $database->positionlist_end(1, $term) );
+
+  my $postit = $database->postlist_begin('one');
+  ok( $postit ne $database->postlist_end('one') );
+  ok( $postit != $database->postlist_end('one') );
+  is( $postit->get_docid(), 1 );
+  $postit++;
+  ok( $postit eq $database->postlist_end('one') );
+  ok( $postit == $database->postlist_end('one') );
+
+  my $termit = $database->termlist_begin(1);
+  ok( $termit != $database->termlist_end(1) );
+  is( "$termit", 'one' );
+  $termit++;
+  ok( $termit ne $database->termlist_end(1) );
+  is( $termit->get_termname(), 'test' );
+  ++$termit;
+  ok( $termit eq $database->termlist_end(1) );
+  ok( $termit == $database->termlist_end(1) );
 
   my $alltermit = $database->allterms_begin();
   ok( $alltermit != $database->allterms_end() );
@@ -109,7 +131,7 @@ eval {
 };
 ok($@);
 ok(ref($@), "Search::Xapian::InvalidArgumentError");
-ok(UNIVERSAL::isa($@, 'Search::Xapian::Error'));
+ok($@->isa('Search::Xapian::Error'));
 ok($@->get_msg, "Language code gibberish unknown");
 ok( "$@" =~ /^Exception: Language code gibberish unknown(?: at \S+ line \d+\.)?$/ );
 

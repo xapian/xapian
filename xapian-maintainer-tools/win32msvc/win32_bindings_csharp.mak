@@ -24,6 +24,7 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     BM25Weight.cs \
     BoolWeight.cs \
     Brass.cs \
+    Compactor.cs \
     Chert.cs \
     Database.cs \
     DateValueRangeProcessor.cs \
@@ -85,7 +86,7 @@ CLEAN :
     -@erase "$(OUTDIR)\$(BINDING).dll"
     -@erase "$(BINDING).dll.manifest"
     -@erase "$(ASSEMBLY).dll" 
-    -@erase "$(OUTDIR)\$(ASSEMBLY).dll
+    -@erase "$(OUTDIR)\$(ASSEMBLY).dll"
     -@erase "$(ASSEMBLY).dll.manifest" 
     -@erase "SmokeTest.exe"
     -@erase "$(OUTDIR)\SmokeTest.exe"

@@ -34,52 +34,11 @@
 # include "safewindows.h"
 #endif
 
-#include "stringutils.h"
+#include "append_filename_arg.h"
+#include "str.h"
 #include "utils.h"
 
 using namespace std;
-
-/// Append filename argument arg to command cmd with suitable escaping.
-static bool
-append_filename_argument(string & cmd, const string & arg) {
-#ifdef __WIN32__
-    cmd.reserve(cmd.size() + arg.size() + 3);
-    cmd += " \"";
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	if (*i == '/') {
-	    // Convert Unix path separators to backslashes.  C library
-	    // functions understand "/" in paths, but we are going to
-	    // call commands like "deltree" or "rd" which don't.
-	    cmd += '\\';
-	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
-	    // Check for illegal characters in filename.
-	    return false;
-	} else {
-	    cmd += *i;
-	}
-    }
-    cmd += '"';
-#else
-    // Allow for escaping a few characters.
-    cmd.reserve(cmd.size() + arg.size() + 10);
-
-    // Prevent a leading "-" on the filename being interpreted as a command
-    // line option.
-    if (arg[0] == '-')
-	cmd += " ./";
-    else
-	cmd += ' ';
-
-    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
-	// Don't escape a few safe characters which are common in filenames.
-	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
-	    cmd += '\\';
-	}
-	cmd += *i;
-    }
-#endif
-    return true;
-}
 
 /// Recursively copy a directory.
 void cp_R(const std::string &src, const std::string &dest) {
@@ -128,14 +87,9 @@ void rm_rf(const string &filename) {
 	return;
 
 #ifdef __WIN32__
-    string cmd;
-    if (running_on_win9x()) {
-	// For 95-like systems:
-	cmd = "deltree /y";
-    } else {
-	// For NT-like systems:
-	cmd = "rd /s /q";
-    }
+    string cmd = running_on_win9x() ?
+	"deltree /y" : // for 95-like systems.
+	"rd /s /q"; // for NT-like systems.
 #else
     string cmd("rm -rf");
 #endif

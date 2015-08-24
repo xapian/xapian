@@ -2,7 +2,7 @@
 
 set -e
 
-BRANCH=trunk
+BRANCH=branches/1.2
 
 version="$1"
 
@@ -40,6 +40,16 @@ svn cat "svn+userv:///xapian/$BRANCH/search-xapian/Xapian.pm" |
 	echo "search-xapian/Xapian.pm not version $version" 1>&2
 	exit 1
 }
+
+# Check soname is as expected for a stable release series (to avoid a repeat of
+# 1.2.11).
+expected_soversion=22
+soversion=`svn cat "svn+userv:///xapian/$BRANCH/xapian-core/configure.ac" |
+    awk -F'[=:]' '($1 == "LIBRARY_VERSION_INFO") {print $2 - $4}'`
+if [ x"$soversion" != x"$expected_soversion" ] ; then
+    echo "xapian-core soversion is $soversion, but expected $expected_soversion" 1>&2
+    exit 1
+fi
 
 # Add the version to the list in Bugzilla.
 # FIXME this doesn't work, as I need to be logged in to do this!

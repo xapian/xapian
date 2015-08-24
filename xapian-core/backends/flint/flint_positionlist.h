@@ -80,9 +80,6 @@ class FlintPositionList : public PositionList {
     /// Have we started iterating yet?
     bool have_started;
 
-    /// Advance to next term position.
-    void next_internal();
-
     /// Copying is not allowed.
     FlintPositionList(const FlintPositionList &);
 

@@ -1,6 +1,7 @@
-/* safewindows.h: #include <windows.h> without all the bloat and damage.
- *
- * Copyright (C) 2005,2007 Olly Betts
+/** @file safewindows.h
+ * @brief #include <windows.h> without all the bloat and damage.
+ */
+/* Copyright (C) 2005,2007,2013 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +29,11 @@
 // Prevent windows.h from defining min and max macros.
 #ifndef NOMINMAX
 # define NOMINMAX
+#endif
+
+// Make more modern interfaces visible.
+#ifndef WINVER
+# define WINVER 0x0500
 #endif
 
 // Prevent windows.h from including lots of obscure win32 api headers

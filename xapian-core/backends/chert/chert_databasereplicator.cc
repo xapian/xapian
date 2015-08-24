@@ -48,6 +48,7 @@
 #endif
 
 #include <cstdio> // For rename().
+#include <cstdlib>
 
 using namespace std;
 using namespace Xapian;
@@ -111,9 +112,7 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 
     // Get the new base file into buf.
     write_and_clear_changes(changes_fd, buf, ptr - buf.data());
-    conn.get_message_chunk(buf, base_size, end_time);
-
-    if (buf.size() < base_size)
+    if (!conn.get_message_chunk(buf, base_size, end_time))
 	throw NetworkError("Unexpected end of changeset (6)");
 
     // Write base_size bytes from start of buf to base file for tablename
@@ -177,26 +176,14 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 
     string db_path = db_dir + "/" + tablename + ".DB";
 #ifdef __WIN32__
-    int fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_BINARY);
+    int fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_BINARY);
 #else
-    int fd = ::open(db_path.c_str(), O_WRONLY | O_BINARY, 0666);
+    int fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_BINARY, 0666);
 #endif
     if (fd == -1) {
-	if (file_exists(db_path)) {
-	    string msg = "Failed to open ";
-	    msg += db_path;
-	    throw DatabaseError(msg, errno);
-	}
-#ifdef __WIN32__
-	fd = msvc_posix_open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-#else
-	fd = ::open(db_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-#endif
-	if (fd == -1) {
-	    string msg = "Failed to create and open ";
-	    msg += db_path;
-	    throw DatabaseError(msg, errno);
-	}
+	string msg = "Failed to open ";
+	msg += db_path;
+	throw DatabaseError(msg, errno);
     }
     {
 	fdcloser closer(fd);
@@ -214,8 +201,7 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		break;
 	    --block_number;
 
-	    conn.get_message_chunk(buf, changeset_blocksize, end_time);
-	    if (buf.size() < changeset_blocksize)
+	    if (!conn.get_message_chunk(buf, changeset_blocksize, end_time))
 		throw NetworkError("Incomplete block in changeset");
 
 	    // Write the block.

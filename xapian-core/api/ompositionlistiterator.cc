@@ -78,7 +78,7 @@ void
 Xapian::PositionIterator::skip_to(Xapian::termpos pos)
 {
     LOGCALL_VOID(API, "Xapian::PositionIterator::skip_to", pos);
-    Assert(internal.get());
+    if (!internal.get()) return;
     Assert(!internal->at_end());
     internal->skip_to(pos);
     if (internal->at_end()) internal = 0;

@@ -48,10 +48,19 @@ Database open_stub(const std::string &file);
 
 /** Construct a WritableDatabase object for a stub database file.
  *
- * The stub database file must contain serialised parameters for exactly one
- * database.
+ *  The stub database file must contain serialised parameters for exactly one
+ *  database.
  *
- * @param file  pathname of the stub database file.
+ *  @param file		pathname of the stub database file.
+ *  @param action	determines handling of existing/non-existing database:
+ *  - Xapian::DB_CREATE			fail if database already exist,
+ *					otherwise create new database.
+ *  - Xapian::DB_CREATE_OR_OPEN		open existing database, or create new
+ *					database if none exists.
+ *  - Xapian::DB_CREATE_OR_OVERWRITE	overwrite existing database, or create
+ *					new database if none exists.
+ *  - Xapian::DB_OPEN			open existing database, failing if none
+ *					exists.
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_stub(const std::string &file, int action);

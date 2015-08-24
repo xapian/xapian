@@ -248,5 +248,8 @@ Xapian::sortable_unserialise(const std::string & value)
 
     if (negative) mantissa = -mantissa;
 
-    return ldexp(mantissa, exponent);
+    // We use scalbn() since it's equivalent to ldexp() when FLT_RADIX == 2
+    // (which we currently assume), except that ldexp() will set errno if the
+    // result overflows or underflows, which isn't really desirable here.
+    return scalbn(mantissa, exponent);
 }
