@@ -1,1 +1,1 @@
-usr/lib/{,sse2}/libxapian.so.*
+usr/lib/{,sse2}/libxapian-1.3.so.*
