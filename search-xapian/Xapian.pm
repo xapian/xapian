@@ -32,7 +32,6 @@ use Search::Xapian::BoolWeight;
 use Search::Xapian::TradWeight;
 
 use Search::Xapian::ValueCountMatchSpy;
-use Search::Xapian::PerlMatchSpy;
 
 use Search::Xapian::SimpleStopper;
 use Search::Xapian::PerlStopper;
