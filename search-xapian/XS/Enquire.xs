@@ -331,7 +331,6 @@ void
 Enquire::add_matchspy(MatchSpy * spy)
     CODE:
     try {
-        printf("In add_matchspy\n");
         XAPIAN_PERL_REF(Enquire, THIS, matchspy, ST(1));
         THIS->add_matchspy(spy);
     } catch (...) {
@@ -342,7 +341,6 @@ void
 Enquire::clear_matchspies()
     CODE:
     try {
-        printf("in Enquire.xs clear_matchspies\n");
         XAPIAN_PERL_REF(Enquire, THIS, clear_matchspies,  NULL);
         THIS->clear_matchspies();
     } catch (...) {

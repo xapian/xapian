@@ -40,26 +40,21 @@ struct Enquire_perl {
 
     void ref_matchspy(SV* sv) {
 	SvREFCNT_inc(sv);
-	fprintf(stderr, "in ref_matchspy, have %lu spies already!\n", matchspies.size());
 	matchspies.push_back(sv);
     }
     void ref_clear_matchspies(SV* sv) {
-	fprintf(stderr, "in ref_clear_matchspies, have %lu spies already!\n", matchspies.size());
 
 	vector<SV *>::const_iterator i;
 	for (i = matchspies.begin(); i != matchspies.end(); ++i) {
-	    fprintf(stderr, "  decreasing refcount for a matchspy\n");
 	    SvREFCNT_dec(*i);
 	}
 	matchspies.clear();
     }
     ~Enquire_perl() {
-	fprintf(stdout, "in destroyer for Enquire, gonna clear up sorters and matchspies!\n");
 	SvREFCNT_dec(sorter);
 	sorter = NULL;
 	vector<SV *>::const_iterator i;
 	for (i = matchspies.begin(); i != matchspies.end(); ++i) {
-	    fprintf(stderr, "  decreasing refcount for a matchspy\n");
 	    SvREFCNT_dec(*i);
 	}
 	matchspies.clear();
