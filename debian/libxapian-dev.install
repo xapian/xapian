@@ -1,8 +1,8 @@
 usr/bin/xapian-config-1.3
 usr/include
 usr/lib/cmake/xapian
-usr/lib/libxapian.a
-usr/lib/libxapian.la
-usr/lib/libxapian.so
+usr/lib/libxapian-1.3.a
+usr/lib/libxapian-1.3.la
+usr/lib/libxapian-1.3.so
 usr/share/aclocal
-usr/share/man/man1/xapian-config.1
+usr/share/man/man1/xapian-config-1.3.1
