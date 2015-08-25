@@ -242,12 +242,7 @@ O_SORTER
 	}
 
 O_MATCHSPY
-        if( sv_isobject($arg) && 
-	    (
-		sv_derived_from($arg, \"Search::Xapian::MatchSpy\") 
-	     || sv_derived_from($arg, \"Search::Xapian::PerlMatchSpy\")
-	    )
-	)
+        if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MatchSpy\") )
                 $var = ($type)SvIV((SV*)SvRV( $arg ));
         else{
                 warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MatchSpy\\\" object\" );
