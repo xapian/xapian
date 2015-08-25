@@ -3,12 +3,8 @@ Revision history for Perl extension Search::Xapian.
     [Changes contributed by Val Rosca, updated by Andreas Marienborg]
     Expose the facets API:
     - Wrappers for the MatchSpy and ValueCountMatchSpy classes
-    - Allow Perl implementations of MatchSpy by inheriting from the
-      PerlMatchSpy class
-    - Make Xapian::Enquire PerlSpy-aware via the PerlSpyAwareEnquire
-      class ; keep track of references to avoid leaks
-    - Create a PerlMatchSpyAdaptor class that is used by
-      PerlSpyAwareEnquire to wrap SV as MatchSpies
+    - Make Xapian::Enquire PerlSpy-aware class ; keep track of references to
+      avoid leaks
     - add_matchspy & clear_matchspies methods added to Xapian::Enquire
     - t/facets.t
 
