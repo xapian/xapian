@@ -328,18 +328,7 @@ string
 Enquire::get_description()
 
 void
-Enquire::add_matchspy_perl(MatchSpy * spy)
-    CODE:
-    try {
-        fprintf(stderr, "Adding perl matchspy?\n");
-        XAPIAN_PERL_REF(Enquire, THIS, matchspy, ST(1));
-        THIS->add_matchspy(spy);
-    } catch (...) {
-        handle_exception();
-    }
-
-void
-Enquire::add_matchspy_internal(MatchSpy * spy)
+Enquire::add_matchspy(MatchSpy * spy)
     CODE:
     try {
         printf("In add_matchspy\n");

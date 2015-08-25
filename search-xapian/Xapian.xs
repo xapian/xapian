@@ -248,50 +248,6 @@ class perlExpandDecider : public Xapian::ExpandDecider {
     }
 };
 
-/* PerlMatchSpy class
- *
- * Make operator(doc, wt) call Perl $OBJECT->register(doc, wt)
- */
-
-class PerlMatchSpy_perl : public Xapian::MatchSpy {
-    SV * SV_matchspy_ref;
-    
-  public:
-    PerlMatchSpy_perl(SV* spy) {
-	fprintf(stdout, "In PerlMatchSpy XS new?\n");
-	SV_matchspy_ref = newRV_inc(spy);
-    }
-
-    ~PerlMatchSpy_perl() {
-	sv_2mortal(SV_matchspy_ref);
-    }
-
-    void operator()(const Xapian::Document& doc, Xapian::weight wt) {
-	dSP ;
-
-	ENTER ;
-	SAVETMPS ;
-
-	PUSHMARK(SP);
-	PUSHs(SvRV(SV_matchspy_ref));
-
-	fprintf(stdout, "XXXXX: in operatore in PerlMatchSpy Xapian.xs, about to call register\n");
-	SV* arg = sv_newmortal();
-	Document* pdoc = new Document(doc);
-	sv_setref_pv(arg, "Search::Xapian::Document", (void*) pdoc);
-
-	XPUSHs(arg);
-	mXPUSHn(wt);
-
-	PUTBACK ;
-
-	call_method("register", G_VOID);
-
-	SPAGAIN ;
-	FREETMPS ;
-	LEAVE ;
-    }
-};
 
 MODULE = Search::Xapian		PACKAGE = Search::Xapian
 

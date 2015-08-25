@@ -89,19 +89,6 @@ sub get_matching_terms_end {
   exit;
 }
 
-sub add_matchspy {
-    my $self = shift;
-    if (scalar(@_) == 1) {
-	my $spy = shift;
-	if ($spy->isa('Search::Xapian::PerlMatchSpy')) {
-	    return $self->add_matchspy_perl($spy);
-	} else {
-	    return $self->add_matchspy_internal($spy);
-	}
-    }
-    Carp::carp( "USAGE: \$enquire->add_matchspy(\$spy)" );
-}
-
 1;
 
 __END__
