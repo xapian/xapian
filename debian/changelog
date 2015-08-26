@@ -1,3 +1,11 @@
+xapian-1.3-core (1.3.3-7) UNRELEASED; urgency=medium
+
+  * Bump package to libxapian v. 1.3.3
+  * Change package name to xapian-1.3-core for parallel installability
+  * Remove xapian-examples
+
+ -- Will Greenberg <will@endlessm.com>  Wed, 26 Aug 2015 14:31:03 -0700
+
 xapian-core (1.2.12-2) unstable; urgency=low
 
   * New patch fix-db-write-lock.patch which fixes database write locking to
