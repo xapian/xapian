@@ -6,7 +6,6 @@ usr/bin/xapian-compact-1.3
 usr/bin/xapian-inspect-1.3
 usr/bin/xapian-progsrv-1.3
 usr/bin/xapian-tcpsrv-1.3
-usr/bin/xapian-chert-update-1.3
 usr/bin/xapian-replicate-1.3
 usr/bin/xapian-replicate-server-1.3
 usr/bin/xapian-metadata-1.3
