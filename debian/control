@@ -1,4 +1,4 @@
-Source: xapian-core
+Source: xapian-1.3-core
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
@@ -8,12 +8,12 @@ Homepage: http://xapian.org/
 Vcs-Browser: http://trac.xapian.org/browser/trunk/xapian-core
 Vcs-svn: svn://svn.xapian.org/xapian/trunk/xapian-core
 
-Package: libxapian22
+Package: libxapian-1.3
 Architecture: any
 Section: libs
 Priority: important
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Suggests: xapian-tools
+Suggests: xapian-1.3-tools
 Description: Search engine library
  This package contains the core Xapian runtime library.
  .
@@ -25,11 +25,11 @@ Description: Search engine library
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
 
-Package: libxapian22-dbg
+Package: libxapian-1.3-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: libxapian22 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: libxapian-1.3 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: libc6-dbg, libgcc1-dbg, zlib1g-dbg, libstdc++6-4.6-dbg
 Description: Debugging symbols for the Xapian Search engine library
  This package contains debugging symbols for the core Xapian library.
@@ -42,11 +42,11 @@ Description: Debugging symbols for the Xapian Search engine library
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
 
-Package: libxapian-dev
+Package: libxapian-1.3-dev
 Architecture: any
 Section: libdevel
-Depends: libxapian22 (= ${binary:Version}), libc6-dev | libc-dev, ${misc:Depends}
-Suggests: xapian-doc (= ${binary:Version}), xapian-examples (= ${binary:Version})
+Depends: libxapian-1.3 (= ${binary:Version}), libc6-dev | libc-dev, ${misc:Depends}
+Suggests: xapian-1.3-doc (= ${binary:Version})
 Description: Development files for Xapian search engine library
  This package contains development libraries and headers for the core Xapian
  library.
@@ -59,10 +59,10 @@ Description: Development files for Xapian search engine library
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
 
-Package: xapian-tools
+Package: xapian-1.3-tools
 Architecture: any
 Section: utils
-Depends: libxapian22 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: libxapian-1.3 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Basic tools for Xapian search engine library
  This package contains several tools related to Xapian.
   - copydatabase: Copy one or more Xapian databases.
@@ -71,10 +71,10 @@ Description: Basic tools for Xapian search engine library
   - quartzcompact: Compact a quartz database, or merge and compact several.
   - quartzdump: Dump (part of) a quartz-format Xapian database.
   - quest: Command line search of a Xapian database.
-  - xapian-check: Check the validity of a Xapian database.
-  - xapian-compact: Compact a quartz database, or merge and compact several.
-  - xapian-progsrv: stdin/stdout based server, for searching databases remotely.
-  - xapian-tcpsrv: TCP based server, used for searching databases remotely.
+  - xapian-1.3-check: Check the validity of a Xapian database.
+  - xapian-1.3-compact: Compact a quartz database, or merge and compact several.
+  - xapian-1.3-progsrv: stdin/stdout based server, for searching databases remotely.
+  - xapian-1.3-tcpsrv: TCP based server, used for searching databases remotely.
  .
  The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
@@ -84,33 +84,14 @@ Description: Basic tools for Xapian search engine library
  update and searching.  It is highly scalable, and is capable of working with
  collections containing hundreds of millions of documents.
 
-Package: xapian-doc
+Package: xapian-1.3-doc
 Architecture: all
 Section: doc
 Depends: ${misc:Depends}
-Recommends: libxapian-dev (= ${binary:Version})
+Recommends: libxapian-1.3-dev (= ${binary:Version})
 Description: Core Xapian documentation
  This package contains general documentation about Xapian, and more detailed
  API documentation.
- .
- The Xapian search engine library is a highly adaptable toolkit which allows
- developers to easily add advanced indexing and search facilities to their own
- applications.  It implements the probabilistic model of information retrieval,
- and provides facilities for performing ranked free-text searches, relevance
- feedback, phrase searching, boolean searching, stemming, and simultaneous
- update and searching.  It is highly scalable, and is capable of working with
- collections containing hundreds of millions of documents.
-
-Package: xapian-examples
-Architecture: any
-Section: doc
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: libxapian-dev (= ${binary:Version})
-Description: Xapian simple example programs
- This package contains source code for some example programs which use the
- Xapian library.  The three "simple" examples are also included in binary
- form; binaries for the other examples can be found in the xapian-tools
- package (since they're useful tools in their own right).
  .
  The Xapian search engine library is a highly adaptable toolkit which allows
  developers to easily add advanced indexing and search facilities to their own
