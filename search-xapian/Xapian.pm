@@ -31,6 +31,8 @@ use Search::Xapian::BM25Weight;
 use Search::Xapian::BoolWeight;
 use Search::Xapian::TradWeight;
 
+use Search::Xapian::ValueCountMatchSpy;
+
 use Search::Xapian::SimpleStopper;
 use Search::Xapian::PerlStopper;
 
@@ -495,6 +497,7 @@ L<Search::Xapian::TradWeight>,
 L<Search::Xapian::ValueIterator>,
 L<Search::Xapian::Weight>,
 L<Search::Xapian::WritableDatabase>,
+L<Search::Xapian::MatchSpy>,
 and
 L<http://xapian.org/>.
 

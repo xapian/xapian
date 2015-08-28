@@ -1,5 +1,13 @@
 Revision history for Perl extension Search::Xapian.
 
+    [Changes contributed by Val Rosca, updated by Andreas Marienborg]
+    Expose the facets API:
+    - Wrappers for the MatchSpy and ValueCountMatchSpy classes
+    - Make Xapian::Enquire PerlSpy-aware class ; keep track of references to
+      avoid leaks
+    - add_matchspy & clear_matchspies methods added to Xapian::Enquire
+    - t/facets.t
+
 1.2.21.1
 	[Changes contributed by Olly Betts]
 	- t/termgenerator.t: If a memory leak is detected, report how many
