@@ -53,11 +53,7 @@ struct Enquire_perl {
     ~Enquire_perl() {
 	SvREFCNT_dec(sorter);
 	sorter = NULL;
-	vector<SV *>::const_iterator i;
-	for (i = matchspies.begin(); i != matchspies.end(); ++i) {
-	    SvREFCNT_dec(*i);
-	}
-	matchspies.clear();
+	ref_clear_matchspies(NULL);
     }
 };
 
