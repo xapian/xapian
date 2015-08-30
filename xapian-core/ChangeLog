@@ -1,3 +1,7 @@
+Sun Aug 30 04:43:49 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/remote_protocol.rst: Markup tweak.
+
 Thu Aug 13 08:56:25 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc: Improve error when the client and
