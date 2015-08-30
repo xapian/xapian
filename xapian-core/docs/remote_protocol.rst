@@ -19,7 +19,7 @@ All messages start with a single byte identifying code. A message from
 client to server has a ``MSG_XXX`` identifying code, while a message
 from server to client has a ``REPLY_XXX`` identifying code (but note
 that a reply might not actually be in response to a message -
-REPLY\_GREETING isn't - and some messages result in multiple replies).
+``REPLY_GREETING`` isn't - and some messages result in multiple replies).
 
 The identifying code is followed by the encoded length of the contents
 followed by the contents themselves.
@@ -35,7 +35,7 @@ Integers are encoded using the same encoding used for string lengths
 
 Floating pointing values are passed using a bit packed encoding of the
 sign and exponent and a base-256 encoding of the mantissa which avoids
-any rounding issues (assuming that both machines have FLT\_RADIX equal
+any rounding issues (assuming that both machines have ``FLT_RADIX`` equal
 to some power of 2). This is indicated by ``F<...>`` below.
 
 Boolean values are passed as a single byte which is the ASCII character
