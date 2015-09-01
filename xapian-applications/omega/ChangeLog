@@ -1,3 +1,9 @@
+Tue Sep 01 07:14:46 GMT 2015  Olly Betts <olly@survex.com>
+
+	* .gitignore,Makefile.am,gen-mimemap,mimemap.tokens,omindex.cc: Factor
+	  out the default extension to MIME content-type mapping into a file,
+	  and generate a static lookup table for use with keyword().
+
 Sat Aug 15 17:24:07 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.rst: Document behaviour if xDB is not set.

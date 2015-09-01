@@ -49,8 +49,10 @@
 #include "diritor.h"
 #include "failed.h"
 #include "hashterm.h"
+#include "keyword.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
+#include "mimemap.h"
 #include "msxmlparse.h"
 #include "myhtmlparse.h"
 #include "opendocparse.h"
@@ -109,7 +111,7 @@ Failed failed;
 
 // The longest string after a '.' to treat as an extension.  If there's a
 // longer entry in the mime_map, we set this to that length instead.
-static size_t max_ext_len = 7;
+static size_t max_ext_len = max(size_t(7), MAX_BUILTIN_MIMEMAP_EXTENSION_LEN);
 
 static void
 mark_as_seen(Xapian::docid did)
@@ -120,26 +122,43 @@ mark_as_seen(Xapian::docid did)
     }
 }
 
+static const char *
+built_in_mime_map(const string & ext)
+{
+    int k = keyword(tab, ext.data(), ext.size());
+    return k >= 0 ? default_mime_map[k] : NULL;
+}
+
 static string
 mimetype_from_ext(const map<string, string> & mime_map, string ext)
 {
     map<string,string>::const_iterator mt = mime_map.find(ext);
-    if (mt == mime_map.end()) {
-	// If the extension isn't found, see if the lower-cased version (if
-	// different) is found.
-	bool changed = false;
-	string::iterator i;
-	for (i = ext.begin(); i != ext.end(); ++i) {
-	    if (*i >= 'A' && *i <= 'Z') {
-		*i = C_tolower(*i);
-		changed = true;
-	    }
-	}
-	if (changed) mt = mime_map.find(ext);
-    }
-    if (mt != mime_map.end()) {
+    if (mt != mime_map.end())
 	return mt->second;
+
+    const char * r = built_in_mime_map(ext);
+    if (r) return r;
+
+    // The extension wasn't found, see if the lower-cased version (if
+    // different) is found.
+    bool changed = false;
+    string::iterator i;
+    for (i = ext.begin(); i != ext.end(); ++i) {
+	if (*i >= 'A' && *i <= 'Z') {
+	    *i = C_tolower(*i);
+	    changed = true;
+	}
     }
+
+    if (changed) {
+	mt = mime_map.find(ext);
+	if (mt != mime_map.end())
+	    return mt->second;
+
+	built_in_mime_map(ext);
+	if (r) return r;
+    }
+
     return string();
 }
 
@@ -1247,173 +1266,6 @@ main(int argc, char **argv)
     };
 
     map<string, string> mime_map;
-    // Plain text:
-    mime_map["txt"] = "text/plain";
-    mime_map["text"] = "text/plain";
-
-    // HTML:
-    mime_map["html"] = "text/html";
-    mime_map["htm"] = "text/html";
-    mime_map["shtml"] = "text/html";
-    mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
-
-    // reStructured text:
-    mime_map["rst"] = "text/x-rst";
-    mime_map["rest"] = "text/x-rst";
-
-    // Comma-Separated Values:
-    mime_map["csv"] = "text/csv";
-
-    // PDF:
-    mime_map["pdf"] = "application/pdf";
-
-    // PostScript:
-    mime_map["ps"] = "application/postscript";
-    mime_map["eps"] = "application/postscript";
-    mime_map["ai"] = "application/postscript";
-
-    // OpenDocument:
-    // FIXME: need to find sample documents to test all of these.
-    mime_map["odt"] = "application/vnd.oasis.opendocument.text";
-    mime_map["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
-    mime_map["odp"] = "application/vnd.oasis.opendocument.presentation";
-    mime_map["odg"] = "application/vnd.oasis.opendocument.graphics";
-    mime_map["odc"] = "application/vnd.oasis.opendocument.chart";
-    mime_map["odf"] = "application/vnd.oasis.opendocument.formula";
-    mime_map["odb"] = "application/vnd.oasis.opendocument.database";
-    mime_map["odi"] = "application/vnd.oasis.opendocument.image";
-    mime_map["odm"] = "application/vnd.oasis.opendocument.text-master";
-    mime_map["ott"] = "application/vnd.oasis.opendocument.text-template";
-    mime_map["ots"] = "application/vnd.oasis.opendocument.spreadsheet-template";
-    mime_map["otp"] = "application/vnd.oasis.opendocument.presentation-template";
-    mime_map["otg"] = "application/vnd.oasis.opendocument.graphics-template";
-    mime_map["otc"] = "application/vnd.oasis.opendocument.chart-template";
-    mime_map["otf"] = "application/vnd.oasis.opendocument.formula-template";
-    mime_map["oti"] = "application/vnd.oasis.opendocument.image-template";
-    mime_map["oth"] = "application/vnd.oasis.opendocument.text-web";
-
-    // OpenOffice/StarOffice documents:
-    mime_map["sxc"] = "application/vnd.sun.xml.calc";
-    mime_map["stc"] = "application/vnd.sun.xml.calc.template";
-    mime_map["sxd"] = "application/vnd.sun.xml.draw";
-    mime_map["std"] = "application/vnd.sun.xml.draw.template";
-    mime_map["sxi"] = "application/vnd.sun.xml.impress";
-    mime_map["sti"] = "application/vnd.sun.xml.impress.template";
-    mime_map["sxm"] = "application/vnd.sun.xml.math";
-    mime_map["sxw"] = "application/vnd.sun.xml.writer";
-    mime_map["sxg"] = "application/vnd.sun.xml.writer.global";
-    mime_map["stw"] = "application/vnd.sun.xml.writer.template";
-
-    // MS Office 2007 formats:
-    mime_map["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"; // Word 2007
-    mime_map["dotx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template"; // Word 2007 template
-    mime_map["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; // Excel 2007
-    mime_map["xltx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template"; // Excel 2007 template
-    mime_map["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation"; // PowerPoint 2007 presentation
-    mime_map["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow"; // PowerPoint 2007 slideshow
-    mime_map["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template"; // PowerPoint 2007 template
-    mime_map["xps"] = "application/vnd.ms-xpsdocument";
-
-    // Macro-enabled variants - these appear to be the same formats as the
-    // above.  Currently we just treat them as the same mimetypes to avoid
-    // having to check for twice as many possible content-types.
-    // MS say: application/vnd.ms-word.document.macroEnabled.12
-    mime_map["docm"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-    // MS say: application/vnd.ms-word.template.macroEnabled.12
-    mime_map["dotm"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
-    // MS say: application/vnd.ms-excel.sheet.macroEnabled.12
-    mime_map["xlsm"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    // MS say: application/vnd.ms-excel.template.macroEnabled.12
-    mime_map["xltm"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template";
-    // MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
-    mime_map["pptm"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-    // MS say: application/vnd.ms-powerpoint.slideshow.macroEnabled.12
-    mime_map["ppsm"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
-    // MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
-    mime_map["potm"] = "application/vnd.openxmlformats-officedocument.presentationml.template";
-
-    // Some other word processor formats:
-    mime_map["dot"] = "application/msword"; // Word template
-    mime_map["wpd"] = "application/vnd.wordperfect";
-    mime_map["wps"] = "application/vnd.ms-works";
-    mime_map["wpt"] = "application/vnd.ms-works"; // Works template
-    mime_map["abw"] = "application/x-abiword"; // AbiWord
-    mime_map["zabw"] = "application/x-abiword-compressed"; // AbiWord compressed
-    mime_map["rtf"] = "text/rtf";
-    // Leave .doc files to libmagic, as they may actually be RTF (AbiWord
-    // actually saves RTF when asked to save as .doc, and Microsoft Word
-    // quietly loads RTF files with a .doc extension), or plain-text.
-
-    // Other MS formats:
-    mime_map["xls"] = "application/vnd.ms-excel";
-    mime_map["xlb"] = "application/vnd.ms-excel";
-    mime_map["xlt"] = "application/vnd.ms-excel"; // Excel template
-    mime_map["xlr"] = "application/vnd.ms-excel"; // Later Microsoft Works produced XL format but with a different extension.
-    mime_map["ppt"] = "application/vnd.ms-powerpoint";
-    mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
-    // Adobe PageMaker apparently uses .pub for an unrelated format, but
-    // libmagic seems to misidentify MS .pub as application/msword, so we
-    // can't just leave it to libmagic.  We don't handle Adobe PageMaker
-    // files yet, so this isn't a big issue currently.
-    mime_map["pub"] = "application/x-mspublisher";
-    mime_map["msg"] = "application/vnd.ms-outlook"; // Outlook .msg email
-
-    // Perl:
-    mime_map["pl"] = "text/x-perl";
-    mime_map["pm"] = "text/x-perl";
-    mime_map["pod"] = "text/x-perl";
-
-    // TeX DVI:
-    mime_map["dvi"] = "application/x-dvi";
-
-    // DjVu:
-    mime_map["djv"] = "image/vnd.djvu";
-    mime_map["djvu"] = "image/vnd.djvu";
-
-    // SVG:
-    mime_map["svg"] = "image/svg+xml";
-
-    // Debian packages:
-    mime_map["deb"] = "application/x-debian-package";
-    mime_map["udeb"] = "application/x-debian-package";
-
-    // RPM packages:
-    mime_map["rpm"] = "application/x-redhat-package-manager";
-
-    // Atom feeds:
-    mime_map["atom"] = "application/atom+xml";
-
-    // Extensions to quietly ignore:
-    mime_map["a"] = "ignore";
-    mime_map["adm"] = "ignore";
-    mime_map["bin"] = "ignore";
-    mime_map["com"] = "ignore";
-    mime_map["css"] = "ignore";
-    mime_map["cur"] = "ignore";
-    mime_map["dat"] = "ignore";
-    mime_map["db"] = "ignore";
-    mime_map["dll"] = "ignore";
-    mime_map["dylib"] = "ignore";
-    mime_map["exe"] = "ignore";
-    mime_map["fon"] = "ignore";
-    mime_map["ico"] = "ignore";
-    mime_map["jar"] = "ignore";
-    mime_map["js"] = "ignore";
-    mime_map["lib"] = "ignore";
-    mime_map["lnk"] = "ignore";
-    mime_map["msi"] = "ignore";
-    mime_map["msp"] = "ignore";
-    mime_map["o"] = "ignore";
-    mime_map["obj"] = "ignore";
-    mime_map["pyc"] = "ignore";
-    mime_map["pyd"] = "ignore";
-    mime_map["pyo"] = "ignore";
-    mime_map["so"] = "ignore";
-    mime_map["sqlite"] = "ignore";
-    mime_map["sqlite3"] = "ignore";
-    mime_map["sqlite-journal"] = "ignore";
-    mime_map["tmp"] = "ignore";
-    mime_map["ttf"] = "ignore";
 
     commands["application/msword"] = Filter("antiword -mUTF-8.txt");
     commands["application/vnd.ms-excel"] = Filter("xls2csv -c' ' -q0 -dutf-8");
@@ -1556,19 +1408,17 @@ main(int argc, char **argv)
 	    break;
 	case 'M': {
 	    const char * s = strchr(optarg, ':');
-	    if (s != NULL) {
-		if (s[1]) {
-		    mime_map[string(optarg, s - optarg)] = string(s + 1);
-		} else {
-		    // -Mtxt: removes the default mapping for .txt files.
-		    mime_map.erase(string(optarg, s - optarg));
-		}
-	    } else {
+	    if (s == NULL) {
 		cerr << "Invalid MIME mapping '" << optarg << "'\n"
 			"Should be of the form ext:type, e.g. txt:text/plain\n"
 			"(or txt: to delete a default mapping)" << endl;
 		return 1;
 	    }
+
+	    // -Mtxt: results in an empty string, which effectively removes the
+	    // default mapping for .txt files.
+	    mime_map[string(optarg, s - optarg)] = string(s + 1);
+	    max_ext_len = max(max_ext_len, strlen(s + 1));
 	    break;
 	}
 	case 'F': {
@@ -1591,8 +1441,12 @@ main(int argc, char **argv)
 		    if (output_type.find('/') == string::npos) {
 			map<string, string>::const_iterator m;
 			m = mime_map.find(output_type);
-			if (m != mime_map.end())
+			if (m != mime_map.end()) {
 			    output_type = m->second;
+			} else {
+			    const char * r = built_in_mime_map(output_type);
+			    if (r) output_type = r;
+			}
 		    }
 		    if (output_type != "text/html" &&
 			output_type != "text/plain") {
@@ -1820,12 +1674,6 @@ main(int argc, char **argv)
 	    // change the outcome, but does mean we avoid the overhead of
 	    // checking for a previous failure.
 	    retry_failed = true;
-	}
-
-	// Find the longest extension in the map.
-	map<string,string>::const_iterator mt;
-	for (mt = mime_map.begin(); mt != mime_map.end(); ++mt) {
-	    max_ext_len = max(max_ext_len, mt->first.size());
 	}
 
 	index_directory(root, baseurl, depth_limit, mime_map);

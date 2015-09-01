@@ -37,4 +37,5 @@
 /xapian-omega.spec
 /makemanpage
 /outlookmsg2html
+/mimemap.h
 /*.1

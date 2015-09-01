@@ -13,9 +13,12 @@ SUBDIRS = . docs
 my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < '$(srcdir)/myhtmlparse.tokens'
 
-BUILT_SOURCES = extra/omegascript.vim my-html-tok.h
+mimemap.h: gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-mimemap' '$(srcdir)' < '$(srcdir)/mimemap.tokens'
 
-CLEANFILES = my-html-tok.h
+BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h
+
+CLEANFILES = my-html-tok.h mimemap.h
 
 EXTRA_DIST =\
 	common/Tokeniseise.pm \
