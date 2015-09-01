@@ -28,6 +28,7 @@ using namespace Xapian;
 struct Enquire_perl {
     Enquire real_obj;
     SV * sorter;
+    vector<SV *> matchspies;
 
     Enquire_perl(const Xapian::Database & db) : real_obj(db), sorter(NULL) { }
 
@@ -37,9 +38,22 @@ struct Enquire_perl {
 	SvREFCNT_dec(sv);
     }
 
+    void ref_matchspy(SV* sv) {
+	SvREFCNT_inc(sv);
+	matchspies.push_back(sv);
+    }
+    void ref_clear_matchspies(SV* sv) {
+
+	vector<SV *>::const_iterator i;
+	for (i = matchspies.begin(); i != matchspies.end(); ++i) {
+	    SvREFCNT_dec(*i);
+	}
+	matchspies.clear();
+    }
     ~Enquire_perl() {
 	SvREFCNT_dec(sorter);
 	sorter = NULL;
+	ref_clear_matchspies(NULL);
     }
 };
 
@@ -225,6 +239,7 @@ class perlExpandDecider : public Xapian::ExpandDecider {
     }
 };
 
+
 MODULE = Search::Xapian		PACKAGE = Search::Xapian
 
 PROTOTYPES: ENABLE
@@ -276,6 +291,10 @@ INCLUDE: XS/Weight.xs
 INCLUDE: XS/DateValueRangeProcessor.xs
 INCLUDE: XS/NumberValueRangeProcessor.xs
 INCLUDE: XS/StringValueRangeProcessor.xs
+
+
+INCLUDE: XS/MatchSpy.xs
+INCLUDE: XS/ValueCountMatchSpy.xs
 
 BOOT:
     {

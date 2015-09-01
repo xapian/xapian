@@ -250,10 +250,20 @@ Get set of query expansion terms.
 
 Return a description of this object.
 
+=item add_matchspy <spy>
+
+Add a matchspy.
+
+This matchspy will be called with some of the documents which match the query, during the match process.
+
+=item clear_matchspies
+
+Remove all the matchspies.
+
 =back
 
 =head1 SEE ALSO
 
-L<Search::Xapian::Query>, L<Search::Xapian::Database>
+L<Search::Xapian::Query>, L<Search::Xapian::Database>, L<Search::Xapian::MatchSpy>
 
 =cut
