@@ -42,14 +42,15 @@ struct Enquire_perl {
 	SvREFCNT_inc(sv);
 	matchspies.push_back(sv);
     }
-    void ref_clear_matchspies(SV* sv) {
 
+    void ref_clear_matchspies(SV* sv) {
 	vector<SV *>::const_iterator i;
 	for (i = matchspies.begin(); i != matchspies.end(); ++i) {
 	    SvREFCNT_dec(*i);
 	}
 	matchspies.clear();
     }
+
     ~Enquire_perl() {
 	SvREFCNT_dec(sorter);
 	sorter = NULL;
@@ -291,7 +292,6 @@ INCLUDE: XS/Weight.xs
 INCLUDE: XS/DateValueRangeProcessor.xs
 INCLUDE: XS/NumberValueRangeProcessor.xs
 INCLUDE: XS/StringValueRangeProcessor.xs
-
 
 INCLUDE: XS/MatchSpy.xs
 INCLUDE: XS/ValueCountMatchSpy.xs

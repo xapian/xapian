@@ -330,22 +330,22 @@ Enquire::get_description()
 void
 Enquire::add_matchspy(MatchSpy * spy)
     CODE:
-    try {
-        XAPIAN_PERL_REF(Enquire, THIS, matchspy, ST(1));
-        THIS->add_matchspy(spy);
-    } catch (...) {
-        handle_exception();
-    }
+	try {
+	    XAPIAN_PERL_REF(Enquire, THIS, matchspy, ST(1));
+	    THIS->add_matchspy(spy);
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Enquire::clear_matchspies()
     CODE:
-    try {
-        XAPIAN_PERL_REF(Enquire, THIS, clear_matchspies,  NULL);
-        THIS->clear_matchspies();
-    } catch (...) {
-        handle_exception();
-    }
+	try {
+	    XAPIAN_PERL_REF(Enquire, THIS, clear_matchspies, NULL);
+	    THIS->clear_matchspies();
+	} catch (...) {
+	    handle_exception();
+	}
 
 void
 Enquire::DESTROY()

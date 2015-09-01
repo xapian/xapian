@@ -63,10 +63,10 @@ StringValueRangeProcessor *	O_OBJECT
 MultiValueSorter	O_SORTER
 MultiValueSorter *	O_SORTER
 
-MatchSpy                O_MATCHSPY
-MatchSpy *              O_MATCHSPY
-ValueCountMatchSpy      O_MATCHSPY
-ValueCountMatchSpy *    O_MATCHSPY
+MatchSpy		O_MATCHSPY
+MatchSpy *		O_MATCHSPY
+ValueCountMatchSpy	O_MATCHSPY
+ValueCountMatchSpy *	O_MATCHSPY
 
 string			STRING
 
@@ -242,12 +242,12 @@ O_SORTER
 	}
 
 O_MATCHSPY
-        if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MatchSpy\") )
-                $var = ($type)SvIV((SV*)SvRV( $arg ));
-        else{
-                warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MatchSpy\\\" object\" );
-                XSRETURN_UNDEF;
-        }
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::MatchSpy\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::MatchSpy\\\" object\" );
+		XSRETURN_UNDEF;
+	}
 
 OUTPUT
 STRING
@@ -291,5 +291,4 @@ O_VALUE_I
 O_SORTER
 	sv_setref_pv( $arg, "Search::Xapian::MultiValueSorter", (void*)$var );
 O_MATCHSPY
-        sv_setref_pv( $arg, "Search::Xapian::MatchSpy", (void*)$var );
-
+	sv_setref_pv( $arg, "Search::Xapian::MatchSpy", (void*)$var );
