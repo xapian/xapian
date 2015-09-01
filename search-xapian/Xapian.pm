@@ -486,6 +486,7 @@ L<Search::Xapian::BoolWeight>,
 L<Search::Xapian::Database>,
 L<Search::Xapian::Document>,
 L<Search::Xapian::Enquire>,
+L<Search::Xapian::MatchSpy>,
 L<Search::Xapian::MultiValueSorter>,
 L<Search::Xapian::PositionIterator>,
 L<Search::Xapian::PostingIterator>,
@@ -497,7 +498,6 @@ L<Search::Xapian::TradWeight>,
 L<Search::Xapian::ValueIterator>,
 L<Search::Xapian::Weight>,
 L<Search::Xapian::WritableDatabase>,
-L<Search::Xapian::MatchSpy>,
 and
 L<http://xapian.org/>.
 
