@@ -21,13 +21,14 @@
 /stamp-h.in
 /test-driver
 /.deps
+/portability/.deps/
 /.libs
 /autom4te*.cache
 /depcomp
 /missing
 /omega
 /omindex
-/omindex-config
+/omindex-list
 /scriptindex
 /htmlparsetest
 /md5test
@@ -38,4 +39,5 @@
 /makemanpage
 /outlookmsg2html
 /mimemap.h
+/my-html-tok.h
 /*.1

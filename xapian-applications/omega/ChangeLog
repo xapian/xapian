@@ -1,3 +1,7 @@
+Tue Sep 01 07:22:38 GMT 2015  Olly Betts <olly@survex.com>
+
+	* .gitignore: Update.
+
 Tue Sep 01 07:14:46 GMT 2015  Olly Betts <olly@survex.com>
 
 	* .gitignore,Makefile.am,gen-mimemap,mimemap.tokens,omindex.cc: Factor
