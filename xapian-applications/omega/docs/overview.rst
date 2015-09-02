@@ -175,10 +175,10 @@ site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, CSV
-(Comma-Separated Values) files, Atom feeds, and AbiWord documents.  It can also
-index a number of other formats using external programs.  Filter programs are
-run with CPU, time and memory limits to prevent a runaway filter from blocking
-indexing of other files.
+(Comma-Separated Values) files, SVG, Atom feeds, and AbiWord documents.  It can
+also index a number of other formats using external programs.  Filter programs
+are run with CPU, time and memory limits to prevent a runaway filter from
+blocking indexing of other files.
 
 The way omindex decides how to index a file is based around MIME content-types.
 First of all omindex will look up a file's extension in its extension to MIME
