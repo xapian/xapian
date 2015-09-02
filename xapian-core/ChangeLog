@@ -1,3 +1,9 @@
+Wed Sep 02 03:13:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/stemming.rst,languages/armenian.sbl,languages/basque.sbl,
+	  languages/catalan.sbl: Update snowball website links to
+	  snowballstem.org.  Correct "2-clause BSD" to "3-clause BSD".
+
 Sun Aug 30 04:43:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/remote_protocol.rst: Markup tweak.
