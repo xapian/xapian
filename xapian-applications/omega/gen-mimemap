@@ -28,10 +28,13 @@ use Tokeniseise;
 
 my $srcdir = shift @ARGV;
 
+-d 'docs/inc' or mkdir 'docs/inc' or die $!;
+
 my $hdr = Tokeniseise->new('mimemap.h', 'Map extension to MIME Content-Type', $copyright, 'OMEGA_INCLUDED_MIMEMAP_H', 'mime_type');
 $hdr->append('static const char * const default_mime_map[] = {');
 my $max_ext_len = 0;
 my %seen;
+my @ignored;
 while (<STDIN>) {
     s/#.*//;
     next if /^\s*$/;
@@ -44,9 +47,39 @@ while (<STDIN>) {
 	$hdr->append("    \"$mimetype\",");
 	++$seen{$mimetype};
     }
+    if ($mimetype eq 'ignore') {
+	push @ignored, $ext;
+    }
 }
 $hdr->append('};');
 $hdr->append('');
 $hdr->append("const size_t MAX_BUILTIN_MIMEMAP_EXTENSION_LEN = $max_ext_len;");
 
 $hdr->write();
+
+open IGNORED, '>', 'docs/inc/ignored.rst' or die $!;
+print IGNORED "::\n";
+foreach my $ext (sort @ignored) {
+    print IGNORED "   - $ext\n";
+}
+close IGNORED or die $!;
+
+open MIMETYPES, '>', 'docs/inc/mimetypes.rst' or die $!;
+print MIMETYPES "::\n";
+sub mimetype_order {
+    my ($a, $b) = @_;
+    $a =~ s!^text/!0/!;
+    $a =~ s!^application/!1/!;
+    $a =~ s!^image/!2/!;
+    $b =~ s!^text/!0/!;
+    $b =~ s!^application/!1/!;
+    $b =~ s!^image/!2/!;
+    return $a cmp $b;
+}
+foreach my $mimetype (sort {mimetype_order($a, $b)} keys %seen) {
+    if ($mimetype eq 'ignore') {
+	$mimetype .= ' (magic token to tell omindex to quietly ignore such files)';
+    }
+    print MIMETYPES "   - $mimetype\n";
+}
+close MIMETYPES or die $!;

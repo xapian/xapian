@@ -1,3 +1,8 @@
+Wed Sep 02 02:28:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/.gitignore,docs/Makefile.am,docs/overview.rst,gen-mimemap:
+	  Generate the list of recognised mime types and of ignored extensions.
+
 Tue Sep 01 07:22:38 GMT 2015  Olly Betts <olly@survex.com>
 
 	* .gitignore: Update.

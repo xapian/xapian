@@ -25,9 +25,11 @@ if !MAINTAINER_NO_DOCS
 dist_doc_DATA = $(RSTHTML)
 endif
 
-MAINTAINERCLEANFILES = $(RSTHTML)
+GENERATED_RST = inc/ignored.rst inc/mimetypes.rst
+MAINTAINERCLEANFILES = $(RSTHTML) $(GENERATED_RST)
 
 if DOCUMENTATION_RULES
+overview.html: $(GENERATED_RST)
 .rst.html:
 	$(RST2HTML) --exit-status=warning $< $@
 endif

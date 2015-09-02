@@ -241,65 +241,7 @@ a file of that type (everything after the last '.').  The ``type`` can be any
 string, but to be useful there either needs to be a filter set for that type
 - either using ``--filter`` or by ``type`` being understood by default:
 
-   - text/csv
-   - text/html
-   - text/plain
-   - text/rtf
-   - text/x-perl
-   - text/x-rst
-   - application/atom+xml
-   - application/msword
-   - application/pdf
-   - application/postscript
-   - application/vnd.ms-excel
-   - application/vnd.ms-outlook
-   - application/vnd.ms-powerpoint
-   - application/vnd.ms-works
-   - application/vnd.ms-xpsdocument
-   - application/vnd.oasis.opendocument.text
-   - application/vnd.oasis.opendocument.spreadsheet
-   - application/vnd.oasis.opendocument.presentation
-   - application/vnd.oasis.opendocument.graphics
-   - application/vnd.oasis.opendocument.chart
-   - application/vnd.oasis.opendocument.formula
-   - application/vnd.oasis.opendocument.database
-   - application/vnd.oasis.opendocument.image
-   - application/vnd.oasis.opendocument.text-master
-   - application/vnd.oasis.opendocument.text-template
-   - application/vnd.oasis.opendocument.spreadsheet-template
-   - application/vnd.oasis.opendocument.presentation-template
-   - application/vnd.oasis.opendocument.graphics-template
-   - application/vnd.oasis.opendocument.chart-template
-   - application/vnd.oasis.opendocument.formula-template
-   - application/vnd.oasis.opendocument.image-template
-   - application/vnd.oasis.opendocument.text-web
-   - application/vnd.openxmlformats-officedocument.wordprocessingml.document
-   - application/vnd.openxmlformats-officedocument.wordprocessingml.template
-   - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-   - application/vnd.openxmlformats-officedocument.spreadsheetml.template
-   - application/vnd.openxmlformats-officedocument.presentationml.presentation
-   - application/vnd.openxmlformats-officedocument.presentationml.slideshow
-   - application/vnd.openxmlformats-officedocument.presentationml.template
-   - application/vnd.sun.xml.calc
-   - application/vnd.sun.xml.calc.template
-   - application/vnd.sun.xml.draw
-   - application/vnd.sun.xml.draw.template
-   - application/vnd.sun.xml.impress
-   - application/vnd.sun.xml.impress.template
-   - application/vnd.sun.xml.math
-   - application/vnd.sun.xml.writer
-   - application/vnd.sun.xml.writer.global
-   - application/vnd.sun.xml.writer.template
-   - application/vnd.wordperfect
-   - application/x-abiword
-   - application/x-abiword-compressed
-   - application/x-debian-package
-   - application/x-dvi
-   - application/x-mspublisher
-   - application/x-redhat-package-manager
-   - image/svg+xml
-   - image/vnd.djvu
-   - ignore (magic token to tell omindex to quietly ignore such files)
+.. include:: inc/mimetypes.rst
 
 You can specify ``*`` as the MIME sub-type for ``--filter``, for example if you
 have a filter you want to apply to any video files, you could specify it using
@@ -309,36 +251,9 @@ would otherwise match.  Also you can't use arbitrary wildcards, just ``*`` for
 the entire sub-type.  And be careful to quote ``*`` to protect it from the
 shell.
 
-By default, files with the following extensions are marked as 'ignore'::
+By default, files with the following extensions are marked as 'ignore':
 
-   - a
-   - adm
-   - bin
-   - com
-   - css
-   - cur
-   - dat
-   - db
-   - dll
-   - dylib
-   - exe
-   - fon
-   - ico
-   - jar
-   - js
-   - lib
-   - lnk
-   - o
-   - obj
-   - pyc
-   - pyd
-   - pyo
-   - so
-   - sqlite
-   - sqlite3
-   - sqlite-journal
-   - tmp
-   - ttf
+.. include:: inc/ignored.rst
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example if you have ``.dot`` files which are inputs for the graphviz
