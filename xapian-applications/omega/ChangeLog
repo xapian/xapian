@@ -1,3 +1,7 @@
+Wed Sep 02 07:10:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/overview.rst: SVG extraction is built-in too.
+
 Wed Sep 02 02:28:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/.gitignore,docs/Makefile.am,docs/overview.rst,gen-mimemap:
