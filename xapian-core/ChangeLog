@@ -1,3 +1,7 @@
+Fri Sep 25 04:38:49 GMT 2015  Olly Betts <olly@survex.com>
+
+	* docs/stemming.rst: Update snowball website link to snowballstem.org.
+
 Sun Aug 30 04:43:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/remote_protocol.rst: Markup tweak.
