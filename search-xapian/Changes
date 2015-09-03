@@ -11,6 +11,8 @@ Revision history for Perl extension Search::Xapian.
 	  objects were allocated before and after the test.
 	- Allow for "_gitN" tag on snapshots when checking for version
 	  compatibility with xapian-core.
+	- META.yml: Fix specified licence to be a valid name ('perl' instead of
+	  'perl_5').
 
 1.2.21.0  Wed May 20 14:34:41 UTC 2015
 	[Changes contributed by Olly Betts]
