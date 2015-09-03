@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cd xapian-core && ./autogen.sh "$@"
+cd xapian-core && ./autogen.sh --enable-maintainer-mode "$@"
