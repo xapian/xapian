@@ -994,7 +994,7 @@ T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
 T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
-T(last,		   0, 0, N, M), // m-set number of last hit on page
+T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
 T(length,	   1, 1, N, 0), // length of list
