@@ -216,7 +216,8 @@ $id
 	document id of current document
 
 $last
-	MSet index of last hit on this page
+        MSet index one beyond the end of the current page (so ``$hit`` runs
+        from ``0`` to ``$sub{$last,1}``).
 
 $lastpage
 	number of last page of hits (may be an underestimate unless
