@@ -453,7 +453,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     }
 
     if (!retry_failed) {
-	// We only store and check the mtime (last modified)i - a change to the
+	// We only store and check the mtime (last modified) - a change to the
 	// metadata won't generally cause a previous failure to now work
 	// (FIXME: except permissions).
 	time_t failed_last_mod;

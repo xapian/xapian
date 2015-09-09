@@ -1,3 +1,7 @@
+Wed Sep 09 04:28:43 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix comment typo.
+
 Tue Sep 08 04:31:51 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,query.cc: Fix documentation of $last to say
