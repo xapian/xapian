@@ -29,7 +29,15 @@ GENERATED_RST = inc/ignored.rst inc/mimetypes.rst
 MAINTAINERCLEANFILES = $(RSTHTML) $(GENERATED_RST)
 
 if DOCUMENTATION_RULES
-overview.html: $(GENERATED_RST)
+overview.html: overview.rst $(GENERATED_RST)
+if VPATH_BUILD
+	cp '$(srcdir)/overview.rst' .
+endif
+	$(RST2HTML) --exit-status=warning overview.rst overview.html
+if VPATH_BUILD
+	rm -f '$(srcdir)/overview.rst' .
+endif
+
 .rst.html:
 	$(RST2HTML) --exit-status=warning $< $@
 endif

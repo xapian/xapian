@@ -91,6 +91,12 @@ test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
 AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
 AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
 
+vpath_build=no
+if test "`pwd`" != "`cd $srcdir;pwd`" ; then
+  vpath_build=yes
+fi
+AM_CONDITIONAL([VPATH_BUILD], [test yes = "$vpath_build"])
+
 dnl Check for headers.
 AC_CHECK_HEADERS([strings.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl

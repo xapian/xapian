@@ -1,3 +1,8 @@
+Thu Sep 10 07:30:25 GMT 2015  Olly Betts <olly@survex.com>
+
+	* configure.ac,docs/Makefile.am: Fix generation of overview.rst when
+	  srcdir != builddir.
+
 Thu Sep 10 05:56:12 GMT 2015  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Use SAMPLE_SIZE in help text rather than literal 512.
