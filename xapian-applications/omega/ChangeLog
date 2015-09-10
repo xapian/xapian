@@ -1,3 +1,8 @@
+Thu Sep 10 20:43:47 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am,index_file.cc,index_file.h,omindex.cc: Refactor to start
+	  to split out the code to index a file.
+
 Thu Sep 10 07:30:25 GMT 2015  Olly Betts <olly@survex.com>
 
 	* configure.ac,docs/Makefile.am: Fix generation of overview.rst when
