@@ -89,6 +89,7 @@ static bool retry_failed = false;
 static bool spelling = false;
 static off_t  max_size = 0;
 static size_t sample_size = SAMPLE_SIZE;
+static size_t title_size = TITLE_SIZE;
 static std::string pretty_max_size;
 static bool verbose = false;
 static enum {
@@ -969,7 +970,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	record += sample;
 	if (!title.empty()) {
 	    record += "\ncaption=";
-	    record += generate_sample(title, TITLE_SIZE, "...", " ...");
+	    record += generate_sample(title, title_size, "...", " ...");
 	}
 	if (!author.empty()) {
 	    record += "\nauthor=";
@@ -1259,6 +1260,7 @@ main(int argc, char **argv)
 	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ "max-size",	required_argument,	NULL, 'm' },
 	{ "sample-size",required_argument,	NULL, 'E' },
+	{ "title-size",	required_argument,	NULL, 'T' },
 	{ "retry-failed",	no_argument,	NULL, 'R' },
 	{ "opendir-sleep",	required_argument,	NULL, OPT_OPENDIR_SLEEP },
 	{ "track-ctime",no_argument,		NULL, 'C' },
@@ -1312,7 +1314,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfRSVe:im:E:",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfRSVe:im:E:T:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1352,7 +1354,10 @@ main(int argc, char **argv)
 "                            (default: unlimited)\n"
 "  -E, --sample-size=SIZE    maximum size for the document text sample\n"
 "                            (supports the same formats as --max-size).\n"
-"                            (default: 512)\n"
+"                            (default: " STRINGIZE(SAMPLE_SIZE) ")\n"
+"  -T, --title-size=SIZE     maximum size for the document title\n"
+"                            (supports the same formats as --max-size).\n"
+"                            (default: " STRINGIZE(TITLE_SIZE) ")\n"
 "  -R, --retry-failed        retry files which omindex failed to extract text\n"
 "                            from on a previous run\n"
 "      --opendir-sleep=SECS  sleep for SECS seconds before opening each\n"
@@ -1507,6 +1512,15 @@ main(int argc, char **argv)
 		break;
 	    }
 	    cerr << PROG_NAME": bad sample size '" << optarg << "'" << endl;
+	    return 1;
+	}
+	case 'T': {
+	    off_t arg = parse_size(optarg);
+	    if (arg >= 0) {
+		title_size = size_t(arg);
+		break;
+	    }
+	    cerr << PROG_NAME": bad title size '" << optarg << "'" << endl;
 	    return 1;
 	}
 	case 'm': {
