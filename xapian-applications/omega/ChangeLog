@@ -1,3 +1,8 @@
+Fri Sep 25 04:47:06 GMT 2015  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Use SAMPLE_SIZE in help text rather than literal 512.
+	  Add '--title-size' option.
+
 Fri Sep 25 04:40:53 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.rst,query.cc: Fix documentation of $last to say

@@ -85,6 +85,8 @@ static bool follow_symlinks = false;
 static bool ignore_exclusions = false;
 static bool spelling = false;
 static off_t  max_size = 0;
+static size_t sample_size = SAMPLE_SIZE;
+static size_t title_size = TITLE_SIZE;
 static std::string pretty_max_size;
 static bool verbose = false;
 static enum {
@@ -187,7 +189,7 @@ get_pdf_metainfo(const string & file, string &author, string &title,
 }
 
 static void
-generate_sample_from_csv(const string & csv_data, string & sample, size_t sample_size)
+generate_sample_from_csv(const string & csv_data, string & sample)
 {
     // Add 3 to allow for a 4 byte utf-8 sequence being appended when
     // output is sample_size - 1 bytes long.  Use csv_data.size() if smaller
@@ -282,7 +284,7 @@ skip_unknown_mimetype(const string & file, const string & mimetype)
 
 static void
 index_file(const string &file, const string &url, DirectoryIterator & d,
-	   map<string, string>& mime_map, size_t sample_size)
+	   map<string, string>& mime_map)
 {
     string ext;
     const char * dot_ptr = strrchr(d.leafname(), '.');
@@ -723,7 +725,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 		// FIXME: What charset is the file?  Look at contents?
 	    }
 
-	    generate_sample_from_csv(dump, sample, sample_size);
+	    generate_sample_from_csv(dump, sample);
 	} else if (mimetype == "application/vnd.ms-outlook") {
 	    string cmd = get_pkglibbindir() + "/outlookmsg2html";
 	    append_filename_argument(cmd, file);
@@ -836,7 +838,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	record += sample;
 	if (!title.empty()) {
 	    record += "\ncaption=";
-	    record += generate_sample(title, TITLE_SIZE);
+	    record += generate_sample(title, title_size);
 	}
 	if (!author.empty()) {
 	    record += "\nauthor=";
@@ -981,7 +983,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 
 static void
 index_directory(const string &path, const string &url_, size_t depth_limit,
-		map<string, string>& mime_map, size_t sample_size)
+		map<string, string>& mime_map)
 {
     if (verbose)
 	cout << "[Entering directory \"" << path.substr(root.size()) << "\"]"
@@ -1006,11 +1008,11 @@ index_directory(const string &path, const string &url_, size_t depth_limit,
 			}
 			url += '/';
 			file += '/';
-			index_directory(file, url, new_limit, mime_map, sample_size);
+			index_directory(file, url, new_limit, mime_map);
 			break;
 		    }
 		    case DirectoryIterator::REGULAR_FILE:
-			index_file(file, url, d, mime_map, sample_size);
+			index_file(file, url, d, mime_map);
 			break;
 		    default:
 			skip(file, "Not a regular file",
@@ -1065,7 +1067,6 @@ main(int argc, char **argv)
     bool delete_removed_documents = true;
     string baseurl;
     size_t depth_limit = 0;
-    size_t sample_size = SAMPLE_SIZE;
 
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
@@ -1087,6 +1088,7 @@ main(int argc, char **argv)
 	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ "max-size",	required_argument,	NULL, 'm' },
 	{ "sample-size",required_argument,	NULL, 'E' },
+	{ "title-size",	required_argument,	NULL, 'T' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -1272,7 +1274,7 @@ main(int argc, char **argv)
 
     string dbpath;
     int getopt_ret;
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:E:",
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:F:l:s:pfSVe:im:E:T:",
 					 longopts, NULL)) != -1) {
 	switch (getopt_ret) {
 	case 'h': {
@@ -1307,7 +1309,10 @@ main(int argc, char **argv)
 "                            (default: unlimited)\n"
 "  -E, --sample-size=SIZE    maximum size for the document text sample\n"
 "                            (supports the same formats as --max-size).\n"
-"                            (default: 512)\n"
+"                            (default: " STRINGIZE(SAMPLE_SIZE) ")\n"
+"  -T, --title-size=SIZE     maximum size for the document title\n"
+"                            (supports the same formats as --max-size).\n"
+"                            (default: " STRINGIZE(TITLE_SIZE) ")\n"
 "  -v, --verbose             show more information about what is happening\n"
 "      --overwrite           create the database anew (the default is to update\n"
 "                            if the database already exists)" << endl;
@@ -1417,6 +1422,15 @@ main(int argc, char **argv)
 		break;
 	    }
 	    cerr << PROG_NAME": bad sample size '" << optarg << "'" << endl;
+	    return 1;
+	}
+	case 'T': {
+	    off_t arg = parse_size(optarg);
+	    if (arg >= 0) {
+		title_size = size_t(arg);
+		break;
+	    }
+	    cerr << PROG_NAME": bad title size '" << optarg << "'" << endl;
 	    return 1;
 	}
 	case 'm': {
@@ -1553,7 +1567,7 @@ main(int argc, char **argv)
 	}
 	indexer.set_stemmer(stemmer);
 
-	index_directory(root, baseurl, depth_limit, mime_map, sample_size);
+	index_directory(root, baseurl, depth_limit, mime_map);
 	if (delete_removed_documents && old_docs_not_seen) {
 	    if (verbose) {
 		cout << "Deleting " << old_docs_not_seen << " old documents which weren't found" << endl;
