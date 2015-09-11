@@ -28,11 +28,9 @@
 #include <sys/types.h>
 #include <map>
 #include <string>
+#include <xapian.h>
 
 class DirectoryIterator;
-namespace Xapian {
-    class Stem;
-};
 
 enum skip_flags { SKIP_VERBOSE_ONLY = 0x01, SKIP_SHOW_FILENAME = 0x02 };
 
@@ -85,6 +83,10 @@ index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
 	   bool spelling, bool skip_duplicates_, bool ignore_exclusions_);
+
+void
+index_add_document(const std::string & urlterm, time_t last_altered,
+		   Xapian::docid did, const Xapian::Document & doc);
 
 /// Index a file into the database.
 void

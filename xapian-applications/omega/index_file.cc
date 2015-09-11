@@ -330,6 +330,38 @@ generate_sample_from_csv(const string & csv_data, string & sample)
 }
 
 void
+index_add_document(const string & urlterm, time_t last_altered,
+		   Xapian::docid did, const Xapian::Document & doc)
+{
+    if (!skip_duplicates) {
+	// If this document has already been indexed, update the existing
+	// entry.
+	if (did) {
+	    // We already found out the document id above.
+	    db.replace_document(did, doc);
+	} else if (last_altered <= last_altered_max) {
+	    // We checked for the UID term and didn't find it.
+	    did = db.add_document(doc);
+	} else {
+	    did = db.replace_document(urlterm, doc);
+	}
+	mark_as_seen(did);
+	if (verbose) {
+	    if (did <= old_lastdocid) {
+		cout << "updated" << endl;
+	    } else {
+		cout << "added" << endl;
+	    }
+	}
+    } else {
+	// If this were a duplicate, we'd have skipped it above.
+	db.add_document(doc);
+	if (verbose)
+	    cout << "added" << endl;
+    }
+}
+
+void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
 	       const string &mimetype, DirectoryIterator &d)
@@ -1011,32 +1043,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
 	newdocument.add_boolean_term(ext_term);
 
-	if (!skip_duplicates) {
-	    // If this document has already been indexed, update the existing
-	    // entry.
-	    if (did) {
-		// We already found out the document id above.
-		db.replace_document(did, newdocument);
-	    } else if (last_altered <= last_altered_max) {
-		// We checked for the UID term and didn't find it.
-		did = db.add_document(newdocument);
-	    } else {
-		did = db.replace_document(urlterm, newdocument);
-	    }
-	    mark_as_seen(did);
-	    if (verbose) {
-		if (did <= old_lastdocid) {
-		    cout << "updated" << endl;
-		} else {
-		    cout << "added" << endl;
-		}
-	    }
-	} else {
-	    // If this were a duplicate, we'd have skipped it above.
-	    db.add_document(newdocument);
-	    if (verbose)
-		cout << "added" << endl;
-	}
+	index_add_document(urlterm, last_altered, did, newdocument);
     } catch (ReadError) {
 	skip(urlterm, context, string("can't read file: ") + strerror(errno),
 	     d.get_size(), d.get_mtime());

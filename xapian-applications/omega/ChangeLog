@@ -1,3 +1,7 @@
+Fri Sep 11 04:42:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* index_file.cc,index_file.h: Factor out index_add_document() function.
+
 Thu Sep 10 20:43:47 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am,index_file.cc,index_file.h,omindex.cc: Refactor to start
