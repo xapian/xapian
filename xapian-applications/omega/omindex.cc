@@ -74,11 +74,11 @@
 
 using namespace std;
 
-#define TITLE_SIZE 128
-#define SAMPLE_SIZE 512
-
 #define PROG_NAME "omindex"
 #define PROG_DESC "Index static website data via the filesystem"
+
+#define TITLE_SIZE 128
+#define SAMPLE_SIZE 512
 
 static bool skip_duplicates = false;
 static bool follow_symlinks = false;
