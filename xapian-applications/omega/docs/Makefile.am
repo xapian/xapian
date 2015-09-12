@@ -35,7 +35,7 @@ if VPATH_BUILD
 endif
 	$(RST2HTML) --exit-status=warning overview.rst overview.html
 if VPATH_BUILD
-	rm -f '$(srcdir)/overview.rst' .
+	rm -f '$(srcdir)/overview.rst'
 endif
 
 .rst.html:
