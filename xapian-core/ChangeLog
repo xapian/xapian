@@ -1,3 +1,7 @@
+Sun Sep 13 08:27:53 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/socket_utils.cc: Change C-style cast to reinterpret_cast.
+
 Wed Sep 02 03:13:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/stemming.rst,languages/armenian.sbl,languages/basque.sbl,

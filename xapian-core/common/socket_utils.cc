@@ -87,9 +87,10 @@ struct MSVCIgnoreInvalidParameter {
 extern HANDLE fd_to_handle(int fd) {
     MSVCIgnoreInvalidParameter invalid_handle_value_is_ok;
     HANDLE handle = (HANDLE)_get_osfhandle(fd);
-    // On WIN32, a socket fd isn't the same as a non-socket fd - in fact
-    // it's already a HANDLE!
-    return (handle != INVALID_HANDLE_VALUE ? handle : (HANDLE)fd);
+    if (handle != INVALID_HANDLE_VALUE) return handle;
+    // On WIN32, a socket fd isn't the same as a non-socket fd - in fact it's
+    // already a HANDLE!
+    return reinterpret_cast<HANDLE>(fd);
 }
 
 /// Close an fd, which might be a socket.
