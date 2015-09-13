@@ -1,3 +1,7 @@
+Fri Sep 25 04:48:27 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/socket_utils.cc: Change C-style cast to reinterpret_cast.
+
 Fri Sep 25 04:38:49 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/stemming.rst: Update snowball website link to snowballstem.org.
