@@ -1,3 +1,8 @@
+Mon Sep 14 00:54:36 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am,mime.cc,mime.h,omindex.cc: Factor out the code to find
+	  a MIME type for a file.
+
 Sat Sep 12 05:22:16 GMT 2015  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Remove bogus '.' from rm command.

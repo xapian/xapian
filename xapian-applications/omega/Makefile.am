@@ -99,7 +99,7 @@ dist_omegadata_DATA = htdig2omega.script mbox2omega.script
 
 dist_sysconf_DATA = omega.conf
 
-noinst_HEADERS = omega.h query.h cgiparam.h index_file.h\
+noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
  commonhelp.h cdb.h cdb_int.h failed.h hashterm.h jsonescape.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
@@ -148,7 +148,7 @@ omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
 omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
 
-omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc\
+omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
  md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc diritor.cc\
  runfilter.cc freemem.cc common/msvc_dirent.cc xpsxmlparse.cc common/str.cc\
