@@ -1,3 +1,9 @@
+Mon Sep 14 00:40:28 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc: Add missing '#include <arpa/inet.h>' to htons().
+	  Seems to be implicitly included on most platforms, but Interix needs
+	  it.  Reported by Eric Lindblad on xapian-discuss.
+
 Wed Jun 03 03:12:25 GMT 2015  Olly Betts <olly@survex.com>
 
 	* tests/api_backend.cc: Fix to build when S_ISSOCK() isn't defined.

@@ -34,6 +34,7 @@
 #include <cmath>
 #include <cstring>
 #ifndef __WIN32__
+# include <arpa/inet.h>
 # include "safenetdb.h"
 # include <netinet/in.h>
 # include <netinet/tcp.h>
