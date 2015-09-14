@@ -74,6 +74,10 @@ skip(const std::string & urlterm, const std::string & context,
      const std::string & msg,
      off_t size, time_t last_mod, unsigned flags = 0);
 
+/// Call index_command() to set up the default command filters.
+void
+index_add_default_filters();
+
 /// Initialise.
 void
 index_init(const std::string & dbpath, const Xapian::Stem & stemmer,

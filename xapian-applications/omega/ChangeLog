@@ -1,3 +1,8 @@
+Mon Sep 14 03:15:50 GMT 2015  Olly Betts <olly@survex.com>
+
+	* index_file.cc,index_file.h,omindex.cc: Move setting of default
+	  command filters into index_file.cc.
+
 Mon Sep 14 00:54:36 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am,mime.cc,mime.h,omindex.cc: Factor out the code to find

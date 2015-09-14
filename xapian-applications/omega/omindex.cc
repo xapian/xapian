@@ -44,7 +44,6 @@
 #include "hashterm.h"
 #include "index_file.h"
 #include "mime.h"
-#include "pkglibbindir.h"
 #include "realtime.h"
 #include "str.h"
 #include "stringutils.h"
@@ -271,43 +270,7 @@ main(int argc, char **argv)
 
     map<string, string> mime_map;
 
-    index_command("application/msword", Filter("antiword -mUTF-8.txt"));
-    index_command("application/vnd.ms-excel",
-		  Filter("xls2csv -c' ' -q0 -dutf-8"));
-    index_command("application/vnd.ms-powerpoint", Filter("catppt -dutf-8"));
-    // Looking at the source of wpd2html and wpd2text I think both output
-    // UTF-8, but it's hard to be sure without sample Unicode .wpd files
-    // as they don't seem to be at all well documented.
-    index_command("application/vnd.wordperfect", Filter("wpd2text"));
-    // wps2text produces UTF-8 output from the sample files I've tested.
-    index_command("application/vnd.ms-works", Filter("wps2text"));
-    // Output is UTF-8 according to "man djvutxt".  Generally this seems to
-    // be true, though some examples from djvu.org generate isolated byte
-    // 0x95 in a context which suggests it might be intended to be a bullet
-    // (as it is in CP1250).
-    index_command("image/vnd.djvu", Filter("djvutxt"));
-    // The --text option unhelpfully converts all non-ASCII characters to "?"
-    // so we use --html instead, which produces HTML entities.  The --nopict
-    // option suppresses exporting picture files as pictNNNN.wmf in the current
-    // directory.  Note that this option was ignored in some older versions,
-    // but it was fixed in unrtf 0.20.4.
-    index_command("text/rtf",
-		  Filter("unrtf --nopict --html 2>/dev/null", "text/html"));
-    index_command("text/x-rst", Filter("rst2html", "text/html"));
-    index_command("application/x-mspublisher",
-		  Filter("pub2xhtml", "text/html"));
-    index_command("application/vnd.ms-outlook",
-		  Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html"));
-    // pod2text's output character set doesn't seem to be documented, but from
-    // inspecting the source it looks like it's probably iso-8859-1.
-    index_command("text/x-perl",
-		  Filter("pod2text", "text/plain", "iso-8859-1"));
-    // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
-    // appearing as single ligatures.  For European languages, it's actually
-    // better to use -e2 (ISO-8859-1) and then convert, so let's do that for
-    // now until we handle Unicode "compatibility decompositions".
-    index_command("application/x-dvi",
-		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1"));
+    index_add_default_filters();
 
     if (argc == 2 && strcmp(argv[1], "-v") == 0) {
 	// -v was the short option for --version in 1.2.3 and earlier, but
