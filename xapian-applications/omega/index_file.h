@@ -97,7 +97,9 @@ void
 index_mimetype(const std::string & file, const std::string & urlterm,
 	       const std::string & url,
 	       const std::string & ext,
-	       const std::string &mimetype, DirectoryIterator &d);
+	       const std::string &mimetype, DirectoryIterator &d,
+	       Xapian::Document &doc,
+	       std::string record);
 
 /// Delete any previously indexed documents we haven't seen.
 void index_handle_deletion();

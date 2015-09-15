@@ -125,7 +125,8 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    index_mimetype(file, urlterm, url, ext, mimetype, d);
+    Xapian::Document new_doc;
+    index_mimetype(file, urlterm, url, ext, mimetype, d, new_doc, string());
 }
 
 static void

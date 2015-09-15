@@ -407,7 +407,9 @@ index_add_document(const string & urlterm, time_t last_altered,
 void
 index_mimetype(const string & file, const string & urlterm, const string & url,
 	       const string & ext,
-	       const string &mimetype, DirectoryIterator &d)
+	       const string &mimetype, DirectoryIterator &d,
+	       Xapian::Document & newdocument,
+	       string record)
 {
     string context(file, root.size(), string::npos);
 
@@ -961,8 +963,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	}
 
 	// Put the data in the document
-	Xapian::Document newdocument;
-	string record = "url=";
+	if (record.empty()) {
+	    record = "url=";
+	} else {
+	    record += "\nurl=";
+	}
 	record += url;
 	record += "\nsample=";
 	record += sample;

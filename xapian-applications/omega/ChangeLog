@@ -1,3 +1,9 @@
+Tue Sep 15 22:52:24 GMT 2015  Olly Betts <olly@survex.com>
+
+	* index_file.cc,index_file.h,omindex.cc: Pass in Document object and
+	  string for record so extra data can be added before the file is
+	  indexed.
+
 Mon Sep 14 03:15:50 GMT 2015  Olly Betts <olly@survex.com>
 
 	* index_file.cc,index_file.h,omindex.cc: Move setting of default
