@@ -1,3 +1,7 @@
+Wed Sep 16 23:43:16 GMT 2015  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Remove unused header.
+
 Wed Sep 16 23:42:29 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am,datetime.cc,datetime.h,metaxmlparse.cc,myhtmlparse.cc:
