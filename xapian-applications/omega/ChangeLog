@@ -1,3 +1,12 @@
+Fri Sep 25 04:49:49 GMT 2015  Olly Betts <olly@survex.com>
+
+	* loadfile.cc,md5wrap.cc: Stop trying to use O_STREAMING - the patch
+	  to implement it was never merged into the Linux kernel, and I can't
+	  find any evidence that other platforms implement it.  The constant
+	  value O_STREAMING used now seems to be used for the part of O_SYNC 
+	  which isn't covered by O_DSYNC, which seems likely to hurt
+	  performance if anything.
+
 Fri Sep 25 04:47:06 GMT 2015  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Use SAMPLE_SIZE in help text rather than literal 512.

@@ -1,6 +1,6 @@
 /* md5wrap.cc: wrapper functions to allow easy use of MD5 from C++.
  *
- * Copyright (C) 2006,2010,2012 Olly Betts
+ * Copyright (C) 2006,2010,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,16 +32,6 @@
 #include "safeerrno.h"
 #include "safeunistd.h"
 
-#ifndef O_STREAMING
-# ifdef __linux__
-// This is the value used by rml's O_STREAMING patch for 2.4.
-#  define O_STREAMING	04000000
-# else
-// Define as 0 otherwise, so we don't need ifdefs in the code.
-#  define O_STREAMING	0
-# endif
-#endif
-
 #include "md5.h"
 #include "md5wrap.h"
 
@@ -50,7 +40,7 @@ using namespace std;
 bool
 md5_file(const string &file_name, string &md5, bool try_noatime)
 {
-    mode_t mode = O_RDONLY|O_STREAMING;
+    mode_t mode = O_RDONLY;
 #if defined O_NOATIME && O_NOATIME != 0
     if (try_noatime) mode |= O_NOATIME;
 #else
