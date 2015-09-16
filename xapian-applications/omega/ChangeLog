@@ -1,3 +1,8 @@
+Wed Sep 16 23:42:29 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am,datetime.cc,datetime.h,metaxmlparse.cc,myhtmlparse.cc:
+	  Factor out parse_datetime() function.
+
 Wed Sep 16 20:22:03 GMT 2015  Olly Betts <olly@survex.com>
 
 	* diritor.cc: Avoid magic_descriptor() in libmagic < 5.15 as it
