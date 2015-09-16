@@ -26,7 +26,6 @@
 #include "stringutils.h"
 #include "utf8convert.h"
 
-#include <cctype>
 #include <cstring>
 
 using namespace std;
