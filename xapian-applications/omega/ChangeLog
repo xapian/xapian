@@ -1,11 +1,9 @@
-Wed Sep 16 19:53:06 GMT 2015  Olly Betts <olly@survex.com>
+Wed Sep 16 20:22:03 GMT 2015  Olly Betts <olly@survex.com>
 
-	* loadfile.cc,md5wrap.cc: Stop trying to use O_STREAMING - the patch
-	  to implement it was never merged into the Linux kernel, and I can't
-	  find any evidence that other platforms implement it.  The constant
-	  value O_STREAMING used now seems to be used for the part of O_SYNC 
-	  which isn't covered by O_DSYNC, which seems likely to hurt
-	  performance if anything.
+	* diritor.cc: Avoid magic_descriptor() in libmagic < 5.15 as it
+	  closes the fd passed to it.  The magic_descriptor() code path isn't
+	  actually used currently, so this issue doesn't cause omindex to
+	  misbehave.
 
 Tue Sep 15 22:52:24 GMT 2015  Olly Betts <olly@survex.com>
 
