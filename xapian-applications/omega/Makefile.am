@@ -170,11 +170,11 @@ omindex_list_SOURCES = common/getopt.cc omindex-list.cc
 omindex_list_LDADD = $(XAPIAN_LIBS)
 
 atomparsetest_SOURCES = atomparsetest.cc atomparse.cc htmlparse.cc\
- myhtmlparse.cc utf8convert.cc common/keyword.cc datetime.cc
+ myhtmlparse.cc utf8convert.cc common/keyword.cc datetime.cc timegm.cc
 atomparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
- utf8convert.cc common/keyword.cc datetime.cc
+ utf8convert.cc common/keyword.cc datetime.cc timegm.cc
 htmlparsetest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc

@@ -1,3 +1,8 @@
+Thu Sep 17 00:28:30 GMT 2015  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fix "make check" compilation failure on platforms
+	  without timegm().
+
 Thu Sep 17 00:26:16 GMT 2015  Olly Betts <olly@survex.com>
 
 	* Makefile.am: atomparsetest and htmlparsetest need datetime.cc.
