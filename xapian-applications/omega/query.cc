@@ -1556,7 +1556,7 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "[]";
 		    break;
 		}
-		value = "[\"]";
+		value = "[\"";
 		while (true) {
 		    j = l.find('\t', i);
 		    string elt(l, i, j - i);
