@@ -128,7 +128,8 @@ DEFINE_TESTCASE(dbstats2, backend) {
     const Xapian::termcount max_len = 15;
     const Xapian::termcount max_wdf = 7;
 
-    if (get_dbtype() != "inmemory" && get_dbtype() != "flint") {
+    if (get_dbtype() != "inmemory" &&
+	get_dbtype().find("flint") == string::npos) {
 	// Should be exact as no deletions have happened.
 	TEST_EQUAL(db.get_doclength_upper_bound(), max_len);
 	TEST_EQUAL(db.get_doclength_lower_bound(), min_len);

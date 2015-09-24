@@ -396,6 +396,7 @@ Xapian::termcount
 Database::get_wdf_upper_bound(const string & term) const
 {
     LOGCALL(API, Xapian::termcount, "Database::get_wdf_upper_bound", term);
+    if (term.empty()) RETURN(0);
 
     Xapian::termcount full_ub = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
