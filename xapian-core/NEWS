@@ -1,3 +1,118 @@
+51103ab2f (Olly Betts 2015-09-25 18:30:02 +1200     1) Fri Sep 25 07:10:03 GMT 2015  Olly Betts <olly@survex.com>
+
+Xapian-core 1.2.22 (2015-09-25):
+
+API:
+
+* Fix Database::get_doclength_lower_bound() over multiple databases when some
+  are empty or consist only of zero-length documents.  Previously this would
+  report a lower bound of zero, now it reports the same lowest bound as a
+  single database containing all the same documents.
+
+* Make Database::get_wdf_upper_bound("") return 0.
+
+* Mark constructors taking a single argument as "explicit" to avoid unwanted
+  implicit conversions.
+
+testsuite:
+
+* If command line option --verbose/-v isn't specified, set the verbosity level
+  from environmental variable VERBOSE.
+
+* Don't leave an extra fd open when starting xapian-tcpsrv for remotetcp tests.
+
+* apitest: Revert disabling of part of adddoc5 for clang - the test failure was
+  in fact due to a bug in 1.3.x, and 1.2.x was never affected.
+
+* apitest: Tweak bounds checks in dbstats1 testcase - multi backends should
+  give tight bounds.
+
+matcher:
+
+
+brass backend:
+
+
+chert backend:
+
+
+flint backend:
+
+
+remote backend:
+
+* Fix to handle total document length exceeding 34,359,738,368.  (Fixes #678,
+  reported by matf).
+
+* Avoid dividing by zero when getting the average length for an empty database.
+
+* Give a clearer error message when the client and server remote protocol
+  versions aren't compatible.
+
+* Check length of key in MSG_SETMETADATA.
+
+inmemory backend:
+
+
+build system:
+
+* pkg-config: Fix library name in .pc file to say "xapian" not "xapian-core".
+  Reported by Eric Lindblad to the xapian-devel list.
+
+* Private symbol decode_length() is no visible outside the library.
+
+documentation:
+
+* Strip out "quickstart" examples which are out of date and rather redundant
+  with the "simple" examples.
+
+* Update snowball website link to snowballstem.org.
+
+tools:
+
+
+examples:
+
+* xapian-metadata: Extend "list" subcommand to take optional key prefix.
+
+portability:
+
+* Fix new warnings from recent versions of GCC and clang.
+
+* Add spaces between literal strings and macros which expand to literal strings
+  for C++11 compatibility in __WIN32__-specific code.
+
+* Need <unistd.h> for unlink() on FreeBSD, reported by Germán M. Bravo via
+  github PR 72.
+
+* Fix testsuite to build when S_ISSOCK() isn't defined.
+
+* Don't provide our own implementation of sleep() under __WIN32__ if there
+  already is one - mingw provides one, and in some situations it seems to clash
+  with ours.  Reported to xapian-discuss by John Alveris.
+
+* Add missing '#include <arpa/inet.h>' to htons().  Seems to be implicitly
+  included on most platforms, but Interix needs it.  Reported by Eric Lindblad
+  on xapian-discuss.
+
+* Disable "<FUNCTION> is expected to return a value" warning from Sun's C++
+  compiler, as it fires for functions ending in a "throw" statement.  Genuine
+  instances will be caught by compilers with superior warning machinery.
+
+* Prefer scalbn() to ldexp() where possible, since the former doesn't ever set
+  errno.
+
+* '#include <config.h>' in the "simple" examples, as when compiling with xlC on
+  AIX, _LARGE_FILES gets defined by AC_SYS_LARGEFILE to enable large file
+  support, and defining this changes the ABI of std::string, so it also needs
+  to be defined when compiling code using Xapian.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.21 (2015-05-20):
 
 API:
