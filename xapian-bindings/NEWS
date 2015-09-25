@@ -1,3 +1,48 @@
+913e01dbd (Olly Betts 2015-05-29 19:32:20 +1200    1) Thu Sep 24 05:25:46 GMT 2015  Olly Betts <olly@survex.com>
+
+
+Xapian-bindings 1.2.22 (2015-09-25):
+
+Documentation:
+
+General:
+
+* Stop wrapping internal methods of Xapian::Weight.
+
+* Return Error::get_description() rather than get_type + ": " + get_msg().  In
+  many cases this is the same, but if context or errno are available,
+  get_description() includes them.
+
+* Catch and report std::exception rather than handling it as an unknown error
+  (so in particular std::bad_alloc will now be reported more helpfully).
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+* Fix configure test for whether $MONO can run CSharp programs - previously it
+  would always fail, which would mean that the CSharp tests would only be run
+  on systems where CSharp programs can be run directly.
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+Python:
+
+* Add new testcase to catch any internal functions, methods, constants, etc
+  which have accidentally been wrapped.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.21 (2015-05-20):
 
 Lua:
