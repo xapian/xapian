@@ -21,7 +21,6 @@
 #ifndef XAPIAN_INCLUDED_LENGTH_H
 #define XAPIAN_INCLUDED_LENGTH_H
 
-#include <cstdint>
 #include <string>
 
 /** Encode a length as a variable-length string.
@@ -62,9 +61,11 @@ encode_length(T len)
  *  @param end	Pointer to the end of the string.
  *  @param[out] out	The decoded length.
  */
-void decode_length(const char ** p, const char *end, uint32_t & out);
+void decode_length(const char ** p, const char *end, unsigned & out);
 
-void decode_length(const char ** p, const char *end, uint64_t & out);
+void decode_length(const char ** p, const char *end, unsigned long & out);
+
+void decode_length(const char ** p, const char *end, unsigned long long & out);
 
 /** Decode a length encoded by encode_length.
  *
@@ -76,8 +77,12 @@ void decode_length(const char ** p, const char *end, uint64_t & out);
  *  @param end	Pointer to the end of the string.
  *  @param[out] out	The decoded length.
  */
-void decode_length_and_check(const char ** p, const char *end, uint32_t & out);
+void decode_length_and_check(const char ** p, const char *end, unsigned & out);
 
-void decode_length_and_check(const char ** p, const char *end, uint64_t & out);
+void decode_length_and_check(const char ** p, const char *end,
+			     unsigned long & out);
+
+void decode_length_and_check(const char ** p, const char *end,
+			     unsigned long long & out);
 
 #endif //XAPIAN_INCLUDED_LENGTH_H

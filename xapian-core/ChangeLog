@@ -1,3 +1,10 @@
+Fri Sep 25 06:28:02 GMT 2015  Olly Betts <olly@survex.com>
+
+	* net/length.cc,net/length.h: Provide overloads for unsigned, unsigned
+	  long, and unsigned long long, rather than uint32_t and uint64_t -
+	  this avoids overload resolution failing when we pass a type which
+	  isn't one which uint32_t or uint64_t is a typedef to.  (see #385)
+
 Fri Sep 25 04:10:00 GMT 2015  Olly Betts <olly@survex.com>
 
 	* api/vectortermlist.cc: Check decoded length.
