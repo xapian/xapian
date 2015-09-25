@@ -318,8 +318,7 @@ handle_git_external swig 210266cd7004108b074fac9da4fc97d1df0adc53 "$swig_origin_
 
 # If someone's created a directory for common, leave it be.
 if [ ! -d xapian-applications/omega/common ] ; then
-  # Equivalent to r17643 in the Xapian SVN tree:
-  handle_git_external xapian-applications/omega/.common.git 7647fbab408bb146eff4ee5b31c04e573c7ebbb2 .
+  handle_git_external xapian-applications/omega/.common.git 3e1602681002833b38b1bc2355fb557f35c70536 .
   ln -sf .common.git/xapian-core/common xapian-applications/omega/common
 fi
 
