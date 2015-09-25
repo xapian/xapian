@@ -1,3 +1,7 @@
+Fri Sep 25 04:10:00 GMT 2015  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.cc: Check decoded length.
+
 Sun Sep 13 08:27:53 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/socket_utils.cc: Change C-style cast to reinterpret_cast.

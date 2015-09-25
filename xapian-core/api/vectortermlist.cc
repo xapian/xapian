@@ -22,6 +22,7 @@
 
 #include "vectortermlist.h"
 
+#include "net/length.h"
 #include "omassert.h"
 #include "xapian/error.h"
 
@@ -69,7 +70,7 @@ VectorTermList::next()
 	p = NULL;
     } else {
 	size_t len;
-	decode_length(&p, end, len);
+	decode_length_and_check(&p, end, len);
 	current_term.assign(p, len);
 	p += len;
     }
