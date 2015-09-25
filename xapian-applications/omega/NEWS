@@ -1,3 +1,51 @@
+6b2fba778 (Olly Betts 2015-09-17 11:43:24 +1200    1) Fri Sep 25 04:51:20 GMT 2015  Olly Betts <olly@survex.com>
+
+Omega 1.2.22 (2015-09-25):
+
+general:
+
+documentation:
+
+* docs/omegascript.rst: Fix documentation of $last to say it's the MSet index
+  *one beyond* the end of the current page.  Reported by Andrew Chilton.
+
+* docs/overview.rst: SVG extraction is built-in too.
+
+* docs/cgiparams.rst: Document behaviour if xDB is not set.
+
+indexers:
+
+* omindex:
+
+  + Add '--title-size' option.
+
+* scriptindex:
+
+omega:
+
+* If xFILTERS is not set, don't force the first page as that's unhelpful if
+  someone fails to set it in their template.
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+* Don't provide our own implementation of sleep() under __WIN32__ if there
+  already is one - mingw provides one, and in some situations it seems to clash
+  with ours.  Reported to xapian-discuss by John Alveris.
+
+* Stop trying to use O_STREAMING - the patch to implement it was never merged
+  into the Linux kernel, and I can't find any evidence that other platforms
+  implement it.  The constant value O_STREAMING used now seems to be used for
+  the part of O_SYNC which isn't covered by O_DSYNC, which seems likely to hurt
+  performance if anything.
+
+packaging:
+
 Omega 1.2.21 (2015-05-20):
 
 documentation:

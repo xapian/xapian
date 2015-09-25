@@ -1,3 +1,7 @@
+Fri Sep 25 07:30:55 GMT 2015  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Fri Sep 25 04:51:20 GMT 2015  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: Remove unused header.
