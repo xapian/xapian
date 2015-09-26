@@ -1,3 +1,7 @@
+Sat Sep 26 00:32:31 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/glass/glass_table.cc: Use BLK_UNUSED constant.
+
 Sat Sep 26 00:31:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/chert/chert_table.cc: Initialise last_readahead - was

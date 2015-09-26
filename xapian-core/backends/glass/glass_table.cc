@@ -1492,7 +1492,7 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 	  compress_strategy(compress_strategy_),
 	  comp_stream(compress_strategy_),
 	  lazy(lazy_),
-	  last_readahead(uint4(-1))
+	  last_readahead(BLK_UNUSED)
 {
     LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
