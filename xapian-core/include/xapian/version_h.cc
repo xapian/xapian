@@ -157,6 +157,12 @@ const char * dummy[] = {
 " */",
 "#define XAPIAN_REVISION ",REVISION,
 "",
+"/// Base (signed) type for Xapian::docid and related types.",
+"#define XAPIAN_DOCID_BASE_TYPE ",XAPIAN_DOCID_BASE_TYPE,
+"",
+"/// Base (signed) type for Xapian::termcount and related types.",
+"#define XAPIAN_TERMCOUNT_BASE_TYPE ",XAPIAN_TERMCOUNT_BASE_TYPE,
+"",
 "/// XAPIAN_HAS_CHERT_BACKEND Defined if the chert backend is enabled.",
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 "#define XAPIAN_HAS_CHERT_BACKEND 1",

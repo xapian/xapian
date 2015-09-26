@@ -145,8 +145,11 @@ pack_uint_preserving_sort(std::string & s, U value)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
+#if 0
+    // FIXME: Doesn't work with 64-bit Xapian::docid, etc.
     static_assert(sizeof(U) <= SORTABLE_UINT_MAX_BYTES,
 		  "Template type U too wide for database format");
+#endif
 
     char tmp[sizeof(U) + 1];
     char * p = tmp + sizeof(tmp);

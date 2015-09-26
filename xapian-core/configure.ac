@@ -449,12 +449,51 @@ AC_TYPE_MODE_T
 AC_CHECK_SIZEOF([short])
 AC_CHECK_SIZEOF([int])
 AC_CHECK_SIZEOF([long])
+AC_CHECK_SIZEOF([long long])
+
+AC_MSG_CHECKING([for 32 bit integer type])
+case $ac_cv_sizeof_short:$ac_cv_sizeof_int:$ac_cv_sizeof_long in
+    *:4:*) INT32_T=int ;;
+    *:*:4) INT32_T=long ;;
+    4:*)   INT32_T=short ;;
+    *)
+      AC_MSG_RESULT([none found])
+      AC_MSG_ERROR([No 32 bit integer type found])
+esac
+AC_MSG_RESULT([$INT32_T])
+
+AC_MSG_CHECKING([for 64 bit integer type])
+case $ac_cv_sizeof_int:$ac_cv_sizeof_long:$ac_cv_sizeof_long_long in
+    8:*)   INT64_T=int ;;
+    *:8:*) INT64_T=long ;;
+    *:*:8) INT64_T='long long' ;;
+    *)
+      AC_MSG_RESULT([none found])
+      AC_MSG_ERROR([No 64 bit integer type found])
+esac
+AC_MSG_RESULT([$INT64_T])
 
 dnl Check for perl (needed to generate some sources and documentation).
 AC_PATH_PROG([PERL], [perl], [])
 if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
+
+AC_ARG_ENABLE([64bit_docid],
+  [AS_HELP_STRING([--enable-64bit-docid], [enable 64bit docid [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-64bit-docid]) ;;
+  esac],
+  [enable_64bit_docid=no])
+
+AC_ARG_ENABLE([64bit_termcount],
+  [AS_HELP_STRING([--enable-64bit-termcount], [enable 64bit termcount [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-64bit-termcount]) ;;
+  esac],
+  [enable_64bit_termcount=no])
 
 AC_ARG_ENABLE([documentation],
   [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
@@ -1259,6 +1298,19 @@ for backend in CHERT GLASS INMEMORY REMOTE ; do
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
   fi
 done
+
+if test yes = "$enable_64bit_docid" ; then
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE=\"$INT64_T\""
+else
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE=\"$INT32_T\""
+fi
+
+if test yes = "$enable_64bit_termcount" ; then
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE=\"$INT64_T\""
+else
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE=\"$INT32_T\""
+fi
+
 dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
 dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
 dnl which affect the ABI (e.g. -fabi-version for GCC) so we want to use these

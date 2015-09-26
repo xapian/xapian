@@ -1614,7 +1614,10 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     doc.set_data("prose");
     doc.add_term("word");
 
-    db.replace_document(Xapian::docid(-1), doc);
+    // FIXME: This probably should use the _MAX_DOCID values
+    Xapian::docid max_id = 0xffffffff;
+
+    db.replace_document(max_id, doc);
 
     TEST_EXCEPTION(Xapian::DatabaseError, db.add_document(doc));
 

@@ -1,3 +1,14 @@
+Sat Sep 26 03:21:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* common/pack.h,configure.ac,include/xapian/types.h,
+	  include/xapian/version_h.cc,tests/api_backend.cc,tests/api_wrdb.cc:
+	  Add new configure options --enable-64bit-docid and
+	  --enable-64bit-termcount, which control the size of these types.
+	  Currently the backends only support 32-bit docids, but using 64-bit
+	  docids allows searching multiple database where the mapped docids
+	  don't fit in a 32-bit type.  Based heavily on patch from James
+	  Aylett and Dylan Griffith.  Fixes #385.
+
 Sat Sep 26 00:32:31 GMT 2015  Olly Betts <olly@survex.com>
 
 	* backends/glass/glass_table.cc: Use BLK_UNUSED constant.

@@ -93,6 +93,47 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
     return true;
 }
 
+// Check that exceeding 32bit in combined database doesn't cause a problem
+// when using 64bit docids.
+DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
+    // Test case is for 64-bit Xapian::docid.
+    // FIXME: Though we should check that the overflow is handled gracefully
+    // for 32-bit...
+    if (sizeof(Xapian::docid) == 4) return true;
+
+    // The InMemory backend uses a vector for the documents, so trying to add
+    // a document with the maximum docid is likely to fail because we can't
+    // allocate enough memory!
+    SKIP_TEST_FOR_BACKEND("inmemory");
+
+    Xapian::WritableDatabase db1 = get_writable_database();
+    Xapian::WritableDatabase db2 = get_writable_database();
+    Xapian::Document doc;
+    doc.set_data("prose");
+    doc.add_term("word");
+
+    Xapian::docid max_id = 0xffffffff;
+
+    db1.replace_document(max_id, doc);
+    db2.replace_document(max_id, doc);
+
+    Xapian::Database db = get_database("");
+    db.add_database(db1);
+    db.add_database(db2);
+
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query::MatchAll);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    TEST_EQUAL(2, mymset.size());
+
+    for (Xapian::MSetIterator i = mymset.begin(); i != mymset.end(); ++i) {
+	TEST_EQUAL("prose", i.get_document().get_data());
+    }
+
+    return true;
+}
+
 DEFINE_TESTCASE(dbstats1, backend) {
     Xapian::Database db = get_database("etext");
 

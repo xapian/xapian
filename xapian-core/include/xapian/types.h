@@ -26,6 +26,7 @@
 #endif
 
 #include <xapian/deprecated.h>
+#include <xapian/version.h>
 
 namespace Xapian {
 
@@ -34,21 +35,21 @@ namespace Xapian {
  *  This is used to hold values such as the number of documents in a database
  *  and the frequency of a term in the database.
  */
-typedef unsigned doccount;
+typedef unsigned XAPIAN_DOCID_BASE_TYPE doccount;
 
 /** A signed difference between two counts of documents.
  *
  *  This is used by the Xapian classes which are STL containers of documents
  *  for "difference_type".
  */
-typedef int doccount_diff; /* FIXME: can overflow with more than 2^31 docs. */
+typedef XAPIAN_DOCID_BASE_TYPE doccount_diff;
 
 /** A unique identifier for a document.
  *
  *  Docid 0 is invalid, providing an "out of range" value which can be
  *  used to mean "not a valid document".
  */
-typedef unsigned docid;
+typedef unsigned XAPIAN_DOCID_BASE_TYPE docid;
 
 /** A normalised document length.
  *
@@ -68,14 +69,14 @@ XAPIAN_DEPRECATED(typedef int percent);
  *
  *  This is used to hold values such as the Within Document Frequency (wdf).
  */
-typedef unsigned termcount;
+typedef unsigned XAPIAN_TERMCOUNT_BASE_TYPE termcount;
 
 /** A signed difference between two counts of terms.
  *
  *  This is used by the Xapian classes which are STL containers of terms
  *  for "difference_type".
  */
-typedef int termcount_diff; /* FIXME: can overflow with more than 2^31 terms. */
+typedef XAPIAN_TERMCOUNT_BASE_TYPE termcount_diff;
 
 /** A term position within a document or query.
  */
