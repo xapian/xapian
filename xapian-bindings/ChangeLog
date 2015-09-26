@@ -1,3 +1,9 @@
+Sat Sep 26 06:17:08 GMT 2015  Olly Betts <olly@survex.com>
+
+	* HACKING,README,configure.ac,php/docs/index.rst,php/smoketest.php:
+	  Make PHP 5.5 the minimum officially supported version, as 5.4 has
+	  now reached EOL.
+
 Sat Sep 26 03:46:57 GMT 2015  Olly Betts <olly@survex.com>
 
 	* xapian-headers.i: Update for addition of XAPIAN_DOCID_BASE_TYPE and
