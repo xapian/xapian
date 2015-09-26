@@ -1,3 +1,8 @@
+Sat Sep 26 00:31:45 GMT 2015  Olly Betts <olly@survex.com>
+
+	* backends/chert/chert_table.cc: Initialise last_readahead - was
+	  causing testsuite failures under valgrind.
+
 Fri Sep 25 06:28:02 GMT 2015  Olly Betts <olly@survex.com>
 
 	* net/length.cc,net/length.h: Provide overloads for unsigned, unsigned

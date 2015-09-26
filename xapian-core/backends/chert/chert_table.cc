@@ -1582,7 +1582,8 @@ ChertTable::ChertTable(const char * tablename_, const string & path_,
 	  compress_strategy(compress_strategy_),
 	  deflate_zstream(NULL),
 	  inflate_zstream(NULL),
-	  lazy(lazy_)
+	  lazy(lazy_),
+	  last_readahead(BLK_UNUSED)
 {
     LOGCALL_CTOR(DB, "ChertTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
