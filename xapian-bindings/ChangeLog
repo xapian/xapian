@@ -1,3 +1,12 @@
+Sat Sep 26 06:19:22 GMT 2015  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleexpand.php5,
+	  php/docs/examples/simplematchdecider.php5,
+	  php/docs/examples/simplesearch.php5: When iterating an MSet with
+	  foreach, don't throw the docid away as $dummy, put it in $docid
+	  and use it - the code looks cleaner, and this avoids a call to C++
+	  to get the docid on each iteration.
+
 Sat Sep 26 06:17:08 GMT 2015  Olly Betts <olly@survex.com>
 
 	* HACKING,README,configure.ac,php/docs/index.rst,php/smoketest.php:
