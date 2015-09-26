@@ -128,6 +128,8 @@
 %exception Xapian::minor_version "$action"
 %exception Xapian::revision "$action"
 %exception Xapian::version_string "$action"
+// For XAPIAN_DOCID_BASE_TYPE and XAPIAN_TERMCOUNT_BASE_TYPE:
+%import <xapian/version.h>
 %include <xapian.h>
 
 // Disable errors about not including headers individually.
@@ -407,7 +409,6 @@ STANDARD_IGNORES(Xapian, Snipper)
 
 #else
 
-#define XAPIAN_HAS_INMEMORY_BACKEND
 %rename("inmemory_open") Xapian::InMemory::open;
 
 #ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
@@ -422,7 +423,6 @@ STANDARD_IGNORES(Xapian, Snipper)
 %ignore Xapian::Chert::open(const std::string &dir, int action, int block_size = 8192);
 #endif
 
-#define XAPIAN_HAS_CHERT_BACKEND
 %rename("chert_open") Xapian::Chert::open;
 
 #ifndef SWIGPHP
@@ -432,7 +432,6 @@ STANDARD_IGNORES(Xapian, Snipper)
 
 #endif
 
-#define XAPIAN_HAS_REMOTE_BACKEND
 %rename("remote_open") Xapian::Remote::open;
 %rename("remote_open_writable") Xapian::Remote::open_writable;
 
