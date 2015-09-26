@@ -1,3 +1,7 @@
+Sat Sep 26 04:07:35 GMT 2015  Olly Betts <olly@survex.com>
+
+	* tests/api_backend.cc: Remove pointless call to get_database().
+
 Sat Sep 26 03:21:45 GMT 2015  Olly Betts <olly@survex.com>
 
 	* common/pack.h,configure.ac,include/xapian/types.h,

@@ -117,7 +117,7 @@ DEFINE_TESTCASE(exceed32bitcombineddb1, writable) {
     db1.replace_document(max_id, doc);
     db2.replace_document(max_id, doc);
 
-    Xapian::Database db = get_database("");
+    Xapian::Database db;
     db.add_database(db1);
     db.add_database(db2);
 
