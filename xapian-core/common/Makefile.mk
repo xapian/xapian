@@ -80,6 +80,9 @@ lib_src +=\
 libxapian_1_3_la_LDFLAGS += -lrpcrt4
 endif
 
+AM_CPPFLAGS += -I/usr/include/botan-1.10
+libxapian_1_3_la_LDFLAGS += -lbotan-1.10
+
 noinst_LTLIBRARIES += libgetopt.la
 
 libgetopt_la_SOURCES =\

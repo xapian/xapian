@@ -136,6 +136,14 @@ inline void io_write_block(int fd, const unsigned char * p, size_t n, off_t b) {
     io_write_block(fd, reinterpret_cast<const char *>(p), n, b);
 }
 
+void
+io_read_encrypted_block(int fd, char * p, size_t n, off_t b,
+    const std::string& cipher, const std::string& key_str);
+
+void
+io_write_encrypted_block(int fd, const char * p, size_t n, off_t b,
+    const std::string& cipher, const std::string& key_str);
+
 /** Delete a file.
  *
  *  @param	filename	The file to delete.
