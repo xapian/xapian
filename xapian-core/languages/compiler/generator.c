@@ -132,30 +132,31 @@ static void wc(struct generator * g, struct node * p) { /* comment */
 
     ws(g, " /* ");
     switch (p->type) {
-	case c_mathassign:
-	case c_plusassign:
-	case c_minusassign:
-	case c_multiplyassign:
-	case c_divideassign:
+        case c_mathassign:
+        case c_plusassign:
+        case c_minusassign:
+        case c_multiplyassign:
+        case c_divideassign:
         case c_eq:
         case c_ne:
         case c_gr:
         case c_ge:
         case c_ls:
         case c_le:
-	    if (p->name) {
-		str_append_b(g->outbuf, p->name->b);
-		ws(g, " ");
-	    }
-	    ws(g, (char *) name_of_token(p->type));
-	    ws(g, " <integer expression>");
-	    break;
-	default:
-	    ws(g, (char *) name_of_token(p->type));
-	    if (p->name) {
-		ws(g, " ");
-		str_append_b(g->outbuf, p->name->b);
-	    }
+            if (p->name) {
+                wch(g, '$');
+                str_append_b(g->outbuf, p->name->b);
+                wch(g, ' ');
+            }
+            ws(g, name_of_token(p->type));
+            ws(g, " <integer expression>");
+            break;
+        default:
+            ws(g, name_of_token(p->type));
+            if (p->name) {
+                wch(g, ' ');
+                str_append_b(g->outbuf, p->name->b);
+            }
     }
     ws(g, ", line "); wi(g, p->line_number); ws(g, " */");
     wnl(g);
@@ -181,27 +182,27 @@ static void w(struct generator * g, const char * s);
 static void wk(struct generator * g, struct node * p) {     /* keep c */
     ++g->keep_count;
     if (p->mode == m_forward) {
-	ws(g, "int c"); wi(g, g->keep_count); w(g, " = ~zc;");
+        ws(g, "int c"); wi(g, g->keep_count); w(g, " = ~zc;");
     } else {
-	ws(g, "int m"); wi(g, g->keep_count); w(g, " = ~zl - ~zc; (void)m");
-	wi(g, g->keep_count); ws(g, ";");
+        ws(g, "int m"); wi(g, g->keep_count); w(g, " = ~zl - ~zc; (void)m");
+        wi(g, g->keep_count); ws(g, ";");
     }
 }
 
 static void wrestore(struct generator * g, struct node * p, int keep_token) {     /* restore c */
     if (p->mode == m_forward) {
-	w(g, "~zc = c");
+        w(g, "~zc = c");
     } else {
-	w(g, "~zc = ~zl - m");
+        w(g, "~zc = ~zl - m");
     }
     wi(g, keep_token); ws(g, ";");
 }
 
 static void wrestorelimit(struct generator * g, struct node * p, int keep_token) {     /* restore limit c */
     if (p->mode == m_forward) {
-	w(g, "~zl += mlimit");
+        w(g, "~zl += mlimit");
     } else {
-	w(g, "~zlb = mlimit");
+        w(g, "~zlb = mlimit");
     }
     wi(g, keep_token); ws(g, ";");
 }
@@ -257,13 +258,21 @@ static void wlim(struct generator * g, struct node * p) {     /* if at limit fai
 static void wp(struct generator * g, const char * s, struct node * p) { /* formatted write */
     int i = 0;
     int l = strlen(s);
-    until (i >= l) {
+    while (i < l) {
         int ch = s[i++];
         if (ch != '~') wch(g, ch); else
         switch(s[i++]) {
             default:  wch(g, s[i - 1]); continue;
             case 'C': wc(g, p); continue;
             case 'k': wk(g, p); continue;
+            case 'K': /* keep for c_test */
+                ws(g, p->mode == m_forward ? "int c_test = z->c;" :
+                                             "int m_test = z->l - z->c;");
+                continue;
+            case 'R': /* restore for c_test */
+                ws(g, p->mode == m_forward ? "z->c = c_test;" :
+                                             "z->c = z->l - m_test;");
+                continue;
             case 'i': winc(g, p); continue;
             case 'l': wlim(g, p); continue;
             case 'f': wf(g, p); continue;
@@ -328,7 +337,7 @@ static void generate_AE(struct generator * g, struct node * p) {
         case c_limit:
             w(g, p->mode == m_forward ? "~zl" : "~zlb"); break;
         case c_size:
-	    w(g, "SIZE(~zp)"); break;
+            w(g, "SIZE(~zp)"); break;
     }
 }
 
@@ -338,7 +347,7 @@ static void generate_AE(struct generator * g, struct node * p) {
 */
 
 static int K_needed(struct generator * g, struct node * p) {
-    until (p == 0) {
+    while (p) {
         switch (p->type) {
             case c_dollar:
             case c_leftslice:
@@ -377,8 +386,7 @@ static int K_needed(struct generator * g, struct node * p) {
 
 static int repeat_score(struct generator * g, struct node * p) {
     int score = 0;
-    until (p == 0)
-    {
+    while (p) {
         switch (p->type) {
             case c_dollar:
             case c_leftslice:
@@ -429,23 +437,23 @@ static int repeat_restore(struct generator * g, struct node * p) {
 
 static void generate_bra(struct generator * g, struct node * p) {
     p = p->left;
-    until (p == 0) { generate(g, p); p = p->right; }
+    while (p) { generate(g, p); p = p->right; }
 }
 
 static void generate_and(struct generator * g, struct node * p) {
     int keep_c = 0;
     if (K_needed(g, p->left)) {
-	wp(g, "~{~k~C", p);
-	keep_c = g->keep_count;
+        wp(g, "~{~k~C", p);
+        keep_c = g->keep_count;
     } else {
-	wp(g, "~M~C", p);
+        wp(g, "~M~C", p);
     }
     p = p->left;
-    until (p == 0) {
+    while (p) {
         generate(g, p);
         if (keep_c && p->right != 0) {
-	    w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
-	}
+            w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
+        }
         p = p->right;
     }
     if (keep_c) w(g, "~}");
@@ -461,23 +469,23 @@ static void generate_or(struct generator * g, struct node * p) {
     int out_lab = new_label(g);
 
     if (K_needed(g, p->left)) {
-	wp(g, "~{~k~C", p);
-	keep_c = g->keep_count;
+        wp(g, "~{~k~C", p);
+        keep_c = g->keep_count;
     } else {
-	wp(g, "~M~C", p);
+        wp(g, "~M~C", p);
     }
     p = p->left;
     g->failure_keep_count = 0;
-    until (p->right == 0) {
-	g->failure_label = new_label(g);
-	g->label_used = 0;
-	generate(g, p);
-	wgotol(g, out_lab);
-	if (g->label_used)
-	    wsetl(g, g->failure_label);
-	if (keep_c) {
-	    w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
-	}
+    while (p->right) {
+        g->failure_label = new_label(g);
+        g->label_used = 0;
+        generate(g, p);
+        wgotol(g, out_lab);
+        if (g->label_used)
+            wsetl(g, g->failure_label);
+        if (keep_c) {
+            w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
+        }
         p = p->right;
     }
     g->label_used = used;
@@ -505,10 +513,10 @@ static void generate_not(struct generator * g, struct node * p) {
     int a1 = g->failure_keep_count;
 
     if (K_needed(g, p->left)) {
-	wp(g, "~{~k~C", p);
-	keep_c = g->keep_count;
+        wp(g, "~{~k~C", p);
+        keep_c = g->keep_count;
     } else {
-	wp(g, "~M~C", p);
+        wp(g, "~M~C", p);
     }
 
     g->failure_label = new_label(g);
@@ -529,7 +537,7 @@ static void generate_not(struct generator * g, struct node * p) {
             wsetl(g, l);
     }
     if (keep_c) {
-	w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N~}");
+        w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N~}");
     }
 }
 
@@ -594,10 +602,10 @@ static void generate_test(struct generator * g, struct node * p) {
 static void generate_do(struct generator * g, struct node * p) {
     int keep_c = 0;
     if (K_needed(g, p->left)) {
-	wp(g, "~{~k~C", p);
-	keep_c = g->keep_count;
+        wp(g, "~{~k~C", p);
+        keep_c = g->keep_count;
     } else {
-	wp(g, "~M~C", p);
+        wp(g, "~M~C", p);
     }
 
     g->failure_label = new_label(g);
@@ -608,8 +616,8 @@ static void generate_do(struct generator * g, struct node * p) {
     if (g->label_used)
         wsetl(g, g->failure_label);
     if (keep_c) {
-	w(g, "~M"); wrestore(g, p, keep_c);
-	w(g, "~N~}");
+        w(g, "~M"); wrestore(g, p, keep_c);
+        w(g, "~N~}");
     }
 }
 
@@ -640,7 +648,8 @@ static void generate_GO_grouping(struct generator * g, struct node * p, int is_g
     if (is_goto) {
 	wp(g, "~Mif (~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1) < 0) ~f /* goto */~C", p);
     } else {
-	wp(g, "~{int ret = ~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1); /* gopast */~C"
+	wp(g, "~{ /* gopast */~C"
+	      "~Mint ret = ~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1);~N"
 	      "~Mif (ret < 0) ~f~N", p);
 	if (p->mode == m_forward)
 	    w(g, "~M~zc += ret;~N");
@@ -671,8 +680,8 @@ static void generate_GO(struct generator * g, struct node * p, int style) {
     w(g, "~Mwhile(1) {"); wp(g, "~C~+", p);
 
     if (style == 1 || repeat_restore(g, p->left)) {
-	wp(g, "~M~k~N", p);
-	keep_c = g->keep_count;
+        wp(g, "~M~k~N", p);
+        keep_c = g->keep_count;
     }
 
     g->failure_label = new_label(g);
@@ -680,14 +689,14 @@ static void generate_GO(struct generator * g, struct node * p, int style) {
     generate(g, p->left);
 
     if (style == 1) {
-	/* include for goto; omit for gopast */
-	w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
+        /* include for goto; omit for gopast */
+        w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
     }
     w(g, "~Mbreak;~N");
     if (g->label_used)
         wsetl(g, g->failure_label);
     if (keep_c) {
-	w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
+        w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
     }
 
     g->label_used = used;
@@ -715,8 +724,8 @@ static void generate_repeat(struct generator * g, struct node * p, int atleast_c
     wp(g, "~Mwhile(1) {~C~+", p);
 
     if (repeat_restore(g, p->left)) {
-	wp(g, "~M~k~N", p);
-	keep_c = g->keep_count;
+        wp(g, "~M~k~N", p);
+        keep_c = g->keep_count;
     }
 
     g->failure_label = new_label(g);
@@ -731,7 +740,7 @@ static void generate_repeat(struct generator * g, struct node * p, int atleast_c
         wsetl(g, g->failure_label);
 
     if (keep_c) {
-	w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
+        w(g, "~M"); wrestore(g, p, keep_c); w(g, "~N");
     }
 
     w(g, "~Mbreak;~N"
@@ -1095,121 +1104,121 @@ static void generate_substring(struct generator * g, struct node * p) {
      * the current position than the minimum length.
      */
     for (c = 0; c < x->literalstring_count; ++c) {
-	int size = among_cases[c].size;
-	if (size != 0 && size < shortest_size) {
-	    shortest_size = size;
-	}
+        int size = among_cases[c].size;
+        if (size != 0 && size < shortest_size) {
+            shortest_size = size;
+        }
     }
 
     for (c = 0; c < x->literalstring_count; ++c) {
-	symbol ch;
-	if (among_cases[c].size == 0) {
-	    empty_case = c;
-	    continue;
-	}
-	if (p->mode == m_forward) {
-	    ch = among_cases[c].b[shortest_size - 1];
-	} else {
-	    ch = among_cases[c].b[among_cases[c].size - 1];
-	}
-	if (n_cases == 0) {
-	    block = ch >> 5;
-	} else if (ch >> 5 != block) {
-	    block = -1;
-	    if (n_cases > 2) break;
-	}
-	if (block == -1) {
-	    if (ch == cases[0]) continue;
-	    if (n_cases < 2) {
-		cases[n_cases++] = ch;
-	    } else if (ch != cases[1]) {
-		++n_cases;
-		break;
-	    }
-	} else {
-	    if ((bitmap & (1u << (ch & 0x1f))) == 0) {
-		bitmap |= 1u << (ch & 0x1f);
-		if (n_cases < 2)
-		    cases[n_cases] = ch;
-		++n_cases;
-	    }
-	}
+        symbol ch;
+        if (among_cases[c].size == 0) {
+            empty_case = c;
+            continue;
+        }
+        if (p->mode == m_forward) {
+            ch = among_cases[c].b[shortest_size - 1];
+        } else {
+            ch = among_cases[c].b[among_cases[c].size - 1];
+        }
+        if (n_cases == 0) {
+            block = ch >> 5;
+        } else if (ch >> 5 != block) {
+            block = -1;
+            if (n_cases > 2) break;
+        }
+        if (block == -1) {
+            if (ch == cases[0]) continue;
+            if (n_cases < 2) {
+                cases[n_cases++] = ch;
+            } else if (ch != cases[1]) {
+                ++n_cases;
+                break;
+            }
+        } else {
+            if ((bitmap & (1u << (ch & 0x1f))) == 0) {
+                bitmap |= 1u << (ch & 0x1f);
+                if (n_cases < 2)
+                    cases[n_cases] = ch;
+                ++n_cases;
+            }
+        }
     }
 
     if (block != -1 || n_cases <= 2) {
-	char buf[64];
-	g->I[2] = block;
-	g->I[3] = bitmap;
-	g->I[4] = shortest_size - 1;
-	if (p->mode == m_forward) {
-	    const char * z = g->options->make_lang == LANG_C ? "z->" : "";
-	    sprintf(buf, "%sp[%sc + %d]", z, z, shortest_size - 1);
-	    g->S[1] = buf;
-	    if (shortest_size == 1) {
-		wp(g, "~Mif (~zc >= ~zl || ", p);
-	    } else {
-		wp(g, "~Mif (~zc + ~I4 >= ~zl || ", p);
-	    }
-	} else {
-	    if (g->options->make_lang == LANG_C)
-		g->S[1] = "z->p[z->c - 1]";
-	    else
-		g->S[1] = "p[c - 1]";
-	    if (shortest_size == 1) {
-		wp(g, "~Mif (~zc <= ~zlb || ", p);
-	    } else {
-		wp(g, "~Mif (~zc - ~I4 <= ~zlb || ", p);
-	    }
-	}
-	if (n_cases == 0) {
-	    /* We get this for the degenerate case: among { '' }
-	     * This doesn't seem to be a useful construct, but it is
-	     * syntactically valid.
-	     */
-	    wp(g, "0", p);
-	} else if (n_cases == 1) {
-	    g->I[4] = cases[0];
-	    wp(g, "~S1 != ~I4", p);
-	} else if (n_cases == 2) {
-	    g->I[4] = cases[0];
-	    g->I[5] = cases[1];
-	    wp(g, "(~S1 != ~I4 && ~S1 != ~I5)", p);
-	} else {
-	    wp(g, "~S1 >> 5 != ~I2 || !((~I3 >> (~S1 & 0x1f)) & 1)", p);
-	}
-	ws(g, ") ");
-	if (empty_case != -1) {
-	    /* If the among includes the empty string, it can never fail
-	     * so not matching the bitmap means we match the empty string.
-	     */
-	    g->I[4] = among_cases[empty_case].result;
-	    wp(g, "among_var = ~I4; else~C", p);
-	} else {
-	    wp(g, "~f~C", p);
-	}
-	shown_comment = 1;
+        char buf[64];
+        g->I[2] = block;
+        g->I[3] = bitmap;
+        g->I[4] = shortest_size - 1;
+        if (p->mode == m_forward) {
+            const char * z = g->options->make_lang == LANG_C ? "z->" : "";
+            sprintf(buf, "%sp[%sc + %d]", z, z, shortest_size - 1);
+            g->S[1] = buf;
+            if (shortest_size == 1) {
+        	wp(g, "~Mif (~zc >= ~zl || ", p);
+            } else {
+        	wp(g, "~Mif (~zc + ~I4 >= ~zl || ", p);
+            }
+        } else {
+            if (g->options->make_lang == LANG_C)
+        	g->S[1] = "z->p[z->c - 1]";
+            else
+        	g->S[1] = "p[c - 1]";
+            if (shortest_size == 1) {
+        	wp(g, "~Mif (~zc <= ~zlb || ", p);
+            } else {
+        	wp(g, "~Mif (~zc - ~I4 <= ~zlb || ", p);
+            }
+        }
+        if (n_cases == 0) {
+            /* We get this for the degenerate case: among { '' }
+             * This doesn't seem to be a useful construct, but it is
+             * syntactically valid.
+             */
+            wp(g, "0", p);
+        } else if (n_cases == 1) {
+            g->I[4] = cases[0];
+            wp(g, "~S1 != ~I4", p);
+        } else if (n_cases == 2) {
+            g->I[4] = cases[0];
+            g->I[5] = cases[1];
+            wp(g, "(~S1 != ~I4 && ~S1 != ~I5)", p);
+        } else {
+            wp(g, "~S1 >> 5 != ~I2 || !((~I3 >> (~S1 & 0x1f)) & 1)", p);
+        }
+        ws(g, ") ");
+        if (empty_case != -1) {
+            /* If the among includes the empty string, it can never fail
+             * so not matching the bitmap means we match the empty string.
+             */
+            g->I[4] = among_cases[empty_case].result;
+            wp(g, "among_var = ~I4; else~C", p);
+        } else {
+            wp(g, "~f~C", p);
+        }
+        shown_comment = 1;
     } else {
 #ifdef OPTIMISATION_WARNINGS
-	printf("Couldn't shortcut among %d\n", x->number);
+        printf("Couldn't shortcut among %d\n", x->number);
 #endif
     }
 
     if (x->command_count == 0 && x->starter == 0) {
         w(g, "~Mif (!(find_among~S0(s_pool, ~Za_~I0, ~I1, ");
-	if (x->have_funcs) {
-	    w(g, "af_~I0, af");
-	} else {
-	    ws(g, "0, 0");
-	}
-	wp(g, "))) ~f", p);
-	wp(g, shown_comment ? "~N" : "~C", p);
+        if (x->have_funcs) {
+            w(g, "af_~I0, af");
+        } else {
+            ws(g, "0, 0");
+        }
+        wp(g, "))) ~f", p);
+        wp(g, shown_comment ? "~N" : "~C", p);
     } else {
         w(g, "~Mamong_var = find_among~S0(s_pool, ~Za_~I0, ~I1, ");
-	if (x->have_funcs) {
-	    w(g, "af_~I0, af");
-	} else {
-	    ws(g, "0, 0");
-	}
+        if (x->have_funcs) {
+            w(g, "af_~I0, af");
+        } else {
+            ws(g, "0, 0");
+        }
 	wp(g, ");", p);
 	wp(g, shown_comment ? "~N" : "~C", p);
         wp(g, "~Mif (!(among_var)) ~f~N", p);
@@ -1224,7 +1233,7 @@ static void generate_among(struct generator * g, struct node * p) {
     if (x->substring == 0) generate_substring(g, p);
     if (x->command_count == 0 && x->starter == 0) return;
 
-    unless (x->starter == 0) generate(g, x->starter);
+    if (x->starter) generate(g, x->starter);
 
     wp(g, "~Mswitch(among_var) {~C~+"
               "~Mcase 0: ~f~N", p);
@@ -1232,7 +1241,7 @@ static void generate_among(struct generator * g, struct node * p) {
     p = p->left;
     if (p != 0 && p->type != c_literalstring) p = p->right;
 
-    until (p == 0) {
+    while (p) {
          if (p->type == c_bra && p->left != 0) {
              g->I[0] = case_number++;
              w(g, "~Mcase ~I0:~N~+"); generate(g, p); w(g, "~Mbreak;~N~-");
@@ -1377,8 +1386,7 @@ static void generate_routine_headers(struct generator * g) {
     struct name * q;
     if (g->options->make_lang != LANG_C) return;
 
-    q = g->analyser->names;
-    until (q == 0) {
+    for (q = g->analyser->names; q; q = q->next) {
         g->V[0] = q;
         switch (q->type) {
             case t_routine:
@@ -1396,7 +1404,6 @@ static void generate_routine_headers(struct generator * g) {
                   );
                 break;
         }
-        q = q->next;
     }
 }
 
@@ -1438,7 +1445,7 @@ static void generate_among_pool(struct generator * g, struct among * x) {
 		    } while (offset--);
 		}
 	    }
-	    unless (v->size == 0) {
+	    if (v->size) {
 		if (pool_size == 0) {
 		    w(g, "static const symbol s_pool[] = {~N");
 		}
@@ -1515,7 +1522,7 @@ static void generate_among_table(struct generator * g, struct among * x) {
 }
 
 static void generate_amongs(struct generator * g) {
-    struct among * x = g->analyser->amongs;
+    struct among * x;
     struct name * q;
     int among_func_count = 0;
 
@@ -1549,11 +1556,10 @@ static void generate_amongs(struct generator * g) {
 	w(g, "};~N~N");
     }
 
-    generate_among_pool(g, x);
+    generate_among_pool(g, g->analyser->amongs);
 
-    until (x == 0) {
+    for (x = g->analyser->amongs; x; x = x->next) {
         generate_among_table(g, x);
-        x = x->next;
     }
 }
 
@@ -1584,10 +1590,9 @@ static void generate_grouping_table(struct generator * g, struct grouping * q) {
 }
 
 static void generate_groupings(struct generator * g) {
-    struct grouping * q = g->analyser->groupings;
-    until (q == 0) {
+    struct grouping * q;
+    for (q = g->analyser->groupings; q; q = q->next) {
         generate_grouping_table(g, q);
-        q = q->next;
     }
 }
 
@@ -1684,8 +1689,8 @@ static void generate_create_and_close_templates(struct generator * g) {
 
 static void generate_header_file(struct generator * g) {
 
-    struct name * q = g->analyser->names;
-    char * vp = g->options->variables_prefix;
+    struct name * q;
+    const char * vp = g->options->variables_prefix;
     g->S[0] = vp;
 
     if (g->options->make_lang != LANG_C) {
@@ -1752,7 +1757,7 @@ static void generate_header_file(struct generator * g) {
          "#endif~N");            /* for C++ */
 
     generate_create_and_close_templates(g);
-    until (q == 0) {
+    for (q = g->analyser->names; q; q = q->next) {
         g->V[0] = q;
         switch (q->type)
         {
@@ -1771,7 +1776,6 @@ static void generate_header_file(struct generator * g) {
                 }
                 break;
         }
-        q = q->next;
     }
 
     w(g, "~N"
@@ -1806,7 +1810,7 @@ extern void generate_program_c(struct generator * g) {
     g->literalstring_count = 0;
     {
         struct node * p = g->analyser->program;
-        until (p == 0) { generate(g, p); p = p->right; }
+        while (p) { generate(g, p); p = p->right; }
     }
     generate_create(g);
     generate_close(g);

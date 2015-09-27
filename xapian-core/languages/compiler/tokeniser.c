@@ -6,9 +6,9 @@
 #include "header.h"
 
 struct system_word {
-    int s_size;   /* size of system word */
-    byte * s;     /* pointer to the system word */
-    int code;     /* it's internal code */
+    int s_size;      /* size of system word */
+    const byte * s;  /* pointer to the system word */
+    int code;        /* its internal code */
 };
 
 
@@ -40,33 +40,33 @@ extern symbol * get_input(symbol * p, char ** p_file) {
     }
 }
 
-static void error(struct tokeniser * t, char * s1, int n, symbol * p, char * s2) {
+static void error(struct tokeniser * t, const char * s1, int n, symbol * p, const char * s2) {
     if (t->error_count == 20) { fprintf(stderr, "... etc\n"); exit(1); }
     fprintf(stderr, "%s:%d: ", t->file, t->line_number);
-    unless (s1 == 0) fprintf(stderr, "%s", s1);
-    unless (p == 0) {
+    if (s1) fprintf(stderr, "%s", s1);
+    if (p) {
         int i;
         for (i = 0; i < n; i++) fprintf(stderr, "%c", p[i]);
     }
-    unless (s2 == 0) fprintf(stderr, "%s", s2);
+    if (s2) fprintf(stderr, "%s", s2);
     fprintf(stderr, "\n");
     t->error_count++;
 }
 
-static void error1(struct tokeniser * t, char * s) {
+static void error1(struct tokeniser * t, const char * s) {
     error(t, s, 0,0, 0);
 }
 
-static void error2(struct tokeniser * t, char * s) {
+static void error2(struct tokeniser * t, const char * s) {
     error(t, "unexpected end of text after ", 0,0, s);
 }
 
-static int compare_words(int m, symbol * p, int n, byte * q) {
-    unless (m == n) return m - n;
+static int compare_words(int m, symbol * p, int n, const byte * q) {
+    if (m != n) return m - n;
     {
         int i; for (i = 0; i < n; i++) {
             int diff = p[i] - q[i];
-            unless (diff == 0) return diff;
+            if (diff) return diff;
         }
     }
     return 0;
@@ -76,7 +76,7 @@ static int find_word(int n, symbol * p) {
     int i = 0; int j = vocab->code;
     repeat {
         int k = i + (j - i)/2;
-        struct system_word * w = vocab + k;
+        const struct system_word * w = vocab + k;
         int diff = compare_words(n, p, w->s_size, w->s);
         if (diff == 0) return w->code;
         if (diff < 0) j = k; else i = k;
@@ -91,7 +91,7 @@ static int get_number(int n, symbol * p) {
     return x;
 }
 
-static int eq_s(struct tokeniser * t, char * s) {
+static int eq_s(struct tokeniser * t, const char * s) {
     int l = strlen(s);
     if (SIZE(t->p) - t->c < l) return false;
     {
@@ -140,14 +140,14 @@ static int read_literal_string(struct tokeniser * t, int c) {
                 if (c >= SIZE(p)) { error2(t, "'"); return c; }
                 ch = p[c]; c++;
                 if (ch == t->m_end) break;
-                unless (white_space(t, ch)) black_found = true;
+                if (!white_space(t, ch)) black_found = true;
                 if (ch == '\n') newlines = true;
                 if (newlines && black_found) {
                     error1(t, "string not terminated");
                     return c;
                 }
             }
-            unless (newlines) {
+            if (!newlines) {
                 int n = c - c0 - 1;    /* macro size */
                 int firstch = p[c0];
                 symbol * q = find_in_m(t, n, p + c0);
@@ -256,9 +256,9 @@ static void convert_numeric_string(struct tokeniser * t, symbol * p, int base) {
         if (c == SIZE(p)) break;
         {
             int number = 0;
-            repeat {
+            while (c != SIZE(p)) {
                 int ch = p[c];
-                if (c == SIZE(p) || ch == ' ') break;
+                if (ch == ' ') break;
                 if (base == 10) {
                     ch = decimal_to_num(ch);
                     if (ch < 0) {
@@ -276,12 +276,12 @@ static void convert_numeric_string(struct tokeniser * t, symbol * p, int base) {
                 c++;
             }
             if (t->widechars || t->utf8) {
-                unless (0 <= number && number <= 0xffff) {
+                if (number < 0 || number > 0xffff) {
                     error1(t, "character values exceed 64K");
                     return;
                 }
             } else {
-                unless (0 <= number && number <= 0xff) {
+                if (number < 0 || number > 0xff) {
                     error1(t, "character values exceed 256");
                     return;
                 }
@@ -337,7 +337,7 @@ extern int read_token(struct tokeniser * t) {
                    code = read_token(t);
                    if (code == c_hex) { base = 16; code = read_token(t); } else
                    if (code == c_decimal) { base = 10; code = read_token(t); }
-                   unless (code == c_literalstring)
+                   if (code != c_literalstring)
                        { error1(t, "string omitted after stringdef"); continue; }
                    if (base > 0) convert_numeric_string(t, t->b, base);
                    {   NEW(m_pair, q);
@@ -350,7 +350,7 @@ extern int read_token(struct tokeniser * t) {
                continue;
             case c_get:
                code = read_token(t);
-               unless (code == c_literalstring) {
+               if (code != c_literalstring) {
                    error1(t, "string omitted after get"); continue;
                }
                t->get_depth++;
@@ -363,14 +363,13 @@ extern int read_token(struct tokeniser * t) {
                    NEW(input, q);
                    symbol * u = get_input(t->b, &file);
                    if (u == 0) {
-                       struct include * r = t->includes;
-                       until (r == 0) {
+                       struct include * r;
+                       for (r = t->includes; r; r = r->next) {
                            symbol * b = copy_b(r->b);
                            b = add_to_b(b, SIZE(t->b), t->b);
                            u = get_input(b, &file);
                            lose_b(b);
-                           unless (u == 0) break;
-                           r = r->next;
+                           if (u != 0) break;
                        }
                    }
                    if (u == 0) {
@@ -387,7 +386,7 @@ extern int read_token(struct tokeniser * t) {
                p = t->p;
                continue;
             case -1:
-               unless (t->next == 0) {
+               if (t->next) {
                    lose_b(p);
                    {
                        struct input * q = t->next;
@@ -406,22 +405,22 @@ extern int read_token(struct tokeniser * t) {
     }
 }
 
-extern byte * name_of_token(int code) {
+extern const char * name_of_token(int code) {
     int i;
     for (i = 1; i < vocab->code; i++)
-        if ((vocab + i)->code == code) return (vocab + i)->s;
+        if ((vocab + i)->code == code) return (const char *)(vocab + i)->s;
     switch (code) {
-        case c_mathassign:   return (byte *) "=";
-        case c_name:         return (byte *) "name";
-        case c_number:       return (byte *) "number";
-        case c_literalstring:return (byte *) "literal";
-        case c_neg:          return (byte *) "neg";
-        case c_grouping:     return (byte *) "grouping";
-        case c_call:         return (byte *) "call";
-        case c_booltest:     return (byte *) "Boolean test";
-        case -2:             return (byte *) "start of text";
-        case -1:             return (byte *) "end of text";
-        default:             return (byte *) "?";
+        case c_mathassign:   return "=";
+        case c_name:         return "name";
+        case c_number:       return "number";
+        case c_literalstring:return "literal";
+        case c_neg:          return "neg";
+        case c_grouping:     return "grouping";
+        case c_call:         return "call";
+        case c_booltest:     return "Boolean test";
+        case -2:             return "start of text";
+        case -1:             return "end of text";
+        default:             return "?";
     }
 }
 
@@ -449,7 +448,7 @@ extern void close_tokeniser(struct tokeniser * t) {
     lose_b(t->b2);
     {
         struct m_pair * q = t->m_pairs;
-        until (q == 0) {
+        while (q) {
             struct m_pair * q_next = q->next;
             lose_b(q->name);
             lose_b(q->value);
@@ -459,7 +458,7 @@ extern void close_tokeniser(struct tokeniser * t) {
     }
     {
         struct input * q = t->next;
-        until (q == 0) {
+        while (q) {
             struct input * q_next = q->next;
             FREE(q);
             q = q_next;

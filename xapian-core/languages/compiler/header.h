@@ -5,8 +5,6 @@ typedef unsigned short symbol;
 #define true 1
 #define false 0
 #define repeat while(true)
-#define unless(C) if(!(C))
-#define until(C) while(!(C))
 
 #define MALLOC check_malloc
 #define FREE check_free
@@ -101,7 +99,7 @@ struct tokeniser {
 extern symbol * get_input(symbol * p, char ** p_file);
 extern struct tokeniser * create_tokeniser(symbol * b, char * file);
 extern int read_token(struct tokeniser * t);
-extern byte * name_of_token(int code);
+extern const char * name_of_token(int code);
 extern void close_tokeniser(struct tokeniser * t);
 
 enum token_codes {
@@ -135,7 +133,7 @@ struct name {
     int among_func_count;       /* 1, 2, 3 for routines called by among */
     struct grouping * grouping; /* for grouping names */
     byte referenced;
-    byte used;
+    struct node * used;         /* First use, or NULL if not used */
     byte routine_called_from_among; /* used in routine definitions */
 
 };
@@ -151,7 +149,7 @@ struct amongvec {
 
     symbol * b;      /* the string giving the case */
     int size;        /* - and its size */
-    struct node * p; /* the corresponding command */
+    struct node * p; /* the corresponding node for this string */
     int i;           /* the amongvec index of the longest substring of b */
     int result;      /* the numeric result for the case */
     struct name * function;
@@ -177,7 +175,6 @@ struct grouping {
     symbol * b;               /* the characters of this group */
     int largest_ch;           /* character with max code */
     int smallest_ch;          /* character with min code */
-    byte no_gaps;             /* not used in generator.c after 11/5/05 */
     struct name * name;       /* so g->name->grouping == g */
 };
 
@@ -289,8 +286,8 @@ struct options {
 
     /* for the command line: */
 
-    char * output_file;
-    char * name;
+    const char * output_file;
+    const char * name;
     FILE * output_c;
     FILE * output_h;
 #ifndef DISABLE_JAVA
@@ -299,10 +296,10 @@ struct options {
     byte syntax_tree;
     byte widechars;
     enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS } make_lang;
-    char * externals_prefix;
-    char * variables_prefix;
-    char * runtime_path;
-    char * parent_class_name;
+    const char * externals_prefix;
+    const char * variables_prefix;
+    const char * runtime_path;
+    const char * parent_class_name;
     struct include * includes;
     struct include * includes_end;
     byte utf8;
