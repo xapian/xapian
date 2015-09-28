@@ -274,14 +274,17 @@ io_read_encrypted_block(int fd, char * p, size_t n, off_t b,
 {
   io_read_block(fd, p, n, b);
 
-  const uint64_t iv_mem = static_cast<uint64_t>(n);
+  const struct {
+    uint64_t d0;
+    uint64_t d1;
+  } iv_mem = { static_cast<uint64_t>(b), 0 };
 
-  Botan::SymmetricKey key(key_str);
+  Botan::SymmetricKey key(reinterpret_cast<const Botan::byte*>(key_str.c_str()), key_str.size());
   Botan::InitializationVector iv(reinterpret_cast<const Botan::byte*>(&iv_mem), sizeof iv_mem);
   Botan::Pipe dec_pipe(Botan::get_cipher(cipher, key, iv, Botan::DECRYPTION));
 
-  dec_pipe.process_msg(reinterpret_cast<Botan::byte*>(p), b);
-  dec_pipe.read(reinterpret_cast<Botan::byte*>(p), b);
+  dec_pipe.process_msg(reinterpret_cast<Botan::byte*>(p), n);
+  dec_pipe.read(reinterpret_cast<Botan::byte*>(p), n);
 
   return;
 }
@@ -290,16 +293,19 @@ void
 io_write_encrypted_block(int fd, const char * p, size_t n, off_t b,
     const std::string& cipher, const std::string& key_str)
 {
-  const uint64_t iv_mem = static_cast<uint64_t>(n);
+  const struct {
+    uint64_t d0;
+    uint64_t d1;
+  } iv_mem = { static_cast<uint64_t>(b), 0 };
 
-  Botan::SymmetricKey key(key_str);
+  Botan::SymmetricKey key(reinterpret_cast<const Botan::byte*>(key_str.c_str()), key_str.size());
   Botan::InitializationVector iv(reinterpret_cast<const Botan::byte*>(&iv_mem), sizeof iv_mem);
   Botan::Pipe enc_pipe(Botan::get_cipher(cipher, key, iv, Botan::ENCRYPTION));
 
-  enc_pipe.process_msg(reinterpret_cast<const Botan::byte*>(p), b);
+  enc_pipe.process_msg(reinterpret_cast<const Botan::byte*>(p), n);
   const std::string enc_data = enc_pipe.read_all_as_string();
 
-  io_write_block(fd, enc_data.c_str(), n, enc_data.size());
+  io_write_block(fd, enc_data.c_str(), n, b);
 
   return;
 }
