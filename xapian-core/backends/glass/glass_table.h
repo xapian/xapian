@@ -591,6 +591,10 @@ class GlassTable {
 	/// Throw an exception indicating that the database is closed.
 	XAPIAN_NORETURN(static void throw_database_closed());
 
+  /** Set an encryption block cipher and a symmetric key
+   */
+  void set_encryption(const std::string& cipher, const std::string * key);
+
     protected:
 
 	/** Perform the opening operation to read. */
@@ -759,6 +763,17 @@ class GlassTable {
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
+
+  /** Botan cipher string
+   */
+  std::string encryption_cipher;
+
+  /** Symmetric encryption key pointer
+   *
+   *  If the pointer is non-NULL, all block I/O will be decrypted/encrypted
+   *  using the encryption_cipher with the encryption_key.
+   */
+  const std::string * encryption_key;
 };
 
 #endif /* OM_HGUARD_GLASS_TABLE_H */

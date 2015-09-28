@@ -167,7 +167,13 @@ GlassTable::read_block(uint4 n, byte * p) const
 	GlassTable::throw_database_closed();
     AssertRel(n,<,free_list.get_first_unused_block());
 
-    io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
+    if (encryption_key == NULL) {
+      io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
+    }
+    else {
+      io_read_encrypted_block(handle, reinterpret_cast<char *>(p), block_size, n,
+          encryption_cipher, *encryption_key);
+    }
 
     if (GET_LEVEL(p) != LEVEL_FREELIST) {
 	int dir_end = DIR_END(p);
@@ -219,7 +225,13 @@ GlassTable::write_block(uint4 n, const byte * p, bool appending) const
 	// read lock and try to take an exclusive lock here?
     }
 
-    io_write_block(handle, p, block_size, n);
+    if (encryption_key == NULL) {
+      io_write_block(handle, p, block_size, n);
+    }
+    else {
+      io_write_encrypted_block(handle, reinterpret_cast<const char *>(p), block_size, n,
+          encryption_cipher, *encryption_key);
+    }
 
     if (!changes_obj) return;
 
@@ -1492,7 +1504,9 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 	  compress_strategy(compress_strategy_),
 	  comp_stream(compress_strategy_),
 	  lazy(lazy_),
-	  last_readahead(BLK_UNUSED)
+	  last_readahead(BLK_UNUSED),
+    encryption_cipher(""),
+    encryption_key(NULL)
 {
     LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
@@ -1916,6 +1930,13 @@ void
 GlassTable::throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
+}
+
+void
+GlassTable::set_encryption(const std::string& cipher, const std::string * key)
+{
+  encryption_cipher = cipher;
+  encryption_key = key;
 }
 
 /** Compares this key with key2.
