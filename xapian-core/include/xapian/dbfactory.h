@@ -55,12 +55,12 @@ namespace Auto {
  *
  * @param file  pathname of the stub database file.
  */
-XAPIAN_DEPRECATED(Database open_stub(const std::string &file));
+XAPIAN_DEPRECATED(Database open_stub(const std::string &file, const std::string * encryption_key = NULL, const std::string& encryption_cipher = "Serpent/XTS"));
 
 inline Database
-open_stub(const std::string &file)
+open_stub(const std::string &file, const std::string * encryption_key, const std::string& encryption_cipher)
 {
-    return Database(file, DB_BACKEND_STUB);
+    return Database(file, DB_BACKEND_STUB, encryption_key, encryption_cipher);
 }
 
 /** Construct a WritableDatabase object for a stub database file.
@@ -79,12 +79,12 @@ open_stub(const std::string &file)
  *  - Xapian::DB_OPEN			open existing database, failing if none
  *					exists.
  */
-XAPIAN_DEPRECATED(WritableDatabase open_stub(const std::string &file, int action));
+XAPIAN_DEPRECATED(WritableDatabase open_stub(const std::string &file, int action, const std::string * encryption_key = NULL, const std::string& encryption_cipher = "Serpent/XTS"));
 
 inline WritableDatabase
-open_stub(const std::string &file, int action)
+open_stub(const std::string &file, int action, const std::string * encryption_key, const std::string& encryption_cipher)
 {
-    return WritableDatabase(file, action|DB_BACKEND_STUB);
+    return WritableDatabase(file, action|DB_BACKEND_STUB, 0, encryption_key, encryption_cipher);
 }
 
 }
@@ -112,12 +112,12 @@ namespace Chert {
  *
  * @param dir  pathname of the directory containing the database.
  */
-XAPIAN_DEPRECATED(Database open(const std::string &dir));
+XAPIAN_DEPRECATED(Database open(const std::string &dir, const std::string * encryption_key, const std::string& encryption_cipher = "Serpent/XTS"));
 
 inline Database
-open(const std::string &dir)
+open(const std::string &dir, const std::string * encryption_key, const std::string& encryption_cipher)
 {
-    return Database(dir, DB_BACKEND_CHERT);
+    return Database(dir, DB_BACKEND_CHERT, encryption_key, encryption_cipher);
 }
 
 /** Construct a Database object for update access to a Chert database.
@@ -138,12 +138,12 @@ open(const std::string &dir)
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
-XAPIAN_DEPRECATED(WritableDatabase open(const std::string &dir, int action, int block_size = 0));
+XAPIAN_DEPRECATED(WritableDatabase open(const std::string &dir, int action, int block_size = 0, const std::string * encryption_key = NULL, const std::string& encryption_cipher = "Serpent/XTS"));
 
 inline WritableDatabase
-open(const std::string &dir, int action, int block_size)
+open(const std::string &dir, int action, int block_size, const std::string * encryption_key, const std::string& encryption_cipher)
 {
-    return WritableDatabase(dir, action|DB_BACKEND_CHERT, block_size);
+    return WritableDatabase(dir, action|DB_BACKEND_CHERT, block_size, encryption_key, encryption_cipher);
 }
 
 }

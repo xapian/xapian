@@ -66,7 +66,9 @@ InMemory::open() {
 #endif
 
 static void
-open_stub(Database &db, const string &file)
+open_stub(Database &db, const string &file,
+    const std::string * encryption_key,
+    const std::string& encryption_cipher)
 {
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
@@ -95,14 +97,14 @@ open_stub(Database &db, const string &file)
 
 	if (type == "auto") {
 	    resolve_relative_path(line, file);
-	    db.add_database(Database(line));
+	    db.add_database(Database(line, 0, encryption_key, encryption_cipher));
 	    continue;
 	}
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	if (type == "chert") {
 	    resolve_relative_path(line, file);
-	    db.add_database(Database(new ChertDatabase(line)));
+	    db.add_database(Database(new ChertDatabase(line, 0, 0, encryption_key, encryption_cipher)));
 	    continue;
 	}
 #endif
@@ -110,7 +112,7 @@ open_stub(Database &db, const string &file)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	if (type == "glass") {
 	    resolve_relative_path(line, file);
-	    db.add_database(Database(new GlassDatabase(line)));
+	    db.add_database(Database(new GlassDatabase(line, 0, 0, encryption_key, encryption_cipher)));
 	    continue;
 	}
 #endif
@@ -171,7 +173,9 @@ open_stub(Database &db, const string &file)
 }
 
 static void
-open_stub(WritableDatabase &db, const string &file, int flags)
+open_stub(WritableDatabase &db, const string &file, int flags,
+    const std::string * encryption_key,
+    const std::string& encryption_cipher)
 {
     // A stub database is a text file with one or more lines of this format:
     // <dbtype> <serialised db object>
@@ -203,14 +207,16 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 
 	if (type == "auto") {
 	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags));
+	    db.add_database(WritableDatabase(line, flags, 0,
+            encryption_key, encryption_cipher));
 	    continue;
 	}
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	if (type == "chert") {
 	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_CHERT));
+	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_CHERT, 0,
+            encryption_key, encryption_cipher));
 	    continue;
 	}
 #endif
@@ -218,7 +224,8 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	if (type == "glass") {
 	    resolve_relative_path(line, file);
-	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_GLASS));
+	    db.add_database(WritableDatabase(line, flags|DB_BACKEND_GLASS, 0,
+            encryption_key, encryption_cipher));
 	    continue;
 	}
 #endif
@@ -274,7 +281,9 @@ open_stub(WritableDatabase &db, const string &file, int flags)
     }
 }
 
-Database::Database(const string &path, int flags)
+Database::Database(const string &path, int flags,
+    const std::string * encryption_key,
+    const std::string& encryption_cipher)
 {
     LOGCALL_CTOR(API, "Database", path|flags);
 
@@ -282,20 +291,22 @@ Database::Database(const string &path, int flags)
     switch (type) {
 	case DB_BACKEND_CHERT:
 #ifdef XAPIAN_HAS_CHERT_BACKEND
-	    internal.push_back(new ChertDatabase(path));
+	    internal.push_back(new ChertDatabase(path, 0, 0,
+            encryption_key, encryption_cipher));
 	    return;
 #else
 	    throw FeatureUnavailableError("Chert backend disabled");
 #endif
 	case DB_BACKEND_GLASS:
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	    internal.push_back(new GlassDatabase(path));
+	    internal.push_back(new GlassDatabase(path, 0, 0,
+            encryption_key, encryption_cipher));
 	    return;
 #else
 	    throw FeatureUnavailableError("Glass backend disabled");
 #endif
 	case DB_BACKEND_STUB:
-	    open_stub(*this, path);
+	    open_stub(*this, path, encryption_key, encryption_cipher);
 	    return;
     }
 
@@ -306,7 +317,7 @@ Database::Database(const string &path, int flags)
 
     if (S_ISREG(statbuf.st_mode)) {
 	// The path is a file, so assume it is a stub database file.
-	open_stub(*this, path);
+	open_stub(*this, path, encryption_key, encryption_cipher);
 	return;
     }
 
@@ -316,14 +327,16 @@ Database::Database(const string &path, int flags)
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     if (file_exists(path + "/iamchert")) {
-	internal.push_back(new ChertDatabase(path));
+	internal.push_back(new ChertDatabase(path, 0, 0,
+        encryption_key, encryption_cipher));
 	return;
     }
 #endif
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (file_exists(path + "/iamglass")) {
-	internal.push_back(new GlassDatabase(path));
+	internal.push_back(new GlassDatabase(path, 0, 0,
+        encryption_key, encryption_cipher));
 	return;
     }
 #endif
@@ -332,7 +345,7 @@ Database::Database(const string &path, int flags)
     string stub_file = path;
     stub_file += "/XAPIANDB";
     if (usual(file_exists(stub_file))) {
-	open_stub(*this, stub_file);
+	open_stub(*this, stub_file, encryption_key, encryption_cipher);
 	return;
     }
 
@@ -358,7 +371,8 @@ Database::Database(const string &path, int flags)
 #define HAVE_DISK_BACKEND
 #endif
 
-WritableDatabase::WritableDatabase(const std::string &path, int flags, int block_size)
+WritableDatabase::WritableDatabase(const std::string &path, int flags, int block_size,
+    const std::string * encryption_key, const std::string& encryption_cipher)
     : Database()
 {
     LOGCALL_CTOR(API, "WritableDatabase", path|flags|block_size);
@@ -378,7 +392,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 
 	    if (S_ISREG(statbuf.st_mode)) {
 		// The path is a file, so assume it is a stub database file.
-		open_stub(*this, path, flags);
+		open_stub(*this, path, flags, encryption_key, encryption_cipher);
 		return;
 	    }
 
@@ -408,7 +422,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 		string stub_file = path;
 		stub_file += "/XAPIANDB";
 		if (usual(file_exists(stub_file))) {
-		    open_stub(*this, stub_file, flags);
+		    open_stub(*this, stub_file, flags, encryption_key, encryption_cipher);
 		    return;
 		}
 	    }
@@ -417,7 +431,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 
     switch (type) {
 	case DB_BACKEND_STUB:
-	    open_stub(*this, path, flags);
+	    open_stub(*this, path, flags, encryption_key, encryption_cipher);
 	    return;
 	case 0: {
 	    // If only one backend is enabled, there's no point checking the
@@ -434,7 +448,8 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	// by preference.
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	case DB_BACKEND_CHERT:
-	    internal.push_back(new ChertWritableDatabase(path, flags, block_size));
+	    internal.push_back(new ChertWritableDatabase(path, flags, block_size,
+            encryption_key, encryption_cipher));
 	    return;
 #endif
 #ifdef XAPIAN_HAS_GLASS_BACKEND
@@ -442,7 +457,8 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 glass:
 #endif
-	    internal.push_back(new GlassWritableDatabase(path, flags, block_size));
+	    internal.push_back(new GlassWritableDatabase(path, flags, block_size,
+            encryption_key, encryption_cipher));
 	    return;
 #endif
     }

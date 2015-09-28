@@ -82,7 +82,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *
 	 * @param path directory that the database is stored in.
 	 */
-	explicit Database(const std::string &path, int flags = 0);
+	explicit Database(const std::string &path, int flags = 0,
+      const std::string * encryption_key = NULL,
+      const std::string& encryption_cipher = "Serpent/XTS");
 
 	/** @private @internal Create a Database from its internals.
 	 */
@@ -533,7 +535,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	explicit WritableDatabase(const std::string &path,
 				  int flags = 0,
-				  int block_size = 0);
+				  int block_size = 0,
+          const std::string * encryption_key = NULL,
+          const std::string& encryption_cipher = "Serpent/XTS");
 
 	/** @private @internal Create an WritableDatabase given its internals.
 	 */

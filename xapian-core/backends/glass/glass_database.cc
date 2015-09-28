@@ -88,6 +88,8 @@ using Xapian::Internal::intrusive_ptr;
 // byte in the term).
 #define MAX_SAFE_TERM_LENGTH 245
 
+const std::string test_key = "1111111122222222111111112222222211111111222222221111111122222222";
+
 /* This opens the tables, determining the current and next revision numbers,
  * and stores handles to the tables.
  */
@@ -111,6 +113,7 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
     LOGCALL_CTOR(DB, "GlassDatabase", glass_dir | flags | block_size);
 
     set_encryption(encryption_cipher, encryption_key);
+    set_encryption("AES-256/XTS", &test_key);
 
     if (readonly) {
 	open_tables(flags);
