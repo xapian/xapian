@@ -218,6 +218,11 @@ class ChertDatabase : public Xapian::Database::Internal {
 	void get_changeset_revisions(const string & path,
 				     chert_revision_number_t * startrev,
 				     chert_revision_number_t * endrev) const;
+
+  /** Set encryption block cipher and a symmetric key
+   */
+  void set_encryption(const std::string& cipher, const std::string * key);
+
     public:
 	/** Create and open a chert database.
 	 *
@@ -239,7 +244,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 	 *                    created.
 	 */
 	ChertDatabase(const string &db_dir_, int action = Xapian::DB_READONLY_,
-		      unsigned int block_size = 0u);
+		      unsigned int block_size = 0u,
+          const std::string * encryption_key = NULL,
+          const std::string& encryption_cipher = "Serpent/XTS");
 
 	~ChertDatabase();
 
@@ -427,7 +434,9 @@ class ChertWritableDatabase : public ChertDatabase {
 	 *
 	 *  @param dir directory holding chert tables
 	 */
-	ChertWritableDatabase(const string &dir, int action, int block_size);
+	ChertWritableDatabase(const string &dir, int action, int block_size,
+      const std::string * encryption_key = NULL,
+      const std::string& encryption_cipher = "Serpent/XTS");
 
 	~ChertWritableDatabase();
 

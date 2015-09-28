@@ -103,7 +103,9 @@ const int MAX_OPEN_RETRIES = 100;
  * to the tables.
  */
 ChertDatabase::ChertDatabase(const string &chert_dir, int flags,
-			     unsigned int block_size)
+			     unsigned int block_size,
+           const std::string * encryption_key,
+           const std::string& encryption_cipher)
 	: db_dir(chert_dir),
 	  readonly(flags == Xapian::DB_READONLY_),
 	  version_file(db_dir),
@@ -118,6 +120,8 @@ ChertDatabase::ChertDatabase(const string &chert_dir, int flags,
 	  max_changesets(0)
 {
     LOGCALL_CTOR(DB, "ChertDatabase", chert_dir | flags | block_size);
+
+    set_encryption(encryption_cipher, encryption_key);
 
     if (readonly) {
 	open_tables_consistent();
@@ -375,6 +379,17 @@ ChertDatabase::get_changeset_revisions(const string & path,
     if (!unpack_uint(&start, end, endrev))
 	throw Xapian::DatabaseError("Couldn't read a valid end revision for "
 				    "changeset at " + path);
+}
+
+void
+ChertDatabase::set_encryption(const std::string& cipher, const std::string * key)
+{
+  postlist_table.set_encryption(cipher, key);
+  position_table.set_encryption(cipher, key);
+  termlist_table.set_encryption(cipher, key);
+  synonym_table.set_encryption(cipher, key);
+  spelling_table.set_encryption(cipher, key);
+  record_table.set_encryption(cipher, key);
 }
 
 void
@@ -1035,8 +1050,10 @@ ChertDatabase::throw_termlist_table_close_exception() const
 ///////////////////////////////////////////////////////////////////////////
 
 ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
-					       int block_size)
-	: ChertDatabase(dir, action, block_size),
+					       int block_size,
+                 const std::string * encryption_key,
+                 const std::string& encryption_cipher)
+	: ChertDatabase(dir, action, block_size, encryption_key, encryption_cipher),
 	  freq_deltas(),
 	  doclens(),
 	  mod_plists(),
