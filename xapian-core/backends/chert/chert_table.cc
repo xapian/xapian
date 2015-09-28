@@ -180,7 +180,12 @@ ChertTable::read_block(uint4 n, byte * p) const
      */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
 
-    io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
+    if (encryption_key == NULL) {
+      io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
+    }
+    else {
+      io_read_encrypted_block(handle, reinterpret_cast<char *>(p), block_size, n, encryption_cipher, *encryption_key);
+    }
 
     int dir_end = DIR_END(p);
     if (rare(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
@@ -223,7 +228,12 @@ ChertTable::write_block(uint4 n, const byte * p) const
 	latest_revision_number = revision_number;
     }
 
-    io_write_block(handle, reinterpret_cast<const char *>(p), block_size, n);
+    if (encryption_key == NULL) {
+      io_write_block(handle, reinterpret_cast<const char *>(p), block_size, n);
+    }
+    else {
+      io_write_encrypted_block(handle, reinterpret_cast<const char *>(p), block_size, n, encryption_cipher, *encryption_key);
+    }
 }
 
 
@@ -1583,7 +1593,9 @@ ChertTable::ChertTable(const char * tablename_, const string & path_,
 	  deflate_zstream(NULL),
 	  inflate_zstream(NULL),
 	  lazy(lazy_),
-	  last_readahead(BLK_UNUSED)
+	  last_readahead(BLK_UNUSED),
+    encryption_cipher(""),
+    encryption_key(NULL)
 {
     LOGCALL_CTOR(DB, "ChertTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
@@ -2257,6 +2269,13 @@ void
 ChertTable::throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
+}
+
+void
+ChertTable::set_encryption(const std::string& cipher, const std::string * key)
+{
+  encryption_cipher = cipher;
+  encryption_key = key;
 }
 
 /** Compares this key with key2.
