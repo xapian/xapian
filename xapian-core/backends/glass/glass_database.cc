@@ -92,7 +92,9 @@ using Xapian::Internal::intrusive_ptr;
  * and stores handles to the tables.
  */
 GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
-			     unsigned int block_size)
+			     unsigned int block_size,
+           const std::string * encryption_key,
+           const std::string& encryption_cipher)
 	: db_dir(glass_dir),
 	  readonly(flags == Xapian::DB_READONLY_),
 	  version_file(db_dir),
@@ -107,6 +109,8 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 	  changes(db_dir)
 {
     LOGCALL_CTOR(DB, "GlassDatabase", glass_dir | flags | block_size);
+
+    set_encryption(encryption_cipher, encryption_key);
 
     if (readonly) {
 	open_tables(flags);
@@ -300,6 +304,17 @@ GlassDatabase::get_changeset_revisions(const string & path,
     if (!unpack_uint(&start, end, endrev))
 	throw Xapian::DatabaseError("Couldn't read a valid end revision for "
 				    "changeset at " + path);
+}
+
+void
+GlassDatabase::set_encryption(const std::string& cipher, const std::string * key)
+{
+  postlist_table.set_encryption(cipher, key);
+  position_table.set_encryption(cipher, key);
+  termlist_table.set_encryption(cipher, key);
+  synonym_table.set_encryption(cipher, key);
+  spelling_table.set_encryption(cipher, key);
+  docdata_table.set_encryption(cipher, key);
 }
 
 void
@@ -941,8 +956,10 @@ GlassDatabase::throw_termlist_table_close_exception() const
 ///////////////////////////////////////////////////////////////////////////
 
 GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
-					       int block_size)
-	: GlassDatabase(dir, flags, block_size),
+					       int block_size,
+                 const std::string * encryption_key,
+                 const std::string& encryption_cipher)
+	: GlassDatabase(dir, flags, block_size, encryption_key, encryption_cipher),
 	  change_count(0),
 	  flush_threshold(0),
 	  modify_shortcut_document(NULL),

@@ -206,6 +206,10 @@ class GlassDatabase : public Xapian::Database::Internal {
 				     glass_revision_number_t * startrev,
 				     glass_revision_number_t * endrev) const;
 
+  /** Set encryption block cipher and a symmetric key
+   */
+  void set_encryption(const std::string& cipher, const std::string * key);
+
     public:
 	/** Create and open a glass database.
 	 *
@@ -227,7 +231,9 @@ class GlassDatabase : public Xapian::Database::Internal {
 	 *                    created.
 	 */
 	GlassDatabase(const string &db_dir_, int flags = Xapian::DB_READONLY_,
-		      unsigned int block_size = 0u);
+		      unsigned int block_size = 0u,
+          const std::string * encryption_key = NULL,
+          const std::string& encryption_cipher = "");
 
 	~GlassDatabase();
 
@@ -370,7 +376,9 @@ class GlassWritableDatabase : public GlassDatabase {
 	 *
 	 *  @param dir directory holding glass tables
 	 */
-	GlassWritableDatabase(const string &dir, int flags, int block_size);
+	GlassWritableDatabase(const string &dir, int flags, int block_size,
+      const std::string * encryption_key = NULL,
+      const std::string& encryption_cipher = "");
 
 	~GlassWritableDatabase();
 
