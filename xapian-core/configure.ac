@@ -479,6 +479,53 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
+AC_ARG_ENABLE([encryption],
+  [AS_HELP_STRING([--enable-encryption], [enable support for database encryption [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-encryption]) ;;
+  esac],
+  [enable_encryption=no])
+AM_CONDITIONAL([ENCRYPTION], [test x"$enable_encryption" = xyes])
+dnl
+dnl If we want encryption support, we have to have botan development files
+dnl
+if test x"$enable_encryption" = xyes ; then
+ AC_DEFINE([XAPIAN_ENCRYPTION], [1], [Define if xapian should be build with database encryption support])
+ dnl
+  dnl Use botan-1.10 pkg-config module by default
+  dnl
+  if test -z "$BOTAN_PKGCONFIG_MODULE"; then
+    BOTAN_PKGCONFIG_MODULE="botan-1.10"
+  fi
+  dnl
+  dnl Check whether we have pkg-config
+  dnl
+  AC_PATH_PROG([PKG_CONFIG], [pkg-config], [])
+  test -z "$PKG_CONFIG" && AC_MSG_ERROR([pkg-config is required to build with encryption support])
+  dnl
+  dnl First try to call pkg-config with the module name to check it's
+  dnl availability. If not, we show a meaningful message to the user.
+  dnl
+  $PKG_CONFIG $BOTAN_PKGCONFIG_MODULE || \
+    AC_MSG_ERROR([Botan pkg-config module ($BOTAN_PKGCONFIG_MODULE.pc) is not available on your system. You may need to install the botan-devel or botan-dev package.])
+  dnl
+  dnl Find out botan compiler and linker flags
+  dnl
+  BOTAN_LIBS=`$PKG_CONFIG $BOTAN_PKGCONFIG_MODULE --libs`
+  BOTAN_CFLAGS=`$PKG_CONFIG $BOTAN_PKGCONFIG_MODULE --cflags`
+  dnl
+  dnl Try to find botan include headers using the BOTAN_CFLAGS
+  dnl
+  SAVED_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS=$BOTAN_CFLAGS
+  AC_CHECK_HEADERS([botan/botan.h], [], [AC_MSG_ERROR([botan header files not found. You may need to install the botan-devel or botan-dev package.])])
+  CPPFLAGS=$SAVED_CPPFLAGS
+
+  AC_SUBST([BOTAN_LIBS])
+  AC_SUBST([BOTAN_CFLAGS])
+fi
+
 AC_ARG_ENABLE([64bit_docid],
   [AS_HELP_STRING([--enable-64bit-docid], [enable 64bit docid [default=no]])],
   [case ${enableval} in

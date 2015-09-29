@@ -36,7 +36,9 @@
 #include "omassert.h"
 #include "str.h"
 
+#ifdef HAVE_BOTAN_BOTAN_H
 #include <botan/botan.h>
+#endif
 
 // Trying to include the correct headers with the correct defines set to
 // get pread() and pwrite() prototyped on every platform without breaking any
@@ -272,6 +274,7 @@ void
 io_read_encrypted_block(int fd, char * p, size_t n, off_t b,
     const std::string& cipher, const std::string& key_str)
 {
+#ifdef XAPIAN_ENCRYPTION
   io_read_block(fd, p, n, b);
 
   const struct {
@@ -287,12 +290,21 @@ io_read_encrypted_block(int fd, char * p, size_t n, off_t b,
   dec_pipe.read(reinterpret_cast<Botan::byte*>(p), n);
 
   return;
+#else
+  (void)fd;
+  (void)p;
+  (void)n;
+  (void)cipher;
+  (void)key_str;
+  throw_block_error("Error reading encrypted block ", b, ENOTSUP);
+#endif /* XAPIAN_ENCRYPTION */
 }
 
 void
 io_write_encrypted_block(int fd, const char * p, size_t n, off_t b,
     const std::string& cipher, const std::string& key_str)
 {
+#ifdef XAPIAN_ENCRYPTION
   const struct {
     uint64_t d0;
     uint64_t d1;
@@ -308,4 +320,12 @@ io_write_encrypted_block(int fd, const char * p, size_t n, off_t b,
   io_write_block(fd, enc_data.c_str(), n, b);
 
   return;
+#else
+  (void)fd;
+  (void)p;
+  (void)n;
+  (void)cipher;
+  (void)key_str;
+  throw_block_error("Error writing encrypted block ", b, ENOTSUP);
+#endif /* XAPIAN_ENCRYPTION */
 }

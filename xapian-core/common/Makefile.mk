@@ -80,8 +80,10 @@ lib_src +=\
 libxapian_1_3_la_LDFLAGS += -lrpcrt4
 endif
 
-AM_CPPFLAGS += -I/usr/include/botan-1.10
-libxapian_1_3_la_LDFLAGS += -lbotan-1.10
+if ENCRYPTION
+AM_CPPFLAGS += $(BOTAN_CFLAGS)
+libxapian_1_3_la_LDFLAGS += $(BOTAN_LIBS)
+endif
 
 noinst_LTLIBRARIES += libgetopt.la
 
