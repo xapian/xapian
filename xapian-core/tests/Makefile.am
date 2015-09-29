@@ -117,6 +117,7 @@ collated_apitest_sources = \
  api_collapse.cc \
  api_compact.cc \
  api_db.cc \
+ api_encryption.cc \
  api_generated.cc \
  api_geospatial.cc \
  api_matchspy.cc \
