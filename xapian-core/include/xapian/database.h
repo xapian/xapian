@@ -81,6 +81,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  backend to use.
 	 *
 	 * @param path directory that the database is stored in.
+   * @param encryption_key encryption key to use for encrypting/decrypting the database
+   * @param encryption_cipher Botan cipher specification string
 	 */
 	explicit Database(const std::string &path, int flags = 0,
       const std::string * encryption_key = NULL,
@@ -526,6 +528,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *		      block size must be a power of 2 between 2048 and
 	 *		      65536 (inclusive), and the default (also used if
 	 *		      an invalid value is passed) is 8192 bytes.
+   *
+	 *  @param encryption_key encryption key to use for encrypting/decrypting the database
+   *  @param encryption_cipher Botan cipher specification string
 	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.

@@ -54,6 +54,8 @@ namespace Auto {
  * or more databases.
  *
  * @param file  pathname of the stub database file.
+ * @param encryption_key encryption key to use for encrypting/decrypting the database
+ * @param encryption_cipher Botan cipher specification string
  */
 XAPIAN_DEPRECATED(Database open_stub(const std::string &file, const std::string * encryption_key = NULL, const std::string& encryption_cipher = "Serpent/XTS"));
 
@@ -78,6 +80,8 @@ open_stub(const std::string &file, const std::string * encryption_key, const std
  *					new database if none exists.
  *  - Xapian::DB_OPEN			open existing database, failing if none
  *					exists.
+ *  @param encryption_key encryption key to use for encrypting/decrypting the database
+ *  @param encryption_cipher Botan cipher specification string
  */
 XAPIAN_DEPRECATED(WritableDatabase open_stub(const std::string &file, int action, const std::string * encryption_key = NULL, const std::string& encryption_cipher = "Serpent/XTS"));
 
@@ -111,6 +115,8 @@ namespace Chert {
 /** Construct a Database object for read-only access to a Chert database.
  *
  * @param dir  pathname of the directory containing the database.
+ * @param encryption_key encryption key to use for encrypting/decrypting the database
+ * @param encryption_cipher Botan cipher specification string
  */
 XAPIAN_DEPRECATED(Database open(const std::string &dir, const std::string * encryption_key, const std::string& encryption_cipher = "Serpent/XTS"));
 
@@ -137,6 +143,8 @@ open(const std::string &dir, const std::string * encryption_key, const std::stri
  *			default (also used if an invalid value if passed) is
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
+ * @param encryption_key encryption key to use for encrypting/decrypting the database
+ * @param encryption_cipher Botan cipher specification string
  */
 XAPIAN_DEPRECATED(WritableDatabase open(const std::string &dir, int action, int block_size = 0, const std::string * encryption_key = NULL, const std::string& encryption_cipher = "Serpent/XTS"));
 
