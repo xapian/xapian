@@ -40,6 +40,7 @@ extern void str_assign(struct str * str, char * s);
 extern struct str * str_copy(struct str * old);
 extern symbol * str_data(struct str * str);
 extern int str_len(struct str * str);
+extern int str_back(struct str *str);
 extern int get_utf8(const symbol * p, int * slot);
 extern int put_utf8(int ch, symbol * p);
 
@@ -261,7 +262,10 @@ struct generator {
     int next_label;
     int margin;
 
-    int failure_keep_count;    /* if > 0, keep_count to restore in case of a failure; if < 0, the negated keep_count for the limit to restore in case of failure. */
+    /* if > 0, keep_count to restore in case of a failure;
+     * if < 0, the negated keep_count for the limit to restore in case of
+     * failure. */
+    int failure_keep_count;
 #ifndef DISABLE_JAVA
     struct str * failure_str;  /* This is used by the java generator. */
 #endif
@@ -279,7 +283,8 @@ struct generator {
     int line_count;      /* counts number of lines output */
     int line_labelled;   /* in ANSI C, will need extra ';' if it is a block end */
     int literalstring_count;
-    int keep_count;	 /* used to number keep/restore pairs to avoid compiler warnings about shadowed variables */
+    int keep_count;      /* used to number keep/restore pairs to avoid compiler warnings
+                            about shadowed variables */
 };
 
 struct options {
@@ -288,11 +293,8 @@ struct options {
 
     const char * output_file;
     const char * name;
-    FILE * output_c;
+    FILE * output_src;
     FILE * output_h;
-#ifndef DISABLE_JAVA
-    FILE * output_java;
-#endif
     byte syntax_tree;
     byte widechars;
     enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS } make_lang;

@@ -218,25 +218,25 @@ extern int main(int argc, char * argv[]) {
                     if (o->make_lang == LANG_CPLUSPLUS) {
                         b = add_s_to_b(b, "c");
                     }
-                    o->output_c = get_output(b);
+                    o->output_src = get_output(b);
                     lose_b(b);
 
                     g = create_generator_c(a, o);
                     generate_program_c(g);
                     close_generator_c(g);
-                    fclose(o->output_c);
+                    fclose(o->output_src);
                     fclose(o->output_h);
                 }
 #ifndef DISABLE_JAVA
                 if (o->make_lang == LANG_JAVA) {
                     symbol * b = add_s_to_b(0, s);
                     b = add_s_to_b(b, ".java");
-                    o->output_java = get_output(b);
+                    o->output_src = get_output(b);
                     lose_b(b);
                     g = create_generator_java(a, o);
                     generate_program_java(g);
                     close_generator_java(g);
-                    fclose(o->output_java);
+                    fclose(o->output_src);
                 }
 #endif
             }

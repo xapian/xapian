@@ -235,6 +235,14 @@ extern int str_len(struct str * str) {
     return SIZE(str->data);
 }
 
+/* Get the last character of the str.
+ *
+ * Or -1 if the string is empty.
+ */
+extern int str_back(struct str *str) {
+    return SIZE(str->data) ? str->data[SIZE(str->data) - 1] : -1;
+}
+
 extern int get_utf8(const symbol * p, int * slot) {
     int b0, b1;
     b0 = *p++;

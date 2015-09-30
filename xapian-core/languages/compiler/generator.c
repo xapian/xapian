@@ -43,6 +43,14 @@ static void ws(struct generator * g, const char * s) {
     str_append_string(g->outbuf, s); /* string */
 }
 
+/* Write a space if the preceding character was not whitespace */
+static void ws_opt_space(struct generator * g, const char * s) {
+    int ch = str_back(g->outbuf);
+    if (ch != ' ' && ch != '\n' && ch != '\t' && ch != -1)
+	wch(g, ' ');
+    ws(g, s);
+}
+
 static void wi(struct generator * g, int i) {
     str_append_int(g->outbuf, i); /* integer */
 }
@@ -86,23 +94,27 @@ static void wv(struct generator * g, struct name * p) {  /* reference to variabl
     wvn(g, p);
 }
 
+/* write character literal */
+static void wlitch(struct generator * g, int ch) {
+    if (32 <= ch && ch < 127) {
+        wch(g, '\'');
+        switch (ch) {
+            case '\'':
+            case '\\': wch(g, '\\');
+            default:   wch(g, ch);
+        }
+        wch(g, '\'');
+    }  else {
+        ws(g, "0x"); wh(g, ch);
+    }
+}
+
 static void wlitarray(struct generator * g, symbol * p) {  /* write literal array */
 
     {
         int i;
         for (i = 0; i < SIZE(p); i++) {
-            int ch = p[i];
-            if (32 <= ch && ch < 127) {
-                wch(g, '\'');
-                switch (ch) {
-                    case '\'':
-                    case '\\': wch(g, '\\');
-                    default:   wch(g, ch);
-                }
-                wch(g, '\'');
-            }  else {
-                wch(g, '0'); wch(g, 'x'); wh(g, ch);
-            }
+            wlitch(g, p[i]);
             if (i < SIZE(p) - 1) ws(g, ", ");
         }
     }
@@ -110,7 +122,7 @@ static void wlitarray(struct generator * g, symbol * p) {  /* write literal arra
 
 static void wlitref(struct generator * g, symbol * p) {  /* write ref to literal array */
 
-    if (SIZE(p) == 0) ws(g, "0"); else {
+    if (SIZE(p) == 0) wch(g, '0'); else {
         struct str * s = g->outbuf;
         g->outbuf = g->declarations;
         ws(g, "static const symbol s_"); wi(g, g->literalstring_count); ws(g, "[] = { ");
@@ -130,7 +142,7 @@ static void wm(struct generator * g) {       /* margin */
 
 static void wc(struct generator * g, struct node * p) { /* comment */
 
-    ws(g, " /* ");
+    ws_opt_space(g, "/* ");
     switch (p->type) {
         case c_mathassign:
         case c_plusassign:
@@ -184,8 +196,8 @@ static void wk(struct generator * g, struct node * p) {     /* keep c */
     if (p->mode == m_forward) {
         ws(g, "int c"); wi(g, g->keep_count); w(g, " = ~zc;");
     } else {
-        ws(g, "int m"); wi(g, g->keep_count); w(g, " = ~zl - ~zc; (void)m");
-        wi(g, g->keep_count); ws(g, ";");
+        ws(g, "int m"); wi(g, g->keep_count); w(g, " = ~zl - ~zc; /*(void)m");
+        wi(g, g->keep_count); ws(g, "*/;");
     }
 }
 
@@ -195,10 +207,10 @@ static void wrestore(struct generator * g, struct node * p, int keep_token) {   
     } else {
         w(g, "~zc = ~zl - m");
     }
-    wi(g, keep_token); ws(g, ";");
+    wi(g, keep_token); wch(g, ';');
 }
 
-static void wrestorelimit(struct generator * g, struct node * p, int keep_token) {     /* restore limit c */
+static void wrestorelimit(struct generator * g, struct node * p, int keep_token) {     /* restore limit */
     if (p->mode == m_forward) {
         w(g, "~zl += mlimit");
     } else {
@@ -226,13 +238,13 @@ static void wgotol(struct generator * g, int n) {
 
 static void wf(struct generator * g, struct node * p) {          /* fail */
     if (g->failure_keep_count != 0) {
-	ws(g, "{ ");
-	if (g->failure_keep_count > 0) {
-	    wrestore(g, p, g->failure_keep_count);
-	} else {
-	    wrestorelimit(g, p, -g->failure_keep_count);
-	}
-	wch(g, ' ');
+        ws(g, "{ ");
+        if (g->failure_keep_count > 0) {
+            wrestore(g, p, g->failure_keep_count);
+        } else {
+            wrestorelimit(g, p, -g->failure_keep_count);
+        }
+        wch(g, ' ');
     }
     switch (g->failure_label)
     {
@@ -255,13 +267,23 @@ static void wlim(struct generator * g, struct node * p) {     /* if at limit fai
     wf(g, p);
 }
 
+static void write_data_address(struct generator * g, struct node * p) {
+    symbol * b = p->literalstring;
+    if (b != 0) {
+        wi(g, SIZE(b)); w(g, ", ");
+        wlitref(g, b);
+    } else {
+        wv(g, p->name);
+    }
+}
+
 static void wp(struct generator * g, const char * s, struct node * p) { /* formatted write */
     int i = 0;
     int l = strlen(s);
     while (i < l) {
         int ch = s[i++];
         if (ch != '~') wch(g, ch); else
-        switch(s[i++]) {
+        switch (s[i++]) {
             default:  wch(g, s[i - 1]); continue;
             case 'C': wc(g, p); continue;
             case 'k': wk(g, p); continue;
@@ -287,18 +309,20 @@ static void wp(struct generator * g, const char * s, struct node * p) { /* forma
             case 'W': wvn(g, g->V[s[i++] - '0']); continue;
             case 'L': wlitref(g, g->L[s[i++] - '0']); continue;
             case 'A': wlitarray(g, g->L[s[i++] - '0']); continue;
+            case 'c': wlitch(g, g->I[s[i++] - '0']); continue;
+            case 'a': write_data_address(g, p); continue;
             case '+': g->margin++; continue;
             case '-': g->margin--; continue;
             case '$': /* insert_s, insert_v etc */
                 wch(g, p->literalstring == 0 ? 'v' : 's');
                 continue;
             case 'p': ws(g, g->options->externals_prefix); continue;
-	    case 'z':
-		if (g->options->make_lang == LANG_C) ws(g, "z->");
-	       	continue;
-	    case 'Z':
-	       	if (g->options->make_lang == LANG_C) ws(g, s[i] == ')' ? "z" : "z, ");
-	       	continue;
+            case 'z':
+                if (g->options->make_lang == LANG_C) ws(g, "z->");
+                continue;
+            case 'Z':
+                if (g->options->make_lang == LANG_C) ws(g, s[i] == ')' ? "z" : "z, ");
+                continue;
         }
     }
 }
@@ -545,10 +569,10 @@ static void generate_not(struct generator * g, struct node * p) {
 static void generate_try(struct generator * g, struct node * p) {
     int keep_c = 0;
     if (K_needed(g, p->left)) {
-	wp(g, "~{~k~C", p);
-	keep_c = g->keep_count;
+        wp(g, "~{~k~C", p);
+        keep_c = g->keep_count;
     } else {
-	wp(g, "~-~M   ~+~C", p);
+        wp(g, "~M~C", p);
     }
     g->failure_keep_count = keep_c;
 
@@ -580,22 +604,22 @@ static void generate_fail(struct generator * g, struct node * p) {
 static void generate_test(struct generator * g, struct node * p) {
     int keep_c = 0;
     if (K_needed(g, p->left)) {
-	keep_c = ++g->keep_count;
-	w(g, p->mode == m_forward ? "~{int c_test" :
-				    "~{int m_test");
-	wi(g, keep_c);
-	w(g, p->mode == m_forward ? " = ~zc;" :
-				    " = ~zl - ~zc;");
-	wp(g, "~C", p);
+        keep_c = ++g->keep_count;
+        w(g, p->mode == m_forward ? "~{int c_test" :
+                                    "~{int m_test");
+        wi(g, keep_c);
+        w(g, p->mode == m_forward ? " = ~zc;" :
+                                    " = ~zl - ~zc;");
+        wp(g, "~C", p);
     } else wp(g, "~M~C", p);
 
     generate(g, p->left);
 
     if (keep_c) {
-	w(g, p->mode == m_forward ? "~M~zc = c_test" :
-				    "~M~zc = ~zl - m_test");
-	wi(g, keep_c);
-	wp(g, ";~N~}", p);
+        w(g, p->mode == m_forward ? "~M~zc = c_test" :
+                                    "~M~zc = ~zl - m_test");
+        wi(g, keep_c);
+        wp(g, ";~N~}", p);
     }
 }
 
@@ -844,16 +868,6 @@ static void generate_sliceto(struct generator * g, struct node * p) {
 	  "~}", p);
 }
 
-static void generate_data_address(struct generator * g, struct node * p) {
-
-    symbol * b = p->literalstring;
-    if (b != 0) {
-        wi(g, SIZE(b)); w(g, ", ");
-        wlitref(g, b);
-    } else
-        wv(g, p->name);
-}
-
 static void generate_insert(struct generator * g, struct node * p, int style) {
 
     int keep_c = style == c_attach;
@@ -862,11 +876,9 @@ static void generate_insert(struct generator * g, struct node * p, int style) {
 	wp(g, "~{int ret;~N", p);
     if (keep_c) w(g, "~{int saved_c = ~zc;~N");
     if (g->options->make_lang == LANG_C)
-	wp(g, "~Mret = insert_~$(~Z~zc, ~zc, ", p);
+	wp(g, "~Mret = insert_~$(~Z~zc, ~zc, ~a);~C", p);
     else
-	wp(g, "~Minsert_~$(~Z~zc, ~zc, ", p);
-    generate_data_address(g, p);
-    wp(g, ");~C", p);
+	wp(g, "~Minsert_~$(~Z~zc, ~zc, ~a);~C", p);
     if (keep_c) w(g, "~M~zc = saved_c;~N~}");
     if (g->options->make_lang == LANG_C)
 	wp(g, "~Mif (ret < 0) return ret;~N"
@@ -880,9 +892,7 @@ static void generate_assignfrom(struct generator * g, struct node * p) {
 	wp(g, "~{int ret;~N", p);
     if (keep_c) wp(g, "~{int saved_c = ~zc;~N", p);
     w(g, g->options->make_lang == LANG_C ? "~Mret =" : "~M");
-    wp(g, keep_c ? "insert_~$(~Z~zc, ~zl, " : "insert_~$(~Z~zlb, ~zc, ", p);
-    generate_data_address(g, p);
-    wp(g, ");~C", p);
+    wp(g, keep_c ? "insert_~$(~Z~zc, ~zl, ~a);~C" : "insert_~$(~Z~zlb, ~zc, ~a);~C", p);
     if (keep_c) w(g, "~M~zc = saved_c;~N~}");
     if (g->options->make_lang == LANG_C)
 	wp(g, "~Mif (ret < 0) return ret;~N"
@@ -894,9 +904,7 @@ static void generate_assignfrom(struct generator * g, struct node * p) {
 static void generate_slicefrom(struct generator * g, struct node * p) {
 
 /*  w(g, "~Mslice_from_s(~Z");   <============= bug! should be: */
-    wp(g, "~{int ret = slice_from_~$(~Z", p);
-    generate_data_address(g, p);
-    wp(g, ");~C", p);
+    wp(g, "~{int ret = slice_from_~$(~Z~a);~C", p);
     wp(g, "~Mif (ret < 0) return ret;~N"
           "~}", p);
 }
@@ -997,12 +1005,12 @@ static void generate_call(struct generator * g, struct node * p) {
     g->V[0] = p->name;
     wp(g, "~{int ret = ~V0(~Z);~C", p);
     if (g->failure_keep_count == 0 && g->failure_label == x_return) {
-	/* Combine the two tests in this special case for better optimisation
-	 * and clearer generated code. */
-	wp(g, "~Mif (ret <= 0) return ret;~N~}", p);
+        /* Combine the two tests in this special case for better optimisation
+         * and clearer generated code. */
+        wp(g, "~Mif (ret <= 0) return ret;~N~}", p);
     } else {
-	wp(g, "~Mif (ret == 0) ~f~N"
-	      "~Mif (ret < 0) return ret;~N~}", p);
+        wp(g, "~Mif (ret == 0) ~f~N"
+              "~Mif (ret < 0) return ret;~N~}", p);
     }
 }
 
@@ -1027,30 +1035,30 @@ static void generate_namedstring(struct generator * g, struct node * p) {
 
 static void generate_literalstring(struct generator * g, struct node * p) {
     symbol * b = p->literalstring;
-    if (SIZE(b) == 1 && *b < 128) {
-	/* It's quite common to compare with a single ASCII character literal
-	 * string, so just inline the simpler code for this case rather than
-	 * making a function call. */
-	char buf[8];
-	if (*b < 32 || *b == 127 || *b == '\'' || *b == '\\') {
-	    sprintf(buf, "%d", (int)*b);
-	} else {
-	    sprintf(buf, "'%c'", (char)*b);
-	}
-	g->S[0] = buf;
-	if (p->mode == m_forward) {
-	    wp(g, "~Mif (c == l || p[c] != ~S0) ~f~N"
-		  "~Mc++;~N", p);
-	} else {
-	    wp(g, "~Mif (c <= lb || p[c - 1] != ~S0) ~f~N"
-		  "~Mc--;~N", p);
-	}
+    if (SIZE(b) == 1) {
+        /* It's quite common to compare with a single character literal string,
+         * so just inline the simpler code for this case rather than making a
+         * function call.  In UTF-8 mode, only do this for the ASCII subset,
+         * since multi-byte characters are more complex to text against.
+         */
+        if (g->options->utf8 && *b >= 128) {
+            printf("single byte %d\n", *b);
+            exit(1);
+        }
+        g->I[0] = *b;
+        if (p->mode == m_forward) {
+            wp(g, "~Mif (~zc == ~zl || ~zp[~zc] != ~c0) ~f~C"
+                  "~M~zc++;~N", p);
+        } else {
+            wp(g, "~Mif (~zc <= ~zlb || ~zp[~zc - 1] != ~c0) ~f~C"
+                  "~M~zc--;~N", p);
+        }
     } else {
-	g->S[0] = p->mode == m_forward ? "" : "_b";
-	g->I[0] = SIZE(b);
-	g->L[0] = b;
+        g->S[0] = p->mode == m_forward ? "" : "_b";
+        g->I[0] = SIZE(b);
+        g->L[0] = b;
 
-	wp(g, "~Mif (!(eq_s~S0(~Z~I0, ~L0))) ~f~C", p);
+        wp(g, "~Mif (!(eq_s~S0(~Z~I0, ~L0))) ~f~C", p);
     }
 }
 
@@ -1235,7 +1243,7 @@ static void generate_among(struct generator * g, struct node * p) {
 
     if (x->starter) generate(g, x->starter);
 
-    wp(g, "~Mswitch(among_var) {~C~+"
+    wp(g, "~Mswitch (among_var) {~C~+"
               "~Mcase 0: ~f~N", p);
 
     p = p->left;
@@ -1349,7 +1357,7 @@ static void generate(struct generator * g, struct node * p) {
 static void generate_start_comment(struct generator * g) {
 
     if (g->options->make_lang == LANG_C)
-	w(g, "~N/* This file was generated automatically by the Snowball to ANSI C compiler */~N");
+	w(g, "/* This file was generated automatically by the Snowball to ISO C compiler */~N");
     else
 	w(g, "/* This file was generated automatically by the Snowball to ISO C++ compiler */~N");
 }
@@ -1814,9 +1822,9 @@ extern void generate_program_c(struct generator * g) {
     }
     generate_create(g);
     generate_close(g);
-    output_str(g->options->output_c, g->declarations);
+    output_str(g->options->output_src, g->declarations);
     str_delete(g->declarations);
-    output_str(g->options->output_c, g->outbuf);
+    output_str(g->options->output_src, g->outbuf);
     str_clear(g->outbuf);
 
     generate_start_comment(g);

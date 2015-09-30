@@ -397,7 +397,7 @@ static struct node * read_C_list(struct analyser * a) {
 static struct node * C_style(struct analyser * a, const char * s, int token) {
     int i;
     struct node * p = new_node(a, token);
-    for (i = 0; s[i] != 0; i++) switch(s[i]) {
+    for (i = 0; s[i] != 0; i++) switch (s[i]) {
         case 'C':
             p->left = read_C(a); continue;
         case 'D':
@@ -882,7 +882,7 @@ extern void read_program(struct analyser * a) {
     {
         struct name * q = a->names;
         while (q) {
-            switch(q->type) {
+            switch (q->type) {
                 case t_external: case t_routine:
                     if (q->used && q->definition == 0) error4(a, q); break;
                 case t_grouping:
