@@ -1215,8 +1215,10 @@ eval(const string &fmt, const vector<string> &param)
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		Xapian::TermIterator term = db.termlist_begin(id);
-		for ( ; term != db.termlist_end(id); term++)
-		    value = value + *term + '\t';
+		for ( ; term != db.termlist_end(id); term++) {
+		    value += *term;
+		    value += '\t';
+		}
 
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
@@ -1240,8 +1242,10 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_cgilist: {
 		pair<MCI, MCI> g;
 		g = cgi_params.equal_range(args[0]);
-		for (MCI i = g.first; i != g.second; i++)
-		    value = value + i->second + '\t';
+		for (MCI i = g.first; i != g.second; i++) {
+		    value += i->second;
+		    value += '\t';
+		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
@@ -1384,7 +1388,8 @@ eval(const string &fmt, const vector<string> &param)
 		while (term != db.allterms_end()) {
 		    string t = *term;
 		    if (!startswith(t, args[0])) break;
-		    value = value + t + '\t';
+		    value += t;
+		    value += '\t';
 		    ++term;
 		}
 
@@ -2000,8 +2005,10 @@ eval(const string &fmt, const vector<string> &param)
 		    while (term != enquire->get_matching_terms_end(q0)) {
 			// check term was in the typed query so we ignore
 			// boolean filter terms
-			if (termset.find(*term) != termset.end())
-			    value = value + *term + '\t';
+			if (termset.find(*term) != termset.end()) {
+			    value += *term;
+			    value += '\t';
+			}
 			++term;
 		    }
 

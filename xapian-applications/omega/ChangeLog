@@ -1,3 +1,8 @@
+Wed Sep 30 19:36:07 GMT 2015  Olly Betts <olly@survex.com>
+
+	* query.cc: Use += to build up strings (which should be O(n)), rather
+	  than str = str + str2 (which is likely to be O(n*n)).
+
 Thu Sep 24 03:50:58 GMT 2015  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix $jsonarray not to prepend ']' to the first array
