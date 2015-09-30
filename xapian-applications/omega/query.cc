@@ -814,7 +814,7 @@ Fields::read_fields(Xapian::docid did) const
 	    if (j != string::npos) {
 		string & value = fields[line.substr(0, j)];
 		if (!value.empty()) value += '\t';
-		value += line.substr(j + 1);
+		value.append(line, j + 1, string::npos);
 	    }
 	} while (++i);
     }
@@ -1094,7 +1094,7 @@ eval(const string &fmt, const vector<string> &param)
     string res;
     string::size_type p = 0, q;
     while ((q = fmt.find('$', p)) != string::npos) try {
-	res += fmt.substr(p, q - p);
+	res.append(fmt, p, q - p);
 	string::size_type code_start = q; // note down for error reporting
 	q++;
 	if (q >= fmt.size()) break;
@@ -1444,7 +1444,7 @@ eval(const string &fmt, const vector<string> &param)
 			string::const_iterator i;
 			i = find_if(bra.begin() + 2, bra.end(), p_nottag);
 			ket = "</";
-			ket += bra.substr(1, i - bra.begin() - 1);
+			ket.append(bra, 1, i - bra.begin() - 1);
 			ket += '>';
 		    }
 		}
@@ -1623,11 +1623,11 @@ eval(const string &fmt, const vector<string> &param)
 		    string::size_type split = 0, split2;
 		    while ((split2 = list.find('\t', split)) != string::npos) {
 			if (split) value += inter;
-			value += list.substr(split, split2 - split);
+			value.append(list, split, split2 - split);
 			split = split2 + 1;
 		    }
 		    if (split) value += interlast;
-		    value += list.substr(split);
+		    value.append(list, split, string::npos);
 		    value += post;
 		}
 		break;
@@ -2163,7 +2163,7 @@ eval(const string &fmt, const vector<string> &param)
 	error_msg = e.get_msg();
     }
 
-    res += fmt.substr(p);
+    res.append(fmt, p, string::npos);
     return res;
 }
 

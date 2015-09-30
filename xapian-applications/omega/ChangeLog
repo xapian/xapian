@@ -1,3 +1,8 @@
+Wed Sep 30 19:40:15 GMT 2015  Olly Betts <olly@survex.com>
+
+	* query.cc: Avoid creating temporary string objects when appending a
+	  substring of another string.
+
 Wed Sep 30 19:36:07 GMT 2015  Olly Betts <olly@survex.com>
 
 	* query.cc: Use += to build up strings (which should be O(n)), rather
