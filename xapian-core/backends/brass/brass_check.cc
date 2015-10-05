@@ -27,6 +27,8 @@
 
 #include <climits>
 
+#include "str.h"
+
 using namespace Brass;
 using namespace std;
 
@@ -210,9 +212,14 @@ BrassTableCheck::check(const char * tablename, const string & path,
     Brass::Cursor * C = B.C;
 
     if (opts & OPT_SHOW_STATS) {
+	// GCC < 3.4.2 lacks operator<< overloads for unsigned long long on
+	// some platforms, so simply work around this by using
+	// str(B.item_count):
+	//
+	// https://gcc.gnu.org/PR16854 (also reported on Interix)
 	out << "base" << (char)B.base_letter
 	    << " blocksize=" << B.block_size / 1024 << "K"
-	       " items=" << B.item_count
+	    << " items=" << str(B.item_count)
 	    << " lastblock=" << B.base.get_last_block()
 	    << " revision=" << B.revision_number
 	    << " levels=" << B.level
