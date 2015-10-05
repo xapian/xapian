@@ -1344,21 +1344,14 @@ introduction to the Xapian test system in ``docs/tests.html``.
    with your name only.
  * If you're not in there, add yourself to the AUTHORS file.
 
-4) Create a ChangeLog entry and commit
---------------------------------------
+4) Commit
+---------
 
- * We recommend using the ``svn-ci`` script which can be found in the
-   ``xapian-maintainer-tools`` repository top-level directory.  If you must
-   do this by hand, add an entry to the ChangeLog file at the top-level of the
-   module you have modified.  The text of this should generally be the same as
-   the SVN commit message.  The datestamps in our ChangeLog entries are as
-   produced by the GNU date utility when invoked as::
-
-     date --utc "+%a %b %d %T GMT %Y"
-
- * If there's a trac ticket for the bug, mention it in the ChangeLog entry.
-
- * Commit to the repository.
+ * Commit:
+  
+   + If there's a trac ticket or other reference for the bug, mention it in the
+     commit message - it's a great help to future developers trying to work out
+     why a change was made.
 
 5) Consider backporting
 -----------------------
@@ -1375,10 +1368,11 @@ introduction to the Xapian test system in ``docs/tests.html``.
    addressed by the changes you've made, then close it).
 
  * Update the release notes for the most recent release with a copy of the
-   patch.  You should remove the ChangeLog diff from this patch, as that
-   will just conflict with any other changes.  If there are conflicts in
-   test cases which aren't easy to resolve, it is acceptable to just drop
-   those changes from the patch.
+   patch.  If the commit from git applies cleanly, you can just link to
+   it.  If it fails to apply, please attach an adjusted patch which does.
+   If there are conflicts in test cases which aren't easy to resolve, it is
+   acceptable to just drop those changes from the patch if we can still be
+   confident that the issue is actually fixed by the patch.
  
 API Structure Notes
 ===================
