@@ -17,6 +17,7 @@ Xapian/Document.pm
 Xapian/Enquire.pm
 Xapian/ESetIterator.pm
 Xapian/ESet.pm
+Xapian/MatchSpy.pm
 Xapian/MSetIterator.pm
 Xapian/MSet.pm
 Xapian/MSet/Tied.pm
@@ -34,6 +35,7 @@ Xapian/Stopper.pm
 Xapian/TermGenerator.pm
 Xapian/TermIterator.pm
 Xapian/TradWeight.pm
+Xapian/ValueCountMatchSpy.pm
 Xapian/ValueIterator.pm
 Xapian/Weight.pm
 Xapian/WritableDatabase.pm
@@ -46,6 +48,7 @@ XS/Document.xs
 XS/Enquire.xs
 XS/ESetIterator.xs
 XS/ESet.xs
+XS/MatchSpy.xs
 XS/MSetIterator.xs
 XS/MSet.xs
 XS/MultiValueSorter.xs
@@ -60,6 +63,7 @@ XS/Stopper.xs
 XS/TermGenerator.xs
 XS/TermIterator.xs
 XS/TradWeight.xs
+XS/ValueCountMatchSpy.xs
 XS/ValueIterator.xs
 XS/Weight.xs
 XS/WritableDatabase.xs
