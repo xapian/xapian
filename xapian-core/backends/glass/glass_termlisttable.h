@@ -1,7 +1,7 @@
 /** @file glass_termlisttable.h
  * @brief Subclass of GlassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <xapian/constants.h>
 #include <xapian/types.h>
 
-#include "glass_lazytable.h"
+#include "glass_table.h"
 #include "pack.h"
 
 #include <string>
@@ -33,7 +33,7 @@ namespace Xapian {
 class Document;
 }
 
-class GlassTermListTable : public GlassLazyTable {
+class GlassTermListTable : public GlassTable {
   public:
     static std::string make_key(Xapian::docid did) {
 	std::string key;
@@ -48,10 +48,11 @@ class GlassTermListTable : public GlassLazyTable {
      *
      *  @param dbdir	    The directory the glass database is stored in.
      *  @param readonly	    true if we're opening read-only, else false.
+     *  @param lazy_	    Don't create a termlist if there isn't one.
      */
-    GlassTermListTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("termlist", dbdir + "/termlist.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+    GlassTermListTable(const std::string & dbdir, bool readonly, bool lazy_)
+	: GlassTable("termlist", dbdir + "/termlist.", readonly,
+		     Z_DEFAULT_STRATEGY, lazy_) { }
 
     /** Set the termlist data for document @a did.
      *
@@ -69,21 +70,6 @@ class GlassTermListTable : public GlassLazyTable {
      *  @param did  The docid to delete the termlist data for.
      */
     void delete_termlist(Xapian::docid did) { del(make_key(did)); }
-
-    /** Conditionally lazy override of GlassLazyTable::create_and_open().
-     *
-     *  Only create lazily if Xapian::DB_NO_TERMLIST is set in flags_.
-     *
-     *  This method isn't virtual, but we never call it such that it needs to
-     *  be.
-     */
-    void create_and_open(int flags_, unsigned blocksize_) {
-	if (flags_ & Xapian::DB_NO_TERMLIST) {
-	    GlassLazyTable::create_and_open(flags_, blocksize_);
-	} else {
-	    GlassTable::create_and_open(flags_, blocksize_);
-	}
-    }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_TERMLISTTABLE_H

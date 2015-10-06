@@ -1000,7 +1000,12 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     LOGCALL_VOID(DB, "GlassTable::add", key | tag | already_compressed);
     Assert(writable);
 
-    if (handle < 0) create_and_open(flags, block_size);
+    if (handle < 0) {
+	if (handle == -2) {
+	    GlassTable::throw_database_closed();
+	}
+	do_open_to_write();
+    }
 
     form_key(key);
 
@@ -1504,15 +1509,6 @@ GlassTable::exists() const {
 }
 
 void
-GlassTable::erase()
-{
-    LOGCALL_VOID(DB, "GlassTable::erase", NO_ARGS);
-    close();
-
-    (void)io_unlink(name + GLASS_TABLE_EXTENSION);
-}
-
-void
 GlassTable::create_and_open(int flags_, unsigned int block_size_)
 {
     LOGCALL_VOID(DB, "GlassTable::create_and_open", flags_|block_size_);
@@ -1530,11 +1526,16 @@ GlassTable::create_and_open(int flags_, unsigned int block_size_)
     flags = flags_;
     block_size = block_size_;
 
-    // FIXME: it would be good to arrange that this works such that there's
-    // always a valid table in place if you run create_and_open() on an
-    // existing table.
+    if (lazy) {
+	close();
+	(void)io_unlink(name + GLASS_TABLE_EXTENSION);
+    } else {
+	// FIXME: it would be good to arrange that this works such that there's
+	// always a valid table in place if you run create_and_open() on an
+	// existing table.
 
-    do_open_to_write();
+	do_open_to_write();
+    }
 }
 
 GlassTable::~GlassTable() {
@@ -1672,8 +1673,8 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     if (flags & Xapian::DB_DANGEROUS)
 	throw Xapian::InvalidOperationError("cancel() not supported under Xapian::DB_DANGEROUS");
 
-    set_blocksize(root_info.get_blocksize());
     revision_number = rev;
+    block_size =       root_info.get_blocksize();
     root =             root_info.get_root();
     level =            root_info.get_level();
     item_count =       root_info.get_num_entries();
@@ -1735,7 +1736,7 @@ GlassTable::open(int flags_, const RootInfo & root_info,
     close();
 
     flags = flags_;
-    set_blocksize(root_info.get_blocksize());
+    block_size = root_info.get_blocksize();
     root = root_info.get_root();
 
     if (!writable) {

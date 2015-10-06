@@ -1,7 +1,7 @@
 /** @file glass_lazytable.h
  * @brief Subclass of GlassTable for deriving lazy tables from.
  */
-/* Copyright (C) 2009,2013,2014 Olly Betts
+/* Copyright (C) 2009,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,19 +35,6 @@ class GlassLazyTable : public GlassTable {
     GlassLazyTable(const char * name_, const std::string & path, bool readonly,
 		   int z_strategy)
 	: GlassTable(name_, path, readonly, z_strategy, true) { }
-
-    /** Lazy version of GlassTable::create_and_open().
-     *
-     *  This method isn't virtual, but we never call it such that it needs to
-     *  be.
-     */
-    void create_and_open(int flags_, unsigned blocksize_) {
-	// This table is created lazily, so erase it in case we're overwriting
-	// an existing database which has this table.
-	GlassTable::erase();
-	GlassTable::set_flags(flags_);
-	GlassTable::set_blocksize(blocksize_);
-    }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_LAZYTABLE_H

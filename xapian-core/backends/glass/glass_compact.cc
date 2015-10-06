@@ -1009,13 +1009,7 @@ compact_glass(Xapian::Compactor & compactor,
 	GlassTable * out =
 	    new GlassTable(t->name, dest, false, t->compress_strategy, t->lazy);
 	tabs.push_back(out);
-	if (!t->lazy) {
-	    out->create_and_open(FLAGS, block_size);
-	} else {
-	    out->erase();
-	    out->set_flags(FLAGS);
-	    out->set_blocksize(block_size);
-	}
+	out->create_and_open(FLAGS, block_size);
 
 	out->set_full_compaction(compaction != compactor.STANDARD);
 	if (compaction == compactor.FULLER) out->set_max_item_size(1);
