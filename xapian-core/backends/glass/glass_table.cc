@@ -1544,7 +1544,7 @@ GlassTable::~GlassTable() {
 }
 
 void GlassTable::close(bool permanent) {
-    LOGCALL_VOID(DB, "GlassTable::close", NO_ARGS);
+    LOGCALL_VOID(DB, "GlassTable::close", permanent);
 
     if (handle >= 0) {
 	// If an error occurs here, we just ignore it, since we're just
