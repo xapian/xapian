@@ -83,7 +83,8 @@ for my $i (0..$#tables) {
 	sysread $fh_table, $block, $blocksize;
 	last if length($block) == 0;
 	if (length($block) != $blocksize) {
-	    print "Length $block is ".length($block)."\n";
+	    print "Error: Short block (".length($block)."<$blocksize)\n";
+	    exit(1);
 	}
 
 	# Unpack block header.
@@ -95,7 +96,6 @@ for my $i (0..$#tables) {
 	    # Branch block.
 	    my $entries = ($dir_end - DIR_START) >> 1;
 	    my $template = "a".DIR_START."n$entries";
-	    print "Block #entries $entries template $template\n";
 	    my @offsets = unpack $template, $block;
 	    shift @offsets;
 	    for my $o (@offsets) {
@@ -117,7 +117,8 @@ for my $i (0..$#tables) {
 		}
 		my $blockno = unpack 'N', substr($block, $o, 4);
 		if ($blockno >= $max_blockno) {
-		    print "Block #$blockno >= $max_blockno\n";
+		    print "Error: Block #$blockno >= $max_blockno\n";
+		    exit(1);
 		}
 		$blockno += $offset;
 		my $pack = pack 'N', $blockno;
@@ -127,7 +128,8 @@ for my $i (0..$#tables) {
 		}
 		substr($block, $o, 4) = pack 'N', $blockno;
 		if (length($block) != $blocksize) {
-		    print "Block expanded by item at offset $o\n";
+		    print "Error: Block expanded by item at offset $o\n";
+		    exit(1);
 		}
 	    }
 	}
