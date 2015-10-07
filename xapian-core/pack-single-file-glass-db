@@ -41,7 +41,7 @@ my @tables = qw(
 sub DIR_START { 11 }
 sub LEVEL_FREELIST { 254 }
 
-my (@offset, @size, @blocksize);
+my (@offset, @max_blockno, @blocksize);
 open my $fh_version, '<', "$db_dir/iamglass";
 my $version_size = -s $fh_version;
 # Allow plenty of extra space for larger root block pointers.
@@ -66,13 +66,14 @@ for my $i (0..$#tables) {
     no autodie qw(open);
     if (!open $fh_table, '<', "$db_dir/$tables[$i].glass") {
 	$offset[$i] = 0;
-	$size[$i] = undef;
+	$max_blockno[$i] = undef;
 	print "No $tables[$i] found - skipping\n";
 	next;
     }
 
     my $filesize = -s $fh_table;
     my $max_blockno = $filesize / $blocksize;
+    $max_blockno[$i] = $max_blockno;
     {
 	use integer;
 	$offset = ($offset + $blocksize - 1) / $blocksize;
@@ -138,7 +139,6 @@ for my $i (0..$#tables) {
 
     $offset[$i] = $offset;
     $offset = sysseek $fh_out, 0, SEEK_CUR;
-    $size[$i] = $filesize;
     close $fh_table;
 }
 
