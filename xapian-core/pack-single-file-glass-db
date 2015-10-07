@@ -166,6 +166,13 @@ for my $i (0..$#tables) {
 
     $root += $offset[$i];
 
+    # Clear "sequential mode" flag.  If this is set, then we simply scan
+    # forwards/backwards to get the next/previous leaf block, and rely on
+    # hitting the start/end of the file to know when to stop.
+    #
+    # FIXME: Profile to check if this is actually a win, and if it's enough of
+    # one we could track the block numbers to bound by.
+    $val &= ~0x02;
     write_uint($fh_out, $root);
     write_uint($fh_out, $val);
     write_uint($fh_out, $num_entries);
