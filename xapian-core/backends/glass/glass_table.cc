@@ -35,6 +35,7 @@
 #include "stringutils.h" // For STRINGIZE().
 
 #include <sys/types.h>
+#include "safeunistd.h"
 
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
@@ -1709,7 +1710,11 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
-    handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
+    if (startswith(name, "/dev/fd/")) {
+	handle = dup(atoi(name.c_str() + CONST_STRLEN("/dev/fd/")));
+    } else {
+	handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
+    }
     if (handle < 0) {
 	if (lazy) {
 	    // This table is optional when reading!

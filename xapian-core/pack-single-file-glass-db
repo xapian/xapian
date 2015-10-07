@@ -1,0 +1,213 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use POSIX;
+use autodie;
+
+# Packs a glass database directory into a single file, e.g.:
+#
+# ./pack-single-file-glass-db glassdb/ packedglassdb
+#
+# Note: Currently the starting database seems to need to have been freshly
+# compacted with xapian-compact.  This shouldn't be the case - it's probably
+# a bug due to how I cavalierly cull the freelist pointers currently.
+#
+# Once you have such a database, the current way to access it is to open it
+# on FD <number> in the shell and pass "/dev/fd/<number>" as the database
+# path, like so:
+#
+# xapian-delve /dev/fd/99 99<packedglassdb
+#
+# If you want to use multiple databases, just open them on different FDs
+# (avoid 0, 1 and 2, as they're stdin, stdout and stderr).
+#
+# (This /dev/fd/ thing is just a temporary hack to get a working prototype
+# going as quickly as possible).
+
+my $db_dir = shift @ARGV // die "Syntax: $0 DBDIR [OUTPUT]\n";
+my $output = shift @ARGV // "output";
+
+open my $fh_out, '>', $output;
+
+my @tables = qw(
+     postlist
+     docdata
+     termlist
+     position
+     spelling
+     synonym
+);
+
+sub DIR_START { 11 }
+sub LEVEL_FREELIST { 254 }
+
+my (@offset, @size, @blocksize);
+open my $fh_version, '<', "$db_dir/iamglass";
+my $version_size = -s $fh_version;
+# Allow plenty of extra space for larger root block pointers.
+$version_size += 64;
+my $offset = $version_size;
+sysseek $fh_version, 32, SEEK_SET;
+read_uint($fh_version);
+for my $i (0..$#tables) {
+    my $root = read_uint($fh_version);
+    my $val = read_uint($fh_version);
+    my $num_entries = read_uint($fh_version);
+    my $blocksize = read_uint($fh_version);
+    my $len = read_uint($fh_version);
+    if ($len > 0) {
+	sysseek $fh_version, $len, SEEK_CUR;
+    }
+
+    $blocksize <<= 11;
+    $blocksize[$i] = $blocksize;
+
+    my $fh_table;
+    no autodie qw(open);
+    if (!open $fh_table, '<', "$db_dir/$tables[$i].glass") {
+	$offset[$i] = 0;
+	$size[$i] = undef;
+	print "No $tables[$i] found - skipping\n";
+	next;
+    }
+
+    my $filesize = -s $fh_table;
+    my $max_blockno = $filesize / $blocksize;
+    {
+	use integer;
+	$offset = ($offset + $blocksize - 1) / $blocksize;
+    }
+    sysseek $fh_out, $offset * $blocksize, SEEK_SET;
+    while (1) {
+	my $block;
+	sysread $fh_table, $block, $blocksize;
+	last if length($block) == 0;
+	if (length($block) != $blocksize) {
+	    print "Length $block is ".length($block)."\n";
+	}
+
+	# Unpack block header.
+	my ($rev, $level, undef, undef, $dir_end) = unpack 'NCnnn', $block;
+	# Add $offset to all block pointers in $block.
+	if ($level == LEVEL_FREELIST) {
+	    # FIXME: Ignore freelist blocks for now.
+	} elsif ($level > 0) {
+	    # Branch block.
+	    my $entries = ($dir_end - DIR_START) >> 1;
+	    my $template = "a".DIR_START."n$entries";
+	    print "Block #entries $entries template $template\n";
+	    my @offsets = unpack $template, $block;
+	    shift @offsets;
+	    for my $o (@offsets) {
+		#print "$o,";
+		if ($o < DIR_START + 2 * $entries) {
+		    print "$o too small\n";
+		    next;
+		}
+		if ($o + 2 > length($block)) {
+		    print "$o + 2 > ".length($block)."\n";
+		    next;
+		}
+		my $size = unpack 'n', substr($block, $o, 2);
+		$size &= 0x7fff;
+		$o += $size - 4;
+		if ($o + 4 > length($block)) {
+		    print "$o + 4 > ".length($block)."\n";
+		    next;
+		}
+		my $blockno = unpack 'N', substr($block, $o, 4);
+		if ($blockno >= $max_blockno) {
+		    print "Block #$blockno >= $max_blockno\n";
+		}
+		$blockno += $offset;
+		my $pack = pack 'N', $blockno;
+		if (length($pack) != 4) {
+		    print "packing $blockno wasn't 4 bytes but ".length($pack)."\n";
+		    exit(1);
+		}
+		substr($block, $o, 4) = pack 'N', $blockno;
+		if (length($block) != $blocksize) {
+		    print "Block expanded by item at offset $o\n";
+		}
+	    }
+	}
+	syswrite $fh_out, $block;
+    }
+
+    $offset[$i] = $offset;
+    $offset = sysseek $fh_out, 0, SEEK_CUR;
+    $size[$i] = $filesize;
+    close $fh_table;
+}
+
+seek $fh_out, 0, SEEK_SET;
+
+seek $fh_version, 0, SEEK_SET;
+my $data;
+
+# Copy magic, version, uuid.
+sysread $fh_version, $data, 32;
+syswrite $fh_out, $data;
+
+my $rev = read_uint($fh_version);
+write_uint($fh_out, $rev);
+
+for my $i (0..$#tables) {
+    my $root = read_uint($fh_version);
+    my $val = read_uint($fh_version);
+    my $num_entries = read_uint($fh_version);
+    my $blocksize = read_uint($fh_version);
+    my $len = read_uint($fh_version);
+    if ($len > 0) {
+	print "Warning: Table $tables[$i] has a freelist - ignoring\n";
+	sysseek $fh_version, $len, SEEK_CUR;
+    }
+    $len = 0;
+
+    $root += $offset[$i];
+
+    write_uint($fh_out, $root);
+    write_uint($fh_out, $val);
+    write_uint($fh_out, $num_entries);
+    write_uint($fh_out, $blocksize);
+    write_uint($fh_out, $len);
+}
+close $fh_version;
+
+if (sysseek($fh_out, 0, SEEK_CUR) > $version_size) {
+    print "Error: version file too large\n";
+    exit(1);
+}
+
+close $fh_out;
+
+sub read_uint {
+    my $fh = shift;
+    my $v = 0;
+    while (1) {
+	my $byte;
+	sysread $fh, $byte, 1;
+	if (length($byte) == 0) {
+	    print "EOF!\n";
+	    exit(1);
+	}
+	$byte = ord($byte);
+        $v <<= 7;
+	$v |= ($byte & 0x7f);
+	last if ($byte & 0x80) == 0;
+    }
+    return $v;
+}
+
+sub write_uint {
+    my $fh = shift;
+    my $v = shift;
+    while (1) {
+	last if ($v < 0x80);
+	my $byte = chr(($v & 0x7f) | 0x80);
+	syswrite $fh, $byte, 1;
+	$v >>= 7;
+    }
+    syswrite $fh, chr($v), 1;
+    return $v;
+}

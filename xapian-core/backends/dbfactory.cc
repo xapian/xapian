@@ -30,8 +30,10 @@
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
 #include "debuglog.h"
+#include "fd.h"
 #include "filetests.h"
 #include "fileutils.h"
+#include "posixy_wrapper.h"
 #include "str.h"
 
 #include "safeerrno.h"
@@ -305,7 +307,24 @@ Database::Database(const string &path, int flags)
     }
 
     if (S_ISREG(statbuf.st_mode)) {
-	// The path is a file, so assume it is a stub database file.
+	// Could be a stub database file, or a single file glass database.
+	// Look at the size as a clue - if it's 0 or not a multiple of 2048,
+	// then it's not a glass database.  If it is, peek at the start of the
+	// file to determine which it is.
+	if (statbuf.st_size && statbuf.st_size % 2048 == 0) {
+	    char magic_buf[14];
+	    FD fd(posixy_open(path.c_str(), O_RDONLY|O_BINARY));
+	    if (fd != -1) {
+		if (io_read(fd, magic_buf, 14, 14) &&
+		    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
+		    // Glass database.
+		    // FIXME: Use the fd we already opened in this case.
+		    internal.push_back(new GlassDatabase(path));
+		    return;
+		}
+	    }
+	}
+
 	open_stub(*this, path);
 	return;
     }

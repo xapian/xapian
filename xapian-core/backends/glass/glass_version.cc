@@ -72,7 +72,12 @@ GlassVersion::read()
     LOGCALL_VOID(DB, "GlassVersion::read", NO_ARGS);
     string filename = db_dir;
     filename += "/iamglass";
-    int fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
+    int fd_in;
+    if (startswith(db_dir, "/dev/fd/")) {
+	fd_in = dup(atoi(db_dir.c_str() + CONST_STRLEN("/dev/fd/")));
+    } else {
+	fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
+    }
     if (rare(fd_in < 0)) {
 	string msg = filename;
 	msg += ": Failed to open glass revision file for reading";
@@ -120,8 +125,10 @@ GlassVersion::read()
 	old_root[table_no] = root[table_no];
     }
 
+#if 0 // For a single-file DB, this "junk" is all the tables...
     if (p != end)
 	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
+#endif
 }
 
 void
