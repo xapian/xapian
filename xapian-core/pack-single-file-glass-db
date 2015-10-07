@@ -193,6 +193,7 @@ close $fh_out;
 sub read_uint {
     my $fh = shift;
     my $v = 0;
+    my $shift = 0;
     while (1) {
 	my $byte;
 	sysread $fh, $byte, 1;
@@ -201,9 +202,9 @@ sub read_uint {
 	    exit(1);
 	}
 	$byte = ord($byte);
-        $v <<= 7;
-	$v |= ($byte & 0x7f);
+	$v |= ($byte & 0x7f) << $shift;
 	last if ($byte & 0x80) == 0;
+	$shift += 7;
     }
     return $v;
 }
