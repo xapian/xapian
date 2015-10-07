@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use IO::Scalar;
 use POSIX;
 use autodie;
 
@@ -164,11 +165,12 @@ for my $i (0..$#tables) {
     sysread $fh_version, $freelist, $len;
 
     # Clear "sequential mode" flag.  If this is set, then we simply scan
-    # forwards/backwards to get the next/previous leaf block, and rely on
-    # hitting the start/end of the file to know when to stop.
+    # backwards to get the previous leaf block, and rely on hitting the
+    # start of the file to know when to stop (next uses $fl_first_unused, so
+    # ought to work OK).
     #
     # FIXME: Profile to check if this is actually a win, and if it's enough of
-    # one we could track the block numbers to bound by.
+    # one we could track the first block or something.
     $val &= ~0x02;
 
     # Adjust root block number.
@@ -178,11 +180,30 @@ for my $i (0..$#tables) {
     write_uint($fh_out, $val);
     write_uint($fh_out, $num_entries);
     write_uint($fh_out, $blocksize);
-    if ($len > 0) {
-	print "Warning: Table $tables[$i] has a freelist - ignoring\n";
-	$len = 0;
+    if ($len) {
+	# Handle the freelist.
+	my $fh_freelist = new IO::Scalar \$freelist;
+	my $fl_rev = read_uint($fh_freelist);
+	my $fl_first_unused = read_uint($fh_freelist);
+
+	# Adjust end of freelist pointer.
+	$fl_first_unused += $offset[$i];
+
+	# Pack up replacement serialised freelist info.
+	my $freelist2= '';
+	my $fh_freelist2 = new IO::Scalar \$freelist2;
+	write_uint($fh_freelist2, $fl_rev);
+	write_uint($fh_freelist2, $fl_first_unused);
+	write_uint($fh_freelist2, read_uint($fh_freelist) + $offset[$i]);
+	write_uint($fh_freelist2, read_uint($fh_freelist));
+	write_uint($fh_freelist2, read_uint($fh_freelist) + $offset[$i]);
+	write_uint($fh_freelist2, read_uint($fh_freelist));
+
+	write_uint($fh_out, length($freelist2));
+	syswrite $fh_out, $freelist2;
+    } else {
+	write_uint($fh_out, $len);
     }
-    write_uint($fh_out, $len);
 }
 close $fh_version;
 
