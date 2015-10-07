@@ -160,13 +160,8 @@ for my $i (0..$#tables) {
     my $num_entries = read_uint($fh_version);
     my $blocksize = read_uint($fh_version);
     my $len = read_uint($fh_version);
-    if ($len > 0) {
-	print "Warning: Table $tables[$i] has a freelist - ignoring\n";
-	sysseek $fh_version, $len, SEEK_CUR;
-    }
-    $len = 0;
-
-    $root += $offset[$i];
+    my $freelist;
+    sysread $fh_version, $freelist, $len;
 
     # Clear "sequential mode" flag.  If this is set, then we simply scan
     # forwards/backwards to get the next/previous leaf block, and rely on
@@ -175,10 +170,18 @@ for my $i (0..$#tables) {
     # FIXME: Profile to check if this is actually a win, and if it's enough of
     # one we could track the block numbers to bound by.
     $val &= ~0x02;
+
+    # Adjust root block number.
+    $root += $offset[$i];
+
     write_uint($fh_out, $root);
     write_uint($fh_out, $val);
     write_uint($fh_out, $num_entries);
     write_uint($fh_out, $blocksize);
+    if ($len > 0) {
+	print "Warning: Table $tables[$i] has a freelist - ignoring\n";
+	$len = 0;
+    }
     write_uint($fh_out, $len);
 }
 close $fh_version;
