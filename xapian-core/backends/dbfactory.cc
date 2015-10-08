@@ -30,7 +30,6 @@
 #include "xapian/version.h" // For XAPIAN_HAS_XXX_BACKEND.
 
 #include "debuglog.h"
-#include "fd.h"
 #include "filetests.h"
 #include "fileutils.h"
 #include "posixy_wrapper.h"

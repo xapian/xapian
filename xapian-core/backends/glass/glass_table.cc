@@ -35,7 +35,6 @@
 #include "stringutils.h" // For STRINGIZE().
 
 #include <sys/types.h>
-#include "safeunistd.h"
 
 #include <cstring>   /* for memmove */
 #include <climits>   /* for CHAR_BIT */
