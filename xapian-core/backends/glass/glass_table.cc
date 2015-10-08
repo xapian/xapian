@@ -1356,7 +1356,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
 	sequential =	   root_info->get_sequential_mode();
 	const string & fl_serialised = root_info->get_free_list();
 	if (!fl_serialised.empty()) {
-	    if (!free_list.unpack(root_info->get_free_list()))
+	    if (!free_list.unpack(fl_serialised))
 		throw Xapian::DatabaseCorruptError("Bad freelist metadata");
 	} else {
 	    free_list.reset();
