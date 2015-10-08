@@ -1167,12 +1167,15 @@ GlassTable::readahead_key(const string &key) const
     LOGCALL(DB, bool, "GlassTable::readahead_key", key);
     Assert(!key.empty());
 
-    // Two cases: FIXME: single file...
+    // Three cases:
     //
-    // handle = -1:  Lazy table which isn't yet open
+    // handle == -1:  Lazy table in a multi-file database which isn't yet open.
     //
-    // handle = -2:  Table has been closed.  Since the readahead is just a
+    // handle == -2:  Table has been closed.  Since the readahead is just a
     // hint, we can safely ignore it for a closed table.
+    //
+    // handle <= -3:  Lazy table in a single-file database which isn't yet
+    // open.
     if (handle < 0)
 	RETURN(false);
 
@@ -1439,22 +1442,26 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
-    // FIXME: single file
-    handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION,
-			      root_info == NULL);
-    if (handle < 0) {
-	// lazy doesn't make a lot of sense when we're creating a DB (which
-	// is the case when root_info==NULL), but ENOENT with O_CREAT means a
-	// parent directory doesn't exist.
-	if (lazy && root_info && errno == ENOENT) {
-	    revision_number = rev;
-	    return;
+    if (handle <= -2) {
+	// Single file database.
+	handle = -3 - handle;
+    } else {
+	handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION,
+				  root_info == NULL);
+	if (handle < 0) {
+	    // lazy doesn't make a lot of sense when we're creating a DB (which
+	    // is the case when root_info==NULL), but ENOENT with O_CREAT means a
+	    // parent directory doesn't exist.
+	    if (lazy && root_info && errno == ENOENT) {
+		revision_number = rev;
+		return;
+	    }
+	    string message(!root_info ? "Couldn't create " : "Couldn't open ");
+	    message += name;
+	    message += "DB read/write: ";
+	    errno_to_string(errno, message);
+	    throw Xapian::DatabaseOpeningError(message);
 	}
-	string message(!root_info ? "Couldn't create " : "Couldn't open ");
-	message += name;
-	message += "DB read/write: ";
-	errno_to_string(errno, message);
-	throw Xapian::DatabaseOpeningError(message);
     }
 
     writable = true;
@@ -1511,7 +1518,7 @@ GlassTable::GlassTable(const char * tablename_, int fd,
 	  block_size(0),
 	  faked_root_block(true),
 	  sequential(true),
-	  handle(fd),
+	  handle(-3 - fd),
 	  level(0),
 	  root(0),
 	  kt(0),
@@ -1540,8 +1547,8 @@ GlassTable::GlassTable(const char * tablename_, int fd,
 bool
 GlassTable::exists() const {
     LOGCALL(DB, bool, "GlassTable::exists", NO_ARGS);
-    return name.empty() || (name.size() == 1 && name[0] == '\0') ||
-	   file_exists(name + GLASS_TABLE_EXTENSION);
+    // We know a single-file database exists, since we have an fd open on it!
+    return name.empty() || file_exists(name + GLASS_TABLE_EXTENSION);
 }
 
 void
@@ -1583,12 +1590,14 @@ void GlassTable::close(bool permanent) {
     LOGCALL_VOID(DB, "GlassTable::close", permanent);
 
     if (handle >= 0) {
-	if (!(name.empty() || (name.size() == 1 && name[0] == '\0'))) {
+	if (name.empty()) {
+	    handle = -3 - handle;
+	} else {
 	    // If an error occurs here, we just ignore it, since we're just
 	    // trying to free everything.
 	    (void)::close(handle);
+	    handle = -1;
 	}
-	handle = -1;
     }
 
     if (permanent) {
@@ -1747,22 +1756,22 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
-    if (!(name.empty() || (name.size() == 1 && name[0] == '\0'))) {
-	handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
+    if (name.empty()) {
+	handle = -3 - handle;
     } else {
-	name.assign(1, '\0');
-    }
-    if (handle < 0) {
-	if (lazy) {
-	    // This table is optional when reading!
-	    revision_number = rev;
-	    return;
+	handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
+	if (handle < 0) {
+	    if (lazy) {
+		// This table is optional when reading!
+		revision_number = rev;
+		return;
+	    }
+	    string message("Couldn't open ");
+	    message += name;
+	    message += "DB to read: ";
+	    errno_to_string(errno, message);
+	    throw Xapian::DatabaseOpeningError(message);
 	}
-	string message("Couldn't open ");
-	message += name;
-	message += "DB to read: ";
-	errno_to_string(errno, message);
-	throw Xapian::DatabaseOpeningError(message);
     }
 
     basic_open(root_info, rev);
@@ -1775,7 +1784,7 @@ GlassTable::open(int flags_, const RootInfo & root_info,
 		 glass_revision_number_t rev)
 {
     LOGCALL_VOID(DB, "GlassTable::open", flags_|root_info|rev);
-    if (!name.empty()) close();
+    close();
 
     flags = flags_;
     block_size = root_info.get_blocksize();

@@ -374,7 +374,7 @@ class GlassTable {
 	 *
 	 *  NB If the table is lazy and doesn't yet exist, returns false.
 	 */
-	bool is_open() const { return handle >= 0 && !name.empty(); }
+	bool is_open() const { return handle >= 0; }
 
 	/** Return true if this table is writable. */
 	bool is_writable() const { return writable; }
@@ -644,12 +644,10 @@ class GlassTable {
 
 	/** File descriptor of the table.
 	 *
-	 *  If the table is lazily created and doesn't yet exist, this will be
-	 *  -1.
-	 *
 	 *  If close() has been called, this will be -2.
 	 *
-	 *  FIXME: Update for single file db case.
+	 *  If the table is lazily created and doesn't yet exist, this will be
+	 *  -1 (for a multi-file database) or -3-fd (for a single-file database).
 	 */
 	int handle;
 
@@ -670,7 +668,7 @@ class GlassTable {
 
 	/** The path name of the B tree.
 	 *
-	 *  FIXME: Update for single file db case.
+	 *  For a single-file database, this will be empty.
 	 */
 	std::string name;
 
