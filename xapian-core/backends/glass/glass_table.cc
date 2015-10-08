@@ -1451,7 +1451,7 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
 	}
 	string message(!root_info ? "Couldn't create " : "Couldn't open ");
 	message += name;
-	message += "DB read/write: ";
+	message += GLASS_TABLE_EXTENSION" read/write: ";
 	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
@@ -1718,7 +1718,7 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
 	}
 	string message("Couldn't open ");
 	message += name;
-	message += "DB to read: ";
+	message += GLASS_TABLE_EXTENSION" to read: ";
 	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
