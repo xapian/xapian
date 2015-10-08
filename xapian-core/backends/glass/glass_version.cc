@@ -70,21 +70,21 @@ void
 GlassVersion::read()
 {
     LOGCALL_VOID(DB, "GlassVersion::read", NO_ARGS);
-    string filename = db_dir;
-    filename += "/iamglass";
+    FD close_fd(-1);
     int fd_in;
-    if (startswith(db_dir, "/dev/fd/")) {
-	fd_in = dup(atoi(db_dir.c_str() + CONST_STRLEN("/dev/fd/")));
+    if (db_dir.empty()) {
+	fd_in = fd;
     } else {
+	string filename = db_dir;
+	filename += "/iamglass";
 	fd_in = posixy_open(filename.c_str(), O_RDONLY|O_BINARY);
+	if (rare(fd_in < 0)) {
+	    string msg = filename;
+	    msg += ": Failed to open glass revision file for reading";
+	    throw Xapian::DatabaseOpeningError(msg, errno);
+	}
+	close_fd = fd_in;
     }
-    if (rare(fd_in < 0)) {
-	string msg = filename;
-	msg += ": Failed to open glass revision file for reading";
-	throw Xapian::DatabaseOpeningError(msg, errno);
-    }
-
-    FD close_fd(fd_in);
 
     char buf[256];
 
@@ -99,8 +99,12 @@ GlassVersion::read()
     version <<= 8;
     version |= static_cast<unsigned char>(buf[GLASS_VERSION_MAGIC_LEN + 1]);
     if (version != GLASS_FORMAT_VERSION) {
-	string msg = filename;
-	msg += ": Database is format version ";
+	string msg;
+	if (!db_dir.empty()) {
+	    msg = db_dir;
+	    msg += ": ";
+	}
+	msg += "Database is format version ";
 	msg += str(VERSION_TO_YEAR(version) * 10000 +
 		   VERSION_TO_MONTH(version) * 100 +
 		   VERSION_TO_DAY(version));
@@ -125,10 +129,9 @@ GlassVersion::read()
 	old_root[table_no] = root[table_no];
     }
 
-#if 0 // For a single-file DB, this "junk" is all the tables...
-    if (p != end)
+    // For a single-file DB the table data follows, so suppress this check.
+    if (p != end && !db_dir.empty())
 	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
-#endif
 }
 
 void

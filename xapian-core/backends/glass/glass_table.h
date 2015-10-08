@@ -332,6 +332,10 @@ class GlassTable {
 		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
 		   bool lazy = false);
 
+	GlassTable(const char * tablename_, int fd,
+		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
+		   bool lazy = false);
+
 	/** Close the Btree.
 	 *
 	 *  Any outstanding changes (ie, changes made without commit() having
@@ -370,7 +374,7 @@ class GlassTable {
 	 *
 	 *  NB If the table is lazy and doesn't yet exist, returns false.
 	 */
-	bool is_open() const { return handle >= 0; }
+	bool is_open() const { return handle >= 0 && !name.empty(); }
 
 	/** Return true if this table is writable. */
 	bool is_writable() const { return writable; }
@@ -644,6 +648,8 @@ class GlassTable {
 	 *  -1.
 	 *
 	 *  If close() has been called, this will be -2.
+	 *
+	 *  FIXME: Update for single file db case.
 	 */
 	int handle;
 
@@ -662,7 +668,10 @@ class GlassTable {
 	/// List of free blocks.
 	GlassFreeList free_list;
 
-	/// The path name of the B tree.
+	/** The path name of the B tree.
+	 *
+	 *  FIXME: Update for single file db case.
+	 */
 	std::string name;
 
 	/** count of the number of successive instances of purely

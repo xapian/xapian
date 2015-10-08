@@ -1168,7 +1168,7 @@ GlassTable::readahead_key(const string &key) const
     LOGCALL(DB, bool, "GlassTable::readahead_key", key);
     Assert(!key.empty());
 
-    // Two cases:
+    // Two cases: FIXME: single file...
     //
     // handle = -1:  Lazy table which isn't yet open
     //
@@ -1440,6 +1440,7 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
+    // FIXME: single file
     handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION,
 			      root_info == NULL);
     if (handle < 0) {
@@ -1503,10 +1504,45 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
     LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
 
+GlassTable::GlassTable(const char * tablename_, int fd,
+		       bool readonly_, int compress_strategy_, bool lazy_)
+	: tablename(tablename_),
+	  revision_number(0),
+	  item_count(0),
+	  block_size(0),
+	  faked_root_block(true),
+	  sequential(true),
+	  handle(fd),
+	  level(0),
+	  root(0),
+	  kt(0),
+	  buffer(0),
+	  free_list(),
+	  name(),
+	  seq_count(0),
+	  changed_n(0),
+	  changed_c(0),
+	  max_item_size(0),
+	  Btree_modified(false),
+	  full_compaction(false),
+	  writable(!readonly_),
+	  cursor_created_since_last_modification(false),
+	  cursor_version(0),
+	  changes_obj(NULL),
+	  split_p(0),
+	  compress_strategy(compress_strategy_),
+	  comp_stream(compress_strategy_),
+	  lazy(lazy_),
+	  last_readahead(BLK_UNUSED)
+{
+    LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | readonly_ | compress_strategy_ | lazy_);
+}
+
 bool
 GlassTable::exists() const {
     LOGCALL(DB, bool, "GlassTable::exists", NO_ARGS);
-    return file_exists(name + GLASS_TABLE_EXTENSION);
+    return name.empty() || (name.size() == 1 && name[0] == '\0') ||
+	   file_exists(name + GLASS_TABLE_EXTENSION);
 }
 
 void
@@ -1548,9 +1584,11 @@ void GlassTable::close(bool permanent) {
     LOGCALL_VOID(DB, "GlassTable::close", permanent);
 
     if (handle >= 0) {
-	// If an error occurs here, we just ignore it, since we're just
-	// trying to free everything.
-	(void)::close(handle);
+	if (!(name.empty() || (name.size() == 1 && name[0] == '\0'))) {
+	    // If an error occurs here, we just ignore it, since we're just
+	    // trying to free everything.
+	    (void)::close(handle);
+	}
 	handle = -1;
     }
 
@@ -1710,10 +1748,10 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
-    if (startswith(name, "/dev/fd/")) {
-	handle = dup(atoi(name.c_str() + CONST_STRLEN("/dev/fd/")));
-    } else {
+    if (!(name.empty() || (name.size() == 1 && name[0] == '\0'))) {
 	handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
+    } else {
+	name.assign(1, '\0');
     }
     if (handle < 0) {
 	if (lazy) {
@@ -1738,7 +1776,7 @@ GlassTable::open(int flags_, const RootInfo & root_info,
 		 glass_revision_number_t rev)
 {
     LOGCALL_VOID(DB, "GlassTable::open", flags_|root_info|rev);
-    close();
+    if (!name.empty()) close();
 
     flags = flags_;
     block_size = root_info.get_blocksize();

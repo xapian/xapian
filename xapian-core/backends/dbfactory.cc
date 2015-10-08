@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -313,15 +313,17 @@ Database::Database(const string &path, int flags)
 	// file to determine which it is.
 	if (statbuf.st_size && statbuf.st_size % 2048 == 0) {
 	    char magic_buf[14];
-	    FD fd(posixy_open(path.c_str(), O_RDONLY|O_BINARY));
+	    int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
 	    if (fd != -1) {
+		// FIXME: Don't duplicate magic check here...
 		if (io_read(fd, magic_buf, 14, 14) &&
+		    lseek(fd, 0, SEEK_SET) == 0 &&
 		    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
-		    // Glass database.
-		    // FIXME: Use the fd we already opened in this case.
-		    internal.push_back(new GlassDatabase(path));
+		    // Single file glass format.
+		    internal.push_back(new GlassDatabase(fd));
 		    return;
 		}
+		::close(fd);
 	    }
 	}
 

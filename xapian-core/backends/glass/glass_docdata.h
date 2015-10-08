@@ -48,6 +48,9 @@ class GlassDocDataTable : public GlassLazyTable {
 	: GlassLazyTable("docdata", dbdir + "/docdata.", readonly,
 			 Z_DEFAULT_STRATEGY) { }
 
+    GlassDocDataTable(int fd, bool readonly)
+	: GlassLazyTable("docdata", fd, readonly, Z_DEFAULT_STRATEGY) { }
+
     /** Get the document data for document @a did.
      *
      *  If the document doesn't exist, the empty string is returned.
