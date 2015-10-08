@@ -98,6 +98,8 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
 	  position_table(db_dir, readonly),
+	  // Note: (Xapian::DB_READONLY_ & Xapian::DB_NO_TERMLIST) is true,
+	  // so opening to read we always permit the termlist to be missing.
 	  termlist_table(db_dir, readonly, (flags & Xapian::DB_NO_TERMLIST)),
 	  value_manager(&postlist_table, &termlist_table),
 	  synonym_table(db_dir, readonly),
