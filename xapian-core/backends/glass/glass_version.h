@@ -102,7 +102,7 @@ class GlassVersion {
     GlassChanges * changes;
 
   public:
-    GlassVersion(const std::string & db_dir_)
+    explicit GlassVersion(const std::string & db_dir_)
 	: rev(0), db_dir(db_dir_), changes(NULL) { }
 
     /** Create the version file. */
