@@ -66,6 +66,14 @@ static const char GLASS_VERSION_MAGIC[GLASS_VERSION_MAGIC_AND_VERSION_LEN] = {
     char((GLASS_FORMAT_VERSION >> 8) & 0xff), char(GLASS_FORMAT_VERSION & 0xff)
 };
 
+GlassVersion::~GlassVersion()
+{
+    // Either this is a single-file database, or this fd is from opening a new
+    // version file in write(), but sync() was never called.
+    if (fd != -1)
+	(void)::close(fd);
+}
+
 void
 GlassVersion::read()
 {
@@ -196,19 +204,21 @@ GlassVersion::sync(const string & tmpfile,
 {
     Assert(new_rev > rev || rev == 0);
 
+    int fd_to_close = fd;
+    fd = -1;
     if ((flags & Xapian::DB_NO_SYNC) == 0 &&
 	((flags & Xapian::DB_FULL_SYNC) ?
-	  !io_full_sync(fd) :
-	  !io_sync(fd))) {
+	  !io_full_sync(fd_to_close) :
+	  !io_sync(fd_to_close))) {
 	int save_errno = errno;
-	(void)close(fd);
+	(void)close(fd_to_close);
 	if (!tmpfile.empty())
 	    (void)unlink(tmpfile.c_str());
 	errno = save_errno;
 	return false;
     }
 
-    if (close(fd) != 0) {
+    if (close(fd_to_close) != 0) {
 	if (!tmpfile.empty()) {
 	    int save_errno = errno;
 	    (void)unlink(tmpfile.c_str());
