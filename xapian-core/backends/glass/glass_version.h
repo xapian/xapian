@@ -94,6 +94,14 @@ class GlassVersion {
      */
     mutable uuid_t uuid;
 
+    /** File descriptor.
+     *
+     *  When committing, this hold the file descriptor of the new changes file
+     *  between the call to the write() and sync() methods.
+     *
+     *  For a single-file database (when db_dir.empty()), this holds the fd of
+     *  that file for use in read().
+     */
     int fd;
 
     /// The database directory.
