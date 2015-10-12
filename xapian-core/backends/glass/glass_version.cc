@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"
+#include "safeunistd.h"
 #include "str.h"
 #include "stringutils.h"
 
@@ -81,6 +82,11 @@ GlassVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (db_dir.empty()) {
+	if (rare(lseek(fd, 0, SEEK_SET) == off_t(-1))) {
+	    string msg = "Failed to rewind file descriptor ";
+	    msg += str(fd);
+	    throw Xapian::DatabaseOpeningError(msg, errno);
+	}
 	fd_in = fd;
     } else {
 	string filename = db_dir;
