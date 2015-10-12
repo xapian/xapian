@@ -16,8 +16,9 @@ use autodie;
 #
 # xapian-delve packedglassdb
 
-my $db_dir = shift @ARGV // die "Syntax: $0 DBDIR [OUTPUT]\n";
+my $db_dir = shift @ARGV // die "Syntax: $0 DBDIR [OUTPUT [OFFSET]]\n";
 my $output = shift @ARGV // "output";
+my $embed_offset = shift @ARGV // 0;
 
 open my $fh_out, '>', $output;
 
@@ -33,12 +34,16 @@ my @tables = qw(
 sub DIR_START { 11 }
 sub LEVEL_FREELIST { 254 }
 
+if ($embed_offset > 0) {
+    sysseek $fh_out, $embed_offset, SEEK_SET;
+}
+
 my (@offset, @max_blockno, @blocksize);
 open my $fh_version, '<', "$db_dir/iamglass";
 my $version_size = -s $fh_version;
 # Allow plenty of extra space for larger root block pointers.
 $version_size += 64;
-my $offset = $version_size;
+my $offset = $embed_offset + $version_size;
 sysseek $fh_version, 32, SEEK_SET;
 read_uint($fh_version);
 for my $i (0..$#tables) {
@@ -134,7 +139,7 @@ for my $i (0..$#tables) {
     close $fh_table;
 }
 
-seek $fh_out, 0, SEEK_SET;
+seek $fh_out, $embed_offset, SEEK_SET;
 
 seek $fh_version, 0, SEEK_SET;
 my $data;
@@ -198,7 +203,7 @@ for my $i (0..$#tables) {
 }
 close $fh_version;
 
-if (sysseek($fh_out, 0, SEEK_CUR) > $version_size) {
+if (sysseek($fh_out, 0, SEEK_CUR) - $embed_offset > $version_size) {
     print "Error: version file too large\n";
     exit(1);
 }

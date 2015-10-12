@@ -104,6 +104,12 @@ class GlassVersion {
      */
     int fd;
 
+    /** Offset into the file at which the version data starts.
+     *
+     *  Will be 0, except for an embedded multi-file database.
+     */
+    off_t offset;
+
     /// The database directory.
     std::string db_dir;
 
@@ -111,10 +117,9 @@ class GlassVersion {
 
   public:
     GlassVersion(const std::string & db_dir_)
-	: rev(0), fd(-1), db_dir(db_dir_), changes(NULL) { }
+	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL) { }
 
-    explicit GlassVersion(int fd_)
-	: rev(0), fd(fd_), db_dir(), changes(NULL) { }
+    explicit GlassVersion(int fd_);
 
     ~GlassVersion();
 

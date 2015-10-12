@@ -67,6 +67,17 @@ static const char GLASS_VERSION_MAGIC[GLASS_VERSION_MAGIC_AND_VERSION_LEN] = {
     char((GLASS_FORMAT_VERSION >> 8) & 0xff), char(GLASS_FORMAT_VERSION & 0xff)
 };
 
+GlassVersion::GlassVersion(int fd_)
+    : rev(0), fd(fd_), db_dir(), changes(NULL)
+{
+    offset = lseek(fd, 0, SEEK_CUR);
+    if (rare(offset == off_t(-1))) {
+	string msg = "lseek failed on file descriptor ";
+	msg += str(fd);
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
+}
+
 GlassVersion::~GlassVersion()
 {
     // Either this is a single-file database, or this fd is from opening a new
@@ -82,7 +93,7 @@ GlassVersion::read()
     FD close_fd(-1);
     int fd_in;
     if (db_dir.empty()) {
-	if (rare(lseek(fd, 0, SEEK_SET) == off_t(-1))) {
+	if (rare(lseek(fd, offset, SEEK_SET) == off_t(-1))) {
 	    string msg = "Failed to rewind file descriptor ";
 	    msg += str(fd);
 	    throw Xapian::DatabaseOpeningError(msg, errno);
