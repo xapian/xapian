@@ -9,21 +9,12 @@ use autodie;
 #
 # ./pack-single-file-glass-db glassdb/ packedglassdb
 #
-# Note: Currently the starting database seems to need to have been freshly
-# compacted with xapian-compact.  This shouldn't be the case - it's probably
-# a bug due to how I cavalierly cull the freelist pointers currently.
+# Once you have such a database, you can just pass the filename to the
+# Xapian::Database constructor instead of the usual directory path.  You can
+# also open such a database from a file descriptor using a new Xapian::Database
+# constructor.  So tools like quest and xapian-delve just work:
 #
-# Once you have such a database, the current way to access it is to open it
-# on FD <number> in the shell and pass "/dev/fd/<number>" as the database
-# path, like so:
-#
-# xapian-delve /dev/fd/99 99<packedglassdb
-#
-# If you want to use multiple databases, just open them on different FDs
-# (avoid 0, 1 and 2, as they're stdin, stdout and stderr).
-#
-# (This /dev/fd/ thing is just a temporary hack to get a working prototype
-# going as quickly as possible).
+# xapian-delve packedglassdb
 
 my $db_dir = shift @ARGV // die "Syntax: $0 DBDIR [OUTPUT]\n";
 my $output = shift @ARGV // "output";
