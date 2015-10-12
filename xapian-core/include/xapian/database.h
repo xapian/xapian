@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -83,6 +83,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 * @param path directory that the database is stored in.
 	 */
 	explicit Database(const std::string &path, int flags = 0);
+
+	/** Open a single-file Database embedded in another file.
+	 *
+	 * @param fd  file descriptor for the file.  Xapian takes ownership of
+	 *            this and will close it when the database is closed.
+	 * @param flags  Bitwise-or of Xapian::DB_* constants.
+	 */
+	explicit Database(int fd, int flags = 0);
 
 	/** @private @internal Create a Database from its internals.
 	 */

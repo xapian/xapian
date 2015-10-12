@@ -306,6 +306,7 @@ Database::Database(const string &path, int flags)
     }
 
     if (S_ISREG(statbuf.st_mode)) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	// Could be a stub database file, or a single file glass database.
 	// Look at the size as a clue - if it's 0 or not a multiple of 2048,
 	// then it's not a glass database.  If it is, peek at the start of the
@@ -325,6 +326,7 @@ Database::Database(const string &path, int flags)
 		::close(fd);
 	    }
 	}
+#endif
 
 	open_stub(*this, path);
 	return;
@@ -370,6 +372,27 @@ Database::Database(const string &path, int flags)
 	throw FeatureUnavailableError("Flint backend no longer supported");
     }
 
+    throw DatabaseOpeningError("Couldn't detect type of database");
+}
+
+Database::Database(int fd, int flags)
+{
+    LOGCALL_CTOR(API, "Database", fd|flags);
+    if (rare(fd < 0))
+	throw InvalidArgumentError("fd < 0");
+
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    int type = flags & DB_BACKEND_MASK_;
+    switch (type) {
+	case 0: case DB_BACKEND_GLASS:
+	    internal.push_back(new GlassDatabase(fd));
+	    return;
+    }
+#else
+    (void)flags;
+#endif
+
+    (void)::close(fd);
     throw DatabaseOpeningError("Couldn't detect type of database");
 }
 
