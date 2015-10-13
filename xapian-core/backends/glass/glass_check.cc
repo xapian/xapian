@@ -220,7 +220,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 }
 
 GlassTableCheck *
-GlassTableCheck::check(const char * tablename, const string & path,
+GlassTableCheck::check(const char * tablename, const string & path, int fd,
 		       const GlassVersion & version_file, int opts,
 		       ostream *out)
 {
@@ -230,7 +230,9 @@ GlassTableCheck::check(const char * tablename, const string & path,
     filename += '.';
 
     AutoPtr<GlassTableCheck> B(
-	    new GlassTableCheck(tablename, filename, false, out));
+	    fd < 0 ?
+	    new GlassTableCheck(tablename, filename, false, out) :
+	    new GlassTableCheck(tablename, fd, false, out));
 
     Glass::table_type tab_type;
     if (strcmp(tablename, "postlist") == 0) {
@@ -304,7 +306,8 @@ GlassTableCheck::check(const char * tablename, const string & path,
 
 	uint4 first_bad;
 	uint4 count = flcheck.count_set_bits(&first_bad);
-	if (count) {
+	// Skip this check for a single file DB for now.  FIXME
+	if (count && fd < 0) {
 	    string e = str(count);
 	    e += " unused block(s) missing from the free list, first is ";
 	    e += str(first_bad);

@@ -32,8 +32,28 @@
 class GlassVersion;
 
 size_t check_glass_table(const char * tablename, const std::string &db_dir,
-			 const GlassVersion & version_file, int opts,
+			 int fd, const GlassVersion & version_file, int opts,
 			 std::vector<Xapian::termcount> & doclens,
 			 Xapian::docid db_last_docid, std::ostream * out);
+
+inline size_t
+check_glass_table(const char * tablename, const std::string &db_dir,
+		  const GlassVersion & version_file, int opts,
+		  std::vector<Xapian::termcount> & doclens,
+		  Xapian::docid db_last_docid, std::ostream * out)
+{
+    return check_glass_table(tablename, db_dir, -1, version_file, opts,
+			     doclens, db_last_docid, out);
+}
+
+inline size_t
+check_glass_table(const char * tablename, int fd,
+		  const GlassVersion & version_file, int opts,
+		  std::vector<Xapian::termcount> & doclens,
+		  Xapian::docid db_last_docid, std::ostream * out)
+{
+    return check_glass_table(tablename, std::string(), fd, version_file, opts,
+			     doclens, db_last_docid, out);
+}
 
 #endif // XAPIAN_INCLUDED_GLASS_DBCHECK_H

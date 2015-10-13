@@ -56,6 +56,40 @@
 
 using namespace std;
 
+static bool
+check_if_single_file_db(const struct stat & sb, const string & path,
+			int * fd_ptr = NULL)
+{
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (!S_ISREG(sb.st_mode)) return false;
+    // Look at the size as a clue - if it's 0 or not a multiple of 2048,
+    // then it's not a single-file glass database.  If it is, peek at the start
+    // of the file to determine which it is.
+    if (sb.st_size == 0 || sb.st_size % 2048 != 0) return false;
+    int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
+    if (fd != -1) {
+	char magic_buf[14];
+	// FIXME: Don't duplicate magic check here...
+	if (io_read(fd, magic_buf, 14, 14) &&
+	    lseek(fd, 0, SEEK_SET) == 0 &&
+	    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
+	    if (fd_ptr) {
+		*fd_ptr = fd;
+	    } else {
+		::close(fd);
+	    }
+	    return true;
+	}
+	::close(fd);
+    }
+#else
+    (void)sb;
+    (void)path;
+    (void)fd_ptr;
+#endif
+    return false;
+}
+
 namespace Xapian {
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
@@ -306,27 +340,13 @@ Database::Database(const string &path, int flags)
     }
 
     if (S_ISREG(statbuf.st_mode)) {
-#ifdef XAPIAN_HAS_GLASS_BACKEND
 	// Could be a stub database file, or a single file glass database.
-	// Look at the size as a clue - if it's 0 or not a multiple of 2048,
-	// then it's not a glass database.  If it is, peek at the start of the
-	// file to determine which it is.
-	if (statbuf.st_size && statbuf.st_size % 2048 == 0) {
-	    char magic_buf[14];
-	    int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
-	    if (fd != -1) {
-		// FIXME: Don't duplicate magic check here...
-		if (io_read(fd, magic_buf, 14, 14) &&
-		    lseek(fd, 0, SEEK_SET) == 0 &&
-		    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
-		    // Single file glass format.
-		    internal.push_back(new GlassDatabase(fd));
-		    return;
-		}
-		::close(fd);
-	    }
+	int fd;
+	if (check_if_single_file_db(statbuf, path, &fd)) {
+	    // Single file glass format.
+	    internal.push_back(new GlassDatabase(fd));
+	    return;
 	}
-#endif
 
 	open_stub(*this, path);
 	return;

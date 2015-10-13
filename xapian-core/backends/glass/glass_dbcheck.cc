@@ -57,35 +57,37 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_glass_table(const char * tablename, const string &db_dir,
+check_glass_table(const char * tablename, const string &db_dir, int fd,
 		  const GlassVersion & version_file, int opts,
 		  vector<Xapian::termcount> & doclens,
 		  Xapian::docid db_last_docid, ostream * out)
 {
     if (out)
 	*out << tablename << ":\n";
-    if (strcmp(tablename, "postlist") != 0) {
-	// Other filenames are created lazily, so may not exist.
-	string filename(db_dir);
-	filename += '/';
-	filename += tablename;
-	filename += "." GLASS_TABLE_EXTENSION;
-	if (!file_exists(filename)) {
-	    if (out) {
-		if (strcmp(tablename, "termlist") == 0) {
-		    *out << "Not present.\n";
-		} else {
-		    *out << "Lazily created, and not yet used.\n";
+    if (fd < 0) {
+	if (strcmp(tablename, "postlist") != 0) {
+	    // Other filenames are created lazily, so may not exist.
+	    string filename(db_dir);
+	    filename += '/';
+	    filename += tablename;
+	    filename += "." GLASS_TABLE_EXTENSION;
+	    if (!file_exists(filename)) {
+		if (out) {
+		    if (strcmp(tablename, "termlist") == 0) {
+			*out << "Not present.\n";
+		    } else {
+			*out << "Lazily created, and not yet used.\n";
+		    }
+		    *out << endl;
 		}
-		*out << endl;
+		return 0;
 	    }
-	    return 0;
 	}
     }
 
     // Check the btree structure.
     AutoPtr<GlassTable> table(
-	    GlassTableCheck::check(tablename, db_dir, version_file, opts, out));
+	    GlassTableCheck::check(tablename, db_dir, fd, version_file, opts, out));
 
     // Now check the glass structures inside the btree.
     AutoPtr<GlassCursor> cursor(table->cursor_get());
