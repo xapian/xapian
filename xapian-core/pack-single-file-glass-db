@@ -43,7 +43,7 @@ open my $fh_version, '<', "$db_dir/iamglass";
 my $version_size = -s $fh_version;
 # Allow plenty of extra space for larger root block pointers.
 $version_size += 64;
-my $offset = $embed_offset + $version_size;
+my $offset_bytes = $embed_offset + $version_size;
 sysseek $fh_version, 32, SEEK_SET;
 read_uint($fh_version);
 for my $i (0..$#tables) {
@@ -71,11 +71,12 @@ for my $i (0..$#tables) {
     my $filesize = -s $fh_table;
     my $max_blockno = $filesize / $blocksize;
     $max_blockno[$i] = $max_blockno;
+    my $offset_blocks;
     {
 	use integer;
-	$offset = ($offset + $blocksize - 1) / $blocksize;
+	$offset_blocks = ($offset_bytes + $blocksize - 1) / $blocksize;
     }
-    sysseek $fh_out, $offset * $blocksize, SEEK_SET;
+    sysseek $fh_out, $offset_blocks * $blocksize, SEEK_SET;
     while (1) {
 	my $block;
 	sysread $fh_table, $block, $blocksize;
@@ -87,7 +88,7 @@ for my $i (0..$#tables) {
 
 	# Unpack block header.
 	my ($rev, $level, undef, undef, $dir_end) = unpack 'NCnnn', $block;
-	# Add $offset to all block pointers in $block.
+	# Add $offset_blocks to all block pointers in $block.
 	if ($level == LEVEL_FREELIST) {
 	    # FIXME: Ignore freelist blocks for now.
 	} elsif ($level > 0) {
@@ -118,7 +119,7 @@ for my $i (0..$#tables) {
 		    print "Error: Block #$blockno >= $max_blockno\n";
 		    exit(1);
 		}
-		$blockno += $offset;
+		$blockno += $offset_blocks;
 		my $pack = pack 'N', $blockno;
 		if (length($pack) != 4) {
 		    print "packing $blockno wasn't 4 bytes but ".length($pack)."\n";
@@ -134,9 +135,16 @@ for my $i (0..$#tables) {
 	syswrite $fh_out, $block;
     }
 
-    $offset[$i] = $offset;
-    $offset = sysseek $fh_out, 0, SEEK_CUR;
+    $offset[$i] = $offset_blocks;
+    $offset_bytes = sysseek $fh_out, 0, SEEK_CUR;
     close $fh_table;
+}
+
+# If the input DB is empty, pad the packed output so that it isn't mistaken for
+# a stub database when Xapian tries to open it.
+if (-s $fh_out < $offset_bytes) {
+    sysseek($fh_out, $offset_bytes - 1, SEEK_SET);
+    syswrite $fh_out, "\0";
 }
 
 seek $fh_out, $embed_offset, SEEK_SET;

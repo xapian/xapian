@@ -47,6 +47,9 @@ check-inmemory: apitest$(EXEEXT)
 check-multi: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
 
+check-singlefile: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile
+
 if BUILD_BACKEND_REMOTE
 check-remote: check-remoteprog check-remotetcp
 
@@ -86,6 +89,8 @@ check-multi-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_glass
 check-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b glass
+check-singlefile-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile_glass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -226,7 +231,7 @@ EXTRA_DIST +=\
 	testdata/etext.txt
 
 remove-cached-databases:
-	rm -rf .chert .glass .multichert .multiglass .replicatmp .stub
+	rm -rf .chert .glass .multichert .multiglass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

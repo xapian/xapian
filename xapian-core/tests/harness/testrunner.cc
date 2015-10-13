@@ -32,6 +32,7 @@
 #include "backendmanager_multi.h"
 #include "backendmanager_remoteprog.h"
 #include "backendmanager_remotetcp.h"
+#include "backendmanager_singlefile.h"
 
 #include "stringutils.h"
 #include <iostream>
@@ -62,6 +63,7 @@ static BackendProperties backend_properties[] = {
     { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remoteprog_glass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
     { "remotetcp_glass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
+    { "singlefile_glass", "backend,positional,valuestats" },
     { NULL, NULL }
 };
 
@@ -199,6 +201,11 @@ TestRunner::run_tests(int argc, char ** argv)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
 	    BackendManagerGlass m;
+	    do_tests_for_backend(&m);
+	}
+
+	{
+	    BackendManagerSingleFile m("glass");
 	    do_tests_for_backend(&m);
 	}
 #endif
