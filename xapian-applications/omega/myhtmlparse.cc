@@ -104,12 +104,24 @@ MyHtmlParser::opening_tag(const string &tag)
 				convert_to_utf8(sample, charset);
 				decode_entities(sample);
 			    }
-			} else if (name == "keywords") {
+			} else if (name == "keywords" ||
+				   name == "dcterms.subject" ||
+				   name == "dcterms.description") {
+			    // LibreOffice HTML export puts "Subject" and
+			    // "Keywords" into DCTERMS.subject, and "Comments"
+			    // into DCTERMS.description.  Best option seems to
+			    // be to treat all of these as keywords, i.e. just
+			    // more text to index, but not show in/as the
+			    // sample.
 			    if (!keywords.empty()) keywords += ' ';
 			    convert_to_utf8(content, charset);
 			    decode_entities(content);
 			    keywords += content;
-			} else if (name == "author") {
+			} else if (name == "author" ||
+				   name == "dcterms.creator" ||
+				   name == "dcterms.contributor") {
+			    // LibreOffice HTML export includes DCTERMS.creator
+			    // and DCTERMS.contributor.
 			    if (!author.empty()) author += ' ';
 			    convert_to_utf8(content, charset);
 			    decode_entities(content);
