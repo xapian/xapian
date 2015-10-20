@@ -372,6 +372,46 @@ generate_sample_from_csv(const string & csv_data, string & sample)
     }
 }
 
+static bool
+index_check_existing(const string & urlterm, time_t last_altered,
+		     Xapian::docid & did)
+{
+    if (skip_duplicates) {
+	Xapian::PostingIterator p = db.postlist_begin(urlterm);
+	if (p != db.postlist_end(urlterm)) {
+	    if (verbose)
+		cout << "already indexed, not updating" << endl;
+	    did = *p;
+	    mark_as_seen(did);
+	    return true;
+	}
+    } else {
+	// If last_altered > last_altered_max, we know for sure that the file
+	// is new or updated.
+	if (last_altered <= last_altered_max) {
+	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
+	    if (p != db.postlist_end(urlterm)) {
+		did = *p;
+		Xapian::Document doc = db.get_document(did);
+		Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
+		string value = doc.get_value(slot);
+		time_t old_last_altered = binary_string_to_int(value);
+		if (last_altered <= old_last_altered) {
+		    if (verbose)
+			cout << "already indexed" << endl;
+		    // The docid should be in updated - the only valid
+		    // exception is if the URL was long and hashed to the
+		    // same URL as an existing document indexed in the same
+		    // batch.
+		    mark_as_seen(did);
+		    return true;
+		}
+	    }
+	}
+    }
+    return false;
+}
+
 void
 index_add_document(const string & urlterm, time_t last_altered,
 		   Xapian::docid did, const Xapian::Document & doc)
@@ -419,39 +459,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
     time_t last_altered = use_ctime ? d.get_ctime() : d.get_mtime();
 
     Xapian::docid did = 0;
-    if (skip_duplicates) {
-	Xapian::PostingIterator p = db.postlist_begin(urlterm);
-	if (p != db.postlist_end(urlterm)) {
-	    if (verbose)
-		cout << "already indexed, not updating" << endl;
-	    did = *p;
-	    mark_as_seen(did);
-	    return;
-	}
-    } else {
-	// If last_altered > last_altered_max, we know for sure that the file
-	// is new or updated.
-	if (last_altered <= last_altered_max) {
-	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
-	    if (p != db.postlist_end(urlterm)) {
-		did = *p;
-		Xapian::Document doc = db.get_document(did);
-		Xapian::valueno slot = use_ctime ? VALUE_CTIME : VALUE_LASTMOD;
-		string value = doc.get_value(slot);
-		time_t old_last_altered = binary_string_to_int(value);
-		if (last_altered <= old_last_altered) {
-		    if (verbose)
-			cout << "already indexed" << endl;
-		    // The docid should be in updated - the only valid
-		    // exception is if the URL was long and hashed to the
-		    // same URL as an existing document indexed in the same
-		    // batch.
-		    mark_as_seen(did);
-		    return;
-		}
-	    }
-	}
-    }
+    if (index_check_existing(urlterm, last_altered, did))
+	return;
 
     if (!retry_failed) {
 	// We only store and check the mtime (last modified) - a change to the
