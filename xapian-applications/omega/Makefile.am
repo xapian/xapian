@@ -86,8 +86,9 @@ dist_pkglibbin_SCRIPTS = outlookmsg2html
 bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = atomparsetest htmlparsetest jsonesctest md5test urlenctest utf8converttest
+check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
 TESTS =	atomparsetest$(EXEEXT)\
+	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
@@ -106,7 +107,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
- xlsxparse.h opendocparse.h msxmlparse.h timegm.h\
+ xlsxparse.h opendocparse.h msxmlparse.h timegm.h csvescape.h\
  portability/mkdtemp.h
 
 # headers maintained in xapian-core
@@ -144,7 +145,8 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
- datematchdecider.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc
+ datematchdecider.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc\
+ csvescape.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
 omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
 
@@ -185,6 +187,9 @@ utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 urlenctest_SOURCES = urlenctest.cc urlencode.cc common/stringutils.cc
 urlenctest_LDADD = $(NO_INSTALL)
+
+csvesctest_SOURCES = csvesctest.cc csvescape.cc
+csvesctest_LDADD = $(NO_INSTALL)
 
 jsonesctest_SOURCES = jsonesctest.cc jsonescape.cc
 jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)

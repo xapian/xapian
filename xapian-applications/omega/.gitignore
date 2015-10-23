@@ -30,9 +30,12 @@
 /omindex
 /omindex-list
 /scriptindex
+/csvesctest
 /htmlparsetest
 /md5test
 /utf8converttest
+/*test.log
+/*test.trs
 /libtransform.la
 /xapian-omega-*.tar.xz
 /xapian-omega.spec

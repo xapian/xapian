@@ -83,6 +83,18 @@ $collapsed
 
              $if{$ne{$collapsed,0},at least $collapsed hidden results ($value{$cgi{COLLAPSE}})}
 
+$csv{STRING}
+        encode STRING for use as a field in a CSV file.  Escaping is done as
+        described in RFC4180, except that we treat any byte value not otherwise
+        mentioned as being 'TEXTDATA' (so %x00-%x09, %x0B-%x0C, %x0E-%x1F,
+        %x7F-%xFF are also permitted there).  Examples:
+
+        ``$csv{Safe in CSV!}`` gives ``Safe in CSV!``
+
+        ``$csv{Not "safe"}`` gives ``"Not ""safe"""``
+
+        ``$csv{3, 2, 1}`` gives ``"3, 2, 1"``
+
 $date{TIME_T[,FMT]}
 	convert a time_t to strftime ``FMT`` (default: ``YYYY-MM-DD``).  The
 	conversion is done in timezone UTC.

@@ -54,6 +54,7 @@
 
 #include <cdb.h>
 
+#include "csvescape.h"
 #include "date.h"
 #include "datematchdecider.h"
 #include "jsonescape.h"
@@ -838,6 +839,7 @@ CMD_and,
 CMD_cgi,
 CMD_cgilist,
 CMD_collapsed,
+CMD_csv,
 CMD_date,
 CMD_dbname,
 CMD_dbsize,
@@ -960,6 +962,7 @@ T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
+T(csv,		   1, 1, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
 				// (default: YYYY-MM-DD)
 T(dbname,	   0, 0, N, 0), // database name
@@ -1253,6 +1256,10 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(collapsed);
 		break;
 	    }
+	    case CMD_csv:
+		value = args[0];
+		csv_escape(value);
+		break;
 	    case CMD_date:
 		value = args[0];
 		if (!value.empty()) {
