@@ -2333,7 +2333,8 @@ ensure_query_parsed()
 	    if (val != cgi_params.end() && val->second != dbname) break;
 	    if (result == SAME_QUERY && force_first_page) {
 		val = cgi_params.find("xFILTERS");
-		if (val != cgi_params.end() && val->second != filters) {
+		if (val != cgi_params.end() && val->second != filters &&
+		    val->second != old_filters) {
 		    // Filters have changed since last query.
 		} else {
 		    force_first_page = false;

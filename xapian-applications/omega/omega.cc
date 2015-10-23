@@ -51,6 +51,13 @@ using namespace std;
 
 static const char DEFAULT_STEM_LANGUAGE[] = "english";
 
+// A character which doesn't require URL encoding, and isn't likely to appear
+// in filter values.
+const char filter_sep = '~';
+
+// What we used for filter_sep in Omega < 1.3.4.
+const char filter_sep_old = '-';
+
 Xapian::Enquire * enquire;
 Xapian::Database db;
 Xapian::RSet rset;
@@ -67,7 +74,7 @@ bool suppress_http_headers = false;
 
 string dbname;
 string fmtname = "query";
-string filters;
+string filters, old_filters;
 
 Xapian::docid topdoc = 0;
 Xapian::docid hits_per_page = 0;
@@ -282,8 +289,27 @@ try {
 	sort(filter_v.begin(), filter_v.end());
 	vector<string>::const_iterator j;
 	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
-	    filters += *j;
+	    const string & bterm = *j;
+	    string::size_type e = bterm.find(filter_sep);
+	    if (usual(e == string::npos)) {
+		filters += bterm;
+	    } else {
+		// If a filter contains filter_sep then double it to escape.
+		// Each filter must start with an alnum (checked above) and
+		// the value after the last filter is the default op, which
+		// is encoded as a non-alnum so filter_sep followed by
+		// something other than filter_sep must be separating filters.
+		string::size_type b = 0;
+		while (e != string::npos) {
+		    filters.append(bterm, b, e + 1 - b);
+		    b = e;
+		    e = bterm.find(filter_sep, b + 1);
+		}
+		filters.append(bterm, b, string::npos);
+	    }
 	    filters += filter_sep;
+	    old_filters += bterm;
+	    old_filters += filter_sep_old;
 	}
     }
 
@@ -295,8 +321,21 @@ try {
     val = cgi_params.find("SPAN");
     if (val != cgi_params.end()) date_span = val->second;
 
-    filters += date_start + filter_sep + date_end + filter_sep + date_span
-	+ (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
+    // If more default_op values are supported, encode them as non-alnums
+    // other than filter_sep.
+    filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
+    filters += date_start;
+    filters += filter_sep;
+    filters += date_end;
+    filters += filter_sep;
+    filters += date_span;
+
+    old_filters += date_start;
+    old_filters += filter_sep_old;
+    old_filters += date_end;
+    old_filters += filter_sep_old;
+    old_filters += date_span;
+    old_filters += (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
 
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
@@ -315,6 +354,8 @@ try {
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
+	    old_filters += filter_sep_old;
+	    old_filters += str(collapse_key);
 	}
     }
 
@@ -327,10 +368,12 @@ try {
 	    if (ch == 'D') {
 		docid_order = Xapian::Enquire::DESCENDING;
 		filters += 'D';
+		old_filters += 'D';
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
 		filters += 'X';
+		old_filters += 'X';
 	    }
 	}
     }
@@ -349,15 +392,19 @@ try {
 	}
 	// Add the sorting related options to filters too.
 	filters += str(sort_key);
+	old_filters += str(sort_key);
 	if (sort_after) {
 	    if (sort_ascending) {
 		filters += 'F';
+		old_filters += 'F';
 	    } else {
 		filters += 'R';
+		old_filters += 'R';
 	    }
 	} else {
 	    if (!sort_ascending) {
 		filters += 'r';
+		old_filters += 'r';
 	    }
 	}
     }
