@@ -152,9 +152,10 @@ $filesize{SIZE}
 
 $filters
         serialised version of filter-like settings (currently ``B``, ``START``,
-        ``END``, ``SPAN``, and ``DEFAULTOP``) - set ``xFILTERS`` to this
-        so that Omega can detect when the filters have changed and force the
-        first page.
+        ``END``, ``SPAN``, ``COLLAPSE``, ``DOCIDORDER``, ``SORT``,
+        ``SORTREVERSE``, ``SORTAFTER``, and ``DEFAULTOP``) - set ``xFILTERS``
+        to this so that Omega can detect when the filters have changed and
+        force the first page.
 
 $filterterms{PREFIX}
         list of all terms in the database with prefix ``PREFIX``, intended to
