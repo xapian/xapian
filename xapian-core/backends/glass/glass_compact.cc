@@ -898,7 +898,7 @@ void
 compact_glass(Xapian::Compactor & compactor,
 	      const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
-	      Xapian::Compactor::compaction_level compaction, bool multipass,
+	      Xapian::Compactor::compaction_level compaction, unsigned flags,
 	      Xapian::docid last_docid) {
     struct table_list {
 	// The "base name" of the table.
@@ -932,7 +932,13 @@ compact_glass(Xapian::Compactor & compactor,
 	version_file[i].read();
     }
 
-    bool single_file = true;
+    bool single_file = (flags & Xapian::Compactor::SINGLE_FILE);
+    bool multipass = (flags & Xapian::Compactor::MULTIPASS);
+    if (single_file) {
+	// FIXME: Support this combination - we need to put temporary files
+	// somewhere.
+	multipass = false;
+    }
 
     FlintLock lock(destdir);
     if (!single_file) {
@@ -1034,7 +1040,7 @@ compact_glass(Xapian::Compactor & compactor,
 	    out = new GlassTable(t->name, dest, false, t->compress_strategy, t->lazy);
 	}
 	tabs.push_back(out);
-	RootInfo * root_info;
+	RootInfo * root_info = NULL;
 	if (single_file) {
 	    root_info = version_file_out.root_to_set(t->type);
 	    root_info->set_free_list(fl_serialised);
@@ -1056,7 +1062,7 @@ compact_glass(Xapian::Compactor & compactor,
 	}
 
 	switch (t->type) {
-	    case Glass::POSTLIST:
+	    case Glass::POSTLIST: {
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(compactor, out, destdir, last_docid,
 					 inputs, root, rev, offset);
@@ -1067,6 +1073,7 @@ compact_glass(Xapian::Compactor & compactor,
 				    last_docid);
 		}
 		break;
+	    }
 	    case Glass::SPELLING:
 		merge_spellings(out, root.begin(), rev.begin(),
 				inputs.begin(), inputs.end());

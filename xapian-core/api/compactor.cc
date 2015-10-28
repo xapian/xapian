@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -86,11 +86,9 @@ class Compactor::Internal : public Xapian::Internal::intrusive_base {
     friend class Compactor;
 
     string destdir;
-    bool renumber;
-    bool multipass;
     int compact_to_stub;
     size_t block_size;
-    compaction_level compaction;
+    unsigned flags;
 
     Xapian::docid tot_off;
     Xapian::docid last_docid;
@@ -104,8 +102,7 @@ class Compactor::Internal : public Xapian::Internal::intrusive_base {
     vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
   public:
     Internal()
-	: renumber(true), multipass(false),
-	  block_size(8192), compaction(FULL), tot_off(0),
+	: block_size(8192), flags(FULL), tot_off(0),
 	  last_docid(0), backend(UNKNOWN)
     {
     }
@@ -128,21 +125,9 @@ Compactor::set_block_size(size_t block_size)
 }
 
 void
-Compactor::set_renumber(bool renumber)
+Compactor::set_flags(unsigned flags, unsigned mask)
 {
-    internal->renumber = renumber;
-}
-
-void
-Compactor::set_multipass(bool multipass)
-{
-    internal->multipass = multipass;
-}
-
-void
-Compactor::set_compaction_level(compaction_level compaction)
-{
-    internal->compaction = compaction;
+    internal->flags = (internal->flags & mask) | flags;
 }
 
 void
@@ -303,6 +288,7 @@ Compactor::Internal::add_source(const string & srcdir)
 
     Xapian::Database db(srcdir);
     Xapian::docid first = 0, last = 0;
+    bool renumber = !(flags & Xapian::Compactor::NO_RENUMBER);
 
     // "Empty" databases might have spelling or synonym data so can't
     // just be completely ignored.
@@ -353,6 +339,7 @@ Compactor::Internal::add_source(const string & srcdir)
 void
 Compactor::Internal::compact(Xapian::Compactor & compactor)
 {
+    bool renumber = !(flags & Xapian::Compactor::NO_RENUMBER);
     if (renumber)
 	last_docid = tot_off;
 
@@ -451,8 +438,11 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 	}
     }
 
+    compaction_level compaction =
+	static_cast<compaction_level>(flags & (STANDARD|FULL|FULLER));
     if (backend == CHERT) {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
+	bool multipass = (flags & Xapian::Compactor::MULTIPASS);
 	compact_chert(compactor, destdir.c_str(), sources, offset, block_size,
 		      compaction, multipass, last_docid);
 #else
@@ -462,7 +452,7 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
     } else if (backend == GLASS) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	compact_glass(compactor, destdir.c_str(), sources, offset, block_size,
-		      compaction, multipass, last_docid);
+		      compaction, flags, last_docid);
 #else
 	(void)compactor;
 	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");

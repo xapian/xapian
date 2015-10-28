@@ -1,7 +1,7 @@
 /** @file xapian-compact.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,6 +54,7 @@ static void show_usage() {
 "                    unique ids from an external source).  Currently this\n"
 "                    option is only supported when merging databases if they\n"
 "                    have disjoint ranges of used document ids\n"
+"  -s, --single-file Produce a single file database (not supported for chert)\n"
 "  --help            display this help and exit\n"
 "  --version         output version information and exit" << endl;
 }
@@ -103,13 +104,14 @@ MyCompactor::resolve_duplicate_metadata(const string & key,
 int
 main(int argc, char **argv)
 {
-    const char * opts = "b:nFmq";
+    const char * opts = "b:nFmqs";
     const struct option long_opts[] = {
 	{"fuller",	no_argument, 0, 'F'},
 	{"no-full",	no_argument, 0, 'n'},
 	{"multipass",	no_argument, 0, 'm'},
 	{"blocksize",	required_argument, 0, 'b'},
 	{"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
+	{"single-file", no_argument, 0, 's'},
 	{"quiet",	no_argument, 0, 'q'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
@@ -117,6 +119,8 @@ main(int argc, char **argv)
     };
 
     MyCompactor compactor;
+    Xapian::Compactor::compaction_level level = Xapian::Compactor::FULL;
+    unsigned flags = 0;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -139,16 +143,19 @@ main(int argc, char **argv)
 		break;
 	    }
 	    case 'n':
-		compactor.set_compaction_level(compactor.STANDARD);
+		level = compactor.STANDARD;
 		break;
 	    case 'F':
-		compactor.set_compaction_level(compactor.FULLER);
+		level = compactor.FULLER;
 		break;
 	    case 'm':
-		compactor.set_multipass(true);
+		flags |= compactor.MULTIPASS;
 		break;
 	    case OPT_NO_RENUMBER:
-		compactor.set_renumber(false);
+		flags |= compactor.NO_RENUMBER;
+		break;
+	    case 's':
+		flags |= compactor.SINGLE_FILE;
 		break;
 	    case 'q':
 		compactor.set_quiet(true);
@@ -170,6 +177,8 @@ main(int argc, char **argv)
 	show_usage();
 	exit(1);
     }
+
+    compactor.set_flags(level | flags);
 
     // Path to the database to create.
     compactor.set_destdir(argv[argc - 1]);
