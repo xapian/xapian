@@ -42,7 +42,7 @@ pkgpylibdir = @PYTHON3_LIB@/xapian
 # executable (they don't have a #! line).
 pkgpylib_DATA = xapian/__init__.py \
 		xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
-		xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo
+		xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@
 
 pkgpylib_LTLIBRARIES = _xapian.la
 
@@ -82,7 +82,7 @@ xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_
 	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -c "import _xapian"
 	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -c "import xapian"
 
-xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
+xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
 	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -O -c "import _xapian"
 	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -O -c "import xapian"
 
@@ -97,7 +97,7 @@ CLEANFILES = \
     xapian/_xapian$(PYTHON3_SO) \
     xapian/__init__.py \
     xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
-    xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo \
+    xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@\
     $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any

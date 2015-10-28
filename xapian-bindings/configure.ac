@@ -454,6 +454,11 @@ if test no != "$with_python3" ; then
 	AC_SUBST(PYTHON3_CACHE_TAG)
 	AC_MSG_RESULT([$PYTHON3_CACHE_TAG])
 
+	AC_MSG_CHECKING([for extension of cached and optimized python3 bytecode])
+	PYTHON3_CACHE_OPT1_EXT=`$PYTHON3 -c 'import imp,sys;print("%s.pyo"%imp.get_tag()) if sys.version_info.minor<5 else print("{1}{2}".format(*imp.util.cache_from_source("",optimization=1).rpartition(imp.get_tag())))'`
+	AC_SUBST(PYTHON3_CACHE_OPT1_EXT)
+	AC_MSG_RESULT([$PYTHON3_CACHE_OPT1_EXT])
+
 	BINDINGS="$BINDINGS python3"
       else
 	AC_MSG_RESULT([no (install python3-dev or python3-devel package or similar)])
