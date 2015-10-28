@@ -113,6 +113,12 @@ int main(int argc, char **argv) {
 	        break;
 	    case 'p':
                 port = atoi(optarg);
+		if (port <= 0 || port >= 65536) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). "
+			    "We actually got " << port << endl;
+		    exit(1);
+		}
 	        break;
 	    case 'a':
 		active_timeout = atoi(optarg) * 1e-3;
@@ -142,9 +148,8 @@ int main(int argc, char **argv) {
 	exit(1);
     }
 
-    if (port <= 0 || port >= 65536) {
-	cerr << "Error: must specify a valid port number (between 1 and 65535)."
-		" We actually got " << port << endl;
+    if (port == 0) {
+	cerr << "Error: You must specify a port with --port" << endl;
 	exit(1);
     }
 
