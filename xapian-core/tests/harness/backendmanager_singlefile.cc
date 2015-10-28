@@ -80,7 +80,7 @@ BackendManagerSingleFile::createdb_singlefile(const vector<string> & files)
 
     string tmpfile = dbpath;
     tmpfile += ".tmp";
-    string pack_cmd = "../pack-single-file-glass-db > /dev/null";
+    string pack_cmd = "../bin/xapian-compact -q -s";
     if (!append_filename_argument(pack_cmd, db_source) ||
 	!append_filename_argument(pack_cmd, tmpfile)) {
 	throw string("Couldn't build command to pack single file database");
