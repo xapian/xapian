@@ -27,7 +27,6 @@
 #include "xapian/types.h"
 
 #include <algorithm>
-#include <iostream>
 #include <queue>
 
 #include <cstdio>
@@ -953,7 +952,7 @@ compact_glass(Xapian::Compactor & compactor,
     string fl_serialised;
     {
 	GlassFreeList fl;
-	fl.set_base(1); // FIXME: Assumption?
+	fl.set_first_unused_block(1); // FIXME: Assumption?
 	fl.pack(fl_serialised);
     }
 

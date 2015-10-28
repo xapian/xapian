@@ -25,10 +25,6 @@
 #include "glass_defs.h"
 #include "pack.h"
 
-#include <iostream>
-using std::cout;
-using std::endl;
-
 class GlassTable;
 
 class GlassFLCursor {
@@ -94,7 +90,6 @@ class GlassFreeList {
 
   public:
     GlassFreeList() {
-	cout << (const void*)this << " GlassFreeList ctor - fub -> 0" << endl;
 	revision = 0;
 	first_unused_block = 0;
 	flw_appending = false;
@@ -102,19 +97,9 @@ class GlassFreeList {
     }
 
     void reset() {
-	cout << (const void*)this << " GlassFreeList::reset() - fub -> 0" << endl;
 	revision = 0;
 	first_unused_block = 0;
 	flw_appending = false;
-    }
-
-    uint4 get_base() const {
-	return first_unused_block;
-    }
-
-    void set_base(uint4 base) {
-	cout << (const void*)this << " GlassFreeList::set_base(" << base << ")" << endl;
-	first_unused_block = base;
     }
 
     ~GlassFreeList() { delete [] p; delete [] pw; }
@@ -132,6 +117,9 @@ class GlassFreeList {
     void set_revision(uint4 revision_) { revision = revision_; }
 
     uint4 get_first_unused_block() const { return first_unused_block; }
+
+    // Used when compacting to a single file.
+    void set_first_unused_block(uint4 base) { first_unused_block = base; }
 
     void commit(const GlassTable * B, uint4 block_size);
 
@@ -151,7 +139,6 @@ class GlassFreeList {
 	    fl_end = flw;
 	    flw_appending = false;
 	}
-	cout << (const void*)this << " GlassFreeList::unpack() fub -> " << first_unused_block << endl;
 	return r;
     }
 
