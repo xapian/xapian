@@ -950,7 +950,8 @@ compact_glass(Xapian::Compactor & compactor,
     GlassVersion version_file_out(fd); //destdir);
     version_file_out.create(block_size, 0);
 
-    glass_block_t base = 1; // FIXME: Assumption?
+    GlassFreeList fl;
+    fl.set_base(1); // FIXME: Assumption?
 
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
@@ -1020,12 +1021,8 @@ compact_glass(Xapian::Compactor & compactor,
 	    new GlassTable(t->name, dup(fd) /*dest*/, false, t->compress_strategy, false /*t->lazy*/);
 	tabs.push_back(out);
 
-	cout << "Setting base for " << t->name << " to " << base << endl;
 	{
 	    RootInfo * root_info = version_file_out.root_to_set(t->type);
-	    GlassFreeList fl;
-	    fl.unpack(root_info->get_free_list());
-	    fl.set_base(base);
 	    string fl_serialised;
 	    fl.pack(fl_serialised);
 	    root_info->set_free_list(fl_serialised);
@@ -1035,7 +1032,6 @@ compact_glass(Xapian::Compactor & compactor,
 	out->create_and_open(FLAGS, block_size);
 	out->close();
 	out->open(FLAGS, version_file_out.get_root(t->type), version_file_out.get_revision());
-	cout << "\nbase = " << base << " after open" << endl;
 
 	out->set_full_compaction(compaction != compactor.STANDARD);
 	if (compaction == compactor.FULLER) out->set_max_item_size(1);
@@ -1079,14 +1075,15 @@ compact_glass(Xapian::Compactor & compactor,
 	}
 
 	// Commit as revision 1.
-	base = out->get_free_list_base();
-	cout << "\nbase = " << base << endl;
 	lseek(fd, 0, SEEK_SET);
 	out->flush_db();
 	out->commit(1, version_file_out.root_to_set(t->type));
 	out->sync();
-	base = out->get_free_list_base();
-	cout << "\nbase = " << base << " after flush" << endl;
+	{
+	    RootInfo * root_info = version_file_out.root_to_set(t->type);
+	    fl.unpack(root_info->get_free_list());
+	}
+	cout << "\nbase = " << fl.get_first_unused_block() << " after flush" << endl;
 
 	off_t out_size = 0;
 	if (!bad_stat) {
