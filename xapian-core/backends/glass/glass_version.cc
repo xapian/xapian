@@ -67,23 +67,25 @@ static const char GLASS_VERSION_MAGIC[GLASS_VERSION_MAGIC_AND_VERSION_LEN] = {
     char((GLASS_FORMAT_VERSION >> 8) & 0xff), char(GLASS_FORMAT_VERSION & 0xff)
 };
 
-GlassVersion::GlassVersion(int fd_)
-    : rev(0), fd(fd_), db_dir(), changes(NULL)
-{
-    offset = lseek(fd, 0, SEEK_CUR);
-    if (rare(offset == off_t(-1))) {
-	string msg = "lseek failed on file descriptor ";
-	msg += str(fd);
-	throw Xapian::DatabaseOpeningError(msg, errno);
-    }
-}
-
 GlassVersion::~GlassVersion()
 {
     // Either this is a single-file database, or this fd is from opening a new
     // version file in write(), but sync() was never called.
     if (fd != -1)
 	(void)::close(fd);
+}
+
+void
+GlassVersion::set_fd(int fd_)
+{
+    db_dir = string();
+    fd = fd_;
+    offset = lseek(fd, 0, SEEK_CUR);
+    if (rare(offset == off_t(-1))) {
+	string msg = "lseek failed on file descriptor ";
+	msg += str(fd);
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
 }
 
 void

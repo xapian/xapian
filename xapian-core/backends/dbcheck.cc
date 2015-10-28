@@ -383,7 +383,8 @@ check_db_file(const string & path, struct stat & sb, int opts, std::ostream *out
     }
 
     lseek(fd, 0, SEEK_SET);
-    GlassVersion version_file(fd);
+    GlassVersion version_file;
+    version_file.set_fd(fd);
     version_file.read();
 
     // This is a glass directory so try to check all the btrees.

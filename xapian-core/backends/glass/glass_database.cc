@@ -161,7 +161,7 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 GlassDatabase::GlassDatabase(int fd)
 	: db_dir(),
 	  readonly(true),
-	  version_file(fd),
+	  version_file(),
 	  postlist_table(fd, readonly),
 	  position_table(fd, readonly),
 	  termlist_table(fd, readonly, true),
@@ -173,7 +173,7 @@ GlassDatabase::GlassDatabase(int fd)
 	  changes(string())
 {
     LOGCALL_CTOR(DB, "GlassDatabase", fd);
-
+    version_file.set_fd(fd);
     open_tables(Xapian::DB_READONLY_);
 }
 
