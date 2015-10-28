@@ -517,6 +517,16 @@ class GlassTable {
 	 */
 	void create_and_open(int flags_, unsigned int blocksize);
 
+	glass_block_t get_free_list_base() const {
+	    // FIXME: Share freelist?
+	    return free_list.get_base();
+	}
+
+	void set_free_list_base(glass_block_t block) {
+	    // FIXME: Share freelist?
+	    free_list.set_base(block);
+	}
+
 	void set_full_compaction(bool parity);
 
 	/** Get the revision number at which this table

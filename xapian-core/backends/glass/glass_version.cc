@@ -182,22 +182,29 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	root[table_no].serialise(s);
     }
 
-    string tmpfile = db_dir;
-    // In dangerous mode, just write the new version file in place.
-    if (flags & Xapian::DB_DANGEROUS)
-	tmpfile += "/iamglass";
-    else
-	tmpfile += "/v.tmp";
+    string tmpfile;
+    if (!db_dir.empty()) {
+	tmpfile = db_dir;
+	// In dangerous mode, just write the new version file in place.
+	if (flags & Xapian::DB_DANGEROUS)
+	    tmpfile += "/iamglass";
+	else
+	    tmpfile += "/v.tmp";
 
-    fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
-    if (rare(fd < 0))
-	throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
-					   errno);
+	fd = posixy_open(tmpfile.c_str(), O_CREAT|O_TRUNC|O_WRONLY|O_BINARY, 0666);
+	if (rare(fd < 0))
+	    throw Xapian::DatabaseOpeningError("Couldn't write new rev file: " + tmpfile,
+					       errno);
+
+	if (flags & Xapian::DB_DANGEROUS)
+	    tmpfile = string();
+    }
 
     try {
 	io_write(fd, s.data(), s.size());
     } catch (...) {
-	(void)close(fd);
+	if (!db_dir.empty())
+	    (void)close(fd);
 	throw;
     }
 
@@ -210,8 +217,6 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
 	changes->write_block(s);
     }
 
-    if (flags & Xapian::DB_DANGEROUS)
-	tmpfile = string();
     RETURN(tmpfile);
 }
 
@@ -221,41 +226,50 @@ GlassVersion::sync(const string & tmpfile,
 {
     Assert(new_rev > rev || rev == 0);
 
-    int fd_to_close = fd;
-    fd = -1;
-    if ((flags & Xapian::DB_NO_SYNC) == 0 &&
-	((flags & Xapian::DB_FULL_SYNC) ?
-	  !io_full_sync(fd_to_close) :
-	  !io_sync(fd_to_close))) {
-	int save_errno = errno;
-	(void)close(fd_to_close);
-	if (!tmpfile.empty())
-	    (void)unlink(tmpfile.c_str());
-	errno = save_errno;
-	return false;
-    }
-
-    if (close(fd_to_close) != 0) {
-	if (!tmpfile.empty()) {
-	    int save_errno = errno;
-	    (void)unlink(tmpfile.c_str());
-	    errno = save_errno;
+    if (db_dir.empty()) {
+	if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+	    ((flags & Xapian::DB_FULL_SYNC) ?
+	      !io_full_sync(fd) :
+	      !io_sync(fd))) {
+	    // FIXME what to do?
 	}
-	return false;
-    }
-
-    if (!tmpfile.empty()) {
-	string filename = db_dir;
-	filename += "/iamglass";
-
-	if (posixy_rename(tmpfile.c_str(), filename.c_str()) < 0) {
-	    // Over NFS, rename() can sometimes report failure when the
-	    // operation succeeded, so in this case we try to unlink the source
-	    // to check if the rename really failed.
+    } else {
+	int fd_to_close = fd;
+	fd = -1;
+	if ((flags & Xapian::DB_NO_SYNC) == 0 &&
+	    ((flags & Xapian::DB_FULL_SYNC) ?
+	      !io_full_sync(fd_to_close) :
+	      !io_sync(fd_to_close))) {
 	    int save_errno = errno;
-	    if (unlink(tmpfile.c_str()) == 0 || errno != ENOENT) {
+	    (void)close(fd_to_close);
+	    if (!tmpfile.empty())
+		(void)unlink(tmpfile.c_str());
+	    errno = save_errno;
+	    return false;
+	}
+
+	if (close(fd_to_close) != 0) {
+	    if (!tmpfile.empty()) {
+		int save_errno = errno;
+		(void)unlink(tmpfile.c_str());
 		errno = save_errno;
-		return false;
+	    }
+	    return false;
+	}
+
+	if (!tmpfile.empty()) {
+	    string filename = db_dir;
+	    filename += "/iamglass";
+
+	    if (posixy_rename(tmpfile.c_str(), filename.c_str()) < 0) {
+		// Over NFS, rename() can sometimes report failure when the
+		// operation succeeded, so in this case we try to unlink the source
+		// to check if the rename really failed.
+		int save_errno = errno;
+		if (unlink(tmpfile.c_str()) == 0 || errno != ENOENT) {
+		    errno = save_errno;
+		    return false;
+		}
 	    }
 	}
     }

@@ -27,6 +27,7 @@
 #include "xapian/types.h"
 
 #include <algorithm>
+#include <iostream>
 #include <queue>
 
 #include <cstdio>
@@ -932,15 +933,24 @@ compact_glass(Xapian::Compactor & compactor,
 	version_file[i].read();
     }
 
+    rmdir(destdir);
+    int fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
+    if (fd < 0) {
+	throw Xapian::DatabaseCreateError("open() failed", errno);
+    }
+#if 0
     FlintLock lock(destdir);
     string explanation;
     FlintLock::reason why = lock.lock(true, false, explanation);
     if (why != FlintLock::SUCCESS) {
 	lock.throw_databaselockerror(why, destdir, explanation);
     }
+#endif
 
-    GlassVersion version_file_out(destdir);
+    GlassVersion version_file_out(fd); //destdir);
     version_file_out.create(block_size, 0);
+
+    glass_block_t base = 1; // FIXME: Assumption?
 
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
@@ -1007,9 +1017,25 @@ compact_glass(Xapian::Compactor & compactor,
 	}
 
 	GlassTable * out =
-	    new GlassTable(t->name, dest, false, t->compress_strategy, t->lazy);
+	    new GlassTable(t->name, dup(fd) /*dest*/, false, t->compress_strategy, false /*t->lazy*/);
 	tabs.push_back(out);
+
+	cout << "Setting base for " << t->name << " to " << base << endl;
+	{
+	    RootInfo * root_info = version_file_out.root_to_set(t->type);
+	    GlassFreeList fl;
+	    fl.unpack(root_info->get_free_list());
+	    fl.set_base(base);
+	    string fl_serialised;
+	    fl.pack(fl_serialised);
+	    root_info->set_free_list(fl_serialised);
+	}
+	//out->set_free_list_base(base);
+
 	out->create_and_open(FLAGS, block_size);
+	out->close();
+	out->open(FLAGS, version_file_out.get_root(t->type), version_file_out.get_revision());
+	cout << "\nbase = " << base << " after open" << endl;
 
 	out->set_full_compaction(compaction != compactor.STANDARD);
 	if (compaction == compactor.FULLER) out->set_max_item_size(1);
@@ -1053,9 +1079,14 @@ compact_glass(Xapian::Compactor & compactor,
 	}
 
 	// Commit as revision 1.
+	base = out->get_free_list_base();
+	cout << "\nbase = " << base << endl;
+	lseek(fd, 0, SEEK_SET);
 	out->flush_db();
 	out->commit(1, version_file_out.root_to_set(t->type));
 	out->sync();
+	base = out->get_free_list_base();
+	cout << "\nbase = " << base << " after flush" << endl;
 
 	off_t out_size = 0;
 	if (!bad_stat) {
@@ -1106,5 +1137,7 @@ compact_glass(Xapian::Compactor & compactor,
 	delete tabs[j];
     }
 
+#if 0
     lock.release();
+#endif
 }

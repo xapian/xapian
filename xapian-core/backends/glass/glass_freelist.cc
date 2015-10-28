@@ -29,6 +29,7 @@
 #include "omassert.h"
 #include "unaligned.h"
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 
@@ -72,6 +73,7 @@ uint4
 GlassFreeList::get_block(const GlassTable *B, uint4 block_size,
 			 uint4 * blk_to_free)
 {
+    cout << (const void*)this << " GlassFreeList::get_block() " << (fl == fl_end) << " fub = " << first_unused_block << endl;
     if (fl == fl_end) {
 	return first_unused_block++;
     }
