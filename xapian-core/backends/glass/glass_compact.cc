@@ -958,6 +958,7 @@ compact_glass(Xapian::Compactor & compactor,
 
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
+    off_t prev_size = block_size;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -966,10 +967,12 @@ compact_glass(Xapian::Compactor & compactor,
 	// from each source table in turn.
 	compactor.set_status(t->name, string());
 
+	/*
 	string dest = destdir;
 	dest += '/';
 	dest += t->name;
 	dest += '.';
+	*/
 
 	bool output_will_exist = !t->lazy;
 
@@ -1082,9 +1085,10 @@ compact_glass(Xapian::Compactor & compactor,
 
 	off_t out_size = 0;
 	if (!bad_stat) {
-	    off_t db_size = file_size(dest + GLASS_TABLE_EXTENSION);
+	    off_t db_size = file_size(fd); // dest + GLASS_TABLE_EXTENSION);
 	    if (errno == 0) {
-		out_size = db_size / 1024;
+		out_size = (db_size - prev_size) / 1024;
+		prev_size = db_size;
 	    } else {
 		bad_stat = (errno != ENOENT);
 	    }
