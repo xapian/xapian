@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -276,21 +276,21 @@ Compactor::Internal::add_source(const string & srcdir)
 	}
     }
 
-    if (file_exists(string(srcdir) + "/iamchert")) {
+    if (file_exists(srcdir + "/iamchert")) {
 	if (backend == UNKNOWN) {
 	    backend = CHERT;
 	} else if (backend != CHERT) {
 	    backend_mismatch(first_source, backend, srcdir, CHERT);
 	}
-    } else if (file_exists(string(srcdir) + "/iamglass")) {
+    } else if (file_exists(srcdir + "/iamglass")) {
 	if (backend == UNKNOWN) {
 	    backend = GLASS;
 	} else if (backend != GLASS) {
 	    backend_mismatch(first_source, backend, srcdir, GLASS);
 	}
-    } else if (file_exists(string(srcdir) + "/iamflint")) {
+    } else if (file_exists(srcdir + "/iamflint")) {
 	throw Xapian::DatabaseError("Flint backend no longer supported");
-    } else if (file_exists(string(srcdir) + "/iambrass")) {
+    } else if (file_exists(srcdir + "/iambrass")) {
 	throw Xapian::DatabaseError("Brass backend no longer supported");
     } else {
 	string msg = srcdir;
@@ -347,7 +347,7 @@ Compactor::Internal::add_source(const string & srcdir)
 	last_docid = db.get_lastdocid();
     used_ranges.push_back(make_pair(first, last));
 
-    sources.push_back(string(srcdir) + '/');
+    sources.push_back(srcdir + '/');
 }
 
 void
