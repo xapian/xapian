@@ -708,9 +708,14 @@ class GlassTable {
 	 */
 	GlassChanges * changes_obj;
 
+	bool single_file() const {
+	    return name.empty();
+	}
+
 	/* B-tree navigation functions */
 	bool prev(Glass::Cursor *C_, int j) const {
-	    if (sequential) return prev_for_sequential(C_, j);
+	    if (sequential && !single_file())
+		return prev_for_sequential(C_, j);
 	    return prev_default(C_, j);
 	}
 

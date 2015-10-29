@@ -1548,7 +1548,7 @@ bool
 GlassTable::exists() const {
     LOGCALL(DB, bool, "GlassTable::exists", NO_ARGS);
     // We know a single-file database exists, since we have an fd open on it!
-    return name.empty() || file_exists(name + GLASS_TABLE_EXTENSION);
+    return single_file() || file_exists(name + GLASS_TABLE_EXTENSION);
 }
 
 void
@@ -1590,7 +1590,7 @@ void GlassTable::close(bool permanent) {
     LOGCALL_VOID(DB, "GlassTable::close", permanent);
 
     if (handle >= 0) {
-	if (name.empty()) {
+	if (single_file()) {
 	    handle = -3 - handle;
 	} else {
 	    // If an error occurs here, we just ignore it, since we're just
@@ -1756,7 +1756,7 @@ GlassTable::do_open_to_read(const RootInfo * root_info,
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
-    if (name.empty()) {
+    if (single_file()) {
 	handle = -3 - handle;
     } else {
 	handle = io_open_block_rd(name + GLASS_TABLE_EXTENSION);
