@@ -23,13 +23,11 @@
 
 #include "backendmanager_singlefile.h"
 
-#include "append_filename_arg.h"
 #include "filetests.h"
 #include "index_utils.h"
 #include "unixcmds.h"
 
 #include <cstdio> // For rename().
-#include <cstdlib> // For system().
 #include <cstring>
 #include "safeerrno.h"
 
@@ -78,31 +76,20 @@ BackendManagerSingleFile::createdb_singlefile(const vector<string> & files)
 	throw msg;
     }
 
-    string tmpfile = dbpath;
-    tmpfile += ".tmp";
-    string pack_cmd = "../bin/xapian-compact -q -s";
-    if (!append_filename_argument(pack_cmd, db_source) ||
-	!append_filename_argument(pack_cmd, tmpfile)) {
-	throw string("Couldn't build command to pack single file database");
-    }
-
     {
 	Xapian::WritableDatabase db(db_source, flags);
 	FileIndexer(get_datadir(), files).index_to(db);
 	db.commit();
     }
 
-    errno = 0;
-    if (system(pack_cmd.c_str()) != 0) {
-	string msg = "Couldn't pack single file database '";
-	msg += tmpfile;
-	if (errno) {
-	    msg += "' (";
-	    msg += strerror(errno);
-	    msg += ')';
-	}
-	throw msg;
-    }
+    string tmpfile = dbpath;
+    tmpfile += ".tmp";
+
+    Xapian::Compactor compactor;
+    compactor.set_flags(compactor.SINGLE_FILE);
+    compactor.add_source(db_source);
+    compactor.set_destdir(tmpfile);
+    compactor.compact();
 
     rm_rf(db_source);
 
