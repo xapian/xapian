@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -276,19 +276,19 @@ Compactor::Internal::add_source(const string & srcdir)
 	}
     }
 
-    if (stat(string(srcdir) + "/iamflint", &sb) == 0) {
+    if (stat(srcdir + "/iamflint", &sb) == 0) {
 	if (backend == UNKNOWN) {
 	    backend = FLINT;
 	} else if (backend != FLINT) {
 	    backend_mismatch(first_source, backend, srcdir, FLINT);
 	}
-    } else if (stat(string(srcdir) + "/iamchert", &sb) == 0) {
+    } else if (stat(srcdir + "/iamchert", &sb) == 0) {
 	if (backend == UNKNOWN) {
 	    backend = CHERT;
 	} else if (backend != CHERT) {
 	    backend_mismatch(first_source, backend, srcdir, CHERT);
 	}
-    } else if (stat(string(srcdir) + "/iambrass", &sb) == 0) {
+    } else if (stat(srcdir + "/iambrass", &sb) == 0) {
 	if (backend == UNKNOWN) {
 	    backend = BRASS;
 	} else if (backend != BRASS) {
@@ -349,7 +349,7 @@ Compactor::Internal::add_source(const string & srcdir)
 	last_docid = db.get_lastdocid();
     used_ranges.push_back(make_pair(first, last));
 
-    sources.push_back(string(srcdir) + '/');
+    sources.push_back(srcdir + '/');
 }
 
 void
