@@ -66,13 +66,13 @@
        K1      the 1 byte length of key
        I2      the 2 byte length of an item (key-tag pair)
        D2      the 2 byte offset to the item from the directory
-       C2      the 2 byte counter that ends each key and begins each tag
+       X2      the 2 byte component counter that ends each key
 */
 
 #define K1 1
 #define I2 2
 #define D2 2
-#define C2 2
+#define X2 2
 
 /*  and when getting K1 or setting D2, we use getK, setD defined as: */
 
@@ -84,11 +84,11 @@
 
    Recall that item has this form:
 
-           i k
-           | |
-           I K key x C tag
+           i k     x
+           | |     |
+           I K key X tag
              <--K-->
-           <------I------>
+           <------I---->
 
 
    item_of(p, c) returns i, the address of the item at block address p,
@@ -96,7 +96,7 @@
 
    component_of(p, c) returns the number marked 'x' above,
 
-   components_of(p, c) returns the number marked 'C' above,
+   last_component(p, c) returns true if this is a final component.
 */
 
 #define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
@@ -113,8 +113,9 @@
 #define SET_DIR_END(b, x)       setint2(b, 9, x)
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag for
-// "is the tag data compressed".
-#define MAX_ITEM_SIZE 0x7fff
+// "is the tag data compressed" and the next bit is used to flag if this is the
+// last item for this tag.
+#define MAX_ITEM_SIZE 0x3fff
 
 /** Freelist blocks have their level set to LEVEL_FREELIST. */
 const int LEVEL_FREELIST = 254;
@@ -139,7 +140,7 @@ public:
     bool operator<=(Key key2) const { return !(key2 < *this); }
     int length() const {
 	AssertRel(getK(p, 0),>=,3);
-	return getK(p, 0) - C2 - K1;
+	return getK(p, 0) - X2 - K1;
     }
     char operator[](size_t i) const {
 	AssertRel(i,<,(size_t)length());
@@ -160,20 +161,18 @@ public:
     /** I in diagram above. */
     int size() const {
 	int item_size = getint2(p, 0) & MAX_ITEM_SIZE;
-	AssertRel(item_size,>=,5);
+	AssertRel(item_size,>=,3);
 	return item_size;
     }
     bool get_compressed() const { return *p & 0x80; }
+    bool last_component() const { return !(*p & 0x40); }
     int component_of() const {
-	return getint2(p, getK(p, I2) + I2 - C2);
-    }
-    int components_of() const {
-	return getint2(p, getK(p, I2) + I2);
+	return getint2(p, getK(p, I2) + I2 - X2);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(std::string * tag) const {
 	/* number of bytes to extract from current component */
-	int cd = getK(p, I2) + I2 + C2;
+	int cd = getK(p, I2) + I2;
 	int l = size() - cd;
 	tag->append(reinterpret_cast<const char *>(p + cd), l);
     }
@@ -200,10 +199,7 @@ public:
     Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
     Item_wr(byte * p_) : Item_base<byte *>(p_) { }
     void set_component_of(int i) {
-	setint2(p, getK(p, I2) + I2 - C2, i);
-    }
-    void set_components_of(int m) {
-	setint2(p, getK(p, I2) + I2, m);
+	setint2(p, getK(p, I2) + I2 - X2, i);
     }
     // Takes size as we may be truncating newkey.
     void set_key_and_block(Key newkey, int truncate_size, uint4 n) {
@@ -212,7 +208,7 @@ public:
 	// FIXME that's stupid!  sort this out
 	int newkey_len = newkey.length();
 	AssertRel(i,<=,newkey_len);
-	int newsize = I2 + K1 + i + C2;
+	int newsize = I2 + K1 + i + X2;
 	// Item size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
 	setint2(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
 	// Key size
@@ -220,7 +216,7 @@ public:
 	// Copy the main part of the key, possibly truncating.
 	std::memmove(p + I2 + K1, newkey.get_address() + K1, i);
 	// Copy the count part.
-	std::memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
+	std::memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, X2);
 	// Set tag contents to block number
 //	set_block_given_by(n);
 	setint4(p, newsize, n);
@@ -233,7 +229,7 @@ public:
 	setint4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
     }
     void set_size(int l) {
-	AssertRel(l,>=,5);
+	AssertRel(l,>=,3);
 	// We should never be able to pass too large a size here, but don't
 	// corrupt the database if this somehow happens.
 	if (rare(l &~ MAX_ITEM_SIZE)) throw Xapian::DatabaseError("item too large!");
@@ -259,21 +255,21 @@ public:
 	    throw Xapian::InvalidArgumentError(msg);
 	}
 
-	set_key_len(key_len + K1 + C2);
+	set_key_len(key_len + K1 + X2);
 	std::memmove(p + I2 + K1, key_.data(), key_len);
 	set_component_of(1);
     }
     // FIXME passing cd here is icky
-    void set_tag(int cd, const char *start, int len, bool compressed) {
+    void set_tag(int cd, const char *start, int len, bool compressed, bool last) {
 	std::memmove(p + cd, start, len);
 	set_size(cd + len);
 	if (compressed) *p |= 0x80;
+	if (!last) *p |= 0x40;
     }
     void fake_root_item() {
-	set_key_len(K1 + C2);   // null key length
-	set_size(I2 + K1 + 2 * C2);   // length of the item
+	set_key_len(K1 + X2);   // null key length
+	set_size(I2 + K1 + X2);   // length of the item
 	set_component_of(1);
-	set_components_of(1);
     }
 };
 

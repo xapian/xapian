@@ -56,7 +56,11 @@ void GlassTableCheck::print_key(const byte * p, int c, int j) const
     description_append(escaped, key);
     *out << escaped;
     if (j == 0) {
-	*out << ' ' << item.component_of();
+	int x = item.component_of();
+	*out << ' ' << x;
+	if (item.last_component()) {
+	    *out << '/' << x;
+	}
     }
 }
 
@@ -68,7 +72,7 @@ void GlassTableCheck::print_tag(const byte * p, int c, int j) const
 	item.append_chunk(&tag);
 	string escaped;
 	description_append(escaped, tag);
-	*out << '/' << item.components_of() << ' ' << escaped;
+	*out << ' ' << escaped;
     } else {
 	*out << "--> [" << item.block_given_by() << ']';
     }

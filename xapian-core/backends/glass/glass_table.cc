@@ -596,8 +596,8 @@ GlassTable::enter_key(int j, Key prevkey, Key newkey)
 
     byte b[UCHAR_MAX + 6];
     Item_wr item(b);
-    Assert(i <= 256 - I2 - C2);
-    Assert(i <= (int)sizeof(b) - I2 - C2 - 4);
+    Assert(i + K1 + X2 < 255);
+    Assert(i <= (int)sizeof(b) - I2 - K1 - X2 - BYTES_PER_BLOCK_NUMBER);
     item.set_key_and_block(newkey, i, blocknumber);
 
     // The split block gets inserted into the parent after the pointer to the
@@ -761,7 +761,7 @@ GlassTable::add_item(Item_wr kt_, int j)
 	    // save a bit of disk space.  Other redundant keys will still creep
 	    // in though.
 	    Item_wr item(p, DIR_START);
-	    int new_total_free = TOTAL_FREE(p) + item.key().length() + C2;
+	    int new_total_free = TOTAL_FREE(p) + item.key().length() + X2;
 	    item.form_null_key(item.block_given_by());
 	    SET_TOTAL_FREE(p, new_total_free);
 	}
@@ -858,6 +858,11 @@ static addcount = 0;
 
      If the key of kt is not in the B-tree (found is false), the new
      kt is added in with add_item.
+
+     Returns:
+	 0 : added kt
+	 1 : replaced kt
+	 2 : replaced kt and it was the final one
 */
 
 int
@@ -865,16 +870,16 @@ GlassTable::add_kt(bool found)
 {
     LOGCALL(DB, int, "GlassTable::add_kt", found);
     Assert(writable);
-    int components = 0;
 
     /*
     {
 	printf("%d) %s ", addcount++, (found ? "replacing" : "adding"));
-	print_bytes(kt[I2] - K1 - C2, kt + I2 + K1); putchar('\n');
+	print_bytes(kt[I2] - K1 - X2, kt + I2 + K1); putchar('\n');
     }
     */
     alter();
 
+    int result = 0;
     if (found) { /* replacement */
 	seq_count = SEQ_START_POINT;
 	sequential = false;
@@ -887,7 +892,7 @@ GlassTable::add_kt(bool found)
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
 
-	components = item.components_of();
+	result = item.last_component() ? 2 : 1;
 
 	if (needed <= 0) {
 	    /* simple replacement */
@@ -920,12 +925,17 @@ GlassTable::add_kt(bool found)
 	C[0].c += D2;
 	add_item(kt, 0);
     }
-    RETURN(components);
+    RETURN(result);
 }
 
 /* delete_kt() corresponds to add_kt(found), but there are only
    two cases: if the key is not found nothing is done, and if it is
    found the corresponding item is deleted with delete_item.
+
+     Returns:
+	 0 : nothing to delete
+	 1 : deleted kt
+	 2 : deleted kt and it was the final one
 */
 
 int
@@ -934,24 +944,17 @@ GlassTable::delete_kt()
     LOGCALL(DB, int, "GlassTable::delete_kt", NO_ARGS);
     Assert(writable);
 
-    bool found = find(C);
-
-    int components = 0;
     seq_count = SEQ_START_POINT;
     sequential = false;
 
-    /*
-    {
-	printf("%d) %s ", addcount++, (found ? "deleting " : "ignoring "));
-	print_bytes(B->kt[I2] - K1 - C2, B->kt + I2 + K1); putchar('\n');
-    }
-    */
-    if (found) {
-	components = Item(C[0].get_p(), C[0].c).components_of();
-	alter();
-	delete_item(0, true);
-    }
-    RETURN(components);
+    if (!find(C))
+	return 0;
+
+    int result = Item(C[0].get_p(), C[0].c).last_component() ? 2 : 1;
+    alter();
+    delete_item(0, true);
+
+    RETURN(result);
 }
 
 /* GlassTable::form_key(key) treats address kt as an item holder and fills in
@@ -1047,7 +1050,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     }
 
     // sort of matching kt.append_chunk(), but setting the chunk
-    const size_t cd = kt.key().length() + K1 + I2 + C2 + C2;  // offset to the tag data
+    const size_t cd = kt.key().length() + K1 + I2 + X2;  // offset to the tag data
     const size_t L = max_item_size - cd; // largest amount of tag data for any chunk
     size_t first_L = L;                  // - amount for tag1
     bool found = find(C);
@@ -1086,31 +1089,32 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     if (m >= BYTE_PAIR_RANGE)
 	throw Xapian::UnimplementedError("Can't handle insanely large tags");
 
-    int n = 0; // initialise to shut off warning
-				      // - and there will be n to delete
     int o = 0;                        // Offset into the tag
     size_t residue = tag.length();    // Bytes of the tag remaining to add in
-    int replacement = false;          // Has there been a replacement ?
+    bool replacement = false;         // Has there been a replacement?
+    bool components_to_del = false;   // Are there components to delete?
     int i;
-    kt.set_components_of(m);
     for (i = 1; i <= m; i++) {
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
 	Assert(string::size_type(o + l) <= tag.length());
-	kt.set_tag(cd, tag.data() + o, l, compressed);
+	kt.set_tag(cd, tag.data() + o, l, compressed, (i == m));
 	kt.set_component_of(i);
 
 	o += l;
 	residue -= l;
 
 	if (i > 1) found = find(C);
-	n = add_kt(found);
-	if (n > 0) replacement = true;
+	int result = add_kt(found);
+	if (result) replacement = true;
+	components_to_del = (result == 1);
     }
-    /* o == tag.length() here, and n may be zero */
-    for (i = m + 1; i <= n; i++) {
-	kt.set_component_of(i);
-	delete_kt();
+    AssertEq(o, tag.length());
+    if (components_to_del) {
+	i = m;
+	do {
+	    kt.set_component_of(++i);
+	} while (delete_kt() == 1);
     }
     if (!replacement) ++item_count;
     Btree_modified = true;
@@ -1145,12 +1149,12 @@ GlassTable::del(const string &key)
     if (key.empty()) RETURN(false);
     form_key(key);
 
-    int n = delete_kt();  /* there are n items to delete */
-    if (n <= 0) RETURN(false);
-
-    for (int i = 2; i <= n; i++) {
-	kt.set_component_of(i);
-	delete_kt();
+    int r = delete_kt();
+    if (r == 0) RETURN(false);
+    int i = 1;
+    while (r == 1) {
+	kt.set_component_of(++i);
+	r = delete_kt();
     }
 
     item_count--;
@@ -1239,24 +1243,22 @@ bool
 GlassTable::read_tag(Glass::Cursor * C_, string *tag, bool keep_compressed) const
 {
     LOGCALL(DB, bool, "GlassTable::read_tag", Literal("C_") | tag | keep_compressed);
-    Item item(C_[0].get_p(), C_[0].c);
-
-    /* n components to join */
-    int n = item.components_of();
 
     tag->resize(0);
-    // max_item_size also includes K1 + I2 + C2 + C2 bytes overhead and the key
-    // (which is at least 1 byte long).
-    if (n > 1) tag->reserve((max_item_size - (1 + K1 + I2 + C2 + C2)) * n);
 
-    item.append_chunk(tag);
-    bool compressed = item.get_compressed();
-
-    for (int i = 2; i <= n; i++) {
+    bool first = true;
+    bool compressed = false;
+    while (true) {
+	Item item(C_[0].get_p(), C_[0].c);
+	item.append_chunk(tag);
+	if (first) {
+	    compressed = item.get_compressed();
+	    first = false;
+	}
+	if (item.last_component()) break;
 	if (!next(C_, 0)) {
 	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
 	}
-	(void)Item(C_[0].get_p(), C_[0].c).append_chunk(tag);
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (GlassCursor::get_tag() relies on this).
@@ -1402,7 +1404,7 @@ GlassTable::read_root()
 	 * the same database. */
 	memset(p, 0, block_size);
 
-	int o = block_size - I2 - K1 - C2 - C2;
+	int o = block_size - I2 - K1 - X2;
 	Item_wr(p + o).fake_root_item();
 
 	setD(p, DIR_START, o);         // its directory entry
@@ -1944,7 +1946,7 @@ bool Key::operator<(Key key2) const
 	// The keys are the same length, so we can compare the counts
 	// in the same operation since they're stored as 2 byte
 	// bigendian numbers.
-	RETURN(memcmp(p + K1, key2.p + K1, key1_len + C2) < 0);
+	RETURN(memcmp(p + K1, key2.p + K1, key1_len + X2) < 0);
     }
 
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
@@ -1966,5 +1968,5 @@ bool Key::operator==(Key key2) const
     // The keys are the same length, so we can compare the counts
     // in the same operation since they're stored as 2 byte
     // bigendian numbers.
-    RETURN(memcmp(p + K1, key2.p + K1, key1_len + C2) == 0);
+    RETURN(memcmp(p + K1, key2.p + K1, key1_len + X2) == 0);
 }
