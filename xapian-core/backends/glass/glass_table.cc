@@ -1071,8 +1071,11 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
 	    // splitting the tag.  It'll also give be slightly faster retrieval
 	    // as we can avoid reading an extra block occasionally.
 	    size_t last = tag.length() % L;
-	    if (n >= last || (full_compaction && n >= key.size() + 34))
+	    if (n >= last || (full_compaction && n >= key.size() + 34)) {
+		// first_L < max_item_size + D2 - D2 - cd
+		// Total size of first item = cd + first_L < max_item_size
 		first_L = n;
+	    }
 	}
     }
 
