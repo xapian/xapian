@@ -78,11 +78,13 @@ using Xapian::Internal::intrusive_ptr;
 // store the term using pack_string_preserving_sort() which takes the
 // length of the string plus an extra byte (assuming the string doesn't
 // contain any zero bytes), followed by the docid with encoded with
-// pack_uint_preserving_sort() which takes up to 5 bytes.
+// pack_uint_preserving_sort() which takes up to 5 bytes (for a 32-bit
+// docid).
 //
-// The Btree manager's key length limit is 252 bytes so the maximum safe term
-// length is 252 - 1 - 5 = 246 bytes.  We use 245 rather than 246 for
-// consistency with flint.
+// The Btree manager's key length limit is 255 bytes so the maximum safe term
+// length is 255 - 1 - 5 = 249 bytes.  We actually set the limit at 245 for
+// consistency with flint and chert, and also because this allows for 64-bit
+// docids.
 //
 // If the term contains zero bytes, the limit is lower (by one for each zero
 // byte in the term).

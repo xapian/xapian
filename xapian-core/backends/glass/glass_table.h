@@ -52,9 +52,9 @@
 /** The largest possible value of a key_len.
  *
  *  This gives the upper limit of the size of a key that may be stored in the
- *  B-tree (252 bytes with the present implementation).
+ *  B-tree.
  */
-#define GLASS_BTREE_MAX_KEY_LEN 252
+#define GLASS_BTREE_MAX_KEY_LEN 255
 
 // FIXME: This named constant probably isn't used everywhere it should be...
 #define BYTES_PER_BLOCK_NUMBER 4
@@ -87,7 +87,7 @@
            i k     x
            | |     |
            I K key X tag
-             <--K-->
+               ←K→
            <------I---->
 
 
@@ -139,8 +139,7 @@ public:
     bool operator>(Key key2) const { return key2 < *this; }
     bool operator<=(Key key2) const { return !(key2 < *this); }
     int length() const {
-	AssertRel(getK(p, 0),>=,3);
-	return getK(p, 0) - X2 - K1;
+	return getK(p, 0);
     }
     char operator[](size_t i) const {
 	AssertRel(i,<,(size_t)length());
@@ -167,12 +166,12 @@ public:
     bool get_compressed() const { return *p & 0x80; }
     bool last_component() const { return !(*p & 0x40); }
     int component_of() const {
-	return getint2(p, getK(p, I2) + I2 - X2);
+	return getint2(p, getK(p, I2) + I2 + K1);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(std::string * tag) const {
 	/* number of bytes to extract from current component */
-	int cd = getK(p, I2) + I2;
+	int cd = getK(p, I2) + I2 + K1 + X2;
 	int l = size() - cd;
 	tag->append(reinterpret_cast<const char *>(p + cd), l);
     }
@@ -199,7 +198,7 @@ public:
     Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
     Item_wr(byte * p_) : Item_base<byte *>(p_) { }
     void set_component_of(int i) {
-	setint2(p, getK(p, I2) + I2 - X2, i);
+	setint2(p, getK(p, I2) + I2 + K1, i);
     }
     // Takes size as we may be truncating newkey.
     void set_key_and_block(Key newkey, int truncate_size, uint4 n) {
@@ -212,7 +211,7 @@ public:
 	// Item size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
 	setint2(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
 	// Key size
-	setint1(p, I2, newsize - I2);
+	set_key_len(i);
 	// Copy the main part of the key, possibly truncating.
 	std::memmove(p + I2 + K1, newkey.get_address() + K1, i);
 	// Copy the count part.
@@ -239,7 +238,7 @@ public:
      */
     void form_null_key(uint4 n) {
 	setint4(p, I2 + K1, n);
-	set_key_len(K1);        /* null key */
+	set_key_len(0);        /* null key */
 	set_size(I2 + K1 + BYTES_PER_BLOCK_NUMBER);  /* total length */
     }
     void form_key(const std::string & key_) {
@@ -255,7 +254,7 @@ public:
 	    throw Xapian::InvalidArgumentError(msg);
 	}
 
-	set_key_len(key_len + K1 + X2);
+	set_key_len(key_len);
 	std::memmove(p + I2 + K1, key_.data(), key_len);
 	set_component_of(1);
     }
@@ -267,7 +266,7 @@ public:
 	if (!last) *p |= 0x40;
     }
     void fake_root_item() {
-	set_key_len(K1 + X2);   // null key length
+	set_key_len(0);   // null key length
 	set_size(I2 + K1 + X2);   // length of the item
 	set_component_of(1);
     }

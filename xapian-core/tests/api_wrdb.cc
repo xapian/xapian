@@ -31,6 +31,7 @@
 
 #include "filetests.h"
 #include "omassert.h"
+#include "stringutils.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -1775,11 +1776,13 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     db.commit();
 
+    size_t limit = endswith(get_dbtype(), "glass") ? 255 : 252;
     {
 	// Currently chert and glass escape zero bytes from terms in keys for
-	// some tables, so a term with 127 zero bytes won't work either.
+	// some tables, so a term with 127 zero bytes won't work for chert, and
+	// with 128 zero bytes won't work for glass.
 	Xapian::Document doc;
-	doc.add_term(string(127, '\0'));
+	doc.add_term(string(limit / 2 + 1, '\0'));
 	db.add_document(doc);
 	try {
 	    db.commit();
@@ -1789,7 +1792,10 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	    // exception message - we've got this wrong in two different ways
 	    // in the past!
 	    tout << e.get_msg() << endl;
-	    TEST(e.get_msg().find(" is 252 bytes") != string::npos);
+	    string target = " is ";
+	    target += to_string(limit);
+	    target += " bytes";
+	    TEST(e.get_msg().find(target) != string::npos);
 	}
     }
 

@@ -130,14 +130,16 @@ static inline byte *zeroed_new(size_t size)
 
    An item has this form:
 
-           I K key x C tag
-             <--K-->
-           <------I------>
+           I K key X tag
+               ←K→
+           <------I---->
 
-   A long tag presented through the API is split up into C tags small enough to
-   be accommodated in the blocks of the B-tree. The key is extended to include
-   a counter, x, which runs from 1 to C. The key is preceded by a length, K,
-   and the whole item with a length, I, as depicted above.
+   A long tag presented through the API is split up into C pieces small enough
+   to be accommodated in the blocks of the B-tree. The key is extended to
+   include a counter, x, which runs from 1 to C. The key is preceded by a
+   length, K, and the whole item with a length, I, as depicted above.  The
+   upper bits of I encode a flag indicating if this item is compressed, and a
+   flag saying if this is the last piece of a tag (i.e. if x == C).
 
    Here are the corresponding definitions:
 
@@ -594,10 +596,10 @@ GlassTable::enter_key(int j, Key prevkey, Key newkey)
 	i = newkey_len;
     }
 
-    byte b[UCHAR_MAX + 6];
+    // Enough space for a branch item with maximum length key.
+    byte b[I2 + K1 + 256 + X2 + BYTES_PER_BLOCK_NUMBER];
     Item_wr item(b);
-    Assert(i + K1 + X2 < 255);
-    Assert(i <= (int)sizeof(b) - I2 - K1 - X2 - BYTES_PER_BLOCK_NUMBER);
+    AssertRel(i, <=, 255);
     item.set_key_and_block(newkey, i, blocknumber);
 
     // The split block gets inserted into the parent after the pointer to the
@@ -874,7 +876,7 @@ GlassTable::add_kt(bool found)
     /*
     {
 	printf("%d) %s ", addcount++, (found ? "replacing" : "adding"));
-	print_bytes(kt[I2] - K1 - X2, kt + I2 + K1); putchar('\n');
+	print_bytes(kt[I2], kt + I2 + K1); putchar('\n');
     }
     */
     alter();
