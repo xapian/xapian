@@ -1108,7 +1108,7 @@ compact_glass(Xapian::Compactor & compactor,
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = prev_size;
+		    off_t old_prev_size = min(prev_size, off_t(block_size));
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
@@ -1145,6 +1145,22 @@ compact_glass(Xapian::Compactor & compactor,
 	    status += "K)";
 	    compactor.set_status(t->name, status);
 	}
+    }
+
+    // If compacting to a single file output and all the tables are empty, pad
+    // the output so that it isn't mistaken for a stub database when we try to
+    // open it.  For this it needs to be a multiple of 2KB in size.
+    if (single_file && prev_size < off_t(block_size)) {
+#ifdef HAVE_FTRUNCATE
+	if (ftruncate(fd, block_size) < 0) {
+	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	}
+#else
+	const off_t off = block_size - 1;
+	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
+	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	}
+#endif
     }
 
     string tmpfile = version_file_out.write(1, FLAGS);
