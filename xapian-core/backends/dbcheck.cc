@@ -267,7 +267,7 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
     }
 
-    throw Xapian::DatabaseError("Not a Xapian database or database table");
+    throw Xapian::DatabaseError("Directory does not contain a Xapian database");
 }
 
 static size_t
@@ -296,7 +296,7 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 	} else if (stat((filename + ".glass").c_str(), &sb) == 0) {
 	    backend = GLASS;
 	} else {
-	    throw Xapian::DatabaseError("Not a Xapian database or database table");
+	    throw Xapian::DatabaseError("File is not a Xapian database or database table");
 	}
     }
 
@@ -423,7 +423,7 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    return check_db_file(path, sb, opts, out);
 	}
 
-	throw Xapian::DatabaseError("Not a Xapian database or database table");
+	throw Xapian::DatabaseError("Not a regular file or directory");
     }
 
     return check_if_db_table(path, opts, out);
