@@ -62,7 +62,7 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 	char magic_buf[14];
 	// FIXME: Don't duplicate magic check here...
 	if (io_read(fd, magic_buf, 14, 14) &&
-	    lseek(fd, 0, SEEK_SET) == 0 &&
+	    (!fd_ptr || lseek(fd, 0, SEEK_SET) == 0) &&
 	    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
 	    if (fd_ptr) {
 		*fd_ptr = fd;
