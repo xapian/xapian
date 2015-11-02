@@ -112,6 +112,10 @@
 #define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
 #define SET_DIR_END(b, x)       setint2(b, 9, x)
 
+// The item size is stored in 2 bytes, but the top bit is used to store a flag for
+// "is the tag data compressed".
+#define MAX_ITEM_SIZE 0x7fff
+
 /** Freelist blocks have their level set to LEVEL_FREELIST. */
 const int LEVEL_FREELIST = 254;
 
@@ -155,7 +159,7 @@ public:
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
-	int item_size = getint2(p, 0) & 0x7fff;
+	int item_size = getint2(p, 0) & MAX_ITEM_SIZE;
 	AssertRel(item_size,>=,5);
 	return item_size;
     }
@@ -230,6 +234,9 @@ public:
     }
     void set_size(int l) {
 	AssertRel(l,>=,5);
+	// We should never be able to pass too large a size here, but don't
+	// corrupt the database if this somehow happens.
+	if (rare(l &~ MAX_ITEM_SIZE)) throw Xapian::DatabaseError("item too large!");
 	setint2(p, 0, l);
     }
     /** Form an item with a null key and with block number n in the tag.
@@ -568,6 +575,8 @@ class GlassTable {
 	    if (block_capacity > BLOCK_CAPACITY) block_capacity = BLOCK_CAPACITY;
 	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
+	    // Make sure we don't exceed the limit imposed by the format.
+	    if (max_item_size > MAX_ITEM_SIZE) max_item_size = MAX_ITEM_SIZE;
 	}
 
 	/** Set the GlassChanges object to write changed blocks to.
