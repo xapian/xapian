@@ -105,6 +105,7 @@ class Compactor::Internal : public Xapian::Internal::intrusive_base {
 	: block_size(8192), flags(FULL), tot_off(0),
 	  last_docid(0), backend(UNKNOWN)
     {
+	compact_to_stub = STUB_NO;
     }
 
     void set_destdir(const string & destdir_);

@@ -349,15 +349,15 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 #endif
 }
 
+/** Check a single file DB from an fd.
+ *
+ *  Closes the fd (via GlassVersion doing so in its destructor).
+ */
 static size_t
-check_db_file(const string & path, struct stat & sb, int opts, std::ostream *out)
+check_db_fd(int fd, int opts, std::ostream *out)
 {
-    int fd;
-    if (!check_if_single_file_db(sb, path, &fd)) {
-	return check_if_db_table(path, opts, out);
-    }
-
 #ifndef XAPIAN_HAS_GLASS_BACKEND
+    ::close(fd);
     throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
     // Check a single-file glass database.
@@ -367,6 +367,7 @@ check_db_file(const string & path, struct stat & sb, int opts, std::ostream *out
     // If we can't read the last docid, set it to its maximum value
     // to suppress errors.
     Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+    off_t pos = lseek(fd, 0, SEEK_CUR);
     try {
 	// Open at the lower level so we can get the revision number.
 	int fd_tmp = dup(fd);
@@ -381,8 +382,8 @@ check_db_file(const string & path, struct stat & sb, int opts, std::ostream *out
 		 << "\nContinuing check anyway" << endl;
 	++errors;
     }
+    lseek(fd, pos, SEEK_SET);
 
-    lseek(fd, 0, SEEK_SET);
     GlassVersion version_file;
     version_file.set_fd(fd);
     version_file.read();
@@ -403,16 +404,32 @@ check_db_file(const string & path, struct stat & sb, int opts, std::ostream *out
 #endif
 }
 
+static size_t
+check_db_file(const string & path, const struct stat & sb, int opts, std::ostream *out)
+{
+    int fd;
+    if (check_if_single_file_db(sb, path, &fd)) {
+	return check_db_fd(fd, opts, out);
+    }
+    return check_if_db_table(path, opts, out);
+}
+
 namespace Xapian {
 
 size_t
-Database::check(const string & path, int opts, std::ostream *out)
+Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 {
     if (!out) {
 	// If we have nowhere to write output, then disable all the options
 	// which only affect what we output.
 	opts &= Xapian::DBCHECK_FIX;
     }
+
+    if (path_ptr == NULL) {
+	return check_db_fd(fd, opts, out);
+    }
+
+    const string & path = *path_ptr;
     struct stat sb;
     if (stat(path.c_str(), &sb) == 0) {
 	if (S_ISDIR(sb.st_mode)) {
