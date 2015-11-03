@@ -1280,7 +1280,7 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
     // it to the next key (ChertCursor::get_tag() relies on this).
     if (!compressed || keep_compressed) RETURN(compressed);
 
-    // FIXME: Perhaps we should we decompress each chunk as we read it so we
+    // FIXME: Perhaps we should decompress each chunk as we read it so we
     // don't need both the full compressed and uncompressed tags in memory
     // at once.
 
