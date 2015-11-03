@@ -600,18 +600,6 @@ GlassTable::enter_key(int j, Key prevkey, Key newkey)
     Assert(i <= (int)sizeof(b) - I2 - C2 - 4);
     item.set_key_and_block(newkey, i, blocknumber);
 
-    // When j > 1 we can make the first key of block p null.  This is probably
-    // worthwhile as it trades a small amount of CPU and RAM use for a small
-    // saving in disk use.  Other redundant keys will still creep in though.
-    if (j > 1) {
-	byte * p = C[j - 1].get_modifiable_p(block_size);
-	uint4 n = getint4(newkey.get_address(), newkey_len + K1 + C2);
-	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
-	// FIXME: incredibly icky going from key to item like this...
-	Item_wr(const_cast<byte*>(newkey.get_address()) - I2).form_null_key(n);
-	SET_TOTAL_FREE(p, new_total_free);
-    }
-
     // The split block gets inserted into the parent after the pointer to the
     // current child.
     AssertEq(C[j].c, find_in_block(C[j].get_p(), item.key(), false, C[j].c));
@@ -767,6 +755,16 @@ GlassTable::add_item(Item_wr kt_, int j)
 	enter_key(j + 1,
 		  Item(split_p, DIR_END(split_p) - D2).key(),
 		  Item(p, DIR_START).key());
+
+	if (j > 0) {
+	    // In branch levels, we can make the first key of block p null and
+	    // save a bit of disk space.  Other redundant keys will still creep
+	    // in though.
+	    Item_wr item(p, DIR_START);
+	    int new_total_free = TOTAL_FREE(p) + item.key().length() + C2;
+	    item.form_null_key(item.block_given_by());
+	    SET_TOTAL_FREE(p, new_total_free);
+	}
     } else {
 	AssertRel(TOTAL_FREE(p),>=,needed);
 
