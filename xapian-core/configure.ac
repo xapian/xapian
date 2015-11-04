@@ -452,21 +452,20 @@ AC_CHECK_SIZEOF([long])
 AC_CHECK_SIZEOF([long long])
 
 AC_MSG_CHECKING([for 32 bit integer type])
-case $ac_cv_sizeof_short:$ac_cv_sizeof_int:$ac_cv_sizeof_long in
-    *:4:*) INT32_T=int ;;
-    *:*:4) INT32_T=long ;;
-    4:*)   INT32_T=short ;;
+case 4 in
+    "$ac_cv_sizeof_int")   INT32_T=int ;;
+    "$ac_cv_sizeof_long")  INT32_T=long ;;
+    "$ac_cv_sizeof_short") INT32_T=short ;;
     *)
       AC_MSG_RESULT([none found])
       AC_MSG_ERROR([No 32 bit integer type found])
 esac
 AC_MSG_RESULT([$INT32_T])
 
-AC_MSG_CHECKING([for 64 bit integer type])
-case $ac_cv_sizeof_int:$ac_cv_sizeof_long:$ac_cv_sizeof_long_long in
-    8:*)   INT64_T=int ;;
-    *:8:*) INT64_T=long ;;
-    *:*:8) INT64_T='long long' ;;
+case 8 in
+    "$ac_cv_sizeof_int")       INT32_T=int ;;
+    "$ac_cv_sizeof_long")      INT32_T=long ;;
+    "$ac_cv_sizeof_long_long") INT32_T='long long' ;;
     *)
       AC_MSG_RESULT([none found])
       AC_MSG_ERROR([No 64 bit integer type found])
