@@ -65,6 +65,9 @@ def test_all():
         return res
 
     # Check that SWIG isn't generating cvar (regression test for ticket#297).
+    #
+    # Python 3.5 generates a different exception message here to earlier
+    # versions, so check with a regular expression which matches both.
     expect_exception(AttributeError, re.compile(r"module.* has no attribute 'cvar'"),
                      access_cvar)
 
