@@ -7,6 +7,8 @@ Revision history for Perl extension Search::Xapian.
 	  track of references to Perl MatchSpy objects to avoid leaks.
 	- t/facets.t
 	[Changes contributed by Olly Betts]
+	- Fix infinite loop trying to build with CPANPLUS (fixes #692, reported
+	  by Andreas Vögele).
 	- t/termgenerator.t: If a memory leak is detected, report how many
 	  objects were allocated before and after the test.
 	- Allow for "_gitN" tag on snapshots when checking for version

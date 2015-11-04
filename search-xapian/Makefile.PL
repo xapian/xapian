@@ -12,8 +12,14 @@ if ($srcdir =~ s!/([^/]*)$!!) {
     # consuming increasing amounts of memory.  With setting $0, it still reruns
     # this script, but only once.
     $0 = $1;
-    chomp($builddir = `pwd`);
+    $builddir = `pwd`;
     chdir $srcdir;
+    if ($builddir eq `pwd`) {
+	# Just an explicit path to the current directory.
+	undef $builddir;
+    } else {
+	chomp($builddir);
+    }
 }
 
 my $xapian_config;
