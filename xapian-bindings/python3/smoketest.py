@@ -20,6 +20,7 @@
 # USA
 
 import sys
+import re
 import xapian
 
 from testsuite import *
@@ -37,7 +38,6 @@ class MyStemmer(xapian.StemImplementation):
         mystemmer_id += 1
 
     def __call__(self, s):
-        import re
         return re.sub(br'[aeiou]', b'', s)
 
     def __del__(self):
@@ -65,7 +65,10 @@ def test_all():
         return res
 
     # Check that SWIG isn't generating cvar (regression test for ticket#297).
-    expect_exception(AttributeError, "'module' object has no attribute 'cvar'",
+    #
+    # Python 3.5 generates a different exception message here to earlier
+    # versions, so check with a regular expression which matches both.
+    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'cvar'"),
                      access_cvar)
 
     stem = xapian.Stem(b"english")
@@ -102,14 +105,14 @@ def test_all():
     # Check database factory functions are wrapped as expected (or not wrapped
     # in the first cases):
 
-    expect_exception(AttributeError, "'module' object has no attribute 'open_stub'",
+    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'open_stub'"),
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, "'module' object has no attribute 'open_stub'",
+    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'open_stub'"),
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
 
-    expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
+    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'chert_open'"),
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
+    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'chert_open'"),
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
 
     expect_exception(xapian.DatabaseOpeningError, None,

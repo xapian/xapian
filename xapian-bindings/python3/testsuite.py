@@ -127,12 +127,24 @@ class TestRunner(object):
                 self._out.flush()
             raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
         except expectedclass as e:
-            if expectedmsg is not None and str(e) != expectedmsg:
-                if self._verbose > 2:
-                    self._out.write_colour(" #red#failed##")
-                    self._out.write(": exception string not as expected: got '%s'\n" % str(e))
-                    self._out.flush()
-                raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
+            if expectedmsg is None:
+                pass
+            elif isinstance(expectedmsg, str):
+                if str(e) != expectedmsg:
+                    if self._verbose > 2:
+                        self._out.write_colour(" #red#failed##")
+                        self._out.write(": exception string not as expected: got '%s'\n" % str(e))
+                        self._out.flush()
+                    raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
+            elif hasattr(expectedmsg, 'match'):
+                if not expectedmsg.match(str(e)):
+                    if self._verbose > 2:
+                        self._out.write_colour(" #red#failed##")
+                        self._out.write(": exception string not as expected: got '%s'\n" % str(e))
+                        self._out.flush()
+                    raise TestFail("Exception string not as expected: got '%s', expected pattern '%s'" % (str(e), expectedmsg.pattern))
+            else:
+                raise TestFail("Unexpected expectedmsg: %r" % (expectedmsg,))
             if e.__class__ != expectedclass:
                 if self._verbose > 2:
                     self._out.write_colour(" #red#failed##")
