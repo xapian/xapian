@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  *
@@ -130,6 +130,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     Xapian::termcount wdf_upper_bound_;
 
   public:
+
+    /// Default constructor, needed by subclass constructors.
+    Weight() : stats_needed() { }
 
     /** Type of smoothing to use with the Language Model Weighting scheme.
      *
@@ -317,9 +320,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  with GCC 4.1 (which appears to be a bug).
      */
     Weight(const Weight &);
-
-    /// Default constructor, needed by subclass constructors.
-    Weight() : stats_needed() { }
 
     /// The number of documents in the collection.
     Xapian::doccount get_collection_size() const { return collection_size_; }

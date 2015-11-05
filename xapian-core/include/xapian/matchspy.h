@@ -55,11 +55,10 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
     /// Don't allow copying.
     MatchSpy(const MatchSpy &);
 
-  protected:
+  public:
     /// Default constructor, needed by subclass constructors.
     XAPIAN_NOTHROW(MatchSpy()) {}
 
-  public:
     /** Virtual destructor, because we have virtual methods. */
     virtual ~MatchSpy();
 

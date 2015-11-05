@@ -58,10 +58,6 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     void * matcher_;
 
   protected:
-    /// Allow subclasses to be instantiated.
-    XAPIAN_NOTHROW(PostingSource())
-	: max_weight_(0), matcher_(NULL) { }
-
     /** Set an upper bound on what get_weight() can return from now on.
      *
      *  This upper bound is used by the matcher to perform various
@@ -85,6 +81,10 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     void set_maxweight(double max_weight);
 
   public:
+    /// Allow subclasses to be instantiated.
+    XAPIAN_NOTHROW(PostingSource())
+	: max_weight_(0), matcher_(NULL) { }
+
     /** @private @internal Set the object to inform of maxweight changes.
      *
      *  This method is for internal use only - it would be private except that
