@@ -517,6 +517,25 @@ if ($query->get_description() != 'Query()') {
     }
 }
 
+{
+    class testspy extends XapianMatchSpy {
+	public $matchspy_count = 0;
+
+	function apply($doc, $wt) {
+	    if (substr($doc->get_value(0), 0, 3) == "ABC") ++$this->matchspy_count;
+	}
+    }
+
+    $matchspy = new testspy();
+    $enquire->clear_matchspies();
+    $enquire->add_matchspy($matchspy);
+    $enquire->get_mset(0, 10);
+    if ($matchspy->matchspy_count != 4) {
+	print "Unexpected matchspy count of {$matchspy->matchspy_count}\n";
+	exit(1);
+    }
+}
+
 # Regression test for SWIG bug - it was generating "return $r;" in wrapper
 # functions which didn't set $r.
 $indexer = new XapianTermGenerator();
