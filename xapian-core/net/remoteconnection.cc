@@ -604,44 +604,14 @@ RemoteConnection::receive_file(const string &file, double end_time)
     if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
     fdcloser closefd(fd);
 
-    read_at_least(2, end_time);
-    size_t len = static_cast<unsigned char>(buffer[1]);
-    read_at_least(len + 2, end_time);
-    if (len != 0xff) {
-	write_all(fd, buffer.data() + 2, len);
-	char type = buffer[0];
-	buffer.erase(0, len + 2);
-	RETURN(type);
-    }
-    len = 0;
-    string::const_iterator i = buffer.begin() + 2;
-    unsigned char ch;
-    int shift = 0;
+    char type = get_message_chunked(end_time);
     do {
-	// Allow a full 64 bits for message lengths - anything longer than that
-	// is almost certainly a corrupt value.
-	if (i == buffer.end() || shift > 63) {
-	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
-	}
-	ch = *i++;
-	len |= size_t(ch & 0x7f) << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    len += 255;
-    size_t header_len = (i - buffer.begin());
-    size_t remainlen(min(buffer.size() - header_len, len));
-    write_all(fd, buffer.data() + header_len, remainlen);
-    len -= remainlen;
-    char type = buffer[0];
-    buffer.erase(0, header_len + remainlen);
-    while (len > 0) {
-	read_at_least(min(len, size_t(CHUNKSIZE)), end_time);
-	remainlen = min(buffer.size(), len);
-	write_all(fd, buffer.data(), remainlen);
-	len -= remainlen;
-	buffer.erase(0, remainlen);
-    }
+	off_t min_read = min(chunked_data_left, off_t(CHUNKSIZE));
+	read_at_least(min_read, end_time);
+	write_all(fd, buffer.data(), min_read);
+	chunked_data_left -= min_read;
+	buffer.erase(0, min_read);
+    } while (chunked_data_left);
     RETURN(type);
 }
 
