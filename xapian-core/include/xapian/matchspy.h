@@ -1,7 +1,7 @@
 /** @file matchspy.h
  * @brief MatchSpy implementation.
  */
-/* Copyright (C) 2007,2008,2009,2010,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2012,2015 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -54,6 +54,9 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
     MatchSpy(const MatchSpy &);
 
   protected:
+#ifdef SWIG
+  public: /* So SWIG wraps this constructor correctly for PHP */
+#endif
     /// Default constructor, needed by subclass constructors.
     MatchSpy() {}
 

@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -51,8 +51,14 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
     void * matcher_;
 
   protected:
+#ifdef SWIG
+  public: /* So SWIG wraps this constructor correctly for PHP */
+#endif
     /// Allow subclasses to be instantiated.
     PostingSource() : max_weight_(0), matcher_(NULL) { }
+#ifdef SWIG
+  protected:
+#endif
 
     /** Set an upper bound on what get_weight() can return from now on.
      *

@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2014,2015 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -282,9 +282,15 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     Weight(const Weight &);
 
+#ifdef SWIG
+  public: /* So SWIG wraps this constructor correctly for PHP */
+#endif
     /// Default constructor, needed by subclass constructors.
     Weight() : stats_needed() { }
 
+#ifdef SWIG
+  protected:
+#endif
     /// The number of documents in the collection.
     Xapian::doccount get_collection_size() const { return collection_size_; }
 
