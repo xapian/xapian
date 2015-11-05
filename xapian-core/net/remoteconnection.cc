@@ -30,6 +30,7 @@
 #include "safeunistd.h"
 
 #include <algorithm>
+#include <climits>
 #include <string>
 
 #include "debuglog.h"
@@ -51,6 +52,13 @@ static void
 throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
+}
+
+XAPIAN_NORETURN(static void throw_network_error_insane_message_length());
+static void
+throw_network_error_insane_message_length()
+{
+    throw Xapian::NetworkError("Insane message length specified!");
 }
 
 #ifdef __WIN32__
@@ -481,7 +489,7 @@ RemoteConnection::get_message(string &result, double end_time)
     do {
 	if (i == buffer.end() || shift > 28) {
 	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
+	    throw_network_error_insane_message_length();
 	}
 	ch = *i++;
 	len |= size_t(ch & 0x7f) << shift;
@@ -500,11 +508,13 @@ char
 RemoteConnection::get_message_chunked(double end_time)
 {
     LOGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
+    typedef UNSIGNED_OFF_T uoff_t;
+
     if (fdin == -1)
 	throw_database_closed();
 
     read_at_least(2, end_time);
-    off_t len = static_cast<unsigned char>(buffer[1]);
+    uoff_t len = static_cast<unsigned char>(buffer[1]);
     if (len != 0xff) {
 	chunked_data_left = len;
 	char type = buffer[0];
@@ -517,17 +527,39 @@ RemoteConnection::get_message_chunked(double end_time)
     unsigned char ch;
     int shift = 0;
     do {
-	// Allow a full 64 bits for message lengths - anything longer than that
-	// is almost certainly a corrupt value.
-	if (i == buffer.end() || shift > 63) {
+	// Allow at most 63 bits for message lengths - it's neatly a multiple
+	// of 7 bits and anything longer than this is almost certainly a
+	// corrupt value.
+#if SIZEOF_OFF_T < 8
+	// The value also needs to be representable as an off_t, which is a
+	// signed type.
+	if (rare(i == buffer.end() || shift >= SIZEOF_OFF_T * CHAR_BIT - 1)) {
 	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
+	    throw_network_error_insane_message_length();
 	}
+#else
+	if (rare(i == buffer.end() || shift >= 63)) {
+	    // Something is very wrong...
+	    throw_network_error_insane_message_length();
+	}
+#endif
 	ch = *i++;
-	len |= off_t(ch & 0x7f) << shift;
+	uoff_t bits = ch & 0x7f;
+#if SIZEOF_OFF_T < 8
+	if (shift > (SIZEOF_OFF_T * CHAR_BIT - 7)) {
+	    if (bits >> (shift - (SIZEOF_OFF_T * CHAR_BIT - 7))) {
+		// Too large for off_t.
+		throw_network_error_insane_message_length();
+	    }
+	}
+#endif
+	len |= bits << shift;
 	shift += 7;
     } while ((ch & 0x80) == 0);
     len += 255;
+    if (rare(off_t(len) < 0))
+	throw_network_error_insane_message_length();
+
     chunked_data_left = len;
     char type = buffer[0];
     size_t header_len = (i - buffer.begin());
