@@ -463,6 +463,16 @@ Removed Feature name                        Upgrade suggestion and comments
 1.3.2   ``Xapian::Brass::open()``           Use the constructor with ``Xapian::DB_BACKEND_GLASS`` flag (new in 1.3.2) instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.3   |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.4   Copy constructors and assignment    We think it was a mistake that implicit copy constructors and assignment operators
+        operators for classes:              were being provided for these functor classes - it's hard to use them correctly,
+        ``Xapian::ExpandDecider``,          but easy to use them in ways which compile but don't work correctly, and we doubt
+        ``Xapian::FieldProcessor`` (new in  anyone is intentionally using them, so we've simply removed them.  For more
+        1.3.1), ``Xapian::KeyMaker``,       information, see http://trac.xapian.org/ticket/681
+        ``Xapian::MatchDecider``,
+        ``Xapian::StemImplementation``,
+        ``Xapian::Stopper`` and
+        ``Xapian::ValueRangeProcessor``.
 ======= =================================== ==================================================================================
 
 

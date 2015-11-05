@@ -43,7 +43,16 @@ class Stem;
 
 /// Base class for stop-word decision functor.
 class XAPIAN_VISIBILITY_DEFAULT Stopper {
+    /// Don't allow assignment.
+    void operator=(const Stopper &);
+
+    /// Don't allow copying.
+    Stopper(const Stopper &);
+
   public:
+    /// Default constructor.
+    Stopper() { }
+
     /** Is term a stop-word?
      *
      *  @param term	The term to test.
@@ -88,8 +97,18 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
 };
 
 /// Base class for value range processors.
-struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
+class XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
     : public Xapian::Internal::opt_intrusive_base {
+    /// Don't allow assignment.
+    void operator=(const ValueRangeProcessor &);
+
+    /// Don't allow copying.
+    ValueRangeProcessor(const ValueRangeProcessor &);
+
+  public:
+    /// Default constructor.
+    ValueRangeProcessor() { }
+
     /// Destructor.
     virtual ~ValueRangeProcessor();
 
@@ -382,8 +401,18 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
  *
  *  Experimental API - may change.
  */
-struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor
+class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
     : public Xapian::Internal::opt_intrusive_base {
+    /// Don't allow assignment.
+    void operator=(const FieldProcessor &);
+
+    /// Don't allow copying.
+    FieldProcessor(const FieldProcessor &);
+
+  public:
+    /// Default constructor.
+    FieldProcessor() { }
+
     /// Destructor.
     virtual ~FieldProcessor();
 

@@ -1,7 +1,7 @@
 /** @file stem.h
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -35,9 +35,19 @@
 namespace Xapian {
 
 /// Class representing a stemming algorithm implementation.
-struct XAPIAN_VISIBILITY_DEFAULT StemImplementation
+class XAPIAN_VISIBILITY_DEFAULT StemImplementation
     : public Xapian::Internal::intrusive_base
 {
+    /// Don't allow assignment.
+    void operator=(const StemImplementation &);
+
+    /// Don't allow copying.
+    StemImplementation(const StemImplementation &);
+
+  public:
+    /// Default constructor.
+    StemImplementation() { }
+
     /// Virtual destructor.
     virtual ~StemImplementation();
 

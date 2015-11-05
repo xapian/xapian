@@ -641,7 +641,16 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
 /** Base class for matcher decision functor.
  */
 class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
+	/// Don't allow assignment.
+	void operator=(const MatchDecider &);
+
+	/// Don't allow copying.
+	MatchDecider(const MatchDecider &);
+
     public:
+	/// Default constructor
+	MatchDecider() { }
+
 	/** Decide whether we want this document to be in the MSet.
 	 *
 	 *  @param doc	The document to test.

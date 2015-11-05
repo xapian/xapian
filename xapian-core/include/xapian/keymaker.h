@@ -1,7 +1,7 @@
 /** @file keymaker.h
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009,2011,2013,2014 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,7 +37,16 @@ class Document;
 
 /** Virtual base class for key making functors. */
 class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
+    /// Don't allow assignment.
+    void operator=(const KeyMaker &);
+
+    /// Don't allow copying.
+    KeyMaker(const KeyMaker &);
+
   public:
+    /// Default constructor.
+    KeyMaker() { }
+
     /** Build a key string for a Document.
      *
      *  These keys can be used for sorting or collapsing matching documents.
