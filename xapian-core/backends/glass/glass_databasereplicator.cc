@@ -2,7 +2,7 @@
  * @brief Support for glass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,6 +35,7 @@
 #include "fd.h"
 #include "internaltypes.h"
 #include "io_utils.h"
+#include "noreturn.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
@@ -44,6 +45,13 @@
 #include "stringutils.h"
 
 #include <algorithm>
+
+XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+static void
+throw_connection_closed_unexpectedly()
+{
+    throw Xapian::NetworkError("Connection closed unexpectedly");
+}
 
 using namespace std;
 using namespace Xapian;
@@ -129,8 +137,12 @@ GlassDatabaseReplicator::process_changeset_chunk_version(string & buf,
 
     // Get the new version file into buf.
     buf.erase(0, ptr - buf.data());
-    if (!conn.get_message_chunk(buf, size, end_time))
+    int res = conn.get_message_chunk(buf, size, end_time);
+    if (res <= 0) {
+	if (res < 0)
+	    throw_connection_closed_unexpectedly();
 	throw NetworkError("Unexpected end of changeset (6)");
+    }
 
     // Write size bytes from start of buf to new version file.
     string tmpfile = db_dir;
@@ -199,8 +211,12 @@ GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table,
 	fds[table] = fd;
     }
 
-    if (!conn.get_message_chunk(buf, changeset_blocksize, end_time))
+    int res = conn.get_message_chunk(buf, changeset_blocksize, end_time);
+    if (res <= 0) {
+	if (res < 0)
+	    throw_connection_closed_unexpectedly();
 	throw NetworkError("Unexpected end of changeset (4)");
+    }
 
     io_write_block(fd, buf.data(), changeset_blocksize, block_number);
     buf.erase(0, changeset_blocksize);
@@ -221,15 +237,17 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 
-    char type = conn.get_message_chunked(end_time);
-    (void) type; // Don't give warning about unused variable.
+    int type = conn.get_message_chunked(end_time);
+    if (type == EOF)
+	throw_connection_closed_unexpectedly();
     AssertEq(type, REPL_REPLY_CHANGESET);
 
     string buf;
     // Read enough to be certain that we've got the header part of the
     // changeset.
 
-    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+    if (conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time) < 0)
+	throw_connection_closed_unexpectedly();
     const char *ptr = buf.data();
     const char *end = ptr + buf.size();
     // Check the magic string.
@@ -280,7 +298,8 @@ GlassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 
     // Read the items from the changeset.
     while (true) {
-	conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+	if (conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time) < 0)
+	    throw_connection_closed_unexpectedly();
 	ptr = buf.data();
 	end = ptr + buf.size();
 	if (ptr == end)

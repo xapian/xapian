@@ -59,6 +59,13 @@ throw_bad_message(const string & context)
     throw Xapian::NetworkError("Bad message received", context);
 }
 
+XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+static void
+throw_connection_closed_unexpectedly()
+{
+    throw Xapian::NetworkError("Connection closed unexpectedly");
+}
+
 RemoteDatabase::RemoteDatabase(int fd, double timeout_,
 			       const string & context_, bool writable,
 			       int flags)
@@ -564,7 +571,10 @@ reply_type
 RemoteDatabase::get_message(string &result, reply_type required_type) const
 {
     double end_time = RealTime::end_time(timeout);
-    reply_type type = static_cast<reply_type>(link.get_message(result, end_time));
+    int type_int = link.get_message(result, end_time);
+    if (type_int == EOF)
+	throw_connection_closed_unexpectedly();
+    reply_type type = static_cast<reply_type>(type_int);
     if (type == REPLY_EXCEPTION) {
 	unserialise_error(result, "REMOTE:", context);
     }
