@@ -2,6 +2,7 @@
  * @brief tests of MSet sorting
  */
 /* Copyright (C) 2007,2008,2009,2012 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,6 +151,67 @@ DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
     return true;
 }
 
+// Test sort functor with some empty values.
+DEFINE_TESTCASE(sortfunctor3, backend && !remote && valuestats) {
+    Xapian::Database db(get_database("apitest_sortrel"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("woman"));
+
+    // Value 10 is set to 'a' for 1, 3, 4, 5, 8, 9, and not set otherwise.
+    {
+	// Test default sort order - missing values come first.
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10);
+
+	enquire.set_sort_by_key(&sorter, false);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+    }
+
+    {
+	// Use a default value to put the missing values to the end.
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, false);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
+    }
+
+    {
+	// Test using a default value and sorting in reverse order
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, false, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, true);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+    }
+
+    {
+	// Test using a default value and generating reverse order keys
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, false);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 2, 6, 7, 1, 3, 4, 5, 8, 9);
+    }
+
+    {
+	// Test using a default value, generating reverse order keys, and
+	// sorting in reverse order
+	Xapian::MultiValueKeyMaker sorter;
+	sorter.add_value(10, true, db.get_value_upper_bound(10) + '\xff');
+
+	enquire.set_sort_by_key(&sorter, true);
+	Xapian::MSet mset = enquire.get_mset(0, 10);
+	mset_expect_order(mset, 1, 3, 4, 5, 8, 9, 2, 6, 7);
+    }
+
+    return true;
+}
+
 class NeverUseMeKeyMaker : public Xapian::KeyMaker {
   public:
     std::string operator() (const Xapian::Document &) const
@@ -226,8 +288,23 @@ DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
     doc.add_value(3, "xyz");
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz", 13));
 
+    // An empty slot at the end, in reverse order, is terminated with \xff\xff
     sorter.add_value(4, true);
     TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff", 17));
+
+    // An empty slot at the end, in ascending order, has no effect
+    sorter.add_value(0);
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff", 17));
+
+    // An empty slot at the end, with a default value
+    sorter.add_value(0, false, "hi");
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi",
+				   21));
+
+    // An empty slot at the end, with a default value, in reverse sort order
+    sorter.add_value(0, true, "hi");
+    TEST_EQUAL(sorter(doc), string("\0\0f\0\xffo\0\0\0\0xyz\0\0\xff\xff\0\0hi"
+				   "\0\0\x97\x96\xff\xff", 27));
 
     return true;
 }
