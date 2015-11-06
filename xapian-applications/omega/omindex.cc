@@ -106,8 +106,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	string m = "skipping extension '";
 	m += ext;
 	m += "'";
-	skip(urlterm, file.substr(root.size()), m, d.get_size(), d.get_mtime(),
-	    SKIP_VERBOSE_ONLY);
+	skip(urlterm, file.substr(root.size()), m, d.get_size(), d.get_mtime());
 	return;
     }
 
