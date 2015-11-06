@@ -90,12 +90,12 @@ RemoteConnection::~RemoteConnection()
 #endif
 }
 
-void
+bool
 RemoteConnection::read_at_least(size_t min_len, double end_time)
 {
-    LOGCALL_VOID(REMOTE, "RemoteConnection::read_at_least", min_len | end_time);
+    LOGCALL(REMOTE, bool, "RemoteConnection::read_at_least", min_len | end_time);
 
-    if (buffer.length() >= min_len) return;
+    if (buffer.length() >= min_len) return true;
 
 #ifdef __WIN32__
     HANDLE hin = fd_to_handle(fdin);
@@ -120,8 +120,10 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 					   context, -(int)GetLastError());
 	}
 
-	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context);
+	if (received == 0) {
+	    do_close(false);
+	    return false;
+	}
 
 	buffer.append(buf, received);
 
@@ -141,12 +143,14 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 
 	if (received > 0) {
 	    buffer.append(buf, received);
-	    if (buffer.length() >= min_len) return;
+	    if (buffer.length() >= min_len) return true;
 	    continue;
 	}
 
-	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context);
+	if (received == 0) {
+	    do_close(false);
+	    return false;
+	}
 
 	LOGLINE(REMOTE, "read gave errno = " << errno);
 	if (errno == EINTR) continue;
@@ -185,6 +189,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
     }
 #endif
+    return true;
 }
 
 bool
@@ -464,33 +469,36 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 #endif
 }
 
-char
+int
 RemoteConnection::sniff_next_message_type(double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::sniff_next_message_type", end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::sniff_next_message_type", end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
 
-    read_at_least(1, end_time);
-    char type = buffer[0];
+    if (!read_at_least(1, end_time))
+	RETURN(-1);
+    unsigned char type = buffer[0];
     RETURN(type);
 }
 
-char
+int
 RemoteConnection::get_message(string &result, double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message", result | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message", result | end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
 
-    read_at_least(2, end_time);
+    if (!read_at_least(2, end_time))
+	RETURN(-1);
     size_t len = static_cast<unsigned char>(buffer[1]);
-    read_at_least(len + 2, end_time);
+    if (!read_at_least(len + 2, end_time))
+	RETURN(-1);
     if (len != 0xff) {
 	result.assign(buffer.data() + 2, len);
-	char type = buffer[0];
+	unsigned char type = buffer[0];
 	buffer.erase(0, len + 2);
 	RETURN(type);
     }
@@ -509,24 +517,26 @@ RemoteConnection::get_message(string &result, double end_time)
     } while ((ch & 0x80) == 0);
     len += 255;
     size_t header_len = (i - buffer.begin());
-    read_at_least(header_len + len, end_time);
+    if (!read_at_least(header_len + len, end_time))
+	RETURN(-1);
     result.assign(buffer.data() + header_len, len);
-    char type = buffer[0];
+    unsigned char type = buffer[0];
     buffer.erase(0, header_len + len);
     RETURN(type);
 }
 
-char
+int
 RemoteConnection::get_message_chunked(double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message_chunked", end_time);
     typedef UNSIGNED_OFF_T uoff_t;
 
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
 
-    read_at_least(2, end_time);
+    if (!read_at_least(2, end_time))
+	RETURN(-1);
     uoff_t len = static_cast<unsigned char>(buffer[1]);
     if (len != 0xff) {
 	chunked_data_left = len;
@@ -534,7 +544,8 @@ RemoteConnection::get_message_chunked(double end_time)
 	buffer.erase(0, 2);
 	RETURN(type);
     }
-    read_at_least(len + 2, end_time);
+    if (!read_at_least(len + 2, end_time))
+	RETURN(-1);
     len = 0;
     string::const_iterator i = buffer.begin() + 2;
     unsigned char ch;
@@ -574,17 +585,17 @@ RemoteConnection::get_message_chunked(double end_time)
 	throw_network_error_insane_message_length();
 
     chunked_data_left = len;
-    char type = buffer[0];
+    unsigned char type = buffer[0];
     size_t header_len = (i - buffer.begin());
     buffer.erase(0, header_len);
     RETURN(type);
 }
 
-bool
+int
 RemoteConnection::get_message_chunk(string &result, size_t at_least,
 				    double end_time)
 {
-    LOGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk", result | at_least | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message_chunk", result | at_least | end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -595,14 +606,15 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
     bool read_enough = (off_t(at_least) <= chunked_data_left);
     if (!read_enough) at_least = size_t(chunked_data_left);
 
-    read_at_least(at_least, end_time);
+    if (!read_at_least(at_least, end_time))
+	RETURN(-1);
 
     size_t retlen = min(off_t(buffer.size()), chunked_data_left);
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;
 
-    RETURN(read_enough);
+    RETURN(int(read_enough));
 }
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
@@ -620,10 +632,10 @@ write_all(int fd, const char * p, size_t n)
     }
 }
 
-char
+int
 RemoteConnection::receive_file(const string &file, double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::receive_file", file | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::receive_file", file | end_time);
     if (fdin == -1) {
 	throw Xapian::DatabaseError("Database has been closed");
     }
@@ -637,10 +649,11 @@ RemoteConnection::receive_file(const string &file, double end_time)
     if (fd == -1) throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
     fdcloser closefd(fd);
 
-    char type = get_message_chunked(end_time);
+    int type = get_message_chunked(end_time);
     do {
 	off_t min_read = min(chunked_data_left, off_t(CHUNKSIZE));
-	read_at_least(min_read, end_time);
+	if (!read_at_least(min_read, end_time))
+	    RETURN(-1);
 	write_all(fd, buffer.data(), min_read);
 	chunked_data_left -= min_read;
 	buffer.erase(0, min_read);

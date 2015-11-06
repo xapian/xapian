@@ -284,7 +284,7 @@ TcpServer::run_once()
 	handle_one_connection(connected_socket);
 	close(connected_socket);
 
-	if (verbose) cout << "Closing connection." << endl;
+	if (verbose) cout << "Connection closed." << endl;
 	exit(0);
     }
 

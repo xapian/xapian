@@ -140,14 +140,17 @@ class RemoteConnection {
 
     /** Read until there are at least min_len bytes in buffer.
      *
-     *  If for some reason this isn't possible, throws NetworkError.
+     *  If for some reason this isn't possible, returns false upon EOF and
+     *  otherwise throws NetworkError.
      *
      *  @param min_len	Minimum number of bytes required in buffer.
      *  @param end_time	If this time is reached, then a timeout
      *			exception will be thrown.  If (end_time == 0.0),
      *			then keep trying indefinitely.
+     *
+     *	@return false on EOF, otherwise true.
      */
-    void read_at_least(size_t min_len, double end_time);
+    bool read_at_least(size_t min_len, double end_time);
 
 #ifdef __WIN32__
     /** On Windows we use overlapped IO.  We share an overlapped structure
@@ -188,7 +191,7 @@ class RemoteConnection {
     /** Check what the next message type is.
      *
      *  This must not be called after a call to get_message_chunked() until
-     *  get_message_chunk() has returned false to indicate the whole message
+     *  get_message_chunk() has returned 0 to indicate the whole message
      *  has been received.
      *
      *  Other than that restriction, this may be called at any time to
@@ -200,9 +203,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char sniff_next_message_type(double end_time);
+    int sniff_next_message_type(double end_time);
 
     /** Read one message from fdin.
      *
@@ -212,9 +215,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char get_message(std::string &result, double end_time);
+    int get_message(std::string &result, double end_time);
 
     /** Prepare to read one message from fdin in chunks.
      *
@@ -230,9 +233,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char get_message_chunked(double end_time);
+    int get_message_chunked(double end_time);
 
     /** Read a chunk of a message from fdin.
      *
@@ -244,16 +247,17 @@ class RemoteConnection {
      *	@param at_least		Return at least this many bytes in result,
      *				unless there isn't enough data left in the
      *				message (in which case all remaining data is
-     *				read and false is returned).
+     *				read and 0 is returned).
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			true if at least at_least bytes are now in
-     *				result.
+     *  @return			1 if at least at_least bytes are now in result;
+     *				-1 on EOF on the connection; 0 for having read
+     *				< at_least bytes, but finished the message.
      */
-    bool get_message_chunk(std::string &result, size_t at_least,
+    int get_message_chunk(std::string &result, size_t at_least,
 			   double end_time);
 
     /** Save the contents of a message as a file.
@@ -265,9 +269,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char receive_file(const std::string &file, double end_time);
+    int receive_file(const std::string &file, double end_time);
 
     /** Send a message.
      *

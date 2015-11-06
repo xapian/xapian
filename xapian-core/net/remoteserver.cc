@@ -118,16 +118,21 @@ RemoteServer::get_message(double timeout, string & result,
 			  message_type required_type)
 {
     double end_time = RealTime::end_time(timeout);
-    unsigned int type = RemoteConnection::get_message(result, end_time);
+    int type = RemoteConnection::get_message(result, end_time);
 
-    // Handle "shutdown connection" message here.
-    if (type == MSG_SHUTDOWN) throw ConnectionClosed();
+    // Handle "shutdown connection" message here.  Treat EOF here for a read-only
+    // database the same way since a read-only client just closes the
+    // connection when done.
+    if (type == MSG_SHUTDOWN || (type == EOF && wdb == NULL))
+	throw ConnectionClosed();
+    if (type == EOF)
+	throw Xapian::NetworkError("Connection closed unexpectedly");
     if (type >= MSG_MAX) {
 	string errmsg("Invalid message type ");
 	errmsg += str(type);
 	throw Xapian::NetworkError(errmsg);
     }
-    if (required_type != MSG_MAX && type != unsigned(required_type)) {
+    if (required_type != MSG_MAX && type != int(required_type)) {
 	string errmsg("Expecting message type ");
 	errmsg += str(int(required_type));
 	errmsg += ", got ";
