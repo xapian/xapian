@@ -1295,8 +1295,15 @@ main(int argc, char **argv)
 "                            index), or skip.  (default: warn)\n"
 "  -D, --db=DATABASE         path to database to use\n"
 "  -U, --url=URL             base url BASEDIR corresponds to (default: /)\n"
-"  -M, --mime-type=EXT:TYPE  map file extension EXT to MIME Content-Type TYPE\n"
-"                            (empty TYPE removes any MIME mapping for EXT)\n"
+#ifdef HAVE_MAGIC_H
+"  -M, --mime-type=EXT:TYPE  assume any file with extension EXT has MIME\n"
+"                            Content-Type TYPE, instead of using libmagic\n"
+"                            (empty TYPE removes any existing mapping for EXT)\n"
+#else
+"  -M, --mime-type=EXT:TYPE  assume any file with extension EXT has MIME\n"
+"                            Content-Type TYPE (empty TYPE removes any MIME\n"
+"                            mapping for EXT)\n"
+#endif
 "  -F, --filter=TYPE:CMD     process files with MIME Content-Type TYPE using\n"
 "                            command CMD, which should produce UTF-8 text on\n"
 "                            stdout e.g. -Fapplication/octet-stream:'strings -n8'\n"
