@@ -97,6 +97,18 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 
     virtual std::string operator()(const Xapian::Document & doc) const;
 
+    /** Add a value slot to the list to build a key from.
+     *
+     *  @param slot	The value slot to add
+     *  @param reverse	Adjust values from this slot to reverse their sort
+     *			order (default: false)
+     *	@param defvalue Value to use for documents which don't have a value
+     *			set in this slot (default: empty).  This can be used
+     *			to make such documents sort after all others by
+     *			passing <code>get_value_upper_bound(slot) + "x"</code>
+     *			- this is guaranteed to be greater than any value in
+     *			this slot.
+     */
     void add_value(Xapian::valueno slot, bool reverse = false,
 		   const std::string & defvalue = std::string()) {
 	slots.push_back(KeySpec(slot, reverse, defvalue));
