@@ -237,6 +237,16 @@ AC_ARG_VAR([CC_FOR_BUILD], [C compiler command for native compilation (needed to
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
+dnl Enable large file support if possible.
+AC_SYS_LARGEFILE
+dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
+dnl also needs to be used when compiling user code.
+abi_affecting_cxxflags=
+if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
+  abi_affecting_cxxflags=-D_LARGE_FILES
+fi
+AC_SUBST([abi_affecting_cxxflags])
+
 XAPIAN_LDFLAGS=
 XAPIAN_LIBS=
 AC_SUBST([XAPIAN_LDFLAGS])
@@ -1236,16 +1246,6 @@ AC_SUBST([AM_CXXFLAGS])
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
-
-dnl Enable large file support if possible.
-AC_SYS_LARGEFILE
-dnl With xlC on AIX, -D_LARGE_FILES changes the ABI of std::string, so it
-dnl also needs to be used when compiling user code.
-abi_affecting_cxxflags=
-if $GREP '^#define _LARGE_FILES 1$' confdefs.h > /dev/null 2>&1 ; then
-  abi_affecting_cxxflags=-D_LARGE_FILES
-fi
-AC_SUBST([abi_affecting_cxxflags])
 
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
