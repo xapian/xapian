@@ -475,6 +475,7 @@ case 4 in
 esac
 AC_MSG_RESULT([$INT32_T])
 
+AC_MSG_CHECKING([for 64 bit integer type])
 case 8 in
     "$ac_cv_sizeof_int")       INT64_T=int ;;
     "$ac_cv_sizeof_long")      INT64_T=long ;;
