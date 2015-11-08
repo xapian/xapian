@@ -596,9 +596,9 @@ esac
 AC_MSG_RESULT([$INT32_T])
 
 case 8 in
-    "$ac_cv_sizeof_int")       INT32_T=int ;;
-    "$ac_cv_sizeof_long")      INT32_T=long ;;
-    "$ac_cv_sizeof_long_long") INT32_T='long long' ;;
+    "$ac_cv_sizeof_int")       INT64_T=int ;;
+    "$ac_cv_sizeof_long")      INT64_T=long ;;
+    "$ac_cv_sizeof_long_long") INT64_T='long long' ;;
     *)
       AC_MSG_RESULT([none found])
       AC_MSG_ERROR([No 64 bit integer type found])
