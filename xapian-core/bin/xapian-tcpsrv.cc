@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,17 +34,17 @@
 #include "xapian/constants.h"
 #include "xapian/error.h"
 #include "net/remotetcpserver.h"
+#include "net/remoteserver.h"
 #include "stringutils.h"
 
 using namespace std;
 
-static void register_user_weighting_schemes(TcpServer &server) {
-    (void)server; // Suppress "unused parameter" warning.
+static void register_user_weighting_schemes(RemoteTcpServer &server) {
+    Xapian::Registry reg;
     // If you have defined your own weighting scheme, register it here
     // like so:
-    // Registry reg;
     // reg.register_weighting_scheme(FooWeight());
-    // server.set_registry(reg);
+    server.set_registry(reg);
 }
 
 const int MSECS_IDLE_TIMEOUT_DEFAULT = 60000;
