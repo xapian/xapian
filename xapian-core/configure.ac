@@ -1316,15 +1316,15 @@ for backend in CHERT GLASS INMEMORY REMOTE ; do
 done
 
 if test yes = "$enable_64bit_docid" ; then
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE=\"$INT64_T\""
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE="`echo "$INT64_T"|sed 's/ /____/g'`
 else
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE=\"$INT32_T\""
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_DOCID_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
 fi
 
 if test yes = "$enable_64bit_termcount" ; then
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE=\"$INT64_T\""
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT64_T"|sed 's/ /____/g'`
 else
-  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE=\"$INT32_T\""
+  cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
 fi
 
 dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
@@ -1356,7 +1356,7 @@ $CXXCPP $cxxcpp_flags\
 	-DREVISION="\"$REVISION\""\
 	$dash_d_visibility\
 	$srcdir/include/xapian/version_h.cc|\
-	${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//'\
+	${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g'\
 	> include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system
