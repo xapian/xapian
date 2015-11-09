@@ -27,6 +27,7 @@ EXTRA_DIST =\
 	gen-mimemap \
 	gen-myhtmltags \
 	gen-omegascript-vim \
+	mimemap.tokens \
 	myhtmlparse.tokens \
 	templates/query \
 	templates/topterms \
