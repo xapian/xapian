@@ -102,7 +102,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     } else if (mimetype == "ignore") {
 	return;
     } else if (mimetype == "skip") {
-	//Ignore mimetype, skipped mimetype should not be quitely ignored.
+	// Ignore mimetype, skipped mimetype should not be quietly ignored.
 	string m = "skipping extension '";
 	m += ext;
 	m += "'";
