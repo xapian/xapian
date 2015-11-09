@@ -24,6 +24,7 @@ EXTRA_DIST =\
 	common/Tokeniseise.pm \
 	extra/omegascript.vim \
 	extra/omegascript.vim.in \
+	gen-mimemap \
 	gen-myhtmltags \
 	gen-omegascript-vim \
 	myhtmlparse.tokens \
