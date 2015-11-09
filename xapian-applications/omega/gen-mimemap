@@ -76,9 +76,14 @@ sub mimetype_order {
     $b =~ s!^image/!2/!;
     return $a cmp $b;
 }
+# Include 'skip' in the list even if it isn't used by default.
+++$seen{'skip'};
 foreach my $mimetype (sort {mimetype_order($a, $b)} keys %seen) {
     if ($mimetype eq 'ignore') {
 	$mimetype .= ' (magic token to tell omindex to quietly ignore such files)';
+    }
+    if ($mimetype eq 'skip') {
+	$mimetype .= ' (magic token to tell omindex to skip such files)';
     }
     print MIMETYPES "   - $mimetype\n";
 }
