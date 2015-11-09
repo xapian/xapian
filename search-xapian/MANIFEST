@@ -129,6 +129,7 @@ t/create.t
 t/databasemodified.t
 t/document.t
 t/exception.t
+t/facets.t
 t/index.t
 t/parser.t
 t/search.t
