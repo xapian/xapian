@@ -1,3 +1,6 @@
+noinst_HEADERS +=\
+	net/length.h
+
 EXTRA_DIST +=\
 	net/dir_contents\
 	net/Makefile
