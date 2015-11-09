@@ -58,14 +58,12 @@ $hdr->append("const size_t MAX_BUILTIN_MIMEMAP_EXTENSION_LEN = $max_ext_len;");
 $hdr->write();
 
 open IGNORED, '>', 'docs/inc/ignored.rst' or die $!;
-print IGNORED "::\n";
 foreach my $ext (sort @ignored) {
     print IGNORED "   - $ext\n";
 }
 close IGNORED or die $!;
 
 open MIMETYPES, '>', 'docs/inc/mimetypes.rst' or die $!;
-print MIMETYPES "::\n";
 sub mimetype_order {
     my ($a, $b) = @_;
     $a =~ s!^text/!0/!;
