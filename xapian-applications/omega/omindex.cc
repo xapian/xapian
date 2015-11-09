@@ -101,6 +101,13 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	}
     } else if (mimetype == "ignore") {
 	return;
+    } else if (mimetype == "skip") {
+	//Ignore mimetype, skipped mimetype should not be quitely ignored.
+	string m = "skipping extension '";
+	m += ext;
+	m += "'";
+	skip(urlterm, file.substr(root.size()), m, d.get_size(), d.get_mtime());
+	return;
     }
 
     if (verbose)
