@@ -494,6 +494,12 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    string wildtype(mimetype, 0, slash + 2);
 	    wildtype[slash + 1] = '*';
 	    cmd_it = commands.find(wildtype);
+	    if (cmd_it == commands.end()) {
+		cmd_it = commands.find("*/*");
+	    }
+	}
+	if (cmd_it == commands.end()) {
+	    cmd_it = commands.find("*");
 	}
     }
     try {

@@ -249,7 +249,13 @@ have a filter you want to apply to any video files, you could specify it using
 checking for the exact MIME type, so will override any built-in filters which
 would otherwise match.  Also you can't use arbitrary wildcards, just ``*`` for
 the entire sub-type.  And be careful to quote ``*`` to protect it from the
-shell.
+shell.  Support for this was added in 1.3.3.
+
+If there's no specific filter, and no subtype wildcard, then ``*/*`` is checked
+(assuming the mimetype contains a ``/``), and after that ``*`` (for any
+mimetype string).  Combined with filter command ``true`` for indexing by
+meta-data only, you can specify a fall back case of indexing by meta-data
+only using ``--filter '*:true'``.  Support for this was added in 1.3.4.
 
 By default, files with the following extensions are marked as 'ignore':
 
