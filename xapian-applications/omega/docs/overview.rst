@@ -320,12 +320,15 @@ Then run omindex with options such as
 ``--filter=application/msword,html:'unoconv --stdout -f html'`` (you'll want
 to repeat this for each format which you want to use LibreOffice on).
 
+If you specify ``false`` as the command in ``--filter``, omindex will skip
+files with the specified MIME type.  (As of 1.2.20 and 1.3.3 ``false`` is
+explicitly checked for; in earlier versions this will also work, at least
+on Unix where ``false`` is a command which ignores its arguments and exits with
+a non-zero status).
+
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
 including it as a standard filter.
-
-If you specify ``false`` as the command in ``--filter``, omindex will skip
-files with the specified MIME type.
 
 The ``--duplicates`` option controls how omindex handles documents which map
 to a URL which is already in the database.  The default (which can be
