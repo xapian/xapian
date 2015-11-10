@@ -489,10 +489,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 
     map<string, Filter>::const_iterator cmd_it = commands.find(mimetype);
     if (cmd_it == commands.end()) {
-	string wildtype = mimetype;
-	size_t slash = wildtype.find('/');
+	size_t slash = mimetype.find('/');
 	if (slash != string::npos) {
-	    wildtype.replace(slash + 1, string::npos, "*");
+	    string wildtype(mimetype, 0, slash + 2);
+	    wildtype[slash + 1] = '*';
 	    cmd_it = commands.find(wildtype);
 	}
     }
