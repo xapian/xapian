@@ -569,7 +569,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			break;
 		}
 	    }
-	    if (!substituted) {
+	    if (!substituted && cmd != "true") {
 		// If no %f, append the filename to the command.
 		append_filename_argument(cmd, file);
 	    }
@@ -581,6 +581,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 			throw ReadError("Couldn't read output file");
 		    }
 		    unlink(tmpout.c_str());
+		} else if (cmd == "true") {
+		    // Ignore the file's contents, just index metadata from the
+		    // filing system.
 		} else {
 		    // Output on stdout.
 		    dump = stdout_to_string(cmd);

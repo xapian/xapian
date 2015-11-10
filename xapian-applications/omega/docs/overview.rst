@@ -326,6 +326,14 @@ explicitly checked for; in earlier versions this will also work, at least
 on Unix where ``false`` is a command which ignores its arguments and exits with
 a non-zero status).
 
+If you specify ``true`` as the command in ``--filter``, omindex won't try
+to extract text from the file, but will index it such that it can be searched
+for via metadata which comes from the filing system (filename, extension, mime
+content-type, last modified time, size).  (As of 1.2.22 and 1.3.4 ``true`` is
+explicitly checked for; in earlier versions this will also work, at least
+on Unix where ``true`` is a command which ignores its arguments and exits with
+a status zero).
+
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
 including it as a standard filter.
