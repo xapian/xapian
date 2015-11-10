@@ -136,8 +136,8 @@ class TestRunner(object):
                         self._out.write(": exception string not as expected: got '%s'\n" % str(e))
                         self._out.flush()
                     raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
-            elif hasattr(expectedmsg, 'match'):
-                if not expectedmsg.match(str(e)):
+            elif hasattr(expectedmsg, 'search'):
+                if not expectedmsg.search(str(e)):
                     if self._verbose > 2:
                         self._out.write_colour(" #red#failed##")
                         self._out.write(": exception string not as expected: got '%s'\n" % str(e))
