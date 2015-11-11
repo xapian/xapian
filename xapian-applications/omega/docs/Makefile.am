@@ -19,7 +19,7 @@ RSTDOCS = \
 RSTHTML = $(RSTDOCS:.rst=.html)
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = $(RSTDOCS)
+EXTRA_DIST = $(RSTDOCS) $(GENERATED_RST)
 
 if !MAINTAINER_NO_DOCS
 dist_doc_DATA = $(RSTHTML)
