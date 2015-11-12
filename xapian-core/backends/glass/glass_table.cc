@@ -1091,7 +1091,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     if (m >= BYTE_PAIR_RANGE)
 	throw Xapian::UnimplementedError("Can't handle insanely large tags");
 
-    int o = 0;                        // Offset into the tag
+    size_t o = 0;                        // Offset into the tag
     size_t residue = tag.length();    // Bytes of the tag remaining to add in
     bool replacement = false;         // Has there been a replacement?
     bool components_to_del = false;   // Are there components to delete?
@@ -1099,7 +1099,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     for (i = 1; i <= m; i++) {
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
-	Assert(string::size_type(o + l) <= tag.length());
+	Assert(o + l <= tag.length());
 	kt.set_tag(cd, tag.data() + o, l, compressed, (i == m));
 	kt.set_component_of(i);
 
