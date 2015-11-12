@@ -48,8 +48,8 @@
 using namespace std;
 
 /// Glass format version (date of change):
-#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2015,11,02)
-// 2015,11,02 1.3.4 2 bytes "components_of" per item eliminated; more
+#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2015,11,12)
+// 2015,11,12 1.3.4 2 bytes "components_of" per item eliminated; more
 // 2014,11,21 1.3.2 Brass renamed to Glass
 
 /// Convert date <-> version number.  Dates up to 2141-12-31 fit in 2 bytes.
@@ -121,8 +121,87 @@ GlassVersion::read()
 	old_root[table_no] = root[table_no];
     }
 
-    if (p != end)
-	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
+    serialised_stats.assign(p, end);
+    unserialise_stats();
+}
+
+void
+GlassVersion::serialise_stats()
+{
+    serialised_stats.resize(0);
+    pack_uint(serialised_stats, doccount);
+    // last_docid must always be >= doccount.
+    pack_uint(serialised_stats, last_docid - doccount);
+    pack_uint(serialised_stats, doclen_lbound);
+    pack_uint(serialised_stats, wdf_ubound);
+    // doclen_ubound should always be >= wdf_ubound, so we store the
+    // difference as it may encode smaller.  wdf_ubound is likely to
+    // be larger than doclen_lbound.
+    pack_uint(serialised_stats, doclen_ubound - wdf_ubound);
+    pack_uint(serialised_stats, oldest_changeset);
+    // Micro-optimisation: total_doclen is likely to be the largest value, so
+    // store it last as pack_uint_last() uses a slightly more compact encoding
+    // - this could save us a few bytes!
+    pack_uint_last(serialised_stats, total_doclen);
+}
+
+void
+GlassVersion::unserialise_stats()
+{
+    const char * p = serialised_stats.data();
+    const char * end = p + serialised_stats.size();
+    if (p == end) {
+	doccount = 0;
+	total_doclen = 0;
+	last_docid = 0;
+	doclen_lbound = 0;
+	doclen_ubound = 0;
+	wdf_ubound = 0;
+	oldest_changeset = 0;
+	return;
+    }
+
+    if (!unpack_uint(&p, end, &doccount) ||
+	!unpack_uint(&p, end, &last_docid) ||
+	!unpack_uint(&p, end, &doclen_lbound) ||
+	!unpack_uint(&p, end, &wdf_ubound) ||
+	!unpack_uint(&p, end, &doclen_ubound) ||
+	!unpack_uint(&p, end, &oldest_changeset) ||
+	!unpack_uint_last(&p, end, &total_doclen)) {
+	const char * m = p ?
+	    "Bad serialised DB stats (overflowed)" :
+	    "Bad serialised DB stats (out of data)";
+	throw Xapian::DatabaseCorruptError(m);
+    }
+
+    // last_docid must always be >= doccount.
+    last_docid += doccount;
+    // doclen_ubound should always be >= wdf_ubound, so we store the
+    // difference as it may encode smaller.  wdf_ubound is likely to
+    // be larger than doclen_lbound.
+    doclen_ubound += wdf_ubound;
+}
+
+void
+GlassVersion::merge_stats(const GlassVersion & o)
+{
+    doccount += o.get_doccount();
+    if (doccount < o.get_doccount()) {
+	throw "doccount wrapped!";
+    }
+
+    Xapian::termcount o_doclen_lbound = o.get_doclength_lower_bound();
+    if (o_doclen_lbound > 0) {
+	if (doclen_lbound == 0 || o_doclen_lbound < doclen_lbound)
+	    doclen_lbound = o_doclen_lbound;
+    }
+
+    doclen_ubound = max(doclen_ubound, o.get_doclength_upper_bound());
+    wdf_ubound = max(wdf_ubound, o.get_wdf_upper_bound());
+    total_doclen += o.get_total_doclen();
+    if (total_doclen < o.get_total_doclen()) {
+	throw "totlen wrapped!";
+    }
 }
 
 void
@@ -132,6 +211,7 @@ GlassVersion::cancel()
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
 	root[table_no] = old_root[table_no];
     }
+    unserialise_stats();
 }
 
 const string
@@ -147,6 +227,10 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
 	root[table_no].serialise(s);
     }
+
+    // Serialise database statistics.
+    serialise_stats();
+    s += serialised_stats;
 
     string tmpfile = db_dir;
     // In dangerous mode, just write the new version file in place.

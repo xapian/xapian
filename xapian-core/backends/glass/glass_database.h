@@ -27,7 +27,6 @@
 
 #include "backends/database.h"
 #include "glass_changes.h"
-#include "glass_dbstats.h"
 #include "glass_docdata.h"
 #include "glass_inverter.h"
 #include "glass_positionlist.h"
@@ -108,9 +107,6 @@ class GlassDatabase : public Xapian::Database::Internal {
 
 	/// Lock object.
 	FlintLock lock;
-
-	/// Database statistics.
-	GlassDatabaseStats stats;
 
 	/// Replication changesets.
 	GlassChanges changes;

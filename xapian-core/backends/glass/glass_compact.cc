@@ -54,12 +54,6 @@ using namespace std;
 namespace GlassCompact {
 
 static inline bool
-is_metainfo_key(const string & key)
-{
-    return key.size() == 1 && key[0] == '\0';
-}
-
-static inline bool
 is_user_metadata_key(const string & key)
 {
     return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
@@ -111,7 +105,6 @@ class PostlistCursor : private GlassCursor {
 	key = current_key;
 	tag = current_tag;
 	tf = cf = 0;
-	if (is_metainfo_key(key)) return true;
 	if (is_user_metadata_key(key)) return true;
 	if (is_valuestats_key(key)) return true;
 	if (is_valuechunk_key(key)) {
@@ -203,14 +196,8 @@ merge_postlists(Xapian::Compactor & compactor,
 		vector<RootInfo>::const_iterator root,
 		vector<glass_revision_number_t>::const_iterator rev,
 		vector<string>::const_iterator b,
-		vector<string>::const_iterator e,
-		Xapian::docid last_docid)
+		vector<string>::const_iterator e)
 {
-    Xapian::doccount doccount = 0;
-    totlen_t tot_totlen = 0;
-    Xapian::termcount doclen_lbound = static_cast<Xapian::termcount>(-1);
-    Xapian::termcount wdf_ubound = 0;
-    Xapian::termcount doclen_ubound = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++root, ++rev, ++offset) {
 	GlassTable *in = new GlassTable("postlist", *b, true);
@@ -223,77 +210,7 @@ merge_postlists(Xapian::Compactor & compactor,
 
 	// PostlistCursor takes ownership of GlassTable in and is
 	// responsible for deleting it.
-	PostlistCursor * cur = new PostlistCursor(in, *offset);
-	// Merge the METAINFO tags from each database into one.
-	// They have a key consisting of a single zero byte.
-	// They may be absent, if the database contains no documents.  If it
-	// has user metadata we'll still get here.
-	if (is_metainfo_key(cur->key)) {
-	    const char * data = cur->tag.data();
-	    const char * end = data + cur->tag.size();
-	    Xapian::doccount doccount_tmp;
-	    if (!unpack_uint(&data, end, &doccount_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    doccount += doccount_tmp;
-	    if (doccount < doccount_tmp) {
-		throw "doccount wrapped!";
-	    }
-
-	    Xapian::docid dummy_did = 0;
-	    if (!unpack_uint(&data, end, &dummy_did)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-
-	    Xapian::termcount doclen_lbound_tmp;
-	    if (!unpack_uint(&data, end, &doclen_lbound_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    doclen_lbound = min(doclen_lbound, doclen_lbound_tmp);
-
-	    Xapian::termcount wdf_ubound_tmp;
-	    if (!unpack_uint(&data, end, &wdf_ubound_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    wdf_ubound = max(wdf_ubound, wdf_ubound_tmp);
-
-	    Xapian::termcount doclen_ubound_tmp;
-	    if (!unpack_uint(&data, end, &doclen_ubound_tmp)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    doclen_ubound_tmp += wdf_ubound_tmp;
-	    doclen_ubound = max(doclen_ubound, doclen_ubound_tmp);
-
-	    totlen_t totlen = 0;
-	    if (!unpack_uint_last(&data, end, &totlen)) {
-		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-	    }
-	    tot_totlen += totlen;
-	    if (tot_totlen < totlen) {
-		throw "totlen wrapped!";
-	    }
-	    if (cur->next()) {
-		pq.push(cur);
-	    } else {
-		delete cur;
-	    }
-	} else {
-	    pq.push(cur);
-	}
-    }
-
-    // Don't write the metainfo key for a totally empty database.
-    if (last_docid) {
-	if (doclen_lbound > doclen_ubound)
-	    doclen_lbound = doclen_ubound;
-	string tag;
-	pack_uint(tag, doccount);
-	pack_uint(tag, last_docid - doccount);
-	pack_uint(tag, doclen_lbound);
-	pack_uint(tag, wdf_ubound);
-	pack_uint(tag, doclen_ubound - wdf_ubound);
-	pack_uint_last(tag, tot_totlen);
-	out->add(string(1, '\0'), tag);
+	pq.push(new PostlistCursor(in, *offset));
     }
 
     string last_key;
@@ -698,7 +615,6 @@ merge_synonyms(GlassTable * out,
 static void
 multimerge_postlists(Xapian::Compactor & compactor,
 		     GlassTable * out, const char * tmpdir,
-		     Xapian::docid last_docid,
 		     vector<string> tmp,
 		     vector<RootInfo> root,
 		     vector<glass_revision_number_t> rev,
@@ -733,7 +649,7 @@ multimerge_postlists(Xapian::Compactor & compactor,
 
 	    merge_postlists(compactor, &tmptab, off.begin() + i,
 			    root.begin() + i, rev.begin() + i,
-			    tmp.begin() + i, tmp.begin() + j, last_docid);
+			    tmp.begin() + i, tmp.begin() + j);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
 		    unlink((tmp[k] + GLASS_TABLE_EXTENSION).c_str());
@@ -753,7 +669,7 @@ multimerge_postlists(Xapian::Compactor & compactor,
 	++c;
     }
     merge_postlists(compactor, out, off.begin(), root.begin(), rev.begin(),
-		    tmp.begin(), tmp.end(), last_docid);
+		    tmp.begin(), tmp.end());
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
 	    unlink((tmp[k] + GLASS_TABLE_EXTENSION).c_str());
@@ -942,6 +858,10 @@ compact_glass(Xapian::Compactor & compactor,
     GlassVersion version_file_out(destdir);
     version_file_out.create(block_size, 0);
 
+    for (auto v_in : version_file) {
+	version_file_out.merge_stats(v_in);
+    }
+
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
     for (const table_list * t = tables; t < tables_end; ++t) {
@@ -1026,13 +946,12 @@ compact_glass(Xapian::Compactor & compactor,
 	switch (t->type) {
 	    case Glass::POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(compactor, out, destdir, last_docid,
+		    multimerge_postlists(compactor, out, destdir,
 					 inputs, root, rev, offset);
 		} else {
 		    merge_postlists(compactor, out, offset.begin(),
 				    root.begin(), rev.begin(),
-				    inputs.begin(), inputs.end(),
-				    last_docid);
+				    inputs.begin(), inputs.end());
 		}
 		break;
 	    case Glass::SPELLING:
@@ -1096,6 +1015,7 @@ compact_glass(Xapian::Compactor & compactor,
 	}
     }
 
+    version_file_out.set_last_docid(last_docid);
     string tmpfile = version_file_out.write(1, FLAGS);
     for (unsigned j = 0; j != tabs.size(); ++j) {
 	tabs[j]->sync();

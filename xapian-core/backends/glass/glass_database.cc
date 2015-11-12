@@ -74,9 +74,6 @@ using namespace std;
 using namespace Xapian;
 using Xapian::Internal::intrusive_ptr;
 
-/// The key in the postlist table which we use to store our encoded statistics.
-static const string DATABASE_STATS_KEY(1, '\0');
-
 // The maximum safe term length is determined by the postlist.  There we
 // store the term using pack_string_preserving_sort() which takes the
 // length of the string plus an extra byte (assuming the string doesn't
@@ -194,8 +191,6 @@ GlassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     postlist_table.create_and_open(flags, block_size);
 
     Assert(database_exists());
-
-    stats.zero();
 }
 
 bool
@@ -232,12 +227,8 @@ GlassDatabase::open_tables(int flags)
 
     value_manager.reset();
 
-    string data;
-    (void)postlist_table.get_exact_entry(DATABASE_STATS_KEY, data);
-    stats.unserialise(data);
-
     if (!readonly) {
-	changes.set_oldest_changeset(stats.get_oldest_changeset());
+	changes.set_oldest_changeset(version_file.get_oldest_changeset());
 	glass_revision_number_t revision = version_file.get_revision();
 	GlassChanges * p = changes.start(revision, revision + 1, flags);
 	version_file.set_changes(p);
@@ -682,28 +673,28 @@ Xapian::doccount
 GlassDatabase::get_doccount() const
 {
     LOGCALL(DB, Xapian::doccount, "GlassDatabase::get_doccount", NO_ARGS);
-    RETURN(stats.get_doccount());
+    RETURN(version_file.get_doccount());
 }
 
 Xapian::docid
 GlassDatabase::get_lastdocid() const
 {
     LOGCALL(DB, Xapian::docid, "GlassDatabase::get_lastdocid", NO_ARGS);
-    RETURN(stats.get_last_docid());
+    RETURN(version_file.get_last_docid());
 }
 
 totlen_t
 GlassDatabase::get_total_length() const
 {
     LOGCALL(DB, totlen_t, "GlassDatabase::get_total_length", NO_ARGS);
-    RETURN(stats.get_total_doclen());
+    RETURN(version_file.get_total_doclen());
 }
 
 Xapian::doclength
 GlassDatabase::get_avlength() const
 {
     LOGCALL(DB, Xapian::doclength, "GlassDatabase::get_avlength", NO_ARGS);
-    RETURN(stats.get_avlength());
+    RETURN(version_file.get_avlength());
 }
 
 Xapian::termcount
@@ -760,13 +751,13 @@ GlassDatabase::get_value_upper_bound(Xapian::valueno slot) const
 Xapian::termcount
 GlassDatabase::get_doclength_lower_bound() const
 {
-    return stats.get_doclength_lower_bound();
+    return version_file.get_doclength_lower_bound();
 }
 
 Xapian::termcount
 GlassDatabase::get_doclength_upper_bound() const
 {
-    return stats.get_doclength_upper_bound();
+    return version_file.get_doclength_upper_bound();
 }
 
 Xapian::termcount
@@ -774,7 +765,7 @@ GlassDatabase::get_wdf_upper_bound(const string & term) const
 {
     Xapian::termcount cf;
     get_freqs(term, NULL, &cf);
-    return min(cf, stats.get_wdf_upper_bound());
+    return min(cf, version_file.get_wdf_upper_bound());
 }
 
 bool
@@ -799,7 +790,7 @@ GlassDatabase::open_post_list(const string& term) const
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
-	if (stats.get_last_docid() == doccount) {
+	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	RETURN(new GlassAllDocsPostList(ptrtothis, doccount));
@@ -984,8 +975,7 @@ GlassWritableDatabase::commit()
 void
 GlassWritableDatabase::flush_postlist_changes() const
 {
-    stats.set_oldest_changeset(changes.get_oldest_changeset());
-    postlist_table.add(DATABASE_STATS_KEY, stats.serialise());
+    version_file.set_oldest_changeset(changes.get_oldest_changeset());
     inverter.flush(postlist_table);
     inverter.flush_pos_lists(position_table);
 
@@ -1015,10 +1005,10 @@ GlassWritableDatabase::add_document(const Xapian::Document & document)
 {
     LOGCALL(DB, Xapian::docid, "GlassWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
-    if (stats.get_last_docid() == GLASS_MAX_DOCID)
+    if (version_file.get_last_docid() == GLASS_MAX_DOCID)
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     // Use the next unused document ID.
-    RETURN(add_document_(stats.get_next_docid(), document));
+    RETURN(add_document_(version_file.get_next_docid(), document));
 }
 
 Xapian::docid
@@ -1041,7 +1031,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 		termcount wdf = term.get_wdf();
 		// Calculate the new document length
 		new_doclen += wdf;
-		stats.check_wdf(wdf);
+		version_file.check_wdf(wdf);
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
@@ -1059,7 +1049,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 
 	// Set the new document length
 	inverter.set_doclength(did, new_doclen, true);
-	stats.add_document(new_doclen);
+	version_file.add_document(new_doclen);
     } catch (...) {
 	// If an error occurs while adding a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -1114,7 +1104,7 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
 	intrusive_ptr<const GlassWritableDatabase> ptrtothis(this);
 	GlassTermList termlist(ptrtothis, did);
 
-	stats.delete_document(termlist.get_doclength());
+	version_file.delete_document(termlist.get_doclength());
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -1155,8 +1145,8 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
     Assert(did != 0);
 
     try {
-	if (did > stats.get_last_docid()) {
-	    stats.set_last_docid(did);
+	if (did > version_file.get_last_docid()) {
+	    version_file.set_last_docid(did);
 	    // If this docid is above the highwatermark, then we can't be
 	    // replacing an existing document.
 	    (void)add_document_(did, document);
@@ -1204,7 +1194,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	    GlassTermList termlist(ptrtothis, did);
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::termcount old_doclen = termlist.get_doclength();
-	    stats.delete_document(old_doclen);
+	    version_file.delete_document(old_doclen);
 	    Xapian::termcount new_doclen = old_doclen;
 
 	    string old_tname, new_tname;
@@ -1237,7 +1227,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    // Term new_tname as been added.
 		    termcount new_wdf = term.get_wdf();
 		    new_doclen += new_wdf;
-		    stats.check_wdf(new_wdf);
+		    version_file.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
 			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
@@ -1253,7 +1243,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    // Check the stats even if wdf hasn't changed, because if
 		    // this is the only document, the stats will have been
 		    // zeroed.
-		    stats.check_wdf(new_wdf);
+		    version_file.check_wdf(new_wdf);
 
 		    if (old_wdf != new_wdf) {
 		    	new_doclen += new_wdf - old_wdf;
@@ -1277,7 +1267,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	    // Set the new document length
 	    if (new_doclen != old_doclen)
 		inverter.set_doclength(did, new_doclen, false);
-	    stats.add_document(new_doclen);
+	    version_file.add_document(new_doclen);
 	}
 
 	if (!modifying || document.internal->data_modified()) {
@@ -1398,7 +1388,7 @@ GlassWritableDatabase::open_post_list(const string& tname) const
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();
-	if (stats.get_last_docid() == doccount) {
+	if (version_file.get_last_docid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	inverter.flush_doclengths(postlist_table);
@@ -1475,9 +1465,6 @@ void
 GlassWritableDatabase::cancel()
 {
     GlassDatabase::cancel();
-    string data;
-    (void)postlist_table.get_exact_entry(DATABASE_STATS_KEY, data);
-    stats.unserialise(data);
     inverter.clear();
     value_stats.clear();
     change_count = 0;

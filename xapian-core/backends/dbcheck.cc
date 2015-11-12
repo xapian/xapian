@@ -174,16 +174,11 @@ Database::check(const string & path, int opts, std::ostream *out)
 	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
 	// Check a whole glass database directory.
-	// If we can't read the last docid, set it to its maximum value
-	// to suppress errors.
-	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 	try {
-	    // Open at the lower level so we can get the revision number.
-	    GlassDatabase db(path);
-	    db_last_docid = db.get_lastdocid();
-	    reserve_doclens(doclens, db_last_docid, out);
+	    // Check if the database can actually be opened.
+	    Xapian::Database db(path);
 	} catch (const Xapian::Error & e) {
-	    // Ignore so we can check a database too broken to open.
+	    // Continue - we can still usefully look at how it is broken.
 	    if (out)
 		*out << "Database couldn't be opened for reading: "
 		     << e.get_description()
@@ -200,6 +195,9 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    if (file_exists(changes_file))
 		GlassChanges::check(changes_file);
 	}
+
+	Xapian::docid db_last_docid = version_file.get_last_docid();
+	reserve_doclens(doclens, db_last_docid, out);
 
 	// This is a glass directory so try to check all the btrees.
 	// Note: it's important to check termlist before postlist so

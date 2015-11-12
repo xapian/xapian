@@ -1,7 +1,8 @@
 /** @file glass_version.h
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015 Olly Betts
+ * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +24,15 @@
 
 #include "glass_changes.h"
 #include "glass_defs.h"
+
 #include "omassert.h"
 
 #include <cstring>
 #include <string>
 
 #include "common/safeuuid.h"
+#include "internaltypes.h"
+#include "xapian/types.h"
 
 namespace Glass {
 
@@ -101,9 +105,42 @@ class GlassVersion {
 
     GlassChanges * changes;
 
+    /// The number of documents in the database.
+    Xapian::doccount doccount;
+
+    /// The total of the lengths of all documents in the database.
+    totlen_t total_doclen;
+
+    /// Greatest document id ever used in this database.
+    Xapian::docid last_docid;
+
+    /// A lower bound on the smallest document length in this database.
+    Xapian::termcount doclen_lbound;
+
+    /// An upper bound on the greatest document length in this database.
+    Xapian::termcount doclen_ubound;
+
+    /// An upper bound on the greatest wdf in this database.
+    Xapian::termcount wdf_ubound;
+
+    /// Oldest changeset removed when max_changesets is set
+    mutable glass_revision_number_t oldest_changeset;
+
+    /// The serialised database stats.
+    std::string serialised_stats;
+
+    // Serialise the database stats.
+    void serialise_stats();
+
+    // Unserialise the database stats.
+    void unserialise_stats();
+
   public:
     explicit GlassVersion(const std::string & db_dir_)
-	: rev(0), db_dir(db_dir_), changes(NULL) { }
+	: rev(0), db_dir(db_dir_), changes(NULL),
+	  doccount(0), total_doclen(0), last_docid(0),
+	  doclen_lbound(0), doclen_ubound(0),
+	  wdf_ubound(0), oldest_changeset(0) { }
 
     /** Create the version file. */
     void create(unsigned blocksize, int flags);
@@ -160,6 +197,72 @@ class GlassVersion {
 	return uuid_parse(s.c_str(), uuid);
     }
 #endif
+
+    Xapian::doccount get_doccount() const { return doccount; }
+
+    totlen_t get_total_doclen() const { return total_doclen; }
+
+    Xapian::docid get_last_docid() const { return last_docid; }
+
+    Xapian::termcount get_doclength_lower_bound() const {
+	return doclen_lbound;
+    }
+
+    Xapian::termcount get_doclength_upper_bound() const {
+	return doclen_ubound;
+    }
+
+    Xapian::termcount get_wdf_upper_bound() const { return wdf_ubound; }
+
+    glass_revision_number_t get_oldest_changeset() const {
+	return oldest_changeset;
+    }
+
+    Xapian::doclength get_avlength() const {
+	// Don't divide by zero when the database is empty.
+	if (rare(doccount == 0))
+	    return 0;
+	return Xapian::doclength(total_doclen) / doccount;
+    }
+
+    void set_last_docid(Xapian::docid did) { last_docid = did; }
+
+    void set_oldest_changeset(glass_revision_number_t changeset) const {
+	oldest_changeset = changeset;
+    }
+
+    void add_document(Xapian::termcount doclen) {
+	++doccount;
+	if (total_doclen == 0 || (doclen && doclen < doclen_lbound))
+	    doclen_lbound = doclen;
+	if (doclen > doclen_ubound)
+	    doclen_ubound = doclen;
+	total_doclen += doclen;
+    }
+
+    void delete_document(Xapian::termcount doclen) {
+	--doccount;
+	total_doclen -= doclen;
+	// If the database no longer contains any postings, we can reset
+	// doclen_lbound, doclen_ubound and wdf_ubound.
+	if (total_doclen == 0) {
+	    doclen_lbound = 0;
+	    doclen_ubound = 0;
+	    wdf_ubound = 0;
+	}
+    }
+
+    void check_wdf(Xapian::termcount wdf) {
+	if (wdf > wdf_ubound) wdf_ubound = wdf;
+    }
+
+    Xapian::docid get_next_docid() { return ++last_docid; }
+
+    /** Merge the database stats.
+     *
+     *  Used by compaction.
+     */
+    void merge_stats(const GlassVersion & o);
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_VERSION_H
