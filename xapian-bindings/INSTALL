@@ -50,7 +50,8 @@ The simplest way to compile this package is:
        --with-lua	    enable Lua bindings
        --with-perl	    enable Perl bindings
        --with-php	    enable PHP bindings
-       --with-python	    enable Python bindings
+       --with-python	    enable Python 2 bindings
+       --with-python3	    enable Python 3 bindings
        --with-ruby	    enable Ruby bindings
        --with-tcl	    enable Tcl bindings
 
@@ -138,7 +139,7 @@ Installing without root access
      This will symlink all of them, but you only actually need those that
      get loaded.
 
-  Python:
+  Python 2:
 
      ./configure --with-python --prefix=$HOME/install PYTHON_LIB=$HOME/.local
      make
@@ -159,6 +160,15 @@ Installing without root access
      import sys
      sys.path.insert(0, os.environ['HOME'] + "/.local")
      import xapian
+
+  Python 3:
+
+     ./configure --with-python3 --prefix=$HOME/install PYTHON3_LIB=$HOME/.local
+     make
+     make install
+
+     Python 3 looks in ~/.local for packages automatically, so you don't need
+     to do anything special to use bindings installed there.
 
   Ruby:
 
