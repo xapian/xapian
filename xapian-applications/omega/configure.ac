@@ -369,10 +369,10 @@ pcre_runtime_installed() {
       else
 	pkg="pcre-devel"
       fi
-      exit 0
+      AS_SET_STATUS([0])
     fi
   done
-  exit 1
+  AS_SET_STATUS([1])
 }
 
 AC_ARG_VAR(PCRE_CONFIG, [Location of pcre-config])
