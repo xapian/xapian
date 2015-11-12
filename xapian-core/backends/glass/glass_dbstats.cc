@@ -1,7 +1,7 @@
 /** @file glass_dbstats.cc
  * @brief Glass class for database statistics.
  */
-/* Copyright (C) 2009,2010,2014 Olly Betts
+/* Copyright (C) 2009,2010,2014,2015 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -23,25 +23,22 @@
 
 #include "glass_dbstats.h"
 
-#include "glass_postlist.h"
+#include "pack.h"
+#include "xapian/error.h"
 
 using namespace std;
 
-/// The key in the postlist table which we use to store our encoded statistics.
-static const string DATABASE_STATS_KEY(1, '\0');
-
 void
-GlassDatabaseStats::read(GlassPostListTable & postlist_table)
+GlassDatabaseStats::unserialise(const string & serialised_stats)
 {
-    string data;
-    if (!postlist_table.get_exact_entry(DATABASE_STATS_KEY, data)) {
+    if (serialised_stats.empty()) {
 	// If there's no entry yet, then all the values are zero.
 	zero();
 	return;
     }
 
-    const char * p = data.data();
-    const char * end = p + data.size();
+    const char * p = serialised_stats.data();
+    const char * end = p + serialised_stats.size();
 
     if (unpack_uint(&p, end, &doccount) &&
 	unpack_uint(&p, end, &last_docid) &&
@@ -59,14 +56,14 @@ GlassDatabaseStats::read(GlassPostListTable & postlist_table)
 	return;
     }
 
-    if (p)
-	throw Xapian::DatabaseCorruptError("Bad encoded DB stats (overflowed)");
-
-    throw Xapian::DatabaseCorruptError("Bad encoded DB stats (out of data)");
+    const char * m = p ?
+	"Bad serialised DB stats (overflowed)" :
+	"Bad serialised DB stats (out of data)";
+    throw Xapian::DatabaseCorruptError(m);
 }
 
-void
-GlassDatabaseStats::write(GlassPostListTable & postlist_table) const
+string
+GlassDatabaseStats::serialise() const
 {
     string data;
     pack_uint(data, doccount);
@@ -83,5 +80,5 @@ GlassDatabaseStats::write(GlassPostListTable & postlist_table) const
     // store it last as pack_uint_last() uses a slightly more compact encoding
     // - this could save us a few bytes!
     pack_uint_last(data, total_doclen);
-    postlist_table.add(DATABASE_STATS_KEY, data);
+    return data;
 }

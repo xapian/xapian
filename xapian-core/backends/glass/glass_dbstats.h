@@ -1,7 +1,7 @@
 /** @file glass_dbstats.h
  * @brief Glass class for database statistics.
  */
-/* Copyright (C) 2009,2010,2014 Olly Betts
+/* Copyright (C) 2009,2010,2014,2015 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -26,6 +26,8 @@
 #include "xapian/types.h"
 
 #include "internaltypes.h"
+
+#include <string>
 
 class GlassPostListTable;
 
@@ -99,7 +101,7 @@ class GlassDatabaseStats {
 	oldest_changeset = 0;
     }
 
-    void read(GlassPostListTable & postlist_table);
+    void unserialise(const std::string & serialised_stats);
 
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
@@ -134,7 +136,7 @@ class GlassDatabaseStats {
 
     Xapian::docid get_next_docid() { return ++last_docid; }
 
-    void write(GlassPostListTable & postlist_table) const;
+    std::string serialise() const;
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_DBSTATS_H

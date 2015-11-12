@@ -74,6 +74,9 @@ using namespace std;
 using namespace Xapian;
 using Xapian::Internal::intrusive_ptr;
 
+/// The key in the postlist table which we use to store our encoded statistics.
+static const string DATABASE_STATS_KEY(1, '\0');
+
 // The maximum safe term length is determined by the postlist.  There we
 // store the term using pack_string_preserving_sort() which takes the
 // length of the string plus an extra byte (assuming the string doesn't
@@ -229,7 +232,9 @@ GlassDatabase::open_tables(int flags)
 
     value_manager.reset();
 
-    stats.read(postlist_table);
+    string data;
+    (void)postlist_table.get_exact_entry(DATABASE_STATS_KEY, data);
+    stats.unserialise(data);
 
     if (!readonly) {
 	changes.set_oldest_changeset(stats.get_oldest_changeset());
@@ -980,7 +985,7 @@ void
 GlassWritableDatabase::flush_postlist_changes() const
 {
     stats.set_oldest_changeset(changes.get_oldest_changeset());
-    stats.write(postlist_table);
+    postlist_table.add(DATABASE_STATS_KEY, stats.serialise());
     inverter.flush(postlist_table);
     inverter.flush_pos_lists(position_table);
 
@@ -1470,8 +1475,9 @@ void
 GlassWritableDatabase::cancel()
 {
     GlassDatabase::cancel();
-    stats.read(postlist_table);
-
+    string data;
+    (void)postlist_table.get_exact_entry(DATABASE_STATS_KEY, data);
+    stats.unserialise(data);
     inverter.clear();
     value_stats.clear();
     change_count = 0;
