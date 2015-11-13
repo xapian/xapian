@@ -44,10 +44,14 @@ END
 }
 
 my ($fnm, $lineno);
+my $add_lines = 0;
+my $del_lines = 0;
+my $files = 0;
 # SVN property changes don't have an "Index: [...]" line.
 my $want_tabs = -1;
 while (<>) {
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
+	++$files;
 	$fnm = $1;
 	$lineno = undef;
 	if ($fnm =~ /\.cc$/) {
@@ -90,5 +94,18 @@ while (<>) {
 	    print "\n";
 	}
     }
-    ++$lineno if /^[ +]/;
+    my $first_char = substr($_, 0, 1);
+    if ($first_char eq ' ') {
+	++$lineno;
+    } elsif ($first_char eq '+') {
+	++$lineno;
+	++$add_lines;
+    } elsif ($first_char eq '-') {
+	++$del_lines;
+    }
 }
+print STDERR <<"__END__";
+Files patched:\t$files
+Lines added:\t$add_lines
+Lines removed:\t$del_lines
+__END__
