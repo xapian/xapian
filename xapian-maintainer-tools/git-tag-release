@@ -55,7 +55,7 @@ fi
 bad=0
 escaped_version=`echo "$version"|sed 's/\([^0-9]\)/\\\\\\1/g'`
 for d in xapian-core xapian-bindings xapian-applications/omega ; do
-    grep '^AC_INIT(.*\<'"$escaped_version"'\>' "$d/configure.ac" >/dev/null || {
+    grep '^\(AC_INIT(\|m4_define(\[project_version\],\).*\<'"$escaped_version"'\>' "$d/configure.ac" >/dev/null || {
 	echo "$d/configure.ac not version $version" 1>&2
 	bad=1
     }

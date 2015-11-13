@@ -4,7 +4,8 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-AC_INIT([xapian-bindings], [1.3.3], [http://xapian.org/bugs])
+m4_define([project_version], [1.3.3])
+AC_INIT([xapian-bindings], project_version, [http://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
@@ -88,7 +89,9 @@ dnl Probe for any options needed to enable C++11 support.
 AX_CXX_COMPILE_STDCXX_11
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [], [xapian-config])
+XO_LIB_XAPIAN([], [],
+    [xapian-config]regexp(project_version,
+			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no

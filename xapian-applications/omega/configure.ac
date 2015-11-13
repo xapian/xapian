@@ -1,6 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT([xapian-omega], [1.3.3], [http://xapian.org/bugs])
+m4_define([project_version], [1.3.3])
+AC_INIT([xapian-omega], project_version, [http://xapian.org/bugs])
 AC_PREREQ([2.63])
 AM_INIT_AUTOMAKE([1.11 -Wportability subdir-objects tar-ustar no-dist-gzip dist-xz])
 
@@ -66,7 +67,9 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [], [xapian-config])
+XO_LIB_XAPIAN([], [],
+    [xapian-config]regexp(project_version,
+			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS

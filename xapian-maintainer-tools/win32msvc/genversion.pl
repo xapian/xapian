@@ -34,7 +34,7 @@ my $revision;
 
 open CONFFD, $confpath or die "Can't open \"$confpath\"";
 while (<CONFFD>) {
-    if (m/AC_INIT\(\[?xapian-.*\]?, \[?([0-9]+)\.([0-9]+)\.([0-9]+).*\)/) {
+    if (m/(?:AC_INIT\(\[?xapian-.*\]?|m4_define\(\[project_version\]), \[?([0-9]+)\.([0-9]+)\.([0-9]+).*\)/) {
 	$major = $1;
 	$minor = $2;
 	$revision = $3;

@@ -2,7 +2,9 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-letor], [1.3.0], [http://xapian.org/bugs])
+m4_define([project_version], [1.3.0])
+AC_INIT([xapian-letor], project_version, [http://xapian.org/bugs])
+
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
 dnl
@@ -75,7 +77,9 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for xapian-core.
-XO_LIB_XAPIAN([], [], [xapian-config])
+XO_LIB_XAPIAN([], [],
+    [xapian-config]regexp(project_version,
+			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS

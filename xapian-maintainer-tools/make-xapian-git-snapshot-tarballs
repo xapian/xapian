@@ -200,7 +200,7 @@ foreach my $tag (@ARGV) {
 	    open OUT, ">", "tmp.out" or die $!;
 	    open IN, "<", $configure_ac or die $!;
 	    while (<IN>) {
-		s/(^AC_INIT\([^,]*,.*?)(\s*[),\]])/$1_git$revcount$2/g;
+		s/(^(?:AC_INIT\([^,]*|m4_define\(\[project_version\]),.*?)(\s*[),\]])/$1_git$revcount$2/g;
 		print OUT;
 	    }
 	    close IN or die $!;
