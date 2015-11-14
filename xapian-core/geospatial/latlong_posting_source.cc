@@ -29,7 +29,6 @@
 #include "xapian/registry.h"
 
 #include "net/length.h"
-#include "net/serialise.h"
 #include "serialise-double.h"
 #include "str.h"
 
