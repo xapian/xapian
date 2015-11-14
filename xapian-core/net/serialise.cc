@@ -21,7 +21,6 @@
 #include <config.h>
 
 #include <xapian/document.h>
-#include <xapian/error.h>
 #include <xapian/positioniterator.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
@@ -31,67 +30,12 @@
 #include "length.h"
 #include "serialise.h"
 #include "serialise-double.h"
-#include "str.h"
 #include "weight/weightinternal.h"
 
 #include "autoptr.h"
 #include <string>
-#include <cstring>
 
 using namespace std;
-
-string
-serialise_error(const Xapian::Error &e)
-{
-    // The byte before the type name is the type code.
-    string result(1, (e.get_type())[-1]);
-    result += encode_length(e.get_context().length());
-    result += e.get_context();
-    result += encode_length(e.get_msg().length());
-    result += e.get_msg();
-    // The "error string" goes last so we don't need to store its length.
-    const char * err = e.get_error_string();
-    if (err) result += err;
-    return result;
-}
-
-void
-unserialise_error(const string &serialised_error, const string &prefix,
-		  const string &new_context)
-{
-    // Use c_str() so last string is nul-terminated.
-    const char * p = serialised_error.c_str();
-    const char * end = p + serialised_error.size();
-    if (p != end) {
-	char type = *p++;
-
-	size_t len;
-	decode_length_and_check(&p, end, len);
-	string context(p, len);
-	p += len;
-
-	decode_length_and_check(&p, end, len);
-	string msg(prefix);
-	msg.append(p, len);
-	p += len;
-
-	const char * error_string = (p == end) ? NULL : p;
-
-	if (!new_context.empty()) {
-	    if (!context.empty()) {
-		msg += "; context was: ";
-		msg += context;
-	    }
-	    context = new_context;
-	}
-
-	switch (type) {
-#include "xapian/errordispatch.h"
-	}
-    }
-
-    throw Xapian::InternalError("Unknown remote exception type", new_context);
-}
 
 string
 serialise_stats(const Xapian::Weight::Internal &stats)

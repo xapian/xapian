@@ -37,6 +37,7 @@
 #include "realtime.h"
 #include "net/length.h"
 #include "net/serialise.h"
+#include "net/serialise-error.h"
 #include "serialise-double.h"
 #include "str.h"
 #include "stringutils.h" // For STRINGIZE().

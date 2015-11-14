@@ -8,6 +8,7 @@ noinst_HEADERS +=\
 	net/replicatetcpclient.h\
 	net/replicatetcpserver.h\
 	net/serialise.h\
+	net/serialise-error.h\
 	net/tcpclient.h\
 	net/tcpserver.h
 
@@ -27,6 +28,7 @@ lib_src +=\
 	net/replicatetcpclient.cc\
 	net/replicatetcpserver.cc\
 	net/serialise.cc\
+	net/serialise-error.cc\
 	net/tcpclient.cc\
 	net/tcpserver.cc
 endif

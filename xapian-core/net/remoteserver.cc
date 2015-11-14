@@ -42,6 +42,7 @@
 #include "realtime.h"
 #include "serialise.h"
 #include "serialise-double.h"
+#include "serialise-error.h"
 #include "str.h"
 #include "stringutils.h"
 #include "weight/weightinternal.h"

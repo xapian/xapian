@@ -38,7 +38,6 @@ using namespace std;
 
 #include "omassert.h"
 #include "pack.h"
-#include "../net/serialise.h"
 #include "str.h"
 
 class Test_Exception {
@@ -242,45 +241,6 @@ static bool test_stringcomp1()
     return success;
 }
 
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Check serialisation of Xapian::Error.
-static bool test_serialiseerror1()
-{
-    string enoent_msg(strerror(ENOENT));
-    Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
-    // Regression test for bug in 1.0.0 - it didn't convert errno values for
-    // get_description() if they hadn't already been converted.
-    TEST_STRINGS_EQUAL(e.get_description(), "DatabaseOpeningError: Failed to open database (" + enoent_msg + ")");
-
-    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
-
-    string serialisation = serialise_error(e);
-
-    // Test if unserialise_error() throws with a flag to avoid the possibility
-    // of an "unreachable code" warning when we get around to marking
-    // unserialise_error() as "noreturn".
-    bool threw = false;
-    try {
-	// unserialise_error throws an exception.
-	unserialise_error(serialisation, "", "");
-    } catch (const Xapian::Error & ecaught) {
-	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
-	threw = true;
-    }
-    TEST(threw);
-
-    // Check that the original is still OK.
-    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
-
-    // Regression test - in 1.0.0, copying used to duplicate the error_string
-    // pointer, resulting in double calls to free().
-    Xapian::DatabaseOpeningError ecopy(e);
-    TEST_STRINGS_EQUAL(ecopy.get_error_string(), enoent_msg);
-
-    return true;
-}
-#endif
-
 // By default Sun's C++ compiler doesn't call the destructor on a
 // temporary object until the end of the block (contrary to what
 // ISO C++ requires).  This is done in the name of "compatibility".
@@ -388,9 +348,6 @@ static const test_desc tests[] = {
     {"autoptr1",		test_autoptr1},
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-    {"serialiseerror1",		test_serialiseerror1},
-#endif
     {"static_assert1",		test_static_assert1},
     {"pack1",			test_pack_uint_preserving_sort1},
     {0, 0}

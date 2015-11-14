@@ -47,11 +47,23 @@ using namespace std;
     } while (0)
 
 // Code we're unit testing:
+#include "../common/errno_to_string.cc"
 #include "../common/fileutils.cc"
 #include "../common/serialise-double.cc"
 #include "../common/str.cc"
 #include "../net/length.cc"
+#include "../net/serialise-error.cc"
+#include "../api/error.cc"
 #include "../api/sortable-serialise.cc"
+
+// Stub replacement, which doesn't deal with escaping or producing valid UTF-8.
+// The full implementation needs Xapian::Utf8Iterator and
+// Xapian::Unicode::append_utf8().
+void
+description_append(std::string & desc, const std::string &s)
+{
+    desc += s;
+}
 
 DEFINE_TESTCASE_(simple_exceptions_work1) {
     try {
@@ -331,6 +343,43 @@ static bool test_serialiselength2()
 
     return true;
 }
+
+// Check serialisation of Xapian::Error.
+static bool test_serialiseerror1()
+{
+    string enoent_msg(strerror(ENOENT));
+    Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
+    // Regression test for bug in 1.0.0 - it didn't convert errno values for
+    // get_description() if they hadn't already been converted.
+    TEST_STRINGS_EQUAL(e.get_description(), "DatabaseOpeningError: Failed to open database (" + enoent_msg + ")");
+
+    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
+
+    string serialisation = serialise_error(e);
+
+    // Test if unserialise_error() throws with a flag to avoid the possibility
+    // of an "unreachable code" warning when we get around to marking
+    // unserialise_error() as "noreturn".
+    bool threw = false;
+    try {
+	// unserialise_error throws an exception.
+	unserialise_error(serialisation, "", "");
+    } catch (const Xapian::Error & ecaught) {
+	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
+	threw = true;
+    }
+    TEST(threw);
+
+    // Check that the original is still OK.
+    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
+
+    // Regression test - in 1.0.0, copying used to duplicate the error_string
+    // pointer, resulting in double calls to free().
+    Xapian::DatabaseOpeningError ecopy(e);
+    TEST_STRINGS_EQUAL(ecopy.get_error_string(), enoent_msg);
+
+    return true;
+}
 #endif
 
 // Test log2() (which might be our replacement version).
@@ -486,6 +535,7 @@ static const test_desc tests[] = {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     TESTCASE(serialiselength1),
     TESTCASE(serialiselength2),
+    TESTCASE(serialiseerror1),
 #endif
     TESTCASE(log2),
     TESTCASE(sortableserialise1),
