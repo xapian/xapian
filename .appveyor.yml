@@ -1,0 +1,19 @@
+branches:
+  only:
+  - appveyor
+skip_tags: true
+environment:
+  AUTOMATED_TESTING: 1
+platform:
+  - x86
+  - x64
+install:
+  - bash -c 'date -u; uname -a'
+  - set PATH=C:\cygwin\bin;%PATH%
+  - echo %PATH%
+build_script:
+  - bash -c 'time ./bootstrap xapian-core --without-autotools'
+  - bash -c 'time ./configure --disable-documentation'
+  - bash -c 'time make -k'
+test_script:
+  - bash -c 'time make check'
