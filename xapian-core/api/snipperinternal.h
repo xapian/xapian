@@ -23,7 +23,6 @@
 #ifndef XAPIAN_INCLUDED_SNIPPERINTERNAL_H
 #define XAPIAN_INCLUDED_SNIPPERINTERNAL_H
 
-#include <xapian/enquire.h>
 #include <xapian/snipper.h>
 #include <xapian/stem.h>
 
@@ -32,6 +31,8 @@
 #include <vector>
 
 namespace Xapian {
+
+class MSet;
 
 class Snipper::Internal : public Xapian::Internal::intrusive_base {
 
