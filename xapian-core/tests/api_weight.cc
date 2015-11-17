@@ -168,7 +168,7 @@ DEFINE_TESTCASE(inl2weight2, !backend) {
     return true;
 }
 
-//Feature tests for Inl2Weight
+// Feature tests for Inl2Weight
 DEFINE_TESTCASE(inl2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
@@ -362,7 +362,7 @@ DEFINE_TESTCASE(bb2weight2, !backend) {
     return true;
 }
 
-//Feature test
+// Feature test
 DEFINE_TESTCASE(bb2weight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
@@ -521,7 +521,7 @@ DEFINE_TESTCASE(dphweight1, backend) {
      * test database. */
     TEST_EQUAL_DOUBLE(mset1[2].get_weight() - mset1[4].get_weight(), 0.542623617687990167);
 
-    //Test with OP_SCALE_WEIGHT.
+    // Test with OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
     enquire.set_weighting_scheme(Xapian::DPHWeight());
 
@@ -586,7 +586,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 * log(6.0 / 2));
 
-    //Test for OP_SCALE_WEIGHT.
+    // Test with OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     Xapian::MSet mset2;

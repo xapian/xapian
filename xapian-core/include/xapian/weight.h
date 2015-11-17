@@ -1161,7 +1161,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     // Parameters for handling negative value of log, and for smoothing.
     double param_log, param_smoothing1, param_smoothing2;
 
-    //Collection weight.
+    // Collection weight.
     double weight_collection;
 
     LMWeight * clone() const;

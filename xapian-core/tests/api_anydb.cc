@@ -749,7 +749,7 @@ DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
     Xapian::ESet myeset_orig = enquire.get_eset(1000, myrset);
     unsigned int neweset_size = 0;
 
-    //choose the first char in the first term as prefix
+    // Choose the first char in the first term as prefix.
     Xapian::ESetIterator j = myeset_orig.begin();
     TEST(myeset_orig.size() >= 1);
     string prefix(*j, 0, 1);
