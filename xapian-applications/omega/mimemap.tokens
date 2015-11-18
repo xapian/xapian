@@ -124,6 +124,8 @@ pps		application/vnd.ms-powerpoint
 pub		application/x-mspublisher
 # Outlook .msg email
 msg		application/vnd.ms-outlook
+# Outlook template
+oft		application/vnd.ms-outlook
 
 # Perl:
 pl		text/x-perl

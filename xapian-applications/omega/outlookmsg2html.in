@@ -1,7 +1,7 @@
 #!@PERL@
 # @configure_input@
 # @file outlookmsg2html
-# @brief Extract text from an outlook .msg file.
+# @brief Extract text from an outlook .msg or .oft file.
 #
 # Copyright (C) 2010,2015 Olly Betts
 #
