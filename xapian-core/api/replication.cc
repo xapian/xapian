@@ -434,7 +434,7 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
     while (true) {
 	string filename;
 	int type = conn->sniff_next_message_type(end_time);
-	if (type == EOF || type == REPL_REPLY_FAIL)
+	if (type < 0 || type == REPL_REPLY_FAIL)
 	    return;
 	if (type == REPL_REPLY_DB_FOOTER)
 	    break;
@@ -449,12 +449,12 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
 	}
 
 	type = conn->sniff_next_message_type(end_time);
-	if (type == EOF || type == REPL_REPLY_FAIL)
+	if (type < 0 || type == REPL_REPLY_FAIL)
 	    return;
 
 	string filepath = offline_path + "/" + filename;
 	type = conn->receive_file(filepath, end_time);
-	if (type == EOF)
+	if (type < 0)
 	    throw_connection_closed_unexpectedly();
 	check_message_type(type, REPL_REPLY_DB_FILEDATA);
     }
@@ -467,7 +467,7 @@ void
 DatabaseReplica::Internal::check_message_type(int type, int expected) const
 {
     if (type != expected) {
-	if (type == EOF)
+	if (type < 0)
 	    throw_connection_closed_unexpectedly();
 	string m = "Expected replication protocol message type #";
 	m += str(expected);
@@ -629,11 +629,11 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 		RETURN(true);
 	    case REPL_REPLY_FAIL: {
 		string buf;
-		if (conn->get_message(buf, 0.0) == EOF)
+		if (conn->get_message(buf, 0.0) < 0)
 		    throw_connection_closed_unexpectedly();
 		throw NetworkError("Unable to fully synchronise: " + buf);
 	    }
-	    case EOF:
+	    case -1:
 		throw_connection_closed_unexpectedly();
 	    default:
 		throw NetworkError("Unknown replication protocol message ("

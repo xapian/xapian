@@ -539,7 +539,7 @@ RemoteDatabase::get_message(string &result, reply_type required_type) const
 {
     double end_time = RealTime::end_time(timeout);
     int type_int = link.get_message(result, end_time);
-    if (type_int == EOF)
+    if (type_int < 0)
 	throw_connection_closed_unexpectedly();
     reply_type type = static_cast<reply_type>(type_int);
     if (type == REPLY_EXCEPTION) {

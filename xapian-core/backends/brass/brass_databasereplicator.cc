@@ -241,7 +241,7 @@ BrassDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     }
 
     int type = conn.get_message_chunked(end_time);
-    if (type == EOF)
+    if (type < 0)
 	throw_connection_closed_unexpectedly();
     AssertEq(type, REPL_REPLY_CHANGESET);
 
