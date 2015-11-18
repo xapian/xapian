@@ -2,7 +2,7 @@
  * @brief Provide UUID functions compatible with libuuid from util-linux-ng.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2013 Olly Betts
+ * Copyright (C) 2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,12 @@
 
 #include <cstring>
 
-#include "safewinsock2.h" // For htonl() and htons().
+#ifdef __WIN32__
+# include "safewinsock2.h" // For htonl() and htons().
+#else
+// Cygwin:
+# include <arpa/inet.h> // For htonl() and htons().
+#endif
 
 using namespace std;
 
