@@ -121,9 +121,9 @@ RemoteServer::get_message(double timeout, string & result,
     // Handle "shutdown connection" message here.  Treat EOF here for a read-only
     // database the same way since a read-only client just closes the
     // connection when done.
-    if (type == MSG_SHUTDOWN || (type == EOF && wdb == NULL))
+    if (type == MSG_SHUTDOWN || (type < 0 && wdb == NULL))
 	throw ConnectionClosed();
-    if (type == EOF)
+    if (type < 0)
 	throw Xapian::NetworkError("Connection closed unexpectedly");
     if (type >= MSG_MAX) {
 	string errmsg("Invalid message type ");
