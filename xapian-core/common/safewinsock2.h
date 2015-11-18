@@ -1,7 +1,7 @@
 /** @file safewinsock2.h
  * @brief #include <winsock2.h> but working around problems.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,8 +22,8 @@
 #ifndef XAPIAN_INCLUDED_SAFEWINSOCK2_H
 #define XAPIAN_INCLUDED_SAFEWINSOCK2_H
 
-#ifndef __WIN32__
-# error Including safewinsock2.h, but __WIN32__ is not defined!
+#if !defined __WIN32__ && !defined __CYGWIN__
+# error Including safewinsock2.h, but neither __WIN32__ nor __CYGWIN__ is defined!
 #endif
 
 // Include windows.h ourselves first to avoid problems with winsock2.h
