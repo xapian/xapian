@@ -41,7 +41,8 @@
 #include "omassert.h"
 
 #ifdef __CYGWIN__
-#include <sys/cygwin.h>
+# include <cygwin/version.h>
+# include <sys/cygwin.h>
 #endif
 
 #include "xapian/error.h"
