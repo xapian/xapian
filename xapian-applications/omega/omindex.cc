@@ -1192,6 +1192,7 @@ main(int argc, char **argv)
     mime_map["ppt"] = "application/vnd.ms-powerpoint";
     mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
     mime_map["msg"] = "application/vnd.ms-outlook"; // Outlook .msg email
+    mime_map["oft"] = "application/vnd.ms-outlook"; // Outlook template
 
     // Perl:
     mime_map["pl"] = "text/x-perl";
