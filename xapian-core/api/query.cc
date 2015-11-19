@@ -129,17 +129,16 @@ Query::get_terms_begin() const
     sort(terms.begin(), terms.end());
 
     vector<string> v;
-    vector<pair<Xapian::termpos, string> >::const_iterator i;
     const string * old_term = NULL;
     Xapian::termpos old_pos = 0;
-    for (i = terms.begin(); i != terms.end(); ++i) {
+    for (auto i : terms) {
 	// Remove duplicates (same term at the same position).
-	if (old_term && old_pos == i->first && *old_term == i->second)
+	if (old_term && old_pos == i.first && *old_term == i.second)
 	    continue;
 
-	v.push_back(i->second);
-	old_pos = i->first;
-	old_term = &(i->second);
+	v.push_back(i.second);
+	old_pos = i.first;
+	old_term = &(i.second);
     }
     return TermIterator(new VectorTermList(v.begin(), v.end()));
 }
@@ -159,15 +158,14 @@ Query::get_unique_terms_begin() const
     });
 
     vector<string> v;
-    vector<pair<Xapian::termpos, string> >::const_iterator i;
     const string * old_term = NULL;
-    for (i = terms.begin(); i != terms.end(); ++i) {
+    for (auto i : terms) {
 	// Remove duplicate term names.
-	if (old_term && *old_term == i->second)
+	if (old_term && *old_term == i.second)
 	    continue;
 
-	v.push_back(i->second);
-	old_term = &(i->second);
+	v.push_back(i.second);
+	old_term = &(i.second);
     }
     return TermIterator(new VectorTermList(v.begin(), v.end()));
 }
