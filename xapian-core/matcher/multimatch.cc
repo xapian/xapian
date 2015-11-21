@@ -81,6 +81,12 @@ set_timeout_flag(union sigval sv)
 // Solaris defines CLOCK_MONOTONIC, but "man timer_create" doesn't mention it
 // and using it fails.
 const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
+#elif defined __CYGWIN__
+// https://cygwin.com/cygwin-api/std-notes.html currently (2015-11-22) says:
+//
+//     clock_setres, clock_settime, and timer_create currently support only
+//     CLOCK_REALTIME.
+const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
 #else
 const clockid_t TIMEOUT_CLOCK = CLOCK_MONOTONIC;
 #endif
