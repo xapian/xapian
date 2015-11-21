@@ -173,7 +173,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	Xapian::Document read_doc(const Xapian::Internal::MSetItem &item) const;
 
 	void set_query(const Query & query_, termcount qlen_);
-	const Query & get_query();
+	const Query & get_query() const;
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      const RSet *omrset,

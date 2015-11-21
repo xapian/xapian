@@ -639,7 +639,7 @@ Enquire::Internal::set_query(const Query &query_, termcount qlen_)
 }
 
 const Query &
-Enquire::Internal::get_query()
+Enquire::Internal::get_query() const
 {
     return query;
 }
