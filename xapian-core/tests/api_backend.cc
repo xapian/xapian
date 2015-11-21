@@ -1357,3 +1357,11 @@ DEFINE_TESTCASE(sortvalue2, backend) {
     }
     return true;
 }
+
+/// Check behaviour of Enquire::get_query().
+DEFINE_TESTCASE(enquiregetquery1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    TEST_EQUAL(enq.get_query().get_description(), "Query()");
+    return true;
+}
