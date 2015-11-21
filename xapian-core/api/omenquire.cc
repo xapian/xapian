@@ -892,12 +892,7 @@ const Query &
 Enquire::get_query() const
 {
     LOGCALL(API, const Xapian::Query &, "Xapian::Enquire::get_query", NO_ARGS);
-    try {
-	RETURN(internal->get_query());
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
+    RETURN(internal->get_query());
 }
 
 void

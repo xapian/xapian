@@ -693,11 +693,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_query(const Xapian::Query & query, Xapian::termcount qlen = 0);
 
-	/** Get the query which has been set.
-	 *  This is only valid after set_query() has been called.
+	/** Get the current query.
 	 *
-	 *  @exception Xapian::InvalidArgumentError will be thrown if query has
-	 *	       not yet been set.
+	 *  If called before set_query(), this will return a default
+	 *  initialised Query object.
 	 */
 	const Xapian::Query & get_query() const;
 
