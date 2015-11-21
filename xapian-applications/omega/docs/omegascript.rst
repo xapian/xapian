@@ -77,6 +77,13 @@ $cgi{CGI}
 $cgilist{CGI}
 	return a list of all values of a CGI parameter
 
+$chr{CODEPOINT}
+        return UTF-8 for the given Unicode codepoint, e.g. ``$chr{127866}``
+        should display as a beer mug if the font has a suitable glyph.
+
+        Since ASCII is a subset of Unicode, you can also produce control
+        characters, e.g. ``$chr{13}`` gives a carriage return character.
+
 $collapsed
         number of other documents collapsed into current hit inside
         ``$hitlist``, which might be used like so::
