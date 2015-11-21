@@ -670,7 +670,7 @@ html_highlight(const string &s, const string &list,
 		res += bg;
 		res += "\">";
 	    }
-	    word = string(first.raw(), j.raw() - first.raw());
+	    word.assign(first.raw(), j.raw() - first.raw());
 	    res += html_escape(word);
 	    if (!bra.empty()) {
 		res += ket;
@@ -1565,7 +1565,7 @@ eval(const string &fmt, const vector<string> &param)
 		    size_t datalen = cdb_datalen(&cdb);
 		    const void *dat = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
 		    if (q) {
-			value = string(static_cast<const char *>(dat), datalen);
+			value.assign(static_cast<const char *>(dat), datalen);
 		    }
 		}
 
