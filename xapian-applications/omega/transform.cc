@@ -24,16 +24,39 @@
 
 #include <pcre.h>
 
+#include <map>
 #include <string>
 #include <vector>
 
 using namespace std;
 
+static map<pair<string, int>, pcre *> re_cache;
+
+static pcre *
+get_re(const string & pattern, int options)
+{
+    pair<string, int> re_key = make_pair(pattern, options);
+    auto re_it = re_cache.find(re_key);
+    if (re_it != re_cache.end()) {
+	return re_it->second;
+    }
+
+    const char *error;
+    int erroffset;
+    pcre * re =
+	pcre_compile(pattern.c_str(), options, &error, &erroffset, NULL);
+    if (!re) {
+	string m = "$transform failed to compile its regular expression: ";
+	m += error;
+	throw m;
+    }
+    re_cache.insert(make_pair(re_key, re));
+    return re;
+}
+
 void
 omegascript_transform(string & value, const vector<string> & args)
 {
-    const char *error;
-    int erroffset;
     int offsets[30];
     bool replace_all = false;
     int options = 0;
@@ -64,18 +87,15 @@ omegascript_transform(string & value, const vector<string> & args)
 	    }
 	}
     }
-    pcre * re = pcre_compile(args[0].c_str(), options, &error, &erroffset, NULL);
-    if (!re) {
-	string m = "$transform failed to compile its regular expression: ";
-	m += error;
-	throw m;
-    }
+
+    pcre * re = get_re(args[0], options);
     size_t start = 0;
     do {
 	int matches = pcre_exec(re, NULL, args[2].data(), args[2].size(),
 				int(start), 0, offsets, 30);
 	if (matches <= 0) {
-	    // Error.  FIXME: should we report this rather than ignoring it?
+	    // (matches == PCRE_ERROR_NOMATCH) is OK, otherwise this is an
+	    // error.  FIXME: should we report this rather than ignoring it?
 	    break;
 	}
 
