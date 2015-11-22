@@ -1,7 +1,7 @@
 /** @file cputimer.cc
  * @brief Measure CPU time.
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,6 +40,7 @@
 # include <ctime>
 #endif
 
+#include <cstdlib>
 #include <cstring>
 #include <string>
 
@@ -48,6 +49,11 @@ using namespace std;
 double
 CPUTimer::get_current_cputime() const
 {
+    static bool skip = (getenv("AUTOMATED_TESTING") != NULL);
+    if (skip) {
+	SKIP_TEST("Skipping timed test because $AUTOMATED_TESTING is set");
+    }
+
     double t = 0;
 #ifdef HAVE_GETRUSAGE
     struct rusage r;
