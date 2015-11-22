@@ -27,12 +27,29 @@
 
 #include <string>
 
+/** @internal Helper function. */
+void csv_escape_(std::string &s, std::string::size_type i);
+
 /** Escape @a s for use as a field in a CSV file.
  *
  *  Escaping is done as described in RFC4180, except that we treat any
  *  byte value not otherwise mentioned as being 'TEXTDATA' (so %x00-%x09,
  *  %x0B-%x0C, %x0E-%x1F, %x7F-%xFF are also permitted there).
  */
-void csv_escape(std::string &s);
+inline void csv_escape(std::string &s) {
+    // Check if the string needs any escaping or quoting first.
+    std::string::size_type i = s.find_first_of(",\"\r\n");
+    if (i != std::string::npos) {
+	csv_escape_(s, i);
+    }
+}
+
+/** Escape @a s for use as a field in a CSV file.
+ *
+ *  All values are escaped, whether or not RFC4180 says they need to be.
+ */
+inline void csv_escape_always(std::string &s) {
+    return csv_escape_(s, 0);
+}
 
 #endif // OMEGA_INCLUDED_CSVESCAPE_H

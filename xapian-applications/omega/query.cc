@@ -965,7 +965,7 @@ T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
-T(csv,		   1, 1, N, 0), // CSV string escaping
+T(csv,		   1, 2, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
 				// (default: YYYY-MM-DD)
 T(dbname,	   0, 0, N, 0), // database name
@@ -1265,7 +1265,11 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_csv:
 		value = args[0];
-		csv_escape(value);
+		if (args.size() > 1 && !args[1].empty()) {
+		    csv_escape_always(value);
+		} else {
+		    csv_escape(value);
+		}
 		break;
 	    case CMD_date:
 		value = args[0];

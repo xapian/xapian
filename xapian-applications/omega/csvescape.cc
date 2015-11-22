@@ -31,14 +31,8 @@
 using namespace std;
 
 void
-csv_escape(string &s)
+csv_escape_(string &s, string::size_type i)
 {
-    // Check if the string needs any escaping or quoting first.
-    string::size_type i = s.find_first_of(",\"\r\n");
-    if (i == std::string::npos) {
-	return;
-    }
-
     // Escape any double quotes by doubling them.
     s.insert(0, 1, '"');
     string::size_type j;

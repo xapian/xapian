@@ -88,6 +88,7 @@ static testcase csv_testcases[] = {
 int main() {
     for (testcase * e = csv_testcases; e->input; ++e) {
 	const char * input = e->input;
+	// Test csv_escape().
 	string result = input;
 	csv_escape(result);
 	const char * expected = e->result;
@@ -97,5 +98,20 @@ int main() {
 		    "'" << expected << "', got '" << result << "'" << endl;
 	    exit(1);
 	}
+
+	// Test csv_escape_always().
+	result = input;
+	csv_escape_always(result);
+	string expected_always = expected;
+	if (e->result == UNCHANGED) {
+	    expected_always.insert(0, "\"");
+	    expected_always.append("\"");
+	}
+	if (result != expected_always) {
+	    cerr << "csv_escape_always of '" << input << "' should be "
+		    "'" << expected << "', got '" << result << "'" << endl;
+	    exit(1);
+	}
+
     }
 }
