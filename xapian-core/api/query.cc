@@ -131,7 +131,7 @@ Query::get_terms_begin() const
     vector<string> v;
     const string * old_term = NULL;
     Xapian::termpos old_pos = 0;
-    for (auto i : terms) {
+    for (auto && i : terms) {
 	// Remove duplicates (same term at the same position).
 	if (old_term && old_pos == i.first && *old_term == i.second)
 	    continue;
@@ -159,7 +159,7 @@ Query::get_unique_terms_begin() const
 
     vector<string> v;
     const string * old_term = NULL;
-    for (auto i : terms) {
+    for (auto && i : terms) {
 	// Remove duplicate term names.
 	if (old_term && *old_term == i.second)
 	    continue;
