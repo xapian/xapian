@@ -896,6 +896,7 @@ CMD_not,
 CMD_now,
 CMD_opt,
 CMD_or,
+CMD_ord,
 CMD_pack,
 CMD_percentage,
 CMD_prettyterm,
@@ -1022,6 +1023,7 @@ T(not,		   1, 1, N, 0), // logical not
 T(now,		   0, 0, N, 0), // current date/time as a time_t
 T(opt,		   1, 2, N, 0), // lookup an option value
 T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
+T(ord,		   1, 1, N, 0), // return codepoint for first character of UTF-8 string
 T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
@@ -1801,6 +1803,13 @@ eval(const string &fmt, const vector<string> &param)
 		    value = eval(*i, param);
 		    if (!value.empty()) break;
 	        }
+		break;
+	    }
+	    case CMD_ord: {
+		if (!args[0].empty()) {
+		    Utf8Iterator it(args[0]);
+		    value = str(*it);
+		}
 		break;
 	    }
 	    case CMD_pack:

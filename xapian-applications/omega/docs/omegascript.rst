@@ -84,6 +84,8 @@ $chr{CODEPOINT}
         Since ASCII is a subset of Unicode, you can also produce control
         characters, e.g. ``$chr{13}`` gives a carriage return character.
 
+        To convert a UTF-8 character to a Unicode codepoint, see ``$ord``.
+
 $collapsed
         number of other documents collapsed into current hit inside
         ``$hitlist``, which might be used like so::
@@ -327,6 +329,14 @@ $opt{OPT}
 
 $opt{MAP,OPT}
 	lookup an option within a map (as set by ``$setmap``).
+
+$ord{STRING}
+        return codepoint for first character of UTF-8 string.  If the argument
+        is an empty string, then an empty string is returned.
+
+        For example, ``$ord{One more time}`` gives ``79``.
+
+        To convert a Unicode code point into a UTF-8 string, see ``$chr``.
 
 $pack{NUMBER}
 	converts a number to a 4 byte big-endian binary string
