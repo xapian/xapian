@@ -601,7 +601,7 @@ $topdoc
 $topterms[{N}]
 	list of up to ``N`` top relevance feedback terms (default 16)
 
-$transform{REGEXP,SUBST,STRING}
+$transform{REGEXP,SUBST,STRING[,OPTIONS]}
 	transform string using Perl-compatible regular expressions.  This
 	command is sort of like the Perl code::
 
@@ -612,6 +612,16 @@ $transform{REGEXP,SUBST,STRING}
         In SUBST, ``\1`` to ``\9`` are substituted by the 1st to 9th bracket
         grouping (or are empty if there is no such bracket grouping).  ``\\``
         is a literal backslash.
+
+        If OPTIONS is passed, it can contain zero or more of the letters
+        ``gimsx``, which have the same meanings as the corresponding Perl
+        regexp modifiers:
+
+         * ``g`` - replace all occurrences of the pattern in the string
+         * ``i`` - make the pattern matching case-insensitive
+         * ``m`` - make ``^``/``$`` match after/before embedded newlines
+         * ``s`` - allows ``.`` in the pattern to match a linefeed
+         * ``x`` - allow whitespace and ``#``-comments in the pattern
 
 $truncate{STRING,LEN[,IND[,IND2]]}
 	truncate STRING to LEN bytes, but try to break after a word (unless

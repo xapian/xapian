@@ -1053,7 +1053,7 @@ T(topdoc,	   0, 0, N, M), // first document on current page of hit list
 				// (counting from 0)
 T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
 				// (default 16)
-T(transform,	   3, 3, N, 0), // transform with a regexp
+T(transform,	   3, 4, N, 0), // transform with a regexp
 T(truncate,	   2, 4, N, 0), // truncate after a word
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
