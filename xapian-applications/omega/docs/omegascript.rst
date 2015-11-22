@@ -543,7 +543,7 @@ $split{SPLIT,STRING}
 	returns a list by splitting the string ``STRING`` into elements at each
         occurrence of the substring ``SPLIT``.  If ``SPLIT`` isn't specified,
         it defaults to a single space.  If ``SPLIT`` is empty, ``STRING`` is
-        split into individual characters.
+        split into individual bytes.
 
 	For example::
 
@@ -554,16 +554,16 @@ $stoplist
 	stopwords.
 
 $substr{STRING,START[,LENGTH]}
-        returns the substring of ``STRING`` which starts at position ``START``
-        (the start of the string being 0) and is ``LENGTH`` characters long (or
-        to the end of ``STRING`` if ``STRING`` is less than
-        ``START``+``LENGTH`` characters long).  If ``LENGTH`` is omitted, the
+        returns the substring of ``STRING`` which starts at byte position
+        ``START`` (the start of the string being 0) and is ``LENGTH`` bytes
+        long (or to the end of ``STRING`` if ``STRING`` is less than
+        ``START``+``LENGTH`` bytes long).  If ``LENGTH`` is omitted, the
         substring from ``START`` to the end of ``STRING`` is returned.
 
 	If ``START`` is negative, it counts back from the end of ``STRING`` (so
 	``$substr{hello,-1}`` is ``o``).
 
-	If LENGTH is negative, it instead specifies the number of characters
+	If LENGTH is negative, it instead specifies the number of bytes
 	to omit from the end of STRING (so "$substr{example,2,-2}" is "amp").
 	Note that this means that "$substr{STRING,0,N}$substr{STRING,N}" is
 	"STRING" whether N is positive, negative or zero.
