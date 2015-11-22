@@ -86,6 +86,8 @@ $chr{CODEPOINT}
 
         To convert a UTF-8 character to a Unicode codepoint, see ``$ord``.
 
+        Added in Omega 1.3.4.
+
 $collapsed
         number of other documents collapsed into current hit inside
         ``$hitlist``, which might be used like so::
@@ -114,6 +116,8 @@ $csv{STRING[,ALWAYS_ESCAPE]}
         ``$csv{Quote anyway,1}`` gives ``"Quote anyway"``
 
         ``$csv{Not "safe",1}`` gives ``"Not ""safe"""``
+
+        Added in Omega 1.3.4.
 
 $date{TIME_T[,FMT]}
 	convert a time_t to strftime ``FMT`` (default: ``YYYY-MM-DD``).  The
@@ -348,6 +352,8 @@ $ord{STRING}
         For example, ``$ord{One more time}`` gives ``79``.
 
         To convert a Unicode code point into a UTF-8 string, see ``$chr``.
+
+        Added in Omega 1.3.4.
 
 $pack{NUMBER}
 	converts a number to a 4 byte big-endian binary string
@@ -613,9 +619,9 @@ $transform{REGEXP,SUBST,STRING[,OPTIONS]}
         grouping (or are empty if there is no such bracket grouping).  ``\\``
         is a literal backslash.
 
-        If OPTIONS is passed, it can contain zero or more of the letters
-        ``gimsx``, which have the same meanings as the corresponding Perl
-        regexp modifiers:
+        The optional OPTIONS argument is supported by Omega 1.3.4 and later.
+        It can contain zero or more of the letters ``gimsx``, which have the
+        same meanings as the corresponding Perl regexp modifiers:
 
          * ``g`` - replace all occurrences of the pattern in the string
          * ``i`` - make the pattern matching case-insensitive
