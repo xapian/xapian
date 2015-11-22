@@ -23,6 +23,7 @@
 #include "backendmanager_remote.h"
 #include <cstdlib>
 #include <string>
+#include "str.h"
 
 BackendManagerRemote::BackendManagerRemote(const std::string & remote_type_)
 	: remote_type(remote_type_)
@@ -68,7 +69,7 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 					       unsigned int timeout)
 {
     std::string args = "-t";
-    args += std::to_string(timeout);
+    args += str(timeout);
     args += ' ';
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	if (remote_type == "glass") {

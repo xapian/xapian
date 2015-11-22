@@ -31,6 +31,7 @@
 #include <cstring> // For strerror().
 #include <set>
 
+#include "str.h"
 #include "stringutils.h"
 
 using namespace std;
@@ -118,7 +119,7 @@ FDTracker::check()
 	}
 
 	message += ' ';
-	message += to_string(fd);
+	message += str(fd);
 	if (res > 0) {
 	    message += " -> ";
 	    message.append(buf, res);

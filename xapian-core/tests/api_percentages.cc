@@ -27,6 +27,7 @@
 
 #include "apitest.h"
 #include "backendmanager_local.h"
+#include "str.h"
 #include "testutils.h"
 
 #include <cfloat>
@@ -282,7 +283,7 @@ make_topercent7_db(Xapian::WritableDatabase &db, const string &)
 {
     for (int i = 1; i <= 6; ++i) {
 	Xapian::Document d;
-	d.set_data(to_string(i));
+	d.set_data(str(i));
 	d.add_term("boom", 2 + (i - 4)*(i - 2));
 	if (i != 5)
 	    d.add_boolean_term("XCAT122");

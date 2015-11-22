@@ -28,6 +28,7 @@
 #include <xapian.h>
 
 #include "filetests.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -466,7 +467,7 @@ DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory) {
 
     doc.add_term("foo");
     for (int i = 100; i < 120; ++i) {
-	doc.add_term(to_string(i));
+	doc.add_term(str(i));
     }
 
     for (int j = 0; j < 50; ++j) {
@@ -598,7 +599,7 @@ make_xordecay1_db(Xapian::WritableDatabase &db, const string &)
 	Xapian::Document doc;
 	for (int i = 1; i != 50; ++i) {
 	    if (n % i == 0)
-		doc.add_term("N" + to_string(i));
+		doc.add_term("N" + str(i));
 	}
 	db.add_document(doc);
     }
@@ -628,9 +629,9 @@ make_ordecay_db(Xapian::WritableDatabase &db, const string &)
 	int l = int(p[d] - '0');
 	Xapian::Document doc;
 	for (int n = 1; n < l; ++n) {
-	    doc.add_term("N" + to_string(n));
+	    doc.add_term("N" + str(n));
 	    if (n % (d + 1) == 0) {
-		doc.add_term("M" + to_string(n));
+		doc.add_term("M" + str(n));
 	    }
 	}
 	db.add_document(doc);
@@ -1046,7 +1047,7 @@ DEFINE_TESTCASE(newfreelistblock1, writable) {
     Xapian::Document doc;
     doc.add_term("foo");
     for (int i = 100; i < 120; ++i) {
-	doc.add_term(to_string(i));
+	doc.add_term(str(i));
     }
 
     Xapian::WritableDatabase wdb(get_writable_database());
@@ -1320,7 +1321,7 @@ DEFINE_TESTCASE(cursorbug1, chert || glass) {
 
 	for (int i = free_id; i <= free_id + ITEMS; ++i) {
 	    Xapian::Document doc;
-	    const string & id = to_string(i);
+	    const string & id = str(i);
 	    string qterm = "Q" + id;
 	    doc.add_value(0, id);
 	    doc.add_boolean_term(qterm);

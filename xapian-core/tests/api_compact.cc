@@ -27,6 +27,7 @@
 #include "apitest.h"
 #include "dbcheck.h"
 #include "filetests.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 
@@ -66,9 +67,9 @@ make_sparse_db(Xapian::WritableDatabase &db, const string & s)
 		db.delete_document(first);
 	    } else {
 		Xapian::Document doc;
-		string id = to_string(first);
+		string id = str(first);
 		doc.set_data(id);
-		doc.add_term("Q" + to_string(first));
+		doc.add_term("Q" + str(first));
 		doc.add_term(string(first % 7 + 1, char((first % 26) + 'a')));
 		db.replace_document(first, doc);
 	    }

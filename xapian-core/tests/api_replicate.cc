@@ -236,9 +236,9 @@ check_equal_dbs(const string & masterpath, const string & replicapath)
 static void
 set_max_changesets(int count) {
 #ifdef HAVE__PUTENV_S
-    _putenv_s("XAPIAN_MAX_CHANGESETS", to_string(count).c_str());
+    _putenv_s("XAPIAN_MAX_CHANGESETS", str(count).c_str());
 #elif defined HAVE_SETENV
-    setenv("XAPIAN_MAX_CHANGESETS", to_string(count).c_str(), 1);
+    setenv("XAPIAN_MAX_CHANGESETS", str(count).c_str(), 1);
 #else
     static char buf[64] = "XAPIAN_MAX_CHANGESETS=";
     sprintf(buf + CONST_STRLEN("XAPIAN_MAX_CHANGESETS="), "%d", count);

@@ -49,6 +49,7 @@
 #endif
 
 #include "noreturn.h"
+#include "str.h"
 
 #include <string>
 #include <vector>
@@ -112,7 +113,7 @@ launch_xapian_tcpsrv(const string & args)
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
     string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
-    cmd += to_string(port);
+    cmd += str(port);
     cmd += " ";
     cmd += args;
 #ifdef HAVE_VALGRIND
@@ -257,7 +258,7 @@ launch_xapian_tcpsrv(const string & args)
 
 try_next_port:
     string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
-    cmd += to_string(port);
+    cmd += str(port);
     cmd += " ";
     cmd += args;
 

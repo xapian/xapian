@@ -35,6 +35,7 @@
 
 #include "append_filename_arg.h"
 #include "filetests.h"
+#include "str.h"
 
 using namespace std;
 
@@ -47,7 +48,7 @@ checked_system(const string & cmd)
 	string msg = "system(\"";
 	msg += cmd;
 	msg += "\") failed, returning ";
-	msg += to_string(res);
+	msg += str(res);
 	throw msg;
     }
 }

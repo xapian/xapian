@@ -592,6 +592,13 @@ Use of C++ Features
   their authors aren't putting in the effort to keep up with the language
   standards.
 
+  Please avoid the following C++11 features for the time being:
+
+  * ``std::to_string()`` - this is completely missing on current versions of
+    mingw and cygwin - in the library, you can ``#include "str.h"`` and then
+    use the ``str()`` function instead for most cases.  This is also usually
+    faster than ``std::to_string()``.
+
 * C++ features we currently assume:
 
   * We assume <sstream> is available.  GCC < 2.95.3 didn't have it but GCC

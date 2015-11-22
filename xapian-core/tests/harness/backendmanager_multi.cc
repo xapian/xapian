@@ -25,6 +25,7 @@
 
 #include "filetests.h"
 #include "index_utils.h"
+#include "str.h"
 
 #include <cstdio> // For rename().
 #include <cstring>
@@ -103,7 +104,7 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     line += dbname;
     line += "___";
     for (size_t n = 0; n < NUMBER_OF_SUB_DBS; ++n) {
-	dbbase += to_string(n);
+	dbbase += str(n);
 	dbs.add_database(Xapian::WritableDatabase(dbbase, flags));
 	dbbase.resize(dbbase_len);
 	out << line << n << '\n';

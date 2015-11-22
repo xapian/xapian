@@ -33,6 +33,10 @@ testharness_sources =\
 	harness/testutils.cc\
 	harness/unixcmds.cc
 
+# CYGWIN and MINGW lack std::to_string(), so we use str() which is private to
+# the library, and then have to link its object directly.
+testharness_sources += ../common/str.cc
+
 utestharness_sources =\
 	harness/fdtracker.cc\
 	harness/utestsuite.cc
