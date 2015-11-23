@@ -18,7 +18,7 @@ mimemap.h: gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
 
 BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h
 
-CLEANFILES = my-html-tok.h mimemap.h
+MAINTAINERCLEANFILES = my-html-tok.h mimemap.h
 
 EXTRA_DIST =\
 	common/Tokeniseise.pm \
@@ -27,7 +27,9 @@ EXTRA_DIST =\
 	gen-mimemap \
 	gen-myhtmltags \
 	gen-omegascript-vim \
+	mimemap.h \
 	mimemap.tokens \
+	my-html-tok.h \
 	myhtmlparse.tokens \
 	templates/query \
 	templates/topterms \
