@@ -67,8 +67,9 @@ def test_all():
     # Check that SWIG isn't generating cvar (regression test for ticket#297).
     #
     # Python 3.5 generates a different exception message here to earlier
-    # versions, so check with a regular expression which matches both.
-    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'cvar'"),
+    # versions, so we need a check which matches both.
+    expect_exception(AttributeError,
+                     lambda msg: msg.find("has no attribute 'cvar'") != -1,
                      access_cvar)
 
     stem = xapian.Stem(b"english")
@@ -105,14 +106,18 @@ def test_all():
     # Check database factory functions are wrapped as expected (or not wrapped
     # in the first cases):
 
-    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'open_stub'"),
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'open_stub'"),
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
 
-    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'chert_open'"),
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'chert_open'") != -1,
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, re.compile(r"module.* has no attribute 'chert_open'"),
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'chert_open'") != -1,
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
 
     expect_exception(xapian.DatabaseOpeningError, None,
