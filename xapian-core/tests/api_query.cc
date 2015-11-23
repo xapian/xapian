@@ -294,7 +294,6 @@ DEFINE_TESTCASE(wildcard1, backend) {
     SKIP_TEST_FOR_BACKEND("multi");
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
-    Xapian::Enquire enq2(db);
     const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
 
     const wildcard_testcase * p = wildcard1_testcases;
