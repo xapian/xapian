@@ -341,6 +341,31 @@ DEFINE_TESTCASE(wildcard1, backend) {
     return true;
 }
 
+/// Regression test for #696, fixed in 1.3.4.
+DEFINE_TESTCASE(wildcard2, backend) {
+    // FIXME: The counting of terms the wildcard expands to is per subdatabase,
+    // so the wildcard may expand to more terms than the limit if some aren't
+    // in all subdatabases.  Also WILDCARD_LIMIT_MOST_FREQUENT uses the
+    // frequency from the subdatabase, and so may select different terms in
+    // each subdatabase.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
+
+    const int max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+    Xapian::Query q0(o, "w", 2, max_type);
+    Xapian::Query q(o, "s", 2, max_type);
+    Xapian::Query q2(o, "t", 2, max_type);
+    q = Xapian::Query(q.OP_OR, q0, q);
+    q = Xapian::Query(q.OP_OR, q, q2);
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(),  6);
+
+    return true;
+}
+
 DEFINE_TESTCASE(dualprefixwildcard1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Query q(Xapian::Query::OP_SYNONYM,

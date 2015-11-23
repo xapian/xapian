@@ -50,6 +50,8 @@ class QueryOptimiser {
 
     LeafPostList * hint;
 
+    bool hint_owned;
+
   public:
     bool need_positions;
 
@@ -62,9 +64,14 @@ class QueryOptimiser {
     QueryOptimiser(const Xapian::Database::Internal & db_,
 		   LocalSubMatch & localsubmatch_,
 		   MultiMatch * matcher_)
-	: localsubmatch(localsubmatch_), total_subqs(0), hint(0),
+	: localsubmatch(localsubmatch_), total_subqs(0),
+	  hint(0), hint_owned(false),
 	  need_positions(false), db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }
+
+    ~QueryOptimiser() {
+	if (hint_owned) delete hint;
+    }
 
     void inc_total_subqs() { ++total_subqs; }
 
@@ -76,18 +83,30 @@ class QueryOptimiser {
 				  Xapian::termcount wqf,
 				  double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    &hint, false);
+					    this, false);
     }
 
     LeafPostList * open_lazy_post_list(const std::string& term,
 				       Xapian::termcount wqf,
 				       double factor) {
-	return localsubmatch.open_post_list(term, wqf, factor, false, &hint, true);
+	return localsubmatch.open_post_list(term, wqf, factor, false, this, true);
     }
 
     PostList * make_synonym_postlist(PostList * pl, double factor) {
 	return localsubmatch.make_synonym_postlist(pl, matcher, factor);
     }
+
+    const LeafPostList * get_hint_postlist() const { return hint; }
+
+    void set_hint_postlist(LeafPostList * new_hint) {
+	if (hint_owned) {
+	    hint_owned = false;
+	    delete hint;
+	}
+	hint = new_hint;
+    }
+
+    void take_hint_ownership() { hint_owned = true; }
 };
 
 #endif // XAPIAN_INCLUDED_QUERYOPTIMISER_H

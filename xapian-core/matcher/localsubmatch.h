@@ -94,7 +94,7 @@ class LocalSubMatch : public SubMatch {
 				  Xapian::termcount wqf,
 				  double factor,
 				  bool need_positions,
-				  LeafPostList ** hint,
+				  QueryOptimiser * qopt,
 				  bool lazy_weight);
 };
 

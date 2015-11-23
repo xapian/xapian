@@ -164,17 +164,19 @@ class OrContext : public Context {
     explicit OrContext(size_t reserve) : Context(reserve) { }
 
     /// Select the best set_size postlists from the last out_of added.
-    void select_elite_set(size_t set_size, size_t out_of);
+    void select_elite_set(QueryOptimiser * qopt,
+			  size_t set_size, size_t out_of);
 
     /// Select the set_size postlists with the highest term frequency.
-    void select_most_frequent(size_t set_size);
+    void select_most_frequent(QueryOptimiser * qopt, size_t set_size);
 
     PostList * postlist(QueryOptimiser* qopt);
     PostList * postlist_max(QueryOptimiser* qopt);
 };
 
 void
-OrContext::select_elite_set(size_t set_size, size_t out_of)
+OrContext::select_elite_set(QueryOptimiser * qopt,
+			    size_t set_size, size_t out_of)
 {
     // Call recalc_maxweight() as otherwise get_maxweight()
     // may not be valid before next() or skip_to()
@@ -182,17 +184,35 @@ OrContext::select_elite_set(size_t set_size, size_t out_of)
     for_each(begin, pls.end(), mem_fun(&PostList::recalc_maxweight));
 
     nth_element(begin, begin + set_size - 1, pls.end(), CmpMaxOrTerms());
-    for_each(begin + set_size, pls.end(), delete_ptr<PostList>());
+    const PostList * hint_pl = qopt->get_hint_postlist();
+    for_each(begin + set_size, pls.end(),
+	[&qopt, &hint_pl](const PostList * p) {
+	    if (rare(p == hint_pl)) {
+		qopt->take_hint_ownership();
+		hint_pl = NULL;
+	    } else {
+		delete p;
+	    }
+	});
     pls.resize(pls.size() - out_of + set_size);
 }
 
 void
-OrContext::select_most_frequent(size_t set_size)
+OrContext::select_most_frequent(QueryOptimiser * qopt, size_t set_size)
 {
     vector<PostList*>::iterator begin = pls.begin();
     nth_element(begin, begin + set_size - 1, pls.end(),
 		ComparePostListTermFreqAscending());
-    for_each(begin + set_size, pls.end(), delete_ptr<PostList>());
+    const PostList * hint_pl = qopt->get_hint_postlist();
+    for_each(begin + set_size, pls.end(),
+	[&qopt, &hint_pl](const PostList * p) {
+	    if (rare(p == hint_pl)) {
+		qopt->take_hint_ownership();
+		hint_pl = NULL;
+	    } else {
+		delete p;
+	    }
+	});
     pls.resize(set_size);
 }
 
@@ -915,7 +935,7 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	// with the remote backend.  Perhaps we should split creating the lazy
 	// postlist from registering the term for stats.
 	if (ctx.size() > max_expansion)
-	    ctx.select_most_frequent(max_expansion);
+	    ctx.select_most_frequent(qopt, max_expansion);
     }
 
     if (factor != 0.0) {
@@ -1117,7 +1137,7 @@ QueryBranch::do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
     }
 
     if (elite_set_size && elite_set_size < subqueries.size()) {
-	ctx.select_elite_set(elite_set_size, subqueries.size());
+	ctx.select_elite_set(qopt, elite_set_size, subqueries.size());
 	// FIXME: not right!
     }
 }

@@ -251,10 +251,10 @@ LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
 			      bool need_positions,
-			      LeafPostList ** hint,
+			      QueryOptimiser * qopt,
 			      bool lazy_weight)
 {
-    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | hint | lazy_weight);
+    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
     bool weighted = (factor != 0.0 && !term.empty());
 
@@ -274,11 +274,12 @@ LocalSubMatch::open_post_list(const string& term,
     }
 
     if (!pl) {
-	if (*hint)
-	    pl = (*hint)->open_nearby_postlist(term);
+	const LeafPostList * hint = qopt->get_hint_postlist();
+	if (hint)
+	    pl = hint->open_nearby_postlist(term);
 	if (!pl)
 	    pl = db->open_post_list(term);
-	*hint = pl;
+	qopt->set_hint_postlist(pl);
     }
 
     if (lazy_weight) {
