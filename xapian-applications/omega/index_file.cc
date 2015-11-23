@@ -82,7 +82,7 @@ static vector<bool> updated;
 static bool verbose;
 static bool retry_failed;
 static bool use_ctime;
-static bool skip_duplicates;
+static dup_action_type dup_action;
 static bool ignore_exclusions;
 
 static time_t last_altered_max;
@@ -188,22 +188,23 @@ index_add_default_filters()
 void
 index_init(const string & dbpath, const Xapian::Stem & stemmer,
 	   const string & root_, const string & site_term_,
-	   const string & host_term_, empty_body_type empty_body_,
+	   const string & host_term_,
+	   empty_body_type empty_body_, dup_action_type dup_action_,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool skip_duplicates_, bool ignore_exclusions_)
+	   bool spelling, bool ignore_exclusions_)
 {
     root = root_;
     site_term = site_term_;
     host_term = host_term_;
+    empty_body = empty_body_;
+    dup_action = dup_action_;
     sample_size = sample_size_;
     title_size = title_size_;
     max_ext_len = max_ext_len_;
-    empty_body = empty_body_;
     verbose = verbose_;
     use_ctime = use_ctime_;
-    skip_duplicates = skip_duplicates_;
     ignore_exclusions = ignore_exclusions_;
 
     if (!overwrite) {
@@ -376,19 +377,26 @@ static bool
 index_check_existing(const string & urlterm, time_t last_altered,
 		     Xapian::docid & did)
 {
-    if (skip_duplicates) {
-	Xapian::PostingIterator p = db.postlist_begin(urlterm);
-	if (p != db.postlist_end(urlterm)) {
-	    if (verbose)
-		cout << "already indexed, not updating" << endl;
-	    did = *p;
-	    mark_as_seen(did);
-	    return true;
+    switch (dup_action) {
+	case DUP_SKIP: {
+	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
+	    if (p != db.postlist_end(urlterm)) {
+		if (verbose)
+		    cout << "already indexed, not updating" << endl;
+		did = *p;
+		mark_as_seen(did);
+		return true;
+	    }
+	    break;
 	}
-    } else {
-	// If last_altered > last_altered_max, we know for sure that the file
-	// is new or updated.
-	if (last_altered <= last_altered_max) {
+	case DUP_CHECK_LAZILY:
+	    // If last_altered > last_altered_max, we know for sure that the file
+	    // is new or updated.
+	    if (last_altered > last_altered_max) {
+		return false;
+	    }
+	    // FALLTHRU
+	case DUP_CHECK_PARANOID: {
 	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	    if (p != db.postlist_end(urlterm)) {
 		did = *p;
@@ -407,6 +415,7 @@ index_check_existing(const string & urlterm, time_t last_altered,
 		    return true;
 		}
 	    }
+	    break;
 	}
     }
     return false;
@@ -416,7 +425,7 @@ void
 index_add_document(const string & urlterm, time_t last_altered,
 		   Xapian::docid did, const Xapian::Document & doc)
 {
-    if (!skip_duplicates) {
+    if (dup_action != DUP_SKIP) {
 	// If this document has already been indexed, update the existing
 	// entry.
 	if (did) {

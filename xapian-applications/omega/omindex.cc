@@ -623,9 +623,10 @@ main(int argc, char **argv)
     int exitcode = 1;
     try {
 	index_init(dbpath, stemmer, root, site_term, host_term, empty_body,
+		   (skip_duplicates ? DUP_SKIP : DUP_CHECK_LAZILY),
 		   sample_size, title_size, max_ext_len,
 		   overwrite, retry_failed, delete_removed_documents, verbose,
-		   use_ctime, spelling, skip_duplicates, ignore_exclusions);
+		   use_ctime, spelling, ignore_exclusions);
 	index_directory(root, baseurl, depth_limit, mime_map);
 	index_handle_deletion();
 	index_commit();

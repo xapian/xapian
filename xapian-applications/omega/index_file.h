@@ -38,6 +38,10 @@ enum empty_body_type {
     EMPTY_BODY_WARN, EMPTY_BODY_INDEX, EMPTY_BODY_SKIP
 };
 
+enum dup_action_type {
+    DUP_SKIP, DUP_CHECK_LAZILY, DUP_CHECK_PARANOID
+};
+
 // Commands which take a filename as the last argument, and output UTF-8
 // text or some other mime type are common, so we handle these with a std::map.
 struct Filter {
@@ -82,11 +86,12 @@ index_add_default_filters();
 void
 index_init(const std::string & dbpath, const Xapian::Stem & stemmer,
 	   const std::string & root_, const std::string & site_term_,
-	   const std::string & host_term_, empty_body_type empty_body_,
+	   const std::string & host_term_,
+	   empty_body_type empty_body_, dup_action_type dup_action_,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool skip_duplicates_, bool ignore_exclusions_);
+	   bool spelling, bool ignore_exclusions_);
 
 void
 index_add_document(const std::string & urlterm, time_t last_altered,
