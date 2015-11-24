@@ -2,7 +2,7 @@
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2014 Olly Betts
+ * Copyright (C) 2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,22 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+%}
+
+%pythonbegin %{
+"""
+Xapian is a highly adaptable toolkit which allows developers to easily
+add advanced indexing and search facilities to their own
+applications. It supports the Probabilistic Information Retrieval
+model and also supports a rich set of boolean query operators.
+
+In addition to the doc strings provided by this python library, you
+may wish to look at the library's overall documentation, either
+installed along with the bindings or online at
+<http://xapian.org/docs/bindings/python/>, as well as the library's
+documentation, possibly installed with the library or with its
+development files, or again online at <http://xapian.org/docs/>.
+"""
 %}
 
 /* These were deprecated before Python 3 support was released. */

@@ -30,7 +30,6 @@ BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	generate-python-exceptions \
-	module_top.py \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
@@ -64,18 +63,11 @@ _xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON2_SO)" $(NO_UNDEFIN
 _xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON2_LIBS)
 
-# In a distribution, xapian.py is in $(srcdir)/, and python will always
-# generate the .pyc and .pyo files in the same directory as the .py file.
-# However, $(srcdir) might be shared between builds for different python
-# versions so we can't let the .pyc and .pyo files get written there.  Hence we
-# copy the .py file to the build directory from wherever it actually is and use
-# the copy.  We also rename the copy to __init__.py so that it can be installed
-# in a "xapian" directory and be treated as a package.  Finally, we take this
-# opportunity to insert a module doc string at the top of the file.
+# We want `xapian/__init__.py` rather than xapian.py so the module is treated
+# as a package.
 xapian/__init__.py: xapian.py
 	$(MKDIR_P) xapian
-	cat '$(srcdir)/module_top.py' `test -f xapian.py || echo '$(srcdir)/'`xapian.py > xapian/__init__.pyT
-	mv xapian/__init__.pyT xapian/__init__.py
+	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo.
