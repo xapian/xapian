@@ -1,9 +1,12 @@
-913e01dbd (Olly Betts 2015-05-29 19:32:20 +1200    1) Thu Sep 24 05:25:46 GMT 2015  Olly Betts <olly@survex.com>
+up to: 6383f1bcd80a96fa368bb82ba59168879465a8fd
 
-
-Xapian-bindings 1.2.22 (2015-09-25):
+Xapian-bindings 1.2.22 (2015-11-24):
 
 Documentation:
+
+* Stop maintaining ChangeLog files.  They make merging patches harder, and stop
+  'git cherry-pick' from working as it should.  The git repo history should be
+  sufficient for complying with GPLv2 2(a).
 
 General:
 
@@ -33,6 +36,9 @@ Lua:
 Perl:
 
 PHP:
+
+* Subclasses of XapianMatchSpy and XapianPostingSource with implicit
+  constructors now work.
 
 Python:
 
