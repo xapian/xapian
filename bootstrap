@@ -400,6 +400,7 @@ case `${LIBTOOLIZE-libtoolize} --version` in
 esac
 
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
+export ACLOCAL
 
 intree_swig=no
 modules=
