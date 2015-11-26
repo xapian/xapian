@@ -111,7 +111,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h hashterm.h jsonescape.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h pkglibbindir.h datematchdecider.h sample.h strcasecmp.h\
+ namedentities.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h timegm.h csvescape.h\
@@ -152,7 +152,7 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
- datematchdecider.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc\
+ datevalue.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc\
  csvescape.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
 omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la

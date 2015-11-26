@@ -56,7 +56,7 @@
 
 #include "csvescape.h"
 #include "date.h"
-#include "datematchdecider.h"
+#include "datevalue.h"
 #include "jsonescape.h"
 #include "utils.h"
 #include "omega.h"
@@ -482,26 +482,34 @@ run_query()
 	}
     }
 
-    Xapian::MatchDecider * mdecider = NULL;
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
+	Xapian::Query date_filter;
 	MCI i = cgi_params.find("DATEVALUE");
 	if (i != cgi_params.end()) {
-	    Xapian::valueno datevalue = string_to_int(i->second);
-	    mdecider = new DateMatchDecider(datevalue, date_start, date_end, date_span);
+	    Xapian::valueno slot = string_to_int(i->second);
+	    // The values can be a time_t in 4 bytes, or YYYYMMDD... (with the
+	    // latter the sort order just works correctly between different
+	    // precisions).
+	    bool as_time_t =
+		db.get_value_lower_bound(slot).size() == 4 &&
+		db.get_value_upper_bound(slot).size() == 4;
+	    date_filter = date_value_range(as_time_t, slot,
+					   date_start, date_end,
+					   date_span);
 	} else {
-	    Xapian::Query date_filter(Xapian::Query::OP_OR,
-				      date_range_filter(date_start, date_end,
-							date_span),
-				      Xapian::Query("Dlatest"));
+	    date_filter = date_range_filter(date_start, date_end, date_span);
+	    date_filter = Xapian::Query(Xapian::Query::OP_OR,
+					date_filter,
+					Xapian::Query("Dlatest"));
+	}
 
-	    // If no probabilistic query is provided then promote the daterange
-	    // filter to be THE query instead of filtering an empty query.
-	    if (query.empty()) {
-		query = date_filter;
-		force_boolean = true;
-	    } else {
-		query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
-	    }
+	// If no probabilistic query is provided then promote the daterange
+	// filter to be THE query instead of filtering an empty query.
+	if (query.empty()) {
+	    query = date_filter;
+	    force_boolean = true;
+	} else {
+	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
 	}
     }
 
@@ -545,7 +553,7 @@ run_query()
 	// can avoid offering a "next" button which leads to an empty page.
 	mset = enquire->get_mset(0, topdoc + hits_per_page,
 				 topdoc + max(hits_per_page + 1, min_hits),
-				 &rset, mdecider);
+				 &rset);
     }
 }
 
