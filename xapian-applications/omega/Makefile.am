@@ -200,7 +200,7 @@ jsonesctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = omindex.1 scriptindex.1 omindex-list.1
-MAINTAINERCLEANFILES = $(dist_man_MANS)
+MAINTAINERCLEANFILES += $(dist_man_MANS)
 endif
 
 if DOCUMENTATION_RULES
