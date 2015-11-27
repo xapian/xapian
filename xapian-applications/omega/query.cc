@@ -1029,7 +1029,7 @@ T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
 T(prettyurl,	   1, 1, N, 0), // pretty version of URL
 T(query,	   0, 1, N, Q), // query
-T(querydescription,0, 0, N, Q), // query.get_description()
+T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
 T(record,	   0, 1, N, 0), // record contents of document
