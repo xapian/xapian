@@ -1763,7 +1763,7 @@ ChertTable::~ChertTable() {
 }
 
 void ChertTable::close(bool permanent) {
-    LOGCALL_VOID(DB, "ChertTable::close", NO_ARGS);
+    LOGCALL_VOID(DB, "ChertTable::close", permanent);
 
     if (handle >= 0) {
 	// If an error occurs here, we just ignore it, since we're just
