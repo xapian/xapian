@@ -1,0 +1,66 @@
+#!/bin/sh
+# omegatest: Test omega CGI
+#
+# Copyright (C) 2015 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+set -e
+
+: ${OMEGA=./omega}
+
+OMEGA_CONFIG_FILE=test-omega.conf
+export OMEGA_CONFIG_FILE
+cat > "$OMEGA_CONFIG_FILE" <<'__END__'
+database_dir .
+template_dir .
+log_dir tmplog
+__END__
+
+# Suppress HTTP Content-Type header.
+SERVER_PROTOCOL=INCLUDED
+export SERVER_PROTOCOL
+
+# Set up an empty database.
+TEST_DB=test-db
+echo 'inmemory' > "$TEST_DB"
+
+# 
+TEST_TEMPLATE=test-template
+printf '$querydescription' > "$TEST_TEMPLATE"
+
+failed=0
+
+testcase() {
+    expected="Query($1)"
+    shift
+    output=`"$OMEGA" FMT="$TEST_TEMPLATE" DB="$TEST_DB" "$@"`
+    if [ "$output" != "$expected" ] ; then
+	echo "$OMEGA FMT=$TEST_TEMPLATE DB=$TEST_DB $@:"
+	echo "  expected: «$expected»"
+	echo "  received: «$output»"
+	failed=`expr $failed + 1`
+    fi
+}
+
+testcase 'Zsimpl@1' P=simple
+testcase '(chocolate@1 FILTER Tconfectionary/fudge)' P=Chocolate B=Tconfectionary/fudge
+
+rm "$OMEGA_CONFIG_FILE" "$TEST_DB" "$TEST_TEMPLATE"
+if [ "$failed" = 0 ] ; then
+    exit 0
+fi
+echo "Failed $failed test(s)"
+exit 1

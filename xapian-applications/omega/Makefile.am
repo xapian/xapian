@@ -91,11 +91,14 @@ bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
+# Pass omega path for omegatest in OMEGA environment variable.
+AM_TESTS_ENVIRONMENT = OMEGA='$(srcdir)/omega'; export OMEGA;
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
 	jsonesctest$(EXEEXT)\
 	md5test$(EXEEXT)\
+	omegatest\
 	urlenctest$(EXEEXT)\
 	utf8converttest$(EXEEXT)
 
