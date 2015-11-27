@@ -925,8 +925,7 @@ T(freq,		   1, 1, N, 0), // frequency of a term
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
-T(hit,		   0, 0, N, 0), // hit number of current mset entry (starting
-				// from 0
+T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
 T(hitsperpage,	   0, 0, N, 0), // hits per page
 T(hostname,	   1, 1, N, 0), // extract hostname from URL
