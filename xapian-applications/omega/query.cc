@@ -2291,21 +2291,21 @@ parse_omegascript()
 	    suppress_http_headers = true;
 	}
 
-	std::string output = eval_file(fmtname);
+	string output = eval_file(fmtname);
 	if (!set_content_type && !suppress_http_headers) {
-	    cout << "Content-Type: text/html" << std::endl;
+	    cout << "Content-Type: text/html" << endl;
 	    set_content_type = true;
 	}
-	if (!suppress_http_headers) cout << std::endl;
+	if (!suppress_http_headers) cout << endl;
 	cout << output;
     } catch (...) {
 	// Ensure the headers have been output so that any exception gets
 	// reported rather than giving a server error.
 	if (!set_content_type && !suppress_http_headers) {
-	    cout << "Content-Type: text/html" << std::endl;
+	    cout << "Content-Type: text/html" << endl;
 	    set_content_type = true;
 	}
-	if (!suppress_http_headers) cout << std::endl;
+	if (!suppress_http_headers) cout << endl;
 	throw;
     }
 }
