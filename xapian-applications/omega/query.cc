@@ -423,7 +423,7 @@ run_query()
 	    // to be THE query - filtering an empty query will give no
 	    // matches.
 	    std::swap(query, filter);
-	    if (enquire) force_boolean = true;
+	    force_boolean = true;
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, filter);
 	}
