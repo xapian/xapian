@@ -2141,7 +2141,7 @@ parse_omegascript()
 	    cout << "Content-Type: text/html" << std::endl;
 	    set_content_type = true;
 	}
-	cout << std::endl;
+	if (!suppress_http_headers) cout << std::endl;
 	cout << output;
     } catch (...) {
 	// Ensure the headers have been output so that any exception gets
@@ -2150,7 +2150,7 @@ parse_omegascript()
 	    cout << "Content-Type: text/html" << std::endl;
 	    set_content_type = true;
 	}
-	cout << std::endl;
+	if (!suppress_http_headers) cout << std::endl;
 	throw;
     }
 }
