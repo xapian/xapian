@@ -80,7 +80,7 @@ BrassCursor::rebuild()
 	    C[i].n = BLK_UNUSED;
 	}
 	for (int j = new_level; j < level; ++j) {
-	    delete C[j].p;
+	    delete [] C[j].p;
 	}
     } else {
 	Cursor * old_C = C;
