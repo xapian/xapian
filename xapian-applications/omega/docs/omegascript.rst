@@ -256,9 +256,13 @@ $json{STRING}
         encode STRING as a JSON string (not including the enclosing quotes), e.g.
         ``$json{The path is "C:\"}`` gives ``The path is \"C:\\\"``
 
+        Added in Omega 1.3.1.
+
 $jsonarray{LIST}
         encodes LIST (a string of tab-separated values) as a JSON array, e.g.
         ``$jsonarray{$split{a "b" c:\}}`` gives ``["a","\"b\"","c:\\"]``
+
+        Added in Omega 1.3.1, but buggy until 1.3.4.
 
 $last
         MSet index one beyond the end of the current page (so ``$hit`` runs
