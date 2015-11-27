@@ -498,6 +498,7 @@ run_query()
 	    // filter to be THE query instead of filtering an empty query.
 	    if (query.empty()) {
 		query = date_filter;
+		force_boolean = true;
 	    } else {
 		query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
 	    }
