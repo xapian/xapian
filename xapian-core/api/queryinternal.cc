@@ -761,8 +761,18 @@ QueryValueRange::postlist(QueryOptimiser *qopt, double factor) const
     const Xapian::Database::Internal & db = qopt->db;
     const string & lb = db.get_value_lower_bound(slot);
     // If lb.empty(), the backend doesn't provide value bounds.
-    if (!lb.empty() && (end < lb || begin > db.get_value_upper_bound(slot))) {
-	RETURN(new EmptyPostList);
+    if (!lb.empty()) {
+	if (end < lb) {
+	    RETURN(new EmptyPostList);
+	}
+	const string & ub = db.get_value_upper_bound(slot);
+	if (begin > ub) {
+	    RETURN(new EmptyPostList);
+	}
+	if (end >= ub) {
+	    // FIXME: if (begin <= lb) { /* Matches everything so optimise */ }
+	    RETURN(new ValueGePostList(&db, slot, begin));
+	}
     }
     RETURN(new ValueRangePostList(&db, slot, begin, end));
 }
