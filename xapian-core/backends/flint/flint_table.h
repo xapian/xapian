@@ -1,7 +1,7 @@
 /* flint_table.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -96,6 +96,10 @@
    components_of(p, c) returns the number marked 'C' above,
 */
 
+// The item size is stored in 2 bytes, but the top bit is used to store a flag
+// for "is the tag data compressed".
+#define FLINT_MAX_ITEM_SIZE 0x7fff
+
 class XAPIAN_VISIBILITY_DEFAULT Key_ {
     const byte *p;
 public:
@@ -128,7 +132,7 @@ public:
     Item_base_(T p_, int c) : p(p_ + getint2(p_, c)) { }
     Item_base_(T p_) : p(p_) { }
     T get_address() const { return p; }
-    int size() const { return getint2(p, 0) & 0x7fff; } /* I in diagram above */
+    int size() const { return getint2(p, 0) & FLINT_MAX_ITEM_SIZE; } /* I in diagram above */
     bool get_compressed() const { return *p & 0x80; }
     int component_of() const {
 	return getint2(p, getK(p, I2) + I2 - C2);
@@ -196,7 +200,13 @@ public:
     void set_block_given_by(uint4 n) {
 	setint4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
     }
-    void set_size(int l) { setint2(p, 0, l); }
+    void set_size(int l) {
+	// We should never be able to pass too large a size here, but don't
+	// corrupt the database if this somehow happens.
+	if (rare(l &~ FLINT_MAX_ITEM_SIZE))
+	    throw Xapian::DatabaseError("item too large!");
+	setint2(p, 0, l);
+    }
     /** Form an item with a null key and with block number n in the tag.
      */
     void form_null_key(uint4 n) {
@@ -569,6 +579,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	    if (block_capacity > BLOCK_CAPACITY) block_capacity = BLOCK_CAPACITY;
 	    max_item_size = (block_size - 11 /*DIR_START*/ - block_capacity * D2)
 		/ block_capacity;
+	    // Make sure we don't exceed the limit imposed by the format.
+	    if (max_item_size > FLINT_MAX_ITEM_SIZE)
+		max_item_size = FLINT_MAX_ITEM_SIZE;
 	}
 
     protected:
