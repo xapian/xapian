@@ -1,6 +1,6 @@
-up to: ea79719553208c0aa6937c227125fcd8146e9e6a
+up to: f018d6a54cdfc21e5c7d11c9afac7a67f328d86a
 
-Omega 1.2.22 (2015-11-24):
+Omega 1.2.22 (2015-11-29):
 
 general:
 
@@ -10,20 +10,39 @@ documentation:
   'git cherry-pick' from working as it should.  The git repo history should be
   sufficient for complying with GPLv2 2(a).
 
-* docs/omegascript.rst: Fix documentation of $last to say it's the MSet index
-  *one beyond* the end of the current page.  Reported by Andrew Chilton.
+* Clarify help text for omindex --mime-type option.
 
-* docs/overview.rst: SVG extraction is built-in too.
+* docs/omegascript.rst:
+
+  + Fix documentation of $last to say it's the MSet index *one beyond* the end
+    of the current page.  Reported by Andrew Chilton.
+
+  + Clarify that $split and $substr work in bytes.  Previously we said
+    "characters" which could be taken as meaning they work with UTF-8
+    characters.
+
+  + Update documentation for $filters - it was missing these CGI parameters
+    from the list of those serialised: COLLAPSE, DOCIDORDER, SORT, SORTREVERSE,
+    SORTAFTER
+
+* docs/overview.rst:
+
+  + SVG extraction is built-in too.
+
+  + Expand paragraph about command `false`.  Note the versions where explicit
+    support was added, and that this will also work with any version on Unix,
+    where `false` is a command.
 
 * docs/cgiparams.rst: Document behaviour if xDB is not set.
-
-* Clarify help text for omindex --mime-type option.
 
 indexers:
 
 * omindex:
 
   + Add '--title-size' option.
+
+  + Handle .oft the same way as .msg - it's some sort of template email, and
+    has essentially the same format.
 
 * scriptindex:
 
@@ -34,6 +53,10 @@ omega:
 
 * If xFILTERS is not set, don't force the first page as that's unhelpful if
   someone fails to set it in their template.
+
+* When environment variable SERVER_PROTOCOL is set to INCLUDED (as it is when
+  we're being included in a page), we already suppress the HTTP headers, but
+  now we suppress the blank line after the header too.
 
 templates:
 
