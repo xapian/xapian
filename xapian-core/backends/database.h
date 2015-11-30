@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2013,2014,2015 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -512,17 +512,16 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	virtual void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 
-	//////////////////////////////////////////////////////////////////
-	// Introspection methods:
-	// ======================
-
-	/** Return a pointer to this object as a RemoteDatabase, or NULL.
+	/** Get backend information about this database.
 	 *
-	 *  This method is used by MultiMatch to decide whether to use a
-	 *  LocalSubMatch or a RemoteSubMatch to perform a search over the
-	 *  database.
+	 *  @param path  If non-NULL, and set the pointed to string to the file
+	 *		 path of this database (or if to some string describing
+	 *		 the database in a backend-specified format if "path"
+	 *		 isn't a concept which  make sense).
+	 *
+	 *  @return	A constant indicating the backend type.
 	 */
-	virtual RemoteDatabase * as_remotedatabase();
+	virtual int get_backend_info(string * path) const = 0;
 };
 
 }

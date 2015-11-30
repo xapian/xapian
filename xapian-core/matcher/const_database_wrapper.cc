@@ -343,10 +343,3 @@ ConstDatabaseWrapper::write_changesets_to_fd(int, const std::string &, bool,
 {
     nonconst_access();
 }
-
-RemoteDatabase *
-ConstDatabaseWrapper::as_remotedatabase()
-{
-    nonconst_access();
-    return NULL;
-}

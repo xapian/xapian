@@ -373,10 +373,4 @@ Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
     // Do nothing, by default.
 }
 
-RemoteDatabase *
-Database::Internal::as_remotedatabase()
-{
-    return NULL;
-}
-
 }

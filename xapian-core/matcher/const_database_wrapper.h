@@ -2,7 +2,7 @@
  * @brief Wrapper which exposes only the const methods of database internals.
  */
 /* Copyright (C) 2009 Lemur Consulting Ltd
- * Copyright (C) 2009,2011,2014 Olly Betts
+ * Copyright (C) 2009,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,6 +82,7 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     string get_revision_info() const;
     string get_uuid() const;
     void invalidate_doc_object(Xapian::Document::Internal * obj) const;
+    int get_backend_info(std::string * path) const { return realdb->get_backend_info(path); }
 
     // Non-const methods: these raise Xapian::InvalidOperationError
     void add_spelling(const string & word, Xapian::termcount freqinc) const;
@@ -104,7 +105,6 @@ class ConstDatabaseWrapper : public Xapian::Database::Internal {
     Xapian::docid replace_document(const string &, const Xapian::Document &);
     void write_changesets_to_fd(int, const std::string &, bool,
 				Xapian::ReplicationInfo *);
-    RemoteDatabase * as_remotedatabase();
 };
 
 #endif /* XAPIAN_INCLUDED_CONST_DATABASE_WRAPPER_H */

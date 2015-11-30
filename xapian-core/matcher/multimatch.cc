@@ -316,8 +316,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	try {
 	    // There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
-	    if (rem_db) {
+	    if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
+		RemoteDatabase *rem_db = static_cast<RemoteDatabase*>(subdb);
 		if (have_sorter) {
 		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
 		}

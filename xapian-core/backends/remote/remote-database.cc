@@ -106,12 +106,6 @@ RemoteDatabase::RemoteDatabase(int fd, double timeout_,
     }
 }
 
-RemoteDatabase *
-RemoteDatabase::as_remotedatabase()
-{
-    return this;
-}
-
 void
 RemoteDatabase::keep_alive()
 {

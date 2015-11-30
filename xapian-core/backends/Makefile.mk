@@ -1,5 +1,6 @@
 noinst_HEADERS +=\
 	backends/alltermslist.h\
+	backends/backends.h\
 	backends/byte_length_strings.h\
 	backends/contiguousalldocspostlist.h\
 	backends/database.h\

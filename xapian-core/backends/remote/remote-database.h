@@ -22,6 +22,7 @@
 #ifndef XAPIAN_INCLUDED_REMOTE_DATABASE_H
 #define XAPIAN_INCLUDED_REMOTE_DATABASE_H
 
+#include "backends/backends.h"
 #include "backends/database.h"
 #include "api/omenquireinternal.h"
 #include "api/queryinternal.h"
@@ -122,9 +123,6 @@ class RemoteDatabase : public Xapian::Database::Internal {
     double timeout;
 
   public:
-    /// Return this pointer as a RemoteDatabase*.
-    RemoteDatabase * as_remotedatabase();
-
     /// Send a keep-alive message.
     void keep_alive();
 
@@ -256,6 +254,11 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void add_spelling(const std::string&, Xapian::termcount) const;
 
     void remove_spelling(const std::string&,  Xapian::termcount freqdec) const;
+
+    int get_backend_info(string * path) const {
+	if (path) *path = context;
+	return BACKEND_REMOTE;
+    }
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H
