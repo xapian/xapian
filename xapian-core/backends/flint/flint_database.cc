@@ -1128,7 +1128,7 @@ FlintWritableDatabase::add_document(const Xapian::Document & document)
 {
     LOGCALL(DB, Xapian::docid, "FlintWritableDatabase::add_document", document);
     // Make sure the docid counter doesn't overflow.
-    if (lastdocid == Xapian::docid(-1))
+    if (lastdocid == FLINT_MAX_DOCID)
 	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     // Use the next unused document ID.
     RETURN(add_document_(++lastdocid, document));
