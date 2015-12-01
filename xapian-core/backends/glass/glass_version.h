@@ -98,7 +98,21 @@ class GlassVersion {
      */
     mutable uuid_t uuid;
 
+    /** File descriptor.
+     *
+     *  When committing, this hold the file descriptor of the new changes file
+     *  between the call to the write() and sync() methods.
+     *
+     *  For a single-file database (when db_dir.empty()), this holds the fd of
+     *  that file for use in read().
+     */
     int fd;
+
+    /** Offset into the file at which the version data starts.
+     *
+     *  Will be 0, except for an embedded multi-file database.
+     */
+    off_t offset;
 
     /// The database directory.
     std::string db_dir;
@@ -136,11 +150,15 @@ class GlassVersion {
     void unserialise_stats();
 
   public:
-    explicit GlassVersion(const std::string & db_dir_)
-	: rev(0), db_dir(db_dir_), changes(NULL),
+    explicit GlassVersion(const std::string & db_dir_ = std::string())
+	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
 	  wdf_ubound(0), oldest_changeset(0) { }
+
+    ~GlassVersion();
+
+    void set_fd(int fd_);
 
     /** Create the version file. */
     void create(unsigned blocksize, int flags);

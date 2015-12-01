@@ -1,7 +1,7 @@
 /** @file compactor.h
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -40,7 +40,13 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
     /// Class containing the implementation.
     class Internal;
 
-    typedef enum { STANDARD, FULL, FULLER } compaction_level;
+    typedef enum { STANDARD = 0, FULL = 1, FULLER = 2 } compaction_level;
+
+    enum {
+	NO_RENUMBER = 4,
+	MULTIPASS = 8,
+	SINGLE_FILE = 16
+    };
 
   private:
     /// @internal Reference counted internals.
@@ -60,6 +66,8 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      */
     void set_block_size(size_t block_size);
 
+    void set_flags(unsigned flags, unsigned mask = 0);
+
     /** Set whether to preserve existing document id values.
      *
      *  @param renumber	The default is true, which means that document ids will
@@ -72,7 +80,9 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *			in each source must not overlap either, though this
      *			restriction may be removed in the future.
      */
-    void set_renumber(bool renumber);
+    void set_renumber(bool renumber) {
+	set_flags(renumber ? 0 : NO_RENUMBER, ~unsigned(NO_RENUMBER));
+    }
 
     /** Set whether to merge postlists in multiple passes.
      *
@@ -81,7 +91,9 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  requires more disk space for temporary files.  By default we don't do
      *  this.
      */
-    void set_multipass(bool multipass);
+    void set_multipass(bool multipass) {
+	set_flags(multipass ? MULTIPASS : 0, ~unsigned(MULTIPASS));
+    }
 
     /** Set the compaction level.
      *
@@ -92,7 +104,9 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  - Xapian::Compactor::FULLER   - Allow oversize items to save more space
      *    (not recommended if you ever plan to update the compacted database).
      */
-    void set_compaction_level(compaction_level compaction);
+    void set_compaction_level(compaction_level compaction) {
+	set_flags(compaction, ~unsigned(STANDARD|FULL|FULLER));
+    }
 
     /** Set where to write the output.
      *

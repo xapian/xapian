@@ -11,6 +11,7 @@ noinst_HEADERS +=\
 	harness/backendmanager_remote.h\
 	harness/backendmanager_remoteprog.h\
 	harness/backendmanager_remotetcp.h\
+	harness/backendmanager_singlefile.h\
 	harness/cputimer.h\
 	harness/fdtracker.h\
 	harness/index_utils.h\
@@ -46,7 +47,9 @@ testharness_sources += harness/backendmanager_chert.cc
 endif
 
 if BUILD_BACKEND_GLASS
-testharness_sources += harness/backendmanager_glass.cc
+testharness_sources +=\
+	harness/backendmanager_glass.cc\
+	harness/backendmanager_singlefile.cc
 endif
 
 if BUILD_BACKEND_INMEMORY

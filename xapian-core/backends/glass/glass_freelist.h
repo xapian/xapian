@@ -118,6 +118,9 @@ class GlassFreeList {
 
     uint4 get_first_unused_block() const { return first_unused_block; }
 
+    // Used when compacting to a single file.
+    void set_first_unused_block(uint4 base) { first_unused_block = base; }
+
     void commit(const GlassTable * B, uint4 block_size);
 
     void pack(std::string & buf) {

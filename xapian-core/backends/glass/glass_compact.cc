@@ -814,7 +814,7 @@ void
 compact_glass(Xapian::Compactor & compactor,
 	      const char * destdir, const vector<string> & sources,
 	      const vector<Xapian::docid> & offset, size_t block_size,
-	      Xapian::Compactor::compaction_level compaction, bool multipass,
+	      Xapian::Compactor::compaction_level compaction, unsigned flags,
 	      Xapian::docid last_docid) {
     struct table_list {
 	// The "base name" of the table.
@@ -848,22 +848,49 @@ compact_glass(Xapian::Compactor & compactor,
 	version_file[i].read();
     }
 
+    bool single_file = (flags & Xapian::Compactor::SINGLE_FILE);
+    bool multipass = (flags & Xapian::Compactor::MULTIPASS);
+    if (single_file) {
+	// FIXME: Support this combination - we need to put temporary files
+	// somewhere.
+	multipass = false;
+    }
+
     FlintLock lock(destdir);
-    string explanation;
-    FlintLock::reason why = lock.lock(true, false, explanation);
-    if (why != FlintLock::SUCCESS) {
-	lock.throw_databaselockerror(why, destdir, explanation);
+    if (!single_file) {
+	string explanation;
+	FlintLock::reason why = lock.lock(true, false, explanation);
+	if (why != FlintLock::SUCCESS) {
+	    lock.throw_databaselockerror(why, destdir, explanation);
+	}
     }
 
     GlassVersion version_file_out(destdir);
+    int fd = -1;
+    if (single_file) {
+	rmdir(destdir);
+	fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
+	if (fd < 0) {
+	    throw Xapian::DatabaseCreateError("open() failed", errno);
+	}
+	version_file_out.set_fd(fd);
+    }
     version_file_out.create(block_size, 0);
 
     for (auto v_in : version_file) {
 	version_file_out.merge_stats(v_in);
     }
 
+    string fl_serialised;
+    if (single_file) {
+	GlassFreeList fl;
+	fl.set_first_unused_block(1); // FIXME: Assumption?
+	fl.pack(fl_serialised);
+    }
+
     vector<GlassTable *> tabs;
     tabs.reserve(tables_end - tables);
+    off_t prev_size = block_size;
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
@@ -926,10 +953,21 @@ compact_glass(Xapian::Compactor & compactor,
 	    continue;
 	}
 
-	GlassTable * out =
-	    new GlassTable(t->name, dest, false, t->compress_strategy, t->lazy);
+	GlassTable * out;
+	if (single_file) {
+	    out = new GlassTable(t->name, fd, false, t->compress_strategy, false);
+	} else {
+	    out = new GlassTable(t->name, dest, false, t->compress_strategy, t->lazy);
+	}
 	tabs.push_back(out);
-	out->create_and_open(FLAGS, block_size);
+	RootInfo * root_info = NULL;
+	if (single_file) {
+	    root_info = version_file_out.root_to_set(t->type);
+	    root_info->set_free_list(fl_serialised);
+	    out->open(FLAGS, version_file_out.get_root(t->type), version_file_out.get_revision());
+	} else {
+	    out->create_and_open(FLAGS, block_size);
+	}
 
 	out->set_full_compaction(compaction != compactor.STANDARD);
 	if (compaction == compactor.FULLER) out->set_max_item_size(1);
@@ -944,7 +982,7 @@ compact_glass(Xapian::Compactor & compactor,
 	}
 
 	switch (t->type) {
-	    case Glass::POSTLIST:
+	    case Glass::POSTLIST: {
 		if (multipass && inputs.size() > 3) {
 		    multimerge_postlists(compactor, out, destdir,
 					 inputs, root, rev, offset);
@@ -954,6 +992,7 @@ compact_glass(Xapian::Compactor & compactor,
 				    inputs.begin(), inputs.end());
 		}
 		break;
+	    }
 	    case Glass::SPELLING:
 		merge_spellings(out, root.begin(), rev.begin(),
 				inputs.begin(), inputs.end());
@@ -972,14 +1011,26 @@ compact_glass(Xapian::Compactor & compactor,
 	}
 
 	// Commit as revision 1.
+	if (single_file) lseek(fd, 0, SEEK_SET);
 	out->flush_db();
 	out->commit(1, version_file_out.root_to_set(t->type));
 	out->sync();
+	if (single_file) fl_serialised = root_info->get_free_list();
 
 	off_t out_size = 0;
 	if (!bad_stat) {
-	    off_t db_size = file_size(dest + GLASS_TABLE_EXTENSION);
+	    off_t db_size;
+	    if (single_file) {
+		db_size = file_size(fd);
+	    } else {
+		db_size = file_size(dest + GLASS_TABLE_EXTENSION);
+	    }
 	    if (errno == 0) {
+		if (single_file) {
+		    off_t old_prev_size = min(prev_size, off_t(block_size));
+		    prev_size = db_size;
+		    db_size -= old_prev_size;
+		}
 		out_size = db_size / 1024;
 	    } else {
 		bad_stat = (errno != ENOENT);
@@ -1015,6 +1066,22 @@ compact_glass(Xapian::Compactor & compactor,
 	}
     }
 
+    // If compacting to a single file output and all the tables are empty, pad
+    // the output so that it isn't mistaken for a stub database when we try to
+    // open it.  For this it needs to be a multiple of 2KB in size.
+    if (single_file && prev_size < off_t(block_size)) {
+#ifdef HAVE_FTRUNCATE
+	if (ftruncate(fd, block_size) < 0) {
+	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	}
+#else
+	const off_t off = block_size - 1;
+	if (lseek(fd, off, SEEK_SET) != off || write(fd, "", 1) != 1) {
+	    throw Xapian::DatabaseError("Failed to set size of output database", errno);
+	}
+#endif
+    }
+
     version_file_out.set_last_docid(last_docid);
     string tmpfile = version_file_out.write(1, FLAGS);
     for (unsigned j = 0; j != tabs.size(); ++j) {
@@ -1026,5 +1093,5 @@ compact_glass(Xapian::Compactor & compactor,
 	delete tabs[j];
     }
 
-    lock.release();
+    if (!single_file) lock.release();
 }

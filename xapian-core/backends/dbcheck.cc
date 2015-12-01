@@ -39,12 +39,47 @@
 #endif
 
 #include "filetests.h"
+#include "posixy_wrapper.h"
 #include "stringutils.h"
 
 #include <ostream>
 #include <stdexcept>
 
 using namespace std;
+
+static bool
+check_if_single_file_db(const struct stat & sb, const string & path,
+			int * fd_ptr = NULL)
+{
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (!S_ISREG(sb.st_mode)) return false;
+    // Look at the size as a clue - if it's 0 or not a multiple of 2048,
+    // then it's not a single-file glass database.  If it is, peek at the start
+    // of the file to determine which it is.
+    if (sb.st_size == 0 || sb.st_size % 2048 != 0) return false;
+    int fd = posixy_open(path.c_str(), O_RDONLY|O_BINARY);
+    if (fd != -1) {
+	char magic_buf[14];
+	// FIXME: Don't duplicate magic check here...
+	if (io_read(fd, magic_buf, 14, 14) &&
+	    (!fd_ptr || lseek(fd, 0, SEEK_SET) == 0) &&
+	    memcmp(magic_buf, "\x0f\x0dXapian Glass", 14) == 0) {
+	    if (fd_ptr) {
+		*fd_ptr = fd;
+	    } else {
+		::close(fd);
+	    }
+	    return true;
+	}
+	::close(fd);
+    }
+#else
+    (void)sb;
+    (void)path;
+    (void)fd_ptr;
+#endif
+    return false;
+}
 
 // FIXME: We don't currently cross-check wdf between postlist and termlist.
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
@@ -81,18 +116,9 @@ reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
 }
 #endif
 
-namespace Xapian {
-
-size_t
-Database::check(const string & path, int opts, std::ostream *out)
+static size_t
+check_db_dir(const string & path, int opts, std::ostream *out)
 {
-    if (!out) {
-	// If we have nowhere to write output, then disable all the options
-	// which only affect what we output.
-	opts &= Xapian::DBCHECK_FIX;
-    }
-    vector<Xapian::termcount> doclens;
-    size_t errors = 0;
     struct stat sb;
     if (stat((path + "/iamchert").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_CHERT_BACKEND
@@ -101,6 +127,9 @@ Database::check(const string & path, int opts, std::ostream *out)
 	throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
 #else
 	// Check a whole chert database directory.
+	vector<Xapian::termcount> doclens;
+	size_t errors = 0;
+
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
 	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
@@ -166,14 +195,20 @@ Database::check(const string & path, int opts, std::ostream *out)
 		iam.create();
 	    }
 	}
+	return errors;
 #endif
-    } else if (stat((path + "/iamglass").c_str(), &sb) == 0) {
+    }
+
+    if (stat((path + "/iamglass").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
 	(void)opts;
 	(void)out;
 	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
 	// Check a whole glass database directory.
+	vector<Xapian::termcount> doclens;
+	size_t errors = 0;
+
 	try {
 	    // Check if the database can actually be opened.
 	    Xapian::Database db(path);
@@ -211,94 +246,202 @@ Database::check(const string & path, int opts, std::ostream *out)
 	    errors += check_glass_table(*t, path, version_file, opts, doclens,
 					db_last_docid, out);
 	}
+	return errors;
 #endif
-    } else {
-	if (stat((path + "/iamflint").c_str(), &sb) == 0) {
-	    // Flint is no longer supported as of Xapian 1.3.0.
-	    throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
-	}
-	if (stat((path + "/iambrass").c_str(), &sb) == 0) {
-	    // Brass was renamed to glass as of Xapian 1.3.2.
-	    throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
-	}
-	if (stat((path + "/record_DB").c_str(), &sb) == 0) {
-	    // Quartz is no longer supported as of Xapian 1.1.0.
-	    throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
-	}
-	// Just check a single Btree.  If it ends with ".", ".DB", or ".glass",
-	// trim that so the user can do xapian-check on "foo", "foo.", "foo.DB",
-	// "foo.glass", etc.
-	enum { UNKNOWN, CHERT, GLASS } backend = UNKNOWN;
-	string filename = path;
-	if (endswith(filename, '.')) {
-	    filename.resize(filename.size() - 1);
-	} else if (endswith(filename, ".DB")) {
-	    filename.resize(filename.size() - CONST_STRLEN(".DB"));
+    }
+
+    if (stat((path + "/iamflint").c_str(), &sb) == 0) {
+	// Flint is no longer supported as of Xapian 1.3.0.
+	throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
+    }
+
+    if (stat((path + "/iambrass").c_str(), &sb) == 0) {
+	// Brass was renamed to glass as of Xapian 1.3.2.
+	throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
+    }
+
+    if (stat((path + "/record_DB").c_str(), &sb) == 0) {
+	// Quartz is no longer supported as of Xapian 1.1.0.
+	throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
+    }
+
+    throw Xapian::DatabaseError("Directory does not contain a Xapian database");
+}
+
+static size_t
+check_if_db_table(const string & path, int opts, std::ostream *out)
+{
+    // Just check a single Btree.  If it ends with ".", ".DB", or ".glass",
+    // trim that so the user can do xapian-check on "foo", "foo.", "foo.DB",
+    // "foo.glass", etc.
+    enum { UNKNOWN, CHERT, GLASS } backend = UNKNOWN;
+    string filename = path;
+    if (endswith(filename, '.')) {
+	filename.resize(filename.size() - 1);
+    } else if (endswith(filename, ".DB")) {
+	filename.resize(filename.size() - CONST_STRLEN(".DB"));
+	backend = CHERT;
+    } else if (endswith(filename, ".glass")) {
+	filename.resize(filename.size() - CONST_STRLEN(".glass"));
+	backend = GLASS;
+    }
+
+    struct stat sb;
+    if (backend == UNKNOWN) {
+	if (stat((filename + ".DB").c_str(), &sb) == 0) {
+	    // It could also be flint or brass, but we check for those below.
 	    backend = CHERT;
-	} else if (endswith(filename, ".glass")) {
-	    filename.resize(filename.size() - CONST_STRLEN(".glass"));
+	} else if (stat((filename + ".glass").c_str(), &sb) == 0) {
 	    backend = GLASS;
-	}
-
-	if (backend == UNKNOWN) {
-	    if (stat((filename + ".DB").c_str(), &sb) == 0) {
-		// It could also be flint or brass, but we check for those below.
-		backend = CHERT;
-	    } else if (stat((filename + ".glass").c_str(), &sb) == 0) {
-		backend = GLASS;
-	    } else {
-		throw Xapian::DatabaseError("Not a Xapian database or database table");
-	    }
-	}
-
-	size_t p = filename.find_last_of('/');
-#if defined __WIN32__ || defined __OS2__
-	if (p == string::npos) p = 0;
-	p = filename.find_last_of('\\', p);
-#endif
-	if (p == string::npos) p = 0; else ++p;
-
-	string dir(filename, 0, p);
-
-	string tablename;
-	while (p != filename.size()) {
-	    tablename += tolower(static_cast<unsigned char>(filename[p++]));
-	}
-
-	if (backend == GLASS) {
-#ifndef XAPIAN_HAS_GLASS_BACKEND
-	    throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
-#else
-	    GlassVersion version_file(dir);
-	    version_file.read();
-	    // Set the last docid to its maximum value to suppress errors.
-	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_glass_table(tablename.c_str(), dir,
-				       version_file, opts,
-				       doclens, db_last_docid, out);
-#endif
-	} else if (backend == CHERT) {
-	    // Flint and brass also used the extension ".DB", so check that we
-	    // haven't been passed a single table in a flint or brass database.
-	    if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
-		// Flint is no longer supported as of Xapian 1.3.0.
-		throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
-	    }
-	    if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
-		// Brass was renamed to glass as of Xapian 1.3.2.
-		throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
-	    }
-#ifndef XAPIAN_HAS_CHERT_BACKEND
-	    throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
-#else
-	    // Set the last docid to its maximum value to suppress errors.
-	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-	    errors = check_chert_table(tablename.c_str(), filename, NULL, opts,
-				       doclens, db_last_docid, out);
-#endif
+	} else {
+	    throw Xapian::DatabaseError("File is not a Xapian database or database table");
 	}
     }
+
+    size_t p = filename.find_last_of('/');
+#if defined __WIN32__ || defined __OS2__
+    if (p == string::npos) p = 0;
+    p = filename.find_last_of('\\', p);
+#endif
+    if (p == string::npos) p = 0; else ++p;
+
+    string dir(filename, 0, p);
+
+    string tablename;
+    while (p != filename.size()) {
+	tablename += tolower(static_cast<unsigned char>(filename[p++]));
+    }
+
+    vector<Xapian::termcount> doclens;
+    if (backend == GLASS) {
+#ifndef XAPIAN_HAS_GLASS_BACKEND
+	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
+#else
+	GlassVersion version_file(dir);
+	version_file.read();
+	// Set the last docid to its maximum value to suppress errors.
+	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+	return check_glass_table(tablename.c_str(), dir, version_file, opts,
+				 doclens, db_last_docid, out);
+#endif
+    }
+
+    Assert(backend == CHERT);
+    // Flint and brass also used the extension ".DB", so check that we
+    // haven't been passed a single table in a flint or brass database.
+    if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
+	// Flint is no longer supported as of Xapian 1.3.0.
+	throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
+    }
+    if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
+	// Brass was renamed to glass as of Xapian 1.3.2.
+	throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
+    }
+#ifndef XAPIAN_HAS_CHERT_BACKEND
+    throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
+#else
+    // Set the last docid to its maximum value to suppress errors.
+    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+    return check_chert_table(tablename.c_str(), filename, NULL, opts,
+			     doclens, db_last_docid, out);
+#endif
+}
+
+/** Check a single file DB from an fd.
+ *
+ *  Closes the fd (via GlassVersion doing so in its destructor).
+ */
+static size_t
+check_db_fd(int fd, int opts, std::ostream *out)
+{
+#ifndef XAPIAN_HAS_GLASS_BACKEND
+    ::close(fd);
+    throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
+#else
+    // Check a single-file glass database.
+    vector<Xapian::termcount> doclens;
+    size_t errors = 0;
+
+    // If we can't read the last docid, set it to its maximum value
+    // to suppress errors.
+    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+    off_t pos = lseek(fd, 0, SEEK_CUR);
+    try {
+	// Open at the lower level so we can get the revision number.
+	int fd_tmp = dup(fd);
+	GlassDatabase db(fd_tmp);
+	db_last_docid = db.get_lastdocid();
+	reserve_doclens(doclens, db_last_docid, out);
+    } catch (const Xapian::Error & e) {
+	// Ignore so we can check a database too broken to open.
+	if (out)
+	    *out << "Database couldn't be opened for reading: "
+		 << e.get_description()
+		 << "\nContinuing check anyway" << endl;
+	++errors;
+    }
+    lseek(fd, pos, SEEK_SET);
+
+    GlassVersion version_file;
+    version_file.set_fd(fd);
+    version_file.read();
+
+    // This is a glass directory so try to check all the btrees.
+    // Note: it's important to check termlist before postlist so
+    // that we can cross-check the document lengths.
+    const char * tables[] = {
+	"docdata", "termlist", "postlist", "position",
+	"spelling", "synonym"
+    };
+    for (const char **t = tables;
+	 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
+	errors += check_glass_table(*t, fd, version_file, opts, doclens,
+				    db_last_docid, out);
+    }
     return errors;
+#endif
+}
+
+static size_t
+check_db_file(const string & path, const struct stat & sb, int opts, std::ostream *out)
+{
+    int fd;
+    if (check_if_single_file_db(sb, path, &fd)) {
+	return check_db_fd(fd, opts, out);
+    }
+    return check_if_db_table(path, opts, out);
+}
+
+namespace Xapian {
+
+size_t
+Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
+{
+    if (!out) {
+	// If we have nowhere to write output, then disable all the options
+	// which only affect what we output.
+	opts &= Xapian::DBCHECK_FIX;
+    }
+
+    if (path_ptr == NULL) {
+	return check_db_fd(fd, opts, out);
+    }
+
+    const string & path = *path_ptr;
+    struct stat sb;
+    if (stat(path.c_str(), &sb) == 0) {
+	if (S_ISDIR(sb.st_mode)) {
+	    return check_db_dir(path, opts, out);
+	}
+
+	if (S_ISREG(sb.st_mode)) {
+	    return check_db_file(path, sb, opts, out);
+	}
+
+	throw Xapian::DatabaseError("Not a regular file or directory");
+    }
+
+    return check_if_db_table(path, opts, out);
 }
 
 }

@@ -89,6 +89,9 @@ class GlassSpellingTable : public GlassLazyTable {
 	: GlassLazyTable("spelling", dbdir + "/spelling.", readonly,
 			 Z_DEFAULT_STRATEGY) { }
 
+    GlassSpellingTable(int fd, bool readonly)
+	: GlassLazyTable("spelling", fd, readonly, Z_DEFAULT_STRATEGY) { }
+
     // Merge in batched-up changes.
     void merge_changes();
 

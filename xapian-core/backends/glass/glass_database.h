@@ -226,6 +226,8 @@ class GlassDatabase : public Xapian::Database::Internal {
 	explicit GlassDatabase(const string &db_dir_, int flags = Xapian::DB_READONLY_,
 		      unsigned int block_size = 0u);
 
+	explicit GlassDatabase(int fd);
+
 	~GlassDatabase();
 
 	/// Get a postlist table cursor (used by GlassValueList).

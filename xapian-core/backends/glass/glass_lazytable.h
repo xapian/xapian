@@ -35,6 +35,9 @@ class GlassLazyTable : public GlassTable {
     GlassLazyTable(const char * name_, const std::string & path, bool readonly,
 		   int z_strategy)
 	: GlassTable(name_, path, readonly, z_strategy, true) { }
+
+    GlassLazyTable(const char * name_, int fd, bool readonly, int z_strategy)
+	: GlassTable(name_, fd, readonly, z_strategy, true) { }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_LAZYTABLE_H

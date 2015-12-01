@@ -74,6 +74,11 @@ class GlassPostListTable : public GlassTable {
 	      doclen_pl()
 	{ }
 
+	GlassPostListTable(int fd, bool readonly_)
+	    : GlassTable("postlist", fd, readonly_),
+	      doclen_pl()
+	{ }
+
 	void open(int flags_, const RootInfo & root_info,
 		  glass_revision_number_t rev) {
 	    doclen_pl.reset(0);

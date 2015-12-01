@@ -36,13 +36,17 @@ class GlassVersion;
 class GlassTableCheck : public GlassTable {
     public:
 	static GlassTableCheck * check(
-		const char * tablename, const std::string & path,
+		const char * tablename, const std::string & path, int fd,
 		const GlassVersion & version_file,
 		int opts, std::ostream *out);
     private:
 	GlassTableCheck(const char * tablename_, const std::string &path_,
 			bool readonly_, std::ostream *out_)
 	    : GlassTable(tablename_, path_, readonly_), out(out_) { }
+
+	GlassTableCheck(const char * tablename_, int fd,
+			bool readonly_, std::ostream *out_)
+	    : GlassTable(tablename_, fd, readonly_), out(out_) { }
 
 	void block_check(Glass::Cursor * C_, int j, int opts,
 			 GlassFreeListChecker &flcheck);

@@ -392,6 +392,7 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 %ignore Xapian::WritableDatabase::WritableDatabase(Database::Internal *);
 %ignore Xapian::Database::get_document_lazily_;
 %ignore Xapian::Database::check(const std::string &, int, std::ostream *);
+%ignore Xapian::Database::check(int fd, int, std::ostream *);
 %include <xapian/database.h>
 %extend Xapian::Database {
     static size_t check(const std::string &path, int opts = 0) {
