@@ -90,7 +90,6 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_bindir}/xapian-check
 %{_bindir}/xapian-compact
 %{_bindir}/xapian-delve
-%{_bindir}/xapian-inspect
 %{_bindir}/xapian-replicate
 %{_bindir}/xapian-replicate-server
 %{_bindir}/xapian-metadata
@@ -103,7 +102,6 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_mandir}/man1/xapian-check.1*
 %{_mandir}/man1/xapian-compact.1*
 %{_mandir}/man1/xapian-delve.1*
-%{_mandir}/man1/xapian-inspect.1*
 %{_mandir}/man1/xapian-replicate.1*
 %{_mandir}/man1/xapian-replicate-server.1*
 %{_mandir}/man1/xapian-metadata.1*

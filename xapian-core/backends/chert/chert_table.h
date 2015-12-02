@@ -25,7 +25,6 @@
 #define OM_HGUARD_CHERT_TABLE_H
 
 #include <xapian/error.h>
-#include <xapian/visibility.h>
 
 #include "chert_types.h"
 #include "chert_btreebase.h"
@@ -295,7 +294,7 @@ public:
  *  Tags which are null strings _are_ valid, and are different from a
  *  tag simply not being in the table.
  */
-class XAPIAN_VISIBILITY_DEFAULT ChertTable {
+class ChertTable {
     friend class ChertCursor; /* Should probably fix this. */
     private:
 	/// Copying not allowed
