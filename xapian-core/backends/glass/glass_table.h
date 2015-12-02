@@ -74,10 +74,16 @@
 #define D2 2
 #define X2 2
 
-/*  and when getting K1 or setting D2, we use getK, setD defined as: */
+/*  and when getting or setting then, we use these macros: */
 
 #define getK(p, c)    getint1(p, c)
+#define setK(p, c, x) setint1(p, c, x)
+#define getD(p, c)    getint2(p, c)
 #define setD(p, c, x) setint2(p, c, x)
+#define getI(p, c)    getint2(p, c)
+#define setI(p, c, v) setint2(p, c, v)
+#define getX(p, c)    getint2(p, c)
+#define setX(p, c, v) setint2(p, c, v)
 
 /* if you've been reading the comments from the top, the next four procedures
    will not cause any headaches.
@@ -154,19 +160,19 @@ protected:
     T p;
 public:
     /* Item from block address and offset to item pointer */
-    Item_base(T p_, int c) : p(p_ + getint2(p_, c)) { }
+    Item_base(T p_, int c) : p(p_ + getD(p_, c)) { }
     Item_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
-	int item_size = getint2(p, 0) & MAX_ITEM_SIZE;
+	int item_size = getI(p, 0) & MAX_ITEM_SIZE;
 	AssertRel(item_size,>=,3);
 	return item_size;
     }
     bool get_compressed() const { return *p & 0x80; }
     bool last_component() const { return !(*p & 0x40); }
     int component_of() const {
-	return getint2(p, getK(p, I2) + I2 + K1);
+	return getX(p, getK(p, I2) + I2 + K1);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(std::string * tag) const {
@@ -192,13 +198,13 @@ public:
 };
 
 class Item_wr : public Item_base<byte *> {
-    void set_key_len(int x) { setint1(p, I2, x); }
+    void set_key_len(int x) { setK(p, I2, x); }
 public:
     /* Item_wr from block address and offset to item pointer */
     Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
     Item_wr(byte * p_) : Item_base<byte *>(p_) { }
     void set_component_of(int i) {
-	setint2(p, getK(p, I2) + I2 + K1, i);
+	setX(p, getK(p, I2) + I2 + K1, i);
     }
     // Takes size as we may be truncating newkey.
     void set_key_and_block(Key newkey, int truncate_size, uint4 n) {
@@ -209,7 +215,7 @@ public:
 	AssertRel(i,<=,newkey_len);
 	int newsize = I2 + K1 + i + X2;
 	// Item size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
-	setint2(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
+	setI(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
 	// Key size
 	set_key_len(i);
 	// Copy the main part of the key, possibly truncating.
@@ -232,7 +238,7 @@ public:
 	// We should never be able to pass too large a size here, but don't
 	// corrupt the database if this somehow happens.
 	if (rare(l &~ MAX_ITEM_SIZE)) throw Xapian::DatabaseError("item too large!");
-	setint2(p, 0, l);
+	setI(p, 0, l);
     }
     /** Form an item with a null key and with block number n in the tag.
      */
