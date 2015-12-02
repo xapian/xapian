@@ -33,7 +33,7 @@ using namespace std;
 #define XAPIAN_UNITTEST
 
 // Utility code we use:
-#include "../common/stringutils.cc"
+#include "../common/stringutils.h"
 #include "../common/log2.h"
 
 // Simpler version of TEST_EXCEPTION macro.

@@ -336,6 +336,181 @@ static bool test_pack_uint_preserving_sort1()
     return true;
 }
 
+/// Test C_isupper() etc.
+static bool test_chartype1()
+{
+    char tested[128];
+    memset(tested, 0, sizeof(tested));
+    for (int ch = '0'; ch != '9' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(C_isdigit(ch));
+	TEST(C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(!C_isnotdigit(ch));
+	TEST(!C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+	TEST_EQUAL(hex_digit(ch), ch - '0');
+    }
+
+    for (int ch = 'A'; ch != 'F' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(!C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(!C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+	TEST_EQUAL(hex_digit(ch), ch - 'A' + 10);
+    }
+
+    for (int ch = 'G'; ch != 'Z' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(!C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    for (int ch = 'a'; ch != 'f' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(!C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(!C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+	TEST_EQUAL(hex_digit(ch), ch - 'a' + 10);
+    }
+
+    for (int ch = 'g'; ch != 'z' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(!C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    for (const char *p = "\t\n\f\r "; *p; ++p) {
+	int ch = *p;
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(!C_isnotspace(ch));
+    }
+
+    // Check remaining non-top-bit-set characters aren't anything.
+    for (int ch = 0; ch != 128; ++ch) {
+	if (tested[ch]) continue;
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    // Non-ASCII characters aren't anything for these functions.
+    for (int ch = 128; ch != 256; ++ch) {
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    // Check signed char values work the same way.
+    for (int ch = -128; ch != 0; ++ch) {
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests					    #
 // ##################################################################
@@ -350,6 +525,7 @@ static const test_desc tests[] = {
     {"temporarydtor1",		test_temporarydtor1},
     {"static_assert1",		test_static_assert1},
     {"pack1",			test_pack_uint_preserving_sort1},
+    TESTCASE(chartype1),
     {0, 0}
 };
 

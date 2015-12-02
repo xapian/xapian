@@ -66,8 +66,7 @@ lib_src +=\
 	common/safe.cc\
 	common/serialise-double.cc\
 	common/socket_utils.cc\
-	common/str.cc\
-	common/stringutils.cc
+	common/str.cc
 
 if BUILD_BACKEND_CHERT_OR_GLASS
 lib_src +=\

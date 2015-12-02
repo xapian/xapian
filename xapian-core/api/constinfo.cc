@@ -29,6 +29,7 @@
 #include "stringutils.h"
 
 static const struct Xapian::Internal::constinfo const_info = {
+#include "unicode/c_istab.h"
     XAPIAN_MAJOR_VERSION,
     XAPIAN_MINOR_VERSION,
     XAPIAN_REVISION,
