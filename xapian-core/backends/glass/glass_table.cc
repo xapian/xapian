@@ -496,6 +496,7 @@ void
 GlassTable::compact(byte * p)
 {
     LOGCALL_VOID(DB, "GlassTable::compact", (void*)p);
+    Assert(p != buffer);
     Assert(writable);
     int e = block_size;
     byte * b = buffer;
@@ -504,10 +505,10 @@ GlassTable::compact(byte * p)
 	Item item(p, c);
 	int l = item.size();
 	e -= l;
-	memmove(b + e, item.get_address(), l);
+	memcpy(b + e, item.get_address(), l);
 	setD(p, c, e);  /* reform in b */
     }
-    memmove(p + e, b + e, block_size - e);  /* copy back */
+    memcpy(p + e, b + e, block_size - e);  /* copy back */
     e -= dir_end;
     SET_TOTAL_FREE(p, e);
     SET_MAX_FREE(p, e);
