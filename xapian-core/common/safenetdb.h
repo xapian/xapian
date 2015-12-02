@@ -26,14 +26,20 @@
 # include <netdb.h>
 #else
 # include <ws2tcpip.h> // For getaddrinfo().
-# ifndef AI_ADDRCONFIG
+
+# ifndef AI_PASSIVE
 // MSDN says this is needed for the AI_* constants with newer SDK versions.
 #  include <ws2def.h>
 # endif
+
 // Supported in Vista and later, but may not be in mingw headers yet.
 # ifndef AI_NUMERICSERV
 #  define AI_NUMERICSERV 0x8
 # endif
+# ifndef AI_ADDRCONFIG
+#  define AI_ADDRCONFIG 0x400
+# endif
+
 #endif
 
 #endif // XAPIAN_INCLUDED_SAFENETDB_H
