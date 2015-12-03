@@ -1,7 +1,7 @@
 /** @file realtime.h
  *  @brief Functions for handling a time or time interval in a double.
  */
-/* Copyright (C) 2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2010,2011,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -87,16 +87,16 @@ inline double end_time(double timeout) {
     return (timeout == 0.0 ? timeout : timeout + now());
 }
 
-#if defined HAVE_NANOSLEEP || defined HAVE_TIMER_CREATE
+#ifndef __WIN32__
+# if defined HAVE_NANOSLEEP || defined HAVE_TIMER_CREATE
 /// Fill in struct timespec from number of seconds in a double.
 inline void to_timespec(double t, struct timespec *ts) {
     double secs;
     ts->tv_nsec = long(std::modf(t, &secs) * 1e9);
     ts->tv_sec = long(secs);
 }
-#endif
+# endif
 
-#ifndef __WIN32__
 /// Fill in struct timeval from number of seconds in a double.
 inline void to_timeval(double t, struct timeval *tv) {
     double secs;
