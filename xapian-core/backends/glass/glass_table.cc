@@ -402,15 +402,14 @@ GlassTable::alter()
 
 	if (j == level) return;
 	j++;
-	Item_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
+	BItem_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
     }
 }
 
-/** find_in_block(p, key, leaf, c) searches for the key in the block at p.
+/** find_in_leaf(p, key, c) searches for the key in the leaf block at p.
 
-   leaf is true for a data block, and false for an index block (when the
-   first key is dummy and never needs to be tested). What we get is the
-   directory entry to the last key <= the key being searched for.
+   What we get is the directory entry to the last key <= the key being searched
+   for.
 
    The lookup is by binary chop, with i and j set to the left and
    right ends of the search area. In sequential addition, c will often
@@ -419,35 +418,60 @@ GlassTable::alter()
 */
 
 int
-GlassTable::find_in_block(const byte * p, Key key, bool leaf, int c)
+GlassTable::find_in_leaf(const byte * p, Key key, int c)
 {
-    LOGCALL_STATIC(DB, int, "GlassTable::find_in_block", (const void*)p | (const void *)key.get_address() | leaf | c);
+    LOGCALL_STATIC(DB, int, "GlassTable::find_in_leaf", (const void*)p | (const void *)key.get_address() | c);
     // c should be odd (either -1, or an even offset from DIR_START).
     Assert((c & 1) == 1);
     int i = DIR_START;
-    if (leaf) i -= D2;
+    i -= D2;
     if (c != -1) {
 	AssertRel(i,<=,c);
     }
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c && Item(p, c).key() <= key)
+	if (c < j && i < c && LeafItem(p, c).key() <= key)
 	    i = c;
 	c += D2;
-	if (c < j && i < c && key < Item(p, c).key())
+	if (c < j && i < c && key < LeafItem(p, c).key())
 	    j = c;
     }
 
     while (j - i > D2) {
 	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
-	if (key < Item(p, k).key()) j = k; else i = k;
+	if (key < LeafItem(p, k).key()) j = k; else i = k;
     }
-    if (leaf) {
-	AssertRel(DIR_START - D2,<=,i);
-    } else {
-	AssertRel(DIR_START,<=,i);
+    AssertRel(DIR_START - D2,<=,i);
+    AssertRel(i,<,DIR_END(p));
+    RETURN(i);
+}
+
+int
+GlassTable::find_in_branch(const byte * p, Key key, int c)
+{
+    LOGCALL_STATIC(DB, int, "GlassTable::find_in_branch", (const void*)p | (const void *)key.get_address() | c);
+    // c should be odd (either -1, or an even offset from DIR_START).
+    Assert((c & 1) == 1);
+    int i = DIR_START;
+    if (c != -1) {
+	AssertRel(i,<=,c);
     }
+    int j = DIR_END(p);
+
+    if (c != -1) {
+	if (c < j && i < c && BItem(p, c).key() <= key)
+	    i = c;
+	c += D2;
+	if (c < j && i < c && key < BItem(p, c).key())
+	    j = c;
+    }
+
+    while (j - i > D2) {
+	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
+	if (key < BItem(p, k).key()) j = k; else i = k;
+    }
+    AssertRel(DIR_START,<=,i);
     AssertRel(i,<,DIR_END(p));
     RETURN(i);
 }
@@ -469,23 +493,23 @@ GlassTable::find(Glass::Cursor * C_) const
     Key key = kt.key();
     for (int j = level; j > 0; --j) {
 	p = C_[j].get_p();
-	c = find_in_block(p, key, false, C_[j].c);
+	c = find_in_branch(p, key, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in GlassTable:find - code position 1");
 	report_block_full(j, C_[j].get_n(), p);
 #endif /* BTREE_DEBUG_FULL */
 	C_[j].c = c;
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
     }
     p = C_[0].get_p();
-    c = find_in_block(p, key, true, C_[0].c);
+    c = find_in_leaf(p, key, C_[0].c);
 #ifdef BTREE_DEBUG_FULL
     printf("Block in GlassTable:find - code position 2");
     report_block_full(0, C_[0].get_n(), p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) RETURN(false);
-    RETURN(Item(p, c).key() == key);
+    RETURN(LeafItem(p, c).key() == key);
 }
 
 /** compact(p) compact the block at p by shuffling all the items up to the end.
@@ -502,12 +526,24 @@ GlassTable::compact(byte * p)
     int e = block_size;
     byte * b = buffer;
     int dir_end = DIR_END(p);
-    for (int c = DIR_START; c < dir_end; c += D2) {
-	Item item(p, c);
-	int l = item.size();
-	e -= l;
-	memcpy(b + e, item.get_address(), l);
-	setD(p, c, e);  /* reform in b */
+    if (GET_LEVEL(p) == 0) {
+	// Leaf.
+	for (int c = DIR_START; c < dir_end; c += D2) {
+	    LeafItem item(p, c);
+	    int l = item.size();
+	    e -= l;
+	    memcpy(b + e, item.get_address(), l);
+	    setD(p, c, e);  /* reform in b */
+	}
+    } else {
+	// Branch.
+	for (int c = DIR_START; c < dir_end; c += D2) {
+	    BItem item(p, c);
+	    int l = item.size();
+	    e -= l;
+	    memcpy(b + e, item.get_address(), l);
+	    setD(p, c, e);  /* reform in b */
+	}
     }
     memcpy(p + e, b + e, block_size - e);  /* copy back */
     e -= dir_end;
@@ -543,9 +579,9 @@ GlassTable::split_root(uint4 split_n)
 
     /* form a null key in b with a pointer to the old root */
     byte b[10]; /* 7 is exact */
-    Item_wr item(b);
+    BItem_wr item(b);
     item.form_null_key(split_n);
-    add_item(item, level);
+    add_branch_item(item, level);
 }
 
 /** enter_key(j, prevkey, newkey) is called after a block split.
@@ -600,16 +636,16 @@ GlassTable::enter_key(int j, Key prevkey, Key newkey)
 
     // Enough space for a branch item with maximum length key.
     byte b[I2 + K1 + 256 + X2 + BYTES_PER_BLOCK_NUMBER];
-    Item_wr item(b);
+    BItem_wr item(b);
     AssertRel(i, <=, 255);
     item.set_key_and_block(newkey, i, blocknumber);
 
     // The split block gets inserted into the parent after the pointer to the
     // current child.
-    AssertEq(C[j].c, find_in_block(C[j].get_p(), item.key(), false, C[j].c));
+    AssertEq(C[j].c, find_in_branch(C[j].get_p(), item.key(), C[j].c));
     C[j].c += D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
-    add_item(item, j);
+    add_branch_item(item, j);
 }
 
 /** mid_point(p) finds the directory entry in c that determines the
@@ -624,7 +660,12 @@ GlassTable::mid_point(byte * p)
     int dir_end = DIR_END(p);
     int size = block_size - TOTAL_FREE(p) - dir_end;
     for (int c = DIR_START; c < dir_end; c += D2) {
-	int l = Item(p, c).size();
+	int l;
+	if (GET_LEVEL(p) == 0) {
+	    l = LeafItem(p, c).size();
+	} else {
+	    l = BItem(p, c).size();
+	}
 	n += 2 * l;
 	if (n >= size) {
 	    if (l < n - size) RETURN(c);
@@ -639,7 +680,7 @@ GlassTable::mid_point(byte * p)
     RETURN(dir_end);
 }
 
-/** add_item_to_block(p, kt_, c) adds item kt_ to the block at p.
+/** add_item_to_leaf(p, kt_, c) adds item kt_ to the leaf block at p.
 
    c is the offset in the directory that needs to be expanded to accommodate
    the new entry for the item.  We know before this is called that there is
@@ -649,9 +690,9 @@ GlassTable::mid_point(byte * p)
 */
 
 void
-GlassTable::add_item_to_block(byte * p, Item_wr kt_, int c)
+GlassTable::add_item_to_leaf(byte * p, LeafItem_wr kt_, int c)
 {
-    LOGCALL_VOID(DB, "GlassTable::add_item_to_block", (void*)p | Literal("kt_") | c);
+    LOGCALL_VOID(DB, "GlassTable::add_item_to_leaf", (void*)p | Literal("kt_") | c);
     Assert(writable);
     int dir_end = DIR_END(p);
     int kt_len = kt_.size();
@@ -679,19 +720,154 @@ GlassTable::add_item_to_block(byte * p, Item_wr kt_, int c)
     SET_TOTAL_FREE(p, new_total);
 }
 
+/** add_item_to_branch(p, kt_, c) adds item kt_ to the branch block at p.
+
+   c is the offset in the directory that needs to be expanded to accommodate
+   the new entry for the item.  We know before this is called that there is
+   enough contiguous room for the item in the block, so it's just a matter of
+   shuffling up any directory entries after where we're inserting and copying
+   in the item.
+*/
+
+void
+GlassTable::add_item_to_branch(byte * p, BItem_wr kt_, int c)
+{
+    LOGCALL_VOID(DB, "GlassTable::add_item_to_branch", (void*)p | Literal("kt_") | c);
+    Assert(writable);
+    int dir_end = DIR_END(p);
+    int kt_len = kt_.size();
+    int needed = kt_len + D2;
+    int new_total = TOTAL_FREE(p) - needed;
+    int new_max = MAX_FREE(p) - needed;
+
+    Assert(new_total >= 0);
+
+    AssertRel(MAX_FREE(p),>=,needed);
+
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<=,dir_end);
+
+    memmove(p + c + D2, p + c, dir_end - c);
+    dir_end += D2;
+    SET_DIR_END(p, dir_end);
+
+    int o = dir_end + new_max;
+    setD(p, c, o);
+    memmove(p + o, kt_.get_address(), kt_len);
+
+    SET_MAX_FREE(p, new_max);
+
+    SET_TOTAL_FREE(p, new_total);
+}
+
+/** GlassTable::add_leaf_item(kt_) adds item kt_ to the leaf block.
+ *
+ *  If there is not enough room the block splits and the item is then
+ *  added to the appropriate half.
+ */
+void
+GlassTable::add_leaf_item(LeafItem_wr kt_)
+{
+    LOGCALL_VOID(DB, "GlassTable::add_leaf_item", Literal("kt_"));
+    Assert(writable);
+    byte * p = C[0].get_modifiable_p(block_size);
+    int c = C[0].c;
+    uint4 n;
+
+    int needed = kt_.size() + D2;
+    if (TOTAL_FREE(p) < needed) {
+	int m;
+	// Prepare to split p. After splitting, the block is in two halves, the
+	// lower half is split_p, the upper half p again. add_to_upper_half
+	// becomes true when the item gets added to p, false when it gets added
+	// to split_p.
+
+	if (seq_count < 0) {
+	    // If we're not in sequential mode, we split at the mid point
+	    // of the node.
+	    m = mid_point(p);
+	} else {
+	    // During sequential addition, split at the insert point
+	    AssertRel(c,>=,DIR_START);
+	    m = c;
+	}
+
+	uint4 split_n = C[0].get_n();
+	C[0].set_n(free_list.get_block(this, block_size));
+
+	memcpy(split_p, p, block_size);  // replicate the whole block in split_p
+	SET_DIR_END(split_p, m);
+	compact(split_p);      /* to reset TOTAL_FREE, MAX_FREE */
+
+	{
+	    int residue = DIR_END(p) - m;
+	    int new_dir_end = DIR_START + residue;
+	    memmove(p + DIR_START, p + m, residue);
+	    SET_DIR_END(p, new_dir_end);
+	}
+
+	compact(p);      /* to reset TOTAL_FREE, MAX_FREE */
+
+	bool add_to_upper_half;
+	if (seq_count < 0) {
+	    add_to_upper_half = (c >= m);
+	} else {
+	    // And add item to lower half if split_p has room, otherwise upper
+	    // half
+	    add_to_upper_half = (TOTAL_FREE(split_p) < needed);
+	}
+
+	if (add_to_upper_half) {
+	    c -= (m - DIR_START);
+	    Assert(seq_count < 0 || c <= DIR_START + D2);
+	    Assert(c >= DIR_START);
+	    Assert(c <= DIR_END(p));
+	    add_item_to_leaf(p, kt_, c);
+	    n = C[0].get_n();
+	} else {
+	    Assert(c >= DIR_START);
+	    Assert(c <= DIR_END(split_p));
+	    add_item_to_leaf(split_p, kt_, c);
+	    n = split_n;
+	}
+	write_block(split_n, split_p);
+
+	// Check if we're splitting the root block.
+	if (0 == level) split_root(split_n);
+
+	/* Enter a separating key at level 1 between */
+	/* the last key of block split_p, and the first key of block p */
+	enter_key(1,
+		  LeafItem(split_p, DIR_END(split_p) - D2).key(),
+		  LeafItem(p, DIR_START).key());
+    } else {
+	AssertRel(TOTAL_FREE(p),>=,needed);
+
+	if (MAX_FREE(p) < needed) {
+	    compact(p);
+	    AssertRel(MAX_FREE(p),>=,needed);
+	}
+
+	add_item_to_leaf(p, kt_, c);
+	n = C[0].get_n();
+    }
+
+    changed_n = n;
+    changed_c = c;
+}
+
 /** GlassTable::add_item(kt_, j) adds item kt_ to the block at cursor level C[j].
  *
  *  If there is not enough room the block splits and the item is then
  *  added to the appropriate half.
  */
 void
-GlassTable::add_item(Item_wr kt_, int j)
+GlassTable::add_branch_item(BItem_wr kt_, int j)
 {
-    LOGCALL_VOID(DB, "GlassTable::add_item", Literal("kt_") | j);
+    LOGCALL_VOID(DB, "GlassTable::add_branch_item", Literal("kt_") | j);
     Assert(writable);
     byte * p = C[j].get_modifiable_p(block_size);
     int c = C[j].c;
-    uint4 n;
 
     int needed = kt_.size() + D2;
     if (TOTAL_FREE(p) < needed) {
@@ -741,13 +917,11 @@ GlassTable::add_item(Item_wr kt_, int j)
 	    Assert(seq_count < 0 || c <= DIR_START + D2);
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(p));
-	    add_item_to_block(p, kt_, c);
-	    n = C[j].get_n();
+	    add_item_to_branch(p, kt_, c);
 	} else {
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(split_p));
-	    add_item_to_block(split_p, kt_, c);
-	    n = split_n;
+	    add_item_to_branch(split_p, kt_, c);
 	}
 	write_block(split_n, split_p);
 
@@ -757,18 +931,16 @@ GlassTable::add_item(Item_wr kt_, int j)
 	/* Enter a separating key at level j + 1 between */
 	/* the last key of block split_p, and the first key of block p */
 	enter_key(j + 1,
-		  Item(split_p, DIR_END(split_p) - D2).key(),
-		  Item(p, DIR_START).key());
+		  BItem(split_p, DIR_END(split_p) - D2).key(),
+		  BItem(p, DIR_START).key());
 
-	if (j > 0) {
-	    // In branch levels, we can make the first key of block p null and
-	    // save a bit of disk space.  Other redundant keys will still creep
-	    // in though.
-	    Item_wr item(p, DIR_START);
-	    int new_total_free = TOTAL_FREE(p) + item.key().length() + X2;
-	    item.form_null_key(item.block_given_by());
-	    SET_TOTAL_FREE(p, new_total_free);
-	}
+	// In branch levels, we can make the first key of block p null and
+	// save a bit of disk space.  Other redundant keys will still creep
+	// in though.
+	BItem_wr item(p, DIR_START);
+	int new_total_free = TOTAL_FREE(p) + item.key().length() + X2;
+	item.form_null_key(item.block_given_by());
+	SET_TOTAL_FREE(p, new_total_free);
     } else {
 	AssertRel(TOTAL_FREE(p),>=,needed);
 
@@ -777,16 +949,11 @@ GlassTable::add_item(Item_wr kt_, int j)
 	    AssertRel(MAX_FREE(p),>=,needed);
 	}
 
-	add_item_to_block(p, kt_, c);
-	n = C[j].get_n();
-    }
-    if (j == 0) {
-	changed_n = n;
-	changed_c = c;
+	add_item_to_branch(p, kt_, c);
     }
 }
 
-/** GlassTable::delete_item(j, repeatedly) is (almost) the converse of add_item.
+/** GlassTable::delete_leaf_item(repeatedly) is (almost) the converse of add_leaf_item.
  *
  * If repeatedly is true, the process repeats at the next level when a
  * block has been completely emptied, freeing the block and taking out
@@ -794,15 +961,15 @@ GlassTable::add_item(Item_wr kt_, int j)
  * reduces the number of levels in the B-tree.
  */
 void
-GlassTable::delete_item(int j, bool repeatedly)
+GlassTable::delete_leaf_item(bool repeatedly)
 {
-    LOGCALL_VOID(DB, "GlassTable::delete_item", j | repeatedly);
+    LOGCALL_VOID(DB, "GlassTable::delete_leaf_item", repeatedly);
     Assert(writable);
-    byte * p = C[j].get_modifiable_p(block_size);
-    int c = C[j].c;
+    byte * p = C[0].get_modifiable_p(block_size);
+    int c = C[0].c;
     AssertRel(DIR_START,<=,c);
     AssertRel(c,<,DIR_END(p));
-    int kt_len = Item(p, c).size(); /* size of the item to be deleted */
+    int kt_len = LeafItem(p, c).size(); /* size of the item to be deleted */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
 
     memmove(p + c, p + c + D2, dir_end - c);
@@ -811,19 +978,53 @@ GlassTable::delete_item(int j, bool repeatedly)
     SET_TOTAL_FREE(p, TOTAL_FREE(p) + kt_len + D2);
 
     if (!repeatedly) return;
+    if (0 < level) {
+	if (dir_end == DIR_START) {
+	    free_list.mark_block_unused(this, block_size, C[0].get_n());
+	    C[0].rewrite = false;
+	    C[0].set_n(BLK_UNUSED);
+	    C[1].rewrite = true;  /* *is* necessary */
+	    delete_branch_item(1);
+	}
+    }
+}
+
+/** GlassTable::delete_branch_item(j, repeatedly) is (almost) the converse of add_branch_item.
+ *
+ * The process repeats at the next level when a block has been completely
+ * emptied, freeing the block and taking out the pointer to it.  Emptied root
+ * blocks are also removed, which reduces the number of levels in the B-tree.
+ */
+void
+GlassTable::delete_branch_item(int j)
+{
+    LOGCALL_VOID(DB, "GlassTable::delete_branch_item", j | repeatedly);
+    Assert(writable);
+    byte * p = C[j].get_modifiable_p(block_size);
+    int c = C[j].c;
+    AssertRel(DIR_START,<=,c);
+    AssertRel(c,<,DIR_END(p));
+    int kt_len = BItem(p, c).size(); /* size of the item to be deleted */
+    int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
+
+    memmove(p + c, p + c + D2, dir_end - c);
+    SET_DIR_END(p, dir_end);
+    SET_MAX_FREE(p, MAX_FREE(p) + D2);
+    SET_TOTAL_FREE(p, TOTAL_FREE(p) + kt_len + D2);
+
     if (j < level) {
 	if (dir_end == DIR_START) {
 	    free_list.mark_block_unused(this, block_size, C[j].get_n());
 	    C[j].rewrite = false;
 	    C[j].set_n(BLK_UNUSED);
 	    C[j + 1].rewrite = true;  /* *is* necessary */
-	    delete_item(j + 1, true);
+	    delete_branch_item(j + 1);
 	}
     } else {
 	Assert(j == level);
 	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
-	    uint4 new_root = Item(C[level].get_p(), DIR_START).block_given_by();
+	    uint4 new_root = BItem(C[level].get_p(), DIR_START).block_given_by();
 	    free_list.mark_block_unused(this, block_size, C[level].get_n());
 	    C[level].destroy();
 	    level--;
@@ -858,7 +1059,7 @@ static addcount = 0;
      space counts are adjusted accordingly.
 
      - But if there is not room we do it the long way: the old item is
-     deleted with delete_item and kt is added in with add_item.
+     deleted with delete_leaf_item and kt is added in with add_item.
 
      If the key of kt is not in the B-tree (found is false), the new
      kt is added in with add_item.
@@ -892,7 +1093,7 @@ GlassTable::add_kt(bool found)
 	int c = C[0].c;
 	AssertRel(DIR_START,<=,c);
 	AssertRel(c,<,DIR_END(p));
-	Item item(p, c);
+	LeafItem item(p, c);
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
 
@@ -914,8 +1115,8 @@ GlassTable::add_kt(bool found)
 		SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
 	    } else {
 		/* do it the long way */
-		delete_item(0, false);
-		add_item(kt, 0);
+		delete_leaf_item(false);
+		add_leaf_item(kt);
 	    }
 	}
     } else {
@@ -927,14 +1128,14 @@ GlassTable::add_kt(bool found)
 	    sequential = false;
 	}
 	C[0].c += D2;
-	add_item(kt, 0);
+	add_leaf_item(kt);
     }
     RETURN(result);
 }
 
 /* delete_kt() corresponds to add_kt(found), but there are only
    two cases: if the key is not found nothing is done, and if it is
-   found the corresponding item is deleted with delete_item.
+   found the corresponding item is deleted with delete_leaf_item.
 
      Returns:
 	 0 : nothing to delete
@@ -954,9 +1155,9 @@ GlassTable::delete_kt()
     if (!find(C))
 	return 0;
 
-    int result = Item(C[0].get_p(), C[0].c).last_component() ? 2 : 1;
+    int result = LeafItem(C[0].get_p(), C[0].c).last_component() ? 2 : 1;
     alter();
-    delete_item(0, true);
+    delete_leaf_item(true);
 
     RETURN(result);
 }
@@ -1198,8 +1399,8 @@ GlassTable::readahead_key(const string &key) const
     // We'll only readahead the first level, since descending the B-tree would
     // require actual reads that would likely hurt performance more than help.
     const byte * p = C[level].get_p();
-    int c = find_in_block(p, ktkey, false, C[level].c);
-    uint4 n = Item(p, c).block_given_by();
+    int c = find_in_branch(p, ktkey, C[level].c);
+    uint4 n = BItem(p, c).block_given_by();
     // Don't preread if it's the block we last preread or already in the
     // cursor.
     if (n != last_readahead && n != C[level - 1].get_n()) {
@@ -1256,7 +1457,7 @@ GlassTable::read_tag(Glass::Cursor * C_, string *tag, bool keep_compressed) cons
     bool first = true;
     bool compressed = false;
     while (true) {
-	Item item(C_[0].get_p(), C_[0].c);
+	LeafItem item(C_[0].get_p(), C_[0].c);
 	item.append_chunk(tag);
 	if (first) {
 	    compressed = item.get_compressed();
@@ -1381,7 +1582,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
     }
 
     /* kt holds constructed items as well as keys */
-    kt = Item_wr(zeroed_new(block_size));
+    kt = LeafItem_wr(zeroed_new(block_size));
 
     set_max_item_size(BLOCK_CAPACITY);
 
@@ -1412,7 +1613,7 @@ GlassTable::read_root()
 	memset(p, 0, block_size);
 
 	int o = block_size - I2 - K1 - X2;
-	Item_wr(p + o).fake_root_item();
+	LeafItem_wr(p + o).fake_root_item();
 
 	setD(p, DIR_START, o);         // its directory entry
 	SET_DIR_END(p, DIR_START + D2);// the directory size
@@ -1936,7 +2137,7 @@ GlassTable::prev_default(Glass::Cursor * C_, int j) const
     c -= D2;
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
     }
     RETURN(true);
 }
@@ -1964,7 +2165,7 @@ GlassTable::next_default(Glass::Cursor * C_, int j) const
     }
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in GlassTable:next_default");
 	report_block_full(j - 1, C_[j - 1].get_n(), C_[j - 1].get_p());

@@ -48,32 +48,41 @@ void GlassTableCheck::print_bytes(int n, const byte * p) const
 
 void GlassTableCheck::print_key(const byte * p, int c, int j) const
 {
-    Item item(p, c);
-    string key;
-    if (item.key().length() >= 0)
-	item.key().read(&key);
-    string escaped;
-    description_append(escaped, key);
-    *out << escaped;
     if (j == 0) {
+	LeafItem item(p, c);
+	string key;
+	if (item.key().length() >= 0)
+	    item.key().read(&key);
+	string escaped;
+	description_append(escaped, key);
+	*out << escaped;
 	int x = item.component_of();
 	*out << ' ' << x;
 	if (item.last_component()) {
 	    *out << '/' << x;
 	}
+    } else {
+	BItem item(p, c);
+	string key;
+	if (item.key().length() >= 0)
+	    item.key().read(&key);
+	string escaped;
+	description_append(escaped, key);
+	*out << escaped;
     }
 }
 
 void GlassTableCheck::print_tag(const byte * p, int c, int j) const
 {
-    Item item(p, c);
     if (j == 0) {
+	LeafItem item(p, c);
 	string tag;
 	item.append_chunk(&tag);
 	string escaped;
 	description_append(escaped, tag);
 	*out << ' ' << escaped;
     } else {
+	BItem item(p, c);
 	*out << "--> [" << item.block_given_by() << ']';
     }
 }
@@ -169,21 +178,40 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     if (opts & Xapian::DBCHECK_FULL_TREE)
 	report_block_full(3*(level - j), n, p);
 
-    for (c = DIR_START; c < dir_end; c += D2) {
-	Item item(p, c);
-	int o = item.get_address() - p;
-	if (o > int(block_size))
-	    failure("item starts outside block", n, c);
-	if (o - dir_end < max_free)
-	    failure("item overlaps directory", n, c);
+    if (j == 0) {
+	for (c = DIR_START; c < dir_end; c += D2) {
+	    LeafItem item(p, c);
+	    int o = item.get_address() - p;
+	    if (o > int(block_size))
+		failure("item starts outside block", n, c);
+	    if (o - dir_end < max_free)
+		failure("item overlaps directory", n, c);
 
-	int kt_len = item.size();
-	if (o + kt_len > int(block_size))
-	    failure("item ends outside block", n, c);
-	total_free -= kt_len;
+	    int kt_len = item.size();
+	    if (o + kt_len > int(block_size))
+		failure("item ends outside block", n, c);
+	    total_free -= kt_len;
 
-	if (c > significant_c && Item(p, c - D2).key() >= item.key())
-	    failure("not in sorted order", n, c);
+	    if (c > significant_c && LeafItem(p, c - D2).key() >= item.key())
+		failure("not in sorted order", n, c);
+	}
+    } else {
+	for (c = DIR_START; c < dir_end; c += D2) {
+	    BItem item(p, c);
+	    int o = item.get_address() - p;
+	    if (o > int(block_size))
+		failure("item starts outside block", n, c);
+	    if (o - dir_end < max_free)
+		failure("item overlaps directory", n, c);
+
+	    int kt_len = item.size();
+	    if (o + kt_len > int(block_size))
+		failure("item ends outside block", n, c);
+	    total_free -= kt_len;
+
+	    if (c > significant_c && BItem(p, c - D2).key() >= item.key())
+		failure("not in sorted order", n, c);
+	}
     }
     if (total_free != TOTAL_FREE(p))
 	failure("stored total free space value wrong", n);
@@ -191,7 +219,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
     if (j == 0) return;
     for (c = DIR_START; c < dir_end; c += D2) {
 	C_[j].c = c;
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
 
 	block_check(C_, j - 1, opts, flcheck);
 
@@ -200,14 +228,14 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 	 * >= the key of p, c: */
 
 	if (j == 1 && c > DIR_START)
-	    if (Item(q, DIR_START).key() < Item(p, c).key())
+	    if (BItem(q, DIR_START).key() < BItem(p, c).key())
 		failure("leaf key < left dividing key in level above", n, c);
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
-	    Item(q, DIR_START + D2).key() < Item(p, c).key())
+	    BItem(q, DIR_START + D2).key() < BItem(p, c).key())
 	    failure("key < left dividing key in level above", n, c);
 
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
@@ -215,7 +243,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 
 	if (c + D2 < dir_end &&
 	    (j == 1 || DIR_START + D2 < DIR_END(q)) &&
-	    Item(q, DIR_END(q) - D2).key() >= Item(p, c + D2).key())
+	    BItem(q, DIR_END(q) - D2).key() >= BItem(p, c + D2).key())
 	    failure("key >= right dividing key in level above", n, c);
 
 	if (REVISION(q) > REVISION(p))

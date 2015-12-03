@@ -153,15 +153,15 @@ public:
     }
 };
 
-// Item_wr wants to be "Item with non-const p and more methods" - we can't
+// LeafItem_wr wants to be "LeafItem with non-const p and more methods" - we can't
 // achieve that nicely with inheritance, so we use a template base class.
-template <class T> class Item_base {
+template <class T> class LeafItem_base {
 protected:
     T p;
 public:
-    /* Item from block address and offset to item pointer */
-    Item_base(T p_, int c) : p(p_ + getD(p_, c)) { }
-    Item_base(T p_) : p(p_) { }
+    /* LeafItem from block address and offset to item pointer */
+    LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
+    LeafItem_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
@@ -181,6 +181,79 @@ public:
 	int l = size() - cd;
 	tag->append(reinterpret_cast<const char *>(p + cd), l);
     }
+};
+
+class LeafItem : public LeafItem_base<const byte *> {
+public:
+    /* LeafItem from block address and offset to item pointer */
+    LeafItem(const byte * p_, int c) : LeafItem_base<const byte *>(p_, c) { }
+    LeafItem(const byte * p_) : LeafItem_base<const byte *>(p_) { }
+};
+
+class LeafItem_wr : public LeafItem_base<byte *> {
+    void set_key_len(int x) { setK(p, I2, x); }
+public:
+    /* LeafItem_wr from block address and offset to item pointer */
+    LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
+    LeafItem_wr(byte * p_) : LeafItem_base<byte *>(p_) { }
+    void set_component_of(int i) {
+	setX(p, getK(p, I2) + I2 + K1, i);
+    }
+    void set_size(int l) {
+	AssertRel(l,>=,3);
+	// We should never be able to pass too large a size here, but don't
+	// corrupt the database if this somehow happens.
+	if (rare(l &~ MAX_ITEM_SIZE)) throw Xapian::DatabaseError("item too large!");
+	setI(p, 0, l);
+    }
+    void form_key(const std::string & key_) {
+	std::string::size_type key_len = key_.length();
+	if (key_len > GLASS_BTREE_MAX_KEY_LEN) {
+	    // We check term length when a term is added to a document but
+	    // glass doubles zero bytes, so this can still happen for terms
+	    // which contain one or more zero bytes.
+	    std::string msg("Key too long: length was ");
+	    msg += str(key_len);
+	    msg += " bytes, maximum length of a key is "
+		   STRINGIZE(GLASS_BTREE_MAX_KEY_LEN) " bytes";
+	    throw Xapian::InvalidArgumentError(msg);
+	}
+
+	set_key_len(key_len);
+	std::memmove(p + I2 + K1, key_.data(), key_len);
+	set_component_of(1);
+    }
+    // FIXME passing cd here is icky
+    void set_tag(int cd, const char *start, int len, bool compressed, bool last) {
+	std::memmove(p + cd, start, len);
+	set_size(cd + len);
+	if (compressed) *p |= 0x80;
+	if (!last) *p |= 0x40;
+    }
+    void fake_root_item() {
+	set_key_len(0);   // null key length
+	set_size(I2 + K1 + X2);   // length of the item
+	set_component_of(1);
+    }
+};
+
+// BItem_wr wants to be "BItem with non-const p and more methods" - we can't
+// achieve that nicely with inheritance, so we use a template base class.
+template <class T> class BItem_base {
+protected:
+    T p;
+public:
+    /* BItem from block address and offset to item pointer */
+    BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
+    BItem_base(T p_) : p(p_) { }
+    T get_address() const { return p; }
+    /** I in diagram above. */
+    int size() const {
+	int item_size = getI(p, 0) & MAX_ITEM_SIZE;
+	AssertRel(item_size,>=,3);
+	return item_size;
+    }
+    Key key() const { return Key(p + I2); }
     /** Get this item's tag as a block number (this block should not be at
      *  level 0).
      */
@@ -190,19 +263,19 @@ public:
     }
 };
 
-class Item : public Item_base<const byte *> {
+class BItem : public BItem_base<const byte *> {
 public:
-    /* Item from block address and offset to item pointer */
-    Item(const byte * p_, int c) : Item_base<const byte *>(p_, c) { }
-    Item(const byte * p_) : Item_base<const byte *>(p_) { }
+    /* BItem from block address and offset to item pointer */
+    BItem(const byte * p_, int c) : BItem_base<const byte *>(p_, c) { }
+    BItem(const byte * p_) : BItem_base<const byte *>(p_) { }
 };
 
-class Item_wr : public Item_base<byte *> {
+class BItem_wr : public BItem_base<byte *> {
     void set_key_len(int x) { setK(p, I2, x); }
 public:
-    /* Item_wr from block address and offset to item pointer */
-    Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
-    Item_wr(byte * p_) : Item_base<byte *>(p_) { }
+    /* BItem_wr from block address and offset to item pointer */
+    BItem_wr(byte * p_, int c) : BItem_base<byte *>(p_, c) { }
+    BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
     void set_component_of(int i) {
 	setX(p, getK(p, I2) + I2 + K1, i);
     }
@@ -214,7 +287,7 @@ public:
 	int newkey_len = newkey.length();
 	AssertRel(i,<=,newkey_len);
 	int newsize = I2 + K1 + i + X2;
-	// Item size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
+	// BItem size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
 	setI(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
 	// Key size
 	set_key_len(i);
@@ -622,9 +695,12 @@ class GlassTable {
 	void compact(byte *p);
 	void enter_key(int j, Glass::Key prevkey, Glass::Key newkey);
 	int mid_point(byte *p);
-	void add_item_to_block(byte *p, Glass::Item_wr kt, int c);
-	void add_item(Glass::Item_wr kt, int j);
-	void delete_item(int j, bool repeatedly);
+	void add_item_to_leaf(byte *p, Glass::LeafItem_wr kt, int c);
+	void add_item_to_branch(byte *p, Glass::BItem_wr kt, int c);
+	void add_leaf_item(Glass::LeafItem_wr kt);
+	void add_branch_item(Glass::BItem_wr kt, int j);
+	void delete_leaf_item(bool repeatedly);
+	void delete_branch_item(int j);
 	int add_kt(bool found);
 	void read_root();
 	void split_root(uint4 split_n);
@@ -672,7 +748,7 @@ class GlassTable {
 	uint4 root;
 
 	/// buffer of size block_size for making up key-tag items
-	mutable Glass::Item_wr kt;
+	mutable Glass::LeafItem_wr kt;
 
 	/// buffer of size block_size for reforming blocks
 	byte * buffer;
@@ -746,7 +822,8 @@ class GlassTable {
 	bool prev_for_sequential(Glass::Cursor *C_, int dummy) const;
 	bool next_for_sequential(Glass::Cursor *C_, int dummy) const;
 
-	static int find_in_block(const byte * p, Glass::Key key, bool leaf, int c);
+	static int find_in_leaf(const byte * p, Glass::Key key, int c);
+	static int find_in_branch(const byte * p, Glass::Key key, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
