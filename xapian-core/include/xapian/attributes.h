@@ -20,10 +20,6 @@
 #ifndef XAPIAN_INCLUDED_ATTRIBUTES_H
 #define XAPIAN_INCLUDED_ATTRIBUTES_H
 
-#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-# error "Never use <xapian/attributes.h> directly; include <xapian.h> instead."
-#endif
-
 #if __cplusplus >= 201103L
 // C++11 has noexcept(true) for marking a function which shouldn't throw.
 //

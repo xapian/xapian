@@ -172,7 +172,7 @@ omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- common/safe.cc common/stringutils.cc utf8convert.cc utf8truncate.cc\
+ common/safe.cc utf8convert.cc utf8truncate.cc\
  common/keyword.cc timegm.cc datetime.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
@@ -193,8 +193,8 @@ md5test_LDADD = $(NO_INSTALL)
 utf8converttest_SOURCES = utf8converttest.cc utf8convert.cc
 utf8converttest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
-urlenctest_SOURCES = urlenctest.cc urlencode.cc common/stringutils.cc
-urlenctest_LDADD = $(NO_INSTALL)
+urlenctest_SOURCES = urlenctest.cc urlencode.cc
+urlenctest_LDADD = $(NO_INSTALL) $(XAPIAN_LIBS)
 
 csvesctest_SOURCES = csvesctest.cc csvescape.cc
 csvesctest_LDADD = $(NO_INSTALL)

@@ -324,7 +324,7 @@ handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 # If someone's created a directory for common, leave it be.
 if [ -h xapian-applications/omega/common ] || \
    [ ! -d xapian-applications/omega/common ] ; then
-  handle_git_external xapian-applications/omega/.common.git 3c0adf07a179083782ee6b8165a196668f0a1605 .
+  handle_git_external xapian-applications/omega/.common.git d52417d0c7389257e47ed1339fdfd2f4f57efda4 .
   ln -sf .common.git/xapian-core/common xapian-applications/omega/common
 fi
 
