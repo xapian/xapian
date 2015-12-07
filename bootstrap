@@ -20,7 +20,12 @@
 # USA
 
 if [ "$1" = "--help" ] ; then
-  echo "$0 [--ftp] [--without-autotools|--clean]"
+  cat <<__END__
+$0 [--ftp] [--without-autotools|--clean] [MODULE...]
+
+The default is to bootstrap all known modules.  Any modules which have a
+file called ".nobootstrap" in their top-level will be skipped.
+__END__
   exit 0
 fi
 
@@ -404,7 +409,7 @@ export ACLOCAL
 
 intree_swig=no
 modules=
-for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-letor ; do
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xapian-letor} ; do
   d=$module
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     :
