@@ -49,7 +49,10 @@ bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 bin_xapian_delve_SOURCES = bin/xapian-delve.cc
 bin_xapian_delve_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_inspect_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/backends/chert
+bin_xapian_inspect_CPPFLAGS =\
+	$(AM_CPPFLAGS)\
+	-DXAPIAN_REALLY_NO_DEBUG_LOG\
+	-I$(top_srcdir)/backends/chert
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 	api/error.cc\
 	backends/chert/chert_btreebase.cc\
