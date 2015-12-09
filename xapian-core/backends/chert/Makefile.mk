@@ -8,7 +8,6 @@ noinst_HEADERS +=\
 	backends/chert/chert_alltermslist.h\
 	backends/chert/chert_btreebase.h\
 	backends/chert/chert_check.h\
-	backends/chert/chert_compact.h\
 	backends/chert/chert_cursor.h\
 	backends/chert/chert_database.h\
 	backends/chert/chert_databasereplicator.h\

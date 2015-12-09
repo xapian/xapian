@@ -44,6 +44,7 @@
 
 namespace Xapian {
 
+class Compactor;
 class Document;
 
 /** This class is used to access a database, or a group of databases.
@@ -64,6 +65,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/// @internal Implementation behind check() static methods.
 	static size_t check_(const std::string * path_ptr, int fd, int opts,
 			     std::ostream *out);
+
+	/// Internal helper behind public compact() methods.
+	void compact_(const std::string & output,
+		      unsigned flags,
+		      int block_size,
+		      Xapian::Compactor * compactor) const;
 
     public:
 	class Internal;
@@ -499,6 +506,103 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	static size_t check(int fd, int opts = 0, std::ostream *out = NULL) {
 	    return check_(NULL, fd, opts, out);
+	}
+
+	/** Produce a compact version of this database.
+	 *
+	 *  New in 1.2.22 and 1.3.4.  Various methods of the Compactor class
+	 *  were deprecated in 1.3.4; this replacement method is provided in
+	 *  1.2.x as well to smooth the transition.
+	 *
+	 *  @param output Path to write the compact version to.
+	 *		  This can be the same as an input if that input is a
+	 *		  stub database (in which case the database(s) listed
+	 *		  in the stub will be compacted to a new database and
+	 *		  then the stub will be atomically updated to point to
+	 *		  this new database).
+	 *
+	 * @param flags Any of the following combined using bitwise-or (| in
+	 *		C++):
+	 *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
+	 *		be renumbered the output - currently by applying the
+	 *		same offset to all the document ids in a particular
+	 *		source database.  If this flag is specified, then this
+	 *		renumbering doesn't happen, but all the document ids
+	 *		must be unique over all source databases.  Currently
+	 *		the ranges of document ids in each source must not
+	 *		overlap either, though this restriction may be removed
+	 *		in the future.
+	 *   - Xapian::DBCOMPACT_MULTIPASS
+	 *		If merging more than 3 databases, merge the postlists
+	 *		in multiple passes, which is generally faster but
+	 *		requires more disk space for temporary files.
+	 *   - Xapian::DBCOMPACT_SINGLE_FILE
+	 *		Produce a single-file database (only supported for
+	 *		glass currently).
+	 *
+	 *  @param block_size If a new database is created, this specifies
+	 *		      the block size (in bytes) for backends which
+	 *		      have such a concept.  For chert and glass, the
+	 *		      block size must be a power of 2 between 2048 and
+	 *		      65536 (inclusive), and the default (also used if
+	 *		      an invalid value is passed) is 8192 bytes.
+	 */
+	void compact(const std::string & output,
+		     unsigned flags = 0,
+		     int block_size = 0) {
+	    compact_(output, flags, block_size, NULL);
+	}
+
+	/** Produce a compact version of this database.
+	 *
+	 *  New in 1.2.22 and 1.3.4.  Various methods of the Compactor class
+	 *  were deprecated in 1.3.4; this replacement method is provided in
+	 *  1.2.x as well to smooth the transition.
+	 *
+	 *  The @a compactor functor allows handling progress output and
+	 *  specifying how user metadata is merged.
+	 *
+	 *  @param output Path to write the compact version to.
+	 *		  This can be the same as an input if that input is a
+	 *		  stub database (in which case the database(s) listed
+	 *		  in the stub will be compacted to a new database and
+	 *		  then the stub will be atomically updated to point to
+	 *		  this new database).
+	 *
+	 * @param flags Any of the following combined using bitwise-or (| in
+	 *		C++):
+	 *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
+	 *		be renumbered the output - currently by applying the
+	 *		same offset to all the document ids in a particular
+	 *		source database.  If this flag is specified, then this
+	 *		renumbering doesn't happen, but all the document ids
+	 *		must be unique over all source databases.  Currently
+	 *		the ranges of document ids in each source must not
+	 *		overlap either, though this restriction may be removed
+	 *		in the future.
+	 *   - Xapian::DBCOMPACT_MULTIPASS
+	 *		If merging more than 3 databases, merge the postlists
+	 *		in multiple passes, which is generally faster but
+	 *		requires more disk space for temporary files.
+	 *   - Xapian::DBCOMPACT_SINGLE_FILE
+	 *		Produce a single-file database (only supported for
+	 *		glass currently).
+	 *
+	 *  @param block_size If a new database is created, this specifies
+	 *		      the block size (in bytes) for backends which
+	 *		      have such a concept.  For chert and glass, the
+	 *		      block size must be a power of 2 between 2048 and
+	 *		      65536 (inclusive), and the default (also used if
+	 *		      an invalid value is passed) is 8192 bytes.
+	 *
+	 *  @param compactor Functor
+	 */
+	void compact(const std::string & output,
+		     unsigned flags,
+		     int block_size,
+		     Xapian::Compactor & compactor)
+	{
+	    compact_(output, flags, block_size, &compactor);
 	}
 };
 

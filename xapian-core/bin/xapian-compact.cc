@@ -121,13 +121,14 @@ main(int argc, char **argv)
     MyCompactor compactor;
     Xapian::Compactor::compaction_level level = Xapian::Compactor::FULL;
     unsigned flags = 0;
+    size_t block_size = 0;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'b': {
 		char *p;
-		size_t block_size = strtoul(optarg, &p, 10);
+		block_size = strtoul(optarg, &p, 10);
 		if (block_size <= 64 && (*p == 'K' || *p == 'k')) {
 		    ++p;
 		    block_size *= 1024;
@@ -139,7 +140,6 @@ main(int argc, char **argv)
 			 << endl;
 		    exit(1);
 		}
-		compactor.set_block_size(block_size);
 		break;
 	    }
 	    case 'n':
@@ -149,13 +149,13 @@ main(int argc, char **argv)
 		level = compactor.FULLER;
 		break;
 	    case 'm':
-		flags |= compactor.MULTIPASS;
+		flags |= Xapian::DBCOMPACT_MULTIPASS;
 		break;
 	    case OPT_NO_RENUMBER:
-		flags |= compactor.NO_RENUMBER;
+		flags |= Xapian::DBCOMPACT_NO_RENUMBER;
 		break;
 	    case 's':
-		flags |= compactor.SINGLE_FILE;
+		flags |= Xapian::DBCOMPACT_SINGLE_FILE;
 		break;
 	    case 'q':
 		compactor.set_quiet(true);
@@ -178,17 +178,15 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    compactor.set_flags(level | flags);
-
     // Path to the database to create.
-    compactor.set_destdir(argv[argc - 1]);
+    string destdir = argv[argc - 1];
 
     try {
+	Xapian::Database src;
 	for (int i = optind; i < argc - 1; ++i) {
-	    compactor.add_source(argv[i]);
+	    src.add_database(Xapian::Database(argv[i]));
 	}
-
-	compactor.compact();
+	src.compact(destdir, level | flags, block_size, compactor);
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);

@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include "xapian/compactor.h"
+#include "xapian/constants.h"
 #include "xapian/error.h"
 #include "xapian/types.h"
 
@@ -34,12 +35,10 @@
 #include "safeunistd.h"
 
 #include "chert_table.h"
-#include "chert_compact.h"
 #include "chert_cursor.h"
 #include "chert_database.h"
 #include "filetests.h"
 #include "internaltypes.h"
-#include "noreturn.h"
 #include "pack.h"
 #include "backends/valuestats.h"
 
@@ -47,16 +46,6 @@
 #include "../prefix_compressed_strings.h"
 
 using namespace std;
-
-XAPIAN_NORETURN(
-static void failed_to_open_at_rev(string, chert_revision_number_t));
-static void
-failed_to_open_at_rev(string m, chert_revision_number_t rev)
-{
-    m += ": Couldn't open at revision ";
-    m += str(rev);
-    throw Xapian::DatabaseError(m);
-}
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in other flint-derived backends.
@@ -105,11 +94,6 @@ class PostlistCursor : private ChertCursor {
     {
 	find_entry(string());
 	next();
-    }
-
-    ~PostlistCursor()
-    {
-	delete ChertCursor::get_table();
     }
 
     bool next() {
@@ -207,11 +191,10 @@ encode_valuestats(Xapian::doccount freq,
 }
 
 static void
-merge_postlists(Xapian::Compactor & compactor,
+merge_postlists(Xapian::Compactor * compactor,
 		ChertTable * out, vector<Xapian::docid>::const_iterator offset,
-		vector<string>::const_iterator b,
-		vector<string>::const_iterator e,
-		vector<chert_revision_number_t>::const_iterator rev,
+		vector<ChertTable*>::const_iterator b,
+		vector<ChertTable*>::const_iterator e,
 		Xapian::docid last_docid)
 {
     totlen_t tot_totlen = 0;
@@ -219,19 +202,13 @@ merge_postlists(Xapian::Compactor & compactor,
     Xapian::termcount wdf_ubound = 0;
     Xapian::termcount doclen_ubound = 0;
     priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
-    for ( ; b != e; ++b, ++offset, ++rev) {
-	ChertTable *in = new ChertTable("postlist", *b, true);
-	if (!in->open(*rev)) {
-	    failed_to_open_at_rev(*b, *rev);
-	}
+    for ( ; b != e; ++b, ++offset) {
+	ChertTable *in = *b;
 	if (in->empty()) {
 	    // Skip empty tables.
-	    delete in;
 	    continue;
 	}
 
-	// PostlistCursor takes ownership of ChertTable in and is
-	// responsible for deleting it.
 	PostlistCursor * cur = new PostlistCursor(in, *offset);
 	// Merge the METAINFO tags from each database into one.
 	// They have a key consisting of a single zero byte.
@@ -305,20 +282,23 @@ merge_postlists(Xapian::Compactor & compactor,
 	    if (!is_user_metadata_key(key)) break;
 
 	    if (key != last_key) {
-		if (tags.size() > 1) {
-		    Assert(!last_key.empty());
-		    // FIXME: It would be better to merge all duplicates for a
-		    // key in one call, but currently we don't in multipass
-		    // mode.
-		    out->add(last_key,
-			     compactor.resolve_duplicate_metadata(last_key,
+		if (!tags.empty()) {
+		    if (tags.size() > 1 && compactor) {
+			Assert(!last_key.empty());
+			// FIXME: It would be better to merge all duplicates
+			// for a key in one call, but currently we don't in
+			// multipass mode.
+			const string & resolved_tag =
+			    compactor->resolve_duplicate_metadata(last_key,
 								  tags.size(),
-								  &tags[0]));
-		} else if (tags.size() == 1) {
-		    Assert(!last_key.empty());
-		    out->add(last_key, tags[0]);
+								  &tags[0]);
+			out->add(last_key, resolved_tag);
+		    } else {
+			Assert(!last_key.empty());
+			out->add(last_key, tags[0]);
+		    }
+		    tags.resize(0);
 		}
-		tags.resize(0);
 		last_key = key;
 	    }
 	    tags.push_back(cur->tag);
@@ -330,15 +310,18 @@ merge_postlists(Xapian::Compactor & compactor,
 		delete cur;
 	    }
 	}
-	if (tags.size() > 1) {
-	    Assert(!last_key.empty());
-	    out->add(last_key,
-		     compactor.resolve_duplicate_metadata(last_key,
+	if (!tags.empty()) {
+	    if (tags.size() > 1 && compactor) {
+		Assert(!last_key.empty());
+		const string & resolved_tag =
+		    compactor->resolve_duplicate_metadata(last_key,
 							  tags.size(),
-							  &tags[0]));
-	} else if (tags.size() == 1) {
-	    Assert(!last_key.empty());
-	    out->add(last_key, tags[0]);
+							  &tags[0]);
+		out->add(last_key, resolved_tag);
+	    } else {
+		Assert(!last_key.empty());
+		out->add(last_key, tags[0]);
+	    }
 	}
     }
 
@@ -478,10 +461,6 @@ struct MergeCursor : public ChertCursor {
 	find_entry(string());
 	next();
     }
-
-    ~MergeCursor() {
-	delete ChertCursor::get_table();
-    }
 };
 
 struct CursorGt {
@@ -495,22 +474,14 @@ struct CursorGt {
 
 static void
 merge_spellings(ChertTable * out,
-		vector<string>::const_iterator b,
-		vector<string>::const_iterator e,
-		vector<chert_revision_number_t>::const_iterator rev)
+		vector<ChertTable*>::const_iterator b,
+		vector<ChertTable*>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b, ++rev) {
-	ChertTable *in = new ChertTable("spelling", *b, true, DONT_COMPRESS, true);
-	if (!in->open(*rev)) {
-	    failed_to_open_at_rev(*b, *rev);
-	}
+    for ( ; b != e; ++b) {
+	ChertTable *in = *b;
 	if (!in->empty()) {
-	    // The MergeCursor takes ownership of ChertTable in and is
-	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
-	} else {
-	    delete in;
 	}
     }
 
@@ -612,22 +583,14 @@ merge_spellings(ChertTable * out,
 
 static void
 merge_synonyms(ChertTable * out,
-	       vector<string>::const_iterator b,
-	       vector<string>::const_iterator e,
-	       vector<chert_revision_number_t>::const_iterator rev)
+	       vector<ChertTable*>::const_iterator b,
+	       vector<ChertTable*>::const_iterator e)
 {
     priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
-    for ( ; b != e; ++b, ++rev) {
-	ChertTable *in = new ChertTable("synonym", *b, true, DONT_COMPRESS, true);
-	if (!in->open(*rev)) {
-	    failed_to_open_at_rev(*b, *rev);
-	}
+    for ( ; b != e; ++b) {
+	ChertTable *in = *b;
 	if (!in->empty()) {
-	    // The MergeCursor takes ownership of ChertTable in and is
-	    // responsible for deleting it.
 	    pq.push(new MergeCursor(in));
-	} else {
-	    delete in;
 	}
     }
 
@@ -700,20 +663,18 @@ merge_synonyms(ChertTable * out,
 }
 
 static void
-multimerge_postlists(Xapian::Compactor & compactor,
+multimerge_postlists(Xapian::Compactor * compactor,
 		     ChertTable * out, const char * tmpdir,
-		     Xapian::docid last_docid,
-		     vector<string> tmp, vector<chert_revision_number_t> revs,
-		     vector<Xapian::docid> off)
+		     vector<ChertTable *> tmp,
+		     vector<Xapian::docid> off,
+		     Xapian::docid last_docid)
 {
     unsigned int c = 0;
     while (tmp.size() > 3) {
-	vector<string> tmpout;
+	vector<ChertTable *> tmpout;
 	tmpout.reserve(tmp.size() / 2);
 	vector<Xapian::docid> newoff;
 	newoff.resize(tmp.size() / 2);
-	vector<chert_revision_number_t> newrevs;
-	newrevs.reserve(tmp.size() / 2);
 	for (unsigned int i = 0, j; i < tmp.size(); i = j) {
 	    j = i + 2;
 	    if (j == tmp.size() - 1) ++j;
@@ -725,58 +686,54 @@ multimerge_postlists(Xapian::Compactor & compactor,
 
 	    // Don't compress temporary tables, even if the final table would
 	    // be.
-	    ChertTable tmptab("postlist", dest, false);
+	    ChertTable * tmptab = new ChertTable("postlist", dest, false);
 	    // Use maximum blocksize for temporary tables.
-	    tmptab.create_and_open(65536);
+	    tmptab->create_and_open(65536);
 
-	    merge_postlists(compactor, &tmptab, off.begin() + i,
+	    merge_postlists(compactor, tmptab, off.begin() + i,
 			    tmp.begin() + i, tmp.begin() + j,
-			    revs.begin() + i, last_docid);
+			    last_docid);
 	    if (c > 0) {
 		for (unsigned int k = i; k < j; ++k) {
-		    unlink((tmp[k] + "DB").c_str());
-		    unlink((tmp[k] + "baseA").c_str());
-		    unlink((tmp[k] + "baseB").c_str());
+		    unlink((tmp[k]->get_path() + "DB").c_str());
+		    unlink((tmp[k]->get_path() + "baseA").c_str());
+		    unlink((tmp[k]->get_path() + "baseB").c_str());
+		    delete tmp[k];
+		    tmp[k] = NULL;
 		}
 	    }
-	    tmpout.push_back(dest);
-	    tmptab.flush_db();
-	    tmptab.commit(1);
-	    newrevs.push_back(1);
+	    tmpout.push_back(tmptab);
+	    tmptab->flush_db();
+	    tmptab->commit(1);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
-	swap(revs, newrevs);
 	++c;
     }
-    merge_postlists(compactor,
-		    out, off.begin(), tmp.begin(), tmp.end(), revs.begin(),
+    merge_postlists(compactor, out, off.begin(), tmp.begin(), tmp.end(),
 		    last_docid);
     if (c > 0) {
 	for (size_t k = 0; k < tmp.size(); ++k) {
-	    unlink((tmp[k] + "DB").c_str());
-	    unlink((tmp[k] + "baseA").c_str());
-	    unlink((tmp[k] + "baseB").c_str());
+	    unlink((tmp[k]->get_path() + "DB").c_str());
+	    unlink((tmp[k]->get_path() + "baseA").c_str());
+	    unlink((tmp[k]->get_path() + "baseB").c_str());
+	    delete tmp[k];
+	    tmp[k] = NULL;
 	}
     }
 }
 
 static void
-merge_docid_keyed(const char * tablename,
-		  ChertTable *out, const vector<string> & inputs,
-		  const vector<chert_revision_number_t> & revs,
-		  const vector<Xapian::docid> & offset, bool lazy)
+merge_docid_keyed(ChertTable *out, const vector<ChertTable*> & inputs,
+		  const vector<Xapian::docid> & offset)
 {
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
-	ChertTable in(tablename, inputs[i], true, DONT_COMPRESS, lazy);
-	if (!in.open(revs[i])) {
-	    failed_to_open_at_rev(inputs[i], revs[i]);
-	}
-	if (in.empty()) continue;
+	ChertTable * in = inputs[i];
+	if (in->empty()) continue;
 
-	ChertCursor cur(&in);
+	ChertCursor cur(in);
 	cur.find_entry(string());
 
 	string key;
@@ -788,7 +745,8 @@ merge_docid_keyed(const char * tablename,
 		const char * e = d + cur.current_key.size();
 		if (!unpack_uint_preserving_sort(&d, e, &did)) {
 		    string msg = "Bad key in ";
-		    msg += inputs[i];
+		    msg += inputs[i]->get_path();
+		    msg += "DB";
 		    throw Xapian::DatabaseCorruptError(msg);
 		}
 		did += off;
@@ -812,21 +770,15 @@ merge_docid_keyed(const char * tablename,
 using namespace ChertCompact;
 
 void
-compact_chert(Xapian::Compactor & compactor,
-	      const char * destdir, const vector<string> & sources,
-	      const vector<Xapian::docid> & offset, size_t block_size,
-	      Xapian::Compactor::compaction_level compaction, bool multipass,
-	      Xapian::docid last_docid) {
-    // Get the revisions of each database to use to ensure we don't read tables
-    // at different revisions from any of them.
-    vector<chert_revision_number_t> revs;
-    revs.reserve(sources.size());
-    for (vector<string>::const_iterator i = sources.begin();
-	 i != sources.end(); ++i) {
-	ChertDatabase db(*i);
-	revs.push_back(db.get_revision_number());
-    }
-
+ChertDatabase::compact(Xapian::Compactor * compactor,
+		       const char * destdir,
+		       const vector<Xapian::Database::Internal*> & sources,
+		       const vector<Xapian::docid> & offset,
+		       size_t block_size,
+		       Xapian::Compactor::compaction_level compaction,
+		       unsigned flags,
+		       Xapian::docid last_docid)
+{
     enum table_type {
 	POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
     };
@@ -853,13 +805,36 @@ compact_chert(Xapian::Compactor & compactor,
     const table_list * tables_end = tables +
 	(sizeof(tables) / sizeof(tables[0]));
 
+    bool single_file = (flags & Xapian::DBCOMPACT_SINGLE_FILE);
+    bool multipass = (flags & Xapian::DBCOMPACT_MULTIPASS);
+    if (single_file) {
+	throw Xapian::InvalidOperationError("chert doesn't support single file databases");
+    }
+
+    if (block_size < 2048 || block_size > 65536 ||
+	(block_size & (block_size - 1)) != 0) {
+	block_size = CHERT_DEFAULT_BLOCK_SIZE;
+    }
+
+    FlintLock lock(destdir);
+    {
+	string explanation;
+	FlintLock::reason why = lock.lock(true, false, explanation);
+	if (why != FlintLock::SUCCESS) {
+	    lock.throw_databaselockerror(why, destdir, explanation);
+	}
+    }
+
+    vector<ChertTable *> tabs;
+    tabs.reserve(tables_end - tables);
     for (const table_list * t = tables; t < tables_end; ++t) {
 	// The postlist table requires an N-way merge, adjusting the
 	// headers of various blocks.  The spelling and synonym tables also
 	// need special handling.  The other tables have keys sorted in
 	// docid order, so we can merge them by simply copying all the keys
 	// from each source table in turn.
-	compactor.set_status(t->name, string());
+	if (compactor)
+	    compactor->set_status(t->name, string());
 
 	string dest = destdir;
 	dest += '/';
@@ -874,16 +849,37 @@ compact_chert(Xapian::Compactor & compactor,
 
 	off_t in_size = 0;
 
-	vector<string> inputs;
+	vector<ChertTable*> inputs;
 	inputs.reserve(sources.size());
 	size_t inputs_present = 0;
-	for (vector<string>::const_iterator src = sources.begin();
-	     src != sources.end(); ++src) {
-	    string s(*src);
-	    s += t->name;
-	    s += '.';
+	for (auto src : sources) {
+	    ChertDatabase * db = static_cast<ChertDatabase*>(src);
+	    ChertTable * table;
+	    switch (t->type) {
+		case POSTLIST:
+		    table = &(db->postlist_table);
+		    break;
+		case RECORD:
+		    table = &(db->record_table);
+		    break;
+		case TERMLIST:
+		    table = &(db->termlist_table);
+		    break;
+		case POSITION:
+		    table = &(db->position_table);
+		    break;
+		case SPELLING:
+		    table = &(db->spelling_table);
+		    break;
+		case SYNONYM:
+		    table = &(db->synonym_table);
+		    break;
+		default:
+		    Assert(false);
+		    return;
+	    }
 
-	    off_t db_size = file_size(s + "DB");
+	    off_t db_size = file_size(table->get_path() + "DB");
 	    if (errno == 0) {
 		in_size += db_size / 1024;
 		output_will_exist = true;
@@ -894,24 +890,27 @@ compact_chert(Xapian::Compactor & compactor,
 		output_will_exist = true;
 		++inputs_present;
 	    }
-	    inputs.push_back(s);
+	    inputs.push_back(table);
 	}
 
 	// If any inputs lack a termlist table, suppress it in the output.
 	if (t->type == TERMLIST && inputs_present != sources.size()) {
 	    if (inputs_present != 0) {
-		string m = str(inputs_present);
-		m += " of ";
-		m += str(sources.size());
-		m += " inputs present, so suppressing output";
-		compactor.set_status(t->name, m);
+		if (compactor) {
+		    string m = str(inputs_present);
+		    m += " of ";
+		    m += str(sources.size());
+		    m += " inputs present, so suppressing output";
+		    compactor->set_status(t->name, m);
+		}
 		continue;
 	    }
 	    output_will_exist = false;
 	}
 
 	if (!output_will_exist) {
-	    compactor.set_status(t->name, "doesn't exist");
+	    if (compactor)
+		compactor->set_status(t->name, "doesn't exist");
 	    continue;
 	}
 
@@ -923,31 +922,29 @@ compact_chert(Xapian::Compactor & compactor,
 	    out.set_block_size(block_size);
 	}
 
-	out.set_full_compaction(compaction != compactor.STANDARD);
-	if (compaction == compactor.FULLER) out.set_max_item_size(1);
+	out.set_full_compaction(compaction != compactor->STANDARD);
+	if (compaction == compactor->FULLER) out.set_max_item_size(1);
 
 	switch (t->type) {
 	    case POSTLIST:
 		if (multipass && inputs.size() > 3) {
-		    multimerge_postlists(compactor, &out, destdir, last_docid,
-					 inputs, revs, offset);
+		    multimerge_postlists(compactor, &out, destdir, inputs,
+					 offset, last_docid);
 		} else {
 		    merge_postlists(compactor, &out, offset.begin(),
 				    inputs.begin(), inputs.end(),
-				    revs.begin(), last_docid);
+				    last_docid);
 		}
 		break;
 	    case SPELLING:
-		merge_spellings(&out, inputs.begin(), inputs.end(),
-				revs.begin());
+		merge_spellings(&out, inputs.begin(), inputs.end());
 		break;
 	    case SYNONYM:
-		merge_synonyms(&out, inputs.begin(), inputs.end(),
-			       revs.begin());
+		merge_synonyms(&out, inputs.begin(), inputs.end());
 		break;
 	    default:
 		// Position, Record, Termlist
-		merge_docid_keyed(t->name, &out, inputs, revs, offset, t->lazy);
+		merge_docid_keyed(&out, inputs, offset);
 		break;
 	}
 
@@ -965,7 +962,8 @@ compact_chert(Xapian::Compactor & compactor,
 	    }
 	}
 	if (bad_stat) {
-	    compactor.set_status(t->name, "Done (couldn't stat all the DB files)");
+	    if (compactor)
+		compactor->set_status(t->name, "Done (couldn't stat all the DB files)");
 	} else {
 	    string status;
 	    if (out_size == in_size) {
@@ -990,7 +988,8 @@ compact_chert(Xapian::Compactor & compactor,
 	    }
 	    status += str(out_size);
 	    status += "K)";
-	    compactor.set_status(t->name, status);
+	    if (compactor)
+		compactor->set_status(t->name, status);
 	}
     }
 }

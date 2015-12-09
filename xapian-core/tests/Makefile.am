@@ -121,6 +121,7 @@ collated_apitest_sources = \
  api_closedb.cc \
  api_collapse.cc \
  api_compact.cc \
+ api_compactold.cc \
  api_db.cc \
  api_generated.cc \
  api_geospatial.cc \

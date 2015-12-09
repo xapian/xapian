@@ -619,6 +619,10 @@ class ChertTable {
 	/// Throw an exception indicating that the database is closed.
 	XAPIAN_NORETURN(static void throw_database_closed());
 
+	string get_path() const {
+	    return name;
+	}
+
     protected:
 
 	/** Perform the opening operation to read.

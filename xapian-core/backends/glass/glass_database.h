@@ -43,6 +43,7 @@
 
 #include "noreturn.h"
 
+#include "xapian/compactor.h"
 #include "xapian/constants.h"
 
 #include <map>
@@ -296,6 +297,15 @@ class GlassDatabase : public Xapian::Database::Internal {
 	    if (path) *path = db_dir;
 	    return BACKEND_GLASS;
 	}
+
+	static void compact(Xapian::Compactor * compactor,
+			    const char * destdir,
+			    const std::vector<Xapian::Database::Internal *> & sources,
+			    const std::vector<Xapian::docid> & offset,
+			    size_t block_size,
+			    Xapian::Compactor::compaction_level compaction,
+			    unsigned flags,
+			    Xapian::docid last_docid);
 };
 
 /** A writable glass database.

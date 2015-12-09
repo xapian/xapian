@@ -7,7 +7,6 @@ noinst_HEADERS +=\
 	backends/glass/glass_alltermslist.h\
 	backends/glass/glass_changes.h\
 	backends/glass/glass_check.h\
-	backends/glass/glass_compact.h\
 	backends/glass/glass_cursor.h\
 	backends/glass/glass_database.h\
 	backends/glass/glass_databasereplicator.h\

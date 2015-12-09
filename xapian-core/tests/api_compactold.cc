@@ -1,5 +1,5 @@
-/** @file api_compact.cc
- * @brief Tests of Database::compact()
+/** @file api_compactold.cc
+ * @brief Tests of old compaction API
  */
 /* Copyright (C) 2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
@@ -22,8 +22,9 @@
 
 #include <config.h>
 
-#include "api_compact.h"
+#include "api_compactold.h"
 
+#define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
 #include "apitest.h"
@@ -94,7 +95,7 @@ check_sparse_uid_terms(const string & path)
     }
 }
 
-DEFINE_TESTCASE(compactnorenumber1, generated) {
+DEFINE_TESTCASE(compactoldnorenumber1, generated) {
     string a = get_database_path("compactnorenumber1a", make_sparse_db,
 				 "5-7 24 76 987 1023-1027 9999 !9999");
     string a_uuid;
@@ -113,8 +114,11 @@ DEFINE_TESTCASE(compactnorenumber1, generated) {
 
     rm_rf(out);
     {
-	Xapian::Database db(a);
-	db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(a);
+	compact.compact();
     }
 
     check_sparse_uid_terms(out);
@@ -135,10 +139,12 @@ DEFINE_TESTCASE(compactnorenumber1, generated) {
 
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(c));
-	db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(a);
+	compact.add_source(c);
+	compact.compact();
     }
     check_sparse_uid_terms(out);
     {
@@ -151,97 +157,100 @@ DEFINE_TESTCASE(compactnorenumber1, generated) {
 
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(d));
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(c));
-	db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(d);
+	compact.add_source(a);
+	compact.add_source(c);
+	compact.compact();
     }
     check_sparse_uid_terms(out);
 
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(c));
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(d));
-	db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(c);
+	compact.add_source(a);
+	compact.add_source(d);
+	compact.compact();
     }
     check_sparse_uid_terms(out);
 
     // Should fail.
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(b));
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
-	);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(a);
+	compact.add_source(b);
+	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
  
     // Should fail.
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(b));
-	db.add_database(Xapian::Database(a));
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
-	);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(b);
+	compact.add_source(a);
+	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
 
     // Should fail.
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(b));
-	db.add_database(Xapian::Database(d));
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
-	);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(a);
+	compact.add_source(b);
+	compact.add_source(d);
+	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
  
     // Should fail.
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(d));
-	db.add_database(Xapian::Database(b));
-	db.add_database(Xapian::Database(a));
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
-	);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(d);
+	compact.add_source(b);
+	compact.add_source(a);
+	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
 
     // Should fail.
     rm_rf(out);
     {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(b));
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(d));
-	TEST_EXCEPTION(Xapian::InvalidOperationError,
-	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
-	);
+	Xapian::Compactor compact;
+	compact.set_renumber(false);
+	compact.set_destdir(out);
+	compact.add_source(b);
+	compact.add_source(a);
+	compact.add_source(d);
+	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
 
     return true;
 }
 
 // Test use of compact to merge two databases.
-DEFINE_TESTCASE(compactmerge1, chert || glass) {
+DEFINE_TESTCASE(compactoldmerge1, chert || glass) {
     string indbpath = get_database_path("apitest_simpledata");
     string outdbpath = get_named_writable_database_path("compactmerge1out");
     rm_rf(outdbpath);
 
-    {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(indbpath));
-	db.add_database(Xapian::Database(indbpath));
-	db.compact(outdbpath);
-    }
+    Xapian::Compactor compact;
+    compact.set_destdir(outdbpath);
+    compact.add_source(indbpath);
+    compact.add_source(indbpath);
+    compact.compact();
 
     Xapian::Database indb(get_database("apitest_simpledata"));
     Xapian::Database outdb(outdbpath);
@@ -269,16 +278,16 @@ make_multichunk_db(Xapian::WritableDatabase &db, const string &)
 
 // Test use of compact on a database which has multiple chunks for a term.
 // This is a regression test for ticket #427
-DEFINE_TESTCASE(compactmultichunks1, generated) {
+DEFINE_TESTCASE(compactoldmultichunks1, generated) {
     string indbpath = get_database_path("compactmultichunks1in",
 					make_multichunk_db, "");
     string outdbpath = get_named_writable_database_path("compactmultichunks1out");
     rm_rf(outdbpath);
 
-    {
-	Xapian::Database db(indbpath);
-	db.compact(outdbpath);
-    }
+    Xapian::Compactor compact;
+    compact.set_destdir(outdbpath);
+    compact.add_source(indbpath);
+    compact.compact();
 
     Xapian::Database indb(indbpath);
     Xapian::Database outdb(outdbpath);
@@ -290,7 +299,7 @@ DEFINE_TESTCASE(compactmultichunks1, generated) {
 }
 
 // Test compacting from a stub database directory.
-DEFINE_TESTCASE(compactstub1, chert || glass) {
+DEFINE_TESTCASE(compactoldstub1, chert || glass) {
     const char * stubpath = ".stub/compactstub1";
     const char * stubpathfile = ".stub/compactstub1/XAPIANDB";
     mkdir(".stub", 0755);
@@ -304,10 +313,10 @@ DEFINE_TESTCASE(compactstub1, chert || glass) {
     string outdbpath = get_named_writable_database_path("compactstub1out");
     rm_rf(outdbpath);
 
-    {
-	Xapian::Database db(stubpath);
-	db.compact(outdbpath);
-    }
+    Xapian::Compactor compact;
+    compact.set_destdir(outdbpath);
+    compact.add_source(stubpath);
+    compact.compact();
 
     Xapian::Database indb(stubpath);
     Xapian::Database outdb(outdbpath);
@@ -319,7 +328,7 @@ DEFINE_TESTCASE(compactstub1, chert || glass) {
 }
 
 // Test compacting from a stub database file.
-DEFINE_TESTCASE(compactstub2, chert || glass) {
+DEFINE_TESTCASE(compactoldstub2, chert || glass) {
     const char * stubpath = ".stub/compactstub2";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -331,10 +340,10 @@ DEFINE_TESTCASE(compactstub2, chert || glass) {
     string outdbpath = get_named_writable_database_path("compactstub2out");
     rm_rf(outdbpath);
 
-    {
-	Xapian::Database db(stubpath);
-	db.compact(outdbpath);
-    }
+    Xapian::Compactor compact;
+    compact.set_destdir(outdbpath);
+    compact.add_source(stubpath);
+    compact.compact();
 
     Xapian::Database indb(stubpath);
     Xapian::Database outdb(outdbpath);
@@ -346,7 +355,7 @@ DEFINE_TESTCASE(compactstub2, chert || glass) {
 }
 
 // Test compacting a stub database file to itself.
-DEFINE_TESTCASE(compactstub3, chert || glass) {
+DEFINE_TESTCASE(compactoldstub3, chert || glass) {
     const char * stubpath = ".stub/compactstub3";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -359,8 +368,12 @@ DEFINE_TESTCASE(compactstub3, chert || glass) {
     {
 	Xapian::Database indb(stubpath);
 	in_docs = indb.get_doccount();
-	indb.compact(stubpath);
     }
+
+    Xapian::Compactor compact;
+    compact.set_destdir(stubpath);
+    compact.add_source(stubpath);
+    compact.compact();
 
     Xapian::Database outdb(stubpath);
 
@@ -371,7 +384,7 @@ DEFINE_TESTCASE(compactstub3, chert || glass) {
 }
 
 // Test compacting a stub database directory to itself.
-DEFINE_TESTCASE(compactstub4, chert || glass) {
+DEFINE_TESTCASE(compactoldstub4, chert || glass) {
     const char * stubpath = ".stub/compactstub4";
     const char * stubpathfile = ".stub/compactstub4/XAPIANDB";
     mkdir(".stub", 0755);
@@ -386,8 +399,12 @@ DEFINE_TESTCASE(compactstub4, chert || glass) {
     {
 	Xapian::Database indb(stubpath);
 	in_docs = indb.get_doccount();
-	indb.compact(stubpath);
     }
+
+    Xapian::Compactor compact;
+    compact.set_destdir(stubpath);
+    compact.add_source(stubpath);
+    compact.compact();
 
     Xapian::Database outdb(stubpath);
 
@@ -420,7 +437,7 @@ make_missing_tables(Xapian::WritableDatabase &db, const string &)
     db.commit();
 }
 
-DEFINE_TESTCASE(compactmissingtables1, generated) {
+DEFINE_TESTCASE(compactoldmissingtables1, generated) {
     string a = get_database_path("compactmissingtables1a",
 				 make_all_tables);
     string b = get_database_path("compactmissingtables1b",
@@ -429,12 +446,11 @@ DEFINE_TESTCASE(compactmissingtables1, generated) {
     string out = get_named_writable_database_path("compactmissingtables1out");
     rm_rf(out);
 
-    {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(b));
-	db.compact(out);
-    }
+    Xapian::Compactor compact;
+    compact.set_destdir(out);
+    compact.add_source(a);
+    compact.add_source(b);
+    compact.compact();
 
     {
 	Xapian::Database db(out);
@@ -462,7 +478,7 @@ make_all_tables2(Xapian::WritableDatabase &db, const string &)
 }
 
 /// Adds coverage for merging synonym table.
-DEFINE_TESTCASE(compactmergesynonym1, generated) {
+DEFINE_TESTCASE(compactoldmergesynonym1, generated) {
     string a = get_database_path("compactmergesynonym1a",
 				 make_all_tables);
     string b = get_database_path("compactmergesynonym1b",
@@ -471,12 +487,11 @@ DEFINE_TESTCASE(compactmergesynonym1, generated) {
     string out = get_named_writable_database_path("compactmergesynonym1out");
     rm_rf(out);
 
-    {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(b));
-	db.compact(out);
-    }
+    Xapian::Compactor compact;
+    compact.set_destdir(out);
+    compact.add_source(a);
+    compact.add_source(b);
+    compact.compact();
 
     {
 	Xapian::Database db(out);
@@ -509,16 +524,17 @@ DEFINE_TESTCASE(compactmergesynonym1, generated) {
     return true;
 }
 
-DEFINE_TESTCASE(compactempty1, chert || glass) {
+DEFINE_TESTCASE(compactoldempty1, chert || glass) {
     string empty_dbpath = get_database_path(string());
     string outdbpath = get_named_writable_database_path("compactempty1out");
     rm_rf(outdbpath);
 
     {
 	// Compacting an empty database tried to divide by zero in 1.3.0.
-	Xapian::Database db;
-	db.add_database(Xapian::Database(empty_dbpath));
-	db.compact(outdbpath);
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
 
 	Xapian::Database outdb(outdbpath);
 	TEST_EQUAL(outdb.get_doccount(), 0);
@@ -527,10 +543,11 @@ DEFINE_TESTCASE(compactempty1, chert || glass) {
 
     {
 	// Check compacting two empty databases together.
-	Xapian::Database db;
-	db.add_database(Xapian::Database(empty_dbpath));
-	db.add_database(Xapian::Database(empty_dbpath));
-	db.compact(outdbpath);
+	Xapian::Compactor compact;
+	compact.set_destdir(outdbpath);
+	compact.add_source(empty_dbpath);
+	compact.add_source(empty_dbpath);
+	compact.compact();
 
 	Xapian::Database outdb(outdbpath);
 	TEST_EQUAL(outdb.get_doccount(), 0);
@@ -540,7 +557,7 @@ DEFINE_TESTCASE(compactempty1, chert || glass) {
     return true;
 }
 
-DEFINE_TESTCASE(compactmultipass1, chert || glass) {
+DEFINE_TESTCASE(compactoldmultipass1, chert || glass) {
     string outdbpath = get_named_writable_database_path("compactmultipass1");
     rm_rf(outdbpath);
 
@@ -553,14 +570,14 @@ DEFINE_TESTCASE(compactmultipass1, chert || glass) {
     string d = get_database_path("compactnorenumber1d", make_sparse_db,
 				 "3000 999999 !999999");
 
-    {
-	Xapian::Database db;
-	db.add_database(Xapian::Database(a));
-	db.add_database(Xapian::Database(b));
-	db.add_database(Xapian::Database(c));
-	db.add_database(Xapian::Database(d));
-	db.compact(outdbpath, Xapian::DBCOMPACT_MULTIPASS);
-    }
+    Xapian::Compactor compact;
+    compact.set_destdir(outdbpath);
+    compact.add_source(a);
+    compact.add_source(b);
+    compact.add_source(c);
+    compact.add_source(d);
+    compact.set_multipass(true);
+    compact.compact();
 
     Xapian::Database outdb(outdbpath);
     dbcheck(outdb, 29, 1041);

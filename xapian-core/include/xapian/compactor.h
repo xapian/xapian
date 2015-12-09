@@ -27,11 +27,15 @@
 # error "Never use <xapian/compactor.h> directly; include <xapian.h> instead."
 #endif
 
+#include <xapian/constants.h>
+#include <xapian/deprecated.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 #include <string>
 
 namespace Xapian {
+
+class Database;
 
 /** Compact a database, or merge and compact several.
  */
@@ -42,15 +46,11 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
 
     typedef enum { STANDARD = 0, FULL = 1, FULLER = 2 } compaction_level;
 
-    enum {
-	NO_RENUMBER = 4,
-	MULTIPASS = 8,
-	SINGLE_FILE = 16
-    };
-
   private:
     /// @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
+
+    void set_flags_(unsigned flags, unsigned mask = 0);
 
   public:
     Compactor();
@@ -66,8 +66,6 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      */
     void set_block_size(size_t block_size);
 
-    void set_flags(unsigned flags, unsigned mask = 0);
-
     /** Set whether to preserve existing document id values.
      *
      *  @param renumber	The default is true, which means that document ids will
@@ -81,7 +79,8 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *			restriction may be removed in the future.
      */
     void set_renumber(bool renumber) {
-	set_flags(renumber ? 0 : NO_RENUMBER, ~unsigned(NO_RENUMBER));
+	set_flags_(renumber ? 0 : DBCOMPACT_NO_RENUMBER,
+		   ~unsigned(DBCOMPACT_NO_RENUMBER));
     }
 
     /** Set whether to merge postlists in multiple passes.
@@ -92,7 +91,8 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *  this.
      */
     void set_multipass(bool multipass) {
-	set_flags(multipass ? MULTIPASS : 0, ~unsigned(MULTIPASS));
+	set_flags_(multipass ? DBCOMPACT_MULTIPASS : 0,
+		   ~unsigned(DBCOMPACT_MULTIPASS));
     }
 
     /** Set the compaction level.
@@ -105,10 +105,12 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *    (not recommended if you ever plan to update the compacted database).
      */
     void set_compaction_level(compaction_level compaction) {
-	set_flags(compaction, ~unsigned(STANDARD|FULL|FULLER));
+	set_flags_(compaction, ~unsigned(STANDARD|FULL|FULLER));
     }
 
     /** Set where to write the output.
+     *
+     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
      *
      *  @param destdir	Output path.  This can be the same as an input if that
      *			input is a stub database (in which case the database(s)
@@ -116,16 +118,21 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
      *			and then the stub will be atomically updated to point
      *			to this new database).
      */
-    void set_destdir(const std::string & destdir);
+    XAPIAN_DEPRECATED(void set_destdir(const std::string & destdir));
 
     /** Add a source database.
      *
+     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
+     *
      *  @param srcdir	The path to the source database to add.
      */
-    void add_source(const std::string & srcdir);
+    XAPIAN_DEPRECATED(void add_source(const std::string & srcdir));
 
-    /// Perform the actual compaction/merging operation.
-    void compact();
+    /** Perform the actual compaction/merging operation.
+     *
+     *  @deprecated Use Database::compact(destdir[, compactor]) instead.
+     */
+    XAPIAN_DEPRECATED(void compact());
 
     /** Update progress.
      *

@@ -76,20 +76,14 @@ BackendManagerSingleFile::createdb_singlefile(const vector<string> & files)
 	throw msg;
     }
 
-    {
-	Xapian::WritableDatabase db(db_source, flags);
-	FileIndexer(get_datadir(), files).index_to(db);
-	db.commit();
-    }
-
     string tmpfile = dbpath;
     tmpfile += ".tmp";
 
-    Xapian::Compactor compactor;
-    compactor.set_flags(compactor.SINGLE_FILE);
-    compactor.add_source(db_source);
-    compactor.set_destdir(tmpfile);
-    compactor.compact();
+    Xapian::WritableDatabase db(db_source, flags);
+    FileIndexer(get_datadir(), files).index_to(db);
+    db.commit();
+    db.compact(tmpfile, Xapian::DBCOMPACT_SINGLE_FILE);
+    db.close();
 
     rm_rf(db_source);
 

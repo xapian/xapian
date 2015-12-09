@@ -42,9 +42,12 @@
 
 #include "noreturn.h"
 
+#include "xapian/compactor.h"
 #include "xapian/constants.h"
 
 #include <map>
+#include <vector>
+#include <string>
 
 class ChertTermList;
 class ChertAllDocsPostList;
@@ -310,6 +313,15 @@ class ChertDatabase : public Xapian::Database::Internal {
 	    if (path) *path = db_dir;
 	    return BACKEND_CHERT;
 	}
+
+	static void compact(Xapian::Compactor * compactor,
+			    const char * destdir,
+			    const std::vector<Xapian::Database::Internal *> & sources,
+			    const std::vector<Xapian::docid> & offset,
+			    size_t block_size,
+			    Xapian::Compactor::compaction_level compaction,
+			    unsigned flags,
+			    Xapian::docid last_docid);
 };
 
 /** A writable chert database.
