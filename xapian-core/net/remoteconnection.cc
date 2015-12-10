@@ -241,7 +241,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    int errcode = GetLastError();
 	    if (errcode != ERROR_IO_PENDING)
 		throw Xapian::NetworkError("write failed", context, -errcode);
-	    // Just wait for the data to be received, or a timeout.
+	    // Just wait for the data to be sent, or a timeout.
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
@@ -367,7 +367,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    int errcode = GetLastError();
 	    if (errcode != ERROR_IO_PENDING)
 		throw Xapian::NetworkError("write failed", context, -errcode);
-	    // Just wait for the data to be received, or a timeout.
+	    // Just wait for the data to be sent, or a timeout.
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
