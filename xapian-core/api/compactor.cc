@@ -353,15 +353,17 @@ Database::compact_(const string & output, unsigned flags, int block_size,
 	while (true) {
 	    destdir.resize(sfx);
 	    destdir += str(now++);
-	    if (mkdir(destdir.c_str(), 0755) == 0)
-		break;
-	    if (errno != EEXIST) {
-		string msg = destdir;
-		msg += ": mkdir failed";
-		throw Xapian::DatabaseError(msg, errno);
+	    if (!(flags & Xapian::DBCOMPACT_SINGLE_FILE)) {
+		if (mkdir(destdir.c_str(), 0755) == 0)
+		    break;
+		if (errno != EEXIST) {
+		    string msg = destdir;
+		    msg += ": mkdir failed";
+		    throw Xapian::DatabaseError(msg, errno);
+		}
 	    }
 	}
-    } else {
+    } else if (!(flags & Xapian::DBCOMPACT_SINGLE_FILE)) {
 	// If the destination database directory doesn't exist, create it.
 	if (mkdir(destdir.c_str(), 0755) < 0) {
 	    // Check why mkdir failed.  It's ok if the directory already
