@@ -981,7 +981,6 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
 
 	// Commit as revision 1.
-	if (single_file) lseek(fd, 0, SEEK_SET);
 	out->flush_db();
 	out->commit(1, version_file_out.root_to_set(t->type));
 	out->sync();
@@ -1054,6 +1053,11 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 #endif
     }
 
+    if (single_file) {
+	if (lseek(fd, 0, SEEK_SET) == -1) {
+	    throw Xapian::DatabaseError("lseek() failed", errno);
+	}
+    }
     version_file_out.set_last_docid(last_docid);
     string tmpfile = version_file_out.write(1, FLAGS);
     for (unsigned j = 0; j != tabs.size(); ++j) {
