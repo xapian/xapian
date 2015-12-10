@@ -868,6 +868,10 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	// on certain systems).
 	bool bad_stat = false;
 
+	// We can't currently report input sizes if there's a single file DB
+	// amongst the inputs.
+	bool single_file_in = false;
+
 	off_t in_size = 0;
 
 	vector<GlassTable*> inputs;
@@ -900,16 +904,28 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 		    return;
 	    }
 
-	    off_t db_size = file_size(table->get_path());
-	    if (errno == 0) {
-		in_size += db_size / 1024;
-		output_will_exist = true;
-		++inputs_present;
-	    } else if (errno != ENOENT) {
-		// We get ENOENT for an optional table.
-		bad_stat = true;
-		output_will_exist = true;
-		++inputs_present;
+	    if (db->single_file()) {
+		if (t->lazy && table->empty()) {
+		    // Essentially doesn't exist.
+		} else {
+		    // FIXME: Find actual size somehow?
+		    // in_size += table->size() / 1024;
+		    single_file_in = true;
+		    output_will_exist = true;
+		    ++inputs_present;
+		}
+	    } else {
+		off_t db_size = file_size(table->get_path());
+		if (errno == 0) {
+		    in_size += db_size / 1024;
+		    output_will_exist = true;
+		    ++inputs_present;
+		} else if (errno != ENOENT) {
+		    // We get ENOENT for an optional table.
+		    bad_stat = true;
+		    output_will_exist = true;
+		    ++inputs_present;
+		}
 	    }
 	    inputs.push_back(table);
 	}
@@ -987,7 +1003,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	if (single_file) fl_serialised = root_info->get_free_list();
 
 	off_t out_size = 0;
-	if (!bad_stat) {
+	if (!bad_stat && !single_file_in) {
 	    off_t db_size;
 	    if (single_file) {
 		db_size = file_size(fd);
@@ -1008,6 +1024,9 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	if (bad_stat) {
 	    if (compactor)
 		compactor->set_status(t->name, "Done (couldn't stat all the DB files)");
+	} else if (single_file_in) {
+	    if (compactor)
+		compactor->set_status(t->name, "Done (table sizes unknown for single file DB input)");
 	} else {
 	    string status;
 	    if (out_size == in_size) {

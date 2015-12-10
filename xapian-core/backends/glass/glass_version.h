@@ -281,6 +281,8 @@ class GlassVersion {
      *  Used by compaction.
      */
     void merge_stats(const GlassVersion & o);
+
+    bool single_file() const { return db_dir.empty(); }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_VERSION_H

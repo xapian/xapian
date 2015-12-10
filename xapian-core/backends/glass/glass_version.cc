@@ -95,7 +95,7 @@ GlassVersion::read()
     LOGCALL_VOID(DB, "GlassVersion::read", NO_ARGS);
     FD close_fd(-1);
     int fd_in;
-    if (db_dir.empty()) {
+    if (single_file()) {
 	if (rare(lseek(fd, offset, SEEK_SET) == off_t(-1))) {
 	    string msg = "Failed to rewind file descriptor ";
 	    msg += str(fd);
@@ -128,7 +128,7 @@ GlassVersion::read()
     version |= static_cast<unsigned char>(buf[GLASS_VERSION_MAGIC_LEN + 1]);
     if (version != GLASS_FORMAT_VERSION) {
 	string msg;
-	if (!db_dir.empty()) {
+	if (!single_file()) {
 	    msg = db_dir;
 	    msg += ": ";
 	}
@@ -212,7 +212,7 @@ GlassVersion::unserialise_stats()
 
     // In the single-file DB case, there will be extra data in
     // serialised_stats, so suppress this check.
-    if (p != end && !db_dir.empty())
+    if (p != end && !single_file())
 	throw Xapian::DatabaseCorruptError("Rev file has junk at end");
 
     // last_docid must always be >= doccount.
@@ -274,7 +274,7 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     s += serialised_stats;
 
     string tmpfile;
-    if (!db_dir.empty()) {
+    if (!single_file()) {
 	tmpfile = db_dir;
 	// In dangerous mode, just write the new version file in place.
 	if (flags & Xapian::DB_DANGEROUS)
@@ -294,7 +294,7 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     try {
 	io_write(fd, s.data(), s.size());
     } catch (...) {
-	if (!db_dir.empty())
+	if (!single_file())
 	    (void)close(fd);
 	throw;
     }
@@ -317,7 +317,7 @@ GlassVersion::sync(const string & tmpfile,
 {
     Assert(new_rev > rev || rev == 0);
 
-    if (db_dir.empty()) {
+    if (single_file()) {
 	if ((flags & Xapian::DB_NO_SYNC) == 0 &&
 	    ((flags & Xapian::DB_FULL_SYNC) ?
 	      !io_full_sync(fd) :

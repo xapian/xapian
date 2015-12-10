@@ -298,6 +298,8 @@ class GlassDatabase : public Xapian::Database::Internal {
 	    return BACKEND_GLASS;
 	}
 
+	bool single_file() const { return version_file.single_file(); }
+
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    const std::vector<Xapian::Database::Internal *> & sources,
