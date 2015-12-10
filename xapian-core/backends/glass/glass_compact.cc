@@ -996,7 +996,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	    }
 	    if (errno == 0) {
 		if (single_file) {
-		    off_t old_prev_size = min(prev_size, off_t(block_size));
+		    off_t old_prev_size = max(prev_size, off_t(block_size));
 		    prev_size = db_size;
 		    db_size -= old_prev_size;
 		}
