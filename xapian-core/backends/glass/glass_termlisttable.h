@@ -54,8 +54,9 @@ class GlassTermListTable : public GlassTable {
 	: GlassTable("termlist", dbdir + "/termlist.", readonly,
 		     Z_DEFAULT_STRATEGY, lazy_) { }
 
-    GlassTermListTable(int fd, bool readonly, bool lazy_)
-	: GlassTable("termlist", fd, readonly, Z_DEFAULT_STRATEGY, lazy_) { }
+    GlassTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
+	: GlassTable("termlist", fd, offset_, readonly,
+		     Z_DEFAULT_STRATEGY, lazy_) { }
 
     /** Set the termlist data for document @a did.
      *

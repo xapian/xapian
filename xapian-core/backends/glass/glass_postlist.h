@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007,2008,2009,2011,2013,2014,2015 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -74,8 +74,8 @@ class GlassPostListTable : public GlassTable {
 	      doclen_pl()
 	{ }
 
-	GlassPostListTable(int fd, bool readonly_)
-	    : GlassTable("postlist", fd, readonly_),
+	GlassPostListTable(int fd, off_t offset_, bool readonly_)
+	    : GlassTable("postlist", fd, offset_, readonly_),
 	      doclen_pl()
 	{ }
 

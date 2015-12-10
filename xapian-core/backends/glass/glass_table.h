@@ -340,7 +340,7 @@ class GlassTable {
 		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
 		   bool lazy = false);
 
-	GlassTable(const char * tablename_, int fd,
+	GlassTable(const char * tablename_, int fd, off_t offset_,
 		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
 		   bool lazy = false);
 
@@ -775,7 +775,7 @@ class GlassTable {
 	mutable uint4 last_readahead;
 
 	/// offset to start of table in file.
-	const off_t offset = 0;
+	off_t offset;
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);

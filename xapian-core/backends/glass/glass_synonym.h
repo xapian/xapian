@@ -56,8 +56,9 @@ class GlassSynonymTable : public GlassLazyTable {
 	: GlassLazyTable("synonym", dbdir + "/synonym.", readonly,
 			 Z_DEFAULT_STRATEGY) { }
 
-    GlassSynonymTable(int fd, bool readonly)
-	: GlassLazyTable("synonym", fd, readonly, Z_DEFAULT_STRATEGY) { }
+    GlassSynonymTable(int fd, off_t offset_, bool readonly)
+	: GlassLazyTable("synonym", fd, offset_, readonly,
+			 Z_DEFAULT_STRATEGY) { }
 
     // Merge in batched-up changes.
     void merge_changes();

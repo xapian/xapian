@@ -55,8 +55,8 @@ class GlassPositionListTable : public GlassLazyTable {
 	: GlassLazyTable("position", dbdir + "/position.", readonly,
 			 DONT_COMPRESS) { }
 
-    GlassPositionListTable(int fd, bool readonly_)
-	: GlassLazyTable("position", fd, readonly_, DONT_COMPRESS) { }
+    GlassPositionListTable(int fd, off_t offset_, bool readonly_)
+	: GlassLazyTable("position", fd, offset_, readonly_, DONT_COMPRESS) { }
 
     /** Pack a position list into a string.
      *

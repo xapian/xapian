@@ -953,7 +953,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
 	GlassTable * out;
 	if (single_file) {
-	    out = new GlassTable(t->name, fd, false, t->compress_strategy, false);
+	    out = new GlassTable(t->name, fd, 0, false, t->compress_strategy, false);
 	} else {
 	    out = new GlassTable(t->name, dest, false, t->compress_strategy, t->lazy);
 	}

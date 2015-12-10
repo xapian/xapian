@@ -225,6 +225,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 
 GlassTableCheck *
 GlassTableCheck::check(const char * tablename, const string & path, int fd,
+		       off_t offset_,
 		       const GlassVersion & version_file, int opts,
 		       ostream *out)
 {
@@ -236,7 +237,7 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
     AutoPtr<GlassTableCheck> B(
 	    fd < 0 ?
 	    new GlassTableCheck(tablename, filename, false, out) :
-	    new GlassTableCheck(tablename, fd, false, out));
+	    new GlassTableCheck(tablename, fd, offset_, false, out));
 
     Glass::table_type tab_type;
     if (strcmp(tablename, "postlist") == 0) {

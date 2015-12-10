@@ -58,6 +58,7 @@ struct VStats : public ValueStats {
 
 size_t
 check_glass_table(const char * tablename, const string &db_dir, int fd,
+		  off_t offset_,
 		  const GlassVersion & version_file, int opts,
 		  vector<Xapian::termcount> & doclens,
 		  Xapian::docid db_last_docid, ostream * out)
@@ -87,7 +88,8 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 
     // Check the btree structure.
     AutoPtr<GlassTable> table(
-	    GlassTableCheck::check(tablename, db_dir, fd, version_file, opts, out));
+	    GlassTableCheck::check(tablename, db_dir, fd, offset_,
+				   version_file, opts, out));
 
     // Now check the glass structures inside the btree.
     AutoPtr<GlassCursor> cursor(table->cursor_get());

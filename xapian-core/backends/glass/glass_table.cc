@@ -1512,12 +1512,13 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 	  compress_strategy(compress_strategy_),
 	  comp_stream(compress_strategy_),
 	  lazy(lazy_),
-	  last_readahead(BLK_UNUSED)
+	  last_readahead(BLK_UNUSED),
+	  offset(0)
 {
     LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
 }
 
-GlassTable::GlassTable(const char * tablename_, int fd,
+GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
 		       bool readonly_, int compress_strategy_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
@@ -1546,9 +1547,10 @@ GlassTable::GlassTable(const char * tablename_, int fd,
 	  compress_strategy(compress_strategy_),
 	  comp_stream(compress_strategy_),
 	  lazy(lazy_),
-	  last_readahead(BLK_UNUSED)
+	  last_readahead(BLK_UNUSED),
+	  offset(offset_)
 {
-    LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | readonly_ | compress_strategy_ | lazy_);
+    LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | offset_ | readonly_ | compress_strategy_ | lazy_);
 }
 
 bool
