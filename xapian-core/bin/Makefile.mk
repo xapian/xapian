@@ -60,6 +60,7 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 	backends/chert/chert_table.cc\
 	common/errno_to_string.cc\
 	common/io_utils.cc\
+	common/posixy_wrapper.cc\
 	common/str.cc\
 	unicode/description_append.cc\
 	unicode/unicode-data.cc\
