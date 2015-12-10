@@ -2,7 +2,7 @@
  * @brief Check consistency of a glass table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -104,56 +104,6 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
 	Xapian::termcount tf = 0, cf = 0;
-	bool have_metainfo_key = false;
-
-	// The first key/tag pair should be the METAINFO - though this may be
-	// missing if the table only contains user-metadata.
-	if (!cursor->after_end()) {
-	    if (cursor->current_key == string("", 1)) {
-		have_metainfo_key = true;
-		cursor->read_tag();
-		// Check format of the METAINFO key.
-		totlen_t total_doclen;
-		Xapian::doccount doccount;
-		Xapian::docid last_docid;
-		Xapian::termcount doclen_lbound;
-		Xapian::termcount doclen_ubound;
-		Xapian::termcount wdf_ubound;
-
-		const char * data = cursor->current_tag.data();
-		const char * end = data + cursor->current_tag.size();
-		if (!unpack_uint(&data, end, &doccount)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read doccount)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &last_docid)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read last_docid)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &doclen_lbound)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read doclen_lbound)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &wdf_ubound)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read wdf_ubound)." << endl;
-		    ++errors;
-		} else if (!unpack_uint(&data, end, &doclen_ubound)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read doclen_ubound)." << endl;
-		    ++errors;
-		} else if (!unpack_uint_last(&data, end, &total_doclen)) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (couldn't read total_doclen)." << endl;
-		    ++errors;
-		} else if (data != end) {
-		    if (out)
-			*out << "Tag containing meta information is corrupt (junk at end)." << endl;
-		    ++errors;
-		}
-		cursor->next();
-	    }
-	}
 
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
@@ -168,13 +118,6 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		    ++errors;
 		}
 		continue;
-	    }
-
-	    if (!have_metainfo_key) {
-		have_metainfo_key = true;
-		if (out)
-		    *out << "METAINFO key missing from postlist table" << endl;
-		++errors;
 	    }
 
 	    if (key.size() >= 2 && key[0] == '\0' && key[1] == '\xe0') {
