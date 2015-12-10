@@ -265,12 +265,25 @@ TcpServer::accept_connection()
 
     if (verbose) {
 	char buf[INET_ADDRSTRLEN];
+#ifndef __WIN32__
 	// Under __WIN32__, inet_ntop()'s second parameter isn't const for some
-	// reason.
+	// reason.  We don't currently use inet_ntop() there, but allow for a
+	// non-const second parameter in case it's more widespread.
 	void * src = &remote_address.sin_addr;
 	const char * r = inet_ntop(AF_INET, src, buf, sizeof(buf));
 	if (!r)
 	    throw Xapian::NetworkError("inet_ntop failed", errno);
+#else
+	// inet_ntop() isn't always available, at least with mingw.
+	// WSAAddressToString() supports both IPv4 and IPv6, so just use that.
+	DWORD size = sizeof(buf);
+	if (WSAAddressToString(reinterpret_cast<sockaddr*>(&remote_address),
+			       sizeof(remote_address), NULL, buf, &size) != 0) {
+	    throw Xapian::NetworkError("WSAAddressToString failed",
+				       WSAGetLastError());
+	}
+	const char * r = buf;
+#endif
 	int port = remote_address.sin_port;
 	cout << "Connection from " << r << ", port " << port << endl;
     }
