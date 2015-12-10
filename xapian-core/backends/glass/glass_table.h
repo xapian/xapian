@@ -774,6 +774,9 @@ class GlassTable {
 	/// Last block readahead_key() preread.
 	mutable uint4 last_readahead;
 
+	/// offset to start of table in file.
+	const off_t offset = 0;
+
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
 };

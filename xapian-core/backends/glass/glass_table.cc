@@ -169,7 +169,7 @@ GlassTable::read_block(uint4 n, byte * p) const
 	GlassTable::throw_database_closed();
     AssertRel(n,<,free_list.get_first_unused_block());
 
-    io_read_block(handle, reinterpret_cast<char *>(p), block_size, n);
+    io_read_block(handle, reinterpret_cast<char *>(p), block_size, n, offset);
 
     if (GET_LEVEL(p) != LEVEL_FREELIST) {
 	int dir_end = DIR_END(p);
@@ -221,7 +221,8 @@ GlassTable::write_block(uint4 n, const byte * p, bool appending) const
 	// read lock and try to take an exclusive lock here?
     }
 
-    io_write_block(handle, p, block_size, n);
+    const char * p_char = reinterpret_cast<const char *>(p);
+    io_write_block(handle, p_char, block_size, n, offset);
 
     if (!changes_obj) return;
 
@@ -1203,7 +1204,7 @@ GlassTable::readahead_key(const string &key) const
     // cursor.
     if (n != last_readahead && n != C[level - 1].get_n()) {
 	last_readahead = n;
-	if (!io_readahead_block(handle, block_size, n))
+	if (!io_readahead_block(handle, block_size, n, offset))
 	    RETURN(false);
     }
     RETURN(true);

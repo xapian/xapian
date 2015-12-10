@@ -166,9 +166,9 @@ throw_block_error(const char * s, off_t b, int e)
 
 #ifdef HAVE_POSIX_FADVISE
 bool
-io_readahead_block(int fd, size_t n, off_t b)
+io_readahead_block(int fd, size_t n, off_t b, off_t o)
 {
-    off_t o = b * n;
+    o += b * n;
     // Assume that any failure is likely to also happen for another call with
     // the same fd.
     return posix_fadvise(fd, o, n, POSIX_FADV_WILLNEED) == 0;
@@ -176,9 +176,9 @@ io_readahead_block(int fd, size_t n, off_t b)
 #endif
 
 void
-io_read_block(int fd, char * p, size_t n, off_t b)
+io_read_block(int fd, char * p, size_t n, off_t b, off_t o)
 {
-    off_t o = b * n;
+    o += b * n;
     // Prefer pread if available since it's typically implemented as a
     // separate syscall, and that eliminates the overhead of an extra syscall
     // per block read.
@@ -224,9 +224,9 @@ io_read_block(int fd, char * p, size_t n, off_t b)
 }
 
 void
-io_write_block(int fd, const char * p, size_t n, off_t b)
+io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 {
-    off_t o = b * n;
+    o += b * n;
     // Prefer pwrite if available since it's typically implemented as a
     // separate syscall, and that eliminates the overhead of an extra syscall
     // per block write.
