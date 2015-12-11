@@ -478,10 +478,11 @@ option name followed by its value, separated by a whitespace.  Blank
 lines are ignored.  If the first non-whitespace character on a line
 is a '#', omega treats the line as a comment and ignores it.
 
-The current options are 'database_dir' (the directory containing all the
-Omega databases), 'template_dir' (the directory containing the OmegaScript
-templates), and 'log_dir' (the directory which the OmegaScript $log command
-writes log files to).
+The current options are:
+
+ - `database_dir`: the directory containing all the Omega databases
+ - `template_dir`: the directory containing the OmegaScript templates
+ - `log_dir`: the directory which the OmegaScript $log command writes log files to
 
 The default values (used if no configuration file is found) are::
 
