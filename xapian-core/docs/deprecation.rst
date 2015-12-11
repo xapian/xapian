@@ -2,7 +2,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
 
 ===========
 Deprecation
@@ -473,6 +473,14 @@ Removed Feature name                        Upgrade suggestion and comments
         ``Xapian::StemImplementation``,
         ``Xapian::Stopper`` and
         ``Xapian::ValueRangeProcessor``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.4   ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The ``Xapian::Compact``
+        ``set_block_size()``,               is now just a subclassable functor class to allow access to progress messages
+        ``set_renumber()``,                 and control over merging of user metadata.
+        ``set_multipass()``,
+        ``set_compaction_level()``,         The new API is also provided in xapian-core 1.2.22 and later.
+        ``set_destdir()``, ``add_source()`
+        and ``compact()``.
 ======= =================================== ==================================================================================
 
 
