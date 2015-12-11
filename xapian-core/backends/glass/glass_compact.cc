@@ -26,6 +26,7 @@
 #include "xapian/error.h"
 #include "xapian/types.h"
 
+#include "autoptr.h"
 #include <algorithm>
 #include <queue>
 
@@ -824,18 +825,21 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	}
     }
 
-    GlassVersion version_file_out(destdir);
+    AutoPtr<GlassVersion> version_file_out;
     int fd = -1;
     if (single_file) {
 	fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
 	if (fd < 0) {
 	    throw Xapian::DatabaseCreateError("open() failed", errno);
 	}
-	version_file_out.set_fd(fd);
+	version_file_out.reset(new GlassVersion(fd));
+    } else {
+	version_file_out.reset(new GlassVersion(destdir));
     }
-    version_file_out.create(block_size, 0);
+
+    version_file_out->create(block_size, 0);
     for (size_t i = 0; i != sources.size(); ++i) {
-	version_file_out.merge_stats(static_cast<GlassDatabase*>(sources[i])->version_file);
+	version_file_out->merge_stats(static_cast<GlassDatabase*>(sources[i])->version_file);
     }
 
     string fl_serialised;
@@ -960,9 +964,9 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	tabs.push_back(out);
 	RootInfo * root_info = NULL;
 	if (single_file) {
-	    root_info = version_file_out.root_to_set(t->type);
+	    root_info = version_file_out->root_to_set(t->type);
 	    root_info->set_free_list(fl_serialised);
-	    out->open(FLAGS, version_file_out.get_root(t->type), version_file_out.get_revision());
+	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
 	} else {
 	    out->create_and_open(FLAGS, block_size);
 	}
@@ -998,7 +1002,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
 	// Commit as revision 1.
 	out->flush_db();
-	out->commit(1, version_file_out.root_to_set(t->type));
+	out->commit(1, version_file_out->root_to_set(t->type));
 	out->sync();
 	if (single_file) fl_serialised = root_info->get_free_list();
 
@@ -1077,13 +1081,13 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	    throw Xapian::DatabaseError("lseek() failed", errno);
 	}
     }
-    version_file_out.set_last_docid(last_docid);
-    string tmpfile = version_file_out.write(1, FLAGS);
+    version_file_out->set_last_docid(last_docid);
+    string tmpfile = version_file_out->write(1, FLAGS);
     for (unsigned j = 0; j != tabs.size(); ++j) {
 	tabs[j]->sync();
     }
     // Commit with revision 1.
-    version_file_out.sync(tmpfile, 1, FLAGS);
+    version_file_out->sync(tmpfile, 1, FLAGS);
     for (unsigned j = 0; j != tabs.size(); ++j) {
 	delete tabs[j];
     }

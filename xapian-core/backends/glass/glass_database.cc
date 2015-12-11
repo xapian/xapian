@@ -165,19 +165,18 @@ GlassDatabase::GlassDatabase(const string &glass_dir, int flags,
 GlassDatabase::GlassDatabase(int fd)
 	: db_dir(),
 	  readonly(true),
-	  version_file(),
-	  postlist_table(fd, 0, readonly),
-	  position_table(fd, 0, readonly),
-	  termlist_table(fd, 0, readonly, true),
+	  version_file(fd),
+	  postlist_table(fd, version_file.get_offset(), readonly),
+	  position_table(fd, version_file.get_offset(), readonly),
+	  termlist_table(fd, version_file.get_offset(), readonly, true),
 	  value_manager(&postlist_table, &termlist_table),
-	  synonym_table(fd, 0, readonly),
-	  spelling_table(fd, 0, readonly),
-	  docdata_table(fd, 0, readonly),
+	  synonym_table(fd, version_file.get_offset(), readonly),
+	  spelling_table(fd, version_file.get_offset(), readonly),
+	  docdata_table(fd, version_file.get_offset(), readonly),
 	  lock(string()),
 	  changes(string())
 {
     LOGCALL_CTOR(DB, "GlassDatabase", fd);
-    version_file.set_fd(fd);
     open_tables(Xapian::DB_READONLY_);
 }
 

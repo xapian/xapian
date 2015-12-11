@@ -156,9 +156,9 @@ class GlassVersion {
 	  doclen_lbound(0), doclen_ubound(0),
 	  wdf_ubound(0), oldest_changeset(0) { }
 
-    ~GlassVersion();
+    explicit GlassVersion(int fd_);
 
-    void set_fd(int fd_);
+    ~GlassVersion();
 
     /** Create the version file. */
     void create(unsigned blocksize, int flags);
@@ -283,6 +283,8 @@ class GlassVersion {
     void merge_stats(const GlassVersion & o);
 
     bool single_file() const { return db_dir.empty(); }
+
+    off_t get_offset() const { return offset; }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_VERSION_H

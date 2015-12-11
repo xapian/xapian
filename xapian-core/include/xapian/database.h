@@ -95,7 +95,12 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	explicit Database(const std::string &path, int flags = 0);
 
-	/** Open a single-file Database embedded in another file.
+	/** Open a single-file Database.
+	 *
+	 *  This method opens a single-file Database given a file descriptor
+	 *  open on it.  Xapian looks starting at the current file offset,
+	 *  allowing a single file database to be easily embedded within
+	 *  another file.
 	 *
 	 * @param fd  file descriptor for the file.  Xapian takes ownership of
 	 *            this and will close it when the database is closed.
