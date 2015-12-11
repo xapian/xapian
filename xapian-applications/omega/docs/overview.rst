@@ -89,10 +89,10 @@ Sites work by having all documents within them having a common base
 URL. For instance, you might have two sites, one for your press area
 and one for your product descriptions:
 
-    - \http://example.com/press/index.html
-    - \http://example.com/press/bigrelease.html
-    - \http://example.com/products/bigproduct.html
-    - \http://example.com/products/littleproduct.html
+- \http://example.com/press/index.html
+- \http://example.com/press/bigrelease.html
+- \http://example.com/products/bigproduct.html
+- \http://example.com/products/littleproduct.html
 
 You could index all documents within \http://example.com/press/ using a
 site of '/press', and all within \http://example.com/products/ using
@@ -145,10 +145,10 @@ second being a relative directory within that to index.
 For instance, in the example above, if you separate your products by
 size, you might end up with:
 
-    - \http://example.com/press/index.html
-    - \http://example.com/press/bigrelease.html
-    - \http://example.com/products/large/bigproduct.html
-    - \http://example.com/products/small/littleproduct.html
+- \http://example.com/press/index.html
+- \http://example.com/press/bigrelease.html
+- \http://example.com/products/large/bigproduct.html
+- \http://example.com/products/small/littleproduct.html
 
 If the entire website is stored in the file system under the directory
 /www/example, then you would probably index the site in two
@@ -467,16 +467,16 @@ parameters. However some things must be configured using a
 configuration file.  The configuration file is searched for in
 various locations:
 
- - Firstly, if the "OMEGA_CONFIG_FILE" environment variable is
-   set, its value is used as the full path to a configuration file
-   to read.
- - Next (if the environment variable is not set, or the file pointed
-   to is not present), the file "omega.conf" in the same directory as
-   the Omega CGI is used.
- - Next (if neither of the previous steps found a file), the file
-   "${sysconfdir}/omega.conf" (e.g. /etc/omega.conf on Linux systems)
-   is used.
- - Finally, if no configuration file is found, default values are used.
+- Firstly, if the "OMEGA_CONFIG_FILE" environment variable is
+  set, its value is used as the full path to a configuration file
+  to read.
+- Next (if the environment variable is not set, or the file pointed
+  to is not present), the file "omega.conf" in the same directory as
+  the Omega CGI is used.
+- Next (if neither of the previous steps found a file), the file
+  "${sysconfdir}/omega.conf" (e.g. /etc/omega.conf on Linux systems)
+  is used.
+- Finally, if no configuration file is found, default values are used.
 
 The format of the file is very simple: a line per option, with the
 option name followed by its value, separated by a whitespace.  Blank
@@ -485,12 +485,12 @@ is a '#', omega treats the line as a comment and ignores it.
 
 The current options are:
 
- - `database_dir`: the directory containing all the Omega databases
- - `template_dir`: the directory containing the OmegaScript templates
- - `log_dir`: the directory which the OmegaScript `$log` command writes log
-   files to
- - `cdb_dir`: the directory which the OmegaScript `$lookup` command
-   looks for CDB files in
+- `database_dir`: the directory containing all the Omega databases
+- `template_dir`: the directory containing the OmegaScript templates
+- `log_dir`: the directory which the OmegaScript `$log` command writes log
+  files to
+- `cdb_dir`: the directory which the OmegaScript `$lookup` command
+  looks for CDB files in
 
 The default values (used if no configuration file is found) are::
 
@@ -509,28 +509,28 @@ Supplied Templates
 
 The OmegaScript templates supplied with Omega are:
 
- * query - This is the default template, providing a typical Web search
-   interface.
- * topterms - This is just like query, but provides a "top terms" feature
-   which suggests terms the user might want to add to their query to
-   obtain better results.
- * godmode - Allows you to inspect a database showing which terms index
-   each document, and which documents are indexed by each term.
- * opensearch - Provides results in OpenSearch format (for more details
-   see http://www.opensearch.org/).
- * xml - Provides results in a custom XML format.
- * emptydocs - Shows a list of documents with zero length.  If CGI parameter
-   TERM is set to a non-empty value, then only documents indexed by that given
-   term are shown (e.g. TERM=Tapplication/pdf to show PDF files with no text);
-   otherwise all zero length documents are shown.
+* query - This is the default template, providing a typical Web search
+  interface.
+* topterms - This is just like query, but provides a "top terms" feature
+  which suggests terms the user might want to add to their query to
+  obtain better results.
+* godmode - Allows you to inspect a database showing which terms index
+  each document, and which documents are indexed by each term.
+* opensearch - Provides results in OpenSearch format (for more details
+  see http://www.opensearch.org/).
+* xml - Provides results in a custom XML format.
+* emptydocs - Shows a list of documents with zero length.  If CGI parameter
+  TERM is set to a non-empty value, then only documents indexed by that given
+  term are shown (e.g. TERM=Tapplication/pdf to show PDF files with no text);
+  otherwise all zero length documents are shown.
 
 There are also "helper fragments" used by the templates above:
 
- * inc/anyalldropbox - Provides a choice of matching "any" or "all" terms
-   by default as a drop down box.
- * inc/anyallradio - Provides a choice of matching "any" or "all" terms
-   by default as radio buttons.
- * toptermsjs - Provides some JavaScript used by the topterms template.
+* inc/anyalldropbox - Provides a choice of matching "any" or "all" terms
+  by default as a drop down box.
+* inc/anyallradio - Provides a choice of matching "any" or "all" terms
+  by default as radio buttons.
+* toptermsjs - Provides some JavaScript used by the topterms template.
 
 Document data construction
 ==========================
