@@ -487,13 +487,17 @@ The current options are:
 
  - `database_dir`: the directory containing all the Omega databases
  - `template_dir`: the directory containing the OmegaScript templates
- - `log_dir`: the directory which the OmegaScript $log command writes log files to
+ - `log_dir`: the directory which the OmegaScript `$log` command writes log
+   files to
+ - `cdb_dir`: the directory which the OmegaScript `$lookup` command
+   looks for CDB files in
 
 The default values (used if no configuration file is found) are::
 
  database_dir /var/lib/omega/data
  template_dir /var/lib/omega/templates
  log_dir /var/log/omega
+ cdb_dir /var/lib/omega/cdb
 
 Note that, with apache, environment variables may be set using mod_env, and
 with apache 1.3.7 or later this may be used inside a .htaccess file.  This
