@@ -359,31 +359,11 @@ check_db_fd(int fd, int opts, std::ostream *out)
     throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
     // Check a single-file glass database.
-    vector<Xapian::termcount> doclens;
-    size_t errors = 0;
-
-    // If we can't read the last docid, set it to its maximum value
-    // to suppress errors.
-    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
-    off_t pos = lseek(fd, 0, SEEK_CUR);
-    try {
-	// Open at the lower level so we can get the revision number.
-	int fd_tmp = dup(fd);
-	GlassDatabase db(fd_tmp);
-	db_last_docid = db.get_lastdocid();
-	reserve_doclens(doclens, db_last_docid, out);
-    } catch (const Xapian::Error & e) {
-	// Ignore so we can check a database too broken to open.
-	if (out)
-	    *out << "Database couldn't be opened for reading: "
-		 << e.get_description()
-		 << "\nContinuing check anyway" << endl;
-	++errors;
-    }
-    lseek(fd, pos, SEEK_SET);
-
     GlassVersion version_file(fd);
     version_file.read();
+    Xapian::docid db_last_docid = version_file.get_last_docid();
+    vector<Xapian::termcount> doclens;
+    reserve_doclens(doclens, db_last_docid, out);
 
     // This is a glass directory so try to check all the btrees.
     // Note: it's important to check termlist before postlist so
@@ -392,6 +372,8 @@ check_db_fd(int fd, int opts, std::ostream *out)
 	"docdata", "termlist", "postlist", "position",
 	"spelling", "synonym"
     };
+
+    size_t errors = 0;
     for (const char **t = tables;
 	 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
 	errors += check_glass_table(*t, fd, 0, version_file, opts, doclens,
