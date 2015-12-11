@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2009,2014 Olly Betts
+ * Copyright 2008,2009,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,10 +48,6 @@ class TestRunner {
      */
     std::string srcdir;
 
-    /** Set the properties in use from a comma separated list.
-     */
-    void set_properties(const std::string & properties);
-
     /** Return true iff we should use the named backend.
      */
     bool use_backend(const std::string & backend_name);
@@ -64,52 +60,29 @@ class TestRunner {
      */
     void do_tests_for_backend(BackendManager * manager);
 
+  protected:
+    enum {
+	BACKEND		= 0x00000001,
+	REMOTE		= 0x00000002,
+	TRANSACTIONS	= 0x00000004,
+	POSITIONAL	= 0x00000008,
+	WRITABLE	= 0x00000010,
+	SPELLING	= 0x00000020,
+	METADATA	= 0x00000040,
+	SYNONYMS	= 0x00000080,
+	REPLICAS	= 0x00000100,
+	VALUESTATS	= 0x00000200,
+	GENERATED	= 0x00000400,
+	MULTI		= 0x00000800,
+	SINGLEFILE	= 0x00001000,
+	INMEMORY	= 0x00002000,
+	CHERT		= 0x00004000,
+	GLASS		= 0x00008000,
+    };
+
   public:
-
-    /// True if a backend is in use.
-    bool backend;
-
-    /// True if a remote backend is in use.
-    bool remote;
-
-    /// True if transactions are supported by the backend in use.
-    bool transactions;
-
-    /// True is positional information is stored by the backend in use.
-    bool positional;
-
-    /// True if the backend is writable.
-    bool writable;
-
-    /// True if the backend supports spelling corrections.
-    bool spelling;
-
-    /// True if the backend supports synonyms.
-    bool synonyms;
-
-    /// True if the backend supports metadata.
-    bool metadata;
-
-    /// True if the backend supports replication.
-    bool replicas;
-
-    /// True if the backend supports getting value statistics.
-    bool valuestats;
-
-    /// True if the backend supports generated databases.
-    bool generated;
-
-    /// True if the backend is the multi backend.
-    bool multi;
-
-    /// True if the backend is the inmemory backend.
-    bool inmemory;
-
-    /// True if the backend is the chert backend.
-    bool chert;
-
-    /// True if the backend is the glass backend.
-    bool glass;
+    /// Property bitmask.
+    unsigned properties;
 
     /// Virtual destructor - needed for abstract class.
     virtual ~TestRunner();
