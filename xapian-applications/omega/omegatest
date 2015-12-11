@@ -144,7 +144,7 @@ testcase 'VALUE_RANGE 0 20141104 20151103~' DATEVALUE=0 END=20151103 SPAN=365
 testcase 'VALUE_RANGE 0 20151104 20151106~' DATEVALUE=0 START=19700101 END=20151106 SPAN=3
 
 # If faketime is available, test a range back from now.
-if faketime --version 2>&1 > /dev/null ; then
+if faketime --version > /dev/null 2>&1; then
     TZ=UTC
     export TZ
     FAKETIME=faketime
