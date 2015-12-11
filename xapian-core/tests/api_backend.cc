@@ -1391,5 +1391,13 @@ DEFINE_TESTCASE(embedded1, singlefile) {
 	TEST_EQUAL(db.get_doccount(), db_embedded.get_doccount());
     }
 
+    {
+	int fd = open(tmp_path.c_str(), O_RDONLY|O_BINARY);
+	lseek(fd, offset, SEEK_SET);
+	size_t check_errors =
+	    Xapian::Database::check(fd, Xapian::DBCHECK_SHOW_STATS, &tout);
+	TEST_EQUAL(check_errors, 0);
+    }
+
     return true;
 }

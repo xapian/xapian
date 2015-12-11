@@ -376,7 +376,8 @@ check_db_fd(int fd, int opts, std::ostream *out)
     size_t errors = 0;
     for (const char **t = tables;
 	 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-	errors += check_glass_table(*t, fd, 0, version_file, opts, doclens,
+	errors += check_glass_table(*t, fd, version_file.get_offset(),
+				    version_file, opts, doclens,
 				    db_last_docid, out);
     }
     return errors;
