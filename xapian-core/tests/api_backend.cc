@@ -27,8 +27,10 @@
 #define XAPIAN_DEPRECATED(X) X
 #include <xapian.h>
 
+#include "backendmanager.h"
 #include "filetests.h"
 #include "str.h"
+#include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -43,6 +45,8 @@
 # include <signal.h>
 # include "safesyswait.h"
 #endif
+
+#include <fstream>
 
 using namespace std;
 
@@ -1364,5 +1368,28 @@ DEFINE_TESTCASE(enquiregetquery1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
     TEST_EQUAL(enq.get_query().get_description(), "Query()");
+    return true;
+}
+
+DEFINE_TESTCASE(embedded1, singlefile) {
+    // In reality you should align the embedded database to a multiple of
+    // database block size, but any offset is meant to work.
+    off_t offset = 1234;
+
+    Xapian::Database db = get_database("apitest_simpledata");
+    const string & db_path = get_database_path("apitest_simpledata");
+    const string & tmp_path = db_path + "-embedded";
+    ofstream out(tmp_path, fstream::trunc|fstream::binary);
+    out.seekp(offset);
+    out << ifstream(db_path, fstream::binary).rdbuf();
+    out.close();
+
+    {
+	int fd = open(tmp_path.c_str(), O_RDONLY|O_BINARY);
+	lseek(fd, offset, SEEK_SET);
+	Xapian::Database db_embedded(fd);
+	TEST_EQUAL(db.get_doccount(), db_embedded.get_doccount());
+    }
+
     return true;
 }
