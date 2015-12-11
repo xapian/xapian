@@ -478,7 +478,7 @@ Removed Feature name                        Upgrade suggestion and comments
         ``set_block_size()``,               is now just a subclassable functor class to allow access to progress messages
         ``set_renumber()``,                 and control over merging of user metadata.
         ``set_multipass()``,
-        ``set_compaction_level()``,         The new API is also provided in xapian-core 1.2.22 and later.
+        ``set_compaction_level()``,
         ``set_destdir()``, ``add_source()`
         and ``compact()``.
 ======= =================================== ==================================================================================

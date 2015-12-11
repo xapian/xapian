@@ -515,9 +515,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Produce a compact version of this database.
 	 *
-	 *  New in 1.2.22 and 1.3.4.  Various methods of the Compactor class
-	 *  were deprecated in 1.3.4; this replacement method is provided in
-	 *  1.2.x as well to smooth the transition.
+	 *  New 1.3.4.  Various methods of the Compactor class were deprecated
+	 *  in 1.3.4.
 	 *
 	 *  @param output Path to write the compact version to.
 	 *		  This can be the same as an input if that input is a
@@ -560,9 +559,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Produce a compact version of this database.
 	 *
-	 *  New in 1.2.22 and 1.3.4.  Various methods of the Compactor class
-	 *  were deprecated in 1.3.4; this replacement method is provided in
-	 *  1.2.x as well to smooth the transition.
+	 *  New 1.3.4.  Various methods of the Compactor class were deprecated
+	 *  in 1.3.4.
 	 *
 	 *  The @a compactor functor allows handling progress output and
 	 *  specifying how user metadata is merged.
