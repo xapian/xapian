@@ -40,6 +40,8 @@ static const char configfile_envvar[] = "OMEGA_CONFIG_FILE";
 
 string database_dir = "/var/lib/omega/data/";
 string template_dir = "/var/lib/omega/templates/";
+string default_template = "query";
+string default_db = "default";
 string log_dir = "/var/log/omega/";
 string cdb_dir = "/var/lib/omega/cdb/";
 
@@ -86,13 +88,17 @@ try_read_config_file(const char * cfile)
 	    throw string("Bad line in configuration file '") + cfile + "'";
 	}
 
-	if (*value.rbegin() != '/')
+	if (endswith(name, "_dir") && *value.rbegin() != '/')
 	    value += '/';
 
 	if (name == "database_dir") {
 	    swap(database_dir, value);
 	} else if (name == "template_dir") {
 	    swap(template_dir, value);
+	} else if (name == "default_template") {
+	    swap(default_template, value);
+	} else if (name == "default_db") {
+	    swap(default_db, value);
 	} else if (name == "log_dir") {
 	    swap(log_dir, value);
 	} else if (name == "cdb_dir") {

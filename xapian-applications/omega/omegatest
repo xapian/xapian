@@ -21,14 +21,6 @@ set -e
 
 : ${OMEGA=./omega}
 
-OMEGA_CONFIG_FILE=test-omega.conf
-export OMEGA_CONFIG_FILE
-cat > "$OMEGA_CONFIG_FILE" <<'__END__'
-database_dir .
-template_dir .
-log_dir tmplog
-__END__
-
 # Suppress HTTP Content-Type header.
 SERVER_PROTOCOL=INCLUDED
 export SERVER_PROTOCOL
@@ -41,14 +33,24 @@ echo 'inmemory' > "$TEST_DB"
 TEST_TEMPLATE=test-template
 printf '$querydescription' > "$TEST_TEMPLATE"
 
+OMEGA_CONFIG_FILE=test-omega.conf
+export OMEGA_CONFIG_FILE
+cat > "$OMEGA_CONFIG_FILE" <<__END__
+database_dir .
+template_dir .
+log_dir tmplog
+default_template $TEST_TEMPLATE
+default_db $TEST_DB
+__END__
+
 failed=0
 
 testcase() {
     expected="Query($1)"
     shift
-    output=`$FAKETIME ${FAKE_NOW+"$FAKE_NOW"} "$OMEGA" FMT="$TEST_TEMPLATE" DB="$TEST_DB" "$@"`
+    output=`$FAKETIME ${FAKE_NOW+"$FAKE_NOW"} "$OMEGA" "$@"`
     if [ "$output" != "$expected" ] ; then
-	echo "$OMEGA FMT=$TEST_TEMPLATE DB=$TEST_DB $@:"
+	echo "$OMEGA $@:"
 	echo "  expected: «$expected»"
 	echo "  received: «$output»"
 	failed=`expr $failed + 1`

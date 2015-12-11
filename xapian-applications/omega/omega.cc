@@ -66,14 +66,12 @@ map<string, string> option;
 
 string date_start, date_end, date_span;
 
-const string default_dbname = "default";
-
 bool set_content_type = false;
 
 bool suppress_http_headers = false;
 
 string dbname;
-string fmtname = "query";
+string fmtname;
 string filters, old_filters;
 
 Xapian::docid topdoc = 0;
@@ -164,7 +162,7 @@ try {
 	    }
 	}
 	if (dbname.empty()) {
-	    dbname = default_dbname;
+	    dbname = default_db;
 	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
 	}
 	enquire = new Xapian::Enquire(db);
@@ -194,6 +192,8 @@ try {
 	const string & v = val->second;
 	if (!v.empty()) fmtname = v;
     }
+    if (fmtname.empty())
+	fmtname = default_template;
 
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
