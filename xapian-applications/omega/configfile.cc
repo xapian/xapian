@@ -23,7 +23,6 @@
 #include <config.h>
 
 #include <fstream>
-#include <iostream>
 
 #include <sys/types.h>
 #include "safesysstat.h"
