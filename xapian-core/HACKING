@@ -1158,9 +1158,9 @@ class keyword like so::
         // ...
     };
 
-To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
-you can't mark a method which is defined inline in a class with
-``XAPIAN_DEPRECATED()`` (this works with recent GCC versions though)::
+With recent versions of GCC (4.4.7 allows this, 3.3.5 doesn't), you can
+simply mark a method defined inline in a class with ``XAPIAN_DEPRECATED()``
+like so:
     
     class Foo {
       public:
@@ -1168,7 +1168,10 @@ you can't mark a method which is defined inline in a class with
         XAPIAN_DEPRECATED(int old_inline_method()) { return 42; }
     };
     
-Instead rewrite like so::
+Xapian 1.3.x and later require at least GCC 4.6, so you can just use the
+approach above.  Xapian 1.2.x aims to support GCC 3.1 and later, so in the
+unlikely event of needing to adjust deprecation markers in 1.2.x, you need to
+rewrite the above like so:
 
     class Foo {
       public:
