@@ -68,6 +68,14 @@
 
 #include <xapian.h>
 
+#ifndef XAPIAN_AT_LEAST
+#define XAPIAN_AT_LEAST(A,B,C) \
+    (XAPIAN_MAJOR_VERSION > (A) || \
+     (XAPIAN_MAJOR_VERSION == (A) && \
+      (XAPIAN_MINOR_VERSION > (B) || \
+       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))
+#endif
+
 using namespace std;
 
 using Xapian::Utf8Iterator;
@@ -265,6 +273,14 @@ set_probabilistic(const string &oldp)
 			break;
 		    }
 		    break;
+#if XAPIAN_AT_LEAST(1,2,22)
+		case 'c':
+		    if (s == "flag_cjk_ngram") {
+			f |= Xapian::QueryParser::FLAG_CJK_NGRAM;
+			break;
+		    }
+		    break;
+#endif
 		case 'd':
 		    if (s == "flag_default") {
 			f |= Xapian::QueryParser::FLAG_DEFAULT;
