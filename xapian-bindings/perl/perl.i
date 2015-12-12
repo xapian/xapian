@@ -69,12 +69,14 @@
 %constant int FLAG_SYNONYM = Xapian::QueryParser::FLAG_SYNONYM;
 %constant int FLAG_AUTO_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_SYNONYMS;
 %constant int FLAG_AUTO_MULTIWORD_SYNONYMS = Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS;
+%constant int FLAG_CJK_NGRAM = Xapian::QueryParser::FLAG_CJK_NGRAM;
 %constant int FLAG_DEFAULT = Xapian::QueryParser::FLAG_DEFAULT;
 %constant int STEM_NONE = Xapian::QueryParser::STEM_NONE;
 %constant int STEM_SOME = Xapian::QueryParser::STEM_SOME;
 %constant int STEM_ALL = Xapian::QueryParser::STEM_ALL;
 %constant int STEM_ALL_Z = Xapian::QueryParser::STEM_ALL_Z;
 %constant int FLAG_SPELLING = Xapian::TermGenerator::FLAG_SPELLING;
+// FLAG_CJK_NGRAM already set above from QueryParser (values match).
 %constant int WILDCARD_LIMIT_ERROR = Xapian::Query::WILDCARD_LIMIT_ERROR;
 %constant int WILDCARD_LIMIT_FIRST = Xapian::Query::WILDCARD_LIMIT_FIRST;
 %constant int WILDCARD_LIMIT_MOST_FREQUENT = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
