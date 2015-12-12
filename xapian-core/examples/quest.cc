@@ -54,6 +54,7 @@ static qp_flag flag_tab[] = {
     { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
     { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
+    { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
