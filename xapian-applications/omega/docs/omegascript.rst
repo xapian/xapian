@@ -396,8 +396,8 @@ $set{OPT,VALUE}
           values.  The only valid expansion scheme name in 1.2.x is ``trad``.
           e.g. ``$set{expansion,trad 2.0}``
 
-	Omega 1.2.5 and later support the following options can be set to a
-	non-empty value to enable the corresponding ``QueryParser`` flag.
+	Omega 1.2.5 and later support the following options, which can be set
+	to a non-empty value to enable the corresponding ``QueryParser`` flag.
 	Omega sets ``flag_default`` to ``true`` by default - you can set it to
 	an empty value to turn it off (``$set{flag_default,}``):
 
