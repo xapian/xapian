@@ -531,6 +531,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024,
 
+	/** Enable generation of n-grams from CJK text.
+	 *
+	 *  With this enabled, spans of CJK characters are split into unigrams
+	 *  and bigrams, with the unigrams carrying positional information.
+	 *  Non-CJK characters are split into words as normal.
+	 *
+	 *  The corresponding option needs to have been used at index time.
+	 *
+	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  enabled in 1.2.8 and later by setting environment variable
+	 *  XAPIAN_CJK_NGRAM.
+	 */
+	FLAG_CJK_NGRAM = 2048,
+
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().

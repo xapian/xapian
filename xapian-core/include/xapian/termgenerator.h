@@ -92,7 +92,21 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Flags to OR together and pass to TermGenerator::set_flags().
     enum {
 	/// Index data required for spelling correction.
-	FLAG_SPELLING = 128 // Value matches QueryParser flag.
+	FLAG_SPELLING = 128, // Value matches QueryParser flag.
+
+	/** Enable generation of n-grams from CJK text.
+	 *
+	 *  With this enabled, spans of CJK characters are split into unigrams
+	 *  and bigrams, with the unigrams carrying positional information.
+	 *  Non-CJK characters are split into words as normal.
+	 *
+	 *  The corresponding option needs to be passed to QueryParser.
+	 *
+	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  enabled in 1.2.8 and later by setting environment variable
+	 *  XAPIAN_CJK_NGRAM.
+	 */
+	FLAG_CJK_NGRAM = 2048 // Value matches QueryParser flag.
     };
 
     /// Stemming strategies, for use with set_stemming_strategy().
