@@ -122,7 +122,8 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 
     Query result = internal->parse_query(query_string, flags, default_prefix);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	result = internal->parse_query(query_string, 0, default_prefix);
+	flags &= FLAG_CJK_NGRAM;
+	result = internal->parse_query(query_string, flags, default_prefix);
     }
 
     if (internal->errmsg) throw Xapian::QueryParserError(internal->errmsg);

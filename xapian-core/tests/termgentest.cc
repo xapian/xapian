@@ -31,7 +31,7 @@
 #include "testutils.h"
 #include "utils.h"
 
-#include <stdlib.h> // For setenv() or putenv()
+#include "safesysstat.h" // For mkdir().
 
 using namespace std;
 
@@ -56,6 +56,8 @@ struct test {
     //    (this persists for subsequent tests until it's turned off).
     //  - prefix=FOO: Use the specified prefix.
     //    (this persists for subsequent tests until it's turned off).
+    //  - cjk: Enable FLAG_CJK_NGRAM.
+    //  - !cjk: Disable FLAG_CJK_NGRAM.
     const char *options;
 
     // The text to be processed.
@@ -123,9 +125,12 @@ static const test test_simple[] = {
     { "", "fish+chips", "Zchip:1 Zfish:1 chips[2] fish[1]" },
 
     // Basic CJK tests:
-    { "stem=", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
+    { "stem=,cjk", "久有归天", "久[1] 久有:1 天[4] 归[3] 归天:1 有[2] 有归:1" },
     { "", "극지라", "극[1] 극지:1 라[3] 지[2] 지라:1" },
     { "", "ウルス アップ", "ア[4] アッ:1 ウ[1] ウル:1 ス[3] ッ[5] ップ:1 プ[6] ル[2] ルス:1" },
+
+    // Non-CJK in CJK-mode:
+    { "", "hello World Test", "hello[1] test[3] world[2]" },
 
     // CJK with prefix:
     { "prefix=XA", "发送从", "XA从[3] XA发[1] XA发送:1 XA送[2] XA送从:1" },
@@ -142,7 +147,7 @@ static const test test_simple[] = {
     { "", "申込み！月額円", "み[3] 円[6] 月[4] 月額:1 申[1] 申込:1 込[2] 込み:1 額[5] 額円:1" },
 
     // Test set_stemming_strategy():
-    { "stem=en,none",
+    { "stem=en,none,!cjk",
 	  "Unstemmed words!", "unstemmed[1] words[2]" },
 
     { "all",
@@ -741,6 +746,15 @@ static bool test_termgen1()
 		    prefix += *o;
 		    ++o;
 		}
+	    } else if (strncmp(o, "cjk", 3) == 0) {
+		typedef Xapian::TermGenerator::flags flags;
+		o += 3;
+		termgen.set_flags(termgen.FLAG_CJK_NGRAM,
+				  flags(~termgen.FLAG_CJK_NGRAM));
+	    } else if (strncmp(o, "!cjk", 4) == 0) {
+		typedef Xapian::TermGenerator::flags flags;
+		o += 4;
+		termgen.set_flags(flags(0), flags(~termgen.FLAG_CJK_NGRAM));
 	    } else {
 		FAIL_TEST("Invalid options string: " << p->options);
 	    }
@@ -846,14 +860,6 @@ static const test_desc tests[] = {
 
 int main(int argc, char **argv)
 try {
-    // FIXME: It would be better to test with and without XAPIAN_CJK_NGRAM set.
-#ifdef HAVE__PUTENV_S
-    _putenv_s("XAPIAN_CJK_NGRAM", "1");
-#elif defined HAVE_SETENV
-    setenv("XAPIAN_CJK_NGRAM", "1", 1);
-#else
-    putenv(const_cast<char*>("XAPIAN_CJK_NGRAM=1"));
-#endif
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
 } catch (const char * e) {

@@ -121,7 +121,7 @@ void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
-    bool cjk_ngram = CJK::is_cjk_enabled();
+    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
 
     int stop_mode = STOPWORDS_INDEX_UNSTEMMED_ONLY;
 

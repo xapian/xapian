@@ -669,7 +669,7 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    bool cjk_ngram = CJK::is_cjk_enabled();
+    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
 
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
