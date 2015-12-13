@@ -439,11 +439,8 @@ H
 P
     path of site (i.e. the rest of the site base URL)
 U
-    full URL of indexed document - if the resulting term would be > 240
-    characters, a hashing scheme is used to prevent omindex overflowing
-    the Xapian term length limit.
-
-
+    full URL of indexed document - if the resulting term would be > 240 bytes,
+    a hashing scheme is used to avoid overflowing Xapian's term length limit.
 
 D
     date (numeric format: YYYYMMDD)
