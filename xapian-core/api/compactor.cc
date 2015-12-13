@@ -239,7 +239,7 @@ Database::compact_(const string & output, unsigned flags, int block_size,
 	    pl->next();
 	    // This test should never fail, since db->get_doccount() is
 	    // non-zero!
-	    Assert(!pl.at_end());
+	    Assert(!pl->at_end());
 	    first = pl->get_docid();
 
 	    if (renumber && first) {
