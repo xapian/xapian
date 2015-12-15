@@ -428,11 +428,24 @@ E
     Extension of the file (e.g. `Epdf`) [since Omega 1.2.5]
 T
     MIME type
+
+J
+    The base URL, omitting any trailing slash (so if the base URL was just
+    `/`, the term is just `J`).  If the resulting term would be > 240
+    bytes, it's hashed in the same way an `U` prefix terms are.  Mnemonic: the
+    Jumping-off point. [since Omega 1.3.4]
 H
     hostname of site (if supplied - this term won't exist if you index a
-    site with base URL '/press', for instance)
+    site with base URL '/press', for instance).  Since Omega 1.3.4, if the
+    resulting term would be > 240 bytes, it's hashed in the same way as `U`
+    prefix terms are.
 P
-    path of site (i.e. the rest of the site base URL)
+    path terms - one term for the directory which the document is in, and for
+    each parent directories, with no trailing slashes [since Omega 1.3.4 -
+    in earlier versions, there was just one `P` term for the path of site (i.e.
+    the rest of the site base URL) - this will be amongst the terms Omega 1.3.4
+    adds].  Since Omega 1.3.4, if the resulting term would be > 240 bytes, it's
+    hashed in the same way as `U` prefix terms are.
 U
     full URL of indexed document - if the resulting term would be > 240 bytes,
     a hashing scheme is used to avoid overflowing Xapian's term length limit.

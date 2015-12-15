@@ -66,6 +66,7 @@ static bool verbose = false;
 static double sleep_before_opendir = 0;
 
 static string root;
+static string url_start_path;
 
 inline static bool
 p_notalnum(unsigned int c)
@@ -133,6 +134,24 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
     }
 
     Xapian::Document new_doc;
+
+    // Use `file` as the basis, as we don't want URL encoding in these terms,
+    // but need to switch over the initial part so we get `/~olly/foo/bar` not
+    // `/home/olly/public_html/foo/bar`.
+    string path_term("P");
+    path_term += url_start_path;
+    path_term.append(file, root.size(), string::npos);
+
+    size_t i;
+    while ((i = path_term.rfind('/')) > 1 && i != string::npos) {
+	path_term.resize(i);
+	if (path_term.length() > MAX_SAFE_TERM_LENGTH) {
+	    new_doc.add_boolean_term(hash_long_term(path_term, MAX_SAFE_TERM_LENGTH));
+	} else {
+	    new_doc.add_boolean_term(path_term);
+	}
+    }
+
     index_mimetype(file, urlterm, url, ext, mimetype, d, new_doc, string());
 }
 
@@ -558,35 +577,31 @@ main(int argc, char **argv)
     if (!endswith(baseurl, '/')) {
 	baseurl += '/';
     }
+
+    // Site term (omits the trailing slash):
+    site_term = "J";
+    site_term.append(baseurl, 0, baseurl.size() - 1);
+    if (site_term.size() > MAX_SAFE_TERM_LENGTH)
+	site_term = hash_long_term(site_term, MAX_SAFE_TERM_LENGTH);
+
+    // Host term, if the URL contains a hostname (omits any port number):
     string::size_type j;
     j = find_if(baseurl.begin(), baseurl.end(), p_notalnum) - baseurl.begin();
-    if (j > 0 && baseurl.substr(j, 3) == "://") {
+    if (j > 0 && baseurl.substr(j, 3) == "://" && j + 3 < baseurl.size()) {
 	j += 3;
+	// We must find a '/' - we ensured baseurl ended with a '/' above.
 	string::size_type k = baseurl.find('/', j);
-	if (k == string::npos) {
-	    // Path:
-	    site_term = "P/";
-	    // Host:
-	    host_term = "H" + baseurl.substr(j);
-	} else {
-	    // Path:
-	    string::size_type path_len = baseurl.size() - k;
-	    // Subtract one to lose the trailing /, unless it's the initial /
-	    // too.
-	    if (path_len > 1) --path_len;
-	    site_term = "P" + baseurl.substr(k, path_len);
-	    // Host:
-	    string::const_iterator l;
-	    l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
-	    string::size_type host_len = l - baseurl.begin() - j;
-	    host_term = "H" + baseurl.substr(j, host_len);
-	}
+	url_start_path.assign(baseurl, k, string::npos);
+	string::const_iterator l;
+	l = find(baseurl.begin() + j, baseurl.begin() + k, ':');
+	string::size_type host_len = l - baseurl.begin() - j;
+	host_term = "H";
+	host_term.append(baseurl, j, host_len);
+	// DNS hostname limit is 253.
+	if (host_term.size() > MAX_SAFE_TERM_LENGTH)
+	    host_term = hash_long_term(host_term, MAX_SAFE_TERM_LENGTH);
     } else {
-	// Path:
-	string::size_type path_len = baseurl.size();
-	// Subtract one to lose the trailing /, unless it's the initial / too.
-	if (path_len > 1) --path_len;
-	site_term = "P" + baseurl.substr(0, path_len);
+	url_start_path = baseurl;
     }
 
     if (optind >= argc || optind + 2 < argc) {
