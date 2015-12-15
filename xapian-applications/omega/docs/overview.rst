@@ -58,7 +58,7 @@ Where B(F,1) is the first boolean term with prefix F, and so on.
 
 The intent here is to allow filtering on arbitrary (and, typically,
 orthogonal) characteristics of the document. For instance, by adding
-boolean terms "Ttext/html", "Ttext/plain" and "P/press" you would be
+boolean terms "Ttext/html", "Ttext/plain" and "J/press" you would be
 filtering the probabilistic search for only documents that are both in
 the "/press" site *and* which are either of MIME type text/html or
 text/plain. (See below for more information about sites.)
