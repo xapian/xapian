@@ -45,6 +45,8 @@ H
         Hostname
 I
 	boolean filter term for "can see" permission (mnemonic: Include)
+J
+	Site term (mnemonic: Jumping off point)
 K	
         Keyword
 L	
@@ -78,7 +80,7 @@ Y
 Z	
         stemmed term
 
-Reserved but currently unallocated: CJW
+Reserved but currently unallocated: CW
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.
