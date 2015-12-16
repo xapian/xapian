@@ -69,8 +69,8 @@ spell
         actions in the remainder of this list of actions.
 
 truncate=LENGTH
-	truncate to at most LENGTH characters, but avoid chopping off a word
-	(useful for sample and title fields)
+	truncate to at most LENGTH bytes, but avoid chopping off a word (useful
+	for sample and title fields)
 
 unhtml
 	strip out HTML tags

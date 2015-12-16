@@ -63,7 +63,7 @@ T
         mimeType
 U	
         full URL of indexed document - if the resulting term would be > 240
-	characters, a hashing scheme is used to prevent overflowing
+	bytes, a hashing scheme is used to prevent overflowing
 	the Xapian term length limit (see omindex for how to do this).
 V
 	boolean filter term for "can't see" permission (mnemonic: grep -v)
