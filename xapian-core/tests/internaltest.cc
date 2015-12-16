@@ -517,14 +517,14 @@ static bool test_chartype1()
 
 /// The lists of tests to perform
 static const test_desc tests[] = {
-    {"exception1",		test_exception1},
-    {"refcnt1",			test_refcnt1},
-    {"refcnt2",			test_refcnt2},
-    {"autoptr1",		test_autoptr1},
-    {"stringcomp1",		test_stringcomp1},
-    {"temporarydtor1",		test_temporarydtor1},
-    {"static_assert1",		test_static_assert1},
-    {"pack1",			test_pack_uint_preserving_sort1},
+    TESTCASE(exception1),
+    TESTCASE(refcnt1),
+    TESTCASE(refcnt2),
+    TESTCASE(autoptr1),
+    TESTCASE(stringcomp1),
+    TESTCASE(temporarydtor1),
+    TESTCASE(static_assert1),
+    TESTCASE(pack_uint_preserving_sort1),
     TESTCASE(chartype1),
     {0, 0}
 };
