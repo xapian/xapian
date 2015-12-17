@@ -463,7 +463,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 
 	    // Read the new first docid
 	    Xapian::docid new_first_did;
-	    if (!unpack_uint_preserving_sort(&kpos, kend, &new_first_did)) {
+	    if (!C_unpack_uint_preserving_sort(&kpos, kend, &new_first_did)) {
 		report_read_error(kpos);
 	    }
 
@@ -531,7 +531,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 		first_did_in_chunk = read_start_of_first_chunk(&tagpos, tagend,
 							       0, 0);
 	    } else {
-		if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk))
+		if (!C_unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk))
 		    report_read_error(keypos);
 	    }
 	    bool wrong_is_last_chunk;
@@ -609,7 +609,7 @@ PostlistChunkWriter::flush(ChertTable *table)
 	    throw Xapian::DatabaseCorruptError("Have invalid key writing to postlist");
 	}
 	Xapian::docid initial_did;
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
+	if (!C_unpack_uint_preserving_sort(&keypos, keyend, &initial_did)) {
 	    report_read_error(keypos);
 	}
 	string new_key;
@@ -767,7 +767,7 @@ ChertPostList::next_chunk()
     }
 
     Xapian::docid newdid;
-    if (!unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
+    if (!C_unpack_uint_preserving_sort(&keypos, keyend, &newdid)) {
 	report_read_error(keypos);
     }
     if (newdid <= did) {
@@ -870,7 +870,7 @@ ChertPostList::move_to_chunk_containing(Xapian::docid desired_did)
 #endif
     } else {
 	// In normal chunk
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &did)) {
+	if (!C_unpack_uint_preserving_sort(&keypos, keyend, &did)) {
 	    report_read_error(keypos);
 	}
     }
@@ -1022,7 +1022,7 @@ ChertPostListTable::get_chunk(const string &tname,
     if (is_first_chunk) {
 	first_did_in_chunk = read_start_of_first_chunk(&pos, end, NULL, NULL);
     } else {
-	if (!unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
+	if (!C_unpack_uint_preserving_sort(&keypos, keyend, &first_did_in_chunk)) {
 	    report_read_error(keypos);
 	}
     }
@@ -1057,7 +1057,7 @@ ChertPostListTable::get_chunk(const string &tname,
 
     // Read the new first docid
     Xapian::docid first_did_of_next_chunk;
-    if (!unpack_uint_preserving_sort(&kpos, kend, &first_did_of_next_chunk)) {
+    if (!C_unpack_uint_preserving_sort(&kpos, kend, &first_did_of_next_chunk)) {
 	report_read_error(kpos);
     }
     RETURN(first_did_of_next_chunk - 1);

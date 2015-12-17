@@ -35,7 +35,7 @@ inline string
 make_key(Xapian::docid did)
 {
     string key;
-    pack_uint_preserving_sort(key, did);
+    C_pack_uint_preserving_sort(key, did);
     return key;
 }
 

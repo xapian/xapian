@@ -180,7 +180,7 @@ check_chert_table(const char * tablename, string filename,
 		    pos = key.data();
 		    end = pos + key.size();
 		    pos += 2;
-		    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+		    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 			if (out)
 			    *out << "Error unpacking docid from doclen key" << endl;
 			++errors;
@@ -366,7 +366,7 @@ check_chert_table(const char * tablename, string filename,
 		    continue;
 		}
 		Xapian::docid did;
-		if (!unpack_uint_preserving_sort(&p, end, &did)) {
+		if (!C_unpack_uint_preserving_sort(&p, end, &did)) {
 		    if (out)
 			*out << "Bad value chunk key (no docid)" << endl;
 		    ++errors;
@@ -526,7 +526,7 @@ check_chert_table(const char * tablename, string filename,
 		    current_term = term;
 		}
 		AssertEq(current_term, term);
-		if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+		if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		    if (out)
 			*out << "Failed to unpack did from key" << endl;
 		    ++errors;
@@ -643,7 +643,7 @@ check_chert_table(const char * tablename, string filename,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;
@@ -663,7 +663,7 @@ check_chert_table(const char * tablename, string filename,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;
@@ -834,7 +834,7 @@ check_chert_table(const char * tablename, string filename,
 	    const char * end = pos + key.size();
 
 	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&pos, end, &did)) {
+	    if (!C_unpack_uint_preserving_sort(&pos, end, &did)) {
 		if (out)
 		    *out << "Error unpacking docid from key" << endl;
 		++errors;

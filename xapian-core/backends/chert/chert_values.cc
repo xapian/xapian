@@ -52,7 +52,7 @@ make_slot_key(Xapian::docid did)
     // and will sort just after the corresponding termlist entry key.
     // FIXME: should we store this in the *same entry* as the list of terms?
     string key;
-    pack_uint_preserving_sort(key, did);
+    C_pack_uint_preserving_sort(key, did);
     key += '\0';
     RETURN(key);
 }
@@ -179,7 +179,7 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
 	if (v != slot) RETURN(0);
 
 	// And get the first docid for the chunk so we can return it.
-	if (!unpack_uint_preserving_sort(&p, end, &did) || p != end) {
+	if (!C_unpack_uint_preserving_sort(&p, end, &did) || p != end) {
 	    throw Xapian::DatabaseCorruptError("Bad value key");
 	}
     }

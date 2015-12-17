@@ -115,19 +115,19 @@ class PostlistCursor : private ChertCursor {
 	    if (!unpack_uint(&p, end, &slot))
 		throw Xapian::DatabaseCorruptError("bad value key");
 	    Xapian::docid did;
-	    if (!unpack_uint_preserving_sort(&p, end, &did))
+	    if (!C_unpack_uint_preserving_sort(&p, end, &did))
 		throw Xapian::DatabaseCorruptError("bad value key");
 	    did += offset;
 
 	    key.assign("\0\xd8", 2);
 	    pack_uint(key, slot);
-	    pack_uint_preserving_sort(key, did);
+	    C_pack_uint_preserving_sort(key, did);
 	    return true;
 	}
 
 	// Adjust key if this is *NOT* an initial chunk.
 	// key is: pack_string_preserving_sort(key, tname)
-	// plus optionally: pack_uint_preserving_sort(key, did)
+	// plus optionally: C_pack_uint_preserving_sort(key, did)
 	const char * d = key.data();
 	const char * e = d + key.size();
 	if (is_doclenchunk_key(key)) {
@@ -152,7 +152,7 @@ class PostlistCursor : private ChertCursor {
 	} else {
 	    // Not an initial chunk, so adjust key.
 	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+	    if (!C_unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
 		throw Xapian::DatabaseCorruptError("Bad postlist key");
 	    if (is_doclenchunk_key(key)) {
 		key.erase(tmp);
@@ -743,7 +743,7 @@ merge_docid_keyed(ChertTable *out, const vector<ChertTable*> & inputs,
 		Xapian::docid did;
 		const char * d = cur.current_key.data();
 		const char * e = d + cur.current_key.size();
-		if (!unpack_uint_preserving_sort(&d, e, &did)) {
+		if (!C_unpack_uint_preserving_sort(&d, e, &did)) {
 		    string msg = "Bad key in ";
 		    msg += inputs[i]->get_path();
 		    msg += "DB";
@@ -751,7 +751,7 @@ merge_docid_keyed(ChertTable *out, const vector<ChertTable*> & inputs,
 		}
 		did += off;
 		key.resize(0);
-		pack_uint_preserving_sort(key, did);
+		C_pack_uint_preserving_sort(key, did);
 		if (d != e) {
 		    // Copy over the termname for the position table.
 		    key.append(d, e - d);
