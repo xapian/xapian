@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007,2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <sys/types.h>
 #include "safeerrno.h"
@@ -160,7 +161,7 @@ runfilter_init()
 #endif
 
 string
-stdout_to_string(const string &cmd)
+stdout_to_string(const string &cmd, bool use_shell)
 {
     string out;
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
@@ -219,7 +220,60 @@ stdout_to_string(const string &cmd)
 #endif
 #endif
 
-	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+	if (use_shell) {
+	    execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+	    _exit(-1);
+	}
+
+	string s(cmd);
+	vector<const char *> argv;
+	size_t j = 0;
+	while (true) {
+	    size_t i = s.find_first_not_of(" \t\n", j);
+	    if (i == string::npos) break;
+	    j = i;
+	    if (s[j] == '\'') {
+single_quoted:
+		s.erase(j, 1);
+		while (true) {
+		    j = s.find('\'', j + 1);
+		    if (j == s.npos) {
+			// Unmatched ' in command string.
+			// dash exits 2 in this case, bash exits 1.
+			_exit(2);
+		    }
+		    // Replace four character sequence '\'' with ' - this is
+		    // how a single quote inside single quotes gets escaped.
+		    if (s[j + 1] != '\\' ||
+			s[j + 2] != '\'' ||
+			s[j + 3] != '\'') {
+			break;
+		    }
+		    s.erase(j + 1, 3);
+		}
+		if (j + 1 != s.size()) {
+		    char ch = s[j + 1];
+		    if (ch != ' ' && ch != '\t' && ch != '\n') {
+			// Handle the expansion of e.g.: --input=%f,html
+			s.erase(j, 1);
+			goto out_of_quotes;
+		    }
+		}
+	    } else {
+out_of_quotes:
+		j = s.find_first_of(" \t\n'", j + 1);
+		// Handle the expansion of e.g.: --input=%f
+		if (j != s.npos && s[j] == '\'') goto single_quoted;
+	    }
+	    if (j != s.npos) {
+		s[j++] = '\0';
+	    }
+	    const char * word = s.c_str() + i;
+	    argv.push_back(word);
+	}
+	argv.push_back(NULL);
+
+	execvp(argv[0], const_cast<char **>(&argv[0]));
 	_exit(-1);
     }
 
@@ -300,6 +354,7 @@ stdout_to_string(const string &cmd)
     }
     pid_to_kill_on_signal = 0;
 #else
+    (void)use_shell;
     FILE * fh = popen(cmd.c_str(), "r");
     if (fh == NULL) throw ReadError("popen failed");
     while (!feof(fh)) {

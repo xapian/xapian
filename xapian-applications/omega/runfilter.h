@@ -1,6 +1,6 @@
 /* runfilter.h: run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2007,2013 Olly Betts
+ * Copyright (C) 2007,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,17 @@ struct NoSuchFilter { };
 /// Initialise the runfilter module.
 void runfilter_init();
 
-/// Run command @a cmd, capture its stdout, and return it as a std::string.
-std::string stdout_to_string(const std::string &cmd);
+/** Run command @a cmd, capture its stdout, and return it as a std::string.
+ *
+ *  @param use_shell  If false, try to avoid using a shell to run the command.
+ *
+ *  Note: use_shell=false mode assumes only single quotes are used (double
+ *  quotes and backslash quoting (aside from in the four character sequence
+ *  '\'' within single quotes) aren't currently handled).  This is only
+ *  currently supported on Unix-like systems - other systems will ignore
+ *  use_shell and always use the same code path (which may or may not involve
+ *  some analog of the Unix shell).
+ */
+std::string stdout_to_string(const std::string &cmd, bool use_shell);
 
 #endif // OMEGA_INCLUDED_RUNFILTER_H

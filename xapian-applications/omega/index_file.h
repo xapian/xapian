@@ -48,15 +48,19 @@ struct Filter {
     std::string cmd;
     std::string output_type;
     std::string output_charset;
-    Filter() : cmd(), output_type() { }
-    explicit Filter(const std::string & cmd_)
-	: cmd(cmd_), output_type() { }
-    Filter(const std::string & cmd_, const std::string & output_type_)
-	: cmd(cmd_), output_type(output_type_) { }
+    bool no_shell;
+    Filter() : cmd(), output_type(), no_shell(false) { }
+    explicit Filter(const std::string & cmd_, bool use_shell = true)
+	: cmd(cmd_), output_type(), no_shell(!use_shell) { }
     Filter(const std::string & cmd_, const std::string & output_type_,
-	   const std::string & output_charset_)
+	   bool use_shell = true)
+	: cmd(cmd_), output_type(output_type_), no_shell(!use_shell) { }
+    Filter(const std::string & cmd_, const std::string & output_type_,
+	   const std::string & output_charset_,
+	   bool use_shell = true)
 	: cmd(cmd_), output_type(output_type_),
-	  output_charset(output_charset_) { }
+	  output_charset(output_charset_), no_shell(!use_shell) { }
+    bool use_shell() const { return !no_shell; }
 };
 
 extern std::map<std::string, Filter> commands;

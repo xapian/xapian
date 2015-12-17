@@ -146,21 +146,22 @@ skip_unknown_mimetype(const string & urlterm, const string & context,
 void
 index_add_default_filters()
 {
-    index_command("application/msword", Filter("antiword -mUTF-8.txt"));
+    index_command("application/msword", Filter("antiword -mUTF-8.txt", false));
     index_command("application/vnd.ms-excel",
-		  Filter("xls2csv -c' ' -q0 -dutf-8"));
-    index_command("application/vnd.ms-powerpoint", Filter("catppt -dutf-8"));
+		  Filter("xls2csv -c' ' -q0 -dutf-8", false));
+    index_command("application/vnd.ms-powerpoint",
+		  Filter("catppt -dutf-8", false));
     // Looking at the source of wpd2html and wpd2text I think both output
     // UTF-8, but it's hard to be sure without sample Unicode .wpd files
     // as they don't seem to be at all well documented.
-    index_command("application/vnd.wordperfect", Filter("wpd2text"));
+    index_command("application/vnd.wordperfect", Filter("wpd2text", false));
     // wps2text produces UTF-8 output from the sample files I've tested.
-    index_command("application/vnd.ms-works", Filter("wps2text"));
+    index_command("application/vnd.ms-works", Filter("wps2text", false));
     // Output is UTF-8 according to "man djvutxt".  Generally this seems to
     // be true, though some examples from djvu.org generate isolated byte
     // 0x95 in a context which suggests it might be intended to be a bullet
     // (as it is in CP1250).
-    index_command("image/vnd.djvu", Filter("djvutxt"));
+    index_command("image/vnd.djvu", Filter("djvutxt", false));
     // The --text option unhelpfully converts all non-ASCII characters to "?"
     // so we use --html instead, which produces HTML entities.  The --nopict
     // option suppresses exporting picture files as pictNNNN.wmf in the current
@@ -168,21 +169,22 @@ index_add_default_filters()
     // but it was fixed in unrtf 0.20.4.
     index_command("text/rtf",
 		  Filter("unrtf --nopict --html 2>/dev/null", "text/html"));
-    index_command("text/x-rst", Filter("rst2html", "text/html"));
+    index_command("text/x-rst", Filter("rst2html", "text/html", false));
     index_command("application/x-mspublisher",
-		  Filter("pub2xhtml", "text/html"));
+		  Filter("pub2xhtml", "text/html", false));
     index_command("application/vnd.ms-outlook",
-		  Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html"));
+		  Filter(get_pkglibbindir() + "/outlookmsg2html", "text/html",
+			 false));
     // pod2text's output character set doesn't seem to be documented, but from
     // inspecting the source it looks like it's probably iso-8859-1.
     index_command("text/x-perl",
-		  Filter("pod2text", "text/plain", "iso-8859-1"));
+		  Filter("pod2text", "text/plain", "iso-8859-1", false));
     // FIXME: -e0 means "UTF-8", but that results in "fi", "ff", "ffi", etc
     // appearing as single ligatures.  For European languages, it's actually
     // better to use -e2 (ISO-8859-1) and then convert, so let's do that for
     // now until we handle Unicode "compatibility decompositions".
     index_command("application/x-dvi",
-		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1"));
+		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1", false));
 }
 
 void
@@ -276,7 +278,7 @@ get_pdf_metainfo(const string & file, string &author, string &title,
     try {
 	string cmd = "pdfinfo -enc UTF-8";
 	append_filename_argument(cmd, file);
-	string pdfinfo = stdout_to_string(cmd);
+	string pdfinfo = stdout_to_string(cmd, false);
 
 	const char * p = pdfinfo.data();
 	const char * end = p + pdfinfo.size();
@@ -531,6 +533,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		     SKIP_VERBOSE_ONLY);
 		return;
 	    }
+	    bool use_shell = cmd_it->second.use_shell();
 	    bool substituted = false;
 	    string tmpout;
 	    size_t pcent = 0;
@@ -591,7 +594,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    try {
 		if (!tmpout.empty()) {
 		    // Output in temporary file.
-		    (void)stdout_to_string(cmd);
+		    (void)stdout_to_string(cmd, use_shell);
 		    if (!load_file(tmpout, dump)) {
 			throw ReadError("Couldn't read output file");
 		    }
@@ -601,7 +604,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		    // filing system.
 		} else {
 		    // Output on stdout.
-		    dump = stdout_to_string(cmd);
+		    dump = stdout_to_string(cmd, use_shell);
 		}
 		const string & charset = cmd_it->second.output_charset;
 		if (cmd_it->second.output_type == "text/html") {
@@ -683,7 +686,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    cmd += " -";
 	    try {
-		dump = stdout_to_string(cmd);
+		dump = stdout_to_string(cmd, false);
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
@@ -712,11 +715,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    append_filename_argument(cmd, tmpfile);
 	    try {
-		(void)stdout_to_string(cmd);
+		(void)stdout_to_string(cmd, false);
 		cmd = "pdftotext -enc UTF-8";
 		append_filename_argument(cmd, tmpfile);
 		cmd += " -";
-		dump = stdout_to_string(cmd);
+		dump = stdout_to_string(cmd, false);
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
 				d.get_size(), d.get_mtime());
@@ -744,7 +747,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    cmd += " styles.xml";
 	    try {
 		OpenDocParser parser;
-		parser.parse(stdout_to_string(cmd));
+		parser.parse(stdout_to_string(cmd, true));
 		dump = parser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
@@ -757,7 +760,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    cmd += " meta.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd, false));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
 		// FIXME: topic = metaxmlparser.topic;
@@ -785,7 +788,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		cmd += " xl/worksheets/sheet\\*.xml";
 		try {
 		    XlsxParser parser;
-		    parser.parse(stdout_to_string(cmd));
+		    parser.parse(stdout_to_string(cmd, true));
 		    dump = parser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(urlterm, context, cmd,
@@ -810,7 +813,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		cmd += args;
 		try {
 		    MSXmlParser xmlparser;
-		    xmlparser.parse_xml(stdout_to_string(cmd));
+		    xmlparser.parse_xml(stdout_to_string(cmd, false));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(urlterm, context, cmd,
@@ -824,7 +827,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    cmd += " docProps/core.xml";
 	    try {
 		MetaXmlParser metaxmlparser;
-		metaxmlparser.parse(stdout_to_string(cmd));
+		metaxmlparser.parse(stdout_to_string(cmd, false));
 		title = metaxmlparser.title;
 		keywords = metaxmlparser.keywords;
 		// FIXME: topic = metaxmlparser.topic;
@@ -846,7 +849,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    append_filename_argument(cmd, file);
 	    try {
 		XmlParser xmlparser;
-		xmlparser.parse_xml(stdout_to_string(cmd));
+		xmlparser.parse_xml(stdout_to_string(cmd, false));
 		dump = xmlparser.dump;
 	    } catch (ReadError) {
 		skip_cmd_failed(urlterm, context, cmd,
@@ -856,10 +859,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	} else if (mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";
 	    append_filename_argument(cmd, file);
-	    cmd += " Documents/1/Pages/\\*.fpage";
+	    cmd += " 'Documents/1/Pages/*.fpage'";
 	    try {
 		XpsXmlParser xpsparser;
-		dump = stdout_to_string(cmd);
+		dump = stdout_to_string(cmd, false);
 		// Look for Byte-Order Mark (BOM).
 		if (startswith(dump, "\xfe\xff") || startswith(dump, "\xff\xfe")) {
 		    // UTF-16 in big-endian/little-endian order - we just
@@ -910,7 +913,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    string cmd("dpkg-deb -f");
 	    append_filename_argument(cmd, file);
 	    cmd += " Description";
-	    const string & desc = stdout_to_string(cmd);
+	    const string & desc = stdout_to_string(cmd, false);
 	    // First line is short description, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);
@@ -920,7 +923,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	} else if (mimetype == "application/x-redhat-package-manager") {
 	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
 	    append_filename_argument(cmd, file);
-	    const string & desc = stdout_to_string(cmd);
+	    const string & desc = stdout_to_string(cmd, false);
 	    // First line is summary, which we use as the title.
 	    string::size_type idx = desc.find('\n');
 	    title.assign(desc, 0, idx);

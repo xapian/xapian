@@ -458,6 +458,7 @@ main(int argc, char **argv)
 		} else {
 		    c = s;
 		}
+		// FIXME: Analyse the command string to decide if it needs a shell.
 		index_command(string(optarg, c - optarg),
 			      Filter(string(s + 1), output_type, output_charset));
 	    } else {
