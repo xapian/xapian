@@ -293,6 +293,7 @@ Snipper::get_description() const
     desc += str(internal->rm_term_data.size());
     desc += ", rm_collection_size=";
     desc += str(internal->rm_coll_size);
+    desc += ")";
     return desc;
 }
 
