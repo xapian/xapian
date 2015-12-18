@@ -148,7 +148,7 @@ dnl Microsoft have marked putenv() as deprecated, so we use _putenv_s() under
 dnl MSVC to avoid deprecation warnings.  We probe here since mingw doesn't
 dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
 dnl on __WIN32__ being defined.
-AC_CHECK_FUNCS([setenv _putenv_s])
+AC_CHECK_FUNCS([setenv putenv _putenv_s])
 
 dnl Use for Unix permission checks.
 AC_CHECK_FUNCS([getgrouplist])

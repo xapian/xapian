@@ -30,6 +30,7 @@
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include <cstdio>
+#include <cstring>
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
@@ -48,6 +49,7 @@
 #endif
 
 #include "freemem.h"
+#include "stringutils.h"
 
 #ifdef _MSC_VER
 # define popen _popen
@@ -57,6 +59,63 @@
 using namespace std;
 
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
+bool
+command_needs_shell(const char * p)
+{
+    for ( ; *p; ++p) {
+	// Probably overly conservative, but suitable for
+	// real-world cases.
+	if (strchr("!\"#$&()*;<>?[\\]^`{|}~", *p) != NULL) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+static bool
+unquote(string & s, size_t & j)
+{
+    bool quoted = false;
+    if (s[j] == '\'') {
+single_quoted:
+	quoted = true;
+	s.erase(j, 1);
+	while (true) {
+	    j = s.find('\'', j + 1);
+	    if (j == s.npos) {
+		// Unmatched ' in command string.
+		// dash exits 2 in this case, bash exits 1.
+		_exit(2);
+	    }
+	    // Replace four character sequence '\'' with ' - this is
+	    // how a single quote inside single quotes gets escaped.
+	    if (s[j + 1] != '\\' ||
+		s[j + 2] != '\'' ||
+		s[j + 3] != '\'') {
+		break;
+	    }
+	    s.erase(j + 1, 3);
+	}
+	if (j + 1 != s.size()) {
+	    char ch = s[j + 1];
+	    if (ch != ' ' && ch != '\t' && ch != '\n') {
+		// Handle the expansion of e.g.: --input=%f,html
+		s.erase(j, 1);
+		goto out_of_quotes;
+	    }
+	}
+    } else {
+out_of_quotes:
+	j = s.find_first_of(" \t\n'", j + 1);
+	// Handle the expansion of e.g.: --input=%f
+	if (j != s.npos && s[j] == '\'') goto single_quoted;
+    }
+    if (j != s.npos) {
+	s[j++] = '\0';
+    }
+    return quoted;
+}
+
 static pid_t pid_to_kill_on_signal;
 
 #ifdef HAVE_SIGACTION
@@ -154,6 +213,14 @@ runfilter_init()
 }
 #endif
 #else
+bool
+command_needs_shell(const char *)
+{
+    // We don't try to avoid the shell on this platform, so don't waste time
+    // analysing commands to see if they could.
+    return true;
+}
+
 void
 runfilter_init()
 {
@@ -221,56 +288,51 @@ stdout_to_string(const string &cmd, bool use_shell)
 #endif
 
 	if (use_shell) {
+#if !defined HAVE_SETENV && !defined HAVE_PUTENV
+use_shell_after_all:
+#endif
 	    execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	    _exit(-1);
 	}
 
 	string s(cmd);
-	vector<const char *> argv;
+	// Handle any environment variable assignments.
+	// Name must start with alpha or '_', contain only alphanumerics and
+	// '_', and there must be no quoting of either the name or the '='.
 	size_t j = 0;
+	while (true) {
+	    j = s.find_first_not_of(" \t\n", j);
+	    if (!(C_isalnum(s[j]) || s[j] == '_')) break;
+	    size_t i = j;
+	    do ++j; while (C_isalnum(s[j]) || s[j] == '_');
+	    if (s[j] != '=') {
+		j = i;
+		break;
+	    }
+
+#ifdef HAVE_SETENV
+	    size_t eq = j;
+	    unquote(s, j);
+	    s[eq] = '\0';
+	    setenv(&s[i], &s[eq + 1], 1);
+	    j = s.find_first_not_of(" \t\n", j);
+#elif defined HAVE_PUTENV
+	    unquote(s, j);
+	    putenv(&s[i]);
+#else
+	    goto use_shell_after_all;
+#endif
+	}
+
+	vector<const char *> argv;
 	while (true) {
 	    size_t i = s.find_first_not_of(" \t\n", j);
 	    if (i == string::npos) break;
-	    j = i;
-	    if (s[j] == '\'') {
-single_quoted:
-		s.erase(j, 1);
-		while (true) {
-		    j = s.find('\'', j + 1);
-		    if (j == s.npos) {
-			// Unmatched ' in command string.
-			// dash exits 2 in this case, bash exits 1.
-			_exit(2);
-		    }
-		    // Replace four character sequence '\'' with ' - this is
-		    // how a single quote inside single quotes gets escaped.
-		    if (s[j + 1] != '\\' ||
-			s[j + 2] != '\'' ||
-			s[j + 3] != '\'') {
-			break;
-		    }
-		    s.erase(j + 1, 3);
-		}
-		if (j + 1 != s.size()) {
-		    char ch = s[j + 1];
-		    if (ch != ' ' && ch != '\t' && ch != '\n') {
-			// Handle the expansion of e.g.: --input=%f,html
-			s.erase(j, 1);
-			goto out_of_quotes;
-		    }
-		}
-	    } else {
-out_of_quotes:
-		j = s.find_first_of(" \t\n'", j + 1);
-		// Handle the expansion of e.g.: --input=%f
-		if (j != s.npos && s[j] == '\'') goto single_quoted;
-	    }
-	    if (j != s.npos) {
-		s[j++] = '\0';
-	    }
+	    unquote(s, j);
 	    const char * word = s.c_str() + i;
 	    argv.push_back(word);
 	}
+	if (argv.empty()) _exit(0);
 	argv.push_back(NULL);
 
 	execvp(argv[0], const_cast<char **>(&argv[0]));

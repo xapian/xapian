@@ -458,9 +458,13 @@ main(int argc, char **argv)
 		} else {
 		    c = s;
 		}
-		// FIXME: Analyse the command string to decide if it needs a shell.
+
+		const char * cmd = s + 1;
+		// Analyse the command string to decide if it needs a shell.
+		bool use_shell = command_needs_shell(cmd);
 		index_command(string(optarg, c - optarg),
-			      Filter(string(s + 1), output_type, output_charset));
+			      Filter(string(cmd), output_type,
+				     output_charset, use_shell));
 	    } else {
 		cerr << "Invalid filter mapping '" << optarg << "'\n"
 			"Should be of the form TYPE:COMMAND or TYPE1,TYPE2:COMMAND or TYPE,EXT:COMMAND\n"
