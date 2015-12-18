@@ -156,7 +156,7 @@ omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  datevalue.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc\
  csvescape.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
-omega_LDADD =  $(MAGIC_LIBS) $(XAPIAN_LIBS) libtransform.la
+omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
