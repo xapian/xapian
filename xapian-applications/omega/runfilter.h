@@ -54,6 +54,9 @@ void runfilter_init();
  *  * only single quotes are used (double quotes and backslash quoting are
  *    not currently handled, aside from in the four character sequence '\''
  *    within single quotes).
+ *  * the following redirections are supported, but they must be unquoted and
+ *    appear exactly as shown, and each be a separate word in the command:
+ *    >/dev/null 2>/dev/null 2>&1 1>&2
  *  * environment variables set before the command are handled correctly,
  *    for example: LANG=C some-command
  *

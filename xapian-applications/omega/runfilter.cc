@@ -328,8 +328,31 @@ use_shell_after_all:
 	while (true) {
 	    size_t i = s.find_first_not_of(" \t\n", j);
 	    if (i == string::npos) break;
-	    unquote(s, j);
+	    bool quoted = unquote(s, j);
 	    const char * word = s.c_str() + i;
+	    if (!quoted) {
+		// Handle simple cases of redirection.
+		if (strcmp(word, ">/dev/null") == 0) {
+		    int fd = open(word + 1, O_WRONLY);
+		    if (fd != -1 && fd != 1) dup2(fd, 1);
+		    close(fd);
+		    continue;
+		}
+		if (strcmp(word, "2>/dev/null") == 0) {
+		    int fd = open(word + 2, O_WRONLY);
+		    if (fd != -1 && fd != 2) dup2(fd, 2);
+		    close(fd);
+		    continue;
+		}
+		if (strcmp(word, "2>&1") == 0) {
+		    dup2(1, 2);
+		    continue;
+		}
+		if (strcmp(word, "1>&2") == 0) {
+		    dup2(2, 1);
+		    continue;
+		}
+	    }
 	    argv.push_back(word);
 	}
 	if (argv.empty()) _exit(0);

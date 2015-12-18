@@ -168,7 +168,8 @@ index_add_default_filters()
     // directory.  Note that this option was ignored in some older versions,
     // but it was fixed in unrtf 0.20.4.
     index_command("text/rtf",
-		  Filter("unrtf --nopict --html 2>/dev/null", "text/html"));
+		  Filter("unrtf --nopict --html 2>/dev/null", "text/html",
+			 false));
     index_command("text/x-rst", Filter("rst2html", "text/html", false));
     index_command("application/x-mspublisher",
 		  Filter("pub2xhtml", "text/html", false));
