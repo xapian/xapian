@@ -228,7 +228,7 @@ runfilter_init()
 #endif
 
 string
-stdout_to_string(const string &cmd, bool use_shell)
+stdout_to_string(const string &cmd, bool use_shell, int alt_status)
 {
     string out;
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
@@ -454,16 +454,17 @@ use_shell_after_all:
     int status = pclose(fh);
 #endif
 
-    if (status != 0) {
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
+    if (WIFEXITED(status)) {
+	int exit_status = WEXITSTATUS(status);
+	if (exit_status == 0 || exit_status == alt_status)
+	    return out;
+	if (exit_status == 127)
 	    throw NoSuchFilter();
-	}
-#ifdef SIGXCPU
-	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGXCPU) {
-	    cerr << "Filter process consumed too much CPU time" << endl;
-	}
-#endif
-	throw ReadError(status);
     }
-    return out;
+#ifdef SIGXCPU
+    if (WIFSIGNALED(status) && WTERMSIG(status) == SIGXCPU) {
+	cerr << "Filter process consumed too much CPU time" << endl;
+    }
+#endif
+    throw ReadError(status);
 }

@@ -777,7 +777,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// unzip returns exit code 11 if a file to extract wasn't found
 		// which we want to ignore, because there may be no headers or
 		// no footers.
-		args = " word/document.xml word/header\\*.xml word/footer\\*.xml 2>/dev/null||test $? = 11";
+		args = " word/document.xml 'word/header*.xml' 'word/footer*.xml' 2>/dev/null";
 	    } else if (startswith(tail, "spreadsheetml.")) {
 		// Extract the shared string table first, so our parser can
 		// grab those ready for parsing the sheets which will reference
@@ -800,7 +800,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		// unzip returns exit code 11 if a file to extract wasn't found
 		// which we want to ignore, because there may be no notesSlides
 		// or comments.
-		args = " ppt/slides/slide\\*.xml ppt/notesSlides/notesSlide\\*.xml ppt/comments/comment\\*.xml 2>/dev/null||test $? = 11";
+		args = " 'ppt/slides/slide*.xml' 'ppt/notesSlides/notesSlide*.xml' 'ppt/comments/comment*.xml' 2>/dev/null";
 	    } else {
 		// Don't know how to index this type.
 		skip_unknown_mimetype(urlterm, context, mimetype,
@@ -814,7 +814,10 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		cmd += args;
 		try {
 		    MSXmlParser xmlparser;
-		    xmlparser.parse_xml(stdout_to_string(cmd, true));
+		    // Treat exit status 11 from unzip as success - this is
+		    // what we get if one of the listed filenames to extract
+		    // doesn't match anything in the zip file.
+		    xmlparser.parse_xml(stdout_to_string(cmd, false, 11));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(urlterm, context, cmd,

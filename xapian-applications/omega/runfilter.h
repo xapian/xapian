@@ -48,6 +48,8 @@ void runfilter_init();
 /** Run command @a cmd, capture its stdout, and return it as a std::string.
  *
  *  @param use_shell  If false, try to avoid using a shell to run the command.
+ *  @param alt_status	Exit status to treat as success in addition to 0
+ *			(default: Only treat exit status 0 as success).
  *
  *  Note: use_shell=false mode makes some assumptions about the command:
  *
@@ -69,6 +71,7 @@ void runfilter_init();
  *  same code path (which may or may not involve some analog of the Unix
  *  shell).
  */
-std::string stdout_to_string(const std::string &cmd, bool use_shell);
+std::string stdout_to_string(const std::string &cmd, bool use_shell,
+			     int alt_status = 0);
 
 #endif // OMEGA_INCLUDED_RUNFILTER_H
