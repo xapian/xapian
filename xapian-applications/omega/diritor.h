@@ -36,6 +36,7 @@
 #endif
 
 #include <magic.h>
+#include <zlib.h>
 
 #include "common/noreturn.h"
 
@@ -241,6 +242,32 @@ class DirectoryIterator {
 	    if (errno == ENOENT || errno == ENOTDIR) throw FileNotFound();
 	    throw ReadError("load_file failed");
 	}
+	return out;
+    }
+
+    std::string gzfile_to_string() {
+	build_path();
+	std::string out;
+	int flags = NOCACHE;
+	if (try_noatime()) flags |= NOATIME;
+	gzFile zfh = gzopen(path.c_str(), "rb");
+	if (zfh == NULL) {
+	    if (errno == ENOENT || errno == ENOTDIR) {
+		throw FileNotFound();
+	    }
+	    throw ReadError("gzopen() failed");
+	}
+	char buf[8192];
+	while (true) {
+	    int r = gzread(zfh, buf, sizeof(buf));
+	    if (r < 0) {
+		gzclose(zfh);
+		throw ReadError("gzread() failed");
+	    }
+	    out.append(buf, r);
+	    if (unsigned(r) < sizeof(buf)) break;
+	}
+	gzclose(zfh);
 	return out;
     }
 };

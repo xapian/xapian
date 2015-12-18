@@ -168,7 +168,7 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc index_file.cc mime.cc\
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
-omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS)
+omindex_LDADD = $(MAGIC_LIBS) $(XAPIAN_LIBS) $(ZLIB_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\

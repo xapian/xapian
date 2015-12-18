@@ -107,6 +107,21 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/time.h]dnl
 		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [#include <sys/types.h>])
 
+dnl Check for zlib.h.
+AC_CHECK_HEADERS([zlib.h], [], [
+  AC_MSG_ERROR([zlib.h not found])
+  ], [ ])
+
+dnl Check for zlibVersion in -lz.
+SAVE_LIBS=$LIBS
+LIBS=
+dnl mingw build needs -lzlib or -lzdll.
+AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
+  AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll (you  may need to install the zlib1g-dev or zlib-devel package)])
+  ])
+ZLIB_LIBS=$LIBS
+LIBS=$SAVE_LIBS
+
 dnl libmagic used to detect MIME types for files we don't detect by extension.
 AC_CHECK_HEADERS([magic.h])
 if test $ac_cv_header_magic_h != yes ; then

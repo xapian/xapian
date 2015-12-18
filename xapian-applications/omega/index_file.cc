@@ -846,17 +846,9 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    md5_string(text, md5);
 	} else if (mimetype == "application/x-abiword-compressed") {
 	    // FIXME: Implement support for metadata.
-	    string cmd = "gzip -dc";
-	    append_filename_argument(cmd, file);
-	    try {
-		XmlParser xmlparser;
-		xmlparser.parse_xml(stdout_to_string(cmd, false));
-		dump = xmlparser.dump;
-	    } catch (ReadError) {
-		skip_cmd_failed(urlterm, context, cmd,
-				d.get_size(), d.get_mtime());
-		return;
-	    }
+	    XmlParser xmlparser;
+	    xmlparser.parse_xml(d.gzfile_to_string());
+	    dump = xmlparser.dump;
 	} else if (mimetype == "application/vnd.ms-xpsdocument") {
 	    string cmd = "unzip -p";
 	    append_filename_argument(cmd, file);
