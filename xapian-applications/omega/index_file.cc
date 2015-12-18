@@ -814,7 +814,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		cmd += args;
 		try {
 		    MSXmlParser xmlparser;
-		    xmlparser.parse_xml(stdout_to_string(cmd, false));
+		    xmlparser.parse_xml(stdout_to_string(cmd, true));
 		    dump = xmlparser.dump;
 		} catch (ReadError) {
 		    skip_cmd_failed(urlterm, context, cmd,
