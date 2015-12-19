@@ -29,8 +29,12 @@
 /// Default B-tree block size.
 #define GLASS_DEFAULT_BLOCKSIZE 8192
 
-/// The largest docid value supported by glass.
-#define GLASS_MAX_DOCID Xapian::docid(0xffffffff)
+/** The largest docid value supported by glass.
+ *
+ *  The disk format supports 64-bit docids, but if Xapian::docid is narrower
+ *  then it's the largest value supported by the type that matters here.
+ */
+#define GLASS_MAX_DOCID Xapian::docid(0xffffffffffffffff)
 
 namespace Glass {
     enum table_type {

@@ -49,8 +49,8 @@
 using namespace std;
 
 /// Glass format version (date of change):
-#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2015,12,01)
-// 2015,12,01 1.3.4 2 bytes "components_of" per item eliminated; more
+#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2015,12,19)
+// 2015,12,19 1.3.4 2 bytes "components_of" per item eliminated; more
 // 2014,11,21 1.3.2 Brass renamed to Glass
 
 /// Convert date <-> version number.  Dates up to 2141-12-31 fit in 2 bytes.

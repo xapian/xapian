@@ -164,6 +164,7 @@ C_pack_uint_preserving_sort(std::string & s, U value)
     unsigned char len = static_cast<unsigned char>(tmp + sizeof(tmp) - p);
     *--p = char((len - 1) << (8 - SORTABLE_UINT_LOG2_MAX_BYTES) | value);
     s.append(p, len + 1);
+    Assert(s[0] != '\xff');
 }
 
 /** Decode an "sort preserved" unsigned integer from a string.
@@ -217,6 +218,17 @@ C_unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
     return true;
 }
 
+#ifdef __GNUC__
+// GCC 3.4 added __builtin_clz() (with l and ll variants).
+inline int do_clz(unsigned value) { return __builtin_clz(value); }
+
+inline int do_clz(unsigned long value) { return __builtin_clzl(value); }
+
+inline int do_clz(unsigned long long value) { return __builtin_clzll(value); }
+
+# define HAVE_DO_CLZ
+#endif
+
 /** Append an encoded unsigned integer to a string, preserving the sort order.
  *
  *  [Glass and newer variant]
@@ -237,23 +249,37 @@ pack_uint_preserving_sort(std::string & s, U value)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
-#if 0
-    // FIXME: Doesn't work with 64-bit Xapian::docid, etc.
-    static_assert(sizeof(U) <= SORTABLE_UINT_MAX_BYTES,
+    static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
+    // The clz() functions are undefined for 0, so handle the smallest band
+    // as a special case.
+    if (value < 0x8000) {
+	s.resize(s.size() + 2);
+	s[s.size() - 2] = static_cast<unsigned char>(value >> 8);
+	Assert(s[s.size() - 2] != '\xff');
+	s[s.size() - 1] = static_cast<unsigned char>(value);
+	return;
+    }
+
+#ifdef HAVE_DO_CLZ
+    size_t len = ((sizeof(U) * 8 + 5) - do_clz(value)) / 7;
+#else
+    size_t len = 3;
+    for (U x = value >> 22; x; x >>= 7) ++len;
 #endif
+    unsigned mask = 0xff << (10 - len);
 
-    char tmp[sizeof(U) + 1];
-    char * p = tmp + sizeof(tmp);
-
-    do {
-	*--p = char(value & 0xff);
+    s.resize(s.size() + len);
+    for (size_t i = 1; i != len; ++i) {
+	s[s.size() - i] = static_cast<unsigned char>(value);
 	value >>= 8;
-    } while (value &~ SORTABLE_UINT_1ST_BYTE_MASK);
+    }
 
-    unsigned char len = static_cast<unsigned char>(tmp + sizeof(tmp) - p);
-    *--p = char((len - 1) << (8 - SORTABLE_UINT_LOG2_MAX_BYTES) | value);
-    s.append(p, len + 1);
+    s[s.size() - len] = static_cast<unsigned char>(value | mask);
+    Assert(s[s.size() - len] != '\xff');
+
+    AssertRel(len, >, 2);
+    AssertRel(len, <=, 9);
 }
 
 /** Decode an "sort preserved" unsigned integer from a string.
@@ -273,7 +299,7 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
 {
     // Check U is an unsigned type.
     STATIC_ASSERT_UNSIGNED_TYPE(U);
-    static_assert(sizeof(U) < 256,
+    static_assert(sizeof(U) <= 8,
 		  "Template type U too wide for database format");
     Assert(result);
 
@@ -285,24 +311,44 @@ unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
     }
 
     unsigned char len_byte = static_cast<unsigned char>(*ptr++);
-    *result = len_byte & SORTABLE_UINT_1ST_BYTE_MASK;
-    size_t len = (len_byte >> (8 - SORTABLE_UINT_LOG2_MAX_BYTES)) + 1;
+    if (len_byte < 0x80) {
+	*result = (U(len_byte) << 8) | static_cast<unsigned char>(*ptr++);
+	*p = ptr;
+	return true;
+    }
 
+    if (len_byte == 0xff) {
+	return false;
+    }
+
+    // len is how many bytes there are after the length byte.
+#ifdef HAVE_DO_CLZ
+    size_t len = do_clz(len_byte ^ 0xffu) + 9 - sizeof(unsigned) * 8;
+#else
+    size_t len = 2;
+    for (unsigned char m = 0x40; len_byte & m; m >>= 1) ++len;
+#endif
     if (rare(size_t(end - ptr) < len)) {
 	return false;
+    }
+    unsigned mask = 0xff << (9 - len);
+    len_byte &= ~mask;
+
+    // Check for overflow.
+    if (rare(len > int(sizeof(U)))) return false;
+    if (sizeof(U) != 8) {
+	// Need to check the top byte too.
+	if (rare(len == int(sizeof(U)) && len_byte != 0)) return false;
     }
 
     end = ptr + len;
     *p = end;
 
-    // Check for overflow.
-    if (rare(len > int(sizeof(U)))) {
-	return false;
-    }
-
+    U r = len_byte;
     while (ptr != end) {
-	*result = (*result << 8) | U(static_cast<unsigned char>(*ptr++));
+	r = (r << 8) | U(static_cast<unsigned char>(*ptr++));
     }
+    *result = r;
 
     return true;
 }
@@ -536,6 +582,34 @@ pack_chert_postlist_key(const std::string &term, Xapian::docid did)
     // Special case for doclen lists.
     if (term.empty()) {
 	std::string key("\x00\xe0", 2);
+	C_pack_uint_preserving_sort(key, did);
+	return key;
+    }
+
+    std::string key;
+    pack_string_preserving_sort(key, term);
+    C_pack_uint_preserving_sort(key, did);
+    return key;
+}
+
+inline std::string
+pack_glass_postlist_key(const std::string &term)
+{
+    // Special case for doclen lists.
+    if (term.empty())
+	return std::string("\x00\xe0", 2);
+
+    std::string key;
+    pack_string_preserving_sort(key, term, true);
+    return key;
+}
+
+inline std::string
+pack_glass_postlist_key(const std::string &term, Xapian::docid did)
+{
+    // Special case for doclen lists.
+    if (term.empty()) {
+	std::string key("\x00\xe0", 2);
 	pack_uint_preserving_sort(key, did);
 	return key;
     }
@@ -544,18 +618,6 @@ pack_chert_postlist_key(const std::string &term, Xapian::docid did)
     pack_string_preserving_sort(key, term);
     pack_uint_preserving_sort(key, did);
     return key;
-}
-
-inline std::string
-pack_glass_postlist_key(const std::string &term)
-{
-    return pack_chert_postlist_key(term);
-}
-
-inline std::string
-pack_glass_postlist_key(const std::string &term, Xapian::docid did)
-{
-    return pack_chert_postlist_key(term, did);
 }
 
 #endif // XAPIAN_INCLUDED_PACK_H
