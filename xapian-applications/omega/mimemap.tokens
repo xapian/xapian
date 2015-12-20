@@ -112,6 +112,8 @@ xls		application/vnd.ms-excel
 xlb		application/vnd.ms-excel
 # Excel template
 xlt		application/vnd.ms-excel
+# Excel addon
+xla		application/vnd.ms-excel
 # Later Microsoft Works produced XL format but with a different extension.
 xlr		application/vnd.ms-excel
 ppt		application/vnd.ms-powerpoint
