@@ -228,6 +228,8 @@ other filters too - see below):
 * Debian packages (.deb, .udeb) if dpkg-deb is available
 * RPM packages (.rpm) if rpm is available
 * Atom feeds (.atom)
+* MAFF (.maff)
+* MHTML (.mhtml, .mht)
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For

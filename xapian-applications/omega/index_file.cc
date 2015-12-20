@@ -186,6 +186,14 @@ index_add_default_filters()
     // now until we handle Unicode "compatibility decompositions".
     index_command("application/x-dvi",
 		  Filter("catdvi -e2 -s", "text/plain", "iso-8859-1", false));
+    // Simplistic - ought to look in index.rdf files for filename and character
+    // set.
+    index_command("application/x-maff",
+		  Filter("unzip -p %f '*/*.*htm*'", "text/html", "iso-8859-1",
+			 false));
+    index_command("application/x-mimearchive",
+		  Filter(get_pkglibbindir() + "/mhtml2html", "text/html",
+			 false));
 }
 
 void

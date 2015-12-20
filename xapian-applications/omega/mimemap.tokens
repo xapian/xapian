@@ -9,6 +9,11 @@ shtml		text/html
 # Our HTML parser knows to ignore PHP code.
 php		text/html
 
+# Archived HTML formats:
+maff		application/x-maff
+mht		application/x-mimearchive
+mhtml		application/x-mimearchive
+
 # reStructured text:
 rst		text/x-rst
 rest		text/x-rst

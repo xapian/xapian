@@ -86,7 +86,7 @@ AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
-dist_pkglibbin_SCRIPTS = outlookmsg2html
+dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html
 bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 

@@ -603,5 +603,6 @@ AC_CONFIG_FILES([
  xapian-omega.spec
  ])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
+AC_CONFIG_FILES([mhtml2html], [chmod +x mhtml2html])
 AC_CONFIG_FILES([outlookmsg2html], [chmod +x outlookmsg2html])
 AC_OUTPUT
