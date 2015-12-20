@@ -205,8 +205,8 @@ other filters too - see below):
   libmagic, as they may actually be RTF (AbiWord saves RTF when asked to save
   as .doc, and Microsoft Word quietly loads RTF files with a .doc extension),
   or plain-text).
-* MS Excel documents (.xls, .xlb, .xlt, .xlr) if xls2csv is available (comes
-  with catdoc)
+* MS Excel documents (.xls, .xlb, .xlt, .xlr, .xla) if xls2csv is available
+  (comes with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
   catdoc)
 * MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx,
