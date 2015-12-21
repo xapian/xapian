@@ -175,23 +175,30 @@ backend_mismatch(const Xapian::Database & db, int backend1,
 namespace Xapian {
 
 void
-Database::compact_(const string & output, unsigned flags, int block_size,
+Database::compact_(const string * output_ptr, int fd, unsigned flags,
+		   int block_size,
 		   Xapian::Compactor * compactor) const
 {
-    LOGCALL_VOID(API, "Database::compact_", output | flags | compactor);
+    LOGCALL_VOID(API, "Database::compact_", output_ptr | fd | flags | block_size | compactor);
 
     bool renumber = !(flags & DBCOMPACT_NO_RENUMBER);
 
-    // We need a modifiable destdir in this function.
-    string destdir = output;
-
     enum { STUB_NO, STUB_FILE, STUB_DIR } compact_to_stub = STUB_NO;
-    if (file_exists(destdir)) {
-	// Stub file.
-	compact_to_stub = STUB_FILE;
-    } else if (file_exists(destdir + "/XAPIANDB")) {
-	// Stub directory.
-	compact_to_stub = STUB_DIR;
+    string destdir;
+    if (output_ptr) {
+	// We need a modifiable destdir in this function.
+	destdir = *output_ptr;
+
+	if (file_exists(destdir)) {
+	    // Stub file.
+	    compact_to_stub = STUB_FILE;
+	} else if (file_exists(destdir + "/XAPIANDB")) {
+	    // Stub directory.
+	    compact_to_stub = STUB_DIR;
+	}
+    } else {
+	// Single file is implied when writing to a file descriptor.
+	flags |= DBCOMPACT_SINGLE_FILE;
     }
 
     int backend = BACKEND_UNKNOWN;
@@ -403,8 +410,15 @@ Database::compact_(const string & output, unsigned flags, int block_size,
 #endif
     } else if (backend == BACKEND_GLASS) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
-	GlassDatabase::compact(compactor, destdir.c_str(), internals, offset,
-			       block_size, compaction, flags, last_docid);
+	if (output_ptr) {
+	    GlassDatabase::compact(compactor, destdir.c_str(), 0,
+				   internals, offset,
+				   block_size, compaction, flags, last_docid);
+	} else {
+	    GlassDatabase::compact(compactor, NULL, fd,
+				   internals, offset,
+				   block_size, compaction, flags, last_docid);
+	}
 #else
 	(void)compactor;
 	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");

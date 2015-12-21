@@ -36,6 +36,11 @@
 #include <cstdlib>
 #include <fstream>
 
+#include <sys/types.h>
+#include "safesysstat.h"
+#include "safefcntl.h"
+#include "safeunistd.h"
+
 #include "unixcmds.h"
 
 using namespace std;
@@ -564,6 +569,67 @@ DEFINE_TESTCASE(compactmultipass1, chert || glass) {
 
     Xapian::Database outdb(outdbpath);
     dbcheck(outdb, 29, 1041);
+
+    return true;
+}
+
+// Test compacting to an fd.
+DEFINE_TESTCASE(compacttofd1, glass) {
+    Xapian::Database indb(get_database("apitest_simpledata"));
+    string outdbpath = get_named_writable_database_path("compacttofd1out");
+    rm_rf(outdbpath);
+
+    int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR, 0666);
+    TEST(fd != -1);
+    indb.compact(fd);
+
+    // Confirm that the fd was closed by Xapian.
+    TEST(close(fd) == -1);
+    TEST(errno == EBADF);
+
+    Xapian::Database outdb(outdbpath);
+
+    TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}
+
+// Test compacting to an fd at at offset.
+DEFINE_TESTCASE(compacttofd2, glass) {
+    Xapian::Database indb(get_database("apitest_simpledata"));
+    string outdbpath = get_named_writable_database_path("compacttofd2out");
+    rm_rf(outdbpath);
+
+    int fd = open(outdbpath.c_str(), O_CREAT|O_RDWR, 0666);
+    TEST(fd != -1);
+    TEST(lseek(fd, 8192, SEEK_SET) == 8192);
+    indb.compact(fd);
+
+    // Confirm that the fd was closed by Xapian.
+    TEST(close(fd) == -1);
+    TEST(errno == EBADF);
+
+    fd = open(outdbpath.c_str(), O_RDONLY, 0666);
+    TEST(fd != -1);
+
+    // Test that the database wasn't just written to the start of the file.
+    char buf[8192];
+    size_t n = sizeof(buf);
+    while (n) {
+	ssize_t c = read(fd, buf, n);
+	TEST(c > 0);
+	for (const char * p = buf; p != buf + c; ++p) {
+	    TEST(*p == 0);
+	}
+	n -= c;
+    }
+
+    TEST(lseek(fd, 8192, SEEK_SET) == 8192);
+    Xapian::Database outdb(fd);
+
+    TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
+    dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
 
     return true;
 }

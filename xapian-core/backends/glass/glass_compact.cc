@@ -771,6 +771,7 @@ using namespace GlassCompact;
 void
 GlassDatabase::compact(Xapian::Compactor * compactor,
 		       const char * destdir,
+		       int fd,
 		       const vector<Xapian::Database::Internal*> & sources,
 		       const vector<Xapian::docid> & offset,
 		       size_t block_size,
@@ -816,7 +817,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	block_size = GLASS_DEFAULT_BLOCKSIZE;
     }
 
-    FlintLock lock(destdir);
+    FlintLock lock(destdir ? destdir : "");
     if (!single_file) {
 	string explanation;
 	FlintLock::reason why = lock.lock(true, false, explanation);
@@ -826,14 +827,16 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     }
 
     AutoPtr<GlassVersion> version_file_out;
-    int fd = -1;
     if (single_file) {
-	fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
-	if (fd < 0) {
-	    throw Xapian::DatabaseCreateError("open() failed", errno);
+	if (destdir) {
+	    fd = open(destdir, O_RDWR|O_CREAT|O_BINARY|O_CLOEXEC, 0666);
+	    if (fd < 0) {
+		throw Xapian::DatabaseCreateError("open() failed", errno);
+	    }
 	}
 	version_file_out.reset(new GlassVersion(fd));
     } else {
+	fd = -1;
 	version_file_out.reset(new GlassVersion(destdir));
     }
 
@@ -861,10 +864,13 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	if (compactor)
 	    compactor->set_status(t->name, string());
 
-	string dest = destdir;
-	dest += '/';
-	dest += t->name;
-	dest += '.';
+	string dest;
+	if (!single_file) {
+	    dest = destdir;
+	    dest += '/';
+	    dest += t->name;
+	    dest += '.';
+	}
 
 	bool output_will_exist = !t->lazy;
 
@@ -957,9 +963,11 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
 	GlassTable * out;
 	if (single_file) {
-	    out = new GlassTable(t->name, fd, 0, false, t->compress_strategy, false);
+	    out = new GlassTable(t->name, fd, version_file_out->get_offset(),
+				 false, t->compress_strategy, false);
 	} else {
-	    out = new GlassTable(t->name, dest, false, t->compress_strategy, t->lazy);
+	    out = new GlassTable(t->name, dest,
+				 false, t->compress_strategy, t->lazy);
 	}
 	tabs.push_back(out);
 	RootInfo * root_info = NULL;
@@ -1077,7 +1085,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
     }
 
     if (single_file) {
-	if (lseek(fd, 0, SEEK_SET) == -1) {
+	if (lseek(fd, version_file_out->get_offset(), SEEK_SET) == -1) {
 	    throw Xapian::DatabaseError("lseek() failed", errno);
 	}
     }

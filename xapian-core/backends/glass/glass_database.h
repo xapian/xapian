@@ -302,6 +302,7 @@ class GlassDatabase : public Xapian::Database::Internal {
 
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
+			    int fd,
 			    const std::vector<Xapian::Database::Internal *> & sources,
 			    const std::vector<Xapian::docid> & offset,
 			    size_t block_size,

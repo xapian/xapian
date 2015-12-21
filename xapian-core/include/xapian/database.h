@@ -67,7 +67,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 			     std::ostream *out);
 
 	/// Internal helper behind public compact() methods.
-	void compact_(const std::string & output,
+	void compact_(const std::string * output_ptr,
+		      int fd,
 		      unsigned flags,
 		      int block_size,
 		      Xapian::Compactor * compactor) const;
@@ -502,7 +503,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  how it might be improved are welcome.
 	 *
 	 *  @param fd   file descriptor for the database.  The current file
-	 *              offset is used, allowing checking an single file
+	 *              offset is used, allowing checking a single file
 	 *              database which is embedded within another file.  Xapian
 	 *              takes ownership of the file descriptor and will close
 	 *              it before returning.
@@ -553,7 +554,55 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	void compact(const std::string & output,
 		     unsigned flags = 0,
 		     int block_size = 0) {
-	    compact_(output, flags, block_size, NULL);
+	    compact_(&output, 0, flags, block_size, NULL);
+	}
+
+	/** Produce a compact version of this database.
+	 *
+	 *  New 1.3.4.  Various methods of the Compactor class were deprecated
+	 *  in 1.3.4.
+	 *
+	 *  This variant writes a single-file database to the specified file
+	 *  descriptor.  Only the glass backend supports such databases, so
+	 *  this form is only supported for this backend.
+	 *
+	 *  @param fd   File descriptor to write the compact version to.  The
+	 *		descriptor needs to be readable and writable (open with
+	 *		O_RDWR) and seekable.  The current file offset is used,
+	 *		allowing compacting to a single file database embedded
+	 *		within another file.  Xapian takes ownership of the
+	 *		file descriptor and will close it before returning.
+	 *
+	 *  @param flags Any of the following combined using bitwise-or (| in
+	 *		C++):
+	 *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
+	 *		be renumbered the output - currently by applying the
+	 *		same offset to all the document ids in a particular
+	 *		source database.  If this flag is specified, then this
+	 *		renumbering doesn't happen, but all the document ids
+	 *		must be unique over all source databases.  Currently
+	 *		the ranges of document ids in each source must not
+	 *		overlap either, though this restriction may be removed
+	 *		in the future.
+	 *   - Xapian::DBCOMPACT_MULTIPASS
+	 *		If merging more than 3 databases, merge the postlists
+	 *		in multiple passes, which is generally faster but
+	 *		requires more disk space for temporary files.
+	 *   - Xapian::DBCOMPACT_SINGLE_FILE
+	 *		Produce a single-file database (only supported for
+	 *		glass currently) - this flag is implied in this form
+	 *		and need not be specified explicitly.
+	 *
+	 *  @param block_size This specifies the block size (in bytes) for
+	 *		to use for the output.  For glass, the block size must
+	 *		be a power of 2 between 2048 and 65536 (inclusive), and
+	 *		the default (also used if an invalid value is passed)
+	 *		is 8192 bytes.
+	 */
+	void compact(int fd,
+		     unsigned flags = 0,
+		     int block_size = 0) {
+	    compact_(NULL, fd, flags, block_size, NULL);
 	}
 
 	/** Produce a compact version of this database.
@@ -603,7 +652,62 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 		     int block_size,
 		     Xapian::Compactor & compactor)
 	{
-	    compact_(output, flags, block_size, &compactor);
+	    compact_(&output, 0, flags, block_size, &compactor);
+	}
+
+	/** Produce a compact version of this database.
+	 *
+	 *  New 1.3.4.  Various methods of the Compactor class were deprecated
+	 *  in 1.3.4.
+	 *
+	 *  The @a compactor functor allows handling progress output and
+	 *  specifying how user metadata is merged.
+	 *
+	 *  This variant writes a single-file database to the specified file
+	 *  descriptor.  Only the glass backend supports such databases, so
+	 *  this form is only supported for this backend.
+	 *
+	 *  @param fd   File descriptor to write the compact version to.  The
+	 *		descriptor needs to be readable and writable (open with
+	 *		O_RDWR) and seekable.  The current file offset is used,
+	 *		allowing compacting to a single file database embedded
+	 *		within another file.  Xapian takes ownership of the
+	 *		file descriptor and will close it before returning.
+	 *
+	 *  @param flags Any of the following combined using bitwise-or (| in
+	 *		 C++):
+	 *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
+	 *		be renumbered the output - currently by applying the
+	 *		same offset to all the document ids in a particular
+	 *		source database.  If this flag is specified, then this
+	 *		renumbering doesn't happen, but all the document ids
+	 *		must be unique over all source databases.  Currently
+	 *		the ranges of document ids in each source must not
+	 *		overlap either, though this restriction may be removed
+	 *		in the future.
+	 *   - Xapian::DBCOMPACT_MULTIPASS
+	 *		If merging more than 3 databases, merge the postlists
+	 *		in multiple passes, which is generally faster but
+	 *		requires more disk space for temporary files.
+	 *   - Xapian::DBCOMPACT_SINGLE_FILE
+	 *		Produce a single-file database (only supported for
+	 *		glass currently) - this flag is implied in this form
+	 *		and need not be specified explicitly.
+	 *
+	 *  @param block_size This specifies the block size (in bytes) for
+	 *		to use for the output.  For glass, the block size must
+	 *		be a power of 2 between 2048 and 65536 (inclusive), and
+	 *		the default (also used if an invalid value is passed)
+	 *		is 8192 bytes.
+	 *
+	 *  @param compactor Functor
+	 */
+	void compact(int fd,
+		     unsigned flags,
+		     int block_size,
+		     Xapian::Compactor & compactor)
+	{
+	    compact_(NULL, fd, flags, block_size, &compactor);
 	}
 };
 
