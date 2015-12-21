@@ -30,7 +30,6 @@
 #include <fstream>
 
 #include <cstdio> // for rename()
-#include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include "safesysstat.h"
@@ -457,6 +456,12 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	compact_chert(compactor, destdir.c_str(), sources, offset, block_size,
 		      compaction, multipass, last_docid);
+
+	// Create the version file ("iamchert").
+	//
+	// This file contains a UUID, and we want the copy to have a fresh
+	// UUID since its revision counter is reset to 1.
+	ChertVersion(destdir).create();
 #else
 	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
 #endif
@@ -464,6 +469,11 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #ifdef XAPIAN_HAS_BRASS_BACKEND
 	compact_brass(compactor, destdir.c_str(), sources, offset, block_size,
 		      compaction, multipass, last_docid);
+	// Create the version file ("iambrass").
+	//
+	// This file contains a UUID, and we want the copy to have a fresh
+	// UUID since its revision counter is reset to 1.
+	BrassVersion(destdir).create();
 #else
 	throw Xapian::FeatureUnavailableError("Brass backend disabled at build time");
 #endif
@@ -471,35 +481,13 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	compact_flint(compactor, destdir.c_str(), sources, offset, block_size,
 		      compaction, multipass, last_docid);
-#else
-	throw Xapian::FeatureUnavailableError("Flint backend disabled at build time");
-#endif
-    }
-
-    // Create the version file ("iamchert", etc).
-    //
-    // This file contains a UUID, and we want the copy to have a fresh
-    // UUID since its revision counter is reset to 1.
-    if (backend == CHERT) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	ChertVersion(destdir).create();
-#else
-	// Handled above.
-	exit(1);
-#endif
-    } else if (backend == BRASS) {
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-	BrassVersion(destdir).create();
-#else
-	// Handled above.
-	exit(1);
-#endif
-    } else {
-#ifdef XAPIAN_HAS_FLINT_BACKEND
+	// Create the version file ("iamflint").
+	//
+	// This file contains a UUID, and we want the copy to have a fresh
+	// UUID since its revision counter is reset to 1.
 	FlintVersion(destdir).create();
 #else
-	// Handled above.
-	exit(1);
+	throw Xapian::FeatureUnavailableError("Flint backend disabled at build time");
 #endif
     }
 
