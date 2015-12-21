@@ -42,8 +42,8 @@ $parser->tmp_to_core(1);
 open IN, '<', $in or die "Couldn't open '$in' ($?)\n";
 my $mhtml = $parser->parse(\*IN) or die "Failed to parse '$in' as MHTML\n";
 
-for my $sub ($mhtml->parts()) {
-    my $head = $sub->head();
+for my $sub ($mhtml->parts) {
+    my $head = $sub->head;
     if ($head->mime_type eq 'text/html') {
 	# FIXME: Ideally we use the charset specified, though in practice it's
 	# likely to just be whatever the page specifies.
