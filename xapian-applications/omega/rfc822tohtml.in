@@ -28,6 +28,8 @@ eval {
     require MIME::Parser;
     require MIME::WordDecoder;
     require HTML::Entities;
+    # In core since Perl 5.9.5:
+    require Time::Piece;
 };
 if ($@) {
     print STDERR $@;
@@ -49,7 +51,17 @@ print "<head>\n<title>";
 print do_header($head, 'Subject');
 print "</title>\n<meta name=\"author\" content=\"";
 print do_header($head, 'From');
-print "\">\n</head>";
+print "\">\n";
+
+my $date = do_header($head, 'Date');
+chomp $date;
+$date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
+eval {
+    my $iso8601_date = $date->datetime;
+    print "<meta name=\"created\" content=\"$iso8601_date\">\n";
+};
+
+print "</head>\n";
 
 handle_mimepart($ent);
 
