@@ -40,6 +40,7 @@
 /xapian-omega-*.tar.xz
 /xapian-omega.spec
 /makemanpage
+/mhtml2html
 /outlookmsg2html
 /mimemap.h
 /my-html-tok.h
