@@ -525,8 +525,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *		  then the stub will be atomically updated to point to
 	 *		  this new database).
 	 *
-	 * @param flags Any of the following combined using bitwise-or (| in
-	 *		C++):
+	 *  @param flags Any of the following combined using bitwise-or (| in
+	 *		 C++):
 	 *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
 	 *		be renumbered the output - currently by applying the
 	 *		same offset to all the document ids in a particular
@@ -544,12 +544,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *		Produce a single-file database (only supported for
 	 *		glass currently).
 	 *
-	 *  @param block_size If a new database is created, this specifies
-	 *		      the block size (in bytes) for backends which
-	 *		      have such a concept.  For chert and glass, the
-	 *		      block size must be a power of 2 between 2048 and
-	 *		      65536 (inclusive), and the default (also used if
-	 *		      an invalid value is passed) is 8192 bytes.
+	 *  @param block_size This specifies the block size (in bytes) for
+	 *		to use for the output.  For glass, the block size must
+	 *		be a power of 2 between 2048 and 65536 (inclusive), and
+	 *		the default (also used if an invalid value is passed)
+	 *		is 8192 bytes.
 	 */
 	void compact(const std::string & output,
 		     unsigned flags = 0,
@@ -572,8 +571,8 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *		  then the stub will be atomically updated to point to
 	 *		  this new database).
 	 *
-	 * @param flags Any of the following combined using bitwise-or (| in
-	 *		C++):
+	 *  @param flags Any of the following combined using bitwise-or (| in
+	 *		 C++):
 	 *   - Xapian::DBCOMPACT_NO_RENUMBER By default the document ids will
 	 *		be renumbered the output - currently by applying the
 	 *		same offset to all the document ids in a particular
@@ -591,12 +590,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *		Produce a single-file database (only supported for
 	 *		glass currently).
 	 *
-	 *  @param block_size If a new database is created, this specifies
-	 *		      the block size (in bytes) for backends which
-	 *		      have such a concept.  For chert and glass, the
-	 *		      block size must be a power of 2 between 2048 and
-	 *		      65536 (inclusive), and the default (also used if
-	 *		      an invalid value is passed) is 8192 bytes.
+	 *  @param block_size This specifies the block size (in bytes) for
+	 *		to use for the output.  For glass, the block size must
+	 *		be a power of 2 between 2048 and 65536 (inclusive), and
+	 *		the default (also used if an invalid value is passed)
+	 *		is 8192 bytes.
 	 *
 	 *  @param compactor Functor
 	 */
