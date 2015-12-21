@@ -41,22 +41,22 @@ using namespace std;
 static void show_usage() {
     cout << "Usage: " PROG_NAME " [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "Options:\n"
-"  -b, --blocksize   Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
-"                    (must be between 2K and 64K and a power of 2, default 8K)\n"
-"  -n, --no-full     Disable full compaction\n"
-"  -F, --fuller      Enable fuller compaction (not recommended if you plan to\n"
-"                    update the compacted database)\n"
-"  -m, --multipass   If merging more than 3 databases, merge the postlists in\n"
-"                    multiple passes (which is generally faster but requires\n"
-"                    more disk space for temporary files)\n"
-"      --no-renumber Preserve the numbering of document ids (useful if you have\n"
-"                    external references to them, or have set them to match\n"
-"                    unique ids from an external source).  Currently this\n"
-"                    option is only supported when merging databases if they\n"
-"                    have disjoint ranges of used document ids\n"
-"  -s, --single-file Produce a single file database (not supported for chert)\n"
-"  --help            display this help and exit\n"
-"  --version         output version information and exit" << endl;
+"  -b, --blocksize=B  Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
+"                     (must be between 2K and 64K and a power of 2, default 8K)\n"
+"  -n, --no-full      Disable full compaction\n"
+"  -F, --fuller       Enable fuller compaction (not recommended if you plan to\n"
+"                     update the compacted database)\n"
+"  -m, --multipass    If merging more than 3 databases, merge the postlists in\n"
+"                     multiple passes (which is generally faster but requires\n"
+"                     more disk space for temporary files)\n"
+"      --no-renumber  Preserve the numbering of document ids (useful if you have\n"
+"                     external references to them, or have set them to match\n"
+"                     unique ids from an external source).  Currently this\n"
+"                     option is only supported when merging databases if they\n"
+"                     have disjoint ranges of used document ids\n"
+"  -s, --single-file  Produce a single file database (not supported for chert)\n"
+"  --help             display this help and exit\n"
+"  --version          output version information and exit" << endl;
 }
 
 class MyCompactor : public Xapian::Compactor {
