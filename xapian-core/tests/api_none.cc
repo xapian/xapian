@@ -407,3 +407,19 @@ DEFINE_TESTCASE(subclassablerefcount3, backend) {
 
     return true;
 }
+
+/// Check encoding of non-UTF8 document data.
+DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
+    Xapian::Document doc;
+    doc.set_data("\xc0\x80\xf5\x80\x80\x80\xfe\xff");
+    TEST_EQUAL(doc.get_description(),
+	      "Document(data='\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff')");
+    doc.set_data(string("\x00\x1f", 2));
+    TEST_EQUAL(doc.get_description(),
+	      "Document(data='\\x00\\x1f')");
+    // Check that backslashes are encoded so output isn't ambiguous.
+    doc.set_data("back\\slash");
+    TEST_EQUAL(doc.get_description(),
+	      "Document(data='back\\x5cslash')");
+    return true;
+}

@@ -93,7 +93,7 @@ Document::~Document()
 string
 Document::get_description() const
 {
-    return "Document(" + internal->get_description() + ")";
+    return internal->get_description();
 }
 
 void
@@ -461,29 +461,39 @@ Xapian::Document::Internal::values_count() const
 string
 Xapian::Document::Internal::get_description() const
 {
-    string description = "Xapian::Document::Internal(";
+    string desc = "Document(";
 
-    if (data_here) description += "data='" + data + "'";
+    // description_append ?
+    if (data_here) {
+	desc += "data='";
+	description_append(desc, data);
+	desc += "'";
+    }
 
     if (values_here) {
-	if (data_here) description += ", ";
-	description += "values[" + str(values.size()) + "]";
+	if (data_here) desc += ", ";
+	desc += "values[";
+	desc += str(values.size());
+	desc += ']';
     }
 
     if (terms_here) {
-	if (data_here || values_here) description += ", ";
-	description += "terms[" + str(terms.size()) + "]";
+	if (data_here || values_here) desc += ", ";
+	desc += "terms[";
+	desc += str(terms.size());
+	desc += ']';
     }
 
     if (database.get()) {
-	if (data_here || values_here || terms_here) description += ", ";
-	description += "doc=";
-	description += "?"; // do_get_description(); ?
+	if (data_here || values_here || terms_here) desc += ", ";
+	// database->get_description() if/when that returns a non-generic
+	// result.
+	desc += "db:yes";
     }
 
-    description += ')';
+    desc += ')';
 
-    return description;
+    return desc;
 }
 
 void
