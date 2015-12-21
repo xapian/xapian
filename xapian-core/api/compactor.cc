@@ -389,6 +389,14 @@ Database::compact_(const string & output, unsigned flags, int block_size,
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	ChertDatabase::compact(compactor, destdir.c_str(), internals, offset,
 			       block_size, compaction, flags, last_docid);
+
+	// Create the version file ("iamchert", etc).
+	//
+	// This file contains a UUID, and we want the copy to have a fresh
+	// UUID since its revision counter is reset to 1.
+	if (backend == BACKEND_CHERT) {
+	    ChertVersion(destdir).create();
+	}
 #else
 	(void)compactor;
 	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
@@ -400,19 +408,6 @@ Database::compact_(const string & output, unsigned flags, int block_size,
 #else
 	(void)compactor;
 	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");
-#endif
-    }
-
-    // Create the version file ("iamchert", etc).
-    //
-    // This file contains a UUID, and we want the copy to have a fresh
-    // UUID since its revision counter is reset to 1.
-    if (backend == BACKEND_CHERT) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	ChertVersion(destdir).create();
-#else
-	// Handled above.
-	exit(1);
 #endif
     }
 
