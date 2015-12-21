@@ -194,6 +194,12 @@ index_add_default_filters()
     index_command("application/x-mimearchive",
 		  Filter(get_pkglibbindir() + "/mhtml2html", "text/html",
 			 false));
+    index_command("message/news",
+		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
+			 false));
+    index_command("message/rfc822",
+		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
+			 false));
 }
 
 void

@@ -605,4 +605,5 @@ AC_CONFIG_FILES([
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([mhtml2html], [chmod +x mhtml2html])
 AC_CONFIG_FILES([outlookmsg2html], [chmod +x outlookmsg2html])
+AC_CONFIG_FILES([rfc822tohtml], [chmod +x rfc822tohtml])
 AC_OUTPUT

@@ -134,6 +134,9 @@ msg		application/vnd.ms-outlook
 # Outlook template
 oft		application/vnd.ms-outlook
 
+# Outlook saved MIME message
+eml		message/rfc822
+
 # Perl:
 pl		text/x-perl
 pm		text/x-perl

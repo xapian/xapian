@@ -42,6 +42,7 @@
 /makemanpage
 /mhtml2html
 /outlookmsg2html
+/rfc822tohtml
 /mimemap.h
 /my-html-tok.h
 /*.1
