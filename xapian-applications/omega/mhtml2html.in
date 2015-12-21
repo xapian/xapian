@@ -36,6 +36,9 @@ if ($@) {
 
 my $in = shift @ARGV;
 my $parser = new MIME::Parser;
+# Keep data in memory rather than spraying files onto disk.
+$parser->output_to_core(1);
+$parser->tmp_to_core(1);
 open IN, '<', $in or die "Couldn't open '$in' ($?)\n";
 my $mhtml = $parser->parse(\*IN) or die "Failed to parse '$in' as MHTML\n";
 
