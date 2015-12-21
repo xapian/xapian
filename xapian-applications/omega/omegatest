@@ -143,6 +143,11 @@ testcase 'VALUE_RANGE 0 20141104 20151103~' DATEVALUE=0 END=20151103 SPAN=365
 # Check that if START, END and SPAN are all passed, START is ignored:
 testcase 'VALUE_RANGE 0 20151104 20151106~' DATEVALUE=0 START=19700101 END=20151106 SPAN=3
 
+# Check combining of filter terms:
+testcase '(Horg AND Len)' B=Len B=Horg
+testcase '(Len OR Lde)' B=Len B=Lde
+testcase '((Horg OR Hcom) AND (Len OR Lfr))' B=Len B=Lfr B=Horg B=Hcom
+
 # If faketime is available, test a range back from now.
 if faketime --version > /dev/null 2>&1; then
     TZ=UTC
