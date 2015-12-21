@@ -50,16 +50,16 @@ struct Filter {
     std::string output_charset;
     bool no_shell;
     Filter() : cmd(), output_type(), no_shell(false) { }
-    explicit Filter(const std::string & cmd_, bool use_shell = true)
-	: cmd(cmd_), output_type(), no_shell(!use_shell) { }
+    explicit Filter(const std::string & cmd_, bool use_shell_ = true)
+	: cmd(cmd_), output_type(), no_shell(!use_shell_) { }
     Filter(const std::string & cmd_, const std::string & output_type_,
-	   bool use_shell = true)
-	: cmd(cmd_), output_type(output_type_), no_shell(!use_shell) { }
+	   bool use_shell_ = true)
+	: cmd(cmd_), output_type(output_type_), no_shell(!use_shell_) { }
     Filter(const std::string & cmd_, const std::string & output_type_,
 	   const std::string & output_charset_,
-	   bool use_shell = true)
+	   bool use_shell_ = true)
 	: cmd(cmd_), output_type(output_type_),
-	  output_charset(output_charset_), no_shell(!use_shell) { }
+	  output_charset(output_charset_), no_shell(!use_shell_) { }
     bool use_shell() const { return !no_shell; }
 };
 
