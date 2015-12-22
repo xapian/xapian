@@ -178,29 +178,11 @@ MSet::operator=(const MSet &other)
 }
 
 void
-MSet::fetch(const MSetIterator & beginiter, const MSetIterator & enditer) const
+MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
 {
-    LOGCALL_VOID(API, "Xapian::MSet::fetch", beginiter | enditer);
+    LOGCALL_VOID(API, "Xapian::MSet::fetch_", first | last);
     Assert(internal.get() != 0);
-    if (beginiter != enditer)
-	internal->fetch_items(beginiter.index, enditer.index - 1);
-}
-
-void
-MSet::fetch(const MSetIterator & beginiter) const
-{
-    LOGCALL_VOID(API, "Xapian::MSet::fetch", beginiter);
-    Assert(internal.get() != 0);
-    internal->fetch_items(beginiter.index, beginiter.index);
-}
-
-void
-MSet::fetch() const
-{
-    LOGCALL_VOID(API, "Xapian::MSet::fetch", NO_ARGS);
-    Assert(internal.get() != 0);
-    if (!internal->items.empty())
-	internal->fetch_items(0, internal->items.size() - 1);
+    internal->fetch_items(first, last);
 }
 
 int
@@ -442,6 +424,9 @@ MSet::Internal::fetch_items(Xapian::doccount first, Xapian::doccount last) const
     if (enquire.get() == 0) {
 	throw InvalidOperationError("Can't fetch documents from an MSet which is not derived from a query.");
     }
+    if (items.empty()) return;
+    if (last > items.size() - 1)
+	last = items.size() - 1;
     for (Xapian::doccount i = first; i <= last; ++i) {
 	map<Xapian::doccount, Document>::const_iterator doc;
 	doc = indexeddocs.find(i);

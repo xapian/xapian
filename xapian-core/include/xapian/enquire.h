@@ -56,6 +56,9 @@ class Weight;
  *  This class represents (a portion of) the results of a query.
  */
 class XAPIAN_VISIBILITY_DEFAULT MSet {
+	// @internal Helper function for fetch() methods.
+	void fetch_(Xapian::doccount first, Xapian::doccount last) const;
+
     public:
 	class Internal;
 	/// @private @internal Reference counted internals.
@@ -97,7 +100,9 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
 	/** Fetch all the items in the MSet.
 	 */
-	void fetch() const;
+	void fetch() const {
+	    fetch_(0, Xapian::doccount(-1));
+	}
 
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
@@ -457,6 +462,20 @@ inline bool operator==(const MSetIterator &a, const MSetIterator &b)
 inline bool operator!=(const MSetIterator &a, const MSetIterator &b)
 {
     return (a.index != b.index);
+}
+
+// Inlined method of MSet which needs MSetIterator to have been defined.
+inline void
+MSet::fetch(const MSetIterator &begin, const MSetIterator &end) const
+{
+    fetch_(begin.index, end.index);
+}
+
+// Inlined method of MSet which needs MSetIterator to have been defined.
+inline void
+MSet::fetch(const MSetIterator &item) const
+{
+    fetch_(item.index, item.index);
 }
 
 class ESetIterator;
