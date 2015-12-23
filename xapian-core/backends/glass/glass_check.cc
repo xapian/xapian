@@ -228,7 +228,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 	 * >= the key of p, c: */
 
 	if (j == 1 && c > DIR_START)
-	    if (BItem(q, DIR_START).key() < BItem(p, c).key())
+	    if (LeafItem(q, DIR_START).key() < BItem(p, c).key())
 		failure("leaf key < left dividing key in level above", n, c);
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
@@ -241,10 +241,15 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
 	 * D2 < dir_end: */
 
-	if (c + D2 < dir_end &&
-	    (j == 1 || DIR_START + D2 < DIR_END(q)) &&
-	    BItem(q, DIR_END(q) - D2).key() >= BItem(p, c + D2).key())
-	    failure("key >= right dividing key in level above", n, c);
+	if (c + D2 < dir_end) {
+	    if (j == 1) {
+		if (LeafItem(q, DIR_END(q) - D2).key() >= BItem(p, c + D2).key())
+		    failure("leaf key >= right dividing key in level above", n, c);
+	    } else if (DIR_START + D2 < DIR_END(q)) {
+		if (BItem(q, DIR_END(q) - D2).key() >= BItem(p, c + D2).key())
+		    failure("key >= right dividing key in level above", n, c);
+	    }
+	}
 
 	if (REVISION(q) > REVISION(p))
 	    failure("block has greater revision than parent", n);

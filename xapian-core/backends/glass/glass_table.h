@@ -74,16 +74,19 @@
 #define D2 2
 #define X2 2
 
-/*  and when getting or setting then, we use these macros: */
+/*  and when getting or setting them, we use these methods of the various
+ *  *Item* classes: */
 
-#define getK(p, c)    getint1(p, c)
-#define setK(p, c, x) setint1(p, c, x)
-#define getD(p, c)    getint2(p, c)
+// getK(p, c)
+// setK(p, c, x)
+// getD(p, c)
+// getI(p, c)
+// setI(p, c, x)
+// getX(p, c)
+// setX(p, c, x)
+
+// Used in other code:
 #define setD(p, c, x) setint2(p, c, x)
-#define getI(p, c)    getint2(p, c)
-#define setI(p, c, v) setint2(p, c, v)
-#define getX(p, c)    getint2(p, c)
-#define setX(p, c, v) setint2(p, c, v)
 
 /* if you've been reading the comments from the top, the next four procedures
    will not cause any headaches.
@@ -145,7 +148,7 @@ public:
     bool operator>(Key key2) const { return key2 < *this; }
     bool operator<=(Key key2) const { return !(key2 < *this); }
     int length() const {
-	return getK(p, 0);
+	return getint1(p, 0);
     }
     char operator[](size_t i) const {
 	AssertRel(i,<,(size_t)length());
@@ -158,6 +161,10 @@ public:
 template <class T> class LeafItem_base {
 protected:
     T p;
+    int getK(const byte * q, int c) const { return getint1(q, c); }
+    int getD(const byte * q, int c) const { return getint2(q, c); }
+    int getI(const byte * q, int c) const { return getint2(q, c); }
+    int getX(const byte * q, int c) const { return getint2(q, c); }
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
@@ -192,6 +199,9 @@ public:
 
 class LeafItem_wr : public LeafItem_base<byte *> {
     void set_key_len(int x) { setK(p, I2, x); }
+    void setK(byte * q, int c, int x) { setint1(q, c, x); }
+    void setI(byte * q, int c, int x) { setint2(q, c, x); }
+    void setX(byte * q, int c, int x) { setint2(q, c, x); }
 public:
     /* LeafItem_wr from block address and offset to item pointer */
     LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
@@ -237,11 +247,24 @@ public:
     }
 };
 
+/*
+                 k     x
+                 |     |
+             tag K key X
+             ←B→   ←K→  
+             <----I---->
+
+	     B = BYTES_PER_BLOCK_NUMBER
+*/
+
 // BItem_wr wants to be "BItem with non-const p and more methods" - we can't
 // achieve that nicely with inheritance, so we use a template base class.
 template <class T> class BItem_base {
 protected:
     T p;
+    int getK(const byte * q, int c) const { return getint1(q, c); }
+    int getD(const byte * q, int c) const { return getint2(q, c); }
+    int getX(const byte * q, int c) const { return getint2(q, c); }
 public:
     /* BItem from block address and offset to item pointer */
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
@@ -249,17 +272,14 @@ public:
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
-	int item_size = getI(p, 0) & MAX_ITEM_SIZE;
-	AssertRel(item_size,>=,3);
-	return item_size;
+	return getK(p, BYTES_PER_BLOCK_NUMBER) + K1 + X2 + BYTES_PER_BLOCK_NUMBER;
     }
-    Key key() const { return Key(p + I2); }
+    Key key() const { return Key(p + BYTES_PER_BLOCK_NUMBER); }
     /** Get this item's tag as a block number (this block should not be at
      *  level 0).
      */
     uint4 block_given_by() const {
-	AssertRel(size(),>=,BYTES_PER_BLOCK_NUMBER);
-	return getint4(p, size() - BYTES_PER_BLOCK_NUMBER);
+	return getint4(p, 0);
     }
 };
 
@@ -271,13 +291,15 @@ public:
 };
 
 class BItem_wr : public BItem_base<byte *> {
-    void set_key_len(int x) { setK(p, I2, x); }
+    void set_key_len(int x) { setK(p, BYTES_PER_BLOCK_NUMBER, x); }
+    void setK(byte * q, int c, int x) { setint1(q, c, x); }
+    void setX(byte * q, int c, int x) { setint2(q, c, x); }
 public:
     /* BItem_wr from block address and offset to item pointer */
     BItem_wr(byte * p_, int c) : BItem_base<byte *>(p_, c) { }
     BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
     void set_component_of(int i) {
-	setX(p, getK(p, I2) + I2 + K1, i);
+	setX(p, getK(p, BYTES_PER_BLOCK_NUMBER) + BYTES_PER_BLOCK_NUMBER + K1, i);
     }
     // Takes size as we may be truncating newkey.
     void set_key_and_block(Key newkey, int truncate_size, uint4 n) {
@@ -286,39 +308,28 @@ public:
 	// FIXME that's stupid!  sort this out
 	int newkey_len = newkey.length();
 	AssertRel(i,<=,newkey_len);
-	int newsize = I2 + K1 + i + X2;
-	// BItem size (BYTES_PER_BLOCK_NUMBER since tag contains block number)
-	setI(p, 0, newsize + BYTES_PER_BLOCK_NUMBER);
 	// Key size
 	set_key_len(i);
 	// Copy the main part of the key, possibly truncating.
-	std::memmove(p + I2 + K1, newkey.get_address() + K1, i);
+	std::memmove(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.get_address() + K1, i);
 	// Copy the count part.
-	std::memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, X2);
+	std::memmove(p + BYTES_PER_BLOCK_NUMBER + K1 + i, newkey.get_address() + K1 + newkey_len, X2);
 	// Set tag contents to block number
-//	set_block_given_by(n);
-	setint4(p, newsize, n);
+	set_block_given_by(n);
     }
 
     /** Set this item's tag to point to block n (this block should not be at
      *  level 0).
      */
     void set_block_given_by(uint4 n) {
-	setint4(p, size() - BYTES_PER_BLOCK_NUMBER, n);
-    }
-    void set_size(int l) {
-	AssertRel(l,>=,3);
-	// We should never be able to pass too large a size here, but don't
-	// corrupt the database if this somehow happens.
-	if (rare(l &~ MAX_ITEM_SIZE)) throw Xapian::DatabaseError("item too large!");
-	setI(p, 0, l);
+	setint4(p, 0, n);
     }
     /** Form an item with a null key and with block number n in the tag.
      */
     void form_null_key(uint4 n) {
-	setint4(p, I2 + K1, n);
+	set_block_given_by(n);
 	set_key_len(0);        /* null key */
-	set_size(I2 + K1 + BYTES_PER_BLOCK_NUMBER);  /* total length */
+	set_component_of(0);
     }
     void form_key(const std::string & key_) {
 	std::string::size_type key_len = key_.length();
@@ -334,19 +345,11 @@ public:
 	}
 
 	set_key_len(key_len);
-	std::memmove(p + I2 + K1, key_.data(), key_len);
+	std::memmove(p + BYTES_PER_BLOCK_NUMBER + K1, key_.data(), key_len);
 	set_component_of(1);
-    }
-    // FIXME passing cd here is icky
-    void set_tag(int cd, const char *start, int len, bool compressed, bool last) {
-	std::memmove(p + cd, start, len);
-	set_size(cd + len);
-	if (compressed) *p |= 0x80;
-	if (!last) *p |= 0x40;
     }
     void fake_root_item() {
 	set_key_len(0);   // null key length
-	set_size(I2 + K1 + X2);   // length of the item
 	set_component_of(1);
     }
 };
@@ -693,7 +696,8 @@ class GlassTable {
 	void block_to_cursor(Glass::Cursor *C_, int j, uint4 n) const;
 	void alter();
 	void compact(byte *p);
-	void enter_key(int j, Glass::Key prevkey, Glass::Key newkey);
+	void enter_key_above_leaf(Glass::Key prevkey, Glass::Key newkey);
+	void enter_key_above_branch(int j, Glass::Key newkey);
 	int mid_point(byte *p);
 	void add_item_to_leaf(byte *p, Glass::LeafItem_wr kt, int c);
 	void add_item_to_branch(byte *p, Glass::BItem_wr kt, int c);

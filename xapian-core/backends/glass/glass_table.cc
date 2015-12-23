@@ -584,12 +584,64 @@ GlassTable::split_root(uint4 split_n)
     add_branch_item(item, level);
 }
 
-/** enter_key(j, prevkey, newkey) is called after a block split.
+/** enter_key_above_leaf(prevkey, newkey) is called after a leaf block split.
 
-   It enters in the block at level C[j] a separating key for the block
-   at level C[j - 1]. The key itself is newkey. prevkey is the
+   It enters in the block at level C[1] a separating key for the block
+   at level C[0]. The key itself is newkey. prevkey is the
    preceding key, and at level 1 newkey can be trimmed down to the
    first point of difference to prevkey for entry in C[j].
+
+   This code looks longer than it really is. If j exceeds the number
+   of B-tree levels the root block has split and we have to construct
+   a new one, but this is a rare event.
+
+   The key is constructed in b, with block number C[0].n as tag,
+   and this is added in with add_item. add_item may itself cause a
+   block split, with a further call to enter_key. Hence the recursion.
+*/
+void
+GlassTable::enter_key_above_leaf(Key prevkey, Key newkey)
+{
+    LOGCALL_VOID(DB, "GlassTable::enter_key_above_leaf", Literal("prevkey") | Literal("newkey"));
+    Assert(writable);
+    Assert(prevkey < newkey);
+
+    uint4 blocknumber = C[0].get_n();
+
+    // FIXME update to use Key
+    // Keys are truncated here: but don't truncate the count at the end away.
+    const int newkey_len = newkey.length();
+    AssertRel(newkey_len,>,0);
+
+    // Truncate the key to the minimal key which differs from prevkey,
+    // the preceding key in the block.
+    int i = 0;
+    const int min_len = min(newkey_len, prevkey.length());
+    while (i < min_len && prevkey[i] == newkey[i]) {
+	i++;
+    }
+
+    // Want one byte of difference.
+    if (i < newkey_len) i++;
+
+    // Enough space for a branch item with maximum length key.
+    byte b[BYTES_PER_BLOCK_NUMBER + K1 + 255 + X2];
+    BItem_wr item(b);
+    AssertRel(i, <=, 255);
+    item.set_key_and_block(newkey, i, blocknumber);
+
+    // The split block gets inserted into the parent after the pointer to the
+    // current child.
+    AssertEq(C[1].c, find_in_branch(C[1].get_p(), item.key(), C[1].c));
+    C[1].c += D2;
+    C[1].rewrite = true; /* a subtle point: this *is* required. */
+    add_branch_item(item, 1);
+}
+
+/** enter_key_above_branch(j, newkey) is called after a branch block split.
+
+   It enters in the block at level C[j] a separating key for the block
+   at level C[j - 1]. The key itself is newkey.
 
    This code looks longer than it really is. If j exceeds the number
    of B-tree levels the root block has split and we have to construct
@@ -600,45 +652,27 @@ GlassTable::split_root(uint4 split_n)
    block split, with a further call to enter_key. Hence the recursion.
 */
 void
-GlassTable::enter_key(int j, Key prevkey, Key newkey)
+GlassTable::enter_key_above_branch(int j, Key newkey)
 {
-    LOGCALL_VOID(DB, "GlassTable::enter_key", j | Literal("prevkey") | Literal("newkey"));
+    LOGCALL_VOID(DB, "GlassTable::enter_key_above_branch", j | Literal("newkey"));
     Assert(writable);
-    Assert(prevkey < newkey);
-    AssertRel(j,>=,1);
+    AssertRel(j,>,1);
+
+    /* Can't truncate between branch levels, since the separated keys
+     * are in at the leaf level, and truncating again will change the
+     * branch point.
+     */
 
     uint4 blocknumber = C[j - 1].get_n();
 
-    // FIXME update to use Key
-    // Keys are truncated here: but don't truncate the count at the end away.
     const int newkey_len = newkey.length();
     AssertRel(newkey_len,>,0);
-    int i;
-
-    if (j == 1) {
-	// Truncate the key to the minimal key which differs from prevkey,
-	// the preceding key in the block.
-	i = 0;
-	const int min_len = min(newkey_len, prevkey.length());
-	while (i < min_len && prevkey[i] == newkey[i]) {
-	    i++;
-	}
-
-	// Want one byte of difference.
-	if (i < newkey_len) i++;
-    } else {
-	/* Can't truncate between branch levels, since the separated keys
-	 * are in at the leaf level, and truncating again will change the
-	 * branch point.
-	 */
-	i = newkey_len;
-    }
 
     // Enough space for a branch item with maximum length key.
-    byte b[I2 + K1 + 256 + X2 + BYTES_PER_BLOCK_NUMBER];
+    byte b[BYTES_PER_BLOCK_NUMBER + K1 + 255 + X2];
     BItem_wr item(b);
-    AssertRel(i, <=, 255);
-    item.set_key_and_block(newkey, i, blocknumber);
+    AssertRel(newkey_len, <=, 255);
+    item.set_key_and_block(newkey, newkey_len, blocknumber);
 
     // The split block gets inserted into the parent after the pointer to the
     // current child.
@@ -837,7 +871,7 @@ GlassTable::add_leaf_item(LeafItem_wr kt_)
 
 	/* Enter a separating key at level 1 between */
 	/* the last key of block split_p, and the first key of block p */
-	enter_key(1,
+	enter_key_above_leaf(
 		  LeafItem(split_p, DIR_END(split_p) - D2).key(),
 		  LeafItem(p, DIR_START).key());
     } else {
@@ -930,15 +964,13 @@ GlassTable::add_branch_item(BItem_wr kt_, int j)
 
 	/* Enter a separating key at level j + 1 between */
 	/* the last key of block split_p, and the first key of block p */
-	enter_key(j + 1,
-		  BItem(split_p, DIR_END(split_p) - D2).key(),
-		  BItem(p, DIR_START).key());
+	enter_key_above_branch(j + 1, BItem(p, DIR_START).key());
 
 	// In branch levels, we can make the first key of block p null and
 	// save a bit of disk space.  Other redundant keys will still creep
 	// in though.
 	BItem_wr item(p, DIR_START);
-	int new_total_free = TOTAL_FREE(p) + item.key().length() + X2;
+	int new_total_free = TOTAL_FREE(p) + item.key().length();
 	item.form_null_key(item.block_given_by());
 	SET_TOTAL_FREE(p, new_total_free);
     } else {
