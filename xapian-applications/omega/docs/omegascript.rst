@@ -509,6 +509,9 @@ $setmap{MAP,NAME1,VALUE1,...}
 	``$opt{MAP,NAME}`` (maps with the same name are merged rather than
 	the old map being completely replaced).
 
+	You can create and use of maps in your own templates, but Omega also
+	has several standard maps used to control building the query:
+
 	Omega uses the "prefix" map to set the prefixes understood by the query
 	parser.  So if you wish to translate a prefix of "author:" to A and
 	"title:" to "S" you would use::
