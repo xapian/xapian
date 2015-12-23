@@ -1282,12 +1282,17 @@ struct ProbQuery {
     }
 
     void append_filter(const filter_group_id & id, const Query & qnew) {
-	Query & q = filter[id];
-	// We OR filters with the same prefix if they're exclusive, otherwise
-	// we AND them.
-	bool exclusive = (id.prefix_info->type == BOOLEAN_EXCLUSIVE);
-	Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
-	q = Query(op, q, qnew);
+	map<filter_group_id, Query>::iterator it = filter.find(id);
+	if (it == filter.end()) {
+	    filter.insert(make_pair(id, qnew));
+	} else {
+	    Query & q = it->second;
+	    // We OR multiple filters with the same prefix if they're
+	    // exclusive, otherwise we AND them.
+	    bool exclusive = (id.prefix_info->type == BOOLEAN_EXCLUSIVE);
+	    Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
+	    q = Query(op, q, qnew);
+	}
     }
 
     void add_filter_range(Xapian::valueno slot, const Query & range) {

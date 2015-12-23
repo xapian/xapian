@@ -623,6 +623,15 @@ static const test test_or_queries[] = {
     { "category:1 OR category:2", "(0 * XCAT1 OR 0 * XCAT2)" },
     { "category:1 AND category:2", "(0 * XCAT1 AND 0 * XCAT2)" },
     { "foo AND category:2", "(Zfoo:(pos=1) AND 0 * XCAT2)" },
+    // Regression test for combining multiple non-exclusive prefixes, fixed in
+    // 1.2.22 and 1.3.4.
+    { "category:1 dogegory:2", "0 * (XCAT1 AND XDOG2)" },
+    { "A site:1 site:2", "(a:(pos=1) FILTER (H1 OR H2))" },
+#if 0
+    { "A (site:1 OR site:2)", "(a:(pos=1) FILTER (H1 OR H2))" },
+#endif
+    { "A site:1 site2:2", "(a:(pos=1) FILTER (H1 AND J2))" },
+    { "A site:1 site:2 site2:2", "(a:(pos=1) FILTER ((H1 OR H2) AND J2))" },
 #if 0
     { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
     { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
@@ -682,6 +691,7 @@ static bool test_queryparser1()
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
     queryparser.add_boolean_prefix("category", "XCAT", false);
+    queryparser.add_boolean_prefix("dogegory", "XDOG", false);
     TEST_EXCEPTION(Xapian::InvalidOperationError,
 	queryparser.add_boolean_prefix("authortitle", "B");
     );
@@ -2373,6 +2383,7 @@ static bool test_qp_near1()
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
     queryparser.add_boolean_prefix("category", "XCAT", false);
+    queryparser.add_boolean_prefix("dogegory", "XDOG", false);
     queryparser.set_default_op(Xapian::Query::OP_NEAR);
     for (const test *p = test_near_queries; p->query; ++p) {
 	string expect, parsed;
@@ -2448,6 +2459,7 @@ static bool test_qp_phrase1()
     queryparser.add_boolean_prefix("multisite", "H");
     queryparser.add_boolean_prefix("multisite", "J");
     queryparser.add_boolean_prefix("category", "XCAT", false);
+    queryparser.add_boolean_prefix("dogegory", "XDOG", false);
     queryparser.set_default_op(Xapian::Query::OP_PHRASE);
     for (const test *p = test_phrase_queries; p->query; ++p) {
 	string expect, parsed;
