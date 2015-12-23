@@ -348,7 +348,9 @@ set_probabilistic(const string &oldp)
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
 	string user_prefix = pfx->first.substr(11);
-	qp.add_boolean_prefix(user_prefix, pfx->second);
+	auto it = option.find("nonexclusiveprefix," + pfx->second);
+	bool exclusive = (it == option.end() || it->second.empty());
+	qp.add_boolean_prefix(user_prefix, pfx->second, exclusive);
 	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
 
@@ -450,28 +452,34 @@ run_query()
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix, then AND together
 	vector<Xapian::Query> filter_vec;
-	vector<string> or_vec;
+	vector<string> same_vec;
 	string current;
 	for (FMCI i = filter_map.begin(); ; i++) {
 	    bool over = (i == filter_map.end());
 	    if (over || i->first != current) {
-		switch (or_vec.size()) {
+		switch (same_vec.size()) {
 		    case 0:
 		        break;
 		    case 1:
-			filter_vec.push_back(Xapian::Query(or_vec[0]));
+			filter_vec.push_back(Xapian::Query(same_vec[0]));
 		        break;
-		    default:
-			filter_vec.push_back(Xapian::Query(Xapian::Query::OP_OR,
-						     or_vec.begin(),
-						     or_vec.end()));
+		    default: {
+			Xapian::Query::op op = Xapian::Query::OP_OR;
+			auto it = option.find("nonexclusiveprefix," + current);
+			if (it != option.end() && !it->second.empty()) {
+			    op = Xapian::Query::OP_AND;
+			}
+			filter_vec.push_back(Xapian::Query(op,
+						     same_vec.begin(),
+						     same_vec.end()));
 		        break;
+		    }
 		}
-		or_vec.clear();
+		same_vec.clear();
 		if (over) break;
 		current = i->first;
 	    }
-	    or_vec.push_back(i->second);
+	    same_vec.push_back(i->second);
 	}
 
 	Xapian::Query filter(Xapian::Query::OP_AND,

@@ -148,6 +148,21 @@ testcase '(Horg AND Len)' B=Len B=Horg
 testcase '(Len OR Lde)' B=Len B=Lde
 testcase '((Horg OR Hcom) AND (Len OR Lfr))' B=Len B=Lfr B=Horg B=Hcom
 
+# Check combining of filter terms with filter_op set:
+printf '$setmap{nonexclusiveprefix,L,1,XAND,1}$setmap{boolprefix,lang,L,and,XAND,host,H,year,Y}$querydescription' > "$TEST_TEMPLATE"
+testcase 'Len' B=Len
+testcase '0 * Len' P=lang:en
+testcase 'XANDtest' B=XANDtest
+testcase '0 * XANDtest' P=and:test
+testcase '(Len AND XANDtest)' B=Len B=XANDtest
+testcase '0 * (XANDtest AND Len)' P='lang:en and:test'
+testcase '(Len AND Lde)' B=Len B=Lde
+testcase '0 * (Len AND Lde)' P='lang:en lang:de'
+testcase '((Horg OR Hcom) AND (Len AND Lfr))' B=Len B=Lfr B=Horg B=Hcom
+testcase '0 * ((Horg OR Hcom) AND (Len AND Lfr))' P='lang:en lang:fr host:org host:com'
+testcase '((XANDa AND XANDb AND XANDc) AND (Y1998 OR Y2001))' B=Y1998 B=Y2001 B=XANDa B=XANDb B=XANDc
+testcase '0 * (((XANDa AND XANDb) AND XANDc) AND (Y1998 OR Y2001))' P='year:1998 year:2001 and:a and:b and:c'
+
 # If faketime is available, test a range back from now.
 if faketime --version > /dev/null 2>&1; then
     TZ=UTC

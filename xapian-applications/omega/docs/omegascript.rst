@@ -537,8 +537,22 @@ $setmap{MAP,NAME1,VALUE1,...}
 	Don't be tempted to add whitespace around the commas, unless you want
 	it to be included in the names and values!
 
-	Note: you must set the prefix maps before the query is parsed.  This
-	is done as late as possible - the following commands require the
+	Another map (added in Omega 1.3.4) allows specifying any boolean
+	prefixes which are non-exclusive, i.e. multiple filters of that
+	type should be combined with ``OP_AND`` rather than ``OP_OR``.
+	For example, if you have have a boolean filter on "material" using
+	the ``XM``` prefix, and the items being searched are made of multiple
+	materials, you likely want multiple material filters to restrict to
+	items matching all the materials (the default it to restrict to any
+	of the materials).  To specify this use
+	``$setmap{nonexclusiveprefix,XM,true}`` (any non-empty value can
+	be used in place of ``true``) - this feature affect both filters
+	from ``B`` CGI parameters (e.g. ``B=XMglass&B=XMwood``` and those
+	from parsing the query (e.g. ``material:glass material:wood`` if
+	``$setmap{boolprefix,material,XM}`` is also in effect).
+
+	Note: you must set the prefix-related maps before the query is parsed.
+	This is done as late as possible - the following commands require the
 	query to be parsed: $prettyterm, $query, $querydescription, $queryterms,
 	$relevant, $relevants, $setrelevant, $unstem, and also these commands
 	require the match to be run which requires the query to be parsed:

@@ -88,28 +88,30 @@ There are two main uses for prefixes - boolean filters and probabilistic
 Boolean Filters
 ===============
 
-If the documents being indexed represent people, you might have a gender
-field (e.g. M for Male, F for Female, X for Unknown).  Gender doesn't have
-a standard prefix, so you might allocated "XGENDER".  And then lowercase
-the field contents to avoid needing to always add a colon.  So documents
-will be indexed by one of XGENDERm, XGENDERf, or XGENDERx.
+If the documents being indexed describe objects in a museum, you might
+have a 'material' field, which records what each object is primarily made of.
+So a sundial might be 'material=Stone', a letter might be 'material=paper',
+etc.  There's no standard prefix for 'material', so you might allocate ``XM``.
+If you lowercase the field contents, you can avoid having to add a colon to
+seprated the prefix and content, so documents would be indexed by terms such as
+``XMstone``` or ``XMpaper``.
 
 If you're indexing using scriptindex, and have a field in the input file
-which can be "gender=M", etc, then your index script would have a rule
+such as "material=Stone", and then your index script would have a rule
 such as::
 
-    gender : lower boolean=XGENDER
+    material : lower boolean=XM
 
 You can then restrict a search in Omega by passing a B parameter with one
-of these as the value, e.g. B=XGENDERf
+of these as the value, e.g. ``B=XMstone``
 
 In your HTML search form, you can allow the user to select this using a set of
 radio buttons::
 
-    Gender:<br>
-    <input type="radio" name="B" value=""> any<br>
-    <input type="radio" name="B" value="XGENDERf"> female<br>
-    <input type="radio" name="B" value="XGENDERm"> male<br>
+    Material:<br>
+    <input type="radio" name="B" value=""> Any<br>
+    <input type="radio" name="B" value="XMpaper"> Paper<br>
+    <input type="radio" name="B" value="XMstone"> Stone<br>
 
 If you want to have multiple sets of radio buttons for selecting different
 boolean filters, you can make use of Omega's preprocessing of CGI parameter
@@ -118,27 +120,69 @@ space - see `cgiparams.html <cgiparams.html>`_ for full details).
 
 You can also use a select tag::
 
-    Gender:
+    Material:
     <select name="B">
-    <option value="">any</option>
-    <option value="XGENDERf">female</option>
-    <option value="XGENDERm">male</option>
-    <option value="XGENDERx">unknown</option>
+    <option value="">Any</option>
+    <option value="XMpaper">Paper</option>
+    <option value="XMstone">Stone</option>
     </select>
 
-You can also allow the user to restrict a search with a boolean filter
-specified in text query (e.g. sex:f -> XGENDERf) by adding this to the
-start of your OmegaScript template::
+Or if you want the user to be able to select more than one material to filter
+by, you can use checkboxes instead of radio buttons::
 
-    $setmap{boolprefix,sex,XGENDER}
+    Material:<br>
+    <input type="checkbox" name="B" value="XMpaper"> Paper<br>
+    <input type="checkbox" name="B" value="XMstone"> Stone<br>
+
+Or a multiple select::
+
+    Material:
+    <select multiple name="B">
+    <option value="XMpaper">Paper</option>
+    <option value="XMstone">Stone</option>
+    </select>
+
+These will work in the natural way - if no materials are selected, then no
+filtering by material will happen; if multiple materials are selected, then
+items made of any of the materials will match (in details, groups of filter
+terms with the same prefix are combined with ``OP_OR``; then these groups
+are combined with ``OP_AND``).
+
+Or perhaps the museum records multiple materials per object - e.g. a clock
+might be made of brass, glass and wood.  This can be handled smoothly too - you
+can specify multiple material fields to scriptindex::
+
+    material=brass
+    material=glass
+    material=wood
+
+You may then want multiple filters on material to be mean "find me objects
+which contain **all** of these materials" (rather than the default meaning
+of "find me objects which contain **any** of these materials") - to do this
+you want to set ``XM`` as a non-exclusive prefix, which you do like so (this
+needs Omega 1.3.4 or later)::
+
+    $setmap{nonexclusiveprefix,XM,true}
+
+You can also allow the user to restrict a search with a boolean filter
+specified in text query (e.g. ``material:paper`` -> ``XMpaper``) by adding this
+to the start of your OmegaScript template::
+
+    $setmap{boolprefix,material,XM}
 
 Multiple aliases are allowed::
 
-    $setmap{boolprefix,sex,XGENDER,gender,XGENDER}
+    $setmap{boolprefix,material,XM,madeof,XM}
 
 This decoupling of internal and external names is also useful if you want
 to offer search frontends in more than one language, as it allows the
 prefixes the user sees to be translated.
+
+If the user specified multiple filters in the query string, for example
+`material:wood material:paper`, then these are combined using similar logic
+to that used for filters specified by ``B`` CGI parameters, with terms with the
+same prefixed combined with ``OP_OR`` by default, or ``OP_AND`` specified by
+``$setmap{nonexclusiveprefix,...}``.
 
 Probabilistic Fields
 ====================
