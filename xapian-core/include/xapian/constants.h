@@ -127,7 +127,7 @@ const int DB_DANGEROUS		 = 0x10;
  *     (again, possible with inexact statistics).
  *   - Currently the list of which values are used in each document is stored
  *     in the termlist table, so things like iterating the values in a document
- *     require it (which is probably reasonably since iterating the terms in
+ *     require it (which is probably reasonable since iterating the terms in
  *     a document requires it).
  *
  *  You can also convert an existing database to not have a termlist table
