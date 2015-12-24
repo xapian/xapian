@@ -243,6 +243,9 @@ GlassDatabase::open_tables(int flags)
     position_table.open(flags, version_file.get_root(Glass::POSITION), rev);
     postlist_table.open(flags, version_file.get_root(Glass::POSTLIST), rev);
 
+    Xapian::termcount swfub = version_file.get_spelling_wordfreq_upper_bound();
+    spelling_table.set_wordfreq_upper_bound(swfub);
+
     value_manager.reset();
 
     if (!readonly) {
@@ -340,7 +343,7 @@ GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_revisi
     position_table.flush_db();
     termlist_table.flush_db();
     synonym_table.flush_db();
-    spelling_table.flush_db();
+    version_file.set_spelling_wordfreq_upper_bound(spelling_table.flush_db());
     docdata_table.flush_db();
 
     postlist_table.commit(new_revision, version_file.root_to_set(Glass::POSTLIST));
@@ -608,6 +611,9 @@ GlassDatabase::modifications_failed(glass_revision_number_t new_revision,
 	position_table.open(flags, version_file.get_root(Glass::POSITION), old_revision);
 	postlist_table.open(flags, version_file.get_root(Glass::POSTLIST), old_revision);
 
+	Xapian::termcount ub = version_file.get_spelling_wordfreq_upper_bound();
+	spelling_table.set_wordfreq_upper_bound(ub);
+
 	value_manager.reset();
 
 	// Increase revision numbers to new revision number plus one,
@@ -685,6 +691,9 @@ GlassDatabase::cancel()
     synonym_table.cancel(version_file.get_root(Glass::SYNONYM), rev);
     spelling_table.cancel(version_file.get_root(Glass::SPELLING), rev);
     docdata_table.cancel(version_file.get_root(Glass::DOCDATA), rev);
+
+    Xapian::termcount ub = version_file.get_spelling_wordfreq_upper_bound();
+    spelling_table.set_wordfreq_upper_bound(ub);
 }
 
 Xapian::doccount

@@ -137,6 +137,9 @@ class GlassVersion {
     /// An upper bound on the greatest wdf in this database.
     Xapian::termcount wdf_ubound;
 
+    /// An upper bound on the spelling wordfreq in this database.
+    Xapian::termcount spelling_wordfreq_ubound;
+
     /// Oldest changeset removed when max_changesets is set
     mutable glass_revision_number_t oldest_changeset;
 
@@ -154,7 +157,8 @@ class GlassVersion {
 	: rev(0), fd(-1), offset(0), db_dir(db_dir_), changes(NULL),
 	  doccount(0), total_doclen(0), last_docid(0),
 	  doclen_lbound(0), doclen_ubound(0),
-	  wdf_ubound(0), oldest_changeset(0) { }
+	  wdf_ubound(0), spelling_wordfreq_ubound(0),
+	  oldest_changeset(0) { }
 
     explicit GlassVersion(int fd_);
 
@@ -232,6 +236,10 @@ class GlassVersion {
 
     Xapian::termcount get_wdf_upper_bound() const { return wdf_ubound; }
 
+    Xapian::termcount get_spelling_wordfreq_upper_bound() const {
+	return spelling_wordfreq_ubound;
+    }
+
     glass_revision_number_t get_oldest_changeset() const {
 	return oldest_changeset;
     }
@@ -247,6 +255,10 @@ class GlassVersion {
 
     void set_oldest_changeset(glass_revision_number_t changeset) const {
 	oldest_changeset = changeset;
+    }
+
+    void set_spelling_wordfreq_upper_bound(Xapian::termcount ub) {
+	spelling_wordfreq_ubound = ub;
     }
 
     void add_document(Xapian::termcount doclen) {

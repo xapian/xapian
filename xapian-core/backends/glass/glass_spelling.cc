@@ -1,7 +1,7 @@
 /** @file glass_spelling.cc
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,10 +96,13 @@ GlassSpellingTable::merge_changes()
     map<string, Xapian::termcount>::const_iterator j;
     for (j = wordfreq_changes.begin(); j != wordfreq_changes.end(); ++j) {
 	string key = "W" + j->first;
-	if (j->second) {
+	Xapian::termcount wordfreq = j->second;
+	if (wordfreq) {
 	    string tag;
-	    pack_uint_last(tag, j->second);
+	    pack_uint_last(tag, wordfreq);
 	    add(key, tag);
+	    if (wordfreq > wordfreq_upper_bound)
+		wordfreq_upper_bound = wordfreq;
 	} else {
 	    del(key);
 	}

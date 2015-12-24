@@ -49,8 +49,8 @@
 using namespace std;
 
 /// Glass format version (date of change):
-#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2015,12,23)
-// 2015,12,19 1.3.4 2 bytes "components_of" per item eliminated; more
+#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2015,12,24)
+// 2015,12,24 1.3.4 2 bytes "components_of" per item eliminated, and much more
 // 2014,11,21 1.3.2 Brass renamed to Glass
 
 /// Convert date <-> version number.  Dates up to 2141-12-31 fit in 2 bytes.
@@ -72,7 +72,8 @@ GlassVersion::GlassVersion(int fd_)
     : rev(0), fd(fd_), offset(0), db_dir(), changes(NULL),
       doccount(0), total_doclen(0), last_docid(0),
       doclen_lbound(0), doclen_ubound(0),
-      wdf_ubound(0), oldest_changeset(0)
+      wdf_ubound(0), spelling_wordfreq_ubound(0),
+      oldest_changeset(0)
 {
     offset = lseek(fd, 0, SEEK_CUR);
     if (rare(offset == off_t(-1))) {
@@ -180,6 +181,7 @@ GlassVersion::serialise_stats()
     pack_uint(serialised_stats, doclen_ubound - wdf_ubound);
     pack_uint(serialised_stats, oldest_changeset);
     pack_uint(serialised_stats, total_doclen);
+    pack_uint(serialised_stats, spelling_wordfreq_ubound);
 }
 
 void
@@ -195,6 +197,7 @@ GlassVersion::unserialise_stats()
 	doclen_ubound = 0;
 	wdf_ubound = 0;
 	oldest_changeset = 0;
+	spelling_wordfreq_ubound = 0;
 	return;
     }
 
@@ -204,7 +207,8 @@ GlassVersion::unserialise_stats()
 	!unpack_uint(&p, end, &wdf_ubound) ||
 	!unpack_uint(&p, end, &doclen_ubound) ||
 	!unpack_uint(&p, end, &oldest_changeset) ||
-	!unpack_uint(&p, end, &total_doclen)) {
+	!unpack_uint(&p, end, &total_doclen) ||
+	!unpack_uint(&p, end, &spelling_wordfreq_ubound)) {
 	const char * m = p ?
 	    "Bad serialised DB stats (overflowed)" :
 	    "Bad serialised DB stats (out of data)";
@@ -244,6 +248,9 @@ GlassVersion::merge_stats(const GlassVersion & o)
     if (total_doclen < o.get_total_doclen()) {
 	throw "totlen wrapped!";
     }
+
+    // The upper bounds might be on the same word, so we must sum them.
+    spelling_wordfreq_ubound += o.get_spelling_wordfreq_upper_bound();
 }
 
 void

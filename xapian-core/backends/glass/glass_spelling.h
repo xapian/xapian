@@ -1,7 +1,7 @@
 /** @file glass_spelling.h
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,6 +76,9 @@ class GlassSpellingTable : public GlassLazyTable {
      */
     std::map<Glass::fragment, std::set<std::string> > termlist_deltas;
 
+    /** Used to track an upper bound on wordfreq. */
+    Xapian::termcount wordfreq_upper_bound = 0;
+
   public:
     /** Create a new GlassSpellingTable object.
      *
@@ -93,7 +96,10 @@ class GlassSpellingTable : public GlassLazyTable {
 	: GlassLazyTable("spelling", fd, offset_, readonly,
 			 Z_DEFAULT_STRATEGY) { }
 
-    // Merge in batched-up changes.
+    /** Merge in batched-up changes.
+     *
+     *  @return Updated upperbound on the word frequency.
+     */
     void merge_changes();
 
     void add_word(const std::string & word, Xapian::termcount freqinc);
@@ -102,6 +108,10 @@ class GlassSpellingTable : public GlassLazyTable {
     TermList * open_termlist(const std::string & word);
 
     Xapian::doccount get_word_frequency(const std::string & word) const;
+
+    void set_wordfreq_upper_bound(Xapian::termcount ub) {
+	wordfreq_upper_bound = ub;
+    }
 
     /** Override methods of GlassTable.
      *
@@ -114,9 +124,11 @@ class GlassSpellingTable : public GlassLazyTable {
 	return !wordfreq_changes.empty() || GlassTable::is_modified();
     }
 
-    void flush_db() {
+    /** Returns updated wordfreq upper bound. */
+    Xapian::termcount flush_db() {
 	merge_changes();
 	GlassTable::flush_db();
+	return wordfreq_upper_bound;
     }
 
     void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
