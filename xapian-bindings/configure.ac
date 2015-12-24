@@ -1012,7 +1012,7 @@ if test no != "$with_lua" ; then
   if test -n "$LUA" ; then
     dnl We need Lua 5.1 or later.
     AC_MSG_CHECKING([$LUA version])
-    lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' '`
+    lua_version=`$LUA -e 'print(_VERSION)' | cut -f 2 -d ' ' 2>&AS_MESSAGE_LOG_FD`
 
     case $lua_version in
     [[01234]].*|5.0|5.0.*)
