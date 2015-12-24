@@ -57,29 +57,6 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      */
     void * matcher_;
 
-  protected:
-    /** Set an upper bound on what get_weight() can return from now on.
-     *
-     *  This upper bound is used by the matcher to perform various
-     *  optimisations, so if you can return a good bound, then matches
-     *  will generally run faster.
-     *
-     *  This method should be called after calling init(), and may be called
-     *  during iteration if the upper bound drops.
-     *
-     *  It is valid for the posting source to have returned a higher value from
-     *  get_weight() earlier in the iteration, but the posting source must not
-     *  return a higher value from get_weight() than the currently set upper
-     *  bound, and the upper bound must not be increased (until init() has been
-     *  called).
-     *
-     *  If you don't call this method, the upper bound will default to 0, for
-     *  convenience when implementing "weight-less" PostingSource subclasses.
-     *
-     *  @param max_weight	The upper bound to set.
-     */
-    void set_maxweight(double max_weight);
-
   public:
     /// Allow subclasses to be instantiated.
     XAPIAN_NOTHROW(PostingSource())
@@ -120,6 +97,30 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  for the first time.
      */
     virtual Xapian::doccount get_termfreq_max() const = 0;
+
+    /** Specify an upper bound on what get_weight() will return from now on.
+     *
+     *  This upper bound is used by the matcher to perform various
+     *  optimisations, so if you can return a good bound, then matches
+     *  will generally run faster.
+     *
+     *  This method should be called after calling init(), and may be called
+     *  during iteration if the upper bound drops.  It is probably only useful
+     *  to call from subclasses (it was actually a "protected" method prior to
+     *  Xapian 1.3.4, but that makes it tricky to wrap for other languages).
+     *
+     *  It is valid for the posting source to have returned a higher value from
+     *  get_weight() earlier in the iteration, but the posting source must not
+     *  return a higher value from get_weight() than the currently set upper
+     *  bound, and the upper bound must not be increased (until init() has been
+     *  called).
+     *
+     *  If you don't call this method, the upper bound will default to 0, for
+     *  convenience when implementing "weight-less" PostingSource subclasses.
+     *
+     *  @param max_weight	The upper bound to set.
+     */
+    void set_maxweight(double max_weight);
 
     /// Return the currently set upper bound on what get_weight() can return.
     double XAPIAN_NOTHROW(get_maxweight() const) { return max_weight_; }
