@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010,2011,2013,2014 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013,2014,2015 Olly Betts
 # Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -1009,14 +1009,19 @@ def test_postingsource():
 
         def init(self, db):
             self.current = -1
+            self.weight = db.get_doccount() + 1
+            self.set_maxweight(self.weight)
 
         def get_termfreq_min(self): return 0
         def get_termfreq_est(self): return int(self.max / 2)
         def get_termfreq_max(self): return self.max
         def next(self, minweight):
             self.current += 2
+            self.weight -= 1.0;
+            self.set_maxweight(self.weight)
         def at_end(self): return self.current > self.max
         def get_docid(self): return self.current
+        def get_weight(self): return self.weight
 
     dbpath = 'db_test_postingsource'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
@@ -1056,6 +1061,7 @@ def test_postingsource():
     mset = enquire.get_mset(0, 10)
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])
+    expect(mset[0].weight, db.get_doccount())
 
     db.close()
     expect(xapian.Database.check(dbpath), 0);
