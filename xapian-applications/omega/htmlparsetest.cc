@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006,2008,2011,2012 Olly Betts
+ * Copyright (C) 2006,2008,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,6 +58,10 @@ static const testcase tests[] = {
     { "foo<![CDATA[bar", "foobar", "", "", "" },
     // Test that handling of multiple body tags matches modern browser behaviour (ticket#599).
     { "a<html>b<head>c<title>bad</title>d</head>e<body>f</body>g<body>h</body>i</html>j<body>k", "abcdefghijk", "bad", "", "" },
+    // Test entities.
+    { "<html><body>1 &lt; 2, 3 &gt; 2</body></html>", "1 < 2, 3 > 2", "", "", "" },
+    { "<html><body>&amp;amp;</body></html>", "&amp;", "", "", "" },
+    { "&#65;&#x40;&gt", "A@>", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 
