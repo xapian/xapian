@@ -22,7 +22,8 @@
 #ifdef HAVE_POSIX_FADVISE
 # ifdef __linux__
 #  define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
-#  define _BSD_SOURCE 1 // Need this to get lstat() as well
+#  define _DEFAULT_SOURCE 1 // Needed to get lstat() for glibc >= 2.20
+#  define _BSD_SOURCE 1 // Needed to get lstat() for glibc < 2.20
 # endif
 #endif
 
