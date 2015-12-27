@@ -347,7 +347,7 @@ set_probabilistic(const string &oldp)
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
-	string user_prefix = pfx->first.substr(11);
+	string user_prefix(pfx->first, 11, string::npos);
 	auto it = option.find("nonexclusiveprefix," + pfx->second);
 	bool exclusive = (it == option.end() || it->second.empty());
 	qp.add_boolean_prefix(user_prefix, pfx->second, exclusive);
@@ -833,7 +833,7 @@ Fields::read_fields(Xapian::docid did) const
 	do {
 	    string::size_type i0 = i;
 	    i = data.find('\n', i);
-	    string line = data.substr(i0, i - i0);
+	    string line(data, i0, i - i0);
 	    string::size_type j = line.find('=');
 	    if (j != string::npos) {
 		string & value = fields[line.substr(0, j)];
@@ -1169,11 +1169,12 @@ eval(const string &fmt, const vector<string> &param)
 	    case '{':
 		break;
 	    default:
-		string msg = "Unknown $ code in: $" + fmt.substr(q);
+		string msg = "Unknown $ code in: $";
+		msg.append(fmt, q, string::npos);
 		throw msg;
 	}
 	p = find_if(fmt.begin() + q, fmt.end(), p_notid) - fmt.begin();
-	string var = fmt.substr(q, p - q);
+	string var(fmt, q, p - q);
 	map<string, const struct func_attrib *>::const_iterator func;
 	func = func_map.find(var);
 	if (func == func_map.end()) {
@@ -2039,7 +2040,7 @@ eval(const string &fmt, const vector<string> &param)
 			}
 		    }
 		}
-		value = args[0].substr(start, len);
+		value.assign(args[0], start, len);
 		break;
 	    }
 	    case CMD_suggestion:
@@ -2149,7 +2150,7 @@ eval(const string &fmt, const vector<string> &param)
 		string prev;
 		do {
 		    split2 = list.find('\t', split);
-		    string item = list.substr(split, split2 - split);
+		    string item(list, split, split2 - split);
 		    if (split == 0) {
 			value = item;
 		    } else if (item != prev) {

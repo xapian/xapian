@@ -118,7 +118,7 @@ HtmlParser::decode_entities(string &s)
 	    }
 	} else {
 	    end = find_if(p, s_end, C_isnotalnum);
-	    string code = s.substr(p - s.begin(), end - p);
+	    string code(p, end);
 	    map<string, unsigned int>::const_iterator i;
 	    i = named_ents.find(code);
 	    if (i != named_ents.end()) val = i->second;
@@ -200,7 +200,7 @@ HtmlParser::parse(const string &body)
 		size_t enc_end = decl.find(quote, enc);
 
 		if (enc != string::npos)
-		    charset = decl.substr(enc, enc_end - enc);
+		    charset.assign(decl, enc, enc_end - enc);
 
 		break;
 	    }
@@ -209,7 +209,7 @@ HtmlParser::parse(const string &body)
 
 	// Process text up to start of tag.
 	if (p > start) {
-	    string text = body.substr(start - body.begin(), p - start);
+	    string text(body, start - body.begin(), p - start);
 	    convert_to_utf8(text, charset);
 	    decode_entities(text);
 	    process_text(text);
@@ -300,7 +300,7 @@ HtmlParser::parse(const string &body)
 
 	    p = start;
 	    start = find_if(start, body.end(), p_nottag);
-	    string tag = body.substr(p - body.begin(), start - p);
+	    string tag(body, p - body.begin(), start - p);
 	    // convert tagname to lowercase
 	    lowercase_string(tag);
 

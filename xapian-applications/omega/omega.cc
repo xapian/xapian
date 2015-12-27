@@ -148,7 +148,7 @@ try {
 		size_t p = 0, q;
 		while (true) {	    
 		    q = v.find('/', p);
-		    string s = v.substr(p, q - p);
+		    string s(v, p, q - p);
 		    if (!s.empty() && seen.find(s) == seen.end()) {
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';

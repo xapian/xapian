@@ -190,7 +190,7 @@ parse_index_script(const string &filename)
 	j = i;
 	while (j != s.end()) {
 	    i = find_if(j, s.end(), p_notalpha);
-	    string action = s.substr(j - s.begin(), i - j);
+	    string action(s, j - s.begin(), i - j);
 	    Action::type code = Action::BAD;
 	    enum {NO, OPT, YES} arg = NO;
 	    bool takes_integer_argument = false;
@@ -446,8 +446,8 @@ index_file(const char *fname, istream &stream,
 		    "in this line" << endl;
 		// FIXME: die or what?
 	    }
-	    string field = line.substr(0, eq);
-	    string value = line.substr(eq + 1);
+	    string field(line, 0, eq);
+	    string value(line, eq + 1, string::npos);
 	    while (getline(stream, line)) {
 		++line_no;
 		if (line.empty() || line[0] != '=') break;

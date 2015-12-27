@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2003,2009,2011 Olly Betts
+ * Copyright 2002,2003,2009,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ add_param(string name, string val)
 	    // characters are ignored by atoi().
 	    i = name.find(' ');
 	    if (i != string::npos)
-		val = name.substr(i + 1);
+		val.assign(name, i + 1, string::npos);
 	    else {
 		i = name.find_first_not_of("0123456789");
 		if (i == string::npos) {
