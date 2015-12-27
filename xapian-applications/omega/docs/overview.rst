@@ -217,7 +217,7 @@ other filters too - see below):
   HTML::Parser modules is available
 * MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
 * AbiWord documents (.abw)
-* Compressed AbiWord documents (.zabw) if gzip is available
+* Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 * reStructured text (.rst, .rest) if rst2html is available (comes with
