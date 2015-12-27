@@ -49,30 +49,6 @@ lowercase_string(string &str)
 map<string, unsigned int> HtmlParser::named_ents;
 
 inline static bool
-p_notdigit(char c)
-{
-    return !C_isdigit(c);
-}
-
-inline static bool
-p_notxdigit(char c)
-{
-    return !C_isxdigit(c);
-}
-
-inline static bool
-p_notalnum(char c)
-{
-    return !C_isalnum(c);
-}
-
-inline static bool
-p_notwhitespace(char c)
-{
-    return !C_isspace(c);
-}
-
-inline static bool
 p_nottag(char c)
 {
     // ':' for XML namespaces.
@@ -128,16 +104,20 @@ HtmlParser::decode_entities(string &s)
 	    p++;
 	    if (p != s_end && (*p == 'x' || *p == 'X')) {
 		// hex
-		p++;
-		end = find_if(p, s_end, p_notxdigit);
-		sscanf(s.substr(p - s.begin(), end - p).c_str(), "%x", &val);
+		while (++p != s_end && C_isxdigit(*p)) {
+		    val = (val << 4) | hex_digit(*p);
+		}
+		end = p;
 	    } else {
 		// number
-		end = find_if(p, s_end, p_notdigit);
-		val = atoi(s.substr(p - s.begin(), end - p).c_str());
+		while (p != s_end && C_isdigit(*p)) {
+		    val = val * 10 + (*p - '0');
+		    ++p;
+		}
+		end = p;
 	    }
 	} else {
-	    end = find_if(p, s_end, p_notalnum);
+	    end = find_if(p, s_end, C_isnotalnum);
 	    string code = s.substr(p - s.begin(), end - p);
 	    map<string, unsigned int>::const_iterator i;
 	    i = named_ents.find(code);
@@ -315,7 +295,7 @@ HtmlParser::parse(const string &body)
 
 	    if (*start == '/') {
 		closing = 1;
-		start = find_if(start + 1, body.end(), p_notwhitespace);
+		start = find_if(start + 1, body.end(), C_isnotspace);
 	    }
 
 	    p = start;
@@ -353,11 +333,11 @@ HtmlParser::parse(const string &body)
 
 		    name.assign(body, start - body.begin(), name_len);
 
-		    p = find_if(p, body.end(), p_notwhitespace);
+		    p = find_if(p, body.end(), C_isnotspace);
 
 		    start = p;
 		    if (start != body.end() && *start == '=') {
-			start = find_if(start + 1, body.end(), p_notwhitespace);
+			start = find_if(start + 1, body.end(), C_isnotspace);
 
 			p = body.end();
 
@@ -372,7 +352,7 @@ HtmlParser::parse(const string &body)
 			    p = find_if(start, body.end(), p_whitespacegt);
 			}
 			value.assign(body, start - body.begin(), p - start);
-			start = find_if(p, body.end(), p_notwhitespace);
+			start = find_if(p, body.end(), C_isnotspace);
 
 			if (!name.empty()) {
 			    // convert parameter name to lowercase

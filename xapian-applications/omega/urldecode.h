@@ -35,10 +35,6 @@ struct CGIParameterHandler {
     void operator()(const std::string&, const std::string&) const;
 };
 
-inline unsigned char hex_decode_(unsigned char hex) {
-    return (hex & 0x0f) + (hex >> 6) * 9;
-}
-
 template<typename I>
 inline void
 url_decode(const CGIParameterHandler & handle_parameter, I begin, I end)
@@ -73,6 +69,7 @@ process_ch:
 			break;
 		    goto process_ch;
 		}
+		unsigned char newch = hex_digit(hex1);
 		unsigned char hex2 = *begin;
 		++begin;
 		if (!C_isxdigit(hex2)) {
@@ -83,7 +80,7 @@ process_ch:
 			break;
 		    goto process_ch;
 		}
-		ch = (hex_decode_(hex1) << 4) | hex_decode_(hex2);
+		ch = (newch << 4) | hex_digit(hex2);
 		break;
 	    }
 	    case '+':
@@ -321,8 +318,8 @@ url_prettify(std::string & url)
     while (true) {
 	// We've checked there are at least two bytes after the '%' already.
 	if (C_isxdigit(in[pcent + 1]) && C_isxdigit(in[pcent + 2])) {
-	    int ch = (hex_decode_(in[pcent + 1]) << 4);
-	    ch |= hex_decode_(in[pcent + 2]);
+	    int ch = (hex_digit(in[pcent + 1]) << 4);
+	    ch |= hex_digit(in[pcent + 2]);
 	    bool safe = true;
 	    switch (url_chars[ch]) {
 		case UNSAFE:
@@ -337,8 +334,8 @@ url_prettify(std::string & url)
 		    url.append(in, start, pcent - start);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_decode_(in[pcent + 1]) << 4);
-		    ch |= hex_decode_(in[pcent + 2]);
+		    ch = (hex_digit(in[pcent + 1]) << 4);
+		    ch |= hex_digit(in[pcent + 2]);
 		    start = pcent;
 		    break;
 		case SEQ3:
@@ -352,12 +349,12 @@ url_prettify(std::string & url)
 		    url.append(in, start, pcent - start);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_decode_(in[pcent + 1]) << 4);
-		    ch |= hex_decode_(in[pcent + 2]);
+		    ch = (hex_digit(in[pcent + 1]) << 4);
+		    ch |= hex_digit(in[pcent + 2]);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_decode_(in[pcent + 1]) << 4);
-		    ch |= hex_decode_(in[pcent + 2]);
+		    ch = (hex_digit(in[pcent + 1]) << 4);
+		    ch |= hex_digit(in[pcent + 2]);
 		    start = pcent;
 		    break;
 		case SEQ4:
@@ -373,16 +370,16 @@ url_prettify(std::string & url)
 		    url.append(in, start, pcent - start);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_decode_(in[pcent + 1]) << 4);
-		    ch |= hex_decode_(in[pcent + 2]);
+		    ch = (hex_digit(in[pcent + 1]) << 4);
+		    ch |= hex_digit(in[pcent + 2]);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_decode_(in[pcent + 1]) << 4);
-		    ch |= hex_decode_(in[pcent + 2]);
+		    ch = (hex_digit(in[pcent + 1]) << 4);
+		    ch |= hex_digit(in[pcent + 2]);
 		    url += char(ch);
 		    pcent += 3;
-		    ch = (hex_decode_(in[pcent + 1]) << 4);
-		    ch |= hex_decode_(in[pcent + 2]);
+		    ch = (hex_digit(in[pcent + 1]) << 4);
+		    ch |= hex_digit(in[pcent + 2]);
 		    start = pcent;
 		    break;
 		case INPATH:
