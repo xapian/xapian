@@ -20,7 +20,12 @@
 # USA
 
 if [ "$1" = "--help" ] ; then
-  echo "$0 [--ftp] [--without-autotools|--clean]"
+  cat <<__END__
+$0 [--ftp] [--without-autotools|--clean] [MODULE...]
+
+The default is to bootstrap all known modules.  Any modules which have a
+file called ".nobootstrap" in their top-level will be skipped.
+__END__
   exit 0
 fi
 
@@ -295,8 +300,8 @@ cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 END
-if [ -f .git/info/exclude ] && 
-   cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
+if [ -f .git/info/exclude ] &&
+   cmp .git/info/exclude~ .git/info/exclude 2> /dev/null ; then
   rm .git/info/exclude~
 else
   mv .git/info/exclude~ .git/info/exclude
@@ -384,10 +389,11 @@ case `${LIBTOOLIZE-libtoolize} --version` in
 esac
 
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
+export ACLOCAL
 
 intree_swig=no
 modules=
-for module in xapian-core xapian-applications/omega swig xapian-bindings ; do
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
   d=$module
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     :
