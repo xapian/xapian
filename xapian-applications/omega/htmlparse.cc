@@ -101,7 +101,7 @@ HtmlParser::decode_entities(string &s)
 	unsigned int val = 0;
 	string::const_iterator end, p = amp + 1;
 	if (p != s_end && *p == '#') {
-	    p++;
+	    ++p;
 	    if (p != s_end && (*p == 'x' || *p == 'X')) {
 		// hex
 		while (++p != s_end && C_isxdigit(*p)) {
@@ -123,7 +123,7 @@ HtmlParser::decode_entities(string &s)
 	    i = named_ents.find(code);
 	    if (i != named_ents.end()) val = i->second;
 	}
-	if (end < s_end && *end == ';') end++;
+	if (end != s_end && *end == ';') ++end;
 	if (val) {
 	    string::size_type amp_pos = amp - s.begin();
 	    if (val < 0x80) {
@@ -204,7 +204,7 @@ HtmlParser::parse(const string &body)
 
 		break;
 	    }
-	    p++;
+	    ++p;
 	}
 
 	// Process text up to start of tag.
@@ -343,7 +343,7 @@ HtmlParser::parse(const string &body)
 
 			int quote = *start;
 			if (quote == '"' || quote == '\'') {
-			    start++;
+			    ++start;
 			    p = find(start, body.end(), quote);
 			}
 
@@ -366,7 +366,7 @@ HtmlParser::parse(const string &body)
 #if 0
 		cout << "<" << tag;
 		map<string, string>::const_iterator x;
-		for (x = parameters.begin(); x != parameters.end(); x++) {
+		for (x = parameters.begin(); x != parameters.end(); ++x) {
 		    cout << " " << x->first << "=\"" << x->second << "\"";
 		}
 		cout << ">\n";
