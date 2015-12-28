@@ -1,3 +1,64 @@
+up to: b90c3ddb03eac37da64a07bd95efe38cb78910a8
+
+Xapian-bindings 1.3.4 (2015-12-28):
+
+This release includes all changes from 1.2.22 which are relevant.
+
+Documentation:
+
+General:
+
+* Wrap new and changed features in C++ API.
+
+* PostingSource set_maxweight() is now accessible to the bindings.  Fixes #498,
+  reported by Richard Boulton.
+
+* configure script now defaults to looking for xapian-config-1.3.  This is now
+  automatically done for development series (odd middle component of the
+  version number), but not for stable series (even middle component).  Fixes
+  #695, reported by Jorge C. Leitão
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+* Make PHP 5.5 the minimum officially supported version, as 5.4 has now reached
+  EOL.
+
+* In the examples, when iterating an MSet with foreach, don't throw the docid
+  away as $dummy, put it in $docid and use it - the code looks cleaner, and
+  this avoids an extra call to C++ to get the docid on each iteration.
+
+Python:
+
+* Drop support for Python 2.5.
+
+Python3:
+
+* Document installation of Python 3 bindings.  Fixes #694, reported by Jorge C.
+  Leitão.
+
+* Fix testsuite for changes in Python 3.5.  Fixes #690, patch from UsusDei.
+
+* Handle renaming of .pyo to .opt-1.pyc files due to PEP-0488.  Fixes #689,
+  patch from UsusDei.
+
+* Fix Python 3 version check to accept 3.10.
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.3.3 (2015-06-01):
 
 This release includes all changes from 1.2.20-1.2.21 which are relevant.
