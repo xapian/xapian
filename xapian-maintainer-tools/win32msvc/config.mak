@@ -279,7 +279,7 @@ DEPEND=xapdep.exe
 # assumed these files will *not* ship with a default binary build)
 CPPFLAGS_COMMON=-nologo -c -Zi -I.. -I..\include -I..\common -I..\win32 -W3 -EHsc \
 -DWIN32 -D__WIN32__ -D_WIN32 -D_WINDOWS \
--D "HAVE_VSNPRINTF" -D "HAVE_STRDUP" -D "_USE_32BIT_TIME_T" \
+-D "HAVE_VSNPRINTF" -D "HAVE_STRDUP" \
 -D_CRT_SECURE_NO_DEPRECATE \
 -I"$(ZLIB_INCLUDE_DIR)"
 
