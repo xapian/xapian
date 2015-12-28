@@ -76,7 +76,6 @@ APITEST_OBJS= \
     "$(OUTDIR)\api_scalability.obj" \
     "$(OUTDIR)\api_serialise.obj" \
     "$(OUTDIR)\api_sorting.obj" \
-    "$(OUTDIR)\api_sortingold.obj" \
     "$(OUTDIR)\api_spelling.obj" \
     "$(OUTDIR)\api_stem.obj" \
     "$(OUTDIR)\api_transdb.obj" \
@@ -129,7 +128,6 @@ COLLATED_APITEST_SOURCES= \
     "$(INTDIR)\api_scalability.cc" \
     "$(INTDIR)\api_serialise.cc" \
     "$(INTDIR)\api_sorting.cc" \
-    "$(INTDIR)\api_sortingold.cc" \
     "$(INTDIR)\api_spelling.cc" \
     "$(INTDIR)\api_stem.cc" \
     "$(INTDIR)\api_transdb.cc" \
@@ -161,7 +159,6 @@ COLLATED_APITEST_HEADERS=\
     "$(INTDIR)\api_scalability.h" \
     "$(INTDIR)\api_serialise.h" \
     "$(INTDIR)\api_sorting.h" \
-    "$(INTDIR)\api_sortingold.h" \
     "$(INTDIR)\api_opsynonym.h" \
     "$(INTDIR)\api_spelling.h" \
     "$(INTDIR)\api_transdb.h" \

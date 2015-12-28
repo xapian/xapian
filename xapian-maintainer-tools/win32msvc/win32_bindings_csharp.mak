@@ -39,7 +39,6 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     MatchDecider.cs \
     MSet.cs \
     MSetIterator.cs \
-    MultiValueSorter.cs \
     NumberValueRangeProcessor.cs \
     PositionIterator.cs \
     PostingIterator.cs \
@@ -51,7 +50,6 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     RSet.cs \
     SimpleStopper.cs \
     SmokeTest.cs \
-    Sorter.cs \
     Stem.cs \
     StemImplementation.cs \
     Stopper.cs \

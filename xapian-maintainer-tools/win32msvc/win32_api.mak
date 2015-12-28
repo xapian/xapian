@@ -29,16 +29,16 @@ OBJS= \
     $(INTDIR)/omdatabase.obj \
     $(INTDIR)/omdocument.obj \
     $(INTDIR)/omenquire.obj \
-    $(INTDIR)/ompositionlistiterator.obj \
     $(INTDIR)/ompostlistiterator.obj \
     $(INTDIR)/omquery.obj \
     $(INTDIR)/omqueryinternal.obj \
-    $(INTDIR)/omtermlistiterator.obj \
+    $(INTDIR)/positioniterator.obj \
     $(INTDIR)/postingsource.obj \
     $(INTDIR)/postlist.obj \
     $(INTDIR)/registry.obj \
     $(INTDIR)/replication.obj \
     $(INTDIR)/sortable-serialise.obj \
+    $(INTDIR)/termiterator.obj \
     $(INTDIR)/termlist.obj \
     $(INTDIR)/valueiterator.obj\
     $(INTDIR)/valuerangeproc.obj \
@@ -60,16 +60,17 @@ SRCS= \
     $(INTDIR)/omdatabase.cc\
     $(INTDIR)/omdocument.cc\
     $(INTDIR)/omenquire.cc\
-    $(INTDIR)/ompositionlistiterator.cc\
     $(INTDIR)/ompostlistiterator.cc\
     $(INTDIR)/omquery.cc\
     $(INTDIR)/omqueryinternal.cc\
     $(INTDIR)/omtermlistiterator.cc\
+    $(INTDIR)/positioniterator.cc \
     $(INTDIR)/postingsource.cc \
     $(INTDIR)/postlist.cc\
     $(INTDIR)/registry.cc \
     $(INTDIR)/replication.cc \
     $(INTDIR)/sortable-serialise.cc\
+    $(INTDIR)/termiterator.cc \
     $(INTDIR)/termlist.cc\
     $(INTDIR)/valueiterator.cc\
     $(INTDIR)/valuerangeproc.cc\

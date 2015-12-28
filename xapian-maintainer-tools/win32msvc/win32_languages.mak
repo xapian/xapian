@@ -20,6 +20,9 @@ ALL : MAKEFROMSBL "$(OUTDIR)\liblanguages.lib"
 LIBLANGUAGES_OBJS= \
                  $(INTDIR)\stem.obj \
                  $(INTDIR)\steminternal.obj \
+		 $(INTDIR)\armenian.obj \
+		 $(INTDIR)\basque.obj \
+		 $(INTDIR)\catalan.obj \
                  $(INTDIR)\danish.obj \
                  $(INTDIR)\dutch.obj \
                  $(INTDIR)\english.obj \
@@ -41,6 +44,9 @@ LIBLANGUAGES_OBJS= \
 		 $(INTDIR)\turkish.obj
 
 LIBLANGUAGES_SOURCES= \
+		 $(INTDIR)\armenian.cc \
+		 $(INTDIR)\basque.cc \
+		 $(INTDIR)\catalan.cc \
                  $(INTDIR)\danish.cc \
                  $(INTDIR)\dutch.cc \
                  $(INTDIR)\english.cc \
@@ -62,6 +68,9 @@ LIBLANGUAGES_SOURCES= \
 		 $(INTDIR)\turkish.cc
 
 LIBLANGUAGES_HEADERS= \
+		 armenian.h \
+		 basque.h \
+		 catalan.h \
                  danish.h \
                  dutch.h \
                  english.h \
@@ -110,6 +119,14 @@ CPP_SBRS=.
 
 
 # Generate .h and .cc files from Snowball algorithms using Snowball compiler
+".\armenian.h" ".\armenian.cc" : ".\armenian.sbl"
+	$(SBL) armenian.sbl $(SBL_OPTIONS) -o armenian -n InternalStemArmenian -p SnowballStemImplementation
+
+".\basque.h" ".\basque.cc" : ".\basque.sbl"
+	$(SBL) basque.sbl $(SBL_OPTIONS) -o basque -n InternalStemBasque -p SnowballStemImplementation
+
+".\catalan.h" ".\catalan.cc" : ".\catalan.sbl"
+	$(SBL) catalan.sbl $(SBL_OPTIONS) -o catalan -n InternalStemCatalan -p SnowballStemImplementation
 
 ".\danish.h" ".\danish.cc" : ".\danish.sbl"
 	$(SBL) danish.sbl $(SBL_OPTIONS) -o danish -n InternalStemDanish -p SnowballStemImplementation
