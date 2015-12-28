@@ -26,6 +26,9 @@ if (-d '.svn') {
     $vcs = 'svn';
 } else {
     $vcs = 'git';
+    open CL, '<', 'ChangeLog' or die "Can't find 'ChangeLog' in current directory: $!\n";
+    my $cl_head = <CL>;
+    $vcs = 'gitlog' if $cl_head !~ /^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) /;
 }
 my $new_version;
 my $date = strftime("%Y-%m-%d", gmtime());
@@ -77,7 +80,7 @@ if ($news =~ /^(?:up *to:)? *(\d+|[[:xdigit:]]{7,})\b/i) {
 	$rev1 = $1;
     } else {
 	# git
-	$rev1 = $last_release;
+	$rev1 = "v$last_release";
     }
 } else {
     die "Can't find revision in NEWS\n";
@@ -85,8 +88,10 @@ if ($news =~ /^(?:up *to:)? *(\d+|[[:xdigit:]]{7,})\b/i) {
 
 if ($vcs eq 'svn') {
     open BLAME, "svn blame -r$rev1:HEAD ChangeLog 2>/dev/null|" or die $!;
-} else {
+} elsif ($vcs eq 'git') {
     open BLAME, "git blame $rev1.. ChangeLog 2>/dev/null|" or die $!;
+} else {
+    open BLAME, "git log $rev1.. -- . 2>/dev/null|" or die $!;
 }
 
 open NEWSTMP, '>', 'NEWS~' or die $!;
@@ -94,7 +99,17 @@ open NEWSTMP, '>', 'NEWS~' or die $!;
 my $lines = 0;
 my $prefix = "";
 while (<BLAME>) {
-    print NEWSTMP if $lines == 0;
+    if ($lines == 0) {
+	if ($vcs eq 'svn') {
+	    print NEWSTMP;
+	} elsif ($vcs eq 'git') {
+	    print NEWSTMP;
+	} else {
+	    if (/ ([0-9a-f]+)/) {
+		print NEWSTMP "up to: $1\n\n";
+	    }
+	}
+    }
     if ($vcs eq 'svn') {
 	if (!s/^( *(\d+) +(\S+) )//) {
 	    last if (/^ *-/);
@@ -107,7 +122,7 @@ while (<BLAME>) {
 		next if $_ eq "\n";
 	    }
 	}
-    } else {
+    } elsif ($vcs eq 'git') {
 	next if /^\^/;
 	if (s/^([[:xdigit:]]+.*?) +\d+\) //) {
 	    my $p = $1 . ")\n";
@@ -119,6 +134,18 @@ while (<BLAME>) {
 		next if $_ eq "\n";
 	    }
 	}
+    } else {
+#	next if /^\^/;
+#	if (s/^([[:xdigit:]]+.*?) +\d+\) //) {
+#	    my $p = $1 . ")\n";
+#	    if ($p ne $prefix) {
+#		$prefix = $p;
+#		$_ = $prefix . $_;
+#		print NEWSTMP "\n";
+#	    } else {
+#		next if $_ eq "\n";
+#	    }
+#	}
     }
     print NEWSTMP;
     ++$lines;
