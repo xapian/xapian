@@ -305,12 +305,12 @@ if test no != "$with_python" ; then
   fi
   AC_ARG_VAR(PYTHON2, [Python 2 interpreter])
   if test -n "$PYTHON2" ; then
-    dnl Require Python 2.4 or newer.  Older versions are essentially
+    dnl Require Python 2.6 or newer.  Older versions are essentially
     dnl unsupported upstream.
     AC_MSG_CHECKING([$PYTHON2 version])
     version=`$PYTHON2 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [2.[4-9]*|2.[12][0-9][0-9]*])
+    [2.[6-9]*|2.[1-5][0-9]*])
       AC_MSG_RESULT([$version])
       ;;
     [[3-9].*])
@@ -323,7 +323,7 @@ if test no != "$with_python" ; then
     *)
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
-	AC_MSG_ERROR([Only Python 2.4 or newer is supported ($PYTHON2 is $version)])
+	AC_MSG_ERROR([Only Python 2.6 or newer is supported ($PYTHON2 is $version)])
       fi
       PYTHON2=
       ;;
