@@ -283,7 +283,6 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libexpand.lib"  \
  "$(OUTLIBDIR)\libbrass.lib" \
  "$(OUTLIBDIR)\libchert.lib" \
- "$(OUTLIBDIR)\libflint.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \

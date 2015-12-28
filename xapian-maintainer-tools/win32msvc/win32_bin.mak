@@ -31,7 +31,6 @@ SRCS = \
 	"$(INTDIR)\xapian-inspect.cc" \
 	"$(INTDIR)\xapian-check-chert.cc" \
 	"$(INTDIR)\xapian-check-brass.cc" \
-	"$(INTDIR)\xapian-check-flint.cc" \
 	"$(INTDIR)\xapian-check.cc" \
     "$(INTDIR)\xapian-replicate.cc" \
     "$(INTDIR)\xapian-replicate-server.cc"
@@ -51,7 +50,6 @@ XAPIAN_INSPECT_OBJS= "$(INTDIR)\xapian-inspect.obj"
 
 XAPIAN_CHECK_OBJS= \
 	"$(INTDIR)\xapian-check.obj" \
-	"$(INTDIR)\xapian-check-flint.obj" \
 	"$(INTDIR)\xapian-check-chert.obj" \
 	"$(INTDIR)\xapian-check-brass.obj"
 
@@ -77,7 +75,7 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA)  \
- /I ".." /I "..\testsuite"  /I"..\backends\flint" /I"..\backends\chert" /I"..\backends\brass"\
+ /I ".." /I "..\testsuite" /I"..\backends\chert" /I"..\backends\brass"\
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
@@ -133,7 +131,7 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 "$(OUTDIR)\xapian-check.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_CHECK_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-check.exe" $(DEF_FLAGS) $(XAPIAN_CHECK_OBJS) "$(OUTLIBDIR)\libflintbtreecheck.lib" "$(OUTLIBDIR)\libchertbtreecheck.lib" "$(OUTLIBDIR)\libbrassbtreecheck.lib"
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-check.exe" $(DEF_FLAGS) $(XAPIAN_CHECK_OBJS) "$(OUTLIBDIR)\libchertbtreecheck.lib" "$(OUTLIBDIR)\libbrassbtreecheck.lib"
 <<
     $(MANIFEST) "$(OUTDIR)\xapian-check.exe.manifest" -outputresource:"$(OUTDIR)\xapian-check.exe;1"
     -@erase "$(OUTDIR)\xapian-check.exe.manifest"

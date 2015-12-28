@@ -14,7 +14,6 @@ INTDIR=.\
 DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
     "$(OUTDIR)\libinmemory.lib" \
     "$(OUTDIR)\libremote.lib" \
-    "$(OUTDIR)\libflint.lib" \
     "$(OUTDIR)\libchert.lib" \
     "$(OUTDIR)\libbrass.lib" \
     $(NULL)
@@ -52,8 +51,6 @@ CLEAN :
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\chert
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
-	cd ..\flint
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\inmemory
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG)
 	cd ..\multi
@@ -80,11 +77,6 @@ CPP_SBRS=.
 
 "$(OUTDIR)\libbrass.lib":
        cd brass
-       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
-       cd ..
-
-"$(OUTDIR)\libflint.lib":
-       cd flint
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 

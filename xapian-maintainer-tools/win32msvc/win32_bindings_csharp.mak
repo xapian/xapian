@@ -33,7 +33,6 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     ESet.cs \
     ESetIterator.cs \
     ExpandDecider.cs \
-    Flint.cs \
     InMemory.cs \
     KeyMaker.cs \
     MatchSpy.cs \

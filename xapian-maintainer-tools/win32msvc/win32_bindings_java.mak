@@ -28,7 +28,6 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	ESet.java\
 	ESetIterator.java\
 	ExpandDecider.java\
-	Flint.java\
 	InMemory.java\
 	MatchDecider.java\
 	MSet.java\
