@@ -1,3 +1,171 @@
+up to: d99e004c311b56f609e285a3ec173b658ffbaf3b
+
+backport:
+
+Xapian-core 1.3.4 (2015-12-28):
+
+This release includes all changes from 1.2.22 which are relevant.
+
+FIXME: May want to drop Snipper class?
+commit a0d74bd87db3f10cf0a778ff3cf84d33f9f1ce68
+Author: Olly Betts <olly@survex.com>
+Date:   Tue Dec 22 10:47:48 2015 +1300
+
+    Fix Snipper description to include trailing ")"
+
+API:
+
+* Update to Unicode 8.0.0.  Fixes #680.
+
+* Overhaul database compaction API.  Add a Xapian::Database::compact() method,
+  with the Database object specifying the source database(s).
+  Xapian::Compactor is now just a functor to use if you want to control
+  progress reporting and/or the merging of user metadata.  The existing API
+  has been reimplemented using the new one, but is marked as deprecated.
+
+* Optimise value range which is a superset of the bounds.  If the value
+  frequency is equal to the doccount, such a range is equivalent to MatchAll,
+  and we now avoid having to read the valuestream at all.
+
+* Optimise OP_VALUE_RANGE when the upper bound can't be exceeded.  In this
+  case, we now use ValueGePostList instead of ValueRangePostList.
+
+* Add support for a default value when sorting.  Fixes #452.
+
+* Make all functor objects non-copyable.  Previously some were, some weren't,
+  but it's hard to correctly make use of this ability.  Fixes #681.
+
+* Fix use after free with WILDCARD_LIMIT_MOST_FREQUENT.  If we tried to open a
+  postlist after processing such a wildcard, the postlist hint could be
+  pointing to a PostList object which had been deleted.  Fixes #696, reported
+  by coventry.
+
+* Add support for optional reference counting of MatchSpy objects.
+
+* Improve Document::get_description() - the output is now always valid UTF-8,
+  doesn't contain implementation details like "Document::Internal", and more
+  clearly reports if the document is linked to a database.
+
+* Remove XAPIAN_CONST_FUNCTION marker from sortable_serialise_() helper, as it
+  writes to the passed in buffer, so it isn't const or pure.  Fixes
+  decvalwtsource2 testcase failure when compiled with clang.
+
+* Make PostingSource::set_maxweight() public - it's hard to wrap for the
+  bindings as a protected method.  Fixes #498, reported by Richard Boulton.
+
+testsuite:
+
+* Add unit test for internal C_isupper(), etc functions.
+
+matcher:
+
+
+glass backend:
+
+* Shave 2 bytes of every Btree item
+
+* More compact item format for branch blocks - 2 bytes per item smaller
+
+* Track an upper bound on spelling word frequency.  This isn't currently used,
+  but will be useful for improving the spelling algorithm, and we want to
+  stabilise the glass backend format.  See #225.
+
+* Support 64-bit docids in the glass backend on-disk format.  This changes the
+  encoding used by pack_uint_preserving_sort() to one which supports 64 bit
+  values, and is a byte smaller for values 16384-32767, and the same size for
+  all other 32 bit values.  Fixes #686, from original report by James Aylett.
+
+* Use memcpy() not memmove() when no risk of overlap.
+
+* Store length of just the key data itself, allowing keys to be up to 255 bytes
+  long - the previous limit was 252.
+
+* Change glass to store DB stats in the version file.  Previously we stored
+  them in a special item in the postlist table, but putting them in the version
+  file reduces the number of block reads required to open the database, is
+  simpler to deal with, and means we can potentially recalculate tight upper
+  and lower bounds for an existing database without having to commit a new
+  revision.
+
+* Add support for a single-file variant for glass.  Currently such databases
+  can only be opened for reading - to create one you need to use
+  xapian-compact (or its API equivalent).  You can embed such databases within
+  another file, and open them by passing in a file descriptor open on that file
+  and positioned at the offset the database starts at).  Database::check() also
+  supports them.  Fixes #666, reported by Will Greenberg (and previously
+  suggested on xapian-discuss by Emmanuel Engelhart).
+
+* Avoid potential DB corruption with full-compaction when using 64K blocks.
+
+* Where posix_fadvise() is available, use it to prefetch postlist Btree blocks
+  from the level below the root block which will be needed for postlists of
+  terms in the query, and similarly for the record/docdata table when
+  MSet::fetch() is called.  Based on patch by Will Greenberg in #671.
+
+chert backend:
+
+* Where posix_fadvise() is available, use it to prefetch postlist Btree blocks
+  from the level below the root block which will be needed for postlists of
+  terms in the query, and similarly for the record/docdata table when
+  MSet::fetch() is called.  Based on patch by Will Greenberg in #671.
+
+remote backend:
+
+* Fix hook for remote support of user weighting schemes.  The commented-out
+  code used entirely the wrong class - now we use the server object we have
+  access to, and forward the method to the class which needs it.
+
+inmemory backend:
+
+
+build system:
+
+* New configure options --enable-64bit-docid and --enable-64bit-termcount,
+  which control the size of these types.  Because these types are used in
+  the API, libraries built with different combinations of them won't be ABI
+  compatible.  Based heavily on patch from James Aylett and Dylan Griffith.
+  Fixes #385.
+
+* Sort out hiding most of the internal symbols which had public visibility
+  for various reason.  Mostly addresses #63.
+
+documentation:
+
+
+tools:
+
+* xapian-inspect: We no longer install this - it's really an aid to Xapian
+  development rather than a user tool.
+
+examples:
+
+
+portability:
+
+* Minimum supported GCC version is now documented as GCC 4.7, for C++11
+  support.  Previously we documented 4.7 as the oldest known to work.
+
+* Use CLOCK_REALTIME with timer_create() on Cygwin.
+
+* Don't include winsock headers on Cygwin.  Instead include <arpa/inet.h> for
+  htons() and htonl().
+
+* Handle AI_ADDRCONFIG not being defined by some mingw versions.
+
+* Fix to handle mingw now providing a nanosleep() function.
+
+* Use WSAAddressToString instead of inet_ntop under __WIN32__ - at least under
+  mingw we don't seem to have inet_ntop().
+
+* Fix testsuite to compile when S_ISSOCK() isn't defined.
+
+packaging:
+
+
+debug code:
+
+* Add missing parameters to debug logging for a few methods.
+
 Xapian-core 1.3.3 (2015-06-01):
 
 This release includes all changes from 1.2.20-1.2.21 which are relevant.
