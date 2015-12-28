@@ -77,7 +77,6 @@ ALL : "$(OUTDIR)/xapian_jni.jar" \
       SmokeTest.class \
       "$(OUTDIR)/xapian_jni.dll" \
       WriteJavaVersion.class
-# REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests. For later compilers this prevents error R6034
     $(MANIFEST) "$(OUTDIR)\xapian_jni.dll.manifest" -outputresource:"$(OUTDIR)\xapian_jni.dll;2"
     copy "$(ZLIB_LIB_DIR)\zdll.lib"
     copy "$(ZLIB_BIN_DIR)\zlib1.dll" $(OUTDIR)

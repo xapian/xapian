@@ -101,7 +101,6 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 
 "$(OUTDIR)\xapian.php" : php5\xapian.php
 	-copy $** "$(OUTDIR)\xapian.php"
-# REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests
 	$(MANIFEST) "$(OUTDIR)\php_xapian.dll.manifest" -outputresource:"$(OUTDIR)\php_xapian.dll;2"
 	-@erase "$(OUTDIR)\php_xapian.dll.manifest"
 "$(OUTROOT)\smoketest.php" : ".\smoketest.php"

@@ -80,7 +80,6 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-compact.exe" $(DEF_FLAGS) $(XAPIAN_COMPACT_OBJS)
 <<
-# REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests. For later compilers this prevents error R6034
     $(MANIFEST) "$(OUTDIR)\xapian-compact.exe.manifest" -outputresource:"$(OUTDIR)\xapian-compact.exe;1"
     -@erase "$(OUTDIR)\xapian-compact.exe.manifest"
 

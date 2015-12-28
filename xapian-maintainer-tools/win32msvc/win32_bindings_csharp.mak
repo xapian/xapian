@@ -69,7 +69,6 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     XapianPINVOKE.cs
 
 ALL : "$(ASSEMBLY).dll" SmokeTest.exe "$(BINDING).dll"
-# REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests. For later compilers this prevents error R6034
     $(MANIFEST) "$(BINDING).dll.manifest" -outputresource:"$(BINDING).dll;2"
     copy  "$(ASSEMBLY).dll" $(OUTDIR)
     copy  "$(BINDING).dll" $(OUTDIR)

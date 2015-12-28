@@ -247,7 +247,12 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
 
 CPP=cl.exe
 RSC=rc.exe
+# Manifest handling
+# If using Visual C++ .net 2003 - you won't need to worry about manifests.
+# For later compilers they're needed to avoid error R6034.
 MANIFEST=mt.exe /manifest
+# Uncomment this version instead to skip manifest handling.
+#MANIFEST=echo Skipping: mt.exe /manifest
 
 # make sure inference rules work with all source files
 .SUFFIXES : .cc .java
