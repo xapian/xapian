@@ -9,6 +9,9 @@
 #  % nmake  PERL_DIR=c:\perl\bin SWIG=c:\something\swig.exe
 # would override the variables without requiring you change anything...
 
+# Uncomment for 64-bit build
+#MACHINE=-machine:x64
+
 !IF "$(OS)" == "Windows_NT"
 NULL=
 !ELSE
@@ -238,11 +241,11 @@ PCRE_LIB_DIR=$(PCRE_DIR)\lib
 # Visual C++ Compiler and linker programs, and flags for these
 #--------------------------------------
 LIB32=link.exe -lib
-LIB32_FLAGS=-nologo
+LIB32_FLAGS=-nologo $(MACHINE)
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib rpcrt4.lib\
- wsock32.lib Ws2_32.lib  odbccp32.lib -subsystem:console -debug -nologo \
+ wsock32.lib Ws2_32.lib  odbccp32.lib -subsystem:console $(MACHINE) -debug -nologo \
  "$(ZLIB_LIB_DIR)\zdll.lib"
 
 CPP=cl.exe
