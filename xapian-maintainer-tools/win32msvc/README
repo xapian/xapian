@@ -32,7 +32,7 @@ What works?
 - The Python, PHP, C#, Ruby bindings (but see below for the latter)
 - The xapian-compact, xapian-check binaries
 - The xapian-progsrv and xapian-tcpsrv binaries
-- The delve, quest and copydatabase binaries
+- The xapian-delve, quest and copydatabase binaries
 - The Xapian example binaries
 - The testsuite, which is run as part of the makefile in tests/, *but* see below regarding the tests
 - omega, omindex and scriptindex (although these may have difficulty parsing
@@ -61,10 +61,7 @@ What doesn't work - Xapian core
   this signifies a compilation error while dependencies were being checked. Look at the file
   deps.d in the appropriate folder to see what actually caused the failure.
   
-- The 'replicate3' test currently fails on Windows for the Flint database. 
-This may be due to the test itself or the replication subsystem, so at 
-present we do not advise the use of the replication system on Windows when using a 
-Flint database. The test also hangs forever with the Brass database: if you want to run all 
+- The 'replicate3' test currently hangs forever with the Brass database: if you want to run all
 the other tests (with 'nmake check') you can comment out lines 470-512 of api_replicate.cc.
 
 - The 'compactstub3' and 'compactstub4' tests fail on Windows. If you want to run all 
