@@ -13,19 +13,19 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libinmemory.lib" 
+ALL : "$(OUTDIR)\libinmemory.lib"
 
 OBJS= \
                  $(INTDIR)\inmemory_database.obj \
                  $(INTDIR)\inmemory_document.obj \
                  $(INTDIR)\inmemory_positionlist.obj \
-                 $(INTDIR)\inmemory_alltermslist.obj 
+                 $(INTDIR)\inmemory_alltermslist.obj
 SRCS= \
                  $(INTDIR)\inmemory_database.cc \
                  $(INTDIR)\inmemory_document.cc \
                  $(INTDIR)\inmemory_positionlist.cc \
-                 $(INTDIR)\inmemory_alltermslist.cc 
-		 
+                 $(INTDIR)\inmemory_alltermslist.cc
+
 CLEAN :
 	-@erase "$(OUTDIR)\libinmemory.lib"
 	-@erase "*.pch"
@@ -39,7 +39,7 @@ CLEAN :
 
 CPP_PROJ=$(CPPFLAGS_EXTRA)  \
  -I "..\.." -I "..\..\include" -I"..\..\common" -I"..\..\languages" \
- -Fo"$(INTDIR)\\" -Tp$(INPUTNAME) 
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
@@ -51,12 +51,12 @@ CPP_SBRS=.
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 
@@ -64,5 +64,5 @@ CPP_SBRS=.
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND) 
+    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

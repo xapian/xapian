@@ -27,7 +27,7 @@ OBJS =  	$(INTDIR)\delve.obj \
 		$(INTDIR)\simpleindex.obj \
 		$(INTDIR)\simplesearch.obj \
 		$(INTDIR)\copydatabase.obj
-		
+
 SRCS =  	$(INTDIR)\delve.cc \
 		$(INTDIR)\quest.cc \
 		$(INTDIR)\simpleexpand.cc \
@@ -36,7 +36,7 @@ SRCS =  	$(INTDIR)\delve.cc \
 		$(INTDIR)\copydatabase.cc
 
 PROGRAMS = "$(OUTDIR)\delve.exe" "$(OUTDIR)\quest.exe" \
-"$(OUTDIR)\simpleexpand.exe" "$(OUTDIR)\simpleindex.exe" "$(OUTDIR)\simplesearch.exe" "$(OUTDIR)\copydatabase.exe" 
+"$(OUTDIR)\simpleexpand.exe" "$(OUTDIR)\simpleindex.exe" "$(OUTDIR)\simplesearch.exe" "$(OUTDIR)\copydatabase.exe"
 
 ALL : $(PROGRAMS)
 
@@ -59,7 +59,7 @@ ALL_LINK32_FLAGS = $(LINK32_FLAGS) $(XAPIAN_LIBS)
 
 PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
- 
+
 # delve.exe
 # quest.exe
 # simpleexpand.exe
@@ -120,17 +120,17 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

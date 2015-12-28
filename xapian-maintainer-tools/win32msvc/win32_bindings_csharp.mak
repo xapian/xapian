@@ -2,7 +2,7 @@
 # Charlie Hull
 # 12th December 2008
 
-# Will build the Csharp  bindings 
+# Will build the Csharp  bindings
 
 # Where the core is, relative to the Csharp bindings
 # Change this to match your environment
@@ -70,24 +70,24 @@ XAPIAN_SWIG_CSHARP_SRCS=\
     WritableDatabase.cs \
     Xapian.cs \
     XapianPINVOKE.cs
-    
+
 ALL : "$(ASSEMBLY).dll" SmokeTest.exe "$(BINDING).dll"
 # REMOVE THIS NEXT LINE if using Visual C++ .net 2003 - you won't need to worry about manifests. For later compilers this prevents error R6034
     $(MANIFEST) "$(BINDING).dll.manifest" -outputresource:"$(BINDING).dll;2"
     copy  "$(ASSEMBLY).dll" $(OUTDIR)
     copy  "$(BINDING).dll" $(OUTDIR)
-    copy "$(ZLIB_LIB_DIR)\zdll.lib" 
+    copy "$(ZLIB_LIB_DIR)\zdll.lib"
     copy "$(ZLIB_BIN_DIR)\zlib1.dll" $(OUTDIR)
 
 CLEAN :
-    -@erase XapianSharp.snk 
+    -@erase XapianSharp.snk
     -@erase AssemblyInfo.cs
     -@erase "$(BINDING).dll"
     -@erase "$(OUTDIR)\$(BINDING).dll"
     -@erase "$(BINDING).dll.manifest"
-    -@erase "$(ASSEMBLY).dll" 
+    -@erase "$(ASSEMBLY).dll"
     -@erase "$(OUTDIR)\$(ASSEMBLY).dll"
-    -@erase "$(ASSEMBLY).dll.manifest" 
+    -@erase "$(ASSEMBLY).dll.manifest"
     -@erase "SmokeTest.exe"
     -@erase "$(OUTDIR)\SmokeTest.exe"
     -@erase xapian_wrap.obj
@@ -96,24 +96,24 @@ CLEAN :
     -@erase *.lib
     -@erase *.exp
     -@erase version.res
-    
+
 CLEANSWIG: CLEAN
     -@erase xapian_wrap.cc
     -@erase xapian_wrap.h
     -@erase $(XAPIAN_SWIG_CSHARP_SRCS)
 
-DOTEST: 
+DOTEST:
     copy SmokeTest.exe "$(OUTDIR)\SmokeTest.exe"
     cd $(OUTDIR)
     SmokeTest
-    
+
 CHECK: ALL DOTEST
 
-DIST: CHECK 
+DIST: CHECK
     cd $(MAKEDIR)
     if not exist "$(OUTDIR)\dist\$(NULL)" mkdir "$(OUTDIR)\dist"
     if not exist "$(OUTDIR)\dist\docs/$(NULL)" mkdir "$(OUTDIR)\dist\docs"
-    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"           
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"
     copy "$(OUTDIR)\_XapianSharp.dll" "$(OUTDIR)\dist"
     copy "$(OUTDIR)\XapianCSharp.dll" "$(OUTDIR)\dist"
     if exist docs copy docs\*.htm* "$(OUTDIR)\dist\docs"
@@ -124,26 +124,26 @@ DIST: CHECK
 
 XapianSharp.snk:
     $(SN) -k $@
-    
-"$(ASSEMBLY).dll": $(XAPIAN_SWIG_CSHARP_SRCS) AssemblyInfo.cs XapianSharp.snk "$(OUTDIR)" $(BINDING).dll 
+
+"$(ASSEMBLY).dll": $(XAPIAN_SWIG_CSHARP_SRCS) AssemblyInfo.cs XapianSharp.snk "$(OUTDIR)" $(BINDING).dll
     $(CSC) -unsafe -target:library -out:"$(ASSEMBLY).dll" \
-        $(XAPIAN_SWIG_CSHARP_SRCS) AssemblyInfo.cs  
+        $(XAPIAN_SWIG_CSHARP_SRCS) AssemblyInfo.cs
 
 AssemblyInfo.cs: AssemblyInfo.cs.in "$(XAPIAN_CORE_REL_CSHARP)\configure.ac"
     $(PERL_EXE) "$(XAPIAN_CORE_REL_CSHARP)\win32\genversion.pl"  "$(XAPIAN_CORE_REL_CSHARP)\configure.ac" AssemblyInfo.cs.in AssemblyInfo.cs
-        
+
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_CSHARP)" /I "$(XAPIAN_CORE_REL_CSHARP)\include" \
- /I"." /Fo"$(INTDIR)\\" /Tp$(INPUTNAME) 
- 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) 
+ /I"." /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
 
-"$(BINDING).dll" : "$(OUTDIR)" xapian_wrap.obj ".\version.res" 
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
+
+"$(BINDING).dll" : "$(OUTDIR)" xapian_wrap.obj ".\version.res"
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /DLL /out:"$(BINDING).dll" xapian_wrap.obj ".\version.res" 
+  $(ALL_LINK32_FLAGS) /DLL /out:"$(BINDING).dll" xapian_wrap.obj ".\version.res"
 
 <<
-  
+
 !IF "$(SWIGBUILD)" == "1"
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CSHARP_SRCS): util.i ..\xapian.i
 # Make sure that we don't package stale generated sources in the
@@ -151,7 +151,7 @@ xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CSHARP_SRCS): util.i ..\xapian.i
     -@erase $(XAPIAN_SWIG_CSHARP_SRCS)
     $(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_CSHARP)\include -I..\generic \
         -csharp -namespace Xapian -module Xapian -dllimport $(BINDING) \
-        -c++ -o xapian_wrap.cc ..\xapian.i   
+        -c++ -o xapian_wrap.cc ..\xapian.i
 !ENDIF
 
 #
@@ -162,9 +162,9 @@ xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CSHARP_SRCS): util.i ..\xapian.i
     $(RSC) /v \
       /I "$(XAPIAN_CORE_REL_CSHARP)\include" \
       /fo version.res \
-      version.rc 
-      
-xapian_wrap.obj : xapian_wrap.cc 
+      version.rc
+
+xapian_wrap.obj : xapian_wrap.cc
      $(CPP) @<<
   $(CPP_PROJ) $**
 <<

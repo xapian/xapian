@@ -11,7 +11,7 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libmuscat36.lib" 
+ALL : "$(OUTDIR)\libmuscat36.lib"
 
 LIBMUSCAT36_OBJS= \
                 $(INTDIR)\3point6.obj \
@@ -37,7 +37,7 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /I "..\.." /I "..\..\include" /I"..\..\common" /I"..\..\languages" \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
- 
+
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
@@ -96,11 +96,11 @@ CPP_SBRS=.
 
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr:
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 

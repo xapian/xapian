@@ -3,7 +3,7 @@
 # www.lemurconsulting.com
 # 28th Feb 2007
 
-# Will build the PHP bindings 
+# Will build the PHP bindings
 
 # Where the core is, relative to the PHP bindings
 # Change this to match your environment
@@ -13,7 +13,7 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PHP)\win32\config.mak
 
-LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res" 
+LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res"
 CPP=cl.exe
 RSC=rc.exe
 
@@ -37,9 +37,9 @@ PHP_EXE = $(PHP53_EXE)
 
 OUTDIR=$(OUTROOT)\php5
 INTDIR=.\
-	
+
 ALL : "$(OUTDIR)\php_xapian.dll" "$(OUTDIR)\xapian.php" \
-	"$(OUTROOT)\smoketest.php" 
+	"$(OUTROOT)\smoketest.php"
 
 CLEAN :
 	-@erase "$(OUTDIR)\php_xapian.dll"
@@ -48,8 +48,8 @@ CLEAN :
 	-@erase $(LIB_XAPIAN_OBJS)
 	-@erase "$(OUTDIR)\xapian.php"
 	-@erase "$(OUTROOT)\smoketest.php"
-	
-CLEANSWIG :	
+
+CLEANSWIG :
 	-@erase /Q /s php5
 	if exist "php5" rmdir "php5" /s /q
 
@@ -59,26 +59,26 @@ DOTEST :
 
 CHECK: ALL DOTEST
 
-DIST: CHECK 
+DIST: CHECK
     cd $(MAKEDIR)
     if not exist "$(OUTDIR)\dist/$(NULL)" mkdir "$(OUTDIR)\dist"
     if not exist "$(OUTDIR)\dist\docs/$(NULL)" mkdir "$(OUTDIR)\dist\docs"
-    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"    
+    if not exist "$(OUTDIR)\dist\docs\examples/$(NULL)" mkdir "$(OUTDIR)\dist\docs\examples"
     copy "$(OUTDIR)\php_xapian.dll" "$(OUTDIR)\dist"
     copy "$(OUTDIR)\xapian.php" "$(OUTDIR)\dist"
     copy docs\*.html "$(OUTDIR)\dist\docs"
     copy docs\examples\*.* "$(OUTDIR)\dist\docs\examples"
-	
+
 "$(OUTROOT)" :
     if not exist "$(OUTROOT)/$(NULL)" mkdir "$(OUTROOT)"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
-    
-    
+
+
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_PHP)" /I "$(XAPIAN_CORE_REL_PHP)\include" $(PHP_INCLUDE_CPPFLAGS) $(PHP_DEBUG_OR_RELEASE)\
- /I"." /Fo"$(INTDIR)\\" /Tp$(INPUTNAME) 
+ /I"." /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
 CPP_OBJS=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
@@ -94,8 +94,8 @@ php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 
 
-"$(OUTDIR)\php_xapian.dll" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) 
-                            
+"$(OUTDIR)\php_xapian.dll" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS)
+
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\php_xapian.dll" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<
@@ -117,7 +117,7 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
       /I "$(XAPIAN_CORE_REL_PHP)\include" \
       /I "$(PHP_SRC_DIR)\main" \
       /d PHP_MAJOR_VERSION="\"5\"" \
-      version.rc 
+      version.rc
 
 ".\xapian_wrap.obj" : "php5\xapian_wrap.cc"
      $(CPP) @<<
@@ -131,26 +131,26 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 
 .cpp{$(CPP_OBJS)}.obj::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .cxx{$(CPP_OBJS)}.obj::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .c{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .cpp{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 .cxx{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 

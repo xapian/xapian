@@ -11,7 +11,7 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libgetopt.lib" 
+ALL : "$(OUTDIR)\libgetopt.lib"
 
 CLEAN :
 	-@erase "$(OUTDIR)\libgetopt.lib"
@@ -24,13 +24,13 @@ CLEAN :
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
- 
- 
+
+
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-OBJS= $(INTDIR)\getopt.obj 
-SRCS= $(INTDIR)\getopt.cc 
+OBJS= $(INTDIR)\getopt.obj
+SRCS= $(INTDIR)\getopt.cc
 
 "$(OUTDIR)\LIBGETOPT.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
@@ -38,24 +38,24 @@ SRCS= $(INTDIR)\getopt.cc
 <<
 
 "$(INTDIR)\getopt.obj" : ".\getopt.cc"
-	$(CPP) @<< 
+	$(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

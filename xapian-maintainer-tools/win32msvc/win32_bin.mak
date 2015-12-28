@@ -22,7 +22,7 @@ PROGRAMS = \
            "$(OUTDIR)\xapian-check.exe" \
            "$(OUTDIR)\xapian-replicate.exe" \
            "$(OUTDIR)\xapian-replicate-server.exe"\
-           
+
 SRCS = \
 	"$(INTDIR)\xapian-compact.cc" \
 	"$(INTDIR)\xapian-chert-update.cc" \
@@ -36,30 +36,30 @@ SRCS = \
     "$(INTDIR)\xapian-replicate.cc" \
     "$(INTDIR)\xapian-replicate-server.cc"
 
-	   
+
 ALL : $(PROGRAMS)
 
-XAPIAN_COMPACT_OBJS= "$(INTDIR)\xapian-compact.obj" 
+XAPIAN_COMPACT_OBJS= "$(INTDIR)\xapian-compact.obj"
 
-XAPIAN_CHERT_UPDATE_OBJS= "$(INTDIR)\xapian-chert-update.obj" 
+XAPIAN_CHERT_UPDATE_OBJS= "$(INTDIR)\xapian-chert-update.obj"
 
-XAPIAN_PROGSRV_OBJS= "$(INTDIR)\xapian-progsrv.obj" 
+XAPIAN_PROGSRV_OBJS= "$(INTDIR)\xapian-progsrv.obj"
 
-XAPIAN_TCPSRV_OBJS= "$(INTDIR)\xapian-tcpsrv.obj" 
+XAPIAN_TCPSRV_OBJS= "$(INTDIR)\xapian-tcpsrv.obj"
 
-XAPIAN_INSPECT_OBJS= "$(INTDIR)\xapian-inspect.obj" 
+XAPIAN_INSPECT_OBJS= "$(INTDIR)\xapian-inspect.obj"
 
 XAPIAN_CHECK_OBJS= \
 	"$(INTDIR)\xapian-check.obj" \
 	"$(INTDIR)\xapian-check-flint.obj" \
 	"$(INTDIR)\xapian-check-chert.obj" \
-	"$(INTDIR)\xapian-check-brass.obj" 
+	"$(INTDIR)\xapian-check-brass.obj"
 
-XAPIAN_REPLICATE_OBJS= "$(INTDIR)\xapian-replicate.obj" 
+XAPIAN_REPLICATE_OBJS= "$(INTDIR)\xapian-replicate.obj"
 
-XAPIAN_REPLICATE_SERVER_OBJS= "$(INTDIR)\xapian-replicate-server.obj" 
+XAPIAN_REPLICATE_SERVER_OBJS= "$(INTDIR)\xapian-replicate-server.obj"
 
-	
+
 CLEAN :
 	-@erase $(PROGRAMS)
 	-@erase $(XAPIAN_COMPACT_OBJS)
@@ -67,7 +67,7 @@ CLEAN :
 	-@erase $(XAPIAN_PROGSRV_OBJS)
 	-@erase $(XAPIAN_TCPSRV_OBJS)
 	-@erase $(XAPIAN_INSPECT_OBJS)
-	-@erase $(XAPIAN_CHECK_OBJS)    
+	-@erase $(XAPIAN_CHECK_OBJS)
 	-@erase $(XAPIAN_REPLICATE_OBJS)
 	-@erase $(XAPIAN_REPLICATE_SERVER_OBJS)
 	-@erase "$(INTDIR)\*.pdb"
@@ -84,7 +84,7 @@ CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
- 
+
 PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
 
@@ -112,7 +112,7 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 <<
     $(MANIFEST) "$(OUTDIR)\xapian-chert-update.exe.manifest" -outputresource:"$(OUTDIR)\xapian-chert-update.exe;1"
     -@erase "$(OUTDIR)\xapian-chert-update.exe.manifest"
-    
+
 "$(OUTDIR)\xapian-tcpsrv.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_TCPSRV_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
@@ -158,18 +158,18 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.
 

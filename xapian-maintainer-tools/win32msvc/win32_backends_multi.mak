@@ -11,7 +11,7 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libmulti.lib" 
+ALL : "$(OUTDIR)\libmulti.lib"
 
 OBJS= \
                 $(INTDIR)\multi_postlist.obj \
@@ -24,7 +24,7 @@ SRCS= \
                 $(INTDIR)\multi_termlist.cc \
                 $(INTDIR)\multi_valuelist.cc \
                 $(INTDIR)\multi_alltermslist.cc
-	
+
 CLEAN :
 	-@erase "$(OUTDIR)\libmulti.lib"
 	-@erase "*.pch"
@@ -50,12 +50,12 @@ CPP_SBRS=.
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
-	$(CPP_PROJ) $< 
+	$(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
-   $(CPP_PROJ) $< 
+   $(CPP_PROJ) $<
 <<
 
 
@@ -63,5 +63,5 @@ CPP_SBRS=.
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND) 
+    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.
