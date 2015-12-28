@@ -16,7 +16,7 @@ CLEAN :
 	-@erase "$(OUTDIR)\libgetopt.lib"
 	-@erase "*.pch"
 	-@erase "$(INTDIR)\*.pdb"
-        -@erase "$(OBJS)"
+	-@erase "$(OBJS)"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -37,19 +37,19 @@ SRCS= $(INTDIR)\getopt.cc
 <<
 
 "$(INTDIR)\getopt.obj" : ".\getopt.cc"
-	$(CPP) @<<
-   $(CPP_PROJ) $**
+    $(CPP) @<<
+    $(CPP_PROJ) $**
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file

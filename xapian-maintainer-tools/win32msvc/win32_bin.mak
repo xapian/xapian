@@ -21,12 +21,12 @@ PROGRAMS = \
            "$(OUTDIR)\xapian-replicate-server.exe"\
 
 SRCS = \
-	"$(INTDIR)\xapian-compact.cc" \
-	"$(INTDIR)\xapian-progsrv.cc" \
-	"$(INTDIR)\xapian-tcpsrv.cc" \
-	"$(INTDIR)\xapian-check-chert.cc" \
-	"$(INTDIR)\xapian-check-brass.cc" \
-	"$(INTDIR)\xapian-check.cc" \
+    "$(INTDIR)\xapian-compact.cc" \
+    "$(INTDIR)\xapian-progsrv.cc" \
+    "$(INTDIR)\xapian-tcpsrv.cc" \
+    "$(INTDIR)\xapian-check-chert.cc" \
+    "$(INTDIR)\xapian-check-brass.cc" \
+    "$(INTDIR)\xapian-check.cc" \
     "$(INTDIR)\xapian-replicate.cc" \
     "$(INTDIR)\xapian-replicate-server.cc"
 
@@ -126,13 +126,13 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
@@ -141,4 +141,3 @@ HEADERS :
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
     if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.
-

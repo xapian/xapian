@@ -235,8 +235,6 @@ PCRE_DIR=C:\Program Files\GnuWin32
 PCRE_INCLUDE_DIR=$(PCRE_DIR)\include
 PCRE_LIB_DIR=$(PCRE_DIR)\lib
 
-
-
 #--------------------------------------
 # Visual C++ Compiler and linker programs, and flags for these
 #--------------------------------------
@@ -312,4 +310,3 @@ XAPIAN_DEBUG_OR_RELEASE=Release
 !ENDIF
 
 #----------------end Visual C++----------------------
-

@@ -52,8 +52,8 @@ CLEAN :
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file

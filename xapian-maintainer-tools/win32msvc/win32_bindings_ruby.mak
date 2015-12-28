@@ -27,8 +27,8 @@ CLEAN :
 	-@erase *.so
 
 CLEANSWIG:
-    -@erase xapian_wrap.cc
-    -@erase xapian_wrap.h
+	-@erase xapian_wrap.cc
+	-@erase xapian_wrap.h
 
 
 DOTEST :
@@ -72,7 +72,7 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(RUBY_LIB_DIR)\msvcrt-ruby18.li
 !IF "$(SWIGBUILD)" == "1"
 xapian_wrap.cc xapian_wrap.h: util.i ..\xapian.i
 	$(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_RUBY)\include -I..\generic \
-        -c++ \
+	    -c++ \
 	    -initname _xapian -ruby \
 	    -o xapian_wrap.cc ..\xapian.i
 

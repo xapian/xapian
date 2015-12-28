@@ -151,4 +151,3 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
    $(CPP) @<<
    $(CPP_PROJ) $<
 <<
-

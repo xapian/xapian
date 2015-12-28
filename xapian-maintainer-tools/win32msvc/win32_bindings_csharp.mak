@@ -166,4 +166,4 @@ xapian_wrap.obj : xapian_wrap.cc
 <<
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll $(BINDING).dll
-	$(CSC) -unsafe -target:exe -out:SmokeTest.exe SmokeTest.cs -r:$(ASSEMBLY).dll
+    $(CSC) -unsafe -target:exe -out:SmokeTest.exe SmokeTest.cs -r:$(ASSEMBLY).dll

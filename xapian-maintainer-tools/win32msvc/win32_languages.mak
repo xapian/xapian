@@ -20,17 +20,17 @@ ALL : MAKEFROMSBL "$(OUTDIR)\liblanguages.lib"
 LIBLANGUAGES_OBJS= \
                  $(INTDIR)\stem.obj \
                  $(INTDIR)\steminternal.obj \
-		 $(INTDIR)\armenian.obj \
-		 $(INTDIR)\basque.obj \
-		 $(INTDIR)\catalan.obj \
+                 $(INTDIR)\armenian.obj \
+                 $(INTDIR)\basque.obj \
+                 $(INTDIR)\catalan.obj \
                  $(INTDIR)\danish.obj \
                  $(INTDIR)\dutch.obj \
                  $(INTDIR)\english.obj \
                  $(INTDIR)\finnish.obj \
                  $(INTDIR)\french.obj \
                  $(INTDIR)\german.obj \
-		 $(INTDIR)\german2.obj \
-		 $(INTDIR)\hungarian.obj \
+                 $(INTDIR)\german2.obj \
+                 $(INTDIR)\hungarian.obj \
                  $(INTDIR)\italian.obj \
                  $(INTDIR)\lovins.obj \
                  $(INTDIR)\norwegian.obj \
@@ -39,22 +39,22 @@ LIBLANGUAGES_OBJS= \
                  $(INTDIR)\russian.obj \
                  $(INTDIR)\spanish.obj \
                  $(INTDIR)\swedish.obj \
-		 $(INTDIR)\romanian.obj \
-		 $(INTDIR)\kraaij_pohlmann.obj \
-		 $(INTDIR)\turkish.obj
+                 $(INTDIR)\romanian.obj \
+                 $(INTDIR)\kraaij_pohlmann.obj \
+                 $(INTDIR)\turkish.obj
 
 LIBLANGUAGES_SOURCES= \
-		 $(INTDIR)\armenian.cc \
-		 $(INTDIR)\basque.cc \
-		 $(INTDIR)\catalan.cc \
+                 $(INTDIR)\armenian.cc \
+                 $(INTDIR)\basque.cc \
+                 $(INTDIR)\catalan.cc \
                  $(INTDIR)\danish.cc \
                  $(INTDIR)\dutch.cc \
                  $(INTDIR)\english.cc \
                  $(INTDIR)\finnish.cc \
                  $(INTDIR)\french.cc \
                  $(INTDIR)\german.cc \
-		 $(INTDIR)\german2.cc \
-		 $(INTDIR)\hungarian.cc \
+                 $(INTDIR)\german2.cc \
+                 $(INTDIR)\hungarian.cc \
                  $(INTDIR)\italian.cc \
                  $(INTDIR)\lovins.cc \
                  $(INTDIR)\norwegian.cc \
@@ -63,22 +63,22 @@ LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\russian.cc \
                  $(INTDIR)\spanish.cc \
                  $(INTDIR)\swedish.cc \
-		 $(INTDIR)\romanian.cc \
-		 $(INTDIR)\kraaij_pohlmann.cc \
-		 $(INTDIR)\turkish.cc
+                 $(INTDIR)\romanian.cc \
+                 $(INTDIR)\kraaij_pohlmann.cc \
+                 $(INTDIR)\turkish.cc
 
 LIBLANGUAGES_HEADERS= \
-		 armenian.h \
-		 basque.h \
-		 catalan.h \
+                 armenian.h \
+                 basque.h \
+                 catalan.h \
                  danish.h \
                  dutch.h \
                  english.h \
                  finnish.h \
                  french.h \
                  german.h \
-		 german2.h \
-		 hungarian.h \
+                 german2.h \
+                 hungarian.h \
                  italian.h \
                  lovins.h \
                  norwegian.h \
@@ -87,9 +87,9 @@ LIBLANGUAGES_HEADERS= \
                  russian.h \
                  spanish.h \
                  swedish.h \
-		 romanian.h \
-		 kraaij_pohlmann.h \
-		 turkish.h
+                 romanian.h \
+                 kraaij_pohlmann.h \
+                 turkish.h
 
 MAKEFROMSBL: $(LIBLANGUAGES_SOURCES) ".\allsnowballheaders.h"
 
@@ -97,7 +97,7 @@ CLEAN :
 	-@erase "$(OUTDIR)\liblanguages.lib"
 	-@erase "*.pch"
 	-@erase "$(INTDIR)\*.pdb"
-        -@erase $(LIBLANGUAGES_OBJS)
+	-@erase $(LIBLANGUAGES_OBJS)
 	-@erase $(LIBLANGUAGES_SOURCES)
 	-@erase $(LIBLANGUAGES_HEADERS)
 	-@erase allsnowballheaders.h
@@ -188,13 +188,13 @@ CPP_SBRS=.
 
 "$(INTDIR)\stem.obj" : ".\stem.cc"
     $(CPP) @<<
-  $(CPP_PROJ) $**
+    $(CPP_PROJ) $**
 <<
 
 
 "$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES)
     $(CPP) @<<
-  $(CPP_PROJ) $**
+    $(CPP_PROJ) $**
 <<
 
 ".\allsnowballheaders.h": ".\generate-allsnowballheaders"
@@ -206,4 +206,3 @@ CPP_SBRS=.
 
 ".\generate-allsnowballheaders": ".\generate-allsnowballheaders.in" Makefile
     $(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" generate-allsnowballheaders.in > generate-allsnowballheaders
-

@@ -25,7 +25,7 @@ SRCS= 	       "$(INTDIR)\analyser.c" \
 
 CLEAN :
 	-@erase "$(INTDIR)\*.pch"
-        -@erase $(OBJS)
+	-@erase $(OBJS)
 	-@erase "$(INTDIR)\*.pdb"
 	-@erase "$(OUTDIR)\*.exe"
 
@@ -45,33 +45,33 @@ CPP_SBRS=.
 
 # inference rules, showing how to create one type of file from another with the same root name
 .c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 .cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 .cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 .c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 .cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 .cxx{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file

@@ -60,12 +60,12 @@ OMINDEX_OBJS= \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
 	"$(OUTDIR)\hashterm.obj" \
- 	"$(OUTDIR)\loadfile.obj" \
- 	"$(OUTDIR)\md5.obj" \
- 	"$(OUTDIR)\md5wrap.obj" \
- 	"$(OUTDIR)\xmlparse.obj" \
- 	"$(OUTDIR)\metaxmlparse.obj" \
- 	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\loadfile.obj" \
+	"$(OUTDIR)\md5.obj" \
+	"$(OUTDIR)\md5wrap.obj" \
+	"$(OUTDIR)\xmlparse.obj" \
+	"$(OUTDIR)\metaxmlparse.obj" \
+	"$(OUTDIR)\utf8convert.obj" \
 	"$(OUTDIR)\sample.obj" \
 	"$(OUTDIR)\diritor.obj" \
 	"$(OUTDIR)\mkdtemp.obj" \
@@ -93,19 +93,19 @@ SCRIPTINDEX_OBJS= \
 
 
 HTMLPARSETEST_OBJS= \
- 	"$(OUTDIR)\htmlparsetest.obj" \
+	"$(OUTDIR)\htmlparsetest.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
- 	"$(OUTDIR)\htmlparse.obj" \
+	"$(OUTDIR)\htmlparse.obj" \
 	"$(OUTDIR)\utf8convert.obj"
 
 MD5TEST_OBJS= \
- 	"$(OUTDIR)\md5.obj" \
- 	"$(OUTDIR)\md5wrap.obj" \
- 	"$(OUTDIR)\md5test.obj"
+	"$(OUTDIR)\md5.obj" \
+	"$(OUTDIR)\md5wrap.obj" \
+	"$(OUTDIR)\md5test.obj"
 
 UTF8CONVERTTEST_OBJS= \
- 	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\utf8converttest.obj"
+	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\utf8converttest.obj"
 
 SRCS= \
 	"$(INTDIR)\omega.cc" \
@@ -118,8 +118,8 @@ SRCS= \
 	"$(INTDIR)\cdb_find.cc" \
 	"$(INTDIR)\cdb_hash.cc" \
 	"$(INTDIR)\cdb_unpack.cc" \
- 	"$(INTDIR)\loadfile.cc" \
- 	"$(INTDIR)\datematchdecider.cc" \
+	"$(INTDIR)\loadfile.cc" \
+	"$(INTDIR)\datematchdecider.cc" \
 	"$(INTDIR)\omindex.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
 	"$(INTDIR)\htmlparse.cc" \
@@ -127,12 +127,12 @@ SRCS= \
 	"$(INTDIR)\commonhelp.cc" \
 	"$(INTDIR)\utils.cc" \
 	"$(INTDIR)\hashterm.cc" \
- 	"$(INTDIR)\loadfile.cc" \
- 	"$(INTDIR)\md5.cc" \
- 	"$(INTDIR)\md5wrap.cc" \
- 	"$(INTDIR)\xmlparse.cc" \
- 	"$(INTDIR)\metaxmlparse.cc" \
- 	"$(INTDIR)\utf8convert.cc" \
+	"$(INTDIR)\loadfile.cc" \
+	"$(INTDIR)\md5.cc" \
+	"$(INTDIR)\md5wrap.cc" \
+	"$(INTDIR)\xmlparse.cc" \
+	"$(INTDIR)\metaxmlparse.cc" \
+	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\sample.cc" \
 	"$(INTDIR)\portability\mkdtemp.cc" \
 	"$(INTDIR)\scriptindex.cc" \
@@ -145,13 +145,13 @@ SRCS= \
 	"$(INTDIR)\common\safe.cc" \
 	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\utf8truncate.cc" \
- 	"$(INTDIR)\htmlparsetest.cc" \
+	"$(INTDIR)\htmlparsetest.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
- 	"$(INTDIR)\htmlparse.cc" \
+	"$(INTDIR)\htmlparse.cc" \
 	"$(INTDIR)\utf8convert.cc" \
- 	"$(INTDIR)\md5.cc" \
- 	"$(INTDIR)\md5wrap.cc" \
- 	"$(INTDIR)\md5test.cc" \
+	"$(INTDIR)\md5.cc" \
+	"$(INTDIR)\md5wrap.cc" \
+	"$(INTDIR)\md5test.cc" \
 	"$(INTDIR)\diritor.cc" \
 	"$(INTDIR)\runfilter.cc" \
 	"$(OUTDIR)\xpsxmlparse.cc" \
@@ -260,13 +260,13 @@ PROGRAM_DEPENDENCIES =
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 

@@ -67,7 +67,7 @@ CLEAN :
 
 "$(OUTDIR)\LIBCOMMON.lib" : "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(OBJS)
+    $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
@@ -87,4 +87,3 @@ HEADERS :
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
     if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.
-

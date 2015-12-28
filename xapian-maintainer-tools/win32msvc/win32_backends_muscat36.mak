@@ -102,4 +102,3 @@ CPP_SBRS=.
    $(CPP) @<<
    $(CPP_PROJ) $<
 <<
-

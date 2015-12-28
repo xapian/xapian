@@ -126,7 +126,7 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i 
     -rd /s/q modern
 	-md modern
 	$(SWIG) $(SWIG_FLAGS) -I$(XAPIAN_CORE_REL_PYTHON)\include \
-        -DDOCCOMMENTS_I_SOURCES -c++ -python -threads -shadow -modern -O -outdir modern \
+	    -DDOCCOMMENTS_I_SOURCES -c++ -python -threads -shadow -modern -O -outdir modern \
 	    -o modern/xapian_wrap.cc ../xapian.i
 
 	$(PERL_EXE) -pe "s/class Error:/class Error(Exception):/" modern\xapian.py > modern\xapian_py.tmp
