@@ -1,6 +1,6 @@
-up to: f018d6a54cdfc21e5c7d11c9afac7a67f328d86a
+up to: 07d57a521d0fd4bbd3ae4ceb8495338666934b32
 
-Omega 1.2.22 (2015-11-29):
+Omega 1.2.22 (2015-12-28):
 
 general:
 
@@ -25,6 +25,8 @@ documentation:
     from the list of those serialised: COLLAPSE, DOCIDORDER, SORT, SORTREVERSE,
     SORTAFTER
 
+  + Explicitly note user can use $setmap to create their own maps.
+
 * docs/overview.rst:
 
   + SVG extraction is built-in too.
@@ -33,7 +35,12 @@ documentation:
     support was added, and that this will also work with any version on Unix,
     where `false` is a command.
 
+  + Document `cdb_dir`.
+
 * docs/cgiparams.rst: Document behaviour if xDB is not set.
+
+* Change "characters" to "bytes" in a few places to clarify that we don't mean
+  Unicode code points.
 
 indexers:
 
@@ -48,6 +55,9 @@ indexers:
 
 omega:
 
+* Make $querydescription ensure the match has been run, so that it includes
+  filters.
+
 * Avoid $allterms, $cgilist, $filterterms and $terms being O(n²) in the number
   of items in the returned list.
 
@@ -58,15 +68,21 @@ omega:
   we're being included in a page), we already suppress the HTTP headers, but
   now we suppress the blank line after the header too.
 
+* Support option flag_cjk_ngram if built against xapian-core >= 1.2.22.
+
 templates:
 
 testsuite:
+
+* Add test coverage for parsing of HTML entities.
 
 build system:
 
 * Fix error reporting if PCRE isn't installed. Fixes #693, reported by lhz7370.
 
 portability:
+
+* Avoid warning when building with glibc >= 2.21.
 
 * Don't provide our own implementation of sleep() under __WIN32__ if there
   already is one - mingw provides one, and in some situations it seems to clash
