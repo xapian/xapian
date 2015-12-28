@@ -1,6 +1,6 @@
-up to: 6383f1bcd80a96fa368bb82ba59168879465a8fd
+up to: 6ab5dcc0fe162ce2d3cce2846d8938ea72d6ddb0
 
-Xapian-bindings 1.2.22 (2015-11-24):
+Xapian-bindings 1.2.22 (2015-12-28):
 
 Documentation:
 
@@ -32,6 +32,9 @@ CSharp:
 Java:
 
 Lua:
+
+* Send stderr from lua version check to config.log instead of letting it appear
+  on the terminal.
 
 Perl:
 
