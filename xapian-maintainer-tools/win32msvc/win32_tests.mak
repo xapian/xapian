@@ -89,8 +89,6 @@ APITEST_OBJS= \
 
 INTERNALTEST_OBJS= "$(OUTDIR)\internaltest.obj"
 
-QUARTZTEST_OBJS= "$(OUTDIR)\quartztest.obj"
-
 QUERYPARSERTEST_OBJS= "$(OUTDIR)\queryparsertest.obj"
 
 REMOTETEST_OBJS= "$(OUTDIR)\remotetest.obj"
@@ -201,17 +199,15 @@ CLEAN :
     -@erase $(COLLATED_APITEST_HEADERS)
     if exist ".btreetmp" rmdir ".btreetmp" /s /q
     if exist ".stub" rmdir ".stub" /s /q
-    if exist ".quartz" rmdir ".quartz" /s /q
     if exist ".chert" rmdir ".chert" /s /q
     if exist ".brass" rmdir ".brass" /s /q
     if exist ".multichert" rmdir ".multichert" /s /q
     if exist ".multibrass" rmdir ".multibrass" /s /q
-    if exist ".quartztmp" rmdir ".quartztmp" /s /q
 
 
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- -I ".." -I "..\tests" -I "harness" -I"..\backends\quartz" \
+ -I ".." -I "..\tests" -I "harness" \
  -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
