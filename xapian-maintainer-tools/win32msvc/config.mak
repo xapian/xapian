@@ -9,7 +9,7 @@
 #  % nmake  PERL_DIR=c:\perl\bin SWIG=c:\something\swig.exe
 # would override the variables without requiring you change anything...
 
-# Uncomment for 64-bit build
+# Uncomment (or set on command line) for 64-bit build:
 #MACHINE=-machine:x64
 
 # Set VERSION_SUFFIX if building from tarballs, e.g.:
