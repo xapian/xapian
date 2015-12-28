@@ -18,7 +18,7 @@ setup(
     version = xapian.version_string(),
     url = 'https://xapian.org/',
     maintainer = 'Charlie Hull (with thanks to Alexandre Gauthier)',
-    maintainer_email = 'info@lemurconsulting.com',
+    maintainer_email = 'xapian-devel@lists.xapian.org',
     description = description.strip(),
     py_modules = ['xapian'],
     packages = ['xapian'],

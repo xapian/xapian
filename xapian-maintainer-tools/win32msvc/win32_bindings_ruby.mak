@@ -1,6 +1,6 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Written by Zsolt Sz. Sztupák by modifying the Python bindings code made by Ulrik Petersen
-#  and Modified by Charlie Hull, Lemur Consulting Ltd. www.lemurconsulting.com
+#  and Modified by Charlie Hull, Lemur Consulting Ltd.
 #  email: mail AT sztupy DOT hu
 
 # Will build the Ruby bindings 

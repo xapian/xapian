@@ -1,6 +1,5 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 #  by Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 
 # Will build a Win32 static library (non-debug) libbrass.lib
 

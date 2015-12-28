@@ -1,5 +1,5 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
-# Charlie Hull, Lemur Consulting Ltd. www.lemurconsulting.com
+# Charlie Hull, Lemur Consulting Ltd.
 # 7th April 2008
 
 # Will build the Java Swig bindings 

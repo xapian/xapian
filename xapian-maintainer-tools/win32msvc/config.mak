@@ -1,7 +1,6 @@
 # Makefile configuration for Microsoft Visual C++ 7.0 (or compatible)
 # Thanks to Ulrik Petersen
 # Modified by Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 #
 # Modify this file to set any extra Xapian build flags
 #

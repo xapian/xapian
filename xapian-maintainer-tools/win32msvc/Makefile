@@ -2,7 +2,7 @@
 
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Originally by Ulrik Petersen
-# Modified by Charlie Hull, Lemur Consulting Ltd. www.lemurconsulting.com
+# Modified by Charlie Hull, Lemur Consulting Ltd.
 # Copyright (C) 2007, Olly Betts
 
 !MESSAGE Building Xapian on Win32

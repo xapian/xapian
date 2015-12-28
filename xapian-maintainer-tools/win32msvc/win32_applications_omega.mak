@@ -1,6 +1,5 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 # 31st March 2006
 
 # Will build the following  programs

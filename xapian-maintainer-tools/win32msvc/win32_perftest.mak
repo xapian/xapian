@@ -1,6 +1,5 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 #  by Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 # 17th June 2008
 
 !INCLUDE ..\..\win32\config.mak

@@ -1,6 +1,5 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 # 19th February 2006
 
 # Will build a Win32 executable snowball.exe
