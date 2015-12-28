@@ -16,9 +16,9 @@ for scheme in INSTALL_SCHEMES.values():
 setup(
     name = "xapian-python-bindings for Python %s " % platform.python_version(),
     version = xapian.version_string(),
-    url = 'http://www.lemurconsulting.com',
+    url = 'http://xapian.org/',
     maintainer = 'Charlie Hull (with thanks to Alexandre Gauthier)',
-    maintainer_email = 'info@lemurconsulting.com',
+    maintainer_email = 'xapian-devel@lists.xapian.org',
     description = description.strip(),
     py_modules = ['xapian'],
     packages = ['xapian'],

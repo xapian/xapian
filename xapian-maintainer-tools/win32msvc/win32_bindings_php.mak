@@ -1,6 +1,5 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 # 28th Feb 2007
 
 # Will build the PHP bindings

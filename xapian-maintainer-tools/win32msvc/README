@@ -10,11 +10,7 @@ bindings work is to recompile Python with Cygwin (Xapian compiles happily
 with Cygwin as standard).
 
 The project was started by Ulrik Petersen, and continued by Charlie Hull of
-Lemur Consulting who is now maintaining it.
-
-If you have any feedback, bug reports or comments about these files,
-please DO NOT contact Ulrik, but please contact us at Lemur Consulting
-www.lemurconsulting.com
+Lemur Consulting.  Currently nobody is maintaining it - volunteers welcome.
 
 Runtime requirements
 ====================
@@ -339,9 +335,3 @@ Using the Visual C++ IDE
 ========================
 
 It is also possible to manually create a project in the Visual C++ Express Edition IDE. To build part of Xapian in the IDE you should add to the project all the .cc files in the api, backends, common, expand, languages, matcher, net, queryparser and unicode subfolders of xapian-core, then add the file containing the main loop for whatever you are building (for example if you're building xapian-check, add xapian-check.cc). You will need to examine config.mak to see what include paths to use and any other necessary compiler switches.
-
-
-Please send any bugfixes to Charlie Hull at Lemur Consulting:
-www.lemurconsulting.com
-
-
