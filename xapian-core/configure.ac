@@ -1041,14 +1041,6 @@ if test yes = "$GXX"; then
   case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
-      dnl
-      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
-      dnl
-      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
-      dnl GCC 4.3.
-      dnl
-      dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
 
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
@@ -1058,19 +1050,25 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[0123]].*|4.[[0123]].*)
-	AC_MSG_ERROR([Xapian requires GCC 4.4 or later])
+      [[0123]].*|4.[[0-6]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.7 or later])
 	;;
-      4.[[45]].*) ;;
-      *) dnl GCC >= 4.6
-	dnl -Wdouble-promotion was added in GCC 4.6.
-	dnl
-	dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
-	dnl warns for this case with -Wuninitialized (implied by -W).  We
-	dnl don't intend to use this idiom, so any instances are bugs we'd
-	dnl like to know about.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
       esac
+
+      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
+      dnl
+      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
+      dnl GCC 4.3.
+      dnl
+      dnl -Wdouble-promotion was added in GCC 4.6.
+      dnl
+      dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+      dnl warns for this case with -Wuninitialized (implied by -W).  We
+      dnl don't intend to use this idiom, so any instances are bugs we'd
+      dnl like to know about.
+      dnl
+      dnl All the other options were supported by g++ 2.95.
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
 
       dnl FIXME:
       dnl -Wconversion in older GCC versions is intended to help migration
