@@ -42,8 +42,9 @@ a set of suitable makefiles: http://xapian.org/download
 If you're using GCC, we currently recommend GCC 4.7 or newer (this is the
 oldest version we regularly test with).
 
-The current hard minimum requirement is at least GCC 4.6 (due to requiring
-support for C++11 range-based for loops).
+The current hard minimum requirement is also GCC 4.7 (due to requiring good
+support for C++11, for example non-static data member initializers aren't
+supported by earlier versions).
 
 If you really still need to use an older version of GCC, Xapian 1.2.x doesn't
 require C++11 support and should build with older versions - probably as far

@@ -1168,7 +1168,7 @@ like so:
         XAPIAN_DEPRECATED(int old_inline_method()) { return 42; }
     };
     
-Xapian 1.3.x and later require at least GCC 4.6, so you can just use the
+Xapian 1.3.x and later require at least GCC 4.7, so you can just use the
 approach above.  Xapian 1.2.x aims to support GCC 3.1 and later, so in the
 unlikely event of needing to adjust deprecation markers in 1.2.x, you need to
 rewrite the above like so:
