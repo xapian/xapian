@@ -1768,7 +1768,7 @@ class HostFieldProcessor : public Xapian::FieldProcessor {
 	    return Xapian::Query::MatchAll;
 	string res = "H";
 	for (string::const_iterator i = str.begin(); i != str.end(); ++i)
-	    res += tolower((unsigned char)*i);
+	    res += C_tolower(*i);
 	return Xapian::Query(res);
     }
 };

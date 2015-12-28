@@ -309,7 +309,7 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 
     string tablename;
     while (p != filename.size()) {
-	tablename += tolower(static_cast<unsigned char>(filename[p++]));
+	tablename += C_tolower(filename[p++]);
     }
 
     vector<Xapian::termcount> doclens;
