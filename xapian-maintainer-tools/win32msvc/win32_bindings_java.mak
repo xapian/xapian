@@ -7,7 +7,7 @@
 # Where the core is, relative to the Java Swig bindings
 # Change this to match your environment
 
-XAPIAN_CORE_REL_JAVA=..\..\xapian-core
+XAPIAN_CORE_REL_JAVA=..\..\xapian-core$(VERSION_SUFFIX)
 OUTLIBDIR=$(XAPIAN_CORE_REL_JAVA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_JAVA)\win32\config.mak

@@ -7,7 +7,7 @@
 # Where the core is, relative to the Csharp bindings
 # Change this to match your environment
 
-XAPIAN_CORE_REL_CSHARP=..\..\xapian-core
+XAPIAN_CORE_REL_CSHARP=..\..\xapian-core$(VERSION_SUFFIX)
 OUTLIBDIR=$(XAPIAN_CORE_REL_CSHARP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_CSHARP)\win32\config.mak

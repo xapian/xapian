@@ -6,7 +6,7 @@
 
 # Where the core is, relative to the PHP bindings
 # Change this to match your environment
-XAPIAN_CORE_REL_PHP=..\..\xapian-core
+XAPIAN_CORE_REL_PHP=..\..\xapian-core$(VERSION_SUFFIX)
 
 OUTLIBDIR=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 

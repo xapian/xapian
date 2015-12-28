@@ -9,7 +9,7 @@
 
 # Where the core is, relative to the Omega application
 # Change this to match your environment
-XAPIAN_CORE_REL_OMEGA=..\..\xapian-core
+XAPIAN_CORE_REL_OMEGA=..\..\xapian-core$(VERSION_SUFFIX)
 
 !IF "$(OS)" == "Windows_NT"
 NULL=

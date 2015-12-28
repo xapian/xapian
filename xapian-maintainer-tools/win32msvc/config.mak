@@ -12,6 +12,11 @@
 # Uncomment for 64-bit build
 #MACHINE=-machine:x64
 
+# Set VERSION_SUFFIX if building from tarballs, e.g.:
+#  % nmake VERSION_SUFFIX=-1.3.4
+# If building from git, leave this empty.
+VERSION_SUFFIX=
+
 !IF "$(OS)" == "Windows_NT"
 NULL=
 !ELSE
@@ -26,8 +31,8 @@ NULL=nul
 # win32_applications_omega.mak
 # win32_bindings_python.mak
 # and any other bindings mak files
-XAPIAN_APPLICATIONS=..\..\xapian-applications\omega
-XAPIAN_BINDINGS=..\..\xapian-bindings
+XAPIAN_APPLICATIONS=..\..\xapian-applications\omega$(VERSION_SUFFIX)
+XAPIAN_BINDINGS=..\..\xapian-bindings$(VERSION_SUFFIX)
 
 #  ------------- Perl settings-------------
 # Perl folder

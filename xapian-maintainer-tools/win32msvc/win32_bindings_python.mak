@@ -9,7 +9,7 @@
 # Where the core is, relative to the Python bindings
 # Change this to match your environment
 
-XAPIAN_CORE_REL_PYTHON=..\..\xapian-core
+XAPIAN_CORE_REL_PYTHON=..\..\xapian-core$(VERSION_SUFFIX)
 
 OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
