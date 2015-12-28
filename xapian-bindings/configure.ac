@@ -397,7 +397,7 @@ if test no != "$with_python3" ; then
     AC_MSG_CHECKING([$PYTHON3 version])
     version=`$PYTHON3 -c 'import sys;print("%d.%d" % sys.version_info[[:2]])' 2>/dev/null`
     case $version in
-    [3.[2-9]*|3.[12][0-9][0-9]*|[4-9].*])
+    [3.[2-9]*|3.1[0-9]*|[4-9].*])
       AC_MSG_RESULT([$version])
       ;;
     *)
