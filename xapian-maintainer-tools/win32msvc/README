@@ -30,7 +30,7 @@ What works?
 ===========
 
 - The Python, PHP, C#, Ruby bindings (but see below for the latter)
-- The xapian-compact, xapian-check, xapian-inspect binaries
+- The xapian-compact, xapian-check binaries
 - The xapian-progsrv and xapian-tcpsrv binaries
 - The delve, quest and copydatabase binaries
 - The Xapian example binaries

@@ -16,19 +16,15 @@ INTDIR=.\
 PROGRAMS = \
            "$(OUTDIR)\xapian-compact.exe" \
            "$(OUTDIR)\xapian-progsrv.exe" \
-           "$(OUTDIR)\xapian-chert-update.exe" \
            "$(OUTDIR)\xapian-tcpsrv.exe" \
-           "$(OUTDIR)\xapian-inspect.exe" \
            "$(OUTDIR)\xapian-check.exe" \
            "$(OUTDIR)\xapian-replicate.exe" \
            "$(OUTDIR)\xapian-replicate-server.exe"\
 
 SRCS = \
 	"$(INTDIR)\xapian-compact.cc" \
-	"$(INTDIR)\xapian-chert-update.cc" \
 	"$(INTDIR)\xapian-progsrv.cc" \
 	"$(INTDIR)\xapian-tcpsrv.cc" \
-	"$(INTDIR)\xapian-inspect.cc" \
 	"$(INTDIR)\xapian-check-chert.cc" \
 	"$(INTDIR)\xapian-check-brass.cc" \
 	"$(INTDIR)\xapian-check.cc" \
@@ -40,13 +36,9 @@ ALL : $(PROGRAMS)
 
 XAPIAN_COMPACT_OBJS= "$(INTDIR)\xapian-compact.obj"
 
-XAPIAN_CHERT_UPDATE_OBJS= "$(INTDIR)\xapian-chert-update.obj"
-
 XAPIAN_PROGSRV_OBJS= "$(INTDIR)\xapian-progsrv.obj"
 
 XAPIAN_TCPSRV_OBJS= "$(INTDIR)\xapian-tcpsrv.obj"
-
-XAPIAN_INSPECT_OBJS= "$(INTDIR)\xapian-inspect.obj"
 
 XAPIAN_CHECK_OBJS= \
 	"$(INTDIR)\xapian-check.obj" \
@@ -61,10 +53,8 @@ XAPIAN_REPLICATE_SERVER_OBJS= "$(INTDIR)\xapian-replicate-server.obj"
 CLEAN :
 	-@erase $(PROGRAMS)
 	-@erase $(XAPIAN_COMPACT_OBJS)
-    -@erase $(XAPIAN_CHERT_UPDATE_OBJS)
 	-@erase $(XAPIAN_PROGSRV_OBJS)
 	-@erase $(XAPIAN_TCPSRV_OBJS)
-	-@erase $(XAPIAN_INSPECT_OBJS)
 	-@erase $(XAPIAN_CHECK_OBJS)
 	-@erase $(XAPIAN_REPLICATE_OBJS)
 	-@erase $(XAPIAN_REPLICATE_SERVER_OBJS)
@@ -103,14 +93,6 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
     $(MANIFEST) "$(OUTDIR)\xapian-progsrv.exe.manifest" -outputresource:"$(OUTDIR)\xapian-progsrv.exe;1"
     -@erase "$(OUTDIR)\xapian-progsrv.exe.manifest"
 
-"$(OUTDIR)\xapian-chert-update.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_CHERT_UPDATE_OBJS) \
-                             $(PROGRAM_DEPENDENCIES)
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-chert-update.exe" $(DEF_FLAGS) $(XAPIAN_CHERT_UPDATE_OBJS)
-<<
-    $(MANIFEST) "$(OUTDIR)\xapian-chert-update.exe.manifest" -outputresource:"$(OUTDIR)\xapian-chert-update.exe;1"
-    -@erase "$(OUTDIR)\xapian-chert-update.exe.manifest"
-
 "$(OUTDIR)\xapian-tcpsrv.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_TCPSRV_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
@@ -118,15 +100,6 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 <<
     $(MANIFEST) "$(OUTDIR)\xapian-tcpsrv.exe.manifest" -outputresource:"$(OUTDIR)\xapian-tcpsrv.exe;1"
     -@erase "$(OUTDIR)\xapian-tcpsrv.exe.manifest"
-
-"$(OUTDIR)\xapian-inspect.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_INSPECT_OBJS) \
-                             $(PROGRAM_DEPENDENCIES)
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-inspect.exe" $(DEF_FLAGS) $(XAPIAN_INSPECT_OBJS)
-<<
-    $(MANIFEST) "$(OUTDIR)\xapian-inspect.exe.manifest" -outputresource:"$(OUTDIR)\xapian-inspect.exe;1"
-    -@erase "$(OUTDIR)\xapian-inspect.exe.manifest"
-
 
 "$(OUTDIR)\xapian-check.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_CHECK_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
