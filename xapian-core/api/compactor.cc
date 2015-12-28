@@ -29,7 +29,6 @@
 #include <algorithm>
 #include <fstream>
 
-#include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include "safesysstat.h"
@@ -397,13 +396,11 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	ChertDatabase::compact(compactor, destdir.c_str(), internals, offset,
 			       block_size, compaction, flags, last_docid);
 
-	// Create the version file ("iamchert", etc).
+	// Create the version file ("iamchert").
 	//
 	// This file contains a UUID, and we want the copy to have a fresh
 	// UUID since its revision counter is reset to 1.
-	if (backend == BACKEND_CHERT) {
-	    ChertVersion(destdir).create();
-	}
+	ChertVersion(destdir).create();
 #else
 	(void)compactor;
 	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
