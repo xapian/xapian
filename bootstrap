@@ -274,6 +274,9 @@ case $srcdir in
     cd "$srcdir" ;;
 esac
 
+# Commit hash to pass to handle_git_external for swig.
+swig_git_commit_hash=210266cd7004108b074fac9da4fc97d1df0adc53
+
 if [ ! -d .git ] ; then
   echo "$0: No '.git' directory found - this script should be run from a"
   echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
@@ -308,18 +311,18 @@ else
 fi
 
 # If this tree is checked out from the github mirror, use the same access
-# method for swig, so we avoid firewall issues.  If there's no default
-# remote, the git config command will exit with status 1, so ignore that
-# failure.
+# method for other things checked out from github (e.g. swig) so we avoid
+# firewall issues.  If there's no default remote, the git config command
+# will exit with status 1, so ignore that failure.
 origin_url=`git config remote.origin.url||:`
 case $origin_url in
   *[@/]github.com[:/]*)
-    swig_origin_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
+    github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
   *)
-    swig_origin_url=git://github.com/ ;;
+    github_base_url=git://github.com/ ;;
 esac
-swig_origin_url=${swig_origin_url}swig/swig.git
-handle_git_external swig 210266cd7004108b074fac9da4fc97d1df0adc53 "$swig_origin_url"
+swig_origin_url=${github_base_url}swig/swig.git
+handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 
 # If someone's created a directory for common, leave it be.
 if [ -h xapian-applications/omega/common ] || \
