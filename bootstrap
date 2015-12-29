@@ -276,7 +276,6 @@ esac
 
 # Commit hash to pass to handle_git_external for swig.
 swig_git_commit_hash=1a99212c2c1f2c1819ae84fe553a27889be46791
-swig_origin_url=git://github.com/swig/swig.git
 
 if [ ! -d .git ] ; then
   echo "$0: No '.git' directory found - this script should be run from a"
