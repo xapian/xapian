@@ -70,7 +70,7 @@ php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i Makefile.am
 	rm xapian_wrap_d.tmp
 	$(PERL) '$(srcdir)/'add-php-ref-handling php5/xapian.php > php5/xapian.tmp
 	mv php5/xapian.tmp php5/xapian.php
-	$(PERL) -pi -e 's/\b(zend_hash_update\(.*sizeof\(zval)\)/$$1*)/' php5/xapian_wrap.cc
+	$(PERL) -pi -e 's/\b(zend_hash_update\(.*sizeof\(zval)\)/$$1*)/;s/^(\s*)args\[(\d+)\] = \&obj\2;/$$&\n$$1INIT_ZVAL(obj$$2);/;s/^\s*INIT_ZVAL(obj\d+);\n//' php5/xapian_wrap.cc
 	$(multitarget_end)
 
 -include xapian_wrap.d
