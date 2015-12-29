@@ -4,7 +4,7 @@ API:
 
 * Add FLAG_CJK_NGRAM for QueryParser and TermGenerator.  Has the same effect as
   setting the environment variable XAPIAN_CJK_NGRAM.  Fixes #180, reported by
-  Richard Boulton, with contributionms from Pavel Strashkin, Mikkel Kamstrup
+  Richard Boulton, with contributions from Pavel Strashkin, Mikkel Kamstrup
   Erlandsen and Brandon Schaefer.
 
 * Fix bug parsing multiple non-exclusive filter terms - previously this could
