@@ -1,8 +1,4 @@
-up to: 07d57a521d0fd4bbd3ae4ceb8495338666934b32
-
-Omega 1.2.22 (2015-12-28):
-
-general:
+Omega 1.2.22 (2015-12-29):
 
 documentation:
 
@@ -51,8 +47,6 @@ indexers:
   + Handle .oft the same way as .msg - it's some sort of template email, and
     has essentially the same format.
 
-* scriptindex:
-
 omega:
 
 * Make $querydescription ensure the match has been run, so that it includes
@@ -69,8 +63,6 @@ omega:
   now we suppress the blank line after the header too.
 
 * Support option flag_cjk_ngram if built against xapian-core >= 1.2.22.
-
-templates:
 
 testsuite:
 
@@ -93,8 +85,6 @@ portability:
   implement it.  The constant value O_STREAMING used now seems to be used for
   the part of O_SYNC which isn't covered by O_DSYNC, which seems likely to hurt
   performance if anything.
-
-packaging:
 
 Omega 1.2.21 (2015-05-20):
 
