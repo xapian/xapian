@@ -78,7 +78,7 @@ build system:
 * pkg-config: Fix library name in .pc file to say "xapian" not "xapian-core".
   Reported by Eric Lindblad to the xapian-devel list.
 
-* Private symbol decode_length() is no visible outside the library.
+* Private symbol decode_length() is no longer visible outside the library.
 
 documentation:
 
