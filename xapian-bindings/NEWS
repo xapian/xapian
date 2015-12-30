@@ -482,6 +482,48 @@ Tcl:
   wrapped more efficiently - previous a temporary C++ std::vector was built
   but now we avoid doing this.
 
+Xapian-bindings 1.2.22 (2015-12-29):
+
+Documentation:
+
+* Stop maintaining ChangeLog files.  They make merging patches harder, and stop
+  'git cherry-pick' from working as it should.  The git repo history should be
+  sufficient for complying with GPLv2 2(a).
+
+General:
+
+* Stop wrapping internal methods of Xapian::Weight.
+
+* Return Error::get_description() rather than get_type + ": " + get_msg().  In
+  many cases this is the same, but if context or errno are available,
+  get_description() includes them.
+
+* Catch and report std::exception rather than handling it as an unknown error
+  (so in particular std::bad_alloc will now be reported more helpfully).
+
+CSharp:
+
+* Fix configure test for whether $MONO can run CSharp programs - previously it
+  would always fail, which would mean that the CSharp tests would only be run
+  on systems where CSharp programs can be run directly.
+
+Lua:
+
+* Send stderr from lua version check to config.log instead of letting it appear
+  on the terminal.
+
+PHP:
+
+* Fix memory leak and crash when using PHP subclasses of Xapian functors.
+
+* Subclasses of XapianMatchSpy and XapianPostingSource with implicit
+  constructors now work.
+
+Python:
+
+* Add new testcase to catch any internal functions, methods, constants, etc
+  which have accidentally been wrapped.
+
 Xapian-bindings 1.2.21 (2015-05-20):
 
 Lua:

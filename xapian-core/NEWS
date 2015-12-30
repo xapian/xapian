@@ -1,8 +1,8 @@
-up to: d99e004c311b56f609e285a3ec173b658ffbaf3b
+up to: aef6397cd3987de73257d5da84f0df71847e56d8
 
 backport:
 
-Xapian-core 1.3.4 (2015-12-28):
+Xapian-core 1.3.4 (2015-12-30):
 
 This release includes all changes from 1.2.22 which are relevant.
 
@@ -22,13 +22,6 @@ API:
   Xapian::Compactor is now just a functor to use if you want to control
   progress reporting and/or the merging of user metadata.  The existing API
   has been reimplemented using the new one, but is marked as deprecated.
-
-* Optimise value range which is a superset of the bounds.  If the value
-  frequency is equal to the doccount, such a range is equivalent to MatchAll,
-  and we now avoid having to read the valuestream at all.
-
-* Optimise OP_VALUE_RANGE when the upper bound can't be exceeded.  In this
-  case, we now use ValueGePostList instead of ValueRangePostList.
 
 * Add support for a default value when sorting.  Fixes #452.
 
@@ -59,6 +52,12 @@ testsuite:
 
 matcher:
 
+* Optimise value range which is a superset of the bounds.  If the value
+  frequency is equal to the doccount, such a range is equivalent to MatchAll,
+  and we now avoid having to read the valuestream at all.
+
+* Optimise OP_VALUE_RANGE when the upper bound can't be exceeded.  In this
+  case, we now use ValueGePostList instead of ValueRangePostList.
 
 glass backend:
 
@@ -99,15 +98,15 @@ glass backend:
 
 * Where posix_fadvise() is available, use it to prefetch postlist Btree blocks
   from the level below the root block which will be needed for postlists of
-  terms in the query, and similarly for the record/docdata table when
-  MSet::fetch() is called.  Based on patch by Will Greenberg in #671.
+  terms in the query, and similarly for the docdata table when MSet::fetch() is
+  called.  Based on patch by Will Greenberg in #671.
 
 chert backend:
 
 * Where posix_fadvise() is available, use it to prefetch postlist Btree blocks
   from the level below the root block which will be needed for postlists of
-  terms in the query, and similarly for the record/docdata table when
-  MSet::fetch() is called.  Based on patch by Will Greenberg in #671.
+  terms in the query, and similarly for the record table when MSet::fetch() is
+  called.  Based on patch by Will Greenberg in #671.
 
 remote backend:
 
@@ -989,6 +988,168 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.22 (2015-12-29):
+
+API:
+
+* Add FLAG_CJK_NGRAM for QueryParser and TermGenerator.  Has the same effect as
+  setting the environment variable XAPIAN_CJK_NGRAM.  Fixes #180, reported by
+  Richard Boulton, with contributions from Pavel Strashkin, Mikkel Kamstrup
+  Erlandsen and Brandon Schaefer.
+
+* Fix bug parsing multiple non-exclusive filter terms - previously this could
+  result in such filters effectively being ignored.
+
+* Fix Database::get_doclength_lower_bound() over multiple databases when some
+  are empty or consist only of zero-length documents.  Previously this would
+  report a lower bound of zero, now it reports the same lowest bound as a
+  single database containing all the same documents.
+
+* Make Database::get_wdf_upper_bound("") return 0.
+
+* Mark constructors taking a single argument as "explicit" to avoid unwanted
+  implicit conversions.
+
+testsuite:
+
+* If command line option --verbose/-v isn't specified, set the verbosity level
+  from environmental variable VERBOSE.
+
+* Skip timed tests if $AUTOMATED_TESTING is set.  Fixes #553, reported by
+  Dagobert Michelsen.
+
+* Don't leave an extra fd open when starting xapian-tcpsrv for remotetcp tests.
+
+* apitest: Revert disabling of part of adddoc5 for clang - the test failure was
+  in fact due to a bug in 1.3.x, and 1.2.x was never affected.
+
+* apitest: Tweak bounds checks in dbstats1 testcase - multi backends should
+  give tight bounds.
+
+brass backend:
+
+* Format limit on docid now correctly imposed when sizeof(int) > 4.
+
+* Avoid potential DB corruption with full-compaction when using 64K blocks.
+
+chert backend:
+
+* Format limit on docid now correctly imposed when sizeof(int) > 4.
+
+* Avoid potential DB corruption with full-compaction when using 64K blocks.
+
+flint backend:
+
+* Format limit on docid now correctly imposed when sizeof(int) > 4.
+
+* Avoid potential DB corruption with full-compaction when using 64K blocks.
+
+remote backend:
+
+* Fix to handle total document length exceeding 34,359,738,368.  (Fixes #678,
+  reported by matf).
+
+* Avoid dividing by zero when getting the average length for an empty database.
+
+* Stop apparent error from remote server when read-only client disconnects.  A
+  read-only client just closes the connection when done, but the server
+  previously reported "Got exception NetworkError: Received EOF", which sounds
+  like there was a problem.  Now we just say "Connection closed" here, and
+  "Connection closed unexpectedly" if the client connects in the middle of an
+  exchange.  Possibly fixes #654, reported by German M. Bravo.
+
+* Give a clearer error message when the client and server remote protocol
+  versions aren't compatible.
+
+* Check length of key in MSG_SETMETADATA.
+
+build system:
+
+* pkg-config: Fix library name in .pc file to say "xapian" not "xapian-core".
+  Reported by Eric Lindblad to the xapian-devel list.
+
+* Private symbol decode_length() is no longer visible outside the library.
+
+documentation:
+
+* Stop maintaining ChangeLog files.  They make merging patches harder, and stop
+  'git cherry-pick' from working as it should.  The git repo history should be
+  sufficient for complying with GPLv2 2(a).
+
+* Strip out "quickstart" examples which are out of date and rather redundant
+  with the "simple" examples.
+
+* Correct documentation of Enquire::get_query().  If no query has been set,
+  the documentation said Xapian::InvalidArgumentError was thrown, but in
+  fact we just return a default initialised Query object (i.e. Query()).  This
+  seems reasonable behaviour and has been the case since Xapian 0.9.0.
+
+* Document xapian-compact --blocksize takes an argument.
+
+* Update snowball website link to snowballstem.org.
+
+tools:
+
+* xapian-replicate: Fix replication for files > 4GB on 32-bit platforms.
+  Previously replication would fail to copy a file whose size didn't fit in
+  size_t.  Fixes #685, reported by Josh Elsasser.
+
+* xapian-tcpsrv: Better error if -p/--port not specified
+
+* quest: Support `-f cjk_ngram`.
+
+examples:
+
+* xapian-metadata: Extend "list" subcommand to take optional key prefix.
+
+portability:
+
+* Fix new warnings from recent versions of GCC and clang.
+
+* Add spaces between literal strings and macros which expand to literal strings
+  for C++11 compatibility in __WIN32__-specific code.
+
+* Need <unistd.h> for unlink() on FreeBSD, reported by Germán M. Bravo via
+  github PR 72.
+
+* Fix testsuite to build when S_ISSOCK() isn't defined.
+
+* Don't provide our own implementation of sleep() under __WIN32__ if there
+  already is one - mingw provides one, and in some situations it seems to clash
+  with ours.  Reported to xapian-discuss by John Alveris.
+
+* Add missing '#include <arpa/inet.h>' to htons().  Seems to be implicitly
+  included on most platforms, but Interix needs it.  Reported by Eric Lindblad
+  on xapian-discuss.
+
+* Disable "<FUNCTION> is expected to return a value" warning from Sun's C++
+  compiler, as it fires for functions ending in a "throw" statement.  Genuine
+  instances will be caught by compilers with superior warning machinery.
+
+* Prefer scalbn() to ldexp() where possible, since the former doesn't ever set
+  errno.
+
+* '#include <config.h>' in the "simple" examples, as when compiling with xlC on
+  AIX, _LARGE_FILES gets defined by AC_SYS_LARGEFILE to enable large file
+  support, and defining this changes the ABI of std::string, so it also needs
+  to be defined when compiling code using Xapian.
+
+* On cygwin, include <arpa/inet.h> instead of winsock headers for htons() and
+  htonl().
+
+* Include <cygwin/version.h> for CYGWIN_VERSION_API_MAJOR.
+
+* Avoid referencing static members via an object in that object's own
+  definition, as this doesn't work with all compilers (noted with GCC 3.3), and
+  is a bit of an odd construct anyway.  Reported by Eric Lindblad on
+  xapian-discuss.
+
+* GCC < 3.4.2 lacks operator<< overloads for unsigned long long on some
+  platforms, so simply work around this by using str(), as this isn't
+  performance sensitive code.  Reported by Eric Lindblad on xapian-discuss.
+
+* Fix delete which should be delete[] in brass backend cursor code.
 
 Xapian-core 1.2.21 (2015-05-20):
 
