@@ -522,6 +522,14 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 *  @return	A constant indicating the backend type.
 	 */
 	virtual int get_backend_info(string * path) const = 0;
+
+	/** Find lowest and highest docids actually in use.
+	 *
+	 *  Only used by compaction, so only needs to be implemented by
+	 *  backends which support compaction.
+	 */
+	virtual void get_used_docid_range(Xapian::docid & first,
+					  Xapian::docid & last) const;
 };
 
 }

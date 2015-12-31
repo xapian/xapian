@@ -241,12 +241,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// just be completely ignored.
 	Xapian::doccount num_docs = db->get_doccount();
 	if (num_docs != 0) {
-	    LeafPostList * pl = db->open_post_list(string());
-	    pl->next();
-	    // This test should never fail, since db->get_doccount() is
-	    // non-zero!
-	    Assert(!pl->at_end());
-	    first = pl->get_docid();
+	    db->get_used_docid_range(first, last);
 
 	    if (renumber && first) {
 		// Prune any unused docids off the start of this source
@@ -257,24 +252,21 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 		tot_off -= (first - 1);
 	    }
 
-	    // There may be unused documents at the end of the range.
-	    // Binary chop using skip_to to find the last actually used
-	    // document id.
-	    last = db->get_lastdocid();
-	    Xapian::docid last_lbound = first + num_docs - 1;
-	    while (last_lbound < last) {
-		Xapian::docid mid;
-		mid = last_lbound + (last - last_lbound + 1) / 2;
-		pl->skip_to(mid);
-		if (pl->at_end()) {
-		    last = mid - 1;
-		    delete pl;
-		    pl = db->open_post_list(string());
-		    continue;
-		}
-		last_lbound = pl->get_docid();
-	    }
+#ifdef XAPIAN_ASSERTIONS
+	    LeafPostList * pl = db->open_post_list(string());
+	    pl->next();
+	    // This test should never fail, since db->get_doccount() is
+	    // non-zero!
+	    Assert(!pl->at_end());
+	    AssertEq(pl->get_docid(), first);
+	    AssertRel(last,>=,first);
+	    pl->skip_to(last);
+	    Assert(!pl->at_end());
+	    AssertEq(pl->get_docid(), last);
+	    pl->next();
+	    Assert(pl->at_end());
 	    delete pl;
+#endif
 	}
 
 	offset.push_back(tot_off);

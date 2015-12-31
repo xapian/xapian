@@ -300,6 +300,9 @@ class GlassDatabase : public Xapian::Database::Internal {
 
 	bool single_file() const { return version_file.single_file(); }
 
+	void get_used_docid_range(Xapian::docid & first,
+				  Xapian::docid & last) const;
+
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    int fd,

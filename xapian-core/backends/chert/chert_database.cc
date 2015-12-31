@@ -1032,6 +1032,19 @@ ChertDatabase::throw_termlist_table_close_exception() const
     throw Xapian::FeatureUnavailableError("Database has no termlist");
 }
 
+void
+ChertDatabase::get_used_docid_range(Xapian::docid & first,
+				    Xapian::docid & last) const
+{
+    last = stats.get_last_docid();
+    if (last == record_table.get_doccount()) {
+	// Contiguous range starting at 1.
+	first = 1;
+	return;
+    }
+    postlist_table.get_used_docid_range(first, last);
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,

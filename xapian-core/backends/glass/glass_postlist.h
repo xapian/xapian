@@ -129,6 +129,9 @@ class GlassPostListTable : public GlassTable {
 	/** Check if document @a did exists. */
 	bool document_exists(Xapian::docid did,
 			     Xapian::Internal::intrusive_ptr<const GlassDatabase> db) const;
+
+	void get_used_docid_range(Xapian::docid & first,
+				  Xapian::docid & last) const;
 };
 
 /** A postlist in a glass database.

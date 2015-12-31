@@ -373,4 +373,11 @@ Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
     // Do nothing, by default.
 }
 
+void
+Database::Internal::get_used_docid_range(Xapian::docid &,
+					 Xapian::docid &) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement get_used_docid_range()");
+}
+
 }

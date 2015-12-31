@@ -314,6 +314,9 @@ class ChertDatabase : public Xapian::Database::Internal {
 	    return BACKEND_CHERT;
 	}
 
+	void get_used_docid_range(Xapian::docid & first,
+				  Xapian::docid & last) const;
+
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    const std::vector<Xapian::Database::Internal *> & sources,

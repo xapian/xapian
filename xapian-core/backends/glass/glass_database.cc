@@ -965,6 +965,19 @@ GlassDatabase::throw_termlist_table_close_exception() const
     throw Xapian::FeatureUnavailableError("Database has no termlist");
 }
 
+void
+GlassDatabase::get_used_docid_range(Xapian::docid & first,
+				    Xapian::docid & last) const
+{
+    last = version_file.get_last_docid();
+    if (last == version_file.get_doccount()) {
+	// Contiguous range starting at 1.
+	first = 1;
+	return;
+    }
+    postlist_table.get_used_docid_range(first, last);
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
