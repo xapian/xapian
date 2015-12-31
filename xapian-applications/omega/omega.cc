@@ -99,7 +99,6 @@ int main(int argc, char *argv[])
 try {
     read_config_file();
 
-    char *method;
     MCI val;
     pair<MCI, MCI> g;
 
@@ -115,7 +114,7 @@ try {
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
     //setvbuf(stdout, NULL, _IOLBF, 0);
 
-    method = getenv("REQUEST_METHOD");
+    const char * method = getenv("REQUEST_METHOD");
     if (method == NULL) {
 	if (argc > 1 && (argv[1][0] != '-' || strchr(argv[1], '='))) {
 	    // omega 'P=information retrieval' DB=papers
