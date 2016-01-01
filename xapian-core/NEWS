@@ -1,17 +1,4 @@
-up to: aef6397cd3987de73257d5da84f0df71847e56d8
-
-backport:
-
-Xapian-core 1.3.4 (2015-12-30):
-
-This release includes all changes from 1.2.22 which are relevant.
-
-FIXME: May want to drop Snipper class?
-commit a0d74bd87db3f10cf0a778ff3cf84d33f9f1ce68
-Author: Olly Betts <olly@survex.com>
-Date:   Tue Dec 22 10:47:48 2015 +1300
-
-    Fix Snipper description to include trailing ")"
+Xapian-core 1.3.4 (2016-01-01):
 
 API:
 
@@ -23,7 +10,8 @@ API:
   progress reporting and/or the merging of user metadata.  The existing API
   has been reimplemented using the new one, but is marked as deprecated.
 
-* Add support for a default value when sorting.  Fixes #452.
+* Add support for a default value when sorting.  Fixes #452, patch from
+  Richard Boulton.
 
 * Make all functor objects non-copyable.  Previously some were, some weren't,
   but it's hard to correctly make use of this ability.  Fixes #681.
@@ -61,13 +49,16 @@ matcher:
 
 glass backend:
 
-* Shave 2 bytes of every Btree item
+* Shave 2 bytes of every Btree item (which will probably typically reduce
+  database size by several percent).
 
-* More compact item format for branch blocks - 2 bytes per item smaller
+* More compact item format for branch blocks - 2 bytes per item smaller.  This
+  means each branch block can branch more ways, reducing the number of Btree
+  levels needed, which is especially helpful for cold-cache search times.
 
 * Track an upper bound on spelling word frequency.  This isn't currently used,
   but will be useful for improving the spelling algorithm, and we want to
-  stabilise the glass backend format.  See #225.
+  stabilise the glass backend format.  See #225, reported by Philip Neustrom.
 
 * Support 64-bit docids in the glass backend on-disk format.  This changes the
   encoding used by pack_uint_preserving_sort() to one which supports 64 bit
@@ -114,9 +105,6 @@ remote backend:
   code used entirely the wrong class - now we use the server object we have
   access to, and forward the method to the class which needs it.
 
-inmemory backend:
-
-
 build system:
 
 * New configure options --enable-64bit-docid and --enable-64bit-termcount,
@@ -128,16 +116,10 @@ build system:
 * Sort out hiding most of the internal symbols which had public visibility
   for various reason.  Mostly addresses #63.
 
-documentation:
-
-
 tools:
 
 * xapian-inspect: We no longer install this - it's really an aid to Xapian
   development rather than a user tool.
-
-examples:
-
 
 portability:
 
@@ -157,9 +139,6 @@ portability:
   mingw we don't seem to have inet_ntop().
 
 * Fix testsuite to compile when S_ISSOCK() isn't defined.
-
-packaging:
-
 
 debug code:
 
