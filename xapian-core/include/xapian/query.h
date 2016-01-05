@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -212,6 +212,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			@a WILDCARD_LIMIT_ERROR (the default),
      *			@a WILDCARD_LIMIT_FIRST or
      *			@a WILDCARD_LIMIT_MOST_FREQUENT.
+     *			When searching multiple databases, the expansion limit
+     *			is currently applied independently for each database,
+     *			so the total number of terms may be higher than the
+     *			limit.  This is arguably a bug, and may change in
+     *			future versions.
      *	@param combiner The @op to combine the terms with - one of
      *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
      */
