@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -78,18 +78,8 @@ namespace Internal {
  *  selected.
  */
 struct CmpMaxOrTerms {
-    /** Return true if and only if a has a strictly greater termweight than b;
-     *  with the proviso that if the termfrequency of a or b is 0, then the
-     *  termweight is considered to be 0.
-     *
-     *  We use termfreq_max() because we really don't want to exclude a
-     *  postlist which has a low but non-zero termfrequency: the estimate
-     *  is quite likely to be zero in this case.
-     */
+    /** Return true if and only if a has a strictly greater termweight than b. */
     bool operator()(const PostList *a, const PostList *b) {
-	if (a->get_termfreq_max() == 0) return false;
-	if (b->get_termfreq_max() == 0) return true;
-
 #if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__) || defined(__mc68010__) || defined(__mc68020__) || defined(__mc68030__)
 	// On some architectures, most common of which is x86, floating point
 	// values are calculated and stored in registers with excess precision.
