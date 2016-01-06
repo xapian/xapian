@@ -117,6 +117,7 @@ class MSetItem {
  *  counted.
  */
 class Enquire::Internal : public Xapian::Internal::intrusive_base {
+    friend class MSet::Internal;
     private:
 	/// The database which this enquire object uses.
 	const Xapian::Database db;
@@ -298,6 +299,13 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
 	/// Converts a weight to a percentage weight
 	int convert_to_percent_internal(double wt) const;
+
+	std::string snippet(const std::string & text, size_t length,
+			    const Xapian::Stem & stemmer,
+			    unsigned flags,
+			    const std::string & hi_start,
+			    const std::string & hi_end,
+			    const std::string & omit) const;
 
 	/// Return a string describing this object.
 	string get_description() const;

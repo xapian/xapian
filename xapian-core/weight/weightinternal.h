@@ -180,7 +180,7 @@ class Weight::Internal {
     }
 
     /// Get the termweight.
-    bool get_termweight(const std::string & term, double & termweight) {
+    bool get_termweight(const std::string & term, double & termweight) const {
 #ifdef XAPIAN_ASSERTIONS
 	finalised = true;
 #endif
@@ -196,6 +196,28 @@ class Weight::Internal {
 
 	termweight = i->second.max_part;
 	return true;
+    }
+
+    /** Get the minimum and maximum termweights.
+     *
+     *  Used by the snippet code.
+     */
+    void get_max_termweight(double & min_tw, double & max_tw) {
+	auto i = termfreqs.begin();
+	while (i != termfreqs.end() && i->second.max_part == 0.0) ++i;
+	if (rare(i == termfreqs.end())) {
+	    min_tw = max_tw = 0.0;
+	    return;
+	}
+	min_tw = max_tw = i->second.max_part;
+	while (++i != termfreqs.end()) {
+	    double max_part = i->second.max_part;
+	    if (max_part > max_tw) {
+		max_tw = max_part;
+	    } else if (max_part < min_tw && max_part != 0.0) {
+		min_tw = max_part;
+	    }
+	}
     }
 
     /// Set max_part for a term.

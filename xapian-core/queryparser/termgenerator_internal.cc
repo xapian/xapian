@@ -22,13 +22,21 @@
 
 #include "termgenerator_internal.h"
 
+#include "api/omenquireinternal.h"
+#include "api/queryinternal.h"
+
 #include <xapian/document.h>
 #include <xapian/queryparser.h>
+#include <xapian/stem.h>
 #include <xapian/unicode.h>
 
 #include "stringutils.h"
 
+#include <algorithm>
+#include <deque>
 #include <limits>
+#include <list>
+#include <map>
 #include <string>
 
 #include "cjk-tokenizer.h"
@@ -165,7 +173,8 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 		const string & cjk = CJK::get_cjk(itor);
 		for (CJKTokenIterator tk(cjk); tk != CJKTokenIterator(); ++tk) {
 		    const string & cjk_token = *tk;
-		    action(cjk_token, with_positions && tk.get_length() == 1);
+		    if (!action(cjk_token, with_positions && tk.get_length() == 1, itor))
+			return;
 		}
 		while (true) {
 		    if (itor == Utf8Iterator()) return;
@@ -221,7 +230,8 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 endofterm:
-	action(term, with_positions);
+	if (!action(term, with_positions, itor))
+	    return;
     }
 }
 
@@ -236,11 +246,11 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
     if (!stopper) stop_mode = STOPWORDS_NONE;
 
     parse_terms(itor, cjk_ngram, with_positions,
-	[=](const string & term, bool positional) {
-	    if (term.size() > max_word_length) return;
+	[=](const string & term, bool positional, const Utf8Iterator &) {
+	    if (term.size() > max_word_length) return true;
 
 	    if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term))
-		return;
+		return true;
 
 	    if (strategy == TermGenerator::STEM_SOME ||
 		strategy == TermGenerator::STEM_NONE) {
@@ -255,16 +265,16 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		db.add_spelling(term);
 
 	    if (strategy == TermGenerator::STEM_NONE ||
-		!stemmer.internal.get()) return;
+		!stemmer.internal.get()) return true;
 
 	    if (strategy == TermGenerator::STEM_SOME) {
 		if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY &&
 		    (*stopper)(term))
-		    return;
+		    return true;
 
 		// Note, this uses the lowercased term, but that's OK as we
 		// only want to avoid stemming terms starting with a digit.
-		if (!should_stem(term)) return;
+		if (!should_stem(term)) return true;
 	    }
 
 	    // Add stemmed form without positional information.
@@ -279,7 +289,539 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    } else {
 		doc.add_term(stem, wdf_inc);
 	    }
+	    return true;
 	});
+}
+
+struct Sniplet {
+    double relevance;
+
+    size_t term_end;
+
+    size_t highlight;
+
+    Sniplet(double r, size_t t, size_t h)
+	: relevance(r), term_end(t), highlight(h) { }
+};
+
+// The terms before and after a highlight get boosted by this proportion of the
+// highlight's relevance.
+static const double BOOST_FACTOR = 0; // FIXME: Set to non-zero and adjust testcases.
+
+class SnipPipe {
+    deque<Sniplet> pipe;
+    deque<Sniplet> best_pipe;
+
+    // Requested length for snippet.
+    size_t length;
+
+    // Position in text of start of current pipe contents.
+    size_t begin = 0;
+
+    // Rolling sum of the current pipe contents.
+    double sum = 0;
+
+    // Boost to the next term from the previous one.
+    double boost = 0;
+
+    size_t phrase_len = 0;
+
+  public:
+    size_t best_begin = 0;
+
+    size_t best_end = 0;
+
+    double best_sum = 0;
+
+    // Add one to length to allow for inter-word space.
+    // FIXME: We ought to correctly allow for multiple spaces.
+    explicit SnipPipe(size_t length_) : length(length_ + 1) { }
+
+    bool pump(double r, size_t t, size_t h, unsigned flags);
+
+    void done();
+
+    bool drain(const string & input,
+	       const string & hi_start,
+	       const string & hi_end,
+	       const string & omit,
+	       string & output);
+};
+
+inline bool
+SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
+{
+    if (h > 1) {
+	boost = r * BOOST_FACTOR;
+	if (pipe.size() >= h - 1) {
+	    if (pipe.size() > h - 1) {
+		// Boost relevance of the term before the phrase.
+		pipe[pipe.size() - h].relevance += boost;
+		sum += boost;
+	    }
+	    // The final term of a phrase is entering the window.  Peg the
+	    // phrase's relevance onto the first term of the phrase, so it'll
+	    // be removed from `sum` when the phrase starts to leave the
+	    // window.
+	    auto & phrase_start = pipe[pipe.size() - (h - 1)];
+	    sum -= phrase_start.relevance;
+	    sum += r;
+	    phrase_start.relevance = r;
+	    phrase_start.highlight = h;
+	}
+	r = 0;
+	h = 0;
+    } else {
+	double new_r = r + boost;
+	if (h) {
+	    boost = r * BOOST_FACTOR;
+	    if (!pipe.empty()) {
+		// Boost relevance of the previous term.
+		pipe.back().relevance += boost;
+		sum += boost;
+	    }
+	} else {
+	    boost = 0;
+	}
+	r = new_r;
+    }
+    pipe.emplace_back(r, t, h);
+    sum += r;
+
+    // If necessary, discard words from the start of the pipe until it has the
+    // desired length.
+    // FIXME: Also shrink the window past words with relevance < 0?
+    while (t - begin > length /* || pipe.front().relevance < 0.0 */) {
+	sum -= pipe.front().relevance;
+	begin = pipe.front().term_end;
+	if (best_end >= begin)
+	    best_pipe.push_back(pipe.front());
+	pipe.pop_front();
+	// E.g. can happen if the current term is longer than the requested
+	// length!
+	if (rare(pipe.empty())) break;
+    }
+
+    // Using > here doesn't work well, as we don't extend a snippet over terms
+    // with 0 weight.
+    if (sum >= best_sum) {
+	// Discard any part of `best_pipe` which is before `begin`.
+	if (begin >= best_end) {
+	    best_pipe.clear();
+	} else {
+	    while (!best_pipe.empty() &&
+		   best_pipe.front().term_end <= begin) {
+		best_pipe.pop_front();
+	    }
+	}
+	best_sum = sum;
+	best_begin = begin;
+	best_end = t;
+    } else if ((flags & Xapian::MSet::SNIPPET_EXHAUSTIVE) == 0) {
+	if (best_sum > 0 && best_end < begin) {
+	    // We found something, and we aren't still looking near it.
+	    // FIXME: Benchmark this and adjust if necessary.
+	    return false;
+	}
+    }
+    return true;
+}
+
+inline void
+SnipPipe::done()
+{
+    // Discard any part of `pipe` which is after `best_end`.
+    if (begin >= best_end) {
+	pipe.clear();
+    } else {
+	// We should never empty the pipe (as that case should be handled
+	// above).
+	while (rare(!pipe.empty()) &&
+	       pipe.back().term_end > best_end) {
+	    pipe.pop_back();
+	}
+    }
+}
+
+inline bool
+SnipPipe::drain(const string & input,
+		const string & hi_start,
+		const string & hi_end,
+		const string & omit,
+		string & output)
+{
+    if (best_pipe.empty() && !pipe.empty()) {
+	swap(best_pipe, pipe);
+    }
+
+    if (best_pipe.empty()) {
+	size_t tail_len = input.size() - best_end;
+	if (tail_len == 0) return false;
+
+	// See if this is the end of a sentence.
+	// FIXME: This is quite simplistic - look at the Unicode rules:
+	// http://unicode.org/reports/tr29/#Sentence_Boundaries
+	bool punc = false;
+	Utf8Iterator i(input.data() + best_end, tail_len);
+	while (i != Utf8Iterator()) {
+	    unsigned ch = *i;
+	    if (punc && Unicode::is_whitespace(ch)) break;
+
+	    // Allow "...", "!!", "!?!", etc...
+	    punc = (ch == '.' || ch == '?' || ch == '!');
+
+	    if (Unicode::is_wordchar(ch)) break;
+	    ++i;
+	}
+
+	if (punc) {
+	    // Include end of sentence punctuation.
+	    output.append(input.data() + best_end, i.raw());
+	} else {
+	    // Append "..." or equivalent if this doesn't seem to be the start
+	    // of a sentence.
+	    output += omit;
+	}
+
+	return false;
+    }
+
+    const Sniplet & word = best_pipe.front();
+
+    if (output.empty()) {
+	// Start of the snippet.
+	enum { NO, PUNC, YES } sentence_boundary = (best_begin == 0) ? YES : NO;
+
+	Utf8Iterator i(input.data() + best_begin, word.term_end - best_begin);
+	while (i != Utf8Iterator()) {
+	    unsigned ch = *i;
+	    switch (sentence_boundary) {
+		case NO:
+		    if (ch == '.' || ch == '?' || ch == '!') {
+			sentence_boundary = PUNC;
+		    }
+		    break;
+		case PUNC:
+		    if (Unicode::is_whitespace(ch)) {
+			sentence_boundary = YES;
+		    } else if (ch == '.' || ch == '?' || ch == '!') {
+			// Allow "...", "!!", "!?!", etc...
+		    } else {
+			sentence_boundary = NO;
+		    }
+		    break;
+		case YES:
+		    break;
+	    }
+	    if (Unicode::is_wordchar(ch)) {
+		// Start the snippet at the start of the first word.
+		best_begin = i.raw() - input.data();
+		break;
+	    }
+	    ++i;
+	}
+
+	// Add "..." or equivalent if this doesn't seem to be the start of a
+	// sentence.
+	if (sentence_boundary != YES) {
+	    output += omit;
+	}
+    }
+
+    if (word.highlight) {
+	// Don't include inter-word characters in the highlight.
+	Utf8Iterator i(input.data() + best_begin, input.size() - best_begin);
+	while (i != Utf8Iterator()) {
+	    unsigned ch = *i;
+	    if (Unicode::is_wordchar(ch)) {
+		const char * p = input.data() + best_begin;
+		output.append(p, i.raw() - p);
+		best_begin = i.raw() - input.data();
+		break;
+	    }
+	    ++i;
+	}
+    }
+
+    if (!phrase_len) {
+	phrase_len = word.highlight;
+	if (phrase_len) output += hi_start;
+    }
+
+    while (best_begin != word.term_end) {
+	char ch = input[best_begin++];
+	switch (ch) {
+	    case '&':
+		output += "&amp;";
+		break;
+	    case '<':
+		output += "&lt;";
+		break;
+	    case '>':
+		output += "&gt;";
+		break;
+	    default:
+		output += ch;
+	}
+    }
+
+    if (phrase_len && --phrase_len == 0) output += hi_end;
+
+    best_pipe.pop_front();
+    return true;
+}
+
+static void
+check_query(const Xapian::Query & query,
+	    list<vector<string>> & exact_phrases,
+	    map<string, double> & loose_terms,
+	    list<string> & wildcards,
+	    size_t & longest_phrase)
+{
+    longest_phrase = 0;
+    // FIXME: OP_NEAR, non-tight OP_PHRASE, OP_PHRASE with non-term subqueries
+    size_t n_subqs = query.get_num_subqueries();
+    Xapian::Query::op op = query.get_type();
+    if (op == query.LEAF_TERM) {
+	const Xapian::Internal::QueryTerm & qt =
+	    *static_cast<const Xapian::Internal::QueryTerm *>(query.internal.get());
+	loose_terms.insert(make_pair(qt.get_term(), 0));
+    } else if (op == query.OP_WILDCARD) {
+	const Xapian::Internal::QueryWildcard & qw =
+	    *static_cast<const Xapian::Internal::QueryWildcard *>(query.internal.get());
+	wildcards.push_back(qw.get_pattern());
+    } else if (op == query.OP_PHRASE) {
+	const Xapian::Internal::QueryPhrase & phrase =
+	    *static_cast<const Xapian::Internal::QueryPhrase *>(query.internal.get());
+	if (phrase.get_window() == n_subqs) {
+	    // Tight phrase.
+	    for (size_t i = 0; i != n_subqs; ++i) {
+		if (query.get_subquery(i).get_type() != query.LEAF_TERM)
+		    goto non_term_subquery;
+	    }
+
+	    // Tight phrase of terms.
+	    exact_phrases.push_back(vector<string>());
+	    vector<string> & terms = exact_phrases.back();
+	    terms.reserve(n_subqs);
+	    for (size_t i = 0; i != n_subqs; ++i) {
+		Xapian::Query q = query.get_subquery(i);
+		const Xapian::Internal::QueryTerm & qt =
+		    *static_cast<const Xapian::Internal::QueryTerm *>(q.internal.get());
+		terms.push_back(qt.get_term());
+	    }
+	    if (n_subqs > longest_phrase) longest_phrase = n_subqs;
+	    return;
+	}
+    }
+non_term_subquery:
+    for (size_t i = 0; i != n_subqs; ++i)
+	check_query(query.get_subquery(i), exact_phrases, loose_terms,
+		    wildcards, longest_phrase);
+}
+
+static bool
+check_term(map<string, double> & loose_terms,
+           const Xapian::Weight::Internal * stats,
+	   const string & term,
+	   double &relevance)
+{
+    auto it = loose_terms.find(term);
+    if (it == loose_terms.end()) return false;
+    if (it->second != 0.0) {
+	relevance = it->second;
+	return true;
+    }
+
+    if (!stats->get_termweight(term, relevance)) {
+	// FIXME: Assert?
+	loose_terms.erase(it);
+	return false;
+    }
+
+    it->second = relevance;
+    return true;
+}
+
+string
+MSet::Internal::snippet(const string & text,
+			size_t length,
+			const Xapian::Stem & stemmer,
+			unsigned flags,
+			const string & hi_start,
+			const string & hi_end,
+			const string & omit) const
+{
+    if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
+	// Too easy!
+	return text;
+    }
+
+    bool cjk_ngram = CJK::is_cjk_enabled();
+
+    size_t term_start = 0;
+    double min_tw = 0, max_tw = 0;
+    if (stats) stats->get_max_termweight(min_tw, max_tw);
+    if (max_tw == 0.0) max_tw = 1.0;
+
+    SnipPipe snip(length);
+
+    list<vector<string>> exact_phrases;
+    map<string, double> loose_terms;
+    list<string> wildcards;
+    size_t longest_phrase;
+    check_query(enquire->get_query(), exact_phrases, loose_terms,
+		wildcards, longest_phrase);
+
+    vector<string> phrase;
+    if (longest_phrase) phrase.resize(longest_phrase - 1);
+    size_t phrase_next = 0;
+    parse_terms(Utf8Iterator(text), cjk_ngram, true,
+	[&](const string & term, bool positional, const Utf8Iterator & it) {
+	    // FIXME: Don't hardcode this here.
+	    const size_t max_word_length = 64;
+
+	    if (!positional) return true;
+	    if (term.size() > max_word_length) return true;
+
+	    // We get segments with any "inter-word" characters in front of
+	    // each word, e.g.:
+	    // [The][ cat][ sat][ on][ the][ mat]
+	    size_t term_end = text.size() - it.left();
+
+	    double relevance = 0;
+	    size_t highlight = 0;
+	    if (stats) {
+		for (auto terms : exact_phrases) {
+		    if (term == terms.back()) {
+			size_t n = terms.size() - 1;
+			bool match = true;
+			while (n--) {
+			    if (terms[n] != phrase[(n + phrase_next) % (longest_phrase - 1)]) {
+				match = false;
+				break;
+			    }
+			}
+			if (match) {
+			    // FIXME: What relevance to use?
+			    // FIXME: Sort phrases, highest score first!
+			    relevance = max_tw * terms.size();
+			    highlight = terms.size();
+			    goto relevance_done;
+			}
+		    }
+		}
+
+		if (check_term(loose_terms, stats, term, relevance)) {
+		    // Matched unstemmed term.
+		    highlight = 1;
+		    relevance += max_tw;
+		    goto relevance_done;
+		}
+
+		string stem = "Z";
+		stem += stemmer(term);
+		if (check_term(loose_terms, stats, stem, relevance)) {
+		    // Matched stemmed term.
+		    highlight = 1;
+		    relevance += max_tw;
+		    goto relevance_done;
+		}
+
+		// Check wildcards.
+		// FIXME: Sort wildcards, shortest pattern first or something?
+		for (auto&& pattern : wildcards) {
+		    if (startswith(term, pattern)) {
+			// FIXME: What relevance to use?
+			relevance = max_tw + min_tw;
+			highlight = 1;
+			goto relevance_done;
+		    }
+		}
+
+		if (flags & Xapian::MSet::SNIPPET_BACKGROUND_MODEL) {
+		    // Background document model.
+		    Xapian::doccount tf = enquire->db.get_termfreq(term);
+		    if (!tf) {
+			tf = enquire->db.get_termfreq(stem);
+		    } else {
+			stem = term;
+		    }
+		    if (tf) {
+			// Add one to avoid log(0) when a term indexes all
+			// documents.
+			Xapian::doccount num_docs = stats->collection_size + 1;
+			relevance = max_tw * log((num_docs - tf) / double(tf));
+			relevance /= (length + 1) * log(double(num_docs));
+#if 0
+			if (relevance <= 0) {
+			    Utf8Iterator i(text.data() + term_start, text.data() + term_end);
+			    while (i != Utf8Iterator()) {
+				if (Unicode::get_category(*i++) == Unicode::UPPERCASE_LETTER) {
+				    relevance = max_tw * 0.05;
+				}
+			    }
+			}
+#endif
+		    }
+		}
+	    } else {
+#if 0
+		// In the absence of weight information, assume longer terms
+		// are more relevant, and that unstemmed matches are a bit more
+		// relevant than stemmed matches.
+		if (queryterms.find(term) != queryterms.end()) {
+		    relevance = term.size() * 3;
+		} else {
+		    string stem = "Z";
+		    stem += stemmer(term);
+		    if (queryterms.find(stem) != queryterms.end()) {
+			relevance = term.size() * 2;
+		    }
+		}
+#endif
+	    }
+
+	    // FIXME: Allow Enquire without a DB set or an empty MSet() to be
+	    // used if you don't want the collection model?
+
+#if 0
+	    // FIXME: Punctuation should somehow be included in the model, but this
+	    // approach is problematic - we don't want the first word of a sentence
+	    // to be favoured when it's at the end of the window.
+
+	    // Give first word in each sentence a relevance boost.
+	    if (term_start == 0) {
+		relevance += 10;
+	    } else {
+		for (size_t i = term_start; i + term.size() < term_end; ++i) {
+		    if (text[i] == '.' && Unicode::is_whitespace(text[i + 1])) {
+			relevance += 10;
+			break;
+		    }
+		}
+	    }
+#endif
+
+relevance_done:
+	    if (longest_phrase) {
+		phrase[phrase_next] = term;
+		phrase_next = (phrase_next + 1) % (longest_phrase - 1);
+	    }
+
+	    if (!snip.pump(relevance, term_end, highlight, flags)) return false;
+
+	    term_start = term_end;
+	    return true;
+	});
+
+    snip.done();
+
+    // Put together the snippet.
+    string result;
+    while (snip.drain(text, hi_start, hi_end, omit, result)) { }
+
+    return result;
 }
 
 }

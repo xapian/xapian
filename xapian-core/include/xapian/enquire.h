@@ -35,6 +35,7 @@
 
 #include <xapian/attributes.h>
 #include <xapian/intrusive_ptr.h>
+#include <xapian/stem.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
@@ -210,6 +211,38 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  maxitems = 0 in Xapian::Enquire::get_mset()), this value will be 0.
 	 */
 	double get_max_attained() const;
+
+	enum {
+	    SNIPPET_BACKGROUND_MODEL = 1,
+	    SNIPPET_EXHAUSTIVE = 2
+	};
+
+	/** Generate a snippet.
+	 *
+	 *  This method selects a continuous run of words of less than about
+	 *  @a length bytes from @a text, based mainly on where the query
+	 *  matches (currently terms, exact phrases and wildcards are taken
+	 *  into account), but also on the non-query terms in the text.
+	 *
+	 *  The returned text can be escaped (by default, it is escaped to
+	 *  make it suitable for use in HTML), and matches with the query
+	 *  will be highlighted using @a hi_start and @a hi_end.
+	 *
+	 *  If the snippet seems to start or end mid-sentence, then @a omit
+	 *  is prepended or append (respectively) to indicate this.
+	 *
+	 *  The stemmer used to build the query should be specified in
+	 *  @a stemmer.
+	 *
+	 *  And @a flags contains flags controlling behaviour.
+	 */
+	std::string snippet(const std::string & text,
+			    size_t length = 500,
+			    const Xapian::Stem & stemmer = Xapian::Stem(),
+			    unsigned flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
+			    const std::string & hi_start = "<b>",
+			    const std::string & hi_end = "</b>",
+			    const std::string & omit = "...") const;
 
 	/** The number of items in this MSet */
 	Xapian::doccount size() const;

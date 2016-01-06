@@ -49,6 +49,8 @@ class QueryTerm : public Query::Internal {
 
     Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
 
+    const std::string & get_term() const { return term; }
+
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
     termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
@@ -311,6 +313,8 @@ class QueryWindowed : public QueryAndLike {
 			   QueryOptimiser * qopt, double factor) const;
 
   public:
+    size_t get_window() const { return window; }
+
     Query::Internal * done();
 };
 
@@ -408,6 +412,8 @@ class QueryWildcard : public Query::Internal {
     { }
 
     Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    const std::string & get_pattern() const { return pattern; }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 

@@ -229,7 +229,8 @@ EXTRA_DIST +=\
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
-	testdata/etext.txt
+	testdata/etext.txt \
+	testdata/snippet.txt
 
 remove-cached-databases:
 	rm -rf .chert .glass .multichert .multiglass .replicatmp .singlefileglass .stub

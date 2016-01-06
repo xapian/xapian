@@ -315,6 +315,20 @@ MSet::get_max_attained() const
     return internal->max_attained;
 }
 
+string
+MSet::snippet(const string & text,
+	      size_t length,
+	      const Xapian::Stem & stemmer,
+	      unsigned flags,
+	      const string & hi_start,
+	      const string & hi_end,
+	      const string & omit) const
+{
+    Assert(internal.get() != 0);
+    return internal->snippet(text, length, stemmer, flags,
+			     hi_start, hi_end, omit);
+}
+
 Xapian::doccount
 MSet::size() const
 {
