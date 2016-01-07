@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -1062,7 +1062,7 @@ T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,     0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
-T(snippet,	   1, 2, N, 0), // generate snippet from text
+T(snippet,	   1, 2, N, M), // generate snippet from text
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
@@ -1972,11 +1972,16 @@ eval(const string &fmt, const vector<string> &param)
 	        break;
 	    }
 	    case CMD_snippet: {
-		Xapian::Snipper snipper;
-		snipper.set_mset(mset);
-		snipper.set_stemmer(Xapian::Stem(option["stemmer"]));
-		size_t len = (args.size() == 1) ? 200 : string_to_int(args[1]);
-		value = snipper.generate_snippet(args[0], len);
+		size_t length = 200;
+		if (args.size() > 1) {
+		    length = string_to_int(args[1]);
+		}
+		if (!stemmer)
+		    stemmer = new Xapian::Stem(option["stemmer"]);
+		// FIXME: Allow start and end highlight and omit to be specified.
+		value = mset.snippet(args[0], length, *stemmer,
+				     mset.SNIPPET_BACKGROUND_MODEL|mset.SNIPPET_EXHAUSTIVE,
+				     "<strong>", "</strong>", "...");
 		break;
 	    }
 	    case CMD_split: {
