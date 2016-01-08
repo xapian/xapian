@@ -1,7 +1,7 @@
 /* api_snippets.cc: tests snippets
  *
  * Copyright 2012 Mihai Bivol
- * Copyright 2015 Olly Betts
+ * Copyright 2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -105,9 +105,12 @@ DEFINE_TESTCASE(snippetstem1, backend) {
 /// Test snippets with phrases.
 DEFINE_TESTCASE(snippetphrase1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query(Xapian::Query::OP_PHRASE,
-				    Xapian::Query("rubbish"),
-				    Xapian::Query("example")));
+    Xapian::Query q(Xapian::Query::OP_PHRASE,
+		    Xapian::Query("rubbish"),
+		    Xapian::Query("example"));
+    // Regression test - a phrase with a follow sibling query would crash in
+    // the highlighting code.
+    enquire.set_query(q &~ Xapian::Query("banana"));
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
     static const snippet_testcase testcases[] = {

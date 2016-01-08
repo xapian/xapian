@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -578,7 +578,6 @@ check_query(const Xapian::Query & query,
 	    list<string> & wildcards,
 	    size_t & longest_phrase)
 {
-    longest_phrase = 0;
     // FIXME: OP_NEAR, non-tight OP_PHRASE, OP_PHRASE with non-term subqueries
     size_t n_subqs = query.get_num_subqueries();
     Xapian::Query::op op = query.get_type();
@@ -669,7 +668,7 @@ MSet::Internal::snippet(const string & text,
     list<vector<string>> exact_phrases;
     map<string, double> loose_terms;
     list<string> wildcards;
-    size_t longest_phrase;
+    size_t longest_phrase = 0;
     check_query(enquire->get_query(), exact_phrases, loose_terms,
 		wildcards, longest_phrase);
 
