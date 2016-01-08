@@ -691,7 +691,7 @@ MSet::Internal::snippet(const string & text,
 	    double relevance = 0;
 	    size_t highlight = 0;
 	    if (stats) {
-		for (auto terms : exact_phrases) {
+		for (const auto & terms : exact_phrases) {
 		    if (term == terms.back()) {
 			size_t n = terms.size() - 1;
 			bool match = true;
