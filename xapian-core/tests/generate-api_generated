@@ -57,7 +57,6 @@ my %copyableclasses = (
     'QueryParser' => '',
     'Registry' => '',
     'RSet' => '',
-    'Snipper' => '',
     'Stem' => '',
     'TermGenerator' => '',
     'TermIterator' => '',

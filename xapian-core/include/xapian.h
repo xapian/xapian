@@ -82,9 +82,6 @@
 // Stemming
 #include <xapian/stem.h>
 
-// Snippets
-#include <xapian/snipper.h>
-
 // Subclass registry
 #include <xapian/registry.h>
 

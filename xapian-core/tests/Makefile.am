@@ -140,7 +140,7 @@ collated_apitest_sources = \
  api_replicate.cc \
  api_scalability.cc \
  api_serialise.cc \
- api_snipper.cc \
+ api_snippets.cc \
  api_sorting.cc \
  api_spelling.cc \
  api_stem.cc \
