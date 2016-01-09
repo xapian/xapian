@@ -244,7 +244,7 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	for (const char **t = tables;
 	     t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
 	    errors += check_glass_table(*t, path, version_file, opts, doclens,
-					db_last_docid, out);
+					out);
 	}
 	return errors;
 #endif
@@ -319,9 +319,8 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 #else
 	GlassVersion version_file(dir);
 	version_file.read();
-	// Set the last docid to its maximum value to suppress errors.
 	return check_glass_table(tablename.c_str(), dir, version_file, opts,
-				 doclens, GLASS_MAX_DOCID, out);
+				 doclens, out);
 #endif
     }
 
@@ -376,7 +375,7 @@ check_db_fd(int fd, int opts, std::ostream *out)
 	 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
 	errors += check_glass_table(*t, fd, version_file.get_offset(),
 				    version_file, opts, doclens,
-				    db_last_docid, out);
+				    out);
     }
     return errors;
 #endif
