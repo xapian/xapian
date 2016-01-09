@@ -1,7 +1,7 @@
 /** @file glass_values.cc
  * @brief GlassValueManager class
  */
-/* Copyright (C) 2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2016 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -193,8 +193,6 @@ GlassValueManager::get_chunk_containing_did(Xapian::valueno slot,
 
 static const size_t CHUNK_SIZE_THRESHOLD = 2000;
 
-static const Xapian::docid MAX_DOCID = static_cast<Xapian::docid>(-1);
-
 namespace Glass {
 
 class ValueUpdater {
@@ -271,7 +269,7 @@ class ValueUpdater {
 	    last_allowed_did = 0;
 	}
 	if (last_allowed_did == 0) {
-	    last_allowed_did = MAX_DOCID;
+	    last_allowed_did = GLASS_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
 	    AutoPtr<GlassCursor> cursor(table->cursor_get());

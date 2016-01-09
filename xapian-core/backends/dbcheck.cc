@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,7 +132,7 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 
 	// If we can't read the last docid, set it to its maximum value
 	// to suppress errors.
-	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+	Xapian::docid db_last_docid = CHERT_MAX_DOCID;
 	chert_revision_number_t rev = 0;
 	chert_revision_number_t * rev_ptr = &rev;
 	try {
@@ -320,9 +320,8 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 	GlassVersion version_file(dir);
 	version_file.read();
 	// Set the last docid to its maximum value to suppress errors.
-	Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 	return check_glass_table(tablename.c_str(), dir, version_file, opts,
-				 doclens, db_last_docid, out);
+				 doclens, GLASS_MAX_DOCID, out);
 #endif
     }
 
@@ -341,9 +340,8 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
     throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
 #else
     // Set the last docid to its maximum value to suppress errors.
-    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
     return check_chert_table(tablename.c_str(), filename, NULL, opts,
-			     doclens, db_last_docid, out);
+			     doclens, CHERT_MAX_DOCID, out);
 #endif
 }
 

@@ -1,7 +1,7 @@
 /** @file chert_values.cc
  * @brief ChertValueManager class
  */
-/* Copyright (C) 2008,2009,2011,2012 Olly Betts
+/* Copyright (C) 2008,2009,2011,2012,2016 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -192,8 +192,6 @@ ChertValueManager::get_chunk_containing_did(Xapian::valueno slot,
 
 static const size_t CHUNK_SIZE_THRESHOLD = 2000;
 
-static const Xapian::docid MAX_DOCID = static_cast<Xapian::docid>(-1);
-
 class ValueUpdater {
     ChertPostListTable * table;
 
@@ -268,7 +266,7 @@ class ValueUpdater {
 	    last_allowed_did = 0;
 	}
 	if (last_allowed_did == 0) {
-	    last_allowed_did = MAX_DOCID;
+	    last_allowed_did = CHERT_MAX_DOCID;
 	    Assert(tag.empty());
 	    new_first_did = 0;
 	    AutoPtr<ChertCursor> cursor(table->cursor_get());
