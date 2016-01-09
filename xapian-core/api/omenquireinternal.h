@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <vector>
 #include <set>
 
 #include "weight/weightinternal.h"
@@ -252,6 +253,8 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	double max_possible;
 
 	double max_attained;
+
+    std::vector<Xapian::MSet::letor_item> letor_items;
 
 	Internal()
 		: percent_factor(0),
