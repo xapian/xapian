@@ -390,7 +390,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     AssertRel(check_at_least,>=,maxitems);
 
     if (query.empty()) {
-	mset = Xapian::MSet(new Xapian::MSet::Internal());
+	mset = Xapian::MSet();
 	mset.internal->firstitem = first;
 	return;
     }
@@ -530,7 +530,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		matches_lower_bound = collapse_max;
 	}
 
-	mset = Xapian::MSet(new Xapian::MSet::Internal(
+	mset.internal = new Xapian::MSet::Internal(
 					   first,
 					   matches_upper_bound,
 					   matches_lower_bound,
@@ -539,7 +539,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   uncollapsed_lower_bound,
 					   matches_estimated,
 					   max_possible, greatest_wt, items,
-					   0));
+					   0);
 	return;
     }
 
@@ -1156,7 +1156,7 @@ new_greatest_weight:
 	}
     }
 
-    mset = Xapian::MSet(new Xapian::MSet::Internal(
+    mset.internal = new Xapian::MSet::Internal(
 				       first,
 				       matches_upper_bound,
 				       matches_lower_bound,
@@ -1165,5 +1165,5 @@ new_greatest_weight:
 				       uncollapsed_lower_bound,
 				       uncollapsed_estimated,
 				       max_possible, greatest_wt, items,
-				       percent_scale * 100.0));
+				       percent_scale * 100.0);
 }

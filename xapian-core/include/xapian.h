@@ -1,7 +1,7 @@
 /** @file xapian.h
  *  @brief Public interfaces for the Xapian library.
  */
-// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015 Olly Betts
+// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015,2016 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -70,6 +70,7 @@
 
 // Searching
 #include <xapian/enquire.h>
+#include <xapian/mset.h>
 #include <xapian/expanddecider.h>
 #include <xapian/keymaker.h>
 #include <xapian/matchspy.h>

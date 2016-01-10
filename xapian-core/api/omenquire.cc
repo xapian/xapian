@@ -159,10 +159,6 @@ MSet::MSet() : internal(new MSet::Internal)
 {
 }
 
-MSet::MSet(MSet::Internal * internal_) : internal(internal_)
-{
-}
-
 MSet::~MSet()
 {
 }
@@ -171,10 +167,11 @@ MSet::MSet(const MSet & other) : internal(other.internal)
 {
 }
 
-void
+MSet &
 MSet::operator=(const MSet &other)
 {
     internal = other.internal;
+    return *this;
 }
 
 void
@@ -316,48 +313,6 @@ MSet::size() const
 {
     Assert(internal.get() != 0);
     return internal->items.size();
-}
-
-bool
-MSet::empty() const
-{
-    Assert(internal.get() != 0);
-    return internal->items.empty();
-}
-
-void
-MSet::swap(MSet & other)
-{
-    std::swap(internal, other.internal);
-}
-
-MSetIterator
-MSet::begin() const
-{
-    return MSetIterator(0, *this);
-}
-
-MSetIterator
-MSet::end() const
-{
-    Assert(internal.get() != 0);
-    return MSetIterator(internal->items.size(), *this);
-}
-
-MSetIterator
-MSet::operator[](Xapian::doccount i) const
-{
-    // Don't test 0 <= i - that gives a compiler warning if i is unsigned
-    Assert(0 < (i + 1) && i < size());
-    return MSetIterator(i, *this);
-}
-
-MSetIterator
-MSet::back() const
-{
-    Assert(!empty());
-    Assert(internal.get() != 0);
-    return MSetIterator(internal->items.size() - 1, *this);
 }
 
 string
@@ -586,7 +541,9 @@ Xapian::docid
 MSetIterator::operator *() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].did;
 }
 
@@ -594,7 +551,9 @@ Document
 MSetIterator::get_document() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->get_doc_by_index(index);
 }
 
@@ -602,7 +561,9 @@ double
 MSetIterator::get_weight() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].wt;
 }
 
@@ -610,7 +571,9 @@ std::string
 MSetIterator::get_collapse_key() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].collapse_key;
 }
 
@@ -618,21 +581,16 @@ Xapian::doccount
 MSetIterator::get_collapse_count() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].collapse_count;
-}
-
-int
-MSetIterator::get_percent() const
-{
-    LOGCALL(API, int, "MSetIterator::get_percent", NO_ARGS);
-    RETURN(mset.internal->convert_to_percent_internal(get_weight()));
 }
 
 string
 MSetIterator::get_description() const
 {
-    return "Xapian::MSetIterator(" + str(index) + ")";
+    return "Xapian::MSetIterator(" + str(mset.size() - off_from_end) + ")";
 }
 
 // Methods for Xapian::Enquire::Internal

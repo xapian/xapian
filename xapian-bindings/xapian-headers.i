@@ -1,7 +1,7 @@
 %{
 /* xapian-headers.i: Getting SWIG to parse Xapian's C++ headers.
  *
- * Copyright 2004,2006,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2004,2006,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2014 Assem Chelli
  *
  * This program is free software; you can redistribute it and/or
@@ -277,13 +277,17 @@ STANDARD_IGNORES(Xapian, MSet)
 	return self->convert_to_percent((*self)[i]);
     }
 }
+
+BIDIRECTIONAL_ITERATOR_METHODS(Xapian, MSetIterator, Xapian::docid, get_docid)
+
+%include <xapian/mset.h>
+
 STANDARD_IGNORES(Xapian, ESet)
 %ignore Xapian::ESet::operator[];
 STANDARD_IGNORES(Xapian, RSet)
 
 STANDARD_IGNORES(Xapian, Enquire)
 
-BIDIRECTIONAL_ITERATOR_METHODS(Xapian, MSetIterator, Xapian::docid, get_docid)
 BIDIRECTIONAL_ITERATOR_METHODS(Xapian, ESetIterator, std::string, get_term)
 
 SUBCLASSABLE(Xapian, MatchDecider)

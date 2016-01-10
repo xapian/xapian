@@ -1,7 +1,7 @@
 /** @file  iterator.h
  *  @brief Functions to assist creating language-idiomatic iterator wrappers.
  */
-/* Copyright (C) 2014 Olly Betts
+/* Copyright (C) 2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ bool iterator_valid(const Xapian::ESetIterator & it) {
 
 /** @internal Determine if iterator is valid to dereference. */
 bool iterator_valid(const Xapian::MSetIterator & it) {
-    return it.index != it.mset.size();
+    return it.off_from_end != 0;
 }
 
 /** @internal Rewind iterator. */
@@ -56,7 +56,7 @@ void iterator_rewind(Xapian::ESetIterator & it) {
 
 /** @internal Rewind iterator. */
 void iterator_rewind(Xapian::MSetIterator & it) {
-    it.index = 0;
+    it.off_from_end = it.mset.size();
 }
 
 /** @internal Determine if iterator is valid to dereference. */

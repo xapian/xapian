@@ -188,7 +188,8 @@ unserialise_mset(const char * p, const char * p_end)
 	unserialise_stats(string(p, p_end - p), *(stats.get()));
     }
 
-    Xapian::MSet mset(new Xapian::MSet::Internal(
+    Xapian::MSet mset;
+    mset.internal = new Xapian::MSet::Internal(
 				       firstitem,
 				       matches_upper_bound,
 				       matches_lower_bound,
@@ -197,7 +198,7 @@ unserialise_mset(const char * p, const char * p_end)
 				       uncollapsed_lower_bound,
 				       uncollapsed_estimated,
 				       max_possible, max_attained,
-				       items, percent_factor));
+				       items, percent_factor);
     mset.internal->stats = stats.release();
     return mset;
 }
