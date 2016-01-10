@@ -192,13 +192,16 @@ main(int argc, char **argv)
 	    throw "Chert database support isn't enabled";
 #else
 	    // Check a whole chert database directory.
-	    // If we can't read the last docid, set it to its maximum value
-	    // to suppress errors.
+	    // If we can't read the doccount or last docid, set them to their
+	    // maximum values to suppress errors.
+	    Xapian::doccount doccount = Xapian::doccount(-1);
 	    Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
+
 	    chert_revision_number_t rev;
 	    chert_revision_number_t * rev_ptr = NULL;
 	    try {
 		Xapian::Database db = Xapian::Chert::open(dir);
+		doccount = db.get_doccount();
 		db_last_docid = db.get_lastdocid();
 		ChertDatabase * chert_db =
 		    static_cast<ChertDatabase*>(db.internal[0].get());
@@ -238,7 +241,7 @@ main(int argc, char **argv)
 		    }
 		}
 		errors += check_chert_table(*t, table, rev_ptr, opts, doclens,
-					    db_last_docid);
+					    doccount, db_last_docid);
 	    }
 #endif
 	} else if (stat((dir + "/iambrass").c_str(), &sb) == 0) {
@@ -347,10 +350,12 @@ main(int argc, char **argv)
 #ifndef XAPIAN_HAS_CHERT_BACKEND
 		throw "Chert database support isn't enabled";
 #else
-		// Set the last docid to its maximum value to suppress errors.
+		// Set the doccount and the last docid to their maximum values
+		// to suppress errors.
 		Xapian::docid db_last_docid = static_cast<Xapian::docid>(-1);
 		errors = check_chert_table(tablename.c_str(), filename, NULL,
-					   opts, doclens, db_last_docid);
+					   opts, doclens, Xapian::doccount(-1),
+					   db_last_docid);
 #endif
 	    }
 	}
