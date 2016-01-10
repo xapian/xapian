@@ -107,6 +107,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	Xapian::docid lastdid = 0;
 	Xapian::termcount termfreq = 0, collfreq = 0;
 	Xapian::termcount tf = 0, cf = 0;
+	Xapian::doccount num_doclens = 0;
 
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
@@ -192,6 +193,8 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 			bad = true;
 			break;
 		    }
+
+		    ++num_doclens;
 
 		    if (did > db_last_docid) {
 			if (out)
@@ -573,6 +576,14 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    ++errors;
 	}
 
+	Xapian::doccount doccount = version_file.get_doccount();
+	if (num_doclens != doccount) {
+	    if (out)
+		*out << "Document length list has " << num_doclens
+		     << " entries, should be " << doccount << endl;
+	    ++errors;
+	}
+
 	map<Xapian::valueno, VStats>::const_iterator i;
 	for (i = valuestats.begin(); i != valuestats.end(); ++i) {
 	    if (i->second.freq != i->second.freq_real) {
@@ -584,6 +595,17 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    }
 	}
     } else if (strcmp(tablename, "docdata") == 0) {
+	// glass doesn't store a docdata entry if the document data is empty,
+	// so we can only check there aren't more docdata entries than
+	// documents.
+	Xapian::doccount doccount = version_file.get_doccount();
+	if (table->get_entry_count() > doccount) {
+	    if (out)
+		*out << "More document data (" << table->get_entry_count()
+		     << ") then documents (" << doccount << ")" << endl;
+	    ++errors;
+	}
+
 	// Now check the contents of the docdata table.  Any data is valid as
 	// the tag so we don't check the tags.
 	for ( ; !cursor->after_end(); cursor->next()) {
@@ -602,10 +624,20 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		if (out)
 		    *out << "Extra junk in key" << endl;
 		++errors;
+	    } else {
+		if (did > db_last_docid) {
+		    if (out)
+			*out << "document id " << did << " in docdata table "
+				"is larger than get_last_docid() "
+			     << db_last_docid << endl;
+		    ++errors;
+		}
 	    }
 	}
     } else if (strcmp(tablename, "termlist") == 0) {
 	// Now check the contents of the termlist table.
+	Xapian::doccount num_termlists = 0;
+	Xapian::doccount num_slotsused_entries = 0;
 	for ( ; !cursor->after_end(); cursor->next()) {
 	    string & key = cursor->current_key;
 
@@ -621,8 +653,17 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		continue;
 	    }
 
+	    if (did > db_last_docid) {
+		if (out)
+		    *out << "document id " << did << " in termlist table "
+			    "is larger than get_last_docid() "
+			 << db_last_docid << endl;
+		++errors;
+	    }
+
 	    if (end - pos == 1 && *pos == '\0') {
 		// Value slots used entry.
+		++num_slotsused_entries;
 		cursor->read_tag();
 
 		pos = cursor->current_tag.data();
@@ -670,6 +711,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		continue;
 	    }
 
+	    ++num_termlists;
 	    cursor->read_tag();
 
 	    pos = cursor->current_tag.data();
@@ -775,6 +817,26 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 	    if (doclens.size() <= did) doclens.resize(did + 1);
 	    doclens[did] = actual_doclen;
 	}
+
+	Xapian::doccount doccount = version_file.get_doccount();
+
+	// glass doesn't store a termlist entry if there are no terms, so we
+	// can only check there aren't more termlists than documents.
+	if (num_termlists > doccount) {
+	    if (out)
+		*out << "More termlists (" << num_termlists
+		     << ") then documents (" << doccount << ")" << endl;
+	    ++errors;
+	}
+
+	// glass doesn't store a valueslots used entry if there are no terms,
+	// so we can only check there aren't more such entries than documents.
+	if (num_slotsused_entries > doccount) {
+	    if (out)
+		*out << "More slots-used entries (" << num_slotsused_entries
+		     << ") then documents (" << doccount << ")" << endl;
+	    ++errors;
+	}
     } else if (strcmp(tablename, "position") == 0) {
 	// Now check the contents of the position table.
 	for ( ; !cursor->after_end(); cursor->next()) {
@@ -807,7 +869,13 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		continue;
 	    }
 
-	    if (!doclens.empty()) {
+	    if (did > db_last_docid) {
+		if (out)
+		    *out << "document id " << did << " in position table "
+			    "is larger than get_last_docid() "
+			 << db_last_docid << endl;
+		++errors;
+	    } else if (!doclens.empty()) {
 		// In glass, a document without terms doesn't get a
 		// termlist entry, so we can't tell the difference
 		// easily.
@@ -816,7 +884,6 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 			*out << "Position list entry for document " << did
 			     << " which doesn't exist or has no terms" << endl;
 		    ++errors;
-		    continue;
 		}
 	    }
 
