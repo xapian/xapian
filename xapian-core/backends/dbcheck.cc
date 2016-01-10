@@ -47,6 +47,19 @@
 
 using namespace std;
 
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+// Tables to check for a glass database.  Note: it's important to check
+// termlist before postlist so that we can cross-check the document lengths.
+static const struct { char name[9]; } glass_tables[] = {
+    "docdata",
+    "termlist",
+    "postlist",
+    "position",
+    "spelling",
+    "synonym"
+};
+#endif
+
 static bool
 check_if_single_file_db(const struct stat & sb, const string & path,
 			int * fd_ptr = NULL)
@@ -152,27 +165,32 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 
 	size_t pre_table_check_errors = errors;
 
-	// This is a chert directory so try to check all the btrees.
+	// Check all the btrees.
+	//
 	// Note: it's important to check "termlist" before "postlist" so
 	// that we can cross-check the document lengths; also we check
 	// "record" first as that's the last committed, so has the most
 	// reliable rootblock revision in DBCHECK_FIX mode.
-	const char * tables[] = {
-	    "record", "termlist", "postlist", "position",
-	    "spelling", "synonym"
+	static const struct { char name[9]; } tables[] = {
+	    "record",
+	    "termlist",
+	    "postlist",
+	    "position",
+	    "spelling",
+	    "synonym"
 	};
-	for (const char **t = tables;
-	     t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
+	for (auto t : tables) {
+	    const char * name = t.name;
 	    string table(path);
 	    table += '/';
-	    table += *t;
+	    table += name;
 	    if (out)
-		*out << *t << ":\n";
-	    if (strcmp(*t, "record") != 0 && strcmp(*t, "postlist") != 0) {
+		*out << name << ":\n";
+	    if (strcmp(name, "record") != 0 && strcmp(name, "postlist") != 0) {
 		// Other tables are created lazily, so may not exist.
 		if (!file_exists(table + ".DB")) {
 		    if (out) {
-			if (strcmp(*t, "termlist") == 0) {
+			if (strcmp(name, "termlist") == 0) {
 			    *out << "Not present.\n";
 			} else {
 			    *out << "Lazily created, and not yet used.\n";
@@ -182,7 +200,7 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 		    continue;
 		}
 	    }
-	    errors += check_chert_table(*t, table, rev_ptr, opts, doclens,
+	    errors += check_chert_table(name, table, rev_ptr, opts, doclens,
 					db_last_docid, out);
 	}
 
@@ -234,17 +252,10 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	Xapian::docid db_last_docid = version_file.get_last_docid();
 	reserve_doclens(doclens, db_last_docid, out);
 
-	// This is a glass directory so try to check all the btrees.
-	// Note: it's important to check termlist before postlist so
-	// that we can cross-check the document lengths.
-	const char * tables[] = {
-	    "docdata", "termlist", "postlist", "position",
-	    "spelling", "synonym"
-	};
-	for (const char **t = tables;
-	     t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-	    errors += check_glass_table(*t, path, version_file, opts, doclens,
-					out);
+	// Check all the tables.
+	for (auto t : glass_tables) {
+	    errors += check_glass_table(t.name, path, version_file, opts,
+					doclens, out);
 	}
 	return errors;
 #endif
@@ -362,18 +373,10 @@ check_db_fd(int fd, int opts, std::ostream *out)
     vector<Xapian::termcount> doclens;
     reserve_doclens(doclens, db_last_docid, out);
 
-    // This is a glass directory so try to check all the btrees.
-    // Note: it's important to check termlist before postlist so
-    // that we can cross-check the document lengths.
-    const char * tables[] = {
-	"docdata", "termlist", "postlist", "position",
-	"spelling", "synonym"
-    };
-
+    // Check all the tables.
     size_t errors = 0;
-    for (const char **t = tables;
-	 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
-	errors += check_glass_table(*t, fd, version_file.get_offset(),
+    for (auto t : glass_tables) {
+	errors += check_glass_table(t.name, fd, version_file.get_offset(),
 				    version_file, opts, doclens,
 				    out);
     }
