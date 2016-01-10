@@ -1,2 +1,3 @@
 # Not needed by the currently used doxygen version:
 #01-latex_unknown_float_option.patch
+flex-2.6-compat.patch
