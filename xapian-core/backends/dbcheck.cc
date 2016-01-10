@@ -143,14 +143,17 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	vector<Xapian::termcount> doclens;
 	size_t errors = 0;
 
-	// If we can't read the last docid, set it to its maximum value
-	// to suppress errors.
+	// If we can't read the doccount or last docid, set them to their
+	// maximum values to suppress errors.
+	Xapian::doccount doccount = Xapian::doccount(-1);
 	Xapian::docid db_last_docid = CHERT_MAX_DOCID;
+
 	chert_revision_number_t rev = 0;
 	chert_revision_number_t * rev_ptr = &rev;
 	try {
 	    // Open at the lower level so we can get the revision number.
 	    ChertDatabase db(path);
+	    doccount = db.get_doccount();
 	    db_last_docid = db.get_lastdocid();
 	    reserve_doclens(doclens, db_last_docid, out);
 	    rev = db.get_revision_number();
@@ -201,7 +204,7 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 		}
 	    }
 	    errors += check_chert_table(name, table, rev_ptr, opts, doclens,
-					db_last_docid, out);
+					doccount, db_last_docid, out);
 	}
 
 	if (errors == pre_table_check_errors && (opts & Xapian::DBCHECK_FIX)) {
@@ -349,9 +352,10 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 #ifndef XAPIAN_HAS_CHERT_BACKEND
     throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
 #else
-    // Set the last docid to its maximum value to suppress errors.
-    return check_chert_table(tablename.c_str(), filename, NULL, opts,
-			     doclens, CHERT_MAX_DOCID, out);
+    // Set the doccount and the last docid to their maximum values to suppress
+    // errors.
+    return check_chert_table(tablename.c_str(), filename, NULL, opts, doclens,
+			     Xapian::doccount(-1), CHERT_MAX_DOCID, out);
 #endif
 }
 
