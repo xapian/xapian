@@ -1,7 +1,7 @@
 /** @file xapian-check-chert.h
  * @brief Check a chert table.
  */
-/* Copyright (C) 2008,2009,2013 Olly Betts
+/* Copyright (C) 2008,2009,2013,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@
 size_t check_chert_table(const char * tablename, std::string table,
 			 chert_revision_number_t * rev_ptr, int opts,
 			 std::vector<Xapian::termcount> & doclens,
+			 Xapian::doccount doccount,
 			 Xapian::docid db_last_docid);
 
 #endif // XAPIAN_INCLUDED_XAPIAN_CHECK_CHERT_H
