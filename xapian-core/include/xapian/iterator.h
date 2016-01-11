@@ -40,42 +40,42 @@
 namespace Xapian {
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::ESetIterator & it) {
+inline bool iterator_valid(const Xapian::ESetIterator & it) {
     return it.index != it.eset.size();
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::MSetIterator & it) {
+inline bool iterator_valid(const Xapian::MSetIterator & it) {
     return it.off_from_end != 0;
 }
 
 /** @internal Rewind iterator. */
-void iterator_rewind(Xapian::ESetIterator & it) {
+inline void iterator_rewind(Xapian::ESetIterator & it) {
     it.index = 0;
 }
 
 /** @internal Rewind iterator. */
-void iterator_rewind(Xapian::MSetIterator & it) {
+inline void iterator_rewind(Xapian::MSetIterator & it) {
     it.off_from_end = it.mset.size();
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::PositionIterator & it) {
+inline bool iterator_valid(const Xapian::PositionIterator & it) {
     return it.internal != NULL;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::PostingIterator & it) {
+inline bool iterator_valid(const Xapian::PostingIterator & it) {
     return it.internal != NULL;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::TermIterator & it) {
+inline bool iterator_valid(const Xapian::TermIterator & it) {
     return it.internal != NULL;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
-bool iterator_valid(const Xapian::ValueIterator & it) {
+inline bool iterator_valid(const Xapian::ValueIterator & it) {
     return it.internal != NULL;
 }
 
