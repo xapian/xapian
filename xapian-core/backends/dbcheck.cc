@@ -51,12 +51,12 @@ using namespace std;
 // Tables to check for a glass database.  Note: it's important to check
 // termlist before postlist so that we can cross-check the document lengths.
 static const struct { char name[9]; } glass_tables[] = {
-    "docdata",
-    "termlist",
-    "postlist",
-    "position",
-    "spelling",
-    "synonym"
+    { "docdata" },
+    { "termlist" },
+    { "postlist" },
+    { "position" },
+    { "spelling" },
+    { "synonym" }
 };
 #endif
 
@@ -175,12 +175,12 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	// "record" first as that's the last committed, so has the most
 	// reliable rootblock revision in DBCHECK_FIX mode.
 	static const struct { char name[9]; } tables[] = {
-	    "record",
-	    "termlist",
-	    "postlist",
-	    "position",
-	    "spelling",
-	    "synonym"
+	    { "record" },
+	    { "termlist" },
+	    { "postlist" },
+	    { "position" },
+	    { "spelling" },
+	    { "synonym" }
 	};
 	for (auto t : tables) {
 	    const char * name = t.name;
