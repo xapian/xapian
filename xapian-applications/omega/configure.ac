@@ -120,6 +120,7 @@ AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
   AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll (you  may need to install the zlib1g-dev or zlib-devel package)])
   ])
 ZLIB_LIBS=$LIBS
+AC_SUBST([ZLIB_LIBS])
 LIBS=$SAVE_LIBS
 
 dnl libmagic used to detect MIME types for files we don't detect by extension.
