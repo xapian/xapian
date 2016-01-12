@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -398,8 +398,6 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
 };
 
 /** Base class for field processors.
- *
- *  Experimental API - may change.
  */
 class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
     : public Xapian::Internal::opt_intrusive_base {
@@ -750,8 +748,6 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     void add_prefix(const std::string &field, const std::string &prefix);
 
     /** Register a FieldProcessor.
-     *
-     *  Experimental API - may change.
      */
     void add_prefix(const std::string &field, Xapian::FieldProcessor * proc);
 
@@ -811,8 +807,6 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 			    bool exclusive = true);
 
     /** Register a FieldProcessor for a boolean prefix.
-     *
-     *  Experimental API - may change.
      */
     void add_boolean_prefix(const std::string &field, Xapian::FieldProcessor *proc,
 			    bool exclusive = true);
