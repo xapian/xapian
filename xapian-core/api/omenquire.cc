@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -364,12 +364,7 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 	}
     }
 
-    // Don't cache unless fetch() was called by the API user.
-    // FIXME: This is needed for the remote case, but for a local disk-based
-    // database it means we try to pre-read right before we actually read,
-    // which probably isn't useful.
-    enquire->request_doc(items[index - firstitem]);
-    RETURN(enquire->read_doc(items[index - firstitem]));
+    RETURN(enquire->get_document(items[index - firstitem]));
 }
 
 void
@@ -840,6 +835,18 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 	if (errorhandler) (*errorhandler)(e);
 	throw;
     }
+}
+
+Document
+Enquire::Internal::get_document(const Xapian::Internal::MSetItem &item) const
+{
+    unsigned int multiplier = db.internal.size();
+
+    Xapian::docid realdid = (item.did - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (item.did - 1) % multiplier;
+
+    // We know the doc exists, so open lazily.
+    return Document(db.internal[dbnumber]->open_document(realdid, true));
 }
 
 // Methods of Xapian::Enquire
