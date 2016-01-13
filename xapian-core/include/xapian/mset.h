@@ -323,9 +323,9 @@ operator!=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
 // Inlined methods of MSet which need MSetIterator to have been defined:
 
 inline void
-MSet::fetch(const MSetIterator &begin, const MSetIterator &end) const
+MSet::fetch(const MSetIterator &begin_it, const MSetIterator &end_it) const
 {
-    fetch_(begin.off_from_end, end.off_from_end);
+    fetch_(begin_it.off_from_end, end_it.off_from_end);
 }
 
 inline void
