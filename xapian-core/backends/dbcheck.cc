@@ -252,7 +252,14 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 		GlassChanges::check(changes_file);
 	}
 
+	Xapian::docid doccount = version_file.get_doccount();
 	Xapian::docid db_last_docid = version_file.get_last_docid();
+	if (db_last_docid < doccount) {
+	    if (out)
+		*out << "last_docid = " << db_last_docid << " < doccount = "
+		     << doccount << endl;
+	    ++errors;
+	}
 	reserve_doclens(doclens, db_last_docid, out);
 
 	// Check all the tables.
@@ -373,12 +380,20 @@ check_db_fd(int fd, int opts, std::ostream *out)
     // Check a single-file glass database.
     GlassVersion version_file(fd);
     version_file.read();
+
+    size_t errors = 0;
+    Xapian::docid doccount = version_file.get_doccount();
     Xapian::docid db_last_docid = version_file.get_last_docid();
+    if (db_last_docid < doccount) {
+	if (out)
+	    *out << "last_docid = " << db_last_docid << " < doccount = "
+		 << doccount << endl;
+	++errors;
+    }
     vector<Xapian::termcount> doclens;
     reserve_doclens(doclens, db_last_docid, out);
 
     // Check all the tables.
-    size_t errors = 0;
     for (auto t : glass_tables) {
 	errors += check_glass_table(t.name, fd, version_file.get_offset(),
 				    version_file, opts, doclens,
