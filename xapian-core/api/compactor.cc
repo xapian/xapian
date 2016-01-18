@@ -1,7 +1,7 @@
 /** @file compactor.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -187,13 +187,14 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
     if (output_ptr) {
 	// We need a modifiable destdir in this function.
 	destdir = *output_ptr;
-
-	if (file_exists(destdir)) {
-	    // Stub file.
-	    compact_to_stub = STUB_FILE;
-	} else if (file_exists(destdir + "/XAPIANDB")) {
-	    // Stub directory.
-	    compact_to_stub = STUB_DIR;
+	if (!(flags & DBCOMPACT_SINGLE_FILE)) {
+	    if (file_exists(destdir)) {
+		// Stub file.
+		compact_to_stub = STUB_FILE;
+	    } else if (file_exists(destdir + "/XAPIANDB")) {
+		// Stub directory.
+		compact_to_stub = STUB_DIR;
+	    }
 	}
     } else {
 	// Single file is implied when writing to a file descriptor.
@@ -351,14 +352,12 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	while (true) {
 	    destdir.resize(sfx);
 	    destdir += str(now++);
-	    if (!(flags & Xapian::DBCOMPACT_SINGLE_FILE)) {
-		if (mkdir(destdir.c_str(), 0755) == 0)
-		    break;
-		if (errno != EEXIST) {
-		    string msg = destdir;
-		    msg += ": mkdir failed";
-		    throw Xapian::DatabaseError(msg, errno);
-		}
+	    if (mkdir(destdir.c_str(), 0755) == 0)
+		break;
+	    if (errno != EEXIST) {
+		string msg = destdir;
+		msg += ": mkdir failed";
+		throw Xapian::DatabaseError(msg, errno);
 	    }
 	}
     } else if (!(flags & Xapian::DBCOMPACT_SINGLE_FILE)) {
