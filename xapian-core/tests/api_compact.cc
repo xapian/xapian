@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of Database::compact()
  */
-/* Copyright (C) 2009,2010,2011,2012,2013,2015 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -630,6 +630,36 @@ DEFINE_TESTCASE(compacttofd2, glass) {
 
     TEST_EQUAL(indb.get_doccount(), outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    return true;
+}
+
+// Regression test for bug fixed in 1.3.5.  If you commit a WritableDatabase
+// with uncommitted changes, you get an inconsistent output.
+DEFINE_TESTCASE(compactsingle1, glass) {
+    Xapian::WritableDatabase db = get_writable_database();
+    Xapian::Document doc;
+    doc.add_term("foo");
+    doc.add_term("bar");
+    doc.add_term("baz");
+    db.add_document(doc);
+
+    string output = ".glass/db__compactsingle1-out";
+    // In 1.3.4, we would hang if the output file already existed, so check
+    // that works.
+    touch(output);
+
+    TEST_EXCEPTION(Xapian::InvalidOperationError,
+	db.compact(output, Xapian::DBCOMPACT_SINGLE_FILE));
+
+    // Check the file wasn't removed by the failed attempt.
+    TEST(file_exists(output));
+
+    db.commit();
+    db.compact(output, Xapian::DBCOMPACT_SINGLE_FILE);
+    db.close();
+
+    TEST_EQUAL(Xapian::Database::check(output, 0, &tout), 0);
 
     return true;
 }

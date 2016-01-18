@@ -303,6 +303,9 @@ class GlassDatabase : public Xapian::Database::Internal {
 	void get_used_docid_range(Xapian::docid & first,
 				  Xapian::docid & last) const;
 
+	/** Return true if there are uncommitted changes. */
+	virtual bool has_uncommitted_changes() const;
+
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    int fd,
@@ -424,6 +427,9 @@ class GlassWritableDatabase : public GlassDatabase {
 	void set_metadata(const string & key, const string & value);
 	void invalidate_doc_object(Xapian::Document::Internal * obj) const;
 	//@}
+
+	/** Return true if there are uncommitted changes. */
+	bool has_uncommitted_changes() const;
 };
 
 #endif /* OM_HGUARD_GLASS_DATABASE_H */

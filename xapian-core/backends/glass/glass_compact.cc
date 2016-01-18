@@ -812,6 +812,19 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	multipass = false;
     }
 
+    if (single_file) {
+	for (size_t i = 0; i != sources.size(); ++i) {
+	    GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
+	    if (db->has_uncommitted_changes()) {
+		const char * m =
+		    "Can't compact from a WritableDatabase with uncommitted "
+		    "changes - either call commit() first, or create a new "
+		    "Database object from the filename on disk";
+		throw Xapian::InvalidOperationError(m);
+	    }
+	}
+    }
+
     if (block_size < 2048 || block_size > 65536 ||
 	(block_size & (block_size - 1)) != 0) {
 	block_size = GLASS_DEFAULT_BLOCKSIZE;

@@ -978,6 +978,12 @@ GlassDatabase::get_used_docid_range(Xapian::docid & first,
     postlist_table.get_used_docid_range(first, last);
 }
 
+bool
+GlassDatabase::has_uncommitted_changes() const
+{
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
@@ -1578,4 +1584,17 @@ GlassWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) c
 	modify_shortcut_document = NULL;
 	modify_shortcut_docid = 0;
     }
+}
+
+bool
+GlassWritableDatabase::has_uncommitted_changes() const
+{
+    return change_count > 0 ||
+	   postlist_table.is_modified() ||
+	   position_table.is_modified() ||
+	   termlist_table.is_modified() ||
+	   value_manager.is_modified() ||
+	   synonym_table.is_modified() ||
+	   spelling_table.is_modified() ||
+	   docdata_table.is_modified();
 }
