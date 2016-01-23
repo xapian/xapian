@@ -32,8 +32,8 @@ fi
 trap 'echo "Bootstrap failed"' EXIT
 set -e
 
-# The variables which specify the autotools to use.  And doxygen.
-autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE DOXYGEN"
+# The variables which specify the autotools to use.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 
 # Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
@@ -141,12 +141,6 @@ END
       fi
     fi
     case $basename in
-    doxygen-*)
-      if [ "$use_ftp" = yes ] ; then
-	url="ftp://ftp.stack.nl/pub/users/dimitri/$tarball"
-      else
-	url="http://ftp.stack.nl/pub/users/dimitri/$tarball"
-      fi ;;
     file-*)
       if [ "$use_ftp" = yes ] ; then
 	url="ftp://ftp.astron.com/pub/file/$tarball"
@@ -211,14 +205,6 @@ END
       echo "Applying patch $package/$p"
       patch -p1 < "../../patches/$package/$p"
     done
-
-    # Fix doxygen/Qt stupid and pointless enumerating of Mac OS X releases
-    # which stops it building on each new OS X release.
-    if [ -f qtools/qglobal.h ] ; then
-	sed 's!^[	 ]*#[	 ]*\(error\|warning\).*Mac *OS *X is unsupported!// &!' \
-	    qtools/qglobal.h > qtools/qglobal.hT
-	mv qtools/qglobal.hT qtools/qglobal.h
-    fi
 
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
@@ -360,8 +346,6 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.8.8 \
-    src.tar.gz cd511c73e7669dde5ac3e14a5d1abae093aaf1d9
   lazy_build autoconf 2.68 \
     tar.xz 63a3b495400c1c053f2f6b62efb7a5c0ad4156c9 \
     tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4 \

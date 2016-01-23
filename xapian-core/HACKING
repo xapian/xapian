@@ -307,14 +307,13 @@ You will need the following tools installed to build from git:
 * perl 5 (for automake; also for various maintainer scripts)
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
-* GNU flex (for building doxygen)
-* GNU bison (for building doxygen)
+* GNU bison (for building SWIG, used for generating the bindings)
 * Tcl (to generate unicode/unicode-data.cc)
 
 For a recent version of Debian or Ubuntu, this command should ensure you have
 all the necessary tools and libraries::
 
-    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget flex bison tcl
+    apt-get install build-essential m4 perl python zlib1g-dev uuid-dev wget bison tcl
 
 If you want to build Omega, you'll also need::
 
@@ -345,7 +344,7 @@ parsers, SWIG-generated code, etc) because experience shows it's best to keep
 these out of version control.  To avoid requiring you to install the correct
 versions of the tools required, we either include the source to these tools in
 the repo directly (in the case of Snowball and Lemon), or the bootstrap script
-will download them as tarballs (autoconf, automake, libtool, and doxygen) or
+will download them as tarballs (autoconf, automake, libtool) or
 from git (SWIG), build them, and install them within the source tree.
 
 To download source tarballs, bootstrap will use wget, curl or lwp-request if
