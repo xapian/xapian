@@ -73,12 +73,12 @@ the other tests (with 'nmake check') you can comment out lines 361-383 and 389-4
 What doesn't work - Xapian bindings
 ===================================
 
-- The ruby bindings fail one of the tests, see http://trac.xapian.org/ticket/478 for
+- The ruby bindings fail one of the tests, see https://trac.xapian.org/ticket/478 for
 more details. We have opted to package them anyway (see win32_bindings_ruby.mak for how)
 
 - Any other bindings. Java-Swig bindings do not work for SVN HEAD and the 
   1.2.0 series (note that the Java-Swig bindings are still rather alpha, 
-  and may be subject to significant API change). See http://trac.xapian.org/ticket/474
+  and may be subject to significant API change). See https://trac.xapian.org/ticket/474
       
 TODOS
 =====

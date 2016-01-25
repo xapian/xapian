@@ -93,7 +93,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      */
     virtual MatchSpy * clone() const;
 
@@ -135,7 +135,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      *
      *  @param s	A string containing the serialised results.
      *  @param context	Registry object to use for unserialisation to permit

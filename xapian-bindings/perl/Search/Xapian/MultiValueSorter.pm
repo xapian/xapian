@@ -36,7 +36,7 @@ is specified and is false.
 
 =head1 REFERENCE
 
-  http://www.xapian.org/docs/sourcedoc/html/classXapian_1_1MultiValueSorter.html
+  https://xapian.org/docs/sourcedoc/html/classXapian_1_1MultiValueSorter.html
 
 =cut
 1;

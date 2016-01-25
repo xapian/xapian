@@ -20,7 +20,7 @@ section below for details of the supplied templates.
 
 Omega parses queries using the ``Xapian::QueryParser`` class - for the supported
 syntax, see queryparser.html in the xapian-core documentation
-- available online at: http://xapian.org/docs/queryparser.html
+- available online at: https://xapian.org/docs/queryparser.html
 
 Term construction
 =================

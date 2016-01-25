@@ -107,7 +107,7 @@ foreach my $dir (sort keys(%desc)) {
     if ($d > 6) {
        $d = 6;
     }
-    my $url = "http://trac.xapian.org/browser/tags/@VERSION@/xapian-core/$dir";
+    my $url = "https://trac.xapian.org/browser/tags/@VERSION@/xapian-core/$dir";
     if ($dir eq "") {
        	$dir = "ROOT";
     } else {

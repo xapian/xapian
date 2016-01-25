@@ -58,7 +58,7 @@ for my $refid (sort keys %id) {
 	my $class = $id{$refid};
 	print OUT <<"END";
   # Refer to the
-  # {Xapian::$class C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1$class.html].
+  # {Xapian::$class C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1$class.html].
   class Xapian::$class
   end
 END

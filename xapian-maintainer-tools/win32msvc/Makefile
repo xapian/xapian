@@ -177,7 +177,7 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    nmake PHP_VER=53 CLEAN
    nmake PHP_VER=53 DIST
    
-# Java-Swig bindings do not work in this release, see http://trac.xapian.org/ticket/474
+# Java-Swig bindings do not work in this release, see https://trac.xapian.org/ticket/474
 #   cd $(XAPIAN_BINDINGS)\java-swig
 #   nmake CLEAN
 #   nmake DIST

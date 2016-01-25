@@ -116,8 +116,8 @@ Returns a string describing this object.
 
 =head1 REFERENCE
 
-  http://www.xapian.org/docs/queryparser.html
-  http://www.xapian.org/docs/sourcedoc/html/classXapian_1_1QueryParser.html
+  https://xapian.org/docs/queryparser.html
+  https://xapian.org/docs/sourcedoc/html/classXapian_1_1QueryParser.html
 
 =cut
 1;

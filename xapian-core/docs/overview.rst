@@ -27,7 +27,7 @@ documentation is generated using the
 `Doxygen <http://www.doxygen.org/>`_ application. To save you having
 to generate this documentation yourself, we include the `built
 version <apidoc/html/index.html>`_ in our distributions, and also keep
-the `latest version <http://xapian.org/docs/apidoc/html/index.html>`_ on
+the `latest version <https://xapian.org/docs/apidoc/html/index.html>`_ on
 our website.
 
 Design Principles
@@ -200,7 +200,7 @@ flint
     process dies.
 
     For more information, see the `Xapian Wiki
-    <http://trac.xapian.org/wiki/FlintBackend>`_.
+    <https://trac.xapian.org/wiki/FlintBackend>`_.
 
 inmemory
     This type is a database held entirely in memory. It was originally written
