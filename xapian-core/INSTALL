@@ -37,7 +37,7 @@ We aim to support compilation with any C++ compiler which conforms to ISO
 C++11, or a reasonable approximation to it.
 
 If you're using MS Visual C++, see the Xapian download page for a link to
-a set of suitable makefiles: http://xapian.org/download
+a set of suitable makefiles: https://xapian.org/download
 
 If you're using GCC, we currently recommend GCC 4.7 or newer (this is the
 oldest version we regularly test with).

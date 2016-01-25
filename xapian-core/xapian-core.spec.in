@@ -11,7 +11,7 @@ Release: 1
 License: GPL
 Vendor: xapian.org
 Group: Applications/Databases
-URL: http://xapian.org/
+URL: https://xapian.org/
 Requires: %{name}-libs = %{version}
 Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.xz
 # May need e2fsprogs-devel instead of libuuid-devel on older platforms

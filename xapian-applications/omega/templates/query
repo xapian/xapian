@@ -144,7 +144,7 @@ ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<INPUT TYPE=hidden NAME=B VALUE="$html{$_}">}
 </FORM>
-<hr><div align=right><i><small><a href="http://xapian.org/">$html{$version}</a></small></i></div>
+<hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
 $log{query.log}

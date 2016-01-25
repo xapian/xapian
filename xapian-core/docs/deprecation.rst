@@ -452,7 +452,7 @@ Removed Feature name                        Upgrade suggestion and comments
                                             level too) and we can't find any evidence that people are actually using it.
                                             So we are deprecating it and will replace it with something better thought out,
                                             probably during the 1.3.x development series.  There's so further thoughts at
-                                            http://trac.xapian.org/ticket/3#comment:8
+                                            https://trac.xapian.org/ticket/3#comment:8
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2) instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
@@ -468,7 +468,7 @@ Removed Feature name                        Upgrade suggestion and comments
         operators for classes:              were being provided for these functor classes - it's hard to use them correctly,
         ``Xapian::ExpandDecider``,          but easy to use them in ways which compile but don't work correctly, and we doubt
         ``Xapian::FieldProcessor`` (new in  anyone is intentionally using them, so we've simply removed them.  For more
-        1.3.1), ``Xapian::KeyMaker``,       information, see http://trac.xapian.org/ticket/681
+        1.3.1), ``Xapian::KeyMaker``,       information, see https://trac.xapian.org/ticket/681
         ``Xapian::MatchDecider``,
         ``Xapian::StemImplementation``,
         ``Xapian::Stopper`` and

@@ -27,7 +27,7 @@ documentation is generated using the
 `Doxygen <http://www.doxygen.org/>`_ application. To save you having
 to generate this documentation yourself, we include the `built
 version <apidoc/html/index.html>`_ in our distributions, and also keep
-the `latest version <http://xapian.org/docs/apidoc/html/index.html>`_ on
+the `latest version <https://xapian.org/docs/apidoc/html/index.html>`_ on
 our website.
 
 Design Principles

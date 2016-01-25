@@ -2,11 +2,11 @@
 
     <div align="center">
 
-`website <http://xapian.org/>`_ \| `install <install.html>`_ \|
+`website <https://xapian.org/>`_ \| `install <install.html>`_ \|
 `overview <overview.html>`_ \|
 `sysadmins <admin_notes.html>`_ \| `scalability <scalability.html>`_ \|
 `API <apidoc/html/annotated.html>`_ \| `deprecated <deprecation.html>`_
-\| `IR <intro_ir.html>`_ \| `wiki <http://trac.xapian.org/wiki>`_
+\| `IR <intro_ir.html>`_ \| `wiki <https://trac.xapian.org/wiki>`_
 
 .. raw:: html
 
@@ -27,9 +27,9 @@ Documentation
 -------------
 
 The Omega search application has its `own documentation
-<http://xapian.org/docs/omega/>`_, and there's also separate
+<https://xapian.org/docs/omega/>`_, and there's also separate
 documentation for the `other language bindings
-<http://xapian.org/docs/bindings/>`_.
+<https://xapian.org/docs/bindings/>`_.
 
 We suggest you start by reading the `Installation
 Guide <install.html>`_, which covers downloading the code, and
@@ -72,5 +72,5 @@ For those wishing to do development work on the Xapian library itself,
 there is `documentation of Xapian's internals <internals.html>`_
 available.
 
-We also have a `wiki <http://trac.xapian.org/wiki>`_ for documentation
+We also have a `wiki <https://trac.xapian.org/wiki>`_ for documentation
 and examples contributed by the Xapian community.

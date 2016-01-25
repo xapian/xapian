@@ -176,7 +176,7 @@ MAKEALLBINDINGS: ALL COPYMAKFILES
    nmake PHP_VER=53 CLEAN
    nmake PHP_VER=53 DIST
    
-# Java bindings didn't work, see http://trac.xapian.org/ticket/474
+# Java bindings didn't work, see https://trac.xapian.org/ticket/474
 # That issue is fixed, needs testing again
 #   cd $(XAPIAN_BINDINGS)\java
 #   nmake CLEAN

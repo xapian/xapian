@@ -10,7 +10,7 @@ endif
 
 if NEED_INTREE_DYLD
 # This is a hack for Mac OS X to enable tests to work when built against an
-# uninstalled xapian-core tree.  See http://trac.xapian.org/ticket/322
+# uninstalled xapian-core tree.  See https://trac.xapian.org/ticket/322
 export DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
 endif
 

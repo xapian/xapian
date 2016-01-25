@@ -138,7 +138,7 @@ module Xapian
   end # Xapian::Value
 
   # Refer to the
-  # {Xapian::Document C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Document.html]
+  # {Xapian::Document C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Document.html]
   # for methods not specific to Ruby.
   #--
   # Extend Xapian::Document with a nice wrapper for its nasty input_iterators
@@ -158,7 +158,7 @@ module Xapian
   end # class Xapian::Document
 
   # Refer to the
-  # {Xapian::Query C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Query.html]
+  # {Xapian::Query C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Query.html]
   # for methods not specific to Ruby.
   #--
   # Extend Xapian::Query with a nice wrapper for its dangerous iterators
@@ -172,7 +172,7 @@ module Xapian
   end # Xapian::Query
 
   # Refer to the
-  # {Xapian::Enquire C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html]
+  # {Xapian::Enquire C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Enquire.html]
   # for methods not specific to Ruby.
   #--
   # Extend Xapian::Enquire with a nice wrapper for its dangerous iterators
@@ -188,7 +188,7 @@ module Xapian
   end # Xapian::Enquire
 
   # Refer to the
-  # {Xapian::MSet C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1MSet.html]
+  # {Xapian::MSet C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1MSet.html]
   # for methods not specific to Ruby.
   #--
   # MSetIterators are not dangerous, just inconvenient to use within a Ruby
@@ -204,7 +204,7 @@ module Xapian
   end # Xapian::MSet
 
   # Refer to the
-  # {Xapian::ESet C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1ESet.html]
+  # {Xapian::ESet C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1ESet.html]
   # for methods not specific to Ruby.
   #--
   # ESetIterators are not dangerous, just inconvenient to use within a Ruby
@@ -240,7 +240,7 @@ module Xapian
   end # Xapian::Posting
 
   # Refer to the
-  # {Xapian::Database C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1Database.html]
+  # {Xapian::Database C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1Database.html]
   # for methods not specific to Ruby.
   #--
   # Wrap some dangerous iterators.
@@ -290,7 +290,7 @@ module Xapian
   end # Xapian::Database
 
   # Refer to the
-  # {Xapian::ValueCountMatchSpy C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1ValueCountMatchSpy.html]
+  # {Xapian::ValueCountMatchSpy C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1ValueCountMatchSpy.html]
   # for methods not specific to Ruby.
   #--
   # Wrap some dangerous iterators.
@@ -313,7 +313,7 @@ module Xapian
   end # Xapian::Database
 
   # Refer to the
-  # {Xapian::LatLongCoords C++ API documentation}[http://xapian.org/docs/apidoc/html/classXapian_1_1LatLongCoords.html]
+  # {Xapian::LatLongCoords C++ API documentation}[https://xapian.org/docs/apidoc/html/classXapian_1_1LatLongCoords.html]
   # for methods not specific to Ruby.
   #--
   # Wrap some dangerous iterators.

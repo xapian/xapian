@@ -145,7 +145,7 @@ for link in links:
 #          os.path.join(builddir, 'xapian-core', 'win32'))
 
 # Get the scripts for building on our windows server, too:
-#fd = u.urlopen('http://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
+#fd = u.urlopen('https://trac.xapian.org/export/HEAD/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat')
 #data = fd.read()
 #fd.close()
 #fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')

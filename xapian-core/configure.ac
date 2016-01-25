@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.4], [http://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.4], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -1007,7 +1007,7 @@ AC_ARG_ENABLE([log],
   [case $enableval in
     yes|no) ;;
     profile)
-      AC_MSG_ERROR(['--enable-log=profile' is no longer supported - see http://trac.xapian.org/wiki/ProfilingXapian for alternatives.]) ;;
+      AC_MSG_ERROR(['--enable-log=profile' is no longer supported - see https://trac.xapian.org/wiki/ProfilingXapian for alternatives.]) ;;
     *)
       AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
   esac])

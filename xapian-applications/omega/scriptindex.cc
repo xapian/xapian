@@ -760,7 +760,7 @@ try {
 "Creates or updates a Xapian database with the data from the input files listed\n"
 "on the command line.  If no files are specified, data is read from stdin.\n"
 "\n"
-"See http://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
+"See https://xapian.org/docs/omega/scriptindex.html for documentation of the\n"
 "format for INDEXER_SCRIPT.\n"
 "\n"
 "Options:\n"

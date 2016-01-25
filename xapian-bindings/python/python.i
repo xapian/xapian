@@ -31,9 +31,9 @@ model and also supports a rich set of boolean query operators.
 In addition to the doc strings provided by this python library, you
 may wish to look at the library's overall documentation, either
 installed along with the bindings or online at
-<http://xapian.org/docs/bindings/python/>, as well as the library's
+<https://xapian.org/docs/bindings/python/>, as well as the library's
 documentation, possibly installed with the library or with its
-development files, or again online at <http://xapian.org/docs/>.
+development files, or again online at <https://xapian.org/docs/>.
 """
 %}
 

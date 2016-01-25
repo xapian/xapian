@@ -66,7 +66,7 @@ the other tests (with 'nmake check') you can comment out lines 361-383 and 389-4
 What doesn't work - Xapian bindings
 ===================================
 
-- The ruby bindings fail one of the tests, see http://trac.xapian.org/ticket/478 for
+- The ruby bindings fail one of the tests, see https://trac.xapian.org/ticket/478 for
 more details. We have opted to package them anyway (see win32_bindings_ruby.mak for how)
 
 - Any other bindings.
@@ -113,7 +113,7 @@ How do I get the latest development sources?
 The development sources are held in a revision control system called git, so
 you will first need a git client installed to build the latest development
 sources.  Details of how to access the xapian repository are available at
-http://xapian.org/bleeding
+https://xapian.org/bleeding
 
 When you check out the xapian sources, you will have a slightly different
 structure than that derived from the release tarballs:

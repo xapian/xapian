@@ -6,7 +6,7 @@ Instructions for hacking on Xapian
 This file is aimed to help developers get started with working on
 Xapian.  The documentation contains a section covering various internal
 aspects of the library - this can also be found on the Xapian website
-<http://xapian.org/>.
+<https://xapian.org/>.
 
 Extra options to give to configure
 ==================================
@@ -37,7 +37,7 @@ Xapian.
 	report to stderr how long each method takes to execute.  This feature
 	was removed in 1.2.1 - you are likely to get better results using
 	dedicated profiling tools - for more information see:
-	http://trac.xapian.org/wiki/ProfilingXapian
+	https://trac.xapian.org/wiki/ProfilingXapian
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -532,7 +532,7 @@ Using a Vagrant-driven Ubuntu virtual machine
 ---------------------------------------------
 
 Note: Vagrant support is experimental. Please report bugs in the
-normal fashion, to http://trac.xapian.org/newticket, or ask for help
+normal fashion, to https://trac.xapian.org/newticket, or ask for help
 on the #xapian IRC channel on Freenode.
 
 If you have Vagrant (http://www.vagrantup.com/, tested on version
@@ -1185,7 +1185,7 @@ Submitting Patches:
 If you have a patch to fix a problem in Xapian, or to add a new feature,
 please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
-<http://xapian.org/lists>
+<https://xapian.org/lists>
 
 Also, please read the following section on licensing of patches before
 submitting a patch.
@@ -1605,7 +1605,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Make sure the submitters of fixed bugs are mentioned in the "thanks" list in
   xapian-core/AUTHORS.  Check the list for the appropriate milestone::
 
-   http://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
+   https://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
 
 * On atreus, tag the source trees for the new revision - use the
   git-tag-release script, running it with the new version number, for example:
@@ -1616,10 +1616,10 @@ This is a (hopefully complete) list of the jobs which need doing:
   across to the website.
 
 * Add the new version to the list of versions in trac:
-  http://trac.xapian.org/admin/ticket/versions
+  https://trac.xapian.org/admin/ticket/versions
 
 * Add a new milestone for the version after this one:
-  http://trac.xapian.org/admin/ticket/milestones
+  https://trac.xapian.org/admin/ticket/milestones
 
 * Mark the current milestone as completed.  In order to do so, any unfixed bugs
   with this milestone will need to be moved to another milestone (most likely

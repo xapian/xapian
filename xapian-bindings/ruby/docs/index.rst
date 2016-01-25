@@ -29,7 +29,7 @@ renamed to 'call' methods in Ruby.
 
 The C++ methods are not yet documented in the `RDocs <rdocs/>`_.
 In the meantime, refer to the
-`C++ API documentation <http://xapian.org/docs/apidoc/html/annotated.html>`_
+`C++ API documentation <https://xapian.org/docs/apidoc/html/annotated.html>`_
 for information on how to use the various methods. Most are
 available directly in the Ruby version. The RDocs currently provide information
 only on methods that are unique to the Ruby version.

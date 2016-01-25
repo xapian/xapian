@@ -257,7 +257,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      */
     virtual PostingSource * clone() const;
 
@@ -297,7 +297,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      *
      *  If you don't want to support the remote backend, you can use the
      *  default implementation which simply throws Xapian::UnimplementedError.
@@ -313,7 +313,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      *
      *  This method is supplied with a Registry object, which can be used when
      *  unserialising objects contained within the posting source.  The default
