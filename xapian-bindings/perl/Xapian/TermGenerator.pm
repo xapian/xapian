@@ -80,7 +80,7 @@ Return a description of this object.
 
 =head1 REFERENCE
 
-  http://www.xapian.org/docs/sourcedoc/html/classXapian_1_1TermGenerator.html
+  http://xapian.org/docs/sourcedoc/html/classXapian_1_1TermGenerator.html
 
 =cut
 1;

@@ -7,7 +7,7 @@ import platform
 import glob
 
 description = ("""
-Win32 MSVC build of Python %s Bindings for the Xapian Open Source Search Engine Library (http://www.xapian.org/)
+Win32 MSVC build of Python %s Bindings for the Xapian Open Source Search Engine Library (http://xapian.org/)
 """ % platform.python_version())
 
 for scheme in INSTALL_SCHEMES.values():
