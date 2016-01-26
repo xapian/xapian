@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
+ * Copyright 2002,2006,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,56 +91,74 @@ HtmlParser::HtmlParser()
     }
 }
 
+// UTF-8 encoded entity is always <= the entity itself in length, even if the
+// trailing ';' is missing - for numeric (decimal and hex) entities:
+//
+// <=		UTF-8 	&#<..>	&#x<..>
+// U+007F	1	5	5
+// U+07FF	2	6	6
+// U+FFFF	3	7	7
+// U+1FFFFF	4	9	9
+// U+3FFFFFF	5	10	10
+// U+7FFFFFFF	6	12	11
+//
+// Also true for named entities.  This means we can work in-place within the
+// string.
+
 void
 HtmlParser::decode_entities(string &s)
 {
-    // We need a const_iterator version of s.end() - otherwise the
-    // find() and find_if() templates don't work...
-    string::const_iterator amp = s.begin(), s_end = s.end();
-    while ((amp = find(amp, s_end, '&')) != s_end) {
+    string::iterator out = s.begin();
+    string::iterator in = out;
+    string::iterator amp = in;
+    while ((amp = find(amp, s.end(), '&')) != s.end()) {
 	unsigned int val = 0;
-	string::const_iterator end, p = amp + 1;
-	if (p != s_end && *p == '#') {
+	string::iterator end, p = amp + 1;
+	if (p != s.end() && *p == '#') {
 	    ++p;
-	    if (p != s_end && (*p == 'x' || *p == 'X')) {
+	    if (p != s.end() && (*p == 'x' || *p == 'X')) {
 		// hex
-		while (++p != s_end && C_isxdigit(*p)) {
+		while (++p != s.end() && C_isxdigit(*p)) {
 		    val = (val << 4) | hex_digit(*p);
 		}
 		end = p;
 	    } else {
 		// number
-		while (p != s_end && C_isdigit(*p)) {
+		while (p != s.end() && C_isdigit(*p)) {
 		    val = val * 10 + (*p - '0');
 		    ++p;
 		}
 		end = p;
 	    }
 	} else {
-	    end = find_if(p, s_end, C_isnotalnum);
+	    end = find_if(p, s.end(), C_isnotalnum);
 	    string code(p, end);
 	    map<string, unsigned int>::const_iterator i;
 	    i = named_ents.find(code);
 	    if (i != named_ents.end()) val = i->second;
 	}
-	if (end != s_end && *end == ';') ++end;
+	if (end != s.end() && *end == ';') ++end;
 	if (val) {
-	    string::size_type amp_pos = amp - s.begin();
+	    if (in != out) {
+		out = copy(in, amp, out);
+	    } else {
+		out = amp;
+	    }
+	    in = end;
 	    if (val < 0x80) {
-		s.replace(amp_pos, end - amp, 1u, char(val));
+		*out++ = char(val);
 	    } else {
 		// Convert unicode value val to UTF-8.
 		char seq[4];
 		unsigned len = Xapian::Unicode::nonascii_to_utf8(val, seq);
-		s.replace(amp_pos, end - amp, seq, len);
+		out = copy(seq, seq + len, out);
 	    }
-	    s_end = s.end();
-	    // We've modified the string, so the iterators are no longer
-	    // valid...
-	    amp = s.begin() + amp_pos + 1;
-	} else {
-	    amp = end;
 	}
+	amp = end;
+    }
+
+    if (in != out) {
+	s.erase(out, in);
     }
 }
 

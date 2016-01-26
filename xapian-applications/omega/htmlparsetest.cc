@@ -1,6 +1,6 @@
 /* htmlparsetest.cc: test the MyHtmlParser class
  *
- * Copyright (C) 2006,2008,2011,2012,2013,2015 Olly Betts
+ * Copyright (C) 2006,2008,2011,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,6 +63,8 @@ static const testcase tests[] = {
     // Test entities.
     { "<html><body>1 &lt; 2, 3 &gt; 2</body></html>", "1 < 2, 3 > 2", "", "", "" },
     { "<html><body>&amp;amp;</body></html>", "&amp;", "", "", "" },
+    { "<html><body>&lt;Unknown &ent;-ity&gt;</body></html>", "<Unknown &ent;-ity>", "", "", "" },
+    { "<html><body>&#68;oes &#97; &lt; &auml; &#x3f</body></html>", "Does a < ä ?", "", "", "" },
     { "&#65;&#x40;&gt", "A@>", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
