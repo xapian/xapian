@@ -82,7 +82,9 @@ if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
 
 languages/snowball: $(snowball_sources) $(snowball_headers)
-	$(CC_FOR_BUILD) -o languages/snowball -DDISABLE_JAVA `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
+	$(CC_FOR_BUILD) -o languages/snowball \
+	    -DDISABLE_JAVA -DDISABLE_JSX -DDISABLE_PYTHON \
+	    `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
 .sbl.cc:
 	languages/snowball $< -o `echo $@|sed 's!\.cc$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation

@@ -1,7 +1,7 @@
 /** @file steminternal.h
  *  @brief Base class for implementations of stemming algorithms
  */
-/* Copyright (C) 2007,2009,2010 Olly Betts
+/* Copyright (C) 2007,2009,2010,2016 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -119,6 +119,8 @@ class SnowballStemImplementation : public StemImplementation {
 
     symbol * slice_to(symbol * v);
     symbol * assign_to(symbol * v);
+
+    int len_utf8(const symbol * v);
 
 #if 0
     void debug(int number, int line_count);

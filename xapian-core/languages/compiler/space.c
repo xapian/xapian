@@ -57,9 +57,19 @@ extern symbol * create_b(int n) {
     return p;
 }
 
-extern void report_b(FILE * out, symbol * p) {
+extern void report_b(FILE * out, const symbol * p) {
     int i;
-    for (i = 0; i < SIZE(p); i++) fprintf(out, "%c", p[i]);
+    for (i = 0; i < SIZE(p); i++) {
+        if (p[i] > 255) {
+            printf("In report_b, can't convert p[%d] to char because it's 0x%02x\n", i, (int)p[i]);
+            exit(1);
+        }
+        putc(p[i], out);
+    }
+}
+
+extern void output_str(FILE * outfile, struct str * str) {
+    report_b(outfile, str_data(str));
 }
 
 extern void lose_b(symbol * p) {
@@ -74,19 +84,19 @@ extern symbol * increase_capacity(symbol * p, int n) {
     lose_b(p); return q;
 }
 
-extern symbol * move_to_b(symbol * p, int n, symbol * q) {
+extern symbol * move_to_b(symbol * p, int n, const symbol * q) {
     int x = n - CAPACITY(p);
     if (x > 0) p = increase_capacity(p, x);
     memmove(p, q, n * sizeof(symbol)); SIZE(p) = n; return p;
 }
 
-extern symbol * add_to_b(symbol * p, int n, symbol * q) {
+extern symbol * add_to_b(symbol * p, int n, const symbol * q) {
     int x = SIZE(p) + n - CAPACITY(p);
     if (x > 0) p = increase_capacity(p, x);
     memmove(p + SIZE(p), q, n * sizeof(symbol)); SIZE(p) += n; return p;
 }
 
-extern symbol * copy_b(symbol * p) {
+extern symbol * copy_b(const symbol * p) {
     int n = SIZE(p);
     symbol * q = create_b(n);
     move_to_b(q, n, p);
@@ -107,7 +117,7 @@ extern void check_free(void * p) {
 
 /* To convert a block to a zero terminated string:  */
 
-extern char * b_to_s(symbol * p) {
+extern char * b_to_s(const symbol * p) {
     int n = SIZE(p);
     char * s = (char *)malloc(n + 1);
     {
@@ -153,7 +163,7 @@ struct str {
 };
 
 /* Create a new string. */
-extern struct str * str_new() {
+extern struct str * str_new(void) {
 
     struct str * output = (struct str *) malloc(sizeof(struct str));
     output->data = create_b(0);

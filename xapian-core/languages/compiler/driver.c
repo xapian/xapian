@@ -1,6 +1,6 @@
 #include <stdio.h>   /* for fprintf etc */
 #include <stdlib.h>  /* for free etc */
-#include <string.h>  /* for strlen */
+#include <string.h>  /* for strcmp */
 #include "header.h"
 
 #define DEFAULT_PACKAGE "org.tartarus.snowball.ext"
@@ -9,9 +9,7 @@
 #define DEFAULT_STRING_CLASS "java.lang.StringBuilder"
 
 static int eq(const char * s1, const char * s2) {
-    int s1_len = strlen(s1);
-    int s2_len = strlen(s2);
-    return s1_len == s2_len && memcmp(s1, s2, s1_len) == 0;
+    return strcmp(s1, s2) == 0;
 }
 
 static void print_arglist(void) {
@@ -22,6 +20,12 @@ static void print_arglist(void) {
                     "             [-j[ava]]\n"
 #endif
                     "             [-c++]\n"
+#ifndef DISABLE_PYTHON
+                    "             [-py[thon]]\n"
+#endif
+#ifndef DISABLE_JSX
+                    "             [-jsx]\n"
+#endif
                     "             [-w[idechars]]\n"
                     "             [-u[tf8]]\n"
                     "             [-n[ame] class name]\n"
@@ -65,10 +69,10 @@ static void read_options(struct options * o, int argc, char * argv[]) {
 
     o->output_file = 0;
     o->syntax_tree = false;
-    o->externals_prefix = "";
+    o->externals_prefix = NULL;
     o->variables_prefix = 0;
     o->runtime_path = 0;
-    o->parent_class_name = 0;
+    o->parent_class_name = DEFAULT_BASE_CLASS;
 #ifndef DISABLE_JAVA
     o->string_class = DEFAULT_STRING_CLASS;
     o->among_class = DEFAULT_AMONG_CLASS;
@@ -95,6 +99,13 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 o->name = argv[i++];
                 continue;
             }
+#ifndef DISABLE_JSX
+            if (eq(s, "-jsx")) {
+                o->make_lang = LANG_JSX;
+                o->widechars = true;
+                continue;
+            }
+#endif
 #ifndef DISABLE_JAVA
             if (eq(s, "-j") || eq(s, "-java")) {
                 o->make_lang = LANG_JAVA;
@@ -106,6 +117,13 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 o->make_lang = LANG_CPLUSPLUS;
                 continue;
             }
+#ifndef DISABLE_PYTHON
+            if (eq(s, "-py") || eq(s, "-python")) {
+                o->make_lang = LANG_PYTHON;
+                o->widechars = true;
+                continue;
+            }
+#endif
             if (eq(s, "-w") || eq(s, "-widechars")) {
                 o->widechars = true;
                 o->utf8 = false;
@@ -176,6 +194,16 @@ static void read_options(struct options * o, int argc, char * argv[]) {
             print_arglist();
         }
     }
+
+    if (o->make_lang != LANG_C && o->make_lang != LANG_CPLUSPLUS) {
+	if (o->runtime_path) {
+	    fprintf(stderr, "warning: -r/-runtime only meaningful for C and C++\n");
+	}
+	if (o->externals_prefix) {
+	    fprintf(stderr, "warning: -ep/-eprefix only meaningful for C and C++\n");
+	}
+    }
+    if (!o->externals_prefix) o->externals_prefix = "";
 }
 
 extern int main(int argc, char * argv[]) {
@@ -210,6 +238,7 @@ extern int main(int argc, char * argv[]) {
                     print_arglist();
                     exit(1);
                 }
+                g = create_generator(a, o);
                 if (o->make_lang == LANG_C || o->make_lang == LANG_CPLUSPLUS) {
                     symbol * b = add_s_to_b(0, s);
                     b = add_s_to_b(b, ".h");
@@ -221,9 +250,7 @@ extern int main(int argc, char * argv[]) {
                     o->output_src = get_output(b);
                     lose_b(b);
 
-                    g = create_generator_c(a, o);
                     generate_program_c(g);
-                    close_generator_c(g);
                     fclose(o->output_src);
                     fclose(o->output_h);
                 }
@@ -233,12 +260,31 @@ extern int main(int argc, char * argv[]) {
                     b = add_s_to_b(b, ".java");
                     o->output_src = get_output(b);
                     lose_b(b);
-                    g = create_generator_java(a, o);
                     generate_program_java(g);
-                    close_generator_java(g);
                     fclose(o->output_src);
                 }
 #endif
+#ifndef DISABLE_PYTHON
+                if (o->make_lang == LANG_PYTHON) {
+                    symbol * b = add_s_to_b(0, s);
+                    b = add_s_to_b(b, ".py");
+                    o->output_src = get_output(b);
+                    lose_b(b);
+                    generate_program_python(g);
+                    fclose(o->output_src);
+                }
+#endif
+#ifndef DISABLE_JSX
+                if (o->make_lang == LANG_JSX) {
+                    symbol * b = add_s_to_b(0, s);
+                    b = add_s_to_b(b, ".jsx");
+                    o->output_src = get_output(b);
+                    lose_b(b);
+                    generate_program_jsx(g);
+                    fclose(o->output_src);
+                }
+#endif
+                close_generator(g);
             }
             close_analyser(a);
         }
