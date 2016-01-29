@@ -10,6 +10,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 EXTRA_DIST = fake_dbfactory.i xapian-head.i xapian-headers.i generic/except.i \
     generic/generate-generic-exceptions \
+    swig-depcomp \
     xapian-bindings.spec shortstop.list skiptest \
     HACKING
 

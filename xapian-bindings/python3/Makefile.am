@@ -29,6 +29,7 @@ RST_DOCS = \
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
+	doxy2swig \
 	generate-python-exceptions \
 	run-python-test \
 	testsuite.py \
