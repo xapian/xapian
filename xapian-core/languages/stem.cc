@@ -51,6 +51,9 @@ Stem::Stem(const std::string &language) : internal(0) {
     int l = keyword(tab, language.data(), language.size());
     if (l >= 0) {
 	switch (static_cast<sbl_code>(l)) {
+	    case ARABIC:
+		internal = new InternalStemArabic;
+		return;
 	    case ARMENIAN:
 		internal = new InternalStemArmenian;
 		return;
