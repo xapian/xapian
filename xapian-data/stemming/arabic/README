@@ -1,0 +1,29 @@
+The file voc.txt.gz here was produced from the "Arabic Wordlist for Spellchecking"
+version 1.6, downloaded from: https://sourceforge.net/projects/arabic-wordlist/
+
+The commands used to create voc.txt.gz were ("sort -u" used because there's one
+duplicate word in the list):
+
+unzip -p Arabic-Wordlist-1.6.zip Arabic-Wordlist-1.6/arabic-wordlist-1.6.txt|sort -u > voc.txt
+gzip -9 voc.txt
+
+The "Arabic Wordlist for Spellchecking" is licensed under the GPLv3+:
+
+#-------------------------------------------------------------------------------
+# This file is part of Arabic Wordlist for Spellchecking
+# 
+# Copyright (c) 2013 Mohammed Attia
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+#-------------------------------------------------------------------------------
