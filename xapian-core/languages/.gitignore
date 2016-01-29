@@ -5,6 +5,8 @@
 /.libs
 /.dirstamp
 /snowball
+/arabic.cc
+/arabic.h
 /armenian.cc
 /armenian.h
 /basque.cc
