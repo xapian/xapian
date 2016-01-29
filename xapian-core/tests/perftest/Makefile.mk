@@ -26,7 +26,7 @@ perftest_perftest_SOURCES = perftest/perftest.cc $(collated_perftest_sources) \
  perftest/freemem.cc perftest/freemem.h \
  perftest/runprocess.cc perftest/runprocess.h \
  $(testharness_sources)
-perftest_perftest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+perftest_perftest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 perftest_perftest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 if MAINTAINER_MODE
@@ -52,6 +52,6 @@ perftest/perftest_collated.stamp: $(collated_perftest_sources) collate-test perf
 	touch $@
 endif
 
-EXTRA_DIST += perftest/dir_contents \
+EXTRA_DIST += \
 	perftest/perftest_all.h perftest/perftest_collated.h \
 	$(collated_perftest_sources:.cc=.h)

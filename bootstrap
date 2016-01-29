@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from git to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -20,15 +20,20 @@
 # USA
 
 if [ "$1" = "--help" ] ; then
-  echo "$0 [--ftp] [--without-autotools|--clean]"
+  cat <<__END__
+$0 [--ftp] [--without-autotools|--clean] [MODULE...]
+
+The default is to bootstrap all known modules.  Any modules which have a
+file called ".nobootstrap" in their top-level will be skipped.
+__END__
   exit 0
 fi
 
 trap 'echo "Bootstrap failed"' EXIT
 set -e
 
-# The variables which specify the autotools to use.  And doxygen.
-autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE DOXYGEN"
+# The variables which specify the autotools to use.
+autotools="AUTORECONF AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE ACLOCAL LIBTOOLIZE"
 
 # Tool for downloading a file from a URL (currently wget or curl).
 FETCH_URL_TOOL=
@@ -136,12 +141,6 @@ END
       fi
     fi
     case $basename in
-    doxygen-*)
-      if [ "$use_ftp" = yes ] ; then
-	url="ftp://ftp.stack.nl/pub/users/dimitri/$tarball"
-      else
-	url="http://ftp.stack.nl/pub/users/dimitri/$tarball"
-      fi ;;
     file-*)
       if [ "$use_ftp" = yes ] ; then
 	url="ftp://ftp.astron.com/pub/file/$tarball"
@@ -207,14 +206,6 @@ END
       patch -p1 < "../../patches/$package/$p"
     done
 
-    # Fix doxygen/Qt stupid and pointless enumerating of Mac OS X releases
-    # which stops it building on each new OS X release.
-    if [ -f qtools/qglobal.h ] ; then
-	sed 's!^[	 ]*#[	 ]*error.*Mac *OS *X is unsupported!// &!' \
-	    qtools/qglobal.h > qtools/qglobal.hT
-	mv qtools/qglobal.hT qtools/qglobal.h
-    fi
-
     if test -n "$AUTOCONF" ; then
       ./configure --prefix "$instdir" AUTOCONF="$AUTOCONF"
     else
@@ -226,18 +217,6 @@ END
     rm -rf "$basename"
 
     touch "$stamp"
-  fi
-}
-
-handle_svn_external() {
-  path=$1
-  if [ ! -f "$path/.nobootstrap" ] ; then
-    revopt=$2
-    url=$3
-    if [ ! -d "$path" ] ; then
-      git svn init "$url" "$path"/
-    fi
-    (cd "$path" && git svn fetch "$revopt" && git reset --hard `git svn log "$revopt" --oneline --show-commit|awk '{print $3}'`)
   fi
 }
 
@@ -282,103 +261,67 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=618868ce3dbbde24bff185afea0c019d031cf857
-swig_origin_url=git://github.com/swig/swig.git
+swig_git_commit_hash=1a99212c2c1f2c1819ae84fe553a27889be46791
 
-if [ -d .git ] ; then
-  for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
-    if test -d "$emptydir" ; then
-      :
-    else
-      parent=`echo "$emptydir"|sed 's,/[^/]*$,,'`
-      if test -d "$parent" ; then
-	mkdir "$emptydir"
-      fi
-    fi
-  done
+if [ ! -d .git ] ; then
+  echo "$0: No '.git' directory found - this script should be run from a"
+  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
+  exit 1
+fi
 
-  if [ -f .git/info/exclude ] ; then
-    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 ; do
+  if test -d "$emptydir" ; then
+    :
   else
-    [ -d .git/info ] || mkdir .git/info
+    parent=`echo "$emptydir"|sed 's,/[^/]*$,,'`
+    if test -d "$parent" ; then
+      mkdir "$emptydir"
+    fi
   fi
-  cat <<END >> .git/info/exclude~
+done
+
+if [ -f .git/info/exclude ] ; then
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
+else
+  [ -d .git/info ] || mkdir .git/info
+fi
+cat <<END >> .git/info/exclude~
 swig
 xapian-applications/omega/common
 xapian-letor/common
 END
-  if [ -f .git/info/exclude ] && 
-     cmp .git/info/exclude~ .git/info/exclude > /dev/null ; then
-    rm .git/info/exclude~
-  else
-    mv .git/info/exclude~ .git/info/exclude
-  fi
+if [ -f .git/info/exclude ] &&
+   cmp -s .git/info/exclude~ .git/info/exclude ; then
+  rm .git/info/exclude~
+else
+  mv .git/info/exclude~ .git/info/exclude
+fi
 
-  if git config --get svn-remote.svn.url >/dev/null ; then
-    # git repo checked out with git-svn from svn.xapian.org.
+# If this tree is checked out from the github mirror, use the same access
+# method for other things checked out from github (e.g. swig) so we avoid
+# firewall issues.  If there's no default remote, the git config command
+# will exit with status 1, so ignore that failure.
+origin_url=`git config remote.origin.url||:`
+case $origin_url in
+  *[@/]github.com[:/]*)
+    github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
+  *)
+    github_base_url=git://github.com/ ;;
+esac
+swig_origin_url=${github_base_url}swig/swig.git
+handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 
-    # Pull in each svn:externals as a separate little git repo:
-    git svn show-externals | while read path revopt url ; do
-      # For example:
-      # /swig -r12724 svn://svn.tartarus.org/swig/trunk/
-      if [ -n "$url" ] ; then
-	case $path in
-	/swig)
-	  # Should no longer be present, but skip in case we're used with
-	  # an older tree or a different branch.
-	  ;;
-	/*)
-	  path=`echo "$path"|sed 's,^/,,'`
-	  handle_svn_external "$path" "$revopt" "$url"
-	  ;;
-	esac
-      fi
-    done
+# If someone's created a directory for common, leave it be.
+if [ -h xapian-applications/omega/common ] || \
+   [ ! -d xapian-applications/omega/common ] ; then
+  handle_git_external xapian-applications/omega/.common.git d52417d0c7389257e47ed1339fdfd2f4f57efda4 .
+  ln -sf .common.git/xapian-core/common xapian-applications/omega/common
+fi
 
-    if [ -d swig/.git/svn ] ; then
-      # Old git-svn checkout - move it aside rather than
-      # deleting in case there are local changes.
-      echo 'Moving old git-svn checkout of swig to swig.git-svn.old'
-      echo 'If you have not modified it locally, you can safely delete'
-      echo 'this now'
-      mv swig swig.git-svn.old
-    fi
-    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
-  else
-    # git repo cloned from git.xapian.org or a mirror of it.
-
-    # If this tree is checked out from the github mirror, use the same access
-    # method for other things checked out from github (e.g. swig) so we avoid
-    # firewall issues.  If there's no default remote, the git config command
-    # will exit with status 1, so ignore that failure.
-    origin_url=`git config remote.origin.url||:`
-    case $origin_url in
-      *[@/]github.com[:/]*)
-	github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
-      *)
-	github_base_url=git://github.com/ ;;
-    esac
-    swig_origin_url=${github_base_url}swig/swig.git
-    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
-
-    # Equivalent to r17604 in the Xapian SVN tree:
-    handle_git_external xapian-applications/omega/.common.git 55ab15617e24de7b094ea21c44f2541898d2d782 .
-    ln -sf .common.git/xapian-core/common xapian-applications/omega/common
-      
-    # Equivalent to r16320 in the Xapian SVN tree:
-    handle_git_external xapian-letor/.common.git dbd42ffed2d76a79d505242b32a357246ab63348 .
-    ln -sf .common.git/xapian-core/common xapian-letor/common
-  fi
-elif [ -d .svn ] ; then
-  if [ -d swig/.svn ] ; then
-    # Old svn checkout - move it aside rather than
-    # deleting in case there are local changes.
-    echo 'Moving old svn checkout of swig to swig.svn.old'
-    echo 'If you have not modified it locally, you can safely delete'
-    echo 'this now'
-    mv swig swig.svn.old
-  fi
-  handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
+# If someone's created a directory for common, leave it be.
+if [ -h xapian-letor/common ] || [ ! -d xapian-letor/common ] ; then
+  handle_git_external xapian-letor/.common.git 3c0adf07a179083782ee6b8165a196668f0a1605 .
+  ln -sf .common.git/xapian-core/common xapian-letor/common
 fi
 
 # Prefer http downloads as they are more likely to work through firewalls.
@@ -387,7 +330,7 @@ if [ "$1" = "--ftp" ] ; then
   shift
   use_ftp=yes
 fi
- 
+
 if [ "$1" = "--without-autotools" ] ; then
   shift
 else
@@ -403,8 +346,6 @@ else
   cd BUILD
 
   # The last field is the SHA1 checksum of the tarball.
-  lazy_build doxygen 1.8.7 \
-    src.tar.gz 3728f183f390f96b4ec39d02782a7c2d91f7bfca
   lazy_build autoconf 2.68 \
     tar.xz 63a3b495400c1c053f2f6b62efb7a5c0ad4156c9 \
     tar.bz2 b534c293b22048c022b1ff3a372b9c03f26170b4 \
@@ -412,15 +353,16 @@ else
   # 2.69 is fussy about the m4 version
   # lazy_build autoconf 2.69 tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.14.1 \
-    tar.xz 2ced676f6b792a95c5919243f81790b1172c7f5b \
-    tar.gz 0bb1714b78d70cab9907d2013082978a28f48a46
-  lazy_build libtool 2.4.2 \
-    tar.xz 4671f3323f2fbc712a70afce57602ce906a82a15 \
-    tar.gz 22b71a8b5ce3ad86e1094e7285981cae10e6ff88
+  lazy_build automake 1.15 \
+    tar.xz c279b35ca6c410809dac8ade143b805fb48b7655 \
+    tar.gz b5a840c7ec4321e78fdc9472e476263fa6614ca1
+  lazy_build libtool 2.4.6 \
+    tar.xz 3e7504b832eb2dd23170c91b6af72e15b56eb94e \
+    tar.gz 25b6931265230a06f0fc2146df64c04e5ae6ec33
   if [ "$1" = "--deps=libmagic" ] ; then
       shift
-      lazy_build file 5.10 tar.gz 72fd435e78955ee122b7b3d323ff2f92e6263e89
+      lazy_build file 5.25 \
+	tar.gz fea78106dd0b7a09a61714cdbe545135563e84bd
   fi
 
   for v in $autotools ; do
@@ -446,10 +388,11 @@ case `${LIBTOOLIZE-libtoolize} --version` in
 esac
 
 ACLOCAL="${ACLOCAL-aclocal} -I `pwd`/xapian-core/m4-macros"
+export ACLOCAL
 
 intree_swig=no
 modules=
-for module in xapian-core xapian-applications/omega swig xapian-bindings xapian-letor ; do
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xapian-letor} ; do
   d=$module
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     :
@@ -579,7 +522,7 @@ fi
 for tool in SWIG $autotools ; do
   eval "val=\$$tool"
   if [ -n "$val" ] ; then
-    echo ': ${'"$tool=\"$val\""'}' >> configure.tmp
+    echo ': ${'"$tool='$val'"'}' >> configure.tmp
     echo "export $tool" >> configure.tmp
     vars="$vars $tool='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
   fi
@@ -635,7 +578,7 @@ done
 rm -f Makefile.tmp
 cat <<EOF > Makefile.tmp
 # Makefile generated by:
-# $cmd
+CONFIGURE_COMMAND := $cmd
 EOF
 if [ "$srcdir" != . ] ; then
     cat <<EOF >> Makefile.tmp
@@ -680,13 +623,15 @@ done >> Makefile.tmp
 cat <<EOF >> Makefile.tmp
 
 recheck:
-	$cmd
+	\$(CONFIGURE_COMMAND)
 
 Makefile: $srcdir/configure
-	$cmd
+	\$(CONFIGURE_COMMAND)
 
 $srcdir/configure: \\
 END_OF_CONFIGURE
+
+: > configure.tmp2
 
 # We want to rerun bootstrap if a series file changes (patch added or removed)
 # or an existing patch changes.  Since we always have an series file (even if
@@ -694,12 +639,19 @@ END_OF_CONFIGURE
 patches=
 for d in patches/* ; do
   series=$d/series
-  echo "    $series"'\\\\'
+  echo "$series:" >> configure.tmp2
+  cat << END
+    $series\\\\
+END
   sed -n 's/[	 ]*\(#.*\)\?$//;/./p' "$series" |\
       while read p ; do
     patch=$d/$p
-    echo "    $patch"'\\\\'
-    patches="$patches $patch"
+    cat << END
+    $patch\\\\
+END
+    # Because there's a pipeline, this is a subshell, so use a temporary file
+    # rather than a variable to compile a list of patches to use below.
+    echo "$patch:" >> configure.tmp2
   done
 done >> configure.tmp
 
@@ -709,12 +661,10 @@ cat <<'END_OF_CONFIGURE' >> configure.tmp
 
 .PHONY: $targets recheck
 
-# Dummy dependencies to allow for patches to be deleted.
+# Dummy dependencies to allow removing patches we no longer need.
 END_OF_CONFIGURE
 
-for p in $patches ; do
-  echo "$p:"
-done >> configure.tmp
+cat configure.tmp2 >> configure.tmp
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 EOF
@@ -722,6 +672,8 @@ mv -f Makefile.tmp Makefile
 trap - EXIT
 echo "Configured successfully - now run \"${MAKE-make}\""
 END_OF_CONFIGURE
+
+rm -f configure.tmp2
 
 chmod +x configure.tmp
 mv -f configure.tmp configure

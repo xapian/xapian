@@ -1,0 +1,53 @@
+#!@PERL@
+# @configure_input@
+# @file mhtml2html
+# @brief Extract HTML from an MHTML file
+#
+# Copyright (C) 2010,2015 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+use strict;
+eval {
+    require MIME::Parser;
+};
+if ($@) {
+    print STDERR $@;
+    # Exit with code 127 which omindex interprets as "filter not installed"
+    # and won't try further .msg files.
+    exit 127;
+}
+
+my $in = shift @ARGV;
+my $parser = new MIME::Parser;
+# Keep data in memory rather than spraying files onto disk.
+$parser->output_to_core(1);
+$parser->tmp_to_core(1);
+open IN, '<', $in or die "Couldn't open '$in' ($?)\n";
+my $mhtml = $parser->parse(\*IN) or die "Failed to parse '$in' as MHTML\n";
+
+for my $sub ($mhtml->parts) {
+    my $head = $sub->head;
+    if ($head->mime_type eq 'text/html') {
+	# FIXME: Ideally we use the charset specified, though in practice it's
+	# likely to just be whatever the page specifies.
+	# my $charset = $head->mime_attr('content-type.charset');
+	print $sub->bodyhandle()->as_string;
+    }
+}

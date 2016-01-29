@@ -1,7 +1,7 @@
 /** @file questletor.cc
  * @brief Command line search tool using Xapian::QueryParser and Xapian::Letor
  */
-/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2011 Parth Gupta
  *
  * This program is free software; you can redistribute it and/or
@@ -67,7 +67,7 @@ static const char * sw[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
 "Options:\n"
 "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
@@ -142,10 +142,10 @@ try {
 		break;
 	    }
 	    case 'v':
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'h':
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case ':': // missing parameter
@@ -166,13 +166,7 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    /* This module converts the query terms inclusive of the query terms
-     * in titles
-     * Example:
-     * original query = "parth gupta"
-     * converted query = "title:parth title:gupta parth gupta"
-     */
-
+    
     string qq=argv[optind];
     istringstream iss(argv[optind]);
     string title="title:";
@@ -213,9 +207,10 @@ try {
     Xapian::PostingIterator p,pend;
 
     Xapian::Letor ltr;
-
+/*
     ltr.set_database(db);
     ltr.set_query(query);
+    ltr.create_ranker(0);
 
     ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels",100);
 
@@ -240,7 +235,7 @@ try {
 	cout << doc.get_data() << "\n";
 	rank++;
     }
-
+*/
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;
@@ -249,3 +244,6 @@ try {
     cout << err.get_description() << endl;
     exit(1);
 }
+
+
+

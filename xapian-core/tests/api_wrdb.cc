@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2015 Olly Betts
  * Copyright 2006 Richard Boulton
  * Copyright 2007 Lemur Consulting Ltd
  *
@@ -32,6 +32,7 @@
 #include "filetests.h"
 #include "omassert.h"
 #include "str.h"
+#include "stringutils.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
@@ -646,6 +647,10 @@ DEFINE_TESTCASE(deldoc2, writable) {
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(2));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(3));
 
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(2));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(3));
+
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(3));
@@ -696,6 +701,9 @@ DEFINE_TESTCASE(deldoc3, writable) {
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(1));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(2));
+
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(1));
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(2));
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
@@ -768,6 +776,7 @@ DEFINE_TESTCASE(deldoc4, writable) {
 	tout.str(string());
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
+	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_unique_terms(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
     }
 
@@ -1014,14 +1023,20 @@ DEFINE_TESTCASE(replacedoc3, writable) {
     TEST_EQUAL(db.get_doclength(2), 1);
     TEST_EQUAL(db.get_doclength(3), 4);
 
+    TEST_EQUAL(db.get_unique_terms(1), 3);
+    TEST_EQUAL(db.get_unique_terms(2), 1);
+    TEST_EQUAL(db.get_unique_terms(3), 4);
+
     Xapian::PostingIterator p = db.postlist_begin("foo");
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     TEST_EQUAL(p.get_doclength(), 3);
+    TEST_EQUAL(p.get_unique_terms(), 3);
     ++p;
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 3);
     TEST_EQUAL(p.get_doclength(), 4);
+    TEST_EQUAL(p.get_unique_terms(), 4);
     ++p;
     TEST_EQUAL(p, db.postlist_end("foo"));
 
@@ -1029,10 +1044,12 @@ DEFINE_TESTCASE(replacedoc3, writable) {
     TEST_NOT_EQUAL(p, db.postlist_end("world"));
     TEST_EQUAL(*p, 2);
     TEST_EQUAL(p.get_doclength(), 1);
+    TEST_EQUAL(p.get_unique_terms(), 1);
     ++p;
     TEST_NOT_EQUAL(p, db.postlist_end("world"));
     TEST_EQUAL(*p, 3);
     TEST_EQUAL(p.get_doclength(), 4);
+    TEST_EQUAL(p.get_unique_terms(), 4);
     ++p;
     TEST_EQUAL(p, db.postlist_end("world"));
 
@@ -1497,7 +1514,10 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, brass || chert) {
+DEFINE_TESTCASE(crashrecovery1, chert) {
+    // Glass has a single version file per revision, rather than multiple base
+    // files, so it simply can't get into the situations we are testing
+    // recovery from.
     const string & dbtype = get_dbtype();
     string path = ".";
     path += dbtype;
@@ -1596,7 +1616,10 @@ DEFINE_TESTCASE(nomoredocids1, writable) {
     doc.set_data("prose");
     doc.add_term("word");
 
-    db.replace_document(Xapian::docid(-1), doc);
+    // FIXME: This probably should use the _MAX_DOCID values
+    Xapian::docid max_id = 0xffffffff;
+
+    db.replace_document(max_id, doc);
 
     TEST_EXCEPTION(Xapian::DatabaseError, db.add_document(doc));
 
@@ -1754,11 +1777,13 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     db.commit();
 
+    size_t limit = endswith(get_dbtype(), "glass") ? 255 : 252;
     {
-	// Currently brass and chert escape zero bytes from terms in keys for
-	// some tables, so a term with 127 zero bytes won't work either.
+	// Currently chert and glass escape zero bytes from terms in keys for
+	// some tables, so a term with 127 zero bytes won't work for chert, and
+	// with 128 zero bytes won't work for glass.
 	Xapian::Document doc;
-	doc.add_term(string(127, '\0'));
+	doc.add_term(string(limit / 2 + 1, '\0'));
 	db.add_document(doc);
 	try {
 	    db.commit();
@@ -1768,7 +1793,10 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	    // exception message - we've got this wrong in two different ways
 	    // in the past!
 	    tout << e.get_msg() << endl;
-	    TEST(e.get_msg().find(" is 252 bytes") != string::npos);
+	    string target = " is ";
+	    target += str(limit);
+	    target += " bytes";
+	    TEST(e.get_msg().find(target) != string::npos);
 	}
     }
 
@@ -1792,6 +1820,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(*p, 5);
     TEST_EQUAL(p.get_wdf(), 3);
     TEST_EQUAL(p.get_doclength(), 7);
+    TEST_EQUAL(p.get_unique_terms(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
 
@@ -1807,18 +1836,20 @@ DEFINE_TESTCASE(postlist7, writable) {
     TEST_EQUAL(*p, 5);
     TEST_EQUAL(p.get_wdf(), 3);
     TEST_EQUAL(p.get_doclength(), 7);
+    TEST_EQUAL(p.get_unique_terms(), 2);
     ++p;
     TEST(p != db_w.postlist_end("foo"));
     TEST_EQUAL(*p, 6);
     TEST_EQUAL(p.get_wdf(), 1);
     TEST_EQUAL(p.get_doclength(), 2);
+    TEST_EQUAL(p.get_unique_terms(), 2);
     ++p;
     TEST(p == db_w.postlist_end("foo"));
 
     return true;
 }
 
-DEFINE_TESTCASE(lazytablebug1, brass || chert) {
+DEFINE_TESTCASE(lazytablebug1, chert || glass) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
 
@@ -1850,7 +1881,7 @@ DEFINE_TESTCASE(lazytablebug1, brass || chert) {
  *  Chert also has the same duff code but this testcase doesn't actually 
  *  tickle the bug there.
  */
-DEFINE_TESTCASE(cursordelbug1, brass || chert) {
+DEFINE_TESTCASE(cursordelbug1, chert || glass) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 
@@ -1919,7 +1950,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     // Note: doccount must be coprime with 13
     const Xapian::doccount doccount = 1000;
-    STATIC_ASSERT(doccount % 13 != 0);
+    static_assert(doccount % 13 != 0, "doccount divisible by 13");
 
     map<Xapian::docid, string> vals;
 

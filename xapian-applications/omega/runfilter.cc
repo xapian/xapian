@@ -1,7 +1,7 @@
 /** @file runfilter.cc
  * @brief Run an external filter and capture its output in a std::string.
  *
- * Copyright (C) 2003,2006,2007,2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2003,2006,2007,2009,2010,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,13 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <sys/types.h>
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include <cstdio>
+#include <cstring>
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
@@ -47,6 +49,7 @@
 #endif
 
 #include "freemem.h"
+#include "stringutils.h"
 
 #ifdef _MSC_VER
 # define popen _popen
@@ -56,6 +59,63 @@
 using namespace std;
 
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
+bool
+command_needs_shell(const char * p)
+{
+    for ( ; *p; ++p) {
+	// Probably overly conservative, but suitable for
+	// real-world cases.
+	if (strchr("!\"#$&()*;<>?[\\]^`{|}~", *p) != NULL) {
+	    return true;
+	}
+    }
+    return false;
+}
+
+static bool
+unquote(string & s, size_t & j)
+{
+    bool quoted = false;
+    if (s[j] == '\'') {
+single_quoted:
+	quoted = true;
+	s.erase(j, 1);
+	while (true) {
+	    j = s.find('\'', j + 1);
+	    if (j == s.npos) {
+		// Unmatched ' in command string.
+		// dash exits 2 in this case, bash exits 1.
+		_exit(2);
+	    }
+	    // Replace four character sequence '\'' with ' - this is
+	    // how a single quote inside single quotes gets escaped.
+	    if (s[j + 1] != '\\' ||
+		s[j + 2] != '\'' ||
+		s[j + 3] != '\'') {
+		break;
+	    }
+	    s.erase(j + 1, 3);
+	}
+	if (j + 1 != s.size()) {
+	    char ch = s[j + 1];
+	    if (ch != ' ' && ch != '\t' && ch != '\n') {
+		// Handle the expansion of e.g.: --input=%f,html
+		s.erase(j, 1);
+		goto out_of_quotes;
+	    }
+	}
+    } else {
+out_of_quotes:
+	j = s.find_first_of(" \t\n'", j + 1);
+	// Handle the expansion of e.g.: --input=%f
+	if (j != s.npos && s[j] == '\'') goto single_quoted;
+    }
+    if (j != s.npos) {
+	s[j++] = '\0';
+    }
+    return quoted;
+}
+
 static pid_t pid_to_kill_on_signal;
 
 #ifdef HAVE_SIGACTION
@@ -153,6 +213,14 @@ runfilter_init()
 }
 #endif
 #else
+bool
+command_needs_shell(const char *)
+{
+    // We don't try to avoid the shell on this platform, so don't waste time
+    // analysing commands to see if they could.
+    return true;
+}
+
 void
 runfilter_init()
 {
@@ -160,7 +228,7 @@ runfilter_init()
 #endif
 
 string
-stdout_to_string(const string &cmd)
+stdout_to_string(const string &cmd, bool use_shell, int alt_status)
 {
     string out;
 #if defined HAVE_FORK && defined HAVE_SOCKETPAIR
@@ -219,7 +287,78 @@ stdout_to_string(const string &cmd)
 #endif
 #endif
 
-	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+	if (use_shell) {
+#if !defined HAVE_SETENV && !defined HAVE_PUTENV
+use_shell_after_all:
+#endif
+	    execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+	    _exit(-1);
+	}
+
+	string s(cmd);
+	// Handle any environment variable assignments.
+	// Name must start with alpha or '_', contain only alphanumerics and
+	// '_', and there must be no quoting of either the name or the '='.
+	size_t j = 0;
+	while (true) {
+	    j = s.find_first_not_of(" \t\n", j);
+	    if (!(C_isalnum(s[j]) || s[j] == '_')) break;
+	    size_t i = j;
+	    do ++j; while (C_isalnum(s[j]) || s[j] == '_');
+	    if (s[j] != '=') {
+		j = i;
+		break;
+	    }
+
+#ifdef HAVE_SETENV
+	    size_t eq = j;
+	    unquote(s, j);
+	    s[eq] = '\0';
+	    setenv(&s[i], &s[eq + 1], 1);
+	    j = s.find_first_not_of(" \t\n", j);
+#elif defined HAVE_PUTENV
+	    unquote(s, j);
+	    putenv(&s[i]);
+#else
+	    goto use_shell_after_all;
+#endif
+	}
+
+	vector<const char *> argv;
+	while (true) {
+	    size_t i = s.find_first_not_of(" \t\n", j);
+	    if (i == string::npos) break;
+	    bool quoted = unquote(s, j);
+	    const char * word = s.c_str() + i;
+	    if (!quoted) {
+		// Handle simple cases of redirection.
+		if (strcmp(word, ">/dev/null") == 0) {
+		    int fd = open(word + 1, O_WRONLY);
+		    if (fd != -1 && fd != 1) dup2(fd, 1);
+		    close(fd);
+		    continue;
+		}
+		if (strcmp(word, "2>/dev/null") == 0) {
+		    int fd = open(word + 2, O_WRONLY);
+		    if (fd != -1 && fd != 2) dup2(fd, 2);
+		    close(fd);
+		    continue;
+		}
+		if (strcmp(word, "2>&1") == 0) {
+		    dup2(1, 2);
+		    continue;
+		}
+		if (strcmp(word, "1>&2") == 0) {
+		    dup2(2, 1);
+		    continue;
+		}
+	    }
+	    argv.push_back(word);
+	}
+	if (argv.empty()) _exit(0);
+	argv.push_back(NULL);
+
+	execvp(argv[0], const_cast<char **>(&argv[0]));
 	_exit(-1);
     }
 
@@ -300,6 +439,7 @@ stdout_to_string(const string &cmd)
     }
     pid_to_kill_on_signal = 0;
 #else
+    (void)use_shell;
     FILE * fh = popen(cmd.c_str(), "r");
     if (fh == NULL) throw ReadError("popen failed");
     while (!feof(fh)) {
@@ -314,16 +454,17 @@ stdout_to_string(const string &cmd)
     int status = pclose(fh);
 #endif
 
-    if (status != 0) {
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
+    if (WIFEXITED(status)) {
+	int exit_status = WEXITSTATUS(status);
+	if (exit_status == 0 || exit_status == alt_status)
+	    return out;
+	if (exit_status == 127)
 	    throw NoSuchFilter();
-	}
-#ifdef SIGXCPU
-	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGXCPU) {
-	    cerr << "Filter process consumed too much CPU time" << endl;
-	}
-#endif
-	throw ReadError(status);
     }
-    return out;
+#ifdef SIGXCPU
+    if (WIFSIGNALED(status) && WTERMSIG(status) == SIGXCPU) {
+	cerr << "Filter process consumed too much CPU time" << endl;
+    }
+#endif
+    throw ReadError(status);
 }

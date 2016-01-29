@@ -1,7 +1,7 @@
 /** @file visibility.h
  * @brief Define XAPIAN_VISIBILITY macro.
  */
-// Copyright (C) 2007,2010 Olly Betts
+// Copyright (C) 2007,2010,2014 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,6 +19,9 @@
 
 #ifndef XAPIAN_INCLUDED_VISIBILITY_H
 #define XAPIAN_INCLUDED_VISIBILITY_H
+
+// See http://gcc.gnu.org/wiki/Visibility for more information about GCC's
+// symbol visibility support.
 
 #include "xapian/version.h"
 #if defined XAPIAN_ENABLE_VISIBILITY && defined __GNUC__ && (__GNUC__ >= 4)

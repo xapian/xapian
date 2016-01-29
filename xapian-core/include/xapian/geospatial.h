@@ -3,7 +3,7 @@
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012,2013 Olly Betts
+ * Copyright 2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #ifndef XAPIAN_INCLUDED_GEOSPATIAL_H
 #define XAPIAN_INCLUDED_GEOSPATIAL_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/geospatial.h> directly; include <xapian.h> instead."
 #endif
 
@@ -48,10 +48,10 @@ XAPIAN_NOTHROW(miles_to_metres(double miles)) XAPIAN_CONST_FUNCTION;
 
 /** Convert from miles to metres.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-miles_to_metres(double miles)
+miles_to_metres(double miles) XAPIAN_NOEXCEPT
 {
     return 1609.344 * miles;
 }
@@ -61,17 +61,17 @@ XAPIAN_NOTHROW(metres_to_miles(double metres)) XAPIAN_CONST_FUNCTION;
 
 /** Convert from metres to miles.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 inline double
-metres_to_miles(double metres)
+metres_to_miles(double metres) XAPIAN_NOEXCEPT
 {
     return metres * (1.0 / 1609.344);
 }
 
 /** A latitude-longitude coordinate.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  *
  *  Note that latitude-longitude coordinates are only precisely meaningful if
  *  the datum used to define them is specified.  This class ignores this
@@ -157,7 +157,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 
 /** An iterator across the values in a LatLongCoords object.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
     /// Friend class which needs to be able to construct us.
@@ -204,7 +204,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
 
 /** A sequence of latitude-longitude coordinates.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
     /// The coordinates.
@@ -275,7 +275,7 @@ operator!=(const LatLongCoordsIterator &a, const LatLongCoordsIterator &b)
 
 /** Base class for calculating distances between two lat/long coordinates.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
   public:
@@ -365,7 +365,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongMetric {
 
 /** Calculate the great-circle distance between two coordinates on a sphere.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  *
  *  This uses the haversine formula to calculate the distance.  Note that this
  *  formula is subject to inaccuracy due to numerical errors for coordinates on
@@ -408,7 +408,7 @@ class XAPIAN_VISIBILITY_DEFAULT GreatCircleMetric : public LatLongMetric {
 
 /** Posting source which returns a weight based on geospatial distance.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  *
  *  Results are weighted by the distance from a fixed point, or list of points,
  *  calculated according to the metric supplied.  If multiple points are
@@ -463,7 +463,6 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
     /** Construct a new match decider which returns only documents within
      *  range of one of the central coordinates.
      *
-     *  @param db_ The database to read values from.
      *  @param slot_ The value slot to read values from.
      *  @param centre_ The centre point to use for distance calculations.
      *  @param metric_ The metric to use for distance calculations.
@@ -497,7 +496,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
 
 /** KeyMaker subclass which sorts by distance from a latitude/longitude.
  *
- *  Experimental - see http://xapian.org/docs/deprecation#experimental-features
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
  *
  *  Results are ordered by the distance from a fixed point, or list of points,
  *  calculated according to the metric supplied.  If multiple points are

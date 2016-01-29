@@ -1,7 +1,7 @@
 /** @file xapian-compact.cc
  * @brief Compact a database, or merge and compact several.
  */
-/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -39,23 +39,24 @@ using namespace std;
 #define OPT_NO_RENUMBER 3
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "Options:\n"
-"  -b, --blocksize   Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
-"                    (must be between 2K and 64K and a power of 2, default 8K)\n"
-"  -n, --no-full     Disable full compaction\n"
-"  -F, --fuller      Enable fuller compaction (not recommended if you plan to\n"
-"                    update the compacted database)\n"
-"  -m, --multipass   If merging more than 3 databases, merge the postlists in\n"
-"                    multiple passes (which is generally faster but requires\n"
-"                    more disk space for temporary files)\n"
-"      --no-renumber Preserve the numbering of document ids (useful if you have\n"
-"                    external references to them, or have set them to match\n"
-"                    unique ids from an external source).  Currently this\n"
-"                    option is only supported when merging databases if they\n"
-"                    have disjoint ranges of used document ids\n"
-"  --help            display this help and exit\n"
-"  --version         output version information and exit" << endl;
+"  -b, --blocksize=B  Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
+"                     (must be between 2K and 64K and a power of 2, default 8K)\n"
+"  -n, --no-full      Disable full compaction\n"
+"  -F, --fuller       Enable fuller compaction (not recommended if you plan to\n"
+"                     update the compacted database)\n"
+"  -m, --multipass    If merging more than 3 databases, merge the postlists in\n"
+"                     multiple passes (which is generally faster but requires\n"
+"                     more disk space for temporary files)\n"
+"      --no-renumber  Preserve the numbering of document ids (useful if you have\n"
+"                     external references to them, or have set them to match\n"
+"                     unique ids from an external source).  Currently this\n"
+"                     option is only supported when merging databases if they\n"
+"                     have disjoint ranges of used document ids\n"
+"  -s, --single-file  Produce a single file database (not supported for chert)\n"
+"  --help             display this help and exit\n"
+"  --version          output version information and exit" << endl;
 }
 
 class MyCompactor : public Xapian::Compactor {
@@ -103,13 +104,14 @@ MyCompactor::resolve_duplicate_metadata(const string & key,
 int
 main(int argc, char **argv)
 {
-    const char * opts = "b:nFmq";
+    const char * opts = "b:nFmqs";
     const struct option long_opts[] = {
 	{"fuller",	no_argument, 0, 'F'},
 	{"no-full",	no_argument, 0, 'n'},
 	{"multipass",	no_argument, 0, 'm'},
 	{"blocksize",	required_argument, 0, 'b'},
 	{"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
+	{"single-file", no_argument, 0, 's'},
 	{"quiet",	no_argument, 0, 'q'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
@@ -117,13 +119,16 @@ main(int argc, char **argv)
     };
 
     MyCompactor compactor;
+    Xapian::Compactor::compaction_level level = Xapian::Compactor::FULL;
+    unsigned flags = 0;
+    size_t block_size = 0;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'b': {
 		char *p;
-		size_t block_size = strtoul(optarg, &p, 10);
+		block_size = strtoul(optarg, &p, 10);
 		if (block_size <= 64 && (*p == 'K' || *p == 'k')) {
 		    ++p;
 		    block_size *= 1024;
@@ -135,30 +140,32 @@ main(int argc, char **argv)
 			 << endl;
 		    exit(1);
 		}
-		compactor.set_block_size(block_size);
 		break;
 	    }
 	    case 'n':
-		compactor.set_compaction_level(compactor.STANDARD);
+		level = compactor.STANDARD;
 		break;
 	    case 'F':
-		compactor.set_compaction_level(compactor.FULLER);
+		level = compactor.FULLER;
 		break;
 	    case 'm':
-		compactor.set_multipass(true);
+		flags |= Xapian::DBCOMPACT_MULTIPASS;
 		break;
 	    case OPT_NO_RENUMBER:
-		compactor.set_renumber(false);
+		flags |= Xapian::DBCOMPACT_NO_RENUMBER;
+		break;
+	    case 's':
+		flags |= Xapian::DBCOMPACT_SINGLE_FILE;
 		break;
 	    case 'q':
 		compactor.set_quiet(true);
 		break;
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    default:
 		show_usage();
@@ -172,14 +179,14 @@ main(int argc, char **argv)
     }
 
     // Path to the database to create.
-    compactor.set_destdir(argv[argc - 1]);
+    string destdir = argv[argc - 1];
 
     try {
+	Xapian::Database src;
 	for (int i = optind; i < argc - 1; ++i) {
-	    compactor.add_source(argv[i]);
+	    src.add_database(Xapian::Database(argv[i]));
 	}
-
-	compactor.compact();
+	src.compact(destdir, level | flags, block_size, compactor);
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);

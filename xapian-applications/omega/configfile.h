@@ -2,7 +2,7 @@
  *
  * Copyright 2001 Lemur Consulting Ltd.
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2005 Olly Betts
+ * Copyright 2003,2005,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,8 @@ using std::string;
 
 extern string database_dir;
 extern string template_dir;
+extern string default_template;
+extern string default_db;
 extern string log_dir;
 extern string cdb_dir;
 

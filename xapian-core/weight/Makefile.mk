@@ -2,7 +2,6 @@ noinst_HEADERS +=\
 	weight/weightinternal.h
 
 EXTRA_DIST +=\
-	weight/dir_contents\
 	weight/Makefile
 
 lib_src +=\
@@ -14,6 +13,7 @@ lib_src +=\
 	weight/ifb2weight.cc\
 	weight/ineb2weight.cc\
 	weight/inl2weight.cc\
+	weight/lmweight.cc\
 	weight/pl2weight.cc\
 	weight/tradweight.cc\
 	weight/tfidfweight.cc\

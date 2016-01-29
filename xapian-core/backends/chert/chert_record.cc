@@ -35,7 +35,7 @@ inline string
 make_key(Xapian::docid did)
 {
     string key;
-    pack_uint_preserving_sort(key, did);
+    C_pack_uint_preserving_sort(key, did);
     return key;
 }
 
@@ -78,4 +78,10 @@ ChertRecordTable::delete_record(Xapian::docid did)
     LOGCALL_VOID(DB, "ChertRecordTable::delete_record", did);
     if (!del(make_key(did)))
 	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + str(did));
+}
+
+void
+ChertRecordTable::readahead_for_record(Xapian::docid did) const
+{
+    readahead_key(make_key(did));
 }

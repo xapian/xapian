@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,7 +25,6 @@
 #define OM_HGUARD_CHERT_TABLE_H
 
 #include <xapian/error.h>
-#include <xapian/visibility.h>
 
 #include "chert_types.h"
 #include "chert_btreebase.h"
@@ -111,6 +110,10 @@
 #define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
 #define SET_DIR_END(b, x)       setint2(b, 9, x)
 
+// The item size is stored in 2 bytes, but the top bit is used to store a flag
+// for "is the tag data compressed".
+#define CHERT_MAX_ITEM_SIZE 0x7fff
+
 class Key {
     const byte *p;
 public:
@@ -147,7 +150,7 @@ public:
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
-	int item_size = getint2(p, 0) & 0x7fff;
+	int item_size = getint2(p, 0) & CHERT_MAX_ITEM_SIZE;
 	AssertRel(item_size,>=,5);
 	return item_size;
     }
@@ -222,6 +225,10 @@ public:
     }
     void set_size(int l) {
 	AssertRel(l,>=,5);
+	// We should never be able to pass too large a size here, but don't
+	// corrupt the database if this somehow happens.
+	if (rare(l &~ CHERT_MAX_ITEM_SIZE))
+	    throw Xapian::DatabaseError("item too large!");
 	setint2(p, 0, l);
     }
     /** Form an item with a null key and with block number n in the tag.
@@ -287,7 +294,7 @@ public:
  *  Tags which are null strings _are_ valid, and are different from a
  *  tag simply not being in the table.
  */
-class XAPIAN_VISIBILITY_DEFAULT ChertTable {
+class ChertTable {
     friend class ChertCursor; /* Should probably fix this. */
     private:
 	/// Copying not allowed
@@ -333,6 +340,8 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	 *  @param permanent If true, the Btree will not reopen on demand.
 	 */
 	void close(bool permanent=false);
+
+	bool readahead_key(const string &key) const;
 
 	/** Determine whether the btree exists on disk.
 	 */
@@ -602,10 +611,17 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 	    if (block_capacity > BLOCK_CAPACITY) block_capacity = BLOCK_CAPACITY;
 	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
+	    // Make sure we don't exceed the limit imposed by the format.
+	    if (max_item_size > CHERT_MAX_ITEM_SIZE)
+		max_item_size = CHERT_MAX_ITEM_SIZE;
 	}
 
 	/// Throw an exception indicating that the database is closed.
 	XAPIAN_NORETURN(static void throw_database_closed());
+
+	string get_path() const {
+	    return name;
+	}
 
     protected:
 
@@ -793,6 +809,9 @@ class XAPIAN_VISIBILITY_DEFAULT ChertTable {
 
 	/// If true, don't create the table until it's needed.
 	bool lazy;
+
+	/// Last block readahead_key() preread.
+	mutable uint4 last_readahead;
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);

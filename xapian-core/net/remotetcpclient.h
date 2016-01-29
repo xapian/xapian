@@ -1,7 +1,7 @@
 /** @file remotetcpclient.h
  *  @brief TCP/IP socket based RemoteDatabase implementation
  */
-/* Copyright (C) 2007,2008,2010,2011 Olly Betts
+/* Copyright (C) 2007,2008,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,12 +71,14 @@ class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
      *  @param timeout		Timeout during communication after successfully
      *				connecting (in seconds).
      *	@param writable		Is this a WritableDatabase?
+     *	@param flags		Xapian::DB_RETRY_LOCK or 0.
      */
     RemoteTcpClient(const std::string & hostname, int port,
-		    double timeout_, double timeout_connect, bool writable)
+		    double timeout_, double timeout_connect, bool writable,
+		    int flags)
 	: RemoteDatabase(open_socket(hostname, port, timeout_connect),
 			 timeout_, get_tcpcontext(hostname, port),
-			 writable) { }
+			 writable, flags) { }
 
     /** Destructor. */
     ~RemoteTcpClient();

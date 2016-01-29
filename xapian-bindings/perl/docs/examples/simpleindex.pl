@@ -24,7 +24,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Search::Xapian (':all');
+use Xapian (':all');
 
 if (scalar @ARGV != 1) {
     print STDERR "Usage: $0 PATH_TO_DATABASE\n";
@@ -33,10 +33,10 @@ if (scalar @ARGV != 1) {
 
 eval {
     # Open the database for update, creating a new database if necessary.
-    my $database = Search::Xapian::WritableDatabase->new($ARGV[0], DB_CREATE_OR_OPEN);
+    my $database = Xapian::WritableDatabase->new($ARGV[0], DB_CREATE_OR_OPEN);
 
-    my $indexer = Search::Xapian::TermGenerator->new();
-    my $stemmer = Search::Xapian::Stem->new("english");
+    my $indexer = Xapian::TermGenerator->new();
+    my $stemmer = Xapian::Stem->new("english");
     $indexer->set_stemmer($stemmer);
 
     my $para = '';
@@ -46,7 +46,7 @@ eval {
 	if ($line eq '') {
 	    if ($para ne '') {
 		# We've reached the end of a paragraph, so index it.
-		my $doc = Search::Xapian::Document->new();
+		my $doc = Xapian::Document->new();
 		$doc->set_data($para);
 
 		$indexer->set_document($doc);

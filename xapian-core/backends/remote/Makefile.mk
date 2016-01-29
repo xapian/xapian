@@ -1,5 +1,4 @@
 EXTRA_DIST +=\
-	backends/remote/dir_contents\
 	backends/remote/Makefile
 
 if BUILD_BACKEND_REMOTE

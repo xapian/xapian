@@ -4,3 +4,5 @@
 /.deps
 /.libs
 /.dirstamp
+/c_istab.h
+/unicode-data.cc

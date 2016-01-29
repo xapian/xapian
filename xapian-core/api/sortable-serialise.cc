@@ -1,7 +1,7 @@
 /** @file sortable-serialise.cc
  * @brief Serialise floating point values to string which sort the same way.
  */
-/* Copyright (C) 2007,2009 Olly Betts
+/* Copyright (C) 2007,2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,22 @@
 
 #include <config.h>
 
-#include <xapian/queryparser.h>
+#ifndef XAPIAN_UNITTEST
+# include <xapian/queryparser.h>
+// Only enable exceptions for the testsuite - we don't want them in a library
+// build as these functions are marked not to throw exceptions in the API
+// headers.
+# define UNITTEST_ASSERT(X)
+#else
+# include "omassert.h"
+# define UNITTEST_ASSERT(X) Assert(X)
+#endif
 
 #include <cfloat>
 #include <cmath>
+#include <cstring>
 
 #include <string>
-
-#include "omassert.h"
 
 using namespace std;
 
@@ -40,14 +48,14 @@ using namespace std;
 # pragma warning(disable:4146)
 #endif
 
-string
-Xapian::sortable_serialise(double value)
+size_t
+Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
 {
     double mantissa;
     int exponent;
 
     // Negative infinity.
-    if (value < -DBL_MAX) return string();
+    if (value < -DBL_MAX) return 0;
 
     mantissa = frexp(value, &exponent);
 
@@ -59,7 +67,10 @@ Xapian::sortable_serialise(double value)
      * -2039 - if smaller exponents are possible anywhere, we underflow such
      *  numbers to 0.
      */
-    if (mantissa == 0.0 || exponent < -2039) return "\x80";
+    if (mantissa == 0.0 || exponent < -2039) {
+	*buf = '\x80';
+	return 1;
+    }
 
     bool negative = (mantissa < 0);
     if (negative) mantissa = -mantissa;
@@ -69,9 +80,10 @@ Xapian::sortable_serialise(double value)
 	if (negative) {
 	    // This can only happen with a non-IEEE representation, because
 	    // we've already tested for value < -DBL_MAX
-	    return string();
+	    return 0;
 	} else {
-	    return string(9, '\xff');
+	    memset(buf, '\xff', 9);
+	    return 9;
 	}
     }
 
@@ -93,7 +105,7 @@ Xapian::sortable_serialise(double value)
 	next ^= 0x60;
     }
 
-    string result;
+    size_t len = 0;
 
     /* We store the exponent in 3 or 11 bits.  If the number is negative, we
      * flip all the bits of the exponent, since larger negative numbers should
@@ -103,18 +115,18 @@ Xapian::sortable_serialise(double value)
      * larger negative exponents should sort first (unless the number is
      * negative, in which case they should sort later).
      */
-    Assert(exponent >= 0);
+    UNITTEST_ASSERT(exponent >= 0);
     if (exponent < 8) {
 	next ^= 0x20;
 	next |= static_cast<unsigned char>(exponent << 2);
 	if (negative ^ exponent_negative) next ^= 0x1c;
     } else {
-	Assert((exponent >> 11) == 0);
+	UNITTEST_ASSERT((exponent >> 11) == 0);
 	// Put the top 5 bits of the exponent into the lower 5 bits of the
 	// first byte:
 	next |= static_cast<unsigned char>(exponent >> 6);
 	if (negative ^ exponent_negative) next ^= 0x1f;
-	result += next;
+	buf[len++] = next;
 	// And the lower 6 bits of the exponent go into the upper 6 bits
 	// of the second byte:
 	next = static_cast<unsigned char>(exponent) << 2;
@@ -133,7 +145,7 @@ Xapian::sortable_serialise(double value)
     // so we need to store it explicitly.  But for the cost of one extra
     // leading bit, we can save several trailing 0xff bytes in lots of common
     // cases.
-    Assert(negative || (word1 & (1<<26)));
+    UNITTEST_ASSERT(negative || (word1 & (1<<26)));
     if (negative) {
 	// We negate the mantissa for negative numbers, so that the sort order
 	// is reversed (since larger negative numbers should come first).
@@ -144,24 +156,22 @@ Xapian::sortable_serialise(double value)
 
     word1 &= 0x03ffffff;
     next |= static_cast<unsigned char>(word1 >> 24);
-    result += next;
-    result.push_back(char(word1 >> 16));
-    result.push_back(char(word1 >> 8));
-    result.push_back(char(word1));
+    buf[len++] = next;
+    buf[len++] = char(word1 >> 16);
+    buf[len++] = char(word1 >> 8);
+    buf[len++] = char(word1);
 
-    result.push_back(char(word2 >> 24));
-    result.push_back(char(word2 >> 16));
-    result.push_back(char(word2 >> 8));
-    result.push_back(char(word2));
+    buf[len++] = char(word2 >> 24);
+    buf[len++] = char(word2 >> 16);
+    buf[len++] = char(word2 >> 8);
+    buf[len++] = char(word2);
 
     // Finally, we can chop off any trailing zero bytes.
-    size_t len = result.size();
-    while (len > 0 && result[len - 1] == '\0') {
+    while (len > 0 && buf[len - 1] == '\0') {
 	--len;
     }
-    result.resize(len);
 
-    return result;
+    return len;
 }
 
 /// Get a number from the character at a given position in a string, returning
@@ -173,13 +183,14 @@ numfromstr(const std::string & str, std::string::size_type pos)
 }
 
 double
-Xapian::sortable_unserialise(const std::string & value)
+Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
 {
     // Zero.
-    if (value == "\x80") return 0.0;
+    if (value.size() == 1 && value[0] == '\x80') return 0.0;
 
     // Positive infinity.
-    if (value == string(9, '\xff')) {
+    if (value.size() == 9 &&
+	memcmp(value.data(), "\xff\xff\xff\xff\xff\xff\xff\xff\xff", 9) == 0) {
 #ifdef INFINITY
 	// INFINITY is C99.  Oddly, it's of type "float" so sanity check in
 	// case it doesn't cast to double as infinity (apparently some
@@ -233,7 +244,7 @@ Xapian::sortable_unserialise(const std::string & value)
 	word1 = -word1;
 	if (word2 != 0) ++word1;
 	word2 = -word2;
-	Assert((word1 & 0xf0000000) != 0);
+	UNITTEST_ASSERT((word1 & 0xf0000000) != 0);
 	word1 &= 0x03ffffff;
     }
     if (!negative) word1 |= 1<<26;
@@ -248,5 +259,8 @@ Xapian::sortable_unserialise(const std::string & value)
 
     if (negative) mantissa = -mantissa;
 
-    return ldexp(mantissa, exponent);
+    // We use scalbn() since it's equivalent to ldexp() when FLT_RADIX == 2
+    // (which we currently assume), except that ldexp() will set errno if the
+    // result overflows or underflows, which isn't really desirable here.
+    return scalbn(mantissa, exponent);
 }

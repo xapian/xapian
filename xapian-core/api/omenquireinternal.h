@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -117,6 +117,7 @@ class MSetItem {
  *  counted.
  */
 class Enquire::Internal : public Xapian::Internal::intrusive_base {
+    friend class MSet::Internal;
     private:
 	/// The database which this enquire object uses.
 	const Xapian::Database db;
@@ -170,7 +171,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 	/// The parameter required for TradWeight query expansion.
 	double expand_k;
 
-	vector<MatchSpy *> spies;
+	vector<Xapian::Internal::opt_intrusive_ptr<MatchSpy>> spies;
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
 	~Internal();
@@ -183,8 +184,10 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	Xapian::Document read_doc(const Xapian::Internal::MSetItem &item) const;
 
+	Xapian::Document get_document(const Xapian::Internal::MSetItem &item) const;
+
 	void set_query(const Query & query_, termcount qlen_);
-	const Query & get_query();
+	const Query & get_query() const;
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      const RSet *omrset,
@@ -298,6 +301,13 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
 	/// Converts a weight to a percentage weight
 	int convert_to_percent_internal(double wt) const;
+
+	std::string snippet(const std::string & text, size_t length,
+			    const Xapian::Stem & stemmer,
+			    unsigned flags,
+			    const std::string & hi_start,
+			    const std::string & hi_end,
+			    const std::string & omit) const;
 
 	/// Return a string describing this object.
 	string get_description() const;

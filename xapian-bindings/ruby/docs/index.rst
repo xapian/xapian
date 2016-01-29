@@ -29,7 +29,7 @@ renamed to 'call' methods in Ruby.
 
 The C++ methods are not yet documented in the `RDocs <rdocs/>`_.
 In the meantime, refer to the
-`C++ API documentation <http://xapian.org/docs/apidoc/html/annotated.html>`_
+`C++ API documentation <https://xapian.org/docs/apidoc/html/annotated.html>`_
 for information on how to use the various methods. Most are
 available directly in the Ruby version. The RDocs currently provide information
 only on methods that are unique to the Ruby version.
@@ -136,7 +136,6 @@ wrapped like so for Ruby:
 - ``Xapian::minor_version()`` is wrapped as ``Xapian::minor_version()``
 - ``Xapian::revision()`` is wrapped as ``Xapian::revision()``
 - ``Xapian::Auto::open_stub()`` is wrapped as ``Xapian::open_stub()``
-- ``Xapian::Brass::open()`` is wrapped as ``Xapian::brass_open()`` (now deprecated)
 - ``Xapian::Chert::open()`` is wrapped as ``Xapian::chert_open()`` (now deprecated)
 - ``Xapian::InMemory::open()`` is wrapped as ``Xapian::inmemory_open()``
 - ``Xapian::Remote::open()`` is wrapped as ``Xapian::remote_open()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).

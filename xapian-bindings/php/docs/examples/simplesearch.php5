@@ -1,7 +1,7 @@
 <?php
 /* Simple command-line search PHP5 script.
  *
- * Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,12 +58,10 @@ try {
     // Display the results.
     print "{$matches->get_matches_estimated()} results found:\n";
 
-    $i = $matches->begin();
-    while (!$i->equals($matches->end())) {
+    foreach ($matches->begin() as $i => $docid) {
 	$n = $i->get_rank() + 1;
 	$data = $i->get_document()->get_data();
-	print "$n: {$i->get_percent()}% docid={$i->get_docid()} [$data]\n\n";
-	$i->next();
+	print "$n: {$i->get_percent()}% docid=$docid [$data]\n\n";
     }
 } catch (Exception $e) {
     print $e->getMessage() . "\n";

@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010,2011,2013,2014 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013,2014,2015 Olly Betts
 # Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -894,7 +894,7 @@ def test_scale_weight():
     """
     db = setup_database()
     for mult in (0, 1, 2.5):
-        context("checking queries with OP_SCALE_WEIGHT with a multipler of %r" %
+        context("checking queries with OP_SCALE_WEIGHT with a multiplier of %r" %
                 mult)
         query1 = xapian.Query("it")
         query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
@@ -911,7 +911,7 @@ def test_scale_weight():
             expected = [(int(item.weight * mult * 1000000), item.docid) for item in mset1]
         expect([(int(item.weight * 1000000), item.docid) for item in mset2], expected)
 
-    context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
+    context("checking queries with OP_SCALE_WEIGHT with a multiplier of -1")
     query1 = xapian.Query("it")
     expect_exception(xapian.InvalidArgumentError,
                      "OP_SCALE_WEIGHT requires factor >= 0",
@@ -1003,14 +1003,19 @@ def test_postingsource():
 
         def init(self, db):
             self.current = -1
+            self.weight = db.get_doccount() + 1
+            self.set_maxweight(self.weight)
 
         def get_termfreq_min(self): return 0
         def get_termfreq_est(self): return int(self.max / 2)
         def get_termfreq_max(self): return self.max
         def __next__(self, minweight):
             self.current += 2
+            self.weight -= 1.0;
+            self.set_maxweight(self.weight)
         def at_end(self): return self.current > self.max
         def get_docid(self): return self.current
+        def get_weight(self): return self.weight
 
     dbpath = 'db_test_postingsource'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
@@ -1024,7 +1029,10 @@ def test_postingsource():
         # First - check that it's kept when the source goes out of scope.
         def mkquery():
             source = OddPostingSource(10)
-            return xapian.Query(xapian.Query.OP_OR, [xapian.Query(source)])
+            # The posting source is inside a list to check that case is
+            # correctly handled.
+            return xapian.Query(xapian.Query.OP_OR,
+                    ["terM wHich wilL NoT maTch", xapian.Query(source)])
 
         # Check that it's kept when the query goes out of scope.
         def submkenq():
@@ -1047,6 +1055,7 @@ def test_postingsource():
     mset = enquire.get_mset(0, 10)
 
     expect([item.docid for item in mset], [1, 3, 5, 7, 9])
+    expect(mset[0].weight, db.get_doccount())
 
     db.close()
     expect(xapian.Database.check(dbpath), 0);
@@ -1604,12 +1613,14 @@ run()
 if have_threads:
     print("Running tests with threads")
 
-    # This testcase seems to just block when run in a thread, so just remove
-    # it before running tests in a thread.
+    # This testcase seems to just block when run in a thread under Python 3
+    # on some plaforms.  It fails with 3.2.3 on Debian wheezy, but passes
+    # with the exact same package version on Debian unstable not long after
+    # the jessie release.  The issue it's actually serving to regression
+    # test for is covered by running it without threads, so just disable it
+    # rather than risk test failures that don't seem to indicate a problem
+    # in Xapian.
     del test_import_star
-
-    # FIXME: This testcase seg faults under threads.
-    del test_postingsource
 
     t = threading.Thread(name='test runner', target=run)
     t.start()

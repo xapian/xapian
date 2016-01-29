@@ -2,7 +2,7 @@
  * @brief Tests of closing databases.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2009,2012 Olly Betts
+ * Copyright 2009,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ struct closedb1_iterators {
 	COUNT_CLOSEDEXC(db.get_value_upper_bound(1));
 	COUNT_CLOSEDEXC(db.valuestream_begin(1));
 	COUNT_CLOSEDEXC(db.get_doclength(1));
+	COUNT_CLOSEDEXC(db.get_unique_terms(1));;
 
 	// Reopen raises the "database closed" error.
 	COUNT_CLOSEDEXC(db.reopen());
@@ -99,6 +100,7 @@ struct closedb1_iterators {
 
 	COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 1));
 	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 28));
+	COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_unique_terms(), 21));
 
 	// Advancing the iterator may or may not raise an error, but if it
 	// doesn't it must return the correct answers.
@@ -111,6 +113,7 @@ struct closedb1_iterators {
 	if (advanced) {
 	    COUNT_CLOSEDEXC(TEST_EQUAL(*pl1, 2));
 	    COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_doclength(), 81));
+	    COUNT_CLOSEDEXC(TEST_EQUAL(pl1.get_unique_terms(), 56));
 	}
 
 	return closedexc_count;

@@ -120,7 +120,7 @@ class IrcBuildRequest:
         if eta is not None:
             response = "build forced [ETA %s]" % self.parent.convertTime(eta)
         self.parent.send(response)
-        self.parent.send("I'll give a shout when the build finishes")
+        self.parent.send("I will politely inform you when the build finishes")
         d = s.waitUntilFinished()
         d.addCallback(self.parent.watchedBuildFinished)
 
@@ -880,7 +880,7 @@ class IrcStatusBot(irc.IRCClient):
 
     def joined(self, channel):
         self.log("I have joined %s" % (channel,))
-        # trigger contact contructor, which in turn subscribes to notify events
+        # trigger contact constructor, which in turn subscribes to notify events
         self.getContact(channel)
 
     def left(self, channel):

@@ -49,36 +49,35 @@ snowball_headers =\
 	languages/compiler/syswords.h\
 	languages/compiler/syswords2.h
 
-EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources) $(snowball_stopwords_preprocessed)\
+EXTRA_DIST += $(snowball_sources) $(snowball_headers) $(snowball_algorithms) $(snowball_built_sources)\
 	languages/collate-sbl\
 	languages/sbl-dispatch.h\
-	languages/dir_contents\
-	languages/Makefile\
-	languages/allsnowballheaders.h
+	languages/Makefile
 
-snowball_stopwords =\
-	languages/stopwords/arabic/stop.txt\
-	languages/stopwords/danish/stop.txt\
-	languages/stopwords/dutch/stop.txt\
-	languages/stopwords/english/stop.txt\
-	languages/stopwords/finnish/stop.txt\
-	languages/stopwords/french/stop.txt\
-	languages/stopwords/german/stop.txt\
-	languages/stopwords/hungarian/stop.txt\
-	languages/stopwords/italian/stop.txt\
-	languages/stopwords/norwegian/stop.txt\
-	languages/stopwords/portuguese/stop.txt\
-	languages/stopwords/russian/stop.txt\
-	languages/stopwords/spanish/stop.txt\
-	languages/stopwords/swedish/stop.txt
+stopworddir = $(pkgdatadir)/stopwords
+dist_stopword_DATA = $(snowball_stopwords:.txt=.list)
 
-snowball_stopwords_preprocessed =\
-	$(snowball_stopwords:.txt=.list)
+snowball_stopwords = \
+	languages/stopwords/arabic.txt\
+	languages/stopwords/danish.txt\
+	languages/stopwords/dutch.txt\
+	languages/stopwords/english.txt\
+	languages/stopwords/finnish.txt\
+	languages/stopwords/french.txt\
+	languages/stopwords/german.txt\
+	languages/stopwords/hungarian.txt\
+	languages/stopwords/italian.txt\
+	languages/stopwords/norwegian.txt\
+	languages/stopwords/portuguese.txt\
+	languages/stopwords/russian.txt\
+	languages/stopwords/spanish.txt\
+	languages/stopwords/swedish.txt
 
 .txt.list:
-	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $<  > $@
-
-BUILT_SOURCES += $(snowball_stopwords_preprocessed)
+if VPATH_BUILD
+	$(MKDIR_P) languages/stopwords
+endif
+	sed 's/[	 ]*|.*//;/^[	 ]*$$/d' < $< |sort|uniq > $@
 
 if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
@@ -92,14 +91,10 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 .sbl.h:
 	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
-languages/allsnowballheaders.h: languages/generate-allsnowballheaders languages/Makefile.mk
-	languages/generate-allsnowballheaders $(snowball_built_sources)
-
 languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
 
 BUILT_SOURCES += $(snowball_built_sources)\
-	languages/allsnowballheaders.h\
 	languages/sbl-dispatch.h
 CLEANFILES += languages/snowball
 endif

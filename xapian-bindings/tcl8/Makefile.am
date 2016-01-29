@@ -66,12 +66,12 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.tcl
 
 docdatadir = $(docdir)/tcl8
+EXTRA_DIST += docs/index.html
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
-BUILT_SOURCES += docs/index.html
+dist_docdata_DATA = docs/index.html
 
 .rst.html:
-	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
 endif

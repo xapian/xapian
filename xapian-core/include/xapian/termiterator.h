@@ -1,7 +1,7 @@
 /** @file  termiterator.h
  *  @brief Class for iterating over a list of terms
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_TERMITERATOR_H
 #define XAPIAN_INCLUDED_TERMITERATOR_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/termiterator.h> directly; include <xapian.h> instead."
 #endif
 
@@ -68,13 +68,13 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     }
 
     /// Return the term at the current position.
-    std::string operator*() const XAPIAN_PURE_FUNCTION;
+    std::string operator*() const;
 
     /// Return the wdf for the term at the current position.
-    Xapian::termcount get_wdf() const XAPIAN_PURE_FUNCTION;
+    Xapian::termcount get_wdf() const;
 
     /// Return the term frequency for the term at the current position.
-    Xapian::doccount get_termfreq() const XAPIAN_PURE_FUNCTION;
+    Xapian::doccount get_termfreq() const;
 
     /// Return the length of the position list for the current position.
     Xapian::termcount positionlist_count() const;
@@ -109,7 +109,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     void skip_to(const std::string &term);
 
     /// Return a string describing this object.
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 
     /** @private @internal TermIterator is what the C++ STL calls an
      *  input_iterator.
@@ -145,7 +145,7 @@ XAPIAN_NOTHROW(operator==(const TermIterator &a, const TermIterator &b));
 
 /// Equality test for TermIterator objects.
 inline bool
-operator==(const TermIterator &a, const TermIterator &b)
+operator==(const TermIterator &a, const TermIterator &b) XAPIAN_NOEXCEPT
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
@@ -157,7 +157,7 @@ XAPIAN_NOTHROW(operator!=(const TermIterator &a, const TermIterator &b));
 
 /// Inequality test for TermIterator objects.
 inline bool
-operator!=(const TermIterator &a, const TermIterator &b)
+operator!=(const TermIterator &a, const TermIterator &b) XAPIAN_NOEXCEPT
 {
     return !(a == b);
 }

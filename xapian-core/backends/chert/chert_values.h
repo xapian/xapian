@@ -40,7 +40,7 @@ make_valuechunk_key(Xapian::valueno slot, Xapian::docid did)
 {
     std::string key("\0\xd8", 2);
     pack_uint(key, slot);
-    pack_uint_preserving_sort(key, did);
+    C_pack_uint_preserving_sort(key, did);
     return key;
 }
 
@@ -57,7 +57,7 @@ docid_from_key(Xapian::valueno required_slot, const std::string & key)
     // Fail if for a different slot.
     if (slot != required_slot) return 0;
     Xapian::docid did;
-    if (!unpack_uint_preserving_sort(&p, end, &did))
+    if (!C_unpack_uint_preserving_sort(&p, end, &did))
        	throw Xapian::DatabaseCorruptError("bad value key");
     return did;
 }

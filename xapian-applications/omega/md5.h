@@ -20,7 +20,7 @@
 
 /* Minor tweaks for use from Omega:
  *
- * + Include netinet/in.h and/or arpa/inet.h to get uint32_t.
+ * + Include <cstdint> to get uint32_t.
  * + uint32 -> uint32_t.
  * + MD5Transform is an internal helper so prototype moved to md5.cc.
  * + Removed MD5_CTX.
@@ -28,19 +28,8 @@
  */
 
 // To get uint32_t:
-#ifdef HAVE_WORKING_STDINT_H
-# include <stdint.h>
-#else
-# ifdef HAVE_ARPA_INET_H
-#  include <arpa/inet.h>
-# endif
-# ifdef HAVE_NETINET_IN_H
-#  include <netinet/in.h>
-# endif
-# ifdef __WIN32__
-typedef unsigned int uint32_t;
-# endif
-#endif
+#include <cstdint>
+using std::uint32_t;
 
 struct MD5Context {
     uint32_t buf[4];

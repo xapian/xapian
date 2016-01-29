@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 
 #include "api/leafpostlist.h"
 #include "api/termlist.h"
+#include "backends/backends.h"
 #include "backends/database.h"
 #include "backends/valuestats.h"
 #include <map>
@@ -154,6 +155,7 @@ class InMemoryPostList : public LeafPostList {
 
 	Xapian::docid       get_docid() const;     // Gets current docid
 	Xapian::termcount   get_doclength() const; // Length of current document
+	Xapian::termcount   get_unique_terms() const; // number of terms in current document
 	Xapian::termcount   get_wdf() const;	   // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
@@ -183,6 +185,7 @@ class InMemoryAllDocsPostList : public LeafPostList {
 
 	Xapian::docid       get_docid() const;     // Gets current docid
 	Xapian::termcount   get_doclength() const; // Length of current document
+	Xapian::termcount   get_unique_terms() const; // number of terms in current document
 	Xapian::termcount   get_wdf() const;       // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
@@ -319,6 +322,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     totlen_t get_total_length() const;
     Xapian::doclength get_avlength() const;
     Xapian::termcount get_doclength(Xapian::docid did) const;
+    Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
     void get_freqs(const string & term,
 		   Xapian::doccount * termfreq_ptr,
@@ -344,6 +348,11 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     TermList * open_allterms(const string & prefix) const;
 
     XAPIAN_NORETURN(static void throw_database_closed());
+
+    int get_backend_info(string * path) const {
+	if (path) *path = string();
+	return BACKEND_INMEMORY;
+    }
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */

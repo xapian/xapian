@@ -1,5 +1,4 @@
 EXTRA_DIST +=\
-	backends/inmemory/dir_contents\
 	backends/inmemory/Makefile
 
 # InMemoryPositionList is also used by MapTermList and the remote backend.

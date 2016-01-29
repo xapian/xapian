@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright (C) 2011,2012,2013 Olly Betts
+# Copyright (C) 2011,2012,2013,2015 Olly Betts
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -60,8 +60,11 @@ open LOCK, '>', 'flockme' or die "Couldn't open 'flockme' for writing: $!\n";
 unless (flock LOCK, LOCK_EX|LOCK_NB) {
     # If we're building a tagged release, we want to wait rather than exit.
     unless (scalar @ARGV && $ARGV[0] =~ m!^tags/! && flock LOCK, LOCK_EX) {
-	# Work directory already in use.  Don't print anything or the cron job will
-	# send it as mail, which we don't really want.
+	# Work directory already in use.  Don't print anything unless STDOUT
+	# is a tty - the cron job will send it as mail, which we don't really
+	# want.
+	print STDERR "'flockme' is already locked, can't build '$ARGV[0]' right now\n"
+	    if -t STDERR;
 	exit 1;
     }
 }
@@ -73,7 +76,8 @@ my $HOSTNAME = Sys::Hostname::hostname();
 # Check the load average isn't too high.
 if (!$force) {
     if (-e "/var/run/dobackup") {
-	#print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n";
+	print STDERR "$HOSTNAME: Backup running (/var/run/dobackup exists)\n"
+	    if -t STDERR;
 	exit(1);
     }
     if (((`uptime 2>/dev/null`)[0] =~ /.*: (\d+(?:\.\d+)?),/) &&
@@ -138,7 +142,7 @@ foreach my $tag (@ARGV) {
 	system "rm", "-rf", $co_dir;
 	# Check out the tag into a directory of the same name.
 	my $branch = $tag;
-	$branch =~ s!^branches/!svn/! || $branch =~ s!^tags/!svn/tags/! ||
+	$branch =~ s!^branches/!svn/! || $branch =~ s!^tags/!! ||
 	    ($branch =~ s/^trunk$/master/);
 	open CMD, "git clone --branch \Q$branch\E \Q$repourl\E \Q$co_dir\E 2>&1|" or die $!;
 	$log = join '', <CMD>;
@@ -196,7 +200,7 @@ foreach my $tag (@ARGV) {
 	    open OUT, ">", "tmp.out" or die $!;
 	    open IN, "<", $configure_ac or die $!;
 	    while (<IN>) {
-		s/(^AC_INIT\([^,]*,.*?)(\s*[),\]])/$1_git$revcount$2/g;
+		s/(^(?:AC_INIT\([^,]*|m4_define\(\[project_version\]),.*?[0-9])(\s*[),\]])/$1_git$revcount$2/g;
 		print OUT;
 	    }
 	    close IN or die $!;
@@ -375,7 +379,7 @@ foreach my $tag (@ARGV) {
     }
 
     my $d = "$webbase/oligarchy.co.uk/xapian/$tag";
-    if ($tag =~ m!^tags/([\d.]+)$!) {
+    if ($tag =~ m!^tags/v?([\d.]+)$!) {
 	$d = "$webbase/oligarchy.co.uk/xapian/$1";
     }
     if (! -d $d) {

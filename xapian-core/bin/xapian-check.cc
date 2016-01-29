@@ -35,18 +35,18 @@ using namespace std;
 #define PROG_DESC "Check the consistency of a database or table"
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" <database directory>|<path to btree and prefix> [[F][t][f][b][v][+]]\n\n"
+    cout << "Usage: " PROG_NAME " <database directory>|<path to btree and prefix> [[F][t][f][b][v][+]]\n\n"
 "If a whole database is checked, then additional cross-checks between\n"
 "the tables are performed.\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
 " F = attempt to fix a broken database (implemented for chert currently)\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
-" b = show bitmap\n"
+" b = show free blocks\n"
 " v = show stats about B-tree (default)\n"
 " + = same as tbv\n"
-" e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
-"      "PROG_NAME" /var/lib/xapian/data/default/postlist fbv" << endl;
+" e.g. " PROG_NAME " /var/lib/xapian/data/default\n"
+"      " PROG_NAME " /var/lib/xapian/data/default/postlist fbv" << endl;
 }
 
 int
@@ -54,12 +54,12 @@ main(int argc, char **argv)
 {
     if (argc > 1 && argv[1][0] == '-') {
 	if (strcmp(argv[1], "--help") == 0) {
-	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	     cout << PROG_NAME " - " PROG_DESC "\n\n";
 	    show_usage();
 	    exit(0);
 	}
 	if (strcmp(argv[1], "--version") == 0) {
-	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    cout << PROG_NAME " - " PACKAGE_STRING << endl;
 	    exit(0);
 	}
     }
@@ -75,11 +75,11 @@ main(int argc, char **argv)
 	switch (*p) {
 	    case 't': opts |= Xapian::DBCHECK_SHORT_TREE; break;
 	    case 'f': opts |= Xapian::DBCHECK_FULL_TREE; break;
-	    case 'b': opts |= Xapian::DBCHECK_SHOW_BITMAP; break;
+	    case 'b': opts |= Xapian::DBCHECK_SHOW_FREELIST; break;
 	    case 'v': opts |= Xapian::DBCHECK_SHOW_STATS; break;
 	    case '+':
 		opts |= Xapian::DBCHECK_SHORT_TREE;
-		opts |= Xapian::DBCHECK_SHOW_BITMAP;
+		opts |= Xapian::DBCHECK_SHOW_FREELIST;
 		opts |= Xapian::DBCHECK_SHOW_STATS;
 		break;
 	    case 'F':

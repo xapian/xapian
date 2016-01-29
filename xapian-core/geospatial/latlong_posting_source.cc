@@ -3,7 +3,7 @@
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012 Olly Betts
+ * Copyright 2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,7 +29,6 @@
 #include "xapian/registry.h"
 
 #include "net/length.h"
-#include "net/serialise.h"
 #include "serialise-double.h"
 #include "str.h"
 
@@ -202,14 +201,16 @@ LatLongDistancePostingSource::unserialise_with_registry(const string &s,
     const char * p = s.data();
     const char * end = p + s.size();
 
-    valueno new_slot = decode_length(&p, end, false);
-    size_t len = decode_length(&p, end, true);
+    valueno new_slot;
+    decode_length(&p, end, new_slot);
+    size_t len;
+    decode_length_and_check(&p, end, len);
     string new_serialised_centre(p, len);
     p += len;
-    len = decode_length(&p, end, true);
+    decode_length_and_check(&p, end, len);
     string new_metric_name(p, len);
     p += len;
-    len = decode_length(&p, end, true);
+    decode_length_and_check(&p, end, len);
     string new_serialised_metric(p, len);
     p += len;
     double new_max_range = unserialise_double(&p, end);

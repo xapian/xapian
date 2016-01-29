@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  *
@@ -35,19 +35,34 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
   protected:
     /// Stats which the weighting scheme can use (see @a need_stat()).
     typedef enum {
+	/// Number of documents in the collection.
 	COLLECTION_SIZE = 1,
+	/// Number of documents in the RSet.
 	RSET_SIZE = 2,
+	/// Average length of documents in the collection.
 	AVERAGE_LENGTH = 4,
+	/// How many documents the current term is in.
 	TERMFREQ = 8,
+	/// How many documents in the RSet the current term is in.
 	RELTERMFREQ = 16,
+	/// Sum of wqf for terms in the query.
 	QUERY_LENGTH = 32,
+	/// Within-query-frequency of the current term.
 	WQF = 64,
+	/// Within-document-frequency of the current term in the current document.
 	WDF = 128,
+	/// Length of the current document (sum wdf).
 	DOC_LENGTH = 256,
+	/// Lower bound on (non-zero) document lengths.
 	DOC_LENGTH_MIN = 512,
+	/// Upper bound on document lengths.
 	DOC_LENGTH_MAX = 1024,
+	/// Upper bound on wdf.
 	WDF_MAX = 2048,
-	COLLECTION_FREQ = 4096
+	/// Sum of wdf over the whole collection for the current term.
+	COLLECTION_FREQ = 4096,
+	/// Number of unique terms in the current document.
+	UNIQUE_TERMS = 8192
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -115,6 +130,21 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     Xapian::termcount wdf_upper_bound_;
 
   public:
+
+    /// Default constructor, needed by subclass constructors.
+    Weight() : stats_needed() { }
+
+    /** Type of smoothing to use with the Language Model Weighting scheme.
+     *
+     *  Default is TWO_STAGE_SMOOTHING.
+     */
+    typedef enum {
+	TWO_STAGE_SMOOTHING = 1,
+	DIRICHLET_SMOOTHING = 2,
+	ABSOLUTE_DISCOUNT_SMOOTHING = 3,
+	JELINEK_MERCER_SMOOTHING = 4
+    } type_smoothing;
+
     class Internal;
 
     /** Virtual destructor, because we have virtual methods. */
@@ -134,7 +164,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      */
     virtual Weight * clone() const = 0;
 
@@ -173,7 +203,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  (for example when wrapping the Xapian API for use from another
      *  language) then you can define a static <code>operator delete</code>
      *  method in your subclass as shown here:
-     *  http://trac.xapian.org/ticket/554#comment:1
+     *  https://trac.xapian.org/ticket/554#comment:1
      *
      *  @param serialised	A string containing the serialised parameters.
      */
@@ -186,9 +216,12 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *
      *  @param wdf    The within document frequency of the term in the document.
      *  @param doclen The document's length (unnormalised).
+     *  @param uniqterms	Number of unique terms in the document (used
+     *				for absolute smoothing).
      */
     virtual double get_sumpart(Xapian::termcount wdf,
-			       Xapian::termcount doclen) const = 0;
+			       Xapian::termcount doclen,
+			       Xapian::termcount uniqterms) const = 0;
 
     /** Return an upper bound on what get_sumpart() can return for any document.
      *
@@ -203,8 +236,10 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  in the calculations:
      *
      *  @param doclen The document's length (unnormalised).
+     *  @param uniqterms The number of unique terms in the document.
      */
-    virtual double get_sumextra(Xapian::termcount doclen) const = 0;
+    virtual double get_sumextra(Xapian::termcount doclen,
+				Xapian::termcount uniqterms) const = 0;
 
     /** Return an upper bound on what get_sumextra() can return for any
      *  document.
@@ -268,6 +303,16 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return stats_needed & WDF;
     }
 
+    /** @private @internal Return true if the number of unique terms is needed.
+     *
+     *  If this method returns true, then the number of unique terms will be
+     *  fetched and passed to @a get_sumpart().  Otherwise 0 may be passed for
+     *  the number of unique terms.
+     */
+    bool get_sumpart_needs_uniqueterms_() const {
+	return stats_needed & UNIQUE_TERMS;
+    }
+
   protected:
     /** Don't allow copying.
      *
@@ -275,9 +320,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      *  with GCC 4.1 (which appears to be a bug).
      */
     Weight(const Weight &);
-
-    /// Default constructor, needed by subclass constructors.
-    Weight() : stats_needed() { }
 
     /// The number of documents in the collection.
     Xapian::doccount get_collection_size() const { return collection_size_; }
@@ -349,10 +391,12 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     BoolWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -378,52 +422,41 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
   public:
     /** Construct a TfIdfWeight
      *
-     *  @param normalizations  A three character string indicating the normalizations
-     *                         to be used for the tf(wdf), idf and document weight
-     *                         respectively.
+     *  @param normalizations	A three character string indicating the
+     *				normalizations to be used for the tf(wdf), idf
+     *				and document weight.  (default: "ntn")
      *
-     *                         The first character specifies the normalization
-     *                         for the wdf for which the following normalizations
-     *                         are currently available:
+     * The @a normalizations string works like so:
      *
-     *                         'n':None.      wdfn=wdf
-     *                         'b':Boolean    wdfn=1 if term in document else wdfn=0
-     *                         's':Square     wdfn=wdf*wdf
-     *                         'l':Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     * @li The first character specifies the normalization for the wdf.  The
+     *     following normalizations are currently supported:
      *
-     *                         The Max-wdf and Augmented Max wdf normalizations aren't yet implemented.
+     *     @li 'n': None.      wdfn=wdf
+     *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
+     *     @li 's': Square     wdfn=wdf*wdf
+     *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *
+     *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
+     *     implemented.
      *
-     *                         The second character indicates the normalization
-     *                         for the idf, the following of which are currently
-     *                         available:
+     * @li The second character indicates the normalization for the idf.  The
+     *     following normalizations are currently supported:
      *
-     *                         'n':None   idfn=1
-     *                         't':TfIdf  idfn=log(N/Termfreq) where N is the number of documents in
-     *                                    collection and Termfreq is the number of documents which are
-     *                                    indexed by the term t.
-     *                         'p':Prob   idfn=log((N-Termfreq)/Termfreq)
+     *     @li 'n': None   idfn=1
+     *     @li 't': TfIdf  idfn=log(N/Termfreq) where N is the number of
+     *         documents in collection and Termfreq is the number of documents
+     *         which are indexed by the term t.
+     *     @li 'p': Prob   idfn=log((N-Termfreq)/Termfreq)
      *
+     * @li The third and the final character indicates the normalization for
+     *     the document weight.  The following normalizations are currently
+     *     supported:
      *
-     *                         The third and the final character indicates the
-     *                         normalization for the document weight of which
-     *                         the following are currently available:
+     *     @li 'n': None wtn=tfn*idfn
      *
-     *                         'n':None wtn=tfn*idfn
-     *                         Implementing more normalizations for the weight requires access to
-     *                         statistics such as the weight of all terms in the document indexed by
-     *                         the term in the query. This is not available from the current backend.
-     *
-     *
-     *                         More normalizations for all components can be implemented by
-     *                         changing the backend to acquire the statistics
-     *                         required for the normalizations which are not
-     *                         currently available from Xapian::Weight.
-     *
-     *
-     *                         The default string is "ntn".
+     * Implementing support for more normalizations of each type would require
+     * extending the backend to track more statistics.
      */
-
     explicit TfIdfWeight(const std::string &normalizations);
 
     TfIdfWeight()
@@ -441,10 +474,12 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     TfIdfWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -544,10 +579,12 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     BM25Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -603,10 +640,12 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     TradWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqueterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -674,10 +713,12 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     InL2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -745,10 +786,12 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     IfB2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -814,10 +857,12 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     IneB2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -845,8 +890,12 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     /// The upper bound on the weight.
     double upper_bound;
 
-    /// The factor to multiply with the weight.
-    double factor;
+    /// The constant values to be used in get_sumpart().
+    double c_product_avlen;
+    double B_constant;
+    double wt;
+    double stirling_constant_1;
+    double stirling_constant_2;
 
     BB2Weight * clone() const;
 
@@ -884,10 +933,12 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     BB2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -925,15 +976,15 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 
   public:
     DLHWeight() {
-    need_stat(AVERAGE_LENGTH);
-    need_stat(DOC_LENGTH);
-    need_stat(COLLECTION_SIZE);
-    need_stat(COLLECTION_FREQ);
-    need_stat(WDF);
-    need_stat(WQF);
-    need_stat(WDF_MAX);
-    need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(COLLECTION_SIZE);
+	need_stat(COLLECTION_FREQ);
+	need_stat(WDF);
+	need_stat(WQF);
+	need_stat(WDF_MAX);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
     }
 
     std::string name() const;
@@ -942,10 +993,12 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     DLHWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -1018,10 +1071,12 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     PL2Weight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 };
 
@@ -1079,10 +1134,103 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     DPHWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
-		       Xapian::termcount doclen) const;
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
     double get_maxpart() const;
 
-    double get_sumextra(Xapian::termcount doclen) const;
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
+    double get_maxextra() const;
+};
+
+
+/** Xapian::Weight subclass implementing the Language Model formula.
+ *
+ * This class implements the "Language Model" Weighting scheme, as
+ * described by the early papers on LM by Bruce Croft.
+ *
+ * LM works by comparing the query to a Language Model of the document.
+ * The language model itself is parameter-free, though LMWeight takes
+ * parameters which specify the smoothing used.
+ */
+class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
+
+    /** The type of smoothing to use. */
+    type_smoothing select_smoothing;
+
+    // Parameters for handling negative value of log, and for smoothing.
+    double param_log, param_smoothing1, param_smoothing2;
+
+    // Collection weight.
+    double weight_collection;
+
+    LMWeight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a LMWeight.
+     *
+     *  @param param_log_	A non-negative parameter controlling how much
+     *				to clamp negative values returned by the log.
+     *				The log is calculated by multiplying the
+     *				actual weight by param_log.  If param_log is
+     *				0.0, then the document length upper bound will
+     *				be used (default: document length upper	bound)
+     *
+     *  @param select_smoothing_	A parameter of type enum
+     *					type_smoothing.  This parameter
+     *					controls which smoothing type to use.
+     *					(default: TWO_STAGE_SMOOTHING)
+     *
+     *  @param param_smoothing1_	A non-negative parameter for smoothing
+     *					whose meaning depends on
+     *					select_smoothing_.  In
+     *					JELINEK_MERCER_SMOOTHING, it plays the
+     *					role of estimation and in
+     *					DIRICHLET_SMOOTHING the role of query
+     *					modelling. (default JELINEK_MERCER,
+     *					ABSOLUTE, TWOSTAGE(0.7),
+     *					DIRCHLET(2000))
+     *
+     *  @param param_smoothing2_	A non-negative parameter which is used
+     *					only with TWO_STAGE_SMOOTHING as
+     *					parameter for Dirichlet's smoothing.
+     *					(default: 2000)
+     */
+    // Unigram LM Constructor to specifically mention all parameters for handling negative log value and smoothing.
+    explicit LMWeight(double param_log_ = 0.0,
+		      type_smoothing select_smoothing_ = TWO_STAGE_SMOOTHING,
+		      double param_smoothing1_ = 0.7,
+		      double param_smoothing2_ = 2000.0)
+	: select_smoothing(select_smoothing_), param_log(param_log_), param_smoothing1(param_smoothing1_),
+	  param_smoothing2(param_smoothing2_)
+    {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(COLLECTION_SIZE);
+	need_stat(RSET_SIZE);
+	need_stat(TERMFREQ);
+	need_stat(RELTERMFREQ);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(COLLECTION_FREQ);
+	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
+	    need_stat(UNIQUE_TERMS);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    LMWeight * unserialise(const std::string & s) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
     double get_maxextra() const;
 };
 

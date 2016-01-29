@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_CHERT_CURSOR_H
 #define OM_HGUARD_CHERT_CURSOR_H
 
-#include <xapian/visibility.h>
-
 #include "chert_types.h"
 
 #include <string>
@@ -65,7 +63,7 @@ class ChertTable;
 /** A cursor pointing to a position in a Btree table, for reading several
  *  entries in order, or finding approximate matches.
  */
-class XAPIAN_VISIBILITY_DEFAULT ChertCursor {
+class ChertCursor {
     private:
 	/// Copying not allowed
         ChertCursor(const ChertCursor &);

@@ -57,7 +57,7 @@ As mentioned before, this process requires a training file in the above format. 
     it in such file using basic 'awk' command.
 
     3. Collection Index : Here you supply the path to the index of the corpus
-    generated using `Omega <http://xapian.org/docs/omega/overview.html>`_. If
+    generated using `Omega <https://xapian.org/docs/omega/overview.html>`_. If
     you have 'title' information in the collection with some xml/html tag or so
     then add::
 
@@ -74,7 +74,7 @@ After we have built a model, its quite straightforward to get a real score for a
 Features
 ========
 
-Features play a major role in the learning. In LTR, features are mainly of three types: query dependant, document dependant (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependant (TF-IDF Score, BM25 Score, etc). In total we have incorporated 19 features which are described below. These features are statistically tested in [Nallapati2004]_.
+Features play a major role in the learning. In LTR, features are mainly of three types: query dependent, document dependent (pagerank, inLink/outLink number, number of children, etc) and query-document pair dependent (TF-IDF Score, BM25 Score, etc). In total we have incorporated 19 features which are described below. These features are statistically tested in [Nallapati2004]_.
 
     Here c(w,D) means that count of term w in Document D. C represents the Collection. 'n' is the total number of terms in query.
     :math:`|.|` is size-of function and idf(.) is the inverse-document-frequency.
@@ -95,7 +95,7 @@ Features play a major role in the learning. In LTR, features are mainly of three
 
 All the above 6 features are calculated considering 'title only', 'body only' and 'whole' document. So they make in total 6*3=18 features. The 19th feature is the BM25 score assigned to the document by the Xapian weighting scheme.
 
-One thing that should be noticed is that all the feature values are `normalized at Query-Level <http://trac.xapian.org/wiki/GSoC2011/LTR/Notes#QueryLevelNorm>`_. That means that the values of a particular feature for a particular query are divided by its query-level maximum value and hence all the feature values will be between 0 and 1. This normalization helps for unbiased learning.
+One thing that should be noticed is that all the feature values are `normalized at Query-Level <https://trac.xapian.org/wiki/GSoC2011/LTR/Notes#QueryLevelNorm>`_. That means that the values of a particular feature for a particular query are divided by its query-level maximum value and hence all the feature values will be between 0 and 1. This normalization helps for unbiased learning.
 
 .. [Nallapati2004] Nallapati, R. Discriminative models for information retrieval. Proceedings of SIGIR 2004 (pp. 64-71).
 

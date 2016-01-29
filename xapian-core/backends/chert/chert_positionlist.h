@@ -37,7 +37,7 @@ class ChertPositionListTable : public ChertLazyTable {
   public:
     static string make_key(Xapian::docid did, const string & term) {
 	string key;
-	pack_uint_preserving_sort(key, did);
+	C_pack_uint_preserving_sort(key, did);
 	key += term;
 	return key;
     }

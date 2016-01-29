@@ -1,7 +1,7 @@
 /** @file  postingiterator.h
  *  @brief Class for iterating over a list of document ids
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_POSTINGITERATOR_H
 #define XAPIAN_INCLUDED_POSTINGITERATOR_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/postingiterator.h> directly; include <xapian.h> instead."
 #endif
 
@@ -75,6 +75,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 
     /// Return the length of the document at the current position.
     Xapian::termcount get_doclength() const;
+
+    /// Return the number of unique terms in the current document.
+    Xapian::termcount get_unique_terms() const;
 
 #if 0 // FIXME: TermIterator supports this, so PostingIterator really ought to.
     /// Return the length of the position list for the current position.
@@ -144,7 +147,7 @@ XAPIAN_NOTHROW(operator==(const PostingIterator &a, const PostingIterator &b));
 
 /// Equality test for PostingIterator objects.
 inline bool
-operator==(const PostingIterator &a, const PostingIterator &b)
+operator==(const PostingIterator &a, const PostingIterator &b) XAPIAN_NOEXCEPT
 {
     // Use a pointer comparison - this ensures both that (a == a) and correct
     // handling of end iterators (which we ensure have NULL internals).
@@ -156,7 +159,7 @@ XAPIAN_NOTHROW(operator!=(const PostingIterator &a, const PostingIterator &b));
 
 /// Inequality test for PostingIterator objects.
 inline bool
-operator!=(const PostingIterator &a, const PostingIterator &b)
+operator!=(const PostingIterator &a, const PostingIterator &b) XAPIAN_NOEXCEPT
 {
     return !(a == b);
 }

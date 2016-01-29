@@ -2,7 +2,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
 
 ===========
 Deprecation
@@ -230,6 +230,9 @@ Omega
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
+1.2.4      1.5.0  omindex command line long option    Renamed to ``--no-delete``, which works in 1.2.4 and later.
+                  ``--preserve-nonduplicates``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.2.5      1.5.0  $set{spelling,true}                 Use $set{flag_spelling_suggestion,true} instead.
 ========== ====== =================================== ========================================================================
 
@@ -250,6 +253,10 @@ Native C++ API
 --------------
 
 .. Keep table width to <= 126 columns.
+
+.. Substitution definitions for feature names which are two wide for the column:
+
+.. |set_max_wildcard_expansion| replace:: ``Xapian::QueryParser::set_max_wildcard_expansion()``
 
 ======= =================================== ==================================================================================
 Removed Feature name                        Upgrade suggestion and comments
@@ -445,13 +452,35 @@ Removed Feature name                        Upgrade suggestion and comments
                                             level too) and we can't find any evidence that people are actually using it.
                                             So we are deprecating it and will replace it with something better thought out,
                                             probably during the 1.3.x development series.  There's so further thoughts at
-                                            http://trac.xapian.org/ticket/3#comment:8
+                                            https://trac.xapian.org/ticket/3#comment:8
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2) instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.2   ``Xapian::Brass::open()``           Use the constructor with ``Xapian::DB_BACKEND_BRASS`` flag (new in 1.3.2) instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.2   The Brass backend                   Use the Glass backend instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.2   ``Xapian::Brass::open()``           Use the constructor with ``Xapian::DB_BACKEND_GLASS`` flag (new in 1.3.2) instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.3   |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.4   Copy constructors and assignment    We think it was a mistake that implicit copy constructors and assignment operators
+        operators for classes:              were being provided for these functor classes - it's hard to use them correctly,
+        ``Xapian::ExpandDecider``,          but easy to use them in ways which compile but don't work correctly, and we doubt
+        ``Xapian::FieldProcessor`` (new in  anyone is intentionally using them, so we've simply removed them.  For more
+        1.3.1), ``Xapian::KeyMaker``,       information, see https://trac.xapian.org/ticket/681
+        ``Xapian::MatchDecider``,
+        ``Xapian::StemImplementation``,
+        ``Xapian::Stopper`` and
+        ``Xapian::ValueRangeProcessor``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.4   ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The ``Xapian::Compact``
+        ``set_block_size()``,               is now just a subclassable functor class to allow access to progress messages
+        ``set_renumber()``,                 and control over merging of user metadata.
+        ``set_multipass()``,
+        ``set_compaction_level()``,
+        ``set_destdir()``, ``add_source()`
+        and ``compact()``.
 ======= =================================== ==================================================================================
 
 
@@ -560,7 +589,7 @@ Removed Language Feature name                 Upgrade suggestion and comments
 
 .. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
-.. [#rsw2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
+.. [#rsw2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function was deprecated in Xapian-core.
 
 .. [#rsw3] This affects all SWIG generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 

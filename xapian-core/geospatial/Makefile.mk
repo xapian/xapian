@@ -1,5 +1,4 @@
 EXTRA_DIST += \
-	geospatial/dir_contents \
 	geospatial/Makefile
 
 noinst_HEADERS +=\

@@ -2,7 +2,7 @@
  * @brief a generic test suite engine
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2006,2007,2008,2009,2013 Olly Betts
+ * Copyright 2002,2003,2005,2006,2007,2008,2009,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,16 +51,14 @@ class TestSkip { };
 /** Macro used to build a TestFail object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-#define FAIL_TEST(a) do { TestFail testfail; \
-                          if (verbose) { tout << a << '\n'; } \
-		          throw testfail; } while (0)
+#define FAIL_TEST(a) do { if (verbose) { tout << a << '\n'; } \
+			  throw TestFail(); } while (0)
 
 /** Macro used to build a TestSkip object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
-#define SKIP_TEST(a) do { TestSkip testskip; \
-                          if (verbose) { tout << a << '\n'; } \
-		          throw testskip; } while (0)
+#define SKIP_TEST(a) do { if (verbose) { tout << a << '\n'; } \
+			  throw TestSkip(); } while (0)
 
 /// Type for a test function.
 typedef bool (*test_func)();
@@ -234,7 +232,7 @@ class test_driver {
 };
 
 /// Display the location at which a testcase occurred, with an explanation.
-#define TESTCASE_LOCN(a) __FILE__":"STRINGIZE(__LINE__)": "STRINGIZE(a)
+#define TESTCASE_LOCN(a) __FILE__ ":" STRINGIZE(__LINE__) ": " STRINGIZE(a)
 
 /** Test a condition, and display the test with an extra explanation if
  *  the condition fails.
@@ -249,7 +247,7 @@ class test_driver {
 
 /// Test for equality of two things.
 #define TEST_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' to be equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be equal:" \
 	" were " << (a) << " and " << (b))
 
 /** Test for equality of two strings.
@@ -258,7 +256,7 @@ class test_driver {
  *  be seen clearly.
  */
 #define TEST_STRINGS_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
-	"Expected "STRINGIZE(a)" and "STRINGIZE(b)" to be equal, were:\n\"" \
+	"Expected " STRINGIZE(a) " and " STRINGIZE(b) " to be equal, were:\n\"" \
 	<< (a) << "\"\n\"" << (b) << '"')
 
 /// Helper function for TEST_EQUAL_DOUBLE macro.
@@ -266,17 +264,17 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 
 /// Test two doubles for near equality.
 #define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_((a), (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' to be (nearly) equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' to be (nearly) equal:" \
 	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
 /// Test two doubles for non-near-equality.
 #define TEST_NOT_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(!TEST_EQUAL_DOUBLE_((a), (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' not to be (nearly) equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be (nearly) equal:" \
 	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
-	"Expected '"STRINGIZE(a)"' and '"STRINGIZE(b)"' not to be equal:" \
+	"Expected '" STRINGIZE(a) "' and '" STRINGIZE(b) "' not to be equal:" \
 	" were " << (a) << " and " << (b))
 
 #define DEFINE_TESTCASE(S,COND) bool test_##S()

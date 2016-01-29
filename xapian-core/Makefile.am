@@ -13,7 +13,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
 # include/xapian/error.h and include/xapian/errordispatch.h
-AM_CPPFLAGS += -I$(top_builddir)/include
+AM_CPPFLAGS += -I'$(top_builddir)/include'
 endif
 
 # Order is relevant: when building, tests must be after ".".
@@ -71,7 +71,7 @@ DISTCLEANFILES += xapian-config
 
 EXTRA_DIST = ChangeLog ChangeLog.0 ChangeLog.examples HACKING PLATFORMS \
  xapian-core.spec include/xapian/error.h include/xapian/errordispatch.h \
- generate-exceptions exception_data.pm preautoreconf dir_contents
+ generate-exceptions exception_data.pm preautoreconf
 
 cmakedir = $(libdir)/cmake/xapian
 cmake_DATA = cmake/xapian-config.cmake cmake/xapian-config-version.cmake
@@ -84,12 +84,17 @@ include docsource.mk
 m4datadir = $(datadir)/aclocal
 dist_m4data_DATA = m4-macros/xapian-1.3.m4
 
+# Install the pkg-config file containing the correct compiler options.
+pkgconfigdir = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA = pkgconfig/xapian-core-1.3.pc
+DISTCLEANFILES += pkgconfig/xapian-core-1.3.pc
+
 libxapian_la = libxapian-1.3.la
 lib_LTLIBRARIES = libxapian-1.3.la
 libxapian_1_3_la_SOURCES = $(lib_src)
 libxapian_1_3_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_1_3_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
 
 lib_src =
 

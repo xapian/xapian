@@ -26,11 +26,10 @@ RST_DOCS = \
 # Therefore, we don't run it by default currently.
 # replicationtest.py
 
-BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	generate-python-exceptions \
-	module_top.py \
 	run-python-test \
 	testsuite.py \
 	test_xapian_star.py \
@@ -42,7 +41,7 @@ pkgpylibdir = @PYTHON3_LIB@/xapian
 # executable (they don't have a #! line).
 pkgpylib_DATA = xapian/__init__.py \
 		xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
-		xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo
+		xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@
 
 pkgpylib_LTLIBRARIES = _xapian.la
 
@@ -60,21 +59,14 @@ uninstall-local:
 AM_CPPFLAGS = -I$(PYTHON3_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 _xapian_la_LDFLAGS = -avoid-version -module -shrext "$(PYTHON3_SO)" $(NO_UNDEFINED)
-_xapian_la_SOURCES = modern/xapian_wrap.cc
+_xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON3_LIBS)
 
-# In a distribution, xapian.py is in $(srcdir)/modern, and python will always
-# generate the .pyc and .pyo files in the same directory as the .py file.
-# However, $(srcdir) might be shared between builds for different python
-# versions so we can't let the .pyc and .pyo files get written there.  Hence we
-# copy the .py file to the build directory from wherever it actually is and use
-# the copy.  We also rename the copy to __init__.py so that it can be installed
-# in a "xapian" directory and be treated as a package.  Finally, we take this
-# opportunity to insert a module doc string at the top of the file.
-xapian/__init__.py: modern/xapian.py
-	-test -d xapian || mkdir xapian
-	cat '$(srcdir)/module_top.py' `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py > xapian/__init__.pyT
-	mv xapian/__init__.pyT xapian/__init__.py
+# We want `xapian/__init__.py` rather than xapian.py so the module is treated
+# as a package.
+xapian/__init__.py: xapian.py
+	$(MKDIR_P) xapian
+	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo.
@@ -82,12 +74,12 @@ xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_
 	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -c "import _xapian"
 	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -c "import xapian"
 
-xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
+xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
 	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -O -c "import _xapian"
 	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -O -c "import xapian"
 
 xapian/_xapian$(PYTHON3_SO): _xapian.la
-	-test -d xapian || mkdir xapian
+	$(MKDIR_P) xapian
 	$(LIBTOOL) --config > libtoolconfig.tmp
 ## ksh requires a path on the sourced file.
 	. ./libtoolconfig.tmp; cp $$objdir/_xapian$(PYTHON3_SO) xapian
@@ -97,7 +89,7 @@ CLEANFILES = \
     xapian/_xapian$(PYTHON3_SO) \
     xapian/__init__.py \
     xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
-    xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyo \
+    xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@\
     $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any
@@ -127,24 +119,22 @@ endif
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-stamp = modern/xapian_wrap.stamp
+stamp = xapian_wrap.stamp
 RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py modern/xapian_wrap.d: $(stamp)
+xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
 	$(make_many_locked)
 $(stamp): except.i doccomments.i
-	-test -d modern || mkdir modern
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
-	    -python -threads -shadow -modern -O -outdir modern \
-	    -o modern/xapian_wrap.cc '$(srcdir)/'python.i
-	$(PERL) -pi -e 's/class Error:/class Error(Exception):/' modern/xapian.py
+	    -python -threads -shadow -modern -O \
+	    -o xapian_wrap.cc '$(srcdir)/'python.i
 	$(multitarget_end)
 
--include modern/xapian_wrap.d
+-include xapian_wrap.d
 
-CLEANFILES += modern/xapian_wrap.d $(stamp)
+CLEANFILES += xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
@@ -157,18 +147,21 @@ dist_exampledata_DATA = \
 
 sphinxdocs = docs/html/index.html
 
-install-data-local: $(sphinxdocs)
-	$(mkinstalldirs) $(DESTDIR)$(docdir)/python
-	cp -R -p docs/html $(DESTDIR)$(docdir)/python
+dist-hook:
+	$(MKDIR_P) '$(distdir)/docs'
+	cp -R -p `test -r docs/html || echo '$(srcdir)/'`docs/html '$(distdir)/docs'
+
+install-data-local:
+	$(mkinstalldirs) '$(DESTDIR)$(docdir)/python'
+	cp -R -p `test -r docs/html || echo '$(srcdir)/'`docs/html '$(DESTDIR)$(docdir)/python'
 
 if DOCUMENTATION_RULES
 all-local: $(sphinxdocs)
 
-dist-hook: $(sphinxdocs)
-	test -d $(distdir) || mkdir $(distdir)
-	test -d $(distdir)/docs || mkdir $(distdir)/docs
-	cp -R -p docs/html $(distdir)/docs
-
 $(sphinxdocs): xapian/__init__.py docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 	PYTHONPATH=..:$$PYTHONPATH $(PYTHON3) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
+else
+## Create empty directory so the install-data-local target doesn't fail.
+all-local:
+	$(MKDIR_P) docs/html
 endif

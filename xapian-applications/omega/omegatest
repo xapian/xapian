@@ -1,0 +1,184 @@
+#!/bin/sh
+# omegatest: Test omega CGI
+#
+# Copyright (C) 2015 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+set -e
+
+: ${OMEGA=./omega}
+
+# Suppress HTTP Content-Type header.
+SERVER_PROTOCOL=INCLUDED
+export SERVER_PROTOCOL
+
+# Set up an empty database.
+TEST_DB=test-db
+echo 'inmemory' > "$TEST_DB"
+
+# Simple template which just shows the parsed query.
+TEST_TEMPLATE=test-template
+printf '$querydescription' > "$TEST_TEMPLATE"
+
+OMEGA_CONFIG_FILE=test-omega.conf
+export OMEGA_CONFIG_FILE
+cat > "$OMEGA_CONFIG_FILE" <<__END__
+database_dir .
+template_dir .
+log_dir tmplog
+default_template $TEST_TEMPLATE
+default_db $TEST_DB
+__END__
+
+failed=0
+
+testcase() {
+    expected="Query($1)"
+    shift
+    output=`$FAKETIME ${FAKE_NOW+"$FAKE_NOW"} "$OMEGA" "$@"`
+    if [ "$output" != "$expected" ] ; then
+	echo "$OMEGA $@:"
+	echo "  expected: «$expected»"
+	echo "  received: «$output»"
+	failed=`expr $failed + 1`
+    fi
+}
+
+FAKETIME=
+unset FAKE_NOW
+
+# Test a few simple things.
+testcase 'Zsimpl@1' P=simple
+testcase '(chocolate@1 FILTER Tconfectionary/fudge)' P=Chocolate B=Tconfectionary/fudge
+
+# Test date value ranges.
+testcase 'VALUE_RANGE 0 2 ~' DATEVALUE=0 START=2000
+testcase 'VALUE_RANGE 0 2 ~' DATEVALUE=0 START=200001
+testcase 'VALUE_RANGE 0 2 ~' DATEVALUE=0 START=20000101
+testcase 'VALUE_LE 1 1~' DATEVALUE=1 END=1999
+testcase 'VALUE_LE 1 1~' DATEVALUE=1 END=199912
+testcase 'VALUE_LE 1 1~' DATEVALUE=1 END=19991231
+testcase 'VALUE_RANGE 2 201 ~' DATEVALUE=2 START=2010
+testcase 'VALUE_RANGE 2 201 ~' DATEVALUE=2 START=201001
+testcase 'VALUE_RANGE 2 201 ~' DATEVALUE=2 START=20100101
+testcase 'VALUE_LE 3 198~' DATEVALUE=3 END=1989
+testcase 'VALUE_LE 3 198~' DATEVALUE=3 END=198912
+testcase 'VALUE_LE 3 198~' DATEVALUE=3 END=19891231
+testcase 'VALUE_RANGE 4 1974 ~' DATEVALUE=4 START=1974
+testcase 'VALUE_RANGE 4 1974 ~' DATEVALUE=4 START=197401
+testcase 'VALUE_RANGE 4 1974 ~' DATEVALUE=4 START=19740101
+testcase 'VALUE_LE 5 1974~' DATEVALUE=5 END=1974
+testcase 'VALUE_LE 5 1974~' DATEVALUE=5 END=197412
+testcase 'VALUE_LE 5 1974~' DATEVALUE=5 END=19741231
+testcase 'VALUE_RANGE 6 20151 ~' DATEVALUE=6 START=201510
+testcase 'VALUE_RANGE 6 20151 ~' DATEVALUE=6 START=20151001
+testcase 'VALUE_LE 7 19870~' DATEVALUE=7 END=198709
+testcase 'VALUE_LE 7 19870~' DATEVALUE=7 END=19870930
+testcase 'VALUE_RANGE 8 201512 ~' DATEVALUE=8 START=201512
+testcase 'VALUE_RANGE 8 201512 ~' DATEVALUE=8 START=20151201
+testcase 'VALUE_LE 9 201511~' DATEVALUE=9 END=201511
+testcase 'VALUE_LE 9 201511~' DATEVALUE=9 END=20151130
+testcase 'VALUE_RANGE 10 2015021 ~' DATEVALUE=10 START=20150210
+testcase 'VALUE_RANGE 10 2000022 ~' DATEVALUE=10 START=20000220
+testcase 'VALUE_LE 11 19840401~' DATEVALUE=11 END=19840401
+testcase 'VALUE_LE 11 19881128~' DATEVALUE=11 END=19881128
+
+# Leap year tests:
+testcase 'VALUE_LE 1 201502~' DATEVALUE=1 END=20150228
+testcase 'VALUE_LE 1 198802~' DATEVALUE=1 END=19880229
+testcase 'VALUE_LE 1 19880228~' DATEVALUE=1 END=19880228
+testcase 'VALUE_LE 1 200002~' DATEVALUE=1 END=20000229
+testcase 'VALUE_LE 1 20000228~' DATEVALUE=1 END=20000228
+# FIXME: These two currently require 64-bit time_t:
+#testcase 'VALUE_LE 1 190002~' DATEVALUE=1 END=19000228
+#testcase 'VALUE_LE 1 210002~' DATEVALUE=1 END=21000228
+
+# Month starts and ends:
+testcase 'VALUE_RANGE 0 2015 201501~' DATEVALUE=0 START=20150101 END=20150131
+testcase 'VALUE_RANGE 0 2015 20150130~' DATEVALUE=0 START=20150101 END=20150130
+testcase 'VALUE_RANGE 0 201502 201502~' DATEVALUE=0 START=20150201 END=20150228
+testcase 'VALUE_RANGE 0 201502 20150227~' DATEVALUE=0 START=20150201 END=20150227
+testcase 'VALUE_RANGE 0 201503 201503~' DATEVALUE=0 START=20150301 END=20150331
+testcase 'VALUE_RANGE 0 201503 20150330~' DATEVALUE=0 START=20150301 END=20150330
+testcase 'VALUE_RANGE 0 201504 201504~' DATEVALUE=0 START=20150401 END=20150430
+testcase 'VALUE_RANGE 0 201504 2015042~' DATEVALUE=0 START=20150401 END=20150429
+testcase 'VALUE_RANGE 0 201505 201505~' DATEVALUE=0 START=20150501 END=20150531
+testcase 'VALUE_RANGE 0 201505 20150530~' DATEVALUE=0 START=20150501 END=20150530
+testcase 'VALUE_RANGE 0 201506 201506~' DATEVALUE=0 START=20150601 END=20150630
+testcase 'VALUE_RANGE 0 201506 2015062~' DATEVALUE=0 START=20150601 END=20150629
+testcase 'VALUE_RANGE 0 201507 201507~' DATEVALUE=0 START=20150701 END=20150731
+testcase 'VALUE_RANGE 0 201507 20150730~' DATEVALUE=0 START=20150701 END=20150730
+testcase 'VALUE_RANGE 0 201508 201508~' DATEVALUE=0 START=20150801 END=20150831
+testcase 'VALUE_RANGE 0 201508 20150830~' DATEVALUE=0 START=20150801 END=20150830
+testcase 'VALUE_RANGE 0 201509 20150~' DATEVALUE=0 START=20150901 END=20150930
+testcase 'VALUE_RANGE 0 201509 2015092~' DATEVALUE=0 START=20150901 END=20150929
+testcase 'VALUE_RANGE 0 20151 201510~' DATEVALUE=0 START=20151001 END=20151031
+testcase 'VALUE_RANGE 0 20151 20151030~' DATEVALUE=0 START=20151001 END=20151030
+testcase 'VALUE_RANGE 0 201511 201511~' DATEVALUE=0 START=20151101 END=20151130
+testcase 'VALUE_RANGE 0 201511 2015112~' DATEVALUE=0 START=20151101 END=20151129
+testcase 'VALUE_RANGE 0 201512 2015~' DATEVALUE=0 START=20151201 END=20151231
+testcase 'VALUE_RANGE 0 201512 20151230~' DATEVALUE=0 START=20151201 END=20151230
+
+# Forward spans:
+testcase 'VALUE_RANGE 0 20151104 20151106~' DATEVALUE=0 START=20151104 SPAN=3
+testcase 'VALUE_RANGE 0 20141104 20151103~' DATEVALUE=0 START=20141104 SPAN=365
+
+# Backward spans:
+testcase 'VALUE_RANGE 0 20151104 20151106~' DATEVALUE=0 END=20151106 SPAN=3
+testcase 'VALUE_RANGE 0 20141104 20151103~' DATEVALUE=0 END=20151103 SPAN=365
+
+# Check that if START, END and SPAN are all passed, START is ignored:
+testcase 'VALUE_RANGE 0 20151104 20151106~' DATEVALUE=0 START=19700101 END=20151106 SPAN=3
+
+# Check combining of filter terms:
+testcase '(Horg AND Len)' B=Len B=Horg
+testcase '(Len OR Lde)' B=Len B=Lde
+testcase '((Horg OR Hcom) AND (Len OR Lfr))' B=Len B=Lfr B=Horg B=Hcom
+
+# Check combining of filter terms with filter_op set:
+printf '$setmap{nonexclusiveprefix,L,1,XAND,1}$setmap{boolprefix,lang,L,and,XAND,host,H,year,Y}$querydescription' > "$TEST_TEMPLATE"
+testcase 'Len' B=Len
+testcase '0 * Len' P=lang:en
+testcase 'XANDtest' B=XANDtest
+testcase '0 * XANDtest' P=and:test
+testcase '(Len AND XANDtest)' B=Len B=XANDtest
+testcase '0 * (XANDtest AND Len)' P='lang:en and:test'
+testcase '(Len AND Lde)' B=Len B=Lde
+testcase '0 * (Len AND Lde)' P='lang:en lang:de'
+testcase '((Horg OR Hcom) AND (Len AND Lfr))' B=Len B=Lfr B=Horg B=Hcom
+testcase '0 * ((Horg OR Hcom) AND (Len AND Lfr))' P='lang:en lang:fr host:org host:com'
+testcase '((XANDa AND XANDb AND XANDc) AND (Y1998 OR Y2001))' B=Y1998 B=Y2001 B=XANDa B=XANDb B=XANDc
+testcase '0 * (((XANDa AND XANDb) AND XANDc) AND (Y1998 OR Y2001))' P='year:1998 year:2001 and:a and:b and:c'
+
+# If faketime is available, test a range back from now.
+if faketime --version > /dev/null 2>&1; then
+    TZ=UTC
+    export TZ
+    FAKETIME=faketime
+    FAKE_NOW='2015-11-28 06:07:08'
+    testcase 'VALUE_RANGE 0 20151127060709 20151128060708' DATEVALUE=0 SPAN=1
+    FAKETIME=
+    unset FAKE_NOW
+else
+    echo "Skipping testcases which need 'faketime' tool installed"
+fi
+
+rm "$OMEGA_CONFIG_FILE" "$TEST_DB" "$TEST_TEMPLATE"
+if [ "$failed" = 0 ] ; then
+    exit 0
+fi
+echo "Failed $failed test(s)"
+exit 1

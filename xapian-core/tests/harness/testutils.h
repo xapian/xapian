@@ -2,7 +2,7 @@
  * @brief Xapian-specific test helper functions and macros.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2007,2008 Olly Betts
+ * Copyright 2002,2003,2007,2008,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -30,7 +30,7 @@
 // Useful display operators
 
 std::ostream &operator<<(std::ostream &os,
-			 const std::vector<unsigned int> &ints);
+			 const std::vector<Xapian::docid> &ints);
 
 // ######################################################################
 // Useful comparison operators
@@ -71,7 +71,7 @@ void test_mset_order_equal(const Xapian::MSet &mset1,
 
 /// Check MSet M has size S.
 #define TEST_MSET_SIZE(M, S) TEST_AND_EXPLAIN(((M).size() == (S)), \
-	"MSet '"STRINGIZE(M)"' is not of expected size: was '" << \
+	"MSet '" STRINGIZE(M) "' is not of expected size: was '" << \
 	(M).size() << "' expected '" << (S) << "':\n" << \
 	"Full mset was:\n" << (M))
 

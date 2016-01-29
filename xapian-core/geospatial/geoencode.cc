@@ -27,7 +27,6 @@
 #include "geoencode.h"
 
 #include <cmath>
-#include <math.h> // Needed for lround().
 
 using namespace std;
 

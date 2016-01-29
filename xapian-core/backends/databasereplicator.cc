@@ -30,8 +30,8 @@
 #include "debuglog.h"
 #include "filetests.h"
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-# include "brass/brass_databasereplicator.h"
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+# include "glass/glass_databasereplicator.h"
 #endif
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 # include "chert/chert_databasereplicator.h"
@@ -56,14 +56,18 @@ DatabaseReplicator::open(const string & path)
     }
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
-    if (file_exists(path + "/iambrass")) {
-	return new BrassDatabaseReplicator(path);
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    if (file_exists(path + "/iamglass")) {
+	return new GlassDatabaseReplicator(path);
     }
 #endif
 
     if (file_exists(path + "/iamflint")) {
 	throw FeatureUnavailableError("Flint backend no longer supported");
+    }
+
+    if (file_exists(path + "/iambrass")) {
+	throw FeatureUnavailableError("Brass backend no longer supported");
     }
 
     throw DatabaseOpeningError("Couldn't detect type of database: " + path);

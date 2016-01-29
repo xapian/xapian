@@ -1,5 +1,0 @@
-<Directory>net</Directory>
-
-<Description>
-The code implementing the network protocols lives here.
-</Description>

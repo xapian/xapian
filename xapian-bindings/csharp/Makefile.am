@@ -13,7 +13,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/BB2Weight.cs \
 	generated-csharp/BM25Weight.cs \
 	generated-csharp/BoolWeight.cs \
-	generated-csharp/Brass.cs \
 	generated-csharp/Chert.cs \
 	generated-csharp/Compactor.cs \
 	generated-csharp/Database.cs \
@@ -36,6 +35,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/InL2Weight.cs \
 	generated-csharp/InMemory.cs \
 	generated-csharp/KeyMaker.cs \
+	generated-csharp/LMWeight.cs \
 	generated-csharp/LatLongCoord.cs \
 	generated-csharp/LatLongCoords.cs \
 	generated-csharp/LatLongCoordsIterator.cs \
@@ -129,7 +129,7 @@ CLEANFILES = XapianSharp.snk $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
-RUN_SWIG = $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
+RUN_SWIG = stamp='$(stamp)' $(PERL) '$(top_srcdir)'/swig-depcomp $(SWIG)
 
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): $(stamp)
 	$(make_many_locked)
@@ -163,12 +163,12 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleExpand.cs
 
 docdatadir = $(docdir)/csharp
+EXTRA_DIST += docs/index.html
 
 if DOCUMENTATION_RULES
 docdata_DATA = docs/index.html
-BUILT_SOURCES += docs/index.html
 
 .rst.html:
-	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; test -d "$$d" || mkdir "$$d" ;; esac
+	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
 endif

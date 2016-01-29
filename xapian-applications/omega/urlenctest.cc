@@ -1,7 +1,7 @@
 /** @file enctest.cc
  * @brief Test URL encoding and decoding functions
  */
-/* Copyright (C) 2011,2012 Olly Betts
+/* Copyright (C) 2011,2012,2015 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -121,6 +121,39 @@ struct pretty_testcase pretty_testcases[] = {
       "http://example.com/~hello world/" },
     { "http://example.com/%25/a%20b%80/100%",
       "http://example.com/%25/a b%80/100%" },
+    { "http:http.html", 0 },
+    { "http%3ahttp.html", 0 },
+    { "/foo.html?a%3db=c%2bd", 0 },
+    { "/foo.html#%31", 0 },
+    { "/x%3dy.html", "/x=y.html" },
+    { "/XML%3a%3aSimple.html", "/XML::Simple.html" },
+    { "back%20slash%2fco%3alon", "back slash%2fco%3alon" },
+    { "%5b%5D%40%21%24%26%27%28%29%2A%2B%2c%3b%3D", "%5b%5D%40!$&'()*+,;=" },
+    { "/%5b%5D%40%21%24%26%27%28%29%2A%2B%2c%3b%3D", "/[]@!$&'()*+,;=" },
+    { "https://x%3ax%40x%5b%5dx/", 0 },
+    { "//x%3ax%40x%5b%5dx/", 0 },
+    { "/f%c3%bcr", "/f\xc3\xbcr" },
+    { "%c3%bc", "\xc3\xbc" },
+    { "%c3%b", 0 },
+    { "%c3%", 0 },
+    { "%c3", 0 },
+    { "%c3x", 0 },
+    { "%80", 0 },
+    { "%bf", 0 },
+    { "/%ff", 0 },
+    { "/%fe%ff%20/", "/%fe%ff /" },
+    { "/%c3%20.htm", "/%c3 .htm" },
+    { "hellip%e2%80%a6.gif", "hellip\xe2\x80\xa6.gif" },
+    { "hellip%e2%80%a", 0 },
+    { "hellip%e2%80", 0 },
+    // Example from #644:
+    { "Szerz%C5%91d%C3%A9sek", "Szerz\xc5\x91""d\xc3\xa9sek" },
+    // Overlong sequences:
+    { "/%C080.nul", 0 },
+    { "%e0%9f%88/index.html", 0 },
+    { "%e0%81%9e/f0%82%81%80-fyi", 0 },
+    // Code point above Unicode range:
+    { "/%f4%90%80%80/", 0 },
     { NULL, NULL }
 };
 

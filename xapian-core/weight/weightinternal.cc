@@ -2,7 +2,7 @@
  * @brief Xapian::Weight::Internal class, holding database and term statistics.
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright (C) 2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,6 +54,10 @@ namespace Xapian {
 Weight::Internal &
 Weight::Internal::operator +=(const Weight::Internal & inc)
 {
+#ifdef XAPIAN_ASSERTIONS
+    Assert(!finalised);
+    subdbs += inc.subdbs;
+#endif
     total_length += inc.total_length;
     collection_size += inc.collection_size;
     rset_size += inc.rset_size;
@@ -71,19 +75,25 @@ void
 Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 				   const Xapian::RSet &rset)
 {
+#ifdef XAPIAN_ASSERTIONS
+    Assert(!finalised);
+    ++subdbs;
+#endif
     total_length += subdb.get_total_length();
     collection_size += subdb.get_doccount();
     rset_size += rset.size();
 
     total_term_count += subdb.get_doccount() * subdb.get_total_length();
-    map<string, TermFreqs>::iterator t;
-    for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
-	const string & term = t->first;
+    Xapian::TermIterator t;
+    for (t = query.get_terms_begin(); t != Xapian::TermIterator(); ++t) {
+	const string & term = *t;
+
 	Xapian::doccount sub_tf;
 	Xapian::termcount sub_cf;
 	subdb.get_freqs(term, &sub_tf, &sub_cf);
-	t->second.termfreq += sub_tf;
-	t->second.collfreq += sub_cf;
+	TermFreqs & tf = termfreqs[term];
+	tf.termfreq += sub_tf;
+	tf.collfreq += sub_cf;
     }
 
     const set<Xapian::docid> & items(rset.internal->get_items());
@@ -95,15 +105,16 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	// and we can skip the document's termlist, so look for each query term
 	// in the document.
 	AutoPtr<TermList> tl(subdb.open_term_list(did));
-	for (t = termfreqs.begin(); t != termfreqs.end(); ++t) {
-	    const string & term = t->first;
+	map<string, TermFreqs>::iterator i;
+	for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {
+	    const string & term = i->first;
 	    TermList * ret = tl->skip_to(term);
 	    Assert(ret == NULL);
 	    (void)ret;
 	    if (tl->at_end())
 		break;
 	    if (term == tl->get_termname())
-		++t->second.reltermfreq;
+		++i->second.reltermfreq;
 	}
     }
 }
@@ -119,6 +130,12 @@ Weight::Internal::get_description() const
     desc += str(rset_size);
     desc += ", total_term_count=";
     desc += str(total_term_count);
+#ifdef XAPIAN_ASSERTIONS
+    desc += ", subdbs=";
+    desc += str(subdbs);
+    desc += ", finalised=";
+    desc += str(finalised);
+#endif
     desc += ", termfreqs={";
     map<string, TermFreqs>::const_iterator i;
     for (i = termfreqs.begin(); i != termfreqs.end(); ++i) {

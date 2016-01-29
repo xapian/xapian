@@ -10,11 +10,7 @@ bindings work is to recompile Python with Cygwin (Xapian compiles happily
 with Cygwin as standard).
 
 The project was started by Ulrik Petersen, and continued by Charlie Hull of
-Lemur Consulting who is now maintaining it.
-
-If you have any feedback, bug reports or comments about these files,
-please DO NOT contact Ulrik, but please contact us at Lemur Consulting
-www.lemurconsulting.com
+Lemur Consulting.  Currently nobody is maintaining it - volunteers welcome.
 
 Runtime requirements
 ====================
@@ -30,9 +26,9 @@ What works?
 ===========
 
 - The Python, PHP, C#, Ruby bindings (but see below for the latter)
-- The xapian-compact, xapian-check, xapian-inspect binaries
+- The xapian-compact, xapian-check binaries
 - The xapian-progsrv and xapian-tcpsrv binaries
-- The delve, quest and copydatabase binaries
+- The xapian-delve, quest and copydatabase binaries
 - The Xapian example binaries
 - The testsuite, which is run as part of the makefile in tests/, *but* see below regarding the tests
 - omega, omindex and scriptindex (although these may have difficulty parsing
@@ -61,10 +57,7 @@ What doesn't work - Xapian core
   this signifies a compilation error while dependencies were being checked. Look at the file
   deps.d in the appropriate folder to see what actually caused the failure.
   
-- The 'replicate3' test currently fails on Windows for the Flint database. 
-This may be due to the test itself or the replication subsystem, so at 
-present we do not advise the use of the replication system on Windows when using a 
-Flint database. The test also hangs forever with the Brass database: if you want to run all 
+- The 'replicate3' test currently hangs forever with the Brass database: if you want to run all
 the other tests (with 'nmake check') you can comment out lines 470-512 of api_replicate.cc.
 
 - The 'compactstub3' and 'compactstub4' tests fail on Windows. If you want to run all 
@@ -73,7 +66,7 @@ the other tests (with 'nmake check') you can comment out lines 361-383 and 389-4
 What doesn't work - Xapian bindings
 ===================================
 
-- The ruby bindings fail one of the tests, see http://trac.xapian.org/ticket/478 for
+- The ruby bindings fail one of the tests, see https://trac.xapian.org/ticket/478 for
 more details. We have opted to package them anyway (see win32_bindings_ruby.mak for how)
 
 - Any other bindings.
@@ -120,7 +113,7 @@ How do I get the latest development sources?
 The development sources are held in a revision control system called git, so
 you will first need a git client installed to build the latest development
 sources.  Details of how to access the xapian repository are available at
-http://xapian.org/bleeding
+https://xapian.org/bleeding
 
 When you check out the xapian sources, you will have a slightly different
 structure than that derived from the release tarballs:
@@ -342,9 +335,3 @@ Using the Visual C++ IDE
 ========================
 
 It is also possible to manually create a project in the Visual C++ Express Edition IDE. To build part of Xapian in the IDE you should add to the project all the .cc files in the api, backends, common, expand, languages, matcher, net, queryparser and unicode subfolders of xapian-core, then add the file containing the main loop for whatever you are building (for example if you're building xapian-check, add xapian-check.cc). You will need to examine config.mak to see what include paths to use and any other necessary compiler switches.
-
-
-Please send any bugfixes to Charlie Hull at Lemur Consulting:
-www.lemurconsulting.com
-
-

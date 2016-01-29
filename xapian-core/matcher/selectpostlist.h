@@ -62,6 +62,7 @@ class SelectPostList : public PostList {
 	    return wt;
 	}
 	Xapian::termcount get_doclength() const { return source->get_doclength(); }
+	Xapian::termcount get_unique_terms() const { return source->get_unique_terms(); }
 	double recalc_maxweight() { return source->recalc_maxweight(); }
 	PositionList * read_position_list() { return source->read_position_list(); }
 	PositionList * open_position_list() const { return source->open_position_list(); }

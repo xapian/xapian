@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,8 @@
 #include <string>
 
 #include "remoteprotocol.h"
+#include "safeerrno.h"
+#include "safenetdb.h" // For EAI_* constants.
 #include "safeunistd.h"
 
 #ifdef __WIN32__
@@ -70,19 +72,92 @@ struct WinsockInitializer {
  *  the return value will be the value of errno.
  */
 inline int socket_errno() {
-    return -(int)WSAGetLastError();
+    int wsa_err = WSAGetLastError();
+    switch (wsa_err) {
+# ifdef EADDRINUSE
+	case WSAEADDRINUSE: return EADDRINUSE;
+# endif
+# ifdef ETIMEDOUT
+	case WSAETIMEDOUT: return ETIMEDOUT;
+# endif
+# ifdef EINPROGRESS
+	case WSAEINPROGRESS: return EINPROGRESS;
+# endif
+	default: return wsa_err;
+    }
 }
 
-// Define some of the UNIX socket error constants to be negated versions of the
-// winsock ones.
-# define EADDRINUSE (-(WSAEADDRINUSE))
-# define ETIMEDOUT (-(WSAETIMEDOUT))
-# define EINPROGRESS (-(WSAEINPROGRESS))
+/* Newer compilers define these, in which case we map to those already defined
+ * values in socket_errno() above.
+ */
+# ifndef EADDRINUSE
+#  define EADDRINUSE WSAEADDRINUSE
+# endif
+# ifndef ETIMEDOUT
+#  define ETIMEDOUT WSAETIMEDOUT
+# endif
+# ifndef EINPROGRESS
+#  define EINPROGRESS WSAEINPROGRESS
+# endif
 
+// We must call closesocket() (instead of just close()) under __WIN32__ or
+// else the socket remains in the CLOSE_WAIT state.
+# define CLOSESOCKET(S) closesocket(S)
 #else
 // Use a macro so we don't need to pull safeerrno.h in here.
 # define socket_errno() errno
+
+# define CLOSESOCKET(S) close(S)
 #endif
+
+inline int eai_to_xapian(int e) {
+    // Under WIN32, the EAI_* constants are defined to be WSA_* constants with
+    // roughly equivalent meanings, so we can just let them be handled as any
+    // other WSA_* error codes would be.
+#ifndef __WIN32__
+    // Ensure they all have the same sign - this switch will fail to compile if
+    // we bitwise-or some 1 and some 2 bits to get 3.
+#define C(X) ((X) < 0 ? 2 : 1)
+    // Switch on a value there is a case for, to avoid clang warning:
+    // "no case matching constant switch condition '0'"
+    switch (3) {
+	case
+	    C(EAI_AGAIN)|
+	    C(EAI_BADFLAGS)|
+	    C(EAI_FAIL)|
+	    C(EAI_FAMILY)|
+	    C(EAI_MEMORY)|
+	    C(EAI_NONAME)|
+	    C(EAI_SERVICE)|
+	    C(EAI_SOCKTYPE)|
+	    C(EAI_SYSTEM)|
+#ifdef EAI_ADDRFAMILY
+	    // In RFC 2553 but not RFC 3493 or POSIX:
+	    C(EAI_ADDRFAMILY)|
+#endif
+#ifdef EAI_NODATA
+	    // In RFC 2553 but not RFC 3493 or POSIX:
+	    C(EAI_NODATA)|
+#endif
+#ifdef EAI_OVERFLOW
+	    // In RFC 3493 and POSIX but not RFC 2553:
+	    C(EAI_OVERFLOW)|
+#endif
+	    0: break;
+	case 3: break;
+    }
+#undef C
+
+    // EAI_SYSTEM means "look at errno".
+    if (e == EAI_SYSTEM)
+	return errno;
+    // POSIX only says that EAI_* constants are "non-zero".  On Linux they are
+    // negative, but allow for them being positive too.
+    if (EAI_FAIL > 0)
+	return -e;
+#endif
+    return e;
+}
 
 /** A RemoteConnection object provides a bidirectional connection to another
  *  RemoteConnection object on a remote machine.
@@ -121,14 +196,17 @@ class RemoteConnection {
 
     /** Read until there are at least min_len bytes in buffer.
      *
-     *  If for some reason this isn't possible, throws NetworkError.
+     *  If for some reason this isn't possible, returns false upon EOF and
+     *  otherwise throws NetworkError.
      *
      *  @param min_len	Minimum number of bytes required in buffer.
      *  @param end_time	If this time is reached, then a timeout
      *			exception will be thrown.  If (end_time == 0.0),
      *			then keep trying indefinitely.
+     *
+     *	@return false on EOF, otherwise true.
      */
-    void read_at_least(size_t min_len, double end_time);
+    bool read_at_least(size_t min_len, double end_time);
 
 #ifdef __WIN32__
     /** On Windows we use overlapped IO.  We share an overlapped structure
@@ -171,7 +249,7 @@ class RemoteConnection {
     /** Check what the next message type is.
      *
      *  This must not be called after a call to get_message_chunked() until
-     *  get_message_chunk() has returned false to indicate the whole message
+     *  get_message_chunk() has returned 0 to indicate the whole message
      *  has been received.
      *
      *  Other than that restriction, this may be called at any time to
@@ -183,9 +261,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char sniff_next_message_type(double end_time);
+    int sniff_next_message_type(double end_time);
 
     /** Read one message from fdin.
      *
@@ -195,9 +273,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char get_message(std::string &result, double end_time);
+    int get_message(std::string &result, double end_time);
 
     /** Prepare to read one message from fdin in chunks.
      *
@@ -213,9 +291,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char get_message_chunked(double end_time);
+    int get_message_chunked(double end_time);
 
     /** Read a chunk of a message from fdin.
      *
@@ -227,16 +305,17 @@ class RemoteConnection {
      *	@param at_least		Return at least this many bytes in result,
      *				unless there isn't enough data left in the
      *				message (in which case all remaining data is
-     *				read and false is returned).
+     *				read and 0 is returned).
      *  @param end_time		If this time is reached, then a timeout
      *				exception will be thrown.  If
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			true if at least at_least bytes are now in
-     *				result.
+     *  @return			1 if at least at_least bytes are now in result;
+     *				-1 on EOF on the connection; 0 for having read
+     *				< at_least bytes, but finished the message.
      */
-    bool get_message_chunk(std::string &result, size_t at_least,
+    int get_message_chunk(std::string &result, size_t at_least,
 			   double end_time);
 
     /** Save the contents of a message as a file.
@@ -248,9 +327,9 @@ class RemoteConnection {
      *				(end_time == 0.0) then the operation will
      *				never timeout.
      *
-     *  @return			Message type code.
+     *  @return			Message type code or -1 for EOF.
      */
-    char receive_file(const std::string &file, double end_time);
+    int receive_file(const std::string &file, double end_time);
 
     /** Send a message.
      *

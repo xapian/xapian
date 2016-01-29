@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,7 +135,7 @@ test_driver::get_srcdir()
     string::size_type i = srcdir.find_last_of(ARGV0_SEP);
     string srcfile;
     if (i != string::npos) {
-	srcfile = srcdir.substr(i + 1);
+	srcfile.assign(srcdir, i + 1, string::npos);
 	srcdir.erase(i);
 	// libtool may put the real executable in .libs.
 	i = srcdir.find_last_of(ARGV0_SEP);
@@ -724,19 +724,21 @@ test_driver::parse_command_line(int argc, char **argv)
     argv0 = argv[0];
 
 #ifndef __WIN32__
-    bool colourise = true;
-    const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
-    if (p == NULL || !*p || strcmp(p, "auto") == 0) {
-	colourise = isatty(1);
-    } else if (strcmp(p, "plain") == 0) {
-	colourise = false;
-    }
-    if (colourise) {
-	col_red = "\x1b[1m\x1b[31m";
-	col_green = "\x1b[1m\x1b[32m";
-	col_yellow = "\x1b[1m\x1b[33m";
-	col_reset = "\x1b[0m";
-	use_cr = true;
+    {
+	bool colourise = true;
+	const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
+	if (p == NULL || !*p || strcmp(p, "auto") == 0) {
+	    colourise = isatty(1);
+	} else if (strcmp(p, "plain") == 0) {
+	    colourise = false;
+	}
+	if (colourise) {
+	    col_red = "\x1b[1m\x1b[31m";
+	    col_green = "\x1b[1m\x1b[32m";
+	    col_yellow = "\x1b[1m\x1b[33m";
+	    col_reset = "\x1b[0m";
+	    use_cr = true;
+	}
     }
 #endif
 
@@ -774,6 +776,13 @@ test_driver::parse_command_line(int argc, char **argv)
 		usage();
 		return; // usage() doesn't return ...
 	    }
+	}
+    }
+
+    if (verbose == 0) {
+	const char *p = getenv("VERBOSE");
+	if (p != NULL) {
+	    verbose = atoi(p);
 	}
     }
 

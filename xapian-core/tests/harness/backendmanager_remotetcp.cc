@@ -1,7 +1,7 @@
 /** @file backendmanager_remotetcp.cc
  * @brief BackendManager subclass for remotetcp databases.
  */
-/* Copyright (C) 2006,2007,2008,2009,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2013,2015 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -112,12 +112,15 @@ launch_xapian_tcpsrv(const string & args)
     // if xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
-    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
+    cmd += str(port);
+    cmd += " ";
+    cmd += args;
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif
     int fds[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
+    if (socketpair(AF_UNIX, SOCK_STREAM|SOCK_CLOEXEC, PF_UNSPEC, fds) < 0) {
 	string msg("Couldn't create socketpair: ");
 	msg += strerror(errno);
 	throw msg;
@@ -128,8 +131,19 @@ try_next_port:
 	// Child process.
 	close(fds[0]);
 	// Connect stdout and stderr to the socket.
+	//
+	// Make sure the socket isn't fd 1 or 2.  We need to ensure that
+	// FD_CLOEXEC isn't set for stdout or stderr (which creating them with
+	// dup2() achieves), and that we close fds[1].  The cleanest way to
+	// address this seems to be to turn the unusual situation into the
+	// usual one.
+	if (fds[1] == 1 || fds[1] == 2) {
+	    dup2(fds[1], 3);
+	    fds[1] = 3;
+	}
 	dup2(fds[1], 1);
 	dup2(fds[1], 2);
+	close(fds[1]);
 	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
 	_exit(-1);
     }
@@ -243,7 +257,10 @@ launch_xapian_tcpsrv(const string & args)
     int port = DEFAULT_PORT;
 
 try_next_port:
-    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + str(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV " --one-shot --interface " LOCALHOST " --port ";
+    cmd += str(port);
+    cmd += " ";
+    cmd += args;
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;

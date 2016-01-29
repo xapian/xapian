@@ -1,3 +1,4 @@
+use strict;
 # Before 'make install' is performed this script should be runnable with
 # 'make test'. After 'make install' it should work as 'perl test.pl'
 
@@ -12,7 +13,7 @@ BEGIN {$SIG{__WARN__} = sub { die "Terminating test due to warning: $_[0]" } };
 use Test;
 use Devel::Peek;
 BEGIN { plan tests => 6 };
-use Search::Xapian qw(:standard);
+use Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
 #########################
@@ -34,13 +35,13 @@ while( defined( my $file = readdir( DB_DIR ) ) ) {
 }
 closedir( DB_DIR );
 
-my $create = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE );
+my $create = Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE );
 
 $create = undef;
 
-my $read = Search::Xapian::Database->new( $db_dir );
+my $read = Xapian::Database->new( $db_dir );
 
-my $write = Search::Xapian::WritableDatabase->new( $db_dir, Search::Xapian::DB_CREATE_OR_OPEN );
+my $write = Xapian::WritableDatabase->new( $db_dir, Xapian::DB_CREATE_OR_OPEN );
 
 my $enq = $read->enquire(OP_OR, "test");
 
@@ -49,7 +50,7 @@ my $term = 'test';
 
 my $docid;
 for my $num (1..1000) {
-  my $doc = Search::Xapian::Document->new();
+  my $doc = Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
 
@@ -58,12 +59,12 @@ for my $num (1..1000) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-} 
+}
 $write->flush();
 $read->reopen();
 
 for my $num (qw(three four five)) {
-  my $doc = Search::Xapian::Document->new();
+  my $doc = Xapian::Document->new();
 
   $doc->set_data( "$term $num" );
 
@@ -76,11 +77,11 @@ for my $num (qw(three four five)) {
 }
 $write->flush();
 eval {
-    my $mset = $enq->get_mset(0, 10);    
+    my $mset = $enq->get_mset(0, 10);
 };
 ok($@);
-ok(ref($@), "Search::Xapian::DatabaseModifiedError", "correct class for exception");
-ok($@->isa('Search::Xapian::Error'));
+ok(ref($@), "Xapian::DatabaseModifiedError", "correct class for exception");
+ok($@->isa('Xapian::Error'));
 
 ok($@->get_msg, "The revision being read has been discarded - you should call Xapian::Database::reopen() and retry the operation", "get_msg works");
 

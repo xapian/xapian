@@ -1,7 +1,7 @@
 /** @file progclient.h
  *  @brief Implementation of RemoteDatabase using a spawned server.
  */
-/* Copyright (C) 2007,2010,2011 Olly Betts
+/* Copyright (C) 2007,2010,2011,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,11 +82,13 @@ class ProgClient : public RemoteDatabase {
      *  @param args	Any arguments to the program.
      *  @param timeout	Timeout for communication (in seconds).
      *  @param writable	Is this a WritableDatabase?
+     *  @param flags	Xapian::DB_RETRY_LOCK or 0.
      */
     ProgClient(const std::string &progname,
 	       const std::string &arg,
 	       double msecs_timeout,
-	       bool writable);
+	       bool writable,
+	       int flags);
 
     /** Destructor. */
     ~ProgClient();

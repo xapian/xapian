@@ -54,6 +54,7 @@ static qp_flag flag_tab[] = {
     { "auto_synonyms", Xapian::QueryParser::FLAG_AUTO_SYNONYMS },
     { "boolean", Xapian::QueryParser::FLAG_BOOLEAN },
     { "boolean_any_case", Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE },
+    { "cjk_ngram", Xapian::QueryParser::FLAG_CJK_NGRAM },
     { "default", Xapian::QueryParser::FLAG_DEFAULT },
     { "lovehate", Xapian::QueryParser::FLAG_LOVEHATE },
     { "partial", Xapian::QueryParser::FLAG_PARTIAL },
@@ -120,7 +121,7 @@ inline bool operator<(const wt & f1, const wt & f2) {
 }
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
 "NB: QUERY should be quoted to protect it from the shell.\n\n"
 "Options:\n"
 "  -d, --db=DIRECTORY                database to search (multiple databases may\n"
@@ -139,7 +140,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -155,7 +156,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -171,7 +172,7 @@ static void show_usage() {
 	size_t len = strlen(i->s);
 	if (pos < 256) cout << ',';
 	if (pos + len >= 78) {
-	    cout << "\n"INDENT;
+	    cout << "\n" INDENT;
 	    pos = sizeof(INDENT) - 2;
 	} else {
 	    cout << ' ';
@@ -335,10 +336,10 @@ try {
 		break;
 	    }
 	    case 'v':
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'h':
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case ':': // missing parameter
@@ -412,7 +413,7 @@ try {
     Xapian::MSet mset = enquire.get_mset(0, msize, check_at_least);
 
     cout << "MSet:" << endl;
-    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); i++) {
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	string data = doc.get_data();
 	cout << *i << ": [" << i.get_weight() << "]\n" << data << "\n";

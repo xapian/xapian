@@ -1,5 +1,4 @@
 EXTRA_DIST +=\
-	backends/multi/dir_contents\
 	backends/multi/Makefile
 
 noinst_HEADERS +=\

@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -101,6 +101,23 @@ Query::Query(op op_, Xapian::valueno slot,
     }
 }
 
+Query::Query(op op_,
+	     const std::string & pattern,
+	     Xapian::termcount max_expansion,
+	     int max_type,
+	     op combiner)
+{
+    LOGCALL_CTOR(API, "Query", op_ | pattern | max_expansion | max_type | combiner);
+    if (rare(op_ != OP_WILDCARD))
+	throw Xapian::InvalidArgumentError("op must be OP_WILDCARD");
+    if (rare(combiner != OP_SYNONYM && combiner != OP_MAX && combiner != OP_OR))
+	throw Xapian::InvalidArgumentError("combiner must be OP_SYNONYM or OP_MAX or OP_OR");
+    internal = new Xapian::Internal::QueryWildcard(pattern,
+						   max_expansion,
+						   max_type,
+						   combiner);
+}
+
 const TermIterator
 Query::get_terms_begin() const
 {
@@ -112,23 +129,49 @@ Query::get_terms_begin() const
     sort(terms.begin(), terms.end());
 
     vector<string> v;
-    vector<pair<Xapian::termpos, string> >::const_iterator i;
     const string * old_term = NULL;
     Xapian::termpos old_pos = 0;
-    for (i = terms.begin(); i != terms.end(); ++i) {
+    for (auto && i : terms) {
 	// Remove duplicates (same term at the same position).
-	if (old_term && old_pos == i->first && *old_term == i->second)
+	if (old_term && old_pos == i.first && *old_term == i.second)
 	    continue;
 
-	v.push_back(i->second);
-	old_pos = i->first;
-	old_term = &(i->second);
+	v.push_back(i.second);
+	old_pos = i.first;
+	old_term = &(i.second);
+    }
+    return TermIterator(new VectorTermList(v.begin(), v.end()));
+}
+
+const TermIterator
+Query::get_unique_terms_begin() const
+{
+    if (!internal.get())
+	return TermIterator();
+
+    vector<pair<Xapian::termpos, string> > terms;
+    internal->gather_terms(static_cast<void*>(&terms));
+    sort(terms.begin(), terms.end(), [](
+		const pair<Xapian::termpos, string>& a,
+		const pair<Xapian::termpos, string>& b) {
+	return a.second < b.second;
+    });
+
+    vector<string> v;
+    const string * old_term = NULL;
+    for (auto && i : terms) {
+	// Remove duplicate term names.
+	if (old_term && *old_term == i.second)
+	    continue;
+
+	v.push_back(i.second);
+	old_term = &(i.second);
     }
     return TermIterator(new VectorTermList(v.begin(), v.end()));
 }
 
 Xapian::termcount
-Query::get_length() const
+Query::get_length() const XAPIAN_NOEXCEPT
 {
     return (internal.get() ? internal->get_length() : 0);
 }
@@ -149,11 +192,11 @@ Query::unserialise(const string & s, const Registry & reg)
     const char * end = p + s.size();
     Query::Internal * q = Query::Internal::unserialise(&p, end, reg);
     AssertEq(p, end);
-    return Query(*q);
+    return Query(q);
 }
 
 Xapian::Query::op
-Query::get_type() const
+Query::get_type() const XAPIAN_NOEXCEPT
 {
     if (!internal.get())
 	return Xapian::Query::LEAF_MATCH_NOTHING;
@@ -161,7 +204,7 @@ Query::get_type() const
 }
 
 size_t
-Query::get_num_subqueries() const
+Query::get_num_subqueries() const XAPIAN_NOEXCEPT
 {
     return internal.get() ? internal->get_num_subqueries() : 0;
 }

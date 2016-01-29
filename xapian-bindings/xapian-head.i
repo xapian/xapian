@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 
 #include <xapian.h>
 
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -37,16 +38,6 @@ namespace Xapian {
 %}
 #ifndef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 %{
-#ifndef XAPIAN_HAS_BRASS_BACKEND
-    namespace Brass {
-	static Database open(const string &) {
-	    throw FeatureUnavailableError("Brass backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 8192) {
-	    throw FeatureUnavailableError("Brass backend not supported");
-	}
-    }
-#endif
 
 #ifndef XAPIAN_HAS_CHERT_BACKEND
     namespace Chert {
@@ -98,7 +89,7 @@ using namespace std;
 %include stl.i
 
 // Disable errors about not including headers individually.
-#define XAPIAN_LIB_BUILD
+#define XAPIAN_IN_XAPIAN_H
 
 // Define these away for SWIG's parser.
 #define XAPIAN_DEPRECATED(D) D
@@ -108,6 +99,7 @@ using namespace std;
 #define XAPIAN_VISIBILITY_DEFAULT
 #define XAPIAN_CONST_FUNCTION
 #define XAPIAN_PURE_FUNCTION
+#define XAPIAN_NOEXCEPT
 #define XAPIAN_NOTHROW(D) D
 
 // Ignore these which SWIG seems to add pointless type entries for due them

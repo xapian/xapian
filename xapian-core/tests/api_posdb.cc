@@ -562,8 +562,6 @@ DEFINE_TESTCASE(poslist2, positional && writable) {
 DEFINE_TESTCASE(poslist3, positional && writable) {
     Xapian::WritableDatabase db = get_writable_database();
 
-    vector<Xapian::termpos> positions;
-
     Xapian::Document document;
     document.add_posting("foo", 5);
     document.add_posting("foo", 8);

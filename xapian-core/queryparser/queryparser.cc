@@ -1,7 +1,7 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -136,9 +136,18 @@ QueryParser::set_database(const Database &db) {
 }
 
 void
-QueryParser::set_max_wildcard_expansion(Xapian::termcount max)
+QueryParser::set_max_expansion(Xapian::termcount max_expansion,
+			       int max_type,
+			       unsigned flags)
 {
-    internal->max_wildcard_expansion = max;
+    if (flags & FLAG_WILDCARD) {
+	internal->max_wildcard_expansion = max_expansion;
+	internal->max_wildcard_type = max_type;
+    }
+    if (flags & FLAG_PARTIAL) {
+	internal->max_partial_expansion = max_expansion;
+	internal->max_partial_type = max_type;
+    }
 }
 
 Query
@@ -153,7 +162,8 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 
     Query result = internal->parse_query(query_string, flags, default_prefix);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	result = internal->parse_query(query_string, 0, default_prefix);
+	flags &= FLAG_CJK_NGRAM;
+	result = internal->parse_query(query_string, flags, default_prefix);
     }
 
     if (internal->errmsg) throw Xapian::QueryParserError(internal->errmsg);

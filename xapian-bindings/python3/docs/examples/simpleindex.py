@@ -3,7 +3,7 @@
 # Index each paragraph of a text file as a Xapian document.
 #
 # Copyright (C) 2003 James Aylett
-# Copyright (C) 2004,2007,2013 Olly Betts
+# Copyright (C) 2004,2007,2013,2014 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -39,7 +39,7 @@ try:
     para = ''
     try:
         for line in sys.stdin:
-            line = string.strip(line)
+            line = line.strip()
             if line == '':
                 if para != '':
                     # We've reached the end of a paragraph, so index it.

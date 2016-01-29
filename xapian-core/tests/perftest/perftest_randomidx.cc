@@ -1,7 +1,7 @@
 /* perftest_randomidx.cc: performance tests involving a randomly generated index
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009 Olly Betts
+ * Copyright 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,10 +29,10 @@
 
 #include "backendmanager.h"
 #include "perftest.h"
+#include "str.h"
 #include "testrunner.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "str.h"
 
 using namespace std;
 

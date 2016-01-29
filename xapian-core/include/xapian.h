@@ -1,7 +1,7 @@
 /** @file xapian.h
  *  @brief Public interfaces for the Xapian library.
  */
-// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013 Olly Betts
+// Copyright (C) 2003,2004,2005,2007,2008,2009,2010,2012,2013,2015,2016 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -70,6 +70,7 @@
 
 // Searching
 #include <xapian/enquire.h>
+#include <xapian/mset.h>
 #include <xapian/expanddecider.h>
 #include <xapian/keymaker.h>
 #include <xapian/matchspy.h>
@@ -81,9 +82,6 @@
 
 // Stemming
 #include <xapian/stem.h>
-
-// Snippets
-#include <xapian/snipper.h>
 
 // Subclass registry
 #include <xapian/registry.h>
@@ -100,24 +98,11 @@
 // ELF visibility annotations for GCC.
 #include <xapian/visibility.h>
 
+// Mechanism for accessing a struct of constant information
+#include <xapian/constinfo.h>
+
 /// The Xapian namespace contains public interfaces for the Xapian library.
 namespace Xapian {
-
-#ifndef SWIG
-namespace Internal {
-
-/** @private @internal */
-struct vinfo {
-    int major, minor, revision;
-    char str[8];
-};
-
-/** @private @internal */
-XAPIAN_VISIBILITY_DEFAULT
-const struct vinfo * XAPIAN_NOTHROW(get_vinfo_()) XAPIAN_CONST_FUNCTION;
-
-}
-#endif
 
 // Functions returning library version:
 
@@ -127,7 +112,7 @@ const struct vinfo * XAPIAN_NOTHROW(get_vinfo_()) XAPIAN_CONST_FUNCTION;
  * XAPIAN_VERSION) if shared libraries are being used.
  */
 inline const char * version_string() {
-    return Internal::get_vinfo_()->str;
+    return Internal::get_constinfo_()->str;
 }
 
 /** Report the major version of the library which the program is linked with.
@@ -136,7 +121,7 @@ inline const char * version_string() {
  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
  */
 inline int major_version() {
-    return Internal::get_vinfo_()->major;
+    return Internal::get_constinfo_()->major;
 }
 
 /** Report the minor version of the library which the program is linked with.
@@ -145,7 +130,7 @@ inline int major_version() {
  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
  */
 inline int minor_version() {
-    return Internal::get_vinfo_()->minor;
+    return Internal::get_constinfo_()->minor;
 }
 
 /** Report the revision of the library which the program is linked with.
@@ -154,7 +139,7 @@ inline int minor_version() {
  * XAPIAN_REVISION) if shared libraries are being used.
  */
 inline int revision() {
-    return Internal::get_vinfo_()->revision;
+    return Internal::get_constinfo_()->revision;
 }
 
 }

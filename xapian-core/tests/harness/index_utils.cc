@@ -140,18 +140,8 @@ munge_term(const string &term)
 			char c = *++i;
 			if (!C_isxdigit(b) || !C_isxdigit(c)) {
 			    i = j - 1;
-			    break;
-			}
-			if (C_isdigit(b)) {
-			    ch = b - '0';
 			} else {
-			    ch = C_tolower(b) - 'a' + 10;
-			}
-			ch *= 16;
-			if (C_isdigit(c)) {
-			    ch |= c - '0';
-			} else {
-			    ch |= C_tolower(c) - 'a' + 10;
+			    ch = (hex_digit(b) << 4) | hex_digit(c);
 			}
 			break;
 		    }

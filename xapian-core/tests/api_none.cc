@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,6 +59,7 @@ DEFINE_TESTCASE(nosubdatabases1, !backend) {
     TEST_EQUAL(db.get_lastdocid(), 0);
     TEST_EQUAL(db.valuestream_begin(7), db.valuestream_end(7));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_doclength(1));
+    TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_unique_terms(1));
     TEST_EXCEPTION(Xapian::InvalidOperationError, db.get_document(1));
     return true;
 }
@@ -175,5 +176,250 @@ DEFINE_TESTCASE(combinewqfnomore1, !backend) {
     // Prior to 1.3.0, we would have given beer@2, but we decided that wasn't
     // really useful or helpful.
     TEST_EQUAL(q.get_description(), "Query((beer@1 OR beer@1))");
+    return true;
+}
+
+class DestroyedFlag {
+    bool & destroyed;
+
+  public:
+    DestroyedFlag(bool & destroyed_) : destroyed(destroyed_) {
+	destroyed = false;
+    }
+
+    ~DestroyedFlag() {
+	destroyed = true;
+    }
+};
+
+class TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
+    DestroyedFlag destroyed;
+
+  public:
+    TestValueRangeProcessor(bool & destroyed_) : destroyed(destroyed_) { }
+
+    Xapian::valueno operator()(std::string &, std::string &) {
+	return 42;
+    }
+};
+
+/// Check reference counting of user-subclassable classes.
+DEFINE_TESTCASE(subclassablerefcount1, !backend) {
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_valuerangeprocessor(vrp->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_valuerangeprocessor(vrp->release());
+	vrp->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a VRP with automatic storage
+    // works OK.
+    {
+	TestValueRangeProcessor vrp_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::QueryParser qp1;
+	    {
+		Xapian::QueryParser qp2;
+		Xapian::ValueRangeProcessor * vrp;
+		vrp = new TestValueRangeProcessor(gone);
+		TEST(!gone);
+		qp1.add_valuerangeprocessor(vrp->release());
+		TEST(!gone);
+		qp2.add_valuerangeprocessor(vrp);
+		TEST(!gone);
+		qp2.add_valuerangeprocessor(&vrp_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    // Regression test for initial implementation, where ~opt_instrusive_ptr()
+    // checked the reference of the object, which may have already been deleted
+    // if it wasn't been reference counted.
+    {
+	Xapian::QueryParser qp;
+	{
+	    Xapian::ValueRangeProcessor * vrp =
+		new TestValueRangeProcessor(gone);
+	    TEST(!gone);
+	    qp.add_valuerangeprocessor(vrp);
+	    delete vrp;
+	    TEST(gone);
+	}
+	// At the end of this block, qp is destroyed, but mustn't dereference
+	// the pointer it has to vrp.  If it does, that should get caught
+	// when tests are run under valgrind.
+    }
+
+    return true;
+}
+
+class TestFieldProcessor : public Xapian::FieldProcessor {
+    DestroyedFlag destroyed;
+
+  public:
+    TestFieldProcessor(bool & destroyed_) : destroyed(destroyed_) { }
+
+    Xapian::Query operator()(const string &str) {
+	return Xapian::Query(str);
+    }
+};
+
+/// Check reference counting of user-subclassable classes.
+DEFINE_TESTCASE(subclassablerefcount2, !backend) {
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_prefix("foo", proc->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::FieldProcessor * proc = new TestFieldProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_prefix("foo", proc->release());
+	proc->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a FieldProcessor with automatic
+    // storage works OK.
+    {
+	TestFieldProcessor proc_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::QueryParser qp1;
+	    {
+		Xapian::QueryParser qp2;
+		Xapian::FieldProcessor * proc;
+		proc = new TestFieldProcessor(gone);
+		TEST(!gone);
+		qp1.add_prefix("foo", proc->release());
+		TEST(!gone);
+		qp2.add_prefix("foo", proc);
+		TEST(!gone);
+		qp2.add_prefix("bar", &proc_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}
+
+class TestMatchSpy : public Xapian::MatchSpy {
+    DestroyedFlag destroyed;
+
+  public:
+    TestMatchSpy(bool & destroyed_) : destroyed(destroyed_) { }
+
+    void operator()(const Xapian::Document &, double) { }
+};
+
+/// Check reference counting of MatchSpy.
+DEFINE_TESTCASE(subclassablerefcount3, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::MatchSpy * spy = new TestMatchSpy(gone);
+	TEST(!gone);
+	Xapian::Enquire enquire(db);
+	enquire.add_matchspy(spy->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::MatchSpy * spy = new TestMatchSpy(gone);
+	TEST(!gone);
+	Xapian::Enquire enquire(db);
+	enquire.add_matchspy(spy->release());
+	spy->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a MatchSpy with automatic
+    // storage works OK.
+    {
+	TestMatchSpy spy_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::Enquire enq1(db);
+	    {
+		Xapian::Enquire enq2(db);
+		Xapian::MatchSpy * spy;
+		spy = new TestMatchSpy(gone);
+		TEST(!gone);
+		enq1.add_matchspy(spy->release());
+		TEST(!gone);
+		enq2.add_matchspy(spy);
+		TEST(!gone);
+		enq2.add_matchspy(&spy_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}
+
+/// Check encoding of non-UTF8 document data.
+DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
+    Xapian::Document doc;
+    doc.set_data("\xc0\x80\xf5\x80\x80\x80\xfe\xff");
+    TEST_EQUAL(doc.get_description(),
+	      "Document(data='\\xc0\\x80\\xf5\\x80\\x80\\x80\\xfe\\xff')");
+    doc.set_data(string("\x00\x1f", 2));
+    TEST_EQUAL(doc.get_description(),
+	      "Document(data='\\x00\\x1f')");
+    // Check that backslashes are encoded so output isn't ambiguous.
+    doc.set_data("back\\slash");
+    TEST_EQUAL(doc.get_description(),
+	      "Document(data='back\\x5cslash')");
     return true;
 }

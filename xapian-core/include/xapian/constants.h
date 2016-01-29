@@ -1,7 +1,7 @@
 /** @file constants.h
  * @brief Constants in the Xapian namespace
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_CONSTANTS_H
 #define XAPIAN_INCLUDED_CONSTANTS_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/constants.h> directly; include <xapian.h> instead."
 #endif
 
@@ -49,8 +49,10 @@ const int DB_CREATE		 = 0x02;
  */
 const int DB_OPEN		 = 0x03;
 
+#ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for action codes. */
 const int DB_ACTION_MASK_	 = 0x03;
+#endif
 
 /** Don't attempt to ensure changes have hit disk.
  *
@@ -62,6 +64,23 @@ const int DB_ACTION_MASK_	 = 0x03;
  *  can speed up indexing significantly.
  */
 const int DB_NO_SYNC		 = 0x04;
+
+/** Try to ensure changes are really written to disk.
+ *
+ *  Generally fsync() and similar functions only ensure that data has been sent
+ *  to the drive.  Modern drives have large write-back caches for performance,
+ *  and a power failure could still lose data which is in the write-back cache
+ *  waiting to be written.
+ *
+ *  Some platforms provide a way to ensure data has actually been written and
+ *  setting DB_FULL_SYNC will attempt to do so where possible.  The downside is
+ *  that committing changes takes longer, and other I/O to the same disk may be
+ *  delayed too.
+ *
+ *  Currently only Mac OS X is supported, and only on some filing system types
+ *  - if not supported, Xapian will use fsync() or similar instead.
+ */
+const int DB_FULL_SYNC		 = 0x08;
 
 /** Update the database in-place.
  *
@@ -81,11 +100,11 @@ const int DB_NO_SYNC		 = 0x04;
  *  readers from opening the database while it unsafe to do so, but there's
  *  not currently a mechanism in Xapian to handle notifying existing readers.
  */
-const int DB_DANGEROUS		 = 0x08;
+const int DB_DANGEROUS		 = 0x10;
 
 /** When creating a database, don't create a termlist table.
  *
- *  For backends which support it (currently brass), this will prevent creation
+ *  For backends which support it (currently glass), this will prevent creation
  *  of a termlist table.  This saves on the disk space that would be needed to
  *  store it, and the CPU and I/O needed to update it, but some features either
  *  inherently need the termlist table, or the current implementation of them
@@ -108,25 +127,35 @@ const int DB_DANGEROUS		 = 0x08;
  *     (again, possible with inexact statistics).
  *   - Currently the list of which values are used in each document is stored
  *     in the termlist table, so things like iterating the values in a document
- *     require it (which is probably reasonably since iterating the terms in
+ *     require it (which is probably reasonable since iterating the terms in
  *     a document requires it).
  *
  *  You can also convert an existing database to not have a termlist table
  *  by simply deleting termlist.*.
  */
-const int DB_NO_TERMLIST	 = 0x10;
+const int DB_NO_TERMLIST	 = 0x20;
 
-/** Use the brass backend.
+/** If the database is already locked, retry the lock.
  *
- *  When opening a WritableDatabase, this means create a brass database if a
+ *  By default, if the database is already locked by a writer, trying to
+ *  open it again for writing will fail by throwing Xapian::DatabaseLockError.
+ *  If this flag is specified, then Xapian will instead wait for the lock
+ *  (indefinitely, unless it gets an error trying to do so).
+ */
+const int DB_RETRY_LOCK		 = 0x40;
+
+/** Use the glass backend.
+ *
+ *  When opening a WritableDatabase, this means create a glass database if a
  *  new database is created.  If there's an existing database (of any type)
  *  at the specified path, this flag has no effect.
  *
- *  When opening a Database, this flag means to only open it if it's a brass
+ *  When opening a Database, this flag means to only open it if it's a glass
  *  database.  There's rarely a good reason to do this - it's mostly provided
- *  as equivalent functionality to Xapian::Brass::open() in Xapian 1.2.
+ *  as equivalent functionality to that provided by the namespaced open()
+ *  functions in Xapian 1.2.
  */
-const int DB_BACKEND_BRASS	 = 0x100;
+const int DB_BACKEND_GLASS	 = 0x100;
 
 /** Use the chert backend.
  *
@@ -144,16 +173,18 @@ const int DB_BACKEND_CHERT	 = 0x200;
  *
  *  When opening a Database, this flag means to only open it if it's a stub
  *  database file.  There's rarely a good reason to do this - it's mostly
- *  provided  as equivalent functionality to Xapian::Auto::open_stub() in
+ *  provided as equivalent functionality to Xapian::Auto::open_stub() in
  *  Xapian 1.2.
  */
 const int DB_BACKEND_STUB	 = 0x300;
 
+#ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for backend codes. */
 const int DB_BACKEND_MASK_	 = 0x300;
 
 /** @internal Used internally to signify opening read-only. */
 const int DB_READONLY_		 = -1;
+#endif
 
 
 /** Show a short-format display of the B-tree contents.
@@ -172,6 +203,12 @@ const int DBCHECK_FULL_TREE = 2;
  *
  *  For use with Xapian::Database::check().
  */
+const int DBCHECK_SHOW_FREELIST = 4;
+
+/** Old name for DBCHECK_SHOW_FREELIST.
+ *
+ *  For use with Xapian::Database::check().
+ */
 const int DBCHECK_SHOW_BITMAP = 4;
 
 /** Show statistics for the B-tree.
@@ -182,18 +219,43 @@ const int DBCHECK_SHOW_STATS = 8;
 
 /** Fix problems.
  *
+ *  For use with Xapian::Database::check().
+ *
  *  Currently this is supported for chert, and will:
  *
- *    * regenerate the "iamchert" file if it isn't valid (so if it is lost, you
+ *  @li regenerate the "iamchert" file if it isn't valid (so if it is lost, you
  *      can just create it empty and then "fix problems").
  *
- *    * regenerate base files (currently the algorithm for finding the root
+ *  @li regenerate base files (currently the algorithm for finding the root
  *      block may not work if there was a change partly written but not
  *      committed).
- *
- *  For use with Xapian::Database::check().
  */
 const int DBCHECK_FIX = 16;
+
+
+/** Use the same document ids in the output as in the input(s).
+ *
+ *  By default compaction renumbers the document ids in the output database,
+ *  currently by applying the same offset to all the document ids in a
+ *  particular source database.  If this flag is specified, then this
+ *  renumbering doesn't happen, but all the document ids must be unique over
+ *  all source databases.  Currently the ranges of document ids in each source
+ *  must not overlap either, though this restriction may be removed in the
+ *  future.
+ */
+const int DBCOMPACT_NO_RENUMBER = 4;
+
+/** If merging more than 3 databases, merge the postlists in multiple passes.
+ *
+ *  This is generally faster but requires more disk space for temporary files.
+ */
+const int DBCOMPACT_MULTIPASS = 8;
+
+/** Produce a single-file database.
+ *
+ *  Only supported by the glass backend currently.
+ */
+const int DBCOMPACT_SINGLE_FILE = 16;
 
 }
 

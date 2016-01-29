@@ -1,6 +1,6 @@
 /* metaxmlparse.cc: subclass of HtmlParser for parsing OpenDocument's meta.xml.
  *
- * Copyright (C) 2006,2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2006,2009,2010,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,7 @@
 
 #include "metaxmlparse.h"
 
-#include <cstdlib>
-#include <time.h>
-#include "timegm.h"
+#include "datetime.h"
 
 using namespace std;
 
@@ -53,39 +51,7 @@ MetaXmlParser::process_text(const string &text)
 	    break;
 	case CREATED: {
 	    // E.g. 2013-03-04T22:57:00
-	    struct tm t;
-	    const char * p = text.c_str();
-	    char * q;
-	    unsigned long v = strtoul(p, &q, 10);
-	    p = q;
-	    t.tm_year = v - 1900;
-	    if (*p != '-') break;
-	    v = strtoul(p + 1, &q, 10);
-	    p = q;
-	    t.tm_mon = v - 1;
-	    if (*p != '-') break;
-	    v = strtoul(p + 1, &q, 10);
-	    p = q;
-	    t.tm_mday = v;
-	    if (*p == 'T') {
-		v = strtoul(p + 1, &q, 10);
-		p = q;
-		t.tm_hour = v;
-		if (*p != ':') break;
-		v = strtoul(p + 1, &q, 10);
-		p = q;
-		t.tm_min = v;
-		if (*p != ':') break;
-		v = strtoul(p + 1, &q, 10);
-		p = q;
-		t.tm_sec = v;
-	    } else if (*p == '\0') {
-		t.tm_hour = t.tm_min = t.tm_sec = 0;
-	    } else {
-		break;
-	    }
-	    t.tm_isdst = -1;
-	    created = timegm(&t);
+	    created = parse_datetime(text);
 	    break;
 	}
 	case NONE:

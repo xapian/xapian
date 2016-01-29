@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@
 #include "safeunistd.h"
 
 #include <algorithm>
+#include <climits>
 #include <string>
 
 #include "debuglog.h"
@@ -51,6 +52,13 @@ static void
 throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
+}
+
+XAPIAN_NORETURN(static void throw_network_error_insane_message_length());
+static void
+throw_network_error_insane_message_length()
+{
+    throw Xapian::NetworkError("Insane message length specified!");
 }
 
 #ifdef __WIN32__
@@ -85,12 +93,12 @@ RemoteConnection::~RemoteConnection()
 }
 #endif
 
-void
+bool
 RemoteConnection::read_at_least(size_t min_len, double end_time)
 {
-    LOGCALL_VOID(REMOTE, "RemoteConnection::read_at_least", min_len | end_time);
+    LOGCALL(REMOTE, bool, "RemoteConnection::read_at_least", min_len | end_time);
 
-    if (buffer.length() >= min_len) return;
+    if (buffer.length() >= min_len) return true;
 
 #ifdef __WIN32__
     HANDLE hin = fd_to_handle(fdin);
@@ -115,8 +123,10 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 					   context, -(int)GetLastError());
 	}
 
-	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context);
+	if (received == 0) {
+	    do_close(false);
+	    return false;
+	}
 
 	buffer.append(buf, received);
 
@@ -136,14 +146,16 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 
 	if (received > 0) {
 	    buffer.append(buf, received);
-	    if (buffer.length() >= min_len) return;
+	    if (buffer.length() >= min_len) return true;
 	    continue;
 	}
 
-	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context);
+	if (received == 0) {
+	    do_close(false);
+	    return false;
+	}
 
-	LOGLINE(REMOTE, "read gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "read gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -178,6 +190,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	}
     }
 #endif
+    return true;
 }
 
 bool
@@ -227,7 +240,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    int errcode = GetLastError();
 	    if (errcode != ERROR_IO_PENDING)
 		throw Xapian::NetworkError("write failed", context, -errcode);
-	    // Just wait for the data to be received, or a timeout.
+	    // Just wait for the data to be sent, or a timeout.
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
@@ -277,7 +290,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    continue;
 	}
 
-	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -346,7 +359,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    int errcode = GetLastError();
 	    if (errcode != ERROR_IO_PENDING)
 		throw Xapian::NetworkError("write failed", context, -errcode);
-	    // Just wait for the data to be received, or a timeout.
+	    // Just wait for the data to be sent, or a timeout.
 	    DWORD waitrc;
 	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
 	    if (waitrc != WAIT_OBJECT_0) {
@@ -410,7 +423,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    continue;
 	}
 
-	LOGLINE(REMOTE, "write gave errno = " << strerror(errno));
+	LOGLINE(REMOTE, "write gave errno = " << errno);
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
@@ -446,31 +459,34 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 #endif
 }
 
-char
+int
 RemoteConnection::sniff_next_message_type(double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::sniff_next_message_type", end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::sniff_next_message_type", end_time);
     if (fdin == -1)
 	throw_database_closed();
 
-    read_at_least(1, end_time);
-    char type = buffer[0];
+    if (!read_at_least(1, end_time))
+	RETURN(-1);
+    unsigned char type = buffer[0];
     RETURN(type);
 }
 
-char
+int
 RemoteConnection::get_message(string &result, double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message", result | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message", result | end_time);
     if (fdin == -1)
 	throw_database_closed();
 
-    read_at_least(2, end_time);
+    if (!read_at_least(2, end_time))
+	RETURN(-1);
     size_t len = static_cast<unsigned char>(buffer[1]);
-    read_at_least(len + 2, end_time);
+    if (!read_at_least(len + 2, end_time))
+	RETURN(-1);
     if (len != 0xff) {
 	result.assign(buffer.data() + 2, len);
-	char type = buffer[0];
+	unsigned char type = buffer[0];
 	buffer.erase(0, len + 2);
 	RETURN(type);
     }
@@ -481,7 +497,7 @@ RemoteConnection::get_message(string &result, double end_time)
     do {
 	if (i == buffer.end() || shift > 28) {
 	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
+	    throw_network_error_insane_message_length();
 	}
 	ch = *i++;
 	len |= size_t(ch & 0x7f) << shift;
@@ -489,57 +505,84 @@ RemoteConnection::get_message(string &result, double end_time)
     } while ((ch & 0x80) == 0);
     len += 255;
     size_t header_len = (i - buffer.begin());
-    read_at_least(header_len + len, end_time);
+    if (!read_at_least(header_len + len, end_time))
+	RETURN(-1);
     result.assign(buffer.data() + header_len, len);
-    char type = buffer[0];
+    unsigned char type = buffer[0];
     buffer.erase(0, header_len + len);
     RETURN(type);
 }
 
-char
+int
 RemoteConnection::get_message_chunked(double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::get_message_chunked", end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message_chunked", end_time);
+    typedef UNSIGNED_OFF_T uoff_t;
+
     if (fdin == -1)
 	throw_database_closed();
 
-    read_at_least(2, end_time);
-    off_t len = static_cast<unsigned char>(buffer[1]);
+    if (!read_at_least(2, end_time))
+	RETURN(-1);
+    uoff_t len = static_cast<unsigned char>(buffer[1]);
     if (len != 0xff) {
 	chunked_data_left = len;
 	char type = buffer[0];
 	buffer.erase(0, 2);
 	RETURN(type);
     }
-    read_at_least(len + 2, end_time);
+    if (!read_at_least(len + 2, end_time))
+	RETURN(-1);
     len = 0;
     string::const_iterator i = buffer.begin() + 2;
     unsigned char ch;
     int shift = 0;
     do {
-	// Allow a full 64 bits for message lengths - anything longer than that
-	// is almost certainly a corrupt value.
-	if (i == buffer.end() || shift > 63) {
+	// Allow at most 63 bits for message lengths - it's neatly a multiple
+	// of 7 bits and anything longer than this is almost certainly a
+	// corrupt value.
+#if SIZEOF_OFF_T < 8
+	// The value also needs to be representable as an off_t, which is a
+	// signed type.
+	if (rare(i == buffer.end() || shift >= SIZEOF_OFF_T * CHAR_BIT - 1)) {
 	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
+	    throw_network_error_insane_message_length();
 	}
+#else
+	if (rare(i == buffer.end() || shift >= 63)) {
+	    // Something is very wrong...
+	    throw_network_error_insane_message_length();
+	}
+#endif
 	ch = *i++;
-	len |= off_t(ch & 0x7f) << shift;
+	uoff_t bits = ch & 0x7f;
+#if SIZEOF_OFF_T < 8
+	if (shift > (SIZEOF_OFF_T * CHAR_BIT - 7)) {
+	    if (bits >> (shift - (SIZEOF_OFF_T * CHAR_BIT - 7))) {
+		// Too large for off_t.
+		throw_network_error_insane_message_length();
+	    }
+	}
+#endif
+	len |= bits << shift;
 	shift += 7;
     } while ((ch & 0x80) == 0);
     len += 255;
+    if (rare(off_t(len) < 0))
+	throw_network_error_insane_message_length();
+
     chunked_data_left = len;
-    char type = buffer[0];
+    unsigned char type = buffer[0];
     size_t header_len = (i - buffer.begin());
     buffer.erase(0, header_len);
     RETURN(type);
 }
 
-bool
+int
 RemoteConnection::get_message_chunk(string &result, size_t at_least,
 				    double end_time)
 {
-    LOGCALL(REMOTE, bool, "RemoteConnection::get_message_chunk", result | at_least | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::get_message_chunk", result | at_least | end_time);
     if (fdin == -1)
 	throw_database_closed();
 
@@ -549,14 +592,15 @@ RemoteConnection::get_message_chunk(string &result, size_t at_least,
     bool read_enough = (off_t(at_least) <= chunked_data_left);
     if (!read_enough) at_least = size_t(chunked_data_left);
 
-    read_at_least(at_least, end_time);
+    if (!read_at_least(at_least, end_time))
+	RETURN(-1);
 
-    size_t retlen(min(off_t(buffer.size()), chunked_data_left));
+    size_t retlen = min(off_t(buffer.size()), chunked_data_left);
     result.append(buffer, 0, retlen);
     buffer.erase(0, retlen);
     chunked_data_left -= retlen;
 
-    RETURN(read_enough);
+    RETURN(int(read_enough));
 }
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
@@ -574,10 +618,10 @@ write_all(int fd, const char * p, size_t n)
     }
 }
 
-char
+int
 RemoteConnection::receive_file(const string &file, double end_time)
 {
-    LOGCALL(REMOTE, char, "RemoteConnection::receive_file", file | end_time);
+    LOGCALL(REMOTE, int, "RemoteConnection::receive_file", file | end_time);
     if (fdin == -1)
 	throw_database_closed();
 
@@ -586,44 +630,15 @@ RemoteConnection::receive_file(const string &file, double end_time)
     if (fd == -1)
 	throw Xapian::NetworkError("Couldn't open file for writing: " + file, errno);
 
-    read_at_least(2, end_time);
-    size_t len = static_cast<unsigned char>(buffer[1]);
-    read_at_least(len + 2, end_time);
-    if (len != 0xff) {
-	write_all(fd, buffer.data() + 2, len);
-	char type = buffer[0];
-	buffer.erase(0, len + 2);
-	RETURN(type);
-    }
-    len = 0;
-    string::const_iterator i = buffer.begin() + 2;
-    unsigned char ch;
-    int shift = 0;
+    int type = get_message_chunked(end_time);
     do {
-	// Allow a full 64 bits for message lengths - anything longer than that
-	// is almost certainly a corrupt value.
-	if (i == buffer.end() || shift > 63) {
-	    // Something is very wrong...
-	    throw Xapian::NetworkError("Insane message length specified!");
-	}
-	ch = *i++;
-	len |= size_t(ch & 0x7f) << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    len += 255;
-    size_t header_len = (i - buffer.begin());
-    size_t remainlen(min(buffer.size() - header_len, len));
-    write_all(fd, buffer.data() + header_len, remainlen);
-    len -= remainlen;
-    char type = buffer[0];
-    buffer.erase(0, header_len + remainlen);
-    while (len > 0) {
-	read_at_least(min(len, size_t(CHUNKSIZE)), end_time);
-	remainlen = min(buffer.size(), len);
-	write_all(fd, buffer.data(), remainlen);
-	len -= remainlen;
-	buffer.erase(0, remainlen);
-    }
+	off_t min_read = min(chunked_data_left, off_t(CHUNKSIZE));
+	if (!read_at_least(min_read, end_time))
+	    RETURN(-1);
+	write_all(fd, buffer.data(), min_read);
+	chunked_data_left -= min_read;
+	buffer.erase(0, min_read);
+    } while (chunked_data_left);
     RETURN(type);
 }
 

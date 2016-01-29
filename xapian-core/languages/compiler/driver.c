@@ -1,10 +1,14 @@
-
-#include <stdio.h>   /* for main etc */
+#include <stdio.h>   /* for fprintf etc */
 #include <stdlib.h>  /* for free etc */
 #include <string.h>  /* for strlen */
 #include "header.h"
 
-static int eq(char * s1, char * s2) {
+#define DEFAULT_PACKAGE "org.tartarus.snowball.ext"
+#define DEFAULT_BASE_CLASS "org.tartarus.snowball.SnowballProgram"
+#define DEFAULT_AMONG_CLASS "org.tartarus.snowball.Among"
+#define DEFAULT_STRING_CLASS "java.lang.StringBuilder"
+
+static int eq(const char * s1, const char * s2) {
     int s1_len = strlen(s1);
     int s2_len = strlen(s2);
     return s1_len == s2_len && memcmp(s1, s2, s1_len) == 0;
@@ -12,12 +16,12 @@ static int eq(char * s1, char * s2) {
 
 static void print_arglist(void) {
     fprintf(stderr, "Usage: snowball <file> [options]\n\n"
-	            "options are: [-o[utput] file]\n"
+                    "options are: [-o[utput] file]\n"
                     "             [-s[yntax]]\n"
 #ifndef DISABLE_JAVA
                     "             [-j[ava]]\n"
 #endif
-		    "             [-c++]\n"
+                    "             [-c++]\n"
                     "             [-w[idechars]]\n"
                     "             [-u[tf8]]\n"
                     "             [-n[ame] class name]\n"
@@ -25,7 +29,12 @@ static void print_arglist(void) {
                     "             [-vp[refix] string]\n"
                     "             [-i[nclude] directory]\n"
                     "             [-r[untime] path to runtime headers]\n"
-		    "             [-p[arentclassname] parent class name]\n"
+                    "             [-p[arentclassname] fully qualified parent class name]\n"
+#ifndef DISABLE_JAVA
+                    "             [-P[ackage] package name for stemmers]\n"
+                    "             [-S[tringclass] StringBuffer-compatible class]\n"
+                    "             [-a[mongclass] fully qualified name of the Among class]\n"
+#endif
            );
     exit(1);
 }
@@ -52,7 +61,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
     char * s;
     int i = 2;
 
-    /* set defauts: */
+    /* set defaults: */
 
     o->output_file = 0;
     o->syntax_tree = false;
@@ -60,6 +69,11 @@ static void read_options(struct options * o, int argc, char * argv[]) {
     o->variables_prefix = 0;
     o->runtime_path = 0;
     o->parent_class_name = 0;
+#ifndef DISABLE_JAVA
+    o->string_class = DEFAULT_STRING_CLASS;
+    o->among_class = DEFAULT_AMONG_CLASS;
+    o->package = DEFAULT_PACKAGE;
+#endif
     o->name = "";
     o->make_lang = LANG_C;
     o->widechars = false;
@@ -69,8 +83,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
 
     /* read options: */
 
-    repeat {
-        if (i >= argc) break;
+    while (i < argc) {
         s = argv[i++];
         {   if (eq(s, "-o") || eq(s, "-output")) {
                 check_lim(i, argc);
@@ -95,7 +108,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
             }
             if (eq(s, "-w") || eq(s, "-widechars")) {
                 o->widechars = true;
-		o->utf8 = false;
+                o->utf8 = false;
                 continue;
             }
             if (eq(s, "-s") || eq(s, "-syntax")) {
@@ -134,7 +147,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
             }
             if (eq(s, "-u") || eq(s, "-utf8")) {
                 o->utf8 = true;
-		o->widechars = false;
+                o->widechars = false;
                 continue;
             }
             if (eq(s, "-p") || eq(s, "-parentclassname")) {
@@ -142,6 +155,23 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 o->parent_class_name = argv[i++];
                 continue;
             }
+#ifndef DISABLE_JAVA
+            if (eq(s, "-P") || eq(s, "-Package")) {
+                check_lim(i, argc);
+                o->package = argv[i++];
+                continue;
+            }
+            if (eq(s, "-S") || eq(s, "-stringclass")) {
+                check_lim(i, argc);
+                o->string_class = argv[i++];
+                continue;
+            }
+            if (eq(s, "-a") || eq(s, "-amongclass")) {
+                check_lim(i, argc);
+                o->among_class = argv[i++];
+                continue;
+            }
+#endif
             fprintf(stderr, "'%s' misplaced\n", s);
             print_arglist();
         }
@@ -171,42 +201,42 @@ extern int main(int argc, char * argv[]) {
             if (t->error_count > 0) exit(1);
             if (o->syntax_tree) print_program(a);
             close_tokeniser(t);
-            unless (o->syntax_tree) {
+            if (!o->syntax_tree) {
                 struct generator * g;
 
-                char * s = o->output_file;
-                unless (s) {
+                const char * s = o->output_file;
+                if (!s) {
                     fprintf(stderr, "Please include the -o option\n");
                     print_arglist();
                     exit(1);
                 }
                 if (o->make_lang == LANG_C || o->make_lang == LANG_CPLUSPLUS) {
                     symbol * b = add_s_to_b(0, s);
-		    b = add_s_to_b(b, ".h");
-		    o->output_h = get_output(b);
-		    b[SIZE(b) - 1] = 'c';
-		    if (o->make_lang == LANG_CPLUSPLUS) {
-			b = add_s_to_b(b, "c");
-		    }
-		    o->output_c = get_output(b);
+                    b = add_s_to_b(b, ".h");
+                    o->output_h = get_output(b);
+                    b[SIZE(b) - 1] = 'c';
+                    if (o->make_lang == LANG_CPLUSPLUS) {
+                        b = add_s_to_b(b, "c");
+                    }
+                    o->output_src = get_output(b);
                     lose_b(b);
 
                     g = create_generator_c(a, o);
                     generate_program_c(g);
                     close_generator_c(g);
-                    fclose(o->output_c);
+                    fclose(o->output_src);
                     fclose(o->output_h);
                 }
 #ifndef DISABLE_JAVA
                 if (o->make_lang == LANG_JAVA) {
                     symbol * b = add_s_to_b(0, s);
                     b = add_s_to_b(b, ".java");
-                    o->output_java = get_output(b);
+                    o->output_src = get_output(b);
                     lose_b(b);
                     g = create_generator_java(a, o);
                     generate_program_java(g);
                     close_generator_java(g);
-                    fclose(o->output_java);
+                    fclose(o->output_src);
                 }
 #endif
             }
@@ -216,13 +246,13 @@ extern int main(int argc, char * argv[]) {
         lose_b(filename);
     }
     {   struct include * p = o->includes;
-        until (p == 0)
-        {   struct include * q = p->next;
+        while (p) {
+            struct include * q = p->next;
             lose_b(p->b); FREE(p); p = q;
         }
     }
     FREE(o);
-    unless (space_count == 0) fprintf(stderr, "%d blocks unfreed\n", space_count);
+    if (space_count) fprintf(stderr, "%d blocks unfreed\n", space_count);
     return 0;
 }
 

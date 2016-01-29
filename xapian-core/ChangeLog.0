@@ -442,7 +442,7 @@ Tue Nov  7 17:51:47 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	
 	* OmIndexerNode has new methods get_config_int(), get_config_double(),
 	  get_config_vector() so the configuration parameters are more
-	  useful.  Also added a set_output() varient for const OmIndexerData&,
+	  useful.  Also added a set_output() variant for const OmIndexerData&,
 	  for convenience.
 	
 	* OmConstantNode now supports int, double, and vector types as
@@ -634,7 +634,7 @@ Tue Oct 31 14:18:24 GMT 2000 Olly Betts
 Tue Oct 31 13:12:15 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Removed QuartzRevisionNumber class - just use the revision number
-	  as an integer.  Unneccessary layer of abstraction.
+	  as an integer.  Unnecessary layer of abstraction.
 
 Tue Oct 31 11:05:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
@@ -666,7 +666,7 @@ Mon Oct 30 16:13:09 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 Mon Oct 30 14:20:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
-	* Fixed a segfault when trying to use a non-existant node type,
+	* Fixed a segfault when trying to use a non-existent node type,
 	  and added a test for it.
 
 Fri Oct 27 19:52:55 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
@@ -2882,7 +2882,7 @@ Fri Aug 18 12:34:00 BST 2000 Olly Betts
 	* LocalMatch: EmptyPostList-s now always have a weight.
 
 	* apitest: Added maxorterms3 to check that maxorterms doesn't affect
-	  results if no term are discarded; fixed qterminfo1 as non-existant
+	  results if no term are discarded; fixed qterminfo1 as non-existent
 	  terms now *do* have a weight.
 
 	* backendmanager.cc: Now close and reopen a freshly built sleepycat
@@ -4145,7 +4145,7 @@ Tue Jun 13 14:22:06 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Tue Jun 13 13:07:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-	* Made multiexpand1 slightly more rigourous.
+	* Made multiexpand1 slightly more rigorous.
 
 Tue Jun 13 12:44:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
@@ -4157,7 +4157,7 @@ Tue Jun 13 12:44:01 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	  allow disabling of termfreq approximation in ExpandWeight.
 
 	* Update apitest to test API addition - enabled "multiexpand1": now
-	  passes (but isn't as rigourous as I'd like).
+	  passes (but isn't as rigorous as I'd like).
 
 Tue Jun 13 12:04:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 

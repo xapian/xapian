@@ -1,7 +1,7 @@
 /** @file safeunistd.h
  * @brief <unistd.h>, but with compat. and large file support for MSVC.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,8 @@
 
 #endif
 
-#ifdef __WIN32__
+// Under mingw we probably don't need to provide our own sleep().
+#if defined __WIN32__ && !defined HAVE_SLEEP
 
 inline unsigned int
 sleep(unsigned int seconds)

@@ -24,7 +24,10 @@ DB
 xDB
 	database(s) used for last query (separated by / if appropriate).
 	If the database(s) used change then relevance judgements are
-	discarded and the first page of matches is shown.
+	discarded and the first page of matches is shown.  If xDB is not set,
+	the database is assumed not to have changed, which means if you only
+	deal with one database you don't have to pass a useless extra parameter
+	around.
 
 DEFAULTOP
 	default operator - values recognised ``AND``, ``and``, ``OR``, ``or``.
@@ -32,10 +35,15 @@ DEFAULTOP
 	If you want to implement "match any words", set ``DEFAULTOP=or``.
 
 P
-	probabilistic query (may occur multiple times).
+	probabilistic query (may occur multiple times - if so, each will be
+	parsed and the results combined with ``OP_AND``).
+
+P.\ *PREFIX*
+	like ``P``, but parsed with the default prefix set to *PREFIX*.  For
+	example, ``P.A`` will search the author by default.
 
 xP
-	terms from previous probabilistic query - used to decide if
+	terms from the previous probabilistic query - used to decide if
 	this is a fresh query (in which case relevance judgements are
 	discarded and the first page of matches is shown), an extended query
 	(in which case the first page of matches is shown), or an unchanged
@@ -47,7 +55,10 @@ ADD
 	supported or is disabled).
 
 X
-	topterms to add to query.
+	topterms to add to query (each term in a separate ``X`` parameter).  If
+	``ADD`` is set, these will be appended to the value of the first
+	non-empty ``P`` parameter, or used to build a query if there are no
+	non-empty ``P`` parameters.
 
 R
 	relevant document(s) (multiple values separated by ".")
@@ -113,7 +124,12 @@ xFILTERS
 	used to spot when the filters have changed from the previous search.
 	Set this to $html{$filters} in your query template ($filters is a
 	compact serialisation of the currently set B filters, date-range
-	filters, COLLAPSE, and DEFAULTOP).
+	filters, COLLAPSE, and DEFAULTOP).  If xFILTERS is unset, the filters
+	are assumed not to have changed (unlike xP).  In Omega <= 1.2.21 and <=
+	1.3.3 they were always assumed to have changed in the situation, which
+	meant you couldn't ever go past page 1 if you failed to set xFILTERS
+	in your template.  Now failing to set it means that the first page
+	won't be forced some cases where it probably should be.
 
 THRESHOLD
 	apply a percentage cut-off at the value given by this parameter
@@ -123,8 +139,10 @@ Reordering parameters
 ---------------------
 
 SORT
-	reorder results by this value number (greater values are better).
-	The comparison used is a string compare.
+	reorder results by this value number.  The comparison used is a string
+	compare of the unsigned byte values, and greater values are better
+	by default (but this can be changed by setting SORTREVERSE to a
+	non-zero value).
 
 SORTREVERSE
 	if non-zero, reverse the sort order so that lower values are better.

@@ -149,7 +149,8 @@ DirectoryIterator::get_magic_mimetype()
     }
 
     const char * res = NULL;
-#ifdef HAVE_MAGIC_DESCRIPTOR
+    // Prior to 5.15, magic_descriptor() closed the fd passed, so avoid it.
+#if defined MAGIC_VERSION && MAGIC_VERSION - 0 >= 515
     if (fd >= 0) {
 	if (lseek(fd, 0, SEEK_SET) == 0)
 	    res = magic_descriptor(magic_cookie, fd);

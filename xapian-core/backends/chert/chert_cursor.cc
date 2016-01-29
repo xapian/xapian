@@ -1,7 +1,7 @@
 /* chert_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,7 @@ ChertCursor::rebuild()
 	    C[i].n = BLK_UNUSED;
 	}
 	for (int j = new_level; j < level; ++j) {
-	    delete C[j].p;
+	    delete [] C[j].p;
 	}
     } else {
 	Cursor * old_C = C;
@@ -97,6 +97,7 @@ ChertCursor::rebuild()
     C[level].n = B->C[level].n;
     C[level].p = B->C[level].p;
     version = B->cursor_version;
+    B->cursor_created_since_last_modification = true;
 }
 
 ChertCursor::~ChertCursor()

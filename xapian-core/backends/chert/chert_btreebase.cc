@@ -1,7 +1,7 @@
 /* chert_btreebase.cc: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2009,2011 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2014 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -27,6 +27,7 @@
 #include <xapian/error.h>
 
 #include "chert_btreebase.h"
+#include "errno_to_string.h"
 #include "fd.h"
 #include "io_utils.h"
 #include "omassert.h"
@@ -169,7 +170,11 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
     string basename = name + "base" + ch;
     FD h(posixy_open(basename.c_str(), O_RDONLY | O_CLOEXEC));
     if (h == -1) {
-	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
+	err_msg += "Couldn't open ";
+	err_msg += basename;
+	err_msg += ": ";
+	errno_to_string(errno, err_msg);
+	err_msg += "\n";
 	return false;
     }
 
@@ -299,8 +304,10 @@ ChertTable_base::write_to_file(const string &filename,
 
     FD h(posixy_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666));
     if (h < 0) {
-	string message = string("Couldn't open base ")
-		+ filename + " to write: " + strerror(errno);
+	string message("Couldn't open base ");
+	message += filename;
+	message += " to write: ";
+	errno_to_string(errno, message);
 	throw Xapian::DatabaseOpeningError(message);
     }
 
@@ -497,7 +504,7 @@ ChertTable_base::clear_bit_map()
     memset(bit_map, 0, bit_map_size);
 }
 
-// We've commited, so "bitmap at start" needs to be reset to the current bitmap.
+// We've committed, so "bitmap at start" needs to be reset to the current bitmap.
 void
 ChertTable_base::commit()
 {

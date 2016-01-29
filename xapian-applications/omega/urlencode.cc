@@ -1,7 +1,7 @@
 /* @file urlencode.cc
  * @brief URL encoding as described by RFC3986.
  */
-/* Copyright (C) 2011,2014 Olly Betts
+/* Copyright (C) 2011,2014,2015 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -26,6 +26,8 @@
 
 #include "urlencode.h"
 
+#include "stringutils.h"
+
 #include <cstring>
 #include <string>
 
@@ -36,9 +38,7 @@ url_encode_(string & res, const char * p, size_t len, const char * safe)
 {
     while (len--) {
 	unsigned char ch = *p++;
-	if ((unsigned(ch) | 32u) - unsigned('a') <= unsigned('z' - 'a') ||
-	    unsigned(ch) - unsigned('0') <= unsigned('9' - '0') ||
-	    strchr(safe, ch)) {
+	if (C_isalnum(ch) || strchr(safe, ch)) {
 	    // Unreserved by RFC3986.
 	    res += ch;
 	} else {

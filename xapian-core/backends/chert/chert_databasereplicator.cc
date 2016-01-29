@@ -2,7 +2,7 @@
  * @brief Support for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2014 Olly Betts
+ * Copyright 2009,2010,2011,2012,2014,2015 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -36,6 +36,7 @@
 #include "fd.h"
 #include "filetests.h"
 #include "io_utils.h"
+#include "noreturn.h"
 #include "pack.h"
 #include "posixy_wrapper.h"
 #include "net/remoteconnection.h"
@@ -45,8 +46,14 @@
 #include "str.h"
 #include "stringutils.h"
 
-#include <cstdio> // For rename().
 #include <cstdlib>
+
+XAPIAN_NORETURN(static void throw_connection_closed_unexpectedly());
+static void
+throw_connection_closed_unexpectedly()
+{
+    throw Xapian::NetworkError("Connection closed unexpectedly");
+}
 
 using namespace std;
 using namespace Xapian;
@@ -110,10 +117,12 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 
     // Get the new base file into buf.
     write_and_clear_changes(changes_fd, buf, ptr - buf.data());
-    conn.get_message_chunk(buf, base_size, end_time);
-
-    if (buf.size() < base_size)
+    int res = conn.get_message_chunk(buf, base_size, end_time);
+    if (res <= 0) {
+	if (res < 0)
+	    throw_connection_closed_unexpectedly();
 	throw NetworkError("Unexpected end of changeset (6)");
+    }
 
     // Write base_size bytes from start of buf to base file for tablename
     string tmp_path = db_dir + "/" + tablename + "tmp";
@@ -177,7 +186,9 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 	FD closer(fd);
 
 	while (true) {
-	    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+	    if (conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time) < 0)
+		throw_connection_closed_unexpectedly();
+
 	    ptr = buf.data();
 	    end = ptr + buf.size();
 
@@ -189,9 +200,12 @@ ChertDatabaseReplicator::process_changeset_chunk_blocks(const string & tablename
 		break;
 	    --block_number;
 
-	    conn.get_message_chunk(buf, changeset_blocksize, end_time);
-	    if (buf.size() < changeset_blocksize)
+	    int res = conn.get_message_chunk(buf, changeset_blocksize, end_time);
+	    if (res <= 0) {
+		if (res < 0)
+		    throw_connection_closed_unexpectedly();
 		throw NetworkError("Incomplete block in changeset");
+	    }
 
 	    io_write_block(fd, buf.data(), changeset_blocksize, block_number);
 
@@ -211,20 +225,22 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
     // Lock the database to perform modifications.
     FlintLock lock(db_dir);
     string explanation;
-    FlintLock::reason why = lock.lock(true, explanation);
+    FlintLock::reason why = lock.lock(true, false, explanation);
     if (why != FlintLock::SUCCESS) {
 	lock.throw_databaselockerror(why, db_dir, explanation);
     }
 
-    char type = conn.get_message_chunked(end_time);
-    (void) type; // Don't give warning about unused variable.
+    int type = conn.get_message_chunked(end_time);
+    if (type < 0)
+	throw_connection_closed_unexpectedly();
     AssertEq(type, REPL_REPLY_CHANGESET);
 
     string buf;
     // Read enough to be certain that we've got the header part of the
     // changeset.
 
-    conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+    if (conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time) < 0)
+	throw_connection_closed_unexpectedly();
     // Check the magic string.
     if (!startswith(buf, CHANGES_MAGIC_STRING)) {
 	throw NetworkError("Invalid ChangeSet magic string");
@@ -283,7 +299,8 @@ ChertDatabaseReplicator::apply_changeset_from_conn(RemoteConnection & conn,
 
     // Read the items from the changeset.
     while (true) {
-	conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time);
+	if (conn.get_message_chunk(buf, REASONABLE_CHANGESET_SIZE, end_time) < 0)
+	    throw_connection_closed_unexpectedly();
 	ptr = buf.data();
 	end = ptr + buf.size();
 

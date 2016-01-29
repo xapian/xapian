@@ -26,9 +26,9 @@
 #if defined XAPIAN_HAS_CHERT_BACKEND
 # include "backendmanager_chert.h"
 # define BackendManagerLocal BackendManagerChert
-#elif defined XAPIAN_HAS_BRASS_BACKEND
-# include "backendmanager_brass.h"
-# define BackendManagerLocal BackendManagerBrass
+#elif defined XAPIAN_HAS_GLASS_BACKEND
+# include "backendmanager_glass.h"
+# define BackendManagerLocal BackendManagerGlass
 #else
 # include "backendmanager.h"
 class BackendManagerLocal : public BackendManager {

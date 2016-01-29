@@ -132,13 +132,13 @@ ValueIterator::check(Xapian::docid did)
 {
     LOGCALL(API, bool, "ValueIterator::check", did);
     if (internal) {
-	if (!internal->check(did)) return false;
+	if (!internal->check(did)) RETURN(false);
 	if (internal->at_end()) {
 	    decref();
 	    internal = NULL;
 	}
     }
-    return true;
+    RETURN(true);
 }
 
 std::string

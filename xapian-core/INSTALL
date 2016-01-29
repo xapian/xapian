@@ -33,39 +33,26 @@ libuuid-devel (on older Fedora versions you instead need e2fsprogs-devel).
 Compilers
 =========
 
-We aim to support compilation with any C++ compiler which conforms to ISO C++,
-or a reasonable approximation to it.
+We aim to support compilation with any C++ compiler which conforms to ISO
+C++11, or a reasonable approximation to it.
 
 If you're using MS Visual C++, see the Xapian download page for a link to
-a set of suitable makefiles: http://xapian.org/download
+a set of suitable makefiles: https://xapian.org/download
 
-If you're using GCC, we currently recommend GCC 4.3 or newer (this is the
+If you're using GCC, we currently recommend GCC 4.7 or newer (this is the
 oldest version we regularly test with).
 
-The oldest version we've tested with at all recently was GCC 3.3, but the
-hard minimum requirement is GCC 3.1 (we rely on the <limits> and <streambuf>
-headers, which were added in GCC 3.0, but requiring GCC 3.1 allows us to
-eliminate some preprocessor conditionals which we are no longer easily able
-to test.  We also doubt GCC 3.0 is still in use since GCC 3.1 was released on
-2002-05-15, and widespread adoption of GCC3 didn't happen until after 3.0).
+The current hard minimum requirement is also GCC 4.7 (due to requiring good
+support for C++11, for example non-static data member initializers aren't
+supported by earlier versions).
 
-If you really still need to use an older version of GCC, Xapian 1.0.x should
-build with GCC 2.95.3 or GCC 3.0.x.
+If you really still need to use an older version of GCC, Xapian 1.2.x doesn't
+require C++11 support and should build with older versions - probably as far
+back as GCC 3.1.
 
-When using HP's aCC, Xapian must be compiled with -AA ("ANSI mode"), which
-xapian-core's configure automatically detects and passes.  This means your code
-must also be compiled with -AA (and "xapian-config --cxxflags" will include
-"-AA" automatically in this situation).  Compiling with -AP (non-ANSI mode)
-would require adjusting Xapian away from standard ISO C++, and is only required
-if you need to link to Xapian and another library not available in -AA form.
-HP recommend ISVs to supply libraries in -AA form, so this isn't a likely
-scenario.
-
-When building on IRIX with SGI's compiler, Omega has to be built with "-ptused"
-in CXXFLAGS (this is now added automatically by Omega's configure).  You may
-need to do the same when building your own applications.  We don't fully
-understand the issues here yet, but perhaps "-ptused" should be automatically
-set by xapian-config.  Feedback from developers on IRIX is invited.
+When using HP's aCC, Xapian must be compiled with +std=c++11, which
+xapian-core's configure automatically detects and passes.  You don't have to
+pass this option when building code which uses Xapian, but you can.
 
 Multi-Arch
 ==========
@@ -88,9 +75,6 @@ the source directory) from the build directory, like so:
   cd BUILD
   ../configure
 
-IRIX make doesn't handle this correctly - either build in the source tree or
-use "smake -M" (or better still, just use GNU make if you have it installed!)
-
 Options to give to configure
 ============================
 
@@ -99,8 +83,8 @@ Options to give to configure
 	consistency checks.  This will run more slowly, but is useful if you
 	suspect a bug in Xapian.
 
---enable-backend-brass
 --enable-backend-chert
+--enable-backend-glass
 --enable-backend-inmemory
 --enable-backend-remote
 	These options enable (or disable if --disable-backend-XXX is specified)
@@ -158,40 +142,6 @@ Should you wish to disable this for some reason, you can configure like so:
 
 If you're disabling it because it causes problems, please also report this to
 us (via the bug tracker or mailing lists).
-
-Compiling with STLport
-======================
-
-C++ implementations have improved significantly since we started writing
-Xapian, and these days the STL which comes with your compiler should work well.
-
-But if you wish, you can use STLport instead.  STLport is a freely available
-replacement C++ STL implementation, downloadable from:
-
-http://stlport.sourceforge.net/
-
-To compile with STLport:
-
- 1) Install STLport, either from a package if your operating system has one,
-    or by downloading the source, and compiling and installing it.
-
- 2) Tell Xapian to use STLport when you configure in, like so:
-
-    ./configure CXXFLAGS='-I/usr/include/stlport -pthread' LDFLAGS=-lstlport
-
-    Replace /usr/include/stlport with the path to the STLport headers if they
-    are in a different location.
-
- 3) Compile Xapian as normal, by running make.
-
- 4) You'll also need to compile code which uses Xapian with STLport, by
-    arranging for the options above to be passed to the compiler when you
-    compile and link that code.
-
-Note that, unless you compile statically, you must make sure that the
-STLport library is on the library path at runtime.  If it isn't by
-default, on Linux you could do this by setting the LD_LIBRARY_PATH environment
-variable to point to the directory containing the STLport library.
 
 Developers
 ==========

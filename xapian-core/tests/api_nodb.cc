@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -31,7 +31,6 @@
 #include "testsuite.h"
 #include "testutils.h"
 
-#include "autoptr.h"
 #include <list>
 #include <string>
 #include <vector>
@@ -152,12 +151,10 @@ DEFINE_TESTCASE(querylen2, !backend) {
     vector<string> v1(terms, terms + 3);
     vector<Xapian::Query> v2(queries, queries + 3);
     vector<Xapian::Query *> v3;
-    AutoPtr<Xapian::Query> dynquery1(new Xapian::Query(Xapian::Query::OP_AND,
-					   string("ball"),
-					   string("club")));
-    AutoPtr<Xapian::Query> dynquery2(new Xapian::Query("ring"));
-    v3.push_back(dynquery1.get());
-    v3.push_back(dynquery2.get());
+    Xapian::Query query1(Xapian::Query::OP_AND, string("ball"), string("club"));
+    Xapian::Query query2("ring");
+    v3.push_back(&query1);
+    v3.push_back(&query2);
 
     Xapian::Query myq1 = Xapian::Query(Xapian::Query::OP_AND, v1.begin(), v1.end());
     tout << "myq1=" << myq1 << "\n";
@@ -249,7 +246,7 @@ DEFINE_TESTCASE(stemlangs1, !backend) {
 
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
-	string language = langs.substr(i, spc - i);
+	string language(langs, i, spc - i);
 	tout << "checking language code '" << language << "' works" << endl;
 	Xapian::Stem stemmer(language);
 	if (language.size() > 2) {
@@ -378,6 +375,14 @@ DEFINE_TESTCASE(weight1, !backend) {
     TEST_EQUAL(dphweight.name(), "Xapian::DPHWeight");
     wt = Xapian::DPHWeight().unserialise(dphweight.serialise());
     TEST_EQUAL(dphweight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::LMWeight unigramlmweight_dflt;
+    Xapian::LMWeight unigramlmweight(32000, Xapian::Weight::DIRICHLET_SMOOTHING, 2034.0, 0.0);
+    TEST_EQUAL(unigramlmweight.name(), "Xapian::LMWeight");
+    TEST_NOT_EQUAL(unigramlmweight_dflt.serialise(), unigramlmweight.serialise());
+    wt = Xapian::LMWeight().unserialise(unigramlmweight.serialise());
+    TEST_EQUAL(unigramlmweight.serialise(), wt->serialise());
     delete wt;
 
     return true;

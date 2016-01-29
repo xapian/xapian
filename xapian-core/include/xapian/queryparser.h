@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/queryparser.h> directly; include <xapian.h> instead."
 #endif
 
@@ -43,7 +43,16 @@ class Stem;
 
 /// Base class for stop-word decision functor.
 class XAPIAN_VISIBILITY_DEFAULT Stopper {
+    /// Don't allow assignment.
+    void operator=(const Stopper &);
+
+    /// Don't allow copying.
+    Stopper(const Stopper &);
+
   public:
+    /// Default constructor.
+    Stopper() { }
+
     /** Is term a stop-word?
      *
      *  @param term	The term to test.
@@ -74,17 +83,8 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
      * @endcode
      *
      */
-#if ! defined __SUNPRO_CC || __SUNPRO_CC - 0 >= 0x580
     template <class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
-#else
-    // Older versions of Sun's C++ compiler don't cope with the Iterator
-    // pointing to const char *.
-    template <class Iterator>
-    SimpleStopper(Iterator begin, Iterator end) {
-	while (begin != end) stop_words.insert(*begin++);
-    }
-#endif
 
     /// Add a single stop word.
     void add(const std::string & word) { stop_words.insert(word); }
@@ -97,7 +97,18 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
 };
 
 /// Base class for value range processors.
-struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
+class XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
+    : public Xapian::Internal::opt_intrusive_base {
+    /// Don't allow assignment.
+    void operator=(const ValueRangeProcessor &);
+
+    /// Don't allow copying.
+    ValueRangeProcessor(const ValueRangeProcessor &);
+
+  public:
+    /// Default constructor.
+    ValueRangeProcessor() { }
+
     /// Destructor.
     virtual ~ValueRangeProcessor();
 
@@ -116,6 +127,16 @@ struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
      *		returns Xapian::BAD_VALUENO.
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
+
+    ValueRangeProcessor * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const ValueRangeProcessor * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /** Handle a string range.
@@ -135,7 +156,7 @@ class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangePro
      *
      *  @param slot_	The value number to return from operator().
      */
-    StringValueRangeProcessor(Xapian::valueno slot_)
+    explicit StringValueRangeProcessor(Xapian::valueno slot_)
 	: valno(slot_), str() { }
 
     /** Constructor.
@@ -317,7 +338,7 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
      *
      *  @param slot_   The value number to return from operator().
      */
-    NumberValueRangeProcessor(Xapian::valueno slot_)
+    explicit NumberValueRangeProcessor(Xapian::valueno slot_)
 	: StringValueRangeProcessor(slot_) { }
 
     /** Constructor.
@@ -377,10 +398,19 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public StringValueRa
 };
 
 /** Base class for field processors.
- *
- *  Experimental API - may change.
  */
-struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
+class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
+    : public Xapian::Internal::opt_intrusive_base {
+    /// Don't allow assignment.
+    void operator=(const FieldProcessor &);
+
+    /// Don't allow copying.
+    FieldProcessor(const FieldProcessor &);
+
+  public:
+    /// Default constructor.
+    FieldProcessor() { }
+
     /// Destructor.
     virtual ~FieldProcessor();
 
@@ -391,6 +421,16 @@ struct XAPIAN_VISIBILITY_DEFAULT FieldProcessor {
      *  @return	Query object corresponding to @a str.
      */
     virtual Xapian::Query operator()(const std::string &str) = 0;
+
+    FieldProcessor * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const FieldProcessor * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /// Build a Xapian::Query object from a user query string.
@@ -411,14 +451,19 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	FLAG_LOVEHATE = 4,
 	/// Support AND, OR, etc even if they aren't in ALLCAPS.
 	FLAG_BOOLEAN_ANY_CASE = 8,
-	/** Support right truncation (e.g. Xap*).
+	/** Support wildcards.
+	 *
+	 *  At present only right truncation (e.g. Xap*) is supported.
 	 *
 	 *  Currently you can't use wildcards with boolean filter prefixes,
 	 *  or in a phrase (either an explicitly quoted one, or one implicitly
 	 *  generated by hyphens or other punctuation).
 	 *
-	 *  NB: You need to tell the QueryParser object which database to
-	 *  expand wildcards from by calling set_database.
+	 *  In Xapian 1.2.x, you needed to tell the QueryParser object which
+	 *  database to expand wildcards from by calling set_database().  In
+	 *  Xapian 1.3.3, OP_WILDCARD was added and wildcards are now
+	 *  expanded when Enquire::get_mset() is called, with the expansion
+	 *  using the database being searched.
 	 */
 	FLAG_WILDCARD = 16,
 	/** Allow queries such as 'NOT apples'.
@@ -442,8 +487,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  hyphens or other punctuation).  It also doesn't do anything if
 	 *  if the final word is part of a value range.
 	 *
-	 *  NB: You need to tell the QueryParser object which database to
-	 *  expand wildcards from by calling set_database.
+	 *  In Xapian 1.2.x, you needed to tell the QueryParser object which
+	 *  database to expand wildcards from by calling set_database().  In
+	 *  Xapian 1.3.3, OP_WILDCARD was added and wildcards are now
+	 *  expanded when Enquire::get_mset() is called, with the expansion
+	 *  using the database being searched.
 	 */
 	FLAG_PARTIAL = 64,
 
@@ -480,6 +528,20 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  NB: You must also call set_database() for this to work.
 	 */
 	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024,
+
+	/** Enable generation of n-grams from CJK text.
+	 *
+	 *  With this enabled, spans of CJK characters are split into unigrams
+	 *  and bigrams, with the unigrams carrying positional information.
+	 *  Non-CJK characters are split into words as normal.
+	 *
+	 *  The corresponding option needs to have been used at index time.
+	 *
+	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  enabled in 1.2.8 and later by setting environment variable
+	 *  XAPIAN_CJK_NGRAM.
+	 */
+	FLAG_CJK_NGRAM = 2048,
 
 	/** The default flags.
 	 *
@@ -569,21 +631,53 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /** Specify the database being searched.
      *
-     *  @param db	The database to use for wildcard expansion
-     *			(FLAG_WILDCARD and FLAG_PARTIAL), spelling correction
+     *  @param db	The database to use for spelling correction
      *			(FLAG_SPELLING_CORRECTION), and synonyms (FLAG_SYNONYM,
      *			FLAG_AUTO_SYNONYMS, and FLAG_AUTO_MULTIWORD_SYNONYMS).
      */
     void set_database(const Database &db);
 
-    /** Specify the maximum expansion of a wildcard term.
+    /** Specify the maximum expansion of a wildcard and/or partial term.
      *
-     *  Note: you must also set FLAG_WILDCARD for wildcard expansion to happen.
+     *  Note: you must also set FLAG_WILDCARD and/or FLAG_PARTIAL in the flags
+     *  parameter to @a parse_query() for this setting to have anything to
+     *  affect.
      *
-     *  @param limit	The maximum number of terms each wildcard in the query
-     *			can expand to, or 0 for no limit (which is the default).
+     *  If you don't call this method, the default settings are no limit on
+     *  wildcard expansion, and partial terms expanding to the most frequent
+     *  100 terms - i.e. as if you'd called:
+     *
+     *  set_max_expansion(0);
+     *  set_max_expansion(100, Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT, Xapian::QueryParser::FLAG_PARTIAL);
+     *
+     *  @param max_expansion  The maximum number of terms each wildcard in the
+     *			query can expand to, or 0 for no limit (which is the
+     *			default).
+     *	@param max_type	@a Xapian::Query::WILDCARD_LIMIT_ERROR,
+     *			@a Xapian::Query::WILDCARD_LIMIT_FIRST or
+     *			@a Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT
+     *			(default: Xapian::Query::WILDCARD_LIMIT_ERROR).
+     *  @param flags	What to set the limit for (default:
+     *			FLAG_WILDCARD|FLAG_PARTIAL, setting the limit for both
+     *			wildcards and partial terms).
      */
-    void set_max_wildcard_expansion(Xapian::termcount limit);
+    void set_max_expansion(Xapian::termcount max_expansion,
+			   int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
+			   unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+
+    /** Specify the maximum expansion of a wildcard.
+     *
+     *  If any wildcard expands to more than @a max_expansion terms, an
+     *  exception will be thrown.
+     *
+     *  This method is provided for API compatibility with Xapian 1.2.x and is
+     *  deprecated - replace it with:
+     *
+     *  set_max_wildcard_expansion(max_expansion,
+     *				   Xapian::Query::WILDCARD_LIMIT_ERROR,
+     *				   Xapian::QueryParser::FLAG_WILDCARD);
+     */
+    XAPIAN_DEPRECATED(void set_max_wildcard_expansion(Xapian::termcount));
 
     /** Parse a query.
      *
@@ -600,13 +694,13 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *		   calling get_msg() on the caught exception.  The current
      *		   possible values (in case you want to translate them) are:
      *
-     *			@li Unknown range operation
-     *			@li parse error
-     *			@li Syntax: &lt;expression&gt; AND &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; OR &lt;expression&gt;
-     *			@li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
+     *		   @li Unknown range operation
+     *		   @li parse error
+     *		   @li Syntax: &lt;expression&gt; AND &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; AND NOT &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; NOT &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; OR &lt;expression&gt;
+     *		   @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
      */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_DEFAULT,
@@ -654,8 +748,6 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     void add_prefix(const std::string &field, const std::string &prefix);
 
     /** Register a FieldProcessor.
-     *
-     *  Experimental API - may change.
      */
     void add_prefix(const std::string &field, Xapian::FieldProcessor * proc);
 
@@ -715,8 +807,6 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 			    bool exclusive = true);
 
     /** Register a FieldProcessor for a boolean prefix.
-     *
-     *  Experimental API - may change.
      */
     void add_boolean_prefix(const std::string &field, Xapian::FieldProcessor *proc,
 			    bool exclusive = true);
@@ -743,11 +833,23 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  If there were no corrections, an empty string is returned.
      */
-    std::string get_corrected_query_string() const XAPIAN_PURE_FUNCTION;
+    std::string get_corrected_query_string() const;
 
     /// Return a string describing this object.
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 };
+
+inline void
+QueryParser::set_max_wildcard_expansion(Xapian::termcount max_expansion)
+{
+    set_max_expansion(max_expansion,
+		      Xapian::Query::WILDCARD_LIMIT_ERROR,
+		      FLAG_WILDCARD);
+}
+
+/// @private @internal Helper for sortable_serialise().
+XAPIAN_VISIBILITY_DEFAULT
+size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf));
 
 /** Convert a floating point number to a string, preserving sort order.
  *
@@ -775,8 +877,10 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
  *
  *  @param value	The number to serialise.
  */
-XAPIAN_VISIBILITY_DEFAULT
-std::string sortable_serialise(double value) XAPIAN_CONST_FUNCTION;
+inline std::string sortable_serialise(double value) {
+    char buf[9];
+    return std::string(buf, sortable_serialise_(value, buf));
+}
 
 /** Convert a string encoded using @a sortable_serialise back to a floating
  *  point number.
@@ -793,7 +897,7 @@ std::string sortable_serialise(double value) XAPIAN_CONST_FUNCTION;
  *  @param serialised	The serialised string to decode.
  */
 XAPIAN_VISIBILITY_DEFAULT
-double sortable_unserialise(const std::string & serialised) XAPIAN_CONST_FUNCTION;
+double XAPIAN_NOTHROW(sortable_unserialise(const std::string & serialised));
 
 }
 

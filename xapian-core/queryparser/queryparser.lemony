@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Adam Sjøgren
  *
@@ -244,11 +244,10 @@ class State {
     }
 
     Term * value_range(const string &a, const string &b) {
-	list<ValueRangeProcessor *>::const_iterator i;
-	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
+	for (auto i : qpi->valrangeprocs) {
 	    string start = a;
 	    string end = b;
-	    Xapian::valueno slot = (**i)(start, end);
+	    Xapian::valueno slot = (*i)(start, end);
 	    if (slot != Xapian::BAD_VALUENO) {
 		return new Term(slot, start, end);
 	    }
@@ -280,6 +279,18 @@ class State {
 
     Xapian::termcount get_max_wildcard_expansion() const {
 	return qpi->max_wildcard_expansion;
+    }
+
+    int get_max_wildcard_type() const {
+	return qpi->max_wildcard_type;
+    }
+
+    Xapian::termcount get_max_partial_expansion() const {
+	return qpi->max_partial_expansion;
+    }
+
+    int get_max_partial_type() const {
+	return qpi->max_partial_type;
     }
 };
 
@@ -444,29 +455,18 @@ Term::get_query() const
 Query *
 Term::as_wildcarded_query(State * state_) const
 {
-    const Database & db = state_->get_database();
-    vector<Query> subqs;
-
     const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
-    Xapian::termcount expansion_count = 0;
     Xapian::termcount max = state_->get_max_wildcard_expansion();
+    int max_type = state_->get_max_wildcard_type();
+    vector<Query> subqs;
+    subqs.reserve(prefixes.size());
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
-	TermIterator t = db.allterms_begin(root);
-	while (t != db.allterms_end(root)) {
-	    if (max != 0 && ++expansion_count > max) {
-		string msg("Wildcard ");
-		msg += unstemmed;
-		msg += "* expands to more than ";
-		msg += str(max);
-		msg += " terms";
-		throw Xapian::QueryParserError(msg);
-	    }
-	    subqs.push_back(Query(*t, 1, pos));
-	    ++t;
-	}
+	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
+	subqs.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
+			      Query::OP_OR));
     }
     Query * q = new Query(Query::OP_SYNONYM, subqs.begin(), subqs.end());
     delete this;
@@ -476,7 +476,8 @@ Term::as_wildcarded_query(State * state_) const
 Query *
 Term::as_partial_query(State * state_) const
 {
-    const Database & db = state_->get_database();
+    Xapian::termcount max = state_->get_max_partial_expansion();
+    int max_type = state_->get_max_partial_type();
     vector<Query> subqs_partial; // A synonym of all the partial terms.
     vector<Query> subqs_full; // A synonym of all the full terms.
 
@@ -485,11 +486,9 @@ Term::as_partial_query(State * state_) const
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
 	string root = *piter;
 	root += name;
-	TermIterator t = db.allterms_begin(root);
-	while (t != db.allterms_end(root)) {
-	    subqs_partial.push_back(Query(*t, 1, pos));
-	    ++t;
-	}
+	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
+	subqs_partial.push_back(Query(Query::OP_WILDCARD, root, max, max_type,
+				      Query::OP_OR));
 	// Add the term, as it would normally be handled, as an alternative.
 	subqs_full.push_back(Query(make_term(*piter), 1, pos));
     }
@@ -755,7 +754,7 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 				   const string &default_prefix)
 {
-    bool cjk_ngram = CJK::is_cjk_enabled();
+    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
 
     // Set value_ranges if we may have to handle value ranges in the query.
     bool value_ranges;
@@ -843,8 +842,7 @@ just_had_operator_needing_term:
 		    if (!a.empty() || (p != end && *p > ' ' && *p != ')')) {
 			string b;
 			// Allow any character except whitespace and ')' in the
-			// upper bound.  Or should we be consistent with the
-			// lower bound?
+			// upper bound.
 			while (p != end && *p > ' ' && *p != ')') {
 			    Unicode::append_utf8(b, *p++);
 			}
@@ -865,8 +863,9 @@ just_had_operator_needing_term:
 		    goto main_lex_loop;
 		}
 		ch = *p;
-		if (!(is_wordchar(ch) || is_currency(ch) ||
-		      (ch < 128 && strchr("%,-./:@", ch)))) break;
+		// Allow any character except whitespace and '(' in the lower
+		// bound.
+		if (ch <= ' ' || ch == '(') break;
 		++p;
 	    }
 	}
@@ -1379,12 +1378,17 @@ struct ProbQuery {
     }
 
     void append_filter(const filter_group_id & id, const Query & qnew) {
-	Query & q = filter[id];
-	// We OR filters with the same prefix if they're exclusive, otherwise
-	// we AND them.
-	bool exclusive = (id.field_info->type == BOOLEAN_EXCLUSIVE);
-	Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
-	q = Query(op, q, qnew);
+	map<filter_group_id, Query>::iterator it = filter.find(id);
+	if (it == filter.end()) {
+	    filter.insert(make_pair(id, qnew));
+	} else {
+	    Query & q = it->second;
+	    // We OR multiple filters with the same prefix if they're
+	    // exclusive, otherwise we AND them.
+	    bool exclusive = (id.field_info->type == BOOLEAN_EXCLUSIVE);
+	    Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
+	    q = Query(op, q, qnew);
+	}
     }
 
     void add_filter_range(Xapian::valueno slot, const Query & range) {
@@ -1716,7 +1720,7 @@ Term::as_positional_cjk_term(Terms * terms) const
 #define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
-	    state->error = "Syntax: <expression> "OP_TXT" <expression>";\
+	    state->error = "Syntax: <expression> " OP_TXT " <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\

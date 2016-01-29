@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2015 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -83,6 +83,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      * PostList::get_doclength() and just fetch it from the DB directly.
      */
 
+    /// Return the number of unique terms in the current document.
+    virtual Xapian::termcount get_unique_terms() const = 0;
+
     /** Return the wdf for the document at the current position.
      *
      *  The default implementation throws Xapian::UnimplementedError.
@@ -91,6 +94,8 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
 
     /// Return the weight contribution for the current position.
     virtual double get_weight() const = 0;
+
+    virtual const std::string * get_sort_key() const;
 
     /** If the collapse key is already known, return it.
      *

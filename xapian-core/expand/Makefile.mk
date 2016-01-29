@@ -4,7 +4,6 @@ noinst_HEADERS +=\
 	expand/ortermlist.h
 
 EXTRA_DIST +=\
-	expand/dir_contents\
 	expand/Makefile
 
 lib_src +=\

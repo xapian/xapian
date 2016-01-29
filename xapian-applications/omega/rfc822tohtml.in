@@ -1,0 +1,105 @@
+#!@PERL@
+# @configure_input@
+# @file rfc822tohtml
+# @brief Extract HTML from an RFC-822 email
+#
+# Copyright (C) 2010,2015 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+use strict;
+eval {
+    require MIME::Parser;
+    require MIME::WordDecoder;
+    require HTML::Entities;
+    # In core since Perl 5.9.5:
+    require Time::Piece;
+};
+if ($@) {
+    print STDERR $@;
+    # Exit with code 127 which omindex interprets as "filter not installed"
+    # and won't try further .msg files.
+    exit 127;
+}
+
+my $in = shift @ARGV;
+my $parser = new MIME::Parser;
+# Keep data in memory rather than spraying files onto disk.
+$parser->output_to_core(1);
+$parser->tmp_to_core(1);
+open IN, '<', $in or die "Couldn't open '$in' ($?)\n";
+my $ent = $parser->parse(\*IN) or die "Failed to parse '$in' as MIME message\n";
+
+my $head = $ent->head;
+print "<head>\n<title>";
+print do_header($head, 'Subject');
+print "</title>\n<meta name=\"author\" content=\"";
+print do_header($head, 'From');
+print "\">\n";
+
+my $date = do_header($head, 'Date');
+chomp $date;
+$date = Time::Piece->strptime($date, '%a, %d %b %Y %T %z');
+eval {
+    my $iso8601_date = $date->datetime;
+    print "<meta name=\"created\" content=\"$iso8601_date\">\n";
+};
+
+print "</head>\n";
+
+handle_mimepart($ent);
+
+sub do_header {
+    my ($head, $header) = @_;
+    my $s = MIME::WordDecoder::mime_to_perl_string($head->get($header, 0));
+    chomp($s);
+    return HTML::Entities::encode_entities($s);
+}
+
+sub handle_mimepart {
+    my $e = shift;
+    my ($type, $sub) = ((lc $e->mime_type) =~ m,^(.*?)/(.*?)(?:;.*)?$,);
+    if ($type eq 'multipart') {
+	if ($sub eq 'alternative') {
+	    # Take the first mime part which we get text from.
+	    for my $s ($e->parts) {
+		my $res = handle_mimepart($s);
+		return $res if $res;
+	    }
+	} else {
+	    my $res = 0;
+	    for my $s ($e->parts) {
+		$res += handle_mimepart($s);
+	    }
+	    return $res;
+	}
+    } elsif ($type eq 'text') {
+	if ($sub eq 'plain') {
+	    my $m = $e->bodyhandle->as_string;
+	    print "<pre>", HTML::Entities::encode_entities($m), "</pre>\n";
+	    return 1;
+	} elsif ($sub eq 'html') {
+	    my $m = $e->bodyhandle->as_string;
+	    $m =~ s!</?body[^>]*>!\n!gi;
+	    print $m, "\n";
+	    return 1;
+	}
+    }
+    return 0;
+}

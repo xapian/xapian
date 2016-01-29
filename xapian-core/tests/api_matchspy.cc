@@ -2,7 +2,7 @@
  * @brief tests of MatchSpy usage
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2012 Olly Betts
+ * Copyright 2009,2011,2012,2015 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,12 @@
 
 #include <xapian.h>
 
-#include "str.h"
 #include <cmath>
 #include <map>
 #include <vector>
 
 #include "backendmanager.h"
+#include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "apitest.h"

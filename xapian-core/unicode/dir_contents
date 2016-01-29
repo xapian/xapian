@@ -1,5 +1,0 @@
-<Directory>unicode</Directory>
-
-<Description>
-Unicode and UTF-8 handling classes and functions.
-</Description>

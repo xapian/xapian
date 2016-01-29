@@ -50,7 +50,8 @@ The simplest way to compile this package is:
        --with-lua	    enable Lua bindings
        --with-perl	    enable Perl bindings
        --with-php	    enable PHP bindings
-       --with-python	    enable Python bindings
+       --with-python	    enable Python 2 bindings
+       --with-python3	    enable Python 3 bindings
        --with-ruby	    enable Ruby bindings
        --with-tcl	    enable Tcl bindings
 
@@ -68,8 +69,8 @@ The simplest way to compile this package is:
        ./configure PYTHON=/opt/bin/python2.6
 
      If you don't have root access and want to compile any of the bindings
-     other than Java and C#, read the next section: "Installing without root
-     access".
+     other than C#, Java and PHP, read the next section: "Installing without
+     root access".
 
      Running 'configure' might take a while.  While running, it prints
      some messages telling which features it is checking for.
@@ -112,19 +113,33 @@ Installing without root access
 
   PHP:
 
+     With current releases of PHP, there doesn't seem to be a good way to
+     install the PHP bindings without root access such that they can be used
+     from PHP run from a webserver, which is what most users want to do.
+
+     If you're only interested in running code from the command line (via PHP's
+     CLI SAPI) then the following will work:
+
      ./configure --with-php --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
      make
      make install
 
-     And you'll need to load the Xapian module in your PHP code using something
-     like:
+     Then tell the PHP interpreter to load extensions from there:
 
-     dl("../../../home/USERNAME/my_php_extensions/xapian.so");
+     php -d extension_dir="$HOME/my_php_extensions" myscript.php
 
-     The number of ".."s you need depends on what extension_dir is set to
-     in php.ini.
+     However, this will stop PHP from looking in the default place for
+     extensions!  It doesn't seem to be possible to specify more than one
+     directory, but you can copy or symlink system installed extensions
+     from the default extension directory to $HOME/my_php_extensions like
+     so:
 
-  Python:
+     ln -s "`php -r 'print PHP_EXTENSION_DIR;'`"/* "$HOME/my_php_extensions"
+
+     This will symlink all of them, but you only actually need those that
+     get loaded.
+
+  Python 2:
 
      ./configure --with-python --prefix=$HOME/install PYTHON_LIB=$HOME/.local
      make
@@ -145,6 +160,15 @@ Installing without root access
      import sys
      sys.path.insert(0, os.environ['HOME'] + "/.local")
      import xapian
+
+  Python 3:
+
+     ./configure --with-python3 --prefix=$HOME/install PYTHON3_LIB=$HOME/.local
+     make
+     make install
+
+     Python 3 looks in ~/.local for packages automatically, so you don't need
+     to do anything special to use bindings installed there.
 
   Ruby:
 
@@ -224,9 +248,6 @@ the source directory) from the build directory, like so:
   mkdir BUILD
   cd BUILD
   ../configure
-
-IRIX make doesn't handle this correctly - either build in the source tree or
-use "smake -M" (or better still, just use GNU make if you have it installed!)
 
 Installation Names
 ==================

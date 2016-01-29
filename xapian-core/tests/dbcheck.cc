@@ -1,7 +1,7 @@
 /* dbcheck.cc: test database contents and consistency.
  *
  * Copyright 2009 Richard Boulton
- * Copyright 2010 Olly Betts
+ * Copyright 2010,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,7 +93,8 @@ docterms_to_string(const Xapian::Database & db, Xapian::docid did)
 	}
 	if (need_comma)
 	    result += ", ";
-	result += "Term(" + *t + ", wdf=" + str(t.get_wdf()) + posrepr + ")";
+	result += "Term(" + *t + ", wdf=" + str(t.get_wdf()) + posrepr;
+	result += ")";
 	need_comma = true;
     }
     return result;
@@ -116,18 +117,6 @@ termstats_to_string(const Xapian::Database & db, const string & term)
 
     result += "tf=" + str(db.get_termfreq(term));
     result += ",cf=" + str(db.get_collection_freq(term));
-
-    return result;
-}
-
-string
-dbstats_to_string(const Xapian::Database & db)
-{
-    string result;
-
-    result += "dc=" + str(db.get_doccount());
-    result += ",al=" + str(db.get_avlength());
-    result += ",ld=" + str(db.get_lastdocid());
 
     return result;
 }
@@ -160,6 +149,7 @@ dbcheck(const Xapian::Database & db,
 	TEST_EQUAL(dociter.get_wdf(), 1);
 	Xapian::Document doc(db.get_document(did));
 	Xapian::termcount doclen(db.get_doclength(did));
+	Xapian::termcount unique_terms(db.get_unique_terms(did));
 	if (doclen < doclen_lower_bound)
 	    doclen_lower_bound = doclen;
 	if (doclen > doclen_upper_bound)
@@ -233,6 +223,7 @@ dbcheck(const Xapian::Database & db,
 	TEST(t2 == db.termlist_end(did));
 	Xapian::termcount expected_termcount = doc.termlist_count();
 	TEST_EQUAL(expected_termcount, found_termcount);
+	TEST_EQUAL(unique_terms, found_termcount);
 	TEST_EQUAL(doclen, wdf_sum);
     }
 
@@ -269,8 +260,8 @@ dbcheck(const Xapian::Database & db,
 		posrepr = ",[" + posrepr + "]";
 	    }
 	    posting_repr += "(" + str(*p) + "," +
-		    str(p.get_wdf()) + "/" + str(p.get_doclength()) +
-		    posrepr + ")";
+		    str(p.get_wdf()) + "/" +
+		    str(p.get_doclength()) + posrepr + ")";
 	    if (wdf_upper_bound < p.get_wdf())
 		wdf_upper_bound = p.get_wdf();
 	    need_comma = true;

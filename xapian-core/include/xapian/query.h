@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_QUERY_H
 #define XAPIAN_INCLUDED_QUERY_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/query.h> directly; include <xapian.h> instead."
 #endif
 
@@ -109,11 +109,37 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	OP_VALUE_LE = 12,
 	OP_SYNONYM = 13,
 	OP_MAX = 14,
+	OP_WILDCARD = 15,
 
 	LEAF_TERM = 100,
 	LEAF_POSTING_SOURCE,
 	LEAF_MATCH_ALL,
 	LEAF_MATCH_NOTHING
+    };
+
+    enum {
+	/** Throw an error if OP_WILDCARD exceeds its expansion limit.
+	 *
+	 *  Xapian::WildcardError will be thrown when the query is actually
+	 *  run.
+	 */
+	WILDCARD_LIMIT_ERROR,
+	/** Stop expanding when OP_WILDCARD reaches its expansion limit.
+	 *
+	 *  This makes the wildcard expand to only the first N terms (sorted
+	 *  by byte order).
+	 */
+	WILDCARD_LIMIT_FIRST,
+	/** Limit OP_WILDCARD expansion to the most frequent terms.
+	 *
+	 *  If OP_WILDCARD would expand to more than its expansion limit, the
+	 *  most frequent terms are taken.  This approach works well for cases
+	 *  such as expanding a partial term at the end of a query string which
+	 *  the user hasn't finished typing yet - as well as being less expense
+	 *  to evaluate than the full expansion, using only the most frequent
+	 *  terms tends to give better results too.
+	 */
+	WILDCARD_LIMIT_MOST_FREQUENT
     };
 
     /// Default constructor.
@@ -141,7 +167,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	  Xapian::termpos pos = 0);
 
     /** Construct a Query object for a PostingSource. */
-    Query(Xapian::PostingSource * source);
+    explicit Query(Xapian::PostingSource * source);
 
     // FIXME: new form for OP_SCALE_WEIGHT - do we want this?
     Query(double factor, const Xapian::Query & subquery);
@@ -174,6 +200,32 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     Query(op op_, Xapian::valueno slot,
 	  const std::string & begin, const std::string & end);
 
+    /** Query constructor for OP_WILDCARD queries.
+     *
+     *  @param op	Must be OP_WILDCARD
+     *  @param pattern	The wildcard pattern - currently this is just a string
+     *			and the wildcard expands to terms which start with
+     *			exactly this string.
+     *	@param max_expansion	The maximum number of terms to expand to
+     *				(default: 0, which means no limit)
+     *	@param max_type	How to enforce max_expansion - one of
+     *			@a WILDCARD_LIMIT_ERROR (the default),
+     *			@a WILDCARD_LIMIT_FIRST or
+     *			@a WILDCARD_LIMIT_MOST_FREQUENT.
+     *			When searching multiple databases, the expansion limit
+     *			is currently applied independently for each database,
+     *			so the total number of terms may be higher than the
+     *			limit.  This is arguably a bug, and may change in
+     *			future versions.
+     *	@param combiner The @op to combine the terms with - one of
+     *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
+     */
+    Query(op op_,
+	  const std::string & pattern,
+	  Xapian::termcount max_expansion = 0,
+	  int max_type = WILDCARD_LIMIT_ERROR,
+	  op combiner = OP_SYNONYM);
+
     template<typename I>
     Query(op op_, I begin, I end, Xapian::termcount window = 0)
     {
@@ -190,12 +242,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 #ifdef SWIG
     // SWIG's %template doesn't seem to handle a templated ctor so we
     // provide this fake specialised form of the above prototype.
-    Query::Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
-		 Xapian::termcount parameter = 0);
+    Query(op op_, XapianSWIGQueryItor qbegin, XapianSWIGQueryItor qend,
+	  Xapian::termcount parameter = 0);
 
 # ifdef SWIGJAVA
-    Query::Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
-		 Xapian::termcount parameter = 0);
+    Query(op op_, XapianSWIGStrItor qbegin, XapianSWIGStrItor qend,
+	  Xapian::termcount parameter = 0);
 # endif
 #endif
 
@@ -205,9 +257,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	return TermIterator();
     }
 
-    Xapian::termcount get_length() const XAPIAN_PURE_FUNCTION;
+    const TermIterator get_unique_terms_begin() const;
 
-    bool XAPIAN_NOTHROW(empty() const) XAPIAN_PURE_FUNCTION {
+    Xapian::termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
+
+    bool XAPIAN_NOTHROW(empty() const) {
 	return internal.get() == 0;
     }
 
@@ -217,19 +271,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 				   const Registry & reg = Registry());
 
     /** Get the type of the top level of the query. */
-    op get_type() const XAPIAN_PURE_FUNCTION;
+    op XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION;
 
     /** Get the number of subqueries of the top level query. */
-    size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
+    size_t XAPIAN_NOTHROW(get_num_subqueries() const) XAPIAN_PURE_FUNCTION;
 
     /** Read a top level subquery.
       *
       * @param n  Return the n-th subquery (starting from 0) - only valid when
       *		  0 <= n < get_num_subqueries().
       */
-    const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
+    const Query get_subquery(size_t n) const;
 
-    std::string get_description() const XAPIAN_PURE_FUNCTION;
+    std::string get_description() const;
 
     const Query operator&=(const Query & o) {
 	return (*this = Query(OP_AND, *this, o));
@@ -251,12 +305,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	return (*this = Query(1.0 / factor, *this));
     }
 
-    /** @private @internal
-     *
-     *  Pass a reference to avoid ambiguity for Query(NULL) (not useful, but the
-     *  testsuite does it...)  FIXME
-     */
-    Query(Internal & internal_) : internal(&internal_) { }
+    /** @private @internal */
+    explicit Query(Internal * internal_) : internal(internal_) { }
 
   private:
     void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
@@ -330,7 +380,7 @@ class InvertedQuery_ {
 
     void operator=(const InvertedQuery_ &);
 
-    InvertedQuery_(const Query & query_) : query(query_) { }
+    explicit InvertedQuery_(const Query & query_) : query(query_) { }
 
   public:
     // GCC 4.2 seems to needs a copy ctor.
@@ -383,17 +433,17 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
 				  QueryOptimiser * qopt,
 				  double factor) const;
 
-    virtual termcount get_length() const XAPIAN_PURE_FUNCTION;
+    virtual termcount XAPIAN_NOTHROW(get_length() const) XAPIAN_PURE_FUNCTION;
 
     virtual void serialise(std::string & result) const = 0;
 
     static Query::Internal * unserialise(const char ** p, const char * end, const Registry & reg);
 
-    virtual Query::op get_type() const XAPIAN_PURE_FUNCTION = 0;
-    virtual size_t get_num_subqueries() const XAPIAN_PURE_FUNCTION;
-    virtual const Query get_subquery(size_t n) const XAPIAN_PURE_FUNCTION;
+    virtual Query::op XAPIAN_NOTHROW(get_type() const) XAPIAN_PURE_FUNCTION = 0;
+    virtual size_t XAPIAN_NOTHROW(get_num_subqueries() const) XAPIAN_PURE_FUNCTION;
+    virtual const Query get_subquery(size_t n) const;
 
-    virtual std::string get_description() const XAPIAN_PURE_FUNCTION = 0;
+    virtual std::string get_description() const = 0;
 
     // Pass argument as void* to avoid need to include <vector>.
     virtual void gather_terms(void * void_terms) const;

@@ -31,7 +31,7 @@
 using namespace std;
 
 void print_package_info(const char *name) {
-    cout << name << " - "PACKAGE_STRING << endl;
+    cout << name << " - " PACKAGE_STRING << endl;
 }
 
 void print_stemmer_help(const char * spaces) {

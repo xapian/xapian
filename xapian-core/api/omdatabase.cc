@@ -123,7 +123,7 @@ Database::reopen()
 	if ((*i)->reopen())
 	    maybe_changed = true;
     }
-    return maybe_changed;
+    RETURN(maybe_changed);
 }
 
 void
@@ -209,12 +209,6 @@ Database::termlist_begin(Xapian::docid did) const
 	tl = new MultiTermList(internal[n]->open_term_list(m), *this, n);
     }
     RETURN(TermIterator(tl));
-}
-
-TermIterator
-Database::allterms_begin() const
-{
-    return allterms_begin(string());
 }
 
 TermIterator
@@ -391,12 +385,15 @@ Database::get_doclength_lower_bound() const
 
     if (rare(internal.empty())) RETURN(0);
 
+    Xapian::termcount full_lb = 0;
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
-    i = internal.begin();
-    Xapian::termcount full_lb = (*i)->get_doclength_lower_bound();
-    while (++i != internal.end()) {
-	Xapian::termcount lb = (*i)->get_doclength_lower_bound();
-	if (lb < full_lb) full_lb = lb;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+	// Skip sub-databases which are empty or only contain documents with
+	// doclen==0.
+	if ((*i)->get_total_length() != 0) {
+	    Xapian::termcount lb = (*i)->get_doclength_lower_bound();
+	    if (full_lb == 0 || lb < full_lb) full_lb = lb;
+	}
     }
     RETURN(full_lb);
 }
@@ -454,6 +451,20 @@ Database::get_doclength(Xapian::docid did) const
     Xapian::doccount n = (did - 1) % multiplier; // which actual database
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
     RETURN(internal[n]->get_doclength(m));
+}
+
+Xapian::termcount
+Database::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(API, Xapian::termcount, "Database::get_unique_terms", did);
+    if (did == 0)
+	docid_zero_invalid();
+    unsigned int multiplier = internal.size();
+    if (rare(multiplier == 0))
+	no_subdatabases();
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+    RETURN(internal[n]->get_unique_terms(m));
 }
 
 Document
@@ -564,18 +575,9 @@ Database::get_spelling_suggestion(const string &word,
     if (!merger.get()) RETURN(string());
 
     // Convert word to UTF-32.
-#if ! defined __SUNPRO_CC || __SUNPRO_CC - 0 >= 0x580
     // Extra brackets needed to avoid this being misparsed as a function
     // prototype.
     vector<unsigned> utf32_word((Utf8Iterator(word)), Utf8Iterator());
-#else
-    // Older versions of Sun's C++ compiler need this workaround, but 5.8
-    // doesn't.  Unsure of the exact version it was fixed in.
-    vector<unsigned> utf32_word;
-    for (Utf8Iterator sunpro_it(word); sunpro_it != Utf8Iterator(); ++sunpro_it) {
-	utf32_word.push_back(*sunpro_it);
-    }
-#endif
 
     vector<unsigned> utf32_term;
 

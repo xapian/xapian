@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -244,6 +244,213 @@ DEFINE_TESTCASE(queryintro1, !backend) {
     TEST_EQUAL(q.get_num_subqueries(), 2);
     TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_TERM);
     TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
+
+    return true;
+}
+
+/// Regression test for bug introduced in 1.3.1 and fixed in 1.3.3.
+//  We were incorrectly converting a term which indexed all docs and was used
+//  in an unweighted phrase into an all docs postlist, so check that this
+//  case actually works.
+DEFINE_TESTCASE(phrasealldocs1, backend) {
+    Xapian::Database db = get_database("apitest_declen");
+    Xapian::Query q;
+    const char * phrase[] = { "this", "is", "the" };
+    q = Xapian::Query(q.OP_AND_NOT,
+	    Xapian::Query("paragraph"),
+	    Xapian::Query(q.OP_PHRASE, phrase, phrase + 3));
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 3);
+
+    return true;
+}
+
+struct wildcard_testcase {
+    const char * pattern;
+    Xapian::termcount max_expansion;
+    char max_type;
+    const char * terms[4];
+};
+
+#define WILDCARD_EXCEPTION { 0, 0, 0, "" }
+static const
+wildcard_testcase wildcard1_testcases[] = {
+    // Tries to expand to 7 terms.
+    { "th",	6, 'E', WILDCARD_EXCEPTION },
+    { "thou",	1, 'E', { "though", 0, 0, 0 } },
+    { "s",	2, 'F', { "say", "search", 0, 0 } },
+    { "s",	2, 'M', { "simpl", "so", 0, 0 } },
+    { 0,	0, 0, { 0, 0, 0, 0 } }
+};
+
+DEFINE_TESTCASE(wildcard1, backend) {
+    // FIXME: The counting of terms the wildcard expands to is per subdatabase,
+    // so the wildcard may expand to more terms than the limit if some aren't
+    // in all subdatabases.  Also WILDCARD_LIMIT_MOST_FREQUENT uses the
+    // frequency from the subdatabase, and so may select different terms in
+    // each subdatabase.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
+
+    const wildcard_testcase * p = wildcard1_testcases;
+    while (p->pattern) {
+	tout << p->pattern << endl;
+	const char * const * tend = p->terms + 4;
+	while (tend[-1] == NULL) --tend;
+	bool expect_exception = (tend - p->terms == 4 && tend[-1][0] == '\0');
+	Xapian::Query q;
+	if (p->max_type) {
+	    int max_type;
+	    switch (p->max_type) {
+		case 'E':
+		    max_type = Xapian::Query::WILDCARD_LIMIT_ERROR;
+		    break;
+		case 'F':
+		    max_type = Xapian::Query::WILDCARD_LIMIT_FIRST;
+		    break;
+		case 'M':
+		    max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+		    break;
+		default:
+		    return false;
+	    }
+	    q = Xapian::Query(o, p->pattern, p->max_expansion, max_type);
+	} else {
+	    q = Xapian::Query(o, p->pattern, p->max_expansion);
+	}
+	enq.set_query(q);
+	try {
+	    Xapian::MSet mset = enq.get_mset(0, 10);
+	    TEST(!expect_exception);
+	    q = Xapian::Query(q.OP_SYNONYM, p->terms, tend);
+	    enq.set_query(q);
+	    Xapian::MSet mset2 = enq.get_mset(0, 10);
+	    TEST_EQUAL(mset.size(), mset2.size());
+	    TEST(mset_range_is_same(mset, 0, mset2, 0, mset.size()));
+	} catch (const Xapian::WildcardError &) {
+	    TEST(expect_exception);
+	}
+	++p;
+    }
+
+    return true;
+}
+
+/// Regression test for #696, fixed in 1.3.4.
+DEFINE_TESTCASE(wildcard2, backend) {
+    // FIXME: The counting of terms the wildcard expands to is per subdatabase,
+    // so the wildcard may expand to more terms than the limit if some aren't
+    // in all subdatabases.  Also WILDCARD_LIMIT_MOST_FREQUENT uses the
+    // frequency from the subdatabase, and so may select different terms in
+    // each subdatabase.
+    SKIP_TEST_FOR_BACKEND("multi");
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    const Xapian::Query::op o = Xapian::Query::OP_WILDCARD;
+
+    const int max_type = Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT;
+    Xapian::Query q0(o, "w", 2, max_type);
+    Xapian::Query q(o, "s", 2, max_type);
+    Xapian::Query q2(o, "t", 2, max_type);
+    q = Xapian::Query(q.OP_OR, q0, q);
+    q = Xapian::Query(q.OP_OR, q, q2);
+    enq.set_query(q);
+    Xapian::MSet mset = enq.get_mset(0, 10);
+    TEST_EQUAL(mset.size(),  6);
+
+    return true;
+}
+
+DEFINE_TESTCASE(dualprefixwildcard1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Query q(Xapian::Query::OP_SYNONYM,
+		    Xapian::Query(Xapian::Query::OP_WILDCARD, "fo"),
+		    Xapian::Query(Xapian::Query::OP_WILDCARD, "Sfo"));
+    tout << q.get_description() << endl;
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+    TEST_EQUAL(enq.get_mset(0, 5).size(), 2);
+    return true;
+}
+
+struct positional_testcase {
+    int window;
+    const char * terms[4];
+    Xapian::docid result;
+};
+
+static const
+positional_testcase loosephrase1_testcases[] = {
+    { 5, { "expect", "to", "mset", 0 }, 0 },
+    { 5, { "word", "well", "the", 0 }, 2 },
+    { 5, { "if", "word", "doesnt", 0 }, 0 },
+    { 5, { "at", "line", "three", 0 }, 0 },
+    { 5, { "paragraph", "other", "the", 0 }, 0 },
+    { 5, { "other", "the", "with", 0 }, 0 },
+    { 0, { 0, 0, 0, 0 }, 0 }
+};
+
+/// Regression test for bug fixed in 1.3.3 and 1.2.21.
+DEFINE_TESTCASE(loosephrase1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+
+    const positional_testcase * p = loosephrase1_testcases;
+    while (p->window) {
+	const char * const * tend = p->terms + 4;
+	while (tend[-1] == NULL) --tend;
+	Xapian::Query q(Xapian::Query::OP_PHRASE, p->terms, tend, p->window);
+	enq.set_query(q);
+	Xapian::MSet mset = enq.get_mset(0, 10);
+	if (p->result == 0) {
+	    TEST(mset.empty());
+	} else {
+	    TEST_EQUAL(mset.size(), 1);
+	    TEST_EQUAL(*mset[0], p->result);
+	}
+	++p;
+    }
+
+    return true;
+}
+
+static const
+positional_testcase loosenear1_testcases[] = {
+    { 4, { "test", "the", "with", 0 }, 1 },
+    { 4, { "expect", "word", "the", 0 }, 2 },
+    { 4, { "line", "be", "blank", 0 }, 1 },
+    { 2, { "banana", "banana", 0, 0 }, 0 },
+    { 3, { "banana", "banana", 0, 0 }, 0 },
+    { 2, { "word", "word", 0, 0 }, 2 },
+    { 4, { "work", "meant", "work", 0 }, 0 },
+    { 4, { "this", "one", "yet", "one" }, 0 },
+    { 0, { 0, 0, 0, 0 }, 0 }
+};
+
+/// Regression tests for bugs fixed in 1.3.3 and 1.2.21.
+DEFINE_TESTCASE(loosenear1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+
+    const positional_testcase * p = loosenear1_testcases;
+    while (p->window) {
+	const char * const * tend = p->terms + 4;
+	while (tend[-1] == NULL) --tend;
+	Xapian::Query q(Xapian::Query::OP_NEAR, p->terms, tend, p->window);
+	enq.set_query(q);
+	Xapian::MSet mset = enq.get_mset(0, 10);
+	if (p->result == 0) {
+	    TEST(mset.empty());
+	} else {
+	    TEST_EQUAL(mset.size(), 1);
+	    TEST_EQUAL(*mset[0], p->result);
+	}
+	++p;
+    }
 
     return true;
 }

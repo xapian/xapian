@@ -1,7 +1,7 @@
 /** @file length.cc
  * @brief length encoded as a string
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ class Xapian_NetworkError {
     const char * msg;
 
   public:
-    Xapian_NetworkError(const char * msg_) : msg(msg_) { }
+    explicit Xapian_NetworkError(const char * msg_) : msg(msg_) { }
 
     const char * get_description() const { return msg; }
 };
@@ -55,29 +55,74 @@ throw_network_error(const char * msg)
 
 #endif
 
-size_t
-decode_length(const char ** p, const char *end, bool check_remaining)
+template<typename T>
+inline void
+decode_length_(const char ** p, const char *end, T & out)
 {
     if (*p == end) {
 	throw_network_error("Bad encoded length: no data");
     }
 
-    size_t len = static_cast<unsigned char>(*(*p)++);
+    T len = static_cast<unsigned char>(*(*p)++);
     if (len == 0xff) {
 	len = 0;
 	unsigned char ch;
-	int shift = 0;
+	unsigned shift = 0;
 	do {
-	    if (*p == end || shift > 28)
+	    if (*p == end || shift > (sizeof(T) * 8 / 7 * 7))
 		throw_network_error("Bad encoded length: insufficient data");
 	    ch = *(*p)++;
-	    len |= size_t(ch & 0x7f) << shift;
+	    len |= T(ch & 0x7f) << shift;
 	    shift += 7;
 	} while ((ch & 0x80) == 0);
 	len += 255;
     }
-    if (check_remaining && len > size_t(end - *p)) {
+    out = len;
+}
+
+template<typename T>
+inline void
+decode_length_and_check_(const char ** p, const char *end, T & out)
+{
+    decode_length(p, end, out);
+    if (out > T(end - *p)) {
 	throw_network_error("Bad encoded length: length greater than data");
     }
-    return len;
+}
+
+void
+decode_length(const char ** p, const char *end, unsigned & out)
+{
+    decode_length_(p, end, out);
+}
+
+void
+decode_length(const char ** p, const char *end, unsigned long & out)
+{
+    decode_length_(p, end, out);
+}
+
+void
+decode_length(const char ** p, const char *end, unsigned long long & out)
+{
+    decode_length_(p, end, out);
+}
+
+void
+decode_length_and_check(const char ** p, const char *end, unsigned & out)
+{
+    decode_length_and_check_(p, end, out);
+}
+
+void
+decode_length_and_check(const char ** p, const char *end, unsigned long & out)
+{
+    decode_length_and_check_(p, end, out);
+}
+
+void
+decode_length_and_check(const char ** p, const char *end,
+			unsigned long long & out)
+{
+    decode_length_and_check_(p, end, out);
 }

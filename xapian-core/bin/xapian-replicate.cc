@@ -1,7 +1,7 @@
 /** @file xapian-replicate.cc
  * @brief Replicate a database from a master server to a local copy.
  */
-/* Copyright (C) 2008,2011,2012 Olly Betts
+/* Copyright (C) 2008,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,16 +45,21 @@ using namespace std;
 // Number of seconds before we assume that a reader will be closed.
 #define READER_CLOSE_TIME 30
 
+// Socket level timeout (in seconds).
+#define DEFAULT_TIMEOUT 0
+
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE\n\n"
 "Options:\n"
 "  -h, --host=HOST     host to connect to (required)\n"
 "  -p, --port=PORT     port to connect to (required)\n"
 "  -m, --master=DB     replicate database DB from the master (default: DATABASE)\n"
 "  -i, --interval=N    wait N seconds between each connection to the master\n"
-"                      (default: "STRINGIZE(DEFAULT_INTERVAL)")\n"
+"                      (default: " STRINGIZE(DEFAULT_INTERVAL) ")\n"
 "  -r, --reader-time=N wait N seconds to allow readers time to close before\n"
-"                      applying repeated changesets (default: "STRINGIZE(READER_CLOSE_TIME)")\n"
+"                      applying repeated changesets (default: " STRINGIZE(READER_CLOSE_TIME) ")\n"
+"  -t, --timeout=N     set socket timeouts (if supported) to N seconds; N=0 for\n"
+"                      no timeout (default: " STRINGIZE(DEFAULT_TIMEOUT) ")\n"
 "  -f, --force-copy    force a full copy of the database to be sent (and then\n"
 "                      replicate as normal)\n"
 "  -o, --one-shot      replicate only once and then exit\n"
@@ -67,13 +72,14 @@ static void show_usage() {
 int
 main(int argc, char **argv)
 {
-    const char * opts = "h:p:m:i:r:ofqv";
+    const char * opts = "h:p:m:i:r:t:ofqv";
     const struct option long_opts[] = {
 	{"host",	required_argument,	0, 'h'},
 	{"port",	required_argument,	0, 'p'},
 	{"master",	required_argument,	0, 'm'},
 	{"interval",	required_argument,	0, 'i'},
 	{"reader-time",	required_argument,	0, 'r'},
+	{"timeout",	required_argument,	0, 't'},
 	{"one-shot",	no_argument,		0, 'o'},
 	{"force-copy",	no_argument,		0, 'f'},
 	{"quiet",	no_argument,		0, 'q'},
@@ -91,6 +97,7 @@ main(int argc, char **argv)
     enum { NORMAL, VERBOSE, QUIET } verbosity = NORMAL;
     bool force_copy = false;
     int reader_close_time = READER_CLOSE_TIME;
+    int timeout = DEFAULT_TIMEOUT;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
@@ -110,6 +117,9 @@ main(int argc, char **argv)
 	    case 'r':
 		reader_close_time = atoi(optarg);
 		break;
+	    case 't':
+		timeout = atoi(optarg);
+		break;
 	    case 'f':
 		force_copy = true;
 		break;
@@ -123,11 +133,11 @@ main(int argc, char **argv)
 		verbosity = VERBOSE;
 		break;
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    default:
 		show_usage();
@@ -163,7 +173,7 @@ main(int argc, char **argv)
 	    if (verbosity == VERBOSE) {
 		cout << "Connecting to " << host << ":" << port << endl;
 	    }
-	    ReplicateTcpClient client(host, port, 10000);
+	    ReplicateTcpClient client(host, port, 10.0, timeout);
 	    if (verbosity == VERBOSE) {
 		cout << "Getting update for " << dbpath << " from "
 		     << masterdb << endl;

@@ -21,7 +21,7 @@ find it easiest to use pre-built packages - it saves having to compile
 by hand and you'll generally get updates automatically.
 
 There are some links on our `download
-page <http://xapian.org/download>`_ but it's likely that Xapian packages
+page <https://xapian.org/download>`_ but it's likely that Xapian packages
 are available for platforms we aren't aware of. Feel free to let us know
 and we'll add a link.
 
@@ -37,7 +37,7 @@ Download
 ~~~~~~~~
 
 The first step is to obtain a copy of the software from the `Xapian
-download page <http://xapian.org/download>`_.
+download page <https://xapian.org/download>`_.
 
 Unpacking
 ~~~~~~~~~
@@ -69,7 +69,7 @@ summary is all you need to know.
 
 Building for MSVC is currently handled using a separately maintained set
 of makefiles - you can find a link to these on the `Xapian download
-page <http://xapian.org/download>`_.
+page <https://xapian.org/download>`_.
 
 Each directory contains a ``configure`` script which checks various
 features of your system. Assuming this runs successfully, you can then
@@ -125,4 +125,4 @@ Building from git
 ~~~~~~~~~~~~~~~~~
 
 If you wish to help develop Xapian, read `how to build from the Xapian
-git repository <http://xapian.org/bleeding>`_.
+git repository <https://xapian.org/bleeding>`_.

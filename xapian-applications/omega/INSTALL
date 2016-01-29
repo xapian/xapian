@@ -18,6 +18,7 @@ You need the following libraries installed before building Omega.  If you
 install these from packages, make sure you install any corresponding -dev or
 -devel packages as well:
 
+  * zlib <http://www.zlib.net/>
   * PCRE <http://www.pcre.org/>
   * libmagic (which comes with the file program
     <http://www.darwinsys.com/file/>) - on RPM-based package systems, the
@@ -110,9 +111,6 @@ the source directory) from the build directory, like so:
   mkdir BUILD
   cd BUILD
   ../configure
-
-IRIX make doesn't handle this correctly - either build in the source tree or
-use "smake -M" (or better still, just use GNU make if you have it installed!)
 
 Installation Names
 ==================

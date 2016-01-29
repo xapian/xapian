@@ -1,5 +1,0 @@
-<Directory>weight</Directory>
-
-<Description>
-Implementations of weighting schemes for Xapian.
-</Description>

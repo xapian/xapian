@@ -1,7 +1,7 @@
 /** @file str.h
  * @brief Convert types to std::string
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,43 +21,33 @@
 #ifndef XAPIAN_INCLUDED_STR_H
 #define XAPIAN_INCLUDED_STR_H
 
-#include "xapian/visibility.h"
-
 #include <string>
 
 namespace Xapian {
 namespace Internal {
 
 /// Convert int to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(int value);
 
 /// Convert unsigned int to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(unsigned int value);
 
 /// Convert long to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(long value);
 
 /// Convert unsigned long to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(unsigned long value);
 
 /// Convert long long to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(long long value);
 
 /// Convert unsigned long long to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(unsigned long long value);
 
 /// Convert double to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(double value);
 
 /// Convert const void * to std::string.
-XAPIAN_VISIBILITY_DEFAULT
 std::string str(const void * value);
 
 /** Convert std::string to std::string.

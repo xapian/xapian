@@ -1,5 +1,4 @@
 EXTRA_DIST +=\
-	examples/dir_contents\
 	examples/Makefile
 
 bin_PROGRAMS +=\

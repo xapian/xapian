@@ -1,7 +1,7 @@
 /** @file postlist.cc
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,6 +44,12 @@ Xapian::termcount
 PostingIterator::Internal::get_wdf() const
 {
     throw Xapian::InvalidOperationError("get_wdf() not meaningful for this PostingIterator");
+}
+
+const string *
+PostingIterator::Internal::get_sort_key() const
+{
+    return NULL;
 }
 
 const string *

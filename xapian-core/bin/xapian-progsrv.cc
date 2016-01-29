@@ -46,7 +46,7 @@ static const struct option long_opts[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
 "  --timeout MSECS         set timeout\n"
 "  --writable              allow updates (only one database directory allowed)\n"
@@ -64,11 +64,11 @@ int main(int argc, char **argv)
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 't':
 		timeout = atoi(optarg) * 1e-3;
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     /* Unlike xapian-tcpsrv, xapian-progsrv only has a single 'connection'
      * which is established immediately.  So, there is no point in attempting
      * to open the database(s) to check they work - if they can't be opened the
-     * client get an exception right away anyway.
+     * client will get an exception right away anyway.
      */
     vector<string> dbnames(argv + optind, argv + argc);
 

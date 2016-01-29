@@ -2,7 +2,7 @@
  * @brief A ChertAllDocsPostList plus pending modifications.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2006,2007,2008,2009,2010,2011 Olly Betts
+ * Copyright (C) 2006,2007,2008,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,6 +76,14 @@ ChertAllDocsModifiedPostList::get_doclength() const
 	RETURN(doclens_it->second);
 
     RETURN(ChertAllDocsPostList::get_doclength());
+}
+
+Xapian::termcount
+ChertAllDocsModifiedPostList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "ChertAllDocsModifiedPostList::get_unique_terms", NO_ARGS);
+    Assert(this_db.get());
+    RETURN(this_db->get_unique_terms(get_docid()));
 }
 
 PostList *

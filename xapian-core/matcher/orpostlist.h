@@ -70,6 +70,9 @@ class OrPostList : public BranchPostList {
 	 */
 	virtual Xapian::termcount get_doclength() const;
 
+	/// Return the number of unique terms in the document.
+	virtual Xapian::termcount get_unique_terms() const;
+
         OrPostList(PostList * left_,
 		   PostList * right_,
 		   MultiMatch * matcher_,

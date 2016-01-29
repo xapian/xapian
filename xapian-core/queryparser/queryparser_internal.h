@@ -1,7 +1,7 @@
 /** @file queryparser_internal.h
  * @brief The non-lemon-generated parts of the QueryParser class.
  */
-/* Copyright (C) 2005,2006,2007,2010,2011,2012 Olly Betts
+/* Copyright (C) 2005,2006,2007,2010,2011,2012,2013,2015 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -47,7 +47,7 @@ struct FieldInfo {
     list<string> prefixes;
 
     /// Field processors.  Currently only one is supported.
-    list<Xapian::FieldProcessor*> procs;
+    list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> > procs;
 
     FieldInfo(filter_type type_, const string & prefix)
 	: type(type_)
@@ -82,11 +82,17 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     // "foobar" -> "XFOO". FIXME: it does more than this now!
     map<string, FieldInfo> field_map;
 
-    list<ValueRangeProcessor *> valrangeprocs;
+    list<Xapian::Internal::opt_intrusive_ptr<ValueRangeProcessor> > valrangeprocs;
 
     string corrected_query;
 
     Xapian::termcount max_wildcard_expansion;
+
+    Xapian::termcount max_partial_expansion;
+
+    int max_wildcard_type;
+
+    int max_partial_type;
 
     void add_prefix(const string &field, const string &prefix,
 		    filter_type type);
@@ -100,7 +106,10 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     Internal() : stem_action(STEM_SOME), stopper(NULL),
-	default_op(Query::OP_OR), errmsg(NULL), max_wildcard_expansion(0) { }
+	default_op(Query::OP_OR), errmsg(NULL),
+	max_wildcard_expansion(0), max_partial_expansion(100),
+	max_wildcard_type(Xapian::Query::WILDCARD_LIMIT_ERROR),
+	max_partial_type(Xapian::Query::WILDCARD_LIMIT_MOST_FREQUENT) { }
 
     Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };

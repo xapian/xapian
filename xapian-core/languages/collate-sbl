@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 my $copyright = <<'EOF';
-/* Copyright (C) 2007,2012,2013 Olly Betts
+/* Copyright (C) 2007,2012,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,10 +26,15 @@ my $srcdir = shift @ARGV;
 
 my $hdr = Tokeniseise->new('languages/sbl-dispatch.h', 'Map string to language code', $copyright, 'XAPIAN_INCLUDED_SBL_DISPATCH_H', 'sbl_code');
 $hdr->add('none', 'NONE');
+my @langs;
 foreach (sort @ARGV) {
     m{.*/(.*)\.sbl$} or die "Failed to parse snowball source: $_\n";
-    my $enum = uc $1;
-    $hdr->add($1, $enum);
+    my $lang = $1;
+    push @langs, $lang;
+    # Include the headers for all the snowball stemmers.
+    $hdr->append("#include \"$lang.h\"");
+    my $enum = uc $lang;
+    $hdr->add($lang, $enum);
     open SBL, '<', "$srcdir/$_" or die "Open $srcdir/$_ failed: $!\n";
     my $l = <SBL>;
     close SBL;
@@ -39,5 +44,8 @@ foreach (sort @ARGV) {
 	$hdr->add($_, $enum);
     }
 }
+
+$hdr->append('');
+$hdr->append("#define LANGSTRING \"" . join(" ", @langs) . "\"");
 
 $hdr->write();

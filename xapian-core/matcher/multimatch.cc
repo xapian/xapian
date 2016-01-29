@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
@@ -81,6 +81,12 @@ set_timeout_flag(union sigval sv)
 // Solaris defines CLOCK_MONOTONIC, but "man timer_create" doesn't mention it
 // and using it fails.
 const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
+#elif defined __CYGWIN__
+// https://cygwin.com/cygwin-api/std-notes.html currently (2015-11-22) says:
+//
+//     clock_setres, clock_settime, and timer_create currently support only
+//     CLOCK_REALTIME.
+const clockid_t TIMEOUT_CLOCK = CLOCK_REALTIME;
 #else
 const clockid_t TIMEOUT_CLOCK = CLOCK_MONOTONIC;
 #endif
@@ -139,7 +145,7 @@ const Xapian::Enquire::Internal::sort_setting REL_VAL =
 	Xapian::Enquire::Internal::REL_VAL;
 const Xapian::Enquire::Internal::sort_setting VAL =
 	Xapian::Enquire::Internal::VAL;
-#if 0 // VAL_REL isn't currently used which causes a warning with SGI CC.
+#if 0 // VAL_REL isn't currently used so avoid compiler warnings.
 const Xapian::Enquire::Internal::sort_setting VAL_REL =
 	Xapian::Enquire::Internal::VAL_REL;
 #endif
@@ -157,7 +163,7 @@ split_rset_by_db(const Xapian::RSet * rset,
 		 vector<Xapian::RSet> & subrsets)
 {
     LOGCALL_STATIC_VOID(MATCH, "split_rset_by_db", rset | number_of_subdbs | subrsets);
-    if (rset) {
+    if (rset && !rset->empty()) {
 	if (number_of_subdbs == 1) {
 	    // The common case of a single database is easy to handle.
 	    subrsets.push_back(*rset);
@@ -243,10 +249,10 @@ prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
 class MultipleMatchSpy : public Xapian::MatchSpy {
   private:
     /// List of match spies to call, in order.
-    const std::vector<Xapian::MatchSpy *> & spies;
+    const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies;
 
   public:
-    MultipleMatchSpy(const std::vector<Xapian::MatchSpy *> & spies_)
+    MultipleMatchSpy(const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies_)
 	    : spies(spies_) {}
 
     /** Implementation of virtual operator().
@@ -259,9 +265,8 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
 void 
 MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
     LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
-    vector<Xapian::MatchSpy *>::const_iterator i;
-    for (i = spies.begin(); i != spies.end(); ++i) {
-	(**i)(doc, wt);
+    for (auto i : spies) {
+	(*i)(doc, wt);
     }
 }
 
@@ -283,7 +288,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_,
-		       const vector<Xapian::MatchSpy *> & matchspies_,
+		       const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_,
 		       bool have_sorter, bool have_mdecider)
 	: db(db_), query(query_),
 	  collapse_max(collapse_max_), collapse_key(collapse_key_),
@@ -311,8 +316,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	try {
 	    // There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
-	    if (rem_db) {
+	    if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
+		RemoteDatabase *rem_db = static_cast<RemoteDatabase*>(subdb);
 		if (have_sorter) {
 		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
 		}
@@ -332,6 +337,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		is_remote[i] = true;
 	    } else {
 		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+		subdb->readahead_for_query(query);
 	    }
 #else
 	    // Avoid unused parameter warnings.
@@ -349,7 +355,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	leaves.push_back(smatch);
     }
 
-    stats.mark_wanted_terms(query);
+    stats.set_query(query);
     prepare_sub_matches(leaves, errorhandler, stats);
     stats.set_bounds_from_db(db);
 }
@@ -384,7 +390,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     AssertRel(check_at_least,>=,maxitems);
 
     if (query.empty()) {
-	mset = Xapian::MSet(new Xapian::MSet::Internal());
+	mset = Xapian::MSet();
 	mset.internal->firstitem = first;
 	return;
     }
@@ -505,7 +511,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     MultipleMatchSpy multispy(matchspies);
     if (!matchspies.empty()) {
 	if (matchspies.size() == 1) {
-	    matchspy = matchspies[0];
+	    matchspy = matchspies[0].get();
 	} else {
 	    matchspy = &multispy;
 	}
@@ -524,7 +530,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		matches_lower_bound = collapse_max;
 	}
 
-	mset = Xapian::MSet(new Xapian::MSet::Internal(
+	mset.internal = new Xapian::MSet::Internal(
 					   first,
 					   matches_upper_bound,
 					   matches_lower_bound,
@@ -533,7 +539,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 					   uncollapsed_lower_bound,
 					   matches_estimated,
 					   max_possible, greatest_wt, items,
-					   0));
+					   0);
 	return;
     }
 
@@ -639,7 +645,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
 
 	if (sort_by != REL) {
-	    if (sorter) {
+	    const string * ptr = pl->get_sort_key();
+	    if (ptr) {
+		new_item.sort_key = *ptr;
+	    } else if (sorter) {
 		new_item.sort_key = (*sorter)(doc);
 	    } else {
 		new_item.sort_key = vsdoc.get_value(sort_key);
@@ -1147,7 +1156,7 @@ new_greatest_weight:
 	}
     }
 
-    mset = Xapian::MSet(new Xapian::MSet::Internal(
+    mset.internal = new Xapian::MSet::Internal(
 				       first,
 				       matches_upper_bound,
 				       matches_lower_bound,
@@ -1156,5 +1165,5 @@ new_greatest_weight:
 				       uncollapsed_lower_bound,
 				       uncollapsed_estimated,
 				       max_possible, greatest_wt, items,
-				       percent_scale * 100.0));
+				       percent_scale * 100.0);
 }

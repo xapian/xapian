@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -749,10 +749,10 @@ DEFINE_TESTCASE(expanddeciderfilterprefix2, backend) {
     Xapian::ESet myeset_orig = enquire.get_eset(1000, myrset);
     unsigned int neweset_size = 0;
 
-    //choose the first char in the first term as prefix
+    // Choose the first char in the first term as prefix.
     Xapian::ESetIterator j = myeset_orig.begin();
     TEST(myeset_orig.size() >= 1);
-    string prefix = (*j).substr(0, 1);
+    string prefix(*j, 0, 1);
     Xapian::ExpandDeciderFilterPrefix myfunctor(prefix);
 
     for ( ; j != myeset_orig.end(); ++j) {
@@ -1313,10 +1313,6 @@ DEFINE_TESTCASE(rsetmultidb3, backend && !multi) {
 
 /// Simple test of the elite set operator.
 DEFINE_TESTCASE(eliteset1, backend) {
-    // FIXME: OP_ELITE_SET erroneously picks the best N terms separately in
-    // each sub-database!
-    SKIP_TEST_FOR_BACKEND("multi");
-
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1338,10 +1334,6 @@ DEFINE_TESTCASE(eliteset1, backend) {
 /// Test that the elite set operator works if the set contains
 /// sub-expressions (regression test)
 DEFINE_TESTCASE(eliteset2, backend) {
-    // FIXME: OP_ELITE_SET erroneously picks the best N terms separately in
-    // each sub-database!
-    SKIP_TEST_FOR_BACKEND("multi");
-
     Xapian::Database mydb(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(mydb);
 
@@ -1417,10 +1409,6 @@ DEFINE_TESTCASE(eliteset3, backend) {
 
 /// Test that elite set doesn't pick terms with 0 frequency
 DEFINE_TESTCASE(eliteset4, backend) {
-    // FIXME: OP_ELITE_SET erroneously picks the best N terms separately in
-    // each sub-database!
-    SKIP_TEST_FOR_BACKEND("multi");
-
     Xapian::Database mydb1(get_database("apitest_simpledata"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1446,8 +1434,6 @@ DEFINE_TESTCASE(eliteset4, backend) {
 
 /// Regression test for problem with excess precision.
 DEFINE_TESTCASE(eliteset5, backend) {
-    SKIP_TEST_FOR_BACKEND("multi");
-
     Xapian::Database mydb1(get_database("apitest_simpledata"));
     Xapian::Enquire enquire1(mydb1);
 
@@ -1792,7 +1778,7 @@ DEFINE_TESTCASE(termlist2, backend) {
     t = db.termlist_begin(1);
     tend = db.termlist_end(1);
     vector<string>::const_iterator i;
-    for (i = v.begin(); i != v.end(); i++) {
+    for (i = v.begin(); i != v.end(); ++i) {
 	TEST_NOT_EQUAL(t, tend);
 	TEST_EQUAL(*i, *t);
 	t++;
@@ -2148,6 +2134,7 @@ DEFINE_TESTCASE(alldocspl1, writable) {
     TEST(i != db.postlist_end(""));
     TEST_EQUAL(*i, 5);
     TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_unique_terms(), 0);
     TEST_EQUAL(i.get_wdf(), 1);
     ++i;
     TEST(i == db.postlist_end(""));
@@ -2171,6 +2158,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 5);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2183,6 +2171,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 5);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2199,11 +2188,13 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 5);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i != end);
 	TEST_EQUAL(*i, 7);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2217,6 +2208,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
 	TEST(i != end);
 	TEST_EQUAL(*i, 7);
 	TEST_EQUAL(i.get_doclength(), 0);
+	TEST_EQUAL(i.get_unique_terms(), 0);
 	TEST_EQUAL(i.get_wdf(), 1);
 	++i;
 	TEST(i == end);
@@ -2231,6 +2223,7 @@ DEFINE_TESTCASE(alldocspl2, writable) {
     TEST(i != end);
     TEST_EQUAL(*i, 7);
     TEST_EQUAL(i.get_doclength(), 0);
+    TEST_EQUAL(i.get_unique_terms(), 0);
     TEST_EQUAL(i.get_wdf(), 1);
     ++i;
     TEST(i == end);

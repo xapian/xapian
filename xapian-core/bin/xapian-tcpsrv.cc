@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,16 +34,17 @@
 #include "xapian/constants.h"
 #include "xapian/error.h"
 #include "net/remotetcpserver.h"
+#include "net/remoteserver.h"
+#include "stringutils.h"
 
 using namespace std;
 
-static void register_user_weighting_schemes(TcpServer &server) {
-    (void)server; // Suppress "unused parameter" warning.
+static void register_user_weighting_schemes(RemoteTcpServer &server) {
+    Xapian::Registry reg;
     // If you have defined your own weighting scheme, register it here
     // like so:
-    // Registry reg;
     // reg.register_weighting_scheme(FooWeight());
-    // server.set_registry(reg);
+    server.set_registry(reg);
 }
 
 const int MSECS_IDLE_TIMEOUT_DEFAULT = 60000;
@@ -71,13 +72,13 @@ static const struct option long_opts[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --interface ADDRESS     listen on the interface associated with name or\n"
 "                          address ADDRESS (default is all interfaces)\n"
-"  --idle-timeout MSECS    set timeout for idle connections (default " << MSECS_IDLE_TIMEOUT_DEFAULT << "ms)\n"
-"  --active-timeout MSECS  set timeout for active connections (default " << MSECS_ACTIVE_TIMEOUT_DEFAULT << "ms)\n"
+"  --idle-timeout MSECS    set timeout for idle connections (default " STRINGIZE(MSECS_IDLE_TIMEOUT_DEFAULT) "ms)\n"
+"  --active-timeout MSECS  set timeout for active connections (default " STRINGIZE(MSECS_ACTIVE_TIMEOUT_DEFAULT) "ms)\n"
 "  --timeout MSECS         set both timeout values\n"
 "  --one-shot              serve a single connection and exit\n"
 "  --quiet                 disable information messages to stdout\n"
@@ -101,17 +102,23 @@ int main(int argc, char **argv) {
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, NULL)) != -1) {
 	switch (c) {
 	    case OPT_HELP:
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'I':
                 host.assign(optarg);
 	        break;
 	    case 'p':
                 port = atoi(optarg);
+		if (port <= 0 || port >= 65536) {
+		    cerr << "Error: must specify a valid port number "
+			    "(between 1 and 65535). "
+			    "We actually got " << port << endl;
+		    exit(1);
+		}
 	        break;
 	    case 'a':
 		active_timeout = atoi(optarg) * 1e-3;
@@ -141,9 +148,8 @@ int main(int argc, char **argv) {
 	exit(1);
     }
 
-    if (port <= 0 || port >= 65536) {
-	cerr << "Error: must specify a valid port number (between 1 and 65535)."
-		" We actually got " << port << endl;
+    if (port == 0) {
+	cerr << "Error: You must specify a port with --port" << endl;
 	exit(1);
     }
 

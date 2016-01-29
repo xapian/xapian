@@ -68,6 +68,8 @@ class ChertRecordTable : public ChertTable {
 	/** Delete a record from the table.
 	 */
 	void delete_record(Xapian::docid did);
+
+	void readahead_for_record(Xapian::docid did) const;
 };
 
 #endif /* OM_HGUARD_CHERT_RECORD_H */

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2004,2005,2008,2011,2012,2013,2014,2015 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -151,7 +151,8 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 
     if (j != GET_LEVEL(p))
 	failure("Block has wrong level");
-    if (dir_end <= DIR_START || dir_end > block_size)
+    // dir_end must be > DIR_START, fit within the block, and be odd.
+    if (dir_end <= DIR_START || dir_end > block_size || (dir_end & 1) != 1)
 	failure("directory end pointer invalid");
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)
@@ -249,7 +250,8 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	} else {
 	    // open() throws an exception if it fails.
 	    B.open();
-	    *rev_ptr = B.get_open_revision_number();
+	    if (rev_ptr)
+		*rev_ptr = B.get_open_revision_number();
 	}
     } catch (const Xapian::DatabaseOpeningError &) {
 	if ((opts & Xapian::DBCHECK_FIX) == 0 ||
@@ -258,6 +260,11 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    // Just propagate the exception.
 	    throw;
 	}
+
+	uint4 root = 0;
+	uint4 revision = 0;
+	int level = -1;
+	uint4 blk_no = 0;
 
 	// Fake up a base file with no bitmap first, then fill it in when we
 	// scan the tree below.
@@ -275,66 +282,73 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    }
 	    if (out)
 		*out << "Block size deduced as " << blocksize << endl;
+
+	    if (lseek(fd, 0, SEEK_SET) < 0) {
+		B.failure("Failed to seek to start of table");
+	    }
+	    // Scan for root block.
+	    bool found = false;
+	    for (blk_no = 0;
+		 io_read(fd, (char*)buf, blocksize, 0) == blocksize;
+		 ++blk_no) {
+		uint4 rev = REVISION(buf);
+		if (rev_ptr && *rev_ptr) {
+		    // We have a specified revision to look for, but we still need
+		    // to scan to find the block with the highest level in that
+		    // revision.
+		    //
+		    // Note: We could have more than one root block with the same
+		    // revision if one is written but not committed and then
+		    // another is written and committed.  We go for the lowest
+		    // block number, which will probably pick the right one with
+		    // the current freespace reallocation strategy.
+		    if (rev != *rev_ptr)
+			continue;
+		} else {
+		    // FIXME: this isn't smart enough - it will happily pick a new
+		    // revision which was partly written but never committed.  And
+		    // it suffers from the issue of multiple roots mentioned above.
+		    if (rev < revision)
+			continue;
+		}
+		int blk_level = int(GET_LEVEL(buf));
+		if (blk_level <= level)
+		    continue;
+		found = true;
+		root = blk_no;
+		revision = rev;
+		level = blk_level;
+		if (out)
+		    *out << "Root guess -> blk " << root << " rev " << revision
+			 << " level " << level << endl;
+	    }
+	    ::close(fd);
+
+	    // Check that we actually found a candidate root block.
+	    if (!found) {
+		if (out)
+		    *out << "Failed to find a suitable root block with revision "
+			 << *rev_ptr << endl;
+		throw;
+	    }
 	} else {
+	    if (!rev_ptr) {
+		if (out)
+		    *out << "Empty table, but revision number not yet known" << endl;
+		throw;
+	    }
+	    revision = *rev_ptr;
+	    level = 0;
 	    if (out)
 		*out << "Empty table, assuming default block size of "
 		     << blocksize << endl;
 	}
 
-	if (lseek(fd, 0, SEEK_SET) < 0) {
-	    B.failure("Failed to seek to start of table");
-	}
-	// Scan for root block.
-	bool found = false;
-	uint4 root = 0;
-	uint4 revision = 0;
-	uint4 level = 0;
-	uint4 blk_no;
-	for (blk_no = 0;
-	     io_read(fd, (char*)buf, blocksize, 0) == blocksize;
-	     ++blk_no) {
-	    uint4 rev = REVISION(buf);
-	    if (rev_ptr && *rev_ptr) {
-		// We have a specified revision to look for, but we still need
-		// to scan to find the block with the highest level in that
-		// revision.
-		//
-		// Note: We could have more than one root block with the same
-		// revision if one is written but not committed and then
-		// another is written and committed.  We go for the lowest
-		// block number, which will probably pick the right one with
-		// the current freespace reallocation strategy.
-		if (rev != *rev_ptr)
-		    continue;
-	    } else {
-		// FIXME: this isn't smart enough - it will happily pick a new
-		// revision which was partly written but never committed.  And
-		// it suffers from the issue of multiple roots mentioned above.
-		if (rev < revision)
-		    continue;
-	    }
-	    uint4 blk_level = GET_LEVEL(buf);
-	    if (blk_level <= level)
-		continue;
-	    found = true;
-	    root = blk_no;
-	    revision = rev;
-	    level = blk_level;
-	    if (out)
-		*out << "Root guess -> blk " << root << " rev " << revision
-		     << " level " << level << endl;
-	}
-	::close(fd);
-
-	// Check that we actually found a candidate root block.
-	if (!found)
-	    throw;
-
 	ChertTable_base fake_base;
 	fake_base.set_revision(revision);
 	fake_base.set_block_size(blocksize);
 	fake_base.set_root(root);
-	fake_base.set_level(level);
+	fake_base.set_level(uint4(level));
 	fake_base.set_item_count(0); // Will get filled in later.
 	fake_base.set_sequential(false); // Will get filled in later.
 	if (blk_no) {
@@ -343,10 +357,15 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    // to read blocks.  We clear the bitmap before we regenerate it
 	    // below, so the last block will still end up correctly marked.
 	    fake_base.mark_block(blk_no - 1);
+	} else {
+	    fake_base.set_have_fakeroot(true);
 	}
 	faked_base = path;
 	faked_base += "baseA";
 	fake_base.write_to_file(faked_base, 'A', string(), -1, NULL);
+
+	// Remove the other base if there was one - it's an empty file anyway.
+	(void)unlink((path + "baseB").c_str());
 
 	// And retry the open.
 	if (!B.open(revision)) {
@@ -386,7 +405,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	B.base.clear_bit_map();
     }
 
-    if (opts & Xapian::DBCHECK_SHOW_BITMAP) {
+    if (opts & Xapian::DBCHECK_SHOW_FREELIST) {
 	int limit = B.base.get_bit_map_size() - 1;
 
 	limit = limit * CHAR_BIT + CHAR_BIT - 1;

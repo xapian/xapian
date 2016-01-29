@@ -24,7 +24,6 @@ import sys
 import xapian
 import string
 
-
 if len(sys.argv) != 2:
     print >> sys.stderr, "Usage: %s PATH_TO_DATABASE" % sys.argv[0]
     sys.exit(1)
@@ -40,7 +39,7 @@ try:
     para = ''
     try:
         for line in sys.stdin:
-            line = string.strip(line)
+            line = line.strip()
             if line == '':
                 if para != '':
                     # We've reached the end of a paragraph, so index it.

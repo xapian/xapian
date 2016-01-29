@@ -111,6 +111,17 @@ MultiPostList::get_doclength() const
 }
 
 Xapian::termcount
+MultiPostList::get_unique_terms() const
+{
+    LOGCALL(DB, Xapian::termcount, "MultiPostList::get_unique_terms", NO_ARGS);
+    Assert(!at_end());
+    Assert(currdoc != 0);
+    Xapian::termcount result = postlists[(currdoc - 1) % multiplier]->get_unique_terms();
+    AssertEqParanoid(result, this_db.get_unique_terms(get_docid()));
+    RETURN(result);
+}
+
+Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[(currdoc - 1) % multiplier]->get_wdf();
@@ -131,7 +142,7 @@ MultiPostList::next(double w_min)
     Xapian::docid newdoc = 0;
     Xapian::docid offset = 1;
     std::vector<LeafPostList *>::iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
+    for (i = postlists.begin(); i != postlists.end(); ++i) {
 	if (!(*i)->at_end()) {
 	    Xapian::docid id = ((*i)->get_docid() - 1) * multiplier + offset;
 	    // Check if it needs to be advanced

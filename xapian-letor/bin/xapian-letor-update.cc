@@ -2,7 +2,7 @@
  * @brief Update statistics in user meta-data used by letor module.
  */
 /* Copyright (C) 2011 Parth Gupta
- * Copyright (C) 2012 Olly Betts
+ * Copyright (C) 2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +38,7 @@ using namespace std;
 static void
 show_usage()
 {
-    cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
 "  -d, --db=DIRECTORY  database to update stats for\n"
 "  -h, --help          display this help and exit\n"
 "  -v, --version       output version information and exit\n";
@@ -66,10 +66,10 @@ try {
 		have_db = true;
 		break;
 	    case 'v':
-		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'h':
-		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
 		exit(0);
 	    case ':': // missing parameter

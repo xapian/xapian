@@ -1,6 +1,6 @@
 /* api_postingsource.cc: tests of posting sources
  *
- * Copyright 2008,2009,2011 Olly Betts
+ * Copyright 2008,2009,2011,2015 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -29,8 +29,8 @@
 #include <string>
 #include "safeunistd.h"
 
-#include "testutils.h"
 #include "str.h"
+#include "testutils.h"
 #include "apitest.h"
 
 using namespace std;
@@ -94,7 +94,6 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
     MyOddPostingSource src(db);
 
     // Check that passing NULL is rejected as intended.
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query bad(NULL));
     Xapian::PostingSource * nullsrc = NULL;
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query bad(nullsrc));
 		
@@ -643,6 +642,9 @@ DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
 {
 #ifndef HAVE_TIMER_CREATE
     SKIP_TEST("Enquire::set_time_limit() not implemented for this platform");
+#endif
+#ifdef _AIX
+    SKIP_TEST("timer_create() always seems to fail on AIX");
 #endif
     Xapian::Database db = get_database("matchtimelimit1",
 				       make_matchtimelimit1_db);

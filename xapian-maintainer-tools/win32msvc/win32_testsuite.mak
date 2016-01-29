@@ -1,7 +1,6 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Originally by Ulrik Petersen
 # Modified by Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 # 17th March 2006
 
 # Will build a Win32 static library (non-debug) libbtreecheck.lib
@@ -13,11 +12,10 @@ INTDIR=.\
 
 BUILD_LIBRARIES = "$(OUTDIR)\libtest.lib"
 
-ALL : $(BUILD_LIBRARIES) 
+ALL : $(BUILD_LIBRARIES)
 
 OBJS= \
         $(INTDIR)\backendmanager.obj \
-        $(INTDIR)\backendmanager_flint.obj \
         $(INTDIR)\backendmanager_brass.obj \
         $(INTDIR)\backendmanager_chert.obj \
         $(INTDIR)\backendmanager_inmemory.obj \
@@ -36,7 +34,6 @@ OBJS= \
 
 SRCS= \
         $(INTDIR)\backendmanager.cc \
-        $(INTDIR)\backendmanager_flint.cc \
         $(INTDIR)\backendmanager_brass.cc \
         $(INTDIR)\backendmanager_chert.cc \
         $(INTDIR)\backendmanager_inmemory.cc \
@@ -76,18 +73,18 @@ CPP_SBRS=.
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND) 
+    if exist "..\..\win32\$(DEPEND)" ..\..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

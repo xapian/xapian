@@ -1,8 +1,7 @@
-$httpheader{Content-Type,text/html; charset=utf-8}
-<html>
+$httpheader{Content-Type,text/html; charset=utf-8}<html>
 $set{flag_spelling,$ne{$cgi{SPELL},0}}
 $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
-$setmap{prefix,,$split{ SB},title,S,author,A,topic,B}
+$setmap{prefix,,$split{ S B F},title,S,author,A,topic,B}
 ${
 $def{PREV,
 $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
@@ -107,7 +106,7 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 <A HREF="$html{$field{url}}">$html{$field{url}}</A><br>
 <small>
 matching:
-<i>$list{$map{$terms,$html{$prettyterm{$_}}},$. ,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
+<i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
 </table>
 
 <br><center>
@@ -145,7 +144,7 @@ ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<INPUT TYPE=hidden NAME=B VALUE="$html{$_}">}
 </FORM>
-<hr><div align=right><i><small><a href="http://xapian.org/">$html{$version}</a></small></i></div>
+<hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
 $log{query.log}

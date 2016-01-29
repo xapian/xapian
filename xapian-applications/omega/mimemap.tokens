@@ -1,0 +1,195 @@
+# Plain text:
+txt		text/plain
+text		text/plain
+
+# HTML:
+html		text/html
+htm		text/html
+shtml		text/html
+# Our HTML parser knows to ignore PHP code.
+php		text/html
+
+# Archived HTML formats:
+maff		application/x-maff
+mht		application/x-mimearchive
+mhtml		application/x-mimearchive
+
+# reStructured text:
+rst		text/x-rst
+rest		text/x-rst
+
+# Comma-Separated Values:
+csv		text/csv
+
+# PDF:
+pdf		application/pdf
+
+# PostScript:
+ps		application/postscript
+eps		application/postscript
+ai		application/postscript
+
+# OpenDocument:
+# FIXME: need to find sample documents to test all of these.
+odt		application/vnd.oasis.opendocument.text
+ods		application/vnd.oasis.opendocument.spreadsheet
+odp		application/vnd.oasis.opendocument.presentation
+odg		application/vnd.oasis.opendocument.graphics
+odc		application/vnd.oasis.opendocument.chart
+odf		application/vnd.oasis.opendocument.formula
+odb		application/vnd.oasis.opendocument.database
+odi		application/vnd.oasis.opendocument.image
+odm		application/vnd.oasis.opendocument.text-master
+ott		application/vnd.oasis.opendocument.text-template
+ots		application/vnd.oasis.opendocument.spreadsheet-template
+otp		application/vnd.oasis.opendocument.presentation-template
+otg		application/vnd.oasis.opendocument.graphics-template
+otc		application/vnd.oasis.opendocument.chart-template
+otf		application/vnd.oasis.opendocument.formula-template
+oti		application/vnd.oasis.opendocument.image-template
+oth		application/vnd.oasis.opendocument.text-web
+
+# OpenOffice/StarOffice documents:
+sxc		application/vnd.sun.xml.calc
+stc		application/vnd.sun.xml.calc.template
+sxd		application/vnd.sun.xml.draw
+std		application/vnd.sun.xml.draw.template
+sxi		application/vnd.sun.xml.impress
+sti		application/vnd.sun.xml.impress.template
+sxm		application/vnd.sun.xml.math
+sxw		application/vnd.sun.xml.writer
+sxg		application/vnd.sun.xml.writer.global
+stw		application/vnd.sun.xml.writer.template
+
+# MS Office 2007 formats:
+# Word 2007
+docx		application/vnd.openxmlformats-officedocument.wordprocessingml.document
+# Word 2007 template
+dotx		application/vnd.openxmlformats-officedocument.wordprocessingml.template
+# Excel 2007
+xlsx		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+# Excel 2007 template
+xltx		application/vnd.openxmlformats-officedocument.spreadsheetml.template
+# PowerPoint 2007 presentation
+pptx		application/vnd.openxmlformats-officedocument.presentationml.presentation
+# PowerPoint 2007 slideshow
+ppsx		application/vnd.openxmlformats-officedocument.presentationml.slideshow
+# PowerPoint 2007 template
+potx		application/vnd.openxmlformats-officedocument.presentationml.template
+xps		application/vnd.ms-xpsdocument
+
+# Macro-enabled variants - these appear to be the same formats as the
+# above.  Currently we just treat them as the same mimetypes to avoid
+# having to check for twice as many possible content-types.
+# MS say: application/vnd.ms-word.document.macroEnabled.12
+docm		application/vnd.openxmlformats-officedocument.wordprocessingml.document
+# MS say: application/vnd.ms-word.template.macroEnabled.12
+dotm		application/vnd.openxmlformats-officedocument.wordprocessingml.template
+# MS say: application/vnd.ms-excel.sheet.macroEnabled.12
+xlsm		application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+# MS say: application/vnd.ms-excel.template.macroEnabled.12
+xltm		application/vnd.openxmlformats-officedocument.spreadsheetml.template
+# MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
+pptm		application/vnd.openxmlformats-officedocument.presentationml.presentation
+# MS say: application/vnd.ms-powerpoint.slideshow.macroEnabled.12
+ppsm		application/vnd.openxmlformats-officedocument.presentationml.slideshow
+# MS say: application/vnd.ms-powerpoint.presentation.macroEnabled.12
+potm		application/vnd.openxmlformats-officedocument.presentationml.template
+
+# Some other word processor formats:
+# Word template
+dot		application/msword
+wpd		application/vnd.wordperfect
+wps		application/vnd.ms-works
+# Works template
+wpt		application/vnd.ms-works
+# AbiWord
+abw		application/x-abiword
+# AbiWord compressed
+zabw		application/x-abiword-compressed
+rtf		text/rtf
+# Leave .doc files to libmagic, as they may actually be RTF (AbiWord
+# actually saves RTF when asked to save as .doc, and Microsoft Word
+# quietly loads RTF files with a .doc extension), or plain-text.
+
+# Other MS formats:
+xls		application/vnd.ms-excel
+xlb		application/vnd.ms-excel
+# Excel template
+xlt		application/vnd.ms-excel
+# Excel addon
+xla		application/vnd.ms-excel
+# Later Microsoft Works produced XL format but with a different extension.
+xlr		application/vnd.ms-excel
+ppt		application/vnd.ms-powerpoint
+# Powerpoint slideshow
+pps		application/vnd.ms-powerpoint
+# Adobe PageMaker apparently uses .pub for an unrelated format, but
+# libmagic seems to misidentify MS .pub as application/msword, so we
+# can't just leave it to libmagic.  We don't handle Adobe PageMaker
+# files yet, so this isn't a big issue currently.
+pub		application/x-mspublisher
+# Outlook .msg email
+msg		application/vnd.ms-outlook
+# Outlook template
+oft		application/vnd.ms-outlook
+
+# Outlook saved MIME message
+eml		message/rfc822
+
+# Perl:
+pl		text/x-perl
+pm		text/x-perl
+pod		text/x-perl
+
+# TeX DVI:
+dvi		application/x-dvi
+
+# DjVu:
+djv		image/vnd.djvu
+djvu		image/vnd.djvu
+
+# SVG:
+svg		image/svg+xml
+
+# Debian packages:
+deb		application/x-debian-package
+udeb		application/x-debian-package
+
+# RPM packages:
+rpm		application/x-redhat-package-manager
+
+# Atom feeds:
+atom		application/atom+xml
+
+# Extensions to quietly ignore:
+a		ignore
+adm		ignore
+bin		ignore
+com		ignore
+css		ignore
+cur		ignore
+dat		ignore
+db		ignore
+dll		ignore
+dylib		ignore
+exe		ignore
+fon		ignore
+ico		ignore
+jar		ignore
+js		ignore
+lib		ignore
+lnk		ignore
+msi		ignore
+msp		ignore
+o		ignore
+obj		ignore
+pyc		ignore
+pyd		ignore
+pyo		ignore
+so		ignore
+sqlite		ignore
+sqlite3		ignore
+sqlite-journal	ignore
+tmp		ignore
+ttf		ignore

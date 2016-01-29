@@ -2,7 +2,7 @@
  * @brief A ChertAllDocsPostList plus pending modifications.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2009,2011 Olly Betts
+ * Copyright (C) 2009,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,8 @@ class ChertAllDocsModifiedPostList : public ChertAllDocsPostList {
     Xapian::docid get_docid() const;
 
     Xapian::termcount get_doclength() const;
+
+    Xapian::termcount get_unique_terms() const;
 
     PostList * next(double w_min);
 

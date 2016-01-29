@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,15 +34,13 @@
 
 using namespace std;
 
-const char filter_sep = '-';
-// Any choice of character for filter_sep could conceivably lead to
-// false positives, but the situation is contrived, and just means that if
-// someone changed a filter, the first page wouldn't be forced.
-// That's hardly the end of the world...
-
 extern string dbname;
 extern string fmtname;
 extern string filters;
+
+// What $filters produced in Omega < 1.3.4 - we check this too for backward
+// compatibility.
+extern string old_filters;
 
 extern Xapian::Database db;
 extern Xapian::Enquire * enquire;

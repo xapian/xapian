@@ -5,7 +5,7 @@
 
    Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 2000
 	Free Software Foundation, Inc.
-   Copyright (C) 2004,2009,2010 Olly Betts (reworked to allow compilation as C++)
+   Copyright (C) 2004,2009,2010,2015 Olly Betts (reworked to allow compilation as C++)
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public License as
@@ -204,7 +204,7 @@ exchange (char **argv)
 	{
 	  /* Bottom segment is the short one.  */
 	  int len = middle - bottom;
-	  register int i;
+	  int i;
 
 	  /* Swap it with the top part of the top segment.  */
 	  for (i = 0; i < len; i++)
@@ -220,7 +220,7 @@ exchange (char **argv)
 	{
 	  /* Top segment is the short one.  */
 	  int len = top - middle;
-	  register int i;
+	  int i;
 
 	  /* Swap it with the bottom part of the bottom segment.  */
 	  for (i = 0; i < len; i++)

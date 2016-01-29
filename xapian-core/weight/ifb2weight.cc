@@ -56,14 +56,14 @@ IfB2Weight::clone() const
 void
 IfB2Weight::init(double factor)
 {
-    double wdfn_upper(get_wdf_upper_bound());
+    double wdfn_upper = get_wdf_upper_bound();
     if (wdfn_upper == 0) {
 	upper_bound = 0.0;
 	return;
     }
 
-    double F(get_collection_freq());
-    double N(get_collection_size());
+    double F = get_collection_freq();
+    double N = get_collection_size();
 
     wdfn_upper *= log2(1 + (param_c * get_average_length()) /
 		    get_doclength_lower_bound());
@@ -108,10 +108,11 @@ IfB2Weight::unserialise(const string & s) const
 }
 
 double
-IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len) const
+IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
+			Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
-    double wdfn(wdf);
+    double wdfn = wdf;
     wdfn *= log2(1 + c_product_avlen / len);
 
     double wdfn_product_B = wdfn * B_constant / (wdfn + 1.0);
@@ -126,7 +127,7 @@ IfB2Weight::get_maxpart() const
 }
 
 double
-IfB2Weight::get_sumextra(Xapian::termcount) const
+IfB2Weight::get_sumextra(Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }

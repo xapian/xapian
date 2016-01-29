@@ -20,9 +20,9 @@
 /stemtest.exe
 /termgentest.exe
 /unittest.exe
-/.brass
+/.glass
 /.chert
-/.multibrass
+/.multiglass
 /.multichert
 /.stub
 /api_all.h
@@ -33,6 +33,7 @@
 /api_collated.h
 /api_collated.stamp
 /api_compact.h
+/api_compactold.h
 /api_db.h
 /api_generated.cc
 /api_generated.h
@@ -53,6 +54,7 @@
 /api_queryopt.h
 /api_scalability.h
 /api_serialise.h
+/api_snippets.h
 /api_sorting.h
 /api_spelling.h
 /api_stem.h

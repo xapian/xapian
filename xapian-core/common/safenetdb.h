@@ -1,7 +1,7 @@
 /** @file safenetdb.h
  *  @brief #include <netdb.h>, with portability workarounds.
  */
-/* Copyright (C) 2013 Olly Betts
+/* Copyright (C) 2013,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,13 +22,24 @@
 #ifndef XAPIAN_INCLUDED_SAFENETDB_H
 #define XAPIAN_INCLUDED_SAFENETDB_H
 
-#ifdef __WIN32__
-# error "safenetdb.h not supported under __WIN32__"
-#endif
+#ifndef __WIN32__
+# include <netdb.h>
+#else
+# include <ws2tcpip.h> // For getaddrinfo().
 
-#ifdef _AIX
-# define _USE_IRS // Needed to get hstrerror().
+# ifndef AI_PASSIVE
+// MSDN says this is needed for the AI_* constants with newer SDK versions.
+#  include <ws2def.h>
+# endif
+
+// Supported in Vista and later, but may not be in mingw headers yet.
+# ifndef AI_NUMERICSERV
+#  define AI_NUMERICSERV 0x8
+# endif
+# ifndef AI_ADDRCONFIG
+#  define AI_ADDRCONFIG 0x400
+# endif
+
 #endif
-#include <netdb.h>
 
 #endif // XAPIAN_INCLUDED_SAFENETDB_H

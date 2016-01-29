@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,11 +44,19 @@
 #include "cgiparam.h"
 #include "query.h"
 #include "str.h"
+#include "stringutils.h"
 #include "expand.h"
 
 using namespace std;
 
 static const char DEFAULT_STEM_LANGUAGE[] = "english";
+
+// A character which doesn't require URL encoding, and isn't likely to appear
+// in filter values.
+const char filter_sep = '~';
+
+// What we used for filter_sep in Omega < 1.3.4.
+const char filter_sep_old = '-';
 
 Xapian::Enquire * enquire;
 Xapian::Database db;
@@ -58,15 +66,13 @@ map<string, string> option;
 
 string date_start, date_end, date_span;
 
-const string default_dbname = "default";
-
 bool set_content_type = false;
 
 bool suppress_http_headers = false;
 
 string dbname;
-string fmtname = "query";
-string filters;
+string fmtname;
+string filters, old_filters;
 
 Xapian::docid topdoc = 0;
 Xapian::docid hits_per_page = 0;
@@ -93,7 +99,6 @@ int main(int argc, char *argv[])
 try {
     read_config_file();
 
-    char *method;
     MCI val;
     pair<MCI, MCI> g;
 
@@ -109,7 +114,7 @@ try {
     // FIXME: set cout to linebuffered not stdout.  Or just flush regularly...
     //setvbuf(stdout, NULL, _IOLBF, 0);
 
-    method = getenv("REQUEST_METHOD");
+    const char * method = getenv("REQUEST_METHOD");
     if (method == NULL) {
 	if (argc > 1 && (argv[1][0] != '-' || strchr(argv[1], '='))) {
 	    // omega 'P=information retrieval' DB=papers
@@ -119,8 +124,7 @@ try {
 	} else {
 	    // Seems we're running from the command line so give version
 	    // and allow a query to be entered for testing
-	    cout << PROGRAM_NAME" - "PACKAGE" "VERSION" "
-		"(compiled "__DATE__" "__TIME__")\n";
+	    cout << PROGRAM_NAME " - " PACKAGE " " VERSION "\n";
 	    if (argc > 1) exit(0);
 	    cout << "Enter NAME=VALUE lines, end with blank line\n";
 	    decode_test();
@@ -143,7 +147,7 @@ try {
 		size_t p = 0, q;
 		while (true) {	    
 		    q = v.find('/', p);
-		    string s = v.substr(p, q - p);
+		    string s(v, p, q - p);
 		    if (!s.empty() && seen.find(s) == seen.end()) {
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';
@@ -157,7 +161,7 @@ try {
 	    }
 	}
 	if (dbname.empty()) {
-	    dbname = default_dbname;
+	    dbname = default_db;
 	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
 	}
 	enquire = new Xapian::Enquire(db);
@@ -187,11 +191,9 @@ try {
 	const string & v = val->second;
 	if (!v.empty()) fmtname = v;
     }
+    if (fmtname.empty())
+	fmtname = default_template;
 
-    // The probabilistic query string.
-    string query_string;
-
-    // Get the probabilistic query.
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
@@ -215,38 +217,51 @@ try {
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, 0,
 						expand_param_k, &decider));
 #endif
+	    string morelike_query;
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
-		if (!query_string.empty()) query_string += ' ';
-		query_string += pretty_term(*i);
+		if (!morelike_query.empty()) morelike_query += ' ';
+		morelike_query += pretty_term(*i);
 	    }
+	    set_probabilistic_query(string(), morelike_query);
 	}
-    }
-
-    if (query_string.empty()) {
-	// collect the unprefixed prob fields
-	g = cgi_params.equal_range("P");
-	for (MCI i = g.first; i != g.second; i++) {
-	    const string & v = i->second;
-	    if (!v.empty()) {
-		if (!query_string.empty()) query_string += ' ';
-		query_string += v;
-	    }
-	}
-
+    } else {
 	// add expand/topterms terms if appropriate
+	string expand_terms;
 	if (cgi_params.find("ADD") != cgi_params.end()) {
 	    g = cgi_params.equal_range("X");
 	    for (MCI i = g.first; i != g.second; i++) {
 		const string & v = i->second;
 		if (!v.empty()) {
-		    if (!query_string.empty()) query_string += ' ';
-		    query_string += v;
+		    if (!expand_terms.empty())
+			expand_terms += ' ';
+		    expand_terms += v;
 		}
 	    }
 	}
-    } 
 
-    set_probabilistic_query(string(), query_string);
+	// collect the unprefixed prob fields
+	g = cgi_params.equal_range("P");
+	for (MCI i = g.first; i != g.second; i++) {
+	    const string & v = i->second;
+	    if (!v.empty()) {
+		// If there are expand terms, append them to the first
+		// non-empty P parameter.
+		if (!expand_terms.empty()) {
+		    string q = v;
+		    q += ' ';
+		    q += expand_terms;
+		    set_probabilistic_query(string(), q);
+		    expand_terms = string();
+		} else {
+		    set_probabilistic_query(string(), v);
+		}
+	    }
+	}
+
+	if (!expand_terms.empty()) {
+	    set_probabilistic_query(string(), expand_terms);
+	}
+    }
 
     g.first = cgi_params.lower_bound("P.");
     g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
@@ -255,7 +270,6 @@ try {
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
 	    set_probabilistic_query(pfx, v);
-	    // FIXME: Handled P.FOO specified more than once.
 	}
     }
 
@@ -266,7 +280,7 @@ try {
 	for (MCI i = g.first; i != g.second; i++) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
-	    if (!v.empty() && isalnum(static_cast<unsigned char>(v[0]))) {
+	    if (!v.empty() && C_isalnum(v[0])) {
 		add_bterm(v);
 		filter_v.push_back(v);
 	    }
@@ -274,8 +288,27 @@ try {
 	sort(filter_v.begin(), filter_v.end());
 	vector<string>::const_iterator j;
 	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
-	    filters += *j;
+	    const string & bterm = *j;
+	    string::size_type e = bterm.find(filter_sep);
+	    if (usual(e == string::npos)) {
+		filters += bterm;
+	    } else {
+		// If a filter contains filter_sep then double it to escape.
+		// Each filter must start with an alnum (checked above) and
+		// the value after the last filter is the default op, which
+		// is encoded as a non-alnum so filter_sep followed by
+		// something other than filter_sep must be separating filters.
+		string::size_type b = 0;
+		while (e != string::npos) {
+		    filters.append(bterm, b, e + 1 - b);
+		    b = e;
+		    e = bterm.find(filter_sep, b + 1);
+		}
+		filters.append(bterm, b, string::npos);
+	    }
 	    filters += filter_sep;
+	    old_filters += bterm;
+	    old_filters += filter_sep_old;
 	}
     }
 
@@ -287,8 +320,21 @@ try {
     val = cgi_params.find("SPAN");
     if (val != cgi_params.end()) date_span = val->second;
 
-    filters += date_start + filter_sep + date_end + filter_sep + date_span
-	+ (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
+    // If more default_op values are supported, encode them as non-alnums
+    // other than filter_sep.
+    filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
+    filters += date_start;
+    filters += filter_sep;
+    filters += date_end;
+    filters += filter_sep;
+    filters += date_span;
+
+    old_filters += date_start;
+    old_filters += filter_sep_old;
+    old_filters += date_end;
+    old_filters += filter_sep_old;
+    old_filters += date_span;
+    old_filters += (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
 
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
@@ -307,6 +353,8 @@ try {
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
+	    old_filters += filter_sep_old;
+	    old_filters += str(collapse_key);
 	}
     }
 
@@ -319,10 +367,12 @@ try {
 	    if (ch == 'D') {
 		docid_order = Xapian::Enquire::DESCENDING;
 		filters += 'D';
+		old_filters += 'D';
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
 		filters += 'X';
+		old_filters += 'X';
 	    }
 	}
     }
@@ -341,15 +391,19 @@ try {
 	}
 	// Add the sorting related options to filters too.
 	filters += str(sort_key);
+	old_filters += str(sort_key);
 	if (sort_after) {
 	    if (sort_ascending) {
 		filters += 'F';
+		old_filters += 'F';
 	    } else {
 		filters += 'R';
+		old_filters += 'R';
 	    }
 	} else {
 	    if (!sort_ascending) {
 		filters += 'r';
+		old_filters += 'r';
 	    }
 	}
     }

@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -227,6 +227,33 @@ DEFINE_TESTCASE(unicode1,!backend) {
     TEST_EQUAL(Unicode::get_category(0x61C), Unicode::FORMAT);
     // U+037F "GREEK CAPITAL LETTER YOT" was added in Unicode 7.0.0.
     TEST_EQUAL(Unicode::get_category(0x37F), Unicode::UPPERCASE_LETTER);
+
+    // Added or changed in Unicode 8.0.0:
+    // U+08B3 "ARABIC LETTER AIN WITH THREE DOTS BELOW".
+    TEST_EQUAL(Unicode::get_category(0x8B3), Unicode::OTHER_LETTER);
+    // U+0AF9 "GUJARATI LETTER ZHA".
+    TEST_EQUAL(Unicode::get_category(0xAF9), Unicode::OTHER_LETTER);
+    // U+0C5A "TELUGU LETTER RRRA".
+    TEST_EQUAL(Unicode::get_category(0xC5A), Unicode::OTHER_LETTER);
+    // U+0D5F "MALAYALAM LETTER ARCHAIC II".
+    TEST_EQUAL(Unicode::get_category(0xD5F), Unicode::OTHER_LETTER);
+    // U+13F5 "CHEROKEE LETTER MV".
+    TEST_EQUAL(Unicode::get_category(0x13F5), Unicode::UPPERCASE_LETTER);
+    // U+13F8 "CHEROKEE SMALL LETTER YE".
+    TEST_EQUAL(Unicode::get_category(0x13F8), Unicode::LOWERCASE_LETTER);
+    // U+19B7 "NEW TAI LUE VOWEL SIGN O" changed to be OTHER_LETTER in 8.0.0.
+    TEST_EQUAL(Unicode::get_category(0x19B7), Unicode::OTHER_LETTER);
+    // U+20BE "LARI SIGN".
+    TEST_EQUAL(Unicode::get_category(0x20BE), Unicode::CURRENCY_SYMBOL);
+    // U+218A "TURNED DIGIT TWO".
+    TEST_EQUAL(Unicode::get_category(0x218A), Unicode::OTHER_SYMBOL);
+    // U+10C9C "OLD HUNGARIAN CAPITAL LETTER OO".
+    TEST_EQUAL(Unicode::get_category(0x10C9C), Unicode::UPPERCASE_LETTER);
+    // U+12399 "CUNEIFORM SIGN U U".
+    TEST_EQUAL(Unicode::get_category(0x12399), Unicode::OTHER_LETTER);
+    // U+1D800 "SIGNWRITING HAND-FIST INDEX".
+    TEST_EQUAL(Unicode::get_category(0x1D800), Unicode::OTHER_SYMBOL);
+
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -282,7 +309,7 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
     return true;
 }
 
-/// Test Unicode 5.1, 6.0.0 and 6.1.0 support.
+/// Test Unicode 5.1 and later support.
 DEFINE_TESTCASE(caseconvert2,!backend) {
     using namespace Xapian;
 
@@ -332,7 +359,19 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
 	TEST_EQUAL(Unicode::tolower(u), u + 1);
 	TEST_EQUAL(Unicode::toupper(u + 1), u);
     }
-	
+
+    // U+A7B1 was added in Unicode 8.0.0 as an uppercase form of U+0287.
+    TEST_EQUAL(Unicode::tolower(0xA7B1), 0x0287);
+    TEST_EQUAL(Unicode::toupper(0xA7B1), 0xA7B1);
+    TEST_EQUAL(Unicode::tolower(0x0287), 0x0287);
+    TEST_EQUAL(Unicode::toupper(0x0287), 0xA7B1);
+
+    // U+A7B4 (capital) and U+A7B5 (small) added in Unicode 8.0.0
+    TEST_EQUAL(Unicode::tolower(0xA7B4), 0xA7B5);
+    TEST_EQUAL(Unicode::toupper(0xA7B4), 0xA7B4);
+    TEST_EQUAL(Unicode::tolower(0xA7B5), 0xA7B5);
+    TEST_EQUAL(Unicode::toupper(0xA7B5), 0xA7B4);
+
     return true;
 }
 
@@ -390,6 +429,8 @@ DEFINE_TESTCASE(unicodepredicates1,!backend) {
 	'$', 0xa3,
 	// CURRENCY_SYMBOL (added in Unicode 6.2.0)
 	0x20ba,
+	// CURRENCY_SYMBOL (added in Unicode 8.0.0)
+	0x20be,
 	0
     };
     const unsigned whitespace[] = {

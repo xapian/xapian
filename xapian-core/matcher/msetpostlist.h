@@ -1,7 +1,7 @@
 /** @file msetpostlist.h
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,10 +68,14 @@ class MSetPostList : public PostList {
 
     double get_weight() const;
 
+    const string * get_sort_key() const;
+
     const string * get_collapse_key() const;
 
     /// Not implemented for MSetPostList.
     Xapian::termcount get_doclength() const;
+
+    Xapian::termcount get_unique_terms() const;
 
     double recalc_maxweight();
 

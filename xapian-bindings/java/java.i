@@ -2,7 +2,7 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011,2012 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012,2014 Olly Betts
  * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -100,6 +100,10 @@ class Version {
 }
 }
 
+%{
+#include <xapian/iterator.h>
+%}
+
 namespace Xapian {
 
 %ignore version_string;
@@ -113,7 +117,7 @@ namespace Xapian {
 %extend PostingIterator {
     Xapian::docid next () {
         Xapian::docid tmp;
-        if ((*self) != Xapian::PostingIterator()) {
+        if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
         } else {
@@ -122,13 +126,13 @@ namespace Xapian {
         return tmp;
     }
 
-    bool hasNext() const { return (*self) != Xapian::PostingIterator(); }
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
 %extend TermIterator {
     std::string next () {
         std:string tmp;
-        if ((*self) != Xapian::TermIterator()) {
+        if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
         } else {
@@ -137,13 +141,13 @@ namespace Xapian {
         return tmp;
     }
 
-    bool hasNext() const { return (*self) != Xapian::TermIterator(); }
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
 %extend ValueIterator {
     std::string next () {
         std:string tmp;
-        if ((*self) != Xapian::ValueIterator()) {
+        if (Xapian::iterator_valid(*self)) {
             tmp = (**self);
             ++(*self);
         } else {
@@ -152,13 +156,13 @@ namespace Xapian {
         return tmp;
     }
 
-    bool hasNext() const { return (*self) != Xapian::ValueIterator(); }
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
 %extend ESetIterator {
     std::string next () {
 	std:string tmp;
-	if (!self->at_end()) {
+	if (Xapian::iterator_valid(*self)) {
 	    tmp = (**self);
 	    ++(*self);
 	} else {
@@ -167,13 +171,13 @@ namespace Xapian {
 	return tmp;
     }
 
-    bool hasNext() const { return !self->at_end(); }
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
 %extend MSetIterator {
     Xapian::docid next () {
 	Xapian::docid tmp;
-	if (!self->at_end()) {
+	if (Xapian::iterator_valid(*self)) {
 	    tmp = (**self);
 	    ++(*self);
 	} else {
@@ -182,7 +186,7 @@ namespace Xapian {
 	return tmp;
     }
 
-    bool hasNext() const { return !self->at_end(); }
+    bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
 }

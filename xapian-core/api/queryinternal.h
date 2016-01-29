@@ -1,7 +1,7 @@
 /** @file queryinternal.h
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011,2012,2013,2014 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,11 +47,15 @@ class QueryTerm : public Query::Internal {
 	      Xapian::termpos pos_)
 	: term(term_), wqf(wqf_), pos(pos_) { }
 
-    Xapian::Query::op get_type() const;
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    const std::string & get_term() const { return term; }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
-    termcount get_length() const { return wqf; }
+    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
+	return wqf;
+    }
 
     void serialise(std::string & result) const;
 
@@ -74,7 +78,7 @@ class QueryPostingSource : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const;
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -89,12 +93,14 @@ class QueryScaleWeight : public Query::Internal {
 
     PostingIterator::Internal * postlist(QueryOptimiser *qopt, double factor) const;
 
-    termcount get_length() const { return subquery.internal->get_length(); }
+    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
+	return subquery.internal->get_length();
+    }
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const;
-    size_t get_num_subqueries() const;
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    size_t get_num_subqueries() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
     const Query get_subquery(size_t n) const;
 
     std::string get_description() const;
@@ -117,7 +123,7 @@ class QueryValueRange : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const;
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -135,7 +141,7 @@ class QueryValueLE : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const;
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -153,7 +159,7 @@ class QueryValueGE : public Query::Internal {
 
     void serialise(std::string & result) const;
 
-    Xapian::Query::op get_type() const;
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
 
     std::string get_description() const;
 };
@@ -179,16 +185,16 @@ class QueryBranch : public Query::Internal {
 					     Xapian::termcount window = 0) const;
 
   public:
-    termcount get_length() const;
- 
+    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
     void serialise(std::string & result) const;
 
     void gather_terms(void * void_terms) const;
 
     virtual void add_subquery(const Xapian::Query & subquery) = 0;
 
-    Xapian::Query::op get_type() const;
-    size_t get_num_subqueries() const;
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+    size_t get_num_subqueries() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
     const Query get_subquery(size_t n) const;
 
     virtual Query::Internal * done() = 0;
@@ -219,7 +225,7 @@ class QueryOrLike : public QueryBranch {
 };
 
 class QueryAnd : public QueryAndLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_AND; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryAnd(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
@@ -228,7 +234,7 @@ class QueryAnd : public QueryAndLike {
 };
 
 class QueryOr : public QueryOrLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_OR; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryOr(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
@@ -241,7 +247,7 @@ class QueryOr : public QueryOrLike {
 };
 
 class QueryAndNot : public QueryBranch {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_AND_NOT; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryAndNot(size_t n_subqueries) : QueryBranch(n_subqueries) { }
@@ -256,7 +262,7 @@ class QueryAndNot : public QueryBranch {
 };
 
 class QueryXor : public QueryOrLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_XOR; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryXor(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
@@ -269,7 +275,7 @@ class QueryXor : public QueryOrLike {
 };
 
 class QueryAndMaybe : public QueryBranch {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_AND_MAYBE; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) { }
@@ -284,7 +290,7 @@ class QueryAndMaybe : public QueryBranch {
 };
 
 class QueryFilter : public QueryAndLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_FILTER; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryFilter(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
@@ -307,11 +313,13 @@ class QueryWindowed : public QueryAndLike {
 			   QueryOptimiser * qopt, double factor) const;
 
   public:
+    size_t get_window() const { return window; }
+
     Query::Internal * done();
 };
 
 class QueryNear : public QueryWindowed {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_NEAR; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryNear(size_t n_subqueries, Xapian::termcount window_)
@@ -325,7 +333,7 @@ class QueryNear : public QueryWindowed {
 };
 
 class QueryPhrase : public QueryWindowed {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_PHRASE; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryPhrase(size_t n_subqueries, Xapian::termcount window_)
@@ -339,7 +347,7 @@ class QueryPhrase : public QueryWindowed {
 };
 
 class QueryEliteSet : public QueryOrLike {
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_ELITE_SET; }
+    Xapian::Query::op get_op() const;
 
     Xapian::termcount set_size;
 
@@ -358,9 +366,7 @@ class QueryEliteSet : public QueryOrLike {
 };
 
 class QuerySynonym : public QueryOrLike {
-    // FIXME: move all these get_op() definitions out of the header if we end
-    // up keeping them.
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_SYNONYM; }
+    Xapian::Query::op get_op() const;
 
   public:
     QuerySynonym(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
@@ -373,14 +379,47 @@ class QuerySynonym : public QueryOrLike {
 };
 
 class QueryMax : public QueryOrLike {
-    // FIXME: move all these get_op() definitions out of the header if we end
-    // up keeping them.
-    Xapian::Query::op get_op() const { return Xapian::Query::OP_MAX; }
+    Xapian::Query::op get_op() const;
 
   public:
     QueryMax(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
+
+    std::string get_description() const;
+};
+
+class QueryWildcard : public Query::Internal {
+    std::string pattern;
+
+    Xapian::termcount max_expansion;
+
+    int max_type;
+
+    Query::op combiner;
+
+    Xapian::Query::op get_op() const;
+
+  public:
+    QueryWildcard(const std::string &pattern_,
+		  Xapian::termcount max_expansion_,
+		  int max_type_,
+		  Query::op combiner_)
+	: pattern(pattern_),
+	  max_expansion(max_expansion_),
+	  max_type(max_type_),
+	  combiner(combiner_)
+    { }
+
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    const std::string & get_pattern() const { return pattern; }
+
+    PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
+
+    termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    void serialise(std::string & result) const;
 
     std::string get_description() const;
 };

@@ -26,8 +26,6 @@
 #include "xapian/error.h"
 
 #include "geoencode.h"
-#include "net/serialise.h"
-#include "serialise-double.h"
 #include "str.h"
 
 #include <cmath>

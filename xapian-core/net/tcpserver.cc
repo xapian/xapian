@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,20 +28,21 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
+#include "safenetdb.h"
 #include "safesyssocket.h"
 
 #include "noreturn.h"
 #include "remoteconnection.h"
+#include "str.h"
 
 #ifdef __WIN32__
-# include <process.h>    /* _beginthread, _endthread */
+# include <process.h>    /* _beginthreadex, _endthreadex */
 #else
 # include <netinet/in_systm.h>
 # include <netinet/in.h>
 # include <netinet/ip.h>
 # include <netinet/tcp.h>
 # include <arpa/inet.h>
-# include "safenetdb.h"
 # include <signal.h>
 # include <sys/wait.h>
 #endif
@@ -92,30 +93,52 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 #endif
 				)
 {
-    int socketfd = socket(PF_INET, SOCK_STREAM|SOCK_CLOEXEC, 0);
-    if (socketfd < 0) {
-	throw Xapian::NetworkError("socket", socket_errno());
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG | AI_NUMERICSERV;
+    hints.ai_protocol = 0;
+    hints.ai_canonname = NULL;
+    hints.ai_addr = NULL;
+    hints.ai_next = NULL;
+
+    const char * node = host.empty() ? NULL : host.c_str();
+    struct addrinfo *result;
+    int s = getaddrinfo(node, str(port).c_str(), &hints, &result);
+    if (s != 0) {
+	throw Xapian::NetworkError("Couldn't resolve host " + host,
+				   eai_to_xapian(s));
     }
+
+    int socketfd = -1;
+    int bind_errno = 0;
+    for (struct addrinfo * rp = result; rp != NULL; rp = rp->ai_next) {
+	int socktype = rp->ai_socktype | SOCK_CLOEXEC;
+	int fd = socket(rp->ai_family, socktype, rp->ai_protocol);
+	if (fd == -1)
+	    continue;
+
 #if !defined __WIN32__ && defined F_SETFD && defined FD_CLOEXEC
-    // We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as on
-    // Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC SOCK_CLOEXEC'
-    // to allow '#ifdef SOCK_CLOEXEC' to work.
-    if (SOCK_CLOEXEC == 0)
-	(void)fcntl(socketfd, F_SETFD, FD_CLOEXEC);
+	// We can't use a preprocessor check on the *value* of SOCK_CLOEXEC as on
+	// Linux SOCK_CLOEXEC is an enum, with '#define SOCK_CLOEXEC SOCK_CLOEXEC'
+	// to allow '#ifdef SOCK_CLOEXEC' to work.
+	if (SOCK_CLOEXEC == 0)
+	    (void)fcntl(fd, F_SETFD, FD_CLOEXEC);
 #endif
 
-    int retval = 0;
+	int retval = 0;
 
-    if (tcp_nodelay) {
-	int optval = 1;
-	// 4th argument might need to be void* or char* - cast it to char*
-	// since C++ allows implicit conversion to void* but not from void*.
-	retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
-			    reinterpret_cast<char *>(&optval),
-			    sizeof(optval));
-    }
+	if (tcp_nodelay) {
+	    int optval = 1;
+	    // 4th argument might need to be void* or char* - cast it to char*
+	    // since C++ allows implicit conversion to void* but not from
+	    // void*.
+	    retval = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
+				reinterpret_cast<char *>(&optval),
+				sizeof(optval));
+	}
 
-    {
 	int optval = 1;
 #if defined __CYGWIN__ || defined __WIN32__
 	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
@@ -144,7 +167,7 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	}
 #endif
 	if (retval >= 0) {
-	    retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
+	    retval = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 				reinterpret_cast<char *>(&optval),
 				sizeof(optval));
 	}
@@ -160,72 +183,53 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	// Because of this and the lack support on older versions, we don't
 	// currently check the return value.
 	if (retval >= 0) {
-	    (void)setsockopt(socketfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+	    (void)setsockopt(fd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
 			     reinterpret_cast<char *>(&optval),
 			     sizeof(optval));
 	}
 #endif
-    }
 
-    if (retval < 0) {
-	int saved_errno = socket_errno(); // note down in case close hits an error
-	CLOSESOCKET(socketfd);
-	throw Xapian::NetworkError("setsockopt failed", saved_errno);
-    }
-
-    struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    if (host.empty()) {
-	addr.sin_addr.s_addr = INADDR_ANY;
-    } else {
-	// FIXME: timeout on gethostbyname() ?
-	struct hostent *hostent = gethostbyname(host.c_str());
-
-	if (hostent == 0) {
-	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
-#ifdef __WIN32__
-		socket_errno()
-#else
-		// "socket_errno()" is just errno on UNIX which is
-		// inappropriate here - if gethostbyname() returns NULL an
-		// error code is available in h_errno (with values
-		// incompatible with errno).  On Linux at least, if h_errno
-		// is < 0, then the error code *IS* in errno!
-		(h_errno < 0 ? errno : -h_errno)
-#endif
-		);
+	if (retval < 0) {
+	    int saved_errno = socket_errno(); // note down in case close hits an error
+	    CLOSESOCKET(fd);
+	    freeaddrinfo(result);
+	    throw Xapian::NetworkError("setsockopt failed", saved_errno);
 	}
 
-	memcpy(&addr.sin_addr, hostent->h_addr, hostent->h_length);
+	if (::bind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+	    socketfd = fd;
+	    break;
+	}
+
+	// Note down the error code for the first address we try, which seems
+	// likely to be more helpful than the last in the case where they
+	// differ.
+	if (bind_errno == 0)
+	    bind_errno = socket_errno();
+
+	CLOSESOCKET(fd);
     }
 
-    retval = bind(socketfd,
-		  reinterpret_cast<sockaddr *>(&addr),
-		  sizeof(addr));
+    freeaddrinfo(result);
 
-    if (retval < 0) {
-	int saved_errno = socket_errno(); // note down in case close hits an error
-	if (saved_errno == EADDRINUSE) {
+    if (socketfd == -1) {
+	if (bind_errno == EADDRINUSE) {
 	    cerr << host << ':' << port << " already in use" << endl;
 	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if the
 	    // server failed to bind to the requested port.
 	    exit(69); // FIXME: calling exit() here isn't ideal...
 	}
-	if (saved_errno == EACCES) {
+	if (bind_errno == EACCES) {
 	    cerr << "Can't bind to privileged port " << port << endl;
 	    // 77 is EX_NOPERM.  Scripts can use this to detect if
 	    // xapian-tcpsrv failed to bind to the requested port.
 	    exit(77); // FIXME: calling exit() here isn't ideal...
 	}
 	CLOSESOCKET(socketfd);
-	throw Xapian::NetworkError("bind failed", saved_errno);
+	throw Xapian::NetworkError("bind failed", bind_errno);
     }
 
-    retval = listen(socketfd, 5);
-
-    if (retval < 0) {
+    if (listen(socketfd, 5) < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
 	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("listen failed", saved_errno);
@@ -260,8 +264,28 @@ TcpServer::accept_connection()
     }
 
     if (verbose) {
-	cout << "Connection from " << inet_ntoa(remote_address.sin_addr)
-	     << ", port " << remote_address.sin_port << endl;
+	char buf[INET_ADDRSTRLEN];
+#ifndef __WIN32__
+	// Under __WIN32__, inet_ntop()'s second parameter isn't const for some
+	// reason.  We don't currently use inet_ntop() there, but allow for a
+	// non-const second parameter in case it's more widespread.
+	void * src = &remote_address.sin_addr;
+	const char * r = inet_ntop(AF_INET, src, buf, sizeof(buf));
+	if (!r)
+	    throw Xapian::NetworkError("inet_ntop failed", errno);
+#else
+	// inet_ntop() isn't always available, at least with mingw.
+	// WSAAddressToString() supports both IPv4 and IPv6, so just use that.
+	DWORD size = sizeof(buf);
+	if (WSAAddressToString(reinterpret_cast<sockaddr*>(&remote_address),
+			       sizeof(remote_address), NULL, buf, &size) != 0) {
+	    throw Xapian::NetworkError("WSAAddressToString failed",
+				       WSAGetLastError());
+	}
+	const char * r = buf;
+#endif
+	int port = remote_address.sin_port;
+	cout << "Connection from " << r << ", port " << port << endl;
     }
 
     return con_socket;
@@ -289,7 +313,7 @@ TcpServer::run_once()
 	handle_one_connection(connected_socket);
 	close(connected_socket);
 
-	if (verbose) cout << "Closing connection." << endl;
+	if (verbose) cout << "Connection closed." << endl;
 	exit(0);
     }
 

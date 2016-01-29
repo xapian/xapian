@@ -1,7 +1,8 @@
 /** @file keymaker.h
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009,2011,2013 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014,2015 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +22,7 @@
 #ifndef XAPIAN_INCLUDED_KEYMAKER_H
 #define XAPIAN_INCLUDED_KEYMAKER_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/keymaker.h> directly; include <xapian.h> instead."
 #endif
 
@@ -37,7 +38,16 @@ class Document;
 
 /** Virtual base class for key making functors. */
 class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
+    /// Don't allow assignment.
+    void operator=(const KeyMaker &);
+
+    /// Don't allow copying.
+    KeyMaker(const KeyMaker &);
+
   public:
+    /// Default constructor.
+    KeyMaker() { }
+
     /** Build a key string for a Document.
      *
      *  These keys can be used for sorting or collapsing matching documents.
@@ -66,7 +76,16 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
  *  Other than this, it isn't useful to set @a reverse for collapsing.
  */
 class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
-    std::vector<std::pair<Xapian::valueno, bool> > slots;
+    struct KeySpec {
+	Xapian::valueno slot;
+	bool reverse;
+	std::string defvalue;
+	KeySpec(Xapian::valueno slot_, bool reverse_,
+		const std::string & defvalue_)
+		: slot(slot_), reverse(reverse_), defvalue(defvalue_)
+	{}
+    };
+    std::vector<KeySpec> slots;
 
   public:
     MultiValueKeyMaker() { }
@@ -78,8 +97,21 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 
     virtual std::string operator()(const Xapian::Document & doc) const;
 
-    void add_value(Xapian::valueno slot, bool reverse = false) {
-	slots.push_back(std::make_pair(slot, reverse));
+    /** Add a value slot to the list to build a key from.
+     *
+     *  @param slot	The value slot to add
+     *  @param reverse	Adjust values from this slot to reverse their sort
+     *			order (default: false)
+     *	@param defvalue Value to use for documents which don't have a value
+     *			set in this slot (default: empty).  This can be used
+     *			to make such documents sort after all others by
+     *			passing <code>get_value_upper_bound(slot) + "x"</code>
+     *			- this is guaranteed to be greater than any value in
+     *			this slot.
+     */
+    void add_value(Xapian::valueno slot, bool reverse = false,
+		   const std::string & defvalue = std::string()) {
+	slots.push_back(KeySpec(slot, reverse, defvalue));
     }
 };
 

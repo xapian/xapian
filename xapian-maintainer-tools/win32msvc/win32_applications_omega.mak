@@ -1,6 +1,5 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
 # 31st March 2006
 
 # Will build the following  programs
@@ -10,13 +9,13 @@
 
 # Where the core is, relative to the Omega application
 # Change this to match your environment
-XAPIAN_CORE_REL_OMEGA=..\..\xapian-core
+XAPIAN_CORE_REL_OMEGA=..\..\xapian-core$(VERSION_SUFFIX)
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
-!ELSE 
+!ELSE
 NULL=nul
-!ENDIF 
+!ENDIF
 
 !INCLUDE $(XAPIAN_CORE_REL_OMEGA)\win32\config.mak
 
@@ -33,7 +32,7 @@ OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" \
 "$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe" "$(OUTEXEDIR)\utf8converttest.exe"
 
-ALL : HEADERS $(PROGRAMS) 
+ALL : HEADERS $(PROGRAMS)
 
 OMEGA_OBJS= \
 	"$(OUTDIR)\omega.obj" \
@@ -51,8 +50,8 @@ OMEGA_OBJS= \
 	"$(OUTDIR)\datematchdecider.obj" \
 	"$(OUTDIR)\weight.obj" \
 	"$(OUTDIR)\str.obj" \
-	"$(OUTDIR)\transform.obj" 
-    
+	"$(OUTDIR)\transform.obj"
+
 OMINDEX_OBJS= \
 	"$(OUTDIR)\omindex.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
@@ -61,12 +60,12 @@ OMINDEX_OBJS= \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
 	"$(OUTDIR)\hashterm.obj" \
- 	"$(OUTDIR)\loadfile.obj" \
- 	"$(OUTDIR)\md5.obj" \
- 	"$(OUTDIR)\md5wrap.obj" \
- 	"$(OUTDIR)\xmlparse.obj" \
- 	"$(OUTDIR)\metaxmlparse.obj" \
- 	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\loadfile.obj" \
+	"$(OUTDIR)\md5.obj" \
+	"$(OUTDIR)\md5wrap.obj" \
+	"$(OUTDIR)\xmlparse.obj" \
+	"$(OUTDIR)\metaxmlparse.obj" \
+	"$(OUTDIR)\utf8convert.obj" \
 	"$(OUTDIR)\sample.obj" \
 	"$(OUTDIR)\diritor.obj" \
 	"$(OUTDIR)\mkdtemp.obj" \
@@ -94,19 +93,19 @@ SCRIPTINDEX_OBJS= \
 
 
 HTMLPARSETEST_OBJS= \
- 	"$(OUTDIR)\htmlparsetest.obj" \
+	"$(OUTDIR)\htmlparsetest.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
- 	"$(OUTDIR)\htmlparse.obj" \
+	"$(OUTDIR)\htmlparse.obj" \
 	"$(OUTDIR)\utf8convert.obj"
 
 MD5TEST_OBJS= \
- 	"$(OUTDIR)\md5.obj" \
- 	"$(OUTDIR)\md5wrap.obj" \
- 	"$(OUTDIR)\md5test.obj"
+	"$(OUTDIR)\md5.obj" \
+	"$(OUTDIR)\md5wrap.obj" \
+	"$(OUTDIR)\md5test.obj"
 
 UTF8CONVERTTEST_OBJS= \
- 	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\utf8converttest.obj"
+	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\utf8converttest.obj"
 
 SRCS= \
 	"$(INTDIR)\omega.cc" \
@@ -119,8 +118,8 @@ SRCS= \
 	"$(INTDIR)\cdb_find.cc" \
 	"$(INTDIR)\cdb_hash.cc" \
 	"$(INTDIR)\cdb_unpack.cc" \
- 	"$(INTDIR)\loadfile.cc" \
- 	"$(INTDIR)\datematchdecider.cc" \
+	"$(INTDIR)\loadfile.cc" \
+	"$(INTDIR)\datematchdecider.cc" \
 	"$(INTDIR)\omindex.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
 	"$(INTDIR)\htmlparse.cc" \
@@ -128,12 +127,12 @@ SRCS= \
 	"$(INTDIR)\commonhelp.cc" \
 	"$(INTDIR)\utils.cc" \
 	"$(INTDIR)\hashterm.cc" \
- 	"$(INTDIR)\loadfile.cc" \
- 	"$(INTDIR)\md5.cc" \
- 	"$(INTDIR)\md5wrap.cc" \
- 	"$(INTDIR)\xmlparse.cc" \
- 	"$(INTDIR)\metaxmlparse.cc" \
- 	"$(INTDIR)\utf8convert.cc" \
+	"$(INTDIR)\loadfile.cc" \
+	"$(INTDIR)\md5.cc" \
+	"$(INTDIR)\md5wrap.cc" \
+	"$(INTDIR)\xmlparse.cc" \
+	"$(INTDIR)\metaxmlparse.cc" \
+	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\sample.cc" \
 	"$(INTDIR)\portability\mkdtemp.cc" \
 	"$(INTDIR)\scriptindex.cc" \
@@ -146,13 +145,13 @@ SRCS= \
 	"$(INTDIR)\common\safe.cc" \
 	"$(INTDIR)\utf8convert.cc" \
 	"$(INTDIR)\utf8truncate.cc" \
- 	"$(INTDIR)\htmlparsetest.cc" \
+	"$(INTDIR)\htmlparsetest.cc" \
 	"$(INTDIR)\myhtmlparse.cc" \
- 	"$(INTDIR)\htmlparse.cc" \
+	"$(INTDIR)\htmlparse.cc" \
 	"$(INTDIR)\utf8convert.cc" \
- 	"$(INTDIR)\md5.cc" \
- 	"$(INTDIR)\md5wrap.cc" \
- 	"$(INTDIR)\md5test.cc" \
+	"$(INTDIR)\md5.cc" \
+	"$(INTDIR)\md5wrap.cc" \
+	"$(INTDIR)\md5test.cc" \
 	"$(INTDIR)\diritor.cc" \
 	"$(INTDIR)\runfilter.cc" \
 	"$(OUTDIR)\xpsxmlparse.cc" \
@@ -179,14 +178,14 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -I "." -I "common" -I "$(XAPIAN_CORE_REL_OMEGA)\include" -I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
  -I "$(PCRE_INCLUDE_DIR)" \
- -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME) 
+ -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(PCRE_LIB_DIR)/pcre.lib"
 
-PROGRAM_DEPENDENCIES = 
+PROGRAM_DEPENDENCIES =
 
  # omega.exe
 # omindex.exe
@@ -261,13 +260,13 @@ PROGRAM_DEPENDENCIES =
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 
@@ -275,5 +274,5 @@ PROGRAM_DEPENDENCIES =
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "$(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)" $(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND) 
+    if exist "$(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)" $(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

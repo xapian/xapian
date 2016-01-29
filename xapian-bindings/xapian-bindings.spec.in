@@ -39,7 +39,7 @@ Release: 1
 License: GPL
 Vendor: xapian.org
 Group: Development/Libraries
-URL: http://xapian.org/
+URL: https://xapian.org/
 Requires: xapian-core-libs = %{version}
 %if 0%{?!_without_python:1}
 BuildRequires: python-devel >= 2.3
@@ -233,8 +233,8 @@ make install DESTDIR=%{buildroot}
 %if 0%{?!_without_perl:1}
 %files perl
 %defattr(-, root, root)
-%{perl_arch}/auto/Search/Xapian/Xapian.so
-%{perl_lib}/Search/Xapian.pm
-%{perl_lib}/Search/Xapian
+%{perl_arch}/auto/Xapian/Xapian.so
+%{perl_lib}/Xapian.pm
+%{perl_lib}/Xapian
 %doc %{_datadir}/doc/%{name}/perl
 %endif

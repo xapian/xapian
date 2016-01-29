@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2011 Olly Betts
+ * Copyright 2008,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,7 +31,7 @@
 namespace Xapian {
 
 /** Information about the steps involved in performing a replication. */
-struct XAPIAN_VISIBILITY_DEFAULT ReplicationInfo {
+struct ReplicationInfo {
     /// Number of changesets applied.
     int changeset_count;
 

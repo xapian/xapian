@@ -134,7 +134,7 @@ md5it(filename)
 zipandmd5it("xapian-%s-bindings-ruby.zip" % rev,"..\\Release\\Ruby\\dist\\*.*")
 zipandmd5it("xapian-%s-bindings-csharp.zip" % rev,"..\\Release\\CSharp\\dist\\*.*")
 
-# Java bindings do not work in this release, see http://trac.xapian.org/ticket/474
+# Java bindings do not work in this release, see https://trac.xapian.org/ticket/474
 # zipandmd5it("xapian-%s-bindings-java.zip" % rev,"..\\Release\\Java\\dist\\*.*")
 
 # Make a HTML list 

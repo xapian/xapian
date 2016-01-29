@@ -1,7 +1,7 @@
 /** @file expanddecider.h
  * @brief Allow rejection of terms during ESet generation.
  */
-/* Copyright (C) 2007,2011,2013 Olly Betts
+/* Copyright (C) 2007,2011,2013,2014,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_EXPANDDECIDER_H
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/expanddecider.h> directly; include <xapian.h> instead."
 #endif
 
@@ -34,7 +34,16 @@ namespace Xapian {
 
 /** Virtual base class for expand decider functor. */
 class XAPIAN_VISIBILITY_DEFAULT ExpandDecider {
+    /// Don't allow assignment.
+    void operator=(const ExpandDecider &);
+
+    /// Don't allow copying.
+    ExpandDecider(const ExpandDecider &);
+
   public:
+    /// Default constructor.
+    ExpandDecider() { }
+
     /** Do we want this term in the ESet?
      *
      *  @param term	The term to test.
@@ -112,7 +121,7 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterPrefix : public ExpandDecider
     /** The parameter specify the prefix of terms to be retained
      *  @param prefix_   restrict terms to the particular prefix_
      */
-    ExpandDeciderFilterPrefix(const std::string &prefix_)
+    explicit ExpandDeciderFilterPrefix(const std::string &prefix_)
        : prefix(prefix_) { }
 
     virtual bool operator() (const std::string &term) const;

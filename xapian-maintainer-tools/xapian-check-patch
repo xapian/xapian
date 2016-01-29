@@ -1,0 +1,113 @@
+#! /usr/bin/perl -w
+# Copyright (c) 2007-2015 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+require 5.000;
+use strict;
+use POSIX;
+
+if (defined $ARGV[0] && $ARGV[0] eq '--help') {
+    print <<END;
+Syntax: $0 [PATCH]...
+
+Nit-pick Xapian patches.
+ 
+A patch can be supplied on stdin, or one or more patch files listed on the
+command line.
+
+Produces output suitable for use with vim's quick-fix mode, and similar
+features in other editors.
+
+Example usage:
+
+git diff master.. | xapian-check-patch > tmp.qf
+vim -q tmp.qf
+END
+    exit 0;
+}
+
+my ($fnm, $lineno);
+my $add_lines = 0;
+my $del_lines = 0;
+my $files = 0;
+# SVN property changes don't have an "Index: [...]" line.
+my $want_tabs = -1;
+while (<>) {
+    if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
+	++$files;
+	$fnm = $1;
+	$lineno = undef;
+	if ($fnm =~ /\.cc$/) {
+	    $want_tabs = 1;
+	} elsif ($fnm =~ /\.[ch]$/) {
+	    $want_tabs = ($fnm !~ m!\blanguages/compiler/!);
+	} elsif ($fnm =~ /\.py(?:\.in)?$/) {
+	    $want_tabs = 0;
+	} else {
+	    # Don't know!
+	    $want_tabs = -1;
+	}
+	next;
+    }
+    if (/^\@\@ -\d+,\d+ \+(\d+),\d+\b/) {
+	$lineno = $1;
+	next;
+    }
+    my $msg;
+    if (/^\+.*[ \t]$/) {
+	$msg = "added/changed line has trailing whitespace:";
+    } elsif (/^\+.* \t/) {
+	$msg = "added/changed line has space before tab:";
+    } elsif ($want_tabs == 1 and /^\+\t* {8}/) {
+	$msg = "added/changed line uses spaces for indentation rather than tab:";
+    } elsif (!$want_tabs and /^\+ *\t/) {
+	$msg = "added/changed line uses tab for indentation rather than spaces:";
+    } elsif (/^-.*\bFIX(?:ME)\b/) {
+	$msg = "FIX"."ME removed:";
+    } elsif (/^\+.*\bFIX(?:ME)\b/) {
+	$msg = "FIX"."ME added:";
+    } elsif (/^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+	$msg = "Doxygen command '\\$1' introduced by '\\' not '\@':";
+    } elsif (m!(?:^|[;{])\s*/[/*]{1,2}\w!) {
+	$msg = "added/changed line has comment without whitespace before the text:";
+    }
+    if (defined $msg) {
+	print "$fnm:$lineno: $msg";
+	if ($msg =~ /:$/) {
+	    print " $_";
+	} else {
+	    print "\n";
+	}
+    }
+    my $first_char = substr($_, 0, 1);
+    if ($first_char eq ' ') {
+	++$lineno;
+    } elsif ($first_char eq '+') {
+	++$lineno;
+	++$add_lines;
+    } elsif ($first_char eq '-') {
+	++$del_lines;
+    }
+}
+print STDERR <<"__END__";
+Files patched:\t$files
+Lines added:\t$add_lines
+Lines removed:\t$del_lines
+__END__

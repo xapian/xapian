@@ -12,7 +12,7 @@ via a web front-end provided by omega, a CGI application.  A search can also be
 done over more than one database at once.
 
 There are separate documents covering `CGI parameters <cgiparams.html>`_, the
-`Term Prefixes <termprefixes.html>`_ which are conventionally used, and 
+`Term Prefixes <termprefixes.html>`_ which are conventionally used, and
 `OmegaScript <omegascript.html>`_, the language used to define omega's web
 interface.  Omega ships with several OmegaScript templates and you can
 use these, modify them, or just write your own.  See the "Supplied Templates"
@@ -20,7 +20,7 @@ section below for details of the supplied templates.
 
 Omega parses queries using the ``Xapian::QueryParser`` class - for the supported
 syntax, see queryparser.html in the xapian-core documentation
-- available online at: http://xapian.org/docs/queryparser.html
+- available online at: https://xapian.org/docs/queryparser.html
 
 Term construction
 =================
@@ -44,21 +44,21 @@ B(oolean) terms with the same prefix are ORed together, with all the
 different prefix groups being ANDed together. This is then FILTERed
 against the P(robabilistic) terms. This will look something like::
 
-		      [ FILTER ]
-		       /      \
-		      /        \
-		 P-terms      [     AND     ]
-			       /     | ... \
-			      /
-			[    OR    ]
-		       /      | ... \
-		    B(F,1) B(F,2)...B(F,n)
+                  [ FILTER ]
+                   /      \
+                  /        \
+             P-terms      [   AND   ]
+                           /   |...\
+                          /
+                    [   OR   ]
+                   /    | ... \
+              B(F,1) B(F,2)...B(F,n)
 
 Where B(F,1) is the first boolean term with prefix F, and so on.
 
 The intent here is to allow filtering on arbitrary (and, typically,
 orthogonal) characteristics of the document. For instance, by adding
-boolean terms "Ttext/html", "Ttext/plain" and "P/press" you would be
+boolean terms "Ttext/html", "Ttext/plain" and "J/press" you would be
 filtering the probabilistic search for only documents that are both in
 the "/press" site *and* which are either of MIME type text/html or
 text/plain. (See below for more information about sites.)
@@ -89,10 +89,10 @@ Sites work by having all documents within them having a common base
 URL. For instance, you might have two sites, one for your press area
 and one for your product descriptions:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/bigproduct.html
-	- \http://example.com/products/littleproduct.html
+- \http://example.com/press/index.html
+- \http://example.com/press/bigrelease.html
+- \http://example.com/products/bigproduct.html
+- \http://example.com/products/littleproduct.html
 
 You could index all documents within \http://example.com/press/ using a
 site of '/press', and all within \http://example.com/products/ using
@@ -145,10 +145,10 @@ second being a relative directory within that to index.
 For instance, in the example above, if you separate your products by
 size, you might end up with:
 
-	- \http://example.com/press/index.html
-	- \http://example.com/press/bigrelease.html
-	- \http://example.com/products/large/bigproduct.html
-	- \http://example.com/products/small/littleproduct.html
+- \http://example.com/press/index.html
+- \http://example.com/press/bigrelease.html
+- \http://example.com/products/large/bigproduct.html
+- \http://example.com/products/small/littleproduct.html
 
 If the entire website is stored in the file system under the directory
 /www/example, then you would probably index the site in two
@@ -175,10 +175,10 @@ site. (Note that the ``--depth-limit`` option may come in handy if you have
 sites '/products' and '/products/large', or similar.)
 
 omindex has built-in support for indexing HTML, PHP, text files, CSV
-(Comma-Separated Values) files, Atom feeds, and AbiWord documents.  It can also
-index a number of other formats using external programs.  Filter programs are
-run with CPU, time and memory limits to prevent a runaway filter from blocking
-indexing of other files.
+(Comma-Separated Values) files, SVG, Atom feeds, and AbiWord documents.  It can
+also index a number of other formats using external programs.  Filter programs
+are run with CPU, time and memory limits to prevent a runaway filter from
+blocking indexing of other files.
 
 The way omindex decides how to index a file is based around MIME content-types.
 First of all omindex will look up a file's extension in its extension to MIME
@@ -193,9 +193,9 @@ other filters too - see below):
 * text files (.txt, .text)
 * SVG (.svg)
 * CSV (Comma-Separated Values) files (.csv)
-* PDF (.pdf) if pdftotext is available (comes with xpdf)
+* PDF (.pdf) if pdftotext is available (comes with poppler or xpdf)
 * PostScript (.ps, .eps, .ai) if ps2pdf (from ghostscript) and pdftotext (comes
-  with xpdf) are available
+  with poppler or xpdf) are available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
 * OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
@@ -205,8 +205,8 @@ other filters too - see below):
   libmagic, as they may actually be RTF (AbiWord saves RTF when asked to save
   as .doc, and Microsoft Word quietly loads RTF files with a .doc extension),
   or plain-text).
-* MS Excel documents (.xls, .xlb, .xlt, .xlr) if xls2csv is available (comes
-  with catdoc)
+* MS Excel documents (.xls, .xlb, .xlt, .xlr, .xla) if xls2csv is available
+  (comes with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with
   catdoc)
 * MS Office 2007 documents (.docx, .docm, .dotx, .dotm, .xlsx, .xlsm, .xltx,
@@ -217,7 +217,7 @@ other filters too - see below):
   HTML::Parser modules is available
 * MS Publisher documents (.pub) if pub2xhtml is available (comes with libmspub)
 * AbiWord documents (.abw)
-* Compressed AbiWord documents (.zabw) if gzip is available
+* Compressed AbiWord documents (.zabw)
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 * reStructured text (.rst, .rest) if rst2html is available (comes with
@@ -228,6 +228,10 @@ other filters too - see below):
 * Debian packages (.deb, .udeb) if dpkg-deb is available
 * RPM packages (.rpm) if rpm is available
 * Atom feeds (.atom)
+* MAFF (.maff) if unzip is available
+* MHTML (.mhtml, .mht) if perl with MIME::Tools is available
+* MIME email messages (.eml) and USENET articles if perl with MIME::Tools and
+  HTML::Parser is available
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
@@ -241,96 +245,25 @@ a file of that type (everything after the last '.').  The ``type`` can be any
 string, but to be useful there either needs to be a filter set for that type
 - either using ``--filter`` or by ``type`` being understood by default:
 
-   - text/csv
-   - text/html
-   - text/plain
-   - text/rtf
-   - text/x-perl
-   - text/x-rst
-   - application/atom+xml
-   - application/msword
-   - application/pdf
-   - application/postscript
-   - application/vnd.ms-excel
-   - application/vnd.ms-outlook
-   - application/vnd.ms-powerpoint
-   - application/vnd.ms-works
-   - application/vnd.ms-xpsdocument
-   - application/vnd.oasis.opendocument.text
-   - application/vnd.oasis.opendocument.spreadsheet
-   - application/vnd.oasis.opendocument.presentation
-   - application/vnd.oasis.opendocument.graphics
-   - application/vnd.oasis.opendocument.chart
-   - application/vnd.oasis.opendocument.formula
-   - application/vnd.oasis.opendocument.database
-   - application/vnd.oasis.opendocument.image
-   - application/vnd.oasis.opendocument.text-master
-   - application/vnd.oasis.opendocument.text-template
-   - application/vnd.oasis.opendocument.spreadsheet-template
-   - application/vnd.oasis.opendocument.presentation-template
-   - application/vnd.oasis.opendocument.graphics-template
-   - application/vnd.oasis.opendocument.chart-template
-   - application/vnd.oasis.opendocument.formula-template
-   - application/vnd.oasis.opendocument.image-template
-   - application/vnd.oasis.opendocument.text-web
-   - application/vnd.openxmlformats-officedocument.wordprocessingml.document
-   - application/vnd.openxmlformats-officedocument.wordprocessingml.template
-   - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
-   - application/vnd.openxmlformats-officedocument.spreadsheetml.template
-   - application/vnd.openxmlformats-officedocument.presentationml.presentation
-   - application/vnd.openxmlformats-officedocument.presentationml.slideshow
-   - application/vnd.openxmlformats-officedocument.presentationml.template
-   - application/vnd.sun.xml.calc
-   - application/vnd.sun.xml.calc.template
-   - application/vnd.sun.xml.draw
-   - application/vnd.sun.xml.draw.template
-   - application/vnd.sun.xml.impress
-   - application/vnd.sun.xml.impress.template
-   - application/vnd.sun.xml.math
-   - application/vnd.sun.xml.writer
-   - application/vnd.sun.xml.writer.global
-   - application/vnd.sun.xml.writer.template
-   - application/vnd.wordperfect
-   - application/x-abiword
-   - application/x-abiword-compressed
-   - application/x-debian-package
-   - application/x-dvi
-   - application/x-mspublisher
-   - application/x-redhat-package-manager
-   - image/svg+xml
-   - image/vnd.djvu
-   - ignore (magic token to tell omindex to quietly ignore such files)
+.. include:: inc/mimetypes.rst
 
-By default, files with the following extensions are marked as 'ignore'::
+You can specify ``*`` as the MIME sub-type for ``--filter``, for example if you
+have a filter you want to apply to any video files, you could specify it using
+``--filter 'video/*:index-video-file'``.  Note that this is checked right after
+checking for the exact MIME type, so will override any built-in filters which
+would otherwise match.  Also you can't use arbitrary wildcards, just ``*`` for
+the entire sub-type.  And be careful to quote ``*`` to protect it from the
+shell.  Support for this was added in 1.3.3.
 
-   - a
-   - adm
-   - bin
-   - com
-   - css
-   - cur
-   - dat
-   - db
-   - dll
-   - dylib
-   - exe
-   - fon
-   - ico
-   - jar
-   - js
-   - lib
-   - lnk
-   - o
-   - obj
-   - pyc
-   - pyd
-   - pyo
-   - so
-   - sqlite
-   - sqlite3
-   - sqlite-journal
-   - tmp
-   - ttf
+If there's no specific filter, and no subtype wildcard, then ``*/*`` is checked
+(assuming the mimetype contains a ``/``), and after that ``*`` (for any
+mimetype string).  Combined with filter command ``true`` for indexing by
+meta-data only, you can specify a fall back case of indexing by meta-data
+only using ``--filter '*:true'``.  Support for this was added in 1.3.4.
+
+By default, files with the following extensions are marked as 'ignore':
+
+.. include:: inc/ignored.rst
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example if you have ``.dot`` files which are inputs for the graphviz
@@ -348,20 +281,44 @@ to.
 
 You can add support for additional MIME content types (or override existing
 ones) using the ``--filter`` option to specify a command to run.  At present,
-this command needs to produce output on stdout in either HTML or UTF-8 text
-format.
+this command needs to produce output in either HTML or plain text format
+(as of 1.3.3, you can specify the character encoding that the output will be
+in; in earlier versions, plain text output had to be UTF-8).
+
+As of 1.3.3, the command can include certain placeholders which are substituted
+by omindex:
+
+* Any ``%f`` in this command will be replaced with the filename of the file to
+  extract (suitably escaped to protect it from the shell, so don't put quotes
+  around ``%f``).
+
+  If you don't include ``%f`` in the command, then the filename of the file to
+  be extracted will be appended to the command, separated by a space.
+
+* Any ``%t`` in this command will be replaced with a filename in a temporary
+  directory (suitably escaped to protect it from the shell, so don't put
+  quotes around ``%t``).  The extension of this filename will reflect the
+  expected output format (either ``.html`` or ``.txt``).  If you don't use
+  ``%t`` in the command, then omindex will expect output on ``stdout`` (prior
+  to 1.3.3, output had to be on ``stdout``).
+
+* ``%%`` can be used should you need a literal ``%`` in the command.
 
 For example, if you'd prefer to use Abiword to extract text from word documents
 (by default, omindex uses antiword), then you can pass the option
 ``--filter=application/msword:'abiword --to=txt --to-name=fd://1'`` to
-omindex.  The filename of the file to be extracted will be appended to this
-command, separated by a space.
+omindex.
 
 Another example - if you wanted to handle files of MIME type
 ``application/octet-stream`` by running them through ``strings -n8``, you can
 pass the option ``--filter=application/octet-stream:'strings -n8'``.
 
-A more complex example of the use of ``--filter`` makes use of LibreOffice,
+A more complex example: to process ``.foo`` files with the (fictional)
+``foo2utf16`` utility which produces UTF-16 text but doesn't support writing
+output to stdout, run omindex with ``-Mfoo:text/x-foo
+-Ftext/x-foo,,utf-16:'foo2utf16 %f %t'``.
+
+A less contrived example of the use of ``--filter`` makes use of LibreOffice,
 via the unoconv script, to extract text from various formats.  First you
 need to start a listening instance (if you don't, unoconv will start up
 LibreOffice for every file, which is rather inefficient) - the ``&`` tells
@@ -372,6 +329,20 @@ the shell to run it in the background::
 Then run omindex with options such as
 ``--filter=application/msword,html:'unoconv --stdout -f html'`` (you'll want
 to repeat this for each format which you want to use LibreOffice on).
+
+If you specify ``false`` as the command in ``--filter``, omindex will skip
+files with the specified MIME type.  (As of 1.2.20 and 1.3.3 ``false`` is
+explicitly checked for; in earlier versions this will also work, at least
+on Unix where ``false`` is a command which ignores its arguments and exits with
+a non-zero status).
+
+If you specify ``true`` as the command in ``--filter``, omindex won't try
+to extract text from the file, but will index it such that it can be searched
+for via metadata which comes from the filing system (filename, extension, mime
+content-type, last modified time, size).  (As of 1.2.22 and 1.3.4 ``true`` is
+explicitly checked for; in earlier versions this will also work, at least
+on Unix where ``true`` is a command which ignores its arguments and exits with
+a status zero).
 
 If you know of a reliable filter which can extract text from a file format
 which might be of interest to others, please let us know so we can consider
@@ -402,6 +373,28 @@ a certain number of directories.  Specifying ``--depth-limit=0`` means no limit
 is imposed on recursion; ``--depth-limit=1`` means don't descend into any
 subdirectories of the start directory.
 
+Tracking files which couldn't be indexed
+----------------------------------------
+
+In older versions, omindex only tracked files which it successfully indexed -
+if a file couldn't be read, or a filter program failed on it, or it was marked
+not to be indexed (e.g. with an HTML meta tag) then it would be retried on
+subsequent runs.  Starting from version 1.3.4, omindex now tracks failed
+files in the user metadata of the database, along with their sizes and last
+modified times, and uses this data to skip files which previously failed and
+haven't changed since.
+
+You can force omindex to retry such files using the ``--retry-failed`` option.
+One situation in which this is useful is if you've upgraded a filter program
+to a newer version which you suspect will index some files which previously
+failed.
+
+Currently there's no mechanism for automatically removing failure entries
+when the file they refer to is removed or renamed.  These lingering entries are
+harmless, except they bloat the database a little.  A simple way to clear them
+out is to run periodically with ``--retry-failed`` as this removes any existing
+failure entries before indexing starts.
+
 HTML Parsing
 ============
 
@@ -426,6 +419,7 @@ mnoGoSearch)::
     Index this bit <!--htdig_noindex-->but <b>not</b> this<!--/htdig_noindex-->
 
 ::
+
     <!--UdmComment--><div>Boring copyright notice</div><!--/UdmComment-->
 
 Boolean terms
@@ -434,32 +428,45 @@ Boolean terms
 omindex will create the following boolean terms when it indexes a
 document:
 
-T	
-        MIME type
-H	
-        hostname of site (if supplied - this term won't exist if you index a
-        site with base URL '/press', for instance)
-P	
-        path of site (i.e. the rest of the site base URL)
-U	
-        full URL of indexed document - if the resulting term would be > 240
-	characters, a hashing scheme is used to prevent omindex overflowing
-	the Xapian term length limit.
+E
+    Extension of the file (e.g. `Epdf`) [since Omega 1.2.5]
+T
+    MIME type
 
+J
+    The base URL, omitting any trailing slash (so if the base URL was just
+    `/`, the term is just `J`).  If the resulting term would be > 240
+    bytes, it's hashed in the same way an `U` prefix terms are.  Mnemonic: the
+    Jumping-off point. [since Omega 1.3.4]
+H
+    hostname of site (if supplied - this term won't exist if you index a
+    site with base URL '/press', for instance).  Since Omega 1.3.4, if the
+    resulting term would be > 240 bytes, it's hashed in the same way as `U`
+    prefix terms are.
+P
+    path terms - one term for the directory which the document is in, and for
+    each parent directories, with no trailing slashes [since Omega 1.3.4 -
+    in earlier versions, there was just one `P` term for the path of site (i.e.
+    the rest of the site base URL) - this will be amongst the terms Omega 1.3.4
+    adds].  Since Omega 1.3.4, if the resulting term would be > 240 bytes, it's
+    hashed in the same way as `U` prefix terms are.
+U
+    full URL of indexed document - if the resulting term would be > 240 bytes,
+    a hashing scheme is used to avoid overflowing Xapian's term length limit.
 
+D
+    date (numeric format: YYYYMMDD)
 
-D	
-        date (numeric format: YYYYMMDD)
-	date can also have the magical form "latest" - a document indexed
-	by the term Dlatest matches any date-range without an end date.
-	You can index dynamic documents which are always up to date
-	with Dlatest and they'll match as expected.  (If you use sort by date,
-	you'll probably also want to set the value containing the timestamp to
-	a "max" value so dynamic documents match a date in the far future).
-M	
-        month (numeric format: YYYYMM)
-Y	
-        year (four digits)
+    date can also have the magical form "latest" - a document indexed
+    by the term Dlatest matches any date-range without an end date.
+    You can index dynamic documents which are always up to date
+    with Dlatest and they'll match as expected.  (If you use sort by date,
+    you'll probably also want to set the value containing the timestamp to
+    a "max" value so dynamic documents match a date in the far future).
+M
+    month (numeric format: YYYYMM)
+Y
+    year (four digits)
 
 omega configuration
 ===================
@@ -469,32 +476,37 @@ parameters. However some things must be configured using a
 configuration file.  The configuration file is searched for in
 various locations:
 
- - Firstly, if the "OMEGA_CONFIG_FILE" environment variable is
-   set, its value is used as the full path to a configuration file
-   to read.
- - Next (if the environment variable is not set, or the file pointed
-   to is not present), the file "omega.conf" in the same directory as
-   the Omega CGI is used.
- - Next (if neither of the previous steps found a file), the file
-   "${sysconfdir}/omega.conf" (e.g. /etc/omega.conf on Linux systems)
-   is used.
- - Finally, if no configuration file is found, default values are used.
+- Firstly, if the "OMEGA_CONFIG_FILE" environment variable is
+  set, its value is used as the full path to a configuration file
+  to read.
+- Next (if the environment variable is not set, or the file pointed
+  to is not present), the file "omega.conf" in the same directory as
+  the Omega CGI is used.
+- Next (if neither of the previous steps found a file), the file
+  "${sysconfdir}/omega.conf" (e.g. /etc/omega.conf on Linux systems)
+  is used.
+- Finally, if no configuration file is found, default values are used.
 
 The format of the file is very simple: a line per option, with the
 option name followed by its value, separated by a whitespace.  Blank
 lines are ignored.  If the first non-whitespace character on a line
 is a '#', omega treats the line as a comment and ignores it.
 
-The current options are 'database_dir' (the directory containing all the
-Omega databases), 'template_dir' (the directory containing the OmegaScript
-templates), and 'log_dir' (the directory which the OmegaScript $log command
-writes log files to).
+The current options are:
+
+- `database_dir`: the directory containing all the Omega databases
+- `template_dir`: the directory containing the OmegaScript templates
+- `log_dir`: the directory which the OmegaScript `$log` command writes log
+  files to
+- `cdb_dir`: the directory which the OmegaScript `$lookup` command
+  looks for CDB files in
 
 The default values (used if no configuration file is found) are::
 
  database_dir /var/lib/omega/data
  template_dir /var/lib/omega/templates
  log_dir /var/log/omega
+ cdb_dir /var/lib/omega/cdb
 
 Note that, with apache, environment variables may be set using mod_env, and
 with apache 1.3.7 or later this may be used inside a .htaccess file.  This
@@ -506,28 +518,28 @@ Supplied Templates
 
 The OmegaScript templates supplied with Omega are:
 
- * query - This is the default template, providing a typical Web search
-   interface.
- * topterms - This is just like query, but provides a "top terms" feature
-   which suggests terms the user might want to add to their query to
-   obtain better results.
- * godmode - Allows you to inspect a database showing which terms index
-   each document, and which documents are indexed by each term.
- * opensearch - Provides results in OpenSearch format (for more details
-   see http://www.opensearch.org/).
- * xml - Provides results in a custom XML format.
- * emptydocs - Shows a list of documents with zero length.  If CGI parameter
-   TERM is set to a non-empty value, then only documents indexed by that given
-   term are shown (e.g. TERM=Tapplication/pdf to show PDF files with no text);
-   otherwise all zero length documents are shown.
+* query - This is the default template, providing a typical Web search
+  interface.
+* topterms - This is just like query, but provides a "top terms" feature
+  which suggests terms the user might want to add to their query to
+  obtain better results.
+* godmode - Allows you to inspect a database showing which terms index
+  each document, and which documents are indexed by each term.
+* opensearch - Provides results in OpenSearch format (for more details
+  see http://www.opensearch.org/).
+* xml - Provides results in a custom XML format.
+* emptydocs - Shows a list of documents with zero length.  If CGI parameter
+  TERM is set to a non-empty value, then only documents indexed by that given
+  term are shown (e.g. TERM=Tapplication/pdf to show PDF files with no text);
+  otherwise all zero length documents are shown.
 
 There are also "helper fragments" used by the templates above:
 
- * inc/anyalldropbox - Provides a choice of matching "any" or "all" terms
-   by default as a drop down box.
- * inc/anyallradio - Provides a choice of matching "any" or "all" terms
-   by default as radio buttons.
- * toptermsjs - Provides some JavaScript used by the topterms template.
+* inc/anyalldropbox - Provides a choice of matching "any" or "all" terms
+  by default as a drop down box.
+* inc/anyallradio - Provides a choice of matching "any" or "all" terms
+  by default as radio buttons.
+* toptermsjs - Provides some JavaScript used by the topterms template.
 
 Document data construction
 ==========================
@@ -560,3 +572,11 @@ Then you need only give the field values in the document data, which can
 save a lot of space in a large database.  With the setting of fieldnames
 above, the first line of document data can be accessed with $field{caption},
 the second with $field{sample}, and the third with $field{url}.
+
+Stopword List
+=============
+
+At search time, Omega uses a built-in list of stopwords, which are::
+
+    a about an and are as at be by en for from how i in is it of on or that the
+    this to was what when where which who why will with you your

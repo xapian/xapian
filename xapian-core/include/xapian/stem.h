@@ -1,7 +1,7 @@
 /** @file stem.h
  * @brief stemming algorithms
  */
-/* Copyright (C) 2005,2007,2010,2011,2013 Olly Betts
+/* Copyright (C) 2005,2007,2010,2011,2013,2014,2015 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
  *
  * This program is free software; you can redistribute it and/or
@@ -22,10 +22,11 @@
 #ifndef XAPIAN_INCLUDED_STEM_H
 #define XAPIAN_INCLUDED_STEM_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/stem.h> directly; include <xapian.h> instead."
 #endif
 
+#include <xapian/constinfo.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 
@@ -34,9 +35,19 @@
 namespace Xapian {
 
 /// Class representing a stemming algorithm implementation.
-struct XAPIAN_VISIBILITY_DEFAULT StemImplementation
+class XAPIAN_VISIBILITY_DEFAULT StemImplementation
     : public Xapian::Internal::intrusive_base
 {
+    /// Don't allow assignment.
+    void operator=(const StemImplementation &);
+
+    /// Don't allow copying.
+    StemImplementation(const StemImplementation &);
+
+  public:
+    /// Default constructor.
+    StemImplementation() { }
+
     /// Virtual destructor.
     virtual ~StemImplementation();
 
@@ -140,7 +151,11 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      *  spaces.  This is a static method, so a Xapian::Stem object is not
      *  required for this operation.
      */
-    static std::string get_available_languages();
+    static std::string get_available_languages() {
+	const struct Xapian::Internal::constinfo * info =
+	    Xapian::Internal::get_constinfo_();
+	return std::string(info->stemmer_data, info->stemmer_name_len);
+    }
 };
 
 }

@@ -1,7 +1,7 @@
 // Alias: ca
-// From: http://snowball.tartarus.org/algorithms/catalan/stemmer.html
+// From: http://snowballstem.org/algorithms/catalan/stemmer.html
 // Author: Israel Olalla
-// Licence: 2-clause BSD, as per http://snowball.tartarus.org/license.php
+// Licence: 3-clause BSD, as per http://snowballstem.org/license.html
 
 routines (
            cleaning mark_regions

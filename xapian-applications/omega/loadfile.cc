@@ -1,6 +1,6 @@
 /* loadfile.cc: load a file into a std::string.
  *
- * Copyright (C) 2006,2010,2012 Olly Betts
+ * Copyright (C) 2006,2010,2012,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +22,8 @@
 #ifdef HAVE_POSIX_FADVISE
 # ifdef __linux__
 #  define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
-#  define _BSD_SOURCE 1 // Need this to get lstat() as well
+#  define _DEFAULT_SOURCE 1 // Needed to get lstat() for glibc >= 2.20
+#  define _BSD_SOURCE 1 // Needed to get lstat() for glibc < 2.20
 # endif
 #endif
 
@@ -37,13 +38,6 @@
 #include "safesysstat.h"
 #include "safeunistd.h"
 
-#ifndef O_STREAMING
-# ifdef __linux__
-// This is the value used by rml's O_STREAMING patch for 2.4.
-#  define O_STREAMING	04000000
-# endif
-#endif
-
 using namespace std;
 
 int
@@ -52,9 +46,6 @@ load_file_fd(const string &file_name, size_t max_to_read, int flags,
 {
     (void)flags; // Avoid possible "unused" warning.
     mode_t mode = O_RDONLY;
-#ifdef O_STREAMING
-    if (flags & NOCACHE) mode |= O_STREAMING;
-#endif
 #if defined O_NOATIME && O_NOATIME != 0
     if (flags & NOATIME) mode |= O_NOATIME;
 #endif

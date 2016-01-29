@@ -1,24 +1,28 @@
 EXTRA_DIST +=\
-	bin/dir_contents\
 	bin/Makefile
 
 bin_PROGRAMS +=\
 	bin/xapian-delve
 
-if BUILD_BACKEND_BRASS_OR_CHERT
+noinst_PROGRAMS =
+
+if BUILD_BACKEND_CHERT_OR_GLASS
 bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact\
-	bin/xapian-inspect\
 	bin/xapian-replicate\
 	bin/xapian-replicate-server
+
+if BUILD_BACKEND_CHERT
+noinst_PROGRAMS +=\
+	bin/xapian-inspect
+endif
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
 	bin/xapian-compact.1\
 	bin/xapian-delve.1\
-	bin/xapian-inspect.1\
 	bin/xapian-replicate.1\
 	bin/xapian-replicate-server.1
 endif
@@ -45,9 +49,24 @@ bin_xapian_compact_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 bin_xapian_delve_SOURCES = bin/xapian-delve.cc
 bin_xapian_delve_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 
-bin_xapian_inspect_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/backends/chert
-bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
-bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
+bin_xapian_inspect_CPPFLAGS =\
+	$(AM_CPPFLAGS)\
+	-DXAPIAN_REALLY_NO_DEBUG_LOG\
+	-I$(top_srcdir)/backends/chert
+bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
+	api/error.cc\
+	backends/chert/chert_btreebase.cc\
+	backends/chert/chert_cursor.cc\
+	backends/chert/chert_table.cc\
+	common/errno_to_string.cc\
+	common/io_utils.cc\
+	common/posixy_wrapper.cc\
+	common/str.cc\
+	unicode/description_append.cc\
+	unicode/unicode-data.cc\
+	unicode/utf8itor.cc
+
+bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la -lz
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
@@ -70,9 +89,6 @@ bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
 
 bin/xapian-delve.1: bin/xapian-delve$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-delve $(srcdir)/bin/xapian-delve.cc bin/xapian-delve.1
-
-bin/xapian-inspect.1: bin/xapian-inspect$(EXEEXT) makemanpage
-	./makemanpage bin/xapian-inspect $(srcdir)/bin/xapian-inspect.cc bin/xapian-inspect.1
 
 bin/xapian-progsrv.1: bin/xapian-progsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-progsrv $(srcdir)/bin/xapian-progsrv.cc bin/xapian-progsrv.1

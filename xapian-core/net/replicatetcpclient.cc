@@ -1,7 +1,7 @@
 /** @file replicatetcpclient.cc
  *  @brief TCP/IP replication client class.
  */
-/* Copyright (C) 2008,2010,2011 Olly Betts
+/* Copyright (C) 2008,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,15 +24,18 @@
 
 #include "api/replication.h"
 
+#include "socket_utils.h"
 #include "tcpclient.h"
 
 using namespace std;
 
 ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
-				       double timeout_connect)
+				       double timeout_connect,
+				       double socket_timeout)
     : socket(open_socket(hostname, port, timeout_connect)),
       remconn(-1, socket)
 {
+    set_socket_timeouts(socket, socket_timeout);
 }
 
 int

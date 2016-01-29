@@ -2,18 +2,22 @@ noinst_HEADERS +=\
 	unicode/description_append.h
 
 EXTRA_DIST +=\
-	unicode/dir_contents\
 	unicode/Makefile\
+	unicode/c_istab.h\
+	unicode/gen_c_istab\
 	unicode/UnicodeData-README.txt\
 	unicode/UnicodeData.txt\
 	unicode/uniParse.tcl
 
 if MAINTAINER_MODE
 unicode/unicode-data.cc: unicode/uniParse.tcl unicode/UnicodeData.txt
-	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 6.3.0 unicode/unicode-data.cc
+	tclsh $(srcdir)/unicode/uniParse.tcl $(srcdir)/unicode/UnicodeData.txt 8.0.0 unicode/unicode-data.cc
 
-BUILT_SOURCES += unicode/unicode-data.cc
-MAINTAINERCLEANFILES += unicode/unicode-data.cc
+unicode/c_istab.h: unicode/gen_c_istab
+	$(PERL) $(srcdir)/unicode/gen_c_istab unicode/c_istab.h
+
+BUILT_SOURCES += unicode/unicode-data.cc unicode/c_istab.h
+MAINTAINERCLEANFILES += unicode/unicode-data.cc unicode/c_istab.h
 endif
 
 lib_src +=\

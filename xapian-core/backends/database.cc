@@ -50,6 +50,11 @@ Database::Internal::keep_alive()
 }
 
 
+void
+Database::Internal::readahead_for_query(const Xapian::Query &)
+{
+}
+
 Xapian::doccount
 Database::Internal::get_value_freq(Xapian::valueno) const
 {
@@ -368,10 +373,11 @@ Database::Internal::invalidate_doc_object(Xapian::Document::Internal *) const
     // Do nothing, by default.
 }
 
-RemoteDatabase *
-Database::Internal::as_remotedatabase()
+void
+Database::Internal::get_used_docid_range(Xapian::docid &,
+					 Xapian::docid &) const
 {
-    return NULL;
+    throw Xapian::UnimplementedError("This backend doesn't implement get_used_docid_range()");
 }
 
 }

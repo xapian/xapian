@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +38,6 @@ using namespace std;
 
 #include "omassert.h"
 #include "pack.h"
-#include "../net/serialise.h"
 #include "str.h"
 
 class Test_Exception {
@@ -158,16 +157,44 @@ static bool test_autoptr1()
 	AutoPtr<test_autoptr> ptr(raw_ptr);
 
 	TEST_EQUAL(ptr.get(), raw_ptr);
-
 	TEST(!deleted);
 
-	ptr = ptr;
+	ptr.reset(ptr.release());
 
 	TEST_EQUAL(ptr.get(), raw_ptr);
+	TEST(!deleted);
 
+	ptr.swap(ptr);
+
+	TEST_EQUAL(ptr.get(), raw_ptr);
+	TEST(!deleted);
+
+	swap(ptr, ptr);
+
+	TEST_EQUAL(ptr.get(), raw_ptr);
 	TEST(!deleted);
     }
 
+    TEST(deleted);
+
+    deleted = false;
+    raw_ptr = new test_autoptr(deleted);
+
+    bool deleted2 = false;
+    test_autoptr * raw_ptr2 = new test_autoptr(deleted2);
+    AutoPtr<test_autoptr> ptr(raw_ptr2);
+
+    TEST_EQUAL(ptr.get(), raw_ptr2);
+    TEST(!deleted);
+    TEST(!deleted2);
+
+    ptr.reset(raw_ptr);
+    TEST_EQUAL(ptr.get(), raw_ptr);
+    TEST(!deleted);
+    TEST(deleted2);
+
+    ptr.reset();
+    TEST_EQUAL(ptr.get(), static_cast<test_autoptr*>(0));
     TEST(deleted);
 
     return true;
@@ -214,78 +241,6 @@ static bool test_stringcomp1()
     return success;
 }
 
-static bool test_tostring1()
-{
-    TEST_EQUAL(str(0), "0");
-    TEST_EQUAL(str(0u), "0");
-    TEST_EQUAL(str(1), "1");
-    TEST_EQUAL(str(1u), "1");
-    TEST_EQUAL(str(9), "9");
-    TEST_EQUAL(str(9u), "9");
-    TEST_EQUAL(str(10), "10");
-    TEST_EQUAL(str(10u), "10");
-    TEST_EQUAL(str(-1), "-1");
-    TEST_EQUAL(str(-9), "-9");
-    TEST_EQUAL(str(-10), "-10");
-    TEST_EQUAL(str(0xffffffff), "4294967295");
-    TEST_EQUAL(str(0x7fffffff), "2147483647");
-    TEST_EQUAL(str(0x7fffffffu), "2147483647");
-    TEST_EQUAL(str(-0x7fffffff), "-2147483647");
-
-#ifdef __WIN32__
-    /* Test the 64 bit integer conversion to string.
-     * (Currently only exists for windows.)
-     */
-    TEST_EQUAL(str(10ll), "10");
-    TEST_EQUAL(str(-10ll), "-10");
-    TEST_EQUAL(str(0x200000000ll), "8589934592");
-// We don't currently have an "unsigned long long" version since it's not required
-// anywhere in the library.
-//    TEST_EQUAL(str(0x200000000ull), "8589934592");
-#endif
-
-    return true;
-}
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Check serialisation of Xapian::Error.
-static bool test_serialiseerror1()
-{
-    string enoent_msg(strerror(ENOENT));
-    Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
-    // Regression test for bug in 1.0.0 - it didn't convert errno values for
-    // get_description() if they hadn't already been converted.
-    TEST_STRINGS_EQUAL(e.get_description(), "DatabaseOpeningError: Failed to open database (" + enoent_msg + ")");
-
-    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
-
-    string serialisation = serialise_error(e);
-
-    // Test if unserialise_error() throws with a flag to avoid the possibility
-    // of an "unreachable code" warning when we get around to marking
-    // unserialise_error() as "noreturn".
-    bool threw = false;
-    try {
-	// unserialise_error throws an exception.
-	unserialise_error(serialisation, "", "");
-    } catch (const Xapian::Error & ecaught) {
-	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
-	threw = true;
-    }
-    TEST(threw);
-
-    // Check that the original is still OK.
-    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
-
-    // Regression test - in 1.0.0, copying used to duplicate the error_string
-    // pointer, resulting in double calls to free().
-    Xapian::DatabaseOpeningError ecopy(e);
-    TEST_STRINGS_EQUAL(ecopy.get_error_string(), enoent_msg);
-
-    return true;
-}
-#endif
-
 // By default Sun's C++ compiler doesn't call the destructor on a
 // temporary object until the end of the block (contrary to what
 // ISO C++ requires).  This is done in the name of "compatibility".
@@ -312,11 +267,13 @@ static bool test_temporarydtor1()
 
 static bool test_static_assert1()
 {
-    STATIC_ASSERT(true);
-    STATIC_ASSERT(1);
-    STATIC_ASSERT(-1);
-    STATIC_ASSERT(42);
-    STATIC_ASSERT(sizeof(char) == 1);
+    // These tests aren't so useful now we're using C++11 static_assert(),
+    // but it's not a bad idea to sanity check it.
+    static_assert(true, "true");
+    static_assert(1, "1");
+    static_assert(-1, "-1");
+    static_assert(42, "42");
+    static_assert(sizeof(char) == 1, "sizeof(char) == 1");
 
     // FIXME: We should test cases which should fail, but these are hard to
     // check with our current test framework.
@@ -360,14 +317,6 @@ static bool test_static_assert1()
     return true;
 }
 
-/// Regression test for bug fixed in 1.1.1.
-static bool test_strbool1()
-{
-    TEST_EQUAL(str(true), "1");
-    TEST_EQUAL(str(false), "0");
-    return true;
-}
-
 /// Test pack_uint_preserving_sort()
 static bool test_pack_uint_preserving_sort1()
 {
@@ -384,6 +333,280 @@ static bool test_pack_uint_preserving_sort1()
 	TEST_REL(prev_packed, <, packed);
 	swap(prev_packed, packed);
     }
+    for (unsigned int i = 2345; i < 65000; i += 113) {
+	string packed;
+	pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+    unsigned int prev = 64999;
+    for (unsigned int i = 65000; i > prev; prev = i, i = (i << 1) ^ 1337) {
+	string packed;
+	pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+
+    /* Test packing multiple numbers to one string. */
+    string packed;
+    for (unsigned int i = 23456; i < 765432; i += 1131) {
+	pack_uint_preserving_sort(packed, i);
+    }
+    const char * ptr = packed.data();
+    const char * end = ptr + packed.size();
+    for (unsigned int i = 23456; i < 765432; i += 1131) {
+	unsigned int result;
+	TEST(unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+    }
+    TEST(ptr == end);
+
+    return true;
+}
+
+/// Test C_pack_uint_preserving_sort()
+static bool test_pack_uint_preserving_sort2()
+{
+    string prev_packed;
+    for (unsigned int i = 0; i != 1000; ++i) {
+	string packed;
+	C_pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+    for (unsigned int i = 2345; i < 65000; i += 113) {
+	string packed;
+	C_pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+    unsigned int prev = 64999;
+    for (unsigned int i = 65000; i > prev; prev = i, i = (i << 1) ^ 1337) {
+	string packed;
+	C_pack_uint_preserving_sort(packed, i);
+	const char * ptr = packed.data();
+	const char * end = ptr + packed.size();
+	unsigned int result;
+	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+	TEST(ptr == end);
+	TEST_REL(prev_packed, <, packed);
+	swap(prev_packed, packed);
+    }
+
+    /* Test packing multiple numbers to one string. */
+    string packed;
+    for (unsigned int i = 23456; i < 765432; i += 1131) {
+	C_pack_uint_preserving_sort(packed, i);
+    }
+    const char * ptr = packed.data();
+    const char * end = ptr + packed.size();
+    for (unsigned int i = 23456; i < 765432; i += 1131) {
+	unsigned int result;
+	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
+	TEST_EQUAL(result, i);
+    }
+    TEST(ptr == end);
+
+    return true;
+}
+
+/// Test C_isupper() etc.
+static bool test_chartype1()
+{
+    char tested[128];
+    memset(tested, 0, sizeof(tested));
+    for (int ch = '0'; ch != '9' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(C_isdigit(ch));
+	TEST(C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(!C_isnotdigit(ch));
+	TEST(!C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+	TEST_EQUAL(hex_digit(ch), ch - '0');
+    }
+
+    for (int ch = 'A'; ch != 'F' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(!C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(!C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+	TEST_EQUAL(hex_digit(ch), ch - 'A' + 10);
+    }
+
+    for (int ch = 'G'; ch != 'Z' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(!C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    for (int ch = 'a'; ch != 'f' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(!C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(!C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+	TEST_EQUAL(hex_digit(ch), ch - 'a' + 10);
+    }
+
+    for (int ch = 'g'; ch != 'z' + 1; ++ch) {
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(C_islower(ch));
+	TEST(C_isalpha(ch));
+	TEST(C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(!C_isnotlower(ch));
+	TEST(!C_isnotalpha(ch));
+	TEST(!C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    for (const char *p = "\t\n\f\r "; *p; ++p) {
+	int ch = *p;
+	tested[ch] = 1;
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(!C_isnotspace(ch));
+    }
+
+    // Check remaining non-top-bit-set characters aren't anything.
+    for (int ch = 0; ch != 128; ++ch) {
+	if (tested[ch]) continue;
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    // Non-ASCII characters aren't anything for these functions.
+    for (int ch = 128; ch != 256; ++ch) {
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
+    // Check signed char values work the same way.
+    for (int ch = -128; ch != 0; ++ch) {
+	TEST(!C_isupper(ch));
+	TEST(!C_islower(ch));
+	TEST(!C_isalpha(ch));
+	TEST(!C_isalnum(ch));
+	TEST(!C_isdigit(ch));
+	TEST(!C_isxdigit(ch));
+	TEST(!C_isspace(ch));
+	TEST(C_isnotupper(ch));
+	TEST(C_isnotlower(ch));
+	TEST(C_isnotalpha(ch));
+	TEST(C_isnotalnum(ch));
+	TEST(C_isnotdigit(ch));
+	TEST(C_isnotxdigit(ch));
+	TEST(C_isnotspace(ch));
+    }
+
     return true;
 }
 
@@ -393,19 +616,16 @@ static bool test_pack_uint_preserving_sort1()
 
 /// The lists of tests to perform
 static const test_desc tests[] = {
-    {"exception1",		test_exception1},
-    {"refcnt1",			test_refcnt1},
-    {"refcnt2",			test_refcnt2},
-    {"autoptr1",		test_autoptr1},
-    {"stringcomp1",		test_stringcomp1},
-    {"temporarydtor1",		test_temporarydtor1},
-    {"tostring1",		test_tostring1},
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-    {"serialiseerror1",		test_serialiseerror1},
-#endif
-    {"static_assert1",		test_static_assert1},
-    {"strbool1",		test_strbool1},
-    {"pack1",			test_pack_uint_preserving_sort1},
+    TESTCASE(exception1),
+    TESTCASE(refcnt1),
+    TESTCASE(refcnt2),
+    TESTCASE(autoptr1),
+    TESTCASE(stringcomp1),
+    TESTCASE(temporarydtor1),
+    TESTCASE(static_assert1),
+    TESTCASE(pack_uint_preserving_sort1),
+    TESTCASE(pack_uint_preserving_sort2),
+    TESTCASE(chartype1),
     {0, 0}
 };
 

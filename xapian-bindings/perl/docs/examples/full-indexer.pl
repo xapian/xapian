@@ -22,7 +22,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Search::Xapian (':all');
+use Xapian (':all');
 use POSIX;
 
 # Constants denoting what we're using the number value slots for.
@@ -42,13 +42,13 @@ my ($database, $indexer);
 
 eval {
     # Open the database for writing.  If it doesn't exist, create it.
-    $database = Search::Xapian::WritableDatabase->new(
+    $database = Xapian::WritableDatabase->new(
 	    $ARGV[0],
 	    DB_CREATE_OR_OPEN);
 
     # Set up a TermGenerator to index text stemmed with the "english" stemmer.
-    $indexer = Search::Xapian::TermGenerator->new();
-    my $stemmer = Search::Xapian::Stem->new("english");
+    $indexer = Xapian::TermGenerator->new();
+    my $stemmer = Xapian::Stem->new("english");
     $indexer->set_stemmer($stemmer);
 };
 if ($@) {
@@ -88,7 +88,7 @@ sub index_document {
     my ($doc_name, $author, $keywords, $doc_number, $date, $type) = @_;
 
     eval {
-	my $doc = Search::Xapian::Document->new();
+	my $doc = Xapian::Document->new();
 	$indexer->set_document($doc);
 
 	# Set the document data to the doc_name so we can show it for matches.

@@ -154,7 +154,6 @@ wrapped like so for Python 3:
  * `Xapian::revision()` is wrapped as `xapian.revision()`
 
  * `Xapian::Auto::open_stub()` is deprecated in C++, so not wrapped for Python 3
- * `Xapian::Brass::open()` is deprecated in C++, so not wrapped for Python 3
  * `Xapian::Chert::open()` is deprecated in C++, so not wrapped for Python 3
  * `Xapian::InMemory::open()` is wrapped as `xapian.inmemory_open()`
  * `Xapian::Remote::open()` is wrapped as `xapian.remote_open()` (both

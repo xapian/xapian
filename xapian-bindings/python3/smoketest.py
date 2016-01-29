@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@
 # USA
 
 import sys
+import re
 import xapian
 
 from testsuite import *
@@ -37,7 +38,6 @@ class MyStemmer(xapian.StemImplementation):
         mystemmer_id += 1
 
     def __call__(self, s):
-        import re
         return re.sub(br'[aeiou]', b'', s)
 
     def __del__(self):
@@ -65,7 +65,11 @@ def test_all():
         return res
 
     # Check that SWIG isn't generating cvar (regression test for ticket#297).
-    expect_exception(AttributeError, "'module' object has no attribute 'cvar'",
+    #
+    # Python 3.5 generates a different exception message here to earlier
+    # versions, so we need a check which matches both.
+    expect_exception(AttributeError,
+                     lambda msg: msg.find("has no attribute 'cvar'") != -1,
                      access_cvar)
 
     stem = xapian.Stem(b"english")
@@ -102,19 +106,18 @@ def test_all():
     # Check database factory functions are wrapped as expected (or not wrapped
     # in the first cases):
 
-    expect_exception(AttributeError, "'module' object has no attribute 'open_stub'",
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, "'module' object has no attribute 'open_stub'",
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'open_stub'") != -1,
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
 
-    expect_exception(AttributeError, "'module' object has no attribute 'brass_open'",
-            lambda : xapian.brass_open(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, "'module' object has no attribute 'brass_open'",
-            lambda : xapian.brass_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
-
-    expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'chert_open'") != -1,
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError, "'module' object has no attribute 'chert_open'",
+    expect_exception(AttributeError,
+            lambda msg: msg.find("has no attribute 'chert_open'") != -1,
             lambda : xapian.chert_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
 
     expect_exception(xapian.DatabaseOpeningError, None,
@@ -123,9 +126,9 @@ def test_all():
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_OPEN|xapian.DB_BACKEND_STUB))
 
     expect_exception(xapian.DatabaseOpeningError, None,
-            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_BRASS))
+            lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_GLASS))
     expect_exception(xapian.DatabaseCreateError, None,
-            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_BRASS))
+            lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
 
     expect_exception(xapian.DatabaseOpeningError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_CHERT))
@@ -304,10 +307,10 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem(b'en'))
     expect_query(qp.parse_query(b"foo o", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND ((out@2 SYNONYM outsid@2) OR Zo@2))")
+                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR o) OR Zo@2))")
 
     expect_query(qp.parse_query(b"foo outside", qp.FLAG_PARTIAL),
-                 "(Zfoo@1 AND Zoutsid@2)")
+                 "(Zfoo@1 AND ((SYNONYM WILDCARD OR outside) OR Zoutsid@2))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (b'foo', b'bar')),
@@ -385,6 +388,22 @@ def test_all():
     expect(slot, 0)
     expect(xapian.sortable_unserialise(a), 10)
     expect(xapian.sortable_unserialise(b), 20)
+
+    # Feature test for xapian.FieldProcessor
+    context("running feature test for xapian.FieldProcessor")
+    class testfieldprocessor(xapian.FieldProcessor):
+        def __call__(self, s):
+            if s == 'spam':
+                raise Exception('already spam')
+            return xapian.Query("spam")
+
+    qp.add_prefix('spam', testfieldprocessor())
+    qp.add_boolean_prefix('boolspam', testfieldprocessor())
+    query = qp.parse_query('spam:ignored')
+    expect(str(query), 'Query(spam)')
+
+    # FIXME: This doesn't currently work:
+    # expect_exception(Exception, 'already spam', qp.parse_query, 'spam:spam')
 
     # Regression tests copied from PHP (probably always worked in python, but
     # let's check...)

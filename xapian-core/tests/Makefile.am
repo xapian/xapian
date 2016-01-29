@@ -18,11 +18,11 @@ libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
-	check-brass check-chert \
-	check-multi check-multi-brass check-multi-chert \
+	check-chert check-glass \
+	check-multi check-multi-chert check-multi-glass \
 	check-remote check-remoteprog check-remotetcp \
-	check-remoteprog-brass check-remoteprog-chert \
-	check-remotetcp-brass check-remotetcp-chert \
+	check-remoteprog-chert check-remoteprog-glass \
+	check-remotetcp-chert check-remotetcp-glass \
 	up remove-cached-databases
 
 up:
@@ -47,11 +47,14 @@ check-inmemory: apitest$(EXEEXT)
 check-multi: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
 
+check-singlefile: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile
+
 if BUILD_BACKEND_REMOTE
 check-remote: check-remoteprog check-remotetcp
 
 check-remoteprog: apitest$(EXEEXT)
-## If both chert and brass are enabled, just run remoteprog_chert.
+## If both chert and glass are enabled, just run remoteprog_chert.
 if BUILD_BACKEND_CHERT
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
 else
@@ -59,18 +62,18 @@ else
 endif
 
 check-remotetcp: apitest$(EXEEXT)
-## If both chert and brass are enabled, just run remotetcp_brass.
-if BUILD_BACKEND_BRASS
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
+## If both chert and glass are enabled, just run remotetcp_glass.
+if BUILD_BACKEND_GLASS
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
 else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
 endif
 
-if BUILD_BACKEND_BRASS
-check-remoteprog-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_brass
-check-remotetcp-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_brass
+if BUILD_BACKEND_GLASS
+check-remoteprog-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_glass
+check-remotetcp-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -81,11 +84,13 @@ check-remotetcp-chert: apitest$(EXEEXT)
 endif
 endif
 
-if BUILD_BACKEND_BRASS
-check-multi-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_brass
-check-brass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b brass
+if BUILD_BACKEND_GLASS
+check-multi-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_glass
+check-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b glass
+check-singlefile-glass: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile_glass
 endif
 
 if BUILD_BACKEND_CHERT
@@ -116,6 +121,7 @@ collated_apitest_sources = \
  api_closedb.cc \
  api_collapse.cc \
  api_compact.cc \
+ api_compactold.cc \
  api_db.cc \
  api_generated.cc \
  api_geospatial.cc \
@@ -134,7 +140,7 @@ collated_apitest_sources = \
  api_replicate.cc \
  api_scalability.cc \
  api_serialise.cc \
- api_snipper.cc \
+ api_snippets.cc \
  api_sorting.cc \
  api_spelling.cc \
  api_stem.cc \
@@ -148,27 +154,27 @@ collated_apitest_sources = \
 apitest_SOURCES = apitest.cc dbcheck.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
-apitest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+apitest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 apitest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
-stemtest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+stemtest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 stemtest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
-internaltest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+internaltest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 internaltest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
-queryparsertest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+queryparsertest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 queryparsertest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 termgentest_SOURCES = termgentest.cc $(testharness_sources)
-termgentest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+termgentest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 termgentest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 unittest_SOURCES = unittest.cc $(utestharness_sources)
-unittest_LDFLAGS = @NO_INSTALL@ $(ldflags)
+unittest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 unittest_LDADD = ../libgetopt.la
 
 BUILT_SOURCES =
@@ -201,7 +207,7 @@ api_generated.cc: generate-api_generated
 endif
 
 EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
-	$(collated_apitest_sources:.cc=.h) dir_contents
+	$(collated_apitest_sources:.cc=.h)
 
 ## Distribute test data:
 EXTRA_DIST +=\
@@ -223,10 +229,11 @@ EXTRA_DIST +=\
 	testdata/apitest_sortconsist.txt \
 	testdata/apitest_sortrel.txt \
 	testdata/apitest_declen.txt \
-	testdata/etext.txt
+	testdata/etext.txt \
+	testdata/snippet.txt
 
 remove-cached-databases:
-	rm -rf .brass .chert .multibrass .multichert .stub
+	rm -rf .chert .glass .multichert .multiglass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -29,6 +29,7 @@
 #include "xapian/error.h"
 #include "xapian/errorhandler.h"
 #include "xapian/expanddecider.h"
+#include "xapian/matchspy.h"
 #include "xapian/termiterator.h"
 #include "xapian/weight.h"
 
@@ -158,10 +159,6 @@ MSet::MSet() : internal(new MSet::Internal)
 {
 }
 
-MSet::MSet(MSet::Internal * internal_) : internal(internal_)
-{
-}
-
 MSet::~MSet()
 {
 }
@@ -170,36 +167,19 @@ MSet::MSet(const MSet & other) : internal(other.internal)
 {
 }
 
-void
+MSet &
 MSet::operator=(const MSet &other)
 {
     internal = other.internal;
+    return *this;
 }
 
 void
-MSet::fetch(const MSetIterator & beginiter, const MSetIterator & enditer) const
+MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
 {
-    LOGCALL_VOID(API, "Xapian::MSet::fetch", beginiter | enditer);
+    LOGCALL_VOID(API, "Xapian::MSet::fetch_", first | last);
     Assert(internal.get() != 0);
-    if (beginiter != enditer)
-	internal->fetch_items(beginiter.index, enditer.index - 1);
-}
-
-void
-MSet::fetch(const MSetIterator & beginiter) const
-{
-    LOGCALL_VOID(API, "Xapian::MSet::fetch", beginiter);
-    Assert(internal.get() != 0);
-    internal->fetch_items(beginiter.index, beginiter.index);
-}
-
-void
-MSet::fetch() const
-{
-    LOGCALL_VOID(API, "Xapian::MSet::fetch", NO_ARGS);
-    Assert(internal.get() != 0);
-    if (!internal->items.empty())
-	internal->fetch_items(0, internal->items.size() - 1);
+    internal->fetch_items(first, last);
 }
 
 int
@@ -314,53 +294,25 @@ MSet::get_max_attained() const
     return internal->max_attained;
 }
 
+string
+MSet::snippet(const string & text,
+	      size_t length,
+	      const Xapian::Stem & stemmer,
+	      unsigned flags,
+	      const string & hi_start,
+	      const string & hi_end,
+	      const string & omit) const
+{
+    Assert(internal.get() != 0);
+    return internal->snippet(text, length, stemmer, flags,
+			     hi_start, hi_end, omit);
+}
+
 Xapian::doccount
 MSet::size() const
 {
     Assert(internal.get() != 0);
     return internal->items.size();
-}
-
-bool
-MSet::empty() const
-{
-    Assert(internal.get() != 0);
-    return internal->items.empty();
-}
-
-void
-MSet::swap(MSet & other)
-{
-    std::swap(internal, other.internal);
-}
-
-MSetIterator
-MSet::begin() const
-{
-    return MSetIterator(0, *this);
-}
-
-MSetIterator
-MSet::end() const
-{
-    Assert(internal.get() != 0);
-    return MSetIterator(internal->items.size(), *this);
-}
-
-MSetIterator
-MSet::operator[](Xapian::doccount i) const
-{
-    // Don't test 0 <= i - that gives a compiler warning if i is unsigned
-    Assert(0 < (i + 1) && i < size());
-    return MSetIterator(i, *this);
-}
-
-MSetIterator
-MSet::back() const
-{
-    Assert(!empty());
-    Assert(internal.get() != 0);
-    return MSetIterator(internal->items.size() - 1, *this);
 }
 
 string
@@ -412,9 +364,7 @@ MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 	}
     }
 
-    // Don't cache unless fetch() was called by the API user.
-    enquire->request_doc(items[index - firstitem]);
-    RETURN(enquire->read_doc(items[index - firstitem]));
+    RETURN(enquire->get_document(items[index - firstitem]));
 }
 
 void
@@ -424,6 +374,9 @@ MSet::Internal::fetch_items(Xapian::doccount first, Xapian::doccount last) const
     if (enquire.get() == 0) {
 	throw InvalidOperationError("Can't fetch documents from an MSet which is not derived from a query.");
     }
+    if (items.empty()) return;
+    if (last > items.size() - 1)
+	last = items.size() - 1;
     for (Xapian::doccount i = first; i <= last; ++i) {
 	map<Xapian::doccount, Document>::const_iterator doc;
 	doc = indexeddocs.find(i);
@@ -583,7 +536,9 @@ Xapian::docid
 MSetIterator::operator *() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].did;
 }
 
@@ -591,7 +546,9 @@ Document
 MSetIterator::get_document() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->get_doc_by_index(index);
 }
 
@@ -599,7 +556,9 @@ double
 MSetIterator::get_weight() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].wt;
 }
 
@@ -607,7 +566,9 @@ std::string
 MSetIterator::get_collapse_key() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].collapse_key;
 }
 
@@ -615,21 +576,16 @@ Xapian::doccount
 MSetIterator::get_collapse_count() const
 {
     Assert(mset.internal.get());
-    AssertRel(index,<,mset.internal->items.size());
+    Xapian::doccount size = mset.internal->items.size();
+    Xapian::doccount index = size - off_from_end;
+    AssertRel(index,<,size);
     return mset.internal->items[index].collapse_count;
-}
-
-int
-MSetIterator::get_percent() const
-{
-    LOGCALL(API, int, "MSetIterator::get_percent", NO_ARGS);
-    RETURN(mset.internal->convert_to_percent_internal(get_weight()));
 }
 
 string
 MSetIterator::get_description() const
 {
-    return "Xapian::MSetIterator(" + str(index) + ")";
+    return "Xapian::MSetIterator(" + str(mset.size() - off_from_end) + ")";
 }
 
 // Methods for Xapian::Enquire::Internal
@@ -660,7 +616,7 @@ Enquire::Internal::set_query(const Query &query_, termcount qlen_)
 }
 
 const Query &
-Enquire::Internal::get_query()
+Enquire::Internal::get_query() const
 {
     return query;
 }
@@ -717,7 +673,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	retval.internal->stats = stats.release();
     }
 
-    return retval;
+    RETURN(retval);
 }
 
 ESet
@@ -742,15 +698,12 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     AutoPtr<ExpandDecider> decider_andnoquery;
 
     if (!query.empty() && !(flags & Enquire::INCLUDE_QUERY_TERMS)) {
-	AutoPtr<ExpandDecider> temp1(
+	decider_noquery.reset(
 	    new ExpandDeciderFilterTerms(query.get_terms_begin(),
 					 query.get_terms_end()));
-        decider_noquery = temp1;
-
 	if (edecider) {
-	    AutoPtr<ExpandDecider> temp2(
+	    decider_andnoquery.reset(
 		new ExpandDeciderAnd(decider_noquery.get(), edecider));
-	    decider_andnoquery = temp2;
 	    edecider = decider_andnoquery.get();
 	} else {
 	    edecider = decider_noquery.get();
@@ -815,7 +768,7 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
 	string term = *docterms;
         map<string, unsigned int>::iterator t = tmap.find(term);
         if (t != tmap.end()) matching_terms.push_back(term);
-	docterms++;
+	++docterms;
     }
 
     // sort the resulting list by query position.
@@ -884,6 +837,18 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
     }
 }
 
+Document
+Enquire::Internal::get_document(const Xapian::Internal::MSetItem &item) const
+{
+    unsigned int multiplier = db.internal.size();
+
+    Xapian::docid realdid = (item.did - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (item.did - 1) % multiplier;
+
+    // We know the doc exists, so open lazily.
+    return Document(db.internal[dbnumber]->open_document(realdid, true));
+}
+
 // Methods of Xapian::Enquire
 
 Enquire::Enquire(const Enquire & other) : internal(other.internal)
@@ -926,12 +891,7 @@ const Query &
 Enquire::get_query() const
 {
     LOGCALL(API, const Xapian::Query &, "Xapian::Enquire::get_query", NO_ARGS);
-    try {
-	RETURN(internal->get_query());
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
+    RETURN(internal->get_query());
 }
 
 void

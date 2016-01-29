@@ -30,11 +30,11 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  using a probabilistic ranking.
 
 **Brass**
- Brass is the current "under development" database format used in Xapian.  We
- try to keep it as stable as chert - the main difference is that incompatible
- changes may be made which will require you to reindex, even between stable
- point release.  In release 1.4.0, brass will be declared stable and made the
- default backend, and chert will then be deprecated.
+ Brass was the current "under development" database format in Xapian 1.2.x,
+ 1.3.0 and 1.3.1.  It was renamed to 'glass' in Xapian 1.3.2 because we decided
+ to use backend names in ascending alphabetical order to make it easier to
+ understand which backend is newest, and since 'flint' was used recently, we
+ skipped over 'd', 'e' and 'f'.
 
 **Chert**
  Chert is the stable database format used in Xapian 1.2.x.  It is similar
@@ -88,6 +88,13 @@ Retrieval, while others have a specific meaning in the context of Xapian.
 **Flint**
  Flint was the default database format used in Xapian 1.0.x.  It was
  deprecated in 1.2.x and removed in 1.3.0.
+
+**Glass**
+ Glass is the current "under development" database format as of Xapian 1.3.2.
+ We try to keep it as stable as chert - the main difference is that
+ incompatible changes may be made which will require you to reindex, even
+ between stable point release.  In release 1.4.0, glass will be declared stable
+ and made the default backend, and chert will then be deprecated.
 
 **Index**
  If a document is described by a term, this term is said to index the document.

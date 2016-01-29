@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2004,2005,2007,2008,2010,2012,2013 Olly Betts
+# Copyright (C) 2004,2005,2007,2008,2010,2012,2013,2014,2015 Olly Betts
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -45,7 +45,7 @@ if [ -d "$download_dir" ] ; then
     exit 1
 fi
 
-if [ "`git branch|sed 's/^* //p;d'`" != "$BRANCH" ] ; then
+if [ "`git branch --color=never --contains|cut -d' ' -f2-`" != "$BRANCH" ] ; then
     echo "Not on branch $BRANCH"
     exit 1
 fi
@@ -55,20 +55,25 @@ fi
 bad=0
 escaped_version=`echo "$version"|sed 's/\([^0-9]\)/\\\\\\1/g'`
 for d in xapian-core xapian-bindings xapian-applications/omega ; do
-    grep '^AC_INIT(.*\<'"$escaped_version"'\>' "$d/configure.ac" >/dev/null || {
+    grep '^\(AC_INIT(\|m4_define(\[project_version\],\).*\<'"$escaped_version"'\>' "$d/configure.ac" >/dev/null || {
 	echo "$d/configure.ac not version $version" 1>&2
 	bad=1
     }
 done
 [ "$bad" = "0" ] || exit 1
 
-# FIXME: Add the version to the list in trac, close old milestone, ensure new
-# milestone exists.
-
-# Tag the release in git.
-echo "Tagging release"
 tag=v$version
-git tag -m "$version release" "$tag"
+while ! git tag -v "$tag" > /dev/null 2>&1 ; do
+    cat <<EOF
+No '$tag' tag found - please create a signed tag and push it - in your local
+tree do this:
+
+git fetch && git tag -s -m 'Xapian $version release' '$tag' '$branch' && git push --tags
+
+Once you've done that, hit ENTER in this terminal to continue.
+EOF
+    read dummy
+done
 
 echo "Building release tarballs"
 # Create a directory so the snapshotter will build this.
@@ -85,3 +90,8 @@ set +x
 # Clean up.
 rm -rf "$D/$tag"
 rmdir $D || echo "Directory '$D' not removed."
+
+# Add the version to the list in trac, close old milestone, ensure new
+# milestone exists, and create the ReleaseNotes and ReleaseOverview
+# pages:
+xapian-trac-new-release "$version"

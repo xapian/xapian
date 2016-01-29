@@ -2,7 +2,7 @@
  * @brief class for performing a match
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2009,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009,2011,2013,2014,2015 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -74,7 +74,7 @@ class MultiMatch
 	vector<bool> is_remote;
 
 	/// The matchspies to use.
-	const vector<Xapian::MatchSpy *> & matchspies;
+	const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies;
 
 	/** get the maxweight that the postlist pl may return, calling
 	 *  recalc_maxweight if recalculate_w_max is set, and unsetting it.
@@ -120,7 +120,7 @@ class MultiMatch
 		   Xapian::ErrorHandler * errorhandler,
 		   Xapian::Weight::Internal & stats,
 		   const Xapian::Weight *wtscheme,
-		   const vector<Xapian::MatchSpy *> & matchspies_,
+		   const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_,
 		   bool have_sorter, bool have_mdecider);
 
 	/** Run the match and generate an MSet object.

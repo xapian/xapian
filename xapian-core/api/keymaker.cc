@@ -1,7 +1,8 @@
 /** @file keymaker.cc
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2015 Olly Betts
+ * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +39,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 {
     string result;
 
-    vector<pair<Xapian::valueno, bool> >::const_iterator i = slots.begin();
+    auto i = slots.begin();
     // Don't crash if slots is empty.
     if (rare(i == slots.end())) return result;
 
@@ -48,8 +49,12 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	// be adjusted.
 	//
 	// FIXME: allow Xapian::BAD_VALUENO to mean "relevance?"
-	string v = doc.get_value(i->first);
-	bool reverse_sort = i->second;
+	string v = doc.get_value(i->slot);
+	bool reverse_sort = i->reverse;
+
+	if (v.empty()) {
+	    v = i->defvalue;
+	}
 
 	if (reverse_sort || !v.empty())
 	    last_not_empty_forwards = result.size();
@@ -70,7 +75,7 @@ MultiValueKeyMaker::operator()(const Xapian::Document & doc) const
 	    // except for '\0' which we convert to "\xff\0".  We insert
 	    // "\xff\xff" after the encoded value.
 	    for (string::const_iterator j = v.begin(); j != v.end(); ++j) {
-		unsigned char ch(*j);
+		unsigned char ch = static_cast<unsigned char>(*j);
 		result += char(255 - ch);
 		if (ch == 0) result += '\0';
 	    }

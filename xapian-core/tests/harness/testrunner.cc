@@ -2,7 +2,7 @@
  * @brief Run multiple tests for different backends.
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
- * Copyright 2008,2009,2010,2011 Olly Betts
+ * Copyright 2008,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,12 +26,13 @@
 
 #include "testsuite.h"
 #include "backendmanager.h"
-#include "backendmanager_brass.h"
 #include "backendmanager_chert.h"
+#include "backendmanager_glass.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
 #include "backendmanager_remoteprog.h"
 #include "backendmanager_remotetcp.h"
+#include "backendmanager_singlefile.h"
 
 #include "stringutils.h"
 #include <iostream>
@@ -40,100 +41,7 @@ using namespace std;
 
 BackendManager * backendmanager;
 
-/** A description of the properties which a particular backend supports.
- */
-struct BackendProperties {
-    const char * name;
-    const char * properties;
-};
-
-/** A list of the properties of each backend.
- */
-static BackendProperties backend_properties[] = {
-    { "none", "" },
-    { "inmemory", "backend,positional,writable,metadata,valuestats,inmemory" },
-    { "brass", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,valuestats,generated,brass" },
-    { "chert", "backend,transactions,positional,writable,spelling,metadata,"
-	       "synonyms,replicas,valuestats,generated,chert" },
-    { "multi_brass", "backend,positional,valuestats,multi" },
-    { "multi_chert", "backend,positional,valuestats,multi" },
-    { "remoteprog_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
-    { "remotetcp_brass", "backend,remote,transactions,positional,valuestats,writable,metadata" },
-    { "remoteprog_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
-    { "remotetcp_chert", "backend,remote,transactions,positional,valuestats,writable,metadata" },
-    { NULL, NULL }
-};
-
 TestRunner::~TestRunner() { }
-
-void
-TestRunner::set_properties(const string & properties)
-{
-    // Clear the flags
-    backend = false;
-    remote = false;
-    transactions = false;
-    positional = false;
-    writable = false;
-    multi = false;
-    spelling = false;
-    synonyms = false;
-    metadata = false;
-    replicas = false;
-    valuestats = false;
-    generated = false;
-    inmemory = false;
-    brass = false;
-    chert = false;
-
-    // Read the properties specified in the string
-    string::size_type pos = 0;
-    string::size_type comma = 0;
-    while (pos != string::npos) {
-	comma = properties.find(',', pos + 1);
-	string propname = properties.substr(pos, comma - pos);
-
-	// Set the flags according to the property.
-	if (propname.empty()) {}
-	else if (propname == "backend")
-	    backend = true;
-	else if (propname == "remote")
-	    remote = true;
-	else if (propname == "transactions")
-	    transactions = true;
-	else if (propname == "positional")
-	    positional = true;
-	else if (propname == "writable")
-	    writable = true;
-	else if (propname == "multi")
-	    multi = true;
-	else if (propname == "spelling")
-	    spelling = true;
-	else if (propname == "synonyms")
-	    synonyms = true;
-	else if (propname == "metadata")
-	    metadata = true;
-	else if (propname == "replicas")
-	    replicas = true;
-	else if (propname == "valuestats")
-	    valuestats = true;
-	else if (propname == "generated")
-	    generated = true;
-	else if (propname == "inmemory")
-	    inmemory = true;
-	else if (propname == "brass")
-	    brass = true;
-	else if (propname == "chert")
-	    chert = true;
-	else
-	    throw Xapian::InvalidArgumentError("Unknown property '" + propname + "' found in proplist");
-
-	if (comma == string::npos)
-	    break;
-	pos = comma + 1;
-    }
-}
 
 bool
 TestRunner::use_backend(const string & backend_name)
@@ -150,16 +58,47 @@ TestRunner::use_backend(const string & backend_name)
 void
 TestRunner::set_properties_for_backend(const string & backend_name)
 {
-    const char * propstring = NULL;
+    /// A description of the properties which a particular backend supports.
+    struct BackendProperties {
+	const char * name;
+	unsigned properties;
+    };
+
+    /// A list of the properties of each backend.
+    static const BackendProperties backend_properties[] = {
+	{ "none", 0 },
+	{ "inmemory", INMEMORY|
+	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "chert", CHERT|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
+	    SYNONYMS|REPLICAS|VALUESTATS|GENERATED },
+	{ "glass", GLASS|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
+	    SYNONYMS|REPLICAS|VALUESTATS|GENERATED },
+	{ "multi_chert", MULTI|
+	    BACKEND|POSITIONAL|VALUESTATS },
+	{ "multi_glass", MULTI|
+	    BACKEND|POSITIONAL|VALUESTATS },
+	{ "remoteprog_chert", REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "remotetcp_chert", REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "remoteprog_glass", REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "remotetcp_glass", REMOTE|
+	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
+	{ "singlefile_glass", SINGLEFILE|
+	    BACKEND|POSITIONAL|VALUESTATS },
+	{ NULL, 0 }
+    };
+
     for (const BackendProperties * i = backend_properties; i->name; ++i) {
 	if (backend_name == i->name) {
-	    propstring = i->properties;
-	    break;
+	    properties = i->properties;
+	    return;
 	}
     }
-    if (!propstring)
-	throw Xapian::InvalidArgumentError("Unknown backend " + backend_name);
-    set_properties(propstring);
+    throw Xapian::InvalidArgumentError("Unknown backend " + backend_name);
 }
 
 void
@@ -196,9 +135,14 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
-	    BackendManagerBrass m;
+	    BackendManagerGlass m;
+	    do_tests_for_backend(&m);
+	}
+
+	{
+	    BackendManagerSingleFile m("glass");
 	    do_tests_for_backend(&m);
 	}
 #endif
@@ -210,9 +154,9 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_BRASS_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
-	    BackendManagerMulti m("brass");
+	    BackendManagerMulti m("glass");
 	    do_tests_for_backend(&m);
 	}
 #endif
@@ -224,13 +168,13 @@ TestRunner::run_tests(int argc, char ** argv)
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-#ifdef XAPIAN_HAS_BRASS_BACKEND
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
-	    BackendManagerRemoteProg m("brass");
+	    BackendManagerRemoteProg m("glass");
 	    do_tests_for_backend(&m);
 	}
 	{
-	    BackendManagerRemoteTcp m("brass");
+	    BackendManagerRemoteTcp m("glass");
 	    do_tests_for_backend(&m);
 	}
 #endif

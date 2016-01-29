@@ -11,7 +11,7 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libexpand.lib" 
+ALL : "$(OUTDIR)\libexpand.lib"
 
 OBJS= \
                  $(INTDIR)\ortermlist.obj \
@@ -21,7 +21,7 @@ SRCS= \
                  $(INTDIR)\ortermlist.cc \
                  $(INTDIR)\esetinternal.cc \
                  $(INTDIR)\expandweight.cc
-		 
+
 CLEAN :
 	-@erase "$(OUTDIR)\libexpand.lib"
 	-@erase "$(INTDIR)\*.pdb"
@@ -35,7 +35,7 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  -I"..\languages" \
  -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
- 
+
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
@@ -47,18 +47,18 @@ CPP_SBRS=.
 
 # inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj::
-	$(CPP) @<<
-	$(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 {.}.cc{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
+    $(CPP) @<<
+    $(CPP_PROJ) $<
 <<
 
 # Calculate any header dependencies and automatically insert them into this file
 HEADERS :
     -@erase deps.d
     $(CPP) -showIncludes $(CPP_PROJ) $(SRCS) >>deps.d
-    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND) 
+    if exist "..\win32\$(DEPEND)" ..\win32\$(DEPEND)
 # DO NOT DELETE THIS LINE -- xapdep depends on it.

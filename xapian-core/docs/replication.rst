@@ -45,12 +45,13 @@ modifications are made.
 
 This document gives an overview of how and why to use the replication protocol.
 For technical details of the implementation of the replication protocol, see
-the separate `Replication Protocol <replication_protocol.html>`_ document.
+the separate document `net/replication_protocol.rst` in the xapian-core
+source tree.
 
 Backend Support
 ===============
 
-Replication is supported by the chert, and brass database backends,
+Replication is supported by the chert, and glass database backends,
 and can cleanly handle the
 master switching database type (a full copy is sent in this situation).  It
 doesn't make a lot of sense to support replication for the remote backend.
@@ -76,7 +77,7 @@ of the database.
 
 The value which `XAPIAN_MAX_CHANGESETS` is set to determines the maximum number
 of changeset files which will be kept.  The best number to keep depends on how
-you frequently you run replication and how big your transactions are - if all
+frequently you run replication and how big your transactions are - if all
 the changeset files needed to update a replica aren't present, a full copy of
 the database will be sent, but at some point that becomes more efficient
 anyway.  `10` is probably a good value to start with.
@@ -159,7 +160,7 @@ switched atomically after a database copy has occurred.  The reopen() method
 doesn't re-read the stub database file in this situation, so ends up
 attempting to read the old database which has been deleted.
 
-We intend to fix this issue in the Brass backend (currently under development
+We intend to fix this issue in the Glass backend (currently under development
 by eliminating this hidden use of a stub database file).
 
 Alternative approaches

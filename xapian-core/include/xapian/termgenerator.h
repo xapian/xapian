@@ -1,7 +1,7 @@
 /** @file termgenerator.h
  * @brief parse free text and generate terms
  */
-/* Copyright (C) 2007,2009,2011,2012,2013 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #ifndef XAPIAN_INCLUDED_TERMGENERATOR_H
 #define XAPIAN_INCLUDED_TERMGENERATOR_H
 
-#if !defined XAPIAN_INCLUDED_XAPIAN_H && !defined XAPIAN_LIB_BUILD
+#if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
 # error "Never use <xapian/termgenerator.h> directly; include <xapian.h> instead."
 #endif
 
@@ -86,13 +86,27 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Set the database to index spelling data to.
     void set_database(const Xapian::WritableDatabase &db);
 
-    /// For backward comptibility with Xapian 1.2
+    /// For backward compatibility with Xapian 1.2
     typedef int flags;
 
     /// Flags to OR together and pass to TermGenerator::set_flags().
     enum {
 	/// Index data required for spelling correction.
-	FLAG_SPELLING = 128 // Value matches QueryParser flag.
+	FLAG_SPELLING = 128, // Value matches QueryParser flag.
+
+	/** Enable generation of n-grams from CJK text.
+	 *
+	 *  With this enabled, spans of CJK characters are split into unigrams
+	 *  and bigrams, with the unigrams carrying positional information.
+	 *  Non-CJK characters are split into words as normal.
+	 *
+	 *  The corresponding option needs to be passed to QueryParser.
+	 *
+	 *  Flag added in Xapian 1.3.4 and 1.2.22, but this mode can be
+	 *  enabled in 1.2.8 and later by setting environment variable
+	 *  XAPIAN_CJK_NGRAM.
+	 */
+	FLAG_CJK_NGRAM = 2048 // Value matches QueryParser flag.
     };
 
     /// Stemming strategies, for use with set_stemming_strategy().

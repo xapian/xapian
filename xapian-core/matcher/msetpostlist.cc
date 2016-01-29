@@ -1,7 +1,7 @@
 /** @file msetpostlist.cc
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007,2009,2010,2011 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2015 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,6 +83,14 @@ MSetPostList::get_weight() const
 }
 
 const string *
+MSetPostList::get_sort_key() const
+{
+    LOGCALL(MATCH, const string *, "MSetPostList::get_sort_key", NO_ARGS);
+    Assert(cursor != -1);
+    RETURN(&mset_internal->items[cursor].sort_key);
+}
+
+const string *
 MSetPostList::get_collapse_key() const
 {
     LOGCALL(MATCH, const string *, "MSetPostList::get_collapse_key", NO_ARGS);
@@ -94,6 +102,12 @@ Xapian::termcount
 MSetPostList::get_doclength() const
 {
     throw Xapian::UnimplementedError("MSetPostList::get_doclength() unimplemented");
+}
+
+Xapian::termcount
+MSetPostList::get_unique_terms() const
+{
+    throw Xapian::UnimplementedError("MSetPostList::get_unique_terms() unimplemented");
 }
 
 double

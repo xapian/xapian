@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -39,6 +39,126 @@
 #include <string>
 
 using namespace std;
+
+/** Xapian::Weight subclass which adds laziness.
+ *
+ *  For terms from a wildcard when remote databases are involved, we need to
+ *  delay calling init_() on the weight object until the stats for the terms
+ *  from the wildcard have been collated.
+ */
+class LazyWeight : public Xapian::Weight {
+    LeafPostList * pl;
+
+    Xapian::Weight * real_wt;
+
+    Xapian::Weight::Internal * stats;
+
+    Xapian::termcount qlen;
+
+    Xapian::termcount wqf;
+
+    double factor;
+
+    LazyWeight * clone() const;
+
+    void init(double factor_);
+
+  public:
+    LazyWeight(LeafPostList * pl_,
+	       Xapian::Weight * real_wt_,
+	       Xapian::Weight::Internal * stats_,
+	       Xapian::termcount qlen_,
+	       Xapian::termcount wqf__,
+	       double factor_)
+	: pl(pl_),
+	  real_wt(real_wt_),
+	  stats(stats_),
+	  qlen(qlen_),
+	  wqf(wqf__),
+	  factor(factor_)
+    { }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    LazyWeight * unserialise(const std::string & serialised) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
+    double get_maxextra() const;
+};
+
+LazyWeight *
+LazyWeight::clone() const
+{
+    throw Xapian::InvalidOperationError("LazyWeight::clone()");
+}
+
+void
+LazyWeight::init(double factor_)
+{
+    (void)factor_;
+    throw Xapian::InvalidOperationError("LazyWeight::init()");
+}
+
+string
+LazyWeight::name() const
+{
+    string desc = "LazyWeight(";
+    desc += real_wt->name();
+    desc += ")";
+    return desc;
+}
+
+string
+LazyWeight::serialise() const
+{
+    throw Xapian::InvalidOperationError("LazyWeight::serialise()");
+}
+
+LazyWeight *
+LazyWeight::unserialise(const string &) const
+{
+    throw Xapian::InvalidOperationError("LazyWeight::unserialise()");
+}
+
+double
+LazyWeight::get_sumpart(Xapian::termcount wdf,
+			Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const
+{
+    (void)wdf;
+    (void)doclen;
+    (void)uniqterms;
+    throw Xapian::InvalidOperationError("LazyWeight::get_sumpart()");
+}
+
+double
+LazyWeight::get_sumextra(Xapian::termcount doclen,
+			 Xapian::termcount uniqterms) const
+{
+    (void)doclen;
+    (void)uniqterms;
+    throw Xapian::InvalidOperationError("LazyWeight::get_sumextra()");
+}
+
+double
+LazyWeight::get_maxpart() const
+{
+    // This gets called first for the case we care about.
+    return pl->resolve_lazy_termweight(real_wt, stats, qlen, wqf, factor);
+}
+
+double
+LazyWeight::get_maxextra() const
+{
+    throw Xapian::InvalidOperationError("LazyWeight::get_maxextra()");
+}
 
 bool
 LocalSubMatch::prepare_match(bool nowait,
@@ -84,6 +204,7 @@ LocalSubMatch::get_postlist(MultiMatch * matcher,
     }
 
     AutoPtr<Xapian::Weight> extra_wt(wt_factory->clone());
+    // Only uses term-independent stats.
     extra_wt->init_(*stats, qlen);
     if (extra_wt->get_maxextra() != 0.0) {
 	// There's a term-independent weight contribution, so we combine the
@@ -100,6 +221,10 @@ LocalSubMatch::make_synonym_postlist(PostList * or_pl, MultiMatch * matcher,
 				     double factor)
 {
     LOGCALL(MATCH, PostList *, "LocalSubMatch::make_synonym_postlist", or_pl | matcher | factor);
+    if (rare(or_pl->get_termfreq_max() == 0)) {
+	// or_pl is an EmptyPostList or equivalent.
+	return or_pl;
+    }
     LOGVALUE(MATCH, or_pl->get_termfreq_est());
     Xapian::termcount len_lb = db->get_doclength_lower_bound();
     AutoPtr<SynonymPostList> res(new SynonymPostList(or_pl, matcher, len_lb));
@@ -125,41 +250,62 @@ LeafPostList *
 LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
-			      LeafPostList ** hint)
+			      bool need_positions,
+			      QueryOptimiser * qopt,
+			      bool lazy_weight)
 {
-    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | hint);
+    LOGCALL(MATCH, LeafPostList *, "LocalSubMatch::open_post_list", term | wqf | factor | need_positions | qopt | lazy_weight);
 
     bool weighted = (factor != 0.0 && !term.empty());
-    AutoPtr<Xapian::Weight> wt(weighted ? wt_factory->clone() : NULL);
-    if (weighted) {
-	wt->init_(*stats, qlen, term, wqf, factor);
-	stats->set_max_part(term, wt->get_maxpart());
-    }
 
     LeafPostList * pl = NULL;
-    if (!term.empty()) {
+    if (!term.empty() && !need_positions) {
 	if (!weighted || !wt_factory->get_sumpart_needs_wdf_()) {
 	    Xapian::doccount sub_tf;
 	    db->get_freqs(term, &sub_tf, NULL);
 	    if (sub_tf == db->get_doccount()) {
-		// If we're not going to use the wdf and the term indexes all
-		// documents, we can replace it with the MatchAll postlist,
-		// which is especially efficient if there are no gaps in the
-		// docids.
+		// If we're not going to use the wdf or term positions, and the
+		// term indexes all documents, we can replace it with the
+		// MatchAll postlist, which is especially efficient if there
+		// are no gaps in the docids.
 		pl = db->open_post_list(string());
 	    }
 	}
     }
 
     if (!pl) {
-	if (*hint)
-	    pl = (*hint)->open_nearby_postlist(term);
+	const LeafPostList * hint = qopt->get_hint_postlist();
+	if (hint)
+	    pl = hint->open_nearby_postlist(term);
 	if (!pl)
 	    pl = db->open_post_list(term);
-	*hint = pl;
+	qopt->set_hint_postlist(pl);
     }
 
-    if (weighted)
-	pl->set_termweight(wt.release());
+    if (lazy_weight) {
+	// Term came from a wildcard, but we may already have that term in the
+	// query anyway, so check before accumulating its TermFreqs.
+	map<string, TermFreqs>::iterator i = stats->termfreqs.find(term);
+	if (i == stats->termfreqs.end()) {
+	    Xapian::doccount sub_tf;
+	    Xapian::termcount sub_cf;
+	    db->get_freqs(term, &sub_tf, &sub_cf);
+	    stats->termfreqs.insert(make_pair(term, TermFreqs(sub_tf, 0, sub_cf)));
+	}
+    }
+
+    if (weighted) {
+	Xapian::Weight * wt = wt_factory->clone();
+	if (!lazy_weight) {
+	    wt->init_(*stats, qlen, term, wqf, factor);
+	    stats->set_max_part(term, wt->get_maxpart());
+	} else {
+	    // Delay initialising the actual weight object, so that we can
+	    // gather stats for the terms lazily expanded from a wildcard
+	    // (needed for the remote database case).
+	    wt = new LazyWeight(pl, wt, stats, qlen, wqf, factor);
+	}
+	pl->set_termweight(wt);
+    }
     RETURN(pl);
 }

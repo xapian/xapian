@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:	OmegaScript
 " Maintainer:	Xapian developers <xapian-discuss@lists.xapian.org>
-" URL:		http://xapian.org/
+" URL:		https://xapian.org/
 " Version:	@VERSION@
 
 " To install: place this file in ~/.vim/syntax/omegascript.vim

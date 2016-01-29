@@ -1,6 +1,6 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Originally by Ulrik Petersen
-# Modified by Charlie Hull, Lemur Consulting Ltd. www.lemurconsulting.com
+# Modified by Charlie Hull, Lemur Consulting Ltd.
 # 17th March 2006
 # Copyright (C) 2007, Olly Betts
 
@@ -12,22 +12,25 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-SBL_OPTIONS=-c++ -u 
+SBL_OPTIONS=-c++ -u
 SBL=compiler\snowball.exe
 
-ALL : MAKEFROMSBL "$(OUTDIR)\liblanguages.lib" 
+ALL : MAKEFROMSBL "$(OUTDIR)\liblanguages.lib"
 
 LIBLANGUAGES_OBJS= \
                  $(INTDIR)\stem.obj \
                  $(INTDIR)\steminternal.obj \
+                 $(INTDIR)\armenian.obj \
+                 $(INTDIR)\basque.obj \
+                 $(INTDIR)\catalan.obj \
                  $(INTDIR)\danish.obj \
                  $(INTDIR)\dutch.obj \
                  $(INTDIR)\english.obj \
                  $(INTDIR)\finnish.obj \
                  $(INTDIR)\french.obj \
                  $(INTDIR)\german.obj \
-		 $(INTDIR)\german2.obj \
-		 $(INTDIR)\hungarian.obj \
+                 $(INTDIR)\german2.obj \
+                 $(INTDIR)\hungarian.obj \
                  $(INTDIR)\italian.obj \
                  $(INTDIR)\lovins.obj \
                  $(INTDIR)\norwegian.obj \
@@ -36,19 +39,22 @@ LIBLANGUAGES_OBJS= \
                  $(INTDIR)\russian.obj \
                  $(INTDIR)\spanish.obj \
                  $(INTDIR)\swedish.obj \
-		 $(INTDIR)\romanian.obj \
-		 $(INTDIR)\kraaij_pohlmann.obj \
-		 $(INTDIR)\turkish.obj 
+                 $(INTDIR)\romanian.obj \
+                 $(INTDIR)\kraaij_pohlmann.obj \
+                 $(INTDIR)\turkish.obj
 
 LIBLANGUAGES_SOURCES= \
+                 $(INTDIR)\armenian.cc \
+                 $(INTDIR)\basque.cc \
+                 $(INTDIR)\catalan.cc \
                  $(INTDIR)\danish.cc \
                  $(INTDIR)\dutch.cc \
                  $(INTDIR)\english.cc \
                  $(INTDIR)\finnish.cc \
                  $(INTDIR)\french.cc \
                  $(INTDIR)\german.cc \
-		 $(INTDIR)\german2.cc \
-		 $(INTDIR)\hungarian.cc \
+                 $(INTDIR)\german2.cc \
+                 $(INTDIR)\hungarian.cc \
                  $(INTDIR)\italian.cc \
                  $(INTDIR)\lovins.cc \
                  $(INTDIR)\norwegian.cc \
@@ -57,19 +63,22 @@ LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\russian.cc \
                  $(INTDIR)\spanish.cc \
                  $(INTDIR)\swedish.cc \
-		 $(INTDIR)\romanian.cc \
-		 $(INTDIR)\kraaij_pohlmann.cc \
-		 $(INTDIR)\turkish.cc 
+                 $(INTDIR)\romanian.cc \
+                 $(INTDIR)\kraaij_pohlmann.cc \
+                 $(INTDIR)\turkish.cc
 
 LIBLANGUAGES_HEADERS= \
+                 armenian.h \
+                 basque.h \
+                 catalan.h \
                  danish.h \
                  dutch.h \
                  english.h \
                  finnish.h \
                  french.h \
                  german.h \
-		 german2.h \
-		 hungarian.h \
+                 german2.h \
+                 hungarian.h \
                  italian.h \
                  lovins.h \
                  norwegian.h \
@@ -78,17 +87,17 @@ LIBLANGUAGES_HEADERS= \
                  russian.h \
                  spanish.h \
                  swedish.h \
-		 romanian.h \
-		 kraaij_pohlmann.h \
-		 turkish.h 
+                 romanian.h \
+                 kraaij_pohlmann.h \
+                 turkish.h
 
 MAKEFROMSBL: $(LIBLANGUAGES_SOURCES) ".\allsnowballheaders.h"
-		 
+
 CLEAN :
 	-@erase "$(OUTDIR)\liblanguages.lib"
 	-@erase "*.pch"
 	-@erase "$(INTDIR)\*.pdb"
-        -@erase $(LIBLANGUAGES_OBJS)
+	-@erase $(LIBLANGUAGES_OBJS)
 	-@erase $(LIBLANGUAGES_SOURCES)
 	-@erase $(LIBLANGUAGES_HEADERS)
 	-@erase allsnowballheaders.h
@@ -110,7 +119,15 @@ CPP_SBRS=.
 
 
 # Generate .h and .cc files from Snowball algorithms using Snowball compiler
-	
+".\armenian.h" ".\armenian.cc" : ".\armenian.sbl"
+	$(SBL) armenian.sbl $(SBL_OPTIONS) -o armenian -n InternalStemArmenian -p SnowballStemImplementation
+
+".\basque.h" ".\basque.cc" : ".\basque.sbl"
+	$(SBL) basque.sbl $(SBL_OPTIONS) -o basque -n InternalStemBasque -p SnowballStemImplementation
+
+".\catalan.h" ".\catalan.cc" : ".\catalan.sbl"
+	$(SBL) catalan.sbl $(SBL_OPTIONS) -o catalan -n InternalStemCatalan -p SnowballStemImplementation
+
 ".\danish.h" ".\danish.cc" : ".\danish.sbl"
 	$(SBL) danish.sbl $(SBL_OPTIONS) -o danish -n InternalStemDanish -p SnowballStemImplementation
 
@@ -155,12 +172,12 @@ CPP_SBRS=.
 
 ".\kraaij_pohlmann.h" ".\kraaij_pohlmann.cc" : ".\kraaij_pohlmann.sbl"
 	$(SBL) kraaij_pohlmann.sbl $(SBL_OPTIONS) -o kraaij_pohlmann -n InternalStemKraaij_pohlmann -p SnowballStemImplementation
-		
+
 ".\romanian.h" ".\romanian.cc" : ".\romanian.sbl"
-	$(SBL) romanian.sbl $(SBL_OPTIONS) -o romanian -n InternalStemRomanian -p SnowballStemImplementation	
+	$(SBL) romanian.sbl $(SBL_OPTIONS) -o romanian -n InternalStemRomanian -p SnowballStemImplementation
 
 ".\turkish.h" ".\turkish.cc" : ".\turkish.sbl"
-	$(SBL) turkish.sbl $(SBL_OPTIONS) -o turkish -n InternalStemTurkish -p SnowballStemImplementation	
+	$(SBL) turkish.sbl $(SBL_OPTIONS) -o turkish -n InternalStemTurkish -p SnowballStemImplementation
 
 ".\finnish.h" ".\finnish.cc" : ".\finnish.sbl"
 	$(SBL) finnish.sbl $(SBL_OPTIONS) -o finnish -n InternalStemFinnish -p SnowballStemImplementation
@@ -169,24 +186,23 @@ CPP_SBRS=.
 	$(SBL) lovins.sbl $(SBL_OPTIONS) -o lovins -n InternalStemLovins -p SnowballStemImplementation
 
 
-"$(INTDIR)\stem.obj" : ".\stem.cc" 
+"$(INTDIR)\stem.obj" : ".\stem.cc"
     $(CPP) @<<
-  $(CPP_PROJ) $**
+    $(CPP_PROJ) $**
 <<
 
 
-"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES) 
+"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES)
     $(CPP) @<<
-  $(CPP_PROJ) $**
+    $(CPP_PROJ) $**
 <<
 
-".\allsnowballheaders.h": ".\generate-allsnowballheaders" 
+".\allsnowballheaders.h": ".\generate-allsnowballheaders"
     if not exist languages\. md languages
     $(PERL_EXE) generate-allsnowballheaders $(LIBLANGUAGES_HEADERS)
     copy languages\allsnowballheaders.h
     del languages\allsnowballheaders.h
     rmdir languages
- 
+
 ".\generate-allsnowballheaders": ".\generate-allsnowballheaders.in" Makefile
     $(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" generate-allsnowballheaders.in > generate-allsnowballheaders
-

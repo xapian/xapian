@@ -167,6 +167,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // remove a spelling
     void msg_removespelling(const std::string & message);
 
+    // get number of unique terms
+    void msg_uniqueterms(const std::string & message);
+
   public:
     /** Construct a RemoteServer.
      *

@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -227,22 +227,18 @@ class testmatchdecider extends XapianMatchDecider {
     }
 }
 
-if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50400) {
-    print "Skipping known failure subclassing Xapian classes in PHP under PHP 5.4+\n";
-} else {
-    $query = new XapianQuery($stem->apply("out"));
-    $enquire = new XapianEnquire($db);
-    $enquire->set_query($query);
-    $mdecider = new testmatchdecider();
-    $mset = $enquire->get_mset(0, 10, null, $mdecider);
-    if ($mset->size() != 1) {
-	print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
-	exit(1);
-    }
-    if ($mset->get_docid(0) != 2) {
-	print "MatchDecider mset has wrong docid in\n";
-	exit(1);
-    }
+$query = new XapianQuery($stem->apply("out"));
+$enquire = new XapianEnquire($db);
+$enquire->set_query($query);
+$mdecider = new testmatchdecider();
+$mset = $enquire->get_mset(0, 10, null, $mdecider);
+if ($mset->size() != 1) {
+    print "Unexpected number of documents returned by match decider (".$mset->size().")\n";
+    exit(1);
+}
+if ($mset->get_docid(0) != 2) {
+    print "MatchDecider mset has wrong docid in\n";
+    exit(1);
 }
 
 class testexpanddecider extends XapianExpandDecider {
@@ -255,9 +251,7 @@ $enquire = new XapianEnquire($db);
 $rset = new XapianRSet();
 $rset->add_document(1);
 $eset = $enquire->get_eset(10, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, new testexpanddecider());
-$end = $eset->end();
-for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
-    $t = $i->get_term();
+foreach ($eset->begin() as $t) {
     if ($t[0] === 'a') {
 	print "XapianExpandDecider was not used\n";
 	exit(1);
@@ -267,8 +261,7 @@ for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
 # Check min_wt argument to get_eset() works (new in 1.2.5).
 $eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ);
 $min_wt = 0;
-$end = $eset->end();
-for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+foreach ($eset->begin() as $i => $dummy) {
     $min_wt = $i->get_weight();
 }
 if ($min_wt >= 1.9) {
@@ -277,8 +270,7 @@ if ($min_wt >= 1.9) {
 }
 $eset = $enquire->get_eset(100, $rset, XapianEnquire::USE_EXACT_TERMFREQ, 1.0, NULL, 1.9);
 $min_wt = 0;
-$end = $eset->end();
-for ($i = $eset->begin(); !$i->equals($end); $i->next()) {
+foreach ($eset->begin() as $i => $dummy) {
     $min_wt = $i->get_weight();
 }
 if ($min_wt < 1.9) {
@@ -317,6 +309,7 @@ if ($query->get_description() !== 'Query(0 * VALUE_RANGE 1 19991203 20011204)') 
 # Feature test for XapianFieldProcessor
 class testfieldprocessor extends XapianFieldProcessor {
     function apply($str) {
+	if ($str === 'spam') throw new Exception('already spam');
 	return new XapianQuery("spam");
     }
 }
@@ -327,6 +320,17 @@ $query = $qp->parse_query('spam:ignored');
 if ($query->get_description() !== 'Query(spam)') {
     print "testfieldprocessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
+}
+
+try {
+    $query = $qp->parse_query('spam:spam');
+    print "testfieldprocessor exception not rethrown\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== 'already spam') {
+	print "Exception has wrong message\n";
+	exit(1);
+    }
 }
 
 # Test setting and getting metadata
@@ -493,12 +497,9 @@ if ($query->get_description() != 'Query()') {
     $matchspy = new XapianValueCountMatchSpy(0);
     $enquire->add_matchspy($matchspy);
     $enquire->get_mset(0, 10);
-    $beg = $matchspy->values_begin();
-    $end = $matchspy->values_end();
     $values = array();
-    while (!($beg->equals($end))) {
-        $values[$beg->get_term()] = $beg->get_termfreq();
-        $beg->next();
+    foreach ($matchspy->values_begin() as $k => $term) {
+	$values[$term] = $k->get_termfreq();
     }
     $expected = array(
         "ABB" => 1,
@@ -516,6 +517,25 @@ if ($query->get_description() != 'Query()') {
     }
 }
 
+{
+    class testspy extends XapianMatchSpy {
+	public $matchspy_count = 0;
+
+	function apply($doc, $wt) {
+	    if (substr($doc->get_value(0), 0, 3) == "ABC") ++$this->matchspy_count;
+	}
+    }
+
+    $matchspy = new testspy();
+    $enquire->clear_matchspies();
+    $enquire->add_matchspy($matchspy);
+    $enquire->get_mset(0, 10);
+    if ($matchspy->matchspy_count != 4) {
+	print "Unexpected matchspy count of {$matchspy->matchspy_count}\n";
+	exit(1);
+    }
+}
+
 # Regression test for SWIG bug - it was generating "return $r;" in wrapper
 # functions which didn't set $r.
 $indexer = new XapianTermGenerator();
@@ -524,6 +544,25 @@ $doc = new XapianDocument();
 $indexer->set_document($doc);
 $indexer->index_text("I ask nothing in return");
 $indexer->index_text_without_positions("Tea time");
+$indexer->index_text("Return in time");
+
+$s = '';
+foreach ($doc->termlist_begin() as $term) {
+    $s .= $term . ' ';
+}
+if ($s !== 'ask i in nothing return tea time ') {
+    print "PHP Iterator wrapping of TermIterator doesn't work ($s)\n";
+    exit(1);
+}
+
+$s = '';
+foreach ($doc->termlist_begin() as $k => $term) {
+    $s .= $term . ':' . $k->get_wdf() . ' ';
+}
+if ($s !== 'ask:1 i:1 in:2 nothing:1 return:2 tea:1 time:2 ') {
+    print "PHP Iterator wrapping of TermIterator keys doesn't work ($s)\n";
+    exit(1);
+}
 
 # Test GeoSpatial API
 $coord = new XapianLatLongCoord();
@@ -557,6 +596,28 @@ $mset = $enq->get_mset(0, 10);
 if ($mset->size() != 1) {
     print "Expected one result with XapianLatLongDistancePostingSource, got ";
     print $mset->size() . "\n";
+    exit(1);
+}
+
+$s = '';
+foreach ($db->allterms_begin() as $k => $term) {
+    $s .= "($term:{$k->get_termfreq()})";
+}
+if ($s !== '(coffee:1)') {
+    print "PHP Iterator iteration of allterms doesn't work ($s)\n";
+    exit(1);
+}
+
+# Test reference tracking and regression test for #659.
+$qp = new XapianQueryParser();
+{
+    $stop = new XapianSimpleStopper();
+    $stop->add('a');
+    $qp->set_stopper($stop);
+}
+$query = $qp->parse_query('a b');
+if ($query->get_description() !== 'Query(b@2)') {
+    print "XapianQueryParser::set_stopper() didn't work as expected - result was ".$query->get_description()."\n";
     exit(1);
 }
 

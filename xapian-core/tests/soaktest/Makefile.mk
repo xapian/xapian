@@ -20,7 +20,7 @@ soaktest_soaktest_SOURCES = \
  soaktest/soaktest_all.h \
  soaktest/soaktest_collated.h \
  $(testharness_sources)
-soaktest_soaktest_LDFLAGS = -no-install $(ldflags)
+soaktest_soaktest_LDFLAGS = $(NO_INSTALL) $(ldflags)
 soaktest_soaktest_LDADD = ../libgetopt.la ../$(libxapian_la)
 
 if MAINTAINER_MODE
@@ -47,7 +47,6 @@ soaktest/soaktest_collated.stamp: $(collated_soaktest_sources) collate-test soak
 endif
 
 EXTRA_DIST += \
- soaktest/dir_contents \
  soaktest/soaktest_all.h \
  soaktest/soaktest_collated.h \
  $(collated_soaktest_sources:.cc=.h)
