@@ -1808,8 +1808,8 @@ extern void generate_program_c(struct generator * g) {
     g->outbuf = str_new();
     generate_start_comment(g);
     generate_head(g);
-    generate_routine_headers(g);
     if (g->options->make_lang == LANG_C) {
+	generate_routine_headers(g);
 	w(g, "#ifdef __cplusplus~N"
 	     "extern \"C\" {~N"
 	     "#endif~N"
