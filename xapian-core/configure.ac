@@ -256,25 +256,19 @@ AC_SUBST([XAPIAN_LIBS])
 AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   [
   AC_MSG_CHECKING([for $CXX -Wl,$1])
-  AC_CACHE_VAL([xo_cv_$2],
+  AC_CACHE_VAL([xo_cv_ldflag_$2],
     [
+    save_LDFLAGS=$LDFLAGS
+    LDFLAGS="$LDFLAGS -Wl,$1"
     flag=$1
-    dnl The option in $1 will start with a dash so needs protecting.  We can't
-    dnl use -e as Solaris /usr/bin/grep doesn't support that, so prepend an
-    dnl empty group instead.
-    if $CXX -Wl,$1 >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD|grep '\(\)'$1 >/dev/null 2>&1; then
-      dnl The error message contains the flag name - it must be a
-      dnl complaint that the option is unrecognized (doing it this
-      dnl way allows it to work regardless of the i18n in use):
-      dnl ld: unrecognized option '--enable-runtime-pseudo-reloc'
-      xo_cv_$2=no
-      $4
-    else
-      xo_cv_$2=yes
-      $3
-    fi
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([], [])],
+      [xo_cv_ldflag_$2=yes
+      $3],
+      [xo_cv_ldflag_$2=no
+      $4])
+    LDFLAGS=$save_LDFLAGS
     ])
-  AC_MSG_RESULT([$xo_cv_$2])
+  AC_MSG_RESULT([$xo_cv_ldflag_$2])
   ])
 
 dnl Test if the compiler works with $1 added to CXXFLAGS; if it does, add $1 to
