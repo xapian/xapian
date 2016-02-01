@@ -74,7 +74,7 @@ extern symbol * create_s() {
     if (mem == NULL) throw std::bad_alloc();
     symbol * p = reinterpret_cast<symbol*>(HEAD + static_cast<char *>(mem));
     SET_CAPACITY(p, CREATE_SIZE);
-    SET_SIZE(p, CREATE_SIZE);
+    SET_SIZE(p, 0);
     return p;
 }
 
