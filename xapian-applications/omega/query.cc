@@ -443,12 +443,12 @@ typedef multimap<string, string>::const_iterator FMCI;
 void add_bterm(const string &term) {
     string prefix;
     if (prefix_from_term(prefix, term) > 0)
-	filter_map.emplace(prefix, term);
+	filter_map.insert(multimap<string, string>::value_type(prefix, term));
 }
 
 void add_nterm(const string &term) {
     if (!term.empty())
-	neg_filters.emplace(term);
+	neg_filters.insert(term);
 }
 
 static void
