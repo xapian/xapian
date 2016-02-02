@@ -450,7 +450,8 @@ run_query()
 {
     bool force_boolean = false;
     if (!filter_map.empty()) {
-	// OR together filters with the same prefix, then AND together
+	// OR together filters with the same prefix (or AND for non-exclusive
+	// prefixes), then AND together the resultant groups.
 	vector<Xapian::Query> filter_vec;
 	vector<string> same_vec;
 	string current;
