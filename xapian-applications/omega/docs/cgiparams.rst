@@ -89,8 +89,17 @@ Filtering parameters
 --------------------
 
 B
-        general boolean filter terms.  See the `overview document
-        <overview.html>`_ for details of how multiple B parameters are handled.
+        general boolean filter terms.
+
+        See the `overview document <overview.html>`_ for details of how
+        multiple `B` and `N` parameters are handled.
+
+N
+        negated general boolean filter terms (new in Omega 1.3.5 - older
+        versions will just ignore any `N` parameters).
+
+        See the `overview document <overview.html>`_ for details of how
+        multiple `B` and `N` parameters are handled.
 
 COLLAPSE
 	value number to use for removing duplicate documents.

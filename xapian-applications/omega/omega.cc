@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -312,6 +312,47 @@ try {
 	}
     }
 
+    // set any negated boolean filters
+    g = cgi_params.equal_range("N");
+    if (g.first != g.second) {
+	vector<string> filter_v;
+	for (MCI i = g.first; i != g.second; i++) {
+	    const string & v = i->second;
+	    // we'll definitely get empty N fields from "-ALL-" options
+	    if (!v.empty() && C_isalnum(v[0])) {
+		add_nterm(v);
+		filter_v.push_back(v);
+	    }
+	}
+	sort(filter_v.begin(), filter_v.end());
+	vector<string>::const_iterator j;
+	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
+	    const string & nterm = *j;
+	    string::size_type e = nterm.find(filter_sep);
+	    filters += '!';
+	    if (usual(e == string::npos)) {
+		filters += nterm;
+	    } else {
+		// If a filter contains filter_sep then double it to escape.
+		// Each filter must start with an alnum (checked above) and
+		// the value after the last filter is the default op, which
+		// is encoded as a non-alnum so filter_sep followed by
+		// something other than filter_sep must be separating filters.
+		string::size_type b = 0;
+		while (e != string::npos) {
+		    filters.append(nterm, b, e + 1 - b);
+		    b = e;
+		    e = nterm.find(filter_sep, b + 1);
+		}
+		filters.append(nterm, b, string::npos);
+	    }
+	    filters += filter_sep;
+	    // old_filters predates 'N' terms, so if there are 'N' terms this
+	    // is definitely a different query.
+	    old_filters.clear();
+	}
+    }
+
     // date range filters
     val = cgi_params.find("START");
     if (val != cgi_params.end()) date_start = val->second;
@@ -321,7 +362,7 @@ try {
     if (val != cgi_params.end()) date_span = val->second;
 
     // If more default_op values are supported, encode them as non-alnums
-    // other than filter_sep.
+    // other than filter_sep or '!'.
     filters += (default_op == Xapian::Query::OP_AND ? '.' : '-');
     filters += date_start;
     filters += filter_sep;
@@ -329,12 +370,14 @@ try {
     filters += filter_sep;
     filters += date_span;
 
-    old_filters += date_start;
-    old_filters += filter_sep_old;
-    old_filters += date_end;
-    old_filters += filter_sep_old;
-    old_filters += date_span;
-    old_filters += (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
+    if (!old_filters.empty()) {
+	old_filters += date_start;
+	old_filters += filter_sep_old;
+	old_filters += date_end;
+	old_filters += filter_sep_old;
+	old_filters += date_span;
+	old_filters += (default_op == Xapian::Query::OP_AND ? 'A' : 'O');
+    }
 
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
@@ -353,8 +396,10 @@ try {
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
-	    old_filters += filter_sep_old;
-	    old_filters += str(collapse_key);
+	    if (!old_filters.empty()) {
+		old_filters += filter_sep_old;
+		old_filters += str(collapse_key);
+	    }
 	}
     }
 
@@ -367,12 +412,12 @@ try {
 	    if (ch == 'D') {
 		docid_order = Xapian::Enquire::DESCENDING;
 		filters += 'D';
-		old_filters += 'D';
+		if (!old_filters.empty()) old_filters += 'D';
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
 		filters += 'X';
-		old_filters += 'X';
+		if (!old_filters.empty()) old_filters += 'X';
 	    }
 	}
     }
@@ -391,22 +436,24 @@ try {
 	}
 	// Add the sorting related options to filters too.
 	filters += str(sort_key);
-	old_filters += str(sort_key);
+	if (!old_filters.empty()) old_filters += str(sort_key);
 	if (sort_after) {
 	    if (sort_ascending) {
 		filters += 'F';
-		old_filters += 'F';
+		if (!old_filters.empty()) old_filters += 'F';
 	    } else {
 		filters += 'R';
-		old_filters += 'R';
+		if (!old_filters.empty()) old_filters += 'R';
 	    }
 	} else {
 	    if (!sort_ascending) {
 		filters += 'r';
-		old_filters += 'r';
+		if (!old_filters.empty()) old_filters += 'r';
 	    }
 	}
     }
+
+    if (old_filters.empty()) old_filters = filters;
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
     // topdoc+max(hits_per_page+1,min_hits)

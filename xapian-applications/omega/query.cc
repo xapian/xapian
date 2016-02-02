@@ -436,13 +436,19 @@ set_probabilistic(const string &oldp)
 }
 
 static multimap<string, string> filter_map;
+static set<string> neg_filters;
 
 typedef multimap<string, string>::const_iterator FMCI;
 
 void add_bterm(const string &term) {
     string prefix;
     if (prefix_from_term(prefix, term) > 0)
-	filter_map.insert(multimap<string, string>::value_type(prefix, term));
+	filter_map.emplace(prefix, term);
+}
+
+void add_nterm(const string &term) {
+    if (!term.empty())
+	neg_filters.emplace(term);
 }
 
 static void
@@ -526,6 +532,20 @@ run_query()
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
 	}
+    }
+
+    if (!neg_filters.empty()) {
+	// OR together all negated filters.
+	Xapian::Query filter(Xapian::Query::OP_OR,
+			     neg_filters.begin(), neg_filters.end());
+
+	if (query.empty()) {
+	    // If we only have a negative filter for the query, use MatchAll as
+	    // the query to apply the filters to.
+	    query = Xapian::Query::MatchAll;
+	    force_boolean = true;
+	}
+	query = Xapian::Query(Xapian::Query::OP_AND_NOT, query, filter);
     }
 
     if (!enquire || !error_msg.empty()) return;

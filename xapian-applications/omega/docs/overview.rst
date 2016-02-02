@@ -27,11 +27,12 @@ Term construction
 
 Documents within an omega database are stored with two types of terms:
 those used for probabilistic searching (the CGI parameter 'P'), and
-those used for boolean filtering (the CGI parameter 'B'). Boolean
-terms start with an initial capital letter denoting the 'group' of the
-term (e.g. 'M' for MIME type), while probabilistic terms are all
-lower-case, and are also stemmed before adding to the
-database.
+those used for boolean filtering (the CGI parameters 'B' and 'N' - the
+latter is a negated variant of 'B' and was added in Omega 1.3.5).
+
+Boolean terms start with an initial capital letter denoting the 'group' of the
+term (e.g. 'M' for MIME type), while probabilistic terms are all lower-case,
+and are also stemmed before adding to the database.
 
 The "english" stemmer is used by default - you can configure this for omindex
 and scriptindex with ``--stemmer=LANGUAGE`` (use ``--stemmer=none`` to disable
@@ -40,21 +41,77 @@ search time you can configure the stemmer by adding ``$set{stemmer,LANGUAGE}``
 to the top of your OmegaScript template.
 
 The two term types are used as follows when building the query:
-B(oolean) terms with the same prefix are ORed together, with all the
-different prefix groups being ANDed together. This is then FILTERed
-against the P(robabilistic) terms. This will look something like::
 
-                  [ FILTER ]
-                   /      \
-                  /        \
-             P-terms      [   AND   ]
-                           /   |...\
-                          /
+The 'P' parameter is parsed using `Xapian::QueryParser` to give a
+`Xapian::Query` object denoted as `P-terms` below.
+
+There are two ways that 'B' and 'N' parameters are handled, depending if the
+term-prefix has been configured as "non-exclusive" or not.  The default is
+"exclusive" (and in versions before 1.3.4, this was how all 'B' parameters
+were handled).
+
+Exclusive Boolean Prefix
+------------------------
+
+B(oolean) terms from 'B' parameters with the same prefix are ORed together,
+like so::
+
+
                     [   OR   ]
                    /    | ... \
               B(F,1) B(F,2)...B(F,n)
 
-Where B(F,1) is the first boolean term with prefix F, and so on.
+Where B(F,1) is the first boolean term with prefix F from a 'B' parameter, and
+so on.
+
+Non-Exclusive Boolean Prefix
+----------------------------
+
+For example, ``$setmap{nonexclusiveprefix,K,true}`` sets prefix `K` as
+non-exclusive, which means that multiple filter terms from 'B' parameters will
+be combined with "AND" instead of "OR", like so::
+
+                    [   AND   ]
+                   /     | ... \
+              B(K,1) B(K,2)... B(K,m)
+
+Combining the Boolean Filters
+-----------------------------
+
+The subqueries for each prefix from "B" parameters are combined with AND,
+to make this (which we refer to as "B-filter" below)::
+
+                         [     AND     ]
+                        /       |  ...  \
+                       /                 \
+                 [   OR   ]               [   AND  ]
+                /    | ... \             /    | ... \
+           B(F,1) B(F,2)...B(F,n)   B(K,1) B(K,2)...B(K,m)
+
+
+Negated Boolean Terms
+---------------------
+
+All the terms from all 'N' parameters are combined together with "OR", to
+make this (which we refer to as "N-filter" below)::
+
+                    [       OR       ]
+                   / ... |     |  ... \
+              N(F,1)...N(F,n) N(K,1)...N(K,m)
+
+Putting it all together
+-----------------------
+
+The P-terms are filtered by the B-filter using "FILTER" and by the N-filter
+using "AND_NOT"::
+
+                        [ AND_NOT ]
+                       /           \
+                      /             \
+            [ FILTER ]             N-terms
+             /      \
+            /        \
+       P-terms      B-terms
 
 The intent here is to allow filtering on arbitrary (and, typically,
 orthogonal) characteristics of the document. For instance, by adding
@@ -63,9 +120,13 @@ filtering the probabilistic search for only documents that are both in
 the "/press" site *and* which are either of MIME type text/html or
 text/plain. (See below for more information about sites.)
 
+If B-terms or N-terms is absent, that part of the query is simply omitted.
+
 If there is no probabilistic query, the boolean filter is promoted to
 be the query, and the weighting scheme is set to boolean.  This has
-the effect of applying the boolean filter to the whole database.
+the effect of applying the boolean filter to the whole database.  If
+there are only N-terms, then ``Query::MatchAll`` is used for the left
+side of the "AND_NOT".
 
 In order to add more boolean prefixes, you will need to alter the
 ``index_file()`` function in omindex.cc. Currently omindex adds several

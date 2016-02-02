@@ -1,7 +1,7 @@
 #!/bin/sh
 # omegatest: Test omega CGI
 #
-# Copyright (C) 2015 Olly Betts
+# Copyright (C) 2015,2016 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -162,6 +162,14 @@ testcase '((Horg OR Hcom) AND (Len AND Lfr))' B=Len B=Lfr B=Horg B=Hcom
 testcase '0 * ((Horg OR Hcom) AND (Len AND Lfr))' P='lang:en lang:fr host:org host:com'
 testcase '((XANDa AND XANDb AND XANDc) AND (Y1998 OR Y2001))' B=Y1998 B=Y2001 B=XANDa B=XANDb B=XANDc
 testcase '0 * (((XANDa AND XANDb) AND XANDc) AND (Y1998 OR Y2001))' P='year:1998 year:2001 and:a and:b and:c'
+
+testcase '(Ztruth@1 AND_NOT Epdf)' P=truth N=Epdf
+testcase '(Ztruth@1 AND_NOT (Ehtm OR Epdf))' P=truth N=Epdf N=Ehtm
+testcase '(Ztruth@1 AND_NOT (Ehtm OR Epdf OR Lde OR Lfr))' P=truth N=Lfr N=Epdf N=Ehtm N=Lde
+testcase '((Ztruth@1 FILTER (Lfr AND Lzh)) AND_NOT (Lde OR Len))' P=truth N=Lde N=Len B=Lfr B=Lzh
+testcase '((Ztruth@1 FILTER Lfr) AND_NOT (Ehtm OR Epdf))' P=truth N=Epdf N=Ehtm B=Lfr
+testcase '(<alldocuments> AND_NOT (Len OR Lfr))' N=Lfr N=Len
+testcase '(VALUE_RANGE 0 2015 201501~ AND_NOT Len)' DATEVALUE=0 START=20150101 END=20150131 N=Len
 
 # If faketime is available, test a range back from now.
 if faketime --version > /dev/null 2>&1; then
