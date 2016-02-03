@@ -166,10 +166,10 @@ endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 docdatadir = $(docdir)/perl
-EXTRA_DIST += docs/index.html
+docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
+BUILT_SOURCES += docs/index.html
 
 docs/index.html: Xapian.pm
 	$(MKDIR_P) docs

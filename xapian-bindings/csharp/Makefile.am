@@ -163,10 +163,10 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleExpand.cs
 
 docdatadir = $(docdir)/csharp
-EXTRA_DIST += docs/index.html
+docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
+BUILT_SOURCES += docs/index.html
 
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac

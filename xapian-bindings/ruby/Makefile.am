@@ -82,13 +82,11 @@ uninstall-local:
 	  done
 
 docdatadir = $(docdir)/ruby
-EXTRA_DIST += docs/index.html
+dist_docdata_DATA = docs/index.html
 
 EXTRA_DIST += generate-rdoc-stubs
 
 if DOCUMENTATION_RULES
-docdata_DATA = docs/index.html
-
 BUILT_SOURCES += docs/rdocs/index.html
 
 docs/rdocs: docs/rdocs/index.html
@@ -99,6 +97,8 @@ docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
 	cd docs && $(RDOC) --op rdocs xapian.rb
+
+BUILT_SOURCES += docs/index.html
 
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
