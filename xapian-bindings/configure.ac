@@ -157,7 +157,7 @@ dnl configure --enable-maintainer-mode is used.
 AM_MAINTAINER_MODE
 
 AC_ARG_ENABLE(documentation,
-  [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
+  [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild shipped documentation [default=maintainer-mode]])],
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR([bad value ${enableval} for --enable-documentation]) ;;
@@ -1053,21 +1053,22 @@ if test no != "$with_ruby" ; then
 	fi
 	AC_SUBST(RUBY_LIBS)
 
-	if test yes = "$enable_documentation" ; then
-	  if test -n "$RDOC" ; then
-	    AC_PATH_PROGS(RDOC, ["$RDOC"], [])
-	  else
-	    dnl Try replace the *last* 'ruby' with 'rdoc'.
-	    rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
-	    AC_PATH_PROGS(RDOC, ["$rdoc_best_guess"], [])
-	    if test -z "$RDOC"; then
-	      AC_PATH_PROGS(RDOC, [rdoc], [])
-	      test -n "$RDOC" || RDOC="$MISSING rdoc"
-	    fi
+	dnl rdoc is included as part of the Ruby core distribution, so run it
+	dnl at build time rather shipping the rather large generated output in
+	dnl our source tarball.
+	if test -n "$RDOC" ; then
+	  AC_PATH_PROGS(RDOC, ["$RDOC"], [])
+	else
+	  dnl Try replace the *last* 'ruby' with 'rdoc'.
+	  rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
+	  AC_PATH_PROGS(RDOC, ["$rdoc_best_guess"], [])
+	  if test -z "$RDOC"; then
+	    AC_PATH_PROGS(RDOC, [rdoc], [])
 	  fi
 	fi
-
-	BINDINGS="$BINDINGS ruby"
+	if test -n "$RDOC"; then
+	  BINDINGS="$BINDINGS ruby"
+	fi
       else
 	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
 	if test yes = "$with_ruby" ; then

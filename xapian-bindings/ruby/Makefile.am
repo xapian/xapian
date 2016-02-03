@@ -86,17 +86,17 @@ dist_docdata_DATA = docs/index.html
 
 EXTRA_DIST += generate-rdoc-stubs
 
-if DOCUMENTATION_RULES
 BUILT_SOURCES += docs/rdocs/index.html
 
 docs/rdocs: docs/rdocs/index.html
 
-docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
-	$(PERL) $(srcdir)/generate-rdoc-stubs
-
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
 	cd docs && $(RDOC) --op rdocs xapian.rb
+
+if DOCUMENTATION_RULES
+docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
+	$(PERL) $(srcdir)/generate-rdoc-stubs
 
 BUILT_SOURCES += docs/index.html
 
