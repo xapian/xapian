@@ -1061,7 +1061,7 @@ if test no != "$with_ruby" ; then
 	    rdoc_best_guess=`echo "$RUBY"|sed 's,\(.*\)ruby,\1rdoc,'`
 	    AC_PATH_PROGS(RDOC, ["$rdoc_best_guess"], [])
 	    if test -z "$RDOC"; then
-	      AC_PATH_PROGS(RDOC, [rdoc1.8 rdoc], [])
+	      AC_PATH_PROGS(RDOC, [rdoc], [])
 	      test -n "$RDOC" || RDOC="$MISSING rdoc"
 	    fi
 	  fi
