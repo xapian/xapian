@@ -9,7 +9,7 @@ AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-EXTRA_DIST = ruby.i extra.i docs/rdocs docs/index.rst $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = ruby.i extra.i docs/index.rst $(TESTS) $(BUILT_SOURCES)
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
