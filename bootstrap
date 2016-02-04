@@ -306,7 +306,7 @@ case $origin_url in
   *[@/]github.com[:/]*)
     github_base_url=`echo "X$origin_url"|sed 's/^X//;s!\([@/]github.com[:/]\).*!\1!'` ;;
   *)
-    github_base_url=git://github.com/ ;;
+    github_base_url=https://github.com/ ;;
 esac
 swig_origin_url=${github_base_url}swig/swig.git
 handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
