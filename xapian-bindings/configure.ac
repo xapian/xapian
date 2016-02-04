@@ -186,11 +186,11 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   fi
   dnl Check for new enough SWIG.
   dnl
-  dnl 3.0.3 fixes some problems with subclassing wrapped Xapian classes in PHP.
+  dnl 3.0.8 fixes conversion of integers large than an int in Python 3.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-    [[012].*|3.0.[012]|""])
-      msg="SWIG >= 3.0.3 (commit e12322d) required (you have ${v:-an unknown version})"
+    [[012].*|3.0.[01234567]|""])
+      msg="SWIG >= 3.0.8 required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])
