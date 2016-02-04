@@ -53,7 +53,7 @@ extern Xapian::docid min_hits;
 extern int threshold;
 
 extern Xapian::valueno sort_key;
-extern bool sort_ascending;
+extern bool reverse_sort;
 extern bool sort_after;
 extern Xapian::Enquire::docid_order docid_order;
 

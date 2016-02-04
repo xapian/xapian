@@ -175,8 +175,8 @@ $filesize{SIZE}
         ``4.0M``, ``1.3G``).  If ``SIZE`` is negative, expands to nothing.
 
 $filters
-        serialised version of filter-like settings (currently ``B``, ``START``,
-        ``END``, ``SPAN``, ``COLLAPSE``, ``DOCIDORDER``, ``SORT``,
+        serialised version of filter-like settings (currently ``B``, ``N``,
+        ``START``, ``END``, ``SPAN``, ``COLLAPSE``, ``DOCIDORDER``, ``SORT``,
         ``SORTREVERSE``, ``SORTAFTER``, and ``DEFAULTOP``) - set ``xFILTERS``
         to this so that Omega can detect when the filters have changed and
         force the first page.

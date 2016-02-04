@@ -82,7 +82,7 @@ Xapian::docid min_hits = 0;
 int threshold = 0;
 
 Xapian::valueno sort_key = Xapian::BAD_VALUENO; // Don't sort.
-bool sort_ascending = true;
+bool reverse_sort = true;
 bool sort_after = false;
 Xapian::Enquire::docid_order docid_order = Xapian::Enquire::ASCENDING;
 
@@ -425,29 +425,44 @@ try {
     // sorting
     val = cgi_params.find("SORT");
     if (val != cgi_params.end()) {
-	sort_key = atoi(val->second.c_str());
-	val = cgi_params.find("SORTREVERSE");
-	if (val != cgi_params.end()) {
-	    sort_ascending = (atoi(val->second.c_str()) == 0);
+	const char * p = val->second.c_str();
+	if (*p == '-' || *p == '+') {
+	    reverse_sort = (*p == '-');
+	    ++p;
 	}
+	sort_key = atoi(p);
+
+	val = cgi_params.find("SORTREVERSE");
+	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
+	    reverse_sort = !reverse_sort;
+	}
+
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
 	    sort_after = (atoi(val->second.c_str()) != 0);
 	}
+
 	// Add the sorting related options to filters too.
+	//
+	// Note: old_filters really does encode a reversed sort as 'F' and a
+	// non-reversed sort as 'R' or 'r'.
+	//
+	// filters has them the other way around for sanity (except in
+	// development snapshot 1.3.4, which was when the new filter encoding
+	// was introduced).
 	filters += str(sort_key);
 	if (!old_filters.empty()) old_filters += str(sort_key);
 	if (sort_after) {
-	    if (sort_ascending) {
-		filters += 'F';
+	    if (reverse_sort) {
+		filters += 'R';
 		if (!old_filters.empty()) old_filters += 'F';
 	    } else {
-		filters += 'R';
+		filters += 'F';
 		if (!old_filters.empty()) old_filters += 'R';
 	    }
 	} else {
-	    if (!sort_ascending) {
-		filters += 'r';
+	    if (!reverse_sort) {
+		filters += 'f';
 		if (!old_filters.empty()) old_filters += 'r';
 	    }
 	}

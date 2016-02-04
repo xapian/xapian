@@ -556,9 +556,9 @@ run_query()
 
     if (sort_key != Xapian::BAD_VALUENO) {
 	if (sort_after) {
-	    enquire->set_sort_by_relevance_then_value(sort_key, sort_ascending);
+	    enquire->set_sort_by_relevance_then_value(sort_key, reverse_sort);
 	} else {
-	    enquire->set_sort_by_value_then_relevance(sort_key, sort_ascending);
+	    enquire->set_sort_by_value_then_relevance(sort_key, reverse_sort);
 	}
     }
 
