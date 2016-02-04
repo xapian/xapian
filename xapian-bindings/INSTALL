@@ -32,6 +32,18 @@ Quick Installation Guide
 
 The simplest way to compile this package is:
 
+  0. Make sure you have the required tools installed for the languages you
+     want to build the bindings for.  Package systems often separate the
+     files you need to build the bindings into a separate package with a
+     `-dev` or `-devel` suffix.  Additional per-language dependencies are:
+
+       * python:
+         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+	   The package you want might be python-sphinx or python3-sphinx.
+       * python3:
+         - Sphinx Documentation Generator: http://www.sphinx-doc.org/
+	   The package you want might be python-sphinx or python3-sphinx.
+
   1. 'cd' to the directory containing the package's source code and type
      './configure' to configure the package for your system.
 

@@ -486,12 +486,13 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
-dnl If we're building documentation for either python version,
-dnl we need sphinx-build
-case $enable_documentation$BINDINGS in
-yes*python*)
+dnl If we're building either python version we need sphinx-build.
+case $BINDINGS in
+*python*)
   AC_PATH_PROG(SPHINX_BUILD, sphinx-build, [])
-  test -z "$SPHINX_BUILD" && AC_MSG_ERROR([sphinx-build is required to build python documentation (try packages python-sphinx and python3-sphinx)])
+  if test -z "$SPHINX_BUILD" ; then
+    AC_MSG_ERROR([sphinx-build is required to build python documentation (try packages python-sphinx or python3-sphinx)])
+  fi
   ;;
 esac
 
