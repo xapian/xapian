@@ -163,6 +163,7 @@ testcase '0 * ((Horg OR Hcom) AND (Len AND Lfr))' P='lang:en lang:fr host:org ho
 testcase '((XANDa AND XANDb AND XANDc) AND (Y1998 OR Y2001))' B=Y1998 B=Y2001 B=XANDa B=XANDb B=XANDc
 testcase '0 * (((XANDa AND XANDb) AND XANDc) AND (Y1998 OR Y2001))' P='year:1998 year:2001 and:a and:b and:c'
 
+# Check combining of filters around CGI parameter 'N':
 testcase '(Ztruth@1 AND_NOT Epdf)' P=truth N=Epdf
 testcase '(Ztruth@1 AND_NOT (Ehtm OR Epdf))' P=truth N=Epdf N=Ehtm
 testcase '(Ztruth@1 AND_NOT (Ehtm OR Epdf OR Lde OR Lfr))' P=truth N=Lfr N=Epdf N=Ehtm N=Lde
