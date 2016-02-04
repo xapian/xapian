@@ -9,7 +9,8 @@ AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-EXTRA_DIST = ruby.i extra.i docs/index.rst $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = ruby.i extra.i docs/index.rst $(TESTS) \
+	xapian_wrap.cc xapian_wrap.h
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
@@ -61,38 +62,45 @@ dist_exampledata_DATA = \
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)
-	@test -f docs/rdocs/index.html && cd docs || cd "$(srcdir)/docs" ; \
-	  for dir in `find rdocs -type d -print` ; do \
-	    echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
-	    $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
-	  done ; \
-	  for f in `find rdocs -type f -print` ; do \
-	    echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
-	    $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
+	## In a VPATH build, install files from srcdir first.  Use
+	## $(abs_builddir) because we need to cd there having already
+	## changed directory.
+	@paths=docs ; \
+	  test '$(abs_srcdir)' == '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  for docs in $$paths ; do \
+	    cd "$$docs" && for dir in `find rdocs -type d -print` ; do \
+	      echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
+	      $(mkinstalldirs) "$(DESTDIR)$(docdatadir)/$$dir"; \
+	    done && for f in `find rdocs -type f -print` ; do \
+	      echo " $(INSTALL_DATA) '$$f' '$(DESTDIR)$(docdatadir)/$$f'"; \
+	      $(INSTALL_DATA) "$$f" "$(DESTDIR)$(docdatadir)/$$f"; \
+	    done ; \
 	  done
 
 uninstall-local:
 	## Because we don't install the .la file, "make uninstall" doesn't work
 	## and we need to remove the file ourselves.
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
-	@test -f docs/rdocs/index.html && cd docs || cd "$(srcdir)/docs" ; \
-	  for f in `find rdocs -type f -print` ; do \
-	    echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
-	    rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
+	@paths=docs ; \
+	  test '$(abs_srcdir)' == '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  for docs in $$paths ; do \
+	    cd "$$docs" && for f in `find rdocs -type f -print` ; do \
+	      echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
+	      rm -f "$(DESTDIR)$(docdatadir)/$$f"; \
+	    done; \
 	  done
 
 docdatadir = $(docdir)/ruby
 dist_docdata_DATA = docs/index.html
 
-EXTRA_DIST += generate-rdoc-stubs
+EXTRA_DIST += generate-rdoc-stubs docs/xapian.rb
 
 BUILT_SOURCES += docs/rdocs/index.html
 
-docs/rdocs: docs/rdocs/index.html
-
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
-	cd docs && $(RDOC) --op rdocs xapian.rb
+	$(MKDIR_P) docs
+	cd docs && $(RDOC) --op rdocs `test -f xapian.rb||echo '$(abs_srcdir)/'`xapian.rb
 
 if DOCUMENTATION_RULES
 docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
