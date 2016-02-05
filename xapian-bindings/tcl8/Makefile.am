@@ -13,6 +13,9 @@ AM_TESTS_ENVIRONMENT = \
 	export TCLSH ;
 LOG_COMPILER = $(srcdir)/run-tcl-test
 
+installcheck-local:
+	$(MAKE) check LOG_COMPILER='$(TCLSH)' AM_TESTS_ENVIRONMENT=
+
 EXTRA_DIST = tcl.i except.i \
 	generate-tcl-exceptions \
 	run-tcl-test runtest.tcl \

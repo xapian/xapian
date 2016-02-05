@@ -7,6 +7,9 @@ TESTS = smoketest.rb
 LOG_COMPILER = $(RUBY)
 AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
+installcheck-local:
+	$(MAKE) check AM_LOG_FLAGS=
+
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
 EXTRA_DIST = ruby.i extra.i docs/index.rst $(TESTS) \

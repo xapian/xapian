@@ -9,6 +9,9 @@ AM_TESTS_ENVIRONMENT = \
 	export LUA_CPATH ;
 LOG_COMPILER = $(LUA)
 
+installcheck-local:
+	$(MAKE) check AM_TESTS_ENVIRONMENT=
+
 EXTRA_DIST = lua.i util.i except.i \
 	generate-lua-exceptions \
 	docs/index.rst \

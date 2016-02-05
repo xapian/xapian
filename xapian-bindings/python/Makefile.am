@@ -13,6 +13,10 @@ AM_TESTS_ENVIRONMENT = \
 	export PYTHON ;
 LOG_COMPILER = '$(srcdir)'/run-python-test
 
+installcheck-local:
+	$(MAKE) check  LOG_COMPILER='$(PYTHON2)' AM_TESTS_ENVIRONMENT= \
+	    PYTHONDONTWRITEBYTECODE=1
+
 RST_DOCS = \
 	docs/examples.rst \
 	docs/index.rst \

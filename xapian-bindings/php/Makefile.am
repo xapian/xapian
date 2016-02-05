@@ -15,6 +15,9 @@ AM_LOG_FLAGS = -n -d safe_mode=off -d enable_dl=on \
 	-d extension_dir='$(abs_builddir)/.libs' \
 	-d include_path='php5$(PHP_PATH_SEPARATOR)$(srcdir)/php5'
 
+installcheck-local:
+	$(MAKE) check AM_LOG_FLAGS=
+
 BUILT_SOURCES =\
 	php5/xapian_wrap.cc\
 	php5/xapian_wrap.h\

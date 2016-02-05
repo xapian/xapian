@@ -41,6 +41,9 @@ AM_TESTS_ENVIRONMENT = \
 LOG_COMPILER = $(PROVE)
 AM_LOG_FLAGS = -I. -I'$(srcdir)'
 
+installcheck-local:
+	$(MAKE) AM_LOG_FLAGS=
+
 clean-local:
 	rm -rf testdb* auto
 
