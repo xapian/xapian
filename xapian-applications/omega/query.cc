@@ -1089,7 +1089,7 @@ T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(substr,	   2, 3, N, 0), // substring
 T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
-T(terms,	   0, 0, N, M), // list of matching terms
+T(terms,	   0, 1, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
 T(time,		   0, 0, N, M), // how long the match took (in seconds)
 T(topdoc,	   0, 0, N, M), // first document on current page of hit list
@@ -2072,23 +2072,38 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_suggestion:
 		value = qp.get_corrected_query_string();
 		break;
-	    case CMD_terms:
-		if (enquire) {
-		    // list of matching terms
-		    Xapian::TermIterator term = enquire->get_matching_terms_begin(q0);
+	    case CMD_terms: {
+		// list of matching terms
+		if (!enquire) break;
+		Xapian::TermIterator term = enquire->get_matching_terms_begin(q0);
+		if (args.empty()) {
 		    while (term != enquire->get_matching_terms_end(q0)) {
 			// check term was in the typed query so we ignore
 			// boolean filter terms
-			if (termset.find(*term) != termset.end()) {
-			    value += *term;
+			const string & t = *term;
+			if (termset.find(t) != termset.end()) {
+			    value += t;
 			    value += '\t';
 			}
 			++term;
 		    }
-
-		    if (!value.empty()) value.erase(value.size() - 1);
+		} else {
+		    // Return matching terms with specified prefix.  We can't
+		    // use skip_to() as the terms aren't ordered by termname.
+		    const string & pfx = args[0];
+		    while (term != enquire->get_matching_terms_end(q0)) {
+			const string & t = *term;
+			if (startswith(t, pfx)) {
+			    value += t;
+			    value += '\t';
+			}
+			++term;
+		    }
 		}
+
+		if (!value.empty()) value.erase(value.size() - 1);
 		break;
+	    }
 	    case CMD_thispage:
 		value = str(topdoc / hits_per_page + 1);
 		break;

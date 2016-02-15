@@ -613,8 +613,12 @@ $suggestion
 	of the query string.  If there are no spelling corrections, it will
 	return an empty string.
 
-$terms
-	list of matching terms for current hit.
+$terms[{PREFIX}]
+        list of matching terms for current hit.  The ability to specify a
+        prefix was added in Omega 1.3.5.  If no prefix is specified (i.e.
+        ``$terms``), then only terms from the query string are returned.  This
+        is different to an empty prefix (i.e. ``$terms{}``) which returns all
+        terms matching the current hit.
 
 $thispage
 	page number of current page.
