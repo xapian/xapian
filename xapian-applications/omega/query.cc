@@ -884,6 +884,7 @@ CMD_cgi,
 CMD_cgilist,
 CMD_chr,
 CMD_collapsed,
+CMD_contains,
 CMD_csv,
 CMD_date,
 CMD_dbname,
@@ -1009,6 +1010,7 @@ T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
+T(contains,	   2, 2, N, 0), // return position of substring, or empty string
 T(csv,		   1, 2, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
 				// (default: YYYY-MM-DD)
@@ -1307,6 +1309,15 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(collapsed);
 		break;
 	    }
+            case CMD_contains: {
+                size_t pos = args[1].find(args[0]);
+                if (pos != string::npos) {
+                    value = str(pos);
+                } else {
+                    value = "";
+                }
+                break;
+            }
 	    case CMD_csv:
 		value = args[0];
 		if (args.size() > 1 && !args[1].empty()) {

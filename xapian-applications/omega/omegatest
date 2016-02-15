@@ -199,6 +199,11 @@ else
     fi
 fi
 
+# Feature tests for $contains.
+printf '$contains{$cgi{a},$cgi{b}}' > "$TEST_TEMPLATE"
+testcase '6' P=text a=fish b="Hello fish"
+testcase '' P=text a="Example" b="random"
+
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
 rm -f "$TEST_DB"
