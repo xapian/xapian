@@ -94,6 +94,14 @@ $collapsed
 
              $if{$ne{$collapsed,0},at least $collapsed hidden results ($value{$cgi{COLLAPSE}})}
 
+$contains{STRING1,STRING2}
+        return position of first occurrence of STRING1 in STRING2, if present. Else return an empty string.
+        Examples:
+
+        ``$contains{fish,goldfish}`` gives ``"4"``
+
+        ``$contains{fish,shark}`` gives ``""``
+
 $csv{STRING[,ALWAYS_ESCAPE]}
         encode STRING for use as a field in a CSV file.  By default, escaping
         is done as described in RFC4180, except that we treat any byte value
