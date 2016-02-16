@@ -1,6 +1,6 @@
 $httpheader{Content-Type,text/html; charset=utf-8}<html>
 $set{flag_spelling,$ne{$cgi{SPELL},0}}
-$set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+$set{thousand,$.}$set{decimal,.}
 ${
 $def{PREV,
 $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
