@@ -8,7 +8,7 @@ $if{$cgi{THRESHOLD},xTHRESHOLD="$html{$cgi{THRESHOLD}}" }
 $if{$dbname,xDB="$html{$dbname}" }
 $if{$ne{$msize,0},$list{$relevants,relevants=",.,"}}
 >
-$set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+$set{thousand,$.}$set{decimal,.}
 <topterms>
 $map{$topterms,<topterm term="$html{$_}" show="$html{$prettyterm{$_}}" freq="$freq{$_}" />
 }
