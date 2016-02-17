@@ -331,27 +331,6 @@ public:
 	set_key_len(0);        /* null key */
 	set_component_of(0);
     }
-    void form_key(const std::string & key_) {
-	std::string::size_type key_len = key_.length();
-	if (key_len > GLASS_BTREE_MAX_KEY_LEN) {
-	    // We check term length when a term is added to a document but
-	    // glass doubles zero bytes, so this can still happen for terms
-	    // which contain one or more zero bytes.
-	    std::string msg("Key too long: length was ");
-	    msg += str(key_len);
-	    msg += " bytes, maximum length of a key is "
-		   STRINGIZE(GLASS_BTREE_MAX_KEY_LEN) " bytes";
-	    throw Xapian::InvalidArgumentError(msg);
-	}
-
-	set_key_len(key_len);
-	std::memmove(p + BYTES_PER_BLOCK_NUMBER + K1, key_.data(), key_len);
-	set_component_of(1);
-    }
-    void fake_root_item() {
-	set_key_len(0);   // null key length
-	set_component_of(1);
-    }
 };
 
 }
