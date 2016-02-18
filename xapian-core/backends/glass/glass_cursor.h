@@ -273,13 +273,6 @@ class GlassCursor {
 	 */
 	bool next();
  
-	/** Move to the previous key.
-	 *
-	 *  This is like GlassCursor::next, but BC is taken to the previous
-	 *  rather than next item.
-	 */
-	bool prev();
-
 	/** Position the cursor on the highest entry with key <= @a key.
 	 *
 	 *  If the exact key is found in the table, the cursor will be
@@ -315,9 +308,7 @@ class GlassCursor {
 	bool find_exact(const string &key);
 
 	/// Position the cursor on the highest entry with key < @a key.
-	void find_entry_lt(const string &key) {
-	    if (find_entry(key)) prev();
-	}
+	void find_entry_lt(const string &key);
 
 	/** Position the cursor on the lowest entry with key >= @a key.
 	 *

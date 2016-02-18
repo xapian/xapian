@@ -100,50 +100,6 @@ GlassCursor::~GlassCursor()
 }
 
 bool
-GlassCursor::prev()
-{
-    LOGCALL(DB, bool, "GlassCursor::prev", NO_ARGS);
-    Assert(!is_after_end);
-    if (B->cursor_version != version || !is_positioned) {
-	// Either the cursor needs rebuilding (in which case find_entry() will
-	// call rebuild() and then reposition the cursor), or we've read the
-	// last key and tag, and we're now not positioned (in which case we
-	// seek to the current key, and then it's as if we read the key but not
-	// the tag).
-	if (!find_entry(current_key)) {
-	    // Exact entry was no longer there after rebuild(), and we've
-	    // automatically ended up on the entry before it.
-	    RETURN(true);
-	}
-    } else if (tag_status != UNREAD) {
-	while (true) {
-	    if (! B->prev(C, 0)) {
-		is_positioned = false;
-		RETURN(false);
-	    }
-	    if (LeafItem(C[0].get_p(), C[0].c).component_of() == 1) {
-		break;
-	    }
-	}
-    }
-
-    while (true) {
-	if (! B->prev(C, 0)) {
-	    is_positioned = false;
-	    RETURN(false);
-	}
-	if (LeafItem(C[0].get_p(), C[0].c).component_of() == 1) {
-	    break;
-	}
-    }
-    get_key(&current_key);
-    tag_status = UNREAD;
-
-    LOGLINE(DB, "Moved to entry: key=" << hex_display_encode(current_key));
-    RETURN(true);
-}
-
-bool
 GlassCursor::next()
 {
     LOGCALL(DB, bool, "GlassCursor::next", NO_ARGS);
@@ -226,6 +182,30 @@ done:
 
     LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
     RETURN(found);
+}
+
+void
+GlassCursor::find_entry_lt(const string &key)
+{
+    LOGCALL_VOID(DB, "GlassCursor::find_entry_lt", key);
+    if (!find_entry(key)) {
+	// The entry wasn't found, so find_entry() left us on the entry before
+	// the one we asked for and we're done.
+	return;
+    }
+
+    Assert(!is_after_end);
+    Assert(is_positioned);
+
+    do {
+	if (! B->prev(C, 0)) {
+	    is_positioned = false;
+	    return;
+	}
+    } while (LeafItem(C[0].get_p(), C[0].c).component_of() != 1);
+    get_key(&current_key);
+
+    LOGLINE(DB, "Found entry: key=" << hex_display_encode(current_key));
 }
 
 bool
