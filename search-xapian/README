@@ -46,14 +46,14 @@ Perl script (i.e. when "use threads;" is in use), Perl >= 5.8.7 is required.
 This module requires these other modules and libraries:
 
   The Xapian C++ search library, which can be downloaded by following
-  the instructions on http://xapian.org/
+  the instructions on https://xapian.org/
 
 DOCUMENTATION
 
 Most of the classes have POD documentation, which you can view using perldoc or
 man (e.g. perldoc Search::Xapian::Database).  The Perl API closely follows the
 C++ API in most places, so the documentation for Xapian itself is generally
-applicable: <http://xapian.org/docs/>
+applicable: <https://xapian.org/docs/>
 
 The "Getting Started with Xapian" guide is a worthwhile read, especially if
 you are new to Xapian: <http://getting-started-with-xapian.readthedocs.org/>
@@ -61,7 +61,7 @@ you are new to Xapian: <http://getting-started-with-xapian.readthedocs.org/>
 COPYRIGHT AND LICENCE
 
 Please report any bugs/suggestions to <xapian-discuss@lists.xapian.org>
-or use the Xapian bug tracker <http://xapian.org/bugs>.  Please do NOT use the
+or use the Xapian bug tracker <https://xapian.org/bugs>.  Please do NOT use the
 CPAN bug tracker or mail any of the authors individually.
 
 Copyright (c) 2002,2003 Alex Bowley. All rights reserved.

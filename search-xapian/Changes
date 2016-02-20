@@ -1,5 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
+1.2.23.0
+	[Changes contributed by Olly Betts]
+	- Update Xapian website and trac links to use https, which is now
+	  supported, thanks to James Aylett.
+
 1.2.22.0  Tue Dec 29 06:05:40 UTC 2015
 	[Changes contributed by Val Rosca, updated by Andreas Marienborg]
 	- Wrap MatchSpy and ValueCountMatchSpy classes
