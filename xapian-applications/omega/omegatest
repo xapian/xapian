@@ -195,7 +195,7 @@ else
     echo "Skipping testcases which need 'faketime' tool installed"
 fi
 
-# Feature tests for $filter.
+# Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
 rm -f "$TEST_DB"
 $SCRIPTINDEX "$TEST_DB" "$TEST_INDEXSCRIPT" > /dev/null <<'END'
