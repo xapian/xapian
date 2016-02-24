@@ -39,7 +39,7 @@ enum empty_body_type {
 };
 
 enum dup_action_type {
-    DUP_SKIP, DUP_CHECK_LAZILY, DUP_CHECK_PARANOID
+    DUP_SKIP, DUP_CHECK_LAZILY
 };
 
 // Commands which take a filename as the last argument, and output UTF-8

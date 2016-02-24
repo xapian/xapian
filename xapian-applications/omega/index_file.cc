@@ -406,14 +406,13 @@ index_check_existing(const string & urlterm, time_t last_altered,
 	    }
 	    break;
 	}
-	case DUP_CHECK_LAZILY:
-	    // If last_altered > last_altered_max, we know for sure that the file
-	    // is new or updated.
+	case DUP_CHECK_LAZILY: {
+	    // If last_altered > last_altered_max, we know for sure that the
+	    // file is new or updated.
 	    if (last_altered > last_altered_max) {
 		return false;
 	    }
-	    // FALLTHRU
-	case DUP_CHECK_PARANOID: {
+
 	    Xapian::PostingIterator p = db.postlist_begin(urlterm);
 	    if (p != db.postlist_end(urlterm)) {
 		did = *p;
