@@ -1,7 +1,7 @@
 /* api_replicate.cc: tests of replication functionality
  *
  * Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2010 Richard Boulton
  * Copyright 2011 Dan Colish
  *
@@ -276,65 +276,70 @@ DEFINE_TESTCASE(replicate1, replicas) {
 
     set_max_changesets(10);
 
-    Xapian::WritableDatabase orig(get_named_writable_database("master"));
-    Xapian::DatabaseMaster master(masterpath);
-    string replicapath = tempdir + "/replica";
-    Xapian::DatabaseReplica replica(replicapath);
-
-    // Add a document to the original database.
     Xapian::Document doc1;
     doc1.set_data(string("doc1"));
     doc1.add_posting("doc", 1);
     doc1.add_posting("one", 1);
-    orig.add_document(doc1);
-    orig.commit();
 
-    // Apply the replication - we don't have changesets stored, so this should
-    // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir, 0, 1, true);
-    TEST_EQUAL(count, 1);
+    Xapian::WritableDatabase orig(get_named_writable_database("master"));
+    Xapian::DatabaseMaster master(masterpath);
+    string replicapath = tempdir + "/replica";
     {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	Xapian::DatabaseReplica replica(replicapath);
+
+	// Add a document to the original database.
+	orig.add_document(doc1);
+	orig.commit();
+
+	// Apply the replication - we don't have changesets stored, so this
+	// should just do a database copy, and return a count of 1.
+	int count = replicate(master, replica, tempdir, 0, 1, true);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+	// Repeating the replication should return a count of 1, since no
+	// further changes should need to be applied.
+	count = replicate(master, replica, tempdir, 0, 0, false);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+    }
+    {
+	// Regression test - if the replica was reopened, a full copy always
+	// used to occur, whether it was needed or not.  Fixed in revision
+	// #10117.
+	Xapian::DatabaseReplica replica(replicapath);
+	int count = replicate(master, replica, tempdir, 0, 0, false);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+	orig.add_document(doc1);
+	orig.commit();
+	orig.add_document(doc1);
+	orig.commit();
+
+	count = replicate(master, replica, tempdir, 2, 0, true);
+	TEST_EQUAL(count, 3);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+	check_equal_dbs(masterpath, replicapath);
+
+	// We need this inner scope to we close the replica before we remove
+	// the temporary directory on Windows.
     }
 
-    // Repeating the replication should return a count of 1, since no further
-    // changes should need to be applied.
-    count = replicate(master, replica, tempdir, 0, 0, false);
-    TEST_EQUAL(count, 1);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-
-    // Regression test - if the replica was reopened, a full copy always used
-    // to occur, whether it was needed or not.  Fixed in revision #10117.
-    replica.close();
-    replica = Xapian::DatabaseReplica(replicapath);
-    count = replicate(master, replica, tempdir, 0, 0, false);
-    TEST_EQUAL(count, 1);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-
-    orig.add_document(doc1);
-    orig.commit();
-    orig.add_document(doc1);
-    orig.commit();
-
-    count = replicate(master, replica, tempdir, 2, 0, true);
-    TEST_EQUAL(count, 3);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-
-    check_equal_dbs(masterpath, replicapath);
-
-    // Need to close the replica before we remove the temporary directory on
-    // Windows.
-    replica.close();
     rmtmpdir(tempdir);
     return true;
 }
@@ -350,91 +355,93 @@ DEFINE_TESTCASE(replicate2, replicas) {
 
     set_max_changesets(10);
 
-    Xapian::WritableDatabase orig(get_named_writable_database("master"));
-    Xapian::DatabaseMaster master(masterpath);
-    string replicapath = tempdir + "/replica";
-    Xapian::DatabaseReplica replica(replicapath);
+    {
+	Xapian::WritableDatabase orig(get_named_writable_database("master"));
+	Xapian::DatabaseMaster master(masterpath);
+	string replicapath = tempdir + "/replica";
+	Xapian::DatabaseReplica replica(replicapath);
 
-    Xapian::DatabaseMaster master2(replicapath);
-    string replica2path = tempdir + "/replica2";
-    Xapian::DatabaseReplica replica2(replica2path);
+	Xapian::DatabaseMaster master2(replicapath);
+	string replica2path = tempdir + "/replica2";
+	Xapian::DatabaseReplica replica2(replica2path);
 
-    // Add a document to the original database.
-    Xapian::Document doc1;
-    doc1.set_data(string("doc1"));
-    doc1.add_posting("doc", 1);
-    doc1.add_posting("one", 1);
-    orig.add_document(doc1);
-    orig.commit();
+	// Add a document to the original database.
+	Xapian::Document doc1;
+	doc1.set_data(string("doc1"));
+	doc1.add_posting("doc", 1);
+	doc1.add_posting("one", 1);
+	orig.add_document(doc1);
+	orig.commit();
 
-    // Apply the replication - we don't have changesets stored, so this should
-    // just do a database copy, and return a count of 1.
-    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
-    check_equal_dbs(masterpath, replicapath);
+	// Apply the replication - we don't have changesets stored, so this
+	// should just do a database copy, and return a count of 1.
+	TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
+	check_equal_dbs(masterpath, replicapath);
 
-    // Replicate from the replica.
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
-    check_equal_dbs(masterpath, replica2path);
+	// Replicate from the replica.
+	TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
+	check_equal_dbs(masterpath, replica2path);
 
-    orig.add_document(doc1);
-    orig.commit();
-    orig.add_document(doc1);
-    orig.commit();
+	orig.add_document(doc1);
+	orig.commit();
+	orig.add_document(doc1);
+	orig.commit();
 
-    // Replicate from the replica - should have no changes.
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 0, false), 1);
-    check_equal_dbs(replicapath, replica2path);
+	// Replicate from the replica - should have no changes.
+	TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 0, false), 1);
+	check_equal_dbs(replicapath, replica2path);
 
-    // Replicate, and replicate from the replica - should have 2 changes.
-    TEST_EQUAL(replicate(master, replica, tempdir, 2, 0, 1), 3);
-    check_equal_dbs(masterpath, replicapath);
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 2, 0, 1), 3);
-    check_equal_dbs(masterpath, replica2path);
+	// Replicate, and replicate from the replica - should have 2 changes.
+	TEST_EQUAL(replicate(master, replica, tempdir, 2, 0, 1), 3);
+	check_equal_dbs(masterpath, replicapath);
+	TEST_EQUAL(replicate(master2, replica2, tempdir, 2, 0, 1), 3);
+	check_equal_dbs(masterpath, replica2path);
 
-    // Stop writing changesets, and make a modification
-    set_max_changesets(0);
-    orig.close();
-    orig = get_writable_database_again();
-    orig.add_document(doc1);
-    orig.commit();
+	// Stop writing changesets, and make a modification
+	set_max_changesets(0);
+	orig.close();
+	orig = get_writable_database_again();
+	orig.add_document(doc1);
+	orig.commit();
 
-    // Replication should do a full copy.
-    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
-    check_equal_dbs(masterpath, replicapath);
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
-    check_equal_dbs(masterpath, replica2path);
+	// Replication should do a full copy.
+	TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
+	check_equal_dbs(masterpath, replicapath);
+	TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
+	check_equal_dbs(masterpath, replica2path);
 
-    // Start writing changesets, but only keep 1 in history, and make a
-    // modification.
-    set_max_changesets(1);
-    orig.close();
-    orig = get_writable_database_again();
-    orig.add_document(doc1);
-    orig.commit();
+	// Start writing changesets, but only keep 1 in history, and make a
+	// modification.
+	set_max_changesets(1);
+	orig.close();
+	orig = get_writable_database_again();
+	orig.add_document(doc1);
+	orig.commit();
 
-    // Replicate, and replicate from the replica - should have 1 changes.
-    TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, 1), 2);
-    check_equal_dbs(masterpath, replicapath);
-    TEST_EQUAL(replicate(master2, replica2, tempdir, 1, 0, 1), 2);
-    check_equal_dbs(masterpath, replica2path);
+	// Replicate, and replicate from the replica - should have 1 changes.
+	TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, 1), 2);
+	check_equal_dbs(masterpath, replicapath);
+	TEST_EQUAL(replicate(master2, replica2, tempdir, 1, 0, 1), 2);
+	check_equal_dbs(masterpath, replica2path);
 
-    // Make two changes - only one changeset should be preserved.
-    orig.add_document(doc1);
-    orig.commit();
+	// Make two changes - only one changeset should be preserved.
+	orig.add_document(doc1);
+	orig.commit();
 
-    // Replication should do a full copy, since one of the needed changesets
-    // is missing.
+	// Replication should do a full copy, since one of the needed
+	// changesets is missing.
 
-    //FIXME - the following tests are commented out because the backends don't currently tidy up old changesets correctly.
-    //TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
-    //check_equal_dbs(masterpath, replicapath);
-    //TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
-    //check_equal_dbs(masterpath, replica2path);
+	//FIXME - the following tests are commented out because the backends
+	//don't currently tidy up old changesets correctly.
+	//TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
+	//check_equal_dbs(masterpath, replicapath);
+	//TEST_EQUAL(replicate(master2, replica2, tempdir, 0, 1, true), 1);
+	//check_equal_dbs(masterpath, replica2path);
 
-    // Need to close the replicas before we remove the temporary directory on
-    // Windows.
-    replica.close();
-    replica2.close();
+	// We need this inner scope to we close the replicas before we remove
+	// the temporary directory on Windows.
+    }
+
     rmtmpdir(tempdir);
     return true;
 }
@@ -488,41 +495,43 @@ DEFINE_TESTCASE(replicate3, replicas) {
 
     set_max_changesets(10);
 
-    Xapian::WritableDatabase orig(get_named_writable_database("master"));
-    Xapian::DatabaseMaster master(masterpath);
-    string replicapath = tempdir + "/replica";
-    Xapian::DatabaseReplica replica(replicapath);
+    {
+	Xapian::WritableDatabase orig(get_named_writable_database("master"));
+	Xapian::DatabaseMaster master(masterpath);
+	string replicapath = tempdir + "/replica";
+	Xapian::DatabaseReplica replica(replicapath);
 
-    // Add a document to the original database.
-    Xapian::Document doc1;
-    doc1.set_data(string("doc1"));
-    doc1.add_posting("doc", 1);
-    doc1.add_posting("one", 1);
-    orig.add_document(doc1);
-    orig.commit();
+	// Add a document to the original database.
+	Xapian::Document doc1;
+	doc1.set_data(string("doc1"));
+	doc1.add_posting("doc", 1);
+	doc1.add_posting("one", 1);
+	orig.add_document(doc1);
+	orig.commit();
 
-    TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
-    check_equal_dbs(masterpath, replicapath);
+	TEST_EQUAL(replicate(master, replica, tempdir, 0, 1, true), 1);
+	check_equal_dbs(masterpath, replicapath);
 
-    // Make a changeset.
-    orig.add_document(doc1);
-    orig.commit();
+	// Make a changeset.
+	orig.add_document(doc1);
+	orig.commit();
 
-    replicate_with_brokenness(master, replica, tempdir, 1, 0, true);
-    // Although it throws an error, the final replication in
-    // replicate_with_brokenness() updates the database, since it's just the
-    // end-of-replication message which is missing its body.
-    check_equal_dbs(masterpath, replicapath);
+	replicate_with_brokenness(master, replica, tempdir, 1, 0, true);
+	// Although it throws an error, the final replication in
+	// replicate_with_brokenness() updates the database, since it's just
+	// the end-of-replication message which is missing its body.
+	check_equal_dbs(masterpath, replicapath);
 
-    // Check that the earlier broken replications didn't cause any problems for the
-    // next replication.
-    orig.add_document(doc1);
-    orig.commit();
-    TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, true), 2);
+	// Check that the earlier broken replications didn't cause any problems
+	// for the next replication.
+	orig.add_document(doc1);
+	orig.commit();
+	TEST_EQUAL(replicate(master, replica, tempdir, 1, 0, true), 2);
 
-    // Need to close the replicas before we remove the temporary directory on
-    // Windows.
-    replica.close();
+	// We need this inner scope to we close the replica before we remove
+	// the temporary directory on Windows.
+    }
+
     rmtmpdir(tempdir);
     return true;
 }
@@ -536,88 +545,90 @@ DEFINE_TESTCASE(replicate4, replicas) {
 
     set_max_changesets(1);
 
-    Xapian::WritableDatabase orig(get_named_writable_database("master"));
-    Xapian::DatabaseMaster master(masterpath);
-    string replicapath = tempdir + "/replica";
-    Xapian::DatabaseReplica replica(replicapath);
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc1;
-    doc1.set_data(string("doc1"));
-    doc1.add_term("nopos");
-    orig.add_document(doc1);
-    orig.commit();
-
-    // Apply the replication - we don't have changesets stored, so this should
-    // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir, 0, 1, true);
-    TEST_EQUAL(count, 1);
     {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	Xapian::WritableDatabase orig(get_named_writable_database("master"));
+	Xapian::DatabaseMaster master(masterpath);
+	string replicapath = tempdir + "/replica";
+	Xapian::DatabaseReplica replica(replicapath);
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc1;
+	doc1.set_data(string("doc1"));
+	doc1.add_term("nopos");
+	orig.add_document(doc1);
+	orig.commit();
+
+	// Apply the replication - we don't have changesets stored, so this
+	// should just do a database copy, and return a count of 1.
+	int count = replicate(master, replica, tempdir, 0, 1, true);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+	// Add a document with positional information to the original database.
+	doc1.add_posting("pos", 1);
+	orig.add_document(doc1);
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 1, 0, true);
+	TEST_EQUAL(count, 2);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	check_equal_dbs(masterpath, replicapath);
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc2;
+	doc2.set_data(string("doc2"));
+	doc2.add_term("nopos");
+	orig.add_document(doc2);
+	if (get_dbtype() != "chert") {
+	    // FIXME: Needs to be pre-commit for new-glass
+	    set_max_changesets(0);
+	}
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 1, 0, true);
+	TEST_EQUAL(count, 2);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	check_equal_dbs(masterpath, replicapath);
+	TEST(!file_exists(masterpath + "/changes1"));
+
+	// Turn off replication, make sure we dont write anything
+	if (get_dbtype() == "chert") {
+	    set_max_changesets(0);
+	}
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc3;
+	doc3.set_data(string("doc3"));
+	doc3.add_term("nonopos");
+	orig.add_document(doc3);
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 0, 1, true);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	// Should have pulled a full copy
+	check_equal_dbs(masterpath, replicapath);
+	TEST(!file_exists(masterpath + "/changes3"));
+
+	// We need this inner scope to we close the replica before we remove
+	// the temporary directory on Windows.
     }
 
-    // Add a document with positional information to the original database.
-    doc1.add_posting("pos", 1);
-    orig.add_document(doc1);
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, true);
-    TEST_EQUAL(count, 2);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    check_equal_dbs(masterpath, replicapath);
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc2;
-    doc2.set_data(string("doc2"));
-    doc2.add_term("nopos");
-    orig.add_document(doc2);
-    if (get_dbtype() != "chert") {
-	set_max_changesets(0); // FIXME: Needs to be pre-commit for new-glass
-    }
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, true);
-    TEST_EQUAL(count, 2);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    check_equal_dbs(masterpath, replicapath);
-    TEST(!file_exists(masterpath + "/changes1"));
-
-    // Turn off replication, make sure we dont write anything
-    if (get_dbtype() == "chert") {
-	set_max_changesets(0);
-    }
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc3;
-    doc3.set_data(string("doc3"));
-    doc3.add_term("nonopos");
-    orig.add_document(doc3);
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 0, 1, true);
-    TEST_EQUAL(count, 1);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    // Should have pulled a full copy
-    check_equal_dbs(masterpath, replicapath);
-    TEST(!file_exists(masterpath + "/changes3"));
-    
-
-    // Need to close the replica before we remove the temporary directory on
-    // Windows.
-    replica.close();
     rmtmpdir(tempdir);
     return true;
 }
@@ -633,121 +644,123 @@ DEFINE_TESTCASE(replicate5, replicas) {
 
     set_max_changesets(2);
 
-    Xapian::WritableDatabase orig(get_named_writable_database("master"));
-    Xapian::DatabaseMaster master(masterpath);
-    string replicapath = tempdir + "/replica";
-    Xapian::DatabaseReplica replica(replicapath);
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc1;
-    doc1.set_data(string("doc1"));
-    doc1.add_term("nopos");
-    orig.add_document(doc1);
-    orig.commit();
-
-    // Apply the replication - we don't have changesets stored, so this should
-    // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir, 0, 1, true);
-    TEST_EQUAL(count, 1);
     {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	Xapian::WritableDatabase orig(get_named_writable_database("master"));
+	Xapian::DatabaseMaster master(masterpath);
+	string replicapath = tempdir + "/replica";
+	Xapian::DatabaseReplica replica(replicapath);
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc1;
+	doc1.set_data(string("doc1"));
+	doc1.add_term("nopos");
+	orig.add_document(doc1);
+	orig.commit();
+
+	// Apply the replication - we don't have changesets stored, so this
+	// should just do a database copy, and return a count of 1.
+	int count = replicate(master, replica, tempdir, 0, 1, true);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+	// Add a document with positional information to the original database.
+	doc1.add_posting("pos", 1);
+	orig.add_document(doc1);
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 1, 0, true);
+	TEST_EQUAL(count, 2);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	check_equal_dbs(masterpath, replicapath);
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc2;
+	doc2.set_data(string("doc2"));
+	doc2.add_term("nopos");
+	orig.add_document(doc2);
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 1, 0, true);
+	TEST_EQUAL(count, 2);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	check_equal_dbs(masterpath, replicapath);
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc3;
+	doc3.set_data(string("doc3"));
+	doc3.add_term("nonopos");
+	orig.add_document(doc3);
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 1, 0, true);
+	TEST_EQUAL(count, 2);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	check_equal_dbs(masterpath, replicapath);
+
+	// Ensure that only these changesets exists
+	TEST(!file_exists(masterpath + "/changes1"));
+	TEST(file_exists(masterpath + "/changes2"));
+	TEST(file_exists(masterpath + "/changes3"));
+
+	set_max_changesets(3);
+	masterpath = get_named_writable_database_path("master");
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc4;
+	doc4.set_data(string("doc4"));
+	doc4.add_term("nononopos");
+	orig.add_document(doc4);
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 1, 0, true);
+	TEST_EQUAL(count, 2);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	check_equal_dbs(masterpath, replicapath);
+
+	// Add a document with no positions to the original database.
+	Xapian::Document doc5;
+	doc5.set_data(string("doc5"));
+	doc5.add_term("nonononopos");
+	orig.add_document(doc5);
+	orig.commit();
+
+	// Replicate, and check that we have the positional information.
+	count = replicate(master, replica, tempdir, 1, 0, true);
+	TEST_EQUAL(count, 2);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+	check_equal_dbs(masterpath, replicapath);
+
+	TEST(!file_exists(masterpath + "/changes2"));
+	TEST(file_exists(masterpath + "/changes3"));
+	TEST(file_exists(masterpath + "/changes4"));
+	TEST(file_exists(masterpath + "/changes5"));
+
+	// We need this inner scope to we close the replica before we remove
+	// the temporary directory on Windows.
     }
 
-    // Add a document with positional information to the original database.
-    doc1.add_posting("pos", 1);
-    orig.add_document(doc1);
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, true);
-    TEST_EQUAL(count, 2);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    check_equal_dbs(masterpath, replicapath);
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc2;
-    doc2.set_data(string("doc2"));
-    doc2.add_term("nopos");
-    orig.add_document(doc2);
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, true);
-    TEST_EQUAL(count, 2);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    check_equal_dbs(masterpath, replicapath);
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc3;
-    doc3.set_data(string("doc3"));
-    doc3.add_term("nonopos");
-    orig.add_document(doc3);
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, true);
-    TEST_EQUAL(count, 2);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    check_equal_dbs(masterpath, replicapath);
-    
-    // Ensure that only these changesets exists
-    TEST(!file_exists(masterpath + "/changes1"));
-    TEST(file_exists(masterpath + "/changes2"));
-    TEST(file_exists(masterpath + "/changes3"));
-
-    set_max_changesets(3);
-    masterpath = get_named_writable_database_path("master");
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc4;
-    doc4.set_data(string("doc4"));
-    doc4.add_term("nononopos");
-    orig.add_document(doc4);
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, true);
-    TEST_EQUAL(count, 2);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    check_equal_dbs(masterpath, replicapath);
-
-    // Add a document with no positions to the original database.
-    Xapian::Document doc5;
-    doc5.set_data(string("doc5"));
-    doc5.add_term("nonononopos");
-    orig.add_document(doc5);
-    orig.commit();
-
-    // Replicate, and check that we have the positional information.
-    count = replicate(master, replica, tempdir, 1, 0, true);
-    TEST_EQUAL(count, 2);
-    {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
-    }
-    check_equal_dbs(masterpath, replicapath);
-    
-    TEST(!file_exists(masterpath + "/changes2"));
-    TEST(file_exists(masterpath + "/changes3"));
-    TEST(file_exists(masterpath + "/changes4"));
-    TEST(file_exists(masterpath + "/changes5"));
-
-    // Need to close the replica before we remove the temporary directory on
-    // Windows.
-    replica.close();
     rmtmpdir(tempdir);
     return true;
 }
@@ -761,56 +774,58 @@ DEFINE_TESTCASE(replicate6, replicas) {
 
     set_max_changesets(10);
 
-    Xapian::WritableDatabase orig(get_named_writable_database("master"));
-    Xapian::DatabaseMaster master(masterpath);
-    string replicapath = tempdir + "/replica";
-    Xapian::DatabaseReplica replica(replicapath);
-
-    // Add a document to the original database.
-    Xapian::Document doc1;
-    doc1.set_data(string("doc1"));
-    doc1.add_posting("doc", 1);
-    doc1.add_posting("one", 1);
-    orig.add_document(doc1);
-    orig.commit();
-
-    rm_rf(masterpath + "1");
-    cp_R(masterpath, masterpath + "1");
-
-    orig.add_document(doc1);
-    orig.commit();
-
-    // Apply the replication - we don't have changesets stored, so this should
-    // just do a database copy, and return a count of 1.
-    int count = replicate(master, replica, tempdir, 0, 1, true);
-    TEST_EQUAL(count, 1);
     {
-	Xapian::Database dbcopy(replicapath);
-	TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	Xapian::WritableDatabase orig(get_named_writable_database("master"));
+	Xapian::DatabaseMaster master(masterpath);
+	string replicapath = tempdir + "/replica";
+	Xapian::DatabaseReplica replica(replicapath);
+
+	// Add a document to the original database.
+	Xapian::Document doc1;
+	doc1.set_data(string("doc1"));
+	doc1.add_posting("doc", 1);
+	doc1.add_posting("one", 1);
+	orig.add_document(doc1);
+	orig.commit();
+
+	rm_rf(masterpath + "1");
+	cp_R(masterpath, masterpath + "1");
+
+	orig.add_document(doc1);
+	orig.commit();
+
+	// Apply the replication - we don't have changesets stored, so this
+	// should just do a database copy, and return a count of 1.
+	int count = replicate(master, replica, tempdir, 0, 1, true);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+	Xapian::DatabaseMaster master1(masterpath + "1");
+
+	// Try to replicate an older version of the master.
+	count = replicate(master1, replica, tempdir, 0, 0, false);
+	TEST_EQUAL(count, 1);
+
+	// Force a full copy.
+	count = replicate(master1, replica, tempdir, 0, 1, true, true);
+	TEST_EQUAL(count, 1);
+
+	// Test we can still replicate.
+	orig.add_document(doc1);
+	orig.commit();
+
+	count = replicate(master, replica, tempdir, 2, 0, true);
+	TEST_EQUAL(count, 3);
+
+	check_equal_dbs(masterpath, replicapath);
+
+	// We need this inner scope to we close the replica before we remove
+	// the temporary directory on Windows.
     }
 
-    Xapian::DatabaseMaster master1(masterpath + "1");
-
-    // Try to replicate an older version of the master.
-    count = replicate(master1, replica, tempdir, 0, 0, false);
-    TEST_EQUAL(count, 1);
-
-    // Force a full copy.
-    count = replicate(master1, replica, tempdir, 0, 1, true, true);
-    TEST_EQUAL(count, 1);
-
-    // Test we can still replicate.
-    orig.add_document(doc1);
-    orig.commit();
-
-    count = replicate(master, replica, tempdir, 2, 0, true);
-    TEST_EQUAL(count, 3);
-
-    check_equal_dbs(masterpath, replicapath);
-
-    // Need to close the replica before we remove the temporary directory on
-    // Windows.
-    replica.close();
     rmtmpdir(tempdir);
     return true;
 }

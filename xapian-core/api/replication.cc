@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -231,25 +231,6 @@ class DatabaseReplica::Internal : public Xapian::Internal::intrusive_base {
 
 // Methods of DatabaseReplica
 
-DatabaseReplica::DatabaseReplica(const DatabaseReplica & other)
-	: internal(other.internal)
-{
-    LOGCALL_CTOR(REPLICA, "DatabaseReplica", other);
-}
-
-void
-DatabaseReplica::operator=(const DatabaseReplica & other)
-{
-    LOGCALL_VOID(REPLICA, "DatabaseReplica::operator=", other);
-    internal = other.internal;
-}
-
-DatabaseReplica::DatabaseReplica()
-	: internal(0)
-{
-    LOGCALL_CTOR(REPLICA, "DatabaseReplica", NO_ARGS);
-}
-
 DatabaseReplica::DatabaseReplica(const string & path)
 	: internal(new DatabaseReplica::Internal(path))
 {
@@ -259,14 +240,13 @@ DatabaseReplica::DatabaseReplica(const string & path)
 DatabaseReplica::~DatabaseReplica()
 {
     LOGCALL_DTOR(REPLICA, "DatabaseReplica");
+    delete internal;
 }
 
 string
 DatabaseReplica::get_revision_info() const
 {
     LOGCALL(REPLICA, string, "DatabaseReplica::get_revision_info", NO_ARGS);
-    if (internal.get() == NULL)
-	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::get_revision_info on a closed replica.");
     RETURN(internal->get_revision_info());
 }
 
@@ -274,8 +254,6 @@ void
 DatabaseReplica::set_read_fd(int fd)
 {
     LOGCALL_VOID(REPLICA, "DatabaseReplica::set_read_fd", fd);
-    if (internal.get() == NULL)
-	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::set_read_fd on a closed replica.");
     internal->set_read_fd(fd);
 }
 
@@ -286,25 +264,14 @@ DatabaseReplica::apply_next_changeset(ReplicationInfo * info,
     LOGCALL(REPLICA, bool, "DatabaseReplica::apply_next_changeset", info | reader_close_time);
     if (info != NULL)
 	info->clear();
-    if (internal.get() == NULL)
-	throw Xapian::InvalidOperationError("Attempt to call DatabaseReplica::apply_next_changeset on a closed replica.");
     RETURN(internal->apply_next_changeset(info, reader_close_time));
-}
-
-void
-DatabaseReplica::close()
-{
-    LOGCALL_VOID(REPLICA, "DatabaseReplica::close", NO_ARGS);
-    internal = NULL;
 }
 
 string
 DatabaseReplica::get_description() const
 {
     string desc("DatabaseReplica(");
-    if (internal.get()) {
-	desc += internal->get_description();
-    }
+    desc += internal->get_description();
     desc += ')';
     return desc;
 }

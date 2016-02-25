@@ -35,7 +35,8 @@ dnl 2:0:1 1.3.1 Added TfIdfWeight, MSetIterator::at_end(), etc
 dnl 3:0:0 1.3.2 Enquire::get_eset() overload -> default parameter
 dnl 4:0:0 1.3.3 Database::allterms_begin() overload -> default parameter
 dnl 5:0:0 1.3.4 DB compaction and checking changes, etc
-LIBRARY_VERSION_INFO=5:0:0
+dnl 6:0:0 1.3.5 DatabaseReplica changes
+LIBRARY_VERSION_INFO=6:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=-1.3

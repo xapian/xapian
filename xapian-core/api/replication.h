@@ -2,7 +2,7 @@
  * @brief Replication support for Xapian databases.
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2008,2011,2015 Olly Betts
+ * Copyright 2008,2011,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@
 #ifndef XAPIAN_INCLUDED_REPLICATION_H
 #define XAPIAN_INCLUDED_REPLICATION_H
 
-#include "xapian/intrusive_ptr.h"
 #include "xapian/visibility.h"
 
 #include <string>
@@ -115,19 +114,16 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
 class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
     /// Class holding details of the replica.
     class Internal;
-    /// Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
+    /// Internals.
+    Internal * internal;
 
-  public:
-    /// Copying is allowed (and is cheap).
+    /// No copying.
     DatabaseReplica(const DatabaseReplica & other);
 
-    /// Assignment is allowed (and is cheap).
+    /// No assignment.
     void operator=(const DatabaseReplica & other);
 
-    /// Default constructor - for declaring an uninitialised replica.
-    DatabaseReplica();
-
+  public:
     /// Destructor.
     ~DatabaseReplica();
 
@@ -196,15 +192,6 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      */
     bool apply_next_changeset(ReplicationInfo * info,
 			      double reader_close_time);
-
-    /** Close the DatabaseReplica.
-     *
-     *  After this has been called, there will no longer be a write lock on the
-     *  database created by the DatabaseReplica, and if any of the methods of
-     *  this object which access the database are called, they will throw an
-     *  InvalidOperationError.
-     */
-    void close();
 
     /// Return a string describing this object.
     std::string get_description() const;
