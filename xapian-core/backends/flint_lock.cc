@@ -326,7 +326,7 @@ no_ofd_support:
 	    if (why != SUCCESS) _exit(0);
 	}
 
-	// Make sure we don't block unmount() of partition holding the current
+	// Make sure we don't block unmount of partition holding the current
 	// directory.
 	if (chdir("/") < 0) {
 	    // We can't usefully do anything in response to an error, so just
