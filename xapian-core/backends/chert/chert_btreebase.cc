@@ -181,7 +181,7 @@ ChertTable_base::read(const string & name, char ch, bool read_bitmap,
     char buf[REASONABLE_BASE_SIZE];
 
     const char *start = buf;
-    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE, 0);
+    const char *end = buf + io_read(h, buf, REASONABLE_BASE_SIZE);
 
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision);
     uint4 format;

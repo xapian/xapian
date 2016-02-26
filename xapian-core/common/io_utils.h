@@ -105,12 +105,12 @@ inline bool io_full_sync(int fd)
  *
  *  If a read error occurs, throws DatabaseError.
  *
- *  If EOF is reached after less than @a min bytes, throws
- *  DatabaseCorruptError.
+ *  If @a min is specified and EOF is reached after less than @a min bytes,
+ *  throws DatabaseCorruptError.
  *
  *  Returns the number of bytes actually read.
  */
-size_t io_read(int fd, char * p, size_t n, size_t min);
+size_t io_read(int fd, char * p, size_t n, size_t min = 0);
 
 /** Write n bytes from block pointed to by p to file descriptor fd. */
 void io_write(int fd, const char * p, size_t n);

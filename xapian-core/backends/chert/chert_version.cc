@@ -105,7 +105,7 @@ ChertVersion::read_and_check()
     char buf[VERSIONFILE_SIZE + 1];
     size_t size;
     try {
-	size = io_read(fd, buf, VERSIONFILE_SIZE + 1, 0);
+	size = io_read(fd, buf, VERSIONFILE_SIZE + 1);
     } catch (...) {
 	(void)close(fd);
 	throw;

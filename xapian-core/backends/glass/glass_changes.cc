@@ -206,7 +206,7 @@ GlassChanges::check(const string & changes_file)
     while (true) {
 	n -= (p - buf);
 	memmove(buf, p, n);
-	n += io_read(fd, buf + n, sizeof(buf) - n, 0);
+	n += io_read(fd, buf + n, sizeof(buf) - n);
 
 	if (n == 0)
 	    throw Xapian::DatabaseError("Changes file truncated");

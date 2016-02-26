@@ -294,8 +294,7 @@ GlassDatabase::get_changeset_revisions(const string & path,
 
     char buf[REASONABLE_CHANGESET_SIZE];
     const char *start = buf;
-    const char *end = buf + io_read(fd, buf,
-				    REASONABLE_CHANGESET_SIZE, 0);
+    const char *end = buf + io_read(fd, buf, REASONABLE_CHANGESET_SIZE);
     if (size_t(end - start) < CONST_STRLEN(CHANGES_MAGIC_STRING))
 	throw Xapian::DatabaseError("Changeset too short at " + path);
     if (memcmp(start, CHANGES_MAGIC_STRING,

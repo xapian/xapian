@@ -272,7 +272,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	if (fd < 0) throw;
 	unsigned char buf[65536];
 	uint4 blocksize = 8192; // Default.
-	size_t read = io_read(fd, (char*)buf, sizeof(buf), 0);
+	size_t read = io_read(fd, (char*)buf, sizeof(buf));
 	if (read > 0) {
 	    int dir_end = DIR_END(buf);
 	    blocksize = dir_end + TOTAL_FREE(buf);
@@ -289,7 +289,7 @@ ChertTableCheck::check(const char * tablename, const string & path,
 	    // Scan for root block.
 	    bool found = false;
 	    for (blk_no = 0;
-		 io_read(fd, (char*)buf, blocksize, 0) == blocksize;
+		 io_read(fd, (char*)buf, blocksize) == blocksize;
 		 ++blk_no) {
 		uint4 rev = REVISION(buf);
 		if (rev_ptr && *rev_ptr) {
