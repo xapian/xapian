@@ -1,7 +1,7 @@
 /** @file io_utils.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2011,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -103,7 +103,10 @@ inline bool io_full_sync(int fd)
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
  *  fd.
  *
- *  If less than min bytes are read, throw an exception.
+ *  If a read error occurs, throws DatabaseError.
+ *
+ *  If EOF is reached after less than @a min bytes, throws
+ *  DatabaseCorruptError.
  *
  *  Returns the number of bytes actually read.
  */

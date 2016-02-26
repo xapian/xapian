@@ -127,7 +127,7 @@ io_read(int fd, char * p, size_t n, size_t min)
 	if (c <= 0) {
 	    if (c == 0) {
 		if (total >= min) break;
-		throw Xapian::DatabaseError("Couldn't read enough (EOF)");
+		throw Xapian::DatabaseCorruptError("Couldn't read enough (EOF)");
 	    }
 	    if (errno == EINTR) continue;
 	    throw Xapian::DatabaseError("Error reading from file", errno);
