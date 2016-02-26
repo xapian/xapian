@@ -32,6 +32,7 @@
 #include "dbcheck.h"
 #include "fd.h"
 #include "filetests.h"
+#include "safedirent.h"
 #include "safeerrno.h"
 #include "safefcntl.h"
 #include "safesysstat.h"
@@ -819,6 +820,85 @@ DEFINE_TESTCASE(replicate6, replicas) {
 
 	count = replicate(master, replica, tempdir, 2, 0, true);
 	TEST_EQUAL(count, 3);
+
+	check_equal_dbs(masterpath, replicapath);
+
+	// We need this inner scope to we close the replica before we remove
+	// the temporary directory on Windows.
+    }
+
+    rmtmpdir(tempdir);
+    return true;
+}
+
+/// Test healing a corrupt replica (new in 1.3.5).
+DEFINE_TESTCASE(replicate7, replicas) {
+    UNSET_MAX_CHANGESETS_AFTERWARDS;
+    string tempdir = ".replicatmp";
+    mktmpdir(tempdir);
+    string masterpath = get_named_writable_database_path("master");
+
+    set_max_changesets(10);
+
+    Xapian::WritableDatabase orig(get_named_writable_database("master"));
+    Xapian::DatabaseMaster master(masterpath);
+    string replicapath = tempdir + "/replica";
+    {
+	Xapian::DatabaseReplica replica(replicapath);
+
+	// Add a document to the original database.
+	Xapian::Document doc1;
+	doc1.set_data(string("doc1"));
+	doc1.add_posting("doc", 1);
+	doc1.add_posting("one", 1);
+	orig.add_document(doc1);
+	orig.commit();
+
+	orig.add_document(doc1);
+	orig.commit();
+
+	// Apply the replication - we don't have changesets stored, so this
+	// should just do a database copy, and return a count of 1.
+	int count = replicate(master, replica, tempdir, 0, 1, true);
+	TEST_EQUAL(count, 1);
+	{
+	    Xapian::Database dbcopy(replicapath);
+	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
+	}
+
+	// Corrupt replica by truncating all the files to size 0.
+	string d = replicapath;
+	d += "/replica_1";
+	DIR * dir = opendir(d.c_str());
+	TEST(dir != NULL);
+	while (true) {
+	    errno = 0;
+	    struct dirent * entry = readdir(dir);
+	    if (!entry) {
+		if (errno == 0)
+		    break;
+		FAIL_TEST(string("readdir failed: ") + strerror(errno));
+	    }
+
+	    // Skip '.' and '..'.
+	    if (entry->d_name[0] == '.') continue;
+
+	    string file = d;
+	    file += '/';
+	    file += entry->d_name;
+	    int fd = open(file.c_str(), O_WRONLY|O_TRUNC, 0666);
+	    TEST(fd != -1);
+	    TEST(close(fd) == 0);
+	}
+	closedir(dir);
+    }
+
+    {
+	Xapian::DatabaseReplica replica(replicapath);
+
+	// Replication should succeed and perform a full copy.
+	int count = replicate(master, replica, tempdir, 0, 1, true);
+	TEST_EQUAL(count, 1);
 
 	check_equal_dbs(masterpath, replicapath);
 

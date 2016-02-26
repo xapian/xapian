@@ -325,8 +325,15 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	}
 	string stub_path = path;
 	stub_path += "/XAPIANDB";
-	live_db = WritableDatabase(stub_path,
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
+	try {
+	    live_db = WritableDatabase(stub_path,
+				       Xapian::DB_OPEN|Xapian::DB_BACKEND_STUB);
+	} catch (const Xapian::DatabaseCorruptError &) {
+	    // If the database is too corrupt to open, force a full copy so we
+	    // auto-heal from this condition.  Instance seen in the wild was
+	    // that the replica had all files truncated to size 0.
+	    live_db.internal.push_back(NULL);
+	}
 	// FIXME: simplify all this?
 	ifstream stub(stub_path.c_str());
 	string line;
@@ -348,6 +355,8 @@ DatabaseReplica::Internal::get_revision_info() const
 	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     if (live_db.internal.size() != 1)
 	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
+
+    if (live_db.internal[0].get() == NULL) RETURN(string());
 
     string uuid = (live_db.internal[0])->get_uuid();
     string buf = encode_length(uuid.size());
@@ -489,11 +498,6 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 						double reader_close_time)
 {
     LOGCALL(REPLICA, bool, "DatabaseReplica::Internal::apply_next_changeset", info | reader_close_time);
-    if (live_db.internal.empty())
-	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
-    if (live_db.internal.size() != 1)
-	throw Xapian::InvalidOperationError("DatabaseReplica needs to be pointed at exactly one subdatabase");
-
     while (true) {
 	int type = conn->sniff_next_message_type(0.0);
 	switch (type) {
