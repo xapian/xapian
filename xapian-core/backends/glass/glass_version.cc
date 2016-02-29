@@ -1,7 +1,7 @@
 /** @file glass_version.cc
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,8 @@
 using namespace std;
 
 /// Glass format version (date of change):
-#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2015,12,24)
+#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2016,02,28)
+// 2016,02,28 1.3.5 compress_min in version file
 // 2015,12,24 1.3.4 2 bytes "components_of" per item eliminated, and much more
 // 2014,11,21 1.3.2 Brass renamed to Glass
 
@@ -381,13 +382,25 @@ GlassVersion::sync(const string & tmpfile,
     return true;
 }
 
+// Only try to compress tags longer than this many bytes.
+const size_t COMPRESS_MIN = 4;
+
+static const uint4 compress_min_tab[] = {
+    0, // POSTLIST
+    COMPRESS_MIN, // DOCDATA
+    COMPRESS_MIN, // TERMLIST
+    0, // POSITION
+    COMPRESS_MIN, // SPELLING
+    COMPRESS_MIN  // SYNONYM
+};
+
 void
 GlassVersion::create(unsigned blocksize, int flags)
 {
     AssertRel(blocksize,>=,2048);
     uuid_generate(uuid);
     for (unsigned table_no = 0; table_no < Glass::MAX_; ++table_no) {
-	root[table_no].init(blocksize);
+	root[table_no].init(blocksize, compress_min_tab[table_no]);
     }
     sync(write(rev, flags), rev, flags);
 }
@@ -395,7 +408,7 @@ GlassVersion::create(unsigned blocksize, int flags)
 namespace Glass {
 
 void
-RootInfo::init(unsigned blocksize_)
+RootInfo::init(unsigned blocksize_, uint4 compress_min_)
 {
     AssertRel(blocksize_,>=,2048);
     root = 0;
@@ -404,6 +417,7 @@ RootInfo::init(unsigned blocksize_)
     root_is_fake = true;
     sequential_mode = true;
     blocksize = blocksize_;
+    compress_min = compress_min_;
     fl_serialised.resize(0);
 }
 
@@ -417,6 +431,7 @@ RootInfo::serialise(string &s) const
     pack_uint(s, val);
     pack_uint(s, num_entries);
     pack_uint(s, blocksize >> 11);
+    pack_uint(s, compress_min);
     pack_string(s, fl_serialised);
 }
 
@@ -428,6 +443,7 @@ RootInfo::unserialise(const char ** p, const char * end)
 	!unpack_uint(p, end, &val) ||
 	!unpack_uint(p, end, &num_entries) ||
 	!unpack_uint(p, end, &blocksize) ||
+	!unpack_uint(p, end, &compress_min) ||
 	!unpack_string(p, end, fl_serialised)) return false;
     level = val >> 2;
     sequential_mode = val & 0x02;

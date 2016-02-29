@@ -60,9 +60,6 @@
 using namespace Glass;
 using namespace std;
 
-// Only try to compress tags longer than this many bytes.
-const size_t COMPRESS_MIN = 4;
-
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
 
@@ -1250,40 +1247,8 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     bool compressed = false;
     if (already_compressed) {
 	compressed = true;
-    } else if (compress_strategy != DONT_COMPRESS && tag.size() > COMPRESS_MIN) {
-	static_assert(DONT_COMPRESS != Z_DEFAULT_STRATEGY,
-		      "DONT_COMPRESS clashes with zlib constant");
-	static_assert(DONT_COMPRESS != Z_FILTERED,
-		      "DONT_COMPRESS clashes with zlib constant");
-	static_assert(DONT_COMPRESS != Z_HUFFMAN_ONLY,
-		      "DONT_COMPRESS clashes with zlib constant");
-#ifdef Z_RLE
-	static_assert(DONT_COMPRESS != Z_RLE,
-		      "DONT_COMPRESS clashes with zlib constant");
-#endif
-
-	comp_stream.lazy_alloc_deflate_zstream();
-
-	comp_stream.deflate_zstream->next_in = (Bytef *)const_cast<char *>(tag.data());
-	comp_stream.deflate_zstream->avail_in = (uInt)tag.size();
-
-	// If compressed size is >= tag.size(), we don't want to compress.
-	unsigned long blk_len = tag.size() - 1;
-	unsigned char * blk = new unsigned char[blk_len];
-	comp_stream.deflate_zstream->next_out = blk;
-	comp_stream.deflate_zstream->avail_out = (uInt)blk_len;
-
-	int err = deflate(comp_stream.deflate_zstream, Z_FINISH);
-	if (err == Z_STREAM_END) {
-	    // If deflate succeeded, then the output was at least one byte
-	    // smaller than the input.
-	    tag.assign(reinterpret_cast<const char *>(blk), comp_stream.deflate_zstream->total_out);
-	    compressed = true;
-	} else {
-	    // Deflate failed - presumably the data wasn't compressible.
-	}
-
-	delete [] blk;
+    } else if (compress_min > 0 && tag.size() > compress_min) {
+	compressed = comp_stream.compress(tag);
     }
 
     // sort of matching kt.append_chunk(), but setting the chunk
@@ -1507,58 +1472,7 @@ GlassTable::read_tag(Glass::Cursor * C_, string *tag, bool keep_compressed) cons
     // FIXME: Perhaps we should decompress each chunk as we read it so we
     // don't need both the full compressed and uncompressed tags in memory
     // at once.
-
-    string utag;
-    // May not be enough for a compressed tag, but it's a reasonable guess.
-    utag.reserve(tag->size() + tag->size() / 2);
-
-    Bytef buf[8192];
-
-    comp_stream.lazy_alloc_inflate_zstream();
-
-    comp_stream.inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
-    comp_stream.inflate_zstream->avail_in = (uInt)tag->size();
-
-    int err = Z_OK;
-    while (err != Z_STREAM_END) {
-	comp_stream.inflate_zstream->next_out = buf;
-	comp_stream.inflate_zstream->avail_out = (uInt)sizeof(buf);
-	err = inflate(comp_stream.inflate_zstream, Z_SYNC_FLUSH);
-	if (err == Z_BUF_ERROR && comp_stream.inflate_zstream->avail_in == 0) {
-	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << comp_stream.inflate_zstream->adler);
-	    Bytef header2[4];
-	    setint4(header2, 0, comp_stream.inflate_zstream->adler);
-	    comp_stream.inflate_zstream->next_in = header2;
-	    comp_stream.inflate_zstream->avail_in = 4;
-	    err = inflate(comp_stream.inflate_zstream, Z_SYNC_FLUSH);
-	    if (err == Z_STREAM_END) break;
-	}
-
-	if (err != Z_OK && err != Z_STREAM_END) {
-	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
-	    string msg = "inflate failed";
-	    if (comp_stream.inflate_zstream->msg) {
-		msg += " (";
-		msg += comp_stream.inflate_zstream->msg;
-		msg += ')';
-	    }
-	    throw Xapian::DatabaseError(msg);
-	}
-
-	utag.append(reinterpret_cast<const char *>(buf),
-		    comp_stream.inflate_zstream->next_out - buf);
-    }
-    if (utag.size() != comp_stream.inflate_zstream->total_out) {
-	string msg = "compressed tag didn't expand to the expected size: ";
-	msg += str(utag.size());
-	msg += " != ";
-	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += str((size_t)comp_stream.inflate_zstream->total_out);
-	throw Xapian::DatabaseCorruptError(msg);
-    }
-
-    swap(*tag, utag);
-
+    comp_stream.decompress(*tag);
     RETURN(false);
 }
 
@@ -1597,6 +1511,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
 	item_count =	   root_info->get_num_entries();
 	faked_root_block = root_info->get_root_is_fake();
 	sequential =	   root_info->get_sequential_mode();
+	compress_min =     root_info->get_compress_min();
 	const string & fl_serialised = root_info->get_free_list();
 	if (!fl_serialised.empty()) {
 	    if (!free_list.unpack(fl_serialised))
@@ -1610,6 +1525,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
 	item_count =	   0;
 	faked_root_block = true;
 	sequential =	   true;
+	compress_min =     0;
 	free_list.reset();
     }
 
@@ -1717,7 +1633,7 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
 }
 
 GlassTable::GlassTable(const char * tablename_, const string & path_,
-		       bool readonly_, int compress_strategy_, bool lazy_)
+		       bool readonly_, int compress_strategy, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
 	  item_count(0),
@@ -1742,17 +1658,17 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 	  cursor_version(0),
 	  changes_obj(NULL),
 	  split_p(0),
-	  compress_strategy(compress_strategy_),
-	  comp_stream(compress_strategy_),
+	  compress_min(0),
+	  comp_stream(compress_strategy),
 	  lazy(lazy_),
 	  last_readahead(BLK_UNUSED),
 	  offset(0)
 {
-    LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy_ | lazy_);
+    LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy | lazy_);
 }
 
 GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
-		       bool readonly_, int compress_strategy_, bool lazy_)
+		       bool readonly_, int compress_strategy, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
 	  item_count(0),
@@ -1777,13 +1693,13 @@ GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
 	  cursor_version(0),
 	  changes_obj(NULL),
 	  split_p(0),
-	  compress_strategy(compress_strategy_),
-	  comp_stream(compress_strategy_),
+	  compress_min(0),
+	  comp_stream(compress_strategy),
 	  lazy(lazy_),
 	  last_readahead(BLK_UNUSED),
 	  offset(offset_)
 {
-    LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | offset_ | readonly_ | compress_strategy_ | lazy_);
+    LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | offset_ | readonly_ | compress_strategy | lazy_);
 }
 
 bool

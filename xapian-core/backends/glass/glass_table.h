@@ -43,8 +43,6 @@
 #include <algorithm>
 #include <string>
 
-#define DONT_COMPRESS -1
-
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
 #define BLOCK_CAPACITY 4
@@ -386,17 +384,17 @@ class GlassTable {
 	 *  @param tablename_   The name of the table (used in changesets).
 	 *  @param path_	Path at which the table is stored.
 	 *  @param readonly_	whether to open the table for read only access.
-	 *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
+	 *  @param compress_strategy	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
 	 *				Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
 	GlassTable(const char * tablename_, const std::string & path_,
-		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
+		   bool readonly_, int compress_strategy = DONT_COMPRESS,
 		   bool lazy = false);
 
 	GlassTable(const char * tablename_, int fd, off_t offset_,
-		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
+		   bool readonly_, int compress_strategy = DONT_COMPRESS,
 		   bool lazy = false);
 
 	/** Close the Btree.
@@ -822,9 +820,8 @@ class GlassTable {
 	 */
 	byte * split_p;
 
-	/** DONT_COMPRESS or Z_DEFAULT_STRATEGY, Z_FILTERED, Z_HUFFMAN_ONLY,
-	 *  Z_RLE. */
-	int compress_strategy;
+	/** Minimum size tag to try compressing (0 for no compression). */
+	uint4 compress_min;
 
 	mutable CompressionStream comp_stream;
 

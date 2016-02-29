@@ -2,7 +2,7 @@
  * @brief class wrapper around zlib
  */
 /* Copyright (C) 2012 Dan Colish
- * Copyright (C) 2012,2013,2014 Olly Betts
+ * Copyright (C) 2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,14 +29,7 @@
 #define DONT_COMPRESS -1
 
 class CompressionStream {
-  public:
-    explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY);
-
-    ~CompressionStream();
-
     int compress_strategy;
-
-    int zerr;
 
     unsigned long out_len;
 
@@ -54,8 +47,20 @@ class CompressionStream {
     /// Allocate the zstream for inflating, if not already allocated.
     void lazy_alloc_inflate_zstream() const;
 
-    void compress(std::string &);
-    void compress(const byte *, int);
+  public:
+    /* Create a new CompressionStream object.
+     *
+     *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
+     *					Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
+     */
+    explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY);
+
+    ~CompressionStream();
+
+    bool compress(std::string & buf);
+    bool compress(byte * buf, unsigned size);
+
+    void decompress(std::string & buf);
 };
 
 #endif // XAPIAN_INCLUDED_COMPRESSION_STREAM_H
