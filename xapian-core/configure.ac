@@ -97,7 +97,14 @@ AC_CONFIG_MACRO_DIR([m4])
 
 dnl Use libtool to manage our libraries.
 LT_PREREQ([2.2.8])
-LT_INIT
+dnl Default to only building shared libraries.
+dnl
+dnl Building both shared and static means having to compile the files which
+dnl make up the library twice on most platforms.  Shared libraries are the
+dnl better option for most users, and if anyone really wants static libraries,
+dnl they can configure with --enable-static (or --enable-static=xapian-core if
+dnl configuring a combined tree with the bindings).
+LT_INIT([disable-static])
 
 dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
 dnl pass -no-undefined on platforms where it is required in order to link a
