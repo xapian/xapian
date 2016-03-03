@@ -1,7 +1,7 @@
 /** @file glass_lazytable.h
  * @brief Subclass of GlassTable for deriving lazy tables from.
  */
-/* Copyright (C) 2009,2013,2014,2015 Olly Betts
+/* Copyright (C) 2009,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,15 +30,12 @@ class GlassLazyTable : public GlassTable {
      *  @param name_		The table's name.
      *  @param path		The path for the table.
      *  @param readonly		true if the table is read-only, else false.
-     *  @param z_strategy	zlib strategy.
      */
-    GlassLazyTable(const char * name_, const std::string & path, bool readonly,
-		   int z_strategy)
-	: GlassTable(name_, path, readonly, z_strategy, true) { }
+    GlassLazyTable(const char * name_, const std::string & path, bool readonly)
+	: GlassTable(name_, path, readonly, true) { }
 
-    GlassLazyTable(const char * name_, int fd, off_t offset_, bool readonly,
-		   int z_strategy)
-	: GlassTable(name_, fd, offset_, readonly, z_strategy, true) { }
+    GlassLazyTable(const char * name_, int fd, off_t offset_, bool readonly)
+	: GlassTable(name_, fd, offset_, readonly, true) { }
 };
 
 #endif // XAPIAN_INCLUDED_GLASS_LAZYTABLE_H

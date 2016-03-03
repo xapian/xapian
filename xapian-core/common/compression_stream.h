@@ -26,41 +26,47 @@
 #include <string>
 #include <zlib.h>
 
-#define DONT_COMPRESS -1
-
 class CompressionStream {
     int compress_strategy;
 
-    unsigned long out_len;
+    size_t out_len;
 
-    unsigned char * out;
+    char* out;
 
     /// Zlib state object for deflating
-    mutable z_stream *deflate_zstream;
+    z_stream* deflate_zstream;
 
     /// Zlib state object for inflating
-    mutable z_stream *inflate_zstream;
+    z_stream* inflate_zstream;
 
     /// Allocate the zstream for deflating, if not already allocated.
-    void lazy_alloc_deflate_zstream() const;
+    void lazy_alloc_deflate_zstream();
 
     /// Allocate the zstream for inflating, if not already allocated.
-    void lazy_alloc_inflate_zstream() const;
+    void lazy_alloc_inflate_zstream();
 
   public:
     /* Create a new CompressionStream object.
      *
-     *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
+     *  @param compress_strategy_	Z_DEFAULT_STRATEGY,
      *					Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
      */
-    explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY);
+    explicit CompressionStream(int compress_strategy_ = Z_DEFAULT_STRATEGY)
+	: compress_strategy(compress_strategy_),
+	  out_len(0),
+	  out(NULL),
+	  deflate_zstream(NULL),
+	  inflate_zstream(NULL)
+    { }
 
     ~CompressionStream();
 
-    bool compress(std::string & buf);
-    bool compress(byte * buf, unsigned size);
+    const char* compress(const char* buf, size_t* p_size);
 
-    void decompress(std::string & buf);
+    void decompress_start() { lazy_alloc_inflate_zstream(); }
+
+    /** Returns true if this was the final chunk. */
+    bool decompress_chunk(const char* p, int len, std::string& buf);
 };
 
 #endif // XAPIAN_INCLUDED_COMPRESSION_STREAM_H

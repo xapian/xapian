@@ -1,7 +1,7 @@
 /** @file glass_positionlist.h
  * @brief A position list in a glass database.
  */
-/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013 Olly Betts
+/* Copyright (C) 2005,2006,2008,2009,2010,2011,2013,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,11 +52,10 @@ class GlassPositionListTable : public GlassLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     GlassPositionListTable(const string & dbdir, bool readonly)
-	: GlassLazyTable("position", dbdir + "/position.", readonly,
-			 DONT_COMPRESS) { }
+	: GlassLazyTable("position", dbdir + "/position.", readonly) { }
 
     GlassPositionListTable(int fd, off_t offset_, bool readonly_)
-	: GlassLazyTable("position", fd, offset_, readonly_, DONT_COMPRESS) { }
+	: GlassLazyTable("position", fd, offset_, readonly_) { }
 
     /** Pack a position list into a string.
      *

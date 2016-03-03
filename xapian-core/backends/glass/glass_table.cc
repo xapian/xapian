@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1239,16 +1239,25 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
 	if (handle == -2) {
 	    GlassTable::throw_database_closed();
 	}
-	do_open_to_write();
+	RootInfo root_info;
+	root_info.init(block_size, compress_min);
+	do_open_to_write(&root_info);
     }
 
     form_key(key);
 
+    const char* tag_data = tag.data();
+    size_t tag_size = tag.size();
+
     bool compressed = false;
     if (already_compressed) {
 	compressed = true;
-    } else if (compress_min > 0 && tag.size() > compress_min) {
-	compressed = comp_stream.compress(tag);
+    } else if (compress_min > 0 && tag_size > compress_min) {
+	const char * res = comp_stream.compress(tag_data, &tag_size);
+	if (res) {
+	    compressed = true;
+	    tag_data = res;
+	}
     }
 
     // sort of matching kt.append_chunk(), but setting the chunk
@@ -1273,7 +1282,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
 	    // seems to save about 0.2% in total database size over always
 	    // splitting the tag.  It'll also give be slightly faster retrieval
 	    // as we can avoid reading an extra block occasionally.
-	    size_t last = tag.length() % L;
+	    size_t last = tag_size % L;
 	    if (n >= last || (full_compaction && n >= key.size() + 34)) {
 		// first_L < max_item_size + D2 - D2 - cd
 		// Total size of first item = cd + first_L < max_item_size
@@ -1283,7 +1292,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     }
 
     // a null tag must be added in of course
-    int m = tag.empty() ? 1 : (tag.length() - first_L + L - 1) / L + 1;
+    int m = (tag_size == 0) ? 1 : (tag_size - first_L + L - 1) / L + 1;
 				      // there are m items to add
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
@@ -1291,16 +1300,16 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     if (m >= BYTE_PAIR_RANGE)
 	throw Xapian::UnimplementedError("Can't handle insanely large tags");
 
-    size_t o = 0;                        // Offset into the tag
-    size_t residue = tag.length();    // Bytes of the tag remaining to add in
+    size_t o = 0;                     // Offset into the tag
+    size_t residue = tag_size;        // Bytes of the tag remaining to add in
     bool replacement = false;         // Has there been a replacement?
     bool components_to_del = false;   // Are there components to delete?
     int i;
     for (i = 1; i <= m; i++) {
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
-	Assert(o + l <= tag.length());
-	kt.set_tag(cd, tag.data() + o, l, compressed, (i == m));
+	Assert(o + l <= tag_size);
+	kt.set_tag(cd, tag_data + o, l, compressed, (i == m));
 	kt.set_component_of(i);
 
 	o += l;
@@ -1311,7 +1320,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
 	if (result) replacement = true;
 	components_to_del = (result == 1);
     }
-    AssertEq(o, tag.length());
+    AssertEq(o, tag_size);
     if (components_to_del) {
 	i = m;
 	do {
@@ -1453,27 +1462,39 @@ GlassTable::read_tag(Glass::Cursor * C_, string *tag, bool keep_compressed) cons
 
     bool first = true;
     bool compressed = false;
+    bool decompress = false;
     while (true) {
 	LeafItem item(C_[0].get_p(), C_[0].c);
-	item.append_chunk(tag);
 	if (first) {
-	    compressed = item.get_compressed();
 	    first = false;
+	    compressed = item.get_compressed();
+	    if (compressed && !keep_compressed) {
+		comp_stream.decompress_start();
+		decompress = true;
+	    }
 	}
-	if (item.last_component()) break;
+	bool last = item.last_component();
+	if (decompress) {
+	    // Decompress each chunk as we read it so we don't need both the
+	    // full compressed and uncompressed tags in memory at once.
+	    bool done = item.decompress_chunk(comp_stream, *tag);
+	    if (done != last) {
+		throw Xapian::DatabaseCorruptError(done ?
+		    "Too many chunks of compressed data" :
+		    "Too few chunks of compressed data");
+	    }
+	} else {
+	    item.append_chunk(tag);
+	}
+	if (last) break;
 	if (!next(C_, 0)) {
 	    throw Xapian::DatabaseCorruptError("Unexpected end of table when reading continuation of tag");
 	}
     }
     // At this point the cursor is on the last item - calling next will move
-    // it to the next key (GlassCursor::get_tag() relies on this).
-    if (!compressed || keep_compressed) RETURN(compressed);
+    // it to the next key (GlassCursor::read_tag() relies on this).
 
-    // FIXME: Perhaps we should decompress each chunk as we read it so we
-    // don't need both the full compressed and uncompressed tags in memory
-    // at once.
-    comp_stream.decompress(*tag);
-    RETURN(false);
+    RETURN(compressed && keep_compressed);
 }
 
 void
@@ -1505,29 +1526,20 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
 {
     LOGCALL_VOID(DB, "GlassTable::basic_open", root_info|rev);
     revision_number = rev;
-    if (root_info) {
-	root =		   root_info->get_root();
-	level =		   root_info->get_level();
-	item_count =	   root_info->get_num_entries();
-	faked_root_block = root_info->get_root_is_fake();
-	sequential =	   root_info->get_sequential_mode();
-	compress_min =     root_info->get_compress_min();
-	const string & fl_serialised = root_info->get_free_list();
-	if (!fl_serialised.empty()) {
-	    if (!free_list.unpack(fl_serialised))
-		throw Xapian::DatabaseCorruptError("Bad freelist metadata");
-	} else {
-	    free_list.reset();
-	}
+    root =		   root_info->get_root();
+    level =		   root_info->get_level();
+    item_count =	   root_info->get_num_entries();
+    faked_root_block = root_info->get_root_is_fake();
+    sequential =	   root_info->get_sequential_mode();
+    const string & fl_serialised = root_info->get_free_list();
+    if (!fl_serialised.empty()) {
+	if (!free_list.unpack(fl_serialised))
+	    throw Xapian::DatabaseCorruptError("Bad freelist metadata");
     } else {
-	root =		   0;
-	level =		   0;
-	item_count =	   0;
-	faked_root_block = true;
-	sequential =	   true;
-	compress_min =     0;
 	free_list.reset();
     }
+
+    compress_min = root_info->get_compress_min();
 
     /* kt holds constructed items as well as keys */
     kt = LeafItem_wr(zeroed_new(block_size));
@@ -1602,17 +1614,16 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
 	// Single file database.
 	handle = -3 - handle;
     } else {
-	handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION,
-				  root_info == NULL);
+	handle = io_open_block_wr(name + GLASS_TABLE_EXTENSION, (rev == 0));
 	if (handle < 0) {
 	    // lazy doesn't make a lot of sense when we're creating a DB (which
-	    // is the case when root_info==NULL), but ENOENT with O_CREAT means a
-	    // parent directory doesn't exist.
-	    if (lazy && root_info && errno == ENOENT) {
+	    // is the case when rev==0), but ENOENT with O_CREAT means a parent
+	    // directory doesn't exist.
+	    if (lazy && rev && errno == ENOENT) {
 		revision_number = rev;
 		return;
 	    }
-	    string message(!root_info ? "Couldn't create " : "Couldn't open ");
+	    string message((rev == 0) ? "Couldn't create " : "Couldn't open ");
 	    message += name;
 	    message += GLASS_TABLE_EXTENSION" read/write: ";
 	    errno_to_string(errno, message);
@@ -1633,7 +1644,7 @@ GlassTable::do_open_to_write(const RootInfo * root_info,
 }
 
 GlassTable::GlassTable(const char * tablename_, const string & path_,
-		       bool readonly_, int compress_strategy, bool lazy_)
+		       bool readonly_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
 	  item_count(0),
@@ -1659,7 +1670,7 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 	  changes_obj(NULL),
 	  split_p(0),
 	  compress_min(0),
-	  comp_stream(compress_strategy),
+	  comp_stream(Z_DEFAULT_STRATEGY),
 	  lazy(lazy_),
 	  last_readahead(BLK_UNUSED),
 	  offset(0)
@@ -1668,7 +1679,7 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 }
 
 GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
-		       bool readonly_, int compress_strategy, bool lazy_)
+		       bool readonly_, bool lazy_)
 	: tablename(tablename_),
 	  revision_number(0),
 	  item_count(0),
@@ -1694,7 +1705,7 @@ GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
 	  changes_obj(NULL),
 	  split_p(0),
 	  compress_min(0),
-	  comp_stream(compress_strategy),
+	  comp_stream(Z_DEFAULT_STRATEGY),
 	  lazy(lazy_),
 	  last_readahead(BLK_UNUSED),
 	  offset(offset_)
@@ -1710,15 +1721,16 @@ GlassTable::exists() const {
 }
 
 void
-GlassTable::create_and_open(int flags_, unsigned int block_size_)
+GlassTable::create_and_open(int flags_, const RootInfo & root_info)
 {
-    LOGCALL_VOID(DB, "GlassTable::create_and_open", flags_|block_size_);
+    LOGCALL_VOID(DB, "GlassTable::create_and_open", flags_|root_info);
     if (handle == -2) {
 	GlassTable::throw_database_closed();
     }
     Assert(writable);
     close();
 
+    unsigned int block_size_ = root_info.get_blocksize();
     Assert(block_size_ >= 2048);
     Assert(block_size_ <= BYTE_PAIR_RANGE);
     // Must be a power of two.
@@ -1730,12 +1742,13 @@ GlassTable::create_and_open(int flags_, unsigned int block_size_)
     if (lazy) {
 	close();
 	(void)io_unlink(name + GLASS_TABLE_EXTENSION);
+	compress_min = root_info.get_compress_min();
     } else {
 	// FIXME: it would be good to arrange that this works such that there's
 	// always a valid table in place if you run create_and_open() on an
 	// existing table.
 
-	do_open_to_write();
+	do_open_to_write(&root_info);
     }
 }
 
