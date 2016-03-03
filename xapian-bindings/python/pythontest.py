@@ -1093,6 +1093,49 @@ def test_postingsource2():
     expect(xapian.Database.check(dbpath), 0);
     shutil.rmtree(dbpath)
 
+def test_postingsource3():
+    """Test that ValuePostingSource can be usefully subclassed.
+
+    """
+    dbpath = 'db_test_postingsource3'
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+    vals = (1, 3, 2, 4)
+    for wt in vals:
+        doc = xapian.Document()
+        doc.add_value(1, xapian.sortable_serialise(wt))
+        db.add_document(doc)
+
+    class PyValuePostingSource(xapian.ValuePostingSource):
+        def __init__(self, slot):
+            xapian.ValuePostingSource.__init__(self, slot)
+
+        def init(self, db):
+            xapian.ValuePostingSource.init(self, db)
+            self.current = -1
+            slot = self.get_slot()
+            ub = db.get_value_upper_bound(slot)
+            self.set_maxweight(xapian.sortable_unserialise(ub) ** 3)
+
+        def next(self, minweight):
+            return xapian.ValuePostingSource.next(self, minweight)
+        def get_weight(self):
+            value = self.get_value_it().get_value()
+            return xapian.sortable_unserialise(value) ** 3
+
+    source = PyValuePostingSource(1)
+    query = xapian.Query(source)
+    #del source # Check that query keeps a reference to it.
+
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 10)
+
+    expect([item.docid for item in mset], [4, 2, 3, 1])
+
+    db.close()
+    expect(xapian.Database.check(dbpath), 0);
+    shutil.rmtree(dbpath)
+
 def test_value_stats():
     """Simple test of being able to get value statistics.
 

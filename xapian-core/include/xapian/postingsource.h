@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 
 #include <xapian/attributes.h>
 #include <xapian/database.h>
+#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -372,39 +373,78 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
  *  ValuePostingSource::init() if they know a tighter bound on the weight.
  */
 class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
+    // We want to give a deprecation warning for uses of the members from user
+    // code, but we also want to be able to inline functions to access them,
+    // without those functions generating deprecated warnings.  To achieve
+    // this, we make the old names references to members with a "real_" prefix
+    // and then use the latter in the inlined acessor functions.  The
+    // constructor initialises all the references to point to their "real_"
+    // counterparts.
+    Xapian::Database real_db;
+
+    Xapian::valueno real_slot;
+
+    Xapian::ValueIterator real_value_it;
+
+    bool real_started;
+
+    Xapian::doccount real_termfreq_min;
+
+    Xapian::doccount real_termfreq_est;
+
+    Xapian::doccount real_termfreq_max;
+
   protected:
-    /// The database we're reading values from.
-    Xapian::Database db;
+    /** The database we're reading values from.
+     *
+     *  @deprecated Use @a get_database() in preference.
+     */
+    XAPIAN_DEPRECATED(Xapian::Database& db);
 
-    /// The slot we're reading values from.
-    Xapian::valueno slot;
+    /** The slot we're reading values from.
+     *
+     *  @deprecated Use @a get_slot() in preference.
+     */
+    XAPIAN_DEPRECATED(Xapian::valueno& slot);
 
-    /// Value stream iterator.
-    Xapian::ValueIterator value_it;
+    /** Value stream iterator.
+     *
+     *  @deprecated Use @a get_value_it() in preference.
+     */
+    XAPIAN_DEPRECATED(Xapian::ValueIterator& value_it);
 
-    /// Flag indicating if we've started (true if we have).
-    bool started;
+    /** Flag indicating if we've started (true if we have).
+     *
+     *  @deprecated Use @a get_started() in preference.
+     */
+    XAPIAN_DEPRECATED(bool& started);
 
     /** A lower bound on the term frequency.
      *
      *  Subclasses should set this if they are overriding the next(), skip_to()
      *  or check() methods to return fewer documents.
+     *
+     *  @deprecated Use @a set_termfreq_min() in preference.
      */
-    Xapian::doccount termfreq_min;
+    XAPIAN_DEPRECATED(Xapian::doccount& termfreq_min);
 
     /** An estimate of the term frequency.
      *
      *  Subclasses should set this if they are overriding the next(), skip_to()
      *  or check() methods.
+     *
+     *  @deprecated Use @a set_termfreq_est() in preference.
      */
-    Xapian::doccount termfreq_est;
+    XAPIAN_DEPRECATED(Xapian::doccount& termfreq_est);
 
     /** An upper bound on the term frequency.
      *
      *  Subclasses should set this if they are overriding the next(), skip_to()
      *  or check() methods.
+     *
+     *  @deprecated Use @a set_termfreq_max() in preference.
      */
-    Xapian::doccount termfreq_max;
+    XAPIAN_DEPRECATED(Xapian::doccount& termfreq_max);
 
   public:
     /** Construct a ValuePostingSource.
@@ -426,6 +466,72 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     Xapian::docid get_docid() const;
 
     void init(const Database & db_);
+
+    /** The database we're reading values from.
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    Xapian::Database get_database() const { return real_db; }
+
+    /** The slot we're reading values from.
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    Xapian::valueno get_slot() const { return real_slot; }
+
+    /** Value stream iterator.
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    Xapian::ValueIterator get_value_it() const { return real_value_it; }
+
+    /** Value stream iterator.
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    void set_value_it(const Xapian::ValueIterator & it) {
+	real_value_it = it;
+	real_started = true;
+    }
+
+    /** Flag indicating if we've started (true if we have).
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    bool get_started() const { return real_started; }
+
+    /** Set a lower bound on the term frequency.
+     *
+     *  Subclasses should set this if they are overriding the next(), skip_to()
+     *  or check() methods to return fewer documents.
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    void set_termfreq_min(Xapian::doccount termfreq_min_) {
+	real_termfreq_min = termfreq_min_;
+    }
+
+    /** An estimate of the term frequency.
+     *
+     *  Subclasses should set this if they are overriding the next(), skip_to()
+     *  or check() methods.
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    void set_termfreq_est(Xapian::doccount termfreq_est_) {
+	real_termfreq_est = termfreq_est_;
+    }
+
+    /** An upper bound on the term frequency.
+     *
+     *  Subclasses should set this if they are overriding the next(), skip_to()
+     *  or check() methods.
+     *
+     *  Added in 1.2.23 and 1.3.5.
+     */
+    void set_termfreq_max(Xapian::doccount termfreq_max_) {
+	real_termfreq_max = termfreq_max_;
+    }
 };
 
 

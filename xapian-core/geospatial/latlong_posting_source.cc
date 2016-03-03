@@ -46,7 +46,7 @@ weight_from_distance(double dist, double k1, double k2)
 void
 LatLongDistancePostingSource::calc_distance()
 {
-    dist = (*metric)(centre, *value_it);
+    dist = (*metric)(centre, *get_value_it());
 }
 
 /// Validate the parameters supplied to LatLongDistancePostingSource.
@@ -112,11 +112,11 @@ LatLongDistancePostingSource::next(double min_wt)
 {
     ValuePostingSource::next(min_wt);
 
-    while (value_it != db.valuestream_end(slot)) {
+    while (get_value_it() != get_database().valuestream_end(get_slot())) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
-	++value_it;
+	++get_value_it();
     }
 }
 
@@ -126,11 +126,11 @@ LatLongDistancePostingSource::skip_to(docid min_docid,
 {
     ValuePostingSource::skip_to(min_docid, min_wt);
 
-    while (value_it != db.valuestream_end(slot)) {
+    while (get_value_it() != get_database().valuestream_end(get_slot())) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
-	++value_it;
+	++get_value_it();
     }
 }
 
@@ -142,7 +142,7 @@ LatLongDistancePostingSource::check(docid min_docid,
 	// check returned false, so we know the document is not in the source.
 	return false;
     }
-    if (value_it == db.valuestream_end(slot)) {
+    if (get_value_it() == get_database().valuestream_end(get_slot())) {
 	// return true, since we're definitely at the end of the list.
 	return true;
     }
@@ -163,7 +163,7 @@ LatLongDistancePostingSource::get_weight() const
 LatLongDistancePostingSource *
 LatLongDistancePostingSource::clone() const
 {
-    return new LatLongDistancePostingSource(slot, centre,
+    return new LatLongDistancePostingSource(get_slot(), centre,
 					    metric->clone(),
 					    max_range, k1, k2);
 }
@@ -181,7 +181,7 @@ LatLongDistancePostingSource::serialise() const
     string metric_name = metric->name();
     string serialised_metric = metric->serialise();
 
-    string result = encode_length(slot);
+    string result = encode_length(get_slot());
     result += encode_length(serialised_centre.size());
     result += serialised_centre;
     result += encode_length(metric_name.size());
@@ -245,7 +245,7 @@ LatLongDistancePostingSource::init(const Database & db_)
     ValuePostingSource::init(db_);
     if (max_range > 0.0) {
 	// Possible that no documents are in range.
-	termfreq_min = 0;
+	set_termfreq_min(0);
 	// Note - would be good to improve termfreq_est here, too, but
 	// I can't think of anything we can do with the information
 	// available.
@@ -256,7 +256,7 @@ string
 LatLongDistancePostingSource::get_description() const
 {
     string result("Xapian::LatLongDistancePostingSource(slot=");
-    result += str(slot);
+    result += str(get_slot());
     result += ")";
     return result;
 }

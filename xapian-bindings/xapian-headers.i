@@ -379,6 +379,8 @@ SUBCLASSABLE(Xapian, Compactor)
 %include <xapian/compactor.h>
 
 SUBCLASSABLE(Xapian, PostingSource)
+SUBCLASSABLE(Xapian, ValuePostingSource)
+SUBCLASSABLE(Xapian, ValueWeightPostingSource)
 %ignore Xapian::PostingSource::register_matcher_;
 %ignore Xapian::PostingSource::unserialise_with_registry;
 %include <xapian/postingsource.h>

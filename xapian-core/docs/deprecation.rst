@@ -2,7 +2,7 @@
 .. This document was originally written by Richard Boulton.
 
 .. Copyright (C) 2007 Lemur Consulting Ltd
-.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
+.. Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
 
 ===========
 Deprecation
@@ -481,6 +481,9 @@ Removed Feature name                        Upgrade suggestion and comments
         ``set_compaction_level()``,
         ``set_destdir()``, ``add_source()`
         and ``compact()``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.5   ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and 1.2.23.
+        variables
 ======= =================================== ==================================================================================
 
 

@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2015 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+// We need to be able to set deprecated members of ValuePostingSource.
+#define XAPIAN_DEPRECATED(X) X
 #include "xapian/postingsource.h"
 
 #include "autoptr.h"
@@ -117,42 +119,49 @@ PostingSource::get_description() const
 
 
 ValuePostingSource::ValuePostingSource(Xapian::valueno slot_)
-	: slot(slot_)
+	: real_slot(slot_),
+	  db(real_db),
+	  slot(real_slot),
+	  value_it(real_value_it),
+	  started(real_started),
+	  termfreq_min(real_termfreq_min),
+	  termfreq_est(real_termfreq_est),
+	  termfreq_max(real_termfreq_max)
 {
 }
 
 Xapian::doccount
 ValuePostingSource::get_termfreq_min() const
 {
-    return termfreq_min;
+    return real_termfreq_min;
 }
 
 Xapian::doccount
 ValuePostingSource::get_termfreq_est() const
 {
-    return termfreq_est;
+    return real_termfreq_est;
 }
 
 Xapian::doccount
 ValuePostingSource::get_termfreq_max() const
 {
-    return termfreq_max;
+    return real_termfreq_max;
 }
 
 void
 ValuePostingSource::next(double min_wt)
 {
-    if (!started) {
-	started = true;
-	value_it = db.valuestream_begin(slot);
+    if (!real_started) {
+	real_started = true;
+	real_value_it = real_db.valuestream_begin(real_slot);
     } else {
-	++value_it;
+	++real_value_it;
     }
 
-    if (value_it == db.valuestream_end(slot)) return;
+    if (real_value_it == real_db.valuestream_end(real_slot)) return;
 
     if (min_wt > get_maxweight()) {
-	value_it = db.valuestream_end(slot);
+	real_value_it = real_db.valuestream_end(real_slot);
 	return;
     }
 }
@@ -160,63 +169,63 @@ ValuePostingSource::next(double min_wt)
 void
 ValuePostingSource::skip_to(Xapian::docid min_docid, double min_wt)
 {
-    if (!started) {
-	started = true;
-	value_it = db.valuestream_begin(slot);
+    if (!real_started) {
+	real_started = true;
+	real_value_it = real_db.valuestream_begin(real_slot);
 
-	if (value_it == db.valuestream_end(slot)) return;
+	if (real_value_it == real_db.valuestream_end(real_slot)) return;
     }
 
     if (min_wt > get_maxweight()) {
-	value_it = db.valuestream_end(slot);
+	real_value_it = real_db.valuestream_end(real_slot);
 	return;
     }
-    value_it.skip_to(min_docid);
+    real_value_it.skip_to(min_docid);
 }
 
 bool
 ValuePostingSource::check(Xapian::docid min_docid, double min_wt)
 {
-    if (!started) {
-	started = true;
-	value_it = db.valuestream_begin(slot);
+    if (!real_started) {
+	real_started = true;
+	real_value_it = real_db.valuestream_begin(real_slot);
 
-	if (value_it == db.valuestream_end(slot)) return true;
+	if (real_value_it == real_db.valuestream_end(real_slot)) return true;
     }
 
     if (min_wt > get_maxweight()) {
-	value_it = db.valuestream_end(slot);
+	real_value_it = real_db.valuestream_end(real_slot);
 	return true;
     }
-    return value_it.check(min_docid);
+    return real_value_it.check(min_docid);
 }
 
 bool
 ValuePostingSource::at_end() const
 {
-    return started && value_it == db.valuestream_end(slot);
+    return real_started && real_value_it == real_db.valuestream_end(real_slot);
 }
 
 Xapian::docid
 ValuePostingSource::get_docid() const
 {
-    return value_it.get_docid();
+    return real_value_it.get_docid();
 }
 
 void
 ValuePostingSource::init(const Database & db_)
 {
-    db = db_;
-    started = false;
+    real_db = db_;
+    real_started = false;
     set_maxweight(DBL_MAX);
     try {
-	termfreq_max = db.get_value_freq(slot);
-	termfreq_est = termfreq_max;
-	termfreq_min = termfreq_max;
+	real_termfreq_max = real_db.get_value_freq(real_slot);
+	real_termfreq_est = real_termfreq_max;
+	real_termfreq_min = real_termfreq_max;
     } catch (const Xapian::UnimplementedError &) {
-	termfreq_max = db.get_doccount();
-	termfreq_est = termfreq_max / 2;
-	termfreq_min = 0;
+	real_termfreq_max = real_db.get_doccount();
+	real_termfreq_est = real_termfreq_max / 2;
+	real_termfreq_min = 0;
     }
 }
 
@@ -230,14 +239,14 @@ double
 ValueWeightPostingSource::get_weight() const
 {
     Assert(!at_end());
-    Assert(started);
-    return sortable_unserialise(*value_it);
+    Assert(real_started);
+    return sortable_unserialise(*get_value_it());
 }
 
 ValueWeightPostingSource *
 ValueWeightPostingSource::clone() const
 {
-    return new ValueWeightPostingSource(slot);
+    return new ValueWeightPostingSource(get_slot());
 }
 
 string
@@ -249,7 +258,7 @@ ValueWeightPostingSource::name() const
 string
 ValueWeightPostingSource::serialise() const
 {
-    return encode_length(slot);
+    return encode_length(get_slot());
 }
 
 ValueWeightPostingSource *
@@ -274,7 +283,7 @@ ValueWeightPostingSource::init(const Database & db_)
 
     string upper_bound;
     try {
-	upper_bound = db.get_value_upper_bound(slot);
+	upper_bound = get_database().get_value_upper_bound(get_slot());
     } catch (const Xapian::UnimplementedError &) {
 	// ValuePostingSource::init() set the maxweight to DBL_MAX.
 	return;
@@ -293,7 +302,7 @@ string
 ValueWeightPostingSource::get_description() const
 {
     string desc("Xapian::ValueWeightPostingSource(slot=");
-    desc += str(slot);
+    desc += str(get_slot());
     desc += ")";
     return desc;
 }
@@ -329,7 +338,7 @@ ValueMapPostingSource::set_default_weight(double wt)
 double
 ValueMapPostingSource::get_weight() const
 {
-    map<string, double>::const_iterator wit = weight_map.find(*value_it);
+    map<string, double>::const_iterator wit = weight_map.find(*get_value_it());
     if (wit == weight_map.end()) {
 	return default_weight;
     }
@@ -339,7 +348,7 @@ ValueMapPostingSource::get_weight() const
 ValueMapPostingSource *
 ValueMapPostingSource::clone() const
 {
-    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(slot));
+    AutoPtr<ValueMapPostingSource> res(new ValueMapPostingSource(get_slot()));
     map<string, double>::const_iterator i;
     for (i = weight_map.begin(); i != weight_map.end(); ++i) {
 	res->add_mapping(i->first, i->second);
@@ -357,7 +366,7 @@ ValueMapPostingSource::name() const
 string
 ValueMapPostingSource::serialise() const
 {
-    string result = encode_length(slot);
+    string result = encode_length(get_slot());
     result += serialise_double(default_weight);
 
     map<string, double>::const_iterator i;
@@ -401,7 +410,7 @@ string
 ValueMapPostingSource::get_description() const
 {
     string desc("Xapian::ValueMapPostingSource(slot=");
-    desc += str(slot);
+    desc += str(get_slot());
     desc += ")";
     return desc;
 }
