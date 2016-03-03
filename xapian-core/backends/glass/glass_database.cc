@@ -199,14 +199,15 @@ GlassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     // The caller is expected to create the database directory if it doesn't
     // already exist.
 
-    version_file.create(block_size, flags);
+    GlassVersion &v = version_file;
+    v.create(block_size, flags);
 
-    position_table.create_and_open(flags, block_size);
-    synonym_table.create_and_open(flags, block_size);
-    spelling_table.create_and_open(flags, block_size);
-    docdata_table.create_and_open(flags, block_size);
-    termlist_table.create_and_open(flags, block_size);
-    postlist_table.create_and_open(flags, block_size);
+    position_table.create_and_open(flags, v.get_root(Glass::POSITION));
+    synonym_table.create_and_open(flags, v.get_root(Glass::SYNONYM));
+    spelling_table.create_and_open(flags, v.get_root(Glass::SPELLING));
+    docdata_table.create_and_open(flags, v.get_root(Glass::DOCDATA));
+    termlist_table.create_and_open(flags, v.get_root(Glass::TERMLIST));
+    postlist_table.create_and_open(flags, v.get_root(Glass::POSTLIST));
 
     Assert(database_exists());
 }

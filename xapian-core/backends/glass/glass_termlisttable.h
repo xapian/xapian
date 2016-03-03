@@ -1,7 +1,7 @@
 /** @file glass_termlisttable.h
  * @brief Subclass of GlassTable which holds termlists.
  */
-/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,12 +51,10 @@ class GlassTermListTable : public GlassTable {
      *  @param lazy_	    Don't create a termlist if there isn't one.
      */
     GlassTermListTable(const std::string & dbdir, bool readonly, bool lazy_)
-	: GlassTable("termlist", dbdir + "/termlist.", readonly,
-		     Z_DEFAULT_STRATEGY, lazy_) { }
+	: GlassTable("termlist", dbdir + "/termlist.", readonly, lazy_) { }
 
     GlassTermListTable(int fd, off_t offset_, bool readonly, bool lazy_)
-	: GlassTable("termlist", fd, offset_, readonly,
-		     Z_DEFAULT_STRATEGY, lazy_) { }
+	: GlassTable("termlist", fd, offset_, readonly, lazy_) { }
 
     /** Set the termlist data for document @a did.
      *

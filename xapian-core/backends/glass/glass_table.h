@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -42,8 +42,6 @@
 
 #include <algorithm>
 #include <string>
-
-#define DONT_COMPRESS -1
 
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
@@ -186,7 +184,15 @@ public:
 	/* number of bytes to extract from current component */
 	int cd = getK(p, I2) + I2 + K1 + X2;
 	int l = size() - cd;
-	tag->append(reinterpret_cast<const char *>(p + cd), l);
+	const char * chunk = reinterpret_cast<const char *>(p + cd);
+	tag->append(chunk, l);
+    }
+    bool decompress_chunk(CompressionStream& comp_stream, string& tag) const {
+	/* number of bytes to extract from current component */
+	int cd = getK(p, I2) + I2 + K1 + X2;
+	int l = size() - cd;
+	const char * chunk = reinterpret_cast<const char *>(p + cd);
+	return comp_stream.decompress_chunk(chunk, l, tag);
     }
 };
 
@@ -374,6 +380,17 @@ class GlassTable {
 	/// Assignment not allowed
         GlassTable & operator=(const GlassTable &);
 
+	void basic_open(const RootInfo * root_info,
+			glass_revision_number_t rev);
+
+	/** Perform the opening operation to read. */
+	void do_open_to_read(const RootInfo * root_info,
+			     glass_revision_number_t rev);
+
+	/** Perform the opening operation to write. */
+	void do_open_to_write(const RootInfo * root_info,
+			      glass_revision_number_t rev = 0);
+
     public:
 	/** Create a new Btree object.
 	 *
@@ -386,18 +403,14 @@ class GlassTable {
 	 *  @param tablename_   The name of the table (used in changesets).
 	 *  @param path_	Path at which the table is stored.
 	 *  @param readonly_	whether to open the table for read only access.
-	 *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
-	 *				Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
 	 *  @param lazy		If true, don't create the table until it's
 	 *			needed.
 	 */
 	GlassTable(const char * tablename_, const std::string & path_,
-		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
-		   bool lazy = false);
+		   bool readonly_, bool lazy = false);
 
 	GlassTable(const char * tablename_, int fd, off_t offset_,
-		   bool readonly_, int compress_strategy_ = DONT_COMPRESS,
-		   bool lazy = false);
+		   bool readonly_, bool lazy = false);
 
 	/** Close the Btree.
 	 *
@@ -569,16 +582,16 @@ class GlassTable {
 	 *
 	 *    // File will be "X." + GLASS_TABLE_EXTENSION (i.e. "X.glass")
 	 *    Btree btree("X.");
-	 *    btree.create_and_open(0, 8192);
+	 *    btree.create_and_open(0, root_info);
 	 *
-	 *  @param blocksize     - Size of blocks to use.
+	 *  @param root_info     RootInfo object
 	 *
 	 *  @exception Xapian::DatabaseCreateError if the table can't be
 	 *	created.
 	 *  @exception Xapian::InvalidArgumentError if the requested blocksize
 	 *	is unsuitable.
 	 */
-	void create_and_open(int flags_, unsigned int blocksize);
+	void create_and_open(int flags_, const RootInfo & root_info);
 
 	void set_full_compaction(bool parity);
 
@@ -656,16 +669,6 @@ class GlassTable {
 	}
 
     protected:
-
-	/** Perform the opening operation to read. */
-	void do_open_to_read(const RootInfo * root_info,
-			     glass_revision_number_t rev);
-
-	/** Perform the opening operation to write. */
-	void do_open_to_write(const RootInfo * root_info = NULL,
-			      glass_revision_number_t rev = 0);
-	void basic_open(const RootInfo * root_info,
-			glass_revision_number_t rev);
 
 	bool find(Glass::Cursor *) const;
 	int delete_kt();
@@ -822,9 +825,8 @@ class GlassTable {
 	 */
 	byte * split_p;
 
-	/** DONT_COMPRESS or Z_DEFAULT_STRATEGY, Z_FILTERED, Z_HUFFMAN_ONLY,
-	 *  Z_RLE. */
-	int compress_strategy;
+	/** Minimum size tag to try compressing (0 for no compression). */
+	uint4 compress_min;
 
 	mutable CompressionStream comp_stream;
 

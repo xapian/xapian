@@ -1,7 +1,7 @@
 /** @file glass_synonym.h
  * @brief Synonym data for a glass database.
  */
-/* Copyright (C) 2005,2007,2008,2009,2011,2014 Olly Betts
+/* Copyright (C) 2005,2007,2008,2009,2011,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,12 +53,10 @@ class GlassSynonymTable : public GlassLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     GlassSynonymTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("synonym", dbdir + "/synonym.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+	: GlassLazyTable("synonym", dbdir + "/synonym.", readonly) { }
 
     GlassSynonymTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("synonym", fd, offset_, readonly,
-			 Z_DEFAULT_STRATEGY) { }
+	: GlassLazyTable("synonym", fd, offset_, readonly) { }
 
     // Merge in batched-up changes.
     void merge_changes();

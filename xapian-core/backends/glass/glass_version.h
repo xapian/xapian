@@ -1,7 +1,7 @@
 /** @file glass_version.h
  * @brief GlassVersion class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2011 Dan Colish
  *
  * This program is free software; you can redistribute it and/or modify
@@ -43,10 +43,12 @@ class RootInfo {
     bool root_is_fake;
     bool sequential_mode;
     unsigned blocksize;
+    /// Should be >= 4 or 0 for no compression.
+    uint4 compress_min;
     std::string fl_serialised;
 
   public:
-    void init(unsigned blocksize_);
+    void init(unsigned blocksize_, uint4 compress_min_);
 
     void serialise(std::string &s) const;
 
@@ -61,6 +63,7 @@ class RootInfo {
 	AssertRel(blocksize,>=,2048);
 	return blocksize;
     }
+    uint4 get_compress_min() const { return compress_min; }
     const std::string & get_free_list() const { return fl_serialised; }
 
     void set_level(int level_) { level = unsigned(level_); }

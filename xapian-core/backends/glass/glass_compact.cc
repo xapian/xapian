@@ -614,12 +614,16 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
 	    dest += buf;
 
-	    // Don't compress temporary tables, even if the final table would
-	    // be.
 	    GlassTable * tmptab = new GlassTable("postlist", dest, false);
-	    // Use maximum blocksize for temporary tables.
-	    tmptab->create_and_open(Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC,
-				    65536);
+
+	    // Use maximum blocksize for temporary tables.  And don't compress
+	    // entries in temporary tables, even if the final table would do
+	    // so.  Any already compressed entries will get copied in
+	    // compressed form.
+	    RootInfo root_info;
+	    root_info.init(65536, 0);
+	    const int flags = Xapian::DB_DANGEROUS|Xapian::DB_NO_SYNC;
+	    tmptab->create_and_open(flags, root_info);
 
 	    merge_postlists(compactor, tmptab, off.begin() + i,
 			    tmp.begin() + i, tmp.begin() + j);
@@ -632,9 +636,8 @@ multimerge_postlists(Xapian::Compactor * compactor,
 	    }
 	    tmpout.push_back(tmptab);
 	    tmptab->flush_db();
-	    RootInfo rootinfo;
-	    tmptab->commit(1, &rootinfo);
-	    AssertRel(rootinfo.get_blocksize(),==,65536);
+	    tmptab->commit(1, &root_info);
+	    AssertRel(root_info.get_blocksize(),==,65536);
 	}
 	swap(tmp, tmpout);
 	swap(off, newoff);
@@ -784,20 +787,18 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	const char * name;
 	// The type.
 	Glass::table_type type;
-	// zlib compression strategy to use on tags.
-	int compress_strategy;
 	// Create tables after position lazily.
 	bool lazy;
     };
 
     static const table_list tables[] = {
-	// name		type			compress_strategy	lazy
-	{ "postlist",	Glass::POSTLIST,	DONT_COMPRESS,		false },
-	{ "docdata",	Glass::DOCDATA,		Z_DEFAULT_STRATEGY,	true },
-	{ "termlist",	Glass::TERMLIST,	Z_DEFAULT_STRATEGY,	false },
-	{ "position",	Glass::POSITION,	DONT_COMPRESS,		true },
-	{ "spelling",	Glass::SPELLING,	Z_DEFAULT_STRATEGY,	true },
-	{ "synonym",	Glass::SYNONYM,		Z_DEFAULT_STRATEGY,	true }
+	// name		type			lazy
+	{ "postlist",	Glass::POSTLIST,	false },
+	{ "docdata",	Glass::DOCDATA,		true },
+	{ "termlist",	Glass::TERMLIST,	false },
+	{ "position",	Glass::POSITION,	true },
+	{ "spelling",	Glass::SPELLING,	true },
+	{ "synonym",	Glass::SYNONYM,		true }
     };
     const table_list * tables_end = tables +
 	(sizeof(tables) / sizeof(tables[0]));
@@ -978,19 +979,17 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	GlassTable * out;
 	if (single_file) {
 	    out = new GlassTable(t->name, fd, version_file_out->get_offset(),
-				 false, t->compress_strategy, false);
+				 false, false);
 	} else {
-	    out = new GlassTable(t->name, dest,
-				 false, t->compress_strategy, t->lazy);
+	    out = new GlassTable(t->name, dest, false, t->lazy);
 	}
 	tabs.push_back(out);
-	RootInfo * root_info = NULL;
+	RootInfo * root_info = version_file_out->root_to_set(t->type);
 	if (single_file) {
-	    root_info = version_file_out->root_to_set(t->type);
 	    root_info->set_free_list(fl_serialised);
 	    out->open(FLAGS, version_file_out->get_root(t->type), version_file_out->get_revision());
 	} else {
-	    out->create_and_open(FLAGS, block_size);
+	    out->create_and_open(FLAGS, *root_info);
 	}
 
 	out->set_full_compaction(compaction != compactor->STANDARD);
@@ -1024,7 +1023,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 
 	// Commit as revision 1.
 	out->flush_db();
-	out->commit(1, version_file_out->root_to_set(t->type));
+	out->commit(1, root_info);
 	out->sync();
 	if (single_file) fl_serialised = root_info->get_free_list();
 

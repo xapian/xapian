@@ -1,7 +1,7 @@
 /** @file glass_docdata.h
  * @brief Subclass of GlassTable which holds document data.
  */
-/* Copyright (C) 2007,2008,2009,2010,2014 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,12 +45,10 @@ class GlassDocDataTable : public GlassLazyTable {
      *  @param readonly     true if we're opening read-only, else false.
      */
     GlassDocDataTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("docdata", dbdir + "/docdata.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+	: GlassLazyTable("docdata", dbdir + "/docdata.", readonly) { }
 
     GlassDocDataTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("docdata", fd, offset_, readonly,
-			 Z_DEFAULT_STRATEGY) { }
+	: GlassLazyTable("docdata", fd, offset_, readonly) { }
 
     /** Get the document data for document @a did.
      *

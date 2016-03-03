@@ -1,7 +1,7 @@
 /** @file glass_spelling.h
  * @brief Spelling correction data for a glass database.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,12 +89,10 @@ class GlassSpellingTable : public GlassLazyTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     GlassSpellingTable(const std::string & dbdir, bool readonly)
-	: GlassLazyTable("spelling", dbdir + "/spelling.", readonly,
-			 Z_DEFAULT_STRATEGY) { }
+	: GlassLazyTable("spelling", dbdir + "/spelling.", readonly) { }
 
     GlassSpellingTable(int fd, off_t offset_, bool readonly)
-	: GlassLazyTable("spelling", fd, offset_, readonly,
-			 Z_DEFAULT_STRATEGY) { }
+	: GlassLazyTable("spelling", fd, offset_, readonly) { }
 
     /** Merge in batched-up changes.
      *
