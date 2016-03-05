@@ -1027,7 +1027,7 @@ GlassTable::delete_leaf_item(bool repeatedly)
 void
 GlassTable::delete_branch_item(int j)
 {
-    LOGCALL_VOID(DB, "GlassTable::delete_branch_item", j | repeatedly);
+    LOGCALL_VOID(DB, "GlassTable::delete_branch_item", j);
     Assert(writable);
     byte * p = C[j].get_modifiable_p(block_size);
     int c = C[j].c;
