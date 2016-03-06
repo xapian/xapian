@@ -182,8 +182,8 @@ qtestcase '((Ztruth@1 FILTER Lfr) AND_NOT (Ehtm OR Epdf))' P=truth N=Epdf N=Ehtm
 qtestcase '(<alldocuments> AND_NOT (Len OR Lfr))' N=Lfr N=Len
 qtestcase '(VALUE_RANGE 0 2015 201501~ AND_NOT Len)' DATEVALUE=0 START=20150101 END=20150131 N=Len
 
-# If faketime is available, test a range back from now.
-if faketime --version > /dev/null 2>&1; then
+# If faketime is available and works, test a range back from now.
+if [ "`faketime '1980-12-08' date +%Y 2>&1`" = 1980 ] ; then
     TZ=UTC
     export TZ
     FAKETIME=faketime
@@ -192,7 +192,11 @@ if faketime --version > /dev/null 2>&1; then
     FAKETIME=
     unset FAKE_NOW
 else
-    echo "Skipping testcases which need 'faketime' tool installed"
+    if [ $? = 127 ] ; then
+	echo "Skipping testcases which need 'faketime' tool installed"
+    else
+	echo "Skipping testcases which need 'faketime' tool - it's installed but doesn't work"
+    fi
 fi
 
 # Feature tests for $terms.
