@@ -1313,8 +1313,6 @@ eval(const string &fmt, const vector<string> &param)
                 size_t pos = args[1].find(args[0]);
                 if (pos != string::npos) {
                     value = str(pos);
-                } else {
-                    value = "";
                 }
                 break;
             }
