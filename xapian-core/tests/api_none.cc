@@ -2,7 +2,7 @@
  * @brief tests which don't need a backend
  */
 /* Copyright (C) 2009 Richard Boulton
- * Copyright (C) 2009,2010,2011,2013,2014,2015 Olly Betts
+ * Copyright (C) 2009,2010,2011,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -395,6 +395,70 @@ DEFINE_TESTCASE(subclassablerefcount3, backend) {
 		enq2.add_matchspy(spy);
 		TEST(!gone);
 		enq2.add_matchspy(&spy_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}
+
+class TestStopper : public Xapian::Stopper {
+    DestroyedFlag destroyed;
+
+  public:
+    TestStopper(bool & destroyed_) : destroyed(destroyed_) { }
+
+    bool operator()(const std::string&) const { return true; }
+};
+
+/// Check reference counting of Stopper.
+DEFINE_TESTCASE(subclassablerefcount4, !backend) {
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::Stopper * stopper = new TestStopper(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.set_stopper(stopper->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::Stopper * stopper = new TestStopper(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.set_stopper(stopper->release());
+	stopper->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a Stopper with automatic
+    // storage works OK.
+    {
+	TestStopper stopper_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::QueryParser qp1;
+	    {
+		Xapian::QueryParser qp2;
+		Xapian::Stopper * stopper;
+		stopper = new TestStopper(gone);
+		TEST(!gone);
+		qp1.set_stopper(stopper->release());
+		TEST(!gone);
+		qp2.set_stopper(stopper);
+		TEST(!gone);
+		qp2.set_stopper(&stopper_auto);
 		TEST(!gone);
 		TEST(!gone_auto);
 	    }

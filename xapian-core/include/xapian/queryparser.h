@@ -42,7 +42,8 @@ class Database;
 class Stem;
 
 /// Base class for stop-word decision functor.
-class XAPIAN_VISIBILITY_DEFAULT Stopper {
+class XAPIAN_VISIBILITY_DEFAULT Stopper
+    : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
     void operator=(const Stopper &);
 
@@ -64,6 +65,16 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper {
 
     /// Return a string describing this object.
     virtual std::string get_description() const;
+
+    Stopper * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const Stopper * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /// Simple implementation of Stopper class - this will suit most users.
