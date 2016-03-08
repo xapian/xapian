@@ -73,6 +73,9 @@ class OrPostList : public BranchPostList {
 	/// Return the number of unique terms in the document.
 	virtual Xapian::termcount get_unique_terms() const;
 
+	/// Return the max WDF in the document.
+	virtual Xapian::termcount get_wdfdocmax() const;
+
         OrPostList(PostList * left_,
 		   PostList * right_,
 		   MultiMatch * matcher_,

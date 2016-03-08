@@ -115,6 +115,13 @@ ExternalPostList::get_unique_terms() const
     return 0;
 }
 
+Xapian::termcount
+ExternalPostList::get_wdfdocmax() const
+{
+   Assert(false);
+   return 0;
+}
+
 double
 ExternalPostList::recalc_maxweight()
 {

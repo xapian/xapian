@@ -184,6 +184,26 @@ MultiXorPostList::get_unique_terms() const
     return unique_terms;
 }
 
+Xapian::termcount
+MultiXorPostList::get_wdfdocmax() const
+{
+    Assert(did);
+    Xapian::termcount wdfdocmax = 0;
+    bool wdfdocmax_set = false;
+    for (size_t i = 0; i < n_kids; ++i) {
+	if (plist[i]->get_docid() == did) {
+	    if (wdfdocmax_set) {
+		AssertEq(wdfdocmax, plist[i]->get_wdfdocmax());
+	    } else {
+		wdfdocmax = plist[i]->get_wdfdocmax();
+		wdfdocmax_set = true;
+	    }
+	}
+    }
+    Assert(wdfdocmax_set);
+    return wdfdocmax;
+}
+
 double
 MultiXorPostList::get_weight() const
 {

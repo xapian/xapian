@@ -58,6 +58,12 @@ class SynonymPostList : public PostList {
      */
     bool want_unique_terms;
 
+    /** Flag indicating whether the weighting object needs the max wdf of
+     *  terms.
+     *  FIXME : Not implemented
+     */
+    bool want_wdfdocmax;
+
     /// Flag indicating if we've called recalc_maxweight on the subtree yet.
     bool have_calculated_subtree_maxweights;
 
@@ -69,7 +75,7 @@ class SynonymPostList : public PostList {
 		    Xapian::termcount doclen_lower_bound_)
 	: subtree(subtree_), matcher(matcher_), wt(NULL),
 	  want_doclength(false), want_wdf(false), want_unique_terms(false),
-	  have_calculated_subtree_maxweights(false),
+	  want_wdfdocmax(false), have_calculated_subtree_maxweights(false),
 	  doclen_lower_bound(doclen_lower_bound_) { }
 
     ~SynonymPostList();
@@ -99,6 +105,7 @@ class SynonymPostList : public PostList {
     Xapian::docid get_docid() const;
     Xapian::termcount get_doclength() const;
     Xapian::termcount get_unique_terms() const;
+    Xapian::termcount get_wdfdocmax() const;
     bool at_end() const;
 
     Xapian::termcount count_matching_subqs() const;

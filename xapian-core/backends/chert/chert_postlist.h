@@ -254,6 +254,9 @@ class ChertPostList : public LeafPostList {
 
 	Xapian::termcount get_unique_terms() const;
 
+	/// Returns the max wdf of terms in current document.
+	Xapian::termcount get_wdfdocmax() const;
+
 	/** Returns the Within Document Frequency of the term in the current
 	 *  document.
 	 */

@@ -77,6 +77,12 @@ EmptyPostList::get_unique_terms() const
     return Xapian::termcount(EmptyPostList::get_docid());
 }
 
+Xapian::termcount
+EmptyPostList::get_wdfdocmax() const
+{
+    return Xapian::termcount(EmptyPostList::get_docid());
+}
+
 double
 EmptyPostList::get_weight() const
 {

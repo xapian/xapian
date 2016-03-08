@@ -77,6 +77,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
     /// Return the current docid.
     virtual Xapian::docid get_docid() const = 0;
 
+    /// Return the max wdf in the current document.
+    virtual Xapian::termcount get_wdfdocmax() const = 0;
+
     /// Return the length of current document.
     virtual Xapian::termcount get_doclength() const = 0;
     /* FIXME: Once flint has been retired, we should probably strip out

@@ -586,6 +586,15 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset_expect_order(mset, 2, 4);
     TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 * log(6.0 / 2));
 
+    Xapian::MSet mset3;
+    // Check for "mtn" when termfreq != N
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("mtn"));
+    mset3 = enquire.get_mset(0,10);
+    TEST_EQUAL(mset3.size(), 2);
+    mset_expect_order(mset3, 2, 4);
+    TEST_EQUAL_DOUBLE(mset3[0].get_weight(), (8.0/8.0) * log(6.0/2));    
+
     // Test with OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
@@ -675,7 +684,7 @@ class CheckInitWeight : public Xapian::Weight {
     }
 
     double get_sumpart(Xapian::termcount, Xapian::termcount,
-		       Xapian::termcount) const {
+		       Xapian::termcount, Xapian::termcount) const {
 	return 1.0;
     }
 
@@ -741,6 +750,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_FREQ);
 	need_stat(UNIQUE_TERMS);
+	need_stat(WDF_DOC_MAX);
     }
 
     void init(double factor_) {
@@ -752,7 +762,7 @@ class CheckStatsWeight : public Xapian::Weight {
     }
 
     double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
-		       Xapian::termcount uniqueterms) const {
+		       Xapian::termcount uniqueterms, Xapian::termcount wdfdocmax) const {
 	TEST_EQUAL(get_collection_size(), db.get_doccount());
 	TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term));
 	TEST_EQUAL(get_rset_size(), 0);
@@ -766,6 +776,7 @@ class CheckStatsWeight : public Xapian::Weight {
 	TEST_REL(uniqueterms,>=,1);
 	TEST_REL(uniqueterms,<=,doclen);
 	TEST_REL(wdf,<=,wdf_upper);
+    	TEST_REL(wdf,<=,wdfdocmax);
 	sum += wdf;
 	sum_squares += wdf * wdf;
 	return 1.0;

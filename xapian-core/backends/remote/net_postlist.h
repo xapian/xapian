@@ -79,6 +79,9 @@ class NetworkPostList : public LeafPostList {
     /// Get the number of unique terms in the current document.
     Xapian::termcount get_unique_terms() const;
 
+    /// Get max wdf of terms in current document
+    Xapian::termcount get_wdfdocmax() const;
+
     /// Get the Within Document Frequency of the term in the current document.
     Xapian::termcount get_wdf() const;
 

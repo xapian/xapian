@@ -105,6 +105,13 @@ ValueRangePostList::get_unique_terms() const
     return 0;
 }
 
+Xapian::termcount
+ValueRangePostList::get_wdfdocmax() const
+{
+    Assert(db);
+    return 0;
+}
+
 double
 ValueRangePostList::recalc_maxweight()
 {
