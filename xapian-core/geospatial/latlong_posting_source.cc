@@ -46,7 +46,7 @@ weight_from_distance(double dist, double k1, double k2)
 void
 LatLongDistancePostingSource::calc_distance()
 {
-    dist = (*metric)(centre, *get_value_it());
+    dist = (*metric)(centre, get_value());
 }
 
 /// Validate the parameters supplied to LatLongDistancePostingSource.
@@ -112,11 +112,11 @@ LatLongDistancePostingSource::next(double min_wt)
 {
     ValuePostingSource::next(min_wt);
 
-    while (get_value_it() != get_database().valuestream_end(get_slot())) {
+    while (!ValuePostingSource::at_end()) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
-	++get_value_it();
+	ValuePostingSource::next(min_wt);
     }
 }
 
@@ -126,11 +126,11 @@ LatLongDistancePostingSource::skip_to(docid min_docid,
 {
     ValuePostingSource::skip_to(min_docid, min_wt);
 
-    while (get_value_it() != get_database().valuestream_end(get_slot())) {
+    while (!ValuePostingSource::at_end()) {
 	calc_distance();
 	if (max_range == 0 || dist <= max_range)
 	    break;
-	++get_value_it();
+	ValuePostingSource::next(min_wt);
     }
 }
 
@@ -142,7 +142,7 @@ LatLongDistancePostingSource::check(docid min_docid,
 	// check returned false, so we know the document is not in the source.
 	return false;
     }
-    if (get_value_it() == get_database().valuestream_end(get_slot())) {
+    if (ValuePostingSource::at_end()) {
 	// return true, since we're definitely at the end of the list.
 	return true;
     }

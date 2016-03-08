@@ -409,7 +409,9 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
 
     /** Value stream iterator.
      *
-     *  @deprecated Use @a get_value_it() in preference.
+     *  @deprecated Use @a get_value() in preference to *value_it, and other
+     *  methods of ValuePostingSource in preference to calling methods of
+     *  value_it.
      */
     XAPIAN_DEPRECATED(Xapian::ValueIterator& value_it);
 
@@ -479,18 +481,20 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      */
     Xapian::valueno get_slot() const { return real_slot; }
 
-    /** Value stream iterator.
+    /** Read current value.
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    Xapian::ValueIterator get_value_it() const { return real_value_it; }
+    std::string get_value() const { return *real_value_it; }
 
-    /** Value stream iterator.
+    /** End the iteration.
+     *
+     *  Calls to at_end() will return true after calling this method.
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    void set_value_it(const Xapian::ValueIterator & it) {
-	real_value_it = it;
+    void done() {
+	real_value_it = real_db.valuestream_end(real_slot);
 	real_started = true;
     }
 

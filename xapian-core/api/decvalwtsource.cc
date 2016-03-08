@@ -92,21 +92,21 @@ DecreasingValueWeightPostingSource::init(const Xapian::Database & db_) {
 void
 DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
 {
-    if (get_value_it() == get_database().valuestream_end(get_slot())) return;
+    if (ValueWeightPostingSource::at_end()) return;
     curr_weight = Xapian::ValueWeightPostingSource::get_weight();
     Xapian::docid docid = Xapian::ValueWeightPostingSource::get_docid();
     if (docid >= range_start && (range_end == 0 || docid <= range_end)) {
 	if (items_at_end) {
 	    if (curr_weight < min_wt) {
 		// skip to end of range.
-		get_value_it().skip_to(range_end + 1);
-		if (get_value_it() != get_database().valuestream_end(get_slot()))
+		ValueWeightPostingSource::skip_to(range_end + 1, min_wt);
+		if (ValueWeightPostingSource::at_end())
 		    curr_weight = Xapian::ValueWeightPostingSource::get_weight();
 	    }
 	} else {
 	    if (curr_weight < min_wt) {
 		// terminate early.
-		set_value_it(get_database().valuestream_end(get_slot()));
+		done();
 	    } else {
 		// Update max_weight.
 		set_maxweight(curr_weight);
@@ -118,7 +118,7 @@ DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
 void
 DecreasingValueWeightPostingSource::next(double min_wt) {
     if (get_maxweight() < min_wt) {
-	set_value_it(get_database().valuestream_end(get_slot()));
+	done();
 	return;
     }
     Xapian::ValueWeightPostingSource::next(min_wt);
@@ -129,7 +129,7 @@ void
 DecreasingValueWeightPostingSource::skip_to(Xapian::docid min_docid,
 					    double min_wt) {
     if (get_maxweight() < min_wt) {
-	set_value_it(get_database().valuestream_end(get_slot()));
+	done();
 	return;
     }
     Xapian::ValueWeightPostingSource::skip_to(min_docid, min_wt);
@@ -140,7 +140,7 @@ bool
 DecreasingValueWeightPostingSource::check(Xapian::docid min_docid,
 					  double min_wt) {
     if (get_maxweight() < min_wt) {
-	set_value_it(get_database().valuestream_end(get_slot()));
+	done();
 	return true;
     }
     bool valid = Xapian::ValueWeightPostingSource::check(min_docid, min_wt);
