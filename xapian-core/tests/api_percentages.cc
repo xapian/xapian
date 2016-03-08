@@ -322,6 +322,7 @@ class ZWeight : public Xapian::Weight {
 
     double get_sumpart(Xapian::termcount,
 		       Xapian::termcount,
+		       Xapian::termcount,
 		       Xapian::termcount) const {
 	return 0.0;
     }

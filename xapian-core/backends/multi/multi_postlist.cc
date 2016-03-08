@@ -122,6 +122,17 @@ MultiPostList::get_unique_terms() const
 }
 
 Xapian::termcount
+MultiPostList::get_wdfdocmax() const
+{
+    LOGCALL(DB, Xapian::termcount, "MultiPostList::get_wdfdocmax", NO_ARGS);
+    Assert(!at_end());
+    Assert(currdoc != 0);
+    Xapian::termcount result = postlists[(currdoc - 1) % multiplier]->get_wdfdocmax();
+    AssertEqParanoid(result, this_db.get_wdfdocmax(get_docid()));
+    RETURN(result);
+}
+
+Xapian::termcount
 MultiPostList::get_wdf() const
 {
     return postlists[(currdoc - 1) % multiplier]->get_wdf();

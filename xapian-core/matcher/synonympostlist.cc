@@ -42,6 +42,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
     want_doclength = wt->get_sumpart_needs_doclength_();
     want_wdf = wt->get_sumpart_needs_wdf_();
     want_unique_terms = wt->get_sumpart_needs_uniqueterms_();
+    want_wdfdocmax = wt->get_sumpart_needs_wdfdocmax_();
 }
 
 PostList *
@@ -81,6 +82,10 @@ SynonymPostList::get_weight() const
     Xapian::termcount unique_terms = 0;
     if (want_unique_terms)
 	unique_terms = get_unique_terms();
+    Xapian::termcount wdfdocmax = 0;
+    if (want_wdfdocmax) {
+	wdfdocmax = get_wdfdocmax();
+    }
     if (want_wdf) {
 	Xapian::termcount wdf = get_wdf();
 	Xapian::termcount doclen = 0;
@@ -88,12 +93,12 @@ SynonymPostList::get_weight() const
 	    doclen = get_doclength();
 	    if (wdf > doclen) wdf = doclen;
 	}
-	double sumpart = wt->get_sumpart(wdf, doclen, unique_terms);
+	double sumpart = wt->get_sumpart(wdf, doclen, unique_terms, wdfdocmax);
 	AssertRel(sumpart, <=, wt->get_maxpart());
 	RETURN(sumpart);
     }
     Xapian::termcount doclen = want_doclength ? get_doclength() : 0;
-    RETURN(wt->get_sumpart(0, doclen, unique_terms));
+    RETURN(wt->get_sumpart(0, doclen, unique_terms, wdfdocmax));
 }
 
 double
@@ -163,6 +168,12 @@ bool
 SynonymPostList::at_end() const {
     LOGCALL(MATCH, bool, "SynonymPostList::at_end", NO_ARGS);
     RETURN(subtree->at_end());
+}
+
+Xapian::termcount
+SynonymPostList::get_wdfdocmax() const {
+    LOGCALL(MATCH, Xapian::termcount, "SynonymPostList::get_wdfdocmax", NO_ARGS);
+    RETURN(subtree->get_wdfdocmax());
 }
 
 Xapian::termcount

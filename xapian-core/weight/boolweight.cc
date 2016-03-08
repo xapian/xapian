@@ -63,7 +63,7 @@ BoolWeight::unserialise(const string& s) const
 
 double
 BoolWeight::get_sumpart(Xapian::termcount, Xapian::termcount,
-			Xapian::termcount) const
+			Xapian::termcount, Xapian::termcount) const
 {
     return 0;
 }

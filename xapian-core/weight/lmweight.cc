@@ -152,7 +152,7 @@ LMWeight::unserialise(const string & s) const
 
 double
 LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		      Xapian::termcount uniqterm) const
+		      Xapian::termcount uniqterm, Xapian::termcount) const
 {
     // Within Document Frequency of the term in document being considered.
     double wdf_double = wdf;

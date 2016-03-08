@@ -430,6 +430,26 @@ OrPostList::get_unique_terms() const
 }
 
 Xapian::termcount
+OrPostList::get_wdfdocmax() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "OrPostList::get_wdfdocmax", NO_ARGS);
+    Xapian::termcount wdfdocmax;
+
+    Assert(lhead != 0 && rhead != 0); // check we've started
+    if (lhead > rhead) {
+	wdfdocmax = r->get_wdfdocmax();
+	LOGLINE(MATCH, "OrPostList::get_wdfdocmax() [right docid=" << rhead <<
+		       "] = " << wdfdocmax);
+    } else {
+	wdfdocmax = l->get_wdfdocmax();
+	LOGLINE(MATCH, "OrPostList::get_wdfdocmax() [left docid=" << lhead <<
+		       "] = " << wdfdocmax);
+    }
+
+    RETURN(wdfdocmax);
+}
+
+Xapian::termcount
 OrPostList::get_wdf() const
 {
     LOGCALL(MATCH, Xapian::termcount, "OrPostList::get_wdf", NO_ARGS);

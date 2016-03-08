@@ -214,6 +214,15 @@ AndMaybePostList::get_unique_terms() const
 }
 
 Xapian::termcount
+AndMaybePostList::get_wdfdocmax() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_wdfdocmax", NO_ARGS);
+    Assert(lhead != 0); // check we've started
+    if (lhead == rhead) AssertEq(l->get_wdfdocmax(), r->get_wdfdocmax());
+    RETURN(l->get_wdfdocmax());
+}
+
+Xapian::termcount
 AndMaybePostList::get_wdf() const
 {
     LOGCALL(MATCH, Xapian::termcount, "AndMaybePostList::get_wdf", NO_ARGS);

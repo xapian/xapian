@@ -60,6 +60,7 @@ LeafPostList::set_termweight(const Xapian::Weight * weight_)
     weight = weight_;
     need_doclength = weight->get_sumpart_needs_doclength_();
     need_unique_terms = weight->get_sumpart_needs_uniqueterms_();
+    need_wdfdocmax = weight->get_sumpart_needs_wdfdocmax_();
 }
 
 double
@@ -72,14 +73,16 @@ double
 LeafPostList::get_weight() const
 {
     if (!weight) return 0;
-    Xapian::termcount doclen = 0, unique_terms = 0;
+    Xapian::termcount doclen = 0, unique_terms = 0, wdfdocmax = 0;
     // Fetching the document length and number of unique terms is work we can
     // avoid if the weighting scheme doesn't use them.
     if (need_doclength)
 	doclen = get_doclength();
     if (need_unique_terms)
 	unique_terms = get_unique_terms();
-    double sumpart = weight->get_sumpart(get_wdf(), doclen, unique_terms);
+    if (need_wdfdocmax)
+	wdfdocmax = get_wdfdocmax();
+    double sumpart = weight->get_sumpart(get_wdf(), doclen, unique_terms, wdfdocmax);
     AssertRel(sumpart, <=, weight->get_maxpart());
     return sumpart;
 }

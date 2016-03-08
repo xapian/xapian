@@ -725,6 +725,16 @@ ChertPostList::get_unique_terms() const
     RETURN(this_db->get_unique_terms(did));
 }
 
+Xapian::termcount
+ChertPostList::get_wdfdocmax() const
+{
+    LOGCALL(DB, Xapian::termcount, "ChertPostList::get_wdfdocmax", NO_ARGS);
+    Assert(have_started);
+    Assert(!is_at_end);
+    Assert(this_db.get());
+    RETURN(this_db->get_wdfdocmax(did));
+}
+
 bool
 ChertPostList::next_in_chunk()
 {

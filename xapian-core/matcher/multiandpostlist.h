@@ -171,6 +171,8 @@ class MultiAndPostList : public PostList {
 
     Xapian::termcount get_unique_terms() const;
 
+    Xapian::termcount get_wdfdocmax() const;
+
     double get_weight() const;
 
     bool at_end() const;

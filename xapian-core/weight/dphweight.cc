@@ -122,7 +122,7 @@ DPHWeight::unserialise(const string& s) const
 
 double
 DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-		       Xapian::termcount) const
+		       Xapian::termcount, Xapian::termcount) const
 {
     if (wdf == 0) return 0.0;
 

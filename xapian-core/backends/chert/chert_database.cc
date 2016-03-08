@@ -797,6 +797,23 @@ ChertDatabase::get_unique_terms(Xapian::docid did) const
     RETURN(termlist.get_approx_size());
 }
 
+Xapian::termcount
+ChertDatabase::get_wdfdocmax(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "ChertDatabase::get_wdfdocmax", did);
+    Assert(did != 0);
+    intrusive_ptr<const ChertDatabase> ptrtothis(this);
+    ChertTermList termlist(ptrtothis, did);
+    Xapian::termcount max_wdf = 0;
+    termlist.next();
+    while (!termlist.at_end()) {
+	Xapian::termcount current_wdf = termlist.get_wdf();
+	if (current_wdf > max_wdf) max_wdf = current_wdf;
+	termlist.next();
+    }
+    RETURN(max_wdf);
+}
+
 void
 ChertDatabase::get_freqs(const string & term,
 			 Xapian::doccount * termfreq_ptr,

@@ -222,6 +222,13 @@ AndNotPostList::get_unique_terms() const
 }
 
 Xapian::termcount
+AndNotPostList::get_wdfdocmax() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_wdfdocmax", NO_ARGS);
+    RETURN(l->get_wdfdocmax());
+}
+
+Xapian::termcount
 AndNotPostList::get_wdf() const
 {
     LOGCALL(MATCH, Xapian::termcount, "AndNotPostList::get_wdf", NO_ARGS);

@@ -211,6 +211,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
+    Xapian::termcount get_wdfdocmax(Xapian::docid did) const;
 
     /// Check if term exists.
     bool term_exists(const string & tname) const;

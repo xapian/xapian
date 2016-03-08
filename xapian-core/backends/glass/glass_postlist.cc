@@ -754,6 +754,15 @@ GlassPostList::get_unique_terms() const
     RETURN(this_db->get_unique_terms(did));
 }
 
+Xapian::termcount
+GlassPostList::get_wdfdocmax() const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassPostList::get_wdfdocmax", NO_ARGS);
+    Assert(have_started);
+    Assert(this_db.get());
+    RETURN(this_db->get_wdfdocmax(did));
+}
+
 bool
 GlassPostList::next_in_chunk()
 {

@@ -162,7 +162,7 @@ BM25Weight::unserialise(const string & s) const
 
 double
 BM25Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
-			Xapian::termcount) const
+			Xapian::termcount, Xapian::termcount) const
 {
     LOGCALL(WTCALC, double, "BM25Weight::get_sumpart", wdf | len);
     Xapian::doclength normlen = max(len * len_factor, param_min_normlen);

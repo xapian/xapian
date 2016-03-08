@@ -107,6 +107,10 @@ class ExtraWeightPostList : public PostList {
 	    return pl->get_unique_terms();
 	}
 
+	virtual Xapian::termcount get_wdfdocmax() const {
+	    return pl->get_wdfdocmax();
+	}
+
 	ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_,
 			    MultiMatch *matcher_)
 	    : pl(pl_), wt(wt_), matcher(matcher_),

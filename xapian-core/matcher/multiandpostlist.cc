@@ -174,6 +174,17 @@ MultiAndPostList::get_unique_terms() const
     return unique_terms;
 }
 
+Xapian::termcount
+MultiAndPostList::get_wdfdocmax() const
+{
+    Assert(did);
+    Xapian::termcount wdfdocmax = plist[0]->get_wdfdocmax();
+    for (size_t i = 1; i < n_kids; ++i) {
+	AssertEq(wdfdocmax, plist[i]->get_wdfdocmax());
+    }
+    return wdfdocmax;
+}
+
 double
 MultiAndPostList::get_weight() const
 {

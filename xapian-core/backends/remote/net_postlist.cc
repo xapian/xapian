@@ -53,6 +53,12 @@ NetworkPostList::get_unique_terms() const
 }
 
 Xapian::termcount
+NetworkPostList::get_wdfdocmax() const
+{
+    return db->get_wdfdocmax(lastdocid);
+}
+
+Xapian::termcount
 NetworkPostList::get_wdf() const
 {
     return lastwdf;
