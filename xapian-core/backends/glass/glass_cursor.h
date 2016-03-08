@@ -2,7 +2,7 @@
  * @brief Interface to Btree cursors
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -172,7 +172,7 @@ class GlassCursor {
 
     private:
 	/** Status of the current_tag member. */
-	enum { UNREAD, UNCOMPRESSED, COMPRESSED } tag_status;
+	enum { UNREAD, UNREAD_ON_LAST_CHUNK, UNCOMPRESSED, COMPRESSED } tag_status;
 
     protected:
 	/// The Btree table
