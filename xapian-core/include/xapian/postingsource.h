@@ -416,18 +416,20 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
      */
     Xapian::valueno get_slot() const { return slot; }
 
-    /** Value stream iterator.
+    /** Read current value.
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    Xapian::ValueIterator get_value_it() const { return value_it; }
+    std::string get_value() const { return *value_it; }
 
-    /** Value stream iterator.
+    /** End the iteration.
+     *
+     *  Calls to at_end() will return true after calling this method.
      *
      *  Added in 1.2.23 and 1.3.5.
      */
-    void set_value_it(const Xapian::ValueIterator & it) {
-	value_it = it;
+    void done() {
+	value_it = db.valuestream_end(slot);
 	started = true;
     }
 
