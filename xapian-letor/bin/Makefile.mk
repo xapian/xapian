@@ -11,7 +11,8 @@ bin_questletor_LDADD = libxapianletor.la
 bin_xapian_letor_update_SOURCES =\
 	bin/xapian-letor-update.cc\
 	common/getopt.cc\
-	common/gnu_getopt.h
+	common/gnu_getopt.h\
+	common/str.cc
 bin_xapian_letor_update_LDADD = $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
