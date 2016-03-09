@@ -100,7 +100,7 @@ DecreasingValueWeightPostingSource::skip_if_in_range(double min_wt)
 	    if (curr_weight < min_wt) {
 		// skip to end of range.
 		ValueWeightPostingSource::skip_to(range_end + 1, min_wt);
-		if (ValueWeightPostingSource::at_end())
+		if (!ValueWeightPostingSource::at_end())
 		    curr_weight = Xapian::ValueWeightPostingSource::get_weight();
 	    }
 	} else {
