@@ -243,7 +243,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 
     int stop_mode = STOPWORDS_INDEX_UNSTEMMED_ONLY;
 
-    if (!stopper) stop_mode = STOPWORDS_NONE;
+    if (!stopper.get()) stop_mode = STOPWORDS_NONE;
 
     parse_terms(itor, cjk_ngram, with_positions,
 	[=](const string & term, bool positional, const Utf8Iterator &) {

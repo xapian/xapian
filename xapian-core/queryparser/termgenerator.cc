@@ -133,7 +133,7 @@ TermGenerator::get_description() const
 {
     string s("Xapian::TermGenerator(stem=");
     s += internal->stemmer.get_description();
-    if (internal->stopper) {
+    if (internal->stopper.get()) {
 	s += ", stopper set";
     }
     s += ", doc=";

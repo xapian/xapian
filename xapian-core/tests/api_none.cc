@@ -417,7 +417,7 @@ class TestStopper : public Xapian::Stopper {
     bool operator()(const std::string&) const { return true; }
 };
 
-/// Check reference counting of Stopper.
+/// Check reference counting of Stopper with QueryParser.
 DEFINE_TESTCASE(subclassablerefcount4, !backend) {
     bool gone_auto, gone;
 
@@ -476,6 +476,78 @@ DEFINE_TESTCASE(subclassablerefcount4, !backend) {
 		qp2.set_stopper(stopper);
 		TEST(!gone);
 		qp2.set_stopper(&stopper_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}
+
+/// Check reference counting of Stopper with TermGenerator.
+DEFINE_TESTCASE(subclassablerefcount5, !backend) {
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::Stopper * stopper = new TestStopper(gone);
+	TEST(!gone);
+	Xapian::TermGenerator indexer;
+	indexer.set_stopper(stopper->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test that setting a new stopper causes the previous one to be released.
+    {
+	bool gone0;
+	Xapian::Stopper * stopper0 = new TestStopper(gone0);
+	TEST(!gone0);
+	Xapian::TermGenerator indexer;
+	indexer.set_stopper(stopper0->release());
+	TEST(!gone0);
+
+	Xapian::Stopper * stopper = new TestStopper(gone);
+	TEST(!gone);
+	indexer.set_stopper(stopper->release());
+	TEST(gone0);
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::Stopper * stopper = new TestStopper(gone);
+	TEST(!gone);
+	Xapian::TermGenerator indexer;
+	indexer.set_stopper(stopper->release());
+	stopper->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a Stopper with automatic
+    // storage works OK.
+    {
+	TestStopper stopper_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::TermGenerator indexer1;
+	    {
+		Xapian::TermGenerator indexer2;
+		Xapian::Stopper * stopper;
+		stopper = new TestStopper(gone);
+		TEST(!gone);
+		indexer1.set_stopper(stopper->release());
+		TEST(!gone);
+		indexer2.set_stopper(stopper);
+		TEST(!gone);
+		indexer2.set_stopper(&stopper_auto);
 		TEST(!gone);
 		TEST(!gone_auto);
 	    }
