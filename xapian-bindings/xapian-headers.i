@@ -340,6 +340,8 @@ SUBCLASSABLE(Xapian, KeyMaker)
 }
 
 SUBCLASSABLE(Xapian, FieldProcessor)
+// Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::Stopper;
 SUBCLASSABLE(Xapian, Stopper)
 SUBCLASSABLE(Xapian, ValueRangeProcessor)
 // Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
