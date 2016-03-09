@@ -431,6 +431,23 @@ DEFINE_TESTCASE(subclassablerefcount4, !backend) {
     }
     TEST(gone);
 
+    // Test that setting a new stopper causes the previous one to be released.
+    {
+	bool gone0;
+	Xapian::Stopper * stopper0 = new TestStopper(gone0);
+	TEST(!gone0);
+	Xapian::QueryParser qp;
+	qp.set_stopper(stopper0->release());
+	TEST(!gone0);
+
+	Xapian::Stopper * stopper = new TestStopper(gone);
+	TEST(!gone);
+	qp.set_stopper(stopper->release());
+	TEST(gone0);
+	TEST(!gone);
+    }
+    TEST(gone);
+
     // Check a second call to release() has no effect.
     {
 	Xapian::Stopper * stopper = new TestStopper(gone);
