@@ -150,7 +150,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 	sort_setting sort_by;
 	bool sort_value_forward;
 
-	KeyMaker * sorter;
+	Xapian::Internal::opt_intrusive_ptr<KeyMaker> sorter;
 
 	double time_limit;
 

@@ -1,7 +1,7 @@
 /** @file keymaker.h
  * @brief Build key strings for MSet ordering or collapsing.
  */
-/* Copyright (C) 2007,2009,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2009,2011,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -29,6 +29,7 @@
 #include <string>
 #include <vector>
 
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -37,7 +38,8 @@ namespace Xapian {
 class Document;
 
 /** Virtual base class for key making functors. */
-class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
+class XAPIAN_VISIBILITY_DEFAULT KeyMaker
+    : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
     void operator=(const KeyMaker &);
 
@@ -58,6 +60,16 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker {
 
     /** Virtual destructor, because we have virtual methods. */
     virtual ~KeyMaker();
+
+    KeyMaker * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const KeyMaker * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /** KeyMaker subclass which combines several values.

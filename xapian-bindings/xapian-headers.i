@@ -325,6 +325,8 @@ SUBCLASSABLE(Xapian, ExpandDecider)
 %include <xapian/expanddecider.h>
 
 SUBCLASSABLE(Xapian, KeyMaker)
+// Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::KeyMaker;
 %include <xapian/keymaker.h>
 
 %extend Xapian::SimpleStopper {

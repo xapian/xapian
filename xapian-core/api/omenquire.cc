@@ -651,12 +651,12 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
 		       time_limit, errorhandler, *(stats.get()), weight, spies,
-		       (sorter != NULL),
+		       (sorter.get() != NULL),
 		       (mdecider != NULL));
     // Run query and put results into supplied Xapian::MSet object.
     MSet retval;
     match.get_mset(first, maxitems, check_at_least, retval,
-		   *(stats.get()), mdecider, sorter);
+		   *(stats.get()), mdecider, sorter.get());
     if (first_orig != first && retval.internal.get()) {
 	retval.internal->firstitem = first_orig;
     }

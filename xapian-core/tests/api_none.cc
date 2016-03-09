@@ -561,6 +561,89 @@ DEFINE_TESTCASE(subclassablerefcount5, !backend) {
     return true;
 }
 
+class TestKeyMaker : public Xapian::KeyMaker {
+    DestroyedFlag destroyed;
+
+  public:
+    TestKeyMaker(bool & destroyed_) : destroyed(destroyed_) { }
+
+    string operator()(const Xapian::Document&) const { return string(); }
+};
+
+/// Check reference counting of KeyMaker.
+DEFINE_TESTCASE(subclassablerefcount6, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
+	TEST(!gone);
+	Xapian::Enquire enq(db);
+	enq.set_sort_by_key(keymaker->release(), false);
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test that setting a new keymaker causes the previous one to be released.
+    {
+	bool gone0;
+	Xapian::KeyMaker * keymaker0 = new TestKeyMaker(gone0);
+	TEST(!gone0);
+	Xapian::Enquire enq(db);
+	enq.set_sort_by_key(keymaker0->release(), false);
+	TEST(!gone0);
+
+	Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
+	TEST(!gone);
+	enq.set_sort_by_key_then_relevance(keymaker->release(), false);
+	TEST(gone0);
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::KeyMaker * keymaker = new TestKeyMaker(gone);
+	TEST(!gone);
+	Xapian::Enquire enq(db);
+	enq.set_sort_by_key(keymaker->release(), false);
+	keymaker->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a KeyMaker with automatic
+    // storage works OK.
+    {
+	TestKeyMaker keymaker_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::Enquire enq1(db);
+	    {
+		Xapian::Enquire enq2(db);
+		Xapian::KeyMaker * keymaker;
+		keymaker = new TestKeyMaker(gone);
+		TEST(!gone);
+		enq1.set_sort_by_key(keymaker->release(), false);
+		TEST(!gone);
+		enq2.set_sort_by_relevance_then_key(keymaker, false);
+		TEST(!gone);
+		enq2.set_sort_by_key_then_relevance(&keymaker_auto, false);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    return true;
+}
+
 /// Check encoding of non-UTF8 document data.
 DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
     Xapian::Document doc;
