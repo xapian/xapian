@@ -175,6 +175,7 @@ public:
 	return item_size;
     }
     bool get_compressed() const { return *p & 0x80; }
+    bool first_component() const { return component_of() == 1; }
     bool last_component() const { return !(*p & 0x40); }
     int component_of() const {
 	return getX(p, getK(p, I2) + I2 + K1);
@@ -240,11 +241,12 @@ public:
 	set_component_of(1);
     }
     // FIXME passing cd here is icky
-    void set_tag(int cd, const char *start, int len, bool compressed, bool last) {
+    void set_tag(int cd, const char *start, int len, bool compressed, int i, int m) {
 	std::memmove(p + cd, start, len);
 	set_size(cd + len);
 	if (compressed) *p |= 0x80;
-	if (!last) *p |= 0x40;
+	if (i != m) *p |= 0x40;
+	set_component_of(i);
     }
     void fake_root_item() {
 	set_key_len(0);   // null key length

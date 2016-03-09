@@ -1112,7 +1112,7 @@ def test_postingsource3():
         def next(self, minweight):
             return xapian.ValuePostingSource.next(self, minweight)
         def get_weight(self):
-            value = self.get_value_it().get_value()
+            value = self.get_value()
             return xapian.sortable_unserialise(value) ** 3
 
     source = PyValuePostingSource(1)

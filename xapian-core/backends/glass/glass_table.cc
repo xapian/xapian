@@ -1309,8 +1309,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
 	Assert(o + l <= tag_size);
-	kt.set_tag(cd, tag_data + o, l, compressed, (i == m));
-	kt.set_component_of(i);
+	kt.set_tag(cd, tag_data + o, l, compressed, i, m);
 
 	o += l;
 	residue -= l;

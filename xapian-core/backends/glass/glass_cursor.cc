@@ -118,7 +118,7 @@ GlassCursor::next()
 		break;
 	    }
 	    if (tag_status == UNREAD_ON_LAST_CHUNK ||
-		LeafItem(C[0].get_p(), C[0].c).component_of() == 1) {
+		LeafItem(C[0].get_p(), C[0].c).first_component()) {
 		is_positioned = true;
 		break;
 	    }
@@ -263,7 +263,7 @@ GlassCursor::find_entry_ge(const string &key)
 	    is_positioned = false;
 	    RETURN(false);
 	}
-	Assert(LeafItem(C[0].get_p(), C[0].c).component_of() == 1);
+	Assert(LeafItem(C[0].get_p(), C[0].c).first_component());
 	get_key(&current_key);
     }
     tag_status = UNREAD;
@@ -287,7 +287,7 @@ GlassCursor::read_tag(bool keep_compressed)
     LOGCALL(DB, bool, "GlassCursor::read_tag", keep_compressed);
     if (tag_status == UNREAD_ON_LAST_CHUNK) {
 	// Back up to first chunk of this tag.
-	while (LeafItem(C[0].get_p(), C[0].c).component_of() != 1) {
+	while (!LeafItem(C[0].get_p(), C[0].c).first_component()) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
 		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
