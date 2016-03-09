@@ -1597,7 +1597,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the lists of deprecated/removed API methods in docs/deprecation.rst
 
-* Update the NEWS files using information from the ChangeLog files
+* Update the NEWS files using information from the git logs
 
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
