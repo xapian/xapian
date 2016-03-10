@@ -89,7 +89,7 @@
 /* if you've been reading the comments from the top, the next four procedures
    will not cause any headaches.
 
-   Recall that item has this form:
+   Recall that a leaf item has this form:
 
            i k     x
            | |     |
@@ -255,7 +255,8 @@ public:
     }
 };
 
-/*
+/* A branch item has this form:
+
                  k     x
                  |     |
              tag K key X
