@@ -18,3 +18,8 @@
 /testdb-exception-modified
 /testdb-spell
 /testdb-writabledatabase
+/test-suite.log
+/t/*.t.log
+/t/*.t.trs
+/t/symbol-test/MYMETA.json
+/t/symbol-test/MYMETA.yml

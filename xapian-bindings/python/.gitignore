@@ -10,6 +10,7 @@
 /modern
 /except.i
 /doccomments.i
+/docs/conf.py
 /docs/html
 /doctrees
 /version.i
@@ -17,3 +18,11 @@
 /db_test_get_uuid2
 /dbs_replication
 /db_test_value_mods
+/*test.py.log
+/*test.py.trs
+/test-suite.log
+/xapian.py
+/xapian_wrap.cc
+/xapian_wrap.d
+/xapian_wrap.h
+/xapian_wrap.stamp

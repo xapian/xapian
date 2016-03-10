@@ -1,5 +1,6 @@
 .deps
 .libs
+/.common.git
 Makefile
 Makefile.in
 aclocal.m4

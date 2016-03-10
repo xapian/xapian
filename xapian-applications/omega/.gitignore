@@ -20,6 +20,8 @@
 /stamp-h1
 /stamp-h.in
 /test-driver
+/test-suite.log
+/.common.git
 /.deps
 /portability/.deps/
 /.libs
@@ -30,9 +32,12 @@
 /omindex
 /omindex-list
 /scriptindex
+/atomparsetest
 /csvesctest
 /htmlparsetest
+/jsonesctest
 /md5test
+/urlenctest
 /utf8converttest
 /*test.log
 /*test.trs
