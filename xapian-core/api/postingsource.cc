@@ -239,7 +239,7 @@ double
 ValueWeightPostingSource::get_weight() const
 {
     Assert(!at_end());
-    Assert(real_started);
+    Assert(get_started());
     return sortable_unserialise(get_value());
 }
 

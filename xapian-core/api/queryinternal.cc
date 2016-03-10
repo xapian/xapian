@@ -1052,8 +1052,9 @@ QueryBranch::get_length() const XAPIAN_NOEXCEPT
     Xapian::termcount result = 0;
     QueryVector::const_iterator i;
     for (i = subqueries.begin(); i != subqueries.end(); ++i) {
-	// MatchNothing subqueries should have been removed by done().
-	Assert((*i).internal.get());
+	// MatchNothing subqueries should have been removed by done(), but we
+	// can't use Assert in a XAPIAN_NOEXCEPT function.  But we'll get a
+	// segfault anyway.
 	result += (*i).internal->get_length();
     }
     return result;
