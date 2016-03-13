@@ -70,7 +70,10 @@ PL2Weight::init(double)
     double base_change(1.0 / log(2.0));
     double mean = double(get_collection_freq()) / get_collection_size();
     P1 = mean * base_change + 0.5 * log2(2.0 * M_PI);
-    P2 = log2(mean) + base_change;
+    // If the get_collection_freq() is comparable with get_collection_size()
+    // or mean >= 1/e than P2 will be positive and can lead to a negative
+    // weight, hence take P2 >=0
+    P2 = (mean < (1/2.71828))?(log2(mean) + base_change):0;
 
     double wdfn_lower = log2(1 + cl / get_doclength_upper_bound());
     double wdfn_upper =
