@@ -176,6 +176,6 @@ BUILT_SOURCES += docs/index.html
 
 docs/index.html: Xapian.pm
 	$(MKDIR_P) docs
-	pod2html Xapian.pm > docs/index.html
+	pod2html --podpath=. Xapian.pm > docs/index.html
 	rm -f pod2htm?.tmp
 endif
