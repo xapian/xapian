@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2004,2005,2008,2009,2011,2012,2013,2014,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -192,7 +192,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 		failure("item ends outside block", n, c);
 	    total_free -= kt_len;
 
-	    if (c > significant_c && LeafItem(p, c - D2).key() >= item.key())
+	    if (c > significant_c && compare(LeafItem(p, c - D2), item) >= 0)
 		failure("not in sorted order", n, c);
 	}
     } else {
@@ -209,7 +209,7 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 		failure("item ends outside block", n, c);
 	    total_free -= kt_len;
 
-	    if (c > significant_c && BItem(p, c - D2).key() >= item.key())
+	    if (c > significant_c && compare(BItem(p, c - D2), item) >= 0)
 		failure("not in sorted order", n, c);
 	}
     }
@@ -228,14 +228,14 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 	 * >= the key of p, c: */
 
 	if (j == 1 && c > DIR_START)
-	    if (LeafItem(q, DIR_START).key() < BItem(p, c).key())
+	    if (compare(LeafItem(q, DIR_START), BItem(p, c)) < 0)
 		failure("leaf key < left dividing key in level above", n, c);
 
 	/* if j > 1, and c > DIR_START, the second key of level j - 1 must be
 	 * >= the key of p, c: */
 
 	if (j > 1 && c > DIR_START && DIR_END(q) > DIR_START + D2 &&
-	    BItem(q, DIR_START + D2).key() < BItem(p, c).key())
+	    compare(BItem(q, DIR_START + D2), BItem(p, c)) < 0)
 	    failure("key < left dividing key in level above", n, c);
 
 	/* the last key of level j - 1 must be < the key of p, c + D2, if c +
@@ -243,10 +243,10 @@ GlassTableCheck::block_check(Glass::Cursor * C_, int j, int opts,
 
 	if (c + D2 < dir_end) {
 	    if (j == 1) {
-		if (LeafItem(q, DIR_END(q) - D2).key() >= BItem(p, c + D2).key())
+		if (compare(LeafItem(q, DIR_END(q) - D2), BItem(p, c + D2)) >= 0)
 		    failure("leaf key >= right dividing key in level above", n, c);
 	    } else if (DIR_START + D2 < DIR_END(q)) {
-		if (BItem(q, DIR_END(q) - D2).key() >= BItem(p, c + D2).key())
+		if (compare(BItem(q, DIR_END(q) - D2), BItem(p, c + D2)) >= 0)
 		    failure("key >= right dividing key in level above", n, c);
 	    }
 	}

@@ -403,7 +403,7 @@ GlassTable::alter()
     }
 }
 
-/** find_in_leaf(p, key, c) searches for the key in the leaf block at p.
+/** find_in_leaf(p, key, c, exact) searches for the key in the leaf block at p.
 
    What we get is the directory entry to the last key <= the key being searched
    for.
@@ -412,12 +412,14 @@ GlassTable::alter()
    right ends of the search area. In sequential addition, c will often
    be the answer, so we test the keys round c and move i and j towards
    c if possible.
+
+   exact is set to true if the match was exact (otherwise exact is unchanged).
 */
 
 int
-GlassTable::find_in_leaf(const byte * p, Key key, int c)
+GlassTable::find_in_leaf(const byte * p, LeafItem item, int c, bool& exact)
 {
-    LOGCALL_STATIC(DB, int, "GlassTable::find_in_leaf", (const void*)p | (const void *)key.get_address() | c);
+    LOGCALL_STATIC(DB, int, "GlassTable::find_in_leaf", (const void*)p | (const void *)item.get_address() | c | Literal("bool&"));
     // c should be odd (either -1, or an even offset from DIR_START).
     Assert((c & 1) == 1);
     int i = DIR_START;
@@ -428,26 +430,46 @@ GlassTable::find_in_leaf(const byte * p, Key key, int c)
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c && LeafItem(p, c).key() <= key)
-	    i = c;
+	if (c < j && i < c) {
+	    int r = compare(LeafItem(p, c), item);
+	    if (r == 0) {
+		exact = true;
+		return c;
+	    }
+	    if (r < 0) i = c;
+	}
 	c += D2;
-	if (c < j && i < c && key < LeafItem(p, c).key())
-	    j = c;
+	if (c < j && i < c) {
+	    int r = compare(item, LeafItem(p, c));
+	    if (r == 0) {
+		exact = true;
+		return c;
+	    }
+	    if (r < 0) j = c;
+	}
     }
 
     while (j - i > D2) {
-	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
-	if (key < LeafItem(p, k).key()) j = k; else i = k;
+	int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
+	int r = compare(item, LeafItem(p, k));
+	if (r < 0) {
+	    j = k;
+	} else {
+	    i = k;
+	    if (r == 0) {
+		exact = true;
+		break;
+	    }
+	}
     }
     AssertRel(DIR_START - D2,<=,i);
     AssertRel(i,<,DIR_END(p));
     RETURN(i);
 }
 
-int
-GlassTable::find_in_branch(const byte * p, Key key, int c)
+template<typename ITEM> int
+find_in_branch_(const byte * p, ITEM item, int c)
 {
-    LOGCALL_STATIC(DB, int, "GlassTable::find_in_branch", (const void*)p | (const void *)key.get_address() | c);
     // c should be odd (either -1, or an even offset from DIR_START).
     Assert((c & 1) == 1);
     int i = DIR_START;
@@ -457,20 +479,46 @@ GlassTable::find_in_branch(const byte * p, Key key, int c)
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c && BItem(p, c).key() <= key)
-	    i = c;
+	if (c < j && i < c) {
+	    int r = compare(BItem(p, c), item);
+	    if (r == 0) return c;
+	    if (r < 0) i = c;
+	}
 	c += D2;
-	if (c < j && i < c && key < BItem(p, c).key())
-	    j = c;
+	if (c < j && i < c) {
+	    int r = compare(item, BItem(p, c));
+	    if (r == 0) return c;
+	    if (r < 0) j = c;
+	}
     }
 
     while (j - i > D2) {
-	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
-	if (key < BItem(p, k).key()) j = k; else i = k;
+	int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
+	int r = compare(item, BItem(p, k));
+	if (r < 0) {
+	    j = k;
+	} else {
+	    i = k;
+	    if (r == 0) break;
+	}
     }
     AssertRel(DIR_START,<=,i);
     AssertRel(i,<,DIR_END(p));
-    RETURN(i);
+    return i;
+}
+
+int
+GlassTable::find_in_branch(const byte * p, LeafItem item, int c)
+{
+    LOGCALL_STATIC(DB, int, "GlassTable::find_in_branch", (const void*)p | (const void *)item.get_address() | c);
+    RETURN(find_in_branch_(p, item, c));
+}
+
+int
+GlassTable::find_in_branch(const byte * p, BItem item, int c)
+{
+    LOGCALL_STATIC(DB, int, "GlassTable::find_in_branch", (const void*)p | (const void *)item.get_address() | c);
+    RETURN(find_in_branch_(p, item, c));
 }
 
 /** find(C_) searches for the key of B->kt in the B-tree.
@@ -487,10 +535,9 @@ GlassTable::find(Glass::Cursor * C_) const
     // Note: the parameter is needed when we're called by GlassCursor
     const byte * p;
     int c;
-    Key key = kt.key();
     for (int j = level; j > 0; --j) {
 	p = C_[j].get_p();
-	c = find_in_branch(p, key, C_[j].c);
+	c = find_in_branch(p, kt, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in GlassTable:find - code position 1");
 	report_block_full(j, C_[j].get_n(), p);
@@ -499,14 +546,14 @@ GlassTable::find(Glass::Cursor * C_) const
 	block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
     }
     p = C_[0].get_p();
-    c = find_in_leaf(p, key, C_[0].c);
+    bool exact = false;
+    c = find_in_leaf(p, kt, C_[0].c, exact);
 #ifdef BTREE_DEBUG_FULL
     printf("Block in GlassTable:find - code position 2");
     report_block_full(0, C_[0].get_n(), p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
-    if (c < DIR_START) RETURN(false);
-    RETURN(LeafItem(p, c).key() == key);
+    RETURN(exact);
 }
 
 /** compact(p) compact the block at p by shuffling all the items up to the end.
@@ -581,12 +628,12 @@ GlassTable::split_root(uint4 split_n)
     add_branch_item(item, level);
 }
 
-/** enter_key_above_leaf(prevkey, newkey) is called after a leaf block split.
+/** enter_key_above_leaf(previtem, newitem) is called after a leaf block split.
 
    It enters in the block at level C[1] a separating key for the block
-   at level C[0]. The key itself is newkey. prevkey is the
-   preceding key, and at level 1 newkey can be trimmed down to the
-   first point of difference to prevkey for entry in C[j].
+   at level C[0]. The key itself is newitem.key(). previtem is the
+   preceding item, and at level 1 newitem.key() can be trimmed down to the
+   first point of difference to previtem.key() for entry in C[j].
 
    This code looks longer than it really is. If j exceeds the number
    of B-tree levels the root block has split and we have to construct
@@ -597,11 +644,15 @@ GlassTable::split_root(uint4 split_n)
    block split, with a further call to enter_key. Hence the recursion.
 */
 void
-GlassTable::enter_key_above_leaf(Key prevkey, Key newkey)
+GlassTable::enter_key_above_leaf(LeafItem previtem, LeafItem newitem)
 {
-    LOGCALL_VOID(DB, "GlassTable::enter_key_above_leaf", Literal("prevkey") | Literal("newkey"));
+    LOGCALL_VOID(DB, "GlassTable::enter_key_above_leaf", Literal("previtem") | Literal("newitem"));
     Assert(writable);
-    Assert(prevkey < newkey);
+    Assert(compare(previtem, newitem) < 0);
+
+    Key prevkey = previtem.key();
+    Key newkey = newitem.key();
+    int new_comp = newitem.component_of();
 
     uint4 blocknumber = C[0].get_n();
 
@@ -625,11 +676,11 @@ GlassTable::enter_key_above_leaf(Key prevkey, Key newkey)
     byte b[BYTES_PER_BLOCK_NUMBER + K1 + 255 + X2];
     BItem_wr item(b);
     AssertRel(i, <=, 255);
-    item.set_key_and_block(newkey, i, blocknumber);
+    item.set_truncated_key_and_block(newkey, new_comp, i, blocknumber);
 
     // The split block gets inserted into the parent after the pointer to the
     // current child.
-    AssertEq(C[1].c, find_in_branch(C[1].get_p(), item.key(), C[1].c));
+    AssertEq(C[1].c, find_in_branch(C[1].get_p(), item, C[1].c));
     C[1].c += D2;
     C[1].rewrite = true; /* a subtle point: this *is* required. */
     add_branch_item(item, 1);
@@ -649,9 +700,9 @@ GlassTable::enter_key_above_leaf(Key prevkey, Key newkey)
    block split, with a further call to enter_key. Hence the recursion.
 */
 void
-GlassTable::enter_key_above_branch(int j, Key newkey)
+GlassTable::enter_key_above_branch(int j, BItem newitem)
 {
-    LOGCALL_VOID(DB, "GlassTable::enter_key_above_branch", j | Literal("newkey"));
+    LOGCALL_VOID(DB, "GlassTable::enter_key_above_branch", j | Literal("newitem"));
     Assert(writable);
     AssertRel(j,>,1);
 
@@ -662,18 +713,14 @@ GlassTable::enter_key_above_branch(int j, Key newkey)
 
     uint4 blocknumber = C[j - 1].get_n();
 
-    const int newkey_len = newkey.length();
-    AssertRel(newkey_len,>,0);
-
     // Enough space for a branch item with maximum length key.
     byte b[BYTES_PER_BLOCK_NUMBER + K1 + 255 + X2];
     BItem_wr item(b);
-    AssertRel(newkey_len, <=, 255);
-    item.set_key_and_block(newkey, newkey_len, blocknumber);
+    item.set_key_and_block(newitem.key(), blocknumber);
 
     // The split block gets inserted into the parent after the pointer to the
     // current child.
-    AssertEq(C[j].c, find_in_branch(C[j].get_p(), item.key(), C[j].c));
+    AssertEq(C[j].c, find_in_branch(C[j].get_p(), item, C[j].c));
     C[j].c += D2;
     C[j].rewrite = true; /* a subtle point: this *is* required. */
     add_branch_item(item, j);
@@ -721,7 +768,7 @@ GlassTable::mid_point(byte * p)
 */
 
 void
-GlassTable::add_item_to_leaf(byte * p, LeafItem_wr kt_, int c)
+GlassTable::add_item_to_leaf(byte * p, LeafItem kt_, int c)
 {
     LOGCALL_VOID(DB, "GlassTable::add_item_to_leaf", (void*)p | Literal("kt_") | c);
     Assert(writable);
@@ -761,7 +808,7 @@ GlassTable::add_item_to_leaf(byte * p, LeafItem_wr kt_, int c)
 */
 
 void
-GlassTable::add_item_to_branch(byte * p, BItem_wr kt_, int c)
+GlassTable::add_item_to_branch(byte * p, BItem kt_, int c)
 {
     LOGCALL_VOID(DB, "GlassTable::add_item_to_branch", (void*)p | Literal("kt_") | c);
     Assert(writable);
@@ -797,7 +844,7 @@ GlassTable::add_item_to_branch(byte * p, BItem_wr kt_, int c)
  *  added to the appropriate half.
  */
 void
-GlassTable::add_leaf_item(LeafItem_wr kt_)
+GlassTable::add_leaf_item(LeafItem kt_)
 {
     LOGCALL_VOID(DB, "GlassTable::add_leaf_item", Literal("kt_"));
     Assert(writable);
@@ -868,9 +915,8 @@ GlassTable::add_leaf_item(LeafItem_wr kt_)
 
 	/* Enter a separating key at level 1 between */
 	/* the last key of block split_p, and the first key of block p */
-	enter_key_above_leaf(
-		  LeafItem(split_p, DIR_END(split_p) - D2).key(),
-		  LeafItem(p, DIR_START).key());
+	enter_key_above_leaf(LeafItem(split_p, DIR_END(split_p) - D2),
+			     LeafItem(p, DIR_START));
     } else {
 	AssertRel(TOTAL_FREE(p),>=,needed);
 
@@ -893,7 +939,7 @@ GlassTable::add_leaf_item(LeafItem_wr kt_)
  *  added to the appropriate half.
  */
 void
-GlassTable::add_branch_item(BItem_wr kt_, int j)
+GlassTable::add_branch_item(BItem kt_, int j)
 {
     LOGCALL_VOID(DB, "GlassTable::add_branch_item", Literal("kt_") | j);
     Assert(writable);
@@ -961,7 +1007,7 @@ GlassTable::add_branch_item(BItem_wr kt_, int j)
 
 	/* Enter a separating key at level j + 1 between */
 	/* the last key of block split_p, and the first key of block p */
-	enter_key_above_branch(j + 1, BItem(p, DIR_START).key());
+	enter_key_above_branch(j + 1, BItem(p, DIR_START));
 
 	// In branch levels, we can make the first key of block p null and
 	// save a bit of disk space.  Other redundant keys will still creep
@@ -1399,12 +1445,11 @@ GlassTable::readahead_key(const string &key) const
 	RETURN(false);
 
     form_key(key);
-    Key ktkey = kt.key();
 
     // We'll only readahead the first level, since descending the B-tree would
     // require actual reads that would likely hurt performance more than help.
     const byte * p = C[level].get_p();
-    int c = find_in_branch(p, ktkey, C[level].c);
+    int c = find_in_branch(p, kt, C[level].c);
     uint4 n = BItem(p, c).block_given_by();
     // Don't preread if it's the block we last preread or already in the
     // cursor.
@@ -2138,53 +2183,4 @@ void
 GlassTable::throw_database_closed()
 {
     throw Xapian::DatabaseError("Database has been closed");
-}
-
-/** Compares this key with key2.
-
-   The result is true if this key precedes key2. The comparison is for byte
-   sequence collating order, taking lengths into account. So if the keys are
-   made up of lower case ASCII letters we get alphabetical ordering.
-
-   Now remember that items are added into the B-tree in fastest time
-   when they are preordered by their keys. This is therefore the piece
-   of code that needs to be followed to arrange for the preordering.
-
-   This is complicated by the fact that keys have two parts - a value
-   and then a count.  We first compare the values, and only if they
-   are equal do we compare the counts.
-*/
-
-bool Key::operator<(Key key2) const
-{
-    LOGCALL(DB, bool, "Key::operator<", static_cast<const void*>(key2.p));
-    int key1_len = length();
-    int key2_len = key2.length();
-    if (key1_len == key2_len) {
-	// The keys are the same length, so we can compare the counts
-	// in the same operation since they're stored as 2 byte
-	// bigendian numbers.
-	RETURN(memcmp(p + K1, key2.p + K1, key1_len + X2) < 0);
-    }
-
-    int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
-
-    // Compare the common part of the keys
-    int diff = memcmp(p + K1, key2.p + K1, k_smaller);
-    if (diff != 0) RETURN(diff < 0);
-
-    // We dealt with the "same length" case above so we never need to check
-    // the count here.
-    RETURN(key1_len < key2_len);
-}
-
-bool Key::operator==(Key key2) const
-{
-    LOGCALL(DB, bool, "Key::operator==", static_cast<const void*>(key2.p));
-    int key1_len = length();
-    if (key1_len != key2.length()) RETURN(false);
-    // The keys are the same length, so we can compare the counts
-    // in the same operation since they're stored as 2 byte
-    // bigendian numbers.
-    RETURN(memcmp(p + K1, key2.p + K1, key1_len + X2) == 0);
 }

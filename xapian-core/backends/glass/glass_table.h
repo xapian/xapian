@@ -122,7 +122,12 @@
 // The item size is stored in 2 bytes, but the top bit is used to store a flag for
 // "is the tag data compressed" and the next bit is used to flag if this is the
 // last item for this tag.
-#define MAX_ITEM_SIZE 0x3fff
+#define I_COMPRESSED_BIT 0x80
+#define I_LAST_BIT 0x40
+
+#define I_MASK (I_COMPRESSED_BIT|I_LAST_BIT)
+
+#define MAX_ITEM_SIZE (0xffff &~ (I_MASK << 8))
 
 /** Freelist blocks have their level set to LEVEL_FREELIST. */
 const int LEVEL_FREELIST = 254;
@@ -136,15 +141,10 @@ class Key {
 public:
     explicit Key(const byte * p_) : p(p_) { }
     const byte * get_address() const { return p; }
+    const byte * data() const { return p + K1; }
     void read(std::string * key) const {
 	key->assign(reinterpret_cast<const char *>(p + K1), length());
     }
-    bool operator==(Key key2) const;
-    bool operator!=(Key key2) const { return !(*this == key2); }
-    bool operator<(Key key2) const;
-    bool operator>=(Key key2) const { return !(*this < key2); }
-    bool operator>(Key key2) const { return key2 < *this; }
-    bool operator<=(Key key2) const { return !(key2 < *this); }
     int length() const {
 	return getint1(p, 0);
     }
@@ -174,9 +174,9 @@ public:
 	AssertRel(item_size,>=,3);
 	return item_size;
     }
-    bool get_compressed() const { return *p & 0x80; }
+    bool get_compressed() const { return *p & I_COMPRESSED_BIT; }
     bool first_component() const { return component_of() == 1; }
-    bool last_component() const { return !(*p & 0x40); }
+    bool last_component() const { return *p & I_LAST_BIT; }
     int component_of() const {
 	return getX(p, getK(p, I2) + I2 + K1);
     }
@@ -244,15 +244,17 @@ public:
     void set_tag(int cd, const char *start, int len, bool compressed, int i, int m) {
 	std::memmove(p + cd, start, len);
 	set_size(cd + len);
-	if (compressed) *p |= 0x80;
-	if (i != m) *p |= 0x40;
+	if (compressed) *p |= I_COMPRESSED_BIT;
+	if (i == m) *p |= I_LAST_BIT;
 	set_component_of(i);
     }
     void fake_root_item() {
 	set_key_len(0);   // null key length
 	set_size(I2 + K1 + X2);   // length of the item
+	*p |= I_LAST_BIT;
 	set_component_of(1);
     }
+    operator const LeafItem() const { return LeafItem(p); }
 };
 
 /* A branch item has this form:
@@ -290,6 +292,9 @@ public:
     uint4 block_given_by() const {
 	return getint4(p, 0);
     }
+    int component_of() const {
+	return getX(p, getK(p, BYTES_PER_BLOCK_NUMBER) + BYTES_PER_BLOCK_NUMBER + K1);
+    }
 };
 
 class BItem : public BItem_base<const byte *> {
@@ -310,19 +315,24 @@ public:
     void set_component_of(int i) {
 	setX(p, getK(p, BYTES_PER_BLOCK_NUMBER) + BYTES_PER_BLOCK_NUMBER + K1, i);
     }
+    void set_key_and_block(Key newkey, uint4 n) {
+	int len = newkey.length() + K1 + X2;
+	// Copy the key size, main part of the key and the count part.
+	std::memcpy(p + BYTES_PER_BLOCK_NUMBER, newkey.get_address(), len);
+	// Set tag contents to block number
+	set_block_given_by(n);
+    }
     // Takes size as we may be truncating newkey.
-    void set_key_and_block(Key newkey, int truncate_size, uint4 n) {
+    void set_truncated_key_and_block(Key newkey, int new_comp,
+				     int truncate_size, uint4 n) {
 	int i = truncate_size;
-	// Read the length now because we may be copying the key over itself.
-	// FIXME that's stupid!  sort this out
-	int newkey_len = newkey.length();
-	AssertRel(i,<=,newkey_len);
+	AssertRel(i,<=,newkey.length());
 	// Key size
 	set_key_len(i);
 	// Copy the main part of the key, possibly truncating.
-	std::memmove(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.get_address() + K1, i);
-	// Copy the count part.
-	std::memmove(p + BYTES_PER_BLOCK_NUMBER + K1 + i, newkey.get_address() + K1 + newkey_len, X2);
+	std::memcpy(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.data(), i);
+	// Set the component count.
+	setX(p, BYTES_PER_BLOCK_NUMBER + K1 + i, new_comp);
 	// Set tag contents to block number
 	set_block_given_by(n);
     }
@@ -340,6 +350,7 @@ public:
 	set_key_len(0);        /* null key */
 	set_component_of(0);
     }
+    operator const BItem() const { return BItem(p); }
 };
 
 }
@@ -681,13 +692,13 @@ class GlassTable {
 	void block_to_cursor(Glass::Cursor *C_, int j, uint4 n) const;
 	void alter();
 	void compact(byte *p);
-	void enter_key_above_leaf(Glass::Key prevkey, Glass::Key newkey);
-	void enter_key_above_branch(int j, Glass::Key newkey);
+	void enter_key_above_leaf(Glass::LeafItem previtem, Glass::LeafItem newitem);
+	void enter_key_above_branch(int j, Glass::BItem newitem);
 	int mid_point(byte *p);
-	void add_item_to_leaf(byte *p, Glass::LeafItem_wr kt, int c);
-	void add_item_to_branch(byte *p, Glass::BItem_wr kt, int c);
-	void add_leaf_item(Glass::LeafItem_wr kt);
-	void add_branch_item(Glass::BItem_wr kt, int j);
+	void add_item_to_leaf(byte *p, Glass::LeafItem kt, int c);
+	void add_item_to_branch(byte *p, Glass::BItem kt, int c);
+	void add_leaf_item(Glass::LeafItem kt);
+	void add_branch_item(Glass::BItem kt, int j);
 	void delete_leaf_item(bool repeatedly);
 	void delete_branch_item(int j);
 	int add_kt(bool found);
@@ -811,8 +822,9 @@ class GlassTable {
 	bool prev_for_sequential(Glass::Cursor *C_, int dummy) const;
 	bool next_for_sequential(Glass::Cursor *C_, int dummy) const;
 
-	static int find_in_leaf(const byte * p, Glass::Key key, int c);
-	static int find_in_branch(const byte * p, Glass::Key key, int c);
+	static int find_in_leaf(const byte * p, Glass::LeafItem item, int c, bool& exact);
+	static int find_in_branch(const byte * p, Glass::LeafItem item, int c);
+	static int find_in_branch(const byte * p, Glass::BItem item, int c);
 
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
@@ -845,5 +857,54 @@ class GlassTable {
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);
 };
+
+namespace Glass {
+
+/** Compare two items by their keys.
+
+   The result is negative if a precedes b, positive is b precedes a, and
+   0 if a and b are equal.  The comparison is for byte sequence collating
+   order, taking lengths into account. So if the keys are made up of lower case
+   ASCII letters we get alphabetical ordering.
+
+   Now remember that items are added into the B-tree in fastest time
+   when they are preordered by their keys. This is therefore the piece
+   of code that needs to be followed to arrange for the preordering.
+
+   Note that keys have two parts - a string value and a "component_of" count.
+   If the string values are equal, the comparison is made based on
+   "component_of".
+*/
+
+template<typename ITEM1, typename ITEM2> int compare(ITEM1 a, ITEM2 b)
+{
+    Key key1 = a.key();
+    Key key2 = b.key();
+    const byte* p1 = key1.data();
+    const byte* p2 = key2.data();
+    int key1_len = key1.length();
+    int key2_len = key2.length();
+    if (key1_len == key2_len) {
+	// The keys are the same length, so we can compare the counts in the
+	// same operation since they're stored as 2 byte bigendian numbers.
+	int len = key1_len + X2;
+	int r = std::memcmp(p1, p2, len);
+	return r;
+    }
+
+    int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
+
+    // Compare the common part of the keys
+    int diff = std::memcmp(p1, p2, k_smaller);
+    if (diff != 0) {
+	return diff;
+    }
+
+    // We dealt with the "same length" case above so we never need to check
+    // the count here.
+    return key1_len - key2_len;
+}
+
+}
 
 #endif /* OM_HGUARD_GLASS_TABLE_H */
