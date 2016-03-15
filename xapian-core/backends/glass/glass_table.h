@@ -226,9 +226,9 @@ public:
 	*p &=~ I_FIRST_BIT;
 	setX(p, getK(p, I2) + I2 + K1, i);
     }
-    void set_size(int size) {
-	AssertRel(size,>=,3);
-	int I = size - 3;
+    void set_size(int new_size) {
+	AssertRel(new_size,>=,3);
+	int I = new_size - 3;
 	// We should never be able to pass too large a size here, but don't
 	// corrupt the database if this somehow happens.
 	if (rare(I &~ ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
