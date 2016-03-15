@@ -97,6 +97,8 @@
                ←K→
            <------I---->
 
+   Except that X is omitted for the first component of a tag (there is a flag
+   bit in the upper bits of I which indicates these).
 
    item_of(p, c) returns i, the address of the item at block address p,
    directory offset c,
@@ -120,12 +122,13 @@
 #define SET_DIR_END(b, x)       setint2(b, 9, x)
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag for
-// "is the tag data compressed" and the next bit is used to flag if this is the
-// last item for this tag.
+// "is the tag data compressed" and the next two bits are used to flag if this is the
+// first and/or last item for this tag.
 #define I_COMPRESSED_BIT 0x80
 #define I_LAST_BIT 0x40
+#define I_FIRST_BIT 0x20
 
-#define I_MASK (I_COMPRESSED_BIT|I_LAST_BIT)
+#define I_MASK (I_COMPRESSED_BIT|I_LAST_BIT|I_FIRST_BIT)
 
 #define MAX_ITEM_SIZE (0xffff &~ (I_MASK << 8))
 
@@ -175,22 +178,27 @@ public:
 	return item_size;
     }
     bool get_compressed() const { return *p & I_COMPRESSED_BIT; }
-    bool first_component() const { return component_of() == 1; }
+    bool first_component() const { return *p & I_FIRST_BIT; }
     bool last_component() const { return *p & I_LAST_BIT; }
     int component_of() const {
+	if (first_component()) return 1;
 	return getX(p, getK(p, I2) + I2 + K1);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(std::string * tag) const {
-	/* number of bytes to extract from current component */
-	int cd = getK(p, I2) + I2 + K1 + X2;
+	// Offset to the start of the tag data.
+	int cd = getK(p, I2) + I2 + K1;
+	if (!first_component()) cd += X2;
+	// Number of bytes to extract from current component.
 	int l = size() - cd;
 	const char * chunk = reinterpret_cast<const char *>(p + cd);
 	tag->append(chunk, l);
     }
     bool decompress_chunk(CompressionStream& comp_stream, string& tag) const {
-	/* number of bytes to extract from current component */
-	int cd = getK(p, I2) + I2 + K1 + X2;
+	// Offset to the start of the tag data.
+	int cd = getK(p, I2) + I2 + K1;
+	if (!first_component()) cd += X2;
+	// Number of bytes to extract from current component.
 	int l = size() - cd;
 	const char * chunk = reinterpret_cast<const char *>(p + cd);
 	return comp_stream.decompress_chunk(chunk, l, tag);
@@ -214,6 +222,8 @@ public:
     LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
     LeafItem_wr(byte * p_) : LeafItem_base<byte *>(p_) { }
     void set_component_of(int i) {
+	AssertRel(i,>,1);
+	*p &=~ I_FIRST_BIT;
 	setX(p, getK(p, I2) + I2 + K1, i);
     }
     void set_size(int l) {
@@ -238,7 +248,7 @@ public:
 
 	set_key_len(key_len);
 	std::memmove(p + I2 + K1, key_.data(), key_len);
-	set_component_of(1);
+	*p |= I_FIRST_BIT;
     }
     // FIXME passing cd here is icky
     void set_tag(int cd, const char *start, int len, bool compressed, int i, int m) {
@@ -246,13 +256,16 @@ public:
 	set_size(cd + len);
 	if (compressed) *p |= I_COMPRESSED_BIT;
 	if (i == m) *p |= I_LAST_BIT;
-	set_component_of(i);
+	if (i == 1) {
+	    *p |= I_FIRST_BIT;
+	} else {
+	    set_component_of(i);
+	}
     }
     void fake_root_item() {
 	set_key_len(0);   // null key length
-	set_size(I2 + K1 + X2);   // length of the item
-	*p |= I_LAST_BIT;
-	set_component_of(1);
+	set_size(I2 + K1);   // length of the item
+	*p |= I_FIRST_BIT|I_LAST_BIT;
     }
     operator const LeafItem() const { return LeafItem(p); }
 };
@@ -266,6 +279,9 @@ public:
              <----I---->
 
 	     B = BYTES_PER_BLOCK_NUMBER
+
+   We can't omit X here, as we've nowhere to store the first and last bit
+   flags which we have in leaf items.
 */
 
 // BItem_wr wants to be "BItem with non-const p and more methods" - we can't
@@ -330,7 +346,7 @@ public:
 	// Key size
 	set_key_len(i);
 	// Copy the main part of the key, possibly truncating.
-	std::memcpy(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.data(), i);
+	std::memcpy(p + BYTES_PER_BLOCK_NUMBER + K1, newkey.get_address() + K1, i);
 	// Set the component count.
 	setX(p, BYTES_PER_BLOCK_NUMBER + K1 + i, new_comp);
 	// Set tag contents to block number
@@ -876,7 +892,37 @@ namespace Glass {
    "component_of".
 */
 
-template<typename ITEM1, typename ITEM2> int compare(ITEM1 a, ITEM2 b)
+template<typename ITEM1, typename ITEM2>
+int compare(ITEM1 a, ITEM2 b)
+{
+    Key key1 = a.key();
+    Key key2 = b.key();
+    const byte* p1 = key1.data();
+    const byte* p2 = key2.data();
+    int key1_len = key1.length();
+    int key2_len = key2.length();
+    int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
+
+    // Compare the common part of the keys.
+    int diff = std::memcmp(p1, p2, k_smaller);
+    if (diff == 0) {
+	// If the common part matches, compare the lengths.
+	diff = key1_len - key2_len;
+	if (diff == 0) {
+	    // If the strings match, compare component_of().
+	    diff = a.component_of() - b.component_of();
+	}
+    }
+    return diff;
+}
+
+/** Compare two BItem objects by their keys.
+ *
+ *  Specialisation for comparing two BItems, where component_of is always
+ *  explicitly stored.
+ */
+inline int
+compare(BItem a, BItem b)
 {
     Key key1 = a.key();
     Key key2 = b.key();
@@ -888,21 +934,20 @@ template<typename ITEM1, typename ITEM2> int compare(ITEM1 a, ITEM2 b)
 	// The keys are the same length, so we can compare the counts in the
 	// same operation since they're stored as 2 byte bigendian numbers.
 	int len = key1_len + X2;
-	int r = std::memcmp(p1, p2, len);
-	return r;
+	return std::memcmp(p1, p2, len);
     }
 
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
 
-    // Compare the common part of the keys
+    // Compare the common part of the keys.
     int diff = std::memcmp(p1, p2, k_smaller);
-    if (diff != 0) {
-	return diff;
+    if (diff == 0) {
+	// If the common part matches, compare the lengths.
+	diff = key1_len - key2_len;
+	// We dealt with the "same length" case above so we never need to check
+	// component_of here.
     }
-
-    // We dealt with the "same length" case above so we never need to check
-    // the count here.
-    return key1_len - key2_len;
+    return diff;
 }
 
 }

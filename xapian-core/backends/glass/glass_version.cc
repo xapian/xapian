@@ -49,8 +49,8 @@
 using namespace std;
 
 /// Glass format version (date of change):
-#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2016,02,28)
-// 2016,02,28 1.3.5 compress_min in version file
+#define GLASS_FORMAT_VERSION DATE_TO_VERSION(2016,03,14)
+// 2016,03,14 1.3.5 compress_min in version file; partly eliminate component_of
 // 2015,12,24 1.3.4 2 bytes "components_of" per item eliminated, and much more
 // 2014,11,21 1.3.2 Brass renamed to Glass
 

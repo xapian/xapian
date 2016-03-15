@@ -1309,9 +1309,13 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     // sort of matching kt.append_chunk(), but setting the chunk
     const size_t cd = kt.key().length() + K1 + I2 + X2;  // offset to the tag data
     const size_t L = max_item_size - cd; // largest amount of tag data for any chunk
-    size_t first_L = L;                  // - amount for tag1
+    size_t first_L = L + X2;             // - amount for tag1 (we don't store X there)
     bool found = find(C);
-    if (!found) {
+    if (tag_size <= first_L) {
+	// The whole tag clearly fits in one item, so no need to make this
+	// complicated.
+	first_L = tag_size;
+    } else if (!found) {
 	const byte * p = C[0].get_p();
 	size_t n = TOTAL_FREE(p) % (max_item_size + D2);
 	if (n > D2 + cd) {
@@ -1328,18 +1332,17 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
 	    // seems to save about 0.2% in total database size over always
 	    // splitting the tag.  It'll also give be slightly faster retrieval
 	    // as we can avoid reading an extra block occasionally.
-	    size_t last = tag_size % L;
+	    size_t last = (tag_size - X2) % L;
 	    if (n >= last || (full_compaction && n >= key.size() + 34)) {
 		// first_L < max_item_size + D2 - D2 - cd
 		// Total size of first item = cd + first_L < max_item_size
-		first_L = n;
+		first_L = n + X2;
 	    }
 	}
     }
 
-    // a null tag must be added in of course
-    int m = (tag_size == 0) ? 1 : (tag_size - first_L + L - 1) / L + 1;
-				      // there are m items to add
+    // There are m items to add.
+    int m = (tag_size - first_L + L - 1) / L + 1;
     /* FIXME: sort out this error higher up and turn this into
      * an assert.
      */
@@ -1353,9 +1356,10 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     int i;
     for (i = 1; i <= m; i++) {
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
-	Assert(cd + l <= block_size);
+	size_t this_cd = (i == 1 ? cd - X2 : cd);
+	Assert(this_cd + l <= block_size);
 	Assert(o + l <= tag_size);
-	kt.set_tag(cd, tag_data + o, l, compressed, i, m);
+	kt.set_tag(this_cd, tag_data + o, l, compressed, i, m);
 
 	o += l;
 	residue -= l;
@@ -1616,7 +1620,7 @@ GlassTable::read_root()
 	 * the same database. */
 	memset(p, 0, block_size);
 
-	int o = block_size - I2 - K1 - X2;
+	int o = block_size - I2 - K1;
 	LeafItem_wr(p + o).fake_root_item();
 
 	setD(p, DIR_START, o);         // its directory entry
