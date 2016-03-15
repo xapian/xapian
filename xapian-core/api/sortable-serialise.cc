@@ -1,7 +1,7 @@
 /** @file sortable-serialise.cc
  * @brief Serialise floating point values to string which sort the same way.
  */
-/* Copyright (C) 2007,2009,2015 Olly Betts
+/* Copyright (C) 2007,2009,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,15 +20,14 @@
 
 #include <config.h>
 
+#include <xapian/queryparser.h>
+
+// Disable these assertions when building the library as these functions are
+// marked not to throw exceptions in the API headers.  In unittest we define
+// UNITTEST_ASSERT_NOTHROW to set a variable to the exception message and
+// return, then the harness checks if that variable has been set.
 #ifndef XAPIAN_UNITTEST
-# include <xapian/queryparser.h>
-// Only enable exceptions for the testsuite - we don't want them in a library
-// build as these functions are marked not to throw exceptions in the API
-// headers.
-# define UNITTEST_ASSERT(X)
-#else
-# include "omassert.h"
-# define UNITTEST_ASSERT(X) Assert(X)
+# define UNITTEST_ASSERT_NOTHROW(COND,RET)
 #endif
 
 #include <cfloat>
@@ -115,13 +114,13 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
      * larger negative exponents should sort first (unless the number is
      * negative, in which case they should sort later).
      */
-    UNITTEST_ASSERT(exponent >= 0);
+    UNITTEST_ASSERT_NOTHROW(exponent >= 0, 0);
     if (exponent < 8) {
 	next ^= 0x20;
 	next |= static_cast<unsigned char>(exponent << 2);
 	if (negative ^ exponent_negative) next ^= 0x1c;
     } else {
-	UNITTEST_ASSERT((exponent >> 11) == 0);
+	UNITTEST_ASSERT_NOTHROW((exponent >> 11) == 0, 0);
 	// Put the top 5 bits of the exponent into the lower 5 bits of the
 	// first byte:
 	next |= static_cast<unsigned char>(exponent >> 6);
@@ -145,7 +144,7 @@ Xapian::sortable_serialise_(double value, char * buf) XAPIAN_NOEXCEPT
     // so we need to store it explicitly.  But for the cost of one extra
     // leading bit, we can save several trailing 0xff bytes in lots of common
     // cases.
-    UNITTEST_ASSERT(negative || (word1 & (1<<26)));
+    UNITTEST_ASSERT_NOTHROW(negative || (word1 & (1<<26)), 0);
     if (negative) {
 	// We negate the mantissa for negative numbers, so that the sort order
 	// is reversed (since larger negative numbers should come first).
@@ -244,7 +243,7 @@ Xapian::sortable_unserialise(const std::string & value) XAPIAN_NOEXCEPT
 	word1 = -word1;
 	if (word2 != 0) ++word1;
 	word2 = -word2;
-	UNITTEST_ASSERT((word1 & 0xf0000000) != 0);
+	UNITTEST_ASSERT_NOTHROW((word1 & 0xf0000000) != 0, 0);
 	word1 &= 0x03ffffff;
     }
     if (!negative) word1 |= 1<<26;

@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2009,2010,2012,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -26,11 +26,29 @@
 #include <cstring>
 #include <iostream>
 
+#define XAPIAN_UNITTEST
+static const char * unittest_assertion_failed = NULL;
+#define UNITTEST_CHECK_EXCEPTION \
+    if (unittest_assertion_failed) { \
+	const char * unittest_assertion_failed_ = unittest_assertion_failed;\
+	unittest_assertion_failed = NULL;\
+	throw unittest_assertion_failed_;\
+    }
+
 #include "testsuite.h"
 
 using namespace std;
 
-#define XAPIAN_UNITTEST
+#define UNITTEST_ASSERT_LOCATION__(LINE,MSG) __FILE__":"#LINE": "#MSG
+#define UNITTEST_ASSERT_LOCATION_(LINE,MSG) UNITTEST_ASSERT_LOCATION__(LINE,MSG)
+#define UNITTEST_ASSERT_LOCATION(MSG) UNITTEST_ASSERT_LOCATION_(__LINE__,MSG)
+#define UNITTEST_ASSERT_NOTHROW(COND, RET) \
+    do {\
+	if (rare(!(COND))) {\
+	    unittest_assertion_failed = UNITTEST_ASSERT_LOCATION(COND);\
+	    return RET;\
+	}\
+    } while (false)
 
 // Utility code we use:
 #include "../common/stringutils.h"
@@ -41,6 +59,7 @@ using namespace std;
     do { \
 	try { \
 	    CODE; \
+	    UNITTEST_CHECK_EXCEPTION \
 	    FAIL_TEST("Expected exception "#TYPE" not thrown"); \
 	} catch (const TYPE &) { \
 	} \
