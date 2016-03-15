@@ -1,7 +1,7 @@
 /** @file errorhandler.h
  * @brief Decide if a Xapian::Error exception should be ignored.
  */
-/* Copyright (C) 2003,2006,2007,2012,2013,2014 Olly Betts
+/* Copyright (C) 2003,2006,2007,2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,7 @@
 
 #include <xapian/attributes.h>
 #include <xapian/deprecated.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -46,7 +47,8 @@ class Error;
  *  also so that such errors can be logged and dead servers temporarily removed
  *  from use).
  */
-class XAPIAN_VISIBILITY_DEFAULT ErrorHandler {
+class XAPIAN_VISIBILITY_DEFAULT ErrorHandler
+    : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
     void operator=(const ErrorHandler &);
 
@@ -92,6 +94,16 @@ class XAPIAN_VISIBILITY_DEFAULT ErrorHandler {
      *  @param error	The Xapian::Error object under consideration.
      */
     void operator()(Xapian::Error &error);
+
+    ErrorHandler * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const ErrorHandler * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 }
