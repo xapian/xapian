@@ -95,7 +95,8 @@
            | |     |
            I K key X tag
                ←K→
-           <------I---->
+           <---SIZE---->
+	       <---I--->
 
    Except that X is omitted for the first component of a tag (there is a flag
    bit in the upper bits of I which indicates these).
@@ -130,7 +131,8 @@
 
 #define I_MASK (I_COMPRESSED_BIT|I_LAST_BIT|I_FIRST_BIT)
 
-#define MAX_ITEM_SIZE (0xffff &~ (I_MASK << 8))
+#define ITEM_SIZE_MASK (0xffff &~ (I_MASK << 8))
+#define GLASS_MAX_ITEM_SIZE (ITEM_SIZE_MASK + 3)
 
 /** Freelist blocks have their level set to LEVEL_FREELIST. */
 const int LEVEL_FREELIST = 254;
@@ -171,11 +173,9 @@ public:
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
     LeafItem_base(T p_) : p(p_) { }
     T get_address() const { return p; }
-    /** I in diagram above. */
+    /** SIZE in diagram above. */
     int size() const {
-	int item_size = getI(p, 0) & MAX_ITEM_SIZE;
-	AssertRel(item_size,>=,3);
-	return item_size;
+	return (getI(p, 0) & ITEM_SIZE_MASK) + 3;
     }
     bool get_compressed() const { return *p & I_COMPRESSED_BIT; }
     bool first_component() const { return *p & I_FIRST_BIT; }
@@ -226,12 +226,13 @@ public:
 	*p &=~ I_FIRST_BIT;
 	setX(p, getK(p, I2) + I2 + K1, i);
     }
-    void set_size(int l) {
-	AssertRel(l,>=,3);
+    void set_size(int size) {
+	AssertRel(size,>=,3);
+	int I = size - 3;
 	// We should never be able to pass too large a size here, but don't
 	// corrupt the database if this somehow happens.
-	if (rare(l &~ MAX_ITEM_SIZE)) throw Xapian::DatabaseError("item too large!");
-	setI(p, 0, l);
+	if (rare(I &~ ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
+	setI(p, 0, I);
     }
     void form_key(const std::string & key_) {
 	std::string::size_type key_len = key_.length();
@@ -276,7 +277,7 @@ public:
                  |     |
              tag K key X
              ←B→   ←K→  
-             <----I---->
+             <--SIZE--->
 
 	     B = BYTES_PER_BLOCK_NUMBER
 
@@ -297,7 +298,7 @@ public:
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
     BItem_base(T p_) : p(p_) { }
     T get_address() const { return p; }
-    /** I in diagram above. */
+    /** SIZE in diagram above. */
     int size() const {
 	return getK(p, BYTES_PER_BLOCK_NUMBER) + K1 + X2 + BYTES_PER_BLOCK_NUMBER;
     }
@@ -679,7 +680,8 @@ class GlassTable {
 	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
 	    // Make sure we don't exceed the limit imposed by the format.
-	    if (max_item_size > MAX_ITEM_SIZE) max_item_size = MAX_ITEM_SIZE;
+	    if (max_item_size > GLASS_MAX_ITEM_SIZE)
+		max_item_size = GLASS_MAX_ITEM_SIZE;
 	}
 
 	/** Set the GlassChanges object to write changed blocks to.
