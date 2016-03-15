@@ -1,7 +1,7 @@
 /** @file pretty.h
  * @brief Convert types to pretty representations
  */
-/* Copyright (C) 2010,2011,2012,2014 Olly Betts
+/* Copyright (C) 2010,2011,2012,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,8 +44,8 @@ struct PrettyOStream {
 
 struct Literal {
     const char * _lit;
-    Literal(const char * lit) : _lit(lit) { }
-    Literal(const std::string & s) : _lit(s.c_str()) { }
+    explicit Literal(const char * lit) : _lit(lit) { }
+    explicit Literal(const std::string & s) : _lit(s.c_str()) { }
 };
 
 /// Default is to output as std::ostream would.
