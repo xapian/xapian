@@ -163,7 +163,7 @@ You can also use runtest to run a test program under gdb (or most other tools):
 ./runtest valgrind ./apitest -v deldoc1
 
 Some test programs take special arguments - for example, you can restrict
-apitest to the chert backend using ``-bchert``.
+apitest to the glass backend using ``-bglass``.
 
 There are a few environmental variables which the testsuite harness checks for
 which you might find useful:

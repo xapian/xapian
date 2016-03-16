@@ -37,7 +37,7 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  skipped over 'd', 'e' and 'f'.
 
 **Chert**
- Chert is the stable database format used in Xapian 1.2.x.  It is similar
+ Chert was the stable database format used in Xapian 1.2.x.  It is similar
  to Flint in many ways, but generally faster, and uses significantly less disk
  space.  Chert is very efficient and highly scalable.  It supports incremental
  modifications, and concurrent single-writer and multiple-reader access to a
@@ -52,9 +52,9 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  In Xapian (as opposed to a relational database system) a database consists of
  little more than indexed documents: this reflects the purpose of Xapian as an
  information retrieval system, rather than an information storage system.
- These may also occasionally be called Indexes.  Chert is the backend used
- from Xapian 1.2 onwards; Flint was used from Xapian 1.0 onwards; Quartz was
- used in older versions.
+ These may also occasionally be called Indexes.  Glass is the default backend
+ used by Xapian 1.4; Chert was the default backend used by Xapian 1.2; Flint
+ was used by Xapian 1.0; Quartz was used prior to Xapian 1.0.
 
 **Document ID**
  A unique positive integer identifying a document in a Xapian database.
@@ -90,11 +90,7 @@ Retrieval, while others have a specific meaning in the context of Xapian.
  deprecated in 1.2.x and removed in 1.3.0.
 
 **Glass**
- Glass is the current "under development" database format as of Xapian 1.3.2.
- We try to keep it as stable as chert - the main difference is that
- incompatible changes may be made which will require you to reindex, even
- between stable point release.  In release 1.4.0, glass will be declared stable
- and made the default backend, and chert will then be deprecated.
+ Glass is the default database format in Xapian 1.4.
 
 **Index**
  If a document is described by a term, this term is said to index the document.

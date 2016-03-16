@@ -37,7 +37,7 @@ avoid wrapping the problematic ``Xapian::Chert::open`` factory function to
 avoid setting a trap for the unwary.
 You can just use a ``Xapian::WritableDatabase`` constructor
 instead (and specify a backend by passing ``$::xapian::DB_BACKEND_GLASS`` or
-similar in the flags, or setting ``XAPIAN_PREFER_GLASS`` in the environment).
+similar in the flags).
 
 As of Xapian 1.1.0, you can explicitly close the database, so the lack
 of a call to the destructor isn't an issue:

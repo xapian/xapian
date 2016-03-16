@@ -1,7 +1,7 @@
 /** @file flint_lock.h
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2012,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,9 +55,8 @@ class FlintLock {
     FlintLock(const std::string &filename_)
 	: filename(filename_), hFile(INVALID_HANDLE_VALUE) {
 	// Keep the same lockfile name as flint since the locking is
-	// compatible and this avoids the possibility of creating a chert and
-	// flint database in the same directory (which will result in one
-	// being corrupt since the Btree filenames overlap).
+	// compatible and this avoids the possibility of creating two databases
+	// in the same directory using different backends.
 	filename += "/flintlock";
     }
     operator bool() const { return hFile != INVALID_HANDLE_VALUE; }

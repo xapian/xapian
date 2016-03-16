@@ -482,30 +482,17 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	case DB_BACKEND_STUB:
 	    open_stub(*this, path, flags);
 	    return;
-	case 0: {
-	    // If only one backend is enabled, there's no point checking the
-	    // environmental variable.
-#if defined XAPIAN_HAS_CHERT_BACKEND && defined XAPIAN_HAS_GLASS_BACKEND
-	    // If $XAPIAN_PREFER_GLASS is set to a non-empty value, prefer glass
-	    // if there's no existing database.
-	    const char *p = getenv("XAPIAN_PREFER_GLASS");
-	    if (p && *p)
-	       	goto glass;
+	case 0:
+	    // Fall through to first enabled case, so order the remaining cases
+	    // by preference.
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+	case DB_BACKEND_GLASS:
+	    internal.push_back(new GlassWritableDatabase(path, flags, block_size));
+	    return;
 #endif
-	}
-	// Fall through to first enabled case, so order the remaining cases
-	// by preference.
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	case DB_BACKEND_CHERT:
 	    internal.push_back(new ChertWritableDatabase(path, flags, block_size));
-	    return;
-#endif
-#ifdef XAPIAN_HAS_GLASS_BACKEND
-	case DB_BACKEND_GLASS:
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-glass:
-#endif
-	    internal.push_back(new GlassWritableDatabase(path, flags, block_size));
 	    return;
 #endif
     }

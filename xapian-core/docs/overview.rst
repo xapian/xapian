@@ -169,7 +169,7 @@ using ``Xapian::DB_BACKEND_STUB``. The stub database format specifies one
 database per line. For example::
 
      remote localhost:23876
-     chert /var/spool/xapian/webindex
+     auto /var/spool/xapian/webindex
 
 Database types
 ~~~~~~~~~~~~~~
@@ -181,40 +181,21 @@ auto
     the disk based backends (e.g. "chert" or "glass") from a single specified
     path (which can be to a file or directory).
 
-brass
-    Brass was the current "under development" database format in Xapian 1.2.x,
-    1.3.0 and 1.3.1.  It was renamed to 'glass' in Xapian 1.3.2 because we
-    decided to use backend names in ascending alphabetical order to make it
-    easier to understand which backend is newest, and since 'flint' was used
-    recently, we skipped over 'd', 'e' and 'f'.
+glass
+    Glass is the default backend in Xapian 1.4.x. It supports incremental
+    modifications, concurrent single-writer and multiple-reader access to a
+    database. It's very efficient and highly scalable, and more compact than
+    chert.
 
 chert
-    Chert is the default backend in Xapian 1.2.x. It supports incremental
+    Chert was the default backend in Xapian 1.2.x. It supports incremental
     modifications, concurrent single-writer and multiple-reader access to a
     database. It's very efficient and highly scalable.
-
-flint
-    Flint was the default backend in Xapian 1.0.x, and was deprecated in
-    1.2.x and removed in 1.3.0.  If you want to migrate an existing Flint
-    database to Chert, `see the 'Admin Notes'
-    <admin_notes.html#converting-a-flint-database-to-a-chert-database%60>`_
-    for a way to do this.
-
-glass
-    Glass is the current development backend (renamed from Brass in 1.3.2),
-    It is intended to be the default backend in Xapian 1.4.x.
 
 inmemory
     This type is a database held entirely in memory. It was originally written
     for testing purposes only, but may prove useful for building up temporary
     small databases.
-
-quartz
-    Quartz was the default backend prior to Xapian 1.0, and has been removed as
-    of Xapian 1.1.0. If you want to migrate an existing Quartz database to
-    Flint, see `Admin Notes
-    <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
-    for a way to do this.
 
 remote
     This can specify either a "program" or TCP remote backend, for example::
@@ -230,6 +211,29 @@ remote
     xapian-progsrv and the "program" variant of the remote backend is used.
     Otherwise the TCP variant of the remote backend is used, and the rest of
     the line specifies the host and port to connect to.
+
+These are no longer supported by Xapian 1.4.x:
+
+brass
+    Brass was the current "under development" database format in Xapian 1.2.x,
+    1.3.0 and 1.3.1.  It was renamed to 'glass' in Xapian 1.3.2 because we
+    decided to use backend names in ascending alphabetical order to make it
+    easier to understand which backend is newest, and since 'flint' was used
+    recently, we skipped over 'd', 'e' and 'f'.
+
+flint
+    Flint was the default backend in Xapian 1.0.x, and was deprecated in
+    1.2.x and removed in 1.3.0.  If you want to migrate an existing Flint
+    database to Chert, `see the 'Admin Notes'
+    <admin_notes.html#converting-a-flint-database-to-a-chert-database%60>`_
+    for a way to do this.
+
+quartz
+    Quartz was the default backend prior to Xapian 1.0, and has been removed as
+    of Xapian 1.1.0. If you want to migrate an existing Quartz database to
+    Flint, see `Admin Notes
+    <admin_notes.html#converting-a-quartz-database-to-a-flint-database%60>`_
+    for a way to do this.
 
 Multiple databases
 ~~~~~~~~~~~~~~~~~~
