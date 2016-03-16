@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  * Copyright 2007,2008,2009 Lemur Consulting Ltd
@@ -47,7 +47,6 @@
 #include "valuestreamdocument.h"
 #include "weight/weightinternal.h"
 
-#include <xapian/errorhandler.h>
 #include <xapian/matchspy.h>
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
@@ -210,10 +209,9 @@ split_rset_by_db(const Xapian::RSet * rset,
  */
 static void
 prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
-		    Xapian::ErrorHandler * errorhandler,
 		    Xapian::Weight::Internal & stats)
 {
-    LOGCALL_STATIC_VOID(MATCH, "prepare_sub_matches", leaves | errorhandler | stats);
+    LOGCALL_STATIC_VOID(MATCH, "prepare_sub_matches", leaves | stats);
     // We use a vector<bool> to track which SubMatches we're already prepared.
     vector<bool> prepared;
     prepared.resize(leaves.size(), false);
@@ -222,19 +220,8 @@ prepare_sub_matches(vector<intrusive_ptr<SubMatch> > & leaves,
     while (unprepared) {
 	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
 	    if (prepared[leaf]) continue;
-	    try {
-		SubMatch * submatch = leaves[leaf].get();
-		if (!submatch || submatch->prepare_match(nowait, stats)) {
-		    prepared[leaf] = true;
-		    --unprepared;
-		}
-	    } catch (Xapian::Error & e) {
-		if (!errorhandler) throw;
-
-		LOGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
-		(*errorhandler)(e);
-		// Continue match without this sub-match.
-		leaves[leaf] = NULL;
+	    SubMatch * submatch = leaves[leaf].get();
+	    if (!submatch || submatch->prepare_match(nowait, stats)) {
 		prepared[leaf] = true;
 		--unprepared;
 	    }
@@ -285,7 +272,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
 		       double time_limit_,
-		       Xapian::ErrorHandler * errorhandler_,
 		       Xapian::Weight::Internal & stats,
 		       const Xapian::Weight * weight_,
 		       const vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & matchspies_,
@@ -297,11 +283,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_),
 	  time_limit(time_limit_),
-	  errorhandler(errorhandler_), weight(weight_),
+	  weight(weight_),
 	  is_remote(db.internal.size()),
 	  matchspies(matchspies_)
 {
-    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | time_limit_| errorhandler_ | stats | weight_ | matchspies_ | have_sorter | have_mdecider);
+    LOGCALL_CTOR(MATCH, "MultiMatch", db_ | query_ | qlen | omrset | collapse_max_ | collapse_key_ | percent_cutoff_ | weight_cutoff_ | int(order_) | sort_key_ | int(sort_by_) | sort_value_forward_ | time_limit_| stats | weight_ | matchspies_ | have_sorter | have_mdecider);
 
     if (query.empty()) return;
 
@@ -313,50 +299,43 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	Xapian::Database::Internal *subdb = db.internal[i].get();
 	Assert(subdb);
 	intrusive_ptr<SubMatch> smatch;
-	try {
-	    // There is currently only one special case, for network databases.
+
+	// There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
-		RemoteDatabase *rem_db = static_cast<RemoteDatabase*>(subdb);
-		if (have_sorter) {
-		    throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
-		}
-		if (have_mdecider) {
-		    throw Xapian::UnimplementedError("Xapian::MatchDecider not supported for the remote backend");
-		}
-		// FIXME: Remote handling for time_limit with multiple
-		// databases may need some work.
-		rem_db->set_query(query, qlen, collapse_max, collapse_key,
-				  order, sort_key, sort_by, sort_value_forward,
-				  time_limit,
-				  percent_cutoff, weight_cutoff, weight,
-				  subrsets[i], matchspies);
-		bool decreasing_relevance =
-		    (sort_by == REL || sort_by == REL_VAL);
-		smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
-		is_remote[i] = true;
-	    } else {
-		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
-		subdb->readahead_for_query(query);
+	if (subdb->get_backend_info(NULL) == BACKEND_REMOTE) {
+	    RemoteDatabase *rem_db = static_cast<RemoteDatabase*>(subdb);
+	    if (have_sorter) {
+		throw Xapian::UnimplementedError("Xapian::KeyMaker not supported for the remote backend");
 	    }
-#else
-	    // Avoid unused parameter warnings.
-	    (void)have_sorter;
-	    (void)have_mdecider;
+	    if (have_mdecider) {
+		throw Xapian::UnimplementedError("Xapian::MatchDecider not supported for the remote backend");
+	    }
+	    // FIXME: Remote handling for time_limit with multiple
+	    // databases may need some work.
+	    rem_db->set_query(query, qlen, collapse_max, collapse_key,
+			      order, sort_key, sort_by, sort_value_forward,
+			      time_limit,
+			      percent_cutoff, weight_cutoff, weight,
+			      subrsets[i], matchspies);
+	    bool decreasing_relevance =
+		(sort_by == REL || sort_by == REL_VAL);
+	    smatch = new RemoteSubMatch(rem_db, decreasing_relevance, matchspies);
+	    is_remote[i] = true;
+	} else {
 	    smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
-#endif /* XAPIAN_HAS_REMOTE_BACKEND */
-	} catch (Xapian::Error & e) {
-	    if (!errorhandler) throw;
-	    LOGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
-	    (*errorhandler)(e);
-	    // Continue match without this sub-postlist.
-	    smatch = NULL;
+	    subdb->readahead_for_query(query);
 	}
+#else
+	// Avoid unused parameter warnings.
+	(void)have_sorter;
+	(void)have_mdecider;
+	smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], weight);
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	leaves.push_back(smatch);
     }
 
     stats.set_query(query);
-    prepare_sub_matches(leaves, errorhandler, stats);
+    prepare_sub_matches(leaves, stats);
     stats.set_bounds_from_db(db);
 }
 
@@ -412,22 +391,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 #endif
 
     // Start matchers.
-    {
-	vector<intrusive_ptr<SubMatch> >::iterator leaf;
-	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
-	    if (!(*leaf).get()) continue;
-	    try {
-		(*leaf)->start_match(0, first + maxitems,
-				     first + check_at_least, stats);
-	    } catch (Xapian::Error & e) {
-		if (!errorhandler) throw;
-		LOGLINE(EXCEPTION, "Calling error handler for "
-				   "start_match() on a SubMatch.");
-		(*errorhandler)(e);
-		// Continue match without this sub-match.
-		*leaf = NULL;
-	    }
-	}
+    for (auto && leaf : leaves) {
+	leaf->start_match(0, first + maxitems, first + check_at_least, stats);
     }
 
     // Get postlists and term info
@@ -439,28 +404,16 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // documents it returns (because it wasn't asked for more documents).
     Xapian::doccount definite_matches_not_seen = 0;
     for (size_t i = 0; i != leaves.size(); ++i) {
-	PostList *pl;
-	try {
-	    pl = leaves[i]->get_postlist(this, &total_subqs);
-	    if (is_remote[i]) {
-		if (pl->get_termfreq_min() > first + maxitems) {
-		    LOGLINE(MATCH, "Found " <<
-				   pl->get_termfreq_min() - (first + maxitems)
-				   << " definite matches in remote submatch "
-				   "which aren't passed to local match");
-		    definite_matches_not_seen += pl->get_termfreq_min();
-		    definite_matches_not_seen -= first + maxitems;
-		}
+	PostList * pl = leaves[i]->get_postlist(this, &total_subqs);
+	if (is_remote[i]) {
+	    if (pl->get_termfreq_min() > first + maxitems) {
+		LOGLINE(MATCH, "Found " <<
+			       pl->get_termfreq_min() - (first + maxitems)
+			       << " definite matches in remote submatch "
+			       "which aren't passed to local match");
+		definite_matches_not_seen += pl->get_termfreq_min();
+		definite_matches_not_seen -= first + maxitems;
 	    }
-	} catch (Xapian::Error & e) {
-	    if (!errorhandler) throw;
-	    LOGLINE(EXCEPTION, "Calling error handler for "
-			       "get_postlist() on a SubMatch.");
-	    (*errorhandler)(e);
-	    // FIXME: check if *ALL* the remote servers have failed!
-	    // Continue match without this sub-match.
-	    leaves[i] = NULL;
-	    pl = new EmptyPostList;
 	}
 	postlists.push_back(pl);
     }
@@ -475,7 +428,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     if (postlists.size() == 1) {
 	pl.reset(postlists.front());
     } else {
-	pl.reset(new MergePostList(postlists, this, vsdoc, errorhandler));
+	pl.reset(new MergePostList(postlists, this, vsdoc));
     }
 
     LOGLINE(MATCH, "pl = (" << pl->get_description() << ")");

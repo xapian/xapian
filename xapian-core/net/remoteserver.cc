@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2006,2007,2009,2010 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -488,7 +488,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Weight::Internal local_stats;
     MultiMatch match(*db, query, qlen, &rset, collapse_max, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
-		     sort_key, sort_by, sort_value_forward, time_limit, NULL,
+		     sort_key, sort_by, sort_value_forward, time_limit,
 		     local_stats, wt.get(), matchspies, false, false);
 
     send_message(REPLY_STATS, serialise_stats(local_stats));

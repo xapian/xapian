@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2008,2009,2011,2015 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2009,2011,2015,2016 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,7 +30,6 @@
 #include "debuglog.h"
 #include "omassert.h"
 #include "valuestreamdocument.h"
-#include "xapian/errorhandler.h"
 
 // NB don't prune - even with one sublist we still translate docids...
 
@@ -52,23 +51,11 @@ MergePostList::next(double w_min)
     while (true) {
 	// FIXME: should skip over Remote matchers which aren't ready yet
 	// and come back to them later...
-	try {
-	    next_handling_prune(plists[current], w_min, matcher);
-	    if (!plists[current]->at_end()) break;
-	    ++current;
-	    if (unsigned(current) >= plists.size()) break;
-	    vsdoc.new_subdb(current);
-	} catch (Xapian::Error & e) {
-	    if (errorhandler) {
-		LOGLINE(EXCEPTION, "Calling error handler in MergePostList::next().");
-		(*errorhandler)(e);
-		// Continue match without this sub-postlist.
-		delete plists[current];
-		plists[current] = new EmptyPostList;
-	    } else {
-		throw;
-	    }
-	}
+	next_handling_prune(plists[current], w_min, matcher);
+	if (!plists[current]->at_end()) break;
+	++current;
+	if (unsigned(current) >= plists.size()) break;
+	vsdoc.new_subdb(current);
 	if (matcher) matcher->recalc_maxweight();
     }
     LOGVALUE(MATCH, current);
@@ -180,25 +167,8 @@ MergePostList::recalc_maxweight()
     w_max = 0;
     vector<PostList *>::iterator i;
     for (i = plists.begin(); i != plists.end(); ++i) {
-	try {
-	    double w = (*i)->recalc_maxweight();
-	    if (w > w_max) w_max = w;
-	} catch (Xapian::Error & e) {
-	    if (errorhandler) {
-		LOGLINE(EXCEPTION, "Calling error handler in MergePostList::recalc_maxweight().");
-		(*errorhandler)(e);
-
-		if (current == i - plists.begin()) {
-		    // Fatal error
-		    throw;
-		}
-		// Continue match without this sub-postlist.
-		delete (*i);
-		*i = new EmptyPostList;
-	    } else {
-		throw;
-	    }
-	}
+	double w = (*i)->recalc_maxweight();
+	if (w > w_max) w_max = w;
     }
     RETURN(w_max);
 }

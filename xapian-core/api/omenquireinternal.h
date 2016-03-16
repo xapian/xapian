@@ -46,7 +46,6 @@ class MultiMatch;
 
 namespace Xapian {
 
-class ErrorHandler;
 class TermIterator;
 
 namespace Internal {
@@ -154,10 +153,6 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	double time_limit;
 
-	/** The error handler, if set.  (0 if not set).
-	 */
-	ErrorHandler * errorhandler;
-
 	/** The weight to use for this query.
 	 *
 	 *  This is mutable so that the default BM25Weight object can be
@@ -173,7 +168,7 @@ class Enquire::Internal : public Xapian::Internal::intrusive_base {
 
 	vector<Xapian::Internal::opt_intrusive_ptr<MatchSpy>> spies;
 
-	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
+	explicit Internal(const Xapian::Database &databases);
 	~Internal();
 
 	/** Request a document from the database.

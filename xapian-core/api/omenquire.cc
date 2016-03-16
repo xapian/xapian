@@ -27,7 +27,6 @@
 
 #include "xapian/document.h"
 #include "xapian/error.h"
-#include "xapian/errorhandler.h"
 #include "xapian/expanddecider.h"
 #include "xapian/matchspy.h"
 #include "xapian/termiterator.h"
@@ -590,11 +589,11 @@ MSetIterator::get_description() const
 
 // Methods for Xapian::Enquire::Internal
 
-Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
+Enquire::Internal::Internal(const Database &db_)
   : db(db_), query(), collapse_key(Xapian::BAD_VALUENO), collapse_max(0),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
-    sorter(0), time_limit(0.0), errorhandler(errorhandler_), weight(0),
+    sorter(0), time_limit(0.0), weight(0),
     eweightname("trad"), expand_k(1.0)
 {
     if (db.internal.empty()) {
@@ -650,7 +649,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		       collapse_max, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
-		       time_limit, errorhandler, *(stats.get()), weight, spies,
+		       time_limit, *(stats.get()), weight, spies,
 		       (sorter.get() != NULL),
 		       (mdecider != NULL));
     // Run query and put results into supplied Xapian::MSet object.
@@ -806,35 +805,25 @@ Enquire::Internal::get_description() const
 void
 Enquire::Internal::request_doc(const Xapian::Internal::MSetItem &item) const
 {
-    try {
-	unsigned int multiplier = db.internal.size();
+    unsigned int multiplier = db.internal.size();
 
-	Xapian::docid realdid = (item.did - 1) / multiplier + 1;
-	Xapian::doccount dbnumber = (item.did - 1) % multiplier;
+    Xapian::docid realdid = (item.did - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (item.did - 1) % multiplier;
 
-	db.internal[dbnumber]->request_document(realdid);
-    } catch (Error & e) {
-	if (errorhandler) (*errorhandler)(e);
-	throw;
-    }
+    db.internal[dbnumber]->request_document(realdid);
 }
 
 Document
 Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 {
-    try {
-	unsigned int multiplier = db.internal.size();
+    unsigned int multiplier = db.internal.size();
 
-	Xapian::docid realdid = (item.did - 1) / multiplier + 1;
-	Xapian::doccount dbnumber = (item.did - 1) % multiplier;
+    Xapian::docid realdid = (item.did - 1) / multiplier + 1;
+    Xapian::doccount dbnumber = (item.did - 1) % multiplier;
 
-	Xapian::Document::Internal *doc;
-	doc = db.internal[dbnumber]->collect_document(realdid);
-	return Document(doc);
-    } catch (Error & e) {
-	if (errorhandler) (*errorhandler)(e);
-	throw;
-    }
+    Xapian::Document::Internal *doc;
+    doc = db.internal[dbnumber]->collect_document(realdid);
+    return Document(doc);
 }
 
 Document
@@ -864,15 +853,15 @@ Enquire::operator=(const Enquire & other)
 }
 
 Enquire::Enquire(const Database &databases)
-    : internal(new Internal(databases, NULL))
+    : internal(new Internal(databases))
 {
     LOGCALL_CTOR(API, "Enquire", databases);
 }
 
-Enquire::Enquire(const Database &databases, ErrorHandler * errorhandler)
-    : internal(new Internal(databases, errorhandler))
+Enquire::Enquire(const Database &databases, ErrorHandler *)
+    : internal(new Internal(databases))
 {
-    LOGCALL_CTOR(API, "Enquire", databases | errorhandler);
+    LOGCALL_CTOR(API, "Enquire", databases | Literal("errorhandler"));
 }
 
 Enquire::~Enquire()
@@ -1025,14 +1014,7 @@ Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  const MatchDecider *mdecider) const
 {
     LOGCALL(API, Xapian::MSet, "Xapian::Enquire::get_mset", first | maxitems | check_at_least | rset | mdecider);
-
-    try {
-	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
-				  mdecider));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
+    RETURN(internal->get_mset(first, maxitems, check_at_least, rset, mdecider));
 }
 
 ESet
@@ -1040,37 +1022,21 @@ Enquire::get_eset(Xapian::termcount maxitems, const RSet & rset, int flags,
 		  const ExpandDecider * edecider, double min_wt) const
 {
     LOGCALL(API, Xapian::ESet, "Xapian::Enquire::get_eset", maxitems | rset | flags | edecider | min_wt);
-
-    try {
-	RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
+    RETURN(internal->get_eset(maxitems, rset, flags, edecider, min_wt));
 }
 
 TermIterator
 Enquire::get_matching_terms_begin(const MSetIterator &it) const
 {
     LOGCALL(API, Xapian::TermIterator, "Xapian::Enquire::get_matching_terms_begin", it);
-    try {
-	RETURN(internal->get_matching_terms(it));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
+    RETURN(internal->get_matching_terms(it));
 }
 
 TermIterator
 Enquire::get_matching_terms_begin(Xapian::docid did) const
 {
     LOGCALL(API, Xapian::TermIterator, "Xapian::Enquire::get_matching_terms_begin", did);
-    try {
-	RETURN(internal->get_matching_terms(did));
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
+    RETURN(internal->get_matching_terms(did));
 }
 
 string

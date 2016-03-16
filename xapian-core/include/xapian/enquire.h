@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2011 Action Without Borders
  *
@@ -326,12 +326,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  @param database Specification of the database or databases to
 	 *	   use.
-	 *  @param errorhandler_  A pointer to the error handler to use.
-	 *	   Ownership of the object pointed to is not assumed by the
-	 *	   Xapian::Enquire object - the user should delete the
-	 *	   Xapian::ErrorHandler object after the Xapian::Enquire object
-	 *	   is deleted.  To use no error handler, this parameter
-	 *	   should be 0.
+	 *  @param errorhandler_  This parameter is deprecated (since Xapian
+	 *	   1.3.1), and as of 1.3.5 it's ignored completely.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if an
 	 *  empty Database object is supplied.
