@@ -485,6 +485,10 @@ Removed Feature name                        Upgrade suggestion and comments
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.5   ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and 1.2.23.
         variables
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.5   ``Xapian::DBCHECK_SHOW_BITMAP``     Use ``Xapian::DBCHECK_SHOW_FREELIST`` (added in 1.3.2) instead.
+                                            ``Xapian::DBCHECK_SHOW_BITMAP`` was added in 1.3.0, so has never been in a stable
+                                            release.
 ======= =================================== ==================================================================================
 
 
