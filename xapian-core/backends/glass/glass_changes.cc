@@ -1,7 +1,7 @@
 /** @file glass_changes.cc
  * @brief Glass changesets
  */
-/* Copyright 2014 Olly Betts
+/* Copyright 2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -134,19 +134,11 @@ GlassChanges::commit(glass_revision_number_t new_rev, int flags)
     string changes_file = changes_stem;
     changes_file += str(new_rev - 1); // FIXME: ?
 
-    if (posixy_rename(changes_tmp.c_str(), changes_file.c_str()) < 0) {
-	// With NFS, rename() failing may just mean that the server crashed
-	// after successfully renaming, but before reporting this, and then
-	// the retried operation fails.  So we need to check if the source
-	// file still exists, which we do by calling unlink(), since we want
-	// to remove the temporary file anyway.
-	int saved_errno = errno;
-	if (unlink(changes_tmp.c_str()) == 0 || errno != ENOENT) {
-	    string m = changes_tmp;
-	    m += ": Failed to rename to ";
-	    m += changes_file;
-	    throw Xapian::DatabaseError(m, saved_errno);
-	}
+    if (!io_tmp_rename(changes_tmp, changes_file)) {
+	string m = changes_tmp;
+	m += ": Failed to rename to ";
+	m += changes_file;
+	throw Xapian::DatabaseError(m, errno);
     }
 
     if (new_rev <= max_changesets) {

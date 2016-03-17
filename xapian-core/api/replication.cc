@@ -34,8 +34,8 @@
 #include "debuglog.h"
 #include "filetests.h"
 #include "fileutils.h"
+#include "io_utils.h"
 #include "omassert.h"
-#include "posixy_wrapper.h"
 #include "realtime.h"
 #include "net/remoteconnection.h"
 #include "noreturn.h"
@@ -290,10 +290,10 @@ DatabaseReplica::Internal::update_stub_database() const
 	stub << REPLICA_STUB_BANNER
 		"auto replica_" << live_id << endl;
     }
-    if (posixy_rename(tmp_path.c_str(), stub_path.c_str()) == -1) {
+    if (!io_tmp_rename(tmp_path, stub_path)) {
 	string msg("Failed to update stub db file for replica: ");
 	msg += path;
-	throw Xapian::DatabaseOpeningError(msg);
+	throw Xapian::DatabaseOpeningError(msg, errno);
     }
 }
 

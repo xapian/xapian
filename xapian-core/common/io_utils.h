@@ -153,4 +153,14 @@ inline void io_write_block(int fd, const unsigned char * p, size_t n, off_t b) {
  */
 bool io_unlink(const std::string & filename);
 
+/** Rename a temporary file to its final position.
+ *
+ *  Attempts to deal with NFS infelicities.  If the rename fails, the temporary
+ *  file is removed.
+ *
+ *  @return	true if the rename succeeded; false if it failed (and errno will
+ *		be set appropriately).
+ */
+bool io_tmp_rename(const std::string & tmp_file, const std::string & real_file);
+
 #endif // XAPIAN_INCLUDED_IO_UTILS_H

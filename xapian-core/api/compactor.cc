@@ -45,7 +45,7 @@
 #include "omassert.h"
 #include "filetests.h"
 #include "fileutils.h"
-#include "posixy_wrapper.h"
+#include "io_utils.h"
 #include "stringutils.h"
 #include "str.h"
 
@@ -425,8 +425,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 #endif
 	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
 	}
-	if (posixy_rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
-	    // FIXME: try to clean up?
+	if (!io_tmp_rename(new_stub_file, stub_file)) {
 	    string msg = "Cannot rename '";
 	    msg += new_stub_file;
 	    msg += "' to '";

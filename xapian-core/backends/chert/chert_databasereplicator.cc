@@ -2,7 +2,7 @@
  * @brief Support for chert database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010,2011,2012,2014,2015 Olly Betts
+ * Copyright 2009,2010,2011,2012,2014,2015,2016 Olly Betts
  * Copyright 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -143,20 +143,12 @@ ChertDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
     // Finish writing the changeset before moving the base file into place.
     write_and_clear_changes(changes_fd, buf, base_size);
 
-    if (posixy_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
-	// With NFS, rename() failing may just mean that the server crashed
-	// after successfully renaming, but before reporting this, and then
-	// the retried operation fails.  So we need to check if the source
-	// file still exists, which we do by calling unlink(), since we want
-	// to remove the temporary file anyway.
-	int saved_errno = errno;
-	if (unlink(tmp_path.c_str()) == 0 || errno != ENOENT) {
-	    string msg("Couldn't update base file ");
-	    msg += tablename;
-	    msg += ".base";
-	    msg += letter;
-	    throw DatabaseError(msg, saved_errno);
-	}
+    if (!io_tmp_rename(tmp_path, base_path)) {
+	string msg("Couldn't update base file ");
+	msg += tablename;
+	msg += ".base";
+	msg += letter;
+	throw DatabaseError(msg, errno);
     }
 }
 

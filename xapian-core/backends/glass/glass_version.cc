@@ -358,18 +358,8 @@ GlassVersion::sync(const string & tmpfile,
 	}
 
 	if (!tmpfile.empty()) {
-	    string filename = db_dir;
-	    filename += "/iamglass";
-
-	    if (posixy_rename(tmpfile.c_str(), filename.c_str()) < 0) {
-		// Over NFS, rename() can sometimes report failure when the
-		// operation succeeded, so in this case we try to unlink the source
-		// to check if the rename really failed.
-		int save_errno = errno;
-		if (unlink(tmpfile.c_str()) == 0 || errno != ENOENT) {
-		    errno = save_errno;
-		    return false;
-		}
+	    if (!io_tmp_rename(tmpfile, db_dir + "/iamglass")) {
+		return false;
 	    }
 	}
     }

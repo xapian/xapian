@@ -1,7 +1,7 @@
 /** @file io_utils.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2004,2006,2007,2008,2009,2011,2014,2015 Olly Betts
+/* Copyright (C) 2004,2006,2007,2008,2009,2011,2012,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -264,4 +264,38 @@ io_write_block(int fd, const char * p, size_t n, off_t b, off_t o)
 	n -= c;
     }
 #endif
+}
+
+bool
+io_tmp_rename(const std::string & tmp_file, const std::string & real_file)
+{
+#ifdef EXDEV
+    // We retry on EXDEV a few times as some older Linux kernels are buggy and
+    // fail with EXDEV when the two files are on the same device (as they
+    // always ought to be when this function is used).  Don't retry forever in
+    // case someone calls this with files one different devices.
+    //
+    // We're not sure exactly which kernels are buggy in this way, but there's
+    // discussion here: http://www.spinics.net/lists/linux-nfs/msg17306.html
+    //
+    // Reported at: https://trac.xapian.org/ticket/698
+    int retries = 5;
+retry:
+#endif
+    if (posixy_rename(tmp_file.c_str(), real_file.c_str()) < 0) {
+#ifdef EXDEV
+	if (errno == EXDEV && --retries > 0) goto retry;
+#endif
+	// With NFS, rename() failing may just mean that the server crashed
+	// after successfully renaming, but before reporting this, and then
+	// the retried operation fails.  So we need to check if the source
+	// file still exists, which we do by calling unlink(), since we want
+	// to remove the temporary file anyway.
+	int saved_errno = errno;
+	if (unlink(tmp_file.c_str()) == 0 || errno != ENOENT) {
+	    errno = saved_errno;
+	    return false;
+	}
+    }
+    return true;
 }

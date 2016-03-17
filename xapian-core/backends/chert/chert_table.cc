@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -32,7 +32,6 @@
 
 #include "errno_to_string.h"
 #include "omassert.h"
-#include "posixy_wrapper.h"
 #include "stringutils.h" // For STRINGIZE().
 
 // Define to use "dangerous" mode - in this mode we write modified btree
@@ -1879,20 +1878,10 @@ ChertTable::commit(chert_revision_number_t revision, int changes_fd,
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
 	}
 
-	if (posixy_rename(tmp.c_str(), basefile.c_str()) < 0) {
-	    // With NFS, rename() failing may just mean that the server crashed
-	    // after successfully renaming, but before reporting this, and then
-	    // the retried operation fails.  So we need to check if the source
-	    // file still exists, which we do by calling unlink(), since we want
-	    // to remove the temporary file anyway.
-	    int saved_errno = errno;
-	    if (unlink(tmp.c_str()) == 0 || errno != ENOENT) {
-		string msg("Couldn't update base file ");
-		msg += basefile;
-		msg += ": ";
-		errno_to_string(saved_errno, msg);
-		throw Xapian::DatabaseError(msg);
-	    }
+	if (!io_tmp_rename(tmp, basefile)) {
+	    string msg("Couldn't update base file ");
+	    msg += basefile;
+	    throw Xapian::DatabaseError(msg, errno);
 	}
 	base.commit();
 
