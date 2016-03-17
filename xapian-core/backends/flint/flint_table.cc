@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -1880,25 +1880,10 @@ FlintTable::commit(flint_revision_number_t revision, int changes_fd,
 	    throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
 	}
 
-#if defined __WIN32__
-	if (msvc_posix_rename(tmp.c_str(), basefile.c_str()) < 0)
-#else
-	if (rename(tmp.c_str(), basefile.c_str()) < 0)
-#endif
-	{
-	    // With NFS, rename() failing may just mean that the server crashed
-	    // after successfully renaming, but before reporting this, and then
-	    // the retried operation fails.  So we need to check if the source
-	    // file still exists, which we do by calling unlink(), since we want
-	    // to remove the temporary file anyway.
-	    int saved_errno = errno;
-	    if (unlink(tmp) == 0 || errno != ENOENT) {
-		string msg("Couldn't update base file ");
-		msg += basefile;
-		msg += ": ";
-		errno_to_string(saved_errno, msg);
-		throw Xapian::DatabaseError(msg);
-	    }
+	if (!io_tmp_rename(tmp, basefile)) {
+	    string msg("Couldn't update base file ");
+	    msg += basefile;
+	    throw Xapian::DatabaseError(msg, errno);
 	}
 	base.commit();
 

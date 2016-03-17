@@ -41,9 +41,7 @@
 #include "noreturn.h"
 #include "omassert.h"
 #include "fileutils.h"
-#ifdef __WIN32__
-# include "msvc_posix_wrapper.h"
-#endif
+#include "io_utils.h"
 #include "stringutils.h"
 #include "str.h"
 #include "utils.h"
@@ -503,12 +501,7 @@ Compactor::Internal::compact(Xapian::Compactor & compactor)
 #endif
 	    new_stub << "auto " << destdir.substr(slash + 1) << '\n';
 	}
-#ifndef __WIN32__
-	if (rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
-#else
-	if (msvc_posix_rename(new_stub_file.c_str(), stub_file.c_str()) < 0) {
-#endif
-	    // FIXME: try to clean up?
+	if (!io_tmp_rename(new_stub_file, stub_file)) {
 	    string msg = "Cannot rename '";
 	    msg += new_stub_file;
 	    msg += "' to '";

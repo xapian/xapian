@@ -2,7 +2,7 @@
  * @brief Support for brass database replication
  */
 /* Copyright 2008 Lemur Consulting Ltd
- * Copyright 2009,2010 Olly Betts
+ * Copyright 2009,2010,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -138,24 +138,12 @@ BrassDatabaseReplicator::process_changeset_chunk_base(const string & tablename,
 	io_write(fd, buf.data(), base_size);
 	io_sync(fd);
     }
-#if defined __WIN32__
-    if (msvc_posix_rename(tmp_path.c_str(), base_path.c_str()) < 0) {
-#else
-    if (rename(tmp_path.c_str(), base_path.c_str()) < 0) {
-#endif
-	// With NFS, rename() failing may just mean that the server crashed
-	// after successfully renaming, but before reporting this, and then
-	// the retried operation fails.  So we need to check if the source
-	// file still exists, which we do by calling unlink(), since we want
-	// to remove the temporary file anyway.
-	int saved_errno = errno;
-	if (unlink(tmp_path) == 0 || errno != ENOENT) {
-	    string msg("Couldn't update base file ");
-	    msg += tablename;
-	    msg += ".base";
-	    msg += letter;
-	    throw DatabaseError(msg, saved_errno);
-	}
+    if (!io_tmp_rename(tmp_path, base_path)) {
+	string msg("Couldn't update base file ");
+	msg += tablename;
+	msg += ".base";
+	msg += letter;
+	throw DatabaseError(msg, errno);
     }
 
     buf.erase(0, base_size);
