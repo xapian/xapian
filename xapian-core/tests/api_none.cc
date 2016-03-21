@@ -644,6 +644,96 @@ DEFINE_TESTCASE(subclassablerefcount6, backend) {
     return true;
 }
 
+class TestExpandDecider : public Xapian::ExpandDecider {
+    DestroyedFlag destroyed;
+
+  public:
+    TestExpandDecider(bool & destroyed_) : destroyed(destroyed_) { }
+
+    bool operator()(const string&) const { return true; }
+};
+
+/// Check reference counting of ExpandDecider.
+DEFINE_TESTCASE(subclassablerefcount7, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::RSet rset;
+    rset.add_document(1);
+
+    bool gone_auto, gone;
+
+    for (int flags = 0;
+	 flags <= Xapian::Enquire::INCLUDE_QUERY_TERMS;
+	 flags += Xapian::Enquire::INCLUDE_QUERY_TERMS) {
+	// Test of auto lifetime ExpandDecider.
+	{
+	    TestExpandDecider edecider_auto(gone_auto);
+	    TEST(!gone_auto);
+	    (void)enq.get_eset(5, rset, 0, &edecider_auto);
+	    TEST(!gone_auto);
+	}
+	TEST(gone_auto);
+
+	// Simple test of release().
+	{
+	    Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+	    TEST(!gone);
+	    (void)enq.get_eset(5, rset, 0, edecider);
+	    TEST(!gone);
+	    delete edecider;
+	    TEST(gone);
+	}
+
+	// Test that a released ExpandDecider gets cleaned up by get_eset().
+	{
+	    Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+	    TEST(!gone);
+	    (void)enq.get_eset(5, rset, 0, edecider->release());
+	    TEST(gone);
+	}
+
+	// Check a second call to release() has no effect.
+	{
+	    Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+	    TEST(!gone);
+	    edecider->release();
+	    TEST(!gone);
+	    (void)enq.get_eset(5, rset, 0, edecider->release());
+	    TEST(gone);
+	}
+    }
+
+    // Test combinations of released/non-released with ExpandDeciderAnd.
+    {
+	TestExpandDecider edecider_auto(gone_auto);
+	TEST(!gone_auto);
+	Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+	TEST(!gone);
+	(void)enq.get_eset(5, rset, 0,
+		(new Xapian::ExpandDeciderAnd(
+		    &edecider_auto,
+		    edecider->release()))->release());
+	TEST(!gone_auto);
+	TEST(gone);
+    }
+    TEST(gone_auto);
+    {
+	TestExpandDecider edecider_auto(gone_auto);
+	TEST(!gone_auto);
+	Xapian::ExpandDecider * edecider = new TestExpandDecider(gone);
+	TEST(!gone);
+	(void)enq.get_eset(5, rset, 0,
+		(new Xapian::ExpandDeciderAnd(
+		    edecider->release(),
+		    &edecider_auto))->release());
+	TEST(!gone_auto);
+	TEST(gone);
+    }
+    TEST(gone_auto);
+
+    return true;
+}
+
 /// Check encoding of non-UTF8 document data.
 DEFINE_TESTCASE(nonutf8docdesc1, !backend) {
     Xapian::Document doc;

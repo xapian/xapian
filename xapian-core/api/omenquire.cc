@@ -678,10 +678,13 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 ESet
 Enquire::Internal::get_eset(Xapian::termcount maxitems,
 			    const RSet & rset, int flags,
-			    const ExpandDecider * edecider, double min_wt) const
+			    const ExpandDecider * edecider_,
+			    double min_wt) const
 {
-    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | edecider | min_wt);
+    LOGCALL(MATCH, ESet, "Enquire::Internal::get_eset", maxitems | rset | flags | edecider_ | min_wt);
 
+    using Xapian::Internal::opt_intrusive_ptr;
+    opt_intrusive_ptr<const ExpandDecider> edecider(edecider_);
     if (maxitems == 0 || rset.empty()) {
 	// Either we were asked for no results, or wouldn't produce any
 	// because no documents were marked as relevant.
@@ -690,22 +693,15 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 
     LOGVALUE(MATCH, rset.size());
 
-    /* The AutoPtrs will clean up any dynamically allocated
-     * expand deciders automatically.
-     */
-    AutoPtr<ExpandDecider> decider_noquery;
-    AutoPtr<ExpandDecider> decider_andnoquery;
-
     if (!query.empty() && !(flags & Enquire::INCLUDE_QUERY_TERMS)) {
-	decider_noquery.reset(
-	    new ExpandDeciderFilterTerms(query.get_terms_begin(),
-					 query.get_terms_end()));
-	if (edecider) {
-	    decider_andnoquery.reset(
-		new ExpandDeciderAnd(decider_noquery.get(), edecider));
-	    edecider = decider_andnoquery.get();
+	opt_intrusive_ptr<const ExpandDecider> decider_noquery(
+	    (new ExpandDeciderFilterTerms(query.get_terms_begin(),
+					  query.get_terms_end()))->release());
+	if (edecider.get()) {
+	    edecider = (new ExpandDeciderAnd(decider_noquery.get(),
+					     edecider.get()))->release();
 	} else {
-	    edecider = decider_noquery.get();
+	    edecider = decider_noquery;
 	}
     }
 
@@ -714,10 +710,12 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 
     if (eweightname == "bo1") {
 	Bo1EWeight bo1eweight(db, rset.size(), use_exact_termfreq);
-	eset.internal->expand(maxitems, db, rset, edecider, bo1eweight, min_wt);
+	eset.internal->expand(maxitems, db, rset, edecider.get(), bo1eweight,
+			      min_wt);
     } else {
 	TradEWeight tradeweight(db, rset.size(), use_exact_termfreq, expand_k);
-	eset.internal->expand(maxitems, db, rset, edecider, tradeweight, min_wt);
+	eset.internal->expand(maxitems, db, rset, edecider.get(), tradeweight,
+			      min_wt);
     }
 
     RETURN(eset);
