@@ -316,6 +316,8 @@ SUBCLASSABLE(Xapian, MatchDecider)
 %include <xapian/enquire.h>
 
 SUBCLASSABLE(Xapian, ExpandDecider)
+// Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::ExpandDecider;
 %ignore Xapian::ExpandDeciderAnd::ExpandDeciderAnd(const ExpandDecider *, const ExpandDecider *);
 /* FIXME: %extend ExpandDeciderFilterTerms so it can be constructed from an
  * array of strings (or whatever the equivalent is in the target language).
