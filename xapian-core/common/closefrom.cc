@@ -104,7 +104,7 @@ Xapian::Internal::closefrom(int fd)
 	    ch = entry->d_name[0];
 	    if (ch < '0' || ch > '9')
 		continue;
-	    int n = atoi(entry->d_name);
+	    int n = strtol(entry->d_name);
 	    if (n >= fd) {
 #if defined HAVE_DIRFD || defined dirfd
 		if (n == dirfd(dir)) continue;

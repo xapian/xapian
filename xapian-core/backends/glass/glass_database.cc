@@ -998,7 +998,7 @@ GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
-	flush_threshold = atoi(p);
+	flush_threshold = strtol(p);
     if (flush_threshold == 0)
 	flush_threshold = 10000;
 }

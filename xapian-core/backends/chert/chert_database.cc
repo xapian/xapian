@@ -395,7 +395,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
     if (p) {
-	max_changesets = atoi(p);
+	max_changesets = strtol(p);
     } else {
 	max_changesets = 0;
     }
@@ -1061,7 +1061,7 @@ ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,
 
     const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
     if (p)
-	flush_threshold = atoi(p);
+	flush_threshold = strtol(p);
     if (flush_threshold == 0)
 	flush_threshold = 10000;
 }

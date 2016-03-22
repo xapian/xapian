@@ -70,7 +70,7 @@ class SoakTestRunner : public TestRunner
 
     int run() const {
 	int result = 0;
-	g_random_seed = atoi(seed_str.c_str());
+	g_random_seed = strtol(seed_str.c_str());
 #include "soaktest/soaktest_collated.h"
 	return result;
     }

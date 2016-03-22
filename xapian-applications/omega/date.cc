@@ -133,9 +133,9 @@ parse_date(const string & date, int *y, int *m, int *d)
 {
     // FIXME: for now only support YYYYMMDD (e.g. 20011119)
     // and don't error check
-    *y = atoi(date.substr(0, 4).c_str());
-    *m = atoi(date.substr(4, 2).c_str());
-    *d = atoi(date.substr(6, 2).c_str());
+    *y = strtol(date.substr(0, 4).c_str());
+    *m = strtol(date.substr(4, 2).c_str());
+    *d = strtol(date.substr(6, 2).c_str());
 }
 
 Xapian::Query
@@ -144,7 +144,7 @@ date_range_filter(const string & date_start, const string & date_end,
 {
     int y1, m1, d1, y2, m2, d2;
     if (!date_span.empty()) {
-	time_t secs = atoi(date_span.c_str()) * (24 * 60 * 60);
+	time_t secs = strtol(date_span.c_str()) * (24 * 60 * 60);
 	if (!date_end.empty()) {
 	    parse_date(date_end, &y2, &m2, &d2);
 	    struct tm t;

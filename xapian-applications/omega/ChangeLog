@@ -2934,7 +2934,7 @@ Thu Oct 09 10:16:05 GMT 2008  Olly Betts <olly@survex.com>
 Wed Oct 01 04:48:37 GMT 2008  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Separate Action constructor cases to avoid
-	  pointlessly calling atoi() on an empty string.
+	  pointlessly calling strtol() on an empty string.
 
 Wed Oct 01 03:15:29 GMT 2008  Olly Betts <olly@survex.com>
 
@@ -3666,7 +3666,7 @@ Fri May 04 13:30:36 BST 2007  Olly Betts <olly@survex.com>
 
 Fri May 04 04:10:23 BST 2007  Olly Betts <olly@survex.com>
 
-	* query.cc: Explicitly include stdlib.h since we use atoi().
+	* query.cc: Explicitly include stdlib.h since we use strtol().
 
 Thu May 03 15:16:31 BST 2007  Olly Betts <olly@survex.com>
 
@@ -4310,7 +4310,7 @@ Fri Sep 15 06:00:50 BST 2006  Olly Betts <olly@survex.com>
 
 Thu Sep 14 15:41:33 BST 2006  Olly Betts <olly@survex.com>
 
-	* htmlparse.cc: Include <stdlib.h> so atoi() is prototyped.
+	* htmlparse.cc: Include <stdlib.h> so strtol() is prototyped.
 
 Wed Sep 13 16:37:32 BST 2006  Olly Betts <olly@survex.com>
 
