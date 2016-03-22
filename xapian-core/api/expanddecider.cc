@@ -1,7 +1,7 @@
 /** @file expanddecider.cc
  * @brief Allow rejection of terms during ESet generation.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2007,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,7 +32,7 @@ ExpandDecider::~ExpandDecider() { }
 bool
 ExpandDeciderAnd::operator()(const string &term) const
 {
-    return first(term) && second(term);
+    return (*first)(term) && (*second)(term);
 }
 
 bool
