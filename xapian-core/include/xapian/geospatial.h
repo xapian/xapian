@@ -460,7 +460,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
 				 double k2_);
 
   public:
-    /** Construct a new match decider which returns only documents within
+    /** Construct a new posting source which returns only documents within
      *  range of one of the central coordinates.
      *
      *  @param slot_ The value slot to read values from.
