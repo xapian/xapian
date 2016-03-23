@@ -102,6 +102,23 @@ LatLongDistancePostingSource::LatLongDistancePostingSource(
     set_maxweight(weight_from_distance(0, k1, k2));
 }
 
+LatLongDistancePostingSource::LatLongDistancePostingSource(
+	valueno slot_,
+	const LatLongCoords & centre_,
+	double max_range_,
+	double k1_,
+	double k2_)
+	: ValuePostingSource(slot_),
+	  centre(centre_),
+	  metric(new Xapian::GreatCircleMetric()),
+	  max_range(max_range_),
+	  k1(k1_),
+	  k2(k2_)
+{
+    validate_postingsource_params(k1, k2);
+    set_maxweight(weight_from_distance(0, k1, k2));
+}
+
 LatLongDistancePostingSource::~LatLongDistancePostingSource()
 {
     delete metric;

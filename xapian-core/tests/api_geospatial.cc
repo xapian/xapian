@@ -3,7 +3,7 @@
  */
 /* Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012 Olly Betts
+ * Copyright 2012,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,6 +92,30 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable && !remote && !inmemo
 	TEST_EQUAL(ps.at_end(), true);
     }
 
+    // Test a search with no range restriction and implicit metric.
+    {
+	Xapian::LatLongDistancePostingSource ps(0, coord1);
+	ps.init(db);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1.0);
+	TEST_EQUAL(ps.get_docid(), 1);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist));
+	TEST_EQUAL(ps.get_docid(), 2);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist * 2));
+	TEST_EQUAL(ps.get_docid(), 3);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), true);
+    }
+
     // Test a search with a tight range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 0.5);
@@ -105,9 +129,40 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable && !remote && !inmemo
 	TEST_EQUAL(ps.at_end(), true);
     }
 
+    // Test a search with a tight range restriction and implicit metric.
+    {
+	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 0.5);
+	ps.init(db);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1.0);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), true);
+    }
+
     // Test a search with a looser range restriction
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist);
+	ps.init(db);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1.0);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist));
+	TEST_EQUAL(ps.get_docid(), 2);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), true);
+    }
+
+    // Test a search with a looser range restriction and implicit metric.
+    {
+	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist);
 	ps.init(db);
 
 	ps.next(0.0);
@@ -142,10 +197,53 @@ DEFINE_TESTCASE(latlongpostingsource1, backend && writable && !remote && !inmemo
 	TEST_EQUAL(ps.at_end(), true);
     }
 
+    // Test a search with a looser range restriction, but not enough to return
+    // the next document and implicit metric.
+    {
+	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 1.5);
+	ps.init(db);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1.0);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist));
+	TEST_EQUAL(ps.get_docid(), 2);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), true);
+    }
+
     // Test a search with a loose enough range restriction that all docs should
     // be returned.
     {
 	Xapian::LatLongDistancePostingSource ps(0, centre, metric, coorddist * 2.5);
+	ps.init(db);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1.0);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist));
+	TEST_EQUAL(ps.get_docid(), 2);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), false);
+	TEST_EQUAL_DOUBLE(ps.get_weight(), 1000.0 / (1000.0 + coorddist * 2));
+	TEST_EQUAL(ps.get_docid(), 3);
+
+	ps.next(0.0);
+	TEST_EQUAL(ps.at_end(), true);
+    }
+
+    // Test a search with a loose enough range restriction that all docs should
+    // be returned and implicit metric.
+    {
+	Xapian::LatLongDistancePostingSource ps(0, centre, coorddist * 2.5);
 	ps.init(db);
 
 	ps.next(0.0);
