@@ -143,6 +143,9 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
     std::string serialise() const;
 
     /** Compare with another LatLongCoord.
+     *
+     *  This is mostly provided so that things like std::map<LatLongCoord> work
+     *  - the ordering isn't particularly meaningful.
      */
     bool XAPIAN_NOTHROW(operator<(const LatLongCoord & other) const)
     {
