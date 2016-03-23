@@ -29,6 +29,7 @@
 #include <xapian/attributes.h>
 #include <xapian/database.h>
 #include <xapian/deprecated.h>
+#include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
@@ -41,7 +42,8 @@ class Registry;
 
 /** Base class which provides an "external" source of postings.
  */
-class XAPIAN_VISIBILITY_DEFAULT PostingSource {
+class XAPIAN_VISIBILITY_DEFAULT PostingSource
+    : public Xapian::Internal::opt_intrusive_base {
     /// Don't allow assignment.
     void operator=(const PostingSource &);
 
@@ -359,6 +361,16 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource {
      *  get_description() gives for their subclass).
      */
     virtual std::string get_description() const;
+
+    PostingSource * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    const PostingSource * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 

@@ -384,6 +384,8 @@ SUBCLASSABLE(Xapian, Compactor)
 %include <xapian/compactor.h>
 
 SUBCLASSABLE(Xapian, PostingSource)
+// Suppress warning that Xapian::Internal::opt_intrusive_base is unknown.
+%warnfilter(SWIGWARN_TYPE_UNDEFINED_CLASS) Xapian::PostingSource;
 SUBCLASSABLE(Xapian, ValuePostingSource)
 SUBCLASSABLE(Xapian, ValueWeightPostingSource)
 %ignore Xapian::PostingSource::register_matcher_;

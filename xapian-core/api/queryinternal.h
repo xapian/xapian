@@ -1,7 +1,7 @@
 /** @file queryinternal.h
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -65,14 +65,10 @@ class QueryTerm : public Query::Internal {
 };
 
 class QueryPostingSource : public Query::Internal {
-    PostingSource * source;
-
-    bool owned;
+    Xapian::Internal::opt_intrusive_ptr<PostingSource> source;
 
   public:
-    QueryPostingSource(PostingSource * source_, bool owned_ = false);
-
-    ~QueryPostingSource();
+    QueryPostingSource(PostingSource * source_);
 
     PostingIterator::Internal * postlist(QueryOptimiser *qopt, double factor) const;
 

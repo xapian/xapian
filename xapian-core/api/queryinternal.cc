@@ -554,7 +554,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 			reg_source->unserialise_with_registry(string(*p, len),
 							      reg);
 		    *p += len;
-		    return new Xapian::Internal::QueryPostingSource(source, true);
+		    return new Xapian::Internal::QueryPostingSource(source->release());
 		}
 		case 0x0d: {
 		    using Xapian::Internal::QueryScaleWeight;
@@ -634,24 +634,11 @@ QueryTerm::get_description() const
     return desc;
 }
 
-QueryPostingSource::QueryPostingSource(PostingSource * source_, bool owned_)
-    : source(source_), owned(owned_)
+QueryPostingSource::QueryPostingSource(PostingSource * source_)
+    : source(source_)
 {
-    if (!source)
+    if (!source_)
 	throw Xapian::InvalidArgumentError("source parameter can't be NULL");
-    if (!owned) {
-	PostingSource * cloned_source = source->clone();
-	if (cloned_source) {
-	    source = cloned_source;
-	    owned = true;
-	}
-    }
-}
-
-QueryPostingSource::~QueryPostingSource()
-{
-    if (owned)
-	delete source;
 }
 
 Query::op
@@ -717,11 +704,11 @@ PostingIterator::Internal *
 QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(QUERY, PostingIterator::Internal *, "QueryPostingSource::postlist", qopt | factor);
-    Assert(source);
+    Assert(source.get());
     if (factor != 0.0)
 	qopt->inc_total_subqs();
     Xapian::Database wrappeddb(new ConstDatabaseWrapper(&(qopt->db)));
-    RETURN(new ExternalPostList(wrappeddb, source, factor, qopt->matcher));
+    RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher));
 }
 
 PostingIterator::Internal *
