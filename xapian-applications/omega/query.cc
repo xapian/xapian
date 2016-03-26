@@ -1344,9 +1344,9 @@ eval(const string &fmt, const vector<string> &param)
 		case CMD_srandom:  //if seed is provided it will generate based on seed else 
 		                   //it will seed based on current time
 		if (!args.empty())
-        {
-        	value =srand (args[0]);
-        }
+        		{
+        			value =srand (args[0]);
+        		}
         else {
         	value =srand (time(NULL));//time(NULL) returns the current calendar time (seconds since Jan 1, 1970)
         }
@@ -1356,20 +1356,20 @@ eval(const string &fmt, const vector<string> &param)
   		if (!args.empty()) break;
 		else
 		{	bool b=false;
-   	std::string pattern (args[0]);
-  	pattern.erase(pattern.end()-1); 
-  	pattern.erase(pattern.begin());
-  	std::string extras ("R(");
-  	pattern=extras+pattern;         
-  	pattern=pattern+")";
+   		std::string pattern (args[0]);
+  		pattern.erase(pattern.end()-1); 
+  		pattern.erase(pattern.begin());
+  		std::string extras ("R(");
+  		pattern=extras+pattern;         
+  		pattern=pattern+")";
 
-  	std::regex rgx (pattern);  
- 	std::smatch match;
+  		std::regex rgx (pattern);  
+ 		std::smatch match;
   
-  b=std::regex_search (args[1],match,rgx,std::regex_constants::match_not_null);
-  value=b;
-  break;
-}
+  		b=std::regex_search (args[1],match,rgx,std::regex_constants::match_not_null);
+  		value=b;
+		}
+		break;
 	    case CMD_date:
 		value = args[0];
 		if (!value.empty()) {
