@@ -711,11 +711,7 @@ static bool test_termgen1()
 		nopos = true;
 	    } else if (strncmp(o, "weight=", 7) == 0) {
 		o += 7;
-<<<<<<< HEAD
 		weight = strtol(o, NULL, 0);
-=======
-		weight = strtol(o);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		while (*o >= '0' && *o <= '9')
 		    ++o;
 	    } else if (strncmp(o, "stem=", 5) == 0) {

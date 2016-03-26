@@ -69,11 +69,7 @@ FDTracker::init()
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
 
-<<<<<<< HEAD
 	int fd = strtol(name, NULL, 0);
-=======
-	int fd = strtol(name);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	fds.insert(fd);
     }
 #endif
@@ -106,11 +102,7 @@ FDTracker::check()
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
 
-<<<<<<< HEAD
 	int fd = strtol(name, NULL, 0);
-=======
-	int fd = strtol(name);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	if (fds.find(fd) != fds.end()) continue;
 
 	string proc_symlink = "/proc/self/fd/";

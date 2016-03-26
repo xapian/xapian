@@ -73,11 +73,7 @@ main(int argc, char **argv)
 		host.assign(optarg);
 		break;
 	    case 'p':
-<<<<<<< HEAD
 		port = strtoul(optarg, NULL, 0);
-=======
-		port = strtol(optarg);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		break;
 	    case 'o':
 		one_shot = true;

@@ -1352,12 +1352,11 @@ eval(const string &fmt, const vector<string> &param)
         }
 		break;
 
-<<<<<<< HEAD
 		case CMD_match:
   		if (!args.empty()) break;
 		else
 		{	bool b=false;
-   	 std::string pattern (args[0]);
+   	std::string pattern (args[0]);
   	pattern.erase(pattern.end()-1); 
   	pattern.erase(pattern.begin());
   	std::string extras ("R(");
@@ -1371,23 +1370,6 @@ eval(const string &fmt, const vector<string> &param)
   value=b;
   break;
 }
-=======
-case CMD_match:
-  if (!args.empty()) break;
-		bool b=false;
-  std::string pattern (args[0]);
-  pattern.erase(pattern.end()-1); 
-  pattern.erase(pattern.begin());
-  std::string extras ("R(");
-  pattern=extras+pattern;         
-  pattern=pattern+")";
-
-  std::regex rgx (pattern);  
-  std::smatch match;
-  
-  b=std::regex_search (args[1],match,rgx,std::regex_constants::match_not_null);
-  value=b;
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	    case CMD_date:
 		value = args[0];
 		if (!value.empty()) {
@@ -2030,11 +2012,7 @@ case CMD_match:
 		string::size_type i = 0, j;
 		while (true) {
 		    j = args[0].find_first_not_of("0123456789", i);
-<<<<<<< HEAD
 		    Xapian::docid id = strtoul(args[0].substr(i, j - i).c_str(), NULL, 0);
-=======
-		    Xapian::docid id = strtol(args[0].substr(i, j - i).c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		    if (id) {
 			rset.add_document(id);
 			ticked[id] = true;
@@ -2508,11 +2486,7 @@ ensure_query_parsed()
 	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-<<<<<<< HEAD
 	    topdoc = strtoul(val->second.c_str(), NULL, 0);
-=======
-	    topdoc = strtol(val->second.c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	}
 
 	// Handle next, previous, and page links
@@ -2525,11 +2499,7 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-<<<<<<< HEAD
 	    long page = strtoul(val->second.c_str(), NULL, 0);
-=======
-	    long page = strtol(val->second.c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	    // Do something sensible for page 0 (we count pages from 1).
 	    if (page == 0) page = 1;
 	    topdoc = (page - 1) * hits_per_page;
@@ -2543,11 +2513,7 @@ ensure_query_parsed()
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
-<<<<<<< HEAD
 	    raw_search = bool(strtol(val->second.c_str(), NULL, 0));
-=======
-	    raw_search = bool(strtol(val->second.c_str()));
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
@@ -2560,11 +2526,7 @@ ensure_query_parsed()
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;
-<<<<<<< HEAD
 		Xapian::docid d = strtoul((value.c_str() + j), NULL, 0);
-=======
-		Xapian::docid d = strtol(value.c_str() + j);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		if (d) {
 		    rset.add_document(d);
 		    ticked[d] = true;

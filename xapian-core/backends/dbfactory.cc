@@ -169,11 +169,7 @@ open_stub(Database &db, const string &file)
 	    } else if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
-<<<<<<< HEAD
 		unsigned int port = strtoul(line.c_str() + colon + 1, NULL, 0);
-=======
-		unsigned int port = strtol(line.c_str() + colon + 1);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		line.erase(colon);
 		db.add_database(Remote::open(line, port));
 	    }
@@ -281,11 +277,7 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 	    } else if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
-<<<<<<< HEAD
 		unsigned int port = strtoul(line.c_str() + colon + 1, NULL, 0);
-=======
-		unsigned int port = strtol(line.c_str() + colon + 1);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		line.erase(colon);
 		db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
 	    }

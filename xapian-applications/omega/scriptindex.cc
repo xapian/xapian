@@ -117,11 +117,7 @@ public:
     Action(type action_) : action(action_), num_arg(0) { }
     Action(type action_, const string & arg)
 	: action(action_), string_arg(arg) {
-<<<<<<< HEAD
 	num_arg = strtol(string_arg.c_str(), NULL, 0);
-=======
-	num_arg = strtol(string_arg.c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
     }
     Action(type action_, const string & arg, int num)
 	: action(action_), num_arg(num), string_arg(arg) { }
@@ -315,11 +311,7 @@ parse_index_script(const string &filename)
 			// We don't push an Action for WEIGHT - instead we
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
-<<<<<<< HEAD
 			weight = strtol(val.c_str(), NULL, 0);
-=======
-			weight = strtol(val.c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
 						  useless_weight_pos, action);
@@ -627,11 +619,7 @@ again:
 			const string & type = i->get_string_arg();
 			string yyyymmdd;
 			if (type == "unix") {
-<<<<<<< HEAD
 			    time_t t = strtol(value.c_str(), NULL, 0);
-=======
-			    time_t t = strtol(value.c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 			    struct tm *tm = localtime(&t);
 			    int y = tm->tm_year + 1900;
 			    int m = tm->tm_mon + 1;

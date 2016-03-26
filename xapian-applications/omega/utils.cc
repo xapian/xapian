@@ -52,11 +52,7 @@ using namespace std;
 int
 string_to_int(const string &s)
 {
-<<<<<<< HEAD
     return strtol(s.c_str(),NULL,0);
-=======
-    return strtol(s.c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 }
 
 string

@@ -110,11 +110,7 @@ try {
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'm':
-<<<<<<< HEAD
 		msize = strtol(optarg, NULL, 0);
-=======
-		msize = strtol(optarg);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		break;
 	    case 'd':
 		db.add_database(Xapian::Database(optarg));

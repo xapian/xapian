@@ -283,11 +283,7 @@ PerfTestLogger::indexing_begin(const string & dbname,
 	Xapian::doccount flush_threshold = 0;
 	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
 	if (p)
-<<<<<<< HEAD
 	    flush_threshold = strtoul(p, NULL, 0);
-=======
-	    flush_threshold = strtol(p);
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	if (flush_threshold == 0)
 	    flush_threshold = 10000;
 	write("    <param name=\"flush_threshold\">" +
@@ -438,11 +434,7 @@ class PerfTestRunner : public TestRunner
 	int result = 0;
 	if (!repetitions_parsed) {
 	    if (!repetitions_string.empty()) {
-<<<<<<< HEAD
 		repetitions = strtoul(repetitions_string.c_str(), NULL, 0);
-=======
-		repetitions = strtol(repetitions_string.c_str());
->>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	    }
 	    repetitions_parsed = true;
 	}
