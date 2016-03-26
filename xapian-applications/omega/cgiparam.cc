@@ -50,11 +50,7 @@ add_param(string name, string val)
 	if (name[i - 1] == 'y') return;
 	if (name[i - 1] == 'x') {
 	    name.resize(i - 2);
-	    // For an image button, the value of the CGI parameter is the
-	    // coordinate of the click within the image - this is meaningless
-	    // to us, so instead we turn "[ 2 ].x=NNN" into "[ 2 ]=2 ]", then
-	    // below that gets turned into "[=2 ]".  The trailing non-numeric
-	    // characters are ignored by atoi().
+	
 	    i = name.find(' ');
 	    if (i != string::npos)
 		val.assign(name, i + 1, string::npos);
@@ -135,7 +131,7 @@ decode_post()
     
     content_length = getenv("CONTENT_LENGTH");
     /* Netscape Fasttrack server for NT doesn't give CONTENT_LENGTH */
-    if (content_length) cl = atoi(content_length);
+    if (content_length) cl = strtoul(content_length,NULL,0);
 
     cgi_params.clear();
     url_decode(CGIParameterHandler(), StdinItor(cl), StdinItor());

@@ -63,7 +63,7 @@ GlassChanges::start(glass_revision_number_t old_rev,
     // Always check max_changesets for modification since last revision.
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
     if (p) {
-	max_changesets = atoi(p);
+	max_changesets = strtol(p, NULL, 0);
     } else {
 	max_changesets = 0;
     }

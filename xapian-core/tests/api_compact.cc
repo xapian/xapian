@@ -93,7 +93,7 @@ check_sparse_uid_terms(const string & path)
     Xapian::Database db(path);
     Xapian::TermIterator t;
     for (t = db.allterms_begin("Q"); t != db.allterms_end("Q"); ++t) {
-	Xapian::docid did = atoi((*t).c_str() + 1);
+	Xapian::docid did = strtoul((*t).c_str() + 1, NULL, 0);
 	Xapian::PostingIterator p = db.postlist_begin(*t);
 	TEST_EQUAL(*p, did);
     }

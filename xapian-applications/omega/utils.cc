@@ -52,7 +52,7 @@ using namespace std;
 int
 string_to_int(const string &s)
 {
-    return atoi(s.c_str());
+    return strtol(s.c_str(),NULL,0);
 }
 
 string

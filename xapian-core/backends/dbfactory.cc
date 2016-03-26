@@ -36,7 +36,7 @@
 #include "str.h"
 
 #include "safeerrno.h"
-#include <cstdlib> // For atoi().
+#include <cstdlib> // For strtol().
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 # include "glass/glass_database.h"
@@ -169,7 +169,7 @@ open_stub(Database &db, const string &file)
 	    } else if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
-		unsigned int port = atoi(line.c_str() + colon + 1);
+		unsigned int port = strtoul(line.c_str() + colon + 1, NULL, 0);
 		line.erase(colon);
 		db.add_database(Remote::open(line, port));
 	    }
@@ -277,7 +277,7 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 	    } else if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
-		unsigned int port = atoi(line.c_str() + colon + 1);
+		unsigned int port = strtoul(line.c_str() + colon + 1, NULL, 0);
 		line.erase(colon);
 		db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
 	    }

@@ -223,7 +223,7 @@ date_value_range(bool as_time_t,
     DateRangeLimit end(date_end, false);
 
     if (!date_span.empty()) {
-	time_t span = atoi(date_span.c_str()) * (24 * 60 * 60) - 1;
+	time_t span = strtol(date_span.c_str(), NULL, 0) * (24 * 60 * 60) - 1;
 	if (end.is_set()) {
 	    // If START, END and SPAN are all set, we (somewhat arbitrarily)
 	    // ignore START.
