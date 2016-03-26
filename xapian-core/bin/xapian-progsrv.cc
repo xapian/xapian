@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 't':
-		timeout = atoi(optarg) * 1e-3;
+		timeout = strtol(optarg, NULL, 0) * 1e-3;
 		break;
 	    case 'w':
 		writable = true;

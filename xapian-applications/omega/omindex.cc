@@ -397,9 +397,9 @@ main(int argc, char **argv)
 	    break;
 	case 'p': // Keep documents even if the files have been removed.
 	    delete_removed_documents = false;
-	    break;
+	    break;	
 	case 'l': { // Set recursion limit
-	    int arg = atoi(optarg);
+	    int arg = strtol(optarg, NULL, 0);
 	    if (arg < 0) arg = 0;
 	    depth_limit = size_t(arg);
 	    break;

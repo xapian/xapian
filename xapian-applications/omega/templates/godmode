@@ -8,27 +8,27 @@ Term "$html{$cgi{B}}",
 Choose what to Inspect}}
 </title>
 </head>
-<body bgcolor=white>
-<form METHOD=GET ACTION="$html{$env{SCRIPT_NAME}}">
+<body bgcolor="white">
+<form method="get" action="$html{$env{SCRIPT_NAME}}">
 
 $if{$cgi{ID},
 $setrelevant{$cgi{ID}}
-<H1>Document #$html{$cgi{ID}}</H1>
+<h1>Document #$html{$cgi{ID}}</h1>
     
-<H2>Terms indexing this document</H2>
+<h1>Terms indexing this document</h1>
 
 <table>
-<tr><th>Frequency</th><th align=left>Term</th></tr>
+<tr><th>Frequency</th><th align="left">Term</th></tr>
 $map{$allterms{$cgi{ID}},
-<tr><td align=right>$freq{$_}</td>
-<td><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&B=$url{$_}}">$html{$_}</A></td></tr>}
+<tr><td align="right">$freq{$_}</td>
+<td><a href="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&B=$url{$_}}">$html{$_}</A></td></tr>}
 </table>
 
-<H2>Document Data</H2>
+<h2>Document Data</h2>
 
 <pre>$html{$record{$cgi{ID}}}</pre>
 
-<H2>Document Values</H2>
+<h2>Document Values</h2>
 
 $set{values,$list{$map{$range{0,255},$if{$value{$_,$cgi{ID}},
 <tr><td>$_</td><td>$html{$value{$_,$cgi{ID}}}</td></tr>
@@ -49,23 +49,23 @@ $if{$not{$msizeexact},
 }
 <hr>
 <table>
-$hitlist{<TR>
-<td align=right><A HREF="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</A>&nbsp;</td>
-<TD><B><small>$html{$date{$field{modtime,$cgi{ID}},%Y-%m-%d %H:%M}}</small>
-<A HREF="$html{$field{url,$cgi{ID}}}">$html{$or{$field{caption,$cgi{ID}},$field{title,$cgi{ID}},$prettyurl{$field{url,$cgi{ID}}},Untitled}}</A></B><BR>
+$hitlist{<tr>
+<td align="right"><a href="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</A>&nbsp;</td>
+<tr><b><small>$html{$date{$field{modtime,$cgi{ID}},%Y-%m-%d %H:%M}}</small>
+<a href="$html{$field{url,$cgi{ID}}}">$html{$or{$field{caption,$cgi{ID}},$field{title,$cgi{ID}},$prettyurl{$field{url,$cgi{ID}}},Untitled}}</a></b><br>
 <small>$highlight{$field{sample,$cgi{ID}},$terms}$if{$field{sample,$cgi{ID}},...}</small><br>
-<A HREF="$html{$field{url,$cgi{ID}}}">$prettyurl{$html{$field{url,$cgi{ID}}}}</A><br>
-<hr></TD></TR>}
+<a href="$html{$field{url,$cgi{ID}}}">$prettyurl{$html{$field{url,$cgi{ID}}}}</a><br>
+<hr></td></tr>}
 </table>
 ${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
 <hr>
-<input type=hidden name=B value="$html{$cgi{B}}">
+<input type="hidden" name="B" value="$html{$cgi{B}}">
 <center>
-$def{PREV,$if{$ne{$topdoc,0},<INPUT TYPE=submit NAME="&lt;" VALUE="Previous">}}
-$def{PAGE,<INPUT TYPE=submit NAME="[" VALUE="$1">}
-$def{SPAGE,<INPUT TYPE=submit NAME="[" VALUE="$1" DISABLED=disabled>}
-$def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
+$def{PREV,$if{$ne{$topdoc,0},<input type="submit" name="&lt;" value="Previous">}}
+$def{PAGE,<input type="submit" name="[" value="$1">}
+$def{SPAGE,<input type="submit" name="[" value="$1" disabled=disabled>}
+$def{NEXT,$if{$ne{$last,$msize},<input type=submit name="&gt;" value="Next">}}
 ${1-W ... X-(this)-Y ...}
 $set{w,$min{3,$add{$thispage,-1}}}
 $set{x,$max{$add{$opt{w},1},$add{$thispage,-3}}}
@@ -82,16 +82,16 @@ $NEXT
 }
 }}
 $if{$or{$error,$and{$not{$cgi{ID}},$eq{$msize,0}}},
-$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form METHOD=GET ACTION="$html{$env{SCRIPT_NAME}}">}
-Inspect document # <INPUT NAME=ID SIZE=10>
-<INPUT TYPE=SUBMIT VALUE="Inspect">
+$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form method="get" action="$html{$env{SCRIPT_NAME}}">}
+Inspect document # <input name="ID" size=10>
+<input type="submit" value="Inspect">
 <hr>
-Inspect term <INPUT NAME=B SIZE=10>
-<INPUT TYPE=SUBMIT VALUE="Inspect">
+Inspect term <input name="B" size=10>
+<input type="submit" value="Inspect">
 }
-$if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
-$if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
-<hr><div align=right><i><small>$html{$version}</small></i></div>
+$if{$fmt,<input type=hidden name="FMT" value="$html{$fmt}">}
+$if{$dbname,<input type=hidden name="DB" value="$html{$dbname}">}
+<hr><div align="right"><i><small>$html{$version}</small></i></div>
 </form>
 </body>
 </html>

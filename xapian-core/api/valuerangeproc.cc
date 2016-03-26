@@ -23,7 +23,7 @@
 #include <xapian/queryparser.h>
 
 #include <cstdio> // For sprintf().
-#include <cstdlib> // For atoi().
+#include <cstdlib> // For strtol().
 #include "safeerrno.h"
 
 #include <string>
@@ -82,11 +82,11 @@ decode_xxy(const string & s, int & x1, int &x2, int &y)
     if (s.size() - j > 4 + 1) return false;
     if (s.find_first_not_of("0123456789", j + 1) != string::npos)
 	return false;
-    x1 = atoi(s.c_str());
+    x1 = strtol(s.c_str(), NULL, 0);
     if (x1 < 1 || x1 > 31) return false;
-    x2 = atoi(s.c_str() + i + 1);
+    x2 = strtol((s.c_str() + i + 1), NULL, 0);
     if (x2 < 1 || x2 > 31) return false;
-    y = atoi(s.c_str() + j + 1);
+    y = strtol((s.c_str() + j + 1), NULL, 0);
     return true;
 }
 

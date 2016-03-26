@@ -78,7 +78,7 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
 	    }
 
 	    qrel.insert(make_pair(token[0], Map1()));
-	    qrel[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
+	    qrel[token[0]].insert(make_pair(token[2], strtol(token[3].c_str(), NULL, 0)));
 	}
 	myfile.close();
     }

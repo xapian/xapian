@@ -38,6 +38,7 @@
 
 #include <cassert>
 #include <cctype>
+#include <regex> 
 #include "safeerrno.h"
 #include <stdio.h>
 #include <cstdlib>
@@ -353,7 +354,7 @@ set_probabilistic(const string &oldp)
 	qp.add_boolean_prefix(user_prefix, pfx->second, exclusive);
 	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
-
+   
     try {
 	unsigned default_flags = read_qp_flags("flag_", 0);
 	if (option["spelling"] == "true")
@@ -928,6 +929,7 @@ CMD_lookup,
 CMD_lower,
 CMD_lt,
 CMD_map,
+CMD_match,
 CMD_max,
 CMD_min,
 CMD_mod,
@@ -949,6 +951,7 @@ CMD_prettyurl,
 CMD_query,
 CMD_querydescription,
 CMD_queryterms,
+CMD_random,
 CMD_range,
 CMD_record,
 CMD_relevant,
@@ -960,6 +963,7 @@ CMD_setrelevant,
 CMD_slice,
 CMD_snippet,
 CMD_split,
+CMD_srandom,
 CMD_stoplist,
 CMD_sub,
 CMD_substr,
@@ -1003,13 +1007,13 @@ static struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure
 {"",{CMD_,	   N, N, 0, 0}},// commented out code
 T(add,		   0, N, N, 0), // add a list of numbers
-T(addfilter,	   1, 1, N, 0), // add filter term
+T(addfilter,   1, 1, N, 0), // add filter term
 T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
-T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
+T(collapsed,   0, 0, N, 0), // return number of hits collapsed into this
 T(contains,	   2, 2, N, 0), // return position of substring, or empty string
 T(csv,		   1, 2, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
@@ -1017,34 +1021,34 @@ T(date,		   1, 2, N, 0), // convert time_t to strftime format
 T(dbname,	   0, 0, N, 0), // database name
 T(dbsize,	   0, 0, N, 0), // database size (# of documents)
 T(def,		   2, 2, 1, 0), // define a macro
-T(defaultop,	   0, 0, N, 0), // default operator: "and" or "or"
+T(defaultop,   0, 0, N, 0), // default operator: "and" or "or"
 T(div,		   2, 2, N, 0), // integer divide
-T(emptydocs,	   0, 1, N, 0), // list of empty documents
+T(emptydocs,   0, 1, N, 0), // list of empty documents
 T(env,		   1, 1, N, 0), // environment variable
 T(error,	   0, 0, N, 0), // error message
 T(eq,		   2, 2, N, 0), // test equality
 T(field,	   1, 2, N, 0), // lookup field in record
 T(filesize,	   1, 1, N, 0), // pretty printed filesize
 T(filters,	   0, 0, N, 0), // serialisation of current filters
-T(filterterms,	   1, 1, N, 0), // list of terms with a given prefix
+T(filterterms, 1, 1, N, 0), // list of terms with a given prefix
 T(find,		   2, 2, N, 0), // find entry in list
 T(fmt,		   0, 0, N, 0), // name of current format
-T(freq,		   1, 1, N, 0), // frequency of a term
+T(freq,		   1, 1, N, 0),// frequency of a term 
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
-T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
+T(highlight,   2, 4, N, 0), // html escape and highlight words from list
 T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
-T(hitsperpage,	   0, 0, N, 0), // hits per page
+T(hitsperpage, 0, 0, N, 0), // hits per page
 T(hostname,	   1, 1, N, 0), // extract hostname from URL
 T(html,		   1, 1, N, 0), // html escape string (<>&")
-T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
-T(httpheader,      2, 2, N, 0), // arbitrary HTTP header
+T(htmlstrip,   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
+T(httpheader,  2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
-T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
+T(jsonarray,   1, 1, N, 0), // Format list as a JSON array of strings
 T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
@@ -1055,11 +1059,12 @@ T(lookup,	   2, 2, N, 0), // lookup in named cdb file
 T(lower,	   1, 1, N, 0), // convert string to lower case
 T(lt,		   2, 2, N, 0), // test <
 T(map,		   1, 2, 1, 0), // map a list into another list
+T(match,	   2, 2, N, 0), // 
 T(max,		   1, N, N, 0), // maximum of a list of values
 T(min,		   1, N, N, 0), // minimum of a list of values
 T(mod,		   2, 2, N, 0), // integer modulus
 T(msize,	   0, 0, N, M), // number of matches
-T(msizeexact,	   0, 0, N, M), // is $msize exact?
+T(msizeexact,  0, 0, N, M), // is $msize exact?
 T(mul,		   2, N, N, 0), // multiply a list of numbers
 T(muldiv,	   3, 3, N, 0), // calculate A*B/C
 T(ne,		   2, 2, N, 0), // test not equal
@@ -1070,27 +1075,29 @@ T(opt,		   1, 2, N, 0), // lookup an option value
 T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
 T(ord,		   1, 1, N, 0), // return codepoint for first character of UTF-8 string
 T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
-T(percentage,	   0, 0, N, 0), // percentage score of current hit
-T(prettyterm,	   1, 1, N, Q), // pretty print term name
-T(prettyurl,	   1, 1, N, 0), // pretty version of URL
+T(percentage,  0, 0, N, 0), // percentage score of current hit
+T(prettyterm,  1, 1, N, Q), // pretty print term name
+T(prettyurl,   1, 1, N, 0), // pretty version of URL
 T(query,	   0, 1, N, Q), // query
-T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
-T(queryterms,	   0, 0, N, Q), // list of query terms
+T(querydescription, 0, 0, N, M), // query.get_description() (run_query() adds filters so M)
+T(queryterms,  0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
 T(record,	   0, 1, N, 0), // record contents of document
 T(relevant,	   0, 1, N, Q), // is document relevant?
-T(relevants,	   0, 0, N, Q), // return list of relevant documents
+T(relevants,   0, 0, N, Q), // return list of relevant documents
+T(random,	   0, 1, N, 0), //random number generator 
 T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,     0, 1, N, Q), // set rset
+T(setrelevant, 0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
-T(split,	   1, 2, N, 0), // split a string to give a list
+T(split,	   1, 2, N, 0),// split a string to give a list
+T(srandom,	   0, 1, N, 0), // seeding random number generator with unsigned int
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(substr,	   2, 3, N, 0), // substring
-T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
+T(suggestion,  0, 0, N, Q), // misspelled word correction suggestion
 T(terms,	   0, 1, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
 T(time,		   0, 0, N, M), // how long the match took (in seconds)
@@ -1098,7 +1105,7 @@ T(topdoc,	   0, 0, N, M), // first document on current page of hit list
 				// (counting from 0)
 T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
 				// (default 16)
-T(transform,	   3, 4, N, 0), // transform with a regexp
+T(transform,   3, 4, N, 0), // transform with a regexp
 T(truncate,	   2, 4, N, 0), // truncate after a word
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
@@ -1322,6 +1329,45 @@ eval(const string &fmt, const vector<string> &param)
 		    csv_escape_always(value);
 		} else {
 		    csv_escape(value);
+		}
+		break;
+		case CMD_random://if arg to random is provided,generate random number >=0 and <arg
+		if (!args.empty())
+		        {
+		        	value = (rand() % args[0]);
+		        }
+		else {            //else generate some random number
+			value=rand();
+		}                
+        
+		break;
+		case CMD_srandom:  //if seed is provided it will generate based on seed else 
+		                   //it will seed based on current time
+		if (!args.empty())
+        		{
+        			value =srand (args[0]);
+        		}
+        else {
+        	value =srand (time(NULL));//time(NULL) returns the current calendar time (seconds since Jan 1, 1970)
+        }
+		break;
+
+		case CMD_match:
+  		if (!args.empty()) break;
+		else
+		{	bool b=false;
+   		std::string pattern (args[0]);
+  		pattern.erase(pattern.end()-1); 
+  		pattern.erase(pattern.begin());
+  		std::string extras ("R(");
+  		pattern=extras+pattern;         
+  		pattern=pattern+")";
+
+  		std::regex rgx (pattern);  
+ 		std::smatch match;
+  
+  		b=std::regex_search (args[1],match,rgx,std::regex_constants::match_not_null);
+  		value=b;
 		}
 		break;
 	    case CMD_date:
@@ -1966,7 +2012,7 @@ eval(const string &fmt, const vector<string> &param)
 		string::size_type i = 0, j;
 		while (true) {
 		    j = args[0].find_first_not_of("0123456789", i);
-		    Xapian::docid id = atoi(args[0].substr(i, j - i).c_str());
+		    Xapian::docid id = strtoul(args[0].substr(i, j - i).c_str(), NULL, 0);
 		    if (id) {
 			rset.add_document(id);
 			ticked[id] = true;
@@ -2440,7 +2486,7 @@ ensure_query_parsed()
 	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-	    topdoc = atol(val->second.c_str());
+	    topdoc = strtoul(val->second.c_str(), NULL, 0);
 	}
 
 	// Handle next, previous, and page links
@@ -2453,7 +2499,7 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    long page = atol(val->second.c_str());
+	    long page = strtoul(val->second.c_str(), NULL, 0);
 	    // Do something sensible for page 0 (we count pages from 1).
 	    if (page == 0) page = 1;
 	    topdoc = (page - 1) * hits_per_page;
@@ -2467,7 +2513,7 @@ ensure_query_parsed()
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
-	    raw_search = bool(atol(val->second.c_str()));
+	    raw_search = bool(strtol(val->second.c_str(), NULL, 0));
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
@@ -2480,7 +2526,7 @@ ensure_query_parsed()
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;
-		Xapian::docid d = atoi(value.c_str() + j);
+		Xapian::docid d = strtoul((value.c_str() + j), NULL, 0);
 		if (d) {
 		    rset.add_document(d);
 		    ticked[d] = true;

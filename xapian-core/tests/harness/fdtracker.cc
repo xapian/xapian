@@ -69,7 +69,7 @@ FDTracker::init()
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
 
-	int fd = atoi(name);
+	int fd = strtol(name, NULL, 0);
 	fds.insert(fd);
     }
 #endif
@@ -102,7 +102,7 @@ FDTracker::check()
 	if (name[0] < '0' || name[0] > '9')
 	    continue;
 
-	int fd = atoi(name);
+	int fd = strtol(name, NULL, 0);
 	if (fds.find(fd) != fds.end()) continue;
 
 	string proc_symlink = "/proc/self/fd/";
@@ -130,5 +130,5 @@ FDTracker::check()
 	ok = false;
     }
 #endif
-    return ok;
+    return ok;	
 }

@@ -172,7 +172,7 @@ try {
 
     hits_per_page = 0;
     val = cgi_params.find("HITSPERPAGE");
-    if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
+    if (val != cgi_params.end()) hits_per_page = strtoul(val->second.c_str(), NULL, 0);
     if (hits_per_page == 0) {
 	hits_per_page = 10;
     } else if (hits_per_page > 1000) {
@@ -197,7 +197,7 @@ try {
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
-	Xapian::docid docid = atol(v.c_str());
+	Xapian::docid docid = strtoul(v.c_str(), NULL, 0);
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
@@ -382,7 +382,8 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-        threshold = atoi(val->second.c_str());
+        threshold = strtol(val->second.c_str(), NULL, 0);
+
         if (threshold < 0) threshold = 0;
         if (threshold > 100) threshold = 100;
     }
@@ -392,7 +393,7 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    collapse_key = atoi(v.c_str());
+	    collapse_key = strtol(v.c_str(), NULL, 0);
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
@@ -430,16 +431,16 @@ try {
 	    reverse_sort = (*p == '-');
 	    ++p;
 	}
-	sort_key = atoi(p);
+	sort_key = strtol(p, NULL, 0);
 
 	val = cgi_params.find("SORTREVERSE");
-	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
+	if (val != cgi_params.end() && strtol(val->second.c_str(), NULL, 0) != 0) {
 	    reverse_sort = !reverse_sort;
 	}
 
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
-	    sort_after = (atoi(val->second.c_str()) != 0);
+	    sort_after = (strtol(val->second.c_str(), NULL, 0) != 0);
 	}
 
 	// Add the sorting related options to filters too.
@@ -474,7 +475,7 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
-	min_hits = atol(val->second.c_str());
+	min_hits = strtoul(val->second.c_str(), NULL, 0);
     }
 
     parse_omegascript(); 
