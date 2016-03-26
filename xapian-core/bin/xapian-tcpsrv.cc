@@ -112,7 +112,11 @@ int main(int argc, char **argv) {
                 host.assign(optarg);
 	        break;
 	    case 'p':
+<<<<<<< HEAD
                 port = strtoul(optarg, NULL, 0);
+=======
+                port = strtol(optarg);
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		if (port <= 0 || port >= 65536) {
 		    cerr << "Error: must specify a valid port number "
 			    "(between 1 and 65535). "
@@ -121,6 +125,7 @@ int main(int argc, char **argv) {
 		}
 	        break;
 	    case 'a':
+<<<<<<< HEAD
 		active_timeout = strtol(optarg, NULL, 0) * 1e-3;
 		break;
             case 'i':
@@ -128,6 +133,15 @@ int main(int argc, char **argv) {
 		break;
 	    case 't':
 		active_timeout = idle_timeout = strtol(optarg, NULL, 0) * 1e-3;
+=======
+		active_timeout = strtol(optarg) * 1e-3;
+		break;
+            case 'i':
+		idle_timeout = strtol(optarg) * 1e-3;
+		break;
+	    case 't':
+		active_timeout = idle_timeout = strtol(optarg) * 1e-3;
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		break;
 	    case 'o':
 		one_shot = true;

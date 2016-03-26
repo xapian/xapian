@@ -64,7 +64,11 @@ ChertDatabaseReplicator::ChertDatabaseReplicator(const string & db_dir_)
 {
     const char *p = getenv("XAPIAN_MAX_CHANGESETS");
     if (p)
+<<<<<<< HEAD
 	max_changesets = strtol(p, NULL, 0);
+=======
+	max_changesets = strtol(p);
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 }
 
 bool

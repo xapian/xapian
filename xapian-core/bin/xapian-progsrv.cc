@@ -71,7 +71,11 @@ int main(int argc, char **argv)
 		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 't':
+<<<<<<< HEAD
 		timeout = strtol(optarg, NULL, 0) * 1e-3;
+=======
+		timeout = strtol(optarg) * 1e-3;
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 		break;
 	    case 'w':
 		writable = true;

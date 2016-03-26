@@ -91,9 +91,15 @@ Features::collection_length(const Xapian::Database & db) {
     map<string, long int> len;
 
     if (!db.get_metadata("collection_len_title").empty() && !db.get_metadata("collection_len_body").empty() && !db.get_metadata("collection_len_whole").empty()) {
+<<<<<<< HEAD
 	len["title"] = strtoul(db.get_metadata("collection_len_title").c_str(), NULL, 0);
 	len["body"] = strtoul(db.get_metadata("collection_len_body").c_str(), NULL, 0);
 	len["whole"] = strtoul(db.get_metadata("collection_len_whole").c_str(), NULL, 0);
+=======
+	len["title"] = strtol(db.get_metadata("collection_len_title").c_str());
+	len["body"] = strtol(db.get_metadata("collection_len_body").c_str());
+	len["whole"] = strtol(db.get_metadata("collection_len_whole").c_str());
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
     } else {
 	long int temp_count = 0;
 	Xapian::TermIterator dt = db.allterms_begin("S");

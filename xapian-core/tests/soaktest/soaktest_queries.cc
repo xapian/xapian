@@ -46,7 +46,11 @@ static void
 builddb_queries1(Xapian::WritableDatabase &db, const string &arg)
 {
     unsigned int doccount = 1000;
+<<<<<<< HEAD
     unsigned int maxtermsperfield = strtoul(arg.c_str(), NULL, 0);
+=======
+    unsigned int maxtermsperfield = strtol(arg.c_str());
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
     for (unsigned int i = 0; i < doccount; ++i) {
 	Xapian::Document doc;
 	for (unsigned int j = randint(maxtermsperfield) + 1; j != 0; --j) {

@@ -782,7 +782,11 @@ test_driver::parse_command_line(int argc, char **argv)
     if (verbose == 0) {
 	const char *p = getenv("VERBOSE");
 	if (p != NULL) {
+<<<<<<< HEAD
 	    verbose = strtol(p, NULL, 0);
+=======
+	    verbose = strtol(p);
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	}
     }
 

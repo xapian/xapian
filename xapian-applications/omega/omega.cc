@@ -172,7 +172,11 @@ try {
 
     hits_per_page = 0;
     val = cgi_params.find("HITSPERPAGE");
+<<<<<<< HEAD
     if (val != cgi_params.end()) hits_per_page = strtoul(val->second.c_str(), NULL, 0);
+=======
+    if (val != cgi_params.end()) hits_per_page = strtol(val->second.c_str());
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
     if (hits_per_page == 0) {
 	hits_per_page = 10;
     } else if (hits_per_page > 1000) {
@@ -197,7 +201,11 @@ try {
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
+<<<<<<< HEAD
 	Xapian::docid docid = strtoul(v.c_str(), NULL, 0);
+=======
+	Xapian::docid docid = strtol(v.c_str());
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
@@ -382,7 +390,11 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
+<<<<<<< HEAD
         threshold = strtol(val->second.c_str(), NULL, 0);
+=======
+        threshold = strtol(val->second.c_str());
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
         if (threshold < 0) threshold = 0;
         if (threshold > 100) threshold = 100;
     }
@@ -392,7 +404,11 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
+<<<<<<< HEAD
 	    collapse_key = strtol(v.c_str(), NULL, 0);
+=======
+	    collapse_key = strtol(v.c_str());
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
@@ -430,16 +446,27 @@ try {
 	    reverse_sort = (*p == '-');
 	    ++p;
 	}
+<<<<<<< HEAD
 	sort_key = strtol(p, NULL, 0);
 
 	val = cgi_params.find("SORTREVERSE");
 	if (val != cgi_params.end() && strtol(val->second.c_str(), NULL, 0) != 0) {
+=======
+	sort_key = strtol(p);
+
+	val = cgi_params.find("SORTREVERSE");
+	if (val != cgi_params.end() && strtol(val->second.c_str()) != 0) {
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	    reverse_sort = !reverse_sort;
 	}
 
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
+<<<<<<< HEAD
 	    sort_after = (strtol(val->second.c_str(), NULL, 0) != 0);
+=======
+	    sort_after = (strtol(val->second.c_str()) != 0);
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
 	}
 
 	// Add the sorting related options to filters too.
@@ -474,7 +501,11 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
+<<<<<<< HEAD
 	min_hits = strtoul(val->second.c_str(), NULL, 0);
+=======
+	min_hits = strtol(val->second.c_str());
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
     }
 
     parse_omegascript(); 

@@ -106,7 +106,11 @@ FeatureManager::load_relevance(const std::string & qrel_file) {
         }
 
         qrel1.insert(make_pair(token[0], Map1()));
+<<<<<<< HEAD
         qrel1[token[0]].insert(make_pair(token[2], strtol(token[3].c_str(), NULL, 0)));
+=======
+        qrel1[token[0]].insert(make_pair(token[2], strtol(token[3].c_str())));
+>>>>>>> 599c7526ba6aec0aab85fa8726f9149a57bfbed4
     }
     myfile.close();
     }
