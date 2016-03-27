@@ -409,17 +409,26 @@ if test no != "$with_php" ; then
 	  php_prefix=`$PHP_CONFIG --prefix 2>/dev/null`
 	  php_bin=$php_prefix/bin/php
 	  php_binary=
+	  php_binary_major=
 	  if $PHP_CONFIG --php_binary > /dev/null 2>&1 ; then
 	    php_binary=`$PHP_CONFIG --php-binary 2>/dev/null`
+	    case $php_binary in
+	      *[0-9]) ;;
+	      *) php_binary_major=$php_binary$PHP_MAJOR_VERSION ;;
+	    esac
 	  fi
-	  for php in $php_binary $php_bin$PHP_MAJOR_VERSION $php_bin ; do
+	  for php in $php_binary $php_binary_major $php_bin$PHP_MAJOR_VERSION $php_bin ; do
 	    AC_MSG_CHECKING([for $php])
 	    for ac_exec_ext in '' $ac_executable_extensions; do
 	      if $as_executable_p "$php$ac_exec_ext"; then
-		PHP=$php$ac_exec_ext
-		AC_MSG_RESULT([$PHP])
-		PHP_found=yes
-		break 2
+		dnl We get /usr/bin/php on Debian, which might be PHP7:
+		dnl https://bugs.debian.org/819139
+		if $php$ac_exec_ext -r 'exit(PHP_MAJOR_VERSION=='"$PHP_MAJOR_VERSION"'?0:1);' 2> /dev/null ; then
+		  PHP=$php$ac_exec_ext
+		  AC_MSG_RESULT([$PHP])
+		  PHP_found=yes
+		  break 2
+		fi
 	      fi
 	    done
 	    AC_MSG_RESULT([no])
