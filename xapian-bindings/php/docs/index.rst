@@ -7,7 +7,8 @@ API.  This document lists the differences and additions.
 
 As of Xapian version 1.3.2, these bindings require at least PHP 5.5.
 (Older versions of PHP are now out of security support, but if you really need
-support for them then Xapian 1.2 supports PHP 5.0 and later).
+support for them then Xapian 1.2 supports PHP 5.0 and later).  PHP7 is not yet
+supported because SWIG doesn't yet support it.
 
 PHP strings, arrays, etc., are converted automatically to and from the
 corresponding C++ types in the bindings, so generally you can pass arguments as

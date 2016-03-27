@@ -505,6 +505,13 @@ if test no != "$with_php" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
+    7.*)
+      AC_MSG_RESULT([$version (not supported, SWIG doesn't support PHP7 yet)])
+      if test yes = "$with_php" ; then
+	AC_MSG_ERROR([SWIG doesn't yet support PHP7 ($PHP_CONFIG reports version $version)])
+      fi
+      with_php=no
+      ;;
     [[01234].*|5.[01234].*])
       AC_MSG_RESULT([$version (not supported, need PHP >= 5.5)])
       if test yes = "$with_php" ; then
