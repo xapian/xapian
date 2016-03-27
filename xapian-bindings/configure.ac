@@ -556,11 +556,23 @@ if test no != "$with_php" ; then
 	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
 	if test x"$PHP" != x ; then
 	  if $PHP -r 'exit(0);' 2> /dev/null ; then
-	    AC_MSG_RESULT([$PHP])
+	    if $PHP -r 'exit(PHP_MAJOR_VERSION==5?0:1);' 2> /dev/null ; then
+	      AC_MSG_RESULT([$PHP])
+	    else
+	      dnl We get /usr/bin/php on Debian, which might be PHP7:
+	      dnl https://bugs.debian.org/819139
+	      if ${PHP}5 -r 'exit(PHP_MAJOR_VERSION==5?0:1);' 2> /dev/null ; then
+		PHP=${PHP}5
+		AC_MSG_RESULT([$PHP])
+	      else
+		AC_MSG_RESULT([no ($PHP isn't PHP5)])
+		PHP=
+	      fi
+	    fi
 	  else
 	    AC_MSG_RESULT([no ($PHP does not work)])
 	    PHP=
-          fi
+	  fi
 	else
 	  AC_MSG_RESULT([not found])
 	fi
