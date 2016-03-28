@@ -28,10 +28,8 @@ for (sort keys %pages) {
 sub pod2html {
     my ($in, $out) = @_;
     my $tmp = 'pod2html.tmp';
-    my $root = $out;
-    $root =~ s![^/]+!..!g;
-    $root =~ s!\.\./!!;
-    $root =~ s!\.\./!!;
+    my $root = '.';
+    $root = 'Xapian' if $out =~ m!/Xapian\.html$!;
 
     my $is_pod;
     open POD, $in or die $!;
@@ -74,7 +72,7 @@ EOT
     } else {
 	$pages{$class} = 'Y' . ($pages{$class} || '');
 
-	system('pod2html', '--htmlroot', $root, '--infile', $in, '--outfile', $tmp) == 0
+	system('pod2html', '--podroot=blib/lib', '--podpath=.', '--htmlroot', $root, '--infile', $in, '--outfile', $tmp) == 0
 	    or die $!;
 	if ($?) { die $?; }
 
@@ -83,6 +81,10 @@ EOT
 	while (<TMP>) {
 	    s!>the (.*?) manpage<!>$1<!g;
 	    s!\bhref="mailto:.*?@.*?"!!g;
+	    # Clean up redundant . and .. in links.
+	    s!(href=")\./\.\./\.\./Search/Xapian/!$1!g;
+	    s!(href=")\./\.\./\.\./Search/!$1../!g;
+	    s!(href=")Xapian/\.\./\.\./Search/!$1!g;
 	    while (m!\bhref="(?:../)*(Search/Xapian[^.]*)!g) {
 		my $class = $1;
 		$class =~ s!/!::!g;
