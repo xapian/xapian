@@ -1,3 +1,21 @@
+Omega 1.2.23 (2016-03-28):
+
+documentation:
+
+* Update links to Xapian website and trac to use https, which is now supported,
+  thanks to James Aylett.
+
+indexers:
+
+* Fix HTML/XML entity decoding to be O(n) not O(n²) - processing HTML/XML with
+  a lot of entities is now much faster.
+
+templates:
+
+* Remove unused country code to name maps.  These were intended as examples,
+  but they aren't very useful as such, and really just bloat the templates
+  needlessly.
+
 Omega 1.2.22 (2015-12-29):
 
 documentation:
