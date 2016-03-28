@@ -65,7 +65,7 @@ sub pod2html {
 
 <p>No Perl-specific documentation currently exists for class
 <code>$class</code> - please refer to the
-<a href="http://xapian.org/docs/apidoc/html/annotated.html">C++
+<a href="https://xapian.org/docs/apidoc/html/annotated.html">C++
 API documentation</a> for now.
 </body>
 
