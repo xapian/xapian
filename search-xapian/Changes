@@ -3,6 +3,7 @@ Revision history for Perl extension Search::Xapian.
 1.2.23.0  Mon Mar 28 08:44:59 UTC 2016
 	[Changes contributed by Olly Betts]
 	- makehtmldocs: Fix inter-class links in generated HTML.
+	- Fix typo in POD documentation.
 	- Update Xapian website and trac links to use https, which is now
 	  supported, thanks to James Aylett.
 

@@ -304,7 +304,7 @@ swig
 xapian-applications/omega/common
 END
 if [ -f .git/info/exclude ] &&
-   cmp .git/info/exclude~ .git/info/exclude 2> /dev/null ; then
+   cmp -s .git/info/exclude~ .git/info/exclude ; then
   rm .git/info/exclude~
 else
   mv .git/info/exclude~ .git/info/exclude
