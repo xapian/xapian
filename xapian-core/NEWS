@@ -1,4 +1,211 @@
+up to: f441946cf3bbdca9484f32b81209dcf6d629872e
+
+backport fodder:
+
+Xapian-core 1.3.5 (2016-03-30):
+
+This release includes all changes from 1.2.23 which are relevant.
+
+API:
+
+* The Snipper class has been replaced with a new MSet::get_snippet() method.
+  The implementation has also been redone - the existing implementation was
+  slower than ideal, and it didn't directly consider the query and would
+  sometimes selects a snippet which doesn't contain any of the query terms
+  (which users quite reasonably found surprising).  The new implementation is
+  faster, will always prefer snippets containing query terms, and also
+  understands exact phrases and wildcards.  Fixes #211.
+
+* Add optional reference counting support for ErrorHandler, ExpandDecider,
+  KeyMaker, PostingSource, Stopper and TermGenerator.  Fixes #186, reported
+  by Richard Boulton.  (ErrorHandler's reference counting isn't actually used
+  anywhere in xapian-core currently, but means we can hook it up in 1.4.x if
+  ticket #3 gets addressed).
+
+* Deprecate public member variables of PostingSource.  The new getters and/or
+  setters added in 1.2.23 and 1.3.5 are preferred.  Fixes #499, reported by
+  Joost Cassee.
+
+* Reimplement MSet and MSetIterator.  MSetIterator internally now counts down
+  to the end of the MSet, so the end test is now against 0, rather than against
+  mset.size().  And more of the trivial methods are now inlined, which reduces
+  the number of relocations needed to load the library, and should give faster
+  code which is a very similar size to before.
+
+* Only issue prefetch hints for documents if MSet::fetch() is called.  It's not
+  useful to send the prefetch hint right before the actual read, which was
+  happening since the implementation of prefetch hints in 1.3.4.  Fixes #671,
+  reported by Will Greenberg.
+
+* Fix OP_ELITE_SET selection in multi-database case - we were selecting
+  different sets for each subdatabase, but removing the special case check for
+  termfreq_max == 0 solves that.
+
+* Remove "experimental" marker from FieldProcessor, since we're happy with the
+  API as-is.  Reported by David Bremner on xapian-discuss.
+
+* Remove "experimental" marker from Database::check().  We've not had any
+  negative feedback on the current API.
+
+* Databse::check() now checks that doccount <= last_docid.
+
+* Database::compact() on a WritableDatabase with uncommitted changes could
+  produce a corrupted output.  We now throw Xapian::InvalidOperationError in
+  this case, with a message suggesting you either commit() or open the database
+  from disk to compact from.  Reported by Will Greenberg on #xapian-discuss
+
+* Add Arabic stemmer.  Patch from Assem Chelli in
+  https://github.com/xapian/xapian/pull/45
+
+* Improve the Arabic stopword list.  Patch from Assem Chelli.
+
+* Make functions defined in xapian/iterator.h 'inline'.
+
+* Don't force the user to specify the metric in the geospatial API -
+  GreatCircleMetric is probably what most users will want, so a sensible
+  default.
+
+* Xapian::DBCHECK_SHOW_BITMAP: This was added in 1.3.0 (so has never been in
+  a stable release) and was superseded by Xapian::DBCHECK_SHOW_FREELIST in
+  1.3.2, so just remove it.
+
+* Make setting an ErrorHandler a no-op - this feature is deprecated and we're
+  not aware of anyone using it.  We're hoping to rework ErrorHandler in 1.4.x,
+  which will be simpler without having to support the current behaviour as well
+  as the new.  See #3.
+
+testsuite:
+
+* unittest: We can't use Assert() to unit test noexcept code as it throws an
+  exception if it fails.  Instead set up macros to set a variable and return if
+  an assertion fails in a unittest testcase, and check that variable in the
+  harness.
+
+matcher:
+
+glass backend:
+
+* Make glass the default backend.  The format should now be stable, except
+  perhaps in the unlikely event that a bug emerges which requires a format
+  change to address.
+
+* Don't explicitly store the 2 byte "component_of" counter for the first
+  component of every Btree entry in leaf blocks - instead use one of the upper
+  bits of the length to store a "first component" flag.  This directly saves 2
+  bytes per entry in the Btree, plus additional space due to fewer blocks and
+  fewer levels being needed as a result.  This particularly helps the position
+  table, which has a lot of entries, many of them very small.  The saving would
+  be expected to be a little less than the saving from the change which shaved
+  2 bytes of every Btree item in 1.3.4 (since that saved 2 bytes multiple times
+  for large entries which get split into multiple items).  A simple test
+  suggests a saving of several percent in total DB size, which fits that.  This
+  change reduces the maximum component size to 8194, which affects tables
+  with a 64KB blocksize in normal use and tables with >= 16KB blocksize with
+  full compaction.
+
+* Refactor glass backend key comparison - == and < operations are replaced by
+  a compare() function returns negative, 0 or positive (like strcmp(), memcmp()
+  and std::string::compare()).  This allows us to avoid a final compare to
+  check for equality when binary chopping, and to terminate early if the binary
+  chop hits the exact entry.
+
+* If a cursor is moved to an entry which doesn't exist, we need to step back to
+  the first component of previous entry before we can read its tag.  However we
+  often don't actually read its tag (e.g. if we only wanted the key), so make
+  this stepping back lazy so we can avoid doing it when we don't want to read
+  the tag.
+
+* Avoid creating std::string objects to hold data when compressing and
+  decompressing tags with zlib.
+
+* Store minimum compression length per table in the version file, with 0
+  meaning "don't compress".  Currently you can only change this setting with a
+  hex editor on the file, but now it is there we can later make use of it
+  without needing a database format change.
+
+* Database::check() now performs additional consistency checks for glass.
+  Reported by Jean-Francois Dockes and Bob Cargill via xapian-discuss.
+
+* Database::check(): check docids don't exceed db_last_docid when checking
+  a single glass table.
+
+* We now throw DatabaseCorruptError in a few cases where it's appropriate
+  but we didn't previously, in particular in the case where all the files in a
+  DB have been truncated to zero size (which makes handling of this case
+  consistent with chert).
+
+* Fix compaction to a single file which already exists.  This was hanging.
+  Noted by Will Greenberg on #xapian.
+
+chert backend:
+
+* When using 64-bit Xapian::docid, consistently use the actual maximum valid
+  docid value rather instead of the maximum value the type can hold.
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* Default to only building shared libraries.  Building both shared and static
+  means having to compile the files which make up the library twice on most
+  platforms.  Shared libraries are the better option for most users, and if
+  anyone really wants static libraries, they can configure with --enable-static
+  (or --enable-static=xapian-core if configuring a combined tree with the
+  bindings).
+
+* Fix XAPIAN_TEST_LINKER_FLAG macro to actually test if it's possible to link
+  with the option in LDFLAGS - previously we attempted to guess based on
+  whether the error message from $CXX $flag contained the option name, which
+  doesn't actually work very well.
+
+documentation:
+
+* Document OP_WILDCARD expansion limits work per sub-db.
+
+* Remove reference to ChangeLog files, as we are no longer updating them.
+
+* Remove link to apidoc.pdf which we no longer generate this by default.
+
+* Clarify LatLongCoord::operator< purpose in API documentation.
+
+* Fix documentation comment typo - LatLongDistancePostingSource is a posting
+  source, not a match decider!
+
+* HACKING: Recommend lcov 1.11 as it uses much less memory
+
+tools:
+
+* xapian-replicate: Obviously corrupt replicas now self-heal.  If a replica
+  database fails to open with DatabaseCorruptError then a full copy is now
+  forced.
+
+examples:
+
+
+portability:
+
+* Eliminate arrays of C strings, which result in relocations at library load
+  time, slowing startup and making pages containing them unsharable.
+
+* Refactor MSet::fetch() to reduce load time relocations.
+
+packaging:
+
+
+debug code:
+
+* Fix to build when configured with --enable-assertions.
+
+* Fix to build when configured with --enable-log.  Reported by Tim McNamara
+  on #xapian-discuss.
+
 Xapian-core 1.3.4 (2016-01-01):
+
+This release includes all changes from 1.2.22 which are relevant.
 
 API:
 
@@ -967,6 +1174,35 @@ debug code:
 * Fix various errors in debug logging statements.
 
 * Add QUERY category for debug logging.
+
+Xapian-core 1.2.23 (2016-03-28):
+
+API:
+
+* PostingSource: Public member variables are now wrapped by methods (mostly
+  getters and/or setters, depending on whether they should be readable,
+  writable or both).  In 1.3.5, the public members variables have been
+  deprecated - we've added the replacement methods in 1.2.23 as well to make
+  it easier for people to migrate over.
+
+chert backend:
+
+* xapian-check now performs additional consistency checks for chert. Reported
+  by Jean-Francois Dockes and Bob Cargill via xapian-discuss.
+
+documentation:
+
+* Update links to Xapian website and trac to use https, which is now supported,
+  thanks to James Aylett.
+
+portability:
+
+* On older Linux kernels, rename() of a file within a directory on NFS can
+  sometimes erroneously fail with EXDEV.  This should only happen if you
+  try to rename a file across filing systems, so workaround this issue by
+  retrying up to 5 times on EXDEV (which should be plenty to avoid this
+  bug, and we don't want to risk looping forever).  Fixes #698, reported by
+  Mark Dufour.
 
 Xapian-core 1.2.22 (2015-12-29):
 

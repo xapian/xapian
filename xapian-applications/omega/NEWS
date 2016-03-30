@@ -1,8 +1,8 @@
-up to: 5048b03e6782579196ea341109ebd2ea10d75e97
+up to: fac5fbf40652571380166ec653bb5c9e252d616a
 
 backport fodder:
 
-Omega 1.3.5 (2016-02-28):
+Omega 1.3.5 (2016-03-23):
 
 This release includes all changes from 1.2.23 which are relevant.
 
@@ -22,6 +22,8 @@ omega:
 
 * $snippet now uses MSet::get_snippet() instead of the Snipper class.
 
+* Add $contains{STRING1,STRING2}.  Contributed by Ayush Gupta.
+
 * Add support for negated boolean filter terms, specified by CGI parameter "N".
 
 * Support a direction prefix on SORT: '+' for ascending, '-' for descending.
@@ -37,6 +39,11 @@ build system:
 * Need to AC_SUBST probed value of ZLIB_LIBS.  Noted by Paul Wise.
 
 portability:
+
+* omegatest; Test faketime actually works, and if it doesn't work skip
+  testcases which use it.  On OS X 10.11, faketime from homebrew doesn't seem
+  to work, probably due to the new "System Integrity Protection".  Fixes part
+  of #707, reported by James Aylett.
 
 packaging:
 
@@ -452,6 +459,24 @@ packaging:
 
 * xapian-omega.spec: We're ABI compatible within a release series so make
   dependency on xapian-core-libs >= rather than =.
+
+Omega 1.2.23 (2016-03-28):
+
+documentation:
+
+* Update links to Xapian website and trac to use https, which is now supported,
+  thanks to James Aylett.
+
+indexers:
+
+* Fix HTML/XML entity decoding to be O(n) not O(n²) - processing HTML/XML with
+  a lot of entities is now much faster.
+
+templates:
+
+* Remove unused country code to name maps.  These were intended as examples,
+  but they aren't very useful as such, and really just bloat the templates
+  needlessly.
 
 Omega 1.2.22 (2015-12-29):
 
