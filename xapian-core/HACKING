@@ -1626,7 +1626,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Mark the current milestone as completed.  In order to do so, any unfixed bugs
   with this milestone will need to be moved to another milestone (most likely
-  the milestone you just added).
+  the milestone you just added):
+  https://trac.xapian.org/milestone/1.0.14?action=edit
 
 * Update the wiki:
 
