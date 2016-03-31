@@ -2,7 +2,7 @@
 # Backport Debian source packages for Xapian.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
+# Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -27,8 +27,10 @@ set -e
 #MIRROR=http://ftp.de.debian.org/debian/
 MIRROR=http://ftp.nz.debian.org/debian/
 
-DEBIAN_CODENAMES='jessie wheezy squeeze'
-UBUNTU_CODENAMES='vivid utopic trusty precise'
+# Can't backport direct to squeeze from stretch
+DEBIAN_CODENAMES='jessie wheezy'
+UBUNTU_CODENAMES='wily trusty precise'
+UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
 case $1 in
@@ -112,14 +114,14 @@ build_it() {
       echo "$CODENAME" > debian/codename
       # Generates control from control.in (and maybe other files).
       fakeroot debian/rules maintclean CODENAME="$CODENAME"
-      fakeroot debian/rules maint CODENAME="$CODENAME"
+      fakeroot debian/rules maint CODENAME="$CODENAME" $overrides
       ;;
   esac
 
   # We don't really want to upload the orig tarball for all Ubuntu backports,
   # only if it isn't already in the archive.  So for now, just upload it for
-  # lucid as that gets uploaded first in alphabetical order.
-  if [ lucid = "$CODENAME" ] ; then
+  # the first codename in alphabetical order.
+  if [ "$UBUNTU_FIRST" = "$CODENAME" ] ; then
     include_src_opt=-sa
   else
     # The default is -si, which used to check for -0 or -1, but now looks for
