@@ -200,7 +200,10 @@ cd build
   DSC=${PKG}_$VERSION$SUFFIX.dsc
   if [ -f "$DSC" ] ; then
     [ -d backup ] || mkdir backup
-    mv "$DSC" backup
+    if ! mv "$DSC" backup ; then
+      # Handle dsc being hardlinked into backup already.
+      cmp "$DSC" "backup/$DSC" && rm -f "$DSC"
+    fi
     dget -b "file://`pwd`/backup/$DSC"
   else
     dget "${MIRROR}pool/main/$DIR/$PKG/$DSC"
