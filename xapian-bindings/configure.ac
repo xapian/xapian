@@ -491,7 +491,7 @@ case $BINDINGS in
 *python*)
   AC_PATH_PROG(SPHINX_BUILD, sphinx-build, [])
   if test -z "$SPHINX_BUILD" ; then
-    AC_MSG_ERROR([sphinx-build is required to build python documentation (try packages python-sphinx or python3-sphinx)])
+    AC_MSG_ERROR([sphinx-build is required to build python documentation (try packages python-sphinx and/or python3-sphinx)])
   fi
   ;;
 esac
