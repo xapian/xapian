@@ -155,7 +155,7 @@ wrapped like so for Tcl:
 - ``Xapian::major_version()`` is wrapped as ``xapian::major_version``
 - ``Xapian::minor_version()`` is wrapped as ``xapian::minor_version``
 - ``Xapian::revision()`` is wrapped as ``xapian::revision``
-- ``Xapian::Auto::open_stub()`` is wrapped as ``xapian::open_stub``
+- ``Xapian::Auto::open_stub()`` is wrapped as ``xapian::open_stub`` (now deprecated)
 - ``Xapian::Chert::open()`` is wrapped as ``xapian::chert_open`` (but note that the WritableDatabase version isn't wrapped - see the 'Destructors' section above for an explanation - and this function is deprecated anyway).
 - ``Xapian::InMemory::open()`` is wrapped as ``xapian::inmemory_open`` (now deprecated)
 - ``Xapian::Remote::open()`` is wrapped as ``xapian::remote_open`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
