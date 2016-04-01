@@ -736,9 +736,7 @@ if test no != "$with_csharp" ; then
       dnl gmcs, smcs, and dmcs are versions of the Mono CSharp compiler
       dnl targeting various runtime versions, deprecated in favour of mcs
       dnl (checked for above) as of Mono 2.11.
-      dnl
-      dnl cscc is the Portable.NET CSharp compiler.
-      AC_PATH_PROGS(CSC, [dmcs smcs gmcs cscc], [])
+      AC_PATH_PROGS(CSC, [dmcs smcs gmcs], [])
     fi
     if test -z "$CSC" ; then
       dnl csc is the Microsoft CSharp compiler.
@@ -766,7 +764,7 @@ if test no != "$with_csharp" ; then
       AC_PATH_PROGS(GACUTIL, ["$GACUTIL"], [])
     fi
     if test -z "$GACUTIL" ; then
-      AC_PATH_PROGS(GACUTIL, [cli-gacutil gacutil ilgac], [])
+      AC_PATH_PROGS(GACUTIL, [cli-gacutil gacutil], [])
     fi
 
     AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
@@ -775,13 +773,6 @@ if test no != "$with_csharp" ; then
     fi
     if test -z "$SN" ; then
       AC_PATH_PROGS(SN, [cli-sn sn], [])
-    fi
-    if test -z "$SN" ; then
-      case $GACUTIL in
-      dnl Portable.net doesn't support strong naming yet and ilgac doesn't
-      dnl require assemblies to be strong named before adding them to the GAC.
-      *ilgac*) SN=/bin/true ;;
-      esac
     fi
     if test -n "$GACUTIL" -a -n "$SN" ; then
       AC_MSG_CHECKING([whether the CSharp compiler works])
@@ -817,13 +808,8 @@ if test no != "$with_csharp" ; then
 
 	AC_MSG_CHECKING([for extra flags for $GACUTIL])
 	GACUTIL_FLAGS='/package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)'
-	case $GACUTIL in
-	*ilgac*) ;;
-	*)
-	  dnl Microsoft's gacutil accepts fewer options than Mono's
-	  $GACUTIL /\?|grep '\<Mono\>' >/dev/null || GACUTIL_FLAGS=
-	  ;;
-	esac
+	dnl Microsoft's gacutil accepts fewer options than Mono's
+	$GACUTIL /\?|grep '\<Mono\>' >/dev/null || GACUTIL_FLAGS=
 	AC_SUBST([GACUTIL_FLAGS])
 	if test -z "$GACUTIL_FLAGS" ; then
 	  AC_MSG_RESULT([no])

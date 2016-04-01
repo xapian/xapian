@@ -17,17 +17,6 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
 
-// The Portable.NET compiler has a bug which prevents it finding static
-// member functions such as Xapian.Version.Major():
-//
-// http://savannah.gnu.org/bugs/?func=detailitem&item_id=12231
-//
-// The bug is fixed in Portable.NET CVS HEAD - the fix should make it
-// into Portable.NET 0.8.2.
-//
-// The workaround for now is to add an explicit "using Xapian;" here:
-using Xapian;
-
 class TestMatchDecider : Xapian.MatchDecider {
     public override bool Apply(Xapian.Document doc) {
 	return (doc.GetValue(0) == "yes");
