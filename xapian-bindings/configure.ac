@@ -733,12 +733,6 @@ if test no != "$with_csharp" ; then
       fi
     fi
     if test -z "$CSC" ; then
-      dnl gmcs, smcs, and dmcs are versions of the Mono CSharp compiler
-      dnl targeting various runtime versions, deprecated in favour of mcs
-      dnl (checked for above) as of Mono 2.11.
-      AC_PATH_PROGS(CSC, [dmcs smcs gmcs], [])
-    fi
-    if test -z "$CSC" ; then
       dnl csc is the Microsoft CSharp compiler.
       AC_PATH_PROGS(CSC, [csc], [])
       if test -n "$CSC" ; then
