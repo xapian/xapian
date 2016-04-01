@@ -1,14 +1,13 @@
-up to: 98adcee52be1a6f35dd7fb3909026b8b7578079b
-
-backport fodder:
-
-Xapian-bindings 1.3.5 (2016-03-30):
+Xapian-bindings 1.3.5 (2016-04-01):
 
 This release includes all changes from 1.2.23 which are relevant.
 
 Documentation:
 
 * Fix to install docs when not in maintainer-mode.
+
+* Note open_stub() is deprecated (most of the bindings already noted this, but
+  now ruby and tcl do too).
 
 General:
 
@@ -22,23 +21,26 @@ General:
 * Add installcheck-local make targets for most languages - these run the
   testsuites using the installed bindings.
 
-Packaging:
-
-Portability:
-
 CSharp:
 
-Java:
+* configure: Stop checking for obsolete mono compiler names - gmcs, smcs and
+  dmcs were all deprecated in Mono 2.11.
+
+* configure: Strip out handling of DotGNU - it's been inactive for years, and
+  was officially "decommissioned" in December 2012.
+
+* README: Update list of mono versions recently tested with.
 
 Lua:
+
+* smoketest.lua: Fix to work with newer lua - coercing a number to a string
+  now appends ".0" for whole numbers.
 
 Perl:
 
 * Run pod2html with explicit --podpath=. - recent versions of pod2html seem to
   need this to correctly handle references to other Xapian classes.  Reported
   on #xapian-discuss by HowManny and abhishek_rand0wn.
-
-PHP:
 
 Python:
 
@@ -57,13 +59,14 @@ Python3:
 * Fix handling of integer values larger than a C int by bootstraping with a
   newer version of SWIG.  Fixes #703, reported by Barry Warsaw.
 
+* Remove xapian.inmemory_open() - we've deprecated the corresponding C++
+  function, and the Python3 bindings haven't yet had a stable release.
+
 Ruby:
 
 * Run rdoc at build time - it is included as part of the Ruby core
   distribution, so we can assume it is available if ruby is, and avoid shipping
   its rather large generated output in our source tarball.
-
-Tcl:
 
 Xapian-bindings 1.3.4 (2016-01-01):
 

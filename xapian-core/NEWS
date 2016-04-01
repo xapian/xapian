@@ -1,8 +1,6 @@
-up to: f441946cf3bbdca9484f32b81209dcf6d629872e
-
 backport fodder:
 
-Xapian-core 1.3.5 (2016-03-30):
+Xapian-core 1.3.5 (2016-04-01):
 
 This release includes all changes from 1.2.23 which are relevant.
 
@@ -10,11 +8,11 @@ API:
 
 * The Snipper class has been replaced with a new MSet::get_snippet() method.
   The implementation has also been redone - the existing implementation was
-  slower than ideal, and it didn't directly consider the query and would
-  sometimes selects a snippet which doesn't contain any of the query terms
-  (which users quite reasonably found surprising).  The new implementation is
-  faster, will always prefer snippets containing query terms, and also
-  understands exact phrases and wildcards.  Fixes #211.
+  slower than ideal, and didn't directly consider the query so would sometimes
+  selects a snippet which doesn't contain any of the query terms (which users
+  quite reasonably found surprising).  The new implementation is faster, will
+  always prefer snippets containing query terms, and also understands exact
+  phrases and wildcards.  Fixes #211.
 
 * Add optional reference counting support for ErrorHandler, ExpandDecider,
   KeyMaker, PostingSource, Stopper and TermGenerator.  Fixes #186, reported
@@ -81,8 +79,6 @@ testsuite:
   an assertion fails in a unittest testcase, and check that variable in the
   harness.
 
-matcher:
-
 glass backend:
 
 * Make glass the default backend.  The format should now be stable, except
@@ -142,18 +138,12 @@ chert backend:
 * When using 64-bit Xapian::docid, consistently use the actual maximum valid
   docid value rather instead of the maximum value the type can hold.
 
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * Default to only building shared libraries.  Building both shared and static
   means having to compile the files which make up the library twice on most
   platforms.  Shared libraries are the better option for most users, and if
-  anyone really wants static libraries, they can configure with --enable-static
+  anyone really wants static libraries they can configure with --enable-static
   (or --enable-static=xapian-core if configuring a combined tree with the
   bindings).
 
@@ -164,7 +154,7 @@ build system:
 
 documentation:
 
-* Document OP_WILDCARD expansion limits work per sub-db.
+* Document that OP_WILDCARD expansion limits currently work per sub-db.
 
 * Remove reference to ChangeLog files, as we are no longer updating them.
 
@@ -183,18 +173,12 @@ tools:
   database fails to open with DatabaseCorruptError then a full copy is now
   forced.
 
-examples:
-
-
 portability:
 
 * Eliminate arrays of C strings, which result in relocations at library load
   time, slowing startup and making pages containing them unsharable.
 
 * Refactor MSet::fetch() to reduce load time relocations.
-
-packaging:
-
 
 debug code:
 

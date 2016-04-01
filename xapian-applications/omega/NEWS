@@ -1,20 +1,6 @@
-up to: fac5fbf40652571380166ec653bb5c9e252d616a
-
-backport fodder:
-
-Omega 1.3.5 (2016-03-23):
+Omega 1.3.5 (2016-04-01):
 
 This release includes all changes from 1.2.23 which are relevant.
-
-general:
-
-documentation:
-
-indexers:
-
-* omindex:
-
-* scriptindex:
 
 omega:
 
@@ -30,10 +16,6 @@ omega:
   SORTREVERSE set to non-0 now flips the direction.  Fixes #697, reported by
   Andy Chilton.
 
-templates:
-
-testsuite:
-
 build system:
 
 * Need to AC_SUBST probed value of ZLIB_LIBS.  Noted by Paul Wise.
@@ -44,8 +26,6 @@ portability:
   testcases which use it.  On OS X 10.11, faketime from homebrew doesn't seem
   to work, probably due to the new "System Integrity Protection".  Fixes part
   of #707, reported by James Aylett.
-
-packaging:
 
 Omega 1.3.4 (2016-01-01):
 
