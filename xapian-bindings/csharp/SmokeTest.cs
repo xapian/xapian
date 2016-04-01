@@ -74,7 +74,7 @@ class SmokeTest {
 	    doc.AddPosting(stem.Apply("out"), 4);
 	    doc.AddPosting(stem.Apply("there"), 5);
 
-	    Xapian.WritableDatabase db("", Xapian.DB_BACKEND_INMEMORY);
+	    Xapian.WritableDatabase db = new Xapian.WritableDatabase("", Xapian.Xapian.DB_BACKEND_INMEMORY);
 	    db.AddDocument(doc);
 	    if (db.GetDocCount() != 1) {
 		System.Environment.Exit(1);
