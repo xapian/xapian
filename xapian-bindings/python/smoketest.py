@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2014,2015,2016 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -85,7 +85,7 @@ def test_all():
     doc.add_posting(stem("out"), 4)
     doc.add_posting(stem("there"), 5)
 
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
     db.add_document(doc)
     expect(db.get_doccount(), 1, "Unexpected db.get_doccount()")
     terms = ["smoke", "test", "terms"]

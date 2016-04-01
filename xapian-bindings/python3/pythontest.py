@@ -1,7 +1,7 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2008,2009,2010,2011,2013,2014,2015 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
 # Copyright (C) 2010,2011 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -38,7 +38,7 @@ def setup_database():
     """Set up and return an inmemory database with 5 documents.
 
     """
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
 
     doc = xapian.Document()
     doc.set_data("is it cold?")
@@ -1372,7 +1372,7 @@ def test_preserve_enquire_sorter():
     """Test preservation of sorter set on enquire.
 
     """
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
     doc = xapian.Document()
     doc.add_term('foo')
     doc.add_value(1, '1')
@@ -1585,7 +1585,7 @@ def test_custom_matchspy():
 
 def test_removed_features():
     ok = True
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase('', xapian.DB_BACKEND_INMEMORY)
     doc = xapian.Document()
     enq = xapian.Enquire(db)
     eset = xapian.ESet()

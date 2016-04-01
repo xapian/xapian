@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015 Olly Betts';
+my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016 Olly Betts';
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ my %copyableclasses = (
     'Document' => '',
     'ESet' => '',
     'ESetIterator' => '',
-    'Enquire' => 'Xapian::InMemory::open()',
+    'Enquire' => 'Xapian::Database(std::string(), Xapian::DB_BACKEND_INMEMORY)',
     'MSet' => '',
     'MSetIterator' => '',
     'PositionIterator' => '',
@@ -142,7 +142,7 @@ END
 
 for my $class (sort keys %copyableclasses) {
     my $params = $copyableclasses{$class};
-    if ($params =~ /InMemory/) {
+    if ($params =~ /INMEMORY/) {
 	print "#ifdef XAPIAN_HAS_INMEMORY_BACKEND\n";
     }
     if ($params ne '') {
@@ -155,7 +155,7 @@ for my $class (sort keys %copyableclasses) {
     print "    TEST(!$object.get_description().empty());\n" if $get_description;
     print "    $class copy_$object($object);\n";
     print "    $object = copy_$object;\n";
-    if ($params =~ /InMemory/) {
+    if ($params =~ /INMEMORY/) {
 	print "#endif\n";
     }
     print "\n";

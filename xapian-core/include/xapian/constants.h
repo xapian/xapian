@@ -1,7 +1,7 @@
 /** @file constants.h
  * @brief Constants in the Xapian namespace
  */
-/* Copyright (C) 2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -178,9 +178,25 @@ const int DB_BACKEND_CHERT	 = 0x200;
  */
 const int DB_BACKEND_STUB	 = 0x300;
 
+/** Use the "in memory" backend.
+ *
+ *  The filename is currently ignored when this flag is used, but an empty
+ *  string should be passed to allow for future expansion.
+ *
+ *  A new empty database is created, so when creating a Database object this
+ *  creates an empty read-only database - sometimes useful to avoid special
+ *  casing this situation, but otherwise of limited use.  It's more useful
+ *  when creating a WritableDatabase object, though beware that the current
+ *  inmemory backend implementation was not built for performance and
+ *  scalability.
+ *
+ *  This provides an equivalent to Xapian::InMemory::open() in Xapian 1.2.
+ */
+const int DB_BACKEND_INMEMORY	 = 0x400;
+
 #ifdef XAPIAN_LIB_BUILD
 /** @internal Bit mask for backend codes. */
-const int DB_BACKEND_MASK_	 = 0x300;
+const int DB_BACKEND_MASK_	 = 0x700;
 
 /** @internal Used internally to signify opening read-only. */
 const int DB_READONLY_		 = -1;

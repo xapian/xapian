@@ -71,8 +71,7 @@ public class SmokeTest {
 	    doc.addPosting(stem.apply("anybody"), 3);
 	    doc.addPosting(stem.apply("out"), 4);
 	    doc.addPosting(stem.apply("there"), 5);
-	    // FIXME: was WritableDatabase db = Xapian.InMemory.open();
-	    WritableDatabase db = InMemory.open();
+	    WritableDatabase db("", Xapian.DB_BACKEND_INMEMORY);
 	    db.addDocument(doc);
 	    if (db.getDocCount() != 1) {
 		System.err.println("Unexpected db.getDocCount()");

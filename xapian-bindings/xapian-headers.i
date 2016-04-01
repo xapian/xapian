@@ -155,6 +155,7 @@ CONSTANT(int, Xapian, DB_DANGEROUS);
 CONSTANT(int, Xapian, DB_NO_TERMLIST);
 CONSTANT(int, Xapian, DB_BACKEND_CHERT);
 CONSTANT(int, Xapian, DB_BACKEND_GLASS);
+CONSTANT(int, Xapian, DB_BACKEND_INMEMORY);
 CONSTANT(int, Xapian, DB_BACKEND_STUB);
 CONSTANT(int, Xapian, DB_RETRY_LOCK);
 CONSTANT(int, Xapian, DBCHECK_SHORT_TREE);
@@ -423,12 +424,13 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 
 #else
 
-%rename("inmemory_open") Xapian::InMemory::open;
-
 #ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
+%ignore Xapian::InMemory::open;
 %ignore Xapian::Chert::open;
 %ignore Xapian::Auto::open_stub;
 #else
+
+%rename("inmemory_open") Xapian::InMemory::open;
 
 /* SWIG Tcl wrappers don't call destructors for classes returned by factory
  * functions, so we don't wrap them so users are forced to use the

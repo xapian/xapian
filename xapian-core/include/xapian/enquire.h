@@ -320,9 +320,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  The database supplied must have been initialised (ie, must not be
 	 *  the result of calling the Database::Database() constructor).  If
-	 *  you need to handle a situation where you have no index gracefully,
-	 *  a database created with InMemory::open() can be passed here,
-	 *  which represents a completely empty database.
+	 *  you need to handle a situation where you have no databases
+	 *  gracefully, a database created with DB_BACKEND_INMEMORY can be
+	 *  passed here to provide a completely empty database.
 	 *
 	 *  @param database Specification of the database or databases to
 	 *	   use.

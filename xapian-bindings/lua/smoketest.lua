@@ -4,7 +4,7 @@
 -- basic functionality successfully.
 --
 -- Copyright (C) 2011 Xiaona Han
--- Copyright (C) 2011,2012,2014 Olly Betts
+-- Copyright (C) 2011,2012,2014,2016 Olly Betts
 --
 -- This program is free software; you can redistribute it and/or
 -- modify it under the terms of the GNU General Public License as
@@ -57,8 +57,8 @@ function run_tests()
   doc:add_posting(stem("out"), 4)
   doc:add_posting(stem("there"), 5)
   doc:add_term("XYzzy")
-  db = xapian.inmemory_open()
-  db2 = xapian.inmemory_open()
+  db = xapian.WritableDatabase("", xapian.DB_BACKEND_INMEMORY)
+  db2 = xapian.WritableDatabase("", xapian.DB_BACKEND_INMEMORY)
   db:add_document(doc)
   enq = xapian.Enquire(db)
 
@@ -372,7 +372,7 @@ function run_tests()
   -- Test use of matchspies
   function setup_database()
     -- Set up and return an inmemory database with 5 documents.
-    db = xapian.inmemory_open()
+    db = xapian.WritableDatabase("", xapian.DB_BACKEND_INMEMORY)
 
     doc = xapian.Document()
     doc:set_data("is it cold?")

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -77,7 +77,7 @@ BackendManager::create_dir_if_needed(const string &dirname)
 Xapian::WritableDatabase
 BackendManager::getwritedb_inmemory(const vector<string> &files)
 {
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     index_files_to_database(db, files);
     return db;
 }

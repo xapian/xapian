@@ -4,7 +4,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2009,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -45,8 +45,8 @@ if ($v != $v2) {
     exit(1);
 }
 
-$db = Xapian::inmemory_open();
-$db2 = Xapian::inmemory_open();
+$db = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
+$db2 = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 
 # Check PHP5 handling of Xapian::DocNotFoundError
 try {
@@ -575,7 +575,7 @@ $range = 42.0;
 $centre = new XapianLatLongCoords($coord);
 $query = new XapianQuery(new XapianLatLongDistancePostingSource(COORD_SLOT, $centre, $metric, $range));
 
-$db = Xapian::inmemory_open();
+$db = new XapianWritableDatabase('', Xapian::DB_BACKEND_INMEMORY);
 $coords = new XapianLatLongCoords();
 $coords->append(new XapianLatLongCoord(40.6048, -74.4427));
 $doc = new XapianDocument();

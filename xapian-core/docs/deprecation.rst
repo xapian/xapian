@@ -489,6 +489,9 @@ Removed Feature name                        Upgrade suggestion and comments
 1.3.5   ``Xapian::DBCHECK_SHOW_BITMAP``     Use ``Xapian::DBCHECK_SHOW_FREELIST`` (added in 1.3.2) instead.
                                             ``Xapian::DBCHECK_SHOW_BITMAP`` was added in 1.3.0, so has never been in a stable
                                             release.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.3.5   ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in 1.3.5)
+                                            instead.
 ======= =================================== ==================================================================================
 
 

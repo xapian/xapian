@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004,2005,2006,2007,2008,2011 Olly Betts
+// Copyright (C) 2004,2005,2006,2007,2008,2011,2016 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -74,7 +74,7 @@ class SmokeTest {
 	    doc.AddPosting(stem.Apply("out"), 4);
 	    doc.AddPosting(stem.Apply("there"), 5);
 
-	    Xapian.WritableDatabase db = Xapian.InMemory.Open();
+	    Xapian.WritableDatabase db("", Xapian.DB_BACKEND_INMEMORY);
 	    db.AddDocument(doc);
 	    if (db.GetDocCount() != 1) {
 		System.Environment.Exit(1);

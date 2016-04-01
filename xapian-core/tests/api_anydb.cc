@@ -2437,7 +2437,7 @@ DEFINE_TESTCASE(uuid1, backend && !multi) {
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
     // This relies on InMemory databases not supporting uuids.
     // A multi-database containing a database with no uuid has no uuid.
-    db2.add_database(Xapian::InMemory::open());
+    db2.add_database(Xapian::Database(string(), Xapian::DB_BACKEND_INMEMORY));
     TEST(db2.get_uuid().empty());
 #endif
 

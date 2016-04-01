@@ -3,7 +3,7 @@
 /* perl.i: SWIG interface file for the Perl bindings
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -450,7 +450,7 @@ sub new {
   my $self;
   if( scalar(@_) == 0 ) {
     # For compatibility with Search::Xapian
-    return Xapian::inmemory_open();
+    @_ = ('', $Xapianc::DB_BACKEND_INMEMORY);
   }
   $self = Xapianc::new_WritableDatabase(@_);
   bless $self, $pkg if defined($self);

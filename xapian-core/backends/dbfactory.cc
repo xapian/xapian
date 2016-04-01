@@ -1,7 +1,7 @@
 /** @file dbfactory.cc
  * @brief Database factories for non-remote databases.
  */
-/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -92,14 +92,6 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 
 namespace Xapian {
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
-WritableDatabase
-InMemory::open() {
-    LOGCALL_STATIC(API, WritableDatabase, "InMemory::open", NO_ARGS);
-    RETURN(WritableDatabase(new InMemoryDatabase));
-}
-#endif
-
 static void
 open_stub(Database &db, const string &file)
 {
@@ -179,7 +171,7 @@ open_stub(Database &db, const string &file)
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	if (type == "inmemory" && line.empty()) {
-	    db.add_database(InMemory::open());
+	    db.add_database(Database(string(), DB_BACKEND_INMEMORY));
 	    continue;
 	}
 #endif
@@ -287,7 +279,7 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	if (type == "inmemory" && line.empty()) {
-	    db.add_database(InMemory::open());
+	    db.add_database(WritableDatabase(string(), DB_BACKEND_INMEMORY));
 	    continue;
 	}
 #endif
@@ -332,6 +324,13 @@ Database::Database(const string &path, int flags)
 	case DB_BACKEND_STUB:
 	    open_stub(*this, path);
 	    return;
+	case DB_BACKEND_INMEMORY:
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+	    internal.push_back(new InMemoryDatabase());
+	    return;
+#else
+	    throw FeatureUnavailableError("Inmemory backend disabled");
+#endif
     }
 
     struct stat statbuf;
@@ -494,6 +493,13 @@ WritableDatabase::WritableDatabase(const std::string &path, int flags, int block
 	case DB_BACKEND_CHERT:
 	    internal.push_back(new ChertWritableDatabase(path, flags, block_size));
 	    return;
+#endif
+	case DB_BACKEND_INMEMORY:
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
+	    internal.push_back(new InMemoryDatabase());
+	    return;
+#else
+	    throw FeatureUnavailableError("Inmemory backend disabled");
 #endif
     }
 #ifndef HAVE_DISK_BACKEND

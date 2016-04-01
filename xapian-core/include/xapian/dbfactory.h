@@ -1,7 +1,7 @@
 /** @file dbfactory.h
  * @brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -98,8 +98,13 @@ namespace InMemory {
  *  Only a writable InMemory database can be created, since a read-only one
  *  would always remain empty.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open();
+XAPIAN_DEPRECATED(WritableDatabase open());
+
+inline WritableDatabase
+open()
+{
+    return WritableDatabase(std::string(), DB_BACKEND_INMEMORY);
+}
 
 }
 #endif

@@ -137,7 +137,7 @@ wrapped like so for Ruby:
 - ``Xapian::revision()`` is wrapped as ``Xapian::revision()``
 - ``Xapian::Auto::open_stub()`` is wrapped as ``Xapian::open_stub()``
 - ``Xapian::Chert::open()`` is wrapped as ``Xapian::chert_open()`` (now deprecated)
-- ``Xapian::InMemory::open()`` is wrapped as ``Xapian::inmemory_open()``
+- ``Xapian::InMemory::open()`` is wrapped as ``Xapian::inmemory_open()`` (now deprecated)
 - ``Xapian::Remote::open()`` is wrapped as ``Xapian::remote_open()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 - ``Xapian::Remote::open_writable()`` is wrapped as ``Xapian::remote_open_writable()`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 

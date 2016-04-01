@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -917,7 +917,7 @@ static bool test_qp_flag_wildcard1()
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     Xapian::Document doc;
     doc.add_term("abc");
     doc.add_term("main");
@@ -1021,7 +1021,7 @@ static bool test_qp_flag_wildcard2()
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     Xapian::Document doc;
     doc.add_term("Aheinlein");
     doc.add_term("Ahuxley");
@@ -1062,7 +1062,7 @@ static bool test_qp_flag_wildcard3()
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     Xapian::Document doc;
     doc.add_term("abc");
     doc.add_term("main");
@@ -1108,7 +1108,7 @@ static bool test_qp_flag_partial1()
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     Xapian::Document doc;
     Xapian::Stem stemmer("english");
     doc.add_term("abc");
@@ -1492,7 +1492,7 @@ static bool test_qp_value_range3()
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     double low = -10;
     int steps = 60;
     double step = 0.5;
@@ -2582,7 +2582,7 @@ static bool test_qp_stopword_group1()
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     SKIP_TEST("Testcase requires the InMemory backend which is disabled");
 #else
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
     Xapian::Document doc;
     doc.add_term("test");
     doc.add_term("tester");
