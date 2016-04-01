@@ -70,7 +70,7 @@ function run_tests()
   end
 
   -- Test the version number reporting functions give plausible results.
-  v = xapian.major_version() .. "." .. xapian.minor_version() .. "." .. xapian.revision()
+  v = string.format("%d.%d.%d", xapian.major_version(), xapian.minor_version(), xapian.revision())
   v2 = xapian.version_string()
   expect(v, v2)
 
