@@ -1610,6 +1610,11 @@ This is a (hopefully complete) list of the jobs which need doing:
 
    https://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
 
+* Check for any unfixed bugs on the milestone for the new release, and if they
+  aren't blockers, retarget them:
+
+   https://trac.xapian.org/timeline
+
 * On atreus, tag the source trees for the new revision - use the
   git-tag-release script, running it with the new version number, for example:
 
@@ -1617,17 +1622,6 @@ This is a (hopefully complete) list of the jobs which need doing:
 
   This script also generates tarballs for the new release and copies them
   across to the website.
-
-* Add the new version to the list of versions in trac:
-  https://trac.xapian.org/admin/ticket/versions
-
-* Add a new milestone for the version after this one:
-  https://trac.xapian.org/admin/ticket/milestones
-
-* Mark the current milestone as completed.  In order to do so, any unfixed bugs
-  with this milestone will need to be moved to another milestone (most likely
-  the milestone you just added):
-  https://trac.xapian.org/milestone/1.0.14?action=edit
 
 * Update the wiki:
 
