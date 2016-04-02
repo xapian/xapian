@@ -265,18 +265,24 @@ To use Insure (another proprietary tool):
   ./configure CXX=insure
 
 To use lcov (at least version 1.10) to generate a test coverage report (see
-`lcov.xapian.org <http://lcov.xapian.org/>`_ for reports) there are two make
-targets:
+`lcov.xapian.org <http://lcov.xapian.org/>`_ for reports) there are three make
+targets (all in the `xapian-core` directory):
 
-  * coverage-reconfigure: reruns configure in the source tree.  See
+  * `make coverage-reconfigure`: reruns configure in the source tree.  See
     Makefile.am for details of the configure options used and why they
     are needed.
-  
-  * coverage-check: runs "make check" and generates an HTML report in a
-    directory called "lcov".  You can specify extra arguments to pass to the
-    ``genhtml`` tool using GENHTML_ARGS, like so::
 
-    make coverage-check GENHTML_ARGS=--html-gzip
+  * `make coverage-reconfigure-maintainer-mode`: does the same thing, except
+    the tree is configured in "maintainer mode", which is what you want if
+    generating coverage reports while working on the code.
+
+  * `make coverage-check`: runs `make check` and generates an HTML report in a
+    directory called `lcov`.
+
+    + You can specify extra arguments to pass to the ``genhtml`` tool using
+      `GENHTML_ARGS`, so for example if you plan to serve the generated HTML
+      coverage report from a webserver, you might use:
+      `make coverage-check GENHTML_ARGS=--html-gzip`
 
 You ideally want lcov 1.11 or later, since 1.11 includes patches to reduce
 memory usage significantly - lcov 1.10 would run out of memory in a 1GB VM.
