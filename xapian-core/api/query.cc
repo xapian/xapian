@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -276,8 +276,11 @@ Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 }
 
 void
-Query::add_subquery(const Xapian::Query & subquery)
+Query::add_subquery(bool positional, const Xapian::Query & subquery)
 {
+    if (positional && subquery.get_type() != LEAF_TERM) {
+	throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support terms as subqueries");
+    }
     // We could handle this in a type-safe way, but we'd need to at least
     // declare Xapian::Internal::QueryBranch in the API header, which seems
     // less desirable than a static_cast<> here.

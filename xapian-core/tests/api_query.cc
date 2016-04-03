@@ -1,7 +1,7 @@
 /** @file api_query.cc
  * @brief Query-related tests.
  */
-/* Copyright (C) 2008,2009,2012,2013,2015 Olly Betts
+/* Copyright (C) 2008,2009,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -452,5 +452,31 @@ DEFINE_TESTCASE(loosenear1, backend) {
 	++p;
     }
 
+    return true;
+}
+
+/// Regression test for bug fixed in 1.3.6 - this would segfault in 1.3.x.
+DEFINE_TESTCASE(complexphrase1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::Query query(Xapian::Query::OP_PHRASE,
+	    Xapian::Query("a") | Xapian::Query("b"),
+	    Xapian::Query("i"));
+    enq.set_query(query);
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	(void)enq.get_mset(0, 10));
+    return true;
+}
+
+/// Regression test for bug fixed in 1.3.6 - this would segfault in 1.3.x.
+DEFINE_TESTCASE(complexnear1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::Query query(Xapian::Query::OP_NEAR,
+	    Xapian::Query("a") | Xapian::Query("b"),
+	    Xapian::Query("i"));
+    enq.set_query(query);
+    TEST_EXCEPTION(Xapian::UnimplementedError,
+	(void)enq.get_mset(0, 10));
     return true;
 }

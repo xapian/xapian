@@ -179,8 +179,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     Query(op op_, const Xapian::Query & a, const Xapian::Query & b)
     {
 	init(op_, 2);
-	add_subquery(a);
-	add_subquery(b);
+	bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
+	add_subquery(positional, a);
+	add_subquery(positional, b);
 	done();
     }
 
@@ -188,8 +189,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     Query(op op_, const std::string & a, const std::string & b)
     {
 	init(op_, 2);
-	add_subquery(a);
-	add_subquery(b);
+	add_subquery(false, a);
+	add_subquery(false, b);
 	done();
     }
 
@@ -232,8 +233,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	if (begin != end) {
 	    typedef typename std::iterator_traits<I>::iterator_category iterator_category;
 	    init(op_, window, begin, end, iterator_category());
+	    bool positional = (op_ == OP_NEAR || op_ == OP_PHRASE);
 	    for (I i = begin; i != end; ++i) {
-		add_subquery(*i);
+		add_subquery(positional, *i);
 	    }
 	}
 	done();
@@ -325,15 +327,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	init(op_, 0, window);
     }
 
-    void add_subquery(const Xapian::Query & subquery);
+    void add_subquery(bool positional, const Xapian::Query & subquery);
 
-    void add_subquery(const std::string & subquery) {
-	add_subquery(Xapian::Query(subquery));
+    void add_subquery(bool, const std::string & subquery) {
+	add_subquery(false, Xapian::Query(subquery));
     }
 
-    void add_subquery(const Xapian::Query * subquery) {
+    void add_subquery(bool positional, const Xapian::Query * subquery) {
 	// FIXME: subquery NULL?
-	add_subquery(*subquery);
+	add_subquery(positional, *subquery);
     }
 
     void done();
