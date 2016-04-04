@@ -32,6 +32,7 @@
  * Currently known users:
  *
  *  * xapian-bindings:
+ *    + Java
  *    + PHP
  */
 
