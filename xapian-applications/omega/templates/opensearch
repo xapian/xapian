@@ -1,5 +1,5 @@
-$httpheader{Content-Type,application/xml}<?xml version="1.0"?>
-  <rss version="2.0" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
+$httpheader{Content-Type,application/xml}<?xml version="1.0" encoding="UTF-8"?>
+  <rss version="2.0" xmlns:openSearch="http://a9.com/-/spec/opensearch/1.1/">
     <channel>
       <title>Xapian search results</title>
       <link>$html{$env{SCRIPT_NAME}?DB=$url{$dbname}&P=$url{$query}}</link>
