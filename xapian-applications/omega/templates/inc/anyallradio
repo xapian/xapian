@@ -1,2 +1,2 @@
-<input type="radio" name="DEFAULTOP" value="or" $if{$eq{$defaultop,or},CHECKED}> Matching any words
-<input type="radio" name="DEFAULTOP" value="and" $if{$eq{$defaultop,and},CHECKED}> Matching all words
+<input type="radio" name="DEFAULTOP" value="or" $if{$eq{$defaultop,or},checked}> Matching any words
+<input type="radio" name="DEFAULTOP" value="and" $if{$eq{$defaultop,and},checked}> Matching all words
