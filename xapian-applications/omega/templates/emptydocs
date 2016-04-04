@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <h1>Documents with no text</h1>
 <ul>
 $map{$emptydocs{$cgi{TERM}},
