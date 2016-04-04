@@ -22,15 +22,6 @@
  */
 %}
 
-%begin %{
-/* Perl's headers define a seed() macro, which breaks RNG stuff pulled in by
- * <algorithm> under C++11, so include <algorithm> early before Perl breaks
- * stuff.  This is fixed by newer SWIG, so this can go away once we update
- * to require that.
- */
-#include <algorithm>
-%}
-
 /* The XS Xapian never wrapped these, and they're now deprecated. */
 #define XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 

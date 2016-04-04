@@ -186,6 +186,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   fi
   dnl Check for new enough SWIG.
   dnl
+  dnl 3.0.6 fixes compiling the Perl bindings under C++11 ("seed" macro issue).
   dnl 3.0.8 fixes conversion of integers large than an int in Python 3.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
