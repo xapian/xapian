@@ -8,8 +8,8 @@ Term "$html{$cgi{B}}",
 Choose what to Inspect}}
 </title>
 </head>
-<body bgcolor=white>
-<form method=GET action="$html{$env{SCRIPT_NAME}}">
+<body bgcolor="white">
+<form method="GET" action="$html{$env{SCRIPT_NAME}}">
 
 $if{$cgi{ID},
 $setrelevant{$cgi{ID}}
@@ -18,9 +18,9 @@ $setrelevant{$cgi{ID}}
 <h2>Terms indexing this document</h2>
 
 <table>
-<tr><th>Frequency</th><th align=left>Term</th></tr>
+<tr><th>Frequency</th><th align="left">Term</th></tr>
 $map{$allterms{$cgi{ID}},
-<tr><td align=right>$freq{$_}</td>
+<tr><td align="right">$freq{$_}</td>
 <td><a href="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&B=$url{$_}}">$html{$_}</a></td></tr>}
 </table>
 
@@ -50,7 +50,7 @@ $if{$not{$msizeexact},
 <hr>
 <table>
 $hitlist{<tr>
-<td align=right><a href="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</a>&nbsp;</td>
+<td align="right"><a href="$html{$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}FMT=$url{$fmt}&ID=$id}">#$id</a>&nbsp;</td>
 <td><b><small>$html{$date{$field{modtime,$cgi{ID}},%Y-%m-%d %H:%M}}</small>
 <a href="$html{$field{url,$cgi{ID}}}">$html{$or{$field{caption,$cgi{ID}},$field{title,$cgi{ID}},$prettyurl{$field{url,$cgi{ID}}},Untitled}}</a></b><br>
 <small>$highlight{$field{sample,$cgi{ID}},$terms}$if{$field{sample,$cgi{ID}},...}</small><br>
@@ -60,12 +60,12 @@ $hitlist{<tr>
 ${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
 <hr>
-<input type=hidden name=B value="$html{$cgi{B}}">
+<input type="hidden" name="B" value="$html{$cgi{B}}">
 <center>
-$def{PREV,$if{$ne{$topdoc,0},<input type=submit name="&lt;" value="Previous">}}
-$def{PAGE,<input type=submit name="[" value="$1">}
-$def{SPAGE,<input type=submit name="[" value="$1" disabled=disabled>}
-$def{NEXT,$if{$ne{$last,$msize},<input type=submit name="&gt;" value="Next">}}
+$def{PREV,$if{$ne{$topdoc,0},<input type="submit" name="&lt;" value="Previous">}}
+$def{PAGE,<input type="submit" name="[" value="$1">}
+$def{SPAGE,<input type="submit" name="[" value="$1" disabled="disabled">}
+$def{NEXT,$if{$ne{$last,$msize},<input type="submit" name="&gt;" value="Next">}}
 ${1-W ... X-(this)-Y ...}
 $set{w,$min{3,$add{$thispage,-1}}}
 $set{x,$max{$add{$opt{w},1},$add{$thispage,-3}}}
@@ -82,16 +82,16 @@ $NEXT
 }
 }}
 $if{$or{$error,$and{$not{$cgi{ID}},$eq{$msize,0}}},
-$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form method=GET action="$html{$env{SCRIPT_NAME}}">}
-Inspect document # <input name=ID size=10>
-<input type=SUBMIT value="Inspect">
+$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form method="GET" action="$html{$env{SCRIPT_NAME}}">}
+Inspect document # <input name="ID" size=10>
+<input type="SUBMIT" value="Inspect">
 <hr>
-Inspect term <input name=B size=10>
-<input type=SUBMIT value="Inspect">
+Inspect term <input name="B" size="10">
+<input type="SUBMIT" value="Inspect">
 }
-$if{$fmt,<input type=hidden name=FMT value="$html{$fmt}">}
-$if{$dbname,<input type=hidden name=DB value="$html{$dbname}">}
-<hr><div align=right><i><small>$html{$version}</small></i></div>
+$if{$fmt,<input type="hidden" name="FMT" value="$html{$fmt}">}
+$if{$dbname,<input type="hidden" name="DB" value="$html{$dbname}">}
+<hr><div align="right"><i><small>$html{$version}</small></i></div>
 </form>
 </body>
 </html>

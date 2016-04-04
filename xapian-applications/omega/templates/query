@@ -4,31 +4,31 @@ $set{thousand,$.}$set{decimal,.}
 $setmap{prefix,,$split{ S B F},title,S,author,A,topic,B}
 ${
 $def{PREV,
-$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
-SRC="/icons/omega/prev.png" BORDER=0 HEIGHT=30 WIDTH=30>,
-<img alt="" src="/icons/omega/prevoff.png" height=30 width=30>}
+$if{$ne{$topdoc,0},<INPUT TYPE="image" NAME="&lt;" ALT="&lt;"
+SRC="/icons/omega/prev.png" BORDER="0" HEIGHT="30" WIDTH="30">,
+<img alt="" src="/icons/omega/prevoff.png" height="30" width="30">}
 }
 
 $def{NEXT,
-$if{$ne{$last,$msize},<input type=image name="&gt;" alt="&gt;"
-src="/icons/omega/next.png" border=0 height=30 width=30>,
-<img alt="" src="/icons/omega/nextoff.png" height=30 width=30>}
+$if{$ne{$last,$msize},<input type="image" name="&gt;" alt="&gt;"
+src="/icons/omega/next.png" border="0" height="30" width="30">,
+<img alt="" src="/icons/omega/nextoff.png" height="30" width="30">}
 }
 
-$def{P,<input type=image name="$1" value="$1" src="/icons/omega/page-$2.png" border=0$opt{a} alt="$1">}
+$def{P,<input type="image" name="$1" value="$1" src="/icons/omega/page-$2.png" border="$opt{a}" alt="$1">}
 $def{PAGE,$if{$gt{$1,9},$if{$gt{$1,99},$P{$1,$div{$1,100}}}$P{$1,$mod{$div{$1,10},10}}}$P{$1,$mod{$1,10}}}
 
-$def{S,<img src="/icons/omega/page-$2s.png"$opt{a} alt=$1>}
+$def{S,<img src="/icons/omega/page-$2s.png"$opt{a} alt="$1">}
 $def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
 }
 
-$def{PREV,$if{$ne{$topdoc,0},<input type=submit name="&lt;" value="Previous">}}
+$def{PREV,$if{$ne{$topdoc,0},<input type="submit" name="&lt;" value="Previous">}}
 
-$def{PAGE,<input type=submit name="[" value="$1">}
+$def{PAGE,<input type="submit" name="[" value="$1">}
 
-$def{SPAGE,<input type=submit name="[" value="$1" disabled=disabled>}
+$def{SPAGE,<input type="submit" name="[" value="$1" disabled="disabled">}
 
-$def{NEXT,$if{$ne{$last,$msize},<input type=submit name="&gt;" value="Next">}}
+$def{NEXT,$if{$ne{$last,$msize},<input type="submit" name="&gt;" value="Next">}}
 
 <head>
 <title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
@@ -45,22 +45,22 @@ document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
 </script>
 </head>
 <body bgcolor="#ffffff">
-<form name=P method=GET 
+<form name="P" method="GET" 
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
 <center>
-<input id="omega-autofocus" type=search name=P value="$html{$query}" size=65 autofocus>
+<input id="omega-autofocus" type="search" name="P" value="$html{$query}" size="65" autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
 </script>
-<input type=SUBMIT value="Search">
+<input type="SUBMIT" value="Search">
 <hr>
 $if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
 $if{$opt{topterms},
  <div title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
- $map{$topterms,<span style="white-space:nowrap"><input type=checkbox name=X value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
- <br><noscript><input type=hidden name=ADD value=1></noscript>
+ $map{$topterms,<span style="white-space:nowrap"><input type="checkbox" name="X" value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
+ <br><noscript><input type="hidden" name="ADD" value="1"></noscript>
  </div>
 }
 <br>
@@ -81,12 +81,12 @@ $if{$not{$msizeexact},
 $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
 <br><small>Search took $time seconds</small>
 <table>
-$hitlist{<tr><td valign=top>
-${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
-<div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
-<div style='width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;'>
+$hitlist{<tr><td valign="top">
+${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height="16" width="32">}
+<div title="$percentage%" style="float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;">
+<div style="width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;">
 </div></div>
-<div style='float:left;margin-top:2px;font-size:x-small;'>
+<div style="float:left;margin-top:2px;font-size:x-small;">
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
@@ -97,7 +97,7 @@ Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
 $if{$field{language},Language: <b>$html{$field{language}}</b><br>}
 $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span><br>}
 <div title="Mark this document as relevant" style="float:left;background-color:#cfc;border:1px solid green;margin-top:2px;">
-<input type=CHECKBOX name=R value=$id$if{$relevant, checked}>
+<input type="CHECKBOX" name="R" value="$id$if{$relevant,checked}">
 </div>
 </div>
 </td>
@@ -130,21 +130,21 @@ $NEXT
 }
 }}
 </center><br>
-$if{$dbname,<input type=hidden name=DB value="$html{$dbname}">}
-$if{$ne{$topdoc,0},<input type=hidden name=TOPDOC value=$topdoc>}
-$if{$ne{$hitsperpage,10},<input type=hidden name=HITSPERPAGE value=$hitsperpage>}
-$if{$fmt,<input type=hidden name=FMT value="$html{$fmt}">}
-$if{$cgi{COLLAPSE},<input type=hidden name=COLLAPSE value="$html{$cgi{COLLAPSE}}">}
-$if{$queryterms,<input type=hidden name=xP value="$html{$queryterms}">}
-<input type=hidden name=xDB value="$html{$dbname}">
-<input type=hidden name=xFILTERS value="$html{$filters}">
-$list{$relevants,<input type=hidden name=R value=",.,">}
-$if{$cgi{THRESHOLD},<input type=hidden name=THRESHOLD value="$html{$cgi{THRESHOLD}}">}
+$if{$dbname,<input type="hidden" name="DB" value="$html{$dbname}">}
+$if{$ne{$topdoc,0},<input type="hidden" name="TOPDOC" value="$topdoc">}
+$if{$ne{$hitsperpage,10},<input type="hidden" name="HITSPERPAGE" value="$hitsperpage">}
+$if{$fmt,<input type="hidden" name="FMT" value="$html{$fmt}">}
+$if{$cgi{COLLAPSE},<input type="hidden" name="COLLAPSE" value="$html{$cgi{COLLAPSE}}">}
+$if{$queryterms,<input type="hidden" name="xP" value="$html{$queryterms}">}
+<input type="hidden" name="xDB" value="$html{$dbname}">
+<input type="hidden" name="xFILTERS" value="$html{$filters}">
+$list{$relevants,<input type="hidden" name="R" value=",.,">}
+$if{$cgi{THRESHOLD},<input type="hidden" name="THRESHOLD" value="$html{$cgi{THRESHOLD}}">}
 ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
-$map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
+$map{$cgilist{B},<input type="hidden" name="B" value="$html{$_}">}
 </form>
-<hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
+<hr><div align="right"><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
 $log{query.log}
