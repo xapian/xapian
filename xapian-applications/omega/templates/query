@@ -5,20 +5,20 @@ $setmap{prefix,,$split{ S B F},title,S,author,A,topic,B}
 ${
 $def{PREV,
 $if{$ne{$topdoc,0},<input type="image" name="&lt;" alt="&lt;"
-src="/icons/omega/prev.png" border="0" height="30" width="30">,
+src="/icons/omega/prev.png" style="border:0px;" height="30" width="30">,
 <img alt="" src="/icons/omega/prevoff.png" height="30" width="30">}
 }
 
 $def{NEXT,
 $if{$ne{$last,$msize},<input type="image" name="&gt;" alt="&gt;"
-src="/icons/omega/next.png" border="0" height="30" width="30">,
+src="/icons/omega/next.png" style="border:0px;" height="30" width="30">,
 <img alt="" src="/icons/omega/nextoff.png" height="30" width="30">}
 }
 
-$def{P,<input type="image" name="$1" value="$1" src="/icons/omega/page-$2.png" border="$opt{a}" alt="$1">}
+$def{P,<input type="image" name="$1" value="$1" src="/icons/omega/page-$2.png" style="border:$opt{a};" alt="$1">}
 $def{PAGE,$if{$gt{$1,9},$if{$gt{$1,99},$P{$1,$div{$1,100}}}$P{$1,$mod{$div{$1,10},10}}}$P{$1,$mod{$1,10}}}
 
-$def{S,<img src="/icons/omega/page-$2s.png"$opt{a} alt="$1">}
+$def{S,<img src="/icons/omega/page-$2s.png" style="border:$opt{a};" alt="$1">}
 $def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
 }
 
@@ -33,7 +33,7 @@ $def{NEXT,$if{$ne{$last,$msize},<input type="submit" name="&gt;" value="Next">}}
 <head>
 <title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
 $if{$opt{topterms},$include{inc/toptermsjs}}
-<script type="text/javascript" language="javascript"><!--
+<script type="text/javascript"><!--
 function f2(n) {return (n>9?"":"0")+n;}
 function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
