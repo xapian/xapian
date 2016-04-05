@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include <xapian.h>
-#include <xapian/letor.h>
+#include "xapian-letor/letor.h"
 
 #include <cstdlib>
 #include <cstring>

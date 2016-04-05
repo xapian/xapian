@@ -18,7 +18,7 @@
  * USA
  */
  
-#include <ranker.h>
+#include <xapian-letor/ranker.h>
 
 namespace Xapian {
 

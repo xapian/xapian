@@ -21,12 +21,12 @@
 
 #include <config.h>
 
-#include <xapian/letor.h>
+#include <xapian-letor/letor.h>
 
 #include <xapian.h>
 
-#include "letor_internal_refactored.h"
-#include "featurevector.h"
+#include "xapian-letor/letor_internal_refactored.h"
+#include "xapian-letor/featurevector.h"
 #include "str.h"
 #include "stringutils.h"
 

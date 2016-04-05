@@ -1,6 +1,7 @@
-/* evalmetric.h: The abstract evaluation score file.
- *
- * Copyright (C) 2012 Parth Gupta
+/** @file letor_internal.h
+ * @brief Internals of Xapian::Letor class
+ */
+/* Copyright (C) 2011 Parth Gupta
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,16 +19,35 @@
  * USA
  */
 
-#include <evalmetric.h>
+#ifndef XAPIAN_INCLUDED_LETOR_INTERNAL_H
+#define XAPIAN_INCLUDED_LETOR_INTERNAL_H
+
+#include "letor.h"
+#include "ranker.h"
+
+#include <map>
+
+using namespace std;
 
 namespace Xapian {
 
-    EvalMetric::EvalMetric() {
-    }
+class Letor::Internal : public Xapian::Internal::intrusive_base {
+    friend class Letor;
+    Ranker ranker;
+    Database letor_db;
+    Query letor_query;
 
-    /* override this in the sub-class like MAP, NDCG, MRR, etc*/
-    double
-    EvalMetric::score(const Xapian::RankList & /*rl*/) {
-        return 1.0;
-    }
+  public:
+
+    std::map<Xapian::docid, double>  letor_score(const Xapian::MSet & mset);
+
+    void letor_learn_model(int svm_type, int kernel_type);
+
+    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
+
+
+};
+
 }
+
+#endif // XAPIAN_INCLUDED_LETOR_INTERNAL_H

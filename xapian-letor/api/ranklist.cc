@@ -1,4 +1,4 @@
-#include <ranklist.h>
+#include <xapian-letor/ranklist.h>
 
 using namespace std;
 using namespace Xapian;

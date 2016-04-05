@@ -57,32 +57,18 @@ if !MAINTAINER_NO_DOCS
 dist_man_MANS =
 endif
 
+include api/Makefile.mk
 include bin/Makefile.mk
 include include/Makefile.mk
+include ranker/Makefile.mk
 
 libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 
 noinst_HEADERS +=\
 	common/safeunistd.h\
 	common/str.h\
-	common/stringutils.h\
-	letor_internal.h\
-	featurevector.h\
-	featuremanager.h\
-	letor_features.h\
-	ranklist.h\
-	ranker.h\
-	evalmetric.h
+	common/stringutils.h
 
-lib_src +=\
-	letor.cc\
-	letor_internal.cc\
-	featurevector.cc\
-	featuremanager.cc\
-	letor_features.cc\
-	ranklist.cc\
-	ranker.cc\
-	evalmetric.cc
 
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

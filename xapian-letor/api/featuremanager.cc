@@ -1,6 +1,6 @@
-#include "featuremanager.h"
-#include "featurevector.h"
-#include "ranklist.h"
+#include "xapian-letor/featuremanager.h"
+#include "xapian-letor/featurevector.h"
+#include "xapian-letor/ranklist.h"
 #include <cstring>
 #include <cstdlib>
 #include <fstream>

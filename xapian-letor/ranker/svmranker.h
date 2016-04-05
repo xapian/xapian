@@ -27,9 +27,9 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranker.h"
-#include "ranklist.h"
-#include "featurevector.h"
+#include "xapian-letor/ranker.h"
+#include "xapian-letor/ranklist.h"
+#include "xapian-letor/featurevector.h"
 //#include "evalmetric.h"
 
 #include <list>
