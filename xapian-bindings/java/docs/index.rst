@@ -41,10 +41,10 @@ setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
 library in the appropriate directory so your JVM finds it automatically
 (for example, on Mac OS X you can copy it into /Library/Java/Extensions/).
 
-The java bindings have been tested recently with OpenJDK 1.6.0_18, though
-they should work with any java toolchain with suitable JNI support - please
-report success stories or any problems to the development mailing list:
-xapian-devel@lists.xapian.org
+The java bindings have been tested recently with OpenJDK versions 1.8.0_77,
+1.7.0_03, and 1.6.0_38, but they should work with any java toolchain with
+suitable JNI support - please report success stories or any problems to the
+development mailing list: xapian-devel@lists.xapian.org
 
 Naming of wrapped methods:
 ##########################
