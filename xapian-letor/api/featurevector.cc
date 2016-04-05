@@ -24,8 +24,8 @@
 
 #include <xapian.h>
 
-#include "featurevector.h"
-#include "featuremanager.h"
+#include "xapian-letor/featurevector.h"
+#include "xapian-letor/featuremanager.h"
 
 #include <list>
 #include <map>

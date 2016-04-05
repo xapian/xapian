@@ -21,16 +21,16 @@
 
 #include <config.h>
 
-#include <xapian/letor.h>
-
 #include <xapian.h>
 
-#include "letor_internal.h"
-#include "featuremanager.h"
+#include "xapian-letor/letor.h"
+#include "xapian-letor/letor_internal.h"
+#include "xapian-letor/featuremanager.h"
+
 #include "str.h"
 #include "stringutils.h"
-#include "ranker.h"
-#include "svmranker.h"
+#include "xapian-letor/ranker.h"
+#include "ranker/svmranker.h"
 
 #include <cstdio>
 #include <cstdlib>

@@ -18,34 +18,16 @@
  * USA
  */
 
-#ifndef EVAL_METRIC_H
-#define EVAM_METRIC_H
-
-
-#include <xapian.h>
-#include <xapian/intrusive_ptr.h>
-
-#include <ranklist.h>
-
-#include <list>
-#include <map>
-
-using namespace std;
-
+#include "xapian-letor/evalmetric.h"
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT EvalMetric {
-
-    /** This should be used for evaluation metrics like NDCG@k, MRR@k etc */
-    int k;
-  public:
-    EvalMetric();
+    EvalMetric::EvalMetric() {
+    }
 
     /* override this in the sub-class like MAP, NDCG, MRR, etc*/
-    double score(const Xapian::RankList & rl);
-
-};
-
+    double
+    EvalMetric::score(const Xapian::RankList & /*rl*/) {
+        return 1.0;
+    }
 }
-#endif /* EVAL_METRIC_H */

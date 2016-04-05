@@ -1,4 +1,4 @@
-/* ranklist.h: The ranklist -- list of feature vectors file.
+/* ranker.h: The abstract ranker file.
  *
  * Copyright (C) 2012 Parth Gupta
  *
@@ -18,8 +18,8 @@
  * USA
  */
 
-#ifndef RANKLIST_H
-#define RANKLIST_H
+#ifndef RANKER_H
+#define RANKER_H
 
 
 #include <xapian.h>
@@ -27,34 +27,47 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <featurevector.h>
+#include "ranklist.h"
+#include "evalmetric.h"
 
 #include <list>
 #include <map>
-#include <iostream>
+
 
 using namespace std;
 
 
 namespace Xapian {
 
-class FeatureVector;
+class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
-class XAPIAN_VISIBILITY_DEFAULT RankList {
-    
-    std::list<FeatureVector> rl;
 
+    std::list<Xapian::RankList> traindata;
+    std::list<Xapian::RankList> validata;
+    std::list<Xapian::RankList> testdata;
+
+    Xapian::EvalMetric trainMetric;
+    Xapian::EvalMetric testMetric;
   public:
-    std::string qid;
-    RankList();
-    
-    void set_qid(std::string qid1);
+    Ranker();
 
-    void add_feature_vector(const Xapian::FeatureVector fv);//was & fv initially,check back later
+    /* Override all the four methods below in the ranker sub-classes files
+     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
+     */
+    std::list<double> rank(const Xapian::RankList & rl);
 
-    void normalise();
+    void learn_model();
+
+    void load_model(const std::string & model_file);
+
+    void save_model();
+
+    /* This method should read the letor format data and transform into the list of
+     * Xapian::RankList format
+     */
+    std::list<Xapian::RankList> load_data(const std::string & data_file);
 
 };
 
 }
-#endif /* RANKLIST_H */
+#endif /* RANKER_H */

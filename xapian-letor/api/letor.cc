@@ -21,10 +21,10 @@
  */
 
 #include <config.h>
-#include <xapian/letor.h>
-#include "letor_internal.h"
-#include "ranker.h"
-#include "svmranker.h"
+#include <xapian-letor/letor.h>
+#include "xapian-letor/letor_internal.h"
+#include "xapian-letor/ranker.h"
+#include "ranker/svmranker.h"
 
 #include <map>
 #include <string>

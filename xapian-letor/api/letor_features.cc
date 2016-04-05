@@ -19,7 +19,7 @@
  * USA
  */
 
-#include "letor_features.h"
+#include "xapian-letor/letor_features.h"
 #include <math.h>
 #include <cstdio>
 #include <cstdlib>

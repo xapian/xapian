@@ -21,7 +21,7 @@
 #ifndef LETOR_FEATURES_H
 #define LETOR_FEATURES_H
 
-#include <xapian/letor.h>
+#include "letor.h"
 
 #include <list>
 #include <map>

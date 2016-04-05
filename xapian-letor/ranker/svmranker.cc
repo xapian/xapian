@@ -23,12 +23,12 @@
 
 
 #include <xapian.h>
-#include <xapian/base.h>
+#include <xapian/deprecated.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranker.h"
-#include "ranklist.h"
+#include <xapian-letor/ranker.h>
+#include <xapian-letor/ranklist.h>
 //#include "evalmetric.h"
 
 #include <list>
