@@ -9,7 +9,7 @@ Choose what to Inspect}}
 </title>
 </head>
 <body bgcolor=white>
-<form method=GET action="$html{$env{SCRIPT_NAME}}">
+<form method=get action="$html{$env{SCRIPT_NAME}}">
 
 $if{$cgi{ID},
 $setrelevant{$cgi{ID}}
@@ -82,12 +82,12 @@ $NEXT
 }
 }}
 $if{$or{$error,$and{$not{$cgi{ID}},$eq{$msize,0}}},
-$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form method=GET action="$html{$env{SCRIPT_NAME}}">}
+$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form method=get action="$html{$env{SCRIPT_NAME}}">}
 Inspect document # <input name=ID size=10>
-<input type=SUBMIT value="Inspect">
+<input type=submit value="Inspect">
 <hr>
 Inspect term <input name=B size=10>
-<input type=SUBMIT value="Inspect">
+<input type=submit value="Inspect">
 }
 $if{$fmt,<input type=hidden name=FMT value="$html{$fmt}">}
 $if{$dbname,<input type=hidden name=DB value="$html{$dbname}">}
