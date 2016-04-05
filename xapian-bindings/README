@@ -28,7 +28,7 @@ Java		Java bindings are generated with SWIG, as of Xapian 1.3.0.
 		The minimum version we aim to support is JDK 1.6 (Java 6).
 		Recently tested with OpenJDK 1.8.0_77, 1.7.0_03, and 1.6.0_38.
 
-Lua		Requires Lua 5.1 or later; tested with 5.1 and 5.2.
+Lua		Requires Lua 5.1 or later; tested with 5.1, 5.2 and 5.3.
 
 Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 		by Olly Betts are available from CPAN (module Search::Xapian).

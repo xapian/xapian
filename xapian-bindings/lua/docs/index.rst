@@ -1,7 +1,8 @@
 Lua bindings for Xapian
 ***********************
 
-These bindings require Lua version 5.1 or later, and have been tested with Lua 5.1 and 5.2.
+These bindings require Lua version 5.1 or later, and have been tested with Lua
+5.1, 5.2 and 5.3.
 
 The Lua bindings for Xapian are packaged in the ``xapian`` namespace,
 and largely follow the C++ API, with the following differences and
