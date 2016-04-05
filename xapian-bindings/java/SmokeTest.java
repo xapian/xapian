@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008,2011 Olly Betts
+// Copyright (C) 2005,2006,2007,2008,2011,2016 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -47,6 +47,20 @@ public class SmokeTest {
 	TermGenerator termGenerator = new TermGenerator();
 	termGenerator.setFlags(TermGenerator.FLAG_SPELLING);
 	try {
+	    // Test the version number reporting functions give plausible
+	    // results.
+	    String v = "";
+	    v += Version.major();
+	    v += ".";
+	    v += Version.minor();
+	    v += ".";
+	    v += Version.revision();
+	    String v2 = Version.string();
+	    if (!v.equals(v2)) {
+		System.err.println("Unexpected version output (" + v + " != " + v2 + ")");
+		System.exit(1);
+	    }
+
 	    Stem stem = new Stem("english");
 	    if (!stem.toString().equals("Xapian::Stem(english)")) {
 		System.err.println("Unexpected stem.toString()");
