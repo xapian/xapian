@@ -154,7 +154,7 @@ foreach $pair (
     is( $query->get_description(), "Query($res)" );
 }
 
-# Regression test for Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
+# Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
 # we tried to catch const char * not Xapian::Error, so std::terminate got
 # called.
 $qp = Xapian::QueryParser->new;
