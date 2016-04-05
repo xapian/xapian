@@ -6,7 +6,7 @@
 # Originally based on smoketest.php from the PHP4 bindings.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2008,2009,2010,2011 Olly Betts
+# Copyright (C) 2008,2009,2010,2011,2016 Olly Betts
 # Copyright (C) 2010 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
@@ -249,10 +249,6 @@ class XapianSmoketest < Test::Unit::TestCase
   end
 
   def test_016_compactor
-    if ! Dir.respond_to?("mktmpdir")
-      # Older Ruby 1.8.x doesn't have Dir.mktmpdir() - just skip if so.
-      return
-    end
     Dir.mktmpdir("smokerb") {|tmpdir|
         db1path = "#{tmpdir}db1"
         db2path = "#{tmpdir}db2"

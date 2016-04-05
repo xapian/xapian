@@ -963,16 +963,10 @@ if test no != "$with_ruby" ; then
   fi
   AC_ARG_VAR(RUBY, [Ruby interpreter])
   if test -n "$RUBY" ; then
-    dnl Require Ruby 1.8 or newer.  Paul says:
-    dnl  I'm using 1.8.4.  I imagine anything in the 1.8.x series will be fine,
-    dnl  not sure about 1.6 but hardly anyone uses <1.8.
-    dnl
-    dnl Brief testing with Ruby 1.6.8 show the bindings probably work there,
-    dnl but smoketest.rb doesn't because the test/unit module isn't available.
+    dnl Require Ruby 2.1 or newer.
     AC_MSG_CHECKING([$RUBY version])
     dnl RUBY_VERSION works with 1.6.  Once we've checked we have at least 1.8
-    dnl we can safely use RbConfig below (RbConfig requires Ruby 1.8; Config
-    dnl gives a deprecation warning with Ruby 1.9.3).
+    dnl we can safely use RbConfig below (RbConfig requires Ruby 1.8).
     version=`$RUBY -e 'print RUBY_VERSION' 2>/dev/null`
     case $version in
     "")
@@ -982,10 +976,10 @@ if test no != "$with_ruby" ; then
       fi
       RUBY=
       ;;
-    [0.*|1.[0-7]|1.[0-7].*])
+    [[01].*|2.0.*])
       AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
-	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($RUBY is $version)])
+	AC_MSG_ERROR([Only Ruby 2.1 or newer is supported ($RUBY is $version)])
       fi
       RUBY=
       ;;
@@ -994,8 +988,8 @@ if test no != "$with_ruby" ; then
       AC_MSG_RESULT([$version])
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
       if test -z "$RUBY_INC" ; then
-	dnl Ruby 1.9 added rubyhdrdir; for older Ruby we use archdir.
-	[RUBY_INC=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["rubyhdrdir"] || RbConfig::CONFIG["archdir"]'`]
+	dnl Ruby 1.9 added rubyhdrdir.
+	[RUBY_INC=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["rubyhdrdir"]'`]
       fi
       AC_SUBST(RUBY_INC)
       dnl Check that ruby.h is there, which is a good way to check that
@@ -1004,34 +998,10 @@ if test no != "$with_ruby" ; then
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
 
-	AC_MSG_CHECKING([for ruby/io.h])
-	rm -f ruby/rubyio.h
-	if test -f "$RUBY_INC/ruby/io.h" ; then
-	  AC_MSG_RESULT(yes)
-
-	  dnl In a VPATH build, the ruby subdirectory won't exist the first
-	  dnl time.
-	  AS_MKDIR_P([ruby])
-
-	  dnl Newer Ruby has ruby/io.h - older has rubyio.h.  Ruby doesn't
-	  dnl seem to provide any way to generate code which works with
-	  dnl both (and even the version number isn't a discriminator as
-	  dnl Debian etch has 1.9 without ruby/io.h).  The SWIG version
-	  dnl we're currently using assumes rubyio.h exists and luckily
-	  dnl it includes it with "", so we can just drop a rubyio.h
-	  dnl wrapper alongside ruby/xapian_wrap.cc.
-	  echo '#include <ruby/io.h>' > ruby/rubyio.h
-	else
-	  AC_MSG_RESULT(no)
-	fi
-
-	AC_ARG_VAR(RUBY_INC_ARCH, [Directory where ruby/config.h can be found (needed from Ruby 1.9)])
+	AC_ARG_VAR(RUBY_INC_ARCH, [Directory where ruby/config.h can be found])
 	if test -z "$RUBY_INC_ARCH" ; then
-	  dnl Ruby 2.0 and later Ruby 1.9 have rubyarchhdrdir; for early 1.9,
-	  dnl use rubyhdrdir+"/"+arch.
-	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'd = RbConfig::CONFIG["rubyhdrdir"]; print RbConfig::CONFIG["rubyarchhdrdir"] || (d ? d + "/" + RbConfig::CONFIG["arch"] : "")'`]
-	  dnl Ruby 1.8 has no rubyhdrdir, so set RUBY_INC_ARCH=RUBY_INC.
-	  test x"$RUBY_INC_ARCH" != x || RUBY_INC_ARCH=$RUBY_INC
+	  dnl Ruby 2.0 and later have rubyarchhdrdir.
+	  [RUBY_INC_ARCH=`$RUBY -rrbconfig -e 'print RbConfig::CONFIG["rubyarchhdrdir"]'`]
 	fi
 	AC_SUBST(RUBY_INC_ARCH)
 
