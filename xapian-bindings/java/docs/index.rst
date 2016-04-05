@@ -65,30 +65,22 @@ If you want to be compatible with earlier versions, you can continue to use
 TODO list:
 ##########
 
-* Finish updating this document for the move to the SWIG-generated Java
-  bindings.
-
 * Write SimpleExpand.java.
 
-* Fix string passing to be zero-byte clean.
+* Fix string passing to be zero-byte clean:
+  https://trac.xapian.org/ticket/46
 
-* Check that the missing wrappers in the JNI bindings are now present and
-  add them to SmokeTest:
+* These were missing in the JNI bindings - it would be good to add them to
+  SmokeTest.java:
 
-* Wrap optional parameter "parameter" for Query ctor.
+    - optional parameter "parameter" for Query ctor.
 
-* Wrap new QueryParser API.
+    - new QueryParser API.
 
-* Wrap changes to Enquire sorting API.
+    - changes to Enquire sorting API.
 
-* Use Stem::operator() rather than Stem::stem_word().
+    - new method ESet::back().
 
-* Wrap new method ESet::back().
+    - Third (optional) argument to Document::add_posting().
 
-* Wrap the new optional third parameter to Enquire::set_sorting().
-
-* Third (optional) argument to Document::add_posting() isn't wrapped.
-
-* Wrap Xapian::Weight and standard subclasses.
-
-* Allow user derived weight classes to be implemented in Java (less important).
+    - Xapian::Weight and standard subclasses.
