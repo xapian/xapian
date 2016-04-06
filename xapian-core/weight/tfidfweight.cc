@@ -38,7 +38,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
 {
     if (normalizations.length() != 3 ||
 	!strchr("nbsl", normalizations[0]) ||
-	!strchr("ntp", normalizations[1]) ||
+	!strchr("ntpfs", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (normalizations[1] != 'n') {
@@ -141,7 +141,7 @@ double
 TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 {
     double N = 1.0;
-    if (c != 'n') N = get_collection_size();
+    if (c != 'n' && c != 'f') N = get_collection_size();
     switch (c) {
 	case 'n':
 	    return 1.0;
@@ -149,6 +149,10 @@ TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 	    // All documents are indexed by the term
 	    if (N == termfreq) return 0;
 	    return log((N - termfreq) / termfreq);
+	case 'f':
+	    return (1.0 / termfreq);
+	case 's':
+	    return pow(log(N / termfreq), 2.0);
 	default:
 	    AssertEq(c, 't');
 	    return (log(N / termfreq));

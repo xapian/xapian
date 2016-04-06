@@ -442,11 +442,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      * @li The second character indicates the normalization for the idf.  The
      *     following normalizations are currently supported:
      *
-     *     @li 'n': None   idfn=1
-     *     @li 't': TfIdf  idfn=log(N/Termfreq) where N is the number of
+     *     @li 'n': None    idfn=1
+     *     @li 't': TfIdf   idfn=log(N/Termfreq) where N is the number of
      *         documents in collection and Termfreq is the number of documents
      *         which are indexed by the term t.
-     *     @li 'p': Prob   idfn=log((N-Termfreq)/Termfreq)
+     *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
+     *     @li 'f': Freq    idfn=1/Termfreq
+     *     @li 's': Squared idfn=log(N/Termfreq)^2
      *
      * @li The third and the final character indicates the normalization for
      *     the document weight.  The following normalizations are currently
