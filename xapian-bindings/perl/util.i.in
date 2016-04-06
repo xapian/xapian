@@ -4,7 +4,7 @@
  * Based on the perl XS wrapper files.
  *
  * Copyright (C) 2009 Kosei Moriyama
- * Copyright (C) 2011,2012,2013,2015 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -718,20 +718,27 @@ ErrorHandler, user-defined Weight subclasses.
 
 =head1 CREDITS
 
-Thanks to Tye McQueen E<lt>tye@metronet.comE<gt> for explaining the
-finer points of how best to write XS frontends to C++ libraries, James
-Aylett E<lt>james@tartarus.orgE<gt> for clarifying the less obvious
-aspects of the Xapian API, Tim Brody for patches wrapping ::QueryParser and
-::Stopper and especially Olly Betts E<lt>olly@survex.comE<gt> for contributing
-advice, bugfixes, and wrapper code for the more obscure classes.
+These SWIG-generated Perl bindings were originally implemented by Kosei
+Moriyama in GSoC 2009, and made their debut in the 1.2.4 release.
+
+They take a lot of inspiration and some code from Search::Xapian, a set
+of hand-written XS bindings, originally written by Alex Bowley, and later
+maintained by Olly Betts.
+
+Search::Xapian owed thanks to Tye McQueen E<lt>tye@metronet.comE<gt> for
+explaining the finer points of how best to write XS frontends to C++ libraries,
+and James Aylett E<lt>james@tartarus.orgE<gt> for clarifying the less obvious
+aspects of the Xapian API.  Patches for wrapping missing classes and other
+things were contributed by Olly Betts, Tim Brody, Marcus Ramberg, Peter Karman,
+Benjamin Smith, Rusty Conover, Frank Lichtenheld, Henry Combrinck, Jess
+Robinson, David F. Skoll, Dave O'Neill, Andreas Marienborg, Adam Sjøgren,
+Dmitry Karasik, and Val Rosca.
 
 =head1 AUTHOR
 
-Alex Bowley E<lt>kilinrax@cpan.orgE<gt>
-
 Please report any bugs/suggestions to E<lt>xapian-discuss@lists.xapian.orgE<gt>
 or use the Xapian bug tracker L<https://xapian.org/bugs>.  Please do
-NOT use the CPAN bug tracker or mail any of the authors individually.
+NOT use the CPAN bug tracker or mail contributors individually.
 
 =head1 LICENSE
 
