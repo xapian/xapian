@@ -143,7 +143,7 @@ CLEANFILES += xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
-exampledatadir = $(docdir)/python/examples
+exampledatadir = $(docdir)/python3/examples
 dist_exampledata_DATA = \
 	docs/examples/simpleindex.py \
 	docs/examples/simpleexpand.py \
@@ -153,8 +153,8 @@ dist_exampledata_DATA = \
 sphinxdocs = docs/html/index.html
 
 install-data-local:
-	$(mkinstalldirs) '$(DESTDIR)$(docdir)/python'
-	cp -R -p `test -r docs/html || echo '$(srcdir)/'`docs/html '$(DESTDIR)$(docdir)/python'
+	$(mkinstalldirs) '$(DESTDIR)$(docdir)/python3'
+	cp -R -p `test -r docs/html || echo '$(srcdir)/'`docs/html '$(DESTDIR)$(docdir)/python3'
 
 all-local: $(sphinxdocs)
 
