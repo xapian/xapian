@@ -1,4 +1,4 @@
-<select name=DEFAULTOP>
-<option value=or $if{$eq{$defaultop,or},SELECTED}>Matching any words
-<option value=and $if{$eq{$defaultop,and},SELECTED}>Matching all words
+<select name="DEFAULTOP">
+<option value="or" $if{$eq{$defaultop,or},selected}>Matching any words</option>
+<option value="and" $if{$eq{$defaultop,and},selected}>Matching all words</option>
 </select>
