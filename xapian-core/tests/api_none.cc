@@ -160,8 +160,7 @@ DEFINE_TESTCASE(singlesubquery3, !backend) {
     singlesubquery3_(OP_XOR);
     singlesubquery3_(OP_AND_MAYBE);
     singlesubquery3_(OP_FILTER);
-    singlesubquery3_(OP_NEAR);
-    singlesubquery3_(OP_PHRASE);
+    // OP_NEAR and OP_PHRASE over MatchAll doesn't really make sense.
     singlesubquery3_(OP_ELITE_SET);
     singlesubquery3_(OP_SYNONYM);
     singlesubquery3_(OP_MAX);

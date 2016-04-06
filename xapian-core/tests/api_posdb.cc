@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2009 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2009,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -181,6 +181,7 @@ DEFINE_TESTCASE(near2, positional) {
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(Xapian::BoolWeight());
+    Xapian::MSet mymset;
 
     // make a query
     vector<Xapian::Query> subqs;
@@ -189,12 +190,11 @@ DEFINE_TESTCASE(near2, positional) {
 			    Xapian::Query(stemmer("phrase")),
 			    Xapian::Query(stemmer("near"))));
     subqs.push_back(Xapian::Query(stemmer("and")));
-    q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
-    enquire.set_query(q);
-
-    // retrieve the top ten results
-    Xapian::MSet mymset;
     TEST_EXCEPTION(Xapian::UnimplementedError,
+	q = Xapian::Query(q.OP_NEAR, subqs.begin(), subqs.end(), 2);
+	enquire.set_query(q);
+
+	// retrieve the top ten results
 	mymset = enquire.get_mset(0, 10)
     );
 #if 0 // Disable until we reimplement this.
@@ -422,6 +422,7 @@ DEFINE_TESTCASE(phrase2, positional) {
     Xapian::Enquire enquire(mydb);
     Xapian::Stem stemmer("english");
     enquire.set_weighting_scheme(Xapian::BoolWeight());
+    Xapian::MSet mymset;
 
     // make a query
     vector<Xapian::Query> subqs;
@@ -430,12 +431,11 @@ DEFINE_TESTCASE(phrase2, positional) {
 			    Xapian::Query(stemmer("phrase")),
 			    Xapian::Query(stemmer("near"))));
     subqs.push_back(Xapian::Query(stemmer("and")));
-    q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
-    enquire.set_query(q);
-
-    // retrieve the top ten results
-    Xapian::MSet mymset;
     TEST_EXCEPTION(Xapian::UnimplementedError,
+	q = Xapian::Query(q.OP_PHRASE, subqs.begin(), subqs.end(), 2);
+	enquire.set_query(q);
+
+	// retrieve the top ten results
 	mymset = enquire.get_mset(0, 10)
     );
 #if 0 // Disable until we reimplement this.

@@ -278,8 +278,11 @@ Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 void
 Query::add_subquery(bool positional, const Xapian::Query & subquery)
 {
-    if (positional && subquery.get_type() != LEAF_TERM) {
-	throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support terms as subqueries");
+    if (positional) {
+	Xapian::Query::op type = subquery.get_type();
+	if (type != LEAF_TERM && type != LEAF_MATCH_NOTHING) {
+	    throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support terms as subqueries");
+	}
     }
     // We could handle this in a type-safe way, but we'd need to at least
     // declare Xapian::Internal::QueryBranch in the API header, which seems

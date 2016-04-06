@@ -683,7 +683,9 @@ static const test test_or_queries[] = {
     { "Xapian site:xapian.org site:www.xapian.org", "(xapian@1 FILTER (Hxapian.org OR Hwww.xapian.org))" },
     { "author:richard author:olly writer:charlie", "(ZArichard@1 OR ZAolli@2 OR ZAcharli@3)"},
     { "author:richard NEAR title:book", "(Arichard@1 NEAR 11 XTbook@2)"},
-    { "authortitle:richard NEAR title:book", "((Arichard@1 OR XTrichard@1) NEAR 11 XTbook@2)" },
+// FIXME: This throws an exception as of 1.3.6, but once implemented we
+// should re-enable it.
+//    { "authortitle:richard NEAR title:book", "((Arichard@1 OR XTrichard@1) NEAR 11 XTbook@2)" },
     { "multisite:xapian.org", "0 * (Hxapian.org OR Jxapian.org)"},
     { "authortitle:richard", "(ZArichard@1 OR ZXTrichard@1)"},
     { "multisite:xapian.org site:www.xapian.org author:richard authortitle:richard", "((ZArichard@1 OR (ZArichard@2 OR ZXTrichard@2)) FILTER (Hwww.xapian.org AND (Hxapian.org OR Jxapian.org)))" },

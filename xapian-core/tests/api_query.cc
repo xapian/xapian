@@ -89,6 +89,10 @@ DEFINE_TESTCASE(overload1, !backend) {
     return true;
 }
 
+// FIXME: As of 1.3.6, we throw Xapian::UnimplementedError at an attempt
+// to use OP_NEAR or OP_PHRASE with a complex subquery.  Once we actually
+// implement this, these tests can be re-enabled.
+#if 0
 /** Regression test and feature test.
  *
  *  This threw AssertionError in 1.0.9 and earlier (bug#201) and gave valgrind
@@ -145,6 +149,7 @@ DEFINE_TESTCASE(nearsubqueries1, writable) {
 
     return true;
 }
+#endif
 
 /// Test that XOR handles all remaining subqueries running out at the same
 //  time.
@@ -459,12 +464,12 @@ DEFINE_TESTCASE(loosenear1, backend) {
 DEFINE_TESTCASE(complexphrase1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
-    Xapian::Query query(Xapian::Query::OP_PHRASE,
-	    Xapian::Query("a") | Xapian::Query("b"),
-	    Xapian::Query("i"));
-    enq.set_query(query);
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	(void)enq.get_mset(0, 10));
+	Xapian::Query query(Xapian::Query::OP_PHRASE,
+		Xapian::Query("a") | Xapian::Query("b"),
+		Xapian::Query("i"));
+	enq.set_query(query);
+	(void)enq.get_mset(0, 10););
     return true;
 }
 
@@ -472,11 +477,11 @@ DEFINE_TESTCASE(complexphrase1, backend) {
 DEFINE_TESTCASE(complexnear1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enq(db);
-    Xapian::Query query(Xapian::Query::OP_NEAR,
-	    Xapian::Query("a") | Xapian::Query("b"),
-	    Xapian::Query("i"));
-    enq.set_query(query);
     TEST_EXCEPTION(Xapian::UnimplementedError,
-	(void)enq.get_mset(0, 10));
+	Xapian::Query query(Xapian::Query::OP_NEAR,
+		Xapian::Query("a") | Xapian::Query("b"),
+		Xapian::Query("i"));
+	enq.set_query(query);
+	(void)enq.get_mset(0, 10););
     return true;
 }
