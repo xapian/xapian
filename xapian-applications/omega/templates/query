@@ -4,8 +4,8 @@ $set{thousand,$.}$set{decimal,.}
 $setmap{prefix,,$split{ S B F},title,S,author,A,topic,B}
 ${
 $def{PREV,
-$if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
-SRC="/icons/omega/prev.png" BORDER=0 HEIGHT=30 WIDTH=30>,
+$if{$ne{$topdoc,0},<input type=image name="&lt;" alt="&lt;"
+src="/icons/omega/prev.png" border=0 height=30 width=30>,
 <img alt="" src="/icons/omega/prevoff.png" height=30 width=30>}
 }
 
@@ -45,7 +45,7 @@ document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
 </script>
 </head>
 <body bgcolor="#ffffff">
-<form name=P method=GET 
+<form name=P method=get 
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
 <center>
 <input id="omega-autofocus" type=search name=P value="$html{$query}" size=65 autofocus>
@@ -53,7 +53,7 @@ action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
 </script>
-<input type=SUBMIT value="Search">
+<input type=submit value="Search">
 <hr>
 $if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
 $if{$opt{topterms},
@@ -64,7 +64,7 @@ $if{$opt{topterms},
  </div>
 }
 <br>
-$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}"}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a><br>}
+$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a><br>}
 $or{$html{$error},
 $if{$eq{$msize,0},
 $if{$query,No documents match your query,
@@ -97,7 +97,7 @@ Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
 $if{$field{language},Language: <b>$html{$field{language}}</b><br>}
 $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span><br>}
 <div title="Mark this document as relevant" style="float:left;background-color:#cfc;border:1px solid green;margin-top:2px;">
-<input type=CHECKBOX name=R value=$id$if{$relevant, checked}>
+<input type=checkbox name=R value=$id$if{$relevant, checked}>
 </div>
 </div>
 </td>
