@@ -596,6 +596,22 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     mset_expect_order(mset2, 2, 4);
     TEST_EQUAL_DOUBLE(15 * mset[0].get_weight(), mset2[0].get_weight());
 
+    // check for "nfn" when termfreq != N
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("nfn"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 / 2);
+
+    // check for "nsn" when termfreq != N
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("nsn"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 8.0 * pow(log(6.0 / 2), 2.0));
+
     // Check for "bnn" and for both branches of 'b'.
     enquire.set_query(Xapian::Query("test"));
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("bnn"));
