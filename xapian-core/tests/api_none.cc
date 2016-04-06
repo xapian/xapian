@@ -149,7 +149,7 @@ DEFINE_TESTCASE(singlesubquery2, !backend) {
 }
 
 DEFINE_TESTCASE(singlesubquery3, !backend) {
-    // Like the previous test, but using MatchNothing as the subquery.
+    // Like the previous test, but using MatchAll as the subquery.
 #define singlesubquery3_(OP) \
     TEST_STRINGS_EQUAL(Xapian::Query(q->OP, q, q + 1).get_description(),\
 	"Query(<alldocuments>)")
