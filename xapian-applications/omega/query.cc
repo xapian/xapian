@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Thomas Viehmann
  *
  * This program is free software; you can redistribute it and/or
@@ -54,8 +54,9 @@
 
 #include <cdb.h>
 
+#include "csvescape.h"
 #include "date.h"
-#include "datematchdecider.h"
+#include "datevalue.h"
 #include "jsonescape.h"
 #include "utils.h"
 #include "omega.h"
@@ -183,7 +184,7 @@ prefix_from_term(string &prefix, const string &term)
     if (term[0] == 'X') {
 	const string::const_iterator begin = term.begin();
 	string::const_iterator i = begin + 1;
-	while (i != term.end() && isupper(static_cast<unsigned char>(*i))) ++i;
+	while (i != term.end() && C_isupper(*i)) ++i;
 	prefix.assign(begin, i);
 	if (i != term.end() && *i == ':') ++i;
 	return i - begin;
@@ -216,7 +217,7 @@ vet_filename(const string &filename)
 // BAD_QUERY parse error (message in error_msg)
 typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
-static map<string, string> probabilistic_query;
+static multimap<string, string> probabilistic_query;
 
 void
 set_probabilistic_query(const string & prefix, const string & s)
@@ -253,6 +254,12 @@ read_qp_flags(const string & opt_pfx, unsigned f)
 		}
 		if (strcmp(s, "boolean_any_case") == 0) {
 		    mask = Xapian::QueryParser::FLAG_BOOLEAN_ANY_CASE;
+		    break;
+		}
+		break;
+	    case 'c':
+		if (strcmp(s, "cjk_ngram") == 0) {
+		    mask = Xapian::QueryParser::FLAG_CJK_NGRAM;
 		    break;
 		}
 		break;
@@ -340,8 +347,10 @@ set_probabilistic(const string &oldp)
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
-	string user_prefix = pfx->first.substr(11);
-	qp.add_boolean_prefix(user_prefix, pfx->second);
+	string user_prefix(pfx->first, 11, string::npos);
+	auto it = option.find("nonexclusiveprefix," + pfx->second);
+	bool exclusive = (it == option.end() || it->second.empty());
+	qp.add_boolean_prefix(user_prefix, pfx->second, exclusive);
 	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
 
@@ -353,7 +362,7 @@ set_probabilistic(const string &oldp)
 	vector<Xapian::Query> queries;
 	queries.reserve(probabilistic_query.size());
 
-	map<string, string>::const_iterator j;
+	multimap<string, string>::const_iterator j;
 	for (j = probabilistic_query.begin();
 	     j != probabilistic_query.end();
 	     ++j) {
@@ -369,7 +378,9 @@ set_probabilistic(const string &oldp)
 	    unsigned f = read_qp_flags(prefix + ":flag_", default_flags);
 
 	    const string & query_string = j->second;
-	    queries.push_back(qp.parse_query(query_string, f, prefix));
+	    Xapian::Query q = qp.parse_query(query_string, f, prefix);
+	    if (!q.empty())
+		queries.push_back(q);
 	}
 	query = Xapian::Query(query.OP_AND, queries.begin(), queries.end());
     } catch (Xapian::QueryParserError &e) {
@@ -390,8 +401,9 @@ set_probabilistic(const string &oldp)
 
     // Check new query against the previous one
     if (oldp.empty()) {
-	// FIXME: should take into account other probabilistic prefixes here...
-	return probabilistic_query[string()].empty() ? SAME_QUERY : NEW_QUERY;
+	// If oldp was empty that means there were no probabilistic terms
+	// before, so if there are now this is a new query.
+	return n_new_terms ? NEW_QUERY : SAME_QUERY;
     }
 
     // The terms in oldp are separated by tabs.
@@ -424,6 +436,7 @@ set_probabilistic(const string &oldp)
 }
 
 static multimap<string, string> filter_map;
+static set<string> neg_filters;
 
 typedef multimap<string, string>::const_iterator FMCI;
 
@@ -433,35 +446,47 @@ void add_bterm(const string &term) {
 	filter_map.insert(multimap<string, string>::value_type(prefix, term));
 }
 
+void add_nterm(const string &term) {
+    if (!term.empty())
+	neg_filters.insert(term);
+}
+
 static void
 run_query()
 {
     bool force_boolean = false;
     if (!filter_map.empty()) {
-	// OR together filters with the same prefix, then AND together
+	// OR together filters with the same prefix (or AND for non-exclusive
+	// prefixes), then AND together the resultant groups.
 	vector<Xapian::Query> filter_vec;
-	vector<string> or_vec;
+	vector<string> same_vec;
 	string current;
 	for (FMCI i = filter_map.begin(); ; i++) {
 	    bool over = (i == filter_map.end());
 	    if (over || i->first != current) {
-		switch (or_vec.size()) {
+		switch (same_vec.size()) {
 		    case 0:
 		        break;
 		    case 1:
-			filter_vec.push_back(Xapian::Query(or_vec[0]));
+			filter_vec.push_back(Xapian::Query(same_vec[0]));
 		        break;
-		    default:
-			filter_vec.push_back(Xapian::Query(Xapian::Query::OP_OR,
-						     or_vec.begin(),
-						     or_vec.end()));
+		    default: {
+			Xapian::Query::op op = Xapian::Query::OP_OR;
+			auto it = option.find("nonexclusiveprefix," + current);
+			if (it != option.end() && !it->second.empty()) {
+			    op = Xapian::Query::OP_AND;
+			}
+			filter_vec.push_back(Xapian::Query(op,
+						     same_vec.begin(),
+						     same_vec.end()));
 		        break;
+		    }
 		}
-		or_vec.clear();
+		same_vec.clear();
 		if (over) break;
 		current = i->first;
 	    }
-	    or_vec.push_back(i->second);
+	    same_vec.push_back(i->second);
 	}
 
 	Xapian::Query filter(Xapian::Query::OP_AND,
@@ -472,32 +497,55 @@ run_query()
 	    // to be THE query - filtering an empty query will give no
 	    // matches.
 	    std::swap(query, filter);
-	    if (enquire) force_boolean = true;
+	    force_boolean = true;
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, filter);
 	}
     }
 
-    Xapian::MatchDecider * mdecider = NULL;
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
+	Xapian::Query date_filter;
 	MCI i = cgi_params.find("DATEVALUE");
 	if (i != cgi_params.end()) {
-	    Xapian::valueno datevalue = string_to_int(i->second);
-	    mdecider = new DateMatchDecider(datevalue, date_start, date_end, date_span);
+	    Xapian::valueno slot = string_to_int(i->second);
+	    // The values can be a time_t in 4 bytes, or YYYYMMDD... (with the
+	    // latter the sort order just works correctly between different
+	    // precisions).
+	    bool as_time_t =
+		db.get_value_lower_bound(slot).size() == 4 &&
+		db.get_value_upper_bound(slot).size() == 4;
+	    date_filter = date_value_range(as_time_t, slot,
+					   date_start, date_end,
+					   date_span);
 	} else {
-	    Xapian::Query date_filter(Xapian::Query::OP_OR,
-				      date_range_filter(date_start, date_end,
-							date_span),
-				      Xapian::Query("Dlatest"));
-
-	    // If no probabilistic query is provided then promote the daterange
-	    // filter to be THE query instead of filtering an empty query.
-	    if (query.empty()) {
-		query = date_filter;
-	    } else {
-		query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
-	    }
+	    date_filter = date_range_filter(date_start, date_end, date_span);
+	    date_filter = Xapian::Query(Xapian::Query::OP_OR,
+					date_filter,
+					Xapian::Query("Dlatest"));
 	}
+
+	// If no probabilistic query is provided then promote the daterange
+	// filter to be THE query instead of filtering an empty query.
+	if (query.empty()) {
+	    query = date_filter;
+	    force_boolean = true;
+	} else {
+	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
+	}
+    }
+
+    if (!neg_filters.empty()) {
+	// OR together all negated filters.
+	Xapian::Query filter(Xapian::Query::OP_OR,
+			     neg_filters.begin(), neg_filters.end());
+
+	if (query.empty()) {
+	    // If we only have a negative filter for the query, use MatchAll as
+	    // the query to apply the filters to.
+	    query = Xapian::Query::MatchAll;
+	    force_boolean = true;
+	}
+	query = Xapian::Query(Xapian::Query::OP_AND_NOT, query, filter);
     }
 
     if (!enquire || !error_msg.empty()) return;
@@ -508,9 +556,9 @@ run_query()
 
     if (sort_key != Xapian::BAD_VALUENO) {
 	if (sort_after) {
-	    enquire->set_sort_by_relevance_then_value(sort_key, sort_ascending);
+	    enquire->set_sort_by_relevance_then_value(sort_key, reverse_sort);
 	} else {
-	    enquire->set_sort_by_value_then_relevance(sort_key, sort_ascending);
+	    enquire->set_sort_by_value_then_relevance(sort_key, reverse_sort);
 	}
     }
 
@@ -540,7 +588,7 @@ run_query()
 	// can avoid offering a "next" button which leads to an empty page.
 	mset = enquire->get_mset(0, topdoc + hits_per_page,
 				 topdoc + max(hits_per_page + 1, min_hits),
-				 &rset, mdecider);
+				 &rset);
     }
 }
 
@@ -617,14 +665,14 @@ static int word_in_list(const string& word, const string& list)
 inline static bool
 p_notid(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '_';
+    return !C_isalnum(c) && c != '_';
 }
 
 // Not a character in an HTML tag name
 inline static bool
 p_nottag(unsigned int c)
 {
-    return !isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '-';
+    return !C_isalnum(c) && c != '.' && c != '-';
 }
 
 // FIXME: shares algorithm with indextext.cc!
@@ -648,10 +696,10 @@ html_highlight(const string &s, const string &list,
 	string term;
 	string word;
 	const char *l = j.raw();
-	if (*first < 128 && isupper(*first)) {
+	if (*first < 128 && C_isupper(*first)) {
 	    j = first;
 	    Xapian::Unicode::append_utf8(term, *j);
-	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
+	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && C_isupper(*j)) {
 		Xapian::Unicode::append_utf8(term, *j);
 	    }
 	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
@@ -719,7 +767,7 @@ html_highlight(const string &s, const string &list,
 		res += bg;
 		res += "\">";
 	    }
-	    word = string(first.raw(), j.raw() - first.raw());
+	    word.assign(first.raw(), j.raw() - first.raw());
 	    res += html_escape(word);
 	    if (!bra.empty()) {
 		res += ket;
@@ -806,12 +854,12 @@ Fields::read_fields(Xapian::docid did) const
 	do {
 	    string::size_type i0 = i;
 	    i = data.find('\n', i);
-	    string line = data.substr(i0, i - i0);
+	    string line(data, i0, i - i0);
 	    string::size_type j = line.find('=');
 	    if (j != string::npos) {
 		string & value = fields[line.substr(0, j)];
 		if (!value.empty()) value += '\t';
-		value += line.substr(j + 1);
+		value.append(line, j + 1, string::npos);
 	    }
 	} while (++i);
     }
@@ -834,7 +882,10 @@ CMD_allterms,
 CMD_and,
 CMD_cgi,
 CMD_cgilist,
+CMD_chr,
 CMD_collapsed,
+CMD_contains,
+CMD_csv,
 CMD_date,
 CMD_dbname,
 CMD_dbsize,
@@ -877,6 +928,7 @@ CMD_lookup,
 CMD_lower,
 CMD_lt,
 CMD_map,
+CMD_match,
 CMD_max,
 CMD_min,
 CMD_mod,
@@ -890,6 +942,7 @@ CMD_not,
 CMD_now,
 CMD_opt,
 CMD_or,
+CMD_ord,
 CMD_pack,
 CMD_percentage,
 CMD_prettyterm,
@@ -956,7 +1009,10 @@ T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
+T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
+T(contains,	   2, 2, N, 0), // return position of substring, or empty string
+T(csv,		   1, 2, N, 0), // CSV string escaping
 T(date,		   1, 2, N, 0), // convert time_t to strftime format
 				// (default: YYYY-MM-DD)
 T(dbname,	   0, 0, N, 0), // database name
@@ -978,8 +1034,7 @@ T(freq,		   1, 1, N, 0), // frequency of a term
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
-T(hit,		   0, 0, N, 0), // hit number of current mset entry (starting
-				// from 0
+T(hit,		   0, 0, N, 0), // hit number of current mset entry (0-based)
 T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
 T(hitsperpage,	   0, 0, N, 0), // hits per page
 T(hostname,	   1, 1, N, 0), // extract hostname from URL
@@ -991,7 +1046,7 @@ T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
 T(json,		   1, 1, N, 0), // JSON string escaping
 T(jsonarray,	   1, 1, N, 0), // Format list as a JSON array of strings
-T(last,		   0, 0, N, M), // m-set number of last hit on page
+T(last,		   0, 0, N, M), // hit number one beyond end of current page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
 T(length,	   1, 1, N, 0), // length of list
@@ -1001,6 +1056,7 @@ T(lookup,	   2, 2, N, 0), // lookup in named cdb file
 T(lower,	   1, 1, N, 0), // convert string to lower case
 T(lt,		   2, 2, N, 0), // test <
 T(map,		   1, 2, 1, 0), // map a list into another list
+T(match,		   2, 3, N, 0), // match a regex with a string 
 T(max,		   1, N, N, 0), // maximum of a list of values
 T(min,		   1, N, N, 0), // minimum of a list of values
 T(mod,		   2, 2, N, 0), // integer modulus
@@ -1014,12 +1070,13 @@ T(not,		   1, 1, N, 0), // logical not
 T(now,		   0, 0, N, 0), // current date/time as a time_t
 T(opt,		   1, 2, N, 0), // lookup an option value
 T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
+T(ord,		   1, 1, N, 0), // return codepoint for first character of UTF-8 string
 T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
 T(prettyurl,	   1, 1, N, 0), // pretty version of URL
 T(query,	   0, 1, N, Q), // query
-T(querydescription,0, 0, N, Q), // query.get_description()
+T(querydescription,0, 0, N, M), // query.get_description() (run_query() adds filters so M)
 T(queryterms,	   0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
 T(record,	   0, 1, N, 0), // record contents of document
@@ -1030,20 +1087,20 @@ T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,     0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
-T(snippet,	   1, 2, N, 0), // generate snippet from text
+T(snippet,	   1, 2, N, M), // generate snippet from text
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(substr,	   2, 3, N, 0), // substring
 T(suggestion,	   0, 0, N, Q), // misspelled word correction suggestion
-T(terms,	   0, 0, N, M), // list of matching terms
+T(terms,	   0, 1, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
 T(time,		   0, 0, N, M), // how long the match took (in seconds)
 T(topdoc,	   0, 0, N, M), // first document on current page of hit list
 				// (counting from 0)
 T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
 				// (default 16)
-T(transform,	   3, 3, N, 0), // transform with a regexp
+T(transform,	   3, 4, N, 0), // transform with a regexp
 T(truncate,	   2, 4, N, 0), // truncate after a word
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
 T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
@@ -1091,7 +1148,7 @@ eval(const string &fmt, const vector<string> &param)
     string res;
     string::size_type p = 0, q;
     while ((q = fmt.find('$', p)) != string::npos) try {
-	res += fmt.substr(p, q - p);
+	res.append(fmt, p, q - p);
 	string::size_type code_start = q; // note down for error reporting
 	q++;
 	if (q >= fmt.size()) break;
@@ -1137,11 +1194,12 @@ eval(const string &fmt, const vector<string> &param)
 	    case '{':
 		break;
 	    default:
-		string msg = "Unknown $ code in: $" + fmt.substr(q);
+		string msg = "Unknown $ code in: $";
+		msg.append(fmt, q, string::npos);
 		throw msg;
 	}
 	p = find_if(fmt.begin() + q, fmt.end(), p_notid) - fmt.begin();
-	string var = fmt.substr(q, p - q);
+	string var(fmt, q, p - q);
 	map<string, const struct func_attrib *>::const_iterator func;
 	func = func_map.find(var);
 	if (func == func_map.end()) {
@@ -1212,8 +1270,10 @@ eval(const string &fmt, const vector<string> &param)
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		Xapian::TermIterator term = db.termlist_begin(id);
-		for ( ; term != db.termlist_end(id); term++)
-		    value = value + *term + '\t';
+		for ( ; term != db.termlist_end(id); term++) {
+		    value += *term;
+		    value += '\t';
+		}
 
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
@@ -1237,15 +1297,35 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_cgilist: {
 		pair<MCI, MCI> g;
 		g = cgi_params.equal_range(args[0]);
-		for (MCI i = g.first; i != g.second; i++)
-		    value = value + i->second + '\t';
+		for (MCI i = g.first; i != g.second; i++) {
+		    value += i->second;
+		    value += '\t';
+		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
+	    case CMD_chr:
+		Xapian::Unicode::append_utf8(value, string_to_int(args[0]));
+		break;
 	    case CMD_collapsed: {
 		value = str(collapsed);
 		break;
 	    }
+            case CMD_contains: {
+                size_t pos = args[1].find(args[0]);
+                if (pos != string::npos) {
+                    value = str(pos);
+                }
+                break;
+            }
+	    case CMD_csv:
+		value = args[0];
+		if (args.size() > 1 && !args[1].empty()) {
+		    csv_escape_always(value);
+		} else {
+		    csv_escape(value);
+		}
+		break;
 	    case CMD_date:
 		value = args[0];
 		if (!value.empty()) {
@@ -1381,7 +1461,8 @@ eval(const string &fmt, const vector<string> &param)
 		while (term != db.allterms_end()) {
 		    string t = *term;
 		    if (!startswith(t, args[0])) break;
-		    value = value + t + '\t';
+		    value += t;
+		    value += '\t';
 		    ++term;
 		}
 
@@ -1436,7 +1517,7 @@ eval(const string &fmt, const vector<string> &param)
 			string::const_iterator i;
 			i = find_if(bra.begin() + 2, bra.end(), p_nottag);
 			ket = "</";
-			ket += bra.substr(1, i - bra.begin() - 1);
+			ket.append(bra, 1, i - bra.begin() - 1);
 			ket += '>';
 		    }
 		}
@@ -1450,26 +1531,41 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_hitlist:
 #if 0
-		const char *q;
-		int ch;
-
 		url_query_string = "?DB=";
 		url_query_string += dbname;
-		url_query_string += "&P=";
-		q = probabilistic_query[string()].c_str();
-		while ((ch = *q++) != '\0') {
-		    switch (ch) {
-		     case '+':
-			url_query_string += "%2b";
-			break;
-		     case '"':
-			url_query_string += "%22";
-			break;
-		     case ' ':
-			ch = '+';
-			/* fall through */
-		     default:
-			url_query_string += ch;
+		multimap<string, string>::const_iterator j;
+		for (j = probabilistic_query.begin();
+		     j != probabilistic_query.end();
+		     ++j) {
+		    if (j->first.empty()) {
+			url_query_string += "&P=";
+		    } else {
+			url_query_string += "&P."
+			url_query_string += j->first;
+			url_query_string += '=';
+		    }
+		    const char *q = j->second.c_str();
+		    int ch;
+		    while ((ch = *q++) != '\0') {
+			switch (ch) {
+			 case '+':
+			    url_query_string += "%2b";
+			    break;
+			 case '"':
+			    url_query_string += "%22";
+			    break;
+			 case '%':
+			    url_query_string += "%25";
+			    break;
+			 case '&':
+			    url_query_string += "%26";
+			    break;
+			 case ' ':
+			    ch = '+';
+			    /* fall through */
+			 default:
+			    url_query_string += ch;
+			}
 		    }
 		}
 	        // add any boolean terms
@@ -1538,7 +1634,7 @@ eval(const string &fmt, const vector<string> &param)
 		    value = "[]";
 		    break;
 		}
-		value = "[\"]";
+		value = "[\"";
 		while (true) {
 		    j = l.find('\t', i);
 		    string elt(l, i, j - i);
@@ -1600,11 +1696,11 @@ eval(const string &fmt, const vector<string> &param)
 		    string::size_type split = 0, split2;
 		    while ((split2 = list.find('\t', split)) != string::npos) {
 			if (split) value += inter;
-			value += list.substr(split, split2 - split);
+			value.append(list, split, split2 - split);
 			split = split2 + 1;
 		    }
 		    if (split) value += interlast;
-		    value += list.substr(split);
+		    value.append(list, split, string::npos);
 		    value += post;
 		}
 		break;
@@ -1641,7 +1737,7 @@ eval(const string &fmt, const vector<string> &param)
 		    size_t datalen = cdb_datalen(&cdb);
 		    const void *dat = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
 		    if (q) {
-			value = string(static_cast<const char *>(dat), datalen);
+			value.assign(static_cast<const char *>(dat), datalen);
 		    }
 		}
 
@@ -1671,6 +1767,9 @@ eval(const string &fmt, const vector<string> &param)
 		    }
 		}
 	        break;
+	    case CMD_match:
+		omegascript_match(value, args);
+		break;
 	    case CMD_max: {
 		vector<string>::const_iterator i = args.begin();
 		int val = string_to_int(*i++);
@@ -1768,6 +1867,13 @@ eval(const string &fmt, const vector<string> &param)
 	        }
 		break;
 	    }
+	    case CMD_ord: {
+		if (!args[0].empty()) {
+		    Utf8Iterator it(args[0]);
+		    value = str(*it);
+		}
+		break;
+	    }
 	    case CMD_pack:
 		value = int_to_binary_string(string_to_int(args[0]));
 		break;
@@ -1782,9 +1888,25 @@ eval(const string &fmt, const vector<string> &param)
 		value = args[0];
 		url_prettify(value);
 		break;
-	    case CMD_query:
-		value = probabilistic_query[args.empty() ? string() : args[0]];
+	    case CMD_query: {
+		pair<multimap<string, string>::const_iterator,
+		     multimap<string, string>::const_iterator> r;
+		r = probabilistic_query.equal_range(args.empty() ?
+						    string() : args[0]);
+		multimap<string, string>::const_iterator j;
+		for (j = r.first; j != r.second; ++j) {
+		    if (!value.empty()) value += '\t';
+		    const string & s = j->second;
+		    size_t start = 0, tab;
+		    while ((tab = s.find('\t', start)) != string::npos) {
+			value.append(s, start, tab - start);
+			value += ' ';
+			start = tab + 1;
+		    }
+		    value.append(s, start, string::npos);
+		}
 		break;
+	    }
 	    case CMD_querydescription:
 		value = query.get_description();
 		break;
@@ -1885,11 +2007,16 @@ eval(const string &fmt, const vector<string> &param)
 	        break;
 	    }
 	    case CMD_snippet: {
-		Xapian::Snipper snipper;
-		snipper.set_mset(mset);
-		snipper.set_stemmer(Xapian::Stem(option["stemmer"]));
-		size_t len = (args.size() == 1) ? 200 : string_to_int(args[1]);
-		value = snipper.generate_snippet(args[0], len);
+		size_t length = 200;
+		if (args.size() > 1) {
+		    length = string_to_int(args[1]);
+		}
+		if (!stemmer)
+		    stemmer = new Xapian::Stem(option["stemmer"]);
+		// FIXME: Allow start and end highlight and omit to be specified.
+		value = mset.snippet(args[0], length, *stemmer,
+				     mset.SNIPPET_BACKGROUND_MODEL|mset.SNIPPET_EXHAUSTIVE,
+				     "<strong>", "</strong>", "...");
 		break;
 	    }
 	    case CMD_split: {
@@ -1953,27 +2080,44 @@ eval(const string &fmt, const vector<string> &param)
 			}
 		    }
 		}
-		value = args[0].substr(start, len);
+		value.assign(args[0], start, len);
 		break;
 	    }
 	    case CMD_suggestion:
 		value = qp.get_corrected_query_string();
 		break;
-	    case CMD_terms:
-		if (enquire) {
-		    // list of matching terms
-		    Xapian::TermIterator term = enquire->get_matching_terms_begin(q0);
+	    case CMD_terms: {
+		// list of matching terms
+		if (!enquire) break;
+		Xapian::TermIterator term = enquire->get_matching_terms_begin(q0);
+		if (args.empty()) {
 		    while (term != enquire->get_matching_terms_end(q0)) {
 			// check term was in the typed query so we ignore
 			// boolean filter terms
-			if (termset.find(*term) != termset.end())
-			    value = value + *term + '\t';
+			const string & t = *term;
+			if (termset.find(t) != termset.end()) {
+			    value += t;
+			    value += '\t';
+			}
 			++term;
 		    }
-
-		    if (!value.empty()) value.erase(value.size() - 1);
+		} else {
+		    // Return matching terms with specified prefix.  We can't
+		    // use skip_to() as the terms aren't ordered by termname.
+		    const string & pfx = args[0];
+		    while (term != enquire->get_matching_terms_end(q0)) {
+			const string & t = *term;
+			if (startswith(t, pfx)) {
+			    value += t;
+			    value += '\t';
+			}
+			++term;
+		    }
 		}
+
+		if (!value.empty()) value.erase(value.size() - 1);
 		break;
+	    }
 	    case CMD_thispage:
 		value = str(topdoc / hits_per_page + 1);
 		break;
@@ -2061,7 +2205,7 @@ eval(const string &fmt, const vector<string> &param)
 		string prev;
 		do {
 		    split2 = list.find('\t', split);
-		    string item = list.substr(split, split2 - split);
+		    string item(list, split, split2 - split);
 		    if (split == 0) {
 			value = item;
 		    } else if (item != prev) {
@@ -2122,7 +2266,7 @@ eval(const string &fmt, const vector<string> &param)
 	error_msg = e.get_msg();
     }
 
-    res += fmt.substr(p);
+    res.append(fmt, p, string::npos);
     return res;
 }
 
@@ -2156,7 +2300,7 @@ pretty_term(string term)
     if (term.length() <= 1) return term;
 
     // Assume unprefixed terms are unstemmed.
-    if (!isupper(term[0])) return term;
+    if (!C_isupper(term[0])) return term;
 
     // Handle stemmed terms.
     bool stemmed = (term[0] == 'Z');
@@ -2174,7 +2318,7 @@ pretty_term(string term)
     bool add_quotes = false;
 
     // Check if the term has a prefix.
-    if (isupper(term[0])) {
+    if (C_isupper(term[0])) {
 	// See if we have this prefix in the termprefix_to_userprefix map.  If
 	// so, just reverse the mapping (e.g. turn 'Sfish' into 'subject:fish').
 	string prefix;
@@ -2225,21 +2369,21 @@ parse_omegascript()
 	    suppress_http_headers = true;
 	}
 
-	std::string output = eval_file(fmtname);
+	string output = eval_file(fmtname);
 	if (!set_content_type && !suppress_http_headers) {
-	    cout << "Content-Type: text/html" << std::endl;
+	    cout << "Content-Type: text/html" << endl;
 	    set_content_type = true;
 	}
-	cout << std::endl;
+	if (!suppress_http_headers) cout << endl;
 	cout << output;
     } catch (...) {
 	// Ensure the headers have been output so that any exception gets
 	// reported rather than giving a server error.
 	if (!set_content_type && !suppress_http_headers) {
-	    cout << "Content-Type: text/html" << std::endl;
+	    cout << "Content-Type: text/html" << endl;
 	    set_content_type = true;
 	}
-	cout << std::endl;
+	if (!suppress_http_headers) cout << endl;
 	throw;
     }
 }
@@ -2284,13 +2428,12 @@ ensure_query_parsed()
 	    val = cgi_params.find("xDB");
 	    if (val != cgi_params.end() && val->second != dbname) break;
 	    if (result == SAME_QUERY && force_first_page) {
-		force_first_page = false;
 		val = cgi_params.find("xFILTERS");
-		string xfilters;
-		if (val != cgi_params.end()) xfilters = val->second;
-		if (filters != xfilters) {
-		    // Filters changed since last query
-		    force_first_page = true;
+		if (val != cgi_params.end() && val->second != filters &&
+		    val->second != old_filters) {
+		    // Filters have changed since last query.
+		} else {
+		    force_first_page = false;
 		}
 	    }
 	    discard_rset = false;
@@ -2315,7 +2458,10 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
+	    long page = atol(val->second.c_str());
+	    // Do something sensible for page 0 (we count pages from 1).
+	    if (page == 0) page = 1;
+	    topdoc = (page - 1) * hits_per_page;
 	}
 
 	// raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
@@ -2398,7 +2544,7 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
 	       ch = term[0];
 	    }
 
-	    if (isupper(ch)) {
+	    if (C_isupper(ch)) {
 		string prefix;
 		size_t prefix_len = prefix_from_term(prefix, term);
 		term.erase(0, prefix_len);
@@ -2417,7 +2563,7 @@ OmegaExpandDecider::operator()(const string & term) const
     unsigned char ch = term[0];
 
     // Reject terms with a prefix.
-    if (isupper(ch)) return false;
+    if (C_isupper(ch)) return false;
 
     {
 	MyStopper stopper;
@@ -2426,7 +2572,7 @@ OmegaExpandDecider::operator()(const string & term) const
     }
 
     // Reject small numbers.
-    if (term.size() < 4 && isdigit(ch)) return false;
+    if (term.size() < 4 && C_isdigit(ch)) return false;
 
     // Reject terms containing a space.
     if (term.find(' ') != string::npos) return false;
