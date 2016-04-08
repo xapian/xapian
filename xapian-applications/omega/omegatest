@@ -204,6 +204,22 @@ printf '$contains{$cgi{a},$cgi{b}}' > "$TEST_TEMPLATE"
 testcase '6' P=text a=fish b="Hello fish"
 testcase '' P=text a="Example" b="random"
 
+NEWLINE='
+'
+
+# Feature tests for $match.
+printf '$match{$cgi{a},$cgi{b},$cgi{c}}' > "$TEST_TEMPLATE"
+testcase 'true' P=text a="ab*c+" b="ac"
+testcase '' P=text a="acb" b="abc"
+testcase 'true' P=text a="[A-Z]bcD" b="abcd" c="i"
+testcase '' P=text a="[A-Z]bcD" b="abcd"
+testcase 'true' P=text a="^abc$" b="${NEWLINE}abc${NEWLINE}def" c="m"
+testcase '' P=text a="^abc$" b="${NEWLINE}abc${NEWLINE}def"
+testcase 'true' P=text a="abc." b="abc${NEWLINE}" c="s"
+testcase '' P=text a="abc." b="abc${NEWLINE}"
+testcase 'true' P=text a="    ABC #test_comment " b="ABC" c="x"
+testcase '' P=text a="    ABC #test_comment " b="ABC"
+
 # Feature tests for $terms.
 printf 'text : index\nhost : boolean=H\nfoo : boolean=XFOO' > "$TEST_INDEXSCRIPT"
 rm -f "$TEST_DB"

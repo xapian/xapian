@@ -55,6 +55,43 @@ get_re(const string & pattern, int options)
 }
 
 void
+omegascript_match(string & value, const vector<string> & args)
+{
+    int offsets[30];
+    int options=0;
+    if (args.size() > 2) {
+       const string &opts = args[2];
+       for (string::const_iterator i = opts.begin(); i != opts.end(); ++i) {
+	    switch (*i) {
+	        case 'i':
+		    options |= PCRE_CASELESS;
+		    break;
+		case 'm':
+		    options |= PCRE_MULTILINE;
+		    break;
+	        case 's':
+		    options |= PCRE_DOTALL;
+		    break;
+	        case 'x':
+		    options |= PCRE_EXTENDED;
+		    break;
+	        default: {
+		    string m = "Unknown $match option character: ";
+		    m += *i;
+		    throw m;
+	        }
+	     }
+        }
+    }
+    pcre * re = get_re(args[0], options);
+    int matches = pcre_exec(re, NULL, args[1].data(), args[1].size(),
+			    0, 0, offsets, 30);
+    if (matches > 0) {
+	value += "true";
+    }
+}
+
+void
 omegascript_transform(string & value, const vector<string> & args)
 {
     int offsets[30];

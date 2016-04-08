@@ -928,6 +928,7 @@ CMD_lookup,
 CMD_lower,
 CMD_lt,
 CMD_map,
+CMD_match,
 CMD_max,
 CMD_min,
 CMD_mod,
@@ -1055,6 +1056,7 @@ T(lookup,	   2, 2, N, 0), // lookup in named cdb file
 T(lower,	   1, 1, N, 0), // convert string to lower case
 T(lt,		   2, 2, N, 0), // test <
 T(map,		   1, 2, 1, 0), // map a list into another list
+T(match,	   2, 3, N, 0), // regex match
 T(max,		   1, N, N, 0), // maximum of a list of values
 T(min,		   1, N, N, 0), // minimum of a list of values
 T(mod,		   2, 2, N, 0), // integer modulus
@@ -1765,6 +1767,9 @@ eval(const string &fmt, const vector<string> &param)
 		    }
 		}
 	        break;
+	    case CMD_match:
+		omegascript_match(value, args);
+		break;
 	    case CMD_max: {
 		vector<string>::const_iterator i = args.begin();
 		int val = string_to_int(*i++);
