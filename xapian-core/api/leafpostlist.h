@@ -45,7 +45,7 @@ class LeafPostList : public PostList {
   protected:
     const Xapian::Weight * weight;
 
-    bool need_doclength, need_unique_terms;
+    bool need_doclength, need_unique_terms, need_wdfdocmax;
 
     /// The term name for this postlist (empty for an alldocs postlist).
     std::string term;

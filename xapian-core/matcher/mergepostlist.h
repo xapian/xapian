@@ -88,6 +88,9 @@ class MergePostList : public PostList {
 	/** Return the number of unique terms in the document. */
 	virtual Xapian::termcount get_unique_terms() const;
 
+	/** Return the max WDF in the current document. */
+	virtual Xapian::termcount get_wdfdocmax() const;
+
 	Xapian::termcount count_matching_subqs() const;
 
 	MergePostList(const std::vector<PostList *> & plists_,

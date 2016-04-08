@@ -110,6 +110,12 @@ MSetPostList::get_unique_terms() const
     throw Xapian::UnimplementedError("MSetPostList::get_unique_terms() unimplemented");
 }
 
+Xapian::termcount
+MSetPostList::get_wdfdocmax() const
+{
+   throw Xapian::UnimplementedError("MSetPostList::get_wdfdocmax() unimplemented");
+}
+
 double
 MSetPostList::recalc_maxweight()
 {

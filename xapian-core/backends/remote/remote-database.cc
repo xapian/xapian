@@ -562,6 +562,14 @@ RemoteDatabase::get_unique_terms(Xapian::docid did) const
     return doclen;
 }
 
+Xapian::termcount
+RemoteDatabase::get_wdfdocmax(Xapian::docid did) const
+{
+    (void)did;
+    // FIXME : Needs to be implemented for this
+    throw Xapian::UnimplementedError("get_wdfdocmax is currently unsupported for RemoteDatabase");
+}
+
 reply_type
 RemoteDatabase::get_message(string &result, reply_type required_type) const
 {

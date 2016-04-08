@@ -77,6 +77,8 @@ class MSetPostList : public PostList {
 
     Xapian::termcount get_unique_terms() const;
 
+    Xapian::termcount get_wdfdocmax() const;
+
     double recalc_maxweight();
 
     PostList *next(double w_min);

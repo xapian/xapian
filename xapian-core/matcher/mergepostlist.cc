@@ -208,6 +208,15 @@ MergePostList::get_unique_terms() const
     RETURN(plists[current]->get_unique_terms());
 }
 
+
+Xapian::termcount
+MergePostList::get_wdfdocmax() const
+{
+    LOGCALL(MATCH, Xapian::termcount, "MergePostList::get_wdfdocmax", NO_ARGS);
+    Assert(current != -1);
+    RETURN(plists[current]->get_wdfdocmax());
+}
+
 Xapian::termcount
 MergePostList::count_matching_subqs() const
 {

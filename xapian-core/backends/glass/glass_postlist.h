@@ -268,6 +268,9 @@ class GlassPostList : public LeafPostList {
 	/// Returns the number of unique terms in the current document.
 	Xapian::termcount get_unique_terms() const;
 
+	/// Returns the max wdf of all terms in current document.
+	Xapian::termcount get_wdfdocmax() const;
+
 	/** Returns the Within Document Frequency of the term in the current
 	 *  document.
 	 */

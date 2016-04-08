@@ -62,7 +62,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	/// Sum of wdf over the whole collection for the current term.
 	COLLECTION_FREQ = 4096,
 	/// Number of unique terms in the current document.
-	UNIQUE_TERMS = 8192
+	UNIQUE_TERMS = 8192,
+	/// Maximum wdf in the current document.
+	WDF_DOC_MAX = 16384
     } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
@@ -221,7 +223,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     virtual double get_sumpart(Xapian::termcount wdf,
 			       Xapian::termcount doclen,
-			       Xapian::termcount uniqterms) const = 0;
+			       Xapian::termcount uniqterms,
+ 			       Xapian::termcount wdfdocmax) const = 0;
 
     /** Return an upper bound on what get_sumpart() can return for any document.
      *
@@ -313,6 +316,16 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return stats_needed & UNIQUE_TERMS;
     }
 
+    /** @private @internal Return true if the maximum WDF for a document is needed.
+     *
+     *  If this method returns true, then the max WDF will be
+     *  fetched and passed to @a get_sumpart().  Otherwise 0 may be passed for
+     *  the max wdf.
+     */
+    bool get_sumpart_needs_wdfdocmax_() const {
+	return stats_needed & WDF_DOC_MAX;
+    }
+
   protected:
     /** Don't allow copying.
      *
@@ -392,7 +405,8 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
+		       Xapian::termcount uniqterms,
+ 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -415,7 +429,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /* When additional normalizations are implemented in the future, the additional statistics for them
        should be accessed by these functions. */
-    double get_wdfn(Xapian::termcount wdf, char c) const;
+    double get_wdfn(Xapian::termcount wdf, char c, Xapian::termcount wdfdocmax = 0) const;
     double get_idfn(Xapian::doccount termfreq, char c) const;
     double get_wtn(double wt, char c) const;
 
@@ -435,8 +449,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *     @li 'm': Max_wdf     wdfn=wdf/max_wdf
      *
-     *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
+     *     The Augmented Max_wdf normalization hasn't yet been
      *     implemented.
      *
      * @li The second character indicates the normalization for the idf.  The
@@ -475,7 +490,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterm) const;
+		       Xapian::termcount uniqterm,
+ 		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -580,7 +596,8 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterm) const;
+		       Xapian::termcount uniqterm,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -641,7 +658,8 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqueterms) const;
+		       Xapian::termcount uniqueterms,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -714,7 +732,8 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
+		       Xapian::termcount uniqterms,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -787,7 +806,8 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterm) const;
+		       Xapian::termcount uniqterm,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -858,7 +878,8 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
+		       Xapian::termcount uniqterms,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -934,7 +955,8 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
+		       Xapian::termcount uniqterms,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -994,7 +1016,8 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
+		       Xapian::termcount uniqterms,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -1072,7 +1095,8 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
+		       Xapian::termcount uniqterms,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -1135,7 +1159,8 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterms) const;
+		       Xapian::termcount uniqterms,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen,
@@ -1227,7 +1252,8 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
-		       Xapian::termcount uniqterm) const;
+		       Xapian::termcount uniqterm,
+		       Xapian::termcount wdfdocmax) const;
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
