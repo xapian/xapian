@@ -1,4 +1,4 @@
-$httpheader{Content-Type,text/html; charset=utf-8}$set{thousand,$.}$set{decimal,.}<html>
+$httpheader{Content-Type,text/html; charset=utf-8}$set{thousand,$.}$set{decimal,.}<!DOCTYPE html><html lang="en">
 <head>
 <title>Omega:
 $if{$cgi{ID},
