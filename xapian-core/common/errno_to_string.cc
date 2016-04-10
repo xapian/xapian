@@ -49,7 +49,7 @@ errno_to_string(int e, string & s) {
 	s += "Unknown error ";
 	s += str(e);
     }
-#elif HAVE_DECL_SYS_ERRLIST && HAVE_DECL_SYS_NERR
+#elif HAVE_DECL_SYS_ERRLIST && HAVE_DECL_SYS_NERR && !defined(__ANDROID__)
     if (e >= 0 && e < sys_nerr && sys_errlist[e]) {
 	s += sys_errlist[e];
     } else {
