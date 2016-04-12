@@ -312,7 +312,7 @@ a subdirectory to tell bootstrap to ignore it.
 
 You will need the following tools installed to build from git:
 
-* GNU m4 (for autoconf)
+* GNU m4 >= 4.6 (for autoconf)
 * perl 5 (for automake; also for various maintainer scripts)
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
@@ -494,7 +494,7 @@ http://www.tug.org/mactex/ instead.
 Autotools versions
 ------------------
 
-* autoconf 2.68 is used to generate snapshots and releases.
+* autoconf 2.69 is used to generate snapshots and releases.
 
   autoconf 2.64 is a hard minimum requirement.
 
