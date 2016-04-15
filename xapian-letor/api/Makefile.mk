@@ -5,7 +5,6 @@ EXTRA_DIST +=\
 	api/Makefile
 
 lib_src +=\
-	api/evalmetric.cc\
 	api/featuremanager.cc\
 	api/featurevector.cc\
 	api/letor.cc\
