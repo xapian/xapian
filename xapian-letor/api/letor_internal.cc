@@ -24,7 +24,7 @@
 #include <xapian.h>
 
 #include "xapian-letor/letor.h"
-#include "xapian-letor/letor_internal.h"
+#include "letor_internal.h"
 #include "xapian-letor/featuremanager.h"
 
 #include "str.h"
