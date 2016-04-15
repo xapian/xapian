@@ -28,7 +28,6 @@
 #include <xapian/visibility.h>
 
 #include "ranklist.h"
-#include "evalmetric.h"
 
 #include <list>
 #include <map>
@@ -46,8 +45,6 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     std::list<Xapian::RankList> validata;
     std::list<Xapian::RankList> testdata;
 
-    Xapian::EvalMetric trainMetric;
-    Xapian::EvalMetric testMetric;
   public:
     Ranker();
 
