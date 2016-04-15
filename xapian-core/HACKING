@@ -313,7 +313,7 @@ a subdirectory to tell bootstrap to ignore it.
 You will need the following tools installed to build from git:
 
 * GNU m4 >= 4.6 (for autoconf)
-* perl >= 5.6 (for automake; also for various maintainer scripts)
+* perl 5 (for automake; also for various maintainer scripts)
 * python >= 2.3 (for generating the Python bindings)
 * GNU make (or another make which support VPATH for explicit rules)
 * GNU bison (for building SWIG, used for generating the bindings)
