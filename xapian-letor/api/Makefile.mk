@@ -1,3 +1,6 @@
+noinst_HEADERS +=\
+	api/letor_internal.h
+
 EXTRA_DIST +=\
 	api/Makefile
 

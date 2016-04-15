@@ -22,7 +22,7 @@
 
 #include <config.h>
 #include <xapian-letor/letor.h>
-#include "xapian-letor/letor_internal.h"
+#include "letor_internal.h"
 #include "xapian-letor/ranker.h"
 #include "ranker/svmranker.h"
 
