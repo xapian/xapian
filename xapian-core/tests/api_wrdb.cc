@@ -1908,6 +1908,10 @@ DEFINE_TESTCASE(cursordelbug1, chert || glass) {
     db.commit();
 
     const string & db_path = get_named_writable_database_path("cursordelbug1");
+    if(endswith(get_dbtype(), "glass")){
+    	const string & db_table = db_path + "/postlist.glass";
+    	TEST_EQUAL(Xapian::Database::check(db_table), 0);
+    }
     return Xapian::Database::check(db_path) == 0;
 }
 
