@@ -48,14 +48,40 @@ using namespace std;
 
 using namespace Xapian;
 
-FeatureVector::FeatureVector() {
+class FeatureVector::Internal : public Xapian::Internal::intrusive_base
+{
+  	friend class FeatureVector;
+	double label;
+	std::map<int,double> fvals;
+	int fcount;
+	string did;
+
+  public:
+  	map<string, map<string, int> > load_relevance(const std::string & qrel_file);
+};
+
+FeatureVector::FeatureVector() : internal(new FeatureVector::Internal) 
+{ 
 }
 
-FeatureVector::FeatureVector(const FeatureVector & /*o*/) {
+FeatureVector::FeatureVector(const FeatureVector & o) : internal(o.internal) 
+{
+}
+
+FeatureVector &
+FeatureVector::operator=(const FeatureVector & o)
+{
+    internal = o.internal;
+    return *this;
+}
+
+FeatureVector::~FeatureVector() 
+{ 
 }
 
 map<string, map<string, int> >
-FeatureVector::load_relevance(const std::string & qrel_file) {
+FeatureVector::Internal::load_relevance(const std::string & qrel_file) 
+{
     typedef map<string, int> Map1;		//docid and relevance judjement 0/1
     typedef map<string, Map1> Map2;		// qid and map1
     Map2 qrel;
@@ -86,18 +112,21 @@ FeatureVector::load_relevance(const std::string & qrel_file) {
 }
 
 void
-FeatureVector::set_did(const std::string & did1) {
-    this->did=did1;
+FeatureVector::set_did(const std::string & did1) 
+{
+    internal->did=did1;
 }
 
 void
-FeatureVector::set_label(double label1) {
-    this->label=label1;
+FeatureVector::set_label(double label1) 
+{
+    internal->label=label1;
 }
 
 void
-FeatureVector::set_fvals(map<int,double> fvals1) {
-    this->fvals=fvals1;
+FeatureVector::set_fvals(map<int,double> fvals1) 
+{
+    internal->fvals=fvals1;
 }
 
 
