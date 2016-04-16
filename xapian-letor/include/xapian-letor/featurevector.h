@@ -40,18 +40,18 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
   public:
-  
-    double label;
-    std::map<int,double> fvals;
-    int fcount;
-    string did;
 
+    class Internal;
+
+    Xapian::Internal::intrusive_ptr<Internal> internal;
   
     FeatureVector();
 
     FeatureVector(const FeatureVector & o);
+
+    FeatureVector & operator=(const FeatureVector & o);
     
-    virtual ~FeatureVector() {};
+    ~FeatureVector();
 
     /** This method takes the document from the MSet as input and gives the feature representation
      * as vector in the form of 
