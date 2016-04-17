@@ -122,11 +122,6 @@ inline unsigned check_suffix(unsigned ch) {
     return 0;
 }
 
-// FIXME: add API for this:
-#define STOPWORDS_NONE 0
-#define STOPWORDS_IGNORE 1
-#define STOPWORDS_INDEX_UNSTEMMED_ONLY 2
-
 /** Templated framework for processing terms.
  *
  *  Calls action(term, positional) for each term to add, where term is a
@@ -243,15 +238,18 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 {
     bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
 
-    int stop_mode = STOPWORDS_INDEX_UNSTEMMED_ONLY;
-
-    if (!stopper.get()) stop_mode = STOPWORDS_NONE;
+    stop_strategy current_stop_mode;
+    if (!stopper.get()) {
+	current_stop_mode = TermGenerator::STOP_NONE;
+    } else {
+	current_stop_mode = stop_mode;
+    }
 
     parse_terms(itor, cjk_ngram, with_positions,
 	[=](const string & term, bool positional, const Utf8Iterator &) {
 	    if (term.size() > max_word_length) return true;
 
-	    if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term))
+	    if (current_stop_mode == TermGenerator::STOP_ALL && (*stopper)(term))
 		return true;
 
 	    if (strategy == TermGenerator::STEM_SOME ||
@@ -270,7 +268,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 		!stemmer.internal.get()) return true;
 
 	    if (strategy == TermGenerator::STEM_SOME) {
-		if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY &&
+		if (current_stop_mode == TermGenerator::STOP_STEMMED &&
 		    (*stopper)(term))
 		    return true;
 
