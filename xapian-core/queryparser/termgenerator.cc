@@ -89,6 +89,12 @@ TermGenerator::set_stemming_strategy(stem_strategy strategy)
 }
 
 void
+TermGenerator::set_stopper_strategy(stop_strategy strategy)
+{
+    internal->stop_mode = strategy;
+}
+
+void
 TermGenerator::set_max_word_length(unsigned max_word_length)
 {
     internal->max_word_length = max_word_length;
