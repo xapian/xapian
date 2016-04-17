@@ -389,7 +389,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     // code, but we also want to be able to inline functions to access them,
     // without those functions generating deprecated warnings.  To achieve
     // this, we make the old names references to members with a "real_" prefix
-    // and then use the latter in the inlined acessor functions.  The
+    // and then use the latter in the inlined accessor functions.  The
     // constructor initialises all the references to point to their "real_"
     // counterparts.
     Xapian::Database real_db;
