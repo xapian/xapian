@@ -112,6 +112,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Stemming strategies, for use with set_stemming_strategy().
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z } stem_strategy;
 
+    /// Stopper strategies, for use with set_stopper_strategy().
+    typedef enum { STOP_NONE, STOP_ALL, STOP_STEMMED } stop_strategy;
+
     /** Set flags.
      *
      *  The new value of flags is: (flags & mask) ^ toggle
@@ -140,6 +143,16 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      *   - STEM_ALL_Z:	Generate only stemmed terms (with a "Z" prefix).
      */
     void set_stemming_strategy(stem_strategy strategy);
+
+    /** Set the stopper strategy.
+     *
+     *  @param strategy The strategy to use - possible values are:
+     *   - STOP_NONE:     Disable stopper for both the stemmed and unstemmed form
+     *          of the word (Don't use the stopper).
+     *   - STOP_ALL:      Enable stopper for both forms of the word.
+     *   - STOP_STEMMED:  Enable stopper for the stemmed form of the word.
+     */
+    void set_stopper_strategy(stop_strategy strategy);
 
     /** Set the maximum length word to index.
      *
