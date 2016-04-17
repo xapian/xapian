@@ -202,6 +202,36 @@ Native C++ API
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
 1.1.0      ?      Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.1      1.5.0  ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it
+                                                      only works in Enquire, whereas you should be able to handle errors at
+                                                      the Database level too) and we can't find any evidence that people are
+                                                      actually using it.  So we've made the API a no-op and marked it as
+                                                      deprecated.  The hope is to replace it with something better thought
+                                                      out, probably during the 1.4.x release series.  There's some further
+                                                      thoughts at https://trac.xapian.org/ticket/3#comment:8
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.2      1.5.0  ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2)
+                                                      instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.2      1.5.0  ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in
+                                                      1.3.2) instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.3      1.5.0  |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.4      1.5.0  ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The
+                  ``set_block_size()``,               ``Xapian::Compact`` is now just a subclassable functor class to allow
+                  ``set_renumber()``,                 access to progress messages and control over merging of user metadata.
+                  ``set_multipass()``,
+                  ``set_compaction_level()``,
+                  ``set_destdir()``, ``add_source()`
+                  and ``compact()``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.5      1.5.0  ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and
+                  variables                           1.2.23.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.5      1.5.0  ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
+                                                      1.3.5) instead.
 ========== ====== =================================== ========================================================================
 
 .. flush() is just a simple inlined alias, so perhaps not worth causing pain by
@@ -447,23 +477,9 @@ Removed Feature name                        Upgrade suggestion and comments
 	``Xapian::InvalidArgumentError``
 	for errors in serialised data
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.1   ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it only
-                                            works in Enquire, whereas you should be able to handle errors at the Database
-                                            level too) and we can't find any evidence that people are actually using it.
-                                            So we've made the API a no-op and marked it as deprecated.  The hope is to replace
-                                            it with something better thought out, probably during the 1.4.x release series.
-                                            There's some further thoughts at
-                                            https://trac.xapian.org/ticket/3#comment:8
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.2   ``Xapian::Auto::open_stub()``       Use the constructor with ``Xapian::DB_BACKEND_STUB`` flag (new in 1.3.2) instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.2   ``Xapian::Chert::open()``           Use the constructor with ``Xapian::DB_BACKEND_CHERT`` flag (new in 1.3.2) instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   The Brass backend                   Use the Glass backend instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.2   ``Xapian::Brass::open()``           Use the constructor with ``Xapian::DB_BACKEND_GLASS`` flag (new in 1.3.2) instead.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.3   |set_max_wildcard_expansion|        Use ``Xapian::QueryParser::set_max_expansion()`` instead.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.4   Copy constructors and assignment    We think it was a mistake that implicit copy constructors and assignment operators
         operators for classes:              were being provided for these functor classes - it's hard to use them correctly,
@@ -475,23 +491,9 @@ Removed Feature name                        Upgrade suggestion and comments
         ``Xapian::Stopper`` and
         ``Xapian::ValueRangeProcessor``.
 ------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.4   ``Xapian::Compactor`` methods       Use the ``Xapian::Database::compact()`` method instead.  The ``Xapian::Compact``
-        ``set_block_size()``,               is now just a subclassable functor class to allow access to progress messages
-        ``set_renumber()``,                 and control over merging of user metadata.
-        ``set_multipass()``,
-        ``set_compaction_level()``,
-        ``set_destdir()``, ``add_source()`
-        and ``compact()``.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.5   ``Xapian::PostingSource`` public    Use the respective getter and setter methods instead, added in 1.3.5 and 1.2.23.
-        variables
-------- ----------------------------------- ----------------------------------------------------------------------------------
 1.3.5   ``Xapian::DBCHECK_SHOW_BITMAP``     Use ``Xapian::DBCHECK_SHOW_FREELIST`` (added in 1.3.2) instead.
                                             ``Xapian::DBCHECK_SHOW_BITMAP`` was added in 1.3.0, so has never been in a stable
                                             release.
-------- ----------------------------------- ----------------------------------------------------------------------------------
-1.3.5   ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in 1.3.5)
-                                            instead.
 ======= =================================== ==================================================================================
 
 
