@@ -414,6 +414,7 @@ package Xapian::MSet::Tied;
 sub CLONE_SKIP { 1 }
 
 # Pod document of Xapian
+=encoding utf8
 =head1 NAME
 
 Xapian - Perl frontend to the Xapian C++ search library.
