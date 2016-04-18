@@ -1,4 +1,4 @@
-/* featuremanager.h: The feature manager file.
+/* featuremanager_internal.h: The feature manager internal file.
  *
  * Copyright (C) 2012 Parth Gupta
  *
@@ -18,18 +18,16 @@
  * USA
  */
 
-#ifndef FEATURE_MANAGER_H
-#define FEATURE_MANAGER_H
+#ifndef FEATURE_MANAGER_INTERNAL_H
+#define FEATURE_MANAGER_INTERNAL_H
 
 #include <xapian.h>
-#include <xapian/intrusive_ptr.h>
-#include <xapian/types.h>
-#include <xapian/visibility.h>
 
-#include "letor.h"
-#include "letor_features.h"
-#include "featurevector.h"
-#include "ranklist.h"
+#include "xapian-letor/featuremanager.h"
+#include "xapian-letor/letor.h"
+#include "xapian-letor/letor_features.h"
+#include "xapian-letor/featurevector.h"
+#include "xapian-letor/ranklist.h"
 
 #include <map>
 #include <string>
@@ -41,22 +39,23 @@ namespace Xapian {
 class RankList;
 class FeatureVector;
 
-class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
+class FeatureManager::Internal : public Xapian::Internal::intrusive_base
+{
+    friend class FeatureManager;
+
+    Xapian::Features f;
+
+    Database letor_db;
+    Query letor_query;
+
+    map<string,long int> coll_len;
+    map<string,long int> coll_tf;
+    map<string,double> idf;
+
+    map<string, map<string, int> > qrel;
 
   public:
-
-    class Internal;
-
-    Xapian::Internal::intrusive_ptr<Internal> internal;
-
-    FeatureManager();
-
-    FeatureManager(const FeatureManager & o);
-
-    FeatureManager & operator=(const FeatureManager & o);
-
-    ~FeatureManager();
-
+    
     std::map<int,double> transform(const Document &doc, double &weight_);
 
     Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid);
@@ -71,14 +70,15 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
     static const int fNum = 20;
 
-    // accessors
-    void set_database(const Database &db);
-    // const Database &get_database();
-    void set_query(const Query &query);
-    // const Query &get_query();
+  private:
+    // update collection-level measures
+    void update_collection_level();
+
+    // update query-level measures
+    void update_query_level();
 
 };
 
 }
 
-#endif // FEATURE_MANAGER_H
+#endif // FEATURE_MANAGER_INTERNAL_H
