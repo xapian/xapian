@@ -145,6 +145,8 @@ Xapian_la_LDFLAGS = -avoid-version -module -shrext $(PERL_SO) $(NO_UNDEFINED)
 Xapian_la_SOURCES = xapian_wrap.cc
 Xapian_la_LIBADD = $(XAPIAN_LIBS) $(PERL_LIBS)
 
+CLEANFILES =
+
 if MAINTAINER_MODE
 BUILT_SOURCES += except.i
 except.i: $(srcdir)/generate-perl-exceptions ../../xapian-core/exception_data.pm
@@ -164,18 +166,16 @@ $(stamp): except.i
 
 -include xapian_wrap.d
 
-CLEANFILES = pod2htm?.tmp xapian_wrap.d $(stamp)
+CLEANFILES += xapian_wrap.d $(stamp)
 endif
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 
 docdatadir = $(docdir)/perl
 docdata_DATA = docs/index.html
 
-if DOCUMENTATION_RULES
-BUILT_SOURCES += docs/index.html
+CLEANFILES += docs/index.html pod2html?.tmp
 
 docs/index.html: Xapian.pm
 	$(MKDIR_P) docs
-	pod2html --podpath=. Xapian.pm > docs/index.html
-	rm -f pod2htm?.tmp
-endif
+	$(PERL) -MPod::Html -e 'pod2html(qw(--podpath=. Xapian.pm --outfile=docs/index.html))'
+	rm -f -v pod2htm?.tmp
