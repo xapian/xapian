@@ -40,35 +40,34 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
   public:
-
+    /// @private @internal Class representing the FeatureVector internals.
     class Internal;
-
+    /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
-  
+
+    /// Default constructor.
     FeatureVector();
 
+    /// Copy constructor.
     FeatureVector(const FeatureVector & o);
 
+    /// Assignment.
     FeatureVector & operator=(const FeatureVector & o);
-    
+
+    /// Destructor.
     ~FeatureVector();
-
-    /** This method takes the document from the MSet as input and gives the feature representation
-     * as vector in the form of 
-     * map<int,double>
-     */
-//    std::map<int,double> transform(const Xapian::Document & doc);
-
 
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
-//    void set_qid(const std::string & qid);
-
+    /// Set the document id. This will be used by the internal class.
     void set_did(const std::string & did1);
-    
+
+    /// Set the relevance label. This will be used by the internal class.
     void set_label(double label1);
+
+    /// Set the features array. This will be used by the internal class.
     void set_fvals(map<int,double> fvals1);
-    
+
 };
 
 }
