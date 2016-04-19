@@ -337,6 +337,19 @@ $map{LIST,STUFF)
 	versions). If the tabs are a problem, use $list{$map{...},}
 	to get rid of them.
 
+$match{REGEX,STRING[,OPTIONS]}
+	peform a regex match using Perl-compatible regular expressions. Returns
+	true if a match is found, else it returns an empty string.
+
+	The optional OPTIONS argument can contain zero or more of the letters
+	``imsx``, which have the same meanings as the corresponding Perl regexp
+	modifiers:
+
+	* ``i`` - make the pattern matching case-insensitive
+	* ``m`` - make ``^``/``$`` match after/before embedded newlines
+	* ``s`` - allows ``.`` in the pattern to match a linefeed
+	* ``x`` - allow whitespace and ``#``-comments in the pattern
+
 $msize
 	estimated number of matches.
 
