@@ -624,7 +624,58 @@ fi
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_FUNC_STRERROR_R
-AC_CHECK_DECLS([sys_errlist, _sys_errlist, sys_nerr, _sys_nerr])
+
+AC_CACHE_CHECK([if libc defines sys_errlist], ac_cv_libc_defines_sys_errlist, [
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
+[[  printf("%s", sys_errlist[0]);]])],
+  [ ac_cv_libc_defines_sys_errlist="yes" ],
+  [ ac_cv_libc_defines_sys_errlist="no" 
+  ])
+])
+if test "x$ac_cv_libc_defines_sys_errlist" = "xyes" ; then
+  AC_DEFINE([HAVE_DECL_SYS_ERRLIST], [1],[Define if your system defines sys_errlist[]])
+else
+  AC_DEFINE([HAVE_DECL_SYS_ERRLIST], [0],[Define if your system defines sys_errlist[]])
+fi
+
+AC_CACHE_CHECK([if libc defines _sys_errlist], ac_cv_libc_defines__sys_errlist, [
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
+[[  printf("%s", _sys_errlist[0]);]])],
+  [ ac_cv_libc_defines__sys_errlist="yes" ],
+  [ ac_cv_libc_defines__sys_errlist="no" 
+  ])
+])
+if test "x$ac_cv_libc_defines__sys_errlist" = "xyes" ; then
+  AC_DEFINE([HAVE_DECL__SYS_ERRLIST], [1], [Define if your system defines _sys_errlist[]])
+else
+  AC_DEFINE([HAVE_DECL__SYS_ERRLIST], [0], [Define if your system defines _sys_errlist[]])
+fi
+
+AC_CACHE_CHECK([if libc defines sys_nerr], ac_cv_libc_defines_sys_nerr, [
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
+[[  printf("%i", sys_nerr);]])],
+  [ ac_cv_libc_defines_sys_nerr="yes" ],
+  [ ac_cv_libc_defines_sys_nerr="no" 
+  ])
+])
+if test "x$ac_cv_libc_defines_sys_nerr" = "xyes" ; then
+  AC_DEFINE([HAVE_DECL_SYS_NERR], [1], [Define if your system defines sys_nerr])
+else
+  AC_DEFINE([HAVE_DECL_SYS_NERR], [0], [Define if your system defines sys_nerr])
+fi
+
+AC_CACHE_CHECK([if libc defines _sys_nerr], ac_cv_libc_defines__sys_nerr, [
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
+[[  printf("%i", _sys_nerr);]])],
+  [ ac_cv_libc_defines__sys_nerr="yes" ],
+  [ ac_cv_libc_defines__sys_nerr="no" 
+  ])
+])
+if test "x$ac_cv_libc_defines__sys_nerr" = "xyes" ; then
+  AC_DEFINE([HAVE_DECL__SYS_NERR], [1], [Define if your system defines _sys_nerr])
+else
+  AC_DEFINE([HAVE_DECL__SYS_NERR], [0], [Define if your system defines _sys_nerr])
+fi
 
 dnl Check that snprintf actually works as it's meant to.
 dnl
