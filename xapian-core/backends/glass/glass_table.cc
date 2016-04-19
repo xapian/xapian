@@ -1723,7 +1723,7 @@ GlassTable::GlassTable(const char * tablename_, const string & path_,
 	  last_readahead(BLK_UNUSED),
 	  offset(0)
 {
-    LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | compress_strategy | lazy_);
+    LOGCALL_CTOR(DB, "GlassTable", tablename_ | path_ | readonly_ | lazy_);
 }
 
 GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
@@ -1758,7 +1758,7 @@ GlassTable::GlassTable(const char * tablename_, int fd, off_t offset_,
 	  last_readahead(BLK_UNUSED),
 	  offset(offset_)
 {
-    LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | offset_ | readonly_ | compress_strategy | lazy_);
+    LOGCALL_CTOR(DB, "GlassTable", tablename_ | fd | offset_ | readonly_ | lazy_);
 }
 
 bool
