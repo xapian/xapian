@@ -61,7 +61,7 @@ PostingIterator::Internal::get_collapse_key() const
 PositionList *
 PostList::read_position_list()
 {
-    throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support terms as subqueries");
+    throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support leaf subqueries");
 }
 
 PositionList *

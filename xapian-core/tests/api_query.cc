@@ -485,3 +485,47 @@ DEFINE_TESTCASE(complexnear1, backend) {
 	(void)enq.get_mset(0, 10););
     return true;
 }
+
+/// Check subqueries of MatchAll, MatchNothing and PostingSource are supported.
+DEFINE_TESTCASE(complexphrase2, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::ValueWeightPostingSource ps(0);
+    Xapian::Query subqs[3] = {
+	Xapian::Query(Xapian::Query::OP_PHRASE,
+	    Xapian::Query("a"),
+	    Xapian::Query(&ps)),
+	Xapian::Query(Xapian::Query::OP_PHRASE,
+	    Xapian::Query("and"),
+	    Xapian::Query::MatchAll),
+	Xapian::Query(Xapian::Query::OP_PHRASE,
+	    Xapian::Query("at"),
+	    Xapian::Query::MatchNothing)
+    };
+    Xapian::Query query(Xapian::Query::OP_OR, subqs, subqs + 3);
+    enq.set_query(query);
+    (void)enq.get_mset(0, 10);
+    return true;
+}
+
+/// Check subqueries of MatchAll, MatchNothing and PostingSource are supported.
+DEFINE_TESTCASE(complexnear2, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enq(db);
+    Xapian::ValueWeightPostingSource ps(0);
+    Xapian::Query subqs[3] = {
+	Xapian::Query(Xapian::Query::OP_NEAR,
+	    Xapian::Query("a"),
+	    Xapian::Query(&ps)),
+	Xapian::Query(Xapian::Query::OP_NEAR,
+	    Xapian::Query("and"),
+	    Xapian::Query::MatchAll),
+	Xapian::Query(Xapian::Query::OP_NEAR,
+	    Xapian::Query("at"),
+	    Xapian::Query::MatchNothing)
+    };
+    Xapian::Query query(Xapian::Query::OP_OR, subqs, subqs + 3);
+    enq.set_query(query);
+    (void)enq.get_mset(0, 10);
+    return true;
+}

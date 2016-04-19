@@ -278,18 +278,29 @@ Query::init(op op_, size_t n_subqueries, Xapian::termcount parameter)
 void
 Query::add_subquery(bool positional, const Xapian::Query & subquery)
 {
-    if (positional) {
-	Xapian::Query::op type = subquery.get_type();
-	if (type != LEAF_TERM && type != LEAF_MATCH_NOTHING) {
-	    throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support terms as subqueries");
-	}
-    }
     // We could handle this in a type-safe way, but we'd need to at least
     // declare Xapian::Internal::QueryBranch in the API header, which seems
     // less desirable than a static_cast<> here.
     Xapian::Internal::QueryBranch * branch_query =
 	static_cast<Xapian::Internal::QueryBranch*>(internal.get());
     Assert(branch_query);
+    if (positional) {
+	switch (subquery.get_type()) {
+	    case LEAF_TERM:
+		break;
+	    case LEAF_POSTING_SOURCE:
+	    case LEAF_MATCH_ALL:
+	    case LEAF_MATCH_NOTHING:
+		// None of these have positions, so positional operators won't
+		// match.  Add MatchNothing as that is has special handling in
+		// AND-like queries to reduce the parent query to MatchNothing,
+		// which is appropriate in this case.
+		branch_query->add_subquery(MatchNothing);
+		return;
+	    default:
+		throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support leaf subqueries");
+	}
+    }
     branch_query->add_subquery(subquery);
 }
 
