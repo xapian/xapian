@@ -348,7 +348,7 @@ else
   # The last field is the SHA1 checksum of the tarball.
   lazy_build autoconf 2.69 \
     tar.xz e891c3193029775e83e0534ac0ee0c4c711f6d23 \
-    tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a \
+    tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
   AUTOCONF=$instdir/bin/autoconf \
   lazy_build automake 1.15 \
     tar.xz c279b35ca6c410809dac8ade143b805fb48b7655 \
