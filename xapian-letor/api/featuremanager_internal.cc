@@ -39,46 +39,46 @@ using namespace std;
 
 
 std::string
-FeatureManager::Internal::getdid(const Document &doc) 
+FeatureManager::Internal::getdid(const Document &doc)
 {
     string id="";
     string data = doc.get_data();
     string temp_id = data.substr(data.find("url=", 0), (data.find("sample=", 0) - data.find("url=", 0)));
-    id = temp_id.substr(temp_id.rfind('/') + 1, (temp_id.rfind('.') - temp_id.rfind('/') - 1));  //to parse the actual document name associated with the         documents if any
+    id = temp_id.substr(temp_id.rfind('/') + 1, (temp_id.rfind('.') - temp_id.rfind('/') - 1));  // to parse the actual document name associated with the         documents if any
 
     return id;
 }
 
 int
-FeatureManager::Internal::getlabel(map<string, map<string, int> > qrel2, const Document &doc, std::string & qid) 
+FeatureManager::Internal::getlabel(map<string, map<string, int> > qrel2, const Document &doc, std::string & qid)
 {
     int label = -1;
-    string id = getdid(doc);    
+    string id = getdid(doc);
 
     map<string, map<string, int> >::iterator outerit;
     map<string, int>::iterator innerit;
 
     outerit = qrel2.find(qid);
     if (outerit != qrel2.end()) {
-	innerit = outerit->second.find(id);
-	if (innerit != outerit->second.end()) {
+    innerit = outerit->second.find(id);
+    if (innerit != outerit->second.end()) {
         label = innerit->second;
-	}
+    }
     }
     return label;
 }
 
 Xapian::RankList
-FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::string & qid) 
+FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::string & qid)
 {
     Xapian::RankList rl;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-        
+
         Xapian::Document doc = i.get_document();
-        
-        // Here a weight vector can be created in future for different weights of the document 
-        // like BM25, LM etc. 
+
+        // Here a weight vector can be created in future for different weights of the document
+        // like BM25, LM etc.
         double weight = i.get_weight();
 
         map<int,double> fVals = transform(doc, weight);
@@ -96,7 +96,7 @@ FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::strin
 }
 
 Xapian::FeatureVector
-FeatureManager::Internal::create_feature_vector(map<int,double> fvals, int &label, std::string & did) 
+FeatureManager::Internal::create_feature_vector(map<int,double> fvals, int &label, std::string & did)
 {
     Xapian::FeatureVector fv;
     fv.set_did(did);
@@ -107,9 +107,9 @@ FeatureManager::Internal::create_feature_vector(map<int,double> fvals, int &labe
 }
 
 map<string, map<string,int> >
-FeatureManager::Internal::load_relevance(const std::string & qrel_file) 
+FeatureManager::Internal::load_relevance(const std::string & qrel_file)
 {
-    typedef map<string, int> Map1;      //docid and relevance judjement 0/1
+    typedef map<string, int> Map1;      // docid and relevance judjement 0/1
     typedef map<string, Map1> Map2;     // qid and map1
     Map2 qrel1;
 
@@ -118,14 +118,14 @@ FeatureManager::Internal::load_relevance(const std::string & qrel_file)
     string token[4];
     if (myfile.is_open()) {
     while (myfile.good()) {
-        getline(myfile, inLine);        //read a file line by line
+        getline(myfile, inLine);        // read a file line by line
         char * str;
         char * x1;
         x1 = const_cast<char*>(inLine.c_str());
         str = strtok(x1, " ,.-");
         int i = 0;
         while (str != NULL) {
-        token[i] = str;     //store tokens in a string array
+        token[i] = str;     // store tokens in a string array
         ++i;
         str = strtok(NULL, " ,.-");
         }

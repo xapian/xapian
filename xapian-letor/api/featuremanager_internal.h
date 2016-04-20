@@ -55,17 +55,17 @@ class FeatureManager::Internal : public Xapian::Internal::intrusive_base
     map<string, map<string, int> > qrel;
 
   public:
-    
+
     std::map<int,double> transform(const Document &doc, double &weight_);
 
     Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid);
 
-    map<string, map<string,int> > load_relevance(const std::string & qrel_file);    
-    
+    map<string, map<string,int> > load_relevance(const std::string & qrel_file);
+
     Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, std::string & did);
-    
+
     std::string getdid(const Document &doc);
-    
+
     int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
 
     static const int fNum = 20;
