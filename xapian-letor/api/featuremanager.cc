@@ -37,8 +37,8 @@ using namespace std;
 
 namespace Xapian {
 
-FeatureManager::FeatureManager() : internal(new FeatureManager::Internal) 
-{ 
+FeatureManager::FeatureManager() : internal(new FeatureManager::Internal)
+{
 }
 
 FeatureManager &
@@ -48,40 +48,40 @@ FeatureManager::operator=(const FeatureManager & o)
     return *this;
 }
 
-FeatureManager::FeatureManager(const FeatureManager & o) : internal(o.internal) 
-{ 
+FeatureManager::FeatureManager(const FeatureManager & o) : internal(o.internal)
+{
 }
 
-FeatureManager::~FeatureManager() 
-{ 
+FeatureManager::~FeatureManager()
+{
 }
 
 std::string
-FeatureManager::getdid(const Document &doc) 
+FeatureManager::getdid(const Document &doc)
 {
     return internal->getdid(doc);
 }
 
 int
-FeatureManager::getlabel(map<string, map<string, int> > qrel2, const Document &doc, std::string & qid) 
+FeatureManager::getlabel(map<string, map<string, int> > qrel2, const Document &doc, std::string & qid)
 {
     return internal->getlabel(qrel2, doc, qid);
 }
 
 Xapian::RankList
-FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid) 
+FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid)
 {
     return internal->create_rank_list(mset, qid);
 }
 
 Xapian::FeatureVector
-FeatureManager::create_feature_vector(map<int,double> fvals, int &label, std::string & did) 
+FeatureManager::create_feature_vector(map<int,double> fvals, int &label, std::string & did)
 {
     return internal->create_feature_vector(fvals, label, did);
 }
 
 map<string, map<string,int> >
-FeatureManager::load_relevance(const std::string & qrel_file) 
+FeatureManager::load_relevance(const std::string & qrel_file)
 {
     return internal->load_relevance(qrel_file);
 }
@@ -92,18 +92,18 @@ FeatureManager::transform(const Document &doc, double &weight_)
     return internal->transform(doc, weight_);
 }
 
-void 
-FeatureManager::set_database(const Database &db) 
-{ 
-    internal->letor_db = db; 
-    internal->update_collection_level(); 
+void
+FeatureManager::set_database(const Database &db)
+{
+    internal->letor_db = db;
+    internal->update_collection_level();
 }
 
-void 
-FeatureManager::set_query(const Query &query) 
-{ 
-    internal->letor_query = query; 
-    internal->update_query_level(); 
+void
+FeatureManager::set_query(const Query &query)
+{
+    internal->letor_query = query;
+    internal->update_query_level();
 }
 
 }
