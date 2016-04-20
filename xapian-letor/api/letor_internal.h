@@ -22,8 +22,8 @@
 #ifndef XAPIAN_INCLUDED_LETOR_INTERNAL_H
 #define XAPIAN_INCLUDED_LETOR_INTERNAL_H
 
-#include "letor.h"
-#include "ranker.h"
+#include "xapian-letor/letor.h"
+#include "xapian-letor/ranker.h"
 
 #include <map>
 

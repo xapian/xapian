@@ -8,11 +8,9 @@ inc_HEADERS =\
 	include/xapian-letor.h
 
 xapianletorinclude_HEADERS =\
-		include/xapian-letor/evalmetric.h\
 		include/xapian-letor/featuremanager.h\
 		include/xapian-letor/featurevector.h\
 		include/xapian-letor/letor.h\
 		include/xapian-letor/letor_features.h\
-		include/xapian-letor/letor_internal.h\
 		include/xapian-letor/ranker.h\
 		include/xapian-letor/ranklist.h
