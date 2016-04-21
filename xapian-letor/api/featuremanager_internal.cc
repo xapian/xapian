@@ -43,14 +43,21 @@ FeatureManager::Internal::getdid(const Document &doc)
 {
     string id="";
     string data = doc.get_data();
-    string temp_id = data.substr(data.find("url=", 0), (data.find("sample=", 0) - data.find("url=", 0)));
-    id = temp_id.substr(temp_id.rfind('/') + 1, (temp_id.rfind('.') - temp_id.rfind('/') - 1));  // to parse the actual document name associated with the         documents if any
+
+    string temp_id = data.substr(data.find("url=", 0),
+                     (data.find("sample=", 0) - data.find("url=", 0)));
+
+    id = temp_id.substr(temp_id.rfind('/') + 1,          // to parse the actual
+         (temp_id.rfind('.') - temp_id.rfind('/') - 1)); // document name associated
+                                                         // with the documents if any
+
 
     return id;
 }
 
 int
-FeatureManager::Internal::getlabel(map<string, map<string, int> > qrel2, const Document &doc, std::string & qid)
+FeatureManager::Internal::getlabel(map<string, map<string, int> > qrel2,
+                                 const Document &doc, std::string & qid)
 {
     int label = -1;
     string id = getdid(doc);
@@ -77,8 +84,8 @@ FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::strin
 
         Xapian::Document doc = i.get_document();
 
-        // Here a weight vector can be created in future for different weights of the document
-        // like BM25, LM etc.
+        // Here a weight vector can be created in future for different
+        // weights of the document like BM25, LM etc.
         double weight = i.get_weight();
 
         map<int,double> fVals = transform(doc, weight);
@@ -96,7 +103,8 @@ FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::strin
 }
 
 Xapian::FeatureVector
-FeatureManager::Internal::create_feature_vector(map<int,double> fvals, int &label, std::string & did)
+FeatureManager::Internal::create_feature_vector(map<int,double> fvals,
+                                                int &label, std::string & did)
 {
     Xapian::FeatureVector fv;
     fv.set_did(did);
@@ -109,9 +117,7 @@ FeatureManager::Internal::create_feature_vector(map<int,double> fvals, int &labe
 map<string, map<string,int> >
 FeatureManager::Internal::load_relevance(const std::string & qrel_file)
 {
-    typedef map<string, int> Map1;      // docid and relevance judjement 0/1
-    typedef map<string, Map1> Map2;     // qid and map1
-    Map2 qrel1;
+    map<string, map<string, int>> qrel1;     // < qid, <docid, relevance_judgement> >
 
     string inLine;
     ifstream myfile (qrel_file.c_str(), ifstream::in);
@@ -130,7 +136,6 @@ FeatureManager::Internal::load_relevance(const std::string & qrel_file)
         str = strtok(NULL, " ,.-");
         }
 
-        qrel1.insert(make_pair(token[0], Map1()));
         qrel1[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
     }
     myfile.close();
