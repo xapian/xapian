@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -1041,7 +1041,7 @@ DEFINE_TESTCASE(notermlist1, glass) {
     doc.add_value(42, "answer");
     db.add_document(doc);
     db.commit();
-    TEST(!file_exists(db_dir + "/termlist.DB"));
+    TEST(!file_exists(db_dir + "/termlist.glass"));
     TEST_EXCEPTION(Xapian::FeatureUnavailableError, db.termlist_begin(1));
     return true;
 }
