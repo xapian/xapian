@@ -237,8 +237,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    for (I i = begin; i != end; ++i) {
 		add_subquery(positional, *i);
 	    }
+	    done();
 	}
-	done();
     }
 
 #ifdef SWIG
