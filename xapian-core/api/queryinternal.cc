@@ -411,7 +411,12 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	return NULL;
     unsigned char ch = *(*p)++;
     switch (ch >> 5) {
-	case 4: case 5: case 6: case 7: { // Multi-way branch
+	case 4: case 5: case 6: case 7: {
+	    // Multi-way branch
+	    //
+	    // 1ccccnnn where:
+	    //   nnn -> n_subqs (0 means encoded value follows)
+	    //   cccc -> code (which OP_XXX)
 	    size_t n_subqs = ch & 0x07;
 	    if (n_subqs == 0) {
 		decode_length(p, end, n_subqs);
@@ -470,6 +475,15 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    return result;
 	}
 	case 2: case 3: { // Term
+	    // Term
+	    //
+	    // 01ccLLLL where:
+	    //   LLLL -> length (0 means encoded value follows)
+	    //   cc -> code:
+	    //     0: wqf = 0; pos = 0
+	    //     1: wqf = 1; pos = 0
+	    //     2: wqf = 1; pos -> encoded value follows
+	    //     3: wqf -> encoded value follows; pos -> encoded value follows
 	    size_t len = ch & 0x0f;
 	    if (len == 0) {
 		decode_length(p, end, len);
@@ -492,7 +506,14 @@ Query::Internal::unserialise(const char ** p, const char * end,
 
 	    return new Xapian::Internal::QueryTerm(term, wqf, pos);
 	}
-	case 1: { // OP_VALUE_RANGE or OP_VALUE_GE or OP_VALUE_LE
+	case 1: {
+	    // OP_VALUE_RANGE or OP_VALUE_GE or OP_VALUE_LE
+	    //
+	    // 001tssss where:
+	    //   ssss -> slot number (15 means encoded value follows)
+	    //   t -> op:
+	    //     0: OP_VALUE_RANGE (or OP_VALUE_LE if begin empty)
+	    //     1: OP_VALUE_GE
 	    Xapian::valueno slot = ch & 15;
 	    if (slot == 15) {
 		decode_length(p, end, slot);
@@ -516,6 +537,10 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
 	}
 	case 0: {
+	    // Other operators
+	    //
+	    //   000ttttt where:
+	    //     ttttt -> encodes which OP_XXX
 	    switch (ch & 0x1f) {
 		case 0x0b: { // Wildcard
 		    if (*p == end)
