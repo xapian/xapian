@@ -299,7 +299,7 @@ class RemoteConnection {
      *
      *  You must call get_message_chunked() before calling this method.
      *
-     *  @param[inout] result	Message data.  This is appended to, so if you
+     *  @param[in,out] result	Message data.  This is appended to, so if you
      *				read more than needed the previous time, leave
      *				the excess in result.
      *	@param at_least		Return at least this many bytes in result,
