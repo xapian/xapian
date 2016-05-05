@@ -516,7 +516,7 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    return new Xapian::Internal::QueryValueRange(slot, begin, end_);
 	}
 	case 0: {
-	    switch (ch & 0x0f) {
+	    switch (ch & 0x1f) {
 		case 0x0b: { // Wildcard
 		    if (*p == end)
 			throw SerialisationError("not enough data");
