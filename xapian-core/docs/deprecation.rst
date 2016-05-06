@@ -199,14 +199,13 @@ Native C++ API
 .. Substitution definitions for feature names which are two wide for the column:
 
 .. |set_max_wildcard_expansion| replace:: ``Xapian::QueryParser::set_max_wildcard_expansion()``
+.. |flush| replace:: ``Xapian::WritableDatabase::flush()``
 
 .. Keep table width to <= 126 columns.
 
 ========== ====== =================================== ========================================================================
 Deprecated Remove Feature name                        Upgrade suggestion and comments
 ========== ====== =================================== ========================================================================
-1.1.0      ?      Xapian::WritableDatabase::flush()   Xapian::WritableDatabase::commit() should be used instead.
----------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.1      1.5.0  ``Xapian::ErrorHandler``            We feel the current ErrorHandler API doesn't work at the right level (it
                                                       only works in Enquire, whereas you should be able to handle errors at
                                                       the Database level too) and we can't find any evidence that people are
@@ -236,12 +235,10 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.5      1.5.0  ``Xapian::InMemory::open()``        Use the constructor with ``Xapian::DB_BACKEND_INMEMORY`` flag (new in
                                                       1.3.5) instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.6      1.5.0  |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since
+                                                      1.1.0).
 ========== ====== =================================== ========================================================================
-
-.. flush() is just a simple inlined alias, so perhaps not worth causing pain by
-.. removing it in a hurry, though it would be nice to be able to reuse the
-.. method name to actually implement a flush() which writes out data but
-.. doesn't commit.
 
 Bindings
 --------

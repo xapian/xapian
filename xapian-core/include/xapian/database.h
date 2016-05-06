@@ -34,6 +34,7 @@
 #include <vector>
 
 #include <xapian/attributes.h>
+#include <xapian/deprecated.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
@@ -832,10 +833,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 
 	/** Pre-1.1.0 name for commit().
 	 *
-	 *  Use commit() instead in new code.  This alias may be deprecated in
-	 *  the future.
+	 *  Use commit() instead.
 	 */
-	void flush() { commit(); }
+	XAPIAN_DEPRECATED(void flush()) { commit(); }
 
 	/** Begin a transaction.
 	 *
