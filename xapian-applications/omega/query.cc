@@ -25,11 +25,6 @@
 
 #include <config.h>
 
-// If we're building against git after the expand API changed but before the
-// version gets bumped to 1.3.2, we'll get a deprecation warning from
-// get_eset() unless we suppress such warnings here.
-#define XAPIAN_DEPRECATED(D) D
-
 #include <algorithm>
 #include <iostream>
 #include <map>
