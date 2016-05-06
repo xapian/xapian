@@ -196,6 +196,10 @@ Features currently marked for deprecation
 Native C++ API
 --------------
 
+.. Substitution definitions for feature names which are two wide for the column:
+
+.. |set_max_wildcard_expansion| replace:: ``Xapian::QueryParser::set_max_wildcard_expansion()``
+
 .. Keep table width to <= 126 columns.
 
 ========== ====== =================================== ========================================================================
@@ -283,10 +287,6 @@ Native C++ API
 --------------
 
 .. Keep table width to <= 126 columns.
-
-.. Substitution definitions for feature names which are two wide for the column:
-
-.. |set_max_wildcard_expansion| replace:: ``Xapian::QueryParser::set_max_wildcard_expansion()``
 
 ======= =================================== ==================================================================================
 Removed Feature name                        Upgrade suggestion and comments
