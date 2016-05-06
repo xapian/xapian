@@ -24,6 +24,7 @@
 
 #include "api_none.h"
 
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "apitest.h"
@@ -191,14 +192,16 @@ class DestroyedFlag {
     }
 };
 
-class TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
+class TestRangeProcessor : public Xapian::RangeProcessor {
     DestroyedFlag destroyed;
 
   public:
-    TestValueRangeProcessor(bool & destroyed_) : destroyed(destroyed_) { }
+    TestRangeProcessor(bool & destroyed_)
+	: Xapian::RangeProcessor(0), destroyed(destroyed_) { }
 
-    Xapian::valueno operator()(std::string &, std::string &) {
-	return 42;
+    Xapian::Query operator()(const std::string&, const std::string&)
+    {
+	return Xapian::Query::MatchAll;
     }
 };
 
@@ -208,21 +211,21 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
 
     // Simple test of release().
     {
-	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
 	TEST(!gone);
 	Xapian::QueryParser qp;
-	qp.add_valuerangeprocessor(vrp->release());
+	qp.add_rangeprocessor(rp->release());
 	TEST(!gone);
     }
     TEST(gone);
 
     // Check a second call to release() has no effect.
     {
-	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
 	TEST(!gone);
 	Xapian::QueryParser qp;
-	qp.add_valuerangeprocessor(vrp->release());
-	vrp->release();
+	qp.add_rangeprocessor(rp->release());
+	rp->release();
 	TEST(!gone);
     }
     TEST(gone);
@@ -230,20 +233,20 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     // Test reference counting works, and that a VRP with automatic storage
     // works OK.
     {
-	TestValueRangeProcessor vrp_auto(gone_auto);
+	TestRangeProcessor rp_auto(gone_auto);
 	TEST(!gone_auto);
 	{
 	    Xapian::QueryParser qp1;
 	    {
 		Xapian::QueryParser qp2;
-		Xapian::ValueRangeProcessor * vrp;
-		vrp = new TestValueRangeProcessor(gone);
+		Xapian::RangeProcessor * rp;
+		rp = new TestRangeProcessor(gone);
 		TEST(!gone);
-		qp1.add_valuerangeprocessor(vrp->release());
+		qp1.add_rangeprocessor(rp->release());
 		TEST(!gone);
-		qp2.add_valuerangeprocessor(vrp);
+		qp2.add_rangeprocessor(rp);
 		TEST(!gone);
-		qp2.add_valuerangeprocessor(&vrp_auto);
+		qp2.add_rangeprocessor(&rp_auto);
 		TEST(!gone);
 		TEST(!gone_auto);
 	    }
@@ -260,15 +263,14 @@ DEFINE_TESTCASE(subclassablerefcount1, !backend) {
     {
 	Xapian::QueryParser qp;
 	{
-	    Xapian::ValueRangeProcessor * vrp =
-		new TestValueRangeProcessor(gone);
+	    Xapian::RangeProcessor * rp = new TestRangeProcessor(gone);
 	    TEST(!gone);
-	    qp.add_valuerangeprocessor(vrp);
-	    delete vrp;
+	    qp.add_rangeprocessor(rp);
+	    delete rp;
 	    TEST(gone);
 	}
 	// At the end of this block, qp is destroyed, but mustn't dereference
-	// the pointer it has to vrp.  If it does, that should get caught
+	// the pointer it has to rp.  If it does, that should get caught
 	// when tests are run under valgrind.
     }
 
@@ -729,6 +731,90 @@ DEFINE_TESTCASE(subclassablerefcount7, backend) {
 	TEST(gone);
     }
     TEST(gone_auto);
+
+    return true;
+}
+
+class TestValueRangeProcessor : public Xapian::ValueRangeProcessor {
+    DestroyedFlag destroyed;
+
+  public:
+    TestValueRangeProcessor(bool & destroyed_) : destroyed(destroyed_) { }
+
+    Xapian::valueno operator()(std::string &, std::string &) {
+	return 42;
+    }
+};
+
+/// Check reference counting of user-subclassable classes.
+DEFINE_TESTCASE(subclassablerefcount8, !backend) {
+    bool gone_auto, gone;
+
+    // Simple test of release().
+    {
+	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_valuerangeprocessor(vrp->release());
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Check a second call to release() has no effect.
+    {
+	Xapian::ValueRangeProcessor * vrp = new TestValueRangeProcessor(gone);
+	TEST(!gone);
+	Xapian::QueryParser qp;
+	qp.add_valuerangeprocessor(vrp->release());
+	vrp->release();
+	TEST(!gone);
+    }
+    TEST(gone);
+
+    // Test reference counting works, and that a VRP with automatic storage
+    // works OK.
+    {
+	TestValueRangeProcessor vrp_auto(gone_auto);
+	TEST(!gone_auto);
+	{
+	    Xapian::QueryParser qp1;
+	    {
+		Xapian::QueryParser qp2;
+		Xapian::ValueRangeProcessor * vrp;
+		vrp = new TestValueRangeProcessor(gone);
+		TEST(!gone);
+		qp1.add_valuerangeprocessor(vrp->release());
+		TEST(!gone);
+		qp2.add_valuerangeprocessor(vrp);
+		TEST(!gone);
+		qp2.add_valuerangeprocessor(&vrp_auto);
+		TEST(!gone);
+		TEST(!gone_auto);
+	    }
+	    TEST(!gone);
+	}
+	TEST(gone);
+	TEST(!gone_auto);
+    }
+    TEST(gone_auto);
+
+    // Regression test for initial implementation, where ~opt_instrusive_ptr()
+    // checked the reference of the object, which may have already been deleted
+    // if it wasn't been reference counted.
+    {
+	Xapian::QueryParser qp;
+	{
+	    Xapian::ValueRangeProcessor * vrp =
+		new TestValueRangeProcessor(gone);
+	    TEST(!gone);
+	    qp.add_valuerangeprocessor(vrp);
+	    delete vrp;
+	    TEST(gone);
+	}
+	// At the end of this block, qp is destroyed, but mustn't dereference
+	// the pointer it has to vrp.  If it does, that should get caught
+	// when tests are run under valgrind.
+    }
 
     return true;
 }

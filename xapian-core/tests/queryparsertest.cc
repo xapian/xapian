@@ -21,6 +21,7 @@
 
 #include <config.h>
 
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "cputimer.h"
@@ -659,8 +660,8 @@ static const test test_or_queries[] = {
     { "foo AND site:2", "(Zfoo@1 AND 0 * H2)" },
     // Non-exclusive boolean prefixes feature tests (ticket#402):
     { "category:1 category:2", "0 * (XCAT1 AND XCAT2)" },
-    { "category:1 site2:2", "0 * (J2 AND XCAT1)" },
-    { "category:1 category:2 site2:2", "0 * (J2 AND (XCAT1 AND XCAT2))" },
+    { "category:1 site2:2", "0 * (XCAT1 AND J2)" },
+    { "category:1 category:2 site2:2", "0 * ((XCAT1 AND XCAT2) AND J2)" },
     { "category:1 OR category:2", "(0 * XCAT1 OR 0 * XCAT2)" },
     { "category:1 AND category:2", "(0 * XCAT1 AND 0 * XCAT2)" },
     { "foo AND category:2", "(Zfoo@1 AND 0 * XCAT2)" },
@@ -688,7 +689,7 @@ static const test test_or_queries[] = {
 //    { "authortitle:richard NEAR title:book", "((Arichard@1 OR XTrichard@1) NEAR 11 XTbook@2)" },
     { "multisite:xapian.org", "0 * (Hxapian.org OR Jxapian.org)"},
     { "authortitle:richard", "(ZArichard@1 OR ZXTrichard@1)"},
-    { "multisite:xapian.org site:www.xapian.org author:richard authortitle:richard", "((ZArichard@1 OR (ZArichard@2 OR ZXTrichard@2)) FILTER (Hwww.xapian.org AND (Hxapian.org OR Jxapian.org)))" },
+    { "multisite:xapian.org site:www.xapian.org author:richard authortitle:richard", "((ZArichard@1 OR (ZArichard@2 OR ZXTrichard@2)) FILTER ((Hxapian.org OR Jxapian.org) AND Hwww.xapian.org))" },
     { "authortitle:richard-boulton", "((Arichard@1 PHRASE 2 Aboulton@2) OR (XTrichard@1 PHRASE 2 XTboulton@2))"},
     { "authortitle:\"richard boulton\"", "((Arichard@1 PHRASE 2 Aboulton@2) OR (XTrichard@1 PHRASE 2 XTboulton@2))"},
     // Test FLAG_CJK_NGRAM isn't on by default:
@@ -1417,6 +1418,36 @@ static bool test_qp_value_range1()
     return true;
 }
 
+// Simple test of RangeProcessor class.
+static bool test_qp_range1()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("test", "XTEST");
+    Xapian::RangeProcessor rp(1);
+    qp.add_rangeprocessor(&rp);
+    for (const test *p = test_value_range1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 static const test test_value_range2_queries[] = {
     { "a..b", "0 * VALUE_RANGE 3 a b" },
     { "1..12", "0 * VALUE_RANGE 2 \\xa0 \\xae" },
@@ -1488,6 +1519,46 @@ static bool test_qp_value_range2()
     return true;
 }
 
+// Test chaining of RangeProcessor classes.
+static bool test_qp_range2()
+{
+    using Xapian::RP_REPEATED;
+    using Xapian::RP_SUFFIX;
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("test", "XTEST");
+    Xapian::DateRangeProcessor rp_date(1);
+    Xapian::NumberRangeProcessor rp_num(2);
+    Xapian::RangeProcessor rp_str(3);
+    Xapian::NumberRangeProcessor rp_cash(4, "$", RP_REPEATED);
+    Xapian::NumberRangeProcessor rp_weight(5, "kg", RP_SUFFIX|RP_REPEATED);
+    qp.add_rangeprocessor(&rp_date);
+    qp.add_rangeprocessor(&rp_num);
+    qp.add_rangeprocessor(&rp_cash);
+    qp.add_rangeprocessor(&rp_weight);
+    qp.add_rangeprocessor(&rp_str);
+    for (const test *p = test_value_range2_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 // Test NumberValueRangeProcessors with actual data.
 static bool test_qp_value_range3()
 {
@@ -1509,6 +1580,54 @@ static bool test_qp_value_range3()
     Xapian::NumberValueRangeProcessor vrp_num(1);
     Xapian::QueryParser qp;
     qp.add_valuerangeprocessor(&vrp_num);
+
+    for (int j = 0; j <= steps; ++j) {
+	double start = low + j * step;
+	for (int k = 0; k <= steps; ++k) {
+	    double end = low + k * step;
+	    string query = str(start) + ".." + str(end);
+	    tout << "Query: " << query << '\n';
+	    Xapian::Query qobj = qp.parse_query(query);
+	    Xapian::Enquire enq(db);
+	    enq.set_query(qobj);
+	    Xapian::MSet mset = enq.get_mset(0, steps + 1);
+	    if (end < start) {
+		TEST_EQUAL(mset.size(), 0);
+	    } else {
+		TEST_EQUAL(mset.size(), 1u + (k - j));
+		for (unsigned int m = 0; m != mset.size(); ++m) {
+		    double v = start + m * step;
+		    TEST_EQUAL(mset[m].get_document().get_value(1),
+			       Xapian::sortable_serialise(v));
+		}
+	    }
+	}
+    }
+    return true;
+#endif
+}
+
+// Test NumberRangeProcessors with actual data.
+static bool test_qp_range3()
+{
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
+#else
+    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+    double low = -10;
+    int steps = 60;
+    double step = 0.5;
+
+    for (int i = 0; i <= steps; ++i) {
+	double v = low + i * step;
+	Xapian::Document doc;
+	doc.add_value(1, Xapian::sortable_serialise(v));
+	db.add_document(doc);
+    }
+
+    Xapian::NumberRangeProcessor rp_num(1);
+    Xapian::QueryParser qp;
+    qp.add_rangeprocessor(&rp_num);
 
     for (int j = 0; j <= steps; ++j) {
 	double start = low + j * step;
@@ -1579,6 +1698,41 @@ static bool test_qp_value_range4()
     return true;
 }
 
+/** Test a boolean filter which happens to contain "..".
+ *
+ *  Regression test for bug fixed in 1.2.3.
+ *
+ *  Also test that the same prefix can be set for a range and filter.
+ */
+static bool test_qp_range4()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("id", "Q");
+    qp.add_boolean_prefix("hello", "XHELLO");
+    Xapian::RangeProcessor rp_str(1, "hello:");
+    qp.add_rangeprocessor(&rp_str);
+    for (const test *p = test_value_range4_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
 
 static const test test_value_daterange1_queries[] = {
     { "12/03/99..12/04/01", "0 * VALUE_RANGE 1 19991203 20011204" },
@@ -1596,6 +1750,35 @@ static bool test_qp_value_daterange1()
     Xapian::QueryParser qp;
     Xapian::DateValueRangeProcessor vrp_date(1, true, 1960);
     qp.add_valuerangeprocessor(&vrp_date);
+    for (const test *p = test_value_daterange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+// Test DateRangeProcessor
+static bool test_qp_daterange1()
+{
+    Xapian::QueryParser qp;
+    Xapian::DateRangeProcessor rp_date(1, Xapian::RP_DATE_PREFER_MDY, 1960);
+    qp.add_rangeprocessor(&rp_date);
     for (const test *p = test_value_daterange1_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
@@ -1672,6 +1855,45 @@ static bool test_qp_value_daterange2()
     return true;
 }
 
+// Feature test DateRangeProcessor with prefixes (added in 1.1.2).
+static bool test_qp_daterange2()
+{
+    using Xapian::RP_DATE_PREFER_MDY;
+    Xapian::QueryParser qp;
+    Xapian::DateRangeProcessor rp_cdate(1, "created:", RP_DATE_PREFER_MDY, 1970);
+    Xapian::DateRangeProcessor rp_mdate(2, "modified:", RP_DATE_PREFER_MDY, 1970);
+    Xapian::DateRangeProcessor rp_adate(3, "accessed:", RP_DATE_PREFER_MDY, 1970);
+    // Regression test - here a const char * was taken as a bool rather than a
+    // std::string when resolving the overloaded forms.  Fixed in 1.2.13 and
+    // 1.3.1.
+    Xapian::DateRangeProcessor rp_ddate(4, "deleted:");
+    qp.add_rangeprocessor(&rp_cdate);
+    qp.add_rangeprocessor(&rp_mdate);
+    qp.add_rangeprocessor(&rp_adate);
+    qp.add_rangeprocessor(&rp_ddate);
+    for (const test *p = test_value_daterange2_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 static const test test_value_stringrange1_queries[] = {
     { "tag:bar..foo", "0 * VALUE_RANGE 1 bar foo" },
     { "bar..foo", "0 * VALUE_RANGE 0 bar foo" },
@@ -1709,6 +1931,42 @@ static bool test_qp_value_stringrange1()
     return true;
 }
 
+// Feature test RangeProcessor with prefixes.
+static bool test_qp_stringrange1()
+{
+    Xapian::QueryParser qp;
+    Xapian::RangeProcessor rp_default(0);
+    Xapian::RangeProcessor rp_tag(1, "tag:");
+    qp.add_rangeprocessor(&rp_tag);
+    qp.add_rangeprocessor(&rp_default);
+    for (const test *p = test_value_stringrange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+static const test test_value_customrange1_queries[] = {
+    { "mars author:Asimov..Bradbury", "(mars@1 FILTER VALUE_RANGE 4 asimov bradbury)" },
+    { NULL, NULL }
+};
+
 struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
     AuthorValueRangeProcessor() {}
 
@@ -1722,17 +1980,52 @@ struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
     }
 };
 
-static const test test_value_customrange1_queries[] = {
-    { "mars author:Asimov..Bradbury", "(mars@1 FILTER VALUE_RANGE 4 asimov bradbury)" },
-    { NULL, NULL }
-};
-
 // Test custom ValueRangeProcessor subclass.
 static bool test_qp_value_customrange1()
 {
     Xapian::QueryParser qp;
     AuthorValueRangeProcessor vrp_author;
     qp.add_valuerangeprocessor(&vrp_author);
+    for (const test *p = test_value_customrange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+struct AuthorRangeProcessor : public Xapian::RangeProcessor {
+    AuthorRangeProcessor() : Xapian::RangeProcessor(4, "author:") { }
+
+    Xapian::Query operator()(const std::string& b, const std::string& e)
+    {
+	string begin = Xapian::Unicode::tolower(b);
+	string end = Xapian::Unicode::tolower(e);
+	return Xapian::RangeProcessor::operator()(begin, end);
+    }
+};
+
+// Test custom RangeProcessor subclass.
+static bool test_qp_customrange1()
+{
+    Xapian::QueryParser qp;
+    AuthorRangeProcessor rp_author;
+    qp.add_rangeprocessor(&rp_author);
     for (const test *p = test_value_customrange1_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
@@ -1849,6 +2142,37 @@ static bool test_qp_fieldproc2()
     qp.add_boolean_prefix("date", &date_fproc);
     Xapian::DateValueRangeProcessor vrp_date(1, "date:");
     qp.add_valuerangeprocessor(&vrp_date);
+    for (const test *p = test_fieldproc2_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+// Test using FieldProcessor and RangeProcessor together.
+static bool test_qp_fieldproc3()
+{
+    Xapian::QueryParser qp;
+    DateRangeFieldProcessor date_fproc;
+    qp.add_boolean_prefix("date", &date_fproc);
+    Xapian::DateRangeProcessor rp_date(1, "date:");
+    qp.add_rangeprocessor(&rp_date);
     for (const test *p = test_fieldproc2_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
@@ -2716,6 +3040,14 @@ static const test_desc tests[] = {
     TESTCASE(qp_unstem_boolean_prefix),
     TESTCASE(qp_default_prefix1),
     TESTCASE(qp_default_prefix2),
+    TESTCASE(qp_range1),
+    TESTCASE(qp_range2),
+    TESTCASE(qp_range3),
+    TESTCASE(qp_range4),
+    TESTCASE(qp_daterange1),
+    TESTCASE(qp_daterange2),
+    TESTCASE(qp_stringrange1),
+    TESTCASE(qp_customrange1),
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
@@ -2726,6 +3058,7 @@ static const test_desc tests[] = {
     TESTCASE(qp_value_customrange1),
     TESTCASE(qp_fieldproc1),
     TESTCASE(qp_fieldproc2),
+    TESTCASE(qp_fieldproc3),
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),
     TESTCASE(qp_spell2),

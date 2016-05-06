@@ -16,6 +16,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Chert.cs \
 	generated-csharp/Compactor.cs \
 	generated-csharp/Database.cs \
+	generated-csharp/DateRangeProcessor.cs \
 	generated-csharp/DateValueRangeProcessor.cs \
 	generated-csharp/DecreasingValueWeightPostingSource.cs \
 	generated-csharp/DLHWeight.cs \
@@ -47,6 +48,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MSet.cs \
 	generated-csharp/MSetIterator.cs \
 	generated-csharp/MultiValueKeyMaker.cs \
+	generated-csharp/NumberRangeProcessor.cs \
 	generated-csharp/NumberValueRangeProcessor.cs \
 	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
@@ -57,6 +59,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Remote.cs \
 	generated-csharp/RSet.cs \
 	generated-csharp/SWIGTYPE_p_std__string.cs \
+	generated-csharp/RangeProcessor.cs \
 	generated-csharp/Registry.cs \
 	generated-csharp/SimpleStopper.cs \
 	generated-csharp/Stem.cs \

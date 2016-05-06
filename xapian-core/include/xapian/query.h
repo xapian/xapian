@@ -111,6 +111,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	OP_MAX = 14,
 	OP_WILDCARD = 15,
 
+	OP_INVALID = 99,
+
 	LEAF_TERM = 100,
 	LEAF_POSTING_SOURCE,
 	LEAF_MATCH_ALL,
@@ -309,6 +311,11 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** @private @internal */
     explicit Query(Internal * internal_) : internal(internal_) { }
+
+    explicit Query(Query::op op_) {
+	init(op_, 0);
+	if (op_ != Query::OP_INVALID) done();
+    }
 
   private:
     void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);

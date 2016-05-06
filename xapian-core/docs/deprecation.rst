@@ -200,6 +200,11 @@ Native C++ API
 
 .. |set_max_wildcard_expansion| replace:: ``Xapian::QueryParser::set_max_wildcard_expansion()``
 .. |flush| replace:: ``Xapian::WritableDatabase::flush()``
+.. |VRP| replace:: ``Xapian::ValueRangeProcessor``
+.. |DateVRP| replace:: ``Xapian::DateValueRangeProcessor``
+.. |NumberVRP| replace:: ``Xapian::NumberValueRangeProcessor``
+.. |StringVRP| replace:: ``Xapian::StringValueRangeProcessor``
+.. |add_valuerangeprocessor| replace:: ``Xapian::QueryParser::add_valuerangeprocessor()``
 
 .. Keep table width to <= 126 columns.
 
@@ -238,6 +243,22 @@ Deprecated Remove Feature name                        Upgrade suggestion and com
 ---------- ------ ----------------------------------- ------------------------------------------------------------------------
 1.3.6      1.5.0  |flush|                             Use ``Xapian::WritableDatabase::commit()`` instead (available since
                                                       1.1.0).
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.6      1.5.0  Subclassing |VRP|                   Subclass ``Xapian::RangeProcessor`` instead, and return a
+                                                      ``Xapian::Query`` from ``operator()()``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.6      1.5.0  Subclassing |DateVRP|               Subclass ``Xapian::DateRangeProcessor`` instead, and return a
+                                                      ``Xapian::Query`` from ``operator()()``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.6      1.5.0  Subclassing |NumberVRP|             Subclass ``Xapian::NumberRangeProcessor`` instead, and return a
+                                                      ``Xapian::Query`` from ``operator()()``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.6      1.5.0  Subclassing |StringVRP|             Subclass ``Xapian::RangeProcessor`` instead (which includes equivalent
+                                                      support for prefix/suffix checking), and return a ``Xapian::Query`` from
+                                                      ``operator()()``.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.3.6      1.5.0  |add_valuerangeprocessor|           Use ``Xapian::QueryParser::add_rangeprocessor()`` instead, with a
+                                                      ``Xapian::RangeProcessor`` object instead of a |VRP| object.
 ========== ====== =================================== ========================================================================
 
 Bindings

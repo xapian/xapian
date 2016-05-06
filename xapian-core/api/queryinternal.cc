@@ -542,6 +542,8 @@ Query::Internal::unserialise(const char ** p, const char * end,
 	    //   000ttttt where:
 	    //     ttttt -> encodes which OP_XXX
 	    switch (ch & 0x1f) {
+		case 0x00: // OP_INVALID
+		    return new Xapian::Internal::QueryInvalid();
 		case 0x0b: { // Wildcard
 		    if (*p == end)
 			throw SerialisationError("not enough data");
@@ -1817,6 +1819,30 @@ string
 QueryMax::get_description() const
 {
     return get_description_helper(" MAX ");
+}
+
+Xapian::Query::op
+QueryInvalid::get_type() const XAPIAN_NOEXCEPT
+{
+    return Xapian::Query::OP_INVALID;
+}
+
+PostingIterator::Internal *
+QueryInvalid::postlist(QueryOptimiser *, double) const
+{
+    throw Xapian::InvalidOperationError("Query is invalid");
+}
+
+void
+QueryInvalid::serialise(std::string & result) const
+{
+    result += static_cast<char>(0x00);
+}
+
+string
+QueryInvalid::get_description() const
+{
+    return "<INVALID>";
 }
 
 }

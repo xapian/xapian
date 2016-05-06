@@ -43,20 +43,24 @@ struct FieldInfo {
     /// The type of this field.
     filter_type type;
 
+    string grouping;
+
     /// Field prefix strings.
     list<string> prefixes;
 
     /// Field processors.  Currently only one is supported.
     list<Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> > procs;
 
-    FieldInfo(filter_type type_, const string & prefix)
-	: type(type_)
+    FieldInfo(filter_type type_, const string& prefix,
+	      const string& grouping_ = string())
+	: type(type_), grouping(grouping_)
     {
 	prefixes.push_back(prefix);
     }
 
-    FieldInfo(filter_type type_, Xapian::FieldProcessor *proc)
-	: type(type_)
+    FieldInfo(filter_type type_, Xapian::FieldProcessor* proc,
+	      const string& grouping_ = string())
+	: type(type_), grouping(grouping_)
     {
 	procs.push_back(proc);
     }
@@ -65,6 +69,17 @@ struct FieldInfo {
 namespace Xapian {
 
 class Utf8Iterator;
+
+struct RangeProc {
+    Xapian::Internal::opt_intrusive_ptr<RangeProcessor> proc;
+    std::string grouping;
+    bool default_grouping;
+
+    RangeProc(RangeProcessor * range_proc, const std::string* grouping_)
+	: proc(range_proc),
+	  grouping(grouping_ ? *grouping_ : std::string()),
+	  default_grouping(grouping_ == NULL) { }
+};
 
 class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     friend class QueryParser;
@@ -82,7 +97,7 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
     // "foobar" -> "XFOO". FIXME: it does more than this now!
     map<string, FieldInfo> field_map;
 
-    list<Xapian::Internal::opt_intrusive_ptr<ValueRangeProcessor> > valrangeprocs;
+    list<RangeProc> rangeprocs;
 
     string corrected_query;
 
@@ -94,11 +109,15 @@ class QueryParser::Internal : public Xapian::Internal::intrusive_base {
 
     int max_partial_type;
 
-    void add_prefix(const string &field, const string &prefix,
-		    filter_type type);
+    void add_prefix(const string &field, const string &prefix);
 
-    void add_prefix(const string &field, Xapian::FieldProcessor *proc,
-		    filter_type type);
+    void add_prefix(const string &field, Xapian::FieldProcessor *proc);
+
+    void add_boolean_prefix(const string &field, const string &prefix,
+			    const string* grouping);
+
+    void add_boolean_prefix(const string &field, Xapian::FieldProcessor *proc,
+			    const string* grouping);
 
     std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 			   bool cjk_ngram, bool &is_cjk_term,

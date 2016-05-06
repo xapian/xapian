@@ -1,7 +1,7 @@
 /** @file valuerangeproc.cc
  * @brief Standard ValueRangeProcessor subclass implementations
  */
-/* Copyright (C) 2007,2008,2009,2010,2012 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2012,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -249,6 +249,194 @@ NumberValueRangeProcessor::operator()(string &begin, string &end)
     }
 
     return valno;
+}
+
+Xapian::Query
+RangeProcessor::check_range(const string& b, const string& e)
+{
+    if (str.empty())
+	return operator()(b, e);
+
+    size_t off_b = 0, len_b = string::npos;
+    size_t off_e = 0, len_e = string::npos;
+
+    bool prefix = !(flags & Xapian::RP_SUFFIX);
+    bool repeated = (flags & Xapian::RP_REPEATED);
+
+    if (prefix) {
+	// If there's a prefix, require it on the start of the range.
+	if (!startswith(b, str)) {
+	    // Prefix not given.
+	    goto not_our_range;
+	}
+	off_b = str.size();
+	// Optionally allow it on the end of the range, e.g. $10..50
+	if (repeated && startswith(e, str)) {
+	    off_e = off_b;
+	}
+    } else {
+	// If there's a suffix, require it on the end of the range.
+	if (!endswith(e, str)) {
+	    // Suffix not given.
+	    goto not_our_range;
+	}
+	len_e = e.size() - str.size();
+	// Optionally allow it on the start of the range, e.g. 10..50kg
+	if (repeated && endswith(b, str)) {
+	    len_b = b.size() - str.size();
+	}
+    }
+
+    return operator()(string(b, off_b, len_b), string(e, off_e, len_e));
+
+not_our_range:
+    return Xapian::Query(Xapian::Query::OP_INVALID);
+}
+
+Xapian::Query
+RangeProcessor::operator()(const string& b, const string& e)
+{
+    if (e.empty())
+	return Xapian::Query(Xapian::Query::OP_VALUE_GE, slot, b);
+    return Xapian::Query(Xapian::Query::OP_VALUE_RANGE, slot, b, e);
+}
+
+Xapian::Query
+DateRangeProcessor::operator()(const string& b, const string& e)
+{
+    if ((b.size() == 8 || b.size() == 0) &&
+	(e.size() == 8 || e.size() == 0) &&
+	b.find_first_not_of("0123456789") == string::npos &&
+	e.find_first_not_of("0123456789") == string::npos) {
+	// YYYYMMDD
+	return RangeProcessor::operator()(b, e);
+    }
+    if ((b.size() == 10 || b.size() == 0) &&
+	(e.size() == 10 || e.size() == 0)) {
+	if ((b.empty() || is_yyyy_mm_dd(b)) &&
+	    (e.empty() || is_yyyy_mm_dd(e))) {
+	    string begin = b, end = e;
+	    // YYYY-MM-DD
+	    if (!begin.empty()) {
+		begin.erase(7, 1);
+		begin.erase(4, 1);
+	    }
+	    if (!end.empty()) {
+		end.erase(7, 1);
+		end.erase(4, 1);
+	    }
+	    return RangeProcessor::operator()(begin, end);
+	}
+    }
+
+    bool prefer_mdy = (flags & Xapian::RP_DATE_PREFER_MDY);
+    int b_d, b_m, b_y;
+    int e_d, e_m, e_y;
+    if (!decode_xxy(b, b_d, b_m, b_y) || !decode_xxy(e, e_d, e_m, e_y))
+	goto not_our_range;
+
+    // Check that the month and day are within range.  Also assume "start" <=
+    // "e" to help decide ambiguous cases.
+    if (!prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
+	(b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
+	// OK.
+    } else if (vet_dm(b_m, b_d) && vet_dm(e_m, e_d) &&
+	(b_y != e_y || b_d < e_d || (b_d == e_d && b_m <= e_m))) {
+	swap(b_m, b_d);
+	swap(e_m, e_d);
+    } else if (prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
+	       (b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
+	// OK.
+    } else {
+	goto not_our_range;
+    }
+
+    if (b_y < 100) {
+	b_y += 1900;
+	if (b_y < epoch_year) b_y += 100;
+    }
+    if (e_y < 100) {
+	e_y += 1900;
+	if (e_y < epoch_year) e_y += 100;
+    }
+
+    {
+#ifdef SNPRINTF
+	char buf_b[9], buf_e[9];
+	if (!b.empty()) {
+	    SNPRINTF(buf_b, sizeof(buf_b), "%08d", b_y * 10000 + b_m * 100 + b_d);
+	} else {
+	    *buf_b = '\0';
+	}
+	if (!e.empty()) {
+	    SNPRINTF(buf_e, sizeof(buf_e), "%08d", e_y * 10000 + e_m * 100 + e_d);
+	} else {
+	    *buf_e = '\0';
+	}
+#else
+	char buf_b[100], buf_e[100];
+	buf_b[sizeof(buf_b) - 1] = '\0';
+	buf_e[sizeof(buf_e) - 1] = '\0';
+	if (!b.empty()) {
+	    sprintf(buf_b, "%08d", b_y * 10000 + b_m * 100 + b_d);
+	    if (buf_b[sizeof(buf_b) - 1]) abort(); // Buffer overrun!
+	} else {
+	    *buf_b = '\0';
+	}
+	if (!e.empty()) {
+	    sprintf(buf_e, "%08d", e_y * 10000 + e_m * 100 + e_d);
+	    if (buf_e[sizeof(buf_e) - 1]) abort(); // Buffer overrun!
+	} else {
+	    *buf_e = '\0';
+	}
+#endif
+	return RangeProcessor::operator()(buf_b, buf_e);
+    }
+
+not_our_range:
+    return Xapian::Query(Xapian::Query::OP_INVALID);
+}
+
+Xapian::Query
+NumberRangeProcessor::operator()(const string& b, const string& e)
+{
+    // Parse the numbers to floating point.
+    double num_b, num_e;
+
+    if (!b.empty()) {
+	errno = 0;
+	const char * startptr = b.c_str();
+	char * endptr;
+	num_b = strtod(startptr, &endptr);
+	if (endptr != startptr + b.size() || errno) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+    } else {
+	// Silence GCC warning.
+	num_b = 0.0;
+    }
+
+    if (!e.empty()) {
+	errno = 0;
+	const char * startptr = e.c_str();
+	char * endptr;
+	num_e = strtod(startptr, &endptr);
+	if (endptr != startptr + e.size() || errno) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+    } else {
+	// Silence GCC warning.
+	num_e = 0.0;
+    }
+
+    return RangeProcessor::operator()(
+	    b.empty() ? b : Xapian::sortable_serialise(num_b),
+	    e.empty() ? e : Xapian::sortable_serialise(num_e));
+
+not_our_range:
+    return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
 }

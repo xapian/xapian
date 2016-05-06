@@ -31,6 +31,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/Chert.java\
 	org/xapian/Compactor.java\
 	org/xapian/Database.java\
+	org/xapian/DateRangeProcessor.java\
 	org/xapian/DateValueRangeProcessor.java\
 	org/xapian/DecreasingValueWeightPostingSource.java\
 	org/xapian/DLHWeight.java\
@@ -62,6 +63,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/MSet.java\
 	org/xapian/MSetIterator.java\
 	org/xapian/MultiValueKeyMaker.java\
+	org/xapian/NumberRangeProcessor.java\
 	org/xapian/NumberValueRangeProcessor.java\
 	org/xapian/PL2Weight.java\
 	org/xapian/PositionIterator.java\
@@ -69,6 +71,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/PostingSource.java\
 	org/xapian/Query.java\
 	org/xapian/QueryParser.java\
+	org/xapian/RangeProcessor.java\
 	org/xapian/Registry.java\
 	org/xapian/Remote.java\
 	org/xapian/RSet.java\

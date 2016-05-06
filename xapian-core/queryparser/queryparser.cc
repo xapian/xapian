@@ -1,7 +1,7 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015 Olly Betts
+ * Copyright (C) 2005,2006,2007,2008,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -55,6 +55,8 @@ SimpleStopper::get_description() const
     desc += ')';
     return desc;
 }
+
+RangeProcessor::~RangeProcessor() { }
 
 ValueRangeProcessor::~ValueRangeProcessor() { }
 
@@ -174,40 +176,31 @@ void
 QueryParser::add_prefix(const string &field, const string &prefix)
 {
     Assert(internal.get());
-    internal->add_prefix(field, prefix, NON_BOOLEAN);
+    internal->add_prefix(field, prefix);
 }
 
 void
 QueryParser::add_prefix(const string &field, Xapian::FieldProcessor * proc)
 {
     Assert(internal.get());
-    internal->add_prefix(field, proc, NON_BOOLEAN);
+    internal->add_prefix(field, proc);
 }
 
 void
 QueryParser::add_boolean_prefix(const string &field, const string &prefix,
-				bool exclusive)
+				const string* grouping)
 {
     Assert(internal.get());
-    // Don't allow the empty prefix to be set as boolean as it doesn't
-    // really make sense.
-    if (field.empty())
-	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
-    filter_type type = (exclusive ? BOOLEAN_EXCLUSIVE : BOOLEAN);
-    internal->add_prefix(field, prefix, type);
+    internal->add_boolean_prefix(field, prefix, grouping);
 }
 
 void
-QueryParser::add_boolean_prefix(const string &field, Xapian::FieldProcessor * proc,
-				bool exclusive)
+QueryParser::add_boolean_prefix(const string &field,
+				Xapian::FieldProcessor * proc,
+				const string* grouping)
 {
     Assert(internal.get());
-    // Don't allow the empty prefix to be set as boolean as it doesn't
-    // really make sense.
-    if (field.empty())
-	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
-    filter_type type = (exclusive ? BOOLEAN_EXCLUSIVE : BOOLEAN);
-    internal->add_prefix(field, proc, type);
+    internal->add_boolean_prefix(field, proc, grouping);
 }
 
 TermIterator
@@ -233,10 +226,11 @@ QueryParser::unstem_begin(const string &term) const
 }
 
 void
-QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)
+QueryParser::add_rangeprocessor(Xapian::RangeProcessor * range_proc,
+				const std::string* grouping)
 {
     Assert(internal.get());
-    internal->valrangeprocs.push_back(vrproc);
+    internal->rangeprocs.push_back(RangeProc(range_proc, grouping));
 }
 
 string

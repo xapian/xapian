@@ -25,6 +25,7 @@
 
 #include "queryparser_internal.h"
 
+#include "api/queryinternal.h"
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
@@ -114,44 +115,13 @@ is_positional(Xapian::Query::op op)
     return (op == Xapian::Query::OP_PHRASE || op == Xapian::Query::OP_NEAR);
 }
 
-/// A structure identifying a group of filter terms or a value range.
-struct filter_group_id {
-    /** The field info for boolean filter terms.
-     *
-     *  This is NULL for a value range.
-     */
-    const FieldInfo *field_info;
-
-    /** The value number for a value range.
-     *
-     *  This is used for value range terms.
-     */
-    Xapian::valueno slot;
-
-    /// Make a new filter_group_id for boolean filter terms.
-    explicit filter_group_id(const FieldInfo * field_info_)
-	: field_info(field_info_), slot(Xapian::BAD_VALUENO) {}
-
-    /// Make a new filter_group_id for value range terms.
-    explicit filter_group_id(Xapian::valueno slot_)
-	: field_info(NULL), slot(slot_) {}
-
-    /// Ordering needed to allow storage in a map.
-    bool operator<(const filter_group_id & other) const {
-	if (slot != other.slot)
-	    return slot < other.slot;
-	// std::less provides a total order over pointers.
-	return less<const FieldInfo*>()(field_info, other.field_info);
-    }
-};
-
 class Terms;
 
 /** Class used to pass information about a token from lexer to parser.
  *
  *  Generally an instance of this class carries term information, but it can be
- *  used for the start or end of a value range, with some operators (e.g. the
- *  distance in NEAR/3 or ADJ/3, etc).
+ *  used for a range query, and with some operators (e.g. the distance in
+ *  NEAR/3 or ADJ/3, etc).
  */
 class Term {
     State * state;
@@ -162,6 +132,7 @@ class Term {
     string unstemmed;
     QueryParser::stem_strategy stem;
     termpos pos;
+    Query query;
 
     Term(const string &name_, termpos pos_) : name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
     Term(const string &name_) : name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
@@ -176,8 +147,8 @@ class Term {
 	: state(state_), name(name_), field_info(field_info_),
 	  unstemmed(unstemmed_), stem(stem_), pos(pos_) { }
     // For RANGE tokens.
-    Term(valueno slot, const string &a, const string &b)
-	: name(a), unstemmed(b), pos(slot) { }
+    Term(const Xapian::Query & q, const string & grouping)
+	: name(grouping), query(q) { }
 
     string make_term(const string & prefix) const;
 
@@ -187,8 +158,8 @@ class Term {
 
     termpos get_termpos() const { return pos; }
 
-    filter_group_id get_filter_group_id() const {
-	return filter_group_id(field_info);
+    string get_grouping() const {
+	return field_info->grouping;
     }
 
     Query * as_wildcarded_query(State * state) const;
@@ -209,8 +180,8 @@ class Term {
     /** Handle a CJK character string in a positional context. */
     void as_positional_cjk_term(Terms * terms) const;
 
-    /// Value range query.
-    Query as_value_range_query() const;
+    /// Range query.
+    Query as_range_query() const;
 
     Query get_query() const;
 
@@ -243,13 +214,28 @@ class State {
 	qpi->unstem.insert(make_pair(term, unstemmed));
     }
 
-    Term * value_range(const string &a, const string &b) {
-	for (auto i : qpi->valrangeprocs) {
-	    string start = a;
-	    string end = b;
-	    Xapian::valueno slot = (*i)(start, end);
-	    if (slot != Xapian::BAD_VALUENO) {
-		return new Term(slot, start, end);
+    Term * range(const string &a, const string &b) {
+	for (auto i : qpi->rangeprocs) {
+	    Xapian::Query range_query = (i.proc)->check_range(a, b);
+	    Xapian::Query::op op = range_query.get_type();
+	    switch (op) {
+		case Xapian::Query::OP_INVALID:
+		    break;
+		case Xapian::Query::OP_VALUE_RANGE:
+		case Xapian::Query::OP_VALUE_GE:
+		case Xapian::Query::OP_VALUE_LE:
+		    if (i.default_grouping) {
+			Xapian::Internal::QueryValueBase * base =
+			    static_cast<Xapian::Internal::QueryValueBase*>(
+				range_query.internal.get());
+			Xapian::valueno slot = base->get_slot();
+			return new Term(range_query, str(slot));
+		    }
+		    // FALLTHRU
+		case Xapian::Query::LEAF_TERM:
+		    return new Term(range_query, i.grouping);
+		default:
+		    return new Term(range_query, string());
 	    }
 	}
 	return NULL;
@@ -520,13 +506,9 @@ Term::as_cjk_query() const
 }
 
 Query
-Term::as_value_range_query() const
+Term::as_range_query() const
 {
-    Query q;
-    if (unstemmed.empty())
-	q = Query(Query::OP_VALUE_GE, pos, name);
-    else
-	q = Query(Query::OP_VALUE_RANGE, pos, name, unstemmed);
+    Query q = query;
     delete this;
     return q;
 }
@@ -612,15 +594,14 @@ static void Parse(yyParser *, int, Term *, State *);
 static void yy_parse_failed(yyParser *);
 
 void
-QueryParser::Internal::add_prefix(const string &field, const string &prefix,
-				  filter_type type)
+QueryParser::Internal::add_prefix(const string &field, const string &prefix)
 {
     map<string, FieldInfo>::iterator p = field_map.find(field);
     if (p == field_map.end()) {
-	field_map.insert(make_pair(field, FieldInfo(type, prefix)));
+	field_map.insert(make_pair(field, FieldInfo(NON_BOOLEAN, prefix)));
     } else {
 	// Check that this is the same type of filter as the existing one(s).
-	if (p->second.type != type) {
+	if (p->second.type != NON_BOOLEAN) {
 	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
 	}
 	if (!p->second.procs.empty())
@@ -630,16 +611,66 @@ QueryParser::Internal::add_prefix(const string &field, const string &prefix,
 }
 
 void
-QueryParser::Internal::add_prefix(const string &field, FieldProcessor *proc,
-				  filter_type type)
+QueryParser::Internal::add_prefix(const string &field, FieldProcessor *proc)
 {
     map<string, FieldInfo>::iterator p = field_map.find(field);
     if (p == field_map.end()) {
-	field_map.insert(make_pair(field, FieldInfo(type, proc)));
+	field_map.insert(make_pair(field, FieldInfo(NON_BOOLEAN, proc)));
+    } else {
+	// Check that this is the same type of filter as the existing one(s).
+	if (p->second.type != NON_BOOLEAN) {
+	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
+	}
+	if (!p->second.prefixes.empty())
+	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
+	throw Xapian::FeatureUnavailableError("Multiple FieldProcessor objects for the same prefix currently not supported");
+	// p->second.procs.push_back(proc);
+   }
+}
+
+void
+QueryParser::Internal::add_boolean_prefix(const string &field,
+					  const string &prefix,
+					  const string* grouping)
+{
+    // Don't allow the empty prefix to be set as boolean as it doesn't
+    // really make sense.
+    if (field.empty())
+	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
+    if (!grouping) grouping = &field;
+    filter_type type = grouping->empty() ? BOOLEAN : BOOLEAN_EXCLUSIVE;
+    map<string, FieldInfo>::iterator p = field_map.find(field);
+    if (p == field_map.end()) {
+	field_map.insert(make_pair(field, FieldInfo(type, prefix, *grouping)));
     } else {
 	// Check that this is the same type of filter as the existing one(s).
 	if (p->second.type != type) {
-	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter");
+	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
+	}
+	if (!p->second.procs.empty())
+	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
+	p->second.prefixes.push_back(prefix); // FIXME grouping
+   }
+}
+
+void
+QueryParser::Internal::add_boolean_prefix(const string &field,
+					  FieldProcessor *proc,
+					  const string* grouping)
+{
+    // Don't allow the empty prefix to be set as boolean as it doesn't
+    // really make sense.
+    if (field.empty())
+	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
+    if (!grouping) grouping = &field;
+    filter_type type = grouping->empty() ? BOOLEAN : BOOLEAN_EXCLUSIVE;
+    map<string, FieldInfo>::iterator p = field_map.find(field);
+    if (p == field_map.end()) {
+	field_map.insert(make_pair(field, FieldInfo(type, proc, *grouping)));
+    } else {
+	// Check that this is the same type of filter as the existing one(s).
+	if (p->second.type != type) {
+	    throw Xapian::InvalidOperationError("Can't use add_prefix() and add_boolean_prefix() on the same field name, or add_boolean_prefix() with different values of the 'exclusive' parameter"); // FIXME
 	}
 	if (!p->second.prefixes.empty())
 	    throw Xapian::FeatureUnavailableError("Mixing FieldProcessor objects and string prefixes currently not supported");
@@ -756,9 +787,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 {
     bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
 
-    // Set value_ranges if we may have to handle value ranges in the query.
-    bool value_ranges;
-    value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
+    // Set ranges if we may have to handle ranges in the query.
+    bool ranges = !rangeprocs.empty() && (qs.find("..") != string::npos);
 
     termpos term_pos = 1;
     Utf8Iterator it(qs), end;
@@ -819,7 +849,7 @@ just_had_operator_needing_term:
 	    if (it == end) break;
 	}
 
-	if (value_ranges &&
+	if (ranges &&
 	    (mode == DEFAULT || mode == IN_GROUP || mode == IN_GROUP2)) {
 	    // Scan forward to see if this could be the "start of range"
 	    // token.  Sadly this has O(n^2) tendencies, though at least
@@ -846,7 +876,7 @@ just_had_operator_needing_term:
 			while (p != end && *p > ' ' && *p != ')') {
 			    Unicode::append_utf8(b, *p++);
 			}
-			Term * range = state.value_range(a, b);
+			Term * range = state.range(a, b);
 			if (!range) {
 			    state.error = "Unknown range operation";
 			    if (a.find(':', 1) == string::npos) {
@@ -1055,7 +1085,7 @@ just_had_operator_needing_term:
 			// Build the unstemmed form in field.
 			field += ':';
 			field += name;
-			// Clear any pending value range error.
+			// Clear any pending range error.
 			state.error = NULL;
 			Term * token = new Term(&state, name, field_info, field);
 			Parse(pParser, BOOLEAN_FILTER, token, &state);
@@ -1364,7 +1394,7 @@ struct ProbQuery {
     // filter is a map from prefix to a query for that prefix.  Queries with
     // the same prefix are combined with OR, and the results of this are
     // combined with AND to get the full filter.
-    map<filter_group_id, Query> filter;
+    map<string, Query> filter;
 
     ProbQuery() : query(0), love(0), hate(0) { }
     ~ProbQuery() {
@@ -1373,35 +1403,35 @@ struct ProbQuery {
 	delete hate;
     }
 
-    void add_filter(const filter_group_id & id, const Query & q) {
-	filter[id] = q;
+    void add_filter(const string& grouping, const Query & q) {
+	filter[grouping] = q;
     }
 
-    void append_filter(const filter_group_id & id, const Query & qnew) {
-	map<filter_group_id, Query>::iterator it = filter.find(id);
+    void append_filter(const string& grouping, const Query & qnew) {
+	auto it = filter.find(grouping);
 	if (it == filter.end()) {
-	    filter.insert(make_pair(id, qnew));
+	    filter.insert(make_pair(grouping, qnew));
 	} else {
 	    Query & q = it->second;
 	    // We OR multiple filters with the same prefix if they're
 	    // exclusive, otherwise we AND them.
-	    bool exclusive = (id.field_info->type == BOOLEAN_EXCLUSIVE);
+	    bool exclusive = !grouping.empty();
 	    Query::op op = exclusive ? Query::OP_OR : Query::OP_AND;
 	    q = Query(op, q, qnew);
 	}
     }
 
-    void add_filter_range(Xapian::valueno slot, const Query & range) {
-	filter[filter_group_id(slot)] = range;
+    void add_filter_range(const string& grouping, const Query & range) {
+	filter[grouping] = range;
     }
 
-    void append_filter_range(Xapian::valueno slot, const Query & range) {
-	Query & q = filter[filter_group_id(slot)];
+    void append_filter_range(const string& grouping, const Query & range) {
+	Query & q = filter[grouping];
 	q = Query(Query::OP_OR, q, range);
     }
 
     Query merge_filters() const {
-	map<filter_group_id, Query>::const_iterator i = filter.begin();
+	auto i = filter.begin();
 	Assert(i != filter.end());
 	Query q = i->second;
 	while (++i != filter.end()) {
@@ -1897,7 +1927,7 @@ prob_expr(E) ::= term(T). {
 }
 
 // prob - a probabilistic sub-expression consisting of stop_terms, "+" terms,
-// "-" terms, boolean filters, and/or value ranges.
+// "-" terms, boolean filters, and/or ranges.
 //
 // Note: stop_term can also be several other things other than a simple term!
 
@@ -1905,17 +1935,17 @@ prob_expr(E) ::= term(T). {
 %destructor prob {delete $$;}
 
 prob(P) ::= RANGE(R). {
-    valueno slot = R->pos;
-    const Query & range = R->as_value_range_query();
+    string grouping = R->name;
+    const Query & range = R->as_range_query();
     P = new ProbQuery;
-    P->add_filter_range(slot, range);
+    P->add_filter_range(grouping, range);
 }
 
 prob(P) ::= stop_prob(Q) RANGE(R). {
-    valueno slot = R->pos;
-    const Query & range = R->as_value_range_query();
+    string grouping = R->name;
+    const Query & range = R->as_range_query();
     P = Q;
-    P->append_filter_range(slot, range);
+    P->append_filter_range(grouping, range);
 }
 
 prob(P) ::= stop_term(T) stop_term(U). {
@@ -1987,20 +2017,20 @@ prob(P) ::= stop_prob(Q) HATE BOOLEAN_FILTER(T). {
 
 prob(P) ::= BOOLEAN_FILTER(T). {
     P = new ProbQuery;
-    P->add_filter(T->get_filter_group_id(), T->get_query());
+    P->add_filter(T->get_grouping(), T->get_query());
     delete T;
 }
 
 prob(P) ::= stop_prob(Q) BOOLEAN_FILTER(T). {
     P = Q;
-    P->append_filter(T->get_filter_group_id(), T->get_query());
+    P->append_filter(T->get_grouping(), T->get_query());
     delete T;
 }
 
 prob(P) ::= LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     P = new ProbQuery;
-    P->filter[T->get_filter_group_id()] = T->get_query();
+    P->filter[T->get_grouping()] = T->get_query();
     delete T;
 }
 
@@ -2008,7 +2038,7 @@ prob(P) ::= stop_prob(Q) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     P = Q;
     // We OR filters with the same prefix...
-    Query & q = P->filter[T->get_filter_group_id()];
+    Query & q = P->filter[T->get_grouping()];
     q = Query(Query::OP_OR, q, T->get_query());
     delete T;
 }

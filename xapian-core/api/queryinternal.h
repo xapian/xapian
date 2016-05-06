@@ -104,16 +104,25 @@ class QueryScaleWeight : public Query::Internal {
     void gather_terms(void * void_terms) const;
 };
 
-class QueryValueRange : public Query::Internal {
+class QueryValueBase : public Query::Internal {
+  protected:
     Xapian::valueno slot;
 
+  public:
+    QueryValueBase(Xapian::valueno slot_)
+	: slot(slot_) { }
+
+    Xapian::valueno get_slot() const { return slot; }
+};
+
+class QueryValueRange : public QueryValueBase {
     std::string begin, end;
 
   public:
     QueryValueRange(Xapian::valueno slot_,
 		    const std::string &begin_,
 		    const std::string &end_)
-	: slot(slot_), begin(begin_), end(end_) { }
+	: QueryValueBase(slot_), begin(begin_), end(end_) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser *qopt, double factor) const;
 
@@ -124,14 +133,12 @@ class QueryValueRange : public Query::Internal {
     std::string get_description() const;
 };
 
-class QueryValueLE : public Query::Internal {
-    Xapian::valueno slot;
-
+class QueryValueLE : public QueryValueBase {
     std::string limit;
 
   public:
     QueryValueLE(Xapian::valueno slot_, const std::string &limit_)
-	: slot(slot_), limit(limit_) { }
+	: QueryValueBase(slot_), limit(limit_) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser *qopt, double factor) const;
 
@@ -142,14 +149,12 @@ class QueryValueLE : public Query::Internal {
     std::string get_description() const;
 };
 
-class QueryValueGE : public Query::Internal {
-    Xapian::valueno slot;
-
+class QueryValueGE : public QueryValueBase {
     std::string limit;
 
   public:
     QueryValueGE(Xapian::valueno slot_, const std::string &limit_)
-	: slot(slot_), limit(limit_) { }
+	: QueryValueBase(slot_), limit(limit_) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser *qopt, double factor) const;
 
@@ -414,6 +419,19 @@ class QueryWildcard : public Query::Internal {
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
     termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    void serialise(std::string & result) const;
+
+    std::string get_description() const;
+};
+
+class QueryInvalid : public Query::Internal {
+  public:
+    QueryInvalid() { }
+
+    Xapian::Query::op get_type() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION;
+
+    PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
     void serialise(std::string & result) const;
 
