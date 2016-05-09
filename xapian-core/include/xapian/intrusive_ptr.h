@@ -5,7 +5,7 @@
 //  Based on Boost's intrusive_ptr.hpp
 //
 //  Copyright (c) 2001, 2002 Peter Dimov
-//  Copyright (c) 2011,2013,2014,2015 Olly Betts
+//  Copyright (c) 2011,2013,2014,2015,2016 Olly Betts
 //
 // Distributed under the Boost Software License, Version 1.0.
 //
@@ -100,7 +100,7 @@ public:
         if( px != 0 ) ++px->_refs;
     }
 
-    intrusive_ptr(intrusive_ptr const & rhs): px( rhs.px )
+    intrusive_ptr(intrusive_ptr const & rhs): px( this == &rhs ? 0 : rhs.px )
     {
         if( px != 0 ) ++px->_refs;
     }
@@ -265,7 +265,8 @@ public:
     }
 
     opt_intrusive_ptr(opt_intrusive_ptr const & rhs)
-    : px( rhs.px ), counting( rhs.counting )
+    : px( this == &rhs ? 0 : rhs.px ),
+      counting( this == &rhs ? false : rhs.counting )
     {
 	if( counting ) ++px->_refs;
     }
