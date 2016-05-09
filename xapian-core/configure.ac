@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.5], [https://xapian.org/bugs])
+AC_INIT([xapian-core], [1.3.6], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -36,7 +36,8 @@ dnl 3:0:0 1.3.2 Enquire::get_eset() overload -> default parameter
 dnl 4:0:0 1.3.3 Database::allterms_begin() overload -> default parameter
 dnl 5:0:0 1.3.4 DB compaction and checking changes, etc
 dnl 6:0:0 1.3.5 DatabaseReplica changes
-LIBRARY_VERSION_INFO=6:0:0
+dnl 7:0:0 1.3.6 RangeProcessor added
+LIBRARY_VERSION_INFO=7:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=-1.3

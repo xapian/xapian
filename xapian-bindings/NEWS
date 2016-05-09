@@ -1,3 +1,68 @@
+Xapian-bindings 1.3.6 (2016-05-09):
+
+General:
+
+* Update for changes to the C++ API.
+
+* Use WritableDatabase::commit() instead of flush() in testcases, as the
+  latter is now formally deprecated.
+
+Java:
+
+* Fix syntax error in SmokeTest.java, introduced by the DB_BACKEND_INMEMORY
+  change.  Noted on #xapian-discuss by Aakash Muttineni.
+
+* Update Java TODO list.
+
+* SmokeTest.java: Port over version checks from SmokeTest.cs.
+
+* Update list of recently tested JDK versions.
+
+Lua:
+
+* Note Lua bindings work with Lua 5.3.
+
+Perl:
+
+* Explicitly specify POD docs encoding as utf8.  Fixes warning in generated
+  HTML docs.
+
+* Convert POD to HTML when building from a source tarball - the conversion
+  code comes as standard with Perl.  In 1.3.5 we were failing to ship the HTML
+  output, as reported by Anthony Basile.
+
+* For extra robustness, convert POD to HTML using the bundled Pod::Html module
+  from the Perl interpreter found by configure, rather than assuming pod2html
+  is on PATH, and the right one (this matters more now that it's not just
+  people building from git who build these docs).
+
+* Improve Perl bindings POD documentation.
+
+* Remove workaround for Perl macro vs C++11 header.  SWIG 3.0.6 and later adds
+  a different workaround to the generated C++ wrapper file, and we require SWIG
+  3.0.8 for a Python fix, so we no longer need our workaround.
+
+Python:
+
+* Fix "make check" in VPATH build.  Nothing seems to have changed in our build
+  system, so I'm guessing this is now required due to a change in the code SWIG
+  generates.
+
+Python3:
+
+* Fix "make check" in VPATH build.  Nothing seems to have changed in our build
+  system, so I'm guessing this is now required due to a change in the code SWIG
+  generates.
+
+* Fix install location for python3 docs.  They were being install to the same
+  path as the python docs - now the path includes "python3" instead of
+  "python".
+
+Ruby:
+
+* Increase minimum Ruby version to 2.1, as older versions are no longer
+  supported by the Ruby developers.
+
 Xapian-bindings 1.3.5 (2016-04-01):
 
 This release includes all changes from 1.2.23 which are relevant.

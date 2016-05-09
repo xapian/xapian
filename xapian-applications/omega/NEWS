@@ -1,3 +1,36 @@
+Omega 1.3.6 (2016-05-09):
+
+documentation:
+
+* Fix overview.rst processing in VPATH build.  Our workaround for lack of an
+  include path in docutils was only handling the first include in the file.
+
+omega:
+
+* Implement $match command for omegascript.  Patch from Richhiey Thomas.
+
+templates:
+
+* Lower case all HTML tags, attributes and values; explicitly close <option>
+  tags.  Patches from Vivek Pal and Nirmal Singhania.
+
+* Migrate Omega Templates to HTML5.  Patch from Nirmal Sighania.
+
+* templates/query: Remove stray double quote from generated URL for spelling
+  suggestion when THRESHOLD is set.  Patch from Nirmal Singhania.
+
+* templates/opensearch: Change response feeds to support OpenSearch 1.1.
+  Patch from Nirmal Singhania.
+
+testsuite:
+
+* Update omegatest - the order of subqueries has changed in some cases, due
+  to the "grouping" changes in the C++ API.
+
+build system:
+
+* Drop workaround for old git master before 1.3.2
+
 Omega 1.3.5 (2016-04-01):
 
 This release includes all changes from 1.2.23 which are relevant.

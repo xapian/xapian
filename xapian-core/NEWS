@@ -1,4 +1,78 @@
-backport fodder:
+Xapian-core 1.3.6 (2016-05-09):
+
+API:
+
+* TfIdfWeight: Support freq and squared IDF normalisations.  Patch from Vivek
+  Pal.
+
+* New Xapian::Query::OP_INVALID to provide an "invalid" query object.
+
+* Reject OP_NEAR/OP_PHRASE with non-leaf subqueries early to avoid a
+  potential segmentation fault if the non-leaf subquery decayed at
+  just the wrong moment.  See #508.
+
+* Reduce positional queries with a MatchAll or PostingSource subquery to
+  MatchNothing (since these subqueries have no positional information, so
+  the query can't match).
+
+* Deprecate ValueRangeProcessor and introduce new RangeProcessor class as
+  a replacement.  RangeProcessor()::operator()() method returns Xapian::Query,
+  so a range can expand to any query.  OP_INVALID is used to signal that
+  a range is not recognised.  Fixes #663.
+
+* Combining of ranges over the same quantity with OP_OR is now handled by
+  an explicit "grouping" parameter, with a sensible default which works
+  for value range queries.  Boolean term prefixes and FieldProcessor now
+  support "grouping" too, so ranges and other filters can now be grouped
+  together.
+
+* Formally deprecate WritableDatabase::flush().  The replacement commit()
+  method was added in 1.1.0, so code can be switched to use this and still
+  work with 1.2.x.
+
+* Fix handling of a self-initialised PIMPL object (e.g. Xapian::Query q(q);).
+  Previously the uninitialised pointer was copied to itself, resulting in
+  undefined behaviour when the object was used to destroyed.  This isn't
+  something you'd see in normal code, but it's a cheap check which can probably
+  be optimised away by the compiler (GCC 6 does).
+
+testsuite:
+
+* Fix testcase notermlist1 to check correct table extension - ".glass" not
+  ".DB" (chert doesn't support DB_NO_TERMLIST).
+
+build system:
+
+* Bootstrap with autoconf 2.69.  This requires GNU m4 >= 4.6, but that should
+  no longer be an issue on developer machines.
+
+* Fix build with --enable-log.  Debug logging was trying to log
+  compress_strategy parameter which was removed recently.  Reported by Ankit
+  Paliwal on xapian-devel.
+
+documentation:
+
+* Fix misfiled deprecation notes.  Various things marked as deprecated and
+  removed in 1.3.x have in fact been deprecated but not removed (they were just
+  added to the wrong list).  One instance queried by David Bremner on #xapian,
+  and a review found several more.
+
+* Improve docs for lcov makefile targets - say that these are targets in the
+  xapian-core directory (noted by poe_ on #xapian), document
+  coverage-reconfigure-maintainer-mode target, and clarify what the example of
+  how to use GENHTML_ARGS actually does.
+
+* Note that Java bindings use xapian/iterator.h.
+
+* Update release checklist.  The script to build the release tarballs now
+  automates some of the changes needed in trac.
+
+portability:
+
+* Fix build with Android NDK which declares sys_errlist and sys_nerr in the
+  C library headers, but doesn't actually define them in the library itself.
+  The configure test now tries to link a trivial program which uses these
+  symbols.  Patch from Tejas Jogi.
 
 Xapian-core 1.3.5 (2016-04-01):
 
