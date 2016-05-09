@@ -2,7 +2,7 @@
 # Attempt to guess a canonical system name.
 #   Copyright 1992-2016 Free Software Foundation, Inc.
 
-timestamp='2016-03-24'
+timestamp='2016-04-02'
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -386,7 +386,7 @@ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in
 	# This test works for both compilers.
 	if [ "$CC_FOR_BUILD" != no_compiler_found ]; then
 	    if (echo '#ifdef __amd64'; echo IS_64BIT_ARCH; echo '#endif') | \
-		(CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) | \
+		(CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
 		grep IS_64BIT_ARCH >/dev/null
 	    then
 		SUN_ARCH=x86_64
@@ -684,7 +684,7 @@ EOF
 		    exit (0);
 		}
 EOF
-		    (CCOPTS= $CC_FOR_BUILD -o $dummy $dummy.c 2>/dev/null) && HP_ARCH=`$dummy`
+		    (CCOPTS="" $CC_FOR_BUILD -o $dummy $dummy.c 2>/dev/null) && HP_ARCH=`$dummy`
 		    test -z "$HP_ARCH" && HP_ARCH=hppa
 		fi ;;
 	esac
@@ -701,7 +701,7 @@ EOF
 	    # $ CC_FOR_BUILD="cc +DA2.0w" ./config.guess
 	    # => hppa64-hp-hpux11.23
 
-	    if echo __LP64__ | (CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) |
+	    if echo __LP64__ | (CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) |
 		grep -q __LP64__
 	    then
 		HP_ARCH=hppa2.0w
@@ -900,7 +900,7 @@ EOF
 	exit ;;
     *:GNU/*:*:*)
 	# other systems with GNU libc and userland
-	echo ${UNAME_MACHINE}-unknown-`echo ${UNAME_SYSTEM} | sed 's,^[^/]*/,,' | tr '[A-Z]' '[a-z]'``echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`-${LIBC}
+	echo ${UNAME_MACHINE}-unknown-`echo ${UNAME_SYSTEM} | sed 's,^[^/]*/,,' | tr "[:upper:]" "[:lower:]"``echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`-${LIBC}
 	exit ;;
     i*86:Minix:*:*)
 	echo ${UNAME_MACHINE}-pc-minix
@@ -1294,7 +1294,7 @@ EOF
 	if test `echo "$UNAME_RELEASE" | sed -e 's/\..*//'` -le 10 ; then
 	    if [ "$CC_FOR_BUILD" != no_compiler_found ]; then
 		if (echo '#ifdef __LP64__'; echo IS_64BIT_ARCH; echo '#endif') | \
-		    (CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) | \
+		    (CCOPTS="" $CC_FOR_BUILD -E - 2>/dev/null) | \
 		    grep IS_64BIT_ARCH >/dev/null
 		then
 		    case $UNAME_PROCESSOR in
@@ -1389,7 +1389,7 @@ EOF
 	echo i386-pc-xenix
 	exit ;;
     i*86:skyos:*:*)
-	echo ${UNAME_MACHINE}-pc-skyos`echo ${UNAME_RELEASE}` | sed -e 's/ .*$//'
+	echo ${UNAME_MACHINE}-pc-skyos`echo ${UNAME_RELEASE} | sed -e 's/ .*$//'`
 	exit ;;
     i*86:rdos:*:*)
 	echo ${UNAME_MACHINE}-pc-rdos
