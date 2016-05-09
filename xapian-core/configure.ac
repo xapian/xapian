@@ -746,56 +746,25 @@ AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([hstrerror])
 AC_FUNC_STRERROR_R
 
-AC_CACHE_CHECK([if libc defines sys_errlist], ac_cv_libc_defines_sys_errlist, [
+AC_CACHE_CHECK([for sys_errlist and sys_nerr], ac_cv_sys_errlist_and_sys_nerr, [
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
-[[  printf("%s", sys_errlist[0]);]])],
-  [ ac_cv_libc_defines_sys_errlist="yes" ],
-  [ ac_cv_libc_defines_sys_errlist="no"
-  ])
+[[  printf("%s", sys_errlist[sys_nerr - 1]);]])],
+  [ ac_cv_sys_errlist_and_sys_nerr=yes ],
+  [ ac_cv_sys_errlist_and_sys_nerr=no ])
 ])
-if test "x$ac_cv_libc_defines_sys_errlist" = "xyes" ; then
-  AC_DEFINE([HAVE_DECL_SYS_ERRLIST], [1],[Define if your system defines sys_errlist[]])
-else
-  AC_DEFINE([HAVE_DECL_SYS_ERRLIST], [0],[Define if your system defines sys_errlist[]])
+if test "x$ac_cv_sys_errlist_and_sys_nerr" = "xyes" ; then
+  AC_DEFINE([HAVE_SYS_ERRLIST_AND_SYS_NERR], [1],[Define if you have 'sys_errlist' and 'sys_nerr'])
 fi
 
-AC_CACHE_CHECK([if libc defines _sys_errlist], ac_cv_libc_defines__sys_errlist, [
+AC_CACHE_CHECK([for _sys_errlist and _sys_nerr], ac_cv__sys_errlist_and__sys_nerr, [
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
-[[  printf("%s", _sys_errlist[0]);]])],
-  [ ac_cv_libc_defines__sys_errlist="yes" ],
-  [ ac_cv_libc_defines__sys_errlist="no"
+[[  printf("%s", _sys_errlist[_sys_nerr - 1]);]])],
+  [ ac_cv__sys_errlist_and__sys_nerr=yes ],
+  [ ac_cv__sys_errlist_and__sys_nerr=no
   ])
 ])
-if test "x$ac_cv_libc_defines__sys_errlist" = "xyes" ; then
-  AC_DEFINE([HAVE_DECL__SYS_ERRLIST], [1], [Define if your system defines _sys_errlist[]])
-else
-  AC_DEFINE([HAVE_DECL__SYS_ERRLIST], [0], [Define if your system defines _sys_errlist[]])
-fi
-
-AC_CACHE_CHECK([if libc defines sys_nerr], ac_cv_libc_defines_sys_nerr, [
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
-[[  printf("%i", sys_nerr);]])],
-  [ ac_cv_libc_defines_sys_nerr="yes" ],
-  [ ac_cv_libc_defines_sys_nerr="no"
-  ])
-])
-if test "x$ac_cv_libc_defines_sys_nerr" = "xyes" ; then
-  AC_DEFINE([HAVE_DECL_SYS_NERR], [1], [Define if your system defines sys_nerr])
-else
-  AC_DEFINE([HAVE_DECL_SYS_NERR], [0], [Define if your system defines sys_nerr])
-fi
-
-AC_CACHE_CHECK([if libc defines _sys_nerr], ac_cv_libc_defines__sys_nerr, [
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
-[[  printf("%i", _sys_nerr);]])],
-  [ ac_cv_libc_defines__sys_nerr="yes" ],
-  [ ac_cv_libc_defines__sys_nerr="no"
-  ])
-])
-if test "x$ac_cv_libc_defines__sys_nerr" = "xyes" ; then
-  AC_DEFINE([HAVE_DECL__SYS_NERR], [1], [Define if your system defines _sys_nerr])
-else
-  AC_DEFINE([HAVE_DECL__SYS_NERR], [0], [Define if your system defines _sys_nerr])
+if test "x$ac_cv__sys_errlist_and__sys_nerr" = "xyes" ; then
+  AC_DEFINE([HAVE__SYS_ERRLIST_AND__SYS_NERR], [1],[Define if you have '_sys_errlist' and '_sys_nerr'])
 fi
 
 dnl Check that snprintf actually works as it's meant to.
