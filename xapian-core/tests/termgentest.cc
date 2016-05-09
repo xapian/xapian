@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <string>
+#include <array>
 
 #include "str.h"
 #include "testsuite.h"
@@ -49,6 +50,15 @@ struct test {
     //  - none: Set stemming strategy to STEM_NONE.
     //    (this persists for subsequent tests until it's turned off).
     //  - some: Set stemming strategy to STEM_SOME.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - stop=en: Add a small set of English stop words. Currently, 'a',
+    //    'an' and 'the' are added to the stopword list.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - stop_none: Set stopper strategy to STOP_NONE.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - stop_all: Set stopper strategy to STOP_ALL.
+    //    (this persists for subsequent tests until it's turned off).
+    //  - stop_stemmed: Set stopper strategy to STOP_STEMMED.
     //    (this persists for subsequent tests until it's turned off).
     //  - prefix=FOO: Use the specified prefix.
     //    (this persists for subsequent tests until it's turned off).
@@ -151,6 +161,24 @@ static const test test_simple[] = {
 
     { "all_z",
 	  "Only stemmed words!", "Zonli[1] Zstem[2] Zword[3]" },
+
+    // Test set_stopper_strategy():
+    { "stop=en,none,stop_none",
+      "The stop words.", "stop[2] the[1] words[3]" },
+
+    { "stop_all",
+      "The stop words.", "stop[1] words[2]" },
+
+    { "stem=en,some,stop_stemmed",
+      "The stemmed words.", "Zstem:1 Zword:1 stemmed[2] the[1] words[3]" },
+
+    { "all,stop_all",
+      "The stemmed words.", "stem[1] word[2]" },
+
+    // Ending tests with stop_none because the stopper persists and
+    // it's equivalent to not having a stopper configured.
+    { "stop_none",
+      "The stemmed words.", "stem[2] the[1] word[3]" },
 
     // All following tests are for things which we probably don't really want to
     // behave as they currently do, but we haven't found a sufficiently general
@@ -735,7 +763,21 @@ static bool test_termgen1()
 	    } else if (strncmp(o, "some", 4) == 0) {
 		o += 4;
 		termgen.set_stemming_strategy(termgen.STEM_SOME);
-	    } else if (strncmp(o, "prefix=", 7) == 0) {
+	    } else if (strncmp(o, "stop=en", 7) == 0) {
+               o += 7;
+               array<const char *, 3> x = {{"the", "a", "an"}};
+               Xapian::SimpleStopper *stopper = new Xapian::SimpleStopper(x.begin(), x.end());
+               termgen.set_stopper(stopper->release());
+           } else if (strncmp(o, "stop_none", 9) == 0) {
+               o += 9;
+               termgen.set_stopper_strategy(termgen.STOP_NONE);
+           } else if (strncmp(o, "stop_all", 8) == 0) {
+               o += 8;
+               termgen.set_stopper_strategy(termgen.STOP_ALL);
+           } else if (strncmp(o, "stop_stemmed", 12) == 0) {
+               o += 12;
+               termgen.set_stopper_strategy(termgen.STOP_STEMMED);
+           } else if (strncmp(o, "prefix=", 7) == 0) {
 		o += 7;
 		prefix.resize(0);
 		while (*o != '\0' && *o != ',') {
