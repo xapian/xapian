@@ -809,7 +809,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     {
 	const FieldInfo * default_field_info = &def_pfx;
 	if (default_prefix.empty()) {
-	    map<string, FieldInfo>::const_iterator f = field_map.find("");
+	    auto f = field_map.find(string());
 	    if (f != field_map.end()) default_field_info = &(f->second);
 	}
 
