@@ -1,7 +1,7 @@
 /* api_replacedoc.cc: tests of document replacing.
  *
  * Copyright 2009 Richard Boulton
- * Copyright 2015 Olly Betts
+ * Copyright 2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,14 +43,14 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     doc.add_posting("pos", 2);
     doc.add_posting("pos", 3);
     db.add_document(doc);
-    db.flush();
+    db.commit();
 
     TEST_EQUAL(docterms_to_string(db, 1), "Term(pos, wdf=2, pos=[2, 3])");
 
     doc = db.get_document(1);
     doc.add_term("pos2");
     db.replace_document(1, doc);
-    db.flush();
+    db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos, wdf=2, pos=[2, 3]), "
 	       "Term(pos2, wdf=1)");
@@ -59,7 +59,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     doc.add_posting("pos3", 1);
     doc.add_posting("pos3", 5);
     db.replace_document(1, doc);
-    db.flush();
+    db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos, wdf=2, pos=[2, 3]), "
 	       "Term(pos2, wdf=1), "
@@ -68,7 +68,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     doc = db.get_document(1);
     doc.remove_term("pos");
     db.replace_document(1, doc);
-    db.flush();
+    db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos2, wdf=1), "
 	       "Term(pos3, wdf=2, pos=[1, 5])");
@@ -81,7 +81,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     doc = db.get_document(1);
     doc.remove_term("pos3");
     db.replace_document(1, doc);
-    db.flush();
+    db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos2, wdf=1)");
 
@@ -93,7 +93,7 @@ DEFINE_TESTCASE(poslistupdate1, positional && writable) {
     doc = db.get_document(1);
     doc.add_term("pos");
     db.replace_document(1, doc);
-    db.flush();
+    db.commit();
     TEST_EQUAL(docterms_to_string(db, 1),
 	       "Term(pos, wdf=1), "
 	       "Term(pos2, wdf=1)");
@@ -129,7 +129,7 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=1)" + bdt);
 
-    // Modify the wdf of an existing document, checking stats before flush.
+    // Modify the wdf of an existing document, checking stats before commit.
     Xapian::Document doc2(basic_doc());
     doc2.add_term("takeaway", 2);
     db.replace_document(1, doc2);
@@ -145,14 +145,14 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=1)" + bdt);
 
-    // Remove a term, flush, then put it back, remove it, and put it back.
+    // Remove a term, commit, then put it back, remove it, and put it back.
     // This is to test the handling of items in the change cache.
     db.replace_document(1, doc0);
-    db.flush();
+    db.commit();
     db.replace_document(1, doc2);
     db.replace_document(1, doc0);
     db.replace_document(1, doc2);
-    db.flush();
+    db.commit();
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=2)" + bdt);
 
@@ -168,11 +168,11 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=2)" + bdt);
 
-    // Modify the wdf of an existing document, checking stats after flush.
+    // Modify the wdf of an existing document, checking stats after commit.
     Xapian::Document doc3(basic_doc());
     doc3.add_term("takeaway", 3);
     db.replace_document(1, doc3);
-    db.flush();
+    db.commit();
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaway, wdf=3)" + bdt);
 
@@ -180,7 +180,7 @@ DEFINE_TESTCASE(modtermwdf1, writable) {
     Xapian::Document doc3_diff(basic_doc());
     doc3_diff.add_term("takeaways", 3);
     db.replace_document(1, doc3_diff);
-    db.flush();
+    db.commit();
     dbcheck(db, 1, 1);
     TEST_EQUAL(docterms_to_string(db, 1), "Term(takeaways, wdf=3)" + bdt);
 
