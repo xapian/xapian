@@ -165,11 +165,11 @@ qtestcase '0 * Len' P=lang:en
 qtestcase 'XANDtest' B=XANDtest
 qtestcase '0 * XANDtest' P=and:test
 qtestcase '(Len AND XANDtest)' B=Len B=XANDtest
-qtestcase '0 * (XANDtest AND Len)' P='lang:en and:test'
+qtestcase '0 * (Len AND XANDtest)' P='lang:en and:test'
 qtestcase '(Len AND Lde)' B=Len B=Lde
 qtestcase '0 * (Len AND Lde)' P='lang:en lang:de'
 qtestcase '((Horg OR Hcom) AND (Len AND Lfr))' B=Len B=Lfr B=Horg B=Hcom
-qtestcase '0 * ((Horg OR Hcom) AND (Len AND Lfr))' P='lang:en lang:fr host:org host:com'
+qtestcase '0 * ((Len AND Lfr) AND (Horg OR Hcom))' P='lang:en lang:fr host:org host:com'
 qtestcase '((XANDa AND XANDb AND XANDc) AND (Y1998 OR Y2001))' B=Y1998 B=Y2001 B=XANDa B=XANDb B=XANDc
 qtestcase '0 * (((XANDa AND XANDb) AND XANDc) AND (Y1998 OR Y2001))' P='year:1998 year:2001 and:a and:b and:c'
 

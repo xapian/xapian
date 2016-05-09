@@ -1490,7 +1490,7 @@ def test_compactor():
         db1.set_metadata('key', '1')
         db1.set_metadata('key1', '1')
         db1.add_document(doc1)
-        db1.flush()
+        db1.commit()
 
         db2 = xapian.WritableDatabase(db2path, xapian.DB_CREATE_OR_OVERWRITE)
         doc2 = xapian.Document()
@@ -1500,7 +1500,7 @@ def test_compactor():
         db2.set_metadata('key', '2')
         db2.set_metadata('key2', '2')
         db2.add_document(doc2)
-        db2.flush()
+        db2.commit()
 
         # Compact with the default compactor
         # Metadata conflicts are resolved by picking the first value

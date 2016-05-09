@@ -60,7 +60,7 @@ for my $num (1..1000) {
   $doc->add_value(0, $num);
   $write->add_document( $doc );
 }
-$write->flush();
+$write->commit();
 $read->reopen();
 
 for my $num (qw(three four five)) {
@@ -73,9 +73,9 @@ for my $num (qw(three four five)) {
 
   $doc->add_value(0, $num);
   $write->add_document( $doc );
-  $write->flush();
+  $write->commit();
 }
-$write->flush();
+$write->commit();
 eval {
     my $mset = $enq->get_mset(0, 10);
 };
