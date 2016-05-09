@@ -1,7 +1,7 @@
 /** @file errno_to_string.cc
  * @brief Convert errno value to std::string, thread-safely if possible
  */
-/* Copyright (C) 2014,2015 Olly Betts
+/* Copyright (C) 2014,2015,2016 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -29,8 +29,8 @@
 #include "safeerrno.h"
 // <cstring> doesn't give us strerror_r() with Sun C++ 5.9.
 #include <string.h>
-#if (HAVE_DECL__SYS_ERRLIST && HAVE_DECL__SYS_NERR) || \
-    (HAVE_DECL_SYS_ERRLIST && HAVE_DECL_SYS_NERR)
+#if defined HAVE__SYS_ERRLIST_AND__SYS_NERR || \
+    defined HAVE_SYS_ERRLIST_AND_SYS_NERR
 # include <stdio.h>
 // Under mingw, these are in stdlib.h.
 # include <stdlib.h>
@@ -42,14 +42,14 @@ using namespace std;
 
 void
 errno_to_string(int e, string & s) {
-#if HAVE_DECL__SYS_ERRLIST && HAVE_DECL__SYS_NERR
+#if defined HAVE__SYS_ERRLIST_AND__SYS_NERR
     if (e >= 0 && e < _sys_nerr && _sys_errlist[e]) {
 	s += _sys_errlist[e];
     } else {
 	s += "Unknown error ";
 	s += str(e);
     }
-#elif HAVE_DECL_SYS_ERRLIST && HAVE_DECL_SYS_NERR
+#elif defined HAVE_SYS_ERRLIST_AND_SYS_NERR
     if (e >= 0 && e < sys_nerr && sys_errlist[e]) {
 	s += sys_errlist[e];
     } else {
