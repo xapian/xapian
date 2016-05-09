@@ -314,13 +314,13 @@ handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 # If someone's created a directory for common, leave it be.
 if [ -h xapian-applications/omega/common ] || \
    [ ! -d xapian-applications/omega/common ] ; then
-  handle_git_external xapian-applications/omega/.common.git d52417d0c7389257e47ed1339fdfd2f4f57efda4 .
+  handle_git_external xapian-applications/omega/.common.git 19f74a832b0b12a0a78e8fc0ea5af03025ebd9c4 .
   ln -sf .common.git/xapian-core/common xapian-applications/omega/common
 fi
 
 # If someone's created a directory for common, leave it be.
 if [ -h xapian-letor/common ] || [ ! -d xapian-letor/common ] ; then
-  handle_git_external xapian-letor/.common.git d52417d0c7389257e47ed1339fdfd2f4f57efda4 .
+  handle_git_external xapian-letor/.common.git 19f74a832b0b12a0a78e8fc0ea5af03025ebd9c4 .
   ln -sf .common.git/xapian-core/common xapian-letor/common
 fi
 
