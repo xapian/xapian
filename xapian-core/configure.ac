@@ -419,8 +419,7 @@ AC_TRY_COMPILE([#include <setjmp.h>],
 dnl Used by tests/harness/cputimer.cc:
 AC_CHECK_FUNCS([getrusage times sysconf])
 
-dnl Used by tests/api_replicate.cc, tests/queryparsertest.cc and
-dnl tests/termgentest.cc.
+dnl Used by tests/api_replicate.cc.
 dnl
 dnl Solaris < 10 only has putenv().
 dnl
