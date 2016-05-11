@@ -518,7 +518,7 @@ is_phrase_generator(unsigned ch)
 {
     // These characters generate a phrase search.
     // Ordered mostly by frequency of calls to this function done when
-    // running queryparsertest.
+    // running the testcases in api_queryparser.cc.
     return (ch && ch < 128 && strchr(".-/:\\@", ch) != NULL);
 }
 

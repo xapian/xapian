@@ -101,7 +101,7 @@ static const test test_simple[] = {
     { "prefix=XA", "hello", "XAhello[1] ZXAhello:1" },
     { "prefix=XA", "hello World Test", "XAhello[1] XAtest[3] XAworld[2] ZXAhello:1 ZXAtest:1 ZXAworld:1" },
 
-    // Assorted tests, corresponding to tests in queryparsertest.
+    // Assorted tests, corresponding to tests in api_queryparser.cc.
     { "prefix=", "time_t", "Ztime_t:1 time_t[1]" },
     { "", "stock -cooking", "Zcook:1 Zstock:1 cooking[2] stock[1]" },
     { "", "d- school report", "Zd:1 Zreport:1 Zschool:1 d[1] report[3] school[2]" },

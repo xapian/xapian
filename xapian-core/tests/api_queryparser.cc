@@ -1,6 +1,7 @@
-/* queryparsertest.cc: Tests of Xapian::QueryParser
- *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/** @file api_queryparser.cc
+ * @brief Tests of Xapian::QueryParser
+ */
+/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -21,18 +22,19 @@
 
 #include <config.h>
 
+#include "api_queryparser.h"
+
 #define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
+#include "apitest.h"
 #include "cputimer.h"
 #include "str.h"
 #include "stringutils.h"
 
 #include <cmath>
-#include <iostream>
 #include <string>
 #include <vector>
-#include "safesysstat.h" // For mkdir().
 
 using namespace std;
 
@@ -142,7 +144,7 @@ static const test test_or_queries[] = {
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
-    { "AND -windows", "Syntax: <expression> AND <expression>" }, 
+    { "AND -windows", "Syntax: <expression> AND <expression>" },
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
     { "gordian AND -", "Syntax: <expression> AND <expression>" },
@@ -714,8 +716,7 @@ static const test test_or_queries[] = {
     { NULL, NULL }
 };
 
-static bool test_queryparser1()
-{
+DEFINE_TESTCASE(queryparser1, !backend) {
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -799,8 +800,7 @@ static const test test_and_queries[] = {
 };
 
 // With default_op = OP_AND.
-static bool test_qp_default_op1()
-{
+DEFINE_TESTCASE(qp_default_op1, !backend) {
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -842,8 +842,7 @@ static bool test_qp_default_op1()
 }
 
 // Feature test for specify the default prefix (new in Xapian 1.0.0).
-static bool test_qp_default_prefix1()
-{
+DEFINE_TESTCASE(qp_default_prefix1, !backend) {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -863,8 +862,7 @@ static bool test_qp_default_prefix1()
 
 // Feature test for setting the default prefix with add_prefix()
 // (new in Xapian 1.0.3).
-static bool test_qp_default_prefix2()
-{
+DEFINE_TESTCASE(qp_default_prefix2, !backend) {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -904,8 +902,7 @@ static bool test_qp_default_prefix2()
 }
 
 // Test query with odd characters in.
-static bool test_qp_odd_chars1()
-{
+DEFINE_TESTCASE(qp_odd_chars1, !backend) {
     Xapian::QueryParser qp;
     string query("\x01weird\x00stuff\x7f", 13);
     Xapian::Query qobj = qp.parse_query(query);
@@ -915,12 +912,8 @@ static bool test_qp_odd_chars1()
 }
 
 // Test right truncation.
-static bool test_qp_flag_wildcard1()
-{
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
-#else
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+DEFINE_TESTCASE(qp_flag_wildcard1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("abc");
     doc.add_term("main");
@@ -1015,16 +1008,11 @@ static bool test_qp_flag_wildcard1()
     qobj = qp.parse_query("abc muscl* main", flags);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((abc@1 AND (SYNONYM WILDCARD OR muscl)) AND main@3))");
     return true;
-#endif
 }
 
 // Test right truncation with prefixes.
-static bool test_qp_flag_wildcard2()
-{
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
-#else
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+DEFINE_TESTCASE(qp_flag_wildcard2, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("Aheinlein");
     doc.add_term("Ahuxley");
@@ -1039,10 +1027,8 @@ static bool test_qp_flag_wildcard2()
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((SYNONYM WILDCARD OR Ah) OR test@2))");
     return true;
-#endif
 }
 
-#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 static void
 test_qp_flag_wildcard1_helper(const Xapian::Database &db,
 			      Xapian::termcount max_expansion,
@@ -1057,15 +1043,10 @@ test_qp_flag_wildcard1_helper(const Xapian::Database &db,
     // so we need to calculate the MSet too.
     e.get_mset(0, 10);
 }
-#endif
 
 // Test right truncation with a limit on expansion.
-static bool test_qp_flag_wildcard3()
-{
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
-#else
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+DEFINE_TESTCASE(qp_flag_wildcard3, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("abc");
     doc.add_term("main");
@@ -1075,6 +1056,7 @@ static bool test_qp_flag_wildcard3()
     doc.add_term("muscular");
     doc.add_term("mutton");
     db.add_document(doc);
+    db.commit();
 
     // Test that a max of 0 doesn't set a limit.
     test_qp_flag_wildcard1_helper(db, 0, "z*");
@@ -1102,16 +1084,11 @@ static bool test_qp_flag_wildcard3()
 	test_qp_flag_wildcard1_helper(db, 5, "m*"));
 
     return true;
-#endif
 }
 
 // Test partial queries.
-static bool test_qp_flag_partial1()
-{
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
-#else
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+DEFINE_TESTCASE(qp_flag_partial1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     Xapian::Stem stemmer("english");
     doc.add_term("abc");
@@ -1237,11 +1214,9 @@ static bool test_qp_flag_partial1()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpartial SYNONYM WILDCARD OR XTWOpartial) OR (XONEpartial@1 SYNONYM XTWOpartial@1)))");
 
     return true;
-#endif
 }
 
-static bool test_qp_flag_bool_any_case1()
-{
+DEFINE_TESTCASE(qp_flag_bool_any_case1, !backend) {
     using Xapian::QueryParser;
     Xapian::QueryParser qp;
     Xapian::Query qobj;
@@ -1276,8 +1251,7 @@ static const test test_stop_queries[] = {
     { NULL, NULL }
 };
 
-static bool test_qp_stopper1()
-{
+DEFINE_TESTCASE(qp_stopper1, !backend) {
     Xapian::QueryParser qp;
     const char * stopwords[] = { "a", "an", "the" };
     Xapian::SimpleStopper stop(stopwords, stopwords + 3);
@@ -1315,8 +1289,7 @@ static const test test_pure_not_queries[] = {
     { NULL, NULL }
 };
 
-static bool test_qp_flag_pure_not1()
-{
+DEFINE_TESTCASE(qp_flag_pure_not1, !backend) {
     using Xapian::QueryParser;
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
@@ -1349,8 +1322,7 @@ static bool test_qp_flag_pure_not1()
 // Debatable if this is a regression test or a feature test, as it's not
 // obvious is this was a bug fix or a new feature.  Either way, it first
 // appeared in Xapian 1.0.0.
-static bool test_qp_unstem_boolean_prefix()
-{
+DEFINE_TESTCASE(qp_unstem_boolean_prefix, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::Query q = qp.parse_query("hello test:foo");
@@ -1389,8 +1361,7 @@ static const test test_value_range1_queries[] = {
 };
 
 // Simple test of ValueRangeProcessor class.
-static bool test_qp_value_range1()
-{
+DEFINE_TESTCASE(qp_value_range1, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::StringValueRangeProcessor vrp(1);
@@ -1419,8 +1390,7 @@ static bool test_qp_value_range1()
 }
 
 // Simple test of RangeProcessor class.
-static bool test_qp_range1()
-{
+DEFINE_TESTCASE(qp_range1, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::RangeProcessor rp(1);
@@ -1482,8 +1452,7 @@ static const test test_value_range2_queries[] = {
 };
 
 // Test chaining of ValueRangeProcessor classes.
-static bool test_qp_value_range2()
-{
+DEFINE_TESTCASE(qp_value_range2, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::DateValueRangeProcessor vrp_date(1);
@@ -1520,8 +1489,7 @@ static bool test_qp_value_range2()
 }
 
 // Test chaining of RangeProcessor classes.
-static bool test_qp_range2()
-{
+DEFINE_TESTCASE(qp_range2, !backend) {
     using Xapian::RP_REPEATED;
     using Xapian::RP_SUFFIX;
     Xapian::QueryParser qp;
@@ -1560,12 +1528,8 @@ static bool test_qp_range2()
 }
 
 // Test NumberValueRangeProcessors with actual data.
-static bool test_qp_value_range3()
-{
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
-#else
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+DEFINE_TESTCASE(qp_value_range3, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
     double low = -10;
     int steps = 60;
     double step = 0.5;
@@ -1604,16 +1568,11 @@ static bool test_qp_value_range3()
 	}
     }
     return true;
-#endif
 }
 
 // Test NumberRangeProcessors with actual data.
-static bool test_qp_range3()
-{
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
-#else
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+DEFINE_TESTCASE(qp_range3, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
     double low = -10;
     int steps = 60;
     double step = 0.5;
@@ -1652,7 +1611,6 @@ static bool test_qp_range3()
 	}
     }
     return true;
-#endif
 }
 
 static const test test_value_range4_queries[] = {
@@ -1668,8 +1626,7 @@ static const test test_value_range4_queries[] = {
  *
  *  Also test that the same prefix can be set for a valuerange and filter.
  */
-static bool test_qp_value_range4()
-{
+DEFINE_TESTCASE(qp_value_range4, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("id", "Q");
     qp.add_boolean_prefix("hello", "XHELLO");
@@ -1704,8 +1661,7 @@ static bool test_qp_value_range4()
  *
  *  Also test that the same prefix can be set for a range and filter.
  */
-static bool test_qp_range4()
-{
+DEFINE_TESTCASE(qp_range4, !backend) {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("id", "Q");
     qp.add_boolean_prefix("hello", "XHELLO");
@@ -1745,8 +1701,7 @@ static const test test_value_daterange1_queries[] = {
 };
 
 // Test DateValueRangeProcessor
-static bool test_qp_value_daterange1()
-{
+DEFINE_TESTCASE(qp_value_daterange1, !backend) {
     Xapian::QueryParser qp;
     Xapian::DateValueRangeProcessor vrp_date(1, true, 1960);
     qp.add_valuerangeprocessor(&vrp_date);
@@ -1774,8 +1729,7 @@ static bool test_qp_value_daterange1()
 }
 
 // Test DateRangeProcessor
-static bool test_qp_daterange1()
-{
+DEFINE_TESTCASE(qp_daterange1, !backend) {
     Xapian::QueryParser qp;
     Xapian::DateRangeProcessor rp_date(1, Xapian::RP_DATE_PREFER_MDY, 1960);
     qp.add_rangeprocessor(&rp_date);
@@ -1818,8 +1772,7 @@ static const test test_value_daterange2_queries[] = {
 };
 
 // Feature test DateValueRangeProcessor with prefixes (added in 1.1.2).
-static bool test_qp_value_daterange2()
-{
+DEFINE_TESTCASE(qp_value_daterange2, !backend) {
     Xapian::QueryParser qp;
     Xapian::DateValueRangeProcessor vrp_cdate(1, "created:", true, true, 1970);
     Xapian::DateValueRangeProcessor vrp_mdate(2, "modified:", true, true, 1970);
@@ -1856,8 +1809,7 @@ static bool test_qp_value_daterange2()
 }
 
 // Feature test DateRangeProcessor with prefixes (added in 1.1.2).
-static bool test_qp_daterange2()
-{
+DEFINE_TESTCASE(qp_daterange2, !backend) {
     using Xapian::RP_DATE_PREFER_MDY;
     Xapian::QueryParser qp;
     Xapian::DateRangeProcessor rp_cdate(1, "created:", RP_DATE_PREFER_MDY, 1970);
@@ -1901,8 +1853,7 @@ static const test test_value_stringrange1_queries[] = {
 };
 
 // Feature test StringValueRangeProcessor with prefixes (added in 1.1.2).
-static bool test_qp_value_stringrange1()
-{
+DEFINE_TESTCASE(qp_value_stringrange1, !backend) {
     Xapian::QueryParser qp;
     Xapian::StringValueRangeProcessor vrp_default(0);
     Xapian::StringValueRangeProcessor vrp_tag(1, "tag:", true);
@@ -1932,8 +1883,7 @@ static bool test_qp_value_stringrange1()
 }
 
 // Feature test RangeProcessor with prefixes.
-static bool test_qp_stringrange1()
-{
+DEFINE_TESTCASE(qp_stringrange1, !backend) {
     Xapian::QueryParser qp;
     Xapian::RangeProcessor rp_default(0);
     Xapian::RangeProcessor rp_tag(1, "tag:");
@@ -1981,8 +1931,7 @@ struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
 };
 
 // Test custom ValueRangeProcessor subclass.
-static bool test_qp_value_customrange1()
-{
+DEFINE_TESTCASE(qp_value_customrange1, !backend) {
     Xapian::QueryParser qp;
     AuthorValueRangeProcessor vrp_author;
     qp.add_valuerangeprocessor(&vrp_author);
@@ -2021,8 +1970,7 @@ struct AuthorRangeProcessor : public Xapian::RangeProcessor {
 };
 
 // Test custom RangeProcessor subclass.
-static bool test_qp_customrange1()
-{
+DEFINE_TESTCASE(qp_customrange1, !backend) {
     Xapian::QueryParser qp;
     AuthorRangeProcessor rp_author;
     qp.add_rangeprocessor(&rp_author);
@@ -2078,8 +2026,7 @@ static const test test_fieldproc1_queries[] = {
 };
 
 // FieldProcessor test.
-static bool test_qp_fieldproc1()
-{
+DEFINE_TESTCASE(qp_fieldproc1, !backend) {
     Xapian::QueryParser qp;
     TitleFieldProcessor title_fproc;
     HostFieldProcessor host_fproc;
@@ -2135,8 +2082,7 @@ static const test test_fieldproc2_queries[] = {
 };
 
 // Test using FieldProcessor and ValueRangeProcessor together.
-static bool test_qp_fieldproc2()
-{
+DEFINE_TESTCASE(qp_fieldproc2, !backend) {
     Xapian::QueryParser qp;
     DateRangeFieldProcessor date_fproc;
     qp.add_boolean_prefix("date", &date_fproc);
@@ -2166,8 +2112,7 @@ static bool test_qp_fieldproc2()
 }
 
 // Test using FieldProcessor and RangeProcessor together.
-static bool test_qp_fieldproc3()
-{
+DEFINE_TESTCASE(qp_fieldproc3, !backend) {
     Xapian::QueryParser qp;
     DateRangeFieldProcessor date_fproc;
     qp.add_boolean_prefix("date", &date_fproc);
@@ -2196,8 +2141,7 @@ static bool test_qp_fieldproc3()
     return true;
 }
 
-static bool test_qp_stoplist1()
-{
+DEFINE_TESTCASE(qp_stoplist1, !backend) {
     Xapian::QueryParser qp;
     const char * stopwords[] = { "a", "an", "the" };
     Xapian::SimpleStopper stop(stopwords, stopwords + 3);
@@ -2245,11 +2189,8 @@ static const test test_mispelled_queries[] = {
 };
 
 // Test spelling correction in the QueryParser.
-static bool test_qp_spell1()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_spell1";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(qp_spell1, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::Document doc;
     doc.add_term("document", 6);
@@ -2281,18 +2222,15 @@ static bool test_qp_spell1()
 }
 
 // Test spelling correction in the QueryParser with multiple databases.
-static bool test_qp_spell2()
+DEFINE_TESTCASE(qp_spell2, spelling)
 {
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_spell2";
-    Xapian::WritableDatabase db1(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+    Xapian::WritableDatabase db1 = get_writable_database();
 
     db1.add_spelling("document");
     db1.add_spelling("search");
     db1.commit();
 
-    dbdir = ".chert/qp_spell2b";
-    Xapian::WritableDatabase db2(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+    Xapian::WritableDatabase db2 = get_named_writable_database("qp_spell2a");
 
     db2.add_spelling("document");
     db2.add_spelling("paragraph");
@@ -2328,11 +2266,8 @@ static const test test_mispelled_wildcard_queries[] = {
 
 // Test spelling correction in the QueryParser with wildcards.
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
-static bool test_qp_spellwild1()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_spellwild1";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(qp_spellwild1, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_spelling("document");
     db.add_spelling("search");
@@ -2377,11 +2312,8 @@ static const test test_mispelled_partial_queries[] = {
 
 // Test spelling correction in the QueryParser with FLAG_PARTIAL.
 // Regression test for bug fixed in 1.1.3 and 1.0.17.
-static bool test_qp_spellpartial1()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_spellpartial1";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(qp_spellpartial1, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_spelling("document");
     db.add_spelling("search");
@@ -2424,11 +2356,8 @@ static const test test_synonym_queries[] = {
 };
 
 // Test single term synonyms in the QueryParser.
-static bool test_qp_synonym1()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_synonym1";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(qp_synonym1, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("Zsearch", "Zfind");
     db.add_synonym("Zsearch", "Zlocate");
@@ -2467,11 +2396,8 @@ static const test test_multi_synonym_queries[] = {
 };
 
 // Test multi term synonyms in the QueryParser.
-static bool test_qp_synonym2()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_synonym2";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(qp_synonym2, synonyms) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("sun tan cream", "lotion");
     db.add_synonym("sun tan", "bathe");
@@ -2519,11 +2445,8 @@ static const test test_synonym_op_queries[] = {
 };
 
 // Test the synonym operator in the QueryParser.
-static bool test_qp_synonym3()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_synonym3";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(qp_synonym3, synonyms) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("Zsearch", "Zfind");
     db.add_synonym("Zsearch", "Zlocate");
@@ -2564,8 +2487,7 @@ static const test test_stem_all_queries[] = {
     { NULL, NULL }
 };
 
-static bool test_qp_stem_all1()
-{
+DEFINE_TESTCASE(qp_stem_all1, !backend) {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(qp.STEM_ALL);
@@ -2601,8 +2523,7 @@ static const test test_stem_all_z_queries[] = {
     { NULL, NULL }
 };
 
-static bool test_qp_stem_all_z1()
-{
+DEFINE_TESTCASE(qp_stem_all_z1, !backend) {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
     qp.set_stemming_strategy(qp.STEM_ALL_Z);
@@ -2684,11 +2605,8 @@ qp_scale1_helper(const Xapian::Database &db, const string & q, unsigned n,
 
 // Regression test: check that query parser doesn't scale very badly with the
 // size of the query.
-static bool test_qp_scale1()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/qp_scale1";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(qp_scale1, synonyms) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     db.add_synonym("foo", "bar");
     db.commit();
@@ -2759,8 +2677,7 @@ static const test test_near_queries[] = {
     { NULL, NULL }
 };
 
-static bool test_qp_near1()
-{
+DEFINE_TESTCASE(qp_near1, !backend) {
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -2836,8 +2753,7 @@ static const test test_phrase_queries[] = {
     { NULL, NULL }
 };
 
-static bool test_qp_phrase1()
-{
+DEFINE_TESTCASE(qp_phrase1, !backend) {
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
@@ -2903,12 +2819,8 @@ static const test test_stopword_group_and_queries[] = {
 };
 
 // Regression test for bug fixed in 1.0.17 and 1.1.3.
-static bool test_qp_stopword_group1()
-{
-#ifndef XAPIAN_HAS_INMEMORY_BACKEND
-    SKIP_TEST("Testcase requires the InMemory backend which is disabled");
-#else
-    Xapian::WritableDatabase db(string(), Xapian::DB_BACKEND_INMEMORY);
+DEFINE_TESTCASE(qp_stopword_group1, writable) {
+    Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("test");
     doc.add_term("tester");
@@ -2955,12 +2867,10 @@ static bool test_qp_stopword_group1()
     }
 
     return true;
-#endif
 }
 
 /// Check that QueryParser::set_default_op() rejects inappropriate ops.
-static bool test_qp_default_op2()
-{
+DEFINE_TESTCASE(qp_default_op2, !backend) {
     Xapian::QueryParser qp;
     static const Xapian::Query::op ops[] = {
 	Xapian::Query::OP_AND_NOT,
@@ -2988,8 +2898,7 @@ struct qp_default_op3_test {
 };
 
 /// Check that QueryParser::set_default_op() accepts appropriate ops.
-static bool test_qp_default_op3()
-{
+DEFINE_TESTCASE(qp_default_op3, !backend) {
     Xapian::QueryParser qp;
     static const qp_default_op3_test tests[] = {
 	{ Xapian::Query::OP_AND,
@@ -3017,73 +2926,9 @@ static bool test_qp_default_op3()
 }
 
 /// Test that the default strategy is now STEM_SOME (as of 1.3.1).
-static bool test_qp_defaultstrategysome1()
-{
+DEFINE_TESTCASE(qp_defaultstrategysome1, !backend) {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("en"));
     TEST_EQUAL(qp.parse_query("testing").get_description(), "Query(Ztest@1)");
     return true;
-}
-
-/// Test cases for the QueryParser.
-static const test_desc tests[] = {
-    TESTCASE(queryparser1),
-    TESTCASE(qp_default_op1),
-    TESTCASE(qp_odd_chars1),
-    TESTCASE(qp_flag_wildcard1),
-    TESTCASE(qp_flag_wildcard2),
-    TESTCASE(qp_flag_wildcard3),
-    TESTCASE(qp_flag_partial1),
-    TESTCASE(qp_flag_bool_any_case1),
-    TESTCASE(qp_stopper1),
-    TESTCASE(qp_flag_pure_not1),
-    TESTCASE(qp_unstem_boolean_prefix),
-    TESTCASE(qp_default_prefix1),
-    TESTCASE(qp_default_prefix2),
-    TESTCASE(qp_range1),
-    TESTCASE(qp_range2),
-    TESTCASE(qp_range3),
-    TESTCASE(qp_range4),
-    TESTCASE(qp_daterange1),
-    TESTCASE(qp_daterange2),
-    TESTCASE(qp_stringrange1),
-    TESTCASE(qp_customrange1),
-    TESTCASE(qp_value_range1),
-    TESTCASE(qp_value_range2),
-    TESTCASE(qp_value_range3),
-    TESTCASE(qp_value_range4),
-    TESTCASE(qp_value_daterange1),
-    TESTCASE(qp_value_daterange2),
-    TESTCASE(qp_value_stringrange1),
-    TESTCASE(qp_value_customrange1),
-    TESTCASE(qp_fieldproc1),
-    TESTCASE(qp_fieldproc2),
-    TESTCASE(qp_fieldproc3),
-    TESTCASE(qp_stoplist1),
-    TESTCASE(qp_spell1),
-    TESTCASE(qp_spell2),
-    TESTCASE(qp_spellwild1),
-    TESTCASE(qp_spellpartial1),
-    TESTCASE(qp_synonym1),
-    TESTCASE(qp_synonym2),
-    TESTCASE(qp_synonym3),
-    TESTCASE(qp_stem_all1),
-    TESTCASE(qp_stem_all_z1),
-    TESTCASE(qp_scale1),
-    TESTCASE(qp_near1),
-    TESTCASE(qp_phrase1),
-    TESTCASE(qp_stopword_group1),
-    TESTCASE(qp_default_op2),
-    TESTCASE(qp_default_op3),
-    TESTCASE(qp_defaultstrategysome1),
-    END_OF_TESTCASES
-};
-
-int main(int argc, char **argv)
-try {
-    test_driver::parse_command_line(argc, argv);
-    return test_driver::run(tests);
-} catch (const char * e) {
-    cout << e << endl;
-    return 1;
 }
