@@ -72,6 +72,7 @@ DatabaseMaster::write_changesets_to_fd(int fd,
 				       ReplicationInfo * info) const
 {
     LOGCALL_VOID(REPLICA, "DatabaseMaster::write_changesets_to_fd", fd | start_revision | info);
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (info != NULL)
 	info->clear();
     Database db;
@@ -108,6 +109,12 @@ DatabaseMaster::write_changesets_to_fd(int fd,
     }
 
     db.internal[0]->write_changesets_to_fd(fd, revision, need_whole_db, info);
+#else
+    (void)fd;
+    (void)start_revision;
+    (void)info;
+    throw Xapian::FeatureUnavailableError("Replication requires remote backend to be enabled");
+#endif
 }
 
 string
@@ -303,8 +310,8 @@ DatabaseReplica::Internal::Internal(const string & path_)
 	  last_live_changeset_time(), conn(NULL)
 {
     LOGCALL_CTOR(REPLICA, "DatabaseReplica::Internal", path_);
-#if !defined XAPIAN_HAS_CHERT_BACKEND && !defined XAPIAN_HAS_GLASS_BACKEND
-    throw FeatureUnavailableError("Replication requires at least one of the chert or glass backends to be enabled");
+#if !defined XAPIAN_HAS_REMOTE_BACKEND || (!defined XAPIAN_HAS_CHERT_BACKEND && !defined XAPIAN_HAS_GLASS_BACKEND)
+    throw FeatureUnavailableError("Replication requires the remote backend and at least one of the chert or glass backends to be enabled");
 #else
     if (mkdir(path.c_str(), 0777) == 0) {
 	// The database doesn't already exist - make a directory, containing a
@@ -351,6 +358,7 @@ string
 DatabaseReplica::Internal::get_revision_info() const
 {
     LOGCALL(REPLICA, string, "DatabaseReplica::Internal::get_revision_info", NO_ARGS);
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (live_db.internal.empty())
 	live_db = WritableDatabase(get_replica_path(live_id), Xapian::DB_OPEN);
     if (live_db.internal.size() != 1)
@@ -363,19 +371,27 @@ DatabaseReplica::Internal::get_revision_info() const
     buf += uuid;
     buf += (live_db.internal[0])->get_revision_info();
     RETURN(buf);
+#else
+    throw Xapian::FeatureUnavailableError("Replication requires remote backend to be enabled");
+#endif
 }
 
 void
 DatabaseReplica::Internal::remove_offline_db()
 {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     // Delete the offline database.
     removedir(get_replica_path(live_id ^ 1));
     have_offline_db = false;
+#else
+    throw Xapian::FeatureUnavailableError("Replication requires remote backend to be enabled");
+#endif
 }
 
 void
 DatabaseReplica::Internal::apply_db_copy(double end_time)
 {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     have_offline_db = true;
     last_live_changeset_time = 0;
     string offline_path = get_replica_path(live_id ^ 1);
@@ -433,11 +449,16 @@ DatabaseReplica::Internal::apply_db_copy(double end_time)
     int type = conn->get_message(offline_needed_revision, end_time);
     check_message_type(type, REPL_REPLY_DB_FOOTER);
     need_copy_next = false;
+#else
+    (void)end_time;
+    throw Xapian::FeatureUnavailableError("Replication requires remote backend to be enabled");
+#endif
 }
 
 void
 DatabaseReplica::Internal::check_message_type(int type, int expected) const
 {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     if (type != expected) {
 	if (type < 0)
 	    throw_connection_closed_unexpectedly();
@@ -447,11 +468,17 @@ DatabaseReplica::Internal::check_message_type(int type, int expected) const
 	m += str(type);
 	throw NetworkError(m);
     }
+#else
+    (void)type;
+    (void)expected;
+    throw Xapian::FeatureUnavailableError("Replication requires remote backend to be enabled");
+#endif
 }
 
 bool
 DatabaseReplica::Internal::possibly_make_offline_live()
 {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     string replica_path(get_replica_path(live_id ^ 1));
     AutoPtr<DatabaseReplicator> replicator;
     try {
@@ -483,14 +510,22 @@ DatabaseReplica::Internal::possibly_make_offline_live()
     update_stub_database();
     remove_offline_db();
     return true;
+#else
+    return false;
+#endif
 }
 
 void
 DatabaseReplica::Internal::set_read_fd(int fd)
 {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     delete conn;
     conn = NULL;
     conn = new RemoteConnection(fd, -1);
+#else
+    (void)fd;
+    throw Xapian::FeatureUnavailableError("Replication requires remote backend to be enabled");
+#endif
 }
 
 bool
@@ -498,6 +533,7 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 						double reader_close_time)
 {
     LOGCALL(REPLICA, bool, "DatabaseReplica::Internal::apply_next_changeset", info | reader_close_time);
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
     while (true) {
 	int type = conn->sniff_next_message_type(0.0);
 	switch (type) {
@@ -607,4 +643,9 @@ DatabaseReplica::Internal::apply_next_changeset(ReplicationInfo * info,
 				   + str(type) + ")");
 	}
     }
+#else
+    (void)info;
+    (void)reader_close_time;
+    throw Xapian::FeatureUnavailableError("Replication requires remote backend to be enabled");
+#endif
 }

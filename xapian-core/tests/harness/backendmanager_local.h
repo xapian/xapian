@@ -31,7 +31,9 @@
 # define BackendManagerLocal BackendManagerChert
 #else
 # include "backendmanager.h"
+# include "testsuite.h"
 class BackendManagerLocal : public BackendManager {
+  public:
     BackendManagerLocal() {
 	SKIP_TEST("No local database backend enabled");
     }

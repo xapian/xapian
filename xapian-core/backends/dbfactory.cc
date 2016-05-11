@@ -342,9 +342,13 @@ Database::Database(const string &path, int flags)
 	// Could be a stub database file, or a single file glass database.
 	int fd;
 	if (check_if_single_file_db(statbuf, path, &fd)) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
 	    // Single file glass format.
 	    internal.push_back(new GlassDatabase(fd));
 	    return;
+#else
+	    throw FeatureUnavailableError("Glass backend disabled");
+#endif
 	}
 
 	open_stub(*this, path);

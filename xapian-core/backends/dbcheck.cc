@@ -23,6 +23,7 @@
 #include <config.h>
 #include "xapian/database.h"
 
+#include "xapian/constants.h"
 #include "xapian/error.h"
 
 #ifdef XAPIAN_HAS_GLASS_BACKEND
@@ -39,6 +40,7 @@
 #endif
 
 #include "filetests.h"
+#include "omassert.h"
 #include "posixy_wrapper.h"
 #include "stringutils.h"
 
@@ -333,7 +335,13 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 	tablename += C_tolower(filename[p++]);
     }
 
+#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_GLASS_BACKEND
     vector<Xapian::termcount> doclens;
+#else
+    (void)opts;
+    (void)out;
+#endif
+
     if (backend == GLASS) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
 	throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
@@ -374,6 +382,8 @@ static size_t
 check_db_fd(int fd, int opts, std::ostream *out)
 {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
+    (void)opts;
+    (void)out;
     ::close(fd);
     throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else

@@ -380,8 +380,14 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	}
     }
 
+#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_GLASS_BACKEND
     Xapian::Compactor::compaction_level compaction =
 	static_cast<Xapian::Compactor::compaction_level>(flags & (Xapian::Compactor::STANDARD|Xapian::Compactor::FULL|Xapian::Compactor::FULLER));
+#else
+    (void)compactor;
+    (void)block_size;
+#endif
+
     if (backend == BACKEND_CHERT) {
 #ifdef XAPIAN_HAS_CHERT_BACKEND
 	ChertDatabase::compact(compactor, destdir.c_str(), internals, offset,
@@ -393,7 +399,6 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// UUID since its revision counter is reset to 1.
 	ChertVersion(destdir).create();
 #else
-	(void)compactor;
 	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
 #endif
     } else if (backend == BACKEND_GLASS) {
@@ -408,7 +413,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 				   block_size, compaction, flags, last_docid);
 	}
 #else
-	(void)compactor;
+	(void)fd;
 	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");
 #endif
     }
