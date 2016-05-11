@@ -90,7 +90,8 @@ Options to give to configure
 	These options enable (or disable if --disable-backend-XXX is specified)
 	the compiling of each backend (database access methods).  By default,
 	all backends for which the appropriate libraries and OS support are
-	available will be enabled.
+	available will be enabled.  Note: Currently disabling the remote
+	backend also disables replication (because the network code is shared).
 
 _FORTIFY_SOURCE
 ---------------
