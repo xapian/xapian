@@ -1,6 +1,7 @@
-/* termgentest.cc: Tests of Xapian::TermGenerator
- *
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015 Olly Betts
+/** @file api_termgen.cc
+ * @brief Tests of Xapian::TermGenerator
+ */
+/* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -21,16 +22,16 @@
 
 #include <config.h>
 
+#include "api_termgen.h"
+
 #include <xapian.h>
 
-#include <iostream>
 #include <string>
 
+#include "apitest.h"
 #include "str.h"
 #include "testsuite.h"
 #include "testutils.h"
-
-#include "safesysstat.h" // For mkdir().
 
 using namespace std;
 
@@ -668,7 +669,7 @@ format_doc_termlist(const Xapian::Document & doc)
 	    // If we've got a position list, only display the wdf if it's not
 	    // the length of the positionlist.
 	    if (it.get_wdf() != it.positionlist_count()) {
-	        output += ':';
+		output += ':';
 		output += str(it.get_wdf());
 	    }
 	    char ch = '[';
@@ -688,8 +689,7 @@ format_doc_termlist(const Xapian::Document & doc)
     return output;
 }
 
-static bool test_termgen1()
-{
+DEFINE_TESTCASE(termgen1, !backend) {
     Xapian::TermGenerator termgen;
     Xapian::Document doc;
     termgen.set_document(doc);
@@ -784,11 +784,8 @@ static bool test_termgen1()
 }
 
 /// Test spelling data generation.
-static bool test_tg_spell1()
-{
-    mkdir(".chert", 0755);
-    string dbdir = ".chert/tg_spell1";
-    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+DEFINE_TESTCASE(tg_spell1, spelling) {
+    Xapian::WritableDatabase db = get_writable_database();
 
     Xapian::TermGenerator termgen;
     Xapian::Document doc;
@@ -812,8 +809,7 @@ static bool test_tg_spell1()
 }
 
 /// Regression test for bug fixed in 1.0.5 - previously this segfaulted.
-static bool test_tg_spell2()
-{
+DEFINE_TESTCASE(tg_spell2, !backend) {
     Xapian::TermGenerator termgen;
     Xapian::Document doc;
 
@@ -825,8 +821,7 @@ static bool test_tg_spell2()
     return true;
 }
 
-static bool test_tg_max_word_length1()
-{
+DEFINE_TESTCASE(tg_max_word_length1, !backend) {
     Xapian::TermGenerator termgen;
     termgen.set_stemmer(Xapian::Stem("en"));
     termgen.set_max_word_length(4);
@@ -840,22 +835,4 @@ static bool test_tg_max_word_length1()
 		       "Zcup:1 Zmug:1 cups[1] mugs[2]");
 
     return true;
-}
-
-/// Test cases for the TermGenerator.
-static const test_desc tests[] = {
-    TESTCASE(termgen1),
-    TESTCASE(tg_spell1),
-    TESTCASE(tg_spell2),
-    TESTCASE(tg_max_word_length1),
-    END_OF_TESTCASES
-};
-
-int main(int argc, char **argv)
-try {
-    test_driver::parse_command_line(argc, argv);
-    return test_driver::run(tests);
-} catch (const char * e) {
-    cout << e << endl;
-    return 1;
 }
