@@ -29,7 +29,7 @@ MIRROR=http://ftp.nz.debian.org/debian/
 
 # Can't backport direct to squeeze from stretch
 DEBIAN_CODENAMES='jessie wheezy'
-UBUNTU_CODENAMES='wily trusty precise'
+UBUNTU_CODENAMES='xenial wily trusty precise'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
