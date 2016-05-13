@@ -400,8 +400,19 @@ esac
 dnl We use timer_create() if available to implement a search time limit.
 SAVE_LIBS=$LIBS
 AC_SEARCH_LIBS([timer_create], [rt],
-    [XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"
-    AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])])
+	       [
+    AC_MSG_CHECKING([for timer_create() usability])
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+[[#if defined _AIX || defined __GNU__
+#error timer_create known not to work
+#endif]])],
+	[AC_MSG_RESULT([yes])
+	XAPIAN_LIBS="$LIBS $XAPIAN_LIBS"
+	AC_DEFINE([HAVE_TIMER_CREATE], [1], [Define to 1 if you have the 'timer_create' function.])]
+	,
+	[AC_MSG_RESULT([no])
+    ])
+])
 LIBS=$SAVE_LIBS
 
 dnl Used by tests/soaktest/soaktest.cc

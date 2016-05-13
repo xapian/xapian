@@ -643,9 +643,6 @@ DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
 #ifndef HAVE_TIMER_CREATE
     SKIP_TEST("Enquire::set_time_limit() not implemented for this platform");
 #endif
-#ifdef _AIX
-    SKIP_TEST("timer_create() always seems to fail on AIX");
-#endif
     Xapian::Database db = get_database("matchtimelimit1",
 				       make_matchtimelimit1_db);
 
