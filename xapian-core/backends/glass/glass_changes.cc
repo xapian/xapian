@@ -245,7 +245,8 @@ GlassChanges::check(const string & changes_file)
 	    throw Xapian::DatabaseError("Changes file - bad block number");
 	uint4 block_rev = getint4(reinterpret_cast<const unsigned char *>(p), 0);
 	(void)block_rev; // FIXME: Sanity check value.
-	unsigned level = (unsigned char)p[4];
+	p += 4;
+	unsigned level = (unsigned char)*p++;
 	(void)level; // FIXME: Sanity check value.
 	if (block_size <= unsigned(end - p)) {
 	    p += block_size;
