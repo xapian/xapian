@@ -1,7 +1,7 @@
 /** @file glass_freelist.cc
  * @brief Glass freelist
  */
-/* Copyright 2014,2015 Olly Betts
+/* Copyright 2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,7 @@
 #include <cstring>
 
 using namespace std;
+using namespace Glass;
 
 // Allow forcing the freelist to be shorter to tickle bugs.
 // FIXME: Sort out a way we can set this dynamically while running the

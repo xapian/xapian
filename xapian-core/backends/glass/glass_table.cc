@@ -577,7 +577,7 @@ GlassTable::compact(byte * p)
 	    int l = item.size();
 	    e -= l;
 	    memcpy(b + e, item.get_address(), l);
-	    setD(p, c, e);  /* reform in b */
+	    LeafItem_wr::setD(p, c, e);  /* reform in b */
 	}
     } else {
 	// Branch.
@@ -586,7 +586,7 @@ GlassTable::compact(byte * p)
 	    int l = item.size();
 	    e -= l;
 	    memcpy(b + e, item.get_address(), l);
-	    setD(p, c, e);  /* reform in b */
+	    BItem_wr::setD(p, c, e);  /* reform in b */
 	}
     }
     memcpy(p + e, b + e, block_size - e);  /* copy back */
@@ -790,7 +790,7 @@ GlassTable::add_item_to_leaf(byte * p, LeafItem kt_, int c)
     SET_DIR_END(p, dir_end);
 
     int o = dir_end + new_max;
-    setD(p, c, o);
+    LeafItem_wr::setD(p, c, o);
     memmove(p + o, kt_.get_address(), kt_len);
 
     SET_MAX_FREE(p, new_max);
@@ -830,7 +830,7 @@ GlassTable::add_item_to_branch(byte * p, BItem kt_, int c)
     SET_DIR_END(p, dir_end);
 
     int o = dir_end + new_max;
-    setD(p, c, o);
+    BItem_wr::setD(p, c, o);
     memmove(p + o, kt_.get_address(), kt_len);
 
     SET_MAX_FREE(p, new_max);
@@ -1185,7 +1185,7 @@ GlassTable::add_kt(bool found)
 	    if (new_max >= 0) {
 		int o = DIR_END(p) + new_max;
 		memmove(p + o, kt.get_address(), kt_size);
-		setD(p, c, o);
+		LeafItem_wr::setD(p, c, o);
 		SET_MAX_FREE(p, new_max);
 		SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
 	    } else {
@@ -1623,7 +1623,7 @@ GlassTable::read_root()
 	int o = block_size - I2 - K1;
 	LeafItem_wr(p + o).fake_root_item();
 
-	setD(p, DIR_START, o);         // its directory entry
+	LeafItem_wr::setD(p, DIR_START, o);         // its directory entry
 	SET_DIR_END(p, DIR_START + D2);// the directory size
 
 	o -= (DIR_START + D2);

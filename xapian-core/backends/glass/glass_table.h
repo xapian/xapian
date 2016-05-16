@@ -43,9 +43,11 @@
 #include <algorithm>
 #include <string>
 
+namespace Glass {
+
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
-#define BLOCK_CAPACITY 4
+const int BLOCK_CAPACITY = 4;
 
 /** The largest possible value of a key_len.
  *
@@ -55,7 +57,7 @@
 #define GLASS_BTREE_MAX_KEY_LEN 255
 
 // FIXME: This named constant probably isn't used everywhere it should be...
-#define BYTES_PER_BLOCK_NUMBER 4
+const int BYTES_PER_BLOCK_NUMBER = 4;
 
 /*  The B-tree blocks have a number of internal lengths and offsets held in 1, 2
     or 4 bytes. To make the coding a little clearer,
@@ -67,10 +69,10 @@
        X2      the 2 byte component counter that ends each key
 */
 
-#define K1 1
-#define I2 2
-#define D2 2
-#define X2 2
+const int K1 = 1;
+const int I2 = 2;
+const int D2 = 2;
+const int X2 = 2;
 
 /*  and when getting or setting them, we use these methods of the various
  *  *Item* classes: */
@@ -78,13 +80,11 @@
 // getK(p, c)
 // setK(p, c, x)
 // getD(p, c)
+// setD(p, c, x)
 // getI(p, c)
 // setI(p, c, x)
 // getX(p, c)
 // setX(p, c, x)
-
-// Used in other code:
-#define setD(p, c, x) setint2(p, c, x)
 
 /* if you've been reading the comments from the top, the next four procedures
    will not cause any headaches.
@@ -109,35 +109,33 @@
    last_component(p, c) returns true if this is a final component.
 */
 
-#define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
-#define GET_LEVEL(b)     getint1(b, 4)
-#define MAX_FREE(b)      getint2(b, 5)
-#define TOTAL_FREE(b)    getint2(b, 7)
-#define DIR_END(b)       getint2(b, 9)
-#define DIR_START        11
+inline uint4 REVISION(const byte * b) { return getint4(b, 0); }
+inline int GET_LEVEL(const byte * b) { return getint1(b, 4); }
+inline int MAX_FREE(const byte * b) { return getint2(b, 5); }
+inline int TOTAL_FREE(const byte * b) { return getint2(b, 7); }
+inline int DIR_END(const byte * b) { return getint2(b, 9); }
+const int DIR_START = 11;
 
-#define SET_REVISION(b, x)      setint4(b, 0, x)
-#define SET_LEVEL(b, x)         setint1(b, 4, x)
-#define SET_MAX_FREE(b, x)      setint2(b, 5, x)
-#define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
-#define SET_DIR_END(b, x)       setint2(b, 9, x)
+inline void SET_REVISION(byte * b, uint4 rev) { setint4(b, 0, rev); }
+inline void SET_LEVEL(byte * b, int x) { setint1(b, 4, x); }
+inline void SET_MAX_FREE(byte * b, int x) { setint2(b, 5, x); }
+inline void SET_TOTAL_FREE(byte * b, int x) { setint2(b, 7, x); }
+inline void SET_DIR_END(byte * b, int x) { setint2(b, 9, x); }
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag for
 // "is the tag data compressed" and the next two bits are used to flag if this is the
 // first and/or last item for this tag.
-#define I_COMPRESSED_BIT 0x80
-#define I_LAST_BIT 0x40
-#define I_FIRST_BIT 0x20
+const int I_COMPRESSED_BIT = 0x80;
+const int I_LAST_BIT = 0x40;
+const int I_FIRST_BIT = 0x20;
 
-#define I_MASK (I_COMPRESSED_BIT|I_LAST_BIT|I_FIRST_BIT)
+const int I_MASK = (I_COMPRESSED_BIT|I_LAST_BIT|I_FIRST_BIT);
 
-#define ITEM_SIZE_MASK (0xffff &~ (I_MASK << 8))
-#define GLASS_MAX_ITEM_SIZE (ITEM_SIZE_MASK + 3)
+const int ITEM_SIZE_MASK = (0xffff &~ (I_MASK << 8));
+const int MAX_ITEM_SIZE = (ITEM_SIZE_MASK + 3);
 
 /** Freelist blocks have their level set to LEVEL_FREELIST. */
 const int LEVEL_FREELIST = 254;
-
-namespace Glass {
 
 class RootInfo;
 
@@ -269,6 +267,7 @@ public:
 	*p |= I_FIRST_BIT|I_LAST_BIT;
     }
     operator const LeafItem() const { return LeafItem(p); }
+    static void setD(byte * q, int c, int x) { setint2(q, c, x); }
 };
 
 /* A branch item has this form:
@@ -368,16 +367,17 @@ public:
 	set_component_of(0);
     }
     operator const BItem() const { return BItem(p); }
+    static void setD(byte * q, int c, int x) { setint2(q, c, x); }
 };
-
-}
-
-using Glass::RootInfo;
 
 // Allow for BTREE_CURSOR_LEVELS levels in the B-tree.
 // With 10, overflow is practically impossible
 // FIXME: but we want it to be completely impossible...
-#define BTREE_CURSOR_LEVELS 10
+const int BTREE_CURSOR_LEVELS = 10;
+
+}
+
+using Glass::RootInfo;
 
 class GlassChanges;
 
@@ -676,12 +676,15 @@ class GlassTable {
 	 *  The default is BLOCK_CAPACITY (which is currently 4).
 	 */
 	void set_max_item_size(size_t block_capacity) {
-	    if (block_capacity > BLOCK_CAPACITY) block_capacity = BLOCK_CAPACITY;
+	    if (block_capacity > Glass::BLOCK_CAPACITY)
+		block_capacity = Glass::BLOCK_CAPACITY;
+	    using Glass::DIR_START;
+	    using Glass::D2;
 	    max_item_size = (block_size - DIR_START - block_capacity * D2)
 		/ block_capacity;
 	    // Make sure we don't exceed the limit imposed by the format.
-	    if (max_item_size > GLASS_MAX_ITEM_SIZE)
-		max_item_size = GLASS_MAX_ITEM_SIZE;
+	    if (max_item_size > Glass::MAX_ITEM_SIZE)
+		max_item_size = Glass::MAX_ITEM_SIZE;
 	}
 
 	/** Set the GlassChanges object to write changed blocks to.
@@ -849,7 +852,7 @@ class GlassTable {
 	 */
 	static uint4 block_given_by(const byte * p, int c);
 
-	mutable Glass::Cursor C[BTREE_CURSOR_LEVELS];
+	mutable Glass::Cursor C[Glass::BTREE_CURSOR_LEVELS];
 
 	/** Buffer used when splitting a block.
 	 *
