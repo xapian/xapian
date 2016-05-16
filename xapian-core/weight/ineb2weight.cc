@@ -71,7 +71,7 @@ IneB2Weight::init(double factor)
 
     double mean = F / N;
 
-    double expected_max = N * (1.0 - exp( - mean));
+    double expected_max = N * (1.0 - exp(-mean));
 
     double idf_max = log2((N + 1.0) / (expected_max + 0.5));
 
