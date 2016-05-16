@@ -26,7 +26,6 @@
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
-#include "unaligned.h"
 
 #include "xapian/error.h"
 
