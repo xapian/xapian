@@ -689,7 +689,7 @@ class GlassTable {
 
 	/** Set the GlassChanges object to write changed blocks to.
 	 *
-	 *  The GlassChanges object remainsis not owned by the table, so it
+	 *  The GlassChanges object is not owned by the table, so the table
 	 *  must not delete it.
 	 */
 	void set_changes(GlassChanges * changes) {
