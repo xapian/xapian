@@ -60,7 +60,7 @@
 #include "debuglog.h"
 #include "pack.h"
 #include "str.h"
-#include "unaligned.h"
+#include "wordaccess.h"
 
 #include <algorithm>  // for std::min()
 #include <string>
@@ -1263,7 +1263,7 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 	if (err == Z_BUF_ERROR && inflate_zstream->avail_in == 0) {
 	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << inflate_zstream->adler);
 	    Bytef header2[4];
-	    setint4(header2, 0, inflate_zstream->adler);
+	    aligned_write4(header2, inflate_zstream->adler);
 	    inflate_zstream->next_in = header2;
 	    inflate_zstream->avail_in = 4;
 	    err = inflate(inflate_zstream, Z_SYNC_FLUSH);

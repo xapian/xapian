@@ -43,7 +43,7 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h\
 	common/submatch.h\
-	common/unaligned.h
+	common/wordaccess.h
 
 EXTRA_DIST +=\
 	common/win32_uuid.cc\

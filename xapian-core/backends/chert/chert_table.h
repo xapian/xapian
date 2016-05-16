@@ -2,7 +2,7 @@
  * @brief Btree implementation
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,12 +34,62 @@
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
-#include "unaligned.h"
+#include "wordaccess.h"
 
 #include <algorithm>
 #include <string>
 
 #include <zlib.h>
+
+// FIXME: 65536 in Asserts below is the max chert block size.  We should
+// abstract this out, and use the current block_size to catch overruns better.
+inline int
+getint1(const unsigned char *p, int c)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536);
+    return p[c];
+}
+
+inline void
+setint1(unsigned char *p, int c, int x)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536);
+    p[c] = x;
+}
+
+inline int
+getint2(const unsigned char *p, int c)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 1);
+    return unaligned_read2(p + c);
+}
+
+inline void
+setint2(unsigned char *p, int c, int x)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 1);
+    unaligned_write2(p + c, uint16_t(x));
+}
+
+inline int
+getint4(const unsigned char *p, int c)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 3);
+    return unaligned_read4(p + c);
+}
+
+inline void
+setint4(unsigned char *p, int c, int x)
+{
+    AssertRel(c, >=, 0);
+    AssertRel(c, <, 65536 - 3);
+    unaligned_write4(p + c, uint32_t(x));
+}
 
 const int DONT_COMPRESS = -1;
 
@@ -97,14 +147,14 @@ inline void setD(unsigned char *p, int c, int x) { setint2(p, c, x); }
    components_of(p, c) returns the number marked 'C' above,
 */
 
-inline unsigned REVISION(const byte * b) { return getint4(b, 0); }
+inline unsigned REVISION(const byte * b) { return aligned_read4(b); }
 inline int GET_LEVEL(const byte * b) { return getint1(b, 4); }
 inline int MAX_FREE(const byte * b) { return getint2(b, 5); }
 inline int TOTAL_FREE(const byte * b) { return getint2(b, 7); }
 inline int DIR_END(const byte * b) { return getint2(b, 9); }
 const int DIR_START = 11;
 
-inline void SET_REVISION(byte * b, uint4 rev) { setint4(b, 0, rev); }
+inline void SET_REVISION(byte * b, uint4 rev) { aligned_write4(b, rev); }
 inline void SET_LEVEL(byte * b, int x) { setint1(b, 4, x); }
 inline void SET_MAX_FREE(byte * b, int x) { setint2(b, 5, x); }
 inline void SET_TOTAL_FREE(byte * b, int x) { setint2(b, 7, x); }

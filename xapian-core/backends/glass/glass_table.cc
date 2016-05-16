@@ -50,7 +50,7 @@
 #include "filetests.h"
 #include "io_utils.h"
 #include "pack.h"
-#include "unaligned.h"
+#include "wordaccess.h"
 
 #include <algorithm>  // for std::min()
 #include <string>

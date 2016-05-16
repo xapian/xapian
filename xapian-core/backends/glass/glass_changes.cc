@@ -30,7 +30,7 @@
 #include "posixy_wrapper.h"
 #include "str.h"
 #include "stringutils.h"
-#include "unaligned.h"
+#include "wordaccess.h"
 #include "xapian/constants.h"
 #include "xapian/error.h"
 
@@ -243,7 +243,9 @@ GlassChanges::check(const string & changes_file)
 	uint4 block_number;
 	if (!unpack_uint(&p, end, &block_number))
 	    throw Xapian::DatabaseError("Changes file - bad block number");
-	uint4 block_rev = getint4(reinterpret_cast<const unsigned char *>(p), 0);
+	// Although the revision number is aligned within the block, the block
+	// data may not be aligned to a word boundary here.
+	uint4 block_rev = unaligned_read4(reinterpret_cast<const byte*>(p));
 	(void)block_rev; // FIXME: Sanity check value.
 	p += 4;
 	unsigned level = (unsigned char)*p++;

@@ -36,7 +36,7 @@
 #include "omassert.h"
 #include "str.h"
 #include "stringutils.h"
-#include "unaligned.h"
+#include "wordaccess.h"
 
 #include "common/compression_stream.h"
 
@@ -77,12 +77,10 @@ const int X2 = 2;
 /*  and when getting or setting them, we use these methods of the various
  *  *Item* classes: */
 
-// getK(p, c)
-// setK(p, c, x)
 // getD(p, c)
 // setD(p, c, x)
-// getI(p, c)
-// setI(p, c, x)
+// getI()
+// setI(x)
 // getX(p, c)
 // setX(p, c, x)
 
@@ -109,18 +107,18 @@ const int X2 = 2;
    last_component(p, c) returns true if this is a final component.
 */
 
-inline uint4 REVISION(const byte * b) { return getint4(b, 0); }
-inline int GET_LEVEL(const byte * b) { return getint1(b, 4); }
-inline int MAX_FREE(const byte * b) { return getint2(b, 5); }
-inline int TOTAL_FREE(const byte * b) { return getint2(b, 7); }
-inline int DIR_END(const byte * b) { return getint2(b, 9); }
+inline uint4 REVISION(const byte * b) { return aligned_read4(b); }
+inline int GET_LEVEL(const byte * b) { return b[4]; }
+inline int MAX_FREE(const byte * b) { return unaligned_read2(b + 5); }
+inline int TOTAL_FREE(const byte * b) { return unaligned_read2(b + 7); }
+inline int DIR_END(const byte * b) { return unaligned_read2(b + 9); }
 const int DIR_START = 11;
 
-inline void SET_REVISION(byte * b, uint4 rev) { setint4(b, 0, rev); }
-inline void SET_LEVEL(byte * b, int x) { setint1(b, 4, x); }
-inline void SET_MAX_FREE(byte * b, int x) { setint2(b, 5, x); }
-inline void SET_TOTAL_FREE(byte * b, int x) { setint2(b, 7, x); }
-inline void SET_DIR_END(byte * b, int x) { setint2(b, 9, x); }
+inline void SET_REVISION(byte * b, uint4 rev) { aligned_write4(b, rev); }
+inline void SET_LEVEL(byte * b, int x) { AssertRel(x,<,256); b[4] = x; }
+inline void SET_MAX_FREE(byte * b, int x) { unaligned_write2(b + 5, x); }
+inline void SET_TOTAL_FREE(byte * b, int x) { unaligned_write2(b + 7, x); }
+inline void SET_DIR_END(byte * b, int x) { unaligned_write2(b + 9, x); }
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag for
 // "is the tag data compressed" and the next two bits are used to flag if this is the
@@ -149,7 +147,7 @@ public:
 	key->assign(reinterpret_cast<const char *>(p + K1), length());
     }
     int length() const {
-	return getint1(p, 0);
+	return p[0];
     }
     char operator[](size_t i) const {
 	AssertRel(i,<,(size_t)length());
@@ -162,10 +160,15 @@ public:
 template <class T> class LeafItem_base {
 protected:
     T p;
-    int getK(const byte * q, int c) const { return getint1(q, c); }
-    int getD(const byte * q, int c) const { return getint2(q, c); }
-    int getI(const byte * q, int c) const { return getint2(q, c); }
-    int getX(const byte * q, int c) const { return getint2(q, c); }
+    int get_key_len() const { return p[I2]; }
+    int getD(const byte * q, int c) const {
+	AssertRel(c, >=, DIR_START);
+	AssertRel(c, <, 65535);
+	Assert((c & 1) == 1);
+	return unaligned_read2(q + c);
+    }
+    int getI() const { return unaligned_read2(p); }
+    int getX(const byte * q, int c) const { return unaligned_read2(q + c); }
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
@@ -173,19 +176,19 @@ public:
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
-	return (getI(p, 0) & ITEM_SIZE_MASK) + 3;
+	return (getI() & ITEM_SIZE_MASK) + 3;
     }
     bool get_compressed() const { return *p & I_COMPRESSED_BIT; }
     bool first_component() const { return *p & I_FIRST_BIT; }
     bool last_component() const { return *p & I_LAST_BIT; }
     int component_of() const {
 	if (first_component()) return 1;
-	return getX(p, getK(p, I2) + I2 + K1);
+	return getX(p, get_key_len() + I2 + K1);
     }
     Key key() const { return Key(p + I2); }
     void append_chunk(std::string * tag) const {
 	// Offset to the start of the tag data.
-	int cd = getK(p, I2) + I2 + K1;
+	int cd = get_key_len() + I2 + K1;
 	if (!first_component()) cd += X2;
 	// Number of bytes to extract from current component.
 	int l = size() - cd;
@@ -194,7 +197,7 @@ public:
     }
     bool decompress_chunk(CompressionStream& comp_stream, string& tag) const {
 	// Offset to the start of the tag data.
-	int cd = getK(p, I2) + I2 + K1;
+	int cd = get_key_len() + I2 + K1;
 	if (!first_component()) cd += X2;
 	// Number of bytes to extract from current component.
 	int l = size() - cd;
@@ -211,10 +214,13 @@ public:
 };
 
 class LeafItem_wr : public LeafItem_base<byte *> {
-    void set_key_len(int x) { setK(p, I2, x); }
-    void setK(byte * q, int c, int x) { setint1(q, c, x); }
-    void setI(byte * q, int c, int x) { setint2(q, c, x); }
-    void setX(byte * q, int c, int x) { setint2(q, c, x); }
+    void set_key_len(int x) {
+	AssertRel(x, >=, 0);
+	AssertRel(x, <=, GLASS_BTREE_MAX_KEY_LEN);
+	p[I2] = x;
+    }
+    void setI(int x) { unaligned_write2(p, x); }
+    void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* LeafItem_wr from block address and offset to item pointer */
     LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
@@ -222,7 +228,7 @@ public:
     void set_component_of(int i) {
 	AssertRel(i,>,1);
 	*p &=~ I_FIRST_BIT;
-	setX(p, getK(p, I2) + I2 + K1, i);
+	setX(p, get_key_len() + I2 + K1, i);
     }
     void set_size(int new_size) {
 	AssertRel(new_size,>=,3);
@@ -230,7 +236,7 @@ public:
 	// We should never be able to pass too large a size here, but don't
 	// corrupt the database if this somehow happens.
 	if (rare(I &~ ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
-	setI(p, 0, I);
+	setI(I);
     }
     void form_key(const std::string & key_) {
 	std::string::size_type key_len = key_.length();
@@ -267,7 +273,12 @@ public:
 	*p |= I_FIRST_BIT|I_LAST_BIT;
     }
     operator const LeafItem() const { return LeafItem(p); }
-    static void setD(byte * q, int c, int x) { setint2(q, c, x); }
+    static void setD(byte * q, int c, int x) {
+	AssertRel(c, >=, DIR_START);
+	AssertRel(c, <, 65535);
+	Assert((c & 1) == 1);
+	unaligned_write2(q + c, x);
+    }
 };
 
 /* A branch item has this form:
@@ -289,9 +300,14 @@ public:
 template <class T> class BItem_base {
 protected:
     T p;
-    int getK(const byte * q, int c) const { return getint1(q, c); }
-    int getD(const byte * q, int c) const { return getint2(q, c); }
-    int getX(const byte * q, int c) const { return getint2(q, c); }
+    int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
+    int getD(const byte * q, int c) const {
+	AssertRel(c, >=, DIR_START);
+	AssertRel(c, <, 65535);
+	Assert((c & 1) == 1);
+	return unaligned_read2(q + c);
+    }
+    int getX(const byte * q, int c) const { return unaligned_read2(q + c); }
 public:
     /* BItem from block address and offset to item pointer */
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
@@ -299,17 +315,17 @@ public:
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
-	return getK(p, BYTES_PER_BLOCK_NUMBER) + K1 + X2 + BYTES_PER_BLOCK_NUMBER;
+	return get_key_len() + K1 + X2 + BYTES_PER_BLOCK_NUMBER;
     }
     Key key() const { return Key(p + BYTES_PER_BLOCK_NUMBER); }
     /** Get this item's tag as a block number (this block should not be at
      *  level 0).
      */
     uint4 block_given_by() const {
-	return getint4(p, 0);
+	return unaligned_read4(p);
     }
     int component_of() const {
-	return getX(p, getK(p, BYTES_PER_BLOCK_NUMBER) + BYTES_PER_BLOCK_NUMBER + K1);
+	return getX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1);
     }
 };
 
@@ -321,15 +337,18 @@ public:
 };
 
 class BItem_wr : public BItem_base<byte *> {
-    void set_key_len(int x) { setK(p, BYTES_PER_BLOCK_NUMBER, x); }
-    void setK(byte * q, int c, int x) { setint1(q, c, x); }
-    void setX(byte * q, int c, int x) { setint2(q, c, x); }
+    void set_key_len(int x) {
+	AssertRel(x, >=, 0);
+	AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
+	p[BYTES_PER_BLOCK_NUMBER] = x;
+    }
+    void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* BItem_wr from block address and offset to item pointer */
     BItem_wr(byte * p_, int c) : BItem_base<byte *>(p_, c) { }
     BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
     void set_component_of(int i) {
-	setX(p, getK(p, BYTES_PER_BLOCK_NUMBER) + BYTES_PER_BLOCK_NUMBER + K1, i);
+	setX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1, i);
     }
     void set_key_and_block(Key newkey, uint4 n) {
 	int len = newkey.length() + K1 + X2;
@@ -357,7 +376,7 @@ public:
      *  level 0).
      */
     void set_block_given_by(uint4 n) {
-	setint4(p, 0, n);
+	unaligned_write4(p, n);
     }
     /** Form an item with a null key and with block number n in the tag.
      */
@@ -367,7 +386,12 @@ public:
 	set_component_of(0);
     }
     operator const BItem() const { return BItem(p); }
-    static void setD(byte * q, int c, int x) { setint2(q, c, x); }
+    static void setD(byte * q, int c, int x) {
+	AssertRel(c, >=, DIR_START);
+	AssertRel(c, <, 65535);
+	Assert((c & 1) == 1);
+	unaligned_write2(q + c, x);
+    }
 };
 
 // Allow for BTREE_CURSOR_LEVELS levels in the B-tree.
