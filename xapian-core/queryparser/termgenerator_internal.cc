@@ -38,6 +38,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "cjk-tokenizer.h"
 

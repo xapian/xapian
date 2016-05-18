@@ -33,6 +33,7 @@
 #include "weight/weightinternal.h"
 
 #include "autoptr.h"
+#include <set>
 #include <string>
 
 using namespace std;

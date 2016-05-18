@@ -26,6 +26,8 @@
 #include "omassert.h"
 #include "api/postlist.h"
 
+#include <algorithm>
+
 /// N-way AND postlist.
 class MultiAndPostList : public PostList {
     /** Comparison functor which orders PostList* by ascending
