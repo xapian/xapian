@@ -173,7 +173,7 @@ class QueryBranch : public Query::Internal {
 
     QueryBranch(size_t n_subqueries) : subqueries(n_subqueries) { }
 
-    void serialise_(string & result, Xapian::termcount parameter = 0) const;
+    void serialise_(std::string & result, Xapian::termcount parameter = 0) const;
 
     void do_or_like(OrContext& ctx, QueryOptimiser * qopt, double factor,
 		    Xapian::termcount elite_set_size = 0, size_t first = 0) const;
@@ -326,7 +326,7 @@ class QueryNear : public QueryWindowed {
     QueryNear(size_t n_subqueries, Xapian::termcount window_)
 	: QueryWindowed(n_subqueries, window_) { }
 
-    void serialise(string & result) const;
+    void serialise(std::string & result) const;
 
     void postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const;
 
@@ -340,7 +340,7 @@ class QueryPhrase : public QueryWindowed {
     QueryPhrase(size_t n_subqueries, Xapian::termcount window_)
 	: QueryWindowed(n_subqueries, window_) { }
 
-    void serialise(string & result) const;
+    void serialise(std::string & result) const;
 
     void postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, double factor) const;
 
@@ -357,7 +357,7 @@ class QueryEliteSet : public QueryOrLike {
 	: QueryOrLike(n_subqueries),
 	  set_size(set_size_ ? set_size_ : DEFAULT_ELITE_SET_SIZE) { }
 
-    void serialise(string & result) const;
+    void serialise(std::string & result) const;
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 

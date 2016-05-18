@@ -43,7 +43,7 @@ class ValueGePostList: public ValueRangePostList {
 
     PostList * check(Xapian::docid did, double w_min, bool &valid);
 
-    string get_description() const;
+    std::string get_description() const;
 };
 
 #endif /* XAPIAN_INCLUDED_VALUEGEPOSTLIST_H */

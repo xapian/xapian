@@ -90,7 +90,7 @@ class ExternalPostList : public PostList {
 
     Xapian::termcount count_matching_subqs() const;
 
-    string get_description() const;
+    std::string get_description() const;
 };
 
 #endif /* XAPIAN_INCLUDED_EXTERNALPOSTLIST_H */
