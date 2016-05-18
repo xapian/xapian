@@ -25,6 +25,8 @@
 #include "omassert.h"
 #include "debuglog.h"
 
+using namespace std;
+
 void
 MultiAndPostList::allocate_plist_and_max_wt()
 {

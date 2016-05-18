@@ -25,6 +25,8 @@
 #include "debuglog.h"
 #include "omassert.h"
 
+using namespace std;
+
 Xapian::doccount
 MSetPostList::get_termfreq_min() const
 {
