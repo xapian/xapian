@@ -1401,3 +1401,35 @@ DEFINE_TESTCASE(embedded1, singlefile) {
 
     return true;
 }
+
+static string get_db_table_path(const string& db_path){
+    string db_table_path;
+    if(endswith(get_dbtype(), "glass")){
+        db_table_path = db_path + "/postlist.glass";
+    }else if(endswith(get_dbtype(), "chert")){
+        db_table_path = db_path + "/postlist.DB";
+    }
+    return db_table_path;
+}
+
+//check database table name. it could end with ".DB", or ".glass".
+DEFINE_TESTCASE(databasetablename, chert || glass){
+	//database not exist
+    const string & db_path_nonexist = get_named_writable_database_path("databasetablename");
+    string db_table_path = get_db_table_path(db_path_nonexist);
+    try{
+        Xapian::Database::check(db_table_path);
+    }catch(const Xapian::DatabaseOpeningError &){
+    }
+
+	//database exist
+    Xapian::WritableDatabase db = get_named_writable_database("databasetablename", string());
+    Xapian::Document doc;
+    doc.add_term("foo");
+    db.add_document(doc);
+    db.commit();
+    const string & db_path_exist = get_named_writable_database_path("databasetablename");
+    string db_table_path_exist = get_db_table_path(db_path_exist);
+    TEST_EQUAL(Xapian::Database::check(db_table_path), 0);
+    return true;
+}
