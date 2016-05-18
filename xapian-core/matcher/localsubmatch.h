@@ -31,6 +31,8 @@
 
 #include <map>
 
+class LeafPostList;
+
 class LocalSubMatch : public SubMatch {
     /// Don't allow assignment.
     void operator=(const LocalSubMatch &);
