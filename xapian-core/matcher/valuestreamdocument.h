@@ -24,6 +24,7 @@
 #include "backends/document.h"
 #include "backends/valuelist.h"
 #include "omassert.h"
+#include "xapian/database.h"
 #include "xapian/types.h"
 
 #include <map>
