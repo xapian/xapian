@@ -145,8 +145,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     };
 
     /// Default constructor.
-    XAPIAN_NOTHROW(Query())
-	: internal(0) { }
+    XAPIAN_NOTHROW(Query()) { }
 
     /// Destructor.
     ~Query() { }

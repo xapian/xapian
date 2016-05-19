@@ -45,9 +45,9 @@ Stem::operator=(const Stem & o)
     return *this;
 }
 
-Stem::Stem() : internal(0) { }
+Stem::Stem() { }
 
-Stem::Stem(const std::string &language) : internal(0) {
+Stem::Stem(const std::string &language) {
     int l = keyword(tab, language.data(), language.size());
     if (l >= 0) {
 	switch (static_cast<sbl_code>(l)) {

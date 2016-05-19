@@ -215,7 +215,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 
   public:
     /// Construct an empty ValueCountMatchSpy.
-    ValueCountMatchSpy() : internal() {}
+    ValueCountMatchSpy() {}
 
     /// Construct a MatchSpy which counts the values in a particular slot.
     explicit ValueCountMatchSpy(Xapian::valueno slot_)

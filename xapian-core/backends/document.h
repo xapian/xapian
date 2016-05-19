@@ -211,7 +211,7 @@ class Xapian::Document::Internal : public Xapian::Internal::intrusive_base {
 	      terms_here(false), positions_modified(false), did(did_) { }
 
 	Internal()
-	    : database(0), data_here(false), values_here(false),
+	    : database(), data_here(false), values_here(false),
 	      terms_here(false), positions_modified(false), did(0) { }
 
 	/** Destructor.

@@ -593,7 +593,7 @@ Enquire::Internal::Internal(const Database &db_)
   : db(db_), query(), collapse_key(Xapian::BAD_VALUENO), collapse_max(0),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
-    sorter(0), time_limit(0.0), weight(0),
+    sorter(), time_limit(0.0), weight(0),
     eweightname("trad"), expand_k(1.0)
 {
     if (db.internal.empty()) {
