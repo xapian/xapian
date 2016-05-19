@@ -47,7 +47,7 @@ namespace Glass {
 
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
-const int BLOCK_CAPACITY = 4;
+const size_t BLOCK_CAPACITY = 4;
 
 /** The largest possible value of a key_len.
  *

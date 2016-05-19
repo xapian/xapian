@@ -102,7 +102,7 @@ const int DONT_COMPRESS = -1;
 
 /** Even for items of at maximum size, it must be possible to get this number of
  *  items in a block */
-const int BLOCK_CAPACITY = 4;
+const size_t BLOCK_CAPACITY = 4;
 
 // FIXME: This named constant probably isn't used everywhere it should be...
 const int BYTES_PER_BLOCK_NUMBER = 4;
