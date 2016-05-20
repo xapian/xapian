@@ -25,8 +25,6 @@
 #include "selectpostlist.h"
 #include <vector>
 
-typedef Xapian::PositionIterator::Internal PositionList;
-
 /** Postlist which matches terms occurring within a specified window.
  *
  *  NearPostList only returns a posting for documents contains all the terms
