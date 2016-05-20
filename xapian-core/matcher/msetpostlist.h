@@ -68,9 +68,9 @@ class MSetPostList : public PostList {
 
     double get_weight() const;
 
-    const string * get_sort_key() const;
+    const std::string * get_sort_key() const;
 
-    const string * get_collapse_key() const;
+    const std::string * get_collapse_key() const;
 
     /// Not implemented for MSetPostList.
     Xapian::termcount get_doclength() const;
@@ -86,7 +86,7 @@ class MSetPostList : public PostList {
 
     bool at_end() const;
 
-    string get_description() const;
+    std::string get_description() const;
 };
 
 #endif /* XAPIAN_INCLUDED_MSETPOSTLIST_H */

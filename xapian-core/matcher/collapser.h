@@ -47,7 +47,7 @@ class CollapseData {
      *  preallocate space for that many entries and/or allocate space in
      *  larger blocks to divvy up?
      */
-    vector<Xapian::Internal::MSetItem> items;
+    std::vector<Xapian::Internal::MSetItem> items;
 
     /// The highest weight of a document we've rejected.
     double next_best_weight;
@@ -59,7 +59,7 @@ class CollapseData {
     /// Construct with the given MSetItem @a item.
     CollapseData(const Xapian::Internal::MSetItem & item)
 	: items(1, item), next_best_weight(0), collapse_count(0) {
-	items[0].collapse_key = string();
+	items[0].collapse_key = std::string();
     }
 
     /** Handle a new MSetItem with this collapse key value.

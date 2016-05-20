@@ -79,7 +79,7 @@ class LeafPostList : public PostList {
 	// There should be an existing LazyWeight set already.
 	Assert(weight);
 	const Xapian::Weight * const_weight_ = weight_;
-	swap(weight, const_weight_);
+	std::swap(weight, const_weight_);
 	delete const_weight_;
 	need_doclength = weight->get_sumpart_needs_doclength_();
 	stats->termfreqs[term].max_part += weight->get_maxpart();
