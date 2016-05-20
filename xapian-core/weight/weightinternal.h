@@ -159,7 +159,7 @@ class Weight::Internal {
 	    return true;
 	}
 
-	map<string, TermFreqs>::const_iterator i = termfreqs.find(term);
+	auto i = termfreqs.find(term);
 	if (i == termfreqs.end()) {
 	    termfreq = reltermfreq = collfreq = 0;
 	    return false;
@@ -189,7 +189,7 @@ class Weight::Internal {
 	    return false;
 	}
 
-	map<string, TermFreqs>::const_iterator i = termfreqs.find(term);
+	auto i = termfreqs.find(term);
 	if (i == termfreqs.end()) {
 	    return false;
 	}
@@ -224,7 +224,7 @@ class Weight::Internal {
     void set_max_part(const std::string & term, double max_part) {
 	have_max_part = true;
 	Assert(!term.empty());
-	map<string, TermFreqs>::iterator i = termfreqs.find(term);
+	auto i = termfreqs.find(term);
 	if (i != termfreqs.end())
 	    i->second.max_part += max_part;
     }
