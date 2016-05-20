@@ -96,7 +96,7 @@ ValueStreamDocument::do_get_all_values(map<Xapian::valueno, string> & v) const
     if (!doc) {
 	doc = database->open_document(did, true);
     }
-    return doc->do_get_all_values(v);
+    doc->do_get_all_values(v);
 }
 
 string
