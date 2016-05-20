@@ -400,6 +400,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	// UUID since its revision counter is reset to 1.
 	ChertVersion(destdir).create();
 #else
+	(void)last_docid;
 	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
 #endif
     } else if (backend == BACKEND_GLASS) {
@@ -415,6 +416,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	}
 #else
 	(void)fd;
+	(void)last_docid;
 	throw Xapian::FeatureUnavailableError("Glass backend disabled at build time");
 #endif
     }
