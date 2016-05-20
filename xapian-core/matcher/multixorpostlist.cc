@@ -1,7 +1,7 @@
 /** @file multixorpostlist.cc
  * @brief N-way XOR postlist
  */
-/* Copyright (C) 2007,2009,2010,2011,2012 Olly Betts
+/* Copyright (C) 2007,2009,2010,2011,2012,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -74,7 +74,7 @@ MultiXorPostList::get_termfreq_max() const
 	// If the sub-postlist tfs are all exact, then if the sum of them has
 	// a different odd/even-ness to db_size then max tf of the XOR can't
 	// achieve db_size.
-	return db_size - ((result & 1) == (db_size & 1));
+	return db_size - ((result & 1) != (db_size & 1));
     }
     return result;
 }
