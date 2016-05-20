@@ -27,6 +27,16 @@
 #include "backends/database.h"
 #include "noreturn.h"
 
+#include "api/termlist.h"
+#include "backends/document.h"
+#include "backends/positionlist.h"
+#include "backends/valuelist.h"
+
+class LeafPostList;
+namespace Xapian {
+    class ReplicationInfo;
+}
+
 using namespace std;
 
 /** Base class for databases.

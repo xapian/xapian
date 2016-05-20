@@ -27,6 +27,7 @@
 #include "api/postlist.h"
 
 #include <map>
+#include <vector>
 
 /// Enumeration reporting how a document was handled by the Collapser.
 typedef enum {

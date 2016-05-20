@@ -33,6 +33,7 @@
 #include "stringutils.h"
 
 #include <algorithm>
+#include <cmath>
 #include <deque>
 #include <limits>
 #include <list>

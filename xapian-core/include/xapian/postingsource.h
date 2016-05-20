@@ -30,7 +30,9 @@
 #include <xapian/database.h>
 #include <xapian/deprecated.h>
 #include <xapian/intrusive_ptr.h>
+#include <xapian/postingiterator.h>
 #include <xapian/types.h>
+#include <xapian/valueiterator.h>
 #include <xapian/visibility.h>
 
 #include <string>

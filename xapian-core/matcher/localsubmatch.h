@@ -24,6 +24,7 @@
 
 #include "backends/database.h"
 #include "debuglog.h"
+#include "api/leafpostlist.h"
 #include "api/queryinternal.h"
 #include "submatch.h"
 #include "xapian/enquire.h"

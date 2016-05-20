@@ -29,6 +29,7 @@
 
 #include <xapian/enquire.h>
 #include <xapian/types.h>
+#include <xapian/visibility.h>
 
 #include <string>
 #include <set>
