@@ -130,7 +130,7 @@ const int I_FIRST_BIT = 0x20;
 const int I_MASK = (I_COMPRESSED_BIT|I_LAST_BIT|I_FIRST_BIT);
 
 const int ITEM_SIZE_MASK = (0xffff &~ (I_MASK << 8));
-const int MAX_ITEM_SIZE = (ITEM_SIZE_MASK + 3);
+const size_t MAX_ITEM_SIZE = (ITEM_SIZE_MASK + 3);
 
 /** Freelist blocks have their level set to LEVEL_FREELIST. */
 const int LEVEL_FREELIST = 254;

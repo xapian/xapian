@@ -162,7 +162,7 @@ inline void SET_DIR_END(byte * b, int x) { setint2(b, 9, x); }
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag
 // for "is the tag data compressed".
-const int CHERT_MAX_ITEM_SIZE = 0x7fff;
+const size_t CHERT_MAX_ITEM_SIZE = 0x7fff;
 
 class Key {
     const byte *p;
