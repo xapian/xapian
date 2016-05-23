@@ -358,4 +358,4 @@ MSet::back() const {
 
 }
 
-#endif // XAPIAN_INCLUDED_POSTINGITERATOR_H
+#endif // XAPIAN_INCLUDED_MSET_H
