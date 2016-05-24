@@ -336,6 +336,7 @@ DEFINE_TESTCASE(expandweights1, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
     TEST_EQUAL(eset.size(), 3);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
@@ -343,6 +344,7 @@ DEFINE_TESTCASE(expandweights1, backend) {
     // Test non-default k too.
     eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ, 2.0);
     TEST_EQUAL(eset.size(), 3);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 5.88109547674955);
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 5.88109547674955);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.44473599216144);
@@ -364,6 +366,7 @@ DEFINE_TESTCASE(expandweights2, backend) {
 
     Xapian::ESet eset = enquire.get_eset(3, myrset);
     TEST_EQUAL(eset.size(), 3);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
     if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
@@ -394,6 +397,8 @@ DEFINE_TESTCASE(expandweights3, backend) {
 
     // Set min_wt to 0.0
     Xapian::ESet eset = enquire.get_eset(50, myrset, 0, 0, 0.0);
+    TEST_EQUAL(eset.size(), 50);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
     if (!startswith(get_dbtype(), "multi")) {
 	// For a single database, the weights should be the same with or
 	// without USE_EXACT_TERMFREQ.
@@ -428,6 +433,7 @@ DEFINE_TESTCASE(expandweights4, backend) {
     Xapian::ESet eset = enquire.get_eset(37, myrset, 0, 0, -100);
     // Now include negative weights
     TEST_EQUAL(eset.size(), 37);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
     TEST_REL(eset[36].get_weight(),<,0);
     TEST_REL(eset[36].get_weight(),>=,-100);
 
@@ -450,6 +456,7 @@ DEFINE_TESTCASE(expandweights5, backend) {
     Xapian::ESet eset = enquire.get_eset(3, myrset);
 
     TEST_EQUAL(eset.size(), 3);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 7.21765284821702);
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.661623193760022);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 5.58090119783738);
@@ -473,6 +480,7 @@ DEFINE_TESTCASE(expandweights6, backend) {
     Xapian::ESet eset = enquire.get_eset(3, myrset, enquire.USE_EXACT_TERMFREQ);
 
     TEST_EQUAL(eset.size(), 3);
+    TEST_REL(eset.get_ebound(), >=, eset.size());
     TEST_EQUAL_DOUBLE(eset[0].get_weight(), 6.08904001099445);
     TEST_EQUAL_DOUBLE(eset[1].get_weight(), 6.08904001099445);
     TEST_EQUAL_DOUBLE(eset[2].get_weight(), 4.73383620844021);
@@ -539,6 +547,7 @@ DEFINE_TESTCASE(expandmaxitems1, backend) {
 
     Xapian::ESet myeset = enquire.get_eset(1, myrset);
     TEST_EQUAL(myeset.size(), 1);
+    TEST_REL(myeset.get_ebound(), >=, myeset.size());
 
     return true;
 }
