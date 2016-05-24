@@ -42,7 +42,7 @@ namespace Xapian {
 
 /** @internal Determine if iterator is valid to dereference. */
 inline bool iterator_valid(const Xapian::ESetIterator & it) {
-    return it.index != it.eset.size();
+    return it.off_from_end != 0;
 }
 
 /** @internal Determine if iterator is valid to dereference. */
@@ -52,7 +52,7 @@ inline bool iterator_valid(const Xapian::MSetIterator & it) {
 
 /** @internal Rewind iterator. */
 inline void iterator_rewind(Xapian::ESetIterator & it) {
-    it.index = 0;
+    it.off_from_end = it.eset.size();
 }
 
 /** @internal Rewind iterator. */

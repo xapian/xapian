@@ -96,9 +96,13 @@
     }
 %enddef
 
-%define BIDIRECTIONAL_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
+%define RANDOM_ACCESS_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
     INPUT_ITERATOR_METHODS(NS, CLASS, RET_TYPE, DEREF_METHOD)
     %ignore NS::CLASS::operator--;
+    %ignore NS::CLASS::operator+=;
+    %ignore NS::CLASS::operator-=;
+    %ignore NS::CLASS::operator+;
+    %ignore NS::CLASS::operator-;
     %extend NS::CLASS {
 	INC_OR_DEC(prev, --, NS, CLASS, RET_TYPE)
     }
@@ -112,6 +116,11 @@
 /* Ignore these for all classes: */
 %ignore operator==;
 %ignore operator!=;
+%ignore operator<;
+%ignore operator>;
+%ignore operator<=;
+%ignore operator>=;
+%ignore operator+;
 %ignore difference_type;
 %ignore iterator_category;
 %ignore value_type;
@@ -278,17 +287,20 @@ STANDARD_IGNORES(Xapian, MSet)
     }
 }
 
-BIDIRECTIONAL_ITERATOR_METHODS(Xapian, MSetIterator, Xapian::docid, get_docid)
+RANDOM_ACCESS_ITERATOR_METHODS(Xapian, MSetIterator, Xapian::docid, get_docid)
 
 %include <xapian/mset.h>
 
 STANDARD_IGNORES(Xapian, ESet)
 %ignore Xapian::ESet::operator[];
+
+RANDOM_ACCESS_ITERATOR_METHODS(Xapian, ESetIterator, std::string, get_term)
+
+%include <xapian/eset.h>
+
 STANDARD_IGNORES(Xapian, RSet)
 
 STANDARD_IGNORES(Xapian, Enquire)
-
-BIDIRECTIONAL_ITERATOR_METHODS(Xapian, ESetIterator, std::string, get_term)
 
 SUBCLASSABLE(Xapian, MatchDecider)
 
