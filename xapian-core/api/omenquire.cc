@@ -189,14 +189,6 @@ MSet::convert_to_percent(double wt) const
     RETURN(internal->convert_to_percent_internal(wt));
 }
 
-int
-MSet::convert_to_percent(const MSetIterator & it) const
-{
-    LOGCALL(API, int, "Xapian::MSet::convert_to_percent", it);
-    Assert(internal.get() != 0);
-    RETURN(internal->convert_to_percent_internal(it.get_weight()));
-}
-
 Xapian::doccount
 MSet::get_termfreq(const string &tname) const
 {

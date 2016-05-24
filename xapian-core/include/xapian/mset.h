@@ -354,6 +354,11 @@ MSet::back() const {
     return MSetIterator(*this, 1);
 }
 
+inline int
+MSet::convert_to_percent(const MSetIterator & it) const {
+    return convert_to_percent(it.get_weight());
+}
+
 }
 
 #endif // XAPIAN_INCLUDED_MSET_H
