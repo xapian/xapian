@@ -1,7 +1,7 @@
 /** @file esetinternal.cc
  * @brief Xapian::ESet::Internal class
  */
-/* Copyright (C) 2008,2010,2011,2013 Olly Betts
+/* Copyright (C) 2008,2010,2011,2013,2016 Olly Betts
  * Copyright (C) 2011 Action Without Borders
  *
  * This program is free software; you can redistribute it and/or modify
@@ -221,6 +221,66 @@ ESet::Internal::get_description() const
     }
     desc += ')';
 
+    return desc;
+}
+
+ESet::ESet() { }
+
+ESet::ESet(const ESet & o) : internal(o.internal) { }
+
+ESet&
+ESet::operator=(const ESet & o)
+{
+    internal = o.internal;
+    return *this;
+}
+
+ESet::~ESet() { }
+
+Xapian::doccount
+ESet::size() const
+{
+    if (!internal.get()) return 0;
+    return internal->items.size();
+}
+
+Xapian::termcount
+ESet::get_ebound() const
+{
+    if (!internal.get()) return 0;
+    return internal->ebound;
+}
+
+std::string
+ESet::get_description() const
+{
+    string desc = "ESet(";
+    if (internal.get())
+	desc += internal->get_description();
+    desc += ')';
+    return desc;
+}
+
+
+std::string
+ESetIterator::operator*() const
+{
+    return (eset.internal->items.end() - off_from_end)->term;
+}
+
+double
+ESetIterator::get_weight() const
+{
+    return (eset.internal->items.end() - off_from_end)->wt;
+}
+
+std::string
+ESetIterator::get_description() const
+{
+    string desc = "ESetIterator(";
+    if (eset.internal.get())
+	desc += str(eset.internal->items.size() - off_from_end);
+    desc += ')';
     return desc;
 }
 

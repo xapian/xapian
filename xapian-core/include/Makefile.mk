@@ -19,6 +19,7 @@ xapianinclude_HEADERS =\
 	include/xapian/document.h\
 	include/xapian/enquire.h\
 	include/xapian/errorhandler.h\
+	include/xapian/eset.h\
 	include/xapian/expanddecider.h\
 	include/xapian/intrusive_ptr.h\
 	include/xapian/iterator.h\

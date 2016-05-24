@@ -70,6 +70,7 @@
 
 // Searching
 #include <xapian/enquire.h>
+#include <xapian/eset.h>
 #include <xapian/mset.h>
 #include <xapian/expanddecider.h>
 #include <xapian/keymaker.h>
