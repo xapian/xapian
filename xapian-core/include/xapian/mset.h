@@ -305,8 +305,6 @@ XAPIAN_NOTHROW(operator==(const MSetIterator &a, const MSetIterator &b));
 inline bool
 operator==(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
 {
-    // Use a pointer comparison - this ensures both that (a == a) and correct
-    // handling of end iterators (which we ensure have NULL internals).
     return a.off_from_end == b.off_from_end;
 }
 
