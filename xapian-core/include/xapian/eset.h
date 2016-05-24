@@ -186,6 +186,53 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	return retval;
     }
 
+    /** @private @internal ESetIterator is what the C++ STL calls an
+     *  random_access_iterator.
+     *
+     *  The following typedefs allow std::iterator_traits<> to work so that
+     *  this iterator can be used with the STL.
+     *
+     *  These are deliberately hidden from the Doxygen-generated docs, as the
+     *  machinery here isn't interesting to API users.  They just need to know
+     *  that Xapian iterator classes are compatible with the STL.
+     */
+    // @{
+    /// @private
+    typedef std::random_access_iterator_tag iterator_category;
+    /// @private
+    typedef std::string value_type;
+    /// @private
+    typedef Xapian::termcount_diff difference_type;
+    /// @private
+    typedef std::string * pointer;
+    /// @private
+    typedef std::string & reference;
+    // @}
+
+    /// Move the iterator forwards by n positions.
+    ESetIterator & operator+=(difference_type n) {
+	off_from_end -= n;
+	return *this;
+    }
+
+    /// Move the iterator back by n positions.
+    ESetIterator & operator-=(difference_type n) {
+	off_from_end += n;
+	return *this;
+    }
+
+    ESetIterator operator+(difference_type n) const {
+	return ESetIterator(eset, off_from_end - n);
+    }
+
+    ESetIterator operator-(difference_type n) const {
+	return ESetIterator(eset, off_from_end + n);
+    }
+
+    difference_type operator-(const ESetIterator& o) const {
+	return difference_type(o.off_from_end) - difference_type(off_from_end);
+    }
+
     /** Get the weight for the current position. */
     double get_weight() const;
 
@@ -211,6 +258,52 @@ inline bool
 operator!=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
 {
     return !(a == b);
+}
+
+bool
+XAPIAN_NOTHROW(operator<(const ESetIterator &a, const ESetIterator &b));
+
+/// Inequality test for ESetIterator objects.
+inline bool
+operator<(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+{
+    return a.off_from_end > b.off_from_end;
+}
+
+inline bool
+XAPIAN_NOTHROW(operator>(const ESetIterator &a, const ESetIterator &b));
+
+/// Inequality test for ESetIterator objects.
+inline bool
+operator>(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+{
+    return b < a;
+}
+
+inline bool
+XAPIAN_NOTHROW(operator>=(const ESetIterator &a, const ESetIterator &b));
+
+/// Inequality test for ESetIterator objects.
+inline bool
+operator>=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+{
+    return !(a < b);
+}
+
+inline bool
+XAPIAN_NOTHROW(operator<=(const ESetIterator &a, const ESetIterator &b));
+
+/// Inequality test for ESetIterator objects.
+inline bool
+operator<=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
+{
+    return !(b < a);
+}
+
+inline ESetIterator
+operator+(ESetIterator::difference_type n, const ESetIterator& it)
+{
+    return it + n;
 }
 
 // Inlined methods of ESet which need ESetIterator to have been defined:
