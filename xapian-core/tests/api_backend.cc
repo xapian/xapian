@@ -80,12 +80,16 @@ DEFINE_TESTCASE(totaldoclen1, writable) {
     Xapian::Document doc;
     doc.add_posting("foo", 1, 2000000000);
     db.add_document(doc);
-    db.add_document(doc);
+    Xapian::Document doc2;
+    doc2.add_posting("bar", 1, 2000000000);
+    db.add_document(doc2);
     TEST_EQUAL(db.get_avlength(), 2000000000);
     db.commit();
     TEST_EQUAL(db.get_avlength(), 2000000000);
     for (int i = 0; i != 20; ++i) {
-	db.add_document(doc);
+	Xapian::Document doc3;
+	doc3.add_posting("count" + str(i), 1, 2000000000);
+	db.add_document(doc3);
     }
     TEST_EQUAL(db.get_avlength(), 2000000000);
     db.commit();
