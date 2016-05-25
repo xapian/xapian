@@ -29,6 +29,8 @@
 #include "omassert.h"
 #include "vectortermlist.h"
 
+#include "xapian/error.h"
+
 using namespace std;
 
 namespace Xapian {
