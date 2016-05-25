@@ -131,12 +131,12 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 {
     byte * p = C_[j].p;
     uint4 n = C_[j].n;
-    size_t c;
-    size_t significant_c = j == 0 ? DIR_START : DIR_START + D2;
+    int c;
+    int significant_c = j == 0 ? DIR_START : DIR_START + D2;
 	/* the first key in an index block is dummy, remember */
 
     size_t max_free = MAX_FREE(p);
-    size_t dir_end = DIR_END(p);
+    int dir_end = DIR_END(p);
     int total_free = block_size - dir_end;
 
     if (opts & Xapian::DBCHECK_FIX) {
@@ -152,7 +152,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
     if (j != GET_LEVEL(p))
 	failure("Block has wrong level");
     // dir_end must be > DIR_START, fit within the block, and be odd.
-    if (dir_end <= DIR_START || dir_end > block_size || (dir_end & 1) != 1)
+    if (dir_end <= DIR_START || dir_end > int(block_size) || (dir_end & 1) != 1)
 	failure("directory end pointer invalid");
 
     if (opts & Xapian::DBCHECK_SHORT_TREE)
@@ -166,7 +166,7 @@ ChertTableCheck::block_check(Cursor * C_, int j, int opts)
 	int o = item.get_address() - p;
 	if (o > int(block_size))
 	    failure("Item starts outside block");
-	if (o - dir_end < max_free)
+	if (o - dir_end < int(max_free))
 	    failure("Item overlaps directory");
 
 	int kt_len = item.size();
