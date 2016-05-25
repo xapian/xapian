@@ -40,6 +40,8 @@
 # error "Never use <xapian/intrusive_ptr.h> directly; include <xapian.h> instead."
 #endif
 
+#include <xapian/visibility.h>
+
 namespace Xapian {
 namespace Internal {
 
@@ -180,7 +182,7 @@ template<class T, class U> inline bool operator!=(T * a, intrusive_ptr<U> const 
 }
 
 /// Base class for objects managed by opt_intrusive_ptr.
-class opt_intrusive_base {
+class XAPIAN_VISIBILITY_DEFAULT opt_intrusive_base {
   public:
     opt_intrusive_base(const opt_intrusive_base&) : _refs(0) { }
 
