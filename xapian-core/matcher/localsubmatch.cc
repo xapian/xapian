@@ -34,6 +34,8 @@
 #include "api/termlist.h"
 #include "weight/weightinternal.h"
 
+#include "xapian/error.h"
+
 #include "autoptr.h"
 #include <map>
 #include <string>

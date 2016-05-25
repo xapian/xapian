@@ -25,6 +25,8 @@
 #include "debuglog.h"
 #include "omassert.h"
 
+#include "xapian/error.h"
+
 using namespace std;
 
 Xapian::doccount

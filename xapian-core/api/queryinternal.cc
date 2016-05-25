@@ -23,6 +23,7 @@
 
 #include "queryinternal.h"
 
+#include "xapian/error.h"
 #include "xapian/postingsource.h"
 #include "xapian/query.h"
 
