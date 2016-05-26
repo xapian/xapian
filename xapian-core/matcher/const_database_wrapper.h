@@ -34,7 +34,7 @@
 
 class LeafPostList;
 namespace Xapian {
-    class ReplicationInfo;
+    struct ReplicationInfo;
 }
 
 using namespace std;
