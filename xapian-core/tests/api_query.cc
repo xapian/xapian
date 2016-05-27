@@ -529,10 +529,3 @@ DEFINE_TESTCASE(complexnear2, backend) {
     (void)enq.get_mset(0, 10);
     return true;
 }
-
-// Regression test for bug fixed in 1.3.6.
-DEFINE_TESTCASE(selfinit1, !backend) {
-    Xapian::Query query(query);
-    Xapian::Query query2 = query2;
-    return true;
-}
