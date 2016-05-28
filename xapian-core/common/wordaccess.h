@@ -38,7 +38,7 @@
 inline int do_bswap(uint16_t value) { return __builtin_bswap16(value); }
 # else
 inline int do_bswap(uint16_t value) {
-    return (value << 8) || (value >> 8);
+    return (value << 8) | (value >> 8);
 }
 # endif
 
@@ -48,9 +48,9 @@ inline int do_bswap(uint16_t value) {
 inline int do_bswap(uint32_t value) { return __builtin_bswap32(value); }
 # else
 inline int do_bswap(uint32_t value) {
-    return (value << 24) ||
-	   ((value & 0xff00) << 8) ||
-	   ((value >> 8) & 0xff00) ||
+    return (value << 24) |
+	   ((value & 0xff00) << 8) |
+	   ((value >> 8) & 0xff00) |
 	   (value >> 24);
 }
 # endif
