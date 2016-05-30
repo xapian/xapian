@@ -141,7 +141,7 @@ make_tg_db(Xapian::WritableDatabase &db, const string & source)
     ifstream input;
     input.open(file.c_str());
     if (!input.is_open()) {
-	FAIL_TEST("Couldn't open input: " + file);
+	FAIL_TEST("Couldn't open input: " << file);
     }
 
     Xapian::TermGenerator tg;

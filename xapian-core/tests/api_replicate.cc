@@ -64,7 +64,7 @@ static void mktmpdir(const string & path) {
 static off_t get_file_size(const string & path) {
     off_t size = file_size(path);
     if (errno) {
-	FAIL_TEST("Can't stat '" + path + "'");
+	FAIL_TEST("Can't stat '" << path << "'");
     }
     return size;
 }
@@ -105,12 +105,12 @@ truncated_copy(const string & srcpath, const string & destpath, off_t tocopy)
 {
     FD fdin(open(srcpath.c_str(), O_RDONLY | O_BINARY));
     if (fdin == -1) {
-	FAIL_TEST("Open failed (when opening '" + srcpath + "')");
+	FAIL_TEST("Open failed (when opening '" << srcpath << "')");
     }
 
     FD fdout(open(destpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
     if (fdout == -1) {
-	FAIL_TEST("Open failed (when creating '" + destpath + "')");
+	FAIL_TEST("Open failed (when creating '" << destpath << "')");
     }
 
     const int BUFSIZE = 1024;
@@ -145,7 +145,7 @@ get_changeset(const string & changesetpath,
     FD fd(open(changesetpath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when creating a new changeset file at '"
-		  + changesetpath + "')");
+		  << changesetpath << "')");
     }
     Xapian::ReplicationInfo info1;
     master.write_changesets_to_fd(fd,
@@ -167,7 +167,7 @@ apply_changeset(const string & changesetpath,
     FD fd(open(changesetpath.c_str(), O_RDONLY | O_BINARY));
     if (fd == -1) {
 	FAIL_TEST("Open failed (when reading changeset file at '"
-		  + changesetpath + "')");
+		  << changesetpath << "')");
     }
 
     int count = 1;
@@ -877,7 +877,7 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    if (!entry) {
 		if (errno == 0)
 		    break;
-		FAIL_TEST(string("readdir failed: ") + strerror(errno));
+		FAIL_TEST("readdir failed: " << strerror(errno));
 	    }
 
 	    // Skip '.' and '..'.

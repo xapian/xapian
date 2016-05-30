@@ -124,7 +124,7 @@ void
 skip_test_unless_backend(const std::string & backend_prefix)
 {
     if (!startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test only supported for " + backend_prefix + " backend");
+	SKIP_TEST("Test only supported for " << backend_prefix << " backend");
     }
 }
 
@@ -132,7 +132,7 @@ void
 skip_test_for_backend(const std::string & backend_prefix)
 {
     if (startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test not supported for " + backend_prefix + " backend");
+	SKIP_TEST("Test not supported for " << backend_prefix << " backend");
     }
 }
 

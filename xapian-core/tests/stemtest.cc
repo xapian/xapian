@@ -119,13 +119,13 @@ test_stemdict()
 
     ifstream voc((dir + language + "/voc.txt").c_str());
     if (!voc.is_open()) {
-	SKIP_TEST(language + "/voc.txt not found");
+	SKIP_TEST(language << "/voc.txt not found");
     }
 
     ifstream st((dir + language + "/output.txt").c_str());
     if (!st.is_open()) {
 	voc.close();
-	FAIL_TEST(language + "/output.txt not found");
+	FAIL_TEST(language << "/output.txt not found");
     }
 
     tout << "Testing " << language << " with Snowball dictionary..." << endl;
@@ -152,7 +152,7 @@ test_stemdict()
 	st.open((dir + language + "/output2.txt").c_str());
 	if (!st.is_open()) {
 	    voc.close();
-	    FAIL_TEST(language + "/output2.txt not found");
+	    FAIL_TEST(language << "/output2.txt not found");
 	}
 	tout << "Testing " << language << " with supplemental dictionary..."
 	     << endl;
