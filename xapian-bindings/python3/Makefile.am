@@ -76,12 +76,10 @@ xapian/__init__.py: xapian.py
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken .pyc or .pyo.
 xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -c "import xapian"
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -c 'import _xapian; import xapian'
 
 xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -O -c "import _xapian"
-	PYTHONPATH=".:$$PYTHONPATH" $(PYTHON3) -O -c "import xapian"
+	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -O -c 'import _xapian; import xapian'
 
 xapian/_xapian$(PYTHON3_SO): _xapian.la
 	$(MKDIR_P) xapian

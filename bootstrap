@@ -261,7 +261,7 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=ba333729c3bf2a269ed2b2315a17e4f7127ae94e
+swig_git_commit_hash=bab51398053188a136effd155d7ed8f5d441908e
 
 if [ ! -d .git ] ; then
   echo "$0: No '.git' directory found - this script should be run from a"
