@@ -680,9 +680,15 @@ if test no != "$with_tcl" ; then
 	*)
 	  dnl ::tcl::pkgconfig was added in Tcl 8.5, but prior to 8.6 it isn't
 	  dnl necessary to link against -ltclstub anyway.
-	  [TCLCONFIG_SH=`echo 'puts [file join [::tcl::pkgconfig get libdir,runtime] tclConfig.sh]'|$TCLSH 2> /dev/null`]
-	  if test -n "$TCLCONFIG_SH" && test -r "$TCLCONFIG_SH" ; then
-	    eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
+	  [tcl_libdir_runtime=`echo 'puts [::tcl::pkgconfig get libdir,runtime]'|$TCLSH 2> /dev/null`]
+	  if test -n "$tcl_libdir_runtime" ; then
+	    for x in "/tcl$tcl_version" "" ; do
+	      TCLCONFIG_SH=$tcl_libdir_runtime$x/tclConfig.sh
+	      if test -r "$TCLCONFIG_SH" ; then
+		eval "`sed 's/^TCL_STUB_LIB_SPEC=/TCL_LIBS=/p;d' $TCLCONFIG_SH`"
+		break
+	      fi
+	    done
 	  fi
 	  TCL_CPPFLAGS="$TCL_CPPFLAGS -DUSE_TCL_STUBS" ;;
 	esac
