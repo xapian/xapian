@@ -16,9 +16,12 @@ my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.toke
 mimemap.h: gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-mimemap' '$(srcdir)' < '$(srcdir)/mimemap.tokens'
 
-BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h
+namedents.h: gen-namedents Makefile.am common/Tokeniseise.pm
+	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-namedents' '$(srcdir)'
 
-MAINTAINERCLEANFILES = my-html-tok.h mimemap.h
+BUILT_SOURCES = extra/omegascript.vim my-html-tok.h mimemap.h namedents.h
+
+MAINTAINERCLEANFILES = my-html-tok.h mimemap.h namedents.h
 
 EXTRA_DIST =\
 	common/Tokeniseise.pm \
@@ -26,11 +29,13 @@ EXTRA_DIST =\
 	extra/omegascript.vim.in \
 	gen-mimemap \
 	gen-myhtmltags \
+	gen-namedents \
 	gen-omegascript-vim \
 	mimemap.h \
 	mimemap.tokens \
 	my-html-tok.h \
 	myhtmlparse.tokens \
+	namedents.h \
 	templates/query \
 	templates/topterms \
 	templates/opensearch \
@@ -112,7 +117,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h index_file.h mime.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h datetime.h\
  commonhelp.h cdb.h cdb_int.h failed.h hashterm.h jsonescape.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
+ namedents.h pkglibbindir.h datevalue.h sample.h strcasecmp.h\
  utf8truncate.h diritor.h runfilter.h freemem.h xpsxmlparse.h transform.h\
  weight.h expand.h svgparse.h tmpdir.h urldecode.h urlencode.h unixperm.h atomparse.h\
  xlsxparse.h opendocparse.h msxmlparse.h timegm.h csvescape.h\

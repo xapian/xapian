@@ -49,5 +49,6 @@
 /outlookmsg2html
 /rfc822tohtml
 /mimemap.h
+/namedents.h
 /my-html-tok.h
 /*.1
