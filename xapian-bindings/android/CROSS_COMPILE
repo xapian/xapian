@@ -1,0 +1,90 @@
+Instructions for cross compiling for android 
+============================================
+This file is aimed to help developers get started with cross compiling xapian for android.
+
+
+Prerequisites
+=============
+1)
+You will need to download android ndk from https://developer.android.com/ndk/downloads/index.html 
+for your respective development platform. Extract it and now using the make-standalone-toolchain.sh
+in the ndk make a customized toolchain from the command line by doing the following:
+
+export NDK=<path_to_ndk>
+$NDK/build/tools/make-standalone-toolchain.sh --toolchain=<target-arch> --platform=<target-android-api> --install-dir=<path_to_ndk_standalone_toolchain>
+
+<target-arch> is the architecture your standalone toolchain is going to target. eg. for ARM-based architecture can
+use arm-linux-androideabi-4.9. For more info refer https://developer.android.com/ndk/guides/standalone_toolchain.html
+
+<target-android-api> is the target Android platform/API level. eg android-16
+
+<path_to_ndk_standalone_toolchain> is the path where your standalone toolchain will be installed.
+
+2)
+As Xapian makes use of built-in UUID APIs and ndk does not have UUID APIs, we need to explicitly cross compile that as well. So download libuuid, inside the e2fsprogs package by doing following:
+
+git clone git://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git
+cd e2fsprogs/
+
+Now configure and install the library by doing:
+export $TOOLCHAIN=<path_to_ndk_standalone_toolchain>
+export PATH=$PATH:$TOOLCHAIN
+export CC=$TOOLCHAIN/bin/<target-arch>-gcc
+export CXX=$TOOLCHAIN/bin/<target-arch>-g++
+export CPP=$TOOLCHAIN/bin/<target-arch>-cpp
+export LD=$TOOLCHAIN/bin/<target-arch>-ld
+export AR=$TOOLCHAIN/bin/<target-arch>-ar
+export RANLIB=$TOOLCHAIN/bin/<target-arch>-ranlib
+
+./configure --host=<host> --prefix=<path_to_xapian>/xapian-bindings/android/built CFLAGS="-fPIC"
+cd lib/uuid
+make
+make install
+
+<host> is the target architecture. eg. arm-linux-androideabi
+<target-arch> is the same as in step 1)
+
+3)
+For testing purpose you will need adb installed.
+
+Cross compiling Xapian
+======================
+Now cross compile xapian for android as follows:
+
+export NDK=<path_to_ndk>
+export $TOOLCHAIN=<path_to_ndk_standalone_toolchain>
+export PATH=$PATH:$TOOLCHAIN
+export CC=$TOOLCHAIN/bin/<target-arch>-gcc
+export CXX=$TOOLCHAIN/bin/<target-arch>-g++
+export CPP=$TOOLCHAIN/bin/<target-arch>-cpp
+export LD=$TOOLCHAIN/bin/<target-arch>-ld
+export AR=$TOOLCHAIN/bin/<target-arch>-ar
+export RANLIB=$TOOLCHAIN/bin/<target-arch>-ranlib
+export OUTPUT_DIR=<path_to_xapian>/xapian-bindings/android/built
+cd <path_to_xapian>/xapian-core
+./configure --prefix=$OUTPUT_DIR CC=$CC CXX=$CXX --host=<host> --with-sysroot=$TOOLCHAIN/sysroot LDFLAGS="-L$OUTPUT_DIR/lib -L$NDK/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/ -fPIE -pie" --disable-shared CXXFLAGS="-Wl,--no-undefined" --with-pic --disable-backend-chert
+make
+make install
+
+The above configure will build xapian statically with position independent code with backend chert disabled.
+
+Testing Xapian on android
+=========================
+Now to test your build do the following:
+
+cd <path_to_xapian>/xapian-core/tests
+make apitest
+
+This will generate apitest file in tests folder. You will need to push this file, testdata folder and runtest script to your android device or emulator.
+
+To push a file to your android device use the following command:
+
+adb push <path_of_file> <dst_on_device>
+
+<dst_on_device> is the destination where you have the read-write-execute permission. eg. /data/local/tmp
+
+After pushing all the files to the device, you can run test as follows:
+
+adb shell
+cd <dst_on_device>
+sh runtest ./apitest
