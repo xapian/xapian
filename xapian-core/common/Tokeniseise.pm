@@ -1,5 +1,5 @@
 package Tokeniseise;
-# Copyright (C) 2012,2013 Olly Betts
+# Copyright (C) 2012,2013,2016 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -24,7 +24,7 @@ use warnings;
 use IO::File;
 
 sub new {
-    my ($class, $header, $desc, $copyright, $guard, $type) = @_;
+    my ($class, $header, $desc, $copyright, $guard, $type, $width) = @_;
     my $fh = IO::File->new("$header~", "w");
     defined $fh or die $!;
     print $fh <<"EOF";
@@ -42,6 +42,7 @@ EOF
 	FH => $fh,
 	HEADER => $header,
 	M => {},
+	WIDTH => ($width // 1),
 	ENUM_VALUES => {}
     };
     bless($self, $class);
@@ -70,7 +71,8 @@ sub write {
     print $fh join ",\n", map { "    $_ = $self->{ENUM_VALUES}{$_}" } sort {$self->{ENUM_VALUES}{$a} <=> $self->{ENUM_VALUES}{$b}} keys %{$self->{ENUM_VALUES}};
     print $fh "\n};\n";
 
-    my $max = 255;
+    my $width = $self->{WIDTH};
+    my $max = (1 << (8 * $width)) - 1;
     if (scalar keys %{$self->{ENUM_VALUES}} > $max + 1) {
 	die "Token value ", (scalar keys %{$self->{ENUM_VALUES}}) - 1, " > $max";
     }
@@ -86,13 +88,14 @@ sub write {
     # byte.
     @lens = sort {space_needed($a, $m) <=> space_needed($b, $m)} @lens;
     # 1 means "no entries" since it can't be a valid offset.
+    # 2 also can't be a valid offset, but isn't currently used.
     my @h = (1) x $max_len;
     my @r = ();
     my $offset = 0;
     for my $len (@lens) {
 	push @r, undef;
-	$offset == 1 and die "Offset $offset == 1";
-	$offset > $max and die "Offset $offset > $max";
+	($offset == 1 or $offset == 2) and die "Offset $offset shouldn't be possible";
+	$offset > $max and die "Offset $offset > $max (you should specify a larger width)";
 	$h[$len - 1] = $offset;
 	my $href = $m->{$len};
 	my $tab_len = scalar(keys %$href);
@@ -115,7 +118,17 @@ sub write {
 	} else {
 	    print $fh " ";
 	}
-	printf $fh "%3d,", $_;
+	if ($width == 1) {
+	    printf $fh "%3d,", $_;
+	} elsif ($width == 2) {
+	    if ($_ == 1) {
+		print $fh "1,0,";
+	    } else {
+		printf $fh "(%d&255),(%d>>8),", $_, $_;
+	    }
+	} else {
+	    die "Unhandled width==$width";
+	}
     }
     print $fh "\n";
 

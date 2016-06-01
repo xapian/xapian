@@ -1,7 +1,7 @@
 /** @file keyword.h
  * @brief Efficient keyword to enum lookup
  */
-/* Copyright (C) 2012 Olly Betts
+/* Copyright (C) 2012,2016 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -28,5 +28,8 @@
 #include <string.h>
 
 int keyword(const unsigned char * tab, const char * s, size_t len);
+
+/// 2 byte offset variant.
+int keyword2(const unsigned char * tab, const char * s, size_t len);
 
 #endif
