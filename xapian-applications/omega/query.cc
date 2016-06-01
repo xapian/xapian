@@ -1264,7 +1264,7 @@ eval(const string &fmt, const vector<string> &param)
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		for (Xapian::TermIterator term = db.termlist_begin(id);
-		for ( ; term != db.termlist_end(id); term++) {
+		     term != db.termlist_end(id); term++) {
 		    value += *term;
 		    value += '\t';
 		}
