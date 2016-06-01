@@ -44,7 +44,7 @@ enum value_slot {
     VALUE_LASTMOD = 0,	// 4 byte big endian value - seconds since 1970.
     VALUE_MD5 = 1,	// 16 byte MD5 checksum of original document.
     VALUE_SIZE = 2,	// sortable_serialise(<file size in bytes>).
-    VALUE_CTIME = 3 	// Like VALUE_LASTMOD, but for last metadata change.
+    VALUE_CTIME = 3	// Like VALUE_LASTMOD, but for last metadata change.
 };
 
 inline uint32_t binary_string_to_int(const std::string &s)

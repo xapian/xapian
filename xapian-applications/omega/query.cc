@@ -460,10 +460,10 @@ run_query()
 	    if (over || i->first != current) {
 		switch (same_vec.size()) {
 		    case 0:
-		        break;
+			break;
 		    case 1:
 			filter_vec.push_back(Xapian::Query(same_vec[0]));
-		        break;
+			break;
 		    default: {
 			Xapian::Query::op op = Xapian::Query::OP_OR;
 			auto it = option.find("nonexclusiveprefix," + current);
@@ -473,7 +473,7 @@ run_query()
 			filter_vec.push_back(Xapian::Query(op,
 						     same_vec.begin(),
 						     same_vec.end()));
-		        break;
+			break;
 		    }
 		}
 		same_vec.clear();
@@ -595,19 +595,19 @@ html_escape(const string &str)
 	char ch = str[p++];
 	switch (ch) {
 	    case '<':
-	        res += "&lt;";
-	        continue;
+		res += "&lt;";
+		continue;
 	    case '>':
-	        res += "&gt;";
-	        continue;
+		res += "&gt;";
+		continue;
 	    case '&':
-	        res += "&amp;";
-	        continue;
+		res += "&amp;";
+		continue;
 	    case '"':
-	        res += "&quot;";
-	        continue;
+		res += "&quot;";
+		continue;
 	    default:
-	        res += ch;
+		res += ch;
 	}
     }
     return res;
@@ -623,13 +623,13 @@ html_strip(const string &str)
 	char ch = str[p++];
 	switch (ch) {
 	    case '<':
-	        skip = true;
-	        continue;
+		skip = true;
+		continue;
 	    case '>':
-	        skip = false;
-	        continue;
+		skip = false;
+		continue;
 	    default:
-	        if (! skip) res += ch;
+		if (! skip) res += ch;
 	}
     }
     return res;
@@ -1247,7 +1247,7 @@ eval(const string &fmt, const vector<string> &param)
 	string value;
 	switch (func->second->tag) {
 	    case CMD_:
-	        break;
+		break;
 	    case CMD_add: {
 		int total = 0;
 		vector<string>::const_iterator i;
@@ -1263,7 +1263,7 @@ eval(const string &fmt, const vector<string> &param)
 		// list of all terms indexing document
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
-		Xapian::TermIterator term = db.termlist_begin(id);
+		for (Xapian::TermIterator term = db.termlist_begin(id);
 		for ( ; term != db.termlist_end(id); term++) {
 		    value += *term;
 		    value += '\t';
@@ -1280,7 +1280,7 @@ eval(const string &fmt, const vector<string> &param)
 			value.resize(0);
 			break;
 		    }
-	        }
+		}
 		break;
 	    }
 	    case CMD_cgi: {
@@ -1305,13 +1305,13 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(collapsed);
 		break;
 	    }
-            case CMD_contains: {
-                size_t pos = args[1].find(args[0]);
-                if (pos != string::npos) {
-                    value = str(pos);
-                }
-                break;
-            }
+	    case CMD_contains: {
+		size_t pos = args[1].find(args[0]);
+		if (pos != string::npos) {
+		    value = str(pos);
+		}
+		break;
+	    }
 	    case CMD_csv:
 		value = args[0];
 		if (args.size() > 1 && !args[1].empty()) {
@@ -1493,11 +1493,11 @@ eval(const string &fmt, const vector<string> &param)
 		    value = str(db.get_termfreq(args[0]));
 		}
 		break;
-            case CMD_ge:
+	    case CMD_ge:
 		if (string_to_int(args[0]) >= string_to_int(args[1]))
 		    value = "true";
 		break;
-            case CMD_gt:
+	    case CMD_gt:
 		if (string_to_int(args[0]) > string_to_int(args[1]))
 		    value = "true";
 		break;
@@ -1562,7 +1562,7 @@ eval(const string &fmt, const vector<string> &param)
 			}
 		    }
 		}
-	        // add any boolean terms
+		// add any boolean terms
 		for (FMCI i = filter_map.begin(); i != filter_map.end(); i++) {
 		    url_query_string += "&B=";
 		    url_query_string += i->second;
@@ -1576,7 +1576,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(hits_per_page);
 		break;
 	    case CMD_hostname: {
-	        value = args[0];
+		value = args[0];
 		// remove URL scheme and/or path
 		string::size_type i = value.find("://");
 		if (i == string::npos) i = 0; else i += 3;
@@ -1590,10 +1590,10 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_html:
-	        value = html_escape(args[0]);
+		value = html_escape(args[0]);
 		break;
 	    case CMD_htmlstrip:
-	        value = html_strip(args[0]);
+		value = html_strip(args[0]);
 		break;
 	    case CMD_httpheader:
 		if (!suppress_http_headers) {
@@ -1603,7 +1603,7 @@ eval(const string &fmt, const vector<string> &param)
 			set_content_type = true;
 		    }
 		}
-	        break;
+		break;
 	    case CMD_id:
 		// document id
 		value = str(q0);
@@ -1615,8 +1615,8 @@ eval(const string &fmt, const vector<string> &param)
 		    value = eval(args[2], param);
 		break;
 	    case CMD_include:
-	        value = eval_file(args[0]);
-	        break;
+		value = eval_file(args[0]);
+		break;
 	    case CMD_json:
 		value = args[0];
 		json_escape(value);
@@ -1650,11 +1650,11 @@ eval(const string &fmt, const vector<string> &param)
 		value = str(l);
 		break;
 	    }
-            case CMD_le:
+	    case CMD_le:
 		if (string_to_int(args[0]) <= string_to_int(args[1]))
 		    value = "true";
 		break;
-            case CMD_length:
+	    case CMD_length:
 		if (args[0].empty()) {
 		    value = "0";
 		} else {
@@ -1702,7 +1702,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_log: {
 		if (!vet_filename(args[0])) break;
 		string logfile = log_dir + args[0];
-	        int fd = open(logfile.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
+		int fd = open(logfile.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
 		if (fd == -1) break;
 		vector<string> noargs;
 		noargs.resize(1);
@@ -1721,7 +1721,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_lookup: {
 		if (!vet_filename(args[0])) break;
 		string cdbfile = cdb_dir + args[0];
-	        int fd = open(cdbfile.c_str(), O_RDONLY);
+		int fd = open(cdbfile.c_str(), O_RDONLY);
 		if (fd == -1) break;
 
 		struct cdb cdb;
@@ -1742,7 +1742,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_lower:
 		value = Xapian::Unicode::tolower(args[0]);
 		break;
-            case CMD_lt:
+	    case CMD_lt:
 		if (string_to_int(args[0]) < string_to_int(args[1]))
 		    value = "true";
 		break;
@@ -1760,7 +1760,7 @@ eval(const string &fmt, const vector<string> &param)
 			i = j + 1;
 		    }
 		}
-	        break;
+		break;
 	    case CMD_match:
 		omegascript_match(value, args);
 		break;
@@ -1770,7 +1770,7 @@ eval(const string &fmt, const vector<string> &param)
 		for (; i != args.end(); i++) {
 		    int x = string_to_int(*i);
 		    if (x > val) val = x;
-	        }
+		}
 		value = str(val);
 		break;
 	    }
@@ -1780,7 +1780,7 @@ eval(const string &fmt, const vector<string> &param)
 		for (; i != args.end(); i++) {
 		    int x = string_to_int(*i);
 		    if (x < val) val = x;
-	        }
+		}
 		value = str(val);
 		break;
 	    }
@@ -1822,7 +1822,7 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    }
-            case CMD_ne:
+	    case CMD_ne:
 		if (args[0] != args[1]) value = "true";
 		break;
 	    case CMD_nice: {
@@ -1858,7 +1858,7 @@ eval(const string &fmt, const vector<string> &param)
 		     i != args.end(); i++) {
 		    value = eval(*i, param);
 		    if (!value.empty()) break;
-	        }
+		}
 		break;
 	    }
 	    case CMD_ord: {
@@ -1910,7 +1910,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_range: {
 		int start = string_to_int(args[0]);
 		int end = string_to_int(args[1]);
-	        while (start <= end) {
+		while (start <= end) {
 		    value += str(start);
 		    if (start < end) value += '\t';
 		    start++;
@@ -1946,7 +1946,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_score:
-	        // Score (0 to 10)
+		// Score (0 to 10)
 		value = str(percent / 10);
 		break;
 	    case CMD_set:
@@ -1998,7 +1998,7 @@ eval(const string &fmt, const vector<string> &param)
 		    if (j == string::npos) break;
 		    i = j + 1;
 		}
-	        break;
+		break;
 	    }
 	    case CMD_snippet: {
 		size_t length = 200;
@@ -2034,7 +2034,7 @@ eval(const string &fmt, const vector<string> &param)
 		    value.replace(i, split.size(), 1, '\t');
 		    ++i;
 		}
-	        break;
+		break;
 	    }
 	    case CMD_stoplist: {
 		Xapian::TermIterator i = qp.stoplist_begin();
@@ -2153,9 +2153,8 @@ eval(const string &fmt, const vector<string> &param)
 
 			int c = 5;
 			// FIXME: what if mset does not start at first match?
-			Xapian::MSetIterator m = mset.begin();
-			for ( ; m != mset.end(); ++m) {
-			    tmp.add_document(*m);
+			for (Xapian::docid did : mset) {
+			    tmp.add_document(did);
 			    if (--c == 0) break;
 			}
 
@@ -2253,7 +2252,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	}
-        res += value;
+	res += value;
     } catch (const Xapian::Error & e) {
 	// FIXME: this means we only see the most recent error in $error
 	// - is that the best approach?
@@ -2416,7 +2415,7 @@ ensure_query_parsed()
 	case NEW_QUERY:
 	    break;
 	case SAME_QUERY:
-        case EXTENDED_QUERY:
+	case EXTENDED_QUERY:
 	    // If we've changed database, force the first page of hits
 	    // and discard the R-set (since the docids will have changed)
 	    val = cgi_params.find("xDB");

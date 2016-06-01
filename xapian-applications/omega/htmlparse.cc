@@ -79,7 +79,7 @@ HtmlParser::get_parameter(const string & param, string & value) const
 // UTF-8 encoded entity is always <= the entity itself in length, even if the
 // trailing ';' is missing - for numeric (decimal and hex) entities:
 //
-// <=		UTF-8 	&#<..>	&#x<..>
+// <=		UTF-8	&#<..>	&#x<..>
 // U+007F	1	5	5
 // U+07FF	2	6	6
 // U+FFFF	3	7	7
@@ -191,7 +191,7 @@ HtmlParser::parse(const string &body)
 		if (enc == string::npos || enc == decl.size()) break;
 
 		if (decl[enc] != '=') break;
-		
+
 		enc = decl.find_first_not_of(" \t\r\n", enc + 1);
 		if (enc == string::npos || enc == decl.size()) break;
 

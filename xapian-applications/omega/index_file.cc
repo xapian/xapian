@@ -337,8 +337,7 @@ generate_sample_from_csv(const string & csv_data, string & sample)
     size_t last_word_end = 0;
     bool in_space = true;
     bool in_quotes = false;
-    Xapian::Utf8Iterator i(csv_data);
-    for ( ; i != Xapian::Utf8Iterator(); ++i) {
+    for (Xapian::Utf8Iterator i(csv_data); i != Xapian::Utf8Iterator(); ++i) {
 	unsigned ch = *i;
 
 	if (!in_quotes) {

@@ -36,7 +36,7 @@ while (<DOCS>) {
 	    print STDERR "Bad field: $_\n";
 	    next;
 	}
-        $f{$1} = $_;
+	$f{$1} = $_;
     }
     print "url=$f{'u'}\ncaption=$f{'t'}\nlastmod=$f{'m'}\nsize=$f{'s'}\ntext=$f{'H'}\nmetadesc=$f{'h'}\n\n";
 }

@@ -79,8 +79,8 @@ get_free_physical_memory()
     /* HP-UX: */
     struct pst_dynamic info;
     if (pstat_getdynamic(&info, sizeof(info), 1, 0) == 1) {
-        pagesize = getpagesize();
-        pages = info.psd_free;
+	pagesize = getpagesize();
+	pages = info.psd_free;
     }
 #elif defined CTL_VM && (defined VM_TOTAL || defined VM_METER)
     /* FreeBSD: */

@@ -32,7 +32,7 @@ unlet b:current_syntax
 " HTML included in commands.
 " Just do very basic highlighting, because it is likely to be only a fragment.
 " We can't even sensibly insist on matching angle brackets.
-syn match omegaScriptHTML contained +[<>="]+ 
+syn match omegaScriptHTML contained +[<>="]+
 
 " OmegaScript commands are case sensitive
 syn case match

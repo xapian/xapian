@@ -107,7 +107,7 @@ try {
     // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
     option["decimal"] = ".";
     option["thousand"] = ",";
-    
+
     // set the default stemming language
     option["stemmer"] = DEFAULT_STEM_LANGUAGE;
 
@@ -145,7 +145,7 @@ try {
 	    const string & v = i->second;
 	    if (!v.empty()) {
 		size_t p = 0, q;
-		while (true) {	    
+		while (true) {
 		    q = v.find('/', p);
 		    string s(v, p, q - p);
 		    if (!s.empty() && seen.find(s) == seen.end()) {
@@ -382,9 +382,9 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-        threshold = atoi(val->second.c_str());
-        if (threshold < 0) threshold = 0;
-        if (threshold > 100) threshold = 100;
+	threshold = atoi(val->second.c_str());
+	if (threshold < 0) threshold = 0;
+	if (threshold > 100) threshold = 100;
     }
 
     // collapsing
@@ -477,7 +477,7 @@ try {
 	min_hits = atol(val->second.c_str());
     }
 
-    parse_omegascript(); 
+    parse_omegascript();
 } catch (const Xapian::Error &e) {
     if (!set_content_type && !suppress_http_headers)
 	cout << "Content-Type: text/html\n\n";
