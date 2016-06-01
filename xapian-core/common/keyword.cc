@@ -34,9 +34,9 @@ keyword(const unsigned char * p, const char * s, size_t len)
     if (len == 0 || len > p[0] || p[len] == 1)
 	return -1;
     p = p + p[0] + p[len] + 3;
-    const unsigned char * q = p + (len + 1) * (p[-2] + 1);
-    /* Binary chop between p and q */
     size_t n = len + 1;
+    const unsigned char * q = p + n * (p[-2] + 1);
+    /* Binary chop between p and q */
     size_t d = n * 2;
     while (p < q) {
 	const unsigned char * m = p + (q - p) / d * n;
