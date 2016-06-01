@@ -1,3 +1,98 @@
+Xapian-core 1.3.7 (2016-06-01):
+
+API:
+
+* Reimplement ESet and ESetIterator as we did for MSet and MSetIterator in
+  1.3.5.  ESetIterator internally now counts down to the end of the ESet, so
+  the end test is now against 0, rather than against eset.size().  And more of
+  the trivial methods are now inlined, which reduces the number of relocations
+  needed to load the library, and should give faster code which is a very
+  similar size to before.
+
+* MSetIterator and ESetIterator are now STL-compatible random_access_iterators
+  (previously they were only bidirectional_iterators).
+
+testsuite:
+
+* Merge queryparsertest and termgentest into apitest.  Their testcases now use
+  the backend manager machinery in the testharness, so we don't have to
+  hard-code use of inmemory and chert backends, but instead run them under all
+  backends which support the required features.  This fixes some test failures
+  when both chert and glass are disabled due to trying to run spelling tests
+  with the inmemory backend.
+
+* Avoid overflowing collection frequency in totaldoclen1.  We're trying to test
+  total document length doesn't wrap, so avoid collection freq overflowing in
+  the process, as that triggers errors when running the testsuite under ubsan.
+  We should handle collection frequency overflow better, but that's a separate
+  issue.
+
+* Add some test coverage for ESet::get_ebound().
+
+matcher:
+
+* Fix upper bound on matches for OP_XOR.  Due to a reversed conditional, the
+  estimate could be one too low in some cases where the XOR matched all the
+  documents in the database.
+
+* Improve lower bound on matches for OP_XOR.  Previously the lower bound was
+  always set to 0, which is valid, but we can often do better.
+
+glass backend:
+
+* Fix Database::check() parsing of glass changes file header.  In practice this
+  was unlikely to actually cause problems.
+
+build system:
+
+* --disable-backend-remote now disables replication too which makes it
+  actually usable (currently replication and the remote backend share most of
+  their network code, so disabling them together probably makes sense anyway).
+
+* Improve builds with various combinations of backends disabled (see #361).
+
+portability:
+
+* Revert change to handle a self-initialised PIMPL object (e.g. Xapian::Query
+  q(q);), added in 1.3.6.  It seems this case is actually undefined behaviour,
+  so there's not much point trying to do anything about it.  Clang warns about
+  the testcase for it (tested with 3.5), but sadly current GCC doesn't (tested
+  with 6.1).
+
+* Use <cstdint> for integer types of known widths now we require C++11.
+
+* Replace unaligned word access functions with optimised versions which use
+  memcpy() and (on little-endian platforms) a byte-swap (via compiler builtins
+  where available).  Access revision numbers in database blocks with an aligned
+  load, since we know they are suitably aligned.
+
+* Simplify handling of platforms where timer_create() exists but isn't
+  suitable for our needs - AIX and GNU Hurd both have timer_create() but it
+  always seems to fail (on Hurd this is because there's a dummy implementation
+  in glibc which always fails with ENOSYS).  Trying a call at runtime which
+  will never succeed is a waste of time, so we want to avoid defining
+  HAVE_TIMER_CREATE in such cases.  Probing for this properly in configure
+  would need us to compile and run a test program, which is unhelpful when
+  cross-compiling, so for now just test against a blacklist of platforms we
+  know don't provide a suitable timer_create() function.
+
+* Check _POSIX_MONOTONIC_CLOCK and if it's not defined, use CLOCK_REALTIME
+  instead of CLOCK_MONOTONIC.  The existing hard-coded platform checks still
+  seem to be needed, as on these platforms CLOCK_MONOTONIC is available for
+  some functions, but doesn't work with timer_create() for one reason or
+  another.  But the new check should avoid failures on platforms without any
+  monotonic clock support.
+
+* Make opt_intrusive_base symbols visible to avoid UBSAN warnings.
+
+* Avoid potential set-but-unused warning - with both chert and glass disabled,
+  last_docid's final set value isn't used, which GCC doesn't warn about, but
+  other compilers might.
+
+* Avoid explicit recursive return of void - we've had warnings for such cases
+  from some compilers in the past, and it's an odd thing to do outside of a
+  template.
+
 Xapian-core 1.3.6 (2016-05-09):
 
 API:
