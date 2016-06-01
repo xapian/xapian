@@ -1,3 +1,11 @@
+Omega 1.3.7 (2016-06-01):
+
+indexers:
+
+* Make named entity look-up (e.g. &eacute; -> 233) use the same keyword-lookup
+  table approach we already use for HTML tags and built-in MIME content-types,
+  rather than a std::map, which makes it faster while using less memory.
+
 Omega 1.3.6 (2016-05-09):
 
 documentation:
