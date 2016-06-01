@@ -1,3 +1,21 @@
+Xapian-bindings 1.3.7 (2016-06-01):
+
+Documentation:
+
+* Remove long out-dated reference to tinderbox.
+
+General:
+
+* Use SWIG 3.0.9 to generate the bindings.  There's nothing very important to
+  us in the changes since the git snapshot we were using - mostly this means
+  we're using a released version, which seems preferable.
+
+Tcl:
+
+* Fix segfault in tcl bindings "make check".  The location of tclConfig.sh
+  wasn't being found, so libtclstub wasn't being linked to, which is required
+  with Tcl >= 8.6.
+
 Xapian-bindings 1.3.6 (2016-05-09):
 
 General:
