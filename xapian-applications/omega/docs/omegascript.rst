@@ -66,8 +66,10 @@ $addfilter{TERM}
         requires the query to have been parsed - see ``$setmap`` for a list
         of these commands.
 
-$allterms{docid}
-	list of all terms matching document
+$allterms[{DOCID}]
+        list of all terms indexing the document with docid `DOCID` - if used
+        without a parameter list, them the docid of the current hit is
+        implicitly used.
 
 $cgi{CGI}
         lookup the value of a CGI parameter.  If the same parameter has
@@ -635,11 +637,12 @@ $suggestion
 	return an empty string.
 
 $terms[{PREFIX}]
-        list of matching terms for current hit.  The ability to specify a
+        list of query terms matching the current hit.  The ability to specify a
         prefix was added in Omega 1.3.5.  If no prefix is specified (i.e.
-        ``$terms``), then only terms from the query string are returned.  This
-        is different to an empty prefix (i.e. ``$terms{}``) which returns all
-        terms matching the current hit.
+        ``$terms``), then only terms from the query string(s) are returned.
+        This is different to an empty prefix (i.e. ``$terms{}``) which returns
+        all query terms matching the current hit, so also includes filter
+        terms.
 
 $thispage
 	page number of current page.
