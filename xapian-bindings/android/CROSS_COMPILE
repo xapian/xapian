@@ -27,16 +27,10 @@ git clone git://git.kernel.org/pub/scm/fs/ext2/e2fsprogs.git
 cd e2fsprogs/
 
 Now configure and install the library by doing:
-export $TOOLCHAIN=<path_to_ndk_standalone_toolchain>
-export PATH=$PATH:$TOOLCHAIN
-export CC=$TOOLCHAIN/bin/<target-arch>-gcc
-export CXX=$TOOLCHAIN/bin/<target-arch>-g++
-export CPP=$TOOLCHAIN/bin/<target-arch>-cpp
-export LD=$TOOLCHAIN/bin/<target-arch>-ld
-export AR=$TOOLCHAIN/bin/<target-arch>-ar
-export RANLIB=$TOOLCHAIN/bin/<target-arch>-ranlib
+export TOOLCHAIN=<path_to_ndk_standalone_toolchain>
+export PATH=$PATH:$TOOLCHAIN/bin
 
-./configure --host=<host> --prefix=<path_to_xapian>/xapian-bindings/android/built CFLAGS="-fPIC"
+./configure --host=<host> --prefix="$TOOLCHAIN/sysroot/usr" CFLAGS="-fPIC"
 cd lib/uuid
 make
 make install
@@ -51,22 +45,15 @@ Cross compiling Xapian
 ======================
 Now cross compile xapian for android as follows:
 
-export NDK=<path_to_ndk>
-export $TOOLCHAIN=<path_to_ndk_standalone_toolchain>
-export PATH=$PATH:$TOOLCHAIN
-export CC=$TOOLCHAIN/bin/<target-arch>-gcc
-export CXX=$TOOLCHAIN/bin/<target-arch>-g++
-export CPP=$TOOLCHAIN/bin/<target-arch>-cpp
-export LD=$TOOLCHAIN/bin/<target-arch>-ld
-export AR=$TOOLCHAIN/bin/<target-arch>-ar
-export RANLIB=$TOOLCHAIN/bin/<target-arch>-ranlib
+export TOOLCHAIN=<path_to_ndk_standalone_toolchain>
+export PATH=$PATH:$TOOLCHAIN/bin
 export OUTPUT_DIR=<path_to_xapian>/xapian-bindings/android/built
 cd <path_to_xapian>/xapian-core
-./configure --prefix=$OUTPUT_DIR CC=$CC CXX=$CXX --host=<host> --with-sysroot=$TOOLCHAIN/sysroot LDFLAGS="-L$OUTPUT_DIR/lib -L$NDK/sources/cxx-stl/gnu-libstdc++/4.9/libs/armeabi/ -fPIE -pie" --disable-shared CXXFLAGS="-Wl,--no-undefined" --with-pic --disable-backend-chert
+./configure --prefix=$OUTPUT_DIR --host=<host>  LDFLAGS="-fPIE -pie" --disable-shared --with-pic 
 make
 make install
 
-The above configure will build xapian statically with position independent code with backend chert disabled.
+The above configure will build xapian statically with position independent code.
 
 Testing Xapian on android
 =========================
