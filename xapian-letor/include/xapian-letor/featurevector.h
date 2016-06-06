@@ -29,6 +29,10 @@
 
 #include "featuremanager.h"
 
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 #include <list>
 #include <map>
 
@@ -37,7 +41,7 @@ using namespace std;
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
+class XAPIAN_VISIBILITY_DEFAULT FeatureVector { //TODO: Update documentation
 
   public:
     /// @private @internal Class representing the FeatureVector internals.
@@ -57,16 +61,24 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     /// Destructor.
     ~FeatureVector();
 
+    static bool before(const Xapian::FeatureVector& c1, const Xapian::FeatureVector& c2);
+
     map<string, map<string, int> > load_relevance(const std::string & qrel_file);
 
-    /// Set the document id. This will be used by the internal class.
-    void set_did(const std::string & did1);
-
-    /// Set the relevance label. This will be used by the internal class.
+    //TODO: Update documentation
+    void set_did(const Xapian::docid & did1);
+    void set_fcount(int fcount1);
     void set_label(double label1);
-
-    /// Set the features array. This will be used by the internal class.
-    void set_fvals(map<int,double> fvals1);
+    void set_fvals(map<int,double> & fvals1);
+    void set_score(double score1);
+    void set_feature_value(int index, double value);
+    int get_fcount();
+    double get_score();
+    double get_label();
+    Xapian::docid get_did();
+    std::map<int,double> get_fvals();
+    double get_feature_value(int index);
+    int get_nonzero_num();
 
 };
 

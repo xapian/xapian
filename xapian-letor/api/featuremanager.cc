@@ -69,13 +69,13 @@ FeatureManager::getlabel(map<string, map<string, int> > qrel2, const Document &d
 }
 
 Xapian::RankList
-FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid)
+FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid, bool train)
 {
-    return internal->create_rank_list(mset, qid);
+    return internal->create_rank_list(mset, qid, train);
 }
 
 Xapian::FeatureVector
-FeatureManager::create_feature_vector(map<int,double> fvals, int &label, std::string & did)
+FeatureManager::create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did)
 {
     return internal->create_feature_vector(fvals, label, did);
 }

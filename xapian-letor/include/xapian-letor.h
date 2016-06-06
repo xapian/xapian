@@ -31,6 +31,7 @@
 #include <xapian-letor/letor_features.h>
 #include <xapian-letor/ranker.h>
 #include <xapian-letor/ranklist.h>
+#include <xapian-letor/scorer.h>
 
 #include <string>
 #include <map>

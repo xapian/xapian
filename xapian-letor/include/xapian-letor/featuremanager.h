@@ -69,8 +69,10 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
 
     /** Calculates ranklist (0 qid:10032 1:0.130742 2:0.000000 ... 18:0.750000 19:1.000000 #docid = 1123323)
      *  for an mset retrieved from a query. Feature 19 is the BM25 weight.
+     *
+     *  @ param  train      Set to 1 while training.
      */
-    Xapian::RankList create_rank_list(const Xapian::MSet & mset,std::string & qid);
+    Xapian::RankList create_rank_list(const Xapian::MSet & mset, std::string & qid, bool train);
 
     /** Loads up a qrel file.
      *  @return a map: < qid <docid, relevance_judgement> >
@@ -80,7 +82,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
     /** Creates instance of FeatureVector class that stores features_array, relevance label and corresponding document id
      *  @return a FeatureVector instance containing features_array, relevance label and corresponding document id
      */
-    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, std::string & did);
+    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did);
 
     /** Creates instance of FeatureVector class that stores features_array, relevance label and corresponding document id
      *  @return a FeatureVector instance containing features_array, relevance label and corresponding document id

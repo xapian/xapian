@@ -37,6 +37,7 @@
 using namespace Xapian;
 using namespace std;
 
+struct FileNotFound { };
 
 std::string
 FeatureManager::Internal::getdid(const Document &doc)
@@ -76,9 +77,10 @@ FeatureManager::Internal::getlabel(map<string, map<string, int> > qrel2,
 }
 
 Xapian::RankList
-FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::string & qid)
+FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::string & qid, bool train)
 {
     Xapian::RankList rl;
+    rl.set_qid(qid);
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 
@@ -89,22 +91,25 @@ FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::strin
         double weight = i.get_weight();
 
         map<int,double> fVals = transform(doc, weight);
-        string did = getdid(doc);
+        Xapian::docid did = doc.get_docid();
         int label = getlabel(qrel, doc, qid);
 
-        if(label!=-1) {
-            Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
-            rl.set_qid(qid);
-            rl.add_feature_vector(fv);
+        if (train && label == -1) {
+            continue;
         }
+        Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
+        rl.add_feature_vector(fv);
+
     }
-    rl.normalise();
+    //TODO: if the rlist is null(all the label is -1), need to thrown a exception.
+    std::vector<FeatureVector> normalized_rl = rl.normalise();
+    rl.set_fvv(normalized_rl);
     return rl;
 }
 
 Xapian::FeatureVector
 FeatureManager::Internal::create_feature_vector(map<int,double> fvals,
-                                                int &label, std::string & did)
+                                                int &label, Xapian::docid & did)
 {
     Xapian::FeatureVector fv;
     fv.set_did(did);
@@ -121,6 +126,10 @@ FeatureManager::Internal::load_relevance(const std::string & qrel_file)
 
     string inLine;
     ifstream myfile (qrel_file.c_str(), ifstream::in);
+    if(!myfile.good()){
+        cout << "No Qrel file found" << endl;
+        throw FileNotFound();
+    }
     string token[4];
     if (myfile.is_open()) {
     while (myfile.good()) {
@@ -140,6 +149,7 @@ FeatureManager::Internal::load_relevance(const std::string & qrel_file)
     }
     myfile.close();
     }
+    this->qrel = qrel1;
     return qrel1;
 }
 

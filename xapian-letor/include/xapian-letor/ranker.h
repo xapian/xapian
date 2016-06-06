@@ -28,41 +28,49 @@
 #include <xapian/visibility.h>
 
 #include "ranklist.h"
+#include "scorer.h"
 
 #include <list>
 #include <map>
-
+#include <vector>
 
 using namespace std;
 
-
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT Ranker {
+class XAPIAN_VISIBILITY_DEFAULT Ranker { //TODO: Update documentation
 
 
-    std::list<Xapian::RankList> traindata;
-    std::list<Xapian::RankList> validata;
-    std::list<Xapian::RankList> testdata;
+    std::vector<Xapian::RankList> traindata;
+
+    Scorer * scorer;
+
+    int MAXPATHLEN;
 
   public:
+
     Ranker();
 
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
-     */
-    std::list<double> rank(const Xapian::RankList & rl);
+    Ranker(int metric_type);
 
-    void learn_model();
+    double get_score(Xapian::RankList & rl);
 
-    void load_model(const std::string & model_file);
+    std::vector<Xapian::RankList> get_traindata();
 
-    void save_model();
+    void set_training_data(vector<Xapian::RankList> training_data1);
 
-    /* This method should read the letor format data and transform into the list of
-     * Xapian::RankList format
-     */
-    std::list<Xapian::RankList> load_data(const std::string & data_file);
+    std::string get_cwd();
+
+    virtual void train_model();
+
+    virtual void save_model_to_file();
+
+    virtual void load_model_from_file(const std::string & model_file);
+
+    virtual Xapian::RankList rank(Xapian::RankList & rl)=0;
+
+    // TODO: update aggregate when scorers are to be included
+    // std::vector<Xapian::docid> aggregate(std::vector<Xapian::RankList> rls);
 
 };
 

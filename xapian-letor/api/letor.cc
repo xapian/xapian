@@ -24,7 +24,6 @@
 #include <xapian-letor/letor.h>
 #include "letor_internal.h"
 #include "xapian-letor/ranker.h"
-#include "ranker/svmranker.h"
 
 #include <map>
 #include <string>
@@ -57,14 +56,14 @@ Letor::set_query(const Xapian::Query & query) {
     internal->letor_query = query;
 }
 
-map<Xapian::docid, double>
-Letor::letor_score(const Xapian::MSet & mset) {
-    return internal->letor_score(mset);
+std::vector<Xapian::docid>
+Letor::letor_rank(const Xapian::MSet & mset) {
+    return internal->letor_rank(mset);
 }
 
 void
-Letor::letor_learn_model(int s, int k) {
-    internal->letor_learn_model(s, k);
+Letor::letor_learn_model() {
+    internal->letor_learn_model();
 }
 
 void
@@ -73,13 +72,15 @@ Letor::prepare_training_file(const string & query_file, const string & qrel_file
 }
 
 void
-Letor::create_ranker(int ranker_type) {
-    switch(ranker_type) {
-        case 0: internal->ranker = * new SVMRanker;
-                break;
-        case 1: break;
-        default: ;//cout<<"Please specify proper ranker.";
-    }
+Letor::create_ranker(int ranker_type, int metric_type) { //TODO: update when adding rankers
+    // switch(ranker_type) {
+    //     case 0: internal->ranker = new SVMRanker(metric_type);
+    //             cout << "SVMRanker created!" <<endl;
+    //             break;
+    //     case 1: break;
+    //     default:cout<<"Please specify proper ranker.";
+    (void)ranker_type;
+    (void)metric_type;
 }
 
 }

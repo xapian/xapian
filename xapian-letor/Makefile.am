@@ -60,7 +60,6 @@ endif
 include api/Makefile.mk
 include bin/Makefile.mk
 include include/Makefile.mk
-include ranker/Makefile.mk
 
 libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 

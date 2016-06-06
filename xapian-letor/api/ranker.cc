@@ -17,47 +17,82 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
- 
-#include <xapian-letor/ranker.h>
 
-namespace Xapian {
+#include <xapian.h>
+#include <xapian/intrusive_ptr.h>
+#include <xapian/types.h>
+#include <xapian/visibility.h>
+
+#include <xapian-letor/ranker.h>
+#include <xapian-letor/ranklist.h>
+#include <xapian-letor/scorer.h>
+
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <utility>
+#include <stdlib.h>
+#include <unistd.h>
+
+using namespace std;
+using namespace Xapian;
+
+struct scoreComparer {
+    bool operator()(const pair<Xapian::docid, int>& first_pair, const pair<Xapian::docid, int>& second_pair) const {
+        return first_pair.second > second_pair.second;
+    }
+};
 
 Ranker::Ranker() {
+    MAXPATHLEN = 200;
 }
 
-    /* Override all the four methods below in the ranker sub-classes files
-     * wiz svmranker.cc , listnet.cc, listmle.cc and so on
-     */
-std::list<double>
-Ranker::rank(const Xapian::RankList & /*rl*/) {
-    std::list<double> res;
+Ranker::Ranker(int metric_type) { //TODO: update this when adding scorers
+    MAXPATHLEN = 200;
+    // switch(metric_type) {
+    //     case 0: this -> scorer = new NDCGScorer;
+    //             break;
+    //     case 1: this -> scorer = new ERRScorer;
+    //             break;
+    //     default: ;
+    (void)metric_type;
 
-    double d=1.0;
-    res.push_back(d);
-    return res;
+}
+
+double
+Ranker::get_score(Xapian::RankList & rl){
+    return this->scorer->score(rl);
+}
+
+std::vector<Xapian::RankList>
+Ranker::get_traindata(){
+    return this->traindata;
 }
 
 void
-Ranker::learn_model() {
+Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
+    this->traindata = training_data1;
+}
+
+std::string
+Ranker::get_cwd() {
+    char temp[MAXPATHLEN];
+    return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string(""));
 }
 
 void
-Ranker::load_model(const std::string & /*model_file*/) {
-
+Ranker::train_model() {
 }
 
 void
-Ranker::save_model() {
+Ranker::save_model_to_file() {
 }
 
-    /* This method should read the letor format data and transform into the list of
-     * Xapian::RankList format
-     */
-std::list<Xapian::RankList>
-Ranker::load_data(const std::string & /*data_file*/) {
-    std::list<Xapian::RankList> res;
-
-    return res;
+void
+Ranker::load_model_from_file(const std::string & model_file) {
+    (void)model_file;
 }
 
-}
+// TODO: Add definition of rank method
+
+// TODO: add aggregation methods when including scorers

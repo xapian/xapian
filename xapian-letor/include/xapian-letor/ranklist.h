@@ -32,27 +32,41 @@
 #include <list>
 #include <map>
 #include <iostream>
+#include <vector>
 
 using namespace std;
-
 
 namespace Xapian {
 
 class FeatureVector;
 
-class XAPIAN_VISIBILITY_DEFAULT RankList {
-    
-    std::list<FeatureVector> rl;
+class XAPIAN_VISIBILITY_DEFAULT RankList { //TODO: Update documentation
 
   public:
+
+    std::vector<FeatureVector> fvv;
+
     std::string qid;
+
     RankList();
-    
+
     void set_qid(std::string qid1);
 
-    void add_feature_vector(const Xapian::FeatureVector fv);//was & fv initially,check back later
+    std::string get_qid();
 
-    void normalise();
+    void set_fvv(std::vector<FeatureVector> & local_fvv);
+
+    void add_feature_vector(const Xapian::FeatureVector fv);
+
+    std::vector<FeatureVector> normalise();
+
+    bool fvcompare(FeatureVector fv1, FeatureVector fv2);
+
+    void sort_by_score();
+
+    void sort_by_label();
+
+    std::vector<FeatureVector> get_fvv();
 
 };
 

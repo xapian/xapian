@@ -23,23 +23,24 @@
 
 #include <xapian.h>
 
-#include "xapian-letor/letor.h"
-#include "letor_internal.h"
-#include "xapian-letor/featuremanager.h"
+#include <xapian-letor/letor.h>
 
-#include "str.h"
-#include "stringutils.h"
+#include "xapian-letor/letor_features.h"
+#include "xapian-letor/featuremanager.h"
 #include "xapian-letor/ranker.h"
-#include "ranker/svmranker.h"
+#include "letor_internal.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include "safeerrno.h"
 #include "safeunistd.h"
+#include "str.h"
+#include "stringutils.h"
 
 #include <algorithm>
 #include <list>
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -47,32 +48,15 @@
 #include <map>
 #include <math.h>
 
-#include <libsvm/svm.h>
-#define Malloc(type, n) (type *)malloc((n) * sizeof(type))
+#include <stdio.h>
 
 using namespace std;
 
 using namespace Xapian;
 
-struct svm_parameter param;
-struct svm_problem prob;
-struct svm_model *model;
-struct svm_node *x_space;
-int cross_validation;
-int nr_fold;
-
-
-
-struct svm_node *x;
-int max_nr_attr = 64;
-
-int predict_probability = 0;
-
-static char *line = NULL;
-static int max_line_len;
-
 int MAXPATHLEN = 200;
 
+struct FileNotFound { };
 
 //Stop-words
 static const char * sw[] = {
@@ -87,229 +71,181 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-
-
-
-static void exit_input_error(int line_num) {
-    printf("Error at Line : %d", line_num);
-    exit(1);
-}
-/*
-static string convertDouble(double value) {
-    std::ostringstream o;
-    if (!(o << value))
-	return string();
-    return o.str();
-}
-*/
 static string get_cwd() {
     char temp[MAXPATHLEN];
     return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string());
 }
 
-
-
-/* This method will calculate the score assigned by the Letor function.
- * It will take MSet as input then convert the documents in feature vectors
- * then normalize them according to QueryLevelNorm
- * and after that use the machine learned model file
- * to assign a score to the document
- */
-map<Xapian::docid, double>
-Letor::Internal::letor_score(const Xapian::MSet & mset) {
+std::vector<Xapian::docid>
+Letor::Internal::letor_rank(const Xapian::MSet & mset) {
 
     map<Xapian::docid, double> letor_mset;
 
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
     fm.set_query(letor_query);
-    
-    std::string s="1";
-    Xapian::RankList rl = fm.create_rank_list(mset, s);
-    std::list<double> scores =ranker.rank(rl);
-    
-    /*code to convert list<double> scores to map<docid,double>*/
-    
-    return letor_mset;
+
+    std::string s = "virtual_qid"; //TODO: Figure out virtual qid
+    Xapian::RankList rlist = fm.create_rank_list(mset, s, 0);
+
+    Xapian::RankList ranklist = ranker->rank(rlist);
+
+    std::vector<Xapian::FeatureVector> rankedfvv = ranklist.get_fvv();
+    int rankedsize = rankedfvv.size();
+    std::vector<Xapian::docid> rankeddid;
+
+    for (int i=0; i<rankedsize; ++i){
+        rankeddid.push_back(rankedfvv[i].get_did());
+    }
+    return rankeddid;
 }
 
-static char* readline(FILE *input) {
-    int len;
-
-    if (fgets(line, max_line_len, input) == NULL)
-	return NULL;
-
-    while (strrchr(line, '\n') == NULL) {
-	max_line_len *= 2;
-	line = (char *)realloc(line, max_line_len);
-	len = (int)strlen(line);
-	if (fgets(line + len, max_line_len - len, input) == NULL)
-	    break;
-    }
-    return line;
-}
-
-static void read_problem(const char *filename) {
-    int elements, max_index, inst_max_index, i, j;
-    FILE *fp = fopen(filename, "r");
-    char *endptr;
-    char *idx, *val, *label;
-
-    if (fp == NULL) {
-	fprintf(stderr, "can't open input file %s\n", filename);
-	exit(1);
+vector<Xapian::RankList>
+Letor::Internal::load_list_ranklist(const char *filename) { //directly use train.txt instead of train.bin
+    vector<Xapian::RankList> ranklist;
+    fstream train_file (filename, ios::in);
+    if(!train_file.good()){
+        cout << "No train file found"<<endl;
+        throw FileNotFound();
     }
 
-    prob.l = 0;
-    elements = 0;
+    std::vector<FeatureVector> fvv;
+    string lastqid;
+    int k =0;
+    while (train_file.peek() != EOF) {
+        k++;
+        FeatureVector fv;//new a fv
 
-    max_line_len = 1024;
-    line = Malloc(char, max_line_len);
+        double label;//read label
+        train_file >> label;
+        fv.set_label(label);
+        train_file.ignore();
 
-    while (readline(fp) != NULL) {
-	char *p = strtok(line, " \t"); // label
+        string qid;//read qid
+        train_file >> qid;
 
-	// features
-	while (1) {
-	    p = strtok(NULL, " \t");
-	    if (p == NULL || *p == '\n') // check '\n' as ' ' may be after the last feature
-		break;
-	    ++elements;
-	}
-	++elements;
-	++prob.l;
+        qid = qid.substr(qid.find(":")+1,qid.length());
+
+        if (lastqid==""){
+            lastqid = qid;
+        }
+        //std::cout << fv.did << endl;
+
+        std::map<int,double> fvals;//read features
+        for(int i = 1; i < 20; ++i){
+            train_file.ignore();
+            int feature_index;
+            double feature_value;
+            train_file >> feature_index;
+            train_file.ignore();
+            train_file >> feature_value;
+            //std::cout<<feature_index<<" "<<feature_value<<endl;
+            fvals[feature_index] = feature_value;
+        }
+        fv.set_fvals(fvals);
+
+        string did;
+        train_file >> did;
+        //cout << "original did: " <<did<<endl;
+        did = did.substr(did.find("=")+1,did.length());
+        Xapian::docid docid = (Xapian::docid) atoi(did.c_str());
+        //cout << "did: " << did <<endl;
+        //cout << "docid: " << docid << endl;
+
+
+        fv.set_did(docid);
+        train_file.ignore();
+        //std::cout << fv.did << endl;
+
+        fv.set_fcount(20);
+        fv.set_score(0);
+
+        fvv.push_back(fv);
+
+        if (qid != lastqid) {
+            RankList rlist;
+            rlist.set_qid(lastqid);
+            //cout << "show qid: "<< lastqid << endl;
+            rlist.set_fvv(fvv);
+            ranklist.push_back(rlist);
+            fvv = std::vector<FeatureVector>();
+            lastqid = qid;
+        }
+
     }
-    rewind(fp);
+    RankList rlist;
+    rlist.set_qid(lastqid);
+    //cout << "show qid: "<< lastqid << endl;
+    rlist.set_fvv(fvv);
+    ranklist.push_back(rlist);
 
-    prob.y = Malloc(double, prob.l);
-    prob.x = Malloc(struct svm_node *, prob.l);
-    x_space = Malloc(struct svm_node, elements);
-
-    max_index = 0;
-    j = 0;
-
-    for (i = 0; i < prob.l; ++i) {
-	inst_max_index = -1; // strtol gives 0 if wrong format, and precomputed kernel has <index> start from 0
-	readline(fp);
-	prob.x[i] = &x_space[j];
-	label = strtok(line, " \t\n");
-	if (label == NULL) // empty line
-	    exit_input_error(i + 1);
-	prob.y[i] = strtod(label, &endptr);
-	if (endptr == label || *endptr != '\0')
-	    exit_input_error(i + 1);
-
-	while (1) {
-	    idx = strtok(NULL, ":");
-	    val = strtok(NULL, " \t");
-
-	    if (val == NULL)
-		break;
-
-	    errno = 0;
-	    x_space[j].index = (int)strtol(idx, &endptr, 10);
-
-	    if (endptr == idx || errno != 0 || *endptr != '\0' || x_space[j].index <= inst_max_index)
-		exit_input_error(i + 1);
-	    else
-		inst_max_index = x_space[j].index;
-
-	    errno = 0;
-	    x_space[j].value = strtod(val, &endptr);
-
-	    if (endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
-		exit_input_error(i + 1);
-
-	    ++j;
-	}
-
-	if (inst_max_index > max_index)
-	    max_index = inst_max_index;
-	x_space[j++].index = -1;
-    }
-
-    if (param.gamma == 0 && max_index > 0)
-	param.gamma = 1.0 / max_index;
-
-    if (param.kernel_type == PRECOMPUTED)
-	for (i = 0; i < prob.l; ++i) {
-	    if (prob.x[i][0].index != 0) {
-		fprintf(stderr, "Wrong input format: first column must be 0:sample_serial_number\n");
-		exit(1);
-	    }
-	    if ((int)prob.x[i][0].value <= 0 || (int)prob.x[i][0].value > max_index) {
-		fprintf(stderr, "Wrong input format: sample_serial_number out of range\n");
-		exit(1);
-	    }
-	}
-	fclose(fp);
+    train_file.close();
+    //cout << "ranklist loading OK" <<endl;
+    cout << "the size of ranklist read from the training set: " << ranklist.size() <<endl;
+    return ranklist;
 }
 
 void
-Letor::Internal::letor_learn_model(int s_type, int k_type) {
-    // default values
-    param.svm_type = s_type;
-    param.kernel_type = k_type;
-    param.degree = 3;
-    param.gamma = 0;	// 1/num_features
-    param.coef0 = 0;
-    param.nu = 0.5;
-    param.cache_size = 100;
-    param.C = 1;
-    param.eps = 1e-3;
-    param.p = 0.1;
-    param.shrinking = 1;
-    param.probability = 0;
-    param.nr_weight = 0;
-    param.weight_label = NULL;
-    param.weight = NULL;
-    cross_validation = 0;
+Letor::Internal::letor_learn_model(){
 
-    printf("Learning the model..");
+    //printf("Learning the model..");
     string input_file_name;
-    string model_file_name;
-    const char *error_msg;
-
+    //string model_file_name;
     input_file_name = get_cwd().append("/train.txt");
-    model_file_name = get_cwd().append("/model.txt");
+    //model_file_name = get_cwd().append("/model.txt");
 
-    read_problem(input_file_name.c_str());
-    error_msg = svm_check_parameter(&prob, &param);
-    if (error_msg) {
-	fprintf(stderr, "svm_check_parameter failed: %s\n", error_msg);
-	exit(1);
-    }
+    vector<Xapian::RankList> samples = load_list_ranklist(input_file_name.c_str());
 
-    model = svm_train(&prob, &param);
-    if (svm_save_model(model_file_name.c_str(), model)) {
-	fprintf(stderr, "can't save model to file %s\n", model_file_name.c_str());
-	exit(1);
-    }
+    ranker->set_training_data(samples);
+
+    ranker->train_model();
 }
 
-
-/* This is the method which prepares the train.txt file of the standard Letor Format.
- * param 1 = Xapian Database
- * param 2 = path to the query file
- * param 3 = path to the qrel file
- *
- * output : It produces the train.txt method in /core/examples/ which is taken as input by learn_model() method
- */
-
 static void
-write_to_file(std::list<Xapian::RankList> l) {
+write_to_file(std::vector<Xapian::RankList> list_rlist) {
+
+    /* This function will save the list<RankList> to the training file
+     * so that this list<RankList> can be loaded again by train_model() and subsequent functions.
+     */
+
     ofstream train_file;
     train_file.open("train.txt");
     // write it down with proper format
-    for (list<Xapian::RankList>::iterator it = l.begin(); it != l.end(); it++);
+    int size_rlist = list_rlist.size();//return the size of list_rlist
+    //for (list<Xapian::RankList>::iterator it = l.begin(); it != l.end(); it++);
+    for(int i = 0; i < size_rlist; ++i) {
+       Xapian::RankList rlist = list_rlist.begin()[i];
+        /* now save this RankList...each RankList has a vectorr<FeatureVector>
+         * each FeatureVector has the following data: double score, int fcount, string did, map<int, double> fvals
+         * each line: double int string 1:double 2:double 3:double....
+         */
+        int size_rl = rlist.fvv.size();
+        // print the size of the rlist so that later we know how many featureVector to scan for this particular rlist.
+        // train_file << size_rl << " " << rlist.qid << endl;
+        string qid =rlist.get_qid();
+        for(int j=0; j < size_rl; ++j) {
+            FeatureVector fv = rlist.fvv[j];
 
+            double label = fv.get_label();
+            std::map<int,double> fvals = fv.get_fvals();
+            Xapian::docid did = fv.get_did();
+
+            // now save this feature vector fv to the file
+            // cout <<"label"<<fv.label<< "fv.score " << fv.score << "fv.fcount " << fv.fcount << "fv.did " << fv.did << endl;// << " ";
+            train_file << label << " qid:" <<qid;// << " ";
+            // if (fv.fcount==0){cout << "fcount is empty";}
+            for(int k=1; k < 20; ++k) {//just start from 1 //TODO: create a get_fval method in featurevector class
+            train_file << " " << k << ":" << fvals.find(k)->second;
+            // cout << "write fcount" << endl;
+            }
+            train_file <<" #docid=" << did<<endl;
+    	}
+    }
+    train_file.close();
 }
 
 void
 Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file, Xapian::doccount msetsize) {
-
-//    ofstream train_file;
-//    train_file.open("train.txt");
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
@@ -324,69 +260,67 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    /* ---------------------------- store whole qrel file in a Map<> ---------------------*/
-
-//    typedef map<string, int> Map1;      //docid and relevance judjement 0/1
-//    typedef map<string, Map1> Map2;     // qid and map1
-//    Map2 qrel;
-
-    map<string, map<string, int> > qrel; // 1
-
     Xapian::FeatureManager fm;
     fm.set_database(letor_db);
     fm.load_relevance(qrel_file);
-    qrel = fm.load_relevance(qrel_file);
 
-    list<Xapian::RankList> l;
+    vector<Xapian::RankList> l;
 
-    string str1;   
+    string str1;
     ifstream myfile1;
     myfile1.open(queryfile.c_str(), ios::in);
+
+    if(!myfile1.good()){
+        cout << "No Query file found"<<endl;
+        throw FileNotFound();
+    }
 
 
     while (!myfile1.eof()) {           //reading all the queries line by line from the query file
 
-	getline(myfile1, str1);
-	if (str1.empty()) {
-	    break;
-	}
+    	getline(myfile1, str1);
 
-	string qid = str1.substr(0, (int)str1.find(" "));
-	string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
+    	if (str1.empty()) {
+            //cout<< "str1 empty";
+    	    break;
+        }
 
-	string qq = querystr;
-	istringstream iss(querystr);
-	string title = "title:";
-	while (iss) {
-	    string t;
-	    iss >> t;
-	    if (t.empty())
-		break;
-	    string temp;
-	    temp.append(title);
-	    temp.append(t);
-	    temp.append(" ");
-	    temp.append(qq);
-	    qq = temp;
-	}
+    	string qid = str1.substr(0, (int)str1.find(" "));
+    	string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
 
-	cout << "Processing Query: " << qq << "\n";
-  
-	Xapian::Query query = parser.parse_query(qq,
-						 parser.FLAG_DEFAULT|
-						 parser.FLAG_SPELLING_CORRECTION);
+    	string qq = querystr;
+    	istringstream iss(querystr);
+    	string title = "title:";
+    	while (iss) {
+    	    string t;
+    	    iss >> t;
+    	    if (t.empty())
+    		break;
+    	    string temp;
+    	    temp.append(title);
+    	    temp.append(t);
+    	    temp.append(" ");
+    	    temp.append(qq);
+    	    qq = temp;
+    	}
 
-	Xapian::Enquire enquire(letor_db);
-	enquire.set_query(query);
+    	//cout << "Processing Query: " << qq << "\n";
 
-	Xapian::MSet mset = enquire.get_mset(0, msetsize);
+    	Xapian::Query query = parser.parse_query(qq,
+    						 parser.FLAG_DEFAULT|
+    						 parser.FLAG_SPELLING_CORRECTION);
 
-	fm.set_query(query);
+    	Xapian::Enquire enquire(letor_db);
+    	enquire.set_query(query);
 
-	Xapian::RankList rl = fm.create_rank_list(mset, qid);
-	l.push_back(rl);
-    }//while closed
+    	Xapian::MSet mset = enquire.get_mset(0, msetsize);
+
+    	fm.set_query(query);
+
+    	Xapian::RankList rl = fm.create_rank_list(mset, qid, 1);
+
+        l.push_back(rl);
+    }
     myfile1.close();
     write_to_file(l);
-//    train_file.close();
 }

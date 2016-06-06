@@ -56,12 +56,11 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /// Specify the query. This will be used by the internal class.
     void set_query(const Xapian::Query & query);
 
-    /** Gives the scores to each item of initial mset using the trained model. Note: It assigns a score to each document only so user needs to sort that map
-     *  as descending order of the value of map.
+    /** Core ranking function. Re-ranks the initial mset using trained model.
      *
-     *  @return Letor score corresponding to each document in mset as map<docid, score> format.
+     *  @return A vector of docids after ranking.
      */
-    std::map<Xapian::docid, double> letor_score(const Xapian::MSet & mset);
+    std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset);
 
     /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is
      *  installed in the system. The SVM model is learnt using libsvm.
@@ -80,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          4 -- precomputed kernel
      *
      */
-    void letor_learn_model(int s, int k);
+    void letor_learn_model(); //TODO: Update documentation
 
     /** This method prepares the 'train.txt' file in the current working directory. This file is used to train a model which in turn will be used to
      *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
@@ -99,8 +98,9 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          and database size.
      */
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
-    
-    void create_ranker(int ranker_type);
+
+    void create_ranker(int ranker_type, int metric_type); // TODO: Remove function and update as command line utility. Same for scorers as well.
+
 };
 
 }
