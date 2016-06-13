@@ -9,6 +9,7 @@ inc_HEADERS =\
 
 xapianinclude_HEADERS =\
 	include/xapian/attributes.h\
+	include/xapian/cluster.h\
 	include/xapian/compactor.h\
 	include/xapian/constants.h\
 	include/xapian/constinfo.h\

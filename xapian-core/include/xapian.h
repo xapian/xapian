@@ -80,6 +80,7 @@
 #include <xapian/queryparser.h>
 #include <xapian/valuesetmatchdecider.h>
 #include <xapian/weight.h>
+#include <xapian/cluster.h>
 
 // Stemming
 #include <xapian/stem.h>
