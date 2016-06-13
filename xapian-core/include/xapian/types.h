@@ -30,6 +30,13 @@
 
 namespace Xapian {
 
+/**A unique identifier for a cluster of documents
+ *
+ * clusterid of 0 is invalid, providing an "out of range" value which can
+   be used to mean "not a valid cluster"
+ */
+typedef unsigned XAPIAN_DOCID_BASE_TYPE clusterid;
+
 /** A count of documents.
  *
  *  This is used to hold values such as the number of documents in a database

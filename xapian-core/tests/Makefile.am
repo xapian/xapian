@@ -115,6 +115,7 @@ collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
  api_closedb.cc \
+ api_cluster.cc \
  api_collapse.cc \
  api_compact.cc \
  api_compactold.cc \
@@ -203,6 +204,7 @@ EXTRA_DIST = collate-test generate-api_generated api_all.h api_collated.h \
 EXTRA_DIST +=\
 	runtest.in \
 	valgrind.supp \
+	testdata/apitest_cluster.txt\
 	testdata/apitest_onedoc.txt \
 	testdata/apitest_simpledata.txt \
 	testdata/apitest_simpledata2.txt \
