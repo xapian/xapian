@@ -1,0 +1,4 @@
+xapian-letor
+============
+
+Note: While configuring xapian-letor, make sure that backend build flags are same as those used while configuring xapian-core.

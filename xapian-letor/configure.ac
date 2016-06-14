@@ -359,6 +359,8 @@ AH_BOTTOM(
 #endif
 ])
 
+#define XAPIAN_LIB_BUILD 1
+
 AC_SUBST([AM_CXXFLAGS])
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
@@ -377,13 +379,278 @@ dnl this warning.
 PERCENT='%'
 AC_SUBST([PERCENT])
 
+dnl If valgrind is installed and new enough, we use it for leak checking in the
+dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
+dnl don't use valgrind.
+if test -n "${VALGRIND-unset}" ; then
+  AC_PATH_PROG([VALGRIND], [valgrind], [])
+  if test -n "$VALGRIND" ; then
+    dnl Check that the installed valgrind version works, and supports the
+    dnl options we use.  This means we won't try to use valgrind < 3.3.0
+    dnl (released 7/12/2007) since before that --log-file didn't expand
+    dnl %p (and appended the process id).
+    dnl
+    dnl No need to check for VALGRIND_COUNT_LEAKS now - that was added before
+    dnl 2.0.0.
+    AC_MSG_CHECKING([if valgrind supports --log-file with %p])
+    vglog=config.vglog.%p.tmp
+    vglogwild="config.vglog.*.tmp*"
+    rm -f $vglogwild
+    if $VALGRIND --log-file="$vglog" -q true 2>&AS_MESSAGE_LOG_FD ; then
+      for f in $vglogwild ; do
+        case $f in
+    $vglog*) VALGRIND= ;;
+    esac
+      done
+      if test x"$VALGRIND" = x ; then
+    AC_MSG_RESULT([no])
+      else
+    AC_MSG_RESULT([yes])
+    AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
+      fi
+    else
+      dnl The valgrind detected doesn't seem to work!  Perhaps this is an
+      dnl x86_64 box with a 32 bit valgrind.
+      AC_MSG_RESULT([$VALGRIND doesn't work])
+      VALGRIND=
+    fi
+    rm -f $vglogwild
+  fi
+fi
+
+if test -n "$VALGRIND" ; then
+  AC_DEFINE([HAVE_VALGRIND], [1], [Define if a suitable valgrind is installed])
+fi
+
+dnl If eatmydata is installed, we run the testsuite under it to speed it up.
+dnl If EATMYDATA is set to an empty value, then skip this check and don't use
+dnl eatmydata.
+if test -n "${EATMYDATA-unset}" ; then
+  AC_PATH_PROG([EATMYDATA], [eatmydata], [])
+fi
+
+dnl Used by tests/harness/testsuite.cc
+AC_CHECK_FUNCS([sigaction])
+AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
+AC_TRY_COMPILE([#include <setjmp.h>],
+  [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the 'sigsetjmp' function])
+  AC_MSG_RESULT([yes]),
+  AC_MSG_RESULT([no]))
+
+dnl ***************************
+dnl * Select modules to build *
+dnl ***************************
+
+dnl Check which database backends should be built.
+
+AC_DEFUN([XAPIAN_BACKEND_ENABLE],
+  [AC_ARG_ENABLE([backend_$1],
+    [AS_HELP_STRING([--enable-backend-$1], [build the $1 database backend [default=yes]])],
+    [case $enableval in
+      yes|no) ;;
+      *) AC_MSG_ERROR([Invalid option: '--enable-backend-$1=$enableval']) ;;
+    esac], [enable_backend_$1=yes])
+  ])
+
+dnl When adding a new backend, update INSTALL too.
+XAPIAN_BACKEND_ENABLE([chert])
+XAPIAN_BACKEND_ENABLE([glass])
+XAPIAN_BACKEND_ENABLE([inmemory])
+XAPIAN_BACKEND_ENABLE([remote])
+
+use_win32_uuid_api=0
+case $enable_backend_chert$enable_backend_glass in
+*yes*)
+  dnl We use zlib for compressing tags in chert/glass.  We could
+  dnl automatically disable support if zlib isn't found, but overall that
+  dnl probably does more harm than good - it's most likely that someone just
+  dnl forgot to install the -dev package for zlib.
+  dnl
+  dnl Similarly for uuid support.
+
+  dnl Check for zlib.h.
+  AC_CHECK_HEADERS([zlib.h], [], [
+    AC_MSG_ERROR([zlib.h not found - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
+    ], [ ])
+
+  dnl Check for zlibVersion in -lz.
+  SAVE_LIBS=$LIBS
+  dnl mingw build needs -lzlib or -lzdll.
+  AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
+    ])
+  if test x != x"$LIBS" ; then
+    XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
+  fi
+  LIBS=$SAVE_LIBS
+
+  dnl Find the UUID library (from e2fsprogs/util-linux-ng, not the OSSP one).
+
+  case $host_os in
+    *mingw* | *cygwin*) dnl Use built-in API.
+      use_win32_uuid_api=1
+      ;;
+    *)
+      dnl Check for uuid/uuid.h (e2fsprogs/util-linux-ng) or uuid.h
+      dnl (FreeBSD/NetBSD).
+      AC_CHECK_HEADERS([uuid/uuid.h], [
+    dnl util-linux-ng's uuid/uuid.h found - check for uuid_generate in
+    dnl -luuid.
+    SAVE_LIBS=$LIBS
+    AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
+      AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+      ])
+    if test x != x"$LIBS" ; then
+      XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
+    fi
+      ], [
+    dnl Try uuid.h as found on FreeBSD/NetBSD, with associated code in libc.
+    AC_CHECK_HEADERS([uuid.h], [
+      dnl Check for uuid_create with no extra libraries required.
+      AC_CHECK_FUNC([uuid_create], [], [
+        AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+      ])
+    ], [
+      AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for chert and glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+    ], [ ])
+      ], [ ])
+      ;;
+  esac
+
+  dnl Older versions of libuuid (such as that on CentOS 4.7) don't have
+  dnl uuid_unparse_lower(), only uuid_unparse().
+  AC_LINK_IFELSE([AC_LANG_CALL([], [uuid_unparse_lower])],
+    [
+    AC_DEFINE([HAVE_UUID_UNPARSE_LOWER], [1],
+          [Define to 1 if you have the 'uuid_unparse_lower' function.])
+    ])
+  LIBS=$SAVE_LIBS
+  ;;
+esac
+AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
+
+REMOTE_LIBS=
+if test "$enable_backend_remote" = yes ; then
+  AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
+#ifdef __WIN32__
+#error WIN32
+#endif
+  ]])], [win32=no], [win32=yes])
+
+  case $host_os-$win32 in
+    *-yes )
+      dnl For mingw and msvc we have an alternative implementation which
+      dnl doesn't need fork() or socketpair().
+      dnl
+      dnl We need -lws2_32 for getaddrinfo(), etc.
+      REMOTE_LIBS=-lws2_32
+      dnl Vista is needed for the AI_ADDRCONFIG flag to getaddrinfo().
+      AC_DEFINE([WINVER], [0x600],
+        [Version of Windows to assume (0x600 => Vista).])
+      AC_DEFINE([_WIN32_WINNT], [WINVER],
+        [Version of Windows to assume.])
+      ;;
+    *djgpp* | *msdos* )
+      dnl DJGPP has a dummy implementation of fork which always fails.
+      dnl
+      dnl For disk-based backend, use flock() for locking, which doesn't need
+      dnl fork() or socketpair().
+      AC_DEFINE([FLINTLOCK_USE_FLOCK], 1, [Define to use flock() for flint-compatible locking])
+      dnl If someone actually wanted remote backend support, then DJGPP has a
+      dnl pthreads port, so using threads like we do on Windows would make more
+      dnl sense.
+      enable_backend_remote=no
+      ;;
+    *)
+      dnl On Unix, we need fork and socketpair for the remotebackend.
+      SAVE_LIBS=$LIBS
+      AC_CHECK_FUNCS([fork], [], [
+    AC_MSG_ERROR([fork() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      dnl Check if -lsocket is required for socketpair (Solaris needs it).
+      dnl And on Haiku it's in -lnetwork.
+      AC_SEARCH_LIBS([socketpair], [socket network], [], [
+    AC_MSG_ERROR([socketpair() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_DEFINE([HAVE_SOCKETPAIR], [1],
+        [Define to 1 if you have the 'socketpair' function.])
+      dnl Check if extra libraries are needed for getaddrinfo or inet_ntop()
+      dnl (e.g. on Solaris).
+      dnl
+      dnl We're currently assuming that any system that is worth trying to
+      dnl support has getaddrinfo() and inet_ntop(), since these are the
+      dnl standard route for supporting IPv6, and that's pretty much essential
+      dnl for platforms to support now.
+      AC_SEARCH_LIBS([getaddrinfo], [nsl socket], [], [
+    AC_MSG_ERROR([getaddrinfo() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      AC_SEARCH_LIBS([inet_ntop], [nsl socket], [], [
+    AC_MSG_ERROR([inet_ntop() required for the remote backend - if an extra library is needed, pass LIBS=-lfoo to configure.  Or --disable-backend-remote to disable it.)])
+      ])
+      REMOTE_LIBS=$LIBS
+      LIBS=$SAVE_LIBS
+      ;;
+  esac
+
+  if test "$enable_backend_remote" = yes ; then
+    TYPE_SOCKLEN_T
+    XAPIAN_LIBS="$XAPIAN_LIBS $REMOTE_LIBS"
+  fi
+fi
+
+AC_ARG_ENABLE([visibility],
+  [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
+  esac])
+
+vpath_build=no
+if test "`pwd`" != "`cd $srcdir;pwd`" ; then
+  vpath_build=yes
+fi
+AM_CONDITIONAL([VPATH_BUILD], [test yes = "$vpath_build"])
+
+dnl Turn off compilation of anything that we don't have the requirements for
+
+dnl Set conditionals to specify what we compile
+
+AM_CONDITIONAL([BUILD_BACKEND_CHERT], [test yes = "$enable_backend_chert"])
+AM_CONDITIONAL([BUILD_BACKEND_GLASS], [test yes = "$enable_backend_glass"])
+AM_CONDITIONAL([BUILD_BACKEND_INMEMORY], [test yes = "$enable_backend_inmemory"])
+AM_CONDITIONAL([BUILD_BACKEND_REMOTE], [test yes = "$enable_backend_remote"])
+AM_CONDITIONAL([BUILD_BACKEND_CHERT_OR_GLASS],
+  [test nono != "$enable_backend_chert$enable_backend_glass"])
+
+dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
+use_zlib_vg=no
+if test -n "$VALGRIND" ; then
+  case $host_os in
+    linux*) use_zlib_vg=yes ;;
+  esac
+fi
+AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************
 
 AC_CONFIG_FILES([
  Makefile
+ tests/Makefile
  docs/Makefile
  ])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
+AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_OUTPUT
+
+dnl MAIN_VERSION is VERSION without any _git123 suffix.
+MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
+cxxcpp_flags=-I.
+for backend in CHERT GLASS INMEMORY REMOTE ; do
+  val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
+  if test -z "$val" ; then
+    cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
+  fi
+done
