@@ -13,10 +13,10 @@ if MAINTAINER_MODE
 export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
-AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include -I../$(top_srcdir)/xapian-core/include
+AM_CPPFLAGS = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)../xapian-core/include
 
 # Order is relevant: when building, tests must be after ".".
-SUBDIRS = . docs # tests
+SUBDIRS = . docs tests
 
 AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
