@@ -61,7 +61,8 @@ template<typename UINT>
 inline UINT
 do_aligned_read(const unsigned char * ptr)
 {
-    UINT value = *reinterpret_cast<const UINT*>(ptr);
+    const void* void_ptr = static_cast<const void*>(ptr);
+    UINT value = *reinterpret_cast<const UINT*>(void_ptr);
 #ifndef WORDS_BIGENDIAN
     value = do_bswap(value);
 #endif
@@ -82,7 +83,7 @@ do_aligned_write(unsigned char * ptr, T value)
 #ifndef WORDS_BIGENDIAN
     v = do_bswap(v);
 #endif
-    *reinterpret_cast<UINT*>(ptr) = v;
+    *reinterpret_cast<UINT*>(static_cast<void*>(ptr)) = v;
 }
 
 template<typename UINT>
