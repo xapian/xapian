@@ -1,7 +1,7 @@
 /** @file api_unicode.cc
  * @brief Test the Unicode and UTF-8 classes and functions.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -254,6 +254,28 @@ DEFINE_TESTCASE(unicode1,!backend) {
     // U+1D800 "SIGNWRITING HAND-FIST INDEX".
     TEST_EQUAL(Unicode::get_category(0x1D800), Unicode::OTHER_SYMBOL);
 
+    // Added or changed in Unicode 9.0.0:
+    // U+08B6 "ARABIC LETTER BEH WITH SMALL MEEM ABOVE"
+    TEST_EQUAL(Unicode::get_category(0x8B6), Unicode::OTHER_LETTER);
+    // U+08E2 "ARABIC DISPUTED END OF AYAH"
+    TEST_EQUAL(Unicode::get_category(0x8E2), Unicode::FORMAT);
+    // U+0C80 "KANNADA SIGN SPACING CANDRABINDU"
+    TEST_EQUAL(Unicode::get_category(0xC80), Unicode::OTHER_LETTER);
+    // U+0D56 "MALAYALAM LETTER CHILLU LLL"
+    TEST_EQUAL(Unicode::get_category(0xD56), Unicode::OTHER_LETTER);
+    // U+0D58 "MALAYALAM FRACTION ONE ONE-HUNDRED-AND-SIXTIETH"
+    TEST_EQUAL(Unicode::get_category(0xD58), Unicode::OTHER_NUMBER);
+    // U+1885 "MONGOLIAN LETTER ALI GALI BALUDA"
+    TEST_EQUAL(Unicode::get_category(0x1885), Unicode::NON_SPACING_MARK);
+    // U+1886 "MONGOLIAN LETTER ALI GALI THREE BALUDA"
+    TEST_EQUAL(Unicode::get_category(0x1886), Unicode::NON_SPACING_MARK);
+    // U+104FB "OSAGE SMALL LETTER ZHA"
+    TEST_EQUAL(Unicode::get_category(0x104FB), Unicode::LOWERCASE_LETTER);
+    // U+1141F "NEWA LETTER TA"
+    TEST_EQUAL(Unicode::get_category(0x1141F), Unicode::OTHER_LETTER);
+    // U+1F989 "OWL"
+    TEST_EQUAL(Unicode::get_category(0x1F989), Unicode::OTHER_SYMBOL);
+
     // Test some invalid Unicode values.
     TEST_EQUAL(Unicode::get_category(0x110000), Unicode::UNASSIGNED);
     TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
@@ -372,6 +394,12 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     TEST_EQUAL(Unicode::tolower(0xA7B5), 0xA7B5);
     TEST_EQUAL(Unicode::toupper(0xA7B5), 0xA7B4);
 
+    // U+A7AE was added in Unicode 9.0.0 as an uppercase form of U+026A.
+    TEST_EQUAL(Unicode::tolower(0xA7AE), 0x026A);
+    TEST_EQUAL(Unicode::toupper(0xA7AE), 0xA7AE);
+    TEST_EQUAL(Unicode::tolower(0x026A), 0x026A);
+    TEST_EQUAL(Unicode::toupper(0x026A), 0xA7AE);
+
     return true;
 }
 
@@ -416,12 +444,15 @@ DEFINE_TESTCASE(unicodepredicates1,!backend) {
 	0x370, 0x372, 0x376, 0x3cf, 0x515, 0x517, 0x519, 0x51b, 0x51d, 0x51f,
 	0x521, 0x523, 0x2c6d, 0x2c6e, 0x2c6f,
 	// OTHER_LETTER
+	0x8bb, // Added in Unicode 9.0.0
+	0xc80, // Added in Unicode 9.0.0
 	0x10345,
 	// MODIFIER_LETTER (added in Unicode 5.1.0)
 	0x2ec, 0x374,
 	// NON_SPACING_MARK (added to is_wordchar() in 1.1.0)
 	0x651,
 	0x487, // Added in Unicode 5.1.0
+	0x8db, // Added in Unicode 9.0.0
 	0
     };
     const unsigned currency[] = {
@@ -443,10 +474,12 @@ DEFINE_TESTCASE(unicodepredicates1,!backend) {
     const unsigned other[] = {
 	// DASH_PUNCTUATION (added in Unicode 5.1.0)
 	0x5be,
-	// OTHER_SYMBOL (added in Unicode 5.1.0)
-	0x1f093,
-	// FORMAT (added in Unicode 6.3.0)
-	0x61c,
+	// OTHER_SYMBOL
+	0xd4f, // Added in Unicode 9.0.0
+	0x1f093, // Added in Unicode 5.1.0
+	// FORMAT
+	0x61c, // Added in Unicode 6.3.0
+	0x8e2, // Added in Unicode 9.0.0
 	// UNASSIGNED
 	0xffff, 0x10ffff, 0x110000, 0xFFFFFFFF,
 	// PRIVATE_USE

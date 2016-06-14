@@ -1,5 +1,7 @@
-UnicodeData.txt is for Unicode 8.0.0, downloaded from:
-http://www.unicode.org/Public/8.0.0/ucd/UnicodeData.txt
+UnicodeData.txt is for Unicode 9.0.0d7, downloaded from:
+http://www.unicode.org/Public/9.0.0/ucd/UnicodeData-9.0.0d7.txt
+
+Note: This is the beta version of Unicode 9.0.0
 
 Copyright and licensing information from http://www.unicode.org/copyright.html
 follows:
@@ -7,12 +9,18 @@ follows:
 UNICODE, INC. LICENSE AGREEMENT - DATA FILES AND SOFTWARE
 
     Unicode Data Files include all data files under the directories
-http://www.unicode.org/Public/, http://www.unicode.org/reports/, and
-http://www.unicode.org/cldr/data/. Unicode Data Files do not include PDF online
-code charts under the directory http://www.unicode.org/Public/. Software
-includes any source code published in the Unicode Standard or under the
-directories http://www.unicode.org/Public/, http://www.unicode.org/reports/,
-and http://www.unicode.org/cldr/data/.
+http://www.unicode.org/Public/, http://www.unicode.org/reports/,
+http://www.unicode.org/cldr/data/, http://source.icu-project.org/repos/icu/, and
+http://www.unicode.org/utility/trac/browser/.
+
+Unicode Data Files do not include PDF online code charts under the
+directory http://www.unicode.org/Public/.
+
+Software includes any source code published in the Unicode Standard
+or under the directories
+http://www.unicode.org/Public/, http://www.unicode.org/reports/,
+http://www.unicode.org/cldr/data/, http://source.icu-project.org/repos/icu/, and
+http://www.unicode.org/utility/trac/browser/.
 
     NOTICE TO USER: Carefully read the following legal agreement. BY
 DOWNLOADING, INSTALLING, COPYING OR OTHERWISE USING UNICODE INC.'S DATA FILES
@@ -23,7 +31,7 @@ OR SOFTWARE.
 
     COPYRIGHT AND PERMISSION NOTICE
 
-    Copyright © 1991-2015 Unicode, Inc. All rights reserved.
+    Copyright © 1991-2016 Unicode, Inc. All rights reserved.
 Distributed under the Terms of Use in http://www.unicode.org/copyright.html.
 
     Permission is hereby granted, free of charge, to any person obtaining
@@ -33,14 +41,11 @@ a copy of the Unicode data files and any associated documentation
 without restriction, including without limitation the rights to use,
 copy, modify, merge, publish, distribute, and/or sell copies of
 the Data Files or Software, and to permit persons to whom the Data Files
-or Software are furnished to do so, provided that
+or Software are furnished to do so, provided that either
 (a) this copyright and permission notice appear with all copies
-of the Data Files or Software,
+of the Data Files or Software, or
 (b) this copyright and permission notice appear in associated
-documentation, and
-(c) there is clear notice in each modified Data File or in the Software
-as well as in the documentation associated with the Data File(s) or
-Software that the data or software has been modified.
+Documentation.
 
     THE DATA FILES AND SOFTWARE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF
 ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
