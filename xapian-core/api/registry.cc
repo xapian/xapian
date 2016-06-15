@@ -140,6 +140,8 @@ Registry::Internal::add_defaults()
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::BM25Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::BM25PlusWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::BoolWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::TradWeight;
