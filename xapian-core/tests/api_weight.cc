@@ -134,6 +134,66 @@ DEFINE_TESTCASE(bm25weight5, backend) {
 }
 
 // Test exception for junk after serialised weight.
+DEFINE_TESTCASE(bm25plusweight3, !backend) {
+    Xapian::BM25PlusWeight wt(2.0, 0.5, 1.3, 0.6, 0.01, 0.5);
+    try {
+    Xapian::BM25PlusWeight b;
+    Xapian::BM25PlusWeight * b2 = b.unserialise(wt.serialise() + "X");
+    // Make sure we actually use the weight.
+    bool empty = b2->name().empty();
+    delete b2;
+    if (empty)
+	FAIL_TEST("Serialised BM25PlusWeight with junk appended unserialised to empty name!");
+    FAIL_TEST("Serialised BM25PlusWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &) {
+    // Good!
+    }
+    return true;
+}
+
+// Test parameter combinations which should be unaffected by doclength.
+DEFINE_TESTCASE(bm25plusweight4, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(1, 0, 1, 0, 0.5, 1));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Expect: wdf has an effect on weight, but doclen doesn't.
+    TEST_REL(mset[0].get_weight(),>,mset[1].get_weight());
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), mset[2].get_weight());
+    TEST_REL(mset[2].get_weight(),>,mset[3].get_weight());
+    TEST_EQUAL_DOUBLE(mset[3].get_weight(), mset[4].get_weight());
+
+    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(0, 0, 1, 1, 0.5, 1));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Expect: neither wdf nor doclen affects weight.
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
+
+    return true;
+}
+
+// Test to make sure k2 has no effect on weight. This is necessary because
+// k2 is associated with extra weight component and BM25+ has such no extra weight.
+DEFINE_TESTCASE(bm25plusweight5, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(0, 1, 1, 0.5, 0.5, 1));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
+
+    return true;
+}
+
+// Test exception for junk after serialised weight.
 DEFINE_TESTCASE(inl2weight1, !backend) {
     Xapian::InL2Weight wt(2.0);
     try {
