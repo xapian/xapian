@@ -235,6 +235,9 @@ dnl (e.g. mingw) libtool uses $LTCC which defaults to $CC, and it's also use to
 dnl build auxiliary tools like snowball and lemon.
 AC_PROG_CC
 
+dnl Check endianness.
+AC_C_BIGENDIAN
+
 dnl We want a non-cross-compiling C compiler for building lemon with.
 if test -z "$CC_FOR_BUILD" ; then
   if test yes = "$cross_compiling"; then
