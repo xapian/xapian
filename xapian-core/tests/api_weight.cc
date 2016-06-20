@@ -134,7 +134,7 @@ DEFINE_TESTCASE(bm25weight5, backend) {
 }
 
 // Test exception for junk after serialised weight.
-DEFINE_TESTCASE(bm25plusweight3, !backend) {
+DEFINE_TESTCASE(bm25plusweight1, !backend) {
     Xapian::BM25PlusWeight wt(2.0, 0.5, 1.3, 0.6, 0.01, 0.5);
     try {
     Xapian::BM25PlusWeight b;
@@ -152,7 +152,7 @@ DEFINE_TESTCASE(bm25plusweight3, !backend) {
 }
 
 // Test parameter combinations which should be unaffected by doclength.
-DEFINE_TESTCASE(bm25plusweight4, backend) {
+DEFINE_TESTCASE(bm25plusweight2, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("paragraph"));
@@ -178,7 +178,7 @@ DEFINE_TESTCASE(bm25plusweight4, backend) {
 
 // Test to make sure k2 has no effect on weight. This is necessary because
 // k2 is associated with extra weight component and BM25+ has such no extra weight.
-DEFINE_TESTCASE(bm25plusweight5, backend) {
+DEFINE_TESTCASE(bm25plusweight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("paragraph"));
