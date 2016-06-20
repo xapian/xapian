@@ -1334,4 +1334,3 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 }
 
 #endif // XAPIAN_INCLUDED_WEIGHT_H
-

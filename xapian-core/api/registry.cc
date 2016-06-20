@@ -309,4 +309,3 @@ Registry::get_lat_long_metric(const string & name) const
 }
 
 }
-
