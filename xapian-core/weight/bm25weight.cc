@@ -228,4 +228,3 @@ BM25Weight::get_maxextra() const
 }
 
 }
-
