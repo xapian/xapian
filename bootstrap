@@ -405,9 +405,11 @@ swig_git_commit_hash=2c910e47ae788412b95e356c99cef5862808bf9a
 # Commit hash to use for common in omega:
 omega_common_commit_hash=93d22819704846273079d38d12fbd5e344228407
 
-if [ ! -r .git ] ; then
-  echo "$0: '.git' not found - this script should be run from a git repo cloned"
-  echo "from git://git.xapian.org/xapian or a mirror of it"
+gitdir=`git rev-parse --git-dir`
+
+if [ ! -d "$gitdir" ] ; then
+  echo "$0: No '.git' directory found - this script should be run from a"
+  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
   exit 1
 fi
 
@@ -422,24 +424,20 @@ for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 ; do
   fi
 done
 
-if [ -f .git ] ; then
-  : # Looks like we're in a git worktree.
+if [ -f "$gitdir/info/exclude" ] ; then
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' "$gitdir/info/exclude" > "$gitdir/info/exclude~"
 else
-  if [ -f .git/info/exclude ] ; then
-    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
-  else
-    [ -d .git/info ] || mkdir .git/info
-  fi
-  cat <<END >> .git/info/exclude~
+  [ -d "$gitdir/info" ] || mkdir "$gitdir/info"
+fi
+cat <<END >> "$gitdir/info/exclude~"
 swig
 xapian-applications/omega/common
 END
-  if [ -f .git/info/exclude ] &&
-     cmp -s .git/info/exclude~ .git/info/exclude ; then
-    rm .git/info/exclude~
-  else
-    mv .git/info/exclude~ .git/info/exclude
-  fi
+if [ -f "$gitdir/info/exclude" ] &&
+   cmp -s "$gitdir/info/exclude~" "$gitdir/info/exclude" ; then
+  rm "$gitdir/info/exclude~"
+else
+  mv "$gitdir/info/exclude~" "$gitdir/info/exclude"
 fi
 
 # If this tree is checked out from the github mirror, use the same access
@@ -685,7 +683,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
     # If someone's created a directory for common, leave it be.
     if [ -h "$d/common" ] || [ ! -d "$d/common" ] ; then
       hash=$omega_common_commit_hash
-      if [ -f .git/shallow ] ; then
+      if [ -f "$gitdir/shallow" ] ; then
 	if git reflog "$hash" -- 2> /dev/null ; then
 	  : # Already have the desired commit.
 	else
