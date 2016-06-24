@@ -407,9 +407,11 @@ swig_git_commit_hash=1e36f51346d95f8b9848e682c2eb986e9cb9b4f4
 omega_common_commit_hash=c65fd56b6ddd11894253b16bc1d0701ff6835672
 letor_common_commit_hash=c65fd56b6ddd11894253b16bc1d0701ff6835672
 
-if [ ! -r .git ] ; then
-  echo "$0: '.git' not found - this script should be run from a git repo cloned"
-  echo "from git://git.xapian.org/xapian or a mirror of it"
+gitdir=`git rev-parse --git-dir`
+
+if [ ! -d "$gitdir" ] ; then
+  echo "$0: No '.git' directory found - this script should be run from a"
+  echo "git repo cloned from git://git.xapian.org/xapian or a mirror of it"
   exit 1
 fi
 
@@ -424,25 +426,21 @@ for emptydir in xapian-applications/omega/m4 xapian-bindings/m4 xapian-letor/m4 
   fi
 done
 
-if [ -f .git ] ; then
-  : # Looks like we're in a git worktree.
+if [ -f "$gitdir/info/exclude" ] ; then
+  sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' "$gitdir/info/exclude" > "$gitdir/info/exclude~"
 else
-  if [ -f .git/info/exclude ] ; then
-    sed '/^\(swig\|xapian-applications\/omega\/common$\)/d' .git/info/exclude > .git/info/exclude~
-  else
-    [ -d .git/info ] || mkdir .git/info
-  fi
-  cat <<END >> .git/info/exclude~
+  [ -d "$gitdir/info" ] || mkdir "$gitdir/info"
+fi
+cat <<END >> "$gitdir/info/exclude~"
 swig
 xapian-applications/omega/common
 xapian-letor/common
 END
-  if [ -f .git/info/exclude ] &&
-     cmp -s .git/info/exclude~ .git/info/exclude ; then
-    rm .git/info/exclude~
-  else
-    mv .git/info/exclude~ .git/info/exclude
-  fi
+if [ -f "$gitdir/info/exclude" ] &&
+   cmp -s "$gitdir/info/exclude~" "$gitdir/info/exclude" ; then
+  rm "$gitdir/info/exclude~"
+else
+  mv "$gitdir/info/exclude~" "$gitdir/info/exclude"
 fi
 
 # If this tree is checked out from the github mirror, use the same access
@@ -712,7 +710,7 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
       # Pick omega_common_commit_hash or letor_common_commit_hash:
       var=`echo "$d"|sed 's!.*[-/]!!g'`_common_commit_hash
       hash=`eval echo \\\$"$var"`
-      if [ -f .git/shallow ] ; then
+      if [ -f "$gitdir/shallow" ] ; then
 	if git reflog "$hash" -- 2> /dev/null ; then
 	  : # Already have the desired commit.
 	else
