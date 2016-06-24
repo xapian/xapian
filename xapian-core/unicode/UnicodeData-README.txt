@@ -1,7 +1,5 @@
-UnicodeData.txt is for Unicode 9.0.0d7, downloaded from:
-http://www.unicode.org/Public/9.0.0/ucd/UnicodeData-9.0.0d7.txt
-
-Note: This is the beta version of Unicode 9.0.0
+UnicodeData.txt is for Unicode 9.0.0, downloaded from:
+http://www.unicode.org/Public/9.0.0/ucd/UnicodeData.txt
 
 Copyright and licensing information from http://www.unicode.org/copyright.html
 follows:
