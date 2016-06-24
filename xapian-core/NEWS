@@ -1,3 +1,19 @@
+Xapian-core 1.4.0 (2016-06-24):
+
+API:
+
+* Update to Unicode 9.0.0.
+
+portability:
+
+* Fix build on big-endian architectures.  The new unaligned word access
+  functions expect WORDS_BIGENDIAN to be set, but configure.ac wasn't invoking
+  AC_C_BIGENDIAN to arrange for this to be set.
+
+* Suppress compiler warnings about pointer alignment.  We know the data is
+  suitably aligned, because the whole point of these functions is to allow
+  reading an aligned word.
+
 Xapian-core 1.3.7 (2016-06-01):
 
 API:

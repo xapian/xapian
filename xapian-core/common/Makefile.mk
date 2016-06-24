@@ -76,7 +76,7 @@ endif
 if USE_WIN32_UUID_API
 lib_src +=\
 	common/win32_uuid.cc
-libxapian_1_3_la_LDFLAGS += -lrpcrt4
+libxapian_la_LDFLAGS += -lrpcrt4
 endif
 
 noinst_LTLIBRARIES += libgetopt.la

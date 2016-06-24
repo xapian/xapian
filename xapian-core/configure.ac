@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.3.7], [https://xapian.org/bugs])
+AC_INIT([xapian-core], [1.4.0], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -28,29 +28,20 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO for libxapian-1.3:
-dnl 0:0:0 1.3.0 Reset as library renamed
-dnl 1:0:0 1.3.0_svn16813 Default stemming strategy now STEM_SOME
-dnl 2:0:1 1.3.1 Added TfIdfWeight, MSetIterator::at_end(), etc
-dnl 3:0:0 1.3.2 Enquire::get_eset() overload -> default parameter
-dnl 4:0:0 1.3.3 Database::allterms_begin() overload -> default parameter
-dnl 5:0:0 1.3.4 DB compaction and checking changes, etc
-dnl 6:0:0 1.3.5 DatabaseReplica changes
-dnl 7:0:0 1.3.6 RangeProcessor added
-dnl 8:0:0 1.3.7 ESet+ESetIterator reimplemented
-LIBRARY_VERSION_INFO=8:0:0
+dnl LIBRARY_VERSION_INFO for libxapian:
+dnl 29:1:7 1.2.23 No API changes (except new inline methods)
+dnl 30:0:0 1.4.0 Extensive API changes
+LIBRARY_VERSION_INFO=30:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
-LIBRARY_VERSION_SUFFIX=-1.3
+LIBRARY_VERSION_SUFFIX=
 AC_SUBST([LIBRARY_VERSION_SUFFIX])
 
 dnl Disabled for stable release series.
-dnl Default to "-1.3"; for no suffix, specify: --program-suffix=
-test x"$program_suffix" != xNONE || program_suffix=-1.3
+test x"$program_suffix" != xNONE || program_suffix=
 
 dnl Where xapian.h, etc go.  In development release append "/xapian-1.3".
-dnl incdir=$includedir
-incdir=$includedir/xapian-1.3
+incdir=$includedir
 AC_SUBST([incdir])
 
 dnl Check the build directory doesn't contain a space, so we die early with

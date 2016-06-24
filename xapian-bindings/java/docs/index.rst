@@ -1,6 +1,10 @@
 Xapian Java Bindings
 ********************
 
+The current API should be regarded as experimental - we plan to review it,
+possibly make some changes and then declare it stable early in the 1.4.x
+release series.
+
 How to build the bindings:
 ##########################
 

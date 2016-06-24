@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 13
+# serial 14
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -44,7 +44,7 @@ AC_DEFUN([XO_LIB_XAPIAN],
   *)
     # If there's no path on XAPIAN_CONFIG, use it as the name of the tool to
     # search PATH for, so that things like this work:
-    #   ./configure XAPIAN_CONFIG=xapian-config1.3
+    #   ./configure XAPIAN_CONFIG=xapian-config-1.3
     xapian_config_to_check_for=$XAPIAN_CONFIG
     XAPIAN_CONFIG=
     ;;
