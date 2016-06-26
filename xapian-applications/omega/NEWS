@@ -4,7 +4,7 @@ general:
 
 documentation:
 
-* Clarify $allterms and $terms documentation.  Make is clearer how they differ,
+* Clarify $allterms and $terms documentation.  Make it clearer how they differ,
   and document that $allterms without a parameter list gives all terms indexing
   the current hit.  Noted by Andy Chilton.
 
