@@ -65,6 +65,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/MultiValueKeyMaker.java\
 	org/xapian/NumberRangeProcessor.java\
 	org/xapian/NumberValueRangeProcessor.java\
+	org/xapian/PL2PlusWeight.java\
 	org/xapian/PL2Weight.java\
 	org/xapian/PositionIterator.java\
 	org/xapian/PostingIterator.java\

@@ -505,6 +505,86 @@ DEFINE_TESTCASE(pl2weight3, backend) {
     return true;
 }
 
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(pl2plusweight1, !backend) {
+    Xapian::PL2PlusWeight wt(2.0, 0.9);
+    try {
+	Xapian::PL2PlusWeight b;
+	Xapian::PL2PlusWeight * b2 = b.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = b2->name().empty();
+	delete b2;
+	if (empty)
+	    FAIL_TEST("Serialised PL2PlusWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised PL2PlusWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &) {
+
+    }
+    return true;
+}
+
+// Test for invalid values of parameters, c and delta.
+DEFINE_TESTCASE(pl2plusweight2, !backend) {
+    // InvalidArgumentError should be thrown if parameter c is invalid.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::PL2PlusWeight wt(-2.0, 0.9));
+
+    // InvalidArgumentError should be thrown if parameter delta is invalid.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+	Xapian::PL2PlusWeight wt(1.0, -1.9));
+
+    return true;
+}
+
+// Test for default values of parameters, c and delta.
+DEFINE_TESTCASE(pl2plusweight3, !backend) {
+    Xapian::PL2PlusWeight weight2;
+
+    /* Parameter c should be set to 1.0 by constructor if none is given. */
+    TEST_EQUAL(weight2.serialise(), Xapian::PL2PlusWeight(1.0, 0.8).serialise());
+
+    /* Parameter delta should be set to 0.8 by constructor if none is given. */
+    TEST_EQUAL(weight2.serialise(), Xapian::PL2PlusWeight(1.0, 0.8).serialise());
+
+    return true;
+}
+
+// Feature Test 1 for PL2PlusWeight.
+DEFINE_TESTCASE(pl2plusweight4, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::PL2PlusWeight(2.0, 0.8));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Expected weight difference calculated in extended precision using stats
+    // from the test database.
+    TEST_EQUAL_DOUBLE(mset[2].get_weight(),
+		      mset[3].get_weight() + 0.0086861771701328694);
+
+    return true;
+}
+
+// Feature Test 2 for PL2PlusWeight
+DEFINE_TESTCASE(pl2plusweight5, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("word"));
+    Xapian::MSet mset;
+
+    enquire.set_weighting_scheme(Xapian::PL2PlusWeight(1.0, 0.8));
+    mset = enquire.get_mset(0,10);
+    // Expect MSet contains two documents having query "word".
+    TEST_EQUAL(mset.size(), 2);
+    // Expect Document 2 has higher weight than document 4 because
+    // "word" appears more no. of times in document 2 than document 4.
+    mset_expect_order(mset, 2, 4);
+
+    return true;
+}
+
 // Feature test
 DEFINE_TESTCASE(dphweight1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");

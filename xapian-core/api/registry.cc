@@ -154,6 +154,8 @@ Registry::Internal::add_defaults()
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::DLHWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::PL2PlusWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::PL2Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::DPHWeight;

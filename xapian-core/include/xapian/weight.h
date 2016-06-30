@@ -1082,6 +1082,79 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     double get_maxextra() const;
 };
 
+/// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
+class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public PL2Weight {
+  public:
+    /** Construct a PL2PlusWeight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *		  of the normalization of the wdf to the document length. The
+     *		  default value of 1 is suitable for longer queries but it may
+     *		  need to be changed for shorter queries. For more information,
+     *		  please refer to Gianni Amati's PHD thesis titled
+     *		  Probabilistic Models for Information Retrieval based on
+     *		  Divergence from Randomness.
+     *  
+     *  @param delta  A parameter for pseudo tf value to control the scale
+     *                of the tf lower bound. Delta(δ) should be a positive
+     *                real number. It can be tuned for example from 0.1 to 1.5
+     *                in increments of 0.1 or so. Experiments have shown that
+     *                PL2+ works effectively across collections with a fixed δ = 0.8
+     *                (default 0.8)
+     */
+    PL2PlusWeight(double c, double delta);
+
+    PL2PlusWeight( )
+	: param_c(1.0), param_delta(0.8) {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(COLLECTION_SIZE);
+	need_stat(COLLECTION_FREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(WQF);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    PL2PlusWeight * unserialise(const std::string & serialised) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
+    double get_maxextra() const;
+  
+  protected:
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+    
+    /// Additional parameter delta in the PL2+ weighting formula.
+    double param_delta;
+
+    /// The lower bound of the weight.
+    double lower_bound;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// Constants for a given term in a given query.
+    double P1, P2;
+
+    /// Set by init() to (param_c * get_average_length())
+    double cl;
+
+    PL2PlusWeight * clone() const;
+
+    void init(double factor);  
+};
+
 /** This class implements the DPH weighting scheme.
  *
  *  DPH is a representative scheme of the Divergence from Randomness Framework

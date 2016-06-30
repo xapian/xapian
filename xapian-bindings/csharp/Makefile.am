@@ -50,6 +50,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MultiValueKeyMaker.cs \
 	generated-csharp/NumberRangeProcessor.cs \
 	generated-csharp/NumberValueRangeProcessor.cs \
+	generated-csharp/PL2PlusWeight.cs \
 	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
 	generated-csharp/PostingIterator.cs \
