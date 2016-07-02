@@ -55,14 +55,50 @@ make install
 
 The above configure will build xapian statically with position independent code.
 
+Generating the bindings for android
+===================================
+Now generate the bindings for android as follows:
+
+cd <path_to_xapian>/xapian-bindings/android
+mkdir -p org/xapian
+swig -Werror -I. -I../../xapian-core/include -c++ -java -module Xapian -package org.xapian -outdir org/xapian -o xapian_wrap.cc android.i
+
+This should generate xapian_wrap.cc,xapian_wrap.h and .java files in org/xapian. Now add the following line in org/xapian/XapianJNI.java at start of static block at line no 1114:
+
+System.loadLibrary("xapian_jni");
+
+Save the file. Now generate the libxapian_jni.so by doing the following:
+
+export CXX=$TOOLCHAIN/bin/<host>-g++
+$CXX -c xapian_wrap.cc -I../../xapian-core/include
+$CXX -shared -o built/lib/libxapian_jni.so -Wl,-whole-archive libxapian-1.3.a  -Wl,-no-whole-archive xapian_wrap.o -lz -luuid -lc
+
+This will generate libxapian_jni.so in built/lib/libxapian_jni.so. Now compile all the .java class using :
+
+javac -source 1.7 -target 1.7 -bootclasspath <path_to_jvm>/<your_jdk>/jre/lib/rt.jar org/xapian/*.java
+
+<path_to_jvm> is the jvm installation path eg.usr/lib on Ubuntu
+The 'source' and 'target' flags are required for android compactibility if you have java 1.8 or above. 
+
+
+Now create a proper file structure for .aar for android by:
+
+mkdir -p aar/jni/<proper_architecture> aar/res
+jar -cf aar/classes.jar org/xapian/*.class
+cp built/lib/libxapian_jni.so aar/jni/<proper_architecture>/
+cd aar
+jar -cf ../built/xapianlib.aar *
+
+Now xapianlib.aar as a library contains libxapian_jni.so and jni bindings ready for use on android devices.
+
 Testing Xapian on android
 =========================
-Now to test your build do the following:
+1)Now to test your cross compiled build(libxapian-1.3.a) do the following:
 
 cd <path_to_xapian>/xapian-core/tests
 make apitest
 
-This will generate apitest file in tests folder. You will need to push this file, testdata folder and runtest script to your android device or emulator.
+This will generate apitest file in tests folder. You will need to push apitest file, testdata folder and runtest script to your android device or emulator.
 
 To push a file to your android device use the following command:
 
@@ -75,3 +111,9 @@ After pushing all the files to the device, you can run test as follows:
 adb shell
 cd <dst_on_device>
 sh runtest ./apitest
+
+2)Now to test your bindings, create a empty project in your android studio and copy the files in the examples folder to your respective project folder. Add the xapianlib.aar in your project's libs folder and add the following line in your app's build.gradle file:
+
+compile(name:'xapianlib',ext:'aar')
+
+On running the app, your logs will show the results of SmokeTest and you can also use the SimpleIndex and SimpleSearch example to further test the bindings.

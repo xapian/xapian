@@ -1,1 +1,4 @@
-./built/*
+/built/*
+/org/
+/xapian_wrap.cc
+/xapian_wrap.h
