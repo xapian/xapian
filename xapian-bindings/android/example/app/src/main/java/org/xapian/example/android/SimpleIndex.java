@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2011 Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -23,61 +24,51 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  THE POSSIBILITY OF SUCH DAMAGE.
  **/
-package com.example.tj.xapiansample;
+package org.xapian.example.android;
 
 import android.util.Log;
 
-import org.xapian.*;
+import org.xapian.Document;
+import org.xapian.WritableDatabase;
+import org.xapian.Xapian;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SimpleSearch {
+public class SimpleIndex {
 
 
-    private static final String TAG = "SimpleSearch";
+    private static final String TAG = "SimpleIndex";
 
-    public static List<String> search(String path, String[] args) throws Exception {
-        // ensure we have enough arguments
-        if (args.length < 1) {
+    public static void index(String path,String[] words) throws Exception {
+        // ensure we have enough args
+        if (words.length < 1) {
             usage();
-            return null;
+            return;
         }
 
+        // create or *overwrite an existing* Xapian database
         String dbpath = path;
+        WritableDatabase db = new WritableDatabase(dbpath, Xapian.DB_CREATE_OR_OPEN);
 
-        // turn the remaining command-line arguments into our query
-	Query query = new Query(args[0]);
-        for (int x = 1; x < args.length; x++) {
-	    query = new Query(Query.OP_OR, query, new Query(args[x]));
+        // walk through remaining command-line arguments and
+        // add each argument as a single to term to a new document.
+        for (int x = 0; x < words.length; x++) {
+
+            String term = words[x];
+            Document doc = new Document();
+            doc.addValue(0, term);
+
+            doc.addTerm(term);
+            db.addDocument(doc);
         }
 
-        // open the specified database
-        Database db = new Database(dbpath);
-
-        // and query the database
-        Enquire enquire = new Enquire(db);
-        enquire.setQuery(query);
-        MSet matches = enquire.getMSet(0, 2500);    // get up to 2500 matching documents
-        MSetIterator itr = matches.begin();
-
-        Log.d(TAG,"Found " + matches.size() + " matching documents using " + query);
-        ArrayList<String> results=new ArrayList<String>();
-        while (itr.hasNext()) {
-            int percent = itr.getPercent();
-            long docID = itr.next();
-            // TODO:  Make this more like a Java Iterator by returning some
-            // kind of "MatchDescriptor" object
-            Document doc = db.getDocument(docID);
-            results.add(percent + "% [" + docID + "] " + doc.getValue(0));
-            Log.d(TAG,percent + "% [" + docID + "] " + doc.getValue(0));
-        }
-        return results;
+        // make sure to commit the database so the documents get written to disk
+        db.commit();
+        db.close();
     }
+
 
     private static void usage() {
         Log.d(TAG,"Usage:");
-        Log.d(TAG,"\tjava org.xapian.examples.SimpleSearch </path/to/database> <query>");
+        Log.d(TAG,"\tjava org.xapian.example.android.SimpleIndex </path/to/database> <term 1> ... <term N>");
     }
 
 }

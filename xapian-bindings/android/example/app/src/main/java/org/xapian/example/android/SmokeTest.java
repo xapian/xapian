@@ -1,4 +1,4 @@
-package com.example.tj.xapiansample;// Simple test that we can use xapian from java
+package org.xapian.example.android;// Simple test that we can use xapian from java
 //
 // Copyright (C) 2005,2006,2007,2008,2011,2016 Olly Betts
 //

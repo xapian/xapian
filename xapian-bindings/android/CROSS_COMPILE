@@ -71,7 +71,7 @@ Save the file. Now generate the libxapian_jni.so by doing the following:
 
 export CXX=$TOOLCHAIN/bin/<host>-g++
 $CXX -c xapian_wrap.cc -I../../xapian-core/include
-$CXX -shared -o built/lib/libxapian_jni.so -Wl,-whole-archive libxapian-1.3.a  -Wl,-no-whole-archive xapian_wrap.o -lz -luuid -lc
+$CXX -shared -o built/lib/libxapian_jni.so -Wl,-whole-archive libxapian-x.x.a  -Wl,-no-whole-archive xapian_wrap.o -lz -luuid -lc
 
 This will generate libxapian_jni.so in built/lib/libxapian_jni.so. Now compile all the .java class using :
 
@@ -93,7 +93,7 @@ Now xapianlib.aar as a library contains libxapian_jni.so and jni bindings ready 
 
 Testing Xapian on android
 =========================
-1)Now to test your cross compiled build(libxapian-1.3.a) do the following:
+1)Now to test your cross compiled build(libxapian-x.x.a) do the following:
 
 cd <path_to_xapian>/xapian-core/tests
 make apitest
@@ -112,8 +112,10 @@ adb shell
 cd <dst_on_device>
 sh runtest ./apitest
 
-2)Now to test your bindings, create a empty project in your android studio and copy the files in the examples folder to your respective project folder. Add the xapianlib.aar in your project's libs folder and add the following line in your app's build.gradle file:
+2)Now to test your bindings, set the location of android sdk and android ndk in example/local.properties file and copy the xapianlib.aar in example/app/libs folder. To build the example and install the app on device or emulator run the following:
 
-compile(name:'xapianlib',ext:'aar')
+cd example
+./gradlew build
+./gradlew installDebug
 
-On running the app, your logs will show the results of SmokeTest and you can also use the SimpleIndex and SimpleSearch example to further test the bindings.
+It will install the .apk on the device or emulator. The app runs the SmokeTest and the results can be seen in the logs. The app also has SimpleIndex and SimpleSearch example.
