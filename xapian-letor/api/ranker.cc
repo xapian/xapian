@@ -37,26 +37,31 @@
 using namespace std;
 using namespace Xapian;
 
-struct scoreComparer {
-    bool operator()(const pair<Xapian::docid, int>& first_pair, const pair<Xapian::docid, int>& second_pair) const {
-        return first_pair.second > second_pair.second;
-    }
-};
+bool
+Ranker::scorecomparer(const FeatureVector & firstfv, const FeatureVector& secondfv) {
+    return firstfv.get_score() > secondfv.get_score();
+}
+
+bool
+Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& secondfv) {
+    return firstfv.get_label() > secondfv.get_label();
+}
 
 Ranker::Ranker() {
     MAXPATHLEN = 200;
 }
 
-Ranker::Ranker(int metric_type) { //TODO: update this when adding scorers
+Ranker::Ranker(int metric_type) {
     MAXPATHLEN = 200;
-    // switch(metric_type) {
-    //     case 0: this -> scorer = new NDCGScorer;
-    //             break;
-    //     case 1: this -> scorer = new ERRScorer;
-    //             break;
-    //     default: ;
     (void)metric_type;
 
+}
+
+Ranker::Ranker(int metric_type, double learn_rate, int num_iterations) {
+    MAXPATHLEN = 200;
+    (void)metric_type;
+    (void)learn_rate;
+    (void)num_iterations;
 }
 
 double
@@ -80,19 +85,5 @@ Ranker::get_cwd() {
     return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string(""));
 }
 
-void
-Ranker::train_model() {
-}
-
-void
-Ranker::save_model_to_file() {
-}
-
-void
-Ranker::load_model_from_file(const std::string & model_file) {
-    (void)model_file;
-}
-
-// TODO: Add definition of rank method
 
 // TODO: add aggregation methods when including scorers

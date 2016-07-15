@@ -49,28 +49,44 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker { //TODO: Update documentation
 
   public:
 
+    /// Default constructor
     Ranker();
 
+    /// Constructor to initialise ranker a scoring metric.
     Ranker(int metric_type);
 
+    /// Constructor to initialise ranker with a scoring metric, learning rate & no. of iterations
+    Ranker(int metric_type, double learn_rate, int num_iterations);
+
+    /// Returns the score of ranking computed by the corresponding scorer
     double get_score(Xapian::RankList & rl);
 
+    /// Returns a vector of RankLists i.e. the training data
     std::vector<Xapian::RankList> get_traindata();
 
+    /// Sets the training data (vector of RankLists)
     void set_training_data(vector<Xapian::RankList> training_data1);
 
+    /// Method to get path of current working directory
     std::string get_cwd();
 
-    virtual void train_model();
+    /// Method to train the model. Overrided in ranker subclass.
+    virtual void train_model()=0;
 
-    virtual void save_model_to_file();
+    /// Method to save model as an external file. Overrided in ranker subclass.
+    virtual void save_model_to_file()=0;
 
-    virtual void load_model_from_file(const std::string & model_file);
+    /// Method to load model as an external file. Overrided in ranker subclass.
+    virtual void load_model_from_file(const std::string & model_file)=0;
 
-    virtual Xapian::RankList rank(Xapian::RankList & rl)=0;
+    /// Method to re-rank a std::vector<Xapian::FeatureVector> by using letor weighting scheme. Overrided in ranker subclass.
+    virtual std::vector<Xapian::FeatureVector> rank(std::vector<Xapian::FeatureVector> & fvv)=0;
 
-    // TODO: update aggregate when scorers are to be included
-    // std::vector<Xapian::docid> aggregate(std::vector<Xapian::RankList> rls);
+    /// Compare function used to sort std::vector<Xapian::FeatureVector> by score values.
+    static bool scorecomparer(const FeatureVector & firstfv, const FeatureVector& secondfv);
+
+    /// Compare function used to sort std::vector<Xapian::FeatureVector> by label values.
+    static bool labelcomparer(const FeatureVector & firstfv, const FeatureVector& secondfv);
 
 };
 
