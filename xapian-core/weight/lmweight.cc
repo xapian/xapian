@@ -213,7 +213,7 @@ LMWeight::get_maxpart() const
 	    upper_bound = (1 + (wdf_max/(param_smoothing1 * weight_collection))) *
 			  (1 + (param_delta/(param_smoothing1 * weight_collection)));
 	}
-	else if (!enable_dirplus) {
+	else {
 	    upper_bound = (get_doclength_upper_bound() + (param_smoothing1 * weight_collection)) / (get_doclength_upper_bound() + param_smoothing1);
 	}    
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
