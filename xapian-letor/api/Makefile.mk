@@ -15,6 +15,5 @@ lib_src +=\
 	api/letor_features.cc\
 	api/letor_internal.cc\
 	api/ranker.cc\
-	api/ranklist.cc\
 	api/scorer.cc
 

@@ -27,21 +27,19 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranklist.h"
+#include "featurevector.h"
 #include "scorer.h"
 
 #include <list>
 #include <map>
 #include <vector>
 
-using namespace std;
-
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT Ranker { //TODO: Update documentation
+class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
 
-    std::vector<Xapian::RankList> traindata;
+    std::vector<Xapian::FeatureVector> traindata;
 
     Scorer * scorer;
 
@@ -58,14 +56,11 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker { //TODO: Update documentation
     /// Constructor to initialise ranker with a scoring metric, learning rate & no. of iterations
     Ranker(int metric_type, double learn_rate, int num_iterations);
 
-    /// Returns the score of ranking computed by the corresponding scorer
-    double get_score(Xapian::RankList & rl);
-
     /// Returns a vector of RankLists i.e. the training data
-    std::vector<Xapian::RankList> get_traindata();
+    std::vector<Xapian::FeatureVector> get_traindata();
 
     /// Sets the training data (vector of RankLists)
-    void set_training_data(vector<Xapian::RankList> training_data1);
+    void set_training_data(vector<Xapian::FeatureVector> training_data);
 
     /// Method to get path of current working directory
     std::string get_cwd();

@@ -111,12 +111,12 @@ FeatureVector::get_fcount(){
 }
 
 double
-FeatureVector::get_score() {
+FeatureVector::get_score() const{
     return internal->score;
 }
 
 double
-FeatureVector::get_label() {
+FeatureVector::get_label() const{
     return internal->label;
 }
 

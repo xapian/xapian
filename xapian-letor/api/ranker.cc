@@ -23,8 +23,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include <xapian-letor/featurevector.h>
 #include <xapian-letor/ranker.h>
-#include <xapian-letor/ranklist.h>
 #include <xapian-letor/scorer.h>
 
 #include <vector>
@@ -64,19 +64,14 @@ Ranker::Ranker(int metric_type, double learn_rate, int num_iterations) {
     (void)num_iterations;
 }
 
-double
-Ranker::get_score(Xapian::RankList & rl){
-    return this->scorer->score(rl);
-}
-
-std::vector<Xapian::RankList>
+std::vector<Xapian::FeatureVector>
 Ranker::get_traindata(){
     return this->traindata;
 }
 
 void
-Ranker::set_training_data(vector<Xapian::RankList> training_data1) {
-    this->traindata = training_data1;
+Ranker::set_training_data(vector<Xapian::FeatureVector> training_data) {
+    this->traindata = training_data;
 }
 
 std::string
@@ -84,6 +79,3 @@ Ranker::get_cwd() {
     char temp[MAXPATHLEN];
     return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string(""));
 }
-
-
-// TODO: add aggregation methods when including scorers

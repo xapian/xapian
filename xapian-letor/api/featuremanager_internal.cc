@@ -23,7 +23,6 @@
 
 #include "xapian-letor/featuremanager.h"
 #include "xapian-letor/featurevector.h"
-#include "xapian-letor/ranklist.h"
 #include "featuremanager_internal.h"
 
 #include <cstring>
@@ -39,48 +38,44 @@ using namespace std;
 
 struct FileNotFound { };
 
-std::string
-FeatureManager::Internal::getdid(const Document &doc)
-{
-    string id="";
-    string data = doc.get_data();
+void
+FeatureManager::Internal::normalise(std::vector<FeatureVector> & fvec) {
 
-    string temp_id = data.substr(data.find("url=", 0),
-                     (data.find("sample=", 0) - data.find("url=", 0)));
+    // find the max value for each feature gpr all the FeatureVectors in the vector.
+    int num_features = 19;
+    double temp = 0.0;
+    double max[num_features];
 
-    id = temp_id.substr(temp_id.rfind('/') + 1,          // to parse the actual
-         (temp_id.rfind('.') - temp_id.rfind('/') - 1)); // document name associated
-                                                         // with the documents if any
+    for(int i=0; i<num_features; ++i)
+        max[i] = 0.0;
 
+    int num_fv = fvec.size();
+    for(int i=0; i < num_fv; ++i) {
+        for(int j=0; j<num_features; ++j) {
+            double fval = fvec[i].get_fvals()[j];
+            if (max[j] < fval)
+                max[j] = fval;
+        }
+    }
 
-    return id;
+    /* We have the maximum value of each feature overall.
+       Now we need to normalize each feature value of a
+       featureVector by dividing it by the corresponding max of the feature value
+    */
+
+    for(int i=0; i < num_fv; ++i) {
+        for(int j=0; j<num_features; ++j) {
+            temp = fvec[i].get_fvals()[j];
+            temp /= max[j];
+            fvec[i].set_feature_value(j, temp);
+        }
+    }
 }
 
-int
-FeatureManager::Internal::getlabel(map<string, map<string, int> > qrel2,
-                                 const Document &doc, std::string & qid)
+std::vector<FeatureVector>
+FeatureManager::Internal::create_feature_vectors(const Xapian::MSet & mset)
 {
-    int label = -1;
-    string id = getdid(doc);
-
-    map<string, map<string, int> >::iterator outerit;
-    map<string, int>::iterator innerit;
-
-    outerit = qrel2.find(qid);
-    if (outerit != qrel2.end()) {
-    innerit = outerit->second.find(id);
-    if (innerit != outerit->second.end()) {
-        label = innerit->second;
-    }
-    }
-    return label;
-}
-
-Xapian::RankList
-FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::string & qid, bool train)
-{
-    Xapian::RankList rl;
-    rl.set_qid(qid);
+    std::vector<FeatureVector> fvec;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 
@@ -91,66 +86,26 @@ FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::strin
         double weight = i.get_weight();
 
         map<int,double> fVals = transform(doc, weight);
-        Xapian::docid did = doc.get_docid();
-        int label = getlabel(qrel, doc, qid);
 
-        if (train && label == -1) {
-            continue;
-        }
-        Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
-        rl.add_feature_vector(fv);
+        Xapian::docid did = doc.get_docid();
+
+        Xapian::FeatureVector fv = create_feature_vector(fVals, did);
+
+        fvec.push_back(fv);
 
     }
-    //TODO: if the rlist is null(all the label is -1), need to thrown a exception.
-    std::vector<FeatureVector> normalized_rl = rl.normalise();
-    rl.set_fvv(normalized_rl);
-    return rl;
+    normalise(fvec);
+    return fvec;
 }
 
 Xapian::FeatureVector
-FeatureManager::Internal::create_feature_vector(map<int,double> fvals,
-                                                int &label, Xapian::docid & did)
+FeatureManager::Internal::create_feature_vector(map<int,double> fvals, Xapian::docid & did)
 {
     Xapian::FeatureVector fv;
     fv.set_did(did);
-    fv.set_label(label);
     fv.set_fvals(fvals);
 
     return fv;
-}
-
-map<string, map<string,int> >
-FeatureManager::Internal::load_relevance(const std::string & qrel_file)
-{
-    map<string, map<string, int>> qrel1;     // < qid, <docid, relevance_judgement> >
-
-    string inLine;
-    ifstream myfile (qrel_file.c_str(), ifstream::in);
-    if(!myfile.good()){
-        cout << "No Qrel file found" << endl;
-        throw FileNotFound();
-    }
-    string token[4];
-    if (myfile.is_open()) {
-    while (myfile.good()) {
-        getline(myfile, inLine);        // read a file line by line
-        char * str;
-        char * x1;
-        x1 = const_cast<char*>(inLine.c_str());
-        str = strtok(x1, " ,.-");
-        int i = 0;
-        while (str != NULL) {
-        token[i] = str;     // store tokens in a string array
-        ++i;
-        str = strtok(NULL, " ,.-");
-        }
-
-        qrel1[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
-    }
-    myfile.close();
-    }
-    this->qrel = qrel1;
-    return qrel1;
 }
 
 std::map<int,double>

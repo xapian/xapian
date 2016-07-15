@@ -37,6 +37,8 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     Database letor_db;
     Query letor_query;
 
+    map<string, map<string, int> > qrel;
+
   public:
 
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset);
@@ -45,7 +47,9 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
 
-    vector<Xapian::RankList> load_list_ranklist(const char *filename);
+    vector<FeatureVector> load_list_fvecs(const char *filename);
+
+    int getlabel(const Document & doc, const std::string & qid);
 
 
 };

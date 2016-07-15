@@ -6,7 +6,7 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "ranklist.h"
+#include "featurevector.h"
 
 using namespace std;
 
@@ -17,9 +17,9 @@ class XAPIAN_VISIBILITY_DEFAULT Scorer { //TODO: Update documentation
   public:
     Scorer();
 
-    std::vector<double> get_labels(Xapian::RankList rl);
+    std::vector<double> get_labels(const std::vector<Xapian::FeatureVector> & fvv);
 
-    virtual double score(const Xapian::RankList & rl)=0;
+    virtual double score(const std::vector<Xapian::FeatureVector> & fvv)=0;
 
 };
 
