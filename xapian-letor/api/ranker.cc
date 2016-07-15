@@ -59,6 +59,19 @@ Ranker::Ranker(int metric_type) { //TODO: update this when adding scorers
 
 }
 
+Ranker::Ranker(int metric_type, double learn_rate, int num_iterations) {
+    MAXPATHLEN = 200;
+    // switch(metric_type) {
+    //     case 0: this -> scorer = new NDCGScorer;
+    //             cout << "NDCGScorer initialised!" << endl;
+    //             break;
+    //     default: ;
+    //     }
+    (void)metric_type;
+    (void)learn_rate;
+    (void)num_iterations;
+}
+
 double
 Ranker::get_score(Xapian::RankList & rl){
     return this->scorer->score(rl);
@@ -80,19 +93,5 @@ Ranker::get_cwd() {
     return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string(""));
 }
 
-void
-Ranker::train_model() {
-}
-
-void
-Ranker::save_model_to_file() {
-}
-
-void
-Ranker::load_model_from_file(const std::string & model_file) {
-    (void)model_file;
-}
-
-// TODO: Add definition of rank method
 
 // TODO: add aggregation methods when including scorers
