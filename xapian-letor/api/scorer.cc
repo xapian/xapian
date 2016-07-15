@@ -4,7 +4,6 @@
 #include <xapian/visibility.h>
 
 #include <xapian-letor/scorer.h>
-#include <xapian-letor/ranklist.h>
 
 #include <math.h>
 #include <algorithm>
@@ -18,9 +17,8 @@ Scorer::Scorer() {
 }
 
 std::vector<double>
-Scorer::get_labels(Xapian::RankList rl){
+Scorer::get_labels(const std::vector<Xapian::FeatureVector> & fvv){
 
-    std::vector<Xapian::FeatureVector> fvv = rl.get_fvv();
     int fvvsize = fvv.size();
     std::vector<double> labels;
 

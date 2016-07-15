@@ -27,7 +27,6 @@
 #include "xapian-letor/letor.h"
 #include "xapian-letor/letor_features.h"
 #include "xapian-letor/featurevector.h"
-#include "xapian-letor/ranklist.h"
 
 #include <map>
 #include <string>
@@ -36,7 +35,6 @@ using namespace std;
 
 namespace Xapian {
 
-class RankList;
 class FeatureVector;
 
 class FeatureManager::Internal : public Xapian::Internal::intrusive_base
@@ -52,23 +50,15 @@ class FeatureManager::Internal : public Xapian::Internal::intrusive_base
     map<string,long int> coll_tf;
     map<string,double> idf;
 
-    map<string, map<string, int> > qrel;
-
   public:
 
     std::map<int,double> transform(const Document &doc, double &weight_);
 
-    Xapian::RankList create_rank_list(const Xapian::MSet & mset, std::string & qid, bool train);
+    std::vector<Xapian::FeatureVector> create_feature_vectors(const Xapian::MSet & mset);
 
-    map<string, map<string,int> > load_relevance(const std::string & qrel_file);
+    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, Xapian::docid & did);
 
-    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did);
-
-    std::string getdid(const Document &doc);
-
-    int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
-
-    static const int fNum = 20;
+    static const int fNum = 19;
 
   private:
     // update collection-level measures
@@ -76,6 +66,8 @@ class FeatureManager::Internal : public Xapian::Internal::intrusive_base
 
     // update query-level measures
     void update_query_level();
+
+    void normalise(std::vector<FeatureVector> & fvec);
 
 };
 
