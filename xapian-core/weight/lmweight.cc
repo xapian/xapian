@@ -106,6 +106,14 @@ LMWeight::init(double)
 	    param_smoothing1 = 2000;
 	}
     }
+
+    /* Setting param_smoothing1 and param_smoothing2 default value to used when
+     * DIRICHLET_PLUS_SMOOTHING is selected.*/
+    if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
+	if (param_smoothing1 == 0.7) {
+	    param_smoothing1 = 2000;
+	}
+    }
 }
 
 string
@@ -121,7 +129,6 @@ LMWeight::serialise() const
     result += static_cast<unsigned char>(select_smoothing);
     result += serialise_double(param_smoothing1);
     result += serialise_double(param_smoothing2);
-
     return result;
 }
 
@@ -161,6 +168,16 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     } else if (select_smoothing == DIRICHLET_SMOOTHING) {
 	weight_sum = (wdf_double + (param_smoothing1 * weight_collection)) /
 		     (len_double + param_smoothing1);
+    } else if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
+	/* In the Dir+ weighting formula, sumpart weight contribution is :-
+	 *
+	 * sum of log of (1 + (wdf/(param_smoothing1 * weight_collection))) and
+	 * log of (1 + (delta/param_smoothing1 * weight_collection))).
+	 * Since, sum of logs is log of product so weight_sum is calculated as product
+	 * of terms in log in the Dir+ formula.
+	 */
+	weight_sum = (1 + (wdf_double / (param_smoothing1 * weight_collection))) *
+		     (1 + (param_smoothing2 / (param_smoothing1 * weight_collection)));
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
 	double uniqterm_double = uniqterm;
 	weight_sum = ((((wdf_double - param_smoothing1) > 0) ? (wdf_double - param_smoothing1) : 0) / len_double) + ((param_smoothing1 * weight_collection * uniqterm_double) / len_double);
@@ -182,12 +199,17 @@ LMWeight::get_maxpart() const
 {
     // Variable to store the collection frequency
     double upper_bound;
+    // Store upper bound on wdf in variable wdf_max
+    double wdf_max = get_wdf_upper_bound();
 
     // Calculating upper bound considering different smoothing option available to user.
     if (select_smoothing == JELINEK_MERCER_SMOOTHING) {
 	upper_bound = (param_smoothing1 * weight_collection) + (1 - param_smoothing1);
     } else if (select_smoothing == DIRICHLET_SMOOTHING) {
 	upper_bound = (get_doclength_upper_bound() + (param_smoothing1 * weight_collection)) / (get_doclength_upper_bound() + param_smoothing1);
+    } else if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
+	upper_bound = (1 + (wdf_max / (param_smoothing1 * weight_collection))) *
+		      (1 + (param_smoothing2 / (param_smoothing1 * weight_collection)));
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
 	upper_bound =  param_smoothing1 * weight_collection + 1;
     } else {
@@ -200,15 +222,31 @@ LMWeight::get_maxpart() const
     return (upper_bound * param_log > 1.0) ? log(upper_bound * param_log) : 1.0;
 }
 
+
+/* The extra weight component in the Dir+ formula is :-
+ *
+ * |Q| * log (param_smoothing1 / (|D| + param_smoothing1))
+ *
+ * where, |Q| is total query length.
+ *	  |D| is total document length.
+ */
 double
-LMWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+LMWeight::get_sumextra(Xapian::termcount len, Xapian::termcount) const
 {
+    if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
+	double extra_weight = param_smoothing1 / (len + param_smoothing1);
+	return get_query_length() * log(extra_weight);
+    }
     return 0;
 }
 
 double
 LMWeight::get_maxextra() const
 {
+    if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
+	double extra_weight = param_smoothing1 / (get_doclength_lower_bound() + param_smoothing1);
+	return get_query_length() * log(extra_weight);
+    }
     return 0;
 }
 
