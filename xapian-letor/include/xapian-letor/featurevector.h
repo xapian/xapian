@@ -73,8 +73,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector { //TODO: Update documentation
     void set_score(double score1);
     void set_feature_value(int index, double value);
     int get_fcount();
-    double get_score();
-    double get_label();
+    double get_score() const;
+    double get_label() const;
     Xapian::docid get_did();
     std::map<int,double> get_fvals();
     double get_feature_value(int index);

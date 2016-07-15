@@ -23,7 +23,6 @@
 
 #include "xapian-letor/featuremanager.h"
 #include "xapian-letor/featurevector.h"
-#include "xapian-letor/ranklist.h"
 #include "featuremanager_internal.h"
 
 #include <cstring>
@@ -32,6 +31,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -56,34 +56,16 @@ FeatureManager::~FeatureManager()
 {
 }
 
-std::string
-FeatureManager::getdid(const Document &doc)
+std::vector<Xapian::FeatureVector>
+FeatureManager::create_feature_vectors(const Xapian::MSet & mset)
 {
-    return internal->getdid(doc);
-}
-
-int
-FeatureManager::getlabel(map<string, map<string, int> > qrel2, const Document &doc, std::string & qid)
-{
-    return internal->getlabel(qrel2, doc, qid);
-}
-
-Xapian::RankList
-FeatureManager::create_rank_list(const Xapian::MSet & mset, std::string & qid, bool train)
-{
-    return internal->create_rank_list(mset, qid, train);
+    return internal->create_feature_vectors(mset);
 }
 
 Xapian::FeatureVector
-FeatureManager::create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did)
+FeatureManager::create_feature_vector(map<int,double> fvals, Xapian::docid & did)
 {
-    return internal->create_feature_vector(fvals, label, did);
-}
-
-map<string, map<string,int> >
-FeatureManager::load_relevance(const std::string & qrel_file)
-{
-    return internal->load_relevance(qrel_file);
+    return internal->create_feature_vector(fvals, did);
 }
 
 std::map<int,double>
