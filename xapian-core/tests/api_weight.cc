@@ -53,7 +53,7 @@ DEFINE_TESTCASE(tradweight3, !backend) {
 
 // Test Exception for junk after serialised weight.
 DEFINE_TESTCASE(unigramlmweight3, !backend) {
-    Xapian::LMWeight wt(79898.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0.5, 1.0);
+    Xapian::LMWeight wt(79898.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0.5, 1.0, 0, 0);
     try {
 	Xapian::LMWeight t;
 	Xapian::LMWeight * t2 = t.unserialise(wt.serialise() + "X");
@@ -874,10 +874,10 @@ DEFINE_TESTCASE(unigramlmweight5, backend) {
     enquire4.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mset4;
     // 5 documents available with term paragraph so mset size should be 5
-    enquire1.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::TWO_STAGE_SMOOTHING, 0, 0));
-    enquire2.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0, 0));
-    enquire3.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::ABSOLUTE_DISCOUNT_SMOOTHING, 0, 0));
-    enquire4.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::DIRICHLET_SMOOTHING, 0, 0));
+    enquire1.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::TWO_STAGE_SMOOTHING, 0, 0, 0, 0));
+    enquire2.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::JELINEK_MERCER_SMOOTHING, 0, 0, 0, 0));
+    enquire3.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::ABSOLUTE_DISCOUNT_SMOOTHING, 0, 0, 0, 0));
+    enquire4.set_weighting_scheme(Xapian::LMWeight(10000.0, Xapian::Weight::DIRICHLET_SMOOTHING, 0, 0, 0, 0));
 
     mset1 = enquire1.get_mset(0, 10);
     mset2 = enquire2.get_mset(0, 10);

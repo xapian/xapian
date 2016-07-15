@@ -378,7 +378,7 @@ DEFINE_TESTCASE(weight1, !backend) {
     delete wt;
 
     Xapian::LMWeight unigramlmweight_dflt;
-    Xapian::LMWeight unigramlmweight(32000, Xapian::Weight::DIRICHLET_SMOOTHING, 2034.0, 0.0);
+    Xapian::LMWeight unigramlmweight(32000, Xapian::Weight::DIRICHLET_SMOOTHING, 2034.0, 0.0, 0.0, 0);
     TEST_EQUAL(unigramlmweight.name(), "Xapian::LMWeight");
     TEST_NOT_EQUAL(unigramlmweight_dflt.serialise(), unigramlmweight.serialise());
     wt = Xapian::LMWeight().unserialise(unigramlmweight.serialise());
