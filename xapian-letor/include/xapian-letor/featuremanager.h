@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
      */
     int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
 
-    static const int fNum = 20;
+    static const int fNum = 19;
 
     /// Specify the database to use for retrieval. This database will be used directly by internal class.
     void set_database(const Database &db);
