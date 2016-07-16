@@ -241,7 +241,7 @@ LMWeight::get_sumextra(Xapian::termcount len, Xapian::termcount) const
 {
     if (enable_dirplus) {
 	double len_double = len;
-	double extra_weight = param_smoothing1 / len_double + param_smoothing1;
+	double extra_weight = param_smoothing1 / (len_double + param_smoothing1);
 	return get_query_length() * log (extra_weight);
     }
     else
@@ -252,7 +252,7 @@ double
 LMWeight::get_maxextra() const
 {
     if (enable_dirplus) {
-	double extra_weight = param_smoothing1 / get_doclength_lower_bound() + param_smoothing1;
+	double extra_weight = param_smoothing1 / (get_doclength_lower_bound() + param_smoothing1);
 	return get_query_length() * log (extra_weight);
     }
     else
