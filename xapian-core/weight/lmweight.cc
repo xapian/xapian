@@ -176,8 +176,7 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 	     */
 	    weight_sum = (1 + (wdf_double/(param_smoothing1 * weight_collection))) *
 			 (1 + (param_delta/(param_smoothing1 * weight_collection)));
-	}
-	else {
+	} else {
 	    weight_sum = (wdf_double + (param_smoothing1 * weight_collection)) /
 			 (len_double + param_smoothing1);
 	}
