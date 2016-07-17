@@ -166,14 +166,14 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 	// Enabling Dir+ weighting formula.
 	if (enable_dirplus) {
 
-	/* In the Dir+ weighting formula, sumpart weight contribution is :-
-	 *
-	 * sum of log of (1 + (wdf/(param_smoothing1 * weight_collection))) and 
-	 * log of (1 + (delta/param_smoothing1 * weight_collection))). 
-	 
-	 * Since, sum of logs iss log of product so weight_sum is calculated as product
-	 * of terms in log in the Dir+ formula.	
-	 */
+	    /* In the Dir+ weighting formula, sumpart weight contribution is :-
+	     *
+	     * sum of log of (1 + (wdf/(param_smoothing1 * weight_collection))) and
+	     * log of (1 + (delta/param_smoothing1 * weight_collection))).
+
+	     * Since, sum of logs is log of product so weight_sum is calculated as product
+	     * of terms in log in the Dir+ formula.
+	     */
 	    weight_sum = (1 + (wdf_double/(param_smoothing1 * weight_collection))) *
 			 (1 + (param_delta/(param_smoothing1 * weight_collection)));
 	}
@@ -212,8 +212,7 @@ LMWeight::get_maxpart() const
 	if (enable_dirplus) {
 	    upper_bound = (1 + (wdf_max/(param_smoothing1 * weight_collection))) *
 			  (1 + (param_delta/(param_smoothing1 * weight_collection)));
-	}
-	else {
+	} else {
 	    upper_bound = (get_doclength_upper_bound() + (param_smoothing1 * weight_collection)) / (get_doclength_upper_bound() + param_smoothing1);
 	}    
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
@@ -243,8 +242,7 @@ LMWeight::get_sumextra(Xapian::termcount len, Xapian::termcount) const
 	double len_double = len;
 	double extra_weight = param_smoothing1 / (len_double + param_smoothing1);
 	return get_query_length() * log (extra_weight);
-    }
-    else
+    } else
 	return 0;
 }
 
@@ -254,8 +252,7 @@ LMWeight::get_maxextra() const
     if (enable_dirplus) {
 	double extra_weight = param_smoothing1 / (get_doclength_lower_bound() + param_smoothing1);
 	return get_query_length() * log (extra_weight);
-    }
-    else
+    } else
 	return 0;
 }
 
