@@ -10,7 +10,8 @@ endif
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_srcdir)/include -I$(srcdir)/harness -I../../xapian-core/include \
- -DXAPIAN_LIB_BUILD -I../../xapian-core -I../../xapian-core/tests
+ -DXAPIAN_LIB_BUILD -I$(top_srcdir)/../xapian-core/include \
+ -I$(top_srcdir)/../xapian-core/tests
 
 CLEANFILES =
 
