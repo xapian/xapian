@@ -1081,7 +1081,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 
 		string tname = *term;
 		if (tname.size() > MAX_SAFE_TERM_LENGTH)
-		    tname.resize(MAX_SAFE_TERM_LENGTH)			
+		    tname.resize(MAX_SAFE_TERM_LENGTH);		
 		    //throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + tname);
 
 		inverter.add_posting(did, tname, wdf);
