@@ -1276,8 +1276,8 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    new_doclen += new_wdf;
 		    version_file.check_wdf(new_wdf);
 		    if (new_tname.size() > MAX_SAFE_TERM_LENGTH)
-		        new_tname.resize(MAX_SAFE_TERM_LENGTH)
-			throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
+		        new_tname.resize(MAX_SAFE_TERM_LENGTH);
+			//throw Xapian::InvalidArgumentError("Term too long (> " STRINGIZE(MAX_SAFE_TERM_LENGTH) "): " + new_tname);
 		    inverter.add_posting(did, new_tname, new_wdf);
 		    if (pos_modified) {
 			inverter.set_positionlist(position_table, did, new_tname, term);
