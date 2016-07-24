@@ -21,6 +21,18 @@ RankList::RankList()
 {
 }
 
+struct scoreComparer {
+    bool operator()(FeatureVector & firstfv, FeatureVector& secondfv) const {
+        return firstfv.get_score() > secondfv.get_score();
+    }
+};
+
+struct labelComparer {
+    bool operator()(FeatureVector & firstfv, FeatureVector& secondfv) const {
+        return firstfv.get_label() > secondfv.get_label();
+    }
+};
+
 std::vector<FeatureVector>
 RankList::normalise() {
 
@@ -80,4 +92,22 @@ RankList::set_fvv(std::vector<FeatureVector> & local_fvv) {
 std::vector<FeatureVector>
 RankList::get_fvv() {
     return this->fvv;
+}
+
+void
+RankList::sort_by_score() {
+
+    std::vector<FeatureVector> unsorted_fvv = this->fvv;
+
+    std::sort(unsorted_fvv.begin(),unsorted_fvv.end(),scoreComparer());
+    this->fvv = unsorted_fvv;
+}
+
+void
+RankList::sort_by_label() {
+
+    std::vector<FeatureVector> unsorted_fvv = this->fvv;
+
+    std::sort(unsorted_fvv.begin(),unsorted_fvv.end(),labelComparer());
+    this->fvv = unsorted_fvv;
 }

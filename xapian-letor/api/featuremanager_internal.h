@@ -68,7 +68,7 @@ class FeatureManager::Internal : public Xapian::Internal::intrusive_base
 
     int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
 
-    static const int fNum = 20;
+    static const int fNum = 19;
 
   private:
     // update collection-level measures

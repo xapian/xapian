@@ -24,7 +24,9 @@
 #include <xapian-letor/letor.h>
 #include "letor_internal.h"
 #include "xapian-letor/ranker.h"
+#include <ranker/listnet_ranker.h>
 
+#include <vector>
 #include <map>
 #include <string>
 
@@ -72,15 +74,16 @@ Letor::prepare_training_file(const string & query_file, const string & qrel_file
 }
 
 void
-Letor::create_ranker(int ranker_type, int metric_type) { //TODO: update when adding rankers
-    // switch(ranker_type) {
-    //     case 0: internal->ranker = new SVMRanker(metric_type);
-    //             cout << "SVMRanker created!" <<endl;
-    //             break;
-    //     case 1: break;
-    //     default:cout<<"Please specify proper ranker.";
-    (void)ranker_type;
-    (void)metric_type;
+Letor::create_ranker(int ranker_type, int metric_type, double learning_rate, int iterations) {
+    switch(ranker_type) {
+        case 0: internal->ranker = new ListNETRanker(metric_type, learning_rate, iterations);
+                cout << "ListNETRanker initialised!" <<endl;
+                cout << "Learning rate = " << learning_rate << endl;
+                cout << "Number of iterations = " << iterations << endl;
+                break;
+        default:cout<<"Please specify proper ranker.";
+    }
+
 }
 
 }

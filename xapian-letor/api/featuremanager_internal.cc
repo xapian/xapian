@@ -61,7 +61,7 @@ FeatureManager::Internal::getlabel(map<string, map<string, int> > qrel2,
                                  const Document &doc, std::string & qid)
 {
     int label = -1;
-    string id = getdid(doc);
+    string id = std::to_string(doc.get_docid());
 
     map<string, map<string, int> >::iterator outerit;
     map<string, int>::iterator innerit;
@@ -91,18 +91,29 @@ FeatureManager::Internal::create_rank_list(const Xapian::MSet & mset, std::strin
         double weight = i.get_weight();
 
         map<int,double> fVals = transform(doc, weight);
-        Xapian::docid did = doc.get_docid();
-        int label = getlabel(qrel, doc, qid);
 
-        if (train && label == -1) {
+        Xapian::docid did = doc.get_docid();
+        int label;
+
+        if (train){
+            label = getlabel(qrel, doc, qid);
+            cout<<"did_train:"<<did<<endl;
+            if (label == -1)
+                continue;
+        }
+        else {
+            Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
+            rl.add_feature_vector(fv);
             continue;
         }
+
         Xapian::FeatureVector fv = create_feature_vector(fVals, label, did);
         rl.add_feature_vector(fv);
 
     }
     //TODO: if the rlist is null(all the label is -1), need to thrown a exception.
     std::vector<FeatureVector> normalized_rl = rl.normalise();
+
     rl.set_fvv(normalized_rl);
     return rl;
 }
