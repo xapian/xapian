@@ -411,8 +411,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     /// The factor to multiply with the weight.
     double factor;
 
-    /// Parameters slope and delta in the Piv+ normalization weighting formula.
-    double param_slope, param_delta;
+    /// Parameters in the Piv+ normalization weighting formula.
+    double param_s, param_delta; 
 
     TfIdfWeight * clone() const;
 
@@ -472,7 +472,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    explicit TfIdfWeight(const std::string &normalizations);
+    explicit TfIdfWeight(const std::string &normalizations, double param_s, double param_delta);
 
     TfIdfWeight(const std::string &normalizations, double slope, double delta);
 
@@ -483,6 +483,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_SIZE);
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(WQF);
     }
 
     std::string name() const;
