@@ -850,6 +850,49 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     return true;
 }
 
+// Feature tests for pivoted normalization functions.
+DEFINE_TESTCASE(tfidfweight4, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::Query query("paragraph");
+    Xapian::MSet mset;
+
+    // Check for "PPP" normalization string.
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("PPP", 0.2, 1.0));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 5);
+    // Shorter docs should ranker higher if wqf is equal among all the docs.
+    TEST_REL(mset[0].get_weight(),>,mset[1].get_weight());
+    TEST_REL(mset[2].get_weight(),>,mset[3].get_weight());
+
+    // check for "ntP" which basically represents "xxP"
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntP", 0.2, 1.0));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    // Expect doc 2 with query "word" to have higher weight than doc 4.
+    mset_expect_order(mset, 2, 4);
+
+    // check for "nPn" which represents "xPx"
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("nPn", 0.2, 1.0));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    // Expect doc 2 with query "word" to have higher weight than doc 4.
+    mset_expect_order(mset, 2, 4);
+
+    // check for "Ptn" which represents "Pxx"
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("Ptn", 0.2, 1.0));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    // Expect doc 2 with query "word" to have higher weight than doc 4.
+    mset_expect_order(mset, 2, 4);
+
+    return true;
+}
+
 class CheckInitWeight : public Xapian::Weight {
   public:
     double factor;

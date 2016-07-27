@@ -411,6 +411,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     /// The factor to multiply with the weight.
     double factor;
 
+    /// Parameters slope and delta in the Piv+ normalization weighting formula.
+    double param_slope, param_delta;
+
     TfIdfWeight * clone() const;
 
     void init(double factor);
@@ -419,7 +422,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
        should be accessed by these functions. */
     double get_wdfn(Xapian::termcount wdf, char c) const;
     double get_idfn(Xapian::doccount termfreq, char c) const;
-    double get_wtn(double wt, char c) const;
+    double get_wtn(Xapian::termcount len, double wt, char c) const;
 
   public:
     /** Construct a TfIdfWeight
@@ -437,6 +440,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *     @li 'P': Pivoted     wdfn=1+log(1+log(wdf))
      *
      *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
      *     implemented.
@@ -451,20 +455,29 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
      *     @li 'f': Freq    idfn=1/Termfreq
      *     @li 's': Squared idfn=log(N/Termfreq)^2
+     *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
      *
      * @li The third and the final character indicates the normalization for
      *     the document weight.  The following normalizations are currently
      *     supported:
      *
      *     @li 'n': None wtn=tfn*idfn
+     *     @li 'P': Pivoted wtn=wqf(tfn*idfn*(1-slope+(slope*normlen))+delta*idfn) where
+     *         parameters slope and delta values should be positive when using pivoted
+     *         normalization string. Specifically, "PPP" normalization string should
+     *         be used to use Piv+ normalization. In addition, different types of pivoted
+     *         normalization can also be used in combination with other normalisations
+     *         to have more options of combinations for wdfn, idfn and wtn normalizations.
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
     explicit TfIdfWeight(const std::string &normalizations);
 
+    TfIdfWeight(const std::string &normalizations, double slope, double delta);
+
     TfIdfWeight()
-    : normalizations("ntn")
+	: normalizations("ntn"), param_slope(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
