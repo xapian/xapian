@@ -55,7 +55,7 @@ All exception objects have the following methods
 
 =head2 get_msg
 
-Returns a string with a descriptive error message, useful for outputing
+Returns a string with a descriptive error message, useful for outputting
 
 =head2 get_type
 
