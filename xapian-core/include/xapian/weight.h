@@ -462,12 +462,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     supported:
      *
      *     @li 'n': None wtn=tfn*idfn
-     *     @li 'P': Pivoted wtn=wqf(tfn*idfn*(1-slope+(slope*normlen))+delta*idfn) where
-     *         parameters slope and delta values should be positive when using pivoted
-     *         normalization string. Specifically, "PPP" normalization string should
-     *         be used to use Piv+ normalization. In addition, different types of pivoted
-     *         normalization can also be used in combination with other normalisations
-     *         to have more options of combinations for wdfn, idfn and wtn normalizations.
+     *     @li 'P': Pivoted wtn=wqf(tfn*idfn*(1-slope+(slope*normlen))+delta*idfn)
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
@@ -477,7 +472,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     TfIdfWeight(const std::string &normalizations, double slope, double delta);
 
     TfIdfWeight()
-	: normalizations("ntn"), param_slope(0.2), param_delta(1.0)
+	: normalizations("ntn"), param_s(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);

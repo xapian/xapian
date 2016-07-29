@@ -41,7 +41,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double s, double delta)
     if (normalizations.length() != 3 ||
 	!strchr("nbslP", normalizations[0]) ||
 	!strchr("ntpfsP", normalizations[1]) ||
-	!strchr("n", normalizations[2]))
+	!strchr("nP", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (normalizations[1] != 'n') {
 	need_stat(TERMFREQ);
@@ -75,7 +75,7 @@ TfIdfWeight::name() const
 string
 TfIdfWeight::serialise() const
 {
-    string result = static_cast<const string>(normalizations);
+    string result = normalizations;
     result += serialise_double(param_s);
     result += serialise_double(param_delta);
     return result;
@@ -86,15 +86,12 @@ TfIdfWeight::unserialise(const string & str) const
 {
     const char *ptr = str.data();
     const char *end = ptr + str.size();
-    const string normals = (*(ptr)++);
+    const string normals = (const string)(ptr);
     double s = unserialise_double(&ptr, end);
     double delta = unserialise_double(&ptr, end);
     if (rare(ptr != end))
 	throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
-    return new TfIdfWeight(normals, s, delta);
-    if (str.length() != 3)
-	throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
-    return new TfIdfWeight(normals, s, delta);
+    return new TfIdfWeight(str, s, delta);
 }
 
 double
@@ -106,7 +103,7 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     double wt = get_wdfn(wdf, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    if (normalizations[2] == 'P') {
+    if (normalizations[2] == 'P' && normalizations[1] == 'P') {
 	wt = get_wtn(doclen, wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
 	return wqf_double * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
     }
@@ -125,7 +122,7 @@ TfIdfWeight::get_maxpart() const
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     double wt = get_wdfn(wdf_max, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    if (normalizations[2] =='P') {
+    if (normalizations[2] =='P' && normalizations[1] == 'P') {
 	wt = get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
 	return wqf_double * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
     }
