@@ -412,7 +412,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double factor;
 
     /// Parameters in the Piv+ normalization weighting formula.
-    double param_s, param_delta; 
+    double param_s = 0;
+    double param_delta = 0;
 
     TfIdfWeight * clone() const;
 
@@ -462,18 +463,20 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     supported:
      *
      *     @li 'n': None wtn=tfn*idfn
-     *     @li 'P': Pivoted wtn=wqf(tfn*idfn*(1-slope+(slope*normlen))+delta*idfn)
+     *     @li 'P': Pivoted wtn=wqf(tfn*idfn*(1-s+(s*normlen))+delta*idfn)
+     *              Note: Valid parameters s and delta values should be non-negative
+     *                    & non-zero when using pivoted normalization string("PPP")
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    explicit TfIdfWeight(const std::string &normalizations, double param_s, double param_delta);
+    explicit TfIdfWeight(const std::string &normalizations);
 
-    TfIdfWeight(const std::string &normalizations, double slope, double delta);
-
-    TfIdfWeight()
-	: normalizations("ntn"), param_s(0.2), param_delta(1.0)
+    explicit TfIdfWeight(double s, double delta)
+	: param_s(s), param_delta(delta)
     {
+	if (param_s < 0) param_s = 0;
+	if (param_delta < 0) param_delta = 0;
 	need_stat(TERMFREQ);
 	need_stat(WDF);
 	need_stat(WDF_MAX);
@@ -481,6 +484,15 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(WQF);
+    }
+
+    TfIdfWeight()
+	: normalizations("ntn")
+    {
+	need_stat(TERMFREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(COLLECTION_SIZE);
     }
 
     std::string name() const;
