@@ -35,8 +35,8 @@ using namespace std;
 
 namespace Xapian {
 
-TfIdfWeight::TfIdfWeight(const std::string &normals, double s, double delta)
-    : normalizations(normals), param_s(s), param_delta(delta)
+TfIdfWeight::TfIdfWeight(const std::string &normals)
+    : normalizations(normals)
 {
     if (normalizations.length() != 3 ||
 	!strchr("nbslP", normalizations[0]) ||
@@ -47,9 +47,6 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double s, double delta)
 	need_stat(TERMFREQ);
 	need_stat(COLLECTION_SIZE);
     }
-    need_stat(AVERAGE_LENGTH);
-    need_stat(DOC_LENGTH);
-    need_stat(WQF);
     need_stat(WDF);
     need_stat(WDF_MAX);
 }
@@ -57,7 +54,10 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double s, double delta)
 TfIdfWeight *
 TfIdfWeight::clone() const
 {
-    return new TfIdfWeight(normalizations, param_s, param_delta);
+    if (param_s > 0 || param_delta > 0)
+	return new TfIdfWeight(param_s, param_delta);
+    else
+	return new TfIdfWeight(normalizations);
 }
 
 void
@@ -75,23 +75,31 @@ TfIdfWeight::name() const
 string
 TfIdfWeight::serialise() const
 {
-    string result = normalizations;
-    result += serialise_double(param_s);
-    result += serialise_double(param_delta);
-    return result;
+    if (param_s > 0 || param_delta > 0) {
+	string result = serialise_double(param_s);
+	result += serialise_double(param_delta);
+	return result;
+    } else {
+	return normalizations;
+    }
 }
 
 TfIdfWeight *
 TfIdfWeight::unserialise(const string & str) const
 {
-    const char *ptr = str.data();
-    const char *end = ptr + str.size();
-    const string normals = (const string)(ptr);
-    double s = unserialise_double(&ptr, end);
-    double delta = unserialise_double(&ptr, end);
-    if (rare(ptr != end))
-	throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
-    return new TfIdfWeight(str, s, delta);
+    if (param_s > 0 || param_delta > 0) {
+	const char *ptr = str.data();
+	const char *end = ptr + str.size();
+	double s = unserialise_double(&ptr, end);
+	double delta = unserialise_double(&ptr, end);
+	if (rare(ptr != end))
+	    throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
+	return new TfIdfWeight(s, delta);
+    } else {
+	if (str.length() != 3)
+	    throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
+	return new TfIdfWeight(str);
+    }
 }
 
 double
