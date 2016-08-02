@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -1058,6 +1058,18 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    if (dot != string::npos && leaf.size() - dot - 1 <= max_ext_len)
 		leaf.resize(dot);
 	    indexer.index_text(leaf, 1, "F");
+
+	    // Also index with underscores and ampersands replaced by spaces.
+	    bool modified = false;
+	    string::size_type rep = 0;
+	    while ((rep = leaf.find_first_of("_&", rep)) != string::npos) {
+		leaf[rep++] = ' ';
+		modified = true;
+	    }
+	    if (modified) {
+		indexer.increase_termpos(100);
+		indexer.index_text(leaf, 1, "F");
+	    }
 	}
 
 	if (!author.empty()) {
