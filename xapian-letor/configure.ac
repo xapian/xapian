@@ -35,8 +35,7 @@ LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Where xapian-letor.h, etc go.  In development release append "/xapian-1.3".
-dnl incdir=$includedir
-incdir=$includedir/xapian-1.3
+incdir=$includedir
 AC_SUBST([incdir])
 
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
