@@ -28,7 +28,6 @@
 #include <xapian/visibility.h>
 
 #include "featurevector.h"
-#include "scorer.h"
 
 #include <list>
 #include <map>
@@ -40,8 +39,6 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
 
 
     std::vector<Xapian::FeatureVector> traindata;
-
-    Scorer * scorer;
 
     int MAXPATHLEN;
 
