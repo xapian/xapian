@@ -40,8 +40,10 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <sstream> // for debugging
 
 #include "cjk-tokenizer.h"
+#include "debuglog.h"
 
 using namespace std;
 
@@ -308,12 +310,104 @@ struct Sniplet {
 // highlight's relevance.
 static const double BOOST_FACTOR = 0; // FIXME: Set to non-zero and adjust testcases.
 
+class SnipletRelevance {
+    public:
+        virtual ~SnipletRelevance() {}
+
+        virtual double add(Sniplet &word, size_t begin);
+        virtual double remove(Sniplet &word, size_t begin);
+};
+
+inline double
+SnipletRelevance::add(Sniplet &word, size_t b __attribute__((unused))) {
+    return word.relevance;
+}
+
+inline double
+SnipletRelevance::remove(Sniplet &word, size_t b __attribute__((unused))) {
+    return word.relevance;
+}
+
+class TermCoverRelevance : public SnipletRelevance {
+    const string & text;
+
+    string extract_term(Sniplet &word, size_t begin);
+    map<string, size_t> term_cover;
+
+    public:
+    TermCoverRelevance(const string & text_) : text(text_) {}
+
+    virtual double add(Sniplet &word, size_t begin);
+    virtual double remove(Sniplet &word, size_t begin);
+};
+
+inline string
+TermCoverRelevance::extract_term(Sniplet &word, size_t begin) {
+    // Skip leading whitespace, if any
+    Utf8Iterator it(text.data() + begin, word.term_end - begin);
+    while (it != Utf8Iterator()) {
+        if (!Unicode::is_whitespace(*it))
+            break;
+        ++it;
+    }
+    // Build the case-insensitive term string
+    std::string term;
+    term.reserve(term.size());
+    while (it != Utf8Iterator()) {
+        Unicode::append_utf8(term, tolower(*it));
+        ++it;
+    }
+    return term;
+}
+
+inline double
+TermCoverRelevance::add(Sniplet &word, size_t begin) {
+    string term = extract_term(word, begin);
+    if (term.empty() || word.relevance == 0) {
+        return 0;
+    }
+    double r = 0;
+    if (++term_cover[term] == 1) {
+        // First occurence of term in the current pipe, so its relevance counts.
+        r = word.relevance;
+    }
+    LOGLINE(TERMGEN, "TermCoverRelevance::add: term=" << term << " r=" << r);
+    return r;
+}
+
+inline double
+TermCoverRelevance::remove(Sniplet &word, size_t begin) {
+    string term = extract_term(word, begin);
+    if (term.empty() || word.relevance == 0) {
+        return 0;
+    }
+    double r = 0;
+    auto it = term_cover.find(term);
+    if ((it != term_cover.end()) && (--(it->second) == 0)) {
+        // The last occurrence of term in the current pipe vanishes, so its
+        // relevance for the pipe is gone.
+        term_cover.erase(it);
+        r = word.relevance;
+    }
+    LOGLINE(TERMGEN, "TermCoverRelevance::remove: term=" << term << " r=" << r);
+    return r;
+}
+
 class SnipPipe {
     deque<Sniplet> pipe;
     deque<Sniplet> best_pipe;
 
+    // Relevance calculator for sniplet pipe.
+    SnipletRelevance *relevance = 0;
+
+    // The input text.
+    const string &text;
+
     // Requested length for snippet.
     size_t length;
+
+    // Configuration flags.
+    unsigned flags = 0;
 
     // Position in text of start of current pipe contents.
     size_t begin = 0;
@@ -333,11 +427,22 @@ class SnipPipe {
 
     double best_sum = 0;
 
-    // Add one to length to allow for inter-word space.
-    // FIXME: We ought to correctly allow for multiple spaces.
-    explicit SnipPipe(size_t length_) : length(length_ + 1) { }
+    explicit SnipPipe(const string &text_, size_t length_, unsigned flags_)
+        : text(text_), flags(flags_) {
+		// Add one to length to allow for inter-word space.
+		// FIXME: We ought to correctly allow for multiple spaces.
+		length = length_ + 1;
 
-    bool pump(double r, size_t t, size_t h, unsigned flags);
+		if (flags & Xapian::MSet::SNIPPET_TERMCOVER) {
+			relevance = new TermCoverRelevance(text_);
+		} else {
+			relevance = new SnipletRelevance();
+		}
+        }
+
+    ~SnipPipe() { delete(relevance); }
+
+    bool pump(double r, size_t t, size_t h);
 
     void done();
 
@@ -346,10 +451,53 @@ class SnipPipe {
 	       const string & hi_end,
 	       const string & omit,
 	       string & output);
+
+    string get_description();
 };
 
+static string
+describe_pipe(const string & text, size_t begin, deque<Sniplet> & pipe) {
+    std::stringstream ss;
+
+    size_t start = begin;
+    ss << "{";
+    for (size_t i = 0; i < pipe.size(); i++) {
+        // Grab the nth word in the pipe
+        Sniplet word = pipe.at(i);
+        // Skip leading whitespace, if any
+        Utf8Iterator it(text.data() + start, word.term_end - start);
+        while (it != Utf8Iterator()) {
+            if (!Unicode::is_whitespace(*it))
+                break;
+            ++it;
+        }
+        // Add the term to the list of pipe entries
+        string term(it.raw(), it.left());
+        if (i != 0) {
+            ss << ", ";
+        }
+        ss << term;
+        start = word.term_end;
+    }
+    ss << "}";
+    return ss.str();
+}
+
+string
+SnipPipe::get_description() {
+    std::stringstream ss;
+
+    ss << "SnipPipe("
+       << "pipe=" << describe_pipe(text, begin, pipe) << ","
+       << "best_pipe=" << describe_pipe(text, best_begin, best_pipe) << ","
+       << "sum=" << sum << ","
+       << "best_sum=" << best_sum
+       << ")";
+    return ss.str();
+}
+
 inline bool
-SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
+SnipPipe::pump(double r, size_t t, size_t h)
 {
     if (h > 1) {
 	boost = r * BOOST_FACTOR;
@@ -386,17 +534,22 @@ SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
 	r = new_r;
     }
     pipe.emplace_back(r, t, h);
-    sum += r;
+
+    // Recalculate the sum of term relevances
+    size_t word_begin = pipe.size() > 1 ? pipe.at(pipe.size()-2).term_end : begin;
+    sum += relevance->add(pipe.back(), word_begin);
 
     // If necessary, discard words from the start of the pipe until it has the
     // desired length.
     // FIXME: Also shrink the window past words with relevance < 0?
     while (t - begin > length /* || pipe.front().relevance < 0.0 */) {
-	sum -= pipe.front().relevance;
+	Sniplet &word = pipe.front();
+	word_begin = begin;
 	begin = pipe.front().term_end;
 	if (best_end >= begin)
-	    best_pipe.push_back(pipe.front());
+	    best_pipe.push_back(word);
 	pipe.pop_front();
+	sum -= relevance->remove(word, word_begin);
 	// E.g. can happen if the current term is longer than the requested
 	// length!
 	if (rare(pipe.empty())) break;
@@ -424,6 +577,8 @@ SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
 	    return false;
 	}
     }
+
+    LOGLINE(TERMGEN, "SnipPipe::pump: " << get_description());
     return true;
 }
 
@@ -663,14 +818,19 @@ MSet::Internal::snippet(const string & text,
     if (stats) stats->get_max_termweight(min_tw, max_tw);
     if (max_tw == 0.0) max_tw = 1.0;
 
-    SnipPipe snip(length);
-
     list<vector<string>> exact_phrases;
     map<string, double> loose_terms;
     list<string> wildcards;
     size_t longest_phrase = 0;
     check_query(enquire->get_query(), exact_phrases, loose_terms,
 		wildcards, longest_phrase);
+
+    if (!exact_phrases.empty() || !wildcards.empty()) {
+        LOGLINE(TERMGEN, "MSet::snippet: disable term cover for phrase or wildcard query");
+        flags &= ~SNIPPET_TERMCOVER;
+    }
+
+    SnipPipe snip(text, length, flags);
 
     vector<string> phrase;
     if (longest_phrase) phrase.resize(longest_phrase - 1);
@@ -808,7 +968,7 @@ relevance_done:
 		phrase_next = (phrase_next + 1) % (longest_phrase - 1);
 	    }
 
-	    if (!snip.pump(relevance, term_end, highlight, flags)) return false;
+	    if (!snip.pump(relevance, term_end, highlight)) return false;
 
 	    term_start = term_end;
 	    return true;

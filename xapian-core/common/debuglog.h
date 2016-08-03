@@ -81,6 +81,9 @@ enum debuglog_categories {
     /// Query stuff.
     DEBUGLOG_CATEGORY_QUERY = ('Y' - '@'),
 
+    /// Termgenerator.
+    DEBUGLOG_CATEGORY_TERMGEN = ('T' - '@'),
+
     /// Messages which are always logged.
     DEBUGLOG_CATEGORY_ALWAYS = 31
 };
