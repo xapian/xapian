@@ -35,8 +35,8 @@ using namespace std;
 
 namespace Xapian {
 
-TfIdfWeight::TfIdfWeight(const std::string &normals)
-    : normalizations(normals)
+TfIdfWeight::TfIdfWeight(double slope, double delta, const std::string &normals)
+    : param_slope(slope), param_delta(delta), normalizations(normals)
 {
     if (normalizations.length() != 3 ||
 	!strchr("nbslP", normalizations[0]) ||
@@ -49,15 +49,17 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
+    if (param_slope != 0 || param_delta != 0) {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(WQF);
+    }
 }
 
 TfIdfWeight *
 TfIdfWeight::clone() const
 {
-    if (param_s > 0 || param_delta > 0)
-	return new TfIdfWeight(param_s, param_delta);
-    else
-	return new TfIdfWeight(normalizations);
+	return new TfIdfWeight(param_slope, param_delta, normalizations);
 }
 
 void
@@ -75,31 +77,24 @@ TfIdfWeight::name() const
 string
 TfIdfWeight::serialise() const
 {
-    if (param_s > 0 || param_delta > 0) {
-	string result = serialise_double(param_s);
-	result += serialise_double(param_delta);
-	return result;
-    } else {
-	return normalizations;
-    }
+    string result = serialise_double(param_slope);
+    result += serialise_double(param_delta);
+    result += normalizations;
+    return result;
 }
 
 TfIdfWeight *
-TfIdfWeight::unserialise(const string & str) const
+TfIdfWeight::unserialise(const string & s) const
 {
-    if (param_s > 0 || param_delta > 0) {
-	const char *ptr = str.data();
-	const char *end = ptr + str.size();
-	double s = unserialise_double(&ptr, end);
-	double delta = unserialise_double(&ptr, end);
-	if (rare(ptr != end))
-	    throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
-	return new TfIdfWeight(s, delta);
-    } else {
-	if (str.length() != 3)
-	    throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
-	return new TfIdfWeight(str);
-    }
+    const char *ptr = s.data();
+    const char *end = ptr + s.size();
+    double slope = unserialise_double(&ptr, end);
+    double delta = unserialise_double(&ptr, end);
+    string normals(ptr, end);
+    ptr += 3;
+    if (rare(ptr != end))
+	throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
+    return new TfIdfWeight(slope, delta, normals);
 }
 
 double
@@ -107,13 +102,13 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
 			 Xapian::termcount) const
 {
     Xapian::doccount termfreq = 1;
-    double wqf_double = get_wqf();
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     double wt = get_wdfn(wdf, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
     if (normalizations[2] == 'P' && normalizations[1] == 'P') {
+	double wqf = get_wqf();
 	wt = get_wtn(doclen, wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
-	return wqf_double * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
+	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
     }
     else
 	return get_wtn(doclen, wt, normalizations[2]) * factor;
@@ -125,14 +120,14 @@ double
 TfIdfWeight::get_maxpart() const
 {
     Xapian::doccount termfreq = 1;
-    double wqf_double = get_wqf();
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     double wt = get_wdfn(wdf_max, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
     if (normalizations[2] =='P' && normalizations[1] == 'P') {
+	double wqf = get_wqf();
 	wt = get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
-	return wqf_double * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
+	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
     }
     else
 	return get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
@@ -200,12 +195,12 @@ TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
 double
 TfIdfWeight::get_wtn(Xapian::termcount doclen, double wt, char c) const
 {
-    double normlen;
     switch (c) {
 	case 'P':
 	{
+	    double normlen;
 	    normlen = doclen / get_average_length();
-	    double norm_factor =  1 / (1 - param_s + (param_s * normlen));
+	    double norm_factor =  1 / (1 - param_slope + (param_slope * normlen));
 	    return wt * norm_factor;
 	}
 	default:
