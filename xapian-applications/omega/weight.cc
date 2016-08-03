@@ -64,6 +64,19 @@ double_param(const char ** p, double * ptr_val)
     return true;
 }
 
+static bool
+string_param(const char ** p, string * ptr_val)
+{
+    char *end;
+    errno = 0;
+    int v = strtol(*p, &end, 10);
+    if (*p == end || errno) return false;
+    *p = end;
+    *ptr_val = v;
+    return true;
+}
+
+
 #if XAPIAN_AT_LEAST(1,3,2)
 static bool
 type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
@@ -151,7 +164,19 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		return;
 	    }
 	    if (C_isspace((unsigned char)*p)) {
-		enq.set_weighting_scheme(Xapian::TfIdfWeight(p + 1));
+		double slope = 0.2;
+		double delta = 1.0;
+		string normals = "ntn";
+		if (!double_param(&p, &slope))
+		    parameter_error("Parameter 1 (slope) is invalid", scheme);
+		if (*p && !double_param(&p, &delta))
+		    parameter_error("Parameter 2 (delta) is invalid", scheme);
+		if (*p && !string_param(&p, &normals))
+		    parameter_error("Normalization string is invalid", scheme);
+		if (*p)
+		    parameter_error("Extra data after normalization string", scheme);
+		Xapian::TfIdfWeight wt(slope, delta, normals);
+		enq.set_weighting_scheme(wt);
 		return;
 	    }
 	}
