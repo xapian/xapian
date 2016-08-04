@@ -719,22 +719,22 @@ DEFINE_TESTCASE(dphweight1, backend) {
 DEFINE_TESTCASE(tfidfweight1, !backend) {
     // InvalidArgumentError should be thrown if normalization string is invalid
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::TfIdfWeight b(0.2, 1.0, "JOHN_LENNON"));
+	Xapian::TfIdfWeight b("JOHN_LENNON"));
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
-	Xapian::TfIdfWeight b(0.2, 1.0, "LOL"));
+	Xapian::TfIdfWeight b("LOL"));
 
     /* Normalization string should be set to "ntn" by constructor if none is
       given. */
     Xapian::TfIdfWeight weight2;
-    TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight(0.2, 1.0, "ntn").serialise());
+    TEST_EQUAL(weight2.serialise(), Xapian::TfIdfWeight("ntn").serialise());
 
     return true;
 }
 
 // Test exception for junk after serialised weight.
 DEFINE_TESTCASE(tfidfweight2, !backend) {
-    Xapian::TfIdfWeight wt(0.2, 1.0, "ntn");
+    Xapian::TfIdfWeight wt("ntn");
     try {
 	Xapian::TfIdfWeight b;
 	Xapian::TfIdfWeight * b2 = b.unserialise(wt.serialise() + "X");
@@ -759,7 +759,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "ntn" when termfreq != N
     enquire.set_query(query);
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "ntn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
@@ -768,7 +768,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Test with OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "ntn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     Xapian::MSet mset2;
     mset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset2.size(), 2);
@@ -779,7 +779,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // check for "nfn" when termfreq != N
     enquire.set_query(query);
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "nfn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("nfn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -787,7 +787,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // check for "nsn" when termfreq != N
     enquire.set_query(query);
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "nsn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("nsn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -795,7 +795,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "bnn" and for both branches of 'b'.
     enquire.set_query(Xapian::Query("test"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "bnn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("bnn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 1);
     mset_expect_order(mset, 1);
@@ -803,7 +803,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "lnn" and for both branches of 'l'.
     enquire.set_query(Xapian::Query("word"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "lnn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("lnn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -812,7 +812,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "snn"
     enquire.set_query(Xapian::Query("paragraph"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "snn")); // idf=1 and tfn=tf*tf
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("snn")); // idf=1 and tfn=tf*tf
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     mset_expect_order(mset, 2, 1, 4, 3, 5);
@@ -821,7 +821,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "ntn" when termfreq=N
     enquire.set_query(Xapian::Query("this"));  // N=termfreq amd so idfn=0 for "t"
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "ntn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("ntn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
@@ -831,7 +831,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 
     // Check for "npn" and for both branches of 'p'
     enquire.set_query(Xapian::Query("this"));  // N=termfreq and so idfn=0 for "p"
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "npn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("npn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 6);
     mset_expect_order(mset, 1, 2, 3, 4, 5, 6);
@@ -840,7 +840,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     }
 
     enquire.set_query(Xapian::Query("word"));
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "npn"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("npn"));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 2);
     mset_expect_order(mset, 2, 4);
@@ -859,7 +859,7 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
 
     // Check for "PPP" normalization string.
     enquire.set_query(query);
-    enquire.set_weighting_scheme(Xapian::TfIdfWeight(0.2, 1.0, "PPP"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("PPP", 0.2, 1.0));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     // Shorter docs should ranker higher if wqf is equal among all the docs.
