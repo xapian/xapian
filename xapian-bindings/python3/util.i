@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -197,13 +197,13 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 	PyBytes_AsStringAndSize(strobj, &p, &len);
 	if (val) *val = new std::string(p, len);
 	Py_DECREF(strobj);
-	return SWIG_OK;
+	return SWIG_NEWOBJ;
     } else if (PyBytes_Check(obj)) {
 	char *p;
 	Py_ssize_t len;
 	PyBytes_AsStringAndSize(obj, &p, &len);
 	if (val) *val = new std::string(p, len);
-	return SWIG_OK;
+	return SWIG_NEWOBJ;
     } else {
 	return SWIG_AsPtr_std_string(obj, val);
     }
