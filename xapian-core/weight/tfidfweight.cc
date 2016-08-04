@@ -35,8 +35,24 @@ using namespace std;
 
 namespace Xapian {
 
-TfIdfWeight::TfIdfWeight(double slope, double delta, const std::string &normals)
-    : param_slope(slope), param_delta(delta), normalizations(normals)
+TfIdfWeight::TfIdfWeight(const std::string &normals)
+    : normalizations(normals)
+{
+    if (normalizations.length() != 3 ||
+	!strchr("nbslP", normalizations[0]) ||
+	!strchr("ntpfsP", normalizations[1]) ||
+	!strchr("nP", normalizations[2]))
+	throw Xapian::InvalidArgumentError("Normalization string is invalid");
+    if (normalizations[1] != 'n') {
+	need_stat(TERMFREQ);
+	need_stat(COLLECTION_SIZE);
+    }
+    need_stat(WDF);
+    need_stat(WDF_MAX);
+}
+
+TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
+    : normalizations(normals), param_slope(slope), param_delta(delta)
 {
     if (normalizations.length() != 3 ||
 	!strchr("nbslP", normalizations[0]) ||
@@ -59,7 +75,7 @@ TfIdfWeight::TfIdfWeight(double slope, double delta, const std::string &normals)
 TfIdfWeight *
 TfIdfWeight::clone() const
 {
-	return new TfIdfWeight(param_slope, param_delta, normalizations);
+	return new TfIdfWeight(normalizations, param_slope, param_delta);
 }
 
 void
@@ -94,7 +110,7 @@ TfIdfWeight::unserialise(const string & s) const
     ptr += 3;
     if (rare(ptr != end))
 	throw Xapian::SerialisationError("Extra data in TfIdfWeight::unserialise()");
-    return new TfIdfWeight(slope, delta, normals);
+    return new TfIdfWeight(normals, slope, delta);
 }
 
 double
