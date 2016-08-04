@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 13
+# serial 15
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -111,12 +111,15 @@ dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
 	  dnl so the error message can correctly say "configure.ac" or
 	  dnl "configure.in" according to which is in use.
 	  [XAPIAN_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIAN_CONFIG --from-xo-lib-xapian --libs`
-	  define([LT_INIT], defn([LT_INIT])
-		 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])
-	  define([AC_PROG_LIBTOOL], defn([AC_PROG_LIBTOOL])
-		 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])
-	  define([AM_PROG_LIBTOOL], defn([AM_PROG_LIBTOOL])
-		 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])])])
+	  m4_ifdef([LT_INIT],
+	    [m4_define([LT_INIT], m4_defn([LT_INIT])
+		   [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])
+	  m4_ifdef([AC_PROG_LIBTOOL],
+	    [m4_define([AC_PROG_LIBTOOL], m4_defn([AC_PROG_LIBTOOL])
+		 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])
+	  m4_ifdef([AM_PROG_LIBTOOL],
+	    [m4_define([AM_PROG_LIBTOOL], m4_defn([AM_PROG_LIBTOOL])
+		 [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])])])])
     ifelse([$1], , :, [$1])
   fi
   AC_SUBST(XAPIAN_CXXFLAGS)
