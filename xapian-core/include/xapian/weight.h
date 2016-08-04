@@ -404,16 +404,16 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 
 /// Xapian::Weight subclass implementing the tf-idf weighting scheme.
 class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
-    /// Parameters in the Piv+ normalization weighting formula.
-    double param_slope = 0;
-    double param_delta = 0;
+    /* Three character string indicating the normalizations for tf(wdf), idf and
+       tfidf weight. */
+    std::string normalizations;
 
     /// The factor to multiply with the weight.
     double factor;
 
-    /* Three character string indicating the normalizations for tf(wdf), idf and
-       tfidf weight. */
-    std::string normalizations;
+    /// Parameters in the Piv+ normalization weighting formula.
+    double param_slope = 0;
+    double param_delta = 0;
 
     TfIdfWeight * clone() const;
 
@@ -473,10 +473,12 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
      */
-    explicit TfIdfWeight(double slope, double delta, const std::string &normalizations);
+    explicit TfIdfWeight(const std::string &normalizations);
+
+    explicit TfIdfWeight(const std::string &normalizations, double slope, double delta);
 
     TfIdfWeight()
-	: param_slope(0.2), param_delta(1.0), normalizations("ntn")
+	: normalizations("ntn")
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
