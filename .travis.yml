@@ -1,6 +1,6 @@
 language: cpp
 before_script:
-  - ./bootstrap
+  - ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   - ./configure
 script: make && make check
 sudo: false
@@ -23,6 +23,7 @@ addons:
       - tcl
       - gcc-4.7
       - g++-4.7
+      - libsvm-dev
 env:
   global:
     - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
