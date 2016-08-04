@@ -6,9 +6,13 @@ If you've installed other Open Source projects from source, you should
 find yourself in familiar territory.  Building and installing involves
 the following 3 simple steps:
 
- 1) Run "./configure", possibly with some extra arguments
- 2) Run "make" to build Xapian
- 3) Run "make install" to install Xapian
+ 1) Run "./bootstrap xapian-core xapian-letor" in the top level directory.
+    Note: It is preferred that you bootstrap all of the xapian project together.
+    To do that, run:
+    "./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor"
+ 2) Run "./configure", possibly with some extra arguments
+ 3) Run "make" to build
+ 4) Run "make install" to install
 
 Prerequisites
 =============
