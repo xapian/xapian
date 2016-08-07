@@ -27,30 +27,24 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include "featuremanager.h"
-
-#include <fstream>
-#include <iostream>
-#include <string>
 #include <vector>
-#include <list>
-#include <map>
-
-using namespace std;
-
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT FeatureVector { //TODO: Update documentation
+class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
   public:
-    /// @private @internal Class representing the FeatureVector internals.
+
+    /// @internal Class representing the FeatureVector internals.
     class Internal;
-    /// @private @internal Reference counted internals.
+    /// @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
     /// Default constructor.
     FeatureVector();
+
+    /// Constructor creating an object instantiated with docid and fvals
+    FeatureVector(const Xapian::docid & did, const std::vector<double> & fvals);
 
     /// Copy constructor.
     FeatureVector(const FeatureVector & o);
@@ -61,24 +55,38 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector { //TODO: Update documentation
     /// Destructor.
     ~FeatureVector();
 
-    static bool before(const Xapian::FeatureVector& c1, const Xapian::FeatureVector& c2);
+    /// Set docid corresponding to the FeatureVector object
+    void set_did(const Xapian::docid & did);
 
-    map<string, map<string, int> > load_relevance(const std::string & qrel_file);
+    /// Set training label corresponding to the FeatureVector object
+    void set_label(const double label);
 
-    //TODO: Update documentation
-    void set_did(const Xapian::docid & did1);
-    void set_fcount(int fcount1);
-    void set_label(double label1);
-    void set_fvals(map<int,double> & fvals1);
-    void set_score(double score1);
+    /// Set score corresponding to the FeatureVector object
+    void set_score(const double score);
+
+    /// Set vector of feature values returned by Feature objects
+    void set_fvals(const std::vector<double> & fvals);
+
+    /// Set individual feature value from vector of fvals, by index.
     void set_feature_value(int index, double value);
-    int get_fcount();
+
+    /// Get number of feature values corresponding to the FeatureVector object
+    int get_fcount() const;
+
+    /// Get score value corresponding to the FeatureVector object
     double get_score() const;
+
+    /// Get label value corresponding to the FeatureVector object
     double get_label() const;
-    Xapian::docid get_did();
-    std::map<int,double> get_fvals();
-    double get_feature_value(int index);
-    int get_nonzero_num();
+
+    /// Get docid value corresponding to the FeatureVector object
+    Xapian::docid get_did() const;
+
+    /// Get vector of feature values corresponding to the FeatureVector object
+    std::vector<double> get_fvals() const;
+
+    /// Get individual feature value from vector of fvals, by index.
+    double get_feature_value(int index) const;
 
 };
 
