@@ -27,29 +27,19 @@
 
 #include "featurevector_internal.h"
 
-#include <list>
-#include <map>
-
-#include "str.h"
-#include "stringutils.h"
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include "safeerrno.h"
-#include "safeunistd.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-
-
-using namespace std;
+#include <vector>
 
 using namespace Xapian;
 
 FeatureVector::FeatureVector() : internal(new FeatureVector::Internal)
 {
+}
+
+FeatureVector::FeatureVector(const Xapian::docid & did, const std::vector<double> & fvals)
+                             : internal(new FeatureVector::Internal)
+{
+    internal->did_=did;
+    internal->fvals_=fvals;
 }
 
 FeatureVector::FeatureVector(const FeatureVector & o) : internal(o.internal)
@@ -67,80 +57,57 @@ FeatureVector::~FeatureVector()
 {
 }
 
-bool
-FeatureVector::before(const Xapian::FeatureVector& c1, const Xapian::FeatureVector& c2)
-{
-    return c1.internal->score < c2.internal->score;
-}
-
-map<string, map<string, int> >
-FeatureVector::load_relevance(const std::string & qrel_file)
-{
-    return internal->load_relevance(qrel_file);
-}
-
-
 void
-FeatureVector::set_did(const Xapian::docid & did1) {
-    internal->did=did1;
+FeatureVector::set_did(const Xapian::docid & did) {
+    internal->did_=did;
 }
 
 void
-FeatureVector::set_fcount(int fcount1) {
-    internal->fcount=fcount1;
+FeatureVector::set_label(const double label) {
+    internal->label_=label;
+}
+
+void
+FeatureVector::set_score(const double score) {
+    internal->score_=score;
+}
+
+void
+FeatureVector::set_fvals(const std::vector<double> & fvals) {
+    internal->fvals_=fvals;
 }
 
 void
 FeatureVector::set_feature_value(int index, double value) {
-    internal->fvals[index] = value;
-}
-
-void
-FeatureVector::set_label(double label1) {
-    internal->label=label1;
-}
-
-void
-FeatureVector::set_fvals(map<int,double> & fvals1) {
-    internal->fvals=fvals1;
+    internal->fvals_[index] = value;
 }
 
 int
-FeatureVector::get_fcount(){
-    return internal->fcount;
+FeatureVector::get_fcount() const {
+    return internal->fvals_.size();
 }
 
 double
 FeatureVector::get_score() const{
-    return internal->score;
+    return internal->score_;
 }
 
 double
 FeatureVector::get_label() const{
-    return internal->label;
+    return internal->label_;
 }
 
-std::map<int,double>
-FeatureVector::get_fvals() {
-    return internal->fvals;
+std::vector<double>
+FeatureVector::get_fvals() const {
+    return internal->fvals_;
 }
 
 Xapian::docid
-FeatureVector::get_did() {
-    return internal->did;
+FeatureVector::get_did() const {
+    return internal->did_;
 }
 
 double
-FeatureVector::get_feature_value(int index) {
-    return internal->get_feature_value(index);
-}
-
-void
-FeatureVector::set_score(double score1) {
-    internal->score=score1;
-}
-
-int
-FeatureVector::get_nonzero_num(){
-    return internal->get_nonzero_num();
+FeatureVector::get_feature_value(int index) const {
+    return internal->fvals_[index];
 }

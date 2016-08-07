@@ -26,24 +26,8 @@
 #include <xapian.h>
 
 #include "xapian-letor/featurevector.h"
-#include "xapian-letor/featuremanager.h"
 
-#include <list>
-#include <map>
-
-#include "str.h"
-#include "stringutils.h"
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include "safeerrno.h"
-#include "safeunistd.h"
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-
+#include <vector>
 
 using namespace std;
 
@@ -52,20 +36,10 @@ namespace Xapian{
 class FeatureVector::Internal : public Xapian::Internal::intrusive_base
 {
     friend class FeatureVector;
-    double label;
-    double score;
-    std::map<int,double> fvals;
-    int fcount;
-    Xapian::docid did;
-
-  public:
-    map<string, map<string, int> > load_relevance(const std::string & qrel_file);
-    double get_score();
-    double get_label();
-    std::map<int,double> get_fvals();
-    Xapian::docid get_did();
-    double get_feature_value(int index);
-    int get_nonzero_num();
+    double label_;
+    double score_;
+    std::vector<double> fvals_;
+    Xapian::docid did_;
 
 };
 
