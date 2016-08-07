@@ -10,7 +10,6 @@ lib_src +=\
 	api/featuremanager.cc\
 	api/featuremanager_internal.cc\
 	api/featurevector.cc\
-	api/featurevector_internal.cc\
 	api/letor.cc\
 	api/letor_features.cc\
 	api/letor_internal.cc\
