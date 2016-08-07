@@ -41,8 +41,15 @@ EuclidianDistance::get_description() {
 }
 
 double
-EuclidianDistance::similarity(TermListGroup tlg,
-			      TermIterator a_begin,
+EuclidianDistance::similarity(Point a, Point b) {
+    Point x, y;
+    x=a;
+    y=b;
+    return 0.0;
+}
+/*
+double
+EuclidianDistance::similarity1(TermIterator a_begin,
 			      TermIterator a_end,
 			      TermIterator b_begin,
 			      TermIterator b_end)
@@ -115,4 +122,4 @@ EuclidianDistance::similarity(TermListGroup tlg,
 	result += sum;
     }
     return result;
-}
+}*/

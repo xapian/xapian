@@ -43,14 +43,21 @@ ClusterSet
 RoundRobin::cluster(MSet &mset, unsigned int k) {
     LOGCALL(API, ClusterSet, "RoundRobin::cluster()", mset | k);
     MSetDocumentSource docs(mset);
-    clusterid cid = 0;
+    TermListGroup tlg;
+    tlg.add_documents(docs);
     ClusterSet cset;
+    vector<Cluster> clusters;
+    clusters.resize(k);
+    vector<Point> cluster_docs;
+    int i=1;
     while (!docs.at_end()) {
-	if (cid >= k)
-	    cid = 0;
-	Document doc = docs.next_document();
-	cset.add_document(cid, doc);
-	cid++;
+	Point p;
+	p.initialize(tlg, docs.next_document());
+	cluster_docs.push_back(p);
+	i++;
     }
+    int size = cluster_docs.size();
+    for(i=0;i<size;i++)
+	cset.add_to_cluster(cluster_docs[i], i%k);
     return cset;
 }
