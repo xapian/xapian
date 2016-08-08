@@ -548,7 +548,15 @@ run_query()
 
     enquire->set_cutoff(threshold);
 
-    if (sort_key != Xapian::BAD_VALUENO) {
+    if (sort_keymaker) {
+	if (sort_after) {
+	    enquire->set_sort_by_relevance_then_key(sort_keymaker,
+						    reverse_sort);
+	} else {
+	    enquire->set_sort_by_key_then_relevance(sort_keymaker,
+						    reverse_sort);
+	}
+    } else if (sort_key != Xapian::BAD_VALUENO) {
 	if (sort_after) {
 	    enquire->set_sort_by_relevance_then_value(sort_key, reverse_sort);
 	} else {
