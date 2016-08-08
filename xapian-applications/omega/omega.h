@@ -52,6 +52,7 @@ extern Xapian::docid min_hits;
 
 extern int threshold;
 
+extern Xapian::MultiValueKeyMaker* sort_keymaker;
 extern Xapian::valueno sort_key;
 extern bool reverse_sort;
 extern bool sort_after;
