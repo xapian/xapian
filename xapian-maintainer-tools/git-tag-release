@@ -68,7 +68,7 @@ while ! git tag -v "$tag" > /dev/null 2>&1 ; do
 No '$tag' tag found - please create a signed tag and push it - in your local
 tree do this:
 
-git fetch && git tag -s -m 'Xapian $version release' '$tag' '$branch' && git push --tags
+git fetch && git tag -s -m 'Xapian $version release' '$tag' '$BRANCH' && git push --tags
 
 Once you've done that, hit ENTER in this terminal to continue.
 EOF
