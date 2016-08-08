@@ -148,8 +148,8 @@ Reordering parameters
 ---------------------
 
 SORT
-	specifies a value slot number to order results by.  The comparison used
-	is a string compare of the unsigned byte values.
+	specifies one or more value slot numbers to order results by.  The
+	comparison used is a string compare of the unsigned byte values.
 
 	The format of this parameter's value is a `+` or `-` specifying the
 	direction of the sort followed by an unsigned integer value slot
@@ -164,6 +164,10 @@ SORT
 	Earlier versions also parsed the value as a signed integer and then
 	cast it to unsigned, so beware of using updated templates with older
 	versions.
+
+	The ability to specify more than one value slot number was added
+	in 1.4.1.  Multiple slot specifiers are separated by zero or more
+	whitespace and/or commas - e.g. `SORT=+1-0+4`, `SORT=+1, -2`, etc.
 
 SORTREVERSE
 	if non-zero, reverses the sort order specified by `SORT`.  This

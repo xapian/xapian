@@ -81,6 +81,7 @@ Xapian::docid min_hits = 0;
 // percentage cut-off
 int threshold = 0;
 
+Xapian::MultiValueKeyMaker* sort_keymaker = NULL;
 Xapian::valueno sort_key = Xapian::BAD_VALUENO; // Don't sort.
 bool reverse_sort = true;
 bool sort_after = false;
@@ -425,12 +426,42 @@ try {
     // sorting
     val = cgi_params.find("SORT");
     if (val != cgi_params.end()) {
-	const char * p = val->second.c_str();
-	if (*p == '-' || *p == '+') {
-	    reverse_sort = (*p == '-');
-	    ++p;
-	}
-	sort_key = atoi(p);
+	const char * base = val->second.c_str();
+	const char * p = base;
+	do {
+	    bool rev = (*p != '+');
+	    if (*p == '-' || *p == '+') {
+		++p;
+	    }
+	    if (!C_isdigit(*p)) {
+		// Invalid.
+		break;
+	    }
+	    errno = 0;
+	    char * q;
+	    Xapian::valueno slot = strtoul(p, &q, 10);
+	    p = q;
+	    if (errno != 0) {
+		// Invalid.
+		break;
+	    }
+
+	    if (sort_key != Xapian::BAD_VALUENO) {
+		// Multiple sort keys specified, so we need a KeyMaker.
+		sort_keymaker = new Xapian::MultiValueKeyMaker;
+		sort_keymaker->add_value(sort_key, !reverse_sort);
+		sort_key = Xapian::BAD_VALUENO;
+		reverse_sort = true;
+	    }
+
+	    if (sort_keymaker) {
+		sort_keymaker->add_value(slot, !rev);
+	    } else {
+		sort_key = slot;
+		reverse_sort = rev;
+	    }
+	    while (C_isspace(*p) || *p == ',') ++p;
+	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
 	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
