@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+# Copyright (c) 2016 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+use strict;
+use warnings;
+
+undef $/;
+$_ = <>;
+
+my ($pos, $find, $replace);
+
+s/^from sys import version_info(?:.*\n)+? *import __builtin__$/from . import _xapian\nfrom new import instancemethod as new_instancemethod/m or
+    die "Failed to fix up import code";
+
+s/\b_swig_property\b/property/g or
+    die "Failed to fix up _swig_property";
+
+$replace = << '__END__';
+def _swig_repr(self):
+    strthis = ""
+    if hasattr(self.this, '__repr__'):
+        strthis = "proxy of " + self.this.__repr__()
+__END__
+s/^def _swig_repr\(self\):.*?\n\n/$replace\n/sm or
+    die "Failed to fix up _swig_repr";
+
+$replace = << '__END__';
+from weakref import proxy as weakref_proxy
+__END__
+s/^try:\n    import weakref.*?\n\n/$replace\n/sm or
+    die "Failed to fix up weakref_proxy";
+
+/\b__builtin__\b/ and
+    die "Failed to fully fix up __builtin__";
+
+s/^def _swig_setattr\(.*?\n\n/\n/sm or
+    die "Failed to fix up _swig_setattr";
+
+$find = << '__END__';
+
+def _swig_setattr_nondynamic(self, class_type, name, value, static=1):
+__END__
+$replace = << '__END__';
+
+def _swig_setattr(self, class_type, name, value):
+__END__
+$pos = index($_, $find);
+$pos >= 0 or die "Failed to fix up _swig_setattr_nondynamic";
+$_ = substr($_, 0, $pos) . $replace . substr($_, $pos + length($find));
+
+$find = << '__END__';
+    if (not static):
+        object.__setattr__(self, name, value)
+    else:
+        raise AttributeError("You cannot add attributes to %s" % self)
+__END__
+$replace = << '__END__';
+    object.__setattr__(self, name, value)
+__END__
+$pos = index($_, $find);
+$pos >= 0 or die "Failed to fix up _swig_setattr_nondynamic part 2";
+$_ = substr($_, 0, $pos) . $replace . substr($_, $pos + length($find));
+
+/\b_swig_setattr_nondynamic\b/ and
+    die "Failed to fully fix up _swig_setattr_nondynamic";
+
+s/^def _swig_setattr_nondynamic_method\(set\):\n.*?\n\n//sm or
+    die "Failed to fix up _swig_setattr_nondynamic_method";
+
+/\b_swig_setattr_nondynamic_method\b/ and
+    die "Failed to fully fix up _swig_setattr_nondynamic_method";
+
+print;
