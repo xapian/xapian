@@ -18,7 +18,6 @@ noinst_HEADERS +=\
 	common/noreturn.h\
 	common/omassert.h\
 	common/output.h\
-	common/output-internal.h\
 	common/pack.h\
 	common/posixy_wrapper.h\
 	common/pretty.h\
