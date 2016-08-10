@@ -7,6 +7,7 @@ EXTRA_DIST +=\
 	api/Makefile
 
 lib_src +=\
+	api/featurelist.cc\
 	api/featuremanager.cc\
 	api/featuremanager_internal.cc\
 	api/featurevector.cc\
