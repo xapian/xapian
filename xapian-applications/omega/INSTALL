@@ -74,7 +74,7 @@ for details on some of the pertinent environment variables.
 by setting variables in the command line or in the environment.  Here
 is an example:
 
-     ./configure CXX=g++-4.3 CFLAGS=-O2 LIBS=-lposix
+     ./configure CXX=g++-4.9 CFLAGS=-O2 LIBS=-lposix
 
    If your system requires special flags, do let us know.  Where possible
 we'd prefer configure to determine such flags by itself, but if we can't
