@@ -66,6 +66,9 @@ AX_CXX_COMPILE_STDCXX_11
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
+dnl Enable large file support if possible.
+AC_SYS_LARGEFILE
+
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
@@ -439,14 +442,6 @@ if test yes = "$GXX"; then
   case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
-      dnl
-      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
-      dnl
-      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
-      dnl GCC 4.3.
-      dnl
-      dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
 
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
@@ -456,19 +451,25 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[0123]].*|4.[[0123]].*)
-	AC_MSG_ERROR([Xapian requires GCC 4.4 or later])
+      [[0123]].*|4.[[0-6]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.7 or later])
 	;;
-      4.[[45]].*) ;;
-      *) dnl GCC >= 4.6
-	dnl -Wdouble-promotion was added in GCC 4.6.
-	dnl
-	dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
-	dnl warns for this case with -Wuninitialized (implied by -W).  We
-	dnl don't intend to use this idiom, so any instances are bugs we'd
-	dnl like to know about.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
       esac
+
+      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
+      dnl
+      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
+      dnl GCC 4.3.
+      dnl
+      dnl -Wdouble-promotion was added in GCC 4.6.
+      dnl
+      dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+      dnl warns for this case with -Wuninitialized (implied by -W).  We
+      dnl don't intend to use this idiom, so any instances are bugs we'd
+      dnl like to know about.
+      dnl
+      dnl All the other options were supported by g++ 2.95.
+      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
 
       dnl FIXME:
       dnl -Wconversion in older GCC versions is intended to help migration
@@ -531,6 +532,15 @@ else
     dnl	includes such a check indirectly (internaltest's autoptr1 check this).
     dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
     AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
+  */sunCC|*/CC)
+    dnl Sun's C++ compiler warns about functions failing to return a value even
+    dnl when the function ends with a "throw" statement.  That's just unhelpful
+    dnl noise, and adding a dummy "return" after "throw" seems a worse solution
+    dnl than simply disabling this warning - any genuinely missing return
+    dnl statements will get reported by compilers with superior warning
+    dnl machinery.
+    XAPIAN_TEST_CXXFLAGS([-erroff=voidretw], [AM_CXXFLAGS])
+    ;;
   esac
 fi
 
@@ -573,9 +583,6 @@ AC_SUBST([AM_CXXFLAGS])
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
-
-dnl Enable large file support if possible.
-AC_SYS_LARGEFILE
 
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
