@@ -138,7 +138,7 @@ $(stamp): except.i doccomments.i
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O \
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
-	$(PERL) -i fixup-swig-py2-wrapper xapian.py
+	$(PERL) -i $(srcdir)/fixup-swig-py2-wrapper xapian.py
 	$(multitarget_end)
 
 -include xapian_wrap.d
