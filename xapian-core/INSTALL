@@ -39,16 +39,16 @@ C++11, or a reasonable approximation to it.
 If you're using MS Visual C++, see the Xapian download page for a link to
 a set of suitable makefiles: https://xapian.org/download
 
-If you're using GCC, we currently recommend GCC 4.7 or newer (this is the
+If you're using GCC, we currently recommend GCC 4.8 or newer (this is the
 oldest version we regularly test with).
 
-The current hard minimum requirement is also GCC 4.7 (due to requiring good
+The current hard minimum requirement is GCC 4.8 (due to requiring good
 support for C++11, for example non-static data member initializers aren't
 supported by earlier versions).
 
-If you really still need to use an older version of GCC, Xapian 1.2.x doesn't
-require C++11 support and should build with older versions - probably as far
-back as GCC 3.1.
+If you really still need to use an older version of GCC, Xapian 1.4.x aims
+to support GCC 4.7, while Xapian 1.2.x doesn't require C++11 support and should
+build with older versions - probably as far back as GCC 3.1.
 
 When using HP's aCC, Xapian must be compiled with +std=c++11, which
 xapian-core's configure automatically detects and passes.  You don't have to

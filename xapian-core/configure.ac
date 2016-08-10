@@ -1079,8 +1079,8 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[0123]].*|4.[[0-6]].*)
-	AC_MSG_ERROR([Xapian requires GCC 4.7 or later])
+      [[0123]].*|4.[[0-7]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.8 or later])
 	;;
       esac
 

@@ -32,9 +32,8 @@
 
 #ifndef WORDS_BIGENDIAN
 
-# if defined __GNUC__ && __GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
-// GCC 4.8 added __builtin_bswap16, and we still try to support building with
-// GCC 4.7.
+# if defined __GNUC__
+// GCC 4.8 added __builtin_bswap16, and that's the oldest version we support.
 inline int do_bswap(uint16_t value) { return __builtin_bswap16(value); }
 # else
 inline int do_bswap(uint16_t value) {
