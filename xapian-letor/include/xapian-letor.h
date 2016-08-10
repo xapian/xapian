@@ -26,6 +26,7 @@
 #include <xapian/visibility.h>
 
 #include <xapian-letor/feature.h>
+#include <xapian-letor/featurelist.h>
 #include <xapian-letor/featuremanager.h>
 #include <xapian-letor/featurevector.h>
 #include <xapian-letor/letor.h>
