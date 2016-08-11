@@ -25,7 +25,6 @@ my %uncopyableclasses = (
 
 my %copyableclasses = (
     'Letor' => '',
-    'FeatureManager' => '',
     'FeatureVector' => '',
     'Features' => ''
 );

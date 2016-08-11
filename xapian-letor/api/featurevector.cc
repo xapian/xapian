@@ -23,7 +23,6 @@
 #include <xapian.h>
 
 #include "xapian-letor/featurevector.h"
-#include "xapian-letor/featuremanager.h"
 
 #include "featurevector_internal.h"
 
