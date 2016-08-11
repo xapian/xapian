@@ -1,6 +1,5 @@
 noinst_HEADERS +=\
 	api/letor_internal.h\
-	api/featuremanager_internal.h\
 	api/featurevector_internal.h
 
 EXTRA_DIST +=\
@@ -8,8 +7,6 @@ EXTRA_DIST +=\
 
 lib_src +=\
 	api/featurelist.cc\
-	api/featuremanager.cc\
-	api/featuremanager_internal.cc\
 	api/featurevector.cc\
 	api/letor.cc\
 	api/letor_features.cc\
