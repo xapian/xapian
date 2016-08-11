@@ -102,7 +102,7 @@ CLEANFILES = \
     xapian/_xapian$(PYTHON3_SO) \
     xapian/__init__.py \
     xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
-    xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@\
+    xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@ \
     $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any
