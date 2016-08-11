@@ -30,16 +30,15 @@
 #include "letor.h"
 #include "letor_features.h"
 #include "featurevector.h"
-#include "ranklist.h"
 
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 
 namespace Xapian {
 
-class RankList;
 class FeatureVector;
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
@@ -67,34 +66,18 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureManager {
      */
     std::map<int,double> transform(const Document &doc, double &weight_);
 
-    /** Calculates ranklist (0 qid:10032 1:0.130742 2:0.000000 ... 18:0.750000 19:1.000000 #docid = 1123323)
-     *  for an mset retrieved from a query. Feature 19 is the BM25 weight.
+    /** Returns a vector of FeatureVectors for each document in the MSet for a given query.
      *
-     *  @ param  train      Set to 1 while training.
+     *  @ param  mset      MSet for which the vector<FeatureVector> is to be returned
      */
-    Xapian::RankList create_rank_list(const Xapian::MSet & mset, std::string & qid, bool train);
-
-    /** Loads up a qrel file.
-     *  @return a map: < qid <docid, relevance_judgement> >
-     */
-    map<string, map<string,int> > load_relevance(const std::string & qrel_file);
+    std::vector<Xapian::FeatureVector> create_feature_vectors(const Xapian::MSet & mset);
 
     /** Creates instance of FeatureVector class that stores features_array, relevance label and corresponding document id
      *  @return a FeatureVector instance containing features_array, relevance label and corresponding document id
      */
-    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, int &label, Xapian::docid & did);
+    Xapian::FeatureVector create_feature_vector(map<int,double> fvals, Xapian::docid & did);
 
-    /** Creates instance of FeatureVector class that stores features_array, relevance label and corresponding document id
-     *  @return a FeatureVector instance containing features_array, relevance label and corresponding document id
-     */
-    std::string getdid(const Document &doc);
-
-    /** Get relvance label corresponding to a document (docid) and query (qid) in qrel
-     *  @return Relavance label corresponding to docid and qid in qrel
-     */
-    int getlabel(map<string, map<string, int> > qrel, const Document &doc, std::string & qid);
-
-    static const int fNum = 20;
+    static const int fNum = 19;
 
     /// Specify the database to use for retrieval. This database will be used directly by internal class.
     void set_database(const Database &db);

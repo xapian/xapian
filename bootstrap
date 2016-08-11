@@ -395,7 +395,7 @@ export ACLOCAL
 
 intree_swig=no
 modules=
-for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xapian-letor} ; do
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
   d=$module
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     :

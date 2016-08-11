@@ -27,16 +27,14 @@ my %copyableclasses = (
     'Letor' => '',
     'FeatureManager' => '',
     'FeatureVector' => '',
-    'Features' => '',
-    'RankList' => ''
+    'Features' => ''
 );
 
 my %no_get_description = (
     'Letor' => '',
     'FeatureManager' => '',
     'FeatureVector' => '',
-    'Features' => '',
-    'RankList' => ''
+    'Features' => ''
 );
 
 print <<'END';
