@@ -8,6 +8,7 @@ inc_HEADERS =\
 	include/xapian-letor.h
 
 xapianletorinclude_HEADERS =\
+		include/xapian-letor/feature.h\
 		include/xapian-letor/featuremanager.h\
 		include/xapian-letor/featurevector.h\
 		include/xapian-letor/letor.h\

@@ -32,9 +32,8 @@ my %copyableclasses = (
 
 my %no_get_description = (
     'Letor' => '',
-    'FeatureManager' => '',
     'FeatureVector' => '',
-    'Features' => ''
+    'Feature' => ''
 );
 
 print <<'END';
