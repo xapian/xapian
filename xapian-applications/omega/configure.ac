@@ -69,6 +69,20 @@ AC_LANG_CPLUSPLUS
 dnl Enable large file support if possible.
 AC_SYS_LARGEFILE
 
+dnl Test if the compiler works with $1 added to CXXFLAGS; if it does, add $1 to
+dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
+AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
+  [
+  XTC_save_CXXFLAGS=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS $1"
+  AC_TRY_COMPILE([], [],
+		 [$2="${$2} $1"
+		  CXXFLAGS=$XTC_save_CXXFLAGS
+		  $3],
+		 [CXXFLAGS=$XTC_save_CXXFLAGS
+		  $4])
+  ])
+
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
