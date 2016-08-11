@@ -25,8 +25,8 @@
 
 #include <xapian-letor/letor.h>
 
-#include "xapian-letor/letor_features.h"
-#include "xapian-letor/featuremanager.h"
+#include "xapian-letor/feature.h"
+#include "xapian-letor/featurelist.h"
 #include "xapian-letor/featurevector.h"
 #include "xapian-letor/ranker.h"
 #include "letor_internal.h"
@@ -73,21 +73,12 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-static string get_cwd() {
-    char temp[MAXPATHLEN];
-    return (getcwd(temp, MAXPATHLEN) ? std::string(temp) : std::string());
-}
-
 std::vector<Xapian::docid>
-Letor::Internal::letor_rank(const Xapian::MSet & mset) {
+Letor::Internal::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist) {
 
     map<Xapian::docid, double> letor_mset;
 
-    Xapian::FeatureManager fm;
-    fm.set_database(letor_db);
-    fm.set_query(letor_query);
-
-    std::vector<FeatureVector> fvv = fm.create_feature_vectors(mset);
+    std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, letor_db);
 
     std::vector<FeatureVector> rankedfvv = ranker->rank(fvv);
 
@@ -109,42 +100,46 @@ Letor::Internal::load_list_fvecs(const char *filename) { //directly use train.tx
     }
 
     std::vector<FeatureVector> fvv;
-    int k =0;
     while (train_file.peek() != EOF) {
-        k++;
-        FeatureVector fv;//new a fv
 
-        double label;//read label
-        train_file >> label;
+        // A training file looks like this:
+        // <label> qid:<xxx> n:<fval> #docid:<xxx>
+        // e.g. 1 qid:002 1:0 2:0.792481 3:0.792481 ... #docid=8
+
+        FeatureVector fv;
+
+        double label;
+        train_file >> label; // *<label>* qid:<xxx> n:<fval> #docid=<xxx>
         fv.set_label(label);
-        train_file.ignore();
+        train_file.ignore(); // <label>* *qid:<xxx> n:<fval> #docid=<xxx>
 
-        string qid;//read qid
-        train_file >> qid;
+        string qid;
+        train_file >> qid;   // <label> *qid:<xxx>* n:<fval> #docid=<xxx>
 
-        qid = qid.substr(qid.find(":")+1,qid.length());
+        qid = qid.substr(qid.find(":")+1,qid.length()); // <label> qid:*<xxx>* n:<fval> #docid=<xxx>
+        train_file.ignore(); // <label> qid:<xxx>* *n:<fval> #docid=<xxx>
 
-        std::map<int,double> fvals;//read features
-        for(int i = 1; i < 20; ++i){
-            train_file.ignore();
+        std::vector<double> fvals;
+
+        while (train_file.peek() != '#') { // read till '#docid' is found
             int feature_index;
             double feature_value;
-            train_file >> feature_index;
-            train_file.ignore();
-            train_file >> feature_value;
-            fvals[feature_index] = feature_value;
+            train_file >> feature_index; // <label> qid:<xxx> *n*:<fval> #docid=<xxx>
+            train_file.ignore();         // <label> qid:<xxx> n*:*<fval> #docid=<xxx>
+            train_file >> feature_value; // <label> qid:<xxx> n:*<fval>* #docid=<xxx>
+            fvals.push_back(feature_value);
+            train_file.ignore();         // <label> qid:<xxx> n:<fval>* *#docid=<xxx>
         }
         fv.set_fvals(fvals);
 
         string did;
-        train_file >> did;
-        did = did.substr(did.find("=")+1,did.length());
+        train_file >> did;               // <label> qid:<xxx> n:<fval> *#docid=<xxx>*
+        did = did.substr(did.find("=")+1,did.length()); // #docid=*<xxx>*
         Xapian::docid docid = (Xapian::docid) atoi(did.c_str());
 
         fv.set_did(docid);
         train_file.ignore();
 
-        fv.set_fcount(20);
         fv.set_score(0);
 
         fvv.push_back(fv);
@@ -238,20 +233,21 @@ write_to_file(const std::vector<Xapian::FeatureVector> list_fvecs, const string 
          */
 
         double label = fv.get_label();
-        std::map<int,double> fvals = fv.get_fvals();
+        std::vector<double> fvals = fv.get_fvals();
         Xapian::docid did = fv.get_did();
 
         // now save this feature vector fv to the file
         train_file << label << " qid:" <<qid;// << " ";
-        for(int k=1; k < 20; ++k) {//just start from 1 //TODO: create a get_fval method in featurevector class
-        train_file << " " << k << ":" << fvals.find(k)->second;
+        for(int k=0; k < fv.get_fcount(); ++k) {
+            train_file << " " << (k+1) << ":" << fvals[k];
         }
         train_file <<" #docid=" << did<<endl;
     }
 }
 
 void
-Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file, Xapian::doccount msetsize) {
+Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file,
+                                       Xapian::doccount msetsize, FeatureList & flist) {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
@@ -265,9 +261,6 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     parser.set_stemmer(stemmer);
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
-
-    Xapian::FeatureManager fm;
-    fm.set_database(letor_db);
 
     this->qrel = load_relevance(qrel_file);
 
@@ -320,9 +313,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
     	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-    	fm.set_query(query);
-
-    	std::vector<FeatureVector> fvv_mset = fm.create_feature_vectors(mset);
+    	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
 
         // Set labels from qrel file to FeatureVectors
         int k = 0;

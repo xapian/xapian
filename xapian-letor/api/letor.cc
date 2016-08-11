@@ -25,6 +25,8 @@
 #include "letor_internal.h"
 #include "xapian-letor/ranker.h"
 
+#include <iostream>
+#include <vector>
 #include <map>
 #include <string>
 
@@ -57,8 +59,8 @@ Letor::set_query(const Xapian::Query & query) {
 }
 
 std::vector<Xapian::docid>
-Letor::letor_rank(const Xapian::MSet & mset) {
-    return internal->letor_rank(mset);
+Letor::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist) {
+    return internal->letor_rank(mset, flist);
 }
 
 void
@@ -67,8 +69,10 @@ Letor::letor_learn_model() {
 }
 
 void
-Letor::prepare_training_file(const string & query_file, const string & qrel_file, Xapian::doccount msetsize) {
-    internal->prepare_training_file(query_file, qrel_file, msetsize);
+Letor::prepare_training_file(const string & query_file, const string & qrel_file,
+                             Xapian::doccount msetsize, Xapian::FeatureList & flist) {
+
+    internal->prepare_training_file(query_file, qrel_file, msetsize, flist);
 }
 
 void
