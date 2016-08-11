@@ -57,7 +57,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     std::vector<Xapian::FeatureVector> get_traindata();
 
     /// Sets the training data (vector of RankLists)
-    void set_training_data(vector<Xapian::FeatureVector> training_data);
+    void set_training_data(std::vector<Xapian::FeatureVector> training_data);
 
     /// Method to get path of current working directory
     std::string get_cwd();
