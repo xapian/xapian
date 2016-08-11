@@ -59,20 +59,21 @@ Letor::set_query(const Xapian::Query & query) {
 }
 
 std::vector<Xapian::docid>
-Letor::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist) {
-    return internal->letor_rank(mset, flist);
+Letor::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist, const char* model_filename) {
+    return internal->letor_rank(mset, flist, model_filename);
 }
 
 void
-Letor::letor_learn_model() {
-    internal->letor_learn_model();
+Letor::letor_learn_model(const char* input_filename, const char* output_filename) {
+    internal->letor_learn_model(input_filename, output_filename);
 }
 
 void
 Letor::prepare_training_file(const string & query_file, const string & qrel_file,
-                             Xapian::doccount msetsize, Xapian::FeatureList & flist) {
+                             Xapian::doccount msetsize, const char* filename,
+                             Xapian::FeatureList & flist) {
 
-    internal->prepare_training_file(query_file, qrel_file, msetsize, flist);
+    internal->prepare_training_file(query_file, qrel_file, msetsize, filename, flist);
 }
 
 void
