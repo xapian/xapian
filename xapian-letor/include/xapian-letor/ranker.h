@@ -65,11 +65,13 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker {
     /// Method to train the model. Overrided in ranker subclass.
     virtual void train_model()=0;
 
-    /// Method to save model as an external file. Overrided in ranker subclass.
-    virtual void save_model_to_file()=0;
+    /** Method to save model as an external file. Overrided in ranker subclass.
+     *  @param output_filename      Filename by which model is to be stored.
+     */
+    virtual void save_model_to_file(const char* output_filename)=0;
 
     /// Method to load model as an external file. Overrided in ranker subclass.
-    virtual void load_model_from_file(const std::string & model_file)=0;
+    virtual void load_model_from_file(const char* model_filename)=0;
 
     /// Method to re-rank a std::vector<Xapian::FeatureVector> by using letor weighting scheme. Overrided in ranker subclass.
     virtual std::vector<Xapian::FeatureVector> rank(std::vector<Xapian::FeatureVector> & fvv)=0;

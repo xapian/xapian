@@ -65,15 +65,20 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *                  It is initialised by DEFAULT set of Features by default.
      *                  Note: Make sure that this FeatureList object is the same as what was used during
      *                  preparation of the training file. //TODO: Replace this by a "feature.config" file prepared while training.
+     *  @param  output_filename  Path to model file. Default is "./parameters.txt".
      *  @return A vector of docids after ranking.
      */
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset,
-                                         Xapian::FeatureList & flist = * new Xapian::FeatureList());
+                                         Xapian::FeatureList & flist = * new Xapian::FeatureList(),
+                                         const char* model_filename = "./parameters.txt");
 
     /** Learns the model using the training file.
      *  Model file is saved as an external file in the working directory.
+     *  @param  input_filename   Path to training file. Default is "./train.txt".
+     *  @param  output_filename  Path to file where model parameters will be stored. Default is "./parameters.txt".
      */
-    void letor_learn_model();
+    void letor_learn_model(const char* input_filename = "./train.txt",
+                           const char* output_filename = "./parameters.txt");
 
     /** This method prepares the 'train.txt' file in the current working directory. This file is used to train a model which in turn will be used to
      *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
@@ -90,6 +95,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          queries in the training file. This file should be in standard format specified.
      *  @param  msetsize   This is the mset size used for the first retrieval for training queries. It should be selected depending on the qrel file
      *          and database size.
+     *  @param  filename   Filename path where the training file has to be stored. Default is "./train.txt".
      *  @param  flist      Xapian::FeatureList object definining what set of features to use for preparing the training file.
      *          It is initialised by DEFAULT set of Features by default.
      *          To use a custom set of features, pass a customised Xapian::FeatureList object.
@@ -97,6 +103,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     void prepare_training_file(const std::string & query_file,
                                const std::string & qrel_file,
                                Xapian::doccount msetsize,
+                               const char* filename = "./train.txt",
                                Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
     void create_ranker(int ranker_type, int metric_type); // TODO: Remove function and update as command line utility. Same for scorers as well.
