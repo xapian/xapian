@@ -9,7 +9,6 @@ lib_src +=\
 	api/featurelist.cc\
 	api/featurevector.cc\
 	api/letor.cc\
-	api/letor_features.cc\
 	api/letor_internal.cc\
 	api/ranker.cc\
 	api/scorer.cc
