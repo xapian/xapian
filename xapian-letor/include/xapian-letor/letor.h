@@ -26,6 +26,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "featurelist.h"
+
 #include <string>
 #include <map>
 
@@ -58,28 +60,20 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
     /** Core ranking function. Re-ranks the initial mset using trained model.
      *
+     *  @param mset     Xapian::MSet that is to be re-ranked
+     *  @param flist    Xapian::FeatureList object definining what set of features to use for ranking.
+     *                  It is initialised by DEFAULT set of Features by default.
+     *                  Note: Make sure that this FeatureList object is the same as what was used during
+     *                  preparation of the training file. //TODO: Replace this by a "feature.config" file prepared while training.
      *  @return A vector of docids after ranking.
      */
-    std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset);
+    std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset,
+                                         Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
-    /** In this method the model is learnt and stored in 'model.txt' file using training file 'train.txt'. It is required that libsvm is
-     *  installed in the system. The SVM model is learnt using libsvm.
-     *
-     *  @param  s       svm_type (default s=4). In libsvm-3.1,
-     *          1 -- C-SVC
-     *          1 -- nu-SVC
-     *          2 -- one-class SVM
-     *          3 -- epsilon-SVR
-     *          4 -- nu-SVR
-     *  @param  k       kernel_type (default k=0). In libsvm-3.1,
-     *          0 -- linear
-     *          1 -- polynomial
-     *          2 -- radial basis function
-     *          3 -- sigmoid
-     *          4 -- precomputed kernel
-     *
+    /** Learns the model using the training file.
+     *  Model file is saved as an external file in the working directory.
      */
-    void letor_learn_model(); //TODO: Update documentation
+    void letor_learn_model();
 
     /** This method prepares the 'train.txt' file in the current working directory. This file is used to train a model which in turn will be used to
      *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
@@ -96,8 +90,14 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          queries in the training file. This file should be in standard format specified.
      *  @param  msetsize   This is the mset size used for the first retrieval for training queries. It should be selected depending on the qrel file
      *          and database size.
+     *  @param  flist      Xapian::FeatureList object definining what set of features to use for preparing the training file.
+     *          It is initialised by DEFAULT set of Features by default.
+     *          To use a custom set of features, pass a customised Xapian::FeatureList object.
      */
-    void prepare_training_file(const std::string & query_file, const std::string & qrel_file, Xapian::doccount msetsize);
+    void prepare_training_file(const std::string & query_file,
+                               const std::string & qrel_file,
+                               Xapian::doccount msetsize,
+                               Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
     void create_ranker(int ranker_type, int metric_type); // TODO: Remove function and update as command line utility. Same for scorers as well.
 
