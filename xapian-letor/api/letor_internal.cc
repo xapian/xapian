@@ -74,12 +74,14 @@ static const char * sw[] = {
 };
 
 std::vector<Xapian::docid>
-Letor::Internal::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist) {
+Letor::Internal::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist,
+                            const char* model_filename) {
 
     map<Xapian::docid, double> letor_mset;
 
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, letor_db);
 
+    ranker->load_model_from_file(model_filename);
     std::vector<FeatureVector> rankedfvv = ranker->rank(fvv);
 
     int rankedsize = rankedfvv.size();
@@ -150,19 +152,17 @@ Letor::Internal::load_list_fvecs(const char *filename) { //directly use train.tx
 }
 
 void
-Letor::Internal::letor_learn_model(){
+Letor::Internal::letor_learn_model(const char* input_filename, const char* output_filename){
 
-    //printf("Learning the model..");
-    string input_file_name;
-    //string model_file_name;
-    input_file_name = get_cwd().append("/train.txt");
-    //model_file_name = get_cwd().append("/model.txt");
+    std::cout << "Learning the model from \"" << input_filename <<"\"" << endl;
 
-    vector<FeatureVector> list_fvecs = load_list_fvecs(input_file_name.c_str());
+    vector<FeatureVector> list_fvecs = load_list_fvecs(input_filename);
 
     ranker->set_training_data(list_fvecs);
 
     ranker->train_model();
+
+    ranker->save_model_to_file(output_filename);
 }
 
 int
@@ -247,7 +247,8 @@ write_to_file(const std::vector<Xapian::FeatureVector> list_fvecs, const string 
 
 void
 Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file,
-                                       Xapian::doccount msetsize, FeatureList & flist) {
+                                       Xapian::doccount msetsize, const char* filename,
+                                       FeatureList & flist) {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
@@ -265,7 +266,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     this->qrel = load_relevance(qrel_file);
 
     ofstream train_file;
-    train_file.open("train.txt");
+    train_file.open(filename);
 
     string str1;
     ifstream myfile1;
@@ -328,4 +329,5 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     }
     myfile1.close();
     train_file.close();
+    cout << "Training file stored as: \"" << filename << "\"" << endl;
 }
