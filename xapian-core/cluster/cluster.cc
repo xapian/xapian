@@ -207,14 +207,45 @@ DocumentSetIterator::get_document() {
     return d;
 }
 
-Point
+void
+Centroid::set_to_point(Point p) {
+    TermIterator it = p.termlist_begin();
+    for (; it != p.termlist_end(); ++it) {
+	termlist.push_back(Wdf(*it,1));
+	int weight = p.get_value(*it);
+	values[*it] = weight;
+	magnitude += weight*weight;
+    }
+}
+
+void
+Centroid::divide (int num) {
+    LOGCALL_VOID(API, "Point::divide()", num); 
+    map<string, double>::iterator it;
+    for (it = values.begin(); it != values.end(); ++it) {
+	it->second = it->second / num;
+    }
+}
+
+int
+Centroid::get_index() {
+    return id;
+}
+
+void
+Centroid::clear() {
+    values.clear();
+    termlist.clear();
+}
+
+Centroid
 Cluster::get_centroid() {
     LOGCALL(API, docid, "Cluster::get_centroid()", "");
     return centroid;
 }
 
 void
-Cluster::set_centroid(Point centroid_) {
+Cluster::set_centroid(Centroid centroid_) {
     LOGCALL_VOID(API, "Cluster::set_centroid()", centroid_);
     centroid = centroid_;
 }
@@ -232,19 +263,11 @@ Cluster::get_documents() {
 }
 
 void
-Cluster::recalc_centroid() {
-    LOGCALL_VOID(API, "Cluster::recalc_centroid()", "");
-    Point new_centroid;
-    int size = cluster_docs.size();
-    for(int i = 0; i < size; i++) {
-	Point c = cluster_docs[i];
-	TermIterator titer = c.termlist_begin();
-	for(; titer != TermIterator(NULL); titer++) {
-	    new_centroid.add_value(*titer, c.get_value(*titer));
-	}
+Centroid::recalc_magnitude() {
+    magnitude = 0;
+    for(map<string, double>::iterator it = values.begin(); it != values.end(); ++it) {
+	magnitude += it->second*it->second;
     }
-    new_centroid.divide(size);
-    centroid = new_centroid;
 }
 
 class XAPIAN_VISIBILITY_DEFAULT PointTermIterator : public TermIterator::Internal {
@@ -278,19 +301,19 @@ Point::get_document() {
 }
 
 TermIterator
-Point::termlist_begin() {
+PointType::termlist_begin() {
     LOGCALL(API, TermIterator, "Point::termlist_begin()", "");
     return TermIterator(new PointTermIterator(termlist));
 }
 
 TermIterator
-Point::termlist_end() {
+PointType::termlist_end() {
     LOGCALL(API, TermIterator, "Point::termlist_end()", "");
     return TermIterator(NULL);
 }
 
 bool
-Point::contains(string term) {
+PointType::contains(string term) {
     LOGCALL(API, bool, "Point::contains()", term);
     map<string, double>::const_iterator it;
     it = values.find(term);
@@ -301,7 +324,7 @@ Point::contains(string term) {
 }
 
 double
-Point::get_value(string term) {
+PointType::get_value(string term) {
     LOGCALL(API, double, "Point::get_value()", term);
     map<string, double>::iterator it;
     it == values.find(term);
@@ -312,36 +335,35 @@ Point::get_value(string term) {
 }
 
 void
-Point::divide (int num) {
-    LOGCALL_VOID(API, "Point::divide()", num); 
-    map<string, double>::iterator it;
-    for (it = values.begin(); it != values.end(); it++) {
-	it->second = it->second / num;
-    }
-}
-
-void
 Point::initialize(TermListGroup &tlg, const Document &doc_) {
     LOGCALL_VOID(API, "Point::initialize()", tlg | doc);
     TermIterator it = doc_.termlist_begin();
     doccount size = tlg.get_doccount();
     doc = doc_;
-    for (; it != doc_.termlist_end(); it++) {
+    for (; it != doc_.termlist_end(); ++it) {
 	doccount wdf = it.get_wdf();
+	if (wdf < 1)
+	    wdf = 1;
 	Wdf term_wdf(*it, wdf);
 	termlist.push_back(term_wdf);
 	double tf, wt;
-	tf = wdf;
+	tf = 1 + log(wdf);
 	double idf;
 	double termfreq = tlg.get_termfreq(*it);
 	idf = log(size/termfreq);
 	wt = tf*idf;
 	values[*it] = wt;
+	magnitude += wt*wt;
     }
 }
 
+double
+PointType::get_magnitude() {
+    return magnitude;
+}
+
 void
-Point::add_value (string term, double value) {
+PointType::add_value (string term, double value) {
     LOGCALL_VOID(API, "Point::add_value()", term | value);
     map<string, double>::iterator it;
     it = values.find(term);
@@ -349,14 +371,19 @@ Point::add_value (string term, double value) {
 	values[term] += value;
     else {
 	termlist.push_back(Wdf(term,1));
-	values[term] += value;
+	values[term] = value;
     }
 }
 
 void
-Point::set_value(string term, double value) {
+PointType::set_value(string term, double value) {
     LOGCALL_VOID(API, "Point::set_value()", term | value);
     values[term] = value;
+}
+
+int
+PointType::termlist_size() {
+    return termlist.size();
 }
 
 Point
@@ -374,7 +401,6 @@ PointTermIterator::next() {
     Assert(i != end);
     ++i; return NULL;
 }
-
 
 bool
 PointTermIterator::at_end() const
@@ -414,7 +440,7 @@ void
 ClusterSet::clear_clusters() {
     LOGCALL_VOID(API, "ClusterSet::clear_clusters()", "");
     vector<Cluster>::iterator it = clusters.begin();
-    for(; it!=clusters.end(); it++) {
+    for(; it!=clusters.end(); ++it) {
 	(*it).clear();
     }
 }
@@ -423,4 +449,41 @@ void
 Cluster::clear() {
     LOGCALL_VOID(API, "Cluster::clear()", "");
     cluster_docs.clear();
+}
+
+void
+ClusterSet::recalculate_centroids() {
+    LOGCALL_VOID(API, "ClusterSet::recalculate_centroids()", "");
+    vector<Cluster>::iterator it = clusters.begin();
+    for(; it != clusters.end(); ++it) {
+	(*it).recalculate();
+    }
+}
+
+void
+Cluster::recalculate() {
+    LOGCALL_VOID(API, "Cluster::recalculate()", "");
+    centroid.clear();
+    vector<Point>::iterator it = cluster_docs.begin();
+    for(; it != cluster_docs.end(); ++it) {
+	Point temp = *it;
+	TermIterator titer = temp.termlist_begin();
+	for(; titer != temp.termlist_end(); ++titer) {
+	    centroid.add_value(*titer, temp.get_value(*titer));
+	}
+    }
+    centroid.divide(size());
+    centroid.recalc_magnitude();
+}
+
+double
+Cluster::advdc() {
+    LOGCALL_VOID(API, "Cluster::advdc()", "");
+    double sum = 0;
+    int num = cluster_docs.size();
+    CosineDistance cosine;
+    for(vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
+	sum += cosine.similarity(*it, centroid);
+    }
+    return (sum/num);
 }

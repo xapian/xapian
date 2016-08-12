@@ -33,17 +33,3 @@
 
 using namespace std;
 using namespace Xapian;
-
-string
-EuclidianDistance::get_description() {
-    LOGCALL(API, string, "EuclidianDistance::get_description()", "");
-    return "Euclidian Distance metric";
-}
-
-/** TODO
- *  Implement the euclidian distance metric for the current API
- */
-double
-EuclidianDistance::similarity(Point a, Point b) {
-    return 0.0;
-}

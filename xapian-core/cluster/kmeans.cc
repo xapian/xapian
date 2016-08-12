@@ -25,9 +25,9 @@
 
 #include <debuglog.h>
 
-#include<cstdlib>
-#include<vector>
-#include<set>
+#include <cstdlib>
+#include <vector>
+#include <set>
 
 using namespace Xapian;
 using namespace std;
@@ -39,7 +39,7 @@ KMeans::get_description() {
 }
 
 void
-KMeans::initialize_centroids(const unsigned int k, ClusterSet &cset) {
+KMeans::initialize_centroids(ClusterSet &cset) {
     LOGCALL_VOID(API, "KMeans::initialize_centroids()", k);
     set<docid> centroid_docs;
     int size = docs.size();
@@ -47,12 +47,14 @@ KMeans::initialize_centroids(const unsigned int k, ClusterSet &cset) {
     for(; i < k;) {
 	srand(time(NULL));
 	int x = rand() % size;
-	Point a = docs[x];
 	if(centroid_docs.find(x)== centroid_docs.end()) {
+	    Point a = docs[x];
+	    Centroid centroid(i);
+	    centroid.set_to_point(a);
+	    centroids.push_back(centroid);
 	    centroid_docs.insert(x);
-	    centroids.push_back(a);
-	    Cluster c(a);
-	    cset.add_cluster(c);
+	    Cluster cluster(centroid);
+	    cset.add_cluster(cluster);
 	    i++;
 	}
     }
@@ -68,29 +70,52 @@ KMeans::initialize_points(MSetDocumentSource source, TermListGroup tlg) {
     }
 }
 
+bool
+KMeans::converge(vector<Centroid> previous, vector<Centroid> current) {
+    LOGCALL(API, bool, "KMeans::converge()", previous | current);
+    CosineDistance cosine;
+    for (unsigned int i=0; i<k; i++) {
+	Centroid prev = previous[i];
+	Centroid curr = current[i];
+	double dist = cosine.similarity(prev, curr);
+	if (dist > 0.0001)
+	    return false;
+    }
+    return true;
+}
+
 ClusterSet
-KMeans::cluster(MSet mset, unsigned int k) {
-    LOGCALL_VOID(API, "KMeans::cluster()", mset | k);
+KMeans::cluster(MSet mset) {
+    LOGCALL_VOID(API, "KMeans::cluster()", mset);
     MSetDocumentSource source(mset);
     ClusterSet cset;
     TermListGroup tlg;
     tlg.add_documents(source);
-    CosineDistance cosine(tlg);
+    CosineDistance cosine;
     initialize_points(source, tlg);
+    initialize_centroids(cset);
+    unsigned int size = mset.size();
 
-    initialize_centroids(k, cset);
-    int size = mset.size();
+    if (size <= 0)
+	throw AssertionError("Size of MSet should be greater than zero");
+    if (k <= 0)
+	throw AssertionError("Number of clusters should be greater than zero");
+    if (k > size)
+	throw AssertionError("The number of clusters cannot be greater than number of documents in MSet");
 
     double min1 = 10000;
     double min_cluster = 0;
     int num_iters = 20;
+
+    vector<Centroid> prev;
+
     for(int i=0; i<num_iters; i++) {
-	for(int j=0; j<size; j++) {
+	for(unsigned int j=0; j<size; j++) {
 	    Point x = docs[j];
 	    min_cluster = 0;
 	    min1 = 10000;
 	    for(unsigned int c=0; c<k; c++) {
-		Point cent = centroids[c];
+		Centroid cent = centroids[c];
 		double dist = cosine.similarity(x, cent);
 		if(dist < min1) {
 		    min1 = dist;
@@ -99,12 +124,20 @@ KMeans::cluster(MSet mset, unsigned int k) {
 	    }
 	    cset.add_to_cluster(x, min_cluster);
 	}
-	for(unsigned int m=0; m<k; m++)
-	    cset[m].recalc_centroid();
+
+	prev.clear();
+	vector<Centroid>::iterator cit = centroids.begin();
+	for(; cit != centroids.end(); ++cit)
+	    prev.push_back(*cit);
+
+	cset.recalculate_centroids();
 	centroids.clear();
-	for(unsigned int m=0; m<k; m++) {
+	for(unsigned int m=0; m<k; m++)
 	    centroids.push_back(cset[m].get_centroid());
-	}
+
+	if (converge(prev, centroids))
+	   break;
+
 	if(i != num_iters - 1) 
 	    cset.clear_clusters();
     }

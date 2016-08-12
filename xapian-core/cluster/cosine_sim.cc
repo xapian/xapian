@@ -42,35 +42,21 @@ CosineDistance::get_description() {
 }
 
 double
-CosineDistance::similarity(Point a, Point b) {
+CosineDistance::similarity(PointType a, PointType b) {
     LOGCALL(API, double, "CosineDistance::similarity()", a | b);
     double denom_a = 0, denom_b = 0;	
     double inner_product = 0;
     TermIterator it1 = a.termlist_begin();
     TermIterator it2 = b.termlist_begin();
-    for(; it1 != a.termlist_end(); ++it1) {
-	denom_a += a.get_value(*it1)*a.get_value(*it1);
-    }
-    for(; it2 != b.termlist_end(); ++it2) {
-	denom_b += b.get_value(*it2)*b.get_value(*it2);
-    }
+
+    denom_a = a.get_magnitude();
+    denom_b = b.get_magnitude();
+
     if (denom_a == 0 || denom_b == 0)
 	return 0.0;
-   
-    for(it1 = a.termlist_begin(); it1 != a.termlist_end(); ++it1) {
-	a.set_value(*it1, a.get_value(*it1)/sqrt(denom_a));
-    }
-    for(it2 = b.termlist_begin(); it2 != b.termlist_end(); ++it2) {
-	b.set_value(*it2, b.get_value(*it2)/sqrt(denom_b));
-    }
-    denom_a = 0;
-    denom_b = 0;
-    for(it1 = a.termlist_begin(); it1 != a.termlist_end(); ++it1) {
-	inner_product += a.get_value(*it1)*b.get_value(*it1);
-	denom_a += a.get_value(*it1)*a.get_value(*it1);
-    }
-    for(it1 = b.termlist_begin(); it1 != b.termlist_end(); ++it1) {
-	denom_b += b.get_value(*it1)*b.get_value(*it1);
-    }
-    return 1-(inner_product)/(sqrt(denom_a*denom_b));
+    for(; it1 != a.termlist_end(); ++it1)
+	if (b.contains(*it1) && a.get_value(*it1) > 0 && b.get_value(*it1) > 0)
+	    inner_product += a.get_value(*it1)*b.get_value(*it1);
+
+    return 1-(inner_product)/(sqrt(denom_a)*sqrt(denom_b));
 }

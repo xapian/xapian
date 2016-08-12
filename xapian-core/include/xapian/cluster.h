@@ -75,7 +75,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSetDocumentSource : public DocumentSource {
 
     bool at_end() const;
 
-    doccount size();
+    Xapian::doccount size();
 };
 
 class DocumentSetIterator;
@@ -198,38 +198,57 @@ struct XAPIAN_VISIBILITY_DEFAULT Wdf {
     Wdf(std::string term_, double wdf_) : term(term_), wdf(wdf_) {}
 };
 
-// Represent a single point in the vector space
-class XAPIAN_VISIBILITY_DEFAULT Point {
+/** Abstract class representing a point in the VSM
+ *  For K-Means : Two types, Point and Centroid
+ */
+class XAPIAN_VISIBILITY_DEFAULT PointType {
+  public:
     std::vector<struct Wdf> termlist;
     std::map<std::string, double> values;
+    double magnitude;
+    TermIterator termlist_begin();
+    TermIterator termlist_end();
+    bool contains(std::string term);
+    double get_value(std::string term);
+    double get_magnitude();
+    void add_value(std::string term, double value);
+    void set_value(std::string term, double value);
+    int termlist_size();
+};
+
+// Represent a single point in the vector space
+class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
     Document doc;
   public:
-    // Returns an iterator to beginning of termlist
-    TermIterator termlist_begin();
+    Point() { magnitude = 0; }
 
-    // Returns an iterator to end of termlist
-    TermIterator termlist_end();
-
-    // Checks whether the point contains the a certain term
-    bool contains(std::string term);
-
-    // Returns the TF-IDF weight of the required term
-    double get_value(std::string term);
-
-    // Divide the TF-IDF weights for all terms by a given value
-    void divide(int size);
-
-    // Initialize the point with its weights
+    // Initialize the point with terms and corresponding term weights
     void initialize(TermListGroup &tlg, const Document &doc);
 
-    // Add a value to the associated term
-    void add_value(std::string term, double value);
-
-    // Set a weight value for the associated term
-    void set_value(std::string term, double value);
-
-    // Returns the doucment associated with this Point
+    // Returns the document corresponding to this Point
     Document get_document();
+};
+
+// Represents cluster centroids in the vector space
+class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
+    int id;
+  public:
+    Centroid(int id_) : id(id_) { magnitude = 0; }
+
+    // Initialize the values of a centroid to the Point 'x'
+    void set_to_point(Point x);
+
+    // Divide the weight of terms in the centroid by 'size'
+    void divide(int size);
+
+    // Returns the unqiue index of the centroid
+    int get_index();
+
+    // Clears the terms and corresponding values of the centroid
+    void clear();
+
+    // Recalculates the magnitude of the centroid
+    void recalc_magnitude();
 };
 
 // Base class for calculating the similarity between documents
@@ -240,30 +259,16 @@ class XAPIAN_VISIBILITY_DEFAULT Similarity {
 
     // Calculates the similarity between the two documents
     //virtual double similarity(TermIterator a_begin, TermIterator a_end, TermIterator b_begin, TermIterator b_end) = 0;
-    virtual double similarity(Point a, Point b) = 0;
+    virtual double similarity(PointType a, PointType b) = 0;
 
    // Returns description of the similarity metric being used
     virtual std::string get_description() = 0;
 };
 
-// Class for caluclating the euclidian distance between two documents
-class XAPIAN_VISIBILITY_DEFAULT EuclidianDistance : public Similarity {
-    TermListGroup tlg;
-  public:
-    EuclidianDistance(TermListGroup tlg_) : tlg(tlg_) {}
-
-    double similarity(Point a, Point b);
-
-    std::string get_description();
-};
-
 // Class for calculating the cosine distance between two documents
 class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
-    TermListGroup tlg;
   public:
-    CosineDistance(TermListGroup tlg_) : tlg(tlg_) {}
-
-    double similarity(Point a, Point b);
+    double similarity(PointType a, PointType b);
 
     std::string get_description();
 };
@@ -273,33 +278,39 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     friend class Point;
     //Documents (or Points in the vector space) within the cluster
     std::vector<Point> cluster_docs;
-   
     // Point or Document representing the cluster centroid
-    Point centroid;
+    Centroid centroid;
   public:
-    Cluster() {}
-    Cluster(Point centroid_) : centroid(centroid_) {}
+    Cluster(Centroid centroid_) : centroid(centroid_) {}
 
     // Returns size of the cluster
     Xapian::doccount size();
 
     // Returns the docid of the centroid
-    Point get_centroid();
+    Centroid get_centroid();
 
     // Sets the centroid of the Cluster to centroid_
-    void set_centroid(const Point centroid_);
+    void set_centroid(const Centroid centroid_);
 
     // Recalculates the cluster centroid to be the mean of document vectors
-    void recalc_centroid();
+    void recalculate();
 
     // Add a document to the Cluster 
     void add_cluster(Point &doc);
 
+    // Clears the cluster values
     void clear();
 
+    // Returns the point at the given index in the cluster
     Point get_index(int index);
 
+    // Returns the documents that are contained within the cluster
     DocumentSet get_documents();
+
+    /** Calculates the average distance between the points and the
+     *  centroids within a cluster
+     */
+    double advdc();
 };
 
 class ClusterSetIterator;
@@ -307,7 +318,9 @@ class ClusterSetIterator;
 // Class for storing the results returned by the Clusterer
 class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     friend class ClusterSetIterator;
-    // A map storing the clusterid and its corresponding Document cluster
+    /** A map storing the clusterid and its corresponding
+     *  Document cluster
+     */
     std::vector<Cluster> clusters;
   public:
     // Adds a cluster to the cluster set
@@ -328,7 +341,13 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     // Used to check the cluster at index 'i'
     Cluster operator[](Xapian::doccount i);
 
+    // Clears all the Clusters in the ClusterSet
     void clear_clusters();
+
+    /** Recalculate the centroids for all the centroids
+     *  in the ClusterSet
+     */
+    void recalculate_centroids();
 };
 
 // A class used to iterate through the ClusterSet
@@ -418,15 +437,25 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin {
  */
 class XAPIAN_VISIBILITY_DEFAULT KMeans {
     std::vector<Point> docs;
-    //std::map<int, docid> doc_list;
-    std::vector<Point> centroids;
+    std::vector<Centroid> centroids;
+    unsigned int k;
   public:
-    void initialize_centroids(const unsigned int k, ClusterSet &cset);
+    KMeans(unsigned int k_) : k(k_) {}
+    bool converge(std::vector<Centroid> previous, std::vector<Centroid> current);
 
+    /** Initialization of centroids using a certain method
+     *  Current methods that are supported
+     *  - Random Initialization
+     */
+    void initialize_centroids(ClusterSet &cset);
+
+    /** Initialize the points in which contain the documents to be
+     *  clusterid
+     */
     void initialize_points(MSetDocumentSource docs, TermListGroup tlg);
 
     // Implements KMeans clustering
-    ClusterSet cluster(MSet mset, unsigned int k);
+    ClusterSet cluster(MSet mset);
 
     // Returns the description of the clusterer being used
     std::string get_description();
