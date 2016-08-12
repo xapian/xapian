@@ -29,7 +29,6 @@ env:
     - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
   matrix:
     - USE_CC=clang USE_CXX=clang++ CXXFLAGS=-Wno-error=reserved-user-defined-literal
-    - USE_CC=gcc-4.7 USE_CXX=g++-4.7
 before_install:
   - test -n $CC  && unset CC
   - test -n $CXX && unset CXX
