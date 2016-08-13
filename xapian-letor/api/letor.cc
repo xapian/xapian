@@ -34,15 +34,6 @@ using namespace std;
 
 namespace Xapian {
 
-Letor::Letor(const Letor & o) : internal(o.internal) { }
-
-Letor &
-Letor::operator=(const Letor & o)
-{
-    internal = o.internal;
-    return *this;
-}
-
 Letor::Letor() : internal(new Letor::Internal) { }
 
 Letor::~Letor() { }

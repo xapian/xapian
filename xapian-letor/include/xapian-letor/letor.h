@@ -34,17 +34,13 @@
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Letor {
-  public:
+
     /// @private @internal Class representing the Letor internals.
     class Internal;
     /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
-    /// Copy constructor.
-    Letor(const Letor & o);
-
-    /// Assignment.
-    Letor & operator=(const Letor & o);
+  public:
 
     /// Default constructor.
     Letor();
@@ -107,6 +103,13 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 			       Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
     void create_ranker(int ranker_type, int metric_type); // TODO: Remove function and update as command line utility. Same for scorers as well.
+  private:
+
+    /// Don't allow copy
+    Letor(const Letor & o);
+
+    /// Don't allow assignment
+    Letor & operator=(const Letor & o);
 
 };
 
