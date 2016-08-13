@@ -32,7 +32,8 @@ my %no_get_description = (
     'Letor' => '',
     'FeatureVector' => '',
     'Feature' => '',
-    'FeatureList' => ''
+    'FeatureList' => '',
+    'ListNETRanker' => ''
 );
 
 print <<'END';

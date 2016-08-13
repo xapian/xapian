@@ -10,6 +10,5 @@ lib_src +=\
 	api/featurevector.cc\
 	api/letor.cc\
 	api/letor_internal.cc\
-	api/ranker.cc\
 	api/scorer.cc
 
