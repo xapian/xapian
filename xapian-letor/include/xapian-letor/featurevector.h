@@ -33,12 +33,12 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
 
-  public:
-
-    /// @internal Class representing the FeatureVector internals.
+    /// @private @internal Class representing the FeatureVector internals.
     class Internal;
-    /// @internal Reference counted internals.
+    /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
+
+  public:
 
     /// Default constructor.
     FeatureVector();
