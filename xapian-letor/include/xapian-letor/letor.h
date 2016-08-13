@@ -27,6 +27,7 @@
 #include <xapian/visibility.h>
 
 #include "featurelist.h"
+#include "ranker.h"
 
 #include <string>
 #include <map>
@@ -45,6 +46,20 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /// Default constructor.
     Letor();
 
+    /** Constructor to initialise Letor object during training.
+     *  Xapian::Query(ies) are supplied via the 'query' file.
+     * @param db     Xapian::Database to use for LTR
+     * @param ranker Ranker to be used. By default it is ListNETRanker
+     */
+    Letor(const Xapian::Database & db, Xapian::Ranker * ranker = 0);
+
+    /** Constructor to initialise Letor object during ranking.
+     * @param db     Xapian::Database to use for LTR
+     * @param query  Xapian::Query which has to be queried
+     * @param ranker Ranker to be used. By default it is ListNETRanker
+     */
+    Letor(const Xapian::Database & db, const Xapian::Query & query, Xapian::Ranker * ranker = 0);
+
     /// Destructor.
     ~Letor();
 
@@ -53,6 +68,12 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 
     /// Specify the query. This will be used by the internal class.
     void set_query(const Xapian::Query & query);
+
+    /** Set ranker to be used. E.g. set_ranker(new ListNETRanker());
+     *  Refer Ranker class documentation for available Ranker options.
+     * @param ranker  Pointer to Ranker subclass object to use
+     */
+    void set_ranker(Xapian::Ranker * ranker);
 
     /** Core ranking function. Re-ranks the initial mset using trained model.
      *
@@ -102,7 +123,6 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 			       const char* filename = "./train.txt",
 			       Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
-    void create_ranker(int ranker_type, int metric_type); // TODO: Remove function and update as command line utility. Same for scorers as well.
   private:
 
     /// Don't allow copy

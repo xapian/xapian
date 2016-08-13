@@ -36,8 +36,32 @@ namespace Xapian {
 
 Letor::Letor() : internal(new Letor::Internal) { }
 
-Letor::~Letor() { }
+Letor::Letor(const Xapian::Database & db, Xapian::Ranker * ranker) {
+    internal = new Letor::Internal();
+    internal->letor_db = db;
+    if (ranker == 0) {
+	internal->ranker = new ListNETRanker();
+    }
+    else {
+	internal->ranker = ranker;
+    }
+}
 
+Letor::Letor(const Xapian::Database & db, const Xapian::Query & query, Xapian::Ranker * ranker) {
+    internal = new Letor::Internal();
+    internal->letor_db = db;
+    internal->letor_query = query;
+    if (ranker == 0) {
+	internal->ranker = new ListNETRanker();
+    }
+    else {
+	internal->ranker = ranker;
+    }
+}
+
+Letor::~Letor() {
+    delete internal->ranker;
+}
 
 void
 Letor::set_database(const Xapian::Database & db) {
@@ -68,15 +92,8 @@ Letor::prepare_training_file(const string & query_file, const string & qrel_file
 }
 
 void
-Letor::create_ranker(int ranker_type, int metric_type) { //TODO: update when adding rankers
-    // switch(ranker_type) {
-    //     case 0: internal->ranker = new SVMRanker(metric_type);
-    //             cout << "SVMRanker created!" <<endl;
-    //             break;
-    //     case 1: break;
-    //     default:cout<<"Please specify proper ranker.";
-    (void)ranker_type;
-    (void)metric_type;
+Letor::set_ranker(Xapian::Ranker * ranker) {
+    internal->ranker = ranker;
 }
 
 }
