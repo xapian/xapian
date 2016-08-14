@@ -300,14 +300,14 @@ DEFINE_TESTCASE(weight1, !backend) {
     TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
 
     Xapian::BM25PlusWeight bm25plusweight_dflt;
-    Xapian::BM25PlusWeight bm25plusweight(1, 0, 1, 0.5, 0.5, 1.0);
+    Xapian::BM25PlusWeight bm25plusweight(1, 1, 0.5, 0.5, 1.0);
     TEST_EQUAL(bm25plusweight.name(), "Xapian::BM25PlusWeight");
     TEST_EQUAL(bm25plusweight_dflt.serialise(), bm25plusweight.serialise());
     wt = Xapian::BM25PlusWeight().unserialise(bm25plusweight.serialise());
     TEST_EQUAL(bm25plusweight.serialise(), wt->serialise());
     delete wt;
 
-    Xapian::BM25PlusWeight bm25plusweight2(1, 0, 1, 0.5, 0.5, 2.0);
+    Xapian::BM25PlusWeight bm25plusweight2(1, 1, 0.5, 0.5, 2.0);
     TEST_NOT_EQUAL(bm25plusweight.serialise(), bm25plusweight2.serialise());
 
     Xapian::TfIdfWeight tfidfweight_dflt;
