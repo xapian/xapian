@@ -592,12 +592,11 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 
 /// Xapian::Weight subclass implementing the BM25+ probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public BM25Weight {
-
   public:
     /** Construct a BM25PlusWeight.
      *
      *  @param delta  A parameter for pseudo tf value to control the scale
-     *		      of the tf lower bound. Delta(δ) can be tuned for e.g
+     *		      of the tf lower bound. Delta(δ) can be tuned for example
      *		      from 0.0 to 1.5 but BM25+ can still work effectively
      *		      across collections with a fixed δ = 1.0. (default 1.0)
      */
