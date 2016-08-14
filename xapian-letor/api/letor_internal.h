@@ -41,8 +41,8 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 
   public:
 
-    std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist,
-					  const char* model_filename);
+    std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset, const char* model_filename,
+                                           Xapian::FeatureList & flist);
 
     void letor_learn_model(const char* input_filename, const char* output_filename);
 

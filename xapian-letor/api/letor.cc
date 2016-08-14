@@ -74,8 +74,8 @@ Letor::set_query(const Xapian::Query & query) {
 }
 
 std::vector<Xapian::docid>
-Letor::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist, const char* model_filename) {
-    return internal->letor_rank(mset, flist, model_filename);
+Letor::letor_rank(const Xapian::MSet & mset, const char* model_filename, Xapian::FeatureList & flist) {
+    return internal->letor_rank(mset, model_filename, flist);
 }
 
 void
