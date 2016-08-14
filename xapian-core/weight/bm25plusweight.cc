@@ -1,7 +1,8 @@
 /** @file bm25plusweight.cc
  * @brief Xapian::BM25PlusWeight class - the BM25+ probabilistic formula
  */
-/* Copyright (C) 2016  Vivek Pal
+/* Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
+ * Copyright (C) 2016  Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
