@@ -189,7 +189,7 @@ DEFINE_TESTCASE(compactoldnorenumber1, generated) {
 	compact.add_source(b);
 	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
- 
+
     // Should fail.
     rm_rf(out);
     {
@@ -212,7 +212,7 @@ DEFINE_TESTCASE(compactoldnorenumber1, generated) {
 	compact.add_source(d);
 	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
- 
+
     // Should fail.
     rm_rf(out);
     {

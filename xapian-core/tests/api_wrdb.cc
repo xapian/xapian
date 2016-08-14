@@ -1878,7 +1878,7 @@ DEFINE_TESTCASE(lazytablebug1, chert || glass) {
 
 /** Regression test for bug #287 for flint.
  *
- *  Chert also has the same duff code but this testcase doesn't actually 
+ *  Chert also has the same duff code but this testcase doesn't actually
  *  tickle the bug there.
  */
 DEFINE_TESTCASE(cursordelbug1, chert || glass) {
@@ -1956,7 +1956,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 
     for (Xapian::doccount num = 1; num <= doccount; ++num) {
 	tout.str(string());
-    	Xapian::Document doc;
+	Xapian::Document doc;
 	string val = "val" + str(num);
 	tout << "Setting val '" << val << "' in doc " << num << "\n";
 	doc.add_value(1, val);

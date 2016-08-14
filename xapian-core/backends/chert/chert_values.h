@@ -53,12 +53,12 @@ docid_from_key(Xapian::valueno required_slot, const std::string & key)
     if (end - p < 2 || *p++ != '\0' || *p++ != '\xd8') return 0;
     Xapian::valueno slot;
     if (!unpack_uint(&p, end, &slot))
-       	throw Xapian::DatabaseCorruptError("bad value key");
+	throw Xapian::DatabaseCorruptError("bad value key");
     // Fail if for a different slot.
     if (slot != required_slot) return 0;
     Xapian::docid did;
     if (!C_unpack_uint_preserving_sort(&p, end, &did))
-       	throw Xapian::DatabaseCorruptError("bad value key");
+	throw Xapian::DatabaseCorruptError("bad value key");
     return did;
 }
 

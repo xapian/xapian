@@ -184,7 +184,7 @@ DEFINE_TESTCASE(compactnorenumber1, generated) {
 	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
 	);
     }
- 
+
     // Should fail.
     rm_rf(out);
     {
@@ -207,7 +207,7 @@ DEFINE_TESTCASE(compactnorenumber1, generated) {
 	    db.compact(out, Xapian::DBCOMPACT_NO_RENUMBER)
 	);
     }
- 
+
     // Should fail.
     rm_rf(out);
     {

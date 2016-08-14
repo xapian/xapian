@@ -95,8 +95,8 @@ OrPostList::next(double w_min)
     bool rnext = !rvalid;
 
     if (!lvalid || lhead <= rhead) {
-        if (lhead == rhead) rnext = true;
-        next_handling_prune(l, w_min - rmax, matcher);
+	if (lhead == rhead) rnext = true;
+	next_handling_prune(l, w_min - rmax, matcher);
 	lvalid = true;
 	if (l->at_end()) ldry = true;
     } else {
@@ -104,9 +104,9 @@ OrPostList::next(double w_min)
     }
 
     if (rnext) {
-        next_handling_prune(r, w_min - lmax, matcher);
+	next_handling_prune(r, w_min - lmax, matcher);
 	rvalid = true;
-        if (r->at_end()) {
+	if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
 	    RETURN(ret);
@@ -399,7 +399,7 @@ OrPostList::get_doclength() const
     } else {
 	doclength = l->get_doclength();
 	LOGLINE(MATCH, "OrPostList::get_doclength() [left docid=" << lhead <<
-	       	       "] = " << doclength);
+		       "] = " << doclength);
     }
 
     RETURN(doclength);

@@ -99,8 +99,8 @@ get_hostname()
     WSADATA WSAData;
 
     if (WSAStartup(WSAVerReq, &WSAData) != 0) {
-        // wrong winsock dlls?
-        return string();
+	// wrong winsock dlls?
+	return string();
     }
     if (gethostname(buf, sizeof(buf)) != 0) {
 	*buf = '\0';
@@ -146,7 +146,7 @@ get_ncpus()
     string ncpus;
 #ifdef __WIN32__
     SYSTEM_INFO siSysInfo;
-    GetSystemInfo(&siSysInfo); 
+    GetSystemInfo(&siSysInfo);
     ncpus = str(siSysInfo.dwNumberOfProcessors);
 #else
     try {
@@ -179,7 +179,7 @@ static string
 get_distro()
 {
     string distro;
-#ifdef __WIN32__    
+#ifdef __WIN32__
     OSVERSIONINFO osvi;
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -398,7 +398,7 @@ PerfTestLogger::testcase_end()
 {
     indexing_end();
     if (testcase_started) {
-    	write(" </testcase>\n");
+	write(" </testcase>\n");
 	testcase_started = false;
     }
 }

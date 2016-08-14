@@ -46,7 +46,7 @@ print_mset_weights(const Xapian::MSet &mset)
 {
     Xapian::MSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
-        tout << " " << i.get_weight();
+	tout << " " << i.get_weight();
     }
 }
 
@@ -55,7 +55,7 @@ print_mset_percentages(const Xapian::MSet &mset)
 {
     Xapian::MSetIterator i = mset.begin();
     for ( ; i != mset.end(); ++i) {
-        tout << " " << mset.convert_to_percent(i);
+	tout << " " << mset.convert_to_percent(i);
     }
 }
 
@@ -602,9 +602,9 @@ DEFINE_TESTCASE(topercent1, backend) {
 			 "convert_to_%(msetitor) != convert_to_%(wt)");
 	TEST_AND_EXPLAIN(pct == mymset.convert_to_percent(i.get_weight()),
 			 "convert_to_%(msetitor) != convert_to_%(wt)");
-        TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
+	TEST_AND_EXPLAIN(pct >= 0 && pct <= 100,
 			 "percentage out of range: " << pct);
-        TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
+	TEST_AND_EXPLAIN(pct <= last_pct, "percentage increased down mset");
 	last_pct = pct;
     }
     return true;
@@ -701,7 +701,7 @@ DEFINE_TESTCASE(expandfunctor1, backend) {
     unsigned int neweset_size = 0;
     Xapian::ESetIterator j = myeset_orig.begin();
     for ( ; j != myeset_orig.end(); ++j) {
-        if (myfunctor(*j)) neweset_size++;
+	if (myfunctor(*j)) neweset_size++;
     }
     Xapian::ESet myeset = enquire.get_eset(neweset_size, myrset, &myfunctor);
 
@@ -813,8 +813,8 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
     Xapian::MSetIterator i = mymset1.begin();
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
-        int new_pct = mymset1.convert_to_percent(i);
-        if (new_pct != my_pct) {
+	int new_pct = mymset1.convert_to_percent(i);
+	if (new_pct != my_pct) {
 	    changes++;
 	    if (changes > 3) break;
 	    num_items = c;
@@ -824,16 +824,16 @@ DEFINE_TESTCASE(pctcutoff1, backend) {
 
     TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
     if (verbose) {
-        tout << "Cutoff percent: " << my_pct << "\n";
+	tout << "Cutoff percent: " << my_pct << "\n";
     }
 
     enquire.set_cutoff(my_pct);
     Xapian::MSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
-        tout << "Percentages after cutoff:";
+	tout << "Percentages after cutoff:";
 	print_mset_percentages(mymset2);
-        tout << "\n";
+	tout << "\n";
     }
 
     TEST_AND_EXPLAIN(mymset2.size() >= num_items,
@@ -927,7 +927,7 @@ DEFINE_TESTCASE(cutoff1, backend) {
     int c = 0;
     for ( ; i != mymset1.end(); ++i, ++c) {
 	double new_wt = i.get_weight();
-        if (new_wt != my_wt) {
+	if (new_wt != my_wt) {
 	    changes++;
 	    if (changes > 3) break;
 	    num_items = c;
@@ -937,16 +937,16 @@ DEFINE_TESTCASE(cutoff1, backend) {
 
     TEST_AND_EXPLAIN(changes > 3, "MSet not varied enough to test");
     if (verbose) {
-        tout << "Cutoff weight: " << my_wt << "\n";
+	tout << "Cutoff weight: " << my_wt << "\n";
     }
 
     enquire.set_cutoff(0, my_wt);
     Xapian::MSet mymset2 = enquire.get_mset(0, 100);
 
     if (verbose) {
-        tout << "Weights after cutoff:";
+	tout << "Weights after cutoff:";
 	print_mset_weights(mymset2);
-        tout << "\n";
+	tout << "\n";
     }
 
     TEST_AND_EXPLAIN(mymset2.size() >= num_items,
@@ -998,7 +998,7 @@ DEFINE_TESTCASE(maxattain1, backend) {
     double mymax = 0;
     Xapian::MSetIterator i = mymset.begin();
     for ( ; i != mymset.end(); ++i) {
-        if (i.get_weight() > mymax) mymax = i.get_weight();
+	if (i.get_weight() > mymax) mymax = i.get_weight();
     }
     TEST_EQUAL(mymax, mymset.get_max_attained());
 
@@ -2403,24 +2403,24 @@ DEFINE_TESTCASE(tradweight1, backend) {
 DEFINE_TESTCASE(tradweight4, backend) {
     Xapian::Database mydb(get_database("apitest_rset"));
     Xapian::Enquire enquire(mydb);
-    Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");   
-    
-    enquire.set_query(myquery); 
-    enquire.set_weighting_scheme(Xapian::TradWeight()); 
+    Xapian::Query myquery = query(Xapian::Query::OP_OR, "cuddly", "people");
 
-    Xapian::MSet mymset1 = enquire.get_mset(0, 10);    
+    enquire.set_query(myquery);
+    enquire.set_weighting_scheme(Xapian::TradWeight());
+
+    Xapian::MSet mymset1 = enquire.get_mset(0, 10);
 
     Xapian::RSet myrset;
     myrset.add_document(2);
 
     Xapian::MSet mymset2 = enquire.get_mset(0, 10, &myrset);
 
-    mset_expect_order(mymset1, 1, 2);    
+    mset_expect_order(mymset1, 1, 2);
     // Document 2 should have higher weight than document 1 despite the wdf of
     // "people" being 1 because "people" indexes a document in the RSet whereas
     // "cuddly" (wdf=2) does not.
     mset_expect_order(mymset2, 2, 1);
-    
+
     return true;
 }
 

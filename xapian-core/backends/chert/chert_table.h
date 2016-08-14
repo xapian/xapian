@@ -132,11 +132,11 @@ inline void setD(unsigned char *p, int c, int x) { setint2(p, c, x); }
 
    Recall that item has this form:
 
-           i k
-           | |
-           I K key x C tag
-             <--K-->
-           <------I------>
+	   i k
+	   | |
+	   I K key x C tag
+	     <--K-->
+	   <------I------>
 
 
    item_of(p, c) returns i, the address of the item at block address p,
@@ -329,7 +329,7 @@ const int BTREE_CURSOR_LEVELS = 10;
  *  A table is a store holding a set of key/tag pairs.
  *
  *  A key is used to access a block of data in a chert table.
- * 
+ *
  *  Keys are of limited length.
  *
  *  Keys may not be empty (each Btree has a special empty key for internal use).
@@ -348,10 +348,10 @@ class ChertTable {
     friend class ChertCursor; /* Should probably fix this. */
     private:
 	/// Copying not allowed
-        ChertTable(const ChertTable &);
+	ChertTable(const ChertTable &);
 
 	/// Assignment not allowed
-        ChertTable & operator=(const ChertTable &);
+	ChertTable & operator=(const ChertTable &);
 
 	/// Return true if there are no entries in the table.
 	bool really_empty() const;
@@ -476,7 +476,7 @@ class ChertTable {
 	 *
 	 *  If the key is found in the table, then the tag is copied to @a
 	 *  tag.  If the key is not found tag is left unchanged.
-	 * 
+	 *
 	 *  The result is true iff the specified key is found in the Btree.
 	 *
 	 *  @param key  The key to look for in the table.

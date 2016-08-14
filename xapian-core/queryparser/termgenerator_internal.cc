@@ -621,7 +621,7 @@ non_term_subquery:
 
 static bool
 check_term(map<string, double> & loose_terms,
-           const Xapian::Weight::Internal * stats,
+	   const Xapian::Weight::Internal * stats,
 	   const string & term,
 	   double &relevance)
 {

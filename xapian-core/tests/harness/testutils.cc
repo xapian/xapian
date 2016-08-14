@@ -187,7 +187,7 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 			 << "Item " << i << " was " << *j
 			 << ", expected " << expect[i] << endl
 			 << "Full mset was: " << A << endl
-			 << "Expected: {" << expect << "}");	
+			 << "Expected: {" << expect << "}");
     }
 }
 

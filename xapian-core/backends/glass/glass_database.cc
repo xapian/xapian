@@ -1292,7 +1292,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    version_file.check_wdf(new_wdf);
 
 		    if (old_wdf != new_wdf) {
-		    	new_doclen += new_wdf - old_wdf;
+			new_doclen += new_wdf - old_wdf;
 			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
 		    }
 

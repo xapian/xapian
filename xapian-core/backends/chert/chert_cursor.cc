@@ -62,7 +62,7 @@ ChertCursor::ChertCursor(const ChertTable *B_)
     C = new Cursor[level + 1];
 
     for (int j = 0; j < level; j++) {
-        C[j].n = BLK_UNUSED;
+	C[j].n = BLK_UNUSED;
 	C[j].p = new byte[B->block_size];
     }
     C[level].n = B->C[level].n;

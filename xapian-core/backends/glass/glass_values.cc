@@ -241,7 +241,7 @@ class ValueUpdater {
 
   public:
     ValueUpdater(GlassPostListTable * table_, Xapian::valueno slot_)
-       	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
+	: table(table_), slot(slot_), first_did(0), last_allowed_did(0) { }
 
     ~ValueUpdater() {
 	while (!reader.at_end()) {
@@ -367,29 +367,29 @@ GlassValueManager::add_document(Xapian::docid did, const Xapian::Document &doc,
 	Xapian::valueno slot = it.get_valueno();
 	string value = *it;
 
-        // Update the statistics.
-        std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-        i = value_stats.insert(make_pair(slot, ValueStats()));
+	// Update the statistics.
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = value_stats.insert(make_pair(slot, ValueStats()));
 	ValueStats & stats = i.first->second;
-        if (i.second) {
-            // There were no statistics stored already, so read them.
-            get_value_stats(slot, stats);
-        }
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(slot, stats);
+	}
 
-        // Now, modify the stored statistics.
-        if ((stats.freq)++ == 0) {
-            // If the value count was previously zero, set the upper and lower
-            // bounds to the newly added value.
-            stats.lower_bound = value;
-            stats.upper_bound = value;
-        } else {
-            // Otherwise, simply make sure they reflect the new value.
-            if (value < stats.lower_bound) {
-                stats.lower_bound = value;
-            } else if (value > stats.upper_bound) {
-                stats.upper_bound = value;
-            }
-        }
+	// Now, modify the stored statistics.
+	if ((stats.freq)++ == 0) {
+	    // If the value count was previously zero, set the upper and lower
+	    // bounds to the newly added value.
+	    stats.lower_bound = value;
+	    stats.upper_bound = value;
+	} else {
+	    // Otherwise, simply make sure they reflect the new value.
+	    if (value < stats.lower_bound) {
+		stats.lower_bound = value;
+	    } else if (value > stats.upper_bound) {
+		stats.upper_bound = value;
+	    }
+	}
 
 	add_value(did, slot, value);
 	if (termlist_table->is_open()) {
@@ -430,21 +430,21 @@ GlassValueManager::delete_document(Xapian::docid did,
 	slot += prev_slot + 1;
 	prev_slot = slot;
 
-        std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
-        i = value_stats.insert(make_pair(slot, ValueStats()));
+	std::pair<map<Xapian::valueno, ValueStats>::iterator, bool> i;
+	i = value_stats.insert(make_pair(slot, ValueStats()));
 	ValueStats & stats = i.first->second;
-        if (i.second) {
-            // There were no statistics stored already, so read them.
-            get_value_stats(slot, stats);
-        }
+	if (i.second) {
+	    // There were no statistics stored already, so read them.
+	    get_value_stats(slot, stats);
+	}
 
-        // Now, modify the stored statistics.
-        AssertRelParanoid(stats.freq, >, 0);
-        if (--(stats.freq) == 0) {
-            stats.lower_bound.resize(0);
-            stats.upper_bound.resize(0);
-        }
- 
+	// Now, modify the stored statistics.
+	AssertRelParanoid(stats.freq, >, 0);
+	if (--(stats.freq) == 0) {
+	    stats.lower_bound.resize(0);
+	    stats.upper_bound.resize(0);
+	}
+
 	remove_value(did, slot);
     }
 }

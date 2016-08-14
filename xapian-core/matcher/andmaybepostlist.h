@@ -85,7 +85,7 @@ class AndMaybePostList : public BranchPostList {
 
 	virtual Xapian::termcount get_unique_terms() const;
 
-        AndMaybePostList(PostList *left_,
+	AndMaybePostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
 			 Xapian::doccount dbsize_)
@@ -96,7 +96,7 @@ class AndMaybePostList : public BranchPostList {
 	}
 
 	/// Constructor for use by decomposing OrPostList
-        AndMaybePostList(PostList *left_,
+	AndMaybePostList(PostList *left_,
 			 PostList *right_,
 			 MultiMatch *matcher_,
 			 Xapian::doccount dbsize_,

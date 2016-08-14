@@ -37,7 +37,7 @@
  */
 class OrPostList : public BranchPostList {
     private:
-        Xapian::docid lhead, rhead;
+	Xapian::docid lhead, rhead;
 	bool lvalid, rvalid;
 	double lmax, rmax, minmax;
 	Xapian::doccount dbsize;
@@ -73,7 +73,7 @@ class OrPostList : public BranchPostList {
 	/// Return the number of unique terms in the document.
 	virtual Xapian::termcount get_unique_terms() const;
 
-        OrPostList(PostList * left_,
+	OrPostList(PostList * left_,
 		   PostList * right_,
 		   MultiMatch * matcher_,
 		   Xapian::doccount dbsize_);

@@ -336,7 +336,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/** Set the sorting to be by relevance only.
 	 *
 	 *  This is the default.
-         */
+	 */
 	void set_sort_by_relevance();
 
 	/** Set the sorting to be by value only.
@@ -351,7 +351,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 * @param sort_key  value number to sort on.
 	 *
 	 * @param reverse   If true, reverses the sort order.
-         */
+	 */
 	void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
 
 	/** Set the sorting to be by key generated from values only.
@@ -359,7 +359,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 * @param sorter    The functor to use for generating keys.
 	 *
 	 * @param reverse   If true, reverses the sort order.
-         */
+	 */
 	void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
 
 	/** Set the sorting to be by value, then by relevance for documents

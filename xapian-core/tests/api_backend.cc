@@ -229,17 +229,17 @@ DEFINE_TESTCASE(modifiedpostlist1, writable) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document a, b;
     Xapian::Enquire enq(db);
-   
+
     a.add_term("T");
     enq.set_query(Xapian::Query("T"));
-   
+
     db.replace_document(2, a);
     db.commit();
     db.replace_document(1, a);
     db.replace_document(1, b);
-   
+
     mset_expect_order(enq.get_mset(0, 2), 2);
-   
+
     return true;
 }
 
@@ -331,7 +331,7 @@ DEFINE_TESTCASE(lockfilealreadyopen1, chert || glass) {
 
 struct MyMatchDecider : public Xapian::MatchDecider {
     mutable bool called;
-  
+
     MyMatchDecider() : called(false) { }
 
     bool operator()(const Xapian::Document &) const {
@@ -479,7 +479,7 @@ DEFINE_TESTCASE(qpmemoryleak1, writable && !inmemory) {
     }
 
     for (int j = 0; j < 50; ++j) {
-        wdb.add_document(doc);
+	wdb.add_document(doc);
     }
     wdb.commit();
 
