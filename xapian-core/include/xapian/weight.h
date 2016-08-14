@@ -626,6 +626,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public BM25Weight {
     {
 	if (param_k1 < 0) param_k1 = 0;
 	if (param_k3 < 0) param_k3 = 0;
+	if (param_delta < 0) param_delta = 0;
 	if (param_b < 0) {
 	    param_b = 0;
 	} else if (param_b > 1) {
@@ -643,7 +644,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public BM25Weight {
 	}
 	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
 	if (param_k3 != 0) need_stat(WQF);
-	if (param_delta < 0) param_delta = 0;
 	if (param_delta != 0) {
 	    need_stat(AVERAGE_LENGTH);
 	    need_stat(DOC_LENGTH);
