@@ -121,14 +121,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	virtual ~Database();
 
-        /** Copying is allowed.  The internals are reference counted, so
+	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 *
 	 *  @param other	The object to copy.
 	 */
 	Database(const Database &other);
 
-        /** Assignment is allowed.  The internals are reference counted,
+	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 *
 	 *  @param other	The object to copy.
@@ -773,14 +773,14 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	explicit WritableDatabase(Database::Internal *internal);
 
-        /** Copying is allowed.  The internals are reference counted, so
+	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 *
 	 *  @param other	The object to copy.
 	 */
 	WritableDatabase(const WritableDatabase &other);
 
-        /** Assignment is allowed.  The internals are reference counted,
+	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 *
 	 *  Note that only an WritableDatabase may be assigned to an

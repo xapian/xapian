@@ -89,11 +89,11 @@ const int X2 = 2;
 
    Recall that a leaf item has this form:
 
-           i k     x
-           | |     |
-           I K key X tag
-               ←K→
-           <---SIZE---->
+	   i k     x
+	   | |     |
+	   I K key X tag
+	       ←K→
+	   <---SIZE---->
 	       <---I--->
 
    Except that X is omitted for the first component of a tag (there is a flag
@@ -283,11 +283,11 @@ public:
 
 /* A branch item has this form:
 
-                 k     x
-                 |     |
-             tag K key X
-             ←B→   ←K→  
-             <--SIZE--->
+		 k     x
+		 |     |
+	     tag K key X
+	     ←B→   ←K→
+	     <--SIZE--->
 
 	     B = BYTES_PER_BLOCK_NUMBER
 
@@ -410,7 +410,7 @@ class GlassChanges;
  *  A table is a store holding a set of key/tag pairs.
  *
  *  A key is used to access a block of data in a glass table.
- * 
+ *
  *  Keys are of limited length.
  *
  *  Keys may not be empty (each Btree has a special empty key for internal use).
@@ -430,10 +430,10 @@ class GlassTable {
     friend class GlassFreeList;
     private:
 	/// Copying not allowed
-        GlassTable(const GlassTable &);
+	GlassTable(const GlassTable &);
 
 	/// Assignment not allowed
-        GlassTable & operator=(const GlassTable &);
+	GlassTable & operator=(const GlassTable &);
 
 	void basic_open(const RootInfo * root_info,
 			glass_revision_number_t rev);
@@ -552,7 +552,7 @@ class GlassTable {
 	 *
 	 *  If the key is found in the table, then the tag is copied to @a
 	 *  tag.  If the key is not found tag is left unchanged.
-	 * 
+	 *
 	 *  The result is true iff the specified key is found in the Btree.
 	 *
 	 *  @param key  The key to look for in the table.

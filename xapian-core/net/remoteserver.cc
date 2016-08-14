@@ -335,7 +335,7 @@ RemoteServer::msg_postlist(const string &message)
 void
 RemoteServer::msg_writeaccess(const string & msg)
 {
-    if (!writable) 
+    if (!writable)
 	throw_read_only();
 
     int flags = Xapian::DB_OPEN;

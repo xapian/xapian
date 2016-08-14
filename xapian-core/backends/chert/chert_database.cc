@@ -399,7 +399,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
     } else {
 	max_changesets = 0;
     }
- 
+
     if (max_changesets > 0) {
 	chert_revision_number_t old_revision = get_revision_number();
 	if (old_revision) {
@@ -461,7 +461,7 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 
 	throw;
     }
-    
+
     if (changes_fd >= 0 && max_changesets < new_revision) {
 	// While change sets less than N - max_changesets exist, delete them
 	// 1 must be subtracted so we don't delete the changeset we just wrote
@@ -1433,7 +1433,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 		    stats.check_wdf(new_wdf);
 
 		    if (old_wdf != new_wdf) {
-		    	new_doclen += new_wdf - old_wdf;
+			new_doclen += new_wdf - old_wdf;
 			add_freq_delta(new_tname, 0, new_wdf - old_wdf);
 			update_mod_plist(did, new_tname, 'M', new_wdf);
 		    }

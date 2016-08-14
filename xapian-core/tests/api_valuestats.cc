@@ -292,7 +292,7 @@ DEFINE_TESTCASE(valuestats4, transactions && valuestats) {
 	TEST_EQUAL(db.get_value_lower_bound(1), "test");
 	TEST_EQUAL(db.get_value_upper_bound(1), "test");
     }
- 
+
     return true;
 }
 

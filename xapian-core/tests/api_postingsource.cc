@@ -96,7 +96,7 @@ DEFINE_TESTCASE(externalsource1, backend && !remote && !multi) {
     // Check that passing NULL is rejected as intended.
     Xapian::PostingSource * nullsrc = NULL;
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query bad(nullsrc));
-		
+
     enq.set_query(Xapian::Query(&src));
 
     Xapian::MSet mset = enq.get_mset(0, 10);

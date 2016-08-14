@@ -168,7 +168,7 @@ DEFINE_TESTCASE(matchspy2, generated)
     TEST_STRINGS_EQUAL(values_to_repr(spy0), results[0]);
     TEST_STRINGS_EQUAL(values_to_repr(spy1), results[1]);
     TEST_STRINGS_EQUAL(values_to_repr(spy3), results[2]);
-		       
+
     return true;
 }
 

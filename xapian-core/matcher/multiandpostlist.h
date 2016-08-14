@@ -34,9 +34,9 @@ class MultiAndPostList : public PostList {
      *  get_termfreq_est(). */
     struct ComparePostListTermFreqAscending {
 	/// Order by ascending get_termfreq_est().
-        bool operator()(const PostList *a, const PostList *b) {
-            return a->get_termfreq_est() < b->get_termfreq_est();
-        }
+	bool operator()(const PostList *a, const PostList *b) {
+	    return a->get_termfreq_est() < b->get_termfreq_est();
+	}
     };
 
     /// Don't allow assignment.

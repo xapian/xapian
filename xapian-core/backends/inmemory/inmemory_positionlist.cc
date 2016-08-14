@@ -28,7 +28,7 @@
 
 InMemoryPositionList::InMemoryPositionList(const OmDocumentTerm::term_positions & positions_)
     : positions(positions_), mypos(positions.begin()),
-      iterating_in_progress(false) 
+      iterating_in_progress(false)
 {
 }
 

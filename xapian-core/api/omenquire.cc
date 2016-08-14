@@ -335,7 +335,7 @@ Document
 MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 {
     LOGCALL(MATCH, Document, "Xapian::MSet::Internal::get_doc_by_index", index);
-    index += firstitem; 
+    index += firstitem;
     map<Xapian::doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
     if (doc != indexeddocs.end()) {
@@ -654,8 +654,8 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
     TermIterator docterms_end = db.termlist_end(did);
     while (docterms != docterms_end) {
 	string term = *docterms;
-        map<string, unsigned int>::iterator t = tmap.find(term);
-        if (t != tmap.end()) matching_terms.push_back(term);
+	map<string, unsigned int>::iterator t = tmap.find(term);
+	if (t != tmap.end()) matching_terms.push_back(term);
 	++docterms;
     }
 

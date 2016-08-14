@@ -140,7 +140,7 @@ main(int argc, char **argv)
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, "", long_opts, 0)) != -1) {
-        switch (c) {
+	switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
@@ -148,10 +148,10 @@ main(int argc, char **argv)
 	    case OPT_VERSION:
 		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
-            default:
+	    default:
 		show_usage();
 		exit(1);
-        }
+	}
     }
 
     if (argc - optind != 1) {

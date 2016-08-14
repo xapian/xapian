@@ -181,7 +181,7 @@ dbcheck(const Xapian::Database & db,
 	    TEST_EQUAL(posrepr, posrepr2);
 	    TEST_EQUAL(tc1, tc2);
 	    try {
-	    	TEST_EQUAL(tc1, t.positionlist_count());
+		TEST_EQUAL(tc1, t.positionlist_count());
 	    } catch (const Xapian::UnimplementedError &) {
 		// positionlist_count() isn't implemented for remote databases.
 	    }

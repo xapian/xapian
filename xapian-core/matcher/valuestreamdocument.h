@@ -47,7 +47,7 @@ class ValueStreamDocument : public Xapian::Document::Internal {
 
   public:
     ValueStreamDocument(const Xapian::Database & db_)
-       	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
+	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
 
     void new_subdb(int n);
 

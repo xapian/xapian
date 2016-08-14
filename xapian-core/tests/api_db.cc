@@ -223,7 +223,7 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
     }
- 
+
     return true;
 }
 
@@ -1851,7 +1851,7 @@ DEFINE_TESTCASE(matchall1, backend) {
     TEST_EQUAL(mset[mset.size() - 1].get_weight(), 0);
     TEST_EQUAL(*mset[0], 1);
     TEST_EQUAL(*mset[mset.size() - 1], mset.size());
- 
+
     return true;
 }
 
