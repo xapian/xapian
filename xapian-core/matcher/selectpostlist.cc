@@ -31,7 +31,7 @@ SelectPostList::next(double w_min)
 {
     LOGCALL(MATCH, PostList *, "SelectPostList::next", w_min);
     do {
-        PostList *p = source->next(w_min);
+	PostList *p = source->next(w_min);
 	(void)p;
 	Assert(p == NULL); // AND should never prune
 	wt = -1;

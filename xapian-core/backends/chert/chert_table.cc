@@ -115,15 +115,15 @@ static inline byte *zeroed_new(size_t size)
    And then,
 
    R = REVISION(b)  is the revision number the B-tree had when the block was
-                    written into the DB file.
+		    written into the DB file.
    L = GET_LEVEL(b) is the level of the block, which is the number of levels
-                    towards the root of the B-tree structure. So leaf blocks
-                    have level 0 and the one root block has the highest level
-                    equal to the number of levels in the B-tree.
+		    towards the root of the B-tree structure. So leaf blocks
+		    have level 0 and the one root block has the highest level
+		    equal to the number of levels in the B-tree.
    M = MAX_FREE(b)  is the size of the gap between the end of the directory and
-                    the first item of data. (It is not necessarily the maximum
-                    size among the bits of space that are free, but I can't
-                    think of a better name.)
+		    the first item of data. (It is not necessarily the maximum
+		    size among the bits of space that are free, but I can't
+		    think of a better name.)
    T = TOTAL_FREE(b)is the total amount of free space left in b.
    D = DIR_END(b)   gives the offset to the end of the directory.
 
@@ -133,9 +133,9 @@ static inline byte *zeroed_new(size_t size)
 
    An item has this form:
 
-           I K key x C tag
-             <--K-->
-           <------I------>
+	   I K key x C tag
+	     <--K-->
+	   <------I------>
 
    A long tag presented through the API is split up into C tags small enough to
    be accommodated in the blocks of the B-tree. The key is extended to include

@@ -432,7 +432,7 @@ Database::valuestream_begin(Xapian::valueno slot) const
 {
     LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
     if (internal.size() == 0)
-       	RETURN(ValueIterator());
+	RETURN(ValueIterator());
     if (internal.size() != 1)
 	RETURN(ValueIterator(new MultiValueList(internal, slot)));
     RETURN(ValueIterator(internal[0]->open_value_list(slot)));

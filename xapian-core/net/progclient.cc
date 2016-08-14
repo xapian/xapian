@@ -69,7 +69,7 @@ ProgClient::ProgClient(const string &progname, const string &args,
 #ifndef __WIN32__
 						   , pid
 #endif
-        ),
+	),
 			 timeout_, get_progcontext(progname, args), writable,
 			 flags)
 {

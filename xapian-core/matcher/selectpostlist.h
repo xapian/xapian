@@ -30,9 +30,9 @@
  */
 class SelectPostList : public PostList {
     private:
-        // Prevent copying
-        SelectPostList(const SelectPostList &);
-        SelectPostList & operator=(const SelectPostList &);
+	// Prevent copying
+	SelectPostList(const SelectPostList &);
+	SelectPostList & operator=(const SelectPostList &);
 
 	inline bool check_weight(double w_min) {
 	    return w_min == 0.0 || SelectPostList::get_weight() >= w_min;
@@ -45,7 +45,7 @@ class SelectPostList : public PostList {
 	/** Subclasses should override test_doc() with a method which returns
 	 *  true if a document meets the appropriate criterion, false in not
 	 */
-    	virtual bool test_doc() = 0;
+	virtual bool test_doc() = 0;
     public:
 	PostList *next(double w_min);
 	PostList *skip_to(Xapian::docid did, double w_min);
@@ -72,10 +72,10 @@ class SelectPostList : public PostList {
 	    return source->count_matching_subqs();
 	}
 
-	std::string get_description() const;    
-    
+	std::string get_description() const;
+
 	SelectPostList(PostList *source_) : source(source_), wt(-1) { }
-        ~SelectPostList() { delete source; }
+	~SelectPostList() { delete source; }
 };
 
 inline std::string

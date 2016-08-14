@@ -309,7 +309,7 @@ class QueryWindowed : public QueryAndLike {
 
     QueryWindowed(size_t n_subqueries, Xapian::termcount window_)
 	: QueryAndLike(n_subqueries), window(window_) { }
-  
+
     void postlist_windowed(Xapian::Query::op op, AndContext& ctx,
 			   QueryOptimiser * qopt, double factor) const;
 

@@ -38,9 +38,9 @@ namespace Glass {
 
 class Cursor {
     private:
-        // Prevent copying
-        Cursor(const Cursor &);
-        Cursor & operator=(const Cursor &);
+	// Prevent copying
+	Cursor(const Cursor &);
+	Cursor & operator=(const Cursor &);
 
 	/// Pointer to reference counted data.
 	char * data;
@@ -147,10 +147,10 @@ class GlassTable;
 class GlassCursor {
     private:
 	/// Copying not allowed
-        GlassCursor(const GlassCursor &);
+	GlassCursor(const GlassCursor &);
 
 	/// Assignment not allowed
-        GlassCursor & operator=(const GlassCursor &);
+	GlassCursor & operator=(const GlassCursor &);
 
 	/** Rebuild the cursor.
 	 *
@@ -265,14 +265,14 @@ class GlassCursor {
 	 *  Btree the cursor is made unpositioned, and the result is false.
 	 *  Otherwise the cursor is moved to the next item in the B-tree,
 	 *  and the result is true.
-	 *  
+	 *
 	 *  Effectively, GlassCursor::next() loses the position of BC when it
 	 *  drops off the end of the list of items. If this is awkward, one can
 	 *  always arrange for a key to be present which has a rightmost
 	 *  position in a set of keys,
 	 */
 	bool next();
- 
+
 	/** Position the cursor on the highest entry with key <= @a key.
 	 *
 	 *  If the exact key is found in the table, the cursor will be

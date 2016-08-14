@@ -261,7 +261,7 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
     void operator()(const Xapian::Document &doc, double wt);
 };
 
-void 
+void
 MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
     LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
     for (auto i : spies) {
@@ -1017,7 +1017,7 @@ new_greatest_weight:
 	    matches_estimated =
 		Xapian::doccount(matches_estimated * estimate_scale + 0.5);
 	    if (matches_estimated < matches_lower_bound)
-	       	matches_estimated = matches_lower_bound;
+		matches_estimated = matches_lower_bound;
 	}
 
 	if (collapser || mdecider) {

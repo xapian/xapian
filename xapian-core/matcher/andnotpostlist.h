@@ -34,7 +34,7 @@
  */
 class AndNotPostList : public BranchPostList {
     private:
-        Xapian::docid lhead, rhead;
+	Xapian::docid lhead, rhead;
 
 	/// Number of documents in the database this postlist is across
 	Xapian::doccount dbsize;
@@ -66,12 +66,12 @@ class AndNotPostList : public BranchPostList {
 
 	virtual Xapian::termcount get_unique_terms() const;
 
-        AndNotPostList(PostList *left,
+	AndNotPostList(PostList *left,
 		       PostList *right,
 		       MultiMatch *matcher_,
 		       Xapian::doccount dbsize_);
 
-        PostList *sync_and_skip_to(Xapian::docid id,
+	PostList *sync_and_skip_to(Xapian::docid id,
 				   double w_min,
 				   Xapian::docid lh,
 				   Xapian::docid rh);
