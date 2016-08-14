@@ -86,8 +86,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @return A vector of docids after ranking.
      */
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset,
-					 Xapian::FeatureList & flist = * new Xapian::FeatureList(),
-					 const char* model_filename = "./parameters.txt");
+                                          const char* model_filename = "./parameters.txt",
+                                          Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
     /** Learns the model using the training file.
      *  Model file is saved as an external file in the working directory.

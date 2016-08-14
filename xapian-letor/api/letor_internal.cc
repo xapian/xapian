@@ -74,8 +74,8 @@ static const char * sw[] = {
 };
 
 std::vector<Xapian::docid>
-Letor::Internal::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist,
-			    const char* model_filename) {
+Letor::Internal::letor_rank(const Xapian::MSet & mset, const char* model_filename,
+                            Xapian::FeatureList & flist) {
 
     map<Xapian::docid, double> letor_mset;
 
