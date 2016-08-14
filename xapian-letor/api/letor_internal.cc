@@ -314,17 +314,22 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
+    	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
+        std::vector<FeatureVector> fvv_qrel;
 
-	// Set labels from qrel file to FeatureVectors
-	int k = 0;
-	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+        int k = 0;
+        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 
-	    Xapian::Document doc = i.get_document();
-	    fvv_mset[k++].set_label(getlabel(doc, qid));
-	}
+            Xapian::Document doc = i.get_document();
+            int label = getlabel(doc, qid);
+            if (label != -1) { // only add FeatureVector which is found in the qrel file
+                fvv_mset[k].set_label(label);
+                fvv_qrel.push_back(fvv_mset[k]);
+            }
+            k += 1;
+        }
 
-	write_to_file(fvv_mset, qid, train_file);
+        write_to_file(fvv_qrel, qid, train_file);
 
     }
     myfile1.close();
