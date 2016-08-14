@@ -39,7 +39,7 @@ namespace Xapian {
 BM25PlusWeight *
 BM25PlusWeight::clone() const
 {
-    return new BM25PlusWeight(param_k1, param_k2, param_k3, param_b,
+    return new BM25PlusWeight(param_k1, param_k3, param_b,
 			      param_min_normlen, param_delta);
 }
 
@@ -75,7 +75,6 @@ string
 BM25PlusWeight::serialise() const
 {
     string result = serialise_double(param_k1);
-    result += serialise_double(param_k2);
     result += serialise_double(param_k3);
     result += serialise_double(param_b);
     result += serialise_double(param_min_normlen);
@@ -89,14 +88,13 @@ BM25PlusWeight::unserialise(const string & s) const
     const char *ptr = s.data();
     const char *end = ptr + s.size();
     double k1 = unserialise_double(&ptr, end);
-    double k2 = unserialise_double(&ptr, end);
     double k3 = unserialise_double(&ptr, end);
     double b = unserialise_double(&ptr, end);
     double min_normlen = unserialise_double(&ptr, end);
     double delta = unserialise_double(&ptr, end);
     if (rare(ptr != end))
 	throw Xapian::SerialisationError("Extra data in BM25PlusWeight::unserialise()");
-    return new BM25PlusWeight(k1, k2, k3, b, min_normlen, delta);
+    return new BM25PlusWeight(k1, k3, b, min_normlen, delta);
 }
 
 double
