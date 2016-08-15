@@ -1239,6 +1239,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
 	    need_stat(UNIQUE_TERMS);
     }
+
     std::string name() const;
 
     std::string serialise() const;
