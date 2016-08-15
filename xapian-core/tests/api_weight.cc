@@ -176,19 +176,24 @@ DEFINE_TESTCASE(bm25plusweight2, backend) {
     return true;
 }
 
-// Test to make sure k2 has no effect on weight. This is necessary because
-// k2 is associated with extra weight component and BM25+ has such no extra weight.
+// Regression test for a mistake corrected in the BM25+ implementation.
 DEFINE_TESTCASE(bm25plusweight3, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mset;
 
-    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(0, 1, 0.5, 0.5, 1));
+    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(1, 1, 0.5, 0.5, 1));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
 
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), mset[4].get_weight());
+    // The value of each doc weight calculated manually from the BM25+ formulae
+    // by using the respective document statistics.
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.954493799782531);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.945598645461975);
+    TEST_EQUAL_DOUBLE(mset[2].get_weight(), 0.910873608950458);
+    TEST_EQUAL_DOUBLE(mset[3].get_weight(), 0.868853803088924);
+    TEST_EQUAL_DOUBLE(mset[4].get_weight(), 0.868853803088924);
 
     return true;
 }
