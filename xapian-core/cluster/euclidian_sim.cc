@@ -25,11 +25,36 @@
 #include "xapian/cluster.h"
 
 #include <debuglog.h>
-#include <api/termlist.h>
 
-#include <vector>
-#include <map>
 #include <cmath>
 
 using namespace std;
 using namespace Xapian;
+
+string
+EuclidianDistance::get_description() {
+    LOGCALL(API, string, "EuclidianDistance::get_description()", "");
+    return "Euclidian Distance metric";
+}
+
+double
+EuclidianDistance::similarity(PointType &a, PointType &b) {
+    LOGCALL(API, double, "EuclidianDistance::similarity()", a | b);
+    double sum = 0;
+    TermIterator it = a.termlist_begin();
+    for (; it != a.termlist_end(); it++) {
+	if (a.contains(*it) && b.contains(*it)) {
+	    double a_val = a.get_value(*it);
+	    double b_val = b.get_value(*it);
+	    sum += (a_val - b_val)*(a_val - b_val);
+	}
+	else
+	    sum += a.get_value(*it)*a.get_value(*it);
+    }
+    it = b.termlist_begin();
+    for (; it != b.termlist_end(); it++) {
+	if (!a.contains(*it))
+	    sum += b.get_value(*it)*b.get_value(*it);
+    }
+    return sqrt(sum);
+}
