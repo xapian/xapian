@@ -109,7 +109,7 @@ BM25PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     // Parameter delta (δ) is a pseudo tf value to control the scale of the
     // tf lower bound. δ can be tuned for e.g from 0.0 to 1.5 but BM25+ can
     // still work effectively across collections with a fixed δ = 1.0
-    RETURN((termweight * ((((param_k1 + 1) * wdf_double) / denom) + param_delta)));
+    RETURN(termweight * ((param_k1 + 1) * wdf_double / denom + param_delta));
 }
 
 double
@@ -135,7 +135,7 @@ BM25PlusWeight::get_maxpart() const
     double wdf_max = get_wdf_upper_bound();
     denom += wdf_max;
     AssertRel(denom,>,0);
-    RETURN((termweight * ((((param_k1 + 1) * wdf_max) / denom) + param_delta)));
+    RETURN(termweight * ((param_k1 + 1) * wdf_max / denom + param_delta));
 }
 
 // No extra per document component in the BM25+ Weighting formula.
