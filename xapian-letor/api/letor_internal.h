@@ -36,6 +36,7 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     Ranker * ranker;
     Database letor_db;
     Query letor_query;
+    Scorer * scorer;
 
     map<string, map<string, int> > qrel;
 
@@ -53,6 +54,10 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     vector<FeatureVector> load_list_fvecs(const char *filename);
 
     int getlabel(const Document & doc, const std::string & qid);
+
+    void letor_score(const std::string & query_file, const std::string & qrel_file,
+                     const std::string & model_file, Xapian::doccount msetsize,
+                     Xapian::FeatureList & flist);
 
 
 };

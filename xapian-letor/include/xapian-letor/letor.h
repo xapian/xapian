@@ -28,6 +28,7 @@
 
 #include "featurelist.h"
 #include "ranker.h"
+#include "scorer.h"
 
 #include <string>
 #include <map>
@@ -74,6 +75,12 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      * @param ranker  Pointer to Ranker subclass object to use
      */
     void set_ranker(Xapian::Ranker * ranker);
+
+    /** Set scorer to be used. E.g. set_ranker(new Xapian::NDCGScore());
+     *  Refer Scorer class documentation for available Scorer options.
+     * @param scorer  Pointer to Scorer subclass object to use
+     */
+    void set_scorer(Xapian::Scorer * scorer);
 
     /** Core ranking function. Re-ranks the initial mset using trained model.
      *
@@ -122,6 +129,20 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 			       Xapian::doccount msetsize,
 			       const char* filename = "./train.txt",
 			       Xapian::FeatureList & flist = * new Xapian::FeatureList());
+
+    /** Method to score the LTR ranking.
+     * @param query_file    Query file containing test queries in letor specified format
+     * @param qrel_file     Qrel file containing relevance judgements for the queries in letor specified format
+     * @param model_file    Model to check for ranking quality
+     * @param msetsize      MSet size of retrieved documents
+     * @param flist         Xapian::FeatureList object definining what set of features to use. Note: Make
+     *                       sure that it is same as what was used while training the model being used.
+     */
+    void letor_score(const std::string & query_file,
+                     const std::string & qrel_file,
+                     const std::string & model_file,
+                     Xapian::doccount msetsize,
+                     Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
   private:
 
