@@ -33,7 +33,7 @@
 #include <xapian/mset.h>
 
 #include <map>
-#include <string>
+#include <tr1/unordered_map>
 #include <vector>
 #include <set>
 
@@ -151,7 +151,7 @@ class XAPIAN_VISIBILITY_DEFAULT FreqSource {
     /** This contains a map of the terms and its corresponding term frequencies.
      *  The term frequency of a term stands for the number of documents it indexes
      */
-    std::map<std::string, Xapian::doccount> termfreq;
+    std::tr1::unordered_map<std::string, Xapian::doccount> termfreq;
 
     // Destructor
     virtual ~FreqSource();
@@ -204,7 +204,7 @@ struct XAPIAN_VISIBILITY_DEFAULT Wdf {
 class XAPIAN_VISIBILITY_DEFAULT PointType {
   public:
     std::vector<struct Wdf> termlist;
-    std::map<std::string, double> values;
+    std::tr1::unordered_map<std::string, double> values;
     double magnitude;
     TermIterator termlist_begin();
     TermIterator termlist_end();
@@ -220,7 +220,11 @@ class XAPIAN_VISIBILITY_DEFAULT PointType {
 class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
     Document doc;
   public:
-    Point() { magnitude = 0; }
+    Point() {
+	magnitude = 0;
+	values.max_load_factor(0.25);
+	values.rehash(4096);
+    }
 
     // Initialize the point with terms and corresponding term weights
     void initialize(TermListGroup &tlg, const Document &doc);
@@ -236,7 +240,7 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
     Centroid(int id_) : id(id_) { magnitude = 0; }
 
     // Initialize the values of a centroid to the Point 'x'
-    void set_to_point(Point x);
+    void set_to_point(Point &x);
 
     // Divide the weight of terms in the centroid by 'size'
     void divide(int size);
@@ -258,17 +262,23 @@ class XAPIAN_VISIBILITY_DEFAULT Similarity {
     virtual ~Similarity();
 
     // Calculates the similarity between the two documents
-    //virtual double similarity(TermIterator a_begin, TermIterator a_end, TermIterator b_begin, TermIterator b_end) = 0;
-    virtual double similarity(PointType a, PointType b) = 0;
+    virtual double similarity(PointType &a, PointType &b) = 0;
 
-   // Returns description of the similarity metric being used
+    // Returns description of the similarity metric being used
     virtual std::string get_description() = 0;
+};
+
+class XAPIAN_VISIBILITY_DEFAULT EuclidianDistance {
+  public:
+    double similarity(PointType &a, PointType &b);
+
+    std::string get_description();
 };
 
 // Class for calculating the cosine distance between two documents
 class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
   public:
-    double similarity(PointType a, PointType b);
+    double similarity(PointType &a, PointType &b);
 
     std::string get_description();
 };
@@ -324,7 +334,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     std::vector<Cluster> clusters;
   public:
     // Adds a cluster to the cluster set
-    void add_cluster(Cluster c);
+    void add_cluster(Cluster &c);
 
     // Returns a vector of documents
     Cluster get_cluster(clusterid id);
@@ -428,7 +438,7 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin {
     // Implements RoundRobin clustering
     ClusterSet cluster(MSet &mset, unsigned int num_of_clusters);
 
-    // Returns the description of the clusterer being used
+    // Returns the description of the clusterer
     std::string get_description();
 };
 
@@ -439,25 +449,39 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans {
     std::vector<Point> docs;
     std::vector<Centroid> centroids;
     unsigned int k;
+    std::string mode;
   public:
-    KMeans(unsigned int k_) : k(k_) {}
-    bool converge(std::vector<Centroid> previous, std::vector<Centroid> current);
+    KMeans(unsigned int k_) : k(k_) { mode = "random"; }
+    KMeans(unsigned int k_, std::string mode_) : k(k_), mode(mode_) {}
+    /** Checks whether the current state of KMeans has converged
+     *  by checking for change in centroid of the clusters
+     */
+    bool converge(std::vector<Centroid> &previous, std::vector<Centroid> &current);
 
-    /** Initialization of centroids using a certain method
-     *  Current methods that are supported
-     *  - Random Initialization
+    /** Initialization of centroids using a certain specified method
+     *  Current methods that are supported :
+     *  random - Random Initialization
+     *  kmeanspp - KMeans++ Initialization
      */
     void initialize_centroids(ClusterSet &cset);
+
+    // Random initialization of cluster centroids
+    void initialize_random(ClusterSet &cset);
+
+    /** Uses KMeans++ initialization with roulette wheel selection
+     *  for proportional fitness selection
+     */
+    void initialize_kmeanspp(ClusterSet &cset);
 
     /** Initialize the points in which contain the documents to be
      *  clusterid
      */
-    void initialize_points(MSetDocumentSource docs, TermListGroup tlg);
+    void initialize_points(MSetDocumentSource docs, TermListGroup &tlg);
 
     // Implements KMeans clustering
-    ClusterSet cluster(MSet mset);
+    ClusterSet cluster(MSet &mset);
 
-    // Returns the description of the clusterer being used
+    // Returns the description of the clusterer
     std::string get_description();
 };
 };

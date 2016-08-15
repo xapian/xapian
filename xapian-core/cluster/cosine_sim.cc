@@ -42,7 +42,7 @@ CosineDistance::get_description() {
 }
 
 double
-CosineDistance::similarity(PointType a, PointType b) {
+CosineDistance::similarity(PointType &a, PointType &b) {
     LOGCALL(API, double, "CosineDistance::similarity()", a | b);
     double denom_a = 0, denom_b = 0;	
     double inner_product = 0;
@@ -51,10 +51,9 @@ CosineDistance::similarity(PointType a, PointType b) {
 
     denom_a = a.get_magnitude();
     denom_b = b.get_magnitude();
-
     if (denom_a == 0 || denom_b == 0)
 	return 0.0;
-    for(; it1 != a.termlist_end(); ++it1)
+    for (; it1 != a.termlist_end(); ++it1)
 	if (b.contains(*it1) && a.get_value(*it1) > 0 && b.get_value(*it1) > 0)
 	    inner_product += a.get_value(*it1)*b.get_value(*it1);
 
