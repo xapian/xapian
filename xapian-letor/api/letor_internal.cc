@@ -77,8 +77,6 @@ std::vector<Xapian::docid>
 Letor::Internal::letor_rank(const Xapian::MSet & mset, const char* model_filename,
                             Xapian::FeatureList & flist) {
 
-    map<Xapian::docid, double> letor_mset;
-
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, letor_db);
 
     ranker->load_model_from_file(model_filename);
