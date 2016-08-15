@@ -96,4 +96,19 @@ Letor::set_ranker(Xapian::Ranker * ranker) {
     internal->ranker = ranker;
 }
 
+void
+Letor::set_scorer(Xapian::Scorer * scorer) {
+    internal->scorer = scorer;
+}
+
+void
+Letor::letor_score(const std::string & query_file,
+                   const std::string & qrel_file,
+                   const std::string & model_file,
+                   Xapian::doccount msetsize,
+                   Xapian::FeatureList & flist) {
+
+    internal->letor_score(query_file, qrel_file, model_file, msetsize, flist);
+}
+
 }
