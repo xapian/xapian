@@ -24,8 +24,7 @@
 
 set -e
 
-#MIRROR=http://ftp.de.debian.org/debian/
-MIRROR=http://ftp.nz.debian.org/debian/
+MIRROR=http://httpredir.debian.org/debian/
 
 # Can't backport direct to squeeze from stretch
 DEBIAN_CODENAMES='jessie wheezy'
