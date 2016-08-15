@@ -142,7 +142,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	TWO_STAGE_SMOOTHING = 1,
 	DIRICHLET_SMOOTHING = 2,
 	ABSOLUTE_DISCOUNT_SMOOTHING = 3,
-	JELINEK_MERCER_SMOOTHING = 4
+	JELINEK_MERCER_SMOOTHING = 4,
+	DIRICHLET_PLUS_SMOOTHING = 5
     } type_smoothing;
 
     class Internal;
@@ -1160,15 +1161,8 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     /** The type of smoothing to use. */
     type_smoothing select_smoothing;
 
-    // Parameters for handling negative value of log, and for smoothing.
+    // Parameters for handling negative value for smoothing.
     double param_log, param_smoothing1, param_smoothing2;
-
-    // Additional parameter in Dir+ weighting formula.
-    double param_delta;
-
-    // Boolean parameter to control weight calculations when smoothing
-    // is set to Dirichlet.
-    bool enable_dirplus;
 
     // Collection weight.
     double weight_collection;
@@ -1203,28 +1197,19 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
      *					DIRCHLET(2000))
      *
      *  @param param_smoothing2_	A non-negative parameter which is used
-     *					only with TWO_STAGE_SMOOTHING as
-     *					parameter for Dirichlet's smoothing.
-     *					(default: 2000)
+     *					with TWO_STAGE_SMOOTHING as parameter for Dirichlet's
+     *					smoothing (default: 2000) and as parameter delta to
+     *					control the scale of the tf lower bound in the
+     *             			DIRICHLET_PLUS_SMOOTHING (default 0.05).
      *
-     *  @param param_delta_	A non-negative parameter for pseudo tf value to control the scale
-     *		      		of the tf lower bound in the Dir+ scoring funtion. Delta can be tuned
-     *				from 0.0 to 0.15 in increments of 0.01 but it is also advisable to
-     *				fix it to 0.05 for normal use. (default 0.05)
-     *
-     *  @param enable_dirplus_	A boolean parameter to control the weight calculations. It takes
-     *				effect only when smoothing is set to Dirichlet. By default, it is set to
-     *				zero so as to allow normal functioning of Dirichlet smoothing. (default 0)
      */
     // Unigram LM Constructor to specifically mention all parameters for handling negative log value and smoothing.
     explicit LMWeight(double param_log_ = 0.0,
 		      type_smoothing select_smoothing_ = TWO_STAGE_SMOOTHING,
 		      double param_smoothing1_ = 0.7,
-		      double param_smoothing2_ = 2000.0,
-		      double param_delta_ = 0.05,
-		      bool enable_dirplus_ = 0)
+		      double param_smoothing2_ = 2000.0)
 	: select_smoothing(select_smoothing_), param_log(param_log_), param_smoothing1(param_smoothing1_),
-	  param_smoothing2(param_smoothing2_), param_delta(param_delta_), enable_dirplus(enable_dirplus_)
+	  param_smoothing2(param_smoothing2_)
     {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
