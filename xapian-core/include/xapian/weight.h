@@ -591,7 +591,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 };
 
 /// Xapian::Weight subclass implementing the BM25+ probabilistic formula.
-class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public BM25Weight {
+class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
   public:
     /** Construct a BM25PlusWeight.
      *
