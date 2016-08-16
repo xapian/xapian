@@ -1,6 +1,8 @@
-/* featurevector.h: The file responsible for transforming the document into the feature space.
- *
- * Copyright (C) 2012 Parth Gupta
+/** @file featurevector.h
+ * @brief The class for transforming the document into the feature space.
+ */
+/* Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +28,8 @@
 #include <xapian/intrusive_ptr.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
+
+#include "letor_error.h"
 
 #include <vector>
 

@@ -27,6 +27,8 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "letor_error.h"
+
 #include <string>
 #include <limits>
 #include <cmath>

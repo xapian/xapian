@@ -2,6 +2,7 @@
  *  @brief weighting scheme based on Learning to Rank. Note: letor.h is not a part of official stable Xapian API.
  */
 /* Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@
 #include <xapian/visibility.h>
 
 #include "featurelist.h"
+#include "letor_error.h"
 #include "ranker.h"
 #include "scorer.h"
 
