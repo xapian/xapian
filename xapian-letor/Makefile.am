@@ -42,12 +42,13 @@ EXTRA_PROGRAMS =
 check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
-EXTRA_DIST = ChangeLog
+EXTRA_DIST = ChangeLog include/xapian-letor/letor_error.h \
+ include/xapian-letor/letor_errordispatch.h generate-exceptions exception_data.pm
 
 lib_LTLIBRARIES = libxapianletor.la
 libxapianletor_la_SOURCES = $(lib_src)
 libxapianletor_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+	$(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
 libxapianletor_la_LIBADD = $(XAPIAN_LIBS)
 
@@ -64,6 +65,17 @@ include feature/Makefile.mk
 include ranker/Makefile.mk
 include scorer/Makefile.mk
 
+xapianletorinclude_HEADERS += include/xapian-letor/letor_error.h
+
+if MAINTAINER_MODE
+BUILT_SOURCES += include/xapian-letor/letor_error.h include/xapian-letor/letor_errordispatch.h
+
+include/xapian-letor/letor_error.h include/xapian-letor/letor_errordispatch.h: generate-exceptions exception_data.pm
+	$(PERL) -w -I"$(srcdir)" "$(srcdir)/generate-exceptions"
+endif
+
+MAINTAINERCLEANFILES += $(BUILT_SOURCES)
+
 libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 
 noinst_HEADERS +=\
@@ -71,7 +83,5 @@ noinst_HEADERS +=\
 	common/str.h\
 	common/stringutils.h\
 	common/gnu_getopt.h
-
-
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
