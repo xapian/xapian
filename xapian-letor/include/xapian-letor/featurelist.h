@@ -29,6 +29,7 @@
 
 #include "feature.h"
 #include "featurevector.h"
+#include "letor_error.h"
 
 #include <map>
 #include <string>

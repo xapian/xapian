@@ -29,6 +29,7 @@
 #include <xapian/visibility.h>
 
 #include "featurevector.h"
+#include "letor_error.h"
 
 #include <string>
 
