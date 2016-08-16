@@ -1,4 +1,4 @@
-/** @file euclidian_sim.cc
+/** @file cosine_sim.cc
  *  @brief Document similarity calculation
  */
 /* Copyright (C) 2010 Richard Boulton
@@ -25,36 +25,37 @@
 #include "xapian/cluster.h"
 
 #include <debuglog.h>
+#include <api/termlist.h>
 
+#include <vector>
+#include <map>
 #include <cmath>
+#include <set>
 
 using namespace std;
 using namespace Xapian;
 
 string
-EuclidianDistance::get_description() {
-    LOGCALL(API, string, "EuclidianDistance::get_description()", "");
-    return "Euclidian Distance metric";
+CosineDistance::get_description() {
+    LOGCALL(API, string, "CosineDistance::get_description()", "");
+    return "Cosine Distance metric";
 }
 
 double
-EuclidianDistance::similarity(PointType &a, PointType &b) {
-    LOGCALL(API, double, "EuclidianDistance::similarity()", a | b);
-    double sum = 0;
-    TermIterator it = a.termlist_begin();
-    for (; it != a.termlist_end(); it++) {
-	if (a.contains(*it) && b.contains(*it)) {
-	    double a_val = a.get_value(*it);
-	    double b_val = b.get_value(*it);
-	    sum += (a_val - b_val)*(a_val - b_val);
-	}
-	else
-	    sum += a.get_value(*it)*a.get_value(*it);
-    }
-    it = b.termlist_begin();
-    for (; it != b.termlist_end(); it++) {
-	if (!a.contains(*it))
-	    sum += b.get_value(*it)*b.get_value(*it);
-    }
-    return sqrt(sum);
+CosineDistance::similarity(PointType &a, PointType &b) {
+    LOGCALL(API, double, "CosineDistance::similarity()", a | b);
+    double denom_a = 0, denom_b = 0;	
+    double inner_product = 0;
+    TermIterator it1 = a.termlist_begin();
+    TermIterator it2 = b.termlist_begin();
+
+    denom_a = a.get_magnitude();
+    denom_b = b.get_magnitude();
+    if (denom_a == 0 || denom_b == 0)
+	return 0.0;
+    for (; it1 != a.termlist_end(); ++it1)
+	if (b.contains(*it1) && a.get_value(*it1) > 0 && b.get_value(*it1) > 0)
+	    inner_product += a.get_value(*it1)*b.get_value(*it1);
+
+    return 1-(inner_product)/(sqrt(denom_a)*sqrt(denom_b));
 }
