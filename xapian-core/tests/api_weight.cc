@@ -189,11 +189,11 @@ DEFINE_TESTCASE(bm25plusweight3, backend) {
 
     // The value of each doc weight calculated manually from the BM25+ formulae
     // by using the respective document statistics.
-    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.954493799782531);
-    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.945598645461975);
-    TEST_EQUAL_DOUBLE(mset[2].get_weight(), 0.910873608950458);
-    TEST_EQUAL_DOUBLE(mset[3].get_weight(), 0.868853803088924);
-    TEST_EQUAL_DOUBLE(mset[4].get_weight(), 0.868853803088924);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), 0.7920796567487473);
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), 0.7846980783848447);
+    TEST_EQUAL_DOUBLE(mset[2].get_weight(), 0.7558817623365934);
+    TEST_EQUAL_DOUBLE(mset[3].get_weight(), 0.7210119356168847);
+    TEST_EQUAL_DOUBLE(mset[4].get_weight(), 0.7210119356168847);
 
     return true;
 }
