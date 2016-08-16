@@ -370,7 +370,7 @@ DEFINE_TESTCASE(weight1, !backend) {
 
     Xapian::PL2Weight pl2weight2(2.0);
     TEST_NOT_EQUAL(pl2weight.serialise(), pl2weight2.serialise());
-    
+
     Xapian::PL2PlusWeight pl2plusweight_dflt;
     Xapian::PL2PlusWeight pl2plusweight(1.0, 0.8);
     TEST_EQUAL(pl2plusweight.name(), "Xapian::PL2PlusWeight");

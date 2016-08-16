@@ -1094,7 +1094,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
      *		  please refer to Gianni Amati's PHD thesis titled
      *		  Probabilistic Models for Information Retrieval based on
      *		  Divergence from Randomness.
-     *  
+     *
      *  @param delta  A parameter for pseudo tf value to control the scale
      *                of the tf lower bound. Delta(δ) should be a positive
      *                real number. It can be tuned for example from 0.1 to 1.5
@@ -1130,11 +1130,11 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
-  
+
   protected:
     /// The wdf normalization parameter in the formula.
     double param_c;
-    
+
     /// Additional parameter delta in the PL2+ weighting formula.
     double param_delta;
 
@@ -1152,7 +1152,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
 
     PL2PlusWeight * clone() const;
 
-    void init(double factor);  
+    void init(double factor);
 };
 
 /** This class implements the DPH weighting scheme.
