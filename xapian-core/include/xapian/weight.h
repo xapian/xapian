@@ -1083,7 +1083,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 };
 
 /// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
-class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public PL2Weight {
+class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
   public:
     /** Construct a PL2PlusWeight.
      *
