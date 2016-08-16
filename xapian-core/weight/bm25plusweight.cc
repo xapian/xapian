@@ -48,17 +48,16 @@ BM25PlusWeight::init(double factor)
 {
     Xapian::doccount tf = get_termfreq();
 
-    double tw = 0;
-    // BM25+ formula gives termweight = (total_no_of_docs + 1) / tf
-    if (tf != 0) tw = (get_collection_size() + 1) / tf;
-
-    AssertRel(tw,>,0);
-
-    if (tw < 2) tw = tw * 0.5 + 1;
-    termweight = log(tw) * factor;
-    if (param_k3 != 0) {
-	double wqf_double = get_wqf();
-	termweight *= (param_k3 + 1) * wqf_double / (param_k3 + wqf_double);
+    if (rare(tf == 0)) {
+	termweight = 0;
+    } else {
+	// BM25+ formula uses IDF = log((total_no_of_docs + 1) / tf)
+	termweight = log(double(get_collection_size() + 1) / tf);
+	termweight *= factor;
+	if (param_k3 != 0) {
+	    double wqf_double = get_wqf();
+	    termweight *= (param_k3 + 1) * wqf_double / (param_k3 + wqf_double);
+	}
     }
 
     LOGVALUE(WTCALC, termweight);
