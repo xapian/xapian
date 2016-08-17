@@ -69,8 +69,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @return A vector of docids after ranking.
      */
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset,
-                                         Xapian::FeatureList & flist = * new Xapian::FeatureList(),
-                                         const char* model_filename = "./parameters.txt");
+					 Xapian::FeatureList & flist = * new Xapian::FeatureList(),
+					 const char* model_filename = "./parameters.txt");
 
     /** Learns the model using the training file.
      *  Model file is saved as an external file in the working directory.
@@ -78,7 +78,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  output_filename  Path to file where model parameters will be stored. Default is "./parameters.txt".
      */
     void letor_learn_model(const char* input_filename = "./train.txt",
-                           const char* output_filename = "./parameters.txt");
+			   const char* output_filename = "./parameters.txt");
 
     /** This method prepares the 'train.txt' file in the current working directory. This file is used to train a model which in turn will be used to
      *  assign scores to the documents based of Learning-to-Rank model. File 'train.txt' is created in the standard format of Letor training file
@@ -101,10 +101,10 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          To use a custom set of features, pass a customised Xapian::FeatureList object.
      */
     void prepare_training_file(const std::string & query_file,
-                               const std::string & qrel_file,
-                               Xapian::doccount msetsize,
-                               const char* filename = "./train.txt",
-                               Xapian::FeatureList & flist = * new Xapian::FeatureList());
+			       const std::string & qrel_file,
+			       Xapian::doccount msetsize,
+			       const char* filename = "./train.txt",
+			       Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
     void create_ranker(int ranker_type, int metric_type); // TODO: Remove function and update as command line utility. Same for scorers as well.
 

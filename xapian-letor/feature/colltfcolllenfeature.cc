@@ -42,25 +42,25 @@ CollTfCollLenFeature::get_values() {
     double value = 0;
 
     for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-        if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-            value += log10(1 + ((double)coll_len["title"] / (double)(1 + coll_tf[*qt])));
-        else
-            value += 0;
+	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
+	    value += log10(1 + ((double)coll_len["title"] / (double)(1 + coll_tf[*qt])));
+	else
+	    value += 0;
     }
     values.push_back(value);
     value = 0;
 
     for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-        if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-            value += log10(1 + ((double)coll_len["body"] / (double)(1 + coll_tf[*qt])));
-        else
-            value += 0;
+	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
+	    value += log10(1 + ((double)coll_len["body"] / (double)(1 + coll_tf[*qt])));
+	else
+	    value += 0;
     }
     values.push_back(value);
     value = 0;
 
     for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-        value += log10(1 + ((double)coll_len["whole"] / (double)(1 + coll_tf[*qt])));
+	value += log10(1 + ((double)coll_len["whole"] / (double)(1 + coll_tf[*qt])));
     }
     values.push_back(value);
 
