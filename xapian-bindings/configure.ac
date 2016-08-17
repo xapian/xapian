@@ -936,6 +936,18 @@ if test no != "$with_java" ; then
 	if test -n "$JAVA_PATHSEP" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
 	  BINDINGS="$BINDINGS java"
+
+	  dnl Optional, we run tests with it enabled if it's supported.
+	  AC_MSG_CHECKING([for $JAVA -Xcheck:jni option])
+	  JAVA_PATHSEP2=`$JAVA conftest 2>&5`
+	  JAVA_CHECK_JNI_OPTION=
+	  if test "$JAVA_PATHSEP" = "$JAVA_PATHSEP2" ; then
+	    JAVA_CHECK_JNI_OPTION=-Xcheck:jni
+	    AC_MSG_RESULT([yes])
+	  else
+	    AC_MSG_RESULT([no])
+	  fi
+	  AC_SUBST([JAVA_CHECK_JNI_OPTION])
 	else
 	  AC_MSG_RESULT([failed to run test program])
 	  java_ok=no
