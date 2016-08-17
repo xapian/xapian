@@ -81,7 +81,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
 
 /** Feature subclass returning feature value calculated as:
- *  \f[fval = \sum_{q_i \in Q \cap D} \log{\left( c(q_i,D) \right)}\f]
+ *  @f[fval = \sum_{q_i \in Q \cap D} \log{\left( c(q_i,D) \right)}@f]
  *
  *  where:
  *         c(w,D) means that count of term w in Document D.
@@ -100,7 +100,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfFeature : public Feature {
 };
 
 /** Feature subclass returning feature value calculated as:
- *  \f[fval = \sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\right)}\f]
+ *  @f[fval = \sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\right)}@f]
  *
  *  where:
  *        c(w,D) means that count of term w in Document D.
@@ -119,7 +119,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfDoclenFeature : public Feature {
 };
 
 /** Feature subclass returning feature value calculated as:
- *  \f[fval = \sum_{q_i \in Q \cap D} \log{\left(idf(q_i) \right) }\f]
+ *  @f[fval = \sum_{q_i \in Q \cap D} \log{\left(idf(q_i) \right) }@f]
  *
  *  where:
  *        idf(.) is the inverse-document-frequency.
@@ -135,7 +135,7 @@ class XAPIAN_VISIBILITY_DEFAULT IdfFeature : public Feature {
 };
 
 /** Feature subclass returning feature value calculated as:
- *  \f[fval = \sum_{q_i \in Q \cap D} \log{\left( \frac{|C|}{c(q_i,C)} \right)}\f]
+ *  @f[fval = \sum_{q_i \in Q \cap D} \log{\left( \frac{|C|}{c(q_i,C)} \right)}@f]
  *
  *  where:
  *        c(w,D) means that count of term w in Document D.
@@ -154,7 +154,7 @@ class XAPIAN_VISIBILITY_DEFAULT CollTfCollLenFeature : public Feature {
 };
 
 /** Feature subclass returning feature value calculated as:
- *  \f[fval = \sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}idf(q_i)\right)}\f]
+ *  @f[fval = \sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}idf(q_i)\right)}@f]
  *
  *  where:
  *        c(w,D) means that count of term w in Document D.
@@ -174,7 +174,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfDoclenFeature : public Feature {
 };
 
 /** Feature subclass returning feature value calculated as:
- *  \f[fval = \sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\frac{|C|}{c(q_i,C)}\right)}\f]
+ *  @f[fval = \sum_{i=1}^{n}\log{\left(1+\frac{c\left(q_i,D\right)}{|D|}\frac{|C|}{c(q_i,C)}\right)}@f]
  *
  *  where:
  *        c(w,D) means that count of term w in Document D.

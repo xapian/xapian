@@ -81,8 +81,8 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
      *  @ param  letor_db    Corresponding Database
      */
     std::vector<Xapian::FeatureVector> create_feature_vectors(const Xapian::MSet & mset,
-                                                             const Xapian::Query & letor_query,
-                                                             const Xapian::Database & letor_db);
+							     const Xapian::Query & letor_query,
+							     const Xapian::Database & letor_db);
 
   private:
 

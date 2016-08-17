@@ -41,9 +41,9 @@ Feature::Internal::termfreq() {
      qt != feature_query.get_terms_end(); ++qt) {
     docterms.skip_to(*qt);
     if (docterms != feature_doc.termlist_end() && *qt == *docterms) {
-        tf[*qt] = docterms.get_wdf();
+	tf[*qt] = docterms.get_wdf();
     } else {
-        tf[*qt] = 0;
+	tf[*qt] = 0;
     }
     }
     return tf;
@@ -57,11 +57,11 @@ Feature::Internal::inverse_doc_freq() {
     for (Xapian::TermIterator qt = feature_query.get_terms_begin();
      qt != feature_query.get_terms_end(); ++qt) {
     if (feature_db.term_exists(*qt)) {
-        long int totaldocs = feature_db.get_doccount();
-        long int df = feature_db.get_termfreq(*qt);
-        idf[*qt] = log10(totaldocs / (1 + df));
+	long int totaldocs = feature_db.get_doccount();
+	long int df = feature_db.get_termfreq(*qt);
+	idf[*qt] = log10(totaldocs / (1 + df));
     } else {
-        idf[*qt] = 0;
+	idf[*qt] = 0;
     }
     }
     return idf;
@@ -78,8 +78,8 @@ Feature::Internal::doc_length() {
     dt.skip_to("S");
     for ( ; dt != feature_doc.termlist_end(); ++dt) {
     if ((*dt)[0] != 'S') {
-        // We've reached the end of the S-prefixed terms.
-        break;
+	// We've reached the end of the S-prefixed terms.
+	break;
     }
     temp_count += dt.get_wdf();
     }
@@ -102,7 +102,7 @@ Feature::Internal::collection_length() {
     long int temp_count = 0;
     Xapian::TermIterator dt = feature_db.allterms_begin("S");
     for ( ; dt != feature_db.allterms_end("S"); ++dt) {
-        temp_count += feature_db.get_collection_freq(*dt);  //  because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
+	temp_count += feature_db.get_collection_freq(*dt);  //  because we don't want the unique terms so we want their original frequencies and i.e. the total size of the title collection.
     }
     len["title"] = temp_count;
     len["whole"] = feature_db.get_avlength() * feature_db.get_doccount();
@@ -119,9 +119,9 @@ Feature::Internal::collection_termfreq() {
     for (Xapian::TermIterator qt = feature_query.get_terms_begin();
      qt != feature_query.get_terms_end(); ++qt) {
     if (feature_db.term_exists(*qt))
-        tf[*qt] = feature_db.get_collection_freq(*qt);
+	tf[*qt] = feature_db.get_collection_freq(*qt);
     else
-        tf[*qt] = 0;
+	tf[*qt] = 0;
     }
     return tf;
 }
