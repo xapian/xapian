@@ -72,7 +72,7 @@ PL2PlusWeight::init(double)
     cl = param_c * get_average_length();
 
     double base_change(1.0 / log(2.0));
-    double mean = double(get_collection_freq()) / get_collection_size();
+    mean = double(get_collection_freq()) / get_collection_size();
     P1 = mean * base_change + 0.5 * log2(2.0 * M_PI);
     P2 = log2(mean) + base_change;
 
@@ -138,7 +138,7 @@ double
 PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 			   Xapian::termcount) const
 {
-    if (wdf == 0) return 0.0;
+    if (wdf == 0 || mean < 1) return 0.0;
 
     double wdfn = wdf * log2(1 + cl / len);
 
