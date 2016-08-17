@@ -6,7 +6,7 @@ include ../generic/generic.mk
 TESTS = SmokeTest.class
 AM_TESTS_ENVIRONMENT = \
 	LIBTOOL="$(LIBTOOL)" ;\
-	JAVA="$(JAVA)" ;\
+	JAVA="$(JAVA) $(JAVA_CHECK_JNI_OPTION)" ;\
 	PATHSEP="$(JAVA_PATHSEP)" ;\
 	export LIBTOOL ;\
 	export JAVA ;\
