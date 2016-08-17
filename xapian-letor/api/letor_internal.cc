@@ -190,22 +190,36 @@ load_relevance(const std::string & qrel_file)
     if(!myfile.good()){
 	throw Xapian::FileNotFoundError("No Qrel file found. Check path.");
     }
-    string token[4];
+    int qrel_count = 0;
     if (myfile.is_open()) {
     while (myfile.good()) {
 	getline(myfile, inLine);        // read a file line by line
+	if (inLine.empty()) {
+	    break;
+	}
+	qrel_count += 1;
 	char * str;
 	char * x1;
 	x1 = const_cast<char*>(inLine.c_str());
-	str = strtok(x1, " ,.-");
-	int i = 0;
+	str = strtok(x1, " ");
+	vector<string> token;
 	while (str != NULL) {
-	token[i] = str;     // store tokens in a string array
-	++i;
-	str = strtok(NULL, " ,.-");
+	    token.push_back(str);     // store tokens in a string array
+	    str = strtok(NULL, " ");
+	}
+	// Exceptions for parse errors
+	if (token.size() != 4 || token[1] != "Q0") {
+	    throw LetorParseError("Could not parse Qrel file at line:" + to_string(qrel_count));
+	}
+	// Exception if relevance label is not a number
+	int label;
+	char * end;
+	label = int(strtol(token[3].c_str(), &end, 10));
+	if(*end) {
+	    throw LetorParseError("Could not parse relevance label in Qrel file at line:" + to_string(qrel_count));
 	}
 
-	qrel1[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
+	qrel1[token[0]].insert(make_pair(token[2], label));
     }
     myfile.close();
     }
