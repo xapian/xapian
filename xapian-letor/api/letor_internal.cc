@@ -75,7 +75,7 @@ static const char * sw[] = {
 
 std::vector<Xapian::docid>
 Letor::Internal::letor_rank(const Xapian::MSet & mset, const char* model_filename,
-                            Xapian::FeatureList & flist) {
+			    Xapian::FeatureList & flist) {
 
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, letor_db);
 
@@ -312,22 +312,22 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-    	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
-        std::vector<FeatureVector> fvv_qrel;
+	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
+	std::vector<FeatureVector> fvv_qrel;
 
-        int k = 0;
-        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	int k = 0;
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 
-            Xapian::Document doc = i.get_document();
-            int label = getlabel(doc, qid);
-            if (label != -1) { // only add FeatureVector which is found in the qrel file
-                fvv_mset[k].set_label(label);
-                fvv_qrel.push_back(fvv_mset[k]);
-            }
-            k += 1;
-        }
+	    Xapian::Document doc = i.get_document();
+	    int label = getlabel(doc, qid);
+	    if (label != -1) { // only add FeatureVector which is found in the qrel file
+		fvv_mset[k].set_label(label);
+		fvv_qrel.push_back(fvv_mset[k]);
+	    }
+	    k += 1;
+	}
 
-        write_to_file(fvv_qrel, qid, train_file);
+	write_to_file(fvv_qrel, qid, train_file);
 
     }
     myfile1.close();
@@ -337,10 +337,10 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 void
 Letor::Internal::letor_score(const std::string & query_file,
-                             const std::string & qrel_file,
-                             const std::string & model_file,
-                             Xapian::doccount msetsize,
-                             Xapian::FeatureList & flist) {
+			     const std::string & qrel_file,
+			     const std::string & model_file,
+			     Xapian::doccount msetsize,
+			     Xapian::FeatureList & flist) {
 
     ranker->load_model_from_file(model_file.c_str());
 
@@ -364,8 +364,8 @@ Letor::Internal::letor_score(const std::string & query_file,
     queryfile.open(query_file.c_str(), ios::in);
 
     if(!queryfile.good()){
-        cout << "No Query file found"<<endl;
-        throw FileNotFound();
+	cout << "No Query file found"<<endl;
+	throw FileNotFound();
     }
 
     double total_score = 0;
@@ -373,61 +373,61 @@ Letor::Internal::letor_score(const std::string & query_file,
 
     while (!queryfile.eof()) {           //reading all the queries line by line from the query file
 
-        getline(queryfile, str1);
+	getline(queryfile, str1);
 
-        if (str1.empty()) {
-            break;
-        }
+	if (str1.empty()) {
+	    break;
+	}
 
-        string qid = str1.substr(0, (int)str1.find(" "));
-        string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
+	string qid = str1.substr(0, (int)str1.find(" "));
+	string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
 
-        string qq = querystr;
-        istringstream iss(querystr);
-        string title = "title:";
-        while (iss) {
-            string t;
-            iss >> t;
-            if (t.empty())
-            break;
-            string temp;
-            temp.append(title);
-            temp.append(t);
-            temp.append(" ");
-            temp.append(qq);
-            qq = temp;
-        }
+	string qq = querystr;
+	istringstream iss(querystr);
+	string title = "title:";
+	while (iss) {
+	    string t;
+	    iss >> t;
+	    if (t.empty())
+	    break;
+	    string temp;
+	    temp.append(title);
+	    temp.append(t);
+	    temp.append(" ");
+	    temp.append(qq);
+	    qq = temp;
+	}
 
-        Xapian::Query query = parser.parse_query(qq,
-                             parser.FLAG_DEFAULT|
-                             parser.FLAG_SPELLING_CORRECTION);
+	Xapian::Query query = parser.parse_query(qq,
+			     parser.FLAG_DEFAULT|
+			     parser.FLAG_SPELLING_CORRECTION);
 
-        Xapian::Enquire enquire(letor_db);
-        enquire.set_query(query);
+	Xapian::Enquire enquire(letor_db);
+	enquire.set_query(query);
 
-        Xapian::MSet mset = enquire.get_mset(0, msetsize);
+	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-        std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
-        std::vector<FeatureVector> rankedfvv = ranker->rank(fvv_mset);
-        std::vector<FeatureVector> rankedfvv_qrel;
+	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
+	std::vector<FeatureVector> rankedfvv = ranker->rank(fvv_mset);
+	std::vector<FeatureVector> rankedfvv_qrel;
 
-        int k = 0;
-        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	int k = 0;
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 
-            Xapian::Document doc = i.get_document();
-            int label = getlabel(doc, qid);
-            if (label != -1) { // only add FeatureVector which is found in the qrel file
-                rankedfvv[k].set_label(label);
-                rankedfvv_qrel.push_back(rankedfvv[k]);
-            }
-            k += 1;
-        }
+	    Xapian::Document doc = i.get_document();
+	    int label = getlabel(doc, qid);
+	    if (label != -1) { // only add FeatureVector which is found in the qrel file
+		rankedfvv[k].set_label(label);
+		rankedfvv_qrel.push_back(rankedfvv[k]);
+	    }
+	    k += 1;
+	}
 
-        double score = scorer->score(rankedfvv);
-        cout << "Ranking score for qid:" << qid << " = " << score << endl;
+	double score = scorer->score(rankedfvv);
+	cout << "Ranking score for qid:" << qid << " = " << score << endl;
 
-        total_score += score;
-        num_queries += 1;
+	total_score += score;
+	num_queries += 1;
 
     }
     queryfile.close();

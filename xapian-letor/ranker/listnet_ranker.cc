@@ -72,13 +72,14 @@ initializeProbability(vector<FeatureVector> feature_vectors, vector<double> & ne
     double expsum_z = 0.0;
 
     for (int i = 0; i < list_length; i++) {
-        expsum_y += exp(feature_vectors[i].get_label());
-        expsum_z += exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()));
+	expsum_y += exp(feature_vectors[i].get_label());
+	expsum_z += exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()));
     }
 
     for (int i = 0; i < list_length; i++) {
 	prob_y.push_back(exp(feature_vectors[i].get_label())/expsum_y);
 	prob_z.push_back(exp(calculateInnerProduct(new_parameters,feature_vectors[i].get_fvals()))/expsum_z);
+
     }
 
     vector< vector<double> > prob;
@@ -176,7 +177,7 @@ ListNETRanker::save_model_to_file(const char* output_filename) {
     oss.precision (std::numeric_limits<double>::digits10);
 
     for (int i = 0; i < parameters_size; ++i) {
-        oss << parameters[i] << endl;
+	oss << parameters[i] << endl;
     }
 
     parameters_file << oss.str();
@@ -192,15 +193,15 @@ ListNETRanker::load_model_from_file(const char* model_filename) {
 
     fstream train_file (model_filename, ios::in);
     if (!train_file.good()) {
-        cout << "No ListNET parameters file found" << endl;
-        exit(1); // TODO: should throw an exception
+	cout << "No ListNET parameters file found" << endl;
+	exit(1); // TODO: should throw an exception
     }
 
     while (train_file.peek() != EOF) {
 
-        double parameter;
-        train_file >> parameter;
-        loaded_parameters.push_back(parameter);
+	double parameter;
+	train_file >> parameter;
+	loaded_parameters.push_back(parameter);
     }
 
     train_file.close();
@@ -223,21 +224,21 @@ ListNETRanker::rank(const std::vector<FeatureVector> & fvv) {
 
     for (int i = 0; i <testfvvsize; ++i) {
 
-        double listnet_score = 0;
+	double listnet_score = 0;
 
-        std::vector<double> fvals = testfvv[i].get_fvals();
-        int fvalsize = fvals.size();
+	std::vector<double> fvals = testfvv[i].get_fvals();
+	int fvalsize = fvals.size();
 
-        if (fvalsize != parameters_size) {
-            std::cout << "Number of fvals don't match the number of ListNet parameters" << endl;
-            exit(1); // TODO: should throw an exception
-        }
+	if (fvalsize != parameters_size) {
+	    std::cout << "Number of fvals don't match the number of ListNet parameters" << endl;
+	    exit(1); // TODO: should throw an exception
+	}
 
 	for(int j = 0; j < fvalsize; ++j) {
 	    listnet_score += fvals[j]* parameters[j];
 	}
 
-        testfvv[i].set_score(listnet_score);
+	testfvv[i].set_score(listnet_score);
     }
 
     std::sort(testfvv.begin(),testfvv.end(),&Ranker::scorecomparer);

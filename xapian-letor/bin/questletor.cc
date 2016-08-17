@@ -166,7 +166,7 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    
+
     string qq=argv[optind];
     istringstream iss(argv[optind]);
     string title="title:";

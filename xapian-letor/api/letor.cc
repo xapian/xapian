@@ -103,10 +103,10 @@ Letor::set_scorer(Xapian::Scorer * scorer) {
 
 void
 Letor::letor_score(const std::string & query_file,
-                   const std::string & qrel_file,
-                   const std::string & model_file,
-                   Xapian::doccount msetsize,
-                   Xapian::FeatureList & flist) {
+		   const std::string & qrel_file,
+		   const std::string & model_file,
+		   Xapian::doccount msetsize,
+		   Xapian::FeatureList & flist) {
 
     internal->letor_score(query_file, qrel_file, model_file, msetsize, flist);
 }
