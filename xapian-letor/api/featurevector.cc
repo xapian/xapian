@@ -35,7 +35,7 @@ FeatureVector::FeatureVector() : internal(new FeatureVector::Internal)
 }
 
 FeatureVector::FeatureVector(const Xapian::docid & did, const std::vector<double> & fvals)
-                             : internal(new FeatureVector::Internal)
+			     : internal(new FeatureVector::Internal)
 {
     internal->did_=did;
     internal->fvals_=fvals;

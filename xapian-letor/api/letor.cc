@@ -70,8 +70,8 @@ Letor::letor_learn_model(const char* input_filename, const char* output_filename
 
 void
 Letor::prepare_training_file(const string & query_file, const string & qrel_file,
-                             Xapian::doccount msetsize, const char* filename,
-                             Xapian::FeatureList & flist) {
+			     Xapian::doccount msetsize, const char* filename,
+			     Xapian::FeatureList & flist) {
 
     internal->prepare_training_file(query_file, qrel_file, msetsize, filename, flist);
 }

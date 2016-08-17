@@ -75,7 +75,7 @@ static const char * sw[] = {
 
 std::vector<Xapian::docid>
 Letor::Internal::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist,
-                            const char* model_filename) {
+			    const char* model_filename) {
 
     map<Xapian::docid, double> letor_mset;
 
@@ -88,63 +88,63 @@ Letor::Internal::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & fli
     std::vector<Xapian::docid> rankeddid;
 
     for (int i=0; i<rankedsize; ++i){
-        rankeddid.push_back(rankedfvv[i].get_did());
+	rankeddid.push_back(rankedfvv[i].get_did());
     }
     return rankeddid;
 }
 
 vector<FeatureVector>
-Letor::Internal::load_list_fvecs(const char *filename) { //directly use train.txt instead of train.bin
+Letor::Internal::load_list_fvecs(const char *filename) { // directly use train.txt instead of train.bin
     fstream train_file (filename, ios::in);
     if(!train_file.good()){
-        cout << "No train file found"<<endl;
-        throw FileNotFound();
+	cout << "No train file found"<<endl;
+	throw FileNotFound();
     }
 
     std::vector<FeatureVector> fvv;
     while (train_file.peek() != EOF) {
 
-        // A training file looks like this:
-        // <label> qid:<xxx> n:<fval> #docid:<xxx>
-        // e.g. 1 qid:002 1:0 2:0.792481 3:0.792481 ... #docid=8
+	// A training file looks like this:
+	// <label> qid:<xxx> n:<fval> #docid:<xxx>
+	// e.g. 1 qid:002 1:0 2:0.792481 3:0.792481 ... #docid=8
 
-        FeatureVector fv;
+	FeatureVector fv;
 
-        double label;
-        train_file >> label; // *<label>* qid:<xxx> n:<fval> #docid=<xxx>
-        fv.set_label(label);
-        train_file.ignore(); // <label>* *qid:<xxx> n:<fval> #docid=<xxx>
+	double label;
+	train_file >> label; // *<label>* qid:<xxx> n:<fval> #docid=<xxx>
+	fv.set_label(label);
+	train_file.ignore(); // <label>* *qid:<xxx> n:<fval> #docid=<xxx>
 
-        string qid;
-        train_file >> qid;   // <label> *qid:<xxx>* n:<fval> #docid=<xxx>
+	string qid;
+	train_file >> qid;   // <label> *qid:<xxx>* n:<fval> #docid=<xxx>
 
-        qid = qid.substr(qid.find(":")+1,qid.length()); // <label> qid:*<xxx>* n:<fval> #docid=<xxx>
-        train_file.ignore(); // <label> qid:<xxx>* *n:<fval> #docid=<xxx>
+	qid = qid.substr(qid.find(":")+1,qid.length()); // <label> qid:*<xxx>* n:<fval> #docid=<xxx>
+	train_file.ignore(); // <label> qid:<xxx>* *n:<fval> #docid=<xxx>
 
-        std::vector<double> fvals;
+	std::vector<double> fvals;
 
-        while (train_file.peek() != '#') { // read till '#docid' is found
-            int feature_index;
-            double feature_value;
-            train_file >> feature_index; // <label> qid:<xxx> *n*:<fval> #docid=<xxx>
-            train_file.ignore();         // <label> qid:<xxx> n*:*<fval> #docid=<xxx>
-            train_file >> feature_value; // <label> qid:<xxx> n:*<fval>* #docid=<xxx>
-            fvals.push_back(feature_value);
-            train_file.ignore();         // <label> qid:<xxx> n:<fval>* *#docid=<xxx>
-        }
-        fv.set_fvals(fvals);
+	while (train_file.peek() != '#') { // read till '#docid' is found
+	    int feature_index;
+	    double feature_value;
+	    train_file >> feature_index; // <label> qid:<xxx> *n*:<fval> #docid=<xxx>
+	    train_file.ignore();         // <label> qid:<xxx> n*:*<fval> #docid=<xxx>
+	    train_file >> feature_value; // <label> qid:<xxx> n:*<fval>* #docid=<xxx>
+	    fvals.push_back(feature_value);
+	    train_file.ignore();         // <label> qid:<xxx> n:<fval>* *#docid=<xxx>
+	}
+	fv.set_fvals(fvals);
 
-        string did;
-        train_file >> did;               // <label> qid:<xxx> n:<fval> *#docid=<xxx>*
-        did = did.substr(did.find("=")+1,did.length()); // #docid=*<xxx>*
-        Xapian::docid docid = (Xapian::docid) atoi(did.c_str());
+	string did;
+	train_file >> did;               // <label> qid:<xxx> n:<fval> *#docid=<xxx>*
+	did = did.substr(did.find("=")+1,did.length()); // #docid=*<xxx>*
+	Xapian::docid docid = (Xapian::docid) atoi(did.c_str());
 
-        fv.set_did(docid);
-        train_file.ignore();
+	fv.set_did(docid);
+	train_file.ignore();
 
-        fv.set_score(0);
+	fv.set_score(0);
 
-        fvv.push_back(fv);
+	fvv.push_back(fv);
 
     }
 
@@ -178,7 +178,7 @@ Letor::Internal::getlabel(const Document & doc, const std::string & qid)
     if (outerit != this->qrel.end()) {
     innerit = outerit->second.find(id);
     if (innerit != outerit->second.end()) {
-        label = innerit->second;
+	label = innerit->second;
     }
     }
     return label;
@@ -192,25 +192,25 @@ load_relevance(const std::string & qrel_file)
     string inLine;
     ifstream myfile (qrel_file.c_str(), ifstream::in);
     if(!myfile.good()){
-        cout << "No Qrel file found" << endl;
-        throw FileNotFound();
+	cout << "No Qrel file found" << endl;
+	throw FileNotFound();
     }
     string token[4];
     if (myfile.is_open()) {
     while (myfile.good()) {
-        getline(myfile, inLine);        // read a file line by line
-        char * str;
-        char * x1;
-        x1 = const_cast<char*>(inLine.c_str());
-        str = strtok(x1, " ,.-");
-        int i = 0;
-        while (str != NULL) {
-        token[i] = str;     // store tokens in a string array
-        ++i;
-        str = strtok(NULL, " ,.-");
-        }
+	getline(myfile, inLine);        // read a file line by line
+	char * str;
+	char * x1;
+	x1 = const_cast<char*>(inLine.c_str());
+	str = strtok(x1, " ,.-");
+	int i = 0;
+	while (str != NULL) {
+	token[i] = str;     // store tokens in a string array
+	++i;
+	str = strtok(NULL, " ,.-");
+	}
 
-        qrel1[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
+	qrel1[token[0]].insert(make_pair(token[2], atoi(token[3].c_str())));
     }
     myfile.close();
     }
@@ -228,27 +228,27 @@ write_to_file(const std::vector<Xapian::FeatureVector> list_fvecs, const string 
     int size_flist = list_fvecs.size();
     for(int i = 0; i < size_flist; ++i) {
        Xapian::FeatureVector fv = list_fvecs[i];
-        /* each FeatureVector has the following data: double score, int fcount, string did, map<int, double> fvals
-         * each line: double int string 1:double 2:double 3:double....
-         */
+	/* each FeatureVector has the following data: double score, int fcount, string did, map<int, double> fvals
+	 * each line: double int string 1:double 2:double 3:double....
+	 */
 
-        double label = fv.get_label();
-        std::vector<double> fvals = fv.get_fvals();
-        Xapian::docid did = fv.get_did();
+	double label = fv.get_label();
+	std::vector<double> fvals = fv.get_fvals();
+	Xapian::docid did = fv.get_did();
 
-        // now save this feature vector fv to the file
-        train_file << label << " qid:" <<qid;// << " ";
-        for(int k=0; k < fv.get_fcount(); ++k) {
-            train_file << " " << (k+1) << ":" << fvals[k];
-        }
-        train_file <<" #docid=" << did<<endl;
+	// now save this feature vector fv to the file
+	train_file << label << " qid:" <<qid;// << " ";
+	for(int k=0; k < fv.get_fcount(); ++k) {
+	    train_file << " " << (k+1) << ":" << fvals[k];
+	}
+	train_file <<" #docid=" << did<<endl;
     }
 }
 
 void
 Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file,
-                                       Xapian::doccount msetsize, const char* filename,
-                                       FeatureList & flist) {
+				       Xapian::doccount msetsize, const char* filename,
+				       FeatureList & flist) {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
@@ -273,58 +273,58 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     myfile1.open(queryfile.c_str(), ios::in);
 
     if(!myfile1.good()){
-        cout << "No Query file found"<<endl;
-        throw FileNotFound();
+	cout << "No Query file found"<<endl;
+	throw FileNotFound();
     }
 
 
-    while (!myfile1.eof()) {           //reading all the queries line by line from the query file
+    while (!myfile1.eof()) {           // reading all the queries line by line from the query file
 
-    	getline(myfile1, str1);
+	getline(myfile1, str1);
 
-    	if (str1.empty()) {
-    	    break;
-        }
+	if (str1.empty()) {
+	    break;
+	}
 
-    	string qid = str1.substr(0, (int)str1.find(" "));
-    	string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
+	string qid = str1.substr(0, (int)str1.find(" "));
+	string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
 
-    	string qq = querystr;
-    	istringstream iss(querystr);
-    	string title = "title:";
-    	while (iss) {
-    	    string t;
-    	    iss >> t;
-    	    if (t.empty())
-    		break;
-    	    string temp;
-    	    temp.append(title);
-    	    temp.append(t);
-    	    temp.append(" ");
-    	    temp.append(qq);
-    	    qq = temp;
-    	}
+	string qq = querystr;
+	istringstream iss(querystr);
+	string title = "title:";
+	while (iss) {
+	    string t;
+	    iss >> t;
+	    if (t.empty())
+		break;
+	    string temp;
+	    temp.append(title);
+	    temp.append(t);
+	    temp.append(" ");
+	    temp.append(qq);
+	    qq = temp;
+	}
 
-    	Xapian::Query query = parser.parse_query(qq,
-    						 parser.FLAG_DEFAULT|
-    						 parser.FLAG_SPELLING_CORRECTION);
+	Xapian::Query query = parser.parse_query(qq,
+						 parser.FLAG_DEFAULT|
+						 parser.FLAG_SPELLING_CORRECTION);
 
-    	Xapian::Enquire enquire(letor_db);
-    	enquire.set_query(query);
+	Xapian::Enquire enquire(letor_db);
+	enquire.set_query(query);
 
-    	Xapian::MSet mset = enquire.get_mset(0, msetsize);
+	Xapian::MSet mset = enquire.get_mset(0, msetsize);
 
-    	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
+	std::vector<FeatureVector> fvv_mset = flist.create_feature_vectors(mset, query, letor_db);
 
-        // Set labels from qrel file to FeatureVectors
-        int k = 0;
-        for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
+	// Set labels from qrel file to FeatureVectors
+	int k = 0;
+	for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 
-            Xapian::Document doc = i.get_document();
-            fvv_mset[k++].set_label(getlabel(doc, qid));
-        }
+	    Xapian::Document doc = i.get_document();
+	    fvv_mset[k++].set_label(getlabel(doc, qid));
+	}
 
-        write_to_file(fvv_mset, qid, train_file);
+	write_to_file(fvv_mset, qid, train_file);
 
     }
     myfile1.close();
