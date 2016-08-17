@@ -85,7 +85,7 @@ while (<>) {
 	$msg = "FIX"."ME added:";
     } elsif (/^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
 	$msg = "Doxygen command '\\$1' introduced by '\\' not '\@':";
-    } elsif (m!(?:^|[;{])\s*/[/*]{1,2}\w!) {
+    } elsif (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
 	$msg = "added/changed line has comment without whitespace before the text:";
     }
     if (defined $msg) {
