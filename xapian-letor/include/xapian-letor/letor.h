@@ -92,6 +92,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *                  Note: Make sure that this FeatureList object is the same as what was used during
      *                  preparation of the training file. //TODO: Replace this by a "feature.config" file prepared while training.
      *  @param  output_filename  Path to model file. Default is "./parameters.txt".
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
      *  @return A vector of docids after ranking.
      */
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset,
@@ -102,6 +103,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  Model file is saved as an external file in the working directory.
      *  @param  input_filename   Path to training file. Default is "./train.txt".
      *  @param  output_filename  Path to file where model parameters will be stored. Default is "./parameters.txt".
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
      */
     void letor_learn_model(const char* input_filename = "./train.txt",
 			   const char* output_filename = "./parameters.txt");
@@ -125,6 +127,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  flist      Xapian::FeatureList object definining what set of features to use for preparing the training file.
      *          It is initialised by DEFAULT set of Features by default.
      *          To use a custom set of features, pass a customised Xapian::FeatureList object.
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
      */
     void prepare_training_file(const std::string & query_file,
 			       const std::string & qrel_file,
@@ -139,6 +142,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      * @param msetsize      MSet size of retrieved documents
      * @param flist         Xapian::FeatureList object definining what set of features to use. Note: Make
      *                       sure that it is same as what was used while training the model being used.
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
      */
     void letor_score(const std::string & query_file,
 		     const std::string & qrel_file,

@@ -2,6 +2,7 @@
  * @brief Internals of Xapian::Letor class
  */
 /* Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,8 +59,6 @@ using namespace Xapian;
 
 int MAXPATHLEN = 200;
 
-struct FileNotFound { };
-
 //Stop-words
 static const char * sw[] = {
     "a", "about", "an", "and", "are", "as", "at",
@@ -95,8 +94,7 @@ vector<FeatureVector>
 Letor::Internal::load_list_fvecs(const char *filename) { // directly use train.txt instead of train.bin
     fstream train_file (filename, ios::in);
     if(!train_file.good()){
-	cout << "No train file found"<<endl;
-	throw FileNotFound();
+	throw Xapian::FileNotFoundError("No training file found. Check path.");
     }
 
     std::vector<FeatureVector> fvv;
@@ -152,9 +150,9 @@ Letor::Internal::load_list_fvecs(const char *filename) { // directly use train.t
 void
 Letor::Internal::letor_learn_model(const char* input_filename, const char* output_filename){
 
-    std::cout << "Learning the model from \"" << input_filename <<"\"" << endl;
-
     vector<FeatureVector> list_fvecs = load_list_fvecs(input_filename);
+
+    std::cout << "Learning the model from \"" << input_filename <<"\"" << endl;
 
     ranker->set_training_data(list_fvecs);
 
@@ -190,8 +188,7 @@ load_relevance(const std::string & qrel_file)
     string inLine;
     ifstream myfile (qrel_file.c_str(), ifstream::in);
     if(!myfile.good()){
-	cout << "No Qrel file found" << endl;
-	throw FileNotFound();
+	throw Xapian::FileNotFoundError("No Qrel file found. Check path.");
     }
     string token[4];
     if (myfile.is_open()) {
@@ -271,8 +268,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
     myfile1.open(queryfile.c_str(), ios::in);
 
     if(!myfile1.good()){
-	cout << "No Query file found"<<endl;
-	throw FileNotFound();
+	throw Xapian::FileNotFoundError("No Query file found. Check path.");
     }
 
 
@@ -364,8 +360,7 @@ Letor::Internal::letor_score(const std::string & query_file,
     queryfile.open(query_file.c_str(), ios::in);
 
     if(!queryfile.good()){
-	cout << "No Query file found"<<endl;
-	throw FileNotFound();
+	throw Xapian::FileNotFoundError("No Query file found. Check path.");
     }
 
     double total_score = 0;
