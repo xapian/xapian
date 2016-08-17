@@ -1151,6 +1151,9 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     /// Set by init() to (param_c * get_average_length())
     double cl;
 
+    /// Weight contribution of delta term in the PL2+ function
+    double dw;
+
     PL2PlusWeight * clone() const;
 
     void init(double factor);
