@@ -1161,7 +1161,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     /** The type of smoothing to use. */
     type_smoothing select_smoothing;
 
-    // Parameters for handling negative value for smoothing.
+    // Parameters for handling negative value of log and, for smoothing.
     double param_log, param_smoothing1, param_smoothing2;
 
     // Collection weight.
