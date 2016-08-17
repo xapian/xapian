@@ -42,7 +42,7 @@ get_dcg(const std::vector<double> labels) {
     double dcg = 0;
 
     for (int i = 0; i < int(labels.size()); i++){
-        dcg += (pow(2,labels[i]) - 1)/(log(i+2)/log(2));
+	dcg += (pow(2,labels[i]) - 1)/(log(i+2)/log(2));
     }
 
     return dcg;
@@ -55,7 +55,7 @@ NDCGScore::score(const std::vector<FeatureVector> & fvv) {
     std::vector<double> labels;
 
     for (int i = 0; i < int(fvv.size()); i++) {
-        labels.push_back(fvv[i].get_label());
+	labels.push_back(fvv[i].get_label());
     }
 
     //DCG score of original ranking
@@ -66,7 +66,7 @@ NDCGScore::score(const std::vector<FeatureVector> & fvv) {
     double iDCG = get_dcg(labels);
 
     if (iDCG == 0) // Don't divide by 0
-        return 0;
+	return 0;
 
     return DCG/iDCG;
 }

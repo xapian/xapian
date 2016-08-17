@@ -43,7 +43,7 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
   public:
 
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset, const char* model_filename,
-                                           Xapian::FeatureList & flist);
+					   Xapian::FeatureList & flist);
 
     void letor_learn_model(const char* input_filename, const char* output_filename);
 
@@ -56,8 +56,8 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
     int getlabel(const Document & doc, const std::string & qid);
 
     void letor_score(const std::string & query_file, const std::string & qrel_file,
-                     const std::string & model_file, Xapian::doccount msetsize,
-                     Xapian::FeatureList & flist);
+		     const std::string & model_file, Xapian::doccount msetsize,
+		     Xapian::FeatureList & flist);
 
 
 };
