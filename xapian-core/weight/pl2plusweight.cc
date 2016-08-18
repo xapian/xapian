@@ -2,7 +2,7 @@
  * @brief Xapian::PL2PlusWeight class - the PL2+ weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013,2014 Olly Betts
+ * Copyright (C) 2013,2014,2016 Olly Betts
  * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -89,8 +89,9 @@ PL2PlusWeight::init(double)
     lower_bound = get_wqf() * ((P_min / (wdfn_upper + 1.0)) + dw);
 
     // Calculate the upper bound on the weight.
-    double P_max =
-	P1 + (wdfn_upper + 0.5) * log2(wdfn_upper) - P2 * wdfn_upper;
+    double P_max = P1 + (wdfn_upper + 0.5) * log2(wdfn_upper);
+    // P2 is typically negative, but for a very common term it can be positive.
+    P_max -= P2 * (P2 < 0 ? wdfn_upper : wdfn_lower);
     upper_bound = get_wqf() * ((P_max / (wdfn_lower + 1.0)) + dw);
 
     upper_bound -= lower_bound;
