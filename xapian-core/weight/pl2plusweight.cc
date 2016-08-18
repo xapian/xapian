@@ -86,24 +86,12 @@ PL2PlusWeight::init(double)
     // Calculate the lower bound on the weight.
     double P_min =
 	P1 + (wdfn_lower + 0.5) * log2(wdfn_lower) - P2 * wdfn_lower;
-    // Calculate P_delta_min by setting param_delta to the
-    // lowest permitted value of 0.1.
-    double P_delta_min = P1 + (0.1 + 0.5) * log2(0.1) - P2 * 0.1;
-    // Calculate dw_min by setting param_delta to 1.5 based
-    // on the prescribed the value range for it in weight.h
-    double dw_min = P_delta_min / (1.5 + 1.0);
-    lower_bound = get_wqf() * ((P_min / (wdfn_upper + 1.0)) + dw_min);
+    lower_bound = get_wqf() * ((P_min / (wdfn_upper + 1.0)) + dw);
 
     // Calculate the upper bound on the weight.
     double P_max =
 	P1 + (wdfn_upper + 0.5) * log2(wdfn_upper) - P2 * wdfn_upper;
-    // Calculate P_delta_max by setting param_delta to 1.5 based
-    // on the prescribed the value range for it in weight.h
-    double P_delta_max = P1 + (1.5 + 0.5) * log2(1.5) - P2 * 1.5;
-    // Calculate dw_max by setting param_delta to the
-    // lowest permitted value of 0.1.
-    double dw_max = P_delta_max / (0.1 + 1.0);
-    upper_bound = get_wqf() * ((P_max / (wdfn_lower + 1.0)) + dw_max);
+    upper_bound = get_wqf() * ((P_max / (wdfn_lower + 1.0)) + dw);
 
     upper_bound -= lower_bound;
 }
