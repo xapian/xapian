@@ -1136,9 +1136,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     /// The wdf normalization parameter in the formula.
     double param_c;
 
-    /// The lower bound of the weight.
-    double lower_bound;
-
     /// The upper bound on the weight.
     double upper_bound;
 
@@ -1247,9 +1244,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
 
     /// Additional parameter delta in the PL2+ weighting formula.
     double param_delta;
-
-    /// The lower bound of the weight.
-    double lower_bound;
 
     /// The upper bound on the weight.
     double upper_bound;
