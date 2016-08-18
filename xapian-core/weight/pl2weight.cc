@@ -73,8 +73,8 @@ PL2Weight::init(double)
     P2 = log2(mean) + base_change;
 
     double wdfn_lower = log2(1 + cl / get_doclength_upper_bound());
-    double wdfn_upper =
-	get_wdf_upper_bound() * log2(1 + cl / get_doclength_lower_bound());
+    double divisior = max(get_wdf_upper_bound(), get_doclength_lower_bound());
+    double wdfn_upper = get_wdf_upper_bound() * log2(1 + cl / divisior);
 
     // Calculate an upper bound on the weights which get_sumpart() can return.
     //
