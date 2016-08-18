@@ -61,7 +61,7 @@ PL2Weight::init(double)
 	// get_maxextra() is called and we discover that we don't need it.
 	// So we need to handle that case (which will give us 0 from
 	// get_wdf_upper_bound() here).
-	lower_bound = upper_bound = 0;
+	upper_bound = 0;
 	return;
     }
 
@@ -76,18 +76,12 @@ PL2Weight::init(double)
     double wdfn_upper =
 	get_wdf_upper_bound() * log2(1 + cl / get_doclength_lower_bound());
 
-    // Calculate the lower bound on the weight.
-    double P_min =
-	P1 + (wdfn_lower + 0.5) * log2(wdfn_lower) - P2 * wdfn_lower;
-    lower_bound = get_wqf() * P_min / (wdfn_upper + 1.0);
-
     // Calculate the upper bound on the weight.
     double P_max = P1 + (wdfn_upper + 0.5) * log2(wdfn_upper);
     // P2 is typically negative, but for a very common term it can be positive.
     P_max -= P2 * (P2 < 0 ? wdfn_upper : wdfn_lower);
     upper_bound = get_wqf() * P_max / (wdfn_lower + 1.0);
-
-    upper_bound -= lower_bound;
+    if (rare(upper_bound <= 0)) upper_bound = 0;
 }
 
 string
@@ -122,8 +116,9 @@ PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     double wdfn = wdf * log2(1 + cl / len);
 
     double P = P1 + (wdfn + 0.5) * log2(wdfn) - P2 * wdfn;
+    if (rare(P <= 0)) return 0.0;
 
-    return (get_wqf() * P / (wdfn + 1.0)) - lower_bound;
+    return get_wqf() * P / (wdfn + 1.0);
 }
 
 double
