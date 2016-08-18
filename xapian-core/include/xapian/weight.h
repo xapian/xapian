@@ -593,6 +593,25 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 
 /// Xapian::Weight subclass implementing the BM25+ probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
+    /// Factor to multiply the document length by.
+    mutable Xapian::doclength len_factor;
+
+    /// Factor combining all the document independent factors.
+    mutable double termweight;
+
+    /// The BM25+ parameters.
+    double param_k1, param_k3, param_b;
+
+    /// The minimum normalised document length value.
+    Xapian::doclength param_min_normlen;
+
+    /// Additional parameter delta in the BM25+ formula.
+    double param_delta;
+
+    BM25PlusWeight * clone() const;
+
+    void init(double factor);
+
   public:
     /** Construct a BM25PlusWeight.
      *
@@ -681,26 +700,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
-
-  protected:
-    /// Factor to multiply the document length by.
-    mutable Xapian::doclength len_factor;
-
-    /// Factor combining all the document independent factors.
-    mutable double termweight;
-
-    /// The BM25+ parameters.
-    double param_k1, param_k3, param_b;
-
-    /// The minimum normalised document length value.
-    Xapian::doclength param_min_normlen;
-
-    /// Additional parameter delta in the BM25+ formula.
-    double param_delta;
-
-    BM25PlusWeight * clone() const;
-
-    void init(double factor);
 };
 
 /** Xapian::Weight subclass implementing the traditional probabilistic formula.
@@ -1194,6 +1193,31 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 
 /// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    /// Additional parameter delta in the PL2+ weighting formula.
+    double param_delta;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// Constants for a given term in a given query.
+    double P1, P2;
+
+    /// Set by init() to (param_c * get_average_length())
+    double cl;
+
+    /// Set by init() to get_collection_freq()) / get_collection_size()
+    double mean;
+
+    /// Weight contribution of delta term in the PL2+ function
+    double dw;
+
+    PL2PlusWeight * clone() const;
+
+    void init(double factor);
+
   public:
     /** Construct a PL2PlusWeight.
      *
@@ -1240,32 +1264,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen,
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
-
-  protected:
-    /// The wdf normalization parameter in the formula.
-    double param_c;
-
-    /// Additional parameter delta in the PL2+ weighting formula.
-    double param_delta;
-
-    /// The upper bound on the weight.
-    double upper_bound;
-
-    /// Constants for a given term in a given query.
-    double P1, P2;
-
-    /// Set by init() to (param_c * get_average_length())
-    double cl;
-
-    /// Set by init() to get_collection_freq()) / get_collection_size()
-    double mean;
-
-    /// Weight contribution of delta term in the PL2+ function
-    double dw;
-
-    PL2PlusWeight * clone() const;
-
-    void init(double factor);
 };
 
 /** This class implements the DPH weighting scheme.
