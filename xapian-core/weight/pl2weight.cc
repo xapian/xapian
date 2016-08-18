@@ -76,11 +76,40 @@ PL2Weight::init(double)
     double wdfn_upper =
 	get_wdf_upper_bound() * log2(1 + cl / get_doclength_lower_bound());
 
-    // Calculate the upper bound on the weight.
-    double P_max = P1 + (wdfn_upper + 0.5) * log2(wdfn_upper);
-    // P2 is typically negative, but for a very common term it can be positive.
-    P_max -= P2 * (P2 < 0 ? wdfn_upper : wdfn_lower);
-    upper_bound = get_wqf() * P_max / (wdfn_lower + 1.0);
+    // Calculate an upper bound on the weights which get_sumpart() can return.
+    //
+    // We consider the equation for P as the sum of two parts which we
+    // maximise individually:
+    //
+    // (a) (wdfn + 0.5) / (wdfn + 1) * log2(wdfn)
+    // (b) (P1 - P2 * wdfn) / (wdfn + 1)
+    //
+    // To maximise (a), the fractional part is always positive (since wdfn>0)
+    // and is maximised by maximising wdfn - clearer when rewritten as:
+    // (1 - 0.5 / (wdfn + 1))
+    //
+    // The log part of (a) is clearly also maximised by maximising wdfn,
+    // so we want to evaluate (a) at wdfn=wdfn_upper.
+    double P_max2a = (wdfn_upper + 0.5) * log2(wdfn_upper) / (wdfn_upper + 1.0);
+    // To maximise (b) substitute x=wdfn+1 (so x>1) and we get:
+    //
+    // (P1 + P2)/x - P2
+    //
+    // Differentiating wrt x gives:
+    //
+    // -(P1 + P2)/x²
+    //
+    // So there are no local minima or maxima, and the function is continuous
+    // in the range of interest, so the sign of this differential tells us
+    // whether we want to maximise or minimise wdfn, and since x>1, we can
+    // just consider the sign of: (P1 + P2)
+    //
+    // Commonly P1 + P2 > 0, in which case we evaluate P at wdfn=wdfn_upper
+    // giving us a bound that can't be bettered if wdfn_upper is tight.
+    double wdfn_optb = P1 + P2 > 0 ? wdfn_upper : wdfn_lower;
+    double P_max2b = (P1 - P2 * wdfn_optb) / (wdfn_optb + 1.0);
+    upper_bound = get_wqf() * (P_max2a + P_max2b);
+
     if (rare(upper_bound <= 0)) upper_bound = 0;
 }
 
