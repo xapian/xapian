@@ -40,13 +40,13 @@ namespace Xapian {
 
 /// Abstract base class for features in learning to rank
 class XAPIAN_VISIBILITY_DEFAULT Feature {
-
-  public:
-
+  protected:
     /// @internal Class representing the FeatureVector internals.
     class Internal;
     /// @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
+
+  public:
 
     /// Default constructor
     Feature();
