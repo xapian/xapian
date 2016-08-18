@@ -1,7 +1,7 @@
 /** @file pl2weight.cc
  * @brief Xapian::PL2Weight class - the PL2 weighting scheme of the DFR framework.
  */
-/* Copyright (C) 2013 Aarsh Shah
+/* Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2013,2014 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -78,13 +78,52 @@ PL2Weight::init(double)
 
     // Calculate the lower bound on the weight.
     double P_min =
-	P1 + (wdfn_lower + 0.5) * log2(wdfn_lower) - P2 * wdfn_lower;
+	P1 + (wdfn_lower + 0.5) * log2(wdfn_lower) - P2 * wdfn_upper;
     lower_bound = get_wqf() * P_min / (wdfn_upper + 1.0);
 
     // Calculate the upper bound on the weight.
-    double P_max =
-	P1 + (wdfn_upper + 0.5) * log2(wdfn_upper) - P2 * wdfn_upper;
-    upper_bound = get_wqf() * P_max / (wdfn_lower + 1.0);
+    double term2;
+
+    // P = ((wdfn + 0.5) * log2(wdfn) + P1 - (P2 * wdfn)) / (wdfn + 1.0).
+    // We break the term into three parts with (wdfn + 1.0) as the denominator
+    // in each term.
+    // The maximum of the first term, i.e (wdfn + 0.5) * log2(wdfn) /
+    // (wdfn + 1.0), will happen at wdfn_upper as it is an increasing function.
+    // This can be verified by differentiating it and observing that
+    // the differentiation always has a positive value.
+    // The third term, i.e -P2 * wdfn / (wdfn + 1.0), needs to be minimized as it
+    // is negative.
+    // The third term will be minimum at wdfn_lower as it is an increasing
+    // function.
+    // In order to determine the nature of the second term, i.e P1 /
+    // (wdfn + 1.0) in colloboration with the first term, we differentiate the
+    // expression of the first and the second terms i.e (P1 + (wdfn  + 0.5) *
+    // log2(wdfn)) / (wdfn + 1.0).
+    // The numerator of the differentiation can be negative.
+    // So, we again differentiate the numerator and check the value of the
+    // second and the first differentiation at wdfn_upper.
+    // The second differentiation is an increasing function.
+    // If both the differentiations are positive, it means that the entire
+    // expression is increasing in terms of wdfn and so, we plug in
+    // wdfn_upper in the second term too.
+    // If that is not the case, we plug in wdfn_lower in the second term.
+    double derivative1 = (wdfn_upper * (1.5 - log(2.0) * P1) +
+                         wdfn_upper * wdfn_upper + 0.5 * wdfn_upper * log(wdfn_upper) + 0.5);
+
+    double derivative2 = -log(2.0) * P1 + 2 * wdfn_upper + 0.5 * log(wdfn_upper) + 2.0;
+
+    double term1 = (wdfn_upper + 0.5) * log2(wdfn_upper) / (wdfn_upper + 1.0);
+
+    if (derivative2 > 0 && derivative1 > 0)
+	term2 = P1 / (wdfn_upper + 1.0);
+    else
+	term2 = P1 / (wdfn_lower + 1.0);
+
+    double term3 = P2 * wdfn_lower / (wdfn_lower + 1.0);
+
+    double P_max = term1 + term2 - term3;
+
+    upper_bound = get_wqf() * P_max;
 
     upper_bound -= lower_bound;
 }
