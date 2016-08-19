@@ -1215,7 +1215,8 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	if (param_smoothing2 < 0) {
 	    if (select_smoothing == TWO_STAGE_SMOOTHING)
 		param_smoothing2 = 2000.0;
-	    param_smoothing2 = 0.05;
+	    else
+	    	param_smoothing2 = 0.05;
 	}
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
