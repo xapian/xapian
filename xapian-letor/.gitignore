@@ -8,8 +8,8 @@ autom4te.cache
 bin/.deps
 bin/.dirstamp
 bin/.libs
-bin/questletor
-bin/questletor.1
+bin/xapian-rank
+bin/xapian-rank.1
 bin/xapian-letor-update
 bin/xapian-letor-update.1
 config.guess

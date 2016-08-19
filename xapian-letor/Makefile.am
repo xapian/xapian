@@ -69,7 +69,8 @@ libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 noinst_HEADERS +=\
 	common/safeunistd.h\
 	common/str.h\
-	common/stringutils.h
+	common/stringutils.h\
+	common/gnu_getopt.h
 
 
 
