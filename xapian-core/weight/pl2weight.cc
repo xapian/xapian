@@ -54,8 +54,10 @@ PL2Weight::clone() const
 }
 
 void
-PL2Weight::init(double)
+PL2Weight::init(double factor_)
 {
+    factor = factor_;
+
     if (get_wdf_upper_bound() == 0) {
 	// The "extra" weight object is cloned, init() called and then
 	// get_maxextra() is called and we discover that we don't need it.
@@ -64,6 +66,8 @@ PL2Weight::init(double)
 	upper_bound = 0;
 	return;
     }
+
+    factor *= get_wqf();
 
     cl = param_c * get_average_length();
 
@@ -108,7 +112,7 @@ PL2Weight::init(double)
     // giving us a bound that can't be bettered if wdfn_upper is tight.
     double wdfn_optb = P1 + P2 > 0 ? wdfn_upper : wdfn_lower;
     double P_max2b = (P1 - P2 * wdfn_optb) / (wdfn_optb + 1.0);
-    upper_bound = get_wqf() * (P_max2a + P_max2b);
+    upper_bound = factor * (P_max2a + P_max2b);
 
     if (rare(upper_bound <= 0)) upper_bound = 0;
 }
@@ -147,7 +151,7 @@ PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     double P = P1 + (wdfn + 0.5) * log2(wdfn) - P2 * wdfn;
     if (rare(P <= 0)) return 0.0;
 
-    return get_wqf() * P / (wdfn + 1.0);
+    return factor * P / (wdfn + 1.0);
 }
 
 double
