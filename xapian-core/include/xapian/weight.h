@@ -1200,7 +1200,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
      *					with TWO_STAGE_SMOOTHING as parameter for Dirichlet's
      *					smoothing (default: 2000) and as parameter delta to
      *					control the scale of the tf lower bound in the
-     *             			DIRICHLET_PLUS_SMOOTHING (default 0.05).
+     *					DIRICHLET_PLUS_SMOOTHING (default 0.05).
      *
      */
     // Unigram LM Constructor to specifically mention all parameters for handling negative log value and smoothing.
@@ -1216,7 +1216,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	    if (select_smoothing == TWO_STAGE_SMOOTHING)
 		param_smoothing2 = 2000.0;
 	    else
-	    	param_smoothing2 = 0.05;
+		param_smoothing2 = 0.05;
 	}
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);

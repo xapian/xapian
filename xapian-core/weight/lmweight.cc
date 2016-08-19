@@ -226,7 +226,7 @@ LMWeight::get_maxpart() const
 /* The extra weight component in the Dir+ formula is :-
  *
  * |Q| * log (param_smoothing1 / (|D| + param_smoothing1))
- * 
+ *
  * where, |Q| is total query length.
  *	  |D| is total document length.
  */
