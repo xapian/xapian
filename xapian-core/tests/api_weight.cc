@@ -1043,3 +1043,52 @@ DEFINE_TESTCASE(unigramlmweight5, backend) {
     }
     return true;
 }
+
+// Test Exception for junk after serialised weight (with Dir+ enabled).
+DEFINE_TESTCASE(unigramlmweight6, !backend) {
+    Xapian::LMWeight wt(0, Xapian::Weight::DIRICHLET_SMOOTHING, 0.5, 1.0);
+    try {
+	Xapian::LMWeight d;
+	Xapian::LMWeight * d2 = d.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = d2->name().empty();
+	delete d2;
+	if (empty)
+	    FAIL_TEST("Serialised LMWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised LMWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &) {
+
+    }
+    return true;
+}
+
+// Feature test for Dir+ function.
+DEFINE_TESTCASE(unigramlmweight7, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire1(db);
+    Xapian::Enquire enquire2(db);
+    enquire1.set_query(Xapian::Query("paragraph"));
+    enquire2.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mset1;
+    Xapian::MSet mset2;
+
+    enquire1.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::DIRICHLET_SMOOTHING, 2000, 0));
+    enquire2.set_weighting_scheme(Xapian::LMWeight(0, Xapian::Weight::DIRICHLET_PLUS_SMOOTHING, 2000, 0.05));
+
+    mset1 = enquire1.get_mset(0, 10);
+    mset2 = enquire2.get_mset(0, 10);
+
+    // mset size should be 5
+    TEST_EQUAL(mset1.size(), 5);
+    TEST_EQUAL(mset2.size(), 5);
+
+    // Expect mset weights associated with Dir+ more than mset weights by Dir
+    // because of the presence of extra weight component in Dir+ function.
+    TEST_REL(mset2[0].get_weight(),>,mset1[0].get_weight());
+    TEST_REL(mset2[1].get_weight(),>,mset1[1].get_weight());
+    TEST_REL(mset2[2].get_weight(),>,mset1[2].get_weight());
+    TEST_REL(mset2[3].get_weight(),>,mset1[3].get_weight());
+    TEST_REL(mset2[4].get_weight(),>,mset1[4].get_weight());
+
+    return true;
+}
