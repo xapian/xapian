@@ -1,7 +1,7 @@
 /** @file api_weight.cc
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2012,2013 Olly Betts
+/* Copyright (C) 2012,2013,2016 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or modify
@@ -258,6 +258,7 @@ DEFINE_TESTCASE(inl2weight3, backend) {
     Xapian::MSet mset2;
     mset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset2.size(), 1);
+    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
     TEST_EQUAL_DOUBLE(15.0 * mset1[0].get_weight(), mset2[0].get_weight());
 
     return true;
@@ -321,6 +322,7 @@ DEFINE_TESTCASE(ifb2weight3, backend) {
     Xapian::MSet mset2;
     mset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset2.size(), 1);
+    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
     TEST_EQUAL_DOUBLE(15.0 * mset1[0].get_weight(), mset2[0].get_weight());
 
     return true;
@@ -386,6 +388,7 @@ DEFINE_TESTCASE(ineb2weight3, backend) {
     mset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset2.size(), 5);
 
+    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
     for (int i = 0; i < 5; ++i) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
@@ -452,6 +455,7 @@ DEFINE_TESTCASE(bb2weight3, backend) {
     mset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset2.size(), 5);
 
+    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
     for (int i = 0; i < 5; ++i) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
@@ -521,6 +525,7 @@ DEFINE_TESTCASE(dlhweight1, backend) {
     mset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset2.size(), 5);
 
+    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
     for (int i = 0; i < 5; ++i) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
@@ -680,6 +685,7 @@ DEFINE_TESTCASE(dphweight1, backend) {
     Xapian::MSet mset2;
     mset2 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset2.size(), 5);
+    TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
     for (int i = 0; i < 5; ++i) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
@@ -746,6 +752,7 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     TEST_EQUAL(mset2.size(), 2);
     // doc 2 should have higher weight than 4 as only tf(wdf) will dominate.
     mset_expect_order(mset2, 2, 4);
+    TEST_NOT_EQUAL_DOUBLE(mset[0].get_weight(), 0.0);
     TEST_EQUAL_DOUBLE(15 * mset[0].get_weight(), mset2[0].get_weight());
 
     // check for "nfn" when termfreq != N
