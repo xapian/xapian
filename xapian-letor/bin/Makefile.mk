@@ -1,6 +1,7 @@
 bin_PROGRAMS +=\
 	bin/xapian-letor-update\
-	bin/xapian-rank
+	bin/xapian-rank\
+	bin/xapian-prepare-trainingfile
 
 bin_xapian_letor_update_SOURCES =\
 	bin/xapian-letor-update.cc\
@@ -14,10 +15,16 @@ bin_xapian_rank_SOURCES =\
 	common/getopt.cc
 bin_xapian_rank_LDADD = libxapianletor.la
 
+bin_xapian_prepare_trainingfile_SOURCES =\
+	bin/xapian-prepare-trainingfile.cc\
+	common/getopt.cc
+bin_xapian_prepare_trainingfile_LDADD = libxapianletor.la
+
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-letor-update.1\
-	bin/xapian-rank.1
+	bin/xapian-rank.1\
+	bin/xapian-prepare-trainingfile.1
 endif
 
 if DOCUMENTATION_RULES
@@ -26,4 +33,7 @@ bin/xapian-letor-update.1: bin/xapian-letor-update$(EXEEXT) makemanpage
 
 bin/xapian-rank.1: bin/xapian-rank$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-rank $(srcdir)/bin/xapian-rank.cc bin/xapian-rank.1
+
+bin/xapian-prepare-trainingfile.1: bin/xapian-prepare-trainingfile$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-prepare-trainingfile $(srcdir)/bin/xapian-prepare-trainingfile.cc bin/xapian-prepare-trainingfile.1
 endif
