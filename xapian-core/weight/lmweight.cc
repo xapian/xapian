@@ -2,6 +2,7 @@
  * @brief Xapian::LMWeight class - the Unigram Language Modelling formula.
  */
 /* Copyright (C) 2012 Gaurav Arora
+ * Copyright (C) 2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,8 +41,10 @@ LMWeight::clone() const  {
 }
 
 void
-LMWeight::init(double)
+LMWeight::init(double factor_)
 {
+    factor = factor_;
+
     // Storing collection frequency of current term in collection_freq to be
     // accessed while smoothing of weights for the term, for term not present
     // in the document.
@@ -191,7 +194,8 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
      * ranking document by product or log of product won't make a large
      * difference hence log(product) will be used for ranking.
      */
-    return (weight_sum * param_log > 1.0) ? log(weight_sum * param_log) : 0;
+    double product = weight_sum * param_log;
+    return (product > 1.0) ? factor * log(product) : 0;
 }
 
 double
@@ -219,7 +223,8 @@ LMWeight::get_maxpart() const
     /* Since weight are calculated using log trick, using same with the bounds. Refer
      * comment in get_sumpart for the details.
      */
-    return (upper_bound * param_log > 1.0) ? log(upper_bound * param_log) : 1.0;
+    double product = upper_bound * param_log;
+    return (product > 1.0) ? factor * log(product) : 1.0;
 }
 
 

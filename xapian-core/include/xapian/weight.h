@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
@@ -1136,6 +1136,9 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
  *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
  */
 class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
     /// The wdf normalization parameter in the formula.
     double param_c;
 
@@ -1153,7 +1156,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 
     PL2Weight * clone() const;
 
-    void init(double factor);
+    void init(double factor_);
 
   public:
     /** Construct a PL2Weight.
@@ -1197,6 +1200,9 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 
 /// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
 class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
     /// The wdf normalization parameter in the formula.
     double param_c;
 
@@ -1220,7 +1226,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
 
     PL2PlusWeight * clone() const;
 
-    void init(double factor);
+    void init(double factor_);
 
   public:
     /** Construct a PL2PlusWeight.
@@ -1344,6 +1350,8 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
  * parameters which specify the smoothing used.
  */
 class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
 
     /** The type of smoothing to use. */
     type_smoothing select_smoothing;
@@ -1356,7 +1364,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 
     LMWeight * clone() const;
 
-    void init(double factor);
+    void init(double factor_);
 
   public:
     /** Construct a LMWeight.
