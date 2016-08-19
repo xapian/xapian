@@ -1206,11 +1206,17 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     // Unigram LM Constructor to specifically mention all parameters for handling negative log value and smoothing.
     explicit LMWeight(double param_log_ = 0.0,
 		      type_smoothing select_smoothing_ = TWO_STAGE_SMOOTHING,
-		      double param_smoothing1_ = 0.7,
-		      double param_smoothing2_ = 2000.0)
+		      double param_smoothing1_ = -1.0,
+		      double param_smoothing2_ = -1.0)
 	: select_smoothing(select_smoothing_), param_log(param_log_), param_smoothing1(param_smoothing1_),
 	  param_smoothing2(param_smoothing2_)
     {
+	if (param_smoothing1 < 0) param_smoothing1 = 0.7;
+	if (param_smoothing2 < 0) {
+	    if (select_smoothing == TWO_STAGE_SMOOTHING)
+		param_smoothing2 = 2000.0;
+	    param_smoothing2 = 0.05;
+	}
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(COLLECTION_SIZE);
