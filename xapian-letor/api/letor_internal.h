@@ -33,10 +33,10 @@ namespace Xapian {
 
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
-    Ranker * ranker;
+    Xapian::Internal::intrusive_ptr<Ranker> ranker;
     Database letor_db;
     Query letor_query;
-    Scorer * scorer;
+    Xapian::Internal::intrusive_ptr<Scorer> scorer;
 
     map<string, map<string, int> > qrel;
 

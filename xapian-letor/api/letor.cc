@@ -60,7 +60,6 @@ Letor::Letor(const Xapian::Database & db, const Xapian::Query & query, Xapian::R
 }
 
 Letor::~Letor() {
-    delete internal->ranker;
 }
 
 void

@@ -34,7 +34,7 @@
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT Scorer {
+class XAPIAN_VISIBILITY_DEFAULT Scorer : public Xapian::Internal::intrusive_base {
   public:
 
     /// Default constructor

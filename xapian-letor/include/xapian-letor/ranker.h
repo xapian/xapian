@@ -38,7 +38,7 @@
 
 namespace Xapian {
 
-class XAPIAN_VISIBILITY_DEFAULT Ranker {
+class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
 
 
     std::vector<Xapian::FeatureVector> traindata;
