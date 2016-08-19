@@ -66,7 +66,7 @@ DPHWeight::init(double factor)
        upper bound of the length and differentiating the term w.r.t wdf
        to find the value of wdf at which function attains maximum value. */
     double wdf_var = min(wdf_upper, len_upper / 2.0);
-    double max_product_2 = wdf_var * (1.0 - wdf_var / len_upper) ;
+    double max_product_2 = wdf_var * (1.0 - wdf_var / len_upper);
     /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
 
