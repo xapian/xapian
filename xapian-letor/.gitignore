@@ -14,6 +14,8 @@ bin/xapian-letor-update
 bin/xapian-letor-update.1
 bin/xapian-prepare-trainingfile
 bin/xapian-prepare-trainingfile.1
+bin/xapian-train
+bin/xapian-train.1
 config.guess
 config.h
 config.h.in
