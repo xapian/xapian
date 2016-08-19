@@ -261,6 +261,7 @@ operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
 
 namespace Xapian {
     class ExpandDecider;
+    class LatLongMetric;
     class MatchDecider;
     class Registry;
     class Weight;
