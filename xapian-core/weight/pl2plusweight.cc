@@ -58,8 +58,10 @@ PL2PlusWeight::clone() const
 }
 
 void
-PL2PlusWeight::init(double)
+PL2PlusWeight::init(double factor_)
 {
+    factor = factor_;
+
     if (get_wdf_upper_bound() == 0) {
 	// The "extra" weight object is cloned, init() called and then
 	// get_maxextra() is called and we discover that we don't need it.
@@ -68,6 +70,8 @@ PL2PlusWeight::init(double)
 	upper_bound = 0;
 	return;
     }
+
+    factor *= get_wqf();
 
     cl = param_c * get_average_length();
 
@@ -115,7 +119,7 @@ PL2PlusWeight::init(double)
     // giving us a bound that can't be bettered if wdfn_upper is tight.
     double wdfn_optb = P1 + P2 > 0 ? wdfn_upper : wdfn_lower;
     double P_max2b = (P1 - P2 * wdfn_optb) / (wdfn_optb + 1.0);
-    upper_bound = get_wqf() * (P_max2a + P_max2b + dw);
+    upper_bound = factor * (P_max2a + P_max2b + dw);
 
     if (rare(upper_bound <= 0)) upper_bound = 0;
 }
@@ -156,12 +160,12 @@ PL2PlusWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 
     double P = P1 + (wdfn + 0.5) * log2(wdfn) - P2 * wdfn;
 
-    double wt = get_wqf() * ((P / (wdfn + 1.0)) + dw);
+    double wt = (P / (wdfn + 1.0)) + dw;
     // FIXME: Is a negative wt possible here?  It is with vanilla PL2, but for
-    // PL2+ we've added on wqf*dw, and bailed out early if mean < 1.
+    // PL2+ we've added on dw, and bailed out early if mean < 1.
     if (rare(wt <= 0)) return 0.0;
 
-    return wt;
+    return factor * wt;
 }
 
 double
