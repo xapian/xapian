@@ -141,14 +141,12 @@ ListNETRanker::train_model() {
     std::vector<Xapian::FeatureVector> fvv = get_traindata();
     int fvv_len = fvv.size();
 
-    int feature_cnt = -1;
-    if (fvv_len != 0) {
-	feature_cnt = fvv[0].get_fcount();
-    }
-    else {
-	std::cout << "The training data is NULL!" << endl;
-	exit(1); // TODO: Throw exception
-    }
+	int feature_cnt = -1;
+	if (fvv_len != 0) {
+		feature_cnt = fvv[0].get_fcount();
+	} else {
+	    throw LetorInternalError("Training data is empty. Check training file.");
+	}
 
     // initialize the parameters for neural network
     vector<double> new_parameters(feature_cnt, 0.0);
@@ -196,8 +194,7 @@ ListNETRanker::load_model_from_file(const char* model_filename) {
 
     fstream train_file (model_filename, ios::in);
     if (!train_file.good()) {
-	cout << "No ListNET parameters file found" << endl;
-	exit(1); // TODO: should throw an exception
+	throw Xapian::FileNotFoundError("No model file found. Check path.");
     }
 
     while (train_file.peek() != EOF) {
@@ -230,8 +227,8 @@ ListNETRanker::rank(const std::vector<FeatureVector> & fvv) {
 	int fvalsize = fvals.size();
 
 	if (fvalsize != parameters_size) {
-	    std::cout << "Number of fvals don't match the number of ListNet parameters" << endl;
-	    exit(1); // TODO: should throw an exception
+	    throw LetorInternalError("Model incompatible. Make sure that you are using "
+				     "the same set of Features using which the model was created.");
 	}
 
 	for(int j = 0; j < fvalsize; ++j) {
