@@ -465,11 +465,11 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *
      *     @li 'n': None wtn=tfn*idfn
      *     @li 'P': Pivoted wtn=wqf(tfn*idfn*(1-slope+(slope*normlen))+delta*idfn) where
-     *         parameters slope and delta values should be non-negative & non-zero when
-     *         using pivoted normalization string. Specifically, "PPP" normalization
-     *         string should be used to use Piv+ normalization. In addtion, normalization
-     *         string such as "Pxx", "xPx" and "xxP" can also be used to have more options
-     *         of combinations for wdfn, idfn and wtn normalizations respectively.
+     *         parameters slope and delta values should be positive when using pivoted
+     *         normalization string. Specifically, "PPP" normalization string should
+     *         be used to use Piv+ normalization. In addition, different types of pivoted
+     *         normalization can also be used in combination with other normalisations
+     *         to have more options of combinations for wdfn, idfn and wtn normalizations.
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.

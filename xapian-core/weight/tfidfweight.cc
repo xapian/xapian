@@ -75,7 +75,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 TfIdfWeight *
 TfIdfWeight::clone() const
 {
-	return new TfIdfWeight(normalizations, param_slope, param_delta);
+    return new TfIdfWeight(normalizations, param_slope, param_delta);
 }
 
 void
@@ -212,10 +212,8 @@ double
 TfIdfWeight::get_wtn(Xapian::termcount doclen, double wt, char c) const
 {
     switch (c) {
-	case 'P':
-	{
-	    double normlen;
-	    normlen = doclen / get_average_length();
+	case 'P': {
+	    double normlen = doclen / get_average_length();
 	    double norm_factor =  1 / (1 - param_slope + (param_slope * normlen));
 	    return wt * norm_factor;
 	}
