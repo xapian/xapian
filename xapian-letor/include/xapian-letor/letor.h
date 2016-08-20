@@ -128,6 +128,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *          It is initialised by DEFAULT set of Features by default.
      *          To use a custom set of features, pass a customised Xapian::FeatureList object.
      *  @exception FileNotFoundError will be thrown if file not found at supplied path
+     *  @exception LetorParseError will be thrown if query file or qrel file could not be parsed
      */
     void prepare_training_file(const std::string & query_file,
 			       const std::string & qrel_file,
@@ -143,6 +144,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      * @param flist         Xapian::FeatureList object definining what set of features to use. Note: Make
      *                       sure that it is same as what was used while training the model being used.
      *  @exception FileNotFoundError will be thrown if file not found at supplied path
+     *  @exception LetorParseError will be thrown if query file or qrel file could not be parsed
      */
     void letor_score(const std::string & query_file,
 		     const std::string & qrel_file,
