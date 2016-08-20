@@ -309,11 +309,24 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	// Query file is in the format: <qid> <query_string>
 	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
 
+	// Exceptions for parse errors
+	if (token.size() != 2) {
+	    throw LetorParseError("Could not parse Query file at line:" + to_string(query_count));
+	}
+
 	string qid = token[0];
 	string querystr = token[1];
 
+	if (querystr.front() != '\'' || querystr.front() != '\'') {
+	    throw LetorParseError("Could not parse query string at line:" + to_string(query_count));
+	}
+
 	querystr.erase( 0, 1 ); // erase the first character (') from the front
 	querystr.erase( querystr.size() - 1 ); // erase the last character (')
+
+	if (querystr.empty()) {
+	    throw LetorParseError("Empty query string in query file at line:" + to_string(query_count));
+	}
 
 	string qq = querystr;
 	istringstream iss(querystr);
@@ -419,11 +432,24 @@ Letor::Internal::letor_score(const std::string & query_file,
 	// Query file is in the format: <qid> <query_string>
 	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
 
+	// Exceptions for parse errors
+	if (token.size() != 2) {
+	    throw LetorParseError("Could not parse Query file at line:" + to_string(num_queries + 1));
+	}
+
 	string qid = token[0];
 	string querystr = token[1];
 
+	if (querystr.front() != '\'' || querystr.front() != '\'') {
+	    throw LetorParseError("Could not parse query string at line:" + to_string(num_queries + 1));
+	}
+
 	querystr.erase( 0, 1 ); // erase the first character (') from the front
 	querystr.erase( querystr.size() - 1 ); // erase the last character (')
+
+	if (querystr.empty()) {
+	    throw LetorParseError("Empty query string in query file at line:" + to_string(num_queries + 1));
+	}
 
 	string qq = querystr;
 	istringstream iss(querystr);
