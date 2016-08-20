@@ -285,7 +285,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	throw Xapian::FileNotFoundError("No Query file found. Check path.");
     }
 
-
+    int query_count = 0;
     while (!myfile1.eof()) {           // reading all the queries line by line from the query file
 
 	getline(myfile1, str1);
@@ -294,8 +294,26 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	    break;
 	}
 
-	string qid = str1.substr(0, (int)str1.find(" "));
-	string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
+	query_count += 1;
+
+	char * str;
+	char * x1;
+	x1 = const_cast<char*>(str1.c_str());
+	str = strtok(x1, " ");
+	vector<string> token;
+	while (str != NULL) {
+	    token.push_back(str);
+	    str = strtok(NULL, "");
+	}
+
+	// Query file is in the format: <qid> <query_string>
+	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
+
+	string qid = token[0];
+	string querystr = token[1];
+
+	querystr.erase( 0, 1 ); // erase the first character (') from the front
+	querystr.erase( querystr.size() - 1 ); // erase the last character (')
 
 	string qq = querystr;
 	istringstream iss(querystr);
@@ -388,8 +406,24 @@ Letor::Internal::letor_score(const std::string & query_file,
 	    break;
 	}
 
-	string qid = str1.substr(0, (int)str1.find(" "));
-	string querystr = str1.substr((int)str1.find("'")+1, (str1.length() - ((int)str1.find("'") + 2)));
+	char * str;
+	char * x1;
+	x1 = const_cast<char*>(str1.c_str());
+	str = strtok(x1, " ");
+	vector<string> token;
+	while (str != NULL) {
+	    token.push_back(str);
+	    str = strtok(NULL, "");
+	}
+
+	// Query file is in the format: <qid> <query_string>
+	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
+
+	string qid = token[0];
+	string querystr = token[1];
+
+	querystr.erase( 0, 1 ); // erase the first character (') from the front
+	querystr.erase( querystr.size() - 1 ); // erase the last character (')
 
 	string qq = querystr;
 	istringstream iss(querystr);
