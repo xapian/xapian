@@ -117,7 +117,9 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
     /// Destructor
     ~ListNETRanker();
 
-    /// Method to train the model.
+    /** Method to train the model.
+     * @exception LetorInternalError will be thrown if training data is null.
+     */
     void train_model();
 
     /** Method to save ListNET model as an external file.
@@ -132,10 +134,16 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      */
     void save_model_to_file(const char* output_filename);
 
-    /// Method to load model as an external file.
+    /** Method to load model from an external file.
+     * @param model_filename Path to model file
+     * @exception FileNotFoundError will be thrown if model file not found at supplied path
+     */
     void load_model_from_file(const char* model_filename);
 
-    /// Method to re-rank a std::vector<Xapian::FeatureVector> by using the model.
+    /** Method to re-rank a std::vector<Xapian::FeatureVector> by using the model.
+     * @param fvv vector<FeatureVector> that will be re-ranked
+     * @exception LetorInternalError will be thrown if model file is not compatible.
+     */
     std::vector<Xapian::FeatureVector> rank(const std::vector<Xapian::FeatureVector> & fvv);
 
 };
