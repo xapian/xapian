@@ -53,6 +53,9 @@ Letor::Letor(const Xapian::Database & db, Xapian::Ranker * ranker) {
 
 Letor::Letor(const Xapian::Database & db, const Xapian::Query & query, Xapian::Ranker * ranker) {
     LOGCALL_CTOR(API, "Letor", db | query | ranker);
+    if (query.empty()) {
+	throw Xapian::InvalidArgumentError("Can't initialise with an empty Query object");
+    }
     internal = new Letor::Internal();
     internal->letor_db = db;
     internal->letor_query = query;
@@ -77,6 +80,9 @@ Letor::set_database(const Xapian::Database & db) {
 void
 Letor::set_query(const Xapian::Query & query) {
     LOGCALL_VOID(API, "Letor::set_query", query);
+    if (query.empty()) {
+	throw Xapian::InvalidArgumentError("Can't initialise with an empty Query object");
+    }
     internal->letor_query = query;
 }
 
