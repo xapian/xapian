@@ -54,6 +54,9 @@ Feature::set_database(const Xapian::Database & db) {
 void
 Feature::set_query(const Xapian::Query & query) {
     LOGCALL_VOID(API, "Feature::set_query", query);
+    if (query.empty()) {
+	throw Xapian::InvalidArgumentError("Can't initialise with an empty query string");
+    }
     internal->feature_query = query;
 }
 

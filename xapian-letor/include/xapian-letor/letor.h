@@ -60,6 +60,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      * @param db     Xapian::Database to use for LTR
      * @param query  Xapian::Query which has to be queried
      * @param ranker Ranker to be used. By default it is ListNETRanker
+     * @exception Xapian::InvalidArgumentError will be thrown if an empty
+     *  query is supplied
      */
     Letor(const Xapian::Database & db, const Xapian::Query & query, Xapian::Ranker * ranker = 0);
 
@@ -69,7 +71,11 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /// Specify the database to use for retrieval. This database will be used directly by the methods of Xapian::Letor::Internal
     void set_database(const Xapian::Database & db);
 
-    /// Specify the query. This will be used by the internal class.
+    /** Specify the query. This will be used by the internal class.
+     * @param query  Xapian::Query which has to be queried
+     * @exception Xapian::InvalidArgumentError will be thrown if an empty
+     *  query is supplied
+     */
     void set_query(const Xapian::Query & query);
 
     /** Set ranker to be used. E.g. set_ranker(new ListNETRanker());

@@ -59,7 +59,11 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     /// Specify the database to use for feature building. This will be used by the Internal class.
     void set_database(const Xapian::Database & db);
 
-    /// Specify the query to use for feature building. This will be used by the Internal class.
+    /** Specify the query to use for feature building. This will be used by the Internal class.
+     * @param query  Xapian::Query which has to be queried
+     * @exception Xapian::InvalidArgumentError will be thrown if an empty
+     *  query is supplied
+     */
     void set_query(const Xapian::Query & query);
 
     /// Specify the document to use for feature building. This will be used by the Internal class.
