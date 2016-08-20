@@ -91,7 +91,7 @@ class Cursor {
 
 	uint4 & refs() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(data);
+	    return *reinterpret_cast<uint4*>(reinterpret_cast<void*>(data));
 	}
 
 	/** Get the block number.
@@ -100,13 +100,13 @@ class Cursor {
 	 */
 	uint4 get_n() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(data + 4);
+	    return *reinterpret_cast<uint4*>(reinterpret_cast<void*>(data + 4));
 	}
 
 	void set_n(uint4 n) {
 	    Assert(data);
 	    //Assert(refs() == 1);
-	    *reinterpret_cast<uint4*>(data + 4) = n;
+	    *reinterpret_cast<uint4*>(reinterpret_cast<void*>(data + 4)) = n;
 	}
 
 	/** Get pointer to block.
