@@ -36,7 +36,7 @@ using namespace std;
 namespace Xapian {
 
 TfIdfWeight::TfIdfWeight(const std::string &normals)
-    : normalizations(normals)
+    : normalizations(normals), param_slope(0.2), param_delta(1.0)
 {
     if (normalizations.length() != 3 ||
 	!strchr("nbslP", normalizations[0]) ||

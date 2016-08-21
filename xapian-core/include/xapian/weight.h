@@ -412,9 +412,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     double factor;
 
     /// Parameters slope and delta in the Piv+ normalization weighting formula.
-    /// Default values: 0.2 and 1.0 respectively.
-    double param_slope = 0.2;
-    double param_delta = 1.0;
+    double param_slope, param_delta;
 
     TfIdfWeight * clone() const;
 
