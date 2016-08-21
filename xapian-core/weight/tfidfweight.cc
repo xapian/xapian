@@ -70,7 +70,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
-    if (param_slope != 0 || param_delta != 0) {
+    if ((param_slope != 0 || param_delta != 0 || normalizations[2] == 'P') {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(WQF);
@@ -126,7 +126,7 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     double wt = get_wdfn(wdf, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    if (normalizations[2] == 'P' && normalizations[1] == 'P') {
+    if (param_slope != 0 && param_delta != 0 && normalizations[2] == 'P') {
 	double wqf = get_wqf();
 	wt = get_wtn(doclen, wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
 	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
@@ -145,7 +145,7 @@ TfIdfWeight::get_maxpart() const
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     double wt = get_wdfn(wdf_max, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    if (normalizations[2] =='P' && normalizations[1] == 'P') {
+    if (param_slope != 0 && param_delta != 0 && normalizations[2] =='P') {
 	double wqf = get_wqf();
 	wt = get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
 	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
