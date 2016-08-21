@@ -49,6 +49,11 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
+    if (normalizations[2] == 'P') {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(WQF);
+    }
 }
 
 TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
