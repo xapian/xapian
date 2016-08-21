@@ -483,9 +483,6 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 	need_stat(WDF);
 	need_stat(WDF_MAX);
 	need_stat(COLLECTION_SIZE);
-	need_stat(AVERAGE_LENGTH);
-	need_stat(DOC_LENGTH);
-	need_stat(WQF);
     }
 
     std::string name() const;
