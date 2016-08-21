@@ -21,6 +21,7 @@
  */
 
 #include "xapian-letor/scorer.h"
+#include "debuglog.h"
 
 #include <algorithm>
 #include <cmath>
@@ -30,14 +31,16 @@ using namespace std;
 using namespace Xapian;
 
 NDCGScore::NDCGScore() {
-    cout << "NDCGScore initialised!" << endl;
+    LOGCALL_CTOR(API, "NDCGScore", NO_ARGS);
 }
 
 NDCGScore::~NDCGScore() {
+    LOGCALL_DTOR(API, "NDCGScore");
 }
 
 static double
 get_dcg(const std::vector<double> labels) {
+    LOGCALL_STATIC(API, double, "get_dcg", labels);
 
     double dcg = 0;
 
@@ -51,6 +54,7 @@ get_dcg(const std::vector<double> labels) {
 
 double
 NDCGScore::score(const std::vector<FeatureVector> & fvv) {
+    LOGCALL(API, double, "NDCGScore::score", fvv);
 
     std::vector<double> labels;
 

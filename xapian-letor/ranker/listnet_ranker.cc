@@ -27,13 +27,13 @@ Proceedings of the 24th international conference on Machine learning. ACM, 2007.
 */
 
 #include "xapian-letor/ranker.h"
+#include "debuglog.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
-#include <iostream>
 #include <limits>
 #include <sstream>
 #include <vector>
@@ -45,10 +45,12 @@ using namespace Xapian;
 typedef vector <vector <double> > prob_distrib_vector;
 
 ListNETRanker::~ListNETRanker() {
+    LOGCALL_DTOR(API, "ListNETRanker");
 }
 
 static double
 calculateInnerProduct(vector<double> parameters, vector<double> fvals) {
+    LOGCALL_STATIC_VOID(API, "calculateInnerProduct", parameters | fvals);
 
     double inner_product = 0.0;
 
@@ -62,6 +64,7 @@ calculateInnerProduct(vector<double> parameters, vector<double> fvals) {
 // From Theorem (8) in Cao et al. "Learning to rank: from pairwise approach to listwise approach."
 static prob_distrib_vector
 initializeProbability(vector<FeatureVector> feature_vectors, vector<double> & new_parameters) {
+    LOGCALL_STATIC_VOID(API, "initializeProbability", feature_vectors | new_parameters);
 
     int list_length = feature_vectors.size();
 
@@ -92,6 +95,7 @@ initializeProbability(vector<FeatureVector> feature_vectors, vector<double> & ne
 // Equation (6) in paper Cao et al. "Learning to rank: from pairwise approach to listwise approach."
 static vector<double>
 calculateGradient(vector<FeatureVector> feature_vectors, prob_distrib_vector prob) {
+    LOGCALL_STATIC_VOID(API, "calculateGradient", feature_vectors | prob);
 
     vector<double> gradient(feature_vectors[0].get_fcount(),0);
     int list_length = feature_vectors.size();
@@ -121,7 +125,7 @@ calculateGradient(vector<FeatureVector> feature_vectors, prob_distrib_vector pro
 static void
 updateParameters(vector<double> & new_parameters, vector<double> gradient, double learning_rate) {
     LOGCALL_STATIC_VOID(API, "updateParameters", new_parameters | gradient | learning_rate);
-    int num = new_parameters.size();
+	int num = new_parameters.size();
 
     for (int i = 0; i < num; i++){
 	new_parameters[i] -= gradient[i] * learning_rate;
@@ -131,8 +135,7 @@ updateParameters(vector<double> & new_parameters, vector<double> gradient, doubl
 
 void
 ListNETRanker::train_model() {
-
-    std::cout << "ListNET model begin to train..." << endl;
+    LOGCALL_VOID(API, "ListNETRanker::train_model", NO_ARGS);
 
     // get the training data
     std::vector<Xapian::FeatureVector> fvv = get_traindata();
@@ -167,6 +170,7 @@ ListNETRanker::train_model() {
 
 void
 ListNETRanker::save_model_to_file(const char* output_filename) {
+    LOGCALL_VOID(API, "ListNETRanker::save_model_to_file", output_filename);
 
     ofstream parameters_file;
     parameters_file.open(output_filename);
@@ -182,14 +186,13 @@ ListNETRanker::save_model_to_file(const char* output_filename) {
 
     parameters_file << oss.str();
     parameters_file.close();
-
-    cout<< "ListNET model saved to \"" << output_filename << "\"" << endl;
 }
 
 void
 ListNETRanker::load_model_from_file(const char* model_filename) {
+    LOGCALL_VOID(API, "ListNETRanker::load_model_from_file", model_filename);
 
-	vector<double> loaded_parameters;
+    vector<double> loaded_parameters;
 
     fstream train_file (model_filename, ios::in);
     if (!train_file.good()) {
@@ -208,17 +211,14 @@ ListNETRanker::load_model_from_file(const char* model_filename) {
 
     loaded_parameters.pop_back();
     parameters = loaded_parameters;
-
-    cout<< "ListNET model loaded from: \"" << model_filename << "\""  << endl;
 }
 
 std::vector<FeatureVector>
 ListNETRanker::rank(const std::vector<FeatureVector> & fvv) {
+    LOGCALL(API, std::vector<FeatureVector>, "ListNETRanker::rank", fvv);
 
     std::vector<FeatureVector> testfvv = fvv;
     int testfvvsize = testfvv.size();
-
-    cout << "Performing ranking using ListNET model..." << endl;
 
     int parameters_size = parameters.size();
 

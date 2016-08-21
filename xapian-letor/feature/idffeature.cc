@@ -21,6 +21,7 @@
 
 #include "xapian-letor/feature.h"
 #include "feature_internal.h"
+#include "debuglog.h"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ IdfFeature::name() {
 
 vector<double>
 IdfFeature::get_values() {
+    LOGCALL(API, std::vector<double>, "IdfFeature::get_values", NO_ARGS);
 
     Query query = Feature::internal->feature_query;
     map<string, double> idf = Feature::internal->inverse_doc_freq();
