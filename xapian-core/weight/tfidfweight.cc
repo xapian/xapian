@@ -130,8 +130,7 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
 	double wqf = get_wqf();
 	wt = get_wtn(doclen, wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
 	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
-    }
-    else
+    } else
 	return get_wtn(doclen, wt, normalizations[2]) * factor;
 }
 
@@ -149,8 +148,7 @@ TfIdfWeight::get_maxpart() const
 	double wqf = get_wqf();
 	wt = get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
 	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
-    }
-    else
+    } else
 	return get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
 }
 
