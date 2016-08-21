@@ -21,6 +21,7 @@
 
 #include "xapian-letor/feature.h"
 #include "feature_internal.h"
+#include "debuglog.h"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ TfDoclenFeature::name() {
 
 vector<double>
 TfDoclenFeature::get_values() {
+    LOGCALL(API, std::vector<double>, "TfDoclenFeature::get_values", NO_ARGS);
 
     Query query = Feature::internal->feature_query;
     map<string, long int> tf = Feature::internal->termfreq();

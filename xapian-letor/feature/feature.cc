@@ -21,34 +21,45 @@
 
 #include "xapian-letor/feature.h"
 #include "feature_internal.h"
+#include "debuglog.h"
 
 namespace Xapian {
 
-Feature::Feature(const Feature & o) : internal(o.internal) { }
+Feature::Feature(const Feature & o) : internal(o.internal) {
+    LOGCALL_CTOR(API, "Feature", o);
+}
 
 void
 Feature::operator=(const Feature & o)
 {
+    LOGCALL_VOID(API, "Feature::operator=", o);
     internal = o.internal;
 }
 
-Feature::Feature() : internal(new Feature::Internal) { }
+Feature::Feature() : internal(new Feature::Internal) {
+    LOGCALL_CTOR(API, "Feature", NO_ARGS);
+}
 
-Feature::~Feature() { }
+Feature::~Feature() {
+    LOGCALL_DTOR(API, "Feature");
+}
 
 
 void
 Feature::set_database(const Xapian::Database & db) {
+    LOGCALL_VOID(API, "Feature::set_database", db);
     internal->feature_db = db;
 }
 
 void
 Feature::set_query(const Xapian::Query & query) {
+    LOGCALL_VOID(API, "Feature::set_query", query);
     internal->feature_query = query;
 }
 
 void
 Feature::set_doc(const Xapian::Document & doc) {
+    LOGCALL_VOID(API, "Feature::set_doc", doc);
     internal->feature_doc = doc;
 }
 

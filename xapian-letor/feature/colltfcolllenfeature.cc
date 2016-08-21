@@ -21,6 +21,7 @@
 
 #include "xapian-letor/feature.h"
 #include "feature_internal.h"
+#include "debuglog.h"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ CollTfCollLenFeature::name() {
 
 vector<double>
 CollTfCollLenFeature::get_values() {
+    LOGCALL(API, std::vector<double>, "CollTfCollLenFeature::get_values", NO_ARGS);
 
     Query query = Feature::internal->feature_query;
     map<string, long int> coll_tf = Feature::internal->collection_termfreq();

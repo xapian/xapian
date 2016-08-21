@@ -22,6 +22,7 @@
 #include "xapian-letor/featurelist.h"
 #include "xapian-letor/feature.h"
 #include "xapian-letor/featurevector.h"
+#include "debuglog.h"
 
 #include <iostream>
 
@@ -31,8 +32,7 @@ namespace Xapian {
 
 FeatureList::FeatureList() {
 
-    std::cout << "Initialising DEFAULT list of features" << endl;
-
+    LOGCALL_CTOR(API, "FeatureList", NO_ARGS);
     feature.push_back(new TfFeature());
     feature.push_back(new TfDoclenFeature());
     feature.push_back(new IdfFeature());
@@ -43,12 +43,12 @@ FeatureList::FeatureList() {
 
 FeatureList::FeatureList(const std::vector<Feature*> & f) {
 
-    std::cout << "Initialising CUSTOM list of features." << endl;
-
+    LOGCALL_CTOR(API, "FeatureList", f);
     feature = f;
 }
 
 FeatureList::~FeatureList() {
+    LOGCALL_DTOR(API, "FeatureList");
     for (std::vector<Feature*>::iterator it = feature.begin() ; it != feature.end(); ++it) {
 	delete (*it);
     }
@@ -58,6 +58,7 @@ FeatureList::~FeatureList() {
 void
 FeatureList::normalise(std::vector<FeatureVector> & fvec) {
 
+    LOGCALL_VOID(API, "FeatureList::normalise", fvec);
     // find the max value for each feature gpr all the FeatureVectors in the vector.
     int num_features = fvec[0].get_fcount();
     double temp = 0.0;
@@ -95,6 +96,7 @@ std::vector<FeatureVector>
 FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Query & letor_query,
 				    const Xapian::Database & letor_db)
 {
+    LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
     std::vector<FeatureVector> fvec;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
