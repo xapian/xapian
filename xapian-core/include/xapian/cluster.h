@@ -410,6 +410,56 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
     /// This method returns the description of the clusterer
     std::string get_description();
 };
+
+/** Kmeans clusterer:
+ *  This clusterer implements the K-Means clustering algorithm
+ */
+class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
+
+    /// This contains the initialized points that are to be clustered
+    std::vector<Point> docs;
+
+    /// This contains the state of 'k' centroids at every iteration
+    std::vector<Centroid> centroids;
+
+    /// This specifies that the clusterer needs to form 'k' clusters
+    unsigned int k;
+
+    /** This method checks whether the current state of KMeans has converged
+     *  by checking for change in centroid of the clusters
+     */
+    bool converge(std::vector<Centroid> &previous, std::vector<Centroid> &current);
+
+    /** This method initalizes of centroids using a certain specified method
+     *  Current methods that are supported :
+     *     -- random - Random Initialization
+     *     -- kmeanspp - KMeans++ Initialization
+     */
+    void initialize_centroids(ClusterSet &cset);
+
+    /** This method helps initialize the initial centroids to be passed
+     *  to the KMeans clusterer in a random fashion by selecting 'k' points
+     *  out of all the points in the clusterer
+     */
+    void initialize_random(ClusterSet &cset);
+
+    /** Initialize the 'Points' to be fed into the Clusterer with the DocumentSource.
+     *  The TF-IDF weights for the points are calculated and stored within the
+     *  Points to be used later during distance calculations
+     */
+    void initialize_points(MSetDocumentSource docs, TermListGroup &tlg);
+
+  public:
+
+    /// Constructor specifying number of clusters
+    KMeans(unsigned int k_) : k(k_) {}
+
+    /// This method implements the KMeans clustering algorithm
+    ClusterSet cluster(MSet &mset);
+
+    /// This method returns the description of the clusterer
+    std::string get_description();
+};
 };
 
 #endif

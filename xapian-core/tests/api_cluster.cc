@@ -51,3 +51,22 @@ DEFINE_TESTCASE(round_robin1, backend)
     }
     return true;
 }
+
+/// Test that none of the clusters returned by KMeans are empty
+DEFINE_TESTCASE(kmeans, backend)
+{
+    Xapian::Database db(get_database("apitest_cluster"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("cluster"));
+    Xapian::MSet matches = enq.get_mset(0, 10);
+
+    int k = 3;
+    Xapian::KMeans kmeans(k);
+    Xapian::ClusterSet cset = kmeans.cluster(matches);
+    int size = cset.size();
+    for (int i = 0; i < size; i++) {
+	Xapian::DocumentSet d = cset[i].get_documents();
+	TEST (d.size() != 0);
+    }
+    return true;
+}

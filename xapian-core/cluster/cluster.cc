@@ -489,7 +489,7 @@ Cluster::advdc() {
     LOGCALL(API, double, "Cluster::advdc()", NO_ARGS);
     double sum = 0;
     int num = cluster_docs.size();
-    EuclidianDistance dist;
+    CosineDistance dist;
     for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
 	sum += dist.similarity(*it, centroid);
     }
