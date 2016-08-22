@@ -1,3 +1,7 @@
+noinst_HEADERS +=\
+	cluster/points.h\
+	cluster/similarity.h
+
 EXTRA_DIST +=\
 	cluster/Makefile
 
