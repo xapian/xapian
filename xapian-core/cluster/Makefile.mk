@@ -7,5 +7,6 @@ EXTRA_DIST +=\
 
 lib_src +=\
 	cluster/cluster.cc\
+	cluster/cosine_sim.cc\
 	cluster/euclidian_sim.cc\
 	cluster/round_robin.cc

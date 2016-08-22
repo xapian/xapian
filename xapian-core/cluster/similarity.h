@@ -54,6 +54,20 @@ class EuclidianDistance : public Similarity {
     /// This method returns the description of Euclidian Distance
     std::string get_description();
 };
+
+// Class for calculating the cosine distance between two documents
+class CosineDistance : public Similarity {
+
+  public:
+
+    /** This method calculates and returns the cosine similarity using the
+     *  formula  cos(theta) = a.b/(|a|*|b|)
+     */
+    double similarity(PointType &a, PointType &b);
+
+    /// This method returns the description of Cosine Similarity
+    std::string get_description();
+};
 };
 
 #endif
