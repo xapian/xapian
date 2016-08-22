@@ -70,3 +70,25 @@ DEFINE_TESTCASE(kmeans, backend)
     }
     return true;
 }
+
+/** Test that none of the clusters returned by KMeans while using
+ *  KMeans++ as initialization are empty
+ */
+DEFINE_TESTCASE(kmeanspp, backend)
+{
+    Xapian::Database db(get_database("apitest_cluster"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("cluster"));
+    Xapian::MSet matches = enq.get_mset(0, 10);
+
+    int k = 3;
+    string mode = "kmeanspp";
+    Xapian::KMeans kmeanspp(k, mode);
+    Xapian::ClusterSet cset = kmeanspp.cluster(matches);
+    int size = cset.size();
+    for (int i = 0; i < size; i++) {
+	Xapian::DocumentSet d = cset[i].get_documents();
+	TEST (d.size() != 0);
+    }
+    return true;
+}

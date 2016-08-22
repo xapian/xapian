@@ -69,6 +69,67 @@ KMeans::initialize_random(ClusterSet &cset) {
 }
 
 void
+KMeans::initialize_kmeanspp(ClusterSet &cset) {
+    LOGCALL_VOID(API, "KMeans::initialize_kmeanspp()", cset);
+    int size = docs.size();
+    CosineDistance cosine;
+    map<int, double> m;
+    set<docid> centroid_docs;
+    srand(time(NULL));
+    Point a = docs[rand() % size];
+    centroid_docs.insert(a.get_document().get_docid());
+    Centroid centroid;
+    centroid.set_to_point(a);
+    centroids.push_back(centroid);
+    Cluster cluster1(centroid);
+    cset.add_cluster(cluster1);
+    unsigned int i = 1;
+    for (; i < k; i++) {
+	double sum = 0;
+	for (int j=0; j<size; j++) {
+	    double min = 100000;
+	    vector<Centroid>::iterator it = centroids.begin();
+	    for (; it != centroids.end(); it++) {
+		double dist = cosine.similarity(docs[j], *it);
+		if (dist < min) {
+		    min = dist;
+		    m[j] = min;
+		}
+	    }
+	    sum += min;
+	}
+	for (int j=0; j<size; j++) {
+	    m[j] = m[j]/sum;
+	}
+	for (int j=0; j<size; j++) {
+	    if (j==0)
+		continue;
+	    m[j] = m[j] + m[j-1];
+	}
+
+	double prob = rand()/double(RAND_MAX);
+
+	bool flag = false;
+	int j = 0;
+	for (j=0; j<size; j++) {
+	    if (m[j] >= prob && centroid_docs.find(docs[j].get_document().get_docid()) == centroid_docs.end()) {
+		flag = true;
+		break;
+	    }
+	}
+	if (flag) {
+	    Point &x = docs[j];
+	    Centroid centroid_n;
+	    centroid_n.set_to_point(x);
+	    centroids.push_back(centroid_n);
+	    Cluster cluster_n(centroid_n);
+	    cset.add_cluster(cluster_n);
+	    centroid_docs.insert(x.get_document().get_docid());
+	}
+    }
+}
+
+void
 KMeans::initialize_points(MSetDocumentSource source, TermListGroup &tlg) {
     LOGCALL_VOID(API, "KMeans::initialize_points()", source | tlg);
     while (!source.at_end()) {

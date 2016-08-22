@@ -425,6 +425,12 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     /// This specifies that the clusterer needs to form 'k' clusters
     unsigned int k;
 
+    /** This specifies the mode for the centroid initialization
+     *  'random' stands for random initialization
+     *  'kmeanspp' stands for KMeans initialization
+     */
+    std::string mode;
+
     /** This method checks whether the current state of KMeans has converged
      *  by checking for change in centroid of the clusters
      */
@@ -443,6 +449,13 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      */
     void initialize_random(ClusterSet &cset);
 
+    /** This method helps initialize the initial centroids to be passed to the
+     *  KMeans clusterer using the KMeans++ algorithm. It aims at spreading the
+     *  cluster centroids out so KMeans doesn't get stuck in a local optimum. Uses
+     *  roulette wheel selection for fitness selection
+     */
+    void initialize_kmeanspp(ClusterSet &cset);
+
     /** Initialize the 'Points' to be fed into the Clusterer with the DocumentSource.
      *  The TF-IDF weights for the points are calculated and stored within the
      *  Points to be used later during distance calculations
@@ -452,7 +465,10 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
   public:
 
     /// Constructor specifying number of clusters
-    KMeans(unsigned int k_) : k(k_) {}
+    KMeans(unsigned int k_) : k(k_) { mode = "random"; }
+
+    /// Constructor specifying number of clusters and mode of initialization
+    KMeans(unsigned int k_, std::string mode_) : k(k_), mode(mode_) {}
 
     /// This method implements the KMeans clustering algorithm
     ClusterSet cluster(MSet &mset);
