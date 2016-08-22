@@ -1,7 +1,7 @@
-/** @file apitest.h
- * @brief test functionality of the Xapian API
+/** @file utestsuite.cc
+ * @brief Disable Xapian-dependent parts of testsuite.cc
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2012 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,17 +18,5 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_APITEST_H
-#define XAPIAN_INCLUDED_APITEST_H
-
-#include <xapian.h>
-
-#include "testsuite.h"
-
-Xapian::Database get_database(const std::string &db);
-
-Xapian::Database get_database(const std::string &db1, const std::string &db2);
-
-std::string get_database_path(const std::string &db);
-
-#endif // XAPIAN_INCLUDED_APITEST_H
+#define NO_LIBXAPIAN
+#include "testsuite.cc"
