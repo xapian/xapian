@@ -19,78 +19,10 @@ libxapian_la = libxapian.la
 
 TESTS_ENVIRONMENT = ./runtest
 
-.PHONY: check-none check-inmemory \
-	check-chert check-glass \
-	check-multi check-multi-chert check-multi-glass \
-	check-remote check-remoteprog check-remotetcp \
-	check-remoteprog-chert check-remoteprog-glass \
-	check-remotetcp-chert check-remotetcp-glass \
-	up remove-cached-databases
+.PHONY: up remove-cached-databases
 
 up:
 	cd .. && $(MAKE)
-
-check-none: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b none
-
-check-inmemory: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b inmemory
-
-check-multi: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi
-
-check-singlefile: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile
-
-if BUILD_BACKEND_REMOTE
-check-remote: check-remoteprog check-remotetcp
-
-check-remoteprog: apitest$(EXEEXT)
-## If both chert and glass are enabled, just run remoteprog_chert.
-if BUILD_BACKEND_CHERT
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
-else
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
-endif
-
-check-remotetcp: apitest$(EXEEXT)
-## If both chert and glass are enabled, just run remotetcp_glass.
-if BUILD_BACKEND_GLASS
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
-else
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
-endif
-
-if BUILD_BACKEND_GLASS
-check-remoteprog-glass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_glass
-check-remotetcp-glass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
-endif
-
-if BUILD_BACKEND_CHERT
-check-remoteprog-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
-check-remotetcp-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_chert
-endif
-endif
-
-if BUILD_BACKEND_GLASS
-check-multi-glass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_glass
-check-glass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b glass
-check-singlefile-glass: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile_glass
-endif
-
-if BUILD_BACKEND_CHERT
-check-multi-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_chert
-check-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b chert
-endif
 
 ## Test programs to be run
 TESTS = apitest$(EXEEXT)
@@ -156,7 +88,7 @@ EXTRA_DIST +=\
 	testdata/apitest_allterms4.txt
 
 remove-cached-databases:
-	rm -rf .chert .glass .multichert .multiglass .replicatmp .singlefileglass .stub
+	rm -rf .letor-db
 
 clean-local: remove-cached-databases
 
