@@ -66,4 +66,4 @@ before_script:
   # by default), then configure using our chosen compiler.
   - ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
   - ./configure CC=$USE_CC CXX=$USE_CXX
-script: make && make check
+script: make && make check VERBOSE=1 AUTOMATED_TESTING=1
