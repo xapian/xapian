@@ -19,7 +19,10 @@ libxapian_la = libxapian.la
 
 TESTS_ENVIRONMENT = ./runtest
 
-.PHONY: remove-cached-databases
+.PHONY: up remove-cached-databases
+
+up:
+	cd .. && $(MAKE)
 
 ## Test programs to be run
 TESTS = apitest$(EXEEXT)
