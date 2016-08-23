@@ -211,7 +211,7 @@ DEFINE_TESTCASE(inl2weight1, !backend) {
 	    FAIL_TEST("Serialised inl2weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised inl2weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
-
+	// Good!
     }
 
     return true;
@@ -277,7 +277,7 @@ DEFINE_TESTCASE(ifb2weight1, !backend) {
 	    FAIL_TEST("Serialised IfB2Weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised IfB2Weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
-
+	// Good!
     }
     return true;
 }
@@ -341,7 +341,7 @@ DEFINE_TESTCASE(ineb2weight1, !backend) {
 	    FAIL_TEST("Serialised ineb2weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised ineb2weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
-
+	// Good!
     }
 
     return true;
@@ -409,7 +409,7 @@ DEFINE_TESTCASE(bb2weight1, !backend) {
 	    FAIL_TEST("Serialised BB2Weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised BB2Weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
-
+	// Good!
     }
     return true;
 }
@@ -539,7 +539,7 @@ DEFINE_TESTCASE(pl2weight1, !backend) {
 	    FAIL_TEST("Serialised PL2Weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised PL2Weight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
-
+	// Good!
     }
     return true;
 }
@@ -742,7 +742,7 @@ DEFINE_TESTCASE(tfidfweight2, !backend) {
 	    FAIL_TEST("Serialised TfIdfWeight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised TfIdfWeight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &) {
-
+	// Good!
     }
     return true;
 }
