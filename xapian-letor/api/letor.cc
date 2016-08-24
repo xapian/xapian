@@ -108,7 +108,7 @@ Letor::letor_learn_model(const char* input_filename, const char* output_filename
 
 void
 Letor::prepare_training_file(const string & query_file, const string & qrel_file,
-			     const Xapian::doccount & msetsize, const char* filename,
+			     Xapian::doccount msetsize, const char* filename,
 			     const Xapian::FeatureList & flist)
 {
     LOGCALL_VOID(API, "Letor::prepare_training_file", query_file | qrel_file | msetsize | filename | flist);
@@ -132,7 +132,7 @@ Letor::set_scorer(Xapian::Scorer * scorer)
 void
 Letor::letor_score(const std::string & query_file, const std::string & qrel_file,
 		   const std::string & model_file, const std::string & output_file,
-		   const Xapian::doccount & msetsize, const Xapian::FeatureList & flist) {
+		   Xapian::doccount msetsize, const Xapian::FeatureList & flist) {
     LOGCALL_VOID(API, "Letor::letor_score", query_file | qrel_file | model_file | output_file | msetsize | flist);
     internal->letor_score(query_file, qrel_file, model_file, output_file, msetsize, flist);
 }

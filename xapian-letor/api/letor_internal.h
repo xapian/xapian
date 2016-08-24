@@ -53,10 +53,10 @@ class Letor::Internal : public Xapian::Internal::intrusive_base {
 
     void letor_score(const std::string & query_file, const std::string & qrel_file,
 		     const std::string & model_file, const std::string & output_file,
-		     const Xapian::doccount & msetsize, const Xapian::FeatureList & flist);
+		     Xapian::doccount msetsize, const Xapian::FeatureList & flist);
 
     void prepare_training_file(const std::string & query_file, const std::string & qrel_file,
-			       const Xapian::doccount & msetsize, const char* filename,
+			       Xapian::doccount msetsize, const char* filename,
 			       const FeatureList & flist);
 };
 
