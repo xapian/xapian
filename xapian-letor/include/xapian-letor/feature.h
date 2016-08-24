@@ -49,7 +49,6 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
-
     /// Default constructor
     Feature();
 
@@ -82,9 +81,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
     /// Don't allow copying.
     Feature(const Feature & o);
-
 };
-
 
 /** Feature subclass returning feature value calculated as:
  *  @f[fval = \sum_{q_i \in Q \cap D} \log{\left( c(q_i,D) \right)}@f]
@@ -96,13 +93,9 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
  *        |.| is size-of function
  */
 class XAPIAN_VISIBILITY_DEFAULT TfFeature : public Feature {
-
   public:
-
     std::vector<double> get_values() const;
-
     std::string name() const;
-
 };
 
 /** Feature subclass returning feature value calculated as:
@@ -115,13 +108,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfFeature : public Feature {
  *        |.| is size-of function
  */
 class XAPIAN_VISIBILITY_DEFAULT TfDoclenFeature : public Feature {
-
   public:
-
     std::vector<double> get_values() const;
-
     std::string name() const;
-
 };
 
 /** Feature subclass returning feature value calculated as:
@@ -131,13 +120,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfDoclenFeature : public Feature {
  *        idf(.) is the inverse-document-frequency.
  */
 class XAPIAN_VISIBILITY_DEFAULT IdfFeature : public Feature {
-
   public:
-
     std::vector<double> get_values() const;
-
     std::string name() const;
-
 };
 
 /** Feature subclass returning feature value calculated as:
@@ -150,13 +135,9 @@ class XAPIAN_VISIBILITY_DEFAULT IdfFeature : public Feature {
  *        |.| is size-of function
  */
 class XAPIAN_VISIBILITY_DEFAULT CollTfCollLenFeature : public Feature {
-
   public:
-
     std::vector<double> get_values() const;
-
     std::string name() const;
-
 };
 
 /** Feature subclass returning feature value calculated as:
@@ -170,13 +151,9 @@ class XAPIAN_VISIBILITY_DEFAULT CollTfCollLenFeature : public Feature {
  *        idf(.) is the inverse-document-frequency.
  */
 class XAPIAN_VISIBILITY_DEFAULT TfIdfDoclenFeature : public Feature {
-
   public:
-
     std::vector<double> get_values() const;
-
     std::string name() const;
-
 };
 
 /** Feature subclass returning feature value calculated as:
@@ -189,13 +166,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfDoclenFeature : public Feature {
  *        |.| is size-of function
  */
 class XAPIAN_VISIBILITY_DEFAULT TfDoclenCollTfCollLenFeature : public Feature {
-
   public:
-
     std::vector<double> get_values() const;
-
     std::string name() const;
-
 };
 
 }

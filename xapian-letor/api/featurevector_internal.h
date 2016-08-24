@@ -1,6 +1,8 @@
-/* featurevector_internal.h: Internals of FeatureVector class.
- *
- * Copyright (C) 2012 Parth Gupta
+/** @file featurevector_internal.h
+ * @brief Internals of FeatureVector class
+ */
+/* Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,17 +23,13 @@
 #ifndef FEATURE_VECTOR_INTERNAL_H
 #define FEATURE_VECTOR_INTERNAL_H
 
-#include <config.h>
-
-#include <xapian.h>
-
 #include "xapian-letor/featurevector.h"
 
 #include <vector>
 
 using namespace std;
 
-namespace Xapian{
+namespace Xapian {
 
 class FeatureVector::Internal : public Xapian::Internal::intrusive_base
 {
@@ -46,4 +44,3 @@ class FeatureVector::Internal : public Xapian::Internal::intrusive_base
 }
 
 #endif // FEATURE_VECTOR_INTERNAL_H
-

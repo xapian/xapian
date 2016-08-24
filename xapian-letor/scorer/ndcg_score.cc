@@ -20,57 +20,53 @@
  * USA
  */
 
+#include <config.h>
+
 #include "xapian-letor/scorer.h"
+
 #include "debuglog.h"
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 
 using namespace std;
 using namespace Xapian;
 
-NDCGScore::NDCGScore() {
+NDCGScore::NDCGScore()
+{
     LOGCALL_CTOR(API, "NDCGScore", NO_ARGS);
 }
 
-NDCGScore::~NDCGScore() {
+NDCGScore::~NDCGScore()
+{
     LOGCALL_DTOR(API, "NDCGScore");
 }
 
 static double
-get_dcg(const std::vector<double> &labels) {
+get_dcg(const std::vector<double> &labels)
+{
     LOGCALL_STATIC(API, double, "get_dcg", labels);
-
     double dcg = 0;
-
     for (int i = 0; i < int(labels.size()); i++){
 	dcg += (pow(2,labels[i]) - 1)/(log(i+2)/log(2));
     }
-
     return dcg;
-
 }
 
 double
 NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
     LOGCALL(API, double, "NDCGScore::score", fvv);
-
     std::vector<double> labels;
-
     for (int i = 0; i < int(fvv.size()); i++) {
 	labels.push_back(fvv[i].get_label());
     }
-
     //DCG score of original ranking
     double DCG = get_dcg(labels);
-
     //DCG score of ideal ranking
     sort(labels.begin(), labels.begin() + labels.size(), std::greater<double>());
     double iDCG = get_dcg(labels);
 
     if (iDCG == 0) // Don't divide by 0
 	return 0;
-
-    return DCG/iDCG;
+    return DCG / iDCG;
 }

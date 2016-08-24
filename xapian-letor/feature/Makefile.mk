@@ -5,11 +5,11 @@ EXTRA_DIST +=\
 	feature/Makefile
 
 lib_src +=\
+	feature/colltfcolllenfeature.cc\
 	feature/feature.cc\
 	feature/feature_internal.cc\
-	feature/tffeature.cc\
-	feature/tfdoclenfeature.cc\
 	feature/idffeature.cc\
-	feature/colltfcolllenfeature.cc\
+	feature/tfdoclencolltfcolllenfeature.cc\
+	feature/tfdoclenfeature.cc\
 	feature/tfidfdoclenfeature.cc\
-	feature/tfdoclencolltfcolllenfeature.cc
+	feature/tffeature.cc

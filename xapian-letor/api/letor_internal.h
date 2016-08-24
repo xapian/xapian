@@ -1,7 +1,8 @@
 /** @file letor_internal.h
- * @brief Internals of Xapian::Letor class
+ * @brief Letor::Internal class
  */
 /* Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +24,6 @@
 #define XAPIAN_INCLUDED_LETOR_INTERNAL_H
 
 #include "xapian-letor/letor.h"
-#include "xapian-letor/ranker.h"
 
 #include <map>
 
@@ -33,33 +33,31 @@ namespace Xapian {
 
 class Letor::Internal : public Xapian::Internal::intrusive_base {
     friend class Letor;
-    Xapian::Internal::intrusive_ptr<Ranker> ranker;
     Database letor_db;
     Query letor_query;
+    // Ranker instance
+    Xapian::Internal::intrusive_ptr<Ranker> ranker;
+    // Scorer instance
     Xapian::Internal::intrusive_ptr<Scorer> scorer;
-
+    // std::map to store qrels while parsing qrel file
     map<string, map<string, int> > qrel;
 
   public:
+    // Get label from qrel map
+    int getlabel(const Document & doc, const std::string & qid) const;
 
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset, const char* model_filename,
-					   const Xapian::FeatureList & flist) const;
+					  const Xapian::FeatureList & flist) const;
 
     void letor_learn_model(const char* input_filename, const char* output_filename);
-
-    void prepare_training_file(const std::string & query_file, const std::string & qrel_file,
-			       const Xapian::doccount & msetsize, const char* filename,
-			       const FeatureList & flist);
-
-    vector<FeatureVector> load_list_fvecs(const char *filename);
-
-    int getlabel(const Document & doc, const std::string & qid);
 
     void letor_score(const std::string & query_file, const std::string & qrel_file,
 		     const std::string & model_file, const Xapian::doccount & msetsize,
 		     const Xapian::FeatureList & flist);
 
-
+    void prepare_training_file(const std::string & query_file, const std::string & qrel_file,
+			       const Xapian::doccount & msetsize, const char* filename,
+			       const FeatureList & flist);
 };
 
 }

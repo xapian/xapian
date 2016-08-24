@@ -20,40 +20,49 @@
  * USA
  */
 
+#include <config.h>
+
 #include "xapian-letor/ranker.h"
+
 #include "debuglog.h"
 
 using namespace std;
 using namespace Xapian;
 
-Ranker::Ranker() {
+Ranker::Ranker()
+{
     LOGCALL_CTOR(API, "Ranker", NO_ARGS);
 }
 
-Ranker::~Ranker() {
+Ranker::~Ranker()
+{
     LOGCALL_DTOR(API, "Ranker");
 }
 
 bool
-Ranker::scorecomparer(const FeatureVector & firstfv, const FeatureVector& secondfv) {
+Ranker::scorecomparer(const FeatureVector & firstfv, const FeatureVector& secondfv)
+{
     LOGCALL(API, bool, "Ranker::scorecomparer", firstfv | secondfv);
     return firstfv.get_score() > secondfv.get_score();
 }
 
 bool
-Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& secondfv) {
+Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& secondfv)
+{
     LOGCALL(API, bool, "Ranker::labelcomparer", firstfv | secondfv);
     return firstfv.get_label() > secondfv.get_label();
 }
 
 std::vector<Xapian::FeatureVector>
-Ranker::get_traindata() const {
+Ranker::get_traindata() const
+{
     LOGCALL(API, std::vector<FeatureVector>, "Ranker::get_traindata", NO_ARGS);
     return traindata;
 }
 
 void
-Ranker::set_training_data(const vector<Xapian::FeatureVector> &training_data) {
+Ranker::set_training_data(const vector<Xapian::FeatureVector> &training_data)
+{
     LOGCALL_VOID(API, "Ranker::set_training_data", training_data);
     traindata = training_data;
 }

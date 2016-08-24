@@ -31,11 +31,9 @@ namespace Xapian {
 
 /** Class defining internals of Feature class. */
 class Feature::Internal : public Xapian::Internal::intrusive_base {
-
     friend class Feature;
 
   public:
-
     /// Xapian::Database using which features will be calculated.
     Database feature_db;
 

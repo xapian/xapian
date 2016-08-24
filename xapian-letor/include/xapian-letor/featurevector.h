@@ -36,7 +36,6 @@
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
-
     /// @private @internal Class representing the FeatureVector internals.
     class Internal;
     /// @private @internal Reference counted internals.

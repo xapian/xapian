@@ -25,11 +25,11 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <xapian-letor/letor_error.h>
 #include <xapian-letor/feature.h>
 #include <xapian-letor/featurelist.h>
 #include <xapian-letor/featurevector.h>
 #include <xapian-letor/letor.h>
+#include <xapian-letor/letor_error.h>
 #include <xapian-letor/ranker.h>
 #include <xapian-letor/scorer.h>
 
