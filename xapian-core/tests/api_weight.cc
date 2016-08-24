@@ -437,9 +437,16 @@ DEFINE_TESTCASE(dlhweight1, backend) {
     Xapian::MSet mset1;
     mset1 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset1.size(), 5);
-    /* Weight has been calculated manually by obtaining the statistics from the
-     * database.*/
-    TEST_EQUAL_DOUBLE(mset1[0].get_weight() - mset1[4].get_weight(), 1.17790202016936130);
+    // Would be ..., 4, 2 except the last two weights would be negative and
+    // so get clamped to zero.
+    mset_expect_order(mset1, 3, 5, 1, 2, 4);
+    // Weights calculated manually using stats from the database.
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0.22469777447558817);
+    TEST_EQUAL_DOUBLE(mset1[1].get_weight(), 0.22469777447558817);
+    TEST_EQUAL_DOUBLE(mset1[2].get_weight(), 0.04027929399255381);
+    // The following weights would be negative but get clamped to 0.
+    TEST_EQUAL_DOUBLE(mset1[3].get_weight(), 0.0);
+    TEST_EQUAL_DOUBLE(mset1[4].get_weight(), 0.0);
 
     // Test with OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));

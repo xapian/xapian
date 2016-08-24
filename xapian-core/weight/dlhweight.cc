@@ -47,18 +47,9 @@ DLHWeight::init(double factor)
     double F = get_collection_freq();
 
     if (wdf_upper == 0) {
-	lower_bound = upper_bound = 0.0;
+	upper_bound = 0.0;
 	return;
     }
-
-    // Calculate the lower bound.
-    double min_weight = (wdf_lower * log2((wdf_lower * get_average_length() /
-			len_upper) * (N / F)) -
-			(1.5 * log2(len_upper)) +
-			0.5 * log2(2.0 * M_PI * wdf_lower)) /
-			(wdf_upper + 0.5);
-
-    lower_bound = get_wqf() * min_weight * factor;
 
     // Calculate constant values to be used in get_sumpart().
     log_constant = get_average_length() * N / F;
@@ -83,7 +74,8 @@ DLHWeight::init(double factor)
 			/ (wdf_lower + 0.5) +
 			0.5 * log2(2.0 * M_PI * max_product) / (wdf_lower + 0.5));
 
-    upper_bound = ((get_wqf() * max_weight) - lower_bound);
+    upper_bound = get_wqf() * max_weight;
+    if (rare(upper_bound < 0.0)) upper_bound = 0.0;
 }
 
 string
@@ -116,8 +108,9 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 		(len - wdf) * log2(1.0 - wdf_to_len) +
 		0.5 * log2(2.0 * M_PI * wdf * (1.0 - wdf_to_len))) /
 		(wdf + 0.5);
+    if (rare(wt <= 0.0)) return 0.0;
 
-    return ((wqf_product_factor * wt) - lower_bound);
+    return wqf_product_factor * wt;
 }
 
 double
