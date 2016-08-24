@@ -137,7 +137,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     void prepare_training_file(const std::string & query_file,
 			       const std::string & qrel_file,
-			       const Xapian::doccount & msetsize,
+			       Xapian::doccount msetsize,
 			       const char* filename = "./train.txt",
 			       const Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
@@ -156,7 +156,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 		     const std::string & qrel_file,
 		     const std::string & model_file,
 		     const std::string & output_file,
-		     const Xapian::doccount & msetsize,
+		     Xapian::doccount msetsize,
 		     const Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
   private:

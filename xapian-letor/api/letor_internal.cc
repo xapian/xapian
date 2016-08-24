@@ -209,7 +209,7 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 
 void
 Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file,
-				       const Xapian::doccount & msetsize, const char* filename,
+				       Xapian::doccount msetsize, const char* filename,
 				       const FeatureList & flist)
 {
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
@@ -312,7 +312,7 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 void
 Letor::Internal::letor_score(const std::string & query_file, const std::string & qrel_file,
 			     const std::string & model_file, const std::string & output_file,
-			     const Xapian::doccount & msetsize, const Xapian::FeatureList & flist)
+			     Xapian::doccount msetsize, const Xapian::FeatureList & flist)
 {
     // Load ranker model
     ranker->load_model_from_file(model_file.c_str());
