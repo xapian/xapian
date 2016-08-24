@@ -1075,9 +1075,6 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
  *  Proceedings of the 16th Text REtrieval Conference (TREC-2007), 2008.
  */
 class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
-    /// The lower bound on the weight.
-    double lower_bound;
-
     /// The upper bound on the weight.
     double upper_bound;
 
@@ -1295,9 +1292,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
 class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     /// The upper bound on the weight.
     double upper_bound;
-
-    /// The lower bound on the weight.
-    double lower_bound;
 
     /// The constant value used in get_sumpart() .
     double log_constant;
