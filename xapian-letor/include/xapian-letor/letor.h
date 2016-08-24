@@ -145,6 +145,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      * @param query_file    Query file containing test queries in letor specified format
      * @param qrel_file     Qrel file containing relevance judgements for the queries in letor specified format
      * @param model_file    Model to check for ranking quality
+     * @param output_file   Output file noting scoring results
      * @param msetsize      MSet size of retrieved documents
      * @param flist         Xapian::FeatureList object definining what set of features to use. Note: Make
      *                       sure that it is same as what was used while training the model being used.
@@ -154,6 +155,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     void letor_score(const std::string & query_file,
 		     const std::string & qrel_file,
 		     const std::string & model_file,
+		     const std::string & output_file,
 		     const Xapian::doccount & msetsize,
 		     const Xapian::FeatureList & flist = * new Xapian::FeatureList());
 

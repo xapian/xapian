@@ -131,10 +131,10 @@ Letor::set_scorer(Xapian::Scorer * scorer)
 
 void
 Letor::letor_score(const std::string & query_file, const std::string & qrel_file,
-		   const std::string & model_file, const Xapian::doccount & msetsize,
-		   const Xapian::FeatureList & flist) {
-    LOGCALL_VOID(API, "Letor::letor_score", query_file | qrel_file | model_file | msetsize | flist);
-    internal->letor_score(query_file, qrel_file, model_file, msetsize, flist);
+		   const std::string & model_file, const std::string & output_file,
+		   const Xapian::doccount & msetsize, const Xapian::FeatureList & flist) {
+    LOGCALL_VOID(API, "Letor::letor_score", query_file | qrel_file | model_file | output_file | msetsize | flist);
+    internal->letor_score(query_file, qrel_file, model_file, output_file, msetsize, flist);
 }
 
 }
