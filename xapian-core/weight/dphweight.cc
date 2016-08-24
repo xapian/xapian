@@ -46,22 +46,11 @@ DPHWeight::init(double factor)
     double len_upper = get_doclength_upper_bound();
 
     double min_wdf_to_len = wdf_lower / len_upper;
-    double min_normalization = pow(1.0 / len_upper, 2) / (wdf_upper + 1.0);
 
     if (wdf_upper == 0) {
-	lower_bound = upper_bound = 0.0;
+	upper_bound = 0.0;
 	return;
     }
-
-    /* Calculate lower bound on the weight in order to deal with negative
-     * weights. */
-    double min_weight = min_normalization *
-			(wdf_lower *
-			log2((wdf_lower * get_average_length() / len_upper) *
-			(N / F)) +
-			(0.5 * log2(2.0 * M_PI * wdf_lower / len_upper)));
-
-    lower_bound = factor * get_wqf() * min_weight;
 
     /* Calculate constant value to be used in get_sumpart(). */
     log_constant = get_average_length() * N / F;
@@ -106,7 +95,8 @@ DPHWeight::init(double factor)
 			(log2(log_constant) +
 			(0.5 * log2(2 * M_PI * max_product)));
 
-    upper_bound = ((wqf_product_factor * max_weight) - lower_bound);
+    upper_bound = wqf_product_factor * max_weight;
+    if (rare(upper_bound < 0.0)) upper_bound = 0.0;
 }
 
 string
@@ -141,9 +131,9 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 		(wdf *
 		log2(wdf_to_len * log_constant) +
 		(0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
+    if (rare(wt <= 0.0)) return 0.0;
 
-    // Subtract the lower bound from the actual weight to avoid negative weights.
-    return ((wqf_product_factor * wt) - lower_bound);
+    return wqf_product_factor * wt;
 }
 
 double
