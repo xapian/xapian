@@ -34,7 +34,7 @@
 
 #include <cmath>
 #include <string>
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <vector>
 
 using namespace Xapian;
@@ -71,7 +71,7 @@ MSetDocumentSource::at_end() const {
 }
 
 doccount
-MSetDocumentSource::size() {
+MSetDocumentSource::size() const {
     LOGCALL(API, doccount, "MSetDocumentSource::size()", NO_ARGS);
     return mset.size();
 }
@@ -98,7 +98,7 @@ DummyFreqSource::get_termfreq(const string &) {
 }
 
 doccount
-DummyFreqSource::get_doccount() {
+DummyFreqSource::get_doccount() const {
     LOGCALL(API, doccount, "DummyFreqSource::get_doccount()", NO_ARGS);
     return 1;
 }
@@ -111,7 +111,7 @@ TermListGroup::add_document(const Document &document) {
     TermIterator end(document.termlist_end());
 
     for (; titer != end; ++titer) {
-	tr1::unordered_map<string, doccount>::iterator i;
+	unordered_map<string, doccount>::iterator i;
 	i = termfreq.find(*titer);
 	if (i == termfreq.end())
 	    termfreq[*titer] = 1;
@@ -129,7 +129,7 @@ TermListGroup::add_documents(MSetDocumentSource docs) {
 }
 
 doccount
-TermListGroup::get_doccount() {
+TermListGroup::get_doccount() const {
     LOGCALL(API, doccount, "TermListGroup::get_doccount()", NO_ARGS);
     return docs_num;
 }
@@ -141,26 +141,26 @@ TermListGroup::get_termfreq(const string &tname) {
 }
 
 doccount
-ClusterSet::size() {
+ClusterSet::size() const {
     LOGCALL(API, doccount, "ClusterSet::size()", NO_ARGS);
     return clusters.size();
 }
 
 doccount
-ClusterSet::cluster_size(clusterid cid) {
+ClusterSet::cluster_size(clusterid cid) const {
     LOGCALL(API, doccount, "ClusterSet::cluster_size()", cid);
     unsigned int s = clusters.size();
     if (cid >= s)
-	throw RangeError("The mentioned clusterid was out of range", 103);
+	throw RangeError("The mentioned clusterid was out of range");
     return clusters[cid].size();
 }
 
 Cluster
-ClusterSet::get_cluster(clusterid cid) {
+ClusterSet::get_cluster(clusterid cid) const {
     LOGCALL(API, Cluster, "ClusterSet::get_cluster()", cid);
     unsigned int s = clusters.size();
     if (cid >= s)
-	throw RangeError("The mentioned clusterid was out of range", 103);
+	throw RangeError("The mentioned clusterid was out of range");
     return clusters[cid];
 }
 
@@ -176,7 +176,7 @@ ClusterSet::operator[](doccount i) {
 }
 
 int
-DocumentSet::size() {
+DocumentSet::size() const {
     LOGCALL(API, int, "DocumentSet::size()", NO_ARGS);
     return docs.size();
 }
@@ -193,13 +193,13 @@ DocumentSet::operator[](doccount i) {
 }
 
 DocumentSetIterator
-DocumentSet::begin() {
+DocumentSet::begin() const {
     LOGCALL(API, DocumentSetIterator, "DocumentSet::begin()", NO_ARGS);
     return DocumentSetIterator(*this, 0);
 }
 
 DocumentSetIterator
-DocumentSet::end() {
+DocumentSet::end() const {
     LOGCALL(API, DocumentSetIterator, "DocumentSet::end()", NO_ARGS);
     return DocumentSetIterator(*this, size());
 }
@@ -225,7 +225,7 @@ Centroid::set_to_point(Point &p) {
 void
 Centroid::divide(int num) {
     LOGCALL_VOID(API, "Centroid::divide()", num); 
-    tr1::unordered_map<string, double>::iterator it;
+    unordered_map<string, double>::iterator it;
     for (it = values.begin(); it != values.end(); ++it)
 	it->second = it->second / num;
 }
@@ -241,7 +241,7 @@ void
 Centroid::recalc_magnitude() {
     LOGCALL_VOID(API, "Centroid::recalc_magnitude()", NO_ARGS);
     magnitude = 0;
-    for (tr1::unordered_map<string, double>::iterator it = values.begin(); it != values.end(); ++it)
+    for (unordered_map<string, double>::iterator it = values.begin(); it != values.end(); ++it)
 	magnitude += it->second*it->second;
 }
 
@@ -270,19 +270,19 @@ class XAPIAN_VISIBILITY_DEFAULT PointTermIterator : public TermIterator::Interna
 };
 
 Document
-Point::get_document() {
+Point::get_document() const {
     LOGCALL(API, Document, "Point::get_document()", NO_ARGS);
     return doc;
 }
 
 TermIterator
-PointType::termlist_begin() {
+PointType::termlist_begin() const {
     LOGCALL(API, TermIterator, "PointType::termlist_begin()", NO_ARGS);
     return TermIterator(new PointTermIterator(termlist));
 }
 
 TermIterator
-PointType::termlist_end() {
+PointType::termlist_end() const {
     LOGCALL(API, TermIterator, "PointType::termlist_end()", NO_ARGS);
     return TermIterator(NULL);
 }
@@ -290,7 +290,7 @@ PointType::termlist_end() {
 bool
 PointType::contains(string term) {
     LOGCALL(API, bool, "PointType::contains()", term);
-    tr1::unordered_map<string, double>::iterator it;
+    unordered_map<string, double>::iterator it;
     it = values.find(term);
     if (it == values.end())
 	return false;
@@ -301,7 +301,7 @@ PointType::contains(string term) {
 double
 PointType::get_value(string term) {
     LOGCALL(API, double, "Point::get_value()", term);
-    tr1::unordered_map<string, double>::iterator it;
+    unordered_map<string, double>::iterator it;
     it = values.find(term);
     if (it == values.end())
 	return 0.0;
@@ -333,7 +333,7 @@ Point::initialize(TermListGroup &tlg, const Document &doc_) {
 }
 
 double
-PointType::get_magnitude() {
+PointType::get_magnitude() const {
     LOGCALL(API, double, "PointType::get_magnitude()", NO_ARGS);
     return magnitude;
 }
@@ -341,7 +341,7 @@ PointType::get_magnitude() {
 void
 PointType::add_value (string term, double value) {
     LOGCALL_VOID(API, "PointType::add_value()", term | value);
-    tr1::unordered_map<string, double>::iterator it;
+    unordered_map<string, double>::iterator it;
     it = values.find(term);
     if (it != values.end())
 	it->second += value;
@@ -358,7 +358,7 @@ PointType::set_value(string term, double value) {
 }
 
 int
-PointType::termlist_size() {
+PointType::termlist_size() const {
     return termlist.size();
 }
 
@@ -420,7 +420,7 @@ Cluster::~Cluster() {
 }
 
 Centroid
-Cluster::get_centroid() {
+Cluster::get_centroid() const {
     LOGCALL(API, Centroid, "Cluster::get_centroid()", NO_ARGS);
     return centroid;
 }
@@ -444,13 +444,13 @@ Cluster::get_documents() {
 }
 
 Point
-Cluster::get_index(int index) {
+Cluster::get_index(int index) const {
     LOGCALL(API, Point, "Cluster::get_index()", index);
     return cluster_docs[index];
 }
 
 doccount
-Cluster::size() {
+Cluster::size() const {
     LOGCALL(API, doccount, "Cluster::size()", NO_ARGS);
     return (cluster_docs.size());
 }

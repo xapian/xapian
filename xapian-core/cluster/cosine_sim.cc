@@ -34,13 +34,13 @@ using namespace std;
 using namespace Xapian;
 
 string
-CosineDistance::get_description() {
+CosineDistance::get_description() const {
     LOGCALL(API, string, "CosineDistance::get_description()", NO_ARGS);
     return "Cosine Distance metric";
 }
 
 double
-CosineDistance::similarity(PointType &a, PointType &b) {
+CosineDistance::similarity(PointType &a, PointType &b) const {
     LOGCALL(API, double, "CosineDistance::similarity()", a | b);
     double denom_a = 0;
     double denom_b = 0;

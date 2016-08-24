@@ -28,14 +28,14 @@
 #include "similarity.h"
 
 #include <set>
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <vector>
 
 using namespace Xapian;
 using namespace std;
 
 string
-KMeans::get_description() {
+KMeans::get_description() const {
     LOGCALL(API, string, "KMeans::get_description()", NO_ARGS);
     return "KMeans clusterer";
 }
@@ -142,7 +142,7 @@ KMeans::initialize_points(MSetDocumentSource source, TermListGroup &tlg) {
 }
 
 bool
-KMeans::converge(vector<Centroid> &previous, vector<Centroid> &current) {
+KMeans::converge(vector<Centroid> &previous, vector<Centroid> &current) const {
     LOGCALL(API, bool, "KMeans::converge()", previous | current);
     CosineDistance cosine;
     for (unsigned int i=0; i<k; i++) {

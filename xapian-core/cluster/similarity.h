@@ -35,10 +35,10 @@ class Similarity {
     virtual ~Similarity();
 
     /// Calculates the similarity between the two documents
-    virtual double similarity(PointType &a, PointType &b) = 0;
+    virtual double similarity(PointType &a, PointType &b) const = 0;
 
     /// Returns description of the similarity metric being used
-    virtual std::string get_description() = 0;
+    virtual std::string get_description() const = 0;
 };
 
 /// Class for calculating Euclidian Distance between two points
@@ -49,10 +49,10 @@ class EuclidianDistance : public Similarity {
     /** This method calculates and returns the euclidian distance using the
      *  Euclidian distance formula
      */
-    double similarity(PointType &a, PointType &b);
+    double similarity(PointType &a, PointType &b) const;
 
     /// This method returns the description of Euclidian Distance
-    std::string get_description();
+    std::string get_description() const;
 };
 
 // Class for calculating the cosine distance between two documents
@@ -63,11 +63,11 @@ class CosineDistance : public Similarity {
     /** This method calculates and returns the cosine similarity using the
      *  formula  cos(theta) = a.b/(|a|*|b|)
      */
-    double similarity(PointType &a, PointType &b);
+    double similarity(PointType &a, PointType &b) const;
 
     /// This method returns the description of Cosine Similarity
-    std::string get_description();
+    std::string get_description() const;
 };
-};
+}
 
 #endif

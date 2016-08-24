@@ -32,7 +32,7 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
-#include <tr1/unordered_map>
+#include <unordered_map>
 #include <vector>
 
 namespace Xapian {
@@ -53,7 +53,7 @@ class DocumentSource {
     virtual bool at_end() const = 0;
 
     /// Returns the size of the DocumentSource
-    virtual doccount size() = 0;
+    virtual doccount size() const = 0;
 };
 
 /// Class representing a source of documents created from an MSet
@@ -95,7 +95,7 @@ class MSetDocumentSource : public DocumentSource {
     bool at_end() const;
 
     /// This method returns the size of the MSetDocumentSource
-    doccount size();
+    doccount size() const;
 };
 
 /** Structure to store term and corresponding wdf. This is used with
@@ -126,7 +126,7 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
   public:
 
     /// This method returns the size of the DocumentSet
-    int size();
+    int size() const;
 
     /// This method returns the Document in the DocumentSet at index i
     Xapian::Document operator[](Xapian::doccount i);
@@ -134,10 +134,10 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
     /* This method returns an iterator to the start of the DocumentSet to
      * iterate through all the documents
      */
-    DocumentSetIterator begin();
+    DocumentSetIterator begin() const;
 
     /// This method returns an iterator to the end of the DocumentSet
-    DocumentSetIterator end();
+    DocumentSetIterator end() const;
 
     /// This method adds a new Document to the DocumentSet
     void add_document(Document doc);
@@ -208,16 +208,16 @@ class PointType {
     /** This implements a map to store the terms within a document
      *  and their pre-computed TF-IDF values
      */
-    std::tr1::unordered_map<std::string, double> values;
+    std::unordered_map<std::string, double> values;
 
     /// This stores the squared magnitude of the PointType
     double magnitude;
 
     /// This method returns a TermIterator to the beginning of the termlist
-    TermIterator termlist_begin();
+    TermIterator termlist_begin() const;
 
     /// This method returns a TermIterator to the end of the termlist
-    TermIterator termlist_end();
+    TermIterator termlist_end() const;
 
     /** This method validates whether a certain term exists in the termlist
      *  or not by performing a lookup operation in the existing values
@@ -228,7 +228,7 @@ class PointType {
     double get_value(std::string term);
 
     /// This method returns the pre-computed squared magnitude
-    double get_magnitude();
+    double get_magnitude() const;
 
     /// This method adds the value 'value' to the mapping of a term
     void add_value(std::string term, double value);
@@ -237,7 +237,7 @@ class PointType {
     void set_value(std::string term, double value);
 
     /// This method returns the size of the termlist
-    int termlist_size();
+    int termlist_size() const;
 };
 
 /** Class to represent a document as a point in the Vector Space
@@ -257,7 +257,7 @@ class Point : public PointType {
     void initialize(TermListGroup &tlg, const Document &doc);
 
     /// This method returns the document corresponding to this Point
-    Document get_document();
+    Document get_document() const;
 };
 
 // Class to represent cluster centroids in the vector space
@@ -304,10 +304,10 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     ~Cluster();
 
     /// This method returns size of the cluster
-    Xapian::doccount size();
+    Xapian::doccount size() const;
 
     /// This method returns the current centroid of the cluster
-    Centroid get_centroid();
+    Centroid get_centroid() const;
 
     /// This method sets the centroid of the Cluster to centroid_
     void set_centroid(const Centroid centroid_);
@@ -325,7 +325,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     void clear();
 
     /// This method returns the point at the given index in the cluster
-    Point get_index(int index);
+    Point get_index(int index) const;
 
     /// This method returns the documents that are contained within the cluster
     DocumentSet get_documents();
@@ -351,16 +351,16 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     void add_cluster(Cluster &c);
 
     /// This method returns a vector of documents
-    Cluster get_cluster(clusterid id);
+    Cluster get_cluster(clusterid id) const;
 
     /// This method adds the point the the cluster at index 'i'
     void add_to_cluster(const Point &x, clusterid i);
 
     /// This method returns the number of clusters
-    Xapian::doccount size();
+    Xapian::doccount size() const;
 
     /// This method returns the size of a cluster with clusterid 'cid'
-    Xapian::doccount cluster_size(clusterid cid);
+    Xapian::doccount cluster_size(clusterid cid) const;
 
     /// This method is used to check the cluster at index 'i'
     Cluster operator[](Xapian::doccount i);
@@ -386,7 +386,7 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer {
     virtual ClusterSet cluster(MSet &mset) = 0;
 
     /// This method returns a description of the clusterer being used
-    virtual std::string get_description() = 0;
+    virtual std::string get_description() const = 0;
 };
 
 /** Round Robin clusterer:
@@ -408,7 +408,7 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
     ClusterSet cluster(MSet &mset);
 
     /// This method returns the description of the clusterer
-    std::string get_description();
+    std::string get_description() const;
 };
 
 /** Kmeans clusterer:
@@ -434,7 +434,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     /** This method checks whether the current state of KMeans has converged
      *  by checking for change in centroid of the clusters
      */
-    bool converge(std::vector<Centroid> &previous, std::vector<Centroid> &current);
+    bool converge(std::vector<Centroid> &previous, std::vector<Centroid> &current) const;
 
     /** This method initalizes of centroids using a certain specified method
      *  Current methods that are supported :
@@ -474,8 +474,8 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     ClusterSet cluster(MSet &mset);
 
     /// This method returns the description of the clusterer
-    std::string get_description();
+    std::string get_description() const;
 };
-};
+}
 
 #endif

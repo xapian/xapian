@@ -34,13 +34,13 @@ using namespace std;
 using namespace Xapian;
 
 string
-EuclidianDistance::get_description() {
+EuclidianDistance::get_description() const {
     LOGCALL(API, string, "EuclidianDistance::get_description()", NO_ARGS);
     return "Euclidian Distance metric";
 }
 
 double
-EuclidianDistance::similarity(PointType &a, PointType &b) {
+EuclidianDistance::similarity(PointType &a, PointType &b) const {
     LOGCALL(API, double, "EuclidianDistance::similarity()", a | b);
     double sum = 0;
     TermIterator it = a.termlist_begin();

@@ -24,7 +24,7 @@
 
 #include <xapian.h>
 
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 namespace Xapian {
 
@@ -36,7 +36,7 @@ class FreqSource {
     /** This contains a map of the terms and its corresponding term frequencies.
      *  The term frequency of a term stands for the number of documents it indexes
      */
-    std::tr1::unordered_map<std::string, doccount> termfreq;
+    std::unordered_map<std::string, doccount> termfreq;
 
     /// Destructor
     virtual ~FreqSource();
@@ -45,7 +45,7 @@ class FreqSource {
     virtual doccount get_termfreq(const std::string &tname) = 0;
 
     /// This method returns the number of documents
-    virtual doccount get_doccount() = 0;
+    virtual doccount get_doccount() const = 0;
 };
 
 /// A class for dummy frequency source for construction of termlists
@@ -57,7 +57,7 @@ class DummyFreqSource : public FreqSource {
     doccount get_termfreq(const std::string &);
 
     /// This method returns the total number of documents
-    doccount get_doccount();
+    doccount get_doccount() const;
 };
 
 /// A class for construction of termlists
@@ -82,8 +82,8 @@ class TermListGroup : public FreqSource {
     doccount get_termfreq(const std::string &tname);
 
     /// This method returns the total number of documents
-    doccount get_doccount();
+    doccount get_doccount() const;
 };
-};
+}
 
 #endif

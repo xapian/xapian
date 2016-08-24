@@ -31,7 +31,7 @@ using namespace Xapian;
 using namespace std;
 
 string
-RoundRobin::get_description() {
+RoundRobin::get_description() const {
     LOGCALL(API, string, "RoundRobin::get_description()", NO_ARGS);
     return "Round Robin clusterer";
 }
