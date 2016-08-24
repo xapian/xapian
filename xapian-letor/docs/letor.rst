@@ -174,9 +174,9 @@ To score your model perform the following steps::
     Xapian::Letor ltr(db);
     ltr.set_ranker(new Xapian::ListNETRanker());
     ltr.set_scorer(new Xapian::NDCGScore());
-    ltr.letor_score(<queryfile_path>, <qrelfile_path>, <modelfile_path>, <MSetsize>, Xapian::FeatureList &flist);
+    ltr.letor_score(<queryfile_path>, <qrelfile_path>, <modelfile_path>, <outputfile_path>, <MSetsize>, Xapian::FeatureList &flist);
 
-Make sure that you use the same LTR algorithm (Ranker) and same set of Features (via Xapian::FeatureList) that were used while preparing the model you are evaluating, otherwise it will throw and exception. letor_score() method will return the model score for each query in the query file and an average score for all the queries.
+Make sure that you use the same LTR algorithm (Ranker) and same set of Features (via Xapian::FeatureList) that were used while preparing the model you are evaluating, otherwise it will throw and exception. letor_score() method will return the model score for each query in the query file and an average score for all the queries. The results get saved at <outputfile_path>.
 
 Extendability
 =============

@@ -311,8 +311,8 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 void
 Letor::Internal::letor_score(const std::string & query_file, const std::string & qrel_file,
-			     const std::string & model_file, const Xapian::doccount & msetsize,
-			     const Xapian::FeatureList & flist)
+			     const std::string & model_file, const std::string & output_file,
+			     const Xapian::doccount & msetsize, const Xapian::FeatureList & flist)
 {
     // Load ranker model
     ranker->load_model_from_file(model_file.c_str());
@@ -336,6 +336,9 @@ Letor::Internal::letor_score(const std::string & query_file, const std::string &
     if(!queryfile.good()) {
 	throw Xapian::FileNotFoundError("No Query file found. Check path.");
     }
+
+    ofstream out_file;
+    out_file.open(output_file);
 
     double total_score = 0;
     int num_queries = 0;
@@ -409,10 +412,11 @@ Letor::Internal::letor_score(const std::string & query_file, const std::string &
 	    ++k;
 	}
 	double score = scorer->score(rankedfvv);
-	cout << "Ranking score for qid:" << qid << " = " << score << endl;
+	out_file << "Ranking score for qid:" << qid << " = " << score << endl;
 	total_score += score;
     }
     queryfile.close();
     total_score = total_score/num_queries;
-    cout << "Average ranking score = " << total_score << endl;
+    out_file << "Average ranking score = " << total_score << endl;
+    out_file.close();
 }
