@@ -50,7 +50,7 @@ libxapianletor_la_SOURCES = $(lib_src)
 libxapianletor_la_LDFLAGS = \
 	$(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
-libxapianletor_la_LIBADD = $(XAPIAN_LIBS)
+libxapianletor_la_LIBADD = $(XAPIAN_LIBS) libcommon_str.la
 
 lib_src =
 
@@ -64,6 +64,9 @@ include include/Makefile.mk
 include feature/Makefile.mk
 include ranker/Makefile.mk
 include scorer/Makefile.mk
+
+noinst_LTLIBRARIES += libcommon_str.la
+libcommon_str_la_SOURCES = common/str.cc
 
 xapianletorinclude_HEADERS += include/xapian-letor/letor_error.h
 
