@@ -28,12 +28,12 @@ using namespace std;
 namespace Xapian {
 
 std::string
-TfFeature::name() {
+TfFeature::name() const {
     return "TfFeature";
 }
 
 vector<double>
-TfFeature::get_values() {
+TfFeature::get_values() const {
     LOGCALL(API, std::vector<double>, "TfFeature::get_values", NO_ARGS);
 
     Query query = Feature::internal->feature_query;

@@ -32,7 +32,7 @@ using namespace std;
 using namespace Xapian;
 
 std::map<string, long int>
-Feature::Internal::termfreq() {
+Feature::Internal::termfreq() const {
 
     std::map<string, long int> tf;
 
@@ -50,7 +50,7 @@ Feature::Internal::termfreq() {
 }
 
 std::map<string, double>
-Feature::Internal::inverse_doc_freq() {
+Feature::Internal::inverse_doc_freq() const {
 
     std::map<string, double> idf;
 
@@ -68,7 +68,7 @@ Feature::Internal::inverse_doc_freq() {
 }
 
 std::map<string, long int>
-Feature::Internal::doc_length() {
+Feature::Internal::doc_length() const {
 
     std::map<string, long int> len;
 
@@ -90,7 +90,7 @@ Feature::Internal::doc_length() {
 }
 
 std::map<string, long int>
-Feature::Internal::collection_length() {
+Feature::Internal::collection_length() const {
 
     std::map<string, long int> len;
 
@@ -112,7 +112,7 @@ Feature::Internal::collection_length() {
 }
 
 std::map<string, long int>
-Feature::Internal::collection_termfreq() {
+Feature::Internal::collection_termfreq() const {
 
     std::map<string, long int> tf;
 

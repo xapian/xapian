@@ -48,7 +48,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
     /** This method finds the frequency of the query terms in the specified documents. This method is a helping method and statistics gathered through
      *  this method are used in feature value calculation. It return the frequency of the terms of query in std::map<string, long int> form.
      */
-    std::map<std::string,long int> termfreq();
+    std::map<std::string,long int> termfreq() const;
 
     /** This method calculates the inverse document frequency(idf) of query terms in the database. It returns the idf of each term in
      *  std::map<string, double> form.
@@ -60,7 +60,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *                                  N = Total number of documents in database and
      *                                  df(t) = number of documents containing term 't'
      */
-    std::map<std::string,double> inverse_doc_freq();
+    std::map<std::string,double> inverse_doc_freq() const;
 
     /** This method calculates the length of the documents as number of 'terms'. It calculates the length for three different
      *  parts: title, body and whole document. This information is returned in the std::map<string, long int> format.
@@ -73,7 +73,7 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *  len["whole"];
      *  @endcode
      */
-    std::map<std::string,long int> doc_length();
+    std::map<std::string,long int> doc_length() const;
 
     /** This method calculates the length of the collection in number of terms for different parts like 'title', 'body' and 'whole'. This is calculated
      *  as a stored user metadata in omindex otherwise it is calculated out of scratch (this might take some time depending upon the size of the
@@ -87,12 +87,12 @@ class Feature::Internal : public Xapian::Internal::intrusive_base {
      *  @endcode
      *
      */
-    std::map<std::string,long int> collection_length();
+    std::map<std::string,long int> collection_length() const;
 
     /** This method calculates the frequency of query terms in the whole database. The information is stored in std::map<string, long int> format and
      *  used during the feature calculation methods.
      */
-    std::map<std::string,long int> collection_termfreq();
+    std::map<std::string,long int> collection_termfreq() const;
 
 };
 

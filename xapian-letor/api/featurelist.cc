@@ -56,7 +56,7 @@ FeatureList::~FeatureList() {
 }
 
 void
-FeatureList::normalise(std::vector<FeatureVector> & fvec) {
+FeatureList::normalise(std::vector<FeatureVector> & fvec) const {
 
     LOGCALL_VOID(API, "FeatureList::normalise", fvec);
     // find the max value for each feature gpr all the FeatureVectors in the vector.
@@ -94,7 +94,7 @@ FeatureList::normalise(std::vector<FeatureVector> & fvec) {
 
 std::vector<FeatureVector>
 FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Query & letor_query,
-				    const Xapian::Database & letor_db)
+				    const Xapian::Database & letor_db) const
 {
     LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
     std::vector<FeatureVector> fvec;
@@ -105,7 +105,7 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Que
 
 	std::vector<double> fVals;
 
-	for (std::vector<Feature*>::iterator it = feature.begin() ; it != feature.end(); ++it) {
+	for (std::vector<Feature*>::const_iterator it = feature.begin() ; it != feature.end(); ++it) {
 
 	    (*it)->set_database(letor_db);
 	    (*it)->set_query(letor_query);

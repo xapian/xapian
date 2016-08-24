@@ -174,7 +174,7 @@ ListNETRanker::load_model_from_file(const char* model_filename) {
 }
 
 std::vector<FeatureVector>
-ListNETRanker::rank(const std::vector<FeatureVector> & fvv) {
+ListNETRanker::rank(const std::vector<FeatureVector> & fvv) const {
     LOGCALL(API, std::vector<FeatureVector>, "ListNETRanker::rank", fvv);
     std::vector<FeatureVector> testfvv = fvv;
     for (size_t i = 0; i < testfvv.size(); ++i) {

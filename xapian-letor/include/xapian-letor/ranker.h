@@ -53,10 +53,10 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
     virtual ~Ranker();
 
     /// Returns a vector of RankLists i.e. the training data
-    std::vector<Xapian::FeatureVector> get_traindata();
+    std::vector<Xapian::FeatureVector> get_traindata() const;
 
     /// Sets the training data (vector of RankLists)
-    void set_training_data(std::vector<Xapian::FeatureVector> training_data);
+    void set_training_data(const std::vector<Xapian::FeatureVector> &training_data);
 
     /// Method to train the model. Overrided in ranker subclass.
     virtual void train_model()=0;
@@ -72,7 +72,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
     /** Method to re-rank a list of FeatureVectors (each representing a Xapian::Document) by using the model.
      *  Overrided in ranker subclass.
      */
-    virtual std::vector<Xapian::FeatureVector> rank(const std::vector<Xapian::FeatureVector> & fvv)=0;
+    virtual std::vector<Xapian::FeatureVector> rank(const std::vector<Xapian::FeatureVector> & fvv) const = 0;
 
     /// Compare function used to sort std::vector<Xapian::FeatureVector> by score values.
     static bool scorecomparer(const FeatureVector & firstfv, const FeatureVector& secondfv);
@@ -144,7 +144,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      * @param fvv vector<FeatureVector> that will be re-ranked
      * @exception LetorInternalError will be thrown if model file is not compatible.
      */
-    std::vector<Xapian::FeatureVector> rank(const std::vector<Xapian::FeatureVector> & fvv);
+    std::vector<Xapian::FeatureVector> rank(const std::vector<Xapian::FeatureVector> & fvv) const;
 
 };
 

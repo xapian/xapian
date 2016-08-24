@@ -45,7 +45,7 @@ class XAPIAN_VISIBILITY_DEFAULT Scorer : public Xapian::Internal::intrusive_base
     virtual ~Scorer() { }
 
     /// Method to return ranking score
-    virtual double score(const std::vector<FeatureVector> & fvv) = 0;
+    virtual double score(const std::vector<FeatureVector> & fvv) const = 0;
 
   private:
 
@@ -67,7 +67,7 @@ class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
     /// Destructor
     ~NDCGScore();
 
-    double score(const std::vector<FeatureVector> & fvv);
+    double score(const std::vector<FeatureVector> & fvv) const;
 
 };
 

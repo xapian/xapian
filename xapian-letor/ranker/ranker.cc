@@ -47,13 +47,13 @@ Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& second
 }
 
 std::vector<Xapian::FeatureVector>
-Ranker::get_traindata(){
+Ranker::get_traindata() const {
     LOGCALL(API, std::vector<FeatureVector>, "Ranker::get_traindata", NO_ARGS);
     return traindata;
 }
 
 void
-Ranker::set_training_data(vector<Xapian::FeatureVector> training_data) {
+Ranker::set_training_data(const vector<Xapian::FeatureVector> &training_data) {
     LOGCALL_VOID(API, "Ranker::set_training_data", training_data);
     traindata = training_data;
 }
