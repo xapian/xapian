@@ -103,7 +103,7 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset,
 					  const char* model_filename = "./parameters.txt",
-					  Xapian::FeatureList & flist = * new Xapian::FeatureList());
+					  const Xapian::FeatureList & flist = * new Xapian::FeatureList()) const;
 
     /** Learns the model using the training file.
      *  Model file is saved as an external file in the working directory.
@@ -138,9 +138,9 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      */
     void prepare_training_file(const std::string & query_file,
 			       const std::string & qrel_file,
-			       Xapian::doccount msetsize,
+			       const Xapian::doccount & msetsize,
 			       const char* filename = "./train.txt",
-			       Xapian::FeatureList & flist = * new Xapian::FeatureList());
+			       const Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
     /** Method to score the LTR ranking.
      * @param query_file    Query file containing test queries in letor specified format
@@ -155,8 +155,8 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     void letor_score(const std::string & query_file,
 		     const std::string & qrel_file,
 		     const std::string & model_file,
-		     Xapian::doccount msetsize,
-		     Xapian::FeatureList & flist = * new Xapian::FeatureList());
+		     const Xapian::doccount & msetsize,
+		     const Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
   private:
 

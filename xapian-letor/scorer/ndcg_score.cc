@@ -39,7 +39,7 @@ NDCGScore::~NDCGScore() {
 }
 
 static double
-get_dcg(const std::vector<double> labels) {
+get_dcg(const std::vector<double> &labels) {
     LOGCALL_STATIC(API, double, "get_dcg", labels);
 
     double dcg = 0;
@@ -53,7 +53,7 @@ get_dcg(const std::vector<double> labels) {
 }
 
 double
-NDCGScore::score(const std::vector<FeatureVector> & fvv) {
+NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
     LOGCALL(API, double, "NDCGScore::score", fvv);
 
     std::vector<double> labels;

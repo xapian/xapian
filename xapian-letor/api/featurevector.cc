@@ -69,13 +69,13 @@ FeatureVector::set_did(const Xapian::docid & did) {
 }
 
 void
-FeatureVector::set_label(const double label) {
+FeatureVector::set_label(const double & label) {
     LOGCALL_VOID(API, "FeatureVector::set_label", label);
     internal->label_=label;
 }
 
 void
-FeatureVector::set_score(const double score) {
+FeatureVector::set_score(const double & score) {
     LOGCALL_VOID(API, "FeatureVector::set_score", score);
     internal->score_=score;
 }
@@ -87,7 +87,7 @@ FeatureVector::set_fvals(const std::vector<double> & fvals) {
 }
 
 void
-FeatureVector::set_feature_value(int index, double value) {
+FeatureVector::set_feature_value(const int & index, const double & value) {
     LOGCALL_VOID(API, "FeatureVector::set_feature_value", index | value);
     internal->fvals_[index] = value;
 }
@@ -123,7 +123,7 @@ FeatureVector::get_did() const {
 }
 
 double
-FeatureVector::get_feature_value(int index) const {
+FeatureVector::get_feature_value(const int & index) const {
     LOGCALL(API, double, "FeatureVector::get_feature_value", index);
     return internal->fvals_[index];
 }

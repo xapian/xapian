@@ -70,10 +70,10 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     void set_doc(const Xapian::Document & doc);
 
     /// Calculate and return the feature values
-    virtual std::vector<double> get_values()  = 0;
+    virtual std::vector<double> get_values() const = 0;
 
     /// Return name of the feature
-    virtual std::string name() = 0;
+    virtual std::string name() const = 0;
 
   private:
 
@@ -99,9 +99,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfFeature : public Feature {
 
   public:
 
-    std::vector<double> get_values();
+    std::vector<double> get_values() const;
 
-    std::string name();
+    std::string name() const;
 
 };
 
@@ -118,9 +118,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfDoclenFeature : public Feature {
 
   public:
 
-    std::vector<double> get_values();
+    std::vector<double> get_values() const;
 
-    std::string name();
+    std::string name() const;
 
 };
 
@@ -134,9 +134,9 @@ class XAPIAN_VISIBILITY_DEFAULT IdfFeature : public Feature {
 
   public:
 
-    std::vector<double> get_values();
+    std::vector<double> get_values() const;
 
-    std::string name();
+    std::string name() const;
 
 };
 
@@ -153,9 +153,9 @@ class XAPIAN_VISIBILITY_DEFAULT CollTfCollLenFeature : public Feature {
 
   public:
 
-    std::vector<double> get_values();
+    std::vector<double> get_values() const;
 
-    std::string name();
+    std::string name() const;
 
 };
 
@@ -173,9 +173,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfDoclenFeature : public Feature {
 
   public:
 
-    std::vector<double> get_values();
+    std::vector<double> get_values() const;
 
-    std::string name();
+    std::string name() const;
 
 };
 
@@ -192,9 +192,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfDoclenCollTfCollLenFeature : public Feature {
 
   public:
 
-    std::vector<double> get_values();
+    std::vector<double> get_values() const;
 
-    std::string name();
+    std::string name() const;
 
 };
 

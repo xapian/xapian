@@ -63,16 +63,16 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     void set_did(const Xapian::docid & did);
 
     /// Set training label corresponding to the FeatureVector object
-    void set_label(const double label);
+    void set_label(const double & label);
 
     /// Set score corresponding to the FeatureVector object
-    void set_score(const double score);
+    void set_score(const double & score);
 
     /// Set vector of feature values returned by Feature objects
     void set_fvals(const std::vector<double> & fvals);
 
     /// Set individual feature value from vector of fvals, by index.
-    void set_feature_value(int index, double value);
+    void set_feature_value(const int & index, const double & value);
 
     /// Get number of feature values corresponding to the FeatureVector object
     int get_fcount() const;
@@ -90,7 +90,7 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     std::vector<double> get_fvals() const;
 
     /// Get individual feature value from vector of fvals, by index.
-    double get_feature_value(int index) const;
+    double get_feature_value(const int & index) const;
 
 };
 

@@ -74,7 +74,7 @@ static const char * sw[] = {
 
 std::vector<Xapian::docid>
 Letor::Internal::letor_rank(const Xapian::MSet & mset, const char* model_filename,
-			    Xapian::FeatureList & flist) {
+			    const Xapian::FeatureList & flist) const {
 
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, letor_db);
 
@@ -227,7 +227,7 @@ load_relevance(const std::string & qrel_file)
 }
 
 static void
-write_to_file(const std::vector<Xapian::FeatureVector> list_fvecs, const string qid, ofstream & train_file) {
+write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const string & qid, ofstream & train_file) {
 
     /* This function will save the vector<FeatureVector> to the training file
      * so that this vector<FeatureVector> can be loaded again by train_model() and subsequent functions.
@@ -256,8 +256,8 @@ write_to_file(const std::vector<Xapian::FeatureVector> list_fvecs, const string 
 
 void
 Letor::Internal::prepare_training_file(const string & queryfile, const string & qrel_file,
-				       Xapian::doccount msetsize, const char* filename,
-				       FeatureList & flist) {
+				       const Xapian::doccount & msetsize, const char* filename,
+				       const FeatureList & flist) {
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
@@ -380,8 +380,8 @@ void
 Letor::Internal::letor_score(const std::string & query_file,
 			     const std::string & qrel_file,
 			     const std::string & model_file,
-			     Xapian::doccount msetsize,
-			     Xapian::FeatureList & flist) {
+			     const Xapian::doccount & msetsize,
+			     const Xapian::FeatureList & flist) {
 
     ranker->load_model_from_file(model_file.c_str());
 
