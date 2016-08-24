@@ -19,8 +19,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <config.h>
+
 #include "xapian-letor/feature.h"
 #include "feature_internal.h"
+
 #include "debuglog.h"
 
 using namespace std;
@@ -28,12 +31,14 @@ using namespace std;
 namespace Xapian {
 
 std::string
-TfDoclenCollTfCollLenFeature::name() const {
+TfDoclenCollTfCollLenFeature::name() const
+{
     return "TfDoclenCollTfCollLenFeature";
 }
 
 vector<double>
-TfDoclenCollTfCollLenFeature::get_values() const {
+TfDoclenCollTfCollLenFeature::get_values() const
+{
     LOGCALL(API, std::vector<double>, "TfDoclenCollTfCollLenFeature::get_values", NO_ARGS);
 
     Query query = Feature::internal->feature_query;

@@ -79,9 +79,9 @@ MAINTAINERCLEANFILES += $(BUILT_SOURCES)
 libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 
 noinst_HEADERS +=\
+	common/gnu_getopt.h\
 	common/safeunistd.h\
 	common/str.h\
-	common/stringutils.h\
-	common/gnu_getopt.h
+	common/stringutils.h
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

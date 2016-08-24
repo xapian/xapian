@@ -39,7 +39,6 @@ namespace Xapian {
 
 /// Class defining list of features to be used for constructing FeatureVector
 class XAPIAN_VISIBILITY_DEFAULT FeatureList {
-
     /// Vector containing Feature pointer objects. Each will be used to return feature value.
     std::vector<Feature *> feature;
 

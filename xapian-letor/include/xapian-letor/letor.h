@@ -34,18 +34,17 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Letor {
-
     /// @private @internal Class representing the Letor internals.
     class Internal;
     /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
-
     /// Default constructor.
     Letor();
 
@@ -159,7 +158,6 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
 		     const Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
   private:
-
     /// Don't allow copy
     Letor(const Letor & o);
 

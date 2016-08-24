@@ -1,6 +1,8 @@
-/* featurevector.cc: The file responsible for transforming the document into the feature space.
- *
- * Copyright (C) 2012 Parth Gupta
+/** @file featurevector.cc
+ * @brief The file responsible for transforming the document into the feature space.
+ */
+/* Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,11 +22,9 @@
 
 #include <config.h>
 
-#include <xapian.h>
-
 #include "xapian-letor/featurevector.h"
-
 #include "featurevector_internal.h"
+
 #include "debuglog.h"
 
 #include <vector>
@@ -63,67 +63,78 @@ FeatureVector::~FeatureVector()
 }
 
 void
-FeatureVector::set_did(const Xapian::docid & did) {
+FeatureVector::set_did(const Xapian::docid & did)
+{
     LOGCALL_VOID(API, "FeatureVector::set_did", did);
     internal->did_=did;
 }
 
 void
-FeatureVector::set_label(const double & label) {
+FeatureVector::set_label(const double & label)
+{
     LOGCALL_VOID(API, "FeatureVector::set_label", label);
     internal->label_=label;
 }
 
 void
-FeatureVector::set_score(const double & score) {
+FeatureVector::set_score(const double & score)
+{
     LOGCALL_VOID(API, "FeatureVector::set_score", score);
     internal->score_=score;
 }
 
 void
-FeatureVector::set_fvals(const std::vector<double> & fvals) {
+FeatureVector::set_fvals(const std::vector<double> & fvals)
+{
     LOGCALL_VOID(API, "FeatureVector::set_fvals", fvals);
     internal->fvals_=fvals;
 }
 
 void
-FeatureVector::set_feature_value(const int & index, const double & value) {
+FeatureVector::set_feature_value(const int & index, const double & value)
+{
     LOGCALL_VOID(API, "FeatureVector::set_feature_value", index | value);
     internal->fvals_[index] = value;
 }
 
 int
-FeatureVector::get_fcount() const {
+FeatureVector::get_fcount() const
+{
     LOGCALL(API, int, "FeatureVector::get_fcount", NO_ARGS);
     return internal->fvals_.size();
 }
 
 double
-FeatureVector::get_score() const{
+FeatureVector::get_score() const
+{
     LOGCALL(API, double, "FeatureVector::get_score", NO_ARGS);
     return internal->score_;
 }
 
 double
-FeatureVector::get_label() const{
+FeatureVector::get_label() const
+{
     LOGCALL(API, double, "FeatureVector::get_label", NO_ARGS);
     return internal->label_;
 }
 
 std::vector<double>
-FeatureVector::get_fvals() const {
+FeatureVector::get_fvals() const
+{
     LOGCALL(API, std::vector<double>, "FeatureVector::get_fvals", NO_ARGS);
     return internal->fvals_;
 }
 
 Xapian::docid
-FeatureVector::get_did() const {
+FeatureVector::get_did() const
+{
     LOGCALL(API, Xapian::docid, "FeatureVector::get_did", NO_ARGS);
     return internal->did_;
 }
 
 double
-FeatureVector::get_feature_value(const int & index) const {
+FeatureVector::get_feature_value(const int & index) const
+{
     LOGCALL(API, double, "FeatureVector::get_feature_value", index);
     return internal->fvals_[index];
 }

@@ -33,15 +33,12 @@
 #include "letor_error.h"
 
 #include <list>
-#include <iostream>
 #include <map>
 #include <vector>
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
-
-
     std::vector<Xapian::FeatureVector> traindata;
 
   public:
@@ -59,15 +56,15 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
     void set_training_data(const std::vector<Xapian::FeatureVector> &training_data);
 
     /// Method to train the model. Overrided in ranker subclass.
-    virtual void train_model()=0;
+    virtual void train_model() = 0;
 
     /** Method to save model as an external file. Overrided in ranker subclass.
      *  @param output_filename      Filename by which model is to be stored.
      */
-    virtual void save_model_to_file(const char* output_filename)=0;
+    virtual void save_model_to_file(const char* output_filename) = 0;
 
     /// Method to load model as an external file. Overrided in ranker subclass.
-    virtual void load_model_from_file(const char* model_filename)=0;
+    virtual void load_model_from_file(const char* model_filename) = 0;
 
     /** Method to re-rank a list of FeatureVectors (each representing a Xapian::Document) by using the model.
      *  Overrided in ranker subclass.
@@ -92,13 +89,10 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
 
 /// ListNet Ranker class
 class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
-
     /// Ranker parameters
     std::vector<double> parameters;
-
     /// Learning rate (Default is 0.0001)
     double learning_rate;
-
     /// Number of iterations (Default is 15)
     int iterations;
 
@@ -109,10 +103,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      * @param num_interations  Number of iterations
      */
     ListNETRanker(double learn_rate = 0.001, int num_interations = 15):
-		 learning_rate(learn_rate), iterations(num_interations) {
-	std::cout << "Initializing ListNETRanker with Learning Rate: " << learn_rate;
-	std::cout << ", No. of Iterations: " << iterations << std::endl;
-    }
+		 learning_rate(learn_rate), iterations(num_interations) { }
 
     /// Destructor
     ~ListNETRanker();

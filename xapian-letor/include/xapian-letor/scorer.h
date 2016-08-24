@@ -37,7 +37,6 @@ namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Scorer : public Xapian::Internal::intrusive_base {
   public:
-
     /// Default constructor
     Scorer() { }
 
@@ -48,7 +47,6 @@ class XAPIAN_VISIBILITY_DEFAULT Scorer : public Xapian::Internal::intrusive_base
     virtual double score(const std::vector<FeatureVector> & fvv) const = 0;
 
   private:
-
     /// Don't allow assignment.
     void operator=(const Scorer &);
 
@@ -60,7 +58,6 @@ class XAPIAN_VISIBILITY_DEFAULT Scorer : public Xapian::Internal::intrusive_base
 /// NDCGScore class
 class XAPIAN_VISIBILITY_DEFAULT NDCGScore: public Scorer {
   public:
-
     ///Default constructor
     NDCGScore();
 
