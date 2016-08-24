@@ -6,9 +6,8 @@ bin_PROGRAMS +=\
 
 bin_xapian_letor_update_SOURCES =\
 	bin/xapian-letor-update.cc\
-	common/getopt.cc\
-	common/str.cc
-bin_xapian_letor_update_LDADD = $(XAPIAN_LIBS)
+	common/getopt.cc
+bin_xapian_letor_update_LDADD = $(XAPIAN_LIBS) libcommon_str.la
 
 bin_xapian_prepare_trainingfile_SOURCES =\
 	bin/xapian-prepare-trainingfile.cc\
