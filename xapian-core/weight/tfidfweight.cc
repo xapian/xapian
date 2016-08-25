@@ -41,7 +41,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     if (normalizations.length() != 3 ||
 	!strchr("nbslP", normalizations[0]) ||
 	!strchr("ntpfsP", normalizations[1]) ||
-	!strchr("nP", normalizations[2]))
+	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
     if (normalizations[1] != 'n') {
 	need_stat(TERMFREQ);
@@ -49,11 +49,6 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
-    if (normalizations[2] == 'P') {
-	need_stat(AVERAGE_LENGTH);
-	need_stat(DOC_LENGTH);
-	need_stat(WQF);
-    }
 }
 
 TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
@@ -64,16 +59,21 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 	!strchr("ntpfsP", normalizations[1]) ||
 	!strchr("nP", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
+    if (param_slope <= 0)
+	throw Xapian::InvalidArgumentError("Parameter slope is invalid.");
+    if (param_delta <= 0)
+	throw Xapian::InvalidArgumentError("Parameter delta is invalid.");
     if (normalizations[1] != 'n') {
 	need_stat(TERMFREQ);
 	need_stat(COLLECTION_SIZE);
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
-    if (param_slope != 0 || param_delta != 0 || normalizations[2] == 'P') {
+    if ((param_slope > 0 || param_delta > 0) && normalizations[2] == 'P') {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(WQF);
+	need_stat(DOC_LENGTH_MIN);
     }
 }
 
@@ -124,14 +124,18 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
 {
     Xapian::doccount termfreq = 1;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
-    double wt = get_wdfn(wdf, normalizations[0]) *
-		get_idfn(termfreq, normalizations[1]);
-    if (param_slope != 0 && param_delta != 0 && normalizations[2] == 'P') {
+    double wt = 1.0;
+    if (normalizations[2] == 'P') {
 	double wqf = get_wqf();
-	wt = get_wtn(doclen, wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
-	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
-    } else
+	wt = (get_wdfn(wdf, normalizations[0]) *
+		get_wtn(doclen, wt, normalizations[2]) + param_delta) *
+		    get_idfn(termfreq, normalizations[1]);
+	return wqf * wt * factor;
+    } else {
+	wt = get_wdfn(wdf, normalizations[0]) *
+		get_idfn(termfreq, normalizations[1]);
 	return get_wtn(doclen, wt, normalizations[2]) * factor;
+    }
 }
 
 // An upper bound can be calculated simply on the basis of wdf_max as termfreq
@@ -142,14 +146,18 @@ TfIdfWeight::get_maxpart() const
     Xapian::doccount termfreq = 1;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     Xapian::termcount wdf_max = get_wdf_upper_bound();
-    double wt = get_wdfn(wdf_max, normalizations[0]) *
-		get_idfn(termfreq, normalizations[1]);
-    if (param_slope != 0 && param_delta != 0 && normalizations[2] =='P') {
+    double wt = 1.0;
+    if (normalizations[2] =='P') {
 	double wqf = get_wqf();
-	wt = get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) + param_delta * get_idfn(termfreq, normalizations[1]);
-	return wqf * get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
-    } else
-	return get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) * factor;
+	wt = (get_wdfn(wdf_max, normalizations[0]) *
+		get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) + param_delta) *
+		    get_idfn(termfreq, normalizations[1]);
+	return wqf * wt * factor;
+    } else {
+	wt = get_wdfn(wdf_max, normalizations[0]) *
+		get_idfn(termfreq, normalizations[1]);
+	return get_wtn(1.0, wt, normalizations[2]) * factor;
+    }
 }
 
 // There is no extra per document component in the TfIdfWeighting scheme.

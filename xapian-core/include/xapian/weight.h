@@ -477,7 +477,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     TfIdfWeight(const std::string &normalizations, double slope, double delta);
 
     TfIdfWeight()
-	: normalizations("ntn")
+	: normalizations("ntn"), param_slope(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
