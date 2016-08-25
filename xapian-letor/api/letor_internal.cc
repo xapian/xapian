@@ -25,6 +25,8 @@
 #include "letor_internal.h"
 #include "xapian-letor/featurevector.h"
 
+#include "str.h"
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -170,14 +172,15 @@ load_relevance(const std::string & qrel_file)
 	    }
 	    // Exceptions for parse errors
 	    if (token.size() != 4 || token[1] != "Q0") {
-		throw LetorParseError("Could not parse Qrel file at line:" + to_string(qrel_count));
+		throw LetorParseError("Could not parse Qrel file at line:" + Xapian::Internal::str(qrel_count));
 	    }
 	    // Exception if relevance label is not a number
 	    int label;
 	    char * end;
 	    label = int(strtol(token[3].c_str(), &end, 10));
 	    if(*end) {
-		throw LetorParseError("Could not parse relevance label in Qrel file at line:" + to_string(qrel_count));
+		throw LetorParseError("Could not parse relevance label in Qrel file at line:"
+				       + Xapian::Internal::str(qrel_count));
 	    }
 	    qrel1[token[0]].insert(make_pair(token[2], label));
 	}
@@ -256,17 +259,17 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 
 	// Exceptions for parse errors
 	if (token.size() != 2) {
-	    throw LetorParseError("Could not parse Query file at line:" + to_string(query_count));
+	    throw LetorParseError("Could not parse Query file at line:" + Xapian::Internal::str(query_count));
 	}
 	string qid = token[0];
 	string querystr = token[1];
-	if (querystr.front() != '\'' || querystr.front() != '\'') {
-	    throw LetorParseError("Could not parse query string at line:" + to_string(query_count));
+	if (querystr.front() != '\'' || querystr.back() != '\'') {
+	    throw LetorParseError("Could not parse query string at line:" + Xapian::Internal::str(query_count));
 	}
 	querystr.erase( 0, 1 ); // erase the first character (') from the front
 	querystr.erase( querystr.size() - 1); // erase the last character (')
 	if (querystr.empty()) {
-	    throw LetorParseError("Empty query string in query file at line:" + to_string(query_count));
+	    throw LetorParseError("Empty query string in query file at line:" + Xapian::Internal::str(query_count));
 	}
 
 	string qq = querystr;
@@ -362,17 +365,17 @@ Letor::Internal::letor_score(const std::string & query_file, const std::string &
 	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
 	// Exceptions for parse errors
 	if (token.size() != 2) {
-	    throw LetorParseError("Could not parse Query file at line:" + to_string(num_queries + 1));
+	    throw LetorParseError("Could not parse Query file at line:" + Xapian::Internal::str(num_queries));
 	}
 	string qid = token[0];
 	string querystr = token[1];
-	if (querystr.front() != '\'' || querystr.front() != '\'') {
-	    throw LetorParseError("Could not parse query string at line:" + to_string(num_queries + 1));
+	if (querystr.front() != '\'' || querystr.back() != '\'') {
+	    throw LetorParseError("Could not parse query string at line:" + Xapian::Internal::str(num_queries));
 	}
 	querystr.erase( 0, 1 ); // erase the first character (') from the front
 	querystr.erase( querystr.size() - 1); // erase the last character (')
 	if (querystr.empty()) {
-	    throw LetorParseError("Empty query string in query file at line:" + to_string(num_queries + 1));
+	    throw LetorParseError("Empty query string in query file at line:" + Xapian::Internal::str(num_queries));
 	}
 
 	string qq = querystr;
