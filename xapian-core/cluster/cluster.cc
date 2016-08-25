@@ -40,42 +40,6 @@
 using namespace Xapian;
 using namespace std;
 
-MSetDocumentSource::MSetDocumentSource(const MSet &mset_)
-    :mset(mset_), maxitems(mset_.size()), index(0)
-{
-    LOGCALL_CTOR(API,"MSetDocumentSource", mset_);
-    mset.fetch();
-}
-
-MSetDocumentSource::MSetDocumentSource(const MSet & mset_, doccount maxitems_)
-    :mset(mset_), maxitems(maxitems_), index(0)
-{
-    LOGCALL_CTOR(API, "MSetDocumentSource", mset | maxitems);
-    if (maxitems > mset.size())
-	maxitems = mset.size();
-
-    if (maxitems > 0)
-	mset.fetch(mset.begin(), mset[maxitems - 1]);
-}
-
-Document
-MSetDocumentSource::next_document() {
-    LOGCALL(API, Document, "MSetDocumentSource::next_document()", NO_ARGS);
-    return (mset[index++].get_document());
-}
-
-bool
-MSetDocumentSource::at_end() const {
-    LOGCALL(API, bool, "MSetDocumentSource::at_end()", NO_ARGS);
-    return (index >= maxitems);
-}
-
-doccount
-MSetDocumentSource::size() const {
-    LOGCALL(API, doccount, "MSetDocumentSource::size()", NO_ARGS);
-    return mset.size();
-}
-
 FreqSource::~FreqSource()
 {
     LOGCALL_DTOR(API, "FreqSource");
@@ -121,10 +85,11 @@ TermListGroup::add_document(const Document &document) {
 }
 
 void
-TermListGroup::add_documents(MSetDocumentSource docs) {
+TermListGroup::add_documents(const MSet &docs) {
     LOGCALL_VOID(API, "TermListGroup::add_documents()", docs);
-    while (!docs.at_end())
-	add_document(docs.next_document());
+    MSetIterator it = docs.begin();
+    for (; it != docs.end(); it++)
+	add_document(it.get_document());
     docs_num = docs.size();
 }
 

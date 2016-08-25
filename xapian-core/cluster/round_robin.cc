@@ -39,14 +39,14 @@ RoundRobin::get_description() const {
 ClusterSet
 RoundRobin::cluster(MSet &mset) {
     LOGCALL(API, ClusterSet, "RoundRobin::cluster()", mset);
-    MSetDocumentSource docs(mset);
     TermListGroup tlg;
-    tlg.add_documents(docs);
+    tlg.add_documents(mset);
     ClusterSet cset;
     vector<Point> points;
-    while (!docs.at_end()) {
+    MSetIterator it = mset.begin();
+    for (; it != mset.end(); it++) {
 	Point p;
-	Document temp = docs.next_document();
+	Document temp = it.get_document();
 	p.initialize(tlg, temp);
 	points.push_back(p);
     }

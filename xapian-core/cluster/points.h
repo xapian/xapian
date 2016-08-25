@@ -74,7 +74,7 @@ class TermListGroup : public FreqSource {
     void add_document(const Document &doc);
 
     /// This method adds a number of documents from the DocumentSource
-    void add_documents(MSetDocumentSource docs);
+    void add_documents(const MSet &docs);
 
     /** This method returns the number of documents that the term 'tname' exists in
      *  or the number of documents that a certain term indexes

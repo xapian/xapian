@@ -130,13 +130,13 @@ KMeans::initialize_kmeanspp(ClusterSet &cset) {
 }
 
 void
-KMeans::initialize_points(MSetDocumentSource source, TermListGroup &tlg) {
+KMeans::initialize_points(const MSet &source, TermListGroup &tlg) {
     LOGCALL_VOID(API, "KMeans::initialize_points()", source | tlg);
-    while (!source.at_end()) {
-	Document temp = source.next_document();
+    MSetIterator it = source.begin();
+    for(; it != source.end(); it++) {
+	Document temp = it.get_document();
 	Point p;
 	p.initialize(tlg, temp);
-	TermIterator it = p.termlist_begin();
 	docs.push_back(p);
     }
 }
@@ -159,25 +159,24 @@ ClusterSet
 KMeans::cluster(MSet &mset) {
     LOGCALL(API, ClusterSet, "KMeans::cluster()", mset);
     unsigned int size = mset.size();
+    mset.fetch();
     if (size <= 0)
 	throw AssertionError("Size of MSet should be greater than zero");
     if (k <= 0)
 	throw AssertionError("Number of clusters should be greater than zero");
     if (k > size)
 	throw AssertionError("The number of clusters cannot be greater than number of documents in MSet");
-    MSetDocumentSource source(mset);
     ClusterSet cset;
     TermListGroup tlg;
-    tlg.add_documents(source);
+    tlg.add_documents(mset);
     CosineDistance cosine;
-    initialize_points(source, tlg);
+    initialize_points(mset, tlg);
     initialize_centroids(cset);
     double min1 = 10000;
     double min_cluster = 0;
     int num_iters = 20;
 
     vector<Centroid> prev;
-
     for (int i=0; i<num_iters; i++) {
 	for (unsigned int j=0; j<size; j++) {
 	    Point &x = docs[j];

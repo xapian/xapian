@@ -39,65 +39,6 @@ namespace Xapian {
 
 class TermListGroup;
 
-class Document;
-
-/// Class representing a source of documents to be provided to the Clusterer
-class DocumentSource {
-
-  public:
-
-    /// Returns the next document in the DocumentSource
-    virtual Document next_document() = 0;
-
-    /// Checks whether the DocumentSource index is at its end
-    virtual bool at_end() const = 0;
-
-    /// Returns the size of the DocumentSource
-    virtual doccount size() const = 0;
-};
-
-/// Class representing a source of documents created from an MSet
-class MSetDocumentSource : public DocumentSource {
-
-    /// This represents the MSet used to build this DocumentSource
-    MSet mset;
-
-    /** This represents the maximum number of items that can be stored
-     *  in this DocumentSource
-     */
-    doccount maxitems;
-
-    /** This represents the index in the MSet. It is used to return the
-     *  the document at the current index value in MSet
-     */
-    doccount index;
-
-  public:
-
-    /** Constructor :
-     *  Constructs MSetDocumentSource directly from the MSet
-     */
-    MSetDocumentSource(const MSet &mset);
-
-    /** Constructor :
-     *  Constructs MSetDocumentSource directly from the MSet with only maxitems_
-     *  number of items
-     */
-    MSetDocumentSource(const MSet &mset, doccount maxitems_);
-
-    /** This method returns the next document in the MSet according to index.
-     *  index will be incremented everytime this method is called.
-     *  This will work only till index < (maxitems - 1)
-     */
-    Document next_document();
-
-    /// This method checks whether the MSetDocumentSource is at end of MSet or not
-    bool at_end() const;
-
-    /// This method returns the size of the MSetDocumentSource
-    doccount size() const;
-};
-
 /** Structure to store term and corresponding wdf. This is used with
  *  PointTermIterator to return wdf
  */
@@ -460,7 +401,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *  The TF-IDF weights for the points are calculated and stored within the
      *  Points to be used later during distance calculations
      */
-    void initialize_points(MSetDocumentSource docs, TermListGroup &tlg);
+    void initialize_points(const MSet &docs, TermListGroup &tlg);
 
   public:
 
