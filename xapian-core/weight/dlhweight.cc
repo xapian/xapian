@@ -2,6 +2,7 @@
  * @brief Xapian::DLHWeight class - The DLH weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013, 2014 Aarsh Shah
+ * Copyright (C) 2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,19 +38,19 @@ DLHWeight::clone() const
 void
 DLHWeight::init(double factor)
 {
-    double wdf_lower = 1.0;
     double wdf_upper = get_wdf_upper_bound();
+    if (wdf_upper == 0) {
+	upper_bound = 0.0;
+	return;
+    }
+
+    const double wdf_lower = 1.0;
     double len_upper = get_doclength_upper_bound();
 
     double min_wdf_to_len = wdf_lower / len_upper;
 
     double N = get_collection_size();
     double F = get_collection_freq();
-
-    if (wdf_upper == 0) {
-	upper_bound = 0.0;
-	return;
-    }
 
     // Calculate constant values to be used in get_sumpart().
     log_constant = get_average_length() * N / F;
@@ -68,14 +69,14 @@ DLHWeight::init(double factor)
     /* Take the minimum of the two upper bounds. */
     double max_product = min(max_product_1, max_product_2);
 
-    double max_weight = factor *
-			((wdf_upper * log2(log_constant)) / (wdf_upper + 0.5) +
-			(len_upper - wdf_lower) * log2(1.0 - min_wdf_to_len)
-			/ (wdf_lower + 0.5) +
-			0.5 * log2(2.0 * M_PI * max_product) / (wdf_lower + 0.5));
-
-    upper_bound = get_wqf() * max_weight;
-    if (rare(upper_bound < 0.0)) upper_bound = 0.0;
+    upper_bound =
+	wdf_upper * log2(log_constant) / (wdf_upper + 0.5) +
+	(len_upper - wdf_lower) * log2(1.0 - min_wdf_to_len) / (wdf_lower + 0.5) +
+	0.5 * log2(2.0 * M_PI * max_product) / (wdf_lower + 0.5);
+    if (rare(upper_bound < 0.0))
+	upper_bound = 0.0;
+    else
+	upper_bound *= wqf_product_factor;
 }
 
 string
@@ -103,14 +104,14 @@ DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     if (wdf == 0) return 0.0;
 
     double wdf_to_len = double(wdf) / len;
+    double one_minus_wdf_to_len = 1.0 - wdf_to_len;
 
-    double wt = (wdf * log2(wdf_to_len * log_constant) +
-		(len - wdf) * log2(1.0 - wdf_to_len) +
-		0.5 * log2(2.0 * M_PI * wdf * (1.0 - wdf_to_len))) /
-		(wdf + 0.5);
+    double wt = wdf * log2(wdf_to_len * log_constant) +
+		(len - wdf) * log2(one_minus_wdf_to_len) +
+		0.5 * log2(2.0 * M_PI * wdf * one_minus_wdf_to_len);
     if (rare(wt <= 0.0)) return 0.0;
 
-    return wqf_product_factor * wt;
+    return wqf_product_factor * wt / (wdf + 0.5);
 }
 
 double
