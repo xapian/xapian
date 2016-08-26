@@ -498,24 +498,20 @@ DEFINE_TESTCASE(bb2weight4, backend) {
 DEFINE_TESTCASE(dlhweight1, backend) {
     Xapian::Database db = get_database("apitest_simpledata");
     Xapian::Enquire enquire(db);
-    Xapian::Query query("paragraph");
+    Xapian::Query query("a");
 
     enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::DLHWeight());
 
     Xapian::MSet mset1;
     mset1 = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset1.size(), 5);
-    // Would be ..., 4, 2 except the last two weights would be negative and
-    // so get clamped to zero.
-    mset_expect_order(mset1, 3, 5, 1, 2, 4);
+    TEST_EQUAL(mset1.size(), 3);
+    mset_expect_order(mset1, 3, 1, 2);
     // Weights calculated manually using stats from the database.
-    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0.22469777447558817);
-    TEST_EQUAL_DOUBLE(mset1[1].get_weight(), 0.22469777447558817);
-    TEST_EQUAL_DOUBLE(mset1[2].get_weight(), 0.04027929399255381);
-    // The following weights would be negative but get clamped to 0.
-    TEST_EQUAL_DOUBLE(mset1[3].get_weight(), 0.0);
-    TEST_EQUAL_DOUBLE(mset1[4].get_weight(), 0.0);
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 1.0046477754371292362);
+    TEST_EQUAL_DOUBLE(mset1[1].get_weight(), 0.97621929514640352757);
+    // The following weight would be negative but gets clamped to 0.
+    TEST_EQUAL_DOUBLE(mset1[2].get_weight(), 0.0);
 
     // Test with OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
@@ -523,10 +519,10 @@ DEFINE_TESTCASE(dlhweight1, backend) {
 
     Xapian::MSet mset2;
     mset2 = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset2.size(), 5);
+    TEST_EQUAL(mset2.size(), 3);
 
     TEST_NOT_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
-    for (int i = 0; i < 5; ++i) {
+    for (Xapian::doccount i = 0; i < mset2.size(); ++i) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
 
