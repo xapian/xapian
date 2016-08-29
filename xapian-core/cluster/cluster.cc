@@ -87,8 +87,7 @@ TermListGroup::add_document(const Document &document) {
 void
 TermListGroup::add_documents(const MSet &docs) {
     LOGCALL_VOID(API, "TermListGroup::add_documents()", docs);
-    MSetIterator it = docs.begin();
-    for (; it != docs.end(); it++)
+    for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
 	add_document(it.get_document());
     docs_num = docs.size();
 }
@@ -178,9 +177,8 @@ DocumentSetIterator::get_document() {
 void
 Centroid::set_to_point(Point &p) {
     LOGCALL_VOID(API, "Centroid::set_to_point()", p);
-    TermIterator it = p.termlist_begin();
     magnitude=0;
-    for (; it != p.termlist_end(); ++it) {
+    for (TermIterator it = p.termlist_begin(); it != p.termlist_end(); ++it) {
 	termlist.push_back(Wdf(*it,1));
 	values[*it] = p.get_value(*it);
 	magnitude += p.get_value(*it)*p.get_value(*it);
@@ -206,7 +204,8 @@ void
 Centroid::recalc_magnitude() {
     LOGCALL_VOID(API, "Centroid::recalc_magnitude()", NO_ARGS);
     magnitude = 0;
-    for (unordered_map<string, double>::iterator it = values.begin(); it != values.end(); ++it)
+    unordered_map<string, double>::iterator it;
+    for (it = values.begin(); it != values.end(); ++it)
 	magnitude += it->second*it->second;
 }
 
@@ -277,10 +276,9 @@ PointType::get_value(string term) {
 void
 Point::initialize(TermListGroup &tlg, const Document &doc_) {
     LOGCALL_VOID(API, "Point::initialize()", tlg | doc);
-    TermIterator it = doc_.termlist_begin();
     doccount size = tlg.get_doccount();
     doc = doc_;
-    for (; it != doc_.termlist_end(); ++it) {
+    for (TermIterator it = doc.termlist_begin(); it != doc.termlist_end(); ++it) {
 	doccount wdf = it.get_wdf();
 	if (wdf < 1)
 	    wdf = 1;
@@ -363,16 +361,14 @@ ClusterSet::add_to_cluster(const Point &x, clusterid i) {
 void
 ClusterSet::clear_clusters() {
     LOGCALL_VOID(API, "ClusterSet::clear_clusters()", NO_ARGS);
-    vector<Cluster>::iterator it = clusters.begin();
-    for (; it!=clusters.end(); ++it)
+    for (vector<Cluster>::iterator it = clusters.begin(); it !=clusters.end(); ++it)
 	(*it).clear();
 }
 
 void
 ClusterSet::recalculate_centroids() {
     LOGCALL_VOID(API, "ClusterSet::recalculate_centroids()", NO_ARGS);
-    vector<Cluster>::iterator it = clusters.begin();
-    for (; it != clusters.end(); ++it)
+    for (vector<Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
 	(*it).recalculate();
 }
 
@@ -401,7 +397,7 @@ Cluster::get_documents() {
     LOGCALL(API, DocumentSet, "Cluster::get_documents()", NO_ARGS);
     DocumentSet docs;
     int s = size();
-    for (int i=0;i<s;i++) {
+    for (int i = 0; i < s; ++i) {
 	Point x = get_index(i);
 	docs.add_document(x.get_document());
     }
@@ -437,13 +433,10 @@ void
 Cluster::recalculate() {
     LOGCALL_VOID(API, "Cluster::recalculate()", NO_ARGS);
     centroid.clear();
-    vector<Point>::iterator it = cluster_docs.begin();
-    for (; it != cluster_docs.end(); ++it) {
+    for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
 	Point &temp = *it;
-	TermIterator titer = temp.termlist_begin();
-	for (; titer != temp.termlist_end(); ++titer) {
+	for (TermIterator titer = temp.termlist_begin(); titer != temp.termlist_end(); ++titer)
 	    centroid.add_value(*titer, temp.get_value(*titer));
-	}
     }
     centroid.divide(size());
     centroid.recalc_magnitude();
@@ -455,8 +448,7 @@ Cluster::advdc() {
     double sum = 0;
     int num = cluster_docs.size();
     CosineDistance dist;
-    for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
+    for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it)
 	sum += dist.similarity(*it, centroid);
-    }
     return (sum/num);
 }

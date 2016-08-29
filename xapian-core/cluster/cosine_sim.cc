@@ -45,16 +45,15 @@ CosineDistance::similarity(PointType &a, PointType &b) const {
     double denom_a = 0;
     double denom_b = 0;
     double inner_product = 0;
-    TermIterator it1 = a.termlist_begin();
-    TermIterator it2 = b.termlist_begin();
-
     denom_a = a.get_magnitude();
     denom_b = b.get_magnitude();
+
     if (denom_a == 0 || denom_b == 0)
 	return 0.0;
-    for (; it1 != a.termlist_end(); ++it1)
-	if (b.contains(*it1) && a.get_value(*it1) > 0 && b.get_value(*it1) > 0)
-	    inner_product += a.get_value(*it1)*b.get_value(*it1);
+
+    for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it)
+	if (b.contains(*it) && a.get_value(*it) > 0 && b.get_value(*it) > 0)
+	    inner_product += a.get_value(*it)*b.get_value(*it);
 
     return 1-(inner_product)/(sqrt(denom_a)*sqrt(denom_b));
 }

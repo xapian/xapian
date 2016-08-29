@@ -43,8 +43,8 @@ double
 EuclidianDistance::similarity(PointType &a, PointType &b) const {
     LOGCALL(API, double, "EuclidianDistance::similarity()", a | b);
     double sum = 0;
-    TermIterator it = a.termlist_begin();
-    for (; it != a.termlist_end(); it++) {
+
+    for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
 	if (a.contains(*it) && b.contains(*it)) {
 	    double a_val = a.get_value(*it);
 	    double b_val = b.get_value(*it);
@@ -53,10 +53,10 @@ EuclidianDistance::similarity(PointType &a, PointType &b) const {
 	else
 	    sum += a.get_value(*it)*a.get_value(*it);
     }
-    it = b.termlist_begin();
-    for (; it != b.termlist_end(); it++) {
+
+    for (TermIterator it = b.termlist_begin(); it != b.termlist_end(); ++it)
 	if (!a.contains(*it))
 	    sum += b.get_value(*it)*b.get_value(*it);
-    }
+
     return sqrt(sum);
 }

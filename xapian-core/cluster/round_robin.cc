@@ -43,11 +43,9 @@ RoundRobin::cluster(MSet &mset) {
     tlg.add_documents(mset);
     ClusterSet cset;
     vector<Point> points;
-    MSetIterator it = mset.begin();
-    for (; it != mset.end(); it++) {
+    for (MSetIterator it = mset.begin(); it != mset.end(); ++it) {
 	Point p;
-	Document temp = it.get_document();
-	p.initialize(tlg, temp);
+	p.initialize(tlg, it.get_document());
 	points.push_back(p);
     }
     unsigned int i = 0;
@@ -56,9 +54,8 @@ RoundRobin::cluster(MSet &mset) {
 	cset.add_cluster(cluster_rr);
 	i++;
     }
-    i = 0;
     unsigned int size = points.size();
-    for (; i < size; i++) {
+    for (i = 0; i < size; ++i) {
 	Point x = points[i];
 	cset.add_to_cluster(x, i % num_of_clusters);
     }
