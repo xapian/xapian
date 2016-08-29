@@ -31,42 +31,6 @@
 
 using namespace std;
 
-// Test for distance between the same document should be zero
-DEFINE_TESTCASE(euclidian_distance1, backend) {
-    Xapian::Enquire enquire(get_database("apitest_cluster"));
-    enquire.set_query(Xapian::Query("cluster") );
-
-    Xapian::MSet matches = enquire.get_mset(0, 5);
-    Xapian::MSetDocumentSource docs(matches);
-    Xapian::TermListGroup tlg;
-    tlg.add_documents(docs);
-    Xapian::MSetIterator i = matches.begin();
-    Xapian::Document doc1 = i.get_document();
-    Xapian::EuclidianDistance d;
-    double sim = d.similarity(tlg, doc1.termlist_begin(), doc1.termlist_end(), doc1.termlist_begin(), doc1.termlist_end());
-    TEST_EQUAL (sim, 0);
-    return true;
-}
-
-// Test for distance between different documents should be greater than zero
-DEFINE_TESTCASE(euclidian_distance2, backend) {
-    Xapian::Enquire enquire(get_database("apitest_cluster"));
-    enquire.set_query(Xapian::Query("cluster") );
-
-    Xapian::MSet matches = enquire.get_mset(0, 5);
-    Xapian::MSetDocumentSource docs(matches);
-    Xapian::TermListGroup tlg;
-    tlg.add_documents(docs);
-    Xapian::MSetIterator i = matches.begin();
-    Xapian::Document doc1 = i.get_document();
-    i++;
-    Xapian::Document doc2 = i.get_document();
-    Xapian::EuclidianDistance d;
-    double sim = d.similarity(tlg, doc1.termlist_begin(), doc1.termlist_end(), doc2.termlist_begin(), doc2.termlist_end());
-    TEST_NOT_EQUAL (sim, 0);
-    return true;
-}
-
 /** Test that none of the returned clusters should be empty
  *  Note that the DocumentSet can be iterated through using DocumentSetIterator
  */
@@ -74,13 +38,56 @@ DEFINE_TESTCASE(round_robin1, backend)
 {
     Xapian::Database db(get_database("apitest_cluster"));
     Xapian::Enquire enq(db);
-    enq.set_query(Xapian::Query("computer"));
+    enq.set_query(Xapian::Query("cluster"));
     Xapian::MSet matches = enq.get_mset(0, 10);
-    Xapian::RoundRobin rr;
+
+    int num_clusters = 3;
+    Xapian::RoundRobin rr(num_clusters);
+    Xapian::ClusterSet cset = rr.cluster(matches);
+    int size = cset.size();
+    for (int i = 0; i < size; i++) {
+	Xapian::DocumentSet d = cset[i].get_documents();
+	TEST (d.size() != 0);
+    }
+    return true;
+}
+
+/// Test that none of the clusters returned by KMeans are empty
+DEFINE_TESTCASE(kmeans, backend)
+{
+    Xapian::Database db(get_database("apitest_cluster"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("cluster"));
+    Xapian::MSet matches = enq.get_mset(0, 10);
+
     int k = 3;
-    Xapian::ClusterSet cset = rr.cluster(matches, k);
-    for (Xapian::ClusterSetIterator i=cset.begin(); i!=cset.end(); i++) {
-	Xapian::DocumentSet d = i.get_cluster();
+    Xapian::KMeans kmeans(k);
+    Xapian::ClusterSet cset = kmeans.cluster(matches);
+    int size = cset.size();
+    for (int i = 0; i < size; i++) {
+	Xapian::DocumentSet d = cset[i].get_documents();
+	TEST (d.size() != 0);
+    }
+    return true;
+}
+
+/** Test that none of the clusters returned by KMeans while using
+ *  KMeans++ as initialization are empty
+ */
+DEFINE_TESTCASE(kmeanspp, backend)
+{
+    Xapian::Database db(get_database("apitest_cluster"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("cluster"));
+    Xapian::MSet matches = enq.get_mset(0, 10);
+
+    int k = 3;
+    string mode = "kmeanspp";
+    Xapian::KMeans kmeanspp(k, mode);
+    Xapian::ClusterSet cset = kmeanspp.cluster(matches);
+    int size = cset.size();
+    for (int i = 0; i < size; i++) {
+	Xapian::DocumentSet d = cset[i].get_documents();
 	TEST (d.size() != 0);
     }
     return true;

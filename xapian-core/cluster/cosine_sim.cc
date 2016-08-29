@@ -1,5 +1,5 @@
-/** @file euclidian_sim.cc
- *  @brief Euclidian similarity calculation between documents
+/** @file cosine_sim.cc
+ *  @brief Cosine similarity calculation between documents
  */
 /* Copyright (C) 2016 Richhiey Thomas
  *
@@ -34,29 +34,26 @@ using namespace std;
 using namespace Xapian;
 
 string
-EuclidianDistance::get_description() const {
-    LOGCALL(API, string, "EuclidianDistance::get_description()", NO_ARGS);
-    return "Euclidian Distance metric";
+CosineDistance::get_description() const {
+    LOGCALL(API, string, "CosineDistance::get_description()", NO_ARGS);
+    return "Cosine Distance metric";
 }
 
 double
-EuclidianDistance::similarity(PointType &a, PointType &b) const {
-    LOGCALL(API, double, "EuclidianDistance::similarity()", a | b);
-    double sum = 0;
+CosineDistance::similarity(PointType &a, PointType &b) const {
+    LOGCALL(API, double, "CosineDistance::similarity()", a | b);
+    double denom_a = 0;
+    double denom_b = 0;
+    double inner_product = 0;
+    denom_a = a.get_magnitude();
+    denom_b = b.get_magnitude();
 
-    for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
-	if (a.contains(*it) && b.contains(*it)) {
-	    double a_val = a.get_value(*it);
-	    double b_val = b.get_value(*it);
-	    sum += (a_val - b_val)*(a_val - b_val);
-	}
-	else
-	    sum += a.get_value(*it)*a.get_value(*it);
-    }
+    if (denom_a == 0 || denom_b == 0)
+	return 0.0;
 
-    for (TermIterator it = b.termlist_begin(); it != b.termlist_end(); ++it)
-	if (!a.contains(*it))
-	    sum += b.get_value(*it)*b.get_value(*it);
+    for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it)
+	if (b.contains(*it) && a.get_value(*it) > 0 && b.get_value(*it) > 0)
+	    inner_product += a.get_value(*it)*b.get_value(*it);
 
-    return sqrt(sum);
+    return 1-(inner_product)/(sqrt(denom_a)*sqrt(denom_b));
 }

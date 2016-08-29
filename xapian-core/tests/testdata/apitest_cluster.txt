@@ -1,5 +1,13 @@
-A computer cluster consists of a set of loosely or tightly connected computers that work together so that, in many respects, they can be viewed as a single system. Unlike grid computers, computer clusters have each node set to perform the same task, controlled and scheduled by software.
+Cluster 0 - This is cluster paragraph number 0
 
-The components of a cluster are usually connected to each other through fast local area networks ("LAN"), with each node (computer used as a server) running its own instance of an operating cluster system. In most circumstances, all of the nodes use the same hardware and the same operating system, cluster although in some setups (i.e. using Open Source Cluster Application Resources (OSCAR)), different operating systems can be used on each computer, clusterand/or different hardware.
+Cluster 1 - This is cluster paragraph number 1
 
-They are usually deployed to improve performance and availability over that of a single computer, while typically being much more cost-effective than single computers of comparable speed or availability.
+Cluster 2 - This is cluster paragraph number 2
+
+Cluster 3 - This is cluster paragraph number 3
+
+Cluster 4 - This is cluster paragraph number 4
+
+Cluster 5 - This is cluster paragraph number 5
+
+Cluster 6 - This is cluster paragraph number 6
