@@ -147,7 +147,7 @@ TfIdfWeight::get_maxpart() const
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     double wt = 1.0;
-    if (normalizations[2] =='P') {
+    if (normalizations[2] == 'P') {
 	double wqf = get_wqf();
 	wt = (get_wdfn(wdf_max, normalizations[0]) *
 		get_wtn(get_doclength_lower_bound(), wt, normalizations[2]) + param_delta) *
