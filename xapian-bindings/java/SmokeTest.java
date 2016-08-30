@@ -42,6 +42,14 @@ class MyExpandDecider extends ExpandDecider {
     public boolean accept(String s) { return s.charAt(0) != 'a'; }
 }
 
+class MyFieldProcessor extends FieldProcessor {
+    public Query apply(String str) {
+	if (str.equals("spam"))
+	    return new Query("eggs");
+	return new Query("spam");
+    }
+}
+
 public class SmokeTest {
     public static void main(String[] args) throws Exception {
 	TermGenerator termGenerator = new TermGenerator();
@@ -210,6 +218,15 @@ public class SmokeTest {
 	    if (!enq.getQuery().toString().equals("Query((there OR is))")) {
 		System.err.println("Enquire::getQuery() returned the wrong query: " + enq.getQuery().toString());
 		System.exit(1);
+	    }
+
+	    {
+		QueryParser qp = new QueryParser();
+		qp.addPrefix("food", new MyFieldProcessor());
+		if (!qp.parseQuery("food:spam").toString().equals("Query(eggs)")) {
+		    System.err.println("FieldProcessor subclass doesn't work as expected");
+		    System.exit(1);
+		}
 	    }
 	} catch (Exception e) {
 	    System.err.println("Caught unexpected exception " + e.toString());
