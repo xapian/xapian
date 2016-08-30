@@ -420,9 +420,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /* When additional normalizations are implemented in the future, the additional statistics for them
        should be accessed by these functions. */
-    double get_wdfn(Xapian::termcount wdf, char c) const;
+    double get_wdfn(Xapian::termcount wdf, Xapian::termcount len, char c) const;
     double get_idfn(Xapian::doccount termfreq, char c) const;
-    double get_wtn(Xapian::termcount len, double wt, char c) const;
+    double get_wtn(double wt, char c) const;
 
   public:
     /** Construct a TfIdfWeight
