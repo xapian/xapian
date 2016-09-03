@@ -440,7 +440,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
-     *     @li 'P': Pivoted     wdfn=1+log(1+log(wdf))
+     *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
      *
      *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
      *     implemented.
@@ -462,12 +462,6 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     supported:
      *
      *     @li 'n': None wtn=tfn*idfn
-     *     @li 'P': Pivoted wtn=wqf(tfn*idfn*(1-slope+(slope*normlen))+delta*idfn) where
-     *         parameters slope and delta values should be positive when using pivoted
-     *         normalization string. Specifically, "PPP" normalization string should
-     *         be used to use Piv+ normalization. In addition, different types of pivoted
-     *         normalization can also be used in combination with other normalisations
-     *         to have more options of combinations for wdfn, idfn and wtn normalizations.
      *
      * Implementing support for more normalizations of each type would require
      * extending the backend to track more statistics.
