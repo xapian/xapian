@@ -27,7 +27,6 @@
 #include "xapian/postingsource.h"
 #include "xapian/query.h"
 
-#include "matcher/const_database_wrapper.h"
 #include "leafpostlist.h"
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
@@ -735,7 +734,11 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     Assert(source.get());
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    Xapian::Database wrappeddb(new ConstDatabaseWrapper(&(qopt->db)));
+    // Casting away const on the Database::Internal here is OK, as we wrap
+    // them in a const Xapian::Database so non-const methods can't actually
+    // be called on the Database::Internal object.
+    const Xapian::Database wrappeddb(
+	    const_cast<Xapian::Database::Internal*>(&(qopt->db)));
     RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher));
 }
 

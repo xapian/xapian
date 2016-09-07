@@ -1,6 +1,6 @@
 /* api_postingsource.cc: tests of posting sources
  *
- * Copyright 2008,2009,2011,2015 Olly Betts
+ * Copyright 2008,2009,2011,2015,2016 Olly Betts
  * Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -657,6 +657,51 @@ DEFINE_TESTCASE(matchtimelimit1, generated && !remote)
     Xapian::MSet mset = enquire.get_mset(0, 1, 1000);
     TEST_EQUAL(mset.size(), 1);
     TEST_EQUAL(count, 2);
+
+    return true;
+}
+
+class CheckBoundsPostingSource
+    : public Xapian::DecreasingValueWeightPostingSource {
+  public:
+    Xapian::doccount& doclen_lb;
+
+    Xapian::doccount& doclen_ub;
+
+    CheckBoundsPostingSource(Xapian::doccount& doclen_lb_,
+			     Xapian::doccount& doclen_ub_)
+	: Xapian::DecreasingValueWeightPostingSource(0),
+	  doclen_lb(doclen_lb_),
+	  doclen_ub(doclen_ub_) { }
+
+    CheckBoundsPostingSource * clone() const
+    {
+	return new CheckBoundsPostingSource(doclen_lb, doclen_ub);
+    }
+
+    void init(const Xapian::Database& database) {
+	doclen_lb = database.get_doclength_lower_bound();
+	doclen_ub = database.get_doclength_upper_bound();
+	Xapian::DecreasingValueWeightPostingSource::init(database);
+    }
+};
+
+// Test that doclength bounds are correct.
+// Regression test for bug fixed in 1.2.25 and 1.4.1.
+DEFINE_TESTCASE(postingsourcebounds1, backend && !remote)
+{
+    Xapian::Database db = get_database("apitest_simpledata");
+
+    Xapian::doccount doclen_lb = 0, doclen_ub = 0;
+    CheckBoundsPostingSource ps(doclen_lb, doclen_ub);
+
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query(&ps));
+
+    Xapian::MSet mset = enquire.get_mset(0, 1);
+
+    TEST_EQUAL(doclen_lb, db.get_doclength_lower_bound());
+    TEST_EQUAL(doclen_ub, db.get_doclength_upper_bound());
 
     return true;
 }

@@ -342,9 +342,6 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *
      *  @param db The database which the PostingSource should iterate through.
      *
-     *  Note: the database supplied to this method must not be modified: in
-     *  particular, the reopen() method should not be called on it.
-     *
      *  Note: in the case of a multi-database search, a separate PostingSource
      *  will be used for each database (the separate PostingSources will be
      *  obtained using @a clone()), and each PostingSource will be passed one of
