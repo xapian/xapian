@@ -62,12 +62,12 @@ BackendManager::create_dir_if_needed(const string &dirname)
     struct stat sbuf;
     int result = stat(dirname.c_str(), &sbuf);
     if (result < 0) {
-    if (errno != ENOENT)
-	throw Xapian::DatabaseOpeningError("Can't stat directory");
-    if (mkdir(dirname.c_str(), 0700) < 0)
-	throw Xapian::DatabaseOpeningError("Can't create directory");
-	return true; // Successfully created a directory.
-    }
+	if (errno != ENOENT)
+	    throw Xapian::DatabaseOpeningError("Can't stat directory");
+	if (mkdir(dirname.c_str(), 0700) < 0)
+	    throw Xapian::DatabaseOpeningError("Can't create directory");
+	    return true; // Successfully created a directory.
+	}
     if (!S_ISDIR(sbuf.st_mode))
 	throw Xapian::DatabaseOpeningError("Is not a directory.");
     return false; // Already a directory.
@@ -87,7 +87,7 @@ BackendManager::createdb(const vector<string> &files)
     }
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
-    // Directory was created, so do the indexing.
+	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE);
 	index_files_to_database(db, files);
 	db.commit();
@@ -149,7 +149,7 @@ BackendManager::get_xapian_progsrv_command()
 {
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-    return "./runsrv " XAPIAN_PROGSRV;
+	return "./runsrv " XAPIAN_PROGSRV;
     }
 #endif
     return XAPIAN_PROGSRV;
