@@ -38,11 +38,6 @@
 
 using namespace std;
 
-std::string get_dbtype()
-{
-    return backendmanager->get_dbtype();
-}
-
 Xapian::Database
 get_database(const string &dbname)
 {
@@ -58,82 +53,10 @@ get_database(const string &dbname, const string &dbname2)
     return backendmanager->get_database(dbnames);
 }
 
-Xapian::Database
-get_database(const std::string &dbname,
-	     void (*gen)(Xapian::WritableDatabase&,
-			 const std::string &),
-	     const std::string &arg)
-{
-    return backendmanager->get_database(dbname, gen, arg);
-}
-
 string
 get_database_path(const string &dbname)
 {
     return backendmanager->get_database_path(dbname);
-}
-
-string
-get_database_path(const std::string &dbname,
-		  void (*gen)(Xapian::WritableDatabase&,
-			      const std::string &),
-		  const std::string &arg)
-{
-    return backendmanager->get_database_path(dbname, gen, arg);
-}
-
-Xapian::WritableDatabase
-get_writable_database(const string &dbname)
-{
-    return backendmanager->get_writable_database("dbw", dbname);
-}
-
-Xapian::WritableDatabase
-get_named_writable_database(const std::string &name, const std::string &source)
-{
-   return backendmanager->get_writable_database("dbw__" + name, source);
-}
-
-std::string
-get_named_writable_database_path(const std::string &name)
-{
-   return backendmanager->get_writable_database_path("dbw__" + name);
-}
-
-Xapian::Database
-get_remote_database(const string &dbname, unsigned int timeout)
-{
-    vector<string> dbnames;
-    dbnames.push_back(dbname);
-    return backendmanager->get_remote_database(dbnames, timeout);
-}
-
-Xapian::Database
-get_writable_database_as_database()
-{
-    return backendmanager->get_writable_database_as_database();
-}
-
-Xapian::WritableDatabase
-get_writable_database_again()
-{
-    return backendmanager->get_writable_database_again();
-}
-
-void
-skip_test_unless_backend(const std::string & backend_prefix)
-{
-    if (!startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test only supported for " << backend_prefix << " backend");
-    }
-}
-
-void
-skip_test_for_backend(const std::string & backend_prefix)
-{
-    if (startswith(get_dbtype(), backend_prefix)) {
-	SKIP_TEST("Test not supported for " << backend_prefix << " backend");
-    }
 }
 
 class ApiTestRunner : public TestRunner
