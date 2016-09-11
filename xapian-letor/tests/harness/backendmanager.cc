@@ -46,7 +46,7 @@ using namespace std;
 
 void
 BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
-	    const vector<string> & files)
+					const vector<string> & files)
 {
     FileIndexer(datadir, files).index_to(database);
 }
@@ -66,8 +66,8 @@ BackendManager::create_dir_if_needed(const string &dirname)
 	    throw Xapian::DatabaseOpeningError("Can't stat directory");
 	if (mkdir(dirname.c_str(), 0700) < 0)
 	    throw Xapian::DatabaseOpeningError("Can't create directory");
-	    return true; // Successfully created a directory.
-	}
+	return true; // Successfully created a directory.
+    }
     if (!S_ISDIR(sbuf.st_mode))
 	throw Xapian::DatabaseOpeningError("Is not a directory.");
     return false; // Already a directory.
