@@ -866,6 +866,15 @@ DEFINE_TESTCASE(tfidfweight4, backend) {
     TEST_REL(mset[0].get_weight(),>,mset[1].get_weight());
     TEST_REL(mset[2].get_weight(),>,mset[3].get_weight());
 
+    // Check that wqf is taken into account.
+    enquire.set_query(Xapian::Query("paragraph", 2));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("PPn", 0.2, 1.0));
+    Xapian::MSet mset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 5);
+    // wqf is 2, so weights should be doubled.
+    TEST_EQUAL_DOUBLE(mset[0].get_weight() * 2, mset2[0].get_weight());
+    TEST_EQUAL_DOUBLE(mset[1].get_weight() * 2, mset2[1].get_weight());
+
     // check for "nPn" which represents "xPx"
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("nPn", 0.2, 1.0));
