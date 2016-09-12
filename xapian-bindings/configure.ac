@@ -904,7 +904,7 @@ if test no != "$with_java" ; then
 	      jni_host_os=linux ;;
 	    solaris*)
 	      jni_host_os=solaris ;;
-	    mingw* | pw32*)
+	    mingw* | pw32* | cygwin*)
 	      jni_host_os=win32 ;;
 	  esac
 	  if test -n "$jni_host_os" ; then
