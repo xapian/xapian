@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
+ * Copyright (C) 2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,10 +70,10 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
+    need_stat(WQF);
     if (normalizations[0] == 'P' || normalizations[1] == 'P') {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
-	need_stat(WQF);
 	need_stat(DOC_LENGTH_MIN);
     }
 }
@@ -86,7 +87,7 @@ TfIdfWeight::clone() const
 void
 TfIdfWeight::init(double factor_)
 {
-    factor = factor_;
+    wqf_factor = get_wqf() * factor_;
 }
 
 string
@@ -126,12 +127,7 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     double wt = get_wdfn(wdf, doclen, normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    if (normalizations[0] == 'P' || normalizations[1] == 'P') {
-	double wqf = get_wqf();
-	return wqf * get_wtn(wt, normalizations[2]) * factor;
-    } else
-	return get_wtn(wt, normalizations[2]) * factor;
-
+    return get_wtn(wt, normalizations[2]) * wqf_factor;
 }
 
 // An upper bound can be calculated simply on the basis of wdf_max as termfreq
@@ -144,12 +140,7 @@ TfIdfWeight::get_maxpart() const
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     double wt = get_wdfn(wdf_max, get_doclength_lower_bound(), normalizations[0]) *
 		get_idfn(termfreq, normalizations[1]);
-    if (normalizations[0] == 'P' || normalizations[1] == 'P') {
-	double wqf = get_wqf();
-	return wqf * get_wtn(wt, normalizations[2]) * factor;
-    } else
-	return get_wtn(wt, normalizations[2]) * factor;
-
+    return get_wtn(wt, normalizations[2]) * wqf_factor;
 }
 
 // There is no extra per document component in the TfIdfWeighting scheme.
