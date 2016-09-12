@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2012 Gaurav Arora
  * Copyright (C) 2016 Olly Betts
+ * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
