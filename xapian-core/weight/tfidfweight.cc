@@ -88,6 +88,7 @@ void
 TfIdfWeight::init(double factor_)
 {
     wqf_factor = get_wqf() * factor_;
+    idfn = get_idfn(normalizations[1]);
 }
 
 string
@@ -123,11 +124,8 @@ double
 TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
 			 Xapian::termcount) const
 {
-    Xapian::doccount termfreq = 1;
-    if (normalizations[1] != 'n') termfreq = get_termfreq();
-    double wt = get_wdfn(wdf, doclen, normalizations[0]) *
-		get_idfn(termfreq, normalizations[1]);
-    return get_wtn(wt, normalizations[2]) * wqf_factor;
+    double wdfn = get_wdfn(wdf, doclen, normalizations[0]);
+    return get_wtn(wdfn * idfn, normalizations[2]) * wqf_factor;
 }
 
 // An upper bound can be calculated simply on the basis of wdf_max as termfreq
@@ -135,12 +133,10 @@ TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
 double
 TfIdfWeight::get_maxpart() const
 {
-    Xapian::doccount termfreq = 1;
-    if (normalizations[1] != 'n') termfreq = get_termfreq();
     Xapian::termcount wdf_max = get_wdf_upper_bound();
-    double wt = get_wdfn(wdf_max, get_doclength_lower_bound(), normalizations[0]) *
-		get_idfn(termfreq, normalizations[1]);
-    return get_wtn(wt, normalizations[2]) * wqf_factor;
+    Xapian::termcount len_min = get_doclength_lower_bound();
+    double wdfn = get_wdfn(wdf_max, len_min, normalizations[0]);
+    return get_wtn(wdfn * idfn, normalizations[2]) * wqf_factor;
 }
 
 // There is no extra per document component in the TfIdfWeighting scheme.
@@ -182,8 +178,10 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen, char c) c
 }
 
 double
-TfIdfWeight::get_idfn(Xapian::doccount termfreq, char c) const
+TfIdfWeight::get_idfn(char c) const
 {
+    Xapian::doccount termfreq = 1;
+    if (c != 'n') termfreq = get_termfreq();
     double N = 1.0;
     if (c != 'n' && c != 'f') N = get_collection_size();
     switch (c) {

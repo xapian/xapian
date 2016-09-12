@@ -411,6 +411,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     /// The factor to multiply with the weight.
     double wqf_factor;
 
+    /// Normalised IDF value (document-independent).
+    double idfn;
+
     /// Parameters slope and delta in the Piv+ normalization weighting formula.
     double param_slope, param_delta;
 
@@ -421,7 +424,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     /* When additional normalizations are implemented in the future, the additional statistics for them
        should be accessed by these functions. */
     double get_wdfn(Xapian::termcount wdf, Xapian::termcount len, char c) const;
-    double get_idfn(Xapian::doccount termfreq, char c) const;
+    double get_idfn(char c) const;
     double get_wtn(double wt, char c) const;
 
   public:
