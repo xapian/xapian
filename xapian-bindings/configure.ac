@@ -780,9 +780,11 @@ if test no != "$with_java" ; then
 	    break
 	  fi
 
-	  dnl Sun's JDK requires the user to pass an extra -I for a
-	  dnl subdirectory named after the host_os.  Sadly we seem to
-	  dnl need to hardcode a list of the platform names.
+	  dnl For OpenJDK (and maybe others) we have to specify an extra -I
+	  dnl option for an OS-specific subdirectory containing a "jni_md.h"
+	  dnl header which is included by "jni.h".  Sadly we seem to need to
+	  dnl hardcode a mapping for these platform names - the list below
+	  dnl was determined by inspecting the source code of OpenJDK 8.
 	  jni_host_os=
 	  case $host_os in
 	    linux*)
@@ -791,6 +793,12 @@ if test no != "$with_java" ; then
 	      jni_host_os=solaris ;;
 	    mingw* | pw32* | cygwin*)
 	      jni_host_os=win32 ;;
+	    darwin*)
+	      jni_host_os=darwin ;;
+	    *bsd*)
+	      jni_host_os=bsd ;;
+	    aix*)
+	      jni_host_os=aix ;;
 	  esac
 	  if test -n "$jni_host_os" ; then
 	    CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
