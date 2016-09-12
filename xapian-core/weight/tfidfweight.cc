@@ -2,6 +2,7 @@
  * @brief Xapian::TfIdfWeight class - The TfIdf weighting scheme
  */
 /* Copyright (C) 2013 Aarsh Shah
+ * Copyright (C) 2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,7 +59,7 @@ TfIdfWeight::clone() const
 void
 TfIdfWeight::init(double factor_)
 {
-    factor = factor_;
+    factor = get_wqf() * factor_;
 }
 
 string
