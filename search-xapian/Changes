@@ -1,6 +1,8 @@
 Revision history for Perl extension Search::Xapian.
 
 1.2.24.0
+	[Changes contributed by Nick Morrott]
+	- Fix typo in POD documentation (fixes #730).
 	[Changes contributed by Olly Betts]
 	- Allow building against xapian-core 1.4.x as well as xapian-core
 	  1.2.x.
