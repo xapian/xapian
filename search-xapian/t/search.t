@@ -18,6 +18,17 @@ use Search::Xapian qw(:ops);
 # None of the following tests can be expected to succeed without first
 # creating a test database in the directory testdb.
 
+# Adjust query description from 1.4 to match.
+sub qd {
+    local $_ = (shift @_)->get_description();
+    if (substr($_, 0, 1) eq 'Q') {
+	s/\@([0-9]+)/:(pos=$1)/g;
+	s/^Query\(0 \* VALUE_RANGE/Query(VALUE_RANGE/;
+	$_ = "Xapian::$_";
+    }
+    return $_;
+}
+
 my $db;
 ok( $db = Search::Xapian::Database->new( 'testdb' ), "test db opened ok" );
 
@@ -27,14 +38,14 @@ ok( $enq = $db->enquire(), "db enquirable" );
 my @subqueries;
 my $query;
 ok( $subqueries[0] = Search::Xapian::Query->new( 'test' ), "one-term queries ok" );
-is( $subqueries[0]->get_description, "Xapian::Query(test)", "query parsed correctly" );
+is( qd($subqueries[0]), "Xapian::Query(test)", "query parsed correctly" );
 
 # tests 5-14
 foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE) {
   ok( $query = Search::Xapian::Query->new( $op, @subqueries ), "$Search::Xapian::OP_NAMES[$op] works with 1 object" );
   ok( $query = Search::Xapian::Query->new( $op, 'help' ), "$Search::Xapian::OP_NAMES[$op] works with 1 term" );
 }
-is( $query->get_description, "Xapian::Query(help)", "query parsed correctly" );
+is( qd($query), "Xapian::Query(help)", "query parsed correctly" );
 
 # tests 15-41
 $subqueries[1] = Search::Xapian::Query->new( 'help' );
@@ -44,7 +55,7 @@ foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE,
   ok( $query = Search::Xapian::Query->new( $op, $subqueries[0], 'test'), "$Search::Xapian::OP_NAMES[$op] works with an object and a term" );
   ok( $query = Search::Xapian::Query->new( $op, 'test', 'help'), "$Search::Xapian::OP_NAMES[$op] works with 2 terms" );
 }
-is( $query->get_description, "Xapian::Query((test ELITE_SET 10 help))", "query parsed correctly" );
+is( qd($query), "Xapian::Query((test ELITE_SET 10 help))", "query parsed correctly" );
 
 # tests 42-...
 $subqueries[2] = Search::Xapian::Query->new( 'one' );
@@ -52,7 +63,7 @@ foreach my $op (OP_OR, OP_AND, OP_NEAR, OP_PHRASE ) {
   ok( $query = Search::Xapian::Query->new( $op, @subqueries ), "$Search::Xapian::OP_NAMES[$op] works with 3 objects" );
   ok( $query = Search::Xapian::Query->new( $op, 'test', 'help', 'one' ), "$Search::Xapian::OP_NAMES[$op] works with 3 terms" );
 }
-is( $query->get_description, "Xapian::Query((test PHRASE 3 help PHRASE 3 one))", "query parsed correctly" );
+is( qd($query), "Xapian::Query((test PHRASE 3 help PHRASE 3 one))", "query parsed correctly" );
 
 ok( $enq = $db->enquire( $query ), "db queries return ok"  );
 ok( $enq = $db->enquire( OP_OR, 'test', 'help' ), "in-line db queries return ok" );
@@ -185,6 +196,6 @@ ok( ++$alltermit == $db->allterms_end('t') );
 
 # Check that non-string scalars get coerced.
 my $numberquery = Search::Xapian::Query->new( OP_OR, (12, "34", .5) );
-is( $numberquery->get_description(), "Xapian::Query((12 OR 34 OR 0.5))" );
+is( qd($numberquery), "Xapian::Query((12 OR 34 OR 0.5))" );
 
 1;

@@ -90,103 +90,79 @@ Enquire::set_sort_by_relevance()
 	THIS->set_sort_by_relevance();
 
 void
-Enquire::set_sort_by_value(sort_key, ascending = NO_INIT)
+Enquire::set_sort_by_value(sort_key, ascending = true)
     valueno	sort_key
     bool	ascending
     CODE:
 	// Clear reference to any currently set sorter object.
 	XAPIAN_PERL_REF(Enquire, THIS, sorter, NULL);
 	try {
-	    if (items == 3) { /* items includes the hidden this pointer */
-		THIS->set_sort_by_value(sort_key, ascending);
-	    } else {
-		THIS->set_sort_by_value(sort_key);
-	    }
+	    THIS->set_sort_by_value(sort_key, ascending);
 	} catch (...) {
 	    handle_exception();
 	}
 
 void
-Enquire::set_sort_by_value_then_relevance(sort_key, ascending = NO_INIT)
+Enquire::set_sort_by_value_then_relevance(sort_key, ascending = true)
     valueno	sort_key
     bool	ascending
     CODE:
 	// Clear reference to any currently set sorter object.
 	XAPIAN_PERL_REF(Enquire, THIS, sorter, NULL);
 	try {
-	    if (items == 3) { /* items includes the hidden this pointer */
-		THIS->set_sort_by_value_then_relevance(sort_key, ascending);
-	    } else {
-		THIS->set_sort_by_value_then_relevance(sort_key);
-	    }
+	    THIS->set_sort_by_value_then_relevance(sort_key, ascending);
 	} catch (...) {
 	    handle_exception();
 	}
 
 void
-Enquire::set_sort_by_relevance_then_value(sort_key, ascending = NO_INIT)
+Enquire::set_sort_by_relevance_then_value(sort_key, ascending = true)
     valueno	sort_key
     bool	ascending
     CODE:
 	// Clear reference to any currently set sorter object.
 	XAPIAN_PERL_REF(Enquire, THIS, sorter, NULL);
 	try {
-	    if (items == 3) { /* items includes the hidden this pointer */
-		THIS->set_sort_by_relevance_then_value(sort_key, ascending);
-	    } else {
-		THIS->set_sort_by_relevance_then_value(sort_key);
-	    }
+	    THIS->set_sort_by_relevance_then_value(sort_key, ascending);
 	} catch (...) {
 	    handle_exception();
 	}
 
 void
-Enquire::set_sort_by_key(sorter, ascending = NO_INIT)
-    MultiValueSorter * sorter
+Enquire::set_sort_by_key(sorter, ascending = true)
+    MultiValueKeyMaker * sorter
     bool	ascending
     CODE:
 	// Keep a reference to the currently set object.
 	XAPIAN_PERL_REF(Enquire, THIS, sorter, ST(1));
 	try {
-	    if (items == 3) { /* items includes the hidden this pointer */
-		THIS->set_sort_by_key(sorter, ascending);
-	    } else {
-		THIS->set_sort_by_key(sorter);
-	    }
+	    THIS->set_sort_by_key(sorter, ascending);
 	} catch (...) {
 	    handle_exception();
 	}
 
 void
-Enquire::set_sort_by_key_then_relevance(sorter, ascending = NO_INIT)
-    MultiValueSorter * sorter
+Enquire::set_sort_by_key_then_relevance(sorter, ascending = true)
+    MultiValueKeyMaker * sorter
     bool	ascending
     CODE:
 	// Keep a reference to the currently set object.
 	XAPIAN_PERL_REF(Enquire, THIS, sorter, ST(1));
 	try {
-	    if (items == 3) { /* items includes the hidden this pointer */
-		THIS->set_sort_by_key_then_relevance(sorter, ascending);
-	    } else {
-		THIS->set_sort_by_key_then_relevance(sorter);
-	    }
+	    THIS->set_sort_by_key_then_relevance(sorter, ascending);
 	} catch (...) {
 	    handle_exception();
 	}
 
 void
-Enquire::set_sort_by_relevance_then_key(sorter, ascending = NO_INIT)
-    MultiValueSorter * sorter
+Enquire::set_sort_by_relevance_then_key(sorter, ascending = true)
+    MultiValueKeyMaker * sorter
     bool	ascending
     CODE:
 	// Keep a reference to the currently set object.
 	XAPIAN_PERL_REF(Enquire, THIS, sorter, ST(1));
 	try {
-	    if (items == 3) { /* items includes the hidden this pointer */
-		THIS->set_sort_by_relevance_then_key(sorter, ascending);
-	    } else {
-		THIS->set_sort_by_relevance_then_key(sorter);
-	    }
+	    THIS->set_sort_by_relevance_then_key(sorter, ascending);
 	} catch (...) {
 	    handle_exception();
 	}

@@ -200,11 +200,14 @@ close F;
 
 my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
 if ($xver !~ /^\Q$BASEVERSION\E(?:_(?:svn|git)[0-9]+)?$/) {
-    # We definitely need Xapian 1.2.x.
-    my $no_chance = ($xver !~ /^1\.2\./);
+    # We definitely need Xapian 1.2.x or 1.4.x.
+    my $no_chance = ($xver !~ /^1\.[24]\./);
     my $msg;
     if ($no_chance) {
 	$msg = "Xapian version $xver is incompatible with Search::Xapian $VERSION\n";
+    } elsif ($BASEVERSION =~ /^1\.2\./ && $xver =~ /^1\.4\./) {
+	# Search::Xapian 1.2.x and xapian-core 1.4.y should work together
+	# (for x >= 24).
     } else {
 	$msg = "Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
     }

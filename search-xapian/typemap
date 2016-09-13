@@ -62,6 +62,8 @@ StringValueRangeProcessor *	O_OBJECT
 
 MultiValueSorter	O_SORTER
 MultiValueSorter *	O_SORTER
+MultiValueKeyMaker	O_SORTER
+MultiValueKeyMaker *	O_SORTER
 
 MatchSpy		O_MATCHSPY
 MatchSpy *		O_MATCHSPY

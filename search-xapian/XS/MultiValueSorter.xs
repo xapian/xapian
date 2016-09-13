@@ -2,21 +2,21 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::MultiValueSorter
 
 PROTOTYPES: ENABLE
 
-MultiValueSorter *
+MultiValueKeyMaker *
 new0()
     CODE:
-	RETVAL = new MultiValueSorter();
+	RETVAL = new MultiValueKeyMaker();
     OUTPUT:
 	RETVAL
 
 void
-MultiValueSorter::add(valueno valno, bool forward = NO_INIT)
+MultiValueKeyMaker::add(valueno valno, bool forward = NO_INIT)
     CODE:
 	if (items == 3) { /* items includes the hidden this pointer */
-	    THIS->add(valno, forward);
+	    THIS->add_value(valno, !forward);
 	} else {
-	    THIS->add(valno);
+	    THIS->add_value(valno);
 	}
 
 void
-MultiValueSorter::DESTROY()
+MultiValueKeyMaker::DESTROY()

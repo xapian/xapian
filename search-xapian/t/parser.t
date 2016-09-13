@@ -16,6 +16,18 @@ ok(1); # If we made it this far, we're ok.
 # Insert your test code below, the Test module is use()ed here so read
 # its man page ( perldoc Test ) for help writing this test script.
 
+# Adjust query description from 1.4 to match.
+sub qd {
+    local $_ = (shift @_)->get_description();
+    if (substr($_, 0, 1) eq 'Q') {
+	s/\@([0-9]+)/:(pos=$1)/g;
+	s/\\x([0-9a-f]{2})/chr(hex($1))/ge;
+	s/^Query\(0 \* VALUE_RANGE/Query(VALUE_RANGE/;
+	$_ = "Xapian::$_";
+    }
+    return $_;
+}
+
 # first create database dir, if it doesn't exist;
 my $db_dir = 'testdb';
 
@@ -32,10 +44,10 @@ $qp->set_default_op( OP_AND );
 my $query;
 ok( $query = $qp->parse_query( 'one or two', FLAG_BOOLEAN|FLAG_BOOLEAN_ANY_CASE|FLAG_SPELLING_CORRECTION ) );
 ok( not $qp->get_corrected_query_string());
-ok( $query->get_description(), "Xapian::Query((one:(pos=1) OR two:(pos=2)))" );
+ok( qd($query), "Xapian::Query((one:(pos=1) OR two:(pos=2)))" );
 
 ok( $query = $qp->parse_query( 'one OR (two AND three)' ) );
-ok( $query->get_description(), "Xapian::Query((one:(pos=1) OR (two:(pos=2) AND three:(pos=3))))" );
+ok( qd($query), "Xapian::Query((one:(pos=1) OR (two:(pos=2) AND three:(pos=3))))" );
 
 ok( my $enq = $database->enquire( $query ) );
 
@@ -74,7 +86,7 @@ my $pair;
 foreach $pair (
     [ 'a..b', 'VALUE_RANGE 1 a b' ],
     [ '$50..100', 'VALUE_RANGE 1 $50 100' ],
-    [ '$50..$100', 'VALUE_RANGE 1 $50 $100' ],
+    [ '$50..$99', 'VALUE_RANGE 1 $50 $99' ],
     [ '02/03/1979..10/12/1980', 'VALUE_RANGE 1 02/03/1979 10/12/1980' ],
     [ 'a..b hello', '(hello:(pos=1) FILTER VALUE_RANGE 1 a b)' ],
     [ 'hello a..b', '(hello:(pos=1) FILTER VALUE_RANGE 1 a b)' ],
@@ -87,7 +99,7 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Xapian::Query($res)" );
+    ok( qd($query), "Xapian::Query($res)" );
 }
 
 $qp = new Search::Xapian::QueryParser();
@@ -117,7 +129,7 @@ foreach $pair (
     [ '12..42kg', "VALUE_RANGE 5 \xae \xb5@" ],
     [ '12kg..42kg', "VALUE_RANGE 5 \xae \xb5@" ],
     [ '12kg..42', 'VALUE_RANGE 3 12kg 42' ],
-    [ '10..$20', 'VALUE_RANGE 3 10 $20' ],
+    [ '!10..$20', 'VALUE_RANGE 3 !10 $20' ],
     [ '1999-03-12..2020-12-30', 'VALUE_RANGE 1 19990312 20201230' ],
     [ '1999/03/12..2020/12/30', 'VALUE_RANGE 1 19990312 20201230' ],
     [ '1999.03.12..2020.12.30', 'VALUE_RANGE 1 19990312 20201230' ],
@@ -129,7 +141,7 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Xapian::Query($res)" );
+    ok( qd($query), "Xapian::Query($res)" );
 }
 
 $qp = new Search::Xapian::QueryParser();
@@ -146,7 +158,7 @@ foreach $pair (
     ) {
     my ($str, $res) = @{$pair};
     my $query = $qp->parse_query($str);
-    ok( $query->get_description(), "Xapian::Query($res)" );
+    ok( qd($query), "Xapian::Query($res)" );
 }
 
 # Regression test for Search::Xapian bug fixed in 1.0.5.0.  In 1.0.0.0-1.0.4.0
