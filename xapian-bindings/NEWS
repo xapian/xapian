@@ -1,3 +1,43 @@
+up to: 22938f1c02f94d3dccc65f9bfde124a8663c5e29
+
+Xapian-bindings 1.2.24 (2016-09-14):
+
+Documentation:
+
+* python/doxy2swig.py: Specify encoding so we can handle UTF-8 doxygen
+  comments.  Patch from Vivek Pal.
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+* Fix configure to find jni_md.h on Cygwin, OS X, *BSD, AIX.  The issue with
+  Cygwin was reported by John Bankert on xapian-discuss.  There doesn't seem to
+  be an explicit list of the subdirectory names jni_md.h can be in anywhere,
+  but grepping the OpenJDK 8 source code finds additional values "darwin" and
+  "aix", and *BSD seems to use "bsd".
+
+Lua:
+
+Perl:
+
+* Fix typo in POD docs for Perl bindings (outputing -> outputting).  Fixes
+  #730, reported by Nick Morrott.
+
+PHP:
+
+Python:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.2.23 (2016-03-28):
 
 Documentation:
