@@ -1,3 +1,93 @@
+up to: 03d61615c0af3b698c6aef80b45412b9f2d484d9
+
+Xapian-core 1.2.24 (2016-09-14):
+
+
+API:
+
+
+testsuite:
+
+
+matcher:
+
+
+brass backend:
+
+* If CLOEXEC is supported, set it on the lock file fd and pipe.
+
+  If we're using OFD fcntl locks (as we will on modern Linux), then
+  CLOEXEC is important as the lock fd is held by the main process
+  and the lock is preserved over fork().
+
+  And if we're using traditional fcntl locks with a pipe to a child
+  process, we want the parent end of the pipe to be closed if the
+  parent calls fork() and exec().
+
+  Reported by Eric Wong on xapian-discuss.
+
+chert backend:
+
+* If CLOEXEC is supported, set it on the lock file fd and pipe.
+
+  If we're using OFD fcntl locks (as we will on modern Linux), then
+  CLOEXEC is important as the lock fd is held by the main process
+  and the lock is preserved over fork().
+
+  And if we're using traditional fcntl locks with a pipe to a child
+  process, we want the parent end of the pipe to be closed if the
+  parent calls fork() and exec().
+
+  Reported by Eric Wong on xapian-discuss.
+
+flint backend:
+
+* If CLOEXEC is supported, set it on the lock file fd and pipe.
+
+  If we're using OFD fcntl locks (as we will on modern Linux), then
+  CLOEXEC is important as the lock fd is held by the main process
+  and the lock is preserved over fork().
+
+  And if we're using traditional fcntl locks with a pipe to a child
+  process, we want the parent end of the pipe to be closed if the
+  parent calls fork() and exec().
+
+  Reported by Eric Wong on xapian-discuss.
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+* Fix XO_LIB_XAPIAN to work without libtool with modern versions of GNU m4
+  which error out when defn is used on an undefined macro.  Uncovered by Amanda
+  Jayanetti.
+
+documentation:
+
+
+tools:
+
+
+examples:
+
+
+portability:
+
+* Improve configure probe for sys_errlist, etc by ensuring we can actually
+  link a test program using them.  Previously we only checked they were
+  declared, but the Android NDK declares sys_errlist in its headers but
+  doesn't actually implement it.  Patch from Tejas Jogi.
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.2.23 (2016-03-28):
 
 API:
