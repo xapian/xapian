@@ -675,11 +675,6 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
 	}
 	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
 	if (param_k3 != 0) need_stat(WQF);
-	if (param_delta != 0) {
-	    need_stat(AVERAGE_LENGTH);
-	    need_stat(DOC_LENGTH);
-	    need_stat(WQF);
-	}
     }
 
     BM25PlusWeight()
