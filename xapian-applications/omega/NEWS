@@ -1,3 +1,31 @@
+up to: 69658ed2bb2adca05b9b1f3567f2146734fad5c1
+
+Omega 1.2.24 (2016-09-14):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+* Drop unused configure check for symbol visibility.
+
+portability:
+
+packaging:
+
 Omega 1.2.23 (2016-03-28):
 
 documentation:
