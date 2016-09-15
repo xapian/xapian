@@ -611,7 +611,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     mutable double termweight;
 
     /// The BM25+ parameters.
-    double param_k1, param_k3, param_b;
+    double param_k1, param_k2, param_k3, param_b;
 
     /// The minimum normalised document length value.
     Xapian::doclength param_min_normlen;
@@ -630,6 +630,13 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
      *		   within-document-frequency (wdf) is.  k1=0 means that
      *		   wdf doesn't affect the weights.  The larger k1 is, the more
      *		   wdf influences the weights.  (default 1)
+     *
+     *  @param k2  A non-negative parameter which controls the strength of a
+     *		   correction factor which depends upon query length and
+     *		   normalised document length.  k2=0 disable this factor; larger
+     *		   k2 makes it stronger.  The paper which describes BM25+
+     *		   ignores BM25's document-independent component (so implicitly
+     *		   k2=0), but we support non-zero k2 too.  (default 0)
      *
      *  @param k3  A non-negative parameter controlling how influential
      *		   within-query-frequency (wqf) is.  k3=0 means that wqf
@@ -651,11 +658,13 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
      *		      from 0.0 to 1.5 but BM25+ can still work effectively
      *		      across collections with a fixed δ = 1.0. (default 1.0)
      */
-    BM25PlusWeight(double k1, double k3, double b, double min_normlen, double delta)
-	: param_k1(k1), param_k3(k3), param_b(b), param_min_normlen(min_normlen),
-	  param_delta(delta)
+    BM25PlusWeight(double k1, double k2, double k3, double b,
+		   double min_normlen, double delta)
+	: param_k1(k1), param_k2(k2), param_k3(k3), param_b(b),
+	  param_min_normlen(min_normlen), param_delta(delta)
     {
 	if (param_k1 < 0) param_k1 = 0;
+	if (param_k2 < 0) param_k2 = 0;
 	if (param_k3 < 0) param_k3 = 0;
 	if (param_delta < 0) param_delta = 0;
 	if (param_b < 0) {
@@ -669,17 +678,18 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
 	need_stat(RELTERMFREQ);
 	need_stat(WDF);
 	need_stat(WDF_MAX);
-	if (param_k1 != 0 && param_b != 0) {
+	if (param_k2 != 0 || (param_k1 != 0 && param_b != 0)) {
 	    need_stat(DOC_LENGTH_MIN);
 	    need_stat(AVERAGE_LENGTH);
 	}
 	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
+	if (param_k2 != 0) need_stat(QUERY_LENGTH);
 	if (param_k3 != 0) need_stat(WQF);
     }
 
     BM25PlusWeight()
-	: param_k1(1), param_k3(1), param_b(0.5), param_min_normlen(0.5),
-	  param_delta(1)
+	: param_k1(1), param_k2(0), param_k3(1), param_b(0.5),
+	  param_min_normlen(0.5), param_delta(1)
     {
 	need_stat(COLLECTION_SIZE);
 	need_stat(RSET_SIZE);

@@ -1,7 +1,7 @@
 /** @file bm25plusweight.cc
  * @brief Xapian::BM25PlusWeight class - the BM25+ probabilistic formula
  */
-/* Copyright (C) 2009,2010,2011,2012,2014,2015 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2014,2015,2016 Olly Betts
  * Copyright (C) 2016  Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ namespace Xapian {
 BM25PlusWeight *
 BM25PlusWeight::clone() const
 {
-    return new BM25PlusWeight(param_k1, param_k3, param_b,
+    return new BM25PlusWeight(param_k1, param_k2, param_k3, param_b,
 			      param_min_normlen, param_delta);
 }
 
@@ -62,8 +62,8 @@ BM25PlusWeight::init(double factor)
 
     LOGVALUE(WTCALC, termweight);
 
-    if (param_b == 0 || param_k1 == 0) {
-	// If either param_b or param_k1 is 0 then the document
+    if (param_k2 == 0 && (param_b == 0 || param_k1 == 0)) {
+	// If k2 is 0, and either param_b or param_k1 is 0 then the document
 	// length doesn't affect the weight.
 	len_factor = 0;
     } else {
@@ -86,6 +86,7 @@ string
 BM25PlusWeight::serialise() const
 {
     string result = serialise_double(param_k1);
+    result += serialise_double(param_k2);
     result += serialise_double(param_k3);
     result += serialise_double(param_b);
     result += serialise_double(param_min_normlen);
@@ -99,13 +100,14 @@ BM25PlusWeight::unserialise(const string & s) const
     const char *ptr = s.data();
     const char *end = ptr + s.size();
     double k1 = unserialise_double(&ptr, end);
+    double k2 = unserialise_double(&ptr, end);
     double k3 = unserialise_double(&ptr, end);
     double b = unserialise_double(&ptr, end);
     double min_normlen = unserialise_double(&ptr, end);
     double delta = unserialise_double(&ptr, end);
     if (rare(ptr != end))
 	throw Xapian::SerialisationError("Extra data in BM25PlusWeight::unserialise()");
-    return new BM25PlusWeight(k1, k3, b, min_normlen, delta);
+    return new BM25PlusWeight(k1, k2, k3, b, min_normlen, delta);
 }
 
 double
@@ -150,17 +152,35 @@ BM25PlusWeight::get_maxpart() const
     RETURN(termweight * ((param_k1 + 1) * wdf_max / denom + param_delta));
 }
 
-// No extra per document component in the BM25+ Weighting formula.
+/* The paper which describes BM25+ ignores BM25's document-independent
+ * component (so implicitly k2=0), but we support non-zero k2 too.
+ *
+ * The BM25 formula gives:
+ *
+ * param_k2 * query_length * (1 - normlen) / (1 + normlen)
+ *
+ * To avoid negative sumextra we add the constant (param_k2 * query_length)
+ * to give:
+ *
+ * 2 * param_k2 * query_length / (1 + normlen)
+ */
 double
-BM25PlusWeight::get_sumextra(Xapian::termcount, Xapian::termcount) const
+BM25PlusWeight::get_sumextra(Xapian::termcount len, Xapian::termcount) const
 {
-    return 0;
+    LOGCALL(WTCALC, double, "BM25PlusWeight::get_sumextra", len);
+    double num = (2.0 * param_k2 * get_query_length());
+    RETURN(num / (1.0 + max(len * len_factor, param_min_normlen)));
 }
 
 double
 BM25PlusWeight::get_maxextra() const
 {
-    return 0;
+    LOGCALL(WTCALC, double, "BM25PlusWeight::get_maxextra", NO_ARGS);
+    if (param_k2 == 0.0)
+	RETURN(0.0);
+    double num = (2.0 * param_k2 * get_query_length());
+    RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor,
+			    param_min_normlen)));
 }
 
 }
