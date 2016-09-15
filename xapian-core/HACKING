@@ -653,8 +653,10 @@ Use of C++ Features
 
 * Use C++ style casts (static_cast<>, reinterpret_cast<>, and const_cast<>)
   or constructor-syntax (e.g. ``double(value)``) in preference to C style
-  casts.  The syntax of the C++ casts is ugly, but they do make the intent much
-  clearer which is definitely a good thing.
+  casts (configure now enables `-Wold-style-cast` so GCC will warn about C
+  style casts).  The syntax of the C++ casts is ugly, but they do make the
+  intent much clearer which is definitely a good thing, and they avoid issues
+  such as casting away const when you only meant to cast the type of a pointer.
 
 * std::pair<> with an STL class as one (or both) of the members can produce
   very long symbols (over 4KB!) after name mangling - long enough to overflow

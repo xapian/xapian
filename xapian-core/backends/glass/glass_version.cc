@@ -147,7 +147,7 @@ GlassVersion::read()
     }
 
     p += GLASS_VERSION_MAGIC_AND_VERSION_LEN;
-    memcpy((void*)uuid, p, 16);
+    memcpy(uuid, p, 16);
     p += 16;
 
     if (!unpack_uint(&p, end, &rev))
@@ -270,7 +270,7 @@ GlassVersion::write(glass_revision_number_t new_rev, int flags)
     LOGCALL(DB, const string, "GlassVersion::write", new_rev|flags);
 
     string s(GLASS_VERSION_MAGIC, GLASS_VERSION_MAGIC_AND_VERSION_LEN);
-    s.append((const char *)uuid, 16);
+    s.append(reinterpret_cast<const char *>(uuid), 16);
 
     pack_uint(s, new_rev);
 

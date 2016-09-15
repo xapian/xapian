@@ -61,7 +61,7 @@ display_nicely(const string & data) {
 		case '\t': cout << "\\t"; break;
 		default: {
 		    char buf[20];
-		    sprintf(buf, "\\x%02x", (int)ch);
+		    sprintf(buf, "\\x%02x", int(ch));
 		    cout << buf;
 		}
 	    }

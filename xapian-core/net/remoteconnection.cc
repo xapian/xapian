@@ -80,7 +80,7 @@ RemoteConnection::RemoteConnection(int fdin_, int fdout_,
     overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
     if (!overlapped.hEvent)
 	throw Xapian::NetworkError("Failed to setup OVERLAPPED",
-				   context, -(int)GetLastError());
+				   context, -int(GetLastError()));
 
 #endif
 }
@@ -120,7 +120,7 @@ RemoteConnection::read_at_least(size_t min_len, double end_time)
 	    // Get the final result of the read.
 	    if (!GetOverlappedResult(hin, &overlapped, &received, FALSE))
 		throw Xapian::NetworkError("Failed to get overlapped result",
-					   context, -(int)GetLastError());
+					   context, -int(GetLastError()));
 	}
 
 	if (received == 0) {
@@ -250,7 +250,7 @@ RemoteConnection::send_message(char type, const string &message,
 	    // Get the final result.
 	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
 		throw Xapian::NetworkError("Failed to get overlapped result",
-					   context, -(int)GetLastError());
+					   context, -int(GetLastError()));
 	}
 
 	count += n;
@@ -369,7 +369,7 @@ RemoteConnection::send_file(char type, int fd, double end_time)
 	    // Get the final result.
 	    if (!GetOverlappedResult(hout, &overlapped, &n, FALSE))
 		throw Xapian::NetworkError("Failed to get overlapped result",
-					   context, -(int)GetLastError());
+					   context, -int(GetLastError()));
 	}
 
 	count += n;

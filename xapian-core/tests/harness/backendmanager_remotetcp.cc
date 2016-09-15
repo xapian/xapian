@@ -144,7 +144,7 @@ try_next_port:
 	dup2(fds[1], 1);
 	dup2(fds[1], 2);
 	close(fds[1]);
-	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), static_cast<void*>(0));
 	_exit(-1);
     }
 
@@ -294,7 +294,7 @@ try_next_port:
     CloseHandle(procinfo.hThread);
 
     string output;
-    FILE *fh = fdopen(_open_osfhandle((intptr_t)hRead, O_RDONLY), "r");
+    FILE *fh = fdopen(_open_osfhandle(intptr_t(hRead), O_RDONLY), "r");
     while (true) {
 	char buf[256];
 	if (fgets(buf, sizeof(buf), fh) == NULL) {

@@ -1000,14 +1000,15 @@ ChertTable::add(const string &key, string tag, bool already_compressed)
 
 	lazy_alloc_deflate_zstream();
 
-	deflate_zstream->next_in = (Bytef *)const_cast<char *>(tag.data());
-	deflate_zstream->avail_in = (uInt)tag.size();
+	deflate_zstream->next_in =
+	    reinterpret_cast<Bytef *>(const_cast<char *>(tag.data()));
+	deflate_zstream->avail_in = static_cast<uInt>(tag.size());
 
 	// If compressed size is >= tag.size(), we don't want to compress.
 	unsigned long blk_len = tag.size() - 1;
 	unsigned char * blk = new unsigned char[blk_len];
 	deflate_zstream->next_out = blk;
-	deflate_zstream->avail_out = (uInt)blk_len;
+	deflate_zstream->avail_out = static_cast<uInt>(blk_len);
 
 	int err = deflate(deflate_zstream, Z_FINISH);
 	if (err == Z_STREAM_END) {
@@ -1252,13 +1253,14 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 
     lazy_alloc_inflate_zstream();
 
-    inflate_zstream->next_in = (Bytef*)const_cast<char *>(tag->data());
-    inflate_zstream->avail_in = (uInt)tag->size();
+    inflate_zstream->next_in =
+	reinterpret_cast<Bytef*>(const_cast<char *>(tag->data()));
+    inflate_zstream->avail_in = static_cast<uInt>(tag->size());
 
     int err = Z_OK;
     while (err != Z_STREAM_END) {
 	inflate_zstream->next_out = buf;
-	inflate_zstream->avail_out = (uInt)sizeof(buf);
+	inflate_zstream->avail_out = static_cast<uInt>(sizeof(buf));
 	err = inflate(inflate_zstream, Z_SYNC_FLUSH);
 	if (err == Z_BUF_ERROR && inflate_zstream->avail_in == 0) {
 	    LOGLINE(DB, "Z_BUF_ERROR - faking checksum of " << inflate_zstream->adler);
@@ -1289,7 +1291,7 @@ ChertTable::read_tag(Cursor * C_, string *tag, bool keep_compressed) const
 	msg += str(utag.size());
 	msg += " != ";
 	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
-	msg += str((size_t)inflate_zstream->total_out);
+	msg += str(size_t(inflate_zstream->total_out));
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
