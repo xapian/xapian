@@ -717,13 +717,6 @@ GlassDatabase::get_total_length() const
     RETURN(version_file.get_total_doclen());
 }
 
-Xapian::doclength
-GlassDatabase::get_avlength() const
-{
-    LOGCALL(DB, Xapian::doclength, "GlassDatabase::get_avlength", NO_ARGS);
-    RETURN(version_file.get_avlength());
-}
-
 Xapian::termcount
 GlassDatabase::get_doclength(Xapian::docid did) const
 {

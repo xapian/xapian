@@ -247,13 +247,6 @@ class GlassVersion {
 	return oldest_changeset;
     }
 
-    Xapian::doclength get_avlength() const {
-	// Don't divide by zero when the database is empty.
-	if (rare(doccount == 0))
-	    return 0;
-	return Xapian::doclength(total_doclen) / doccount;
-    }
-
     void set_last_docid(Xapian::docid did) { last_docid = did; }
 
     void set_oldest_changeset(glass_revision_number_t changeset) const {
