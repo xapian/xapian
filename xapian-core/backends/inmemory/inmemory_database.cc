@@ -525,14 +525,6 @@ InMemoryDatabase::get_total_length() const
     return totlen;
 }
 
-Xapian::doclength
-InMemoryDatabase::get_avlength() const
-{
-    if (closed) InMemoryDatabase::throw_database_closed();
-    if (totdocs == 0) return 0;
-    return Xapian::doclength(totlen) / totdocs;
-}
-
 Xapian::termcount
 InMemoryDatabase::get_doclength(Xapian::docid did) const
 {

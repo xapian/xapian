@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -41,6 +41,7 @@
 #include "backends/database.h"
 #include "editdistance.h"
 #include "expand/ortermlist.h"
+#include "internaltypes.h"
 #include "noreturn.h"
 
 #include <algorithm>
@@ -286,19 +287,18 @@ Database::get_avlength() const
 {
     LOGCALL(API, Xapian::doclength, "Database::get_avlength", NO_ARGS);
     Xapian::doccount docs = 0;
-    Xapian::doclength totlen = 0;
+    totlen_t totlen = 0;
 
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	Xapian::doccount db_doccount = (*i)->get_doccount();
-	docs += db_doccount;
-	totlen += (*i)->get_avlength() * db_doccount;
+	docs += (*i)->get_doccount();
+	totlen += (*i)->get_total_length();
     }
     LOGLINE(UNKNOWN, "get_avlength() = " << totlen << " / " << docs <<
 	    " (from " << internal.size() << " dbs)");
 
     if (docs == 0) RETURN(0.0);
-    RETURN(totlen / docs);
+    RETURN(totlen / double(docs));
 }
 
 Xapian::doccount

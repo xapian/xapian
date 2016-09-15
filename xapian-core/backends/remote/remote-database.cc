@@ -410,14 +410,6 @@ RemoteDatabase::get_total_length() const
     return total_length;
 }
 
-Xapian::doclength
-RemoteDatabase::get_avlength() const
-{
-    if (!cached_stats_valid) update_stats();
-    if (rare(doccount == 0)) return 0;
-    return Xapian::doclength(total_length) / doccount;
-}
-
 bool
 RemoteDatabase::term_exists(const string & tname) const
 {
