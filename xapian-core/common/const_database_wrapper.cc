@@ -57,12 +57,6 @@ ConstDatabaseWrapper::get_total_length() const
     return realdb->get_total_length();
 }
 
-Xapian::doclength
-ConstDatabaseWrapper::get_avlength() const
-{
-    return realdb->get_avlength();
-}
-
 Xapian::termcount
 ConstDatabaseWrapper::get_doclength(Xapian::docid did) const
 {

@@ -260,7 +260,6 @@ class ChertDatabase : public Xapian::Database::Internal {
 	Xapian::doccount  get_doccount() const;
 	Xapian::docid get_lastdocid() const;
 	totlen_t get_total_length() const;
-	Xapian::doclength get_avlength() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;

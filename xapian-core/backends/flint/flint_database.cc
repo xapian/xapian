@@ -815,18 +815,6 @@ FlintDatabase::get_total_length() const
     RETURN(total_length);
 }
 
-Xapian::doclength
-FlintDatabase::get_avlength() const
-{
-    LOGCALL(DB, Xapian::doclength, "FlintDatabase::get_avlength", NO_ARGS);
-    Xapian::doccount doccount = record_table.get_doccount();
-    if (doccount == 0) {
-	// Avoid dividing by zero when there are no documents.
-	RETURN(0);
-    }
-    RETURN(double(total_length) / doccount);
-}
-
 Xapian::termcount
 FlintDatabase::get_doclength(Xapian::docid did) const
 {
