@@ -136,7 +136,7 @@ DEFINE_TESTCASE(bm25weight5, backend) {
 
 // Test exception for junk after serialised weight.
 DEFINE_TESTCASE(bm25plusweight1, !backend) {
-    Xapian::BM25PlusWeight wt(2.0, 1.3, 0.6, 0.01, 0.5);
+    Xapian::BM25PlusWeight wt(2.0, 0.1, 1.3, 0.6, 0.01, 0.5);
     try {
 	Xapian::BM25PlusWeight b;
 	Xapian::BM25PlusWeight * b2 = b.unserialise(wt.serialise() + "X");
@@ -159,7 +159,7 @@ DEFINE_TESTCASE(bm25plusweight2, backend) {
     enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mset;
 
-    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(1, 1, 0, 0.5, 1));
+    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(1, 0, 1, 0, 0.5, 1));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     // Expect: wdf has an effect on weight, but doclen doesn't.
@@ -168,7 +168,7 @@ DEFINE_TESTCASE(bm25plusweight2, backend) {
     TEST_REL(mset[2].get_weight(),>,mset[3].get_weight());
     TEST_EQUAL_DOUBLE(mset[3].get_weight(), mset[4].get_weight());
 
-    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(0, 1, 1, 0.5, 1));
+    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(0, 0, 1, 1, 0.5, 1));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
     // Expect: neither wdf nor doclen affects weight.
@@ -184,7 +184,7 @@ DEFINE_TESTCASE(bm25plusweight3, backend) {
     enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mset;
 
-    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(1, 1, 0.5, 0.5, 1));
+    enquire.set_weighting_scheme(Xapian::BM25PlusWeight(1, 0, 1, 0.5, 0.5, 1));
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), 5);
 
