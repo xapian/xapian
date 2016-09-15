@@ -49,7 +49,7 @@
 // select() and FD_SET() are defined in <winsock2.h>:
 # include "safewinsock2.h"
 inline void xapian_FD_SET_(int fd, fd_set *set) {
-    FD_SET((unsigned)fd, set);
+    FD_SET(unsigned(fd), set);
 }
 # ifdef FD_SET
 #  undef FD_SET

@@ -41,7 +41,7 @@ using namespace std;
 static unsigned int
 rand_int(unsigned int range)
 {
-    return (unsigned int)(range * (rand() / (RAND_MAX + 1.0)));
+    return unsigned(range * (rand() / (RAND_MAX + 1.0)));
 }
 
 /** Generate a random integer from min to max.
@@ -49,7 +49,7 @@ rand_int(unsigned int range)
 static unsigned int
 rand_int(unsigned int min, unsigned int max)
 {
-    return min + (unsigned int)((max + 1 - min) * (rand() / (RAND_MAX + 1.0)));
+    return min + unsigned((max + 1 - min) * (rand() / (RAND_MAX + 1.0)));
 }
 
 

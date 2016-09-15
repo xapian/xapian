@@ -248,7 +248,7 @@ GlassChanges::check(const string & changes_file)
 	uint4 block_rev = unaligned_read4(reinterpret_cast<const byte*>(p));
 	(void)block_rev; // FIXME: Sanity check value.
 	p += 4;
-	unsigned level = (unsigned char)*p++;
+	unsigned level = static_cast<unsigned char>(*p++);
 	(void)level; // FIXME: Sanity check value.
 	if (block_size <= unsigned(end - p)) {
 	    p += block_size;
