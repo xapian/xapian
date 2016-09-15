@@ -416,7 +416,7 @@ Xapian::Unicode::Internal::get_character_info(unsigned ch) XAPIAN_NOEXCEPT
 	// Categorise non-Unicode values as UNASSIGNED with no case variants.
 	return Xapian::Unicode::UNASSIGNED;
     }
-    return (groups\[groupMap\[(pageMap\[((int)(ch)) >> OFFSET_BITS\] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))\]\]);
+    return (groups\[groupMap\[(pageMap\[int(ch) >> OFFSET_BITS\] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))\]\]);
 }
 "
 

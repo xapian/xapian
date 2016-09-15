@@ -65,7 +65,7 @@ ChertVersion::create()
     v[3] = static_cast<unsigned char>((CHERT_VERSION >> 24) & 0xff);
 
     uuid_generate(uuid);
-    memcpy(buf + MAGIC_LEN + 4, (void*)uuid, 16);
+    memcpy(buf + MAGIC_LEN + 4, uuid, 16);
 
     int fd = ::open(filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY|O_CLOEXEC, 0666);
 
@@ -139,5 +139,5 @@ ChertVersion::read_and_check()
 	throw Xapian::DatabaseVersionError(msg);
     }
 
-    memcpy((void*)uuid, buf + MAGIC_LEN + 4, 16);
+    memcpy(uuid, buf + MAGIC_LEN + 4, 16);
 }

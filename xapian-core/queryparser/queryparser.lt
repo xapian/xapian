@@ -274,7 +274,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
   yyStackEntry *yytos = &pParser->yystack.back();
 
   LOGLINE(QUERYPARSER, "Popping " << ParseTokenName(yytos->major));
-  yymajor = (YYCODETYPE)yytos->major;
+  yymajor = static_cast<YYCODETYPE>(yytos->major);
   yy_destructor(pParser, yymajor, &yytos->minor);
   pParser->yystack.pop_back();
   return yymajor;
@@ -483,7 +483,7 @@ static void yy_reduce(
   yygoto = yyRuleInfo[yyruleno].lhs;
   yysize = yyRuleInfo[yyruleno].nrhs;
   yypParser->yystack.resize(yypParser->yystack.size() - yysize);
-  yyact = yy_find_reduce_action(yypParser->yystack.back().stateno,(YYCODETYPE)yygoto);
+  yyact = yy_find_reduce_action(yypParser->yystack.back().stateno,static_cast<YYCODETYPE>(yygoto));
   if( yyact < YYNSTATE ){
     yy_shift(yypParser,yyact,yygoto,&yygotominor);
   }else{
@@ -585,7 +585,7 @@ static void Parse(
 	  (yyminor ? yyminor->name : "<<null>>"));
 
   do{
-    yyact = yy_find_shift_action(yypParser,(YYCODETYPE)yymajor);
+    yyact = yy_find_shift_action(yypParser,static_cast<YYCODETYPE>(yymajor));
     if( yyact<YYNSTATE ){
       Assert( !yyendofinput );  /* Impossible to shift the $ token */
       yy_shift(yypParser,yyact,yymajor,&yyminorunion);
@@ -625,7 +625,7 @@ static void Parse(
       yymx = yypParser->yystack.back().major;
       if( yymx==YYERRORSYMBOL || yyerrorhit ){
 	LOGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
-        yy_destructor(yypParser, (YYCODETYPE)yymajor,&yyminorunion);
+        yy_destructor(yypParser, static_cast<YYCODETYPE>(yymajor),&yyminorunion);
         yymajor = YYNOCODE;
       }else{
          while(
@@ -638,7 +638,7 @@ static void Parse(
           yy_pop_parser_stack(yypParser);
         }
         if( yypParser->yystack.empty() || yymajor==0 ){
-          yy_destructor(yypParser, (YYCODETYPE)yymajor,&yyminorunion);
+          yy_destructor(yypParser, static_cast<YYCODETYPE>(yymajor),&yyminorunion);
           yy_parse_failed(yypParser);
           yymajor = YYNOCODE;
         }else if( yymx!=YYERRORSYMBOL ){
@@ -658,7 +658,7 @@ static void Parse(
       ** they intend to abandon the parse upon the first syntax error seen.
       */
       yy_syntax_error(yypParser,yymajor,yyminorunion);
-      yy_destructor(yypParser,(YYCODETYPE)yymajor,&yyminorunion);
+      yy_destructor(yypParser,static_cast<YYCODETYPE>(yymajor),&yyminorunion);
       yymajor = YYNOCODE;
       
 #else  /* YYERRORSYMBOL is not defined */
@@ -675,7 +675,7 @@ static void Parse(
         yy_syntax_error(yypParser,yymajor,yyminorunion);
       }
       yypParser->yyerrcnt = 3;
-      yy_destructor(yypParser,(YYCODETYPE)yymajor,&yyminorunion);
+      yy_destructor(yypParser,static_cast<YYCODETYPE>(yymajor),&yyminorunion);
       if( yyendofinput ){
         yy_parse_failed(yypParser);
       }

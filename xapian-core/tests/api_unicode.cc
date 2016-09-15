@@ -285,16 +285,8 @@ DEFINE_TESTCASE(unicode1,!backend) {
 DEFINE_TESTCASE(caseconvert1,!backend) {
     using namespace Xapian;
     for (unsigned ch = 0; ch < 128; ++ch) {
-	if (isupper((char)ch)) {
-	    TEST_EQUAL(Unicode::tolower(ch), unsigned(tolower((char)ch)));
-	} else {
-	    TEST_EQUAL(Unicode::tolower(ch), ch);
-	}
-	if (islower((char)ch)) {
-	    TEST_EQUAL(Unicode::toupper(ch), unsigned(toupper((char)ch)));
-	} else {
-	    TEST_EQUAL(Unicode::toupper(ch), ch);
-	}
+	TEST_EQUAL(Unicode::tolower(ch), unsigned(tolower(ch)));
+	TEST_EQUAL(Unicode::toupper(ch), unsigned(toupper(ch)));
     }
 
     // U+0242 was added in Unicode 5.0.0 as a lowercase form of U+0241.
