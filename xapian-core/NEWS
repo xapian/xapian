@@ -1,16 +1,4 @@
-up to: 03d61615c0af3b698c6aef80b45412b9f2d484d9
-
-Xapian-core 1.2.24 (2016-09-14):
-
-
-API:
-
-
-testsuite:
-
-
-matcher:
-
+Xapian-core 1.2.24 (2016-09-16):
 
 brass backend:
 
@@ -54,26 +42,11 @@ flint backend:
 
   Reported by Eric Wong on xapian-discuss.
 
-remote backend:
-
-
-inmemory backend:
-
-
 build system:
 
 * Fix XO_LIB_XAPIAN to work without libtool with modern versions of GNU m4
   which error out when defn is used on an undefined macro.  Uncovered by Amanda
   Jayanetti.
-
-documentation:
-
-
-tools:
-
-
-examples:
-
 
 portability:
 
@@ -81,12 +54,6 @@ portability:
   link a test program using them.  Previously we only checked they were
   declared, but the Android NDK declares sys_errlist in its headers but
   doesn't actually implement it.  Patch from Tejas Jogi.
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.2.23 (2016-03-28):
 

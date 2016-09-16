@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.2.23], [https://xapian.org/bugs])
+AC_INIT([xapian-core], [1.2.24], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -54,7 +54,8 @@ dnl 28:7:6 1.2.20 No API changes
 dnl 28:8:6 1.2.21 No API changes
 dnl 29:0:7 1.2.22 FLAG_CJK_NGRAM added
 dnl 29:1:7 1.2.23 No API changes (except new inline methods)
-LIBRARY_VERSION_INFO=29:1:7
+dnl 29:2:7 1.2.24 No API changes
+LIBRARY_VERSION_INFO=29:2:7
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=
