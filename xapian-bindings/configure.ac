@@ -1317,7 +1317,7 @@ if test yes = "$GXX" ; then
       dnl
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fshow-column -Wall -Wno-unused -Wno-uninitialized"
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -Wno-unused -Wno-uninitialized"
     ])
 
   if test no != "$enable_visibility"; then
