@@ -25,6 +25,7 @@
 #include "xapian-letor/scorer.h"
 
 #include "debuglog.h"
+#include "common/log2.h"
 
 #include <algorithm>
 #include <cmath>
@@ -48,7 +49,7 @@ get_dcg(const std::vector<double> &labels)
     LOGCALL_STATIC(API, double, "get_dcg", labels);
     double dcg = 0;
     for (int i = 0; i < int(labels.size()); i++){
-	dcg += (pow(2,labels[i]) - 1)/(log(i+2)/log(2));
+	dcg += (pow(2, labels[i]) - 1) / log2(i + 2);
     }
     return dcg;
 }
