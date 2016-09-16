@@ -1136,13 +1136,16 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
  *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
  */
 class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
-    /// The factor to multiply weights by.
-    double factor;
-
     /// The wdf normalization parameter in the formula.
     double param_c;
 
-    /// Now unused but left in place in 1.4.x for ABI compatibility.
+    /** The factor to multiply weights by.
+     *
+     *  The misleading name is due to this having been used to store a lower
+     *  bound in 1.4.0.  We no longer need to store that, and so this member
+     *  has been repurposed in 1.4.1 and later (but the name left the same to
+     *  ensure ABI compatibility with 1.4.0).
+     */
     double lower_bound;
 
     /// The upper bound on the weight.
@@ -1156,7 +1159,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 
     PL2Weight * clone() const;
 
-    void init(double factor_);
+    void init(double factor);
 
   public:
     /** Construct a PL2Weight.
@@ -1350,21 +1353,26 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
  * parameters which specify the smoothing used.
  */
 class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
-    /// The factor to multiply weights by.
-    double factor;
-
     /** The type of smoothing to use. */
     type_smoothing select_smoothing;
 
     // Parameters for handling negative value of log, and for smoothing.
     double param_log, param_smoothing1, param_smoothing2;
 
-    // Collection weight.
+    /** The factor to multiply weights by.
+     *
+     *  The misleading name is due to this having been used to store some
+     *  other value in 1.4.0.  However, that value only takes one
+     *  multiplication and one division to calculate, so for 1.4.x we can just
+     *  recalculate it each time we need it, and so this member has been
+     *  repurposed in 1.4.1 and later (but the name left the same to ensure ABI
+     *  compatibility with 1.4.0).
+     */
     double weight_collection;
 
     LMWeight * clone() const;
 
-    void init(double factor_);
+    void init(double factor);
 
   public:
     /** Construct a LMWeight.

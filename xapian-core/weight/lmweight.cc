@@ -43,38 +43,8 @@ LMWeight::clone() const  {
 void
 LMWeight::init(double factor_)
 {
-    factor = factor_;
-
-    // Storing collection frequency of current term in collection_freq to be
-    // accessed while smoothing of weights for the term, for term not present
-    // in the document.
-    double collection_freq = get_collection_freq();
-
-    // Collection_freq of a term in collection should be always greater than or
-    // equal to zero (Non Negative).
-    AssertRel(collection_freq,>=,0);
-    LOGVALUE(WTCALC, collection_freq);
-
-    // calculating approximate number of total terms in the collection to be
-    // accessed for smoothing of the document.
-    double total_collection_term = get_collection_size() * get_average_length();
-
-    /* In case the within document frequency of term is zero smoothing will
-     * be required and should be return instead of returning zero, as returning
-     * LM score are multiplication of contribution of all terms, due to absence
-     * of single term whole document is scored zero, hence apply collection
-     * frequency smoothing.
-     */
-    weight_collection = double(collection_freq) / total_collection_term;
-
-    // Total term should be greater than zero as there would be at least one
-    // document in collection.
-    AssertRel(total_collection_term,>,0);
-    LOGVALUE(WTCALC, total_collection_term);
-
-    // There can't be more relevant term in collection than total number of
-    // term.
-    AssertRel(collection_freq,<=,total_collection_term);
+    // weight_collection is really factor.
+    weight_collection = factor_;
 
     /* Setting default values of the param_log to handle negative value of log.
      * It is considered to be upperbound of document length.
@@ -160,32 +130,41 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     // variable to store weight contribution of term in the document scoring for LM.
     double weight_sum;
 
+    /* In case the within document frequency of term is zero smoothing will
+     * be required and should be return instead of returning zero, as returning
+     * LM score are multiplication of contribution of all terms, due to absence
+     * of single term whole document is scored zero, hence apply collection
+     * frequency smoothing.
+     */
+    double wt_coll =
+	get_collection_freq() / (get_collection_size() * get_average_length());
+
     // Calculating weights considering different smoothing option available to user.
     if (select_smoothing == JELINEK_MERCER_SMOOTHING) {
 	/* Maximum likelihood of current term, weight contribution of term in
 	 * case query term is present in the document.
 	 */
 	double weight_document = wdf_double / len_double;
-	weight_sum = (param_smoothing1 * weight_collection) +
+	weight_sum = (param_smoothing1 * wt_coll) +
 		     ((1 - param_smoothing1) * weight_document);
     } else if (select_smoothing == DIRICHLET_SMOOTHING) {
-	weight_sum = (wdf_double + (param_smoothing1 * weight_collection)) /
+	weight_sum = (wdf_double + (param_smoothing1 * wt_coll)) /
 		     (len_double + param_smoothing1);
     } else if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
 	/* In the Dir+ weighting formula, sumpart weight contribution is :-
 	 *
-	 * sum of log of (1 + (wdf/(param_smoothing1 * weight_collection))) and
-	 * log of (1 + (delta/param_smoothing1 * weight_collection))).
+	 * sum of log of (1 + (wdf/(param_smoothing1 * wt_coll))) and
+	 * log of (1 + (delta/param_smoothing1 * wt_coll))).
 	 * Since, sum of logs is log of product so weight_sum is calculated as product
 	 * of terms in log in the Dir+ formula.
 	 */
-	weight_sum = (1 + (wdf_double / (param_smoothing1 * weight_collection))) *
-		     (1 + (param_smoothing2 / (param_smoothing1 * weight_collection)));
+	weight_sum = (1 + (wdf_double / (param_smoothing1 * wt_coll))) *
+		     (1 + (param_smoothing2 / (param_smoothing1 * wt_coll)));
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
 	double uniqterm_double = uniqterm;
-	weight_sum = ((((wdf_double - param_smoothing1) > 0) ? (wdf_double - param_smoothing1) : 0) / len_double) + ((param_smoothing1 * weight_collection * uniqterm_double) / len_double);
+	weight_sum = ((((wdf_double - param_smoothing1) > 0) ? (wdf_double - param_smoothing1) : 0) / len_double) + ((param_smoothing1 * wt_coll * uniqterm_double) / len_double);
     } else {
-	weight_sum = (((1 - param_smoothing1) * (wdf_double + (param_smoothing2 * weight_collection)) / (len_double + param_smoothing2)) + (param_smoothing1 * weight_collection));
+	weight_sum = (((1 - param_smoothing1) * (wdf_double + (param_smoothing2 * wt_coll)) / (len_double + param_smoothing2)) + (param_smoothing1 * wt_coll));
     }
 
     /* Since LM score is calculated with multiplication, instead of changing
@@ -195,7 +174,8 @@ LMWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
      * difference hence log(product) will be used for ranking.
      */
     double product = weight_sum * param_log;
-    return (product > 1.0) ? factor * log(product) : 0;
+    // weight_collection is really factor.
+    return (product > 1.0) ? weight_collection * log(product) : 0;
 }
 
 double
@@ -206,25 +186,35 @@ LMWeight::get_maxpart() const
     // Store upper bound on wdf in variable wdf_max
     double wdf_max = get_wdf_upper_bound();
 
+    /* In case the within document frequency of term is zero smoothing will
+     * be required and should be return instead of returning zero, as
+     * returning LM score are multiplication of contribution of all terms,
+     * due to absence of single term whole document is scored zero, hence
+     * apply collection frequency smoothing.
+     */
+    double wt_coll =
+	get_collection_freq() / (get_collection_size() * get_average_length());
+
     // Calculating upper bound considering different smoothing option available to user.
     if (select_smoothing == JELINEK_MERCER_SMOOTHING) {
-	upper_bound = (param_smoothing1 * weight_collection) + (1 - param_smoothing1);
+	upper_bound = (param_smoothing1 * wt_coll) + (1 - param_smoothing1);
     } else if (select_smoothing == DIRICHLET_SMOOTHING) {
-	upper_bound = (get_doclength_upper_bound() + (param_smoothing1 * weight_collection)) / (get_doclength_upper_bound() + param_smoothing1);
+	upper_bound = (get_doclength_upper_bound() + (param_smoothing1 * wt_coll)) / (get_doclength_upper_bound() + param_smoothing1);
     } else if (select_smoothing == DIRICHLET_PLUS_SMOOTHING) {
-	upper_bound = (1 + (wdf_max / (param_smoothing1 * weight_collection))) *
-		      (1 + (param_smoothing2 / (param_smoothing1 * weight_collection)));
+	upper_bound = (1 + (wdf_max / (param_smoothing1 * wt_coll))) *
+		      (1 + (param_smoothing2 / (param_smoothing1 * wt_coll)));
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
-	upper_bound =  param_smoothing1 * weight_collection + 1;
+	upper_bound =  param_smoothing1 * wt_coll + 1;
     } else {
-	upper_bound = (((1 - param_smoothing1) * (get_doclength_upper_bound() + (param_smoothing2 * weight_collection)) / (get_doclength_upper_bound() + param_smoothing2)) + (param_smoothing1 * weight_collection));
+	upper_bound = (((1 - param_smoothing1) * (get_doclength_upper_bound() + (param_smoothing2 * wt_coll)) / (get_doclength_upper_bound() + param_smoothing2)) + (param_smoothing1 * wt_coll));
     }
 
     /* Since weight are calculated using log trick, using same with the bounds. Refer
      * comment in get_sumpart for the details.
      */
     double product = upper_bound * param_log;
-    return (product > 1.0) ? factor * log(product) : 1.0;
+    // weight_collection is really factor.
+    return (product > 1.0) ? weight_collection * log(product) : 1.0;
 }
 
 
