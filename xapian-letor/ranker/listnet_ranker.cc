@@ -128,7 +128,7 @@ ListNETRanker::train_model() {
     if (fvv_len != 0) {
 	feature_cnt = fvv[0].get_fcount();
     } else {
-        throw LetorInternalError("Training data is empty. Check training file.");
+	throw LetorInternalError("Training data is empty. Check training file.");
     }
     // initialize the parameters for neural network
     vector<double> new_parameters(feature_cnt, 0.0);
