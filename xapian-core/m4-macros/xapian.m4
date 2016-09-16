@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 15
+# serial 16
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -32,12 +32,15 @@ AC_DEFUN([XO_LIB_XAPIAN],
   dnl AC_PATH_PROG ignores an existing user setting of XAPIAN_CONFIG unless it
   dnl has a full path, so add special handling for such cases.
   xapian_config_to_check_for="ifelse([$3], [], xapian-config, [$3])"
-  [case $XAPIAN_CONFIG in
+  case $XAPIAN_CONFIG in
   "") ;;
-  [\\/]* | ?:[\\/]*)
+  */configure)
+    AC_MSG_ERROR([XAPIAN_CONFIG should point to a xapian-config script, not a configure script.])
+    ;;
+  [[\\/]* | ?:[\\/]*)]
     # XAPIAN_CONFIG has an absolute path, so AC_PATH_PROG can handle it.
     ;;
-  *[\\/]?*)
+  [*[\\/]?*)]
     # Convert a relative path to an absolute one.
     XAPIAN_CONFIG=`pwd`/$XAPIAN_CONFIG
     ;;
@@ -48,7 +51,7 @@ AC_DEFUN([XO_LIB_XAPIAN],
     xapian_config_to_check_for=$XAPIAN_CONFIG
     XAPIAN_CONFIG=
     ;;
-  esac]
+  esac
   AC_PATH_PROG(XAPIAN_CONFIG, "$xapian_config_to_check_for")
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
