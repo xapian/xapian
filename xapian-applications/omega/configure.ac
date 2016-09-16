@@ -482,8 +482,14 @@ if test yes = "$GXX"; then
       dnl don't intend to use this idiom, so any instances are bugs we'd
       dnl like to know about.
       dnl
+      dnl -Wold-style-cast triggered for macros expanded in our code but
+      dnl defined in system headers (e.g. FD_SET).  This was fixed in
+      dnl GCC 4.8 when -ftrack-macro-expansion=2 was made the default.
+      dnl Xapian 1.4.x requires GCC >= 4.7, so just enable
+      dnl -ftrack-macro-expansion=2 as well.
+      dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self -ftrack-macro-expansion=2 -Wold-style-cast"
 
       dnl FIXME:
       dnl -Wconversion in older GCC versions is intended to help migration
@@ -491,9 +497,6 @@ if test yes = "$GXX"; then
       dnl to -Wtraditional-conversion and a new -Wconversion added which
       dnl sounds useful but is a bit buggy currently.  So we should consider
       dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
-      dnl
-      dnl -Wold-style-cast is interesting, but triggers for macros from
-      dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
@@ -514,8 +517,9 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
+
+      dnl These options all work at least as far back as clang++ 3.0:
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wstrict-overflow=1 -Wmissing-declarations -Winit-self -Wold-style-cast"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then

@@ -81,7 +81,7 @@ MyHtmlParser::opening_tag(const string &tag)
     if (k < 0)
 	return true;
     pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
-    switch ((html_tag)k) {
+    switch (html_tag(k)) {
 	case P:
 	    if (pending_space < PAGE) {
 		string style;
@@ -220,7 +220,7 @@ MyHtmlParser::closing_tag(const string &tag)
     if (k < 0 || (token_space[k] & NOCLOSE))
 	return true;
     pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
-    switch ((html_tag)k) {
+    switch (html_tag(k)) {
 	case STYLE:
 	    in_style_tag = false;
 	    break;
