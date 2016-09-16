@@ -425,12 +425,14 @@ main(int argc, char **argv)
 	case 'F': {
 	    const char * s = strchr(optarg, ':');
 	    if (s != NULL && s[1]) {
-		const char * c = (const char *)memchr(optarg, ',', s - optarg);
+		const char * c =
+		    static_cast<const char *>(memchr(optarg, ',', s - optarg));
 		string output_type, output_charset;
 		if (c) {
 		    // Filter produces a specified content-type.
 		    ++c;
-		    const char * c2 = (const char *)memchr(c, ',', s - c);
+		    const char * c2 =
+			static_cast<const char *>(memchr(c, ',', s - c));
 		    if (c2) {
 			output_type.assign(c, c2 - c);
 			++c2;
