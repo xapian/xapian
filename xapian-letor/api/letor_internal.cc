@@ -161,14 +161,13 @@ load_relevance(const std::string & qrel_file)
 		break;
 	    }
 	    ++qrel_count;
-	    char * str;
-	    char * x1;
-	    x1 = const_cast<char*>(inLine.c_str());
-	    str = strtok(x1, " ");
 	    vector<string> token;
-	    while (str != NULL) {
-		token.push_back(str);     // store tokens in a string array
-		str = strtok(NULL, " ");
+	    size_t j = 0;
+	    while (j < inLine.size()) {
+		size_t i = inLine.find_first_not_of(' ', j);
+		if (i == string::npos) break;
+		j = inLine.find_first_of(' ', i);
+		token.push_back(inLine.substr(i, j - i));
 	    }
 	    // Exceptions for parse errors
 	    if (token.size() != 4 || token[1] != "Q0") {
@@ -245,14 +244,13 @@ Letor::Internal::prepare_training_file(const string & queryfile, const string & 
 	    break;
 	}
 	++query_count;
-	char * str;
-	char * x1;
-	x1 = const_cast<char*>(str1.c_str());
-	str = strtok(x1, " ");
 	vector<string> token;
-	while (str != NULL) {
-	    token.push_back(str);
-	    str = strtok(NULL, "");
+	size_t j = 0;
+	while (j < str1.size()) {
+	    size_t i = str1.find_first_not_of(' ', j);
+	    if (i == string::npos) break;
+	    j = str1.find_first_of(' ', i);
+	    token.push_back(str1.substr(i, j - i));
 	}
 	// Query file is in the format: <qid> <query_string>
 	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
@@ -352,14 +350,13 @@ Letor::Internal::letor_score(const std::string & query_file, const std::string &
 	}
 	++num_queries;
 
-	char * str;
-	char * x1;
-	x1 = const_cast<char*>(str1.c_str());
-	str = strtok(x1, " ");
 	vector<string> token;
-	while (str != NULL) {
-	    token.push_back(str);
-	    str = strtok(NULL, "");
+	size_t j = 0;
+	while (j < str1.size()) {
+	    size_t i = str1.find_first_not_of(' ', j);
+	    if (i == string::npos) break;
+	    j = str1.find_first_of(' ', i);
+	    token.push_back(str1.substr(i, j - i));
 	}
 	// Query file is in the format: <qid> <query_string>
 	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
