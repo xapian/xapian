@@ -217,13 +217,13 @@ if test yes = "$GXX"; then
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
       dnl
-      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
+      dnl -Wundef was supported by g++ 3.0.
       dnl
       dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
       dnl GCC 4.3.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
 
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
@@ -276,7 +276,7 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
       AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
