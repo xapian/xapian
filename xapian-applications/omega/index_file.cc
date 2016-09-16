@@ -1020,11 +1020,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	record += "\ntype=";
 	record += mimetype;
 	time_t mtime = d.get_mtime();
-	if (mtime != (time_t)-1) {
+	if (mtime != static_cast<time_t>(-1)) {
 	    record += "\nmodtime=";
 	    record += str(mtime);
 	}
-	if (created != (time_t)-1) {
+	if (created != static_cast<time_t>(-1)) {
 	    record += "\ncreated=";
 	    record += str(created);
 	}
@@ -1099,12 +1099,12 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 
 	// Add mtime as a value to allow "sort by date".
 	newdocument.add_value(VALUE_LASTMOD,
-			      int_to_binary_string((uint32_t)mtime));
+			      int_to_binary_string(uint32_t(mtime)));
 	if (use_ctime) {
 	    // Add ctime as a value to track modifications.
 	    time_t ctime = d.get_ctime();
 	    newdocument.add_value(VALUE_CTIME,
-				  int_to_binary_string((uint32_t)ctime));
+				  int_to_binary_string(uint32_t(ctime)));
 	}
 
 	// Add MD5 as a value to allow duplicate documents to be collapsed

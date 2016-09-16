@@ -191,7 +191,7 @@ convert_to_utf8(string & text, const string & charset)
 try_iconv:
 #ifdef USE_ICONV
 	iconv_t conv = iconv_open("UTF-8", charset.c_str());
-	if (conv == (iconv_t)-1)
+	if (conv == reinterpret_cast<iconv_t>(-1))
 	    return;
 	ICONV_INPUT_TYPE in = const_cast<char *>(text.c_str());
 	size_t in_len = text.size();

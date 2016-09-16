@@ -70,7 +70,7 @@ date_to_string(int y, int m, int d)
     if (d < 1) d = 1; else if (d > 31) d = 31;
 #ifdef SNPRINTF
     int len = SNPRINTF(buf, sizeof(buf), "%04d%02d%02d", y, m, d);
-    if (len == -1 || len > (int)sizeof(buf)) return string(buf, sizeof(buf));
+    if (len == -1 || len > int(sizeof(buf))) return string(buf, sizeof(buf));
     return string(buf, len);
 #else
     buf[sizeof(buf) - 1] = '\0';

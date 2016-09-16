@@ -1234,10 +1234,10 @@ eval(const string &fmt, const vector<string> &param)
 	}
 
 	if (func->second->minargs != N) {
-	    if ((int)args.size() < func->second->minargs)
+	    if (int(args.size()) < func->second->minargs)
 		throw "too few arguments to $" + var;
 	    if (func->second->maxargs != N &&
-		(int)args.size() > func->second->maxargs)
+		int(args.size()) > func->second->maxargs)
 		throw "too many arguments to $" + var;
 
 	    vector<string>::size_type n;
@@ -1333,7 +1333,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (!value.empty()) {
 		    char buf[64] = "";
 		    time_t date = string_to_int(value);
-		    if (date != (time_t)-1) {
+		    if (date != static_cast<time_t>(-1)) {
 			struct tm *then;
 			then = gmtime(&date);
 			string date_fmt = "%Y-%m-%d";
@@ -1449,7 +1449,7 @@ eval(const string &fmt, const vector<string> &param)
 			fraction = (fraction * 10 / 1024) + '0';
 			len = my_snprintf(buf, sizeof(buf), format, intpart, fraction);
 		    }
-		    if (len < 0 || (unsigned)len > sizeof(buf)) len = sizeof(buf);
+		    if (len < 0 || unsigned(len) > sizeof(buf)) len = sizeof(buf);
 		    value.assign(buf, len);
 		}
 		break;
@@ -1847,7 +1847,8 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_now: {
 		char buf[64];
-		my_snprintf(buf, sizeof(buf), "%lu", (unsigned long)time(NULL));
+		my_snprintf(buf, sizeof(buf), "%lu",
+			    static_cast<unsigned long>(time(NULL)));
 		// MSVC's snprintf omits the zero byte if the string if
 		// sizeof(buf) long.
 		buf[sizeof(buf) - 1] = '\0';
@@ -2254,7 +2255,7 @@ eval(const string &fmt, const vector<string> &param)
 	    default: {
 		args.insert(args.begin(), param[0]);
 		int macro_no = func->second->tag - CMD_MACRO;
-		assert(macro_no >= 0 && (unsigned int)macro_no < macros.size());
+		assert(macro_no >= 0 && unsigned(macro_no) < macros.size());
 		// throw "Unknown function '" + var + "'";
 		value = eval(macros[macro_no], args);
 		break;
