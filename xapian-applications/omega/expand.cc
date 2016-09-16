@@ -76,7 +76,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    enq.set_expansion_scheme("trad");
 	    return;
 	}
-	if (C_isspace((unsigned char)*p)) {
+	if (C_isspace(*p)) {
 	    // Initialise k just to silence compiler warning.
 	    double k = 0.0;
 	    if (!double_param(&p, &k))
@@ -94,7 +94,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    enq.set_expansion_scheme("bo1");
 	    return;
 	}
-	if (C_isspace((unsigned char)*p)) {
+	if (C_isspace(*p)) {
 	    throw "No parameters are required for BO1";
 	}
     }
@@ -104,7 +104,7 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	if (*p == '\0') {
 	    return;
 	}
-	if (C_isspace((unsigned char)*p)) {
+	if (C_isspace(*p)) {
 	    // Initialise k just to silence compiler warning.
 	    double k = 0.0;
 	    if (!double_param(&p, &k))
