@@ -48,6 +48,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     }
     need_stat(WDF);
     need_stat(WDF_MAX);
+    need_stat(WQF);
 }
 
 TfIdfWeight *
