@@ -708,7 +708,7 @@ static const test test_or_queries[] = {
     { "h众ello万众", "(((Zh@1 OR 众@2) OR Zello@3) OR (万@4 AND 万众@4 AND 众@4))" },
     { "世(の中)TEST_tm", "((世@1 OR (の@2 AND の中@2 AND 中@2)) OR test_tm@3)" },
     { "다녀 AND 와야", "((다@1 AND 다녀@1 AND 녀@1) AND (와@2 AND 와야@2 AND 야@2))" },
-    { "authortitle:학술 OR 연구를", "((A학@1 AND XT학@1 AND A학술@1 AND XT학술@1 AND A술@1 AND XT술@1) OR (연@2 AND 연구@2 AND 구@2 AND 구를@2 AND 를@2))" },
+    { "authortitle:학술 OR 연구를", "(((A학@1 AND A학술@1 AND A술@1) OR (XT학@1 AND XT학술@1 AND XT술@1)) OR (연@2 AND 연구@2 AND 구@2 AND 구를@2 AND 를@2))" },
     // FIXME: These should really filter by bigrams to accelerate:
     { "\"久有归\"", "(久@1 PHRASE 3 有@1 PHRASE 3 归@1)" },
     { "\"久有test归\"", "(久@1 PHRASE 4 有@1 PHRASE 4 test@2 PHRASE 4 归@3)" },
