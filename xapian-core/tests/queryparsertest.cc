@@ -667,7 +667,7 @@ static const test test_or_queries[] = {
     { "h众ello万众", "(Zh:(pos=1) OR 众:(pos=2) OR Zello:(pos=3) OR (万:(pos=4) AND 万众:(pos=4) AND 众:(pos=4)))" },
     { "世(の中)TEST_tm", "(世:(pos=1) OR (の:(pos=2) AND の中:(pos=2) AND 中:(pos=2)) OR test_tm:(pos=3))" },
     { "다녀 AND 와야", "(다:(pos=1) AND 다녀:(pos=1) AND 녀:(pos=1) AND 와:(pos=2) AND 와야:(pos=2) AND 야:(pos=2))" },
-    { "authortitle:학술 OR 연구를", "((A학:(pos=1) AND XT학:(pos=1) AND A학술:(pos=1) AND XT학술:(pos=1) AND A술:(pos=1) AND XT술:(pos=1)) OR (연:(pos=2) AND 연구:(pos=2) AND 구:(pos=2) AND 구를:(pos=2) AND 를:(pos=2)))" },
+    { "authortitle:학술 OR 연구를", "((A학:(pos=1) AND A학술:(pos=1) AND A술:(pos=1)) OR (XT학:(pos=1) AND XT학술:(pos=1) AND XT술:(pos=1)) OR (연:(pos=2) AND 연구:(pos=2) AND 구:(pos=2) AND 구를:(pos=2) AND 를:(pos=2)))" },
     // FIXME: These should really filter by bigrams to accelerate:
     { "\"久有归\"", "(久:(pos=1) PHRASE 3 有:(pos=1) PHRASE 3 归:(pos=1))" },
     { "\"久有test归\"", "(久:(pos=1) PHRASE 4 有:(pos=1) PHRASE 4 test:(pos=2) PHRASE 4 归:(pos=3))" },

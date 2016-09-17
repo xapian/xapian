@@ -440,17 +440,21 @@ Term::as_partial_query(State * state_) const
 Query *
 Term::as_cjk_query() const
 {
-    vector<Query> prefix_cjk;
+    vector<Query> prefix_subqs;
+    vector<Query> cjk_subqs;
     const list<string> & prefixes = prefix_info->prefixes;
     list<string>::const_iterator piter;
-    for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
-	for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	    string cjk = *piter;
-	    cjk += *tk;
-	    prefix_cjk.push_back(Query(cjk, 1, pos));
+    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+	const string& prefix = *piter;
+	for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
+	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
+	prefix_subqs.push_back(Query(Query::OP_AND,
+				     cjk_subqs.begin(), cjk_subqs.end()));
+	cjk_subqs.clear();
     }
-    Query * q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
+    Query * q = new Query(Query::OP_OR,
+			  prefix_subqs.begin(), prefix_subqs.end());
     delete this;
     return q;
 }
