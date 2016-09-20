@@ -532,6 +532,24 @@ DEFINE_TESTCASE(dlhweight1, backend) {
 }
 
 // Test exception for junk after serialised weight.
+DEFINE_TESTCASE(dlhweight2, !backend) {
+    Xapian::DLHWeight wt;
+    try {
+	Xapian::DLHWeight t;
+	Xapian::DLHWeight * t2 = t.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = t2->name().empty();
+	delete t2;
+	if (empty)
+	    FAIL_TEST("Serialised DLHWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised DLHWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("DLH") != string::npos);
+    }
+    return true;
+}
+
+// Test exception for junk after serialised weight.
 DEFINE_TESTCASE(pl2weight1, !backend) {
     Xapian::PL2Weight wt(2.0);
     try {
@@ -714,6 +732,24 @@ DEFINE_TESTCASE(dphweight1, backend) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
 
+    return true;
+}
+
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(dphweight2, !backend) {
+    Xapian::DPHWeight wt;
+    try {
+	Xapian::DPHWeight t;
+	Xapian::DPHWeight * t2 = t.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = t2->name().empty();
+	delete t2;
+	if (empty)
+	    FAIL_TEST("Serialised DPHWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised DPHWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("DPH") != string::npos);
+    }
     return true;
 }
 
@@ -1163,6 +1199,25 @@ DEFINE_TESTCASE(unigramlmweight8, backend) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
 
+    return true;
+}
+
+// Feature test for BoolWeight.
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(boolweight1, !backend) {
+    Xapian::BoolWeight wt;
+    try {
+	Xapian::BoolWeight t;
+	Xapian::BoolWeight * t2 = t.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = t2->name().empty();
+	delete t2;
+	if (empty)
+	    FAIL_TEST("Serialised BoolWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised BoolWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("Bool") != string::npos);
+    }
     return true;
 }
 
