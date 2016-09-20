@@ -491,6 +491,12 @@ $set{OPT,VALUE}
           their default values.  Valid expansion schemes names are
           ``trad`` and ``bo1``.  e.g.
           ``$set{expansion,trad 2.0}``
+        * weightingpurefilter - normally a query consisting only of filter
+          terms won't have relevance weights calculated.  This option allows
+          you to specify a weighting scheme to use for such queries, with the
+          same values supported as for ``weighting`` above.  For example,
+          ``$set{weightingpurefilter,coord}`` will weight such queries by
+          how many filter terms match each document.
 
 	Omega 1.2.5 and later support the following options, which can be set
 	to a non-empty value to enable the corresponding ``QueryParser`` flag.

@@ -448,6 +448,7 @@ void add_nterm(const string &term) {
 static void
 run_query()
 {
+    string scheme;
     bool force_boolean = false;
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix (or AND for non-exclusive
@@ -491,7 +492,12 @@ run_query()
 	    // to be THE query - filtering an empty query will give no
 	    // matches.
 	    std::swap(query, filter);
-	    force_boolean = true;
+	    auto&& it = option.find("weightingpurefilter");
+	    if (it != option.end() && !it->second.empty()) {
+		scheme = it->second;
+	    } else {
+		force_boolean = true;
+	    }
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, filter);
 	}
@@ -544,7 +550,11 @@ run_query()
 
     if (!enquire || !error_msg.empty()) return;
 
-    set_weighting_scheme(*enquire, option, force_boolean);
+    if (!force_boolean && scheme.empty()) {
+	auto&& it = option.find("weighting");
+	if (it != option.end()) scheme = it->second;
+    }
+    set_weighting_scheme(*enquire, scheme, force_boolean);
 
     enquire->set_cutoff(threshold);
 
