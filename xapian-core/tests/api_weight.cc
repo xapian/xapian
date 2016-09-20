@@ -1,7 +1,7 @@
 /** @file api_weight.cc
  * @brief tests of Xapian::Weight subclasses
  */
-/* Copyright (C) 2012,2013,2016 Olly Betts
+/* Copyright (C) 2004,2012,2013,2016 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
  *
@@ -1162,5 +1162,55 @@ DEFINE_TESTCASE(unigramlmweight8, backend) {
 	TEST_EQUAL_DOUBLE(15.0 * mset1[i].get_weight(), mset2[i].get_weight());
     }
 
+    return true;
+}
+
+// Feature test for CoordWeight.
+DEFINE_TESTCASE(coordweight1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_weighting_scheme(Xapian::CoordWeight());
+    const char * terms[] = { "this", "line", "paragraph", "rubbish" };
+    Xapian::Query query(Xapian::Query::OP_OR,
+			terms, terms + sizeof(terms) / sizeof(terms[0]));
+    enquire.set_query(query);
+    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
+    // CoordWeight scores 1 for each matching term, so the weight should equal
+    // the number of matching terms.
+    for (Xapian::MSetIterator i = mymset1.begin(); i != mymset1.end(); ++i) {
+	Xapian::termcount matching_terms = 0;
+	Xapian::TermIterator t = enquire.get_matching_terms_begin(i);
+	while (t != enquire.get_matching_terms_end(i)) {
+	    ++matching_terms;
+	    ++t;
+	}
+	TEST_EQUAL(i.get_weight(), matching_terms);
+    }
+
+    // Test with OP_SCALE_WEIGHT.
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
+    Xapian::MSet mymset2 = enquire.get_mset(0, 100);
+    TEST_EQUAL(mymset1.size(), mymset2.size());
+    for (Xapian::doccount i = 0; i != mymset1.size(); ++i) {
+	TEST_EQUAL(15.0 * mymset1[i].get_weight(), mymset2[i].get_weight());
+    }
+
+    return true;
+}
+
+// Test exception for junk after serialised weight.
+DEFINE_TESTCASE(coordweight2, !backend) {
+    Xapian::CoordWeight wt;
+    try {
+	Xapian::CoordWeight t;
+	Xapian::CoordWeight * t2 = t.unserialise(wt.serialise() + "X");
+	// Make sure we actually use the weight.
+	bool empty = t2->name().empty();
+	delete t2;
+	if (empty)
+	    FAIL_TEST("Serialised CoordWeight with junk appended unserialised to empty name!");
+	FAIL_TEST("Serialised CoordWeight with junk appended unserialised OK");
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("Coord") != string::npos);
+    }
     return true;
 }
