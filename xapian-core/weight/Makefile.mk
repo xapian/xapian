@@ -9,6 +9,7 @@ lib_src +=\
 	weight/bm25plusweight.cc\
 	weight/bm25weight.cc\
 	weight/boolweight.cc\
+	weight/coordweight.cc\
 	weight/dlhweight.cc\
 	weight/dphweight.cc\
 	weight/ifb2weight.cc\

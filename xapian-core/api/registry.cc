@@ -1,7 +1,7 @@
 /** @file registry.cc
  * @brief Class for looking up user subclasses during unserialisation.
  */
-/* Copyright (C) 2006,2007,2008,2009,2010 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2016 Olly Betts
  * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -143,6 +143,8 @@ Registry::Internal::add_defaults()
     weighting_scheme = new Xapian::BM25PlusWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::BoolWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
+    weighting_scheme = new Xapian::CoordWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
     weighting_scheme = new Xapian::TradWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;

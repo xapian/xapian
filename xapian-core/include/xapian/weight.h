@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
+/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
  * Copyright (C) 2016 Vivek Pal
@@ -1446,6 +1446,37 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
+    double get_maxextra() const;
+};
+
+/** Xapian::Weight subclass implementing Coordinate Matching.
+ *
+ *  Each matching term score one point.  See Managing Gigabytes, Second Edition
+ *  p181.
+ */
+class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+  public:
+    CoordWeight * clone() const ;
+
+    void init(double factor_);
+
+    /** Construct a CoordWeight. */
+    CoordWeight() { }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    CoordWeight * unserialise(const std::string &) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount, Xapian::termcount) const;
     double get_maxextra() const;
 };
 
