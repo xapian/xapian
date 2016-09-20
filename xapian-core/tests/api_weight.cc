@@ -48,6 +48,7 @@ DEFINE_TESTCASE(tradweight3, !backend) {
 	// Regression test for error in exception message fixed in 1.2.11 and
 	// 1.3.1.
 	TEST(e.get_msg().find("BM25") == string::npos);
+	TEST(e.get_msg().find("Trad") != string::npos);
     }
     return true;
 }
@@ -65,7 +66,7 @@ DEFINE_TESTCASE(unigramlmweight3, !backend) {
 	    FAIL_TEST("Serialised LMWeight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised LMWeight with junk appended unserialised OK");
     } catch (const Xapian::SerialisationError &e) {
-	// Good!
+	TEST(e.get_msg().find("LM") != string::npos);
     }
     return true;
 }
@@ -82,8 +83,8 @@ DEFINE_TESTCASE(bm25weight3, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised BM25Weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised BM25Weight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("BM25") != string::npos);
     }
     return true;
 }
@@ -146,8 +147,8 @@ DEFINE_TESTCASE(bm25plusweight1, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised BM25PlusWeight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised BM25PlusWeight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("BM25Plus") != string::npos);
     }
     return true;
 }
@@ -211,8 +212,8 @@ DEFINE_TESTCASE(inl2weight1, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised inl2weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised inl2weight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("InL2") != string::npos);
     }
 
     return true;
@@ -277,8 +278,8 @@ DEFINE_TESTCASE(ifb2weight1, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised IfB2Weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised IfB2Weight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("IfB2") != string::npos);
     }
     return true;
 }
@@ -341,8 +342,8 @@ DEFINE_TESTCASE(ineb2weight1, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised ineb2weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised ineb2weight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("IneB2") != string::npos);
     }
 
     return true;
@@ -409,8 +410,8 @@ DEFINE_TESTCASE(bb2weight1, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised BB2Weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised BB2Weight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("BB2") != string::npos);
     }
     return true;
 }
@@ -542,8 +543,8 @@ DEFINE_TESTCASE(pl2weight1, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised PL2Weight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised PL2Weight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("PL2") != string::npos);
     }
     return true;
 }
@@ -604,8 +605,8 @@ DEFINE_TESTCASE(pl2plusweight1, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised PL2PlusWeight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised PL2PlusWeight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("PL2Plus") != string::npos);
     }
     return true;
 }
@@ -745,8 +746,8 @@ DEFINE_TESTCASE(tfidfweight2, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised TfIdfWeight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised TfIdfWeight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-	// Good!
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("TfIdf") != string::npos);
     }
     return true;
 }
@@ -1145,8 +1146,8 @@ DEFINE_TESTCASE(unigramlmweight6, !backend) {
 	if (empty)
 	    FAIL_TEST("Serialised LMWeight with junk appended unserialised to empty name!");
 	FAIL_TEST("Serialised LMWeight with junk appended unserialised OK");
-    } catch (const Xapian::SerialisationError &) {
-
+    } catch (const Xapian::SerialisationError &e) {
+	TEST(e.get_msg().find("LM") != string::npos);
     }
     return true;
 }
