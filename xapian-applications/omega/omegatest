@@ -235,6 +235,19 @@ testcase 'Hexample.org' P=text B=Hexample.org B=Hexample.com prefix=H
 testcase 'Ztext' P=text B=Hexample.org B=Hexample.com prefix=Z
 testcase '' P=text B=Hexample.org B=Hexample.com prefix=E
 
+printf '$set{weighting,coord}$hitlist{$weight.}' > "$TEST_TEMPLATE"
+testcase '' P=aardvark
+testcase '1.000000.' P=texting
+testcase '' P='texting while driving'
+testcase '' P='texting while driving' DEFAULTOP=AND
+testcase '1.000000.' P='texting while driving' DEFAULTOP=OR
+testcase '2.000000.' P='Some text'
+# "this" and "is" are stopwords.
+testcase '2.000000.' P='This is some text'
+testcase '4.000000.' P='"This" "is" some text'
+testcase '4.000000.' P='+This +is some text'
+testcase '4.000000.' P='"This is some text"'
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
