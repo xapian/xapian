@@ -248,6 +248,14 @@ testcase '4.000000.' P='"This" "is" some text'
 testcase '4.000000.' P='+This +is some text'
 testcase '4.000000.' P='"This is some text"'
 
+printf '$set{weightingpurefilter,coord}$hitlist{$weight.}' > "$TEST_TEMPLATE"
+testcase '' B=XFOOfoo
+testcase '1.000000.' B=Hexample.org
+testcase '' B=Hexample.org B=XFOOfoo
+testcase '1.000000.' B=Hexample.org B=Hexample.net
+testcase '2.000000.' B=Hexample.org B=XFOObar
+testcase '3.000000.' B=Hexample.org B=XFOObar B=XFOObar
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
