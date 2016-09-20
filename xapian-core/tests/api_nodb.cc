@@ -278,6 +278,12 @@ DEFINE_TESTCASE(weight1, !backend) {
     TEST_EQUAL(boolweight.serialise(), wt->serialise());
     delete wt;
 
+    Xapian::CoordWeight coordweight;
+    TEST_EQUAL(coordweight.name(), "Xapian::CoordWeight");
+    wt = Xapian::CoordWeight().unserialise(coordweight.serialise());
+    TEST_EQUAL(coordweight.serialise(), wt->serialise());
+    delete wt;
+
     Xapian::TradWeight tradweight_dflt;
     Xapian::TradWeight tradweight(1.0);
     TEST_EQUAL(tradweight.name(), "Xapian::TradWeight");
