@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Set the weighting scheme for Omega
  */
-/* Copyright (C) 2009,2013 Olly Betts
+/* Copyright (C) 2009,2013,2016 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or modify
@@ -294,6 +294,11 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	    }
 	}
 #endif
+
+	if (scheme == "coord") {
+	    enq.set_weighting_scheme(Xapian::CoordWeight());
+	    return;
+	}
 
 	if (scheme != "bool") {
 	    throw "Unknown $opt{weighting} setting: " + scheme;

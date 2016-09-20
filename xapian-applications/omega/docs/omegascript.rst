@@ -477,6 +477,7 @@ $set{OPT,VALUE}
           all separated by whitespace.  Any parameters not specified will use
           their default values.  Valid scheme names are
           ``bb2`` (in Omega >= 1.3.2), ``bm25``, ``bool``,
+          ``coord`` (in Omega >= 1.4.1),
           ``dlh`` (in Omega >= 1.3.2), ``dph`` (in Omega >= 1.3.2),
           ``ifb2`` (in Omega >= 1.3.2), ``ineb2`` (in Omega >= 1.3.2),
           ``inl2`` (in Omega >= 1.3.2), ``lm`` (in Omega >= 1.3.2),
