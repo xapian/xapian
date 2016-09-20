@@ -161,6 +161,9 @@ open_stub(Database &db, const string &file)
 	    } else if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
+
+		// We want the last colon.
+		colon = line.rfind(':');
 		unsigned int port = atoi(line.c_str() + colon + 1);
 		line.erase(colon);
 		db.add_database(Remote::open(line, port));

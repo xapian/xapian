@@ -22,6 +22,7 @@
 #ifndef XAPIAN_INCLUDED_SOCKET_UTILS_H
 #define XAPIAN_INCLUDED_SOCKET_UTILS_H
 
+#include "safenetdb.h"
 #include "safeunistd.h"
 
 #ifdef __WIN32__
@@ -47,5 +48,10 @@ inline void close_fd_or_socket(int fd) { close(fd); }
  *  connection will eventually time out, though it may take up to ~2 hours.
  */
 void set_socket_timeouts(int fd, double timeout);
+
+const size_t PRETTY_IP6_LEN =
+    (INET6_ADDRSTRLEN > INET_ADDRSTRLEN ? INET6_ADDRSTRLEN : INET_ADDRSTRLEN);
+
+int pretty_ip6(const void * p, char * buf);
 
 #endif // XAPIAN_INCLUDED_SOCKET_UTILS_H

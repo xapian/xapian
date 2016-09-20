@@ -28,6 +28,9 @@
 
 using namespace std;
 
+#include <arpa/inet.h>
+#include "stringutils.h"
+
 #ifdef __WIN32__
 # include "safeerrno.h"
 
@@ -147,4 +150,50 @@ set_socket_timeouts(int fd, double timeout)
 			 reinterpret_cast<char*>(&flag), sizeof(flag));
     }
 #endif
+}
+
+int
+pretty_ip6(const void * p, char * buf)
+{
+    const sockaddr_in * a = reinterpret_cast<const sockaddr_in *>(p);
+    const sockaddr_in6 * a6 = reinterpret_cast<const sockaddr_in6 *>(p);
+    sa_family_t af = a6->sin6_family;
+    in_port_t port;
+    if (af == AF_INET6) {
+	port = a6->sin6_port;
+    } else if (af == AF_INET) {
+	port = a->sin_port;
+    } else {
+	return -1;
+    }
+
+#ifndef __WIN32__
+    // Under __WIN32__, inet_ntop()'s second parameter isn't const for some
+    // reason.  We don't currently use inet_ntop() there, but allow for a
+    // non-const second parameter in case it's more widespread.
+    void * src = const_cast<void*>(p);
+    const char * r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
+    if (!r)
+	return -1;
+#else
+    // inet_ntop() isn't always available, at least with mingw.
+    // WSAAddressToString() supports both IPv4 and IPv6, so just use that.
+    DWORD size = PRETTY_IP6_LEN;
+    if (WSAAddressToString(reinterpret_cast<sockaddr*>(&remote_address),
+			   sizeof(remote_address), NULL, buf, &size) != 0) {
+	return -1;
+    }
+    const char * r = buf;
+#endif
+
+    if (startswith(r, "::ffff:") || startswith(r, "::FFFF:")) {
+	if (strchr(r + 7, '.')) {
+	    r += 7;
+	}
+    }
+
+    if (r != buf)
+	memmove(buf, r, strlen(r) + 1);
+
+    return port;
 }

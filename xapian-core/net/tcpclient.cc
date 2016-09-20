@@ -50,9 +50,9 @@ TcpClient::open_socket(const std::string & hostname, int port,
 {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
+    hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV;
+    hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV | AI_V4MAPPED;
     hints.ai_protocol = 0;
 
     struct addrinfo *result;
