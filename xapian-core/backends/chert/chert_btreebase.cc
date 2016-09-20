@@ -153,7 +153,7 @@ do { \
     if (!do_unpack_uint(start, end, &var, err_msg, basename, #var)) { \
 	return false; \
     } \
-} while(0)
+} while (0)
 
 /* How much of the base file to read at the first go (in bytes).
  * This must be big enough that the base file without bitmap

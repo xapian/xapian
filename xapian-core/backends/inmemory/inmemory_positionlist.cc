@@ -75,5 +75,5 @@ InMemoryPositionList::skip_to(Xapian::termpos termpos)
 bool
 InMemoryPositionList::at_end() const
 {
-    return(mypos == positions.end());
+    return (mypos == positions.end());
 }
