@@ -2,6 +2,7 @@
  * @brief Xapian::DPHWeight class - The DPH weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013, 2014 Aarsh Shah
+ * Copyright (C) 2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +22,8 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+
+#include "xapian/error.h"
 #include "common/log2.h"
 #include <algorithm>
 #include <cmath>
@@ -112,8 +115,10 @@ DPHWeight::serialise() const
 }
 
 DPHWeight *
-DPHWeight::unserialise(const string &) const
+DPHWeight::unserialise(const string& s) const
 {
+    if (rare(!s.empty()))
+	throw Xapian::SerialisationError("Extra data in DPHWeight::unserialise()");
     return new DPHWeight();
 }
 
