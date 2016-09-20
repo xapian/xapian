@@ -86,14 +86,10 @@ type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 #endif
 
 void
-set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
+set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
 		     bool force_boolean)
 {
     if (!force_boolean) {
-	map<string, string>::const_iterator i = opt.find("weighting");
-	if (i == opt.end()) return;
-
-	const string & scheme = i->second;
 	if (scheme.empty()) return;
 
 	if (startswith(scheme, "bm25")) {
