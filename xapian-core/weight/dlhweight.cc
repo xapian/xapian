@@ -22,6 +22,8 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+
+#include "xapian/error.h"
 #include "common/log2.h"
 #include <algorithm>
 
@@ -92,8 +94,10 @@ DLHWeight::serialise() const
 }
 
 DLHWeight *
-DLHWeight::unserialise(const string &) const
+DLHWeight::unserialise(const string& s) const
 {
+    if (rare(!s.empty()))
+	throw Xapian::SerialisationError("Extra data in DLHWeight::unserialise()");
     return new DLHWeight();
 }
 
