@@ -946,6 +946,8 @@ CMD_min,
 CMD_mod,
 CMD_msize,
 CMD_msizeexact,
+CMD_msizelower,
+CMD_msizeupper,
 CMD_mul,
 CMD_muldiv,
 CMD_ne,
@@ -1072,8 +1074,10 @@ T(match,	   2, 3, N, 0), // regex match
 T(max,		   1, N, N, 0), // maximum of a list of values
 T(min,		   1, N, N, 0), // minimum of a list of values
 T(mod,		   2, 2, N, 0), // integer modulus
-T(msize,	   0, 0, N, M), // number of matches
+T(msize,	   0, 0, N, M), // number of matches (estimated)
 T(msizeexact,	   0, 0, N, M), // is $msize exact?
+T(msizelower,	   0, 0, N, M), // number of matches (lower bound)
+T(msizeupper,	   0, 0, N, M), // number of matches (upper bound)
 T(mul,		   2, N, N, 0), // multiply a list of numbers
 T(muldiv,	   3, 3, N, 0), // calculate A*B/C
 T(ne,		   2, 2, N, 0), // test not equal
@@ -1803,14 +1807,22 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_msize:
-		// number of matches
+		// Estimated number of matches.
 		value = str(mset.get_matches_estimated());
 		break;
 	    case CMD_msizeexact:
-		// is msize exact?
+		// Is msize exact?
 		if (mset.get_matches_lower_bound()
 		    == mset.get_matches_upper_bound())
 		    value = "true";
+		break;
+	    case CMD_msizelower:
+		// Lower bound on number of matches.
+		value = str(mset.get_matches_lower_bound());
+		break;
+	    case CMD_msizeupper:
+		// Upper bound on number of matches.
+		value = str(mset.get_matches_upper_bound());
 		break;
 	    case CMD_mod: {
 		int denom = string_to_int(args[1]);
