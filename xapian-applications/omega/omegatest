@@ -235,6 +235,11 @@ testcase 'Hexample.org' P=text B=Hexample.org B=Hexample.com prefix=H
 testcase 'Ztext' P=text B=Hexample.org B=Hexample.com prefix=Z
 testcase '' P=text B=Hexample.org B=Hexample.com prefix=E
 
+printf '$msizelower $msize $msizeupper $msizeexact' > "$TEST_TEMPLATE"
+testcase '1 1 1 true' P=this
+testcase '1 1 1 true' P='Some text'
+testcase '0 0 0 true' P=potato
+
 printf '$set{weighting,coord}$hitlist{$weight.}' > "$TEST_TEMPLATE"
 testcase '' P=aardvark
 testcase '1.000000.' P=texting
