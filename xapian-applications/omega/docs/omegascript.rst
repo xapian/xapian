@@ -356,7 +356,14 @@ $msize
 	estimated number of matches.
 
 $msizeexact
-	return ``true`` if ``$msize`` is exact (or "" if it is estimated).
+        return ``true`` if ``$msize`` is exact (or "" if it is estimated).
+        Exactly equivalent to: ``$eq{$msizelower,$msizeupper}``
+
+$msizelower
+        lower bound on number of matches.
+
+$msizeupper
+        upper bound on number of matches.
 
 $nice{number}
 	pretty print integer (with thousands separator).
