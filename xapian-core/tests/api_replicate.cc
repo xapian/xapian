@@ -309,7 +309,6 @@ DEFINE_TESTCASE(replicate1, replicas) {
 	    Xapian::Database dbcopy(replicapath);
 	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
 	}
-
     }
     {
 	// Regression test - if the replica was reopened, a full copy always
