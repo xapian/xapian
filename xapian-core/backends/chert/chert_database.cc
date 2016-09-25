@@ -452,7 +452,6 @@ ChertDatabase::set_revision_number(chert_revision_number_t new_revision)
 	    pack_uint(changes_tail, new_revision);
 	}
 	record_table.commit(new_revision, changes_fd, &changes_tail);
-
     } catch (...) {
 	// Remove the changeset, if there was one.
 	if (changes_fd >= 0) {
