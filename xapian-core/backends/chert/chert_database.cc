@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009,2010 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -1069,6 +1069,25 @@ ChertWritableDatabase::commit()
 }
 
 void
+ChertWritableDatabase::check_flush_threshold()
+{
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.
+    // We could also look at:
+    // * mod_plists.size()
+    // * doclens.size()
+    // * freq_deltas.size()
+    //
+    // cout << "+++ mod_plists.size() " << mod_plists.size() <<
+    //     ", doclens.size() " << doclens.size() <<
+    //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
+}
+
+void
 ChertWritableDatabase::flush_postlist_changes() const
 {
     postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
@@ -1222,20 +1241,7 @@ ChertWritableDatabase::add_document_(Xapian::docid did,
 	throw;
     }
 
-    // FIXME: this should be done by checking memory usage, not the number of
-    // changes.
-    // We could also look at:
-    // * mod_plists.size()
-    // * doclens.size()
-    // * freq_deltas.size()
-    //
-    // cout << "+++ mod_plists.size() " << mod_plists.size() <<
-    //     ", doclens.size() " << doclens.size() <<
-    //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 
     RETURN(did);
 }
@@ -1298,10 +1304,7 @@ ChertWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 void
@@ -1473,10 +1476,7 @@ ChertWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 Xapian::Document::Internal *

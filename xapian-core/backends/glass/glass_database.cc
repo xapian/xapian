@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -1012,6 +1012,18 @@ GlassWritableDatabase::commit()
 }
 
 void
+GlassWritableDatabase::check_flush_threshold()
+{
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.  We could also look at the amount of data the inverter object
+    // currently holds.
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
+}
+
+void
 GlassWritableDatabase::flush_postlist_changes() const
 {
     version_file.set_oldest_changeset(changes.get_oldest_changeset());
@@ -1098,13 +1110,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 	throw;
     }
 
-    // FIXME: this should be done by checking memory usage, not the number of
-    // changes.  We could also look at the amount of data the inverter object
-    // currently holds.
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 
     RETURN(did);
 }
@@ -1170,10 +1176,7 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 void
@@ -1330,10 +1333,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 Xapian::Document::Internal *
