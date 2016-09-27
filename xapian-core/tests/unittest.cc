@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include <cfloat>
+#include <cmath>
 #include <cstring>
 #include <iostream>
 
@@ -417,7 +418,7 @@ static const double test_sortableserialise_numbers[] = {
 #endif
     -HUGE_VAL,
     -DBL_MAX,
-    -pow(2.0, 1022),
+    -exp2(1022),
     -1024.5,
     -3.14159265358979323846,
     -3,
@@ -431,15 +432,15 @@ static const double test_sortableserialise_numbers[] = {
     -0.000005,
     -0.000002,
     -0.000001,
-    -pow(2.0, -1023),
-    -pow(2.0, -1024),
-    -pow(2.0, -1074),
+    -exp2(-1023),
+    -exp2(-1024),
+    -exp2(-1074),
     -DBL_MIN,
     0,
     DBL_MIN,
-    pow(2.0, -1074),
-    pow(2.0, -1024),
-    pow(2.0, -1023),
+    exp2(-1074),
+    exp2(-1024),
+    exp2(-1023),
     0.000001,
     0.000002,
     0.000005,
@@ -453,7 +454,7 @@ static const double test_sortableserialise_numbers[] = {
     3,
     3.14159265358979323846,
     1024.5,
-    pow(2.0, 1022),
+    exp2(1022),
     DBL_MAX,
     HUGE_VAL,
 #ifdef INFINITY
