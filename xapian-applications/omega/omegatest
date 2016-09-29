@@ -52,6 +52,9 @@ failed=0
 testcase() {
     expected=$1
     shift
+    # If there are no positional parameters, pass one as otherwise omega will
+    # wait for parameters on stdin.
+    [ "$#" != 0 ] || set - dummy
     output=`$FAKETIME ${FAKE_NOW+"$FAKE_NOW"} "$OMEGA" "$@"`
     if [ "$output" != "$expected" ] ; then
 	echo "$OMEGA $@:"
