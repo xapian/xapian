@@ -21,6 +21,8 @@ This is an abstract base class for weighting schemes in Xapian.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::BoolWeight>,L<Search::Xapian::BM25Weight>
+L<Search::Xapian>,
+L<Search::Xapian::BoolWeight>,
+L<Search::Xapian::BM25Weight>
 
 =cut

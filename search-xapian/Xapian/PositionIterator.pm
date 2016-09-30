@@ -128,6 +128,7 @@ Return a description of this object.  Also implemented as stringification.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::Document>
+L<Search::Xapian>,
+L<Search::Xapian::Document>
 
 =cut

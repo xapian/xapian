@@ -92,6 +92,7 @@ End iterator corresponding to top_values_begin().
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::MatchSpy>
+L<Search::Xapian>,
+L<Search::Xapian::MatchSpy>
 
 =cut

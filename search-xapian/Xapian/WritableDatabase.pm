@@ -208,6 +208,8 @@ progress.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::Enquire>,L<Search::Xapian::Database>
+L<Search::Xapian>,
+L<Search::Xapian::Enquire>,
+L<Search::Xapian::Database>
 
 =cut

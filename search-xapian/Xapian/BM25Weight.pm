@@ -55,6 +55,7 @@ Constructor. Either takes no parameters, or the 4 BM25 parameters
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::Enquire>
+L<Search::Xapian>,
+L<Search::Xapian::Enquire>
 
 =cut

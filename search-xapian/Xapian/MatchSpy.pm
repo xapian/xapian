@@ -52,6 +52,8 @@ Reimplemented in Xapian::ValueCountMatchSpy.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::ValueCountMatchSpy>,L<Search::Xapian::PerlMatchSpy>
+L<Search::Xapian>,
+L<Search::Xapian::ValueCountMatchSpy>,
+L<Search::Xapian::PerlMatchSpy>
 
 =cut

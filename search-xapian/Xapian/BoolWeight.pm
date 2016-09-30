@@ -52,6 +52,7 @@ Constructor. Takes no arguments.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::Enquire>
+L<Search::Xapian>,
+L<Search::Xapian::Enquire>
 
 =cut

@@ -122,7 +122,8 @@ as the C<ne> and C<!=> operators.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::Document>
+L<Search::Xapian>,
+L<Search::Xapian::Document>
 
 =cut
 

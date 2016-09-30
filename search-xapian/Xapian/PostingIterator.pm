@@ -149,6 +149,7 @@ Return a description of this object.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::Database>
+L<Search::Xapian>,
+L<Search::Xapian::Database>
 
 =cut

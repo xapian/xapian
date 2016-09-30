@@ -200,6 +200,8 @@ Get the number of elements indexed by a certain term.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>,L<Search::Xapian::Enquire>,L<Search::Xapian::WritableDatabase>
+L<Search::Xapian>,
+L<Search::Xapian::Enquire>,
+L<Search::Xapian::WritableDatabase>
 
 =cut
