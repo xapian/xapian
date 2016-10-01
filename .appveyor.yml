@@ -6,14 +6,14 @@ environment:
   AUTOMATED_TESTING: 1
 platform:
   - x86
-  - x64
 install:
   - bash -c 'date -u; uname -a'
+  - C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
   - set PATH=C:\cygwin\bin;%PATH%
   - echo %PATH%
   - bash -c 'uname -a'
 build_script:
-  - bash -c 'time ./bootstrap --without-autotools xapian-core'
+  - bash -c 'time ./bootstrap --without-autotools xapian-core xapian-omega'
   - bash -c 'time ./configure --disable-documentation'
   - bash -c 'time make -k'
 test_script:
