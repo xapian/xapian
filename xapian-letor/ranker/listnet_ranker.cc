@@ -117,16 +117,12 @@ updateParameters(vector<double> &new_parameters, const vector<double> &gradient,
 }
 
 void
-ListNETRanker::train_model() {
-    LOGCALL_VOID(API, "ListNETRanker::train_model", NO_ARGS);
-
-    // get the training data
-    std::vector<Xapian::FeatureVector> fvv = get_traindata();
-    size_t fvv_len = fvv.size();
-
+ListNETRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data) {
+    LOGCALL_VOID(API, "ListNETRanker::train_model", training_data);
+    size_t fvv_len = training_data.size();
     int feature_cnt = -1;
     if (fvv_len != 0) {
-	feature_cnt = fvv[0].get_fcount();
+	feature_cnt = training_data[0].get_fcount();
     } else {
 	throw LetorInternalError("Training data is empty. Check training file.");
     }
@@ -136,9 +132,9 @@ ListNETRanker::train_model() {
     // iterations
     for (int iter_num = 1; iter_num < iterations; ++iter_num) {
 	// initialize Probability distributions of y and z
-	prob_distrib_vector prob = initializeProbability(fvv, new_parameters);
+	prob_distrib_vector prob = initializeProbability(training_data, new_parameters);
 	// compute gradient
-	vector<double> gradient = calculateGradient(fvv, prob);
+	vector<double> gradient = calculateGradient(training_data, prob);
 	// update parameters: w = w - gradient * learningRate
 	updateParameters(new_parameters, gradient, learning_rate);
     }
@@ -146,36 +142,46 @@ ListNETRanker::train_model() {
 }
 
 void
-ListNETRanker::save_model_to_file(const char* output_filename) {
-    LOGCALL_VOID(API, "ListNETRanker::save_model_to_file", output_filename);
-    ofstream parameters_file;
-    parameters_file.open(output_filename);
+ListNETRanker::save_model_to_metadata(const string & model_key) {
+    LOGCALL_VOID(API, "ListNETRanker::save_model_to_file", model_key);
+    Xapian::WritableDatabase letor_db(get_database_path());
+    string key = model_key;
+    if (key.empty()) {
+	key = "ListNET.model.default";
+    }
+    ostringstream oss;
     for (size_t i = 0; i <  parameters.size(); ++i)
-	parameters_file << setprecision(numeric_limits<double>::digits10) << parameters[i] << endl;
-    parameters_file.close();
+	oss << setprecision(numeric_limits<double>::digits10) << parameters[i] << endl;
+    string model_data = oss.str();
+    letor_db.set_metadata(key, model_data);
 }
 
 void
-ListNETRanker::load_model_from_file(const char* model_filename) {
-    LOGCALL_VOID(API, "ListNETRanker::load_model_from_file", model_filename);
-    vector<double> loaded_parameters;
-    fstream train_file (model_filename, ios::in);
-    if (!train_file.good()) {
-	throw Xapian::FileNotFoundError("No model file found. Check path.");
+ListNETRanker::load_model_from_metadata(const string & model_key) {
+    LOGCALL_VOID(API, "ListNETRanker::load_model_from_file", model_key);
+    Xapian::Database letor_db(get_database_path());
+    string key = model_key;
+    if (key.empty()) {
+	key = "ListNET.model.default";
     }
-    while (train_file.peek() != EOF) {
-	double parameter;
-	train_file >> parameter;
+    string model_data = letor_db.get_metadata(key);
+    // Throw exception if no model data associated with key
+    if (model_data.empty()) {
+	throw Xapian::LetorInternalError("No model found. Check key.");
+    }
+    vector<double> loaded_parameters;
+    istringstream model_str(model_data);
+    string line;
+    while (getline(model_str, line)) {
+	double parameter = stod(line);
 	loaded_parameters.push_back(parameter);
     }
-    train_file.close();
-    loaded_parameters.pop_back();
     swap(parameters, loaded_parameters);
 }
 
 std::vector<FeatureVector>
-ListNETRanker::rank(const std::vector<FeatureVector> & fvv) const {
-    LOGCALL(API, std::vector<FeatureVector>, "ListNETRanker::rank", fvv);
+ListNETRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
+    LOGCALL(API, std::vector<FeatureVector>, "ListNETRanker::rank_fvv", fvv);
     std::vector<FeatureVector> testfvv = fvv;
     for (size_t i = 0; i < testfvv.size(); ++i) {
 	double listnet_score = 0;
