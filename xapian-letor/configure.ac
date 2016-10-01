@@ -40,7 +40,7 @@ AC_SUBST([incdir])
 
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
-AC_CONFIG_SRCDIR([api/letor.cc])
+AC_CONFIG_SRCDIR([ranker/ranker.cc])
 
 AC_CONFIG_HEADERS([config.h])
 
