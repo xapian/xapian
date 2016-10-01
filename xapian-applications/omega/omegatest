@@ -210,6 +210,10 @@ testcase '' P=text a="Example" b="random"
 NEWLINE='
 '
 
+# Feature tests for boolprefix and prefix maps.
+printf '$set{stemmer,}$setmap{boolprefix,lang,L,host,H}$setmap{prefix,,XDEFAULT}$querydescription' > "$TEST_TEMPLATE"
+qtestcase '((XDEFAULTfoo@1 AND XDEFAULTbar@2) FILTER (Hexample.org AND Lzh))' P='host:example.org foo bar lang:zh'
+
 # Feature tests for $match.
 printf '$match{$cgi{a},$cgi{b},$cgi{c}}' > "$TEST_TEMPLATE"
 testcase 'true' P=text a="ab*c+" b="ac"
