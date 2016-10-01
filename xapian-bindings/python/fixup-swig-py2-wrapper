@@ -43,7 +43,7 @@ def _swig_repr(self):
     if hasattr(self.this, '__repr__'):
         strthis = "proxy of " + self.this.__repr__()
 __END__
-s/^def _swig_repr\(self\):.*?\n\n/$replace\n/sm or
+s/^def _swig_repr\(self\):.*?(\n    return)/$replace$1/sm or
     die "Failed to fix up _swig_repr";
 
 $replace = << '__END__';
