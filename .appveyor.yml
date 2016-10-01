@@ -11,8 +11,9 @@ install:
   - bash -c 'date -u; uname -a'
   - set PATH=C:\cygwin\bin;%PATH%
   - echo %PATH%
+  - bash -c 'uname -a'
 build_script:
-  - bash -c 'time ./bootstrap xapian-core --without-autotools'
+  - bash -c 'time ./bootstrap --without-autotools xapian-core'
   - bash -c 'time ./configure --disable-documentation'
   - bash -c 'time make -k'
 test_script:
