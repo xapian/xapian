@@ -2,7 +2,7 @@
  * @brief Provide UUID functions compatible with libuuid from util-linux-ng.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2013,2015 Olly Betts
+ * Copyright (C) 2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,8 @@ uuid_parse(const char * in, uuid_t uu)
     UUID uuid;
     // UuidFromString() requires a non-const unsigned char * pointer, though it
     // doesn't modify the passed string.
-    unsigned char * in_ = (unsigned char *)const_cast<char *>(in);
+    unsigned char * in_ =
+	reinterpret_cast<unsigned char *>(const_cast<char *>(in));
     if (UuidFromString(in_, &uuid) != RPC_S_OK)
 	return -1;
     uuid.Data1 = htonl(uuid.Data1);
@@ -79,19 +80,19 @@ uuid_parse(const char * in, uuid_t uu)
 void uuid_unparse_lower(const uuid_t uu, char * out)
 {
     UUID uuid;
-    char *uuidstr;
+    unsigned char *uuidstr;
     memcpy(&uuid, uu, UUID_SIZE);
     uuid.Data1 = htonl(uuid.Data1);
     uuid.Data2 = htons(uuid.Data2);
     uuid.Data3 = htons(uuid.Data3);
-    if (rare(UuidToString(&uuid, (unsigned char **)(&uuidstr)) != RPC_S_OK)) {
+    if (rare(UuidToString(&uuid, &uuidstr) != RPC_S_OK)) {
 	// The only documented (or really conceivable) error code is
 	// RPC_S_OUT_OF_MEMORY.
 	throw std::bad_alloc();
     }
-    memcpy(out, strlwr(uuidstr), UUID_STRING_SIZE);
+    memcpy(out, strlwr(reinterpret_cast<char*>(uuidstr)), UUID_STRING_SIZE);
     out[UUID_STRING_SIZE] = '\0';
-    RpcStringFree((unsigned char**)(&uuidstr));
+    RpcStringFree(&uuidstr);
 }
 
 void uuid_clear(uuid_t uu)
