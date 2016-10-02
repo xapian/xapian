@@ -864,7 +864,9 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    Xapian::Database dbcopy(replicapath);
 	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
 	}
+    }
 
+    {
 	// Corrupt replica by truncating all the files to size 0.
 	string d = replicapath;
 	d += "/replica_1";
