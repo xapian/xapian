@@ -16,6 +16,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/BoolWeight.cs \
 	generated-csharp/Chert.cs \
 	generated-csharp/Compactor.cs \
+	generated-csharp/CoordWeight.cs \
 	generated-csharp/Database.cs \
 	generated-csharp/DateRangeProcessor.cs \
 	generated-csharp/DateValueRangeProcessor.cs \
