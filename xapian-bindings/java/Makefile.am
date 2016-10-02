@@ -31,6 +31,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/BoolWeight.java\
 	org/xapian/Chert.java\
 	org/xapian/Compactor.java\
+	org/xapian/CoordWeight.java\
 	org/xapian/Database.java\
 	org/xapian/DateRangeProcessor.java\
 	org/xapian/DateValueRangeProcessor.java\
