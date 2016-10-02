@@ -17,4 +17,4 @@ build_script:
   - bash -c 'time ./configure --disable-documentation'
   - bash -c 'time make -k'
 test_script:
-  - bash -c 'time make check'
+  - bash -c 'time make -k check VERBOSE=1'
