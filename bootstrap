@@ -695,5 +695,28 @@ rm -f configure.tmp2
 chmod +x configure.tmp
 mv -f configure.tmp configure
 
+# git defaults to showing 7 character abbreviated hashes if that's enough to be
+# unique for a particular commit.  But you can't paste these into trac as it
+# needs at least 8 hex digits to recognise a hex string as a commit hash.  You
+# need 9 characters to be unique across all of Xapian at the time of writing,
+# and 12 for the Linux kernel currently (a much larger number of objects than
+# Xapian).  12 is a manageable length and decently future-proof, so let's use
+# that.
+core_abbrev_recommended=12
+core_abbrev=`git config --get core.abbrev`
+if [ -z "$core_abbrev" ] ; then
+  echo "*** Setting core.abbrev=$core_abbrev_recommended in repo config"
+  git config --local core.abbrev "$core_abbrev_recommended"
+elif [ "$core_abbrev" -lt "$core_abbrev_recommended" ] ; then
+  if [ -z "`git config --local core.abbrev`" ] ; then
+    # Set globally to < $core_abbrev_recommended, override in this repo.
+    echo "*** Setting core.abbrev=$core_abbrev_recommended in repo config to override global core.abbrev=$core_abbrev"
+    git config --local core.abbrev "$core_abbrev_recommended"
+  else
+    # Just warn.
+    echo "warning: core.abbrev=$core_abbrev set on this repo, at least $core_abbrev_recommended is recommended"
+  fi
+fi
+
 trap - EXIT
 echo "Bootstrapped successfully - now run \"$srcdir/configure\" and \"${MAKE-make}\""
