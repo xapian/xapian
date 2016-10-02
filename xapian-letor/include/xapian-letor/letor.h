@@ -2,6 +2,7 @@
  *  @brief weighting scheme based on Learning to Rank. Note: letor.h is not a part of official stable Xapian API.
  */
 /* Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,27 +28,41 @@
 #include <xapian/visibility.h>
 
 #include "featurelist.h"
+#include "letor_error.h"
+#include "ranker.h"
+#include "scorer.h"
 
 #include <string>
 #include <map>
+#include <vector>
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT Letor {
-  public:
     /// @private @internal Class representing the Letor internals.
     class Internal;
     /// @private @internal Reference counted internals.
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
-    /// Copy constructor.
-    Letor(const Letor & o);
-
-    /// Assignment.
-    Letor & operator=(const Letor & o);
-
+  public:
     /// Default constructor.
     Letor();
+
+    /** Constructor to initialise Letor object during training.
+     *  Xapian::Query(ies) are supplied via the 'query' file.
+     * @param db     Xapian::Database to use for LTR
+     * @param ranker Ranker to be used. By default it is ListNETRanker
+     */
+    Letor(const Xapian::Database & db, Xapian::Ranker * ranker = 0);
+
+    /** Constructor to initialise Letor object during ranking.
+     * @param db     Xapian::Database to use for LTR
+     * @param query  Xapian::Query which has to be queried
+     * @param ranker Ranker to be used. By default it is ListNETRanker
+     * @exception Xapian::InvalidArgumentError will be thrown if an empty
+     *  query is supplied
+     */
+    Letor(const Xapian::Database & db, const Xapian::Query & query, Xapian::Ranker * ranker = 0);
 
     /// Destructor.
     ~Letor();
@@ -55,8 +70,24 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
     /// Specify the database to use for retrieval. This database will be used directly by the methods of Xapian::Letor::Internal
     void set_database(const Xapian::Database & db);
 
-    /// Specify the query. This will be used by the internal class.
+    /** Specify the query. This will be used by the internal class.
+     * @param query  Xapian::Query which has to be queried
+     * @exception Xapian::InvalidArgumentError will be thrown if an empty
+     *  query is supplied
+     */
     void set_query(const Xapian::Query & query);
+
+    /** Set ranker to be used. E.g. set_ranker(new ListNETRanker());
+     *  Refer Ranker class documentation for available Ranker options.
+     * @param ranker  Pointer to Ranker subclass object to use
+     */
+    void set_ranker(Xapian::Ranker * ranker);
+
+    /** Set scorer to be used. E.g. set_ranker(new Xapian::NDCGScore());
+     *  Refer Scorer class documentation for available Scorer options.
+     * @param scorer  Pointer to Scorer subclass object to use
+     */
+    void set_scorer(Xapian::Scorer * scorer);
 
     /** Core ranking function. Re-ranks the initial mset using trained model.
      *
@@ -66,16 +97,18 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *                  Note: Make sure that this FeatureList object is the same as what was used during
      *                  preparation of the training file. //TODO: Replace this by a "feature.config" file prepared while training.
      *  @param  output_filename  Path to model file. Default is "./parameters.txt".
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
      *  @return A vector of docids after ranking.
      */
     std::vector<Xapian::docid> letor_rank(const Xapian::MSet & mset,
-					 Xapian::FeatureList & flist = * new Xapian::FeatureList(),
-					 const char* model_filename = "./parameters.txt");
+					  const char* model_filename = "./parameters.txt",
+					  const Xapian::FeatureList & flist = * new Xapian::FeatureList()) const;
 
     /** Learns the model using the training file.
      *  Model file is saved as an external file in the working directory.
      *  @param  input_filename   Path to training file. Default is "./train.txt".
      *  @param  output_filename  Path to file where model parameters will be stored. Default is "./parameters.txt".
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
      */
     void letor_learn_model(const char* input_filename = "./train.txt",
 			   const char* output_filename = "./parameters.txt");
@@ -99,14 +132,39 @@ class XAPIAN_VISIBILITY_DEFAULT Letor {
      *  @param  flist      Xapian::FeatureList object definining what set of features to use for preparing the training file.
      *          It is initialised by DEFAULT set of Features by default.
      *          To use a custom set of features, pass a customised Xapian::FeatureList object.
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
+     *  @exception LetorParseError will be thrown if query file or qrel file could not be parsed
      */
     void prepare_training_file(const std::string & query_file,
 			       const std::string & qrel_file,
 			       Xapian::doccount msetsize,
 			       const char* filename = "./train.txt",
-			       Xapian::FeatureList & flist = * new Xapian::FeatureList());
+			       const Xapian::FeatureList & flist = * new Xapian::FeatureList());
 
-    void create_ranker(int ranker_type, int metric_type); // TODO: Remove function and update as command line utility. Same for scorers as well.
+    /** Method to score the LTR ranking.
+     * @param query_file    Query file containing test queries in letor specified format
+     * @param qrel_file     Qrel file containing relevance judgements for the queries in letor specified format
+     * @param model_file    Model to check for ranking quality
+     * @param output_file   Output file noting scoring results
+     * @param msetsize      MSet size of retrieved documents
+     * @param flist         Xapian::FeatureList object definining what set of features to use. Note: Make
+     *                       sure that it is same as what was used while training the model being used.
+     *  @exception FileNotFoundError will be thrown if file not found at supplied path
+     *  @exception LetorParseError will be thrown if query file or qrel file could not be parsed
+     */
+    void letor_score(const std::string & query_file,
+		     const std::string & qrel_file,
+		     const std::string & model_file,
+		     const std::string & output_file,
+		     Xapian::doccount msetsize,
+		     const Xapian::FeatureList & flist = * new Xapian::FeatureList());
+
+  private:
+    /// Don't allow copy
+    Letor(const Letor & o);
+
+    /// Don't allow assignment
+    Letor & operator=(const Letor & o);
 
 };
 

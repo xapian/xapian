@@ -24,15 +24,16 @@ my %uncopyableclasses = (
 );
 
 my %copyableclasses = (
-    'Letor' => '',
     'FeatureVector' => ''
 );
 
 my %no_get_description = (
-    'Letor' => '',
     'FeatureVector' => '',
     'Feature' => '',
-    'FeatureList' => ''
+    'FeatureList' => '',
+    'Letor' => '',
+    'ListNETRanker' => '',
+    'NDCGScore' => ''
 );
 
 print <<'END';

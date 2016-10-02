@@ -125,6 +125,10 @@ fi
 dnl Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 
+dnl C++11 should have log2(), but keep this check for now to allow for
+dnl compilers with incomplete library support for C++11.
+AC_CHECK_DECLS([log2], [], [], [#include <cmath>])
+
 dnl libsvm is required.
 AC_CHECK_HEADER([libsvm/svm.h], [], AC_MSG_ERROR([libsvm required but libsvm/svm.h not found]), [ ])
 save_LIBS=$LIBS

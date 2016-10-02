@@ -1,8 +1,9 @@
 /** @file letor.cc
- * @brief Letor Class
+ * @brief Letor Class definition
  */
 /* Copyright (C) 2011 Parth Gupta
  * Copyright (C) 2012 Olly Betts
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,71 +22,119 @@
  */
 
 #include <config.h>
-#include <xapian-letor/letor.h>
-#include "letor_internal.h"
-#include "xapian-letor/ranker.h"
 
-#include <iostream>
-#include <vector>
+#include "xapian-letor/letor.h"
+#include "xapian-letor/ranker.h"
+#include "letor_internal.h"
+
+#include "debuglog.h"
+
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 
 namespace Xapian {
 
-Letor::Letor(const Letor & o) : internal(o.internal) { }
-
-Letor &
-Letor::operator=(const Letor & o)
+Letor::Letor() : internal(new Letor::Internal)
 {
-    internal = o.internal;
-    return *this;
+    LOGCALL_CTOR(API, "Letor", NO_ARGS);
 }
 
-Letor::Letor() : internal(new Letor::Internal) { }
+Letor::Letor(const Xapian::Database & db, Xapian::Ranker * ranker)
+{
+    LOGCALL_CTOR(API, "Letor", db | ranker);
+    internal = new Letor::Internal();
+    internal->letor_db = db;
+    if (ranker == 0) {
+	internal->ranker = new ListNETRanker();
+    } else {
+	internal->ranker = ranker;
+    }
+}
 
-Letor::~Letor() { }
+Letor::Letor(const Xapian::Database & db, const Xapian::Query & query, Xapian::Ranker * ranker)
+{
+    LOGCALL_CTOR(API, "Letor", db | query | ranker);
+    if (query.empty()) {
+	throw Xapian::InvalidArgumentError("Can't initialise with an empty Query object");
+    }
+    internal = new Letor::Internal();
+    internal->letor_db = db;
+    internal->letor_query = query;
+    if (ranker == 0) {
+	internal->ranker = new ListNETRanker();
+    } else {
+	internal->ranker = ranker;
+    }
+}
 
+Letor::~Letor()
+{
+    LOGCALL_DTOR(API, "Letor");
+}
 
 void
-Letor::set_database(const Xapian::Database & db) {
+Letor::set_database(const Xapian::Database & db)
+{
+    LOGCALL_VOID(API, "Letor::set_database", db);
     internal->letor_db = db;
 }
 
 void
-Letor::set_query(const Xapian::Query & query) {
+Letor::set_query(const Xapian::Query & query)
+{
+    LOGCALL_VOID(API, "Letor::set_query", query);
+    if (query.empty()) {
+	throw Xapian::InvalidArgumentError("Can't initialise with an empty Query object");
+    }
     internal->letor_query = query;
 }
 
 std::vector<Xapian::docid>
-Letor::letor_rank(const Xapian::MSet & mset, Xapian::FeatureList & flist, const char* model_filename) {
-    return internal->letor_rank(mset, flist, model_filename);
+Letor::letor_rank(const Xapian::MSet & mset, const char* model_filename, const Xapian::FeatureList & flist) const
+{
+    LOGCALL(API, std::vector<Xapian::docid>, "Letor::letor_rank", mset | model_filename | flist);
+    return internal->letor_rank(mset, model_filename, flist);
 }
 
 void
-Letor::letor_learn_model(const char* input_filename, const char* output_filename) {
+Letor::letor_learn_model(const char* input_filename, const char* output_filename)
+{
+    LOGCALL_VOID(API, "Letor::letor_learn_model", input_filename | output_filename);
     internal->letor_learn_model(input_filename, output_filename);
 }
 
 void
 Letor::prepare_training_file(const string & query_file, const string & qrel_file,
 			     Xapian::doccount msetsize, const char* filename,
-			     Xapian::FeatureList & flist) {
-
+			     const Xapian::FeatureList & flist)
+{
+    LOGCALL_VOID(API, "Letor::prepare_training_file", query_file | qrel_file | msetsize | filename | flist);
     internal->prepare_training_file(query_file, qrel_file, msetsize, filename, flist);
 }
 
 void
-Letor::create_ranker(int ranker_type, int metric_type) { //TODO: update when adding rankers
-    // switch(ranker_type) {
-    //     case 0: internal->ranker = new SVMRanker(metric_type);
-    //             cout << "SVMRanker created!" <<endl;
-    //             break;
-    //     case 1: break;
-    //     default:cout<<"Please specify proper ranker.";
-    (void)ranker_type;
-    (void)metric_type;
+Letor::set_ranker(Xapian::Ranker * ranker)
+{
+    LOGCALL_VOID(API, "Letor::set_ranker", ranker);
+    internal->ranker = ranker;
+}
+
+void
+Letor::set_scorer(Xapian::Scorer * scorer)
+{
+    LOGCALL_VOID(API, "Letor::set_scorer", scorer);
+    internal->scorer = scorer;
+}
+
+void
+Letor::letor_score(const std::string & query_file, const std::string & qrel_file,
+		   const std::string & model_file, const std::string & output_file,
+		   Xapian::doccount msetsize, const Xapian::FeatureList & flist) {
+    LOGCALL_VOID(API, "Letor::letor_score", query_file | qrel_file | model_file | output_file | msetsize | flist);
+    internal->letor_score(query_file, qrel_file, model_file, output_file, msetsize, flist);
 }
 
 }

@@ -29,6 +29,7 @@
 
 #include "feature.h"
 #include "featurevector.h"
+#include "letor_error.h"
 
 #include <map>
 #include <string>
@@ -38,7 +39,6 @@ namespace Xapian {
 
 /// Class defining list of features to be used for constructing FeatureVector
 class XAPIAN_VISIBILITY_DEFAULT FeatureList {
-
     /// Vector containing Feature pointer objects. Each will be used to return feature value.
     std::vector<Feature *> feature;
 
@@ -82,12 +82,12 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
      */
     std::vector<Xapian::FeatureVector> create_feature_vectors(const Xapian::MSet & mset,
 							     const Xapian::Query & letor_query,
-							     const Xapian::Database & letor_db);
+							     const Xapian::Database & letor_db) const;
 
   private:
 
     /// Perform query-level normalisation of FeatureVectors.
-    void normalise(std::vector<FeatureVector> & fvec);
+    void normalise(std::vector<FeatureVector> & fvec) const;
 
 };
 

@@ -42,14 +42,15 @@ EXTRA_PROGRAMS =
 check-@PERCENT@:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) $@
 
-EXTRA_DIST = ChangeLog
+EXTRA_DIST = ChangeLog include/xapian-letor/letor_error.h \
+ include/xapian-letor/letor_errordispatch.h generate-exceptions exception_data.pm
 
 lib_LTLIBRARIES = libxapianletor.la
 libxapianletor_la_SOURCES = $(lib_src)
 libxapianletor_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+	$(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
-libxapianletor_la_LIBADD = $(XAPIAN_LIBS)
+libxapianletor_la_LIBADD = $(XAPIAN_LIBS) libcommon_str.la
 
 lib_src =
 
@@ -61,14 +62,29 @@ include api/Makefile.mk
 include bin/Makefile.mk
 include include/Makefile.mk
 include feature/Makefile.mk
+include ranker/Makefile.mk
+include scorer/Makefile.mk
+
+noinst_LTLIBRARIES += libcommon_str.la
+libcommon_str_la_SOURCES = common/str.cc
+
+xapianletorinclude_HEADERS += include/xapian-letor/letor_error.h
+
+if MAINTAINER_MODE
+BUILT_SOURCES += include/xapian-letor/letor_error.h include/xapian-letor/letor_errordispatch.h
+
+include/xapian-letor/letor_error.h include/xapian-letor/letor_errordispatch.h: generate-exceptions exception_data.pm
+	$(PERL) -w -I"$(srcdir)" "$(srcdir)/generate-exceptions"
+endif
+
+MAINTAINERCLEANFILES += $(BUILT_SOURCES)
 
 libxapianletor_la_LIBADD += $(LIBSVM_LIBS)
 
 noinst_HEADERS +=\
+	common/gnu_getopt.h\
 	common/safeunistd.h\
 	common/str.h\
 	common/stringutils.h
-
-
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"

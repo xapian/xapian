@@ -1,8 +1,9 @@
-/** @file questletor.cc
+/** @file xapian-rank.cc
  * @brief Command line search tool using Xapian::QueryParser and Xapian::Letor
  */
 /* Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
  * Copyright (C) 2011 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,35 +24,21 @@
 #include <config.h>
 
 #include <xapian.h>
-#include "xapian-letor/letor.h"
-
-#include <cstdlib>
-#include <cstring>
-#include <stdio.h>
-#include <stdlib.h>
+#include <xapian-letor.h>
 
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <string>
-#include <map>
-#include <set>
-#include <math.h>
 
 #include "gnu_getopt.h"
 
 using namespace std;
 
-#define PROG_NAME "letor"
-#define PROG_DESC "Xapian command line search tool with Lerning to Rank Facility"
+#define PROG_NAME "xapian-rank"
+#define PROG_DESC "Xapian command line search tool with Learning to Rank Facility"
 
-typedef std::pair<Xapian::docid, double> MyPair;
-
-struct MyTestCompare {
-    bool operator()(const MyPair& firstPair, const MyPair& secondPair) const {
-	return firstPair.second < secondPair.second;
-    }
-};
+#define OPT_HELP 1
+#define OPT_VERSION 2
 
 // Stopwords:
 static const char * sw[] = {
@@ -67,32 +54,32 @@ static const char * sw[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] 'QUERY'\n"
-"NB: QUERY should be quoted to protect it from the shell.\n\n"
-"Options:\n"
-"  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
-"  -m, --msize=MSIZE   maximum number of matches to return\n"
-"  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
-"                      (pass 'none' to disable stemming)\n"
-"  -p, --prefix=PFX:TERMPFX  Add a prefix\n"
-"  -b, --boolean-prefix=PFX:TERMPFX  Add a boolean prefix\n"
-"  -h, --help          display this help and exit\n"
-"  -v, --version       output version information and exit\n";
+    cout << "Usage: " PROG_NAME " [OPTIONS] <modelfile> 'QUERY'\n"
+    "NB: QUERY should be quoted to protect it from the shell.\n\n"
+    "Options:\n"
+    "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
+    "  -m, --msize=MSIZE   maximum number of matches to return\n"
+    "  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
+    "                      (pass 'none' to disable stemming)\n"
+    "  -p, --prefix=PFX:TERMPFX  Add a prefix\n"
+    "  -b, --boolean-prefix=PFX:TERMPFX  Add a boolean prefix\n"
+    "      --help          display this help and exit\n"
+    "      --version       output version information and exit\n";
 }
 
 int
 main(int argc, char **argv)
 try {
-    const char * opts = "d:m:s:p:b:hv";
+    const char * opts = "d:f:m:s:p:b:h:v";
     static const struct option long_opts[] = {
-	{ "db",		required_argument, 0, 'd' },
-	{ "msize",	required_argument, 0, 'm' },
-	{ "stemmer",	required_argument, 0, 's' },
-	{ "prefix",	required_argument, 0, 'p' },
-	{ "boolean-prefix",	required_argument, 0, 'b' },
-	{ "help",	no_argument, 0, 'h' },
-	{ "version",	no_argument, 0, 'v' },
-	{ NULL,		0, 0, 0}
+	{ "db",     required_argument, 0, 'd' },
+	{ "msize",  required_argument, 0, 'm' },
+	{ "stemmer",    required_argument, 0, 's' },
+	{ "prefix", required_argument, 0, 'p' },
+	{ "boolean-prefix", required_argument, 0, 'b' },
+	{ "help",   no_argument, 0, OPT_HELP },
+	{ "version",    no_argument, 0, OPT_VERSION },
+	{ NULL,     0, 0, 0}
     };
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
@@ -103,30 +90,30 @@ try {
 
     Xapian::Database db;
     Xapian::QueryParser parser;
-	parser.add_prefix("title","S");
-	parser.add_prefix("subject","S");
+    parser.add_prefix("title","S");
+    parser.add_prefix("subject","S");
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
-	    case 'm':
-		msize = atoi(optarg);
-		break;
 	    case 'd':
 		db.add_database(Xapian::Database(optarg));
 		have_database = true;
+		break;
+	    case 'm':
+		msize = atoi(optarg);
 		break;
 	    case 's':
 		try {
 		    stemmer = Xapian::Stem(optarg);
 		} catch (const Xapian::InvalidArgumentError &) {
 		    cerr << "Unknown stemming language '" << optarg << "'.\n"
-			    "Available language names are: "
-			 << Xapian::Stem::get_available_languages() << endl;
+			"Available language names are: "
+		     << Xapian::Stem::get_available_languages() << endl;
 		    exit(1);
 		}
 		break;
-	    case 'b': case 'p': {
+	    case 'p': case 'b': {
 		const char * colon = strchr(optarg, ':');
 		if (colon == NULL) {
 		    cerr << argv[0] << ": need ':' when setting prefix" << endl;
@@ -141,12 +128,12 @@ try {
 		}
 		break;
 	    }
-	    case 'v':
-		cout << PROG_NAME " - " PACKAGE_STRING << endl;
-		exit(0);
-	    case 'h':
+	    case OPT_HELP:
 		cout << PROG_NAME " - " PROG_DESC "\n\n";
 		show_usage();
+		exit(0);
+	    case OPT_VERSION:
+		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case ':': // missing parameter
 	    case '?': // unknown option
@@ -155,10 +142,12 @@ try {
 	}
     }
 
-    if (argc - optind != 1) {
+    if (argc - optind != 2) {
 	show_usage();
 	exit(1);
     }
+
+    char * model_path = argv[optind];
 
     parser.set_database(db);
     parser.set_default_op(Xapian::Query::OP_OR);
@@ -166,16 +155,15 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    
-    string qq=argv[optind];
-    istringstream iss(argv[optind]);
-    string title="title:";
+    string qq=argv[optind + 1];
+    istringstream iss(argv[optind + 1]);
+    string title = "title:";
     while(iss) {
 	string t;
 	iss >> t;
-	if (t=="")
+	if (t == "")
 	    break;
-	string temp="";
+	string temp = "";
 	temp.append(title);
 	temp.append(t);
 	temp.append(" ");
@@ -185,8 +173,8 @@ try {
     cout << "Final Query " << qq << "\n";
 
     Xapian::Query query = parser.parse_query(qq,
-					     parser.FLAG_DEFAULT|
-					     parser.FLAG_SPELLING_CORRECTION);
+			 parser.FLAG_DEFAULT|
+			 parser.FLAG_SPELLING_CORRECTION);
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
@@ -203,39 +191,34 @@ try {
 
     Xapian::MSet mset = enquire.get_mset(0, msize);
 
-    Xapian::TermIterator qt,qt_end,temp,temp_end,docterms,docterms_end;
-    Xapian::PostingIterator p,pend;
-
-    Xapian::Letor ltr;
-/*
-    ltr.set_database(db);
-    ltr.set_query(query);
-    ltr.create_ranker(0);
-
-    ltr.prepare_training_file("/home/encoder/gsoc/inex/topics.txt.short","/home/encoder/gsoc/inex/2010-assessments/inex2010-article.qrels",100);
-
-    ltr.letor_learn_model(4,0);
-    map<Xapian::docid,double> letor_mset = ltr.letor_score(mset);
-
-    set<MyPair,MyTestCompare> s;
-    map<Xapian::docid, double>::iterator iter = letor_mset.begin();
-    map<Xapian::docid, double>::iterator endIter = letor_mset.end();
-
-    for (; iter != endIter; ++iter) {
-       s.insert(*iter);
+    if (mset.empty()) {
+	cout << "Empty MSet. No documents could be retrieved with the given Query." << endl;
+	exit(1);
     }
 
-    set<MyPair,MyTestCompare>::iterator it;
+    cout << "Docids before re-ranking by LTR model:" << endl;
+    int rank = 0;
+    for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 
-    int rank=1;
-    for (it = s.end(); it != s.begin(); it--) {
-	cout << "Item: " << rank << "\t" << (*it).second << "\n";
-
-	Xapian::Document doc = db.get_document((*it).first);
-	cout << doc.get_data() << "\n";
-	rank++;
+	Xapian::Document doc = i.get_document();
+	Xapian::docid did = doc.get_docid();
+	cout << "Rank " << ++rank << ": " << did << endl;
     }
-*/
+
+    // Initialise Letor object with db, query and ListNETRanker
+    // If not explicitly passed as done below, the default ranker is used.
+    // See Ranker documentation for available Ranker options.
+    Xapian::Ranker * ranker = new Xapian::ListNETRanker();
+    Xapian::Letor ltr(db, query, ranker);
+
+    // Get vector of re-ranked docids
+    std::vector<Xapian::docid> ranked_docids = ltr.letor_rank(mset, model_path);
+
+    cout << "Docids after re-ranking by LTR model:" << endl;
+    rank = 0;
+    for (int i = 0; i < int(ranked_docids.size()); i++)
+	cout<< "Rank " << ++rank << ": " << ranked_docids[i] << endl;
+
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;
@@ -244,6 +227,3 @@ try {
     cout << err.get_description() << endl;
     exit(1);
 }
-
-
-

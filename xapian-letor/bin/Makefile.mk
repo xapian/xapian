@@ -1,30 +1,47 @@
 bin_PROGRAMS +=\
-	bin/questletor\
-	bin/xapian-letor-update
-
-bin_questletor_SOURCES =\
-	bin/questletor.cc\
-	common/getopt.cc\
-	common/gnu_getopt.h
-bin_questletor_LDADD = libxapianletor.la
+	bin/xapian-letor-update\
+	bin/xapian-prepare-trainingfile\
+	bin/xapian-rank\
+	bin/xapian-train
 
 bin_xapian_letor_update_SOURCES =\
 	bin/xapian-letor-update.cc\
-	common/getopt.cc\
-	common/gnu_getopt.h\
-	common/str.cc
-bin_xapian_letor_update_LDADD = $(XAPIAN_LIBS)
+	common/getopt.cc
+bin_xapian_letor_update_LDADD = $(XAPIAN_LIBS) libcommon_str.la
+
+bin_xapian_prepare_trainingfile_SOURCES =\
+	bin/xapian-prepare-trainingfile.cc\
+	common/getopt.cc
+bin_xapian_prepare_trainingfile_LDADD = libxapianletor.la
+
+bin_xapian_rank_SOURCES =\
+	bin/xapian-rank.cc\
+	common/getopt.cc
+bin_xapian_rank_LDADD = libxapianletor.la
+
+bin_xapian_train_SOURCES =\
+	bin/xapian-train.cc\
+	common/getopt.cc
+bin_xapian_train_LDADD = libxapianletor.la
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
-	bin/questletor.1\
-	bin/xapian-letor-update.1
+	bin/xapian-letor-update.1\
+	bin/xapian-prepare-trainingfile.1\
+	bin/xapian-rank.1\
+	bin/xapian-train.1
 endif
 
 if DOCUMENTATION_RULES
-bin/questletor.1: bin/questletor$(EXEEXT) makemanpage
-	./makemanpage bin/questletor $(srcdir)/bin/questletor.cc bin/questletor.1
-
 bin/xapian-letor-update.1: bin/xapian-letor-update$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-letor-update $(srcdir)/bin/xapian-letor-update.cc bin/xapian-letor-update.1
+
+bin/xapian-prepare-trainingfile.1: bin/xapian-prepare-trainingfile$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-prepare-trainingfile $(srcdir)/bin/xapian-prepare-trainingfile.cc bin/xapian-prepare-trainingfile.1
+
+bin/xapian-train.1: bin/xapian-train$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-train $(srcdir)/bin/xapian-train.cc bin/xapian-train.1
 endif
+
+bin/xapian-rank.1: bin/xapian-rank$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-rank $(srcdir)/bin/xapian-rank.cc bin/xapian-rank.1

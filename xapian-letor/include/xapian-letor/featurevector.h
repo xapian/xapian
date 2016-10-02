@@ -1,6 +1,8 @@
-/* featurevector.h: The file responsible for transforming the document into the feature space.
- *
- * Copyright (C) 2012 Parth Gupta
+/** @file featurevector.h
+ * @brief The class for transforming the document into the feature space.
+ */
+/* Copyright (C) 2012 Parth Gupta
+ * Copyright (C) 2016 Ayush Tomar
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,18 +29,19 @@
 #include <xapian/types.h>
 #include <xapian/visibility.h>
 
+#include "letor_error.h"
+
 #include <vector>
 
 namespace Xapian {
 
 class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
+    /// @private @internal Class representing the FeatureVector internals.
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:
-
-    /// @internal Class representing the FeatureVector internals.
-    class Internal;
-    /// @internal Reference counted internals.
-    Xapian::Internal::intrusive_ptr<Internal> internal;
 
     /// Default constructor.
     FeatureVector();
@@ -56,13 +59,13 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureVector {
     ~FeatureVector();
 
     /// Set docid corresponding to the FeatureVector object
-    void set_did(const Xapian::docid & did);
+    void set_did(Xapian::docid did);
 
     /// Set training label corresponding to the FeatureVector object
-    void set_label(const double label);
+    void set_label(double label);
 
     /// Set score corresponding to the FeatureVector object
-    void set_score(const double score);
+    void set_score(double score);
 
     /// Set vector of feature values returned by Feature objects
     void set_fvals(const std::vector<double> & fvals);
