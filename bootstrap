@@ -703,7 +703,7 @@ mv -f configure.tmp configure
 # Xapian).  12 is a manageable length and decently future-proof, so let's use
 # that.
 core_abbrev_recommended=12
-core_abbrev=`git config --get core.abbrev`
+core_abbrev=`git config --get core.abbrev||:`
 if [ -z "$core_abbrev" ] ; then
   echo "*** Setting core.abbrev=$core_abbrev_recommended in repo config"
   git config --local core.abbrev "$core_abbrev_recommended"
