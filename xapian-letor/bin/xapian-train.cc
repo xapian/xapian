@@ -40,9 +40,9 @@ using namespace std;
 #define OPT_VERSION 2
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] <trainingfile> <modelfile>\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] <trainingfile> <model_metadata_key>\n"
     "Options:\n"
-    "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
+    "  -d, --db=DIRECTORY  path to database to search\n"
     "      --help          display this help and exit\n"
     "      --version       output version information and exit\n";
 }
@@ -60,13 +60,13 @@ try {
 
     bool have_database = false;
 
-    Xapian::Database db;
+    string db_path;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'd':
-		db.add_database(Xapian::Database(optarg));
+		db_path = optarg;
 		have_database = true;
 		break;
 	    case OPT_HELP:
@@ -88,22 +88,23 @@ try {
 	exit(1);
     }
 
-    char * trainingfile = argv[optind];
-    char * modelfile = argv[optind + 1];
+    string trainingfile = argv[optind];
+    string model_metadata_key = argv[optind + 1];
 
     if (!have_database) {
 	cout << "No database specified so not running the query." << endl;
 	exit(0);
     }
 
-    // Initialise Letor object with db, query and ListNETRanker
-    // If not explicitly passed as done below, the default ranker is used.
+    // Initialise Ranker object.
     // See Ranker documentation for available Ranker options.
     Xapian::Ranker * ranker = new Xapian::ListNETRanker();
-    Xapian::Letor ltr(db, ranker);
 
-    /// Learn and save the model.
-    ltr.letor_learn_model(trainingfile, modelfile);
+    // Set database
+    ranker->set_database_path(db_path);
+
+    // Perform training and save model as database metadata with key "model_metadata_key"
+    ranker->train_model(trainingfile, model_metadata_key);
 
     cout << flush;
 

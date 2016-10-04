@@ -54,10 +54,10 @@ static const char * sw[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] <modelfile> 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] <model_metadata_key> 'QUERY'\n"
     "NB: QUERY should be quoted to protect it from the shell.\n\n"
     "Options:\n"
-    "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
+    "  -d, --db=DIRECTORY  path to database to search\n"
     "  -m, --msize=MSIZE   maximum number of matches to return\n"
     "  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
     "                      (pass 'none' to disable stemming)\n"
@@ -88,7 +88,7 @@ try {
 
     bool have_database = false;
 
-    Xapian::Database db;
+    string db_path;
     Xapian::QueryParser parser;
     parser.add_prefix("title","S");
     parser.add_prefix("subject","S");
@@ -97,7 +97,7 @@ try {
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'd':
-		db.add_database(Xapian::Database(optarg));
+		db_path = optarg;
 		have_database = true;
 		break;
 	    case 'm':
@@ -147,7 +147,9 @@ try {
 	exit(1);
     }
 
-    char * model_path = argv[optind];
+    string model_metadata_key = argv[optind];
+
+    Xapian::Database db(db_path);
 
     parser.set_database(db);
     parser.set_default_op(Xapian::Query::OP_OR);
@@ -205,14 +207,14 @@ try {
 	cout << "Rank " << ++rank << ": " << did << endl;
     }
 
-    // Initialise Letor object with db, query and ListNETRanker
-    // If not explicitly passed as done below, the default ranker is used.
+    // Initialise Letor object with db, query and ListNETRanker.
     // See Ranker documentation for available Ranker options.
     Xapian::Ranker * ranker = new Xapian::ListNETRanker();
-    Xapian::Letor ltr(db, query, ranker);
+    ranker->set_database_path(db_path);
+    ranker->set_query(query);
 
     // Get vector of re-ranked docids
-    std::vector<Xapian::docid> ranked_docids = ltr.letor_rank(mset, model_path);
+    std::vector<Xapian::docid> ranked_docids = ranker->rank(mset, model_metadata_key);
 
     cout << "Docids after re-ranking by LTR model:" << endl;
     rank = 0;
