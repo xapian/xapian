@@ -389,6 +389,14 @@ intree_swig=no
 modules=
 for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
   d=$module
+  if [ "$d" = swig ] ; then
+    if [ -f "xapian-bindings/.nobootstrap" ] ; then
+      # No point bootstrapping SWIG if we aren't going to use it.
+      echo "Skipping '$d' due to presence of 'xapian-bindings/.nobootstrap'."
+      continue
+    fi
+    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
+  fi
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     :
   else
@@ -402,14 +410,6 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ;
     continue
   fi
   case $d in
-  swig)
-    if [ -f "xapian-bindings/.nobootstrap" ] ; then
-      # No point bootstrapping SWIG if we aren't going to use it.
-      echo "Skipping '$d' due to presence of 'xapian-bindings/.nobootstrap'."
-      continue
-    fi
-    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
-    ;;
   xapian-applications/omega|xapian-letor)
     # If someone's created a directory for common, leave it be.
     if [ -h "$d/common" ] || [ ! -d "$d/common" ] ; then
