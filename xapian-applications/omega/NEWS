@@ -57,7 +57,7 @@ omega:
 
 * Add optional prefix argument to $terms.
 
-* $snippet now uses MSet::get_snippet() instead of the Snipper class.
+* $snippet now uses MSet::snippet() instead of the Snipper class.
 
 * Add $contains{STRING1,STRING2}.  Contributed by Ayush Gupta.
 
