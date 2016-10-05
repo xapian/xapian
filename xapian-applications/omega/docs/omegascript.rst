@@ -610,7 +610,7 @@ $slice{LIST,POSITIONS}
 
 $snippet{TEXT[,LENGTH]}
         Generate a context-sensitive snippet from ``TEXT`` using
-        ``Xapian::MSet::get_snippet()``.  The snippet will be at most
+        ``Xapian::MSet::snippet()``.  The snippet will be at most
         ``LENGTH`` bytes long (default: 200).
 
 $split{STRING}
