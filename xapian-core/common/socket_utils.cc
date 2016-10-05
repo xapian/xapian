@@ -28,6 +28,7 @@ using namespace std;
 
 #ifndef __WIN32__
 # include <sys/socket.h>
+# include <sys/time.h>
 #else
 # include "safeerrno.h"
 
