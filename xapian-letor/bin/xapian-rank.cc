@@ -207,8 +207,8 @@ try {
 	cout << "Rank " << ++rank << ": " << did << endl;
     }
 
-    // Initialise Letor object with db, query and ListNETRanker.
-    // See Ranker documentation for available Ranker options.
+    // Initialise Ranker object with ListNETRanker instance, db path and query.
+    // See Ranker documentation for available Ranker subclass options.
     Xapian::Ranker * ranker = new Xapian::ListNETRanker();
     ranker->set_database_path(db_path);
     ranker->set_query(query);

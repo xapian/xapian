@@ -97,7 +97,7 @@ try {
     }
 
     // Initialise Ranker object.
-    // See Ranker documentation for available Ranker options.
+    // See Ranker documentation for available Ranker subclass options.
     Xapian::Ranker * ranker = new Xapian::ListNETRanker();
 
     // Set database
