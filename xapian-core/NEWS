@@ -191,7 +191,7 @@ This release includes all changes from 1.2.23 which are relevant.
 
 API:
 
-* The Snipper class has been replaced with a new MSet::get_snippet() method.
+* The Snipper class has been replaced with a new MSet::snippet() method.
   The implementation has also been redone - the existing implementation was
   slower than ideal, and didn't directly consider the query so would sometimes
   selects a snippet which doesn't contain any of the query terms (which users
