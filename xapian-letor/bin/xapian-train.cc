@@ -40,7 +40,7 @@ using namespace std;
 #define OPT_VERSION 2
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] <trainingfile> <model_metadata_key>\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] PATH_TO_TRAINING_FILE MODEL_METADATA_KEY\n"
     "Options:\n"
     "  -d, --db=DIRECTORY  path to database to search\n"
     "      --help          display this help and exit\n"
@@ -105,6 +105,8 @@ try {
 
     // Perform training and save model as database metadata with key "model_metadata_key"
     ranker->train_model(trainingfile, model_metadata_key);
+
+    delete ranker;
 
     cout << flush;
 

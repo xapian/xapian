@@ -40,7 +40,7 @@ using namespace std;
 #define OPT_VERSION 2
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] <queryfile> <qrelfile> <trainingfile>\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] PATH_TO_QUERY_FILE PATH_TO_QREL_FILE PATH_TO_TRAINING_FILE\n"
     "Options:\n"
     "  -d, --db=DIRECTORY  path to database to search\n"
     "  -m, --msize=MSIZE   maximum number of matches to return\n"
