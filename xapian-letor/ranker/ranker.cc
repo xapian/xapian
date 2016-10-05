@@ -188,7 +188,7 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 	for (int k = 0; k < fv.get_fcount(); ++k) {
 	    train_file << " " << (k+1) << ":" << fvals[k];
 	}
-	train_file << " #docid=" << did<<endl;
+	train_file << " #docid=" << did << endl;
     }
 }
 
