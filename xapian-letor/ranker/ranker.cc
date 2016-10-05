@@ -22,10 +22,11 @@
 
 #include <config.h>
 
+#include "xapian-letor/ranker.h"
+
 #include "xapian-letor/featurelist.h"
 #include "xapian-letor/featurevector.h"
 #include "xapian-letor/letor_error.h"
-#include "xapian-letor/ranker.h"
 #include "xapian-letor/scorer.h"
 
 #include "debuglog.h"
@@ -64,7 +65,7 @@ static const char * sw[] = {
 static vector<FeatureVector>
 load_list_fvecs(const string & filename)
 {
-    fstream train_file (filename, ios::in);
+    fstream train_file(filename, ios::in);
     if (!train_file.good())
 	throw Xapian::FileNotFoundError("No training file found. Check path.");
 
@@ -154,15 +155,13 @@ load_relevance(const std::string & qrel_file)
 	    }
 	    // Exceptions for parse errors
 	    if (token.size() != 4 || token[1] != "Q0") {
-		throw LetorParseError("Could not parse Qrel file at line:" + Xapian::Internal::str(qrel_count));
+		throw LetorParseError("Could not parse Qrel file at line:" + str(qrel_count));
 	    }
 	    // Exception if relevance label is not a number
-	    int label;
 	    char * end;
-	    label = int(strtol(token[3].c_str(), &end, 10));
+	    int label = int(strtol(token[3].c_str(), &end, 10));
 	    if (*end) {
-		throw LetorParseError("Could not parse relevance label in Qrel file at line:"
-				       + Xapian::Internal::str(qrel_count));
+		throw LetorParseError("Could not parse relevance label in Qrel file at line:" + str(qrel_count));
 	    }
 	    qrel1[token[0]].insert(make_pair(token[2], label));
 	}
@@ -219,7 +218,7 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
     string str1;
     ifstream myfile1;
     myfile1.open(queryfile.c_str(), ios::in);
-    if(!myfile1.good()) {
+    if (!myfile1.good()) {
 	throw Xapian::FileNotFoundError("No Query file found. Check path.");
     }
 
@@ -243,17 +242,17 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 
 	// Exceptions for parse errors
 	if (token.size() != 2) {
-	    throw LetorParseError("Could not parse Query file at line:" + Xapian::Internal::str(query_count));
+	    throw LetorParseError("Could not parse Query file at line:" + str(query_count));
 	}
 	string qid = token[0];
 	string querystr = token[1];
 	if (querystr.front() != '\'' || querystr.back() != '\'') {
-	    throw LetorParseError("Could not parse query string at line:" + Xapian::Internal::str(query_count));
+	    throw LetorParseError("Could not parse query string at line:" + str(query_count));
 	}
 	querystr.erase(0, 1); // erase the first character (') from the front
 	querystr.erase(querystr.size() - 1); // erase the last character (')
 	if (querystr.empty()) {
-	    throw LetorParseError("Empty query string in query file at line:" + Xapian::Internal::str(query_count));
+	    throw LetorParseError("Empty query string in query file at line:" + str(query_count));
 	}
 
 	string qq = querystr;
@@ -399,7 +398,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
     string str1;
     ifstream queryfile;
     queryfile.open(query_file.c_str(), ios::in);
-    if(!queryfile.good()) {
+    if (!queryfile.good()) {
 	throw Xapian::FileNotFoundError("No Query file found. Check path.");
     }
 
@@ -427,17 +426,17 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
 	// Exceptions for parse errors
 	if (token.size() != 2) {
-	    throw LetorParseError("Could not parse Query file at line:" + Xapian::Internal::str(num_queries));
+	    throw LetorParseError("Could not parse Query file at line:" + str(num_queries));
 	}
 	string qid = token[0];
 	string querystr = token[1];
 	if (querystr.front() != '\'' || querystr.back() != '\'') {
-	    throw LetorParseError("Could not parse query string at line:" + Xapian::Internal::str(num_queries));
+	    throw LetorParseError("Could not parse query string at line:" + str(num_queries));
 	}
 	querystr.erase( 0, 1 ); // erase the first character (') from the front
 	querystr.erase( querystr.size() - 1); // erase the last character (')
 	if (querystr.empty()) {
-	    throw LetorParseError("Empty query string in query file at line:" + Xapian::Internal::str(num_queries));
+	    throw LetorParseError("Empty query string in query file at line:" + str(num_queries));
 	}
 
 	string qq = querystr;

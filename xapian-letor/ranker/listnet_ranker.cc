@@ -147,7 +147,7 @@ ListNETRanker::save_model_to_metadata(const string & model_key) {
     Xapian::WritableDatabase letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {
-	key = "LisntNET.model.default";
+	key = "ListNET.model.default";
     }
     ostringstream oss;
     for (size_t i = 0; i <  parameters.size(); ++i)

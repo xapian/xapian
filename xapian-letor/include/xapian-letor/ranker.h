@@ -66,7 +66,7 @@ namespace Xapian {
 			       const std::string & qrel_file,
 			       Xapian::doccount msetsize,
 			       const std::string & filename = "training-data.txt",
-			       const Xapian::FeatureList & flist = * new Xapian::FeatureList());
+			       const Xapian::FeatureList & flist = Xapian::FeatureList());
 
 class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base {
     /// Path to Xapian::Database instance to be used.
@@ -119,7 +119,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      */
     std::vector<Xapian::docid> rank(const Xapian::MSet & mset,
 				    const std::string & model_key = std::string(),
-				    const Xapian::FeatureList & flist = * new Xapian::FeatureList());
+				    const Xapian::FeatureList & flist = Xapian::FeatureList());
 
     /** Method to score the ranking.
      * @param query_file    Query file containing test queries in letor specified format
@@ -141,7 +141,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
 	       const std::string & output_file,
 	       Xapian::doccount msetsize,
 	       const std::string & scorer_type = "NDCGScore",
-	       const Xapian::FeatureList & flist = * new Xapian::FeatureList());
+	       const Xapian::FeatureList & flist = Xapian::FeatureList());
 
   protected:
     /// Method to train the model. Overrided in ranker subclass.
@@ -220,7 +220,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
      * @param learn_rate       Learning rate
      * @param num_interations  Number of iterations
      */
-    ListNETRanker(double learn_rate = 0.001, int num_interations = 15):
+    explicit ListNETRanker(double learn_rate = 0.001, int num_interations = 15):
 	 learning_rate(learn_rate), iterations(num_interations) { }
 
     /// Destructor
