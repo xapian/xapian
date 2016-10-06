@@ -54,7 +54,7 @@ static const char * sw[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] <model_metadata_key> 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] MODEL_METADATA_KEY QUERY\n"
     "NB: QUERY should be quoted to protect it from the shell.\n\n"
     "Options:\n"
     "  -d, --db=DIRECTORY  path to database to search\n"
@@ -157,26 +157,19 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    string qq=argv[optind + 1];
-    istringstream iss(argv[optind + 1]);
-    string title = "title:";
-    while(iss) {
-	string t;
-	iss >> t;
-	if (t == "")
-	    break;
-	string temp = "";
-	temp.append(title);
-	temp.append(t);
-	temp.append(" ");
-	temp.append(qq);
-	qq=temp;
-    }
-    cout << "Final Query " << qq << "\n";
+    string qq = argv[optind + 1];
 
-    Xapian::Query query = parser.parse_query(qq,
-			 parser.FLAG_DEFAULT|
-			 parser.FLAG_SPELLING_CORRECTION);
+    Xapian::Query query_no_prefix = parser.parse_query(qq,
+				    parser.FLAG_DEFAULT|
+				    parser.FLAG_SPELLING_CORRECTION);
+    // query with title as default prefix
+    Xapian::Query query_default_prefix = parser.parse_query(qq,
+					 parser.FLAG_DEFAULT|
+					 parser.FLAG_SPELLING_CORRECTION,
+					 "S");
+    // Combine queries
+    Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
@@ -219,7 +212,7 @@ try {
     cout << "Docids after re-ranking by LTR model:" << endl;
     rank = 0;
     for (int i = 0; i < int(ranked_docids.size()); i++)
-	cout<< "Rank " << ++rank << ": " << ranked_docids[i] << endl;
+	cout << "Rank " << ++rank << ": " << ranked_docids[i] << endl;
 
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
