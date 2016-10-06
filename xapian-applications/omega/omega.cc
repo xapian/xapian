@@ -65,6 +65,7 @@ Xapian::RSet rset;
 map<string, string> option;
 
 string date_start, date_end, date_span;
+Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
 
 bool set_content_type = false;
 
@@ -361,6 +362,8 @@ try {
     if (val != cgi_params.end()) date_end = val->second;
     val = cgi_params.find("SPAN");
     if (val != cgi_params.end()) date_span = val->second;
+    val = cgi_params.find("DATEVALUE");
+    if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
 
     // If more default_op values are supported, encode them as non-alnums
     // other than filter_sep or '!'.
@@ -370,6 +373,16 @@ try {
     filters += date_end;
     filters += filter_sep;
     filters += date_span;
+    if (date_value_slot != Xapian::BAD_VALUENO) {
+	// This means we'll force the first page when reloading or changing
+	// page starting from existing URLs upon upgrade to 1.4.1, but the
+	// exact same existing URL could be for a search without the date
+	// filter where we want to force the first page, so there's an inherent
+	// ambiguity there.  Forcing first page in this case seems the least
+	// problematic side-effect.
+	filters += filter_sep;
+	filters += str(date_value_slot);
+    }
 
     if (!old_filters.empty()) {
 	old_filters += date_start;
@@ -402,6 +415,11 @@ try {
 		old_filters += str(collapse_key);
 	    }
 	}
+    }
+    if (!collapse && date_value_slot != Xapian::BAD_VALUENO) {
+	// We need to either omit filter_sep for both or neither, or else the
+	// encoding is ambiguous.
+	filters += filter_sep;
     }
 
     // docid order
