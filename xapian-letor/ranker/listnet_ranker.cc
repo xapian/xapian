@@ -28,7 +28,9 @@ Proceedings of the 24th international conference on Machine learning. ACM, 2007.
 #include <config.h>
 
 #include "xapian-letor/ranker.h"
+
 #include "debuglog.h"
+#include "serialise-double.h"
 
 #include <algorithm>
 #include <cmath>
@@ -151,7 +153,7 @@ ListNETRanker::save_model_to_metadata(const string & model_key) {
     }
     ostringstream oss;
     for (size_t i = 0; i <  parameters.size(); ++i)
-	oss << setprecision(numeric_limits<double>::digits10) << parameters[i] << endl;
+	oss << serialise_double(parameters[i]) << endl;
     string model_data = oss.str();
     letor_db.set_metadata(key, model_data);
 }
@@ -173,7 +175,9 @@ ListNETRanker::load_model_from_metadata(const string & model_key) {
     istringstream model_str(model_data);
     string line;
     while (getline(model_str, line)) {
-	double parameter = stod(line);
+	const char *ptr = line.data();
+	const char *end = ptr + line.size();
+	double parameter = unserialise_double(&ptr, end);
 	loaded_parameters.push_back(parameter);
     }
     swap(parameters, loaded_parameters);
