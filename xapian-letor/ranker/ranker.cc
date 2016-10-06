@@ -255,24 +255,17 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 	    throw LetorParseError("Empty query string in query file at line:" + str(query_count));
 	}
 
-	string qq = querystr;
-	istringstream iss(querystr);
-	string title = "title:";
-	while (iss) {
-	    string t;
-	    iss >> t;
-	    if (t.empty())
-		break;
-	    string temp;
-	    temp.append(title);
-	    temp.append(t);
-	    temp.append(" ");
-	    temp.append(qq);
-	    qq = temp;
-	}
-	Xapian::Query query = parser.parse_query(qq,
-						 parser.FLAG_DEFAULT|
-						 parser.FLAG_SPELLING_CORRECTION);
+	Xapian::Query query_no_prefix = parser.parse_query(querystr,
+					parser.FLAG_DEFAULT|
+					parser.FLAG_SPELLING_CORRECTION);
+	// query with title as default prefix
+	Xapian::Query query_default_prefix = parser.parse_query(querystr,
+					     parser.FLAG_DEFAULT|
+					     parser.FLAG_SPELLING_CORRECTION,
+					     "S");
+	// Combine queries
+	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
@@ -439,24 +432,17 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	    throw LetorParseError("Empty query string in query file at line:" + str(num_queries));
 	}
 
-	string qq = querystr;
-	istringstream iss(querystr);
-	string title = "title:";
-	while (iss) {
-	    string t;
-	    iss >> t;
-	    if (t.empty())
-		break;
-	    string temp;
-	    temp.append(title);
-	    temp.append(t);
-	    temp.append(" ");
-	    temp.append(qq);
-	    qq = temp;
-	}
-	Xapian::Query query = parser.parse_query(qq,
-						 parser.FLAG_DEFAULT|
-						 parser.FLAG_SPELLING_CORRECTION);
+	Xapian::Query query_no_prefix = parser.parse_query(querystr,
+					parser.FLAG_DEFAULT|
+					parser.FLAG_SPELLING_CORRECTION);
+	// query with title as default prefix
+	Xapian::Query query_default_prefix = parser.parse_query(querystr,
+					     parser.FLAG_DEFAULT|
+					     parser.FLAG_SPELLING_CORRECTION,
+					     "S");
+	// Combine queries
+	Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+
 	Xapian::Enquire enquire(letor_db);
 	enquire.set_query(query);
 	Xapian::MSet mset = enquire.get_mset(0, msetsize);
