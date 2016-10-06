@@ -214,6 +214,8 @@ try {
     for (int i = 0; i < int(ranked_docids.size()); i++)
 	cout << "Rank " << ++rank << ": " << ranked_docids[i] << endl;
 
+    delete ranker;
+
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
     cout << "Couldn't parse query: " << e.get_msg() << endl;
