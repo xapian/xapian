@@ -505,16 +505,14 @@ run_query()
 
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
 	Xapian::Query date_filter;
-	MCI i = cgi_params.find("DATEVALUE");
-	if (i != cgi_params.end()) {
-	    Xapian::valueno slot = string_to_int(i->second);
+	if (date_value_slot != Xapian::BAD_VALUENO) {
 	    // The values can be a time_t in 4 bytes, or YYYYMMDD... (with the
 	    // latter the sort order just works correctly between different
 	    // precisions).
 	    bool as_time_t =
-		db.get_value_lower_bound(slot).size() == 4 &&
-		db.get_value_upper_bound(slot).size() == 4;
-	    date_filter = date_value_range(as_time_t, slot,
+		db.get_value_lower_bound(date_value_slot).size() == 4 &&
+		db.get_value_upper_bound(date_value_slot).size() == 4;
+	    date_filter = date_value_range(as_time_t, date_value_slot,
 					   date_start, date_end,
 					   date_span);
 	} else {
