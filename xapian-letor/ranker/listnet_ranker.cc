@@ -164,7 +164,7 @@ ListNETRanker::load_model_from_metadata(const string & model_key) {
     Xapian::Database letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {
-	key = "LisntNET.model.default";
+	key = "ListNET.model.default";
     }
     string model_data = letor_db.get_metadata(key);
     // Throw exception if no model data associated with key
