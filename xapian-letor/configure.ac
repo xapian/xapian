@@ -362,7 +362,7 @@ AH_BOTTOM(
 #endif
 ])
 
-#define XAPIAN_LIB_BUILD 1
+AC_DEFINE([XAPIAN_LIB_BUILD], [1], [Workaround for avoiding sub-header included error])
 
 AC_SUBST([AM_CXXFLAGS])
 
