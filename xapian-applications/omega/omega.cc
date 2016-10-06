@@ -449,6 +449,10 @@ try {
 	do {
 	    bool rev = (*p != '+');
 	    if (*p == '-' || *p == '+') {
+		// old_filters predates support for direction in SORT, so if
+		// there's a direction specified this is definitely a different
+		// query.
+		old_filters.clear();
 		++p;
 	    }
 	    if (!C_isdigit(*p)) {
@@ -470,6 +474,9 @@ try {
 		sort_keymaker->add_value(sort_key, !reverse_sort);
 		sort_key = Xapian::BAD_VALUENO;
 		reverse_sort = true;
+		// old_filters predates multiple sort keys, so if there are
+		// multiple sort keys this is definitely a different query.
+		old_filters.clear();
 	    }
 
 	    if (sort_keymaker) {
