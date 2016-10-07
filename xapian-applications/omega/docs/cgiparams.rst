@@ -151,9 +151,9 @@ DOCIDORDER
 	DOCIDORDER isn't set or is empty) this puts them in ASCENDING order
 	(the lowest document id ranks highest).  If DOCIDORDER is specified
 	and non-empty it can begin with "D" for DESCENDING order, "A" for
-	ASCENDING order or any other character for DONT_CARE (the Xapian
-	database backend will use whichever order is most efficient).  Any
-	characters after the first are ignored.
+	ASCENDING order or any other character ("X" by convention) for
+	DONT_CARE (the Xapian database backend will use whichever order is most
+	efficient).  Any characters after the first are ignored.
 
 Display parameters and navigation
 ---------------------------------
