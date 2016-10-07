@@ -41,6 +41,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -191,6 +192,52 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
     }
 }
 
+static std::pair<string, string>
+parse_query_string(const string & query_line, int line_number)
+{
+    vector<string> token;
+    size_t j = 0;
+    while (j < query_line.size()) {
+	size_t i = query_line.find_first_not_of(' ', j);
+	if (i == string::npos) break;
+	j = query_line.find_first_of(' ', i);
+	token.push_back(query_line.substr(i, j - i));
+    }
+    // Query file is in the format: <qid> <query_string>
+    // Therefore, <qid> goes into token[0] and <query_string> to token[1]
+    // Exceptions for parse errors
+    if (token.size() != 2) {
+	throw LetorParseError("Could not parse Query file at line:" + str(line_number));
+    }
+    string qid = token[0];
+    string querystr = token[1];
+    if (querystr.front() != '\'' || querystr.back() != '\'') {
+	throw LetorParseError("Could not parse query string at line:" + str(line_number));
+    }
+    querystr.erase( 0, 1 ); // erase the first character (') from the front
+    querystr.erase( querystr.size() - 1); // erase the last character (')
+    if (querystr.empty()) {
+	throw LetorParseError("Empty query string in query file at line:" + str(line_number));
+    }
+    return std::pair<string, string> (querystr, qid);
+}
+
+static Xapian::QueryParser
+initialise_queryparser(const Xapian::Database & db)
+{
+    Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
+    Xapian::Stem stemmer("english");
+    Xapian::QueryParser parser;
+    parser.add_prefix("title", "S");
+    parser.add_prefix("subject", "S");
+    parser.set_database(db);
+    parser.set_default_op(Xapian::Query::OP_OR);
+    parser.set_stemmer(stemmer);
+    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    parser.set_stopper(&mystopper);
+    return parser;
+}
+
 void
 Xapian::prepare_training_file(const string & db_path, const string & queryfile,
 		      const string & qrel_file, Xapian::doccount msetsize,
@@ -199,16 +246,7 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
     // Set db
     Xapian::Database letor_db(db_path);
 
-    Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
-    Xapian::Stem stemmer("english");
-    Xapian::QueryParser parser;
-    parser.add_prefix("title", "S");
-    parser.add_prefix("subject", "S");
-    parser.set_database(letor_db);
-    parser.set_default_op(Xapian::Query::OP_OR);
-    parser.set_stemmer(stemmer);
-    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-    parser.set_stopper(&mystopper);
+    Xapian::QueryParser parser = initialise_queryparser(letor_db);
 
     qrel = load_relevance(qrel_file);
 
@@ -223,42 +261,21 @@ Xapian::prepare_training_file(const string & db_path, const string & queryfile,
     }
 
     int query_count = 0;
-    while (!myfile1.eof()) {           // reading all the queries line by line from the query file
+    while (!myfile1.eof()) { // reading all the queries line by line from the query file
 	getline(myfile1, str1);
 	if (str1.empty()) {
 	    break;
 	}
 	++query_count;
-	vector<string> token;
-	size_t j = 0;
-	while (j < str1.size()) {
-	    size_t i = str1.find_first_not_of(' ', j);
-	    if (i == string::npos) break;
-	    j = str1.find_first_of(' ', i);
-	    token.push_back(str1.substr(i, j - i));
-	}
-	// Query file is in the format: <qid> <query_string>
-	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
 
-	// Exceptions for parse errors
-	if (token.size() != 2) {
-	    throw LetorParseError("Could not parse Query file at line:" + str(query_count));
-	}
-	string qid = token[0];
-	string querystr = token[1];
-	if (querystr.front() != '\'' || querystr.back() != '\'') {
-	    throw LetorParseError("Could not parse query string at line:" + str(query_count));
-	}
-	querystr.erase(0, 1); // erase the first character (') from the front
-	querystr.erase(querystr.size() - 1); // erase the last character (')
-	if (querystr.empty()) {
-	    throw LetorParseError("Empty query string in query file at line:" + str(query_count));
-	}
+	std::pair<string, string> parsed_query = parse_query_string(str1, query_count);
+	string querystr = parsed_query.first;
+	string qid = parsed_query.second;
 
 	Xapian::Query query_no_prefix = parser.parse_query(querystr,
 					parser.FLAG_DEFAULT|
 					parser.FLAG_SPELLING_CORRECTION);
-	// query with title as default prefix
+	// query with 'title' field as default prefix "S"
 	Xapian::Query query_default_prefix = parser.parse_query(querystr,
 					     parser.FLAG_DEFAULT|
 					     parser.FLAG_SPELLING_CORRECTION,
@@ -374,16 +391,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	throw LetorInternalError("Invalid Scorer type.");
     }
 
-    Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
-    Xapian::Stem stemmer("english");
-    Xapian::QueryParser parser;
-    parser.add_prefix("title", "S");
-    parser.add_prefix("subject", "S");
-    parser.set_database(Xapian::Database(letor_db));
-    parser.set_default_op(Xapian::Query::OP_OR);
-    parser.set_stemmer(stemmer);
-    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-    parser.set_stopper(&mystopper);
+    Xapian::QueryParser parser = initialise_queryparser(letor_db);
 
     qrel = load_relevance(qrel_file);
 
@@ -406,35 +414,14 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	}
 	++num_queries;
 
-	vector<string> token;
-	size_t j = 0;
-	while (j < str1.size()) {
-	    size_t i = str1.find_first_not_of(' ', j);
-	    if (i == string::npos) break;
-	    j = str1.find_first_of(' ', i);
-	    token.push_back(str1.substr(i, j - i));
-	}
-	// Query file is in the format: <qid> <query_string>
-	// Therefore, <qid> goes into token[0] and <query_string> to token[1]
-	// Exceptions for parse errors
-	if (token.size() != 2) {
-	    throw LetorParseError("Could not parse Query file at line:" + str(num_queries));
-	}
-	string qid = token[0];
-	string querystr = token[1];
-	if (querystr.front() != '\'' || querystr.back() != '\'') {
-	    throw LetorParseError("Could not parse query string at line:" + str(num_queries));
-	}
-	querystr.erase( 0, 1 ); // erase the first character (') from the front
-	querystr.erase( querystr.size() - 1); // erase the last character (')
-	if (querystr.empty()) {
-	    throw LetorParseError("Empty query string in query file at line:" + str(num_queries));
-	}
+	std::pair<string, string> parsed_query = parse_query_string(str1, num_queries);
+	string querystr = parsed_query.first;
+	string qid = parsed_query.second;
 
 	Xapian::Query query_no_prefix = parser.parse_query(querystr,
 					parser.FLAG_DEFAULT|
 					parser.FLAG_SPELLING_CORRECTION);
-	// query with title as default prefix
+	// query with 'title' field as default prefix "S"
 	Xapian::Query query_default_prefix = parser.parse_query(querystr,
 					     parser.FLAG_DEFAULT|
 					     parser.FLAG_SPELLING_CORRECTION,
