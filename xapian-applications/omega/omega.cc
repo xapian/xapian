@@ -475,6 +475,11 @@ try {
 
 	    if (sort_key != Xapian::BAD_VALUENO) {
 		// Multiple sort keys specified, so we need a KeyMaker.
+
+		// Omit leading '+'.
+		if (reverse_sort) filters += '-';
+		filters += str(sort_key);
+
 		sort_keymaker = new Xapian::MultiValueKeyMaker;
 		sort_keymaker->add_value(sort_key, !reverse_sort);
 		sort_key = Xapian::BAD_VALUENO;
@@ -485,6 +490,8 @@ try {
 	    }
 
 	    if (sort_keymaker) {
+		filters += (rev ? '-' : '+');
+		filters += str(slot);
 		sort_keymaker->add_value(slot, !rev);
 	    } else {
 		sort_key = slot;
@@ -511,7 +518,7 @@ try {
 	// filters has them the other way around for sanity (except in
 	// development snapshot 1.3.4, which was when the new filter encoding
 	// was introduced).
-	filters += str(sort_key);
+	if (!sort_keymaker) filters += str(sort_key);
 	if (!old_filters.empty()) old_filters += str(sort_key);
 	if (sort_after) {
 	    if (reverse_sort) {

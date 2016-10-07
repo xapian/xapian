@@ -278,6 +278,25 @@ testcase '.20040612~~30~2' START=20040612 SPAN=30 COLLAPSE=2
 testcase '.20040612~20160412~' START=20040612 END=20160412
 testcase '.~~~2' COLLAPSE=2
 testcase '.~~'
+testcase '.~~1' SORT=1
+testcase '.~~1f' SORT=+1
+testcase '.~~1' SORT=-1
+testcase '.~~1-2+3-27' SORT=+1-2+03,-27
+testcase '.~~' SORTREVERSE=1
+testcase '.~~1f' SORT=1 SORTREVERSE=1
+testcase '.~~1' SORT=+1 SORTREVERSE=1
+testcase '.~~1f' SORT=-1 SORTREVERSE=1
+testcase '.~~1-2+3-27f' SORT=+1-2+03,-27 SORTREVERSE=1
+testcase '.~~' SORTAFTER=1
+testcase '.~~1R' SORT=1 SORTAFTER=1
+testcase '.~~1F' SORT=+1 SORTAFTER=1
+testcase '.~~1R' SORT=-1 SORTAFTER=1
+testcase '.~~1-2+3-27R' SORT=+1-2+03,-27 SORTAFTER=1
+testcase '.~~' SORTREVERSE=1 SORTAFTER=1
+testcase '.~~1F' SORT=1 SORTREVERSE=1 SORTAFTER=1
+testcase '.~~1R' SORT=+1 SORTREVERSE=1 SORTAFTER=1
+testcase '.~~1F' SORT=-1 SORTREVERSE=1 SORTAFTER=1
+testcase '.~~1-2+3-27F' SORT=+1-2+03,-27 SORTREVERSE=1 SORTAFTER=1
 testcase '.~~X' DOCIDORDER=A # Buggy, but kept for compatibility.
 testcase '.~~D' DOCIDORDER=D
 testcase '.~~' DOCIDORDER=X # Buggy, but kept for compatibility.
