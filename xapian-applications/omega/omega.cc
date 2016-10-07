@@ -435,6 +435,11 @@ try {
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
+		// This is a bug (should add nothing here and 'X' in the (ch !=
+		// 'A') case, but the current "DONT_CARE" implementation
+		// actually always results in ascending docid order so it's not
+		// worth breaking compatibility to fix - let's just do it next
+		// time we change the encoding $filters uses.
 		filters += 'X';
 		if (!old_filters.empty()) old_filters += 'X';
 	    }
