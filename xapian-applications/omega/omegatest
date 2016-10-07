@@ -269,12 +269,19 @@ testcase '2.000000.' B=Hexample.org B=XFOObar
 testcase '3.000000.' B=Hexample.org B=XFOObar B=XFOObar
 
 printf '$filters' > "$TEST_TEMPLATE"
+testcase 'Hexample.net~Hexample.org~.~~' B=Hexample.org B=Hexample.net
+testcase '!Gmisc.test~.~~' N=Gmisc.test
+testcase 'Hexample.net~Hexample.org~!Gmisc.test~.~~' B=Hexample.org B=Hexample.net N=Gmisc.test
 testcase '.20040612~~~1~' DATEVALUE=1 START=20040612
 testcase '.20040612~~~1~2' DATEVALUE=1 START=20040612 COLLAPSE=2
-testcase '.20040612~~~2' START=20040612 COLLAPSE=2
-testcase '.20040612~~' START=20040612
+testcase '.20040612~~30~2' START=20040612 SPAN=30 COLLAPSE=2
+testcase '.20040612~20160412~' START=20040612 END=20160412
 testcase '.~~~2' COLLAPSE=2
 testcase '.~~'
+testcase '.~~X' DOCIDORDER=A # Buggy, but kept for compatibility.
+testcase '.~~D' DOCIDORDER=D
+testcase '.~~' DOCIDORDER=X # Buggy, but kept for compatibility.
+testcase '.~~' DOCIDORDER=x # Buggy, but kept for compatibility.
 
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
