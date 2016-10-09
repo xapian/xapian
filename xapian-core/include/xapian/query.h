@@ -204,7 +204,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** Query constructor for OP_WILDCARD queries.
      *
-     *  @param op	Must be OP_WILDCARD
+     *  @param op_	Must be OP_WILDCARD
      *  @param pattern	The wildcard pattern - currently this is just a string
      *			and the wildcard expands to terms which start with
      *			exactly this string.
@@ -219,7 +219,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
      *			so the total number of terms may be higher than the
      *			limit.  This is arguably a bug, and may change in
      *			future versions.
-     *	@param combiner The @op to combine the terms with - one of
+     *	@param combiner The @a op_ to combine the terms with - one of
      *			@a OP_SYNONYM (the default), @a OP_OR or @a OP_MAX.
      */
     Query(op op_,
