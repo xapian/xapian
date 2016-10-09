@@ -2,7 +2,7 @@
  * @brief Tests of Xapian::QueryParser
  */
 /* Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2015,2016 Olly Betts
- * Copyright (C) 2007,2009 Lemur Consulting Ltd
+ * Copyright (C) 2006,2007,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1212,6 +1212,42 @@ DEFINE_TESTCASE(qp_flag_partial1, writable) {
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpart SYNONYM WILDCARD OR XTWOpart) OR (XONEpart@1 SYNONYM XTWOpart@1)))");
     qobj = qp.parse_query("double:partial", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Query(((WILDCARD OR XONEpartial SYNONYM WILDCARD OR XTWOpartial) OR (XONEpartial@1 SYNONYM XTWOpartial@1)))");
+
+    return true;
+}
+
+// Tests for document counts for wildcard queries.
+// Regression test for bug fixed in 1.0.0.
+DEFINE_TESTCASE(wildquery1, backend) {
+    Xapian::QueryParser queryparser;
+    unsigned flags = Xapian::QueryParser::FLAG_WILDCARD |
+		     Xapian::QueryParser::FLAG_LOVEHATE;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+    Xapian::Database db = get_database("apitest_simpledata");
+    queryparser.set_database(db);
+    Xapian::Enquire enquire(db);
+
+    Xapian::Query qobj = queryparser.parse_query("th*", flags);
+    tout << qobj.get_description() << endl;
+    enquire.set_query(qobj);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    // Check that 6 documents were returned.
+    TEST_MSET_SIZE(mymset, 6);
+
+    qobj = queryparser.parse_query("notindb* \"this\"", flags);
+    tout << qobj.get_description() << endl;
+    enquire.set_query(qobj);
+    mymset = enquire.get_mset(0, 10);
+    // Check that 6 documents were returned.
+    TEST_MSET_SIZE(mymset, 6);
+
+    qobj = queryparser.parse_query("+notindb* \"this\"", flags);
+    tout << qobj.get_description() << endl;
+    enquire.set_query(qobj);
+    mymset = enquire.get_mset(0, 10);
+    // Check that 0 documents were returned.
+    TEST_MSET_SIZE(mymset, 0);
 
     return true;
 }
