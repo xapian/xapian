@@ -55,11 +55,25 @@ class XAPIAN_VISIBILITY_DEFAULT ExpandDecider
     /** Virtual destructor, because we have virtual methods. */
     virtual ~ExpandDecider();
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated ErrorHandler
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     ExpandDecider * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated ErrorHandler
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const ExpandDecider * release() const {
 	opt_intrusive_base::release();
 	return this;

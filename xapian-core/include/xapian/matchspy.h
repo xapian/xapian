@@ -174,11 +174,25 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      */
     virtual std::string get_description() const;
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     MatchSpy * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const MatchSpy * release() const {
 	opt_intrusive_base::release();
 	return this;
