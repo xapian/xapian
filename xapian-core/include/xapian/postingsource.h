@@ -327,6 +327,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  want to take advantage of the Registry object when unserialising.
      *
      *  @param serialised A serialised instance of this PostingSource subclass.
+     *  @param registry   The Xapian::Registry object to use.
      */
     virtual PostingSource * unserialise_with_registry(const std::string &serialised,
 				      const Registry & registry) const;
