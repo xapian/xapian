@@ -167,13 +167,32 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  @param database Specification of the database or databases to
 	 *	   use.
+	 *
+	 *  @exception Xapian::InvalidArgumentError will be thrown if an
+	 *  empty Database object is supplied.
+	 */
+	explicit Enquire(const Database &database);
+
+	/** Create a Xapian::Enquire object.
+	 *
+	 *  This specification cannot be changed once the Xapian::Enquire is
+	 *  opened: you must create a new Xapian::Enquire object to access a
+	 *  different database, or set of databases.
+	 *
+	 *  The database supplied must have been initialised (ie, must not be
+	 *  the result of calling the Database::Database() constructor).  If
+	 *  you need to handle a situation where you have no databases
+	 *  gracefully, a database created with DB_BACKEND_INMEMORY can be
+	 *  passed here to provide a completely empty database.
+	 *
+	 *  @param database Specification of the database or databases to
+	 *	   use.
 	 *  @param errorhandler_  This parameter is deprecated (since Xapian
 	 *	   1.3.1), and as of 1.3.5 it's ignored completely.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if an
 	 *  empty Database object is supplied.
 	 */
-	explicit Enquire(const Database &database);
 	XAPIAN_DEPRECATED_EX(Enquire(const Database &database, ErrorHandler * errorhandler_));
 
 	/** Close the Xapian::Enquire object.
@@ -495,19 +514,47 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *
-	 *  @{
 	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
 		      const MatchDecider * mdecider = 0) const;
+
+	/** Get (a portion of) the match set for the current query.
+	 *
+	 *  @param first     the first item in the result set to return.
+	 *		     A value of zero corresponds to the first item
+	 *		     returned being that with the highest score.
+	 *		     A value of 10 corresponds to the first 10 items
+	 *		     being ignored, and the returned items starting
+	 *		     at the eleventh.
+	 *  @param maxitems  the maximum number of items to return.  If you
+	 *		     want all matches, then you can pass the result
+	 *		     of calling get_doccount() on the Database object
+	 *		     (though if you are doing this so you can filter
+	 *		     results, you are likely to get much better
+	 *		     performance by using Xapian's match-time filtering
+	 *		     features instead).  You can pass 0 for maxitems
+	 *		     which will give you an empty MSet with valid
+	 *		     statistics (such as get_matches_estimated())
+	 *		     calculated without looking at any postings, which
+	 *		     is very quick, but means the estimates may be
+	 *		     more approximate and the bounds may be much
+	 *		     looser.
+	 *  @param omrset    the relevance set to use when performing the query.
+	 *  @param mdecider  a decision functor to use to decide whether a
+	 *		     given document should be put in the MSet.
+	 *
+	 *  @return	     A Xapian::MSet object containing the results of the
+	 *		     query.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
 	    return get_mset(first, maxitems, 0, omrset, mdecider);
 	}
-	/** @} */
 
 	static const int INCLUDE_QUERY_TERMS = 1;
 	static const int USE_EXACT_TERMFREQ = 2;
