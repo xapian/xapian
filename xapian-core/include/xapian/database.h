@@ -94,6 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  backend to use.
 	 *
 	 * @param path directory that the database is stored in.
+	 * @param flags  Bitwise-or of Xapian::DB_* constants.
 	 */
 	explicit Database(const std::string &path, int flags = 0);
 
