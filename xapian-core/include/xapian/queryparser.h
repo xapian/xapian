@@ -66,11 +66,25 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper
     /// Return a string describing this object.
     virtual std::string get_description() const;
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated Stopper
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     Stopper * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated Stopper
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const Stopper * release() const {
 	opt_intrusive_base::release();
 	return this;
@@ -172,11 +186,25 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
     virtual Xapian::Query
 	operator()(const std::string &begin, const std::string &end);
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated RangeProcessor
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     RangeProcessor * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated RangeProcessor
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const RangeProcessor * release() const {
 	opt_intrusive_base::release();
 	return this;
@@ -369,11 +397,25 @@ class XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
      */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated ValueRangeProcessor
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     ValueRangeProcessor * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated ValueRangeProcessor
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const ValueRangeProcessor * release() const {
 	opt_intrusive_base::release();
 	return this;
@@ -669,11 +711,25 @@ class XAPIAN_VISIBILITY_DEFAULT FieldProcessor
      */
     virtual Xapian::Query operator()(const std::string &str) = 0;
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated FieldProcessor
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     FieldProcessor * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated FieldProcessor
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const FieldProcessor * release() const {
 	opt_intrusive_base::release();
 	return this;

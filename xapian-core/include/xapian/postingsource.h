@@ -362,11 +362,25 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      */
     virtual std::string get_description() const;
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated PostingSource
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     PostingSource * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated PostingSource
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const PostingSource * release() const {
 	opt_intrusive_base::release();
 	return this;
