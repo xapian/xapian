@@ -383,6 +383,7 @@ operator/(const Query & q, double factor)
     return Query(1.0 / factor, q);
 }
 
+/** @private @internal */
 class InvertedQuery_ {
     const Query & query;
 
@@ -421,6 +422,7 @@ class OrContext;
 class XorContext;
 }
 
+/** @private @internal */
 class Query::Internal : public Xapian::Internal::intrusive_base {
   public:
     XAPIAN_NOTHROW(Internal()) { }
