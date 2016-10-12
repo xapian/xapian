@@ -207,6 +207,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     struct Internal;
 
 #ifndef SWIG // SWIG doesn't need to know about the internal class
+    /// @private @internal
     struct XAPIAN_VISIBILITY_DEFAULT Internal
 	    : public Xapian::Internal::intrusive_base
     {
