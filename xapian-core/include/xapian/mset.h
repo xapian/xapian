@@ -74,29 +74,96 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /// Destructor.
     ~MSet();
 
+    /** Convert a weight to a percentage.
+     *
+     *  The matching document with the highest weight will get 100% if it
+     *  matches all the weighted query terms, and proportionally less if it
+     *  only matches some, and other weights are scaled by the same factor.
+     *
+     *  Documents with a non-zero score will always score at least 1%.
+     *
+     *  Note that these generally aren't percentages of anything meaningful
+     *  (unless you use a custom weighting formula where they are!)
+     */
     int convert_to_percent(double weight) const;
 
+    /** Convert the weight of the current iterator position to a percentage.
+     *
+     *  The matching document with the highest weight will get 100% if it
+     *  matches all the weighted query terms, and proportionally less if it
+     *  only matches some, and other weights are scaled by the same factor.
+     *
+     *  Documents with a non-zero score will always score at least 1%.
+     *
+     *  Note that these generally aren't percentages of anything meaningful
+     *  (unless you use a custom weighting formula where they are!)
+     */
     int convert_to_percent(const MSetIterator & it) const;
 
+    /** Get the termfreq of a term.
+     *
+     *  @return The number of documents @a term occurs in.
+     */
     Xapian::doccount get_termfreq(const std::string & term) const;
 
+    /** Get the term weight of a term.
+     *
+     *  @return	The maximum weight that @a term could have contributed to a
+     *		document.
+     */
     double get_termweight(const std::string & term) const;
 
+    /** Rank of first item in this MSet.
+     *
+     *  This is the parameter `first` passed to Xapian::Enquire::get_mset().
+     */
     Xapian::doccount get_firstitem() const;
 
+    /** Lower bound on the total number of matching documents. */
     Xapian::doccount get_matches_lower_bound() const;
+    /** Estimate of the total number of matching documents. */
     Xapian::doccount get_matches_estimated() const;
+    /** Upper bound on the total number of matching documents. */
     Xapian::doccount get_matches_upper_bound() const;
 
+    /** Lower bound on the total number of matching documents before collapsing.
+     *
+     *  Conceptually the same as get_matches_lower_bound() for the same query
+     *  without any collapse part (though the actual value may differ).
+     */
     Xapian::doccount get_uncollapsed_matches_lower_bound() const;
+    /** Estimate of the total number of matching documents before collapsing.
+     *
+     *  Conceptually the same as get_matches_estimated() for the same query
+     *  without any collapse part (though the actual value may differ).
+     */
     Xapian::doccount get_uncollapsed_matches_estimated() const;
+    /** Upper bound on the total number of matching documents before collapsing.
+     *
+     *  Conceptually the same as get_matches_upper_bound() for the same query
+     *  without any collapse part (though the actual value may differ).
+     */
     Xapian::doccount get_uncollapsed_matches_upper_bound() const;
 
+    /** The maximum weight attained by any document. */
     double get_max_attained() const;
+    /** The maximum possible weight any document could achieve. */
     double get_max_possible() const;
 
     enum {
+	/** Model the relevancy of non-query terms in MSet::snippet().
+	 *
+	 *  Non-query terms will be assigned a small weight, and the snippet
+	 *  will tend to prefer snippets which contain a more interesting
+	 *  background (where the query term content is equivalent).
+	 */
 	SNIPPET_BACKGROUND_MODEL = 1,
+	/** Exhaustively evaluate candidate snippets in MSet::snippet().
+	 *
+	 *  Without this flag, snippet generation will stop once it thinks
+	 *  it has found a "good enough" snippet, which will generally reduce
+	 *  the time taken to generate a snippet.
+	 */
 	SNIPPET_EXHAUSTIVE = 2
     };
 
@@ -164,18 +231,25 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      */
     void fetch() const { fetch_(0, Xapian::doccount(-1)); }
 
+    /** Return number of items in this MSet object. */
     Xapian::doccount size() const;
 
+    /** Return true if this MSet object is empty. */
     bool empty() const { return size() == 0; }
 
+    /** Efficiently swap this MSet object with another. */
     void swap(MSet & o) { internal.swap(o.internal); }
 
+    /** Return iterator pointing to the first item in this MSet. */
     MSetIterator begin() const;
 
+    /** Return iterator pointing to just after the last item in this MSet. */
     MSetIterator end() const;
 
+    /** Return iterator pointing to the i-th object in this MSet. */
     MSetIterator operator[](Xapian::doccount i) const;
 
+    /** Return iterator pointing to the last object in this MSet. */
     MSetIterator back() const;
 
     /// Return a string describing this object.
@@ -313,18 +387,31 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
 	return *this;
     }
 
+    /** Return the iterator incremented by @a n positions.
+     *
+     *  If @a n is negative, decrements by (-n) positions.
+     */
     MSetIterator operator+(difference_type n) const {
 	return MSetIterator(mset, off_from_end - n);
     }
 
+    /** Return the iterator decremented by @a n positions.
+     *
+     *  If @a n is negative, increments by (-n) positions.
+     */
     MSetIterator operator-(difference_type n) const {
 	return MSetIterator(mset, off_from_end + n);
     }
 
+    /** Return the number of positions between @a o and this iterator. */
     difference_type operator-(const MSetIterator& o) const {
 	return difference_type(o.off_from_end) - difference_type(off_from_end);
     }
 
+    /** Return the MSet rank for the current position.
+     *
+     *  The rank of mset[0] is mset.get_firstitem().
+     */
     Xapian::doccount get_rank() const {
 	return mset.get_firstitem() + (mset.size() - off_from_end);
     }
@@ -335,10 +422,42 @@ class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     /** Get the weight for the current position. */
     double get_weight() const;
 
+    /** Return the collapse key for the current position.
+     *
+     *  If collapsing isn't in use, an empty string will be returned.
+     */
     std::string get_collapse_key() const;
 
+    /** Return a count of the number of collapses done onto the current key.
+     *
+     *  This starts at 0, and is incremented each time an item is eliminated
+     *  because its key is the same as that of the current item (as returned
+     *  by get_collapse_key()).
+     *
+     *  Note that this is NOT necessarily one less than the total number of
+     *  matching documents with this collapse key due to various optimisations
+     *  implemented in the matcher - for example, it can skip documents
+     *  completely if it can prove their weight wouldn't be enough to make the
+     *  result set.
+     *
+     *  You can say is that if get_collapse_count() > 0 then there are
+     *  >= get_collapse_count() other documents with the current collapse
+     *  key.  But if get_collapse_count() == 0 then there may or may not be
+     *  other such documents.
+     */
     Xapian::doccount get_collapse_count() const;
 
+    /** Convert the weight of the current iterator position to a percentage.
+     *
+     *  The matching document with the highest weight will get 100% if it
+     *  matches all the weighted query terms, and proportionally less if it
+     *  only matches some, and other weights are scaled by the same factor.
+     *
+     *  Documents with a non-zero score will always score at least 1%.
+     *
+     *  Note that these generally aren't percentages of anything meaningful
+     *  (unless you use a custom weighting formula where they are!)
+     */
     int get_percent() const {
 	return mset.convert_to_percent(get_weight());
     }
@@ -407,6 +526,10 @@ operator<=(const MSetIterator &a, const MSetIterator &b) XAPIAN_NOEXCEPT
     return !(b < a);
 }
 
+/** Return MSetIterator @a it incremented by @a n positions.
+ *
+ *  If @a n is negative, decrements by (-n) positions.
+ */
 inline MSetIterator
 operator+(MSetIterator::difference_type n, const MSetIterator& it)
 {

@@ -226,6 +226,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 #endif
 
   protected:
+    /** @private @internal Reference counted internals. */
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:

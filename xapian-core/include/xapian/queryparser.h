@@ -137,10 +137,26 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
     RangeProcessor(const RangeProcessor &);
 
   protected:
+    /** The value slot to process.
+     *
+     *  If this range processor isn't value-based, it can ignore this member.
+     */
     Xapian::valueno slot;
 
+    /** The prefix (or suffix with RP_SUFFIX) string to look for. */
     std::string str;
 
+    /** Flags.
+     *
+     *  Bitwise-or (| in C++) of zero or more of the following:
+     *  * Xapian::RP_SUFFIX - require @a str as a suffix
+     *    instead of a prefix.
+     *  * Xapian::RP_REPEATED - optionally allow @a str
+     *    on both ends of the range - e.g. $1..$10 or
+     *    5m..50m.  By default a prefix is only checked for on
+     *    the start (e.g. date:1/1/1980..31/12/1989), and a
+     *    suffix only on the end (e.g. 2..12kg).
+     */
     unsigned flags;
 
   public:
@@ -154,7 +170,7 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			to this range (as a prefix by default, or as a suffix
      *			if flags Xapian::RP_SUFFIX is specified).
      *  @param flags_	Zero or more of the following flags, combined with
-     *			bitwise-or:
+     *			bitwise-or (| in C++):
      *			 * Xapian::RP_SUFFIX - require @a str_ as a suffix
      *			   instead of a prefix.
      *			 * Xapian::RP_REPEATED - optionally allow @a str_
@@ -171,9 +187,16 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
     /// Destructor.
     virtual ~RangeProcessor();
 
+    /** Check prefix/suffix on range.
+     *
+     *  If they match, remove the prefix/suffix and then call operator()()
+     *  to try to handle the range.
+     */
     Xapian::Query check_range(const std::string& b, const std::string& e);
 
     /** Check for a valid range of this type.
+     *
+     *  Override this method to implement your own range handling.
      *
      *  @param begin	The start of the range as specified in the query string
      *			by the user.
@@ -430,10 +453,13 @@ class XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor
  */
 class XAPIAN_DEPRECATED_CLASS_EX XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor {
   protected:
+    /** The value slot to process. */
     Xapian::valueno valno;
 
+    /** Whether to look for @a str as a prefix or suffix. */
     bool prefix;
 
+    /** The prefix (or suffix if prefix==false) string to look for. */
     std::string str;
 
   public:
@@ -1110,6 +1136,22 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     void add_boolean_prefix(const std::string &field, const std::string &prefix,
 			    const std::string* grouping = NULL);
 
+    /** Add a boolean term prefix allowing the user to restrict a
+     *  search with a boolean filter specified in the free text query.
+     *
+     *  This is an older version of this method - use the version with
+     *  the `grouping` parameter in preference to this one.
+     *
+     *  @param field   The user visible field name
+     *  @param prefix  The term prefix to map this to
+     *  @param exclusive Controls how multiple filters are combined.  If
+     *			true then @a prefix is used as the `grouping` value,
+     *			so terms with the same prefix are combined with OP_OR,
+     *			then the resulting queries are combined with OP_AND.
+     *			If false, then a unique grouping is created for
+     *			each filter (this is sometimes useful when each
+     *			document can have multiple terms with this prefix).
+     */
     void add_boolean_prefix(const std::string &field, const std::string &prefix,
 			    bool exclusive) {
 	if (exclusive) {
@@ -1126,6 +1168,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 			    const std::string* grouping = NULL);
 
     /** Register a FieldProcessor for a boolean prefix.
+     *
+     *  This is an older version of this method - use the version with
+     *  the `grouping` parameter in preference to this one.
      */
     void add_boolean_prefix(const std::string &field, Xapian::FieldProcessor *proc,
 			    bool exclusive) {
@@ -1137,14 +1182,18 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	}
     }
 
-    /// Iterate over terms omitted from the query as stopwords.
+    /// Begin iterator over terms omitted from the query as stopwords.
     TermIterator stoplist_begin() const;
+
+    /// End iterator over terms omitted from the query as stopwords.
     TermIterator XAPIAN_NOTHROW(stoplist_end() const) {
 	return TermIterator();
     }
 
-    /// Iterate over unstemmed forms of the given (stemmed) term used in the query.
+    /// Begin iterator over unstemmed forms of the given stemmed query term.
     TermIterator unstem_begin(const std::string &term) const;
+
+    /// End iterator over unstemmed forms of the given stemmed query term.
     TermIterator XAPIAN_NOTHROW(unstem_end(const std::string &) const) {
 	return TermIterator();
     }
