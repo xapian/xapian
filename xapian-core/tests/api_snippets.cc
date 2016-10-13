@@ -127,6 +127,14 @@ DEFINE_TESTCASE(snippetphrase1, backend) {
 	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem), i.expect);
     }
 
+    // Regression test for termcover
+    unsigned flags = Xapian::MSet::SNIPPET_BACKGROUND_MODEL|
+	             Xapian::MSet::SNIPPET_EXHAUSTIVE|
+		     Xapian::MSet::SNIPPET_TERMCOVER;
+    for (auto i : testcases) {
+	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
+    }
+
     return true;
 }
 
@@ -207,6 +215,66 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     // fewer Unicode characters in this sample than the previous one.
     TEST_STRINGS_EQUAL(mset.snippet(mset[4].get_document().get_data(), 64, stem),
 		       "...<b>much</b> o’brien do we have?  <b>Miles</b> O’Brien, that’s how <b>much</b>.");
+
+    return true;
+}
+
+/// Test snippet term cover relevances.
+DEFINE_TESTCASE(snippet_termcover1, backend) {
+    static const snippet_testcase testcases[] = {
+        // Initialize with default relevance for regressions
+        { "default", 0, "" },
+        { "rubbish rubbish example rubbish rubbish", 16, "...<b>rubbish</b> <b>rubbish</b>" },
+        { "A rubbish, but a good example", 14, "...<b>rubbish</b>, but a..."},
+        { "Rubbish and rubbish, and rubbish examples", 22, "...<b>rubbish</b>, and <b>rubbish</b>..."},
+        // Use termcover relevance
+        { "termcover", 0, "" },
+        { "rubbish rubbish example rubbish rubbish", 16, "...<b>example</b> <b>rubbish</b>..." },
+        // "rubbish" has a slightly higher term weight, than "example".
+        { "A rubbish, but a good example", 14, "...<b>rubbish</b>, but a..."},
+        // Test for case-insensitivity and stemming
+        { "Rubbish and rubbish, and rubbish examples", 22, "...and <b>rubbish</b> <b>examples</b>"},
+        // Switch to bool weight scheme
+        { "boolweight", 0, "" },
+        // "example" now has the last best term weight. The "a" contributes a
+        // fractional weight even for boolean weights.
+        { "A rubbish, but a good example", 14, "...a good <b>example</b>"},
+        // Regression test for boolean weights
+        { "Rubbish and rubbish, and rubbish examples", 22, "...and <b>rubbish</b> <b>examples</b>"}
+    };
+
+    Xapian::Stem stem("en");
+    unsigned flags = Xapian::MSet::SNIPPET_BACKGROUND_MODEL|
+                     Xapian::MSet::SNIPPET_EXHAUSTIVE;
+    string weight;
+
+    for (auto i : testcases) {
+        Xapian::Enquire enquire(get_database("apitest_simpledata"));
+        enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+                    Xapian::Query("rubbish"),
+                    Xapian::Query("Zexampl")));
+
+        if (i.len == 0) {
+            if (!strcmp(i.input, "termcover")) {
+                flags |= Xapian::MSet::SNIPPET_TERMCOVER;
+            } else if (!strcmp(i.input, "default")) {
+                flags &= ~Xapian::MSet::SNIPPET_TERMCOVER;
+                weight = "";
+            } else if (!strcmp(i.input, "boolweight")) {
+                weight = "boolweight";
+            } else {
+                FAIL_TEST("Invalid options string: " << i.input);
+            }
+            continue;
+        }
+
+        if (weight == "boolweight") {
+            enquire.set_weighting_scheme(Xapian::BoolWeight());
+        }
+
+        Xapian::MSet mset = enquire.get_mset(0, 0);
+        TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
+    }
 
     return true;
 }

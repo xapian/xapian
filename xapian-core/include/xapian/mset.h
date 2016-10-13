@@ -97,7 +97,18 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     enum {
 	SNIPPET_BACKGROUND_MODEL = 1,
-	SNIPPET_EXHAUSTIVE = 2
+	SNIPPET_EXHAUSTIVE = 2,
+      /** Attempt to cover all search terms.
+       *
+       * If enabled, snippet() attempts to find a snippet that covers most of
+       * the search terms. The weight of each snippet term contributes only once
+       * to a snippet's cumulated relevance.
+       *
+       * This flag is only useful in search for "loose terms" as occuring in
+       * ORed and ANDed queries. It is ignored for queries containing phrases
+       * or wildcards.
+       */
+	SNIPPET_TERMCOVER = 4
     };
 
     /** Generate a snippet.
