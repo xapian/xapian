@@ -625,8 +625,19 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
 class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
 	: public Xapian::ValueWeightPostingSource {
   protected:
+    /** Start of range of docids for which weights are known to be decreasing.
+     *
+     *  0 => first docid.
+     */
     Xapian::docid range_start;
+
+    /** End of range of docids for which weights are known to be decreasing.
+     *
+     *  0 => last docid.
+     */
     Xapian::docid range_end;
+
+    /// Weight at current position.
     double curr_weight;
 
     /// Flag, set to true if there are docs after the end of the range.
@@ -636,6 +647,14 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
     void skip_if_in_range(double min_wt);
 
   public:
+    /** Construct a DecreasingValueWeightPostingSource.
+     *
+     *  @param slot_ The value slot to read values from.
+     *  @param range_start_ Start of range of docids for which weights are
+     *			known to be decreasing (default: first docid)
+     *  @param range_end_ End of range of docids for which weights are
+     *			known to be decreasing (default: last docid)
+     */
     DecreasingValueWeightPostingSource(Xapian::valueno slot_,
 				       Xapian::docid range_start_ = 0,
 				       Xapian::docid range_end_ = 0);

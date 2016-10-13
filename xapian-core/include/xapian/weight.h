@@ -463,6 +463,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      */
     explicit TfIdfWeight(const std::string &normalizations);
 
+    /** Construct a TfIdfWeight using the default normalizations ("ntn"). */
     TfIdfWeight()
     : normalizations("ntn")
     {

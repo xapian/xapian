@@ -538,6 +538,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *   - Xapian::DBCOMPACT_SINGLE_FILE
 	 *		Produce a single-file database (only supported for
 	 *		glass currently).
+	 *   - At most one of:
+	 *     - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
+	 *     - Xapian::Compactor::FULL     - Split items whenever it saves
+	 *       space (the default).
+	 *     - Xapian::Compactor::FULLER   - Allow oversize items to save
+	 *       more space (not recommended if you ever plan to update the
+	 *       compacted database).
 	 *
 	 *  @param block_size This specifies the block size (in bytes) for
 	 *		to use for the output.  For glass, the block size must

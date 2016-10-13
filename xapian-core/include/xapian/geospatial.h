@@ -3,7 +3,7 @@
  */
 /* Copyright 2008,2009 Lemur Consulting Ltd
  * Copyright 2010,2011 Richard Boulton
- * Copyright 2012,2013,2014,2015 Olly Betts
+ * Copyright 2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -177,32 +177,52 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
     /// Default constructor.  Produces an uninitialised iterator.
     LatLongCoordsIterator() {}
 
+    /** Get the LatLongCoord for the current position. */
     const LatLongCoord & operator *() const {
 	return *iter;
     }
 
+    /// Advance the iterator to the next position.
     LatLongCoordsIterator & operator++() {
 	++iter;
 	return *this;
     }
 
+    /// Advance the iterator to the next position (postfix version).
     DerefWrapper_<LatLongCoord> operator++(int) {
 	const LatLongCoord & tmp = **this;
 	++iter;
 	return DerefWrapper_<LatLongCoord>(tmp);
     }
 
+    /// Equality test for LatLongCoordsIterator objects.
     bool operator==(const LatLongCoordsIterator &other) const
     {
 	return iter == other.iter;
     }
 
-    // Allow use as an STL iterator
+    /** @private @internal LatLongCoordsIterator is what the C++ STL calls an
+     *  input_iterator.
+     *
+     *  The following typedefs allow std::iterator_traits<> to work so that
+     *  this iterator can be used with the STL.
+     *
+     *  These are deliberately hidden from the Doxygen-generated docs, as the
+     *  machinery here isn't interesting to API users.  They just need to know
+     *  that Xapian iterator classes are compatible with the STL.
+     */
+    // @{
+    /// @private
     typedef std::input_iterator_tag iterator_category;
+    /// @private
     typedef LatLongCoord value_type;
+    /// @private
     typedef size_t difference_type;
+    /// @private
     typedef LatLongCoord * pointer;
+    /// @private
     typedef LatLongCoord & reference;
+    // @}
 };
 
 /** A sequence of latitude-longitude coordinates.
@@ -479,6 +499,18 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistancePostingSource : public ValuePosti
 				 double max_range_ = 0.0,
 				 double k1_ = 1000.0,
 				 double k2_ = 1.0);
+
+    /** Construct a new posting source which returns only documents within
+     *  range of one of the central coordinates.
+     *
+     *  @param slot_ The value slot to read values from.
+     *  @param centre_ The centre point to use for distance calculations.
+     *  @param max_range_ The maximum distance for documents which are returned.
+     *  @param k1_ The k1 constant to use in the weighting function.
+     *  @param k2_ The k2 constant to use in the weighting function.
+     *
+     *  Xapian::GreatCircleMetric is used as the metric.
+     */
     LatLongDistancePostingSource(Xapian::valueno slot_,
 				 const LatLongCoords & centre_,
 				 double max_range_ = 0.0,
@@ -531,6 +563,14 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
     std::string defkey;
 
   public:
+    /** Construct a LatLongDistanceKeyMaker.
+     *
+     *  @param slot_		Value slot to use.
+     *  @param centre_		List of points to calculate distance from
+     *				(closest distance is used).
+     *  @param metric_		LatLongMetric to use.
+     *  @param defdistance	Distance to use for docs with no value set.
+     */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
 			    const LatLongCoords & centre_,
 			    const LatLongMetric & metric_,
@@ -541,6 +581,16 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 	      defkey(sortable_serialise(defdistance))
     {}
 
+    /** Construct a LatLongDistanceKeyMaker.
+     *
+     *  @param slot_		Value slot to use.
+     *  @param centre_		List of points to calculate distance from
+     *				(closest distance is used).
+     *  @param metric_		LatLongMetric to use.
+     *
+     *  Documents where no value is set are assumed to be a large distance
+     *  away.
+     */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
 			    const LatLongCoords & centre_,
 			    const LatLongMetric & metric_)
@@ -550,6 +600,17 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 	      defkey(9, '\xff')
     {}
 
+    /** Construct a LatLongDistanceKeyMaker.
+     *
+     *  @param slot_		Value slot to use.
+     *  @param centre_		List of points to calculate distance from
+     *				(closest distance is used).
+     *
+     *  Xapian::GreatCircleMetric is used as the metric.
+     *
+     *  Documents where no value is set are assumed to be a large distance
+     *  away.
+     */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
 			    const LatLongCoords & centre_)
 	    : slot(slot_),
@@ -558,6 +619,13 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 	      defkey(9, '\xff')
     {}
 
+    /** Construct a LatLongDistanceKeyMaker.
+     *
+     *  @param slot_		Value slot to use.
+     *  @param centre_		Point to calculate distance from.
+     *  @param metric_		LatLongMetric to use.
+     *  @param defdistance	Distance to use for docs with no value set.
+     */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
 			    const LatLongCoord & centre_,
 			    const LatLongMetric & metric_,
@@ -570,6 +638,15 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 	centre.append(centre_);
     }
 
+    /** Construct a LatLongDistanceKeyMaker.
+     *
+     *  @param slot_		Value slot to use.
+     *  @param centre_		Point to calculate distance from.
+     *  @param metric_		LatLongMetric to use.
+     *
+     *  Documents where no value is set are assumed to be a large distance
+     *  away.
+     */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
 			    const LatLongCoord & centre_,
 			    const LatLongMetric & metric_)
@@ -581,6 +658,16 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongDistanceKeyMaker : public KeyMaker {
 	centre.append(centre_);
     }
 
+    /** Construct a LatLongDistanceKeyMaker.
+     *
+     *  @param slot_		Value slot to use.
+     *  @param centre_		Point to calculate distance from.
+     *
+     *  Xapian::GreatCircleMetric is used as the metric.
+     *
+     *  Documents where no value is set are assumed to be a large distance
+     *  away.
+     */
     LatLongDistanceKeyMaker(Xapian::valueno slot_,
 			    const LatLongCoord & centre_)
 	    : slot(slot_),
