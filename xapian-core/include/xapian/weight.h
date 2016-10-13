@@ -471,8 +471,52 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      */
     explicit TfIdfWeight(const std::string &normalizations);
 
+    /** Construct a TfIdfWeight
+     *
+     *  @param normalizations	A three character string indicating the
+     *				normalizations to be used for the tf(wdf), idf
+     *				and document weight.  (default: "ntn")
+     *	@param slope		Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
+     *	@param delta		Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
+     *
+     * The @a normalizations string works like so:
+     *
+     * @li The first character specifies the normalization for the wdf.  The
+     *     following normalizations are currently supported:
+     *
+     *     @li 'n': None.      wdfn=wdf
+     *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
+     *     @li 's': Square     wdfn=wdf*wdf
+     *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
+     *
+     *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
+     *     implemented.
+     *
+     * @li The second character indicates the normalization for the idf.  The
+     *     following normalizations are currently supported:
+     *
+     *     @li 'n': None    idfn=1
+     *     @li 't': TfIdf   idfn=log(N/Termfreq) where N is the number of
+     *         documents in collection and Termfreq is the number of documents
+     *         which are indexed by the term t.
+     *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
+     *     @li 'f': Freq    idfn=1/Termfreq
+     *     @li 's': Squared idfn=log(N/Termfreq)^2
+     *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
+     *
+     * @li The third and the final character indicates the normalization for
+     *     the document weight.  The following normalizations are currently
+     *     supported:
+     *
+     *     @li 'n': None wtn=tfn*idfn
+     *
+     * Implementing support for more normalizations of each type would require
+     * extending the backend to track more statistics.
+     */
     TfIdfWeight(const std::string &normalizations, double slope, double delta);
 
+    /** Construct a TfIdfWeight using the default normalizations ("ntn"). */
     TfIdfWeight()
 	: normalizations("ntn"), param_slope(0.2), param_delta(1.0)
     {

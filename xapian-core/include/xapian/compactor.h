@@ -44,7 +44,16 @@ class XAPIAN_VISIBILITY_DEFAULT Compactor {
     /// Class containing the implementation.
     class Internal;
 
-    typedef enum { STANDARD = 0, FULL = 1, FULLER = 2 } compaction_level;
+    /** Compaction level. */
+    typedef enum {
+	/** Don't split items unnecessarily. */
+	STANDARD = 0,
+	/** Split items whenever it saves space (the default). */
+	FULL = 1,
+	/** Allow oversize items to save more space (not recommended if you
+	 *  ever plan to update the compacted database). */
+	FULLER = 2
+    } compaction_level;
 
   private:
     /// @internal Reference counted internals.

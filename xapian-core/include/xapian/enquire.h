@@ -299,9 +299,17 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_collapse_key(Xapian::valueno collapse_key,
 			      Xapian::doccount collapse_max = 1);
 
+	/** Ordering of docids.
+	 *
+	 *  Parameter to Enquire::set_docid_order().
+	 */
 	typedef enum {
+	    /** docids sort in ascending order (default) */
 	    ASCENDING = 1,
+	    /** docids sort in descending order. */
 	    DESCENDING = 0,
+	    /** docids sort in whatever order is most efficient for the
+	     *  backend. */
 	    DONT_CARE = 2
 	} docid_order;
 
@@ -556,7 +564,25 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	    return get_mset(first, maxitems, 0, omrset, mdecider);
 	}
 
+	/** Terms in the query may be returned by get_eset().
+	 *
+	 *  The original intended use for Enquire::get_eset() is for query
+	 *  expansion - suggesting terms to add to the query, generally with
+	 *  the aim of improving recall (i.e. finding more of the relevant
+	 *  documents), so by default terms already in the query won't be
+	 *  returned in the ESet.  For some uses you might want to consider
+	 *  all terms, and this flag allows you to specify that.
+	 */
 	static const int INCLUDE_QUERY_TERMS = 1;
+
+	/** Calculate exact term frequencies in get_eset().
+	 *
+	 *  By default, when working over multiple databases,
+	 *  Enquire::get_eset() uses an approximation to the termfreq to
+	 *  improve efficiency.  This should still return good results, but
+	 *  if you want to calculate the exact combined termfreq then you
+	 *  can use this flag.
+	 */
 	static const int USE_EXACT_TERMFREQ = 2;
 
 	/** Get the expand set for the given rset.

@@ -70,20 +70,32 @@ class XAPIAN_VISIBILITY_DEFAULT ESet {
     /// Destructor.
     ~ESet();
 
+    /** Return number of items in this ESet object. */
     Xapian::doccount size() const;
 
+    /** Return true if this ESet object is empty. */
     bool empty() const { return size() == 0; }
 
+    /** Return a bound on the full size of this ESet object.
+     *
+     *  This is a bound on size() if get_eset() had been called with
+     *  maxitems set high enough that all results were returned.
+     */
     Xapian::termcount get_ebound() const;
 
+    /** Efficiently swap this ESet object with another. */
     void swap(ESet & o) { internal.swap(o.internal); }
 
+    /** Return iterator pointing to the first item in this ESet. */
     ESetIterator begin() const;
 
+    /** Return iterator pointing to just after the last item in this ESet. */
     ESetIterator end() const;
 
+    /** Return iterator pointing to the i-th object in this ESet. */
     ESetIterator operator[](Xapian::doccount i) const;
 
+    /** Return iterator pointing to the last object in this ESet. */
     ESetIterator back() const;
 
     /// Return a string describing this object.
@@ -221,14 +233,23 @@ class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
 	return *this;
     }
 
+    /** Return the iterator incremented by @a n positions.
+     *
+     *  If @a n is negative, decrements by (-n) positions.
+     */
     ESetIterator operator+(difference_type n) const {
 	return ESetIterator(eset, off_from_end - n);
     }
 
+    /** Return the iterator decremented by @a n positions.
+     *
+     *  If @a n is negative, increments by (-n) positions.
+     */
     ESetIterator operator-(difference_type n) const {
 	return ESetIterator(eset, off_from_end + n);
     }
 
+    /** Return the number of positions between @a o and this iterator. */
     difference_type operator-(const ESetIterator& o) const {
 	return difference_type(o.off_from_end) - difference_type(off_from_end);
     }
@@ -300,6 +321,10 @@ operator<=(const ESetIterator &a, const ESetIterator &b) XAPIAN_NOEXCEPT
     return !(b < a);
 }
 
+/** Return ESetIterator @a it incremented by @a n positions.
+ *
+ *  If @a n is negative, decrements by (-n) positions.
+ */
 inline ESetIterator
 operator+(ESetIterator::difference_type n, const ESetIterator& it)
 {
