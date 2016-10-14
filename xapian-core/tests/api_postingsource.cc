@@ -705,3 +705,65 @@ DEFINE_TESTCASE(postingsourcebounds1, backend && !remote)
 
     return true;
 }
+
+// PostingSource which really just counts the clone() calls.
+// Never actually matches anything, but pretends it might.
+class CloneTestPostingSource : public Xapian::PostingSource {
+    int& clone_count;
+
+  public:
+    CloneTestPostingSource(int& clone_count_)
+	: clone_count(clone_count_)
+    { }
+
+    PostingSource * clone() const {
+	++clone_count;
+	return new CloneTestPostingSource(clone_count);
+    }
+
+    void init(const Xapian::Database&) { }
+
+    // These bounds could be better, but that's not important here.
+    Xapian::doccount get_termfreq_min() const { return 0; }
+
+    Xapian::doccount get_termfreq_est() const { return 1; }
+
+    Xapian::doccount get_termfreq_max() const { return 2; }
+
+    void next(double) { }
+
+    void skip_to(Xapian::docid, double) { }
+
+    bool at_end() const {
+	return true;
+    }
+
+    Xapian::docid get_docid() const { return 0; }
+
+    string get_description() const { return "CloneTestPostingSource"; }
+};
+
+/// Test cloning of initial object, which regressed in 1.4.0.
+DEFINE_TESTCASE(postingsourceclone1, !backend)
+{
+    // This fails with 1.3.5-1.4.0 inclusive.
+    {
+	int clones = 0;
+	CloneTestPostingSource ps(clones);
+	TEST_EQUAL(clones, 0);
+	Xapian::Query q(&ps);
+	TEST_EQUAL(clones, 1);
+    }
+
+    // Check that clone() isn't needlessly called if reference counting has
+    // been turned on for the PostingSource.
+    {
+	int clones = 0;
+	CloneTestPostingSource* ps = new CloneTestPostingSource(clones);
+	TEST_EQUAL(clones, 0);
+	Xapian::Query q(ps->release());
+	TEST_EQUAL(clones, 0);
+    }
+
+    return true;
+}
