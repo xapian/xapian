@@ -666,6 +666,13 @@ QueryPostingSource::QueryPostingSource(PostingSource * source_)
 {
     if (!source_)
 	throw Xapian::InvalidArgumentError("source parameter can't be NULL");
+    if (source->_refs == 0) {
+	// source_ isn't reference counted, so try to clone it.  If clone()
+	// isn't implemented, just use the object provided and it's the
+	// caller's responsibility to ensure it stays valid while in use.
+	PostingSource * cloned_source = source->clone();
+	if (cloned_source) source = cloned_source->release();
+    }
 }
 
 Query::op
