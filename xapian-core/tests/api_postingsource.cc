@@ -723,7 +723,6 @@ class CloneTestPostingSource : public Xapian::PostingSource {
 
     void init(const Xapian::Database&) { }
 
-    // These bounds could be better, but that's not important here.
     Xapian::doccount get_termfreq_min() const { return 0; }
 
     Xapian::doccount get_termfreq_est() const { return 1; }
@@ -743,7 +742,7 @@ class CloneTestPostingSource : public Xapian::PostingSource {
     string get_description() const { return "CloneTestPostingSource"; }
 };
 
-/// Test cloning of initial object, which regressed in 1.4.0.
+/// Test cloning of initial object, which regressed in 1.3.5.
 DEFINE_TESTCASE(postingsourceclone1, !backend)
 {
     // This fails with 1.3.5-1.4.0 inclusive.
