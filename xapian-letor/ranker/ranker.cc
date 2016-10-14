@@ -134,7 +134,7 @@ load_relevance(const std::string & qrel_file)
     map<string, map<string, int>> qrel1;     // < qid, <docid, relevance_judgement> >
 
     string inLine;
-    ifstream myfile (qrel_file.c_str(), ifstream::in);
+    ifstream myfile(qrel_file.c_str(), ifstream::in);
     if (!myfile.good()) {
 	throw Xapian::FileNotFoundError("No Qrel file found. Check path.");
     }
