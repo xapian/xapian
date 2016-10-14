@@ -40,9 +40,9 @@ using namespace std;
 #define OPT_VERSION 2
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] <queryfile> <qrelfile> <trainingfile>\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] PATH_TO_QUERY_FILE PATH_TO_QREL_FILE PATH_TO_TRAINING_FILE\n"
     "Options:\n"
-    "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
+    "  -d, --db=DIRECTORY  path to database to search\n"
     "  -m, --msize=MSIZE   maximum number of matches to return\n"
     "      --help          display this help and exit\n"
     "      --version       output version information and exit\n";
@@ -64,13 +64,13 @@ try {
 
     bool have_database = false;
 
-    Xapian::Database db;
+    string db_path;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'd':
-		db.add_database(Xapian::Database(optarg));
+		db_path = optarg;
 		have_database = true;
 		break;
 	    case 'm':
@@ -95,21 +95,17 @@ try {
 	exit(1);
     }
 
-    char * queryfile = argv[optind];
-    char * qrelfile = argv[optind + 1];
-    char * trainingfile = argv[optind + 2];
+    string queryfile = argv[optind];
+    string qrelfile = argv[optind + 1];
+    string trainingfile = argv[optind + 2];
 
     if (!have_database) {
 	cout << "No database specified so not running the query." << endl;
 	exit(0);
     }
 
-    // Initialise Letor object with db.
-    // A Ranker instance is not necessarily required while preparing the training file
-    Xapian::Letor ltr(db);
-
     // Prepare the training file.
-    ltr.prepare_training_file(queryfile, qrelfile, msize, trainingfile);
+    Xapian::prepare_training_file(db_path, queryfile, qrelfile, msize, trainingfile);
 
     cout << flush;
 

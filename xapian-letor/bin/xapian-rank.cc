@@ -54,10 +54,10 @@ static const char * sw[] = {
 };
 
 static void show_usage() {
-    cout << "Usage: " PROG_NAME " [OPTIONS] <modelfile> 'QUERY'\n"
+    cout << "Usage: " PROG_NAME " [OPTIONS] MODEL_METADATA_KEY QUERY\n"
     "NB: QUERY should be quoted to protect it from the shell.\n\n"
     "Options:\n"
-    "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
+    "  -d, --db=DIRECTORY  path to database to search\n"
     "  -m, --msize=MSIZE   maximum number of matches to return\n"
     "  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
     "                      (pass 'none' to disable stemming)\n"
@@ -88,7 +88,7 @@ try {
 
     bool have_database = false;
 
-    Xapian::Database db;
+    string db_path;
     Xapian::QueryParser parser;
     parser.add_prefix("title","S");
     parser.add_prefix("subject","S");
@@ -97,7 +97,7 @@ try {
     while ((c = gnu_getopt_long(argc, argv, opts, long_opts, 0)) != -1) {
 	switch (c) {
 	    case 'd':
-		db.add_database(Xapian::Database(optarg));
+		db_path = optarg;
 		have_database = true;
 		break;
 	    case 'm':
@@ -147,7 +147,9 @@ try {
 	exit(1);
     }
 
-    char * model_path = argv[optind];
+    string model_metadata_key = argv[optind];
+
+    Xapian::Database db(db_path);
 
     parser.set_database(db);
     parser.set_default_op(Xapian::Query::OP_OR);
@@ -155,26 +157,19 @@ try {
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     parser.set_stopper(&mystopper);
 
-    string qq=argv[optind + 1];
-    istringstream iss(argv[optind + 1]);
-    string title = "title:";
-    while(iss) {
-	string t;
-	iss >> t;
-	if (t == "")
-	    break;
-	string temp = "";
-	temp.append(title);
-	temp.append(t);
-	temp.append(" ");
-	temp.append(qq);
-	qq=temp;
-    }
-    cout << "Final Query " << qq << "\n";
+    string qq = argv[optind + 1];
 
-    Xapian::Query query = parser.parse_query(qq,
-			 parser.FLAG_DEFAULT|
-			 parser.FLAG_SPELLING_CORRECTION);
+    Xapian::Query query_no_prefix = parser.parse_query(qq,
+				    parser.FLAG_DEFAULT|
+				    parser.FLAG_SPELLING_CORRECTION);
+    // query with title as default prefix
+    Xapian::Query query_default_prefix = parser.parse_query(qq,
+					 parser.FLAG_DEFAULT|
+					 parser.FLAG_SPELLING_CORRECTION,
+					 "S");
+    // Combine queries
+    Xapian::Query query = Xapian::Query(Xapian::Query::OP_OR, query_no_prefix, query_default_prefix);
+
     const string & correction = parser.get_corrected_query_string();
     if (!correction.empty())
 	cout << "Did you mean: " << correction << "\n\n";
@@ -205,19 +200,21 @@ try {
 	cout << "Rank " << ++rank << ": " << did << endl;
     }
 
-    // Initialise Letor object with db, query and ListNETRanker
-    // If not explicitly passed as done below, the default ranker is used.
-    // See Ranker documentation for available Ranker options.
+    // Initialise Ranker object with ListNETRanker instance, db path and query.
+    // See Ranker documentation for available Ranker subclass options.
     Xapian::Ranker * ranker = new Xapian::ListNETRanker();
-    Xapian::Letor ltr(db, query, ranker);
+    ranker->set_database_path(db_path);
+    ranker->set_query(query);
 
     // Get vector of re-ranked docids
-    std::vector<Xapian::docid> ranked_docids = ltr.letor_rank(mset, model_path);
+    std::vector<Xapian::docid> ranked_docids = ranker->rank(mset, model_metadata_key);
 
     cout << "Docids after re-ranking by LTR model:" << endl;
     rank = 0;
     for (int i = 0; i < int(ranked_docids.size()); i++)
-	cout<< "Rank " << ++rank << ": " << ranked_docids[i] << endl;
+	cout << "Rank " << ++rank << ": " << ranked_docids[i] << endl;
+
+    delete ranker;
 
     cout << flush;
 } catch (const Xapian::QueryParserError & e) {
