@@ -151,10 +151,9 @@ ListNETRanker::save_model_to_metadata(const string & model_key) {
     if (key.empty()) {
 	key = "ListNET.model.default";
     }
-    ostringstream oss;
-    for (size_t i = 0; i <  parameters.size(); ++i)
-	oss << serialise_double(parameters[i]) << endl;
-    string model_data = oss.str();
+    string model_data;
+    for (size_t i = 0; i < parameters.size(); ++i)
+	model_data += serialise_double(parameters[i]);
     letor_db.set_metadata(key, model_data);
 }
 
@@ -172,13 +171,10 @@ ListNETRanker::load_model_from_metadata(const string & model_key) {
 	throw Xapian::LetorInternalError("No model found. Check key.");
     }
     vector<double> loaded_parameters;
-    istringstream model_str(model_data);
-    string line;
-    while (getline(model_str, line)) {
-	const char *ptr = line.data();
-	const char *end = ptr + line.size();
-	double parameter = unserialise_double(&ptr, end);
-	loaded_parameters.push_back(parameter);
+    const char *ptr = model_data.data();
+    const char *end = ptr + model_data.size();
+    while (ptr != end) {
+	loaded_parameters.push_back(unserialise_double(&ptr, end));
     }
     swap(parameters, loaded_parameters);
 }
