@@ -103,8 +103,8 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
      *
      * Xapian includes stop list files for many languages. You can initialise from a file like that:
      * @code
-     * ifstream inFile ("stopwords/english/stop.txt");
-     * Xapian::SimplerStopper stopper(istream_iterator<string>(inFile), istream_iterator<string>());
+     * ifstream words("stopwords/english/stop.txt");
+     * Xapian::SimplerStopper stopper(istream_iterator<string>(words), istream_iterator<string>());
      * @endcode
      *
      */
