@@ -22,9 +22,10 @@
 
 #include <config.h>
 
+#include "tcpclient.h"
+
 #include "remoteconnection.h"
 #include "str.h"
-#include "tcpclient.h"
 #include <xapian/error.h>
 
 #include "realtime.h"
