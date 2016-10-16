@@ -90,13 +90,11 @@ DPHWeight::init(double factor)
     // Use the smaller value among the root and wdf_upper.
     wdf_root = min(wdf_root, wdf_upper);
 
-    double max_wdf_product_normalization = (wdf_root *
-					   pow((1 - wdf_root / len_upper),2.0)) /
-					   (wdf_root + 1);
+    double max_wdf_product_normalization = wdf_root / (wdf_root + 1) *
+	pow((1 - wdf_root / len_upper), 2.0);
 
     double max_weight = max_wdf_product_normalization *
-			(log2(log_constant) +
-			(0.5 * log2(2 * M_PI * max_product)));
+	(log2(log_constant) + (0.5 * log2(2 * M_PI * max_product)));
 
     upper_bound = wqf_product_factor * max_weight;
     if (rare(upper_bound < 0.0)) upper_bound = 0.0;
@@ -133,9 +131,8 @@ DPHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     double normalization = pow((1 - wdf_to_len), 2) / (wdf + 1);
 
     double wt = normalization *
-		(wdf *
-		log2(wdf_to_len * log_constant) +
-		(0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
+	(wdf * log2(wdf_to_len * log_constant) +
+	 (0.5 * log2(2 * M_PI * wdf * (1 - wdf_to_len))));
     if (rare(wt <= 0.0)) return 0.0;
 
     return wqf_product_factor * wt;
