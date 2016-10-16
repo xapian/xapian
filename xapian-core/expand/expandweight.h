@@ -1,7 +1,7 @@
 /** @file expandweight.h
  * @brief Collate statistics and calculate the term weights for the ESet.
  */
-/* Copyright (C) 2007,2008,2009,2011 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2016 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or
@@ -157,7 +157,8 @@ class ExpandWeight {
 		 Xapian::doccount rsize_,
 		 bool use_exact_termfreq_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
-	  rsize(rsize_), collection_freq(0), collection_len(avlen * dbsize),
+	  rsize(rsize_), collection_freq(0),
+	  collection_len(avlen * dbsize + .5),
 	  use_exact_termfreq(use_exact_termfreq_), stats(avlen) {}
 
     /** Constructor.
@@ -174,7 +175,8 @@ class ExpandWeight {
 		 bool use_exact_termfreq_,
 		 double expand_k_)
 	: db(db_), dbsize(db.get_doccount()), avlen(db.get_avlength()),
-	  rsize(rsize_), collection_freq(0), collection_len(avlen * dbsize),
+	  rsize(rsize_), collection_freq(0),
+	  collection_len(avlen * dbsize + .5),
 	  use_exact_termfreq(use_exact_termfreq_), stats(avlen, expand_k_) {}
 
     /** Get the term statistics.
