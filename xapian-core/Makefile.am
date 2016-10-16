@@ -65,7 +65,18 @@ coverage-check:
 	rm -rf lcov
 	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
-bin_SCRIPTS = xapian-config
+# We want to clean out build tree paths from the copy of xapian-config we
+# install, mostly in the interests of facilitating reproducible builds.
+noinst_SCRIPTS = xapian-config
+
+install-exec-local: xapian-config
+	$(MKDIR_P) "$(DESTDIR)$(bindir)"
+	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapian-config > tmp.xc
+	$(INSTALL_SCRIPT) tmp.xc "$(DESTDIR)$(bindir)$$dir/`echo xapian-config|$(SED) -e '$(transform)'`"
+	rm -f tmp.xc
+
+uninstall-local:
+	rm -f "$(DESTDIR)$(bindir)$$dir/xapian-config"
 
 DISTCLEANFILES += xapian-config
 
