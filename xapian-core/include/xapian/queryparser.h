@@ -179,9 +179,9 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
      *			   the start (e.g. date:1/1/1980..31/12/1989), and a
      *			   suffix only on the end (e.g. 2..12kg).
      */
-    RangeProcessor(Xapian::valueno slot_,
-		   const std::string& str_ = std::string(),
-		   unsigned flags_ = 0)
+    explicit RangeProcessor(Xapian::valueno slot_,
+			    const std::string& str_ = std::string(),
+			    unsigned flags_ = 0)
 	: slot(slot_), str(str_), flags(flags_) { }
 
     /// Destructor.
