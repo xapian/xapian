@@ -81,6 +81,9 @@ if ($news =~ /^(?:up *to:?) *([[:xdigit:]]{7,}|\d+)\b/i) {
     } else {
 	# git
 	$rev1 = "v$last_release";
+	if (`git tag -l \Q$rev1\E` eq '' && `git tag -l \Q$last_release\E` ne '') {
+	    $rev1 = $last_release;
+	}
     }
 } else {
     die "Can't find revision in NEWS\n";
