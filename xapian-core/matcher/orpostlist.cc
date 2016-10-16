@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2010,2011,2012,2016 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -298,6 +298,13 @@ OrPostList::get_termfreq_est() const
     RETURN(static_cast<Xapian::doccount>(est + 0.5));
 }
 
+// Estimate frequency of OR assuming independence.
+static double
+est(double l, double r, double n)
+{
+    return l + r - (l * r / n);
+}
+
 TermFreqs
 OrPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
@@ -313,16 +320,13 @@ OrPostList::get_termfreq_est_using_stats(
     // Our caller should have ensured this.
     Assert(stats.collection_size);
 
-    freqest = lfreqs.termfreq + rfreqs.termfreq -
-	    (lfreqs.termfreq * rfreqs.termfreq / stats.collection_size);
-    collfreqest = lfreqs.collfreq + rfreqs.collfreq -
-	    (lfreqs.collfreq * rfreqs.collfreq / stats.total_term_count);
-
+    freqest = est(lfreqs.termfreq, rfreqs.termfreq, stats.collection_size);
+    collfreqest = est(lfreqs.collfreq, rfreqs.collfreq, stats.total_term_count);
     if (stats.rset_size == 0) {
 	relfreqest = 0;
     } else {
-	relfreqest = lfreqs.reltermfreq + rfreqs.reltermfreq -
-		(lfreqs.reltermfreq * rfreqs.reltermfreq / stats.rset_size);
+	relfreqest = est(lfreqs.reltermfreq, rfreqs.reltermfreq,
+			 stats.rset_size);
     }
 
     RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
