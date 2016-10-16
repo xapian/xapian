@@ -131,6 +131,14 @@ XAPIAN_DEPRECATED(typedef double weight);
 /** Reserved value to indicate "no valueno". */
 const valueno BAD_VALUENO = 0xffffffff;
 
+/** Revision number of a database.
+ *
+ *  For databases which support this, it increases with each commit.
+ *
+ *  Experimental - see https://xapian.org/docs/deprecation#experimental-features
+ */
+typedef XAPIAN_REVISION_TYPE rev;
+
 }
 
 #endif /* XAPIAN_INCLUDED_TYPES_H */
