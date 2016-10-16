@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "safenetdb.h" // For gai_strerror().
 #include "safesysstat.h" // For mkdir().
 #include "safeunistd.h" // For sleep().
 
@@ -117,6 +118,53 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
     }
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote" << endl;
+    out.close();
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote foo" << endl;
+    out.close();
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote [::1]:80" << endl;
+    out.close();
+
+    try {
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    } catch (const Xapian::NetworkError& e) {
+	// 1.4.0 threw:
+	// NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+	// 1.4.1 throws (because we don't actually support IPv6 yet):
+	// NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
+	TEST(strcmp(e.get_error_string(), gai_strerror(EAI_ADDRFAMILY)) == 0);
+    }
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    // Invalid - the port number is required.
+    out << "remote [::1]" << endl;
+    out.close();
+
+    // 1.4.0 threw:
+    // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    );
 
     return true;
 }
