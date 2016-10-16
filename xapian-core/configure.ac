@@ -1358,6 +1358,9 @@ else
   cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
 fi
 
+dnl Make revision numbers in the API 64 bit for future-proofing.
+cxxcpp_flags="$cxxcpp_flags -DXAPIAN_REVISION_TYPE="`echo "unsigned $INT64_T"|sed 's/ /____/g'`
+
 dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
 dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
 dnl which affect the ABI (e.g. -fabi-version for GCC) so we want to use these
