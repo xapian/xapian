@@ -43,6 +43,7 @@
 #include "expand/ortermlist.h"
 #include "internaltypes.h"
 #include "noreturn.h"
+#include "pack.h"
 
 #include <algorithm>
 #include <cstdlib> // For abs().
@@ -748,6 +749,24 @@ Database::get_uuid() const
 	uuid += sub_uuid;
     }
     RETURN(uuid);
+}
+
+Xapian::rev
+Database::get_revision() const
+{
+    LOGCALL(API, Xapian::rev, "Database::get_revision", NO_ARGS);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs != 1))
+	throw Xapian::InvalidOperationError("Database::get_revision() requires "
+					    "exactly one subdatabase");
+    const string& s = internal[0]->get_revision_info();
+    const char* p = s.data();
+    const char* end = p + s.size();
+    Xapian::rev revision;
+    if (!unpack_uint(&p, end, &revision))
+	throw Xapian::UnimplementedError("Database::get_revision() only "
+					 "supported for chert and glass");
+    return revision;
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -483,6 +483,19 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	std::string get_uuid() const;
 
+	/** Get the revision of the database.
+	 *
+	 *  The revision is an unsigned integer which increases with each
+	 *  commit.
+	 *
+	 *  The database must have exactly one sub-database, which must be of
+	 *  type chert or glass.  Otherwise an exception will be thrown.
+	 *
+	 *  Experimental - see
+	 *  https://xapian.org/docs/deprecation#experimental-features
+	 */
+	Xapian::rev get_revision() const;
+
 	/** Check the integrity of a database or database table.
 	 *
 	 *  @param path	Path to database or table

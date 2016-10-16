@@ -1433,3 +1433,23 @@ DEFINE_TESTCASE(exactxor1, backend) {
 
     return true;
 }
+
+/// Feature test for Database::get_revision().
+DEFINE_TESTCASE(getrevision1, chert || glass) {
+    Xapian::WritableDatabase db = get_writable_database();
+    TEST_EQUAL(db.get_revision(), 0);
+    db.commit();
+    TEST_EQUAL(db.get_revision(), 0);
+    Xapian::Document doc;
+    doc.add_term("hello");
+    db.add_document(doc);
+    TEST_EQUAL(db.get_revision(), 0);
+    db.commit();
+    TEST_EQUAL(db.get_revision(), 1);
+    db.commit();
+    TEST_EQUAL(db.get_revision(), 1);
+    db.add_document(doc);
+    db.commit();
+    TEST_EQUAL(db.get_revision(), 2);
+    return true;
+}
