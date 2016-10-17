@@ -46,10 +46,10 @@ Search::Xapian::ValueCountMatchSpy - Class for counting the frequencies of value
   my $enq = $db->enquire( '[QUERY TERM]' );
   my $spy = Search::Xapian::ValueCountMatchSpy->new(0);
   $enq->add_matchspy($spy);
-  my $mset = $enq->get_mset(0, 10, 10000);  
+  my $mset = $enq->get_mset(0, 10, 10000);
 
   print "Match spy registered " . $spy->get_total() . " documents\n";
-  
+
   my $end = $spy->values_end();
   for (my $it = $spy->values_begin(); $it != $end; $it++) {
     print $it->get_termname() . " - " . $it->get_termfreq();
@@ -57,12 +57,12 @@ Search::Xapian::ValueCountMatchSpy - Class for counting the frequencies of value
 
 =head1 DESCRIPTION
 
-Class for counting the frequencies of values in the matching documents. 
+Class for counting the frequencies of values in the matching documents.
 Wraps Xapian::ValueCountMatchSpy
 
 =head1 METHODS
 
-=over 4 
+=over 4
 
 =item new
 
@@ -74,19 +74,19 @@ Return the total number of documents tallied.
 
 =item values_begin
 
-Get an iterator over the values seen in the slot. 
+Get an iterator over the values seen in the slot.
 
 =item values_end
 
-End iterator corresponding to values_begin(). 
+End iterator corresponding to values_begin().
 
 =item top_values_begin <maxvalues>
 
-Get an iterator over the most frequent values seen in the slot. 
+Get an iterator over the most frequent values seen in the slot.
 
 =item top_values_end <maxvalues>
 
-End iterator corresponding to top_values_begin(). 
+End iterator corresponding to top_values_begin().
 
 =back
 
