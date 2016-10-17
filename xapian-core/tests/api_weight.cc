@@ -997,7 +997,9 @@ class CheckStatsWeight : public Xapian::Weight {
 
     Xapian::Database db;
 
-    string term;
+    // When testing OP_SYNONYM, term2 is also set.
+    // When testing OP_WILDCARD, term2 == "*"
+    string term1, term2;
 
     Xapian::termcount & sum;
     Xapian::termcount & sum_squares;
@@ -1007,10 +1009,11 @@ class CheckStatsWeight : public Xapian::Weight {
     mutable Xapian::termcount wdf_upper;
 
     CheckStatsWeight(const Xapian::Database & db_,
-		     const string & term_,
+		     const string & term1_,
+		     const string & term2_,
 		     Xapian::termcount & sum_,
 		     Xapian::termcount & sum_squares_)
-	: factor(-1.0), db(db_), term(term_),
+	: factor(-1.0), db(db_), term1(term1_), term2(term2_),
 	  sum(sum_), sum_squares(sum_squares_),
 	  len_upper(0), len_lower(Xapian::termcount(-1)), wdf_upper(0)
     {
@@ -1030,23 +1033,70 @@ class CheckStatsWeight : public Xapian::Weight {
 	need_stat(UNIQUE_TERMS);
     }
 
+    CheckStatsWeight(const Xapian::Database & db_,
+		     const string & term_,
+		     Xapian::termcount & sum_,
+		     Xapian::termcount & sum_squares_)
+	: CheckStatsWeight(db_, term_, string(), sum_, sum_squares_) { }
+
     void init(double factor_) {
 	factor = factor_;
     }
 
     Weight * clone() const {
-	return new CheckStatsWeight(db, term, sum, sum_squares);
+	return new CheckStatsWeight(db, term1, term2, sum, sum_squares);
     }
 
     double get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
 		       Xapian::termcount uniqueterms) const {
-	TEST_EQUAL(get_collection_size(), db.get_doccount());
-	TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term));
+	Xapian::doccount num_docs = db.get_doccount();
+	TEST_EQUAL(get_collection_size(), num_docs);
 	TEST_EQUAL(get_rset_size(), 0);
 	TEST_EQUAL(get_average_length(), db.get_avlength());
-	TEST_EQUAL(get_termfreq(), db.get_termfreq(term));
+	if (term2.empty()) {
+	    TEST_EQUAL(get_termfreq(), db.get_termfreq(term1));
+	    TEST_EQUAL(get_collection_freq(), db.get_collection_freq(term1));
+	    TEST_EQUAL(get_query_length(), 1);
+	} else {
+	    Xapian::doccount tfmax = 0, tfsum = 0;
+	    Xapian::termcount cfmax = 0, cfsum = 0;
+	    if (term2 == "*") {
+		// OP_WILDCARD case.
+		for (auto&& t = db.allterms_begin(term1);
+		     t != db.allterms_end(term1); ++t) {
+		    Xapian::doccount tf = t.get_termfreq();
+		    tout << "->" << *t << " " << tf << endl;
+		    tfsum += tf;
+		    tfmax = max(tfmax, tf);
+		    Xapian::termcount cf = db.get_collection_freq(*t);
+		    cfsum += cf;
+		    cfmax = max(cfmax, cf);
+		}
+		TEST_EQUAL(get_query_length(), 1);
+	    } else {
+		// OP_SYNONYM case.
+		Xapian::doccount tf1 = db.get_termfreq(term1);
+		Xapian::doccount tf2 = db.get_termfreq(term2);
+		tfsum = tf1 + tf2;
+		tfmax = max(tf1, tf2);
+		Xapian::termcount cf1 = db.get_collection_freq(term1);
+		Xapian::termcount cf2 = db.get_collection_freq(term2);
+		cfsum = cf1 + cf2;
+		cfmax = max(cf1, cf2);
+		TEST_EQUAL(get_query_length(), 2);
+	    }
+	    // Synonym occurs at least as many times as any term.
+	    TEST_REL(get_termfreq(), >=, tfmax);
+	    TEST_REL(get_collection_freq(), >=, cfmax);
+	    // Synonym can't occur more times than the terms do.
+	    TEST_REL(get_termfreq(), <=, tfsum);
+	    TEST_REL(get_collection_freq(), <=, cfsum);
+	    // Synonym can't occur more times than there are documents/terms.
+	    TEST_REL(get_termfreq(), <=, num_docs);
+	    double total_term_occurences = get_average_length() * num_docs;
+	    TEST_REL(get_collection_freq(), <=, total_term_occurences);
+	}
 	TEST_EQUAL(get_reltermfreq(), 0);
-	TEST_EQUAL(get_query_length(), 1);
 	TEST_EQUAL(get_wqf(), 1);
 	TEST_REL(doclen,>=,len_lower);
 	TEST_REL(doclen,<=,len_upper);
@@ -1104,6 +1154,155 @@ DEFINE_TESTCASE(checkstatsweight1, backend && !remote) {
 	}
 	TEST_EQUAL(sum, expected_sum);
 	TEST_EQUAL(sum_squares, expected_sum_squares);
+    }
+    return true;
+}
+
+/// Check the weight subclass gets the correct stats with OP_SYNONYM.
+// Regression test for bugs fixed in 1.4.1.
+DEFINE_TESTCASE(checkstatsweight2, backend && !remote) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::TermIterator a;
+    for (a = db.allterms_begin(); a != db.allterms_end(); ++a) {
+	const string & term1 = *a;
+	if (++a == db.allterms_end()) break;
+	const string & term2 = *a;
+	Xapian::Query q(Xapian::Query::OP_SYNONYM,
+			Xapian::Query(term1), Xapian::Query(term2));
+	tout << q.get_description() << endl;
+	enquire.set_query(q);
+	Xapian::termcount sum = 0;
+	Xapian::termcount sum_squares = 0;
+	CheckStatsWeight wt(db, term1, term2, sum, sum_squares);
+	enquire.set_weighting_scheme(wt);
+	Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+
+	// The document order in the multi-db case isn't the same as the
+	// postlist order on the combined DB, so it's hard to compare the
+	// wdf for each document in the Weight objects, so we can sum
+	// the wdfs and the squares of the wdfs which provides a decent
+	// check that we're not getting the wrong wdf values (it ensures
+	// they have the right mean and standard deviation).
+	Xapian::termcount expected_sum = 0;
+	Xapian::termcount expected_sum_squares = 0;
+	Xapian::PostingIterator i = db.postlist_begin(term1);
+	Xapian::PostingIterator j = db.postlist_begin(term2);
+	Xapian::docid did1 = *i, did2 = *j;
+	while (true) {
+	    // To calculate expected_sum_squares correctly we need to square
+	    // the sum per document.
+	    Xapian::termcount wdf;
+	    if (did1 == did2) {
+		wdf = i.get_wdf() + j.get_wdf();
+		did1 = did2 = 0;
+	    } else if (did1 < did2) {
+		wdf = i.get_wdf();
+		did1 = 0;
+	    } else {
+		wdf = j.get_wdf();
+		did2 = 0;
+	    }
+	    expected_sum += wdf;
+	    expected_sum_squares += wdf * wdf;
+
+	    if (did1 == 0) {
+		if (++i != db.postlist_end(term1)) {
+		    did1 = *i;
+		} else {
+		    if (did2 == Xapian::docid(-1)) break;
+		    did1 = Xapian::docid(-1);
+		}
+	    }
+	    if (did2 == 0) {
+		if (++j != db.postlist_end(term2)) {
+		    did2 = *j;
+		} else {
+		    if (did1 == Xapian::docid(-1)) break;
+		    did2 = Xapian::docid(-1);
+		}
+	    }
+	}
+	// The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
+	// the individual terms.
+	TEST_EQUAL(sum, expected_sum);
+	TEST_REL(sum_squares, >=, expected_sum_squares);
+    }
+    return true;
+}
+
+/// Check the weight subclass gets the correct stats with OP_WILDCARD.
+// Regression test for bug fixed in 1.4.1.
+// Don't run with multi-database, as the termfreq checks don't work
+// there - FIXME: Investigate this - it smells like a bug.
+DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
+    struct PlCmp {
+	bool operator()(const Xapian::PostingIterator& a,
+			const Xapian::PostingIterator& b) {
+	    return *a < *b;
+	}
+    };
+
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    Xapian::TermIterator a;
+    static const char * testcases[] = {
+	"a", // a* matches all documents, but no term matches all.
+	"pa", // Expands to only "paragraph", matching 5.
+	"zulu", // No matches.
+	"th", // Term "this" matches all documents.
+	NULL
+    };
+    for (const char ** p = testcases; *p; ++p) {
+	const char * pattern = *p;
+	Xapian::Query q(Xapian::Query::OP_WILDCARD, pattern);
+	tout << q.get_description() << endl;
+	enquire.set_query(q);
+	Xapian::termcount sum = 0;
+	Xapian::termcount sum_squares = 0;
+	CheckStatsWeight wt(db, pattern, "*", sum, sum_squares);
+	enquire.set_weighting_scheme(wt);
+	Xapian::MSet mset = enquire.get_mset(0, db.get_doccount());
+
+	// The document order in the multi-db case isn't the same as the
+	// postlist order on the combined DB, so it's hard to compare the
+	// wdf for each document in the Weight objects, so we can sum
+	// the wdfs and the squares of the wdfs which provides a decent
+	// check that we're not getting the wrong wdf values (it ensures
+	// they have the right mean and standard deviation).
+	Xapian::termcount expected_sum = 0;
+	Xapian::termcount expected_sum_squares = 0;
+	vector<Xapian::PostingIterator> postlists;
+	for (auto&& t = db.allterms_begin(pattern);
+	     t != db.allterms_end(pattern); ++t) {
+	    postlists.emplace_back(db.postlist_begin(*t));
+	}
+	make_heap(postlists.begin(), postlists.end(), PlCmp());
+	Xapian::docid did = 0;
+	Xapian::termcount wdf= 0;
+	while (!postlists.empty()) {
+	    pop_heap(postlists.begin(), postlists.end(), PlCmp());
+	    Xapian::docid did_new = *postlists.back();
+	    Xapian::termcount wdf_new = postlists.back().get_wdf();
+	    if (++(postlists.back()) == Xapian::PostingIterator()) {
+		postlists.pop_back();
+	    } else {
+		push_heap(postlists.begin(), postlists.end(), PlCmp());
+	    }
+	    if (did_new != did) {
+		expected_sum += wdf;
+		expected_sum_squares += wdf * wdf;
+		wdf = 0;
+		did = did_new;
+	    }
+	    wdf += wdf_new;
+	}
+	expected_sum += wdf;
+	expected_sum_squares += wdf * wdf;
+	// The OP_SYNONYM's wdf should be equal to the sum of the wdfs of
+	// the individual terms.
+	TEST_EQUAL(sum, expected_sum);
+	TEST_REL(sum_squares, >=, expected_sum_squares);
     }
     return true;
 }

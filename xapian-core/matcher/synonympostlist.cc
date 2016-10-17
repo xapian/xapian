@@ -2,7 +2,7 @@
  * @brief Combine subqueries, weighting as if they are synonyms
  */
 /* Copyright 2007,2009 Lemur Consulting Ltd
- * Copyright 2009,2011,2014 Olly Betts
+ * Copyright 2009,2011,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,7 @@ SynonymPostList::set_weight(const Xapian::Weight * wt_)
     wt = wt_;
     want_doclength = wt->get_sumpart_needs_doclength_();
     want_wdf = wt->get_sumpart_needs_wdf_();
+    want_unique_terms = wt->get_sumpart_needs_uniqueterms_();
 }
 
 PostList *

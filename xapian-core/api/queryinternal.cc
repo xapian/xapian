@@ -960,6 +960,12 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
     } else if (op != Query::OP_SYNONYM) {
 	or_factor = factor;
     }
+
+    bool old_in_synonym = qopt->in_synonym;
+    if (!old_in_synonym) {
+	qopt->in_synonym = (op == Query::OP_SYNONYM);
+    }
+
     OrContext ctx(0);
     AutoPtr<TermList> t(qopt->db.open_allterms(pattern));
     Xapian::termcount expansions_left = max_expansion;
@@ -1004,6 +1010,8 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	    qopt->inc_total_subqs();
 	}
     }
+
+    qopt->in_synonym = old_in_synonym;
 
     if (ctx.empty())
 	RETURN(new EmptyPostList);
@@ -1207,6 +1215,11 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(MATCH, PostList *, "QueryBranch::do_synonym", qopt | factor);
     OrContext ctx(subqueries.size());
+    bool old_in_synonym;
+    if (factor != 0.0) {
+	old_in_synonym = qopt->in_synonym;
+	qopt->in_synonym = true;
+    }
     do_or_like(ctx, qopt, 0.0);
     PostList * pl = ctx.postlist(qopt);
     if (factor == 0.0) {
@@ -1214,6 +1227,8 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 	// we're just like a normal OR query.
 	return pl;
     }
+
+    qopt->in_synonym = old_in_synonym;
 
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were

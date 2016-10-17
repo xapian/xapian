@@ -1,7 +1,7 @@
 /** @file localsubmatch.h
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -97,6 +97,7 @@ class LocalSubMatch : public SubMatch {
 				  Xapian::termcount wqf,
 				  double factor,
 				  bool need_positions,
+				  bool in_synonym,
 				  QueryOptimiser * qopt,
 				  bool lazy_weight);
 };
