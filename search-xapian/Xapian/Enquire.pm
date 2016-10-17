@@ -264,6 +264,8 @@ Remove all the matchspies.
 
 =head1 SEE ALSO
 
-L<Search::Xapian::Query>, L<Search::Xapian::Database>, L<Search::Xapian::MatchSpy>
+L<Search::Xapian::Query>,
+L<Search::Xapian::Database>,
+L<Search::Xapian::MatchSpy>
 
 =cut

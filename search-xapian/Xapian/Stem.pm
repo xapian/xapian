@@ -38,6 +38,8 @@ Returns the stemmed form of the given word.
 
 =head1 SEE ALSO
 
-L<Search::Xapian>, L<Search::Xapian::QueryParser>, L<Search::Xapian::TermGenerator>
+L<Search::Xapian>,
+L<Search::Xapian::QueryParser>,
+L<Search::Xapian::TermGenerator>
 
 =cut
