@@ -53,7 +53,8 @@ Return a description of this object.  Also implemented as stringification.
 
 =head1 SEE ALSO
 
-L<Xapian>,L<Xapian::Document>
+L<Xapian>,
+L<Xapian::Document>
 
 =cut
 1;

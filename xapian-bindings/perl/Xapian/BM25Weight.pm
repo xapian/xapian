@@ -21,7 +21,8 @@ Constructor. Either takes no parameters, or the 4 BM25 parameters
 
 =head1 SEE ALSO
 
-L<Xapian>,L<Xapian::Enquire>
+L<Xapian>,
+L<Xapian::Enquire>
 
 =cut
 1;
