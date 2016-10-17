@@ -27,7 +27,9 @@ Returns the stemmed form of the given word.
 
 =head1 SEE ALSO
 
-L<Xapian>, L<Xapian::QueryParser>, L<Xapian::TermGenerator>
+L<Xapian>,
+L<Xapian::QueryParser>,
+L<Xapian::TermGenerator>
 
 =cut
 1;
