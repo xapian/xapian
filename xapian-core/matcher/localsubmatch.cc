@@ -1,7 +1,7 @@
 /** @file localsubmatch.cc
  *  @brief SubMatch class for a local database.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -253,6 +253,7 @@ LocalSubMatch::open_post_list(const string& term,
 			      Xapian::termcount wqf,
 			      double factor,
 			      bool need_positions,
+			      bool in_synonym,
 			      QueryOptimiser * qopt,
 			      bool lazy_weight)
 {
@@ -262,7 +263,8 @@ LocalSubMatch::open_post_list(const string& term,
 
     LeafPostList * pl = NULL;
     if (!term.empty() && !need_positions) {
-	if (!weighted || !wt_factory->get_sumpart_needs_wdf_()) {
+	if ((!weighted && !in_synonym) ||
+	    !wt_factory->get_sumpart_needs_wdf_()) {
 	    Xapian::doccount sub_tf;
 	    db->get_freqs(term, &sub_tf, NULL);
 	    if (sub_tf == db->get_doccount()) {
@@ -271,6 +273,12 @@ LocalSubMatch::open_post_list(const string& term,
 		// MatchAll postlist, which is especially efficient if there
 		// are no gaps in the docids.
 		pl = db->open_post_list(string());
+		// Set the term name so the postlist looks up the correct term
+		// frequencies - this is necessary if the weighting scheme
+		// needs collection frequency or reltermfreq (termfreq would be
+		// correct anyway since it's just the collection size in this
+		// case).
+		pl->set_term(term);
 	    }
 	}
     }
