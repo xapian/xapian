@@ -74,7 +74,8 @@ Return a description of this object.
 
 =head1 SEE ALSO
 
-L<Xapian>,L<Xapian::Database>
+L<Xapian>,
+L<Xapian::Database>
 
 =cut
 1;
