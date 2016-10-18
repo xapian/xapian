@@ -101,8 +101,8 @@ typedef int termpos_diff; /* FIXME: can overflow. */
  *  There are 1000 milliseconds in a second, so for example, to set a
  *  timeout of 5 seconds use 5000.
  *
- *  @deprecated This type is deprecated as of Xapian 1.3.0 - use the standard
- *  POSIX type useconds_t instead, which should work with older Xapian too.
+ *  @deprecated This type is deprecated as of Xapian 1.3.0 - use unsigned
+ *  instead, which should work with older Xapian too.
  */
 XAPIAN_DEPRECATED(typedef unsigned timeout);
 
