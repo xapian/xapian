@@ -2,7 +2,7 @@
 /** @file xapian-head.i
  * @brief Header for SWIG interface file for Xapian.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,15 +44,12 @@ namespace Xapian {
 	static Database open(const string &) {
 	    throw FeatureUnavailableError("Chert backend not supported");
 	}
-	static WritableDatabase open(const string &, int, int = 8192) {
+	static WritableDatabase open(const string &, int, int = 0) {
 	    throw FeatureUnavailableError("Chert backend not supported");
 	}
     }
 #endif
 
-%}
-#endif
-%{
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     namespace InMemory {
 	static WritableDatabase open() {
@@ -61,13 +58,17 @@ namespace Xapian {
     }
 #endif
 
+%}
+#endif
+%{
+
 #ifndef XAPIAN_HAS_REMOTE_BACKEND
     namespace Remote {
 	static Database open(const string &, unsigned int, useconds_t = 0, useconds_t = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
 
-	static WritableDatabase open_writable(const string &, unsigned int, useconds_t = 0, useconds_t = 0) {
+	static WritableDatabase open_writable(const string &, unsigned int, useconds_t = 0, useconds_t = 0, int = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
 
@@ -75,11 +76,12 @@ namespace Xapian {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
 
-	static WritableDatabase open_writable(const string &, const string &, useconds_t = 0) {
+	static WritableDatabase open_writable(const string &, const string &, useconds_t = 0, int = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
     }
 #endif
+
 }
 %}
 
