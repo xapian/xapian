@@ -66,7 +66,19 @@ Inverter::flush_post_lists(BrassPostListTable & table, const string & pfx)
 
     map<string, PostingChanges>::iterator i, begin, end;
     begin = postlist_changes.lower_bound(pfx);
-    end = postlist_changes.upper_bound(pfx);
+    string pfxinc = pfx;
+    while (true) {
+	if (pfxinc.back() != '\xff') {
+	    ++pfxinc.back();
+	    end = postlist_changes.lower_bound(pfxinc);
+	    break;
+	}
+	pfxinc.resize(pfxinc.size() - 1);
+	if (pfxinc.empty()) {
+	    end = postlist_changes.end();
+	    break;
+	}
+    }
 
     for (i = begin; i != end; ++i) {
 	table.merge_changes(i->first, i->second);
