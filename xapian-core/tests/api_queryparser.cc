@@ -1056,7 +1056,6 @@ DEFINE_TESTCASE(qp_flag_wildcard3, writable) {
     doc.add_term("muscular");
     doc.add_term("mutton");
     db.add_document(doc);
-    db.commit();
 
     // Test that a max of 0 doesn't set a limit.
     test_qp_flag_wildcard1_helper(db, 0, "z*");
