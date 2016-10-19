@@ -151,7 +151,7 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	// NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
 	// 1.4.1 throws (because we don't actually support IPv6 yet):
 	// NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
-	TEST(strcmp(e.get_error_string(), gai_strerror(EAI_ADDRFAMILY)) == 0);
+	TEST_STRINGS_EQUAL(e.get_error_string(), gai_strerror(EAI_ADDRFAMILY));
     }
 
     out.open(dbpath);
