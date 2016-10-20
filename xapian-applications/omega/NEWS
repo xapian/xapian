@@ -1,3 +1,72 @@
+Omega 1.4.1 (2016-10-21):
+
+general:
+
+documentation:
+
+* Document bug in how $filters encodes DOCIDORDER=A.
+
+* Suggest DOCIDORDER=X for DONT_CARE.
+
+* Correct mentions of C++ API method MSet::get_snippet() to MSet::snippet().
+
+* Fix typo in Omega 1.4.0 NEWS entry.  Patch from James Aylett.
+
+indexers:
+
+* omindex:
+
+* Also index leafname with _ and & replaced by spaces.  Literal spaces are
+  often avoided in filenames, and "hello_world.txt" ought to be searchable for
+  via "hello" and "world".  Partly addresses #618, reported by Julien
+  Pfefferkorn.
+
+omega:
+
+* Add support for sorting by more than one value - e.g. SORT=+1,-2
+
+* Add $msizelower and $msizeupper which provide access to the lower and upper
+  bounds on the number of matches.
+
+* Add support for $set{weighting,coord}.
+
+* Add weightingpurefilter option.  Normally a query consisting only of filter
+  terms won't have relevance weights calculated.  This new option allows you to
+  specify a weighting scheme to use for such queries, with the same values
+  supported as for the existing weighting option.  For example,
+  $set{weightingpurefilter,coord} will weight such queries by how many filter
+  terms match each document.
+
+* $filters now includes DATEVALUE, which means we'll force the first page when
+  reloading or changing page starting from existing URLs upon upgrade to 1.4.1,
+  but the exact same existing URL could be for a search without the date filter
+  where we want to force the first page, so there's an inherent ambiguity
+  there.  Forcing first page in this case seems the least problematic
+  side-effect.
+
+testsuite:
+
+* Add feature test for boolprefix and prefix maps.
+
+* Add more feature tests for $filters.
+
+build system:
+
+* GCC 4.7 is now enforced as the minimum version.
+
+* Drop unused configure check for symbol visibility
+
+* Drop compiler options that are no longer useful:
+  + -fshow-column is the default in all GCC versions we now support
+    (checked as GCC 4.6).
+  + -Wno-long-long is no longer necessary now that we require C++11 where
+    "long long" is a standard type.
+
+portability:
+
+* Fix build on platforms which don't provide timegm(), such as Cygwin.
+  Reported on xapian-discuss by John Bankert.
+
 Omega 1.4.0 (2016-06-24):
 
 general:

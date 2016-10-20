@@ -1,3 +1,162 @@
+Xapian-core 1.4.1 (2016-10-21):
+
+API:
+
+* Constructing a Query for a non-reference counted PostingSource object will
+  now try to clone the PostingSource object (as happened in 1.3.4 and
+  earlier).  This clone code was removed as part of the changes in 1.3.5 to
+  support optional reference counting of PostingSource objects, but that breaks
+  the case when the PostingSource object is on the stack and goes out of scope
+  before the Query object is used.  Issue reported by Till Schäfer and analysed
+  by Daniel Vrátil in a bug report against Akonadi:
+  https://bugs.kde.org/show_bug.cgi?id=363741
+
+* Add BM25PlusWeight class implementing the BM25+ weighting scheme, implemented
+  by Vivek Pal (https://github.com/xapian/xapian/pull/104).
+
+* Add PL2PlusWeight class implementing the PL2+ weighting scheme, implemented
+  by Vivek Pal (https://github.com/xapian/xapian/pull/108).
+
+* LMWeight: Implement Dir+ weighting scheme as DIRICHLET_PLUS_SMOOTHING.
+  Patch from Vivek Pal.
+
+* Add CoordWeight class implementing coordinate matching.  This can be useful
+  for specialised uses - e.g. to implement sorting by the number of matching
+  filters.
+
+* DLHWeight,DPHWeight,PL2Weight: With these weighting schemes, the formulae
+  can give a negative weight contribution for a term in extreme cases.  We
+  used to try to handle this by calculating a per-term lower bound on the
+  contribution and subtracting this from the contribution, but this idea
+  is fundamentally flawed as the total offset it adds to a document depends on
+  what combination of terms that document matches, meaning in general the
+  offset isn't the same for every matching document.  So instead we now clamp
+  each term's weight contribution to be >= 0.
+
+* TfIdfWeight: Always scale term weight by wqf - this seems the logical
+  approach as it matches the weighting we'd get if we weighted every non-unique
+  term in the query, as well as being explicit in the Piv+ formula.
+
+* Fix OP_SCALE_WEIGHT to work with all weighting schemes - previously it was
+  ignored when using PL2Weight and LMWeight.
+
+* PL2Weight: Greatly improve upper bound on weight:
+  + Split the weight equation into two parts and maximise each separately as
+    that gives an easily solvable problem, and in common cases the maximum is
+    at the same value of wdfn for both parts.  In a simple test, the upper
+    bounds are now just over double the highest weight actually achieved -
+    previously they were several hundred times.  This approach was suggested by
+    Aarsh Shah in: https://github.com/xapian/xapian/pull/48
+  + Improve upper bound on normalised wdf (wdfn) - when wdf_upper_bound >
+    doclength_lower_bound, we get a tighter bound by evaluating at
+    wdf=wdf_upper_bound.  In a simple test, this reduces the upper bound on
+    wdfn by 36-64%, and the upper bound on the weight by 9-33%.
+
+* PL2Weight: Fix calculation of upper_bound when P2>0.  P2 is typically
+  negative, but for a very common term it can be positive and then we should
+  use wdfn_lower not wdfn_upper to adjust P_max.
+
+* Weight::unserialise(): Check serialised form is empty when unserialising
+  parameter-free schemes BoolWeight, DLHWeight and DPHWeight.
+
+* TermGenerator::set_stopper_strategy(): New method to control how the Stopper
+  object is used.  Patch from Arnav Jain.
+
+* QueryParser: Fix handling of CJK query over multiple prefixes.  Previously
+  all the n-gram terms were AND-ed together - now we AND together for each
+  prefix, then OR the results.  Fixes #719, reported by Aaron Li.
+
+* Add Database::get_revision() method which provides access to the database
+  revision number for chert and glass, intended for use by xapiand.  Marked
+  as experimental, so we don't have to go through the usual deprecation cycle
+  if this proves not to be the approach we want to take.  Fixes #709,
+  reported by German M. Bravo.
+
+* Mark RangeProcessor constructor as `explicit`.
+
+testsuite:
+
+* OP_SCALE_WEIGHT: Check top weight is non-zero - if it is zero, tests which
+  try to check that OP_SCALE_WEIGHT works will always pass.
+
+* testsuite: Check SerialisationError descriptions from Xapian::Weight
+  subclasses mention the weighting scheme name.
+
+matcher:
+
+* Fix stats passed to Weight with OP_SYNONYM.  Previously the number of
+  unique terms was never calculated, and a term which matched all documents
+  would be optimised to an all-docs postlist, which fails to supply the
+  correct wdf info.
+
+* Use floating point calculation for OR synonym freq estimates.  The division
+  was being done as an integer division, which means the result was always
+  getting rounded down rather than rounded to the nearest integer.
+
+glass backend:
+
+* Fix allterms with prefix on glass with uncommitted changes.  Glass aims to
+  flush just the relevant postlist changes in this case but the end of the
+  range to flush was wrong, so we'd only actually flush changes for a term
+  exactly matching the prefix.  Fixes #721.
+
+remote backend:
+
+* Improve handling of invalid remote stub entries: Entries without a colon now
+  give an error rather than being quietly skipped; IPv6 isn't yet supported,
+  but entries with IPv6 addresses now result in saner errors (previously the
+  colons confused the code which looks for a port number).
+
+build system:
+
+* XO_LIB_XAPIAN: Check for user trying to specify configure for XAPIAN_CONFIG
+  and give a more helpful error.
+
+* Fix XO_LIB_XAPIAN to work without libtool.  Modern versions of GNU m4 error
+  out when defn is used on an undefined macro.  Uncovered by Amanda Jayanetti.
+
+* Clean build paths out of installed xapian-config, mostly in the interests of
+  facilitating reproducible builds, but it is also a little more robust as the
+  "uninstalled tree" case can't then accidentally be triggered.
+
+* Drop compiler options that are no longer useful:
+  + -fshow-column is the default in all GCC versions we now support
+    (checked as GCC 4.6).
+  + -Wno-long-long is no longer necessary now that we require C++11 where
+    "long long" is a standard type.
+
+documentation:
+
+* Add API documentation comments for all classes, methods, constants, etc which
+  were lacking them, and improve the content of some existing comments.
+
+* Stop hiding undocumented classes and members.  Hiding them silences doxygen's
+  warnings about them, so it's hard to see what is missing, and the stub
+  documentation produced is perhaps better than not documenting at all.
+  Fixes #736, reported by James Aylett.
+
+* xapian-check: Make command line syntax consistent with other tools.
+
+* Note when MSet::snippet() was added.
+
+* deprecation.rst: Recommend unsigned over useconds_t for timeout values (but
+  leave the API using useconds_t for 1.4.x for ABI compatibility.  The type
+  useconds_t is now obsolete and anyway was intended to represent a time in
+  microseconds (confusing when Xapian's timeouts are in milliseconds).  The
+  Linux usleep man page notes: "Programs will be more portable if they never
+  mention this type explicitly."
+
+portability:
+
+* Suppress compiler warnings about pointer alignment on some architectures.
+  We know the data is aligned in these cases.
+
+* Fix replicate7 under Cygwin.
+
+debug code:
+
+* Add missing forward declaration needed by --enable-log build.
+
 Xapian-core 1.4.0 (2016-06-24):
 
 API:
