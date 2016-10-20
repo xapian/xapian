@@ -1159,7 +1159,7 @@ portability:
 * backends/brass/brass_databasereplicator.cc: Use new/delete to avoid variable
   length array gcc extension and comply with c++98
 
-* Mark file descriptors as close-on-exec where supported. 
+* Mark file descriptors as close-on-exec where supported.
 
 * api/queryinternal.cc: Need <functional> for mem_fun().
 
