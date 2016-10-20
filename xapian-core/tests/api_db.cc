@@ -147,11 +147,14 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
     try {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
     } catch (const Xapian::NetworkError& e) {
-	// 1.4.0 threw:
-	// NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
-	// 1.4.1 throws (because we don't actually support IPv6 yet):
-	// NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
-	TEST_STRINGS_EQUAL(e.get_error_string(), gai_strerror(EAI_ADDRFAMILY));
+	// 1.4.0 threw (Linux):
+	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (nodename nor servname provided, or not known)
+	// or on OS X (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
+	// So we test the message instead of the error string for portability.
+	TEST(e.get_msg().find("host ::1") != string::npos);
     }
 
     out.open(dbpath);
