@@ -68,8 +68,8 @@ Inverter::flush_post_lists(BrassPostListTable & table, const string & pfx)
     begin = postlist_changes.lower_bound(pfx);
     string pfxinc = pfx;
     while (true) {
-	if (pfxinc.back() != '\xff') {
-	    ++pfxinc.back();
+	if (pfxinc[pfxinc.size() - 1] != '\xff') {
+	    ++pfxinc[pfxinc.size() - 1];
 	    end = postlist_changes.lower_bound(pfxinc);
 	    break;
 	}
