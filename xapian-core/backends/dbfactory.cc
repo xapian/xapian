@@ -263,8 +263,7 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	if (type == "remote") {
-	    string::size_type colon = line.find(':');
-	    if (colon == 0) {
+	    if (line[0] == ':') {
 		// prog
 		// FIXME: timeouts
 		// Is it a security risk?
@@ -277,14 +276,26 @@ open_stub(WritableDatabase &db, const string &file, int flags)
 		    line.erase(0, 1);
 		}
 		db.add_database(Remote::open_writable(line, args, 0, flags));
-	    } else if (colon != string::npos) {
+		continue;
+	    }
+	    string::size_type colon = line.rfind(':');
+	    if (colon != string::npos) {
 		// tcp
 		// FIXME: timeouts
-		unsigned int port = atoi(line.c_str() + colon + 1);
-		line.erase(colon);
-		db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
+		// Avoid misparsing an IPv6 address without a port number.  The
+		// port number is required, so just leave that case to the
+		// error handling further below.
+		if (!(line[0] == '[' && line.back() == ']')) {
+		    unsigned int port = atoi(line.c_str() + colon + 1);
+		    line.erase(colon);
+		    if (line[0] == '[' && line.back() == ']') {
+			line.erase(line.size() - 1, 1);
+			line.erase(0, 1);
+		    }
+		    db.add_database(Remote::open_writable(line, port, 0, 10000, flags));
+		    continue;
+		}
 	    }
-	    continue;
 	}
 #endif
 
