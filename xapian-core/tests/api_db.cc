@@ -129,6 +129,11 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
     );
 
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
     out.open(dbpath);
     TEST(out.is_open());
     out << "remote foo" << endl;
@@ -139,6 +144,11 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
     );
 
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
     out.open(dbpath);
     TEST(out.is_open());
     out << "remote [::1]:80" << endl;
@@ -146,6 +156,19 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 
     try {
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    } catch (const Xapian::NetworkError& e) {
+	// 1.4.0 threw (Linux):
+	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (nodename nor servname provided, or not known)
+	// or on OS X (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
+	// So we test the message instead of the error string for portability.
+	TEST(e.get_msg().find("host ::1") != string::npos);
+    }
+
+    try {
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
     } catch (const Xapian::NetworkError& e) {
 	// 1.4.0 threw (Linux):
 	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
@@ -167,6 +190,12 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
     // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    );
+
+    // 1.4.0 threw:
+    // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
     );
 
     return true;
