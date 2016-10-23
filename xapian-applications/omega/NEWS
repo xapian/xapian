@@ -42,7 +42,7 @@ omega:
   but the exact same existing URL could be for a search without the date filter
   where we want to force the first page, so there's an inherent ambiguity
   there.  Forcing first page in this case seems the least problematic
-  side-effect.
+  side-effect.  Omission noted by Gaurav Arora.
 
 testsuite:
 
