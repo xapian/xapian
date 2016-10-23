@@ -333,7 +333,7 @@ General:
 * Don't wrap Query::LEAF_* - they're for internal use in xapian-core.
 
 * Fix "make install" from a git tree configured with --disable-documentation.
-  (Fixes #658, reported by German M. Bravo)
+  (Fixes #658, reported by Germán M. Bravo)
 
 * Fix "make install" when building from git with --disable-documentation.
 

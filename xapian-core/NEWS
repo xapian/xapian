@@ -70,7 +70,7 @@ API:
   revision number for chert and glass, intended for use by xapiand.  Marked
   as experimental, so we don't have to go through the usual deprecation cycle
   if this proves not to be the approach we want to take.  Fixes #709,
-  reported by German M. Bravo.
+  reported by Germán M. Bravo.
 
 * Mark RangeProcessor constructor as `explicit`.
 
@@ -1600,7 +1600,7 @@ remote backend:
   previously reported "Got exception NetworkError: Received EOF", which sounds
   like there was a problem.  Now we just say "Connection closed" here, and
   "Connection closed unexpectedly" if the client connects in the middle of an
-  exchange.  Possibly fixes #654, reported by German M. Bravo.
+  exchange.  Possibly fixes #654, reported by Germán M. Bravo.
 
 * Give a clearer error message when the client and server remote protocol
   versions aren't compatible.
