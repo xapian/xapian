@@ -703,6 +703,19 @@ _queryparser_add_valuerangeprocessor.__doc__ = __queryparser_add_valuerangeproce
 QueryParser.add_valuerangeprocessor = _queryparser_add_valuerangeprocessor
 del _queryparser_add_valuerangeprocessor
 
+# When we set a RangeProcessor into the QueryParser, keep a python
+# reference so it won't be deleted. This hack can probably be removed once
+# xapian bug #186 is fixed.
+__queryparser_add_rangeprocessor_orig = QueryParser.add_rangeprocessor
+def _queryparser_add_rangeprocessor(self, rproc):
+    if not hasattr(self, '_rps'):
+        self._rps = []
+    self._rps.append(rproc)
+    return __queryparser_add_rangeprocessor_orig(self, rproc)
+_queryparser_add_rangeprocessor.__doc__ = __queryparser_add_rangeprocessor_orig.__doc__
+QueryParser.add_rangeprocessor = _queryparser_add_rangeprocessor
+del _queryparser_add_rangeprocessor
+
 # When we set a FieldProcessor into the QueryParser, keep a python
 # reference so it won't be deleted. This hack can probably be removed once
 # xapian bug #186 is fixed.
