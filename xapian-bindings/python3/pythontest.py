@@ -888,6 +888,53 @@ def test_queryparser_custom_vrp_deallocation():
     expect(str(query),
            'Query(0 * VALUE_RANGE 7 A5 B8)')
 
+def test_queryparser_custom_rp():
+    """Test QueryParser with a custom (in python) RangeProcessor.
+
+    """
+    class MyRP(xapian.RangeProcessor):
+        def __init__(self):
+            xapian.RangeProcessor.__init__(self)
+
+        def __call__(self, begin, end):
+            begin = "A" + begin.decode('utf-8')
+            end = "B" + end.decode('utf-8')
+            return xapian.Query(xapian.Query.OP_VALUE_RANGE, 7, begin, end)
+
+    queryparser = xapian.QueryParser()
+    myrp = MyRP()
+
+    queryparser.add_rangeprocessor(myrp)
+    query = queryparser.parse_query('5..8')
+
+    expect(str(query),
+           'Query(0 * VALUE_RANGE 7 A5 B8)')
+
+def test_queryparser_custom_rp_deallocation():
+    """Test that QueryParser doesn't delete RangeProcessors too soon.
+
+    """
+    class MyRP(xapian.RangeProcessor):
+        def __init__(self):
+            xapian.RangeProcessor.__init__(self)
+
+        def __call__(self, begin, end):
+            begin = "A" + begin.decode('utf-8')
+            end = "B" + end.decode('utf-8')
+            return xapian.Query(xapian.Query.OP_VALUE_RANGE, 7, begin, end)
+
+    def make_parser():
+        queryparser = xapian.QueryParser()
+        myrp = MyRP()
+        queryparser.add_rangeprocessor(myrp)
+        return queryparser
+
+    queryparser = make_parser()
+    query = queryparser.parse_query('5..8')
+
+    expect(str(query),
+           'Query(0 * VALUE_RANGE 7 A5 B8)')
+
 def test_scale_weight():
     """Test query OP_SCALE_WEIGHT feature.
 
