@@ -168,4 +168,4 @@ install-data-local:
 all-local: $(sphinxdocs)
 
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
-	PYTHONPATH=..:$$PYTHONPATH $(PYTHON3) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
+	PYTHONPATH=..:$$PYTHONPATH $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
