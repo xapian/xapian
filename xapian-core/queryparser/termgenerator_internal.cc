@@ -647,7 +647,9 @@ MSet::Internal::snippet(const string & text,
     check_query(enquire->get_query(), exact_phrases, loose_terms,
 		wildcards, longest_phrase);
 
-    unordered_map<string, double> background;
+    // Background relevance is the same for a given MSet, so cache it
+    // between calls to MSet::snippet() on the same object.
+    unordered_map<string, double>& background = snippet_bg_relevance;
 
     vector<string> phrase;
     if (longest_phrase) phrase.resize(longest_phrase - 1);
