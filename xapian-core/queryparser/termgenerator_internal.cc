@@ -304,10 +304,6 @@ struct Sniplet {
 	: relevance(r), term_end(t), highlight(h) { }
 };
 
-// The terms before and after a highlight get boosted by this proportion of the
-// highlight's relevance.
-static const double BOOST_FACTOR = 0; // FIXME: Set to non-zero and adjust testcases.
-
 class SnipPipe {
     deque<Sniplet> pipe;
     deque<Sniplet> best_pipe;
@@ -320,9 +316,6 @@ class SnipPipe {
 
     // Rolling sum of the current pipe contents.
     double sum = 0;
-
-    // Boost to the next term from the previous one.
-    double boost = 0;
 
     size_t phrase_len = 0;
 
@@ -352,13 +345,7 @@ inline bool
 SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
 {
     if (h > 1) {
-	boost = r * BOOST_FACTOR;
 	if (pipe.size() >= h - 1) {
-	    if (pipe.size() > h - 1) {
-		// Boost relevance of the term before the phrase.
-		pipe[pipe.size() - h].relevance += boost;
-		sum += boost;
-	    }
 	    // The final term of a phrase is entering the window.  Peg the
 	    // phrase's relevance onto the first term of the phrase, so it'll
 	    // be removed from `sum` when the phrase starts to leave the
@@ -371,19 +358,6 @@ SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
 	}
 	r = 0;
 	h = 0;
-    } else {
-	double new_r = r + boost;
-	if (h) {
-	    boost = r * BOOST_FACTOR;
-	    if (!pipe.empty()) {
-		// Boost relevance of the previous term.
-		pipe.back().relevance += boost;
-		sum += boost;
-	    }
-	} else {
-	    boost = 0;
-	}
-	r = new_r;
     }
     pipe.emplace_back(r, t, h);
     sum += r;
