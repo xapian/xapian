@@ -39,6 +39,7 @@
 #include <list>
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "cjk-tokenizer.h"
@@ -646,6 +647,8 @@ MSet::Internal::snippet(const string & text,
     check_query(enquire->get_query(), exact_phrases, loose_terms,
 		wildcards, longest_phrase);
 
+    unordered_map<string, double> background;
+
     vector<string> phrase;
     if (longest_phrase) phrase.resize(longest_phrase - 1);
     size_t phrase_next = 0;
@@ -714,29 +717,36 @@ MSet::Internal::snippet(const string & text,
 
 		if (flags & Xapian::MSet::SNIPPET_BACKGROUND_MODEL) {
 		    // Background document model.
-		    Xapian::doccount tf = enquire->db.get_termfreq(term);
-		    if (!tf) {
-			tf = enquire->db.get_termfreq(stem);
-		    } else {
-			stem = term;
-		    }
-		    if (tf) {
-			// Add one to avoid log(0) when a term indexes all
-			// documents.
-			Xapian::doccount num_docs = stats->collection_size + 1;
-			relevance = max_tw * log((num_docs - tf) / double(tf));
-			relevance /= (length + 1) * log(double(num_docs));
+		    auto bgit = background.find(term);
+		    if (bgit == background.end()) bgit = background.find(stem);
+		    if (bgit == background.end()) {
+			Xapian::doccount tf = enquire->db.get_termfreq(term);
+			if (!tf) {
+			    tf = enquire->db.get_termfreq(stem);
+			} else {
+			    stem = term;
+			}
+			double r = 0.0;
+			if (tf) {
+			    // Add one to avoid log(0) when a term indexes all
+			    // documents.
+			    Xapian::doccount num_docs = stats->collection_size + 1;
+			    r = max_tw * log((num_docs - tf) / double(tf));
+			    r /= (length + 1) * log(double(num_docs));
 #if 0
-			if (relevance <= 0) {
-			    Utf8Iterator i(text.data() + term_start, text.data() + term_end);
-			    while (i != Utf8Iterator()) {
-				if (Unicode::get_category(*i++) == Unicode::UPPERCASE_LETTER) {
-				    relevance = max_tw * 0.05;
+			    if (r <= 0) {
+				Utf8Iterator i(text.data() + term_start, text.data() + term_end);
+				while (i != Utf8Iterator()) {
+				    if (Unicode::get_category(*i++) == Unicode::UPPERCASE_LETTER) {
+					r = max_tw * 0.05;
+				    }
 				}
 			    }
-			}
 #endif
+			}
+			bgit = background.emplace(make_pair(stem, r)).first;
 		    }
+		    relevance = bgit->second;
 		}
 	    } else {
 #if 0
