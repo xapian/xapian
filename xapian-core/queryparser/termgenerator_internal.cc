@@ -37,7 +37,6 @@
 #include <deque>
 #include <limits>
 #include <list>
-#include <map>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -549,7 +548,7 @@ SnipPipe::drain(const string & input,
 static void
 check_query(const Xapian::Query & query,
 	    list<vector<string>> & exact_phrases,
-	    map<string, double> & loose_terms,
+	    unordered_map<string, double> & loose_terms,
 	    list<string> & wildcards,
 	    size_t & longest_phrase)
 {
@@ -595,7 +594,7 @@ non_term_subquery:
 }
 
 static bool
-check_term(map<string, double> & loose_terms,
+check_term(unordered_map<string, double> & loose_terms,
 	   const Xapian::Weight::Internal * stats,
 	   const string & term,
 	   double &relevance)
@@ -641,7 +640,7 @@ MSet::Internal::snippet(const string & text,
     SnipPipe snip(length);
 
     list<vector<string>> exact_phrases;
-    map<string, double> loose_terms;
+    unordered_map<string, double> loose_terms;
     list<string> wildcards;
     size_t longest_phrase = 0;
     check_query(enquire->get_query(), exact_phrases, loose_terms,
