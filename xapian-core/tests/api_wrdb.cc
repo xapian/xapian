@@ -686,7 +686,6 @@ DEFINE_TESTCASE(deldoc3, writable) {
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
-    (void)&db; // gcc 2.95 seems to miscompile without this!!! - Olly
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(2));
 
     // test positionlist_{begin,end}?
