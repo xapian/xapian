@@ -96,16 +96,16 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal("Query((smoke OR test OR terms))",
                  Xapian::Query.new(Xapian::Query::OP_OR, ["smoke", "test", "terms"]).description())
 
-    phraseQuery = Xapian::Query.new(Xapian::Query::OP_PHRASE, ["smoke", "test", "tuple"])
-    xorQuery = Xapian::Query.new(Xapian::Query::OP_XOR, [ Xapian::Query.new("smoke"), phraseQuery, "string" ])
+    phrase_query = Xapian::Query.new(Xapian::Query::OP_PHRASE, ["smoke", "test", "tuple"])
+    xor_query = Xapian::Query.new(Xapian::Query::OP_XOR, [ Xapian::Query.new("smoke"), phrase_query, "string" ])
 
-    assert_equal("Query((smoke PHRASE 3 test PHRASE 3 tuple))", phraseQuery.description())
-    assert_equal("Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))", xorQuery.description())
+    assert_equal("Query((smoke PHRASE 3 test PHRASE 3 tuple))", phrase_query.description())
+    assert_equal("Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))", xor_query.description())
 
     assert_equal([Xapian::Term.new("smoke", 1), 
                   Xapian::Term.new("string", 1), 
                   Xapian::Term.new("test", 1), 
-                  Xapian::Term.new("tuple", 1)], xorQuery.terms())
+                  Xapian::Term.new("tuple", 1)], xor_query.terms())
 
     assert_equal(Xapian::Query::OP_ELITE_SET, 10)
 
