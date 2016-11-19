@@ -94,9 +94,9 @@ class XapianSmoketest < Test::Unit::TestCase
 
   def test_002_queries
     assert_equal("Query((smoke OR test OR terms))",
-                 Xapian::Query.new(Xapian::Query::OP_OR ,["smoke", "test", "terms"]).description())
+                 Xapian::Query.new(Xapian::Query::OP_OR, ["smoke", "test", "terms"]).description())
 
-    phraseQuery = Xapian::Query.new(Xapian::Query::OP_PHRASE ,["smoke", "test", "tuple"])
+    phraseQuery = Xapian::Query.new(Xapian::Query::OP_PHRASE, ["smoke", "test", "tuple"])
     xorQuery = Xapian::Query.new(Xapian::Query::OP_XOR, [ Xapian::Query.new("smoke"), phraseQuery, "string" ])
 
     assert_equal("Query((smoke PHRASE 3 test PHRASE 3 tuple))", phraseQuery.description())
