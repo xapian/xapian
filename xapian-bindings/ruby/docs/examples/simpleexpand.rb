@@ -5,7 +5,7 @@
 # Originally by Paul Legato (plegato@nks.net), 4/22/06.
 #
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2006,2007 Olly Betts
+# Copyright (C) 2006,2007,2016 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -35,9 +35,9 @@ database = Xapian::Database.new(ARGV[0])
 # Start an enquire session.
 enquire = Xapian::Enquire.new(database)
 
-queryString = ''
-relevantDocs = Xapian::RSet.new()
-onDocIdsYet = false
+query_string = ''
+relevant_docs = Xapian::RSet.new()
+on_doc_ids_yet = false
 
 # Combine the rest of the command line arguments with spaces between
 # them, so that simple queries don't have to be quoted at the shell
@@ -46,15 +46,15 @@ ARGV.each_with_index { |arg,index|
   next if index == 0 # skip path to db
 
   if arg == '--'
-    onDocIdsYet = true
+    on_doc_ids_yet = true
     next
   end
 
-  if onDocIdsYet
-    relevantDocs.add_document(arg.to_i)
+  if on_doc_ids_yet
+    relevant_docs.add_document(arg.to_i)
   else
-    queryString += ' ' unless queryString.empty?
-    queryString += arg
+    query_string += ' ' unless query_string.empty?
+    query_string += arg
   end
 }
 
@@ -65,14 +65,14 @@ stemmer = Xapian::Stem.new("english")
 qp.stemmer = stemmer
 qp.database = database
 qp.stemming_strategy = Xapian::QueryParser::STEM_SOME
-query = qp.parse_query(queryString)
+query = qp.parse_query(query_string)
 
 unless query.empty?
   puts "Parsed query is: #{query.description()}"
 
   # Find the top 10 results for the query.
   enquire.query = query
-  matchset = enquire.mset(0, 10, relevantDocs)
+  matchset = enquire.mset(0, 10, relevant_docs)
 
   # Display the results.
   puts "#{matchset.matches_estimated()} results found."
@@ -84,15 +84,15 @@ unless query.empty?
 end
   
 # Put the top 5 (at most) docs into the rset if rset is empty
-if relevantDocs.empty?
+if relevant_docs.empty?
   matchset.matches[0..4].each {|match|
-    relevantDocs.add_document(match.docid())
+    relevant_docs.add_document(match.docid())
   }
 end
 
 # Get the suggested expand terms
-expandTerms = enquire.eset(10, relevantDocs)
-puts "#{expandTerms.size()} suggested additional terms:"
-expandTerms.terms.each {|term|
+expand_terms = enquire.eset(10, relevant_docs)
+puts "#{expand_terms.size()} suggested additional terms:"
+expand_terms.terms.each {|term|
   puts "  * Term \"#{term.name}\", weight #{term.weight}"
 }
