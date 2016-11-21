@@ -1747,7 +1747,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     Xapian::WritableDatabase db = get_writable_database();
 
-    for (Xapian::doccount i = 246; i <= 290; ++i) {
+    for (size_t i = 246; i <= 290; ++i) {
 	tout.str(string());
 	tout << "Term length " << i << endl;
 	Xapian::Document doc;
@@ -1765,7 +1765,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
-    for (Xapian::doccount j = 240; j <= 245; ++j) {
+    for (size_t j = 240; j <= 245; ++j) {
 	tout.str(string());
 	tout << "Term length " << j << endl;
 	Xapian::Document doc;
