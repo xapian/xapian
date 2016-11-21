@@ -79,9 +79,9 @@ show_help()
     cout << "Commands:\n"
 	    "next   : Next entry (alias 'n' or '')\n"
 	    "prev   : Previous entry (alias 'p')\n"
-	    "goto X : Goto entry X (alias 'g')\n"
-	    "until X: Display entries until X (alias 'u')\n"
-	    "open X : Open table X instead (alias 'o') - e.g. open postlist\n"
+	    "goto K : Goto entry with key K (alias 'g')\n"
+	    "until K: Display entries until key K (alias 'u')\n"
+	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
 	    "help   : Show this (alias 'h' or '?')\n"
 	    "quit   : Quit this utility (alias 'q')" << endl;
 }
