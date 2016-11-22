@@ -112,8 +112,10 @@ void ChertTableCheck::report_block(int m, int n, const byte * p) const
 	 << (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	if (c == DIR_START + 6) *out << "... ";
-	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
+	if (c >= DIR_START + 6 && c < dir_end - 6) {
+	    if (c == DIR_START + 6) *out << "... ";
+	    continue;
+	}
 
 	print_key(p, c, j);
 	*out << ' ';
