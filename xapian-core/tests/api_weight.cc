@@ -549,6 +549,32 @@ DEFINE_TESTCASE(dlhweight2, !backend) {
     return true;
 }
 
+static void
+gen_wdf_eq_doclen_db(Xapian::WritableDatabase& db, const string&)
+{
+    Xapian::Document doc;
+    doc.add_term("solo", 37);
+    db.add_document(doc);
+}
+
+// Test wdf == doclen.
+DEFINE_TESTCASE(dlhweight3, generated) {
+    Xapian::Database db = get_database("wdf_eq_doclen", gen_wdf_eq_doclen_db);
+    Xapian::Enquire enquire(db);
+    Xapian::Query query("solo");
+
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::DLHWeight());
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 1);
+    // Weight gets clamped to zero.
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
+
+    return true;
+}
+
 // Test exception for junk after serialised weight.
 DEFINE_TESTCASE(pl2weight1, !backend) {
     Xapian::PL2Weight wt(2.0);
@@ -750,6 +776,24 @@ DEFINE_TESTCASE(dphweight2, !backend) {
     } catch (const Xapian::SerialisationError &e) {
 	TEST(e.get_msg().find("DPH") != string::npos);
     }
+    return true;
+}
+
+// Test wdf == doclen.
+DEFINE_TESTCASE(dphweight3, generated) {
+    Xapian::Database db = get_database("wdf_eq_doclen", gen_wdf_eq_doclen_db);
+    Xapian::Enquire enquire(db);
+    Xapian::Query query("solo");
+
+    enquire.set_query(query);
+    enquire.set_weighting_scheme(Xapian::DPHWeight());
+
+    Xapian::MSet mset1;
+    mset1 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 1);
+    // Weight gets clamped to zero.
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0.0);
+
     return true;
 }
 

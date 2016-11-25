@@ -105,7 +105,7 @@ double
 DLHWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 		       Xapian::termcount) const
 {
-    if (wdf == 0) return 0.0;
+    if (wdf == 0 || wdf == len) return 0.0;
 
     double wdf_to_len = double(wdf) / len;
     double one_minus_wdf_to_len = 1.0 - wdf_to_len;
