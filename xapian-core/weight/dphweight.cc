@@ -87,8 +87,12 @@ DPHWeight::init(double factor)
        and hence, the function will have maximum value for that value of wdf. */
     double wdf_root = 0.25 * (sqrt(8.0 * len_upper + 9.0) - 3.0);
 
-    // Use the smaller value among the root and wdf_upper.
-    wdf_root = min(wdf_root, wdf_upper);
+    // If wdf_root outside valid range, use nearest value in range.
+    if (wdf_root > wdf_upper) {
+	wdf_root = wdf_upper;
+    } else if (wdf_root < wdf_lower) {
+	wdf_root = wdf_lower;
+    }
 
     double max_wdf_product_normalization = wdf_root / (wdf_root + 1) *
 	pow((1 - wdf_root / len_upper), 2.0);
