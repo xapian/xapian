@@ -85,7 +85,7 @@ DPHWeight::init(double factor)
        2 * x ^ 2 + 3 * x - c = 0, we get the value of x(wdf)
        at which the differentiation value turns to negative from positive,
        and hence, the function will have maximum value for that value of wdf. */
-    double wdf_root = 0.25 * (sqrt(8.0 * len_upper + 9.0) + 3.0);
+    double wdf_root = 0.25 * (sqrt(8.0 * len_upper + 9.0) - 3.0);
 
     // Use the smaller value among the root and wdf_upper.
     wdf_root = min(wdf_root, wdf_upper);
