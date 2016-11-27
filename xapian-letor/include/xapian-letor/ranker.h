@@ -205,7 +205,7 @@ class XAPIAN_VISIBILITY_DEFAULT ListNETRanker: public Ranker {
 
     /** Method to load model from an external file.
      * @param model_key         Metadata key using which model is to be loaded.
-     * @exception FileNotFoundError will be thrown if model file not found at supplied path
+     * @exception LetorInternalError will be thrown if no model exists corresponding to the supplied key
      */
     void load_model_from_metadata(const std::string & model_key);
 
