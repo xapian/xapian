@@ -85,12 +85,10 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
     param.weight = NULL;        //parameter for c-SVC
 
     int fvv_len = training_data.size();
-    int feature_cnt = -1;
-    if (fvv_len != 0) {
-	feature_cnt = training_data[0].get_fcount();
-    } else {
+    if (fvv_len == 0) {
 	throw LetorInternalError("Training data is empty. Check training file.");
     }
+    int feature_cnt = training_data[0].get_fcount();
 
     struct svm_problem prob;
     // set the parameters for svm_problem
@@ -126,17 +124,23 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
     trainmodel = svm_train(&prob, &param);
 
     // Generate emporary file to extract model data
-    char templ[] = "/tmp/svmtemp.XXXXXX";
-    char * tempname = mktemp(templ);
-    svm_save_model(tempname, trainmodel);
-    // Read content of model to string
-    std::ifstream f(tempname);
-    std::ostringstream ss;
-    ss << f.rdbuf();
-    // Save model string
-    this->model_data = ss.str();
-    // Delete the temporary model file
-    std::remove(tempname);
+    char * templ = strdup("/tmp/svmtemp.XXXXXX");
+    mkstemp(templ);
+    try {
+	svm_save_model(templ, trainmodel);
+	// Read content of model to string
+	std::ifstream f(templ);
+	std::ostringstream ss;
+	ss << f.rdbuf();
+	// Save model string
+	this->model_data = ss.str();
+	std::remove(templ);
+    } catch (...) {
+	std::remove(templ);
+    }
+    if (this->model_data.empty()) {
+	throw LetorInternalError("SVM model empty. Training failed.");
+    }
 }
 
 void
@@ -172,14 +176,22 @@ std::vector<FeatureVector>
 SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
 {
     LOGCALL(API, std::vector<FeatureVector>, "SVMRanker::rank_fvv", fvv);
+    if (this->model_data.empty()) {
+	throw LetorInternalError("SVM model empty. Load correct model.");
+    }
     // Generate temporary file containing model data for svm_load_model() method
-    char templ[] = "svmtemp.XXXXXX";
-    char * tempname = mktemp(templ);
-    std::ofstream f(tempname);
-    f << this->model_data.c_str();
-    f.close();
-    struct svm_model * model = svm_load_model(tempname);
-    std::remove(templ);
+    struct svm_model * model;
+    char * templ = strdup("/tmp/svmtemp.XXXXXX");
+    mkstemp(templ);
+    try {
+	std::ofstream f(templ);
+	f << this->model_data.c_str();
+	f.close();
+	model = svm_load_model(templ);
+	std::remove(templ);
+    } catch (...) {
+	std::remove(templ);
+    }
 
     std::vector<FeatureVector> testfvv = fvv;
     struct svm_node * test;

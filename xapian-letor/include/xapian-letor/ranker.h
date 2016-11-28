@@ -148,6 +148,8 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
     virtual void train_model(const std::vector<Xapian::FeatureVector> & training_data) = 0;
 
     /** Method to save model as db metadata. Overrided in ranker subclass.
+     *  Note: Make sure that there is no active writer on the database.
+     *        Since this method writes to database, it may cause database exceptions.
      *  @param model_key      Key by which model is to be stored. If empty, default key is used by the respective subclass.
      */
     virtual void save_model_to_metadata(const std::string & model_key) = 0;
@@ -255,6 +257,7 @@ class XAPIAN_VISIBILITY_DEFAULT SVMRanker: public Ranker {
     std::vector<Xapian::FeatureVector> rank_fvv(const std::vector<Xapian::FeatureVector> & fvv) const;
 
   public:
+    // TODO: Pass struct svm_parameter* to constructor to be able to configure libsvm params at run time.
     /// Constructor
     SVMRanker();
     /// Destructor
