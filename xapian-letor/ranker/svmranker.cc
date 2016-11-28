@@ -120,12 +120,16 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
     if (error_msg)
 	throw LetorInternalError("svm_check_parameter failed: %s", error_msg);
 
-    struct svm_model * trainmodel;
+    struct svm_model * trainmodel = NULL;
     trainmodel = svm_train(&prob, &param);
 
     // Generate emporary file to extract model data
     char * templ = strdup("/tmp/svmtemp.XXXXXX");
-    mkstemp(templ);
+    int fd = mkstemp(templ);
+    if (fd == -1) {
+	perror("Error: ");
+	throw LetorInternalError("Training failed.");
+    }
     try {
 	svm_save_model(templ, trainmodel);
 	// Read content of model to string
@@ -180,9 +184,13 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
 	throw LetorInternalError("SVM model empty. Load correct model.");
     }
     // Generate temporary file containing model data for svm_load_model() method
-    struct svm_model * model;
+    struct svm_model * model = NULL;
     char * templ = strdup("/tmp/svmtemp.XXXXXX");
-    mkstemp(templ);
+    int fd = mkstemp(templ);
+    if (fd == -1) {
+	perror("Error: ");
+	throw LetorInternalError("Ranking failed.");
+    }
     try {
 	std::ofstream f(templ);
 	f << this->model_data.c_str();
@@ -192,9 +200,12 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
     } catch (...) {
 	std::remove(templ);
     }
+    if (!model) {
+	throw LetorInternalError("Ranking failed. SVM model not usable.");
+    }
 
     std::vector<FeatureVector> testfvv = fvv;
-    struct svm_node * test;
+    struct svm_node * test = NULL;
 
     for (size_t i = 0; i < testfvv.size(); ++i) {
 	test = new svm_node [get_non_zero_num(testfvv[i]) + 1];
