@@ -37,6 +37,7 @@ Proceedings of the eighth ACM SIGKDD international conference on Knowledge disco
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 #include <vector>
 
 #include <libsvm/svm.h>
@@ -121,14 +122,12 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
     if (error_msg)
 	throw LetorInternalError("svm_check_parameter failed: %s", error_msg);
 
-    struct svm_model * trainmodel = NULL;
-    trainmodel = svm_train(&prob, &param);
-
-    // Generate emporary file to extract model data
-    char * templ = strdup("/tmp/svmtemp.XXXXXX");
+    struct svm_model * trainmodel = svm_train(&prob, &param);
+    // Generate temporary file to extract model data
+    char templ[] = "/tmp/svmtemp.XXXXXX";
     int fd = mkstemp(templ);
     if (fd == -1) {
-	throw LetorInternalError("Training failed", strerror(errno));
+	throw LetorInternalError("Training failed: ", errno);
     }
     try {
 	svm_save_model(templ, trainmodel);
@@ -138,8 +137,10 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
 	ss << f.rdbuf();
 	// Save model string
 	this->model_data = ss.str();
+	close(fd);
 	std::remove(templ);
     } catch (...) {
+	close(fd);
 	std::remove(templ);
     }
     if (this->model_data.empty()) {
@@ -185,18 +186,20 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
     }
     // Generate temporary file containing model data for svm_load_model() method
     struct svm_model * model = NULL;
-    char * templ = strdup("/tmp/svmtemp.XXXXXX");
+    char templ[] = "/tmp/svmtemp.XXXXXX";
     int fd = mkstemp(templ);
     if (fd == -1) {
-	throw LetorInternalError("Ranking failed", strerror(errno));
+	throw LetorInternalError("Ranking failed: ", errno);
     }
     try {
 	std::ofstream f(templ);
 	f << this->model_data.c_str();
 	f.close();
 	model = svm_load_model(templ);
+	close(fd);
 	std::remove(templ);
     } catch (...) {
+	close(fd);
 	std::remove(templ);
     }
     if (!model) {
@@ -204,8 +207,8 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
     }
 
     std::vector<FeatureVector> testfvv = fvv;
-    struct svm_node * test = NULL;
 
+    struct svm_node * test = NULL;
     for (size_t i = 0; i < testfvv.size(); ++i) {
 	test = new svm_node [get_non_zero_num(testfvv[i]) + 1];
 	int feature_cnt = testfvv[i].get_fcount();
