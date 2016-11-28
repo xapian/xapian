@@ -33,6 +33,7 @@ Proceedings of the eighth ACM SIGKDD international conference on Knowledge disco
 #include "serialise-double.h"
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
@@ -127,8 +128,7 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
     char * templ = strdup("/tmp/svmtemp.XXXXXX");
     int fd = mkstemp(templ);
     if (fd == -1) {
-	perror("Error: ");
-	throw LetorInternalError("Training failed.");
+	throw LetorInternalError("Training failed", strerror(errno));
     }
     try {
 	svm_save_model(templ, trainmodel);
@@ -188,8 +188,7 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
     char * templ = strdup("/tmp/svmtemp.XXXXXX");
     int fd = mkstemp(templ);
     if (fd == -1) {
-	perror("Error: ");
-	throw LetorInternalError("Ranking failed.");
+	throw LetorInternalError("Ranking failed", strerror(errno));
     }
     try {
 	std::ofstream f(templ);
