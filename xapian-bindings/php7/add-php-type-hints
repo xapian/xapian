@@ -1,0 +1,77 @@
+#!/usr/bin/perl -w
+# Add PHP type hints for classes.
+#
+# Copyright (C) 2011,2012 Olly Betts
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to
+# deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+# sell copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+
+use strict;
+
+my $current_class;
+
+while (<>) {
+    if (/^(?:abstract )?class (\w+)/) {
+	$current_class = $1;
+	print;
+	next;
+    }
+
+    if (s/(function equals\()(\$o\))/$1$current_class $2/) {
+	# OK!
+    } elsif (s/(function unserialise\(.*)(\$registry\b)/$1XapianRegistry $2/) {
+	# OK!
+    } elsif (s/(function set_stemmer\()(\$stem)/$1XapianStem $2/) {
+	# OK!
+    } elsif (s/(function set_stopper\()(\$stop)/$1XapianStopper $2/) {
+	# OK!
+    } elsif (s/(function (?:set|add)_document\()(\$doc)/$1XapianDocument $2/) {
+	# OK!
+    } elsif (s/(function replace_document\(.*)(\$doc)/$1XapianDocument $2/) {
+	# OK!
+    } elsif (s/(function (?:set|add)_database\()(\$d)/$1XapianDatabase $2/) {
+	# OK!
+# This would break existing subclasses as the signature must match.
+#    } elsif (s/(function apply\()(\$doc)/$1XapianDocument $2/) {
+#	# OK!
+    } elsif (s/(function set_query\()(\$query\b)/$1XapianQuery $2/) {
+	# OK!
+    } elsif (s/(function add_matchspy\()(\$spy\b)/$1XapianMatchSpy $2/) {
+	# OK!
+    } elsif (s/(function set_weighting_scheme\()(\$weight)/$1XapianWeight $2/) {
+	# OK!
+    } elsif (s/(function set_sort\w+\()(\$sorter\b)/$1XapianKeyMaker $2/) {
+	# OK!
+    } elsif (s/(function get_mset\(.*)(\$mdecider\b)/$1XapianMatchDecider $2/) {
+	# OK!
+    } elsif (s/(function get_eset\(.*)(\$edecider\b)/$1XapianExpandDecider $2/) {
+	s/(function get_eset\(.*)(\$(?:om)?rset\b)/$1XapianRSet $2/;
+	# OK!
+    } elsif (s/(function add_valuerangeprocessor\()(\$v)/$1XapianValueRangeProcessor $2/) {
+	# OK!
+    } elsif (s/(function register_weighting_scheme\()(\$w)/$1XapianWeight $2/) {
+	# OK!
+    } elsif (s/(function register_posting_source\()(\$)/$1XapianPostingSource $2/) {
+	# OK!
+    } elsif (s/(function register_match_spy\()(\$)/$1XapianMatchSpy $2/) {
+	# OK!
+    } elsif (s/(function init\()(\$d(?:b|atabase))/$1XapianDatabase $2/) {
+	# OK!
+    }
+    print;
+}
