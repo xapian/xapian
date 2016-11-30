@@ -742,6 +742,7 @@ XAPIAN_BACKEND_ENABLE([glass])
 XAPIAN_BACKEND_ENABLE([inmemory])
 XAPIAN_BACKEND_ENABLE([remote])
 
+use_proc_for_uuid=0
 use_win32_uuid_api=0
 case $enable_backend_chert$enable_backend_glass in
 *yes*)
@@ -795,7 +796,20 @@ case $enable_backend_chert$enable_backend_glass in
 	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
-	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for chert and glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  dnl Especially useful for Android.
+	  AC_MSG_CHECKING([if host platform supports /proc/sys/kernel/random/uuid])
+	  case $host_os in
+	    linux*)
+	      use_proc_for_uuid=1
+	      AC_DEFINE([USE_PROC_FOR_UUID], [1],
+			[Define to 1 to read UUID from '/proc/sys/kernel/random/uuid'])
+	      AC_MSG_RESULT([yes])
+	      ;;
+	    *)
+	      AC_MSG_RESULT([no])
+	      AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for chert and glass backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	      ;;
+	  esac
 	], [ ])
       ], [ ])
       ;;
@@ -811,6 +825,7 @@ case $enable_backend_chert$enable_backend_glass in
   LIBS=$SAVE_LIBS
   ;;
 esac
+AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LIBS=
