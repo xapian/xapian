@@ -1,8 +1,8 @@
 /** @file safeuuid.h
- *  @brief #include <uuid/uuid.h>, with alternative implementation for windows.
+ *  @brief #include <uuid/uuid.h>, with alternative implementations.
  */
 /* Copyright (C) 2008 Lemur Consulting Ltd
- * Copyright (C) 2009,2010,2013 Olly Betts
+ * Copyright (C) 2009,2010,2013,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ inline void uuid_unparse_lower(uuid_t uu, char *out) {
 }
 # endif
 
-#else
+#elif defined HAVE_UUID_H
 
 // UUID API on FreeBSD, NetBSD and AIX.
 
@@ -148,6 +148,10 @@ uuid_is_null(const uuid_t_ uu)
 // Hide incompatible uuid_t from <uuid.h>.
 # define uuid_t uuid_t_
 
+#elif defined USE_PROC_FOR_UUID
+# include "common/proc_uuid.h"
+#else
+# error Do not know how to generate UUIDs
 #endif
 
 #endif // XAPIAN_INCLUDED_SAFEUUID_H
