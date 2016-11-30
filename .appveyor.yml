@@ -33,8 +33,8 @@ build_script:
   - bash -c 'time ./bootstrap xapian-core'
 # 'xapian-applications/omega'
   - bash -c 'time ./configure --disable-documentation'
-  - bash -c 'time make --trace -k -j2' < nul
+  - bash -c 'time make -k -j2' < nul
 test_script:
-  - bash -c 'time make --trace -k check VERBOSE=1' < nul
+  - bash -c 'time make -k check VERBOSE=1' < nul
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
