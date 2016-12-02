@@ -438,11 +438,8 @@ dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
 dnl on __WIN32__ being defined.
 AC_CHECK_FUNCS([setenv _putenv_s])
 
-dnl Check for a more efficient way of closing fds during daemonisation.
-dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
-dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
-dnl getdirentries() and getrlimit() are useful for an efficient implementation
-dnl on some platforms.
+dnl See if we have closefrom(), or some functions that are useful to implement
+dnl closefrom() on platforms which don't provide it.
 AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
 
 dnl See if ftime returns void (as it does on mingw)
