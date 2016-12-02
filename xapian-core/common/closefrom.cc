@@ -1,7 +1,7 @@
 /** @file closefrom.cc
  * @brief Implementation of closefrom() function.
  */
-/* Copyright (C) 2010,2011,2012 Olly Betts
+/* Copyright (C) 2010,2011,2012,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,58 +66,63 @@ Xapian::Internal::closefrom(int fd)
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
 	return;
 #elif defined __linux__ || defined __APPLE__
-    // The loop might close the fd associated with dir if we don't take
-    // special care to avoid that by either skipping this fd in the closing
-    // loop (if dirfd() is available) or making sure we have a free fd below
-    // the first we close in the loop.
-#if !defined HAVE_DIRFD && !defined dirfd
-    // Make sure that the lowest fd we have been asked to close is closed, and
-    // then raise this lower bound - this should ensure that opendir() gets
-    // an fd below the new lower bound.
-    while (close(fd) < 0 && errno == EINTR) { }
-    ++fd;
-#endif
 #if 0
     // Some platforms (e.g. AIX) have /proc/<pid>/fd but not /proc/self - if
-    // any such platforms don't have either closefrom() or F_CLOSEM then this
-    // code can be used.
-    string path = "/proc/";
-    path += str(getpid());
-    path += "/fd";
-    DIR * dir = opendir(path.c_str());
+    // any such platforms don't have either closefrom() or F_CLOSEM but do
+    // have getdirentries() then this code can be used.
+    char path[6 + sizeof(pid_t) * 3 + 4];
+    sprintf(path, "/proc/%ld/fd", long(getpid()));
 #elif defined __linux__
-    DIR * dir = opendir("/proc/self/fd");
+    const char * path = "/proc/self/fd";
 #elif defined __APPLE__ // Mac OS X
-    DIR * dir = opendir("/dev/fd");
+    const char * path = "/dev/fd";
 #endif
-    if (dir) {
+    int dir = open(path, O_RDONLY|O_DIRECTORY);
+    if (dir >= 0) {
+	off_t base = 0;
 	while (true) {
+	    char buf[1024];
 	    errno = 0;
-	    struct dirent *entry = readdir(dir);
-	    if (entry == NULL) {
-		closedir(dir);
-		// Fallback if readdir() or closedir() fails.
-		if (errno) break;
+	    // We use getdirentries() instead of opendir()/readdir() here
+	    // because the latter can call malloc(), which isn't safe to do
+	    // between fork() and exec() in a multi-threaded program.
+	    ssize_t c = getdirentries(dir, buf, sizeof(buf), &base);
+	    if (c == 0) {
+		close(dir);
 		return;
 	    }
-	    char ch;
-	    ch = entry->d_name[0];
-	    if (ch < '0' || ch > '9')
-		continue;
-	    int n = atoi(entry->d_name);
-	    if (n >= fd) {
-#if defined HAVE_DIRFD || defined dirfd
-		if (n == dirfd(dir)) continue;
-#endif
+	    if (c < 0) {
+		// Fallback if getdirentries() fails.
+		break;
+	    }
+	    struct dirent *d;
+	    for (ssize_t pos = 0; pos < c; pos += d->d_reclen) {
+		d = reinterpret_cast<struct dirent*>(buf + pos);
+		const char * leaf = d->d_name;
+		if (leaf[0] < '0' || leaf[0] > '9') {
+		    // Skip '.' and '..'.
+		    continue;
+		}
+		int n = atoi(leaf);
+		if (n < fd) {
+		    // FD below threshold.
+		    continue;
+		}
+		if (n == dir) {
+		    // Don't close the fd open on the directory.
+		    continue;
+		}
 #ifdef __linux__
 		// Running under valgrind causes some entries above the
-		// reported RLIMIT_NOFILE value to appear in /proc/self/fd
-		// (https://bugs.kde.org/show_bug.cgi?id=191758).  If we try
-		// to close these, valgrind issues a warning about trying to
-		// close an invalid file descriptor.  These entries start at
-		// 1024, so we check that value first so we can usually avoid
-		// having to read the fd limit when we're not running under
-		// valgrind.
+		// reported RLIMIT_NOFILE value to appear in
+		// /proc/self/fd - see:
+		// https://bugs.kde.org/show_bug.cgi?id=191758
+		//
+		// If we try to close these, valgrind issues a warning about
+		// trying to close an invalid file descriptor.  These entries
+		// start at 1024, so we check that value first so we can
+		// usually avoid having to read the fd limit when we're not
+		// running under valgrind.
 		if (n >= 1024) {
 		    if (maxfd < 0)
 			maxfd = get_maxfd();
@@ -129,6 +134,7 @@ Xapian::Internal::closefrom(int fd)
 		while (close(n) < 0 && errno == EINTR) { }
 	    }
 	}
+	close(dir);
     }
 #endif
     if (maxfd < 0)
