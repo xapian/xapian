@@ -44,6 +44,9 @@ using namespace std;
 static int
 get_maxfd() {
 #ifdef F_MAXFD
+    // May only be supported by NetBSD, modern versions of which implement
+    // closefrom().  Leave this in so that if other platforms have it or add
+    // it they will benefit.
     int maxfd = fcntl(0, F_MAXFD);
     if (maxfd >= 0) return maxfd;
 #endif
@@ -57,19 +60,32 @@ get_maxfd() {
     return static_cast<int>(sysconf(_SC_OPEN_MAX)) - 1;
 }
 
+// These platforms are known to provide closefrom():
+// FreeBSD >= 8.0, NetBSD >= 3.0, OpenBSD >= 3.5, Solaris >= 9
+//
+// These platforms are known to support fcntl() with F_CLOSEM:
+// AIX, IRIX, NetBSD >= 2.0
+//
+// These platforms have getdirentries() and a "magic" directory with an entry
+// for each FD open in the current process:
+// Linux, OS X
+//
+// Other platforms just use a loop up to a limit obtained from
+// fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX).
+
 void
 Xapian::Internal::closefrom(int fd)
 {
     int maxfd = -1;
 #ifdef F_CLOSEM
-    // Apparently supported by at least NetBSD, AIX, IRIX.
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
 	return;
 #elif defined __linux__ || defined __APPLE__
 #if 0
-    // Some platforms (e.g. AIX) have /proc/<pid>/fd but not /proc/self - if
-    // any such platforms don't have either closefrom() or F_CLOSEM but do
-    // have getdirentries() then this code can be used.
+    // Some platforms have /proc/<pid>/fd but not /proc/self - if any such
+    // platforms don't have either closefrom() or F_CLOSEM but do have
+    // getdirentries() then this code can be used.  AIX is an example of
+    // a platform of the former, but apparently has F_CLOSEM.
     char path[6 + sizeof(pid_t) * 3 + 4];
     sprintf(path, "/proc/%ld/fd", long(getpid()));
 #elif defined __linux__
