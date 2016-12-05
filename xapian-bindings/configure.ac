@@ -349,6 +349,16 @@ if test no != "$with_python" ; then
 	fi
       fi
     fi
+    AC_MSG_CHECKING([for python2 sphinx module])
+    if $PYTHON2 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+      if test yes = "$with_python2" ; then
+	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python2 - try package python-sphinx])
+      fi
+      PYTHON2=
+    fi
     if test -n "$PYTHON2" ; then
       dnl Check that Python.h is there, which is a good way to check that
       dnl the appropriate python-dev package has been installed.
@@ -429,6 +439,16 @@ if test no != "$with_python3" ; then
 	fi
       fi
     fi
+    AC_MSG_CHECKING([for python3 sphinx module])
+    if $PYTHON3 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+      if test yes = "$with_python3" ; then
+	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python3 - try package python3-sphinx])
+      fi
+      PYTHON3=
+    fi
     if test -n "$PYTHON3" ; then
       dnl Check that Python.h is there, which is a good way to check that
       dnl the appropriate python3-dev package has been installed.
@@ -493,16 +513,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   fi
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
-
-dnl If we're building either python version we need sphinx-build.
-case $BINDINGS in
-*python*)
-  AC_PATH_PROG(SPHINX_BUILD, sphinx-build, [])
-  if test -z "$SPHINX_BUILD" ; then
-    AC_MSG_ERROR([sphinx-build is required to build python documentation (try packages python-sphinx and/or python3-sphinx)])
-  fi
-  ;;
-esac
 
 if test no != "$with_php" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
