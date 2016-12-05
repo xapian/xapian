@@ -163,4 +163,8 @@ install-data-local:
 all-local: $(sphinxdocs)
 
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON2_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
-	PYTHONPATH=..:$$PYTHONPATH $(PYTHON2) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
+## We need to run Sphinx for the right version of Python here, so we can't
+## just run sphinx-build as that might be for a different version.
+	PYTHONPATH=..:$$PYTHONPATH $(PYTHON2) \
+		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv))' \
+		-b html -d doctrees -c docs $(srcdir)/docs docs/html
