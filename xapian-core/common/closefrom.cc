@@ -90,7 +90,7 @@ Xapian::Internal::closefrom(int fd)
     sprintf(path, "/proc/%ld/fd", long(getpid()));
 #elif defined __linux__
     const char * path = "/proc/self/fd";
-    typedef ssize_t gde_base_type;
+    typedef off_t gde_base_type;
 #elif defined __APPLE__ // Mac OS X
     const char * path = "/dev/fd";
     typedef int gde_base_type;
