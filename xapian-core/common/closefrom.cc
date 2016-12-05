@@ -90,19 +90,29 @@ Xapian::Internal::closefrom(int fd)
     sprintf(path, "/proc/%ld/fd", long(getpid()));
 #elif defined __linux__
     const char * path = "/proc/self/fd";
+    typedef ssize_t gde_base_type;
 #elif defined __APPLE__ // Mac OS X
     const char * path = "/dev/fd";
+    typedef int gde_base_type;
 #endif
     int dir = open(path, O_RDONLY|O_DIRECTORY);
     if (dir >= 0) {
-	off_t base = 0;
+	// The type of the third argument to getdirentries() differs between
+	// platforms (ssize_t* on Linux; int* on OS X).  Use gde_base_type for
+	// the type of the variable pointed to (conditionally defined above).
+	gde_base_type base = 0;
 	while (true) {
 	    char buf[1024];
 	    errno = 0;
 	    // We use getdirentries() instead of opendir()/readdir() here
 	    // because the latter can call malloc(), which isn't safe to do
 	    // between fork() and exec() in a multi-threaded program.
-	    ssize_t c = getdirentries(dir, buf, sizeof(buf), &base);
+	    //
+	    // The return type of getdirentries() also differs between
+	    // platforms - use auto here and decltype below to make sure c
+	    // and pos have appropriate types.
+
+	    auto c = getdirentries(dir, buf, sizeof(buf), &base);
 	    if (c == 0) {
 		close(dir);
 		return;
@@ -112,7 +122,7 @@ Xapian::Internal::closefrom(int fd)
 		break;
 	    }
 	    struct dirent *d;
-	    for (ssize_t pos = 0; pos < c; pos += d->d_reclen) {
+	    for (decltype(c) pos = 0; pos < c; pos += d->d_reclen) {
 		d = reinterpret_cast<struct dirent*>(buf + pos);
 		const char * leaf = d->d_name;
 		if (leaf[0] < '0' || leaf[0] > '9') {
