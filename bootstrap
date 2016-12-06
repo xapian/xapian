@@ -263,7 +263,7 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=da1dd2ffd217c4be8822ce372605b3f71af3378f
+swig_git_commit_hash=d21bb11153bd46c9eae124c13322add3e0df9cee
 
 # Commit hashes to use for common in omega and letor respectively:
 omega_common_commit_hash=bddcf54435286b0363efff94f22529093e85fc89
