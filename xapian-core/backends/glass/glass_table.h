@@ -479,7 +479,7 @@ class GlassTable {
 	 *
 	 *  @param permanent If true, the Btree will not reopen on demand.
 	 */
-	void close(bool permanent=false);
+	void close(bool permanent = false);
 
 	bool readahead_key(const string &key) const;
 

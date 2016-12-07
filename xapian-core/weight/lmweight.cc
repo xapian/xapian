@@ -37,7 +37,7 @@ using namespace std;
 namespace Xapian {
 
 LMWeight *
-LMWeight::clone() const  {
+LMWeight::clone() const {
     return new LMWeight(param_log, select_smoothing, param_smoothing1, param_smoothing2);
 }
 
@@ -139,9 +139,9 @@ LMWeight::serialise() const
 LMWeight *
 LMWeight::unserialise(const string & s) const
 {
-    const char *ptr =  s.data();
+    const char *ptr = s.data();
     const char *end = ptr + s.size();
-    double param_log_ = unserialise_double(&ptr,end);
+    double param_log_ = unserialise_double(&ptr, end);
     type_smoothing select_smoothing_ = static_cast<type_smoothing>(*(ptr)++);
     double param_smoothing1_ = unserialise_double(&ptr, end);
     double param_smoothing2_ = unserialise_double(&ptr, end);
@@ -216,7 +216,7 @@ LMWeight::get_maxpart() const
 	upper_bound = (1 + (wdf_max / (param_smoothing1 * weight_collection))) *
 		      (1 + (param_smoothing2 / (param_smoothing1 * weight_collection)));
     } else if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING) {
-	upper_bound =  param_smoothing1 * weight_collection + 1;
+	upper_bound = param_smoothing1 * weight_collection + 1;
     } else {
 	upper_bound = (((1 - param_smoothing1) * (get_doclength_upper_bound() + (param_smoothing2 * weight_collection)) / (get_doclength_upper_bound() + param_smoothing2)) + (param_smoothing1 * weight_collection));
     }

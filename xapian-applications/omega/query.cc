@@ -854,7 +854,7 @@ Fields::read_fields(Xapian::docid did) const
 	    n = names.find('\t', n);
 	    string::size_type i0 = i;
 	    i = data.find('\n', i);
-	    fields.insert(make_pair(names.substr(n0, n  - n0),
+	    fields.insert(make_pair(names.substr(n0, n - n0),
 				    data.substr(i0, i - i0)));
 	} while (++n && ++i);
     } else {
@@ -1052,7 +1052,7 @@ T(hitsperpage,	   0, 0, N, 0), // hits per page
 T(hostname,	   1, 1, N, 0), // extract hostname from URL
 T(html,		   1, 1, N, 0), // html escape string (<>&")
 T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
-T(httpheader,      2, 2, N, 0), // arbitrary HTTP header
+T(httpheader,	   2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
@@ -1099,7 +1099,7 @@ T(relevants,	   0, 0, N, Q), // return list of relevant documents
 T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,     0, 1, N, Q), // set rset
+T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
 T(split,	   1, 2, N, 0), // split a string to give a list

@@ -33,7 +33,7 @@ const string &
 get_pkglibbindir()
 {
     static string result;
-    if (result.empty())  {
+    if (result.empty()) {
 	const char * p = getenv("XAPIAN_OMEGA_PKGLIBBINDIR");
 	if (p && *p) {
 	    result = p;

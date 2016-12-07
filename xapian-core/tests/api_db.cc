@@ -1182,7 +1182,7 @@ DEFINE_TESTCASE(specialterms1, backend) {
 	    TEST(value.size() > 263);
 	    TEST_EQUAL(static_cast<unsigned char>(value[262]), 255);
 	    for (int k = 0; k < 256; k++) {
-		TEST_EQUAL(static_cast<unsigned char>(value[k+7]), k);
+		TEST_EQUAL(static_cast<unsigned char>(value[k + 7]), k);
 	    }
 	}
     }
@@ -1540,8 +1540,7 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 		}
 	    }
 	}
-    }
-    catch (const Xapian::NetworkTimeoutError &) {
+    } catch (const Xapian::NetworkTimeoutError &) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }

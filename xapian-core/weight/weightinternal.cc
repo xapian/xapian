@@ -52,7 +52,7 @@ TermFreqs::get_description() const {
 namespace Xapian {
 
 Weight::Internal &
-Weight::Internal::operator +=(const Weight::Internal & inc)
+Weight::Internal::operator+=(const Weight::Internal & inc)
 {
 #ifdef XAPIAN_ASSERTIONS
     Assert(!finalised);

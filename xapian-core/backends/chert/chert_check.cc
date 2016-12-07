@@ -81,7 +81,7 @@ void ChertTableCheck::report_block_full(int m, int n, const byte * p) const
     *out << '\n';
     print_spaces(m);
     *out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
-	 << " items (" << (dir_end - DIR_START)/D2 << ") usage "
+	 << " items (" << (dir_end - DIR_START) / D2 << ") usage "
 	 << block_usage(p) << "%:\n";
     for (int c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
@@ -109,7 +109,7 @@ void ChertTableCheck::report_block(int m, int n, const byte * p) const
     int c;
     print_spaces(m);
     *out << "[" << n << "] *" << REVISION(p) << " ("
-	 << (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
+	 << (dir_end - DIR_START) / D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
 	if (c >= DIR_START + 6 && c < dir_end - 6) {

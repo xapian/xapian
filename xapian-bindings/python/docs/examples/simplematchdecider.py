@@ -35,7 +35,7 @@ class mymatchdecider(xapian.MatchDecider):
     def __init__(self, avoidvalue):
         xapian.MatchDecider.__init__(self)
         self.avoidvalue = avoidvalue
-        
+
     def __call__(self, doc):
         return doc.get_value(0) != self.avoidvalue
 

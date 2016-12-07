@@ -178,7 +178,7 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
     LatLongCoordsIterator() {}
 
     /** Get the LatLongCoord for the current position. */
-    const LatLongCoord & operator *() const {
+    const LatLongCoord & operator*() const {
 	return *iter;
     }
 
