@@ -76,7 +76,8 @@ while (<>) {
 	    }
 	} elsif ($fnm =~ /\.h$/) {
 	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
-		$fnm !~ m!\blanguages/compiler/!) {
+		$fnm !~ m!\blanguages/compiler/! &&
+		$fnm !~ m!\bcommon/msvc_dirent\.h$!) {
 		$lang = 'h';
 		$want_tabs = 1 unless ($fnm =~ m!/omega/cdb!);
 	    }
@@ -127,6 +128,9 @@ while (<>) {
 	# Drop comment content for "*" continuation lines (when /* isn't in hunk):
 	s/^(.)(\s*\*).*/$1$2/;
     }
+
+    # Replace multiple spaces before line continuation marker:
+    s!  +\\$! \\!;
 
     if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c') && !(/^[-+]\s*\#/)) {
 	# Replace string literals containing escaped quotes:
@@ -211,7 +215,7 @@ QUOTELOOP:  while (1) {
 		$msg = "Whitespace before ')':";
 	    } elsif (m!^\+.*; (\w+)([-+]{2})\)!) {
 		$msg = "Prefer '$2$1' to '$1$2':";
-	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)([-+/*%~=<>!&|^]=?|\&\&|\|\|),) {
+	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)([-+/*%~=<>!&|^]=?|\&\&|\|\||<<|>>),) {
 		my $op = $1;
 		$msg = "Missing space before '$op':";
 		if (substr($_, $-[1] - 8, 8) eq 'operator') {
@@ -227,7 +231,7 @@ QUOTELOOP:  while (1) {
 		    # FIXME: |: FOO|BAR
 		    $msg = undef;
 		}
-	    } elsif (m,^\+\s*[^#].*[^-+](?!-[->]|\+\+)([-+/*%~=<>!&|^]=?|\&\&|\|\|)(?<!->)(?:[\w\(]| \s),) {
+	    } elsif (m@^\+\s*[^#].*[^-+](?!-[->]|\+\+)([-+/*%~=<>!&|^]=?|,|\&\&|\|\||<<|>>)(?<!->)(?:[\w\(]| \s)@) {
 		my $op = $1;
 		$msg = "Should have exactly one space after '$op':";
 		if ($op eq '~' && substr($_, $+[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
@@ -237,6 +241,11 @@ QUOTELOOP:  while (1) {
 		    substr($_, 0, $-[1]) =~ m@(?:[-+/*%~=<>&|,;?:] |[\[(]|\b(?:return|case) |^\+\s*)$@) {
 		    # Unary -, +, !, ~: e.g. foo = +1; bar = x * (-y); baz = a * -b;
 		    $msg = undef;
+		} elsif ($op eq ',' && (
+		    /\b(?:AssertRel(?:Paranoid)?|TEST_REL)\(/ ||
+		    /{[^()]*}/)) {
+		    # AssertRel(a,<,b);
+		    $msg = undef;
 		} elsif ($op =~ /^[*&<>|]$/) {
 		    # FIXME: *: const char *x;
 		    # FIXME: *: const char &x;
@@ -244,9 +253,9 @@ QUOTELOOP:  while (1) {
 		    # FIXME: |: FOO|BAR
 		    $msg = undef;
 		}
+	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
+		$msg = "Multiple spaces:";
 	    }
-	    # \S<< <<\S
-	    # \S\s\s (OK in comments, etc)
 	}
     }
     if (defined $msg) {
