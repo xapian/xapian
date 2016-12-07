@@ -87,7 +87,7 @@ the future):
  - A byte:
 
    - 0 if the changes can safely be applied to a live database
-   
+
    - 1 if the changes cannot be applied while searching is in progress.  (This
      will be set if the database was modified in "DANGEROUS" mode).
 
