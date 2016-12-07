@@ -861,10 +861,10 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
     // Check for "mtn" when termfreq != N
     enquire.set_query(query);
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("mtn"));
-    mset3 = enquire.get_mset(0,10);
+    mset3 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset3.size(), 2);
     mset_expect_order(mset3, 2, 4);
-    TEST_EQUAL_DOUBLE(mset3[0].get_weight(), (8.0/8.0) * log(6.0/2));
+    TEST_EQUAL_DOUBLE(mset3[0].get_weight(), (8.0 / 8.0) * log(6.0 / 2));
 
     // Test with OP_SCALE_WEIGHT.
     enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 15.0));
