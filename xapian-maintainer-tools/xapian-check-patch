@@ -215,36 +215,69 @@ QUOTELOOP:  while (1) {
 		$msg = "Whitespace before ')':";
 	    } elsif (m!^\+.*; (\w+)([-+]{2})\)!) {
 		$msg = "Prefer '$2$1' to '$1$2':";
-	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:[-+/*%~=<>!&|^]|\&\&|\|\||<<|>>)=?|[?]),) {
+	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
+		my @pre = @-;
+		my @post = @+;
 		my $op = $1;
 		$msg = "Missing space before '$op':";
-		if (substr($_, $-[1] - 8, 8) eq 'operator') {
+		if (substr($_, $pre[1] - 8, 8) eq 'operator') {
+		    # operator*() etc
+		    $msg = undef;
+		} elsif ($op eq '>' && substr($_, 0, $pre[1]) =~ /[A-Za-z0-9_]</) {
+		    # y = static_cast<char>(x);
+		    $msg = undef;
+		} elsif ($op eq '>') {
+		    $msg = undef;
+		} elsif ($op eq '<' && substr($_, $pre[1] - 1, 1) =~ /^[A-Za-z0-9_]$/ && substr($_, $post[1]) =~ />/) {
+		    # y = static_cast<char>(x);
+		    $msg = undef;
+		} elsif ($op eq '<' &&
+			 substr($_, 0, $pre[1]) =~ /(?:list|map|multimap|multiset|priority_queue|set|unordered_map|unordered_set|vector)$/) {
+		    # y = priority_queue<Foo*,
+		    #                    Bar>;
+		    $msg = undef;
+		} elsif ($op eq '&&' && substr($_, $pre[1] - 4, 4) eq 'auto') {
+		    # auto&& x
+		    $msg = undef;
+		} elsif (($op eq '<<' || $op eq '>>') &&
+		    substr($_, 0, $pre[1]) =~ /\b(?:0x[0-9a-fA-F]+|[0-9]+)$/ &&
+		    substr($_, $post[1]) =~ /^(?:0x[0-9a-fA-F]+|[0-9]+)\b/) {
+		    # 0x00b1<<26
 		    $msg = undef;
 		} elsif (($op eq '-' || $op eq '+') &&
-		    substr($_, 0, $-[1]) =~ /[0-9]\.?e$/) {
+		    substr($_, 0, $pre[1]) =~ /[0-9]\.?e$/) {
 		    # 1.2e-3, 7.e+3
 		    $msg = undef;
-		} elsif ($op =~ /^[*&<>|]$/) {
+		} elsif ($op eq '>>' &&
+		    /[A-Za-z0-9_]<.+</) {
+		    # vector<vector<int>> v;
+		    $msg = undef;
+		} elsif ($op =~ /^[*&|]$/) {
 		    # FIXME: *: const char* x;
 		    # FIXME: &: const char& x;
-		    # FIXME: < >: y = static_cast<char>(x);
 		    # FIXME: |: FOO|BAR
 		    $msg = undef;
 		}
-	    } elsif (m@^\+\s*[^#].*[^-+](?!-[->]|\+\+)((?:[-+/*%~=<>!&|^]|\&\&|\|\||<<|>>)=?|[?:,])(?<!(?:->|::))(?:[\w\(]| \s)@) {
+	    } elsif (m@^\+\s*[^#\s].*((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?:,])(?<!(?:-[->]|\+\+|::))(?:[\w\(]| \s)@) {
+		my @pre = @-;
+		my @post = @+;
 		my $op = $1;
 		$msg = "Should have exactly one space after '$op':";
-		if ($op eq '~' && substr($_, $+[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
+		if ($op eq '~' && substr($_, $post[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
 		    # Destructor - e.g. ~Foo();
 		    $msg = undef;
 		} elsif (($op eq '-' || $op eq '+' || $op eq '!' || $op eq '~') &&
-		    substr($_, 0, $-[1]) =~ m@(?:[-+/*%~=<>&|,;?:] |[\[(]|\b(?:return|case) |^\+\s*)$@) {
+		    substr($_, 0, $pre[1]) =~ m@(?:[-+/*%~=<>&|,;?:] |[\[(]|\b(?:return|case) |^\+\s*)$@) {
 		    # Unary -, +, !, ~: e.g. foo = +1; bar = x * (-y); baz = a * -b;
 		    $msg = undef;
 		} elsif ($op eq ',' && (
 		    /\b(?:AssertRel(?:Paranoid)?|TEST_REL)\(/ ||
 		    /{[^()]*}/)) {
 		    # AssertRel(a,<,b);
+		    $msg = undef;
+		} elsif ($op eq '>>' &&
+		    /[A-Za-z0-9_]<.+</) {
+		    # vector<vector<int>>&
 		    $msg = undef;
 		} elsif ($op =~ /^[*&<>|]$/) {
 		    # FIXME: *: const char *x;
@@ -253,8 +286,8 @@ QUOTELOOP:  while (1) {
 		    # FIXME: |: FOO|BAR
 		    $msg = undef;
 		}
-	    } elsif (m@^\+[^#]*?[^#\h] +,@) {
-		$msg = "Space before ',':";
+	    } elsif (m@^\+[^#]*?[^#\h] +(,|->)@) {
+		$msg = "Space before '$1':";
 	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
 		$msg = "Multiple spaces:";
 	    }
