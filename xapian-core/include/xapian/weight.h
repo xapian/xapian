@@ -893,7 +893,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
      */
     explicit IfB2Weight(double c);
 
-    IfB2Weight( ) : param_c(1.0) {
+    IfB2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -964,7 +964,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
      */
     explicit IneB2Weight(double c);
 
-    IneB2Weight( ) : param_c(1.0) {
+    IneB2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -1040,7 +1040,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
      */
     explicit BB2Weight(double c);
 
-    BB2Weight( ) : param_c(1.0) {
+    BB2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -1185,7 +1185,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
      */
     explicit PL2Weight(double c);
 
-    PL2Weight( ) : param_c(1.0) {
+    PL2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -1262,7 +1262,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
      */
     PL2PlusWeight(double c, double delta);
 
-    PL2PlusWeight( )
+    PL2PlusWeight()
 	: param_c(1.0), param_delta(0.8) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);

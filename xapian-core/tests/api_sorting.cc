@@ -30,7 +30,7 @@
 
 using namespace std;
 
-DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
+DEFINE_TESTCASE(sortfunctor1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -78,7 +78,7 @@ DEFINE_TESTCASE(sortfunctor1,backend && !remote) {
 }
 
 /// Test reverse sort functor.
-DEFINE_TESTCASE(sortfunctor2,writable && !remote) {
+DEFINE_TESTCASE(sortfunctor2, writable && !remote) {
     Xapian::WritableDatabase db = get_writable_database();
     Xapian::Document doc;
     doc.add_term("foo");
@@ -258,7 +258,7 @@ DEFINE_TESTCASE(changesorter1, backend && !remote) {
 }
 
 /// Regression test - an empty MultiValueSorter hung in 1.0.9 and earlier.
-DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
+DEFINE_TESTCASE(sortfunctorempty1, backend && !remote) {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
     enquire.set_query(Xapian::Query("woman"));
 
@@ -274,7 +274,7 @@ DEFINE_TESTCASE(sortfunctorempty1,backend && !remote) {
     return true;
 }
 
-DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
+DEFINE_TESTCASE(multivaluekeymaker1, !backend) {
     const int keys[] = { 0, 1, 2, 3 };
     Xapian::MultiValueKeyMaker sorter(keys, keys + 4);
 
@@ -309,7 +309,7 @@ DEFINE_TESTCASE(multivaluekeymaker1,!backend) {
     return true;
 }
 
-DEFINE_TESTCASE(sortfunctorremote1,remote) {
+DEFINE_TESTCASE(sortfunctorremote1, remote) {
     Xapian::Enquire enquire(get_database(string()));
     NeverUseMeKeyMaker sorter;
     enquire.set_query(Xapian::Query("word"));

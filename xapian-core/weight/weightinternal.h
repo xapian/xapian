@@ -51,7 +51,7 @@ struct TermFreqs {
 	  collfreq(collfreq_),
 	  max_part(max_part_) {}
 
-    void operator +=(const TermFreqs & other) {
+    void operator+=(const TermFreqs & other) {
 	termfreq += other.termfreq;
 	reltermfreq += other.reltermfreq;
 	collfreq += other.collfreq;
@@ -121,7 +121,7 @@ class Weight::Internal {
      *  Used for remote databases, where we pass across a serialised stats
      *  object, unserialise it, and add it to our total.
      */
-    Internal & operator +=(const Internal & inc);
+    Internal & operator+=(const Internal & inc);
 
     void set_query(const Xapian::Query &query_) {
 	AssertEq(subdbs, 0);

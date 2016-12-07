@@ -464,7 +464,7 @@ DEFINE_TESTCASE(bb2weight3, backend) {
 
     // Test with OP_SCALE_WEIGHT and a small factor (regression test, as we
     // were applying the factor to the upper bound twice).
-    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 1.0/1024));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query, 1.0 / 1024));
     enquire.set_weighting_scheme(Xapian::BB2Weight(2.0));
 
     Xapian::MSet mset3;
@@ -708,7 +708,7 @@ DEFINE_TESTCASE(pl2plusweight5, backend) {
     Xapian::MSet mset;
 
     enquire.set_weighting_scheme(Xapian::PL2PlusWeight(1.0, 0.8));
-    mset = enquire.get_mset(0,10);
+    mset = enquire.get_mset(0, 10);
     // Expect MSet contains two documents having query "word".
     TEST_EQUAL(mset.size(), 2);
     // Expect Document 2 has higher weight than document 4 because
@@ -1279,7 +1279,7 @@ DEFINE_TESTCASE(checkstatsweight3, backend && !remote && !multi) {
 	}
 	make_heap(postlists.begin(), postlists.end(), PlCmp());
 	Xapian::docid did = 0;
-	Xapian::termcount wdf= 0;
+	Xapian::termcount wdf = 0;
 	while (!postlists.empty()) {
 	    pop_heap(postlists.begin(), postlists.end(), PlCmp());
 	    Xapian::docid did_new = *postlists.back();

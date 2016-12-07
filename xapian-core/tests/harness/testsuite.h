@@ -183,7 +183,7 @@ class test_driver {
     private:
 	/** Prevent copying */
 	test_driver(const test_driver &);
-	test_driver & operator = (const test_driver &);
+	test_driver & operator=(const test_driver &);
 
 	typedef enum { PASS = 1, FAIL = 0, SKIP = -1 } test_result;
 

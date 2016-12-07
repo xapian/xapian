@@ -857,7 +857,7 @@ DEFINE_TESTCASE(bm25weight2, backend) {
     return true;
 }
 
-DEFINE_TESTCASE(unigramlmweight2,backend) {
+DEFINE_TESTCASE(unigramlmweight2, backend) {
     Xapian::Database db(get_database("etext"));
     Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("the"));

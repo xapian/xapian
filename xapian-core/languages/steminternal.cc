@@ -461,15 +461,15 @@ void SnowballStemImplementation::debug(int number, int line_count) {
     int i;
     int limit = SIZE(p);
     /*if (number >= 0) printf("%3d (line %4d): '", number, line_count);*/
-    if (number >= 0) printf("%3d (line %4d): [%d]'", number, line_count,limit);
+    if (number >= 0) printf("%3d (line %4d): [%d]'", number, line_count, limit);
     for (i = 0; i <= limit; i++) {
         if (lb == i) printf("{");
         if (bra == i) printf("[");
         if (c == i) printf("|");
         if (ket == i) printf("]");
         if (l == i) printf("}");
-        if (i < limit)
-        {   int ch = p[i];
+        if (i < limit) {
+            int ch = p[i];
             if (ch == 0) ch = '#';
             printf("%c", ch);
         }

@@ -358,7 +358,7 @@ DEFINE_TESTCASE(adddoc5, writable) {
 	Xapian::docid did2 = database.add_document(document_in2);
 	TEST_EQUAL(database.get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
-	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
+	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
 	TEST_EQUAL(database.get_termfreq("foobar"), 2);
 	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
@@ -380,7 +380,7 @@ DEFINE_TESTCASE(adddoc5, writable) {
 
 	did = database.add_document(document_in);
 	TEST_EQUAL(database.get_doccount(), 2);
-	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
+	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
 	TEST_EQUAL(database.get_termfreq("foobar"), 2);
 	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
@@ -885,7 +885,7 @@ DEFINE_TESTCASE(replacedoc1, writable) {
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 2);
-    doc1.add_posting("gone",3);
+    doc1.add_posting("gone", 3);
     doc1.add_posting("bar", 4);
     doc1.add_posting("foo", 5);
     Xapian::docid did;
@@ -931,7 +931,7 @@ DEFINE_TESTCASE(replacedoc2, writable) {
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 2);
-    doc1.add_posting("gone",3);
+    doc1.add_posting("gone", 3);
     doc1.add_posting("bar", 4);
     doc1.add_posting("foo", 5);
     Xapian::docid did = 31770;
