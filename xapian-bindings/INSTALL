@@ -61,7 +61,8 @@ The simplest way to compile this package is:
        --with-java	    enable Java bindings
        --with-lua	    enable Lua bindings
        --with-perl	    enable Perl bindings
-       --with-php	    enable PHP bindings
+       --with-php	    enable PHP 5 bindings
+       --with-php7	    enable PHP 7 bindings
        --with-python	    enable Python 2 bindings
        --with-python3	    enable Python 3 bindings
        --with-ruby	    enable Ruby bindings
@@ -123,7 +124,7 @@ Installing without root access
      Note that you also need to pass a "--prefix" option to configure so that
      the documentation and examples can be installed.
 
-  PHP:
+  PHP (5 and 7):
 
      With current releases of PHP, there doesn't seem to be a good way to
      install the PHP bindings without root access such that they can be used

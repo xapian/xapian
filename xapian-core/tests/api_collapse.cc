@@ -30,7 +30,7 @@
 using namespace std;
 
 /// Simple test of collapsing with collapse_max > 1.
-DEFINE_TESTCASE(collapsekey5,backend) {
+DEFINE_TESTCASE(collapsekey5, backend) {
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::Enquire enquire(db);
     // "this" matches all documents.

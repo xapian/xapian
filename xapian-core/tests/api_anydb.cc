@@ -636,8 +636,8 @@ class myExpandFunctor : public Xapian::ExpandDecider {
     public:
 	bool operator()(const string & tname) const {
 	    unsigned long sum = 0;
-	    for (string::const_iterator i=tname.begin(); i!=tname.end(); ++i) {
-		sum += *i;
+	    for (unsigned ch : tname) {
+		sum += ch;
 	    }
 //	    if (verbose) {
 //		tout << tname << "==> " << sum << "\n";
@@ -2333,7 +2333,7 @@ DEFINE_TESTCASE(scaleweight2, backend) {
 DEFINE_TESTCASE(bm25weight1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(Xapian::BM25Weight(1, 25, 1, 0.01, 0.5));
-    enquire.set_query(Xapian::Query("word") );
+    enquire.set_query(Xapian::Query("word"));
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
 
@@ -2344,13 +2344,13 @@ DEFINE_TESTCASE(bm25weight1, backend) {
 DEFINE_TESTCASE(tradweight1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_weighting_scheme(Xapian::TradWeight());
-    enquire.set_query(Xapian::Query("word") );
+    enquire.set_query(Xapian::Query("word"));
 
     Xapian::MSet mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 2);
 
     enquire.set_weighting_scheme(Xapian::TradWeight(0));
-    enquire.set_query(Xapian::Query("this") );
+    enquire.set_query(Xapian::Query("this"));
 
     mset = enquire.get_mset(0, 25);
     TEST_EQUAL(mset.size(), 6);

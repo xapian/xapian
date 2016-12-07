@@ -1056,7 +1056,6 @@ DEFINE_TESTCASE(qp_flag_wildcard3, writable) {
     doc.add_term("muscular");
     doc.add_term("mutton");
     db.add_document(doc);
-    db.commit();
 
     // Test that a max of 0 doesn't set a limit.
     test_qp_flag_wildcard1_helper(db, 0, "z*");
@@ -2249,7 +2248,7 @@ DEFINE_TESTCASE(qp_spell1, spelling) {
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
-			   Xapian::QueryParser::FLAG_BOOLEAN );
+			   Xapian::QueryParser::FLAG_BOOLEAN);
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
@@ -2284,7 +2283,7 @@ DEFINE_TESTCASE(qp_spell2, spelling)
 	Xapian::Query q;
 	q = qp.parse_query(p->query,
 			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
-			   Xapian::QueryParser::FLAG_BOOLEAN );
+			   Xapian::QueryParser::FLAG_BOOLEAN);
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
     }
@@ -2507,7 +2506,7 @@ DEFINE_TESTCASE(qp_synonym3, synonyms) {
 			   Xapian::QueryParser::FLAG_SYNONYM |
 			   Xapian::QueryParser::FLAG_BOOLEAN |
 			   Xapian::QueryParser::FLAG_LOVEHATE |
-			   Xapian::QueryParser::FLAG_PHRASE );
+			   Xapian::QueryParser::FLAG_PHRASE);
 	tout << "Query: " << p->query << endl;
 	TEST_STRINGS_EQUAL(q.get_description(), expect);
     }
@@ -2952,7 +2951,7 @@ DEFINE_TESTCASE(qp_default_op3, !backend) {
     };
     const qp_default_op3_test * p;
     for (p = tests; p - tests != sizeof(tests) / sizeof(*tests); ++p) {
-	tout << p ->op<< endl;
+	tout << p->op << endl;
 	qp.set_default_op(p->op);
 	// Check that get_default_op() returns what we just set.
 	TEST_EQUAL(qp.get_default_op(), p->op);

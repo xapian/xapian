@@ -32,8 +32,8 @@ using namespace std;
 namespace Xapian {
 
 Database
-Remote::open(const string &host, unsigned int port, useconds_t timeout_,
-	     useconds_t connect_timeout)
+Remote::open(const string &host, unsigned int port, unsigned timeout_,
+	     unsigned connect_timeout)
 {
     LOGCALL_STATIC(API, Database, "Remote::open", host | port | timeout_ | connect_timeout);
     RETURN(Database(new RemoteTcpClient(host, port, timeout_ * 1e-3,
@@ -42,7 +42,7 @@ Remote::open(const string &host, unsigned int port, useconds_t timeout_,
 
 WritableDatabase
 Remote::open_writable(const string &host, unsigned int port,
-		      useconds_t timeout_, useconds_t connect_timeout,
+		      unsigned timeout_, unsigned connect_timeout,
 		      int flags)
 {
     LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", host | port | timeout_ | connect_timeout | flags);
@@ -53,7 +53,7 @@ Remote::open_writable(const string &host, unsigned int port,
 
 Database
 Remote::open(const string &program, const string &args,
-	     useconds_t timeout_)
+	     unsigned timeout_)
 {
     LOGCALL_STATIC(API, Database, "Remote::open", program | args | timeout_);
     RETURN(Database(new ProgClient(program, args, timeout_ * 1e-3, false, 0)));
@@ -61,7 +61,7 @@ Remote::open(const string &program, const string &args,
 
 WritableDatabase
 Remote::open_writable(const string &program, const string &args,
-		      useconds_t timeout_, int flags)
+		      unsigned timeout_, int flags)
 {
     LOGCALL_STATIC(API, WritableDatabase, "Remote::open_writable", program | args | timeout_ | flags);
     RETURN(WritableDatabase(new ProgClient(program, args,

@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007,2008,2009,2010,2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,13 +89,16 @@ inline bool operator<(const qp_op & f1, const qp_op & f2) {
 enum {
     WEIGHT_BB2,
     WEIGHT_BM25,
+    WEIGHT_BM25PLUS,
     WEIGHT_BOOL,
     WEIGHT_DLH,
     WEIGHT_DPH,
     WEIGHT_IFB2,
     WEIGHT_INEB2,
     WEIGHT_INL2,
+    WEIGHT_LM,
     WEIGHT_PL2,
+    WEIGHT_PL2PLUS,
     WEIGHT_TFIDF,
     WEIGHT_TRAD
 };
@@ -104,13 +107,16 @@ struct wt { const char * s; int f; };
 static wt wt_tab[] = {
     { "bb2",	WEIGHT_BB2 },
     { "bm25",	WEIGHT_BM25 },
+    { "bm25+",	WEIGHT_BM25PLUS },
     { "bool",	WEIGHT_BOOL },
     { "dlh",	WEIGHT_DLH },
     { "dph",	WEIGHT_DPH },
     { "ifb2",	WEIGHT_IFB2 },
     { "ineb2",	WEIGHT_INEB2 },
     { "inl2",	WEIGHT_INL2 },
+    { "lm",	WEIGHT_LM },
     { "pl2",	WEIGHT_PL2 },
+    { "pl2+",	WEIGHT_PL2PLUS },
     { "tfidf",	WEIGHT_TFIDF },
     { "trad",	WEIGHT_TRAD }
 };
@@ -384,6 +390,9 @@ try {
 	case WEIGHT_BM25:
 	    enquire.set_weighting_scheme(Xapian::BM25Weight());
 	    break;
+	case WEIGHT_BM25PLUS:
+	    enquire.set_weighting_scheme(Xapian::BM25PlusWeight());
+	    break;
 	case WEIGHT_DLH:
 	    enquire.set_weighting_scheme(Xapian::DLHWeight());
 	    break;
@@ -399,8 +408,14 @@ try {
 	case WEIGHT_INL2:
 	    enquire.set_weighting_scheme(Xapian::InL2Weight());
 	    break;
+	case WEIGHT_LM:
+	    enquire.set_weighting_scheme(Xapian::LMWeight());
+	    break;
 	case WEIGHT_PL2:
 	    enquire.set_weighting_scheme(Xapian::PL2Weight());
+	    break;
+	case WEIGHT_PL2PLUS:
+	    enquire.set_weighting_scheme(Xapian::PL2PlusWeight());
 	    break;
 	case WEIGHT_TFIDF:
 	    enquire.set_weighting_scheme(Xapian::TfIdfWeight());

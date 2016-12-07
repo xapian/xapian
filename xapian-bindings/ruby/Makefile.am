@@ -10,10 +10,12 @@ AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 installcheck-local:
 	$(MAKE) check AM_LOG_FLAGS=
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
+SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h
 
 EXTRA_DIST = ruby.i extra.i docs/index.rst $(TESTS) \
-	xapian_wrap.cc xapian_wrap.h
+	$(SWIG_GENERATED)
+
+BUILT_SOURCES = $(SWIG_GENERATED)
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb

@@ -58,7 +58,7 @@ void
 omegascript_match(string & value, const vector<string> & args)
 {
     int offsets[30];
-    int options=0;
+    int options = 0;
     if (args.size() > 2) {
 	const string &opts = args[2];
 	for (string::const_iterator i = opts.begin(); i != opts.end(); ++i) {

@@ -639,7 +639,7 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
     if (!doc_exists(did)) {
 	return 0;
     }
-    const InMemoryDoc &doc = termlists[did-1];
+    const InMemoryDoc &doc = termlists[did - 1];
 
     vector<InMemoryTermEntry>::const_iterator i;
     for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
@@ -656,7 +656,7 @@ InMemoryDatabase::open_position_list(Xapian::docid did,
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (usual(doc_exists(did))) {
-	const InMemoryDoc &doc = termlists[did-1];
+	const InMemoryDoc &doc = termlists[did - 1];
 
 	vector<InMemoryTermEntry>::const_iterator i;
 	for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
@@ -676,7 +676,7 @@ InMemoryDatabase::add_values(Xapian::docid did,
     if (did > valuelists.size()) {
 	valuelists.resize(did);
     }
-    valuelists[did-1] = values_;
+    valuelists[did - 1] = values_;
 
     // Update the statistics.
     map<Xapian::valueno, string>::const_iterator j;
@@ -722,10 +722,10 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
     }
-    termlists[did-1].is_valid = false;
-    doclists[did-1] = string();
+    termlists[did - 1].is_valid = false;
+    doclists[did - 1] = string();
     map<Xapian::valueno, string>::const_iterator j;
-    for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
+    for (j = valuelists[did - 1].begin(); j != valuelists[did - 1].end(); ++j) {
 	map<Xapian::valueno, ValueStats>::iterator i;
 	i = valuestats.find(j->first);
 	if (--(i->second.freq) == 0) {
@@ -733,10 +733,10 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 	    i->second.upper_bound.resize(0);
 	}
     }
-    valuelists[did-1].clear();
+    valuelists[did - 1].clear();
 
-    totlen -= doclengths[did-1];
-    doclengths[did-1] = 0;
+    totlen -= doclengths[did - 1];
+    doclengths[did - 1] = 0;
     totdocs--;
     // A crude check, but it's hard to be more precise with the current
     // InMemory structure without being very inefficient.
@@ -759,7 +759,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 	    ++posting;
 	}
     }
-    termlists[did-1].terms.clear();
+    termlists[did - 1].terms.clear();
 }
 
 void
@@ -772,7 +772,7 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 
     if (doc_exists(did)) {
 	map<Xapian::valueno, string>::const_iterator j;
-	for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
+	for (j = valuelists[did - 1].begin(); j != valuelists[did - 1].end(); ++j) {
 	    map<Xapian::valueno, ValueStats>::iterator i;
 	    i = valuestats.find(j->first);
 	    if (--(i->second.freq) == 0) {

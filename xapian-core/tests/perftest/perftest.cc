@@ -95,7 +95,7 @@ get_hostname()
 {
 #ifdef __WIN32__
     char buf[256];
-    WORD WSAVerReq = MAKEWORD(1,1);
+    WORD WSAVerReq = MAKEWORD(1, 1);
     WSADATA WSAData;
 
     if (WSAStartup(WSAVerReq, &WSAData) != 0) {

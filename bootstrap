@@ -263,7 +263,7 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=bab51398053188a136effd155d7ed8f5d441908e
+swig_git_commit_hash=d21bb11153bd46c9eae124c13322add3e0df9cee
 
 # Commit hashes to use for common in omega and letor respectively:
 omega_common_commit_hash=bddcf54435286b0363efff94f22529093e85fc89
@@ -552,7 +552,43 @@ for d in $modules ; do
     # different answers (e.g. because it uses a C compiler).
     case $d in
     swig)
-      cd "$d" && "$configure" ${1+"$@"}
+      case "$*" in
+      *--host=*|*--host" "*)
+	# We're cross-building, but SWIG needs to be built natively.
+	swig_configure_args=
+	skip=
+	for arg in "$@" ; do
+	  if [ -n "$skip" ] ; then
+	    skip=
+	    continue
+	  fi
+	  case $arg in
+	  --host=*)
+	    # Drop --host=xxx
+	    continue ;;
+	  --host)
+	    # Drop --host xxx
+	    skip=1
+	    continue ;;
+	  CC=*|CXX=*)
+	    # Drop CC=xxx or CXX=xxx
+	    continue ;;
+	  CC_FOR_BUILD=*|CXX_FOR_BUILD=*)
+	    # CC_FOR_BUILD=xxx -> CC=xxx; CXX_FOR_BUILD=xxx -> CXX=xxx
+	    arg=`echo "$arg"|sed 's/_FOR_BUILD//'`
+	    ;;
+	  esac
+	  swig_configure_args="$swig_configure_args "\'`echo "x$arg"|sed "s/^x//;s/'/'\\\\\\\\''/g"`\'
+	done
+	# Also handle compilers specified in environment variables.  We can
+	# just reassign them unconditionally as CC and CXX are ignored if
+	# empty.
+	cd "$d" && CC=$CC_FOR_BUILD CXX=$CXX_FOR_BUILD "$configure" `eval echo $swig_configure_args`
+	;;
+      *)
+	cd "$d" && "$configure" ${1+"$@"}
+	;;
+      esac
       ;;
     xapian-core)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}

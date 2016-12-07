@@ -40,8 +40,8 @@ hex_display_encode(const string & input)
     for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
 	unsigned char val = *i;
 	result += "\\x";
-	result += table[val/16];
-	result += table[val%16];
+	result += table[val / 16];
+	result += table[val % 16];
     }
 
     return result;

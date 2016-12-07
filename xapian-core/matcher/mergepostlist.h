@@ -65,7 +65,7 @@ class MergePostList : public PostList {
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_est() const;
 
-	Xapian::docid  get_docid() const;
+	Xapian::docid get_docid() const;
 	double get_weight() const;
 	const string * get_sort_key() const;
 	const string * get_collapse_key() const;
@@ -76,7 +76,7 @@ class MergePostList : public PostList {
 
 	PostList *next(double w_min);
 	PostList *skip_to(Xapian::docid did, double w_min);
-	bool   at_end() const;
+	bool at_end() const;
 
 	string get_description() const;
 

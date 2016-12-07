@@ -23,9 +23,12 @@
 #include <config.h>
 
 #include <cfloat>
+#include <climits>
 #include <cmath>
 #include <cstring>
 #include <iostream>
+
+#include "safeunistd.h"
 
 #define XAPIAN_UNITTEST
 static const char * unittest_assertion_failed = NULL;
@@ -67,6 +70,7 @@ using namespace std;
     } while (0)
 
 // Code we're unit testing:
+#include "../common/closefrom.cc"
 #include "../common/errno_to_string.cc"
 #include "../common/fileutils.cc"
 #include "../common/serialise-double.cc"
@@ -547,6 +551,30 @@ static bool test_strbool1()
     return true;
 }
 
+static bool test_closefrom1()
+{
+#ifndef __WIN32__
+    // Simple test.
+    closefrom(8);
+
+    // Simple test when there are definitely no fds to close.
+    closefrom(42);
+
+    // Test passing a really high threshold.
+    closefrom(INT_MAX);
+
+    // Open some fds and check the expected ones are closed.
+    TEST_EQUAL(dup2(1, 14), 14);
+    TEST_EQUAL(dup2(1, 15), 15);
+    TEST_EQUAL(dup2(1, 18), 18);
+    closefrom(15);
+    TEST_EQUAL(close(14), 0);
+    TEST(close(15) == -1 && errno == EBADF);
+    TEST(close(18) == -1 && errno == EBADF);
+#endif
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -561,6 +589,7 @@ static const test_desc tests[] = {
     TESTCASE(sortableserialise1),
     TESTCASE(tostring1),
     TESTCASE(strbool1),
+    TESTCASE(closefrom1),
     END_OF_TESTCASES
 };
 

@@ -26,10 +26,6 @@
 # error "Never use <xapian/dbfactory.h> directly; include <xapian.h> instead."
 #endif
 
-#ifndef _MSC_VER
-# include <sys/types.h>
-#endif
-
 #include <string>
 
 #include <xapian/constants.h>
@@ -40,10 +36,6 @@
 #include <xapian/visibility.h>
 
 namespace Xapian {
-
-#ifdef _MSC_VER
-typedef unsigned useconds_t;
-#endif
 
 /// Database factory functions which determine the database type automatically.
 namespace Auto {
@@ -178,7 +170,7 @@ namespace Remote {
  *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &host, unsigned int port, useconds_t timeout = 10000, useconds_t connect_timeout = 10000);
+Database open(const std::string &host, unsigned int port, unsigned timeout = 10000, unsigned connect_timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a TCP connection.
@@ -200,7 +192,7 @@ Database open(const std::string &host, unsigned int port, useconds_t timeout = 1
  * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 0, useconds_t connect_timeout = 10000, int flags = 0);
+WritableDatabase open_writable(const std::string &host, unsigned int port, unsigned timeout = 0, unsigned connect_timeout = 10000, int flags = 0);
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
@@ -217,7 +209,7 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, useco
  *			is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
+Database open(const std::string &program, const std::string &args, unsigned timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a program.
@@ -234,7 +226,7 @@ Database open(const std::string &program, const std::string &args, useconds_t ti
  * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 0, int flags = 0);
+WritableDatabase open_writable(const std::string &program, const std::string &args, unsigned timeout = 0, int flags = 0);
 
 }
 #endif

@@ -36,6 +36,7 @@
 #include <cmath>
 #include <map>
 #include <set>
+#include <unordered_map>
 
 #include "weight/weightinternal.h"
 
@@ -220,6 +221,8 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	Internal(const Internal &);
 	/// Assignment not allowed
 	void operator=(const Internal &);
+
+	mutable std::unordered_map<std::string, double> snippet_bg_relevance;
 
     public:
 	/// Xapian::Enquire reference, for getting documents.

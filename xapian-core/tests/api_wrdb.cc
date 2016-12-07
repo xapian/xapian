@@ -358,7 +358,7 @@ DEFINE_TESTCASE(adddoc5, writable) {
 	Xapian::docid did2 = database.add_document(document_in2);
 	TEST_EQUAL(database.get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
-	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
+	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
 	TEST_EQUAL(database.get_termfreq("foobar"), 2);
 	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
@@ -380,7 +380,7 @@ DEFINE_TESTCASE(adddoc5, writable) {
 
 	did = database.add_document(document_in);
 	TEST_EQUAL(database.get_doccount(), 2);
-	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
+	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
 	TEST_EQUAL(database.get_termfreq("foobar"), 2);
 	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
@@ -686,7 +686,6 @@ DEFINE_TESTCASE(deldoc3, writable) {
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
-    (void)&db; // gcc 2.95 seems to miscompile without this!!! - Olly
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(2));
 
     // test positionlist_{begin,end}?
@@ -886,7 +885,7 @@ DEFINE_TESTCASE(replacedoc1, writable) {
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 2);
-    doc1.add_posting("gone",3);
+    doc1.add_posting("gone", 3);
     doc1.add_posting("bar", 4);
     doc1.add_posting("foo", 5);
     Xapian::docid did;
@@ -932,7 +931,7 @@ DEFINE_TESTCASE(replacedoc2, writable) {
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 2);
-    doc1.add_posting("gone",3);
+    doc1.add_posting("gone", 3);
     doc1.add_posting("bar", 4);
     doc1.add_posting("foo", 5);
     Xapian::docid did = 31770;
@@ -1748,7 +1747,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     Xapian::WritableDatabase db = get_writable_database();
 
-    for (Xapian::doccount i = 246; i <= 290; ++i) {
+    for (size_t i = 246; i <= 290; ++i) {
 	tout.str(string());
 	tout << "Term length " << i << endl;
 	Xapian::Document doc;
@@ -1766,7 +1765,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
-    for (Xapian::doccount j = 240; j <= 245; ++j) {
+    for (size_t j = 240; j <= 245; ++j) {
 	tout.str(string());
 	tout << "Term length " << j << endl;
 	Xapian::Document doc;

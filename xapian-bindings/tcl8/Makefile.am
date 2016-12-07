@@ -16,10 +16,14 @@ LOG_COMPILER = $(srcdir)/run-tcl-test
 installcheck-local:
 	$(MAKE) check LOG_COMPILER='$(TCLSH)' AM_TESTS_ENVIRONMENT=
 
+SWIG_GENERATED = xapian_wrap.cc
+
 EXTRA_DIST = tcl.i except.i \
 	generate-tcl-exceptions \
 	run-tcl-test runtest.tcl \
-	$(TESTS) $(BUILT_SOURCES)
+	$(TESTS) $(SWIG_GENERATED)
+
+BUILT_SOURCES = $(SWIG_GENERATED)
 
 tcllibdir = @TCL_LIB@/xapian@VERSION@
 
@@ -43,8 +47,6 @@ AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(TCL_LIBS)
-
-BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
 BUILT_SOURCES += except.i

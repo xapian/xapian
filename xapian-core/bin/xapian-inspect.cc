@@ -42,6 +42,8 @@ using namespace std;
 #define OPT_HELP 1
 #define OPT_VERSION 2
 
+static bool keys = true, tags = true;
+
 static void show_usage() {
     cout << "Usage: " PROG_NAME " [OPTIONS] TABLE\n\n"
 "Options:\n"
@@ -79,11 +81,33 @@ show_help()
     cout << "Commands:\n"
 	    "next   : Next entry (alias 'n' or '')\n"
 	    "prev   : Previous entry (alias 'p')\n"
-	    "goto X : Goto entry X (alias 'g')\n"
-	    "until X: Display entries until X (alias 'u')\n"
-	    "open X : Open table X instead (alias 'o') - e.g. open postlist\n"
+	    "goto K : Goto entry with key K (alias 'g')\n"
+	    "until K: Display entries until key K (alias 'u')\n"
+	    "open T : Open table T instead (alias 'o') - e.g. open postlist\n"
+	    "keys   : Toggle showing keys (default: true) (alias 'k')\n"
+	    "tags   : Toggle showing tags (default: true) (alias 't')\n"
 	    "help   : Show this (alias 'h' or '?')\n"
 	    "quit   : Quit this utility (alias 'q')" << endl;
+}
+
+static void
+show_entry(ChertCursor & cursor)
+{
+    if (cursor.after_end()) {
+	cout << "After end" << endl;
+	return;
+    }
+    if (keys) {
+	cout << "Key: ";
+	display_nicely(cursor.current_key);
+	cout << endl;
+    }
+    if (tags) {
+	cout << "Tag: ";
+	cursor.read_tag();
+	display_nicely(cursor.current_tag);
+	cout << endl;
+    }
 }
 
 static void
@@ -115,12 +139,7 @@ do_until(ChertCursor & cursor, const string & target)
 		return;
 	    }
 	}
-	cout << "Key: ";
-	display_nicely(cursor.current_key);
-	cout << "\nTag: ";
-	cursor.read_tag();
-	display_nicely(cursor.current_tag);
-	cout << "\n";
+	show_entry(cursor);
 	if (cmp == 0) {
 	    return;
 	}
@@ -188,12 +207,7 @@ open_different_table:
 	cursor.next();
 
 	while (!cin.eof()) {
-	    cout << "Key: ";
-	    display_nicely(cursor.current_key);
-	    cout << "\nTag: ";
-	    cursor.read_tag();
-	    display_nicely(cursor.current_tag);
-	    cout << "\n";
+	    show_entry(cursor);
 wait_for_input:
 	    cout << "? " << flush;
 
@@ -262,6 +276,12 @@ wait_for_input:
 		else if (!endswith(table_name, '.'))
 		    table_name += '.';
 		goto open_different_table;
+	    } else if (input == "t" || input == "tags") {
+		tags = !tags;
+		cout << "Showing tags: " << boolalpha << tags << endl;
+	    } else if (input == "k" || input == "keys") {
+		keys = !keys;
+		cout << "Showing keys: " << boolalpha << keys << endl;
 	    } else if (input == "q" || input == "quit") {
 		break;
 	    } else if (input == "h" || input == "help" || input == "?") {

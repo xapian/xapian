@@ -1,7 +1,7 @@
 /** @file closefrom.cc
  * @brief Implementation of closefrom() function.
  */
-/* Copyright (C) 2010,2011,2012 Olly Betts
+/* Copyright (C) 2010,2011,2012,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,9 @@ using namespace std;
 static int
 get_maxfd() {
 #ifdef F_MAXFD
+    // May only be supported by NetBSD, modern versions of which implement
+    // closefrom().  Leave this in so that if other platforms have it or add
+    // it they will benefit.
     int maxfd = fcntl(0, F_MAXFD);
     if (maxfd >= 0) return maxfd;
 #endif
@@ -57,67 +60,95 @@ get_maxfd() {
     return static_cast<int>(sysconf(_SC_OPEN_MAX)) - 1;
 }
 
+// These platforms are known to provide closefrom():
+// FreeBSD >= 8.0, NetBSD >= 3.0, OpenBSD >= 3.5, Solaris >= 9
+//
+// These platforms are known to support fcntl() with F_CLOSEM:
+// AIX, IRIX, NetBSD >= 2.0
+//
+// These platforms have getdirentries() and a "magic" directory with an entry
+// for each FD open in the current process:
+// Linux, OS X
+//
+// Other platforms just use a loop up to a limit obtained from
+// fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX).
+
 void
 Xapian::Internal::closefrom(int fd)
 {
     int maxfd = -1;
 #ifdef F_CLOSEM
-    // Apparently supported by at least NetBSD, AIX, IRIX.
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
 	return;
 #elif defined __linux__ || defined __APPLE__
-    // The loop might close the fd associated with dir if we don't take
-    // special care to avoid that by either skipping this fd in the closing
-    // loop (if dirfd() is available) or making sure we have a free fd below
-    // the first we close in the loop.
-#if !defined HAVE_DIRFD && !defined dirfd
-    // Make sure that the lowest fd we have been asked to close is closed, and
-    // then raise this lower bound - this should ensure that opendir() gets
-    // an fd below the new lower bound.
-    while (close(fd) < 0 && errno == EINTR) { }
-    ++fd;
-#endif
 #if 0
-    // Some platforms (e.g. AIX) have /proc/<pid>/fd but not /proc/self - if
-    // any such platforms don't have either closefrom() or F_CLOSEM then this
-    // code can be used.
-    string path = "/proc/";
-    path += str(getpid());
-    path += "/fd";
-    DIR * dir = opendir(path.c_str());
+    // Some platforms have /proc/<pid>/fd but not /proc/self - if any such
+    // platforms don't have either closefrom() or F_CLOSEM but do have
+    // getdirentries() then this code can be used.  AIX is an example of
+    // a platform of the former, but apparently has F_CLOSEM.
+    char path[6 + sizeof(pid_t) * 3 + 4];
+    sprintf(path, "/proc/%ld/fd", long(getpid()));
 #elif defined __linux__
-    DIR * dir = opendir("/proc/self/fd");
+    const char * path = "/proc/self/fd";
+    typedef off_t gde_base_type;
 #elif defined __APPLE__ // Mac OS X
-    DIR * dir = opendir("/dev/fd");
+    const char * path = "/dev/fd";
+    typedef int gde_base_type;
 #endif
-    if (dir) {
+    int dir = open(path, O_RDONLY|O_DIRECTORY);
+    if (dir >= 0) {
+	// The type of the third argument to getdirentries() differs between
+	// platforms (ssize_t* on Linux; int* on OS X).  Use gde_base_type for
+	// the type of the variable pointed to (conditionally defined above).
+	gde_base_type base = 0;
 	while (true) {
+	    char buf[1024];
 	    errno = 0;
-	    struct dirent *entry = readdir(dir);
-	    if (entry == NULL) {
-		closedir(dir);
-		// Fallback if readdir() or closedir() fails.
-		if (errno) break;
+	    // We use getdirentries() instead of opendir()/readdir() here
+	    // because the latter can call malloc(), which isn't safe to do
+	    // between fork() and exec() in a multi-threaded program.
+	    //
+	    // The return type of getdirentries() also differs between
+	    // platforms - use auto here and decltype below to make sure c
+	    // and pos have appropriate types.
+
+	    auto c = getdirentries(dir, buf, sizeof(buf), &base);
+	    if (c == 0) {
+		close(dir);
 		return;
 	    }
-	    char ch;
-	    ch = entry->d_name[0];
-	    if (ch < '0' || ch > '9')
-		continue;
-	    int n = atoi(entry->d_name);
-	    if (n >= fd) {
-#if defined HAVE_DIRFD || defined dirfd
-		if (n == dirfd(dir)) continue;
-#endif
+	    if (c < 0) {
+		// Fallback if getdirentries() fails.
+		break;
+	    }
+	    struct dirent *d;
+	    for (decltype(c) pos = 0; pos < c; pos += d->d_reclen) {
+		d = reinterpret_cast<struct dirent*>(buf + pos);
+		const char * leaf = d->d_name;
+		if (leaf[0] < '0' || leaf[0] > '9') {
+		    // Skip '.' and '..'.
+		    continue;
+		}
+		int n = atoi(leaf);
+		if (n < fd) {
+		    // FD below threshold.
+		    continue;
+		}
+		if (n == dir) {
+		    // Don't close the fd open on the directory.
+		    continue;
+		}
 #ifdef __linux__
 		// Running under valgrind causes some entries above the
-		// reported RLIMIT_NOFILE value to appear in /proc/self/fd
-		// (https://bugs.kde.org/show_bug.cgi?id=191758).  If we try
-		// to close these, valgrind issues a warning about trying to
-		// close an invalid file descriptor.  These entries start at
-		// 1024, so we check that value first so we can usually avoid
-		// having to read the fd limit when we're not running under
-		// valgrind.
+		// reported RLIMIT_NOFILE value to appear in
+		// /proc/self/fd - see:
+		// https://bugs.kde.org/show_bug.cgi?id=191758
+		//
+		// If we try to close these, valgrind issues a warning about
+		// trying to close an invalid file descriptor.  These entries
+		// start at 1024, so we check that value first so we can
+		// usually avoid having to read the fd limit when we're not
+		// running under valgrind.
 		if (n >= 1024) {
 		    if (maxfd < 0)
 			maxfd = get_maxfd();
@@ -129,6 +160,7 @@ Xapian::Internal::closefrom(int fd)
 		while (close(n) < 0 && errno == EINTR) { }
 	    }
 	}
+	close(dir);
     }
 #endif
     if (maxfd < 0)

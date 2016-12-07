@@ -37,8 +37,8 @@
 #include <deque>
 #include <limits>
 #include <list>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "cjk-tokenizer.h"
@@ -304,10 +304,6 @@ struct Sniplet {
 	: relevance(r), term_end(t), highlight(h) { }
 };
 
-// The terms before and after a highlight get boosted by this proportion of the
-// highlight's relevance.
-static const double BOOST_FACTOR = 0; // FIXME: Set to non-zero and adjust testcases.
-
 class SnipPipe {
     deque<Sniplet> pipe;
     deque<Sniplet> best_pipe;
@@ -320,9 +316,6 @@ class SnipPipe {
 
     // Rolling sum of the current pipe contents.
     double sum = 0;
-
-    // Boost to the next term from the previous one.
-    double boost = 0;
 
     size_t phrase_len = 0;
 
@@ -352,13 +345,7 @@ inline bool
 SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
 {
     if (h > 1) {
-	boost = r * BOOST_FACTOR;
 	if (pipe.size() >= h - 1) {
-	    if (pipe.size() > h - 1) {
-		// Boost relevance of the term before the phrase.
-		pipe[pipe.size() - h].relevance += boost;
-		sum += boost;
-	    }
 	    // The final term of a phrase is entering the window.  Peg the
 	    // phrase's relevance onto the first term of the phrase, so it'll
 	    // be removed from `sum` when the phrase starts to leave the
@@ -371,19 +358,6 @@ SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
 	}
 	r = 0;
 	h = 0;
-    } else {
-	double new_r = r + boost;
-	if (h) {
-	    boost = r * BOOST_FACTOR;
-	    if (!pipe.empty()) {
-		// Boost relevance of the previous term.
-		pipe.back().relevance += boost;
-		sum += boost;
-	    }
-	} else {
-	    boost = 0;
-	}
-	r = new_r;
     }
     pipe.emplace_back(r, t, h);
     sum += r;
@@ -574,7 +548,7 @@ SnipPipe::drain(const string & input,
 static void
 check_query(const Xapian::Query & query,
 	    list<vector<string>> & exact_phrases,
-	    map<string, double> & loose_terms,
+	    unordered_map<string, double> & loose_terms,
 	    list<string> & wildcards,
 	    size_t & longest_phrase)
 {
@@ -620,7 +594,7 @@ non_term_subquery:
 }
 
 static bool
-check_term(map<string, double> & loose_terms,
+check_term(unordered_map<string, double> & loose_terms,
 	   const Xapian::Weight::Internal * stats,
 	   const string & term,
 	   double &relevance)
@@ -666,11 +640,15 @@ MSet::Internal::snippet(const string & text,
     SnipPipe snip(length);
 
     list<vector<string>> exact_phrases;
-    map<string, double> loose_terms;
+    unordered_map<string, double> loose_terms;
     list<string> wildcards;
     size_t longest_phrase = 0;
     check_query(enquire->get_query(), exact_phrases, loose_terms,
 		wildcards, longest_phrase);
+
+    // Background relevance is the same for a given MSet, so cache it
+    // between calls to MSet::snippet() on the same object.
+    unordered_map<string, double>& background = snippet_bg_relevance;
 
     vector<string> phrase;
     if (longest_phrase) phrase.resize(longest_phrase - 1);
@@ -740,29 +718,36 @@ MSet::Internal::snippet(const string & text,
 
 		if (flags & Xapian::MSet::SNIPPET_BACKGROUND_MODEL) {
 		    // Background document model.
-		    Xapian::doccount tf = enquire->db.get_termfreq(term);
-		    if (!tf) {
-			tf = enquire->db.get_termfreq(stem);
-		    } else {
-			stem = term;
-		    }
-		    if (tf) {
-			// Add one to avoid log(0) when a term indexes all
-			// documents.
-			Xapian::doccount num_docs = stats->collection_size + 1;
-			relevance = max_tw * log((num_docs - tf) / double(tf));
-			relevance /= (length + 1) * log(double(num_docs));
+		    auto bgit = background.find(term);
+		    if (bgit == background.end()) bgit = background.find(stem);
+		    if (bgit == background.end()) {
+			Xapian::doccount tf = enquire->db.get_termfreq(term);
+			if (!tf) {
+			    tf = enquire->db.get_termfreq(stem);
+			} else {
+			    stem = term;
+			}
+			double r = 0.0;
+			if (tf) {
+			    // Add one to avoid log(0) when a term indexes all
+			    // documents.
+			    Xapian::doccount num_docs = stats->collection_size + 1;
+			    r = max_tw * log((num_docs - tf) / double(tf));
+			    r /= (length + 1) * log(double(num_docs));
 #if 0
-			if (relevance <= 0) {
-			    Utf8Iterator i(text.data() + term_start, text.data() + term_end);
-			    while (i != Utf8Iterator()) {
-				if (Unicode::get_category(*i++) == Unicode::UPPERCASE_LETTER) {
-				    relevance = max_tw * 0.05;
+			    if (r <= 0) {
+				Utf8Iterator i(text.data() + term_start, text.data() + term_end);
+				while (i != Utf8Iterator()) {
+				    if (Unicode::get_category(*i++) == Unicode::UPPERCASE_LETTER) {
+					r = max_tw * 0.05;
+				    }
 				}
 			    }
-			}
 #endif
+			}
+			bgit = background.emplace(make_pair(stem, r)).first;
 		    }
+		    relevance = bgit->second;
 		}
 	    } else {
 #if 0

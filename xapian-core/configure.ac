@@ -97,7 +97,10 @@ dnl make up the library twice on most platforms.  Shared libraries are the
 dnl better option for most users, and if anyone really wants static libraries,
 dnl they can configure with --enable-static (or --enable-static=xapian-core if
 dnl configuring a combined tree with the bindings).
-LT_INIT([disable-static])
+dnl
+dnl We don't export any data items from the library, so it should be safe to
+dnl enable win32-dll without decorating any declarations specially.
+LT_INIT([disable-static win32-dll])
 
 dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
 dnl pass -no-undefined on platforms where it is required in order to link a
@@ -435,12 +438,9 @@ dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
 dnl on __WIN32__ being defined.
 AC_CHECK_FUNCS([setenv _putenv_s])
 
-dnl Check for a more efficient way of closing fds during daemonisation.
-dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
-dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
-dnl dirfd() and getrlimit are useful for an efficient implementation on some
-dnl platforms.
-AC_CHECK_FUNCS([closefrom dirfd getrlimit])
+dnl See if we have closefrom(), or some functions that are useful to implement
+dnl closefrom() on platforms which don't provide it.
+AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
 
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
@@ -605,7 +605,7 @@ if test -n "${VALGRIND-unset}" ; then
       else
 	AC_MSG_RESULT([yes])
 	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
-      fi	
+      fi
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
       dnl x86_64 box with a 32 bit valgrind.
@@ -742,6 +742,7 @@ XAPIAN_BACKEND_ENABLE([glass])
 XAPIAN_BACKEND_ENABLE([inmemory])
 XAPIAN_BACKEND_ENABLE([remote])
 
+use_proc_for_uuid=0
 use_win32_uuid_api=0
 case $enable_backend_chert$enable_backend_glass in
 *yes*)
@@ -795,7 +796,20 @@ case $enable_backend_chert$enable_backend_glass in
 	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
-	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for chert and glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  dnl Especially useful for Android.
+	  AC_MSG_CHECKING([if host platform supports /proc/sys/kernel/random/uuid])
+	  case $host_os in
+	    linux*)
+	      use_proc_for_uuid=1
+	      AC_DEFINE([USE_PROC_FOR_UUID], [1],
+			[Define to 1 to read UUID from '/proc/sys/kernel/random/uuid'])
+	      AC_MSG_RESULT([yes])
+	      ;;
+	    *)
+	      AC_MSG_RESULT([no])
+	      AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for chert and glass backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	      ;;
+	  esac
 	], [ ])
       ], [ ])
       ;;
@@ -811,6 +825,7 @@ case $enable_backend_chert$enable_backend_glass in
   LIBS=$SAVE_LIBS
   ;;
 esac
+AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LIBS=
@@ -1096,13 +1111,8 @@ if test yes = "$GXX"; then
       dnl don't intend to use this idiom, so any instances are bugs we'd
       dnl like to know about.
       dnl
-      dnl -Wold-style-cast triggered for macros expanded in our code but
-      dnl defined in system headers (e.g. FD_SET).  This was fixed in
-      dnl GCC 4.8 when -ftrack-macro-expansion=2 was made the default,
-      dnl and we now require >= 4.8.
-      dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self -Wold-style-cast"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
 
       dnl FIXME:
       dnl -Wconversion in older GCC versions is intended to help migration
@@ -1110,6 +1120,13 @@ if test yes = "$GXX"; then
       dnl to -Wtraditional-conversion and a new -Wconversion added which
       dnl sounds useful but is a bit buggy currently.  So we should consider
       dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
+      dnl
+      dnl -Wold-style-cast is interesting, but triggers for macros from
+      dnl system headers (e.g. FD_SET).  GCC 4.8 improved this by making
+      dnl -ftrack-macro-expansion=2 the default, but we still see such
+      dnl warnings on some platforms for some reason (e.g. Cygwin with GCC
+      dnl 5.4.0 warns about FD_SET, and on Debian with GCC 4.9.2 we see
+      dnl warnings from zlib.h).
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
@@ -1132,7 +1149,7 @@ if test yes = "$GXX"; then
       dnl clang (since __INTEL_COMPILER not substituted):
 
       dnl These options all work at least as far back as clang++ 3.0:
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wstrict-overflow=1 -Wmissing-declarations -Winit-self -Wold-style-cast"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wstrict-overflow=1 -Wmissing-declarations -Winit-self"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then

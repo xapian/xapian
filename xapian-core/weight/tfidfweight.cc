@@ -178,7 +178,7 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
 	case 'P': {
 	    if (wdf == 0) return 0;
 	    double normlen = doclen / get_average_length();
-	    double norm_factor =  1 / (1 - param_slope + (param_slope * normlen));
+	    double norm_factor = 1 / (1 - param_slope + (param_slope * normlen));
 	    return ((1 + log(1 + log(double(wdf)))) * norm_factor + param_delta);
 	}
 	default:

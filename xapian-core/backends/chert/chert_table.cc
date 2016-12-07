@@ -1403,7 +1403,7 @@ ChertTable::basic_open(bool revision_supplied, chert_revision_number_t revision_
 		basep = &bases[i];
 
 		// FIXME: assuming only two bases for other_base
-		size_t otherbase_num = 1-i;
+		size_t otherbase_num = 1 - i;
 		if (base_ok[otherbase_num]) {
 		    other_base = &bases[otherbase_num];
 		}
