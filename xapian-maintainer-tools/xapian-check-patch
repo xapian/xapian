@@ -215,7 +215,7 @@ QUOTELOOP:  while (1) {
 		$msg = "Whitespace before ')':";
 	    } elsif (m!^\+.*; (\w+)([-+]{2})\)!) {
 		$msg = "Prefer '$2$1' to '$1$2':";
-	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)([-+/*%~=<>!&|^]=?|\&\&|\|\||<<|>>),) {
+	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:[-+/*%~=<>!&|^]|\&\&|\|\||<<|>>)=?|[?]),) {
 		my $op = $1;
 		$msg = "Missing space before '$op':";
 		if (substr($_, $-[1] - 8, 8) eq 'operator') {
@@ -231,7 +231,7 @@ QUOTELOOP:  while (1) {
 		    # FIXME: |: FOO|BAR
 		    $msg = undef;
 		}
-	    } elsif (m@^\+\s*[^#].*[^-+](?!-[->]|\+\+)([-+/*%~=<>!&|^]=?|,|\&\&|\|\||<<|>>)(?<!->)(?:[\w\(]| \s)@) {
+	    } elsif (m@^\+\s*[^#].*[^-+](?!-[->]|\+\+)((?:[-+/*%~=<>!&|^]|\&\&|\|\||<<|>>)=?|[?:,])(?<!(?:->|::))(?:[\w\(]| \s)@) {
 		my $op = $1;
 		$msg = "Should have exactly one space after '$op':";
 		if ($op eq '~' && substr($_, $+[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
@@ -253,6 +253,8 @@ QUOTELOOP:  while (1) {
 		    # FIXME: |: FOO|BAR
 		    $msg = undef;
 		}
+	    } elsif (m@^\+[^#]*?[^#\h] +,@) {
+		$msg = "Space before ',':";
 	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
 		$msg = "Multiple spaces:";
 	    }
