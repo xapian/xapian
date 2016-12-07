@@ -1,7 +1,7 @@
 
  | An Arabic stop word list. Comments begin with vertical bar. Each stop
  |  word is at the start of a line.
- |  (This is not an official Snowball stop word list, basically inspired from 
+ |  (This is not an official Snowball stop word list, basically inspired from
  |   Arabic Stop Words Project)
 
 إذ
