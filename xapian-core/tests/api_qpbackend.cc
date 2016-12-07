@@ -56,7 +56,7 @@ DEFINE_TESTCASE(qpsynonympartial1, synonyms) {
 	{ "world ~hello", "(world@1 OR (hello@2 SYNONYM hi@2 SYNONYM howdy@2))" },
 	{ NULL, NULL }
     };
-    static const  test test_queries_partial_auto[] = {
+    static const test test_queries_partial_auto[] = {
 	{ "hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
 	{ "~hello", "((SYNONYM WILDCARD OR hello) OR hello@1)" },
 	{ "hello world", "((hello@1 SYNONYM hi@1 SYNONYM howdy@1) OR ((SYNONYM WILDCARD OR world) OR world@2))" },

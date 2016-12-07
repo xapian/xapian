@@ -82,7 +82,7 @@ unless query.empty?
     puts "#{m.rank + 1}: #{m.percent}% docid=#{m.docid} [#{m.document.data}]\n"
   }
 end
-  
+
 # Put the top 5 (at most) docs into the rset if rset is empty
 if relevant_docs.empty?
   matchset.matches[0..4].each {|match|

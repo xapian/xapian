@@ -85,7 +85,7 @@ class BitReader {
 	    k = k_;
 	    pos_k = pos_k_;
 	}
-	void uninit()  {
+	void uninit() {
 	    j = 1;
 	    k = 0;
 	}

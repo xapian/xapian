@@ -365,7 +365,7 @@ DEFINE_TESTCASE(wildcard2, backend) {
     q = Xapian::Query(q.OP_OR, q, q2);
     enq.set_query(q);
     Xapian::MSet mset = enq.get_mset(0, 10);
-    TEST_EQUAL(mset.size(),  6);
+    TEST_EQUAL(mset.size(), 6);
 
     return true;
 }

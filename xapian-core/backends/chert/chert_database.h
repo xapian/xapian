@@ -261,7 +261,7 @@ class ChertDatabase : public Xapian::Database::Internal {
 
 	/** Virtual methods of Database::Internal. */
 	//@{
-	Xapian::doccount  get_doccount() const;
+	Xapian::doccount get_doccount() const;
 	Xapian::docid get_lastdocid() const;
 	totlen_t get_total_length() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;

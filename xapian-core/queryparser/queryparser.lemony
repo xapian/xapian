@@ -343,7 +343,7 @@ class SynonymIterator {
     typedef Xapian::Query * pointer;
     typedef Xapian::Query & reference;
 };
-    
+
 Query
 Term::get_query_with_synonyms() const
 {

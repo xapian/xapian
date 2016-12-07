@@ -48,7 +48,7 @@ class OrPostList : public BranchPostList {
 	TermFreqs get_termfreq_est_using_stats(
 	    const Xapian::Weight::Internal & stats) const;
 
-	Xapian::docid  get_docid() const;
+	Xapian::docid get_docid() const;
 	double get_weight() const;
 	double get_maxweight() const;
 
@@ -57,7 +57,7 @@ class OrPostList : public BranchPostList {
 	PostList *next(double w_min);
 	PostList *skip_to(Xapian::docid did, double w_min);
 	PostList *check(Xapian::docid did, double w_min, bool &valid);
-	bool   at_end() const;
+	bool at_end() const;
 
 	std::string get_description() const;
 

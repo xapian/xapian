@@ -904,7 +904,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *             called at an invalid time, such as when a transaction
 	 *             is already in progress.
 	 */
-	void begin_transaction(bool flushed=true);
+	void begin_transaction(bool flushed = true);
 
 	/** Complete the transaction currently in progress.
 	 *

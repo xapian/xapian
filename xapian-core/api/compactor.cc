@@ -375,7 +375,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	    }
 	    if (errno) {
 		string msg = destdir;
-		msg +=  ": cannot create directory";
+		msg += ": cannot create directory";
 		throw Xapian::DatabaseError(msg, errno);
 	    }
 	}

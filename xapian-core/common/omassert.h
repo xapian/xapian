@@ -101,8 +101,8 @@ bool within_DBL_EPSILON(double a, double b);
 #define AssertEqDouble(A,B) \
     do {\
 	using Xapian::Internal::within_DBL_EPSILON;\
-	if (rare(!within_DBL_EPSILON(A,B))) {\
-	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(within_DBL_EPSILON(A,B)));\
+	if (rare(!within_DBL_EPSILON(A, B))) {\
+	    std::string xapian_assertion_msg(XAPIAN_ASSERT_LOCATION(within_DBL_EPSILON(A, B)));\
 	    xapian_assertion_msg += " : values were ";\
 	    xapian_assertion_msg += str(A);\
 	    xapian_assertion_msg += " and ";\

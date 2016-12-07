@@ -422,7 +422,7 @@ MSet::Internal::read_docs() const
 // MSetIterator
 
 Xapian::docid
-MSetIterator::operator *() const
+MSetIterator::operator*() const
 {
     Assert(mset.internal.get());
     Xapian::doccount size = mset.internal->items.size();

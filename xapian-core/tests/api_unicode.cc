@@ -87,7 +87,7 @@ static const testcase testcases[] = {
 };
 
 // Test handling of invalid UTF-8 is as desired.
-DEFINE_TESTCASE(utf8iterator1,!backend) {
+DEFINE_TESTCASE(utf8iterator1, !backend) {
     const testcase * p;
     for (p = testcases; p->a; ++p) {
 	tout.str(string());
@@ -131,7 +131,7 @@ static const testcase2 testcases2[] = {
 };
 
 // Test decoding of UTF-8.
-DEFINE_TESTCASE(utf8iterator2,!backend) {
+DEFINE_TESTCASE(utf8iterator2, !backend) {
     const testcase2 * p;
     for (p = testcases2; p->a; ++p) {
 	Xapian::Utf8Iterator a(p->a);
@@ -144,7 +144,7 @@ DEFINE_TESTCASE(utf8iterator2,!backend) {
 }
 
 // Test Unicode categorisation.
-DEFINE_TESTCASE(unicode1,!backend) {
+DEFINE_TESTCASE(unicode1, !backend) {
     using namespace Xapian;
     TEST_EQUAL(Unicode::get_category('a'), Unicode::LOWERCASE_LETTER);
     TEST_EQUAL(Unicode::get_category('0'), Unicode::DECIMAL_DIGIT_NUMBER);
@@ -282,7 +282,7 @@ DEFINE_TESTCASE(unicode1,!backend) {
     return true;
 }
 
-DEFINE_TESTCASE(caseconvert1,!backend) {
+DEFINE_TESTCASE(caseconvert1, !backend) {
     using namespace Xapian;
     for (unsigned ch = 0; ch < 128; ++ch) {
 	TEST_EQUAL(Unicode::tolower(ch), unsigned(tolower(ch)));
@@ -324,7 +324,7 @@ DEFINE_TESTCASE(caseconvert1,!backend) {
 }
 
 /// Test Unicode 5.1 and later support.
-DEFINE_TESTCASE(caseconvert2,!backend) {
+DEFINE_TESTCASE(caseconvert2, !backend) {
     using namespace Xapian;
 
     TEST_EQUAL(Unicode::toupper(0x250), 0x2c6f);
@@ -395,7 +395,7 @@ DEFINE_TESTCASE(caseconvert2,!backend) {
     return true;
 }
 
-DEFINE_TESTCASE(utf8convert1,!backend) {
+DEFINE_TESTCASE(utf8convert1, !backend) {
     string s;
     Xapian::Unicode::append_utf8(s, 'a');
     Xapian::Unicode::append_utf8(s, 128);
@@ -420,7 +420,7 @@ DEFINE_TESTCASE(utf8convert1,!backend) {
     return true;
 }
 
-DEFINE_TESTCASE(unicodepredicates1,!backend) {
+DEFINE_TESTCASE(unicodepredicates1, !backend) {
     const unsigned wordchars[] = {
 	// DECIMAL_DIGIT_NUMER
 	'0', '7', '9',

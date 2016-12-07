@@ -167,8 +167,7 @@ try {
 	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
 	}
 	enquire = new Xapian::Enquire(db);
-    }
-    catch (const Xapian::Error &) {
+    } catch (const Xapian::Error &) {
 	enquire = NULL;
     }
 
