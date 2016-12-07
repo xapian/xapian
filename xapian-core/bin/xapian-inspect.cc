@@ -1,5 +1,5 @@
 /** @file xapian-inspect.cc
- * @brief Inspect the contents of a chert table for development or debugging.
+ * @brief Inspect the contents of a glass table for development or debugging.
  */
 /* Copyright (C) 2007,2008,2009,2010,2011,2012 Olly Betts
  *
@@ -25,8 +25,9 @@
 #include <string>
 #include <cstdio> // For sprintf().
 
-#include "chert_table.h"
-#include "chert_cursor.h"
+#include "glass_cursor.h"
+#include "glass_table.h"
+#include "glass_version.h"
 #include "filetests.h"
 #include "stringutils.h"
 
@@ -37,7 +38,7 @@
 using namespace std;
 
 #define PROG_NAME "xapian-inspect"
-#define PROG_DESC "Inspect the contents of a chert table for development or debugging"
+#define PROG_DESC "Inspect the contents of a glass table for development or debugging"
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
@@ -91,7 +92,7 @@ show_help()
 }
 
 static void
-show_entry(ChertCursor & cursor)
+show_entry(GlassCursor & cursor)
 {
     if (cursor.after_end()) {
 	cout << "After end" << endl;
@@ -111,7 +112,7 @@ show_entry(ChertCursor & cursor)
 }
 
 static void
-do_until(ChertCursor & cursor, const string & target)
+do_until(GlassCursor & cursor, const string & target)
 {
     if (cursor.after_end()) {
 	cout << "At end already." << endl;
@@ -135,7 +136,7 @@ do_until(ChertCursor & cursor, const string & target)
 	    cmp = target.compare(cursor.current_key);
 	    if (cmp < 0) {
 		cout << "No exact match, stopping at entry before." << endl;
-		cursor.prev();
+		cursor.find_entry_lt(cursor.current_key);
 		return;
 	    }
 	}
@@ -190,19 +191,48 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    string db_dir;
+    size_t slash = table_name.rfind('/');
+    if (slash != string::npos) {
+	db_dir.assign(table_name, 0, slash);
+    } else {
+	db_dir = ".";
+    }
+    GlassVersion version_file(db_dir);
+    version_file.read();
+    glass_revision_number_t rev = version_file.get_revision();
+
     show_help();
     cout << endl;
 
 open_different_table:
     try {
-	ChertTable table("", table_name, true);
-	table.open();
+	Glass::table_type table_code;
+	if (endswith(table_name, "docdata.")) {
+	    table_code = Glass::DOCDATA;
+	} else if (endswith(table_name, "spelling.")) {
+	    table_code = Glass::SPELLING;
+	} else if (endswith(table_name, "synonym.")) {
+	    table_code = Glass::SYNONYM;
+	} else if (endswith(table_name, "termlist.")) {
+	    table_code = Glass::TERMLIST;
+	} else if (endswith(table_name, "position.")) {
+	    table_code = Glass::POSITION;
+	} else if (endswith(table_name, "postlist.")) {
+	    table_code = Glass::POSTLIST;
+	} else {
+	    cout << "Unknown table." << endl;
+	    exit(1);
+	}
+
+	GlassTable table("", table_name, true);
+	table.open(0, version_file.get_root(table_code), rev);
 	if (table.empty()) {
 	    cout << "No entries!" << endl;
 	    exit(0);
 	}
 
-	ChertCursor cursor(&table);
+	GlassCursor cursor(&table);
 	cursor.find_entry(string());
 	cursor.next();
 
@@ -228,7 +258,8 @@ wait_for_input:
 		// If the cursor has fallen off the end, point it back at
 		// the last entry.
 		if (cursor.after_end()) cursor.find_entry(cursor.current_key);
-		if (!cursor.prev()) {
+		cursor.find_entry_lt(cursor.current_key);
+		if (cursor.current_key.empty()) {
 		    cout << "At start already." << endl;
 		    goto wait_for_input;
 		}
@@ -253,11 +284,8 @@ wait_for_input:
 		}
 		continue;
 	    } else if (startswith(input, "o ")) {
-		size_t slash = table_name.find_last_of('/');
-		if (slash == string::npos)
-		    table_name.resize(0);
-		else
-		    table_name.resize(slash + 1);
+		table_name = db_dir;
+		if (!table_name.empty()) table_name += '/';
 		table_name += input.substr(2);
 		if (endswith(table_name, ".DB"))
 		    table_name.resize(table_name.size() - 2);
@@ -265,11 +293,8 @@ wait_for_input:
 		    table_name += '.';
 		goto open_different_table;
 	    } else if (startswith(input, "open ")) {
-		size_t slash = table_name.find_last_of('/');
-		if (slash == string::npos)
-		    table_name.resize(0);
-		else
-		    table_name.resize(slash + 1);
+		table_name = db_dir;
+		if (!table_name.empty()) table_name += '/';
 		table_name += input.substr(5);
 		if (endswith(table_name, ".DB"))
 		    table_name.resize(table_name.size() - 2);
