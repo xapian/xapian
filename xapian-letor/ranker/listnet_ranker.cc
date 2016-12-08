@@ -189,7 +189,7 @@ ListNETRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
 	if (fvals.size() != parameters.size())
 	    throw LetorInternalError("Model incompatible. Make sure that you are using "
 				     "the same set of Features using which the model was created.");
-	for(size_t j = 0; j < fvals.size(); ++j)
+	for (size_t j = 0; j < fvals.size(); ++j)
 	    listnet_score += fvals[j] * parameters[j];
 	testfvv[i].set_score(listnet_score);
     }
