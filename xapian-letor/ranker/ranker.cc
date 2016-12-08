@@ -186,7 +186,7 @@ write_to_file(const std::vector<Xapian::FeatureVector> & list_fvecs, const strin
 
 	train_file << label << " qid:" <<qid;
 	for (int k = 0; k < fv.get_fcount(); ++k) {
-	    train_file << " " << (k+1) << ":" << fvals[k];
+	    train_file << " " << (k + 1) << ":" << fvals[k];
 	}
 	train_file << " #docid=" << did << endl;
     }
@@ -214,8 +214,8 @@ parse_query_string(const string & query_line, int line_number)
     if (querystr.front() != '\'' || querystr.back() != '\'') {
 	throw LetorParseError("Could not parse query string at line:" + str(line_number));
     }
-    querystr.erase( 0, 1 ); // erase the first character (') from the front
-    querystr.erase( querystr.size() - 1); // erase the last character (')
+    querystr.erase(0, 1); // erase the first character (') from the front
+    querystr.erase(querystr.size() - 1); // erase the last character (')
     if (querystr.empty()) {
 	throw LetorParseError("Empty query string in query file at line:" + str(line_number));
     }
@@ -452,7 +452,7 @@ Ranker::score(const string & query_file, const string & qrel_file,
 	total_score += iter_score;
     }
     queryfile.close();
-    total_score = total_score/num_queries;
+    total_score = total_score / num_queries;
     out_file << "Average ranking score = " << total_score << endl;
     out_file.close();
 }

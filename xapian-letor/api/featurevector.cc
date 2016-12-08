@@ -40,8 +40,8 @@ FeatureVector::FeatureVector(const Xapian::docid & did, const std::vector<double
 			     : internal(new FeatureVector::Internal)
 {
     LOGCALL_CTOR(API, "FeatureVector", did | fvals);
-    internal->did_=did;
-    internal->fvals_=fvals;
+    internal->did_ = did;
+    internal->fvals_ = fvals;
 }
 
 FeatureVector::FeatureVector(const FeatureVector & o) : internal(o.internal)
@@ -66,28 +66,28 @@ void
 FeatureVector::set_did(Xapian::docid did)
 {
     LOGCALL_VOID(API, "FeatureVector::set_did", did);
-    internal->did_=did;
+    internal->did_ = did;
 }
 
 void
 FeatureVector::set_label(double label)
 {
     LOGCALL_VOID(API, "FeatureVector::set_label", label);
-    internal->label_=label;
+    internal->label_ = label;
 }
 
 void
 FeatureVector::set_score(double score)
 {
     LOGCALL_VOID(API, "FeatureVector::set_score", score);
-    internal->score_=score;
+    internal->score_ = score;
 }
 
 void
 FeatureVector::set_fvals(const std::vector<double> & fvals)
 {
     LOGCALL_VOID(API, "FeatureVector::set_fvals", fvals);
-    internal->fvals_=fvals;
+    internal->fvals_ = fvals;
 }
 
 void
