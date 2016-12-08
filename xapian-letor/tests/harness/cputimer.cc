@@ -65,7 +65,7 @@ CPUTimer::get_current_cputime() const
     t += (r.ru_utime.tv_usec + r.ru_stime.tv_usec) * 0.000001;
 #elif defined HAVE_TIMES
     struct tms b;
-    if (times(&b) == (clock_t)-1) {
+    if (times(&b) == clock_t(-1)) {
 	FAIL_TEST("Couldn't measure CPU: " << strerror(errno));
     }
     t = (double)(b.tms_utime + b.tms_stime);
