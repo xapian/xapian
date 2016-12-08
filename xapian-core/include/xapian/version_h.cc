@@ -166,13 +166,6 @@ const char * dummy[] = {
 "/// Underlying type for Xapian::rev.",
 "#define XAPIAN_REVISION_TYPE ",XAPIAN_REVISION_TYPE,
 "",
-"/// XAPIAN_HAS_CHERT_BACKEND Defined if the chert backend is enabled.",
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-"#define XAPIAN_HAS_CHERT_BACKEND 1",
-#else
-"/* #undef XAPIAN_HAS_CHERT_BACKEND */",
-#endif
-"",
 "/// XAPIAN_HAS_GLASS_BACKEND Defined if the glass backend is enabled.",
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 "#define XAPIAN_HAS_GLASS_BACKEND 1",

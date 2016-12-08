@@ -489,7 +489,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  commit.
 	 *
 	 *  The database must have exactly one sub-database, which must be of
-	 *  type chert or glass.  Otherwise an exception will be thrown.
+	 *  type glass.  Otherwise an exception will be thrown.
 	 *
 	 *  Experimental - see
 	 *  https://xapian.org/docs/deprecation#experimental-features
@@ -775,7 +775,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  @param block_size If a new database is created, this specifies
 	 *		      the block size (in bytes) for backends which
-	 *		      have such a concept.  For chert and glass, the
+	 *		      have such a concept.  For glass, the
 	 *		      block size must be a power of 2 between 2048 and
 	 *		      65536 (inclusive), and the default (also used if
 	 *		      an invalid value is passed) is 8192 bytes.

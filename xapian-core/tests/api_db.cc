@@ -1548,98 +1548,98 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-DEFINE_TESTCASE(chertdatabaseopeningerror1, chert) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    mkdir(".chert", 0755);
+DEFINE_TESTCASE(glassdatabaseopeningerror1, glass) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    mkdir(".glass", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".chert/nosuchdirectory",
-		Xapian::DB_BACKEND_CHERT));
+	    Xapian::Database(".glass/nosuchdirectory",
+		Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::WritableDatabase(".chert/nosuchdirectory",
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/nosuchdirectory",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
 
-    mkdir(".chert/emptydirectory", 0700);
+    mkdir(".glass/emptydirectory", 0700);
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".chert/emptydirectory",
-		Xapian::DB_BACKEND_CHERT));
+	    Xapian::Database(".glass/emptydirectory",
+		Xapian::DB_BACKEND_GLASS));
 
-    touch(".chert/somefile");
+    touch(".glass/somefile");
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".chert/somefile",
-		Xapian::DB_BACKEND_CHERT));
+	    Xapian::Database(".glass/somefile",
+		Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
 #endif
 
     return true;
 }
 
-/// Test opening of a chert database
-DEFINE_TESTCASE(chertdatabaseopen1, chert) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    const string dbdir = ".chert/test_chertdatabaseopen1";
-    mkdir(".chert", 0755);
+/// Test opening of a glass database
+DEFINE_TESTCASE(glassdatabaseopen1, glass) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    const string dbdir = ".glass/test_glassdatabaseopen1";
+    mkdir(".glass", 0755);
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	TEST_EXCEPTION(Xapian::DatabaseCreateError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS));
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT);
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 #endif
 

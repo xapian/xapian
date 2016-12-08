@@ -6,14 +6,14 @@ bin_PROGRAMS +=\
 
 noinst_PROGRAMS =
 
-if BUILD_BACKEND_CHERT_OR_GLASS
+if BUILD_BACKEND_TOOLS
 bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact\
 	bin/xapian-replicate\
 	bin/xapian-replicate-server
 
-if BUILD_BACKEND_CHERT
+if BUILD_BACKEND_GLASS
 noinst_PROGRAMS +=\
 	bin/xapian-inspect
 endif

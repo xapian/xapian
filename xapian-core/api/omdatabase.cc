@@ -765,7 +765,7 @@ Database::get_revision() const
     Xapian::rev revision;
     if (!unpack_uint(&p, end, &revision))
 	throw Xapian::UnimplementedError("Database::get_revision() only "
-					 "supported for chert and glass");
+					 "supported for glass");
     return revision;
 }
 

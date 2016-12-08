@@ -376,65 +376,6 @@ static bool test_pack_uint_preserving_sort1()
     return true;
 }
 
-/// Test C_pack_uint_preserving_sort()
-static bool test_pack_uint_preserving_sort2()
-{
-    string prev_packed;
-    for (unsigned int i = 0; i != 1000; ++i) {
-	string packed;
-	C_pack_uint_preserving_sort(packed, i);
-	const char * ptr = packed.data();
-	const char * end = ptr + packed.size();
-	unsigned int result;
-	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
-	TEST_EQUAL(result, i);
-	TEST(ptr == end);
-	TEST_REL(prev_packed, <, packed);
-	swap(prev_packed, packed);
-    }
-    for (unsigned int i = 2345; i < 65000; i += 113) {
-	string packed;
-	C_pack_uint_preserving_sort(packed, i);
-	const char * ptr = packed.data();
-	const char * end = ptr + packed.size();
-	unsigned int result;
-	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
-	TEST_EQUAL(result, i);
-	TEST(ptr == end);
-	TEST_REL(prev_packed, <, packed);
-	swap(prev_packed, packed);
-    }
-    unsigned int prev = 64999;
-    for (unsigned int i = 65000; i > prev; prev = i, i = (i << 1) ^ 1337) {
-	string packed;
-	C_pack_uint_preserving_sort(packed, i);
-	const char * ptr = packed.data();
-	const char * end = ptr + packed.size();
-	unsigned int result;
-	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
-	TEST_EQUAL(result, i);
-	TEST(ptr == end);
-	TEST_REL(prev_packed, <, packed);
-	swap(prev_packed, packed);
-    }
-
-    /* Test packing multiple numbers to one string. */
-    string packed;
-    for (unsigned int i = 23456; i < 765432; i += 1131) {
-	C_pack_uint_preserving_sort(packed, i);
-    }
-    const char * ptr = packed.data();
-    const char * end = ptr + packed.size();
-    for (unsigned int i = 23456; i < 765432; i += 1131) {
-	unsigned int result;
-	TEST(C_unpack_uint_preserving_sort(&ptr, end, &result));
-	TEST_EQUAL(result, i);
-    }
-    TEST(ptr == end);
-
-    return true;
-}
-
 /// Test C_isupper() etc.
 static bool test_chartype1()
 {
@@ -624,7 +565,6 @@ static const test_desc tests[] = {
     TESTCASE(temporarydtor1),
     TESTCASE(static_assert1),
     TESTCASE(pack_uint_preserving_sort1),
-    TESTCASE(pack_uint_preserving_sort2),
     TESTCASE(chartype1),
     {0, 0}
 };

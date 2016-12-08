@@ -127,97 +127,6 @@ unpack_uint_last(const char ** p, const char * end, U * result)
     return true;
 }
 
-/** Append an encoded unsigned integer to a string, preserving the sort order.
- *
- *  [Chert variant]
- *
- *  The appended string data will sort in the same order as the unsigned
- *  integer being encoded.
- *
- *  Note that the first byte of the encoding will never be \xff, so it is
- *  safe to store the result of this function immediately after the result of
- *  pack_string_preserving_sort().
- *
- *  @param s		The string to append to.
- *  @param value	The unsigned integer to encode.
- */
-template<class U>
-inline void
-C_pack_uint_preserving_sort(std::string & s, U value)
-{
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
-#if 0
-    // FIXME: Doesn't work with 64-bit Xapian::docid, etc.
-    static_assert(sizeof(U) <= SORTABLE_UINT_MAX_BYTES,
-		  "Template type U too wide for database format");
-#endif
-
-    char tmp[sizeof(U) + 1];
-    char * p = tmp + sizeof(tmp);
-
-    do {
-	*--p = char(value & 0xff);
-	value >>= 8;
-    } while (value &~ SORTABLE_UINT_1ST_BYTE_MASK);
-
-    unsigned char len = static_cast<unsigned char>(tmp + sizeof(tmp) - p);
-    *--p = char((len - 1) << (8 - SORTABLE_UINT_LOG2_MAX_BYTES) | value);
-    s.append(p, len + 1);
-    Assert(s[0] != '\xff');
-}
-
-/** Decode an "sort preserved" unsigned integer from a string.
- *
- *  [Chert variant]
- *
- *  The unsigned integer must have been encoded with
- *  C_pack_uint_preserving_sort().
- *
- *  @param p	    Pointer to pointer to the current position in the string.
- *  @param end	    Pointer to the end of the string.
- *  @param result   Where to store the result.
- */
-template<class U>
-inline bool
-C_unpack_uint_preserving_sort(const char ** p, const char * end, U * result)
-{
-    // Check U is an unsigned type.
-    STATIC_ASSERT_UNSIGNED_TYPE(U);
-    static_assert(sizeof(U) < 256,
-		  "Template type U too wide for database format");
-    Assert(result);
-
-    const char * ptr = *p;
-    Assert(ptr);
-
-    if (rare(ptr == end)) {
-	return false;
-    }
-
-    unsigned char len_byte = static_cast<unsigned char>(*ptr++);
-    *result = len_byte & SORTABLE_UINT_1ST_BYTE_MASK;
-    size_t len = (len_byte >> (8 - SORTABLE_UINT_LOG2_MAX_BYTES)) + 1;
-
-    if (rare(size_t(end - ptr) < len)) {
-	return false;
-    }
-
-    end = ptr + len;
-    *p = end;
-
-    // Check for overflow.
-    if (rare(len > int(sizeof(U)))) {
-	return false;
-    }
-
-    while (ptr != end) {
-	*result = (*result << 8) | U(static_cast<unsigned char>(*ptr++));
-    }
-
-    return true;
-}
-
 #ifdef __GNUC__
 // GCC 3.4 added __builtin_clz() (with l and ll variants).
 inline int do_clz(unsigned value) { return __builtin_clz(value); }
@@ -562,34 +471,6 @@ unpack_string_preserving_sort(const char ** p, const char * end,
     }
     *p = ptr;
     return true;
-}
-
-inline std::string
-pack_chert_postlist_key(const std::string &term)
-{
-    // Special case for doclen lists.
-    if (term.empty())
-	return std::string("\x00\xe0", 2);
-
-    std::string key;
-    pack_string_preserving_sort(key, term, true);
-    return key;
-}
-
-inline std::string
-pack_chert_postlist_key(const std::string &term, Xapian::docid did)
-{
-    // Special case for doclen lists.
-    if (term.empty()) {
-	std::string key("\x00\xe0", 2);
-	C_pack_uint_preserving_sort(key, did);
-	return key;
-    }
-
-    std::string key;
-    pack_string_preserving_sort(key, term);
-    C_pack_uint_preserving_sort(key, did);
-    return key;
 }
 
 inline std::string

@@ -76,8 +76,7 @@ class TestRunner {
 	MULTI		= 0x00000800,
 	SINGLEFILE	= 0x00001000,
 	INMEMORY	= 0x00002000,
-	CHERT		= 0x00004000,
-	GLASS		= 0x00008000,
+	GLASS		= 0x00004000,
     };
 
   public:

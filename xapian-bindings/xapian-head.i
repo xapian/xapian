@@ -39,17 +39,6 @@ namespace Xapian {
 #ifndef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 %{
 
-#ifndef XAPIAN_HAS_CHERT_BACKEND
-    namespace Chert {
-	static Database open(const string &) {
-	    throw FeatureUnavailableError("Chert backend not supported");
-	}
-	static WritableDatabase open(const string &, int, int = 0) {
-	    throw FeatureUnavailableError("Chert backend not supported");
-	}
-    }
-#endif
-
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     namespace InMemory {
 	static WritableDatabase open() {

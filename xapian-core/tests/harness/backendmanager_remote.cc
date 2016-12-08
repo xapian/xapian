@@ -31,9 +31,6 @@ BackendManagerRemote::BackendManagerRemote(const std::string & remote_type_)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (remote_type == "glass") return;
 #endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (remote_type == "chert") return;
-#endif
     throw ("Unknown backend type \"" + remote_type + "\" specified for remote database");
 }
 
@@ -53,12 +50,6 @@ BackendManagerRemote::get_writable_database_args(const std::string & name,
 	args += ".glass/";
     }
 #endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (remote_type == "chert") {
-	(void)getwritedb_chert(name, std::vector<std::string>(1, file));
-	args += ".chert/";
-    }
-#endif
     args += name;
 
     return args;
@@ -76,11 +67,6 @@ BackendManagerRemote::get_remote_database_args(const std::vector<std::string> & 
 	    args += createdb_glass(files);
 	}
 #endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (remote_type == "chert") {
-	args += createdb_chert(files);
-    }
-#endif
 
     return args;
 }
@@ -92,11 +78,6 @@ BackendManagerRemote::get_writable_database_as_database_args()
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (remote_type == "glass") {
 	args += ".glass/";
-    }
-#endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (remote_type == "chert") {
-	args += ".chert/";
     }
 #endif
     args += last_wdb_name;
@@ -111,11 +92,6 @@ BackendManagerRemote::get_writable_database_again_args()
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (remote_type == "glass") {
 	args += ".glass/";
-    }
-#endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (remote_type == "chert") {
-	args += ".chert/";
     }
 #endif
     args += last_wdb_name;

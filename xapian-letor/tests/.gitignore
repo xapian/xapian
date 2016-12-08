@@ -11,9 +11,7 @@
 /runtest
 /apitest.exe
 /.glass
-/.chert
 /.multiglass
-/.multichert
 /.singlefileglass
 /.stub
 /api_all.h

@@ -164,7 +164,6 @@ The following were deprecated in the C++ API before the Python 3 bindings saw
 a stable release, so are not wrapped for Python 3:
 
  * `Xapian::Auto::open_stub()`
- * `Xapian::Chert::open()`
  * `Xapian::InMemory::open()`
 
 The version of the bindings in use is available as `xapian.__version__` (as
