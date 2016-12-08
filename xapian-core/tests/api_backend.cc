@@ -51,7 +51,7 @@
 using namespace std;
 
 /// Regression test - lockfile should honour umask, was only user-readable.
-DEFINE_TESTCASE(lockfileumask1, chert || glass) {
+DEFINE_TESTCASE(lockfileumask1, glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     mode_t old_umask = umask(022);
     try {
@@ -269,7 +269,7 @@ DEFINE_TESTCASE(valuesaftercommit1, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lockfilefd0or1, chert || glass) {
+DEFINE_TESTCASE(lockfilefd0or1, glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     int old_stdin = dup(0);
     int old_stdout = dup(1);
@@ -312,7 +312,7 @@ DEFINE_TESTCASE(lockfilefd0or1, chert || glass) {
 }
 
 /// Regression test for bug fixed in 1.2.13 and 1.3.1.
-DEFINE_TESTCASE(lockfilealreadyopen1, chert || glass) {
+DEFINE_TESTCASE(lockfilealreadyopen1, glass) {
     string path = get_named_writable_database_path("lockfilealreadyopen1");
     int fd = ::open((path + "/flintlock").c_str(), O_RDONLY);
     try {
@@ -770,7 +770,7 @@ DEFINE_TESTCASE(orcheck1, generated) {
  *
  *  We failed to mark the Btree as unmodified after cancel().
  */
-DEFINE_TESTCASE(failedreplace1, chert || glass) {
+DEFINE_TESTCASE(failedreplace1, glass) {
     Xapian::WritableDatabase db(get_writable_database());
     Xapian::Document doc;
     doc.add_term("foo");
@@ -786,7 +786,7 @@ DEFINE_TESTCASE(failedreplace1, chert || glass) {
     return true;
 }
 
-DEFINE_TESTCASE(failedreplace2, chert || glass) {
+DEFINE_TESTCASE(failedreplace2, glass) {
     Xapian::WritableDatabase db(get_writable_database("apitest_simpledata"));
     db.commit();
     Xapian::doccount db_size = db.get_doccount();
@@ -1001,14 +1001,12 @@ DEFINE_TESTCASE(itorskiptofromend1, backend) {
 // Regression test for bug fixed in 1.2.17 and 1.3.2 - the size gets fixed
 // but the uncorrected size was passed to the base file.  Also, abort() was
 // called on 0.
-DEFINE_TESTCASE(blocksize1, chert || glass) {
+DEFINE_TESTCASE(blocksize1, glass) {
     string db_dir = "." + get_dbtype();
     mkdir(db_dir.c_str(), 0755);
     db_dir += "/db__blocksize1";
     int flags;
-    if (get_dbtype() == "chert") {
-	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT;
-    } else {
+    if (get_dbtype() == "glass") {
 	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
     }
     static const unsigned bad_sizes[] = {
@@ -1033,9 +1031,7 @@ DEFINE_TESTCASE(notermlist1, glass) {
     mkdir(db_dir.c_str(), 0755);
     db_dir += "/db__notermlist1";
     int flags = Xapian::DB_CREATE|Xapian::DB_NO_TERMLIST;
-    if (get_dbtype() == "chert") {
-	flags |= Xapian::DB_BACKEND_CHERT;
-    } else {
+    if (get_dbtype() == "glass") {
 	flags |= Xapian::DB_BACKEND_GLASS;
     }
     rm_rf(db_dir);
@@ -1077,7 +1073,7 @@ DEFINE_TESTCASE(newfreelistblock1, writable) {
  *  branch which failed to append a "/" when generating a temporary filename
  *  from the database directory.
  */
-DEFINE_TESTCASE(readonlyparentdir1, chert || glass) {
+DEFINE_TESTCASE(readonlyparentdir1, glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     string path = get_named_writable_database_path("readonlyparentdir1");
     // Fix permissions if the previous test was killed.
@@ -1249,7 +1245,7 @@ DEFINE_TESTCASE(retrylock1, writable && !inmemory && !remote) {
 }
 
 // Opening a WritableDatabase with low fds available - it should avoid them.
-DEFINE_TESTCASE(dbfilefd012, chert || glass) {
+DEFINE_TESTCASE(dbfilefd012, glass) {
 #if !defined __WIN32__ && !defined __CYGWIN__ && !defined __OS2__
     int oldfds[3];
     for (int i = 0; i < 3; ++i) {
@@ -1306,13 +1302,13 @@ DEFINE_TESTCASE(dbfilefd012, chert || glass) {
 }
 
 /// Regression test for #675, fixed in 1.3.3 and 1.2.21.
-DEFINE_TESTCASE(cursorbug1, chert || glass) {
+DEFINE_TESTCASE(cursorbug1, glass) {
     Xapian::WritableDatabase wdb = get_writable_database();
     Xapian::Database db = get_writable_database_as_database();
     Xapian::Enquire enq(db);
     enq.set_query(Xapian::Query::MatchAll);
     Xapian::MSet mset;
-    // The original problem triggers for chert and glass on repeat==7.
+    // The original problem triggered for chert and glass on repeat==7.
     for (int repeat = 0; repeat < 10; ++repeat) {
 	tout.str(string());
 	tout << "iteration #" << repeat << endl;
@@ -1435,7 +1431,7 @@ DEFINE_TESTCASE(exactxor1, backend) {
 }
 
 /// Feature test for Database::get_revision().
-DEFINE_TESTCASE(getrevision1, chert || glass) {
+DEFINE_TESTCASE(getrevision1, glass) {
     Xapian::WritableDatabase db = get_writable_database();
     TEST_EQUAL(db.get_revision(), 0);
     db.commit();

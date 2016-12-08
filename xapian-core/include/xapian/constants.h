@@ -159,13 +159,7 @@ const int DB_BACKEND_GLASS	 = 0x100;
 
 /** Use the chert backend.
  *
- *  When opening a WritableDatabase, this means create a chert database if a
- *  new database is created.  If there's an existing database (of any type)
- *  at the specified path, this flag has no effect.
- *
- *  When opening a Database, this flag means to only open it if it's a chert
- *  database.  There's rarely a good reason to do this - it's mostly provided
- *  as equivalent functionality to Xapian::Chert::open() in Xapian 1.2.
+ *  No longer supported as of Xapian 1.5.0.
  */
 const int DB_BACKEND_CHERT	 = 0x200;
 

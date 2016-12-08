@@ -68,7 +68,7 @@ lib_src +=\
 	common/socket_utils.cc\
 	common/str.cc
 
-if BUILD_BACKEND_CHERT_OR_GLASS
+if BUILD_BACKEND_GLASS
 lib_src +=\
 	common/compression_stream.cc
 endif

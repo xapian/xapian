@@ -39,7 +39,7 @@ static void show_usage() {
 "If a whole database is checked, then additional cross-checks between\n"
 "the tables are performed.\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
-" F = attempt to fix a broken database (implemented for chert currently)\n"
+" F = attempt to fix a broken database (implemented for glass currently)\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
 " b = show free blocks\n"

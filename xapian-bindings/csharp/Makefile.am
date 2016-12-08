@@ -14,7 +14,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/BM25PlusWeight.cs\
 	generated-csharp/BM25Weight.cs \
 	generated-csharp/BoolWeight.cs \
-	generated-csharp/Chert.cs \
 	generated-csharp/Compactor.cs \
 	generated-csharp/CoordWeight.cs \
 	generated-csharp/Database.cs \

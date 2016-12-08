@@ -59,14 +59,14 @@ Xapian::WritableDatabase get_writable_database_again();
 //
 // More precisely, this skips the test for any backend for which the
 // get_dbtype() function does not return a string starting with backend_prefix.
-// This allows backends like "multi_chert" to be covered by specifying "multi".
+// This allows backends like "multi_glass" to be covered by specifying "multi".
 void skip_test_unless_backend(const std::string & backend_prefix);
 
 // Skip the test for any backend of the specified type.
 //
 // More precisely, this skips the test for any backend for which the
 // get_dbtype() function returns a string starting with backend_prefix.  This
-// allows backends like "multi_chert" to be covered by specifying "multi".
+// allows backends like "multi_glass" to be covered by specifying "multi".
 void skip_test_for_backend(const std::string & backend_prefix);
 
 #define SKIP_TEST_UNLESS_BACKEND(B) skip_test_unless_backend(B)

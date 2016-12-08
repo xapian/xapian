@@ -54,7 +54,7 @@ static void show_usage() {
 "                     unique ids from an external source).  Currently this\n"
 "                     option is only supported when merging databases if they\n"
 "                     have disjoint ranges of used document ids\n"
-"  -s, --single-file  Produce a single file database (not supported for chert)\n"
+"  -s, --single-file  Produce a single file database\n"
 "  --help             display this help and exit\n"
 "  --version          output version information and exit" << endl;
 }

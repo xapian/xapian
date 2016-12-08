@@ -26,7 +26,6 @@
 
 #include "testsuite.h"
 #include "backendmanager.h"
-#include "backendmanager_chert.h"
 #include "backendmanager_glass.h"
 #include "backendmanager_inmemory.h"
 #include "backendmanager_multi.h"
@@ -69,20 +68,11 @@ TestRunner::set_properties_for_backend(const string & backend_name)
 	{ "none", 0 },
 	{ "inmemory", INMEMORY|
 	    BACKEND|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
-	{ "chert", CHERT|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
-	    SYNONYMS|REPLICAS|VALUESTATS|GENERATED },
 	{ "glass", GLASS|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|SPELLING|METADATA|
 	    SYNONYMS|REPLICAS|VALUESTATS|GENERATED },
-	{ "multi_chert", MULTI|
-	    BACKEND|POSITIONAL|VALUESTATS },
 	{ "multi_glass", MULTI|
 	    BACKEND|POSITIONAL|VALUESTATS },
-	{ "remoteprog_chert", REMOTE|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
-	{ "remotetcp_chert", REMOTE|
-	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "remoteprog_glass", REMOTE|
 	    BACKEND|TRANSACTIONS|POSITIONAL|WRITABLE|METADATA|VALUESTATS },
 	{ "remotetcp_glass", REMOTE|
@@ -147,22 +137,9 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 #endif
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	{
-	    BackendManagerChert m;
-	    do_tests_for_backend(&m);
-	}
-#endif
-
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	{
 	    BackendManagerMulti m("glass");
-	    do_tests_for_backend(&m);
-	}
-#endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	{
-	    BackendManagerMulti m("chert");
 	    do_tests_for_backend(&m);
 	}
 #endif
@@ -175,16 +152,6 @@ TestRunner::run_tests(int argc, char ** argv)
 	}
 	{
 	    BackendManagerRemoteTcp m("glass");
-	    do_tests_for_backend(&m);
-	}
-#endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	{
-	    BackendManagerRemoteProg m("chert");
-	    do_tests_for_backend(&m);
-	}
-	{
-	    BackendManagerRemoteTcp m("chert");
 	    do_tests_for_backend(&m);
 	}
 #endif

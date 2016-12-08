@@ -91,19 +91,6 @@ class BackendManager {
     Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &files);
 #endif
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-  protected:
-    std::string createdb_chert(const std::vector<std::string> &files);
-
-  public:
-    /// Get a writable chert database instance.
-    Xapian::WritableDatabase getwritedb_chert(const std::string & name,
-					      const std::vector<std::string> &files);
-
-    /// Get the path of a writable chert database instance.
-    std::string getwritedb_chert_path(const std::string & name);
-#endif
-
 #ifdef XAPIAN_HAS_GLASS_BACKEND
   protected:
     std::string createdb_glass(const std::vector<std::string> &files);

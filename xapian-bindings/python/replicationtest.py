@@ -33,7 +33,9 @@ def set_master(masterpath, srcpath):
         shutil.rmtree(masterpath + "_")
     shutil.copytree(srcpath, masterpath + "_")
 
-    # Set a new uuid on the copy.
+    # Set a new uuid on the copy.  FIXME: Needs updating for glass where you
+    # can't just update the uuid like this.
+    sys.exit(1)
     xapian.WritableDatabase(masterpath + "__", xapian.DB_CREATE_OR_OVERWRITE)
     os.unlink(os.path.join(masterpath + "_", "iamchert"))
     os.rename(os.path.join(masterpath + "__", "iamchert"),

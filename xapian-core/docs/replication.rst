@@ -51,9 +51,8 @@ source tree.
 Backend Support
 ===============
 
-Replication is supported by the glass and chert database backends,
-and can cleanly handle the
-master switching database type (a full copy is sent in this situation).  It
+Replication is supported by the glass database backend, and can cleanly handle
+the master switching database type (a full copy is sent in this situation).  It
 doesn't make a lot of sense to support replication for the remote backend.
 Replication of inmemory databases isn't currently available.  We have a longer
 term aim to replace the current inmemory backend with the current disk based

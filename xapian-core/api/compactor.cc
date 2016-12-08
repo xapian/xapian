@@ -54,10 +54,6 @@
 #include "backends/glass/glass_database.h"
 #include "backends/glass/glass_version.h"
 #endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-#include "backends/chert/chert_database.h"
-#include "backends/chert/chert_version.h"
-#endif
 
 #include <xapian/constants.h>
 #include <xapian/database.h>
@@ -211,7 +207,6 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	if (!compact_to_stub && srcdir == destdir)
 	    throw Xapian::InvalidArgumentError("destination may not be the same as any source database, unless it is a stub database");
 	switch (type) {
-	    case BACKEND_CHERT:
 	    case BACKEND_GLASS:
 		if (backend != type && backend != BACKEND_UNKNOWN) {
 		    backend_mismatch(*this, backend, srcdir, type);
@@ -219,7 +214,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 		backend = type;
 		break;
 	    default:
-		throw Xapian::DatabaseError("Only chert and glass databases can be compacted");
+		throw Xapian::DatabaseError("Only glass databases can be compacted");
 	}
     }
 
@@ -381,7 +376,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
 	}
     }
 
-#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND
     Xapian::Compactor::compaction_level compaction =
 	static_cast<Xapian::Compactor::compaction_level>(flags & (Xapian::Compactor::STANDARD|Xapian::Compactor::FULL|Xapian::Compactor::FULLER));
 #else
@@ -389,21 +384,7 @@ Database::compact_(const string * output_ptr, int fd, unsigned flags,
     (void)block_size;
 #endif
 
-    if (backend == BACKEND_CHERT) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-	ChertDatabase::compact(compactor, destdir.c_str(), internals, offset,
-			       block_size, compaction, flags, last_docid);
-
-	// Create the version file ("iamchert").
-	//
-	// This file contains a UUID, and we want the copy to have a fresh
-	// UUID since its revision counter is reset to 1.
-	ChertVersion(destdir).create();
-#else
-	(void)last_docid;
-	throw Xapian::FeatureUnavailableError("Chert backend disabled at build time");
-#endif
-    } else if (backend == BACKEND_GLASS) {
+    if (backend == BACKEND_GLASS) {
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	if (output_ptr) {
 	    GlassDatabase::compact(compactor, destdir.c_str(), 0,
