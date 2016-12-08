@@ -60,7 +60,7 @@ void
 FeatureList::normalise(std::vector<FeatureVector> & fvec) const
 {
     LOGCALL_VOID(API, "FeatureList::normalise", fvec);
-    // find the max value for each feature gpr all the FeatureVectors in the vector.
+    // find the max value for each feature for all the FeatureVectors in the vector.
     int num_features = fvec[0].get_fcount();
     double temp = 0.0;
     double max[num_features];
@@ -77,7 +77,7 @@ FeatureList::normalise(std::vector<FeatureVector> & fvec) const
     }
     /* We have the maximum value of each feature overall.
        Now we need to normalize each feature value of a
-       featureVector by dividing it by the corresponding max of the feature value
+       FeatureVector by dividing it by the corresponding max of the feature value
     */
 	for(size_t i = 0; i < fvec.size(); ++i) {
 	    for(int j = 0; j < num_features; ++j) {
