@@ -1,4 +1,5 @@
 noinst_HEADERS +=\
+	common/alignment_cast.h\
 	common/append_filename_arg.h\
 	common/autoptr.h\
 	common/bitstream.h\

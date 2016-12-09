@@ -25,6 +25,7 @@
 
 #include "glass_defs.h"
 
+#include "alignment_cast.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -91,7 +92,7 @@ class Cursor {
 
 	uint4 & refs() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(reinterpret_cast<void*>(data));
+	    return *alignment_cast<uint4*>(data);
 	}
 
 	/** Get the block number.
@@ -100,13 +101,13 @@ class Cursor {
 	 */
 	uint4 get_n() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(reinterpret_cast<void*>(data + 4));
+	    return *alignment_cast<uint4*>(data + 4);
 	}
 
 	void set_n(uint4 n) {
 	    Assert(data);
 	    //Assert(refs() == 1);
-	    *reinterpret_cast<uint4*>(reinterpret_cast<void*>(data + 4)) = n;
+	    *alignment_cast<uint4*>(data + 4) = n;
 	}
 
 	/** Get pointer to block.
