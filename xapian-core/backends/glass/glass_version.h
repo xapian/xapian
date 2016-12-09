@@ -41,7 +41,7 @@ class RootInfo {
     unsigned level;
     glass_tablesize_t num_entries;
     bool root_is_fake;
-    bool sequential_mode;
+    bool sequential;
     unsigned blocksize;
     /// Should be >= 4 or 0 for no compression.
     uint4 compress_min;
@@ -58,7 +58,7 @@ class RootInfo {
     int get_level() const { return int(level); }
     glass_tablesize_t get_num_entries() const { return num_entries; }
     bool get_root_is_fake() const { return root_is_fake; }
-    bool get_sequential_mode() const { return sequential_mode; }
+    bool get_sequential() const { return sequential; }
     unsigned get_blocksize() const {
 	AssertRel(blocksize,>=,2048);
 	return blocksize;
@@ -69,7 +69,7 @@ class RootInfo {
     void set_level(int level_) { level = unsigned(level_); }
     void set_num_entries(glass_tablesize_t n) { num_entries = n; }
     void set_root_is_fake(bool f) { root_is_fake = f; }
-    void set_sequential_mode(bool f) { sequential_mode = f; }
+    void set_sequential(bool f) { sequential = f; }
     void set_root(glass_block_t root_) { root = root_; }
     void set_blocksize(unsigned b) {
 	AssertRel(b,>=,2048);

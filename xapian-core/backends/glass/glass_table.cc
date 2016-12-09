@@ -1578,7 +1578,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
     level =		   root_info->get_level();
     item_count =	   root_info->get_num_entries();
     faked_root_block = root_info->get_root_is_fake();
-    sequential =	   root_info->get_sequential_mode();
+    sequential =	   root_info->get_sequential();
     const string & fl_serialised = root_info->get_free_list();
     if (!fl_serialised.empty()) {
 	if (!free_list.unpack(fl_serialised))
@@ -1879,7 +1879,7 @@ GlassTable::commit(glass_revision_number_t revision, RootInfo * root_info)
 	root_info->set_level(0);
 	root_info->set_num_entries(0);
 	root_info->set_root_is_fake(true);
-	root_info->set_sequential_mode(true);
+	root_info->set_sequential(true);
 	root_info->set_root(0);
 	return;
     }
@@ -1891,7 +1891,7 @@ GlassTable::commit(glass_revision_number_t revision, RootInfo * root_info)
 	root_info->set_level(level);
 	root_info->set_num_entries(item_count);
 	root_info->set_root_is_fake(faked_root_block);
-	root_info->set_sequential_mode(sequential);
+	root_info->set_sequential(sequential);
 	root_info->set_root(root);
 
 	Btree_modified = false;
@@ -1945,7 +1945,7 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     level =            root_info.get_level();
     item_count =       root_info.get_num_entries();
     faked_root_block = root_info.get_root_is_fake();
-    sequential =       root_info.get_sequential_mode();
+    sequential =       root_info.get_sequential();
 
     Btree_modified = false;
 
