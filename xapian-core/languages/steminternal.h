@@ -24,6 +24,8 @@
 
 #include <xapian/stem.h>
 
+#include "alignment_cast.h"
+
 #include <cstdlib>
 #include <string>
 
@@ -31,35 +33,28 @@ typedef unsigned char symbol;
 
 #define HEAD (2*sizeof(int))
 
-// Cast via (void*) to avoid warnings about alignment (the pointers *are*
-// appropriately aligned).
-
 inline int
 SIZE(const symbol* p)
 {
-    const void * void_p = reinterpret_cast<const void *>(p);
-    return reinterpret_cast<const int *>(void_p)[-1];
+    return alignment_cast<const int *>(p)[-1];
 }
 
 inline void
 SET_SIZE(symbol* p, int n)
 {
-    void * void_p = reinterpret_cast<void *>(p);
-    reinterpret_cast<int *>(void_p)[-1] = n;
+    alignment_cast<int *>(p)[-1] = n;
 }
 
 inline int
 CAPACITY(const symbol* p)
 {
-    const void * void_p = reinterpret_cast<const void *>(p);
-    return reinterpret_cast<const int *>(void_p)[-2];
+    return alignment_cast<const int *>(p)[-2];
 }
 
 inline void
 SET_CAPACITY(symbol* p, int n)
 {
-    void * void_p = reinterpret_cast<void *>(p);
-    reinterpret_cast<int *>(void_p)[-2] = n;
+    alignment_cast<int *>(p)[-2] = n;
 }
 
 typedef int (*among_function)(Xapian::StemImplementation *);

@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <type_traits>
 
+#include "alignment_cast.h"
 #include "omassert.h"
 
 #ifndef WORDS_BIGENDIAN
@@ -60,8 +61,7 @@ template<typename UINT>
 inline UINT
 do_aligned_read(const unsigned char * ptr)
 {
-    const void* void_ptr = static_cast<const void*>(ptr);
-    UINT value = *reinterpret_cast<const UINT*>(void_ptr);
+    UINT value = *alignment_cast<const UINT*>(ptr);
 #ifndef WORDS_BIGENDIAN
     value = do_bswap(value);
 #endif
@@ -82,7 +82,7 @@ do_aligned_write(unsigned char * ptr, T value)
 #ifndef WORDS_BIGENDIAN
     v = do_bswap(v);
 #endif
-    *reinterpret_cast<UINT*>(static_cast<void*>(ptr)) = v;
+    *alignment_cast<UINT*>(ptr) = v;
 }
 
 template<typename UINT>
