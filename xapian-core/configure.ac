@@ -1229,7 +1229,8 @@ case $host_cpu in
 	  [AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
 	  AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"]
 	  ,
-	  [AC_MSG_RESULT([don't know how to for compiler $CXX])]
+	  [AC_MSG_RESULT([don't know how to for compiler $CXX])
+	  FP_EXCESS_PRECISION=yes]
 	)
       fi
     fi
