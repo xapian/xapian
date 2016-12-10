@@ -168,7 +168,7 @@ class GlassVersion {
     ~GlassVersion();
 
     /** Create the version file. */
-    void create(unsigned blocksize, int flags);
+    void create(unsigned blocksize);
 
     void set_changes(GlassChanges * changes_) { changes = changes_; }
 

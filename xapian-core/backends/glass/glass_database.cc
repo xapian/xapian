@@ -200,7 +200,10 @@ GlassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     // already exist.
 
     GlassVersion &v = version_file;
-    v.create(block_size, flags);
+    v.create(block_size);
+
+    glass_revision_number_t rev = v.get_revision();
+    const string& tmpfile = v.write(rev, flags);
 
     position_table.create_and_open(flags, v.get_root(Glass::POSITION));
     synonym_table.create_and_open(flags, v.get_root(Glass::SYNONYM));
@@ -208,6 +211,10 @@ GlassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     docdata_table.create_and_open(flags, v.get_root(Glass::DOCDATA));
     termlist_table.create_and_open(flags, v.get_root(Glass::TERMLIST));
     postlist_table.create_and_open(flags, v.get_root(Glass::POSTLIST));
+
+    if (!v.sync(tmpfile, rev, flags)) {
+	throw Xapian::DatabaseCreateError("Failed to create iamglass file");
+    }
 
     Assert(database_exists());
 }
