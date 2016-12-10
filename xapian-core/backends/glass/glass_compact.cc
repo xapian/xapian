@@ -854,7 +854,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	version_file_out.reset(new GlassVersion(destdir));
     }
 
-    version_file_out->create(block_size, 0);
+    version_file_out->create(block_size);
     for (size_t i = 0; i != sources.size(); ++i) {
 	GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
 	version_file_out->merge_stats(db->version_file);
