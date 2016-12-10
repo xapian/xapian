@@ -25,13 +25,32 @@
 #ifndef XAPIAN_ALIGNMENT_CAST_H
 #define XAPIAN_ALIGNMENT_CAST_H
 
+#include <type_traits>
+
 /** Cast a pointer we know is suitably aligned.
  *
  *  Has the same effect as reinterpret_cast<T> but avoids warnings about
  *  alignment issues.
+ *
+ *  Version for const pointers.
  */
 template<typename T, typename U>
-T alignment_cast(U ptr)
+typename std::enable_if<std::is_const<typename std::remove_pointer<U>::type>::value, T>::type
+alignment_cast(U ptr)
+{
+    return static_cast<T>(static_cast<const void*>(ptr));
+}
+
+/** Cast a pointer we know is suitably aligned.
+ *
+ *  Has the same effect as reinterpret_cast<T> but avoids warnings about
+ *  alignment issues.
+ *
+ *  Version for non-const pointers.
+ */
+template<typename T, typename U>
+typename std::enable_if<!std::is_const<typename std::remove_pointer<U>::type>::value, T>::type
+alignment_cast(U ptr)
 {
     return static_cast<T>(static_cast<void*>(ptr));
 }
