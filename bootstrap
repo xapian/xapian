@@ -504,17 +504,14 @@ MIDDLE_OF_CONFIGURE
 vars=
 if [ yes = "$intree_swig" ] ; then
   # We want the path to SWIG to point into srcdir, which isn't known until
-  # configure-time, so we need to expand $here in configure.  We can't just set
-  # SWIG here and let the case below handle it as that would escape the value
-  # such that $here didn't get expanded at all.
-  echo ': ${SWIG="$here/swig/preinst-swig"}' >> configure.tmp
-  echo "export SWIG" >> configure.tmp
+  # configure-time, so we need to expand $here in configure.
   vars=' SWIG=$here/swig/preinst-swig'
-  # Kill any existing setting of SWIG so that we don't try to handle it again
-  # below.
-  SWIG=
+elif [ -n "$SWIG" ] ; then
+  # User specified SWIG in environment, e.g. with:
+  #   SWIG=/opt/swig/bin/swig ./bootstrap
+  vars=" SWIG='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
 fi
-for tool in SWIG $autotools ; do
+for tool in $autotools ; do
   eval "val=\$$tool"
   if [ -n "$val" ] ; then
     echo ': ${'"$tool='$val'"'}' >> configure.tmp
@@ -577,6 +574,9 @@ for d in $modules ; do
 	    # CC_FOR_BUILD=xxx -> CC=xxx; CXX_FOR_BUILD=xxx -> CXX=xxx
 	    arg=`echo "$arg"|sed 's/_FOR_BUILD//'`
 	    ;;
+	  SWIG=*)
+	    # Drop SWIG=xxx - not useful and could cause problems.
+	    continue ;;
 	  esac
 	  swig_configure_args="$swig_configure_args "\'`echo "x$arg"|sed "s/^x//;s/'/'\\\\\\\\''/g"`\'
 	done
