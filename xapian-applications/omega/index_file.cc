@@ -162,6 +162,7 @@ index_add_default_filters()
     // 0x95 in a context which suggests it might be intended to be a bullet
     // (as it is in CP1250).
     index_command("image/vnd.djvu", Filter("djvutxt", false));
+    index_command("text/markdown", Filter("markdown", "text/html", false));
     // The --text option unhelpfully converts all non-ASCII characters to "?"
     // so we use --html instead, which produces HTML entities.  The --nopict
     // option suppresses exporting picture files as pictNNNN.wmf in the current
