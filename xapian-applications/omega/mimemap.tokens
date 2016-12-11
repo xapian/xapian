@@ -14,6 +14,10 @@ maff		application/x-maff
 mht		application/x-mimearchive
 mhtml		application/x-mimearchive
 
+# Markdown:
+markdown	text/markdown
+md		text/markdown
+
 # reStructured text:
 rst		text/x-rst
 rest		text/x-rst

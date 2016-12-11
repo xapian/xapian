@@ -283,6 +283,7 @@ other filters too - see below):
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 * reStructured text (.rst, .rest) if rst2html is available (comes with
   docutils)
+* Markdown (.md, .markdown) if markdown is available
 * TeX DVI files (.dvi) if catdvi is available
 * DjVu files (.djv, .djvu) if djvutxt is available
 * XPS files (.xps) if unzip is available
