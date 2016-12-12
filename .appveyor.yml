@@ -25,6 +25,6 @@ build_script:
   - bash -c 'time ./configure --disable-documentation'
   - bash -c 'time make -k -sj2 V=0'
 test_script:
-  - bash -c 'echo time make -k check VERBOSE=1'
+  - bash -c 'time make -k check VERBOSE=1'
   - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
   - bash -c 'xapian-core/bin/xapian-delve omtest.db'
