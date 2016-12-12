@@ -388,10 +388,10 @@ url_prettify(std::string & url)
 		    if (slash == std::string::npos) {
 			// Lazily set slash to the position of the first single '/'.
 			const char * d = in.data();
-			const void * s = d;
 			slash = 0;
 			while (true) {
-			    s = std::memchr(d + slash, '/', pretty_limit - slash);
+			    const void* s = std::memchr(d + slash, '/',
+							pretty_limit - slash);
 			    if (s == NULL) {
 				slash = in.size();
 				break;
