@@ -323,7 +323,14 @@ mimetype string).  Combined with filter command ``true`` for indexing by
 meta-data only, you can specify a fall back case of indexing by meta-data
 only using ``--filter '*:true'``.  Support for this was added in 1.3.4.
 
-By default, files with the following extensions are marked as 'ignore':
+There are also two special values that can be specified instead of a MIME
+type:
+
+* ignore - tells omindex to quietly ignore such files
+* skip - tells omindex to skip such files
+
+By default no extensions are marked as "skip", and the following extensions are
+marked as "ignore":
 
 .. include:: inc/ignored.rst
 
