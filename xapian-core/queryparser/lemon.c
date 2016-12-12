@@ -2286,10 +2286,12 @@ static void parseonetoken(struct pstate *psp)
         if( msp->type!=MULTITERMINAL ){
           struct symbol *origsp = msp;
           msp = (struct symbol *) calloc(1,sizeof(*msp));
+          MemoryCheck(msp);
           memset(msp, 0, sizeof(*msp));
           msp->type = MULTITERMINAL;
           msp->nsubsym = 1;
           msp->subsym = (struct symbol **) calloc(1,sizeof(struct symbol*));
+          MemoryCheck(msp->subsym);
           msp->subsym[0] = origsp;
           msp->name = origsp->name;
           psp->rhs[psp->nrhs-1] = msp;
@@ -2297,6 +2299,7 @@ static void parseonetoken(struct pstate *psp)
         msp->nsubsym++;
         msp->subsym = (struct symbol **) realloc(msp->subsym,
           sizeof(struct symbol*)*msp->nsubsym);
+        MemoryCheck(msp->subsym);
         msp->subsym[msp->nsubsym-1] = Symbol_new(&x[1]);
         if( islower(x[1]) || islower(msp->subsym[0]->name[0]) ){
           ErrorMsg(psp->filename,psp->tokenlineno,
@@ -2499,6 +2502,7 @@ static void parseonetoken(struct pstate *psp)
           n += nLine + lemonStrlen(psp->filename) + nBack;
         }
         *psp->declargslot = (char *) realloc(*psp->declargslot, n);
+        MemoryCheck(*psp->declargslot);
         zBuf = *psp->declargslot + nOld;
         if( addLineMacro ){
           if( nOld && zBuf[-1]!='\n' ){
@@ -2594,6 +2598,7 @@ static void parseonetoken(struct pstate *psp)
         msp->nsubsym++;
         msp->subsym = (struct symbol **) realloc(msp->subsym,
           sizeof(struct symbol*)*msp->nsubsym);
+        MemoryCheck(msp->subsym);
         if( !isupper(x[0]) ) x++;
         msp->subsym[msp->nsubsym-1] = Symbol_new(x);
       }else{
@@ -4512,13 +4517,14 @@ void Strsafe_init(){
     x1a->count = 0;
     x1a->tbl = (x1node*)calloc(1024, sizeof(x1node) + sizeof(x1node*));
     if( x1a->tbl==0 ){
-      free(x1a);
-      x1a = 0;
+      memory_error();
     }else{
       int i;
       x1a->ht = (x1node**)&(x1a->tbl[1024]);
       for(i=0; i<1024; i++) x1a->ht[i] = 0;
     }
+  }else{
+    memory_error();
   }
 }
 /* Insert a new record into the array.  Return TRUE if successful.
@@ -4548,7 +4554,7 @@ int Strsafe_insert(const char *data)
     array.size = size = x1a->size*2;
     array.count = x1a->count;
     array.tbl = (x1node*)calloc(size, sizeof(x1node) + sizeof(x1node*));
-    if( array.tbl==0 ) return 0;  /* Fail due to malloc failure */
+    MemoryCheck(array.tbl);
     array.ht = (x1node**)&(array.tbl[size]);
     for(i=0; i<size; i++) array.ht[i] = 0;
     for(i=0; i<x1a->count; i++){
@@ -4679,13 +4685,14 @@ void Symbol_init(){
     x2a->count = 0;
     x2a->tbl = (x2node*)calloc(128, sizeof(x2node) + sizeof(x2node*));
     if( x2a->tbl==0 ){
-      free(x2a);
-      x2a = 0;
+      memory_error();
     }else{
       int i;
       x2a->ht = (x2node**)&(x2a->tbl[128]);
       for(i=0; i<128; i++) x2a->ht[i] = 0;
     }
+  }else{
+    memory_error();
   }
 }
 /* Insert a new record into the array.  Return TRUE if successful.
@@ -4715,7 +4722,7 @@ int Symbol_insert(struct symbol *data, const char *key)
     array.size = size = x2a->size*2;
     array.count = x2a->count;
     array.tbl = (x2node*)calloc(size, sizeof(x2node) + sizeof(x2node*));
-    if( array.tbl==0 ) return 0;  /* Fail due to malloc failure */
+    MemoryCheck(array.tbl);
     array.ht = (x2node**)&(array.tbl[size]);
     for(i=0; i<size; i++) array.ht[i] = 0;
     for(i=0; i<x2a->count; i++){
@@ -4792,6 +4799,8 @@ struct symbol **Symbol_arrayof()
   array = (struct symbol **)calloc(size, sizeof(struct symbol *));
   if( array ){
     for(i=0; i<size; i++) array[i] = x2a->tbl[i].data;
+  }else{
+    memory_error();
   }
   return array;
 }
@@ -4876,13 +4885,14 @@ void State_init(){
     x3a->count = 0;
     x3a->tbl = (x3node*)calloc(128, sizeof(x3node) + sizeof(x3node*));
     if( x3a->tbl==0 ){
-      free(x3a);
-      x3a = 0;
+      memory_error();
     }else{
       int i;
       x3a->ht = (x3node**)&(x3a->tbl[128]);
       for(i=0; i<128; i++) x3a->ht[i] = 0;
     }
+  }else{
+    memory_error();
   }
 }
 /* Insert a new record into the array.  Return TRUE if successful.
@@ -4912,7 +4922,7 @@ int State_insert(struct state *data, struct config *key)
     array.size = size = x3a->size*2;
     array.count = x3a->count;
     array.tbl = (x3node*)calloc(size, sizeof(x3node) + sizeof(x3node*));
-    if( array.tbl==0 ) return 0;  /* Fail due to malloc failure */
+    MemoryCheck(array.tbl);
     array.ht = (x3node**)&(array.tbl[size]);
     for(i=0; i<size; i++) array.ht[i] = 0;
     for(i=0; i<x3a->count; i++){
@@ -4960,8 +4970,7 @@ struct state *State_find(struct config *key)
 }
 
 /* Return an array of pointers to all data in the table.
-** The array is obtained from malloc.  Return NULL if memory allocation
-** problems, or if the array is empty. */
+** The array is obtained from malloc.  Return NULL if the array is empty. */
 struct state **State_arrayof()
 {
   struct state **array;
@@ -4971,6 +4980,8 @@ struct state **State_arrayof()
   array = (struct state **)calloc(size, sizeof(struct state *));
   if( array ){
     for(i=0; i<size; i++) array[i] = x3a->tbl[i].data;
+  }else{
+    memory_error();
   }
   return array;
 }
@@ -5016,13 +5027,14 @@ void Configtable_init(){
     x4a->count = 0;
     x4a->tbl = (x4node*)calloc(64, sizeof(x4node) + sizeof(x4node*));
     if( x4a->tbl==0 ){
-      free(x4a);
-      x4a = 0;
+      memory_error();
     }else{
       int i;
       x4a->ht = (x4node**)&(x4a->tbl[64]);
       for(i=0; i<64; i++) x4a->ht[i] = 0;
     }
+  }else{
+    memory_error();
   }
 }
 /* Insert a new record into the array.  Return TRUE if successful.
@@ -5052,7 +5064,7 @@ int Configtable_insert(struct config *data)
     array.size = size = x4a->size*2;
     array.count = x4a->count;
     array.tbl = (x4node*)calloc(size, sizeof(x4node) + sizeof(x4node*));
-    if( array.tbl==0 ) return 0;  /* Fail due to malloc failure */
+    MemoryCheck(array.tbl);
     array.ht = (x4node**)&(array.tbl[size]);
     for(i=0; i<size; i++) array.ht[i] = 0;
     for(i=0; i<x4a->count; i++){
