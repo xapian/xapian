@@ -354,7 +354,7 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
 	    throw Xapian::DatabaseError(e);
 	}
     }
-    if (opts) *out << "B-tree checked okay" << endl;
+    if (out && opts) *out << "B-tree checked okay" << endl;
     return B.release();
 }
 
