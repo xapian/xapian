@@ -70,9 +70,11 @@ sub mimetype_order {
     $a =~ s!^text/!0/!;
     $a =~ s!^application/!1/!;
     $a =~ s!^image/!2/!;
+    $a =~ s!^message/!3/!;
     $b =~ s!^text/!0/!;
     $b =~ s!^application/!1/!;
     $b =~ s!^image/!2/!;
+    $b =~ s!^message/!3/!;
     return $a cmp $b;
 }
 my $fmt = "\% -${max_mimetype_len}s \% -${max_ext_len}s\n";
