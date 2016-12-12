@@ -1,7 +1,7 @@
 /** @file tmpdir.cc
  * @brief create a temporary directory securely
  *
- * Copyright (C) 2007,2011 Olly Betts
+ * Copyright (C) 2007,2011,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,9 +33,13 @@
 #include "portability/mkdtemp.h"
 #endif
 
+#include "stringutils.h"
+
 using namespace std;
 
 static string tmpdir;
+
+#define TMPDIR_LEAF "/omindex-XXXXXX"
 
 const string &
 get_tmpdir()
@@ -43,13 +47,15 @@ get_tmpdir()
     if (tmpdir.empty()) {
 	const char * p = getenv("TMPDIR");
 	if (!p) p = "/tmp";
-	char * dir_template = new char[strlen(p) + 15 + 1];
-	strcpy(dir_template, p);
-	strcat(dir_template, "/omindex-XXXXXX");
+	size_t plen = strlen(p);
+	size_t leaflen = CONST_STRLEN(TMPDIR_LEAF);
+	char * dir_template = new char[plen + leaflen + 1];
+	memcpy(dir_template, p, plen);
+	memcpy(dir_template + plen, TMPDIR_LEAF, leaflen + 1);
 	p = mkdtemp(dir_template);
 	if (p) {
-	    tmpdir.assign(dir_template);
-	    tmpdir += '/';
+	    dir_template[plen + leaflen] = '/';
+	    tmpdir.assign(dir_template, plen + leaflen + 1);
 	}
 	delete [] dir_template;
     }
