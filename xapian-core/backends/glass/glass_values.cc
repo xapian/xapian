@@ -542,11 +542,11 @@ GlassValueManager::get_value_stats(Xapian::valueno slot, ValueStats & stats) con
 	const char * end = pos + tag.size();
 
 	if (!unpack_uint(&pos, end, &(stats.freq))) {
-	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
 	    throw Xapian::RangeError("Frequency statistic in value table is too large");
 	}
 	if (!unpack_string(&pos, end, stats.lower_bound)) {
-	    if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
+	    if (pos == 0) throw Xapian::DatabaseCorruptError("Incomplete stats item in value table");
 	    throw Xapian::RangeError("Lower bound in value table is too large");
 	}
 	size_t len = end - pos;
