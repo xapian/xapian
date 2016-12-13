@@ -30,10 +30,15 @@ install:
   - bash -c 'mingw-get install libz-dev'
   - bash -c 'ls -l c:/mingw/bin/*wget*; exit 0'
 build_script:
-  - bash -c './bootstrap xapian-core xapian-applications/omega'
-  - bash -c './configure --disable-documentation < /dev/null'
-  - bash -c 'make -k -sj2 V=0 < /dev/null'
+  - echo %PATH%
+  - set PATH=C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;%PATH%
+  - bash -c 'pwd;ls -l'
+  - bash -c 'time ./bootstrap xapian-core xapian-applications/omega'
+  - bash -c 'pwd;ls -l'
+  - bash -c 'time ./configure --disable-documentation < /dev/null'
+  - bash -c 'pwd;ls -l'
+  - bash -c 'time make -k -sj2 V=0 < /dev/null'
 test_script:
-  - bash -c 'make -k check VERBOSE=1 < /dev/null'
+  - bash -c 'time make -k check VERBOSE=1 < /dev/null'
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
