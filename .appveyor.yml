@@ -9,26 +9,29 @@ platform:
 install:
   - bash --version
   - bash -c 'date -u; uname -a; ls -l c:/'
-  - bash -c 'ls -l /'
-  - C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
-# -P wget
-  - set PATH=C:\cygwin\bin;%PATH%
+  - c:\mingw-w64\*\mingw-w64.bat
+#  - PATH=c:/mingw/bin;%PATH%
+##   - C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
+## # -P wget
+##   - set PATH=C:\cygwin\bin;%PATH%
+##   - echo %PATH%
+##   - bash --version
+##   - bash -c 'uname -a'
+## #  - bash -c 'mkdir -p /www/example/products'
+## #  - bash -c 'ls -ld / /www /www/example /www/example/products'
+## #  - bash -c 'ls -l /www/example/products'
+## #  - bash -c 'echo "test text document" | tee /www/example/products/text.txt'
+## #  - bash -c 'echo "<html><head><title>HTML Title</title><body>test HTML document</body></html>" | tee /www/example/products/html.htm'
+## #  - bash -c 'wget http://easychair.org/publications/easychair-libreoffice.docx -O /www/example/products/example.docx'
+## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
+## #  - bash -c 'ls -l /www/example/products'
   - echo %PATH%
-  - bash --version
-  - bash -c 'uname -a'
-#  - bash -c 'mkdir -p /www/example/products'
-#  - bash -c 'ls -ld / /www /www/example /www/example/products'
-#  - bash -c 'ls -l /www/example/products'
-#  - bash -c 'echo "test text document" | tee /www/example/products/text.txt'
-#  - bash -c 'echo "<html><head><title>HTML Title</title><body>test HTML document</body></html>" | tee /www/example/products/html.htm'
-#  - bash -c 'wget http://easychair.org/publications/easychair-libreoffice.docx -O /www/example/products/example.docx'
-#  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
-#  - bash -c 'ls -l /www/example/products'
+  - bash -c 'mingw-get install libz-dev autoconf automake libtool'
 build_script:
   - bash -c 'time ./bootstrap --without-autotools xapian-core xapian-applications/omega'
-  - bash -c 'time ./configure --disable-documentation'
-  - bash -c 'time make -k -sj2 V=0'
+  - bash -c 'time ./configure --disable-documentation < /dev/null'
+  - bash -c 'time make -k -sj2 V=0 < /dev/null'
 test_script:
-  - bash -c 'time make -k check VERBOSE=1'
+  - bash -c 'time make -k check VERBOSE=1 < /dev/null'
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
