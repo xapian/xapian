@@ -8,9 +8,8 @@ platform:
   - x86
 install:
   - bash --version
-  - bash -c 'date -u; uname -a; ls -l c:/'
-  - c:\mingw-w64\*\mingw-w64.bat
-#  - PATH=c:/mingw/bin;%PATH%
+  - bash -c 'date -u; uname -a'
+  - set PATH=C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;%PATH%
 ##   - C:\cygwin\setup-x86.exe -qnNdO -R C:/cygwin -s http://cygwin.mirror.constant.com -l C:/cygwin/var/cache/setup -P file-devel -P libpcre-devel
 ## # -P wget
 ##   - set PATH=C:\cygwin\bin;%PATH%
@@ -26,7 +25,9 @@ install:
 ## #  - bash -c 'wget https://www.fpsct.org/uploaded/FHS/Library/How_to_use_Wikipedia_effectively.doc -O /www/example/products/sample.doc'
 ## #  - bash -c 'ls -l /www/example/products'
   - echo %PATH%
-  - bash -c 'mingw-get install libz-dev autoconf automake libtool'
+  - bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
+  - type c:\mingw\msys\1.0\etc\fstab
+  - bash -c 'mingw-get install libz-dev'
 build_script:
   - bash -c 'time ./bootstrap --without-autotools xapian-core xapian-applications/omega'
   - bash -c 'time ./configure --disable-documentation < /dev/null'
