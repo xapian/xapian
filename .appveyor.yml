@@ -28,8 +28,9 @@ install:
   - bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - type c:\mingw\msys\1.0\etc\fstab
   - bash -c 'mingw-get install libz-dev'
+  - bash -c 'ls -l c:/mingw/bin/*wget*; exit 0'
 build_script:
-  - bash -c 'time ./bootstrap --without-autotools xapian-core xapian-applications/omega'
+  - bash -c 'time ./bootstrap xapian-core xapian-applications/omega'
   - bash -c 'time ./configure --disable-documentation < /dev/null'
   - bash -c 'time make -k -sj2 V=0 < /dev/null'
 test_script:
