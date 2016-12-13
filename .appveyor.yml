@@ -28,14 +28,11 @@ install:
   - bash -c "echo 'c:/mingw /mingw' >> /etc/fstab"
   - type c:\mingw\msys\1.0\etc\fstab
   - bash -c 'mingw-get install libz-dev'
-  - bash -c 'ls -l c:/mingw/bin/*wget*; exit 0'
 build_script:
   - bash -c 'time ./bootstrap xapian-core xapian-applications/omega'
-  - bash -c 'pwd;ls -l;head ./configure;ls -l /bin/sh*;which sh'
-  - bash -c 'time bash ./configure --disable-documentation < /dev/null'
-  - bash -c 'pwd;ls -l;which make'
-  - bash -c 'time make -k -sj2 V=0 < /dev/null'
+  - bash -c 'time ./configure --disable-documentation'
+  - bash -c 'time make -k -sj2 V=0'
 test_script:
-  - bash -c 'time make -k check VERBOSE=1 < /dev/null'
+  - bash -c 'time make -k check VERBOSE=1'
 #  - bash -c 'xapian-applications/omega/omindex -v --db omtest.db --url msproducts /www/example/products/'
 #  - bash -c 'xapian-core/bin/xapian-delve omtest.db'
