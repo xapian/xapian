@@ -71,6 +71,11 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 
 # XAPIAN_LIBS gives us zlib and any library needed for UUIDs.
 bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
+if USE_WIN32_UUID_API
+bin_xapian_inspect_SOURCES +=\
+	common/win32_uuid.cc
+bin_xapian_inspect_LDADD += -lrpcrt4
+endif
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
