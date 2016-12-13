@@ -94,7 +94,7 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p SnowballStemImplementation
 
 languages/sbl-dispatch.h: languages/collate-sbl languages/Makefile.mk common/Tokeniseise.pm
-	$(PERL) -I'$(srcdir)/common' '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
+	PERLDB_OPTS='NonStop=1 AutoTrace=1 frame=2' $(PERL) -ds -I'$(srcdir)/common' '$(srcdir)/languages/collate-sbl' '$(srcdir)' $(snowball_algorithms)
 
 BUILT_SOURCES += $(snowball_built_sources)\
 	languages/sbl-dispatch.h
