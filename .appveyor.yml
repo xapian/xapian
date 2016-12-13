@@ -30,13 +30,10 @@ install:
   - bash -c 'mingw-get install libz-dev'
   - bash -c 'ls -l c:/mingw/bin/*wget*; exit 0'
 build_script:
-  - echo %PATH%
-  - set PATH=C:\Mingw\bin;C:\Mingw\MSYS\1.0\bin;%PATH%
-  - bash -c 'pwd;ls -l'
   - bash -c 'time ./bootstrap xapian-core xapian-applications/omega'
-  - bash -c 'pwd;ls -l'
-  - bash -c 'time ./configure --disable-documentation < /dev/null'
-  - bash -c 'pwd;ls -l'
+  - bash -c 'pwd;ls -l;head ./configure;ls -l /bin/sh*;which sh'
+  - bash -c 'time bash ./configure --disable-documentation < /dev/null'
+  - bash -c 'pwd;ls -l;which make'
   - bash -c 'time make -k -sj2 V=0 < /dev/null'
 test_script:
   - bash -c 'time make -k check VERBOSE=1 < /dev/null'
