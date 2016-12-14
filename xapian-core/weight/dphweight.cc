@@ -41,6 +41,9 @@ DPHWeight::clone() const
 void
 DPHWeight::init(double factor)
 {
+    // Avoid warnings about unused private member.
+    (void)lower_bound;
+
     double F = get_collection_freq();
     double N = get_collection_size();
     double wdf_lower = 1.0;

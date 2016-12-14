@@ -40,6 +40,9 @@ DLHWeight::clone() const
 void
 DLHWeight::init(double factor)
 {
+    // Avoid warnings about unused private member.
+    (void)lower_bound;
+
     double wdf_upper = get_wdf_upper_bound();
     if (wdf_upper == 0) {
 	upper_bound = 0.0;
