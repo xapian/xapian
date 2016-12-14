@@ -1457,8 +1457,22 @@ class TermGroup {
      */
     bool empty_ok;
 
+    TermGroup(Term* t1, Term* t2) : empty_ok(false) {
+	add_term(t1);
+	add_term(t2);
+    }
+
   public:
-    TermGroup() : empty_ok(false) { }
+    /// Factory function - ensures heap allocation.
+    static TermGroup* create(Term* t1, Term* t2) {
+	return new TermGroup(t1, t2);
+    }
+
+    ~TermGroup() {
+	for (auto&& t : terms) {
+	    delete t;
+	}
+    }
 
     /// Add a Term object to this TermGroup object.
     void add_term(Term * term) {
@@ -1470,22 +1484,6 @@ class TermGroup {
 
     /// Convert to a Xapian::Query * using default_op.
     Query * as_group(State *state) const;
-
-    /** Provide a way to explicitly delete an object of this class.  The
-     *  destructor is protected to prevent auto-variables of this type.
-     */
-    void destroy() { delete this; }
-
-  protected:
-    /** Protected destructor, so an auto-variable of this type is a
-     *  compile-time error - you must allocate this object with new.
-     */
-    ~TermGroup() {
-	vector<Term*>::const_iterator i;
-	for (i = terms.begin(); i != terms.end(); ++i) {
-	    delete *i;
-	}
-    }
 };
 
 Query *
@@ -1670,8 +1668,19 @@ class Terms {
 	return q;
     }
 
-  public:
     Terms() : window(0), uniform_prefixes(true), prefixes(NULL) { }
+
+  public:
+    /// Factory function - ensures heap allocation.
+    static Terms* create() {
+	return new Terms();
+    }
+
+    ~Terms() {
+	for (auto&& t : terms) {
+	    delete t;
+	}
+    }
 
     /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
@@ -1715,22 +1724,6 @@ class Terms {
 	size_t w = window;
 	if (w == 0) w = 10;
 	return as_opwindow_query(Query::OP_PHRASE, w - 1);
-    }
-
-    /** Provide a way to explicitly delete an object of this class.  The
-     *  destructor is protected to prevent auto-variables of this type.
-     */
-    void destroy() { delete this; }
-
-  protected:
-    /** Protected destructor, so an auto-variable of this type is a
-     *  compile-time error - you must allocate this object with new.
-     */
-    ~Terms() {
-	vector<Term *>::const_iterator t;
-	for (t = terms.begin(); t != terms.end(); ++t) {
-	    delete *t;
-	}
     }
 };
 
@@ -2142,15 +2135,15 @@ compound_term(T) ::= CJKTERM(U). {
 
 %type phrase {Terms *}
 
-%destructor phrase {$$->destroy();}
+%destructor phrase {delete $$;}
 
 phrase(P) ::= TERM(T). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
 }
 
 phrase(P) ::= CJKTERM(T). {
-    P = new Terms;
+    P = Terms::create();
     T->as_positional_cjk_term(P);
 }
 
@@ -2169,10 +2162,10 @@ phrase(P) ::= phrase(Q) CJKTERM(T). {
 // at least 2 terms in order to be able to have punctuation between the terms!
 
 %type phrased_term {Terms *}
-%destructor phrased_term {$$->destroy();}
+%destructor phrased_term {delete $$;}
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
 }
@@ -2186,12 +2179,10 @@ phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
 // multi-term synonyms.
 
 %type group {TermGroup *}
-%destructor group {$$->destroy();}
+%destructor group {delete $$;}
 
 group(P) ::= TERM(T) GROUP_TERM(U). {
-    P = new TermGroup;
-    P->add_term(T);
-    P->add_term(U);
+    P = TermGroup::create(T, U);
 }
 
 group(P) ::= group(Q) GROUP_TERM(T). {
@@ -2208,10 +2199,10 @@ group(P) ::= group(Q) EMPTY_GROUP_OK. {
 // terms in order for there to be any NEAR operators!
 
 %type near_expr {Terms *}
-%destructor near_expr {$$->destroy();}
+%destructor near_expr {delete $$;}
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
@@ -2233,10 +2224,10 @@ near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
 // terms in order for there to be any ADJ operators!
 
 %type adj_expr {Terms *}
-%destructor adj_expr {$$->destroy();}
+%destructor adj_expr {delete $$;}
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
