@@ -423,7 +423,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /* When additional normalizations are implemented in the future, the additional statistics for them
        should be accessed by these functions. */
-    double get_wdfn(Xapian::termcount wdf, Xapian::termcount len, char c) const;
+    double get_wdfn(Xapian::termcount wdf,
+		    Xapian::termcount len,
+		    Xapian::termcount uniqterms, char c) const;
     double get_idfn(char c) const;
     double get_wtn(double wt, char c) const;
 
@@ -444,6 +446,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
      *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
+     *     @li 'L': Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
      *
      *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
      *     implemented.
