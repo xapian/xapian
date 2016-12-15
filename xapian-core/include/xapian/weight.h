@@ -437,6 +437,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *     @li 'L': Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
      *
      *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
      *     implemented.

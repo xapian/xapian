@@ -2,6 +2,7 @@
  * @brief Xapian::TfIdfWeight class - The TfIdf weighting scheme
  */
 /* Copyright (C) 2013 Aarsh Shah
+ * Copyright (C) 2016 Vivek Pal
  * Copyright (C) 2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -38,7 +39,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     : normalizations(normals)
 {
     if (normalizations.length() != 3 ||
-	!strchr("nbsl", normalizations[0]) ||
+	!strchr("nbslL", normalizations[0]) ||
 	!strchr("ntpfs", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
@@ -49,6 +50,12 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     need_stat(WDF);
     need_stat(WDF_MAX);
     need_stat(WQF);
+    if (normalizations[0] == 'L') {
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(UNIQUE_TERMS);
+    }
 }
 
 TfIdfWeight *
@@ -83,14 +90,36 @@ TfIdfWeight::unserialise(const string & s) const
     return new TfIdfWeight(s);
 }
 
+static double
+get_wdfn_for_L(Xapian::termcount wdf, Xapian::termcount doclen,
+	       Xapian::termcount uniqterms)
+{
+    if (wdf == 0) return 0;
+    double uniqterm_double = uniqterms;
+    double doclen_double = doclen;
+    double wdf_avg = 1;
+    if (doclen_double == 0 || uniqterm_double == 0)
+	wdf_avg = 1;
+    else
+	wdf_avg = doclen_double / uniqterm_double;
+    double num = 1 + log(double(wdf));
+    double den = 1 + log(wdf_avg);
+    return num / den;
+}
+
 double
-TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount,
-			 Xapian::termcount) const
+TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
+			 Xapian::termcount uniqterms) const
 {
     Xapian::doccount termfreq = 1;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
-    double wt = get_wdfn(wdf, normalizations[0]) *
-		get_idfn(termfreq, normalizations[1]);
+    double wt;
+    if (normalizations[0] != 'L') {
+	wt = get_wdfn(wdf, normalizations[0]);
+    } else {
+	wt = get_wdfn_for_L(wdf, doclen, uniqterms);
+    }
+    wt *= get_idfn(termfreq, normalizations[1]);
     return get_wtn(wt, normalizations[2]) * factor;
 }
 
@@ -102,8 +131,15 @@ TfIdfWeight::get_maxpart() const
     Xapian::doccount termfreq = 1;
     if (normalizations[1] != 'n') termfreq = get_termfreq();
     Xapian::termcount wdf_max = get_wdf_upper_bound();
-    double wt = get_wdfn(wdf_max, normalizations[0]) *
-		get_idfn(termfreq, normalizations[1]);
+    double wt;
+    if (normalizations[0] != 'L') {
+	wt = get_wdfn(wdf_max, normalizations[0]);
+    } else {
+	Xapian::termcount len_min = get_doclength_lower_bound();
+	Xapian::termcount len_max = get_doclength_upper_bound();
+	wt = get_wdfn_for_L(wdf_max, len_min, len_max);
+    }
+    wt *= get_idfn(termfreq, normalizations[1]);
     return get_wtn(wt, normalizations[2]) * factor;
 }
 
