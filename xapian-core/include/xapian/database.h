@@ -368,6 +368,25 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	Xapian::Document get_document(Xapian::docid did) const;
 
+	/** Get a document from the database, given its document id.
+	 *
+	 *  This method returns a Xapian::Document object which provides the
+	 *  information about a document.
+	 *
+	 *  @param did   The document id of the document to retrieve.
+	 *  @param flags Zero or more flags bitwise-or-ed together (currently
+	 *		 only Xapian::DOC_ASSUME_VALID is supported).
+	 *
+	 *  @return      A Xapian::Document object containing the document data
+	 *
+	 *  @exception Xapian::DocNotFoundError      The document specified
+	 *		could not be found in the database.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  did was 0, which is not
+	 *		a valid document id.
+	 */
+	Xapian::Document get_document(Xapian::docid did, unsigned flags) const;
+
 	/** Suggest a spelling correction.
 	 *
 	 *  @param word			The potentially misspelled word.

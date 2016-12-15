@@ -267,6 +267,18 @@ const int DBCOMPACT_MULTIPASS = 8;
  */
 const int DBCOMPACT_SINGLE_FILE = 16;
 
+/** Assume document id is valid.
+ *
+ *  By default, Database::get_document() checks that the document id passed is
+ *  actually in use and throws DocNotFoundError if not.  This flag can be used
+ *  to disable this check - useful to save a bit of work when you know for sure
+ *  that the document id is valid.
+ *
+ *  Some database backends may check anyway - the remote backend currently
+ *  does.
+ */
+const int DOC_ASSUME_VALID = 1;
+
 }
 
 #endif /* XAPIAN_INCLUDED_CONSTANTS_H */
