@@ -565,8 +565,7 @@ InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     Assert(did != 0);
-    if (!doc_exists(did)) {
-	if (lazy) return NULL;
+    if (!lazy && !doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
