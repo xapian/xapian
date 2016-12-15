@@ -1449,3 +1449,30 @@ DEFINE_TESTCASE(getrevision1, glass) {
     TEST_EQUAL(db.get_revision(), 2);
     return true;
 }
+
+/// Feature test for DOC_ASSUME_VALID.
+DEFINE_TESTCASE(getdocumentlazy1, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Document doc_lazy = db.get_document(2, Xapian::DOC_ASSUME_VALID);
+    Xapian::Document doc = db.get_document(2);
+    TEST_EQUAL(doc.get_data(), doc_lazy.get_data());
+    TEST_EQUAL(doc.get_value(0), doc_lazy.get_value(0));
+    return true;
+}
+
+/// Feature test for DOC_ASSUME_VALID for a docid that doesn't actually exist.
+DEFINE_TESTCASE(getdocumentlazy2, backend) {
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Document doc;
+    try {
+	doc = db.get_document(db.get_lastdocid() + 1, Xapian::DOC_ASSUME_VALID);
+    } catch (const Xapian::DocNotFoundError&) {
+	// DOC_ASSUME_VALID is really just a hint, so ignoring is OK (the
+	// remote backend currently does).
+    }
+    TEST(doc.get_data().empty());
+    TEST_EXCEPTION(Xapian::DocNotFoundError,
+	doc = db.get_document(db.get_lastdocid() + 1);
+    );
+    return true;
+}

@@ -25,6 +25,7 @@
 
 #include "autoptr.h"
 
+#include <xapian/constants.h>
 #include <xapian/error.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
@@ -483,6 +484,23 @@ Database::get_document(Xapian::docid did) const
 
     // Open non-lazily so we throw DocNotFoundError if the doc doesn't exist.
     RETURN(Document(internal[n]->open_document(m, false)));
+}
+
+Document
+Database::get_document(Xapian::docid did, unsigned flags) const
+{
+    LOGCALL(API, Document, "Database::get_document", did|flags);
+    if (did == 0)
+	docid_zero_invalid();
+
+    unsigned int multiplier = internal.size();
+    if (rare(multiplier == 0))
+	no_subdatabases();
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    bool assume_valid = flags & Xapian::DOC_ASSUME_VALID;
+    RETURN(Document(internal[n]->open_document(m, assume_valid)));
 }
 
 bool
