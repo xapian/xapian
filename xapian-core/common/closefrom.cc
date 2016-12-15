@@ -93,7 +93,7 @@ Xapian::Internal::closefrom(int fd)
     typedef off_t gde_base_type;
 #elif defined __APPLE__ // Mac OS X
     const char * path = "/dev/fd";
-    typedef int gde_base_type;
+    typedef long gde_base_type;
 #endif
     int dir = open(path, O_RDONLY|O_DIRECTORY);
     if (dir >= 0) {
