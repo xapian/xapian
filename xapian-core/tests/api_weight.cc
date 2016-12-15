@@ -929,6 +929,15 @@ DEFINE_TESTCASE(tfidfweight3, backend) {
 	TEST_EQUAL_DOUBLE(mset[i].get_weight(), 0.0);
     }
 
+    // Check for "Lnn".
+    enquire.set_query(Xapian::Query("word"));
+    enquire.set_weighting_scheme(Xapian::TfIdfWeight("Lnn"));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), 2);
+    mset_expect_order(mset, 2, 4);
+    TEST_EQUAL_DOUBLE(mset[0].get_weight(), (1+log(8.0)) / (1+log(81.0/56.0)));
+    TEST_EQUAL_DOUBLE(mset[1].get_weight(), (1+log(1.0)) / (1+log(31.0/26.0)));
+
     enquire.set_query(Xapian::Query("word"));
     enquire.set_weighting_scheme(Xapian::TfIdfWeight("npn"));
     mset = enquire.get_mset(0, 10);

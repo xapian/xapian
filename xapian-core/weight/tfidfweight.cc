@@ -40,7 +40,7 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     : normalizations(normals), param_slope(0.2), param_delta(1.0)
 {
     if (normalizations.length() != 3 ||
-	!strchr("nbslP", normalizations[0]) ||
+	!strchr("nbslPL", normalizations[0]) ||
 	!strchr("ntpfsP", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
@@ -51,13 +51,17 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     need_stat(WDF);
     need_stat(WDF_MAX);
     need_stat(WQF);
+    need_stat(DOC_LENGTH);
+    need_stat(DOC_LENGTH_MIN);
+    need_stat(DOC_LENGTH_MAX);
+    need_stat(UNIQUE_TERMS);
 }
 
 TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
     : normalizations(normals), param_slope(slope), param_delta(delta)
 {
     if (normalizations.length() != 3 ||
-	!strchr("nbslP", normalizations[0]) ||
+	!strchr("nbslPL", normalizations[0]) ||
 	!strchr("ntpfsP", normalizations[1]) ||
 	!strchr("n", normalizations[2]))
 	throw Xapian::InvalidArgumentError("Normalization string is invalid");
@@ -72,10 +76,12 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
     need_stat(WDF);
     need_stat(WDF_MAX);
     need_stat(WQF);
+    need_stat(DOC_LENGTH);
+    need_stat(DOC_LENGTH_MIN);
+    need_stat(DOC_LENGTH_MAX);
+    need_stat(UNIQUE_TERMS);
     if (normalizations[0] == 'P' || normalizations[1] == 'P') {
 	need_stat(AVERAGE_LENGTH);
-	need_stat(DOC_LENGTH);
-	need_stat(DOC_LENGTH_MIN);
     }
 }
 
@@ -123,9 +129,9 @@ TfIdfWeight::unserialise(const string & s) const
 
 double
 TfIdfWeight::get_sumpart(Xapian::termcount wdf, Xapian::termcount doclen,
-			 Xapian::termcount) const
+			 Xapian::termcount uniqterms) const
 {
-    double wdfn = get_wdfn(wdf, doclen, normalizations[0]);
+    double wdfn = get_wdfn(wdf, doclen, uniqterms, normalizations[0]);
     return get_wtn(wdfn * idfn, normalizations[2]) * wqf_factor;
 }
 
@@ -136,7 +142,8 @@ TfIdfWeight::get_maxpart() const
 {
     Xapian::termcount wdf_max = get_wdf_upper_bound();
     Xapian::termcount len_min = get_doclength_lower_bound();
-    double wdfn = get_wdfn(wdf_max, len_min, normalizations[0]);
+    Xapian::termcount len_max = get_doclength_upper_bound();
+    double wdfn = get_wdfn(wdf_max, len_min, len_max, normalizations[0]);
     return get_wtn(wdfn * idfn, normalizations[2]) * wqf_factor;
 }
 
@@ -155,7 +162,8 @@ TfIdfWeight::get_maxextra() const
 
 // Return normalized wdf, idf and weight depending on the normalization string.
 double
-TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen, char c) const
+TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen,
+		      Xapian::termcount uniqterms, char c) const
 {
     switch (c) {
 	case 'b':
@@ -171,6 +179,19 @@ TfIdfWeight::get_wdfn(Xapian::termcount wdf, Xapian::termcount doclen, char c) c
 	    double normlen = doclen / get_average_length();
 	    double norm_factor = 1 / (1 - param_slope + (param_slope * normlen));
 	    return ((1 + log(1 + log(double(wdf)))) * norm_factor + param_delta);
+	}
+	case 'L': {
+	    if (wdf == 0) return 0;
+	    double uniqterm_double = uniqterms;
+	    double doclen_double = doclen;
+	    double wdf_avg = 1;
+	    if (doclen_double == 0 || uniqterm_double == 0)
+		wdf_avg = 1;
+	    else
+		wdf_avg = doclen_double / uniqterm_double;
+	    double num = 1 + log(double(wdf));
+	    double den = 1 + log(wdf_avg);
+	    return num / den;
 	}
 	default:
 	    AssertEq(c, 'n');
