@@ -175,6 +175,7 @@ CONSTANT(int, Xapian, DBCHECK_FIX);
 CONSTANT(int, Xapian, DBCOMPACT_MULTIPASS);
 CONSTANT(int, Xapian, DBCOMPACT_NO_RENUMBER);
 CONSTANT(int, Xapian, DBCOMPACT_SINGLE_FILE);
+CONSTANT(int, Xapian, DOC_ASSUME_VALID);
 %include <xapian/constants.h>
 
 /* The Error subclasses are handled separately for languages where we wrap
