@@ -51,10 +51,12 @@ TfIdfWeight::TfIdfWeight(const std::string &normals)
     need_stat(WDF);
     need_stat(WDF_MAX);
     need_stat(WQF);
-    need_stat(DOC_LENGTH);
-    need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
-    need_stat(UNIQUE_TERMS);
+    if (normalizations[0] == 'L') {
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(UNIQUE_TERMS);
+    }
 }
 
 TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
@@ -76,12 +78,18 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
     need_stat(WDF);
     need_stat(WDF_MAX);
     need_stat(WQF);
-    need_stat(DOC_LENGTH);
-    need_stat(DOC_LENGTH_MIN);
-    need_stat(DOC_LENGTH_MAX);
-    need_stat(UNIQUE_TERMS);
     if (normalizations[0] == 'P' || normalizations[1] == 'P') {
 	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+    }
+    else if (normalizations[0] == 'L') {
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(UNIQUE_TERMS);
+	if (normalizations[1] == 'P')
+	    need_stat(AVERAGE_LENGTH);
     }
 }
 
