@@ -278,16 +278,18 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	    }
 
 	    // Add stemmed form without positional information.
-	    string stem;
+	    const string& stem = stemmer(term);
+	    if (rare(stem.empty())) return true;
+	    string stemmed_term;
 	    if (strategy != TermGenerator::STEM_ALL) {
-		stem += "Z";
+		stemmed_term += "Z";
 	    }
-	    stem += prefix;
-	    stem += stemmer(term);
+	    stemmed_term += prefix;
+	    stemmed_term += stem;
 	    if (strategy != TermGenerator::STEM_SOME && with_positions) {
-		doc.add_posting(stem, ++termpos, wdf_inc);
+		doc.add_posting(stemmed_term, ++termpos, wdf_inc);
 	    } else {
-		doc.add_term(stem, wdf_inc);
+		doc.add_term(stemmed_term, wdf_inc);
 	    }
 	    return true;
 	});

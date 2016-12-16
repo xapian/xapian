@@ -32,6 +32,8 @@ using namespace std;
 
 class MyStemImpl : public Xapian::StemImplementation {
     string operator()(const string & word) {
+	if (word == "vanish")
+	    return string();
 	return word.substr(0, 3);
     }
 
@@ -75,6 +77,30 @@ DEFINE_TESTCASE(stem3, !backend) {
     TEST_EQUAL(earlyenglish("loving"), "love");
     TEST_EQUAL(earlyenglish("loveth"), "love");
     TEST_EQUAL(earlyenglish("givest"), "give");
+    return true;
+}
+
+/// Test handling of a stemmer returning an empty string.
+// Regression test for https://trac.xapian.org/ticket/741 fixed in 1.4.2.
+DEFINE_TESTCASE(stemempty1, !backend) {
+    Xapian::Stem st(new MyStemImpl);
+
+    Xapian::TermGenerator tg;
+    Xapian::Document doc;
+    tg.set_document(doc);
+    tg.set_stemmer(st);
+    tg.set_stemming_strategy(tg.STEM_ALL);
+
+    tg.index_text("watch me vanish now");
+    auto i = doc.termlist_begin();
+    TEST(i != doc.termlist_end());
+    TEST_EQUAL(*i, "me");
+    TEST(++i != doc.termlist_end());
+    TEST_EQUAL(*i, "now");
+    TEST(++i != doc.termlist_end());
+    TEST_EQUAL(*i, "wat");
+    TEST(++i == doc.termlist_end());
+
     return true;
 }
 
