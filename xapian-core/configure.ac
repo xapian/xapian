@@ -356,7 +356,9 @@ using namespace std;], [
 
 dnl C++11 should have log2(), but keep this check for now to allow for
 dnl compilers with incomplete library support for C++11.
-AC_CHECK_DECLS([log2], [], [], [#include <cmath>])
+AC_CHECK_DECLS([log2], [], [],
+[#include <cmath>
+using namespace std;])
 
 dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
 dnl compilation of the test code below fails if RTTI isn't being generated
