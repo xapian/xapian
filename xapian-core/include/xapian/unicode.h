@@ -268,21 +268,23 @@ namespace Internal {
      *  character from its info.
      */
     inline int get_delta(int info) {
-	/* It's implementation defined if sign extension happens on right shift
-	 * of a signed int, hence the conditional (hopefully the compiler will
-	 * spot this and optimise it to a sign-extending shift on architectures
-	 * with a suitable instruction).
+	/* It's implementation defined if sign extension happens when right
+	 * shifting a signed int, although in practice sign extension is what
+	 * most compilers implement.
+	 *
+	 * Some compilers are smart enough to spot common idioms for sign
+	 * extension, but not all (e.g. GCC < 7 doesn't spot the one used in
+	 * the else below), so check what the implementation defined behaviour
+	 * is with a constant conditional which should get optimised away.
 	 */
-#ifdef __GNUC__
-	// GCC 4.7.1 doesn't optimise the more complex expression down
-	// (reported as http://gcc.gnu.org/PR55299), but the documented
-	// behaviour for GCC is that right shift of a signed integer performs
-	// sign extension:
-	// http://gcc.gnu.org/onlinedocs/gcc-4.7.2/gcc/Integers-implementation.html
-	return info >> 8;
-#else
-	return (info >= 0) ? (info >> 8) : (~(~info >> 8));
-#endif
+	if ((-1 >> 1) == -1) {
+	    // Right shift sign-extends.
+	    return info >> 8;
+	} else {
+	    // Right shift shifts in zeros, not before and after the shift for
+	    // negative values.
+	    return (info >= 0) ? (info >> 8) : (~(~info >> 8));
+	}
     }
 }
 
