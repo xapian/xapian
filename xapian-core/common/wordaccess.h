@@ -33,27 +33,24 @@
 
 #ifndef WORDS_BIGENDIAN
 
-# if defined __GNUC__
-// GCC 4.8 added __builtin_bswap16, and that's the oldest version we support.
-inline int do_bswap(uint16_t value) { return __builtin_bswap16(value); }
-# else
 inline int do_bswap(uint16_t value) {
-    return (value << 8) | (value >> 8);
-}
-# endif
-
-# ifdef __GNUC__
-// GCC 4.3 added __builtin_bswap32 and __builtin_bswap64, and we no longer
-// support GCC versions that old.
-inline int do_bswap(uint32_t value) { return __builtin_bswap32(value); }
+# if HAVE_DECL___BUILTIN_BSWAP16
+    return __builtin_bswap16(value);
 # else
+    return (value << 8) | (value >> 8);
+# endif
+}
+
 inline int do_bswap(uint32_t value) {
+# if HAVE_DECL___BUILTIN_BSWAP32
+    return __builtin_bswap32(value);
+# else
     return (value << 24) |
 	   ((value & 0xff00) << 8) |
 	   ((value >> 8) & 0xff00) |
 	   (value >> 24);
-}
 # endif
+}
 
 #endif
 

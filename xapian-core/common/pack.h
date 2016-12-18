@@ -1,7 +1,7 @@
 /** @file pack.h
  * @brief Pack types into strings and unpack them again.
  */
-/* Copyright (C) 2009,2015 Olly Betts
+/* Copyright (C) 2009,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,8 +127,9 @@ unpack_uint_last(const char ** p, const char * end, U * result)
     return true;
 }
 
-#ifdef __GNUC__
-// GCC 3.4 added __builtin_clz() (with l and ll variants).
+#if HAVE_DECL___BUILTIN_CLZ && \
+    HAVE_DECL___BUILTIN_CLZL && \
+    HAVE_DECL___BUILTIN_CLZLL
 inline int do_clz(unsigned value) { return __builtin_clz(value); }
 
 inline int do_clz(unsigned long value) { return __builtin_clzl(value); }
