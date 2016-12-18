@@ -83,13 +83,11 @@ TfIdfWeight::TfIdfWeight(const std::string &normals, double slope, double delta)
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
     }
-    else if (normalizations[0] == 'L') {
+    if (normalizations[0] == 'L') {
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
 	need_stat(DOC_LENGTH_MAX);
 	need_stat(UNIQUE_TERMS);
-	if (normalizations[1] == 'P')
-	    need_stat(AVERAGE_LENGTH);
     }
 }
 
