@@ -2,7 +2,7 @@
  * @brief Xapian::BB2Weight class - the BB2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2014,2015 Olly Betts
+ * Copyright (C) 2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -150,9 +150,8 @@ BB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
 
     // Clamp N to at least 2 to avoid ill-defined log calculations in
     // stirling_value().
-    Xapian::doccount N_less_2 = get_collection_size() - 2;
-    if (rare(N_less_2) < 0)
-	N_less_2 = 0;
+    Xapian::doccount N = get_collection_size();
+    Xapian::doccount N_less_2 = rare(N <= 2) ? 0 : N - 2;
 
     double y2 = F - wdfn;
     double y1 = N_less_2 + y2;
