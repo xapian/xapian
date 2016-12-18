@@ -64,6 +64,7 @@ inline int highest_order_bit(unsigned mask)
 	result += 8;
     }
     return result + flstab[mask];
+#endif
 }
 
 namespace Xapian {
