@@ -162,6 +162,7 @@ proc uni::main {} {
     variable groups
     variable shift
     variable next
+    variable max_delta
 
     if {$argc != 3} {
 	puts stderr "\nusage: $argv0 <datafile> <version> <outfile>\n"
@@ -287,6 +288,7 @@ static const unsigned char groupMap\[\] = {"
 static const int groups\[\] = {"
     set line "    "
     set last [expr {[llength $groups] - 1}]
+    set max_delta -1
     for {set i 0} {$i <= $last} {incr i} {
 	foreach {type toupper tolower totitle} [lindex $groups $i] {}
 
@@ -335,6 +337,11 @@ static const int groups\[\] = {"
 	if {$delta >= (1 << 23) || $delta < -(1<<23)} {
 	    error "delta $delta out of range"
 	}
+	if {$delta > $max_delta} {
+	    set max_delta $delta
+	} elseif {-$delta > $max_delta} {
+	    set max_delta [expr {-$delta}]
+	}
 	append line [expr {($delta << 8) | ($case << 5) | $type}]
 	if {$i != $last} {
 	    append line ", "
@@ -344,6 +351,7 @@ static const int groups\[\] = {"
 	    set line "    "
 	}
     }
+    puts "max_delta = $max_delta"
     puts $f $line
     puts -nonewline $f "};
 
