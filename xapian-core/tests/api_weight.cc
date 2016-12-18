@@ -490,8 +490,7 @@ DEFINE_TESTCASE(bb2weight4, backend) {
     Xapian::MSet mset1;
     mset1 = enquire.get_mset(0, 10);
     TEST_EQUAL(mset1.size(), 1);
-    // Zero weight is a bit bogus, but what we currently give.
-    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 0);
+    TEST_EQUAL_DOUBLE(mset1[0].get_weight(), 3.431020621347435);
 
     return true;
 }
