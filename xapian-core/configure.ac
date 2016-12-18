@@ -383,6 +383,12 @@ AC_TRY_COMPILE([
     AC_MSG_RESULT([no]))
 CXXFLAGS=$save_CXXFLAGS
 
+AC_CHECK_DECLS([__builtin_bswap16, __builtin_bswap32], [], [], [ ])
+AC_CHECK_DECLS([__builtin_clz, __builtin_clzl, __builtin_clzll], [], [], [ ])
+AC_CHECK_DECLS([__builtin_ctz, __builtin_ctzl, __builtin_ctzll], [], [], [ ])
+AC_CHECK_DECLS([__builtin_expect], [], [], [ ])
+AC_CHECK_DECLS([__builtin_popcount, __builtin_popcountl, __builtin_popcountll], [], [], [ ])
+
 dnl Check for time functions.
 AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
 
@@ -1260,11 +1266,11 @@ AH_BOTTOM(
 # define _FORTIFY_SOURCE 2
 #endif
 
-/* For GCC >= 3.0 (and Intel's C++ compiler, which also defines __GNUC__),
+/* For compilers which support it (such as GCC, clang, Intel's C++ compiler)
  * we can use __builtin_expect to give the compiler hints about branch
  * prediction.  See HACKING for how to use these.
  */
-#if defined __GNUC__
+#if HAVE_DECL___BUILTIN_EXPECT
 /* The arguments of __builtin_expect() are both long, so use !! to ensure that
  * the first argument is always an integer expression, and always 0 or 1, but
  * still has the same truth value for the if or while it is used in.

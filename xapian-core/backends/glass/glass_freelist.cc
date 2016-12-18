@@ -278,17 +278,20 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	    continue;
 	if (c == 0 && p_first_bad_blk) {
 	    uint4 first_bad_blk = i * BITS_PER_ELT;
-#if defined __GNUC__
-	    // GCC 3.4 added __builtin_ctz() (with l and ll variants).
-	    if (sizeof(elt_type) == sizeof(unsigned))
+	    if (false) {
+#if HAVE_DECL___BUILTIN_CTZ
+	    } else if (sizeof(elt_type) == sizeof(unsigned)) {
 		first_bad_blk += __builtin_ctz(elt);
-	    else if (sizeof(elt_type) == sizeof(unsigned long))
-		first_bad_blk += __builtin_ctzl(elt);
-	    else if (sizeof(elt_type) == sizeof(unsigned long long))
-		first_bad_blk += __builtin_ctzll(elt);
-	    else
 #endif
-	    {
+#if HAVE_DECL___BUILTIN_CTZL
+	    } else if (sizeof(elt_type) == sizeof(unsigned long)) {
+		first_bad_blk += __builtin_ctzl(elt);
+#endif
+#if HAVE_DECL___BUILTIN_CTZLL
+	    } else if (sizeof(elt_type) == sizeof(unsigned long long)) {
+		first_bad_blk += __builtin_ctzll(elt);
+#endif
+	    } else {
 		for (elt_type mask = 1; (elt & mask) == 0; mask <<= 1) {
 		    ++first_bad_blk;
 		}
@@ -297,23 +300,27 @@ GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 	}
 
 	// Count set bits in elt.
-#if defined __GNUC__
-	// GCC 3.4 added __builtin_popcount and variants.
-	if (sizeof(elt_type) == sizeof(unsigned))
+	if (false) {
+#if HAVE_DECL___BUILTIN_POPCOUNT
+	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __builtin_popcount(elt);
-	else if (sizeof(elt_type) == sizeof(unsigned long))
-	    c += __builtin_popcountl(elt);
-	else if (sizeof(elt_type) == sizeof(unsigned long long))
-	    c += __builtin_popcountll(elt);
-	else
 #elif defined _MSC_VER
-	if (sizeof(elt_type) == sizeof(unsigned))
+	} else if (sizeof(elt_type) == sizeof(unsigned)) {
 	    c += __popcnt(elt);
-	else if (sizeof(elt_type) == sizeof(__int64))
-	    c += __popcnt64(elt);
-	else
 #endif
-	{
+#if HAVE_DECL___BUILTIN_POPCOUNTL
+	} else if (sizeof(elt_type) == sizeof(unsigned long)) {
+	    c += __builtin_popcountl(elt);
+#endif
+#if HAVE_DECL___BUILTIN_POPCOUNTLL
+	} else if (sizeof(elt_type) == sizeof(unsigned long long)) {
+	    c += __builtin_popcountll(elt);
+#endif
+#ifdef _MSC_VER
+	} else if (sizeof(elt_type) == sizeof(__int64)) {
+	    c += __popcnt64(elt);
+#endif
+	} else {
 	    do {
 		++c;
 		elt &= elt - 1;
