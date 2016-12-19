@@ -97,8 +97,6 @@ dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
 dist_check_SCRIPTS = omegatest
-# Pass omega path for omegatest in OMEGA environment variable.
-AM_TESTS_ENVIRONMENT = OMEGA=./omega; export OMEGA;
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
@@ -229,3 +227,6 @@ extra/omegascript.vim: extra/omegascript.vim.in query.cc configure.ac
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
+
+installcheck-local:
+	$(MAKE) check SCRIPTINDEX='${bindir}/scriptindex' OMEGA='${pkglibbindir}/omega'
