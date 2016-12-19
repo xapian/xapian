@@ -136,8 +136,7 @@ TfIdfWeight::get_maxpart() const
 	wt = get_wdfn(wdf_max, normalizations[0]);
     } else {
 	Xapian::termcount len_min = get_doclength_lower_bound();
-	Xapian::termcount len_max = get_doclength_upper_bound();
-	wt = get_wdfn_for_L(wdf_max, len_min, len_max);
+	wt = get_wdfn_for_L(wdf_max, len_min, len_min);
     }
     wt *= get_idfn(termfreq, normalizations[1]);
     return get_wtn(wt, normalizations[2]) * factor;
