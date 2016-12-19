@@ -15,6 +15,7 @@ env:
 matrix:
   include:
     - compiler: gcc
+      os: linux
       # GCC we want v4.9.
       addons:
         apt:
@@ -37,6 +38,7 @@ matrix:
       # Installing it isn't enough!
       env: USE_CC=gcc-4.9 USE_CXX=g++-4.9
     - compiler: clang
+      os: linux
       # Clang is already installed, but we want to build using the
       # llvm c++ library, not the GCC one. (Otherwise, depending on
       # the GCC version, there can be issues.)
@@ -60,6 +62,12 @@ matrix:
       # We also have to disable an error, because (older?)
       # perl header files don't play nicely with clang.
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
+    - os: osx
+      before_install:
+        - brew update
+        - brew install doxygen help2man graphviz pngcrush python libmagic pcre
+        - pip install sphinx docutils
+      env: CXXFLAGS=-Wno-error=reserved-user-defined-literal
 
 before_script:
   # Bootstrap everything (including letor, which isn't done
