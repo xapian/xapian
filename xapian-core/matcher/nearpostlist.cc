@@ -50,13 +50,13 @@ NearPostList::~NearPostList()
 }
 
 struct TermCmp {
-    bool operator()(const PostList * a, const PostList * b) {
+    bool operator()(const PostList * a, const PostList * b) const {
 	return a->get_wdf() < b->get_wdf();
     }
 };
 
 struct Cmp {
-    bool operator()(const PositionList * a, const PositionList * b) {
+    bool operator()(const PositionList * a, const PositionList * b) const {
 	return a->get_position() > b->get_position();
     }
 };

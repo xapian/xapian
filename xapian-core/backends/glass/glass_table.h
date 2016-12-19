@@ -739,7 +739,7 @@ class GlassTable {
 	void compact(byte *p);
 	void enter_key_above_leaf(Glass::LeafItem previtem, Glass::LeafItem newitem);
 	void enter_key_above_branch(int j, Glass::BItem newitem);
-	int mid_point(byte *p);
+	int mid_point(byte *p) const;
 	void add_item_to_leaf(byte *p, Glass::LeafItem kt, int c);
 	void add_item_to_branch(byte *p, Glass::BItem kt, int c);
 	void add_leaf_item(Glass::LeafItem kt);
