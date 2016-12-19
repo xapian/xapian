@@ -34,12 +34,16 @@
 # include <sys/resource.h>
 #endif
 
-#if defined __linux__ || defined __APPLE__
+#if defined __linux__
 # include "safedirent.h"
 # include <cstdlib>
+#elif defined __APPLE__
+# include <sys/attr.h>
+# include <cstdlib>
+# include <cstring>
+#endif
 
 using namespace std;
-#endif
 
 static int
 get_maxfd() {
@@ -68,7 +72,11 @@ get_maxfd() {
 //
 // These platforms have getdirentries() and a "magic" directory with an entry
 // for each FD open in the current process:
-// Linux, OS X
+// Linux
+//
+// These platforms have getdirentriesattr() and a "magic" directory with an
+// entry for each FD open in the current process:
+// OS X
 //
 // Other platforms just use a loop up to a limit obtained from
 // fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX).
@@ -80,39 +88,18 @@ Xapian::Internal::closefrom(int fd)
 #ifdef F_CLOSEM
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
 	return;
-#elif defined __linux__ || defined __APPLE__
-#if 0
-    // Some platforms have /proc/<pid>/fd but not /proc/self - if any such
-    // platforms don't have either closefrom() or F_CLOSEM but do have
-    // getdirentries() then this code can be used.  AIX is an example of
-    // a platform of the former, but apparently has F_CLOSEM.
-    char path[6 + sizeof(pid_t) * 3 + 4];
-    sprintf(path, "/proc/%ld/fd", long(getpid()));
 #elif defined __linux__
     const char * path = "/proc/self/fd";
-    typedef off_t gde_base_type;
-#elif defined __APPLE__ // Mac OS X
-    const char * path = "/dev/fd";
-    typedef long gde_base_type;
-#endif
     int dir = open(path, O_RDONLY|O_DIRECTORY);
     if (dir >= 0) {
-	// The type of the third argument to getdirentries() differs between
-	// platforms (ssize_t* on Linux; int* on OS X).  Use gde_base_type for
-	// the type of the variable pointed to (conditionally defined above).
-	gde_base_type base = 0;
+	off_t base = 0;
 	while (true) {
 	    char buf[1024];
 	    errno = 0;
 	    // We use getdirentries() instead of opendir()/readdir() here
 	    // because the latter can call malloc(), which isn't safe to do
 	    // between fork() and exec() in a multi-threaded program.
-	    //
-	    // The return type of getdirentries() also differs between
-	    // platforms - use auto here and decltype below to make sure c
-	    // and pos have appropriate types.
-
-	    auto c = getdirentries(dir, buf, sizeof(buf), &base);
+	    ssize_t c = getdirentries(dir, buf, sizeof(buf), &base);
 	    if (c == 0) {
 		close(dir);
 		return;
@@ -122,7 +109,7 @@ Xapian::Internal::closefrom(int fd)
 		break;
 	    }
 	    struct dirent *d;
-	    for (decltype(c) pos = 0; pos < c; pos += d->d_reclen) {
+	    for (ssize_t pos = 0; pos < c; pos += d->d_reclen) {
 		d = reinterpret_cast<struct dirent*>(buf + pos);
 		const char * leaf = d->d_name;
 		if (leaf[0] < '0' || leaf[0] > '9') {
@@ -138,7 +125,7 @@ Xapian::Internal::closefrom(int fd)
 		    // Don't close the fd open on the directory.
 		    continue;
 		}
-#ifdef __linux__
+
 		// Running under valgrind causes some entries above the
 		// reported RLIMIT_NOFILE value to appear in
 		// /proc/self/fd - see:
@@ -155,13 +142,81 @@ Xapian::Internal::closefrom(int fd)
 		    if (n > maxfd)
 			continue;
 		}
-#endif
+
 		// Retry on EINTR.
 		while (close(n) < 0 && errno == EINTR) { }
 	    }
 	}
 	close(dir);
     }
+#elif defined __APPLE__ // Mac OS X
+    const char * path = "/dev/fd";
+#ifdef __LP64__
+    typedef unsigned int gdea_type;
+#else
+    typedef unsigned long gdea_type;
+#endif
+    int dir = open(path, O_RDONLY|O_DIRECTORY);
+    if (dir >= 0) {
+	gdea_type base = 0;
+	struct attrlist alist;
+	memset(&alist, 0, sizeof(alist));
+	alist.bitmapcount = ATTR_BIT_MAP_COUNT;
+	alist.commonattr = ATTR_CMN_NAME;
+	while (true) {
+	    char buf[1024];
+	    errno = 0;
+	    // We use getdirentriesattr() instead of opendir()/readdir() here
+	    // because the latter can call malloc(), which isn't safe to do
+	    // between fork() and exec() in a multi-threaded program.  We only
+	    // want filename, but can't use getdirentries() because it's not
+	    // available with 64-bit inode_t, which seems to be tied to LFS.
+	    gdea_type count = sizeof(buf);
+	    gdea_type new_state;
+	    int r = getdirentriesattr(dir, &alist, buf, sizeof(buf),
+				      &count, &base, &new_state, 0);
+	    (void)new_state;
+	    if (r < 0) {
+		// Fallback if getdirentriesattr() fails.
+		break;
+	    }
+	    char * p = buf;
+	    while (count-- > 0) {
+		const char * leaf = p + sizeof(u_int32_t);
+		p += *static_cast<u_int32_t*>(static_cast<void*>(p));
+
+		if (leaf[0] < '0' || leaf[0] > '9') {
+		    // Skip '.' and '..'.
+		    continue;
+		}
+		int n = atoi(leaf);
+		if (n < fd) {
+		    // FD below threshold.
+		    continue;
+		}
+		if (n == dir) {
+		    // Don't close the fd open on the directory.
+		    continue;
+		}
+
+		// Retry on EINTR.
+		while (close(n) < 0 && errno == EINTR) { }
+	    }
+	    if (r == 1) {
+		// We've had the last entry.
+		close(dir);
+		return;
+	    }
+	}
+	close(dir);
+    }
+#elif 0
+    // Some platforms have /proc/<pid>/fd but not /proc/self - if any such
+    // platforms don't have either closefrom() or F_CLOSEM but do have
+    // getdirentries() then this code can be used.  AIX is an example of
+    // a platform of the former, but apparently has F_CLOSEM.
+    char path[6 + sizeof(pid_t) * 3 + 4];
+    sprintf(path, "/proc/%ld/fd", long(getpid()));
 #endif
     if (maxfd < 0)
 	maxfd = get_maxfd();
