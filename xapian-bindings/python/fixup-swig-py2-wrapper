@@ -31,7 +31,7 @@ my ($pos, $find, $replace);
 # https://www.python.org/dev/peps/pep-0263/
 s/^/# encoding: utf-8\n/;
 
-s/^from sys import version_info(?:.*\n)+? *import __builtin__$/from . import _xapian\nfrom new import instancemethod as new_instancemethod/m or
+s/^try:\n    _swig_property =(?:.*\n)+? *import __builtin__\n//m or
     die "Failed to fix up import code";
 
 s/\b_swig_property\b/property/g or
