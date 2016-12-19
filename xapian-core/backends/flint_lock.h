@@ -52,7 +52,7 @@ class FlintLock {
 	UNKNOWN // The attempt failed for some unspecified reason.
     } reason;
 #if defined __CYGWIN__ || defined __WIN32__
-    FlintLock(const std::string &filename_)
+    explicit FlintLock(const std::string &filename_)
 	: filename(filename_), hFile(INVALID_HANDLE_VALUE) {
 	// Keep the same lockfile name as flint since the locking is
 	// compatible and this avoids the possibility of creating two databases
@@ -61,12 +61,14 @@ class FlintLock {
     }
     operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
 #elif defined FLINTLOCK_USE_FLOCK
-    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
+    explicit FlintLock(const std::string &filename_)
+	: filename(filename_), fd(-1) {
 	filename += "/flintlock";
     }
     operator bool() const { return fd != -1; }
 #else
-    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
+    explicit FlintLock(const std::string &filename_)
+	: filename(filename_), fd(-1) {
 	filename += "/flintlock";
     }
     operator bool() const { return fd != -1; }

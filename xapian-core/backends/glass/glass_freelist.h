@@ -159,7 +159,7 @@ class GlassFreeListChecker {
 
 
   public:
-    GlassFreeListChecker(const GlassFreeList & fl);
+    explicit GlassFreeListChecker(const GlassFreeList & fl);
 
     ~GlassFreeListChecker() {
 	delete [] bitmap;

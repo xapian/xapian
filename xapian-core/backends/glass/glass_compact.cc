@@ -388,7 +388,7 @@ merge_postlists(Xapian::Compactor * compactor,
 }
 
 struct MergeCursor : public GlassCursor {
-    MergeCursor(GlassTable *in) : GlassCursor(in) {
+    explicit MergeCursor(GlassTable *in) : GlassCursor(in) {
 	find_entry(string());
 	next();
     }

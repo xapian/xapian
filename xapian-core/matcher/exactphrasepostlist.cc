@@ -66,7 +66,7 @@ class TermCompare {
     vector<PostList *> & terms;
 
   public:
-    TermCompare(vector<PostList *> & terms_) : terms(terms_) { }
+    explicit TermCompare(vector<PostList *> & terms_) : terms(terms_) { }
 
     bool operator()(unsigned a, unsigned b) const {
 	return terms[a]->get_wdf() < terms[b]->get_wdf();
