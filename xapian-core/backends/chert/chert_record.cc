@@ -44,11 +44,10 @@ ChertRecordTable::get_record(Xapian::docid did) const
 {
     LOGCALL(DB, string, "ChertRecordTable::get_record", did);
     string tag;
-
-    if (!get_exact_entry(make_key(did), tag)) {
-	throw Xapian::DocNotFoundError("Document " + str(did) + " not found.");
-    }
-
+    // get_document() checks that the docid is valid, unless DOC_ASSUME_VALID
+    // is used in which case returning an empty string here is the most
+    // sensible behaviour.
+    (void)get_exact_entry(make_key(did), tag);
     RETURN(tag);
 }
 
