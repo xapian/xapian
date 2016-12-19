@@ -77,7 +77,7 @@ class ByteLengthPrefixedStringItor {
 struct ByteLengthPrefixedStringItorGt {
     /// Return true if and only if a's string is strictly greater than b's.
     bool operator()(const ByteLengthPrefixedStringItor *a,
-		    const ByteLengthPrefixedStringItor *b) {
+		    const ByteLengthPrefixedStringItor *b) const {
 	return (**a > **b);
     }
 };

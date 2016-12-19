@@ -731,7 +731,7 @@ GlassTable::enter_key_above_branch(int j, BItem newitem)
  */
 
 int
-GlassTable::mid_point(byte * p)
+GlassTable::mid_point(byte * p) const
 {
     LOGCALL(DB, int, "GlassTable::mid_point", (void*)p);
     int n = 0;

@@ -34,13 +34,13 @@ using Xapian::Internal::intrusive_ptr;
 /// Comparison functor which orders TermList* by ascending term name.
 struct CompareTermListsByTerm {
     /// Order by ascending term name.
-    bool operator()(const TermList *a, const TermList *b) {
+    bool operator()(const TermList *a, const TermList *b) const {
 	return a->get_termname() > b->get_termname();
     }
 };
 
 template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) { delete p; }
+    void operator()(CLASS *p) const { delete p; }
 };
 
 MultiAllTermsList::MultiAllTermsList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,

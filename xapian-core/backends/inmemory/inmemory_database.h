@@ -83,7 +83,8 @@ class InMemoryTermEntry {
 // Compare by document ID
 class InMemoryPostingLessThan {
     public:
-	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
+	int operator() (const InMemoryPosting &p1,
+			const InMemoryPosting &p2) const
 	{
 	    return p1.did < p2.did;
 	}
@@ -92,7 +93,8 @@ class InMemoryPostingLessThan {
 // Compare by termname
 class InMemoryTermEntryLessThan {
     public:
-	int operator() (const InMemoryTermEntry&p1, const InMemoryTermEntry&p2)
+	int operator() (const InMemoryTermEntry&p1,
+			const InMemoryTermEntry&p2) const
 	{
 	    return p1.tname < p2.tname;
 	}

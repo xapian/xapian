@@ -56,11 +56,11 @@ Internal::ExpandTerm::get_description() const
 }
 
 template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) { delete p; }
+    void operator()(CLASS *p) const { delete p; }
 };
 
 struct CompareTermListSizeAscending {
-    bool operator()(const TermList *a, const TermList *b) {
+    bool operator()(const TermList *a, const TermList *b) const {
 	return a->get_approx_size() > b->get_approx_size();
     }
 };

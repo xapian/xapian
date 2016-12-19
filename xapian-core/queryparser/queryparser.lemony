@@ -331,11 +331,11 @@ class SynonymIterator {
 	return Xapian::Query(*i, 1, pos);
     }
 
-    bool operator==(const SynonymIterator & o) {
+    bool operator==(const SynonymIterator & o) const {
 	return i == o.i && first == o.first;
     }
 
-    bool operator!=(const SynonymIterator & o) {
+    bool operator!=(const SynonymIterator & o) const {
 	return !(*this == o);
     }
 
@@ -784,7 +784,7 @@ class ParserHandler {
 
   public:
     explicit ParserHandler(yyParser * parser_) : parser(parser_) { }
-    operator yyParser*() { return parser; }
+    operator yyParser*() const { return parser; }
     ~ParserHandler() { ParseFree(parser); }
 };
 
