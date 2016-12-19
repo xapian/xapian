@@ -59,11 +59,11 @@ matrix:
             - libc++-dev
       # We also have to disable an error, because (older?)
       # perl header files don't play nicely with clang.
-      env: USE_CC=clang USE_CXX=clang++ CXXFLAGS=-Wno-error=reserved-user-defined-literal
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
 
 before_script:
   # Bootstrap everything (including letor, which isn't done
   # by default), then configure using our chosen compiler.
   - ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
-  - ./configure CC=$USE_CC CXX=$USE_CXX
+  - ./configure CC="$USE_CC" CXX="$USE_CXX"
 script: make && make check VERBOSE=1 AUTOMATED_TESTING=1
