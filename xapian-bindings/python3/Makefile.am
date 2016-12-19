@@ -138,7 +138,7 @@ SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
 xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
 	$(make_many_locked)
-$(stamp): except.i doccomments.i
+$(stamp): except.i doccomments.i fixup-swig-py3-wrapper
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O \
