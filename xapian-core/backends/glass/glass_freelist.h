@@ -157,6 +157,9 @@ class GlassFreeListChecker {
 
     elt_type * bitmap;
 
+    // Prevent copying
+    GlassFreeListChecker(const GlassFreeListChecker&);
+    GlassFreeListChecker& operator=(const GlassFreeListChecker&);
 
   public:
     explicit GlassFreeListChecker(const GlassFreeList & fl);
