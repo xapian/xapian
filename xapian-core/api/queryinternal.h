@@ -68,7 +68,7 @@ class QueryPostingSource : public Query::Internal {
     Xapian::Internal::opt_intrusive_ptr<PostingSource> source;
 
   public:
-    QueryPostingSource(PostingSource * source_);
+    explicit QueryPostingSource(PostingSource * source_);
 
     PostingIterator::Internal * postlist(QueryOptimiser *qopt, double factor) const;
 
@@ -109,7 +109,7 @@ class QueryValueBase : public Query::Internal {
     Xapian::valueno slot;
 
   public:
-    QueryValueBase(Xapian::valueno slot_)
+    explicit QueryValueBase(Xapian::valueno slot_)
 	: slot(slot_) { }
 
     Xapian::valueno get_slot() const { return slot; }
@@ -171,7 +171,7 @@ class QueryBranch : public Query::Internal {
   protected:
     QueryVector subqueries;
 
-    QueryBranch(size_t n_subqueries) : subqueries(n_subqueries) { }
+    explicit QueryBranch(size_t n_subqueries) : subqueries(n_subqueries) { }
 
     void serialise_(std::string & result, Xapian::termcount parameter = 0) const;
 
@@ -203,7 +203,8 @@ class QueryBranch : public Query::Internal {
 
 class QueryAndLike : public QueryBranch {
   protected:
-    QueryAndLike(size_t num_subqueries_) : QueryBranch(num_subqueries_) { }
+    explicit QueryAndLike(size_t num_subqueries_)
+	: QueryBranch(num_subqueries_) { }
 
   public:
     void add_subquery(const Xapian::Query & subquery);
@@ -217,7 +218,8 @@ class QueryAndLike : public QueryBranch {
 
 class QueryOrLike : public QueryBranch {
   protected:
-    QueryOrLike(size_t num_subqueries_) : QueryBranch(num_subqueries_) { }
+    explicit QueryOrLike(size_t num_subqueries_)
+	: QueryBranch(num_subqueries_) { }
 
   public:
     void add_subquery(const Xapian::Query & subquery);
@@ -229,7 +231,7 @@ class QueryAnd : public QueryAndLike {
     Xapian::Query::op get_op() const;
 
   public:
-    QueryAnd(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
+    explicit QueryAnd(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
 
     std::string get_description() const;
 };
@@ -238,7 +240,7 @@ class QueryOr : public QueryOrLike {
     Xapian::Query::op get_op() const;
 
   public:
-    QueryOr(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
+    explicit QueryOr(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -251,7 +253,7 @@ class QueryAndNot : public QueryBranch {
     Xapian::Query::op get_op() const;
 
   public:
-    QueryAndNot(size_t n_subqueries) : QueryBranch(n_subqueries) { }
+    explicit QueryAndNot(size_t n_subqueries) : QueryBranch(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -266,7 +268,7 @@ class QueryXor : public QueryOrLike {
     Xapian::Query::op get_op() const;
 
   public:
-    QueryXor(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
+    explicit QueryXor(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -279,7 +281,7 @@ class QueryAndMaybe : public QueryBranch {
     Xapian::Query::op get_op() const;
 
   public:
-    QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) { }
+    explicit QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -294,7 +296,7 @@ class QueryFilter : public QueryAndLike {
     Xapian::Query::op get_op() const;
 
   public:
-    QueryFilter(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
+    explicit QueryFilter(size_t n_subqueries) : QueryAndLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -370,7 +372,7 @@ class QuerySynonym : public QueryOrLike {
     Xapian::Query::op get_op() const;
 
   public:
-    QuerySynonym(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
+    explicit QuerySynonym(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
@@ -383,7 +385,7 @@ class QueryMax : public QueryOrLike {
     Xapian::Query::op get_op() const;
 
   public:
-    QueryMax(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
+    explicit QueryMax(size_t n_subqueries) : QueryOrLike(n_subqueries) { }
 
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 

@@ -172,7 +172,7 @@ protected:
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
-    LeafItem_base(T p_) : p(p_) { }
+    explicit LeafItem_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
@@ -210,7 +210,7 @@ class LeafItem : public LeafItem_base<const byte *> {
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem(const byte * p_, int c) : LeafItem_base<const byte *>(p_, c) { }
-    LeafItem(const byte * p_) : LeafItem_base<const byte *>(p_) { }
+    explicit LeafItem(const byte * p_) : LeafItem_base<const byte *>(p_) { }
 };
 
 class LeafItem_wr : public LeafItem_base<byte *> {
@@ -224,7 +224,7 @@ class LeafItem_wr : public LeafItem_base<byte *> {
 public:
     /* LeafItem_wr from block address and offset to item pointer */
     LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
-    LeafItem_wr(byte * p_) : LeafItem_base<byte *>(p_) { }
+    explicit LeafItem_wr(byte * p_) : LeafItem_base<byte *>(p_) { }
     void set_component_of(int i) {
 	AssertRel(i,>,1);
 	*p &=~ I_FIRST_BIT;
@@ -311,7 +311,7 @@ protected:
 public:
     /* BItem from block address and offset to item pointer */
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
-    BItem_base(T p_) : p(p_) { }
+    explicit BItem_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
@@ -333,7 +333,7 @@ class BItem : public BItem_base<const byte *> {
 public:
     /* BItem from block address and offset to item pointer */
     BItem(const byte * p_, int c) : BItem_base<const byte *>(p_, c) { }
-    BItem(const byte * p_) : BItem_base<const byte *>(p_) { }
+    explicit BItem(const byte * p_) : BItem_base<const byte *>(p_) { }
 };
 
 class BItem_wr : public BItem_base<byte *> {
@@ -342,11 +342,11 @@ class BItem_wr : public BItem_base<byte *> {
 	AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
 	p[BYTES_PER_BLOCK_NUMBER] = x;
     }
-    void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
+    static void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* BItem_wr from block address and offset to item pointer */
     BItem_wr(byte * p_, int c) : BItem_base<byte *>(p_, c) { }
-    BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
+    explicit BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
     void set_component_of(int i) {
 	setX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1, i);
     }

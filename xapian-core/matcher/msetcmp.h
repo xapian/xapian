@@ -36,7 +36,7 @@ mset_cmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, b
 class MSetCmp {
     mset_cmp fn;
   public:
-    MSetCmp(mset_cmp fn_) : fn(fn_) { }
+    explicit MSetCmp(mset_cmp fn_) : fn(fn_) { }
     /// Return true if MSetItem a should be ranked above MSetItem b.
     bool operator()(const Xapian::Internal::MSetItem &a,
 		    const Xapian::Internal::MSetItem &b) const {

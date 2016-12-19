@@ -124,7 +124,7 @@ class InMemoryDoc {
 	InMemoryDoc() : is_valid(false) {}
 
 	// Initialise specifying validity.
-	InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
+	explicit InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
 	void add_posting(const InMemoryTermEntry & post);
 };

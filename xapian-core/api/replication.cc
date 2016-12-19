@@ -219,7 +219,7 @@ class DatabaseReplica::Internal : public Xapian::Internal::intrusive_base {
 
   public:
     /// Open a new DatabaseReplica::Internal for the specified path.
-    Internal(const string & path_);
+    explicit Internal(const string & path_);
 
     /// Destructor.
     ~Internal() { delete conn; }

@@ -74,7 +74,7 @@ class SelectPostList : public PostList {
 
 	std::string get_description() const;
 
-	SelectPostList(PostList *source_) : source(source_), wt(-1) { }
+	explicit SelectPostList(PostList *source_) : source(source_), wt(-1) { }
 	~SelectPostList() { delete source; }
 };
 

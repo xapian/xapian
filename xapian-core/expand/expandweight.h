@@ -65,7 +65,7 @@ class ExpandStats {
 
     /// Constructor for expansion schemes which do not require the "expand_k"
     /// parameter.
-    ExpandStats(Xapian::doclength avlen_)
+    explicit ExpandStats(Xapian::doclength avlen_)
 	: avlen(avlen_), expand_k(0), dbsize(0), termfreq(0),
 	  rcollection_freq(0), rtermfreq(0), multiplier(0), db_index(0) {
     }

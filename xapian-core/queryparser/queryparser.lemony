@@ -135,12 +135,14 @@ class Term {
     termpos pos;
     Query query;
 
-    Term(const string &name_, termpos pos_) : name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
-    Term(const string &name_) : name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
+    Term(const string &name_, termpos pos_)
+	: name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
+    explicit Term(const string &name_)
+	: name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
     Term(const string &name_, const FieldInfo * field_info_)
 	: name(name_), field_info(field_info_),
 	  stem(QueryParser::STEM_NONE), pos(0) { }
-    Term(termpos pos_) : stem(QueryParser::STEM_NONE), pos(pos_) { }
+    explicit Term(termpos pos_) : stem(QueryParser::STEM_NONE), pos(pos_) { }
     Term(State * state_, const string &name_, const FieldInfo * field_info_,
 	 const string &unstemmed_,
 	 QueryParser::stem_strategy stem_ = QueryParser::STEM_NONE,

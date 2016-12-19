@@ -40,7 +40,7 @@ class ByteLengthPrefixedStringItor {
 	: p(p_), left(left_) { }
 
   public:
-    ByteLengthPrefixedStringItor(const std::string & s)
+    explicit ByteLengthPrefixedStringItor(const std::string & s)
 	: p(reinterpret_cast<const unsigned char *>(s.data())),
 	  left(s.size()) { }
 
