@@ -118,7 +118,7 @@ class PrefixCompressedStringWriter {
 struct PrefixCompressedStringItorGt {
     /// Return true if and only if a's string is strictly greater than b's.
     bool operator()(const PrefixCompressedStringItor *a,
-		    const PrefixCompressedStringItor *b) {
+		    const PrefixCompressedStringItor *b) const {
 	return (**a > **b);
     }
 };

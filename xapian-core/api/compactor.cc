@@ -69,7 +69,7 @@ class CmpByFirstUsed {
     CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
 	: used_ranges(ur) { }
 
-    bool operator()(size_t a, size_t b) {
+    bool operator()(size_t a, size_t b) const {
 	return used_ranges[a].first < used_ranges[b].first;
     }
 };

@@ -61,7 +61,7 @@
 using namespace std;
 
 template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) { delete p; }
+    void operator()(CLASS *p) const { delete p; }
 };
 
 using Xapian::Internal::AndContext;
@@ -115,7 +115,7 @@ struct CmpMaxOrTerms {
 /// Comparison functor which orders PostList* by descending get_termfreq_est().
 struct ComparePostListTermFreqAscending {
     /// Order by descending get_termfreq_est().
-    bool operator()(const PostList *a, const PostList *b) {
+    bool operator()(const PostList *a, const PostList *b) const {
 	return a->get_termfreq_est() > b->get_termfreq_est();
     }
 };
@@ -1398,7 +1398,7 @@ void QueryScaleWeight::serialise(string & result) const
 }
 
 struct is_matchnothing {
-    bool operator()(const Xapian::Query & q) {
+    bool operator()(const Xapian::Query & q) const {
 	return q.internal.get() == NULL;
     }
 };
