@@ -1438,11 +1438,11 @@ eval(const string &fmt, const vector<string> &param)
 		} else if (size < 1024) {
 		    format = "%d bytes";
 		} else {
-		    if (size < 1024*1024) {
+		    if (size < 1024 * 1024) {
 			format = "%d.%cK";
 		    } else {
 			size /= 1024;
-			if (size < 1024*1024) {
+			if (size < 1024 * 1024) {
 			    format = "%d.%cM";
 			} else {
 			    size /= 1024;
