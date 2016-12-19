@@ -65,7 +65,7 @@ matrix:
     - os: osx
       before_install:
         - brew update
-        - brew install doxygen help2man graphviz pngcrush python libmagic pcre
+        - brew install doxygen help2man graphviz pngcrush libmagic pcre
         - pip install sphinx docutils
       env: CXXFLAGS=-Wno-error=reserved-user-defined-literal
 
