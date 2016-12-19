@@ -27,7 +27,7 @@ $_ = <>;
 
 my ($pos, $find, $replace);
 
-s/^from sys import version_info(?:.*\n)+? *import __builtin__$/from . import _xapian/m or
+s/^from new import instancemethod(?:.*\n)+? *import __builtin__\n//m or
     die "Failed to fix up import code";
 
 s/\b_swig_property\b/property/g or
