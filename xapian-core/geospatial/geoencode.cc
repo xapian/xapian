@@ -59,7 +59,7 @@ struct DegreesMinutesSeconds {
      *  bit int.  (Latitudes are represented in the range 0 <= angle <= 180,
      *  where 0 is the south pole.)
      */
-    DegreesMinutesSeconds(int angle_16th_secs) {
+    explicit DegreesMinutesSeconds(int angle_16th_secs) {
 	degrees = angle_16th_secs / (3600 * 16);
 	angle_16th_secs = angle_16th_secs % (3600 * 16);
 	minutes = angle_16th_secs / (60 * 16);

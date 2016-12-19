@@ -1832,7 +1832,7 @@ void GlassTable::close(bool permanent) {
     split_p = 0;
 
     delete [] kt.get_address();
-    kt = 0;
+    kt = LeafItem_wr(0);
     delete [] buffer;
     buffer = 0;
 }

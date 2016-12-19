@@ -58,10 +58,10 @@ class CJKTokenIterator {
     mutable std::string current_token;
 
   public:
-    CJKTokenIterator(const std::string & s)
+    explicit CJKTokenIterator(const std::string & s)
 	: it(s) { }
 
-    CJKTokenIterator(const Xapian::Utf8Iterator & it_)
+    explicit CJKTokenIterator(const Xapian::Utf8Iterator & it_)
 	: it(it_) { }
 
     CJKTokenIterator()

@@ -108,7 +108,7 @@ class TimeOut {
     volatile bool expired;
 
   public:
-    TimeOut(double limit) : expired(false) {
+    explicit TimeOut(double limit) : expired(false) {
 	if (limit > 0) {
 	    sev.sigev_notify = SIGEV_THREAD;
 	    sev.sigev_notify_function = set_timeout_flag;
@@ -142,7 +142,7 @@ class TimeOut {
 #else
 class TimeOut {
   public:
-    TimeOut(double) { }
+    explicit TimeOut(double) { }
     bool timed_out() const { return false; }
 };
 #endif
@@ -251,6 +251,7 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
     const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies;
 
   public:
+    explicit
     MultipleMatchSpy(const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies_)
 	    : spies(spies_) {}
 

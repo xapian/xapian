@@ -65,6 +65,7 @@ class CmpByFirstUsed {
     const vector<pair<Xapian::docid, Xapian::docid> > & used_ranges;
 
   public:
+    explicit
     CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> > & ur)
 	: used_ranges(ur) { }
 

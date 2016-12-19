@@ -42,7 +42,7 @@ struct fragment {
     fragment() { }
 
     // Allow implicit conversion.
-    fragment(char data_[4]) { std::memcpy(data, data_, 4); }
+    explicit fragment(char data_[4]) { std::memcpy(data, data_, 4); }
 
     char & operator[] (unsigned i) { return data[i]; }
     const char & operator[] (unsigned i) const { return data[i]; }
@@ -159,7 +159,7 @@ class GlassSpellingTermList : public TermList {
 
   public:
     /// Constructor.
-    GlassSpellingTermList(const std::string & data_)
+    explicit GlassSpellingTermList(const std::string & data_)
 	: data(data_), p(0) { }
 
     Xapian::termcount get_approx_size() const;

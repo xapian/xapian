@@ -221,7 +221,8 @@ class GlassCursor {
 	 *  attached to is destroyed.  It's safe to destroy the GlassCursor
 	 *  after the Btree though, you just may not use the GlassCursor.
 	 */
-	GlassCursor(const GlassTable *B, const Glass::Cursor * C_ = NULL);
+	explicit GlassCursor(const GlassTable *B,
+			     const Glass::Cursor * C_ = NULL);
 
 	/** Clone a cursor.
 	 *
@@ -348,7 +349,7 @@ class MutableGlassCursor : public GlassCursor {
      *  attached to is destroyed.  It's safe to destroy the MutableGlassCursor
      *  after the Btree though, you just may not use the MutableGlassCursor.
      */
-    MutableGlassCursor(GlassTable *B_) : GlassCursor(B_) { }
+    explicit MutableGlassCursor(GlassTable *B_) : GlassCursor(B_) { }
 
     /** Delete the current key/tag pair, leaving the cursor on the next
      *  entry.
