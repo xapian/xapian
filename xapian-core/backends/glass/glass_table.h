@@ -161,14 +161,14 @@ template <class T> class LeafItem_base {
 protected:
     T p;
     int get_key_len() const { return p[I2]; }
-    int getD(const byte * q, int c) const {
+    static int getD(const byte * q, int c) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
 	return unaligned_read2(q + c);
     }
     int getI() const { return unaligned_read2(p); }
-    int getX(const byte * q, int c) const { return unaligned_read2(q + c); }
+    static int getX(const byte * q, int c) { return unaligned_read2(q + c); }
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
@@ -220,7 +220,7 @@ class LeafItem_wr : public LeafItem_base<byte *> {
 	p[I2] = x;
     }
     void setI(int x) { unaligned_write2(p, x); }
-    void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
+    static void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* LeafItem_wr from block address and offset to item pointer */
     LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
@@ -301,13 +301,13 @@ template <class T> class BItem_base {
 protected:
     T p;
     int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
-    int getD(const byte * q, int c) const {
+    static int getD(const byte * q, int c) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
 	return unaligned_read2(q + c);
     }
-    int getX(const byte * q, int c) const { return unaligned_read2(q + c); }
+    static int getX(const byte * q, int c) { return unaligned_read2(q + c); }
 public:
     /* BItem from block address and offset to item pointer */
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
