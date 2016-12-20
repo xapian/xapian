@@ -536,8 +536,8 @@ index_file(const char *fname, istream &stream,
 			    value.resize(0);
 			}
 			if (!truncated) break;
-			/* FALLTHRU (conditionally) */
 		    }
+		    /* FALLTHRU */
 		    case Action::TRUNCATE:
 			utf8_truncate(value, i->get_num_arg());
 			break;
