@@ -692,6 +692,10 @@ AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([sys/resource.h],
 		 [], [], [#include <sys/types.h>])
 
+dnl cxxabi.h was added in GCC 3.1, but clang lies and defines __GNUC__ yet
+dnl doesn't seem to reliably provide this header, so probe for it.
+AC_CHECK_HEADERS([cxxabi.h], [], [], [ ])
+
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
 dnl don't use valgrind.

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2013 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2013,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,8 +54,8 @@
 #include <exception>
 #ifdef USE_RTTI
 # include <typeinfo>
-# ifdef __GNUC__
-#  include <cxxabi.h> // Added in GCC 3.1 which is now required.
+# ifdef HAVE_CXXABI_H
+#  include <cxxabi.h>
 # endif
 #endif
 
@@ -516,7 +516,7 @@ test_driver::runtest(const test_desc *test)
 		out << "std::exception";
 #else
 		const char * name = typeid(e).name();
-# ifdef __GNUC__
+# ifdef HAVE_CXXABI_H__
 		// __cxa_demangle() apparently requires GCC >= 3.1.
 		// Demangle the name which GCC returns for type_info::name().
 		int status;
