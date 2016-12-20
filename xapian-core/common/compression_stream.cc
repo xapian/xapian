@@ -54,9 +54,8 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
     lazy_alloc_deflate_zstream();
     size_t size = *p_size;
     if (!out || out_len < size - 1) {
-	delete [] out;
-	out = NULL;
 	out_len = size - 1;
+	delete [] out;
 	out = new char[out_len];
     }
     deflate_zstream->avail_in = static_cast<uInt>(size);
