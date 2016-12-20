@@ -35,7 +35,7 @@ my $date = strftime("%Y-%m-%d", gmtime());
 open NEWS, '<', 'NEWS' or die "Can't find 'NEWS' in current directory: $!\n";
 my $news = <NEWS>;
 my $rev1;
-if ($news =~ /^(?:up *to:)? *(\d+|[[:xdigit:]]{7,})\b/i) {
+if ($news =~ /^(?:up *to:?) *([[:xdigit:]]{7,}|\d+)\b/i) {
     # Partly updated already.
     if ($vcs eq 'svn') {
 	$rev1 = $1 + 1;
