@@ -57,6 +57,8 @@ matrix:
         - brew update
         - brew install doxygen help2man graphviz pngcrush libmagic pcre libsvm
         - pip install sphinx docutils
+        - mkdir -p /tmp/libsvm-fixed-include
+        - ln -sF /usr/local/Cellar/libsvm/3.21/include /tmp/libsvm-fixed-include/libsvm
       env: CXXFLAGS=-Wno-error=reserved-user-defined-literal
 
 before_script:
