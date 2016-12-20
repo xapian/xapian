@@ -491,11 +491,13 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 	    break;
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
+	// FALLTHRU
 	case FLINT:
 	    internal.push_back(new FlintWritableDatabase(path, action, 8192));
 	    break;
 #endif
 #ifdef XAPIAN_HAS_BRASS_BACKEND
+	// FALLTHRU
 	case BRASS:
 #if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_FLINT_BACKEND
 brass:
