@@ -1,11 +1,10 @@
-# Travis configuration for building Xapian. This is
-# fairly intensive, so we only enable it for pull
-# requests.
+# Travis configuration for building Xapian. This is fairly intensive, so
+# we only enable it for pull requests.
 #
-# Right now, we build on containerised linux, which
-# travis provides as Ubuntu 12.04 LTS so we have to
-# upgrade a lot of stuff to get something vaguely
-# modern.
+# Right now, we build on containerised linux, which defaults to the
+# ancient Ubuntu 12.04 LTS.  Specify "dist: trusty" so we get something
+# which is "only" 2.5 years old.
+dist: trusty
 sudo: false
 language: cpp
 env:
@@ -16,11 +15,8 @@ matrix:
   include:
     - compiler: gcc
       os: linux
-      # GCC we want v4.9.
       addons:
         apt:
-          sources:
-            - ubuntu-toolchain-r-test
           packages:
             - doxygen
             - graphviz
@@ -33,10 +29,6 @@ matrix:
             - libmagic-dev
             - tcl
             - libsvm-dev
-            - gcc-4.9
-            - g++-4.9
-      # Installing it isn't enough!
-      env: USE_CC=gcc-4.9 USE_CXX=g++-4.9
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
@@ -44,8 +36,6 @@ matrix:
       # the GCC version, there can be issues.)
       addons:
         apt:
-          sources:
-            - ubuntu-toolchain-r-test
           packages:
             - doxygen
             - graphviz
