@@ -1,7 +1,7 @@
-/** @file serialise.cc
- * @brief functions to convert Xapian objects to strings and back
+/** @file serialise-error.cc
+ * @brief functions to convert Xapian::Error objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
