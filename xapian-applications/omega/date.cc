@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2006,2014 Olly Betts
+ * Copyright 2002,2003,2006,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,6 @@
 
 #include <vector>
 
-#include <stdio.h>
 #include <cstdlib>
 #include <ctime>
 
@@ -44,30 +43,27 @@ last_day(int y, int m)
     return 28 + (y % 4 == 0); // good until 2100
 }
 
-#ifndef SNPRINTF
-#include <cstdarg>
-
-static int my_snprintf(char *str, size_t size, const char *format, ...)
+// Write exactly w chars to buffer p representing integer v.
+//
+// The result is left padded with zeros if v < pow(10, w - 1).
+//
+// If v >= pow(10, w), then the output will show v % pow(10, w) (i.e. the
+// most significant digits are lost).
+static void
+format_int_fixed_width(char * p, int v, int w)
 {
-    int res;
-    va_list ap;
-    va_start(ap, format);
-    str[size - 1] = '\0';
-    res = vsprintf(str, format, ap);
-    if (str[size - 1] || res < 0 || size_t(res) >= size)
-	abort(); /* Overflowed! */
-    va_end(ap);
-    return res;
+    while (--w >= 0) {
+	p[w] = v % 10;
+	v /= 10;
+    }
 }
-#else
-#define my_snprintf SNPRINTF
-#endif
 
 static Xapian::Query
 date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 {
     char buf[10];
-    my_snprintf(buf, 10, "D%04d%02d", y1, m1);
+    format_int_fixed_width(buf + 1, y1, 4);
+    format_int_fixed_width(buf + 1, m1, 2);
     vector<Xapian::Query> v;
 
     int d_last = last_day(y1, m1);
@@ -77,13 +73,14 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     }
     // Deal with any initial partial month
     if (d1 > 1 || d_end < d_last) {
+	buf[0] = 'D';
 	for ( ; d1 <= d_end ; d1++) {
-	    my_snprintf(buf + 7, 3, "%02d", d1);
-	    v.push_back(Xapian::Query(buf));
+	    format_int_fixed_width(buf + 7, d1, 2);
+	    v.push_back(Xapian::Query(string(buf, 9)));
 	}
     } else {
 	buf[0] = 'M';
-	v.push_back(Xapian::Query(buf));
+	v.push_back(Xapian::Query(string(buf, 9)));
     }
 
     if (y1 == y2 && m1 == m2) {
@@ -92,37 +89,37 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 
     int m_last = (y1 < y2) ? 12 : m2 - 1;
     while (++m1 <= m_last) {
-	my_snprintf(buf + 5, 5, "%02d", m1);
+	format_int_fixed_width(buf + 5, m1, 2);
 	buf[0] = 'M';
-	v.push_back(Xapian::Query(buf));
+	v.push_back(Xapian::Query(string(buf, 7)));
     }
 
     if (y1 < y2) {
 	while (++y1 < y2) {
-	    my_snprintf(buf + 1, 9, "%04d", y1);
+	    format_int_fixed_width(buf + 1, y1, 4);
 	    buf[0] = 'Y';
-	    v.push_back(Xapian::Query(buf));
+	    v.push_back(Xapian::Query(string(buf, 5)));
 	}
-	my_snprintf(buf + 1, 9, "%04d", y2);
+	format_int_fixed_width(buf + 1, y2, 4);
 	buf[0] = 'M';
 	for (m1 = 1; m1 < m2; m1++) {
-	    my_snprintf(buf + 5, 5, "%02d", m1);
-	    v.push_back(Xapian::Query(buf));
+	    format_int_fixed_width(buf + 5, m1, 2);
+	    v.push_back(Xapian::Query(string(buf, 7)));
 	}
     }
 
-    my_snprintf(buf + 5, 5, "%02d", m2);
+    format_int_fixed_width(buf + 5, m2, 2);
 
     // Deal with any final partial month
     if (d2 < last_day(y2, m2)) {
 	buf[0] = 'D';
 	for (d1 = 1 ; d1 <= d2; d1++) {
-	    my_snprintf(buf + 7, 3, "%02d", d1);
-	    v.push_back(Xapian::Query(buf));
+	    format_int_fixed_width(buf + 7, d1, 2);
+	    v.push_back(Xapian::Query(string(buf, 9)));
 	}
     } else {
 	buf[0] = 'M';
-	v.push_back(Xapian::Query(buf));
+	v.push_back(Xapian::Query(string(buf, 7)));
     }
 
     return Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end());
