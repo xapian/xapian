@@ -1480,3 +1480,22 @@ DEFINE_TESTCASE(getdocumentlazy2, backend) {
     );
     return true;
 }
+
+static void
+gen_uniqterms_gt_doclen_db(Xapian::WritableDatabase& db, const string&)
+{
+    Xapian::Document doc;
+    doc.add_term("foo");
+    doc.add_boolean_term("bar");
+    db.add_document(doc);
+}
+
+DEFINE_TESTCASE(getuniqueterms1, generated) {
+    Xapian::Database db =
+	get_database("uniqterms_gt_doclen", gen_uniqterms_gt_doclen_db);
+
+    TEST_REL(db.get_unique_terms(1), <=, db.get_doclength(1));
+    TEST_REL(db.get_unique_terms(1), <, db.get_document(1).termlist_count());
+
+    return true;
+}
