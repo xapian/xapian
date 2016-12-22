@@ -33,6 +33,7 @@
 #include "str.h"
 #include "backends/valuestats.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
@@ -543,7 +544,11 @@ InMemoryDatabase::get_unique_terms(Xapian::docid did) const
     if (did == 0 || did > termlists.size() || !termlists[did - 1].is_valid)
 	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
-    return termlists[did - 1].terms.size();
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    Xapian::termcount terms = termlists[did - 1].terms.size();
+    return std::min(terms, Xapian::termcount(doclengths[did - 1]));
 }
 
 TermList *
