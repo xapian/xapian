@@ -745,7 +745,8 @@ GlassDatabase::get_unique_terms(Xapian::docid did) const
     // get_unique_terms() really ought to only count terms with wdf > 0, but
     // that's expensive to calculate on demand, so for now let's just ensure
     // unique_terms <= doclen.
-    RETURN(min(termlist.get_approx_size(), GlassDatabase::get_doclength(did)));
+    RETURN(min(termlist.get_approx_size(),
+	       postlist_table.get_doclength(did, ptrtothis)));
 }
 
 void
@@ -1366,6 +1367,25 @@ GlassWritableDatabase::get_doclength(Xapian::docid did) const
     if (inverter.get_doclength(did, doclen))
 	RETURN(doclen);
     RETURN(GlassDatabase::get_doclength(did));
+}
+
+Xapian::termcount
+GlassWritableDatabase::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassWritableDatabase::get_unique_terms", did);
+    Assert(did != 0);
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    Xapian::termcount doclen;
+    if (inverter.get_doclength(did, doclen)) {
+	intrusive_ptr<const GlassDatabase> ptrtothis(this);
+	GlassTermList termlist(ptrtothis, did);
+	RETURN(min(doclen, termlist.get_approx_size()));
+    }
+    RETURN(GlassDatabase::get_unique_terms(did));
 }
 
 void
