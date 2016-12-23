@@ -77,9 +77,42 @@ END
 
 lazy_build() {
   package=$1
-  basename=$package-$2
-  ext=$3
-  checksum=$4
+  binary=$2
+  version=$3
+
+  if [ "$always_install" = no ] && [ -n $binary ] ; then
+    # Check if a new enough version is already installed.
+    version_installed=`"$binary" --version|sed '1,1 s/.* //p;d'`
+    # Fast track equality.
+    if [ "$version_installed" = "$version" ] ; then
+      echo "$binary $version_installed installed, exactly what's needed"
+      return 1
+    fi
+    save_IFS=$IFS
+    IFS=.
+    set x $version_installed
+    shift
+    ok=yes
+    for v in $version ; do
+      shift
+      if [ "$1" != "$v" ] ; then
+	if [ "$1" -lt "$v" ] ; then
+	  ok=no
+	fi
+	break
+      fi
+    done
+    IFS=$save_IFS
+    if [ "$ok" = yes ] ; then
+      echo "$binary $version_installed installed >= $version required"
+      return 1
+    fi
+  fi
+
+  basename=$package-$version
+  ext=$4
+  checksum=$5
+
   if [ "$ext" = "tar.xz" ] ; then
     if [ -z "$xz_ok" ] ; then
       if ${XZ-xz} --version > /dev/null 2>&1 ; then
@@ -90,8 +123,8 @@ lazy_build() {
     fi
     if [ "$xz_ok" = 0 ] ; then
       shift 2
-      ext=$3
-      checksum=$4
+      ext=$4
+      checksum=$5
     fi
   fi
   if [ "$ext" = "tar.bz2" ] ; then
@@ -106,8 +139,8 @@ lazy_build() {
     fi
     if [ "$bz2_ok" = 0 ] ; then
       shift 2
-      ext=$3
-      checksum=$4
+      ext=$4
+      checksum=$5
     fi
   fi
   tarball=$basename.$ext
@@ -220,6 +253,7 @@ END
 
     touch "$stamp"
   fi
+  return 0
 }
 
 handle_git_external() {
@@ -322,51 +356,100 @@ else
     xapian_common_clone_url=$XAPIAN_COMMON_CLONE_URL
 fi
 
-# Prefer http downloads as they are more likely to work through firewalls.
+# Set to 'yes' to use ftp URLs where available.
+#
+# By default we prefer http downloads as they are more likely to work through
+# firewalls.
 use_ftp=no
-if [ "$1" = "--ftp" ] ; then
-  shift
-  use_ftp=yes
-fi
 
-if [ "$1" = "--without-autotools" ] ; then
-  shift
-else
-  if [ "$1" = "--clean" ] ; then
+# Set to 'yes' to always use a locally installed copy of the autotools.
+#
+# By default we check for locally installed versions and use them if they are
+# new enough versions.  But e.g. for building releases we want to use a known
+# set of versions.
+always_install=no
+
+while [ "$#" -gt 0 ] ; do
+  case $1 in
+  --force-local-tools)
+    always_install=yes
     shift
+    continue
+    ;;
+
+  --ftp)
+    use_ftp=yes
+    shift
+    continue
+    ;;
+
+  --clean)
     rm -rf INST
-  fi
+    shift
+    continue
+    ;;
 
-  [ -d INST ] || mkdir INST
-  instdir=`pwd`/INST
+  --without-autotools)
+    echo "Ignoring '$1' - installed versions will be used if new enough"
+    shift
+    continue
+    ;;
 
-  [ -d BUILD ] || mkdir BUILD
-  cd BUILD
+  --)
+    shift
+    break
+    ;;
 
-  # The last field is the SHA1 checksum of the tarball.
-  lazy_build autoconf 2.69 \
+  -*)
+    echo "Unknown option '$1'" 1>&2
+    exit 1
+    ;;
+  esac
+done
+
+[ -d INST ] || mkdir INST
+instdir=`pwd`/INST
+
+[ -d BUILD ] || mkdir BUILD
+cd BUILD
+
+# The last field is the SHA1 checksum of the tarball.
+if lazy_build autoconf autoconf 2.69 \
     tar.xz e891c3193029775e83e0534ac0ee0c4c711f6d23 \
-    tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
-  AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.15 \
-    tar.xz c279b35ca6c410809dac8ade143b805fb48b7655 \
-    tar.gz b5a840c7ec4321e78fdc9472e476263fa6614ca1
-  lazy_build libtool 2.4.6 \
-    tar.xz 3e7504b832eb2dd23170c91b6af72e15b56eb94e \
-    tar.gz 25b6931265230a06f0fc2146df64c04e5ae6ec33
-  if [ "$1" = "--deps=libmagic" ] ; then
-      shift
-      lazy_build file 5.25 \
-	tar.gz fea78106dd0b7a09a61714cdbe545135563e84bd
-  fi
-
-  for v in $autotools ; do
-     tool=`echo "$v"|tr A-Z a-z`
-     eval "$v=\"\$instdir\"/bin/$tool;export $v"
-  done
-
-  cd ..
+    tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a \
+    ; then
+  AUTOCONF=$instdir/bin/autoconf
+  export AUTOCONF
+  AUTORECONF=$instdir/bin/autoreconf
+  export AUTORECONF
+  AUTOHEADER=$instdir/bin/autoheader
+  export AUTOHEADER
+  AUTOM4TE=$instdir/bin/autom4te
+  export AUTOM4TE
 fi
+if lazy_build automake automake 1.15 \
+    tar.xz c279b35ca6c410809dac8ade143b805fb48b7655 \
+    tar.gz b5a840c7ec4321e78fdc9472e476263fa6614ca1 \
+    ; then
+  ACLOCAL=$instdir/bin/aclocal
+  export ACLOCAL
+  AUTOMAKE=$instdir/bin/automake
+  export AUTOMAKE
+fi
+if lazy_build libtool libtool 2.4.6 \
+    tar.xz 3e7504b832eb2dd23170c91b6af72e15b56eb94e \
+    tar.gz 25b6931265230a06f0fc2146df64c04e5ae6ec33 \
+    ; then
+  LIBTOOLIZE=$instdir/bin/libtoolize
+  export LIBTOOLIZE
+fi
+if [ "$1" = "--deps=libmagic" ] ; then
+    shift
+    lazy_build file '' 5.25 \
+      tar.gz fea78106dd0b7a09a61714cdbe545135563e84bd
+fi
+
+cd ..
 
 case `${LIBTOOLIZE-libtoolize} --version` in
 "")
