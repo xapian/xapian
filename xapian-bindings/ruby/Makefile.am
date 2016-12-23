@@ -4,7 +4,7 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = smoketest.rb
-LOG_COMPILER = $(RUBY)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUBY)
 AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
 installcheck-local:
