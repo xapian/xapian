@@ -84,12 +84,12 @@ xapian/__init__.py: xapian.py
 # doesn't cope with being xapian/__init__.py (currently it needs fixing
 # up, which is done by fixup-swig-py3-wrapper).
 xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	cd xapian && $(PYTHON3) -c 'import _xapian'
-	$(PYTHON3) -c 'import xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import xapian'
 
 xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	cd xapian && $(PYTHON3) -O -c 'import _xapian'
-	$(PYTHON3) -O -c 'import xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import xapian'
 
 xapian/_xapian$(PYTHON3_SO): _xapian.la
 	$(MKDIR_P) xapian
@@ -170,6 +170,6 @@ all-local: $(sphinxdocs)
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 ## We need to run Sphinx for the right version of Python here, so we can't
 ## just run sphinx-build as that might be for a different version.
-	PYTHONPATH=..:$$PYTHONPATH $(PYTHON3) \
+	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON3) \
 		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv))' \
 		-b html -d doctrees -c docs $(srcdir)/docs docs/html

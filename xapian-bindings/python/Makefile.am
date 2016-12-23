@@ -85,12 +85,12 @@ xapian/__init__.py: xapian.py
 # doesn't cope with being xapian/__init__.py (currently it needs fixing
 # up, which is done by fixup-swig-py2-wrapper).
 xapian/__init__.pyc: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
-	cd xapian && $(PYTHON2) -c 'import _xapian'
-	$(PYTHON2) -c 'import xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -c 'import xapian'
 
 xapian/__init__.pyo: xapian/__init__.py xapian/_xapian$(PYTHON2_SO)
-	cd xapian && $(PYTHON2) -O -c 'import _xapian'
-	$(PYTHON2) -O -c 'import xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -O -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON2) -O -c 'import xapian'
 
 xapian/_xapian$(PYTHON2_SO): _xapian.la
 	$(MKDIR_P) xapian
@@ -165,6 +165,6 @@ all-local: $(sphinxdocs)
 $(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON2_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
 ## We need to run Sphinx for the right version of Python here, so we can't
 ## just run sphinx-build as that might be for a different version.
-	PYTHONPATH=..:$$PYTHONPATH $(PYTHON2) \
+	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON2) \
 		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv))' \
 		-b html -d doctrees -c docs $(srcdir)/docs docs/html

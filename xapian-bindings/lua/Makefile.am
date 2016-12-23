@@ -7,7 +7,7 @@ TESTS = smoketest.lua
 AM_TESTS_ENVIRONMENT = \
 	LUA_CPATH='.libs/?$(LUA_SO)' ;\
 	export LUA_CPATH ;
-LOG_COMPILER = $(LUA)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(LUA)
 
 installcheck-local:
 	$(MAKE) check AM_TESTS_ENVIRONMENT=

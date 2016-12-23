@@ -4,7 +4,7 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = SmokeTest.exe
-LOG_COMPILER = $(RUN_CSHARP)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUN_CSHARP)
 
 ASSEMBLY=XapianSharp
 
