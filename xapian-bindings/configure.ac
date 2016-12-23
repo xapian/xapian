@@ -1052,16 +1052,20 @@ if test no != "$with_java" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
 	  BINDINGS="$BINDINGS java"
 
-	  dnl Optional, we run tests with it enabled if it's supported.
-	  AC_MSG_CHECKING([for $JAVA -Xcheck:jni option])
-	  JAVA_PATHSEP2=`$JAVA conftest 2>&5`
+	  dnl If -Xcheck:jni is supported then run tests with it.
+	  dnl
+	  dnl ... except that with OpenJDK 8 and 9 -Xcheck:jni seems to report
+	  dnl false positives and so can't usefully be turned on in this
+	  dnl situation.  Recheck this with future versions.
+dnl	  AC_MSG_CHECKING([for $JAVA -Xcheck:jni option])
+dnl	  JAVA_PATHSEP2=`$JAVA conftest 2>&5`
 	  JAVA_CHECK_JNI_OPTION=
-	  if test "$JAVA_PATHSEP" = "$JAVA_PATHSEP2" ; then
-	    JAVA_CHECK_JNI_OPTION=-Xcheck:jni
-	    AC_MSG_RESULT([yes])
-	  else
-	    AC_MSG_RESULT([no])
-	  fi
+dnl	  if test "$JAVA_PATHSEP" = "$JAVA_PATHSEP2" ; then
+dnl	    JAVA_CHECK_JNI_OPTION=-Xcheck:jni
+dnl	    AC_MSG_RESULT([yes])
+dnl	  else
+dnl	    AC_MSG_RESULT([no])
+dnl	  fi
 	  AC_SUBST([JAVA_CHECK_JNI_OPTION])
 	else
 	  AC_MSG_RESULT([failed to run test program])
