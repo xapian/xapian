@@ -4,5 +4,8 @@
 arg=`echo "$1"|sed 's!.*/!!;s!\.class$!!'`
 # Use libtool's -dlopen option to ensure that libxapian_jni.so (or whatever)
 # is in the shared library path.
-${LIBTOOL-../libtool} --mode=execute -dlopen libxapian_jni.la \
-  ${JAVA-java} -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"
+${LIBTOOL-../libtool} --config > libtoolconfig.$$
+. ./libtoolconfig.$$
+rm -f libtoolconfig.$$
+${LIBTOOL-../libtool} -dlopen libxapian_jni.la --mode=execute \
+  $OSX_SIP_HACK_ENV ${JAVA-java} -Djava.library.path="$objdir" -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"

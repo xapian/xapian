@@ -38,7 +38,8 @@ AM_TESTS_ENVIRONMENT = \
 	export CXX ;\
 	export CXXFLAGS ;\
 	export XAPIAN_CONFIG ;
-LOG_COMPILER = $(PROVE)
+LOG_COMPILER = \
+    $(LIBTOOL) -dlopen Xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PROVE)
 AM_LOG_FLAGS = -I. -I'$(srcdir)'
 
 installcheck-local:

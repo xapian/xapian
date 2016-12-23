@@ -6,7 +6,8 @@ abs_builddir = @abs_builddir@
 
 ## Test programs to be run
 TESTS = smoketest.php
-LOG_COMPILER = $(PHP7)
+LOG_COMPILER = \
+    $(LIBTOOL) -dlopen xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PHP7)
 # Use -n to disable use of the system php.ini (which might prevent php from
 # using dl() which would make our test fail).
 AM_LOG_FLAGS = -n -d safe_mode=off -d enable_dl=on \
