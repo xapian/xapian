@@ -55,12 +55,12 @@ matrix:
     - os: osx
       before_install:
         - brew update
-        - brew install doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python3 ruby
+        - brew install doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python3
         - pip install sphinx docutils
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF /usr/local/Cellar/libsvm/3.21/include /tmp/xapian-libsvm-fixed-include/libsvm
-      env: CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include RUBY=/usr/local/bin/ruby RDOC=/usr/local/bin/rdoc confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+      env: CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
 
 before_script:
   # Bootstrap everything (including letor, which isn't done
