@@ -454,10 +454,9 @@ function mset_expect_order($mset, $a) {
 	exit(1);
     }
     for ($j = 0; $j < sizeof($a); ++$j) {
-	# PHP4 doesn't cope with: $mset->get_hit($j)->get_docid();
-	$hit = $mset->get_hit($j);
-	if ($hit->get_docid() != $a[$j]) {
-	    print "Expected MSet[$j] to be $a[$j], got ".$hit->get_docid()."\n";
+	$docid = $mset->get_hit($j)->get_docid();
+	if ($docid != $a[$j]) {
+	    print "Expected MSet[$j] to be $a[$j], got ".$docid()."\n";
 	    exit(1);
 	}
     }
