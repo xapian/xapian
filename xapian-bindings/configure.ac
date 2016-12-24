@@ -92,6 +92,7 @@ dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
+XO_REQUIRE([1.4.0])
 
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no
