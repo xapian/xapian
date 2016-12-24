@@ -84,6 +84,7 @@ dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
+XO_REQUIRE([1.4.0])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
