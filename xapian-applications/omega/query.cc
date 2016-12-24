@@ -2170,12 +2170,7 @@ eval(const string &fmt, const vector<string> &param)
 
 		    if (!rset.empty()) {
 			set_expansion_scheme(*enquire, option);
-#if XAPIAN_AT_LEAST(1,3,2)
 			eset = enquire->get_eset(howmany * 2, rset, &decider);
-#else
-			eset = enquire->get_eset(howmany * 2, rset, 0,
-						 expand_param_k, &decider);
-#endif
 		    } else if (mset.size()) {
 			// invent an rset
 			Xapian::RSet tmp;
@@ -2188,12 +2183,7 @@ eval(const string &fmt, const vector<string> &param)
 			}
 
 			set_expansion_scheme(*enquire, option);
-#if XAPIAN_AT_LEAST(1,3,2)
 			eset = enquire->get_eset(howmany * 2, tmp, &decider);
-#else
-			eset = enquire->get_eset(howmany * 2, tmp, 0,
-						 expand_param_k, &decider);
-#endif
 		    }
 
 		    // Don't show more than one word with the same stem.

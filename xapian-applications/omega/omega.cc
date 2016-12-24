@@ -212,12 +212,7 @@ try {
 
 	    OmegaExpandDecider decider(db);
 	    set_expansion_scheme(*enquire, option);
-#if XAPIAN_AT_LEAST(1,3,2)
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
-#else
-	    Xapian::ESet eset(enquire->get_eset(40, tmprset, 0,
-						expand_param_k, &decider));
-#endif
 	    string morelike_query;
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if (!morelike_query.empty()) morelike_query += ' ';
