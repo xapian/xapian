@@ -1,7 +1,7 @@
 # Get XAPIAN_CXXFLAGS, XAPIAN_LIBS, and XAPIAN_VERSION from xapian-config and
 # AC_SUBST() them.
 
-# serial 16
+# serial 17
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -128,4 +128,45 @@ dnl AM_PROG_LIBTOOL to enable it if one of these is expanded later.
   AC_SUBST(XAPIAN_CXXFLAGS)
   AC_SUBST(XAPIAN_LIBS)
   AC_SUBST(XAPIAN_VERSION)
+  m4_define([XO_LIB_XAPIAN_EXPANDED_], [])
+])
+
+# XO_REQUIRE(VERSION[, ACTION-IF-LESS-THAN[, ACTION-IF-GREATHER-THAN-OR-EQUAL]])
+# --------------------------------------------------------
+# Check if $XAPIAN_VERSION is at least VERSION.  This macro should
+# be used after XO_LIB_XAPIAN.
+#
+# If ACTION-IF-LESS-THAN is unset, it defaults to an
+# appropriate AC_MSG_ERROR saying that Xapian >= VERSION is needed.
+#
+# If ACTION-IF-GREATHER-THAN-OR-EQUAL is unset, the default is no
+# addtional action.
+AC_DEFUN([XO_REQUIRE],
+[
+  m4_ifndef([XO_LIB_XAPIAN_EXPANDED_],
+      [m4_fatal([XO_REQUIRE can only be used after XO_LIB_XAPIAN])])
+dnl [Version component '$v' is not a number]
+  AC_MSG_CHECKING([if $XAPIAN_CONFIG version >= $1])
+  old_IFS=$IFS
+  IFS=.
+  set x `echo "$XAPIAN_VERSION"|sed 's/_.*//'`
+  IFS=$old_IFS
+  res=
+  m4_foreach([min_component], m4_split([$1], [\.]), [
+ifelse(regexp(min_component, [^[0-9][0-9]*$]), [-1], [m4_fatal(Component `min_component' not numeric)])dnl
+  if test -z "$res" ; then
+    shift
+    if test "$[]1" -gt 'min_component' ; then
+      res=1
+    elif test "$[]1" -lt 'min_component' ; then
+      res=0
+    fi
+  fi])
+  if test "$res" = 0 ; then
+    AC_MSG_RESULT([no ($XAPIAN_VERSION)])
+    m4_default([$2], [AC_ERROR([XAPIAN_VERSION is $XAPIAN_VERSION, but >= $1 required])])
+  else
+    AC_MSG_RESULT([yes ($XAPIAN_VERSION)])
+    $3
+  fi
 ])
