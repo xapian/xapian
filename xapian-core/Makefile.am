@@ -131,6 +131,10 @@ include weight/Makefile.mk
 
 xapianinclude_HEADERS += include/xapian/error.h
 
+# If these files change, we need to rerun configure to reprocess them -
+# making them dependencies of config.status achieves that.
+CONFIG_STATUS_DEPENDENCIES = include/xapian/version_h.cc
+
 if MAINTAINER_MODE
 BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h
 
