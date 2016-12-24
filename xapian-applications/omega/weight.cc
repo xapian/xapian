@@ -29,14 +29,6 @@
 #include "safeerrno.h"
 #include "common/noreturn.h"
 
-#ifndef XAPIAN_AT_LEAST
-#define XAPIAN_AT_LEAST(A,B,C) \
-    (XAPIAN_MAJOR_VERSION > (A) || \
-     (XAPIAN_MAJOR_VERSION == (A) && \
-      (XAPIAN_MINOR_VERSION > (B) || \
-       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))
-#endif
-
 using namespace std;
 
 XAPIAN_NORETURN(static void
@@ -64,7 +56,6 @@ double_param(const char ** p, double * ptr_val)
     return true;
 }
 
-#if XAPIAN_AT_LEAST(1,3,2)
 static bool
 type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 {
@@ -83,7 +74,6 @@ type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
     *ptr_val = smooth_tab[v - 1];
     return true;
 }
-#endif
 
 void
 set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
@@ -139,7 +129,6 @@ set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
 	    }
 	}
 
-#if XAPIAN_AT_LEAST(1,3,1)
 	if (startswith(scheme, "tfidf")) {
 	    const char *p = scheme.c_str() + 5;
 	    if (*p == '\0') {
@@ -151,9 +140,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
 		return;
 	    }
 	}
-#endif
 
-#if XAPIAN_AT_LEAST(1,3,2)
 	if (startswith(scheme, "inl2")) {
 	    const char *p = scheme.c_str() + 4;
 	    if (*p == '\0') {
@@ -260,9 +247,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
 		throw "No parameters are required for DPH";
 	    }
 	}
-#endif
 
-#if XAPIAN_AT_LEAST(1,3,2)
 	if (startswith(scheme, "lm")) {
 	    const char *p = scheme.c_str() + 2;
 	    if (*p == '\0') {
@@ -289,7 +274,6 @@ set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
 		return;
 	    }
 	}
-#endif
 
 	if (scheme == "coord") {
 	    enq.set_weighting_scheme(Xapian::CoordWeight());
