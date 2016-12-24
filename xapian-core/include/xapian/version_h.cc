@@ -194,5 +194,18 @@ const char * dummy[] = {
 "/* #undef XAPIAN_HAS_REMOTE_BACKEND */",
 #endif
 "",
+"/// XAPIAN_AT_LEAST(A,B,C) checks for xapian-core >= A.B.C - use like so:",
+"///",
+"/// #if XAPIAN_AT_LEAST(1,4,2)",
+"/// /* Code needing features needing Xapian >= 1.4.2. */",
+"/// #endif",
+"///",
+"/// Added in Xapian 1.4.2.",
+"#define XAPIAN_AT_LEAST(A,B,C) \\",
+"    (XAPIAN_MAJOR_VERSION > (A) || \\",
+"     (XAPIAN_MAJOR_VERSION == (A) && \\",
+"      (XAPIAN_MINOR_VERSION > (B) || \\",
+"       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))",
+"",
 "#endif /* XAPIAN_INCLUDED_VERSION_H */"
 };
