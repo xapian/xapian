@@ -72,14 +72,16 @@ get_maxfd() {
 //
 // These platforms have getdirentries() and a "magic" directory with an entry
 // for each FD open in the current process:
-// Linux
+// Linux (at least with glibc)
 //
 // These platforms have getdirentriesattr() and a "magic" directory with an
 // entry for each FD open in the current process:
 // OS X
 //
 // Other platforms just use a loop up to a limit obtained from
-// fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX).
+// fcntl(0, F_MAXFD), getrlimit(RLIMIT_NOFILE, ...), or sysconf(_SC_OPEN_MAX)
+// - known examples:
+// Android (bionic libc doesn't provide getdirentries())
 
 void
 Xapian::Internal::closefrom(int fd)
@@ -88,7 +90,7 @@ Xapian::Internal::closefrom(int fd)
 #ifdef F_CLOSEM
     if (fcntl(fd, F_CLOSEM, 0) >= 0)
 	return;
-#elif defined __linux__
+#elif defined HAVE_GETDIRENTRIES && defined __linux__
     const char * path = "/proc/self/fd";
     int dir = open(path, O_RDONLY|O_DIRECTORY);
     if (dir >= 0) {
