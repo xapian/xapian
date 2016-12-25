@@ -82,30 +82,32 @@ lazy_build() {
 
   if [ "$always_install" = no ] && [ -n $binary ] ; then
     # Check if a new enough version is already installed.
-    version_installed=`"$binary" --version|sed '1,1 s/.* //p;d'`
-    # Fast track equality.
-    if [ "$version_installed" = "$version" ] ; then
-      echo "$binary $version_installed installed, exactly what's needed"
-      return 1
-    fi
-    save_IFS=$IFS
-    IFS=.
-    set x $version_installed
-    shift
-    ok=yes
-    for v in $version ; do
-      shift
-      if [ "$1" != "$v" ] ; then
-	if [ "$1" -lt "$v" ] ; then
-	  ok=no
-	fi
-	break
+    version_installed=`"$binary" --version 2>/dev/null|sed '1,1 s/.* //p;d'`
+    if [ -n "$version_installed" ] ; then
+      # Fast track equality.
+      if [ "$version_installed" = "$version" ] ; then
+	echo "$binary $version_installed installed, exactly what's needed"
+	return 1
       fi
-    done
-    IFS=$save_IFS
-    if [ "$ok" = yes ] ; then
-      echo "$binary $version_installed installed >= $version required"
-      return 1
+      save_IFS=$IFS
+      IFS=.
+      set x $version_installed
+      shift
+      ok=yes
+      for v in $version ; do
+	shift
+	if [ "$1" != "$v" ] ; then
+	  if [ "$1" -lt "$v" ] ; then
+	    ok=no
+	  fi
+	  break
+	fi
+      done
+      IFS=$save_IFS
+      if [ "$ok" = yes ] ; then
+	echo "$binary $version_installed installed >= $version required"
+	return 1
+      fi
     fi
   fi
 
