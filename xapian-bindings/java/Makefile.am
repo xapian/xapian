@@ -2,6 +2,12 @@
 
 include ../generic/generic.mk
 
+# Disable parallel build for this make invocation; javac seems to write
+# .class files in place, and it also reads existing .class files - the
+# combination means that in a parallel build it can read partial .class
+# and then fail with various odd errors.
+.NOTPARALLEL:
+
 ## Test programs to be run
 TESTS = SmokeTest.class
 AM_TESTS_ENVIRONMENT = \

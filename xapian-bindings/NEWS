@@ -28,6 +28,9 @@ Portability:
 
 Java:
 
+* Disable parallel make for java subdirectory as it causes random build
+  failures.  Reported by Lucas Nussbaum in https://bugs.debian.org/848733
+
 * Use a cleaner technique to insert the Java code to load JNI library into the
   generated wrapper - we now use "%pragma(java) jniclasscode" instead of using
   Perl to post-process the generated wrapper.  Suggested by James Aylett.
