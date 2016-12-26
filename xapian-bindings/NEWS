@@ -1,3 +1,64 @@
+Xapian-bindings 1.4.2 (2016-12-26):
+
+General:
+
+* configure: Fail with clear error with xapian-core < 1.4.0.
+
+* Work around OS X "System Integrity Protection".  We can't address the problem
+  of being unable to run tests against an uninstalled tree when the interpreter
+  is in a system directory (you have to "make install" in xapian-core for that
+  case), but we can at least make this work for interpreters which aren't in
+  system directories.
+
+Java:
+
+* Disable parallel make for java subdirectory as it causes random build
+  failures.  Reported by Lucas Nussbaum in https://bugs.debian.org/848733
+
+* Disable automatic use of -Xcheck:jni for now as it seems to report false
+  positives with OpenJDK 8 and 9.
+
+PHP:
+
+* Generates smaller PHP wrappers by only emitting each unique arginfo
+  combination once (~6% saving in stripped extension module size for
+  PHP7 on x86_64 Linux).
+
+* Fix to work again with a version of PHP5 built with ZTS enabled (which is the
+  default on Microsoft Windows).
+
+* Add support for PHP7.
+
+* Drop workaround for PHP4 from test code.
+
+Python:
+
+* Handle sphinx-build being a shell script wrapper by invoking sphinx.main()
+  from a command line Python code snippet.  Reported by Alex Dunn in
+  https://github.com/xapian/xapian/pull/126 and solved with help from James
+  Aylett.
+
+* Hold python reference to set RangeProcessor objects - until #714 is fixed we
+  need to keep such a reference (as we already do for ValueRangeProcessor and
+  several other classes).
+
+Python3:
+
+* Handle sphinx-build being a shell script wrapper by invoking sphinx.main()
+  from a command line Python code snippet.  Reported by Alex Dunn in
+  https://github.com/xapian/xapian/pull/126 and solved with help from James
+  Aylett.
+
+* Hold python reference to set RangeProcessor objects - until #714 is fixed we
+  need to keep such a reference (as we already do for ValueRangeProcessor and
+  several other classes).
+
+Ruby:
+
+* Use more conventional Ruby variable names in the examples (Ruby convention
+  uses underscores not camelcase) and fix comma/space transposition in a couple
+  of places.
+
 Xapian-bindings 1.4.1 (2016-10-21):
 
 Documentation:
@@ -27,9 +88,6 @@ Portability:
     "long long" is a standard type.
 
 Java:
-
-* Disable parallel make for java subdirectory as it causes random build
-  failures.  Reported by Lucas Nussbaum in https://bugs.debian.org/848733
 
 * Use a cleaner technique to insert the Java code to load JNI library into the
   generated wrapper - we now use "%pragma(java) jniclasscode" instead of using

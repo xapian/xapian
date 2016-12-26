@@ -1,3 +1,34 @@
+Omega 1.4.2 (2016-12-26):
+
+documentation:
+
+* Replace auto-generated list of the supported MIME types with an
+  auto-generated table showing the extensions that are mapped to each MIME type
+  by default.  Partly addresses #569, reported by catkin.
+
+indexers:
+
+* omindex: Add support for indexing markdown files (extension .md or .markdown,
+  mime-type text/markdown, using "markdown" to convert to HTML).
+
+testsuite:
+
+* Add support for "make installcheck" to run tests against installed version.
+
+build system:
+
+* configure: Fail with clear error with xapian-core < 1.4.0.
+
+portability:
+
+* Fix GCC -Wimplicit-fallthrough warning.
+
+* Add missing <ctime> for time_t.
+
+* Avoid snprintf_for formatting fixed-width integers - it results in warnings
+  about possible output truncation with GCC7 (which aren't actually possible
+  due to limited input range) and it's a bit heavyweight for this job anyway.
+
 Omega 1.4.1 (2016-10-21):
 
 general:
