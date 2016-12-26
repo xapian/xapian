@@ -793,8 +793,13 @@ ChertDatabase::get_unique_terms(Xapian::docid did) const
     Assert(did != 0);
     intrusive_ptr<const ChertDatabase> ptrtothis(this);
     ChertTermList termlist(ptrtothis, did);
-    // The "approximate" size should be exact in this case.
-    RETURN(termlist.get_approx_size());
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    RETURN(min(termlist.get_approx_size(),
+	       postlist_table.get_doclength(did, ptrtothis)));
 }
 
 void
@@ -1503,6 +1508,29 @@ ChertWritableDatabase::get_doclength(Xapian::docid did) const
 	RETURN(doclen);
     }
     RETURN(ChertDatabase::get_doclength(did));
+}
+
+Xapian::termcount
+ChertWritableDatabase::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "ChertWritableDatabase::get_unique_terms", did);
+    Assert(did != 0);
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    map<docid, termcount>::const_iterator i = doclens.find(did);
+    if (i != doclens.end()) {
+	Xapian::termcount doclen = i->second;
+	if (doclen == static_cast<Xapian::termcount>(-1)) {
+	    throw Xapian::DocNotFoundError("Document " + str(did) + " not found");
+	}
+	intrusive_ptr<const ChertDatabase> ptrtothis(this);
+	ChertTermList termlist(ptrtothis, did);
+	RETURN(min(doclen, termlist.get_approx_size()));
+    }
+    RETURN(ChertDatabase::get_unique_terms(did));
 }
 
 void
