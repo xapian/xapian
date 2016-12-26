@@ -196,7 +196,7 @@ protected:
 public:
     /* Item from block address and offset to item pointer */
     Item_base(T p_, int c) : p(p_ + getint2(p_, c)) { }
-    Item_base(T p_) : p(p_) { }
+    explicit Item_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** I in diagram above. */
     int size() const {
@@ -231,7 +231,7 @@ class Item : public Item_base<const byte *> {
 public:
     /* Item from block address and offset to item pointer */
     Item(const byte * p_, int c) : Item_base<const byte *>(p_, c) { }
-    Item(const byte * p_) : Item_base<const byte *>(p_) { }
+    explicit Item(const byte * p_) : Item_base<const byte *>(p_) { }
 };
 
 class Item_wr : public Item_base<byte *> {
@@ -239,7 +239,7 @@ class Item_wr : public Item_base<byte *> {
 public:
     /* Item_wr from block address and offset to item pointer */
     Item_wr(byte * p_, int c) : Item_base<byte *>(p_, c) { }
-    Item_wr(byte * p_) : Item_base<byte *>(p_) { }
+    explicit Item_wr(byte * p_) : Item_base<byte *>(p_) { }
     void set_component_of(int i) {
 	setint2(p, getK(p, I2) + I2 - C2, i);
     }
@@ -699,7 +699,7 @@ class ChertTable {
 	void alter();
 	void compact(byte *p);
 	void enter_key(int j, Key prevkey, Key newkey);
-	int mid_point(byte *p);
+	int mid_point(byte *p) const;
 	void add_item_to_block(byte *p, Item_wr kt, int c);
 	void add_item(Item_wr kt, int j);
 	void delete_item(int j, bool repeatedly);

@@ -139,7 +139,7 @@ class ChertCursor {
 	 *  attached to is destroyed.  It's safe to destroy the ChertCursor
 	 *  after the Btree though, you just may not use the ChertCursor.
 	 */
-	ChertCursor(const ChertTable *B);
+	explicit ChertCursor(const ChertTable *B);
 
 	/** Destroy the ChertCursor */
 	~ChertCursor();
@@ -256,7 +256,7 @@ class MutableChertCursor : public ChertCursor {
      *  attached to is destroyed.  It's safe to destroy the MutableChertCursor
      *  after the Btree though, you just may not use the MutableChertCursor.
      */
-    MutableChertCursor(ChertTable *B_) : ChertCursor(B_) { }
+    explicit MutableChertCursor(ChertTable *B_) : ChertCursor(B_) { }
 
     /** Delete the current key/tag pair, leaving the cursor on the next
      *  entry.

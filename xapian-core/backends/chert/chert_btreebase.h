@@ -104,9 +104,9 @@ class ChertTable_base {
 	 *
 	 *  Returns true if such a block was found, or false otherwise.
 	 */
-	bool find_changed_block(uint4 * n);
+	bool find_changed_block(uint4 * n) const;
 
-	bool block_free_now(uint4 n);
+	bool block_free_now(uint4 n) const;
 
 	void calculate_last_block();
 

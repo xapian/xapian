@@ -600,7 +600,7 @@ ChertTable::enter_key(int j, Key prevkey, Key newkey)
  */
 
 int
-ChertTable::mid_point(byte * p)
+ChertTable::mid_point(byte * p) const
 {
     LOGCALL(DB, int, "ChertTable::mid_point", (void*)p);
     int n = 0;
@@ -1787,7 +1787,7 @@ void ChertTable::close(bool permanent) {
     split_p = 0;
 
     delete [] kt.get_address();
-    kt = 0;
+    kt = Item_wr(0);
     delete [] buffer;
     buffer = 0;
 }

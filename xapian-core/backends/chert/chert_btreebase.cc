@@ -449,7 +449,7 @@ ChertTable_base::next_free_block()
 }
 
 bool
-ChertTable_base::find_changed_block(uint4 * n)
+ChertTable_base::find_changed_block(uint4 * n) const
 {
     // Search for a block which was free at the start of the transaction, but
     // isn't now.
@@ -467,7 +467,7 @@ ChertTable_base::find_changed_block(uint4 * n)
 }
 
 bool
-ChertTable_base::block_free_now(uint4 n)
+ChertTable_base::block_free_now(uint4 n) const
 {
     uint4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;

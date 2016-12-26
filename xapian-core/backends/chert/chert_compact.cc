@@ -169,7 +169,7 @@ class PostlistCursorGt {
   public:
     /** Return true if and only if a's key is strictly greater than b's key.
      */
-    bool operator()(const PostlistCursor *a, const PostlistCursor *b) {
+    bool operator()(const PostlistCursor *a, const PostlistCursor *b) const {
 	if (a->key > b->key) return true;
 	if (a->key != b->key) return false;
 	return (a->firstdid > b->firstdid);
@@ -457,7 +457,7 @@ merge_postlists(Xapian::Compactor * compactor,
 }
 
 struct MergeCursor : public ChertCursor {
-    MergeCursor(ChertTable *in) : ChertCursor(in) {
+    explicit MergeCursor(ChertTable *in) : ChertCursor(in) {
 	find_entry(string());
 	next();
     }
@@ -465,7 +465,7 @@ struct MergeCursor : public ChertCursor {
 
 struct CursorGt {
     /// Return true if and only if a's key is strictly greater than b's key.
-    bool operator()(const ChertCursor *a, const ChertCursor *b) {
+    bool operator()(const ChertCursor *a, const ChertCursor *b) const {
 	if (b->after_end()) return false;
 	if (a->after_end()) return true;
 	return (a->current_key > b->current_key);

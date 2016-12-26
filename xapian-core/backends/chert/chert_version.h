@@ -42,7 +42,7 @@ class ChertVersion {
     mutable uuid_t uuid;
 
   public:
-    ChertVersion(const std::string & dbdir) : filename(dbdir) {
+    explicit ChertVersion(const std::string & dbdir) : filename(dbdir) {
 	filename += "/iamchert";
     }
 

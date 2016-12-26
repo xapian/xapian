@@ -54,7 +54,7 @@ class ChertDatabaseReplicator : public Xapian::DatabaseReplicator {
 					    int changes_fd) const;
 
     public:
-	ChertDatabaseReplicator(const std::string & db_dir_);
+	explicit ChertDatabaseReplicator(const std::string & db_dir_);
 
 	/** Virtual methods of DatabaseReplicator. */
 	//@{
