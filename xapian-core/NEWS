@@ -1,3 +1,136 @@
+Xapian-core 1.4.2 (2016-12-26):
+
+API:
+
+* Add XAPIAN_AT_LEAST(A,B,C) macro.
+
+* MSet::snippet(): Optimise snippet generation - it's now ~46% faster in a
+  simple test.
+
+* Add Xapian::DOC_ASSUME_VALID flag which tells Database::get_document() that
+  it doesn't need to check that the passed docid is valid.  Fixes #739,
+  reported by Germán M. Bravo.
+
+* TfIdfWeight: Add support for the L wdf normalisation.  Patch from Vivek Pal.
+
+* BB2Weight: Fix weights when database has just one document.  Our existing
+  attempt to clamp N to be at least 2 was ineffective due to computing
+  N - 2 < 0 in an unsigned type.
+
+* DPHWeight: Fix reversed sign in quadratic formula, making the upper bound a
+  tiny amount higher.
+
+* DLHWeight: Correct upper bound which was a bit too low, due to flawed logic
+  in its derivation.  The new bound is slightly less tight (by a few percent).
+
+* DLHWeight,DPHWeight: Avoid calculating log(0) when wdf is equal to the
+  document length.
+
+* TermGenerator: Handle stemmer returning empty string - the Arabic stemmer
+  can currently do this (e.g. for a single tatweel) and user stemmers can too.
+  Fixes #741, reported by Emmanuel Engelhart.
+
+* Database::check(): Fix check that the first docid in each doclength chunk is
+  more than the last docid in the previous chunk - this code was in the wrong
+  place so didn't actually work.
+
+* Database::get_unique_terms(): Clamp returned value to be <= document length.
+  Ideally get_unique_terms() ought to only count terms with wdf > 0, but that's
+  expensive to calculate on demand.
+
+glass backend:
+
+* When compacting we now only write the iamglass file out once, and we write it
+  before we sync the tables but sync it after, which is more I/O friendly.
+
+* Database::check(): Fix in SEGV when out == NULL and opts != 0.
+
+* Fix potential SEGV with corrupt value stats.
+
+chert backend:
+
+* Fix potential SEGV with corrupt value stats.
+
+build system:
+
+* Add XO_REQUIRE autoconf macro to provide an easy way to handle version checks
+  in user configure scripts.
+
+tools:
+
+* quest: Support BM25+, LM and PL2+ weighting schemes.
+
+* xapian-check: Fix when ellipses are shown in 't' mode.  They were being shown
+  when there were exactly 6 entries, but we only start omitting entries when
+  there are *more* than 6.  Fix applies to both glass and chert.
+
+portability:
+
+* Avoid using opendir()/readdir() in our closefrom() implementation as these
+  functions can call malloc(), which isn't safe to do between fork() and exec()
+  in a multi-threaded program, but after fork() is exactly where we want to
+  use closefrom().  Instead we now use getdirentries() on Linux and
+  getdirentriesattr() on OS X (OS X support bugs shaken out with help from
+  Germán M. Bravo).
+
+* Support reading UUIDs from /proc/sys/kernel/random/uuid which is especially
+  useful when building for Android, as it avoids having to cross-build a UUID
+  library.
+
+* Disable volatile workaround for excess precision SEGV for SSE - previously it
+  was only being disabled for SSE2.
+
+* When building for x86 using a compiler where we don't know how to disable
+  use of 387 FP instructions, we now run remote servers for the testsuite under
+  valgrind --tool=none, like we do when --disable-sse is explicitly specified.
+
+* Add alignment_cast<T> which has the same effect as reinterpret_cast<T> but
+  avoids warnings about alignment issues.
+
+* Suppress warnings about unused private members.  DLHWeight and DPHWeight
+  have an unused lower_bound member, which clang warns about, but we need to
+  keep them there in 1.4.x to preserve ABI compatibility.
+
+* Remove workaround for g++ 2.95 bug as we require at least 4.7 now.
+
+* configure: Probe for <cxxabi.h>.  GCC added this header in GCC 3.1, which
+  is much older than we support, so we've just assumed it was available if
+  __GNUC__ was defined.  However, clang lies and defines __GNUC__ yet doesn't
+  seem to reliably provide <cxxabi.h>, so we need to probe for it.
+
+* Fix "unused assignment" warning.
+
+* configure: Probe for __builtin_* functions.  Previously we just checked for
+  __GNUC__ being defined, but it's cleaner to probe for them properly -
+  compilers other than GCC and those that pretend to be GCC might provide these
+  too.
+
+* Use __builtin_clz() with compilers which support it to speed up encoding
+  and especially decoding of positional data.  This speed up phrase searching
+  by ~0.5% in a simple test.
+
+* Check signed right shift behaviour at compile time - we can use a test on a
+  constant expression which should optimise away to just the required version
+  of the code, which means that on platforms which perform sign-extension
+  (pretty much everything current it seems) we don't have to rely on the
+  compiler optimising a portable idiom down to the appropriate right shift
+  instruction.
+
+* Improve configure check for log2().  We include <cmath> so the check really
+  should succeed if only std::log2() is declared.
+
+* Enable win32-dll option to LT_INIT.
+
+debug code:
+
+* xapian-inspect:
+
+  + Support glass instead of chert.
+
+  + Allow control of showing keys/tags.
+
+  + Use more mnemonic letters than X for command arguments in help.
+
 Xapian-core 1.4.1 (2016-10-21):
 
 API:
