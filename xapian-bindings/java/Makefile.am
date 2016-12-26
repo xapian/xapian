@@ -4,6 +4,12 @@
 # `make QUIET=y' overrides `./configure' without `--enable-quiet'.
 LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
+# Disable parallel build for this make invocation; javac seems to write
+# .class files in place, and it also reads existing .class files - the
+# combination means that in a parallel build it can read partial .class
+# and then fail with various odd errors.
+.NOTPARALLEL:
+
 if MAINTAINER_MODE
 # Export these so that we run the locally installed autotools when building
 # from a bootstrapped SVN tree.
