@@ -33,6 +33,7 @@
 
 #include <sys/types.h>
 #include "safesysstat.h"
+#include "safeerrno.h"
 #include "safefcntl.h"
 #include "safeunistd.h"
 
