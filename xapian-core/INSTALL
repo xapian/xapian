@@ -114,12 +114,12 @@ us (via the bug tracker or mailing lists).
 -Bsymbolic-functions
 --------------------
 
-When compiling with GCC and using a sufficiently new version of ld, configure
-we automatically cause -Wl,-Bsymbolic-functions to be used when linking the
-library.  This causes all references from inside the library to symbols inside
-the library to be resolved when the library is created, rather than when the
-shared library is loaded, which decreases the time taken to load the library,
-reduces its size, and is also likely to make the code run a little faster.
+If -Wl,-Bsymbolic-functions is supported (for example it is by GCC with modern
+ld) then it will be automatically used when linking the library.  This causes
+all references from inside the library to symbols inside the library to be
+resolved when the library is created, rather than when the shared library is
+loaded, which decreases the time taken to load the library, reduces its size,
+and is also likely to make the code run a little faster.
 
 Should you wish to disable this for some reason, you can configure like so
 which disables the probe for -Bsymbolic-functions so it won't ever be used:
