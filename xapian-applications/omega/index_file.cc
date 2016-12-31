@@ -652,7 +652,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
-	} else if (mimetype == "text/html") {
+	} else if (mimetype == "text/html" || mimetype == "text/x-php") {
 	    const string & text = d.file_to_string();
 	    MyHtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();

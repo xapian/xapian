@@ -7,7 +7,7 @@ html		text/html
 htm		text/html
 shtml		text/html
 # Our HTML parser knows to ignore PHP code.
-php		text/html
+php		text/x-php
 
 # Archived HTML formats:
 maff		application/x-maff
