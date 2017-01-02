@@ -210,3 +210,53 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
 
     return true;
 }
+
+/// Test snippet term cover relevances.
+DEFINE_TESTCASE(snippet_termcover1, backend) {
+    static const snippet_testcase testcases[] = {
+	// "rubbish" occurs a lot and gets a high termweight
+	{ "rubbish rubbish example rubbish rubbish", 16, "...<b>rubbish</b> <b>rubbish</b>" },
+	// By default, "rubbish" has a slightly higher term weight than "example".
+	{ "A rubbish, but a good example", 14, "...<b>rubbish</b>, but a..."},
+	// The second occurrence of "rubbish" adds less than "example"
+	{ "Rubbish and rubbish, and rubbish examples", 22, "...and <b>rubbish</b> <b>examples</b>"},
+	// Use boolean term weights
+	{ "boolweight", 0, "" },
+	// Now "rubbish" and "example" have equal weights
+	{ "rubbish rubbish example rubbish rubbish", 16, "...<b>example</b> <b>rubbish</b>..." },
+	// The last best-or-equal snippet wins
+	{ "A rubbish, but a good example", 14, "...a good <b>example</b>"},
+	// The second occurrence of "rubbish" adds less than "example"
+	{ "Rubbish and rubbish, and rubbish examples", 22, "...and <b>rubbish</b> <b>examples</b>"}
+    };
+
+    Xapian::Stem stem("en");
+    unsigned flags = Xapian::MSet::SNIPPET_BACKGROUND_MODEL|
+		     Xapian::MSet::SNIPPET_EXHAUSTIVE;
+    string weight;
+
+    for (auto i : testcases) {
+	Xapian::Enquire enquire(get_database("apitest_simpledata"));
+	enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+		    Xapian::Query("rubbish"),
+		    Xapian::Query("Zexampl")));
+
+	if (i.len == 0) {
+	    if (!strcmp(i.input, "boolweight")) {
+		weight = "boolweight";
+	    } else {
+		FAIL_TEST("Invalid options string: " << i.input);
+	    }
+	    continue;
+	}
+
+	if (weight == "boolweight") {
+	    enquire.set_weighting_scheme(Xapian::BoolWeight());
+	}
+
+	Xapian::MSet mset = enquire.get_mset(0, 0);
+	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
+    }
+
+    return true;
+}
