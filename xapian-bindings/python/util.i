@@ -80,14 +80,7 @@
 %{
 namespace Xapian {
     Query *get_py_query(PyObject *obj) {
-#if PY_VERSION_HEX < 0x02050000
-	// In Python 2.4 (and presumably earlier), PyObject_GetAttrString()
-	// takes a char* parameter which causes a warning with GCC >= 4.2.
-	// This is fixed in Python 2.5.
-	PyObject * mythis = PyObject_GetAttrString(obj, (char *)"this");
-#else
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
-#endif
 	if (!mythis)
 	    return 0;
 
