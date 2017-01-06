@@ -51,7 +51,7 @@ FeatureList::FeatureList(const std::vector<Feature*> & f)
 FeatureList::~FeatureList()
 {
     LOGCALL_DTOR(API, "FeatureList");
-    for (std::vector<Feature*>::iterator it = feature.begin() ; it != feature.end(); ++it)
+    for (std::vector<Feature*>::iterator it = feature.begin(); it != feature.end(); ++it)
 	delete (*it);
     feature.clear();
 }
@@ -101,7 +101,7 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Que
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fVals;
 
-	for (std::vector<Feature*>::const_iterator it = feature.begin() ; it != feature.end(); ++it) {
+	for (std::vector<Feature*>::const_iterator it = feature.begin(); it != feature.end(); ++it) {
 	    (*it)->set_database(letor_db);
 	    (*it)->set_query(letor_query);
 	    (*it)->set_doc(doc);
