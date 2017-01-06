@@ -248,8 +248,6 @@ class DirectoryIterator {
     std::string gzfile_to_string() {
 	build_path();
 	std::string out;
-	int flags = NOCACHE;
-	if (try_noatime()) flags |= NOATIME;
 	gzFile zfh = gzopen(path.c_str(), "rb");
 	if (zfh == NULL) {
 	    if (errno == ENOENT || errno == ENOTDIR) {
