@@ -263,7 +263,7 @@ stdout_to_string(const string &cmd, bool use_shell, int alt_status)
 	// filter programs from causing problems.
 
 	// Limit CPU time to 300 seconds (5 minutes).
-	struct rlimit cpu_limit = { 300, RLIM_INFINITY } ;
+	struct rlimit cpu_limit = { 300, RLIM_INFINITY };
 	setrlimit(RLIMIT_CPU, &cpu_limit);
 
 #if defined RLIMIT_AS || defined RLIMIT_VMEM || defined RLIMIT_DATA

@@ -1473,7 +1473,7 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     double factor;
 
   public:
-    CoordWeight * clone() const ;
+    CoordWeight * clone() const;
 
     void init(double factor_);
 

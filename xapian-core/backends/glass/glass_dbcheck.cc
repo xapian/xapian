@@ -927,7 +927,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		    if (out)
 			*out << tablename << " table: Junk after position data"
 			     << endl;
-		    ++errors ;
+		    ++errors;
 		}
 	    }
 	}
