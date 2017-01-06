@@ -1,7 +1,7 @@
 /** @file api_backend.cc
  * @brief Backend-related tests.
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -1008,6 +1008,8 @@ DEFINE_TESTCASE(blocksize1, glass) {
     int flags;
     if (get_dbtype() == "glass") {
 	flags = Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS;
+    } else {
+	FAIL_TEST("Unhandled backend type");
     }
     static const unsigned bad_sizes[] = {
 	65537, 8000, 2000, 1024, 16, 7, 3, 1, 0
