@@ -296,13 +296,13 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 }
 
 struct Sniplet {
-    double relevance;
+    double* relevance;
 
     size_t term_end;
 
     size_t highlight;
 
-    Sniplet(double r, size_t t, size_t h)
+    Sniplet(double* r, size_t t, size_t h)
 	: relevance(r), term_end(t), highlight(h) { }
 };
 
@@ -332,7 +332,7 @@ class SnipPipe {
     // FIXME: We ought to correctly allow for multiple spaces.
     explicit SnipPipe(size_t length_) : length(length_ + 1) { }
 
-    bool pump(double r, size_t t, size_t h, unsigned flags);
+    bool pump(double* r, size_t t, size_t h, unsigned flags);
 
     void done();
 
@@ -343,8 +343,10 @@ class SnipPipe {
 	       string & output);
 };
 
+#define DECAY 2.0
+
 inline bool
-SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
+SnipPipe::pump(double* r, size_t t, size_t h, unsigned flags)
 {
     if (h > 1) {
 	if (pipe.size() >= h - 1) {
@@ -353,25 +355,36 @@ SnipPipe::pump(double r, size_t t, size_t h, unsigned flags)
 	    // be removed from `sum` when the phrase starts to leave the
 	    // window.
 	    auto & phrase_start = pipe[pipe.size() - (h - 1)];
-	    sum -= phrase_start.relevance;
-	    sum += r;
+	    if (phrase_start.relevance) {
+		*phrase_start.relevance *= DECAY;
+		sum -= *phrase_start.relevance;
+	    }
+	    sum += *r;
 	    phrase_start.relevance = r;
 	    phrase_start.highlight = h;
+	    *r /= DECAY;
 	}
-	r = 0;
+	r = NULL;
 	h = 0;
     }
     pipe.emplace_back(r, t, h);
-    sum += r;
+    if (r) {
+	sum += *r;
+	*r /= DECAY;
+    }
 
     // If necessary, discard words from the start of the pipe until it has the
     // desired length.
     // FIXME: Also shrink the window past words with relevance < 0?
     while (t - begin > length /* || pipe.front().relevance < 0.0 */) {
-	sum -= pipe.front().relevance;
-	begin = pipe.front().term_end;
+	const Sniplet& word = pipe.front();
+	if (word.relevance) {
+	    *word.relevance *= DECAY;
+	    sum -= *word.relevance;
+	}
+	begin = word.term_end;
 	if (best_end >= begin)
-	    best_pipe.push_back(pipe.front());
+	    best_pipe.push_back(word);
 	pipe.pop_front();
 	// E.g. can happen if the current term is longer than the requested
 	// length!
@@ -595,27 +608,26 @@ non_term_subquery:
 		    wildcards, longest_phrase);
 }
 
-static bool
+static double*
 check_term(unordered_map<string, double> & loose_terms,
 	   const Xapian::Weight::Internal * stats,
 	   const string & term,
-	   double &relevance)
+	   double max_tw)
 {
     auto it = loose_terms.find(term);
-    if (it == loose_terms.end()) return false;
-    if (it->second != 0.0) {
-	relevance = it->second;
-	return true;
-    }
+    if (it == loose_terms.end()) return NULL;
 
-    if (!stats->get_termweight(term, relevance)) {
-	// FIXME: Assert?
-	loose_terms.erase(it);
-	return false;
-    }
+    if (it->second == 0.0) {
+	double relevance;
+	if (!stats->get_termweight(term, relevance)) {
+	    // FIXME: Assert?
+	    loose_terms.erase(it);
+	    return NULL;
+	}
 
-    it->second = relevance;
-    return true;
+	it->second = relevance + max_tw;
+    }
+    return &it->second;
 }
 
 string
@@ -648,6 +660,21 @@ MSet::Internal::snippet(const string & text,
     check_query(enquire->get_query(), exact_phrases, loose_terms,
 		wildcards, longest_phrase);
 
+    vector<double> exact_phrases_relevance;
+    exact_phrases_relevance.reserve(exact_phrases.size());
+    for (auto&& terms : exact_phrases) {
+	// FIXME: What relevance to use?
+	exact_phrases_relevance.push_back(max_tw * terms.size());
+    }
+
+    vector<double> wildcards_relevance;
+    wildcards_relevance.reserve(exact_phrases.size());
+    for (auto&& pattern : wildcards) {
+	// FIXME: What relevance to use?
+	(void)pattern;
+	wildcards_relevance.push_back(max_tw + min_tw);
+    }
+
     // Background relevance is the same for a given MSet, so cache it
     // between calls to MSet::snippet() on the same object.
     unordered_map<string, double>& background = snippet_bg_relevance;
@@ -668,10 +695,11 @@ MSet::Internal::snippet(const string & text,
 	    // [The][ cat][ sat][ on][ the][ mat]
 	    size_t term_end = text.size() - it.left();
 
-	    double relevance = 0;
+	    double* relevance = 0;
 	    size_t highlight = 0;
 	    if (stats) {
-		for (const auto & terms : exact_phrases) {
+		size_t i = 0;
+		for (auto&& terms : exact_phrases) {
 		    if (term == terms.back()) {
 			size_t n = terms.size() - 1;
 			bool match = true;
@@ -682,40 +710,41 @@ MSet::Internal::snippet(const string & text,
 			    }
 			}
 			if (match) {
-			    // FIXME: What relevance to use?
 			    // FIXME: Sort phrases, highest score first!
-			    relevance = max_tw * terms.size();
+			    relevance = &exact_phrases_relevance[i];
 			    highlight = terms.size();
 			    goto relevance_done;
 			}
 		    }
+		    ++i;
 		}
 
-		if (check_term(loose_terms, stats, term, relevance)) {
+		relevance = check_term(loose_terms, stats, term, max_tw);
+		if (relevance) {
 		    // Matched unstemmed term.
 		    highlight = 1;
-		    relevance += max_tw;
 		    goto relevance_done;
 		}
 
 		string stem = "Z";
 		stem += stemmer(term);
-		if (check_term(loose_terms, stats, stem, relevance)) {
+		relevance = check_term(loose_terms, stats, stem, max_tw);
+		if (relevance) {
 		    // Matched stemmed term.
 		    highlight = 1;
-		    relevance += max_tw;
 		    goto relevance_done;
 		}
 
 		// Check wildcards.
 		// FIXME: Sort wildcards, shortest pattern first or something?
+		i = 0;
 		for (auto&& pattern : wildcards) {
 		    if (startswith(term, pattern)) {
-			// FIXME: What relevance to use?
-			relevance = max_tw + min_tw;
+			relevance = &wildcards_relevance[i];
 			highlight = 1;
 			goto relevance_done;
 		    }
+		    ++i;
 		}
 
 		if (flags & Xapian::MSet::SNIPPET_BACKGROUND_MODEL) {
@@ -749,7 +778,7 @@ MSet::Internal::snippet(const string & text,
 			}
 			bgit = background.emplace(make_pair(stem, r)).first;
 		    }
-		    relevance = bgit->second;
+		    relevance = &bgit->second;
 		}
 	    } else {
 #if 0
