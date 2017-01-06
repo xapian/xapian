@@ -1080,6 +1080,12 @@ new_greatest_weight:
 
     LOGLINE(MATCH, "sorting " << items.size() << " entries");
 
+    // We could use std::sort_heap if is_heap is true, but profiling
+    // suggests that's actually slower.  Cast to void to suppress
+    // compiler warnings that the last set value of is_heap is never
+    // used.
+    (void)is_heap;
+
     // Need a stable sort, but this is provided by comparison operator
     sort(items.begin(), items.end(), mcmp);
 
