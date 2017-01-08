@@ -930,7 +930,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    if (idx != string::npos) {
 		dump.assign(desc, idx + 1, string::npos);
 	    }
-	} else if (mimetype == "application/x-redhat-package-manager") {
+	} else if (mimetype == "application/x-redhat-package-manager" ||
+		   mimetype == "application/x-rpm") {
 	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
 	    append_filename_argument(cmd, file);
 	    const string & desc = stdout_to_string(cmd, false);
