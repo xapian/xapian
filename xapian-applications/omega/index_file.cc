@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -918,7 +918,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    keywords = svgparser.keywords;
 	    // FIXME: topic = svgparser.topic;
 	    author = svgparser.author;
-	} else if (mimetype == "application/x-debian-package") {
+	} else if (mimetype == "application/vnd.debian.binary-package" ||
+		   mimetype == "application/x-debian-package") {
 	    string cmd("dpkg-deb -f");
 	    append_filename_argument(cmd, file);
 	    cmd += " Description";

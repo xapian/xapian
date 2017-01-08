@@ -157,8 +157,8 @@ djvu		image/vnd.djvu
 svg		image/svg+xml
 
 # Debian packages:
-deb		application/x-debian-package
-udeb		application/x-debian-package
+deb		application/vnd.debian.binary-package
+udeb		application/vnd.debian.binary-package
 
 # RPM packages:
 rpm		application/x-redhat-package-manager
