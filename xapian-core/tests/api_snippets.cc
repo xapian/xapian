@@ -274,3 +274,42 @@ DEFINE_TESTCASE(snippet_termcover2, backend) {
 
     return true;
 }
+
+/// Test snippet EMPTY_WITHOUT_MATCH flag
+DEFINE_TESTCASE(snippet_empty, backend) {
+
+    Xapian::Stem stem("en");
+
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+                Xapian::Query("rubbish"),
+                Xapian::Query("Zexampl")));
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    // A non-matching text
+    const char *input = "A string without a match.";
+    size_t len = strlen(input);
+
+    // By default, snippet() returns len bytes of input without markup
+    unsigned flags = 0;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, 0), input);
+
+    // force snippet() to return the empty string if no term got matched
+    flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags), "");
+
+    // A text with a match
+    input = "A rubbish example text";
+    len = strlen(input);
+
+    flags = 0;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
+        "A <b>rubbish</b> <b>example</b> text");
+
+    flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
+        "A <b>rubbish</b> <b>example</b> text");
+
+    return true;
+}

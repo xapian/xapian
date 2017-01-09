@@ -164,7 +164,14 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  it has found a "good enough" snippet, which will generally reduce
 	 *  the time taken to generate a snippet.
 	 */
-	SNIPPET_EXHAUSTIVE = 2
+	SNIPPET_EXHAUSTIVE = 2,
+	/** Return the empty string if no term got matched.
+	 *
+	 *  If enabled, snippet() returns an empty string if not a single match
+	 *  was found in text. If not enabled, snippet() returns a (sub)string
+	 *  of text without any highlighted terms.
+	 */
+	SNIPPET_EMPTY_WITHOUT_MATCH = 4
     };
 
     /** Generate a snippet.
