@@ -690,6 +690,7 @@ MSet::Internal::snippet(const string & text,
     vector<string> phrase;
     if (longest_phrase) phrase.resize(longest_phrase - 1);
     size_t phrase_next = 0;
+    bool matchfound = false;
     parse_terms(Utf8Iterator(text), cjk_ngram, true,
 	[&](const string & term, bool positional, const Utf8Iterator & it) {
 	    // FIXME: Don't hardcode this here.
@@ -832,6 +833,8 @@ relevance_done:
 		phrase_next = (phrase_next + 1) % (longest_phrase - 1);
 	    }
 
+	    if (highlight) matchfound = true;
+
 	    if (!snip.pump(relevance, term_end, highlight, flags)) return false;
 
 	    term_start = term_end;
@@ -842,7 +845,9 @@ relevance_done:
 
     // Put together the snippet.
     string result;
-    while (snip.drain(text, hi_start, hi_end, omit, result)) { }
+    if (matchfound || (flags & SNIPPET_EMPTY_WITHOUT_MATCH) == 0) {
+	    while (snip.drain(text, hi_start, hi_end, omit, result)) { }
+    }
 
     return result;
 }
