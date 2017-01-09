@@ -1,3 +1,41 @@
+up to: b9f89798111e8f866b50c3eedea210fd060252f8
+
+Omega 1.4.3 (2017-01-09):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Recognise application/x-rpm as alternative type since libmagic reports this
+    rather than application/x-redhat-package-manager.
+    
+  + Use official MIME type for debian packages
+    We used to map .deb and .udeb to application/x-debian-package, but
+    in 2014 (after we added that support for .deb) an official type was
+    registered with IANA: application/vnd.debian.binary-package
+    :
+We now map extensions .deb and .udeb to the official type, but the
+unofficial type is still recognised (older versions of libmagic
+probably report it, and users may be mapping to it).
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.4.2 (2016-12-26):
 
 documentation:

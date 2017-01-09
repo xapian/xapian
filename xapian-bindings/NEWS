@@ -1,3 +1,43 @@
+up to: 0f19a9e7f91b6947398fc9542f1ac832843b68e8
+
+Xapian-bindings 1.4.3 (2017-01-09):
+
+Documentation:
+
+General:
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+Java:
+
+Lua:
+
+Perl:
+
+PHP:
+
+PHP7:
+
+Python:
+
+    Remove compat code for Python < 2.5
+    We require Python >= 2.6 for 1.4.x.
+
+    Make first arg to XapianSWIG_anystring() PyObject *
+    It was PyObject ** but we only dereference and read the result.  This
+    also makes the Python 2 code more closely match the Python 3 code.
+    (cherry picked from commit a7606dec05dbff3ec6700f91e5cca3fad0dd9c33)
+
+Python3:
+
+Ruby:
+
+Tcl:
+
 Xapian-bindings 1.4.2 (2016-12-26):
 
 General:

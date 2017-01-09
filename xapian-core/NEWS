@@ -1,3 +1,68 @@
+up to: 1b5016cb08992fd6c4b0f06706059b578ba8a343
+
+Xapian-core 1.4.3 (2017-01-09):
+
+
+API:
+
+Author: Robert Stepanek <rsto@paranoia.at>
+    Adapt snippet tests for exponential decay term-relevances.
+Author: Olly Betts <olly@survex.com>
+    Discount relevance of repeated terms in snippets
+    A snippet which matches more of the terms in the query is likely to be
+    better than one which just matches the same term or terms multiple
+    times, but a repeated term is still interesting, just less so than the
+    first occurrence, and less and less the more times it occurs.  So we now
+    halve the weight for each repeat, giving an exponential decay in the
+    relevance of repeated terms.
+    Issue raised by Robert Stepanek in
+    https://github.com/xapian/xapian/pull/117
+
+testsuite:
+
+
+matcher:
+
+
+glass backend:
+
+
+chert backend:
+
+
+remote backend:
+
+
+inmemory backend:
+
+
+build system:
+
+
+documentation:
+
+* INSTALL: Update section about -Bsymbolic-functions which is not a new ld
+  feature at this point.
+
+tools:
+
+
+examples:
+
+
+portability:
+
+    Need safeerrno.h to get errno
+    Fixes build failure cross-compiling for android
+
+    Fix compiler warnings
+
+packaging:
+
+
+debug code:
+
+
 Xapian-core 1.4.2 (2016-12-26):
 
 API:
