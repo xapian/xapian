@@ -1,7 +1,7 @@
 /** @file api_opvalue.cc
  * @brief Tests of the OP_VALUE_* query operators.
  */
-/* Copyright 2007,2008,2009,2010,2010,2011 Olly Betts
+/* Copyright 2007,2008,2009,2010,2010,2011,2017 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -102,7 +102,7 @@ make_valuerange5(Xapian::WritableDatabase &db, const string &)
 DEFINE_TESTCASE(valuerange5, generated) {
     Xapian::Database db = get_database("valuerange5", make_valuerange5);
 
-    // If the lower bound is empty, either ther the specified value slot is
+    // If the lower bound is empty, either the specified value slot is
     // never used in the database, or the backend doesn't track value bounds.
     // Neither should be true here.
     TEST(!db.get_value_lower_bound(0).empty());
@@ -245,5 +245,23 @@ DEFINE_TESTCASE(valuerange4, backend) {
 				      "aa", "z"));
     enq.set_query(query);
     Xapian::MSet mset = enq.get_mset(0, 20);
+    return true;
+}
+
+/// Test improved upper bound and estimate in 1.4.3.
+DEFINE_TESTCASE(valuerangematchesub1, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Enquire enq(db);
+    // Values present in slot 10 range from 'e' to 'w'.
+    Xapian::Query query(Xapian::Query(Xapian::Query::OP_VALUE_RANGE, 10,
+				      "h", "i"));
+    enq.set_query(query);
+    Xapian::MSet mset = enq.get_mset(0, 0);
+    // The upper bound used to be db.size().
+    TEST_EQUAL(mset.get_matches_upper_bound(), db.get_value_freq(10));
+    TEST_EQUAL(mset.get_matches_lower_bound(), 0);
+    // The estimate used to be db.size() / 2, now it's calculated
+    // proportional to the possible range.
+    TEST_REL(mset.get_matches_estimated(), <=, db.get_doccount() / 3);
     return true;
 }
