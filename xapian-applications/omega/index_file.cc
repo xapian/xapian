@@ -201,6 +201,8 @@ index_add_default_filters()
     index_command("message/rfc822",
 		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
 			 false));
+    index_command("text/vcard",
+		  Filter(get_pkglibbindir() + "/vcard2text", false));
 }
 
 void
