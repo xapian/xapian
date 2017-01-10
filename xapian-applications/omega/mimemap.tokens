@@ -156,6 +156,10 @@ djvu		image/vnd.djvu
 # SVG:
 svg		image/svg+xml
 
+# vCard files:
+vcf		text/vcard
+vcard		text/vcard
+
 # Debian packages:
 deb		application/vnd.debian.binary-package
 udeb		application/vnd.debian.binary-package

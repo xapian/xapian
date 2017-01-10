@@ -617,8 +617,9 @@ AC_CONFIG_FILES([
  docs/Makefile
  xapian-omega.spec
  ])
-AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
-AC_CONFIG_FILES([mhtml2html], [chmod +x mhtml2html])
-AC_CONFIG_FILES([outlookmsg2html], [chmod +x outlookmsg2html])
-AC_CONFIG_FILES([rfc822tohtml], [chmod +x rfc822tohtml])
+dnl Allow AC_CONFIG_FILES with chmod +x of each substituted file without
+dnl having to repeat the list of files.
+AC_DEFUN([CONFIG_FILES_EXEC], [AC_CONFIG_FILES([$1], [chmod +x $1])])
+CONFIG_FILES_EXEC(
+  [makemanpage mhtml2html outlookmsg2html rfc822tohtml vcard2text])
 AC_OUTPUT

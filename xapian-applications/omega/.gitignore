@@ -48,6 +48,7 @@
 /mhtml2html
 /outlookmsg2html
 /rfc822tohtml
+/vcard2text
 /mimemap.h
 /namedents.h
 /my-html-tok.h
