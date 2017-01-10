@@ -305,6 +305,8 @@ class GlassDatabase : public Xapian::Database::Internal {
 	/** Return true if there are uncommitted changes. */
 	virtual bool has_uncommitted_changes() const;
 
+	bool locked() const;
+
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    int fd,

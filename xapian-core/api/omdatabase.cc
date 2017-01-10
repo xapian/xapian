@@ -769,6 +769,18 @@ Database::get_uuid() const
     RETURN(uuid);
 }
 
+bool
+Database::locked() const
+{
+    LOGCALL(API, bool, "Database::locked", NO_ARGS);
+    for (const auto & subdb : internal) {
+	// If any of the sub-databases is locked, return true.
+	if (subdb->locked())
+	    RETURN(true);
+    }
+    RETURN(false);
+}
+
 Xapian::rev
 Database::get_revision() const
 {

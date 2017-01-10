@@ -1036,6 +1036,12 @@ ChertDatabase::get_used_docid_range(Xapian::docid & first,
     postlist_table.get_used_docid_range(first, last);
 }
 
+bool
+ChertDatabase::locked() const
+{
+    return lock.test();
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 ChertWritableDatabase::ChertWritableDatabase(const string &dir, int action,

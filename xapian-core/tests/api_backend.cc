@@ -329,6 +329,44 @@ DEFINE_TESTCASE(lockfilealreadyopen1, chert || glass) {
     return true;
 }
 
+/// Feature tests for Database::locked().
+DEFINE_TESTCASE(testlock1, chert || glass) {
+    Xapian::Database rdb;
+    TEST(!rdb.locked());
+    {
+	Xapian::WritableDatabase db = get_named_writable_database("testlock1");
+	TEST(db.locked());
+	Xapian::Database db_as_database = db;
+	TEST(db_as_database.locked());
+	TEST(!rdb.locked());
+	rdb = get_writable_database_as_database();
+	TEST(db.locked());
+	TEST(db_as_database.locked());
+	TEST(rdb.locked());
+	db_as_database = rdb;
+	TEST(db.locked());
+	TEST(db_as_database.locked());
+	TEST(rdb.locked());
+	db_as_database.close();
+	TEST(db.locked());
+	TEST(rdb.locked());
+	// After close(), locked() should either work as if close() hadn't been
+	// called or throw Xapian::DatabaseError.
+	try {
+	    TEST(db_as_database.locked());
+	} catch (const Xapian::DatabaseError&) {
+	}
+	db.close();
+	TEST(!rdb.locked());
+	try {
+	    TEST(!db_as_database.locked());
+	} catch (const Xapian::DatabaseError&) {
+	}
+    }
+    TEST(!rdb.locked());
+    return true;
+}
+
 struct MyMatchDecider : public Xapian::MatchDecider {
     mutable bool called;
 
