@@ -93,21 +93,22 @@ include docsource.mk
 
 # Install the m4 file containing the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4-macros/xapian.m4
+dist_m4data_DATA = m4-macros/xapian-1.5.m4
 
 # Install the pkg-config file containing the correct compiler options.
 pkgconfigdir = $(libdir)/pkgconfig
-nodist_pkgconfig_DATA = pkgconfig/xapian-core.pc
-DISTCLEANFILES += pkgconfig/xapian-core.pc
+nodist_pkgconfig_DATA = pkgconfig/xapian-core-1.5.pc
+DISTCLEANFILES += pkgconfig/xapian-core-1.5.pc
 
-libxapian_la = libxapian.la
-lib_LTLIBRARIES = libxapian.la
-libxapian_la_SOURCES = $(lib_src)
-libxapian_la_LIBADD = $(XAPIAN_LIBS)
-libxapian_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
+libxapian_la = libxapian-1.5.la
+lib_LTLIBRARIES = libxapian-1.5.la
+libxapian_1_5_la_SOURCES = $(lib_src)
+libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS)
+libxapian_1_5_la_LDFLAGS = \
+    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
 
 lib_src =
+lib_ldflags =
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = xapian-config.1
