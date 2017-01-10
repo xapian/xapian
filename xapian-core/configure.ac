@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.4.0], [https://xapian.org/bugs])
+AC_INIT([xapian-core], [1.5.0], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -28,20 +28,30 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO for libxapian:
-dnl 29:1:7 1.2.23 No API changes (except new inline methods)
-dnl 30:0:0 1.4.0 Extensive API changes
-LIBRARY_VERSION_INFO=30:0:0
+dnl LIBRARY_VERSION_INFO for libxapian1.5
+dnl 0:0:0 1.5.0 Reset as library renamed
+LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=
-AC_SUBST([LIBRARY_VERSION_SUFFIX])
-
-dnl Disabled for stable release series.
-test x"$program_suffix" != xNONE || program_suffix=
-
-dnl Where xapian.h, etc go.  In development release append "/xapian-1.3".
+dnl Where xapian.h, etc go.
 incdir=$includedir
+case $PACKAGE_VERSION in
+  [*.*[13579].*])
+    dnl Development release series:
+    [dev_series=`echo "$PACKAGE_VERSION"|sed 's/\.[^.]*$//'`]
+
+    dnl Append version installed programs by default.  To specify no suffix,
+    dnl configure with: --program-suffix=
+    test x"$program_suffix" != xNONE || program_suffix=-$dev_series
+
+    incdir=$incdir/xapian-$dev_series
+
+    LIBRARY_VERSION_SUFFIX=-$dev_series
+    ;;
+esac
+
+AC_SUBST([LIBRARY_VERSION_SUFFIX])
 AC_SUBST([incdir])
 
 dnl Check the build directory doesn't contain a space, so we die early with
