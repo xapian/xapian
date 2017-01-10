@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -240,7 +240,38 @@ Xapian::doccount
 MSet::get_matches_estimated() const
 {
     Assert(internal.get() != 0);
-    return internal->matches_estimated;
+
+    // Doing this here avoids calculating if the estimate is never looked at,
+    // though does mean we recalculate if this method is called more than once.
+
+    Xapian::doccount m = internal->matches_lower_bound;
+    Xapian::doccount M = internal->matches_upper_bound;
+    Xapian::doccount e = internal->matches_estimated;
+
+    Xapian::doccount D = M - m;
+    if (D == 0) {
+	// Estimate is exact.
+	return e;
+    }
+
+    Xapian::doccount r = Xapian::doccount(exp10(int(log10(D))) + 0.5);
+    while (r > e) r /= 10;
+
+    Xapian::doccount R = e / r * r;
+    if (R < m) {
+	R += r;
+    } else if (R > M) {
+	R -= r;
+    } else if (R < e && r % 2 == 0 && e - R == r / 2) {
+	// Round towards the centre of the range.
+	if (e - m < M - e) {
+	    R += r;
+	}
+    }
+
+    // If it all goes pear-shaped, just stick to the original estimate.
+    if (R < m || R > M) R = e;
+    return R;
 }
 
 Xapian::doccount
