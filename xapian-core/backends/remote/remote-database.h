@@ -256,6 +256,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 	if (path) *path = context;
 	return BACKEND_REMOTE;
     }
+
+    bool locked() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H
