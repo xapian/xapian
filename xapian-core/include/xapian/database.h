@@ -502,6 +502,21 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	std::string get_uuid() const;
 
+	/** Test if this database is currently locked for writing.
+	 *
+	 *  If the underlying object is actually a WritableDatabase, always
+	 *  returns true.
+	 *
+	 *  Otherwise tests if there's a writer holding the lock (or if
+	 *  we can't test for a lock without taking it on the current platform,
+	 *  throw Xapian::UnimplementedError).  If there's an error while
+	 *  trying to test the lock, throws Xapian::DatabaseLockError.
+	 *
+	 *  For multi-databases, this tests each sub-database and returns
+	 *  true if any of them are locked.
+	 */
+	bool locked() const;
+
 	/** Get the revision of the database.
 	 *
 	 *  The revision is an unsigned integer which increases with each

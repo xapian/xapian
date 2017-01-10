@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,6 +62,48 @@ using namespace std;
 #  define F_OFD_SETLKW	38
 # endif
 #endif
+
+bool
+FlintLock::test() const
+{
+#if defined __CYGWIN__ || defined __WIN32__
+    if (hFile != INVALID_HANDLE_VALUE) return true;
+    // Doesn't seem to be possible to check if the lock is held without briefly
+    // taking the lock.
+    throw Xapian::UnimplementedError("Can't test lock without trying to take it");
+#elif defined FLINTLOCK_USE_FLOCK
+    if (fd != -1) return true;
+    // Doesn't seem to be possible to check if the lock is held without briefly
+    // taking the lock.
+    throw Xapian::UnimplementedError("Can't test lock without trying to take it");
+#else
+    if (fd != -1) return true;
+    int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0666);
+    if (lockfd < 0) {
+	// Couldn't open lockfile.
+	reason why = ((errno == EMFILE || errno == ENFILE) ? FDLIMIT : UNKNOWN);
+	throw_databaselockerror(why, filename, "Testing lock");
+    }
+
+    struct flock fl;
+    fl.l_type = F_WRLCK;
+    fl.l_whence = SEEK_SET;
+    fl.l_start = 0;
+    fl.l_len = 1;
+    fl.l_pid = 0;
+    while (fcntl(lockfd, F_GETLK, &fl) == -1) {
+	if (errno != EINTR) {
+	    // Translate known errno values into a reason code.
+	    int e = errno;
+	    close(lockfd);
+	    reason why = (e == ENOLCK ? UNSUPPORTED : UNKNOWN);
+	    throw_databaselockerror(why, filename, "Testing lock");
+	}
+    }
+    close(lockfd);
+    return fl.l_type != F_UNLCK;
+#endif
+}
 
 FlintLock::reason
 FlintLock::lock(bool exclusive, bool wait, string & explanation) {
@@ -433,7 +475,7 @@ FlintLock::release() {
 void
 FlintLock::throw_databaselockerror(FlintLock::reason why,
 				   const string & db_dir,
-				   const string & explanation)
+				   const string & explanation) const
 {
     string msg("Unable to get write lock on ");
     msg += db_dir;

@@ -523,6 +523,16 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	virtual void get_used_docid_range(Xapian::docid & first,
 					  Xapian::docid & last) const;
+
+	/** Return true if the database is open for writing.
+	 *
+	 *  If this is a WritableDatabase, always returns true.
+	 *
+	 *  For a Database, test if there's a writer holding the lock (or if
+	 *  we can't test for a lock without taking it on the current platform,
+	 *  throw Xapian::UnimplementedError).
+	 */
+	virtual bool locked() const;
 };
 
 }

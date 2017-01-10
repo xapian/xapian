@@ -76,6 +76,18 @@ class FlintLock {
     // Release any lock held when we're destroyed.
     ~FlintLock() { release(); }
 
+    /** Test if the lock is held.
+     *
+     *  If this object holds the lock, just returns true.  Otherwise it will
+     *  try to test taking the lock, if that is possible to do on the current
+     *  platform without actually take it (fcntl() locks support this).
+     *
+     *	Throws Xapian::UnimplemenetedError if the platform doesn't support
+     *	testing the lock in this way, or Xapian::DatabaseLockError if there's
+     *	an error while trying to perform the test.
+     */
+    bool test() const;
+
     /** Attempt to obtain the lock.
      *
      *  If the attempt fails with code "UNKNOWN", the string supplied in the
@@ -95,7 +107,7 @@ class FlintLock {
     XAPIAN_NORETURN(
     void throw_databaselockerror(FlintLock::reason why,
 				 const std::string & db_dir,
-				 const std::string & explanation));
+				 const std::string & explanation) const);
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

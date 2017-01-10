@@ -989,6 +989,12 @@ GlassDatabase::has_uncommitted_changes() const
     return false;
 }
 
+bool
+GlassDatabase::locked() const
+{
+    return lock.test();
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,

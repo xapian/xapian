@@ -839,3 +839,9 @@ RemoteDatabase::remove_spelling(const string & word,
     data += word;
     send_message(MSG_REMOVESPELLING, data);
 }
+
+bool
+RemoteDatabase::locked() const
+{
+    throw Xapian::UnimplementedError("Database::locked() not implemented for remote backend");
+}
