@@ -1,7 +1,7 @@
 /** @file valuerangepostlist.cc
  * @brief Return document ids matching a range test on a specified doc value.
  */
-/* Copyright 2007,2008,2009,2010,2011,2013 Olly Betts
+/* Copyright 2007,2008,2009,2010,2011,2013,2016 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -42,13 +42,48 @@ ValueRangePostList::get_termfreq_min() const
     return 0;
 }
 
+static double
+string_frac(const string &s, size_t prefix)
+{
+    double r = 0;
+    double f = 1.0;
+    for (size_t i = prefix; i != s.size(); ++i) {
+	f /= 256.0;
+	r += static_cast<unsigned char>(s[i]) * f;
+    }
+
+    return r;
+}
+
 Xapian::doccount
 ValueRangePostList::get_termfreq_est() const
 {
-    AssertParanoid(!db || db_size == db->get_doccount());
-    // FIXME: It's hard to estimate well - perhaps consider the values of
-    // begin and end?
-    return db_size / 2;
+    // Assume the values are evenly spread out between the min and max.
+    // FIXME: Perhaps we should store some sort of binned distribution?
+    const string& lo = db->get_value_lower_bound(slot);
+    const string& hi = db->get_value_upper_bound(slot);
+
+    size_t common_prefix_len = 0;
+    while (common_prefix_len != lo.size() &&
+	   common_prefix_len != hi.size() &&
+	   lo[common_prefix_len] == hi[common_prefix_len]) {
+	++common_prefix_len;
+    }
+
+    double l = string_frac(lo, common_prefix_len);
+    double h = string_frac(hi, common_prefix_len);
+    double b = l;
+    if (begin > lo) {
+	b = string_frac(begin, common_prefix_len);
+    }
+    double e = h;
+    if (!end.empty() && end < hi) {
+	// end is empty for a ValueGePostList
+	e = string_frac(end, common_prefix_len);
+    }
+
+    double est = (e - b) / (h - l) * db->get_value_freq(slot);
+    return Xapian::doccount(est + 0.5);
 }
 
 TermFreqs
@@ -57,7 +92,7 @@ ValueRangePostList::get_termfreq_est_using_stats(
 {
     LOGCALL(MATCH, TermFreqs, "ValueRangePostList::get_termfreq_est_using_stats", stats);
     // FIXME: It's hard to estimate well - perhaps consider the values of
-    // begin and end?
+    // begin and end like above?
     RETURN(TermFreqs(stats.collection_size / 2,
 		     stats.rset_size / 2,
 		     stats.total_term_count / 2));
@@ -66,8 +101,7 @@ ValueRangePostList::get_termfreq_est_using_stats(
 Xapian::doccount
 ValueRangePostList::get_termfreq_max() const
 {
-    AssertParanoid(!db || db_size == db->get_doccount());
-    return db_size;
+    return db->get_value_freq(slot);
 }
 
 double
