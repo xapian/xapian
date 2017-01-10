@@ -294,6 +294,7 @@ other filters too - see below):
 * MHTML (.mhtml, .mht) if perl with MIME::Tools is available
 * MIME email messages (.eml) and USENET articles if perl with MIME::Tools and
   HTML::Parser is available
+* vCard files (.vcf, .vcard) if perl with Text::vCard is available
 
 If you have additional extensions that represent one of these types, you can
 add an additional MIME mapping using the ``--mime-type`` option.  For
