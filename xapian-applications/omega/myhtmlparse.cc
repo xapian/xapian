@@ -149,9 +149,8 @@ MyHtmlParser::opening_tag(const string &tag)
 				indexing_allowed = false;
 				return false;
 			    }
-			} else if (name == "created") {
-			    created = parse_datetime(content);
-			} else if (name == "dcterms.issued") {
+			} else if (name == "created" ||
+				   name == "dcterms.issued") {
 			    created = parse_datetime(content);
 			}
 			break;
