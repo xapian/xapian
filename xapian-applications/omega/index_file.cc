@@ -84,6 +84,7 @@ static bool retry_failed;
 static bool use_ctime;
 static dup_action_type dup_action;
 static bool ignore_exclusions;
+static bool description_as_sample;
 
 static time_t last_altered_max;
 static size_t sample_size;
@@ -213,7 +214,7 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool ignore_exclusions_)
+	   bool spelling, bool ignore_exclusions_, bool description_as_sample_)
 {
     root = root_;
     site_term = site_term_;
@@ -226,6 +227,7 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
     verbose = verbose_;
     use_ctime = use_ctime_;
     ignore_exclusions = ignore_exclusions_;
+    description_as_sample = description_as_sample_;
 
     if (!overwrite) {
 	db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
@@ -626,11 +628,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		if (cmd_it->second.output_type == "text/html") {
 		    MyHtmlParser p;
 		    p.ignore_metarobots();
+		    p.description_as_sample = description_as_sample;
 		    try {
 			p.parse_html(dump, charset, false);
 		    } catch (const string & newcharset) {
 			p.reset();
 			p.ignore_metarobots();
+			p.description_as_sample = description_as_sample;
 			p.parse_html(dump, newcharset, true);
 		    } catch (ReadError) {
 			skip_cmd_failed(urlterm, context, cmd,
@@ -656,6 +660,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    const string & text = d.file_to_string();
 	    MyHtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();
+	    p.description_as_sample = description_as_sample;
 	    try {
 		// Default HTML character set is latin 1, though not specifying
 		// one is deprecated these days.
@@ -663,6 +668,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    } catch (const string & newcharset) {
 		p.reset();
 		if (ignore_exclusions) p.ignore_metarobots();
+		p.description_as_sample = description_as_sample;
 		p.parse_html(text, newcharset, true);
 	    }
 	    if (!p.indexing_allowed) {

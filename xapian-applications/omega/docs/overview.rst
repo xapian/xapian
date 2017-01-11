@@ -468,9 +468,22 @@ failure entries before indexing starts.
 HTML Parsing
 ============
 
-The document ``<title>`` tag is used as the document title, the 'description'
-META tag (if present) is used for the document snippet, and the 'keywords'
-META tag (if present) is indexed as extra document text.
+The document ``<title>`` tag is used as the document title.  Metadata in various
+``<meta>`` tags is also understood - these values of the ``name`` parameter are
+currently handled when found:
+
+ * ``author``, ``dcterms.creator``, ``dcterms.contributor``: author(s)
+ * ``created``, ``dcterms.issued``: document creation date
+ * ``classification``: document topic
+ * ``keywords``, ``dcterms.subject``, ``dcterms.description``: indexed as extra
+   document text (but not stored in the sample)
+ * ``description``: by default, handled as ``keywords``.  If ``omindex`` is run
+   with ``--sample=description``, then this is used as the preferred source for
+   the stored sample of document text (HTML documents with no ``description``
+   fall back to a sample from the body; if ``description`` occurs multiple
+   times then second and subsequent are handled as ``keywords``).  In Omega
+   1.4.2 and earlier, ``--sample`` wasn't supported and the behaviour was as
+   if ``--sample=description`` had been specified.
 
 The HTML parser will look for the 'robots' META tag, and won't index pages
 which are marked as ``noindex`` or ``none``, for example any of the following::
@@ -478,6 +491,9 @@ which are marked as ``noindex`` or ``none``, for example any of the following::
     <meta name="robots" content="noindex,nofollow">
     <meta name="robots" content="noindex">
     <meta name="robots" content="none">
+
+The ``omindex`` option ``--ignore-exclusions`` disables this behaviour, so
+the files with the above will be indexed anyway.
 
 Sometimes it is useful to be able to exclude just part of a page from being
 indexed (for example you may not want to index navigation links, or a footer
