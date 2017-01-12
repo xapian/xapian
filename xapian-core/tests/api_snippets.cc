@@ -108,7 +108,7 @@ DEFINE_TESTCASE(snippetphrase1, backend) {
     Xapian::Query q(Xapian::Query::OP_PHRASE,
 		    Xapian::Query("rubbish"),
 		    Xapian::Query("example"));
-    // Regression test - a phrase with a follow sibling query would crash in
+    // Regression test - a phrase with a following sibling query would crash in
     // the highlighting code.
     enquire.set_query(q &~ Xapian::Query("banana"));
     Xapian::MSet mset = enquire.get_mset(0, 0);
