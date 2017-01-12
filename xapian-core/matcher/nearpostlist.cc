@@ -1,7 +1,7 @@
 /** @file nearpostlist.cc
  * @brief Return docs containing terms within a specified window.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -190,7 +190,7 @@ NearPostList::get_wdf() const
     // a better approximation.
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); ++i) {
+    while (++i != terms.end()) {
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;
