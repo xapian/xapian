@@ -1,7 +1,7 @@
 /* api_snippets.cc: tests snippets
  *
  * Copyright 2012 Mihai Bivol
- * Copyright 2015,2016 Olly Betts
+ * Copyright 2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ DEFINE_TESTCASE(snippet1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
 				    Xapian::Query("rubbish"),
-				    Xapian::Query("example")));
+				    Xapian::Query("mention")));
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
     static const snippet_testcase testcases[] = {
@@ -56,16 +56,16 @@ DEFINE_TESTCASE(snippet1, backend) {
 	{ "Rubbish and junk", 20, "<b>Rubbish</b> and junk" },
 	{ "Project R.U.B.B.I.S.H. greenlit", 31, "Project <b>R.U.B.B.I.S.H.</b> greenlit" },
 	{ "What a load of rubbish", 100, "What a load of <b>rubbish</b>" },
-	{ "Example rubbish", 100, "<b>Example</b> <b>rubbish</b>" },
-	{ "An example of rubbish", 100, "An <b>example</b> of <b>rubbish</b>" },
-	{ "Rubbish example of rubbish", 100, "<b>Rubbish</b> <b>example</b> of <b>rubbish</b>" },
+	{ "Mention rubbish", 100, "<b>Mention</b> <b>rubbish</b>" },
+	{ "A mention of rubbish", 100, "A <b>mention</b> of <b>rubbish</b>" },
+	{ "Rubbish mention of rubbish", 100, "<b>Rubbish</b> <b>mention</b> of <b>rubbish</b>" },
 
 	// Test selection of snippet.
 	{ "Rubbish and junk", 12, "<b>Rubbish</b> and..." },
 	{ "Project R.U.B.B.I.S.H. greenlit", 14, "...<b>R.U.B.B.I.S.H.</b>..." },
 	{ "What a load of rubbish", 12, "...of <b>rubbish</b>" },
 	{ "What a load of rubbish", 8, "...<b>rubbish</b>" },
-	{ "Rubbish example where the start is better than the rubbish ending", 18, "<b>Rubbish</b> <b>example</b>..." },
+	{ "Rubbish mention where the start is better than the rubbish ending", 18, "<b>Rubbish</b> <b>mention</b>..." },
 
 	// Should prefer "interesting" words for context.
 	{ "And of the rubbish document to this", 18, "...<b>rubbish</b> document..." },
@@ -87,6 +87,8 @@ DEFINE_TESTCASE(snippetstem1, backend) {
 				    Xapian::Query("Zexampl")));
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
+    // Term Zexampl isn't in the database, but the highlighter should still
+    // handle it.
     static const snippet_testcase testcases[] = {
 	// "rubbish" isn't stemmed, example is.
 	{ "You rubbished my ideas", 24, "You rubbished my ideas" },
@@ -107,19 +109,19 @@ DEFINE_TESTCASE(snippetphrase1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query q(Xapian::Query::OP_PHRASE,
 		    Xapian::Query("rubbish"),
-		    Xapian::Query("example"));
+		    Xapian::Query("mention"));
     // Regression test - a phrase with a following sibling query would crash in
     // the highlighting code.
     enquire.set_query(q &~ Xapian::Query("banana"));
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
     static const snippet_testcase testcases[] = {
-	{ "An example of rubbish", 18, "...example of rubbish" },
-	{ "This is a rubbish example", 20, "...is a <b>rubbish example</b>" },
-	{ "Example of a rubbish example of rubbish", 45, "Example of a <b>rubbish example</b> of rubbish" },
-	{ "Example of a rubbish example of rubbish", 18, "...<b>rubbish example</b> of..." },
-	{ "rubbish rubbish example example", 45, "rubbish <b>rubbish example</b> example" },
-	{ "rubbish example rubbish example", 45, "<b>rubbish example</b> <b>rubbish example</b>" },
+	{ "A mention of rubbish", 18, "...mention of rubbish" },
+	{ "This is a rubbish mention", 20, "...is a <b>rubbish mention</b>" },
+	{ "Mention of a rubbish mention of rubbish", 45, "Mention of a <b>rubbish mention</b> of rubbish" },
+	{ "Mention of a rubbish mention of rubbish", 18, "...<b>rubbish mention</b> of..." },
+	{ "rubbish rubbish mention mention", 45, "rubbish <b>rubbish mention</b> mention" },
+	{ "rubbish mention rubbish mention", 45, "<b>rubbish mention</b> <b>rubbish mention</b>" },
     };
 
     Xapian::Stem stem("en");
