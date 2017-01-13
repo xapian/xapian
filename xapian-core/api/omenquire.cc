@@ -249,8 +249,9 @@ MSet::get_matches_estimated() const
     Xapian::doccount e = internal->matches_estimated;
 
     Xapian::doccount D = M - m;
-    if (D == 0) {
-	// Estimate is exact.
+    if (D == 0 || e == 0) {
+	// Estimate is exact or zero.  A zero but non-exact estimate can happen
+	// with get_mset(0, 0).
 	return e;
     }
 

@@ -529,3 +529,15 @@ DEFINE_TESTCASE(complexnear2, backend) {
     (void)enq.get_mset(0, 10);
     return true;
 }
+
+/// A zero estimated number of matches broke the code to round the estimate.
+DEFINE_TESTCASE(zeroestimate1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Query phrase(Xapian::Query::OP_PHRASE,
+			 Xapian::Query("absolute"),
+			 Xapian::Query("rubbish"));
+    enquire.set_query(phrase &~ Xapian::Query("queri"));
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+    TEST_EQUAL(mset.get_matches_estimated(), 0);
+    return true;
+}
