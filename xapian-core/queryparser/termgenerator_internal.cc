@@ -1,7 +1,7 @@
 /** @file termgenerator_internal.cc
  * @brief TermGenerator class internals
  */
-/* Copyright (C) 2007,2010,2011,2012,2015,2016 Olly Betts
+/* Copyright (C) 2007,2010,2011,2012,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -649,7 +649,15 @@ MSet::Internal::snippet(const string & text,
     size_t term_start = 0;
     double min_tw = 0, max_tw = 0;
     if (stats) stats->get_max_termweight(min_tw, max_tw);
-    if (max_tw == 0.0) max_tw = 1.0;
+    if (max_tw == 0.0) {
+	max_tw = 1.0;
+    } else {
+	// Scale up by (1 + 1/64) so that highlighting works better for terms
+	// with termweight 0 (which happens for terms not in the database, and
+	// also with some weighting schemes for terms which occur in almost all
+	// documents.
+	max_tw *= 1.015625;
+    }
 
     SnipPipe snip(length);
 
