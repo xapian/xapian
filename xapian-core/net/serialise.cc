@@ -1,7 +1,7 @@
 /** @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2008,2009,2010,2011,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -112,9 +112,15 @@ serialise_mset(const Xapian::MSet &mset)
     string result;
 
     result += encode_length(mset.get_firstitem());
-    result += encode_length(mset.get_matches_lower_bound());
-    result += encode_length(mset.get_matches_estimated());
-    result += encode_length(mset.get_matches_upper_bound());
+    // Send back the raw matches_* values.  MSet::get_matches_estimated()
+    // rounds the estimate lazily, but MSetPostList::get_termfreq_est()
+    // returns the estimate, and the raw estimate is better for that.
+    //
+    // It is also cleaner that a round-trip through serialisation gives you an
+    // object which is as close to the original as possible.
+    result += encode_length(mset.internal->matches_lower_bound);
+    result += encode_length(mset.internal->matches_estimated);
+    result += encode_length(mset.internal->matches_upper_bound);
     result += encode_length(mset.get_uncollapsed_matches_lower_bound());
     result += encode_length(mset.get_uncollapsed_matches_estimated());
     result += encode_length(mset.get_uncollapsed_matches_upper_bound());
