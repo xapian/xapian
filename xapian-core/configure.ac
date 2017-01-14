@@ -967,6 +967,13 @@ AC_CHECK_FUNCS([fsync])
 AC_CHECK_FUNCS([posix_fadvise])
 AC_CHECK_FUNCS([ftruncate])
 
+dnl Darwin defines __exp10 rather than exp10
+AC_CHECK_FUNC([exp10],
+    [AC_DEFINE([HAVE_DECL_GNU_EXP10], [1], [GNU C defines exp10])],
+    [AC_CHECK_FUNC([__exp10],
+        [AC_DEFINE([HAVE_DECL_APPLE_EXP10], [1], [Darwin defines __exp10])])
+])
+
 dnl HP-UX has pread and pwrite, but they don't work!  Apparently this problem
 dnl manifests when largefile support is enabled, and we definitely want that
 dnl so don't use pread or pwrite on HP-UX.
