@@ -44,6 +44,8 @@
 #include "str.h"
 #include "weight/weightinternal.h"
 
+#include "exp10.h"
+
 #include <algorithm>
 #include "autoptr.h"
 #include <cfloat>
@@ -255,7 +257,7 @@ MSet::get_matches_estimated() const
 	return e;
     }
 
-    Xapian::doccount r = Xapian::doccount(exp10(int(log10(D))) + 0.5);
+    Xapian::doccount r = Xapian::doccount(EXP10(int(log10(D))) + 0.5);
     while (r > e) r /= 10;
 
     Xapian::doccount R = e / r * r;
