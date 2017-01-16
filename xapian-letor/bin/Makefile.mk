@@ -12,17 +12,17 @@ bin_xapian_letor_update_LDADD = $(XAPIAN_LIBS) libcommon_str.la
 bin_xapian_prepare_trainingfile_SOURCES =\
 	bin/xapian-prepare-trainingfile.cc\
 	common/getopt.cc
-bin_xapian_prepare_trainingfile_LDADD = libxapianletor.la
+bin_xapian_prepare_trainingfile_LDADD = libxapianletor.la $(XAPIAN_LIBS)
 
 bin_xapian_rank_SOURCES =\
 	bin/xapian-rank.cc\
 	common/getopt.cc
-bin_xapian_rank_LDADD = libxapianletor.la
+bin_xapian_rank_LDADD = libxapianletor.la $(XAPIAN_LIBS)
 
 bin_xapian_train_SOURCES =\
 	bin/xapian-train.cc\
 	common/getopt.cc
-bin_xapian_train_LDADD = libxapianletor.la
+bin_xapian_train_LDADD = libxapianletor.la $(XAPIAN_LIBS)
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
