@@ -38,6 +38,7 @@
 #include "debuglog.h"
 #include "expand/esetinternal.h"
 #include "expand/expandweight.h"
+#include "exp10.h"
 #include "matcher/multimatch.h"
 #include "omassert.h"
 #include "api/omenquireinternal.h"
