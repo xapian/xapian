@@ -372,6 +372,11 @@ AC_CHECK_DECLS([log2], [], [],
 [#include <cmath>
 using namespace std;])
 
+dnl exp10 is a GNU libc extension.  Darwin provides __exp10().  GCC provides
+dnl __builtin_exp10() (but notably clang doesn't currently).
+AC_CHECK_FUNCS([exp10 __exp10], [break],
+    [AC_CHECK_DECLS([__builtin_exp10], [], [], [ ])])
+
 dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
 dnl compilation of the test code below fails if RTTI isn't being generated
 dnl (g++ -fno-rtti, or by default with xlC).
