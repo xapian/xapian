@@ -55,7 +55,8 @@ matrix:
     - os: osx
       before_install:
         - brew update
-        - brew install doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python3
+        - brew install doxygen --HEAD
+        - brew install help2man graphviz pngcrush libmagic pcre libsvm lua mono python3
         - pip install sphinx docutils
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
