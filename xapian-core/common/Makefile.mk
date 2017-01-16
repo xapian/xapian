@@ -7,6 +7,7 @@ noinst_HEADERS +=\
 	common/compression_stream.h\
 	common/debuglog.h\
 	common/errno_to_string.h\
+	common/exp10.h\
 	common/fd.h\
 	common/filetests.h\
 	common/fileutils.h\
