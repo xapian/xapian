@@ -282,8 +282,8 @@ DEFINE_TESTCASE(snippet_empty, backend) {
 
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
-                Xapian::Query("rubbish"),
-                Xapian::Query("Zexampl")));
+		      Xapian::Query("rubbish"),
+		      Xapian::Query("Zexampl")));
 
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
@@ -305,11 +305,11 @@ DEFINE_TESTCASE(snippet_empty, backend) {
 
     flags = 0;
     TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
-        "A <b>rubbish</b> <b>example</b> text");
+		       "A <b>rubbish</b> <b>example</b> text");
 
     flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
     TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
-        "A <b>rubbish</b> <b>example</b> text");
+		       "A <b>rubbish</b> <b>example</b> text");
 
     return true;
 }

@@ -846,7 +846,7 @@ relevance_done:
     // Put together the snippet.
     string result;
     if (matchfound || (flags & SNIPPET_EMPTY_WITHOUT_MATCH) == 0) {
-	    while (snip.drain(text, hi_start, hi_end, omit, result)) { }
+	while (snip.drain(text, hi_start, hi_end, omit, result)) { }
     }
 
     return result;
