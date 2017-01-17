@@ -1,28 +1,47 @@
-up to: 1b5016cb08992fd6c4b0f06706059b578ba8a343
+up to: 8ac975a135e2571d78eaa82e63974509877d3110
 
-Xapian-core 1.4.3 (2017-01-09):
-
+Xapian-core 1.4.3 (2017-01-17):
 
 API:
 
-Author: Robert Stepanek <rsto@paranoia.at>
-    Adapt snippet tests for exponential decay term-relevances.
-Author: Olly Betts <olly@survex.com>
-    Discount relevance of repeated terms in snippets
-    A snippet which matches more of the terms in the query is likely to be
-    better than one which just matches the same term or terms multiple
-    times, but a repeated term is still interesting, just less so than the
-    first occurrence, and less and less the more times it occurs.  So we now
-    halve the weight for each repeat, giving an exponential decay in the
-    relevance of repeated terms.
-    Issue raised by Robert Stepanek in
-    https://github.com/xapian/xapian/pull/117
+* MSet::snippet(): Favour candidate snippets which have contain more of a
+  diversity of matching terms by discounting the relevance of repeated terms
+  using an exponential decay.  A snippet which contains more terms from the
+  query is likely to be better than one which contains the same term or terms
+  multiple times, but a repeated term is still interesting, just less with
+  each additional appearance.  Diversity issue highlighted by Robert Stepanek's
+  patch in https://github.com/xapian/xapian/pull/117 - testcases taken from his
+  patch.
+
+* Round MSet::get_matches_estimated() to an appropriate number of significant
+  figures.  The algorithm used looks at the lower and upper bound and where the
+  estimate sits between them, and then picks an appropriate number of
+  significant figures.  Thanks to Sébastien Le Callonnec for help sorting out a
+  portability issue on OS X.
+
+* Add Database::locked() method - where possible this non-invasively checks if
+  the database is currently open for writing, which can be useful for
+  dashboards and other status reporting tools.
 
 testsuite:
 
+* Use terms that exist in the database for most snippet tests.  It's good to
+  test that snippet highlighting works for terms that aren't in the database,
+  but it's not good for all our snippet tests to feature such terms - it's
+  not the common usage.
 
 matcher:
 
+* Improve value range upper bound and estimated matches.  The value slot
+  frequency provides a tighter upper bound than Database::get_doccount().
+  The estimate is now calculated by working out the proportion of possible
+  values between the slot lower and upper bounds which the range covers
+  (assuming a uniform distribution).  This seems to work fairly well in
+  practice, and is certainly better than the crude estimate we were using:
+  Database::get_doccount() / 2
+
+* Avoid double get_wdf() call for first subquery of OP_NEAR and OP_PHRASE,
+  which will speed them up by a small amount.
 
 glass backend:
 
@@ -41,21 +60,23 @@ build system:
 
 documentation:
 
-* INSTALL: Update section about -Bsymbolic-functions which is not a new ld
-  feature at this point.
+* INSTALL: Update section about -Bsymbolic-functions which is not a new
+  GNU ld feature at this point.
 
 tools:
 
+* xapian-delve: Uses new Database::locked() method to report if the database
+  is currently locked.
 
 examples:
 
 
 portability:
 
-    Need safeerrno.h to get errno
-    Fixes build failure cross-compiling for android
+* Fix build failure cross-compiling for android due to not pulling in header
+  for errno.
 
-    Fix compiler warnings
+* Fix compiler warnings.
 
 packaging:
 
