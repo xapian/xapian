@@ -105,7 +105,7 @@ BUILT_SOURCES += docs/rdocs/index.html
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
 	$(MKDIR_P) docs
-	cd docs && $(RDOC) --op rdocs `test -f xapian.rb||echo '$(abs_srcdir)/'`xapian.rb
+	cd docs && $(RDOC) --op rdocs `test -f xapian.rb||echo '$(abs_srcdir)/docs/'`xapian.rb
 
 if DOCUMENTATION_RULES
 docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
