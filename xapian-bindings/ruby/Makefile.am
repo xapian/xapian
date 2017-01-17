@@ -116,6 +116,6 @@ BUILT_SOURCES += docs/index.html
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
-endif
 
 CLEANFILES += docs/xapian.rb
+endif
