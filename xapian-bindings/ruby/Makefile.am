@@ -71,7 +71,7 @@ install-data-local:
 	## $(abs_builddir) because we need to cd there having already
 	## changed directory.
 	@paths=docs ; \
-	  test '$(abs_srcdir)' == '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
 	  for docs in $$paths ; do \
 	    cd "$$docs" && for dir in `find rdocs -type d -print` ; do \
 	      echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
@@ -87,7 +87,7 @@ uninstall-local:
 	## and we need to remove the file ourselves.
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
 	@paths=docs ; \
-	  test '$(abs_srcdir)' == '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
 	  for docs in $$paths ; do \
 	    cd "$$docs" && for f in `find rdocs -type f -print` ; do \
 	      echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
