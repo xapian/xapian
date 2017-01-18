@@ -340,7 +340,7 @@ def test_allterms_iter():
         freqs.append(termitem.termfreq)
         expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
-    context("checking that items are no longer valid once the iterator has moved on");
+    context("checking that items are no longer valid once the iterator has moved on")
     termitems = [termitem for termitem in db]
 
     expect(len(termitems), len(terms))
@@ -772,7 +772,7 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('hello')], ['hello'])
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     dbr.close()
     shutil.rmtree(dbpath)
 
@@ -823,7 +823,7 @@ def test_metadata_keys_iter():
     expect([item for item in dbr.metadata_keys('type')], ['type'])
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     dbr.close()
     shutil.rmtree(dbpath)
 
@@ -1064,7 +1064,7 @@ def test_postingsource():
         def get_termfreq_max(self): return self.max
         def next(self, minweight):
             self.current += 2
-            self.weight -= 1.0;
+            self.weight -= 1.0
             self.set_maxweight(self.weight)
         def at_end(self): return self.current > self.max
         def get_docid(self): return self.current
@@ -1111,7 +1111,7 @@ def test_postingsource():
     expect(mset[0].weight, db.get_doccount())
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     shutil.rmtree(dbpath)
 
 def test_postingsource2():
@@ -1137,7 +1137,7 @@ def test_postingsource2():
     expect([item.docid for item in mset], [2, 1, 5, 3, 4, 8, 9, 6, 7, 10])
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     shutil.rmtree(dbpath)
 
 def test_postingsource3():
@@ -1180,7 +1180,7 @@ def test_postingsource3():
     expect([item.docid for item in mset], [4, 2, 3, 1])
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     shutil.rmtree(dbpath)
 
 def test_value_stats():
@@ -1207,7 +1207,7 @@ def test_value_stats():
     expect(db.get_value_upper_bound(2), "")
 
     db.close()
-    expect(xapian.Database.check(dbpath), 0);
+    expect(xapian.Database.check(dbpath), 0)
     shutil.rmtree(dbpath)
 
 def test_get_uuid():
