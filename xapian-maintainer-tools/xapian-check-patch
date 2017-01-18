@@ -290,6 +290,8 @@ QUOTELOOP:  while (1) {
 		    # FIXME: |: FOO|BAR
 		    $msg = undef;
 		}
+	    } elsif (/;;\s*$/) {
+		$msg = "Extra ';' at end of line:";
 	    } elsif (m@^\+[^#]*?[^#\h] +(,|->)@) {
 		$msg = "Space before '$1':";
 	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
