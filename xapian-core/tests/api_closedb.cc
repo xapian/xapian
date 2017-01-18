@@ -89,7 +89,7 @@ struct closedb1_iterators {
 	COUNT_CLOSEDEXC(db.get_value_upper_bound(1));
 	COUNT_CLOSEDEXC(db.valuestream_begin(1));
 	COUNT_CLOSEDEXC(db.get_doclength(1));
-	COUNT_CLOSEDEXC(db.get_unique_terms(1));;
+	COUNT_CLOSEDEXC(db.get_unique_terms(1));
 
 	// Reopen raises the "database closed" error.
 	COUNT_CLOSEDEXC(db.reopen());
