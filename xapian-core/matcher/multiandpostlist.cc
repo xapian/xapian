@@ -1,7 +1,7 @@
 /** @file multiandpostlist.cc
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009,2011,2012,2015 Olly Betts
+/* Copyright (C) 2007,2009,2011,2012,2015,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -277,4 +277,12 @@ MultiAndPostList::count_matching_subqs() const
 	total += plist[i]->count_matching_subqs();
     }
     return total;
+}
+
+void
+MultiAndPostList::gather_position_lists(OrPositionList* orposlist)
+{
+    for (size_t i = 0; i < n_kids; ++i) {
+	plist[i]->gather_position_lists(orposlist);
+    }
 }

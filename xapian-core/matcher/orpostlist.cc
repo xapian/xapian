@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008,2009,2010,2011,2012,2016 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2010,2011,2012,2016,2017 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -29,6 +29,8 @@
 #include "multiandpostlist.h"
 #include "andmaybepostlist.h"
 #include "omassert.h"
+
+#include "orpositionlist.h"
 
 #include <algorithm>
 
@@ -445,4 +447,11 @@ OrPostList::count_matching_subqs() const
     if (lhead < rhead) RETURN(l->count_matching_subqs());
     if (lhead > rhead) RETURN(r->count_matching_subqs());
     RETURN(l->count_matching_subqs() + r->count_matching_subqs());
+}
+
+void
+OrPostList::gather_position_lists(OrPositionList* orposlist)
+{
+    if (lhead <= rhead) l->gather_position_lists(orposlist);
+    if (lhead >= rhead) r->gather_position_lists(orposlist);
 }

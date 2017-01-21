@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -303,6 +303,9 @@ Query::add_subquery(bool positional, const Xapian::Query & subquery)
 		// which is appropriate in this case.
 		branch_query->add_subquery(MatchNothing);
 		return;
+	    case OP_OR:
+		// OP_OR is now handled below OP_NEAR and OP_PHRASE.
+		break;
 	    default:
 		throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support leaf subqueries");
 	}
