@@ -1,7 +1,7 @@
 /** @file postlist.cc
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2009,2011,2015 Olly Betts
+/* Copyright (C) 2007,2009,2011,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,6 +82,12 @@ PostList::count_matching_subqs() const
 {
     Assert(false);
     return 0;
+}
+
+void
+PostList::gather_position_lists(OrPositionList*)
+{
+    Assert(false);
 }
 
 }

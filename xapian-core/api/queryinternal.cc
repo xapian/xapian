@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -37,6 +37,7 @@
 #include "matcher/multiandpostlist.h"
 #include "matcher/multixorpostlist.h"
 #include "matcher/nearpostlist.h"
+#include "matcher/orpospostlist.h"
 #include "matcher/orpostlist.h"
 #include "matcher/phrasepostlist.h"
 #include "matcher/queryoptimiser.h"
@@ -1616,7 +1617,11 @@ QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser *
 	for (i = subqueries.begin(); i != subqueries.end(); ++i) {
 	    // MatchNothing subqueries should have been removed by done().
 	    Assert((*i).internal.get());
-	    ctx.add_postlist((*i).internal->postlist(qopt, factor));
+	    bool is_term = ((*i).internal->get_type() == Query::LEAF_TERM);
+	    PostList* pl = (*i).internal->postlist(qopt, factor);
+	    if (!is_term)
+		pl = new OrPosPostList(pl);
+	    ctx.add_postlist(pl);
 	}
 	// Record the positional filter to apply higher up the tree.
 	ctx.add_pos_filter(op, subqueries.size(), window);
