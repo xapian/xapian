@@ -141,15 +141,24 @@ class Context {
     size_t size() const {
 	return pls.size();
     }
+
+    void reset();
 };
 
 Context::Context(size_t reserve) {
     pls.reserve(reserve);
 }
 
-Context::~Context()
+void
+Context::reset()
 {
     for_each(pls.begin(), pls.end(), delete_ptr<PostList>());
+    pls.clear();
+}
+
+Context::~Context()
+{
+    reset();
 }
 
 class OrContext : public Context {
@@ -360,6 +369,13 @@ AndContext::add_pos_filter(Query::op op_,
 PostList *
 AndContext::postlist(QueryOptimiser* qopt)
 {
+    if (pls.empty()) {
+	// This case only happens if this sub-database has no positional data
+	// (but another sub-database does).
+	Assert(pos_filters.empty());
+	return new EmptyPostList;
+    }
+
     AutoPtr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
 					      qopt->matcher, qopt->db_size));
 
@@ -1608,28 +1624,36 @@ QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, doubl
 void
 QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
-    // FIXME: should has_positions() be on the combined DB (not this sub)?
-    if (qopt->db.has_positions()) {
-	bool old_need_positions = qopt->need_positions;
-	qopt->need_positions = true;
-
-	QueryVector::const_iterator i;
-	for (i = subqueries.begin(); i != subqueries.end(); ++i) {
-	    // MatchNothing subqueries should have been removed by done().
-	    Assert((*i).internal.get());
-	    bool is_term = ((*i).internal->get_type() == Query::LEAF_TERM);
-	    PostList* pl = (*i).internal->postlist(qopt, factor);
-	    if (!is_term)
-		pl = new OrPosPostList(pl);
-	    ctx.add_postlist(pl);
-	}
-	// Record the positional filter to apply higher up the tree.
-	ctx.add_pos_filter(op, subqueries.size(), window);
-
-	qopt->need_positions = old_need_positions;
-    } else {
+    if (!qopt->full_db_has_positions) {
+	// No positional data anywhere, so just handle as AND.
 	QueryAndLike::postlist_sub_and_like(ctx, qopt, factor);
+	return;
     }
+
+    if (!qopt->db.has_positions()) {
+	// No positions in this subdatabase so this matches nothing,
+	// which means the whole andcontext matches nothing.
+	ctx.reset();
+	return;
+    }
+
+    bool old_need_positions = qopt->need_positions;
+    qopt->need_positions = true;
+
+    QueryVector::const_iterator i;
+    for (i = subqueries.begin(); i != subqueries.end(); ++i) {
+	// MatchNothing subqueries should have been removed by done().
+	Assert((*i).internal.get());
+	bool is_term = ((*i).internal->get_type() == Query::LEAF_TERM);
+	PostList* pl = (*i).internal->postlist(qopt, factor);
+	if (!is_term)
+	    pl = new OrPosPostList(pl);
+	ctx.add_postlist(pl);
+    }
+    // Record the positional filter to apply higher up the tree.
+    ctx.add_pos_filter(op, subqueries.size(), window);
+
+    qopt->need_positions = old_need_positions;
 }
 
 void
