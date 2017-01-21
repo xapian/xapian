@@ -136,6 +136,10 @@ class MultiMatch
 	void recalc_maxweight() {
 	    recalculate_w_max = true;
 	}
+
+	bool full_db_has_positions() const {
+	    return db.has_positions();
+	}
 };
 
 #endif /* OM_HGUARD_MULTIMATCH_H */

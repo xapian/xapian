@@ -616,3 +616,45 @@ DEFINE_TESTCASE(complexnear3, backend) {
     mset_expect_order(enq.get_mset(0, 10), 1, 4, 5);
     return true;
 }
+
+static void
+gen_subdbwithoutpos1_db(Xapian::WritableDatabase& db, const string&)
+{
+    Xapian::Document doc;
+    doc.add_term("this");
+    doc.add_term("paragraph");
+    db.add_document(doc);
+}
+
+DEFINE_TESTCASE(subdbwithoutpos1, generated) {
+    Xapian::Database db(get_database("apitest_simpledata"));
+
+    Xapian::Query q(Xapian::Query::OP_PHRASE,
+		    Xapian::Query("this"),
+		    Xapian::Query("paragraph"));
+
+    Xapian::Enquire enq1(db);
+    enq1.set_query(q);
+    Xapian::MSet mset1 = enq1.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 3);
+
+    Xapian::Database db2 =
+	get_database("subdbwithoutpos1", gen_subdbwithoutpos1_db);
+
+    // If a database has no positional info, OP_PHRASE -> OP_AND.
+    Xapian::Enquire enq2(db2);
+    enq2.set_query(q);
+    Xapian::MSet mset2 = enq2.get_mset(0, 10);
+    TEST_EQUAL(mset2.size(), 1);
+
+    // If one sub-database in a combined database has no positional info but
+    // other sub-databases do, then we shouldn't convert OP_PHRASE to OP_AND
+    // (but prior to 1.4.3 we did).
+    db.add_database(db2);
+    Xapian::Enquire enq3(db);
+    enq3.set_query(q);
+    Xapian::MSet mset3 = enq3.get_mset(0, 10);
+    TEST_EQUAL(mset3.size(), 3);
+
+    return true;
+}
