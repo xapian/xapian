@@ -64,6 +64,17 @@ matrix:
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
       env: CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+    - os: linux
+      # (Ab)use env to label this build:
+      env: dummy="Automated run of xapian-check-patch"
+      # Override before_script to do nothing
+      before_script:
+      # Override script to diff from against the branch point from:
+      # * for a PR, the branch the PR targets
+      # * otherwise, master
+      script:
+        - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master || echo "$TRAVIS_BRANCH"`...|xapian-maintainer-tools/xapian-check-patch
+
 
 before_script:
   # Bootstrap everything (including letor, which isn't done
