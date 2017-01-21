@@ -1,17 +1,21 @@
-up to: 8ac975a135e2571d78eaa82e63974509877d3110
+up to: 076d877224200ee70452fad104a61c0acc63df78
 
-Xapian-core 1.4.3 (2017-01-17):
+Xapian-core 1.4.3 (2017-01-21):
 
 API:
 
-* MSet::snippet(): Favour candidate snippets which have contain more of a
-  diversity of matching terms by discounting the relevance of repeated terms
-  using an exponential decay.  A snippet which contains more terms from the
-  query is likely to be better than one which contains the same term or terms
-  multiple times, but a repeated term is still interesting, just less with
-  each additional appearance.  Diversity issue highlighted by Robert Stepanek's
+* MSet::snippet(): Favour candidate snippets which contain more of a diversity
+  of matching terms by discounting the relevance of repeated terms using an
+  exponential decay.  A snippet which contains more terms from the query is
+  likely to be better than one which contains the same term or terms multiple
+  times, but a repeated term is still interesting, just less with each
+  additional appearance.  Diversity issue highlighted by Robert Stepanek's
   patch in https://github.com/xapian/xapian/pull/117 - testcases taken from his
   patch.
+
+* MSet::snippet(): New flag SNIPPET_EMPTY_WITHOUT_MATCH to get an empty snippet
+  if there are no matches in the text passed in.  Implemented by Robert
+  Stepanek.
 
 * Round MSet::get_matches_estimated() to an appropriate number of significant
   figures.  The algorithm used looks at the lower and upper bound and where the
@@ -39,6 +43,9 @@ matcher:
   (assuming a uniform distribution).  This seems to work fairly well in
   practice, and is certainly better than the crude estimate we were using:
   Database::get_doccount() / 2
+
+* Handle arbitrary combinations of OP_OR under OP_NEAR/OP_PHRASE, partly
+  addressing #508.  Thanks to Jean-Francois Dockes for motivation and testing.
 
 * Avoid double get_wdf() call for first subquery of OP_NEAR and OP_PHRASE,
   which will speed them up by a small amount.
