@@ -22,8 +22,8 @@ class AllAccesses(object):
     def __init__(self):
         self.data = {}
         self.total_io_time = 0
-        self.start_time = None;
-        self.total_time = 0;
+        self.start_time = None
+        self.total_time = 0
 
     def append(self, filename, start_time, elapsed, offset, count, optype):
         if self.start_time is None:
