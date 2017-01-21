@@ -57,6 +57,8 @@ class QueryOptimiser {
 
     bool in_synonym;
 
+    bool full_db_has_positions;
+
     const Xapian::Database::Internal & db;
 
     Xapian::doccount db_size;
@@ -69,6 +71,7 @@ class QueryOptimiser {
 	: localsubmatch(localsubmatch_), total_subqs(0),
 	  hint(0), hint_owned(false),
 	  need_positions(false), in_synonym(false),
+	  full_db_has_positions(matcher_->full_db_has_positions()),
 	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }
 
