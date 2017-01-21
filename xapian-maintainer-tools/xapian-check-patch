@@ -108,25 +108,32 @@ while (<>) {
     }
     my $msg;
     my $fullline = $_;
-    # Uncomment commented out parameter names: foo(int /*bar*/) -> foo(int bar)
-    s!/\*([A-Za-z_][A-Za-z_0-9]*)\*/([,)])!$1$2!g;
-    # Trim comments:
-    if (s!/(?:\*.*?\*/|/.*)!!g) {
-	s/\s+$//;
-    }
-    if (s!/\*.*!!g) {
-	s/\s+$//;
-	$in_comment = 1;
-    }
-    # Trim content of comments ending on this line:
-    if (s!^(.).*\*/!$1*/!) {
-	$in_comment = 0;
-    }
-    if ($in_comment) {
-	$_ = '';
-    } else {
-	# Drop comment content for "*" continuation lines (when /* isn't in hunk):
-	s/^(.)(\s*\*).*/$1$2/;
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+	# Uncomment commented out parameter names: foo(int /*bar*/) -> foo(int bar)
+	s!/\*([A-Za-z_][A-Za-z_0-9]*)\*/([,)])!$1$2!g;
+	# Trim comments:
+	if (s!/(?:\*.*?\*/|/.*)!!g) {
+	    s/\s+$//;
+	}
+	if (s!/\*.*!!g) {
+	    s/\s+$//;
+	    $in_comment = 1;
+	}
+	# Trim content of comments ending on this line:
+	if (s!^(.).*\*/!$1*/!) {
+	    $in_comment = 0;
+	}
+	if ($in_comment) {
+	    $_ = '';
+	} else {
+	    # Drop comment content for "*" continuation lines (when /* isn't in hunk):
+	    s/^(.)(\s*\*).*/$1$2/;
+	}
+    } elsif (defined $lang && $lang eq 'py') {
+	# Trim comments:
+	if (s!#.*!!g) {
+	    s/\s+$//;
+	}
     }
 
     # Replace multiple spaces before line continuation marker:
@@ -296,6 +303,10 @@ QUOTELOOP:  while (1) {
 		$msg = "Space before '$1':";
 	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
 		$msg = "Multiple spaces:";
+	    }
+	} elsif (defined $lang && $lang eq 'py') {
+	    if (/;\s*$/) {
+		$msg = "';' at end of line of python code:";
 	    }
 	}
     }
