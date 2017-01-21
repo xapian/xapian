@@ -1,7 +1,7 @@
 /** @file multiandpostlist.h
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -193,6 +193,8 @@ class MultiAndPostList : public PostList {
     Xapian::termcount get_wdf() const;
 
     Xapian::termcount count_matching_subqs() const;
+
+    void gather_position_lists(OrPositionList* orposlist);
 };
 
 #endif // XAPIAN_INCLUDED_MULTIANDPOSTLIST_H

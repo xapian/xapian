@@ -1,7 +1,7 @@
 /** @file postlist.h
  * @brief Abstract base class for postlists.
  */
-/* Copyright (C) 2007,2008,2009,2011,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2011,2015,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,8 @@
 
 #include "backends/positionlist.h"
 #include "weight/weightinternal.h"
+
+class OrPositionList;
 
 /// Abstract base class for postlists.
 class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_base {
@@ -198,6 +200,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
 
     /// Count the number of leaf subqueries which match at the current position.
     virtual Xapian::termcount count_matching_subqs() const;
+
+    /// Gather PositionList* objects for a subtree.
+    virtual void gather_position_lists(OrPositionList* orposlist);
 
     /// Return a string description of this object.
     virtual std::string get_description() const = 0;

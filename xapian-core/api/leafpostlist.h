@@ -106,6 +106,8 @@ class LeafPostList : public PostList {
 
     Xapian::termcount count_matching_subqs() const;
 
+    void gather_position_lists(OrPositionList* orposlist);
+
     /** Open another postlist from the same database.
      *
      *  @param term_	The term to open a postlist for.  If term_ is near to
