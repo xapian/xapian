@@ -30,6 +30,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/ExpandDeciderAnd.cs \
 	generated-csharp/ExpandDeciderFilterPrefix.cs \
 	generated-csharp/FieldProcessor.cs \
+	generated-csharp/FileSizeRangeProcessor.cs\
 	generated-csharp/FixedWeightPostingSource.cs \
 	generated-csharp/GreatCircleMetric.cs \
 	generated-csharp/IfB2Weight.cs \
