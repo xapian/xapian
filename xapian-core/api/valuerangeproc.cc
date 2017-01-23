@@ -443,7 +443,7 @@ not_our_range:
 Xapian::Query
 FileSizeRangeProcessor::operator()(const string& b, const string& e){
 	// Here b and e will be like "100K" and "1M"
-	double size_b , size_e;
+	double size_b, size_e;
 	string unit_b, unit_e;
 	string temp_b = b, temp_e = e;
 	map<string,int> size_map;
@@ -454,14 +454,14 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 
 	if (!b.empty()){
 		errno = 0;
-		char b_back = b.back(); 
-		if(b_back=='B' || b_back=='K' || b_back=='M' || b_back=='G'){
+		char b_back = b.back();
+		if (b_back=='B' || b_back=='K' || b_back=='M' || b_back=='G'){
 			// If suffix of b is 'B','K','M','G'
 			unit_b = b_back;
 			temp_b.pop_back();
 		}else if(!isdigit(b_back)){
-			// If it is neither digit nor any of above character, then it is invalid 
-			goto not_our_range;
+			// If it is neither digit nor any of above character, then it is invalid
+        	goto not_our_range;
 		}
 		const char * startptr = temp_b.c_str();
 		char * endptr;
@@ -476,14 +476,14 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 
 	if (!e.empty()){
 		errno = 0;
-		char e_back = e.back(); 
-		if(e_back=='B' || e_back=='K' || e_back=='M' || e_back=='G'){
+		char e_back = e.back();
+		if (e_back=='B' || e_back=='K' || e_back=='M' || e_back=='G'){
 			// If suffix of b is 'B','K','M','G'
 			unit_e = e_back;
 			temp_e.pop_back();
 		}else if(!isdigit(e_back)){
 			// If it is neither digit nor any of above character, then it is invalid 
-			goto not_our_range;
+		    goto not_our_range;
 		}
 		const char * startptr = temp_e.c_str();
 		char * endptr;
@@ -495,11 +495,11 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 	}else{
 		size_e = 0.0;
 	}
-	if(unit_e.empty()){
+	if (unit_e.empty()){
 		// 1M..5 is not valid. So, if e does not have unit, then invalid 
 		goto not_our_range;
 	}
-	if(unit_b.empty()){
+	if (unit_b.empty()){
 		unit_b = unit_e;
 	}
 	size_b = size_b * size_map[unit_b];
