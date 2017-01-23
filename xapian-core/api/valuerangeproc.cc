@@ -440,27 +440,48 @@ not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
+static const int size_map[26] = {
+    0,
+    1, // B
+    0, 0, 0, 0,
+    1024 * 1024 * 1024, // G
+    0, 0, 0,
+    1024, // K
+    0,
+    1024 * 1024, // M
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+
+static int
+get_bytes(char ch)
+{
+	// It takes character as input and return number of bytes 
+	// B - 1 byte
+	// K - 1024 bytes
+	// M - 1024*1024 bytes
+	// G - 1024*1024*1024 bytes
+	if (ch >= 'A' && ch <= 'Z' && size_map[ch - 'A'] > 0) {
+    return size_map[ch - 'A'];
+	}
+}
+
 Xapian::Query
-FileSizeRangeProcessor::operator()(const string& b, const string& e){
+FileSizeRangeProcessor::operator()(const string& b, const string& e)
+{
 	// Here b and e will be like "100K" and "1M"
-	double size_b , size_e;
+	double size_b, size_e;
 	string unit_b, unit_e;
 	string temp_b = b, temp_e = e;
-	map<string,int> size_map;
-	size_map["B"] = 1;
-	size_map["K"] = size_map["B"]*1024;
-	size_map["M"] = size_map["K"]*1024;
-	size_map["G"] = size_map["M"]*1024;
 
 	if (!b.empty()){
 		errno = 0;
-		char b_back = b.back(); 
-		if(b_back=='B' || b_back=='K' || b_back=='M' || b_back=='G'){
+		char b_back = b.back();
+		if (b_back =='B' || b_back =='K' || b_back =='M' || b_back =='G'){
 			// If suffix of b is 'B','K','M','G'
 			unit_b = b_back;
 			temp_b.pop_back();
 		}else if(!isdigit(b_back)){
-			// If it is neither digit nor any of above character, then it is invalid 
+			// If it is neither digit nor any of above character, then it is invalid
 			goto not_our_range;
 		}
 		const char * startptr = temp_b.c_str();
@@ -468,7 +489,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 		size_b = strtod(startptr, &endptr);
 		if (endptr != startptr + temp_b.size() || errno) {
 	    	// Invalid characters in string || overflow or underflow.
-	    	goto not_our_range;
+			goto not_our_range;
 		}
 	}else{
 		size_b = 0.0;
@@ -476,42 +497,41 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 
 	if (!e.empty()){
 		errno = 0;
-		char e_back = e.back(); 
-		if(e_back=='B' || e_back=='K' || e_back=='M' || e_back=='G'){
+		char e_back = e.back();
+		if (e_back =='B' || e_back =='K' || e_back =='M' || e_back =='G'){
 			// If suffix of b is 'B','K','M','G'
 			unit_e = e_back;
 			temp_e.pop_back();
 		}else if(!isdigit(e_back)){
 			// If it is neither digit nor any of above character, then it is invalid 
-			goto not_our_range;
+		    goto not_our_range;
 		}
 		const char * startptr = temp_e.c_str();
 		char * endptr;
 		size_e = strtod(startptr, &endptr);
 		if (endptr != startptr + temp_e.size() || errno) {
 	    	// Invalid characters in string || overflow or underflow.
-	    	goto not_our_range;
+			goto not_our_range;
 		}
 	}else{
 		size_e = 0.0;
 	}
-	if(unit_e.empty()){
+	if (unit_e.empty()){
 		// 1M..5 is not valid. So, if e does not have unit, then invalid 
 		goto not_our_range;
 	}
-	if(unit_b.empty()){
+	if (unit_b.empty()){
 		unit_b = unit_e;
 	}
-	size_b = size_b * size_map[unit_b];
-	size_e = size_e * size_map[unit_e];
+	size_b = size_b * get_bytes(unit_b);
+	size_e = size_e * get_bytes(unit_e);
+
 	return RangeProcessor::operator()(
 	    b.empty() ? b : Xapian::sortable_serialise(size_b),
 	    e.empty() ? e : Xapian::sortable_serialise(size_e));
 
-
 not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
 }
-
 
 }

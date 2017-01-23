@@ -234,10 +234,7 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
     }
 };
 
-/** Handle a file size range
- *
- * 
- */
+// Handles a file size range
 
 class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
   public:
@@ -272,12 +269,6 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      *  The remainder of both strings defining the endpoints must be valid
      *  floating point numbers.
      *
-     *  For example, if str_ is "$" and prefix_ is true, and the range
-     *  processor has been added to the queryparser, the queryparser will
-     *  accept "$10..50" or "$10..$50", but not "10..50" or "10..$50" as valid
-     *  ranges.  If str_ is "kg" and prefix_ is false, the queryparser will
-     *  accept "10..50kg" or "10kg..50kg", but not "10..50" or "10kg..50" as
-     *  valid ranges.
      *  FileSizeRangeProcessor will handle file size as: 
      *  B - Bytes
      *  K - Kilo Bytes
@@ -288,7 +279,7 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      *  queryparser will accept "size:10K..1M".
      *  Examples of valid ranges
      *    size:10K..1M i.e. 10 KB to 1 MB 
-     *    size:10..100K i.e. 10 KB t0 100 KB
+     *    size:10..100K i.e. 10 KB to 100 KB
      *  Examples of invalid ranges
      *    size:10K..20
      *    size:10..20
@@ -298,8 +289,8 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      *  
      */
     FileSizeRangeProcessor(Xapian::valueno slot_,
-             const std::string &str_ = std::string(),
-             unsigned flags_ = 0)
+            const std::string &str_ = std::string(),
+            unsigned flags_ = 0)
     : RangeProcessor(slot_, str_, flags_) { }
 
     /** Check for a valid numeric range.
@@ -316,8 +307,6 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      */
     Xapian::Query operator()(const std::string& begin, const std::string& end);
 };
-
-
 
 /** Handle a date range.
  *

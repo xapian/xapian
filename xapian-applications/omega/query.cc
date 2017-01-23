@@ -112,8 +112,6 @@ static Xapian::Query query;
 Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
 static Xapian::QueryParser qp;
-//static Xapian::NumberRangeProcessor * size_rp = NULL;
-// Using FileSizeRangeProcessor instead of NumberRangeProcessor
 static Xapian::FileSizeRangeProcessor * size_rp = NULL;
 static Xapian::Stem *stemmer = NULL;
 
@@ -321,9 +319,7 @@ set_probabilistic(const string &oldp)
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
     qp.set_database(db);
-    // FIXME: provide a custom RP which handles size:10..20K, etc.
     if (!size_rp){
-    //size_rp = new Xapian::NumberRangeProcessor(VALUE_SIZE, "size:");
     size_rp = new Xapian::FileSizeRangeProcessor(VALUE_SIZE, "size:");
 	}
     qp.add_rangeprocessor(size_rp);
