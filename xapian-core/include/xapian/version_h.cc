@@ -64,7 +64,7 @@ const char * dummy[] = {
 #endif
 // GCC 3.1 reports ABI version 100 (same as 3.0), but this should actually have
 // been 101!  But we reject 3.0 above, so this doesn't actually matter.
-"#if !defined(__GXX_ABI_VERSION) || __GXX_ABI_VERSION != ",__GXX_ABI_VERSION,
+"#if !defined(__GXX_ABI_VERSION) || __GXX_ABI_VERSION != ", __GXX_ABI_VERSION,
 #if __GXX_ABI_VERSION >= 1002
 // ABI versions 2 and up are compatible aside from obscure corner cases, so
 // issue a warning, but don't refuse to compile as there's a good chance that
@@ -74,9 +74,9 @@ const char * dummy[] = {
 "#warning that of the compiler used to build the library.  If linking fails",
 "#warning due to missing symbols, this is probably the reason why.",
 #ifdef __GNUC_PATCHLEVEL__
-"#warning The Xapian library was built with ",V3(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__),
+"#warning The Xapian library was built with ", V3(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__),
 #else
-"#warning The Xapian library was built with ",V2(__GNUC__,__GNUC_MINOR__),
+"#warning The Xapian library was built with ", V2(__GNUC__, __GNUC_MINOR__),
 #endif
 "#else",
 #endif
@@ -84,9 +84,9 @@ const char * dummy[] = {
 "#error that of the compiler used to build the library.  The versions",
 "#error must match or your program will not work correctly.",
 #ifdef __GNUC_PATCHLEVEL__
-"#error The Xapian library was built with ",V3(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__),
+"#error The Xapian library was built with ", V3(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__),
 #else
-"#error The Xapian library was built with ",V2(__GNUC__,__GNUC_MINOR__),
+"#error The Xapian library was built with ", V2(__GNUC__, __GNUC_MINOR__),
 #endif
 #if __GXX_ABI_VERSION >= 1002
 "#endif",
@@ -140,31 +140,31 @@ const char * dummy[] = {
 "",
 #endif
 "/// The version of Xapian as a C string literal.",
-"#define XAPIAN_VERSION ",STRING_VERSION,
+"#define XAPIAN_VERSION ", STRING_VERSION,
 "",
 "/** The major component of the Xapian version.",
 " *  E.g. for Xapian 1.0.14 this would be: 1",
 " */",
-"#define XAPIAN_MAJOR_VERSION ",MAJOR_VERSION,
+"#define XAPIAN_MAJOR_VERSION ", MAJOR_VERSION,
 "",
 "/** The minor component of the Xapian version.",
 " *  E.g. for Xapian 1.0.14 this would be: 0",
 " */",
-"#define XAPIAN_MINOR_VERSION ",MINOR_VERSION,
+"#define XAPIAN_MINOR_VERSION ", MINOR_VERSION,
 "",
 "/** The revision component of the Xapian version.",
 " *  E.g. for Xapian 1.0.14 this would be: 14",
 " */",
-"#define XAPIAN_REVISION ",REVISION,
+"#define XAPIAN_REVISION ", REVISION,
 "",
 "/// Base (signed) type for Xapian::docid and related types.",
-"#define XAPIAN_DOCID_BASE_TYPE ",XAPIAN_DOCID_BASE_TYPE,
+"#define XAPIAN_DOCID_BASE_TYPE ", XAPIAN_DOCID_BASE_TYPE,
 "",
 "/// Base (signed) type for Xapian::termcount and related types.",
-"#define XAPIAN_TERMCOUNT_BASE_TYPE ",XAPIAN_TERMCOUNT_BASE_TYPE,
+"#define XAPIAN_TERMCOUNT_BASE_TYPE ", XAPIAN_TERMCOUNT_BASE_TYPE,
 "",
 "/// Underlying type for Xapian::rev.",
-"#define XAPIAN_REVISION_TYPE ",XAPIAN_REVISION_TYPE,
+"#define XAPIAN_REVISION_TYPE ", XAPIAN_REVISION_TYPE,
 "",
 "/// XAPIAN_HAS_GLASS_BACKEND Defined if the glass backend is enabled.",
 #ifdef XAPIAN_HAS_GLASS_BACKEND
