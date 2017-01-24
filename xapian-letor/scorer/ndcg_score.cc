@@ -58,8 +58,8 @@ double
 NDCGScore::score(const std::vector<FeatureVector> & fvv) const {
     LOGCALL(API, double, "NDCGScore::score", fvv);
     std::vector<double> labels;
-    for (int i = 0; i < int(fvv.size()); i++) {
-	labels.push_back(fvv[i].get_label());
+    for (auto&& v : fvv) {
+	labels.push_back(v.get_label());
     }
     //DCG score of original ranking
     double DCG = get_dcg(labels);
