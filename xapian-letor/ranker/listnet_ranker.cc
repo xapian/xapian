@@ -97,9 +97,9 @@ calculateGradient(const vector<FeatureVector> &feature_vectors, const prob_distr
     // Hold prediction score probability distribution
     const vector<double> prob_z(prob[1]);
 
-    for (size_t i = 0; i < feature_vectors.size(); i++) {
+    for (size_t i = 0; i < feature_vectors.size(); ++i) {
 	vector<double> fvals = feature_vectors[i].get_fvals();
-	for (size_t k = 0; k < fvals.size(); k++) {
+	for (size_t k = 0; k < fvals.size(); ++k) {
 	    double first_term = - prob_y[i] * fvals[k];
 	    gradient[k] += first_term;
 
@@ -113,7 +113,7 @@ calculateGradient(const vector<FeatureVector> &feature_vectors, const prob_distr
 static void
 updateParameters(vector<double> &new_parameters, const vector<double> &gradient, double learning_rate) {
     LOGCALL_STATIC_VOID(API, "updateParameters", new_parameters | gradient | learning_rate);
-    for (size_t i = 0; i < new_parameters.size(); i++) {
+    for (size_t i = 0; i < new_parameters.size(); ++i) {
 	new_parameters[i] -= gradient[i] * learning_rate;
     }
 }

@@ -65,7 +65,7 @@ apply_unix_permissions(Xapian::Query & query, const char * user)
 	groups = new GID_T[ngroups];
     }
 
-    for (int i = 0; i < ngroups; i++) {
+    for (int i = 0; i < ngroups; ++i) {
 	struct group * grentry = getgrgid(groups[i]);
 	if (grentry) {
 	    const char * group = grentry->gr_name;

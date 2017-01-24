@@ -612,7 +612,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 
     test_driver::result res;
 
-    for (const test_desc *test = tests; test->name; test++) {
+    for (const test_desc *test = tests; test->name; ++test) {
 	bool do_this_test = !check_name;
 	if (!do_this_test && m.find(test->name) != m.end())
 	    do_this_test = true;

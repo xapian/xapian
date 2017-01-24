@@ -1354,7 +1354,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     bool replacement = false;         // Has there been a replacement?
     bool components_to_del = false;   // Are there components to delete?
     int i;
-    for (i = 1; i <= m; i++) {
+    for (i = 1; i <= m; ++i) {
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	size_t this_cd = (i == 1 ? cd - X2 : cd);
 	Assert(this_cd + l <= block_size);
@@ -1594,7 +1594,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
 
     set_max_item_size(BLOCK_CAPACITY);
 
-    for (int j = 0; j <= level; j++) {
+    for (int j = 0; j <= level; ++j) {
 	C[j].init(block_size);
     }
 
@@ -1825,7 +1825,7 @@ void GlassTable::close(bool permanent) {
 	// still be used to look up cached content.
 	return;
     }
-    for (int j = level; j >= 0; j--) {
+    for (int j = level; j >= 0; --j) {
 	C[j].destroy();
     }
     delete [] split_p;
@@ -1849,7 +1849,7 @@ GlassTable::flush_db()
 	return;
     }
 
-    for (int j = level; j >= 0; j--) {
+    for (int j = level; j >= 0; --j) {
 	if (C[j].rewrite) {
 	    write_block(C[j].get_n(), C[j].get_p());
 	}
@@ -1949,7 +1949,7 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
 
     Btree_modified = false;
 
-    for (int j = 0; j <= level; j++) {
+    for (int j = 0; j <= level; ++j) {
 	C[j].init(block_size);
 	C[j].rewrite = false;
     }
