@@ -79,7 +79,7 @@ initializeProbability(const vector<FeatureVector> &feature_vectors, const vector
 	prob_y.push_back(exp(feature_vectors[i].get_label()) / expsum_y);
 	prob_z.push_back(exp(calculateInnerProduct(new_parameters, feature_vectors[i].get_fvals())) / expsum_z);
     }
-    vector< vector<double> > prob;
+    vector<vector<double>> prob;
     prob.push_back(prob_y);
     prob.push_back(prob_z);
     return prob;

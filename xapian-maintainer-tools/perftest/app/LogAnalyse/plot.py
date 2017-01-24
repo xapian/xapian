@@ -122,7 +122,7 @@ def indexingrun_rate_chart(store, runids, avglen=None):
 
             adds_delta = adds - series[last_index][0]
             time_delta = time - series[last_index][1]
-            
+
             newseries.extend((adds, time_delta / adds_delta))
             xmax = max(xmax, adds)
         plot.add_data({'data': newseries, 'title': 'run %d' % runid})

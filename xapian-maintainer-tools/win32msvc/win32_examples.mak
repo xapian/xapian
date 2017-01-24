@@ -20,14 +20,14 @@ OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 
 INTDIR=.\
 
-OBJS =  	$(INTDIR)\delve.obj \
+OBJS =		$(INTDIR)\delve.obj \
 		$(INTDIR)\quest.obj \
 		$(INTDIR)\simpleexpand.obj \
 		$(INTDIR)\simpleindex.obj \
 		$(INTDIR)\simplesearch.obj \
 		$(INTDIR)\copydatabase.obj
 
-SRCS =  	$(INTDIR)\delve.cc \
+SRCS =		$(INTDIR)\delve.cc \
 		$(INTDIR)\quest.cc \
 		$(INTDIR)\simpleexpand.cc \
 		$(INTDIR)\simpleindex.cc \

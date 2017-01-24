@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
   config.vm.hostname = "xapian"
   config.vm.box      = "devfort-ubuntu-13.04-provisionerless"
   config.vm.box_url  = "http://devfort.s3.amazonaws.com/boxes/devfort-ubuntu-13.04-provisionerless-virtualbox.box"
-  
+
   config.vm.provision "shell", inline: $packages
   config.vm.provision "shell", inline: $bootstrap, privileged: false
   config.vm.provision "shell", inline: $configure, privileged: false

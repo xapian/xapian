@@ -11,17 +11,17 @@ INTDIR=..\compiler
 
 ALL : "$(OUTDIR)\snowball.exe"
 
-OBJS= 	       "$(INTDIR)\analyser.obj" \
-               "$(INTDIR)\generator.obj" \
-               "$(INTDIR)\driver.obj" \
-               "$(INTDIR)\space.obj" \
-               "$(INTDIR)\tokeniser.obj"
+OBJS=	"$(INTDIR)\analyser.obj" \
+	"$(INTDIR)\generator.obj" \
+	"$(INTDIR)\driver.obj" \
+	"$(INTDIR)\space.obj" \
+	"$(INTDIR)\tokeniser.obj"
 
-SRCS= 	       "$(INTDIR)\analyser.c" \
-               "$(INTDIR)\generator.c" \
-               "$(INTDIR)\driver.c" \
-               "$(INTDIR)\space.c" \
-               "$(INTDIR)\tokeniser.c"
+SRCS=	"$(INTDIR)\analyser.c" \
+	"$(INTDIR)\generator.c" \
+	"$(INTDIR)\driver.c" \
+	"$(INTDIR)\space.c" \
+	"$(INTDIR)\tokeniser.c"
 
 CLEAN :
 	-@erase "$(INTDIR)\*.pch"

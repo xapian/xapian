@@ -398,8 +398,8 @@ DEFINE_TESTCASE(expandweights4, backend) {
     // Now include negative weights
     TEST_EQUAL(eset.size(), 37);
     TEST_REL(eset.get_ebound(), >=, eset.size());
-    TEST_REL(eset[36].get_weight(),<,0);
-    TEST_REL(eset[36].get_weight(),>=,-100);
+    TEST_REL(eset[36].get_weight(), <, 0);
+    TEST_REL(eset[36].get_weight(), >=, -100);
 
     return true;
 }
