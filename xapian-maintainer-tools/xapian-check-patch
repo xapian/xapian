@@ -53,7 +53,9 @@ my $check_trailing = 0;
 my $check_space_tab = 0;
 my $in_comment = 0;
 my $lang;
+my %count;
 while (<>) {
+    my $type = 'error';
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
 	++$files;
 	$fnm = $1;
@@ -84,6 +86,9 @@ while (<>) {
 	} elsif ($fnm =~ /\.py(?:\.in)?$/) {
 	    $lang = 'py';
 	    $want_tabs = 0;
+	} elsif ($fnm =~ m!(?:^|/)ChangeLog\b!) {
+	    $lang = 'changelog';
+	    $want_tabs = 1;
 	}
 	$check_trailing =
 	    $fnm !~ /\.sbl$/ &&
@@ -195,11 +200,19 @@ QUOTELOOP:  while (1) {
 	$msg = "added/changed line uses spaces for indentation rather than tab:";
     } elsif (!$want_tabs and /^\+ *\t/) {
 	$msg = "added/changed line uses tab for indentation rather than spaces:";
-    } elsif (/^-.*\bFIX(?:ME)\b/) {
-	$msg = "FIX"."ME removed:";
-    } elsif (/^\+.*\bFIX(?:ME)\b/) {
-	$msg = "FIX"."ME added:";
-    } elsif (defined $lang && /^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+    } elsif ((!defined $lang || $lang ne 'changelog') && /^([-+]).*\bFIX(?:ME)\b/) {
+	# Break up the string in the regexp above and messages below to avoid
+	# this triggering on its own code!
+	if ($1 eq '-') {
+	    # Not an error, but interesting information.
+	    $type = 'info';
+	    $msg = "FIX"."ME removed:";
+	} else {
+	    # Not an error, but not good.
+	    $type = 'warning';
+	    $msg = "FIX"."ME added:";
+	}
+    } elsif (defined $lang && $lang ne 'changelog' && /^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
 	$msg = "Doxygen command '\\$1' introduced by '\\' not '\@':";
     } else {
 	if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
@@ -313,12 +326,13 @@ QUOTELOOP:  while (1) {
 	}
     }
     if (defined $msg) {
-	print "$fnm:$lineno: $msg";
+	print "$fnm:$lineno: $type: $msg";
 	if ($msg =~ /:$/) {
 	    print " $fullline";
 	} else {
 	    print "\n";
 	}
+	++$count{$type};
     }
     my $first_char = substr($fullline, 0, 1);
     if ($first_char eq ' ') {
@@ -330,8 +344,15 @@ QUOTELOOP:  while (1) {
 	++$del_lines;
     }
 }
+if (scalar keys %count) {
+    for (sort keys %count) {
+	print STDERR "$_ count:\t$count{$_}\n";
+    }
+    print STDERR "\n";
+}
 print STDERR <<"__END__";
 Files patched:\t$files
 Lines added:\t$add_lines
 Lines removed:\t$del_lines
 __END__
+exit(exists $count{'error'} ? 1 : 0);
