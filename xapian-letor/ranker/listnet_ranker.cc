@@ -71,13 +71,13 @@ initializeProbability(const vector<FeatureVector> &feature_vectors, const vector
     double expsum_y = 0.0;
     double expsum_z = 0.0;
 
-    for (size_t i = 0; i < feature_vectors.size(); i++) {
-	expsum_y += exp(feature_vectors[i].get_label());
-	expsum_z += exp(calculateInnerProduct(new_parameters, feature_vectors[i].get_fvals()));
+    for (auto&& v : feature_vectors) {
+	expsum_y += exp(v.get_label());
+	expsum_z += exp(calculateInnerProduct(new_parameters, v.get_fvals()));
     }
-    for (size_t i = 0; i < feature_vectors.size(); i++) {
-	prob_y.push_back(exp(feature_vectors[i].get_label()) / expsum_y);
-	prob_z.push_back(exp(calculateInnerProduct(new_parameters, feature_vectors[i].get_fvals())) / expsum_z);
+    for (auto&& v : feature_vectors) {
+	prob_y.push_back(exp(v.get_label()) / expsum_y);
+	prob_z.push_back(exp(calculateInnerProduct(new_parameters, v.get_fvals())) / expsum_z);
     }
     vector<vector<double>> prob;
     prob.push_back(prob_y);

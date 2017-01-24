@@ -214,9 +214,9 @@ try {
 	    set_expansion_scheme(*enquire, option);
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    string morelike_query;
-	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
+	    for (auto&& term : eset) {
 		if (!morelike_query.empty()) morelike_query += ' ';
-		morelike_query += pretty_term(*i);
+		morelike_query += pretty_term(term);
 	    }
 	    set_probabilistic_query(string(), morelike_query);
 	}

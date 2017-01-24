@@ -211,8 +211,8 @@ try {
 
     cout << "Docids after re-ranking by LTR model:" << endl;
     rank = 0;
-    for (int i = 0; i < int(ranked_docids.size()); i++)
-	cout << "Rank " << ++rank << ": " << ranked_docids[i] << endl;
+    for (auto&& did : ranked_docids)
+	cout << "Rank " << ++rank << ": " << did << endl;
 
     delete ranker;
 

@@ -1271,8 +1271,8 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_add: {
 		int total = 0;
 		vector<string>::const_iterator i;
-		for (i = args.begin(); i != args.end(); i++)
-		    total += string_to_int(*i);
+		for (auto&& arg : args)
+		    total += string_to_int(arg);
 		value = str(total);
 		break;
 	    }
@@ -1294,9 +1294,8 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_and: {
 		value = "true";
-		for (vector<string>::const_iterator i = args.begin();
-		     i != args.end(); i++) {
-		    if (eval(*i, param).empty()) {
+		for (auto&& arg : args) {
+		    if (eval(arg, param).empty()) {
 			value.resize(0);
 			break;
 		    }
@@ -1883,9 +1882,8 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    case CMD_or: {
-		for (vector<string>::const_iterator i = args.begin();
-		     i != args.end(); i++) {
-		    value = eval(*i, param);
+		for (auto&& arg : args) {
+		    value = eval(arg, param);
 		    if (!value.empty()) break;
 		}
 		break;
