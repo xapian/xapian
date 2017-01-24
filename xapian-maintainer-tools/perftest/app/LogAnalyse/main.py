@@ -182,7 +182,7 @@ class LogAnalyseResource:
 
         def render(t):
             t.timeheadings.repeat(render_heading, runids)
-            
+
             t.runs.repeat(render_list, gen_items())
             if hasattr(t, 'csv_link'):
                 t.csv_link.atts["href"] = "../csv/" + ids_to_str(runids)

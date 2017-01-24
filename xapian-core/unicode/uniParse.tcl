@@ -11,7 +11,7 @@
 
 
 namespace eval uni {
-    set shift 8; 		# number of bits of data within a page
+    set shift 8;		# number of bits of data within a page
 				# This value can be adjusted to find the
 				# best split to minimize table size
 

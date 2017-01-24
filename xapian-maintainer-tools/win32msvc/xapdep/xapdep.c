@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-/* Replacement for makedepend, which had several bugs. We read in a file 'deps.d', 
+/* Replacement for makedepend, which had several bugs. We read in a file 'deps.d',
 made by the MSVC compiler using the -showIncludes switch, reformat it and add its
  contents to the end of 'Makefile' */
 
@@ -35,9 +35,9 @@ made by the MSVC compiler using the -showIncludes switch, reformat it and add it
 #define DISCARDSTRING "Generating Code..."
 #define DISCARDSTRING2 "Compiling..."
 /* no, of characters after 'Note: including file:' in dep file */
-#define INSET 22 
+#define INSET 22
 /*  lines that don't match the above will have a colon at this position*/
-#define CHECKPOS 4 
+#define CHECKPOS 4
 
 int main(int argc, char *argv[])
 {
@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
 			while(!feof(indep))
 			{
                 /* check for other random strings the compiler emits sometimes */
-                while ( (strncmp(buf, DISCARDSTRING, strlen(DISCARDSTRING))==0) || 
-                    (strncmp(buf, DISCARDSTRING2, strlen(DISCARDSTRING2))==0) )    
+                while ( (strncmp(buf, DISCARDSTRING, strlen(DISCARDSTRING))==0) ||
+                    (strncmp(buf, DISCARDSTRING2, strlen(DISCARDSTRING2))==0) )
                 {
                       sprintf(buf,""); /* don't use the discard string later */
                       if(feof(indep)) break;
@@ -96,14 +96,14 @@ int main(int argc, char *argv[])
 				{
                     /* get all the dependencies */
 					fgets(buf, sizeof(buf), indep);
-                    
+
                     /* check for the end of the deps list */
-					if(buf[CHECKPOS]!=':') 
+					if(buf[CHECKPOS]!=':')
 						break;
-                        
+
                     /* check for other random strings the compiler emits sometimes */
-                    if ( (strncmp(buf, DISCARDSTRING, strlen(DISCARDSTRING))==0) || 
-                    (strncmp(buf, DISCARDSTRING2, strlen(DISCARDSTRING2))==0) )    
+                    if ( (strncmp(buf, DISCARDSTRING, strlen(DISCARDSTRING))==0) ||
+                    (strncmp(buf, DISCARDSTRING2, strlen(DISCARDSTRING2))==0) )
                         break;
 
                     /* clean up the dependencies and write them to the makefile */
