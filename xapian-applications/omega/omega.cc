@@ -225,7 +225,7 @@ try {
 	string expand_terms;
 	if (cgi_params.find("ADD") != cgi_params.end()) {
 	    g = cgi_params.equal_range("X");
-	    for (MCI i = g.first; i != g.second; i++) {
+	    for (MCI i = g.first; i != g.second; ++i) {
 		const string & v = i->second;
 		if (!v.empty()) {
 		    if (!expand_terms.empty())
@@ -237,7 +237,7 @@ try {
 
 	// collect the unprefixed prob fields
 	g = cgi_params.equal_range("P");
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    if (!v.empty()) {
 		// If there are expand terms, append them to the first
@@ -261,7 +261,7 @@ try {
 
     g.first = cgi_params.lower_bound("P.");
     g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
-    for (MCI i = g.first; i != g.second; i++) {
+    for (MCI i = g.first; i != g.second; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
@@ -273,7 +273,7 @@ try {
     g = cgi_params.equal_range("B");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {
@@ -312,7 +312,7 @@ try {
     g = cgi_params.equal_range("N");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty N fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {

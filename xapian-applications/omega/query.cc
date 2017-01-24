@@ -456,7 +456,7 @@ run_query()
 	vector<Xapian::Query> filter_vec;
 	vector<string> same_vec;
 	string current;
-	for (FMCI i = filter_map.begin(); ; i++) {
+	for (FMCI i = filter_map.begin(); ; ++i) {
 	    bool over = (i == filter_map.end());
 	    if (over || i->first != current) {
 		switch (same_vec.size()) {
@@ -1155,7 +1155,7 @@ eval(const string &fmt, const vector<string> &param)
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
 	struct func_desc *p;
-	for (p = func_tab; p->name != NULL; p++) {
+	for (p = func_tab; p->name != NULL; ++p) {
 	    func_map[string(p->name)] = &(p->a);
 	}
     }
@@ -1242,7 +1242,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    if (func->second->minargs == N)
 		args.push_back(fmt.substr(q, p - q));
-	    p++;
+	    ++p;
 	}
 
 	if (func->second->minargs != N) {
@@ -1258,7 +1258,7 @@ eval(const string &fmt, const vector<string> &param)
 	    else
 		n = args.size();
 
-	    for (vector<string>::size_type j = 0; j < n; j++)
+	    for (vector<string>::size_type j = 0; j < n; ++j)
 		args[j] = eval(args[j], param);
 	}
 	if (func->second->ensure == 'Q' || func->second->ensure == 'M')
@@ -1284,7 +1284,7 @@ eval(const string &fmt, const vector<string> &param)
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		for (Xapian::TermIterator term = db.termlist_begin(id);
-		     term != db.termlist_end(id); term++) {
+		     term != db.termlist_end(id); ++term) {
 		    value += *term;
 		    value += '\t';
 		}
@@ -1311,7 +1311,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_cgilist: {
 		pair<MCI, MCI> g;
 		g = cgi_params.equal_range(args[0]);
-		for (MCI i = g.first; i != g.second; i++) {
+		for (MCI i = g.first; i != g.second; ++i) {
 		    value += i->second;
 		    value += '\t';
 		}
@@ -1583,12 +1583,12 @@ eval(const string &fmt, const vector<string> &param)
 		    }
 		}
 		// add any boolean terms
-		for (FMCI i = filter_map.begin(); i != filter_map.end(); i++) {
+		for (FMCI i = filter_map.begin(); i != filter_map.end(); ++i) {
 		    url_query_string += "&B=";
 		    url_query_string += i->second;
 		}
 #endif
-		for (hit_no = topdoc; hit_no < last; hit_no++)
+		for (hit_no = topdoc; hit_no < last; ++hit_no)
 		    value += print_caption(args[0], param);
 		hit_no = 0;
 		break;
@@ -1787,7 +1787,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_max: {
 		vector<string>::const_iterator i = args.begin();
 		int val = string_to_int(*i++);
-		for (; i != args.end(); i++) {
+		for (; i != args.end(); ++i) {
 		    int x = string_to_int(*i);
 		    if (x > val) val = x;
 		}
@@ -1797,7 +1797,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_min: {
 		vector<string>::const_iterator i = args.begin();
 		int val = string_to_int(*i++);
-		for (; i != args.end(); i++) {
+		for (; i != args.end(); ++i) {
 		    int x = string_to_int(*i);
 		    if (x < val) val = x;
 		}
@@ -1965,7 +1965,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_relevants:	{
 		for (map <Xapian::docid, bool>::const_iterator i = ticked.begin();
-		     i != ticked.end(); i++) {
+		     i != ticked.end(); ++i) {
 		    if (i->second) {
 			value += str(i->first);
 			value += '\t';
@@ -2493,7 +2493,7 @@ ensure_query_parsed()
     if (!discard_rset) {
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;

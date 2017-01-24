@@ -1037,7 +1037,7 @@ DEFINE_TESTCASE(reversebool2, backend) {
     {
 	Xapian::MSetIterator i = mymset1.begin();
 	Xapian::MSetIterator j = mymset2.begin();
-	for ( ; j != mymset2.end(); ++i, j++) {
+	for ( ; j != mymset2.end(); ++i, ++j) {
 	    TEST(i != mymset1.end());
 	    // if this fails, then setting match_sort_forward=true was not
 	    // the same as the default.
@@ -1052,7 +1052,7 @@ DEFINE_TESTCASE(reversebool2, backend) {
     {
 	Xapian::MSetIterator i = mymset1.end();
 	Xapian::MSetIterator j;
-	for (j = mymset3.begin(); j != mymset3.end(); j++) {
+	for (j = mymset3.begin(); j != mymset3.end(); ++j) {
 	    // if this fails, then setting match_sort_forward=false didn't
 	    // reverse the results.
 	    TEST_EQUAL(*--i, *j);
@@ -1457,7 +1457,7 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     double wt2 = 0;
     {
 	Xapian::ESetIterator i = eset1.begin();
-	for ( ; i != eset1.end(); i++) {
+	for ( ; i != eset1.end(); ++i) {
 	    if (*i == theterm) {
 		wt1 = i.get_weight();
 		break;
@@ -1466,7 +1466,7 @@ DEFINE_TESTCASE(termlisttermfreq1, backend) {
     }
     {
 	Xapian::ESetIterator i = eset2.begin();
-	for ( ; i != eset2.end(); i++) {
+	for ( ; i != eset2.end(); ++i) {
 	    if (*i == theterm) {
 		wt2 = i.get_weight();
 		break;

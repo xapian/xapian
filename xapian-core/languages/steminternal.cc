@@ -88,7 +88,7 @@ extern symbol * create_s() {
 
 extern int skip_utf8(const symbol * p, int c, int lb, int l, int n) {
     if (n >= 0) {
-	for (; n > 0; n--) {
+	for (; n > 0; --n) {
 	    if (c >= l) return -1;
 	    if (p[c++] >= 0xC0) {   /* 1100 0000 */
 		while (c < l) {
@@ -99,7 +99,7 @@ extern int skip_utf8(const symbol * p, int c, int lb, int l, int n) {
 	    }
 	}
     } else {
-	for (; n < 0; n++) {
+	for (; n < 0; ++n) {
 	    if (c <= lb) return -1;
 	    if (p[--c] >= 0x80) {   /* 1000 0000 */
 		while (c > lb) {
@@ -278,11 +278,11 @@ SnowballStemImplementation::find_among(const symbol * pool,
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j; /* smaller */
         const struct among * w = v + k;
-	for (int x = common; x < w->s_size; x++) {
+	for (int x = common; x < w->s_size; ++x) {
 	    if (c_orig + common == l) { diff = -1; break; }
 	    diff = q[common] - (pool + w->s)[x];
 	    if (diff != 0) break;
-	    common++;
+	    ++common;
 	}
         if (diff < 0) { j = k; common_j = common; }
                  else { i = k; common_i = common; }
@@ -337,11 +337,11 @@ SnowballStemImplementation::find_among_b(const symbol * pool,
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j;
 	const struct among * w = v + k;
-	for (int x = w->s_size - 1 - common; x >= 0; x--) {
+	for (int x = w->s_size - 1 - common; x >= 0; --x) {
 	    if (c_orig - common == lb) { diff = -1; break; }
 	    diff = q[- common] - (pool + w->s)[x];
 	    if (diff != 0) break;
-	    common++;
+	    ++common;
 	}
         if (diff < 0) { j = k; common_j = common; }
                  else { i = k; common_i = common; }
@@ -462,7 +462,7 @@ void SnowballStemImplementation::debug(int number, int line_count) {
     int limit = SIZE(p);
     /*if (number >= 0) printf("%3d (line %4d): '", number, line_count);*/
     if (number >= 0) printf("%3d (line %4d): [%d]'", number, line_count, limit);
-    for (i = 0; i <= limit; i++) {
+    for (i = 0; i <= limit; ++i) {
         if (lb == i) printf("{");
         if (bra == i) printf("[");
         if (c == i) printf("|");

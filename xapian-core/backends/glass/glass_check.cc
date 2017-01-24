@@ -361,7 +361,7 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
 void GlassTableCheck::report_cursor(int N, const Glass::Cursor * C_) const
 {
     *out << N << ")\n";
-    for (int i = 0; i <= level; i++)
+    for (int i = 0; i <= level; ++i)
 	*out << "p=" << C_[i].get_p() << ", "
 		"c=" << C_[i].c << ", "
 		"n=[" << C_[i].get_n() << "], "
