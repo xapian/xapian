@@ -1,6 +1,6 @@
-up to: 076d877224200ee70452fad104a61c0acc63df78
+up to: 1088180e15c12670349cb4fdf11a1448bdd68aea
 
-Xapian-core 1.4.3 (2017-01-21):
+Xapian-core 1.4.3 (2017-01-24):
 
 API:
 
@@ -46,6 +46,11 @@ matcher:
 
 * Handle arbitrary combinations of OP_OR under OP_NEAR/OP_PHRASE, partly
   addressing #508.  Thanks to Jean-Francois Dockes for motivation and testing.
+
+* Only convert OP_PHRASE to OP_AND if full DB has no positions.  Until now the
+  conversion was done independently for each sub-database, but being consistent
+  with the results from a database containing all the same documents seems more
+  useful.
 
 * Avoid double get_wdf() call for first subquery of OP_NEAR and OP_PHRASE,
   which will speed them up by a small amount.
