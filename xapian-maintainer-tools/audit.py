@@ -452,7 +452,7 @@ class SourceChecker:
                                                proportion_date,
                                                proportion_equal * file.length,
                                                proportion_date * file.length,]
-            
+
             for license in file.licenses:
                 try:
                     license_owners = owners[license]
@@ -492,7 +492,7 @@ class SourceChecker:
             license_owners.reverse()
             result.append((license, license_owners))
         return tuple(result)
-                
+
     def get_fixmes(self):
         """Get a dict holding fixmes, keyed by milestone.
 

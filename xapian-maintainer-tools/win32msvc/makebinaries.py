@@ -36,12 +36,12 @@ def rmgeneric(path, __func__):
         print 'Removed ', path
     except OSError, (errno, strerror):
         print ERROR_STR % {'path' : path, 'error': strerror }
-            
+
 def removeall(path):
 
     if not os.path.isdir(path):
         return
-    
+
     files=os.listdir(path)
 
     for x in files:
@@ -54,15 +54,15 @@ def removeall(path):
             f=os.rmdir
             rmgeneric(fullpath, f)
 
-            
-            
-# Add a file to a Zip archive 
+
+
+# Add a file to a Zip archive
 def zipit(fname, contents):
 
     retcode = 0
     try:
         zipopt = '\"' + runzip + '\"' + " a -r " + fname + " " + contents
-        if(logit): 
+        if(logit):
             print('LOG: %s' % zipopt)
         retcode = os.system(zipopt)
     except:
@@ -75,27 +75,27 @@ def md5it(fname):
     retcode = 0
     try:
         md5opt = runmd5 + ' \"' + fname + '\" >>'  + tmpfile
-        if(logit): 
+        if(logit):
             print('LOG: %s' % md5opt)
         retcode = os.system(md5opt)
     except:
         print "Failed to calculate md5: zipfile "+ fname +", return code %d" % retcode
     return retcode
-    
+
 def zipandmd5it(fname, contents):
 
     retcode = 0
     retcode = zipit(fname, contents)
     if retcode == 0:
         retcode = md5it(fname)
-    retcode = 0    
-    
+    retcode = 0
 
-# Make the folders (kill old ones of the same name)   
+
+# Make the folders (kill old ones of the same name)
 rev = sys.argv[1]
 revnodots = rev.replace(".","")
-    
-tmpfile= "xapian-binaries-" + rev + "-tmpfile.txt" 
+
+tmpfile= "xapian-binaries-" + rev + "-tmpfile.txt"
 # os.chdir("\\work\\xapian\\xapian-releases\\xapian-core-" + rev + "\\win32" )
 newdir = "xapian-binaries-win32-" + rev
 newhtml = newdir + ".htm"
@@ -107,7 +107,7 @@ os.chdir(newdir)
 if os.path.exists(newhtml):
     os.remove(newhtml)
 if os.path.exists(tmpfile):
-    os.remove(tmpfile)    
+    os.remove(tmpfile)
 
 # Package up those bindings that need it, and MD5 everything
 zipit("xapian-%s-examples.zip" % rev,"..\\Release\\delve.exe")
@@ -137,7 +137,7 @@ zipandmd5it("xapian-%s-bindings-csharp.zip" % rev,"..\\Release\\CSharp\\dist\\*.
 # Java bindings do not work in this release, see https://trac.xapian.org/ticket/474
 # zipandmd5it("xapian-%s-bindings-java.zip" % rev,"..\\Release\\Java\\dist\\*.*")
 
-# Make a HTML list 
+# Make a HTML list
 ifi = open(tmpfile, "r")
 ofi = open(newhtml, "w")
 print >> ofi, r"<html><head></head><body><table>"
@@ -159,11 +159,11 @@ for line in ifi:
     print parts
     parts1mod = parts[1].replace("\n","")
     print >> ofi, r"            'xapian/" + revnodots + "/" + parts1mod + r"'  => '" + parts[0] + r"',"
-    
+
 print >> ofi, r"           )); ?>"
 print >> ofi, r"        </td>"
 print >> ofi, r"       </tr>"
-    
+
 print >> ofi, r"<!-- cut and paste to before here -->"
 print >> ofi, r"</table></body></html>"
 
@@ -171,4 +171,4 @@ ifi.close()
 ofi.close()
 
 if os.path.exists(tmpfile):
-    os.remove(tmpfile)  
+    os.remove(tmpfile)
