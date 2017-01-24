@@ -201,8 +201,6 @@ QUOTELOOP:  while (1) {
 	$msg = "FIX"."ME added:";
     } elsif (defined $lang && /^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
 	$msg = "Doxygen command '\\$1' introduced by '\\' not '\@':";
-    } elsif (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
-	$msg = "added/changed line has comment without whitespace before the text:";
     } else {
 	if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
 	    if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union|while)\b([^ ]| \s)!) {
@@ -303,6 +301,8 @@ QUOTELOOP:  while (1) {
 		$msg = "Space before '$1':";
 	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
 		$msg = "Multiple spaces:";
+	    } elsif (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
+		$msg = "added/changed line has comment without whitespace before the text:";
 	    }
 	} elsif (defined $lang && $lang eq 'py') {
 	    if (/;\s*$/) {
