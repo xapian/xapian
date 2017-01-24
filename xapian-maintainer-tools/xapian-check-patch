@@ -203,19 +203,21 @@ QUOTELOOP:  while (1) {
 	$msg = "Doxygen command '\\$1' introduced by '\\' not '\@':";
     } else {
 	if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
-	    if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union|while)\b([^ ]| \s)!) {
+	    if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
 		$msg = "'$1' not followed by exactly one space:";
 	    } elsif (m!^\+.*[^(;]\s;!) {
 		# Stuff like this is OK: for ( ; ; ) {
 		# though for that exact case I'd suggest: while (true) {
 		$msg = "Whitespace before ';':";
-	    } elsif (m!^\+\s*(return)\b([^ ;]| \s)!) {
+	    } elsif (m!^\+.*?\b(return)\b([^ ;]| \s)!) {
 		$msg = "'$1' not followed by exactly one space:";
-	    } elsif (m!^\+\s*(else)\b([^ \n]| \s)!) {
+	    } elsif (m!^\+.*?\b(else)\b([^ \n]| \s)!) {
 		$msg = "'$1' not followed by exactly one space:";
-	    } elsif (m!^(?:}|}\s{2,}|}\t|^[^}]*)\b(catch)\b!) {
+	    } elsif (m!^\+.*?\b(while)\b([^ ]| \s)!) {
+		$msg = "'$1' not followed by exactly one space:";
+	    } elsif (m!^\+.*?(?:}|}\s{2,}|}\t|^[^}]*)\b(catch)\b!) {
 		$msg = "'$1' not preceded by exactly '} ':";
-	    } elsif (m!^(?:}|}\s{2,}|}\t)\b(else|while)\b!) {
+	    } elsif (m!^\+.*?(?:}|}\s{2,}|}\t)\b(else|while)\b!) {
 		$msg = "'}' and '$1' not separated by exactly one space:";
 	    } elsif (m!^\+.*\((?: [^;]|\t)!) {
 		# Allow: for ( ; i != 10; ++i)
