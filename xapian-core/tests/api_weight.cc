@@ -1366,7 +1366,7 @@ DEFINE_TESTCASE(unigramlmweight5, backend) {
     TEST_EQUAL(mset2.size(), 5);
     TEST_EQUAL(mset3.size(), 5);
     TEST_EQUAL(mset4.size(), 5);
-    for (size_t i = 0; i < 5; i++) {
+    for (size_t i = 0; i < 5; ++i) {
 	TEST_EQUAL_DOUBLE(mset3[i].get_weight(), mset4[i].get_weight());
 	TEST_EQUAL_DOUBLE(mset2[i].get_weight(), mset4[i].get_weight());
 	TEST_EQUAL_DOUBLE(mset1[i].get_weight(), mset2[i].get_weight());

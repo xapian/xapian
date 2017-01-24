@@ -74,7 +74,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     // Deal with any initial partial month
     if (d1 > 1 || d_end < d_last) {
 	buf[0] = 'D';
-	for ( ; d1 <= d_end; d1++) {
+	for ( ; d1 <= d_end; ++d1) {
 	    format_int_fixed_width(buf + 7, d1, 2);
 	    v.push_back(Xapian::Query(string(buf, 9)));
 	}
@@ -102,7 +102,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	}
 	format_int_fixed_width(buf + 1, y2, 4);
 	buf[0] = 'M';
-	for (m1 = 1; m1 < m2; m1++) {
+	for (m1 = 1; m1 < m2; ++m1) {
 	    format_int_fixed_width(buf + 5, m1, 2);
 	    v.push_back(Xapian::Query(string(buf, 7)));
 	}
@@ -113,7 +113,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
     // Deal with any final partial month
     if (d2 < last_day(y2, m2)) {
 	buf[0] = 'D';
-	for (d1 = 1; d1 <= d2; d1++) {
+	for (d1 = 1; d1 <= d2; ++d1) {
 	    format_int_fixed_width(buf + 7, d1, 2);
 	    v.push_back(Xapian::Query(string(buf, 9)));
 	}
