@@ -3336,7 +3336,7 @@ Wed Jul 19 18:14:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 Wed Jul 19 17:38:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
-        * Replace om_inttostring and doubletostring by (overloaded)
+	* Replace om_inttostring and doubletostring by (overloaded)
 	  om_tostring methods.  Implement for several other types.
 
 	* Redo om_ostringstream class so that it is self contained, and
