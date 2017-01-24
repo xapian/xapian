@@ -1,26 +1,4 @@
-up to: d5cc95c5a0d4b99841fb88f35fab4178d82fa054
-
 Xapian-bindings 1.4.3 (2017-01-24):
-
-Documentation:
-
-General:
-
-Packaging:
-
-Portability:
-
-CSharp:
-
-Java:
-
-Lua:
-
-Perl:
-
-PHP:
-
-PHP7:
 
 Python:
 
@@ -29,8 +7,6 @@ Python:
 * Avoid unnecessary pointer indirection in XapianSWIG_anystring() helper
   function, which should be a little more efficient and makes the Python 2
   code more closely match the Python 3 code.
-
-Python3:
 
 Ruby:
 
@@ -44,8 +20,6 @@ Ruby:
   latter a bashism.  In many cases the autotools will set SHELL = /bin/bash in
   the makefiles, but if it doesn't and /bin/sh isn't bash, then this will
   cause "make install" and "make uninstall" to fail for the Ruby bindings.
-
-Tcl:
 
 Xapian-bindings 1.4.2 (2016-12-26):
 

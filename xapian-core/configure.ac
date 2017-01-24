@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.4.2], [https://xapian.org/bugs])
+AC_INIT([xapian-core], [1.4.3], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -33,7 +33,8 @@ dnl 29:1:7 1.2.23 No API changes (except new inline methods)
 dnl 30:0:0 1.4.0 Extensive API changes
 dnl 31:0:1 1.4.1 New Weight subclasses, etc
 dnl 32:0:2 1.4.2 Database::get_document() with flags
-LIBRARY_VERSION_INFO=32:0:2
+dnl 33:0:3 1.4.3 Database::locked() method
+LIBRARY_VERSION_INFO=33:0:3
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=

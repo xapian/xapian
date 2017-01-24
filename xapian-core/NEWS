@@ -1,5 +1,3 @@
-up to: 1088180e15c12670349cb4fdf11a1448bdd68aea
-
 Xapian-core 1.4.3 (2017-01-24):
 
 API:
@@ -55,21 +53,6 @@ matcher:
 * Avoid double get_wdf() call for first subquery of OP_NEAR and OP_PHRASE,
   which will speed them up by a small amount.
 
-glass backend:
-
-
-chert backend:
-
-
-remote backend:
-
-
-inmemory backend:
-
-
-build system:
-
-
 documentation:
 
 * INSTALL: Update section about -Bsymbolic-functions which is not a new
@@ -80,21 +63,12 @@ tools:
 * xapian-delve: Uses new Database::locked() method to report if the database
   is currently locked.
 
-examples:
-
-
 portability:
 
 * Fix build failure cross-compiling for android due to not pulling in header
   for errno.
 
 * Fix compiler warnings.
-
-packaging:
-
-
-debug code:
-
 
 Xapian-core 1.4.2 (2016-12-26):
 
