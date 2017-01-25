@@ -863,7 +863,7 @@ def test_queryparser_custom_vrp():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Query(0 * VALUE_RANGE 7 A5 B8)')
+           'Query(VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_vrp_deallocation():
     """Test that QueryParser doesn't delete ValueRangeProcessors too soon.
@@ -886,7 +886,7 @@ def test_queryparser_custom_vrp_deallocation():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Query(0 * VALUE_RANGE 7 A5 B8)')
+           'Query(VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_rp():
     """Test QueryParser with a custom (in python) RangeProcessor.
@@ -908,7 +908,7 @@ def test_queryparser_custom_rp():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Query(0 * VALUE_RANGE 7 A5 B8)')
+           'Query(VALUE_RANGE 7 A5 B8)')
 
 def test_queryparser_custom_rp_deallocation():
     """Test that QueryParser doesn't delete RangeProcessors too soon.
@@ -933,7 +933,7 @@ def test_queryparser_custom_rp_deallocation():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Query(0 * VALUE_RANGE 7 A5 B8)')
+           'Query(VALUE_RANGE 7 A5 B8)')
 
 def test_scale_weight():
     """Test query OP_SCALE_WEIGHT feature.
