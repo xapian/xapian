@@ -288,8 +288,8 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      *
      */
     FileSizeRangeProcessor(Xapian::valueno slot_,
-            const std::string &str_ = std::string(),
-            unsigned flags_ = 0)
+		const std::string &str_ = std::string(),
+		unsigned flags_ = 0)
     : RangeProcessor(slot_, str_, flags_) { }
 
     /** Check for a valid numeric range.

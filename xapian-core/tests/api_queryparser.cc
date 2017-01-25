@@ -1743,19 +1743,19 @@ DEFINE_TESTCASE(qp_filesizerange1, !backend) {
     for (const test *p = test_value_filesizerange1_queries; p->query; ++p) {
     string expect, parsed;
     if (p->expect)
-        expect = p->expect;
+	expect = p->expect;
     else
-        expect = "parse error";
+	expect = "parse error";
     try {
-        Xapian::Query qobj = qp.parse_query(p->query);
-        parsed = qobj.get_description();
-        expect = string("Query(") + expect + ')';
+	Xapian::Query qobj = qp.parse_query(p->query);
+	parsed = qobj.get_description();
+	expect = string("Query(") + expect + ')';
     } catch (const Xapian::QueryParserError &e) {
-        parsed = e.get_msg();
+	parsed = e.get_msg();
     } catch (const Xapian::Error &e) {
-        parsed = e.get_description();
+	parsed = e.get_description();
     } catch (...) {
-        parsed = "Unknown exception!";
+	parsed = "Unknown exception!";
     }
     tout << "Query: " << p->query << '\n';
     TEST_STRINGS_EQUAL(parsed, expect);
@@ -1785,19 +1785,19 @@ DEFINE_TESTCASE(qp_filesizerange2, !backend) {
     for (const test *p = test_value_filesizerange2_queries; p->query; ++p) {
     string expect, parsed;
     if (p->expect)
-        expect = p->expect;
+	expect = p->expect;
     else
-        expect = "parse error";
+	expect = "parse error";
     try {
-        Xapian::Query qobj = qp.parse_query(p->query);
-        parsed = qobj.get_description();
-        expect = string("Query(") + expect + ')';
+	Xapian::Query qobj = qp.parse_query(p->query);
+	parsed = qobj.get_description();
+	expect = string("Query(") + expect + ')';
     } catch (const Xapian::QueryParserError &e) {
-        parsed = e.get_msg();
+	parsed = e.get_msg();
     } catch (const Xapian::Error &e) {
-        parsed = e.get_description();
+	parsed = e.get_description();
     } catch (...) {
-        parsed = "Unknown exception!";
+	parsed = "Unknown exception!";
     }
     tout << "Query: " << p->query << '\n';
     TEST_STRINGS_EQUAL(parsed, expect);
