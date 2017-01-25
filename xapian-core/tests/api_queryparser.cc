@@ -1371,11 +1371,11 @@ DEFINE_TESTCASE(qp_unstem_boolean_prefix, !backend) {
 }
 
 static const test test_value_range1_queries[] = {
-    { "a..b", "0 * VALUE_RANGE 1 a b" },
-    { "$50..100", "0 * VALUE_RANGE 1 $50 100" },
-    { "$50..$99", "0 * VALUE_RANGE 1 $50 $99" },
+    { "a..b", "VALUE_RANGE 1 a b" },
+    { "$50..100", "VALUE_RANGE 1 $50 100" },
+    { "$50..$99", "VALUE_RANGE 1 $50 $99" },
     { "$50..$100", "" }, // start > range
-    { "02/03/1979..10/12/1980", "0 * VALUE_RANGE 1 02/03/1979 10/12/1980" },
+    { "02/03/1979..10/12/1980", "VALUE_RANGE 1 02/03/1979 10/12/1980" },
     { "a..b hello", "(hello@1 FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b", "(hello@1 FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b world", "((hello@1 OR world@2) FILTER VALUE_RANGE 1 a b)" },
@@ -1383,15 +1383,15 @@ static const test test_value_range1_queries[] = {
     { "hello a..b test:foo test:bar", "(hello@1 FILTER (VALUE_RANGE 1 a b AND (XTESTfoo OR XTESTbar)))" },
     { "hello a..b c..d test:foo", "(hello@1 FILTER ((VALUE_RANGE 1 a b OR VALUE_RANGE 1 c d) AND XTESTfoo))" },
     { "hello a..b c..d test:foo test:bar", "(hello@1 FILTER ((VALUE_RANGE 1 a b OR VALUE_RANGE 1 c d) AND (XTESTfoo OR XTESTbar)))" },
-    { "-5..7", "0 * VALUE_RANGE 1 -5 7" },
+    { "-5..7", "VALUE_RANGE 1 -5 7" },
     { "hello -5..7", "(hello@1 FILTER VALUE_RANGE 1 -5 7)" },
     { "-5..7 hello", "(hello@1 FILTER VALUE_RANGE 1 -5 7)" },
     { "\"time flies\" 09:00..12:30", "((time@1 PHRASE 2 flies@2) FILTER VALUE_RANGE 1 09:00 12:30)" },
     // Feature test for single-ended ranges (ticket#480):
-    { "..b", "0 * VALUE_LE 1 b" },
-    { "a..", "0 * VALUE_GE 1 a" },
+    { "..b", "VALUE_LE 1 b" },
+    { "a..", "VALUE_GE 1 a" },
     // Test for expanded set of characters allowed in range start:
-    { "10:30+1300..11:00+1300", "0 * VALUE_RANGE 1 10:30+1300 11:00+1300" },
+    { "10:30+1300..11:00+1300", "VALUE_RANGE 1 10:30+1300 11:00+1300" },
     { NULL, NULL }
 };
 
@@ -1454,35 +1454,35 @@ DEFINE_TESTCASE(qp_range1, !backend) {
 }
 
 static const test test_value_range2_queries[] = {
-    { "a..b", "0 * VALUE_RANGE 3 a b" },
-    { "1..12", "0 * VALUE_RANGE 2 \\xa0 \\xae" },
-    { "20070201..20070228", "0 * VALUE_RANGE 1 20070201 20070228" },
-    { "$10..20", "0 * VALUE_RANGE 4 \\xad \\xb1" },
-    { "$10..$20", "0 * VALUE_RANGE 4 \\xad \\xb1" },
+    { "a..b", "VALUE_RANGE 3 a b" },
+    { "1..12", "VALUE_RANGE 2 \\xa0 \\xae" },
+    { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
+    { "$10..20", "VALUE_RANGE 4 \\xad \\xb1" },
+    { "$10..$20", "VALUE_RANGE 4 \\xad \\xb1" },
     // Feature test for single-ended ranges (ticket#480):
-    { "$..20", "0 * VALUE_LE 4 \\xb1" },
-    { "..$20", "0 * VALUE_LE 3 $20" }, // FIXME: probably should parse as $..20
-    { "$10..", "0 * VALUE_GE 4 \\xad" },
-    { "12..42kg", "0 * VALUE_RANGE 5 \\xae \\xb5@" },
-    { "12kg..42kg", "0 * VALUE_RANGE 5 \\xae \\xb5@" },
-    { "12kg..42", "0 * VALUE_RANGE 3 12kg 42" },
+    { "$..20", "VALUE_LE 4 \\xb1" },
+    { "..$20", "VALUE_LE 3 $20" }, // FIXME: probably should parse as $..20
+    { "$10..", "VALUE_GE 4 \\xad" },
+    { "12..42kg", "VALUE_RANGE 5 \\xae \\xb5@" },
+    { "12kg..42kg", "VALUE_RANGE 5 \\xae \\xb5@" },
+    { "12kg..42", "VALUE_RANGE 3 12kg 42" },
     { "10..$20", "" }, // start > end
-    { "1999-03-12..2020-12-30", "0 * VALUE_RANGE 1 19990312 20201230" },
-    { "1999/03/12..2020/12/30", "0 * VALUE_RANGE 1 19990312 20201230" },
-    { "1999.03.12..2020.12.30", "0 * VALUE_RANGE 1 19990312 20201230" },
+    { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
+    { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
+    { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
     // Feature test for single-ended ranges (ticket#480):
-    { "..2020.12.30", "0 * VALUE_LE 1 20201230" },
-    { "1999.03.12..", "0 * VALUE_GE 1 19990312" },
-    { "12/03/99..12/04/01", "0 * VALUE_RANGE 1 19990312 20010412" },
-    { "03-12-99..04-14-01", "0 * VALUE_RANGE 1 19990312 20010414" },
+    { "..2020.12.30", "VALUE_LE 1 20201230" },
+    { "1999.03.12..", "VALUE_GE 1 19990312" },
+    { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
+    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello@1 FILTER VALUE_RANGE 3 test:a test:b)" },
     { "12..42kg 5..6kg 1..12", "0 * (VALUE_RANGE 2 \\xa0 \\xae AND (VALUE_RANGE 5 \\xae \\xb5@ OR VALUE_RANGE 5 \\xa9 \\xaa))" },
     // Check that a VRP which fails to match doesn't remove a prefix or suffix.
     // 1.0.13/1.1.1 and earlier got this wrong in some cases.
-    { "$12a..13", "0 * VALUE_RANGE 3 $12a 13" },
-    { "$12..13b", "0 * VALUE_RANGE 3 $12 13b" },
-    { "$12..12kg", "0 * VALUE_RANGE 3 $12 12kg" },
-    { "12..b12kg", "0 * VALUE_RANGE 3 12 b12kg" },
+    { "$12a..13", "VALUE_RANGE 3 $12a 13" },
+    { "$12..13b", "VALUE_RANGE 3 $12 13b" },
+    { "$12..12kg", "VALUE_RANGE 3 $12 12kg" },
+    { "12..b12kg", "VALUE_RANGE 3 12 b12kg" },
     { NULL, NULL }
 };
 
@@ -1651,7 +1651,7 @@ DEFINE_TESTCASE(qp_range3, writable) {
 static const test test_value_range4_queries[] = {
     { "id:19254@foo..example.com", "0 * Q19254@foo..example.com" },
     { "hello:world", "0 * XHELLOworld" },
-    { "hello:mum..world", "0 * VALUE_RANGE 1 mum world" },
+    { "hello:mum..world", "VALUE_RANGE 1 mum world" },
     { NULL, NULL }
 };
 
@@ -1726,10 +1726,10 @@ DEFINE_TESTCASE(qp_range4, !backend) {
 }
 
 static const test test_value_daterange1_queries[] = {
-    { "12/03/99..12/04/01", "0 * VALUE_RANGE 1 19991203 20011204" },
-    { "03-12-99..04-14-01", "0 * VALUE_RANGE 1 19990312 20010414" },
-    { "01/30/60..02/02/59", "0 * VALUE_RANGE 1 19600130 20590202" },
-    { "1999-03-12..2001-04-14", "0 * VALUE_RANGE 1 19990312 20010414" },
+    { "12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
+    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
+    { "01/30/60..02/02/59", "VALUE_RANGE 1 19600130 20590202" },
+    { "1999-03-12..2001-04-14", "VALUE_RANGE 1 19990312 20010414" },
     { "12/03/99..02", "Unknown range operation" },
     { "1999-03-12..2001", "Unknown range operation" },
     { NULL, NULL }
@@ -1792,11 +1792,11 @@ DEFINE_TESTCASE(qp_daterange1, !backend) {
 }
 
 static const test test_value_daterange2_queries[] = {
-    { "created:12/03/99..12/04/01", "0 * VALUE_RANGE 1 19991203 20011204" },
-    { "modified:03-12-99..04-14-01", "0 * VALUE_RANGE 2 19990312 20010414" },
-    { "accessed:01/30/70..02/02/69", "0 * VALUE_RANGE 3 19700130 20690202" },
+    { "created:12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
+    { "modified:03-12-99..04-14-01", "VALUE_RANGE 2 19990312 20010414" },
+    { "accessed:01/30/70..02/02/69", "VALUE_RANGE 3 19700130 20690202" },
     // In <=1.2.12, and in 1.3.0, this gave "Unknown range operation":
-    { "deleted:12/03/99..12/04/01", "0 * VALUE_RANGE 4 19990312 20010412" },
+    { "deleted:12/03/99..12/04/01", "VALUE_RANGE 4 19990312 20010412" },
     { "1999-03-12..2001-04-14", "Unknown range operation" },
     { "12/03/99..created:12/04/01", "Unknown range operation" },
     { "12/03/99created:..12/04/01", "Unknown range operation" },
@@ -1882,8 +1882,8 @@ DEFINE_TESTCASE(qp_daterange2, !backend) {
 }
 
 static const test test_value_stringrange1_queries[] = {
-    { "tag:bar..foo", "0 * VALUE_RANGE 1 bar foo" },
-    { "bar..foo", "0 * VALUE_RANGE 0 bar foo" },
+    { "tag:bar..foo", "VALUE_RANGE 1 bar foo" },
+    { "bar..foo", "VALUE_RANGE 0 bar foo" },
     { NULL, NULL }
 };
 
@@ -2111,8 +2111,8 @@ class DateRangeFieldProcessor : public Xapian::FieldProcessor {
 };
 
 static const test test_fieldproc2_queries[] = {
-    { "date:\"this week\"", "0 * VALUE_GE 1 20120723" },
-    { "date:23/7/2012..25/7/2012", "0 * VALUE_RANGE 1 20120723 20120725" },
+    { "date:\"this week\"", "VALUE_GE 1 20120723" },
+    { "date:23/7/2012..25/7/2012", "VALUE_RANGE 1 20120723 20120725" },
     { NULL, NULL }
 };
 

@@ -301,7 +301,7 @@ function add_vrp_date(&$qp) {
 $qp = new XapianQueryParser();
 add_vrp_date($qp);
 $query = $qp->parse_query('12/03/99..12/04/01');
-if ($query->get_description() !== 'Query(0 * VALUE_RANGE 1 19991203 20011204)') {
+if ($query->get_description() !== 'Query(VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
     exit(1);
 }
