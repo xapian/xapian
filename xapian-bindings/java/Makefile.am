@@ -51,6 +51,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	org/xapian/ExpandDeciderAnd.java\
 	org/xapian/ExpandDeciderFilterPrefix.java\
 	org/xapian/FieldProcessor.java\
+	org/xapian/FileSizeRangeProcessor.java\
 	org/xapian/FixedWeightPostingSource.java\
 	org/xapian/GreatCircleMetric.java\
 	org/xapian/IfB2Weight.java\
