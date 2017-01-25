@@ -85,7 +85,7 @@ OrPositionList::skip_to(Xapian::termpos termpos)
 {
     LOGCALL_VOID(EXPAND, "OrPositionList::skip_to", termpos);
     bool first = current.empty();
-    if (termpos <= current_pos && !first) return;
+    if (!first && termpos <= current_pos) return;
     if (first) current.resize(pls.size());
     current_pos = Xapian::termpos(-1);
     size_t j = 0;
