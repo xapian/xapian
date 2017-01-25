@@ -68,8 +68,19 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 	throw Xapian::InvalidArgumentError("op must be OP_SCALE_WEIGHT");
     // If the subquery is MatchNothing then generate Query() which matches
     // nothing.
-    if (subquery.internal.get())
-	internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
+    if (!subquery.internal.get()) return;
+    switch (subquery.internal->get_type()) {
+	case OP_VALUE_RANGE:
+	case OP_VALUE_GE:
+	case OP_VALUE_LE:
+	    // These operators always return weight 0, so OP_SCALE_WEIGHT has
+	    // no effect on them.
+	    internal = subquery.internal;
+	    return;
+	default:
+	    break;
+    }
+    internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
 }
 
 Query::Query(op op_, Xapian::valueno slot, const std::string & limit)

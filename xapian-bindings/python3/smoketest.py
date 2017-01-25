@@ -370,7 +370,7 @@ def test_all():
     vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
     qp.add_valuerangeprocessor(vrpdate)
     query = qp.parse_query(b'12/03/99..12/04/01')
-    expect(str(query), 'Query(0 * VALUE_RANGE 1 19991203 20011204)')
+    expect(str(query), 'Query(VALUE_RANGE 1 19991203 20011204)')
 
     # Regression test for bug#193, fixed in 1.0.3.
     context("running regression test for bug#193")
