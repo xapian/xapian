@@ -466,8 +466,7 @@ get_bytes(char ch)
 }
 
 Xapian::Query
-FileSizeRangeProcessor::operator()(const string& b, const string& e)
-{
+FileSizeRangeProcessor::operator()(const string& b, const string& e){
 	// Here b and e will be like "100K" and "1M"
 	double size_b, size_e;
 	string unit_b, unit_e;
@@ -523,6 +522,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e)
 	if (unit_b.empty()){
 		unit_b = unit_e;
 	}
+
 	size_b = size_b * get_bytes(unit_b);
 	size_e = size_e * get_bytes(unit_e);
 

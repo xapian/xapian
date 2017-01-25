@@ -279,7 +279,6 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      *  queryparser will accept "size:10K..1M".
      *  Examples of valid ranges
      *    size:10K..1M i.e. 10 KB to 1 MB 
-     *    size:10..100K i.e. 10 KB to 100 KB
      *  Examples of invalid ranges
      *    size:10K..20
      *    size:10..20
