@@ -470,7 +470,7 @@ Xapian::Query
 FileSizeRangeProcessor::operator()(const string& b, const string& e){
 	// Here b and e will be like "100K" and "1M"
 	double size_b, size_e;
-	char unit_b, unit_e;
+	char unit_b = '\0', unit_e = '\0';
 	string temp_b = b, temp_e = e;
 
 	if (!b.empty()) {
@@ -516,11 +516,11 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 	} else {
 		size_e = 0.0;
 	}
-	if (unit_e.empty()) {
+	if (unit_e == '\0') {
 		// 1M..5 is not valid. So, if e does not have unit, then invalid
 		goto not_our_range;
 	}
-	if (unit_b.empty()) {
+	if (unit_b == '\0') {
 		unit_b = unit_e;
 	}
 
