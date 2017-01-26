@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2017 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -130,8 +130,10 @@ InMemoryPostList::skip_to(Xapian::docid did, double w_min)
     // O(log {length of list}), as opposed to O(distance we want to skip)
     // Since we will frequently only be skipping a short distance, this
     // could well be worse.
+
+    // If we've not started, it's OK to call skip_to().
+    Assert(!at_end() || !started);
     started = true;
-    Assert(!at_end());
     while (!at_end() && (*pos).did < did) {
 	(void) next(w_min);
     }
