@@ -234,8 +234,13 @@ class XAPIAN_VISIBILITY_DEFAULT RangeProcessor
     }
 };
 
-// Handles a file size range
-
+/** Handle a file size range.
+ *
+ *  This class must be used on values which have been encoded using
+ *  Xapian::sortable_serialise() which turns numbers into strings which
+ *  will sort in the same order as the numbers (the same values can be
+ *  used to implement a numeric sort).
+ */
 class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
   public:
     /** Constructor.
@@ -245,29 +250,7 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      *  @param str_     A string to look for to recognise values as belonging
      *                  to this file-size range.
      *
-     *  @param flags_   Zero or more of the following flags, combined with
-     *          bitwise-or:
-     *           * Xapian::RP_SUFFIX - require @a str_ as a suffix
-     *             instead of a prefix.
-     *           * Xapian::RP_REPEATED - optionally allow @a str_
-     *             on both ends of the range - e.g. $1..$10 or
-     *             5m..50m.  By default a prefix is only checked for on
-     *             the start (e.g. date:1/1/1980..31/12/1989), and a
-     *             suffix only on the end (e.g. 2..12kg).
-     *
-     *  The string supplied in str_ is used by @a operator() to decide whether
-     *  the pair of strings supplied to it constitute a valid range.  If
-     *  prefix_ is true, the first value in a range must begin with str_ (and
-     *  the second value may optionally begin with str_);
-     *  if prefix_ is false, the second value in a range must end with str_
-     *  (and the first value may optionally end with str_).
-     *
-     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
-     *  strings are required at the start or end of the strings defining the
-     *  range.
-     *
-     *  The remainder of both strings defining the endpoints must be valid
-     *  floating point numbers.
+     *  @param flags_   No flags_ required for using FileSizeRangeProcessor
      *
      *  FileSizeRangeProcessor will handle file size as:
      *  B - Bytes
@@ -278,26 +261,26 @@ class XAPIAN_VISIBILITY_DEFAULT FileSizeRangeProcessor : public RangeProcessor {
      *  and the range processor has been added to the queryparser, the
      *  queryparser will accept "size:10K..1M".
      *  Examples of valid ranges
-     *    size:10K..1M i.e. 10 KB to 1 MB
+     *    size:10K..1M (10 KB to 1 MB)
+     *    size:10..50  (10 to 50 bytes) If no suffix are provided, units will be interpreted as Bytes
      *  Examples of invalid ranges
      *    size:10K..20
-     *    size:10..20
      *    size:K10..K20
      *    size:10..K20
      *    size:K10..20
      *
      */
-    FileSizeRangeProcessor(Xapian::valueno slot_,
+    explicit FileSizeRangeProcessor(Xapian::valueno slot_,
 		const std::string &str_ = std::string(),
 		unsigned flags_ = 0)
     : RangeProcessor(slot_, str_, flags_) { }
 
     /** Check for a valid numeric range.
      *
-     *  If BEGIN..END is a valid file size range with the specified prefix/suffix
-     *  (if one was specified), the prefix/suffix is removed, the string
-     *  converted to a number, and encoded with Xapian::sortable_serialise(),
-     *  and a value range query is built.
+     *  If BEGIN..END is a valid file size range example 10..20, 10..20K, 10K..20K
+     *  then last character if specified is converted to appropriate multiplier and
+     *  is multiplied with number specified to convert in to number (bytes), and
+     *  encoded with Xapian::sortable_serialise(),and a value range query is built.
      *
      *  @param begin    The start of the range as specified in the query string
      *          by the user.

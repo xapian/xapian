@@ -439,7 +439,7 @@ not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
 }
 
-static const int size_map[26] = {
+static const unsigned int size_map[26] = {
     0,
     1, // B
     0, 0, 0, 0,
@@ -451,23 +451,23 @@ static const int size_map[26] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-static int
-get_bytes(char ch)
+static unsigned int
+get_size_multiplier_from_suffix(const char ch)
 {
 	// It takes character as input and return number of bytes
 	// B - 1 byte
 	// K - 1024 bytes
 	// M - 1024*1024 bytes
 	// G - 1024*1024*1024 bytes
-	if (ch >= 'A' && ch <= 'Z' && size_map[ch - 'A'] > 0) {
-    return size_map[ch - 'A'];
+	if (ch >= 'A' && ch <= 'Z') {
+		return size_map[ch - 'A'];
 	} else {
-	return 0;
+		return 0;
 	}
 }
 
 Xapian::Query
-FileSizeRangeProcessor::operator()(const string& b, const string& e){
+FileSizeRangeProcessor::operator()(const string& b, const string& e) {
 	// Here b and e will be like "100K" and "1M"
 	double size_b, size_e;
 	char unit_b = '\0', unit_e = '\0';
@@ -480,7 +480,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 			// If suffix of b is 'B','K','M','G'
 			unit_b = b_back;
 			temp_b.pop_back();
-		} else if (!isdigit(b_back)) {
+		} else if (!C_isdigit(b_back)) {
 			// If it is neither digit nor any of above character, then it is invalid
 			goto not_our_range;
 		}
@@ -502,7 +502,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 			// If suffix of b is 'B','K','M','G'
 			unit_e = e_back;
 			temp_e.pop_back();
-		} else if(!isdigit(e_back)) {
+		} else if(!C_isdigit(e_back)) {
 			// If it is neither digit nor any of above character, then it is invalid
 		    goto not_our_range;
 		}
@@ -516,6 +516,11 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 	} else {
 		size_e = 0.0;
 	}
+	if (unit_e == '\0' && unit_b == '\0'){
+		// If 10..20 then it means 10 to 20 bytes
+		unit_b = 'B';
+		unit_e = 'B';
+	}
 	if (unit_e == '\0') {
 		// 1M..5 is not valid. So, if e does not have unit, then invalid
 		goto not_our_range;
@@ -524,8 +529,8 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e){
 		unit_b = unit_e;
 	}
 
-	size_b = size_b * get_bytes(unit_b);
-	size_e = size_e * get_bytes(unit_e);
+	size_b = size_b * get_size_multiplier_from_suffix(unit_b);
+	size_e = size_e * get_size_multiplier_from_suffix(unit_e);
 
 	return RangeProcessor::operator()(
 	    b.empty() ? b : Xapian::sortable_serialise(size_b),
