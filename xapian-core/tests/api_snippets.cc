@@ -459,3 +459,23 @@ DEFINE_TESTCASE(snippet_small_zerolength, backend) {
 
     return true;
 }
+
+/// Test CJK word segmentation.
+DEFINE_TESTCASE(snippet_cjkwords, backend) {
+
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("已經"));
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    Xapian::Stem stem;
+    const char *input = "明末時已經有香港地方的概念";
+    size_t len = strlen(input);
+
+    unsigned cjk_flags = Xapian::TermGenerator::FLAG_CJK_WORDS;
+    TEST_STRINGS_EQUAL(
+	mset.snippet(input, len, stem, 0, "<b>", "</b>", "...", cjk_flags),
+	"明末時<b>已經</b>有香港地方的概念");
+
+    return true;
+}

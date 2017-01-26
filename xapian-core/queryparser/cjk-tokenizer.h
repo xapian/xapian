@@ -32,6 +32,16 @@
 
 #include <string>
 
+// turn off warnings for "-Wold-style-cast"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+
+#include <unicode/unistr.h>
+#include <unicode/brkiter.h>
+
+// turn the warnings back on
+#pragma GCC diagnostic pop
+
 namespace CJK {
 
 /** Should we use the CJK n-gram code?
@@ -43,6 +53,8 @@ namespace CJK {
 bool is_cjk_enabled();
 
 bool codepoint_is_cjk(unsigned codepoint);
+
+bool codepoint_is_cjk_wordchar(unsigned codepoint);
 
 std::string get_cjk(Xapian::Utf8Iterator &it, size_t& char_count);
 
@@ -56,13 +68,14 @@ get_cjk(Xapian::Utf8Iterator &it)
 }
 
 class CJKTokenIterator {
+  protected:
     Xapian::Utf8Iterator it;
-
-    mutable Xapian::Utf8Iterator p;
 
     mutable unsigned len;
 
     mutable std::string current_token;
+
+    virtual bool equal_to(const CJKTokenIterator & other) const;
 
   public:
     explicit CJKTokenIterator(const std::string & s)
@@ -74,9 +87,11 @@ class CJKTokenIterator {
     CJKTokenIterator()
 	: it() { }
 
-    const std::string & operator*() const;
+    virtual ~CJKTokenIterator() {};
 
-    CJKTokenIterator & operator++();
+    virtual const std::string & operator*() const = 0;
+
+    virtual CJKTokenIterator & operator++() = 0;
 
     /// Get the length of the current token in Unicode characters.
     unsigned get_length() const { return len; }
@@ -84,12 +99,51 @@ class CJKTokenIterator {
     friend bool operator==(const CJKTokenIterator &, const CJKTokenIterator &);
 };
 
+class CJKNgramIterator : public CJKTokenIterator {
+
+    mutable Xapian::Utf8Iterator p;
+
+  public:
+    CJKNgramIterator(const std::string & s) : CJKTokenIterator(s) {}
+
+    CJKNgramIterator() : CJKTokenIterator() {}
+
+    CJKTokenIterator & operator++();
+
+    const std::string & operator*() const;
+};
+
+class CJKWordIterator : public CJKTokenIterator {
+    mutable int32_t p, q;
+
+    // copy UBRK_DONE to avoid GCC old-style cast error
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+    static const int32_t done = UBRK_DONE;
+#pragma GCC diagnostic pop
+
+    icu::UnicodeString ustr;
+    icu::BreakIterator *brk;
+
+  protected:
+    bool equal_to(const CJKTokenIterator & other) const;
+
+  public:
+    CJKWordIterator(const std::string & s);
+
+    CJKWordIterator() : CJKTokenIterator() { p = q = done; brk = NULL; }
+
+    ~CJKWordIterator() { delete brk; }
+
+    CJKTokenIterator & operator++();
+
+    const std::string & operator*() const;
+};
+
 inline bool
 operator==(const CJKTokenIterator & a, const CJKTokenIterator & b)
 {
-    // We only really care about comparisons where one or other is an end
-    // iterator.
-    return a.it == b.it;
+    return a.equal_to(b);
 }
 
 inline bool
