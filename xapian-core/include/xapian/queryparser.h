@@ -915,6 +915,16 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_CJK_NGRAM = 2048,
 
+	/** Enable generation of words from CJK text.
+	*
+	*  With this enabled, spans of CJK characters are split into CJK
+	*  words using text boundary heuristics. Non-CJK characters are
+	*  split into words as normal.
+	*
+	*  The corresponding option needs to have been used at index time.
+	*/
+	FLAG_CJK_WORDS = 4096,
+
 	/** The default flags.
 	 *
 	 *  Used if you don't explicitly pass any to @a parse_query().

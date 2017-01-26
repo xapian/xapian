@@ -289,7 +289,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 			unsigned flags = SNIPPET_BACKGROUND_MODEL|SNIPPET_EXHAUSTIVE,
 			const std::string & hi_start = "<b>",
 			const std::string & hi_end = "</b>",
-			const std::string & omit = "...") const;
+			const std::string & omit = "...",
+			unsigned cjk_flags = 0) const;
 
     /** Prefetch hint a range of items.
      *

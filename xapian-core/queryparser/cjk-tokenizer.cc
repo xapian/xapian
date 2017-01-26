@@ -31,6 +31,7 @@
 
 #include "omassert.h"
 #include "xapian/unicode.h"
+#include "xapian/error.h"
 
 #include <cstdlib>
 #include <string>
@@ -97,8 +98,16 @@ CJK::get_cjk(Xapian::Utf8Iterator &it)
     return str;
 }
 
+bool
+CJKTokenIterator::equal_to(const CJKTokenIterator & other) const
+{
+    // We only really care about comparisons where one or other is an end
+    // iterator.
+    return it == other.it;
+}
+
 const string &
-CJKTokenIterator::operator*() const
+CJKNgramIterator::operator*() const
 {
     if (current_token.empty()) {
 	Assert(it != Xapian::Utf8Iterator());
@@ -111,7 +120,7 @@ CJKTokenIterator::operator*() const
 }
 
 CJKTokenIterator &
-CJKTokenIterator::operator++()
+CJKNgramIterator::operator++()
 {
     if (len < NGRAM_SIZE && p != Xapian::Utf8Iterator()) {
 	Xapian::Unicode::append_utf8(current_token, *p);
@@ -121,6 +130,67 @@ CJKTokenIterator::operator++()
 	Assert(it != Xapian::Utf8Iterator());
 	++it;
 	current_token.resize(0);
+    }
+    return *this;
+}
+
+bool
+CJKWordIterator::equal_to(const CJKTokenIterator & other) const
+{
+    if (CJKWordIterator const* o = dynamic_cast<CJKWordIterator const*>(&other)) {
+	return p == o->p && q == o->q;
+    } else {
+	return false;
+    }
+}
+
+CJKWordIterator::CJKWordIterator(const std::string & s) : CJKTokenIterator(s)
+{
+    unsigned c;
+    while (it != Xapian::Utf8Iterator()) {
+	c = *it;
+	++it;
+	ustr.append(static_cast<UChar32>(c));
+    }
+
+    UErrorCode err = U_ZERO_ERROR;
+    brk = icu::BreakIterator::createWordInstance(0/*unknown locale*/, err);
+    if (U_FAILURE(err))
+	throw Xapian::InternalError(string("ICU error: ") + string(u_errorName(err)));
+    brk->setText(ustr);
+    q = brk->first();
+    p = brk->next();
+}
+
+const string &
+CJKWordIterator::operator*() const
+{
+    if (current_token.empty()) {
+	Assert(p != q);
+	len = 0;
+	icu::UnicodeString uword = ustr.tempSubString(q, p - q);
+	for (int32_t i = 0; i < uword.length(); i = uword.getChar32Limit(++i)) {
+		Xapian::Unicode::append_utf8(current_token, uword.char32At(i));
+		len++;
+	}
+    }
+    return current_token;
+}
+
+
+CJKTokenIterator &
+CJKWordIterator::operator++()
+{
+    q = p;
+    p = brk->next();
+    if (p != done) {
+	current_token.resize(0);
+	if (p != q) {
+		// refresh current_token and len
+		current_token = (*(*this));
+	}
+    } else {
+	q = done;
     }
     return *this;
 }

@@ -10,7 +10,7 @@ env:
   global:
     # Tell bootstrap where to clone ./common from
     - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
-    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python2 python'
+    - HOMEBREW_PACKAGES='doxygen help2man graphviz pngcrush libmagic pcre libsvm lua mono python2 python icu4c'
 matrix:
   include:
     - compiler: gcc
@@ -34,6 +34,8 @@ matrix:
             - python3-dev
             - tcl
             - libsvm-dev
+            - libicu-dev
+            - pkg-config
     - compiler: clang
       os: linux
       # Clang is already installed, but we want to build using the
@@ -54,6 +56,8 @@ matrix:
             - tcl
             - libsvm-dev
             - libc++-dev
+            - libicu-dev
+            - pkg-config
       # We also have to disable an error, because (older?)
       # perl header files don't play nicely with clang.
       env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
@@ -72,7 +76,11 @@ matrix:
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
         - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
+<<<<<<< HEAD
       env: PYTHON2=/usr/local/bin/python2 CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+=======
+      env: CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include -I/usr/local/opt/icu4c/include LDFLAGS=-L/usr/local/opt/icu4c/lib PKG_CONFIG_PATH=/usr/local/opt/icu4c/lib/pkgconfig confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+>>>>>>> Add CJK word boundary iterator to query parser and term generator
     - os: linux
       # (Ab)use env to label this build:
       env: dummy="Automated run of xapian-check-patch"

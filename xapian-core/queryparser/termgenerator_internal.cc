@@ -139,7 +139,7 @@ check_suffix(unsigned ch)
  */
 template<typename ACTION>
 static void
-parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION action)
+parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions, ACTION action)
 {
     while (true) {
 	// Advance to the start of the next term.
@@ -174,15 +174,28 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 	while (true) {
-	    if (cjk_ngram &&
+	    if (cjk_flags &&
 		CJK::codepoint_is_cjk(*itor) &&
 		Unicode::is_wordchar(*itor)) {
 		const string & cjk = CJK::get_cjk(itor);
-		for (CJKTokenIterator tk(cjk); tk != CJKTokenIterator(); ++tk) {
-		    const string & cjk_token = *tk;
-		    if (!action(cjk_token, with_positions && tk.get_length() == 1, itor))
-			return;
+		size_t cjk_left = cjk.length();
+
+		if (cjk_flags & TermGenerator::FLAG_CJK_WORDS) {
+			for (CJKWordIterator tk(cjk); tk != CJKWordIterator(); ++tk) {
+				const string & cjk_token = *tk;
+				cjk_left -= cjk_token.length();
+				if (!action(cjk_token, with_positions, itor.left() + cjk_left))
+					return;
+			}
+		} else {
+			for (CJKNgramIterator tk(cjk); tk != CJKNgramIterator(); ++tk) {
+				const string & cjk_token = *tk;
+				// FLAG_CJK_NGRAM only sets positions for tokens of length 1
+				if (!action(cjk_token, with_positions && tk.get_length() == 1, itor.left() + cjk_left))
+					return;
+			}
 		}
+
 		while (true) {
 		    if (itor == Utf8Iterator()) return;
 		    ch = check_wordchar(*itor);
@@ -196,7 +209,7 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
 		if (++itor == Utf8Iterator() ||
-		    (cjk_ngram && CJK::codepoint_is_cjk(*itor)))
+		    (cjk_flags && CJK::codepoint_is_cjk(*itor)))
 		    goto endofterm;
 		ch = check_wordchar(*itor);
 	    } while (ch);
@@ -237,7 +250,7 @@ parse_terms(Utf8Iterator itor, bool cjk_ngram, bool with_positions, ACTION actio
 	}
 
 endofterm:
-	if (!action(term, with_positions, itor))
+	if (!action(term, with_positions, itor.left()))
 	    return;
     }
 }
@@ -246,7 +259,10 @@ void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 				    const string & prefix, bool with_positions)
 {
-    bool cjk_ngram = (flags & FLAG_CJK_NGRAM) || CJK::is_cjk_enabled();
+    unsigned cjk_flags = flags & (FLAG_CJK_NGRAM|FLAG_CJK_WORDS);
+    if (CJK::is_cjk_enabled()) {
+	cjk_flags |= FLAG_CJK_NGRAM;
+    }
 
     stop_strategy current_stop_mode;
     if (!stopper.get()) {
@@ -255,8 +271,8 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount wdf_inc,
 	current_stop_mode = stop_mode;
     }
 
-    parse_terms(itor, cjk_ngram, with_positions,
-	[=](const string & term, bool positional, const Utf8Iterator &) {
+    parse_terms(itor, cjk_flags, with_positions,
+	[=](const string & term, bool positional, size_t) {
 	    if (term.size() > max_word_length) return true;
 
 	    if (current_stop_mode == TermGenerator::STOP_ALL && (*stopper)(term))
@@ -700,14 +716,17 @@ MSet::Internal::snippet(const string & text,
 			unsigned flags,
 			const string & hi_start,
 			const string & hi_end,
-			const string & omit) const
+			const string & omit,
+			unsigned cjk_flags) const
 {
     if (hi_start.empty() && hi_end.empty() && text.size() <= length) {
 	// Too easy!
 	return text;
     }
 
-    bool cjk_ngram = CJK::is_cjk_enabled();
+    if (cjk_flags == 0 && CJK::is_cjk_enabled()) {
+	cjk_flags = TermGenerator::FLAG_CJK_NGRAM;
+    }
 
     size_t term_start = 0;
     double min_tw = 0, max_tw = 0;
@@ -754,8 +773,8 @@ MSet::Internal::snippet(const string & text,
     if (longest_phrase) phrase.resize(longest_phrase - 1);
     size_t phrase_next = 0;
     bool matchfound = false;
-    parse_terms(Utf8Iterator(text), cjk_ngram, true,
-	[&](const string & term, bool positional, const Utf8Iterator & it) {
+    parse_terms(Utf8Iterator(text), cjk_flags, true,
+	[&](const string & term, bool positional, size_t left) {
 	    // FIXME: Don't hardcode this here.
 	    const size_t max_word_length = 64;
 
@@ -765,7 +784,7 @@ MSet::Internal::snippet(const string & text,
 	    // We get segments with any "inter-word" characters in front of
 	    // each word, e.g.:
 	    // [The][ cat][ sat][ on][ the][ mat]
-	    size_t term_end = text.size() - it.left();
+	    size_t term_end = text.size() - left;
 
 	    double* relevance = 0;
 	    size_t highlight = 0;
