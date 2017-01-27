@@ -830,14 +830,14 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 void
 Enquire::set_expansion_scheme(const std::string &eweightname_, double expand_k_) const
 {
-     LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_ | expand_k_);
+    LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_ | expand_k_);
 
-     if (eweightname_ != "bo1" && eweightname_ != "trad") {
-	 throw InvalidArgumentError("Invalid name for query expansion scheme.");
-     }
+    if (eweightname_ != "bo1" && eweightname_ != "trad") {
+	throw InvalidArgumentError("Invalid name for query expansion scheme.");
+    }
 
-     internal->eweightname = eweightname_;
-     internal->expand_k = expand_k_;
+    internal->eweightname = eweightname_;
+    internal->expand_k = expand_k_;
 }
 
 void
