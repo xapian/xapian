@@ -2549,9 +2549,9 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
 	    unsigned char ch = term[0];
 	    bool stemmed = (ch == 'Z');
 	    if (stemmed) {
-	       term.erase(0, 1);
-	       if (term.empty()) continue;
-	       ch = term[0];
+		term.erase(0, 1);
+		if (term.empty()) continue;
+		ch = term[0];
 	    }
 
 	    if (C_isupper(ch)) {
