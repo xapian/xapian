@@ -109,6 +109,7 @@ else
 fi
 
 echo "Copying to server"
+chmod 755 "$RESULT"
 scp -r "$RESULT" thyestes.tartarus.org:"$RELEASE_DIR"
 
 echo "Adding to trac"
