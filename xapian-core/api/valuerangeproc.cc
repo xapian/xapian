@@ -362,35 +362,35 @@ DateRangeProcessor::operator()(const string& b, const string& e)
 
     {
 #ifdef SNPRINTF
-	char buf_b[9], buf_e[9];
-	if (!b.empty()) {
-	    SNPRINTF(buf_b, sizeof(buf_b), "%08d", b_y * 10000 + b_m * 100 + b_d);
-	} else {
-	    *buf_b = '\0';
-	}
-	if (!e.empty()) {
-	    SNPRINTF(buf_e, sizeof(buf_e), "%08d", e_y * 10000 + e_m * 100 + e_d);
-	} else {
-	    *buf_e = '\0';
-	}
+    char buf_b[9], buf_e[9];
+    if (!b.empty()) {
+	SNPRINTF(buf_b, sizeof(buf_b), "%08d", b_y * 10000 + b_m * 100 + b_d);
+    } else {
+	*buf_b = '\0';
+    }
+    if (!e.empty()) {
+	SNPRINTF(buf_e, sizeof(buf_e), "%08d", e_y * 10000 + e_m * 100 + e_d);
+    } else {
+	*buf_e = '\0';
+    }
 #else
-	char buf_b[100], buf_e[100];
-	buf_b[sizeof(buf_b) - 1] = '\0';
-	buf_e[sizeof(buf_e) - 1] = '\0';
-	if (!b.empty()) {
-	    sprintf(buf_b, "%08d", b_y * 10000 + b_m * 100 + b_d);
-	    if (buf_b[sizeof(buf_b) - 1]) abort(); // Buffer overrun!
-	} else {
-	    *buf_b = '\0';
-	}
-	if (!e.empty()) {
-	    sprintf(buf_e, "%08d", e_y * 10000 + e_m * 100 + e_d);
-	    if (buf_e[sizeof(buf_e) - 1]) abort(); // Buffer overrun!
-	} else {
-	    *buf_e = '\0';
-	}
+    char buf_b[100], buf_e[100];
+    buf_b[sizeof(buf_b) - 1] = '\0';
+    buf_e[sizeof(buf_e) - 1] = '\0';
+    if (!b.empty()) {
+	sprintf(buf_b, "%08d", b_y * 10000 + b_m * 100 + b_d);
+	if (buf_b[sizeof(buf_b) - 1]) abort(); // Buffer overrun!
+    } else {
+	*buf_b = '\0';
+    }
+    if (!e.empty()) {
+	sprintf(buf_e, "%08d", e_y * 10000 + e_m * 100 + e_d);
+	if (buf_e[sizeof(buf_e) - 1]) abort(); // Buffer overrun!
+    } else {
+	*buf_e = '\0';
+    }
 #endif
-	return RangeProcessor::operator()(buf_b, buf_e);
+    return RangeProcessor::operator()(buf_b, buf_e);
     }
 
 not_our_range:
@@ -432,8 +432,8 @@ NumberRangeProcessor::operator()(const string& b, const string& e)
     }
 
     return RangeProcessor::operator()(
-	    b.empty() ? b : Xapian::sortable_serialise(num_b),
-	    e.empty() ? e : Xapian::sortable_serialise(num_e));
+	b.empty() ? b : Xapian::sortable_serialise(num_b),
+	e.empty() ? e : Xapian::sortable_serialise(num_e));
 
 not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
@@ -454,87 +454,87 @@ static const unsigned int size_map[26] = {
 static unsigned int
 get_size_multiplier_from_suffix(const char ch)
 {
-	// It takes character as input and return number of bytes
-	// B - 1 byte
-	// K - 1024 bytes
-	// M - 1024*1024 bytes
-	// G - 1024*1024*1024 bytes
-	if (ch >= 'A' && ch <= 'Z') {
-		return size_map[ch - 'A'];
-	} else {
-		return 0;
-	}
+    // It takes character as input and return number of bytes
+    // B - 1 byte
+    // K - 1024 bytes
+    // M - 1024*1024 bytes
+    // G - 1024*1024*1024 bytes
+    if (ch >= 'A' && ch <= 'Z') {
+	return size_map[ch - 'A'];
+    } else {
+	return 0;
+    }
 }
 
 Xapian::Query
 FileSizeRangeProcessor::operator()(const string& b, const string& e) {
-	// Here b and e will be like "100K" and "1M"
-	double size_b, size_e;
-	char unit_b = '\0', unit_e = '\0';
-	string temp_b = b, temp_e = e;
+    // Here b and e will be like "100K" and "1M"
+    double size_b, size_e;
+    char unit_b = '\0', unit_e = '\0';
+    string temp_b = b, temp_e = e;
 
-	if (!b.empty()) {
-		errno = 0;
-		char b_back = b.back();
-		if (b_back =='B' || b_back =='K' || b_back =='M' || b_back =='G') {
-			// If suffix of b is 'B','K','M','G'
-			unit_b = b_back;
-			temp_b.pop_back();
-		} else if (!C_isdigit(b_back)) {
-			// If it is neither digit nor any of above character, then it is invalid
-			goto not_our_range;
-		}
-		const char * startptr = temp_b.c_str();
-		char * endptr;
-		size_b = strtod(startptr, &endptr);
-		if (endptr != startptr + temp_b.size() || errno) {
-			// Invalid characters in string || overflow or underflow.
-			goto not_our_range;
-		}
-	} else {
-		size_b = 0.0;
+    if (!b.empty()) {
+	errno = 0;
+	char b_back = b.back();
+	if (b_back =='B' || b_back =='K' || b_back =='M' || b_back =='G') {
+	    // If suffix of b is 'B','K','M','G'
+	    unit_b = b_back;
+	    temp_b.pop_back();
+	} else if (!C_isdigit(b_back)) {
+	    // If it is neither digit nor any of above character, then it is invalid
+	    goto not_our_range;
 	}
+	const char * startptr = temp_b.c_str();
+	char * endptr;
+	size_b = strtod(startptr, &endptr);
+	if (endptr != startptr + temp_b.size() || errno) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+    } else {
+	size_b = 0.0;
+    }
 
-	if (!e.empty()) {
-		errno = 0;
-		char e_back = e.back();
-		if (e_back =='B' || e_back =='K' || e_back =='M' || e_back =='G') {
-			// If suffix of b is 'B','K','M','G'
-			unit_e = e_back;
-			temp_e.pop_back();
-		} else if(!C_isdigit(e_back)) {
-			// If it is neither digit nor any of above character, then it is invalid
-		    goto not_our_range;
-		}
-		const char * startptr = temp_e.c_str();
-		char * endptr;
-		size_e = strtod(startptr, &endptr);
-		if (endptr != startptr + temp_e.size() || errno) {
-			// Invalid characters in string || overflow or underflow.
-			goto not_our_range;
-		}
-	} else {
+    if (!e.empty()) {
+	errno = 0;
+	char e_back = e.back();
+	if (e_back =='B' || e_back =='K' || e_back =='M' || e_back =='G') {
+	    // If suffix of b is 'B','K','M','G'
+	    unit_e = e_back;
+	    temp_e.pop_back();
+	} else if(!C_isdigit(e_back)) {
+	    // If it is neither digit nor any of above character, then it is invalid
+	    goto not_our_range;
+	}
+	const char * startptr = temp_e.c_str();
+	char * endptr;
+	size_e = strtod(startptr, &endptr);
+	if (endptr != startptr + temp_e.size() || errno) {
+	    // Invalid characters in string || overflow or underflow.
+	    goto not_our_range;
+	}
+    } else {
 		size_e = 0.0;
-	}
-	if (unit_e == '\0' && unit_b == '\0'){
-		// If 10..20 then it means 10 to 20 bytes
-		unit_b = 'B';
-		unit_e = 'B';
-	}
-	if (unit_e == '\0') {
-		// 1M..5 is not valid. So, if e does not have unit, then invalid
-		goto not_our_range;
-	}
-	if (unit_b == '\0') {
-		unit_b = unit_e;
-	}
+    }
+    if (unit_e == '\0' && unit_b == '\0'){
+	// If 10..20 then it means 10 to 20 bytes
+	unit_b = 'B';
+	unit_e = 'B';
+    }
+    if (unit_e == '\0') {
+	// 1M..5 is not valid. So, if e does not have unit, then invalid
+	goto not_our_range;
+    }
+    if (unit_b == '\0') {
+	unit_b = unit_e;
+    }
 
-	size_b = size_b * get_size_multiplier_from_suffix(unit_b);
-	size_e = size_e * get_size_multiplier_from_suffix(unit_e);
+    size_b = size_b * get_size_multiplier_from_suffix(unit_b);
+    size_e = size_e * get_size_multiplier_from_suffix(unit_e);
 
-	return RangeProcessor::operator()(
-	    b.empty() ? b : Xapian::sortable_serialise(size_b),
-	    e.empty() ? e : Xapian::sortable_serialise(size_e));
+    return RangeProcessor::operator()(
+	b.empty() ? b : Xapian::sortable_serialise(size_b),
+	e.empty() ? e : Xapian::sortable_serialise(size_e));
 
 not_our_range:
     return Xapian::Query(Xapian::Query::OP_INVALID);
