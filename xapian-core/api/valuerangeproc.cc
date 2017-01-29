@@ -466,6 +466,17 @@ get_size_multiplier_from_suffix(const char ch)
     }
 }
 
+static bool
+is_valid_size_character(const char ch)
+{
+    // Return true if ch is valid size character ('B','K','M','G')
+    if (ch =='B' || ch =='K' || ch =='M' || ch =='G') {
+	return true;
+    } else {
+	return false;
+    }
+}
+
 Xapian::Query
 FileSizeRangeProcessor::operator()(const string& b, const string& e) {
     // Here b and e will be like "100K" and "1M"
@@ -476,7 +487,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e) {
     if (!b.empty()) {
 	errno = 0;
 	char b_back = b.back();
-	if (b_back =='B' || b_back =='K' || b_back =='M' || b_back =='G') {
+	if (is_valid_size_character(b_back)) {
 	    // If suffix of b is 'B','K','M','G'
 	    unit_b = b_back;
 	    temp_b.pop_back();
@@ -498,11 +509,11 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e) {
     if (!e.empty()) {
 	errno = 0;
 	char e_back = e.back();
-	if (e_back =='B' || e_back =='K' || e_back =='M' || e_back =='G') {
+	if (is_valid_size_character(b_back)) {
 	    // If suffix of b is 'B','K','M','G'
 	    unit_e = e_back;
 	    temp_e.pop_back();
-	} else if(!C_isdigit(e_back)) {
+	} else if (!C_isdigit(e_back)) {
 	    // If it is neither digit nor any of above character, then it is invalid
 	    goto not_our_range;
 	}
@@ -514,9 +525,9 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e) {
 	    goto not_our_range;
 	}
     } else {
-		size_e = 0.0;
+	size_e = 0.0;
     }
-    if (unit_e == '\0' && unit_b == '\0'){
+    if (unit_e == '\0' && unit_b == '\0') {
 	// If 10..20 then it means 10 to 20 bytes
 	unit_b = 'B';
 	unit_e = 'B';
@@ -531,7 +542,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e) {
 
     size_b = size_b * get_size_multiplier_from_suffix(unit_b);
     size_e = size_e * get_size_multiplier_from_suffix(unit_e);
-
+    
     return RangeProcessor::operator()(
 	b.empty() ? b : Xapian::sortable_serialise(size_b),
 	e.empty() ? e : Xapian::sortable_serialise(size_e));
