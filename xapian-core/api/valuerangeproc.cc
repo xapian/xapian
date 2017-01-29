@@ -542,7 +542,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e) {
 
     size_b = size_b * get_size_multiplier_from_suffix(unit_b);
     size_e = size_e * get_size_multiplier_from_suffix(unit_e);
-    
+
     return RangeProcessor::operator()(
 	b.empty() ? b : Xapian::sortable_serialise(size_b),
 	e.empty() ? e : Xapian::sortable_serialise(size_e));
