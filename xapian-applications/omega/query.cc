@@ -1992,7 +1992,14 @@ eval(const string &fmt, const vector<string> &param)
 		string::size_type i = 0, j;
 		while (true) {
 		    j = args[0].find_first_not_of("0123456789", i);
-		    Xapian::docid id = atoi(args[0].substr(i, j - i).c_str());
+		    Xapian::docid id = 0;
+            try{
+            id = stoi(args[0].substr(i, j - i).c_str(), nullptr); //change from atoi to stoi
+            } catch(invalid_argument &e)
+            {
+            cerr << "error in file /xapian-application/omega/query.cc exception by stoi" << endl;
+            exit(EXIT_FAILURE);
+            }
 		    if (id) {
 			rset.add_document(id);
 			ticked[id] = true;
@@ -2455,7 +2462,13 @@ ensure_query_parsed()
 	// to display
 	val = cgi_params.find("TOPDOC");
 	if (val != cgi_params.end()) {
-	    topdoc = atol(val->second.c_str());
+        try {
+	    topdoc = stol(val->second.c_str()); //change from atol to stol
+        } catch(invalid_argument &e)
+        {
+        cerr << "error in file /xapian-application/omega/query.cc exception by stoi" << endl;
+        exit(EXIT_FAILURE);
+        }
 	}
 
 	// Handle next, previous, and page links
@@ -2468,7 +2481,14 @@ ensure_query_parsed()
 		topdoc = 0;
 	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
 		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    long page = atol(val->second.c_str());
+        long page = 0;
+        try {
+	    page = stol(val->second.c_str()); //change from atol to stol
+        } catch(invalid_argument &e)
+        {
+        cerr << "error in file /xapian-application/omega/query.cc exception by stoi" << endl;
+        exit(EXIT_FAILURE);
+        }
 	    // Do something sensible for page 0 (we count pages from 1).
 	    if (page == 0) page = 1;
 	    topdoc = (page - 1) * hits_per_page;
@@ -2482,7 +2502,13 @@ ensure_query_parsed()
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	if (val != cgi_params.end()) {
-	    raw_search = bool(atol(val->second.c_str()));
+        try {
+	    raw_search = bool(stol(val->second.c_str())); //change from atol to stol
+        } catch(invalid_argument &e)
+        {
+        cerr << "error in file /xapian-application/omega/query.cc exception by stoi" << endl;
+        exit(EXIT_FAILURE);
+        }
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
@@ -2495,7 +2521,13 @@ ensure_query_parsed()
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;
-		Xapian::docid d = atoi(value.c_str() + j);
+		Xapian::docid d;
+        try {
+        d = stoi(value.c_str() + j, nullptr); //change from atoi to stoi
+        } catch(invalid_argument &e) {
+        cerr << "error in file /xapian-application/omega/query.cc exception by stoi" << endl;
+        exit(EXIT_FAILURE);
+        }
 		if (d) {
 		    rset.add_document(d);
 		    ticked[d] = true;

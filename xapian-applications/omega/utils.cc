@@ -20,6 +20,7 @@
  */
 
 #include <config.h>
+#include <iostream> // for cerr
 
 #include "utils.h"
 
@@ -52,7 +53,15 @@ using namespace std;
 int
 string_to_int(const string &s)
 {
-    return atoi(s.c_str());
+    int tmp = 0;
+    try {
+    tmp = std::stoi(s.c_str(), nullptr); //changed to stoi from atoi
+    } catch(std::invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/utils.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
+    return tmp;
 }
 
 string

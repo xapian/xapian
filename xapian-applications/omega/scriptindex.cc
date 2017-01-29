@@ -117,7 +117,12 @@ public:
     Action(type action_) : action(action_), num_arg(0) { }
     Action(type action_, const string & arg)
 	: action(action_), string_arg(arg) {
-	num_arg = atoi(string_arg.c_str());
+    try {
+	num_arg = stoi(string_arg.c_str(), nullptr); //change from atoi to stoi
+    } catch(invalid_argument &e) {
+    cerr << "error in file /xapian-application/omega/scriptindex.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
     }
     Action(type action_, const string & arg, int num)
 	: action(action_), num_arg(num), string_arg(arg) { }
@@ -311,7 +316,13 @@ parse_index_script(const string &filename)
 			// We don't push an Action for WEIGHT - instead we
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
-			weight = atoi(val.c_str());
+            try {
+			weight = stoi(val.c_str(), nullptr); //change from atoi to stoi
+            } catch(invalid_argument)
+            {
+            cerr << "error in file /xapian-application/omega/scriptindex.cc exception by stoi" << endl;
+            exit(EXIT_FAILURE);
+            }
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
 						  useless_weight_pos, action);
@@ -619,7 +630,14 @@ again:
 			const string & type = i->get_string_arg();
 			string yyyymmdd;
 			if (type == "unix") {
-			    time_t t = atoi(value.c_str());
+                time_t t = 0;
+                try {
+			    t = stoi(value.c_str(), nullptr); //change from atoi to stoi
+                } catch(invalid_argument &e)
+                {
+                cerr << "error in file /xapian-application/omega/scriptindex.cc exception by stoi" << endl; 
+                exit(EXIT_FAILURE);
+                }
 			    struct tm *tm = localtime(&t);
 			    int y = tm->tm_year + 1900;
 			    int m = tm->tm_mon + 1;
