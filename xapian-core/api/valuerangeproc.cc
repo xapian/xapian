@@ -509,7 +509,7 @@ FileSizeRangeProcessor::operator()(const string& b, const string& e) {
     if (!e.empty()) {
 	errno = 0;
 	char e_back = e.back();
-	if (is_valid_size_character(b_back)) {
+	if (is_valid_size_character(e_back)) {
 	    // If suffix of b is 'B','K','M','G'
 	    unit_e = e_back;
 	    temp_e.pop_back();
