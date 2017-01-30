@@ -1,7 +1,7 @@
 /** @file query.h
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2008 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -228,21 +228,21 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
     /** Construct a Query object for a single-ended value range.
      *
-     *  @param op_	Must be OP_VALUE_LE or OP_VALUE_GE currently.
-     *  @param slot	The value slot to work over.
-     *  @param limit	The limit of the range.
+     *  @param op_		Must be OP_VALUE_LE or OP_VALUE_GE currently.
+     *  @param slot		The value slot to work over.
+     *  @param range_limit	The limit of the range.
      */
-    Query(op op_, Xapian::valueno slot, const std::string & limit);
+    Query(op op_, Xapian::valueno slot, const std::string & range_limit);
 
     /** Construct a Query object for a value range.
      *
-     *  @param op_	Must be OP_VALUE_RANGE currently.
-     *  @param slot	The value slot to work over.
-     *  @param begin	Start of the range.
-     *  @param end	End of the range.
+     *  @param op_		Must be OP_VALUE_RANGE currently.
+     *  @param slot		The value slot to work over.
+     *  @param range_lower	Lower end of the range.
+     *  @param range_upper	Upper end of the range.
      */
     Query(op op_, Xapian::valueno slot,
-	  const std::string & begin, const std::string & end);
+	  const std::string & range_lower, const std::string & range_upper);
 
     /** Query constructor for OP_WILDCARD queries.
      *
