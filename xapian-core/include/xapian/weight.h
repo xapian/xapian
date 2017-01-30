@@ -1485,7 +1485,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     std::string name() const;
 
     std::string serialise() const;
-    LMWeight * unserialise(const std::string & s) const;
+    LMWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
@@ -1516,7 +1516,7 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     std::string name() const;
 
     std::string serialise() const;
-    CoordWeight * unserialise(const std::string &) const;
+    CoordWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
