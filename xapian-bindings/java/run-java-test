@@ -8,4 +8,4 @@ ${LIBTOOL-../libtool} --config > libtoolconfig.$$
 . ./libtoolconfig.$$
 rm -f libtoolconfig.$$
 ${LIBTOOL-../libtool} -dlopen libxapian_jni.la --mode=execute \
-  $OSX_SIP_HACK_ENV ${JAVA-java} -Djava.library.path="$objdir" -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"
+  $OSX_SIP_HACK_ENV ${JAVA-java} -Djava.library.path="$objdir" -classpath built/xapian.jar${PATHSEP-:}. "$arg"
