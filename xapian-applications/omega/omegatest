@@ -268,6 +268,12 @@ testcase '1.000000.' B=Hexample.org B=Hexample.net
 testcase '2.000000.' B=Hexample.org B=XFOObar
 testcase '3.000000.' B=Hexample.org B=XFOObar B=XFOObar
 
+# size-range search test for omega
+printf '$querydescription' > "$TEST_TEMPLATE"
+qtestcase '0 * VALUE_RANGE 2 10240 20480' P='size:10..20K'
+qtestcase '0 * VALUE_RANGE 2 10240 30721' P='size:10K..30K'
+qtestcase '0 * VALUE_RANGE 2 10240 40960' P='size:10..40'
+
 printf '$filters' > "$TEST_TEMPLATE"
 testcase 'Hexample.net~Hexample.org~.~~' B=Hexample.org B=Hexample.net
 testcase '!Gmisc.test~.~~' N=Gmisc.test

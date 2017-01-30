@@ -1729,7 +1729,6 @@ static const test test_value_filesizerange1_queries[] = {
     { "10K..20K", "0 * VALUE_RANGE 1 10240 20480" },
     { "10..50M", "0 * VALUE_RANGE 1 10485760 52428800" },
     { "10K..20", "Unknown range operation" },
-    { "10..20", "Unknown range operation" },
     { "10A..20A", "Unknown range operation" },
     { "10..20H", "Unknown range operation" },
     { NULL, NULL }
@@ -1767,7 +1766,6 @@ static const test test_value_filesizerange2_queries[] = {
     { "size:10..20K", "0 * VALUE_RANGE 1 10240 20480" },
     { "size:10..50M", "0 * VALUE_RANGE 1 10485760 52428800" },
     { "filesize:10B..1M", "0 * VALUE_RANGE 2 10 1048576" },
-    { "size:10..80", "Unknown range operation" },
     { "file-size:10A..20M", "Unknown range operation" },
     { "size:10K..100", "Unknown range operation" },
     { NULL, NULL }
