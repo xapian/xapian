@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005,2006,2007,2008,2011,2016 Olly Betts
+// Copyright (C) 2005,2006,2007,2008,2011,2016,2017 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -225,6 +225,132 @@ public class SmokeTest {
 		qp.addPrefix("food", new MyFieldProcessor());
 		if (!qp.parseQuery("food:spam").toString().equals("Query(eggs)")) {
 		    System.err.println("FieldProcessor subclass doesn't work as expected");
+		    System.exit(1);
+		}
+	    }
+
+	    {
+		// Wrapped functions which take/return byte[] for std::string.
+
+		// Check that serialisation returns byte[], that
+		// unserialisation takes byte[], and round-tripping works.
+		byte[] res = Xapian.sortableSerialise(1.675);
+		if (Xapian.sortableUnserialise(res) != 1.675) {
+		    System.err.println("sortableSerialise() and/or sortableUnserialise() don't work as expected");
+		    System.exit(1);
+		}
+
+		// Check that serialisation returns byte[], that
+		// unserialisation takes byte[], and round-tripping works.
+		Query q = new Query("foo");
+		res = q.serialise();
+		Query q_out = Query.unserialise(res);
+		if (!q.toString().equals(q_out.toString())) {
+		    System.err.println("Query serialisation doesn't work as expected");
+		    System.exit(1);
+		}
+
+		// Check Document.addValue() takes byte[], that getValue()
+		// returns byte[], that serialisation returns byte[], that
+		// unserialisation takes byte[], and round-tripping works.
+		Document d = new Document();
+		d.setData("xyzzy");
+		d.addValue(7, res);
+		byte[] res2 = d.getValue(7);
+		if (!java.util.Arrays.equals(res, res2)) {
+		    System.err.println("Document.getValue() returns a different byte[] to the one set with addValue()");
+		    System.exit(1);
+		}
+		res = d.serialise();
+		Document d_out = Document.unserialise(res);
+		// Make sure the "terms_here" flag is set so the descriptions match.
+		d_out.termListCount();
+		if (!d.toString().equals(d_out.toString())) {
+		    System.err.println("Document serialisation doesn't work as expected");
+		    System.err.println(d.toString());
+		    System.err.println(d_out.toString());
+		    System.exit(1);
+		}
+
+		// Check that serialisation returns byte[], that
+		// unserialisation takes byte[], and round-tripping works.
+		LatLongCoord llc = new LatLongCoord(10.5, 45.25);
+		res = llc.serialise();
+		LatLongCoord llc_out = new LatLongCoord();
+		llc_out.unserialise(res);
+		if (!llc.toString().equals(llc_out.toString())) {
+		    System.err.println("LatLongCoord serialisation doesn't work as expected");
+		    System.exit(1);
+		}
+
+		// Check that serialisation returns byte[], that
+		// unserialisation takes byte[], and round-tripping works.
+		LatLongCoords llcs = new LatLongCoords();
+		llcs.append(llc);
+		res = llcs.serialise();
+		LatLongCoords llcs_out = new LatLongCoords();
+		llcs_out.unserialise(res);
+		if (!llcs.toString().equals(llcs_out.toString())) {
+		    System.err.println("LatLongCoords serialisation doesn't work as expected");
+		    System.exit(1);
+		}
+
+		// Check `range_limit` mapped to byte[].
+		q = new Query(Query.op.OP_VALUE_GE, 0, res);
+		if (q.toString().length() == 0) {
+		    // Mostly just a way to actually use the constructed object.
+		    System.err.println("Query description shouldn't be empty");
+		    System.exit(1);
+		}
+
+		// Check `range_limit` mapped to byte[].
+		q = new Query(Query.op.OP_VALUE_LE, 1, res);
+		if (q.toString().length() == 0) {
+		    // Mostly just a way to actually use the constructed object.
+		    System.err.println("Query description shouldn't be empty");
+		    System.exit(1);
+		}
+
+		// Check `range_lower` and `range_upper` mapped to byte[].
+		q = new Query(Query.op.OP_VALUE_RANGE, 2, res, res);
+		if (q.toString().length() == 0) {
+		    // Mostly just a way to actually use the constructed object.
+		    System.err.println("Query description shouldn't be empty");
+		    System.exit(1);
+		}
+
+		// Check ValueSetMatchDecider.addValue() and removeValue() take
+		// byte[].
+		ValueSetMatchDecider vsmd = new ValueSetMatchDecider(1, false);
+		vsmd.addValue(res);
+		vsmd.removeValue(res);
+
+		// Check Database.getValueLowerBound() and getValueUpperBound()
+		// return byte[].
+		byte[] lo = "abba".getBytes();
+		byte[] hi = "xyzzy".getBytes();
+		{
+		    WritableDatabase wdb = new WritableDatabase("", Xapian.DB_BACKEND_INMEMORY);
+		    Document document = new Document();
+		    document.addValue(42, hi);
+		    wdb.addDocument(document);
+		    document.addValue(42, lo);
+		    wdb.addDocument(document);
+		    db = wdb;
+		}
+
+		if (!java.util.Arrays.equals(db.getValueLowerBound(42), lo)) {
+		    System.err.println("Database.getValueLowerBound() doesn't work as expected");
+		    System.exit(1);
+		}
+		if (!java.util.Arrays.equals(db.getValueUpperBound(42), hi)) {
+		    System.err.println("Database.getValueUpperBound() doesn't work as expected");
+		    System.exit(1);
+		}
+
+		ValueIterator it = db.valuestreamBegin(42);
+		if (!java.util.Arrays.equals(it.getValue(), hi)) {
+		    System.err.println("ValueIterator.getValue() doesn't work as expected");
 		    System.exit(1);
 		}
 	    }
