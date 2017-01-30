@@ -2,7 +2,7 @@
 %{
 /* java.i: SWIG interface file for the Java bindings
  *
- * Copyright (c) 2007,2009,2011,2012,2014,2016 Olly Betts
+ * Copyright (c) 2007,2009,2011,2012,2014,2016,2017 Olly Betts
  * Copyright (c) 2012 Dan Colish
  *
  * This program is free software; you can redistribute it and/or
@@ -400,6 +400,57 @@ class XapianSWIGQueryItor {
 /* This typemap handles the conversion of the jstype to the jtype. */
 %typemap(javaout) std::pair<Xapian::TermIterator, Xapian::TermIterator> { return $jnicall; }
 
+// Typemaps for converting C++ std::string to/from Java byte[] for cases
+// where the C++ API uses it for binary data.
+//
+// Terms, document data and user metadata can also be binary data, but for at
+// least for now we won't worry about that.
+
+%typemap(in) const binary_std_string & (jbyte * jarr, std::string c_arg) %{
+    if (!$input)
+	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
+    jarr = jenv->GetByteArrayElements($input, NULL);
+    if (!jarr) return $null;
+    c_arg.assign(reinterpret_cast<char*>(jarr), jenv->GetArrayLength($input));
+    $1 = &c_arg;
+%}
+
+%typemap(out) binary_std_string {
+    size_t len = $1.size();
+    jbyteArray c_result = jenv->NewByteArray(len);
+    const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+    jenv->SetByteArrayRegion(c_result, 0, len, data);
+    $result = c_result;
+}
+
+%typemap(directorin, descriptor="B[") const binary_std_string & {
+    size_t len = $1.size();
+    jbyteArray c_result = jenv->NewByteArray(len);
+    const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
+    jenv->SetByteArrayRegion(c_result, 0, len, data);
+    $input = c_result;
+}
+
+%typemap(jni) binary_std_string, const binary_std_string & "jbyteArray"
+%typemap(jtype) binary_std_string, const binary_std_string & "byte[]"
+%typemap(jstype) binary_std_string, const binary_std_string & "byte[]"
+
+%inline %{
+typedef std::string binary_std_string;
+%}
+
+%apply const binary_std_string & { const std::string & range_limit };
+%apply const binary_std_string & { const std::string & range_lower };
+%apply const binary_std_string & { const std::string & range_upper };
+%apply const binary_std_string & { const std::string & serialised };
+%apply const binary_std_string & { const std::string & value };
+
+%apply binary_std_string { std::string serialise() };
+%apply binary_std_string { std::string get_value() };
+%apply binary_std_string { std::string get_value_lower_bound() };
+%apply binary_std_string { std::string get_value_upper_bound() };
+%apply binary_std_string { std::string Xapian::ValueIterator::operator*() };
+%apply binary_std_string { std::string Xapian::sortable_serialise(double) };
 
 #pragma SWIG nowarn=822 /* Suppress warning about covariant return types (FIXME - check if this is a problem!) */
 
