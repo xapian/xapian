@@ -20,6 +20,7 @@ AM_TESTS_ENVIRONMENT = \
 LOG_COMPILER = $(srcdir)/run-java-test
 
 CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class\
+	MyFieldProcessor.class\
 	built/xapian.jar\
 	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
 
@@ -121,7 +122,10 @@ XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 	org/xapian/Query*op.class\
 	org/xapian/QueryParser*feature_flag.class\
 	org/xapian/QueryParser*stem_strategy.class\
-	org/xapian/TermGenerator*flags.class
+	org/xapian/TermGenerator*flags.class\
+	org/xapian/TermGenerator*stem_strategy.class\
+	org/xapian/TermGenerator*stop_strategy.class\
+	org/xapian/Weight*type_smoothing.class
 
 noinst_DATA = built/xapian.jar
 
