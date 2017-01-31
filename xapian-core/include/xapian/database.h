@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -1204,9 +1204,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  associated with terms, documents, or postings by encoding the
 	 *  termname and/or document id into the metadata key.
 	 *
-	 *  @param key   The key of the metadata item to set.
+	 *  @param key       The key of the metadata item to set.
 	 *
-	 *  @param value The value of the metadata item to set.
+	 *  @param metadata  The value of the metadata item to set.
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while writing to the database.
@@ -1221,7 +1221,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *             database backend in use doesn't support user-specified
 	 *             metadata.
 	 */
-	void set_metadata(const std::string & key, const std::string & value);
+	void set_metadata(const std::string & key, const std::string & metadata);
 
 	/// Return a string describing this object.
 	std::string get_description() const;
