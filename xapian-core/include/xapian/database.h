@@ -438,7 +438,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Get the user-specified metadata associated with a given key.
 	 *
 	 *  User-specified metadata allows you to store arbitrary information
-	 *  in the form of (key,tag) pairs.  See @a
+	 *  in the form of (key, value) pairs.  See @a
 	 *  WritableDatabase::set_metadata() for more information.
 	 *
 	 *  When invoked on a Xapian::Database object representing multiple
@@ -1185,7 +1185,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  existing item of metadata, just set its value to the empty string.
 	 *
 	 *  User-specified metadata allows you to store arbitrary information
-	 *  in the form of (key,tag) pairs.
+	 *  in the form of (key, value) pairs.
 	 *
 	 *  There's no hard limit on the number of metadata items, or the size
 	 *  of the metadata values.  Metadata keys have a limited length, which
