@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016,2017 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  * Copyright (C) 2016 Vivek Pal
  *
@@ -422,6 +422,7 @@ DEFINE_TESTCASE(nosuchdb1, !backend) {
     // This is a "nodb" test because it doesn't test a particular backend.
     try {
 	Xapian::Database db("NOsuChdaTabASe");
+	FAIL_TEST("Managed to open 'NOsuChdaTabASe'");
     } catch (const Xapian::DatabaseOpeningError & e) {
 	// We don't really require this exact message, but in Xapian <= 1.1.0
 	// this gave "Couldn't detect type of database".
