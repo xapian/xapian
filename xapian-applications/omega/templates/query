@@ -106,7 +106,7 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </div>
 </td>
-<td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b>
+<td><header><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
 $highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}
 <a href="$html{$field{url}}">$html{$field{url}}</a>
 matching:
