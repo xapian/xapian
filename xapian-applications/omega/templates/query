@@ -52,7 +52,6 @@ document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
 <body bgcolor="#ffffff">
 <form name=P method=get
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
-<center>
 <input id="omega-autofocus" type=search name=P value="$html{$query}" size=65 autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
@@ -82,7 +81,6 @@ $if{$not{$msizeexact},
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
 <hr>
-</center>
 $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
 <br><small>Search took $time seconds</small>
 <table>
@@ -114,7 +112,7 @@ matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
 </table>
 
-<br><center>
+<br>
 
 ${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
@@ -134,7 +132,7 @@ $if{$ne{$opt{y},$lastpage},...}
 $NEXT
 }
 }}
-</center><br>
+<br>
 $if{$dbname,<input type=hidden name=DB value="$html{$dbname}">}
 $if{$ne{$topdoc,0},<input type=hidden name=TOPDOC value=$topdoc>}
 $if{$ne{$hitsperpage,10},<input type=hidden name=HITSPERPAGE value=$hitsperpage>}
