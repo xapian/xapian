@@ -1,7 +1,7 @@
 /** @file api_compact.cc
  * @brief Tests of Database::compact()
  */
-/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2009,2010,2011,2012,2013,2015,2016,2017 Olly Betts
  * Copyright (C) 2010 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -253,6 +253,17 @@ DEFINE_TESTCASE(compactmerge1, chert || glass) {
 
     TEST_EQUAL(indb.get_doccount() * 2, outdb.get_doccount());
     dbcheck(outdb, outdb.get_doccount(), outdb.get_doccount());
+
+    for (const char * suffix :
+	    { "", "/postlist", "/termlist.", "/docdata.glass" }) {
+	tout.str(string());
+	string arg = outdbpath;
+	if (endswith(suffix, ".glass") && get_dbtype() != "glass") {
+	    suffix = "/record.DB";
+	}
+	arg += suffix;
+	TEST_EQUAL(Xapian::Database::check(arg, 0, &tout), 0);
+    }
 
     return true;
 }
