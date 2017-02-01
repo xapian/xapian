@@ -44,7 +44,7 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
+document.write("<span title=\""+D+" "+T+"\">Modified:<b>"+D+"</b></span>");
 }
 // -->
 </script>
@@ -58,21 +58,19 @@ if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
 </script>
 <input type=submit value="Search">
-<hr>
 $if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
 $if{$opt{topterms},
  <div title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
  $map{$topterms,<span style="white-space:nowrap"><input type=checkbox name=X value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
- <br><noscript><input type=hidden name=ADD value=1></noscript>
+ <noscript><input type=hidden name=ADD value=1></noscript>
  </div>
 }
-<br>
-$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a><br>}
+$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a>}
 $or{$html{$error},
 $if{$eq{$msize,0},
 $if{$query,No documents match your query,
-<hr>Searching $nice{$dbsize} documents
+Searching $nice{$dbsize} documents
 },
 $if{$not{$msizeexact},
  $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
@@ -80,9 +78,8 @@ $if{$not{$msizeexact},
   All $nice{$msize} matches,
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
-<hr>
 $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
-<br><small>Search took $time seconds</small>
+<small>Search took $time seconds</small>
 <table>
 $hitlist{<tr><td valign=top>
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
@@ -94,25 +91,23 @@ $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
 <span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
-Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
-</noscript><br>
+Modified:<b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
+</noscript>
 }
-$if{$field{language},Language: <b>$html{$field{language}}</b><br>}
-$if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span><br>}
+$if{$field{language},Language: <b>$html{$field{language}}</b>}
+$if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span>}
 <div title="Mark this document as relevant" style="float:left;background-color:#cfc;border:1px solid green;margin-top:2px;">
 <input type=checkbox name=R value=$id$if{$relevant, checked}>
 </div>
 </div>
 </td>
-<td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
-<small>$highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</small><br>
-<a href="$html{$field{url}}">$html{$field{url}}</a><br>
+<td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b>
+<small>$highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</small>
+<a href="$html{$field{url}}">$html{$field{url}}</a>
 <small>
 matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
 </table>
-
-<br>
 
 ${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
@@ -132,7 +127,6 @@ $if{$ne{$opt{y},$lastpage},...}
 $NEXT
 }
 }}
-<br>
 $if{$dbname,<input type=hidden name=DB value="$html{$dbname}">}
 $if{$ne{$topdoc,0},<input type=hidden name=TOPDOC value=$topdoc>}
 $if{$ne{$hitsperpage,10},<input type=hidden name=HITSPERPAGE value=$hitsperpage>}
@@ -147,7 +141,7 @@ ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 </form>
-<hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
+<div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
 </body>
 </html>
 $log{query.log}
