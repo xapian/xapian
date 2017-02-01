@@ -79,7 +79,7 @@ $if{$not{$msizeexact},
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
 $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
-<small>Search took $time seconds</small>
+Search took $time seconds
 <table>
 $hitlist{<tr><td valign=top>
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
@@ -102,11 +102,10 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesiz
 </div>
 </td>
 <td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b>
-<small>$highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</small>
+$highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}
 <a href="$html{$field{url}}">$html{$field{url}}</a>
-<small>
 matching:
-<i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
+<i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i>${for lynx:}<p></td></tr>}
 </table>
 
 ${suppress next, prev, and page links if there's only one page}
@@ -141,7 +140,7 @@ ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 </form>
-<div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
+<div align=right><i><a href="https://xapian.org/">$html{$version}</a></i></div>
 </body>
 </html>
 $log{query.log}
