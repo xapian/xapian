@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -200,39 +200,16 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
     }
 
-    throw Xapian::DatabaseError("Directory does not contain a Xapian database");
+    throw Xapian::DatabaseOpeningError(
+	    "Directory does not contain a Xapian database");
 }
 
+typedef enum { UNKNOWN, OLD, GLASS } backend_type;
+
 static size_t
-check_if_db_table(const string & path, int opts, std::ostream *out)
+check_db_table_(const string & filename, int opts, std::ostream *out,
+		backend_type backend)
 {
-    // Just check a single Btree.  If it ends with ".", ".DB", or ".glass",
-    // trim that so the user can do xapian-check on "foo", "foo.", "foo.DB",
-    // "foo.glass", etc.
-    enum { UNKNOWN, OLD, GLASS } backend = UNKNOWN;
-    string filename = path;
-    if (endswith(filename, '.')) {
-	filename.resize(filename.size() - 1);
-    } else if (endswith(filename, ".DB")) {
-	filename.resize(filename.size() - CONST_STRLEN(".DB"));
-	backend = OLD;
-    } else if (endswith(filename, ".glass")) {
-	filename.resize(filename.size() - CONST_STRLEN(".glass"));
-	backend = GLASS;
-    }
-
-    struct stat sb;
-    if (backend == UNKNOWN) {
-	if (stat((filename + ".DB").c_str(), &sb) == 0) {
-	    // Could be chert, flint or brass - we check which below.
-	    backend = OLD;
-	} else if (stat((filename + ".glass").c_str(), &sb) == 0) {
-	    backend = GLASS;
-	} else {
-	    throw Xapian::DatabaseError("File is not a Xapian database or database table");
-	}
-    }
-
     size_t p = filename.find_last_of('/');
 #if defined __WIN32__ || defined __OS2__
     if (p == string::npos) p = 0;
@@ -268,6 +245,7 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
     Assert(backend == OLD);
     // Chert, flint and brass all used the extension ".DB", so check which
     // to give an appropriate error.
+    struct stat sb;
     if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
 	// Chert is no longer supported as of Xapian 1.5.0.
 	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 1.5.0");
@@ -282,6 +260,58 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
     }
     // Unaccompanied .DB file.
     throw Xapian::FeatureUnavailableError("Flint, chert and brass database support have all been removed");
+}
+
+static size_t
+check_db_table(const string & filename, int opts, std::ostream *out)
+{
+    backend_type backend = UNKNOWN;
+    // Just check a single Btree, given the correct filename.  Look at the
+    // extension to determine the type.
+    if (endswith(filename, ".DB")) {
+	backend = OLD;
+    } else if (endswith(filename, ".glass")) {
+	backend = GLASS;
+    } else {
+	throw Xapian::DatabaseOpeningError(
+		"File is not a Xapian database or database table");
+    }
+
+    return check_db_table_(filename, opts, out, backend);
+}
+
+static size_t
+check_if_db_table(const string & path, int opts, std::ostream *out)
+{
+    // Just check a single Btree.  If it ends with ".", ".DB", or ".glass",
+    // trim that so the user can do xapian-check on "foo", "foo.", "foo.DB",
+    // "foo.glass", etc.
+    backend_type backend = UNKNOWN;
+    string filename = path;
+    if (endswith(filename, '.')) {
+	filename.resize(filename.size() - 1);
+    } else if (endswith(filename, ".DB")) {
+	filename.resize(filename.size() - CONST_STRLEN(".DB"));
+	backend = OLD;
+    } else if (endswith(filename, ".glass")) {
+	filename.resize(filename.size() - CONST_STRLEN(".glass"));
+	backend = GLASS;
+    }
+
+    struct stat sb;
+    if (backend == UNKNOWN) {
+	if (stat((filename + ".DB").c_str(), &sb) == 0) {
+	    // Could be chert, flint or brass - we check which below.
+	    backend = OLD;
+	} else if (stat((filename + ".glass").c_str(), &sb) == 0) {
+	    backend = GLASS;
+	} else {
+	    throw Xapian::DatabaseOpeningError(
+		    "Couldn't find Xapian database or table to check", ENOENT);
+	}
+    }
+
+    return check_db_table_(path, opts, out, backend);
 }
 
 /** Check a single file DB from an fd.
@@ -323,16 +353,6 @@ check_db_fd(int fd, int opts, std::ostream *out)
 #endif
 }
 
-static size_t
-check_db_file(const string & path, const struct stat & sb, int opts, std::ostream *out)
-{
-    int fd;
-    if (check_if_single_file_db(sb, path, &fd)) {
-	return check_db_fd(fd, opts, out);
-    }
-    return check_if_db_table(path, opts, out);
-}
-
 namespace Xapian {
 
 size_t
@@ -356,10 +376,13 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	}
 
 	if (S_ISREG(sb.st_mode)) {
-	    return check_db_file(path, sb, opts, out);
+	    if (check_if_single_file_db(sb, path, &fd)) {
+		return check_db_fd(fd, opts, out);
+	    }
+	    return check_db_table(path, opts, out);
 	}
 
-	throw Xapian::DatabaseError("Not a regular file or directory");
+	throw Xapian::DatabaseOpeningError("Not a regular file or directory");
     }
 
     return check_if_db_table(path, opts, out);
