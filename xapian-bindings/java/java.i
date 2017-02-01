@@ -181,20 +181,68 @@ namespace Xapian {
     bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
 
+%ignore MSetIterator::next();
+%javamethodmodifiers MSetIterator::next_helper() "private"
+
 %extend MSetIterator {
-    Xapian::docid next () {
-	Xapian::docid tmp;
+    void next_helper () {
 	if (Xapian::iterator_valid(*self)) {
-	    tmp = (**self);
 	    ++(*self);
-	} else {
-	    tmp = -1;
 	}
-	return tmp;
     }
 
     bool hasNext() const { return Xapian::iterator_valid(*self); }
 }
+
+%typemap(javaimports) Xapian::MSetIterator "import java.util.Iterator;"
+%typemap(javaimports) Xapian::MSetIterator %{
+import java.util.NoSuchElementException;
+import java.util.Iterator;
+%}
+%typemap(javainterfaces) Xapian::MSetIterator "Iterator<MSetIterator.MatchDescriptor>"
+%typemap(javacode) MSetIterator%{
+    @Override
+    public MatchDescriptor next() {
+        MatchDescriptor descriptor = new MatchDescriptor();
+        if(hasNext()) {
+            nextHelper();
+        } else {
+            throw new NoSuchElementException();
+        }
+        return descriptor;
+    }
+
+    public class MatchDescriptor {
+        private long docId,rank;
+        private int percent;
+        private double weight;
+        private Document document;
+
+        public MatchDescriptor() {
+            MSetIterator thisIterator = MSetIterator.this;
+            this.docId = thisIterator.getDocId();
+            this.rank = thisIterator.getRank();
+            this.percent = thisIterator.getPercent();
+            this.weight = thisIterator.getWeight();
+            this.document = thisIterator.getDocument();
+        }
+
+        public long getDocId() { return docId; }
+        public long getRank() { return rank; }
+        public int getPercent() { return percent; }
+        public double getWeight() { return weight; }
+        public Document getDocument() { return document; }
+    }
+
+%}
+
+%typemap(javaimports) Xapian::MSet "import java.util.Iterator;"
+%typemap(javainterfaces) Xapian::MSet "Iterable<MSetIterator.MatchDescriptor>";
+%typemap(javacode) MSet%{
+    public Iterator<MSetIterator.MatchDescriptor> iterator() {
+        return begin();
+    }
+%}
 
 }
 

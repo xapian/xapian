@@ -129,8 +129,20 @@ public class SmokeTest {
 		System.exit(1);
 	    }
 	    Enquire enq = new Enquire(db);
-	    enq.setQuery(new Query(Query.OP_OR, "there", "is"));
+	    enq.setQuery(new Query("dog"));
 	    MSet mset = enq.getMSet(0, 10);
+	    // MSet size is 0
+	    if (mset.size() == 0) {
+		for (MSetIterator.MatchDescriptor descriptor : mset) {
+		    System.err.println("Empty iterator entered invalid section (from MSet java iterator)");
+		    System.exit(1);
+		}
+	    } else {
+		System.err.println("Unexpected mset.size(), should be 0");
+		System.exit(1);
+	    }
+	    enq.setQuery(new Query(Query.OP_OR, "there", "is"));
+	    mset = enq.getMSet(0, 10);
 	    if (mset.size() != 1) {
 		System.err.println("Unexpected mset.size()");
 		System.exit(1);
@@ -139,7 +151,7 @@ public class SmokeTest {
 	    Document m_doc = null;
 	    long m_id;
 	    while(m_itor.hasNext()) {
-		m_id = m_itor.next();
+		m_id = m_itor.next().getDocId();
 		if(m_itor.hasNext()) {
 		    m_doc = mset.getDocument(m_id);
 		}
@@ -148,7 +160,16 @@ public class SmokeTest {
 	    // Only one doc exists in this mset
 	    if(m_doc != null && m_doc.getDocId() != 0) {
 		System.err.println("Unexpected docid");
-		    System.exit(1);
+		System.exit(1);
+	    }
+	    // New iterator, should start from the beginning
+	    int iterations = 0;
+	    for(MSetIterator.MatchDescriptor descriptor : mset) {
+		iterations++;
+	    }
+	    if(iterations != mset.size()) {
+		System.err.println("Unexpected number of iterations (from MSet java iterator)");
+		System.exit(1);
 	    }
 
 	    String term_str = "";
