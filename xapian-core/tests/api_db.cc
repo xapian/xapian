@@ -307,6 +307,28 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
     return true;
 }
 
+/// Test error running Database::check() on a stub database.
+// Regression test - in 1.4.3 and earlier this threw
+// Xapian::DatabaseError.
+DEFINE_TESTCASE(stubdb8, inmemory) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb8";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "inmemory\n";
+    out.close();
+
+    try {
+	Xapian::Database::check(dbpath);
+	FAIL_TEST("Managed to check inmemory stub");
+    } catch (const Xapian::DatabaseOpeningError & e) {
+	// Check the message is appropriate.
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "File is not a Xapian database or database table");
+    }
+    return true;
+}
+
 #if 0 // the "force error" mechanism is no longer in place...
 class MyErrorHandler : public Xapian::ErrorHandler {
     public:

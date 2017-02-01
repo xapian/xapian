@@ -429,6 +429,17 @@ DEFINE_TESTCASE(nosuchdb1, !backend) {
 	TEST_STRINGS_EQUAL(e.get_msg(), "Couldn't stat 'NOsuChdaTabASe'");
     }
 
+    try {
+	Xapian::Database::check("NOsuChdaTabASe");
+	FAIL_TEST("Managed to check 'NOsuChdaTabASe'");
+    } catch (const Xapian::DatabaseOpeningError & e) {
+	// In 1.4.3 and earlier, this threw DatabaseError with the message:
+	// "File is not a Xapian database or database table" (confusing as
+	// there is no file).
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "Couldn't find Xapian database or table to check");
+    }
+
     return true;
 }
 
