@@ -21,8 +21,8 @@ How to compile the examples:
 ::
 
   cd java
-  javac -classpath built/xapian.jar:. org/xapian/examples/SimpleIndex.java
-  javac -classpath built/xapian.jar:. org/xapian/examples/SimpleSearch.java
+  javac -classpath built/xapian.jar:. docs/examples/SimpleIndex.java
+  javac -classpath built/xapian.jar:. docs/examples/SimpleSearch.java
 
 How to run the examples:
 ########################
@@ -34,11 +34,11 @@ JNI library is located.
 
 ::
 
- java -Djava.library.path=built -classpath built/xapian.jar:. \
-      org.xapian.examples.SimpleIndex ./test.db index words like java
+ java -Djava.library.path=built -classpath built/xapian.jar:docs/examples \
+      SimpleIndex ./test.db index words like java
 
- java -Djava.library.path=built -classpath built/xapian.jar:. \
-      org.xapian.examples.SimpleSearch ./test.db index words like java
+ java -Djava.library.path=built -classpath built/xapian.jar:docs/examples \
+      SimpleSearch ./test.db index words like java
 
 Alternatively, you can avoid needing the -Djava.library.path setting by
 setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
