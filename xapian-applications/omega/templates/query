@@ -52,13 +52,18 @@ document.write("<span title=\""+D+" "+T+"\">Modified:<b>"+D+"</b></span>");
 <body bgcolor="#ffffff">
 <form name=P method=get
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
+${Search Control(Start) - shows search button, options and textbox}
+<fieldset>
 <input id="omega-autofocus" type=search name=P value="$html{$query}" size=65 autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
 </script>
 <input type=submit value="Search">
-$if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
+</fieldset>
+${Todo: Replace radios with search buttons}
+$if{,$include{inc/anyalldropbox},
+<fieldset>$include{inc/anyallradio}</fieldset>}
 $if{$opt{topterms},
  <div title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
