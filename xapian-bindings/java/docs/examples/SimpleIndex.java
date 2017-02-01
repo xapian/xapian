@@ -44,7 +44,7 @@ public class SimpleIndex {
         WritableDatabase db = new WritableDatabase(dbpath, Xapian.DB_CREATE_OR_OVERWRITE);
 
         // walk through remaining command-line arguments and
-        // add each argument as a single to term to a new document.
+        // add each argument as a single term to a new document.
         for (int x = 1; x < args.length; x++) {
 
             String term = args[x];
