@@ -38,6 +38,7 @@ input[type=image] {
   border: 0px;
   }
 
+$include{styles.css}
 </style>
 <script type="text/javascript"><!--
 function f2(n) {return (n>9?"":"0")+n;}
