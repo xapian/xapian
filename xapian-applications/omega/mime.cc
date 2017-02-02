@@ -71,7 +71,7 @@ mimetype_from_ext(const map<string, string> & mime_map, string ext)
 	if (mt != mime_map.end())
 	    return mt->second;
 
-	built_in_mime_map(ext);
+	r = built_in_mime_map(ext);
 	if (r) return r;
     }
 
