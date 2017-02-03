@@ -52,7 +52,7 @@ document.write("<span>Modified:<time datetime=\""+D+" "+T+"\"><b>"+D+"</b></time
 </script>
 </head>
 <body>
-<form name=P method=get
+<form id="query-form" name=P method=get
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
 ${Search Control - shows search button, options and textbox}
 <fieldset class="query-search">
