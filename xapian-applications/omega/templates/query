@@ -68,11 +68,11 @@ $if{,$include{inc/anyalldropbox},
 <fieldset class="query-options">$include{inc/anyallradio}</fieldset>}
 ${Suggestions - shows suggested terms to improve query}
 $if{$opt{topterms},
- <div class="query-suggested-container" title="Suggested terms to add to your query"
+ <fieldset class="query-suggested-container" title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
  $map{$topterms,<span class="query-suggested-element" style="white-space:nowrap"><input type=checkbox name=X value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
  <noscript><input type=hidden name=ADD value=1></noscript>
- </div>
+ </fieldset>
 }
 $if{$suggestion,Did you mean: <a class="query-suggestion" href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a>}
 ${Query metadata - shows query performance or document size}
