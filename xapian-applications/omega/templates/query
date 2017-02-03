@@ -54,7 +54,7 @@ document.write("<span>Modified:<time datetime=\""+D+" "+T+"\"><b>"+D+"</b></time
 <body>
 <form name=P method=get
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
-${Search Control(Start) - shows search button, options and textbox}
+${Search Control - shows search button, options and textbox}
 <fieldset class="query-search">
 <input class="query-search-textbox" d="omega-autofocus" type=search name=P value="$html{$query}" size=65 autofocus>
 <script>
@@ -66,8 +66,7 @@ if (!("autofocus" in document.createElement("input")))
 ${Todo: Replace radios with search buttons}
 $if{,$include{inc/anyalldropbox},
 <fieldset class="query-options">$include{inc/anyallradio}</fieldset>}
-${Search Control(End)}
-${Suggestions(Start) - shows suggested terms to improve query}
+${Suggestions - shows suggested terms to improve query}
 $if{$opt{topterms},
  <div class="query-suggested-container" title="Suggested terms to add to your query"
  style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
@@ -76,8 +75,7 @@ $if{$opt{topterms},
  </div>
 }
 $if{$suggestion,Did you mean: <a class="query-suggestion" href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a>}
-${Suggestions(End)}
-${Query metadata(start) - shows query performance or document size}
+${Query metadata - shows query performance or document size}
 $or{$html{$error},
 <p class="query-metadata">
 $if{$eq{$msize,0},
@@ -94,8 +92,7 @@ $if{$not{$msizeexact},
 $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},,,}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
 Search took $time seconds
 </p>
-${Query metadata(End)}
-${Results(start)}
+${Results}
 <table>
 $hitlist{<tr class="list-item-container"><td>
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
@@ -125,9 +122,8 @@ $highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</span>
 matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i>${for lynx:}</span></td></tr>}
 </table>
-${Results(end)}
 
-${Navigation Buttons(start)}
+${Navigation Buttons}
 ${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
 $set{a,$if{$opt{pagelink_height}, HEIGHT=$opt{pagelink_height}}$if{$opt{pagelink_width}, WIDTH=$opt{pagelink_width}}}
@@ -145,9 +141,8 @@ $map{$range{$add{$thispage,1},$opt{y}},$PAGE{$_}}
 $if{$ne{$opt{y},$lastpage},...}
 $NEXT
 }
-${Navigation Buttons(end)}
 }}
-${Hidden inputs(start)}
+${Hidden inputs}
 $if{$dbname,<input type=hidden name=DB value="$html{$dbname}">}
 $if{$ne{$topdoc,0},<input type=hidden name=TOPDOC value=$topdoc>}
 $if{$ne{$hitsperpage,10},<input type=hidden name=HITSPERPAGE value=$hitsperpage>}
@@ -161,7 +156,6 @@ $if{$cgi{THRESHOLD},<input type=hidden name=THRESHOLD value="$html{$cgi{THRESHOL
 ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
-${Hidden inputs(end)}
 </form>
 <footer><i><a href="https://xapian.org/">$html{$version}</a></i></footer>
 </body>
