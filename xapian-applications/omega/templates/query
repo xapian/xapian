@@ -94,7 +94,7 @@ Search took $time seconds
 </p>
 ${Results}
 <table>
-$hitlist{<tr class="list-item-container"><td>
+$hitlist{<tr class="list-item-container"><td class="list-item-info">
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
 <div class="list-item-progress-container" title="$percentage%" >
 <div class="list-item-progress" style='width:$div{$mul{$percentage,6},10}px;'>
@@ -114,10 +114,10 @@ $if{$field{size},<br/><span title="$html{$field{size}} bytes">Size: <b>$html{$fi
 </div>
 </div>
 </td>
-<td><header class="list-item-header"><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
+<td class="list-item-result"><header class="list-item-header"><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
 <span class="list-item-content" style="display: block;">
 $highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</span>
-<a href="$html{$field{url}}">$html{$field{url}}</a>
+<a class="list-item-link" href="$html{$field{url}}">$html{$field{url}}</a>
 <span class="list-item-meta">
 matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i>${for lynx:}</span></td></tr>}
