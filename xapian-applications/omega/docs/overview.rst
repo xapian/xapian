@@ -477,13 +477,17 @@ currently handled when found:
  * ``classification``: document topic
  * ``keywords``, ``dcterms.subject``, ``dcterms.description``: indexed as extra
    document text (but not stored in the sample)
- * ``description``: by default, handled as ``keywords``.  If ``omindex`` is run
-   with ``--sample=description``, then this is used as the preferred source for
-   the stored sample of document text (HTML documents with no ``description``
-   fall back to a sample from the body; if ``description`` occurs multiple
-   times then second and subsequent are handled as ``keywords``).  In Omega
-   1.4.2 and earlier, ``--sample`` wasn't supported and the behaviour was as
-   if ``--sample=description`` had been specified.
+ * ``description``: by default, handled as ``keywords``, as of Omega 1.4.4.
+   If ``omindex`` is run with ``--sample=description``, then this is used as
+   the preferred source for the stored sample of document text (HTML documents
+   with no ``description`` fall back to a sample from the body; if
+   ``description`` occurs multiple times then second and subsequent are handled
+   as ``keywords``).  In Omega 1.4.2 and earlier, ``--sample`` wasn't supported
+   and the behaviour was as if ``--sample=description`` had been specified.  In
+   Omega 1.4.3, ``--sample`` was added, but the default was
+   ``--sample=description`` (contrary to the intended and documented behaviour)
+   - you can use ``--sample=body`` with 1.4.3 and later to store a sample from
+   the document body.
 
 The HTML parser will look for the 'robots' META tag, and won't index pages
 which are marked as ``noindex`` or ``none``, for example any of the following::
