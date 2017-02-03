@@ -56,7 +56,7 @@ document.write("<span>Modified:<time datetime=\""+D+" "+T+"\"><b>"+D+"</b></time
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
 ${Search Control - shows search button, options and textbox}
 <fieldset class="query-search">
-<input class="query-search-textbox" d="omega-autofocus" type=search name=P value="$html{$query}" size=65 autofocus>
+<input class="query-search-textbox" d="omega-autofocus" type=search name=P value="$html{$query}" placeholder="Search..." size=65 autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
