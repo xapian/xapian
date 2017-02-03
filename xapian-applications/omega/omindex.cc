@@ -259,7 +259,7 @@ main(int argc, char **argv)
     bool spelling = false;
     bool skip_duplicates = false;
     bool ignore_exclusions = false;
-    bool description_as_sample = true;
+    bool description_as_sample = false;
     string baseurl;
     size_t depth_limit = 0;
     size_t title_size = TITLE_SIZE;
