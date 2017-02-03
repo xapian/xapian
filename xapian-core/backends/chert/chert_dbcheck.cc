@@ -56,12 +56,15 @@ struct VStats : public ValueStats {
 };
 
 size_t
-check_chert_table(const char * tablename, string filename,
+check_chert_table(const char * tablename, const string& dir,
 		  chert_revision_number_t * rev_ptr, int opts,
 		  vector<Xapian::termcount> & doclens,
 		  Xapian::doccount doccount, Xapian::docid db_last_docid,
 		  ostream * out)
 {
+    string filename = dir;
+    filename += '/';
+    filename += tablename;
     filename += '.';
 
     try {

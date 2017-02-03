@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-size_t check_chert_table(const char * tablename, std::string table,
+size_t check_chert_table(const char * tablename, const std::string& dir,
 			 chert_revision_number_t * rev_ptr, int opts,
 			 std::vector<Xapian::termcount> & doclens,
 			 Xapian::doccount doccount,

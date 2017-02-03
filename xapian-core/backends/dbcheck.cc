@@ -186,14 +186,15 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	};
 	for (auto t : tables) {
 	    const char * name = t.name;
-	    string table(path);
-	    table += '/';
-	    table += name;
 	    if (out)
 		*out << name << ":\n";
 	    if (strcmp(name, "record") != 0 && strcmp(name, "postlist") != 0) {
 		// Other tables are created lazily, so may not exist.
-		if (!file_exists(table + ".DB")) {
+		string table(path);
+		table += '/';
+		table += name;
+		table += ".DB";
+		if (!file_exists(table)) {
 		    if (out) {
 			if (strcmp(name, "termlist") == 0) {
 			    *out << "Not present.\n";
@@ -205,7 +206,7 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 		    continue;
 		}
 	    }
-	    errors += check_chert_table(name, table, rev_ptr, opts, doclens,
+	    errors += check_chert_table(name, path, rev_ptr, opts, doclens,
 					doccount, db_last_docid, out);
 	}
 
@@ -294,6 +295,13 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 
 typedef enum { UNKNOWN, CHERT, GLASS } backend_type;
 
+/** Check a database table.
+ *
+ *  @param filename	The filename of the table (only used to get the directory and
+ *  @param opts		Xapian::check() options
+ *  @param out		std::ostream to write messages to (or NULL for no messages)
+ *  @param backend	Backend type
+ */
 static size_t
 check_db_table_(const string & filename, int opts, std::ostream *out,
 		backend_type backend)
@@ -309,7 +317,9 @@ check_db_table_(const string & filename, int opts, std::ostream *out,
 
     string tablename;
     while (p != filename.size()) {
-	tablename += C_tolower(filename[p++]);
+	char ch = filename[p++];
+	if (ch == '.') break;
+	tablename += C_tolower(ch);
     }
 
 #if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_GLASS_BACKEND
@@ -347,7 +357,7 @@ check_db_table_(const string & filename, int opts, std::ostream *out,
 #else
     // Set the doccount and the last docid to their maximum values to suppress
     // errors.
-    return check_chert_table(tablename.c_str(), filename, NULL, opts, doclens,
+    return check_chert_table(tablename.c_str(), dir, NULL, opts, doclens,
 			     Xapian::doccount(-1), CHERT_MAX_DOCID, out);
 #endif
 }
@@ -369,40 +379,6 @@ check_db_table(const string & filename, int opts, std::ostream *out)
     }
 
     return check_db_table_(filename, opts, out, backend);
-}
-
-static size_t
-check_if_db_table(const string & path, int opts, std::ostream *out)
-{
-    // Just check a single Btree.  If it ends with ".", ".DB", or ".glass",
-    // trim that so the user can do xapian-check on "foo", "foo.", "foo.DB",
-    // "foo.glass", etc.
-    backend_type backend = UNKNOWN;
-    string filename = path;
-    if (endswith(filename, '.')) {
-	filename.resize(filename.size() - 1);
-    } else if (endswith(filename, ".DB")) {
-	filename.resize(filename.size() - CONST_STRLEN(".DB"));
-	backend = CHERT;
-    } else if (endswith(filename, ".glass")) {
-	filename.resize(filename.size() - CONST_STRLEN(".glass"));
-	backend = GLASS;
-    }
-
-    struct stat sb;
-    if (backend == UNKNOWN) {
-	if (stat((filename + ".DB").c_str(), &sb) == 0) {
-	    // It could also be flint or brass, but we check for those below.
-	    backend = CHERT;
-	} else if (stat((filename + ".glass").c_str(), &sb) == 0) {
-	    backend = GLASS;
-	} else {
-	    throw Xapian::DatabaseOpeningError(
-		    "Couldn't find Xapian database or table to check", ENOENT);
-	}
-    }
-
-    return check_db_table_(path, opts, out, backend);
 }
 
 /** Check a single file DB from an fd.
@@ -476,7 +452,27 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	throw Xapian::DatabaseOpeningError("Not a regular file or directory");
     }
 
-    return check_if_db_table(path, opts, out);
+    // The filename passed doesn't exist - see if it's the basename of the
+    // table (perhaps with "." after it), so the user can do xapian-check on
+    // "foo/termlist" or "foo/termlist." (which you would get from filename
+    // completion with older backends).
+    string filename = path;
+    if (endswith(filename, '.')) {
+	filename.resize(filename.size() - 1);
+    }
+
+    backend_type backend = UNKNOWN;
+    if (stat((filename + ".DB").c_str(), &sb) == 0) {
+	// It could also be flint or brass, but we check for those below.
+	backend = CHERT;
+    } else if (stat((filename + ".glass").c_str(), &sb) == 0) {
+	backend = GLASS;
+    } else {
+	throw Xapian::DatabaseOpeningError(
+		"Couldn't find Xapian database or table to check", ENOENT);
+    }
+
+    return check_db_table_(path, opts, out, backend);
 }
 
 }
