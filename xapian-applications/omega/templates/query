@@ -22,13 +22,13 @@ $def{S,<img src="/icons/omega/page-$2s.png" $opt{a} alt=$1>}
 $def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
 }
 
-$def{PREV,$if{$ne{$topdoc,0},<input class="nav-button" type=submit name="&lt;" value="Previous">}}
+$def{PREV,$if{$ne{$topdoc,0},<input type=submit name="&lt;" value="Previous">}}
 
-$def{PAGE,<input class="nav-button" type=submit name="[" value="$1">}
+$def{PAGE,<input type=submit name="[" value="$1">}
 
-$def{SPAGE,<input class="nav-button" type=submit name="[" value="$1" disabled=disabled>}
+$def{SPAGE,<input type=submit name="[" value="$1" disabled=disabled>}
 
-$def{NEXT,$if{$ne{$last,$msize},<input class="nav-button" type=submit name="&gt;" value="Next">}}
+$def{NEXT,$if{$ne{$last,$msize},<input type=submit name="&gt;" value="Next">}}
 
 <head>
 <title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
