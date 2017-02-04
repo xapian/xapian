@@ -46,7 +46,7 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span>Modified:<time datetime=\""+D+" "+T+"\"><b>"+D+"</b></time></span>");
+document.write("<span>Modified:<time datetime=\""+D+" "+T+"\">"+D+"</time></span>");
 }
 // -->
 </script>
@@ -99,7 +99,7 @@ ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" heig
 <div class="list-item-progress-container" title="$percentage%" >
 <div class="list-item-progress" style='width:$div{$mul{$percentage,6},10}px;'>
 </div></div>
-<div class="list-item-meta" style='float:left;margin-top:2px;font-size:x-small;'>
+<div class="list-item-meta">
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
@@ -107,8 +107,8 @@ $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 $html{$date{$field{modtime},%Y-%m-%d}}</time></span>
 </noscript>
 }
-$if{$field{language},Language: <b>$html{$field{language}}</b>}
-$if{$field{size},<br/><span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span>}
+$if{$field{language},Language: $html{$field{language}}}
+$if{$field{size},<br/><span title="$html{$field{size}} bytes">Size:$html{$filesize{$field{size}}}</span>}
 <div title="Mark this document as relevant">
 <input type=checkbox name=R value=$id$if{$relevant, checked}>
 </div>
