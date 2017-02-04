@@ -128,3 +128,8 @@ ul.pagination li input:disabled {
 ul.pagination li input:hover {
     background-color: #546E7A;
 }
+
+footer {
+    float: right;
+    margin: 2px;
+}
