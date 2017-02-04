@@ -98,3 +98,33 @@ fieldset {
     height: 10px;
     background-color: #ff5252;
 }
+
+ul.pagination {
+    width: 100%;
+    display: inline-block;
+    margin: 4px;
+    padding: 0;
+    text-align: center;
+}
+
+ul.pagination li {
+    display: inline;
+    margin: 0;
+}
+
+ul.pagination li input {
+    background-color: white;
+    border: 0;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+ul.pagination li input:disabled {
+    background-color: #757575;
+    color: white;
+}
+
+ul.pagination li input:hover {
+    background-color: #546E7A;
+}
