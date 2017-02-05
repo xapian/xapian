@@ -3,15 +3,16 @@ body {
 }
 
 fieldset {
-	outline: none;
-	border: 0px;
-	text-align: center;
+    outline: none;
+    border: 0px;
+    text-align: center;
 }
 
 fieldset.query-search, .query-metadata,
 .query-suggested-container, .query-options, .query-suggestion {
     background-color: #FAFAFA;
     text-align: center;
+    display: block;
 }
 
 .query-metadata {
@@ -20,14 +21,14 @@ fieldset.query-search, .query-metadata,
 }
 
 input[type=search].query-search {
-	width: 400px;
-	height: 35px;
-	font-size: 14px;
-	padding: 20px;
-	margin-right: 5px;
-	border: 0px solid #aaa;
-	border-radius: 2px;
-	box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+    width: 400px;
+    height: 35px;
+    font-size: 14px;
+    padding: 20px;
+    margin-right: 5px;
+    border: 0px solid #aaa;
+    border-radius: 2px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
 }
 
 input[type=search]:focus.query-search, input[type=search]:hover.query-search{
@@ -52,36 +53,33 @@ input[type=submit]:hover.query-search {
     border: 1px solid #bbb;
 }
 
-.list-item-result, .list-item-info {
+td.result-data, td.result-metadata {
     padding: 20px;
 }
 
-.list-item-info {
+td.result-metadata {
     background-color: #ecf0f1;
 }
 
-.list-item-result {
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
-}
-
-.list-item-header {
-    font-size: 18px;
-}
-
-.list-item-meta {
+div.result-metadata {
     display: block;
     font-size: 12px;
 }
 
-.list-item-content {
+.result-data {
+    display: block;
     font-size: 14px;
 }
 
-.list-item-link {
-    font-size: 14px;
+td.result-data {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
 }
 
-.list-item-progress-container {
+header.result-data {
+    font-size: 18px;
+}
+
+.result-metadata-progress-container {
     border: 1px solid #888;
     border-radius: 3px;
     float: left;
@@ -89,7 +87,7 @@ input[type=submit]:hover.query-search {
     height:10px;
 }
 
-.list-item-progress {
+.result-metadata-progress {
     height: 10px;
     background-color: #ff5252;
 }

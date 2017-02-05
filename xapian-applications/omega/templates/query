@@ -94,12 +94,12 @@ Search took $time seconds
 </p>
 ${Results}
 <table>
-$hitlist{<tr class="list-item-container"><td class="list-item-info">
+$hitlist{<tr><td class="result-metadata">
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
-<div class="list-item-progress-container" title="$percentage%" >
-<div class="list-item-progress" style='width:$div{$mul{$percentage,6},10}px;'>
+<div class="result-metadata-progress-container" title="$percentage%" >
+<div class="result-metadata-progress" style='width:$div{$mul{$percentage,6},10}px;'>
 </div></div>
-<div class="list-item-meta">
+<div class="result-metadata">
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
@@ -114,11 +114,11 @@ $if{$field{size},<br/><span title="$html{$field{size}} bytes">Size:$html{$filesi
 </div>
 </div>
 </td>
-<td class="list-item-result"><header class="list-item-header"><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
-<span class="list-item-content" style="display: block;">
+<td class="result-data"><header class="result-data"><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
+<span class="result-data" style="display: block;">
 $highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</span>
-<a class="list-item-link" href="$html{$field{url}}">$html{$field{url}}</a>
-<span class="list-item-meta">
+<a class="result-data" href="$html{$field{url}}">$html{$field{url}}</a>
+<span class="result-data">
 matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i>${for lynx:}</span></td></tr>}
 </table>
