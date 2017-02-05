@@ -56,12 +56,12 @@ document.write("<span>Modified:<br/><time datetime=\""+D+" "+T+"\">"+D+"</time><
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
 ${Search Control - shows search button, options and textbox}
 <fieldset class="query-search">
-<input class="query-search-textbox" d="omega-autofocus" type=search name=P value="$html{$query}" placeholder="Search..." size=65 autofocus>
+<input class="query-search" id="omega-autofocus" type=search name=P value="$html{$query}" placeholder="Search..." size=65 autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
 </script>
-<input class="query-search-button" type=submit value="Search">
+<input class="query-search" type=submit value="Search">
 </fieldset>
 ${Todo: Replace radios with search buttons}
 $if{,$include{inc/anyalldropbox},

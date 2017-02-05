@@ -8,7 +8,7 @@ fieldset {
 	text-align: center;
 }
 
-.query-search, .query-metadata,
+fieldset.query-search, .query-metadata,
 .query-suggested-container, .query-options, .query-suggestion {
     background-color: #FAFAFA;
     text-align: center;
@@ -19,12 +19,7 @@ fieldset {
     box-shadow: 0 5px 5px -6px black;
 }
 
-.query-metadata-element {
-    display: block;
-    padding: 2px;
-}
-
-.query-search-textbox {
+input[type=search].query-search {
 	width: 400px;
 	height: 35px;
 	font-size: 14px;
@@ -35,12 +30,12 @@ fieldset {
 	box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
 }
 
-.query-search-textbox:focus, .query-search-textbox:hover{
+input[type=search]:focus.query-search, input[type=search]:hover.query-search{
     outline: none;
     box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
 }
 
-.query-search-button {
+input[type=submit].query-search {
     height: 40px;
     width: 100px;
     color: #313131;
@@ -50,7 +45,7 @@ fieldset {
     border: 1px solid #ddd;
 }
 
-.query-search-button:hover {
+input[type=submit]:hover.query-search {
     transition-duration: .4s;
     background-color: #FAFAFA;
     color: #111111;
