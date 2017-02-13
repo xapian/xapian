@@ -578,7 +578,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /** Parse a query.
      *
      *  @param query_string  A free-text query as entered by a user
-     *  @param flags         Zero or more Query::feature_flag specifying
+     *  @param flags         Zero or more QueryParser::feature_flag specifying
      *		what features the QueryParser should support.  Combine
      *		multiple values with bitwise-or (|) (default FLAG_DEFAULT).
      *	@param default_prefix  The default term prefix to use (default none).
