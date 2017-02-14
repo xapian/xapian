@@ -61,6 +61,10 @@ format_int_fixed_width(char * p, int v, int w)
 static Xapian::Query
 date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 {
+    if (y1 > y2 || (y1 == y2 && (m1 > m2 || (m1 == m2 && d1 > d2)))) {
+	// Start is after end.
+	return Xapian::Query::MatchNothing;
+    }
     char buf[10];
     format_int_fixed_width(buf + 1, y1, 4);
     format_int_fixed_width(buf + 5, m1, 2);
