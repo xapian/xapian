@@ -1,7 +1,7 @@
 #!/bin/sh
 # omegatest: Test omega CGI
 #
-# Copyright (C) 2015,2016 Olly Betts
+# Copyright (C) 2015,2016,2017 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -116,8 +116,8 @@ qtestcase 'VALUE_LE 1 19880228~' DATEVALUE=1 END=19880228
 qtestcase 'VALUE_LE 1 200002~' DATEVALUE=1 END=20000229
 qtestcase 'VALUE_LE 1 20000228~' DATEVALUE=1 END=20000228
 # FIXME: These two currently require 64-bit time_t:
-#testcase 'VALUE_LE 1 190002~' DATEVALUE=1 END=19000228
-#testcase 'VALUE_LE 1 210002~' DATEVALUE=1 END=21000228
+#qtestcase 'VALUE_LE 1 190002~' DATEVALUE=1 END=19000228
+#qtestcase 'VALUE_LE 1 210002~' DATEVALUE=1 END=21000228
 
 # Month starts and ends:
 qtestcase 'VALUE_RANGE 0 2015 201501~' DATEVALUE=0 START=20150101 END=20150131
