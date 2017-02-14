@@ -68,6 +68,10 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 
     int d_last = last_day(y1, m1);
     int d_end = d_last;
+    if (d1 == 1 && m1 == 1 && y1 != y2) {
+	--y1;
+	goto whole_year_at_start;
+    }
     if (y1 == y2 && m1 == m2 && d2 < d_last) {
 	d_end = d2;
     }
@@ -87,20 +91,27 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	return Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end());
     }
 
-    int m_last = (y1 < y2) ? 12 : m2 - 1;
-    while (++m1 <= m_last) {
-	format_int_fixed_width(buf + 5, m1, 2);
-	buf[0] = 'M';
-	v.push_back(Xapian::Query(string(buf, 7)));
+    {
+	int m_last = (y1 < y2) ? 12 : m2 - 1;
+	while (++m1 <= m_last) {
+	    format_int_fixed_width(buf + 5, m1, 2);
+	    buf[0] = 'M';
+	    v.push_back(Xapian::Query(string(buf, 7)));
+	}
     }
 
     if (y1 < y2) {
+whole_year_at_start:
 	while (++y1 < y2) {
 	    format_int_fixed_width(buf + 1, y1, 4);
 	    buf[0] = 'Y';
 	    v.push_back(Xapian::Query(string(buf, 5)));
 	}
 	format_int_fixed_width(buf + 1, y2, 4);
+	if (m2 == 12 && d2 >= 31) {
+	    v.push_back(Xapian::Query(string(buf, 5)));
+	    goto whole_year_at_end;
+	}
 	buf[0] = 'M';
 	for (m1 = 1; m1 < m2; ++m1) {
 	    format_int_fixed_width(buf + 5, m1, 2);
@@ -122,6 +133,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	v.push_back(Xapian::Query(string(buf, 7)));
     }
 
+whole_year_at_end:
     return Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end());
 }
 
