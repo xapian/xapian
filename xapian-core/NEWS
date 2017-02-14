@@ -1,3 +1,75 @@
+Xapian-core 1.4.3 (2017-01-25):
+
+API:
+
+* MSet::snippet(): Favour candidate snippets which contain more of a diversity
+  of matching terms by discounting the relevance of repeated terms using an
+  exponential decay.  A snippet which contains more terms from the query is
+  likely to be better than one which contains the same term or terms multiple
+  times, but a repeated term is still interesting, just less with each
+  additional appearance.  Diversity issue highlighted by Robert Stepanek's
+  patch in https://github.com/xapian/xapian/pull/117 - testcases taken from his
+  patch.
+
+* MSet::snippet(): New flag SNIPPET_EMPTY_WITHOUT_MATCH to get an empty snippet
+  if there are no matches in the text passed in.  Implemented by Robert
+  Stepanek.
+
+* Round MSet::get_matches_estimated() to an appropriate number of significant
+  figures.  The algorithm used looks at the lower and upper bound and where the
+  estimate sits between them, and then picks an appropriate number of
+  significant figures.  Thanks to Sébastien Le Callonnec for help sorting out a
+  portability issue on OS X.
+
+* Add Database::locked() method - where possible this non-invasively checks if
+  the database is currently open for writing, which can be useful for
+  dashboards and other status reporting tools.
+
+testsuite:
+
+* Use terms that exist in the database for most snippet tests.  It's good to
+  test that snippet highlighting works for terms that aren't in the database,
+  but it's not good for all our snippet tests to feature such terms - it's
+  not the common usage.
+
+matcher:
+
+* Improve value range upper bound and estimated matches.  The value slot
+  frequency provides a tighter upper bound than Database::get_doccount().
+  The estimate is now calculated by working out the proportion of possible
+  values between the slot lower and upper bounds which the range covers
+  (assuming a uniform distribution).  This seems to work fairly well in
+  practice, and is certainly better than the crude estimate we were using:
+  Database::get_doccount() / 2
+
+* Handle arbitrary combinations of OP_OR under OP_NEAR/OP_PHRASE, partly
+  addressing #508.  Thanks to Jean-Francois Dockes for motivation and testing.
+
+* Only convert OP_PHRASE to OP_AND if full DB has no positions.  Until now the
+  conversion was done independently for each sub-database, but being consistent
+  with the results from a database containing all the same documents seems more
+  useful.
+
+* Avoid double get_wdf() call for first subquery of OP_NEAR and OP_PHRASE,
+  which will speed them up by a small amount.
+
+documentation:
+
+* INSTALL: Update section about -Bsymbolic-functions which is not a new
+  GNU ld feature at this point.
+
+tools:
+
+* xapian-delve: Uses new Database::locked() method to report if the database
+  is currently locked.
+
+portability:
+
+* Fix build failure cross-compiling for android due to not pulling in header
+  for errno.
+
+* Fix compiler warnings.
+
 Xapian-core 1.4.2 (2016-12-26):
 
 API:

@@ -1,3 +1,26 @@
+Xapian-bindings 1.4.3 (2017-01-25):
+
+Python:
+
+* Remove compatibility code for Python < 2.5 - 1.4.x requires Python >= 2.6.
+
+* Avoid unnecessary pointer indirection in XapianSWIG_anystring() helper
+  function, which should be a little more efficient and makes the Python 2
+  code more closely match the Python 3 code.
+
+Ruby:
+
+* "make clean" should only remove docs/xapian.rb if configure option
+  --enable-documentation was used to enable all rules to rebuild documentation.
+  Reported by Samuel Williams on xapian-discuss.
+
+* Fix make rule for running rdoc for the cases where srcdir != builddir.
+
+* Use 'test a = b' rather than 'test a == b' - the former is portable, the
+  latter a bashism.  In many cases the autotools will set SHELL = /bin/bash in
+  the makefiles, but if it doesn't and /bin/sh isn't bash, then this will
+  cause "make install" and "make uninstall" to fail for the Ruby bindings.
+
 Xapian-bindings 1.4.2 (2016-12-26):
 
 General:
