@@ -53,7 +53,7 @@ static void
 format_int_fixed_width(char * p, int v, int w)
 {
     while (--w >= 0) {
-	p[w] = v % 10;
+	p[w] = '0' + (v % 10);
 	v /= 10;
     }
 }
@@ -63,7 +63,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 {
     char buf[10];
     format_int_fixed_width(buf + 1, y1, 4);
-    format_int_fixed_width(buf + 1, m1, 2);
+    format_int_fixed_width(buf + 5, m1, 2);
     vector<Xapian::Query> v;
 
     int d_last = last_day(y1, m1);
@@ -80,7 +80,7 @@ date_range_filter(int y1, int m1, int d1, int y2, int m2, int d2)
 	}
     } else {
 	buf[0] = 'M';
-	v.push_back(Xapian::Query(string(buf, 9)));
+	v.push_back(Xapian::Query(string(buf, 7)));
     }
 
     if (y1 == y2 && m1 == m2) {
