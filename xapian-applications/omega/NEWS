@@ -1,3 +1,34 @@
+Omega 1.4.3 (2017-01-25):
+
+indexers:
+
+* omindex:
+
+  + Add support for indexing vCard files if Perl and its Text::vCard module
+    are available.
+
+  + Recognise application/x-rpm as alternative type since libmagic reports this
+    rather than application/x-redhat-package-manager.
+    
+  + Use official MIME type application/vnd.debian.binary-package for debian
+    packages.  We used to map .deb and .udeb to application/x-debian-package,
+    but in 2014 (after we added that support for .deb) an official type was
+    registered with IANA.  We now map extensions .deb and .udeb to the official
+    type, but the unofficial type is still recognised (older versions of
+    libmagic probably report it, and users may be mapping to it).
+
+  + Handle PHP as MIME type text/x-php.  The main difference this makes is that
+    PHP files which don't have extension '.php' (e.g. .phtml, .phps, .php5,
+    .ph4, etc) get identified by libmagic as text/x-php and will now be indexed.
+    It also means that the user can now more easily configure different filters
+    for HTML and PHP.
+
+  + Don't use meta description as sample by default.  Now we have dynamic
+    snippets (via $snippet), the body text is a better default.  Also generated
+    HTML sometimes has unhelpful content in the meta description.  To get the
+    previous behaviour, use the new omindex command line option:
+    --sample=description
+
 Omega 1.4.2 (2016-12-26):
 
 documentation:
