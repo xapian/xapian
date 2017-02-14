@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2006,2014,2016 Olly Betts
+ * Copyright 2002,2003,2006,2014,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ last_day(int y, int m)
 	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
     if (m != 2) return l[m];
-    return 28 + (y % 4 == 0); // good until 2100
+    return 28 + (y % 4 == 0 && (y % 100 != 0 || y % 400 == 0));
 }
 
 // Write exactly w chars to buffer p representing integer v.
