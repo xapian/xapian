@@ -92,7 +92,6 @@ lazy_build() {
       save_IFS=$IFS
       IFS=.
       set x $version_installed
-      shift
       ok=yes
       for v in $version ; do
 	shift
