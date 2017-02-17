@@ -3,7 +3,7 @@
 # you'd get from unpacking the results of "make dist"
 #
 copyright='
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -75,6 +75,26 @@ END
   fi
 }
 
+check_at_least() {
+  v1=$1
+  v2=$2
+  save_IFS=$IFS
+  IFS=.
+  set x $v1
+  for v in $v2 ; do
+    shift
+    if [ "$1" != "$v" ] ; then
+      if [ "$1" -lt "$v" ] ; then
+	IFS=$save_IFS
+	return 1
+      fi
+      break
+    fi
+  done
+  IFS=$save_IFS
+  return 0
+}
+
 lazy_build() {
   package=$1
   binary=$2
@@ -89,21 +109,7 @@ lazy_build() {
 	echo "$binary $version_installed installed, exactly what's needed"
 	return 1
       fi
-      save_IFS=$IFS
-      IFS=.
-      set x $version_installed
-      ok=yes
-      for v in $version ; do
-	shift
-	if [ "$1" != "$v" ] ; then
-	  if [ "$1" -lt "$v" ] ; then
-	    ok=no
-	  fi
-	  break
-	fi
-      done
-      IFS=$save_IFS
-      if [ "$ok" = yes ] ; then
+      if check_at_least "$version_installed" "$version" ; then
 	echo "$binary $version_installed installed >= $version required"
 	return 1
       fi
