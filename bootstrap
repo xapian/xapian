@@ -23,7 +23,7 @@ copyright='
 
 if [ "$1" = "--help" ] ; then
   cat <<__END__
-$0 [--ftp] [--without-autotools|--clean] [MODULE...]
+$0 [--ftp] [--download-tools=(always|ifneeded|never)] [--clean] [MODULE...]
 
 The default is to bootstrap all known modules.  Any modules which have a
 file called ".nobootstrap" in their top-level will be skipped.
@@ -100,21 +100,29 @@ lazy_build() {
   binary=$2
   version=$3
 
-  if [ "$always_install" = no ] && [ -n $binary ] ; then
-    # Check if a new enough version is already installed.
-    version_installed=`"$binary" --version 2>/dev/null|sed '1,1 s/.* //p;d'`
-    if [ -n "$version_installed" ] ; then
-      # Fast track equality.
-      if [ "$version_installed" = "$version" ] ; then
-	echo "$binary $version_installed installed, exactly what's needed"
-	return 1
+  case $download_tools in
+    always) ;;
+    never)
+      return 1
+      ;;
+    *)
+      if [ -n $binary ] ; then
+	# Check if a new enough version is already installed.
+	version_installed=`"$binary" --version 2>/dev/null|sed '1,1 s/.* //p;d'`
+	if [ -n "$version_installed" ] ; then
+	  # Fast track equality.
+	  if [ "$version_installed" = "$version" ] ; then
+	    echo "$binary $version_installed installed, exactly what's needed"
+	    return 1
+	  fi
+	  if check_at_least "$version_installed" "$version" ; then
+	    echo "$binary $version_installed installed >= $version required"
+	    return 1
+	  fi
+	fi
       fi
-      if check_at_least "$version_installed" "$version" ; then
-	echo "$binary $version_installed installed >= $version required"
-	return 1
-      fi
-    fi
-  fi
+      ;;
+  esac
 
   basename=$package-$version
   ext=$4
@@ -369,18 +377,25 @@ fi
 # firewalls.
 use_ftp=no
 
-# Set to 'yes' to always use a locally installed copy of the autotools.
+# Set to 'always' to always use a locally installed copy of the autotools
+# or 'never' to never download.
 #
 # By default we check for locally installed versions and use them if they are
 # new enough versions.  But e.g. for building releases we want to use a known
 # set of versions.
-always_install=no
+download_tools=ifneeded
 
 while [ "$#" -gt 0 ] ; do
   case $1 in
-  --force-local-tools)
-    always_install=yes
+  --download-tools=*)
+    download_tools=`echo "x$1"|sed 's/x--download-tools=//'`
     shift
+    continue
+    ;;
+
+  --download-tools)
+    download_tools=$2
+    shift 2
     continue
     ;;
 
@@ -397,7 +412,7 @@ while [ "$#" -gt 0 ] ; do
     ;;
 
   --without-autotools)
-    echo "Ignoring '$1' - installed versions will be used if new enough"
+    echo "warning: Ignoring old option '$1' - new default is to use installed versions of tools if new enough.  Use '--download-tools=never' to prevent ever downloading"
     shift
     continue
     ;;
@@ -417,6 +432,17 @@ while [ "$#" -gt 0 ] ; do
     ;;
   esac
 done
+
+case $download_tools in
+  always|ifneeded) ;;
+  never)
+    echo "warning: If stuff breaks with '--download-tools=never', you get to keep the pieces"
+    ;;
+  *)
+    echo "Invalid --download-tools value '$download_tools'"
+    exit 1
+    ;;
+esac
 
 [ -d INST ] || mkdir INST
 instdir=`pwd`/INST
