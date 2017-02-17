@@ -48,7 +48,7 @@ check_sha1sum() {
     for SHA1SUM_TOOL in \
 	'${SHA1SUM-sha1sum} 2>/dev/null|cut -d\  -f1' \
 	'${SHASUM-shasum} 2>/dev/null|cut -d\  -f1' \
-	'$(OPENSSL-openssl} sha1 2>/dev/null|sed "s/.* //"' \
+	'${OPENSSL-openssl} sha1 2>/dev/null|sed "s/.* //"' \
 	'' ; do
       if [ -z "$SHA1SUM_TOOL" ] ; then
 	echo <<'END'
