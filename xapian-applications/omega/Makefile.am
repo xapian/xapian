@@ -13,8 +13,31 @@ SUBDIRS = . docs
 my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < '$(srcdir)/myhtmlparse.tokens'
 
-mimemap.h: gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
+# Recover from the removal of $@.  A full explanation of this is in the
+# automake manual under the heading "Multiple Outputs".
+make_many_locked = \
+@if test -f $@; then :; else \
+  trap 'rm -rf "$(stamp)-lck" "$(stamp)"' 1 2 13 15; \
+  if mkdir '$(stamp)-lck' 2>/dev/null; then \
+    rm -f '$(stamp)'; \
+    $(MAKE) $(AM_MAKEFLAGS) '$(stamp)'; \
+    result=$$?; rm -rf '$(stamp)-lck'; exit $$result; \
+  else \
+    while test -d '$(stamp)-lck'; do sleep 1; done; \
+    test -f '$(stamp)'; \
+  fi; \
+fi
+
+multitarget_begin = @rm -f $@-t; touch $@-t
+multitarget_end = @mv -f $@-t $@
+
+stamp = mimemap.stamp
+mimemap.h docs/inc/ignored.rst docs/inc/mimetypes.rst: $(stamp)
+	$(make_many_locked)
+$(stamp): gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
+	$(multitarget_begin)
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-mimemap' '$(srcdir)' < '$(srcdir)/mimemap.tokens'
+	$(multitarget_end)
 
 namedents.h: gen-namedents Makefile.am common/Tokeniseise.pm
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-namedents' '$(srcdir)'
