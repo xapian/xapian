@@ -50,6 +50,7 @@
 /rfc822tohtml
 /vcard2text
 /mimemap.h
+/mimemap.stamp
 /namedents.h
 /my-html-tok.h
 /*.1
