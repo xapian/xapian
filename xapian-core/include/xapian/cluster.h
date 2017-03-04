@@ -289,6 +289,21 @@ class XAPIAN_VISIBILITY_DEFAULT EuclidianDistance : public Similarity {
     std::string get_description() const;
 };
 
+/** Class for calculating the cosine distance between two documents
+ */
+class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
+
+  public:
+
+    /** This method calculates and returns the cosine similarity using the
+     *  formula  cos(theta) = a.b/(|a|*|b|)
+     */
+    double similarity(PointType &a, PointType &b) const;
+
+    /// This method returns the description of Cosine Similarity
+    std::string get_description() const;
+};
+
 /** Class to represents a Cluster which contains the clustered documents
  */
 class XAPIAN_VISIBILITY_DEFAULT Cluster {

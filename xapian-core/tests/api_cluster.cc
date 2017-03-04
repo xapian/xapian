@@ -66,6 +66,43 @@ DEFINE_TESTCASE(euclidian_distance2, backend) {
     return true;
 }
 
+// Test for cosine distance between the same document should be zero
+DEFINE_TESTCASE(cosine_distance1, backend) {
+    Xapian::Enquire enquire(get_database("apitest_cluster"));
+    enquire.set_query(Xapian::Query("cluster") );
+
+    Xapian::MSet matches = enquire.get_mset(0, 5);
+    Xapian::TermListGroup tlg;
+    tlg.add_documents(matches);
+    Xapian::Document doc = matches[0].get_document();
+    Xapian::Point x;
+    x.initialize(tlg, doc);
+    Xapian::CosineDistance d;
+    double sim = d.similarity(x, x);
+    TEST_EQUAL (sim, 0);
+    return true;
+}
+
+// Test for cosine distance between different documents should be greater than zero
+DEFINE_TESTCASE(cosine_distance2, backend) {
+    Xapian::Enquire enquire(get_database("apitest_cluster"));
+    enquire.set_query(Xapian::Query("cluster") );
+
+    Xapian::MSet matches = enquire.get_mset(0, 5);
+    Xapian::TermListGroup tlg;
+    tlg.add_documents(matches);
+    Xapian::Document doc1 = matches[0].get_document();
+    Xapian::Document doc2 = matches[1].get_document();
+    Xapian::CosineDistance d;
+    Xapian::Point x1, x2;
+    x1.initialize(tlg, doc1);
+    x2.initialize(tlg, doc2);
+    double sim = d.similarity(x1, x2);
+    TEST_REL (sim,>=,0);
+    TEST_REL (sim,<=,1);
+    return true;
+}
+
 /** Test that none of the returned clusters should be empty
  *  Note that the DocumentSet can be iterated through using DocumentSetIterator
  */
