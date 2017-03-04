@@ -258,6 +258,28 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
     Document get_document() const;
 };
 
+/** Class to represent cluster centroids in the vector space
+ */
+class Centroid : public PointType {
+
+  public:
+
+    /// Constructor
+    Centroid() { magnitude = 0; }
+
+    /// This method initializes the values of a centroid to the Point 'x'
+    void set_to_point(Point &x);
+
+    /// This method divides the weight of terms in the centroid by 'size'
+    void divide(int size);
+
+    /// This method clears the terms and corresponding values of the centroid
+    void clear();
+
+    /// This method recalculates the magnitude of the centroid
+    void recalc_magnitude();
+};
+
 /** Base class for calculating the similarity between documents
  */
 class XAPIAN_VISIBILITY_DEFAULT Similarity {
@@ -311,13 +333,31 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     /// Documents (or Points in the vector space) within the cluster
     std::vector<Point> cluster_docs;
 
+    /// Point or Document representing the cluster centroid
+    Centroid centroid;
+
   public:
+
+    /// Constructor
+    Cluster(const Centroid centroid_) : centroid(centroid_) {}
 
     /// Constructor
     Cluster();
 
     /// Destructor
     ~Cluster();
+
+    /// This method returns the current centroid of the cluster
+    Centroid get_centroid() const;
+
+    /// This method sets the centroid of the Cluster to centroid_
+    void set_centroid(const Centroid centroid_);
+
+    /** This method recalculates the centroid of the Cluster after each iteration
+     *  of the KMeans algorithm by taking the mean of all document vectors (Points)
+     *  that belong to the Cluster
+     */
+    void recalculate();
 
     /// This method returns size of the cluster
     Xapian::doccount size() const;
@@ -366,6 +406,11 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
     /// This method is used to clear all the Clusters in the ClusterSet
     void clear_clusters();
+
+    /** This methood recalculates the centroids for all the centroids
+     *  in the ClusterSet
+     */
+    void recalculate_centroids();
 };
 
 /** This class represents an abstract class for a clusterer to be implemented
@@ -400,6 +445,55 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
     RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
 
     /// This method implements the RoundRobin clustering
+    ClusterSet cluster(MSet &mset);
+
+    /// This method returns the description of the clusterer
+    std::string get_description() const;
+};
+
+/** Kmeans clusterer:
+ *  This clusterer implements the K-Means clustering algorithm
+ */
+class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
+
+    /// This contains the initialized points that are to be clustered
+    std::vector<Point> docs;
+
+    /// This contains the state of 'k' centroids at every iteration
+    std::vector<Centroid> centroids;
+
+    /// This specifies that the clusterer needs to form 'k' clusters
+    unsigned int k;
+
+    /** This method checks whether the current state of KMeans has converged
+     *  by checking for change in centroid of the clusters
+     */
+    bool converge(std::vector<Centroid> &previous, std::vector<Centroid> &current) const;
+
+    /** This method initalizes of centroids using a certain specified method
+     *  Current methods that are supported :
+     *     -- random - Random Initialization
+     */
+    void initialize_centroids(ClusterSet &cset);
+
+    /** This method helps initialize the initial centroids to be passed
+     *  to the KMeans clusterer in a random fashion by selecting 'k' points
+     *  out of all the points in the clusterer
+     */
+    void initialize_random(ClusterSet &cset);
+
+    /** Initialize the 'Points' to be fed into the Clusterer with the DocumentSource.
+     *  The TF-IDF weights for the points are calculated and stored within the
+     *  Points to be used later during distance calculations
+     */
+    void initialize_points(const MSet &docs, TermListGroup &tlg);
+
+  public:
+
+    /// Constructor specifying number of clusters
+    KMeans(unsigned int k_) : k(k_) {}
+
+    /// This method implements the KMeans clustering algorithm
     ClusterSet cluster(MSet &mset);
 
     /// This method returns the description of the clusterer

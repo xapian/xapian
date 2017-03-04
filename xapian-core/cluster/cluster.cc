@@ -171,6 +171,41 @@ DocumentSetIterator::get_document() {
     return docs[index];
 }
 
+void
+Centroid::set_to_point(Point &p) {
+    LOGCALL_VOID(API, "Centroid::set_to_point()", p);
+    magnitude=0;
+    for (TermIterator it = p.termlist_begin(); it != p.termlist_end(); ++it) {
+	termlist.push_back(Wdf(*it,1));
+	values[*it] = p.get_value(*it);
+	magnitude += p.get_value(*it)*p.get_value(*it);
+    }
+}
+
+void
+Centroid::divide(int num) {
+    LOGCALL_VOID(API, "Centroid::divide()", num);
+    unordered_map<string, double>::iterator it;
+    for (it = values.begin(); it != values.end(); ++it)
+	it->second = it->second / num;
+}
+
+void
+Centroid::clear() {
+    LOGCALL_VOID(API, "Centroid::clear()", NO_ARGS);
+    values.clear();
+    termlist.clear();
+}
+
+void
+Centroid::recalc_magnitude() {
+    LOGCALL_VOID(API, "Centroid::recalc_magnitude()", NO_ARGS);
+    magnitude = 0;
+    unordered_map<string, double>::iterator it;
+    for (it = values.begin(); it != values.end(); ++it)
+	magnitude += it->second*it->second;
+}
+
 class XAPIAN_VISIBILITY_DEFAULT PointTermIterator : public TermIterator::Internal {
     std::vector<Wdf>::const_iterator i;
     std::vector<Wdf>::const_iterator end;
@@ -370,4 +405,36 @@ void
 Cluster::clear() {
     LOGCALL_VOID(API, "Cluster::clear()", NO_ARGS);
     cluster_docs.clear();
+}
+
+Centroid
+Cluster::get_centroid() const {
+    LOGCALL(API, Centroid, "Cluster::get_centroid()", NO_ARGS);
+    return centroid;
+}
+
+void
+Cluster::set_centroid(const Centroid centroid_) {
+    LOGCALL_VOID(API, "Cluster::set_centroid()", centroid_);
+    centroid = centroid_;
+}
+
+void
+ClusterSet::recalculate_centroids() {
+    LOGCALL_VOID(API, "ClusterSet::recalculate_centroids()", NO_ARGS);
+    for (vector<Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+	(*it).recalculate();
+}
+
+void
+Cluster::recalculate() {
+    LOGCALL_VOID(API, "Cluster::recalculate()", NO_ARGS);
+    centroid.clear();
+    for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
+	Point &temp = *it;
+	for (TermIterator titer = temp.termlist_begin(); titer != temp.termlist_end(); ++titer)
+	    centroid.add_value(*titer, temp.get_value(*titer));
+    }
+    centroid.divide(size());
+    centroid.recalc_magnitude();
 }

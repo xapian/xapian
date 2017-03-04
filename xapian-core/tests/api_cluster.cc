@@ -35,6 +35,7 @@ using namespace std;
 DEFINE_TESTCASE(euclidian_distance1, backend) {
     Xapian::Enquire enquire(get_database("apitest_cluster"));
     enquire.set_query(Xapian::Query("cluster") );
+
     Xapian::MSet matches = enquire.get_mset(0, 5);
     Xapian::TermListGroup tlg;
     tlg.add_documents(matches);
@@ -115,6 +116,24 @@ DEFINE_TESTCASE(round_robin1, backend)
     unsigned int k = 3;
     Xapian::RoundRobin rr(k);
     Xapian::ClusterSet cset = rr.cluster(matches);
+    unsigned int size = cset.size();
+    TEST_EQUAL (size, k);
+    return true;
+}
+
+/** KMeans Test:
+ *  Test that none of the returned clusters should be empty
+ *  Note that the DocumentSet can be iterated through using DocumentSetIterator
+ */
+DEFINE_TESTCASE(kmeans, backend)
+{
+    Xapian::Database db(get_database("apitest_cluster"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("cluster"));
+    Xapian::MSet matches = enq.get_mset(0, 10);
+    unsigned int k = 3;
+    Xapian::KMeans kmeans(k);
+    Xapian::ClusterSet cset = kmeans.cluster(matches);
     unsigned int size = cset.size();
     TEST_EQUAL (size, k);
     return true;
