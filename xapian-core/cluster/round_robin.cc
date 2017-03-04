@@ -28,29 +28,34 @@
 using namespace Xapian;
 using namespace std;
 
-RoundRobin::~RoundRobin()
-{
-    LOGCALL_DTOR(API, "RoundRobin");
-}
-
 string
-RoundRobin::get_description() {
-    LOGCALL(API, string, "RoundRobin::get_description()", "");
+RoundRobin::get_description() const {
+    LOGCALL(API, string, "RoundRobin::get_description()", NO_ARGS);
     return "Round Robin clusterer";
 }
 
 ClusterSet
-RoundRobin::cluster(MSet &mset, unsigned int k) {
-    LOGCALL(API, ClusterSet, "RoundRobin::cluster()", mset | k);
-    MSetDocumentSource docs(mset);
-    clusterid cid = 0;
+RoundRobin::cluster(MSet &mset) {
+    LOGCALL(API, ClusterSet, "RoundRobin::cluster()", mset);
+    TermListGroup tlg;
+    tlg.add_documents(mset);
     ClusterSet cset;
-    while (!docs.at_end()) {
-	if (cid >= k)
-	    cid = 0;
-	Document doc = docs.next_document();
-	cset.add_document(cid, doc);
-	cid++;
+    vector<Point> points;
+    for (MSetIterator it = mset.begin(); it != mset.end(); ++it) {
+	Point p;
+	p.initialize(tlg, it.get_document());
+	points.push_back(p);
+    }
+    unsigned int i = 0;
+    while (i < num_of_clusters) {
+	Cluster cluster_rr;
+	cset.add_cluster(cluster_rr);
+	i++;
+    }
+    unsigned int size = points.size();
+    for (i = 0; i < size; ++i) {
+	Point x = points[i];
+	cset.add_to_cluster(x, i % num_of_clusters);
     }
     return cset;
 }
