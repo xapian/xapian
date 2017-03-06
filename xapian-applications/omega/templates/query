@@ -120,7 +120,7 @@ $highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</span>
 <a class="result-data" href="$html{$field{url}}">$html{$field{url}}</a>
 <span class="result-data">
 matching:
-<i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i>${for lynx:}</span></td></tr>}
+$list{$map{$terms,$html{$prettyterm{$_}}},$., and }</span></td></tr>}
 </table>
 
 ${Navigation Buttons}
@@ -158,7 +158,7 @@ ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 </form>
-<footer><i><a href="https://xapian.org/">$html{$version}</a></i></footer>
+<footer><a href="https://xapian.org/">$html{$version}</a></footer>
 </body>
 </html>
 $log{query.log}
