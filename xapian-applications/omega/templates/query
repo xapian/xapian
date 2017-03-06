@@ -61,8 +61,8 @@ if (!("autofocus" in document.createElement("input")))
 <input type=submit value="Search">
 </fieldset>
 ${Todo: Replace radios with search buttons}
-$if{,$include{inc/anyalldropbox},
-<fieldset class="options">$include{inc/anyallradio}</fieldset>}
+<fieldset class="options">$if{,$include{inc/anyalldropbox},
+$include{inc/anyallradio}}</fieldset>
 ${Suggestions - shows suggested terms to improve query}
 $if{$opt{topterms},
  <fieldset class="suggested-terms" title="Suggested terms to add to your query">
