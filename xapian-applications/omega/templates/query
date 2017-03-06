@@ -34,10 +34,6 @@ $def{NEXT,$if{$ne{$last,$msize},<li><input type=submit name="&gt;" value="Next">
 <title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
 $if{$opt{topterms},$include{inc/toptermsjs}}
 <style>
-input[type=image] {
-  border: 0px;
-  }
-
 $include{styles.css}
 </style>
 <script type="text/javascript"><!--
@@ -52,32 +48,31 @@ document.write("<span>Modified:<time datetime=\""+D+" "+T+"\">"+D+"</time></span
 </script>
 </head>
 <body>
-<form id="query-form" name=P method=get
+<form id="form" name=P method=get
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
 ${Search Control - shows search button, options and textbox}
-<fieldset class="query-search">
-<input class="query-search" id="omega-autofocus" type=search name=P value="$html{$query}" placeholder="Search..." size=65 autofocus>
+<fieldset class="search">
+<input id="omega-autofocus" type=search name=P value="$html{$query}" placeholder="Search..." size=65 autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
 </script>
-<input class="query-search" type=submit value="Search">
+<input type=submit value="Search">
 </fieldset>
 ${Todo: Replace radios with search buttons}
 $if{,$include{inc/anyalldropbox},
-<fieldset class="query-options">$include{inc/anyallradio}</fieldset>}
+<fieldset class="options">$include{inc/anyallradio}</fieldset>}
 ${Suggestions - shows suggested terms to improve query}
 $if{$opt{topterms},
- <fieldset class="query-suggested-container" title="Suggested terms to add to your query"
- style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
- $map{$topterms,<span class="query-suggested-element" style="white-space:nowrap"><input type=checkbox name=X value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
+ <fieldset class="suggested-terms" title="Suggested terms to add to your query">
+ $map{$topterms,<span style="white-space:nowrap"><input type=checkbox name=X value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
  <noscript><input type=hidden name=ADD value=1></noscript>
  </fieldset>
 }
-$if{$suggestion,Did you mean: <a class="query-suggestion" href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a>}
+$if{$suggestion,Did you mean: <a class="suggestion" href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a>}
 ${Query metadata - shows query performance or document size}
 $or{$html{$error},
-<p class="query-metadata">
+<p class="metadata">
 $if{$eq{$msize,0},
 $if{$query,No documents match your query,
 Searching $nice{$dbsize} documents
@@ -89,17 +84,16 @@ $if{$not{$msizeexact},
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
 <br/>
-$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},,,}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
-Search took $time seconds
+$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},,,}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}. Search took $time seconds
 </p>
 ${Results}
 <table>
-$hitlist{<tr><td class="result-metadata">
+$hitlist{<tr class="result"><td class="metadata">
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
-<div class="result-metadata-progress-container" title="$percentage%" >
-<div class="result-metadata-progress" style='width:$div{$mul{$percentage,6},10}px;'>
+<div class="relevance-container" title="$percentage%" >
+<div class="relevance" style='width:$div{$mul{$percentage,6},10}px;'>
 </div></div>
-<div class="result-metadata">
+<div class="content">
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
@@ -114,11 +108,11 @@ $if{$field{size},<span title="$html{$field{size}} bytes">Size:$html{$filesize{$f
 </div>
 </div>
 </td>
-<td class="result-data"><header class="result-data"><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
-<span class="result-data" style="display: block;">
+<td class="data"><header><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
+<span>
 $highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</span>
-<a class="result-data" href="$html{$field{url}}">$html{$field{url}}</a>
-<span class="result-data">
+<a href="$html{$field{url}}">$html{$field{url}}</a>
+<span>
 matching:
 $list{$map{$terms,$html{$prettyterm{$_}}},$., and }</span></td></tr>}
 </table>

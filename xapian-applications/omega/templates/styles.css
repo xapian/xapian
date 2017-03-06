@@ -8,19 +8,27 @@ fieldset {
     text-align: center;
 }
 
-fieldset.query-search, .query-metadata,
-.query-suggested-container, .query-options, .query-suggestion {
+fieldset.search, fieldset.suggested-terms,
+p.metadata, fieldset.options, a.suggestion {
     background-color: #FAFAFA;
     text-align: center;
     display: block;
 }
 
-.query-metadata {
+fieldset.suggested-terms {
+    text-align: left;
+    background: #cfc;
+    border: 1px solid green;
+    padding: 2px;
+    font: 11px verdana, arial, helvetica, sans-serif;
+}
+
+p.metadata {
     margin: 0px;
     box-shadow: 0 5px 5px -6px black;
 }
 
-input[type=search].query-search {
+fieldset.search > input[type=search] {
     width: 400px;
     height: 35px;
     font-size: 14px;
@@ -31,12 +39,12 @@ input[type=search].query-search {
     box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
 }
 
-input[type=search]:focus.query-search, input[type=search]:hover.query-search{
+fieldset.search > input[type=search]:focus, fieldset.search > input[type=search]:hover{
     outline: none;
     box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
 }
 
-input[type=submit].query-search {
+fieldset.search > input[type=submit] {
     height: 40px;
     width: 100px;
     color: #313131;
@@ -46,7 +54,7 @@ input[type=submit].query-search {
     border: 1px solid #ddd;
 }
 
-input[type=submit]:hover.query-search {
+fieldset.search > input[type=submit]:hover {
     transition-duration: .4s;
     background-color: #FAFAFA;
     color: #111111;
@@ -57,33 +65,35 @@ span time {
     display: block;
 }
 
-td.result-data, td.result-metadata {
-    padding: 20px;
+table {
+    margin: 5px;
 }
 
-td.result-metadata {
+tr.result > td.metadata {
+    padding: 10px;
     background-color: #ecf0f1;
 }
 
-div.result-metadata {
+tr.result > td.metadata > div.content {
     display: block;
     font-size: 12px;
 }
 
-.result-data {
+tr.result > td.data  {
+    padding: 10px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+tr.result > td.data > span, tr.result > td.data > a {
     display: block;
     font-size: 14px;
 }
 
-td.result-data {
-    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
-}
-
-header.result-data {
+tr.result > td.data > header {
     font-size: 18px;
 }
 
-.result-metadata-progress-container {
+tr.result > td.metadata > div.relevance-container {
     border: 1px solid #888;
     border-radius: 3px;
     float: left;
@@ -91,7 +101,7 @@ header.result-data {
     height:10px;
 }
 
-.result-metadata-progress {
+tr.result > td.metadata > div.relevance-container > div.relevance {
     height: 10px;
     background-color: #ff5252;
 }
