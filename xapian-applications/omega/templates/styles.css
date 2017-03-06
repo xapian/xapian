@@ -53,6 +53,10 @@ input[type=submit]:hover.query-search {
     border: 1px solid #bbb;
 }
 
+span time {
+    display: block;
+}
+
 td.result-data, td.result-metadata {
     padding: 20px;
 }
