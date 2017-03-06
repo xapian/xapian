@@ -85,7 +85,7 @@ $if{$not{$msizeexact},
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
 <br/>
-$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},,,}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}. Search took $time seconds
+$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},,/,}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}. Search took $time seconds
 </p>
 ${Results}
 <table>
