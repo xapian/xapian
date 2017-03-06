@@ -42,7 +42,8 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span>Modified:<time datetime=\""+D+" "+T+"\">"+D+"</time></span>");
+var ISO=d.toISOString();
+document.write("<span>Modified:<time datetime=\""+ISO+"\"</time></span>");
 }
 // -->
 </script>
@@ -97,7 +98,7 @@ ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" heig
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
-<span>Modified:<time datetime="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
+<span>Modified:<time datetime="$html{$date{$field{modtime},%Y-%m-%dT%H:%M:%S}}">
 $html{$date{$field{modtime},%Y-%m-%d}}</time></span>
 </noscript>
 }
