@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001 Ananova Ltd
- * Copyright 2002,2003,2009,2011,2015 Olly Betts
+ * Copyright 2002,2003,2009,2011,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +55,7 @@ add_param(string name, string val)
 	    // to us, so instead we turn "[ 2 ].x=NNN" into "[ 2 ]=2 ]", then
 	    // below that gets turned into "[=2 ]".  The trailing non-numeric
 	    // characters are ignored by atoi().
-	    i = name.find(' ');
+	    i = name.find_first_of(" \t");
 	    if (i != string::npos)
 		val.assign(name, i + 1, string::npos);
 	    else {
@@ -74,9 +74,9 @@ add_param(string name, string val)
 	    }
 	}
     }
-    // Truncate at first space - convert '[ page two ]=2'
+    // Truncate at first space or tab - convert '[ page two ]=2'
     // into '[=2'
-    i = name.find(' ');
+    i = name.find_first_of(" \t");
     if (i != string::npos) name.resize(i);
     cgi_params.insert(multimap<string, string>::value_type(name, val));
 }

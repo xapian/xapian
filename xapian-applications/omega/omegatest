@@ -371,6 +371,26 @@ testcase '.~~D' DOCIDORDER=D
 testcase '.~~' DOCIDORDER=X # Buggy, but kept for compatibility.
 testcase '.~~' DOCIDORDER=x # Buggy, but kept for compatibility.
 
+tab=`printf '\t'`
+printf '$cgi{AZ}|$cgi{AZ B}|$cgi{AZ.x}|$cgi{AZ.y}|$cgi{[}|$cgi{#}' > "$TEST_TEMPLATE"
+testcase 'AZ|||||' AZ.x=3 AZ.y=4
+testcase 'B|||||' 'AZ B.x=5' 'AZ B.y=12'
+testcase 'B|||||' "AZ${tab}B.x=5" "AZ${tab}B.y=12"
+testcase '||||2 ]|' '[ 2 ].x=123'
+testcase '||||2 ]|' "[${tab}2 ].x=123"
+testcase "||||2${tab}]|" "[ 2${tab}].x=123"
+testcase "||||2${tab}]|" "[${tab}2${tab}].x=123"
+testcase '|||||12' '12.x=37'
+testcase 'DE|||||' 'AZ BC=DE'
+testcase 'DE|||||' 'AZ B C=DE'
+testcase 'DE|||||' "AZ${tab}BC=DE"
+testcase 'DE|||||' "AZ B${tab}C=DE"
+testcase 'DE|||||' "AZ${tab}B C=DE"
+testcase 'DE|||||' "AZ${tab}B${tab}C=DE"
+
+printf '$cgi{Search}|$cgi{Type}|$cgi{Search Type}' > "$TEST_TEMPLATE"
+testcase 'Discover-List||' 'Search Type=Discover-List'
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
