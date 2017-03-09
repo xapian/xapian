@@ -892,6 +892,7 @@ CMD_allterms,
 CMD_and,
 CMD_cgi,
 CMD_cgilist,
+CMD_cgiparams,
 CMD_chr,
 CMD_collapsed,
 CMD_contains,
@@ -1021,6 +1022,7 @@ T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
+T(cgiparams,	   0, 0, N, 0), // return list of cgi parameter names
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
 T(contains,	   2, 2, N, 0), // return position of substring, or empty string
@@ -1313,6 +1315,17 @@ eval(const string &fmt, const vector<string> &param)
 		for (MCI i = g.first; i != g.second; ++i) {
 		    value += i->second;
 		    value += '\t';
+		}
+		if (!value.empty()) value.erase(value.size() - 1);
+		break;
+	    }
+	    case CMD_cgiparams: {
+		const string* prev = NULL;
+		for (auto&& i : cgi_params) {
+		    if (prev && i.first == *prev) continue;
+		    value += i.first;
+		    value += '\t';
+		    prev = &i.first;
 		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
