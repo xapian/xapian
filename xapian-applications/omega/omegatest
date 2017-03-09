@@ -391,6 +391,17 @@ testcase 'DE|||||' "AZ${tab}B${tab}C=DE"
 printf '$cgi{Search}|$cgi{Type}|$cgi{Search Type}' > "$TEST_TEMPLATE"
 testcase 'Discover-List||' 'Search Type=Discover-List'
 
+printf '$cgiparams' > "$TEST_TEMPLATE"
+# We can't test the "no cgi parmeters" case via testcase, as it passes a
+# "dummy" parameter if there aren't any real ones.
+#testcase ""
+testcase "" =1
+testcase "ABC" ABC=1
+testcase "ABC" ABC=1 ABC=2
+testcase "A${tab}AZ${tab}Z" A=1 A=2 A=3 AZ=1 AZ=2 Z=xxx
+testcase "${tab}abc" =1 abc=1
+testcase "${tab}abc${tab}def" =1 abc=1 def=7
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then

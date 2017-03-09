@@ -79,6 +79,10 @@ $cgi{CGI}
 $cgilist{CGI}
 	return a list of all values of a CGI parameter
 
+$cgiparams
+        return a list of all the unique CGI parameter names, sorted in
+        ascending order by raw byte values.
+
 $chr{CODEPOINT}
         return UTF-8 for the given Unicode codepoint, e.g. ``$chr{127866}``
         should display as a beer mug if the font has a suitable glyph.
