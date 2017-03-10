@@ -32,7 +32,7 @@ MultiAndPostList::allocate_plist_and_max_wt()
 {
     plist = new PostList * [n_kids];
     try {
-	max_wt = new double [n_kids];
+	max_wt = new double [n_kids]();
     } catch (...) {
 	delete [] plist;
 	plist = NULL;

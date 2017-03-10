@@ -658,3 +658,18 @@ DEFINE_TESTCASE(subdbwithoutpos1, generated) {
 
     return true;
 }
+
+// Regression test for bug fixed in 1.4.4 and 1.2.25.
+DEFINE_TESTCASE(notandor1, backend) {
+    Xapian::Database db(get_database("etext"));
+    Xapian::Query q =
+	Xapian::Query("the") &~ (Xapian::Query("friedrich") &
+		(Xapian::Query("day") | Xapian::Query("night")));
+    Xapian::Enquire enq(db);
+    enq.set_query(q);
+
+    Xapian::MSet mset = enq.get_mset(0, 10, db.get_doccount());
+    TEST_EQUAL(mset.get_matches_estimated(), 344);
+
+    return true;
+}
