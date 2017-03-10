@@ -228,6 +228,12 @@ Query::get_subquery(size_t n) const
     return internal->get_subquery(n);
 }
 
+Xapian::termcount
+Query::get_leaf_wqf() const
+{
+	return internal->get_wqf();
+}
+
 string
 Query::get_description() const
 {
