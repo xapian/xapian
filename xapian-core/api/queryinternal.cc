@@ -411,6 +411,18 @@ Query::Internal::get_subquery(size_t) const
     throw Xapian::InvalidArgumentError("get_subquery() not meaningful for this Query object");
 }
 
+Xapian::termcount
+Query::Internal::get_wqf() const
+{
+    throw Xapian::InvalidArgumentError("get_wqf() not meaningful for this Query object");
+}
+
+Xapian::termpos
+Query::Internal::get_pos() const
+{
+    throw Xapian::InvalidArgumentError("get_pos() not meaningful for this Query object");
+}
+
 void
 Query::Internal::gather_terms(void *) const
 {

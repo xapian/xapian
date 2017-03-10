@@ -51,6 +51,10 @@ class QueryTerm : public Query::Internal {
 
     const std::string & get_term() const { return term; }
 
+    termcount get_wqf() const { return wqf; }
+
+    termpos get_pos() const { return pos; }
+
     PostingIterator::Internal * postlist(QueryOptimiser * qopt, double factor) const;
 
     termcount get_length() const XAPIAN_NOEXCEPT XAPIAN_PURE_FUNCTION {
