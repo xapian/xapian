@@ -164,7 +164,7 @@ You can also use runtest to run a test program under gdb (or most other tools):
 Some test programs take special arguments - for example, you can restrict
 apitest to the glass backend using ``-bglass``.
 
-There are a few environmental variables which the testsuite harness checks for
+There are a few environment variables which the testsuite harness checks for
 which you might find useful:
 
   XAPIAN_TESTSUITE_SIG_DFL:
@@ -469,7 +469,7 @@ Additional tools are needed for these:
 * makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
-path (as specified by the environmental variable PATH), since doxygen will look
+path (as specified by the environment variable PATH), since doxygen will look
 for them there.
 
 For a recent version of Debian or Ubuntu, this command should install these
