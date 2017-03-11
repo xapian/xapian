@@ -234,6 +234,12 @@ Query::get_leaf_wqf() const
 	return internal->get_wqf();
 }
 
+Xapian::termpos
+Query::get_leaf_pos() const
+{
+	return internal->get_pos();
+}
+
 string
 Query::get_description() const
 {

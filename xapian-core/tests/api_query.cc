@@ -226,8 +226,13 @@ DEFINE_TESTCASE(queryintro1, !backend) {
     TEST_EQUAL(q.get_subquery(0).get_type(), q.LEAF_MATCH_ALL);
     TEST_EQUAL(q.get_subquery(1).get_type(), q.LEAF_TERM);
 
-    q = Xapian::Query("foo", 2);
+    q = Xapian::Query("foo", 2, 1);
     TEST_EQUAL(q.get_leaf_wqf(), 2);
+    TEST_EQUAL(q.get_leaf_pos(), 1);
+
+    q = Xapian::Query("bar");
+    TEST_EQUAL(q.get_leaf_wqf(), 1);
+    TEST_EQUAL(q.get_leaf_pos(), 0);
 
     q = Xapian::Query("foo") & Xapian::Query("bar");
     TEST_EQUAL(q.get_type(), q.OP_AND);

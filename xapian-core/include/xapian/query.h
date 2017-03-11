@@ -352,6 +352,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     /** Get the wqf parameter of a leaf node. */
     Xapian::termcount get_leaf_wqf() const;
 
+    /** Get the pos parameter of a leaf node. */
+    Xapian::termpos get_leaf_pos() const;
+
     /** Read a top level subquery.
       *
       * @param n  Return the n-th subquery (starting from 0) - only valid when
@@ -567,6 +570,7 @@ class Query::Internal : public Xapian::Internal::intrusive_base {
     virtual size_t XAPIAN_NOTHROW(get_num_subqueries() const) XAPIAN_PURE_FUNCTION;
     virtual const Query get_subquery(size_t n) const;
     virtual termcount get_wqf() const;
+    virtual termpos get_pos() const;
 
     virtual std::string get_description() const = 0;
 
