@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include "xapian-letor/featurelist.h"
+#include "../feature/featurelist_internal.h"
 #include "xapian-letor/feature.h"
 #include "xapian-letor/featurevector.h"
 
@@ -40,12 +41,14 @@ FeatureList::FeatureList()
     feature.push_back(new CollTfCollLenFeature());
     feature.push_back(new TfIdfDoclenFeature());
     feature.push_back(new TfDoclenCollTfCollLenFeature());
+    internal = new FeatureList::Internal();
 }
 
 FeatureList::FeatureList(const std::vector<Feature*> & f)
 {
     LOGCALL_CTOR(API, "FeatureList", f);
     feature = f;
+    internal = new FeatureList::Internal();
 }
 
 FeatureList::~FeatureList()
@@ -100,11 +103,14 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Que
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
 	std::vector<double> fVals;
-
+	// Computes all the stats and stores them in the corresponding variables.
+	internal->compute_statistics(letor_query, letor_db, doc);
 	for (std::vector<Feature*>::const_iterator it = feature.begin(); it != feature.end(); ++it) {
 	    (*it)->set_database(letor_db);
 	    (*it)->set_query(letor_query);
 	    (*it)->set_doc(doc);
+	    // Populates the Feature with required stats
+	    internal->populate_feature(it);
 	    vector<double> values = (*it)->get_values();
 	    fVals.insert(fVals.end(), values.begin(), values.end()); // Append feature values
 	}

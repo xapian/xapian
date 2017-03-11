@@ -55,45 +55,45 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     Document feature_doc;
 
     /// Frequency of the Query Terms in the specified documents.
-    static std::map<string, long int> termfreq;
+    std::map<std::string, long int> termfreq;
 
     /// Inverse Document Frequency of Query terms in the database.
-    static std::map<string, double> inverse_doc_freq;
+    std::map<std::string, double> inverse_doc_freq;
 
     /// Length of the document as number of "terms"
-    static std::map<string, long int> doc_length;
+    std::map<std::string, long int> doc_length;
 
     /// Length of the collection in number of terms for different parts like 'title', 'body' and 'whole'
-    static std::map<string, long int> collection_length;
+    std::map<std::string, long int> collection_length;
 
     /// Frequency of the Query Terms in the whole database
-    static std::map<string, long int> collection_termfreq;
+    std::map<std::string, long int> collection_termfreq;
 
     /// Stats which FeatureList can use to determine the stats needed by a Feature.
     typedef enum {
-        /// Frequency of the Query Terms in the specified documents.
-        TERM_FREQUENCY = 1,
-        /// Inverse Document Frequency of Query terms in the database.
-        INVERSE_DOCUMENT_FREQUENCY = 2,
-        /// Length of the document as number of "terms".
-        DOCUMENT_LENGTH = 4,
-        /// Length of the collection in number of term
-        COLLECTION_LENGTH = 8,
-        /// Frequency of the Query Terms in the whole database.
-        COLLECTION_TERM_FREQ = 16,
+	/// Frequency of the Query Terms in the specified documents.
+	TERM_FREQUENCY = 1,
+	/// Inverse Document Frequency of Query terms in the database.
+	INVERSE_DOCUMENT_FREQUENCY = 2,
+	/// Length of the document as number of "terms".
+	DOCUMENT_LENGTH = 4,
+	/// Length of the collection in number of term
+	COLLECTION_LENGTH = 8,
+	/// Frequency of the Query Terms in the whole database.
+	COLLECTION_TERM_FREQ = 16,
     }stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
-        *
-        *  Some of the statistics can be costly to fetch or calculate, so
-        *  Xapian needs to know which are actually going to be used.  You
-        *  should call need_stat() from your constructor for each such
-        *  statistic.
-        *
-        * @param flag  The stat_flags value for a required statistic.
-        */
+     *
+     *  Some of the statistics can be costly to fetch or calculate, so
+     *  Xapian needs to know which are actually going to be used.  You
+     *  should call need_stat() from your constructor for each such
+     *  statistic.
+     *
+     * @param flag  The stat_flags value for a required statistic.
+     */
     void need_stat(stat_flags flag) {
-        stats_needed = stat_flags(stats_needed | flag);
+	stats_needed = stat_flags(stats_needed | flag);
     }
 
     /// A bitmask of the statistics this Feature needs.
@@ -118,7 +118,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
     /// Returns the Stats needed by a Sub class
     stat_flags get_stats(){
-        return stats_needed;
+	return stats_needed;
     }
 
     /// Specify the document to use for feature building. This will be used by the Internal class.
@@ -152,9 +152,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfFeature : public Feature {
   public:
     TfFeature()
     {
-        need_stat(TERM_FREQUENCY);
+	need_stat(TERM_FREQUENCY);
     }
-
     std::vector<double> get_values() const;
     std::string name() const;
 };
@@ -172,10 +171,9 @@ class XAPIAN_VISIBILITY_DEFAULT TfDoclenFeature : public Feature {
   public:
     TfDoclenFeature()
     {
-        need_stat(TERM_FREQUENCY);
-        need_stat(DOCUMENT_LENGTH);
+	need_stat(TERM_FREQUENCY);
+	need_stat(DOCUMENT_LENGTH);
     }
-
     std::vector<double> get_values() const;
     std::string name() const;
 };
@@ -190,7 +188,7 @@ class XAPIAN_VISIBILITY_DEFAULT IdfFeature : public Feature {
   public:
     IdfFeature()
     {
-        need_stat(INVERSE_DOCUMENT_FREQUENCY);
+	need_stat(INVERSE_DOCUMENT_FREQUENCY);
     }
     std::vector<double> get_values() const;
     std::string name() const;
@@ -209,9 +207,8 @@ class XAPIAN_VISIBILITY_DEFAULT CollTfCollLenFeature : public Feature {
   public:
     CollTfCollLenFeature()
     {
-        need_stat(COLLECTION_TERM_FREQ);
-        need_stat(COLLECTION_LENGTH);
-
+	need_stat(COLLECTION_TERM_FREQ);
+	need_stat(COLLECTION_LENGTH);
     }
     std::vector<double> get_values() const;
     std::string name() const;
@@ -231,11 +228,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfDoclenFeature : public Feature {
   public:
     TfIdfDoclenFeature()
     {
-        need_stat(TERM_FREQUENCY);
-        need_stat(DOCUMENT_LENGTH);
-        need_stat(INVERSE_DOCUMENT_FREQUENCY);
+	need_stat(TERM_FREQUENCY);
+	need_stat(DOCUMENT_LENGTH);
+	need_stat(INVERSE_DOCUMENT_FREQUENCY);
     }
-
     std::vector<double> get_values() const;
     std::string name() const;
 };
@@ -253,10 +249,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfDoclenCollTfCollLenFeature : public Feature {
   public:
     TfDoclenCollTfCollLenFeature()
     {
-        need_stat(TERM_FREQUENCY);
-        need_stat(DOCUMENT_LENGTH);
-        need_stat(COLLECTION_TERM_FREQ);
-        need_stat(COLLECTION_LENGTH);
+	need_stat(TERM_FREQUENCY);
+	need_stat(DOCUMENT_LENGTH);
+	need_stat(COLLECTION_TERM_FREQ);
+	need_stat(COLLECTION_LENGTH);
     }
     std::vector<double> get_values() const;
     std::string name() const;
