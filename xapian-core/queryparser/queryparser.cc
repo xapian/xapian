@@ -47,7 +47,7 @@ string
 SimpleStopper::get_description() const
 {
     string desc("Xapian::SimpleStopper(");
-    set<string>::const_iterator i;
+    unordered_set<string>::const_iterator i;
     for (i = stop_words.begin(); i != stop_words.end(); ++i) {
 	if (i != stop_words.begin()) desc += ' ';
 	desc += *i;
