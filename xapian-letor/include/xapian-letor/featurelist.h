@@ -42,6 +42,12 @@ class XAPIAN_VISIBILITY_DEFAULT FeatureList {
     /// Vector containing Feature pointer objects. Each will be used to return feature value.
     std::vector<Feature *> feature;
 
+  protected:
+    /// @internal Class representing the FeatureList internals.
+    class Internal;
+    /// @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
+
   public:
 
     /** Default constructor. Initializes vector<Feature*> with ALL Feature
