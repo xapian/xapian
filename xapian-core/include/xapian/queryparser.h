@@ -33,8 +33,8 @@
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
-#include <set>
 #include <string>
+#include <unordered_set>
 
 namespace Xapian {
 
@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Stopper
 
 /// Simple implementation of Stopper class - this will suit most users.
 class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
-    std::set<std::string> stop_words;
+    std::unordered_set<std::string> stop_words;
 
   public:
     /// Default constructor.
