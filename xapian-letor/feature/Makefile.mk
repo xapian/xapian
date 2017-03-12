@@ -7,7 +7,6 @@ EXTRA_DIST +=\
 lib_src +=\
 	feature/colltfcolllenfeature.cc\
 	feature/feature.cc\
-	feature/feature_internal.cc\
 	feature/idffeature.cc\
 	feature/tfdoclencolltfcolllenfeature.cc\
 	feature/tfdoclenfeature.cc\
