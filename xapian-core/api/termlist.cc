@@ -37,14 +37,6 @@ TermIterator::Internal::accumulate_stats(Xapian::Internal::ExpandStats &) const
     Assert(false);
 }
 
-Xapian::termcount
-TermIterator::Internal::get_collection_freq() const
-{
-    // This method isn't currently externally exposed (or used internally).
-    Assert(false);
-    return 0;
-}
-
 // Default implementation for when the positions aren't in vector<termpos>.
 const std::vector<Xapian::termpos> *
 TermIterator::Internal::get_vector_termpos() const

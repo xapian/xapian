@@ -84,19 +84,6 @@ MultiAllTermsList::get_termfreq() const
     return total_tf;
 }
 
-Xapian::termcount
-MultiAllTermsList::get_collection_freq() const
-{
-    if (termlists.empty()) return 0;
-    vector<TermList *>::const_iterator i = termlists.begin();
-    Xapian::termcount total_cf = (*i)->get_collection_freq();
-    while (++i != termlists.end()) {
-	if ((*i)->get_termname() == current_term)
-	    total_cf += (*i)->get_collection_freq();
-    }
-    return total_cf;
-}
-
 TermList *
 MultiAllTermsList::next()
 {

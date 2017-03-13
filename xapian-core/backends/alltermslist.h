@@ -52,9 +52,6 @@ class AllTermsList : public TermList {
     /// Return the term frequency for the term at the current position.
     virtual Xapian::doccount get_termfreq() const = 0;
 
-    /// Return the collection frequency for the term at the current position.
-    virtual Xapian::termcount get_collection_freq() const = 0;
-
     /// Advance the current position to the next term in the termlist.
     virtual TermList *next() = 0;
 
