@@ -90,18 +90,6 @@ OrTermList::get_termfreq() const
     RETURN(right->get_termfreq());
 }
 
-#if 0 // This method isn't actually used anywhere currently.
-Xapian::termcount
-OrTermList::get_collection_freq() const
-{
-    LOGCALL(EXPAND, Xapian::termcount, "OrTermList::get_collection_freq", NO_ARGS);
-    check_started();
-    if (left_current < right_current) RETURN(left->get_collection_freq());
-    Assert(left_current > right_current || left->get_collection_freq() == right->get_collection_freq());
-    RETURN(right->get_collection_freq());
-}
-#endif
-
 // Helper function.
 inline void
 handle_prune(TermList *& old, TermList * result)
