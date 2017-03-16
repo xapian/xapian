@@ -1,5 +1,4 @@
 noinst_HEADERS +=\
-	feature/feature_internal.h
 
 EXTRA_DIST +=\
 	feature/Makefile
