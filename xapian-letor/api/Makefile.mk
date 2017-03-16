@@ -8,4 +8,4 @@ EXTRA_DIST +=\
 lib_src +=\
 	api/featurelist.cc\
 	api/featurevector.cc\
-	ap/featurelist_internal.cc
+	api/featurelist_internal.cc
