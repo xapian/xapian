@@ -1,5 +1,3 @@
-noinst_HEADERS +=\
-
 EXTRA_DIST +=\
 	feature/Makefile
 
