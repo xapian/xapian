@@ -18,11 +18,11 @@ libxapian_la = libxapian@LIBRARY_VERSION_SUFFIX@.la
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-none check-inmemory \
-	check-chert check-glass \
-	check-multi check-multi-chert check-multi-glass \
+	check-glass \
+	check-multi check-multi-glass \
 	check-remote check-remoteprog check-remotetcp \
-	check-remoteprog-chert check-remoteprog-glass \
-	check-remotetcp-chert check-remotetcp-glass \
+	check-remoteprog-glass \
+	check-remotetcp-glass \
 	up remove-cached-databases
 
 up:
@@ -50,20 +50,10 @@ if BUILD_BACKEND_REMOTE
 check-remote: check-remoteprog check-remotetcp
 
 check-remoteprog: apitest$(EXEEXT)
-## If both chert and glass are enabled, just run remoteprog_chert.
-if BUILD_BACKEND_CHERT
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
-else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog
-endif
 
 check-remotetcp: apitest$(EXEEXT)
-## If both chert and glass are enabled, just run remotetcp_glass.
-if BUILD_BACKEND_GLASS
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
-else
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
-endif
 
 if BUILD_BACKEND_GLASS
 check-remoteprog-glass: apitest$(EXEEXT)
@@ -72,12 +62,6 @@ check-remotetcp-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_glass
 endif
 
-if BUILD_BACKEND_CHERT
-check-remoteprog-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remoteprog_chert
-check-remotetcp-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp_chert
-endif
 endif
 
 if BUILD_BACKEND_GLASS
@@ -87,13 +71,6 @@ check-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b glass
 check-singlefile-glass: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b singlefile_glass
-endif
-
-if BUILD_BACKEND_CHERT
-check-multi-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b multi_chert
-check-chert: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b chert
 endif
 
 ## Test programs to be run
@@ -225,7 +202,7 @@ EXTRA_DIST +=\
 	testdata/snippet.txt
 
 remove-cached-databases:
-	rm -rf .chert .glass .multichert .multiglass .replicatmp .singlefileglass .stub
+	rm -rf .glass .multiglass .replicatmp .singlefileglass .stub
 
 clean-local: remove-cached-databases
 

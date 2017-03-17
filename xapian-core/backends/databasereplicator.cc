@@ -33,9 +33,6 @@
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 # include "glass/glass_databasereplicator.h"
 #endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-# include "chert/chert_databasereplicator.h"
-#endif
 
 using namespace std;
 
@@ -50,17 +47,15 @@ DatabaseReplicator::open(const string & path)
 {
     LOGCALL_STATIC_VOID(DB, "DatabaseReplicator::DatabaseReplicator", path);
 
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (file_exists(path + "/iamchert")) {
-	return new ChertDatabaseReplicator(path);
-    }
-#endif
-
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (file_exists(path + "/iamglass")) {
 	return new GlassDatabaseReplicator(path);
     }
 #endif
+
+    if (file_exists(path + "/iamchert")) {
+	throw FeatureUnavailableError("Chert backend no longer supported");
+    }
 
     if (file_exists(path + "/iamflint")) {
 	throw FeatureUnavailableError("Flint backend no longer supported");

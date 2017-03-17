@@ -1,7 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -81,7 +81,7 @@ MyHtmlParser::opening_tag(const string &tag)
     if (k < 0)
 	return true;
     pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
-    switch ((html_tag)k) {
+    switch (html_tag(k)) {
 	case P:
 	    if (pending_space < PAGE) {
 		string style;
@@ -99,10 +99,20 @@ MyHtmlParser::opening_tag(const string &tag)
 		    if (get_parameter("name", name)) {
 			lowercase_string(name);
 			if (name == "description") {
-			    if (sample.empty()) {
+			    convert_to_utf8(content, charset);
+			    decode_entities(content);
+			    if (description_as_sample && sample.empty()) {
 				swap(sample, content);
-				convert_to_utf8(sample, charset);
-				decode_entities(sample);
+			    } else {
+				// If we're not using the description as the
+				// sample, or for second and subsequent
+				// descriptions, treat as keywords.
+				if (keywords.empty()) {
+				    swap(keywords, content);
+				} else {
+				    keywords += ' ';
+				    keywords += content;
+				}
 			    }
 			} else if (name == "keywords" ||
 				   name == "dcterms.subject" ||
@@ -139,9 +149,8 @@ MyHtmlParser::opening_tag(const string &tag)
 				indexing_allowed = false;
 				return false;
 			    }
-			} else if (name == "created") {
-			    created = parse_datetime(content);
-			} else if (name == "dcterms.issued") {
+			} else if (name == "created" ||
+				   name == "dcterms.issued") {
 			    created = parse_datetime(content);
 			}
 			break;
@@ -220,7 +229,7 @@ MyHtmlParser::closing_tag(const string &tag)
     if (k < 0 || (token_space[k] & NOCLOSE))
 	return true;
     pending_space = max(pending_space, (token_space[k] & TOKEN_SPACE_MASK));
-    switch ((html_tag)k) {
+    switch (html_tag(k)) {
 	case STYLE:
 	    in_style_tag = false;
 	    break;

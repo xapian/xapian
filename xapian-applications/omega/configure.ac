@@ -66,10 +66,28 @@ AX_CXX_COMPILE_STDCXX_11
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
+dnl Enable large file support if possible.
+AC_SYS_LARGEFILE
+
+dnl Test if the compiler works with $1 added to CXXFLAGS; if it does, add $1 to
+dnl variable $2.  If the test passes, also do $3; if it fails, also do $4.
+AC_DEFUN([XAPIAN_TEST_CXXFLAGS],
+  [
+  XTC_save_CXXFLAGS=$CXXFLAGS
+  CXXFLAGS="$CXXFLAGS $1"
+  AC_TRY_COMPILE([], [],
+		 [$2="${$2} $1"
+		  CXXFLAGS=$XTC_save_CXXFLAGS
+		  $3],
+		 [CXXFLAGS=$XTC_save_CXXFLAGS
+		  $4])
+  ])
+
 dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
+XO_REQUIRE([1.4.0])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
@@ -439,14 +457,6 @@ if test yes = "$GXX"; then
   case `echo __INTEL_COMPILER __clang__|$CXX -E - 2>&AS_MESSAGE_LOG_FD|grep -v '^#'` in
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
-      dnl
-      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
-      dnl
-      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
-      dnl GCC 4.3.
-      dnl
-      dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
 
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
@@ -456,19 +466,25 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[0123]].*|4.[[0123]].*)
-	AC_MSG_ERROR([Xapian requires GCC 4.4 or later])
+      [[0123]].*|4.[[0-7]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.8 or later])
 	;;
-      4.[[45]].*) ;;
-      *) dnl GCC >= 4.6
-	dnl -Wdouble-promotion was added in GCC 4.6.
-	dnl
-	dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
-	dnl warns for this case with -Wuninitialized (implied by -W).  We
-	dnl don't intend to use this idiom, so any instances are bugs we'd
-	dnl like to know about.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wdouble-promotion -Winit-self" ;;
       esac
+
+      dnl -Wundef was supported by g++ 3.0.
+      dnl
+      dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
+      dnl GCC 4.3.
+      dnl
+      dnl -Wdouble-promotion was added in GCC 4.6.
+      dnl
+      dnl -Winit-self was added in GCC 3.4, but for GCC < 4.7 g++ always
+      dnl warns for this case with -Wuninitialized (implied by -W).  We
+      dnl don't intend to use this idiom, so any instances are bugs we'd
+      dnl like to know about.
+      dnl
+      dnl All the other options were supported by g++ 2.95.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
 
       dnl FIXME:
       dnl -Wconversion in older GCC versions is intended to help migration
@@ -478,20 +494,11 @@ if test yes = "$GXX"; then
       dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
       dnl
       dnl -Wold-style-cast is interesting, but triggers for macros from
-      dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
-
-      if test no != "$enable_visibility"; then
-	dnl GCC doesn't support symbol visibility on all platforms (notably
-	dnl not Mac OS X or mingw).  Currently it seems to be ELF-only.
-	AC_MSG_CHECKING([if $CXX -fvisibility=hidden works])
-	if echo 'int foo() {return 42;}'|$CXX -Werror -fvisibility=hidden -c -oconftest.o -xc++ - >&AS_MESSAGE_LOG_FD 2>&AS_MESSAGE_LOG_FD ; then
-	  AC_MSG_RESULT([yes])
-	  AM_CXXFLAGS="$AM_CXXFLAGS -fvisibility=hidden"
-	  dash_d_visibility=-DXAPIAN_ENABLE_VISIBILITY
-	else
-	  AC_MSG_RESULT([no])
-	fi
-      fi
+      dnl system headers (e.g. FD_SET).  GCC 4.8 improved this by making
+      dnl -ftrack-macro-expansion=2 the default, but we still see such
+      dnl warnings on some platforms for some reason (e.g. Cygwin with GCC
+      dnl 5.4.0 warns about FD_SET, and on Debian with GCC 4.9.2 we see
+      dnl warnings from zlib.h).
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
@@ -512,8 +519,9 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
+
+      dnl These options all work at least as far back as clang++ 3.0:
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wstrict-overflow=1 -Wmissing-declarations -Winit-self"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
@@ -544,6 +552,15 @@ else
     dnl	includes such a check indirectly (internaltest's autoptr1 check this).
     dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
     AM_CXXFLAGS="$AM_CXXFLAGS +w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
+  */sunCC|*/CC)
+    dnl Sun's C++ compiler warns about functions failing to return a value even
+    dnl when the function ends with a "throw" statement.  That's just unhelpful
+    dnl noise, and adding a dummy "return" after "throw" seems a worse solution
+    dnl than simply disabling this warning - any genuinely missing return
+    dnl statements will get reported by compilers with superior warning
+    dnl machinery.
+    XAPIAN_TEST_CXXFLAGS([-erroff=voidretw], [AM_CXXFLAGS])
+    ;;
   esac
 fi
 
@@ -587,9 +604,6 @@ AC_SUBST([AM_CXXFLAGS])
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
 CXXFLAGS=$save_CXXFLAGS
 
-dnl Enable large file support if possible.
-AC_SYS_LARGEFILE
-
 dnl Required for auto regeneration to work in a combined maintainer-mode tree.
 : ${AUTOM4TE=autom4te}
 AC_SUBST([AUTOM4TE])
@@ -603,8 +617,11 @@ AC_CONFIG_FILES([
  docs/Makefile
  xapian-omega.spec
  ])
-AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
-AC_CONFIG_FILES([mhtml2html], [chmod +x mhtml2html])
-AC_CONFIG_FILES([outlookmsg2html], [chmod +x outlookmsg2html])
-AC_CONFIG_FILES([rfc822tohtml], [chmod +x rfc822tohtml])
+dnl Allow AC_CONFIG_FILES with chmod +x without having to repeat the filename.
+AC_DEFUN([SCRIPT_TEMPLATE], [AC_CONFIG_FILES([$1], [chmod +x "$1"])])
+SCRIPT_TEMPLATE([makemanpage])
+SCRIPT_TEMPLATE([mhtml2html])
+SCRIPT_TEMPLATE([outlookmsg2html])
+SCRIPT_TEMPLATE([rfc822tohtml])
+SCRIPT_TEMPLATE([vcard2text])
 AC_OUTPUT

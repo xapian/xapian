@@ -108,7 +108,7 @@ class TimeOut {
     volatile bool expired;
 
   public:
-    TimeOut(double limit) : expired(false) {
+    explicit TimeOut(double limit) : expired(false) {
 	if (limit > 0) {
 	    sev.sigev_notify = SIGEV_THREAD;
 	    sev.sigev_notify_function = set_timeout_flag;
@@ -142,7 +142,7 @@ class TimeOut {
 #else
 class TimeOut {
   public:
-    TimeOut(double) { }
+    explicit TimeOut(double) { }
     bool timed_out() const { return false; }
 };
 #endif
@@ -251,6 +251,7 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
     const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies;
 
   public:
+    explicit
     MultipleMatchSpy(const std::vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy>> & spies_)
 	    : spies(spies_) {}
 
@@ -261,7 +262,7 @@ class MultipleMatchSpy : public Xapian::MatchSpy {
     void operator()(const Xapian::Document &doc, double wt);
 };
 
-void 
+void
 MultipleMatchSpy::operator()(const Xapian::Document &doc, double wt) {
     LOGCALL_VOID(MATCH, "MultipleMatchSpy::operator()", doc | wt);
     for (auto i : spies) {
@@ -1017,7 +1018,7 @@ new_greatest_weight:
 	    matches_estimated =
 		Xapian::doccount(matches_estimated * estimate_scale + 0.5);
 	    if (matches_estimated < matches_lower_bound)
-	       	matches_estimated = matches_lower_bound;
+		matches_estimated = matches_lower_bound;
 	}
 
 	if (collapser || mdecider) {
@@ -1078,6 +1079,12 @@ new_greatest_weight:
     }
 
     LOGLINE(MATCH, "sorting " << items.size() << " entries");
+
+    // We could use std::sort_heap if is_heap is true, but profiling
+    // suggests that's actually slower.  Cast to void to suppress
+    // compiler warnings that the last set value of is_heap is never
+    // used.
+    (void)is_heap;
 
     // Need a stable sort, but this is provided by comparison operator
     sort(items.begin(), items.end(), mcmp);

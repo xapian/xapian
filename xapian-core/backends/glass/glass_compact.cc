@@ -165,7 +165,7 @@ class PostlistCursorGt {
   public:
     /** Return true if and only if a's key is strictly greater than b's key.
      */
-    bool operator()(const PostlistCursor *a, const PostlistCursor *b) {
+    bool operator()(const PostlistCursor *a, const PostlistCursor *b) const {
 	if (a->key > b->key) return true;
 	if (a->key != b->key) return false;
 	return (a->firstdid > b->firstdid);
@@ -388,7 +388,7 @@ merge_postlists(Xapian::Compactor * compactor,
 }
 
 struct MergeCursor : public GlassCursor {
-    MergeCursor(GlassTable *in) : GlassCursor(in) {
+    explicit MergeCursor(GlassTable *in) : GlassCursor(in) {
 	find_entry(string());
 	next();
     }
@@ -396,7 +396,7 @@ struct MergeCursor : public GlassCursor {
 
 struct CursorGt {
     /// Return true if and only if a's key is strictly greater than b's key.
-    bool operator()(const GlassCursor *a, const GlassCursor *b) {
+    bool operator()(const GlassCursor *a, const GlassCursor *b) const {
 	if (b->after_end()) return false;
 	if (a->after_end()) return true;
 	return (a->current_key > b->current_key);
@@ -694,7 +694,7 @@ class PositionCursorGt {
   public:
     /** Return true if and only if a's key is strictly greater than b's key.
      */
-    bool operator()(const PositionCursor *a, const PositionCursor *b) {
+    bool operator()(const PositionCursor *a, const PositionCursor *b) const {
 	return a->key > b->key;
     }
 };
@@ -854,7 +854,7 @@ GlassDatabase::compact(Xapian::Compactor * compactor,
 	version_file_out.reset(new GlassVersion(destdir));
     }
 
-    version_file_out->create(block_size, 0);
+    version_file_out->create(block_size);
     for (size_t i = 0; i != sources.size(); ++i) {
 	GlassDatabase * db = static_cast<GlassDatabase*>(sources[i]);
 	version_file_out->merge_stats(db->version_file);

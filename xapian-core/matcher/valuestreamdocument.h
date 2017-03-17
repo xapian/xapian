@@ -46,8 +46,8 @@ class ValueStreamDocument : public Xapian::Document::Internal {
     mutable Xapian::Document::Internal * doc;
 
   public:
-    ValueStreamDocument(const Xapian::Database & db_)
-       	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
+    explicit ValueStreamDocument(const Xapian::Database & db_)
+	: Internal(db_.internal[0], 0), db(db_), current(0), doc(NULL) { }
 
     void new_subdb(int n);
 

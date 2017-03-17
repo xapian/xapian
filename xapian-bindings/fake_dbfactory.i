@@ -37,17 +37,6 @@ class Auto {
     Database open_stub(const string & file);
 };
 
-class Chert {
-  private:
-    Chert();
-    ~Chert();
-  public:
-    static
-    Database open(const std::string &dir);
-    static
-    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-};
-
 class InMemory {
   private:
     InMemory();
@@ -63,20 +52,20 @@ class Remote {
     ~Remote();
   public:
     static
-    Database open(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
+    Database open(const std::string &host, unsigned int port, unsigned timeout, unsigned connect_timeout);
     static
-    Database open(const std::string &host, unsigned int port, useconds_t timeout = 10000);
+    Database open(const std::string &host, unsigned int port, unsigned timeout = 10000);
 
     static
-    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout, useconds_t connect_timeout);
+    WritableDatabase open_writable(const std::string &host, unsigned int port, unsigned timeout, unsigned connect_timeout);
     static
-    WritableDatabase open_writable(const std::string &host, unsigned int port, useconds_t timeout = 10000);
+    WritableDatabase open_writable(const std::string &host, unsigned int port, unsigned timeout = 10000);
 
     static
-    Database open(const std::string &program, const std::string &args, useconds_t timeout = 10000);
+    Database open(const std::string &program, const std::string &args, unsigned timeout = 10000);
 
     static
-    WritableDatabase open_writable(const std::string &program, const std::string &args, useconds_t timeout = 10000);
+    WritableDatabase open_writable(const std::string &program, const std::string &args, unsigned timeout = 10000);
 };
 
 }

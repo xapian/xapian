@@ -54,15 +54,15 @@ CompressionStream::compress(const char* buf, size_t* p_size) {
     lazy_alloc_deflate_zstream();
     size_t size = *p_size;
     if (!out || out_len < size - 1) {
-	delete [] out;
-	out = NULL;
 	out_len = size - 1;
+	delete [] out;
 	out = new char[out_len];
     }
-    deflate_zstream->avail_in = (uInt)size;
-    deflate_zstream->next_in = (Bytef*)const_cast<char*>(buf);
-    deflate_zstream->next_out = (Bytef*)out;
-    deflate_zstream->avail_out = (uInt)(size - 1);
+    deflate_zstream->avail_in = static_cast<uInt>(size);
+    deflate_zstream->next_in =
+       reinterpret_cast<Bytef*>(const_cast<char*>(buf));
+    deflate_zstream->next_out = reinterpret_cast<Bytef*>(out);
+    deflate_zstream->avail_out = static_cast<uInt>((size - 1));
     int zerr = deflate(deflate_zstream, Z_FINISH);
     if (zerr != Z_STREAM_END) {
 	// Deflate failed - presumably the data wasn't compressible.
@@ -81,12 +81,13 @@ CompressionStream::decompress_chunk(const char* p, int len, string & buf)
 {
     Bytef blk[8192];
 
-    inflate_zstream->next_in = (Bytef*)const_cast<char*>(p);
-    inflate_zstream->avail_in = (uInt)len;
+    inflate_zstream->next_in =
+       reinterpret_cast<Bytef*>(const_cast<char*>(p));
+    inflate_zstream->avail_in = static_cast<uInt>(len);
 
     while (true) {
 	inflate_zstream->next_out = blk;
-	inflate_zstream->avail_out = (uInt)sizeof(blk);
+	inflate_zstream->avail_out = static_cast<uInt>(sizeof(blk));
 	int err = inflate(inflate_zstream, Z_SYNC_FLUSH);
 	if (err != Z_OK && err != Z_STREAM_END) {
 	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
@@ -118,7 +119,7 @@ CompressionStream::lazy_alloc_deflate_zstream() {
 
     deflate_zstream->zalloc = reinterpret_cast<alloc_func>(0);
     deflate_zstream->zfree = reinterpret_cast<free_func>(0);
-    deflate_zstream->opaque = (voidpf)0;
+    deflate_zstream->opaque = static_cast<voidpf>(0);
 
     // -15 means raw deflate with 32K LZ77 window (largest)
     // memLevel 9 is the highest (8 is default)

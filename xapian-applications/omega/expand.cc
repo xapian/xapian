@@ -56,10 +56,6 @@ double_param(const char ** p, double * ptr_val)
     return true;
 }
 
-#if !XAPIAN_AT_LEAST(1,3,2)
-double expand_param_k = 1.0;
-#endif
-
 void
 set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 {
@@ -69,14 +65,13 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
     const string & scheme = i->second;
     if (scheme.empty()) return;
 
-#if XAPIAN_AT_LEAST(1,3,2)
     if (startswith(scheme, "trad")) {
 	const char *p = scheme.c_str() + 4;
 	if (*p == '\0') {
 	    enq.set_expansion_scheme("trad");
 	    return;
 	}
-	if (C_isspace((unsigned char)*p)) {
+	if (C_isspace(*p)) {
 	    // Initialise k just to silence compiler warning.
 	    double k = 0.0;
 	    if (!double_param(&p, &k))
@@ -94,30 +89,10 @@ set_expansion_scheme(Xapian::Enquire & enq, const map<string, string> & opt)
 	    enq.set_expansion_scheme("bo1");
 	    return;
 	}
-	if (C_isspace((unsigned char)*p)) {
+	if (C_isspace(*p)) {
 	    throw "No parameters are required for BO1";
 	}
     }
-#else
-    if (startswith(scheme, "trad")) {
-	const char *p = scheme.c_str() + 4;
-	if (*p == '\0') {
-	    return;
-	}
-	if (C_isspace((unsigned char)*p)) {
-	    // Initialise k just to silence compiler warning.
-	    double k = 0.0;
-	    if (!double_param(&p, &k))
-		parameter_error("Parameter k is invalid", scheme);
-	    if (*p)
-		parameter_error("Extra data after first parameter", scheme);
-	    expand_param_k = k;
-	    // Avoid "unused parameter" error.
-	    (void)enq;
-	    return;
-	}
-    }
-#endif
 
     throw "Unknown $opt{expansion} setting: " + scheme;
 }

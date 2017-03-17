@@ -89,11 +89,11 @@ const int X2 = 2;
 
    Recall that a leaf item has this form:
 
-           i k     x
-           | |     |
-           I K key X tag
-               ←K→
-           <---SIZE---->
+	   i k     x
+	   | |     |
+	   I K key X tag
+	       ←K→
+	   <---SIZE---->
 	       <---I--->
 
    Except that X is omitted for the first component of a tag (there is a flag
@@ -161,18 +161,18 @@ template <class T> class LeafItem_base {
 protected:
     T p;
     int get_key_len() const { return p[I2]; }
-    int getD(const byte * q, int c) const {
+    static int getD(const byte * q, int c) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
 	return unaligned_read2(q + c);
     }
     int getI() const { return unaligned_read2(p); }
-    int getX(const byte * q, int c) const { return unaligned_read2(q + c); }
+    static int getX(const byte * q, int c) { return unaligned_read2(q + c); }
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
-    LeafItem_base(T p_) : p(p_) { }
+    explicit LeafItem_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
@@ -210,7 +210,7 @@ class LeafItem : public LeafItem_base<const byte *> {
 public:
     /* LeafItem from block address and offset to item pointer */
     LeafItem(const byte * p_, int c) : LeafItem_base<const byte *>(p_, c) { }
-    LeafItem(const byte * p_) : LeafItem_base<const byte *>(p_) { }
+    explicit LeafItem(const byte * p_) : LeafItem_base<const byte *>(p_) { }
 };
 
 class LeafItem_wr : public LeafItem_base<byte *> {
@@ -220,11 +220,11 @@ class LeafItem_wr : public LeafItem_base<byte *> {
 	p[I2] = x;
     }
     void setI(int x) { unaligned_write2(p, x); }
-    void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
+    static void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* LeafItem_wr from block address and offset to item pointer */
     LeafItem_wr(byte * p_, int c) : LeafItem_base<byte *>(p_, c) { }
-    LeafItem_wr(byte * p_) : LeafItem_base<byte *>(p_) { }
+    explicit LeafItem_wr(byte * p_) : LeafItem_base<byte *>(p_) { }
     void set_component_of(int i) {
 	AssertRel(i,>,1);
 	*p &=~ I_FIRST_BIT;
@@ -283,11 +283,11 @@ public:
 
 /* A branch item has this form:
 
-                 k     x
-                 |     |
-             tag K key X
-             ←B→   ←K→  
-             <--SIZE--->
+		 k     x
+		 |     |
+	     tag K key X
+	     ←B→   ←K→
+	     <--SIZE--->
 
 	     B = BYTES_PER_BLOCK_NUMBER
 
@@ -301,17 +301,17 @@ template <class T> class BItem_base {
 protected:
     T p;
     int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
-    int getD(const byte * q, int c) const {
+    static int getD(const byte * q, int c) {
 	AssertRel(c, >=, DIR_START);
 	AssertRel(c, <, 65535);
 	Assert((c & 1) == 1);
 	return unaligned_read2(q + c);
     }
-    int getX(const byte * q, int c) const { return unaligned_read2(q + c); }
+    static int getX(const byte * q, int c) { return unaligned_read2(q + c); }
 public:
     /* BItem from block address and offset to item pointer */
     BItem_base(T p_, int c) : p(p_ + getD(p_, c)) { }
-    BItem_base(T p_) : p(p_) { }
+    explicit BItem_base(T p_) : p(p_) { }
     T get_address() const { return p; }
     /** SIZE in diagram above. */
     int size() const {
@@ -333,7 +333,7 @@ class BItem : public BItem_base<const byte *> {
 public:
     /* BItem from block address and offset to item pointer */
     BItem(const byte * p_, int c) : BItem_base<const byte *>(p_, c) { }
-    BItem(const byte * p_) : BItem_base<const byte *>(p_) { }
+    explicit BItem(const byte * p_) : BItem_base<const byte *>(p_) { }
 };
 
 class BItem_wr : public BItem_base<byte *> {
@@ -342,11 +342,11 @@ class BItem_wr : public BItem_base<byte *> {
 	AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
 	p[BYTES_PER_BLOCK_NUMBER] = x;
     }
-    void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
+    static void setX(byte * q, int c, int x) { unaligned_write2(q + c, x); }
 public:
     /* BItem_wr from block address and offset to item pointer */
     BItem_wr(byte * p_, int c) : BItem_base<byte *>(p_, c) { }
-    BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
+    explicit BItem_wr(byte * p_) : BItem_base<byte *>(p_) { }
     void set_component_of(int i) {
 	setX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1, i);
     }
@@ -410,7 +410,7 @@ class GlassChanges;
  *  A table is a store holding a set of key/tag pairs.
  *
  *  A key is used to access a block of data in a glass table.
- * 
+ *
  *  Keys are of limited length.
  *
  *  Keys may not be empty (each Btree has a special empty key for internal use).
@@ -430,10 +430,10 @@ class GlassTable {
     friend class GlassFreeList;
     private:
 	/// Copying not allowed
-        GlassTable(const GlassTable &);
+	GlassTable(const GlassTable &);
 
 	/// Assignment not allowed
-        GlassTable & operator=(const GlassTable &);
+	GlassTable & operator=(const GlassTable &);
 
 	void basic_open(const RootInfo * root_info,
 			glass_revision_number_t rev);
@@ -479,7 +479,7 @@ class GlassTable {
 	 *
 	 *  @param permanent If true, the Btree will not reopen on demand.
 	 */
-	void close(bool permanent=false);
+	void close(bool permanent = false);
 
 	bool readahead_key(const string &key) const;
 
@@ -552,7 +552,7 @@ class GlassTable {
 	 *
 	 *  If the key is found in the table, then the tag is copied to @a
 	 *  tag.  If the key is not found tag is left unchanged.
-	 * 
+	 *
 	 *  The result is true iff the specified key is found in the Btree.
 	 *
 	 *  @param key  The key to look for in the table.
@@ -739,7 +739,7 @@ class GlassTable {
 	void compact(byte *p);
 	void enter_key_above_leaf(Glass::LeafItem previtem, Glass::LeafItem newitem);
 	void enter_key_above_branch(int j, Glass::BItem newitem);
-	int mid_point(byte *p);
+	int mid_point(byte *p) const;
 	void add_item_to_leaf(byte *p, Glass::LeafItem kt, int c);
 	void add_item_to_branch(byte *p, Glass::BItem kt, int c);
 	void add_leaf_item(Glass::LeafItem kt);

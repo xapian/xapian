@@ -69,7 +69,7 @@ ProgClient::ProgClient(const string &progname, const string &args,
 #ifndef __WIN32__
 						   , pid
 #endif
-        ),
+	),
 			 timeout_, get_progcontext(progname, args), writable,
 			 flags)
 {
@@ -182,8 +182,8 @@ ProgClient::run_program(const string &progname, const string &args
     static unsigned int pipecount = 0;
     char pipename[256];
     sprintf(pipename, "\\\\.\\pipe\\xapian-remote-%lx-%lx-%x",
-	    (unsigned long)GetCurrentProcessId(),
-	    (unsigned long)GetCurrentThreadId(), pipecount++);
+	    static_cast<unsigned long>(GetCurrentProcessId()),
+	    static_cast<unsigned long>(GetCurrentThreadId()), pipecount++);
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
 				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
@@ -194,7 +194,7 @@ ProgClient::run_program(const string &progname, const string &args
     if (hPipe == INVALID_HANDLE_VALUE) {
 	throw Xapian::NetworkError("CreateNamedPipe failed",
 				   get_progcontext(progname, args),
-				   -(int)GetLastError());
+				   -int(GetLastError()));
     }
 
     HANDLE hClient = CreateFile(pipename,
@@ -204,13 +204,13 @@ ProgClient::run_program(const string &progname, const string &args
     if (hClient == INVALID_HANDLE_VALUE) {
 	throw Xapian::NetworkError("CreateFile failed",
 				   get_progcontext(progname, args),
-				   -(int)GetLastError());
+				   -int(GetLastError()));
     }
 
     if (!ConnectNamedPipe(hPipe, NULL) && GetLastError() != ERROR_PIPE_CONNECTED) {
 	throw Xapian::NetworkError("ConnectNamedPipe failed",
 				   get_progcontext(progname, args),
-				   -(int)GetLastError());
+				   -int(GetLastError()));
     }
 
     // Set the appropriate handles to be inherited by the child process.
@@ -236,12 +236,12 @@ ProgClient::run_program(const string &progname, const string &args
     if (!ok) {
 	throw Xapian::NetworkError("CreateProcess failed",
 				   get_progcontext(progname, args),
-				   -(int)GetLastError());
+				   -int(GetLastError()));
     }
 
     CloseHandle(hClient);
     CloseHandle(procinfo.hThread);
-    RETURN(_open_osfhandle((intptr_t)hPipe, O_RDWR|O_BINARY));
+    RETURN(_open_osfhandle(intptr_t(hPipe), O_RDWR|O_BINARY));
 #endif
 }
 

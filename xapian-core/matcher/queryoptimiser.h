@@ -1,7 +1,7 @@
 /** @file queryoptimiser.h
  * @brief Details passed around while building PostList tree from Query tree
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -55,6 +55,10 @@ class QueryOptimiser {
   public:
     bool need_positions;
 
+    bool in_synonym;
+
+    bool full_db_has_positions;
+
     const Xapian::Database::Internal & db;
 
     Xapian::doccount db_size;
@@ -66,7 +70,9 @@ class QueryOptimiser {
 		   MultiMatch * matcher_)
 	: localsubmatch(localsubmatch_), total_subqs(0),
 	  hint(0), hint_owned(false),
-	  need_positions(false), db(db_), db_size(db.get_doccount()),
+	  need_positions(false), in_synonym(false),
+	  full_db_has_positions(matcher_->full_db_has_positions()),
+	  db(db_), db_size(db.get_doccount()),
 	  matcher(matcher_) { }
 
     ~QueryOptimiser() {
@@ -83,13 +89,14 @@ class QueryOptimiser {
 				  Xapian::termcount wqf,
 				  double factor) {
 	return localsubmatch.open_post_list(term, wqf, factor, need_positions,
-					    this, false);
+					    in_synonym, this, false);
     }
 
     LeafPostList * open_lazy_post_list(const std::string& term,
 				       Xapian::termcount wqf,
 				       double factor) {
-	return localsubmatch.open_post_list(term, wqf, factor, false, this, true);
+	return localsubmatch.open_post_list(term, wqf, factor, false,
+					    in_synonym, this, true);
     }
 
     PostList * make_synonym_postlist(PostList * pl, double factor) {

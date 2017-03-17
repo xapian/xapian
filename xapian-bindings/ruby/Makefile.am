@@ -4,16 +4,18 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = smoketest.rb
-LOG_COMPILER = $(RUBY)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUBY)
 AM_LOG_FLAGS = -I.libs -I'$(srcdir)'
 
 installcheck-local:
 	$(MAKE) check AM_LOG_FLAGS=
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
+SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h
 
 EXTRA_DIST = ruby.i extra.i docs/index.rst $(TESTS) \
-	xapian_wrap.cc xapian_wrap.h
+	$(SWIG_GENERATED)
+
+BUILT_SOURCES = $(SWIG_GENERATED)
 
 rubylibdir = $(RUBY_LIB)
 dist_rubylib_DATA = xapian.rb
@@ -69,7 +71,7 @@ install-data-local:
 	## $(abs_builddir) because we need to cd there having already
 	## changed directory.
 	@paths=docs ; \
-	  test '$(abs_srcdir)' == '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
 	  for docs in $$paths ; do \
 	    cd "$$docs" && for dir in `find rdocs -type d -print` ; do \
 	      echo " $(mkinstalldirs) '$(DESTDIR)$(docdatadir)/$$dir'"; \
@@ -85,7 +87,7 @@ uninstall-local:
 	## and we need to remove the file ourselves.
 	rm -f $(DESTDIR)$(rubylibarchdir)/_xapian.$(RUBY_DLEXT)
 	@paths=docs ; \
-	  test '$(abs_srcdir)' == '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
+	  test '$(abs_srcdir)' = '$(abs_builddir)' || paths='$(srcdir)/docs $(abs_builddir)/docs' ; \
 	  for docs in $$paths ; do \
 	    cd "$$docs" && for f in `find rdocs -type f -print` ; do \
 	      echo " rm -f '$(DESTDIR)$(docdatadir)/$$f'"; \
@@ -103,7 +105,7 @@ BUILT_SOURCES += docs/rdocs/index.html
 docs/rdocs/index.html: docs/xapian.rb
 	rm -rf docs/rdocs
 	$(MKDIR_P) docs
-	cd docs && $(RDOC) --op rdocs `test -f xapian.rb||echo '$(abs_srcdir)/'`xapian.rb
+	cd docs && $(RDOC) --op rdocs `test -f xapian.rb||echo '$(abs_srcdir)/docs/'`xapian.rb
 
 if DOCUMENTATION_RULES
 docs/xapian.rb: generate-rdoc-stubs xapian.rb ../doxygen-xml/index.xml
@@ -114,6 +116,6 @@ BUILT_SOURCES += docs/index.html
 .rst.html:
 	-case "$@" in */*) d=`echo "$@"|sed 's,/[^/]*$$,,'`; $(MKDIR_P) "$$d" ;; esac
 	$(RST2HTML) --exit-status=warning $< $@
-endif
 
 CLEANFILES += docs/xapian.rb
+endif

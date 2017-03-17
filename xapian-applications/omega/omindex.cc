@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2017 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -259,6 +259,7 @@ main(int argc, char **argv)
     bool spelling = false;
     bool skip_duplicates = false;
     bool ignore_exclusions = false;
+    bool description_as_sample = false;
     string baseurl;
     size_t depth_limit = 0;
     size_t title_size = TITLE_SIZE;
@@ -267,7 +268,7 @@ main(int argc, char **argv)
     string site_term, host_term;
     Xapian::Stem stemmer("english");
 
-    enum { OPT_OPENDIR_SLEEP = 256 };
+    enum { OPT_OPENDIR_SLEEP = 256, OPT_SAMPLE };
     static const struct option longopts[] = {
 	{ "help",	no_argument,		NULL, 'h' },
 	{ "version",	no_argument,		NULL, 'V' },
@@ -287,6 +288,7 @@ main(int argc, char **argv)
 	{ "verbose",	no_argument,		NULL, 'v' },
 	{ "empty-docs",	required_argument,	NULL, 'e' },
 	{ "max-size",	required_argument,	NULL, 'm' },
+	{ "sample",	required_argument,	NULL, OPT_SAMPLE },
 	{ "sample-size",required_argument,	NULL, 'E' },
 	{ "title-size",	required_argument,	NULL, 'T' },
 	{ "retry-failed",	no_argument,	NULL, 'R' },
@@ -348,6 +350,9 @@ main(int argc, char **argv)
 "  -m, --max-size            maximum size of file to index (in bytes or with a\n"
 "                            suffix of 'K'/'k', 'M'/'m', 'G'/'g')\n"
 "                            (default: unlimited)\n"
+"      --sample=SOURCE       what to use for the stored sample of text for\n"
+"                            HTML documents - SOURCE can be 'body' or\n"
+"                            'description' (default: 'body')\n"
 "  -E, --sample-size=SIZE    maximum size for the document text sample\n"
 "                            (supports the same formats as --max-size).\n"
 "                            (default: " STRINGIZE(SAMPLE_SIZE) ")\n"
@@ -425,12 +430,14 @@ main(int argc, char **argv)
 	case 'F': {
 	    const char * s = strchr(optarg, ':');
 	    if (s != NULL && s[1]) {
-		const char * c = (const char *)memchr(optarg, ',', s - optarg);
+		const char * c =
+		    static_cast<const char *>(memchr(optarg, ',', s - optarg));
 		string output_type, output_charset;
 		if (c) {
 		    // Filter produces a specified content-type.
 		    ++c;
-		    const char * c2 = (const char *)memchr(c, ',', s - c);
+		    const char * c2 =
+			static_cast<const char *>(memchr(c, ',', s - c));
 		    if (c2) {
 			output_type.assign(c, c2 - c);
 			++c2;
@@ -561,6 +568,17 @@ main(int argc, char **argv)
 		 "'" << optarg << "'" << endl;
 	    return 1;
 	}
+	case OPT_SAMPLE:
+	    if (strcmp(optarg, "description") == 0) {
+		description_as_sample = true;
+	    } else if (strcmp(optarg, "body") == 0) {
+		description_as_sample = false;
+	    } else {
+		cerr << "Invalid --sample value '" << optarg << "'\n"
+			"Valid values are body and description." << endl;
+		return 1;
+	    }
+	    break;
 	case 'C':
 	    use_ctime = true;
 	    break;
@@ -646,7 +664,8 @@ main(int argc, char **argv)
 		   (skip_duplicates ? DUP_SKIP : DUP_CHECK_LAZILY),
 		   sample_size, title_size, max_ext_len,
 		   overwrite, retry_failed, delete_removed_documents, verbose,
-		   use_ctime, spelling, ignore_exclusions);
+		   use_ctime, spelling, ignore_exclusions,
+		   description_as_sample);
 	index_directory(root, baseurl, depth_limit, mime_map);
 	index_handle_deletion();
 	index_commit();

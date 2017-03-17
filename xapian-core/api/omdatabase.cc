@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -25,6 +25,7 @@
 
 #include "autoptr.h"
 
+#include <xapian/constants.h>
 #include <xapian/error.h>
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
@@ -41,7 +42,9 @@
 #include "backends/database.h"
 #include "editdistance.h"
 #include "expand/ortermlist.h"
+#include "internaltypes.h"
 #include "noreturn.h"
+#include "pack.h"
 
 #include <algorithm>
 #include <cstdlib> // For abs().
@@ -286,19 +289,18 @@ Database::get_avlength() const
 {
     LOGCALL(API, Xapian::doclength, "Database::get_avlength", NO_ARGS);
     Xapian::doccount docs = 0;
-    Xapian::doclength totlen = 0;
+    totlen_t totlen = 0;
 
     vector<intrusive_ptr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	Xapian::doccount db_doccount = (*i)->get_doccount();
-	docs += db_doccount;
-	totlen += (*i)->get_avlength() * db_doccount;
+	docs += (*i)->get_doccount();
+	totlen += (*i)->get_total_length();
     }
     LOGLINE(UNKNOWN, "get_avlength() = " << totlen << " / " << docs <<
 	    " (from " << internal.size() << " dbs)");
 
     if (docs == 0) RETURN(0.0);
-    RETURN(totlen / docs);
+    RETURN(totlen / double(docs));
 }
 
 Xapian::doccount
@@ -432,7 +434,7 @@ Database::valuestream_begin(Xapian::valueno slot) const
 {
     LOGCALL(API, ValueIterator, "Database::valuestream_begin", slot);
     if (internal.size() == 0)
-       	RETURN(ValueIterator());
+	RETURN(ValueIterator());
     if (internal.size() != 1)
 	RETURN(ValueIterator(new MultiValueList(internal, slot)));
     RETURN(ValueIterator(internal[0]->open_value_list(slot)));
@@ -482,6 +484,23 @@ Database::get_document(Xapian::docid did) const
 
     // Open non-lazily so we throw DocNotFoundError if the doc doesn't exist.
     RETURN(Document(internal[n]->open_document(m, false)));
+}
+
+Document
+Database::get_document(Xapian::docid did, unsigned flags) const
+{
+    LOGCALL(API, Document, "Database::get_document", did|flags);
+    if (did == 0)
+	docid_zero_invalid();
+
+    unsigned int multiplier = internal.size();
+    if (rare(multiplier == 0))
+	no_subdatabases();
+    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+    bool assume_valid = flags & Xapian::DOC_ASSUME_VALID;
+    RETURN(Document(internal[n]->open_document(m, assume_valid)));
 }
 
 bool
@@ -748,6 +767,36 @@ Database::get_uuid() const
 	uuid += sub_uuid;
     }
     RETURN(uuid);
+}
+
+bool
+Database::locked() const
+{
+    LOGCALL(API, bool, "Database::locked", NO_ARGS);
+    for (const auto & subdb : internal) {
+	// If any of the sub-databases is locked, return true.
+	if (subdb->locked())
+	    RETURN(true);
+    }
+    RETURN(false);
+}
+
+Xapian::rev
+Database::get_revision() const
+{
+    LOGCALL(API, Xapian::rev, "Database::get_revision", NO_ARGS);
+    size_t n_dbs = internal.size();
+    if (rare(n_dbs != 1))
+	throw Xapian::InvalidOperationError("Database::get_revision() requires "
+					    "exactly one subdatabase");
+    const string& s = internal[0]->get_revision_info();
+    const char* p = s.data();
+    const char* end = p + s.size();
+    Xapian::rev revision;
+    if (!unpack_uint(&p, end, &revision))
+	throw Xapian::UnimplementedError("Database::get_revision() only "
+					 "supported for glass");
+    return revision;
 }
 
 ///////////////////////////////////////////////////////////////////////////

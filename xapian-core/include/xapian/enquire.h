@@ -167,13 +167,32 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 *  @param database Specification of the database or databases to
 	 *	   use.
+	 *
+	 *  @exception Xapian::InvalidArgumentError will be thrown if an
+	 *  empty Database object is supplied.
+	 */
+	explicit Enquire(const Database &database);
+
+	/** Create a Xapian::Enquire object.
+	 *
+	 *  This specification cannot be changed once the Xapian::Enquire is
+	 *  opened: you must create a new Xapian::Enquire object to access a
+	 *  different database, or set of databases.
+	 *
+	 *  The database supplied must have been initialised (ie, must not be
+	 *  the result of calling the Database::Database() constructor).  If
+	 *  you need to handle a situation where you have no databases
+	 *  gracefully, a database created with DB_BACKEND_INMEMORY can be
+	 *  passed here to provide a completely empty database.
+	 *
+	 *  @param database Specification of the database or databases to
+	 *	   use.
 	 *  @param errorhandler_  This parameter is deprecated (since Xapian
 	 *	   1.3.1), and as of 1.3.5 it's ignored completely.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if an
 	 *  empty Database object is supplied.
 	 */
-	explicit Enquire(const Database &database);
 	XAPIAN_DEPRECATED_EX(Enquire(const Database &database, ErrorHandler * errorhandler_));
 
 	/** Close the Xapian::Enquire object.
@@ -280,9 +299,17 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	void set_collapse_key(Xapian::valueno collapse_key,
 			      Xapian::doccount collapse_max = 1);
 
+	/** Ordering of docids.
+	 *
+	 *  Parameter to Enquire::set_docid_order().
+	 */
 	typedef enum {
+	    /** docids sort in ascending order (default) */
 	    ASCENDING = 1,
+	    /** docids sort in descending order. */
 	    DESCENDING = 0,
+	    /** docids sort in whatever order is most efficient for the
+	     *  backend. */
 	    DONT_CARE = 2
 	} docid_order;
 
@@ -336,7 +363,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/** Set the sorting to be by relevance only.
 	 *
 	 *  This is the default.
-         */
+	 */
 	void set_sort_by_relevance();
 
 	/** Set the sorting to be by value only.
@@ -351,7 +378,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 * @param sort_key  value number to sort on.
 	 *
 	 * @param reverse   If true, reverses the sort order.
-         */
+	 */
 	void set_sort_by_value(Xapian::valueno sort_key, bool reverse);
 
 	/** Set the sorting to be by key generated from values only.
@@ -359,7 +386,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 * @param sorter    The functor to use for generating keys.
 	 *
 	 * @param reverse   If true, reverses the sort order.
-         */
+	 */
 	void set_sort_by_key(Xapian::KeyMaker * sorter, bool reverse);
 
 	/** Set the sorting to be by value, then by relevance for documents
@@ -495,21 +522,67 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     query.
 	 *
 	 *  @exception Xapian::InvalidArgumentError  See class documentation.
-	 *
-	 *  @{
 	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
 		      const MatchDecider * mdecider = 0) const;
+
+	/** Get (a portion of) the match set for the current query.
+	 *
+	 *  @param first     the first item in the result set to return.
+	 *		     A value of zero corresponds to the first item
+	 *		     returned being that with the highest score.
+	 *		     A value of 10 corresponds to the first 10 items
+	 *		     being ignored, and the returned items starting
+	 *		     at the eleventh.
+	 *  @param maxitems  the maximum number of items to return.  If you
+	 *		     want all matches, then you can pass the result
+	 *		     of calling get_doccount() on the Database object
+	 *		     (though if you are doing this so you can filter
+	 *		     results, you are likely to get much better
+	 *		     performance by using Xapian's match-time filtering
+	 *		     features instead).  You can pass 0 for maxitems
+	 *		     which will give you an empty MSet with valid
+	 *		     statistics (such as get_matches_estimated())
+	 *		     calculated without looking at any postings, which
+	 *		     is very quick, but means the estimates may be
+	 *		     more approximate and the bounds may be much
+	 *		     looser.
+	 *  @param omrset    the relevance set to use when performing the query.
+	 *  @param mdecider  a decision functor to use to decide whether a
+	 *		     given document should be put in the MSet.
+	 *
+	 *  @return	     A Xapian::MSet object containing the results of the
+	 *		     query.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  See class documentation.
+	 */
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
 	    return get_mset(first, maxitems, 0, omrset, mdecider);
 	}
-	/** @} */
 
+	/** Terms in the query may be returned by get_eset().
+	 *
+	 *  The original intended use for Enquire::get_eset() is for query
+	 *  expansion - suggesting terms to add to the query, generally with
+	 *  the aim of improving recall (i.e. finding more of the relevant
+	 *  documents), so by default terms already in the query won't be
+	 *  returned in the ESet.  For some uses you might want to consider
+	 *  all terms, and this flag allows you to specify that.
+	 */
 	static const int INCLUDE_QUERY_TERMS = 1;
+
+	/** Calculate exact term frequencies in get_eset().
+	 *
+	 *  By default, when working over multiple databases,
+	 *  Enquire::get_eset() uses an approximation to the termfreq to
+	 *  improve efficiency.  This should still return good results, but
+	 *  if you want to calculate the exact combined termfreq then you
+	 *  can use this flag.
+	 */
 	static const int USE_EXACT_TERMFREQ = 2;
 
 	/** Get the expand set for the given rset.

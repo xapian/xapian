@@ -61,11 +61,25 @@ class XAPIAN_VISIBILITY_DEFAULT KeyMaker
     /** Virtual destructor, because we have virtual methods. */
     virtual ~KeyMaker();
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated KeyMaker
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     KeyMaker * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated KeyMaker
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const KeyMaker * release() const {
 	opt_intrusive_base::release();
 	return this;
@@ -102,6 +116,11 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
   public:
     MultiValueKeyMaker() { }
 
+    /** Construct a MultiValueKeyMaker from a pair of iterators.
+     *
+     *  The iterators must be a begin/end pair returning Xapian::valueno (or
+     *  a compatible type) when dereferenced.
+     */
     template <class Iterator>
     MultiValueKeyMaker(Iterator begin, Iterator end) {
 	while (begin != end) add_value(*begin++);

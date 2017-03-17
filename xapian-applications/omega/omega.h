@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007,2008,2015 Olly Betts
+ * Copyright 2002,2003,2006,2007,2008,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,7 @@ extern Xapian::docid min_hits;
 
 extern int threshold;
 
+extern Xapian::MultiValueKeyMaker* sort_keymaker;
 extern Xapian::valueno sort_key;
 extern bool reverse_sort;
 extern bool sort_after;
@@ -63,6 +64,7 @@ extern bool collapse;
 extern map<string, string> option;
 
 extern string date_start, date_end, date_span;
+extern Xapian::valueno date_value_slot;
 
 extern const string default_dbname;
 

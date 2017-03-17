@@ -49,7 +49,7 @@ enum value_slot {
 
 inline uint32_t binary_string_to_int(const std::string &s)
 {
-    if (s.size() != 4) return (uint32_t)-1;
+    if (s.size() != 4) return static_cast<uint32_t>(-1);
     uint32_t v;
     std::memcpy(&v, s.data(), 4);
     return ntohl(v);

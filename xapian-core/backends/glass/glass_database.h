@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -245,10 +245,9 @@ class GlassDatabase : public Xapian::Database::Internal {
 
 	/** Virtual methods of Database::Internal. */
 	//@{
-	Xapian::doccount  get_doccount() const;
+	Xapian::doccount get_doccount() const;
 	Xapian::docid get_lastdocid() const;
 	totlen_t get_total_length() const;
-	Xapian::doclength get_avlength() const;
 	Xapian::termcount get_doclength(Xapian::docid did) const;
 	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	void get_freqs(const string & term,
@@ -306,6 +305,8 @@ class GlassDatabase : public Xapian::Database::Internal {
 	/** Return true if there are uncommitted changes. */
 	virtual bool has_uncommitted_changes() const;
 
+	bool locked() const;
+
 	static void compact(Xapian::Compactor * compactor,
 			    const char * destdir,
 			    int fd,
@@ -343,6 +344,12 @@ class GlassWritableDatabase : public GlassDatabase {
 	/** The document ID for the last document returned by open_document().
 	 */
 	mutable Xapian::docid modify_shortcut_docid;
+
+	/** Check if we should autoflush.
+	 *
+	 *  Called at the end of each document changing operation.
+	 */
+	void check_flush_threshold();
 
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
@@ -400,6 +407,7 @@ class GlassWritableDatabase : public GlassDatabase {
 	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::termcount get_doclength(Xapian::docid did) const;
+	Xapian::termcount get_unique_terms(Xapian::docid did) const;
 	void get_freqs(const string & term,
 		       Xapian::doccount * termfreq_ptr,
 		       Xapian::termcount * collfreq_ptr) const;

@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2009 Frank J Bruzzaniti
  * Copyright 2012 Mihai Bivol
  *
@@ -84,6 +84,7 @@ static bool retry_failed;
 static bool use_ctime;
 static dup_action_type dup_action;
 static bool ignore_exclusions;
+static bool description_as_sample;
 
 static time_t last_altered_max;
 static size_t sample_size;
@@ -162,6 +163,7 @@ index_add_default_filters()
     // 0x95 in a context which suggests it might be intended to be a bullet
     // (as it is in CP1250).
     index_command("image/vnd.djvu", Filter("djvutxt", false));
+    index_command("text/markdown", Filter("markdown", "text/html", false));
     // The --text option unhelpfully converts all non-ASCII characters to "?"
     // so we use --html instead, which produces HTML entities.  The --nopict
     // option suppresses exporting picture files as pictNNNN.wmf in the current
@@ -200,6 +202,8 @@ index_add_default_filters()
     index_command("message/rfc822",
 		  Filter(get_pkglibbindir() + "/rfc822tohtml", "text/html",
 			 false));
+    index_command("text/vcard",
+		  Filter(get_pkglibbindir() + "/vcard2text", false));
 }
 
 void
@@ -210,7 +214,7 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
 	   size_t sample_size_, size_t title_size_, size_t max_ext_len_,
 	   bool overwrite, bool retry_failed_,
 	   bool delete_removed_documents, bool verbose_, bool use_ctime_,
-	   bool spelling, bool ignore_exclusions_)
+	   bool spelling, bool ignore_exclusions_, bool description_as_sample_)
 {
     root = root_;
     site_term = site_term_;
@@ -223,6 +227,7 @@ index_init(const string & dbpath, const Xapian::Stem & stemmer,
     verbose = verbose_;
     use_ctime = use_ctime_;
     ignore_exclusions = ignore_exclusions_;
+    description_as_sample = description_as_sample_;
 
     if (!overwrite) {
 	db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
@@ -623,11 +628,13 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 		if (cmd_it->second.output_type == "text/html") {
 		    MyHtmlParser p;
 		    p.ignore_metarobots();
+		    p.description_as_sample = description_as_sample;
 		    try {
 			p.parse_html(dump, charset, false);
 		    } catch (const string & newcharset) {
 			p.reset();
 			p.ignore_metarobots();
+			p.description_as_sample = description_as_sample;
 			p.parse_html(dump, newcharset, true);
 		    } catch (ReadError) {
 			skip_cmd_failed(urlterm, context, cmd,
@@ -649,10 +656,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 				d.get_size(), d.get_mtime());
 		return;
 	    }
-	} else if (mimetype == "text/html") {
+	} else if (mimetype == "text/html" || mimetype == "text/x-php") {
 	    const string & text = d.file_to_string();
 	    MyHtmlParser p;
 	    if (ignore_exclusions) p.ignore_metarobots();
+	    p.description_as_sample = description_as_sample;
 	    try {
 		// Default HTML character set is latin 1, though not specifying
 		// one is deprecated these days.
@@ -660,6 +668,7 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    } catch (const string & newcharset) {
 		p.reset();
 		if (ignore_exclusions) p.ignore_metarobots();
+		p.description_as_sample = description_as_sample;
 		p.parse_html(text, newcharset, true);
 	    }
 	    if (!p.indexing_allowed) {
@@ -917,7 +926,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    keywords = svgparser.keywords;
 	    // FIXME: topic = svgparser.topic;
 	    author = svgparser.author;
-	} else if (mimetype == "application/x-debian-package") {
+	} else if (mimetype == "application/vnd.debian.binary-package" ||
+		   mimetype == "application/x-debian-package") {
 	    string cmd("dpkg-deb -f");
 	    append_filename_argument(cmd, file);
 	    cmd += " Description";
@@ -928,7 +938,8 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    if (idx != string::npos) {
 		dump.assign(desc, idx + 1, string::npos);
 	    }
-	} else if (mimetype == "application/x-redhat-package-manager") {
+	} else if (mimetype == "application/x-redhat-package-manager" ||
+		   mimetype == "application/x-rpm") {
 	    string cmd("rpm -q --qf '%{SUMMARY}\\n%{DESCRIPTION}' -p");
 	    append_filename_argument(cmd, file);
 	    const string & desc = stdout_to_string(cmd, false);
@@ -1020,11 +1031,11 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	record += "\ntype=";
 	record += mimetype;
 	time_t mtime = d.get_mtime();
-	if (mtime != (time_t)-1) {
+	if (mtime != static_cast<time_t>(-1)) {
 	    record += "\nmodtime=";
 	    record += str(mtime);
 	}
-	if (created != (time_t)-1) {
+	if (created != static_cast<time_t>(-1)) {
 	    record += "\ncreated=";
 	    record += str(created);
 	}
@@ -1058,6 +1069,18 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 	    if (dot != string::npos && leaf.size() - dot - 1 <= max_ext_len)
 		leaf.resize(dot);
 	    indexer.index_text(leaf, 1, "F");
+
+	    // Also index with underscores and ampersands replaced by spaces.
+	    bool modified = false;
+	    string::size_type rep = 0;
+	    while ((rep = leaf.find_first_of("_&", rep)) != string::npos) {
+		leaf[rep++] = ' ';
+		modified = true;
+	    }
+	    if (modified) {
+		indexer.increase_termpos(100);
+		indexer.index_text(leaf, 1, "F");
+	    }
 	}
 
 	if (!author.empty()) {
@@ -1087,12 +1110,12 @@ index_mimetype(const string & file, const string & urlterm, const string & url,
 
 	// Add mtime as a value to allow "sort by date".
 	newdocument.add_value(VALUE_LASTMOD,
-			      int_to_binary_string((uint32_t)mtime));
+			      int_to_binary_string(uint32_t(mtime)));
 	if (use_ctime) {
 	    // Add ctime as a value to track modifications.
 	    time_t ctime = d.get_ctime();
 	    newdocument.add_value(VALUE_CTIME,
-				  int_to_binary_string((uint32_t)ctime));
+				  int_to_binary_string(uint32_t(ctime)));
 	}
 
 	// Add MD5 as a value to allow duplicate documents to be collapsed

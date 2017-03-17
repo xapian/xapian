@@ -159,13 +159,7 @@ const int DB_BACKEND_GLASS	 = 0x100;
 
 /** Use the chert backend.
  *
- *  When opening a WritableDatabase, this means create a chert database if a
- *  new database is created.  If there's an existing database (of any type)
- *  at the specified path, this flag has no effect.
- *
- *  When opening a Database, this flag means to only open it if it's a chert
- *  database.  There's rarely a good reason to do this - it's mostly provided
- *  as equivalent functionality to Xapian::Chert::open() in Xapian 1.2.
+ *  No longer supported as of Xapian 1.5.0.
  */
 const int DB_BACKEND_CHERT	 = 0x200;
 
@@ -266,6 +260,18 @@ const int DBCOMPACT_MULTIPASS = 8;
  *  Only supported by the glass backend currently.
  */
 const int DBCOMPACT_SINGLE_FILE = 16;
+
+/** Assume document id is valid.
+ *
+ *  By default, Database::get_document() checks that the document id passed is
+ *  actually in use and throws DocNotFoundError if not.  This flag can be used
+ *  to disable this check - useful to save a bit of work when you know for sure
+ *  that the document id is valid.
+ *
+ *  Some database backends may check anyway - the remote backend currently
+ *  does.
+ */
+const int DOC_ASSUME_VALID = 1;
 
 }
 

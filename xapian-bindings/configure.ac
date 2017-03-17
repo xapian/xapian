@@ -4,7 +4,7 @@ dnl See xapian-core's HACKING document for details of the reasons for required
 dnl versions.
 AC_PREREQ([2.63])
 
-m4_define([project_version], [1.4.0])
+m4_define([project_version], [1.5.0])
 AC_INIT([xapian-bindings], project_version, [https://xapian.org/bugs])
 
 dnl See xapian-core's HACKING document for details of the reasons for required
@@ -92,6 +92,7 @@ dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
+XO_REQUIRE([1.4.0])
 
 NEED_JNILIB_EXT=no
 NEED_INTREE_DYLD=no
@@ -241,9 +242,14 @@ AC_ARG_WITH(python3,
   [with_python3=])
 
 AC_ARG_WITH(php,
-  AC_HELP_STRING([--with-php], [enable PHP bindings]),
+  AC_HELP_STRING([--with-php], [enable PHP 5 bindings]),
   [],
   [with_php=])
+
+AC_ARG_WITH(php7,
+  AC_HELP_STRING([--with-php7], [enable PHP 7 bindings]),
+  [],
+  [with_php7=])
 
 AC_ARG_WITH(ruby,
   AC_HELP_STRING([--with-ruby], [enable Ruby bindings]),
@@ -275,12 +281,13 @@ AC_ARG_WITH(lua,
   [],
   [with_lua=])
 
-case $with_python$with_python3$with_php$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
+case $with_python$with_python3$with_php$with_php7$with_ruby$with_tcl$with_csharp$with_java$with_perl$with_lua in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
   test -z "$with_python3" && with_python3=no
   test -z "$with_php" && with_php=no
+  test -z "$with_php7" && with_php7=no
   test -z "$with_tcl" && with_tcl=no
   test -z "$with_csharp" && with_csharp=no
   test -z "$with_java" && with_java=no
@@ -342,6 +349,16 @@ if test no != "$with_python" ; then
 	  PYTHON2=
 	fi
       fi
+    fi
+    AC_MSG_CHECKING([for python2 sphinx module])
+    if $PYTHON2 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+      if test yes = "$with_python2" ; then
+	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python2 - try package python-sphinx])
+      fi
+      PYTHON2=
     fi
     if test -n "$PYTHON2" ; then
       dnl Check that Python.h is there, which is a good way to check that
@@ -423,6 +440,16 @@ if test no != "$with_python3" ; then
 	fi
       fi
     fi
+    AC_MSG_CHECKING([for python3 sphinx module])
+    if $PYTHON3 -c 'import sphinx;print(repr(sphinx.main))' >&5 2>&5 ; then
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+      if test yes = "$with_python3" ; then
+	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python3 - try package python3-sphinx])
+      fi
+      PYTHON3=
+    fi
     if test -n "$PYTHON3" ; then
       dnl Check that Python.h is there, which is a good way to check that
       dnl the appropriate python3-dev package has been installed.
@@ -488,36 +515,24 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PYTHON" && AC_MSG_ERROR([python is required in maintainer mode])
 fi
 
-dnl If we're building either python version we need sphinx-build.
-case $BINDINGS in
-*python*)
-  AC_PATH_PROG(SPHINX_BUILD, sphinx-build, [])
-  if test -z "$SPHINX_BUILD" ; then
-    AC_MSG_ERROR([sphinx-build is required to build python documentation (try packages python-sphinx and/or python3-sphinx)])
-  fi
-  ;;
-esac
-
 if test no != "$with_php" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PHP_CONFIG, ["${PHP_CONFIG-php-config}"], [])
-  AC_ARG_VAR(PHP_CONFIG, [php-config utility])
-  AC_ARG_VAR(PHP, [php interpreter (optional - only needed to run PHP testsuite with)])
+  if test -n "$PHP_CONFIG" ; then
+    AC_PATH_PROGS(PHP_CONFIG, ["$PHP_CONFIG"], [])
+  fi
+  if test -z "$PHP_CONFIG" ; then
+    AC_PATH_PROGS(PHP_CONFIG, [php-config5 php-config], [])
+  fi
+  AC_ARG_VAR(PHP_CONFIG, [php-config utility for PHP5])
+  AC_ARG_VAR(PHP, [PHP5 interpreter (optional - only needed to run PHP5 testsuite with)])
   if test -n "$PHP_CONFIG" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
-    7.*)
-      AC_MSG_RESULT([$version (not supported, SWIG doesn't support PHP7 yet)])
+    [[01234].*|5.[01234].*|[6789].*])
+      AC_MSG_RESULT([$version (not supported, PHP5 bindings need PHP 5.x where x >= 5)])
       if test yes = "$with_php" ; then
-	AC_MSG_ERROR([SWIG doesn't yet support PHP7 ($PHP_CONFIG reports version $version)])
-      fi
-      with_php=no
-      ;;
-    [[01234].*|5.[01234].*])
-      AC_MSG_RESULT([$version (not supported, need PHP >= 5.5)])
-      if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP >= 5.5 is supported ($PHP_CONFIG reports version $version)])
+	AC_MSG_ERROR([$PHP_CONFIG reports version $version - PHP5 bindings need PHP 5.x where x >= 5])
       fi
       with_php=no
       ;;
@@ -529,12 +544,12 @@ if test no != "$with_php" ; then
     AC_SUBST(PHP_MAJOR_VERSION)
 
     if test no != "$with_php" ; then
-      AC_MSG_CHECKING([for PHP extension directory])
+      AC_MSG_CHECKING([for PHP5 extension directory])
       if test -z "$PHP_EXTENSION_DIR" ; then
 	PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       fi
       AC_MSG_RESULT([$PHP_EXTENSION_DIR])
-      AC_ARG_VAR(PHP_EXTENSION_DIR, [Directory to install PHP extensions in])
+      AC_ARG_VAR(PHP_EXTENSION_DIR, [Directory to install PHP5 extensions in])
     fi
 
     if test no != "$with_php" ; then
@@ -553,7 +568,7 @@ if test no != "$with_php" ; then
 
     if test no != "$with_php" ; then
       if test x"$PHP" = x ; then
-	AC_MSG_CHECKING([for PHP interpreter])
+	AC_MSG_CHECKING([for PHP5 interpreter])
 	dnl PHP5's php-config supports --php-binary, so just use that.
 	PHP=`$PHP_CONFIG --php-binary 2>/dev/null`
 	if test x"$PHP" != x ; then
@@ -582,11 +597,11 @@ if test no != "$with_php" ; then
 	AC_PATH_PROGS(PHP, ["$PHP"], [])
       fi
       if test x"$PHP" = x ; then
-	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
+	AC_MSG_WARN([No PHP5 interpreter found - PHP5 bindings tests will be skipped])
 	dnl The skiptest script just returns exit code 77.
 	PHP='$(top_srcdir)/skiptest'
       else
-	AC_MSG_CHECKING([for PHP path separator])
+	AC_MSG_CHECKING([for PHP5 path separator])
 	PHP_PATH_SEPARATOR=`$PHP -r 'echo PATH_SEPARATOR;'`
 	AC_SUBST([PHP_PATH_SEPARATOR])
 	AC_MSG_RESULT([$PHP_PATH_SEPARATOR])
@@ -605,6 +620,99 @@ if test no != "$with_php" ; then
       esac
       AC_SUBST(PHP_LIBS)
       BINDINGS="$BINDINGS php"
+    fi
+  fi
+fi
+
+if test no != "$with_php7" ; then
+  dnl See comment for AC_PATH_PROGS(SWIG, ...).
+  if test -n "$PHP_CONFIG7" ; then
+    AC_PATH_PROGS(PHP_CONFIG7, ["$PHP_CONFIG7"], [])
+  fi
+  if test -z "$PHP_CONFIG7" ; then
+    AC_PATH_PROGS(PHP_CONFIG7, [php-config7.1 php-config7.0 php-config], [])
+  fi
+  AC_ARG_VAR(PHP_CONFIG7, [php-config utility for PHP7])
+  AC_ARG_VAR(PHP7, [PHP7 interpreter (optional - only needed to run PHP7 testsuite with)])
+  if test -n "$PHP_CONFIG7" ; then
+    AC_MSG_CHECKING([$PHP_CONFIG7 version])
+    version=`$PHP_CONFIG7 --version 2>/dev/null`
+    case $version in
+    [[0123456].*])
+      AC_MSG_RESULT([$version (not supported, PHP7 bindings need PHP >= 7.0)])
+      if test yes = "$with_php7" ; then
+	AC_MSG_ERROR([$PHP_CONFIG7 reports version $version - PHP7 bindings need >= 7.0])
+      fi
+      with_php7=no
+      ;;
+    *)
+      AC_MSG_RESULT([$version])
+      PHP7_MAJOR_VERSION=`echo "$version"|cut -d. -f1`
+      ;;
+    esac
+    AC_SUBST(PHP7_MAJOR_VERSION)
+
+    if test no != "$with_php7" ; then
+      AC_MSG_CHECKING([for PHP7 extension directory])
+      if test -z "$PHP7_EXTENSION_DIR" ; then
+	PHP7_EXTENSION_DIR=`$PHP_CONFIG7 --extension-dir`
+      fi
+      AC_MSG_RESULT([$PHP7_EXTENSION_DIR])
+      AC_ARG_VAR(PHP7_EXTENSION_DIR, [Directory to install PHP7 extensions in])
+    fi
+
+    if test no != "$with_php7" ; then
+      PHP7_INC=`$PHP_CONFIG7 --includes`
+      AC_SUBST(PHP7_INC)
+    fi
+
+    if test no != "$with_php7" ; then
+      if test x"$PHP7" = x ; then
+	AC_MSG_CHECKING([for PHP7 interpreter])
+	dnl PHP7's php-config supports --php-binary, so just use that.
+	PHP7=`$PHP_CONFIG7 --php-binary 2>/dev/null`
+	if test x"$PHP7" != x ; then
+	  if $PHP7 -r 'exit(0);' 2> /dev/null ; then
+	    if $PHP7 -r 'exit(PHP_MAJOR_VERSION==7?0:1);' 2> /dev/null ; then
+	      AC_MSG_RESULT([$PHP7])
+	    else
+	      AC_MSG_RESULT([no ($PHP7 isn't PHP7)])
+	      PHP7=
+	    fi
+	  else
+	    AC_MSG_RESULT([no ($PHP7 does not work)])
+	    PHP7=
+	  fi
+	else
+	  AC_MSG_RESULT([not found])
+	fi
+      else
+	AC_PATH_PROGS(PHP7, ["$PHP7"], [])
+      fi
+      if test x"$PHP7" = x ; then
+	AC_MSG_WARN([No PHP7 interpreter found - PHP7 bindings tests will be skipped])
+	dnl The skiptest script just returns exit code 77.
+	PHP7='$(top_srcdir)/skiptest'
+      else
+	AC_MSG_CHECKING([for PHP7 path separator])
+	PHP7_PATH_SEPARATOR=`$PHP7 -r 'echo PATH_SEPARATOR;'`
+	AC_SUBST([PHP7_PATH_SEPARATOR])
+	AC_MSG_RESULT([$PHP7_PATH_SEPARATOR])
+      fi
+
+      case $host_os in
+      mingw* | pw32*)
+	dnl This is a bit of an informed guess, pending more information from
+	dnl someone who actually has mingw and wants to build the PHP bindings
+	dnl there.  FIXME.
+	PHP7_LIBS="-L`$PHP_CONFIG7 --prefix` -lphp${PHP7_MAJOR_VERSION}ts" ;;
+      cygwin*)
+	PHP7_LIBS="-lphp${PHP7_MAJOR_VERSION}lib" ;;
+      *)
+	PHP7_LIBS= ;;
+      esac
+      AC_SUBST(PHP7_LIBS)
+      BINDINGS="$BINDINGS php7"
     fi
   fi
 fi
@@ -861,7 +969,7 @@ if test no != "$with_java" ; then
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
     dnl
     dnl So checking for jni.h presumably implicitly checks we have "Java 2".
-    dnl Note: jni.h #defines JNI_VERSION_1_[1246] (but not 3 or 5 it seems).
+    dnl Note: jni.h #defines JNI_VERSION_1_[12468] (but not 3, 5 or 7 it seems).
     dnl So we could check for one of these if we want to check for a particular
     dnl JDK version...
     java_ok=no
@@ -895,17 +1003,25 @@ if test no != "$with_java" ; then
 	    break
 	  fi
 
-	  dnl Sun's JDK requires the user to pass an extra -I for a
-	  dnl subdirectory named after the host_os.  Sadly we seem to
-	  dnl need to hardcode a list of the platform names.
+	  dnl For OpenJDK (and maybe others) we have to specify an extra -I
+	  dnl option for an OS-specific subdirectory containing a "jni_md.h"
+	  dnl header which is included by "jni.h".  Sadly we seem to need to
+	  dnl hardcode a mapping for these platform names - the list below
+	  dnl was determined by inspecting the source code of OpenJDK 8.
 	  jni_host_os=
 	  case $host_os in
 	    linux*)
 	      jni_host_os=linux ;;
 	    solaris*)
 	      jni_host_os=solaris ;;
-	    mingw* | pw32*)
+	    mingw* | pw32* | cygwin*)
 	      jni_host_os=win32 ;;
+	    darwin*)
+	      jni_host_os=darwin ;;
+	    *bsd*)
+	      jni_host_os=bsd ;;
+	    aix*)
+	      jni_host_os=aix ;;
 	  esac
 	  if test -n "$jni_host_os" ; then
 	    CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
@@ -936,6 +1052,22 @@ if test no != "$with_java" ; then
 	if test -n "$JAVA_PATHSEP" ; then
 	  AC_MSG_RESULT($JAVA_PATHSEP)
 	  BINDINGS="$BINDINGS java"
+
+	  dnl If -Xcheck:jni is supported then run tests with it.
+	  dnl
+	  dnl ... except that with OpenJDK 8 and 9 -Xcheck:jni seems to report
+	  dnl false positives and so can't usefully be turned on in this
+	  dnl situation.  Recheck this with future versions.
+dnl	  AC_MSG_CHECKING([for $JAVA -Xcheck:jni option])
+dnl	  JAVA_PATHSEP2=`$JAVA conftest 2>&5`
+	  JAVA_CHECK_JNI_OPTION=
+dnl	  if test "$JAVA_PATHSEP" = "$JAVA_PATHSEP2" ; then
+dnl	    JAVA_CHECK_JNI_OPTION=-Xcheck:jni
+dnl	    AC_MSG_RESULT([yes])
+dnl	  else
+dnl	    AC_MSG_RESULT([no])
+dnl	  fi
+	  AC_SUBST([JAVA_CHECK_JNI_OPTION])
 	else
 	  AC_MSG_RESULT([failed to run test program])
 	  java_ok=no
@@ -1297,7 +1429,7 @@ if test yes = "$GXX" ; then
       dnl
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fshow-column -Wall -Wno-unused -Wno-uninitialized"
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -Wno-unused -Wno-uninitialized"
     ])
 
   if test no != "$enable_visibility"; then
@@ -1327,6 +1459,7 @@ AC_CONFIG_FILES([Makefile
  python/Makefile python/docs/conf.py python/version.i
  python3/Makefile python3/docs/conf.py python3/version.i
  php/Makefile
+ php7/Makefile
  java/Makefile
  tcl8/Makefile tcl8/pkgIndex.tcl
  csharp/Makefile csharp/AssemblyInfo.cs

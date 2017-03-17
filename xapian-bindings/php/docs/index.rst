@@ -1,14 +1,15 @@
 PHP bindings for Xapian
 ***********************
 
-The PHP bindings for Xapian are packaged in the ``xapian``
+The PHP5 bindings for Xapian are packaged in the ``xapian``
 extension.  The PHP API provided by this extension largely follows Xapian's C++
 API.  This document lists the differences and additions.
 
 As of Xapian version 1.3.2, these bindings require at least PHP 5.5.
 (Older versions of PHP are now out of security support, but if you really need
-support for them then Xapian 1.2 supports PHP 5.0 and later).  PHP7 is not yet
-supported because SWIG doesn't yet support it.
+support for them then Xapian 1.2 supports PHP 5.0 and later).  PHP 7 is supported
+by a separate set of bindings (this approach was taken due to extensive changes
+to PHP's C extension API between PHP 5 and PHP 7).
 
 PHP strings, arrays, etc., are converted automatically to and from the
 corresponding C++ types in the bindings, so generally you can pass arguments as
@@ -169,7 +170,6 @@ Database Factory Functions
 
 
 - ``Xapian::Auto::open_stub(file)`` is wrapped as ``Xapian::auto_open_stub(file)`` (now deprecated)
-- ``Xapian::Chert::open()`` is wrapped as ``Xapian::chert_open()`` (now deprecated)
 - ``Xapian::InMemory::open()`` is wrapped as ``Xapian::inmemory_open()`` (now deprecated)
 - ``Xapian::Remote::open(...)`` is wrapped as ``Xapian::remote_open(...)`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 - ``Xapian::Remote::open_writable(...)`` is wrapped as ``Xapian::remote_open_writable(...)`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).

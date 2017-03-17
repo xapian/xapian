@@ -25,8 +25,7 @@ enum {
     BACKEND_UNKNOWN = -1,
     BACKEND_REMOTE = 0,
     BACKEND_INMEMORY = 1,
-    BACKEND_CHERT = 2,
-    BACKEND_GLASS = 3,
+    BACKEND_GLASS = 2,
     BACKEND_MAX_
 };
 
@@ -35,7 +34,6 @@ inline const char * backend_name(int code) {
     const char * p =
 	"remote\0\0\0"
 	"inmemory\0"
-	"chert\0\0\0\0"
 	"glass\0\0\0\0"
 	"?";
     return p + code * 9;

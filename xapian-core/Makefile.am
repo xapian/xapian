@@ -65,7 +65,18 @@ coverage-check:
 	rm -rf lcov
 	genhtml --demangle-cpp --branch-coverage $(GENHTML_ARGS) -q -p "`pwd`" -t "Test Coverage for xapian-core `git log -n1 --abbrev-commit --format=%h`" -o lcov xapian-core.lcov
 
-bin_SCRIPTS = xapian-config
+# We want to clean out build tree paths from the copy of xapian-config we
+# install, mostly in the interests of facilitating reproducible builds.
+noinst_SCRIPTS = xapian-config
+
+install-exec-local: xapian-config
+	$(MKDIR_P) "$(DESTDIR)$(bindir)"
+	$(SED) '/##UNINSTONLYBEGIN/,/##UNINSTONLYEND/d' xapian-config > tmp.xc
+	$(INSTALL_SCRIPT) tmp.xc "$(DESTDIR)$(bindir)$$dir/`echo xapian-config|$(SED) -e '$(transform)'`"
+	rm -f tmp.xc
+
+uninstall-local:
+	rm -f "$(DESTDIR)$(bindir)$$dir/xapian-config"
 
 DISTCLEANFILES += xapian-config
 
@@ -82,21 +93,22 @@ include docsource.mk
 
 # Install the m4 file containing the XO_LIB_XAPIAN autoconf macro.
 m4datadir = $(datadir)/aclocal
-dist_m4data_DATA = m4-macros/xapian.m4
+dist_m4data_DATA = m4-macros/xapian-1.5.m4
 
 # Install the pkg-config file containing the correct compiler options.
 pkgconfigdir = $(libdir)/pkgconfig
-nodist_pkgconfig_DATA = pkgconfig/xapian-core.pc
-DISTCLEANFILES += pkgconfig/xapian-core.pc
+nodist_pkgconfig_DATA = pkgconfig/xapian-core-1.5.pc
+DISTCLEANFILES += pkgconfig/xapian-core-1.5.pc
 
-libxapian_la = libxapian.la
-lib_LTLIBRARIES = libxapian.la
-libxapian_la_SOURCES = $(lib_src)
-libxapian_la_LIBADD = $(XAPIAN_LIBS)
-libxapian_la_LDFLAGS = \
-    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
+libxapian_la = libxapian-1.5.la
+lib_LTLIBRARIES = libxapian-1.5.la
+libxapian_1_5_la_SOURCES = $(lib_src)
+libxapian_1_5_la_LIBADD = $(XAPIAN_LIBS)
+libxapian_1_5_la_LDFLAGS = \
+    $(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO) $(lib_ldflags)
 
 lib_src =
+lib_ldflags =
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS = xapian-config.1
@@ -119,6 +131,10 @@ include unicode/Makefile.mk
 include weight/Makefile.mk
 
 xapianinclude_HEADERS += include/xapian/error.h
+
+# If these files change, we need to rerun configure to reprocess them -
+# making them dependencies of config.status achieves that.
+CONFIG_STATUS_DEPENDENCIES = include/xapian/version_h.cc
 
 if MAINTAINER_MODE
 BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h

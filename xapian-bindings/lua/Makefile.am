@@ -7,7 +7,7 @@ TESTS = smoketest.lua
 AM_TESTS_ENVIRONMENT = \
 	LUA_CPATH='.libs/?$(LUA_SO)' ;\
 	export LUA_CPATH ;
-LOG_COMPILER = $(LUA)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(LUA)
 
 installcheck-local:
 	$(MAKE) check AM_TESTS_ENVIRONMENT=
@@ -15,7 +15,7 @@ installcheck-local:
 EXTRA_DIST = lua.i util.i except.i \
 	generate-lua-exceptions \
 	docs/index.rst \
-	$(TESTS) $(BUILT_SOURCES)
+	$(TESTS) $(SWIG_GENERATED)
 
 lualibdir = @LUA_LIB@
 
@@ -38,7 +38,9 @@ xapian_la_LDFLAGS = -avoid-version -module -shrext "$(LUA_SO)" $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS)
 
-BUILT_SOURCES = xapian_wrap.cc
+SWIG_GENERATED = xapian_wrap.cc
+
+BUILT_SOURCES = $(SWIG_GENERATED)
 
 if MAINTAINER_MODE
 BUILT_SOURCES += except.i
@@ -64,7 +66,7 @@ dist_exampledata_DATA = \
 	docs/examples/simplesearch.lua
 
 docdatadir = $(docdir)/lua
-docdata_DATA = docs/index.html
+dist_docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
 BUILT_SOURCES += docs/index.html

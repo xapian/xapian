@@ -7,12 +7,16 @@ html		text/html
 htm		text/html
 shtml		text/html
 # Our HTML parser knows to ignore PHP code.
-php		text/html
+php		text/x-php
 
 # Archived HTML formats:
 maff		application/x-maff
 mht		application/x-mimearchive
 mhtml		application/x-mimearchive
+
+# Markdown:
+markdown	text/markdown
+md		text/markdown
 
 # reStructured text:
 rst		text/x-rst
@@ -152,9 +156,13 @@ djvu		image/vnd.djvu
 # SVG:
 svg		image/svg+xml
 
+# vCard files:
+vcf		text/vcard
+vcard		text/vcard
+
 # Debian packages:
-deb		application/x-debian-package
-udeb		application/x-debian-package
+deb		application/vnd.debian.binary-package
+udeb		application/vnd.debian.binary-package
 
 # RPM packages:
 rpm		application/x-redhat-package-manager

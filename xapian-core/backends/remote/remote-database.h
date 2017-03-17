@@ -209,9 +209,6 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     totlen_t get_total_length() const;
 
-    /// Find out the remote average document length.
-    Xapian::doclength get_avlength() const;
-
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 
@@ -259,6 +256,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
 	if (path) *path = context;
 	return BACKEND_REMOTE;
     }
+
+    bool locked() const;
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

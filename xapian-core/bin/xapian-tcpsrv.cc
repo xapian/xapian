@@ -109,21 +109,21 @@ int main(int argc, char **argv) {
 		cout << PROG_NAME " - " PACKAGE_STRING << endl;
 		exit(0);
 	    case 'I':
-                host.assign(optarg);
-	        break;
+		host.assign(optarg);
+		break;
 	    case 'p':
-                port = atoi(optarg);
+		port = atoi(optarg);
 		if (port <= 0 || port >= 65536) {
 		    cerr << "Error: must specify a valid port number "
 			    "(between 1 and 65535). "
 			    "We actually got " << port << endl;
 		    exit(1);
 		}
-	        break;
+		break;
 	    case 'a':
 		active_timeout = atoi(optarg) * 1e-3;
 		break;
-            case 'i':
+	    case 'i':
 		idle_timeout = atoi(optarg) * 1e-3;
 		break;
 	    case 't':

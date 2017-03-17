@@ -161,7 +161,8 @@ Return a description of this object.
 
 =head1 SEE ALSO
 
-L<Xapian::Query>, L<Xapian::Database>
+L<Xapian::Query>,
+L<Xapian::Database>
 
 =cut
 1;

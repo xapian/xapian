@@ -88,26 +88,26 @@ extern symbol * create_s() {
 
 extern int skip_utf8(const symbol * p, int c, int lb, int l, int n) {
     if (n >= 0) {
-        for (; n > 0; n--) {
-            if (c >= l) return -1;
-            if (p[c++] >= 0xC0) {   /* 1100 0000 */
-                while (c < l) {
-                    /* break unless p[c] is 10------ */
+	for (; n > 0; --n) {
+	    if (c >= l) return -1;
+	    if (p[c++] >= 0xC0) {   /* 1100 0000 */
+		while (c < l) {
+		    /* break unless p[c] is 10------ */
 		    if (p[c] >> 6 != 2) break;
-                    c++;
-                }
-            }
-        }
+		    c++;
+		}
+	    }
+	}
     } else {
-        for (; n < 0; n++) {
-            if (c <= lb) return -1;
-            if (p[--c] >= 0x80) {   /* 1000 0000 */
-                while (c > lb) {
-                    if (p[c] >= 0xC0) break; /* 1100 0000 */
-                    c--;
-                }
-            }
-        }
+	for (; n < 0; ++n) {
+	    if (c <= lb) return -1;
+	    if (p[--c] >= 0x80) {   /* 1000 0000 */
+		while (c > lb) {
+		    if (p[c] >= 0xC0) break; /* 1100 0000 */
+		    c--;
+		}
+	    }
+	}
     }
     return c;
 }
@@ -119,9 +119,9 @@ extern int skip_utf8(const symbol * p, int c, int lb, int l, int n) {
 static symbol * increase_size(symbol * p, int n) {
     int new_size = n + 20;
     void * mem = realloc(reinterpret_cast<char *>(p) - HEAD,
-                         HEAD + (new_size + 1) * sizeof(symbol));
+			 HEAD + (new_size + 1) * sizeof(symbol));
     if (mem == NULL) {
-        throw std::bad_alloc();
+	throw std::bad_alloc();
     }
     symbol * q = reinterpret_cast<symbol*>(HEAD + static_cast<char *>(mem));
     SET_CAPACITY(q, new_size);
@@ -158,11 +158,11 @@ int SnowballStemImplementation::get_utf8(int * slot) {
     if (tmp >= l) return 0;
     b0 = p[tmp++];
     if (b0 < 0xC0 || tmp == l) {   /* 1100 0000 */
-        * slot = b0; return 1;
+	* slot = b0; return 1;
     }
     b1 = p[tmp++];
     if (b0 < 0xE0 || tmp == l) {   /* 1110 0000 */
-        * slot = (b0 & 0x1F) << 6 | (b1 & 0x3F); return 2;
+	* slot = (b0 & 0x1F) << 6 | (b1 & 0x3F); return 2;
     }
     * slot = (b0 & 0xF) << 12 | (b1 & 0x3F) << 6 | (p[tmp] & 0x3F); return 3;
 }
@@ -278,11 +278,11 @@ SnowballStemImplementation::find_among(const symbol * pool,
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j; /* smaller */
         const struct among * w = v + k;
-	for (int x = common; x < w->s_size; x++) {
+	for (int x = common; x < w->s_size; ++x) {
 	    if (c_orig + common == l) { diff = -1; break; }
 	    diff = q[common] - (pool + w->s)[x];
 	    if (diff != 0) break;
-	    common++;
+	    ++common;
 	}
         if (diff < 0) { j = k; common_j = common; }
                  else { i = k; common_i = common; }
@@ -337,11 +337,11 @@ SnowballStemImplementation::find_among_b(const symbol * pool,
         int diff = 0;
         int common = common_i < common_j ? common_i : common_j;
 	const struct among * w = v + k;
-	for (int x = w->s_size - 1 - common; x >= 0; x--) {
+	for (int x = w->s_size - 1 - common; x >= 0; --x) {
 	    if (c_orig - common == lb) { diff = -1; break; }
 	    diff = q[- common] - (pool + w->s)[x];
 	    if (diff != 0) break;
-	    common++;
+	    ++common;
 	}
         if (diff < 0) { j = k; common_j = common; }
                  else { i = k; common_i = common; }
@@ -461,15 +461,15 @@ void SnowballStemImplementation::debug(int number, int line_count) {
     int i;
     int limit = SIZE(p);
     /*if (number >= 0) printf("%3d (line %4d): '", number, line_count);*/
-    if (number >= 0) printf("%3d (line %4d): [%d]'", number, line_count,limit);
-    for (i = 0; i <= limit; i++) {
+    if (number >= 0) printf("%3d (line %4d): [%d]'", number, line_count, limit);
+    for (i = 0; i <= limit; ++i) {
         if (lb == i) printf("{");
         if (bra == i) printf("[");
         if (c == i) printf("|");
         if (ket == i) printf("]");
         if (l == i) printf("}");
-        if (i < limit)
-        {   int ch = p[i];
+        if (i < limit) {
+            int ch = p[i];
             if (ch == 0) ch = '#';
             printf("%c", ch);
         }

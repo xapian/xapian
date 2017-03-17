@@ -50,17 +50,17 @@ using namespace Xapian;
 
 inline bool
 U_isupper(unsigned ch) {
-    return (ch < 128 && C_isupper((unsigned char)ch));
+    return (ch < 128 && C_isupper(static_cast<unsigned char>(ch)));
 }
 
 inline bool
 U_isdigit(unsigned ch) {
-    return (ch < 128 && C_isdigit((unsigned char)ch));
+    return (ch < 128 && C_isdigit(static_cast<unsigned char>(ch)));
 }
 
 inline bool
 U_isalpha(unsigned ch) {
-    return (ch < 128 && C_isalpha((unsigned char)ch));
+    return (ch < 128 && C_isalpha(static_cast<unsigned char>(ch)));
 }
 
 using Xapian::Unicode::is_whitespace;
@@ -135,12 +135,14 @@ class Term {
     termpos pos;
     Query query;
 
-    Term(const string &name_, termpos pos_) : name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
-    Term(const string &name_) : name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
+    Term(const string &name_, termpos pos_)
+	: name(name_), stem(QueryParser::STEM_NONE), pos(pos_) { }
+    explicit Term(const string &name_)
+	: name(name_), stem(QueryParser::STEM_NONE), pos(0) { }
     Term(const string &name_, const FieldInfo * field_info_)
 	: name(name_), field_info(field_info_),
 	  stem(QueryParser::STEM_NONE), pos(0) { }
-    Term(termpos pos_) : stem(QueryParser::STEM_NONE), pos(pos_) { }
+    explicit Term(termpos pos_) : stem(QueryParser::STEM_NONE), pos(pos_) { }
     Term(State * state_, const string &name_, const FieldInfo * field_info_,
 	 const string &unstemmed_,
 	 QueryParser::stem_strategy stem_ = QueryParser::STEM_NONE,
@@ -329,11 +331,11 @@ class SynonymIterator {
 	return Xapian::Query(*i, 1, pos);
     }
 
-    bool operator==(const SynonymIterator & o) {
+    bool operator==(const SynonymIterator & o) const {
 	return i == o.i && first == o.first;
     }
 
-    bool operator!=(const SynonymIterator & o) {
+    bool operator!=(const SynonymIterator & o) const {
 	return !(*this == o);
     }
 
@@ -343,7 +345,7 @@ class SynonymIterator {
     typedef Xapian::Query * pointer;
     typedef Xapian::Query & reference;
 };
-    
+
 Query
 Term::get_query_with_synonyms() const
 {
@@ -491,17 +493,21 @@ Term::as_partial_query(State * state_) const
 Query *
 Term::as_cjk_query() const
 {
-    vector<Query> prefix_cjk;
+    vector<Query> prefix_subqs;
+    vector<Query> cjk_subqs;
     const list<string> & prefixes = field_info->prefixes;
     list<string>::const_iterator piter;
-    for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
-	for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	    string cjk = *piter;
-	    cjk += *tk;
-	    prefix_cjk.push_back(Query(cjk, 1, pos));
+    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+	const string& prefix = *piter;
+	for (CJKTokenIterator tk(name); tk != CJKTokenIterator(); ++tk) {
+	    cjk_subqs.push_back(Query(prefix + *tk, 1, pos));
 	}
+	prefix_subqs.push_back(Query(Query::OP_AND,
+				     cjk_subqs.begin(), cjk_subqs.end()));
+	cjk_subqs.clear();
     }
-    Query * q = new Query(Query::OP_AND, prefix_cjk.begin(), prefix_cjk.end());
+    Query * q = new Query(Query::OP_OR,
+			  prefix_subqs.begin(), prefix_subqs.end());
     delete this;
     return q;
 }
@@ -778,7 +784,7 @@ class ParserHandler {
 
   public:
     explicit ParserHandler(yyParser * parser_) : parser(parser_) { }
-    operator yyParser*() { return parser; }
+    operator yyParser*() const { return parser; }
     ~ParserHandler() { ParseFree(parser); }
 };
 
@@ -1453,8 +1459,22 @@ class TermGroup {
      */
     bool empty_ok;
 
+    TermGroup(Term* t1, Term* t2) : empty_ok(false) {
+	add_term(t1);
+	add_term(t2);
+    }
+
   public:
-    TermGroup() : empty_ok(false) { }
+    /// Factory function - ensures heap allocation.
+    static TermGroup* create(Term* t1, Term* t2) {
+	return new TermGroup(t1, t2);
+    }
+
+    ~TermGroup() {
+	for (auto&& t : terms) {
+	    delete t;
+	}
+    }
 
     /// Add a Term object to this TermGroup object.
     void add_term(Term * term) {
@@ -1466,22 +1486,6 @@ class TermGroup {
 
     /// Convert to a Xapian::Query * using default_op.
     Query * as_group(State *state) const;
-
-    /** Provide a way to explicitly delete an object of this class.  The
-     *  destructor is protected to prevent auto-variables of this type.
-     */
-    void destroy() { delete this; }
-
-  protected:
-    /** Protected destructor, so an auto-variable of this type is a
-     *  compile-time error - you must allocate this object with new.
-     */
-    ~TermGroup() {
-	vector<Term*>::const_iterator i;
-	for (i = terms.begin(); i != terms.end(); ++i) {
-	    delete *i;
-	}
-    }
 };
 
 Query *
@@ -1666,8 +1670,19 @@ class Terms {
 	return q;
     }
 
-  public:
     Terms() : window(0), uniform_prefixes(true), prefixes(NULL) { }
+
+  public:
+    /// Factory function - ensures heap allocation.
+    static Terms* create() {
+	return new Terms();
+    }
+
+    ~Terms() {
+	for (auto&& t : terms) {
+	    delete t;
+	}
+    }
 
     /// Add an unstemmed Term object to this Terms object.
     void add_positional_term(Term * term) {
@@ -1711,22 +1726,6 @@ class Terms {
 	size_t w = window;
 	if (w == 0) w = 10;
 	return as_opwindow_query(Query::OP_PHRASE, w - 1);
-    }
-
-    /** Provide a way to explicitly delete an object of this class.  The
-     *  destructor is protected to prevent auto-variables of this type.
-     */
-    void destroy() { delete this; }
-
-  protected:
-    /** Protected destructor, so an auto-variable of this type is a
-     *  compile-time error - you must allocate this object with new.
-     */
-    ~Terms() {
-	vector<Term *>::const_iterator t;
-	for (t = terms.begin(); t != terms.end(); ++t) {
-	    delete *t;
-	}
     }
 };
 
@@ -2138,15 +2137,15 @@ compound_term(T) ::= CJKTERM(U). {
 
 %type phrase {Terms *}
 
-%destructor phrase {$$->destroy();}
+%destructor phrase {delete $$;}
 
 phrase(P) ::= TERM(T). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
 }
 
 phrase(P) ::= CJKTERM(T). {
-    P = new Terms;
+    P = Terms::create();
     T->as_positional_cjk_term(P);
 }
 
@@ -2165,10 +2164,10 @@ phrase(P) ::= phrase(Q) CJKTERM(T). {
 // at least 2 terms in order to be able to have punctuation between the terms!
 
 %type phrased_term {Terms *}
-%destructor phrased_term {$$->destroy();}
+%destructor phrased_term {delete $$;}
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
 }
@@ -2182,12 +2181,10 @@ phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
 // multi-term synonyms.
 
 %type group {TermGroup *}
-%destructor group {$$->destroy();}
+%destructor group {delete $$;}
 
 group(P) ::= TERM(T) GROUP_TERM(U). {
-    P = new TermGroup;
-    P->add_term(T);
-    P->add_term(U);
+    P = TermGroup::create(T, U);
 }
 
 group(P) ::= group(Q) GROUP_TERM(T). {
@@ -2204,10 +2201,10 @@ group(P) ::= group(Q) EMPTY_GROUP_OK. {
 // terms in order for there to be any NEAR operators!
 
 %type near_expr {Terms *}
-%destructor near_expr {$$->destroy();}
+%destructor near_expr {delete $$;}
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {
@@ -2229,10 +2226,10 @@ near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
 // terms in order for there to be any ADJ operators!
 
 %type adj_expr {Terms *}
-%destructor adj_expr {$$->destroy();}
+%destructor adj_expr {delete $$;}
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
-    P = new Terms;
+    P = Terms::create();
     P->add_positional_term(T);
     P->add_positional_term(U);
     if (N) {

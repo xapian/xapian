@@ -448,6 +448,7 @@ void add_nterm(const string &term) {
 static void
 run_query()
 {
+    string scheme;
     bool force_boolean = false;
     if (!filter_map.empty()) {
 	// OR together filters with the same prefix (or AND for non-exclusive
@@ -455,7 +456,7 @@ run_query()
 	vector<Xapian::Query> filter_vec;
 	vector<string> same_vec;
 	string current;
-	for (FMCI i = filter_map.begin(); ; i++) {
+	for (FMCI i = filter_map.begin(); ; ++i) {
 	    bool over = (i == filter_map.end());
 	    if (over || i->first != current) {
 		switch (same_vec.size()) {
@@ -491,7 +492,12 @@ run_query()
 	    // to be THE query - filtering an empty query will give no
 	    // matches.
 	    std::swap(query, filter);
-	    force_boolean = true;
+	    auto&& it = option.find("weightingpurefilter");
+	    if (it != option.end() && !it->second.empty()) {
+		scheme = it->second;
+	    } else {
+		force_boolean = true;
+	    }
 	} else {
 	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, filter);
 	}
@@ -499,16 +505,14 @@ run_query()
 
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
 	Xapian::Query date_filter;
-	MCI i = cgi_params.find("DATEVALUE");
-	if (i != cgi_params.end()) {
-	    Xapian::valueno slot = string_to_int(i->second);
+	if (date_value_slot != Xapian::BAD_VALUENO) {
 	    // The values can be a time_t in 4 bytes, or YYYYMMDD... (with the
 	    // latter the sort order just works correctly between different
 	    // precisions).
 	    bool as_time_t =
-		db.get_value_lower_bound(slot).size() == 4 &&
-		db.get_value_upper_bound(slot).size() == 4;
-	    date_filter = date_value_range(as_time_t, slot,
+		db.get_value_lower_bound(date_value_slot).size() == 4 &&
+		db.get_value_upper_bound(date_value_slot).size() == 4;
+	    date_filter = date_value_range(as_time_t, date_value_slot,
 					   date_start, date_end,
 					   date_span);
 	} else {
@@ -544,11 +548,23 @@ run_query()
 
     if (!enquire || !error_msg.empty()) return;
 
-    set_weighting_scheme(*enquire, option, force_boolean);
+    if (!force_boolean && scheme.empty()) {
+	auto&& it = option.find("weighting");
+	if (it != option.end()) scheme = it->second;
+    }
+    set_weighting_scheme(*enquire, scheme, force_boolean);
 
     enquire->set_cutoff(threshold);
 
-    if (sort_key != Xapian::BAD_VALUENO) {
+    if (sort_keymaker) {
+	if (sort_after) {
+	    enquire->set_sort_by_relevance_then_key(sort_keymaker,
+						    reverse_sort);
+	} else {
+	    enquire->set_sort_by_key_then_relevance(sort_keymaker,
+						    reverse_sort);
+	}
+    } else if (sort_key != Xapian::BAD_VALUENO) {
 	if (sort_after) {
 	    enquire->set_sort_by_relevance_then_value(sort_key, reverse_sort);
 	} else {
@@ -838,7 +854,7 @@ Fields::read_fields(Xapian::docid did) const
 	    n = names.find('\t', n);
 	    string::size_type i0 = i;
 	    i = data.find('\n', i);
-	    fields.insert(make_pair(names.substr(n0, n  - n0),
+	    fields.insert(make_pair(names.substr(n0, n - n0),
 				    data.substr(i0, i - i0)));
 	} while (++n && ++i);
     } else {
@@ -876,6 +892,7 @@ CMD_allterms,
 CMD_and,
 CMD_cgi,
 CMD_cgilist,
+CMD_cgiparams,
 CMD_chr,
 CMD_collapsed,
 CMD_contains,
@@ -928,6 +945,8 @@ CMD_min,
 CMD_mod,
 CMD_msize,
 CMD_msizeexact,
+CMD_msizelower,
+CMD_msizeupper,
 CMD_mul,
 CMD_muldiv,
 CMD_ne,
@@ -1003,6 +1022,7 @@ T(allterms,	   0, 1, N, 0), // list of all terms matching document
 T(and,		   1, N, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		   1, 1, N, 0), // return cgi parameter value
 T(cgilist,	   1, 1, N, 0), // return list of values for cgi parameter
+T(cgiparams,	   0, 0, N, 0), // return list of cgi parameter names
 T(chr,		   1, 1, N, 0), // return UTF-8 for given Unicode codepoint
 T(collapsed,	   0, 0, N, 0), // return number of hits collapsed into this
 T(contains,	   2, 2, N, 0), // return position of substring, or empty string
@@ -1034,7 +1054,7 @@ T(hitsperpage,	   0, 0, N, 0), // hits per page
 T(hostname,	   1, 1, N, 0), // extract hostname from URL
 T(html,		   1, 1, N, 0), // html escape string (<>&")
 T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
-T(httpheader,      2, 2, N, 0), // arbitrary HTTP header
+T(httpheader,	   2, 2, N, 0), // arbitrary HTTP header
 T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
@@ -1054,8 +1074,10 @@ T(match,	   2, 3, N, 0), // regex match
 T(max,		   1, N, N, 0), // maximum of a list of values
 T(min,		   1, N, N, 0), // minimum of a list of values
 T(mod,		   2, 2, N, 0), // integer modulus
-T(msize,	   0, 0, N, M), // number of matches
+T(msize,	   0, 0, N, M), // number of matches (estimated)
 T(msizeexact,	   0, 0, N, M), // is $msize exact?
+T(msizelower,	   0, 0, N, M), // number of matches (lower bound)
+T(msizeupper,	   0, 0, N, M), // number of matches (upper bound)
 T(mul,		   2, N, N, 0), // multiply a list of numbers
 T(muldiv,	   3, 3, N, 0), // calculate A*B/C
 T(ne,		   2, 2, N, 0), // test not equal
@@ -1079,7 +1101,7 @@ T(relevants,	   0, 0, N, Q), // return list of relevant documents
 T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,     0, 1, N, Q), // set rset
+T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(snippet,	   1, 2, N, M), // generate snippet from text
 T(split,	   1, 2, N, 0), // split a string to give a list
@@ -1135,7 +1157,7 @@ eval(const string &fmt, const vector<string> &param)
     static map<string, const struct func_attrib *> func_map;
     if (func_map.empty()) {
 	struct func_desc *p;
-	for (p = func_tab; p->name != NULL; p++) {
+	for (p = func_tab; p->name != NULL; ++p) {
 	    func_map[string(p->name)] = &(p->a);
 	}
     }
@@ -1222,14 +1244,14 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    if (func->second->minargs == N)
 		args.push_back(fmt.substr(q, p - q));
-	    p++;
+	    ++p;
 	}
 
 	if (func->second->minargs != N) {
-	    if ((int)args.size() < func->second->minargs)
+	    if (int(args.size()) < func->second->minargs)
 		throw "too few arguments to $" + var;
 	    if (func->second->maxargs != N &&
-		(int)args.size() > func->second->maxargs)
+		int(args.size()) > func->second->maxargs)
 		throw "too many arguments to $" + var;
 
 	    vector<string>::size_type n;
@@ -1238,7 +1260,7 @@ eval(const string &fmt, const vector<string> &param)
 	    else
 		n = args.size();
 
-	    for (vector<string>::size_type j = 0; j < n; j++)
+	    for (vector<string>::size_type j = 0; j < n; ++j)
 		args[j] = eval(args[j], param);
 	}
 	if (func->second->ensure == 'Q' || func->second->ensure == 'M')
@@ -1251,8 +1273,8 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_add: {
 		int total = 0;
 		vector<string>::const_iterator i;
-		for (i = args.begin(); i != args.end(); i++)
-		    total += string_to_int(*i);
+		for (auto&& arg : args)
+		    total += string_to_int(arg);
 		value = str(total);
 		break;
 	    }
@@ -1264,7 +1286,7 @@ eval(const string &fmt, const vector<string> &param)
 		int id = q0;
 		if (!args.empty()) id = string_to_int(args[0]);
 		for (Xapian::TermIterator term = db.termlist_begin(id);
-		     term != db.termlist_end(id); term++) {
+		     term != db.termlist_end(id); ++term) {
 		    value += *term;
 		    value += '\t';
 		}
@@ -1274,9 +1296,8 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_and: {
 		value = "true";
-		for (vector<string>::const_iterator i = args.begin();
-		     i != args.end(); i++) {
-		    if (eval(*i, param).empty()) {
+		for (auto&& arg : args) {
+		    if (eval(arg, param).empty()) {
 			value.resize(0);
 			break;
 		    }
@@ -1291,9 +1312,20 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_cgilist: {
 		pair<MCI, MCI> g;
 		g = cgi_params.equal_range(args[0]);
-		for (MCI i = g.first; i != g.second; i++) {
+		for (MCI i = g.first; i != g.second; ++i) {
 		    value += i->second;
 		    value += '\t';
+		}
+		if (!value.empty()) value.erase(value.size() - 1);
+		break;
+	    }
+	    case CMD_cgiparams: {
+		const string* prev = NULL;
+		for (auto&& i : cgi_params) {
+		    if (prev && i.first == *prev) continue;
+		    value += i.first;
+		    value += '\t';
+		    prev = &i.first;
 		}
 		if (!value.empty()) value.erase(value.size() - 1);
 		break;
@@ -1325,7 +1357,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (!value.empty()) {
 		    char buf[64] = "";
 		    time_t date = string_to_int(value);
-		    if (date != (time_t)-1) {
+		    if (date != static_cast<time_t>(-1)) {
 			struct tm *then;
 			then = gmtime(&date);
 			string date_fmt = "%Y-%m-%d";
@@ -1418,11 +1450,11 @@ eval(const string &fmt, const vector<string> &param)
 		} else if (size < 1024) {
 		    format = "%d bytes";
 		} else {
-		    if (size < 1024*1024) {
+		    if (size < 1024 * 1024) {
 			format = "%d.%cK";
 		    } else {
 			size /= 1024;
-			if (size < 1024*1024) {
+			if (size < 1024 * 1024) {
 			    format = "%d.%cM";
 			} else {
 			    size /= 1024;
@@ -1441,7 +1473,7 @@ eval(const string &fmt, const vector<string> &param)
 			fraction = (fraction * 10 / 1024) + '0';
 			len = my_snprintf(buf, sizeof(buf), format, intpart, fraction);
 		    }
-		    if (len < 0 || (unsigned)len > sizeof(buf)) len = sizeof(buf);
+		    if (len < 0 || unsigned(len) > sizeof(buf)) len = sizeof(buf);
 		    value.assign(buf, len);
 		}
 		break;
@@ -1563,12 +1595,12 @@ eval(const string &fmt, const vector<string> &param)
 		    }
 		}
 		// add any boolean terms
-		for (FMCI i = filter_map.begin(); i != filter_map.end(); i++) {
+		for (FMCI i = filter_map.begin(); i != filter_map.end(); ++i) {
 		    url_query_string += "&B=";
 		    url_query_string += i->second;
 		}
 #endif
-		for (hit_no = topdoc; hit_no < last; hit_no++)
+		for (hit_no = topdoc; hit_no < last; ++hit_no)
 		    value += print_caption(args[0], param);
 		hit_no = 0;
 		break;
@@ -1767,7 +1799,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_max: {
 		vector<string>::const_iterator i = args.begin();
 		int val = string_to_int(*i++);
-		for (; i != args.end(); i++) {
+		for (; i != args.end(); ++i) {
 		    int x = string_to_int(*i);
 		    if (x > val) val = x;
 		}
@@ -1777,7 +1809,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_min: {
 		vector<string>::const_iterator i = args.begin();
 		int val = string_to_int(*i++);
-		for (; i != args.end(); i++) {
+		for (; i != args.end(); ++i) {
 		    int x = string_to_int(*i);
 		    if (x < val) val = x;
 		}
@@ -1785,14 +1817,22 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_msize:
-		// number of matches
+		// Estimated number of matches.
 		value = str(mset.get_matches_estimated());
 		break;
 	    case CMD_msizeexact:
-		// is msize exact?
+		// Is msize exact?
 		if (mset.get_matches_lower_bound()
 		    == mset.get_matches_upper_bound())
 		    value = "true";
+		break;
+	    case CMD_msizelower:
+		// Lower bound on number of matches.
+		value = str(mset.get_matches_lower_bound());
+		break;
+	    case CMD_msizeupper:
+		// Upper bound on number of matches.
+		value = str(mset.get_matches_upper_bound());
 		break;
 	    case CMD_mod: {
 		int denom = string_to_int(args[1]);
@@ -1839,7 +1879,8 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_now: {
 		char buf[64];
-		my_snprintf(buf, sizeof(buf), "%lu", (unsigned long)time(NULL));
+		my_snprintf(buf, sizeof(buf), "%lu",
+			    static_cast<unsigned long>(time(NULL)));
 		// MSVC's snprintf omits the zero byte if the string if
 		// sizeof(buf) long.
 		buf[sizeof(buf) - 1] = '\0';
@@ -1854,9 +1895,8 @@ eval(const string &fmt, const vector<string> &param)
 		}
 		break;
 	    case CMD_or: {
-		for (vector<string>::const_iterator i = args.begin();
-		     i != args.end(); i++) {
-		    value = eval(*i, param);
+		for (auto&& arg : args) {
+		    value = eval(arg, param);
 		    if (!value.empty()) break;
 		}
 		break;
@@ -1936,7 +1976,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_relevants:	{
 		for (map <Xapian::docid, bool>::const_iterator i = ticked.begin();
-		     i != ticked.end(); i++) {
+		     i != ticked.end(); ++i) {
 		    if (i->second) {
 			value += str(i->first);
 			value += '\t';
@@ -2141,12 +2181,7 @@ eval(const string &fmt, const vector<string> &param)
 
 		    if (!rset.empty()) {
 			set_expansion_scheme(*enquire, option);
-#if XAPIAN_AT_LEAST(1,3,2)
 			eset = enquire->get_eset(howmany * 2, rset, &decider);
-#else
-			eset = enquire->get_eset(howmany * 2, rset, 0,
-						 expand_param_k, &decider);
-#endif
 		    } else if (mset.size()) {
 			// invent an rset
 			Xapian::RSet tmp;
@@ -2159,12 +2194,7 @@ eval(const string &fmt, const vector<string> &param)
 			}
 
 			set_expansion_scheme(*enquire, option);
-#if XAPIAN_AT_LEAST(1,3,2)
 			eset = enquire->get_eset(howmany * 2, tmp, &decider);
-#else
-			eset = enquire->get_eset(howmany * 2, tmp, 0,
-						 expand_param_k, &decider);
-#endif
 		    }
 
 		    // Don't show more than one word with the same stem.
@@ -2246,7 +2276,7 @@ eval(const string &fmt, const vector<string> &param)
 	    default: {
 		args.insert(args.begin(), param[0]);
 		int macro_no = func->second->tag - CMD_MACRO;
-		assert(macro_no >= 0 && (unsigned int)macro_no < macros.size());
+		assert(macro_no >= 0 && unsigned(macro_no) < macros.size());
 		// throw "Unknown function '" + var + "'";
 		value = eval(macros[macro_no], args);
 		break;
@@ -2474,7 +2504,7 @@ ensure_query_parsed()
     if (!discard_rset) {
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & value = i->second;
 	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
 		while (value[j] == '.') ++j;
@@ -2532,9 +2562,9 @@ OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
 	    unsigned char ch = term[0];
 	    bool stemmed = (ch == 'Z');
 	    if (stemmed) {
-	       term.erase(0, 1);
-	       if (term.empty()) continue;
-	       ch = term[0];
+		term.erase(0, 1);
+		if (term.empty()) continue;
+		ch = term[0];
 	    }
 
 	    if (C_isupper(ch)) {

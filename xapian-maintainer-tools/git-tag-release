@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# Copyright (C) 2004,2005,2007,2008,2010,2012,2013,2014,2015 Olly Betts
-# 
+# Copyright (C) 2004,2005,2007,2008,2010,2012,2013,2014,2015,2016 Olly Betts
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
 # deal in the Software without restriction, including without limitation the
@@ -24,6 +24,9 @@ set -e
 
 BRANCH=master
 
+RELEASE_WEB_BASE_URL=https://oligarchy.co.uk/xapian
+RELEASE_WEB_BASE_DIR=/srv/www/oligarchy.co.uk/xapian
+
 version=$1
 
 # check parameter was passed and that it looks like a version
@@ -38,12 +41,8 @@ case $version in
 esac
 
 # Check that we've not already done this version.
-download_dir=/srv/www/oligarchy.co.uk/xapian/$version
-if [ -d "$download_dir" ] ; then
-    echo "Version $version already has a download directory:"
-    echo "  $download_dir"
-    exit 1
-fi
+RELEASE_URL=$RELEASE_WEB_BASE_URL/$version/
+RELEASE_DIR=$RELEASE_WEB_BASE_DIR/$version/
 
 if [ "`git branch --color=never --contains|cut -d' ' -f2-`" != "$BRANCH" ] ; then
     echo "Not on branch $BRANCH"
@@ -62,36 +61,59 @@ for d in xapian-core xapian-bindings xapian-applications/omega ; do
 done
 [ "$bad" = "0" ] || exit 1
 
-tag=v$version
-while ! git tag -v "$tag" > /dev/null 2>&1 ; do
-    cat <<EOF
-No '$tag' tag found - please create a signed tag and push it - in your local
-tree do this:
+head_output=`HEAD "$RELEASE_URL" 2>/dev/null||true`
+case $head_output in
+"404 "*) ;;
+*)
+    cat <<END
+Version $version already has a download directory:
+$ HEAD '$RELEASE_URL'
+$head_output
+END
+    exit 1
+    ;;
+esac
 
-git fetch && git tag -s -m 'Xapian $version release' '$tag' '$branch' && git push --tags
-
-Once you've done that, hit ENTER in this terminal to continue.
-EOF
-    read dummy
-done
+echo "Setting up temporary source tree"
+DIR=`mktemp -d TMP.make_dist.XXXXXXXXXX`
+git clone . "$DIR"
+mkdir "$DIR/BUILD"
+ln BUILD/*.tar* "$DIR/BUILD"
+cd "$DIR"
+git clone ../swig
 
 echo "Building release tarballs"
-# Create a directory so the snapshotter will build this.
-D=/home/olly/tmp/xapian-git-snapshot/tags
-test -d "$D" || mkdir "$D"
-mkdir "$D/$tag"
+./bootstrap --force-local-tools
+./configure
+time make -sj8
+time make -sj8 distcheck
+cd ..
 
-# Snapshotter will automatically copy the tarballs onto the website.
-echo "Running:"
-set -x
-$HOME/bin/make-xapian-git-snapshot-tarballs "tags/$tag"
-set +x
+RESULT=`mktemp -d "RESULT-$version-XXXXXXXXXX"`
+echo "Signing tarballs"
+find "$DIR" -name "xapian-*-$version.tar.*"|while read f ; do
+    gpg --detach-sign --armour "$f"
+    mv "$f" "$f.asc" "$RESULT"
+done
 
-# Clean up.
-rm -rf "$D/$tag"
-rmdir $D || echo "Directory '$D' not removed."
+echo "Deleting build tree"
+rm -rf "$DIR"
 
+echo "Tagging"
+tag=v$version
+if git tag -v "$tag" > /dev/null 2>&1 ; then
+    echo "Tag '$tag' exists"
+else
+    echo "Tagging '$tag'"
+    git tag -s -m "Xapian $version release" "$tag" "$BRANCH"
+fi
+
+echo "Copying to server"
+chmod 755 "$RESULT"
+scp -r "$RESULT" thyestes.tartarus.org:"$RELEASE_DIR"
+
+echo "Adding to trac"
 # Add the version to the list in trac, close old milestone, ensure new
 # milestone exists, and create the ReleaseNotes and ReleaseOverview
 # pages:
-xapian-trac-new-release "$version"
+ssh thyestes.tartarus.org bin/xapian-trac-new-release "$version"

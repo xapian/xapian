@@ -25,6 +25,7 @@
 
 #include "glass_defs.h"
 
+#include "alignment_cast.h"
 #include "omassert.h"
 
 #include <algorithm>
@@ -38,9 +39,9 @@ namespace Glass {
 
 class Cursor {
     private:
-        // Prevent copying
-        Cursor(const Cursor &);
-        Cursor & operator=(const Cursor &);
+	// Prevent copying
+	Cursor(const Cursor &);
+	Cursor & operator=(const Cursor &);
 
 	/// Pointer to reference counted data.
 	char * data;
@@ -91,7 +92,7 @@ class Cursor {
 
 	uint4 & refs() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(data);
+	    return *alignment_cast<uint4*>(data);
 	}
 
 	/** Get the block number.
@@ -100,13 +101,13 @@ class Cursor {
 	 */
 	uint4 get_n() const {
 	    Assert(data);
-	    return *reinterpret_cast<uint4*>(data + 4);
+	    return *alignment_cast<uint4*>(data + 4);
 	}
 
 	void set_n(uint4 n) {
 	    Assert(data);
 	    //Assert(refs() == 1);
-	    *reinterpret_cast<uint4*>(data + 4) = n;
+	    *alignment_cast<uint4*>(data + 4) = n;
 	}
 
 	/** Get pointer to block.
@@ -147,10 +148,10 @@ class GlassTable;
 class GlassCursor {
     private:
 	/// Copying not allowed
-        GlassCursor(const GlassCursor &);
+	GlassCursor(const GlassCursor &);
 
 	/// Assignment not allowed
-        GlassCursor & operator=(const GlassCursor &);
+	GlassCursor & operator=(const GlassCursor &);
 
 	/** Rebuild the cursor.
 	 *
@@ -220,7 +221,8 @@ class GlassCursor {
 	 *  attached to is destroyed.  It's safe to destroy the GlassCursor
 	 *  after the Btree though, you just may not use the GlassCursor.
 	 */
-	GlassCursor(const GlassTable *B, const Glass::Cursor * C_ = NULL);
+	explicit GlassCursor(const GlassTable *B,
+			     const Glass::Cursor * C_ = NULL);
 
 	/** Clone a cursor.
 	 *
@@ -265,14 +267,14 @@ class GlassCursor {
 	 *  Btree the cursor is made unpositioned, and the result is false.
 	 *  Otherwise the cursor is moved to the next item in the B-tree,
 	 *  and the result is true.
-	 *  
+	 *
 	 *  Effectively, GlassCursor::next() loses the position of BC when it
 	 *  drops off the end of the list of items. If this is awkward, one can
 	 *  always arrange for a key to be present which has a rightmost
 	 *  position in a set of keys,
 	 */
 	bool next();
- 
+
 	/** Position the cursor on the highest entry with key <= @a key.
 	 *
 	 *  If the exact key is found in the table, the cursor will be
@@ -347,7 +349,7 @@ class MutableGlassCursor : public GlassCursor {
      *  attached to is destroyed.  It's safe to destroy the MutableGlassCursor
      *  after the Btree though, you just may not use the MutableGlassCursor.
      */
-    MutableGlassCursor(GlassTable *B_) : GlassCursor(B_) { }
+    explicit MutableGlassCursor(GlassTable *B_) : GlassCursor(B_) { }
 
     /** Delete the current key/tag pair, leaving the cursor on the next
      *  entry.

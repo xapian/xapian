@@ -26,9 +26,6 @@
 #if defined XAPIAN_HAS_GLASS_BACKEND
 # include "backendmanager_glass.h"
 # define BackendManagerLocal BackendManagerGlass
-#elif defined XAPIAN_HAS_CHERT_BACKEND
-# include "backendmanager_chert.h"
-# define BackendManagerLocal BackendManagerChert
 #else
 # include "backendmanager.h"
 # include "testsuite.h"

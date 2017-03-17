@@ -133,7 +133,7 @@ RemoteDatabase::open_metadata_keylist(const std::string &prefix) const
     char type;
     while ((type = get_message(message)) == REPLY_METADATAKEYLIST) {
 	NetworkTermListItem item;
-	term.resize(size_t((unsigned char)message[0]));
+	term.resize(size_t(static_cast<unsigned char>(message[0])));
 	term.append(message, 1, string::npos);
 	item.tname = term;
 	items.push_back(item);
@@ -179,7 +179,7 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	p_end = p + message.size();
 	decode_length(&p, p_end, item.wdf);
 	decode_length(&p, p_end, item.termfreq);
-	term.resize(size_t((unsigned char)*p++));
+	term.resize(size_t(static_cast<unsigned char>(*p++)));
 	term.append(p, p_end);
 	item.tname = term;
 	items.push_back(item);
@@ -212,7 +212,7 @@ RemoteDatabase::open_allterms(const string & prefix) const {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
 	decode_length(&p, p_end, item.termfreq);
-	term.resize(size_t((unsigned char)*p++));
+	term.resize(size_t(static_cast<unsigned char>(*p++)));
 	term.append(p, p_end);
 	item.tname = term;
 	items.push_back(item);
@@ -408,14 +408,6 @@ RemoteDatabase::get_total_length() const
 {
     if (!cached_stats_valid) update_stats();
     return total_length;
-}
-
-Xapian::doclength
-RemoteDatabase::get_avlength() const
-{
-    if (!cached_stats_valid) update_stats();
-    if (rare(doccount == 0)) return 0;
-    return Xapian::doclength(total_length) / doccount;
 }
 
 bool
@@ -846,4 +838,10 @@ RemoteDatabase::remove_spelling(const string & word,
     string data = encode_length(freqdec);
     data += word;
     send_message(MSG_REMOVESPELLING, data);
+}
+
+bool
+RemoteDatabase::locked() const
+{
+    throw Xapian::UnimplementedError("Database::locked() not implemented for remote backend");
 }

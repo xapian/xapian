@@ -327,6 +327,7 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  want to take advantage of the Registry object when unserialising.
      *
      *  @param serialised A serialised instance of this PostingSource subclass.
+     *  @param registry   The Xapian::Registry object to use.
      */
     virtual PostingSource * unserialise_with_registry(const std::string &serialised,
 				      const Registry & registry) const;
@@ -341,9 +342,6 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      *  database passed in the most recent call.
      *
      *  @param db The database which the PostingSource should iterate through.
-     *
-     *  Note: the database supplied to this method must not be modified: in
-     *  particular, the reopen() method should not be called on it.
      *
      *  Note: in the case of a multi-database search, a separate PostingSource
      *  will be used for each database (the separate PostingSources will be
@@ -364,11 +362,25 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
      */
     virtual std::string get_description() const;
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated PostingSource
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     PostingSource * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated PostingSource
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const PostingSource * release() const {
 	opt_intrusive_base::release();
 	return this;
@@ -613,8 +625,19 @@ class XAPIAN_VISIBILITY_DEFAULT ValueWeightPostingSource
 class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
 	: public Xapian::ValueWeightPostingSource {
   protected:
+    /** Start of range of docids for which weights are known to be decreasing.
+     *
+     *  0 => first docid.
+     */
     Xapian::docid range_start;
+
+    /** End of range of docids for which weights are known to be decreasing.
+     *
+     *  0 => last docid.
+     */
     Xapian::docid range_end;
+
+    /// Weight at current position.
     double curr_weight;
 
     /// Flag, set to true if there are docs after the end of the range.
@@ -624,6 +647,14 @@ class XAPIAN_VISIBILITY_DEFAULT DecreasingValueWeightPostingSource
     void skip_if_in_range(double min_wt);
 
   public:
+    /** Construct a DecreasingValueWeightPostingSource.
+     *
+     *  @param slot_ The value slot to read values from.
+     *  @param range_start_ Start of range of docids for which weights are
+     *			known to be decreasing (default: first docid)
+     *  @param range_end_ End of range of docids for which weights are
+     *			known to be decreasing (default: last docid)
+     */
     DecreasingValueWeightPostingSource(Xapian::valueno slot_,
 				       Xapian::docid range_start_ = 0,
 				       Xapian::docid range_end_ = 0);

@@ -13,8 +13,31 @@ SUBDIRS = . docs
 my-html-tok.h: gen-myhtmltags Makefile.am common/Tokeniseise.pm myhtmlparse.tokens
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-myhtmltags' '$(srcdir)' < '$(srcdir)/myhtmlparse.tokens'
 
-mimemap.h: gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
+# Recover from the removal of $@.  A full explanation of this is in the
+# automake manual under the heading "Multiple Outputs".
+make_many_locked = \
+@if test -f $@; then :; else \
+  trap 'rm -rf "$(stamp)-lck" "$(stamp)"' 1 2 13 15; \
+  if mkdir '$(stamp)-lck' 2>/dev/null; then \
+    rm -f '$(stamp)'; \
+    $(MAKE) $(AM_MAKEFLAGS) '$(stamp)'; \
+    result=$$?; rm -rf '$(stamp)-lck'; exit $$result; \
+  else \
+    while test -d '$(stamp)-lck'; do sleep 1; done; \
+    test -f '$(stamp)'; \
+  fi; \
+fi
+
+multitarget_begin = @rm -f $@-t; touch $@-t
+multitarget_end = @mv -f $@-t $@
+
+stamp = mimemap.stamp
+mimemap.h docs/inc/ignored.rst docs/inc/mimetypes.rst: $(stamp)
+	$(make_many_locked)
+$(stamp): gen-mimemap Makefile.am common/Tokeniseise.pm mimemap.tokens
+	$(multitarget_begin)
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-mimemap' '$(srcdir)' < '$(srcdir)/mimemap.tokens'
+	$(multitarget_end)
 
 namedents.h: gen-namedents Makefile.am common/Tokeniseise.pm
 	$(PERL) -I'$(srcdir)/common' '$(srcdir)/gen-namedents' '$(srcdir)'
@@ -91,14 +114,12 @@ AM_CXXFLAGS += $(XAPIAN_CXXFLAGS)
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
-dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml
+dist_pkglibbin_SCRIPTS = mhtml2html outlookmsg2html rfc822tohtml vcard2text
 bin_PROGRAMS = omindex scriptindex omindex-list
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 check_PROGRAMS = atomparsetest csvesctest htmlparsetest jsonesctest md5test urlenctest utf8converttest
 dist_check_SCRIPTS = omegatest
-# Pass omega path for omegatest in OMEGA environment variable.
-AM_TESTS_ENVIRONMENT = OMEGA=./omega; export OMEGA;
 TESTS =	atomparsetest$(EXEEXT)\
 	csvesctest$(EXEEXT)\
 	htmlparsetest$(EXEEXT)\
@@ -159,7 +180,7 @@ libtransform_la_LIBADD = $(PCRE_LIBS)
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc jsonescape.cc loadfile.cc\
  datevalue.cc common/str.cc sample.cc urlencode.cc weight.cc expand.cc\
- csvescape.cc
+ csvescape.cc timegm.cc
 # Not currently used, and we ought to handle non-Unix perms too: unixperm.cc
 omega_LDADD = $(XAPIAN_LIBS) libtransform.la
 
@@ -229,3 +250,6 @@ extra/omegascript.vim: extra/omegascript.vim.in query.cc configure.ac
 endif
 
 DISTCHECK_CONFIGURE_FLAGS = "XAPIAN_CONFIG=$(XAPIAN_CONFIG)"
+
+installcheck-local:
+	$(MAKE) check SCRIPTINDEX='${bindir}/scriptindex' OMEGA='${pkglibbindir}/omega'

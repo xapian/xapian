@@ -6,14 +6,14 @@ bin_PROGRAMS +=\
 
 noinst_PROGRAMS =
 
-if BUILD_BACKEND_CHERT_OR_GLASS
+if BUILD_BACKEND_TOOLS
 bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact\
 	bin/xapian-replicate\
 	bin/xapian-replicate-server
 
-if BUILD_BACKEND_CHERT
+if BUILD_BACKEND_GLASS
 noinst_PROGRAMS +=\
 	bin/xapian-inspect
 endif
@@ -52,12 +52,15 @@ bin_xapian_delve_LDADD = $(ldflags) libgetopt.la $(libxapian_la)
 bin_xapian_inspect_CPPFLAGS =\
 	$(AM_CPPFLAGS)\
 	-DXAPIAN_REALLY_NO_DEBUG_LOG\
-	-I$(top_srcdir)/backends/chert
+	-I$(top_srcdir)/backends/glass
 bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 	api/error.cc\
-	backends/chert/chert_btreebase.cc\
-	backends/chert/chert_cursor.cc\
-	backends/chert/chert_table.cc\
+	backends/glass/glass_changes.cc\
+	backends/glass/glass_cursor.cc\
+	backends/glass/glass_freelist.cc\
+	backends/glass/glass_table.cc\
+	backends/glass/glass_version.cc\
+	common/compression_stream.cc\
 	common/errno_to_string.cc\
 	common/io_utils.cc\
 	common/posixy_wrapper.cc\
@@ -66,7 +69,18 @@ bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc\
 	unicode/unicode-data.cc\
 	unicode/utf8itor.cc
 
-bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la -lz
+# XAPIAN_LIBS gives us zlib and any library needed for UUIDs.
+bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la $(XAPIAN_LIBS)
+if USE_PROC_FOR_UUID
+bin_xapian_inspect_SOURCES +=\
+	api/constinfo.cc\
+	common/proc_uuid.cc
+endif
+if USE_WIN32_UUID_API
+bin_xapian_inspect_SOURCES +=\
+	common/win32_uuid.cc
+bin_xapian_inspect_LDADD += -lrpcrt4
+endif
 
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la $(libxapian_la)

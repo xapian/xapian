@@ -148,8 +148,8 @@ edist_state<CHR>::edist_state(const CHR * ptr1, int len1,
     /* fkp is stored as a rectangular array, row by row. */
     fkp = new int[fkp_rows * fkp_cols];
 
-    for (int k = -maxdist; k <= maxdist; k++) {
-	for (int p = -1; p <= maxdist; p++) {
+    for (int k = -maxdist; k <= maxdist; ++k) {
+	for (int p = -1; p <= maxdist; ++p) {
 	    if (p == abs(k) - 1) {
 		if (k < 0) {
 		    set_f_kp(k, p, abs(k) - 1);

@@ -21,12 +21,11 @@ package Tokeniseise;
 
 use strict;
 use warnings;
-use IO::File;
 
 sub new {
     my ($class, $header, $desc, $copyright, $guard, $type, $width) = @_;
-    my $fh = IO::File->new("$header~", "w");
-    defined $fh or die $!;
+    my $fh;
+    open $fh, '>', "$header~" or die $!;
     print $fh <<"EOF";
 /** \@file $header
  *  \@brief $desc

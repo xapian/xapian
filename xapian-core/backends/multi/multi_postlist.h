@@ -33,8 +33,8 @@ class MultiPostList : public PostList {
 
 	const Xapian::Database &this_db;
 
-	bool   finished;
-	Xapian::docid  currdoc;
+	bool finished;
+	Xapian::docid currdoc;
 
 	Xapian::doccount multiplier;
 
@@ -51,14 +51,14 @@ class MultiPostList : public PostList {
 	double get_weight() const;
 	double recalc_maxweight();
 
-	Xapian::docid  get_docid() const;     // Gets current docid
+	Xapian::docid get_docid() const;     // Gets current docid
 	Xapian::termcount get_doclength() const; // Get length of current document
 	Xapian::termcount get_unique_terms() const; // Get number of unique term in current document
-        Xapian::termcount get_wdf() const;	    // Within Document Frequency
+	Xapian::termcount get_wdf() const;	    // Within Document Frequency
 	PositionList * open_position_list() const;
 	PostList *next(double w_min);          // Moves to next docid
 	PostList *skip_to(Xapian::docid did, double w_min);// Moves to next docid >= specified docid
-	bool   at_end() const;        // True if we're off the end of the list
+	bool at_end() const;        // True if we're off the end of the list
 
 	std::string get_description() const;
 };

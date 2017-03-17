@@ -2,7 +2,7 @@
  * @brief Xapian::PL2Weight class - the PL2 weighting scheme of the DFR framework.
  */
 /* Copyright (C) 2013 Aarsh Shah
- * Copyright (C) 2013,2014 Olly Betts
+ * Copyright (C) 2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,16 +54,20 @@ PL2Weight::clone() const
 }
 
 void
-PL2Weight::init(double)
+PL2Weight::init(double factor_)
 {
+    factor = factor_;
+
     if (get_wdf_upper_bound() == 0) {
 	// The "extra" weight object is cloned, init() called and then
 	// get_maxextra() is called and we discover that we don't need it.
 	// So we need to handle that case (which will give us 0 from
 	// get_wdf_upper_bound() here).
-	lower_bound = upper_bound = 0;
+	upper_bound = 0;
 	return;
     }
+
+    factor *= get_wqf();
 
     cl = param_c * get_average_length();
 
@@ -73,20 +77,44 @@ PL2Weight::init(double)
     P2 = log2(mean) + base_change;
 
     double wdfn_lower = log2(1 + cl / get_doclength_upper_bound());
-    double wdfn_upper =
-	get_wdf_upper_bound() * log2(1 + cl / get_doclength_lower_bound());
+    double divisior = max(get_wdf_upper_bound(), get_doclength_lower_bound());
+    double wdfn_upper = get_wdf_upper_bound() * log2(1 + cl / divisior);
 
-    // Calculate the lower bound on the weight.
-    double P_min =
-	P1 + (wdfn_lower + 0.5) * log2(wdfn_lower) - P2 * wdfn_lower;
-    lower_bound = get_wqf() * P_min / (wdfn_upper + 1.0);
+    // Calculate an upper bound on the weights which get_sumpart() can return.
+    //
+    // We consider the equation for P as the sum of two parts which we
+    // maximise individually:
+    //
+    // (a) (wdfn + 0.5) / (wdfn + 1) * log2(wdfn)
+    // (b) (P1 - P2 * wdfn) / (wdfn + 1)
+    //
+    // To maximise (a), the fractional part is always positive (since wdfn>0)
+    // and is maximised by maximising wdfn - clearer when rewritten as:
+    // (1 - 0.5 / (wdfn + 1))
+    //
+    // The log part of (a) is clearly also maximised by maximising wdfn,
+    // so we want to evaluate (a) at wdfn=wdfn_upper.
+    double P_max2a = (wdfn_upper + 0.5) * log2(wdfn_upper) / (wdfn_upper + 1.0);
+    // To maximise (b) substitute x=wdfn+1 (so x>1) and we get:
+    //
+    // (P1 + P2)/x - P2
+    //
+    // Differentiating wrt x gives:
+    //
+    // -(P1 + P2)/x²
+    //
+    // So there are no local minima or maxima, and the function is continuous
+    // in the range of interest, so the sign of this differential tells us
+    // whether we want to maximise or minimise wdfn, and since x>1, we can
+    // just consider the sign of: (P1 + P2)
+    //
+    // Commonly P1 + P2 > 0, in which case we evaluate P at wdfn=wdfn_upper
+    // giving us a bound that can't be bettered if wdfn_upper is tight.
+    double wdfn_optb = P1 + P2 > 0 ? wdfn_upper : wdfn_lower;
+    double P_max2b = (P1 - P2 * wdfn_optb) / (wdfn_optb + 1.0);
+    upper_bound = factor * (P_max2a + P_max2b);
 
-    // Calculate the upper bound on the weight.
-    double P_max =
-	P1 + (wdfn_upper + 0.5) * log2(wdfn_upper) - P2 * wdfn_upper;
-    upper_bound = get_wqf() * P_max / (wdfn_lower + 1.0);
-
-    upper_bound -= lower_bound;
+    if (rare(upper_bound <= 0)) upper_bound = 0;
 }
 
 string
@@ -121,8 +149,9 @@ PL2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len,
     double wdfn = wdf * log2(1 + cl / len);
 
     double P = P1 + (wdfn + 0.5) * log2(wdfn) - P2 * wdfn;
+    if (rare(P <= 0)) return 0.0;
 
-    return (get_wqf() * P / (wdfn + 1.0)) - lower_bound;
+    return factor * P / (wdfn + 1.0);
 }
 
 double

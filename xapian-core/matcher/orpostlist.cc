@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2007,2008,2009,2010,2011,2012 Olly Betts
+ * Copyright 2003,2004,2007,2008,2009,2010,2011,2012,2016,2017 Olly Betts
  * Copyright 2009 Lemur Consulting Ltd
  * Copyright 2010 Richard Boulton
  *
@@ -29,6 +29,8 @@
 #include "multiandpostlist.h"
 #include "andmaybepostlist.h"
 #include "omassert.h"
+
+#include "orpositionlist.h"
 
 #include <algorithm>
 
@@ -95,8 +97,8 @@ OrPostList::next(double w_min)
     bool rnext = !rvalid;
 
     if (!lvalid || lhead <= rhead) {
-        if (lhead == rhead) rnext = true;
-        next_handling_prune(l, w_min - rmax, matcher);
+	if (lhead == rhead) rnext = true;
+	next_handling_prune(l, w_min - rmax, matcher);
 	lvalid = true;
 	if (l->at_end()) ldry = true;
     } else {
@@ -104,9 +106,9 @@ OrPostList::next(double w_min)
     }
 
     if (rnext) {
-        next_handling_prune(r, w_min - lmax, matcher);
+	next_handling_prune(r, w_min - lmax, matcher);
 	rvalid = true;
-        if (r->at_end()) {
+	if (r->at_end()) {
 	    PostList *ret = l;
 	    l = NULL;
 	    RETURN(ret);
@@ -298,6 +300,13 @@ OrPostList::get_termfreq_est() const
     RETURN(static_cast<Xapian::doccount>(est + 0.5));
 }
 
+// Estimate frequency of OR assuming independence.
+static double
+est(double l, double r, double n)
+{
+    return l + r - (l * r / n);
+}
+
 TermFreqs
 OrPostList::get_termfreq_est_using_stats(
 	const Xapian::Weight::Internal & stats) const
@@ -313,16 +322,13 @@ OrPostList::get_termfreq_est_using_stats(
     // Our caller should have ensured this.
     Assert(stats.collection_size);
 
-    freqest = lfreqs.termfreq + rfreqs.termfreq -
-	    (lfreqs.termfreq * rfreqs.termfreq / stats.collection_size);
-    collfreqest = lfreqs.collfreq + rfreqs.collfreq -
-	    (lfreqs.collfreq * rfreqs.collfreq / stats.total_term_count);
-
+    freqest = est(lfreqs.termfreq, rfreqs.termfreq, stats.collection_size);
+    collfreqest = est(lfreqs.collfreq, rfreqs.collfreq, stats.total_term_count);
     if (stats.rset_size == 0) {
 	relfreqest = 0;
     } else {
-	relfreqest = lfreqs.reltermfreq + rfreqs.reltermfreq -
-		(lfreqs.reltermfreq * rfreqs.reltermfreq / stats.rset_size);
+	relfreqest = est(lfreqs.reltermfreq, rfreqs.reltermfreq,
+			 stats.rset_size);
     }
 
     RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
@@ -399,7 +405,7 @@ OrPostList::get_doclength() const
     } else {
 	doclength = l->get_doclength();
 	LOGLINE(MATCH, "OrPostList::get_doclength() [left docid=" << lhead <<
-	       	       "] = " << doclength);
+		       "] = " << doclength);
     }
 
     RETURN(doclength);
@@ -441,4 +447,11 @@ OrPostList::count_matching_subqs() const
     if (lhead < rhead) RETURN(l->count_matching_subqs());
     if (lhead > rhead) RETURN(r->count_matching_subqs());
     RETURN(l->count_matching_subqs() + r->count_matching_subqs());
+}
+
+void
+OrPostList::gather_position_lists(OrPositionList* orposlist)
+{
+    if (lhead <= rhead) l->gather_position_lists(orposlist);
+    if (lhead >= rhead) r->gather_position_lists(orposlist);
 }

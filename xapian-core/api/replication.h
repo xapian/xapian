@@ -68,7 +68,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseMaster {
      *  The database isn't actually opened until a set of changesets is
      *  requested.
      */
-    DatabaseMaster(const std::string & path_) : path(path_) {}
+    explicit DatabaseMaster(const std::string & path_) : path(path_) {}
 
     /** Write a set of changesets for upgrading the database to a file.
      *
@@ -139,7 +139,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
      *
      *  @param path       The path to make the replica at.
      */
-    DatabaseReplica(const std::string & path);
+    explicit DatabaseReplica(const std::string & path);
 
     /** Get a string describing the current revision of the replica.
      *

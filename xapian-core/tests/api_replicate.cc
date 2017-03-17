@@ -309,7 +309,6 @@ DEFINE_TESTCASE(replicate1, replicas) {
 	    Xapian::Database dbcopy(replicapath);
 	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
 	}
-
     }
     {
 	// Regression test - if the replica was reopened, a full copy always
@@ -587,8 +586,8 @@ DEFINE_TESTCASE(replicate4, replicas) {
 	doc2.set_data(string("doc2"));
 	doc2.add_term("nopos");
 	orig.add_document(doc2);
-	if (get_dbtype() != "chert") {
-	    // FIXME: Needs to be pre-commit for new-glass
+	if (get_dbtype() == "glass") {
+	    // FIXME: Needs to be pre-commit for glass
 	    set_max_changesets(0);
 	}
 	orig.commit();
@@ -604,7 +603,7 @@ DEFINE_TESTCASE(replicate4, replicas) {
 	TEST(!file_exists(masterpath + "/changes1"));
 
 	// Turn off replication, make sure we dont write anything
-	if (get_dbtype() == "chert") {
+	if (get_dbtype() != "glass") {
 	    set_max_changesets(0);
 	}
 
@@ -637,7 +636,6 @@ DEFINE_TESTCASE(replicate4, replicas) {
 
 // Tests for max_changesets
 DEFINE_TESTCASE(replicate5, replicas) {
-    SKIP_TEST_FOR_BACKEND("chert");
     UNSET_MAX_CHANGESETS_AFTERWARDS;
     string tempdir = ".replicatmp";
     mktmpdir(tempdir);
@@ -865,7 +863,9 @@ DEFINE_TESTCASE(replicate7, replicas) {
 	    Xapian::Database dbcopy(replicapath);
 	    TEST_EQUAL(orig.get_uuid(), dbcopy.get_uuid());
 	}
+    }
 
+    {
 	// Corrupt replica by truncating all the files to size 0.
 	string d = replicapath;
 	d += "/replica_1";

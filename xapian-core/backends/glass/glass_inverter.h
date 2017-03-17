@@ -202,7 +202,7 @@ class Inverter {
 	doclen_changes[did] = DELETED_POSTING;
     }
 
-    bool get_doclength(Xapian::docid did, Xapian::termcount & doclen) const  {
+    bool get_doclength(Xapian::docid did, Xapian::termcount & doclen) const {
 	std::map<Xapian::docid, Xapian::termcount>::const_iterator i;
 	i = doclen_changes.find(did);
 	if (i == doclen_changes.end())

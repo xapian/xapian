@@ -261,6 +261,7 @@ operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
 
 namespace Xapian {
     class ExpandDecider;
+    class LatLongMetric;
     class MatchDecider;
     class Registry;
     class Weight;
@@ -276,9 +277,6 @@ namespace Glass {
     class RootInfo;
 }
 
-class ChertCursor;
-class ChertDatabase;
-class ChertTable;
 class GlassCursor;
 class GlassDatabase;
 class GlassFreeListChecker;
@@ -301,9 +299,6 @@ XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::AndContext);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandStats);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::ExpandWeight);
 XAPIAN_PRETTY_AS_CLASSNAME(Xapian::Internal::OrContext);
-XAPIAN_PRETTY_AS_CLASSNAME(ChertCursor);
-XAPIAN_PRETTY_AS_CLASSNAME(ChertDatabase);
-XAPIAN_PRETTY_AS_CLASSNAME(ChertTable);
 XAPIAN_PRETTY_AS_CLASSNAME(Glass::RootInfo);
 XAPIAN_PRETTY_AS_CLASSNAME(GlassCursor);
 XAPIAN_PRETTY_AS_CLASSNAME(GlassFreeListChecker);

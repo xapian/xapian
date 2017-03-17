@@ -34,6 +34,7 @@ BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
 
 EXTRA_DIST = python.i util.i extra.i extracomments.i except.i \
 	doxy2swig.py \
+	fixup-swig-py3-wrapper \
 	generate-python-exceptions \
 	run-python-test \
 	testsuite.py \
@@ -74,12 +75,21 @@ xapian/__init__.py: xapian.py
 	cp `test -f xapian.py || echo '$(srcdir)/'`xapian.py xapian/__init__.py
 
 # We "import _xapian" first so that if we fail to import the glue library
-# we don't generate a broken .pyc or .pyo.
+# we don't generate a broken .pyc or .pyo, and we do it with the current
+# directory set to where the module is as Python with -c always searches the
+# current directory first.
+#
+# We then "import xapian" as a separate command, as that's more like how things
+# are once installed - in particular this will fail if the SWIG shadow wrapper
+# doesn't cope with being xapian/__init__.py (currently it needs fixing
+# up, which is done by fixup-swig-py3-wrapper).
 xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -c 'import _xapian; import xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -c 'import xapian'
 
 xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@: xapian/__init__.py xapian/_xapian$(PYTHON3_SO)
-	PYTHONPATH="xapian:$$PYTHONPATH" $(PYTHON3) -O -c 'import _xapian; import xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import os;os.chdir("xapian");import _xapian'
+	$(OSX_SIP_HACK_ENV) $(PYTHON3) -O -c 'import xapian'
 
 xapian/_xapian$(PYTHON3_SO): _xapian.la
 	$(MKDIR_P) xapian
@@ -92,7 +102,7 @@ CLEANFILES = \
     xapian/_xapian$(PYTHON3_SO) \
     xapian/__init__.py \
     xapian/__pycache__/__init__.@PYTHON3_CACHE_TAG@.pyc \
-    xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@\
+    xapian/__pycache__/__init__.@PYTHON3_CACHE_OPT1_EXT@ \
     $(srcdir)/*.pyc
 
 # Clean the xapian directory which we created, if it's empty, and any
@@ -128,11 +138,12 @@ SWIG_FLAGS += -DSWIG_PYTHON_LEGACY_BOOL
 
 xapian_wrap.cc xapian_wrap.h xapian.py xapian_wrap.d: $(stamp)
 	$(make_many_locked)
-$(stamp): except.i doccomments.i
+$(stamp): except.i doccomments.i fixup-swig-py3-wrapper
 	$(multitarget_begin)
 	$(RUN_SWIG) $(SWIG_WERROR) -I. -I'$(srcdir)' $(SWIG_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O \
 	    -o xapian_wrap.cc '$(srcdir)/'python.i
+	$(PERL) -i $(srcdir)/fixup-swig-py3-wrapper xapian.py
 	$(multitarget_end)
 
 -include xapian_wrap.d
@@ -156,5 +167,9 @@ install-data-local:
 
 all-local: $(sphinxdocs)
 
-$(sphinxdocs): xapian/__init__.py docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
-	PYTHONPATH=..:$$PYTHONPATH $(PYTHON3) $(SPHINX_BUILD) -b html -d doctrees -c docs $(srcdir)/docs docs/html
+$(sphinxdocs): xapian/__init__.py xapian/_xapian$(PYTHON3_SO) docs/conf.py $(RST_DOCS) $(dist_exampledata_DATA)
+## We need to run Sphinx for the right version of Python here, so we can't
+## just run sphinx-build as that might be for a different version.
+	PYTHONPATH=..:$$PYTHONPATH $(OSX_SIP_HACK_ENV) $(PYTHON3) \
+		-c 'import sphinx,sys;sys.exit(sphinx.main(sys.argv))' \
+		-b html -d doctrees -c docs $(srcdir)/docs docs/html

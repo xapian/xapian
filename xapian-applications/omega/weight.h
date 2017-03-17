@@ -1,7 +1,7 @@
 /** @file weight.h
  * @brief Set the weighting scheme for Omega
  */
-/* Copyright (C) 2009 Olly Betts
+/* Copyright (C) 2009,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,9 @@
 #include <xapian.h>
 
 #include <string>
-#include <map>
 
 void set_weighting_scheme(Xapian::Enquire & enq,
-			  const std::map<std::string, std::string> & opt,
+			  const std::string & scheme,
 			  bool force_boolean);
 
 #endif // OMEGA_INCLUDED_WEIGHT_H

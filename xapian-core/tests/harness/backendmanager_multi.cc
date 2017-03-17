@@ -39,9 +39,6 @@ BackendManagerMulti::BackendManagerMulti(const std::string & subtype_)
 #ifdef XAPIAN_HAS_GLASS_BACKEND
     if (subtype == "glass") return;
 #endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    if (subtype == "chert") return;
-#endif
     throw ("Unknown backend type \"" + subtype + "\" specified for multi database subdatabases");
 }
 
@@ -87,8 +84,6 @@ BackendManagerMulti::createdb_multi(const vector<string> & files)
     int flags = Xapian::DB_CREATE_OR_OVERWRITE;
     if (subtype == "glass") {
 	flags |= Xapian::DB_BACKEND_GLASS;
-    } else if (subtype == "chert") {
-	flags |= Xapian::DB_BACKEND_CHERT;
     } else {
 	string msg = "Unknown multidb subtype: ";
 	msg += subtype;

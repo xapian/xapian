@@ -113,7 +113,7 @@ class CStringItor {
 	if (!*p) p = NULL;
     }
 
-    unsigned char operator *() const { return *p; }
+    unsigned char operator*() const { return *p; }
 
     CStringItor & operator++() {
 	if (!*++p) p = NULL;
@@ -148,7 +148,7 @@ class StdinItor {
 
     explicit StdinItor(size_t count_) : count(count_), current(256) { }
 
-    unsigned char operator *() const {
+    unsigned char operator*() const {
 	if (current == 256)
 	    current = std::getchar();
 	return current;
@@ -388,10 +388,10 @@ url_prettify(std::string & url)
 		    if (slash == std::string::npos) {
 			// Lazily set slash to the position of the first single '/'.
 			const char * d = in.data();
-			const void * s = d;
 			slash = 0;
 			while (true) {
-			    s = std::memchr(d + slash, '/', pretty_limit - slash);
+			    const void* s = std::memchr(d + slash, '/',
+							pretty_limit - slash);
 			    if (s == NULL) {
 				slash = in.size();
 				break;

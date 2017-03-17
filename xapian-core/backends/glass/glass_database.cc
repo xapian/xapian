@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  * Copyright 2009 Richard Boulton
  * Copyright 2009 Kan-Ru Chen
@@ -200,7 +200,10 @@ GlassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     // already exist.
 
     GlassVersion &v = version_file;
-    v.create(block_size, flags);
+    v.create(block_size);
+
+    glass_revision_number_t rev = v.get_revision();
+    const string& tmpfile = v.write(rev, flags);
 
     position_table.create_and_open(flags, v.get_root(Glass::POSITION));
     synonym_table.create_and_open(flags, v.get_root(Glass::SYNONYM));
@@ -208,6 +211,10 @@ GlassDatabase::create_and_open_tables(int flags, unsigned int block_size)
     docdata_table.create_and_open(flags, v.get_root(Glass::DOCDATA));
     termlist_table.create_and_open(flags, v.get_root(Glass::TERMLIST));
     postlist_table.create_and_open(flags, v.get_root(Glass::POSTLIST));
+
+    if (!v.sync(tmpfile, rev, flags)) {
+	throw Xapian::DatabaseCreateError("Failed to create iamglass file");
+    }
 
     Assert(database_exists());
 }
@@ -717,13 +724,6 @@ GlassDatabase::get_total_length() const
     RETURN(version_file.get_total_doclen());
 }
 
-Xapian::doclength
-GlassDatabase::get_avlength() const
-{
-    LOGCALL(DB, Xapian::doclength, "GlassDatabase::get_avlength", NO_ARGS);
-    RETURN(version_file.get_avlength());
-}
-
 Xapian::termcount
 GlassDatabase::get_doclength(Xapian::docid did) const
 {
@@ -740,8 +740,13 @@ GlassDatabase::get_unique_terms(Xapian::docid did) const
     Assert(did != 0);
     intrusive_ptr<const GlassDatabase> ptrtothis(this);
     GlassTermList termlist(ptrtothis, did);
-    // The "approximate" size should be exact in this case.
-    RETURN(termlist.get_approx_size());
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    RETURN(min(termlist.get_approx_size(),
+	       postlist_table.get_doclength(did, ptrtothis)));
 }
 
 void
@@ -984,6 +989,12 @@ GlassDatabase::has_uncommitted_changes() const
     return false;
 }
 
+bool
+GlassDatabase::locked() const
+{
+    return lock.test();
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 GlassWritableDatabase::GlassWritableDatabase(const string &dir, int flags,
@@ -1016,6 +1027,18 @@ GlassWritableDatabase::commit()
 	throw Xapian::InvalidOperationError("Can't commit during a transaction");
     if (change_count) flush_postlist_changes();
     apply();
+}
+
+void
+GlassWritableDatabase::check_flush_threshold()
+{
+    // FIXME: this should be done by checking memory usage, not the number of
+    // changes.  We could also look at the amount of data the inverter object
+    // currently holds.
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
 }
 
 void
@@ -1105,13 +1128,7 @@ GlassWritableDatabase::add_document_(Xapian::docid did,
 	throw;
     }
 
-    // FIXME: this should be done by checking memory usage, not the number of
-    // changes.  We could also look at the amount of data the inverter object
-    // currently holds.
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 
     RETURN(did);
 }
@@ -1177,10 +1194,7 @@ GlassWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 void
@@ -1292,7 +1306,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 		    version_file.check_wdf(new_wdf);
 
 		    if (old_wdf != new_wdf) {
-		    	new_doclen += new_wdf - old_wdf;
+			new_doclen += new_wdf - old_wdf;
 			inverter.update_posting(did, new_tname, old_wdf, new_wdf);
 		    }
 
@@ -1337,10 +1351,7 @@ GlassWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++change_count >= flush_threshold) {
-	flush_postlist_changes();
-	if (!transaction_active()) apply();
-    }
+    check_flush_threshold();
 }
 
 Xapian::Document::Internal *
@@ -1362,6 +1373,25 @@ GlassWritableDatabase::get_doclength(Xapian::docid did) const
     if (inverter.get_doclength(did, doclen))
 	RETURN(doclen);
     RETURN(GlassDatabase::get_doclength(did));
+}
+
+Xapian::termcount
+GlassWritableDatabase::get_unique_terms(Xapian::docid did) const
+{
+    LOGCALL(DB, Xapian::termcount, "GlassWritableDatabase::get_unique_terms", did);
+    Assert(did != 0);
+    // Note that the "approximate" size should be exact in this case.
+    //
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    Xapian::termcount doclen;
+    if (inverter.get_doclength(did, doclen)) {
+	intrusive_ptr<const GlassDatabase> ptrtothis(this);
+	GlassTermList termlist(ptrtothis, did);
+	RETURN(min(doclen, termlist.get_approx_size()));
+    }
+    RETURN(GlassDatabase::get_unique_terms(did));
 }
 
 void

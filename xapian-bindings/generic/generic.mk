@@ -9,9 +9,15 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 if NEED_INTREE_DYLD
-# This is a hack for Mac OS X to enable tests to work when built against an
-# uninstalled xapian-core tree.  See https://trac.xapian.org/ticket/322
-export DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
+# This is a hack for Mac OS X to work around "System Integrity Protection"
+# which strips DYLD_* variables from the environment when running binaries
+# in system bin directories.  This totally breaks running in-tree tests
+# against system interpreters (e.g. /usr/bin/python), but even for an
+# interpreter installed elsewhere we need to take special care because
+# /bin/sh is also affected.  The trick we use is to define a variable
+# which expands to the code needed to set DYLD_LIBRARY_PATH and inject
+# this right when we run the interpreter.
+export OSX_SIP_HACK_ENV=env DYLD_LIBRARY_PATH=$(INTREE_DYLD_PATH)
 endif
 
 if OVERRIDE_MACOSX_DEPLOYMENT_TARGET

@@ -1,7 +1,7 @@
 /** @file exactphrasepostlist.cc
  * @brief Return docs containing terms forming a particular exact phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ class TermCompare {
     vector<PostList *> & terms;
 
   public:
-    TermCompare(vector<PostList *> & terms_) : terms(terms_) { }
+    explicit TermCompare(vector<PostList *> & terms_) : terms(terms_) { }
 
     bool operator()(unsigned a, unsigned b) const {
 	return terms[a]->get_wdf() < terms[b]->get_wdf();
@@ -140,7 +140,7 @@ ExactPhrasePostList::get_wdf() const
     // comment in NearPostList::get_wdf() for justification of this estimate.
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); ++i) {
+    while (++i != terms.end()) {
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;

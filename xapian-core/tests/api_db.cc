@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2015,2016 Olly Betts
  * Copyright 2006,2007,2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -30,6 +30,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "safenetdb.h" // For gai_strerror().
 #include "safesysstat.h" // For mkdir().
 #include "safeunistd.h" // For sleep().
 
@@ -117,6 +118,85 @@ DEFINE_TESTCASE(stubdb2, backend && !inmemory && !remote) {
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
     }
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote" << endl;
+    out.close();
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote foo" << endl;
+    out.close();
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    // Quietly ignored prior to 1.4.1.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB)
+    );
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    out << "remote [::1]:80" << endl;
+    out.close();
+
+    try {
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    } catch (const Xapian::NetworkError& e) {
+	// 1.4.0 threw (Linux):
+	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (nodename nor servname provided, or not known)
+	// or on OS X (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
+	// So we test the message instead of the error string for portability.
+	TEST(e.get_msg().find("host ::1") != string::npos);
+    }
+
+    try {
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
+    } catch (const Xapian::NetworkError& e) {
+	// 1.4.0 threw (Linux):
+	//  NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+	// 1.4.1 throws (because we don't actually support IPv6 yet) on Linux (EAI_ADDRFAMILY):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (nodename nor servname provided, or not known)
+	// or on OS X (EAI_NONAME):
+	//  NetworkError: Couldn't resolve host ::1 (context: remote:tcp(::1:80)) (Address family for hostname not supported)
+	// So we test the message instead of the error string for portability.
+	TEST(e.get_msg().find("host ::1") != string::npos);
+    }
+
+    out.open(dbpath);
+    TEST(out.is_open());
+    // Invalid - the port number is required.
+    out << "remote [::1]" << endl;
+    out.close();
+
+    // 1.4.0 threw:
+    // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Database db(dbpath, Xapian::DB_BACKEND_STUB);
+    );
+
+    // 1.4.0 threw:
+    // NetworkError: Couldn't resolve host [ (context: remote:tcp([:0)) (No address associated with hostname)
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::WritableDatabase db(dbpath, Xapian::DB_BACKEND_STUB);
+    );
 
     return true;
 }
@@ -223,7 +303,29 @@ DEFINE_TESTCASE(stubdb6, inmemory) {
 	db.add_document(Xapian::Document());
 	TEST_EQUAL(db.get_doccount(), 1);
     }
- 
+
+    return true;
+}
+
+/// Test error running Database::check() on a stub database.
+// Regression test - in 1.4.3 and earlier this threw
+// Xapian::DatabaseError.
+DEFINE_TESTCASE(stubdb8, inmemory) {
+    mkdir(".stub", 0755);
+    const char * dbpath = ".stub/stubdb8";
+    ofstream out(dbpath);
+    TEST(out.is_open());
+    out << "inmemory\n";
+    out.close();
+
+    try {
+	Xapian::Database::check(dbpath);
+	FAIL_TEST("Managed to check inmemory stub");
+    } catch (const Xapian::DatabaseOpeningError & e) {
+	// Check the message is appropriate.
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "File is not a Xapian database or database table");
+    }
     return true;
 }
 
@@ -1101,8 +1203,8 @@ DEFINE_TESTCASE(specialterms1, backend) {
 	if (value_no == 0) {
 	    TEST(value.size() > 263);
 	    TEST_EQUAL(static_cast<unsigned char>(value[262]), 255);
-	    for (int k = 0; k < 256; k++) {
-		TEST_EQUAL(static_cast<unsigned char>(value[k+7]), k);
+	    for (int k = 0; k < 256; ++k) {
+		TEST_EQUAL(static_cast<unsigned char>(value[k + 7]), k);
 	    }
 	}
     }
@@ -1460,8 +1562,7 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 		}
 	    }
 	}
-    }
-    catch (const Xapian::NetworkTimeoutError &) {
+    } catch (const Xapian::NetworkTimeoutError &) {
 	// consistency1 is a long test - may timeout with the remote backend...
 	SKIP_TEST("Test taking too long");
     }
@@ -1469,98 +1570,98 @@ DEFINE_TESTCASE(consistency1, backend && !remote) {
 }
 
 // tests that specifying a nonexistent input file throws an exception.
-DEFINE_TESTCASE(chertdatabaseopeningerror1, chert) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    mkdir(".chert", 0755);
+DEFINE_TESTCASE(glassdatabaseopeningerror1, glass) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    mkdir(".glass", 0755);
 
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".chert/nosuchdirectory",
-		Xapian::DB_BACKEND_CHERT));
+	    Xapian::Database(".glass/nosuchdirectory",
+		Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::WritableDatabase(".chert/nosuchdirectory",
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/nosuchdirectory",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
 
-    mkdir(".chert/emptydirectory", 0700);
+    mkdir(".glass/emptydirectory", 0700);
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".chert/emptydirectory",
-		Xapian::DB_BACKEND_CHERT));
+	    Xapian::Database(".glass/emptydirectory",
+		Xapian::DB_BACKEND_GLASS));
 
-    touch(".chert/somefile");
+    touch(".glass/somefile");
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::Database(".chert/somefile",
-		Xapian::DB_BACKEND_CHERT));
+	    Xapian::Database(".glass/somefile",
+		Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS));
     TEST_EXCEPTION(Xapian::DatabaseCreateError,
-	    Xapian::WritableDatabase(".chert/somefile",
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
+	    Xapian::WritableDatabase(".glass/somefile",
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
 #endif
 
     return true;
 }
 
-/// Test opening of a chert database
-DEFINE_TESTCASE(chertdatabaseopen1, chert) {
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-    const string dbdir = ".chert/test_chertdatabaseopen1";
-    mkdir(".chert", 0755);
+/// Test opening of a glass database
+DEFINE_TESTCASE(glassdatabaseopen1, glass) {
+#ifdef XAPIAN_HAS_GLASS_BACKEND
+    const string dbdir = ".glass/test_glassdatabaseopen1";
+    mkdir(".glass", 0755);
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT));
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT));
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	rm_rf(dbdir);
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS);
 	TEST_EXCEPTION(Xapian::DatabaseLockError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT));
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS));
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	TEST_EXCEPTION(Xapian::DatabaseCreateError,
 	    Xapian::WritableDatabase(dbdir,
-		Xapian::DB_CREATE|Xapian::DB_BACKEND_CHERT));
+		Xapian::DB_CREATE|Xapian::DB_BACKEND_GLASS));
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_CHERT);
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OVERWRITE|Xapian::DB_BACKEND_GLASS);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_CHERT);
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_CREATE_OR_OPEN|Xapian::DB_BACKEND_GLASS);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 
     {
 	Xapian::WritableDatabase wdb(dbdir,
-		Xapian::DB_OPEN|Xapian::DB_BACKEND_CHERT);
-	Xapian::Database(dbdir, Xapian::DB_BACKEND_CHERT);
+		Xapian::DB_OPEN|Xapian::DB_BACKEND_GLASS);
+	Xapian::Database(dbdir, Xapian::DB_BACKEND_GLASS);
     }
 #endif
 
@@ -1790,9 +1891,6 @@ class MyWeight : public Xapian::Weight {
     std::string name() const { return "MyWeight"; }
     string serialise() const { return string(); }
     MyWeight * unserialise(const string &) const { return new MyWeight; }
-    double get_sumpart(Xapian::termcount, Xapian::termcount) const {
-	return scale_factor;
-    }
     double get_sumpart(Xapian::termcount, Xapian::termcount, Xapian::termcount) const {
 	return scale_factor;
     }
@@ -1851,7 +1949,7 @@ DEFINE_TESTCASE(matchall1, backend) {
     TEST_EQUAL(mset[mset.size() - 1].get_weight(), 0);
     TEST_EQUAL(*mset[0], 1);
     TEST_EQUAL(*mset[mset.size() - 1], mset.size());
- 
+
     return true;
 }
 

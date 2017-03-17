@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2013,2014,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2013,2014,2015,2016 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -122,13 +122,6 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 
 	/** Return the total length of all documents in this database. */
 	virtual totlen_t get_total_length() const = 0;
-
-	/** Return the average length of a document in this (sub) database.
-	 *
-	 *  See Database::Internal::get_doclength() for the meaning of document
-	 *  length within Xapian.
-	 */
-	virtual Xapian::doclength get_avlength() const = 0;
 
 	/** Get the length of a given document.
 	 *
@@ -530,6 +523,16 @@ class Database::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	virtual void get_used_docid_range(Xapian::docid & first,
 					  Xapian::docid & last) const;
+
+	/** Return true if the database is open for writing.
+	 *
+	 *  If this is a WritableDatabase, always returns true.
+	 *
+	 *  For a Database, test if there's a writer holding the lock (or if
+	 *  we can't test for a lock without taking it on the current platform,
+	 *  throw Xapian::UnimplementedError).
+	 */
+	virtual bool locked() const;
 };
 
 }

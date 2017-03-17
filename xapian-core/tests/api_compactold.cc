@@ -189,7 +189,7 @@ DEFINE_TESTCASE(compactoldnorenumber1, generated) {
 	compact.add_source(b);
 	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
- 
+
     // Should fail.
     rm_rf(out);
     {
@@ -212,7 +212,7 @@ DEFINE_TESTCASE(compactoldnorenumber1, generated) {
 	compact.add_source(d);
 	TEST_EXCEPTION(Xapian::InvalidOperationError, compact.compact());
     }
- 
+
     // Should fail.
     rm_rf(out);
     {
@@ -241,7 +241,7 @@ DEFINE_TESTCASE(compactoldnorenumber1, generated) {
 }
 
 // Test use of compact to merge two databases.
-DEFINE_TESTCASE(compactoldmerge1, chert || glass) {
+DEFINE_TESTCASE(compactoldmerge1, glass) {
     string indbpath = get_database_path("apitest_simpledata");
     string outdbpath = get_named_writable_database_path("compactmerge1out");
     rm_rf(outdbpath);
@@ -299,7 +299,7 @@ DEFINE_TESTCASE(compactoldmultichunks1, generated) {
 }
 
 // Test compacting from a stub database directory.
-DEFINE_TESTCASE(compactoldstub1, chert || glass) {
+DEFINE_TESTCASE(compactoldstub1, glass) {
     const char * stubpath = ".stub/compactstub1";
     const char * stubpathfile = ".stub/compactstub1/XAPIANDB";
     mkdir(".stub", 0755);
@@ -328,7 +328,7 @@ DEFINE_TESTCASE(compactoldstub1, chert || glass) {
 }
 
 // Test compacting from a stub database file.
-DEFINE_TESTCASE(compactoldstub2, chert || glass) {
+DEFINE_TESTCASE(compactoldstub2, glass) {
     const char * stubpath = ".stub/compactstub2";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -355,7 +355,7 @@ DEFINE_TESTCASE(compactoldstub2, chert || glass) {
 }
 
 // Test compacting a stub database file to itself.
-DEFINE_TESTCASE(compactoldstub3, chert || glass) {
+DEFINE_TESTCASE(compactoldstub3, glass) {
     const char * stubpath = ".stub/compactstub3";
     mkdir(".stub", 0755);
     ofstream stub(stubpath);
@@ -384,7 +384,7 @@ DEFINE_TESTCASE(compactoldstub3, chert || glass) {
 }
 
 // Test compacting a stub database directory to itself.
-DEFINE_TESTCASE(compactoldstub4, chert || glass) {
+DEFINE_TESTCASE(compactoldstub4, glass) {
     const char * stubpath = ".stub/compactstub4";
     const char * stubpathfile = ".stub/compactstub4/XAPIANDB";
     mkdir(".stub", 0755);
@@ -524,7 +524,7 @@ DEFINE_TESTCASE(compactoldmergesynonym1, generated) {
     return true;
 }
 
-DEFINE_TESTCASE(compactoldempty1, chert || glass) {
+DEFINE_TESTCASE(compactoldempty1, glass) {
     string empty_dbpath = get_database_path(string());
     string outdbpath = get_named_writable_database_path("compactempty1out");
     rm_rf(outdbpath);
@@ -557,7 +557,7 @@ DEFINE_TESTCASE(compactoldempty1, chert || glass) {
     return true;
 }
 
-DEFINE_TESTCASE(compactoldmultipass1, chert || glass) {
+DEFINE_TESTCASE(compactoldmultipass1, glass) {
     string outdbpath = get_named_writable_database_path("compactmultipass1");
     rm_rf(outdbpath);
 

@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2017 Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -23,7 +24,6 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  THE POSSIBILITY OF SUCH DAMAGE.
  **/
-package org.xapian.examples;
 
 import org.xapian.*;
 
@@ -61,7 +61,7 @@ public class SimpleSearch {
             // TODO:  Make this more like a Java Iterator by returning some
             // kind of "MatchDescriptor" object
             Document doc = db.getDocument(docID);
-            System.err.println(percent + "% [" + docID + "] " + doc.getValue(0));
+            System.err.println(percent + "% [" + docID + "] " + doc.getData());
         }
     }
 

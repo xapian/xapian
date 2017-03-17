@@ -113,13 +113,6 @@ def test_all():
             lambda msg: msg.find("has no attribute 'open_stub'") != -1,
             lambda : xapian.open_stub(b"nosuchdir/nosuchdb", xapian.DB_OPEN))
 
-    expect_exception(AttributeError,
-            lambda msg: msg.find("has no attribute 'chert_open'") != -1,
-            lambda : xapian.chert_open(b"nosuchdir/nosuchdb"))
-    expect_exception(AttributeError,
-            lambda msg: msg.find("has no attribute 'chert_open'") != -1,
-            lambda : xapian.chert_open(b"nosuchdir/nosuchdb", xapian.DB_CREATE))
-
     expect_exception(xapian.DatabaseOpeningError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_STUB))
     expect_exception(xapian.DatabaseOpeningError, None,
@@ -130,9 +123,9 @@ def test_all():
     expect_exception(xapian.DatabaseCreateError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_GLASS))
 
-    expect_exception(xapian.DatabaseOpeningError, None,
+    expect_exception(xapian.FeatureUnavailableError, None,
             lambda : xapian.Database(b"nosuchdir/nosuchdb", xapian.DB_BACKEND_CHERT))
-    expect_exception(xapian.DatabaseCreateError, None,
+    expect_exception(xapian.FeatureUnavailableError, None,
             lambda : xapian.WritableDatabase(b"nosuchdir/nosuchdb", xapian.DB_CREATE|xapian.DB_BACKEND_CHERT))
 
     expect_exception(xapian.NetworkError, None,
@@ -377,7 +370,7 @@ def test_all():
     vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
     qp.add_valuerangeprocessor(vrpdate)
     query = qp.parse_query(b'12/03/99..12/04/01')
-    expect(str(query), 'Query(0 * VALUE_RANGE 1 19991203 20011204)')
+    expect(str(query), 'Query(VALUE_RANGE 1 19991203 20011204)')
 
     # Regression test for bug#193, fixed in 1.0.3.
     context("running regression test for bug#193")

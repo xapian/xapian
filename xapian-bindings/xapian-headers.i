@@ -175,6 +175,7 @@ CONSTANT(int, Xapian, DBCHECK_FIX);
 CONSTANT(int, Xapian, DBCOMPACT_MULTIPASS);
 CONSTANT(int, Xapian, DBCOMPACT_NO_RENUMBER);
 CONSTANT(int, Xapian, DBCOMPACT_SINGLE_FILE);
+CONSTANT(int, Xapian, DOC_ASSUME_VALID);
 %include <xapian/constants.h>
 
 /* The Error subclasses are handled separately for languages where we wrap
@@ -443,20 +444,10 @@ STANDARD_IGNORES(Xapian, WritableDatabase)
 
 #ifdef XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES
 %ignore Xapian::InMemory::open;
-%ignore Xapian::Chert::open;
 %ignore Xapian::Auto::open_stub;
 #else
 
 %rename("inmemory_open") Xapian::InMemory::open;
-
-/* SWIG Tcl wrappers don't call destructors for classes returned by factory
- * functions, so we don't wrap them so users are forced to use the
- * WritableDatabase ctor instead. */
-#ifdef SWIGTCL
-%ignore Xapian::Chert::open(const std::string &dir, int action, int block_size = 8192);
-#endif
-
-%rename("chert_open") Xapian::Chert::open;
 
 #ifndef SWIGPHP
 /* PHP renames this to auto_open_stub() in php/php.i. */

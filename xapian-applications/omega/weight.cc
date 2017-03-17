@@ -1,7 +1,7 @@
 /** @file weight.cc
  * @brief Set the weighting scheme for Omega
  */
-/* Copyright (C) 2009,2013 Olly Betts
+/* Copyright (C) 2009,2013,2016 Olly Betts
  * Copyright (C) 2013 Aarsh Shah
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,14 +28,6 @@
 #include <cstdlib>
 #include "safeerrno.h"
 #include "common/noreturn.h"
-
-#ifndef XAPIAN_AT_LEAST
-#define XAPIAN_AT_LEAST(A,B,C) \
-    (XAPIAN_MAJOR_VERSION > (A) || \
-     (XAPIAN_MAJOR_VERSION == (A) && \
-      (XAPIAN_MINOR_VERSION > (B) || \
-       (XAPIAN_MINOR_VERSION == (B) && XAPIAN_REVISION >= (C)))))
-#endif
 
 using namespace std;
 
@@ -64,7 +56,6 @@ double_param(const char ** p, double * ptr_val)
     return true;
 }
 
-#if XAPIAN_AT_LEAST(1,3,2)
 static bool
 type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 {
@@ -83,17 +74,12 @@ type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
     *ptr_val = smooth_tab[v - 1];
     return true;
 }
-#endif
 
 void
-set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
+set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
 		     bool force_boolean)
 {
     if (!force_boolean) {
-	map<string, string>::const_iterator i = opt.find("weighting");
-	if (i == opt.end()) return;
-
-	const string & scheme = i->second;
 	if (scheme.empty()) return;
 
 	if (startswith(scheme, "bm25")) {
@@ -102,7 +88,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::BM25Weight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double k1 = 1;
 		double k2 = 0;
 		double k3 = 1;
@@ -132,7 +118,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::TradWeight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double k;
 		if (!double_param(&p, &k))
 		    parameter_error("Parameter is invalid", scheme);
@@ -143,28 +129,25 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 	    }
 	}
 
-#if XAPIAN_AT_LEAST(1,3,1)
 	if (startswith(scheme, "tfidf")) {
 	    const char *p = scheme.c_str() + 5;
 	    if (*p == '\0') {
 		enq.set_weighting_scheme(Xapian::TfIdfWeight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		enq.set_weighting_scheme(Xapian::TfIdfWeight(p + 1));
 		return;
 	    }
 	}
-#endif
 
-#if XAPIAN_AT_LEAST(1,3,2)
 	if (startswith(scheme, "inl2")) {
 	    const char *p = scheme.c_str() + 4;
 	    if (*p == '\0') {
 		enq.set_weighting_scheme(Xapian::InL2Weight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double k;
 		if (!double_param(&p, &k))
 		    parameter_error("Parameter is invalid", scheme);
@@ -181,7 +164,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::IfB2Weight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double k;
 		if (!double_param(&p, &k))
 		    parameter_error("Parameter is invalid", scheme);
@@ -198,7 +181,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::IneB2Weight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double k;
 		if (!double_param(&p, &k))
 		    parameter_error("Parameter is invalid", scheme);
@@ -215,7 +198,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::BB2Weight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double k;
 		if (!double_param(&p, &k))
 		    parameter_error("Parameter is invalid", scheme);
@@ -232,7 +215,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::DLHWeight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		throw "No parameters are required for DLH";
 	    }
 	}
@@ -243,7 +226,7 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::PL2Weight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double k;
 		if (!double_param(&p, &k))
 		    parameter_error("Parameter is invalid", scheme);
@@ -260,20 +243,18 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		enq.set_weighting_scheme(Xapian::DPHWeight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		throw "No parameters are required for DPH";
 	    }
 	}
-#endif
 
-#if XAPIAN_AT_LEAST(1,3,2)
 	if (startswith(scheme, "lm")) {
 	    const char *p = scheme.c_str() + 2;
 	    if (*p == '\0') {
 		enq.set_weighting_scheme(Xapian::LMWeight());
 		return;
 	    }
-	    if (C_isspace((unsigned char)*p)) {
+	    if (C_isspace(*p)) {
 		double param_log = 0;
 		Xapian::Weight::type_smoothing type = Xapian::Weight::TWO_STAGE_SMOOTHING;
 		double smoothing1 = 0.7;
@@ -293,7 +274,11 @@ set_weighting_scheme(Xapian::Enquire & enq, const map<string, string> & opt,
 		return;
 	    }
 	}
-#endif
+
+	if (scheme == "coord") {
+	    enq.set_weighting_scheme(Xapian::CoordWeight());
+	    return;
+	}
 
 	if (scheme != "bool") {
 	    throw "Unknown $opt{weighting} setting: " + scheme;

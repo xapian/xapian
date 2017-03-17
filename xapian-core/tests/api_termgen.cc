@@ -702,7 +702,7 @@ format_doc_termlist(const Xapian::Document & doc)
 	    }
 	    char ch = '[';
 	    Xapian::PositionIterator posit;
-	    for (posit = it.positionlist_begin(); posit != it.positionlist_end(); posit++) {
+	    for (posit = it.positionlist_begin(); posit != it.positionlist_end(); ++posit) {
 		output += ch;
 		ch = ',';
 		output += str(*posit);

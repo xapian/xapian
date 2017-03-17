@@ -6,7 +6,8 @@ abs_builddir = @abs_builddir@
 
 ## Test programs to be run
 TESTS = smoketest.php
-LOG_COMPILER = $(PHP)
+LOG_COMPILER = \
+    $(LIBTOOL) -dlopen xapian.la --mode=execute $(OSX_SIP_HACK_ENV) $(PHP)
 # Use -n to disable use of the system php.ini (which might prevent php from
 # using dl() which would make our test fail).  It would be nicer to use "-c"
 # and provide an alternative php.ini but with "-c" it seems PHP still loads the
@@ -18,7 +19,7 @@ AM_LOG_FLAGS = -n -d safe_mode=off -d enable_dl=on \
 installcheck-local:
 	$(MAKE) check AM_LOG_FLAGS=
 
-BUILT_SOURCES =\
+SWIG_GENERATED =\
 	php5/xapian_wrap.cc\
 	php5/xapian_wrap.h\
 	php5/php_xapian.h\
@@ -29,7 +30,9 @@ EXTRA_DIST = php.i except.i \
 	add-php-ref-handling \
 	add-php-type-hints \
 	docs/index.rst \
-	$(TESTS) $(BUILT_SOURCES)
+	$(TESTS) $(SWIG_GENERATED)
+
+BUILT_SOURCES = $(SWIG_GENERATED)
 
 phpextdir = $(PHP_EXTENSION_DIR)
 
@@ -98,7 +101,7 @@ dist_exampledata_DATA =\
 	docs/examples/simplematchdecider.php5
 
 docdatadir = $(docdir)/php
-docdata_DATA = docs/index.html
+dist_docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
 BUILT_SOURCES += docs/index.html

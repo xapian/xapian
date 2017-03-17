@@ -1,36 +1,87 @@
-language: cpp
-before_script:
-  - ./bootstrap
-  - ./configure
-script: make && make check
+# Travis configuration for building Xapian. This is fairly intensive, so
+# we only enable it for pull requests.
+#
+# Right now, we build on containerised linux, which defaults to the
+# ancient Ubuntu 12.04 LTS.  Specify "dist: trusty" so we get something
+# which is "only" 2.5 years old.
+dist: trusty
 sudo: false
-notifications:
-  irc: "chat.freenode.net#xapian-devel"
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - doxygen
-      - graphviz
-      - help2man
-      - python-docutils
-      - pngcrush
-      - python-sphinx
-      - uuid-dev
-      - libpcre3-dev
-      - libmagic-dev
-      - tcl
-      - gcc-4.7
-      - g++-4.7
+language: cpp
 env:
   global:
+    # Tell bootstrap where to clone ./common from
     - XAPIAN_COMMON_CLONE_URL=https://github.com/xapian/xapian.git
-  matrix:
-    - USE_CC=clang USE_CXX=clang++ CXXFLAGS=-Wno-error=reserved-user-defined-literal
-    - USE_CC=gcc-4.7 USE_CXX=g++-4.7
-before_install:
-  - test -n $CC  && unset CC
-  - test -n $CXX && unset CXX
-  - test -n $USE_CC && export CC=$USE_CC
-  - test -n $USE_CXX && export CXX=$USE_CXX
+matrix:
+  include:
+    - compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - tcl
+            - libsvm-dev
+    - compiler: clang
+      os: linux
+      # Clang is already installed, but we want to build using the
+      # llvm c++ library, not the GCC one. (Otherwise, depending on
+      # the GCC version, there can be issues.)
+      addons:
+        apt:
+          packages:
+            - doxygen
+            - graphviz
+            - help2man
+            - python-docutils
+            - pngcrush
+            - python-sphinx
+            - uuid-dev
+            - libpcre3-dev
+            - libmagic-dev
+            - tcl
+            - libsvm-dev
+            - libc++-dev
+      # We also have to disable an error, because (older?)
+      # perl header files don't play nicely with clang.
+      env: USE_CC=clang USE_CXX='clang++ -stdlib=libc++' CXXFLAGS=-Wno-error=reserved-user-defined-literal
+    - os: osx
+      before_install:
+        - brew update
+        # Work-around crash in doxygen 1.8.13 XML backend:
+        # https://github.com/xapian/xapian/pull/132
+        - brew install doxygen --HEAD
+        - brew install help2man graphviz pngcrush libmagic pcre libsvm lua mono python3
+        - pip install sphinx docutils
+        - pip3 install sphinx
+        - mkdir -p /tmp/xapian-libsvm-fixed-include
+        - ln -sF "`ls -1d /usr/local/Cellar/libsvm/3.*/include|tail -n 1`" /tmp/xapian-libsvm-fixed-include/libsvm
+      env: CXXFLAGS=-Wno-error=reserved-user-defined-literal CPPFLAGS=-I/tmp/xapian-libsvm-fixed-include confargs=--prefix=/Users/travis/XapianInstall installcore='make -C xapian-core install'
+    - os: linux
+      # (Ab)use env to label this build:
+      env: dummy="Automated run of xapian-check-patch"
+      # Override before_script to do nothing
+      before_script:
+      # Override script to diff from against the branch point from:
+      # * for a PR, the branch the PR targets
+      # * otherwise, master
+      script:
+        - git diff `[ "$TRAVIS_PULL_REQUEST" = false ] && echo master || echo "$TRAVIS_BRANCH"`...|xapian-maintainer-tools/xapian-check-patch
+
+
+before_script:
+  # Bootstrap everything (including letor, which isn't done
+  # by default), then configure using our chosen compiler.
+  - ./bootstrap xapian-core xapian-applications/omega swig xapian-bindings xapian-letor
+  - ./configure $confargs CC="$USE_CC" CXX="$USE_CXX"
+script:
+  - make
+  - $installcore
+  - make check -C xapian-bindings VERBOSE=1 AUTOMATED_TESTING=1

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,8 +56,8 @@
 #include <exception>
 #ifdef USE_RTTI
 # include <typeinfo>
-# ifdef __GNUC__
-#  include <cxxabi.h> // Added in GCC 3.1 which is now required.
+# ifdef HAVE_CXXABI_H
+#  include <cxxabi.h>
 # endif
 #endif
 
@@ -524,7 +524,7 @@ test_driver::runtest(const test_desc *test)
 		out << "std::exception";
 #else
 		const char * name = typeid(e).name();
-# ifdef __GNUC__
+# ifdef HAVE_CXXABI_H__
 		// __cxa_demangle() apparently requires GCC >= 3.1.
 		// Demangle the name which GCC returns for type_info::name().
 		int status;
@@ -612,7 +612,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 
     test_driver::result res;
 
-    for (const test_desc *test = tests; test->name; test++) {
+    for (const test_desc *test = tests; test->name; ++test) {
 	bool do_this_test = !check_name;
 	if (!do_this_test && m.find(test->name) != m.end())
 	    do_this_test = true;
@@ -796,7 +796,8 @@ test_driver::parse_command_line(int argc, char **argv)
 	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
 	    // Open the valgrind log file, and unlink it.
 	    char fname[64];
-	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
+	    sprintf(fname, ".valgrind.log.%lu",
+		    static_cast<unsigned long>(getpid()));
 	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK|O_CLOEXEC);
 	    if (vg_log_fd != -1) unlink(fname);
 	}

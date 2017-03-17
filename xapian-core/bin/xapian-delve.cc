@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007,2008,2009,2010,2011,2012,2013,2014,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -86,6 +86,12 @@ show_db_stats(Database &db)
     cout << "highest document id ever used = " << db.get_lastdocid() << endl;
     cout << boolalpha;
     cout << "has positional information = " << db.has_positions() << endl;
+    cout << "currently open for writing = ";
+    try {
+	cout << db.locked() << endl;
+    } catch (const Xapian::Error& e) {
+	cout << e.get_description() << endl;
+    }
 
     if (count_zero_length_docs) {
 	Xapian::doccount empty_docs = 0;

@@ -79,6 +79,10 @@ $cgi{CGI}
 $cgilist{CGI}
 	return a list of all values of a CGI parameter
 
+$cgiparams
+        return a list of all the unique CGI parameter names, sorted in
+        ascending order by raw byte values.
+
 $chr{CODEPOINT}
         return UTF-8 for the given Unicode codepoint, e.g. ``$chr{127866}``
         should display as a beer mug if the font has a suitable glyph.
@@ -186,10 +190,10 @@ $filesize{SIZE}
 
 $filters
         serialised version of filter-like settings (currently ``B``, ``N``,
-        ``START``, ``END``, ``SPAN``, ``COLLAPSE``, ``DOCIDORDER``, ``SORT``,
-        ``SORTREVERSE``, ``SORTAFTER``, and ``DEFAULTOP``) - set ``xFILTERS``
-        to this so that Omega can detect when the filters have changed and
-        force the first page.
+        ``DATEVALUE``, ``START``, ``END``, ``SPAN``, ``COLLAPSE``,
+        ``DOCIDORDER``, ``SORT``, ``SORTREVERSE``, ``SORTAFTER``, and
+        ``DEFAULTOP``) - set ``xFILTERS`` to this so that Omega can detect when
+        the filters have changed and force the first page.
 
 $filterterms{PREFIX}
         list of all terms in the database with prefix ``PREFIX``, intended to
@@ -356,7 +360,14 @@ $msize
 	estimated number of matches.
 
 $msizeexact
-	return ``true`` if ``$msize`` is exact (or "" if it is estimated).
+        return ``true`` if ``$msize`` is exact (or "" if it is estimated).
+        Exactly equivalent to: ``$eq{$msizelower,$msizeupper}``
+
+$msizelower
+        lower bound on number of matches.
+
+$msizeupper
+        upper bound on number of matches.
 
 $nice{number}
 	pretty print integer (with thousands separator).
@@ -477,6 +488,7 @@ $set{OPT,VALUE}
           all separated by whitespace.  Any parameters not specified will use
           their default values.  Valid scheme names are
           ``bb2`` (in Omega >= 1.3.2), ``bm25``, ``bool``,
+          ``coord`` (in Omega >= 1.4.1),
           ``dlh`` (in Omega >= 1.3.2), ``dph`` (in Omega >= 1.3.2),
           ``ifb2`` (in Omega >= 1.3.2), ``ineb2`` (in Omega >= 1.3.2),
           ``inl2`` (in Omega >= 1.3.2), ``lm`` (in Omega >= 1.3.2),
@@ -490,6 +502,12 @@ $set{OPT,VALUE}
           their default values.  Valid expansion schemes names are
           ``trad`` and ``bo1``.  e.g.
           ``$set{expansion,trad 2.0}``
+        * weightingpurefilter - normally a query consisting only of filter
+          terms won't have relevance weights calculated.  This option allows
+          you to specify a weighting scheme to use for such queries, with the
+          same values supported as for ``weighting`` above.  For example,
+          ``$set{weightingpurefilter,coord}`` will weight such queries by
+          how many filter terms match each document.
 
 	Omega 1.2.5 and later support the following options, which can be set
 	to a non-empty value to enable the corresponding ``QueryParser`` flag.
@@ -596,7 +614,7 @@ $slice{LIST,POSITIONS}
 
 $snippet{TEXT[,LENGTH]}
         Generate a context-sensitive snippet from ``TEXT`` using
-        ``Xapian::MSet::get_snippet()``.  The snippet will be at most
+        ``Xapian::MSet::snippet()``.  The snippet will be at most
         ``LENGTH`` bytes long (default: 200).
 
 $split{STRING}

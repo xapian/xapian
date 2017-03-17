@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT([xapian-core], [1.4.0], [https://xapian.org/bugs])
+AC_INIT([xapian-core], [1.5.0], [https://xapian.org/bugs])
 dnl See HACKING document for details of the reasons for required versions.
 AC_PREREQ([2.64])
 dnl Extract from the libtool info manual:
@@ -28,20 +28,30 @@ dnl
 dnl 6. If any interfaces have been removed since the last public release
 dnl    then set AGE to 0.
 dnl
-dnl LIBRARY_VERSION_INFO for libxapian:
-dnl 29:1:7 1.2.23 No API changes (except new inline methods)
-dnl 30:0:0 1.4.0 Extensive API changes
-LIBRARY_VERSION_INFO=30:0:0
+dnl LIBRARY_VERSION_INFO for libxapian1.5
+dnl 0:0:0 1.5.0 Reset as library renamed
+LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST([LIBRARY_VERSION_INFO])
 
 LIBRARY_VERSION_SUFFIX=
-AC_SUBST([LIBRARY_VERSION_SUFFIX])
-
-dnl Disabled for stable release series.
-test x"$program_suffix" != xNONE || program_suffix=
-
-dnl Where xapian.h, etc go.  In development release append "/xapian-1.3".
+dnl Where xapian.h, etc go.
 incdir=$includedir
+case $PACKAGE_VERSION in
+  [*.*[13579].*])
+    dnl Development release series:
+    [dev_series=`echo "$PACKAGE_VERSION"|sed 's/\.[^.]*$//'`]
+
+    dnl Append version installed programs by default.  To specify no suffix,
+    dnl configure with: --program-suffix=
+    test x"$program_suffix" != xNONE || program_suffix=-$dev_series
+
+    incdir=$incdir/xapian-$dev_series
+
+    LIBRARY_VERSION_SUFFIX=-$dev_series
+    ;;
+esac
+
+AC_SUBST([LIBRARY_VERSION_SUFFIX])
 AC_SUBST([incdir])
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -97,7 +107,10 @@ dnl make up the library twice on most platforms.  Shared libraries are the
 dnl better option for most users, and if anyone really wants static libraries,
 dnl they can configure with --enable-static (or --enable-static=xapian-core if
 dnl configuring a combined tree with the bindings).
-LT_INIT([disable-static])
+dnl
+dnl We don't export any data items from the library, so it should be safe to
+dnl enable win32-dll without decorating any declarations specially.
+LT_INIT([disable-static win32-dll])
 
 dnl -no-undefined causes problems on Solaris with Sun CC in C++11 mode, so only
 dnl pass -no-undefined on platforms where it is required in order to link a
@@ -355,7 +368,14 @@ using namespace std;], [
 
 dnl C++11 should have log2(), but keep this check for now to allow for
 dnl compilers with incomplete library support for C++11.
-AC_CHECK_DECLS([log2], [], [], [#include <cmath>])
+AC_CHECK_DECLS([log2], [], [],
+[#include <cmath>
+using namespace std;])
+
+dnl exp10() is a GNU libc extension.  Darwin provides __exp10().  GCC provides
+dnl __builtin_exp10() (but notably clang doesn't currently).
+AC_CHECK_FUNCS([exp10 __exp10], [break],
+    [AC_CHECK_DECLS([__builtin_exp10], [], [], [ ])])
 
 dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
 dnl compilation of the test code below fails if RTTI isn't being generated
@@ -379,6 +399,12 @@ AC_TRY_COMPILE([
     AC_DEFINE([USE_RTTI], [1], [Define if the testsuite can use RTTI]),
     AC_MSG_RESULT([no]))
 CXXFLAGS=$save_CXXFLAGS
+
+AC_CHECK_DECLS([__builtin_bswap16, __builtin_bswap32], [], [], [ ])
+AC_CHECK_DECLS([__builtin_clz, __builtin_clzl, __builtin_clzll], [], [], [ ])
+AC_CHECK_DECLS([__builtin_ctz, __builtin_ctzl, __builtin_ctzll], [], [], [ ])
+AC_CHECK_DECLS([__builtin_expect], [], [], [ ])
+AC_CHECK_DECLS([__builtin_popcount, __builtin_popcountl, __builtin_popcountll], [], [], [ ])
 
 dnl Check for time functions.
 AC_CHECK_FUNCS([clock_gettime sleep nanosleep gettimeofday ftime])
@@ -435,12 +461,9 @@ dnl currently (v3.20) provide _putenv_s(), so we can't just use it conditional
 dnl on __WIN32__ being defined.
 AC_CHECK_FUNCS([setenv _putenv_s])
 
-dnl Check for a more efficient way of closing fds during daemonisation.
-dnl Apparently closefrom() is available on at least "Solaris 9 or later, NetBSD
-dnl 3.0 or later, OpenBSD 3.5 or later".  If we don't have closefrom(), then
-dnl dirfd() and getrlimit are useful for an efficient implementation on some
-dnl platforms.
-AC_CHECK_FUNCS([closefrom dirfd getrlimit])
+dnl See if we have closefrom(), or some functions that are useful to implement
+dnl closefrom() on platforms which don't provide it.
+AC_CHECK_FUNCS([closefrom getdirentries getrlimit])
 
 dnl See if ftime returns void (as it does on mingw)
 AC_MSG_CHECKING([return type of ftime])
@@ -577,6 +600,10 @@ AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([sys/resource.h],
 		 [], [], [#include <sys/types.h>])
 
+dnl cxxabi.h was added in GCC 3.1, but clang lies and defines __GNUC__ yet
+dnl doesn't seem to reliably provide this header, so probe for it.
+AC_CHECK_HEADERS([cxxabi.h], [], [], [ ])
+
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
 dnl don't use valgrind.
@@ -605,7 +632,7 @@ if test -n "${VALGRIND-unset}" ; then
       else
 	AC_MSG_RESULT([yes])
 	AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
-      fi	
+      fi
     else
       dnl The valgrind detected doesn't seem to work!  Perhaps this is an
       dnl x86_64 box with a 32 bit valgrind.
@@ -737,15 +764,15 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
   ])
 
 dnl When adding a new backend, update INSTALL too.
-XAPIAN_BACKEND_ENABLE([chert])
 XAPIAN_BACKEND_ENABLE([glass])
 XAPIAN_BACKEND_ENABLE([inmemory])
 XAPIAN_BACKEND_ENABLE([remote])
 
+use_proc_for_uuid=0
 use_win32_uuid_api=0
-case $enable_backend_chert$enable_backend_glass in
+case $enable_backend_glass in
 *yes*)
-  dnl We use zlib for compressing tags in chert/glass.  We could
+  dnl We use zlib for compressing tags in glass.  We could
   dnl automatically disable support if zlib isn't found, but overall that
   dnl probably does more harm than good - it's most likely that someone just
   dnl forgot to install the -dev package for zlib.
@@ -754,14 +781,14 @@ case $enable_backend_chert$enable_backend_glass in
 
   dnl Check for zlib.h.
   AC_CHECK_HEADERS([zlib.h], [], [
-    AC_MSG_ERROR([zlib.h not found - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlib.h not found - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
     ], [ ])
 
   dnl Check for zlibVersion in -lz.
   SAVE_LIBS=$LIBS
   dnl mingw build needs -lzlib or -lzdll.
   AC_SEARCH_LIBS([zlibVersion], [z zlib zdll], [], [
-    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for chert and glass (you may need to install the zlib1g-dev or zlib-devel package)])
+    AC_MSG_ERROR([zlibVersion() not found in -lz, -lzlib, or -lzdll - required for glass (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
     XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
@@ -782,7 +809,7 @@ case $enable_backend_chert$enable_backend_glass in
 	dnl -luuid.
 	SAVE_LIBS=$LIBS
 	AC_SEARCH_LIBS([uuid_generate], [uuid], [], [
-	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for chert and glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  AC_MSG_ERROR([uuid_generate() not found in -luuid - required for glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	if test x != x"$LIBS" ; then
 	  XAPIAN_LIBS="$XAPIAN_LIBS $LIBS"
@@ -795,7 +822,20 @@ case $enable_backend_chert$enable_backend_glass in
 	    AC_MSG_ERROR([uuid.h found, but uuid_create() not found.  You probably wants to install libuuid from util-linux-ng or e2fsprogs (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
 	  ])
 	], [
-	  AC_MSG_ERROR([Neither uuid/uuid.h nor uuid.h found - required for chert and glass (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	  dnl Especially useful for Android.
+	  AC_MSG_CHECKING([if host platform supports /proc/sys/kernel/random/uuid])
+	  case $host_os in
+	    linux*)
+	      use_proc_for_uuid=1
+	      AC_DEFINE([USE_PROC_FOR_UUID], [1],
+			[Define to 1 to read UUID from '/proc/sys/kernel/random/uuid'])
+	      AC_MSG_RESULT([yes])
+	      ;;
+	    *)
+	      AC_MSG_RESULT([no])
+	      AC_MSG_ERROR([Failed to find a way to generate UUIDs, required for glass backends (you may need to install the uuid-dev, libuuid-devel or e2fsprogs-devel package)])
+	      ;;
+	  esac
 	], [ ])
       ], [ ])
       ;;
@@ -811,6 +851,7 @@ case $enable_backend_chert$enable_backend_glass in
   LIBS=$SAVE_LIBS
   ;;
 esac
+AM_CONDITIONAL([USE_PROC_FOR_UUID], [test "$use_proc_for_uuid" = 1])
 AM_CONDITIONAL([USE_WIN32_UUID_API], [test "$use_win32_uuid_api" = 1])
 
 REMOTE_LIBS=
@@ -899,12 +940,11 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL([BUILD_BACKEND_CHERT], [test yes = "$enable_backend_chert"])
 AM_CONDITIONAL([BUILD_BACKEND_GLASS], [test yes = "$enable_backend_glass"])
 AM_CONDITIONAL([BUILD_BACKEND_INMEMORY], [test yes = "$enable_backend_inmemory"])
 AM_CONDITIONAL([BUILD_BACKEND_REMOTE], [test yes = "$enable_backend_remote"])
-AM_CONDITIONAL([BUILD_BACKEND_CHERT_OR_GLASS],
-  [test nono != "$enable_backend_chert$enable_backend_glass"])
+AM_CONDITIONAL([BUILD_BACKEND_TOOLS],
+  [test no != "$enable_backend_glass"])
 
 dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no
@@ -1079,12 +1119,12 @@ if test yes = "$GXX"; then
       AC_MSG_RESULT([GCC $gxx_version])
 
       case $gxx_version in
-      [[0123]].*|4.[[0-6]].*)
-	AC_MSG_ERROR([Xapian requires GCC 4.7 or later])
+      [[0123]].*|4.[[0-7]].*)
+	AC_MSG_ERROR([Xapian requires GCC 4.8 or later])
 	;;
       esac
 
-      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
+      dnl -Wundef was supported by g++ 3.0.
       dnl
       dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
       dnl GCC 4.3.
@@ -1097,7 +1137,7 @@ if test yes = "$GXX"; then
       dnl like to know about.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations -Wdouble-promotion -Winit-self"
 
       dnl FIXME:
       dnl -Wconversion in older GCC versions is intended to help migration
@@ -1107,7 +1147,11 @@ if test yes = "$GXX"; then
       dnl enabling -Wconversion once it is stabilised (GCC 4.4 or ...)
       dnl
       dnl -Wold-style-cast is interesting, but triggers for macros from
-      dnl system headers (e.g. FD_SET) (tested with GCC 4.4).
+      dnl system headers (e.g. FD_SET).  GCC 4.8 improved this by making
+      dnl -ftrack-macro-expansion=2 the default, but we still see such
+      dnl warnings on some platforms for some reason (e.g. Cygwin with GCC
+      dnl 5.4.0 warns about FD_SET, and on Debian with GCC 4.9.2 we see
+      dnl warnings from zlib.h).
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
@@ -1128,8 +1172,9 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
+
+      dnl These options all work at least as far back as clang++ 3.0:
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wshadow -Wstrict-overflow=1 -Wmissing-declarations -Winit-self"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
       if test x$USE_MAINTAINER_MODE = xyes; then
@@ -1211,7 +1256,8 @@ case $host_cpu in
 	  [AC_MSG_RESULT([yes (configure with --disable-sse to disable)])
 	  AM_CXXFLAGS="$AM_CXXFLAGS -xarch=$enable_sse"]
 	  ,
-	  [AC_MSG_RESULT([don't know how to for compiler $CXX])]
+	  [AC_MSG_RESULT([don't know how to for compiler $CXX])
+	  FP_EXCESS_PRECISION=yes]
 	)
       fi
     fi
@@ -1239,11 +1285,11 @@ AH_BOTTOM(
 # define _FORTIFY_SOURCE 2
 #endif
 
-/* For GCC >= 3.0 (and Intel's C++ compiler, which also defines __GNUC__),
+/* For compilers which support it (such as GCC, clang, Intel's C++ compiler)
  * we can use __builtin_expect to give the compiler hints about branch
  * prediction.  See HACKING for how to use these.
  */
-#if defined __GNUC__
+#if HAVE_DECL___BUILTIN_EXPECT
 /* The arguments of __builtin_expect() are both long, so use !! to ensure that
  * the first argument is always an integer expression, and always 0 or 1, but
  * still has the same truth value for the if or while it is used in.
@@ -1336,7 +1382,7 @@ dnl Generate include/xapian/version.h:
 dnl MAIN_VERSION is VERSION without any _git123 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in CHERT GLASS INMEMORY REMOTE ; do
+for backend in GLASS INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
@@ -1354,6 +1400,9 @@ if test yes = "$enable_64bit_termcount" ; then
 else
   cxxcpp_flags="$cxxcpp_flags -DXAPIAN_TERMCOUNT_BASE_TYPE="`echo "$INT32_T"|sed 's/ /____/g'`
 fi
+
+dnl Make revision numbers in the API 64 bit for future-proofing.
+cxxcpp_flags="$cxxcpp_flags -DXAPIAN_REVISION_TYPE="`echo "unsigned $INT64_T"|sed 's/ /____/g'`
 
 dnl For GCC (and compilers which pretend to be GCC) and MSVC, we create some
 dnl ABI checks in the generated version.h, and $CXXFLAGS may contain options
@@ -1384,7 +1433,7 @@ $CXXCPP $cxxcpp_flags\
 	-DREVISION="\"$REVISION\""\
 	$dash_d_visibility\
 	$srcdir/include/xapian/version_h.cc|\
-	${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g'\
+	${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//;s/____/ /g;s/\\\\$/\\/'\
 	> include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system

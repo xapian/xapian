@@ -1,7 +1,7 @@
 /** @file query.cc
  * @brief Xapian::Query API class
  */
-/* Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
+/* Copyright (C) 2011,2012,2013,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -68,8 +68,19 @@ Query::Query(op op_, const Xapian::Query & subquery, double factor)
 	throw Xapian::InvalidArgumentError("op must be OP_SCALE_WEIGHT");
     // If the subquery is MatchNothing then generate Query() which matches
     // nothing.
-    if (subquery.internal.get())
-	internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
+    if (!subquery.internal.get()) return;
+    switch (subquery.internal->get_type()) {
+	case OP_VALUE_RANGE:
+	case OP_VALUE_GE:
+	case OP_VALUE_LE:
+	    // These operators always return weight 0, so OP_SCALE_WEIGHT has
+	    // no effect on them.
+	    internal = subquery.internal;
+	    return;
+	default:
+	    break;
+    }
+    internal = new Xapian::Internal::QueryScaleWeight(factor, subquery);
 }
 
 Query::Query(op op_, Xapian::valueno slot, const std::string & limit)
@@ -303,6 +314,9 @@ Query::add_subquery(bool positional, const Xapian::Query & subquery)
 		// which is appropriate in this case.
 		branch_query->add_subquery(MatchNothing);
 		return;
+	    case OP_OR:
+		// OP_OR is now handled below OP_NEAR and OP_PHRASE.
+		break;
 	    default:
 		throw Xapian::UnimplementedError("OP_NEAR and OP_PHRASE only currently support leaf subqueries");
 	}

@@ -35,13 +35,12 @@ LIBRARY_VERSION_INFO=0:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Where xapian-letor.h, etc go.  In development release append "/xapian-1.3".
-dnl incdir=$includedir
-incdir=$includedir/xapian-1.3
+incdir=$includedir
 AC_SUBST([incdir])
 
 AM_INIT_AUTOMAKE([1.10.1 -Wportability tar-ustar])
 
-AC_CONFIG_SRCDIR([api/letor.cc])
+AC_CONFIG_SRCDIR([ranker/ranker.cc])
 
 AC_CONFIG_HEADERS([config.h])
 
@@ -85,6 +84,7 @@ dnl Check for xapian-core.
 XO_LIB_XAPIAN([], [],
     [xapian-config]regexp(project_version,
 			  [^\([0-9]*\.[0-9]*[13579]\)\..*$], [-\1]))
+XO_REQUIRE([1.4.0])
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests.
 save_CXXFLAGS=$CXXFLAGS
@@ -125,6 +125,10 @@ fi
 
 dnl Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
+
+dnl C++11 should have log2(), but keep this check for now to allow for
+dnl compilers with incomplete library support for C++11.
+AC_CHECK_DECLS([log2], [], [], [#include <cmath>])
 
 dnl libsvm is required.
 AC_CHECK_HEADER([libsvm/svm.h], [], AC_MSG_ERROR([libsvm required but libsvm/svm.h not found]), [ ])
@@ -217,13 +221,13 @@ if test yes = "$GXX"; then
     *__INTEL_COMPILER*__clang__*)
       dnl GCC (since neither substituted):
       dnl
-      dnl -Wundef was supported by g++ 3.0 and -fshow-column by g++ 3.1.
+      dnl -Wundef was supported by g++ 3.0.
       dnl
       dnl -Wlogical-op and -Wmissing-declarations (for C++) were added in
       dnl GCC 4.3.
       dnl
       dnl All the other options were supported by g++ 2.95.
-      AM_CXXFLAGS="$AM_CXXFLAGS -fshow-column -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual -Wstrict-null-sentinel -Wshadow -Wstrict-overflow=1 -Wlogical-op -Wmissing-declarations"
 
       dnl The exact format of g++ --version seems to change with almost every
       dnl minor release so use the preprocessor macros which should be more
@@ -276,7 +280,7 @@ if test yes = "$GXX"; then
       ;;
     *__INTEL_COMPILER*)
       dnl clang (since __INTEL_COMPILER not substituted):
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-long-long -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wformat-security -fno-gnu-keywords -Wundef -Woverloaded-virtual"
       AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wstrict-overflow=1 -Winit-self -Wmissing-declarations"
 
       dnl Automatically add -Werror if maintainer mode is enabled.
@@ -359,6 +363,8 @@ AH_BOTTOM(
 #endif
 ])
 
+AC_DEFINE([XAPIAN_LIB_BUILD], [1], [Workaround for avoiding sub-header included error])
+
 AC_SUBST([AM_CXXFLAGS])
 
 dnl Restore CXXFLAGS to those the user specified or autoconf defaulted to.
@@ -377,13 +383,96 @@ dnl this warning.
 PERCENT='%'
 AC_SUBST([PERCENT])
 
+dnl If valgrind is installed and new enough, we use it for leak checking in the
+dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
+dnl don't use valgrind.
+if test -n "${VALGRIND-unset}" ; then
+  AC_PATH_PROG([VALGRIND], [valgrind], [])
+  if test -n "$VALGRIND" ; then
+    dnl Check that the installed valgrind version works, and supports the
+    dnl options we use.  This means we won't try to use valgrind < 3.3.0
+    dnl (released 7/12/2007) since before that --log-file didn't expand
+    dnl %p (and appended the process id).
+    dnl
+    dnl No need to check for VALGRIND_COUNT_LEAKS now - that was added before
+    dnl 2.0.0.
+    AC_MSG_CHECKING([if valgrind supports --log-file with %p])
+    vglog=config.vglog.%p.tmp
+    vglogwild="config.vglog.*.tmp*"
+    rm -f $vglogwild
+    if $VALGRIND --log-file="$vglog" -q true 2>&AS_MESSAGE_LOG_FD ; then
+      for f in $vglogwild ; do
+        case $f in
+    $vglog*) VALGRIND= ;;
+    esac
+      done
+      if test x"$VALGRIND" = x ; then
+    AC_MSG_RESULT([no])
+      else
+    AC_MSG_RESULT([yes])
+    AC_CHECK_HEADERS([valgrind/memcheck.h], [], [VALGRIND=], [ ])
+      fi
+    else
+      dnl The valgrind detected doesn't seem to work!  Perhaps this is an
+      dnl x86_64 box with a 32 bit valgrind.
+      AC_MSG_RESULT([$VALGRIND doesn't work])
+      VALGRIND=
+    fi
+    rm -f $vglogwild
+  fi
+fi
+
+if test -n "$VALGRIND" ; then
+  AC_DEFINE([HAVE_VALGRIND], [1], [Define if a suitable valgrind is installed])
+fi
+
+dnl If eatmydata is installed, we run the testsuite under it to speed it up.
+dnl If EATMYDATA is set to an empty value, then skip this check and don't use
+dnl eatmydata.
+if test -n "${EATMYDATA-unset}" ; then
+  AC_PATH_PROG([EATMYDATA], [eatmydata], [])
+fi
+
+dnl Used by tests/harness/testsuite.cc
+AC_CHECK_FUNCS([sigaction])
+AC_MSG_CHECKING([for sigsetjmp and siglongjmp])
+AC_TRY_COMPILE([#include <setjmp.h>],
+  [sigjmp_buf jb; if (sigsetjmp(jb, 1)) { siglongjmp(jb, 1);  }],
+  AC_DEFINE([HAVE_SIGSETJMP], [1], [Define to 1 if you have the 'sigsetjmp' function])
+  AC_MSG_RESULT([yes]),
+  AC_MSG_RESULT([no]))
+
+AC_ARG_ENABLE([visibility],
+  [AS_HELP_STRING([--disable-visibility], [disable use of GCC visibility])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
+  esac])
+
+vpath_build=no
+if test "`pwd`" != "`cd $srcdir;pwd`" ; then
+  vpath_build=yes
+fi
+AM_CONDITIONAL([VPATH_BUILD], [test yes = "$vpath_build"])
+
+dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
+use_zlib_vg=no
+if test -n "$VALGRIND" ; then
+  case $host_os in
+    linux*) use_zlib_vg=yes ;;
+  esac
+fi
+AM_CONDITIONAL([USE_ZLIB_VG], [test yes = "$use_zlib_vg"])
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************
 
 AC_CONFIG_FILES([
  Makefile
+ tests/Makefile
  docs/Makefile
  ])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
+AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_OUTPUT

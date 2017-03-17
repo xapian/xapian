@@ -21,9 +21,7 @@
 /termgentest.exe
 /unittest.exe
 /.glass
-/.chert
 /.multiglass
-/.multichert
 /.singlefileglass
 /.stub
 /api_all.h

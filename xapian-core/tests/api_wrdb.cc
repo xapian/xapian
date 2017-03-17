@@ -358,7 +358,7 @@ DEFINE_TESTCASE(adddoc5, writable) {
 	Xapian::docid did2 = database.add_document(document_in2);
 	TEST_EQUAL(database.get_doccount(), 2);
 	TEST_NOT_EQUAL(did, did2);
-	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
+	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
 	TEST_EQUAL(database.get_termfreq("foobar"), 2);
 	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
@@ -380,7 +380,7 @@ DEFINE_TESTCASE(adddoc5, writable) {
 
 	did = database.add_document(document_in);
 	TEST_EQUAL(database.get_doccount(), 2);
-	TEST_EQUAL(database.get_avlength(), 5.0/2.0);
+	TEST_EQUAL(database.get_avlength(), 5.0 / 2.0);
 
 	TEST_EQUAL(database.get_termfreq("foobar"), 2);
 	TEST_EQUAL(database.get_collection_freq("foobar"), 3);
@@ -686,7 +686,6 @@ DEFINE_TESTCASE(deldoc3, writable) {
     TEST_EQUAL(db.postlist_begin("one"), db.postlist_end("one"));
 
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(1));
-    (void)&db; // gcc 2.95 seems to miscompile without this!!! - Olly
     TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(2));
 
     // test positionlist_{begin,end}?
@@ -886,7 +885,7 @@ DEFINE_TESTCASE(replacedoc1, writable) {
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 2);
-    doc1.add_posting("gone",3);
+    doc1.add_posting("gone", 3);
     doc1.add_posting("bar", 4);
     doc1.add_posting("foo", 5);
     Xapian::docid did;
@@ -932,7 +931,7 @@ DEFINE_TESTCASE(replacedoc2, writable) {
 
     doc1.add_posting("foo", 1);
     doc1.add_posting("foo", 2);
-    doc1.add_posting("gone",3);
+    doc1.add_posting("gone", 3);
     doc1.add_posting("bar", 4);
     doc1.add_posting("foo", 5);
     Xapian::docid did = 31770;
@@ -1514,96 +1513,6 @@ DEFINE_TESTCASE(consistency2, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(crashrecovery1, chert) {
-    // Glass has a single version file per revision, rather than multiple base
-    // files, so it simply can't get into the situations we are testing
-    // recovery from.
-    const string & dbtype = get_dbtype();
-    string path = ".";
-    path += dbtype;
-    path += "/dbw";
-    const char * base_ext = ".baseB";
-
-    Xapian::Document doc;
-    {
-	Xapian::WritableDatabase db = get_writable_database();
-	Xapian::Database dbr(get_writable_database_as_database());
-	TEST_EQUAL(dbr.get_doccount(), 0);
-
-	// Xapian::Database has full set of baseA, no baseB
-	TEST(file_exists(path + "/postlist.baseA"));
-	TEST(file_exists(path + "/record.baseA"));
-	TEST(file_exists(path + "/termlist.baseA"));
-	TEST(!file_exists(path + "/postlist.baseB"));
-	TEST(!file_exists(path + "/record.baseB"));
-	TEST(!file_exists(path + "/termlist.baseB"));
-
-	db.add_document(doc);
-	db.commit();
-	TEST(dbr.reopen());
-	TEST_EQUAL(dbr.get_doccount(), 1);
-
-	// Xapian::Database has full set of baseB, old baseA
-	TEST(file_exists(path + "/postlist.baseA"));
-	TEST(file_exists(path + "/record.baseA"));
-	TEST(file_exists(path + "/termlist.baseA"));
-	TEST(file_exists(path + "/postlist.baseB"));
-	TEST(file_exists(path + "/record.baseB"));
-	TEST(file_exists(path + "/termlist.baseB"));
-
-	db.add_document(doc);
-	db.commit();
-	TEST(dbr.reopen());
-	TEST_EQUAL(dbr.get_doccount(), 2);
-
-	// Xapian::Database has full set of baseA, old baseB
-	TEST(file_exists(path + "/postlist.baseA"));
-	TEST(file_exists(path + "/record.baseA"));
-	TEST(file_exists(path + "/termlist.baseA"));
-	TEST(file_exists(path + "/postlist.baseB"));
-	TEST(file_exists(path + "/record.baseB"));
-	TEST(file_exists(path + "/termlist.baseB"));
-
-	// Simulate a transaction starting, some of the baseB getting removed,
-	// but then the transaction fails.
-	unlink((path + "/record" + base_ext).c_str());
-	unlink((path + "/termlist" + base_ext).c_str());
-
-	TEST(!dbr.reopen());
-	TEST_EQUAL(dbr.get_doccount(), 2);
-    }
-
-    Xapian::WritableDatabase db(path, Xapian::DB_OPEN);
-    // Xapian::Database has full set of baseA, some old baseB
-    TEST(file_exists(path + "/postlist.baseA"));
-    TEST(file_exists(path + "/record.baseA"));
-    TEST(file_exists(path + "/termlist.baseA"));
-    TEST(file_exists(path + "/postlist.baseB"));
-    TEST(!file_exists(path + "/record.baseB"));
-    TEST(!file_exists(path + "/termlist.baseB"));
-    Xapian::Database dbr = Xapian::Database(path);
-
-    db.add_document(doc);
-    db.commit();
-    TEST(dbr.reopen());
-    TEST_EQUAL(dbr.get_doccount(), 3);
-
-    // Xapian::Database has full set of baseB, old baseA
-    TEST(file_exists(path + "/postlist.baseA"));
-    TEST(file_exists(path + "/record.baseA"));
-    TEST(file_exists(path + "/termlist.baseA"));
-    TEST(file_exists(path + "/postlist.baseB"));
-    TEST(file_exists(path + "/record.baseB"));
-    TEST(file_exists(path + "/termlist.baseB"));
-
-    db.add_document(doc);
-    db.commit();
-    TEST(dbr.reopen());
-    TEST_EQUAL(dbr.get_doccount(), 4);
-
-    return true;
-}
-
 // Check that DatabaseError is thrown if the docid counter would wrap.
 // Regression test for bug#152.
 DEFINE_TESTCASE(nomoredocids1, writable) {
@@ -1748,7 +1657,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     Xapian::WritableDatabase db = get_writable_database();
 
-    for (Xapian::doccount i = 246; i <= 290; ++i) {
+    for (size_t i = 246; i <= 290; ++i) {
 	tout.str(string());
 	tout << "Term length " << i << endl;
 	Xapian::Document doc;
@@ -1766,7 +1675,7 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 	}
     }
 
-    for (Xapian::doccount j = 240; j <= 245; ++j) {
+    for (size_t j = 240; j <= 245; ++j) {
 	tout.str(string());
 	tout << "Term length " << j << endl;
 	Xapian::Document doc;
@@ -1777,11 +1686,10 @@ DEFINE_TESTCASE(termtoolong1, writable) {
 
     db.commit();
 
-    size_t limit = endswith(get_dbtype(), "glass") ? 255 : 252;
+    size_t limit = 255;
     {
-	// Currently chert and glass escape zero bytes from terms in keys for
-	// some tables, so a term with 127 zero bytes won't work for chert, and
-	// with 128 zero bytes won't work for glass.
+	// Currently glass escapes zero bytes from terms in keys for
+	// some tables, so a term with 128 zero bytes won't work for glass.
 	Xapian::Document doc;
 	doc.add_term(string(limit / 2 + 1, '\0'));
 	db.add_document(doc);
@@ -1849,7 +1757,7 @@ DEFINE_TESTCASE(postlist7, writable) {
     return true;
 }
 
-DEFINE_TESTCASE(lazytablebug1, chert || glass) {
+DEFINE_TESTCASE(lazytablebug1, glass) {
     {
 	Xapian::WritableDatabase db = get_named_writable_database("lazytablebug1", string());
 
@@ -1876,12 +1784,8 @@ DEFINE_TESTCASE(lazytablebug1, chert || glass) {
     return true;
 }
 
-/** Regression test for bug #287 for flint.
- *
- *  Chert also has the same duff code but this testcase doesn't actually 
- *  tickle the bug there.
- */
-DEFINE_TESTCASE(cursordelbug1, chert || glass) {
+/// Regression test for bug #287 for flint.
+DEFINE_TESTCASE(cursordelbug1, glass) {
     static const int terms[] = { 219, 221, 222, 223, 224, 225, 226 };
     static const int copies[] = { 74, 116, 199, 21, 45, 155, 189 };
 
@@ -1956,7 +1860,7 @@ DEFINE_TESTCASE(modifyvalues1, writable) {
 
     for (Xapian::doccount num = 1; num <= doccount; ++num) {
 	tout.str(string());
-    	Xapian::Document doc;
+	Xapian::Document doc;
 	string val = "val" + str(num);
 	tout << "Setting val '" << val << "' in doc " << num << "\n";
 	doc.add_value(1, val);

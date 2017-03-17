@@ -148,8 +148,8 @@ Reordering parameters
 ---------------------
 
 SORT
-	specifies a value slot number to order results by.  The comparison used
-	is a string compare of the unsigned byte values.
+	specifies one or more value slot numbers to order results by.  The
+	comparison used is a string compare of the unsigned byte values.
 
 	The format of this parameter's value is a `+` or `-` specifying the
 	direction of the sort followed by an unsigned integer value slot
@@ -164,6 +164,10 @@ SORT
 	Earlier versions also parsed the value as a signed integer and then
 	cast it to unsigned, so beware of using updated templates with older
 	versions.
+
+	The ability to specify more than one value slot number was added
+	in 1.4.1.  Multiple slot specifiers are separated by zero or more
+	whitespace and/or commas - e.g. `SORT=+1-0+4`, `SORT=+1, -2`, etc.
 
 SORTREVERSE
 	if non-zero, reverses the sort order specified by `SORT`.  This
@@ -180,9 +184,9 @@ DOCIDORDER
 	DOCIDORDER isn't set or is empty) this puts them in ASCENDING order
 	(the lowest document id ranks highest).  If DOCIDORDER is specified
 	and non-empty it can begin with "D" for DESCENDING order, "A" for
-	ASCENDING order or any other character for DONT_CARE (the Xapian
-	database backend will use whichever order is most efficient).  Any
-	characters after the first are ignored.
+	ASCENDING order or any other character ("X" by convention) for
+	DONT_CARE (the Xapian database backend will use whichever order is most
+	efficient).  Any characters after the first are ignored.
 
 Display parameters and navigation
 ---------------------------------
@@ -212,29 +216,43 @@ parameters and use a normal anchor.
 Modification of CGI parameters
 ------------------------------
 
-For an image button, two CGI parameters are passed from the HTML
-client, of the form "PARAM.x" and "PARAM.y" (the x and y coordinates
-within the image that were clicked).
+Omega does some special mangling of CGI parameter names which is intended
+to help with using image buttons, and also to enable providing nicer "alt" text
+in older browsers.
 
-The PARAM part of the parameters are taken from the value attribute of
-the <input> element that specified that image button in the HTML
-page. We regularly use image buttons to provide pretty navigation
-within search results (they are part of a form because it is easier to
-treat more or less all of Omega as a single form, rather than
-generating very long GET requests for every button on the results
-page), so Omega does some mangling of these parameters:
+In the intervening decades HTML4 introduced the `alt` tag and CSS now provides
+cleaner ways to handle image buttons, so this mangling isn't as useful as it
+once was, but for now we've left it in place for compatibility.
 
- * PARAM.y is silently dropped
- * PARAM.x is truncated to PARAM
- * if PARAM contains a space (the CGI parameter name, not the value):
-    * the value becomes everything after the first space; the
-      original value is dropped. (e.g.: [ 2 ].x=NNN becomes [=2 ])
+Image Buttons
+~~~~~~~~~~~~~
 
-   otherwise:
-    * if PARAM is entirely numeric, the name becomes '#' and the value
-      becomes PARAM. (e.g.: 2.x=NNN becomes #=2)
-    * if PARAM is not entirely numeric, the value is copied from PARAM
-      (e.g.: >.x=NNN becomes >=>)
+When the user clicks on an image button `<input type="image" name="PARAM">`,
+the browser passes two CGI parameters `PARAM.x` and `PARAM.y` whose values
+report the x and y coordinates within the image that were clicked.
 
-Then, for ALL CGI parameters, the name is truncated at the first
-space. So [ page two ]=2 becomes [=2.
+Image buttons allow for prettier navigation within search results, but what
+the browser passes is unhelpful so Omega does some special mangling of
+parameters with a `.x` or `.y` suffix:
+
+ * `PARAM.y` is silently dropped
+ * `PARAM.x` is truncated to `PARAM`
+
+Then:
+
+ * if the parameter name contains a space or (since 1.4.4) a tab, the value
+   becomes everything after the first space/tab and the original value is
+   ignored. (e.g.: `[ 2 ].x=NNN` becomes `[=2 ]`).
+ * if the parameter name doesn't contain a space or (since 1.4.4) a tab:
+    * if the parameter name is entirely numeric, the name becomes `#` and the
+      value becomes the parameter name. (e.g.: `2.x=NNN` becomes `#=2`)
+    * otherwise, the value is replaced with the parameter name (e.g.:
+      `>.x=NNN` becomes `>=>`)
+
+Then general processing (as below) is applied.
+
+General
+~~~~~~~
+
+For **ALL** CGI parameters, the name is truncated at the first space or (since
+1.4.4) a tab. So `[ page two ]=2` becomes `[=2`.

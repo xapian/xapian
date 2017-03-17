@@ -139,6 +139,12 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 			++errors;
 			continue;
 		    }
+		    if (did <= lastdid) {
+			if (out)
+			    *out << "First did in this doclen chunk is <= last in "
+				    "prev chunk" << endl;
+			++errors;
+		    }
 		}
 
 		cursor->read_tag();
@@ -160,12 +166,6 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 			continue;
 		    }
 		    ++did;
-		    if (did <= lastdid) {
-			if (out)
-			    *out << "First did in this chunk is <= last in "
-				    "prev chunk" << endl;
-			++errors;
-		    }
 		}
 
 		bool is_last_chunk;
@@ -927,7 +927,7 @@ check_glass_table(const char * tablename, const string &db_dir, int fd,
 		    if (out)
 			*out << tablename << " table: Junk after position data"
 			     << endl;
-		    ++errors ;
+		    ++errors;
 		}
 	    }
 	}

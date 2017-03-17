@@ -1,83 +1,40 @@
 /** @file output.h
- * @brief Functions for output of strings describing Xapian objects.
+ * @brief std::ostream operator<< template for Xapian objects
  */
-/*
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007,2009,2011 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
- * Copyright 2010 Richard Boulton
+/* Copyright (C) 2016 Olly Betts
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
-#ifndef XAPIAN_INCLUDED_OUTPUT_H
-#define XAPIAN_INCLUDED_OUTPUT_H
+#ifndef XAPIAN_INCLUDED_COMMON_OUTPUT_H
+#define XAPIAN_INCLUDED_COMMON_OUTPUT_H
 
 #include <ostream>
 
-/// @Internal Helper macro for defining stream output of Xapian class.
-#define XAPIAN_OUTPUT_FUNCTION(CLASS) \
-inline std::ostream & \
-operator<<(std::ostream & os, const CLASS & object) { \
-    return os << object.get_description(); \
+// The decltype() of a comma expression is a trick to leverage SFINAE to
+// provide this template for classes with a "get_description() const" method,
+// while providing the expected return type for the function.
+template<class T>
+auto operator<<(std::ostream& os, const T& t)
+    -> decltype(t.get_description(), os)
+{
+    return os << t.get_description();
 }
 
-#include <xapian/database.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::Database)
-XAPIAN_OUTPUT_FUNCTION(Xapian::WritableDatabase)
-
-#include <xapian/document.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::Document)
-
-#include <xapian/query.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::Query)
-XAPIAN_OUTPUT_FUNCTION(Xapian::Query::Internal)
-
-#include <xapian/enquire.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::RSet)
-XAPIAN_OUTPUT_FUNCTION(Xapian::MSetIterator)
-XAPIAN_OUTPUT_FUNCTION(Xapian::MSet)
-XAPIAN_OUTPUT_FUNCTION(Xapian::ESetIterator)
-XAPIAN_OUTPUT_FUNCTION(Xapian::ESet)
-XAPIAN_OUTPUT_FUNCTION(Xapian::Enquire)
-
-#include <xapian/geospatial.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::LatLongCoord)
-XAPIAN_OUTPUT_FUNCTION(Xapian::LatLongCoords)
-
-#include <xapian/stem.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::Stem)
-
-#include <xapian/postingiterator.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::PostingIterator)
-
-#include <xapian/positioniterator.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::PositionIterator)
-
-#include <xapian/termiterator.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::TermIterator)
-
-#include <xapian/valueiterator.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::ValueIterator)
-
-#include <xapian/matchspy.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::MatchSpy)
-
-#include <xapian/postingsource.h>
-XAPIAN_OUTPUT_FUNCTION(Xapian::PostingSource)
-
-#endif /* XAPIAN_INCLUDED_OUTPUT_H */
+#endif

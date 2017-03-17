@@ -11,7 +11,7 @@ Win32 MSVC build of Python %s Bindings for the Xapian Open Source Search Engine 
 """ % platform.python_version())
 
 for scheme in INSTALL_SCHEMES.values():
-    scheme['data'] = scheme['purelib'] 
+    scheme['data'] = scheme['purelib']
 
 setup(
     name = "xapian-python-bindings for Python %s " % platform.python_version(),
@@ -24,6 +24,4 @@ setup(
     packages = ['xapian'],
     package_dir = {'xapian': 'xapian'},
     package_data = {'xapian': ['_xapian.pyd', 'zlib1.dll','docs/index.html','docs/examples/*.*']},
-                   
-
 )

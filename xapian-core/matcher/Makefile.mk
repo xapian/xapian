@@ -3,7 +3,6 @@ noinst_HEADERS +=\
 	matcher/andnotpostlist.h\
 	matcher/branchpostlist.h\
 	matcher/collapser.h\
-	matcher/const_database_wrapper.h\
 	matcher/exactphrasepostlist.h\
 	matcher/externalpostlist.h\
 	matcher/extraweightpostlist.h\
@@ -16,6 +15,8 @@ noinst_HEADERS +=\
 	matcher/multimatch.h\
 	matcher/multixorpostlist.h\
 	matcher/nearpostlist.h\
+	matcher/orpositionlist.h\
+	matcher/orpospostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\
 	matcher/queryoptimiser.h\
@@ -42,7 +43,6 @@ lib_src +=\
 	matcher/andnotpostlist.cc\
 	matcher/branchpostlist.cc\
 	matcher/collapser.cc\
-	matcher/const_database_wrapper.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/externalpostlist.cc\
 	matcher/localsubmatch.cc\
@@ -54,6 +54,8 @@ lib_src +=\
 	matcher/multimatch.cc\
 	matcher/multixorpostlist.cc\
 	matcher/nearpostlist.cc\
+	matcher/orpositionlist.cc\
+	matcher/orpospostlist.cc\
 	matcher/orpostlist.cc\
 	matcher/phrasepostlist.cc\
 	matcher/selectpostlist.cc\

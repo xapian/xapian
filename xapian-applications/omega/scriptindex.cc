@@ -536,8 +536,8 @@ index_file(const char *fname, istream &stream,
 			    value.resize(0);
 			}
 			if (!truncated) break;
-			/* FALLTHRU (conditionally) */
 		    }
+		    /* FALLTHRU */
 		    case Action::TRUNCATE:
 			utf8_truncate(value, i->get_num_arg());
 			break;
@@ -658,13 +658,11 @@ again:
 	    }
 	} else {
 	    string data;
-	    map<string, list<string> >::const_iterator i;
-	    for (i = fields.begin(); i != fields.end(); ++i) {
-		list<string>::const_iterator j;
-		for (j = i->second.begin(); j != i->second.end(); j++) {
-		    data += i->first;
+	    for (auto&& i : fields) {
+		for (auto&& field_val : i.second) {
+		    data += i.first;
 		    data += '=';
-		    data += *j;
+		    data += field_val;
 		    data += '\n';
 		}
 	    }

@@ -1,8 +1,9 @@
-%module(directors="1") xapian
+%module(directors="1", moduleimport="from . import _xapian
+from new import instancemethod as new_instancemethod") xapian
 %{
 /* python.i: SWIG interface file for the Python bindings
  *
- * Copyright (C) 2011,2012,2013,2015 Olly Betts
+ * Copyright (C) 2011,2012,2013,2015,2016 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -179,15 +180,11 @@ class XapianSWIGQueryItor {
 
     int i;
 
-    /// str_obj must be a string object (or bytes object for Python 3.x).
+    /// str_obj must be a string object.
     Xapian::Query str_obj_to_query(PyObject * str_obj) const {
 	char * p;
 	Py_ssize_t len;
-#if PY_VERSION_HEX >= 0x03000000
-	(void)PyBytes_AsStringAndSize(str_obj, &p, &len);
-#else
 	(void)PyString_AsStringAndSize(str_obj, &p, &len);
-#endif
 	return Xapian::Query(string(p, len));
     }
 
@@ -232,11 +229,7 @@ class XapianSWIGQueryItor {
 	}
 
 	// String.
-#if PY_VERSION_HEX >= 0x03000000
-	if (PyBytes_Check(obj))
-#else
 	if (PyString_Check(obj))
-#endif
 	    return str_obj_to_query(obj);
 
 	// xapian.Query object (or unexpected object type).

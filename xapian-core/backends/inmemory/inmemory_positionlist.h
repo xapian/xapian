@@ -56,10 +56,11 @@ class InMemoryPositionList : public PositionList
 	InMemoryPositionList() : iterating_in_progress(false) { }
 
 	/// Construct an empty InMemoryPositionList.
-	InMemoryPositionList(bool)
+	explicit InMemoryPositionList(bool)
 	    : mypos(positions.begin()), iterating_in_progress(false) { }
 
 	/// Construct, fill list with data, and move the position to the start.
+	explicit
 	InMemoryPositionList(const OmDocumentTerm::term_positions & positions_);
 
 	/// Fill list with data, and move the position to the start.

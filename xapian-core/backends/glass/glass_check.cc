@@ -94,7 +94,7 @@ void GlassTableCheck::report_block_full(int m, int n, const byte * p) const
     *out << '\n';
     print_spaces(m);
     *out << "Block [" << n << "] level " << j << ", revision *" << REVISION(p)
-	 << " items (" << (dir_end - DIR_START)/D2 << ") usage "
+	 << " items (" << (dir_end - DIR_START) / D2 << ") usage "
 	 << block_usage(p) << "%:\n";
     for (int c = DIR_START; c < dir_end; c += D2) {
 	print_spaces(m);
@@ -122,11 +122,13 @@ void GlassTableCheck::report_block(int m, int n, const byte * p) const
     int c;
     print_spaces(m);
     *out << "[" << n << "] *" << REVISION(p) << " ("
-	 << (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
+	 << (dir_end - DIR_START) / D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
-	if (c == DIR_START + 6) *out << "... ";
-	if (c >= DIR_START + 6 && c < dir_end - 6) continue;
+	if (c >= DIR_START + 6 && c < dir_end - 6) {
+	    if (c == DIR_START + 6) *out << "... ";
+	    continue;
+	}
 
 	print_key(p, c, j);
 	*out << ' ';
@@ -296,7 +298,7 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
 
     if (opts & Xapian::DBCHECK_SHOW_STATS) {
 	*out << "blocksize=" << B->block_size / 1024 << "K"
-		" items="  << B->item_count
+		" items=" << B->item_count
 	     << " firstunused=" << B->free_list.get_first_unused_block()
 	     << " revision=" << B->revision_number
 	     << " levels=" << B->level
@@ -352,14 +354,14 @@ GlassTableCheck::check(const char * tablename, const string & path, int fd,
 	    throw Xapian::DatabaseError(e);
 	}
     }
-    if (opts) *out << "B-tree checked okay" << endl;
+    if (out && opts) *out << "B-tree checked okay" << endl;
     return B.release();
 }
 
 void GlassTableCheck::report_cursor(int N, const Glass::Cursor * C_) const
 {
     *out << N << ")\n";
-    for (int i = 0; i <= level; i++)
+    for (int i = 0; i <= level; ++i)
 	*out << "p=" << C_[i].get_p() << ", "
 		"c=" << C_[i].c << ", "
 		"n=[" << C_[i].get_n() << "], "

@@ -174,11 +174,25 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy
      */
     virtual std::string get_description() const;
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     MatchSpy * release() {
 	opt_intrusive_base::release();
 	return this;
     }
 
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated MatchSpy
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
     const MatchSpy * release() const {
 	opt_intrusive_base::release();
 	return this;
@@ -193,6 +207,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
     struct Internal;
 
 #ifndef SWIG // SWIG doesn't need to know about the internal class
+    /// @private @internal
     struct XAPIAN_VISIBILITY_DEFAULT Internal
 	    : public Xapian::Internal::intrusive_base
     {
@@ -211,6 +226,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchSpy {
 #endif
 
   protected:
+    /** @private @internal Reference counted internals. */
     Xapian::Internal::intrusive_ptr<Internal> internal;
 
   public:

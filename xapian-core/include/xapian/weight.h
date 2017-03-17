@@ -1,9 +1,10 @@
 /** @file weight.h
  * @brief Weighting scheme API.
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2015 Olly Betts
+/* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
+ * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -142,7 +143,8 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	TWO_STAGE_SMOOTHING = 1,
 	DIRICHLET_SMOOTHING = 2,
 	ABSOLUTE_DISCOUNT_SMOOTHING = 3,
-	JELINEK_MERCER_SMOOTHING = 4
+	JELINEK_MERCER_SMOOTHING = 4,
+	DIRICHLET_PLUS_SMOOTHING = 5
     } type_smoothing;
 
     class Internal;
@@ -336,7 +338,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     /// The number of relevant documents which this term indexes.
     Xapian::doccount get_reltermfreq() const { return reltermfreq_; }
 
-    // The collection frequency of the term.
+    /// The collection frequency of the term.
     Xapian::termcount get_collection_freq() const { return collectionfreq_; }
 
     /// The length of the query.
@@ -407,7 +409,13 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
     std::string normalizations;
 
     /// The factor to multiply with the weight.
-    double factor;
+    double wqf_factor;
+
+    /// Normalised IDF value (document-independent).
+    double idfn;
+
+    /// Parameters slope and delta in the Piv+ normalization weighting formula.
+    double param_slope, param_delta;
 
     TfIdfWeight * clone() const;
 
@@ -415,8 +423,10 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     /* When additional normalizations are implemented in the future, the additional statistics for them
        should be accessed by these functions. */
-    double get_wdfn(Xapian::termcount wdf, char c) const;
-    double get_idfn(Xapian::doccount termfreq, char c) const;
+    double get_wdfn(Xapian::termcount wdf,
+		    Xapian::termcount len,
+		    Xapian::termcount uniqterms, char c) const;
+    double get_idfn(char c) const;
     double get_wtn(double wt, char c) const;
 
   public:
@@ -435,6 +445,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
      *     @li 's': Square     wdfn=wdf*wdf
      *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
+     *     @li 'L': Log average wdfn=(1+log(wdf))/(1+log(doclen/unique_terms))
      *
      *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
      *     implemented.
@@ -449,6 +461,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
      *     @li 'f': Freq    idfn=1/Termfreq
      *     @li 's': Squared idfn=log(N/Termfreq)^2
+     *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
      *
      * @li The third and the final character indicates the normalization for
      *     the document weight.  The following normalizations are currently
@@ -461,8 +474,54 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
      */
     explicit TfIdfWeight(const std::string &normalizations);
 
+    /** Construct a TfIdfWeight
+     *
+     *  @param normalizations	A three character string indicating the
+     *				normalizations to be used for the tf(wdf), idf
+     *				and document weight.  (default: "ntn")
+     *	@param slope		Extra parameter for "Pivoted" tf normalization.  (default: 0.2)
+     *	@param delta		Extra parameter for "Pivoted" tf normalization.  (default: 1.0)
+     *
+     * The @a normalizations string works like so:
+     *
+     * @li The first character specifies the normalization for the wdf.  The
+     *     following normalizations are currently supported:
+     *
+     *     @li 'n': None.      wdfn=wdf
+     *     @li 'b': Boolean    wdfn=1 if term in document else wdfn=0
+     *     @li 's': Square     wdfn=wdf*wdf
+     *     @li 'l': Logarithmic wdfn=1+log<sub>e</sub>(wdf)
+     *     @li 'P': Pivoted     wdfn=(1+log(1+log(wdf)))*(1/(1-slope+(slope*doclen/avg_len)))+delta
+     *
+     *     The Max-wdf and Augmented Max wdf normalizations haven't yet been
+     *     implemented.
+     *
+     * @li The second character indicates the normalization for the idf.  The
+     *     following normalizations are currently supported:
+     *
+     *     @li 'n': None    idfn=1
+     *     @li 't': TfIdf   idfn=log(N/Termfreq) where N is the number of
+     *         documents in collection and Termfreq is the number of documents
+     *         which are indexed by the term t.
+     *     @li 'p': Prob    idfn=log((N-Termfreq)/Termfreq)
+     *     @li 'f': Freq    idfn=1/Termfreq
+     *     @li 's': Squared idfn=log(N/Termfreq)^2
+     *     @li 'P': Pivoted idfn=log((N+1)/Termfreq)
+     *
+     * @li The third and the final character indicates the normalization for
+     *     the document weight.  The following normalizations are currently
+     *     supported:
+     *
+     *     @li 'n': None wtn=tfn*idfn
+     *
+     * Implementing support for more normalizations of each type would require
+     * extending the backend to track more statistics.
+     */
+    TfIdfWeight(const std::string &normalizations, double slope, double delta);
+
+    /** Construct a TfIdfWeight using the default normalizations ("ntn"). */
     TfIdfWeight()
-    : normalizations("ntn")
+	: normalizations("ntn"), param_slope(0.2), param_delta(1.0)
     {
 	need_stat(TERMFREQ);
 	need_stat(WDF);
@@ -579,6 +638,122 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 
     std::string serialise() const;
     BM25Weight * unserialise(const std::string & serialised) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
+    double get_maxextra() const;
+};
+
+/// Xapian::Weight subclass implementing the BM25+ probabilistic formula.
+class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
+    /// Factor to multiply the document length by.
+    mutable Xapian::doclength len_factor;
+
+    /// Factor combining all the document independent factors.
+    mutable double termweight;
+
+    /// The BM25+ parameters.
+    double param_k1, param_k2, param_k3, param_b;
+
+    /// The minimum normalised document length value.
+    Xapian::doclength param_min_normlen;
+
+    /// Additional parameter delta in the BM25+ formula.
+    double param_delta;
+
+    BM25PlusWeight * clone() const;
+
+    void init(double factor);
+
+  public:
+    /** Construct a BM25PlusWeight.
+     *
+     *  @param k1  A non-negative parameter controlling how influential
+     *		   within-document-frequency (wdf) is.  k1=0 means that
+     *		   wdf doesn't affect the weights.  The larger k1 is, the more
+     *		   wdf influences the weights.  (default 1)
+     *
+     *  @param k2  A non-negative parameter which controls the strength of a
+     *		   correction factor which depends upon query length and
+     *		   normalised document length.  k2=0 disable this factor; larger
+     *		   k2 makes it stronger.  The paper which describes BM25+
+     *		   ignores BM25's document-independent component (so implicitly
+     *		   k2=0), but we support non-zero k2 too.  (default 0)
+     *
+     *  @param k3  A non-negative parameter controlling how influential
+     *		   within-query-frequency (wqf) is.  k3=0 means that wqf
+     *		   doesn't affect the weights.  The larger k3 is, the more
+     *		   wqf influences the weights.  (default 1)
+     *
+     *  @param b   A parameter between 0 and 1, controlling how strong the
+     *		   document length normalisation of wdf is.  0 means no
+     *		   normalisation; 1 means full normalisation.  (default 0.5)
+     *
+     *  @param min_normlen  A parameter specifying a minimum value for
+     *		   normalised document length.  Normalised document length
+     *		   values less than this will be clamped to this value, helping
+     *		   to prevent very short documents getting large weights.
+     *		   (default 0.5)
+     *
+     *  @param delta  A parameter for pseudo tf value to control the scale
+     *		      of the tf lower bound. Delta(δ) can be tuned for example
+     *		      from 0.0 to 1.5 but BM25+ can still work effectively
+     *		      across collections with a fixed δ = 1.0. (default 1.0)
+     */
+    BM25PlusWeight(double k1, double k2, double k3, double b,
+		   double min_normlen, double delta)
+	: param_k1(k1), param_k2(k2), param_k3(k3), param_b(b),
+	  param_min_normlen(min_normlen), param_delta(delta)
+    {
+	if (param_k1 < 0) param_k1 = 0;
+	if (param_k2 < 0) param_k2 = 0;
+	if (param_k3 < 0) param_k3 = 0;
+	if (param_delta < 0) param_delta = 0;
+	if (param_b < 0) {
+	    param_b = 0;
+	} else if (param_b > 1) {
+	    param_b = 1;
+	}
+	need_stat(COLLECTION_SIZE);
+	need_stat(RSET_SIZE);
+	need_stat(TERMFREQ);
+	need_stat(RELTERMFREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	if (param_k2 != 0 || (param_k1 != 0 && param_b != 0)) {
+	    need_stat(DOC_LENGTH_MIN);
+	    need_stat(AVERAGE_LENGTH);
+	}
+	if (param_k1 != 0 && param_b != 0) need_stat(DOC_LENGTH);
+	if (param_k2 != 0) need_stat(QUERY_LENGTH);
+	if (param_k3 != 0) need_stat(WQF);
+    }
+
+    BM25PlusWeight()
+	: param_k1(1), param_k2(0), param_k3(1), param_b(0.5),
+	  param_min_normlen(0.5), param_delta(1)
+    {
+	need_stat(COLLECTION_SIZE);
+	need_stat(RSET_SIZE);
+	need_stat(TERMFREQ);
+	need_stat(RELTERMFREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(WQF);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    BM25PlusWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
@@ -769,7 +944,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
      */
     explicit IfB2Weight(double c);
 
-    IfB2Weight( ) : param_c(1.0) {
+    IfB2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -840,7 +1015,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
      */
     explicit IneB2Weight(double c);
 
-    IneB2Weight( ) : param_c(1.0) {
+    IneB2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -916,7 +1091,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
      */
     explicit BB2Weight(double c);
 
-    BB2Weight( ) : param_c(1.0) {
+    BB2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -962,9 +1137,6 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
  *  Proceedings of the 16th Text REtrieval Conference (TREC-2007), 2008.
  */
 class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
-    /// The lower bound on the weight.
-    double lower_bound;
-
     /// The upper bound on the weight.
     double upper_bound;
 
@@ -1023,11 +1195,11 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
  *  ACM Transactions on Information Systems (TOIS) 20, (4), 2002, pp. 357-389.
  */
 class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
     /// The wdf normalization parameter in the formula.
     double param_c;
-
-    /// The lower bound of the weight.
-    double lower_bound;
 
     /// The upper bound on the weight.
     double upper_bound;
@@ -1040,7 +1212,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 
     PL2Weight * clone() const;
 
-    void init(double factor);
+    void init(double factor_);
 
   public:
     /** Construct a PL2Weight.
@@ -1055,7 +1227,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
      */
     explicit PL2Weight(double c);
 
-    PL2Weight( ) : param_c(1.0) {
+    PL2Weight() : param_c(1.0) {
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(DOC_LENGTH_MIN);
@@ -1071,6 +1243,84 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 
     std::string serialise() const;
     PL2Weight * unserialise(const std::string & serialised) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterms) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount doclen,
+			Xapian::termcount uniqterms) const;
+    double get_maxextra() const;
+};
+
+/// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
+class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+    /// The wdf normalization parameter in the formula.
+    double param_c;
+
+    /// Additional parameter delta in the PL2+ weighting formula.
+    double param_delta;
+
+    /// The upper bound on the weight.
+    double upper_bound;
+
+    /// Constants for a given term in a given query.
+    double P1, P2;
+
+    /// Set by init() to (param_c * get_average_length())
+    double cl;
+
+    /// Set by init() to get_collection_freq()) / get_collection_size()
+    double mean;
+
+    /// Weight contribution of delta term in the PL2+ function
+    double dw;
+
+    PL2PlusWeight * clone() const;
+
+    void init(double factor_);
+
+  public:
+    /** Construct a PL2PlusWeight.
+     *
+     *  @param c  A non-negative and non zero parameter controlling the extent
+     *		  of the normalization of the wdf to the document length. The
+     *		  default value of 1 is suitable for longer queries but it may
+     *		  need to be changed for shorter queries. For more information,
+     *		  please refer to Gianni Amati's PHD thesis titled
+     *		  Probabilistic Models for Information Retrieval based on
+     *		  Divergence from Randomness.
+     *
+     *  @param delta  A parameter for pseudo tf value to control the scale
+     *                of the tf lower bound. Delta(δ) should be a positive
+     *                real number. It can be tuned for example from 0.1 to 1.5
+     *                in increments of 0.1 or so. Experiments have shown that
+     *                PL2+ works effectively across collections with a fixed δ = 0.8
+     *                (default 0.8)
+     */
+    PL2PlusWeight(double c, double delta);
+
+    PL2PlusWeight()
+	: param_c(1.0), param_delta(0.8) {
+	need_stat(AVERAGE_LENGTH);
+	need_stat(DOC_LENGTH);
+	need_stat(DOC_LENGTH_MIN);
+	need_stat(DOC_LENGTH_MAX);
+	need_stat(COLLECTION_SIZE);
+	need_stat(COLLECTION_FREQ);
+	need_stat(WDF);
+	need_stat(WDF_MAX);
+	need_stat(WQF);
+    }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    PL2PlusWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
@@ -1104,9 +1354,6 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     /// The upper bound on the weight.
     double upper_bound;
-
-    /// The lower bound on the weight.
-    double lower_bound;
 
     /// The constant value used in get_sumpart() .
     double log_constant;
@@ -1156,6 +1403,8 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
  * parameters which specify the smoothing used.
  */
 class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
 
     /** The type of smoothing to use. */
     type_smoothing select_smoothing;
@@ -1168,7 +1417,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 
     LMWeight * clone() const;
 
-    void init(double factor);
+    void init(double factor_);
 
   public:
     /** Construct a LMWeight.
@@ -1196,18 +1445,27 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
      *					DIRCHLET(2000))
      *
      *  @param param_smoothing2_	A non-negative parameter which is used
-     *					only with TWO_STAGE_SMOOTHING as
-     *					parameter for Dirichlet's smoothing.
-     *					(default: 2000)
+     *					with TWO_STAGE_SMOOTHING as parameter for Dirichlet's
+     *					smoothing (default: 2000) and as parameter delta to
+     *					control the scale of the tf lower bound in the
+     *					DIRICHLET_PLUS_SMOOTHING (default 0.05).
+     *
      */
     // Unigram LM Constructor to specifically mention all parameters for handling negative log value and smoothing.
     explicit LMWeight(double param_log_ = 0.0,
 		      type_smoothing select_smoothing_ = TWO_STAGE_SMOOTHING,
-		      double param_smoothing1_ = 0.7,
-		      double param_smoothing2_ = 2000.0)
+		      double param_smoothing1_ = -1.0,
+		      double param_smoothing2_ = -1.0)
 	: select_smoothing(select_smoothing_), param_log(param_log_), param_smoothing1(param_smoothing1_),
 	  param_smoothing2(param_smoothing2_)
     {
+	if (param_smoothing1 < 0) param_smoothing1 = 0.7;
+	if (param_smoothing2 < 0) {
+	    if (select_smoothing == TWO_STAGE_SMOOTHING)
+		param_smoothing2 = 2000.0;
+	    else
+		param_smoothing2 = 0.05;
+	}
 	need_stat(AVERAGE_LENGTH);
 	need_stat(DOC_LENGTH);
 	need_stat(COLLECTION_SIZE);
@@ -1220,12 +1478,14 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
 	need_stat(COLLECTION_FREQ);
 	if (select_smoothing == ABSOLUTE_DISCOUNT_SMOOTHING)
 	    need_stat(UNIQUE_TERMS);
+	if (select_smoothing == DIRICHLET_PLUS_SMOOTHING)
+	    need_stat(DOC_LENGTH_MIN);
     }
 
     std::string name() const;
 
     std::string serialise() const;
-    LMWeight * unserialise(const std::string & s) const;
+    LMWeight * unserialise(const std::string & serialised) const;
 
     double get_sumpart(Xapian::termcount wdf,
 		       Xapian::termcount doclen,
@@ -1233,6 +1493,37 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     double get_maxpart() const;
 
     double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
+    double get_maxextra() const;
+};
+
+/** Xapian::Weight subclass implementing Coordinate Matching.
+ *
+ *  Each matching term score one point.  See Managing Gigabytes, Second Edition
+ *  p181.
+ */
+class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
+    /// The factor to multiply weights by.
+    double factor;
+
+  public:
+    CoordWeight * clone() const;
+
+    void init(double factor_);
+
+    /** Construct a CoordWeight. */
+    CoordWeight() { }
+
+    std::string name() const;
+
+    std::string serialise() const;
+    CoordWeight * unserialise(const std::string & serialised) const;
+
+    double get_sumpart(Xapian::termcount wdf,
+		       Xapian::termcount doclen,
+		       Xapian::termcount uniqterm) const;
+    double get_maxpart() const;
+
+    double get_sumextra(Xapian::termcount, Xapian::termcount) const;
     double get_maxextra() const;
 };
 

@@ -58,7 +58,7 @@ class CollapseData {
 
   public:
     /// Construct with the given MSetItem @a item.
-    CollapseData(const Xapian::Internal::MSetItem & item)
+    explicit CollapseData(const Xapian::Internal::MSetItem & item)
 	: items(1, item), next_best_weight(0), collapse_count(0) {
 	items[0].collapse_key = std::string();
     }

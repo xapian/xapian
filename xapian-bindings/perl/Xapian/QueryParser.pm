@@ -44,12 +44,19 @@ Set the Xapian::Stopper object to be used for identifying stopwords.
 
 =item set_default_op <operator>
 
-Set default operator for joining elements. Useful values are
-OP_AND and OP_OR.  See L<Xapian> for descriptions of these constants.
+Set the default operator.
+
+This operator is used to combine non-filter query items when no
+explicit operator is used.
+
+The most useful values for this are OP_OR (the default) and OP_AND.
+OP_NEAR and OP_PHRASE can also be useful.
+
+See L<Xapian> for descriptions of these constants.
 
 =item get_default_op
 
-Returns the default operator for joining elements.
+Returns the current default operator.
 
 =item set_database <database>
 
@@ -112,6 +119,26 @@ prefix	The term prefix to map this to
 =item get_description
 
 Returns a string describing this object.
+
+=item get_corrected_query_string
+
+Get the spelling-corrected query string.
+
+This will only be set if FLAG_SPELLING_CORRECTION is specified when
+QueryParser::parse_query() was last called.
+
+If there were no corrections, an empty string is returned.
+
+=item set_max_wildcard_expansion <limit>
+
+Specify the maximum expansion of a wildcard term.
+
+Note: you must also set FLAG_WILDCARD for wildcard expansion to happen.
+
+Parameter limit is the maximum number of terms each wildcard in the query can
+expand to, or 0 for no limit (which is the default).
+
+=cut
 
 =back
 

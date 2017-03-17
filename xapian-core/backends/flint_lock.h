@@ -52,7 +52,7 @@ class FlintLock {
 	UNKNOWN // The attempt failed for some unspecified reason.
     } reason;
 #if defined __CYGWIN__ || defined __WIN32__
-    FlintLock(const std::string &filename_)
+    explicit FlintLock(const std::string &filename_)
 	: filename(filename_), hFile(INVALID_HANDLE_VALUE) {
 	// Keep the same lockfile name as flint since the locking is
 	// compatible and this avoids the possibility of creating two databases
@@ -61,18 +61,32 @@ class FlintLock {
     }
     operator bool() const { return hFile != INVALID_HANDLE_VALUE; }
 #elif defined FLINTLOCK_USE_FLOCK
-    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
+    explicit FlintLock(const std::string &filename_)
+	: filename(filename_), fd(-1) {
 	filename += "/flintlock";
     }
     operator bool() const { return fd != -1; }
 #else
-    FlintLock(const std::string &filename_) : filename(filename_), fd(-1) {
+    explicit FlintLock(const std::string &filename_)
+	: filename(filename_), fd(-1) {
 	filename += "/flintlock";
     }
     operator bool() const { return fd != -1; }
 #endif
     // Release any lock held when we're destroyed.
     ~FlintLock() { release(); }
+
+    /** Test if the lock is held.
+     *
+     *  If this object holds the lock, just returns true.  Otherwise it will
+     *  try to test taking the lock, if that is possible to do on the current
+     *  platform without actually take it (fcntl() locks support this).
+     *
+     *	Throws Xapian::UnimplemenetedError if the platform doesn't support
+     *	testing the lock in this way, or Xapian::DatabaseLockError if there's
+     *	an error while trying to perform the test.
+     */
+    bool test() const;
 
     /** Attempt to obtain the lock.
      *
@@ -93,7 +107,7 @@ class FlintLock {
     XAPIAN_NORETURN(
     void throw_databaselockerror(FlintLock::reason why,
 				 const std::string & db_dir,
-				 const std::string & explanation));
+				 const std::string & explanation) const);
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

@@ -12,7 +12,7 @@
 unsigned
 cdb_hash(const void *buf, unsigned len)
 {
-  const unsigned char *p = (const unsigned char *)buf;
+  const unsigned char *p = static_cast<const unsigned char *>(buf);
   const unsigned char *end = p + len;
   unsigned hash = 5381;	/* start value */
   while (p < end)

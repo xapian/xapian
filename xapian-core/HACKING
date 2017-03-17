@@ -129,10 +129,9 @@ Running test programs
 
 To run all tests, use ``make check``.  You can also run just the subset of
 tests which exercise the inmemory, remote progserver, remote TCP,
-multi-database, glass, or chert backends using ``make check-inmemory``,
+multi-database, or glass backends using ``make check-inmemory``,
 ``make check-remoteprog``, ``make check-remotetcp``, ``make check-multi``,
-``make check-glass``, or ``make check-chert``
-respectively.
+or ``make check-glass`` respectively.
 
 Also, ``make check-remote`` will run the tests on both variants of the remote
 backend, and ``make check-none`` will run those tests which don't use any
@@ -165,7 +164,7 @@ You can also use runtest to run a test program under gdb (or most other tools):
 Some test programs take special arguments - for example, you can restrict
 apitest to the glass backend using ``-bglass``.
 
-There are a few environmental variables which the testsuite harness checks for
+There are a few environment variables which the testsuite harness checks for
 which you might find useful:
 
   XAPIAN_TESTSUITE_SIG_DFL:
@@ -470,7 +469,7 @@ Additional tools are needed for these:
 * makeindex (in texlive-binaries on Debian/Ubuntu, or texlive-base-bin for older releases)
 
 Note that pdflatex, epstopdf, gs, and makeindex must all currently be on your
-path (as specified by the environmental variable PATH), since doxygen will look
+path (as specified by the environment variable PATH), since doxygen will look
 for them there.
 
 For a recent version of Debian or Ubuntu, this command should install these
@@ -653,8 +652,10 @@ Use of C++ Features
 
 * Use C++ style casts (static_cast<>, reinterpret_cast<>, and const_cast<>)
   or constructor-syntax (e.g. ``double(value)``) in preference to C style
-  casts.  The syntax of the C++ casts is ugly, but they do make the intent much
-  clearer which is definitely a good thing.
+  casts (configure now enables `-Wold-style-cast` so GCC will warn about C
+  style casts).  The syntax of the C++ casts is ugly, but they do make the
+  intent much clearer which is definitely a good thing, and they avoid issues
+  such as casting away const when you only meant to cast the type of a pointer.
 
 * std::pair<> with an STL class as one (or both) of the members can produce
   very long symbols (over 4KB!) after name mangling - long enough to overflow
@@ -979,7 +980,7 @@ Here's an incomplete list of things to avoid:
   necessary, but could result in problems if the invocation of SWIG_commands
   failed after creating xapian_wrap.cc, but before creating xapian_wrap.h.
   Instead, we recommend creating an intermediate target::
-  
+
     # This rule works in most cases
     xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
     xapian_wrap.stamp: xapian.i
@@ -1169,13 +1170,13 @@ class keyword like so::
 With recent versions of GCC (4.4.7 allows this, 3.3.5 doesn't), you can
 simply mark a method defined inline in a class with ``XAPIAN_DEPRECATED()``
 like so:
-    
+
     class Foo {
       public:
         // This fails to compile with GCC 3.3.5, so don't do this!
         XAPIAN_DEPRECATED(int old_inline_method()) { return 42; }
     };
-    
+
 Xapian 1.3.x and later require at least GCC 4.7, so you can just use the
 approach above.  Xapian 1.2.x aims to support GCC 3.1 and later, so in the
 unlikely event of needing to adjust deprecation markers in 1.2.x, you need to
@@ -1233,7 +1234,7 @@ to follow the style of the existing code.  In particular:
 
   The default access for a class is always "private", so there's no need
   to specify that explicitly - in other words, write this::
-  
+
     class Foo {
         int internal_method();
 
@@ -1484,7 +1485,7 @@ introduction to the Xapian test system in ``docs/tests.html``.
 ---------
 
  * Commit:
-  
+
    + If there's a trac ticket or other reference for the bug, mention it in the
      commit message - it's a great help to future developers trying to work out
      why a change was made.
@@ -1509,7 +1510,7 @@ introduction to the Xapian test system in ``docs/tests.html``.
    If there are conflicts in test cases which aren't easy to resolve, it is
    acceptable to just drop those changes from the patch if we can still be
    confident that the issue is actually fixed by the patch.
- 
+
 API Structure Notes
 ===================
 

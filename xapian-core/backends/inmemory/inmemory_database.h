@@ -83,7 +83,8 @@ class InMemoryTermEntry {
 // Compare by document ID
 class InMemoryPostingLessThan {
     public:
-	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
+	int operator() (const InMemoryPosting &p1,
+			const InMemoryPosting &p2) const
 	{
 	    return p1.did < p2.did;
 	}
@@ -92,7 +93,8 @@ class InMemoryPostingLessThan {
 // Compare by termname
 class InMemoryTermEntryLessThan {
     public:
-	int operator() (const InMemoryTermEntry&p1, const InMemoryTermEntry&p2)
+	int operator() (const InMemoryTermEntry&p1,
+			const InMemoryTermEntry&p2) const
 	{
 	    return p1.tname < p2.tname;
 	}
@@ -124,7 +126,7 @@ class InMemoryDoc {
 	InMemoryDoc() : is_valid(false) {}
 
 	// Initialise specifying validity.
-	InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
+	explicit InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
 	void add_posting(const InMemoryTermEntry & post);
 };
@@ -153,10 +155,10 @@ class InMemoryPostList : public LeafPostList {
     public:
 	Xapian::doccount get_termfreq() const;
 
-	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::termcount   get_doclength() const; // Length of current document
-	Xapian::termcount   get_unique_terms() const; // number of terms in current document
-	Xapian::termcount   get_wdf() const;	   // Within Document Frequency
+	Xapian::docid get_docid() const;     // Gets current docid
+	Xapian::termcount get_doclength() const; // Length of current document
+	Xapian::termcount get_unique_terms() const; // number of terms in current document
+	Xapian::termcount get_wdf() const;	   // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
@@ -183,10 +185,10 @@ class InMemoryAllDocsPostList : public LeafPostList {
     public:
 	Xapian::doccount get_termfreq() const;
 
-	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::termcount   get_doclength() const; // Length of current document
-	Xapian::termcount   get_unique_terms() const; // number of terms in current document
-	Xapian::termcount   get_wdf() const;       // Within Document Frequency
+	Xapian::docid get_docid() const;     // Gets current docid
+	Xapian::termcount get_doclength() const; // Length of current document
+	Xapian::termcount get_unique_terms() const; // number of terms in current document
+	Xapian::termcount get_wdf() const;       // Within Document Frequency
 	PositionList * read_position_list();
 	PositionList * open_position_list() const;
 
@@ -320,7 +322,6 @@ class InMemoryDatabase : public Xapian::Database::Internal {
     Xapian::docid get_lastdocid() const;
 
     totlen_t get_total_length() const;
-    Xapian::doclength get_avlength() const;
     Xapian::termcount get_doclength(Xapian::docid did) const;
     Xapian::termcount get_unique_terms(Xapian::docid did) const;
 

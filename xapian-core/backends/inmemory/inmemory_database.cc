@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2014,2017 Olly Betts
  * Copyright 2006,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -33,6 +33,7 @@
 #include "str.h"
 #include "backends/valuestats.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
@@ -129,8 +130,10 @@ InMemoryPostList::skip_to(Xapian::docid did, double w_min)
     // O(log {length of list}), as opposed to O(distance we want to skip)
     // Since we will frequently only be skipping a short distance, this
     // could well be worse.
+
+    // If we've not started, it's OK to call skip_to().
+    Assert(!at_end() || !started);
     started = true;
-    Assert(!at_end());
     while (!at_end() && (*pos).did < did) {
 	(void) next(w_min);
     }
@@ -197,7 +200,7 @@ InMemoryTermList::InMemoryTermList(intrusive_ptr<const InMemoryDatabase> db_,
 	  started(false), db(db_), did(did_), document_length(len)
 {
     LOGLINE(DB, "InMemoryTermList::InMemoryTermList(): " <<
-	        terms << " terms starting from " << pos->tname);
+		terms << " terms starting from " << pos->tname);
 }
 
 Xapian::termcount
@@ -525,14 +528,6 @@ InMemoryDatabase::get_total_length() const
     return totlen;
 }
 
-Xapian::doclength
-InMemoryDatabase::get_avlength() const
-{
-    if (closed) InMemoryDatabase::throw_database_closed();
-    if (totdocs == 0) return 0;
-    return Xapian::doclength(totlen) / totdocs;
-}
-
 Xapian::termcount
 InMemoryDatabase::get_doclength(Xapian::docid did) const
 {
@@ -551,7 +546,11 @@ InMemoryDatabase::get_unique_terms(Xapian::docid did) const
     if (did == 0 || did > termlists.size() || !termlists[did - 1].is_valid)
 	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
-    return termlists[did - 1].terms.size();
+    // get_unique_terms() really ought to only count terms with wdf > 0, but
+    // that's expensive to calculate on demand, so for now let's just ensure
+    // unique_terms <= doclen.
+    Xapian::termcount terms = termlists[did - 1].terms.size();
+    return std::min(terms, Xapian::termcount(doclengths[did - 1]));
 }
 
 TermList *
@@ -573,8 +572,7 @@ InMemoryDatabase::open_document(Xapian::docid did, bool lazy) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     Assert(did != 0);
-    if (!doc_exists(did)) {
-	if (lazy) return NULL;
+    if (!lazy && !doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
@@ -591,7 +589,7 @@ InMemoryDatabase::get_metadata(const std::string & key) const
 	return string();
     return i->second;
 }
- 
+
 TermList *
 InMemoryDatabase::open_metadata_keylist(const string &) const
 {
@@ -621,7 +619,7 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
     if (!doc_exists(did)) {
 	return 0;
     }
-    const InMemoryDoc &doc = termlists[did-1];
+    const InMemoryDoc &doc = termlists[did - 1];
 
     vector<InMemoryTermEntry>::const_iterator i;
     for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
@@ -632,13 +630,13 @@ InMemoryDatabase::positionlist_count(Xapian::docid did,
     return 0;
 }
 
-PositionList * 
+PositionList *
 InMemoryDatabase::open_position_list(Xapian::docid did,
 				     const string & tname) const
 {
     if (closed) InMemoryDatabase::throw_database_closed();
     if (usual(doc_exists(did))) {
-	const InMemoryDoc &doc = termlists[did-1];
+	const InMemoryDoc &doc = termlists[did - 1];
 
 	vector<InMemoryTermEntry>::const_iterator i;
 	for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
@@ -658,7 +656,7 @@ InMemoryDatabase::add_values(Xapian::docid did,
     if (did > valuelists.size()) {
 	valuelists.resize(did);
     }
-    valuelists[did-1] = values_;
+    valuelists[did - 1] = values_;
 
     // Update the statistics.
     map<Xapian::valueno, string>::const_iterator j;
@@ -704,10 +702,10 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 	throw Xapian::DocNotFoundError(string("Docid ") + str(did) +
 				 string(" not found"));
     }
-    termlists[did-1].is_valid = false;
-    doclists[did-1] = string();
+    termlists[did - 1].is_valid = false;
+    doclists[did - 1] = string();
     map<Xapian::valueno, string>::const_iterator j;
-    for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
+    for (j = valuelists[did - 1].begin(); j != valuelists[did - 1].end(); ++j) {
 	map<Xapian::valueno, ValueStats>::iterator i;
 	i = valuestats.find(j->first);
 	if (--(i->second.freq) == 0) {
@@ -715,10 +713,10 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 	    i->second.upper_bound.resize(0);
 	}
     }
-    valuelists[did-1].clear();
+    valuelists[did - 1].clear();
 
-    totlen -= doclengths[did-1];
-    doclengths[did-1] = 0;
+    totlen -= doclengths[did - 1];
+    doclengths[did - 1] = 0;
     totdocs--;
     // A crude check, but it's hard to be more precise with the current
     // InMemory structure without being very inefficient.
@@ -741,7 +739,7 @@ InMemoryDatabase::delete_document(Xapian::docid did)
 	    ++posting;
 	}
     }
-    termlists[did-1].terms.clear();
+    termlists[did - 1].terms.clear();
 }
 
 void
@@ -752,9 +750,9 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 
     if (closed) InMemoryDatabase::throw_database_closed();
 
-    if (doc_exists(did)) { 
+    if (doc_exists(did)) {
 	map<Xapian::valueno, string>::const_iterator j;
-	for (j = valuelists[did-1].begin(); j != valuelists[did-1].end(); ++j) {
+	for (j = valuelists[did - 1].begin(); j != valuelists[did - 1].end(); ++j) {
 	    map<Xapian::valueno, ValueStats>::iterator i;
 	    i = valuestats.find(j->first);
 	    if (--(i->second.freq) == 0) {

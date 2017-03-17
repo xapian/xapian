@@ -24,12 +24,11 @@
 
 set -e
 
-#MIRROR=http://ftp.de.debian.org/debian/
-MIRROR=http://ftp.nz.debian.org/debian/
+MIRROR=http://httpredir.debian.org/debian/
 
 # Can't backport direct to squeeze from stretch
 DEBIAN_CODENAMES='jessie wheezy'
-UBUNTU_CODENAMES='xenial wily trusty precise'
+UBUNTU_CODENAMES='yakkety xenial trusty precise'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
@@ -98,6 +97,42 @@ adjust_changelog() {
 build_it() {
   adjust_changelog
 
+  overrides=
+  case $PKG:$CODENAME:$VERSION in
+    libsearch-xapian-perl:precise:*)
+      # Relax debhelper version requirement a little on precise.
+      sed -i 's/debhelper (>= 9\.[0-9]*)/debhelper (>= 9.20120115)/' debian/control
+      dch -a 'debian/control: Relax dependency on debhelper version a little so it is satisfied by the debhelper version in precise.  This only affects what hardening flags get used, and the backport will be no worse than the standard libsearch-xapian-perl package in precise.'
+      ;;
+    xapian-core:*:1.2.*)
+      # So we can create the backport source packages on debian unstable.
+      overrides='libxapian_soversion=22 other_abi_suffix=v5' ;;
+    xapian-core:precise:1.4.*|xapian-omega:precise:1.4.*)
+      sed -i 's/^Build-Depends: /&g++-4.7, /' debian/control.in
+      sed -i 's!/configure\>!& CXX=g++-4.7!' debian/rules
+      dch -a 'debian/control.in,debian/rules: Build with g++-4.7 for C++11 support.'
+      ;;
+    xapian-bindings:trusty:1.2.*)
+      # Make sure we add python-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy RUBY_VERSIONS="2.0" RUBY_PROVIDES="X-Dummy: No provides"' ;;
+    xapian-bindings:trusty:*)
+      # Make sure we add python-xapian and python3-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
+    xapian-bindings:xenial:*|xapian-bindings:yakkety:*)
+      # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
+      # to debian/control.
+      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
+    xapian-bindings:precise:1.4.*)
+      sed -i 's/^Build-Depends: /&g++-4.7, /' debian/control.in
+      sed -i 's!/configure\>!& CXX=g++-4.7!' debian/rules
+      dch -a 'debian/control.in,debian/rules: Build with g++-4.7 for C++11 support.'
+      # Make sure we add python-xapian and python3-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
+    xapian-bindings:*:*)
+      # Make sure we add python-xapian to debian/control.
+      overrides='PYTHON_VERSIONS=dummy' ;;
+  esac
+
   case `grep -c '^[^#]*\<CODENAME\>' debian/rules` in
     '')
       echo 'Failed to grep debian/rules'
@@ -106,7 +141,7 @@ build_it() {
     [01])
       # Run maintclean and maint targets, if they exist.
       fakeroot debian/rules maintclean || true
-      fakeroot debian/rules maint || true
+      eval fakeroot debian/rules maint $overrides || true
       ;;
     *)
       # If debian/rules has at least two non-commented out references to
@@ -114,21 +149,26 @@ build_it() {
       echo "$CODENAME" > debian/codename
       # Generates control from control.in (and maybe other files).
       fakeroot debian/rules maintclean CODENAME="$CODENAME"
-      fakeroot debian/rules maint CODENAME="$CODENAME" $overrides
+      eval fakeroot debian/rules maint CODENAME="$CODENAME" $overrides
       ;;
   esac
 
-  # We don't really want to upload the orig tarball for all Ubuntu backports,
-  # only if it isn't already in the archive.  So for now, just upload it for
-  # the first codename in alphabetical order.
-  if [ "$UBUNTU_FIRST" = "$CODENAME" ] ; then
-    include_src_opt=-sa
-  else
-    # The default is -si, which used to check for -0 or -1, but now looks for
-    # a change in upstream version number.  Once that change is in all releases
-    # we care about, we can remove this setting (FIXME).
-    include_src_opt=-sd
-  fi
+  case $PKG:$CODENAME:$VERSION in
+    xapian-bindings:precise:1.4.*)
+      # No dh-python for precise.
+      sed -i 's/dh-python, *//g' debian/control
+      ;;
+  esac
+
+  include_src_opt=
+  case $backport_version in
+    *99$UBUNTU_FIRST)
+      # We don't really want to upload the orig tarball for all Ubuntu
+      # backports, only if it isn't already in the archive.  So for now, just
+      # upload it for the first codename in alphabetical order, and only if
+      # there's no +N suffix on the version.
+      include_src_opt=-sa ;;
+  esac
   debuild ${BUILDPACKAGE_SRC_OPTS} $include_src_opt
 
   if [ 1 != "$ubuntu" ] ; then

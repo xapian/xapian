@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2006,2008 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -94,6 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  backend to use.
 	 *
 	 * @param path directory that the database is stored in.
+	 * @param flags  Bitwise-or of Xapian::DB_* constants.
 	 */
 	explicit Database(const std::string &path, int flags = 0);
 
@@ -121,14 +122,14 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	virtual ~Database();
 
-        /** Copying is allowed.  The internals are reference counted, so
+	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 *
 	 *  @param other	The object to copy.
 	 */
 	Database(const Database &other);
 
-        /** Assignment is allowed.  The internals are reference counted,
+	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 *
 	 *  @param other	The object to copy.
@@ -367,6 +368,25 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	Xapian::Document get_document(Xapian::docid did) const;
 
+	/** Get a document from the database, given its document id.
+	 *
+	 *  This method returns a Xapian::Document object which provides the
+	 *  information about a document.
+	 *
+	 *  @param did   The document id of the document to retrieve.
+	 *  @param flags Zero or more flags bitwise-or-ed together (currently
+	 *		 only Xapian::DOC_ASSUME_VALID is supported).
+	 *
+	 *  @return      A Xapian::Document object containing the document data
+	 *
+	 *  @exception Xapian::DocNotFoundError      The document specified
+	 *		could not be found in the database.
+	 *
+	 *  @exception Xapian::InvalidArgumentError  did was 0, which is not
+	 *		a valid document id.
+	 */
+	Xapian::Document get_document(Xapian::docid did, unsigned flags) const;
+
 	/** Suggest a spelling correction.
 	 *
 	 *  @param word			The potentially misspelled word.
@@ -418,7 +438,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	/** Get the user-specified metadata associated with a given key.
 	 *
 	 *  User-specified metadata allows you to store arbitrary information
-	 *  in the form of (key,tag) pairs.  See @a
+	 *  in the form of (key, value) pairs.  See @a
 	 *  WritableDatabase::set_metadata() for more information.
 	 *
 	 *  When invoked on a Xapian::Database object representing multiple
@@ -482,6 +502,34 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	std::string get_uuid() const;
 
+	/** Test if this database is currently locked for writing.
+	 *
+	 *  If the underlying object is actually a WritableDatabase, always
+	 *  returns true.
+	 *
+	 *  Otherwise tests if there's a writer holding the lock (or if
+	 *  we can't test for a lock without taking it on the current platform,
+	 *  throw Xapian::UnimplementedError).  If there's an error while
+	 *  trying to test the lock, throws Xapian::DatabaseLockError.
+	 *
+	 *  For multi-databases, this tests each sub-database and returns
+	 *  true if any of them are locked.
+	 */
+	bool locked() const;
+
+	/** Get the revision of the database.
+	 *
+	 *  The revision is an unsigned integer which increases with each
+	 *  commit.
+	 *
+	 *  The database must have exactly one sub-database, which must be of
+	 *  type glass.  Otherwise an exception will be thrown.
+	 *
+	 *  Experimental - see
+	 *  https://xapian.org/docs/deprecation#experimental-features
+	 */
+	Xapian::rev get_revision() const;
+
 	/** Check the integrity of a database or database table.
 	 *
 	 *  @param path	Path to database or table
@@ -537,6 +585,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *   - Xapian::DBCOMPACT_SINGLE_FILE
 	 *		Produce a single-file database (only supported for
 	 *		glass currently).
+	 *   - At most one of:
+	 *     - Xapian::Compactor::STANDARD - Don't split items unnecessarily.
+	 *     - Xapian::Compactor::FULL     - Split items whenever it saves
+	 *       space (the default).
+	 *     - Xapian::Compactor::FULLER   - Allow oversize items to save
+	 *       more space (not recommended if you ever plan to update the
+	 *       compacted database).
 	 *
 	 *  @param block_size This specifies the block size (in bytes) for
 	 *		to use for the output.  For glass, the block size must
@@ -754,7 +809,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  @param block_size If a new database is created, this specifies
 	 *		      the block size (in bytes) for backends which
-	 *		      have such a concept.  For chert and glass, the
+	 *		      have such a concept.  For glass, the
 	 *		      block size must be a power of 2 between 2048 and
 	 *		      65536 (inclusive), and the default (also used if
 	 *		      an invalid value is passed) is 8192 bytes.
@@ -773,14 +828,14 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	explicit WritableDatabase(Database::Internal *internal);
 
-        /** Copying is allowed.  The internals are reference counted, so
+	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is cheap.
 	 *
 	 *  @param other	The object to copy.
 	 */
 	WritableDatabase(const WritableDatabase &other);
 
-        /** Assignment is allowed.  The internals are reference counted,
+	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is cheap.
 	 *
 	 *  Note that only an WritableDatabase may be assigned to an
@@ -883,7 +938,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *             called at an invalid time, such as when a transaction
 	 *             is already in progress.
 	 */
-	void begin_transaction(bool flushed=true);
+	void begin_transaction(bool flushed = true);
 
 	/** Complete the transaction currently in progress.
 	 *
@@ -1130,7 +1185,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  existing item of metadata, just set its value to the empty string.
 	 *
 	 *  User-specified metadata allows you to store arbitrary information
-	 *  in the form of (key,tag) pairs.
+	 *  in the form of (key, value) pairs.
 	 *
 	 *  There's no hard limit on the number of metadata items, or the size
 	 *  of the metadata values.  Metadata keys have a limited length, which
@@ -1149,9 +1204,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  associated with terms, documents, or postings by encoding the
 	 *  termname and/or document id into the metadata key.
 	 *
-	 *  @param key   The key of the metadata item to set.
+	 *  @param key       The key of the metadata item to set.
 	 *
-	 *  @param value The value of the metadata item to set.
+	 *  @param metadata  The value of the metadata item to set.
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while writing to the database.
@@ -1166,7 +1221,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *             database backend in use doesn't support user-specified
 	 *             metadata.
 	 */
-	void set_metadata(const std::string & key, const std::string & value);
+	void set_metadata(const std::string & key, const std::string & metadata);
 
 	/// Return a string describing this object.
 	std::string get_description() const;

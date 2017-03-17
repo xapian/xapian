@@ -1,7 +1,7 @@
 /* api_snippets.cc: tests snippets
  *
  * Copyright 2012 Mihai Bivol
- * Copyright 2015,2016 Olly Betts
+ * Copyright 2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,7 +48,7 @@ DEFINE_TESTCASE(snippet1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
 				    Xapian::Query("rubbish"),
-				    Xapian::Query("example")));
+				    Xapian::Query("mention")));
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
     static const snippet_testcase testcases[] = {
@@ -56,16 +56,16 @@ DEFINE_TESTCASE(snippet1, backend) {
 	{ "Rubbish and junk", 20, "<b>Rubbish</b> and junk" },
 	{ "Project R.U.B.B.I.S.H. greenlit", 31, "Project <b>R.U.B.B.I.S.H.</b> greenlit" },
 	{ "What a load of rubbish", 100, "What a load of <b>rubbish</b>" },
-	{ "Example rubbish", 100, "<b>Example</b> <b>rubbish</b>" },
-	{ "An example of rubbish", 100, "An <b>example</b> of <b>rubbish</b>" },
-	{ "Rubbish example of rubbish", 100, "<b>Rubbish</b> <b>example</b> of <b>rubbish</b>" },
+	{ "Mention rubbish", 100, "<b>Mention</b> <b>rubbish</b>" },
+	{ "A mention of rubbish", 100, "A <b>mention</b> of <b>rubbish</b>" },
+	{ "Rubbish mention of rubbish", 100, "<b>Rubbish</b> <b>mention</b> of <b>rubbish</b>" },
 
 	// Test selection of snippet.
 	{ "Rubbish and junk", 12, "<b>Rubbish</b> and..." },
 	{ "Project R.U.B.B.I.S.H. greenlit", 14, "...<b>R.U.B.B.I.S.H.</b>..." },
 	{ "What a load of rubbish", 12, "...of <b>rubbish</b>" },
 	{ "What a load of rubbish", 8, "...<b>rubbish</b>" },
-	{ "Rubbish example where the start is better than the rubbish ending", 18, "<b>Rubbish</b> <b>example</b>..." },
+	{ "Rubbish mention where the start is better than the rubbish ending", 18, "<b>Rubbish</b> <b>mention</b>..." },
 
 	// Should prefer "interesting" words for context.
 	{ "And of the rubbish document to this", 18, "...<b>rubbish</b> document..." },
@@ -87,6 +87,8 @@ DEFINE_TESTCASE(snippetstem1, backend) {
 				    Xapian::Query("Zexampl")));
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
+    // Term Zexampl isn't in the database, but the highlighter should still
+    // handle it.
     static const snippet_testcase testcases[] = {
 	// "rubbish" isn't stemmed, example is.
 	{ "You rubbished my ideas", 24, "You rubbished my ideas" },
@@ -107,19 +109,19 @@ DEFINE_TESTCASE(snippetphrase1, backend) {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     Xapian::Query q(Xapian::Query::OP_PHRASE,
 		    Xapian::Query("rubbish"),
-		    Xapian::Query("example"));
-    // Regression test - a phrase with a follow sibling query would crash in
+		    Xapian::Query("mention"));
+    // Regression test - a phrase with a following sibling query would crash in
     // the highlighting code.
     enquire.set_query(q &~ Xapian::Query("banana"));
     Xapian::MSet mset = enquire.get_mset(0, 0);
 
     static const snippet_testcase testcases[] = {
-	{ "An example of rubbish", 18, "...example of rubbish" },
-	{ "This is a rubbish example", 20, "...is a <b>rubbish example</b>" },
-	{ "Example of a rubbish example of rubbish", 45, "Example of a <b>rubbish example</b> of rubbish" },
-	{ "Example of a rubbish example of rubbish", 18, "...<b>rubbish example</b> of..." },
-	{ "rubbish rubbish example example", 45, "rubbish <b>rubbish example</b> example" },
-	{ "rubbish example rubbish example", 45, "<b>rubbish example</b> <b>rubbish example</b>" },
+	{ "A mention of rubbish", 18, "...mention of rubbish" },
+	{ "This is a rubbish mention", 20, "...is a <b>rubbish mention</b>" },
+	{ "Mention of a rubbish mention of rubbish", 45, "Mention of a <b>rubbish mention</b> of rubbish" },
+	{ "Mention of a rubbish mention of rubbish", 18, "...<b>rubbish mention</b> of..." },
+	{ "rubbish rubbish mention mention", 45, "rubbish <b>rubbish mention</b> mention" },
+	{ "rubbish mention rubbish mention", 45, "<b>rubbish mention</b> <b>rubbish mention</b>" },
     };
 
     Xapian::Stem stem("en");
@@ -176,7 +178,7 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     Xapian::MSet mset = enquire.get_mset(0, 6);
     TEST_EQUAL(mset.size(), 3);
     TEST_STRINGS_EQUAL(mset.snippet(mset[0].get_document().get_data(), 40, stem),
-		       "...much o'brien <b>do we have</b>?  Miles O'Brien...");
+		       "How much o'brien <b>do we have</b>?  Miles...");
     TEST_STRINGS_EQUAL(mset.snippet(mset[1].get_document().get_data(), 40, stem),
 		       "...Unicode: How much o’brien <b>do we have</b>?");
     TEST_STRINGS_EQUAL(mset.snippet(mset[2].get_document().get_data(), 32, stem),
@@ -207,6 +209,107 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     // fewer Unicode characters in this sample than the previous one.
     TEST_STRINGS_EQUAL(mset.snippet(mset[4].get_document().get_data(), 64, stem),
 		       "...<b>much</b> o’brien do we have?  <b>Miles</b> O’Brien, that’s how <b>much</b>.");
+
+    return true;
+}
+
+/// Test snippet term diversity.
+DEFINE_TESTCASE(snippet_termcover1, backend) {
+    static const snippet_testcase testcases[] = {
+	// "Zexample" isn't in the database, so should get termweight 0.  Once
+	// max_tw is added on, "rubbish" should have just under twice the
+	// relevance of "example" so clearly should win in a straight fight.
+	{ "A rubbish, but a good example", 14, "...<b>rubbish</b>, but a..."},
+	// But a second occurrence of "rubbish" has half the relevance, so
+	// "example" should add slightly more relevance.
+	{ "Rubbish and rubbish, and rubbish examples", 22, "...and <b>rubbish</b> <b>examples</b>"},
+	// And again.
+	{ "rubbish rubbish example rubbish rubbish", 16, "...<b>example</b> <b>rubbish</b>..." },
+    };
+
+    Xapian::Stem stem("en");
+    // Disable SNIPPET_BACKGROUND_MODEL so we can test the relevance decay
+    // for repeated terms.
+    unsigned flags = Xapian::MSet::SNIPPET_EXHAUSTIVE;
+    for (auto i : testcases) {
+	Xapian::Enquire enquire(get_database("apitest_simpledata"));
+	enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+		    Xapian::Query("rubbish"),
+		    Xapian::Query("Zexampl")));
+
+	Xapian::MSet mset = enquire.get_mset(0, 0);
+	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
+    }
+
+    return true;
+}
+
+/// Test snippet term diversity cases with BoolWeight.
+DEFINE_TESTCASE(snippet_termcover2, backend) {
+    // With BoolWeight, all terms have 0 termweight, and so relevance 1.0
+    // (since max_tw is set to 1.0 if it is zero).
+    static const snippet_testcase testcases[] = {
+	// Diversity should pick two different terms in preference.
+	{ "rubbish rubbish example rubbish rubbish", 16, "...<b>example</b> <b>rubbish</b>..." },
+	// And again.
+	{ "Rubbish and rubbish, and rubbish examples", 22, "...and <b>rubbish</b> <b>examples</b>"},
+	// The last of two equal snippet should win.
+	{ "A rubbish, but a good example", 14, "...a good <b>example</b>"},
+    };
+
+    Xapian::Stem stem("en");
+    // Disable SNIPPET_BACKGROUND_MODEL so we can test the relevance decay
+    // for repeated terms.
+    unsigned flags = Xapian::MSet::SNIPPET_EXHAUSTIVE;
+    for (auto i : testcases) {
+	Xapian::Enquire enquire(get_database("apitest_simpledata"));
+	enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+		    Xapian::Query("rubbish"),
+		    Xapian::Query("Zexampl")));
+	enquire.set_weighting_scheme(Xapian::BoolWeight());
+
+	Xapian::MSet mset = enquire.get_mset(0, 0);
+	TEST_STRINGS_EQUAL(mset.snippet(i.input, i.len, stem, flags), i.expect);
+    }
+
+    return true;
+}
+
+/// Test snippet EMPTY_WITHOUT_MATCH flag
+DEFINE_TESTCASE(snippet_empty, backend) {
+
+    Xapian::Stem stem("en");
+
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+		      Xapian::Query("rubbish"),
+		      Xapian::Query("Zexampl")));
+
+    Xapian::MSet mset = enquire.get_mset(0, 0);
+
+    // A non-matching text
+    const char *input = "A string without a match.";
+    size_t len = strlen(input);
+
+    // By default, snippet() returns len bytes of input without markup
+    unsigned flags = 0;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, 0), input);
+
+    // force snippet() to return the empty string if no term got matched
+    flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags), "");
+
+    // A text with a match
+    input = "A rubbish example text";
+    len = strlen(input);
+
+    flags = 0;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
+		       "A <b>rubbish</b> <b>example</b> text");
+
+    flags |= Xapian::MSet::SNIPPET_EMPTY_WITHOUT_MATCH;
+    TEST_STRINGS_EQUAL(mset.snippet(input, len, stem, flags),
+		       "A <b>rubbish</b> <b>example</b> text");
 
     return true;
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #
 # Copyright (C) 2011,2012,2013,2015 Olly Betts
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
 # deal in the Software without restriction, including without limitation the
@@ -331,6 +331,7 @@ foreach my $tag (@ARGV) {
 	return if $_ eq 'NEWS.SKELETON';
 	return if $f eq 'README';
 	return if $f eq 'Vagrantfile';
+	return if $f eq '.travis.yml';
 	return if /^Search-Xapian-\d+\.\d+\.\d+\.\d+\.tar\..z$/;
 	++$unused_files{$f};
 	print "Unused during make: $f\n";

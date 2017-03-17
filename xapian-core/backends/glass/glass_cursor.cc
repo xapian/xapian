@@ -42,8 +42,8 @@ hex_display_encode(const string & input)
     for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
 	unsigned char val = *i;
 	result += "\\x";
-	result += table[val/16];
-	result += table[val%16];
+	result += table[val / 16];
+	result += table[val % 16];
     }
 
     return result;
@@ -63,7 +63,7 @@ GlassCursor::GlassCursor(const GlassTable *B_, const Glass::Cursor * C_)
     B->cursor_created_since_last_modification = true;
     C = new Glass::Cursor[level + 1];
     if (!C_) C_ = B->C;
-    for (int j = 0; j <= level; j++) {
+    for (int j = 0; j <= level; ++j) {
 	C[j].clone(C_[j]);
     }
 }
@@ -79,11 +79,11 @@ GlassCursor::rebuild()
     } else {
 	Cursor * old_C = C;
 	C = new Cursor[new_level + 1];
-	for (int i = 0; i < level; i++) {
+	for (int i = 0; i < level; ++i) {
 	    C[i].swap(old_C[i]);
 	}
 	delete [] old_C;
-	for (int j = level; j < new_level; j++) {
+	for (int j = level; j < new_level; ++j) {
 	    C[j].init(B->block_size);
 	}
     }

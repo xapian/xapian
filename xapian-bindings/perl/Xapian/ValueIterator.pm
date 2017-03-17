@@ -52,7 +52,8 @@ as the C<ne> and C<!=> operators.
 
 =head1 SEE ALSO
 
-L<Xapian>,L<Xapian::Document>
+L<Xapian>,
+L<Xapian::Document>
 
 =cut
 1;

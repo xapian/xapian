@@ -2,7 +2,8 @@
 # bootstrap a xapian source tree obtained from git to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+copyright='
+# Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,10 +19,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
+'
 
 if [ "$1" = "--help" ] ; then
   cat <<__END__
-$0 [--ftp] [--without-autotools|--clean] [MODULE...]
+$0 [--ftp] [--download-tools=(always|ifneeded|never)] [--clean] [MODULE...]
 
 The default is to bootstrap all known modules.  Any modules which have a
 file called ".nobootstrap" in their top-level will be skipped.
@@ -46,7 +48,7 @@ check_sha1sum() {
     for SHA1SUM_TOOL in \
 	'${SHA1SUM-sha1sum} 2>/dev/null|cut -d\  -f1' \
 	'${SHASUM-shasum} 2>/dev/null|cut -d\  -f1' \
-	'$(OPENSSL-openssl} sha1 2>/dev/null|sed "s/.* //"' \
+	'${OPENSSL-openssl} sha1 2>/dev/null|sed "s/.* //"' \
 	'' ; do
       if [ -z "$SHA1SUM_TOOL" ] ; then
 	echo <<'END'
@@ -73,11 +75,59 @@ END
   fi
 }
 
+check_at_least() {
+  v1=$1
+  v2=$2
+  save_IFS=$IFS
+  IFS=.
+  set x $v1
+  for v in $v2 ; do
+    shift
+    if [ "$1" != "$v" ] ; then
+      if [ "$1" -lt "$v" ] ; then
+	IFS=$save_IFS
+	return 1
+      fi
+      break
+    fi
+  done
+  IFS=$save_IFS
+  return 0
+}
+
 lazy_build() {
   package=$1
-  basename=$package-$2
-  ext=$3
-  checksum=$4
+  binary=$2
+  version=$3
+
+  case $download_tools in
+    always) ;;
+    never)
+      return 1
+      ;;
+    *)
+      if [ -n $binary ] ; then
+	# Check if a new enough version is already installed.
+	version_installed=`"$binary" --version 2>/dev/null|sed '1,1 s/.* //p;d'`
+	if [ -n "$version_installed" ] ; then
+	  # Fast track equality.
+	  if [ "$version_installed" = "$version" ] ; then
+	    echo "$binary $version_installed installed, exactly what's needed"
+	    return 1
+	  fi
+	  if check_at_least "$version_installed" "$version" ; then
+	    echo "$binary $version_installed installed >= $version required"
+	    return 1
+	  fi
+	fi
+      fi
+      ;;
+  esac
+
+  basename=$package-$version
+  ext=$4
+  checksum=$5
+
   if [ "$ext" = "tar.xz" ] ; then
     if [ -z "$xz_ok" ] ; then
       if ${XZ-xz} --version > /dev/null 2>&1 ; then
@@ -88,8 +138,8 @@ lazy_build() {
     fi
     if [ "$xz_ok" = 0 ] ; then
       shift 2
-      ext=$3
-      checksum=$4
+      ext=$4
+      checksum=$5
     fi
   fi
   if [ "$ext" = "tar.bz2" ] ; then
@@ -104,8 +154,8 @@ lazy_build() {
     fi
     if [ "$bz2_ok" = 0 ] ; then
       shift 2
-      ext=$3
-      checksum=$4
+      ext=$4
+      checksum=$5
     fi
   fi
   tarball=$basename.$ext
@@ -218,6 +268,7 @@ END
 
     touch "$stamp"
   fi
+  return 0
 }
 
 handle_git_external() {
@@ -261,7 +312,11 @@ case $srcdir in
 esac
 
 # Commit hash to pass to handle_git_external for swig.
-swig_git_commit_hash=bab51398053188a136effd155d7ed8f5d441908e
+swig_git_commit_hash=d21bb11153bd46c9eae124c13322add3e0df9cee
+
+# Commit hashes to use for common in omega and letor respectively:
+omega_common_commit_hash=bddcf54435286b0363efff94f22529093e85fc89
+letor_common_commit_hash=bddcf54435286b0363efff94f22529093e85fc89
 
 if [ ! -d .git ] ; then
   echo "$0: No '.git' directory found - this script should be run from a"
@@ -309,7 +364,6 @@ case $origin_url in
     github_base_url=https://github.com/ ;;
 esac
 swig_origin_url=${github_base_url}swig/swig.git
-handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
 
 if [ -z "$XAPIAN_COMMON_CLONE_URL" ] ; then
     xapian_common_clone_url=.
@@ -317,64 +371,122 @@ else
     xapian_common_clone_url=$XAPIAN_COMMON_CLONE_URL
 fi
 
-# If someone's created a directory for common, leave it be.
-if [ -h xapian-applications/omega/common ] || \
-   [ ! -d xapian-applications/omega/common ] ; then
-  handle_git_external xapian-applications/omega/.common.git bddcf54435286b0363efff94f22529093e85fc89 "$xapian_common_clone_url"
-  ln -sf .common.git/xapian-core/common xapian-applications/omega/common
-fi
-
-# If someone's created a directory for common, leave it be.
-if [ -h xapian-letor/common ] || [ ! -d xapian-letor/common ] ; then
-  handle_git_external xapian-letor/.common.git bddcf54435286b0363efff94f22529093e85fc89 "$xapian_common_clone_url"
-  ln -sf .common.git/xapian-core/common xapian-letor/common
-fi
-
-# Prefer http downloads as they are more likely to work through firewalls.
+# Set to 'yes' to use ftp URLs where available.
+#
+# By default we prefer http downloads as they are more likely to work through
+# firewalls.
 use_ftp=no
-if [ "$1" = "--ftp" ] ; then
-  shift
-  use_ftp=yes
-fi
 
-if [ "$1" = "--without-autotools" ] ; then
-  shift
-else
-  if [ "$1" = "--clean" ] ; then
+# Set to 'always' to always use a locally installed copy of the autotools
+# or 'never' to never download.
+#
+# By default we check for locally installed versions and use them if they are
+# new enough versions.  But e.g. for building releases we want to use a known
+# set of versions.
+download_tools=ifneeded
+
+while [ "$#" -gt 0 ] ; do
+  case $1 in
+  --download-tools=*)
+    download_tools=`echo "x$1"|sed 's/x--download-tools=//'`
     shift
+    continue
+    ;;
+
+  --download-tools)
+    download_tools=$2
+    shift 2
+    continue
+    ;;
+
+  --ftp)
+    use_ftp=yes
+    shift
+    continue
+    ;;
+
+  --clean)
     rm -rf INST
-  fi
+    shift
+    continue
+    ;;
 
-  [ -d INST ] || mkdir INST
-  instdir=`pwd`/INST
+  --without-autotools)
+    echo "warning: Ignoring old option '$1' - new default is to use installed versions of tools if new enough.  Use '--download-tools=never' to prevent ever downloading"
+    shift
+    continue
+    ;;
 
-  [ -d BUILD ] || mkdir BUILD
-  cd BUILD
+  --)
+    shift
+    break
+    ;;
 
-  # The last field is the SHA1 checksum of the tarball.
-  lazy_build autoconf 2.69 \
+  -*)
+    echo "Unknown option '$1'" 1>&2
+    exit 1
+    ;;
+
+  *)
+    break
+    ;;
+  esac
+done
+
+case $download_tools in
+  always|ifneeded) ;;
+  never)
+    echo "warning: If stuff breaks with '--download-tools=never', you get to keep the pieces"
+    ;;
+  *)
+    echo "Invalid --download-tools value '$download_tools'"
+    exit 1
+    ;;
+esac
+
+[ -d INST ] || mkdir INST
+instdir=`pwd`/INST
+
+[ -d BUILD ] || mkdir BUILD
+cd BUILD
+
+# The last field is the SHA1 checksum of the tarball.
+if lazy_build autoconf autoconf 2.69 \
     tar.xz e891c3193029775e83e0534ac0ee0c4c711f6d23 \
-    tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a
-  AUTOCONF=$instdir/bin/autoconf \
-  lazy_build automake 1.15 \
-    tar.xz c279b35ca6c410809dac8ade143b805fb48b7655 \
-    tar.gz b5a840c7ec4321e78fdc9472e476263fa6614ca1
-  lazy_build libtool 2.4.6 \
-    tar.xz 3e7504b832eb2dd23170c91b6af72e15b56eb94e \
-    tar.gz 25b6931265230a06f0fc2146df64c04e5ae6ec33
-  if [ "$1" = "--deps=libmagic" ] ; then
-      shift
-      lazy_build file 5.25 \
-	tar.gz fea78106dd0b7a09a61714cdbe545135563e84bd
-  fi
-
-  for v in $autotools ; do
-     tool=`echo "$v"|tr A-Z a-z`
-     eval "$v=\"\$instdir\"/bin/$tool;export $v"
-  done
-
-  cd ..
+    tar.gz 562471cbcb0dd0fa42a76665acf0dbb68479b78a \
+    ; then
+  AUTOCONF=$instdir/bin/autoconf
+  export AUTOCONF
+  AUTORECONF=$instdir/bin/autoreconf
+  export AUTORECONF
+  AUTOHEADER=$instdir/bin/autoheader
+  export AUTOHEADER
+  AUTOM4TE=$instdir/bin/autom4te
+  export AUTOM4TE
 fi
+if lazy_build automake automake 1.15 \
+    tar.xz c279b35ca6c410809dac8ade143b805fb48b7655 \
+    tar.gz b5a840c7ec4321e78fdc9472e476263fa6614ca1 \
+    ; then
+  ACLOCAL=$instdir/bin/aclocal
+  export ACLOCAL
+  AUTOMAKE=$instdir/bin/automake
+  export AUTOMAKE
+fi
+if lazy_build libtool libtool 2.4.6 \
+    tar.xz 3e7504b832eb2dd23170c91b6af72e15b56eb94e \
+    tar.gz 25b6931265230a06f0fc2146df64c04e5ae6ec33 \
+    ; then
+  LIBTOOLIZE=$instdir/bin/libtoolize
+  export LIBTOOLIZE
+fi
+if [ "$1" = "--deps=libmagic" ] ; then
+    shift
+    lazy_build file '' 5.25 \
+      tar.gz fea78106dd0b7a09a61714cdbe545135563e84bd
+fi
+
+cd ..
 
 case `${LIBTOOLIZE-libtoolize} --version` in
 "")
@@ -395,8 +507,16 @@ export ACLOCAL
 
 intree_swig=no
 modules=
-for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xapian-letor} ; do
+for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings} ; do
   d=$module
+  if [ "$d" = swig ] ; then
+    if [ -f "xapian-bindings/.nobootstrap" ] ; then
+      # No point bootstrapping SWIG if we aren't going to use it.
+      echo "Skipping '$d' due to presence of 'xapian-bindings/.nobootstrap'."
+      continue
+    fi
+    handle_git_external swig "$swig_git_commit_hash" "$swig_origin_url"
+  fi
   if [ -f "$d/configure.ac" -o -f "$d/configure.in" ] ; then
     :
   else
@@ -409,11 +529,19 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xa
     echo "Skipping '$module' due to presence of '$d/.nobootstrap'."
     continue
   fi
-  if [ "$d" = swig ] && [ -f "xapian-bindings/.nobootstrap" ] ; then
-    # No point bootstrapping SWIG if we aren't going to use it.
-    echo "Skipping '$d' due to presence of 'xapian-bindings/.nobootstrap'."
-    continue
-  fi
+  case $d in
+  xapian-applications/omega|xapian-letor)
+    # If someone's created a directory for common, leave it be.
+    if [ -h "$d/common" ] || [ ! -d "$d/common" ] ; then
+      # Pick omega_common_commit_hash or letor_common_commit_hash:
+      var=`echo "$d"|sed 's!.*[-/]!!g'`_common_commit_hash
+      hash=`eval echo \\\$"$var"`
+      handle_git_external "$d/.common.git" "$hash" "$xapian_common_clone_url"
+      ln -sf .common.git/xapian-core/common "$d/common"
+    fi
+    ;;
+  esac
+
   echo "Bootstrapping \`$module'"
   [ -f "$d/preautoreconf" ] && "$d/preautoreconf"
 
@@ -459,33 +587,25 @@ for module in ${@:-xapian-core xapian-applications/omega swig xapian-bindings xa
   modules="$modules $module"
 done
 
+# Produce an absolute path to srcdir.
+srcdir_abs=`pwd`
+
 # Generate the top-level configure script.
 rm -f configure.tmp
-cat <<'TOP_OF_CONFIGURE' > configure.tmp
+cat <<TOP_OF_CONFIGURE > configure.tmp
 #!/bin/sh
 # configure each submodule in a xapian source tree
 # Generated by Xapian top-level bootstrap script.
-#
-# Copyright (C) 2003,2004,2007,2008 Olly Betts
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License as
-# published by the Free Software Foundation; either version 2 of the
-# License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
-# USA
-
+#$copyright
 trap 'echo "configure failed"' EXIT
 set -e
 
+srcdir="$srcdir_abs"
+modules="$modules"
+
+TOP_OF_CONFIGURE
+
+cat <<'MIDDLE_OF_CONFIGURE' >> configure.tmp
 # Produced escaped version of command suitable for pasting back into sh
 cmd=$0
 for a ; do
@@ -499,30 +619,19 @@ for a ; do
 done
 
 here=`pwd`
-TOP_OF_CONFIGURE
-
-# Produce an absolute path to srcdir.
-srcdir_abs=`pwd`
-# This section is unquoted so we can substitute variables.
-cat <<MIDDLE_OF_CONFIGURE >> configure.tmp
-srcdir="$srcdir_abs"
-modules="$modules"
 MIDDLE_OF_CONFIGURE
 
 vars=
 if [ yes = "$intree_swig" ] ; then
   # We want the path to SWIG to point into srcdir, which isn't known until
-  # configure-time, so we need to expand $here in configure.  We can't just set
-  # SWIG here and let the case below handle it as that would escape the value
-  # such that $here didn't get expanded at all.
-  echo ': ${SWIG="$here/swig/preinst-swig"}' >> configure.tmp
-  echo "export SWIG" >> configure.tmp
+  # configure-time, so we need to expand $here in configure.
   vars=' SWIG=$here/swig/preinst-swig'
-  # Kill any existing setting of SWIG so that we don't try to handle it again
-  # below.
-  SWIG=
+elif [ -n "$SWIG" ] ; then
+  # User specified SWIG in environment, e.g. with:
+  #   SWIG=/opt/swig/bin/swig ./bootstrap
+  vars=" SWIG='"`echo "$val"|sed 's/\(['"\\'"']\)/\\\1/g'`"'"
 fi
-for tool in SWIG $autotools ; do
+for tool in $autotools ; do
   eval "val=\$$tool"
   if [ -n "$val" ] ; then
     echo ': ${'"$tool='$val'"'}' >> configure.tmp
@@ -560,7 +669,46 @@ for d in $modules ; do
     # different answers (e.g. because it uses a C compiler).
     case $d in
     swig)
-      cd "$d" && "$configure" ${1+"$@"}
+      case "$*" in
+      *--host=*|*--host" "*)
+	# We're cross-building, but SWIG needs to be built natively.
+	swig_configure_args=
+	skip=
+	for arg in "$@" ; do
+	  if [ -n "$skip" ] ; then
+	    skip=
+	    continue
+	  fi
+	  case $arg in
+	  --host=*)
+	    # Drop --host=xxx
+	    continue ;;
+	  --host)
+	    # Drop --host xxx
+	    skip=1
+	    continue ;;
+	  CC=*|CXX=*)
+	    # Drop CC=xxx or CXX=xxx
+	    continue ;;
+	  CC_FOR_BUILD=*|CXX_FOR_BUILD=*)
+	    # CC_FOR_BUILD=xxx -> CC=xxx; CXX_FOR_BUILD=xxx -> CXX=xxx
+	    arg=`echo "$arg"|sed 's/_FOR_BUILD//'`
+	    ;;
+	  SWIG=*)
+	    # Drop SWIG=xxx - not useful and could cause problems.
+	    continue ;;
+	  esac
+	  swig_configure_args="$swig_configure_args "\'`echo "x$arg"|sed "s/^x//;s/'/'\\\\\\\\''/g"`\'
+	done
+	# Also handle compilers specified in environment variables.  We can
+	# just reassign them unconditionally as CC and CXX are ignored if
+	# empty.
+	cd "$d" && CC=$CC_FOR_BUILD CXX=$CXX_FOR_BUILD "$configure" `eval echo $swig_configure_args`
+	;;
+      *)
+	cd "$d" && "$configure" ${1+"$@"}
+	;;
+      esac
       ;;
     xapian-core)
       cd "$d" && "$configure" --enable-maintainer-mode --disable-option-checking --cache-file="$here/config.cache" ${1+"$@"}
@@ -688,6 +836,29 @@ rm -f configure.tmp2
 
 chmod +x configure.tmp
 mv -f configure.tmp configure
+
+# git defaults to showing 7 character abbreviated hashes if that's enough to be
+# unique for a particular commit.  But you can't paste these into trac as it
+# needs at least 8 hex digits to recognise a hex string as a commit hash.  You
+# need 9 characters to be unique across all of Xapian at the time of writing,
+# and 12 for the Linux kernel currently (a much larger number of objects than
+# Xapian).  12 is a manageable length and decently future-proof, so let's use
+# that.
+core_abbrev_recommended=12
+core_abbrev=`git config --get core.abbrev||:`
+if [ -z "$core_abbrev" ] ; then
+  echo "*** Setting core.abbrev=$core_abbrev_recommended in repo config"
+  git config --local core.abbrev "$core_abbrev_recommended"
+elif [ "$core_abbrev" -lt "$core_abbrev_recommended" ] ; then
+  if [ -z "`git config --local core.abbrev`" ] ; then
+    # Set globally to < $core_abbrev_recommended, override in this repo.
+    echo "*** Setting core.abbrev=$core_abbrev_recommended in repo config to override global core.abbrev=$core_abbrev"
+    git config --local core.abbrev "$core_abbrev_recommended"
+  else
+    # Just warn.
+    echo "warning: core.abbrev=$core_abbrev set on this repo, at least $core_abbrev_recommended is recommended"
+  fi
+fi
 
 trap - EXIT
 echo "Bootstrapped successfully - now run \"$srcdir/configure\" and \"${MAKE-make}\""

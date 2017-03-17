@@ -108,16 +108,16 @@ static inline byte *zeroed_new(size_t size)
    And then,
 
    R = REVISION(b)  is the revision number the B-tree had when the block was
-                    written into the DB file.
+		    written into the DB file.
    L = GET_LEVEL(b) is the level of the block, which is the number of levels
-                    towards the root of the B-tree structure. So leaf blocks
-                    have level 0 and the one root block has the highest level
+		    towards the root of the B-tree structure. So leaf blocks
+		    have level 0 and the one root block has the highest level
 		    equal to the number of levels in the B-tree.  For blocks
 		    storing the freelist, the level is set to 254.
    M = MAX_FREE(b)  is the size of the gap between the end of the directory and
-                    the first item of data. (It is not necessarily the maximum
-                    size among the bits of space that are free, but I can't
-                    think of a better name.)
+		    the first item of data. (It is not necessarily the maximum
+		    size among the bits of space that are free, but I can't
+		    think of a better name.)
    T = TOTAL_FREE(b)is the total amount of free space left in b.
    D = DIR_END(b)   gives the offset to the end of the directory.
 
@@ -127,9 +127,9 @@ static inline byte *zeroed_new(size_t size)
 
    An item has this form:
 
-           I K key X tag
-               ←K→
-           <------I---->
+	   I K key X tag
+	       ←K→
+	   <------I---->
 
    A long tag presented through the API is split up into C pieces small enough
    to be accommodated in the blocks of the B-tree. The key is extended to
@@ -731,7 +731,7 @@ GlassTable::enter_key_above_branch(int j, BItem newitem)
  */
 
 int
-GlassTable::mid_point(byte * p)
+GlassTable::mid_point(byte * p) const
 {
     LOGCALL(DB, int, "GlassTable::mid_point", (void*)p);
     int n = 0;
@@ -1354,7 +1354,7 @@ GlassTable::add(const string &key, string tag, bool already_compressed)
     bool replacement = false;         // Has there been a replacement?
     bool components_to_del = false;   // Are there components to delete?
     int i;
-    for (i = 1; i <= m; i++) {
+    for (i = 1; i <= m; ++i) {
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	size_t this_cd = (i == 1 ? cd - X2 : cd);
 	Assert(this_cd + l <= block_size);
@@ -1578,7 +1578,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
     level =		   root_info->get_level();
     item_count =	   root_info->get_num_entries();
     faked_root_block = root_info->get_root_is_fake();
-    sequential =	   root_info->get_sequential_mode();
+    sequential =	   root_info->get_sequential();
     const string & fl_serialised = root_info->get_free_list();
     if (!fl_serialised.empty()) {
 	if (!free_list.unpack(fl_serialised))
@@ -1594,7 +1594,7 @@ GlassTable::basic_open(const RootInfo * root_info, glass_revision_number_t rev)
 
     set_max_item_size(BLOCK_CAPACITY);
 
-    for (int j = 0; j <= level; j++) {
+    for (int j = 0; j <= level; ++j) {
 	C[j].init(block_size);
     }
 
@@ -1825,14 +1825,14 @@ void GlassTable::close(bool permanent) {
 	// still be used to look up cached content.
 	return;
     }
-    for (int j = level; j >= 0; j--) {
+    for (int j = level; j >= 0; --j) {
 	C[j].destroy();
     }
     delete [] split_p;
     split_p = 0;
 
     delete [] kt.get_address();
-    kt = 0;
+    kt = LeafItem_wr(0);
     delete [] buffer;
     buffer = 0;
 }
@@ -1849,7 +1849,7 @@ GlassTable::flush_db()
 	return;
     }
 
-    for (int j = level; j >= 0; j--) {
+    for (int j = level; j >= 0; --j) {
 	if (C[j].rewrite) {
 	    write_block(C[j].get_n(), C[j].get_p());
 	}
@@ -1879,7 +1879,7 @@ GlassTable::commit(glass_revision_number_t revision, RootInfo * root_info)
 	root_info->set_level(0);
 	root_info->set_num_entries(0);
 	root_info->set_root_is_fake(true);
-	root_info->set_sequential_mode(true);
+	root_info->set_sequential(true);
 	root_info->set_root(0);
 	return;
     }
@@ -1891,7 +1891,7 @@ GlassTable::commit(glass_revision_number_t revision, RootInfo * root_info)
 	root_info->set_level(level);
 	root_info->set_num_entries(item_count);
 	root_info->set_root_is_fake(faked_root_block);
-	root_info->set_sequential_mode(sequential);
+	root_info->set_sequential(sequential);
 	root_info->set_root(root);
 
 	Btree_modified = false;
@@ -1945,11 +1945,11 @@ GlassTable::cancel(const RootInfo & root_info, glass_revision_number_t rev)
     level =            root_info.get_level();
     item_count =       root_info.get_num_entries();
     faked_root_block = root_info.get_root_is_fake();
-    sequential =       root_info.get_sequential_mode();
+    sequential =       root_info.get_sequential();
 
     Btree_modified = false;
 
-    for (int j = 0; j <= level; j++) {
+    for (int j = 0; j <= level; ++j) {
 	C[j].init(block_size);
 	C[j].rewrite = false;
     }

@@ -2,7 +2,7 @@
  * @brief Check the consistency of a database or table.
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,12 +31,6 @@
 #include "glass/glass_database.h"
 #include "glass/glass_dbcheck.h"
 #include "glass/glass_version.h"
-#endif
-#ifdef XAPIAN_HAS_CHERT_BACKEND
-#include "chert/chert_database.h"
-#include "chert/chert_dbcheck.h"
-#include "chert/chert_types.h"
-#include "chert/chert_version.h"
 #endif
 
 #include "filetests.h"
@@ -100,7 +94,7 @@ check_if_single_file_db(const struct stat & sb, const string & path,
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
 // "only" requires (4 * last_docid()) bytes.
 
-#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND
 static void
 reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
 		ostream * out)
@@ -135,93 +129,6 @@ static size_t
 check_db_dir(const string & path, int opts, std::ostream *out)
 {
     struct stat sb;
-    if (stat((path + "/iamchert").c_str(), &sb) == 0) {
-#ifndef XAPIAN_HAS_CHERT_BACKEND
-	(void)opts;
-	(void)out;
-	throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
-#else
-	// Check a whole chert database directory.
-	vector<Xapian::termcount> doclens;
-	size_t errors = 0;
-
-	// If we can't read the doccount or last docid, set them to their
-	// maximum values to suppress errors.
-	Xapian::doccount doccount = Xapian::doccount(-1);
-	Xapian::docid db_last_docid = CHERT_MAX_DOCID;
-
-	chert_revision_number_t rev = 0;
-	chert_revision_number_t * rev_ptr = &rev;
-	try {
-	    // Open at the lower level so we can get the revision number.
-	    ChertDatabase db(path);
-	    doccount = db.get_doccount();
-	    db_last_docid = db.get_lastdocid();
-	    reserve_doclens(doclens, db_last_docid, out);
-	    rev = db.get_revision_number();
-	} catch (const Xapian::Error & e) {
-	    // Ignore so we can check a database too broken to open.
-	    if (out)
-		*out << "Database couldn't be opened for reading: "
-		     << e.get_description()
-		     << "\nContinuing check anyway" << endl;
-	    ++errors;
-	}
-
-	size_t pre_table_check_errors = errors;
-
-	// Check all the btrees.
-	//
-	// Note: it's important to check "termlist" before "postlist" so
-	// that we can cross-check the document lengths; also we check
-	// "record" first as that's the last committed, so has the most
-	// reliable rootblock revision in DBCHECK_FIX mode.
-	static const struct { char name[9]; } tables[] = {
-	    { "record" },
-	    { "termlist" },
-	    { "postlist" },
-	    { "position" },
-	    { "spelling" },
-	    { "synonym" }
-	};
-	for (auto t : tables) {
-	    const char * name = t.name;
-	    string table(path);
-	    table += '/';
-	    table += name;
-	    if (out)
-		*out << name << ":\n";
-	    if (strcmp(name, "record") != 0 && strcmp(name, "postlist") != 0) {
-		// Other tables are created lazily, so may not exist.
-		if (!file_exists(table + ".DB")) {
-		    if (out) {
-			if (strcmp(name, "termlist") == 0) {
-			    *out << "Not present.\n";
-			} else {
-			    *out << "Lazily created, and not yet used.\n";
-			}
-			*out << endl;
-		    }
-		    continue;
-		}
-	    }
-	    errors += check_chert_table(name, table, rev_ptr, opts, doclens,
-					doccount, db_last_docid, out);
-	}
-
-	if (errors == pre_table_check_errors && (opts & Xapian::DBCHECK_FIX)) {
-	    // Check the version file is OK and if not, recreate it.
-	    ChertVersion iam(path);
-	    try {
-		iam.read_and_check();
-	    } catch (const Xapian::DatabaseError &) {
-		iam.create();
-	    }
-	}
-	return errors;
-#endif
-    }
-
     if (stat((path + "/iamglass").c_str(), &sb) == 0) {
 #ifndef XAPIAN_HAS_GLASS_BACKEND
 	(void)opts;
@@ -273,6 +180,11 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 #endif
     }
 
+    if (stat((path + "/iamchert").c_str(), &sb) == 0) {
+	// Chert is no longer supported as of Xapian 1.5.0.
+	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 1.5.0");
+    }
+
     if (stat((path + "/iamflint").c_str(), &sb) == 0) {
 	// Flint is no longer supported as of Xapian 1.3.0.
 	throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
@@ -288,39 +200,23 @@ check_db_dir(const string & path, int opts, std::ostream *out)
 	throw Xapian::FeatureUnavailableError("Quartz database support was removed in Xapian 1.1.0");
     }
 
-    throw Xapian::DatabaseError("Directory does not contain a Xapian database");
+    throw Xapian::DatabaseOpeningError(
+	    "Directory does not contain a Xapian database");
 }
 
+typedef enum { UNKNOWN, OLD, GLASS } backend_type;
+
+/** Check a database table.
+ *
+ *  @param filename	The filename of the table (only used to get the directory and
+ *  @param opts		Xapian::check() options
+ *  @param out		std::ostream to write messages to (or NULL for no messages)
+ *  @param backend	Backend type
+ */
 static size_t
-check_if_db_table(const string & path, int opts, std::ostream *out)
+check_db_table_(const string & filename, int opts, std::ostream *out,
+		backend_type backend)
 {
-    // Just check a single Btree.  If it ends with ".", ".DB", or ".glass",
-    // trim that so the user can do xapian-check on "foo", "foo.", "foo.DB",
-    // "foo.glass", etc.
-    enum { UNKNOWN, CHERT, GLASS } backend = UNKNOWN;
-    string filename = path;
-    if (endswith(filename, '.')) {
-	filename.resize(filename.size() - 1);
-    } else if (endswith(filename, ".DB")) {
-	filename.resize(filename.size() - CONST_STRLEN(".DB"));
-	backend = CHERT;
-    } else if (endswith(filename, ".glass")) {
-	filename.resize(filename.size() - CONST_STRLEN(".glass"));
-	backend = GLASS;
-    }
-
-    struct stat sb;
-    if (backend == UNKNOWN) {
-	if (stat((filename + ".DB").c_str(), &sb) == 0) {
-	    // It could also be flint or brass, but we check for those below.
-	    backend = CHERT;
-	} else if (stat((filename + ".glass").c_str(), &sb) == 0) {
-	    backend = GLASS;
-	} else {
-	    throw Xapian::DatabaseError("File is not a Xapian database or database table");
-	}
-    }
-
     size_t p = filename.find_last_of('/');
 #if defined __WIN32__ || defined __OS2__
     if (p == string::npos) p = 0;
@@ -332,10 +228,12 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 
     string tablename;
     while (p != filename.size()) {
-	tablename += C_tolower(filename[p++]);
+	char ch = filename[p++];
+	if (ch == '.') break;
+	tablename += C_tolower(ch);
     }
 
-#if defined XAPIAN_HAS_CHERT_BACKEND || defined XAPIAN_HAS_GLASS_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND
     vector<Xapian::termcount> doclens;
 #else
     (void)opts;
@@ -353,9 +251,14 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 #endif
     }
 
-    Assert(backend == CHERT);
-    // Flint and brass also used the extension ".DB", so check that we
-    // haven't been passed a single table in a flint or brass database.
+    Assert(backend == OLD);
+    // Chert, flint and brass all used the extension ".DB", so check which
+    // to give an appropriate error.
+    struct stat sb;
+    if (stat((dir + "/iamchert").c_str(), &sb) == 0) {
+	// Chert is no longer supported as of Xapian 1.5.0.
+	throw Xapian::FeatureUnavailableError("Chert database support was removed in Xapian 1.5.0");
+    }
     if (stat((dir + "/iamflint").c_str(), &sb) == 0) {
 	// Flint is no longer supported as of Xapian 1.3.0.
 	throw Xapian::FeatureUnavailableError("Flint database support was removed in Xapian 1.3.0");
@@ -364,14 +267,26 @@ check_if_db_table(const string & path, int opts, std::ostream *out)
 	// Brass was renamed to glass as of Xapian 1.3.2.
 	throw Xapian::FeatureUnavailableError("Brass database support was removed in Xapian 1.3.2");
     }
-#ifndef XAPIAN_HAS_CHERT_BACKEND
-    throw Xapian::FeatureUnavailableError("Chert database support isn't enabled");
-#else
-    // Set the doccount and the last docid to their maximum values to suppress
-    // errors.
-    return check_chert_table(tablename.c_str(), filename, NULL, opts, doclens,
-			     Xapian::doccount(-1), CHERT_MAX_DOCID, out);
-#endif
+    // Unaccompanied .DB file.
+    throw Xapian::FeatureUnavailableError("Flint, chert and brass database support have all been removed");
+}
+
+static size_t
+check_db_table(const string & filename, int opts, std::ostream *out)
+{
+    backend_type backend = UNKNOWN;
+    // Just check a single Btree, given the correct filename.  Look at the
+    // extension to determine the type.
+    if (endswith(filename, ".DB")) {
+	backend = OLD;
+    } else if (endswith(filename, ".glass")) {
+	backend = GLASS;
+    } else {
+	throw Xapian::DatabaseOpeningError(
+		"File is not a Xapian database or database table");
+    }
+
+    return check_db_table_(filename, opts, out, backend);
 }
 
 /** Check a single file DB from an fd.
@@ -413,16 +328,6 @@ check_db_fd(int fd, int opts, std::ostream *out)
 #endif
 }
 
-static size_t
-check_db_file(const string & path, const struct stat & sb, int opts, std::ostream *out)
-{
-    int fd;
-    if (check_if_single_file_db(sb, path, &fd)) {
-	return check_db_fd(fd, opts, out);
-    }
-    return check_if_db_table(path, opts, out);
-}
-
 namespace Xapian {
 
 size_t
@@ -446,13 +351,36 @@ Database::check_(const string * path_ptr, int fd, int opts, std::ostream *out)
 	}
 
 	if (S_ISREG(sb.st_mode)) {
-	    return check_db_file(path, sb, opts, out);
+	    if (check_if_single_file_db(sb, path, &fd)) {
+		return check_db_fd(fd, opts, out);
+	    }
+	    return check_db_table(path, opts, out);
 	}
 
-	throw Xapian::DatabaseError("Not a regular file or directory");
+	throw Xapian::DatabaseOpeningError("Not a regular file or directory");
     }
 
-    return check_if_db_table(path, opts, out);
+    // The filename passed doesn't exist - see if it's the basename of the
+    // table (perhaps with "." after it), so the user can do xapian-check on
+    // "foo/termlist" or "foo/termlist." (which you would get from filename
+    // completion with older backends).
+    string filename = path;
+    if (endswith(filename, '.')) {
+	filename.resize(filename.size() - 1);
+    }
+
+    backend_type backend = UNKNOWN;
+    if (stat((filename + ".DB").c_str(), &sb) == 0) {
+	// Could be chert, flint or brass - we check which below.
+	backend = OLD;
+    } else if (stat((filename + ".glass").c_str(), &sb) == 0) {
+	backend = GLASS;
+    } else {
+	throw Xapian::DatabaseOpeningError(
+		"Couldn't find Xapian database or table to check", ENOENT);
+    }
+
+    return check_db_table_(path, opts, out, backend);
 }
 
 }

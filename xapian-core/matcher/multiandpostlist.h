@@ -1,7 +1,7 @@
 /** @file multiandpostlist.h
  * @brief N-way AND postlist
  */
-/* Copyright (C) 2007,2009,2011 Olly Betts
+/* Copyright (C) 2007,2009,2011,2017 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -34,9 +34,9 @@ class MultiAndPostList : public PostList {
      *  get_termfreq_est(). */
     struct ComparePostListTermFreqAscending {
 	/// Order by ascending get_termfreq_est().
-        bool operator()(const PostList *a, const PostList *b) {
-            return a->get_termfreq_est() < b->get_termfreq_est();
-        }
+	bool operator()(const PostList *a, const PostList *b) const {
+	    return a->get_termfreq_est() < b->get_termfreq_est();
+	}
     };
 
     /// Don't allow assignment.
@@ -193,6 +193,8 @@ class MultiAndPostList : public PostList {
     Xapian::termcount get_wdf() const;
 
     Xapian::termcount count_matching_subqs() const;
+
+    void gather_position_lists(OrPositionList* orposlist);
 };
 
 #endif // XAPIAN_INCLUDED_MULTIANDPOSTLIST_H

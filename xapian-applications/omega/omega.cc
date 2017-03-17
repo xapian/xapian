@@ -65,6 +65,7 @@ Xapian::RSet rset;
 map<string, string> option;
 
 string date_start, date_end, date_span;
+Xapian::valueno date_value_slot = Xapian::BAD_VALUENO;
 
 bool set_content_type = false;
 
@@ -81,6 +82,7 @@ Xapian::docid min_hits = 0;
 // percentage cut-off
 int threshold = 0;
 
+Xapian::MultiValueKeyMaker* sort_keymaker = NULL;
 Xapian::valueno sort_key = Xapian::BAD_VALUENO; // Don't sort.
 bool reverse_sort = true;
 bool sort_after = false;
@@ -165,8 +167,7 @@ try {
 	    db.add_database(Xapian::Database(map_dbname_to_dir(dbname)));
 	}
 	enquire = new Xapian::Enquire(db);
-    }
-    catch (const Xapian::Error &) {
+    } catch (const Xapian::Error &) {
 	enquire = NULL;
     }
 
@@ -211,16 +212,11 @@ try {
 
 	    OmegaExpandDecider decider(db);
 	    set_expansion_scheme(*enquire, option);
-#if XAPIAN_AT_LEAST(1,3,2)
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
-#else
-	    Xapian::ESet eset(enquire->get_eset(40, tmprset, 0,
-						expand_param_k, &decider));
-#endif
 	    string morelike_query;
-	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
+	    for (auto&& term : eset) {
 		if (!morelike_query.empty()) morelike_query += ' ';
-		morelike_query += pretty_term(*i);
+		morelike_query += pretty_term(term);
 	    }
 	    set_probabilistic_query(string(), morelike_query);
 	}
@@ -229,7 +225,7 @@ try {
 	string expand_terms;
 	if (cgi_params.find("ADD") != cgi_params.end()) {
 	    g = cgi_params.equal_range("X");
-	    for (MCI i = g.first; i != g.second; i++) {
+	    for (MCI i = g.first; i != g.second; ++i) {
 		const string & v = i->second;
 		if (!v.empty()) {
 		    if (!expand_terms.empty())
@@ -241,7 +237,7 @@ try {
 
 	// collect the unprefixed prob fields
 	g = cgi_params.equal_range("P");
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    if (!v.empty()) {
 		// If there are expand terms, append them to the first
@@ -265,7 +261,7 @@ try {
 
     g.first = cgi_params.lower_bound("P.");
     g.second = cgi_params.lower_bound("P/"); // '/' is '.' + 1.
-    for (MCI i = g.first; i != g.second; i++) {
+    for (MCI i = g.first; i != g.second; ++i) {
 	const string & v = i->second;
 	if (!v.empty()) {
 	    string pfx(i->first, 2, string::npos);
@@ -277,7 +273,7 @@ try {
     g = cgi_params.equal_range("B");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {
@@ -316,7 +312,7 @@ try {
     g = cgi_params.equal_range("N");
     if (g.first != g.second) {
 	vector<string> filter_v;
-	for (MCI i = g.first; i != g.second; i++) {
+	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    // we'll definitely get empty N fields from "-ALL-" options
 	    if (!v.empty() && C_isalnum(v[0])) {
@@ -360,6 +356,8 @@ try {
     if (val != cgi_params.end()) date_end = val->second;
     val = cgi_params.find("SPAN");
     if (val != cgi_params.end()) date_span = val->second;
+    val = cgi_params.find("DATEVALUE");
+    if (val != cgi_params.end()) date_value_slot = string_to_int(val->second);
 
     // If more default_op values are supported, encode them as non-alnums
     // other than filter_sep or '!'.
@@ -369,6 +367,16 @@ try {
     filters += date_end;
     filters += filter_sep;
     filters += date_span;
+    if (date_value_slot != Xapian::BAD_VALUENO) {
+	// This means we'll force the first page when reloading or changing
+	// page starting from existing URLs upon upgrade to 1.4.1, but the
+	// exact same existing URL could be for a search without the date
+	// filter where we want to force the first page, so there's an inherent
+	// ambiguity there.  Forcing first page in this case seems the least
+	// problematic side-effect.
+	filters += filter_sep;
+	filters += str(date_value_slot);
+    }
 
     if (!old_filters.empty()) {
 	old_filters += date_start;
@@ -402,6 +410,11 @@ try {
 	    }
 	}
     }
+    if (!collapse && date_value_slot != Xapian::BAD_VALUENO) {
+	// We need to either omit filter_sep for both or neither, or else the
+	// encoding is ambiguous.
+	filters += filter_sep;
+    }
 
     // docid order
     val = cgi_params.find("DOCIDORDER");
@@ -416,6 +429,11 @@ try {
 	    } else if (ch != 'A') {
 		docid_order = Xapian::Enquire::DONT_CARE;
 	    } else {
+		// This is a bug (should add nothing here and 'X' in the (ch !=
+		// 'A') case, but the current "DONT_CARE" implementation
+		// actually always results in ascending docid order so it's not
+		// worth breaking compatibility to fix - let's just do it next
+		// time we change the encoding $filters uses.
 		filters += 'X';
 		if (!old_filters.empty()) old_filters += 'X';
 	    }
@@ -425,12 +443,56 @@ try {
     // sorting
     val = cgi_params.find("SORT");
     if (val != cgi_params.end()) {
-	const char * p = val->second.c_str();
-	if (*p == '-' || *p == '+') {
-	    reverse_sort = (*p == '-');
-	    ++p;
-	}
-	sort_key = atoi(p);
+	const char * base = val->second.c_str();
+	const char * p = base;
+	do {
+	    bool rev = (*p != '+');
+	    if (*p == '-' || *p == '+') {
+		// old_filters predates support for direction in SORT, so if
+		// there's a direction specified this is definitely a different
+		// query.
+		old_filters.clear();
+		++p;
+	    }
+	    if (!C_isdigit(*p)) {
+		// Invalid.
+		break;
+	    }
+	    errno = 0;
+	    char * q;
+	    Xapian::valueno slot = strtoul(p, &q, 10);
+	    p = q;
+	    if (errno != 0) {
+		// Invalid.
+		break;
+	    }
+
+	    if (sort_key != Xapian::BAD_VALUENO) {
+		// Multiple sort keys specified, so we need a KeyMaker.
+
+		// Omit leading '+'.
+		if (reverse_sort) filters += '-';
+		filters += str(sort_key);
+
+		sort_keymaker = new Xapian::MultiValueKeyMaker;
+		sort_keymaker->add_value(sort_key, !reverse_sort);
+		sort_key = Xapian::BAD_VALUENO;
+		reverse_sort = true;
+		// old_filters predates multiple sort keys, so if there are
+		// multiple sort keys this is definitely a different query.
+		old_filters.clear();
+	    }
+
+	    if (sort_keymaker) {
+		filters += (rev ? '-' : '+');
+		filters += str(slot);
+		sort_keymaker->add_value(slot, !rev);
+	    } else {
+		sort_key = slot;
+		reverse_sort = rev;
+	    }
+	    while (C_isspace(*p) || *p == ',') ++p;
+	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
 	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
@@ -450,7 +512,7 @@ try {
 	// filters has them the other way around for sanity (except in
 	// development snapshot 1.3.4, which was when the new filter encoding
 	// was introduced).
-	filters += str(sort_key);
+	if (!sort_keymaker) filters += str(sort_key);
 	if (!old_filters.empty()) old_filters += str(sort_key);
 	if (sort_after) {
 	    if (reverse_sort) {

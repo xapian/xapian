@@ -4,17 +4,18 @@ include ../generic/generic.mk
 
 ## Test programs to be run
 TESTS = SmokeTest.exe
-LOG_COMPILER = $(RUN_CSHARP)
+LOG_COMPILER = $(OSX_SIP_HACK_ENV) $(RUN_CSHARP)
 
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/Auto.cs \
 	generated-csharp/BB2Weight.cs \
+	generated-csharp/BM25PlusWeight.cs\
 	generated-csharp/BM25Weight.cs \
 	generated-csharp/BoolWeight.cs \
-	generated-csharp/Chert.cs \
 	generated-csharp/Compactor.cs \
+	generated-csharp/CoordWeight.cs \
 	generated-csharp/Database.cs \
 	generated-csharp/DateRangeProcessor.cs \
 	generated-csharp/DateValueRangeProcessor.cs \
@@ -50,6 +51,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	generated-csharp/MultiValueKeyMaker.cs \
 	generated-csharp/NumberRangeProcessor.cs \
 	generated-csharp/NumberValueRangeProcessor.cs \
+	generated-csharp/PL2PlusWeight.cs \
 	generated-csharp/PL2Weight.cs \
 	generated-csharp/PositionIterator.cs \
 	generated-csharp/PostingIterator.cs \
@@ -96,9 +98,11 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
 	    AssemblyInfo.cs
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
+SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
-EXTRA_DIST = csharp.i SmokeTest.cs docs/index.rst $(BUILT_SOURCES)
+BUILT_SOURCES = $(SWIG_GENERATED)
+
+EXTRA_DIST = csharp.i SmokeTest.cs docs/index.rst $(SWIG_GENERATED)
 
 lib_LTLIBRARIES = _XapianSharp.la
 
@@ -166,7 +170,7 @@ dist_exampledata_DATA =\
 	docs/examples/SimpleExpand.cs
 
 docdatadir = $(docdir)/csharp
-docdata_DATA = docs/index.html
+dist_docdata_DATA = docs/index.html
 
 if DOCUMENTATION_RULES
 BUILT_SOURCES += docs/index.html

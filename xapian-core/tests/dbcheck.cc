@@ -157,6 +157,7 @@ dbcheck(const Xapian::Database & db,
 	totlen += doclen;
 
 	Xapian::termcount found_termcount = 0;
+	Xapian::termcount found_unique_terms = 0;
 	Xapian::termcount wdf_sum = 0;
 	Xapian::TermIterator t, t2;
 	for (t = doc.termlist_begin(), t2 = db.termlist_begin(did);
@@ -165,7 +166,9 @@ dbcheck(const Xapian::Database & db,
 	    TEST(t2 != db.termlist_end(did));
 
 	    ++found_termcount;
-	    wdf_sum += t.get_wdf();
+	    auto wdf = t.get_wdf();
+	    if (wdf) ++found_unique_terms;
+	    wdf_sum += wdf;
 
 	    TEST_EQUAL(*t, *t2);
 	    TEST_EQUAL(t.get_wdf(), t2.get_wdf());
@@ -181,7 +184,7 @@ dbcheck(const Xapian::Database & db,
 	    TEST_EQUAL(posrepr, posrepr2);
 	    TEST_EQUAL(tc1, tc2);
 	    try {
-	    	TEST_EQUAL(tc1, t.positionlist_count());
+		TEST_EQUAL(tc1, t.positionlist_count());
 	    } catch (const Xapian::UnimplementedError &) {
 		// positionlist_count() isn't implemented for remote databases.
 	    }
@@ -223,7 +226,13 @@ dbcheck(const Xapian::Database & db,
 	TEST(t2 == db.termlist_end(did));
 	Xapian::termcount expected_termcount = doc.termlist_count();
 	TEST_EQUAL(expected_termcount, found_termcount);
-	TEST_EQUAL(unique_terms, found_termcount);
+	// Ideally this would be equal, but currently we don't store the
+	// unique_terms values but calculate them, and scanning the termlist
+	// of each document would be slow, so instead get_unique_terms(did)
+	// returns min(doclen, termcount) at present.
+	TEST_REL(unique_terms, >=, found_unique_terms);
+	TEST_REL(unique_terms, <=, found_termcount);
+	TEST_REL(unique_terms, <=, doclen);
 	TEST_EQUAL(doclen, wdf_sum);
     }
 

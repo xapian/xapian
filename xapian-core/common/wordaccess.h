@@ -28,32 +28,29 @@
 #include <cstdint>
 #include <type_traits>
 
+#include "alignment_cast.h"
 #include "omassert.h"
 
 #ifndef WORDS_BIGENDIAN
 
-# if defined __GNUC__ && __GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
-// GCC 4.8 added __builtin_bswap16, and we still try to support building with
-// GCC 4.7.
-inline int do_bswap(uint16_t value) { return __builtin_bswap16(value); }
-# else
 inline int do_bswap(uint16_t value) {
-    return (value << 8) | (value >> 8);
-}
-# endif
-
-# ifdef __GNUC__
-// GCC 4.3 added __builtin_bswap32 and __builtin_bswap64, and we no longer
-// support GCC versions that old.
-inline int do_bswap(uint32_t value) { return __builtin_bswap32(value); }
+# if HAVE_DECL___BUILTIN_BSWAP16
+    return __builtin_bswap16(value);
 # else
+    return (value << 8) | (value >> 8);
+# endif
+}
+
 inline int do_bswap(uint32_t value) {
+# if HAVE_DECL___BUILTIN_BSWAP32
+    return __builtin_bswap32(value);
+# else
     return (value << 24) |
 	   ((value & 0xff00) << 8) |
 	   ((value >> 8) & 0xff00) |
 	   (value >> 24);
-}
 # endif
+}
 
 #endif
 
@@ -61,8 +58,7 @@ template<typename UINT>
 inline UINT
 do_aligned_read(const unsigned char * ptr)
 {
-    const void* void_ptr = static_cast<const void*>(ptr);
-    UINT value = *reinterpret_cast<const UINT*>(void_ptr);
+    UINT value = *alignment_cast<const UINT*>(ptr);
 #ifndef WORDS_BIGENDIAN
     value = do_bswap(value);
 #endif
@@ -83,7 +79,7 @@ do_aligned_write(unsigned char * ptr, T value)
 #ifndef WORDS_BIGENDIAN
     v = do_bswap(v);
 #endif
-    *reinterpret_cast<UINT*>(static_cast<void*>(ptr)) = v;
+    *alignment_cast<UINT*>(ptr) = v;
 }
 
 template<typename UINT>

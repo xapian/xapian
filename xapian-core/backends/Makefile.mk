@@ -31,16 +31,10 @@ lib_src +=\
 	backends/dbfactory_remote.cc
 endif
 
-if BUILD_BACKEND_CHERT
-lib_src +=\
-        backends/contiguousalldocspostlist.cc\
-	backends/flint_lock.cc
-else
 if BUILD_BACKEND_GLASS
 lib_src +=\
         backends/contiguousalldocspostlist.cc\
 	backends/flint_lock.cc
-endif
 endif
 
 # To add a new database backend:
@@ -55,7 +49,6 @@ endif
 # 6) If it needs to support replication, update backends/databasereplicator.cc
 # 7) Write the backend code!
 
-include backends/chert/Makefile.mk
 include backends/glass/Makefile.mk
 include backends/inmemory/Makefile.mk
 include backends/multi/Makefile.mk

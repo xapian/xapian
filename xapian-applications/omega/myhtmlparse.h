@@ -1,7 +1,7 @@
 /* myhtmlparse.h: subclass of HtmlParser for extracting text
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006,2008,2010,2011,2012,2013 Olly Betts
+ * Copyright 2002,2003,2004,2006,2008,2010,2011,2012,2013,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,6 +24,8 @@
 
 #include "htmlparse.h"
 
+#include <ctime>
+
 // FIXME: Should we include \xa0 which is non-breaking space in iso-8859-1, but
 // not in all charsets and perhaps spans of all \xa0 should become a single
 // \xa0?
@@ -37,6 +39,7 @@ class MyHtmlParser : public HtmlParser {
 	bool indexing_allowed;
 	bool ignoring_metarobots;
 	bool charset_from_meta;
+	bool description_as_sample;
 	string title, sample, keywords, dump, author, topic;
 	time_t created;
 	string * target;
@@ -54,6 +57,7 @@ class MyHtmlParser : public HtmlParser {
 		indexing_allowed(true),
 		ignoring_metarobots(false),
 		charset_from_meta(false),
+		description_as_sample(false),
 		created(time_t(-1)),
 		target(&dump) { }
 
@@ -64,6 +68,7 @@ class MyHtmlParser : public HtmlParser {
 	    indexing_allowed = true;
 	    ignoring_metarobots = false;
 	    charset_from_meta = false;
+	    description_as_sample = false;
 	    title.resize(0);
 	    sample.resize(0);
 	    keywords.resize(0);

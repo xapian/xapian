@@ -2,8 +2,9 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2015,2016,2017 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
+ * Copyright (C) 2016 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -277,6 +278,12 @@ DEFINE_TESTCASE(weight1, !backend) {
     TEST_EQUAL(boolweight.serialise(), wt->serialise());
     delete wt;
 
+    Xapian::CoordWeight coordweight;
+    TEST_EQUAL(coordweight.name(), "Xapian::CoordWeight");
+    wt = Xapian::CoordWeight().unserialise(coordweight.serialise());
+    TEST_EQUAL(coordweight.serialise(), wt->serialise());
+    delete wt;
+
     Xapian::TradWeight tradweight_dflt;
     Xapian::TradWeight tradweight(1.0);
     TEST_EQUAL(tradweight.name(), "Xapian::TradWeight");
@@ -298,6 +305,17 @@ DEFINE_TESTCASE(weight1, !backend) {
 
     Xapian::BM25Weight bm25weight2(1, 0.5, 1, 0.5, 0.5);
     TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
+
+    Xapian::BM25PlusWeight bm25plusweight_dflt;
+    Xapian::BM25PlusWeight bm25plusweight(1, 0, 1, 0.5, 0.5, 1.0);
+    TEST_EQUAL(bm25plusweight.name(), "Xapian::BM25PlusWeight");
+    TEST_EQUAL(bm25plusweight_dflt.serialise(), bm25plusweight.serialise());
+    wt = Xapian::BM25PlusWeight().unserialise(bm25plusweight.serialise());
+    TEST_EQUAL(bm25plusweight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::BM25PlusWeight bm25plusweight2(1, 0, 1, 0.5, 0.5, 2.0);
+    TEST_NOT_EQUAL(bm25plusweight.serialise(), bm25plusweight2.serialise());
 
     Xapian::TfIdfWeight tfidfweight_dflt;
     Xapian::TfIdfWeight tfidfweight("ntn");
@@ -371,6 +389,17 @@ DEFINE_TESTCASE(weight1, !backend) {
     Xapian::PL2Weight pl2weight2(2.0);
     TEST_NOT_EQUAL(pl2weight.serialise(), pl2weight2.serialise());
 
+    Xapian::PL2PlusWeight pl2plusweight_dflt;
+    Xapian::PL2PlusWeight pl2plusweight(1.0, 0.8);
+    TEST_EQUAL(pl2plusweight.name(), "Xapian::PL2PlusWeight");
+    TEST_EQUAL(pl2plusweight_dflt.serialise(), pl2plusweight.serialise());
+    wt = Xapian::PL2PlusWeight().unserialise(pl2plusweight.serialise());
+    TEST_EQUAL(pl2plusweight.serialise(), wt->serialise());
+    delete wt;
+
+    Xapian::PL2PlusWeight pl2plusweight2(2.0, 0.9);
+    TEST_NOT_EQUAL(pl2plusweight.serialise(), pl2plusweight2.serialise());
+
     Xapian::DPHWeight dphweight;
     TEST_EQUAL(dphweight.name(), "Xapian::DPHWeight");
     wt = Xapian::DPHWeight().unserialise(dphweight.serialise());
@@ -393,10 +422,22 @@ DEFINE_TESTCASE(nosuchdb1, !backend) {
     // This is a "nodb" test because it doesn't test a particular backend.
     try {
 	Xapian::Database db("NOsuChdaTabASe");
+	FAIL_TEST("Managed to open 'NOsuChdaTabASe'");
     } catch (const Xapian::DatabaseOpeningError & e) {
 	// We don't really require this exact message, but in Xapian <= 1.1.0
 	// this gave "Couldn't detect type of database".
 	TEST_STRINGS_EQUAL(e.get_msg(), "Couldn't stat 'NOsuChdaTabASe'");
+    }
+
+    try {
+	Xapian::Database::check("NOsuChdaTabASe");
+	FAIL_TEST("Managed to check 'NOsuChdaTabASe'");
+    } catch (const Xapian::DatabaseOpeningError & e) {
+	// In 1.4.3 and earlier, this threw DatabaseError with the message:
+	// "File is not a Xapian database or database table" (confusing as
+	// there is no file).
+	TEST_STRINGS_EQUAL(e.get_msg(),
+			   "Couldn't find Xapian database or table to check");
     }
 
     return true;

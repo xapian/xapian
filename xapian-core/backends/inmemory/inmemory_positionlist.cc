@@ -28,7 +28,7 @@
 
 InMemoryPositionList::InMemoryPositionList(const OmDocumentTerm::term_positions & positions_)
     : positions(positions_), mypos(positions.begin()),
-      iterating_in_progress(false) 
+      iterating_in_progress(false)
 {
 }
 
@@ -75,5 +75,5 @@ InMemoryPositionList::skip_to(Xapian::termpos termpos)
 bool
 InMemoryPositionList::at_end() const
 {
-    return(mypos == positions.end());
+    return (mypos == positions.end());
 }

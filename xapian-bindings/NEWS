@@ -1,3 +1,204 @@
+Xapian-bindings 1.4.3 (2017-01-25):
+
+Python:
+
+* Remove compatibility code for Python < 2.5 - 1.4.x requires Python >= 2.6.
+
+* Avoid unnecessary pointer indirection in XapianSWIG_anystring() helper
+  function, which should be a little more efficient and makes the Python 2
+  code more closely match the Python 3 code.
+
+Ruby:
+
+* "make clean" should only remove docs/xapian.rb if configure option
+  --enable-documentation was used to enable all rules to rebuild documentation.
+  Reported by Samuel Williams on xapian-discuss.
+
+* Fix make rule for running rdoc for the cases where srcdir != builddir.
+
+* Use 'test a = b' rather than 'test a == b' - the former is portable, the
+  latter a bashism.  In many cases the autotools will set SHELL = /bin/bash in
+  the makefiles, but if it doesn't and /bin/sh isn't bash, then this will
+  cause "make install" and "make uninstall" to fail for the Ruby bindings.
+
+Xapian-bindings 1.4.2 (2016-12-26):
+
+General:
+
+* configure: Fail with clear error with xapian-core < 1.4.0.
+
+* Work around OS X "System Integrity Protection".  We can't address the problem
+  of being unable to run tests against an uninstalled tree when the interpreter
+  is in a system directory (you have to "make install" in xapian-core for that
+  case), but we can at least make this work for interpreters which aren't in
+  system directories.
+
+Java:
+
+* Disable parallel make for java subdirectory as it causes random build
+  failures.  Reported by Lucas Nussbaum in https://bugs.debian.org/848733
+
+* Disable automatic use of -Xcheck:jni for now as it seems to report false
+  positives with OpenJDK 8 and 9.
+
+PHP:
+
+* Generates smaller PHP wrappers by only emitting each unique arginfo
+  combination once (~6% saving in stripped extension module size for
+  PHP7 on x86_64 Linux).
+
+* Fix to work again with a version of PHP5 built with ZTS enabled (which is the
+  default on Microsoft Windows).
+
+* Add support for PHP7.
+
+* Drop workaround for PHP4 from test code.
+
+Python:
+
+* Handle sphinx-build being a shell script wrapper by invoking sphinx.main()
+  from a command line Python code snippet.  Reported by Alex Dunn in
+  https://github.com/xapian/xapian/pull/126 and solved with help from James
+  Aylett.
+
+* Hold python reference to set RangeProcessor objects - until #714 is fixed we
+  need to keep such a reference (as we already do for ValueRangeProcessor and
+  several other classes).
+
+Python3:
+
+* Handle sphinx-build being a shell script wrapper by invoking sphinx.main()
+  from a command line Python code snippet.  Reported by Alex Dunn in
+  https://github.com/xapian/xapian/pull/126 and solved with help from James
+  Aylett.
+
+* Hold python reference to set RangeProcessor objects - until #714 is fixed we
+  need to keep such a reference (as we already do for ValueRangeProcessor and
+  several other classes).
+
+Ruby:
+
+* Use more conventional Ruby variable names in the examples (Ruby convention
+  uses underscores not camelcase) and fix comma/space transposition in a couple
+  of places.
+
+Xapian-bindings 1.4.1 (2016-10-21):
+
+Documentation:
+
+* Fix --disable-documentation - in maintainer-mode, we still tried to make
+  docs/index.html for most of the bindings, which failed because the rule to do
+  so was disabled.
+
+General:
+
+* Update for additions to C++ API.
+
+* When a backend is disabled in the xapian-core we're building against, we
+  have a stub version of any factory functions so the bindings still have
+  something to wrap.  Update these for 1.4:
+  + Disable stub for InMemory::open() when
+    XAPIAN_BINDINGS_SKIP_DEPRECATED_DB_FACTORIES is defined (Perl, Python3).
+  + Add new optional flags parameter to both overloaded forms of
+    Remote::open_writable().
+
+Portability:
+
+* Drop compiler options that are no longer useful:
+  + -fshow-column is the default in all GCC versions we now support
+    (checked as GCC 4.6).
+  + -Wno-long-long is no longer necessary now that we require C++11 where
+    "long long" is a standard type.
+
+Java:
+
+* Use a cleaner technique to insert the Java code to load JNI library into the
+  generated wrapper - we now use "%pragma(java) jniclasscode" instead of using
+  Perl to post-process the generated wrapper.  Suggested by James Aylett.
+
+* Run Java tests with -Xcheck:jni if supported, which should help catch any
+  any bugs in the JNI code.
+
+* Fix configure to find jni_md.h under Cygwin.  There doesn't seem to be an way
+  to automatically determine the machine-dependent JNI include path, so add
+  another case to use "win32" on Cygwin.  Reported by John Bankert on
+  xapian-discuss.
+
+* Add more special cases to find jni_md.h on Cygwin, OS X, *BSD, AIX.
+  There doesn't seem to be an explicit list of these directories anywhere, but
+  grepping the OpenJDK 8 source code finds additional values "darwin" and
+  "aix", *BSD seems to use "bsd", and Cygwin uses "win32" (reported by John
+  Bankert on xapian-discuss).
+
+* Generate xapian.jar rather than xapian_jni.jar - the fact that JNI is
+  involved is really just an implementation detail.
+
+* SmokeTest.java: Add simple test of subclassing FieldProcessor.
+
+Perl:
+
+* Merge Perl POD doc improvements from Search::Xapian.  The most notable
+  improvement is a number of methods previously lacking docs now have them.
+
+* Fix typo in POD docs for Perl bindings ("outputing" -> "outputting").
+  Reported by knowledgejunkie in #730.
+
+Python:
+
+* Fix repr() to not return None.  Reported by Stuart Prescott on IRC.
+
+* Fix Python2 bindings to work out of the box.  SWIG changed the code it
+  generates for importing the compiled module in a recent version, and
+  the newer code no longer works with the wrapper renamed to
+  xapian/__init__.py.  There's currently no way to configure SWIG to produce
+  what we need so for now we run a "fixup" script over the generated wrapper
+  which replaces the complex import code with a single statement which does
+  what we want.  It also strips out various unneeded code, mostly to do with
+  handling Python 3.x (which we don't need since we have an entirely
+  separate set of bindings for that).  Reported by James Aylett in #731.
+  The way we were importing the bindings to generate the .pyc and .pyo
+  files was masking this problem, so rework that as suggested by James.
+
+* Make sphinx docs dependent on SWIG wrapper.  Without this dependency,
+  parallel builds (make -j) may attempt to schedule the sphinx doc build before
+  the relevant wrapper has been compiled and moved into position.  This won't
+  result in a build failure, but will silently omit API docs that sphinx
+  would otherwise include.  Patch from James Aylett.
+
+* doxy2swig: Specify encoding when reading doxygen's XML output so UTF-8 in
+  doxygen comments is handled.  Patch from Vivek Pal.
+
+* Specify Python2 wrapper encoding is UTF-8.  This is needed when we pick up
+  doxygen comments from the C++ API which contain UTF-8.  For Python3, the
+  default source encoding is UTF-8, so we don't need the equivalent change
+  there.
+
+Python3:
+
+* Fix repr() to not return None.  Reported by Stuart Prescott on IRC.
+
+* Fix Python3 bindings to work out of the box.  SWIG changed the code it
+  generates for importing the compiled module in a recent version, and
+  the newer code no longer works with the wrapper renamed to
+  xapian/__init__.py.  There's currently no way to configure SWIG to produce
+  what we need so for now we run a "fixup" script over the generated wrapper
+  which replaces the complex import code with a single statement which does
+  what we want.  It also strips out various unneeded code, mostly to do with
+  handling Python 2.x (which we don't need since we have an entirely
+  separate set of bindings for that).  Reported by James Aylett in #731.
+  The way we were importing the bindings to generate the .pyc and .pyo
+  files was masking this problem, so rework that as suggested by James.
+
+* Make sphinx docs dependent on SWIG wrapper.  Without this dependency,
+  parallel builds (make -j) may attempt to schedule the sphinx doc build before
+  the relevant wrapper has been compiled and moved into position.  This won't
+  result in a build failure, but will silently omit API docs that sphinx
+  would otherwise include.  Patch from James Aylett.
+
+* Fix memory leak converting string from Python to C++.
+  XapianSWIG_anystring_as_ptr() was failing to flag the returned value as
+  allocated, so it wasn't being deleted.  Reported by Sean Robinson in #729.
+
 Xapian-bindings 1.4.0 (2016-06-24):
 
 Documentation:
@@ -216,7 +417,7 @@ General:
 * Don't wrap Query::LEAF_* - they're for internal use in xapian-core.
 
 * Fix "make install" from a git tree configured with --disable-documentation.
-  (Fixes #658, reported by German M. Bravo)
+  (Fixes #658, reported by Germán M. Bravo)
 
 * Fix "make install" when building from git with --disable-documentation.
 

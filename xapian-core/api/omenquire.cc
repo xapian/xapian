@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2014,2015,2016,2017 Olly Betts
  * Copyright 2007,2009 Lemur Consulting Ltd
  * Copyright 2011, Action Without Borders
  *
@@ -38,6 +38,7 @@
 #include "debuglog.h"
 #include "expand/esetinternal.h"
 #include "expand/expandweight.h"
+#include "exp10.h"
 #include "matcher/multimatch.h"
 #include "omassert.h"
 #include "api/omenquireinternal.h"
@@ -240,7 +241,39 @@ Xapian::doccount
 MSet::get_matches_estimated() const
 {
     Assert(internal.get() != 0);
-    return internal->matches_estimated;
+
+    // Doing this here avoids calculating if the estimate is never looked at,
+    // though does mean we recalculate if this method is called more than once.
+
+    Xapian::doccount m = internal->matches_lower_bound;
+    Xapian::doccount M = internal->matches_upper_bound;
+    Xapian::doccount e = internal->matches_estimated;
+
+    Xapian::doccount D = M - m;
+    if (D == 0 || e == 0) {
+	// Estimate is exact or zero.  A zero but non-exact estimate can happen
+	// with get_mset(0, 0).
+	return e;
+    }
+
+    Xapian::doccount r = Xapian::doccount(exp10(int(log10(D))) + 0.5);
+    while (r > e) r /= 10;
+
+    Xapian::doccount R = e / r * r;
+    if (R < m) {
+	R += r;
+    } else if (R > M) {
+	R -= r;
+    } else if (R < e && r % 2 == 0 && e - R == r / 2) {
+	// Round towards the centre of the range.
+	if (e - m < M - e) {
+	    R += r;
+	}
+    }
+
+    // If it all goes pear-shaped, just stick to the original estimate.
+    if (R < m || R > M) R = e;
+    return R;
 }
 
 Xapian::doccount
@@ -335,7 +368,7 @@ Document
 MSet::Internal::get_doc_by_index(Xapian::doccount index) const
 {
     LOGCALL(MATCH, Document, "Xapian::MSet::Internal::get_doc_by_index", index);
-    index += firstitem; 
+    index += firstitem;
     map<Xapian::doccount, Document>::const_iterator doc;
     doc = indexeddocs.find(index);
     if (doc != indexeddocs.end()) {
@@ -422,7 +455,7 @@ MSet::Internal::read_docs() const
 // MSetIterator
 
 Xapian::docid
-MSetIterator::operator *() const
+MSetIterator::operator*() const
 {
     Assert(mset.internal.get());
     Xapian::doccount size = mset.internal->items.size();
@@ -617,7 +650,7 @@ class ByQueryIndexCmp {
     typedef map<string, unsigned int> tmap_t;
     const tmap_t &tmap;
  public:
-    ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
+    explicit ByQueryIndexCmp(const tmap_t &tmap_) : tmap(tmap_) {}
     bool operator()(const string &left,
 		    const string &right) const {
 	tmap_t::const_iterator l, r;
@@ -654,8 +687,8 @@ Enquire::Internal::get_matching_terms(Xapian::docid did) const
     TermIterator docterms_end = db.termlist_end(did);
     while (docterms != docterms_end) {
 	string term = *docterms;
-        map<string, unsigned int>::iterator t = tmap.find(term);
-        if (t != tmap.end()) matching_terms.push_back(term);
+	map<string, unsigned int>::iterator t = tmap.find(term);
+	if (t != tmap.end()) matching_terms.push_back(term);
 	++docterms;
     }
 
@@ -797,14 +830,14 @@ Enquire::set_weighting_scheme(const Weight &weight_)
 void
 Enquire::set_expansion_scheme(const std::string &eweightname_, double expand_k_) const
 {
-     LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_ | expand_k_);
+    LOGCALL_VOID(API, "Xapian::Enquire::set_expansion_scheme", eweightname_ | expand_k_);
 
-     if (eweightname_ != "bo1" && eweightname_ != "trad") {
-	 throw InvalidArgumentError("Invalid name for query expansion scheme.");
-     }
+    if (eweightname_ != "bo1" && eweightname_ != "trad") {
+	throw InvalidArgumentError("Invalid name for query expansion scheme.");
+    }
 
-     internal->eweightname = eweightname_;
-     internal->expand_k = expand_k_;
+    internal->eweightname = eweightname_;
+    internal->expand_k = expand_k_;
 }
 
 void

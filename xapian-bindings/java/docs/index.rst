@@ -21,8 +21,8 @@ How to compile the examples:
 ::
 
   cd java
-  javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleIndex.java
-  javac -classpath built/xapian_jni.jar:. org/xapian/examples/SimpleSearch.java
+  javac -classpath built/xapian.jar:. docs/examples/SimpleIndex.java
+  javac -classpath built/xapian.jar:. docs/examples/SimpleSearch.java
 
 How to run the examples:
 ########################
@@ -34,11 +34,11 @@ JNI library is located.
 
 ::
 
- java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
-      org.xapian.examples.SimpleIndex ./test.db index words like java
+ java -Djava.library.path=built -classpath built/xapian.jar:docs/examples \
+      SimpleIndex ./test.db index words like java
 
- java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
-      org.xapian.examples.SimpleSearch ./test.db index words like java
+ java -Djava.library.path=built -classpath built/xapian.jar:docs/examples \
+      SimpleSearch ./test.db index words like java
 
 Alternatively, you can avoid needing the -Djava.library.path setting by
 setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
@@ -49,6 +49,43 @@ The java bindings have been tested recently with OpenJDK versions 1.8.0_77,
 1.7.0_03, and 1.6.0_38, but they should work with any java toolchain with
 suitable JNI support - please report success stories or any problems to the
 development mailing list: xapian-devel@lists.xapian.org
+
+Strings and binary data
+#######################
+
+The Xapian C++ API is largely agnostic about character encoding, and uses
+the `std::string` type as an opaque container for a sequence of bytes.
+In places where the bytes represent text (for example, in the
+`Stem`, `QueryParser` and `TermGenerator` classes), UTF-8 encoding is used.
+In Java, the `String` class uses UTF-16 encoding, and can't hold arbitrary
+binary data.
+
+The approach taken to this problem by these bindings (in Xapian 1.4.4 and
+later) is to map C++ `std::string` to/from Java byte arrays (`byte[]`) in
+places where the data is inherently binary (serialisation functions) or likely
+to be binary (document values).
+
+This loses a bit of generality compared to the C++ API - for example, in C++
+you can add a term with a binary data value but in Java it has to be a
+Unicode string.  But users rarely actually need or want that generality,
+and losing it means that you can just work with Java `String`.
+
+Document values work best when the values are compactly encoded, so a binary
+encoding is usually appropriate.  However, if you really want to put a text
+value in a document value slot you can explicitly convert `String` to/from
+a byte array of UTF-8 data like so::
+
+  import java.nio.charset.StandardCharsets;
+
+  //...
+
+  doc.addValue(1, some_string.getBytes(StandardCharsets.UTF_8));
+
+  //...
+  String value = new String(doc.getValue(1), StandardCharsets.UTF_8);
+
+As well as terms, document data and user metadata are also required to be
+text at the moment when using these bindings.
 
 Naming of wrapped methods:
 ##########################

@@ -1,7 +1,7 @@
 /** @file phrasepostlist.cc
  * @brief Return docs containing terms forming a particular phrase.
  */
-/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2011,2014,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@ PhrasePostList::get_wdf() const
     // comment in NearPostList::get_wdf() for justification of this estimate.
     vector<PostList *>::const_iterator i = terms.begin();
     Xapian::termcount wdf = (*i)->get_wdf();
-    for (; i != terms.end(); ++i) {
+    while (++i != terms.end()) {
 	wdf = min(wdf, (*i)->get_wdf());
     }
     return wdf;

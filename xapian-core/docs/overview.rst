@@ -178,17 +178,11 @@ The current types understood by Xapian are:
 
 auto
     This isn't an actual database format, but rather auto-detection of one of
-    the disk based backends (e.g. "chert" or "glass") from a single specified
-    path (which can be to a file or directory).
+    the disk based backends (e.g. "glass") from a single specified path (which
+    can be to a file or directory).
 
 glass
     Glass is the default backend in Xapian 1.4.x. It supports incremental
-    modifications, concurrent single-writer and multiple-reader access to a
-    database. It's very efficient and highly scalable, and more compact than
-    chert.
-
-chert
-    Chert was the default backend in Xapian 1.2.x. It supports incremental
     modifications, concurrent single-writer and multiple-reader access to a
     database. It's very efficient and highly scalable.
 
@@ -212,7 +206,14 @@ remote
     Otherwise the TCP variant of the remote backend is used, and the rest of
     the line specifies the host and port to connect to.
 
-These are no longer supported by Xapian 1.4.x:
+These are no longer supported by Xapian 1.5.x:
+
+chert
+    Chert was the default backend in Xapian 1.2.x. It was deprecated in 1.4.0
+    and removed in 1.5.0.  If you want to migrate an existing Chert
+    database to Glass, the `'Admin Notes'
+    <admin_notes.html#converting-a-chert-database-to-a-glass-database%60>`_
+    describe how to do this.
 
 brass
     Brass was the current "under development" database format in Xapian 1.2.x,

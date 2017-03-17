@@ -32,12 +32,8 @@ To destroy an object ``obj``, you need to use one of
 (either should work, but see below).
 
 SWIG's Tcl wrapping doesn't handle an object returned by a factory function
-correctly.  This only matters for the Xapian::WritableDatabase class, and we
-avoid wrapping the problematic ``Xapian::Chert::open`` factory function to
-avoid setting a trap for the unwary.
-You can just use a ``Xapian::WritableDatabase`` constructor
-instead (and specify a backend by passing ``$::xapian::DB_BACKEND_GLASS`` or
-similar in the flags).
+correctly.  This only matters for the ``xapian::WritableDatabase`` class, and
+the only such factory function is ``xapian::remote_open_writable``.
 
 As of Xapian 1.1.0, you can explicitly close the database, so the lack
 of a call to the destructor isn't an issue:
@@ -156,7 +152,6 @@ wrapped like so for Tcl:
 - ``Xapian::minor_version()`` is wrapped as ``xapian::minor_version``
 - ``Xapian::revision()`` is wrapped as ``xapian::revision``
 - ``Xapian::Auto::open_stub()`` is wrapped as ``xapian::open_stub`` (now deprecated)
-- ``Xapian::Chert::open()`` is wrapped as ``xapian::chert_open`` (but note that the WritableDatabase version isn't wrapped - see the 'Destructors' section above for an explanation - and this function is deprecated anyway).
 - ``Xapian::InMemory::open()`` is wrapped as ``xapian::inmemory_open`` (now deprecated)
 - ``Xapian::Remote::open()`` is wrapped as ``xapian::remote_open`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).
 - ``Xapian::Remote::open_writable()`` is wrapped as ``xapian::remote_open_writable`` (both the TCP and "program" versions are wrapped - the SWIG wrapper checks the parameter list to decide which to call).

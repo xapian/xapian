@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# Copyright (c) 2007-2015 Olly Betts
+# Copyright (c) 2007-2017 Olly Betts
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -28,7 +28,7 @@ if (defined $ARGV[0] && $ARGV[0] eq '--help') {
 Syntax: $0 [PATCH]...
 
 Nit-pick Xapian patches.
- 
+
 A patch can be supplied on stdin, or one or more patch files listed on the
 command line.
 
@@ -49,54 +49,294 @@ my $del_lines = 0;
 my $files = 0;
 # SVN property changes don't have an "Index: [...]" line.
 my $want_tabs = -1;
+my $check_trailing = 0;
+my $check_space_tab = 0;
+my $in_comment = 0;
+my $lang;
+my %count;
 while (<>) {
+    my $type = 'error';
     if (/^Index: (.+)/ || m!^diff --git a/.+ b/(.+)!) {
 	++$files;
 	$fnm = $1;
-	$lineno = undef;
+	$lineno = 1;
+	$lang = undef;
+	$in_comment = 0;
+	# Don't know!
+	$want_tabs = -1;
 	if ($fnm =~ /\.cc$/) {
-	    $want_tabs = 1;
-	} elsif ($fnm =~ /\.[ch]$/) {
-	    $want_tabs = ($fnm !~ m!\blanguages/compiler/!);
+	    if ($fnm !~ m!\b(?:cdb|portability/)! &&
+		$fnm !~ m!\bcommon/getopt\.cc$! &&
+		$fnm !~ m!\bcommon/msvc_dirent\.cc$!) {
+		$lang = 'c++';
+		$want_tabs = 1 unless ($fnm =~ m!\blanguages/steminternal\.cc$!);
+	    }
+	} elsif ($fnm =~ /\.c$/) {
+	    if ($fnm !~ m!\blanguages/compiler/! &&
+		$fnm !~ m!/lemon\.c$! &&
+		$fnm !~ m!/xapdep\.c$!) {
+		$lang = 'c';
+		$want_tabs = 1;
+	    }
+	} elsif ($fnm =~ /\.h$/) {
+	    if ($fnm !~ m!\binclude/xapian/intrusive_ptr\.h! &&
+		$fnm !~ m!\blanguages/compiler/! &&
+		$fnm !~ m!\bcommon/msvc_dirent\.h$!) {
+		$lang = 'h';
+		$want_tabs = 1 unless ($fnm =~ m!/omega/cdb!);
+	    }
 	} elsif ($fnm =~ /\.py(?:\.in)?$/) {
+	    $lang = 'py';
 	    $want_tabs = 0;
-	} else {
-	    # Don't know!
-	    $want_tabs = -1;
+	} elsif ($fnm =~ m!(?:^|/)ChangeLog\b!) {
+	    $lang = 'changelog';
+	    $want_tabs = 1;
 	}
+	$check_trailing =
+	    $fnm !~ /\.sbl$/ &&
+	    $fnm !~ m!\bcommon/msvc_dirent\.! &&
+	    $fnm !~ m!/lemon\.c$! &&
+	    $fnm !~ m!/queryparser\.lt$! &&
+	    $fnm !~ m!\bcdb! &&
+	    $fnm !~ m!/testdata/etext\.txt$!;
+	$check_space_tab =
+	    $fnm !~ /\.sbl$/;
+	# print STDERR "$fnm: lang=" . ($lang // "UNKNOWN") . "\;
 	next;
     }
-    if (/^\@\@ -\d+,\d+ \+(\d+),\d+\b/) {
-	$lineno = $1;
+    my $pre3 = substr($_, 0, 3);
+    if ($pre3 eq '@@ ') {
+	/^\@\@ -\d+,\d+ \+(\d+),\d+\b/ and $lineno = $1;
+	$in_comment = 0;
+	next;
+    }
+    if ($pre3 eq '---' || $pre3 eq '+++') {
 	next;
     }
     my $msg;
-    if (/^\+.*[ \t]$/) {
+    my $fullline = $_;
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+	# Uncomment commented out parameter names: foo(int /*bar*/) -> foo(int bar)
+	s!/\*([A-Za-z_][A-Za-z_0-9]*)\*/([,)])!$1$2!g;
+	# Trim comments:
+	if (s!/(?:\*.*?\*/|/.*)!!g) {
+	    s/\s+$//;
+	}
+	if (s!/\*.*!!g) {
+	    s/\s+$//;
+	    $in_comment = 1;
+	}
+	# Trim content of comments ending on this line:
+	if (s!^(.).*\*/!$1*/!) {
+	    $in_comment = 0;
+	}
+	if ($in_comment) {
+	    $_ = '';
+	} else {
+	    # Drop comment content for "*" continuation lines (when /* isn't in hunk):
+	    s/^(.)(\s*\*).*/$1$2/;
+	}
+    } elsif (defined $lang && $lang eq 'py') {
+	# Trim comments:
+	if (s!#.*!!g) {
+	    s/\s+$//;
+	}
+    }
+
+    # Replace multiple spaces before line continuation marker:
+    s!  +\\$! \\!;
+
+    if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c') && !(/^[-+]\s*\#/)) {
+	# Replace string literals containing escaped quotes:
+	if (/['"]/) {
+	    my $quote = substr($_, $-[0], 1);
+	    my $start = $+[0];
+	    my $i = $start;
+	    my $esc = 0;
+QUOTELOOP:  while (1) {
+		if ($i >= length($_)) {
+		    $_ = substr($_, 0, $start) . "X\n";
+		    last;
+		}
+		my $c = substr($_, $i, 1);
+		if ($c eq $quote) {
+		    $_ = substr($_, 0, $start) . "X" . substr($_, $i);
+		    $i = $start + 2;
+		    # See if there's another string after this one:
+		    while ($i != length($_)) {
+			$c = substr($_, $i, 1);
+			++$i;
+			if ($c eq '"' || $c eq "'") {
+			    $quote = $c;
+			    $start = $i;
+			    $esc = 0;
+			    next QUOTELOOP;
+			}
+		    }
+		    last;
+		}
+		if ($c eq '\\') {
+		    ++$i;
+		    $c = substr($_, $i, 1);
+		    if ($c eq 'x') {
+			++$i while (substr($_, $i, 1) =~ /^[A-Fa-f0-9]$/);
+			next;
+		    } elsif ($c =~ /^[0-7]/) {
+			my $j = $i;
+			++$i while ($i - $j <= 3 && substr($_, $i, 1) =~ /^[0-7]$/);
+			next;
+		    } elsif ($c eq '"' || $c eq "'") {
+			++$esc;
+		    }
+		}
+		++$i;
+	    }
+	}
+    }
+
+    if ($check_trailing && /^\+.*[ \t]$/) {
 	$msg = "added/changed line has trailing whitespace:";
-    } elsif (/^\+.* \t/) {
+    } elsif ($check_space_tab && /^\+.* \t/) {
 	$msg = "added/changed line has space before tab:";
     } elsif ($want_tabs == 1 and /^\+\t* {8}/) {
 	$msg = "added/changed line uses spaces for indentation rather than tab:";
     } elsif (!$want_tabs and /^\+ *\t/) {
 	$msg = "added/changed line uses tab for indentation rather than spaces:";
-    } elsif (/^-.*\bFIX(?:ME)\b/) {
-	$msg = "FIX"."ME removed:";
-    } elsif (/^\+.*\bFIX(?:ME)\b/) {
-	$msg = "FIX"."ME added:";
-    } elsif (/^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
+    } elsif ((!defined $lang || $lang ne 'changelog') && /^([-+]).*\bFIX(?:ME)\b/) {
+	# Break up the string in the regexp above and messages below to avoid
+	# this triggering on its own code!
+	if ($1 eq '-') {
+	    # Not an error, but interesting information.
+	    $type = 'info';
+	    $msg = "FIX"."ME removed:";
+	} else {
+	    # Not an error, but not good.
+	    $type = 'warning';
+	    $msg = "FIX"."ME added:";
+	}
+    } elsif (defined $lang && $lang ne 'changelog' && /^\+.*\\([abcefp]|brief|code|deprecated|endcode|exception|file|internal|li|param|private|return|todo)\b/) {
 	$msg = "Doxygen command '\\$1' introduced by '\\' not '\@':";
-    } elsif (m!(?:^|[;{])\s*/[/*]{1,2}\w!) {
-	$msg = "added/changed line has comment without whitespace before the text:";
+    } else {
+	if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c')) {
+	    if (m!^\+\s*(case|catch|class|do|for|if|namespace|struct|switch|try|union)\b([^ ]| \s)!) {
+		$msg = "'$1' not followed by exactly one space:";
+	    } elsif (m!^\+.*[^(;]\s;!) {
+		# Stuff like this is OK: for ( ; ; ) {
+		# though for that exact case I'd suggest: while (true) {
+		$msg = "Whitespace before ';':";
+	    } elsif (m!^\+.*?\b(return)\b([^ ;]| \s)!) {
+		$msg = "'$1' not followed by exactly one space:";
+	    } elsif (m!^\+.*?\b(else)\b([^ \n]| \s)!) {
+		$msg = "'$1' not followed by exactly one space:";
+	    } elsif (m!^\+.*?\b(while)\b([^ ]| \s)!) {
+		$msg = "'$1' not followed by exactly one space:";
+	    } elsif (m!^\+.*?(?:}|}\s{2,}|}\t|^[^}]*)\b(catch)\b!) {
+		$msg = "'$1' not preceded by exactly '} ':";
+	    } elsif (m!^\+.*?(?:}|}\s{2,}|}\t)\b(else|while)\b!) {
+		$msg = "'}' and '$1' not separated by exactly one space:";
+	    } elsif (m!^\+.*\((?: [^;]|\t)!) {
+		# Allow: for ( ; i != 10; ++i)
+		$msg = "Whitespace after '(':";
+	    } elsif (m!^\+.*\H.*\h\)!) {
+		$msg = "Whitespace before ')':";
+	    } elsif (m!^\+.*; (\w+)([-+]{2})\)!) {
+		$msg = "Prefer '$2$1' to '$1$2':";
+	    } elsif (m,^\+\s*[^#].*[\w)](?!-[->]|\+\+)((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?]),) {
+		my @pre = @-;
+		my @post = @+;
+		my $op = $1;
+		$msg = "Missing space before '$op':";
+		if (substr($_, $pre[1] - 8, 8) eq 'operator') {
+		    # operator*() etc
+		    $msg = undef;
+		} elsif ($op eq '>' && substr($_, 0, $pre[1]) =~ /[A-Za-z0-9_]</) {
+		    # y = static_cast<char>(x);
+		    $msg = undef;
+		} elsif ($op eq '>') {
+		    $msg = undef;
+		} elsif ($op eq '<' && substr($_, $pre[1] - 1, 1) =~ /^[A-Za-z0-9_]$/ && substr($_, $post[1]) =~ />/) {
+		    # y = static_cast<char>(x);
+		    $msg = undef;
+		} elsif ($op eq '<' &&
+			 substr($_, 0, $pre[1]) =~ /(?:list|map|multimap|multiset|priority_queue|set|unordered_map|unordered_set|vector)$/) {
+		    # y = priority_queue<Foo*,
+		    #                    Bar>;
+		    $msg = undef;
+		} elsif ($op eq '&&' && substr($_, $pre[1] - 4, 4) eq 'auto') {
+		    # auto&& x
+		    $msg = undef;
+		} elsif (($op eq '<<' || $op eq '>>') &&
+		    substr($_, 0, $pre[1]) =~ /\b(?:0x[0-9a-fA-F]+|[0-9]+)$/ &&
+		    substr($_, $post[1]) =~ /^(?:0x[0-9a-fA-F]+|[0-9]+)\b/) {
+		    # 0x00b1<<26
+		    $msg = undef;
+		} elsif (($op eq '-' || $op eq '+') &&
+		    substr($_, 0, $pre[1]) =~ /[0-9]\.?e$/) {
+		    # 1.2e-3, 7.e+3
+		    $msg = undef;
+		} elsif ($op eq '>>' &&
+		    /[A-Za-z0-9_]<.+</) {
+		    # vector<vector<int>> v;
+		    $msg = undef;
+		} elsif ($op =~ /^[*&|]$/) {
+		    # FIXME: *: const char* x;
+		    # FIXME: &: const char& x;
+		    # FIXME: |: FOO|BAR
+		    $msg = undef;
+		}
+	    } elsif (m@^\+\s*[^#\s].*((?:\&\&|\|\||<<|>>|[-+/*%~=<>!&|^])=?|[?:,])(?<!(?:-[->]|\+\+|::))(?:[\w\(]| \s)@) {
+		my @pre = @-;
+		my @post = @+;
+		my $op = $1;
+		$msg = "Should have exactly one space after '$op':";
+		if ($op eq '~' && substr($_, $post[1]) =~ /^[A-Za-z][A-Za-z0-9_]*\(/) {
+		    # Destructor - e.g. ~Foo();
+		    $msg = undef;
+		} elsif (($op eq '-' || $op eq '+' || $op eq '!' || $op eq '~') &&
+		    substr($_, 0, $pre[1]) =~ m@(?:[-+/*%~=<>&|,;?:] |[\[(]|\b(?:return|case) |^\+\s*)$@) {
+		    # Unary -, +, !, ~: e.g. foo = +1; bar = x * (-y); baz = a * -b;
+		    $msg = undef;
+		} elsif ($op eq ',' && (
+		    /\b(?:AssertRel(?:Paranoid)?|TEST_REL)\(/ ||
+		    /{[^()]*}/)) {
+		    # AssertRel(a,<,b);
+		    $msg = undef;
+		} elsif ($op eq '>>' &&
+		    /[A-Za-z0-9_]<.+</) {
+		    # vector<vector<int>>&
+		    $msg = undef;
+		} elsif ($op =~ /^[*&<>|]$/) {
+		    # FIXME: *: const char *x;
+		    # FIXME: *: const char &x;
+		    # FIXME: < >: y = static_cast<char>(x);
+		    # FIXME: |: FOO|BAR
+		    $msg = undef;
+		}
+	    } elsif (/;;\s*$/) {
+		$msg = "Extra ';' at end of line:";
+	    } elsif (m@^\+[^#]*?[^#\h] +(,|->)@) {
+		$msg = "Space before '$1':";
+	    } elsif (m,^\+[^#]*?[^#\h]  ,) {
+		$msg = "Multiple spaces:";
+	    } elsif (m!^\+(?:.*[;{])?\s*/[/*]{1,2}\w!) {
+		$msg = "added/changed line has comment without whitespace before the text:";
+	    }
+	} elsif (defined $lang && $lang eq 'py') {
+	    if (/;\s*$/) {
+		$msg = "';' at end of line of python code:";
+	    }
+	}
     }
     if (defined $msg) {
-	print "$fnm:$lineno: $msg";
+	print "$fnm:$lineno: $type: $msg";
 	if ($msg =~ /:$/) {
-	    print " $_";
+	    print " $fullline";
 	} else {
 	    print "\n";
 	}
+	++$count{$type};
     }
-    my $first_char = substr($_, 0, 1);
+    my $first_char = substr($fullline, 0, 1);
     if ($first_char eq ' ') {
 	++$lineno;
     } elsif ($first_char eq '+') {
@@ -106,8 +346,15 @@ while (<>) {
 	++$del_lines;
     }
 }
+if (scalar keys %count) {
+    for (sort keys %count) {
+	print STDERR "$_ count:\t$count{$_}\n";
+    }
+    print STDERR "\n";
+}
 print STDERR <<"__END__";
 Files patched:\t$files
 Lines added:\t$add_lines
 Lines removed:\t$del_lines
 __END__
+exit(exists $count{'error'} ? 1 : 0);

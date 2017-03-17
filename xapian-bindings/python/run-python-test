@@ -3,5 +3,5 @@
 # versions we set a trap which will delete any generated .pyc files after
 # the test, or upon a signal.
 trap 'rm -f "${srcdir-.}/*.pyc"' 0 1 2 13 15
-PYTHONPATH=".:xapian:$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 ${PYTHON-python} "$@"
+PYTHONPATH=".:$PYTHONPATH" PYTHONDONTWRITEBYTECODE=1 $OSX_SIP_HACK_ENV ${PYTHON-python} "$@"
 exit $?

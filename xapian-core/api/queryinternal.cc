@@ -1,7 +1,7 @@
 /** @file queryinternal.cc
  * @brief Xapian::Query internals
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,6 @@
 #include "xapian/postingsource.h"
 #include "xapian/query.h"
 
-#include "matcher/const_database_wrapper.h"
 #include "leafpostlist.h"
 #include "matcher/andmaybepostlist.h"
 #include "matcher/andnotpostlist.h"
@@ -38,6 +37,7 @@
 #include "matcher/multiandpostlist.h"
 #include "matcher/multixorpostlist.h"
 #include "matcher/nearpostlist.h"
+#include "matcher/orpospostlist.h"
 #include "matcher/orpostlist.h"
 #include "matcher/phrasepostlist.h"
 #include "matcher/queryoptimiser.h"
@@ -62,7 +62,7 @@
 using namespace std;
 
 template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) { delete p; }
+    void operator()(CLASS *p) const { delete p; }
 };
 
 using Xapian::Internal::AndContext;
@@ -81,7 +81,9 @@ namespace Internal {
 struct CmpMaxOrTerms {
     /** Return true if and only if a has a strictly greater termweight than b. */
     bool operator()(const PostList *a, const PostList *b) {
-#if (defined(__i386__) && !defined(__SSE2_MATH__)) || defined(__mc68000__) || defined(__mc68010__) || defined(__mc68020__) || defined(__mc68030__)
+#if (defined(__i386__) && !defined(__SSE_MATH__)) || \
+    defined(__mc68000__) || defined(__mc68010__) || \
+    defined(__mc68020__) || defined(__mc68030__)
 	// On some architectures, most common of which is x86, floating point
 	// values are calculated and stored in registers with excess precision.
 	// If the two get_maxweight() calls below return identical values in a
@@ -114,7 +116,7 @@ struct CmpMaxOrTerms {
 /// Comparison functor which orders PostList* by descending get_termfreq_est().
 struct ComparePostListTermFreqAscending {
     /// Order by descending get_termfreq_est().
-    bool operator()(const PostList *a, const PostList *b) {
+    bool operator()(const PostList *a, const PostList *b) const {
 	return a->get_termfreq_est() > b->get_termfreq_est();
     }
 };
@@ -139,15 +141,24 @@ class Context {
     size_t size() const {
 	return pls.size();
     }
+
+    void reset();
 };
 
 Context::Context(size_t reserve) {
     pls.reserve(reserve);
 }
 
-Context::~Context()
+void
+Context::reset()
 {
     for_each(pls.begin(), pls.end(), delete_ptr<PostList>());
+    pls.clear();
+}
+
+Context::~Context()
+{
+    reset();
 }
 
 class OrContext : public Context {
@@ -358,6 +369,13 @@ AndContext::add_pos_filter(Query::op op_,
 PostList *
 AndContext::postlist(QueryOptimiser* qopt)
 {
+    if (pls.empty()) {
+	// This case only happens if this sub-database has no positional data
+	// (but another sub-database does).
+	Assert(pos_filters.empty());
+	return new EmptyPostList;
+    }
+
     AutoPtr<PostList> pl(new MultiAndPostList(pls.begin(), pls.end(),
 					      qopt->matcher, qopt->db_size));
 
@@ -667,6 +685,13 @@ QueryPostingSource::QueryPostingSource(PostingSource * source_)
 {
     if (!source_)
 	throw Xapian::InvalidArgumentError("source parameter can't be NULL");
+    if (source->_refs == 0) {
+	// source_ isn't reference counted, so try to clone it.  If clone()
+	// isn't implemented, just use the object provided and it's the
+	// caller's responsibility to ensure it stays valid while in use.
+	PostingSource * cloned_source = source->clone();
+	if (cloned_source) source = cloned_source->release();
+    }
 }
 
 Query::op
@@ -735,7 +760,11 @@ QueryPostingSource::postlist(QueryOptimiser * qopt, double factor) const
     Assert(source.get());
     if (factor != 0.0)
 	qopt->inc_total_subqs();
-    Xapian::Database wrappeddb(new ConstDatabaseWrapper(&(qopt->db)));
+    // Casting away const on the Database::Internal here is OK, as we wrap
+    // them in a const Xapian::Database so non-const methods can't actually
+    // be called on the Database::Internal object.
+    const Xapian::Database wrappeddb(
+	    const_cast<Xapian::Database::Internal*>(&(qopt->db)));
     RETURN(new ExternalPostList(wrappeddb, source.get(), factor, qopt->matcher));
 }
 
@@ -950,6 +979,12 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
     } else if (op != Query::OP_SYNONYM) {
 	or_factor = factor;
     }
+
+    bool old_in_synonym = qopt->in_synonym;
+    if (!old_in_synonym) {
+	qopt->in_synonym = (op == Query::OP_SYNONYM);
+    }
+
     OrContext ctx(0);
     AutoPtr<TermList> t(qopt->db.open_allterms(pattern));
     Xapian::termcount expansions_left = max_expansion;
@@ -994,6 +1029,8 @@ QueryWildcard::postlist(QueryOptimiser * qopt, double factor) const
 	    qopt->inc_total_subqs();
 	}
     }
+
+    qopt->in_synonym = old_in_synonym;
 
     if (ctx.empty())
 	RETURN(new EmptyPostList);
@@ -1197,13 +1234,18 @@ QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 {
     LOGCALL(MATCH, PostList *, "QueryBranch::do_synonym", qopt | factor);
     OrContext ctx(subqueries.size());
-    do_or_like(ctx, qopt, 0.0);
-    PostList * pl = ctx.postlist(qopt);
     if (factor == 0.0) {
 	// If we have a factor of 0, we don't care about the weights, so
 	// we're just like a normal OR query.
-	return pl;
+	do_or_like(ctx, qopt, 0.0);
+	return ctx.postlist(qopt);
     }
+
+    bool old_in_synonym = qopt->in_synonym;
+    qopt->in_synonym = true;
+    do_or_like(ctx, qopt, 0.0);
+    PostList * pl = ctx.postlist(qopt);
+    qopt->in_synonym = old_in_synonym;
 
     // We currently assume wqf is 1 for calculating the synonym's weight
     // since conceptually the synonym is one "virtual" term.  If we were
@@ -1373,7 +1415,7 @@ void QueryScaleWeight::serialise(string & result) const
 }
 
 struct is_matchnothing {
-    bool operator()(const Xapian::Query & q) {
+    bool operator()(const Xapian::Query & q) const {
 	return q.internal.get() == NULL;
     }
 };
@@ -1582,24 +1624,36 @@ QueryFilter::postlist_sub_and_like(AndContext& ctx, QueryOptimiser * qopt, doubl
 void
 QueryWindowed::postlist_windowed(Query::op op, AndContext& ctx, QueryOptimiser * qopt, double factor) const
 {
-    // FIXME: should has_positions() be on the combined DB (not this sub)?
-    if (qopt->db.has_positions()) {
-	bool old_need_positions = qopt->need_positions;
-	qopt->need_positions = true;
-
-	QueryVector::const_iterator i;
-	for (i = subqueries.begin(); i != subqueries.end(); ++i) {
-	    // MatchNothing subqueries should have been removed by done().
-	    Assert((*i).internal.get());
-	    ctx.add_postlist((*i).internal->postlist(qopt, factor));
-	}
-	// Record the positional filter to apply higher up the tree.
-	ctx.add_pos_filter(op, subqueries.size(), window);
-
-	qopt->need_positions = old_need_positions;
-    } else {
+    if (!qopt->full_db_has_positions) {
+	// No positional data anywhere, so just handle as AND.
 	QueryAndLike::postlist_sub_and_like(ctx, qopt, factor);
+	return;
     }
+
+    if (!qopt->db.has_positions()) {
+	// No positions in this subdatabase so this matches nothing,
+	// which means the whole andcontext matches nothing.
+	ctx.reset();
+	return;
+    }
+
+    bool old_need_positions = qopt->need_positions;
+    qopt->need_positions = true;
+
+    QueryVector::const_iterator i;
+    for (i = subqueries.begin(); i != subqueries.end(); ++i) {
+	// MatchNothing subqueries should have been removed by done().
+	Assert((*i).internal.get());
+	bool is_term = ((*i).internal->get_type() == Query::LEAF_TERM);
+	PostList* pl = (*i).internal->postlist(qopt, factor);
+	if (!is_term)
+	    pl = new OrPosPostList(pl);
+	ctx.add_postlist(pl);
+    }
+    // Record the positional filter to apply higher up the tree.
+    ctx.add_pos_filter(op, subqueries.size(), window);
+
+    qopt->need_positions = old_need_positions;
 }
 
 void

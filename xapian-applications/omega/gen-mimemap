@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 my $copyright = <<'EOF';
-/* Copyright (C) 2012,2013,2015 Olly Betts
+/* Copyright (C) 2012,2013,2015,2016,2017 Olly Betts
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -33,8 +33,8 @@ my $srcdir = shift @ARGV;
 my $hdr = Tokeniseise->new('mimemap.h', 'Map extension to MIME Content-Type', $copyright, 'OMEGA_INCLUDED_MIMEMAP_H', 'mime_type');
 $hdr->append('static const char * const default_mime_map[] = {');
 my $max_ext_len = 0;
-my %seen;
-my @ignored;
+my $max_mimetype_len = 0;
+my %mime_table;
 while (<STDIN>) {
     s/#.*//;
     next if /^\s*$/;
@@ -43,13 +43,14 @@ while (<STDIN>) {
     $enum =~ s![-+/.]!_!g;
     $hdr->add($ext, $enum);
     $max_ext_len = length($ext) if length($ext) > $max_ext_len;
-    if (!exists $seen{$mimetype}) {
+    if (!exists $mime_table{$mimetype}) {
 	$hdr->append("    \"$mimetype\",");
-	++$seen{$mimetype};
+	if (length($mimetype) > $max_mimetype_len) {
+	    $max_mimetype_len = length($mimetype) if length($mimetype);
+	}
+	$mime_table{$mimetype} = [];
     }
-    if ($mimetype eq 'ignore') {
-	push @ignored, $ext;
-    }
+    push @{$mime_table{$mimetype}}, $ext;
 }
 $hdr->append('};');
 $hdr->append('');
@@ -58,8 +59,10 @@ $hdr->append("const size_t MAX_BUILTIN_MIMEMAP_EXTENSION_LEN = $max_ext_len;");
 $hdr->write();
 
 open IGNORED, '>', 'docs/inc/ignored.rst' or die $!;
-foreach my $ext (sort @ignored) {
-    print IGNORED "   - $ext\n";
+if (exists $mime_table{'ignore'}) {
+    foreach my $ext (sort @{$mime_table{'ignore'}}) {
+	print IGNORED "   - $ext\n";
+    }
 }
 close IGNORED or die $!;
 
@@ -69,20 +72,38 @@ sub mimetype_order {
     $a =~ s!^text/!0/!;
     $a =~ s!^application/!1/!;
     $a =~ s!^image/!2/!;
+    $a =~ s!^message/!3/!;
     $b =~ s!^text/!0/!;
     $b =~ s!^application/!1/!;
     $b =~ s!^image/!2/!;
+    $b =~ s!^message/!3/!;
     return $a cmp $b;
 }
-# Include 'skip' in the list even if it isn't used by default.
-++$seen{'skip'};
-foreach my $mimetype (sort {mimetype_order($a, $b)} keys %seen) {
+my $fmt = "\% -${max_mimetype_len}s \% -${max_ext_len}s\n";
+my $drule = '='x$max_mimetype_len . ' ' . '='x${max_ext_len} . "\n";
+my $srule = '-'x$max_mimetype_len . ' ' . '-'x${max_ext_len} . "\n";
+print MIMETYPES $drule;
+printf MIMETYPES $fmt, 'MIME Type', 'Extensions';
+print MIMETYPES $drule;
+my $first = 1;
+foreach my $mimetype (sort {mimetype_order($a, $b)} keys %mime_table) {
     if ($mimetype eq 'ignore') {
-	$mimetype .= ' (magic token to tell omindex to quietly ignore such files)';
+	# Handled above.
+	next;
+    } elsif ($mimetype eq 'skip') {
+	# FIXME: Currently nothing is mapped to this by default.
+	next;
     }
-    if ($mimetype eq 'skip') {
-	$mimetype .= ' (magic token to tell omindex to skip such files)';
+    if ($first) {
+	$first = 0;
+    } else {
+	print MIMETYPES $srule;
     }
-    print MIMETYPES "   - $mimetype\n";
+    my @exts = @{$mime_table{$mimetype}};
+    printf MIMETYPES $fmt, $mimetype, shift @exts;
+    for (@exts) {
+	printf MIMETYPES $fmt, '', $_;
+    }
 }
+print MIMETYPES $drule;
 close MIMETYPES or die $!;

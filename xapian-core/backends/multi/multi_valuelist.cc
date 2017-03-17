@@ -68,7 +68,7 @@ struct SubValueList {
 /// Comparison functor which orders SubValueList* by ascending docid.
 struct CompareSubValueListsByDocId {
     /// Order by ascending docid.
-    bool operator()(const SubValueList *a, const SubValueList *b) {
+    bool operator()(const SubValueList *a, const SubValueList *b) const {
 	Xapian::docid did_a = a->get_docid();
 	Xapian::docid did_b = b->get_docid();
 	if (did_a > did_b) return true;
@@ -78,7 +78,7 @@ struct CompareSubValueListsByDocId {
 };
 
 template<class CLASS> struct delete_ptr {
-    void operator()(CLASS *p) { delete p; }
+    void operator()(CLASS *p) const { delete p; }
 };
 
 MultiValueList::MultiValueList(const vector<intrusive_ptr<Xapian::Database::Internal> > & dbs,

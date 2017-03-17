@@ -48,7 +48,7 @@ int main() {
 	md5_string(t->string, md5);
 	for (size_t i = 0; i < md5.size(); ++i) {
 	    char buf[16];
-	    sprintf(buf, "%02x", (unsigned char)md5[i]);
+	    sprintf(buf, "%02x", static_cast<unsigned char>(md5[i]));
 	    hexhash += buf;
 	}
 	if (hexhash != t->hash) {
