@@ -22,24 +22,11 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
-#include "feature_internal.h"
 #include "debuglog.h"
 
 namespace Xapian {
 
-Feature::Feature(const Feature & o) : internal(o.internal)
-{
-    LOGCALL_CTOR(API, "Feature", o);
-}
-
-void
-Feature::operator=(const Feature & o)
-{
-    LOGCALL_VOID(API, "Feature::operator=", o);
-    internal = o.internal;
-}
-
-Feature::Feature() : internal(new Feature::Internal)
+Feature::Feature()
 {
     LOGCALL_CTOR(API, "Feature", NO_ARGS);
 }
@@ -48,29 +35,63 @@ Feature::~Feature() {
     LOGCALL_DTOR(API, "Feature");
 }
 
-
 void
 Feature::set_database(const Xapian::Database & db)
 {
     LOGCALL_VOID(API, "Feature::set_database", db);
-    internal->feature_db = db;
+    feature_db = db;
 }
 
 void
 Feature::set_query(const Xapian::Query & query)
 {
     LOGCALL_VOID(API, "Feature::set_query", query);
-    if (query.empty()) {
-	throw Xapian::InvalidArgumentError("Can't initialise with an empty query string");
-    }
-    internal->feature_query = query;
+    feature_query = query;
 }
 
 void
 Feature::set_doc(const Xapian::Document & doc)
 {
     LOGCALL_VOID(API, "Feature::set_doc", doc);
-    internal->feature_doc = doc;
+    feature_doc = doc;
+}
+
+void
+Feature::set_termfreq(const std::map<std::string, Xapian::termcount> & tf)
+{
+    LOGCALL_VOID(API, "Feature::set_termfreq", tf);
+    termfreq = tf;
+}
+
+void
+Feature::set_inverse_doc_freq(const std::map<std::string, double> & idf)
+{
+    LOGCALL_VOID(API, "Feature::set_inverse_doc_freq", idf);
+    inverse_doc_freq = idf;
+}
+
+void
+Feature::set_doc_length(const std::map<std::string,
+			Xapian::termcount> & doc_len)
+{
+    LOGCALL_VOID(API, "Feature::set_doc_length", doc_len);
+    doc_length = doc_len;
+}
+
+void
+Feature::set_collection_length(const std::map<std::string,
+			       Xapian::termcount> & collection_len)
+{
+    LOGCALL_VOID(API, "Feature::set_collection_length", collection_len);
+    collection_length = collection_len;
+}
+
+void
+Feature::set_collection_termfreq(const std::map<std::string,
+				 Xapian::termcount> &collection_tf)
+{
+    LOGCALL_VOID(API, "Feature::set_collection_termfreq", collection_tf);
+    collection_termfreq = collection_tf;
 }
 
 }

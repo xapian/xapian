@@ -24,6 +24,7 @@
 #include "xapian-letor/featurelist.h"
 #include "xapian-letor/feature.h"
 #include "xapian-letor/featurevector.h"
+#include "featurelist_internal.h"
 
 #include "debuglog.h"
 
@@ -31,29 +32,30 @@ using namespace std;
 
 namespace Xapian {
 
-FeatureList::FeatureList()
+FeatureList::FeatureList() : internal(new FeatureList::Internal())
 {
     LOGCALL_CTOR(API, "FeatureList", NO_ARGS);
-    feature.push_back(new TfFeature());
-    feature.push_back(new TfDoclenFeature());
-    feature.push_back(new IdfFeature());
-    feature.push_back(new CollTfCollLenFeature());
-    feature.push_back(new TfIdfDoclenFeature());
-    feature.push_back(new TfDoclenCollTfCollLenFeature());
+    internal->feature.push_back(new TfFeature());
+    internal->feature.push_back(new TfDoclenFeature());
+    internal->feature.push_back(new IdfFeature());
+    internal->feature.push_back(new CollTfCollLenFeature());
+    internal->feature.push_back(new TfIdfDoclenFeature());
+    internal->feature.push_back(new TfDoclenCollTfCollLenFeature());
 }
 
 FeatureList::FeatureList(const std::vector<Feature*> & f)
+    : internal(new FeatureList::Internal())
 {
     LOGCALL_CTOR(API, "FeatureList", f);
-    feature = f;
+    internal->feature = f;
 }
 
 FeatureList::~FeatureList()
 {
     LOGCALL_DTOR(API, "FeatureList");
-    for (std::vector<Feature*>::iterator it = feature.begin(); it != feature.end(); ++it)
-	delete (*it);
-    feature.clear();
+    for (Feature* it : internal->feature)
+	delete it;
+    internal->feature.clear();
 }
 
 void
@@ -91,7 +93,8 @@ FeatureList::normalise(std::vector<FeatureVector> & fvec) const
 }
 
 std::vector<FeatureVector>
-FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Query & letor_query,
+FeatureList::create_feature_vectors(const Xapian::MSet & mset,
+				    const Xapian::Query & letor_query,
 				    const Xapian::Database & letor_db) const
 {
     LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
@@ -99,22 +102,26 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Que
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
 	Xapian::Document doc = i.get_document();
-	std::vector<double> fVals;
-
-	for (std::vector<Feature*>::const_iterator it = feature.begin(); it != feature.end(); ++it) {
-	    (*it)->set_database(letor_db);
-	    (*it)->set_query(letor_query);
-	    (*it)->set_doc(doc);
-	    vector<double> values = (*it)->get_values();
-	    fVals.insert(fVals.end(), values.begin(), values.end()); // Append feature values
+	std::vector<double> fvals;
+	internal->set_data(letor_query, letor_db, doc);
+	for (Feature* it : internal->feature) {
+	    it->set_database(letor_db);
+	    it->set_query(letor_query);
+	    it->set_doc(doc);
+	    // Computes and populates the Feature with required stats.
+	    internal->populate_feature(it);
+	    const vector<double>& values = it->get_values();
+	    // Append feature values
+	    fvals.insert(fvals.end(), values.begin(), values.end());
 	}
 	double wt = i.get_weight();
 	// Weight is added as a feature by default.
-	fVals.push_back(wt);
+	fvals.push_back(wt);
 	Xapian::docid did = doc.get_docid();
-	// construct a FeatureVector object using did & fVals
-	Xapian::FeatureVector fv(did, fVals);
+	// construct a FeatureVector object using did and fvals.
+	Xapian::FeatureVector fv(did, fvals);
 	fvec.push_back(fv);
+	internal->clear_stats();
     }
     normalise(fvec);
     return fvec;
