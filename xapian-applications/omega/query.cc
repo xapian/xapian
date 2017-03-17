@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <set>
 #include <vector>
 
@@ -651,24 +652,27 @@ html_strip(const string &str)
     return res;
 }
 
-// FIXME split list into hash or map and use that rather than linear lookup?
-static int word_in_list(const string& word, const string& list)
-{
-    string::size_type split = 0, split2;
-    int count = 0;
-    while ((split2 = list.find('\t', split)) != string::npos) {
-	if (word.size() == split2 - split) {
-	    if (memcmp(word.data(), list.data() + split, word.size()) == 0)
-		return count;
-	}
-	split = split2 + 1;
-	++count;
+static unordered_map<string, int> word_to_occurrence;
+
+static void build_word_map(const string& list) {
+    string word;
+    int word_index = 0;
+    for (size_t i = 0; i <= list.length(); ++i) {
+	if (list[i] == '\t' || list[i] == '\0') {
+	    if (word_to_occurrence.count(word) == 0) {
+		word_to_occurrence[word] = word_index++;
+		word.clear();
+	    }
+	} else
+	    word += list[i];
     }
-    if (word.size() == list.size() - split) {
-	if (memcmp(word.data(), list.data() + split, word.size()) == 0)
-	    return count;
-    }
-    return -1;
+}
+
+static int word_in_list(const string& word) {
+    int pos = -1;
+    if (word_to_occurrence.count(word))
+	pos = word_to_occurrence[word];
+    return pos;
 }
 
 // Not a character in an identifier
@@ -752,11 +756,13 @@ html_highlight(const string &s, const string &list,
 	}
 	j = term_end;
 	term = Xapian::Unicode::tolower(term);
-	int match = word_in_list(term, list);
+	build_word_map(list);
+	int match = word_in_list(term);
 	if (match == -1) {
 	    string stem = "Z";
 	    stem += (*stemmer)(term);
-	    match = word_in_list(stem, list);
+	    match = word_in_list(stem);
+	    word_to_occurrence.clear();
 	}
 	if (match >= 0) {
 	    res += html_escape(string(l, first.raw() - l));
