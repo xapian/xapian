@@ -231,13 +231,13 @@ Query::get_subquery(size_t n) const
 Xapian::termcount
 Query::get_leaf_wqf() const
 {
-	return internal->get_wqf();
+    return internal->get_wqf();
 }
 
 Xapian::termpos
 Query::get_leaf_pos() const
 {
-	return internal->get_pos();
+    return internal->get_pos();
 }
 
 string
