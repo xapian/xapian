@@ -58,7 +58,9 @@ matrix:
         # Work-around crash in doxygen 1.8.13 XML backend:
         # https://github.com/xapian/xapian/pull/132
         - brew install doxygen --HEAD
-        - brew install help2man graphviz pngcrush libmagic pcre libsvm lua mono python3
+        # PCRE seems to be installed by default now.
+        - brew outdated pcre || brew install pcre
+        - brew install help2man graphviz pngcrush libmagic libsvm lua mono python3
         - pip install sphinx docutils
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
