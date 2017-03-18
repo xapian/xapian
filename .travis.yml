@@ -63,10 +63,10 @@ matrix:
         # already installed and up-to-date, but travis change what's installed
         # by default from time to time so it's brittle to just filter out those
         # installed by default from the list we need.  Instead we ignore the
-        # exit status from "brew install", then check that "brew outdated" says
-        # all the packages requested are installed.
+        # exit status from "brew install", then check that
+        # "brew list --versions" says all the packages requested are installed.
         - brew install $HOMEBREW_PACKAGES || true
-        - brew outdated $HOMEBREW_PACKAGES
+        - brew list --versions $HOMEBREW_PACKAGES
         - pip install sphinx docutils
         - pip3 install sphinx
         - mkdir -p /tmp/xapian-libsvm-fixed-include
