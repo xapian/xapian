@@ -138,5 +138,140 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
     /// This method returns the total number of documents
     doccount get_doccount() const;
 };
+
+/** Abstract class representing a point in the VSM
+ */
+class XAPIAN_VISIBILITY_DEFAULT PointType {
+
+  protected:
+
+    /** This contains the termlist which is used by our
+     *  TermIterator working over the PointType
+     *  It contains terms and their corresponding wdf's
+     */
+    std::vector<struct Wdf> termlist;
+
+    /** This implements a map to store the terms within a document
+     *  and their pre-computed TF-IDF values
+     */
+    std::unordered_map<std::string, double> values;
+
+    /// This stores the squared magnitude of the PointType
+    double magnitude;
+
+    /// This method adds the value 'value' to the mapping of a term
+    void add_value(std::string term, double value);
+
+    /// This method sets the value 'value' to the mapping of a term
+    void set_value(std::string term, double value);
+
+  public:
+
+    /// This method returns a TermIterator to the beginning of the termlist
+    TermIterator termlist_begin() const;
+
+    /// This method returns a TermIterator to the end of the termlist
+    TermIterator termlist_end() const;
+
+    /** This method validates whether a certain term exists in the termlist
+     *  or not by performing a lookup operation in the existing values
+     */
+    bool contains(std::string term);
+
+    /// This method returns the TF-IDF weight associated with a certain term
+    double get_value(std::string term);
+
+    /// This method returns the pre-computed squared magnitude
+    double get_magnitude() const;
+
+    /// This method returns the size of the termlist
+    int termlist_size() const;
+};
+
+/** Class to represent a document as a point in the Vector Space
+ *  Model
+ */
+class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
+
+  private:
+
+    /// The document which is being represented by the Point
+    Document doc;
+
+  public:
+
+    /// Constructor
+    Point() { magnitude = 0; }
+
+    /// This method initializes the point with terms and corresponding term weights
+    void initialize(TermListGroup &tlg, const Document &doc);
+
+    /// This method returns the document corresponding to this Point
+    Document get_document() const;
+};
+
+/** Class to represents a Cluster which contains Points and
+ *  of the Cluster
+ */
+class XAPIAN_VISIBILITY_DEFAULT Cluster {
+
+  private:
+
+    /// Documents (or Points in the vector space) within the cluster
+    std::vector<Point> cluster_docs;
+
+  public:
+
+    /// Constructor
+    Cluster();
+
+     /// Destructor
+    ~Cluster();
+
+    /// This method returns size of the cluster
+    Xapian::doccount size() const;
+
+    /// This method adds a document to the Cluster
+    void add_point(const Point &doc);
+
+    /// This method clears the cluster values
+    void clear();
+
+    /// This method returns the point at the given index in the cluster
+    Point get_index(unsigned int index) const;
+
+    /// This method returns the documents that are contained within the cluster
+    DocumentSet get_documents();
+};
+
+/** Class for storing the results returned by the Clusterer
+ */
+class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
+
+    /** A vector storing the clusters that have been created
+     *  by the respective clusterers. Each cluster contains points.
+     */
+    std::vector<Cluster> clusters;
+
+  public:
+
+    /// This method adds a cluster to the cluster set
+    void add_cluster(Cluster &c);
+
+    /// This method returns the Cluster at position 'index'
+    Cluster get_cluster(unsigned int index) const;
+
+    /// This method adds the point the the cluster at position 'index'
+    void add_to_cluster(const Point &x, unsigned int index);
+
+    /// This method returns the number of clusters
+    Xapian::doccount size() const;
+
+    /// This method is used to check the cluster at index 'i'
+    Cluster operator[](Xapian::doccount i);
+
+    /// This method is used to clear all the Clusters in the ClusterSet
+    void clear_clusters();
+};
 }
 #endif

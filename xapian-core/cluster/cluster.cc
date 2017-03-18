@@ -29,6 +29,7 @@
 #include <debuglog.h>
 #include <omassert.h>
 
+#include <cmath>
 #include <unordered_map>
 #include <vector>
 
@@ -154,4 +155,172 @@ PointTermIterator::skip_to(const string &term) {
     while (i->term != term)
 	i++;
     return NULL;
+}
+
+TermIterator
+PointType::termlist_begin() const {
+    LOGCALL(API, TermIterator, "PointType::termlist_begin()", NO_ARGS);
+    return TermIterator(new PointTermIterator(termlist));
+}
+
+TermIterator
+PointType::termlist_end() const {
+    LOGCALL(API, TermIterator, "PointType::termlist_end()", NO_ARGS);
+    return TermIterator(NULL);
+}
+
+bool
+PointType::contains(string term) {
+    LOGCALL(API, bool, "PointType::contains()", term);
+    unordered_map<string, double>::iterator it;
+    it = values.find(term);
+    if (it == values.end())
+	return false;
+    else
+	return true;
+}
+
+double
+PointType::get_value(string term) {
+    LOGCALL(API, double, "Point::get_value()", term);
+    unordered_map<string, double>::iterator it;
+    it = values.find(term);
+    if (it == values.end())
+	return 0.0;
+    else
+	return values[term];
+}
+
+double
+PointType::get_magnitude() const {
+    LOGCALL(API, double, "PointType::get_magnitude()", NO_ARGS);
+    return magnitude;
+}
+
+void
+PointType::add_value(string term, double value) {
+    LOGCALL_VOID(API, "PointType::add_value()", term | value);
+    unordered_map<string, double>::iterator it;
+    it = values.find(term);
+    if (it != values.end())
+	it->second += value;
+    else {
+	termlist.push_back(Wdf(term, 1));
+	values[term] = value;
+    }
+}
+
+void
+PointType::set_value(string term, double value) {
+    LOGCALL_VOID(API, "PointType::set_value()", term | value);
+    values[term] = value;
+}
+
+int
+PointType::termlist_size() const {
+    LOGCALL(API, int, "PointType::termlist_size()", NO_ARGS);
+    return termlist.size();
+}
+
+Document
+Point::get_document() const {
+    LOGCALL(API, Document, "Point::get_document()", NO_ARGS);
+    return doc;
+}
+
+void
+Point::initialize(TermListGroup &tlg, const Document &doc_) {
+    LOGCALL_VOID(API, "Point::initialize()", tlg | doc);
+    doccount size = tlg.get_doccount();
+    doc = doc_;
+    for (TermIterator it = doc.termlist_begin(); it != doc.termlist_end(); ++it) {
+	doccount wdf = it.get_wdf();
+	string term = *it;
+	if (wdf < 1 || term[0]=='Z')
+	    continue;
+	Wdf term_wdf(term, wdf);
+	termlist.push_back(term_wdf);
+	double tf = 1 + log(wdf);
+	double termfreq = tlg.get_termfreq(term);
+	double idf = log(size / termfreq);
+	double wt = tf*idf;
+	values[term] = wt;
+	magnitude += wt*wt;
+    }
+}
+
+Cluster::Cluster() {
+    LOGCALL_CTOR(API, "Cluster()", NO_ARGS);
+}
+
+Cluster::~Cluster() {
+    LOGCALL_DTOR(API, "Cluster()");
+}
+
+DocumentSet
+Cluster::get_documents() {
+    LOGCALL(API, DocumentSet, "Cluster::get_documents()", NO_ARGS);
+    DocumentSet docs;
+    int s = size();
+    for (int i = 0; i < s; ++i) {
+	Point x = get_index(i);
+	docs.add_document(x.get_document());
+    }
+    return docs;
+}
+
+Point
+Cluster::get_index(unsigned int index) const {
+    LOGCALL(API, Point, "Cluster::get_index()", index);
+    return cluster_docs[index];
+}
+
+doccount
+ClusterSet::size() const {
+    LOGCALL(API, doccount, "ClusterSet::size()", NO_ARGS);
+    return clusters.size();
+}
+
+Cluster
+ClusterSet::get_cluster(unsigned int index) const {
+    LOGCALL(API, Cluster, "ClusterSet::get_cluster()", index);
+    unsigned int s = clusters.size();
+    if (index >= s)
+	throw RangeError("The mentioned cluster index was out of range");
+    return clusters[index];
+}
+
+void
+ClusterSet::add_cluster(Cluster &c) {
+    LOGCALL_VOID(API, "ClusterSet::add_cluster()", c);
+    clusters.push_back(c);
+}
+
+Cluster
+ClusterSet::operator[](doccount i) {
+    return clusters[i];
+}
+
+void
+ClusterSet::add_to_cluster(const Point &x, unsigned int i) {
+   LOGCALL_VOID(API, "ClusterSet::add_to_cluster()", x | i);
+   clusters[i].add_point(x);
+}
+
+doccount
+Cluster::size() const {
+    LOGCALL(API, doccount, "Cluster::size()", NO_ARGS);
+    return (cluster_docs.size());
+}
+
+void
+Cluster::add_point(const Point &doc) {
+    LOGCALL_VOID(API, "Cluster::add_point()", doc);
+    cluster_docs.push_back(doc);
+}
+
+void
+Cluster::clear() {
+    LOGCALL_VOID(API, "Cluster::clear()", NO_ARGS);
+    cluster_docs.clear();
 }
