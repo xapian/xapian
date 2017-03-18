@@ -273,5 +273,36 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     /// This method is used to clear all the Clusters in the ClusterSet
     void clear_clusters();
 };
+
+/** Base class for calculating the similarity between documents
+ */
+class XAPIAN_VISIBILITY_DEFAULT Similarity {
+
+  public:
+
+    /// Destructor
+    virtual ~Similarity();
+
+    /// Calculates the similarity between the two documents
+    virtual double similarity(PointType &a, PointType &b) const = 0;
+
+    /// Returns description of the similarity metric being used
+    virtual std::string get_description() const = 0;
+};
+
+/** Class for calculating the cosine distance between two documents
+ */
+class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
+
+  public:
+
+    /** This method calculates and returns the cosine similarity using the
+     *  formula  cos(theta) = a.b/(|a|*|b|)
+     */
+    double similarity(PointType &a, PointType &b) const;
+
+    /// This method returns the description of Cosine Similarity
+    std::string get_description() const;
+};
 }
 #endif

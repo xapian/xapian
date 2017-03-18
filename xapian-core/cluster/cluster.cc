@@ -41,6 +41,11 @@ FreqSource::~FreqSource()
     LOGCALL_DTOR(API, "FreqSource");
 }
 
+Similarity::~Similarity()
+{
+    LOGCALL_DTOR(API, "Similarity");
+}
+
 doccount
 DummyFreqSource::get_termfreq(const string &) {
     LOGCALL(API, doccount, "DummyFreqSource::get_termfreq()", NO_ARGS);

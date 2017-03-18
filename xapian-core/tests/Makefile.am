@@ -92,6 +92,7 @@ collated_apitest_sources = \
  api_anydb.cc \
  api_backend.cc \
  api_closedb.cc \
+ api_cluster.cc \
  api_collapse.cc \
  api_compact.cc \
  api_compactold.cc \
