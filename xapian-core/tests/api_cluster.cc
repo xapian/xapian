@@ -59,3 +59,24 @@ DEFINE_TESTCASE(cosine_distance1, backend) {
 
     return true;
 }
+
+/** Round Robin Test
+ *  We should test that none of the returned clusters should be empty
+ */
+DEFINE_TESTCASE(round_robin1, backend)
+{
+    Xapian::Database db(get_database("apitest_cluster"));
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("cluster"));
+    Xapian::MSet matches = enq.get_mset(0, 4);
+
+    int num_clusters = 3;
+    Xapian::RoundRobin rr(num_clusters);
+    Xapian::ClusterSet cset = rr.cluster(matches);
+    int size = cset.size();
+    for (int i = 0; i < size; ++i) {
+	Xapian::DocumentSet d = cset[i].get_documents();
+	TEST (d.size() != 0);
+    }
+    return true;
+}

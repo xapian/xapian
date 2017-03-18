@@ -46,6 +46,11 @@ Similarity::~Similarity()
     LOGCALL_DTOR(API, "Similarity");
 }
 
+Clusterer::~Clusterer()
+{
+    LOGCALL_DTOR(API, "Clusterer");
+}
+
 doccount
 DummyFreqSource::get_termfreq(const string &) {
     LOGCALL(API, doccount, "DummyFreqSource::get_termfreq()", NO_ARGS);
@@ -177,23 +182,13 @@ PointType::termlist_end() const {
 bool
 PointType::contains(string term) {
     LOGCALL(API, bool, "PointType::contains()", term);
-    unordered_map<string, double>::iterator it;
-    it = values.find(term);
-    if (it == values.end())
-	return false;
-    else
-	return true;
+    return !(values.find(term) == values.end());
 }
 
 double
 PointType::get_value(string term) {
     LOGCALL(API, double, "Point::get_value()", term);
-    unordered_map<string, double>::iterator it;
-    it = values.find(term);
-    if (it == values.end())
-	return 0.0;
-    else
-	return values[term];
+    return (values.find(term) == values.end()) ? 0.0 : values[term];
 }
 
 double
@@ -241,12 +236,15 @@ Point::initialize(TermListGroup &tlg, const Document &doc_) {
     for (TermIterator it = doc.termlist_begin(); it != doc.termlist_end(); ++it) {
 	doccount wdf = it.get_wdf();
 	string term = *it;
-	if (wdf < 1 || term[0]=='Z')
+	double termfreq = tlg.get_termfreq(term);
+	/** If term is not a stemmed term or the term indexes only one
+	 *  one document, do not compute TF-IDF scores for them
+	 */
+	if (wdf < 1 || term[0] != 'Z' || termfreq <= 1)
 	    continue;
 	Wdf term_wdf(term, wdf);
 	termlist.push_back(term_wdf);
 	double tf = 1 + log(wdf);
-	double termfreq = tlg.get_termfreq(term);
 	double idf = log(size / termfreq);
 	double wt = tf*idf;
 	values[term] = wt;
@@ -289,8 +287,7 @@ ClusterSet::size() const {
 Cluster
 ClusterSet::get_cluster(unsigned int index) const {
     LOGCALL(API, Cluster, "ClusterSet::get_cluster()", index);
-    unsigned int s = clusters.size();
-    if (index >= s)
+    if (index >= clusters.size())
 	throw RangeError("The mentioned cluster index was out of range");
     return clusters[index];
 }

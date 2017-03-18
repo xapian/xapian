@@ -304,5 +304,43 @@ class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
     /// This method returns the description of Cosine Similarity
     std::string get_description() const;
 };
+
+/// This class represents an abstract class for a clusterer to be implemented
+class XAPIAN_VISIBILITY_DEFAULT Clusterer {
+
+  public:
+
+    /// Destructor
+    virtual ~Clusterer();
+
+    /// This method helps implement the required clustering algorithm in the subclass
+    virtual ClusterSet cluster(MSet &mset) = 0;
+
+    /// This method returns a description of the clusterer being used
+    virtual std::string get_description() const = 0;
+};
+
+/** Round Robin clusterer:
+ *  This clusterer is a minimal clusterer which will cluster documents as -
+ *  ith document goes to the (i % k)th cluster where k is the number of clusters and
+ *  0 <= i < N; where N is the number of documents
+ */
+class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
+
+    /// This specifies the number of clusters to be formed by the clusterer
+    unsigned int num_of_clusters;
+
+  public:
+
+    /// Constructor
+    RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
+
+    /// This method implements the RoundRobin clustering
+    ClusterSet cluster(MSet &mset);
+
+    /// This method returns the description of the clusterer
+    std::string get_description() const;
+};
+
 }
 #endif

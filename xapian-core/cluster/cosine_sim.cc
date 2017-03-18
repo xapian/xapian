@@ -48,9 +48,11 @@ CosineDistance::similarity(PointType &a, PointType &b) const {
     if (denom_a == 0 || denom_b == 0)
 	return 0.0;
 
-    for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it)
-	if (b.contains(*it) && a.get_value(*it) > 0 && b.get_value(*it) > 0)
-	    inner_product += a.get_value(*it)*b.get_value(*it);
+    for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
+	string term = *it;
+	if (b.contains(term) && a.get_value(term) > 0 && b.get_value(term) > 0)
+	    inner_product += a.get_value(term)*b.get_value(term);
+    }
 
     return 1-(inner_product)/(sqrt(denom_a*denom_b));
 }
