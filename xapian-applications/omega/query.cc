@@ -655,24 +655,25 @@ html_strip(const string &str)
 static unordered_map<string, int> word_to_occurrence;
 
 static void build_word_map(const string& list) {
-    string word;
+    string::size_type split = 0, split2;
     int word_index = 0;
-    for (size_t i = 0; i <= list.length(); ++i) {
-	if (list[i] == '\t' || list[i] == '\0') {
-	    if (word_to_occurrence.count(word) == 0) {
-		word_to_occurrence[word] = word_index++;
-		word.clear();
-	    }
-	} else
-	    word += list[i];
+    string word;
+    while ((split2 = list.find('\t', split)) != string::npos) {
+	word = list.substr(split, split2 - split);
+	if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
+	    ++word_index;
+	split = split2 + 1;
     }
+    word = list.substr(split, list.size() - split);
+    if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
+	++word_index;
 }
 
 static int word_in_list(const string& word) {
-    int pos = -1;
-    if (word_to_occurrence.count(word))
-	pos = word_to_occurrence[word];
-    return pos;
+    if (!word_to_occurrence.count(word))
+	return -1;
+    else
+	return word_to_occurrence[word];
 }
 
 // Not a character in an identifier
@@ -691,8 +692,7 @@ p_nottag(unsigned int c)
 
 // FIXME: shares algorithm with indextext.cc!
 static string
-html_highlight(const string &s, const string &list,
-	       const string &bra, const string &ket)
+html_highlight(const string &s, const string &bra, const string &ket)
 {
     if (!stemmer) {
 	stemmer = new Xapian::Stem(option["stemmer"]);
@@ -756,13 +756,11 @@ html_highlight(const string &s, const string &list,
 	}
 	j = term_end;
 	term = Xapian::Unicode::tolower(term);
-	build_word_map(list);
 	int match = word_in_list(term);
 	if (match == -1) {
 	    string stem = "Z";
 	    stem += (*stemmer)(term);
 	    match = word_in_list(stem);
-	    word_to_occurrence.clear();
 	}
 	if (match >= 0) {
 	    res += html_escape(string(l, first.raw() - l));
@@ -1553,8 +1551,9 @@ eval(const string &fmt, const vector<string> &param)
 			ket += '>';
 		    }
 		}
-
-		value = html_highlight(args[0], args[1], bra, ket);
+		build_word_map(args[1]);
+		value = html_highlight(args[0], bra, ket);
+		word_to_occurrence.clear();
 		break;
 	    }
 	    case CMD_hit:
