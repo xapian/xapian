@@ -1535,7 +1535,7 @@ cases of iterator use.
 
 The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
-- excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201 ::
+- excerpt from http://article.gmane.org/gmane.comp.gcc.devel/50201 ::
 
 	class some_iterator {
 	public:
