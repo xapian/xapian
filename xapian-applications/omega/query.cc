@@ -654,27 +654,36 @@ html_strip(const string &str)
 
 static unordered_map<string, int> word_to_occurrence;
 
-static void build_word_map(const string& list) {
-    string::size_type split = 0, split2;
-    int word_index = 0;
-    string word;
-    while ((split2 = list.find('\t', split)) != string::npos) {
-	word = list.substr(split, split2 - split);
+class WordList {
+    string list;
+  public:
+    WordList() : list("") { }
+
+    void build_word_map(const string& list2) {
+	// Don't build map again if passed list of terms is same as before.
+	if (list == list2) return;
+	word_to_occurrence.clear();
+	string::size_type split = 0, split2;
+	int word_index = 0;
+	string word;
+	while ((split2 = list2.find('\t', split)) != string::npos) {
+	    word = list2.substr(split, split2 - split);
+	    if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
+		++word_index;
+	    split = split2 + 1;
+        }
+	word = list2.substr(split, list2.size() - split);
 	if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
 	    ++word_index;
-	split = split2 + 1;
+	list = list2;
     }
-    word = list.substr(split, list.size() - split);
-    if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
-	++word_index;
-}
 
-static int word_in_list(const string& word) {
-    if (!word_to_occurrence.count(word))
-	return -1;
-    else
-	return word_to_occurrence[word];
-}
+    int word_in_list(const string& word) {
+	auto it = word_to_occurrence.find(word);
+	if (it == word_to_occurrence.end()) return -1;
+	return it->second;
+    }
+};
 
 // Not a character in an identifier
 inline static bool
@@ -756,11 +765,12 @@ html_highlight(const string &s, const string &bra, const string &ket)
 	}
 	j = term_end;
 	term = Xapian::Unicode::tolower(term);
-	int match = word_in_list(term);
+	WordList w;
+	int match = w.word_in_list(term);
 	if (match == -1) {
 	    string stem = "Z";
 	    stem += (*stemmer)(term);
-	    match = word_in_list(stem);
+	    match = w.word_in_list(stem);
 	}
 	if (match >= 0) {
 	    res += html_escape(string(l, first.raw() - l));
@@ -1551,9 +1561,9 @@ eval(const string &fmt, const vector<string> &param)
 			ket += '>';
 		    }
 		}
-		build_word_map(args[1]);
+		WordList w;
+		w.build_word_map(args[1]);
 		value = html_highlight(args[0], bra, ket);
-		word_to_occurrence.clear();
 		break;
 	    }
 	    case CMD_hit:
