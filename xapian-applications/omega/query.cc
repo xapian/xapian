@@ -671,7 +671,7 @@ class WordList {
 	    if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
 		++word_index;
 	    split = split2 + 1;
-        }
+	}
 	word = list2.substr(split, list2.size() - split);
 	if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
 	    ++word_index;
