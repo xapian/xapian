@@ -1,7 +1,7 @@
 /** @file unittest.cc
  * @brief Unit tests of non-Xapian-specific internal code.
  */
-/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016 Olly Betts
+/* Copyright (C) 2006,2007,2009,2010,2012,2015,2016,2017 Olly Betts
  * Copyright (C) 2007 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -55,6 +55,7 @@ using namespace std;
     } while (false)
 
 // Utility code we use:
+#include "../backends/multi.h"
 #include "../common/stringutils.h"
 #include "../common/log2.h"
 
@@ -575,6 +576,29 @@ static bool test_closefrom1()
     return true;
 }
 
+static bool test_shard1()
+{
+    for (Xapian::docid did = 1; did != 10; ++did) {
+	for (size_t n = 1; n != 10; ++n) {
+	    Xapian::docid s_did = shard_docid(did, n);
+	    size_t shard = shard_number(did, n);
+	    TEST_EQUAL(s_did, (did - 1) / n + 1);
+	    TEST_EQUAL(shard, (did - 1) % n);
+	    if (n == 1)
+		TEST_EQUAL(did, s_did);
+	    if (did == 1)
+		TEST_EQUAL(s_did, 1);
+	    if (s_did == 1)
+		TEST(did <= n);
+	    TEST(s_did != 0);
+	    TEST(s_did <= did);
+	    TEST(shard < n);
+	    TEST_EQUAL(did, unshard(s_did, shard, n));
+	}
+    }
+    return true;
+}
+
 static const test_desc tests[] = {
     TESTCASE(simple_exceptions_work1),
     TESTCASE(class_exceptions_work1),
@@ -590,6 +614,7 @@ static const test_desc tests[] = {
     TESTCASE(tostring1),
     TESTCASE(strbool1),
     TESTCASE(closefrom1),
+    TESTCASE(shard1),
     END_OF_TESTCASES
 };
 

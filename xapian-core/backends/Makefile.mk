@@ -7,6 +7,7 @@ noinst_HEADERS +=\
 	backends/databasereplicator.h\
 	backends/document.h\
 	backends/flint_lock.h\
+	backends/multi.h\
 	backends/multivaluelist.h\
 	backends/positionlist.h\
 	backends/prefix_compressed_strings.h\
