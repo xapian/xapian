@@ -74,7 +74,11 @@ PL2Weight::init(double factor_)
     double base_change(1.0 / log(2.0));
     double mean = double(get_collection_freq()) / get_collection_size();
     P1 = mean * base_change + 0.5 * log2(2.0 * M_PI);
+    // If the get_collection_freq() is comparable with get_collection_size()
+    // than P2 will be positive and can lead to a negative weight
+    // hence take P2 < 0
     P2 = log2(mean) + base_change;
+    P2 = (P2 < 0) ? P2 : 0;
 
     double wdfn_lower = log2(1 + cl / get_doclength_upper_bound());
     double divisior = max(get_wdf_upper_bound(), get_doclength_lower_bound());
