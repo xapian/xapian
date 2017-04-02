@@ -30,7 +30,7 @@ using namespace std;
 
 namespace Xapian {
 
-void
+inline void
 ValueIterator::decref()
 {
     Assert(internal);
