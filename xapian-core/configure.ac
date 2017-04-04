@@ -589,12 +589,6 @@ if test x"$enable_documentation" = xyes ; then
   AC_PATH_PROG([PNGCRUSH], [pngcrush], [])
 fi
 
-dnl Check whether we need -ldl for dlsym() etc.
-dnl No longer used...
-dnl AC_TRY_LINK_FUNC([dlsym], ,
-dnl	[AC_CHECK_LIB([dl], [dlsym], [DL_LIBS="-ldl"])])
-dnl AC_SUBST([DL_LIBS])
-
 dnl Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 AC_CHECK_HEADERS([sys/resource.h],
