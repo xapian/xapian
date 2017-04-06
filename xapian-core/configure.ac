@@ -359,9 +359,9 @@ using namespace std;], [
     ])
 ])
 
-dnl C++11 should have log2(), but keep this check for now to allow for
+dnl C++11 should have log2(double), but keep this check for now to allow for
 dnl compilers with incomplete library support for C++11.
-AC_CHECK_DECLS([log2], [], [],
+AC_CHECK_DECLS([log2(double)], [], [],
 [#include <cmath>
 using namespace std;])
 
