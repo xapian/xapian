@@ -372,10 +372,24 @@ AC_CHECK_DECLS([log2(double)], [], [],
 [#include <cmath>
 using namespace std;])
 
-dnl exp10() is a GNU libc extension.  Darwin provides __exp10().  GCC provides
-dnl __builtin_exp10() (but notably clang doesn't currently).
-AC_CHECK_FUNCS([exp10 __exp10], [break],
-    [AC_CHECK_DECLS([__builtin_exp10], [], [], [ ])])
+dnl exp10() is a GNU libc extension.  Darwin provides __exp10().
+AC_CHECK_FUNCS([exp10 __exp10])
+
+dnl GCC provides __builtin_exp10() (but notably clang doesn't currently).
+dnl On mingw, __builtin_exp10() causes GCC to generate a call to exp10() which
+dnl then fails to link, so perform a link check here to catch that.
+AC_CACHE_CHECK([for __builtin_exp10], ac_cv_link___builtin_exp10, [
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <cstdio>
+#include <ctime>
+using namespace std;]],
+    [[printf("%f", __builtin_exp10(double(time(NULL)*1e-8)));]])],
+    [ac_cv_link___builtin_exp10=yes],
+    [ac_cv_link___builtin_exp10=no])
+])
+if test $ac_cv_link___builtin_exp10 = yes ; then
+  AC_DEFINE([HAVE___BUILTIN_EXP10], [1], [Define to 1 if you have the `__builtin_exp10' function.])
+fi
 
 dnl See if <typeinfo> can be used in the testsuite - at least for GCC and xlC,
 dnl compilation of the test code below fails if RTTI isn't being generated
