@@ -119,8 +119,8 @@ class GlassTermList : public TermList {
 
     /** Advance the current position to the next term in the termlist.
      *
-     *  The list starts before the first term in the list, so next()
-     *  must be called before any methods which need the context of
+     *  The list starts before the first term in the list, so next(), skip_to()
+     *  or check() must be called before any methods which need the context of
      *  the current position.
      *
      *  @return Always returns 0 for a GlassTermList.

@@ -1189,7 +1189,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  There's no hard limit on the number of metadata items, or the size
 	 *  of the metadata values.  Metadata keys have a limited length, which
-	 *  depends on the backend.  We recommend limiting them to 200 bytes.
+	 *  depend on the backend.  We recommend limiting them to 200 bytes.
 	 *  Empty keys are not valid, and specifying one will cause an
 	 *  exception.
 	 *

@@ -129,7 +129,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, it returns true.  If it isn't, it returns false, and leaves the
      *  position unspecified (and hence the result of calling methods which
-     *  depends on the current position, such as get_docid(), are also
+     *  depend on the current position, such as get_docid(), are also
      *  unspecified).  In this state, next() will advance to the first matching
      *  position after document @a did, and skip_to() will act as it would if
      *  the position was the first matching position after document @a did.

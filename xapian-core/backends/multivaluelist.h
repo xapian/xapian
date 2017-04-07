@@ -71,9 +71,9 @@ class MultiValueList : public ValueList {
 
     /** Advance the current position to the next document in the value stream.
      *
-     *  The list starts before the first entry in the list, so next()
-     *  must be called before any methods which need the context of
-     *  the current position.
+     *  The list starts before the first entry in the list, so next(),
+     *  skip_to() or check() must be called before any methods which need the
+     *  context of the current position.
      */
     void next();
 
@@ -95,7 +95,7 @@ class MultiValueList : public ValueList {
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, it returns true.  If it isn't, it returns false, and leaves the
      *  position unspecified (and hence the result of calling methods which
-     *  depends on the current position, such as get_docid(), are also
+     *  depend on the current position, such as get_docid(), are also
      *  unspecified).  In this state, next() will advance to the first matching
      *  position after @a docid, and skip_to() will act as it would if the
      *  position was the first matching position after @a docid.

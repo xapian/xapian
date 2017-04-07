@@ -136,9 +136,9 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
 
     /** Advance the current position to the next document in the postlist.
      *
-     *  The list starts before the first entry in the list, so next()
-     *  must be called before any methods which need the context of
-     *  the current position.
+     *  The list starts before the first entry in the list, so next(),
+     *  skip_to() or check() must be called before any methods which need the
+     *  context of the current position.
      *
      *  @param w_min	The minimum weight contribution that is needed (this is
      *			just a hint which PostList subclasses may ignore).
@@ -176,7 +176,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::intrusive_bas
      *  Otherwise it simply checks if a particular docid is present.  If it
      *  is, @a valid is set to true.  If it isn't, it sets @a valid to
      *  false, and leaves the position unspecified (and hence the result of
-     *  calling methods which depends on the current position, such as
+     *  calling methods which depend on the current position, such as
      *  get_docid(), are also unspecified).  In this state, next() will
      *  advance to the first matching position after @a docid, and skip_to()
      *  will act as it would if the position was the first matching position

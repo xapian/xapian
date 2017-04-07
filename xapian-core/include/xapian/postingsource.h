@@ -158,9 +158,9 @@ class XAPIAN_VISIBILITY_DEFAULT PostingSource
 
     /** Advance the current position to the next matching document.
      *
-     *  The PostingSource starts before the first entry in the list, so next()
-     *  must be called before any methods which need the context of
-     *  the current position.
+     *  The PostingSource starts before the first entry in the list, so next(),
+     *  skip_to() or check() must be called before any methods which need the
+     *  context of the current position.
      *
      *  Xapian will always call init() on a PostingSource before calling this
      *  for the first time.
