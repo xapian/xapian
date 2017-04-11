@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+# Copyright (C) 2004,2005,2006,2007,2008,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
@@ -415,6 +415,15 @@ def test_all():
     # Regression test - fixed in 0.9.10.1.
     oqparser = xapian.QueryParser()
     oquery = oqparser.parse_query(b"I like tea")
+
+    # Regression test for bug fixed in 1.4.4:
+    # https://bugs.debian.org/849722
+    oqparser.add_boolean_prefix('tag', 'K', '')
+    # Make sure other cases also work:
+    oqparser.add_boolean_prefix('rag', 'XR', None)
+    oqparser.add_boolean_prefix('bag', 'XB', 'blergh')
+    oqparser.add_boolean_prefix('gag', 'XB', u'blergh')
+    oqparser.add_boolean_prefix('jag', 'XB', b'blergh')
 
     # Regression test for bug#192 - fixed in 1.0.3.
     enq.set_cutoff(100)

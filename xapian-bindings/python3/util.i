@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2013,2016,2017 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -238,6 +238,32 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
 }
 %typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string & {
     if (PyUnicode_Check($input)) {
+	$1 = 1;
+    } else if (PyBytes_Check($input)) {
+	$1 = 1;
+    } else {
+	int res = SWIG_AsPtr_std_string($input, (std::string**)(0));
+	$1 = SWIG_CheckState(res);
+    }
+}
+
+%typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
+    std::string *ptr = (std::string *)0;
+    if ($input != Py_None) {
+        res = XapianSWIG_anystring_as_ptr($input, &ptr);
+        if (!SWIG_IsOK(res)) {
+            %argument_fail(res, "$type", $symname, $argnum);
+        }
+    }
+    $1 = ptr;
+}
+%typemap(freearg, noblock=1, match="in") const std::string * {
+    if (SWIG_IsNewObj(res$argnum)) %delete($1);
+}
+%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string * {
+    if ($input == Py_None) {
+	$1 = 1;
+    } else if (PyUnicode_Check($input)) {
 	$1 = 1;
     } else if (PyBytes_Check($input)) {
 	$1 = 1;

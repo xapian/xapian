@@ -317,6 +317,28 @@ XapianSWIG_anystring_as_ptr(PyObject * obj, std::string **val)
     $1 = SWIG_CheckState(res);
 }
 
+%typemap(in, fragment="XapianSWIG_anystring_as_ptr") const std::string *(int res = SWIG_OLDOBJ) {
+    std::string *ptr = (std::string *)0;
+    if ($input != Py_None) {
+        res = XapianSWIG_anystring_as_ptr($input, &ptr);
+        if (!SWIG_IsOK(res)) {
+            %argument_fail(res, "$type", $symname, $argnum);
+        }
+    }
+    $1 = ptr;
+}
+%typemap(freearg, noblock=1, match="in") const std::string * {
+    if (SWIG_IsNewObj(res$argnum)) %delete($1);
+}
+%typemap(typecheck, noblock=1, precedence=900, fragment="XapianSWIG_anystring_as_ptr") const std::string * {
+    if ($input == Py_None) {
+        $1 = 1;
+    } else {
+        int res = XapianSWIG_anystring_as_ptr($input, (std::string**)(0));
+        $1 = SWIG_CheckState(res);
+    }
+}
+
 /* This typemap is only currently needed for returning a value from the
  * get_description() method of a Stopper subclass to a C++ caller, but might be
  * more generally useful in future.
