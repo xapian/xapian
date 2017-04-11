@@ -356,7 +356,7 @@ if test no != "$with_python" ; then
       AC_MSG_RESULT([yes])
     else
       AC_MSG_RESULT([no])
-      if test yes = "$with_python2" ; then
+      if test yes = "$with_python" ; then
 	AC_MSG_ERROR([Couldn't import sphinx module and call sphinx.main() for Python2 - try package python-sphinx])
       fi
       PYTHON2=
