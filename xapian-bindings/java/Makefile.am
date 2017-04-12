@@ -169,7 +169,7 @@ SWIG_GENERATED = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
 
 BUILT_SOURCES = $(SWIG_GENERATED)
 
-EXTRA_DIST = run-java-test SmokeTest.java docs/index.rst $(SWIG_GENERATED)
+EXTRA_DIST = java.i run-java-test SmokeTest.java docs/index.rst $(SWIG_GENERATED)
 
 if MAINTAINER_MODE
 stamp = xapian_wrap.stamp
