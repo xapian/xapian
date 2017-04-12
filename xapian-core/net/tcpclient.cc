@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2004,2005,2006,2007,2008,2010,2012,2013,2015 Olly Betts
+ * Copyright 2004,2005,2006,2007,2008,2010,2012,2013,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,6 +25,7 @@
 #include "tcpclient.h"
 
 #include "remoteconnection.h"
+#include "resolver.h"
 #include "str.h"
 #include <xapian/error.h>
 
@@ -49,25 +50,11 @@ int
 TcpClient::open_socket(const std::string & hostname, int port,
 		       double timeout_connect, bool tcp_nodelay)
 {
-    struct addrinfo hints;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_ADDRCONFIG | AI_NUMERICSERV;
-    hints.ai_protocol = 0;
-
-    struct addrinfo *result;
-    int s = getaddrinfo(hostname.c_str(), str(port).c_str(), &hints, &result);
-    if (s != 0) {
-	throw Xapian::NetworkError("Couldn't resolve host " + hostname,
-				   eai_to_xapian(s));
-    }
-
-    int connect_errno = 0;
     int socketfd = -1;
-    for (struct addrinfo * rp = result; rp != NULL; rp = rp->ai_next) {
-	int socktype = rp->ai_socktype | SOCK_CLOEXEC;
-	int fd = socket(rp->ai_family, socktype, rp->ai_protocol);
+    int connect_errno = 0;
+    for (auto&& r : Resolver(hostname, port)) {
+	int socktype = r.ai_socktype | SOCK_CLOEXEC;
+	int fd = socket(r.ai_family, socktype, r.ai_protocol);
 	if (fd == -1)
 	    continue;
 
@@ -93,7 +80,6 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	if (rc < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close_fd_or_socket(fd);
-	    freeaddrinfo(result);
 	    throw Xapian::NetworkError("Couldn't set " FLAG_NAME, saved_errno);
 #undef FLAG_NAME
 	}
@@ -108,12 +94,11 @@ TcpClient::open_socket(const std::string & hostname, int port,
 			   sizeof(optval)) < 0) {
 		int saved_errno = socket_errno(); // note down in case close hits an error
 		close_fd_or_socket(fd);
-		freeaddrinfo(result);
 		throw Xapian::NetworkError("Couldn't set TCP_NODELAY", saved_errno);
 	    }
 	}
 
-	int retval = connect(fd, rp->ai_addr, rp->ai_addrlen);
+	int retval = connect(fd, r.ai_addr, r.ai_addrlen);
 	if (retval == 0) {
 	    socketfd = fd;
 	    break;
@@ -142,7 +127,6 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	    if (retval <= 0) {
 		int saved_errno = errno;
 		close_fd_or_socket(fd);
-		freeaddrinfo(result);
 		if (retval < 0)
 		    throw Xapian::NetworkError("Couldn't connect (select() on socket failed)",
 					       saved_errno);
@@ -160,7 +144,6 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	    if (retval < 0) {
 		int saved_errno = socket_errno(); // note down in case close hits an error
 		close_fd_or_socket(fd);
-		freeaddrinfo(result);
 		throw Xapian::NetworkError("Couldn't get socket options", saved_errno);
 	    }
 	    if (err == 0) {
@@ -179,8 +162,6 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	// Failed to connect.
 	CLOSESOCKET(fd);
     }
-
-    freeaddrinfo(result);
 
     if (socketfd == -1) {
 	throw Xapian::NetworkError("Couldn't connect", connect_errno);

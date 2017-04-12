@@ -7,6 +7,7 @@ noinst_HEADERS +=\
 	net/remotetcpserver.h\
 	net/replicatetcpclient.h\
 	net/replicatetcpserver.h\
+	net/resolver.h\
 	net/serialise.h\
 	net/serialise-error.h\
 	net/tcpclient.h\
