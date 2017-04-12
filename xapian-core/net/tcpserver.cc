@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2015,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,7 @@
 
 #include "noreturn.h"
 #include "remoteconnection.h"
+#include "resolver.h"
 #include "str.h"
 
 #ifdef __WIN32__
@@ -93,29 +94,11 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 #endif
 				)
 {
-    struct addrinfo hints;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG | AI_NUMERICSERV;
-    hints.ai_protocol = 0;
-    hints.ai_canonname = NULL;
-    hints.ai_addr = NULL;
-    hints.ai_next = NULL;
-
-    const char * node = host.empty() ? NULL : host.c_str();
-    struct addrinfo *result;
-    int s = getaddrinfo(node, str(port).c_str(), &hints, &result);
-    if (s != 0) {
-	throw Xapian::NetworkError("Couldn't resolve host " + host,
-				   eai_to_xapian(s));
-    }
-
     int socketfd = -1;
     int bind_errno = 0;
-    for (struct addrinfo * rp = result; rp != NULL; rp = rp->ai_next) {
-	int socktype = rp->ai_socktype | SOCK_CLOEXEC;
-	int fd = socket(rp->ai_family, socktype, rp->ai_protocol);
+    for (auto&& r : Resolver(host, port, AI_PASSIVE)) {
+	int socktype = r.ai_socktype | SOCK_CLOEXEC;
+	int fd = socket(r.ai_family, socktype, r.ai_protocol);
 	if (fd == -1)
 	    continue;
 
@@ -192,11 +175,10 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 	if (retval < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    CLOSESOCKET(fd);
-	    freeaddrinfo(result);
 	    throw Xapian::NetworkError("setsockopt failed", saved_errno);
 	}
 
-	if (::bind(fd, rp->ai_addr, rp->ai_addrlen) == 0) {
+	if (::bind(fd, r.ai_addr, r.ai_addrlen) == 0) {
 	    socketfd = fd;
 	    break;
 	}
@@ -209,8 +191,6 @@ TcpServer::get_listening_socket(const std::string & host, int port,
 
 	CLOSESOCKET(fd);
     }
-
-    freeaddrinfo(result);
 
     if (socketfd == -1) {
 	if (bind_errno == EADDRINUSE) {
