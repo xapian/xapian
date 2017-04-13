@@ -6,6 +6,9 @@ text		text/plain
 html		text/html
 htm		text/html
 shtml		text/html
+shtm		text/html
+xhtml		text/html
+xhtm		text/html
 # Our HTML parser knows to ignore PHP code.
 php		text/x-php
 
