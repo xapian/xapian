@@ -1,0 +1,142 @@
+body {
+    margin: 0px;
+}
+
+fieldset {
+    outline: none;
+    border: 0px;
+    text-align: center;
+}
+
+fieldset.search, fieldset.suggested-terms,
+p.metadata, fieldset.options, a.suggestion {
+    background-color: #FAFAFA;
+    text-align: center;
+    display: block;
+}
+
+fieldset.suggested-terms {
+    text-align: left;
+    background: #cfc;
+    border: 1px solid green;
+    padding: 2px;
+    font: 11px verdana, arial, helvetica, sans-serif;
+}
+
+p.metadata {
+    margin: 0px;
+    box-shadow: 0 5px 5px -6px black;
+}
+
+fieldset.search > input[type=search] {
+    width: 400px;
+    height: 35px;
+    font-size: 14px;
+    padding: 20px;
+    margin-right: 5px;
+    border: 0px solid #aaa;
+    border-radius: 2px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+fieldset.search > input[type=search]:focus, fieldset.search > input[type=search]:hover{
+    outline: none;
+    box-shadow: 0 3px 8px 0 rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+fieldset.search > input[type=submit] {
+    height: 40px;
+    width: 100px;
+    color: #313131;
+    font-size: 14px;
+    border: 0px;
+    background-color: #ECEFF1;
+    border: 1px solid #ddd;
+}
+
+fieldset.search > input[type=submit]:hover {
+    transition-duration: .4s;
+    background-color: #FAFAFA;
+    color: #111111;
+    border: 1px solid #bbb;
+}
+
+span time {
+    display: block;
+}
+
+table {
+    margin: 5px;
+}
+
+tr.result > td.metadata {
+    padding: 10px;
+    background-color: #ecf0f1;
+}
+
+tr.result > td.metadata > div.content {
+    display: block;
+    font-size: 12px;
+}
+
+tr.result > td.data  {
+    padding: 10px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+}
+
+tr.result > td.data > span, tr.result > td.data > a {
+    display: block;
+    font-size: 14px;
+}
+
+tr.result > td.data > header {
+    font-size: 18px;
+}
+
+tr.result > td.metadata > div.relevance-container {
+    border: 1px solid #888;
+    border-radius: 3px;
+    float: left;
+    width:60px;
+    height:10px;
+}
+
+tr.result > td.metadata > div.relevance-container > div.relevance {
+    height: 10px;
+    background-color: #ff5252;
+}
+
+ul.pagination {
+    width: 100%;
+    display: inline-block;
+    margin: 4px;
+    padding: 0;
+    text-align: center;
+}
+
+ul.pagination li {
+    display: inline;
+    margin: 0;
+}
+
+ul.pagination li input {
+    background-color: white;
+    border: 0;
+    border-radius: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+ul.pagination li input:disabled {
+    background-color: #757575;
+    color: white;
+}
+
+ul.pagination li input:hover {
+    background-color: #546E7A;
+}
+
+footer {
+    float: right;
+    margin: 2px;
+}

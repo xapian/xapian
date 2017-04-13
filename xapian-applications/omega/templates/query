@@ -22,21 +22,19 @@ $def{S,<img src="/icons/omega/page-$2s.png" $opt{a} alt=$1>}
 $def{SPAGE,$if{$gt{$1,9},$if{$gt{$1,99},$S{$1,$div{$1,100}}}$S{$1,$mod{$div{$1,10},10}}}$S{$1,$mod{$1,10}}}
 }
 
-$def{PREV,$if{$ne{$topdoc,0},<input type=submit name="&lt;" value="Previous">}}
+$def{PREV,$if{$ne{$topdoc,0},<li><input type=submit name="&lt;" value="Previous"></li>}}
 
-$def{PAGE,<input type=submit name="[" value="$1">}
+$def{PAGE,<li><input type=submit name="[" value="$1"></li>}
 
-$def{SPAGE,<input type=submit name="[" value="$1" disabled=disabled>}
+$def{SPAGE,<li><input type=submit name="[" value="$1" disabled=disabled></li>}
 
-$def{NEXT,$if{$ne{$last,$msize},<input type=submit name="&gt;" value="Next">}}
+$def{NEXT,$if{$ne{$last,$msize},<li><input type=submit name="&gt;" value="Next"></li>}}
 
 <head>
 <title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
 $if{$opt{topterms},$include{inc/toptermsjs}}
 <style>
-input[type=image] {
-  border: 0px;
-  }
+$include{styles.css}
 </style>
 <script type="text/javascript"><!--
 function f2(n) {return (n>9?"":"0")+n;}
@@ -44,80 +42,86 @@ function write_date(time_t) {
 var d=new Date();d.setTime(time_t*1000);
 var D=d.getFullYear()+"-"+f2(d.getMonth()+1)+"-"+f2(d.getDate());
 var T=f2(d.getHours())+":"+f2(d.getMinutes())+":"+f2(d.getSeconds());
-document.write("<span title=\""+D+" "+T+"\">Modified:<br><b>"+D+"</b></span>");
+var ISO=d.toISOString();
+document.write("<span>Modified:<time datetime=\""+ISO+"\" title=\""+D+" "+T+"\">"+D+"</time></span>");
 }
 // -->
 </script>
 </head>
-<body bgcolor="#ffffff">
-<form name=P method=get
+<body>
+<form id="form" name=P method=get
 action="$html{$or{$env{SCRIPT_NAME},omega}}" target="_top">
-<center>
-<input id="omega-autofocus" type=search name=P value="$html{$query}" size=65 autofocus>
+${Search Control - shows search button, options and textbox}
+<fieldset class="search">
+<input id="omega-autofocus" type=search name=P value="$html{$query}" placeholder="Search..." size=65 autofocus>
 <script>
 if (!("autofocus" in document.createElement("input")))
  document.getElementById("omega-autofocus").focus();
 </script>
 <input type=submit value="Search">
-<hr>
-$if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
+</fieldset>
+${Todo: Replace radios with search buttons}
+<fieldset class="options">$if{,$include{inc/anyalldropbox},
+$include{inc/anyallradio}}</fieldset>
+${Suggestions - shows suggested terms to improve query}
 $if{$opt{topterms},
- <div title="Suggested terms to add to your query"
- style="text-align:left;background:#cfc;border:1px solid green;padding:2px;font:11px verdana$. arial$. helvetica$. sans-serif;">
+ <fieldset class="suggested-terms" title="Suggested terms to add to your query">
  $map{$topterms,<span style="white-space:nowrap"><input type=checkbox name=X value="$html{$prettyterm{$_}}" onClick="C(this)">$html{$prettyterm{$_}}</span> }
- <br><noscript><input type=hidden name=ADD value=1></noscript>
- </div>
+ <noscript><input type=hidden name=ADD value=1></noscript>
+ </fieldset>
 }
-<br>
-$if{$suggestion,Did you mean: <a href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a><br>}
+$if{$suggestion,Did you mean: <a class="suggestion" href="$html{$or{$env{SCRIPT_NAME},omega}?DB=$url{$dbname}&P=$url{$suggestion}$if{$ne{$hitsperpage,10},&HITSPERPAGE=$hitsperpage}$if{$fmt,&FMT=$url{$fmt}}$if{$cgi{COLLAPSE},&COLLAPSE=$url{$cgi{COLLAPSE}}}$map{$relevants,&R=$_}$if{$cgi{THRESHOLD},&THRESHOLD=$url{$cgi{THRESHOLD}}}$map{$cgilist{B},&B=$url{$_}}&SPELL=0}">$html{$suggestion}</a>}
+${Query metadata - shows query performance or document size}
 $or{$html{$error},
+<p class="metadata">
 $if{$eq{$msize,0},
 $if{$query,No documents match your query,
-<hr>Searching $nice{$dbsize} documents
-},
+Searching $nice{$dbsize} documents
+}</p>,
 $if{$not{$msizeexact},
  $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
  $if{$and{$eq{$last,$msize},$eq{$topdoc,0}},
   All $nice{$msize} matches,
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
-<hr>
-</center>
-$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
-<br><small>Search took $time seconds</small>
+<br/>
+$list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},,/,}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}. Search took $time seconds
+</p>
+${Results}
 <table>
-$hitlist{<tr><td valign=top>
+$hitlist{<tr class="result"><td class="metadata">
 ${<img src="/icons/omega/score-$div{$percentage,10}.png" alt="$percentage%" height=16 width=32>}
-<div title="$percentage%" style='float:left;width:60px;height:10px;border:1px solid black;margin-top:4px;'>
-<div style='width:$div{$mul{$percentage,6},10}px; height:10px; background-color: red;'>
+<div class="relevance-container" title="$percentage%" >
+<div class="relevance" style='width:$div{$mul{$percentage,6},10}px;'>
 </div></div>
-<div style='float:left;margin-top:2px;font-size:x-small;'>
+<div class="content">
 $if{$and{$field{modtime},$ne{$field{modtime},-1}},
 <script type="text/javascript">write_date($add{$field{modtime}});</script>
 <noscript>
-<span title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}">
-Modified:<br><b>$html{$date{$field{modtime},%Y-%m-%d}}</b></span>
-</noscript><br>
+<span>Modified:<time title="$html{$date{$field{modtime},%Y-%m-%d %H:%M:%S}}" datetime="$html{$date{$field{modtime},%Y-%m-%dT%H:%M:%S}}">
+$html{$date{$field{modtime},%Y-%m-%d}}</time></span>
+</noscript>
 }
-$if{$field{language},Language: <b>$html{$field{language}}</b><br>}
-$if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span><br>}
-<div title="Mark this document as relevant" style="float:left;background-color:#cfc;border:1px solid green;margin-top:2px;">
+$if{$field{language},Language: $html{$field{language}}}
+$if{$field{size},<span title="$html{$field{size}} bytes">Size:$html{$filesize{$field{size}}}</span>}
+<div title="Mark this document as relevant">
 <input type=checkbox name=R value=$id$if{$relevant, checked}>
 </div>
 </div>
 </td>
-<td><b><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></b><br>
-<small>$highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</small><br>
-<a href="$html{$field{url}}">$html{$field{url}}</a><br>
-<small>
+<td class="data"><header><a href="$html{$field{url}}">$html{$or{$field{caption},$field{title},$prettyurl{$field{url}},Untitled}}</a></header>
+<span>
+$highlight{$snippet{$field{sample}},$terms}$if{$field{sample},...}</span>
+<a href="$html{$field{url}}">$html{$field{url}}</a>
+<span>
 matching:
-<i>$list{$map{$terms,$html{$prettyterm{$_}}},</i>$. <i>,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
+$list{$map{$terms,$html{$prettyterm{$_}}},$., and }</span></td></tr>}
 </table>
 
-<br><center>
-
+${Navigation Buttons}
 ${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
+<ul class="pagination">
 $set{a,$if{$opt{pagelink_height}, HEIGHT=$opt{pagelink_height}}$if{$opt{pagelink_width}, WIDTH=$opt{pagelink_width}}}
 
 ${1-W ... X-(this)-Y ...}
@@ -132,9 +136,9 @@ $SPAGE{$thispage}
 $map{$range{$add{$thispage,1},$opt{y}},$PAGE{$_}}
 $if{$ne{$opt{y},$lastpage},...}
 $NEXT
-}
+</ul>}
 }}
-</center><br>
+${Hidden inputs}
 $if{$dbname,<input type=hidden name=DB value="$html{$dbname}">}
 $if{$ne{$topdoc,0},<input type=hidden name=TOPDOC value=$topdoc>}
 $if{$ne{$hitsperpage,10},<input type=hidden name=HITSPERPAGE value=$hitsperpage>}
@@ -149,7 +153,7 @@ ${Preserve any B filters used - this needs modifying if you modify this template
   to have B on radio buttons, SELECT, etc}
 $map{$cgilist{B},<input type=hidden name=B value="$html{$_}">}
 </form>
-<hr><div align=right><i><small><a href="https://xapian.org/">$html{$version}</a></small></i></div>
+<footer><a href="https://xapian.org/">$html{$version}</a></footer>
 </body>
 </html>
 $log{query.log}
