@@ -1501,12 +1501,32 @@ QueryOrLike::done()
 void
 QueryAndNot::add_subquery(const Xapian::Query & subquery)
 {
-    // If the left side of AndNot is already MatchNothing, do nothing.
-    if (subqueries.size() == 1 && subqueries[0].internal.get() == NULL)
-	return;
-    // Drop any 2nd or subsequent subqueries which are MatchNothing.
-    if (subquery.internal.get() != NULL || subqueries.empty())
-	subqueries.push_back(subquery);
+    if (!subqueries.empty()) {
+	// We're adding the 2nd or subsequent subquery, so this subquery is
+	// negated.
+	if (subqueries[0].internal.get() == NULL) {
+	    // The left side is already MatchNothing so drop any right side.
+	    //
+	    // MatchNothing AND_NOT X == MatchNothing
+	    return;
+	}
+	if (subquery.internal.get() == NULL) {
+	    // Drop MatchNothing on the right of AndNot.
+	    //
+	    // X AND_NOT MatchNothing == X
+	    return;
+	}
+	if (subquery.get_type() == subquery.OP_SCALE_WEIGHT) {
+	    // Strip OP_SCALE_WEIGHT wrapping from queries on the right of
+	    // AndNot as no weight is taken from them.
+	    subqueries.push_back(subquery.get_subquery(0));
+	    // The Query constructor for OP_SCALE_WEIGHT constructor should
+	    // eliminate OP_SCALE_WEIGHT applied to MatchNothing.
+	    Assert(subquery.get_subquery(0).internal.get() != NULL);
+	    return;
+	}
+    }
+    subqueries.push_back(subquery);
 }
 
 Query::Internal *
