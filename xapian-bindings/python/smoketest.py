@@ -384,6 +384,10 @@ def test_all():
 
     qp.add_prefix('spam', testfieldprocessor())
     qp.add_boolean_prefix('boolspam', testfieldprocessor())
+    qp.add_boolean_prefix('boolspam2', testfieldprocessor(), False) # Old-style
+    qp.add_boolean_prefix('boolspam3', testfieldprocessor(), '')
+    qp.add_boolean_prefix('boolspam4', testfieldprocessor(), 'group')
+    qp.add_boolean_prefix('boolspam5', testfieldprocessor(), None)
     query = qp.parse_query('spam:ignored')
     expect(str(query), 'Query(spam)')
 
@@ -404,7 +408,9 @@ def test_all():
     # https://bugs.debian.org/849722
     oqparser.add_boolean_prefix('tag', 'K', '')
     # Make sure other cases also work:
+    oqparser.add_boolean_prefix('zag', 'XR', False) # Old-style
     oqparser.add_boolean_prefix('rag', 'XR', None)
+    oqparser.add_boolean_prefix('nag', 'XB', '')
     oqparser.add_boolean_prefix('bag', 'XB', 'blergh')
     oqparser.add_boolean_prefix('gag', 'XB', u'blergh')
     oqparser.add_boolean_prefix('jag', 'XB', b'blergh')
