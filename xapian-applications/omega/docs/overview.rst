@@ -249,7 +249,7 @@ contents of the file and try to determine a MIME type.
 The following formats are supported as standard (you can tell omindex to use
 other filters too - see below):
 
-* HTML (.html, .htm, .shtml)
+* HTML (.html, .htm, .shtml, .shtm, .xhtml, .xhtm)
 * PHP (.php) - our HTML parser knows to ignore PHP code
 * text files (.txt, .text)
 * SVG (.svg)
