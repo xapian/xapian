@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -1281,9 +1281,7 @@ size_t XAPIAN_NOTHROW(sortable_serialise_(double value, char * buf));
  *
  *  @param value	The number to serialise.
  */
-std::string XAPIAN_NOTHROW(sortable_serialise(double value));
-
-inline std::string sortable_serialise(double value) XAPIAN_NOEXCEPT {
+inline std::string sortable_serialise(double value) {
     char buf[9];
     return std::string(buf, sortable_serialise_(value, buf));
 }
