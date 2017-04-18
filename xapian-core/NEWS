@@ -1,3 +1,110 @@
+Xapian-core 1.4.4 (2017-04-19):
+
+API:
+
+* Database::check():
+
+  + Fix checking a single table - changes in 1.4.2 broke such checks unless you
+    specified the table without any extension.
+
+  + Errors from failing to find the file specified are now thrown as
+    DatabaseOpeningError (was DatabaseError, of which DatabaseOpeningError is
+    a subclass so existing code should continue to work).  Also improved the
+    error message when the file doesn't exist is better.
+
+* Drop OP_SCALE_WEIGHT over OP_VALUE_RANGE, OP_VALUE_GE and OP_VALUE_LE in the
+  Query constructor.  These operators always return weight 0 so OP_SCALE_WEIGHT
+  over them has no effect.  Eliminating it at query construction time is cheap
+  (we only need to check the type of the subquery), eliminates the confusing
+  "0 * " from the query description, and means the OP_SCALE_WEIGHT Query object
+  can be released sooner.  Inspired by Shivanshu Chauhan asking about the query
+  description on IRC.
+
+* Drop OP_SCALE_WEIGHT on the right side of OP_AND_NOT in the Query
+  constructor.  OP_AND_NOT takes no weight from the right so OP_SCALE_WEIGHT
+  has no effect there.  Eliminating it at query construction time is cheap
+  (just need to check the subquery's type), eliminates the confusing "0 * "
+  from the query description, and means the OP_SCALE_WEIGHT object can be
+  released sooner.
+
+testsuite:
+
+* Add more tests of Database::check().  Fixes #238, reported by Richard
+  Boulton.
+
+* Make apitest testcase nosuchdb1 fail if we manage to open the DB.
+
+* Skip testcases which throw NetworkError with errno value ECHILD - this
+  indicates system resource starvation rather than a Xapian bug.  Such failures
+  are seen on Debian buildds from time to time, see:
+  https://bugs.debian.org/681941
+
+matcher:
+
+* Fix incorrect results due to uninitialised memory.  The array holding max
+  weight values in MultiAndPostList is never initialised if the operator is
+  unweighted, but the values are still used to calculate the max weight to pass
+  to subqueries, leading to incorrect results.  This can be observed with an OR
+  under an unweighted AND (e.g. OR under AND on the right side of AND_NOT).
+  The fix applied is to simply default initialise this array, which should lead
+  to a max weight of 0.0 being passed on to subqueries.  Bug reported in
+  notmuch by Kirill A. Shutemov, and forwarded by David Bremner.
+
+documentation:
+
+* Correct "Query::feature_flag" -> "QueryParser::feature_flag".  Fixes #747,
+  reported by James Aylett.
+
+* Rename set_metadata() `value` parameter to `metadata`.  This change is
+  particularly motivated by making it easier to map this case specially in SWIG
+  bindings, but the new name is also clearer and better documents its purpose.
+
+* Rename value range parameters.  The new names (`range_limit` instead of
+  `limit`, `range_lower` instead of `begin` and `range_upper` instead of `end`)
+  are particularly motivated by making it easier to map them specially in SWIG
+  bindings, but they're also clearer names which better document their
+  purposes.
+
+* Change "(key, tag)" to "(key, value)" in user metadata docs.  The user
+  metadata is essentially what's often called a "key-value store" so users
+  are likely to be familiar with that terminology.
+
+* Consistently name parameter of Weight::unserialise() overridden forms.
+  In xapian/weight.h it was almost always named `serialised`, but LMWeight
+  named it `s` and CoordWeight omitted the name.
+
+* Fix various minor documentation comment typos.
+
+portability:
+
+* Fix configure probe for __builtin_exp10() to work around bug on mingw - there
+  GCC generates a call to exp10() for __builtin_exp10() but there is no exp10()
+  function in the C library, so we get a link failure.  Use a full link test
+  instead to avoid this issue.  Reported by Mario Emmenlauer on xapian-devel.
+
+* Fix configure probe for log2() which was failing on at least some platforms
+  due to ambiguity between overloaded forms of log2().  Make the probe
+  explicitly check for log2(double) to avoid this problem.
+
+* Workaround the unhelpful semantics of AI_ADDRCONFIG on platforms which follow
+  the old RFC instead of POSIX (such as Linux) - if only loopback networking is
+  configured, localhost won't resolve by name or IP address, which causes
+  testsuites using the remote backend over localhost to fail in auto-build
+  environments which deliberately disable networking during builds.  The
+  workaround implemented is to check if the hostname is "::1", "127.0.0.1" or
+  "localhost" and disable AI_ADDRCONFIG for these.  This doesn't catch all
+  possible ways to specify localhost, but should catch all the ways these might
+  be specified in a testsuite.  Fixes https://bugs.debian.org/853107, reported
+  by Daniel Schepler and the root cause uncovered by James Clarke.
+
+debug code:
+
+* Adjust assertion in InMemoryPostList.  Calling skip_to() is fine when the
+  postlist hasn't been started yet (but the assertion was failing for a term
+  not in the database).  Latent bug, triggered by testcases complexphrase1 and
+  complexnear1 as updated for addition of support for OP_OR subqueries of
+  OP_PHRASE/OP_NEAR.
+
 Xapian-core 1.4.3 (2017-01-25):
 
 API:

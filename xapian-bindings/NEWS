@@ -1,3 +1,48 @@
+Xapian-bindings 1.4.4 (2017-04-19):
+
+General:
+
+* Update tests for xapian-core changes to avoid unnecessary "0 *" in query
+  descriptions in certain cases.
+
+Packaging:
+
+* Ship java.i in tarball.
+
+Java:
+
+* Handle object serialisations and document values as Java byte[].  These will
+  usually contain binary data, so Java String doesn't work well and byte[] is a
+  much better fit.
+
+* Correct various errors in java examples and documentation on how to run them.
+
+* Fix java examples not to abuse doc values as fields - use the document data
+  instead.
+
+* "make clean" now removes additional class files.
+
+PHP7:
+
+* Update version of SWIG required to >= 3.0.12 so that the code generated
+  for PHP7 no longer results in a segmentation fault on module unload with
+  PHP 7.1.  Fixes #748, reported by Victor Sakovich.
+
+Python:
+
+* Fix QueryParser methods add_boolean_prefix() and add_prefix() to accept a
+  string for the `grouping` parameter.  Reported by Jameson Graef Rollins in
+  https://bugs.debian.org/849722
+
+* Fix configure --with-python to fail if sphinx isn't found.  Patch from
+  Patricio Paez.  Fixes #749.
+
+Python3:
+
+* Fix QueryParser methods add_boolean_prefix() and add_prefix() to accept a
+  string for the `grouping` parameter.  Reported by Jameson Graef Rollins in
+  https://bugs.debian.org/849722
+
 Xapian-bindings 1.4.3 (2017-01-25):
 
 Python:
