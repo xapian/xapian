@@ -1616,29 +1616,29 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Make sure the submitters of fixed bugs are mentioned in the "thanks" list in
   xapian-core/AUTHORS.  Check the list for the appropriate milestone::
 
-   https://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.0.14
+   https://trac.xapian.org/query?col=id&col=summary&col=reporter&milestone=1.4.4
 
 * Check for any unfixed bugs on the milestone for the new release, and if they
   aren't blockers, retarget them:
 
-   https://trac.xapian.org/timeline
+   https://trac.xapian.org/roadmap
 
-* On atreus, tag the source trees for the new revision - use the
-  git-tag-release script, running it with the new version number, for example:
+* Tag the source trees for the new revision - use the git-tag-release script,
+  running it with the new version number, for example:
 
-  xapian-maintainer-tools/git-tag-release 1.0.14
+  xapian-maintainer-tools/git-tag-release 1.4.4
 
   This script also generates tarballs for the new release and copies them
   across to the website.
 
 * Update the wiki:
 
-  Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
-  http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
-  which should be moved to the archived section.
+  Create a new page https://trac.xapian.org/wiki/ReleaseNotes/X.Y.Z and link it
+  into https://trac.xapian.org/wiki/ReleaseNotes in place of the old current
+  release link, which should be moved to the archived section.
 
-  Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
-  date of this release and adding an entry for the next release with an
+  Also update the roadmap at https://trac.xapian.org/wiki/RoadMap by recording
+  the date of this release and adding an entry for the next release with an
   estimated release date.
 
 * Update the website: `generate` in the `www.xapian.org` git repo contains the
