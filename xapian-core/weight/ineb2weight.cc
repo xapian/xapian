@@ -138,4 +138,15 @@ IneB2Weight::get_maxextra() const
     return 0;
 }
 
+const IneB2Weight *
+IneB2Weight::create_from_parameters(const char * p) const
+{
+    double k = 1.0;
+    if (!double_param(&p, &k))
+	parameter_error("Parameter is invalid", "ineb2");
+    if (*p)
+	parameter_error("Extra data after parameter", "ineb2");
+    return new Xapian::IneB2Weight(k);
+}
+
 }

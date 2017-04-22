@@ -183,4 +183,15 @@ BB2Weight::get_maxextra() const
     return 0;
 }
 
+const BB2Weight *
+BB2Weight::create_from_parameters(const char * p) const
+{
+    double k = 1.0;
+    if (!double_param(&p, &k))
+	parameter_error("Parameter is invalid", "bb2");
+    if (*p)
+	parameter_error("Extra data after parameter", "bb2");
+    return new Xapian::BB2Weight(k);
+}
+
 }

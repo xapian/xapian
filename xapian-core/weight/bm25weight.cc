@@ -227,4 +227,27 @@ BM25Weight::get_maxextra() const
 			    param_min_normlen)));
 }
 
+const BM25Weight *
+BM25Weight::create_from_parameters(const char * p) const
+{
+    double k1 = 1;
+    double k2 = 0;
+    double k3 = 1;
+    double b = 0.5;
+    double min_normlen = 0.5;
+    if (!double_param(&p, &k1))
+	parameter_error("Parameter 1 (k1) is invalid", "bm25");
+    if (*p && !double_param(&p, &k2))
+	parameter_error("Parameter 2 (k2) is invalid", "bm25");
+    if (*p && !double_param(&p, &k3))
+	parameter_error("Parameter 3 (k3) is invalid", "bm25");
+    if (*p && !double_param(&p, &b))
+	parameter_error("Parameter 4 (b) is invalid", "bm25");
+    if (*p && !double_param(&p, &min_normlen))
+	parameter_error("Parameter 5 (min_normlen) is invalid", "bm25");
+    if (*p)
+	parameter_error("Extra data after parameter 5", "bm25");
+    return new Xapian::BM25Weight(k1, k2, k3, b, min_normlen);
+}
+
 }

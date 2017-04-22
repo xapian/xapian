@@ -186,4 +186,18 @@ PL2PlusWeight::get_maxextra() const
     return 0;
 }
 
+const PL2PlusWeight *
+PL2PlusWeight::create_from_parameters(const char * p) const
+{
+    double k = 1.0;
+    double delta = 0.8;
+    if (!double_param(&p, &k))
+	parameter_error("Parameter is invalid", "pl2pls");
+    if (!double_param(&p, &delta))
+	parameter_error("Parameter is invalid", "pl2plus");
+    if (*p)
+	parameter_error("Extra data after parameter", "pl2plus");
+    return new Xapian::PL2PlusWeight(k, delta);
+}
+
 }

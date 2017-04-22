@@ -169,4 +169,15 @@ TradWeight::get_maxextra() const
     return 0;
 }
 
+const TradWeight *
+TradWeight::create_from_parameters(const char * p) const
+{
+    double k = 1.0;
+    if (!double_param(&p, &k))
+	parameter_error("Parameter is invalid", "trad");
+    if (*p)
+	parameter_error("Extra data after parameter", "trad");
+    return new Xapian::TradWeight(k);
+}
+
 }

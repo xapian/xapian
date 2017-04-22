@@ -138,4 +138,15 @@ IfB2Weight::get_maxextra() const
     return 0;
 }
 
+const IfB2Weight *
+IfB2Weight::create_from_parameters(const char * p) const
+{
+    double k = 1.0;
+    if (!double_param(&p, &k))
+	parameter_error("Parameter is invalid", "ifb2");
+    if (*p)
+	parameter_error("Extra data after parameter", "ifb2");
+    return new Xapian::IfB2Weight(k);
+}
+
 }
