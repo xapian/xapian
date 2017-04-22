@@ -155,6 +155,12 @@ DLHWeight::name() const
 }
 
 string
+DLHWeight::short_name() const
+{
+    return "dlh";
+}
+
+string
 DLHWeight::serialise() const
 {
     return string();
@@ -201,6 +207,14 @@ double
 DLHWeight::get_maxextra() const
 {
     return 0;
+}
+
+DLHWeight *
+DLHWeight::create_from_parameters(const char * p) const
+{
+    if (*p != '\0')
+	throw InvalidArgumentError("No parameters are required for DLHWeight");
+    return new Xapian::DLHWeight();
 }
 
 }

@@ -47,6 +47,12 @@ BoolWeight::name() const
 }
 
 string
+BoolWeight::short_name() const
+{
+    return "bool";
+}
+
+string
 BoolWeight::serialise() const
 {
     // No parameters to serialise.
@@ -84,6 +90,14 @@ double
 BoolWeight::get_maxextra() const
 {
     return 0;
+}
+
+BoolWeight *
+BoolWeight::create_from_parameters(const char * p) const
+{
+    if (*p != '\0')
+	throw InvalidArgumentError("No parameters are required for BoolWeight");
+    return new Xapian::BoolWeight();
 }
 
 }

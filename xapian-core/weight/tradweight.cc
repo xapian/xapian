@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -124,6 +125,12 @@ TradWeight::name() const
 }
 
 string
+TradWeight::short_name() const
+{
+    return "trad";
+}
+
+string
 TradWeight::serialise() const
 {
     return serialise_double(param_k);
@@ -167,6 +174,19 @@ double
 TradWeight::get_maxextra() const
 {
     return 0;
+}
+
+TradWeight *
+TradWeight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::TradWeight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "trad");
+    if (*p)
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "trad");
+    return new Xapian::TradWeight(k);
 }
 
 }

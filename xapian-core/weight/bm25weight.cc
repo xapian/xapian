@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -135,6 +136,12 @@ BM25Weight::name() const
 }
 
 string
+BM25Weight::short_name() const
+{
+    return "bm25";
+}
+
+string
 BM25Weight::serialise() const
 {
     string result = serialise_double(param_k1);
@@ -225,6 +232,31 @@ BM25Weight::get_maxextra() const
     double num = (2.0 * param_k2 * get_query_length());
     RETURN(num / (1.0 + max(get_doclength_lower_bound() * len_factor,
 			    param_min_normlen)));
+}
+
+BM25Weight *
+BM25Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::BM25Weight();
+    double k1 = 1;
+    double k2 = 0;
+    double k3 = 1;
+    double b = 0.5;
+    double min_normlen = 0.5;
+    if (!Xapian::Weight::Internal::double_param(&p, &k1))
+	Xapian::Weight::Internal::parameter_error("Parameter 1 (k1) is invalid", "bm25");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &k2))
+	Xapian::Weight::Internal::parameter_error("Parameter 2 (k2) is invalid", "bm25");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &k3))
+	Xapian::Weight::Internal::parameter_error("Parameter 3 (k3) is invalid", "bm25");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &b))
+	Xapian::Weight::Internal::parameter_error("Parameter 4 (b) is invalid", "bm25");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &min_normlen))
+	Xapian::Weight::Internal::parameter_error("Parameter 5 (min_normlen) is invalid", "bm25");
+    if (*p)
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter 5", "bm25");
+    return new Xapian::BM25Weight(k1, k2, k3, b, min_normlen);
 }
 
 }

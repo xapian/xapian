@@ -25,12 +25,15 @@
 #include "xapian/weight.h"
 
 #include "xapian/database.h"
+#include "xapian/error.h"
 #include "xapian/query.h"
 
 #include "backends/database.h"
 #include "internaltypes.h"
 #include "omassert.h"
 
+#include <cerrno>
+#include <cstdlib>
 #include <map>
 #include <string>
 
@@ -245,6 +248,25 @@ class Weight::Internal {
 
     /// Return a std::string describing this object.
     std::string get_description() const;
+
+    static bool double_param(const char ** p, double * ptr_val) {
+	char *end;
+	errno = 0;
+	double v = strtod(*p, &end);
+	if (*p == end || errno) return false;
+	*p = end;
+	*ptr_val = v;
+	return true;
+    }
+
+    static void parameter_error(const char * msg,
+				const std::string & scheme) {
+	string m(msg);
+	m += ": '";
+	m += scheme;
+	m += "'";
+	throw InvalidArgumentError(m);
+    }
 };
 
 }

@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009,2014 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
+ * Copyright (C) 2017 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +30,9 @@
 #include "debuglog.h"
 
 #include "xapian/error.h"
+
+#include <cerrno>
+#include <cstdlib>
 
 using namespace std;
 
@@ -123,6 +127,12 @@ Weight::name() const
 }
 
 string
+Weight::short_name() const
+{
+    return string();
+}
+
+string
 Weight::serialise() const
 {
     throw Xapian::UnimplementedError("serialise() not supported for this Xapian::Weight subclass");
@@ -132,6 +142,28 @@ Weight *
 Weight::unserialise(const string &) const
 {
     throw Xapian::UnimplementedError("unserialise() not supported for this Xapian::Weight subclass");
+}
+
+const Weight *
+Weight::create(const string & s, const Registry & reg)
+{
+    const char *p = s.c_str();
+    std::string scheme;
+
+    while (*p != ' ') {
+	if (*p == '\0') break;
+	scheme += *p;
+	p++;
+    }
+
+    if (*p == ' ') p++;
+    return reg.get_weighting_scheme(scheme)->create_from_parameters(p);
+}
+
+Weight *
+Weight::create_from_parameters(const char *) const
+{
+    throw Xapian::UnimplementedError("create_from_parameters() not supported for this Xapian::Weight subclass");
 }
 
 }

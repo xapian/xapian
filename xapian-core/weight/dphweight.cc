@@ -111,6 +111,12 @@ DPHWeight::name() const
 }
 
 string
+DPHWeight::short_name() const
+{
+    return "dph";
+}
+
+string
 DPHWeight::serialise() const
 {
     return string();
@@ -158,6 +164,14 @@ double
 DPHWeight::get_maxextra() const
 {
     return 0;
+}
+
+DPHWeight *
+DPHWeight::create_from_parameters(const char * p) const
+{
+    if (*p != '\0')
+	throw InvalidArgumentError("No parameters are required for DPHWeight");
+    return new Xapian::DPHWeight();
 }
 
 }

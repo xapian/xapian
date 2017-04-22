@@ -22,6 +22,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
@@ -90,6 +91,12 @@ IneB2Weight::name() const
 }
 
 string
+IneB2Weight::short_name() const
+{
+    return "ineb2";
+}
+
+string
 IneB2Weight::serialise() const
 {
     return serialise_double(param_c);
@@ -136,6 +143,19 @@ double
 IneB2Weight::get_maxextra() const
 {
     return 0;
+}
+
+IneB2Weight *
+IneB2Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::IneB2Weight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "ineb2");
+    if (*p)
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "ineb2");
+    return new Xapian::IneB2Weight(k);
 }
 
 }

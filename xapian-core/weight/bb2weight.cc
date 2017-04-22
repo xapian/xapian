@@ -23,6 +23,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
@@ -117,6 +118,12 @@ BB2Weight::name() const
 }
 
 string
+BB2Weight::short_name() const
+{
+    return "bb2";
+}
+
+string
 BB2Weight::serialise() const
 {
     return serialise_double(param_c);
@@ -181,6 +188,19 @@ double
 BB2Weight::get_maxextra() const
 {
     return 0;
+}
+
+BB2Weight *
+BB2Weight::create_from_parameters(const char * p) const
+{
+    if (*p == '\0')
+	return new Xapian::BB2Weight();
+    double k = 1.0;
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "bb2");
+    if (*p)
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "bb2");
+    return new Xapian::BB2Weight(k);
 }
 
 }
