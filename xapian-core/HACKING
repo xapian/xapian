@@ -1654,9 +1654,9 @@ How to make Debian packages for a new release
 
 Debian control files are stored in separate git repositories:
 
-* http://anonscm.debian.org/cgit/collab-maint/xapian-bindings.git
-* http://anonscm.debian.org/cgit/collab-maint/xapian-core.git
-* http://anonscm.debian.org/cgit/collab-maint/xapian-omega.git
+* https://anonscm.debian.org/cgit/collab-maint/xapian-bindings.git
+* https://anonscm.debian.org/cgit/collab-maint/xapian-core.git
+* https://anonscm.debian.org/cgit/collab-maint/xapian-omega.git
 
 To package a new upstream release, these should be updated as follows:
 
