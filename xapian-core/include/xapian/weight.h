@@ -4,7 +4,7 @@
 /* Copyright (C) 2004,2007,2008,2009,2010,2011,2012,2015,2016 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
  * Copyright (C) 2013,2014 Aarsh Shah
- * Copyright (C) 2016 Vivek Pal
+ * Copyright (C) 2016,2017 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,8 @@
 
 #include <xapian/types.h>
 #include <xapian/visibility.h>
+
+#include "registry.h"
 
 namespace Xapian {
 
@@ -314,6 +316,18 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     bool get_sumpart_needs_uniqueterms_() const {
 	return stats_needed & UNIQUE_TERMS;
     }
+
+    /** @private @internal Return the appropriate weighting scheme object.
+     *
+     *  @param scheme 		the string containing a weighting scheme name
+     *				and may also contain the parameters required
+     *				by that weighting scheme. E.g. "bm25 1.0 0.8"
+     *  @param reg		Xapian::Registry object to allow users to add
+     *				their own custom weighting schemes
+     *				(default: standard registry).
+     */
+    static const Weight * create(const std::string & scheme,
+				 const Registry & reg = Registry());
 
   protected:
     /** Don't allow copying.

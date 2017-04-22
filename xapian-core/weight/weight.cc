@@ -3,6 +3,7 @@
  */
 /* Copyright (C) 2007,2008,2009,2014 Olly Betts
  * Copyright (C) 2009 Lemur Consulting Ltd
+ * Copyright (C) 2017 Vivek Pal
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -132,6 +133,54 @@ Weight *
 Weight::unserialise(const string &) const
 {
     throw Xapian::UnimplementedError("unserialise() not supported for this Xapian::Weight subclass");
+}
+
+const Weight *
+Weight::create(const string & s, const Registry & reg)
+{
+    const char *p = s.c_str();
+    std::string scheme;
+
+    while (*p != ' ') {
+	scheme += *p;
+	p++;
+    }
+
+    if (scheme == "bb2")
+	scheme = "Xapian::BB2Weight";
+    else if (scheme == "bm25")
+	scheme = "Xapian::BM25Weight";
+    else if (scheme == "bm25plus")
+	scheme = "Xapian::BM25PlusWeight";
+    else if (scheme == "bool")
+	scheme = "Xapian::BoolWeight";
+    else if (scheme == "coord")
+	scheme = "Xapian::CoordWeight";
+    else if (scheme == "dlh")
+	scheme = "Xapian::DLHWeight";
+    else if (scheme == "dph")
+	scheme = "Xapian::DPHWeight";
+    else if (scheme == "ifb2")
+	scheme = "Xapian::IfB2Weight";
+    else if (scheme == "ineb2")
+	scheme = "Xapian::IneB2Weight";
+    else if (scheme == "inl2")
+	scheme = "Xapian::InL2Weight";
+    else if (scheme == "pl2")
+	scheme = "Xapian::PL2Weight";
+    else if (scheme == "pl2plus")
+	scheme = "Xapian::PL2PlusWeight";
+    else if (scheme == "tfidf")
+	scheme = "Xapian::TfIdfWeight";
+    else if (scheme == "trad")
+	scheme = "Xapian::TradWeight";
+    else
+	throw "Unknown $opt{weighting} setting: " + scheme;
+
+    if (C_isspace(*p))
+	return reg.get_weighting_scheme(scheme)->create_from_parameters(p);
+    else
+	return reg.get_weighting_scheme(scheme);
 }
 
 }
