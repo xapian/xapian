@@ -93,14 +93,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
     string mimetype = mimetype_from_ext(mime_map, ext);
-    if (mimetype.empty()) {
-	mimetype = d.get_magic_mimetype();
-	if (mimetype.empty()) {
-	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
-		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
-	    return;
-	}
-    } else if (mimetype == "ignore") {
+    if (mimetype == "ignore") {
 	return;
     } else if (mimetype == "skip") {
 	// Ignore mimetype, skipped mimetype should not be quietly ignored.
@@ -111,13 +104,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    if (verbose)
-	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
-	     << mimetype << " ... ";
-
-    // Only check the file size if we recognise the extension to avoid a call
-    // to stat()/lstat() for files we definitely can't handle when readdir()
-    // tells us the file type.
+    // check the file size
     off_t size = d.get_size();
     if (size == 0) {
 	skip(urlterm, file.substr(root.size()), "Zero-sized file",
@@ -132,6 +119,20 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	     SKIP_VERBOSE_ONLY);
 	return;
     }
+
+    // if can't get the mime type from extension,call libmagic to get it
+    if (mimetype.empty()) {
+	mimetype = d.get_magic_mimetype();
+	if (mimetype.empty()) {
+	    skip(urlterm, file.substr(root.size()), "Unknown extension and unrecognised format",
+		 d.get_size(), d.get_mtime(), SKIP_SHOW_FILENAME);
+	    return;
+	}
+    }
+
+    if (verbose)
+	cout << "Indexing \"" << file.substr(root.size()) << "\" as "
+	     << mimetype << " ... ";
 
     Xapian::Document new_doc;
 
