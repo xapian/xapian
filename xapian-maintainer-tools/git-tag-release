@@ -83,7 +83,7 @@ cd "$DIR"
 git clone ../swig
 
 echo "Building release tarballs"
-./bootstrap --force-local-tools
+./bootstrap --download-tools=always
 ./configure
 time make -sj8
 time make -sj8 distcheck
