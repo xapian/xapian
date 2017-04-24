@@ -78,7 +78,8 @@ echo "Setting up temporary source tree"
 DIR=`mktemp -d TMP.make_dist.XXXXXXXXXX`
 git clone . "$DIR"
 mkdir "$DIR/BUILD"
-ln BUILD/*.tar* "$DIR/BUILD"
+# Ignore failure - there may be no cached tarballs.
+ln BUILD/*.tar* "$DIR/BUILD" || true
 cd "$DIR"
 git clone ../swig
 
