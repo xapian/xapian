@@ -23,6 +23,7 @@
 
 #include <cstring>
 #include "safenetdb.h"
+#include "safesyssocket.h"
 #include "str.h"
 #include "xapian/error.h"
 
