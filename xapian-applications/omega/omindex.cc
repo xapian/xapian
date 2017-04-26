@@ -104,7 +104,7 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    // check the file size
+    // Check the file size.
     off_t size = d.get_size();
     if (size == 0) {
 	skip(urlterm, file.substr(root.size()), "Zero-sized file",
@@ -120,7 +120,8 @@ index_file(const string &file, const string &url, DirectoryIterator & d,
 	return;
     }
 
-    // if can't get the mime type from extension,call libmagic to get it
+    // If we didn't get the mime type from the extension, call libmagic to get
+    // it.
     if (mimetype.empty()) {
 	mimetype = d.get_magic_mimetype();
 	if (mimetype.empty()) {
