@@ -79,7 +79,7 @@ class Resolver {
 	// However, it behaves unhelpfully if the *only* interface
 	// configured is loopback - in this situation, AI_ADDRCONFIG means
 	// that you won't get an IPv4 address (as there's no IPv4 address
-	// configured ignoring loopback) and you won't get an IPv5 address
+	// configured ignoring loopback) and you won't get an IPv6 address
 	// (as there's no IPv6 address configured ignoring loopback).
 	//
 	// It's generally rare that systems with only loopback would want
