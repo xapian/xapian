@@ -36,7 +36,7 @@ class Resolver {
     class const_iterator {
 	struct addrinfo* p;
       public:
-	const_iterator(struct addrinfo* p_) : p(p_) { }
+	explicit const_iterator(struct addrinfo* p_) : p(p_) { }
 
 	struct addrinfo& operator*() const {
 	   return *p;
