@@ -419,7 +419,9 @@ class XapianSWIGQueryItor {
     size_t len = $1.size();
     jbyteArray c_result = jenv->NewByteArray(len);
     const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
-    jenv->SetByteArrayRegion(c_result, 0, len, data);
+    // Final parameter was not const in Java 6 and earlier.
+    jbyte* data_nc = const_cast<jbyte*>(data);
+    jenv->SetByteArrayRegion(c_result, 0, len, data_nc);
     $result = c_result;
 }
 
@@ -427,7 +429,9 @@ class XapianSWIGQueryItor {
     size_t len = $1.size();
     jbyteArray c_result = jenv->NewByteArray(len);
     const jbyte* data = reinterpret_cast<const jbyte*>($1.data());
-    jenv->SetByteArrayRegion(c_result, 0, len, data);
+    // Final parameter was not const in Java 6 and earlier.
+    jbyte* data_nc = const_cast<jbyte*>(data);
+    jenv->SetByteArrayRegion(c_result, 0, len, data_nc);
     $input = c_result;
 }
 
