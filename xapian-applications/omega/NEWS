@@ -1,3 +1,57 @@
+Omega 1.4.4 (2017-04-19):
+
+indexers:
+
+* omindex:
+
+  + 1.4.3 added a new --sample option, but contrary to the documentation
+    the default behaviour was to take the sample from the meta description
+    (which was the hard-wired behaviour in 1.4.2 and earlier).  The default
+    has now been changed to take the sample from the body.
+
+  + Index .shtm, .xhtml and .xhtm as HTML by default - .shtm is another
+    extension used for server-parsed HTML (in addition to the more common
+    .shtml), and .xhtm and .xhtml are XHTML.
+
+  + Fix fallback lookup for extension containing upper case.  User mappings
+    worked, but built-in extension to MIME type mappings were effectively being
+    ignored (because the result of the function call was not being checked).
+    Bug introduced in 1.3.4.
+
+  + Fix term-based date ranges, broken by changes in 1.4.2.  Found and
+    diagnosed by Gaurav Arora.
+
+  + Handle date range with start after end better - with term-based ranges,
+    this used to generate a bogus filter, but now just generates Dlatest.
+
+  + Use Y-term when range starts/ends at year start/end.  Previously we used 12
+    M-terms for these cases.
+
+  + Use full leap-year check when constructing term-based date ranges -
+    previous code was good until 2100, but even then it would only result
+    in an extra term being included for a non-existent February 29th in
+    rare cases.
+
+omega:
+
+* New OmegaScript command $cgiparams which returns a list of the parameter
+  names.
+
+* Handle tab in a CGI parameter name in the same way as space.  Mostly this is
+  a way to avoid having tabs in CGI parameter names - they aren't useful, but
+  if they could have tabs in we can't put CGI parameter names in a list.
+
+templates:
+
+* query: Fix highlighting of matching terms.  We were using both $snippet and
+  $highlight, which results in double highlighting and HTML escaping, most
+  noticeable by literal <strong> and </strong> appearing around matching terms
+  in the rendered HTML snippet.  Reported by Mark Thomas on xapian-discuss.
+
+build system:
+
+* If gen-mimemap failed after creating mimemap.h, the rule wouldn't get rerun.
+
 Omega 1.4.3 (2017-01-25):
 
 indexers:
