@@ -28,7 +28,7 @@ MIRROR=http://httpredir.debian.org/debian/
 
 # Can't backport direct to squeeze from stretch
 DEBIAN_CODENAMES='jessie wheezy'
-UBUNTU_CODENAMES='yakkety xenial trusty precise'
+UBUNTU_CODENAMES='zesty yakkety xenial trusty precise'
 UBUNTU_FIRST=`echo "$UBUNTU_CODENAMES"|sed 's/.* //'`
 
 V_OPT=
@@ -118,7 +118,7 @@ build_it() {
     xapian-bindings:trusty:*)
       # Make sure we add python-xapian and python3-xapian to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy' ;;
-    xapian-bindings:xenial:*|xapian-bindings:yakkety:*)
+    xapian-bindings:xenial:*|xapian-bindings:yakkety:*|xapian-bindings:zesty:*)
       # Make sure we add python-xapian (and python3-xapian for 1.4.x packages)
       # to debian/control.
       overrides='PYTHON_VERSIONS=dummy PYTHON3_VERSIONS=dummy RUBY_VERSIONS=2.3 RUBY_PROVIDES="X-Dummy: No provides"' ;;
