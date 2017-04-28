@@ -421,7 +421,6 @@ def test_all():
     oqparser.add_boolean_prefix('rag', 'XR', None)
     oqparser.add_boolean_prefix('nag', 'XB', '')
     oqparser.add_boolean_prefix('bag', 'XB', 'blergh')
-    oqparser.add_boolean_prefix('gag', 'XB', u'blergh')
     oqparser.add_boolean_prefix('jag', 'XB', b'blergh')
 
     # Regression test for bug#192 - fixed in 1.0.3.
