@@ -138,7 +138,7 @@ IneB2Weight::get_maxextra() const
     return 0;
 }
 
-const IneB2Weight *
+IneB2Weight *
 IneB2Weight::create_from_parameters(const char * p) const
 {
     double k = 1.0;

@@ -187,7 +187,7 @@ Weight::create(const string & s, const Registry & reg)
 	return reg.get_weighting_scheme(scheme);
 }
 
-const Weight *
+Weight *
 Weight::create_from_parameters(const char *) const
 {
     throw Xapian::UnimplementedError("create_from_parameters() not supported for this Xapian::Weight subclass");

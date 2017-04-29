@@ -183,7 +183,7 @@ BM25PlusWeight::get_maxextra() const
 			    param_min_normlen)));
 }
 
-const BM25PlusWeight *
+BM25PlusWeight *
 BM25PlusWeight::create_from_parameters(const char * p) const
 {
     double k1 = 1;

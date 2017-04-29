@@ -169,7 +169,7 @@ TradWeight::get_maxextra() const
     return 0;
 }
 
-const TradWeight *
+TradWeight *
 TradWeight::create_from_parameters(const char * p) const
 {
     double k = 1.0;

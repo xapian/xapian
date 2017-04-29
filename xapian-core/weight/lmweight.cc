@@ -278,7 +278,7 @@ type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
     return true;
 }
 
-const LMWeight *
+LMWeight *
 LMWeight::create_from_parameters(const char * p) const
 {
     double param_log_ = 0;

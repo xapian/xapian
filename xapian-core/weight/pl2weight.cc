@@ -172,7 +172,7 @@ PL2Weight::get_maxextra() const
     return 0;
 }
 
-const PL2Weight *
+PL2Weight *
 PL2Weight::create_from_parameters(const char * p) const
 {
     double k = 1.0;

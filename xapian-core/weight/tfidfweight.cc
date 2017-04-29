@@ -238,7 +238,7 @@ TfIdfWeight::get_wtn(double wt, char c) const
     return wt;
 }
 
-const TfIdfWeight *
+TfIdfWeight *
 TfIdfWeight::create_from_parameters(const char * p) const
 {
     return new Xapian::TfIdfWeight(p + 1);

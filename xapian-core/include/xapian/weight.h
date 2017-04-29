@@ -336,7 +336,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      * @param params 		the pointer to the string containing parameter
      *				values for a weighting scheme
      */
-    virtual const Weight * create_from_parameters(const char * params) const;
+    virtual Weight * create_from_parameters(const char * params) const;
 
   protected:
     /** Don't allow copying.
@@ -428,7 +428,7 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const BoolWeight * create_from_parameters(const char * params) const;
+    BoolWeight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the tf-idf weighting scheme.
@@ -572,7 +572,7 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const TfIdfWeight * create_from_parameters(const char * params) const;
+    TfIdfWeight * create_from_parameters(const char * params) const;
 };
 
 
@@ -679,7 +679,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const BM25Weight * create_from_parameters(const char * params) const;
+    BM25Weight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the BM25+ probabilistic formula.
@@ -797,7 +797,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const BM25PlusWeight * create_from_parameters(const char * params) const;
+    BM25PlusWeight * create_from_parameters(const char * params) const;
 };
 
 /** Xapian::Weight subclass implementing the traditional probabilistic formula.
@@ -860,7 +860,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const TradWeight * create_from_parameters(const char * params) const;
+    TradWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the InL2 weighting scheme.
@@ -935,7 +935,7 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const InL2Weight * create_from_parameters(const char * params) const;
+    InL2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the IfB2 weighting scheme.
@@ -1010,7 +1010,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const IfB2Weight * create_from_parameters(const char * params) const;
+    IfB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the IneB2 weighting scheme.
@@ -1083,7 +1083,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const IneB2Weight * create_from_parameters(const char * params) const;
+    IneB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the BB2 weighting scheme.
@@ -1161,7 +1161,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const BB2Weight * create_from_parameters(const char * params) const;
+    BB2Weight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the DLH weighting scheme, which is a representative
@@ -1220,7 +1220,7 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const DLHWeight * create_from_parameters(const char * params) const;
+    DLHWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the PL2 weighting scheme.
@@ -1300,7 +1300,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const PL2Weight * create_from_parameters(const char * params) const;
+    PL2Weight * create_from_parameters(const char * params) const;
 };
 
 /// Xapian::Weight subclass implementing the PL2+ probabilistic formula.
@@ -1380,7 +1380,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const PL2PlusWeight * create_from_parameters(const char * params) const;
+    PL2PlusWeight * create_from_parameters(const char * params) const;
 };
 
 /** This class implements the DPH weighting scheme.
@@ -1442,7 +1442,7 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
 			Xapian::termcount uniqterms) const;
     double get_maxextra() const;
 
-    const DPHWeight * create_from_parameters(const char * params) const;
+    DPHWeight * create_from_parameters(const char * params) const;
 };
 
 
@@ -1548,7 +1548,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     double get_sumextra(Xapian::termcount doclen, Xapian::termcount) const;
     double get_maxextra() const;
 
-    const LMWeight * create_from_parameters(const char * params) const;
+    LMWeight * create_from_parameters(const char * params) const;
 };
 
 /** Xapian::Weight subclass implementing Coordinate Matching.
@@ -1581,7 +1581,7 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     double get_sumextra(Xapian::termcount, Xapian::termcount) const;
     double get_maxextra() const;
 
-    const CoordWeight * create_from_parameters(const char * params) const;
+    CoordWeight * create_from_parameters(const char * params) const;
 };
 
 }

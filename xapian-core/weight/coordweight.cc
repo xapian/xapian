@@ -86,7 +86,7 @@ CoordWeight::get_maxextra() const
     return 0;
 }
 
-const CoordWeight *
+CoordWeight *
 CoordWeight::create_from_parameters(const char * p) const
 {
     if (C_isspace(*p))
