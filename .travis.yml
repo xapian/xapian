@@ -28,6 +28,11 @@ matrix:
             - uuid-dev
             - libpcre3-dev
             - libmagic-dev
+            - lua5.2
+            - liblua5.2-dev
+            - mono-devel
+            - python-dev
+            - python3-dev
             - tcl
             - libsvm-dev
     - compiler: clang
