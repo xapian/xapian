@@ -47,12 +47,19 @@ Perl
 
 Debian wheezy: all required are packages installed by default.
 
-PHP
----
+PHP5
+----
 
 Debian wheezy::
 
 apt-get install php5-dev php5-cli
+
+PHP7
+----
+
+Debian stretch::
+
+apt-get install php7.0-cli php7.0-dev
 
 Python
 ------
