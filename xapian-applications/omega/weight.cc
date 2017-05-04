@@ -35,6 +35,10 @@ set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
     if (!force_boolean) {
 	if (scheme.empty()) return;
 
-	enq.set_weighting_scheme(*(Xapian::Weight::create(scheme)));
+	const Xapian::Weight * wt = Xapian::Weight::create(scheme);
+	enq.set_weighting_scheme(*wt);
+
+	delete wt;
+	wt = NULL;
     }
 }
