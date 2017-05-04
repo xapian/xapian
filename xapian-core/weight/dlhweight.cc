@@ -206,7 +206,9 @@ DLHWeight::get_maxextra() const
 DLHWeight *
 DLHWeight::create_from_parameters(const char * p) const
 {
-    if (C_isspace(*p))
+    if (*p == '\0')
+	return new Xapian::DLHWeight();
+    if (*p == ' ')
 	throw "No parameters are required for DLHWeight";
     return new Xapian::DLHWeight();
 }

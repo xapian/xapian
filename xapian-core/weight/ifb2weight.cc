@@ -22,6 +22,7 @@
 
 #include "xapian/weight.h"
 #include "common/log2.h"
+#include "weightinternal.h"
 
 #include "serialise-double.h"
 
@@ -141,11 +142,13 @@ IfB2Weight::get_maxextra() const
 IfB2Weight *
 IfB2Weight::create_from_parameters(const char * p) const
 {
+    if (*p == '\0')
+	return new Xapian::IfB2Weight();
     double k = 1.0;
-    if (!double_param(&p, &k))
-	parameter_error("Parameter is invalid", "ifb2");
+    if (!Xapian::Weight::Internal::double_param(&p, &k))
+	Xapian::Weight::Internal::parameter_error("Parameter is invalid", "ifb2");
     if (*p)
-	parameter_error("Extra data after parameter", "ifb2");
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter", "ifb2");
     return new Xapian::IfB2Weight(k);
 }
 

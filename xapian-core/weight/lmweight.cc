@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include "xapian/weight.h"
+#include "weightinternal.h"
 
 #include "debuglog.h"
 #include "omassert.h"
@@ -281,20 +282,22 @@ type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 LMWeight *
 LMWeight::create_from_parameters(const char * p) const
 {
+    if (*p == '\0')
+	return new Xapian::LMWeight();
     double param_log_ = 0;
     Xapian::Weight::type_smoothing type = Xapian::Weight::TWO_STAGE_SMOOTHING;
     double smoothing1 = 0.7;
     double smoothing2 = 2000;
-    if (!double_param(&p, &param_log_))
-	parameter_error("Parameter 1 (log) is invalid", "lm");
+    if (!Xapian::Weight::Internal::double_param(&p, &param_log_))
+	Xapian::Weight::Internal::parameter_error("Parameter 1 (log) is invalid", "lm");
     if (*p && !type_smoothing_param(&p, &type))
-	parameter_error("Parameter 2 (smoothing_type) is invalid", "lm");
-    if (*p && !double_param(&p, &smoothing1))
-	parameter_error("Parameter 3 (smoothing1) is invalid", "lm");
-    if (*p && !double_param(&p, &smoothing2))
-	parameter_error("Parameter 4 (smoothing2) is invalid", "lm");
+	Xapian::Weight::Internal::parameter_error("Parameter 2 (smoothing_type) is invalid", "lm");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &smoothing1))
+	Xapian::Weight::Internal::parameter_error("Parameter 3 (smoothing1) is invalid", "lm");
+    if (*p && !Xapian::Weight::Internal::double_param(&p, &smoothing2))
+	Xapian::Weight::Internal::parameter_error("Parameter 4 (smoothing2) is invalid", "lm");
     if (*p)
-	parameter_error("Extra data after parameter 4", "lm");
+	Xapian::Weight::Internal::parameter_error("Extra data after parameter 4", "lm");
     return new Xapian::LMWeight(param_log_, type, smoothing1, smoothing2);
 }
 
