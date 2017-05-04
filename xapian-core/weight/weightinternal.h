@@ -32,6 +32,7 @@
 #include "omassert.h"
 
 #include <cerrno>
+#include <cstdlib
 #include <map>
 #include <string>
 
