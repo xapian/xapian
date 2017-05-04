@@ -80,6 +80,14 @@ syntax_error:
 	Xapian::WritableDatabase db(argv[2], Xapian::DB_CREATE_OR_OPEN);
 	db.set_metadata(argv[3], argv[4]);
 	db.commit();
+    } else if (strcmp(command, "spells") == 0) {
+	if (argc != 3) goto syntax_error;
+	Xapian::Database db(argv[2]);
+	for (Xapian::TermIterator t = db.spellings_begin();
+	     t != db.spellings_end();
+	     ++t) {
+	    cout << "[" << *t << "]\n";
+	}
     } else {
 	goto syntax_error;
     }
