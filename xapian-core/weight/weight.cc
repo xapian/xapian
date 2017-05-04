@@ -193,26 +193,4 @@ Weight::create_from_parameters(const char *) const
     throw Xapian::UnimplementedError("create_from_parameters() not supported for this Xapian::Weight subclass");
 }
 
-void
-Weight::parameter_error(const char * msg, const string & scheme)
-{
-    string m(msg);
-    m += ": '";
-    m += scheme;
-    m += "'";
-    throw m;
-}
-
-bool
-Weight::double_param(const char ** p, double * ptr_val) const
-{
-    char *end;
-    errno = 0;
-    double v = strtod(*p, &end);
-    if (*p == end || errno) return false;
-    *p = end;
-    *ptr_val = v;
-    return true;
-}
-
 }

@@ -26,12 +26,9 @@
 
 #include <string>
 
+#include <xapian/registry.h>
 #include <xapian/types.h>
 #include <xapian/visibility.h>
-
-#include "registry.h"
-
-#include "../common/stringutils.h"
 
 namespace Xapian {
 
@@ -395,10 +392,6 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
     Xapian::termcount get_wdf_upper_bound() const {
 	return wdf_upper_bound_;
     }
-
-    static void parameter_error(const char * param, const std::string & scheme);
-
-    bool double_param(const char ** p, double * ptr_val) const;
 };
 
 /** Class implementing a "boolean" weighting scheme.

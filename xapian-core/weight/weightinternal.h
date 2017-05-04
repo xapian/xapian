@@ -245,6 +245,25 @@ class Weight::Internal {
 
     /// Return a std::string describing this object.
     std::string get_description() const;
+
+    inline static bool double_param(const char ** p, double * ptr_val) {
+	char *end;
+	errno = 0;
+	double v = strtod(*p, &end);
+	if (*p == end || errno) return false;
+	*p = end;
+	*ptr_val = v;
+	return true;
+    }
+
+    inline static void parameter_error(const char * param,
+				       const std::string & scheme) {
+	string m(param);
+	m += ": '";
+	m += scheme;
+	m += "'";
+	throw m;
+    }
 };
 
 }
