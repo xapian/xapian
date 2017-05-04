@@ -33,6 +33,7 @@
 #include "debuglog.h"
 
 #include <algorithm>
+#include <cctype>
 #include <map>
 #include <string>
 
@@ -43,6 +44,9 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
 
     /// Registered weighting schemes.
     std::map<std::string, Xapian::Weight *> wtschemes;
+
+    /// Registered weighting schemes by their short names. E.g. "bm25".
+    std::map<std::string, Xapian::Weight *> wtschemes_short;
 
     /// Registered external posting sources.
     std::map<std::string, Xapian::PostingSource *> postingsources;
@@ -167,6 +171,38 @@ Registry::Internal::add_defaults()
     weighting_scheme = new Xapian::LMWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
 
+    Xapian::Weight * weighting_scheme_short;
+    weighting_scheme_short = new Xapian::BB2Weight;
+    wtschemes_short["bb2"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::BM25Weight;
+    wtschemes_short["bm25"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::BM25PlusWeight;
+    wtschemes_short["bm25plus"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::BoolWeight;
+    wtschemes_short["bool"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::CoordWeight;
+    wtschemes_short["coord"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::DLHWeight;
+    wtschemes_short["dlh"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::DPHWeight;
+    wtschemes_short["dph"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::InL2Weight;
+    wtschemes_short["inl2"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::IfB2Weight;
+    wtschemes_short["ifb2"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::IneB2Weight;
+    wtschemes_short["ineb2"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::LMWeight;
+    wtschemes_short["lm"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::PL2Weight;
+    wtschemes_short["pl2"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::PL2PlusWeight;
+    wtschemes_short["pl2plus"] = weighting_scheme;
+    weighting_scheme_short = new Xapian::TfIdfWeight;
+    wtschemes_short["tfidf"] = weighting_scheme_short;
+    weighting_scheme_short = new Xapian::TradWeight;
+    wtschemes_short["trad"] = weighting_scheme_short;
+
     Xapian::PostingSource * source;
     source = new Xapian::ValueWeightPostingSource(0);
     postingsources[source->name()] = source;
@@ -267,6 +303,9 @@ const Xapian::Weight *
 Registry::get_weighting_scheme(const string & name) const
 {
     LOGCALL(API, const Xapian::Weight *, "Xapian::Registry::get_weighting_scheme", name);
+    const char * p = name.c_str();
+    if (std::islower(*p))
+	RETURN(lookup_object(internal->wtschemes_short, name));
     RETURN(lookup_object(internal->wtschemes, name));
 }
 
