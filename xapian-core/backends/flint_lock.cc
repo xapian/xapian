@@ -1,7 +1,7 @@
 /** @file flint_lock.cc
  * @brief Flint-compatible database locking.
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,7 +96,9 @@ FlintLock::test() const
 	    // Translate known errno values into a reason code.
 	    int e = errno;
 	    close(lockfd);
-	    reason why = (e == ENOLCK ? UNSUPPORTED : UNKNOWN);
+	    // F_GETLK isn't implemented by GNU Hurd, and always fails with
+	    // ENOSYS: https://bugs.debian.org/190367
+	    reason why = (e == ENOLCK || e == ENOSYS ? UNSUPPORTED : UNKNOWN);
 	    throw_databaselockerror(why, filename, "Testing lock");
 	}
     }
