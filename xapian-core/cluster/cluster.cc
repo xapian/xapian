@@ -252,15 +252,12 @@ Point::initialize(TermListGroup &tlg, const Document &doc_) {
     }
 }
 
-void
-Centroid::set_to_point(Point &p) {
-    LOGCALL_VOID(API, "Centroid::set_to_point()", p);
-    magnitude = 0;
+Centroid::Centroid(Point &p) {
     for (TermIterator it = p.termlist_begin(); it != p.termlist_end(); ++it) {
 	termlist.push_back(Wdf(*it, 1));
 	values[*it] = p.get_value(*it);
-	magnitude += p.get_value(*it)*p.get_value(*it);
     }
+    magnitude = p.get_magnitude();
 }
 
 void
@@ -369,8 +366,8 @@ Cluster::clear() {
     cluster_docs.clear();
 }
 
-Centroid
-Cluster::get_centroid() const {
+Centroid&
+Cluster::get_centroid() {
     LOGCALL(API, Centroid, "Cluster::get_centroid()", NO_ARGS);
     return centroid;
 }

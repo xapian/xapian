@@ -219,8 +219,8 @@ class Centroid : public PointType {
     /// Constructor
     Centroid() { magnitude = 0; }
 
-    /// This method initializes the values of a centroid to the Point 'x'
-    void set_to_point(Point &x);
+    // Constructor with Point argument
+    Centroid(Point &x);
 
     /// This method divides the weight of terms in the centroid by 'size'
     void divide(int size);
@@ -272,7 +272,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     DocumentSet get_documents();
 
     /// This method returns the current centroid of the cluster
-    Centroid get_centroid() const;
+    Centroid& get_centroid();
 
     /// This method sets the centroid of the Cluster to centroid_
     void set_centroid(const Centroid centroid_);
@@ -388,5 +388,47 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
     std::string get_description() const;
 };
 
+/** Kmeans clusterer:
+ *  This clusterer implements the K-Means clustering algorithm
+ */
+class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
+
+    /// This contains the initialized points that are to be clustered
+    std::vector<Point> docs;
+
+    /// This contains the state of previous 'k' centroids at every iteration
+    std::vector<Centroid> previous_centroids;
+
+    /// This specifies that the clusterer needs to form 'k' clusters
+    unsigned int k;
+
+    /// This specifies the maximum number of iterations that KMeans will have
+    unsigned int max_iters;
+
+    /** This method helps initialize 'k' clusters by randomly selecting
+     *  'k' centroids and assigning them to different clusters
+     */
+    void initialize_clusters(ClusterSet &cset);
+
+    /** Initialize the 'Points' to be fed into the Clusterer with the DocumentSource.
+     *  The TF-IDF weights for the points are calculated and stored within the
+     *  Points to be used later during distance calculations
+     */
+    void initialize_points(const MSet &docs);
+
+  public:
+
+    /// Constructor specifying number of clusters
+    KMeans(unsigned int k_);
+
+    /// Constructor specifying number of clusters and maximum iterations
+    KMeans(unsigned int k_, unsigned int max_iters_);
+
+    /// This method implements the KMeans clustering algorithm
+    ClusterSet cluster(MSet &mset);
+
+    /// This method returns the description of the clusterer
+    std::string get_description() const;
+};
 }
 #endif

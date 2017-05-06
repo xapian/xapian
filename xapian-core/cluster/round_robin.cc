@@ -37,8 +37,7 @@ RoundRobin::get_description() const {
 ClusterSet
 RoundRobin::cluster(MSet &mset) {
     LOGCALL(API, ClusterSet, "RoundRobin::cluster()", mset);
-    TermListGroup tlg;
-    tlg.add_documents(mset);
+    TermListGroup tlg(mset);
     ClusterSet cset;
     vector<Point> points;
 
