@@ -252,6 +252,41 @@ Point::initialize(TermListGroup &tlg, const Document &doc_) {
     }
 }
 
+void
+Centroid::set_to_point(Point &p) {
+    LOGCALL_VOID(API, "Centroid::set_to_point()", p);
+    magnitude = 0;
+    for (TermIterator it = p.termlist_begin(); it != p.termlist_end(); ++it) {
+	termlist.push_back(Wdf(*it, 1));
+	values[*it] = p.get_value(*it);
+	magnitude += p.get_value(*it)*p.get_value(*it);
+    }
+}
+
+void
+Centroid::divide(int num) {
+    LOGCALL_VOID(API, "Centroid::divide()", num);
+    unordered_map<string, double>::iterator it;
+    for (it = values.begin(); it != values.end(); ++it)
+	it->second = it->second / num;
+}
+
+void
+Centroid::clear() {
+    LOGCALL_VOID(API, "Centroid::clear()", NO_ARGS);
+    values.clear();
+    termlist.clear();
+}
+
+void
+Centroid::recalc_magnitude() {
+    LOGCALL_VOID(API, "Centroid::recalc_magnitude()", NO_ARGS);
+    magnitude = 0;
+    unordered_map<string, double>::iterator it;
+    for (it = values.begin(); it != values.end(); ++it)
+	magnitude += it->second*it->second;
+}
+
 Cluster::Cluster() {
     LOGCALL_CTOR(API, "Cluster()", NO_ARGS);
 }
@@ -309,6 +344,13 @@ ClusterSet::add_to_cluster(const Point &x, unsigned int i) {
    clusters[i].add_point(x);
 }
 
+void
+ClusterSet::recalculate_centroids() {
+    LOGCALL_VOID(API, "ClusterSet::recalculate_centroids()", NO_ARGS);
+    for (vector<Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+	(*it).recalculate();
+}
+
 doccount
 Cluster::size() const {
     LOGCALL(API, doccount, "Cluster::size()", NO_ARGS);
@@ -325,4 +367,36 @@ void
 Cluster::clear() {
     LOGCALL_VOID(API, "Cluster::clear()", NO_ARGS);
     cluster_docs.clear();
+}
+
+Centroid
+Cluster::get_centroid() const {
+    LOGCALL(API, Centroid, "Cluster::get_centroid()", NO_ARGS);
+    return centroid;
+}
+
+void
+Cluster::set_centroid(const Centroid centroid_) {
+    LOGCALL_VOID(API, "Cluster::set_centroid()", centroid_);
+    centroid = centroid_;
+}
+
+void
+ClusterSet::clear_clusters() {
+    LOGCALL_VOID(API, "ClusterSet::clear_clusters()", NO_ARGS);
+    for (vector<Cluster>::iterator it = clusters.begin(); it !=clusters.end(); ++it)
+	(*it).clear();
+}
+
+void
+Cluster::recalculate() {
+    LOGCALL_VOID(API, "Cluster::recalculate()", NO_ARGS);
+    centroid.clear();
+    for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
+	Point &temp = *it;
+	for (TermIterator titer = temp.termlist_begin(); titer != temp.termlist_end(); ++titer)
+	    centroid.add_value(*titer, temp.get_value(*titer));
+    }
+    centroid.divide(size());
+    centroid.recalc_magnitude();
 }

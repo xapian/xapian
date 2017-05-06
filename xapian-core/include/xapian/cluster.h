@@ -159,9 +159,6 @@ class XAPIAN_VISIBILITY_DEFAULT PointType {
     /// This stores the squared magnitude of the PointType
     double magnitude;
 
-    /// This method adds the value 'value' to the mapping of a term
-    void add_value(std::string term, double value);
-
     /// This method sets the value 'value' to the mapping of a term
     void set_value(std::string term, double value);
 
@@ -180,6 +177,9 @@ class XAPIAN_VISIBILITY_DEFAULT PointType {
 
     /// This method returns the TF-IDF weight associated with a certain term
     double get_value(std::string term);
+
+    /// This method adds the value 'value' to the mapping of a term
+    void add_value(std::string term, double value);
 
     /// This method returns the pre-computed squared magnitude
     double get_magnitude() const;
@@ -210,6 +210,28 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
     Document get_document() const;
 };
 
+/** Class to represent cluster centroids in the vector space
+*/
+class Centroid : public PointType {
+
+  public:
+
+    /// Constructor
+    Centroid() { magnitude = 0; }
+
+    /// This method initializes the values of a centroid to the Point 'x'
+    void set_to_point(Point &x);
+
+    /// This method divides the weight of terms in the centroid by 'size'
+    void divide(int size);
+
+    /// This method clears the terms and corresponding values of the centroid
+    void clear();
+
+    /// This method recalculates the magnitude of the centroid
+    void recalc_magnitude();
+};
+
 /** Class to represents a Cluster which contains Points and
  *  of the Cluster
  */
@@ -220,7 +242,13 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     /// Documents (or Points in the vector space) within the cluster
     std::vector<Point> cluster_docs;
 
+    /// Point or Document representing the cluster centroid
+    Centroid centroid;
+
   public:
+
+    /// Constructor
+    Cluster(const Centroid centroid_) : centroid(centroid_) {}
 
     /// Constructor
     Cluster();
@@ -242,6 +270,19 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /// This method returns the documents that are contained within the cluster
     DocumentSet get_documents();
+
+    /// This method returns the current centroid of the cluster
+    Centroid get_centroid() const;
+
+    /// This method sets the centroid of the Cluster to centroid_
+    void set_centroid(const Centroid centroid_);
+
+    /** This method recalculates the centroid of the Cluster after each iteration
+     *  of the KMeans algorithm by taking the mean of all document vectors (Points)
+     *  that belong to the Cluster
+     */
+    void recalculate();
+
 };
 
 /** Class for storing the results returned by the Clusterer
@@ -272,6 +313,11 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
     /// This method is used to clear all the Clusters in the ClusterSet
     void clear_clusters();
+
+    /** This methood recalculates the centroids for all the centroids
+     *  in the ClusterSet
+     */
+    void recalculate_centroids();
 };
 
 /** Base class for calculating the similarity between documents
