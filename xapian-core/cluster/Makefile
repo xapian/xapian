@@ -7,4 +7,3 @@ all check check-syntax:
 
 clean:
 	rm -f *.o *.obj *.lo
-

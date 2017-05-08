@@ -24,10 +24,10 @@
 
 #include "xapian/cluster.h"
 
-#include <xapian/error.h>
-#include <api/termlist.h>
-#include <debuglog.h>
-#include <omassert.h>
+#include "xapian/error.h"
+#include "api/termlist.h"
+#include "debuglog.h"
+#include "omassert.h"
 
 #include <cmath>
 #include <unordered_map>
@@ -51,21 +51,31 @@ Clusterer::~Clusterer()
     LOGCALL_DTOR(API, "Clusterer");
 }
 
+TermListGroup::TermListGroup(const MSet &docs) {
+    LOGCALL_CTOR(API, "TermListGroup", docs);
+    for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
+	add_document(it.get_document());
+    docs_num = docs.size();
+}
+
 doccount
-DummyFreqSource::get_termfreq(const string &) {
-    LOGCALL(API, doccount, "DummyFreqSource::get_termfreq()", NO_ARGS);
+DummyFreqSource::get_termfreq(const string &) const
+{
+    LOGCALL(API, doccount, "DummyFreqSource::get_termfreq", NO_ARGS);
     return 1;
 }
 
 doccount
-DummyFreqSource::get_doccount() const {
-    LOGCALL(API, doccount, "DummyFreqSource::get_doccount()", NO_ARGS);
+DummyFreqSource::get_doccount() const
+{
+    LOGCALL(API, doccount, "DummyFreqSource::get_doccount", NO_ARGS);
     return 1;
 }
 
 void
-TermListGroup::add_document(const Document &document) {
-    LOGCALL_VOID(API, "TermListGroup::add_document()", document);
+TermListGroup::add_document(const Document &document)
+{
+    LOGCALL_VOID(API, "TermListGroup::add_document", document);
 
     TermIterator titer(document.termlist_begin());
     TermIterator end(document.termlist_end());
@@ -80,55 +90,53 @@ TermListGroup::add_document(const Document &document) {
     }
 }
 
-void
-TermListGroup::add_documents(const MSet &docs) {
-    LOGCALL_VOID(API, "TermListGroup::add_documents()", docs);
-    for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
-	add_document(it.get_document());
-    docs_num = docs.size();
-}
-
 doccount
-TermListGroup::get_doccount() const {
-    LOGCALL(API, doccount, "TermListGroup::get_doccount()", NO_ARGS);
+TermListGroup::get_doccount() const
+{
+    LOGCALL(API, doccount, "TermListGroup::get_doccount", NO_ARGS);
     return docs_num;
 }
 
 doccount
-TermListGroup::get_termfreq(const string &tname) {
-    LOGCALL(API, doccount, "TermListGroup::get_termfreq()", tname);
-    return termfreq[tname];
+TermListGroup::get_termfreq(const string &tname) const
+{
+    LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
+    unordered_map<string, doccount>::const_iterator it = termfreq.find(tname);
+    return it->second;
 }
 
 int
-DocumentSet::size() const {
-    LOGCALL(API, int, "DocumentSet::size()", NO_ARGS);
+DocumentSet::size() const
+{
+    LOGCALL(API, int, "DocumentSet::size", NO_ARGS);
     return docs.size();
 }
 
 void
-DocumentSet::add_document(Document doc) {
-    LOGCALL_VOID(API, "DocumentSet::add_document()", doc);
+DocumentSet::add_document(Document doc)
+{
+    LOGCALL_VOID(API, "DocumentSet::add_document", doc);
     docs.push_back(doc);
 }
 
 Document
-DocumentSet::operator[](doccount i) {
+DocumentSet::operator[](doccount i)
+{
     return docs[i];
 }
 
 class PointTermIterator : public TermIterator::Internal {
-    std::vector<Wdf>::const_iterator i;
-    std::vector<Wdf>::const_iterator end;
+    unordered_map<string, double>::const_iterator i;
+    unordered_map<string, double>::const_iterator end;
     termcount size;
     bool started;
   public:
-    PointTermIterator(const std::vector<Wdf> &termlist) :
+    PointTermIterator(const unordered_map<string, double> &termlist) :
     i(termlist.begin()), end(termlist.end()), size(termlist.size()), started(false)
     {}
     termcount get_approx_size() const { return size; }
-    termcount get_wdf() const { return i->wdf; }
-    std::string get_termname() const { return i->term; }
+    termcount get_wdf() const { throw UnimplementedError("PointIterator doesn't support get_wdf()"); }
+    string get_termname() const { return i->first; }
     doccount get_termfreq() const { throw UnimplementedError("PointIterator doesn't support get_termfreq()"); }
     Internal * next();
     termcount positionlist_count() const {
@@ -138,17 +146,19 @@ class PointTermIterator : public TermIterator::Internal {
     PositionIterator positionlist_begin() const {
 	throw UnimplementedError("PointTermIterator doesn't support positionlist_begin()");
     }
-    Internal * skip_to(const std::string &term);
+    Internal * skip_to(const string &term);
 };
 
 TermIterator::Internal *
-PointTermIterator::next() {
+PointTermIterator::next()
+{
     if (!started) {
 	started = true;
 	return NULL;
     }
     Assert(i != end);
-    ++i; return NULL;
+    ++i;
+    return NULL;
 }
 
 bool
@@ -159,78 +169,80 @@ PointTermIterator::at_end() const
 }
 
 TermIterator::Internal *
-PointTermIterator::skip_to(const string &term) {
-    if (i->term == term)
+PointTermIterator::skip_to(const string &term)
+{
+    if (i->first == term)
 	return NULL;
-    while (i->term != term)
+    while (i->first != term)
 	i++;
     return NULL;
 }
 
 TermIterator
-PointType::termlist_begin() const {
-    LOGCALL(API, TermIterator, "PointType::termlist_begin()", NO_ARGS);
-    return TermIterator(new PointTermIterator(termlist));
-}
-
-TermIterator
-PointType::termlist_end() const {
-    LOGCALL(API, TermIterator, "PointType::termlist_end()", NO_ARGS);
-    return TermIterator(NULL);
+PointType::termlist_begin() const
+{
+    LOGCALL(API, TermIterator, "PointType::termlist_begin", NO_ARGS);
+    return TermIterator(new PointTermIterator(values));
 }
 
 bool
-PointType::contains(string term) {
-    LOGCALL(API, bool, "PointType::contains()", term);
-    return !(values.find(term) == values.end());
+PointType::contains(const string &term) const
+{
+    LOGCALL(API, bool, "PointType::contains", term);
+    return values.find(term) != values.end();
 }
 
 double
-PointType::get_value(string term) {
-    LOGCALL(API, double, "Point::get_value()", term);
-    return (values.find(term) == values.end()) ? 0.0 : values[term];
+PointType::get_value(const string &term) const
+{
+    LOGCALL(API, double, "Point::get_value", term);
+    unordered_map<string, double>::const_iterator it = values.find(term);
+    return (it == values.end()) ? 0.0 : it->second;
 }
 
 double
 PointType::get_magnitude() const {
-    LOGCALL(API, double, "PointType::get_magnitude()", NO_ARGS);
+    LOGCALL(API, double, "PointType::get_magnitude", NO_ARGS);
     return magnitude;
 }
 
 void
-PointType::add_value(string term, double value) {
-    LOGCALL_VOID(API, "PointType::add_value()", term | value);
+PointType::add_value(const string &term, double value)
+{
+    LOGCALL_VOID(API, "PointType::add_value", term | value);
     unordered_map<string, double>::iterator it;
     it = values.find(term);
     if (it != values.end())
 	it->second += value;
-    else {
-	termlist.push_back(Wdf(term, 1));
+    else
 	values[term] = value;
-    }
 }
 
 void
-PointType::set_value(string term, double value) {
-    LOGCALL_VOID(API, "PointType::set_value()", term | value);
+PointType::set_value(const string &term, double value)
+{
+    LOGCALL_VOID(API, "PointType::set_value", term | value);
     values[term] = value;
 }
 
 int
-PointType::termlist_size() const {
-    LOGCALL(API, int, "PointType::termlist_size()", NO_ARGS);
-    return termlist.size();
+PointType::termlist_size() const
+{
+    LOGCALL(API, int, "PointType::termlist_size", NO_ARGS);
+    return values.size();
 }
 
 Document
-Point::get_document() const {
-    LOGCALL(API, Document, "Point::get_document()", NO_ARGS);
+Point::get_document() const
+{
+    LOGCALL(API, Document, "Point::get_document", NO_ARGS);
     return doc;
 }
 
 void
-Point::initialize(TermListGroup &tlg, const Document &doc_) {
-    LOGCALL_VOID(API, "Point::initialize()", tlg | doc);
+Point::initialize(const TermListGroup &tlg, const Document &doc_)
+{
+    LOGCALL_VOID(API, "Point::initialize", tlg | doc_);
     doccount size = tlg.get_doccount();
     doc = doc_;
     for (TermIterator it = doc.termlist_begin(); it != doc.termlist_end(); ++it) {
@@ -242,152 +254,161 @@ Point::initialize(TermListGroup &tlg, const Document &doc_) {
 	 */
 	if (wdf < 1 || term[0] != 'Z' || termfreq <= 1)
 	    continue;
-	Wdf term_wdf(term, wdf);
-	termlist.push_back(term_wdf);
-	double tf = 1 + log(wdf);
+	double tf = 1 + log((double)wdf);
 	double idf = log(size / termfreq);
-	double wt = tf*idf;
+	double wt = tf * idf;
 	values[term] = wt;
-	magnitude += wt*wt;
+	magnitude += wt * wt;
     }
 }
 
 Centroid::Centroid(Point &p) {
-    for (TermIterator it = p.termlist_begin(); it != p.termlist_end(); ++it) {
-	termlist.push_back(Wdf(*it, 1));
+    LOGCALL_CTOR(API, "Centroid", p);
+    for (TermIterator it = p.termlist_begin(); it != p.termlist_end(); ++it)
 	values[*it] = p.get_value(*it);
-    }
     magnitude = p.get_magnitude();
 }
 
 void
-Centroid::divide(int num) {
-    LOGCALL_VOID(API, "Centroid::divide()", num);
+Centroid::divide(int num)
+{
+    LOGCALL_VOID(API, "Centroid::divide", num);
     unordered_map<string, double>::iterator it;
     for (it = values.begin(); it != values.end(); ++it)
-	it->second = it->second / num;
+	it->second /= num;
 }
 
 void
-Centroid::clear() {
-    LOGCALL_VOID(API, "Centroid::clear()", NO_ARGS);
+Centroid::clear()
+{
+    LOGCALL_VOID(API, "Centroid::clear", NO_ARGS);
     values.clear();
-    termlist.clear();
 }
 
 void
-Centroid::recalc_magnitude() {
-    LOGCALL_VOID(API, "Centroid::recalc_magnitude()", NO_ARGS);
+Centroid::recalc_magnitude()
+{
+    LOGCALL_VOID(API, "Centroid::recalc_magnitude", NO_ARGS);
     magnitude = 0;
     unordered_map<string, double>::iterator it;
     for (it = values.begin(); it != values.end(); ++it)
-	magnitude += it->second*it->second;
+	magnitude += it->second * it->second;
 }
 
-Cluster::Cluster() {
-    LOGCALL_CTOR(API, "Cluster()", NO_ARGS);
+Cluster::Cluster()
+{
+    LOGCALL_CTOR(API, "Cluster", NO_ARGS);
 }
 
-Cluster::~Cluster() {
-    LOGCALL_DTOR(API, "Cluster()");
+Cluster::~Cluster()
+{
+    LOGCALL_DTOR(API, "Cluster");
+}
+
+Centroid::Centroid()
+{
+    LOGCALL_CTOR(API, "Centroid", NO_ARGS);
 }
 
 DocumentSet
-Cluster::get_documents() {
-    LOGCALL(API, DocumentSet, "Cluster::get_documents()", NO_ARGS);
+Cluster::get_documents()
+{
+    LOGCALL(API, DocumentSet, "Cluster::get_documents", NO_ARGS);
     DocumentSet docs;
-    int s = size();
-    for (int i = 0; i < s; ++i) {
-	Point x = get_index(i);
-	docs.add_document(x.get_document());
-    }
+    for (auto&& point : cluster_docs)
+	docs.add_document(point.get_document());
     return docs;
 }
 
 Point
-Cluster::get_index(unsigned int index) const {
-    LOGCALL(API, Point, "Cluster::get_index()", index);
+Cluster::get_index(unsigned int index) const
+{
+    LOGCALL(API, Point, "Cluster::get_index", index);
     return cluster_docs[index];
 }
 
 doccount
-ClusterSet::size() const {
-    LOGCALL(API, doccount, "ClusterSet::size()", NO_ARGS);
+ClusterSet::size() const
+{
+    LOGCALL(API, doccount, "ClusterSet::size", NO_ARGS);
     return clusters.size();
 }
 
-Cluster
-ClusterSet::get_cluster(unsigned int index) const {
-    LOGCALL(API, Cluster, "ClusterSet::get_cluster()", index);
-    if (index >= clusters.size())
-	throw RangeError("The mentioned cluster index was out of range");
-    return clusters[index];
-}
-
 void
-ClusterSet::add_cluster(Cluster &c) {
-    LOGCALL_VOID(API, "ClusterSet::add_cluster()", c);
+ClusterSet::add_cluster(Cluster &c)
+{
+    LOGCALL_VOID(API, "ClusterSet::add_cluster", c);
     clusters.push_back(c);
 }
 
-Cluster
-ClusterSet::operator[](doccount i) {
+Cluster&
+ClusterSet::operator[](doccount i)
+{
     return clusters[i];
 }
 
 void
-ClusterSet::add_to_cluster(const Point &x, unsigned int i) {
-   LOGCALL_VOID(API, "ClusterSet::add_to_cluster()", x | i);
+ClusterSet::add_to_cluster(const Point &x, unsigned int i)
+{
+   LOGCALL_VOID(API, "ClusterSet::add_to_cluster", x | i);
    clusters[i].add_point(x);
 }
 
 void
-ClusterSet::recalculate_centroids() {
-    LOGCALL_VOID(API, "ClusterSet::recalculate_centroids()", NO_ARGS);
+ClusterSet::recalculate_centroids()
+{
+    LOGCALL_VOID(API, "ClusterSet::recalculate_centroids", NO_ARGS);
     for (vector<Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
 	(*it).recalculate();
 }
 
 doccount
-Cluster::size() const {
-    LOGCALL(API, doccount, "Cluster::size()", NO_ARGS);
+Cluster::size() const
+{
+    LOGCALL(API, doccount, "Cluster::size", NO_ARGS);
     return (cluster_docs.size());
 }
 
 void
-Cluster::add_point(const Point &doc) {
-    LOGCALL_VOID(API, "Cluster::add_point()", doc);
+Cluster::add_point(const Point &doc)
+{
+    LOGCALL_VOID(API, "Cluster::add_point", doc);
     cluster_docs.push_back(doc);
 }
 
 void
-Cluster::clear() {
-    LOGCALL_VOID(API, "Cluster::clear()", NO_ARGS);
+Cluster::clear()
+{
+    LOGCALL_VOID(API, "Cluster::clear", NO_ARGS);
     cluster_docs.clear();
 }
 
-Centroid&
-Cluster::get_centroid() {
-    LOGCALL(API, Centroid, "Cluster::get_centroid()", NO_ARGS);
+Centroid
+Cluster::get_centroid() const
+{
+    LOGCALL(API, Centroid, "Cluster::get_centroid", NO_ARGS);
     return centroid;
 }
 
 void
-Cluster::set_centroid(const Centroid centroid_) {
-    LOGCALL_VOID(API, "Cluster::set_centroid()", centroid_);
+Cluster::set_centroid(const Centroid centroid_)
+{
+    LOGCALL_VOID(API, "Cluster::set_centroid", centroid_);
     centroid = centroid_;
 }
 
 void
-ClusterSet::clear_clusters() {
-    LOGCALL_VOID(API, "ClusterSet::clear_clusters()", NO_ARGS);
+ClusterSet::clear_clusters()
+{
+    LOGCALL_VOID(API, "ClusterSet::clear_clusters", NO_ARGS);
     for (vector<Cluster>::iterator it = clusters.begin(); it !=clusters.end(); ++it)
 	(*it).clear();
 }
 
 void
-Cluster::recalculate() {
-    LOGCALL_VOID(API, "Cluster::recalculate()", NO_ARGS);
+Cluster::recalculate()
+{
+    LOGCALL_VOID(API, "Cluster::recalculate", NO_ARGS);
     centroid.clear();
     for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
 	Point &temp = *it;

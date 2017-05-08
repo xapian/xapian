@@ -23,20 +23,21 @@
 
 #include "xapian/cluster.h"
 
-#include <debuglog.h>
+#include "debuglog.h"
 
 using namespace Xapian;
 using namespace std;
 
 string
-RoundRobin::get_description() const {
-    LOGCALL(API, string, "RoundRobin::get_description()", NO_ARGS);
-    return "Round Robin clusterer";
+RoundRobin::get_description() const
+{
+    return "RoundRobin()";
 }
 
 ClusterSet
-RoundRobin::cluster(MSet &mset) {
-    LOGCALL(API, ClusterSet, "RoundRobin::cluster()", mset);
+RoundRobin::cluster(MSet &mset)
+{
+    LOGCALL(API, ClusterSet, "RoundRobin::cluster", mset);
     TermListGroup tlg(mset);
     ClusterSet cset;
     vector<Point> points;

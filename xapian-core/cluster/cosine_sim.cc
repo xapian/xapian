@@ -23,7 +23,7 @@
 
 #include "xapian/cluster.h"
 
-#include <debuglog.h>
+#include "debuglog.h"
 
 #include <cmath>
 
@@ -31,28 +31,27 @@ using namespace std;
 using namespace Xapian;
 
 string
-CosineDistance::get_description() const {
-    LOGCALL(API, string, "CosineDistance::get_description()", NO_ARGS);
-    return "Cosine Distance metric";
+CosineDistance::get_description() const
+{
+    return "CosineDistance()";
 }
 
 double
-CosineDistance::similarity(PointType &a, PointType &b) const {
-    LOGCALL(API, double, "CosineDistance::similarity()", a | b);
-    double denom_a = 0;
-    double denom_b = 0;
+CosineDistance::similarity(const PointType &a, const PointType &b) const
+{
+    LOGCALL(API, double, "CosineDistance::similarity", a | b);
+    double denom_a = a.get_magnitude();
+    double denom_b = b.get_magnitude();
     double inner_product = 0;
-    denom_a = a.get_magnitude();
-    denom_b = b.get_magnitude();
 
     if (denom_a == 0 || denom_b == 0)
 	return 0.0;
 
     for (TermIterator it = a.termlist_begin(); it != a.termlist_end(); ++it) {
 	string term = *it;
-	if (b.contains(term) && a.get_value(term) > 0 && b.get_value(term) > 0)
-	    inner_product += a.get_value(term)*b.get_value(term);
+	if (a.get_value(term) > 0 && b.get_value(term) > 0)
+	    inner_product += a.get_value(term) * b.get_value(term);
     }
 
-    return 1-(inner_product)/(sqrt(denom_a*denom_b));
+    return 1 - (inner_product / (sqrt(denom_a * denom_b)));
 }
