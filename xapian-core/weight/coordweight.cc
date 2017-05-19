@@ -90,7 +90,7 @@ CoordWeight *
 CoordWeight::create_from_parameters(const char * p) const
 {
     if (*p == ' ')
-	throw "No parameters are required for CoordWeight";
+	throw InvalidArgumentError("No parameters are required for CoordWeight");
     return new Xapian::CoordWeight();
 }
 

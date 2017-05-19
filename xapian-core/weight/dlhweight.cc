@@ -209,7 +209,7 @@ DLHWeight::create_from_parameters(const char * p) const
     if (*p == '\0')
 	return new Xapian::DLHWeight();
     if (*p == ' ')
-	throw "No parameters are required for DLHWeight";
+	throw InvalidArgumentError("No parameters are required for DLHWeight");
     return new Xapian::DLHWeight();
 }
 

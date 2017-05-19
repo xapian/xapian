@@ -25,6 +25,7 @@
 #include "xapian/weight.h"
 
 #include "xapian/database.h"
+#include "xapian/error.h"
 #include "xapian/query.h"
 
 #include "backends/database.h"
@@ -264,7 +265,7 @@ class Weight::Internal {
 	m += ": '";
 	m += scheme;
 	m += "'";
-	throw m;
+	throw InvalidArgumentError(m);
     }
 };
 
