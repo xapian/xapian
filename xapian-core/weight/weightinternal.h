@@ -258,9 +258,9 @@ class Weight::Internal {
 	return true;
     }
 
-    static void parameter_error(const char * param,
+    static void parameter_error(const char * msg,
 				const std::string & scheme) {
-	string m(param);
+	string m(msg);
 	m += ": '";
 	m += scheme;
 	m += "'";
