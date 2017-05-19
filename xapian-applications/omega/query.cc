@@ -652,30 +652,27 @@ html_strip(const string &str)
     return res;
 }
 
-static unordered_map<string, int> word_to_occurrence;
-
 class WordList {
-    string list;
+    static string prev_list;
+    static unordered_map<string, int> word_to_occurrence;
   public:
-    WordList() : list("") { }
-
-    void build_word_map(const string& list2) {
+    void build_word_map(const string& list) {
 	// Don't build map again if passed list of terms is same as before.
-	if (list == list2) return;
+	if (prev_list == list) return;
 	word_to_occurrence.clear();
 	string::size_type split = 0, split2;
 	int word_index = 0;
 	string word;
-	while ((split2 = list2.find('\t', split)) != string::npos) {
-	    word = list2.substr(split, split2 - split);
+	while ((split2 = list.find('\t', split)) != string::npos) {
+	    word = list.substr(split, split2 - split);
 	    if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
 		++word_index;
 	    split = split2 + 1;
 	}
-	word = list2.substr(split, list2.size() - split);
+	word = list.substr(split, list.size() - split);
 	if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
 	    ++word_index;
-	list = list2;
+	prev_list = list;
     }
 
     int word_in_list(const string& word) {
@@ -684,6 +681,9 @@ class WordList {
 	return it->second;
     }
 };
+
+string WordList::prev_list;
+unordered_map<string, int> WordList::word_to_occurrence;
 
 // Not a character in an identifier
 inline static bool
@@ -701,7 +701,8 @@ p_nottag(unsigned int c)
 
 // FIXME: shares algorithm with indextext.cc!
 static string
-html_highlight(const string &s, const string &bra, const string &ket)
+html_highlight(const string &s, const string &list,
+		const string &bra, const string &ket)
 {
     if (!stemmer) {
 	stemmer = new Xapian::Stem(option["stemmer"]);
@@ -766,6 +767,7 @@ html_highlight(const string &s, const string &bra, const string &ket)
 	j = term_end;
 	term = Xapian::Unicode::tolower(term);
 	WordList w;
+	w.build_word_map(list);
 	int match = w.word_in_list(term);
 	if (match == -1) {
 	    string stem = "Z";
@@ -1561,9 +1563,7 @@ eval(const string &fmt, const vector<string> &param)
 			ket += '>';
 		    }
 		}
-		WordList w;
-		w.build_word_map(args[1]);
-		value = html_highlight(args[0], bra, ket);
+		value = html_highlight(args[0], args[1], bra, ket);
 		break;
 	    }
 	    case CMD_hit:
