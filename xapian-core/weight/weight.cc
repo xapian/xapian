@@ -142,7 +142,7 @@ const Weight *
 Weight::create(const string & s, const Registry & reg)
 {
     const char *p = s.c_str();
-    std::string scheme = "";
+    std::string scheme;
 
     while (*p != ' ') {
 	if (*p == '\0') break;
