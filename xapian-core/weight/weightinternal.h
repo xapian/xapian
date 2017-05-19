@@ -248,7 +248,7 @@ class Weight::Internal {
     /// Return a std::string describing this object.
     std::string get_description() const;
 
-    inline static bool double_param(const char ** p, double * ptr_val) {
+    static bool double_param(const char ** p, double * ptr_val) {
 	char *end;
 	errno = 0;
 	double v = strtod(*p, &end);
@@ -258,8 +258,8 @@ class Weight::Internal {
 	return true;
     }
 
-    inline static void parameter_error(const char * param,
-				       const std::string & scheme) {
+    static void parameter_error(const char * param,
+				const std::string & scheme) {
 	string m(param);
 	m += ": '";
 	m += scheme;
