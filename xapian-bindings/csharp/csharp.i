@@ -236,6 +236,8 @@ namespace Xapian {
 
 }
 
+%warnfilter(842);
+
 %include ../generic/except.i
 %include ../xapian-headers.i
 %include ../fake_dbfactory.i
