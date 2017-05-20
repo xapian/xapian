@@ -151,7 +151,7 @@ SVMRanker::train_model(const std::vector<Xapian::FeatureVector> & training_data)
 void
 SVMRanker::save_model_to_metadata(const string & model_key)
 {
-    LOGCALL_VOID(API, "SVMRanker::save_model_to_file", model_key);
+    LOGCALL_VOID(API, "SVMRanker::save_model_to_metadata", model_key);
     Xapian::WritableDatabase letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {
@@ -163,7 +163,7 @@ SVMRanker::save_model_to_metadata(const string & model_key)
 void
 SVMRanker::load_model_from_metadata(const string & model_key)
 {
-    LOGCALL_VOID(API, "SVMRanker::load_model_from_file", model_key);
+    LOGCALL_VOID(API, "SVMRanker::load_model_from_metadata", model_key);
     Xapian::Database letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {

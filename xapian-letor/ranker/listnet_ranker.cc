@@ -145,7 +145,7 @@ ListNETRanker::train_model(const std::vector<Xapian::FeatureVector> & training_d
 
 void
 ListNETRanker::save_model_to_metadata(const string & model_key) {
-    LOGCALL_VOID(API, "ListNETRanker::save_model_to_file", model_key);
+    LOGCALL_VOID(API, "ListNETRanker::save_model_to_metadata", model_key);
     Xapian::WritableDatabase letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {
@@ -159,7 +159,7 @@ ListNETRanker::save_model_to_metadata(const string & model_key) {
 
 void
 ListNETRanker::load_model_from_metadata(const string & model_key) {
-    LOGCALL_VOID(API, "ListNETRanker::load_model_from_file", model_key);
+    LOGCALL_VOID(API, "ListNETRanker::load_model_from_metadata", model_key);
     Xapian::Database letor_db(get_database_path());
     string key = model_key;
     if (key.empty()) {
