@@ -84,4 +84,4 @@ before_script:
 script:
   - make
   - $installcore
-  - make check -C xapian-bindings VERBOSE=1 AUTOMATED_TESTING=1
+  - make check VERBOSE=1 AUTOMATED_TESTING=1
