@@ -72,6 +72,9 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
     /// Clear all registered lat-long metrics.
     void clear_lat_long_metrics();
 
+    /// Clear all registered weighting schemes with short names.
+    void clear_weighting_schemes_short();
+
   public:
     Internal();
     ~Internal();
@@ -134,6 +137,7 @@ Registry::Internal::~Internal()
     clear_posting_sources();
     clear_match_spies();
     clear_lat_long_metrics();
+    clear_weighting_schemes_short();
 }
 
 void
@@ -197,7 +201,7 @@ Registry::Internal::add_defaults()
     weighting_scheme_short = new Xapian::PL2Weight;
     wtschemes_short["pl2"] = weighting_scheme_short;
     weighting_scheme_short = new Xapian::PL2PlusWeight;
-    wtschemes_short["pl2plus"] = weighting_scheme;
+    wtschemes_short["pl2plus"] = weighting_scheme_short;
     weighting_scheme_short = new Xapian::TfIdfWeight;
     wtschemes_short["tfidf"] = weighting_scheme_short;
     weighting_scheme_short = new Xapian::TradWeight;
@@ -258,6 +262,15 @@ Registry::Internal::clear_lat_long_metrics()
 {
     map<string, Xapian::LatLongMetric *>::const_iterator i;
     for (i = lat_long_metrics.begin(); i != lat_long_metrics.end(); ++i) {
+	delete i->second;
+    }
+}
+
+void
+Registry::Internal::clear_weighting_schemes_short()
+{
+    map<string, Xapian::Weight*>::const_iterator i;
+    for (i = wtschemes_short.begin(); i != wtschemes_short.end(); ++i) {
 	delete i->second;
     }
 }
