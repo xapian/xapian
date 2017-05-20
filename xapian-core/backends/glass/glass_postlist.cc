@@ -1284,7 +1284,7 @@ void
 GlassPostListTable::get_used_docid_range(Xapian::docid & first,
 					 Xapian::docid & last) const
 {
-    LOGCALL(DB, Xapian::docid, "GlassPostList::get_used_docid_range", "&first, &used");
+    LOGCALL(DB, Xapian::docid, "GlassPostListTable::get_used_docid_range", "&first, &used");
     AutoPtr<GlassCursor> cur(cursor_get());
     if (!cur->find_entry(pack_glass_postlist_key(string()))) {
 	// Empty database.

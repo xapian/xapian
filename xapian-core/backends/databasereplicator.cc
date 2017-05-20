@@ -48,7 +48,7 @@ DatabaseReplicator::~DatabaseReplicator()
 DatabaseReplicator *
 DatabaseReplicator::open(const string & path)
 {
-    LOGCALL_STATIC_VOID(DB, "DatabaseReplicator::DatabaseReplicator", path);
+    LOGCALL(DB, DatabaseReplicator *, "DatabaseReplicator::open", path);
 
 #ifdef XAPIAN_HAS_CHERT_BACKEND
     if (file_exists(path + "/iamchert")) {
