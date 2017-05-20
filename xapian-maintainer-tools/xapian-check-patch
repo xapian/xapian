@@ -147,6 +147,9 @@ while (<>) {
     s!  +\\$! \\!;
 
     if (defined $lang && ($lang eq 'c++' || $lang eq 'h' || $lang eq 'c') && !(/^[-+]\s*\#/)) {
+	if (m,^\+\s+LOGCALL(?:_[A-Z0-9]+)*\([^"]*"[^"]*(?<!operator)\(,) {
+	    $msg = "Don't include parentheses in debug logging method/class name:";
+	}
 	# Replace string literals containing escaped quotes:
 	if (/['"]/) {
 	    my $quote = substr($_, $-[0], 1);
