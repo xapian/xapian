@@ -104,7 +104,7 @@ check_SCRIPTS += zlib-vg.so
 CLEANFILES += zlib-vg.so
 
 zlib-vg.so: zlib-vg.c
-	$(CC_FOR_BUILD) -fPIC -shared -o zlib-vg.so $(srcdir)/zlib-vg.c -ldl
+	$(CC) -fPIC -shared -o zlib-vg.so $(srcdir)/zlib-vg.c -ldl
 endif
 
 .PHONY: check-syntax
