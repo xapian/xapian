@@ -402,6 +402,18 @@ testcase "A${tab}AZ${tab}Z" A=1 A=2 A=3 AZ=1 AZ=2 Z=xxx
 testcase "${tab}abc" =1 abc=1
 testcase "${tab}abc${tab}def" =1 abc=1 def=7
 
+# Feature tests for $highlight{}.
+printf '$highlight{$cgi{text},$cgi{list}}' > "$TEST_TEMPLATE"
+testcase 'A <b style="color:black;background-color:#ffff66">list</b> of <b style="color:black;background-color:#99ff99">words</b>' list="list${tab}words" text="A list of words"
+
+printf '$highlight{$cgi{text},$cgi{list},$cgi{open}}' > "$TEST_TEMPLATE"
+testcase 'A list of <b>words</b>' list="words" text="A list of words" open="<b>"
+testcase 'A list of <span>words</span>' list="words" text="A list of words" open="<span>"
+
+printf '$highlight{$cgi{text},$cgi{list},$cgi{open},$cgi{close}}' > "$TEST_TEMPLATE"
+testcase 'A list of <b>words</b>' list="words" text="A list of words" open="<b>" close="</b>"
+testcase 'A *list* of *words*' list="words${tab}list" text="A list of words" open="*" close="*"
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
