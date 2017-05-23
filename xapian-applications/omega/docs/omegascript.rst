@@ -221,7 +221,7 @@ $fmt
 $freq{term}
 	frequency of a term
 
-$highlight{TEXT,LIST,[OPEN,[CLOSE]]}
+$highlight{TEXT,LIST[,OPEN[,CLOSE]]}
 	html escape string (<>&, etc) and highlight any terms from ``LIST``
         that appear in ``TEXT`` by enclosing them in ``OPEN`` and ``CLOSE``.
         If ``OPEN`` is specified, but close is omitted, ``CLOSE`` defaults to
@@ -230,8 +230,8 @@ $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
 	``<b style="color:XXXXX;background-color:#YYYYYY">`` (where ``YYYYYY``
         cycles through ``ffff66`` ``99ff99`` ``99ffff`` ``ff66ff`` ``ff9999``
         ``990000`` ``009900`` ``996600`` ``006699`` ``990099`` and ``XXXXX``
-        is ``black`` is ``YYYYYY`` contains an ``f``, and otherwise ``white``)
-        and ``CLOSE`` is ``</b>``.
+        is ``black`` if ``YYYYYY`` contains an ``f``, and otherwise ``white``)
+        and ``CLOSE`` is set to ``</b>``.
 
 $hit
 	MSet index of current doc (first document in MSet is 0, so if

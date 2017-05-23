@@ -29,6 +29,7 @@
 #include <iostream>
 #include <map>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 #include <cassert>
@@ -651,25 +652,38 @@ html_strip(const string &str)
     return res;
 }
 
-// FIXME split list into hash or map and use that rather than linear lookup?
-static int word_in_list(const string& word, const string& list)
-{
-    string::size_type split = 0, split2;
-    int count = 0;
-    while ((split2 = list.find('\t', split)) != string::npos) {
-	if (word.size() == split2 - split) {
-	    if (memcmp(word.data(), list.data() + split, word.size()) == 0)
-		return count;
+class WordList {
+    static string prev_list;
+    static unordered_map<string, int> word_to_occurrence;
+  public:
+    void build_word_map(const string& list) {
+	// Don't build map again if passed list of terms is same as before.
+	if (prev_list == list) return;
+	word_to_occurrence.clear();
+	string::size_type split = 0, split2;
+	int word_index = 0;
+	string word;
+	while ((split2 = list.find('\t', split)) != string::npos) {
+	    word = list.substr(split, split2 - split);
+	    if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
+		++word_index;
+	    split = split2 + 1;
 	}
-	split = split2 + 1;
-	++count;
+	word = list.substr(split, list.size() - split);
+	if (word_to_occurrence.emplace(make_pair(word, word_index)).second)
+	    ++word_index;
+	prev_list = list;
     }
-    if (word.size() == list.size() - split) {
-	if (memcmp(word.data(), list.data() + split, word.size()) == 0)
-	    return count;
+
+    int word_in_list(const string& word) {
+	auto it = word_to_occurrence.find(word);
+	if (it == word_to_occurrence.end()) return -1;
+	return it->second;
     }
-    return -1;
-}
+};
+
+string WordList::prev_list;
+unordered_map<string, int> WordList::word_to_occurrence;
 
 // Not a character in an identifier
 inline static bool
@@ -752,11 +766,13 @@ html_highlight(const string &s, const string &list,
 	}
 	j = term_end;
 	term = Xapian::Unicode::tolower(term);
-	int match = word_in_list(term, list);
+	WordList w;
+	w.build_word_map(list);
+	int match = w.word_in_list(term);
 	if (match == -1) {
 	    string stem = "Z";
 	    stem += (*stemmer)(term);
-	    match = word_in_list(stem, list);
+	    match = w.word_in_list(stem);
 	}
 	if (match >= 0) {
 	    res += html_escape(string(l, first.raw() - l));
