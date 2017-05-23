@@ -316,7 +316,7 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
 	return stats_needed & UNIQUE_TERMS;
     }
 
-    /** @private @internal Return the appropriate weighting scheme object.
+    /** Return the appropriate weighting scheme object.
      *
      *  @param scheme 		the string containing a weighting scheme name
      *				and may also contain the parameters required
