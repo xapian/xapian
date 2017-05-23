@@ -132,6 +132,12 @@ PL2PlusWeight::name() const
 }
 
 string
+PL2PlusWeight::short_name() const
+{
+    return "pl2plus";
+}
+
+string
 PL2PlusWeight::serialise() const
 {
     string result = serialise_double(param_c);

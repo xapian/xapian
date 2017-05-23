@@ -89,6 +89,12 @@ InL2Weight::name() const
 }
 
 string
+InL2Weight::short_name() const
+{
+    return "inl2";
+}
+
+string
 InL2Weight::serialise() const
 {
     return serialise_double(param_c);

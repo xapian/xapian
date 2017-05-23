@@ -335,6 +335,9 @@ class XAPIAN_VISIBILITY_DEFAULT Weight {
      */
     virtual Weight * create_from_parameters(const char * params) const;
 
+    /** Return the short name of the weighting scheme. E.g. "bm25". */
+    virtual std::string short_name() const;
+
   protected:
     /** Don't allow copying.
      *
@@ -408,6 +411,7 @@ class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     BoolWeight() { }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BoolWeight * unserialise(const std::string & serialised) const;
@@ -553,6 +557,8 @@ class XAPIAN_VISIBILITY_DEFAULT TfIdfWeight : public Weight {
 
     std::string name() const;
 
+    std::string short_name() const;
+
     std::string serialise() const;
     TfIdfWeight * unserialise(const std::string & serialised) const;
 
@@ -659,6 +665,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BM25Weight * unserialise(const std::string & serialised) const;
@@ -777,6 +784,7 @@ class XAPIAN_VISIBILITY_DEFAULT BM25PlusWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BM25PlusWeight * unserialise(const std::string & serialised) const;
@@ -840,6 +848,7 @@ class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     TradWeight * unserialise(const std::string & serialised) const;
@@ -915,6 +924,7 @@ class XAPIAN_VISIBILITY_DEFAULT InL2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     InL2Weight * unserialise(const std::string & serialised) const;
@@ -990,6 +1000,7 @@ class XAPIAN_VISIBILITY_DEFAULT IfB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     IfB2Weight * unserialise(const std::string & serialised) const;
@@ -1063,6 +1074,7 @@ class XAPIAN_VISIBILITY_DEFAULT IneB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     IneB2Weight * unserialise(const std::string & serialised) const;
@@ -1141,6 +1153,7 @@ class XAPIAN_VISIBILITY_DEFAULT BB2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     BB2Weight * unserialise(const std::string & serialised) const;
@@ -1200,6 +1213,7 @@ class XAPIAN_VISIBILITY_DEFAULT DLHWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     DLHWeight * unserialise(const std::string & serialised) const;
@@ -1280,6 +1294,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2Weight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     PL2Weight * unserialise(const std::string & serialised) const;
@@ -1360,6 +1375,7 @@ class XAPIAN_VISIBILITY_DEFAULT PL2PlusWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     PL2PlusWeight * unserialise(const std::string & serialised) const;
@@ -1422,6 +1438,7 @@ class XAPIAN_VISIBILITY_DEFAULT DPHWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     DPHWeight * unserialise(const std::string & serialised) const;
@@ -1529,6 +1546,7 @@ class XAPIAN_VISIBILITY_DEFAULT LMWeight : public Weight {
     }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     LMWeight * unserialise(const std::string & serialised) const;
@@ -1562,6 +1580,7 @@ class XAPIAN_VISIBILITY_DEFAULT CoordWeight : public Weight {
     CoordWeight() { }
 
     std::string name() const;
+    std::string short_name() const;
 
     std::string serialise() const;
     CoordWeight * unserialise(const std::string & serialised) const;

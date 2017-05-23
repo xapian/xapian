@@ -111,6 +111,12 @@ TfIdfWeight::name() const
 }
 
 string
+TfIdfWeight::short_name() const
+{
+    return "tfidf";
+}
+
+string
 TfIdfWeight::serialise() const
 {
     string result = serialise_double(param_slope);

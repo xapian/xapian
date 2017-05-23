@@ -47,6 +47,12 @@ BoolWeight::name() const
 }
 
 string
+BoolWeight::short_name() const
+{
+    return "bool";
+}
+
+string
 BoolWeight::serialise() const
 {
     // No parameters to serialise.

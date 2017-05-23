@@ -47,6 +47,12 @@ CoordWeight::name() const
 }
 
 string
+CoordWeight::short_name() const
+{
+    return "coord";
+}
+
+string
 CoordWeight::serialise() const
 {
     // No parameters to serialise.

@@ -111,6 +111,12 @@ DPHWeight::name() const
 }
 
 string
+DPHWeight::short_name() const
+{
+    return "dph";
+}
+
+string
 DPHWeight::serialise() const
 {
     return string();

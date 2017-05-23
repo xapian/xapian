@@ -118,6 +118,12 @@ BB2Weight::name() const
 }
 
 string
+BB2Weight::short_name() const
+{
+    return "bb2";
+}
+
+string
 BB2Weight::serialise() const
 {
     return serialise_double(param_c);

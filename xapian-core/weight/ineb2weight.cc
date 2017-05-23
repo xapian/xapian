@@ -91,6 +91,12 @@ IneB2Weight::name() const
 }
 
 string
+IneB2Weight::short_name() const
+{
+    return "ineb2";
+}
+
+string
 IneB2Weight::serialise() const
 {
     return serialise_double(param_c);

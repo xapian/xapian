@@ -155,6 +155,12 @@ DLHWeight::name() const
 }
 
 string
+DLHWeight::short_name() const
+{
+    return "dlh";
+}
+
+string
 DLHWeight::serialise() const
 {
     return string();

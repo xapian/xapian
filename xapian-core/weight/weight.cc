@@ -127,6 +127,12 @@ Weight::name() const
 }
 
 string
+Weight::short_name() const
+{
+    return string();
+}
+
+string
 Weight::serialise() const
 {
     throw Xapian::UnimplementedError("serialise() not supported for this Xapian::Weight subclass");

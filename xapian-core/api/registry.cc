@@ -72,9 +72,6 @@ class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
     /// Clear all registered lat-long metrics.
     void clear_lat_long_metrics();
 
-    /// Clear all registered weighting schemes with short names.
-    void clear_weighting_schemes_short();
-
   public:
     Internal();
     ~Internal();
@@ -137,7 +134,6 @@ Registry::Internal::~Internal()
     clear_posting_sources();
     clear_match_spies();
     clear_lat_long_metrics();
-    clear_weighting_schemes_short();
 }
 
 void
@@ -175,37 +171,36 @@ Registry::Internal::add_defaults()
     weighting_scheme = new Xapian::LMWeight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
 
-    Xapian::Weight * weighting_scheme_short;
-    weighting_scheme_short = new Xapian::BB2Weight;
-    wtschemes_short["bb2"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::BM25Weight;
-    wtschemes_short["bm25"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::BM25PlusWeight;
-    wtschemes_short["bm25plus"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::BoolWeight;
-    wtschemes_short["bool"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::CoordWeight;
-    wtschemes_short["coord"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::DLHWeight;
-    wtschemes_short["dlh"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::DPHWeight;
-    wtschemes_short["dph"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::InL2Weight;
-    wtschemes_short["inl2"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::IfB2Weight;
-    wtschemes_short["ifb2"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::IneB2Weight;
-    wtschemes_short["ineb2"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::LMWeight;
-    wtschemes_short["lm"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::PL2Weight;
-    wtschemes_short["pl2"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::PL2PlusWeight;
-    wtschemes_short["pl2plus"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::TfIdfWeight;
-    wtschemes_short["tfidf"] = weighting_scheme_short;
-    weighting_scheme_short = new Xapian::TradWeight;
-    wtschemes_short["trad"] = weighting_scheme_short;
+    weighting_scheme = new Xapian::BB2Weight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::BM25Weight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::BM25PlusWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::BoolWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::CoordWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::TradWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::TfIdfWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::InL2Weight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::IfB2Weight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::IneB2Weight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::DLHWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::PL2PlusWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::PL2Weight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::DPHWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
+    weighting_scheme = new Xapian::LMWeight;
+    wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
 
     Xapian::PostingSource * source;
     source = new Xapian::ValueWeightPostingSource(0);
@@ -237,6 +232,11 @@ Registry::Internal::clear_weighting_schemes()
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
 	delete i->second;
     }
+
+    map<string, Xapian::Weight*>::const_iterator j;
+    for (j = wtschemes_short.begin(); j != wtschemes_short.end(); ++j) {
+	delete j->second;
+    }
 }
 
 void
@@ -262,15 +262,6 @@ Registry::Internal::clear_lat_long_metrics()
 {
     map<string, Xapian::LatLongMetric *>::const_iterator i;
     for (i = lat_long_metrics.begin(); i != lat_long_metrics.end(); ++i) {
-	delete i->second;
-    }
-}
-
-void
-Registry::Internal::clear_weighting_schemes_short()
-{
-    map<string, Xapian::Weight*>::const_iterator i;
-    for (i = wtschemes_short.begin(); i != wtschemes_short.end(); ++i) {
 	delete i->second;
     }
 }

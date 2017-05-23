@@ -130,6 +130,12 @@ LMWeight::name() const
 }
 
 string
+LMWeight::short_name() const
+{
+    return "lm";
+}
+
+string
 LMWeight::serialise() const
 {
     string result = serialise_double(param_log);

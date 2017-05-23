@@ -136,6 +136,12 @@ BM25Weight::name() const
 }
 
 string
+BM25Weight::short_name() const
+{
+    return "bm25";
+}
+
+string
 BM25Weight::serialise() const
 {
     string result = serialise_double(param_k1);

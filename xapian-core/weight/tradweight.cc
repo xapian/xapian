@@ -125,6 +125,12 @@ TradWeight::name() const
 }
 
 string
+TradWeight::short_name() const
+{
+    return "trad";
+}
+
+string
 TradWeight::serialise() const
 {
     return serialise_double(param_k);

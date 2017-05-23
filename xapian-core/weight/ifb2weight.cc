@@ -92,6 +92,12 @@ IfB2Weight::name() const
 }
 
 string
+IfB2Weight::short_name() const
+{
+    return "ifb2";
+}
+
+string
 IfB2Weight::serialise() const
 {
     return serialise_double(param_c);
