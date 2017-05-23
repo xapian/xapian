@@ -702,7 +702,7 @@ p_nottag(unsigned int c)
 // FIXME: shares algorithm with indextext.cc!
 static string
 html_highlight(const string &s, const string &list,
-		const string &bra, const string &ket)
+	       const string &bra, const string &ket)
 {
     if (!stemmer) {
 	stemmer = new Xapian::Stem(option["stemmer"]);
@@ -1563,6 +1563,7 @@ eval(const string &fmt, const vector<string> &param)
 			ket += '>';
 		    }
 		}
+
 		value = html_highlight(args[0], args[1], bra, ket);
 		break;
 	    }
