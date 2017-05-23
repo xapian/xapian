@@ -9,13 +9,9 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
- -I$(top_srcdir)/include -I$(srcdir)/harness -I../../xapian-core/include \
- -DXAPIAN_LIB_BUILD -I$(top_srcdir)/../xapian-core/include \
- -I$(top_srcdir)/../xapian-core/tests
+ -I$(top_srcdir)/include -I$(srcdir)/harness $(XAPIAN_INCLUDES)
 
 CLEANFILES =
-
-libxapian_la = libxapian.la
 
 TESTS_ENVIRONMENT = ./runtest
 
@@ -45,7 +41,7 @@ apitest_SOURCES = apitest.cc $(collated_apitest_sources) \
  api_all.h api_collated.h $(testharness_sources)
 
 apitest_LDFLAGS = $(NO_INSTALL) $(ldflags)
-apitest_LDADD = ../../xapian-core/libgetopt.la ../../xapian-core/$(libxapian_la) ../libxapianletor.la
+apitest_LDADD = ../../xapian-core/libgetopt.la $(XAPIAN_LIBS) ../libxapianletor.la
 
 BUILT_SOURCES =
 
