@@ -954,7 +954,7 @@ AM_CONDITIONAL([BUILD_BACKEND_REMOTE], [test yes = "$enable_backend_remote"])
 AM_CONDITIONAL([BUILD_BACKEND_TOOLS],
   [test no != "$enable_backend_glass"])
 
-dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
+dnl Decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no
 if test -n "$VALGRIND" ; then
   case $host_os in

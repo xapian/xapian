@@ -455,7 +455,7 @@ if test "`pwd`" != "`cd $srcdir;pwd`" ; then
 fi
 AM_CONDITIONAL([VPATH_BUILD], [test yes = "$vpath_build"])
 
-dnl Used to decide if we should use the zlib-vg.so LD_PRELOAD hack.
+dnl Decide if we should use the zlib-vg.so LD_PRELOAD hack.
 use_zlib_vg=no
 if test -n "$VALGRIND" ; then
   case $host_os in
