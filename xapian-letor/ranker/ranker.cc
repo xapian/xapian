@@ -225,7 +225,8 @@ parse_query_string(const string & query_line, int line_number)
 static Xapian::QueryParser
 initialise_queryparser(const Xapian::Database & db)
 {
-    Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
+    Xapian::SimpleStopper* mystopper;
+    mystopper = new Xapian::SimpleStopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     Xapian::Stem stemmer("english");
     Xapian::QueryParser parser;
     parser.add_prefix("title", "S");
@@ -234,7 +235,7 @@ initialise_queryparser(const Xapian::Database & db)
     parser.set_default_op(Xapian::Query::OP_OR);
     parser.set_stemmer(stemmer);
     parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-    parser.set_stopper(&mystopper);
+    parser.set_stopper(mystopper->release());
     return parser;
 }
 
