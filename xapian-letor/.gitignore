@@ -16,6 +16,7 @@ bin/xapian-rank
 bin/xapian-rank.1
 bin/xapian-train
 bin/xapian-train.1
+compile
 config.guess
 config.h
 config.h.in
@@ -27,6 +28,7 @@ configure
 depcomp
 docs/Makefile
 docs/Makefile.in
+feature/.dirstamp
 install-sh
 *.lo
 libtool
@@ -35,4 +37,5 @@ ltmain.sh
 m4
 makemanpage
 missing
+scorer/.dirstamp
 stamp-h1
