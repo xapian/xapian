@@ -65,8 +65,9 @@ include feature/Makefile.mk
 include ranker/Makefile.mk
 include scorer/Makefile.mk
 
-noinst_LTLIBRARIES += libcommon_str.la
+noinst_LTLIBRARIES += libcommon_str.la libgetopt.la
 libcommon_str_la_SOURCES = common/str.cc
+libgetopt_la_SOURCES = common/getopt.cc
 
 xapianletorinclude_HEADERS += include/xapian-letor/letor_error.h
 
