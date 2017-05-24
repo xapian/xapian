@@ -48,7 +48,7 @@ EXTRA_DIST = ChangeLog include/xapian-letor/letor_error.h \
 lib_LTLIBRARIES = libxapianletor.la
 libxapianletor_la_SOURCES = $(lib_src)
 libxapianletor_la_LDFLAGS = \
-	$(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
+	$(XAPIAN_LDFLAGS) $(NO_UNDEFINED) -version-info $(LIBRARY_VERSION_INFO)
 
 libxapianletor_la_LIBADD = $(XAPIAN_LIBS) libcommon_str.la
 
