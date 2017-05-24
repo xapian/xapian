@@ -9,7 +9,7 @@ export ACLOCAL AUTOCONF AUTOHEADER AUTOM4TE AUTOMAKE
 endif
 
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/common -I$(top_srcdir)/include \
- -I$(top_srcdir)/include -I$(srcdir)/harness
+ -I$(top_builddir)/include -I$(srcdir)/harness
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS)
 
 CLEANFILES =
