@@ -301,6 +301,7 @@ Registry::register_weighting_scheme(const Xapian::Weight &wt)
 {
     LOGCALL_VOID(API, "Xapian::Registry::register_weighting_scheme", wt.name());
     register_object(internal->wtschemes, wt);
+    register_object(internal->wtschemes_short, wt);
 }
 
 const Xapian::Weight *
