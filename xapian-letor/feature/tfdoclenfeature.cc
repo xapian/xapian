@@ -22,7 +22,6 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
-#include "feature_internal.h"
 
 #include "debuglog.h"
 
@@ -41,9 +40,9 @@ TfDoclenFeature::get_values() const
 {
     LOGCALL(API, std::vector<double>, "TfDoclenFeature::get_values", NO_ARGS);
 
-    Query query = Feature::internal->feature_query;
-    map<string, long int> tf = Feature::internal->termfreq();
-    map<string, long int> doc_len = Feature::internal->doc_length();
+    Query query = Feature::feature_query;
+    map<string, long int> tf = Feature::termfreq;
+    map<string, long int> doc_len = Feature::doc_length;
 
     vector<double> values;
     double value = 0;

@@ -22,12 +22,13 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
-#include "feature_internal.h"
 #include "debuglog.h"
 
 namespace Xapian {
 
-Feature::Feature(const Feature & o) : internal(o.internal)
+Feature::Feature(const Feature & o) : feature_db(o.feature_db), feature_query(o.feature_query),
+    feature_doc(o.feature_doc), termfreq(o.termfreq), inverse_doc_freq(o.inverse_doc_freq),
+    doc_length(o.doc_length), collection_length(o.collection_length), collection_termfreq(o.collection_termfreq)
 {
     LOGCALL_CTOR(API, "Feature", o);
 }
@@ -36,10 +37,25 @@ void
 Feature::operator=(const Feature & o)
 {
     LOGCALL_VOID(API, "Feature::operator=", o);
-    internal = o.internal;
+
+    feature_db = o.feature_db;
+
+    feature_query = o.feature_query;
+
+    feature_doc = o.feature_doc;
+
+    termfreq = o.termfreq;
+
+    inverse_doc_freq = o.inverse_doc_freq;
+
+    doc_length = o.doc_length;
+
+    collection_length = o.collection_length;
+
+    collection_termfreq = o.collection_termfreq;
 }
 
-Feature::Feature() : internal(new Feature::Internal)
+Feature::Feature()
 {
     LOGCALL_CTOR(API, "Feature", NO_ARGS);
 }
@@ -53,7 +69,7 @@ void
 Feature::set_database(const Xapian::Database & db)
 {
     LOGCALL_VOID(API, "Feature::set_database", db);
-    internal->feature_db = db;
+    feature_db = db;
 }
 
 void
@@ -63,14 +79,14 @@ Feature::set_query(const Xapian::Query & query)
     if (query.empty()) {
 	throw Xapian::InvalidArgumentError("Can't initialise with an empty query string");
     }
-    internal->feature_query = query;
+    feature_query = query;
 }
 
 void
 Feature::set_doc(const Xapian::Document & doc)
 {
     LOGCALL_VOID(API, "Feature::set_doc", doc);
-    internal->feature_doc = doc;
+    feature_doc = doc;
 }
 
 }
