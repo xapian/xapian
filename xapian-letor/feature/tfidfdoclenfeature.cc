@@ -22,7 +22,6 @@
 #include <config.h>
 
 #include "xapian-letor/feature.h"
-#include "feature_internal.h"
 
 #include "debuglog.h"
 
@@ -41,34 +40,34 @@ TfIdfDoclenFeature::get_values() const
 {
     LOGCALL(API, std::vector<double>, "TfIdfDoclenFeature::get_values", NO_ARGS);
 
-    Query query = Feature::internal->feature_query;
-    map<string, long int> tf = Feature::internal->termfreq();
-    map<string, long int> doc_len = Feature::internal->doc_length();
-    map<string, double> idf = Feature::internal->inverse_doc_freq();
+    Query query = Feature::feature_query;
+    map<string, long int> tf = Feature::termfreq;
+    map<string, long int> doc_len = Feature::doc_length;
+    map<string, double> idf = Feature::inverse_doc_freq;
 
     vector<double> values;
     double value = 0;
 
     for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["title"])));
-	else
-	    value += 0;
+        if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
+            value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["title"])));
+        else
+            value += 0;
     }
     values.push_back(value);
     value = 0;
 
     for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["body"])));
-	else
-	    value += 0;
+        if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
+            value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["body"])));
+        else
+            value += 0;
     }
     values.push_back(value);
     value = 0;
 
     for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["whole"])));
+        value += log10(1 + ((double)(tf[*qt] * idf[*qt]) / (1 + (double)doc_len["whole"])));
     }
     values.push_back(value);
 
