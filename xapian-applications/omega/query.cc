@@ -113,7 +113,12 @@ static Xapian::Query query;
 Xapian::Query::op default_op = Xapian::Query::OP_AND; // default matching mode
 
 static Xapian::QueryParser qp;
-static Xapian::NumberRangeProcessor * size_rp = NULL;
+<<<<<<< HEAD
+=======
+//static Xapian::NumberRangeProcessor * size_rp = NULL;
+// Using FileSizeRangeProcessor instead of NumberRangeProcessor
+>>>>>>> a9448cc30dcc88dc3f22fa9d1e7724cbd23099cb
+static Xapian::FileSizeRangeProcessor * size_rp = NULL;
 static Xapian::Stem *stemmer = NULL;
 
 static string eval_file(const string &fmtfile);
@@ -320,9 +325,15 @@ set_probabilistic(const string &oldp)
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
     qp.set_database(db);
+<<<<<<< HEAD
+    if (!size_rp){
+=======
     // FIXME: provide a custom RP which handles size:10..20K, etc.
-    if (!size_rp)
-	size_rp = new Xapian::NumberRangeProcessor(VALUE_SIZE, "size:");
+    if (!size_rp){
+    //size_rp = new Xapian::NumberRangeProcessor(VALUE_SIZE, "size:");
+>>>>>>> a9448cc30dcc88dc3f22fa9d1e7724cbd23099cb
+    size_rp = new Xapian::FileSizeRangeProcessor(VALUE_SIZE, "size:");
+	}
     qp.add_rangeprocessor(size_rp);
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && startswith(pfx->first, "prefix,"); ++pfx) {
