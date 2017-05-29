@@ -788,7 +788,7 @@ test_driver::parse_command_line(int argc, char **argv)
 
     while (argv[optind]) {
 	test_names.push_back(string(argv[optind]));
-	optind++;
+        ++optind;
     }
 
 #ifdef HAVE_VALGRIND
