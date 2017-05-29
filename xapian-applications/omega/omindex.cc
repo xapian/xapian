@@ -406,7 +406,14 @@ main(int argc, char **argv)
 	    delete_removed_documents = false;
 	    break;
 	case 'l': { // Set recursion limit
-	    int arg = atoi(optarg);
+        int arg = 0;
+        try {
+        arg = stoi(optarg, NULL, 10); // changed from atoi to stol
+        } catch(invalid_argument &e) {
+        cerr << "-l: Invalid Argument passed,"
+            << " a pure number was expected" << endl;
+        exit(EXIT_FAILURE);
+        }
 	    if (arg < 0) arg = 0;
 	    depth_limit = size_t(arg);
 	    break;

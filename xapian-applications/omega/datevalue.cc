@@ -19,6 +19,7 @@
  */
 
 #include <config.h>
+#include <iostream>
 
 #include "datevalue.h"
 
@@ -223,7 +224,14 @@ date_value_range(bool as_time_t,
     DateRangeLimit end(date_end, false);
 
     if (!date_span.empty()) {
-	time_t span = atoi(date_span.c_str()) * (24 * 60 * 60) - 1;
+	time_t span = 0;
+    try {
+    span = stoi(date_span.c_str(), nullptr) * (24 * 60 * 60) - 1; //change from atoi to stoi
+    } catch(invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/datevalue.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
 	if (end.is_set()) {
 	    // If START, END and SPAN are all set, we (somewhat arbitrarily)
 	    // ignore START.

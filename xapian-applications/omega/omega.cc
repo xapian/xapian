@@ -173,7 +173,13 @@ try {
 
     hits_per_page = 0;
     val = cgi_params.find("HITSPERPAGE");
-    if (val != cgi_params.end()) hits_per_page = atol(val->second.c_str());
+    try {
+    if (val != cgi_params.end()) hits_per_page = stol(val->second.c_str()); //change from atol to stol
+    } catch(invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/omega.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
     if (hits_per_page == 0) {
 	hits_per_page = 10;
     } else if (hits_per_page > 1000) {
@@ -198,7 +204,14 @@ try {
     val = cgi_params.find("MORELIKE");
     if (enquire && val != cgi_params.end()) {
 	const string & v = val->second;
-	Xapian::docid docid = atol(v.c_str());
+	Xapian::docid docid = 0;
+    try {
+    docid = stol(v.c_str()); //change from atol to stol
+    } catch(invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/omega.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
 	if (docid == 0) {
 	    // Assume it's MORELIKE=Quid1138 and that Quid1138 is a UID
 	    // from an external source - we just find the correspond docid
@@ -390,7 +403,13 @@ try {
     // Percentage relevance cut-off
     val = cgi_params.find("THRESHOLD");
     if (val != cgi_params.end()) {
-	threshold = atoi(val->second.c_str());
+    try {
+	threshold = stoi(val->second.c_str(), nullptr); //change from atoi to stoi
+    } catch(invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/omega.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
 	if (threshold < 0) threshold = 0;
 	if (threshold > 100) threshold = 100;
     }
@@ -400,7 +419,13 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (!v.empty()) {
-	    collapse_key = atoi(v.c_str());
+        try {
+	    collapse_key = stoi(v.c_str()); //change from atoi to stoi
+        } catch(invalid_argument &e)
+        {
+        cerr << "error in file /xapian-application/omega/omega.cc exception by stoi" << endl;
+        exit(EXIT_FAILURE);
+        }
 	    collapse = true;
 	    filters += filter_sep;
 	    filters += str(collapse_key);
@@ -495,14 +520,27 @@ try {
 	} while (*p);
 
 	val = cgi_params.find("SORTREVERSE");
-	if (val != cgi_params.end() && atoi(val->second.c_str()) != 0) {
+    try {
+	if (val != cgi_params.end() && stoi(val->second.c_str()) != 0) { //change from atoi to stoi
 	    reverse_sort = !reverse_sort;
 	}
+    } catch(invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/omega.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
+
 
 	val = cgi_params.find("SORTAFTER");
+    try {
 	if (val != cgi_params.end()) {
-	    sort_after = (atoi(val->second.c_str()) != 0);
+	    sort_after = (stoi(val->second.c_str()) != 0); //change from atoi to stoi
 	}
+    } catch(invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/omega.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
 
 	// Add the sorting related options to filters too.
 	//
@@ -536,7 +574,13 @@ try {
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
     if (val != cgi_params.end()) {
-	min_hits = atol(val->second.c_str());
+    try {
+	min_hits = stol(val->second.c_str()); //change from atol to stol
+    } catch(invalid_argument &e)
+    {
+    cerr << "error in file /xapian-application/omega/omega.cc exception by stoi" << endl;
+    exit(EXIT_FAILURE);
+    }
     }
 
     parse_omegascript();
