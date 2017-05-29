@@ -112,16 +112,25 @@ register_object(map<string, T*> & registry, const T & obj)
 
 template<class T>
 static inline void
-register_object_short(map<string, T*> & registry, const T & obj)
+register_object(map<string, T*> & registry1, map<string, T*> & registry2,
+		const T & obj)
 {
-    string name = obj.short_name();
+    string name = obj.name();
     if (rare(name.empty())) {
+	throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
+    }
+
+    string short_name= obj.name();
+    if (rare(short_name.empty())) {
 	throw Xapian::InvalidOperationError("Unable to register object - short_name() method returned empty string");
     }
 
-    pair<typename map<string, T *>::iterator, bool> r;
-    r = registry.insert(make_pair(name, static_cast<T*>(NULL)));
-    if (!r.second) {
+    pair<typename map<string, T *>::iterator, bool> r1;
+    r1 = registry1.insert(make_pair(name, static_cast<T*>(NULL)));
+    pair<typename map<string, T *>::iterator, bool> r2;
+    r2 = registry2.insert(make_pair(short_name, static_cast<T*>(NULL)));
+
+    if (!r1.second) {
 	// Existing element with this key, so replace the pointer with NULL
 	// and delete the existing pointer.
 	//
@@ -131,7 +140,21 @@ register_object_short(map<string, T*> & registry, const T & obj)
 	// throwing exceptions from the dtor is bad form, so that's not a big
 	// problem.
 	T * p = NULL;
-	swap(p, r.first->second);
+	swap(p, r1.first->second);
+	delete p;
+    }
+
+   if (!r2.second) {
+	// Existing element with this key, so replace the pointer with NULL
+	// and delete the existing pointer.
+	//
+	// If the delete throws, this will leave a NULL entry in the map, but
+	// that won't affect behaviour as we return NULL for "not found"
+	// anyway.  The memory used will be leaked if the dtor throws, but
+	// throwing exceptions from the dtor is bad form, so that's not a big
+	// problem.
+	T * p = NULL;
+	swap(p, r2.first->second);
 	delete p;
     }
 
@@ -140,7 +163,10 @@ register_object_short(map<string, T*> & registry, const T & obj)
 	throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
     }
 
-    r.first->second = clone;
+    r1.first->second = clone;
+
+    T * clone2 = obj.clone();
+    r2.first->second = clone2;
 }
 
 template<class T>
@@ -333,8 +359,7 @@ void
 Registry::register_weighting_scheme(const Xapian::Weight &wt)
 {
     LOGCALL_VOID(API, "Xapian::Registry::register_weighting_scheme", wt.name());
-    register_object(internal->wtschemes, wt);
-    register_object_short(internal->wtschemes_short, wt);
+    register_object(internal->wtschemes, internal->wtschemes_short, wt);
 }
 
 const Xapian::Weight *
