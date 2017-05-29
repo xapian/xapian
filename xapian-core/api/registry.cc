@@ -116,7 +116,7 @@ register_object_short(map<string, T*> & registry, const T & obj)
 {
     string name = obj.short_name();
     if (rare(name.empty())) {
-	throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
+	throw Xapian::InvalidOperationError("Unable to register object - short_name() method returned empty string");
     }
 
     pair<typename map<string, T *>::iterator, bool> r;
