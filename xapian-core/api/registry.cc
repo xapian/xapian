@@ -120,7 +120,7 @@ register_object(map<string, T*> & registry1, map<string, T*> & registry2,
 	throw Xapian::InvalidOperationError("Unable to register object - name() method returned empty string");
     }
 
-    string short_name= obj.name();
+    string short_name = obj.name();
     if (rare(short_name.empty())) {
 	throw Xapian::InvalidOperationError("Unable to register object - short_name() method returned empty string");
     }
