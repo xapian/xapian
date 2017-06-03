@@ -144,29 +144,13 @@ register_object(map<string, T*> & registry1, map<string, T*> & registry2,
 	delete p;
     }
 
-   if (!r2.second) {
-	// Existing element with this key, so replace the pointer with NULL
-	// and delete the existing pointer.
-	//
-	// If the delete throws, this will leave a NULL entry in the map, but
-	// that won't affect behaviour as we return NULL for "not found"
-	// anyway.  The memory used will be leaked if the dtor throws, but
-	// throwing exceptions from the dtor is bad form, so that's not a big
-	// problem.
-	T * p = NULL;
-	swap(p, r2.first->second);
-	delete p;
-    }
-
     T * clone = obj.clone();
     if (rare(!clone)) {
 	throw Xapian::InvalidOperationError("Unable to register object - clone() method returned NULL");
     }
 
     r1.first->second = clone;
-
-    T * clone2 = obj.clone();
-    r2.first->second = clone2;
+    r2.first->second = clone;
 }
 
 template<class T>
@@ -201,64 +185,48 @@ Registry::Internal::add_defaults()
     Xapian::Weight * weighting_scheme;
     weighting_scheme = new Xapian::BB2Weight;
     wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::BM25Weight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::BM25PlusWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::BoolWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::CoordWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::TradWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::TfIdfWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::InL2Weight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::IfB2Weight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::IneB2Weight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::DLHWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::PL2PlusWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::PL2Weight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::DPHWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-    weighting_scheme = new Xapian::LMWeight;
-    wtschemes[weighting_scheme->name()] = weighting_scheme;
-
-    weighting_scheme = new Xapian::BB2Weight;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::BM25Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::BM25PlusWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::BoolWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::CoordWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::TradWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::TfIdfWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::InL2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::IfB2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::IneB2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::DLHWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::PL2PlusWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::PL2Weight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::DPHWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
     weighting_scheme = new Xapian::LMWeight;
+    wtschemes[weighting_scheme->name()] = weighting_scheme;
     wtschemes_short[weighting_scheme->short_name()] = weighting_scheme;
 
     Xapian::PostingSource * source;
@@ -290,11 +258,6 @@ Registry::Internal::clear_weighting_schemes()
     map<string, Xapian::Weight*>::const_iterator i;
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
 	delete i->second;
-    }
-
-    map<string, Xapian::Weight*>::const_iterator j;
-    for (j = wtschemes_short.begin(); j != wtschemes_short.end(); ++j) {
-	delete j->second;
     }
 }
 
