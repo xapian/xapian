@@ -182,12 +182,24 @@ MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
     internal->fetch_items(first, last);
 }
 
+void
+MSet::set_new_weights_helper(double wt, int i)
+{
+    internal->set_new_weights(wt, i);
+}
+
 int
 MSet::convert_to_percent(double wt) const
 {
     LOGCALL(API, int, "Xapian::MSet::convert_to_percent", wt);
     Assert(internal.get() != 0);
     RETURN(internal->convert_to_percent_internal(wt));
+}
+
+void
+MSet::re_rank()
+{
+    internal->re_rank();
 }
 
 Xapian::doccount
@@ -450,6 +462,23 @@ MSet::Internal::read_docs() const
     }
     /* Clear list of requested but not fetched documents. */
     requested_docs.clear();
+}
+
+void
+MSet::Internal::set_new_weights(double wt, int i) {
+    item_set_weight(items[i], wt);
+}
+
+void
+MSet::Internal::item_set_weight(Xapian::Internal::MSetItem& item_,double wt_)
+{
+    item_.wt = wt_;
+}
+
+void
+MSet::Internal::re_rank()
+{
+    std::sort(items.begin(),items.end(),[](const Xapian::Internal::MSetItem& x,const Xapian::Internal::MSetItem& y){return x.wt>y.wt;});
 }
 
 // MSetIterator

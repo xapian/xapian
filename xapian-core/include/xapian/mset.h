@@ -47,6 +47,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     // Helper function for fetch() methods.
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
 
+  private:
+    // Helper function for set_new_weights(Iterator first,Iterator last)
+    void set_new_weights_helper(double wt, int i);
+
   public:
     /// Class representing the MSet internals.
     class Internal;
@@ -73,6 +77,31 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /// Destructor.
     ~MSet();
+
+    /** Assigns new weights to items
+     * This functon is used in letor to update the weights assigned by the ranker
+     * It updates weights of all the elements in items as well as updating the max_attained
+     */
+    template <typename Iterator>
+    void set_new_weights(Iterator first, Iterator last) {
+	int i =0;
+	if (std::distance(first,last) != size())
+	{
+	    printf("Number of weights assigned don't match the number of items.Aborting");
+	    return;
+	}
+	for (Iterator it=first;it != last;++it)
+	{
+	    set_new_weights_helper(*it, i);
+	    ++i;
+	}
+    }
+
+    /**
+     * Sorts the MSet::Internal::items according to their weights thereby sorting MSet
+     */
+
+    void re_rank();
 
     /** Convert a weight to a percentage.
      *
