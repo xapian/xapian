@@ -118,8 +118,8 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *  @return A vector of docids after ranking.
      */
     void rank(Xapian::MSet & mset,
-				    const std::string & model_key = std::string(),
-				    const Xapian::FeatureList & flist = Xapian::FeatureList());
+	      const std::string & model_key = std::string(),
+	      const Xapian::FeatureList & flist = Xapian::FeatureList());
 
     /** Method to score the ranking.
      * @param query_file    Query file containing test queries in letor specified format

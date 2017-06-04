@@ -210,11 +210,11 @@ try {
     ranker->rank(mset, model_metadata_key);
 
     cout << "Docids after re-ranking by LTR model:" << endl;
-    int i=1;
-    for(Xapian::MSetIterator m = mset.begin();m!=mset.end();++m)
-    {
-        Xapian::docid did = *m;
-	cout<<"Rank "<<i<<": "<<did<<endl;
+    int i = 1;
+    for (Xapian::MSetIterator m = mset.begin();m != mset.end();++m){
+
+	Xapian::docid did = *m;
+	cout << "Rank " << i << ": " << did << endl;
 	i++;
     }
     delete ranker;

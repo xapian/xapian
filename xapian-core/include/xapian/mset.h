@@ -84,13 +84,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      */
     template <typename Iterator>
     void set_new_weights(Iterator first, Iterator last) {
-	int i =0;
-	if (std::distance(first,last) != size())
+	int i = 0;
+	if (std::distance(first, last) != size())
 	{
 	    printf("Number of weights assigned don't match the number of items.Aborting");
 	    return;
 	}
-	for (Iterator it=first;it != last;++it)
+	for (Iterator it = first;it != last;++it)
 	{
 	    set_new_weights_helper(*it, i);
 	    ++i;

@@ -352,7 +352,7 @@ Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& second
 }
 
 void
-Ranker::rank( Xapian::MSet & mset, const string & model_key, const Xapian::FeatureList & flist)
+Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::FeatureList & flist)
 {
     LOGCALL(API, std::vector<Xapian::docid>, "Ranker::rank", mset | model_key | flist);
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, Xapian::Database(db_path));
@@ -363,7 +363,7 @@ Ranker::rank( Xapian::MSet & mset, const string & model_key, const Xapian::Featu
     for (size_t i = 0; i < rankedfvv.size(); ++i) {
 	weights.push_back(rankedfvv[i].get_score());
     }
-    mset.set_new_weights(weights.begin(),weights.end());
+    mset.set_new_weights(weights.begin(), weights.end());
     mset.re_rank();
 }
 
