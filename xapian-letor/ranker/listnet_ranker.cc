@@ -193,6 +193,6 @@ ListNETRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const {
 	    listnet_score += fvals[j] * parameters[j];
 	testfvv[i].set_score(listnet_score);
     }
-    std::sort(testfvv.begin(), testfvv.end(), &Ranker::scorecomparer);
+    //std::sort(testfvv.begin(), testfvv.end(), &Ranker::scorecomparer);
     return testfvv;
 }

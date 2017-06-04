@@ -117,7 +117,7 @@ class XAPIAN_VISIBILITY_DEFAULT Ranker : public Xapian::Internal::intrusive_base
      *  @exception FileNotFoundError will be thrown if file not found at supplied path
      *  @return A vector of docids after ranking.
      */
-    std::vector<Xapian::docid> rank(const Xapian::MSet & mset,
+    void rank(Xapian::MSet & mset,
 				    const std::string & model_key = std::string(),
 				    const Xapian::FeatureList & flist = Xapian::FeatureList());
 

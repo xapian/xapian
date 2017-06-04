@@ -207,13 +207,16 @@ try {
     ranker->set_query(query);
 
     // Get vector of re-ranked docids
-    std::vector<Xapian::docid> ranked_docids = ranker->rank(mset, model_metadata_key);
+    ranker->rank(mset, model_metadata_key);
 
     cout << "Docids after re-ranking by LTR model:" << endl;
-    rank = 0;
-    for (auto&& did : ranked_docids)
-	cout << "Rank " << ++rank << ": " << did << endl;
-
+    int i=1;
+    for(Xapian::MSetIterator m = mset.begin();m!=mset.end();++m)
+    {
+        Xapian::docid did = *m;
+	cout<<"Rank "<<i<<": "<<did<<endl;
+	i++;
+    }
     delete ranker;
 
     cout << flush;
