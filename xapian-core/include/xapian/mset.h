@@ -47,9 +47,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     // Helper function for fetch() methods.
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
 
-  private:
     // Helper function for set_new_weights(Iterator first,Iterator last)
-    void set_new_weights_helper(double wt, int i);
+    void set_item_weight(int i, double wt);
 
   public:
     /// Class representing the MSet internals.
@@ -83,25 +82,24 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      * It updates weights of all the elements in items as well as updating the max_attained
      */
     template <typename Iterator>
-    void set_new_weights(Iterator first, Iterator last) {
-	int i = 0;
+    void replace_weights(Iterator first, Iterator last) {
 	if (std::distance(first, last) != size())
 	{
-	    printf("Number of weights assigned don't match the number of items.Aborting");
+	    throw std::invalid_argument("Number of weights assigned don't match the number of items.Aborting");
 	    return;
 	}
-	for (Iterator it = first;it != last;++it)
+	int i = 0;
+	for (Iterator it = first;it != last;++it,++i)
 	{
-	    set_new_weights_helper(*it, i);
-	    ++i;
+	    set_item_weight(i, (*it).get_score());
 	}
     }
 
     /**
-     * Sorts the MSet::Internal::items according to their weights thereby sorting MSet
+     * Sorts the items in MSet according to their weights. Use afer calling set_new_weights();
      */
 
-    void re_rank();
+    void sort_by_relevance();
 
     /** Convert a weight to a percentage.
      *
