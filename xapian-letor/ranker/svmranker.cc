@@ -225,6 +225,5 @@ SVMRanker::rank_fvv(const std::vector<FeatureVector> & fvv) const
 	test[non_zero_flag].value = -1;
 	testfvv[i].set_score(svm_predict(model, test));
     }
-    //std::sort(testfvv.begin(), testfvv.end(), &Ranker::scorecomparer);
     return testfvv;
 }
