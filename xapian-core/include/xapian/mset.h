@@ -48,8 +48,8 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     // Helper function for fetch() methods.
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
 
-    // Helper function for replace_weights(Iterator begin, Iterator end)
-    void set_item_weight(int i, double wt);
+    // Helper function for replace_weights(Iterator first, Iterator last)
+    void set_item_weight(Xapian::doccount i, double wt);
 
   public:
     /// Class representing the MSet internals.
@@ -89,13 +89,13 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
      *
      */
     template <typename Iterator>
-    void replace_weights(Iterator begin, Iterator end)
+    void replace_weights(Iterator first, Iterator last)
     {
-	if (end-begin != size()) {
+	if (last - first != size()) {
 	    throw Xapian::InvalidArgumentError("Number of weights assigned don't match the number of items.");
 	}
-	int i = 0;
-	for (Iterator it = begin; it != end; ++it,++i)	{
+	Xapian::doccount i = 0;
+	for (Iterator it = first; it != last; ++it,++i)	{
 	    set_item_weight(i, (*it).get_score());
 	}
     }
