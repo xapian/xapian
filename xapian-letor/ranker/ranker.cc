@@ -351,6 +351,24 @@ Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& second
     return firstfv.get_label() > secondfv.get_label();
 }
 
+class ScoreIterator {
+    std::vector<FeatureVector>::const_iterator it;
+
+  public:
+    explicit ScoreIterator(const std::vector<FeatureVector>::const_iterator it_) : it(it_) { }
+
+    double operator*() const { return it->get_score(); }
+
+    void operator++() { ++it; }
+
+    bool operator!=(const ScoreIterator& o) { return it != o.it; }
+
+    bool operator==(const ScoreIterator& o) { return it == o.it; }
+
+    Xapian::doccount operator-(const ScoreIterator& o) { return Xapian::doccount(it - o.it); }
+
+};
+
 void
 Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::FeatureList & flist)
 {
@@ -358,7 +376,7 @@ Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::Featur
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, Xapian::Database(db_path));
     load_model_from_metadata(model_key);
     std::vector<FeatureVector> rankedfvv = rank_fvv(fvv);
-    mset.replace_weights(rankedfvv.begin(), rankedfvv.end());
+    mset.replace_weights(ScoreIterator(rankedfvv.begin()), ScoreIterator(rankedfvv.end()));
     mset.sort_by_relevance();
 }
 
