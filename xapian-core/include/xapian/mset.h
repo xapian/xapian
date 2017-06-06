@@ -79,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     ~MSet();
 
     /** Assigns new weights to MSet
-     *  Dereferenced Iterator should have get_score() method which should return a double
+     *  Dereferencing the Iterator should return a double
      *
      *  @param begin	Begin iterator.
      *  @param end	End iterator.
@@ -96,7 +96,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	}
 	Xapian::doccount i = 0;
 	for (Iterator it = first; it != last; ++it,++i)	{
-	    set_item_weight(i, (*it).get_score());
+	    set_item_weight(i, *it);
 	}
     }
 
