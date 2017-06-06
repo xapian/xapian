@@ -31,6 +31,7 @@
 
 #include <xapian/attributes.h>
 #include <xapian/document.h>
+#include <xapian/error.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/stem.h>
 #include <xapian/types.h>
@@ -47,7 +48,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     // Helper function for fetch() methods.
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
 
-    // Helper function for set_new_weights(Iterator first,Iterator last)
+    // Helper function for replace_weights(Iterator begin, Iterator end)
     void set_item_weight(int i, double wt);
 
   public:
@@ -77,26 +78,30 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /// Destructor.
     ~MSet();
 
-    /** Assigns new weights to items
-     * This functon is used in letor to update the weights assigned by the ranker
-     * It updates weights of all the elements in items as well as updating the max_attained
+    /** Assigns new weights to MSet
+     *  Dereferenced Iterator should have get_score() method which should return a double
+     *
+     *  @param begin	Begin iterator.
+     *  @param end	End iterator.
+     *
+     *  @exception Xapian::InvalidArgument is thrown if the total number of
+     *  elements in the input dont match the total number of documents in MSet.
+     *
      */
     template <typename Iterator>
-    void replace_weights(Iterator first, Iterator last) {
-	if (std::distance(first, last) != size())
-	{
-	    throw std::invalid_argument("Number of weights assigned don't match the number of items.Aborting");
-	    return;
+    void replace_weights(Iterator begin, Iterator end)
+    {
+	if (end-begin != size()) {
+	    throw Xapian::InvalidArgumentError("Number of weights assigned don't match the number of items.");
 	}
 	int i = 0;
-	for (Iterator it = first;it != last;++it,++i)
-	{
+	for (Iterator it = begin; it != end; ++it,++i)	{
 	    set_item_weight(i, (*it).get_score());
 	}
     }
 
     /**
-     * Sorts the items in MSet according to their weights. Use afer calling set_new_weights();
+     * Sorts the list of documents in MSet according to their weights. Use afer calling replace_weights().
      */
 
     void sort_by_relevance();

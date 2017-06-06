@@ -467,14 +467,14 @@ MSet::Internal::read_docs() const
 void
 MSet::Internal::set_item_weight(int i, double wt_)
 {
-    set_item_weight_(items[i], wt_);
-    if(i == 0)
+    if (i == 0)
 	max_attained = wt_;
     max_attained = max(max_attained, wt_);
+    set_item_weight(items[i], wt_);
 }
 
 void
-MSet::Internal::set_item_weight_(Xapian::Internal::MSetItem& item_, double wt_)
+MSet::Internal::set_item_weight(Xapian::Internal::MSetItem& item_, double wt_)
 {
     item_.wt = wt_;
 }
@@ -482,7 +482,7 @@ MSet::Internal::set_item_weight_(Xapian::Internal::MSetItem& item_, double wt_)
 void
 MSet::Internal::sort_by_relevance()
 {
-    std::sort(items.begin(),items.end(),
+    std::sort(items.begin(), items.end(),
 	      [](const Xapian::Internal::MSetItem& x, const Xapian::Internal::MSetItem& y){ return x.wt > y.wt; });
 }
 

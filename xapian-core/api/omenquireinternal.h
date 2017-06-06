@@ -225,7 +225,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	mutable std::unordered_map<std::string, double> snippet_bg_relevance;
 
 	/// Used for setting weight for the given item.
-	void set_item_weight_(Xapian::Internal::MSetItem &item_, double wt_);
+	void set_item_weight(Xapian::Internal::MSetItem &item_, double wt_);
 
     public:
 	/// Xapian::Enquire reference, for getting documents.
