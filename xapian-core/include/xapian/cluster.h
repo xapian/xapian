@@ -219,18 +219,27 @@ class Centroid : public PointType {
  */
 class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
-  private:
-
-    /// Documents (or Points in the vector space) within the cluster
-    std::vector<Point> cluster_docs;
-
-    /// Point or Document representing the cluster centroid
-    Centroid centroid;
-
   public:
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
+
+    /** Copying is allowed.  The internals are reference counted, so
+     *  copying is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    Cluster(const Cluster &other);
+
+    /** Assignment is allowed.  The internals are reference counted,
+     *  so assignment is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    void operator=(const Cluster &other);
 
     /// Constructor
-    Cluster(const Centroid centroid_) : centroid(centroid_) {}
+    Cluster(const Centroid centroid_);
 
     /// Constructor
     Cluster();
@@ -264,22 +273,40 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
      *  that belong to the Cluster
      */
     void recalculate();
-
 };
 
 /** Class for storing the results returned by the Clusterer
  */
 class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
 
-    /** A vector storing the clusters that have been created
-     *  by the respective clusterers. Each cluster contains points.
-     */
-    std::vector<Cluster> clusters;
-
   public:
 
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
+
+    /** Copying is allowed.  The internals are reference counted, so
+     *  copying is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    ClusterSet(const ClusterSet &other);
+
+    /** Assignment is allowed.  The internals are reference counted,
+     *  so assignment is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    void operator=(const ClusterSet &other);
+
+    /// Constructor
+    ClusterSet();
+
+    /// Destructor
+    ~ClusterSet();
+
     /// Add a cluster to the cluster set
-    void add_cluster(Cluster &c);
+    void add_cluster(const Cluster &c);
 
     /// Return the Cluster at position 'index'
     Cluster get_cluster(unsigned int index) const;
@@ -293,7 +320,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     /// Return the cluster at index 'i'
     Cluster& operator[](Xapian::doccount i);
 
-    /// clear all the Clusters in the ClusterSet
+    /// Clear all the clusters in the ClusterSet
     void clear_clusters();
 
     /** Recalculate the centroids for all the centroids

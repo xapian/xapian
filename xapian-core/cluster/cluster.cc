@@ -24,6 +24,7 @@
 
 #include "xapian/cluster.h"
 
+#include "cluster/clusterinternal.h"
 #include "xapian/error.h"
 #include "api/termlist.h"
 #include "debuglog.h"
@@ -295,9 +296,27 @@ Centroid::recalc_magnitude()
 	magnitude += it->second * it->second;
 }
 
-Cluster::Cluster()
+void
+Cluster::operator=(const Cluster &other)
+{
+    // pointers are reference counted.
+    internal = other.internal;
+}
+
+Cluster::Cluster(const Cluster &other)
+	: internal(other.internal)
+{
+}
+
+Cluster::Cluster() : internal(new Xapian::Cluster::Internal)
 {
     LOGCALL_CTOR(API, "Cluster", NO_ARGS);
+}
+
+Cluster::Cluster(const Centroid centroid)
+    : internal(new Xapian::Cluster::Internal(centroid))
+{
+    LOGCALL_CTOR(API, "Cluster", centroid);
 }
 
 Cluster::~Cluster()
@@ -314,6 +333,12 @@ DocumentSet
 Cluster::get_documents()
 {
     LOGCALL(API, DocumentSet, "Cluster::get_documents", NO_ARGS);
+    return internal->get_documents();
+}
+
+DocumentSet
+Cluster::Internal::get_documents()
+{
     DocumentSet docs;
     for (auto&& point : cluster_docs)
 	docs.add_document(point.get_document());
@@ -324,48 +349,124 @@ Point
 Cluster::get_index(unsigned int index) const
 {
     LOGCALL(API, Point, "Cluster::get_index", index);
+    return internal->get_index(index);
+}
+
+Point
+Cluster::Internal::get_index(unsigned int index) const
+{
     return cluster_docs[index];
+}
+
+void
+ClusterSet::operator=(const ClusterSet &other)
+{
+    // pointers are reference counted.
+    internal = other.internal;
+}
+
+ClusterSet::ClusterSet(const ClusterSet &other)
+	: internal(other.internal)
+{
+}
+
+ClusterSet::ClusterSet() : internal(new Xapian::ClusterSet::Internal)
+{
+}
+
+ClusterSet::~ClusterSet()
+{
+}
+
+doccount
+ClusterSet::Internal::size() const
+{
+    return clusters.size();
 }
 
 doccount
 ClusterSet::size() const
 {
     LOGCALL(API, doccount, "ClusterSet::size", NO_ARGS);
-    return clusters.size();
+    return internal->size();
 }
 
 void
-ClusterSet::add_cluster(Cluster &c)
+ClusterSet::Internal::add_cluster(const Cluster &c)
+{
+    clusters.push_back(c);
+}
+
+void
+ClusterSet::add_cluster(const Cluster &c)
 {
     LOGCALL_VOID(API, "ClusterSet::add_cluster", c);
-    clusters.push_back(c);
+    internal->add_cluster(c);
+}
+
+Cluster&
+ClusterSet::Internal::get_cluster(doccount i)
+{
+    return clusters[i];
 }
 
 Cluster&
 ClusterSet::operator[](doccount i)
 {
-    return clusters[i];
+    return internal->get_cluster(i);
+}
+
+void
+ClusterSet::Internal::add_to_cluster(const Point &x, unsigned int i)
+{
+    clusters[i].add_point(x);
 }
 
 void
 ClusterSet::add_to_cluster(const Point &x, unsigned int i)
 {
    LOGCALL_VOID(API, "ClusterSet::add_to_cluster", x | i);
-   clusters[i].add_point(x);
+   internal->add_to_cluster(x, i);
+}
+
+void
+ClusterSet::Internal::recalculate_centroids()
+{
+    for (vector<Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+	(*it).recalculate();
 }
 
 void
 ClusterSet::recalculate_centroids()
 {
     LOGCALL_VOID(API, "ClusterSet::recalculate_centroids", NO_ARGS);
-    for (vector<Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
-	(*it).recalculate();
+    internal->recalculate_centroids();
+}
+
+void
+ClusterSet::clear_clusters()
+{
+    LOGCALL_VOID(API, "ClusterSet::clear_clusters", NO_ARGS);
+    internal->clear_clusters();
+}
+
+void
+ClusterSet::Internal::clear_clusters()
+{
+    for (vector<Cluster>::iterator it = clusters.begin(); it !=clusters.end(); ++it)
+	(*it).clear();
 }
 
 doccount
 Cluster::size() const
 {
     LOGCALL(API, doccount, "Cluster::size", NO_ARGS);
+    return internal->size();
+}
+
+doccount
+Cluster::Internal::size() const
+{
     return (cluster_docs.size());
 }
 
@@ -373,6 +474,12 @@ void
 Cluster::add_point(const Point &doc)
 {
     LOGCALL_VOID(API, "Cluster::add_point", doc);
+    internal->add_point(doc);
+}
+
+void
+Cluster::Internal::add_point(const Point &doc)
+{
     cluster_docs.push_back(doc);
 }
 
@@ -380,6 +487,12 @@ void
 Cluster::clear()
 {
     LOGCALL_VOID(API, "Cluster::clear", NO_ARGS);
+    internal->clear();
+}
+
+void
+Cluster::Internal::clear()
+{
     cluster_docs.clear();
 }
 
@@ -387,6 +500,12 @@ Centroid
 Cluster::get_centroid() const
 {
     LOGCALL(API, Centroid, "Cluster::get_centroid", NO_ARGS);
+    return internal->get_centroid();
+}
+
+Centroid
+Cluster::Internal::get_centroid() const
+{
     return centroid;
 }
 
@@ -394,21 +513,25 @@ void
 Cluster::set_centroid(const Centroid centroid_)
 {
     LOGCALL_VOID(API, "Cluster::set_centroid", centroid_);
-    centroid = centroid_;
+    internal->set_centroid(centroid_);
 }
 
 void
-ClusterSet::clear_clusters()
+Cluster::Internal::set_centroid(const Centroid centroid_)
 {
-    LOGCALL_VOID(API, "ClusterSet::clear_clusters", NO_ARGS);
-    for (vector<Cluster>::iterator it = clusters.begin(); it !=clusters.end(); ++it)
-	(*it).clear();
+    centroid = centroid_;
 }
 
 void
 Cluster::recalculate()
 {
     LOGCALL_VOID(API, "Cluster::recalculate", NO_ARGS);
+    internal->recalculate();
+}
+
+void
+Cluster::Internal::recalculate()
+{
     centroid.clear();
     for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
 	Point &temp = *it;
