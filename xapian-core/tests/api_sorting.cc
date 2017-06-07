@@ -319,3 +319,86 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     );
     return true;
 }
+
+DEFINE_TESTCASE(set_item_weight, backend) {
+    // open the database (in this case a simple text file
+    // we prepared earlier)
+
+    Xapian::Database mydb(get_database("apitest_onedoc"));
+
+    Xapian::Enquire enquire(mydb);
+
+    // make a simple query, with one word in it - "word".
+    enquire.set_query(Xapian::Query("word"));
+
+    // retrieve the top ten results (we only expect one)
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    // assigning new weight of -1 to the document.
+    vector<double> weights;
+    weights.push_back(-1);
+    mymset.replace_weights(weights.begin(), weights.end());
+    Xapian::MSetIterator i = mymset.begin();
+    // checking wether the weight was assigned correctly
+    TEST_EQUAL_DOUBLE(i.get_weight(), double(-1));
+    // checking whether the max_attained attribute was updated correctly
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), double(-1));
+
+    return true;
+}
+
+DEFINE_TESTCASE(set_wrong_item_weights, backend) {
+    // open the database (in this case a simple text file
+    // we prepared earlier)
+
+    Xapian::Database mydb(get_database("apitest_onedoc"));
+
+    Xapian::Enquire enquire(mydb);
+
+    // make a simple query, with one word in it - "word".
+    enquire.set_query(Xapian::Query("word"));
+
+    // retrieve the top ten results (we only expect one)
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    // Checking for exception when the number of weights in the input exceeds the number of documents
+    vector<double> weights;
+    weights.push_back(-1);
+    weights.push_back(-2);
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, mymset.replace_weights(weights.begin(), weights.end()));
+
+    return true;
+}
+
+DEFINE_TESTCASE(sort_by_relevance, backend) {
+    // open the database (in this case a simple text file
+    // we prepared earlier)
+    Xapian::Database db = get_database("apitest_simpledata");
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("word"));
+
+    // retrieve the top results we expect only two
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    // Storing the docids of the two documents in the original order.
+    vector<Xapian::docid> docids;
+    Xapian::MSetIterator i = mymset.begin();
+    docids.push_back(*i);
+    i++;
+    docids.push_back(*i);
+    // assigning new weights and then re-sorting to reverse the order of relevance
+    vector<double> weights;
+    weights.push_back(-2);
+    weights.push_back(-1);
+    mymset.replace_weights(weights.begin(), weights.end());
+    mymset.sort_by_relevance();
+    int j = -1, k = 1;
+    // checking for the correct order of documents and their respective weights.
+    for (Xapian::MSetIterator m = mymset.begin(); m != mymset.end(); ++m, --j, --k) {
+	TEST_EQUAL_DOUBLE(m.get_weight(), j);
+	TEST_EQUAL(docids[k], *m);
+    }
+    // checking whether the max_attained attribute was updated correctly.
+    TEST_EQUAL_DOUBLE(mymset.get_max_attained(), double(-1));
+    return true;
+}
