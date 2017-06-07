@@ -117,7 +117,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	OP_VALUE_GE = 11,
 	OP_VALUE_LE = 12,
 	OP_SYNONYM = 13,
+	/** Pick the maximum weight of any subquery.
+	 *
+	 *  Matches the same documents as @a OP_OR, but the weight contributed
+	 *  is the maximum weight from any matching subquery (for OP_OR, it's
+	 *  the sum of the weights from the matching subqueries).
+	 *
+	 *  Added in Xapian 1.3.2.
+	 */
 	OP_MAX = 14,
+	/** Wildcard expansion.
+	 *
+	 *  Added in Xapian 1.3.3.
+	 */
 	OP_WILDCARD = 15,
 
 	OP_INVALID = 99,
