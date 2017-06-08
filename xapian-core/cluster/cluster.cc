@@ -106,24 +106,61 @@ TermListGroup::get_termfreq(const string &tname) const
     return it->second;
 }
 
-int
+DocumentSet::DocumentSet(const DocumentSet &other)
+    : internal(other.internal)
+{
+}
+
+void
+DocumentSet::operator=(const DocumentSet &other)
+{
+    internal = other.internal;
+}
+
+DocumentSet::DocumentSet()
+    : internal(new Xapian::DocumentSet::Internal)
+{
+}
+
+unsigned int
 DocumentSet::size() const
 {
     LOGCALL(API, int, "DocumentSet::size", NO_ARGS);
+    return internal->size();
+}
+
+unsigned int
+DocumentSet::Internal::size() const
+{
     return docs.size();
 }
 
 void
-DocumentSet::add_document(Document doc)
+DocumentSet::add_document(const Document &doc)
 {
     LOGCALL_VOID(API, "DocumentSet::add_document", doc);
+    internal->add_document(doc);
+}
+void
+DocumentSet::Internal::add_document(const Document &doc)
+{
     docs.push_back(doc);
 }
 
 Document
 DocumentSet::operator[](doccount i)
 {
+    return internal->get_document(i);
+}
+
+Document
+DocumentSet::Internal::get_document(doccount i)
+{
     return docs[i];
+}
+
+DocumentSet::~DocumentSet()
+{
 }
 
 class PointTermIterator : public TermIterator::Internal {

@@ -44,22 +44,39 @@ namespace Xapian {
 /** Class representing a set of documents in a cluster
  */
 class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
-
-  private:
-
-    /// Vector storing the documents for this DocumentSet
-    std::vector<Document> docs;
-
   public:
+    class Internal;
+    /// @private @internal Reference counted internals.
+    Xapian::Internal::intrusive_ptr<Internal> internal;
+
+    /** Copying is allowed.  The internals are reference counted, so
+     *  copying is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    DocumentSet(const DocumentSet &other);
+
+    /** Assignment is allowed.  The internals are reference counted,
+     *  so assignment is cheap.
+     *
+     *  @param other	The object to copy.
+     */
+    void operator=(const DocumentSet &other);
+
+    /// Constructor
+    DocumentSet();
+
+     /// Destructor
+    ~DocumentSet();
 
     /// Return the size of the DocumentSet
-    int size() const;
+    unsigned int size() const;
 
     /// Return the Document in the DocumentSet at index i
     Xapian::Document operator[](Xapian::doccount i);
 
     /// Add a new Document to the DocumentSet
-    void add_document(Document doc);
+    void add_document(const Document &doc);
 };
 
 /** Base class for TermListGroup

@@ -63,7 +63,7 @@ KMeans::initialize_clusters(ClusterSet &cset)
     // the same point has been selected more than once
     mt19937 generator;
     generator.seed(random_device()());
-    uniform_int_distribution<mt19937::result_type> random(0, size);
+    uniform_int_distribution<mt19937::result_type> random(0, size-1);
     for (unsigned int i = 0; i < k; ++i) {
 	int x = random(generator);
 	Centroid centroid(docs[x]);
@@ -91,7 +91,6 @@ KMeans::cluster(MSet &mset)
     unsigned int size = mset.size();
     if (k >= size)
 	k = size;
-    mset.fetch();
     initialize_points(mset);
     ClusterSet cset;
     initialize_clusters(cset);

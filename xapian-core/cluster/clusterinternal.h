@@ -118,3 +118,38 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
      */
     void recalculate();
 };
+
+/** Internal class for DocumentSet
+ */
+class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
+  private:
+    /// Copies are not allowed.
+    Internal(const Internal &);
+
+    /// Assignment is not allowed.
+    void operator=(const Internal &);
+
+    /// Vector storing the documents for this DocumentSet
+    vector<Xapian::Document> docs;
+  public:
+    /// Constructor
+    Internal() {}
+
+    /// Destructor
+    ~Internal() {}
+
+    /// Returns the size of the DocumentSet
+    unsigned int size() const;
+
+    /** Returns the Document at the index 'i' in the DocumentSet
+     *
+     * @params  i	Index of required document
+     */
+    Xapian::Document get_document(Xapian::doccount i);
+
+    /** Add a new Xapian::Document to the DocumentSet
+     *
+     * @params  doc	Xapian::Document to be added
+     */
+    void add_document(const Xapian::Document &doc);
+};
