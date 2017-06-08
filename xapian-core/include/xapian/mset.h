@@ -92,18 +92,18 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     void replace_weights(Iterator first, Iterator last)
     {
 	if (last - first != size()) {
-	    throw Xapian::InvalidArgumentError("Number of weights assigned don't match the number of items.");
+	    throw Xapian::InvalidArgumentError("Number of weights assigned doesn't match the number of items.");
 	}
 	Xapian::doccount i = 0;
-	for (Iterator it = first; it != last; ++it,++i)	{
-	    set_item_weight(i, *it);
+	while (first != last) {
+	    set_item_weight(i, *first);
+	    ++i, ++first;
 	}
     }
 
     /**
      * Sorts the list of documents in MSet according to their weights. Use afer calling replace_weights().
      */
-
     void sort_by_relevance();
 
     /** Convert a weight to a percentage.
