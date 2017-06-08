@@ -320,7 +320,7 @@ DEFINE_TESTCASE(sortfunctorremote1, remote) {
     return true;
 }
 
-DEFINE_TESTCASE(set_item_weight, backend) {
+DEFINE_TESTCASE(replace_weights, backend) {
     // open the database (in this case a simple text file
     // we prepared earlier)
 
@@ -335,8 +335,7 @@ DEFINE_TESTCASE(set_item_weight, backend) {
     Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     // assigning new weight of -1 to the document.
-    vector<double> weights;
-    weights.push_back(-1);
+    vector<double> weights {-1};
     mymset.replace_weights(weights.begin(), weights.end());
     Xapian::MSetIterator i = mymset.begin();
     // checking wether the weight was assigned correctly
@@ -347,7 +346,7 @@ DEFINE_TESTCASE(set_item_weight, backend) {
     return true;
 }
 
-DEFINE_TESTCASE(set_wrong_item_weights, backend) {
+DEFINE_TESTCASE(replace_weights2, backend) {
     // open the database (in this case a simple text file
     // we prepared earlier)
 
@@ -362,15 +361,13 @@ DEFINE_TESTCASE(set_wrong_item_weights, backend) {
     Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     // Checking for exception when the number of weights in the input exceeds the number of documents
-    vector<double> weights;
-    weights.push_back(-1);
-    weights.push_back(-2);
+    vector<double> weights {-1, -2};
     TEST_EXCEPTION(Xapian::InvalidArgumentError, mymset.replace_weights(weights.begin(), weights.end()));
 
     return true;
 }
 
-DEFINE_TESTCASE(sort_by_relevance, backend) {
+DEFINE_TESTCASE(sort_existing_mset_by_relevance, backend) {
     // open the database (in this case a simple text file
     // we prepared earlier)
     Xapian::Database db = get_database("apitest_simpledata");
@@ -387,9 +384,7 @@ DEFINE_TESTCASE(sort_by_relevance, backend) {
     i++;
     docids.push_back(*i);
     // assigning new weights and then re-sorting to reverse the order of relevance
-    vector<double> weights;
-    weights.push_back(-2);
-    weights.push_back(-1);
+    vector<double> weights {-2, -1};
     mymset.replace_weights(weights.begin(), weights.end());
     mymset.sort_by_relevance();
     int j = -1, k = 1;
