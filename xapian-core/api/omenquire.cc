@@ -467,10 +467,13 @@ MSet::Internal::read_docs() const
 void
 MSet::Internal::set_item_weight(Xapian::doccount i, double wt_)
 {
+    // max_attained is updated as the max of new weights, max_attained of previous weights is discarded.
     if (i == 0)
 	max_attained = wt_;
     else
 	max_attained = max(max_attained, wt_);
+    // max_possible is updated such as it is the max of previous as well as the new weights.
+    max_possible = max(max_possible, wt_);
     items[i].wt = wt_;
 }
 
