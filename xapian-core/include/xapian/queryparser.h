@@ -1,7 +1,7 @@
 /** @file queryparser.h
  * @brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2010 Adam Sjøgren
  *
  * This program is free software; you can redistribute it and/or
@@ -949,8 +949,8 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *				The most useful values for this are OP_OR (the
      *				default) and OP_AND.  OP_NEAR, OP_PHRASE,
-     *				OP_ELITE_SET and OP_SYNONYM are also permitted.
-     *				Passing other values will result in
+     *				OP_ELITE_SET, OP_SYNONYM and OP_MAX are also
+     *				permitted.  Passing other values will result in
      *				InvalidArgumentError being thrown.
      */
     void set_default_op(Query::op default_op);
