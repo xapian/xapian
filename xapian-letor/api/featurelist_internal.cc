@@ -126,7 +126,7 @@ FeatureList::Internal::compute_doc_length()
     len["title"] = temp_count;
     len["whole"] = featurelist_db.get_doclength(featurelist_doc.get_docid());
     len["body"] = len["whole"] - len["title"];
-    doc_length =  len;
+    doc_length = len;
 }
 
 void
