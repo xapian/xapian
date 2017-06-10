@@ -661,7 +661,12 @@ AC_FUNC_MEMCMP
 AC_FUNC_STRERROR_R
 
 AC_CACHE_CHECK([for sys_errlist and sys_nerr], ac_cv_sys_errlist_and_sys_nerr, [
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
+  AC_LINK_IFELSE([AC_LANG_PROGRAM(
+dnl On Linux, sys_errlist and sys_nerr need <stdio.h>, though the man page
+dnl says <errno.h>.  The man page seems to match other platforms such as
+dnl NetBSD, so include both headers to ensure we get them.
+[[#include <errno.h>
+#include <stdio.h>]],
 [[  printf("%s", sys_errlist[sys_nerr - 1]);]])],
   [ ac_cv_sys_errlist_and_sys_nerr=yes ],
   [ ac_cv_sys_errlist_and_sys_nerr=no ])
@@ -671,7 +676,9 @@ if test "x$ac_cv_sys_errlist_and_sys_nerr" = "xyes" ; then
 fi
 
 AC_CACHE_CHECK([for _sys_errlist and _sys_nerr], ac_cv__sys_errlist_and__sys_nerr, [
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <stdio.h>]],
+  AC_LINK_IFELSE([AC_LANG_PROGRAM(
+[[#include <errno.h>
+#include <stdio.h>]],
 [[  printf("%s", _sys_errlist[_sys_nerr - 1]);]])],
   [ ac_cv__sys_errlist_and__sys_nerr=yes ],
   [ ac_cv__sys_errlist_and__sys_nerr=no
