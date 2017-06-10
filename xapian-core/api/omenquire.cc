@@ -467,13 +467,18 @@ MSet::Internal::read_docs() const
 void
 MSet::Internal::set_item_weight(Xapian::doccount i, double wt_)
 {
-    // max_attained is updated as the max of new weights, max_attained of previous weights is discarded.
+    /* This function is called indirectly by MSet::replace_weights through MSet::set_item_weight to update MSet.
+     * This function is indirectly used to assign new weights to the existing documents by MSet::replace_weights.
+     * While assigning new weights max_attained is updated to reflect the max_attained in the new weights.
+     * While assigning new weights max_possible is updated to reflect the max of max_attained and max_possible of previous weights.
+     * Ideally the max_possible should be the maximum possible weight that can be assigned by the weight assigning algorithm
+     * but since it is not practical to calculate max possible weight for different algorithms we use this approach.
+     */
     if (i == 0)
 	max_attained = wt_;
     else
 	max_attained = max(max_attained, wt_);
-    // max_possible is updated such as it is the max of previous as well as the new weights.
-    max_possible = max(max_possible, wt_);
+    max_possible = max(max_possible, max_attained);
     items[i].wt = wt_;
 }
 

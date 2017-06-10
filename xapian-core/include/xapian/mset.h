@@ -78,8 +78,10 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /// Destructor.
     ~MSet();
 
-    /** Assigns new weights to MSet
-     *  Dereferencing the Iterator should return a double
+    /** Assigns new weights and updates MSet.
+     *  Dereferencing the Iterator should return a double.
+     *  Iterator should dereference weights in the original order of documents.
+     *  Weights are assigned as per the original order of documents.
      *
      *  @param begin	Begin iterator.
      *  @param end	End iterator.
@@ -102,7 +104,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     }
 
     /**
-     * Sorts the list of documents in MSet according to their weights. Use afer calling replace_weights().
+     * Sorts the list of documents in MSet according to their weights. Use after calling MSet::replace_weights.
      */
     void sort_by_relevance();
 
