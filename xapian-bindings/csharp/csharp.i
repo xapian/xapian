@@ -255,7 +255,6 @@ namespace Xapian {
 %warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::TradWeight::create_from_parameters;
 %warnfilter(WARN_CSHARP_COVARIANT_RET) Xapian::Weight::create_from_parameters;
 
-
 %include ../generic/except.i
 %include ../xapian-headers.i
 %include ../fake_dbfactory.i
