@@ -332,7 +332,7 @@ Registry::get_weighting_scheme(const string & name) const
     const Xapian::Weight * wt = lookup_object(internal->wtschemes, name);
     const Xapian::Weight * wt_short = lookup_object(internal->wtschemes_short, name);
     if (!name.empty() && C_islower(name[0])) {
-	if(wt_short == NULL)
+	if (wt_short == NULL)
 	    RETURN(wt);
 	RETURN(wt_short);
     }
