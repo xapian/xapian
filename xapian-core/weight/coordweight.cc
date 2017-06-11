@@ -95,7 +95,7 @@ CoordWeight::get_maxextra() const
 CoordWeight *
 CoordWeight::create_from_parameters(const char * p) const
 {
-    if (*p == ' ')
+    if (*p != '\0')
 	throw InvalidArgumentError("No parameters are required for CoordWeight");
     return new Xapian::CoordWeight();
 }

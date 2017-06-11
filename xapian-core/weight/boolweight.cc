@@ -95,9 +95,7 @@ BoolWeight::get_maxextra() const
 BoolWeight *
 BoolWeight::create_from_parameters(const char * p) const
 {
-    if (*p == '\0')
-	return new Xapian::BoolWeight();
-    if (*p == ' ')
+    if (*p != '\0')
 	throw InvalidArgumentError("No parameters are required for BoolWeight");
     return new Xapian::BoolWeight();
 }

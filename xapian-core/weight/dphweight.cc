@@ -169,9 +169,7 @@ DPHWeight::get_maxextra() const
 DPHWeight *
 DPHWeight::create_from_parameters(const char * p) const
 {
-    if (*p == '\0')
-	return new Xapian::DPHWeight();
-    if (*p == ' ')
+    if (*p != '\0')
 	throw InvalidArgumentError("No parameters are required for DPHWeight");
     return new Xapian::DPHWeight();
 }
