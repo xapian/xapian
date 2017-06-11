@@ -41,7 +41,7 @@ using namespace std;
 
 KMeans::KMeans(unsigned int k_, unsigned int max_iters_)
     : k(k_), max_iters(max_iters_) {
-    LOGCALL_CTOR(API, "KMeans()", k_ | max_iters_);
+    LOGCALL_CTOR(API, "KMeans", k_ | max_iters_);
     if (k_ == 0)
 	throw InvalidArgumentError("Number of required clusters should be greater than zero");
 }
