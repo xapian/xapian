@@ -31,9 +31,9 @@
 #include "xapian/weight.h"
 
 #include "debuglog.h"
+#include "stringutils.h"
 
 #include <algorithm>
-#include <cctype>
 #include <map>
 #include <string>
 
@@ -329,10 +329,14 @@ const Xapian::Weight *
 Registry::get_weighting_scheme(const string & name) const
 {
     LOGCALL(API, const Xapian::Weight *, "Xapian::Registry::get_weighting_scheme", name);
-    const char * p = name.c_str();
-    if (std::islower(*p))
-	RETURN(lookup_object(internal->wtschemes_short, name));
-    RETURN(lookup_object(internal->wtschemes, name));
+    const Xapian::Weight * wt = lookup_object(internal->wtschemes, name);
+    const Xapian::Weight * wt_short = lookup_object(internal->wtschemes_short, name);
+    if (!name.empty() && C_islower(name[0])) {
+	if(wt_short == NULL)
+	    RETURN(wt);
+	RETURN(wt_short);
+    }
+    RETURN(wt);
 }
 
 void
