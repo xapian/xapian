@@ -489,7 +489,11 @@ class XAPIAN_VISIBILITY_DEFAULT Similarity {
     /// Destructor
     virtual ~Similarity();
 
-    /// Calculates the similarity between the two documents
+    /** Calculates the similarity between the two documents
+     *
+     *  @param a	First point object for distance calculation
+     *  @param b	Second point object for distance calculation
+     */
     virtual double similarity(const PointType &a, const PointType &b) const = 0;
 
     /// Returns description of the similarity metric being used
