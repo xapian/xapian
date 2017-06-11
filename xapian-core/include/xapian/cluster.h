@@ -195,7 +195,8 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 
 /** Abstract class representing a point in the VSM
  */
-class XAPIAN_VISIBILITY_DEFAULT PointType {
+class XAPIAN_VISIBILITY_DEFAULT PointType
+    : public Xapian::Internal::opt_intrusive_base {
 
   protected:
 
@@ -207,7 +208,13 @@ class XAPIAN_VISIBILITY_DEFAULT PointType {
     /// Store the squared magnitude of the PointType
     double magnitude;
 
-    /// Set the value 'value' to the mapping of a term
+    /** Set the value 'value' to the mapping of a term
+     *
+     *  @param term	Term for which the value is supposed
+     *			to be changed
+     *  @param value	The value to which the mapping of the
+     *			term is to be set
+     */
     void set_value(const std::string &term, double value);
 
   public:
@@ -224,13 +231,23 @@ class XAPIAN_VISIBILITY_DEFAULT PointType {
 
     /** Validate whether a certain term exists in the termlist
      *  or not by performing a lookup operation in the existing values
+     *
+     *  @param term	Term which is to be searched
      */
     bool contains(const std::string &term) const;
 
-    /// Return the TF-IDF weight associated with a certain term
+    /** Return the TF-IDF weight associated with a certain term
+     *
+     *  @param term	Term for which TF-IDF weight is returned
+     */
     double get_value(const std::string &term) const;
 
-    /// Add the value 'value' to the mapping of a term
+    /** Add the value 'value' to the mapping of a term
+     *
+     *  @param term	Term to which the value is to be added
+     *  @param value	Value which has to be added to the existing
+     *			mapping of the term
+     */
     void add_value(const std::string &term, double value);
 
     /// Return the pre-computed squared magnitude
@@ -238,6 +255,30 @@ class XAPIAN_VISIBILITY_DEFAULT PointType {
 
     /// Return the size of the termlist
     int termlist_size() const;
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated PointType
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    PointType * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated PointType
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    const PointType * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /** Class to represent a document as a point in the Vector Space
@@ -252,7 +293,13 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
 
   public:
 
-    /// Initialize the point with terms and corresponding term weights
+    /** Initialize the point with terms and corresponding term weights
+     *
+     *  @param tlg	TermListGroup object which provides the term
+     *			frequencies which is used for TF-IDF weight calulations
+     *  @param doc	The Document object over which the Point object
+     *			will be initialized
+     */
     void initialize(const TermListGroup &tlg, const Document &doc);
 
     /// Returns the document corresponding to this Point
@@ -261,17 +308,26 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
 
 /** Class to represent cluster centroids in the vector space
 */
-class Centroid : public PointType {
+class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
 
   public:
 
     // Constructor
     Centroid();
 
-    /// Constructor with Point argument
+    /** Constructor with Point argument
+     *
+     *  @param x	Point object to which Centroid object is
+     *			initialized. The document vector and the
+     *			magnitude are made equal
+     */
     explicit Centroid(Point &x);
 
-    /// Divide the weight of terms in the centroid by 'size'
+    /** Divide the weight of terms in the centroid by 'size'
+     *
+     *  @param size	Value by which Centroid document vector is
+     *			divided
+     */
     void divide(int size);
 
     /// Clear the terms and corresponding values of the centroid
