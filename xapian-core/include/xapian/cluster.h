@@ -75,7 +75,11 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
     /// Return the Document in the DocumentSet at index i
     Xapian::Document operator[](Xapian::doccount i);
 
-    /// Add a new Document to the DocumentSet
+    /** Add a new Document to the DocumentSet
+     *
+     *  @param doc	Document object that is to be added to
+     *			the DocumentSet
+     */
     void add_document(const Document &doc);
 };
 
