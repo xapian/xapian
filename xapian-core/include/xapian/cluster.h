@@ -361,7 +361,11 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
      */
     void operator=(const Cluster &other);
 
-    /// Constructor
+    /** Constructor
+     *
+     *  @param centroid_	The centroid of the cluster object is
+     *				assigned to centroid_
+     */
     Cluster(const Centroid centroid_);
 
     /// Constructor
@@ -373,13 +377,20 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     /// Returns size of the cluster
     Xapian::doccount size() const;
 
-    /// Add a document to the Cluster
+    /** Add a document to the Cluster
+     *
+     *  @param doc	The Point object representing the document which
+     *			needs to be added to the cluster
+     */
     void add_point(const Point &doc);
 
     /// Clear the cluster values
     void clear();
 
-    /// Return the point at the given index in the cluster
+    /** Return the point at the given index in the cluster
+     *
+     *  @param index	Index of the Point within the cluster
+     */
     Point get_index(unsigned int index) const;
 
     /// Return the documents that are contained within the cluster
@@ -388,7 +399,10 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     /// Return the current centroid of the cluster
     Centroid get_centroid() const;
 
-    /// Set the centroid of the Cluster to centroid_
+    /** Set the centroid of the Cluster to centroid_
+     *
+     *  @param centroid_	Centroid object for the Cluster
+     */
     void set_centroid(const Centroid centroid_);
 
     /** Recalculate the centroid of the Cluster after each iteration
@@ -428,13 +442,27 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
     /// Destructor
     ~ClusterSet();
 
-    /// Add a cluster to the cluster set
+    /** Add a cluster to the cluster set
+     *
+     *  @param c	Cluster object which is to be added
+     *			to the ClusterSet
+     */
     void add_cluster(const Cluster &c);
 
-    /// Return the Cluster at position 'index'
+    /** Return the Cluster at position 'index'
+     *
+     *  @param index	The index of the required Cluster within the
+     *			ClusterSet
+     */
     Cluster get_cluster(unsigned int index) const;
 
-    /// Add the point the the cluster at position 'index'
+    /** Add the point the the cluster at position 'index'
+     *
+     *  @param x	Point object which needs to be added to
+     *			a Cluster within the ClusterSet
+     *  @param index	Index of the Cluster within the ClusterSet to
+     *			which the Point is to be added
+     */
     void add_to_cluster(const Point &x, unsigned int index);
 
     /// Return the number of clusters
