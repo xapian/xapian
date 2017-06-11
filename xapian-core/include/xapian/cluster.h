@@ -573,7 +573,10 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
 
   public:
 
-    /// Constructor
+    /** Constructor
+     *
+     *  @param num_of_clusters_		Number of required clusters
+     */
     RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
 
     /// Implements the RoundRobin clustering
