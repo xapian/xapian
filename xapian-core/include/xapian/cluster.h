@@ -87,25 +87,57 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
  *  Stores and provides terms that are contained in a document and
  *  their respective term frequencies
  */
-class XAPIAN_VISIBILITY_DEFAULT FreqSource {
+class XAPIAN_VISIBILITY_DEFAULT FreqSource
+    : public Xapian::Internal::opt_intrusive_base {
 
-  protected:
+  private:
 
-    /** Map of the terms and its corresponding term frequencies.
-     *  The term frequency of a term stands for the number of documents it indexes
-     */
-    std::unordered_map<std::string, doccount> termfreq;
+    /// Don't allow assignment.
+    void operator=(const FreqSource &);
+
+    /// Don't allow copying.
+    FreqSource(const FreqSource &);
 
   public:
+
+    /// Constructor
+    FreqSource() {}
 
     /// Destructor
     virtual ~FreqSource();
 
-    /// Return the term frequency of a particular term 'tname'
+    /** Return the term frequency of a particular term 'tname'
+     *
+     *  @param tname	The term for which we return the frequency value
+     */
     virtual doccount get_termfreq(const std::string &tname) const = 0;
 
     /// Return the number of documents within the MSet
     virtual doccount get_doccount() const = 0;
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated FreqSource
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    FreqSource * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated FreqSource
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    const FreqSource * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /** A class for dummy frequency source for construction of termlists
@@ -129,18 +161,32 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 
   private:
 
+    /** Map of the terms and its corresponding term frequencies.
+     *  The term frequency of a term stands for the number of documents it indexes
+     */
+    std::unordered_map<std::string, doccount> termfreq;
+
     /// Number of documents added to the termlist
     doccount docs_num;
 
-    /// Add a single document and calculates its corresponding term frequencies
+    /** Add a single document and calculates its corresponding term frequencies
+     *
+     *  @param doc	Adds a document and updates the TermListGroup based on the
+     *			terms found in the document
+     */
     void add_document(const Document &doc);
 
   public:
-
+    /** Constructor
+     *
+     *  @params docs	MSet object used to construct the TermListGroup
+     */
     explicit TermListGroup(const MSet &docs);
 
     /** Return the number of documents that the term 'tname' exists in
      *  or the number of documents that a certain term indexes
+     *
+     *  @param tname	The term for which we return the frequency value
      */
     doccount get_termfreq(const std::string &tname) const;
 
