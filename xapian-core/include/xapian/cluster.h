@@ -602,18 +602,30 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
 
     /** Initialize 'k' clusters by randomly selecting 'k' centroids
      *  and assigning them to different clusters
+     *
+     *	@param cset	ClusterSet object to be initialized by assigning
+     *			centroids to each cluster
      */
     void initialize_clusters(ClusterSet &cset);
 
     /** Initialize the 'Points' to be fed into the Clusterer with the DocumentSource.
      *  The TF-IDF weights for the points are calculated and stored within the
      *  Points to be used later during distance calculations
+     *
+     *  @param docs	MSet object containing the documents which will be
+     *			used to create document vectors that are represented
+     *			as Point objects
      */
     void initialize_points(const MSet &docs);
 
   public:
 
-    /// Constructor specifying number of clusters and maximum iterations
+    /** Constructor specifying number of clusters and maximum iterations
+     *
+     *  @param k_		Number of required clusters
+     *  @param max_iters_	The maximum number of iterations for which KMeans
+     *				will run if it doesn't converge
+     */
     explicit KMeans(unsigned int k_, unsigned int max_iters_ = MAX_ITERS);
 
     /// Implements the KMeans clustering algorithm
