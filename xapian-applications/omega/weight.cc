@@ -39,6 +39,5 @@ set_weighting_scheme(Xapian::Enquire & enq, const string & scheme,
 	enq.set_weighting_scheme(*wt);
 
 	delete wt;
-	wt = NULL;
     }
 }
