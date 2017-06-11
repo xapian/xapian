@@ -40,8 +40,7 @@ DEFINE_TESTCASE(cosine_distance1, backend)
     enquire.set_query(Xapian::Query("cluster"));
 
     Xapian::MSet matches = enquire.get_mset(0, 4);
-    Xapian::TermListGroup tlg;
-    tlg.add_documents(matches);
+    Xapian::TermListGroup tlg(matches);
     Xapian::Document doc1 = matches[0].get_document();
     Xapian::Document doc2 = matches[1].get_document();
     Xapian::Point x1, x2;
