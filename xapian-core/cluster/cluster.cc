@@ -308,7 +308,7 @@ Centroid::Centroid(Point &p) {
 }
 
 void
-Centroid::divide(int num)
+Centroid::divide(double num)
 {
     LOGCALL_VOID(API, "Centroid::divide", num);
     unordered_map<string, double>::iterator it;

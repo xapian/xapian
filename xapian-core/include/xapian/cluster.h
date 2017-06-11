@@ -323,7 +323,7 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
      *  @param size	Value by which Centroid document vector is
      *			divided
      */
-    void divide(int size);
+    void divide(double size);
 
     /// Clear the terms and corresponding values of the centroid
     void clear();
