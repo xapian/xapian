@@ -34,11 +34,6 @@
 #include <unordered_map>
 #include <vector>
 
-/** Maximum number of times KMeans algorithm will iterate
- *  till it converges
- */
-#define MAX_ITERS 1000
-
 namespace Xapian {
 
 /** Class representing a set of documents in a cluster
@@ -626,7 +621,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
      *  @param max_iters_	The maximum number of iterations for which KMeans
      *				will run if it doesn't converge
      */
-    explicit KMeans(unsigned int k_, unsigned int max_iters_ = MAX_ITERS);
+    explicit KMeans(unsigned int k_, unsigned int max_iters_ = 0);
 
     /// Implements the KMeans clustering algorithm
     ClusterSet cluster(MSet &mset);
