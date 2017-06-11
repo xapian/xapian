@@ -517,20 +517,48 @@ class XAPIAN_VISIBILITY_DEFAULT CosineDistance : public Similarity {
 
 /** Class representing an abstract class for a clusterer to be implemented
  */
-class XAPIAN_VISIBILITY_DEFAULT Clusterer {
+class XAPIAN_VISIBILITY_DEFAULT Clusterer
+    : public Xapian::Internal::opt_intrusive_base {
 
   public:
 
     /// Destructor
     virtual ~Clusterer();
 
-    /* Implement the required clustering algorithm in the subclass and
+    /** Implement the required clustering algorithm in the subclass and
      *  and return clustered output as ClusterSet
+     *
+     *  @param mset	The MSet object which contains the documents to be
+     *			clustered
      */
     virtual ClusterSet cluster(MSet &mset) = 0;
 
     /// Returns a description of the clusterer being used
     virtual std::string get_description() const = 0;
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated Clusterer
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    Clusterer * release() {
+	opt_intrusive_base::release();
+	return this;
+    }
+
+    /** Start reference counting this object.
+     *
+     *  You can hand ownership of a dynamically allocated Clusterer
+     *  object to Xapian by calling release() and then passing the object to a
+     *  Xapian method.  Xapian will arrange to delete the object once it is no
+     *  longer required.
+     */
+    const Clusterer * release() const {
+	opt_intrusive_base::release();
+	return this;
+    }
 };
 
 /** Round Robin clusterer:
