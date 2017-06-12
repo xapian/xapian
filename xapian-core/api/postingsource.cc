@@ -1,7 +1,7 @@
 /** @file postingsource.cc
  * @brief External sources of posting information
  */
-/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016 Olly Betts
+/* Copyright (C) 2008,2009,2010,2011,2012,2015,2016,2017 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  * Copyright (C) 2010 Richard Boulton
  *
@@ -227,6 +227,15 @@ ValuePostingSource::init(const Database & db_)
 	real_termfreq_est = real_termfreq_max / 2;
 	real_termfreq_min = 0;
     }
+}
+
+string
+ValuePostingSource::get_description() const
+{
+    string desc("Xapian::ValuePostingSource(slot=");
+    desc += str(get_slot());
+    desc += ")";
+    return desc;
 }
 
 

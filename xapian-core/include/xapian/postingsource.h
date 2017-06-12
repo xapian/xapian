@@ -1,7 +1,7 @@
 /** @file postingsource.h
  *  @brief External sources of posting information
  */
-/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016 Olly Betts
+/* Copyright (C) 2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017 Olly Betts
  * Copyright (C) 2008,2009 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -562,6 +562,8 @@ class XAPIAN_VISIBILITY_DEFAULT ValuePostingSource : public PostingSource {
     void set_termfreq_max(Xapian::doccount termfreq_max_) {
 	real_termfreq_max = termfreq_max_;
     }
+
+    std::string get_description() const;
 };
 
 
