@@ -52,7 +52,8 @@ Clusterer::~Clusterer()
     LOGCALL_DTOR(API, "Clusterer");
 }
 
-TermListGroup::TermListGroup(const MSet &docs) {
+TermListGroup::TermListGroup(const MSet &docs)
+{
     LOGCALL_CTOR(API, "TermListGroup", docs);
     for (MSetIterator it = docs.begin(); it != docs.end(); ++it)
 	add_document(it.get_document());
@@ -103,7 +104,10 @@ TermListGroup::get_termfreq(const string &tname) const
 {
     LOGCALL(API, doccount, "TermListGroup::get_termfreq", tname);
     unordered_map<string, doccount>::const_iterator it = termfreq.find(tname);
-    return it->second;
+    if (it != termfreq.end())
+	return it->second;
+    else
+	return 0;
 }
 
 DocumentSet::DocumentSet(const DocumentSet &other)
