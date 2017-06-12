@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016 Olly Betts';
+my $copyright = 'Copyright (C) 2007,2009,2012,2014,2015,2016,2017 Olly Betts';
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -134,9 +134,18 @@ for my $class (sort keys %uncopyableclasses) {
     }
     my $get_description = ! exists $no_get_description{$class};
     my $object = lc $class;
-    $class = "Xapian::$class";
-    print "    $class $object$params;\n";
-    print "    TEST(!$object.get_description().empty());\n" if $get_description;
+    my $full_class = "Xapian::$class";
+    print "    $full_class $object$params;\n";
+    if ($get_description) {
+	print "    {\n";
+	print "\tconst string& desc = $object.get_description();\n";
+	print "\ttout.clear();\n";
+	print "\ttout << desc << endl;\n";
+	print "\tTEST(startswith(desc, \"$class(\") ||\n";
+	print "\t     startswith(desc, \"$full_class(\"));\n";
+	print "\tTEST(desc.back() == ')');\n";
+	print "    }\n";
+    }
 }
 
 print <<'END';
