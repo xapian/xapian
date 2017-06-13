@@ -463,7 +463,7 @@ MSet::Internal::set_item_weight(Xapian::doccount i, double wt_, bool continue_)
 {
 
     items[i].wt = wt_;
-    if(continue_ == false)
+    if (continue_ == false)
 	sort_by_relevance();
 }
 
