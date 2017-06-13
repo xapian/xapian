@@ -376,7 +376,12 @@ Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::Featur
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, Xapian::Database(db_path));
     load_model_from_metadata(model_key);
     std::vector<FeatureVector> rankedfvv = rank_fvv(fvv);
-    mset.replace_weights(ScoreIterator(rankedfvv.begin()), ScoreIterator(rankedfvv.end()));
+    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
+	if(i != mset.size() - 1)
+	    mset.set_item_weight(i, rankedfvv[i].get_score(), true);
+	else
+	    mset.set_item_weight(i, rankedfvv[i].get_score(), false);
+    }
 }
 
 void
