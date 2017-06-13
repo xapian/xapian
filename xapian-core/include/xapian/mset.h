@@ -75,35 +75,6 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     /// Destructor.
     ~MSet();
 
-    /** Assigns new weights and updates MSet.
-     *  Dereferencing the Iterator should return a double.
-     *  Iterator should dereference weights in the original order of documents.
-     *  Weights are assigned as per the original order of documents.
-     *
-     *  @param begin	Begin iterator.
-     *  @param end	End iterator.
-     *
-     *  @exception Xapian::InvalidArgument is thrown if the total number of
-     *  elements in the input dont match the total number of documents in MSet.
-     *
-     */
-    template <typename Iterator>
-    void replace_weights(Iterator first, Iterator last)
-    {
-	if (last - first != size()) {
-	    throw Xapian::InvalidArgumentError("Number of weights assigned doesn't match the number of items.");
-	}
-	Xapian::doccount i = 0;
-	while (first != last) {
-	    if(last - first != 1)
-		set_item_weight(i, *first, true);
-	    else
-		set_item_weight(i, *first, false);
-
-	    ++i, ++first;
-	}
-    }
-
     /** Assigns new weight to MSet::internal::items at position Xapian::doccount i with weight wt_
      *  and calls MSet::Internal::sort_by_relevance if continue_ is set to false.
      *
