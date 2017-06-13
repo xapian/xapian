@@ -351,19 +351,19 @@ Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& second
     return firstfv.get_label() > secondfv.get_label();
 }
 
-std::vector<Xapian::docid>
-Ranker::rank(const Xapian::MSet & mset, const string & model_key, const Xapian::FeatureList & flist)
+void
+Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::FeatureList & flist)
 {
     LOGCALL(API, std::vector<Xapian::docid>, "Ranker::rank", mset | model_key | flist);
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, Xapian::Database(db_path));
     load_model_from_metadata(model_key);
     std::vector<FeatureVector> rankedfvv = rank_fvv(fvv);
-
-    std::vector<Xapian::docid> rankeddid;
-    for (size_t i = 0; i < rankedfvv.size(); ++i) {
-	rankeddid.push_back(rankedfvv[i].get_did());
+    for (Xapian::doccount i = 0; i < mset.size(); ++i) {
+	if (i != mset.size() - 1)
+	    mset.set_item_weight(i, rankedfvv[i].get_score(), true);
+	else
+	    mset.set_item_weight(i, rankedfvv[i].get_score(), false);
     }
-    return rankeddid;
 }
 
 void

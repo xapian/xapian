@@ -182,6 +182,12 @@ MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
     internal->fetch_items(first, last);
 }
 
+void
+MSet::set_item_weight(Xapian::doccount i, double wt, bool continue_)
+{
+    internal->set_item_weight(i, wt, continue_);
+}
+
 int
 MSet::convert_to_percent(double wt) const
 {
@@ -450,6 +456,27 @@ MSet::Internal::read_docs() const
     }
     /* Clear list of requested but not fetched documents. */
     requested_docs.clear();
+}
+
+void
+MSet::Internal::set_item_weight(Xapian::doccount i, double wt_, bool continue_)
+{
+
+    items[i].wt = wt_;
+    if (continue_ == false)
+	sort_by_relevance();
+}
+
+void
+MSet::Internal::sort_by_relevance()
+{
+    std::sort(items.begin(), items.end(), [](
+		const Xapian::Internal::MSetItem& x,
+		const Xapian::Internal::MSetItem& y) {
+	return x.wt > y.wt;
+    });
+    max_attained = items[0].wt;
+    max_possible = max(max_possible, max_attained);
 }
 
 // MSetIterator

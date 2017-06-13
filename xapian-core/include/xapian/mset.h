@@ -31,6 +31,7 @@
 
 #include <xapian/attributes.h>
 #include <xapian/document.h>
+#include <xapian/error.h>
 #include <xapian/intrusive_ptr.h>
 #include <xapian/stem.h>
 #include <xapian/types.h>
@@ -73,6 +74,18 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 
     /// Destructor.
     ~MSet();
+
+    /** Assigns new weight to MSet::internal::items at position Xapian::doccount i with weight wt_
+     *  and calls MSet::Internal::sort_by_relevance if continue_ is set to false.
+     *
+     *  @param i	 Xapian::doccount i, position of the document whose weight is to be updated.
+     *  @param wt_	 doube wt_, new weight to be assigned.
+     *  @param continue_ bool continue_ flag to let the function know if there are more documents whose weights
+     *			 need to be updated. If updating the weight of a single item the continue_ flag should be
+     *		         set to false. If updating weights of multiple documents then the continue_ flag should be set
+     *		         as false for the last document, for the remaining it should be set true.
+     */
+    void set_item_weight(Xapian::doccount i, double wt, bool continue_);
 
     /** Convert a weight to a percentage.
      *
