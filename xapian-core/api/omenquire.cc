@@ -196,12 +196,6 @@ MSet::convert_to_percent(double wt) const
     RETURN(internal->convert_to_percent_internal(wt));
 }
 
-void
-MSet::sort_by_relevance()
-{
-    internal->sort_by_relevance();
-}
-
 Xapian::doccount
 MSet::get_termfreq(const string &tname) const
 {
