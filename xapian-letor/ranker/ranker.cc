@@ -377,7 +377,6 @@ Ranker::rank(Xapian::MSet & mset, const string & model_key, const Xapian::Featur
     load_model_from_metadata(model_key);
     std::vector<FeatureVector> rankedfvv = rank_fvv(fvv);
     mset.replace_weights(ScoreIterator(rankedfvv.begin()), ScoreIterator(rankedfvv.end()));
-    mset.sort_by_relevance();
 }
 
 void
