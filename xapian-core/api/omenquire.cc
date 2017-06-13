@@ -183,9 +183,9 @@ MSet::fetch_(Xapian::doccount first, Xapian::doccount last) const
 }
 
 void
-MSet::set_item_weight(Xapian::doccount i, double wt)
+MSet::set_item_weight(Xapian::doccount i, double wt, bool continue_)
 {
-    internal->set_item_weight(i, wt);
+    internal->set_item_weight(i, wt, continue_);
 }
 
 int
@@ -465,21 +465,12 @@ MSet::Internal::read_docs() const
 }
 
 void
-MSet::Internal::set_item_weight(Xapian::doccount i, double wt_)
+MSet::Internal::set_item_weight(Xapian::doccount i, double wt_, bool continue_)
 {
-    /* This function is called indirectly by MSet::replace_weights through MSet::set_item_weight to update MSet.
-     * This function is indirectly used to assign new weights to the existing documents by MSet::replace_weights.
-     * While assigning new weights max_attained is updated to reflect the max_attained in the new weights.
-     * While assigning new weights max_possible is updated to reflect the max of max_attained and max_possible of previous weights.
-     * Ideally the max_possible should be the maximum possible weight that can be assigned by the weight assigning algorithm
-     * but since it is not practical to calculate max possible weight for different algorithms we use this approach.
-     */
-    if (i == 0)
-	max_attained = wt_;
-    else
-	max_attained = max(max_attained, wt_);
-    max_possible = max(max_possible, max_attained);
+
     items[i].wt = wt_;
+    if(continue_ == false)
+	sort_by_relevance();
 }
 
 void
@@ -490,6 +481,8 @@ MSet::Internal::sort_by_relevance()
 		const Xapian::Internal::MSetItem& y) {
 	return x.wt > y.wt;
     });
+    max_attained = items[0].wt;
+    max_possible = max(max_possible, max_attained);
 }
 
 // MSetIterator

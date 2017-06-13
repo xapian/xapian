@@ -49,7 +49,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
     void fetch_(Xapian::doccount first, Xapian::doccount last) const;
 
     // Helper function for replace_weights(Iterator first, Iterator last)
-    void set_item_weight(Xapian::doccount i, double wt);
+    void set_item_weight(Xapian::doccount i, double wt, bool continue_);
 
   public:
     /// Class representing the MSet internals.
@@ -98,15 +98,14 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	}
 	Xapian::doccount i = 0;
 	while (first != last) {
-	    set_item_weight(i, *first);
+	    if(last - first != 1)
+		set_item_weight(i, *first, true);
+	    else
+		set_item_weight(i, *first, false);
+
 	    ++i, ++first;
 	}
     }
-
-    /**
-     * Sorts the list of documents in MSet according to their weights. Use after calling MSet::replace_weights.
-     */
-    void sort_by_relevance();
 
     /** Convert a weight to a percentage.
      *

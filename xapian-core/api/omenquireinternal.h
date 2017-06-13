@@ -224,6 +224,16 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 
 	mutable std::unordered_map<std::string, double> snippet_bg_relevance;
 
+
+	/** Sorts the MSet::Internal::items by their corresponding weights and updates max_possible and max_attained.
+	 *  max_attained is updated as the weight of the highest ranked document i.e. the first document after sorting.
+	 *  max_possible is updated as the maximum of old max_possible and the new max_attained.
+	 *  max_possible should ideally be the maximum weight assigned by the resorting algorithm
+	 *  but since it is not possible to calculate the maximum weight assigned by different resorting algorithms
+	 *  we use this approach.
+	 */
+	void sort_by_relevance();
+
     public:
 	/// Xapian::Enquire reference, for getting documents.
 	Xapian::Internal::intrusive_ptr<const Enquire::Internal> enquire;
@@ -314,12 +324,17 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	void fetch_items(Xapian::doccount first, Xapian::doccount last) const;
 
-	/// Sets the weight corresponding to item indexed at position i.
-	void set_item_weight(Xapian::doccount i, double wt_);
-
-	/// Sorts the MSet::Internal::items by their corresponding weights.
-	void sort_by_relevance();
-
+	/** Assigns new weight to MSet::internal::items at position Xapian::doccount i with weight wt_
+	 *  and calls MSet::Internal::sort_by_relevance if continue_ is set to false.
+	 *
+	 *  @param i	      Xapian::doccount i, position of the document whose weight is to be updated.
+	 *  @param wt_	      doube wt_, new weight to be assigned.
+	 *  @param continue_  bool continue_ flag to let the function know if there are more documents whose weights
+	 *		      need to be updated. If updating the weight of a single item the continue_ flag should be
+	 *		      set to false. If updating weights of multiple documents then the continue_ flag should be set
+	 *		      as false for the last document, for the remaining it should be set true.
+	 */
+	void set_item_weight(Xapian::doccount i, double wt_, bool continue_);
 };
 
 class RSet::Internal : public Xapian::Internal::intrusive_base {
