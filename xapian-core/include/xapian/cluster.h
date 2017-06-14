@@ -61,7 +61,7 @@ class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
     /// Constructor
     DocumentSet();
 
-     /// Destructor
+    /// Destructor
     ~DocumentSet();
 
     /// Return the size of the DocumentSet

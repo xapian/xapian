@@ -128,7 +128,7 @@ class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
     void operator=(const Internal &);
 
     /// Vector storing the documents for this DocumentSet
-    vector<Xapian::Document> docs;
+    std::vector<Xapian::Document> docs;
   public:
     /// Constructor
     Internal() {}
