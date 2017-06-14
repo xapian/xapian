@@ -366,7 +366,7 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     /// Constructor
     Cluster();
 
-     /// Destructor
+    /// Destructor
     ~Cluster();
 
     /// Returns size of the cluster
