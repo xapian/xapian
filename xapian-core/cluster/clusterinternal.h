@@ -24,8 +24,6 @@
 #include <unordered_map>
 #include <vector>
 
-using namespace std;
-
 /** Internal class for ClusterSet
  */
 class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
@@ -36,16 +34,16 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
     /// Assignment is not allowed
     void operator=(const Internal &);
 
-   /** A vector storing the clusters that are created by the
-    *  clusterers
-    */
-    vector<Cluster> clusters;
+    /** A vector storing the clusters that are created by the
+     *  clusterers
+     */
+    std::vector<Cluster> clusters;
   public:
     /// Constructor
-    Internal() {};
+    Internal() {}
 
     /// Destructor
-    ~Internal() {};
+    ~Internal() {}
 
     /// Add a cluster to the cluster set
     void add_cluster(const Cluster &cluster);
@@ -85,7 +83,7 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     Centroid centroid;
 
   public:
-    Internal(const Centroid centroid_) : centroid(centroid_) {}
+    Internal(const Centroid &centroid_) : centroid(centroid_) {}
 
     Internal() {}
 
@@ -107,10 +105,10 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     DocumentSet get_documents();
 
     /// Return the current centroid of the cluster
-    Centroid get_centroid() const;
+    Centroid& get_centroid();
 
     /// Set the centroid of the Cluster to centroid_
-    void set_centroid(const Centroid centroid_);
+    void set_centroid(const Centroid &centroid_);
 
     /** Recalculate the centroid of the Cluster after each iteration
      *  of the KMeans algorithm by taking the mean of all document vectors (Points)

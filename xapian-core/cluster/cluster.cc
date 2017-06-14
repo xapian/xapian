@@ -337,15 +337,16 @@ Centroid::recalc_magnitude()
 	magnitude += it->second * it->second;
 }
 
-void
+Cluster&
 Cluster::operator=(const Cluster &other)
 {
     // pointers are reference counted.
     internal = other.internal;
+    return *this;
 }
 
 Cluster::Cluster(const Cluster &other)
-	: internal(other.internal)
+    : internal(other.internal)
 {
 }
 
@@ -354,7 +355,7 @@ Cluster::Cluster() : internal(new Xapian::Cluster::Internal)
     LOGCALL_CTOR(API, "Cluster", NO_ARGS);
 }
 
-Cluster::Cluster(const Centroid centroid)
+Cluster::Cluster(const Centroid &centroid)
     : internal(new Xapian::Cluster::Internal(centroid))
 {
     LOGCALL_CTOR(API, "Cluster", centroid);
@@ -399,15 +400,16 @@ Cluster::Internal::get_index(unsigned int index) const
     return cluster_docs[index];
 }
 
-void
+ClusterSet&
 ClusterSet::operator=(const ClusterSet &other)
 {
     // pointers are reference counted.
     internal = other.internal;
+    return *this;
 }
 
 ClusterSet::ClusterSet(const ClusterSet &other)
-	: internal(other.internal)
+    : internal(other.internal)
 {
 }
 
@@ -494,8 +496,8 @@ ClusterSet::clear_clusters()
 void
 ClusterSet::Internal::clear_clusters()
 {
-    for (vector<Cluster>::iterator it = clusters.begin(); it !=clusters.end(); ++it)
-	(*it).clear();
+    for (auto&& cluster : clusters)
+	cluster.clear();
 }
 
 doccount
@@ -537,28 +539,28 @@ Cluster::Internal::clear()
     cluster_docs.clear();
 }
 
-Centroid
+Centroid&
 Cluster::get_centroid() const
 {
     LOGCALL(API, Centroid, "Cluster::get_centroid", NO_ARGS);
     return internal->get_centroid();
 }
 
-Centroid
-Cluster::Internal::get_centroid() const
+Centroid&
+Cluster::Internal::get_centroid()
 {
     return centroid;
 }
 
 void
-Cluster::set_centroid(const Centroid centroid_)
+Cluster::set_centroid(const Centroid &centroid_)
 {
     LOGCALL_VOID(API, "Cluster::set_centroid", centroid_);
     internal->set_centroid(centroid_);
 }
 
 void
-Cluster::Internal::set_centroid(const Centroid centroid_)
+Cluster::Internal::set_centroid(const Centroid &centroid_)
 {
     centroid = centroid_;
 }

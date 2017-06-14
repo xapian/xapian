@@ -354,14 +354,14 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
      *
      *  @param other	The object to copy.
      */
-    void operator=(const Cluster &other);
+    Cluster& operator=(const Cluster &other);
 
     /** Constructor
      *
      *  @param centroid_	The centroid of the cluster object is
      *				assigned to centroid_
      */
-    Cluster(const Centroid centroid_);
+    Cluster(const Centroid &centroid_);
 
     /// Constructor
     Cluster();
@@ -392,13 +392,13 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
     DocumentSet get_documents();
 
     /// Return the current centroid of the cluster
-    Centroid get_centroid() const;
+    Centroid& get_centroid() const;
 
     /** Set the centroid of the Cluster to centroid_
      *
      *  @param centroid_	Centroid object for the Cluster
      */
-    void set_centroid(const Centroid centroid_);
+    void set_centroid(const Centroid &centroid_);
 
     /** Recalculate the centroid of the Cluster after each iteration
      *  of the KMeans algorithm by taking the mean of all document vectors (Points)
@@ -429,7 +429,7 @@ class XAPIAN_VISIBILITY_DEFAULT ClusterSet {
      *
      *  @param other	The object to copy.
      */
-    void operator=(const ClusterSet &other);
+    ClusterSet& operator=(const ClusterSet &other);
 
     /// Constructor
     ClusterSet();
