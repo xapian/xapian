@@ -62,7 +62,7 @@ DEFINE_TESTCASE(cosine_distance1, backend)
 }
 
 /** Round Robin Test
- *  We should test that none of the returned clusters should be empty
+ *  Test that none of the returned clusters are empty
  */
 DEFINE_TESTCASE(round_robin1, backend)
 {
