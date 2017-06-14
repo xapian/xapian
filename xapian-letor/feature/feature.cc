@@ -26,9 +26,11 @@
 
 namespace Xapian {
 
-Feature::Feature(const Feature & o) : feature_db(o.feature_db), feature_query(o.feature_query),
-    feature_doc(o.feature_doc), termfreq(o.termfreq), inverse_doc_freq(o.inverse_doc_freq),
-    doc_length(o.doc_length), collection_length(o.collection_length), collection_termfreq(o.collection_termfreq)
+Feature::Feature(const Feature & o) : feature_db(o.feature_db),
+    feature_query(o.feature_query), feature_doc(o.feature_doc),
+    termfreq(o.termfreq), inverse_doc_freq(o.inverse_doc_freq),
+    doc_length(o.doc_length), collection_length(o.collection_length),
+    collection_termfreq(o.collection_termfreq)
 {
     LOGCALL_CTOR(API, "Feature", o);
 }

@@ -40,32 +40,29 @@ TfFeature::get_values() const
 {
     LOGCALL(API, std::vector<double>, "TfFeature::get_values", NO_ARGS);
 
-    Query query = Feature::feature_query;
-    map<string, long int> tf = Feature::termfreq;
-
     vector<double> values;
     double value = 0;
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + tf[*qt]);
+	    value += log10(1 + termfreq.find(*qt)->second);
 	else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + tf[*qt]);
+	    value += log10(1 + termfreq.find(*qt)->second);
 	else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = query.get_terms_begin(); qt != query.get_terms_end(); ++qt) {
-	value += log10(1 + tf[*qt]);
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
+	value += log10(1 + termfreq.find(*qt)->second);
     }
     values.push_back(value);
 

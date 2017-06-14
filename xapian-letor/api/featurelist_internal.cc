@@ -37,14 +37,12 @@ using namespace Xapian;
 void
 FeatureList::Internal::set_database(const Xapian::Database & db)
 {
-    LOGCALL_VOID(API, "FeatureList::set_database", db);
     featurelist_db = db;
 }
 
 void
 FeatureList::Internal::set_query(const Xapian::Query & query)
 {
-    LOGCALL_VOID(API, "FeatureList::set_query", query);
     if (query.empty()) {
 	throw Xapian::InvalidArgumentError("Can't initialise with an empty query string");
     }
@@ -54,12 +52,12 @@ FeatureList::Internal::set_query(const Xapian::Query & query)
 void
 FeatureList::Internal::set_doc(const Xapian::Document & doc)
 {
-    LOGCALL_VOID(API, "FeatureList::set_doc", doc);
     featurelist_doc = doc;
 }
 
 void
-FeatureList::Internal::compute_statistics(const Xapian::Query & letor_query, const Xapian::Database & letor_db,
+FeatureList::Internal::compute_statistics(const Xapian::Query & letor_query,
+					  const Xapian::Database & letor_db,
 					  const Xapian::Document & letor_doc)
 {
     set_query(letor_query);
@@ -79,7 +77,7 @@ FeatureList::Internal::compute_termfreq()
     std::map<std::string, long int> tf;
 
     Xapian::TermIterator docterms = featurelist_doc.termlist_begin();
-    for (Xapian::TermIterator qt = featurelist_query.get_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
 	docterms.skip_to(*qt);
 	if (docterms != featurelist_doc.termlist_end() && *qt == *docterms) {
 	    tf[*qt] = docterms.get_wdf();
@@ -87,7 +85,7 @@ FeatureList::Internal::compute_termfreq()
 	    tf[*qt] = 0;
 	}
     }
-    termfreq = tf;
+    std::swap(termfreq, tf);
 }
 
 void
@@ -95,16 +93,12 @@ FeatureList::Internal::compute_inverse_doc_freq()
 {
     std::map<std::string, double> idf;
 
-    for (Xapian::TermIterator qt = featurelist_query.get_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
-	if (featurelist_db.term_exists(*qt)) {
-	    long int totaldocs = featurelist_db.get_doccount();
-	    long int df = featurelist_db.get_termfreq(*qt);
-	    idf[*qt] = log10(totaldocs / (1 + df));
-	} else {
-	    idf[*qt] = 0;
-	}
+    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
+	Xapian::doccount totaldocs = featurelist_db.get_doccount();
+	Xapian::doccount df = featurelist_db.get_termfreq(*qt);
+	idf[*qt] = (df == 0) ? 0 : log10((double)totaldocs / (double)(1 + df));
     }
-    inverse_doc_freq = idf;
+    std::swap(inverse_doc_freq, idf);
 }
 
 void
@@ -126,7 +120,7 @@ FeatureList::Internal::compute_doc_length()
     len["title"] = temp_count;
     len["whole"] = featurelist_db.get_doclength(featurelist_doc.get_docid());
     len["body"] = len["whole"] - len["title"];
-    doc_length = len;
+    std::swap(doc_length, len);
 }
 
 void
@@ -135,8 +129,8 @@ FeatureList::Internal::compute_collection_length()
     std::map<std::string, long int> len;
 
     if (!featurelist_db.get_metadata("collection_len_title").empty() &&
-	!featurelist_db.get_metadata("collection_len_body").empty() &&
-	!featurelist_db.get_metadata("collection_len_whole").empty()) {
+	    !featurelist_db.get_metadata("collection_len_body").empty() &&
+	    !featurelist_db.get_metadata("collection_len_whole").empty()) {
 	len["title"] = atol(featurelist_db.get_metadata("collection_len_title").c_str());
 	len["body"] = atol(featurelist_db.get_metadata("collection_len_body").c_str());
 	len["whole"] = atol(featurelist_db.get_metadata("collection_len_whole").c_str());
@@ -152,7 +146,7 @@ FeatureList::Internal::compute_collection_length()
 	len["whole"] = featurelist_db.get_avlength() * featurelist_db.get_doccount();
 	len["body"] = len["whole"] - len["title"];
     }
-    collection_length = len;
+    std::swap(collection_length, len);
 }
 
 void
@@ -160,13 +154,10 @@ FeatureList::Internal::compute_collection_termfreq()
 {
     std::map<std::string, long int> tf;
 
-    for (Xapian::TermIterator qt = featurelist_query.get_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
-	if (featurelist_db.term_exists(*qt))
-	    tf[*qt] = featurelist_db.get_collection_freq(*qt);
-	else
-	    tf[*qt] = 0;
+    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
+	tf[*qt] = featurelist_db.get_collection_freq(*qt);
     }
-    collection_termfreq = tf;
+    std::swap(collection_termfreq, tf);
 }
 
 void
