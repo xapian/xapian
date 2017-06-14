@@ -47,7 +47,7 @@ using namespace std;
 KMeans::KMeans(unsigned int k_, unsigned int max_iters_)
     : k(k_) {
     LOGCALL_CTOR(API, "KMeans", k_ | max_iters_);
-    (max_iters_ == 0) ? max_iters = MAX_ITERS : max_iters = max_iters_;
+    max_iters = (max_iters_ == 0) ? MAX_ITERS : max_iters_;
     if (k_ == 0)
 	throw InvalidArgumentError("Number of required clusters should be greater than zero");
 }
@@ -91,7 +91,7 @@ KMeans::initialize_points(const MSet &source)
 }
 
 ClusterSet
-KMeans::cluster(MSet &mset)
+KMeans::cluster(const MSet &mset)
 {
     LOGCALL(API, ClusterSet, "KMeans::cluster", mset);
     unsigned int size = mset.size();
@@ -110,7 +110,7 @@ KMeans::cluster(MSet &mset)
 	    double closest_cluster_distance = INT_MAX;
 	    unsigned int closest_cluster = 0;
 	    for (unsigned int c = 0; c < k; ++c) {
-		Centroid centroid = cset[c].get_centroid();
+		Centroid& centroid = cset[c].get_centroid();
 		double dist = distance.similarity(docs[j], centroid);
 		if (closest_cluster_distance > dist) {
 		    closest_cluster_distance = dist;

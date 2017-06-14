@@ -35,7 +35,7 @@ RoundRobin::get_description() const
 }
 
 ClusterSet
-RoundRobin::cluster(MSet &mset)
+RoundRobin::cluster(const MSet &mset)
 {
     LOGCALL(API, ClusterSet, "RoundRobin::cluster", mset);
     TermListGroup tlg(mset);

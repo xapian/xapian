@@ -526,7 +526,7 @@ class XAPIAN_VISIBILITY_DEFAULT Clusterer
      *  @param mset	The MSet object which contains the documents to be
      *			clustered
      */
-    virtual ClusterSet cluster(MSet &mset) = 0;
+    virtual ClusterSet cluster(const MSet &mset) = 0;
 
     /// Returns a description of the clusterer being used
     virtual std::string get_description() const = 0;
@@ -575,7 +575,7 @@ class XAPIAN_VISIBILITY_DEFAULT RoundRobin : public Clusterer {
     RoundRobin(unsigned int num_of_clusters_) : num_of_clusters(num_of_clusters_) {}
 
     /// Implements the RoundRobin clustering
-    ClusterSet cluster(MSet &mset);
+    ClusterSet cluster(const MSet &mset);
 
     /// Returns the description of the clusterer
     std::string get_description() const;
@@ -624,7 +624,7 @@ class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
     explicit KMeans(unsigned int k_, unsigned int max_iters_ = 0);
 
     /// Implements the KMeans clustering algorithm
-    ClusterSet cluster(MSet &mset);
+    ClusterSet cluster(const MSet &mset);
 
     /// Returns the description of the clusterer
     std::string get_description() const;
