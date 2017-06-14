@@ -32,7 +32,7 @@
 /** Test for cosine distance
  *  Cosine distance = 1 - (cosine of the angle between two vectors).
  *  Thus, if two vectors are equal, the distance between them will be zero
- *  and if two vectors are unequal, the distance will be 1<=dist<=0.
+ *  and if two vectors are unequal, the distance will be 1 >= dist >= 0.
  */
 DEFINE_TESTCASE(cosine_distance1, backend)
 {
@@ -52,7 +52,8 @@ DEFINE_TESTCASE(cosine_distance1, backend)
     double distance = d.similarity(x1, x1);
     TEST_EQUAL(distance, 0);
 
-    // Check whether different vector gives non-zero distance
+    // Check whether two different vectors gives a distance such that
+    // 0 <= distance <= 1
     distance = d.similarity(x1, x2);
     TEST_REL(distance, >=, 0);
     TEST_REL(distance, <=, 1);
