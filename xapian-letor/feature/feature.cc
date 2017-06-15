@@ -39,21 +39,13 @@ void
 Feature::operator=(const Feature & o)
 {
     LOGCALL_VOID(API, "Feature::operator=", o);
-
     feature_db = o.feature_db;
-
     feature_query = o.feature_query;
-
     feature_doc = o.feature_doc;
-
     termfreq = o.termfreq;
-
     inverse_doc_freq = o.inverse_doc_freq;
-
     doc_length = o.doc_length;
-
     collection_length = o.collection_length;
-
     collection_termfreq = o.collection_termfreq;
 }
 
@@ -102,7 +94,6 @@ Feature::set_inverse_doc_freq(const std::map<std::string, double> & idf)
 {
     LOGCALL_VOID(API, "Feature::set_inverse_doc_freq", idf);
     inverse_doc_freq = idf;
-
 }
 
 void

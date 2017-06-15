@@ -42,9 +42,7 @@ namespace Xapian {
 
 /// Abstract base class for features in learning to rank
 class XAPIAN_VISIBILITY_DEFAULT Feature {
-
   protected:
-
     /// Xapian::Database using which features will be calculated.
     Database feature_db;
 
@@ -81,7 +79,7 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 	COLLECTION_LENGTH = 8,
 	/// Frequency of the Query Terms in the whole database.
 	COLLECTION_TERM_FREQ = 16,
-    }stat_flags;
+    } stat_flags;
 
     /** Tell Xapian that your subclass will want a particular statistic.
      *
@@ -100,7 +98,6 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
     stat_flags stats_needed;
 
   public:
-
     /// Default constructor
     Feature();
 
@@ -119,7 +116,6 @@ class XAPIAN_VISIBILITY_DEFAULT Feature {
 
     /// Specify the document to use for feature building. This will be used by FeatureList::Internal class.
     void set_doc(const Xapian::Document & doc);
-
 
     /// Sets the termfrequency that is going to be used for Feature building. This is used by FeatureList::Internal while populating Statistics.
     void set_termfreq(const std::map<std::string, long int> & tf);

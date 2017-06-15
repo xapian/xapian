@@ -39,7 +39,6 @@ namespace Xapian {
 
 /// Class defining list of features to be used for constructing FeatureVector
 class XAPIAN_VISIBILITY_DEFAULT FeatureList {
-
   protected:
     /// @internal Class representing the FeatureList internals.
     class Internal;
