@@ -414,6 +414,24 @@ printf '$highlight{$cgi{text},$cgi{list},$cgi{open},$cgi{close}}' > "$TEST_TEMPL
 testcase 'A list of <b>words</b>' list="words" text="A list of words" open="<b>" close="</b>"
 testcase 'A *list* of *words*' list="words${tab}list" text="A list of words" open="*" close="*"
 
+# Test setting seterror and mset size, should not run the query after setting error.
+printf '$if{$cgi{ERR},$seterror{$cgi{ERR}}}$msize$if{$error,!$error!}' > "$TEST_TEMPLATE"
+testcase '1' P=text
+testcase '0!boo!' P=text ERR=boo
+
+# Test arguments inside seterror are evaluated
+printf '$set{error,sample error}$seterror{$opt{error}}$msize$if{$error,!$error!}' > "$TEST_TEMPLATE"
+testcase '0!sample error!' P=text
+
+# Test error message doesn't get sent through HTML entity encoding.
+printf '$seterror{{ "error": true, "error_message": "Parameter cannot be > 9" }}$if{$error,$error}' > "$TEST_TEMPLATE"
+testcase '{ "error": true, "error_message": "Parameter cannot be > 9" }' P=text
+
+# Test msize when error set after running query, should not affect running of query.
+printf '$last$if{$cgi{ERR},$seterror{$cgi{ERR}}}$msize$if{$error,!$error!}' > "$TEST_TEMPLATE"
+testcase '11' P=text
+testcase '11!boo!' P=text ERR=boo
+
 rm "$OMEGA_CONFIG_FILE" "$TEST_INDEXSCRIPT" "$TEST_TEMPLATE"
 rm -rf "$TEST_DB"
 if [ "$failed" = 0 ] ; then
