@@ -45,7 +45,7 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
 	COLLECTION_LENGTH = 8,
 	/// How many documents in the RSet the current term is in.
 	COLLECTION_TERM_FREQ = 16,
-    }stat_flags;
+    } stat_flags;
 
     /// Xapian::Database using which features will be calculated.
     Database featurelist_db;
@@ -65,33 +65,37 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
     /// Length of the document as number of "terms"
     std::map<std::string, long int> doc_length;
 
-    /// Length of the collection in number of terms for different parts like 'title', 'body' and 'whole'
+    /** Length of the collection in number of terms for different parts like
+     * 'title', 'body' and 'whole'.
+     */
     std::map<std::string, long int> collection_length;
 
     /// Frequency of the Query Terms in the whole database
     std::map<std::string, long int> collection_termfreq;
 
-    /** This method finds the frequency of the query terms in the specified documents.
-     *  This method is a helping method and statistics gathered through this method are used in feature value calculation.
-     *  This information is stored in termfreq.
+    /** This method finds the frequency of the query terms in the
+     *  specified documents. This method is a helping method and
+     *  statistics gathered through this method are used in
+     *  feature value calculation. This information is stored in termfreq.
      */
     void compute_termfreq();
 
-    /** This method calculates the inverse document frequency(idf) of query terms in the database.
-     *  This information is stored in inverse_doc_freq.
+    /** This method calculates the inverse document frequency(idf) of query
+     *  terms in the database. This information is stored in inverse_doc_freq.
      *
      *  Note: idf of a term 't' is calculated as below:
      *
      *  idf(t) = log(N/df(t))
-     *                                  Where,
-     *                                  N = Total number of documents in database and
-     *                                  df(t) = number of documents containing term 't'
+     *  Where,
+     *  N = Total number of documents in database and
+     *  df(t) = number of documents containing term 't'
      */
     void compute_inverse_doc_freq();
 
     /** This method calculates the length of the documents as number of 'terms'.
-     *  It calculates the length for three different parts: title, body and whole document.
-     *  This information is stored in doc_length in the following format.
+     *  It calculates the length for three different parts:
+     *  title, body and whole document. This information is stored in
+     *  doc_length in the following format.
      *
      *  @code
      *  map<string, long int> len;
@@ -102,10 +106,12 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      */
     void compute_doc_length();
 
-    /** This method calculates the length of the collection in number of terms for different parts like 'title', 'body' and 'whole'.
-     *  This is calculated as a stored user metadata in omindex otherwise it is calculated out of scratch
+    /** This method calculates the length of the collection in number of terms
+     *  for different parts like 'title', 'body' and 'whole'.
+     *  This is calculated as a stored user metadata in omindex otherwise
+     *  it is calculated out of scratch
      *  (this might take some time depending upon the size of the database).
-     *  Length information is stored in collection_length in the following format.
+     *  This information is stored in collection_length in the following format.
      *
      *  @code
      *  map<string, long int> len;
@@ -117,35 +123,46 @@ class FeatureList::Internal : public Xapian::Internal::intrusive_base {
      */
     void compute_collection_length();
 
-    /** This method calculates the frequency of query terms in the whole database.
-     *  The information is stored in collection_termfreq in and used during the feature calculation methods.s
+    /** This method calculates the frequency of query terms in
+     *  the whole database. The information is stored in collection_termfreq
+     *  in and used during the feature calculation methods.
      */
     void compute_collection_termfreq();
 
-    /// Specify the database to use for feature building. This will be used by the Internal class.
+    /** Specify the database to use for feature building.
+     *  This will be used by the Internal class.
+     */
     void set_database(const Xapian::Database & db);
 
-    /** Specify the query to use for feature building. This will be used by the Internal class.
+    /** Specify the query to use for feature building.
+     *  This will be used by the Internal class.
      * @param query  Xapian::Query which has to be queried
      * @exception Xapian::InvalidArgumentError will be thrown if an empty
      * query is supplied
      */
     void set_query(const Xapian::Query & query);
 
-    /// Specify the document to use for feature building. This will be used by the Internal class.
+    /** Specify the document to use for feature building.
+     *  This will be used by the Internal class.
+     */
     void set_doc(const Xapian::Document & doc);
 
     public:
 
-    /// Vector containing Feature pointer objects. Each will be used to return feature value.
+    /** Vector containing Feature pointer objects.
+     *  Each will be used to return feature value.
+     */
     std::vector<Feature *> feature;
 
-    /// This method computes all the statistics and stores them in their corresponding variables
-    void compute_statistics(const Xapian::Query & query, const Xapian::Database & db, const Xapian::Document & doc);
+    /** This method computes all the statistics and stores them in their
+     *  corresponding variables
+     */
+    void compute_statistics(const Xapian::Query & query,
+			    const Xapian::Database & db,
+			    const Xapian::Document & doc);
 
     /// Populates the statistics needed by a Feature
     void populate_feature(Feature *feature_);
-
 };
 
 }

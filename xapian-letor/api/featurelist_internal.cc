@@ -43,9 +43,6 @@ FeatureList::Internal::set_database(const Xapian::Database & db)
 void
 FeatureList::Internal::set_query(const Xapian::Query & query)
 {
-    if (query.empty()) {
-	throw Xapian::InvalidArgumentError("Can't initialise with an empty query string");
-    }
     featurelist_query = query;
 }
 
@@ -77,7 +74,8 @@ FeatureList::Internal::compute_termfreq()
     std::map<std::string, long int> tf;
 
     Xapian::TermIterator docterms = featurelist_doc.termlist_begin();
-    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin();
+	 qt != featurelist_query.get_terms_end(); ++qt) {
 	docterms.skip_to(*qt);
 	if (docterms != featurelist_doc.termlist_end() && *qt == *docterms) {
 	    tf[*qt] = docterms.get_wdf();
@@ -93,7 +91,8 @@ FeatureList::Internal::compute_inverse_doc_freq()
 {
     std::map<std::string, double> idf;
 
-    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin();
+	 qt != featurelist_query.get_terms_end(); ++qt) {
 	Xapian::doccount totaldocs = featurelist_db.get_doccount();
 	Xapian::doccount df = featurelist_db.get_termfreq(*qt);
 	idf[*qt] = (df == 0) ? 0 : log10((double)totaldocs / (double)(1 + df));
@@ -154,7 +153,8 @@ FeatureList::Internal::compute_collection_termfreq()
 {
     std::map<std::string, long int> tf;
 
-    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin(); qt != featurelist_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = featurelist_query.get_unique_terms_begin();
+	 qt != featurelist_query.get_terms_end(); ++qt) {
 	tf[*qt] = featurelist_db.get_collection_freq(*qt);
     }
     std::swap(collection_termfreq, tf);

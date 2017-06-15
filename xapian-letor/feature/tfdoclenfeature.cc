@@ -43,26 +43,32 @@ TfDoclenFeature::get_values() const
     vector<double> values;
     double value = 0;
 
-    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
-	    value += log10(1 + ((double)termfreq.find(*qt)->second / (1 + (double)doc_length.find("title")->second)));
+	    value += log10(1 + ((double)termfreq.find(*qt)->second
+			/ (1 + (double)doc_length.find("title")->second)));
 	else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
-	    value += log10(1 + ((double)termfreq.find(*qt)->second / (1 + (double)doc_length.find("body")->second)));
+	    value += log10(1 + ((double)termfreq.find(*qt)->second
+			/ (1 + (double)doc_length.find("body")->second)));
 	else
 	    value += 0;
     }
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
-	value += log10(1 + ((double)termfreq.find(*qt)->second / (1 + (double)doc_length.find("whole")->second)));
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
+	value += log10(1 + ((double)termfreq.find(*qt)->second
+			/ (1 + (double)doc_length.find("whole")->second)));
     }
     values.push_back(value);
 

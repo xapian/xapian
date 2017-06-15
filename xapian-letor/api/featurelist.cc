@@ -43,7 +43,8 @@ FeatureList::FeatureList() : internal(new FeatureList::Internal())
     internal->feature.push_back(new TfDoclenCollTfCollLenFeature());
 }
 
-FeatureList::FeatureList(const std::vector<Feature*> & f) : internal(new FeatureList::Internal())
+FeatureList::FeatureList(const std::vector<Feature*> & f)
+    : internal(new FeatureList::Internal())
 {
     LOGCALL_CTOR(API, "FeatureList", f);
     internal->feature = f;
@@ -52,8 +53,8 @@ FeatureList::FeatureList(const std::vector<Feature*> & f) : internal(new Feature
 FeatureList::~FeatureList()
 {
     LOGCALL_DTOR(API, "FeatureList");
-    for (std::vector<Feature*>::iterator it = internal->feature.begin(); it != internal->feature.end(); ++it)
-	delete (*it);
+    for (Feature* it : internal->feature)
+	delete (it);
     internal->feature.clear();
 }
 
@@ -92,10 +93,13 @@ FeatureList::normalise(std::vector<FeatureVector> & fvec) const
 }
 
 std::vector<FeatureVector>
-FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Query & letor_query,
+FeatureList::create_feature_vectors(const Xapian::MSet & mset,
+				    const Xapian::Query & letor_query,
 				    const Xapian::Database & letor_db) const
 {
     LOGCALL(API, std::vector<FeatureVector>, "FeatureList::create_feature_vectors", mset | letor_query | letor_db);
+    if (mset.empty())
+	throw Xapian::InvalidArgumentError("Cannot Create Feature Vectors for an empty MSet.");
     std::vector<FeatureVector> fvec;
 
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
@@ -103,13 +107,13 @@ FeatureList::create_feature_vectors(const Xapian::MSet & mset, const Xapian::Que
 	std::vector<double> fvals;
 	// All stats are computed and stored in the corresponding variables.
 	internal->compute_statistics(letor_query, letor_db, doc);
-	for (std::vector<Feature*>::const_iterator it = internal->feature.begin(); it != internal->feature.end(); ++it) {
-	    (*it)->set_database(letor_db);
-	    (*it)->set_query(letor_query);
-	    (*it)->set_doc(doc);
+	for (Feature* it : internal->feature) {
+	    (it)->set_database(letor_db);
+	    (it)->set_query(letor_query);
+	    (it)->set_doc(doc);
 	    // Populates the Feature with required stats
-	    internal->populate_feature(*it);
-	    const vector<double>& values = (*it)->get_values();
+	    internal->populate_feature(it);
+	    const vector<double>& values = (it)->get_values();
 	    // Append feature values
 	    fvals.insert(fvals.end(), values.begin(), values.end());
 	}

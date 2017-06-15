@@ -43,7 +43,8 @@ IdfFeature::get_values() const
     vector<double> values;
     double value = 0;
 
-    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) == "S" || (*qt).substr(1, 1) == "S")
 	    value += log10(1 + inverse_doc_freq.find(*qt)->second);
 	else
@@ -52,7 +53,8 @@ IdfFeature::get_values() const
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
 	if ((*qt).substr(0, 1) != "S" && (*qt).substr(1, 1) != "S")
 	    value += log10(1 + inverse_doc_freq.find(*qt)->second);
 	else
@@ -61,7 +63,8 @@ IdfFeature::get_values() const
     values.push_back(value);
     value = 0;
 
-    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin(); qt != feature_query.get_terms_end(); ++qt) {
+    for (Xapian::TermIterator qt = feature_query.get_unique_terms_begin();
+	 qt != feature_query.get_terms_end(); ++qt) {
 	value += log10(1 + inverse_doc_freq.find(*qt)->second);
     }
     values.push_back(value);
