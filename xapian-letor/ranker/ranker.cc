@@ -354,6 +354,10 @@ Ranker::labelcomparer(const FeatureVector & firstfv, const FeatureVector& second
 std::vector<Xapian::docid>
 Ranker::rank(const Xapian::MSet & mset, const string & model_key, const Xapian::FeatureList & flist)
 {
+    if (mset.empty()) {
+	cout << "Empty MSet. No documents could be retrieved with the given Query." << endl;
+	exit(1);
+    }
     LOGCALL(API, std::vector<Xapian::docid>, "Ranker::rank", mset | model_key | flist);
     std::vector<FeatureVector> fvv = flist.create_feature_vectors(mset, letor_query, Xapian::Database(db_path));
     load_model_from_metadata(model_key);
