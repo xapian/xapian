@@ -985,6 +985,7 @@ CMD_relevant,
 CMD_relevants,
 CMD_score,
 CMD_set,
+CMD_seterror,
 CMD_setmap,
 CMD_setrelevant,
 CMD_slice,
@@ -1116,6 +1117,7 @@ T(relevant,	   0, 1, N, Q), // is document relevant?
 T(relevants,	   0, 0, N, Q), // return list of relevant documents
 T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
+T(seterror,	   1, 1, 1, 0), // set error_msg, setting it early stops query execution
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,	   0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
@@ -2007,6 +2009,9 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_set:
 		option[args[0]] = args[1];
+		break;
+	    case CMD_seterror:
+		error_msg = args[0];
 		break;
 	    case CMD_setmap: {
 		string base = args[0] + ',';
