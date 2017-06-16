@@ -345,7 +345,7 @@ $map{LIST,STUFF)
 	to get rid of them.
 
 $match{REGEX,STRING[,OPTIONS]}
-	peform a regex match using Perl-compatible regular expressions. Returns
+	perform a regex match using Perl-compatible regular expressions. Returns
 	true if a match is found, else it returns an empty string.
 
 	The optional OPTIONS argument can contain zero or more of the letters
