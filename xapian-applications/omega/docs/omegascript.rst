@@ -542,14 +542,14 @@ $set{OPT,VALUE}
 	Similarly, ``XFOO:stemmer`` specifies the stemmer to use for field
 	``XFOO``, with ``stemmer`` providing a default.
 
-$seterror{error_msg}
+$seterror{ERROR_MESSAGE}
 	set error message for the current execution, which can also be looked
 	up using ``$error``.
 
-	Using ``$seterror`` error early in template prevent running query.
-	Saves us from executing query unnecessarily.
+	Using ``$seterror`` error early in template prevents running the query.
 
-	You can use ``$seterror`` when the user enters a wrong parameter in the search.
+	For example, ``$seterror`` can be used when the user enters a wrong
+	parameter in the search.
 
 $setrelevant{docids}
 	add documents into the RSet
