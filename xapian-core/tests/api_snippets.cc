@@ -178,7 +178,7 @@ DEFINE_TESTCASE(snippetmisc1, generated) {
     Xapian::MSet mset = enquire.get_mset(0, 6);
     TEST_EQUAL(mset.size(), 3);
     TEST_STRINGS_EQUAL(mset.snippet(mset[0].get_document().get_data(), 40, stem),
-		       "...<b>do we have</b>?  Miles O'Brien, that's how...");
+		       "How much o'brien <b>do we have</b>?  Miles...");
     TEST_STRINGS_EQUAL(mset.snippet(mset[1].get_document().get_data(), 40, stem),
 		       "...Unicode: How much o’brien <b>do we have</b>?");
     TEST_STRINGS_EQUAL(mset.snippet(mset[2].get_document().get_data(), 32, stem),
