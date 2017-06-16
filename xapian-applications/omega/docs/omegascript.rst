@@ -173,7 +173,8 @@ $env{VAR}
 $error
 	error message (e.g. if a database wouldn't open, or the query couldn't
         be parsed, or a Xapian exception has been thrown) or empty if there
-	wasn't an error.
+	wasn't an error.  You can set the error message yourself by using
+       ``$seterror``.
 
 $field{NAME[,DOCID]}
 	lookup field ``NAME`` in document ``DOCID``.  If ``DOCID`` is omitted
