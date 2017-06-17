@@ -189,7 +189,9 @@ class PointTermIterator : public TermIterator::Internal {
     PositionIterator positionlist_begin() const {
 	throw UnimplementedError("PointTermIterator doesn't support positionlist_begin()");
     }
-    Internal * skip_to(const string &term);
+    Internal * skip_to(const string &) {
+	throw UnimplementedError("PointTermIterator doesn't support skip_to()");
+    }
 };
 
 TermIterator::Internal *
@@ -211,36 +213,26 @@ PointTermIterator::at_end() const
     return i == end;
 }
 
-TermIterator::Internal *
-PointTermIterator::skip_to(const string &term)
-{
-    if (i->first == term)
-	return NULL;
-    while (i->first != term)
-	i++;
-    return NULL;
-}
-
 TermIterator
 PointType::termlist_begin() const
 {
     LOGCALL(API, TermIterator, "PointType::termlist_begin", NO_ARGS);
-    return TermIterator(new PointTermIterator(values));
+    return TermIterator(new PointTermIterator(weights));
 }
 
 bool
 PointType::contains(const string &term) const
 {
     LOGCALL(API, bool, "PointType::contains", term);
-    return values.find(term) != values.end();
+    return weights.find(term) != weights.end();
 }
 
 double
-PointType::get_value(const string &term) const
+PointType::get_weight(const string &term) const
 {
-    LOGCALL(API, double, "Point::get_value", term);
-    unordered_map<string, double>::const_iterator it = values.find(term);
-    return (it == values.end()) ? 0.0 : it->second;
+    LOGCALL(API, double, "PointType::get_weight", term);
+    unordered_map<string, double>::const_iterator it = weights.find(term);
+    return (it == weights.end()) ? 0.0 : it->second;
 }
 
 double
@@ -250,92 +242,87 @@ PointType::get_magnitude() const {
 }
 
 void
-PointType::add_value(const string &term, double value)
+PointType::add_weight(const string &term, double weight)
 {
-    LOGCALL_VOID(API, "PointType::add_value", term | value);
+    LOGCALL_VOID(API, "PointType::add_weight", term | weight);
     unordered_map<string, double>::iterator it;
-    it = values.find(term);
-    if (it != values.end())
-	it->second += value;
+    it = weights.find(term);
+    if (it != weights.end())
+	it->second += weight;
     else
-	values[term] = value;
+	weights[term] = weight;
 }
 
 void
-PointType::set_value(const string &term, double value)
+PointType::set_weight(const string &term, double weight)
 {
-    LOGCALL_VOID(API, "PointType::set_value", term | value);
-    values[term] = value;
+    LOGCALL_VOID(API, "PointType::set_weight", term | weight);
+    weights[term] = weight;
 }
 
-int
+termcount
 PointType::termlist_size() const
 {
     LOGCALL(API, int, "PointType::termlist_size", NO_ARGS);
-    return values.size();
+    return weights.size();
 }
 
 Document
 Point::get_document() const
 {
     LOGCALL(API, Document, "Point::get_document", NO_ARGS);
-    return doc;
+    return document;
 }
 
-void
-Point::initialize(const TermListGroup &tlg, const Document &doc_)
+Point::Point(const TermListGroup &tlg, const Document &document_)
 {
-    LOGCALL_VOID(API, "Point::initialize", tlg | doc_);
+    LOGCALL_CTOR(API, "Point::initialize", tlg | document_);
     doccount size = tlg.get_doccount();
-    doc = doc_;
-    for (TermIterator it = doc.termlist_begin(); it != doc.termlist_end(); ++it) {
+    document = document_;
+    for (TermIterator it = document.termlist_begin(); it != document.termlist_end(); ++it) {
 	doccount wdf = it.get_wdf();
 	string term = *it;
 	double termfreq = tlg.get_termfreq(term);
+
 	/** If term is not a stemmed term or the term indexes only one
 	 *  one document, do not compute TF-IDF scores for them
 	 */
 	if (wdf < 1 || term[0] != 'Z' || termfreq <= 1)
 	    continue;
+
 	double tf = 1 + log((double)wdf);
 	double idf = log(size / termfreq);
 	double wt = tf * idf;
-	values[term] = wt;
+	weights[term] = wt;
 	magnitude += wt * wt;
     }
 }
 
-Centroid::Centroid(Point &p) {
-    LOGCALL_CTOR(API, "Centroid", p);
-    for (TermIterator it = p.termlist_begin(); it != p.termlist_end(); ++it)
-	values[*it] = p.get_value(*it);
-    magnitude = p.get_magnitude();
+Centroid::Centroid(const Point &point) {
+    LOGCALL_CTOR(API, "Centroid", point);
+    for (TermIterator it = point.termlist_begin(); it != point.termlist_end(); ++it)
+	weights[*it] = point.get_weight(*it);
+    magnitude = point.get_magnitude();
 }
 
 void
-Centroid::divide(double num)
+Centroid::divide(double cluster_size)
 {
-    LOGCALL_VOID(API, "Centroid::divide", num);
+    LOGCALL_VOID(API, "Centroid::divide", cluster_size);
+    magnitude = 0;
     unordered_map<string, double>::iterator it;
-    for (it = values.begin(); it != values.end(); ++it)
-	it->second /= num;
+    for (it = weights.begin(); it != weights.end(); ++it) {
+	double new_weight = it->second / cluster_size;
+	it->second = new_weight;
+	magnitude += it->second * it->second;
+    }
 }
 
 void
 Centroid::clear()
 {
     LOGCALL_VOID(API, "Centroid::clear", NO_ARGS);
-    values.clear();
-}
-
-void
-Centroid::recalc_magnitude()
-{
-    LOGCALL_VOID(API, "Centroid::recalc_magnitude", NO_ARGS);
-    magnitude = 0;
-    unordered_map<string, double>::iterator it;
-    for (it = values.begin(); it != values.end(); ++it)
-	magnitude += it->second * it->second;
+    weights.clear();
 }
 
 Cluster&

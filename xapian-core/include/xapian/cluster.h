@@ -182,25 +182,23 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
  */
 class XAPIAN_VISIBILITY_DEFAULT PointType
     : public Xapian::Internal::opt_intrusive_base {
-
   protected:
-
     /** Implement a map to store the terms within a document
-     *  and their pre-computed TF-IDF values
+     *  and their pre-computed TF-IDF weights
      */
-    std::unordered_map<std::string, double> values;
+    std::unordered_map<std::string, double> weights;
 
     /// Store the squared magnitude of the PointType
     double magnitude;
 
-    /** Set the value 'value' to the mapping of a term
+    /** Set the weight 'weight' to the mapping of a term
      *
-     *  @param term	Term for which the value is supposed
+     *  @param term	Term for which the weight is supposed
      *			to be changed
-     *  @param value	The value to which the mapping of the
+     *  @param weight	The weight to which the mapping of the
      *			term is to be set
      */
-    void set_value(const std::string &term, double value);
+    void set_weight(const std::string &term, double weight);
 
   public:
     /// Constructor
@@ -225,21 +223,21 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
      *
      *  @param term	Term for which TF-IDF weight is returned
      */
-    double get_value(const std::string &term) const;
+    double get_weight(const std::string &term) const;
 
-    /** Add the value 'value' to the mapping of a term
+    /** Add the weight 'weight' to the mapping of a term
      *
-     *  @param term	Term to which the value is to be added
-     *  @param value	Value which has to be added to the existing
+     *  @param term	Term to which the weight is to be added
+     *  @param value	Weight which has to be added to the existing
      *			mapping of the term
      */
-    void add_value(const std::string &term, double value);
+    void add_weight(const std::string &term, double weight);
 
     /// Return the pre-computed squared magnitude
     double get_magnitude() const;
 
     /// Return the size of the termlist
-    int termlist_size() const;
+    Xapian::termcount termlist_size() const;
 
     /** Start reference counting this object.
      *
@@ -270,22 +268,19 @@ class XAPIAN_VISIBILITY_DEFAULT PointType
  *  Model
  */
 class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
-
-  private:
-
     /// The document which is being represented by the Point
-    Document doc;
+    Document document;
 
   public:
-
-    /** Initialize the point with terms and corresponding term weights
+    /** Constructor
+     *  Initialize the point with terms and corresponding TF-IDF weights
      *
-     *  @param tlg	TermListGroup object which provides the term
-     *			frequencies which is used for TF-IDF weight calulations
-     *  @param doc	The Document object over which the Point object
-     *			will be initialized
+     *  @param tlg		TermListGroup object which provides the term
+     *				frequencies which is used for TF-IDF weight calulations
+     *  @param document		The Document object over which the Point object
+     *				will be initialized
      */
-    void initialize(const TermListGroup &tlg, const Document &doc);
+    Point(const TermListGroup &tlg, const Document &document);
 
     /// Returns the document corresponding to this Point
     Document get_document() const;
@@ -294,26 +289,25 @@ class XAPIAN_VISIBILITY_DEFAULT Point : public PointType {
 /** Class to represent cluster centroids in the vector space
 */
 class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
-
   public:
-
     // Constructor
     Centroid();
 
     /** Constructor with Point argument
      *
-     *  @param x	Point object to which Centroid object is
+     *  @param point	Point object to which Centroid object is
      *			initialized. The document vector and the
      *			magnitude are made equal
      */
-    explicit Centroid(Point &x);
+    explicit Centroid(const Point &point);
 
-    /** Divide the weight of terms in the centroid by 'size'
+    /** Divide the weight of terms in the centroid by 'size' and
+     *  recalculate the magnitude
      *
-     *  @param size	Value by which Centroid document vector is
-     *			divided
+     *  @param cluster_size	Value by which Centroid document vector is
+     *				divided
      */
-    void divide(double size);
+    void divide(double cluster_size);
 
     /// Clear the terms and corresponding values of the centroid
     void clear();
