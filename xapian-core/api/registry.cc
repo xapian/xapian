@@ -127,7 +127,6 @@ register_object(map<string, T*> & registry1, map<string, T*> & registry2,
     string short_name = obj.short_name();
     if (!short_name.empty()) {
 	r2 = registry2.insert(make_pair(short_name, static_cast<T*>(NULL)));
-
 	if (r1.second != r2.second || (!r1.second && r2.first->second != r1.first->second)) {
 	    throw Xapian::InvalidOperationError("Unable to register object - weighting scheme with the same name but a different short name already registered");
 	}
