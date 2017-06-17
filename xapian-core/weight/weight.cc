@@ -156,8 +156,7 @@ Weight::create(const string & s, const Registry & reg)
 	p++;
     }
 
-    if (*p == ' ')
-	return reg.get_weighting_scheme(scheme)->create_from_parameters(p++);
+    if (*p == ' ') p++;
     return reg.get_weighting_scheme(scheme)->create_from_parameters(p);
 }
 
