@@ -360,14 +360,14 @@ Centroid::Centroid()
 }
 
 DocumentSet
-Cluster::get_documents()
+Cluster::get_documents() const
 {
     LOGCALL(API, DocumentSet, "Cluster::get_documents", NO_ARGS);
     return internal->get_documents();
 }
 
 DocumentSet
-Cluster::Internal::get_documents()
+Cluster::Internal::get_documents() const
 {
     DocumentSet docs;
     for (auto&& point : cluster_docs)
@@ -375,17 +375,28 @@ Cluster::Internal::get_documents()
     return docs;
 }
 
-Point
-Cluster::get_index(unsigned int index) const
+Point&
+Cluster::operator[](Xapian::doccount i)
 {
-    LOGCALL(API, Point, "Cluster::get_index", index);
-    return internal->get_index(index);
+    return internal->get_index(i);
 }
 
-Point
-Cluster::Internal::get_index(unsigned int index) const
+Point&
+Cluster::Internal::get_index(Xapian::doccount i)
 {
-    return cluster_docs[index];
+    return cluster_docs[i];
+}
+
+const Point&
+Cluster::operator[](Xapian::doccount i) const
+{
+    return internal->get_index(i);
+}
+
+const Point&
+Cluster::Internal::get_index(Xapian::doccount i) const
+{
+    return cluster_docs[i];
 }
 
 ClusterSet&
@@ -502,16 +513,16 @@ Cluster::Internal::size() const
 }
 
 void
-Cluster::add_point(const Point &doc)
+Cluster::add_point(const Point &point)
 {
-    LOGCALL_VOID(API, "Cluster::add_point", doc);
-    internal->add_point(doc);
+    LOGCALL_VOID(API, "Cluster::add_point", point);
+    internal->add_point(point);
 }
 
 void
-Cluster::Internal::add_point(const Point &doc)
+Cluster::Internal::add_point(const Point &point)
 {
-    cluster_docs.push_back(doc);
+    cluster_docs.push_back(point);
 }
 
 void
@@ -527,15 +538,15 @@ Cluster::Internal::clear()
     cluster_docs.clear();
 }
 
-Centroid&
+const Centroid&
 Cluster::get_centroid() const
 {
     LOGCALL(API, Centroid, "Cluster::get_centroid", NO_ARGS);
     return internal->get_centroid();
 }
 
-Centroid&
-Cluster::Internal::get_centroid()
+const Centroid&
+Cluster::Internal::get_centroid() const
 {
     return centroid;
 }
@@ -564,11 +575,9 @@ void
 Cluster::Internal::recalculate()
 {
     centroid.clear();
-    for (vector<Point>::iterator it = cluster_docs.begin(); it != cluster_docs.end(); ++it) {
-	Point &temp = *it;
+    for (const Point& temp : cluster_docs) {
 	for (TermIterator titer = temp.termlist_begin(); titer != temp.termlist_end(); ++titer)
-	    centroid.add_value(*titer, temp.get_value(*titer));
+	    centroid.add_weight(*titer, temp.get_weight(*titer));
     }
     centroid.divide(size());
-    centroid.recalc_magnitude();
 }

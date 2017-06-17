@@ -93,22 +93,25 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
     Xapian::doccount size() const;
 
     /// Add a document to the Cluster
-    void add_point(const Point &doc);
+    void add_point(const Point &point);
 
     /// Clear the cluster values
     void clear();
 
     /// Return the point at the given index in the cluster
-    Point get_index(unsigned int index) const;
+    Point& operator[](Xapian::doccount i);
+
+    /// Return the point at the given index in the cluster
+    const Point& operator[](Xapian::doccount i) const;
 
     /// Return the documents that are contained within the cluster
-    DocumentSet get_documents();
+    DocumentSet get_documents() const;
 
     /// Return the current centroid of the cluster
-    Centroid& get_centroid();
+    const Centroid& get_centroid() const;
 
-    /// Set the centroid of the Cluster to centroid_
-    void set_centroid(const Centroid &centroid_);
+    /// Set the centroid of the Cluster to 'centroid'
+    void set_centroid(const Centroid &centroid);
 
     /** Recalculate the centroid of the Cluster after each iteration
      *  of the KMeans algorithm by taking the mean of all document vectors (Points)

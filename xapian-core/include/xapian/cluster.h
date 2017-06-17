@@ -320,7 +320,6 @@ class XAPIAN_VISIBILITY_DEFAULT Centroid : public PointType {
  *  of the Cluster
  */
 class XAPIAN_VISIBILITY_DEFAULT Cluster {
-
   public:
     class Internal;
     /// @private @internal Reference counted internals.
@@ -342,10 +341,10 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Constructor
      *
-     *  @param centroid_	The centroid of the cluster object is
-     *				assigned to centroid_
+     *  @param centroid		The centroid of the cluster object is
+     *				assigned to 'centroid'
      */
-    Cluster(const Centroid &centroid_);
+    Cluster(const Centroid &centroid);
 
     /// Constructor
     Cluster();
@@ -358,31 +357,31 @@ class XAPIAN_VISIBILITY_DEFAULT Cluster {
 
     /** Add a document to the Cluster
      *
-     *  @param doc	The Point object representing the document which
-     *			needs to be added to the cluster
+     *  @param document		The Point object representing the document which
+     *				needs to be added to the cluster
      */
-    void add_point(const Point &doc);
+    void add_point(const Point &point);
 
     /// Clear the cluster values
     void clear();
 
-    /** Return the point at the given index in the cluster
-     *
-     *  @param index	Index of the Point within the cluster
-     */
-    Point get_index(unsigned int index) const;
+    /// Return the point at the given index in the cluster
+    Point& operator[](Xapian::doccount i);
+
+    /// Return the point at the given index in the cluster
+    const Point& operator[](Xapian::doccount i) const;
 
     /// Return the documents that are contained within the cluster
-    DocumentSet get_documents();
+    DocumentSet get_documents() const;
 
     /// Return the current centroid of the cluster
-    Centroid& get_centroid() const;
+    const Centroid& get_centroid() const;
 
-    /** Set the centroid of the Cluster to centroid_
+    /** Set the centroid of the Cluster to 'centroid'
      *
-     *  @param centroid_	Centroid object for the Cluster
+     *  @param centroid		Centroid object for the Cluster
      */
-    void set_centroid(const Centroid &centroid_);
+    void set_centroid(const Centroid &centroid);
 
     /** Recalculate the centroid of the Cluster after each iteration
      *  of the KMeans algorithm by taking the mean of all document vectors (Points)
